@@ -8,6 +8,7 @@ This document provides instructions for AI agents (like GitHub Copilot, Claude, 
 
 - **[README.md](README.md)** - Project overview, installation, and basic usage
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** - Complete technical architecture and system design
+- **[DESIGN-SYSTEM.md](DESIGN-SYSTEM.md)** - Cyber Arcade design system guide (colors, typography, components)
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** - Code standards, conventions, and contribution guidelines
 - **[TESTING.md](TESTING.md)** - Testing setup, running tests, and writing new tests
 - **[DOCKER-GUIDE.md](DOCKER-GUIDE.md)** - Docker commands and container management
@@ -130,12 +131,42 @@ Without these, CSS output will be ~60 bytes instead of ~18KB.
 
 ### When Styling Components
 
-Use existing Tailwind CSS utility patterns from feature components:
-- Colors: `bg-purple-600`, `bg-pink-500`, `bg-blue-500`
-- Spacing: `p-4`, `mt-8`, `mb-4`, `gap-4`
-- Layout: `flex`, `grid`, `justify-center`, `items-center`
-- Responsive: `sm:text-lg`, `md:grid-cols-2`, `lg:grid-cols-3`
-- See [CONTRIBUTING.md](CONTRIBUTING.md) for complete style guide
+**⚠️ IMPORTANT**: Follow the Cyber Arcade design system!
+
+1. **Always reference** [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md) for:
+   - Color palette (Purple, Pink, Cyan neon colors)
+   - Typography (Press Start 2P, VT323, Orbitron fonts)
+   - Component patterns (buttons with retro-shadow, CRT effects)
+   - Visual effects (neon glow, pixel shadows, scanlines)
+
+2. **Use Cyber Arcade Tailwind patterns**:
+   - Colors: `primary-500` (purple), `secondary-500` (pink), `accent-500` (cyan)
+   - Effects: `retro-shadow`, `neon-border`, `text-neon`, `crt-screen`
+   - Fonts: `font-display` (arcade), `font-mono` (terminal), `font-body` (sci-fi)
+   - Backgrounds: `bg-game-gradient` (grid), `bg-dark-500` (deep space)
+
+3. **Component Examples**:
+   ```tsx
+   // Arcade button with pixel shadow
+   <Button variant="primary" className="retro-shadow">
+     ► LOGIN
+   </Button>
+   
+   // Terminal-style input
+   <Input label="Email" className="font-mono" />
+   
+   // Neon heading
+   <h1 className="font-display text-5xl uppercase text-neon">
+     QUIZMASTER
+   </h1>
+   
+   // CRT screen container
+   <div className="crt-screen bg-game-gradient">
+     {content}
+   </div>
+   ```
+
+4. See [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md) for complete patterns and agent reference section
 
 ## 🧪 Testing Guidelines for Agents
 
@@ -261,7 +292,11 @@ When passing work to another agent:
 - ❌ Do NOT ignore existing patterns and conventions
 - ❌ Do NOT duplicate content from existing documentation files
 - ❌ Do NOT skip testing after making changes
+- ❌ Do NOT use old color schemes (cyan/orange/lime from Electric Dreams)
+- ❌ Do NOT apply rounded corners >12px on arcade-style elements
+- ❌ Do NOT use gradients on primary buttons (solid colors only)
 - ✅ Frontend IS NOW modular following Clean Architecture + DDD (not monolithic anymore)
+- ✅ Design system IS NOW Cyber Arcade (retro synthwave theme)
 
 ## ✅ Agent "ALWAYS" List
 
@@ -273,6 +308,10 @@ When passing work to another agent:
 - ✅ ALWAYS handle errors explicitly
 - ✅ ALWAYS make minimal, focused changes
 - ✅ ALWAYS link to existing docs rather than duplicating content
+- ✅ ALWAYS check [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md) when styling components
+- ✅ ALWAYS use Cyber Arcade colors (purple/pink/cyan)
+- ✅ ALWAYS apply retro-shadow to primary buttons
+- ✅ ALWAYS use uppercase text with Press Start 2P font
 
 ## 🎯 Decision-Making Framework for Agents
 
@@ -305,6 +344,68 @@ When you discover new insights while working with the codebase:
 - **Do reference** existing documentation and link to relevant sections
 - **Do add** agent-specific interpretations or critical reminders
 - **Do note** common pitfalls or gotchas specific to AI assistance
+
+## 🎨 Design System Quick Reference for Agents
+
+**Critical**: All UI changes must follow the Cyber Arcade design system documented in [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md).
+
+### Color Tokens (Tailwind)
+```typescript
+primary-500    // #6b48ff - Electric Purple (main actions)
+secondary-500  // #ff33c6 - Hot Pink (highlights)
+accent-500     // #00ffcc - Cyber Cyan (terminal text)
+success-500    // #00ff41 - Matrix Green (success)
+danger-500     // #ff0000 - Pure Red (errors)
+dark-500       // #0a0a1f - Deep Space (backgrounds)
+```
+
+### Font Classes
+```typescript
+font-display   // Press Start 2P - Arcade/headings (uppercase)
+font-mono      // VT323 - Terminal/technical text
+font-body      // Orbitron - Body/UI text
+```
+
+### Essential Effects
+```typescript
+retro-shadow     // 8px pixel shadow on buttons
+neon-border      // Triple-layer glow border
+text-neon        // Glowing text effect
+crt-screen       // CRT scanlines + flicker
+bg-game-gradient // Grid background (Tron-style)
+glass-effect     // Frosted glass overlay
+```
+
+### Component Patterns
+```tsx
+// Primary button with arcade style
+<Button variant="primary" className="retro-shadow font-display">
+  ► LOGIN
+</Button>
+
+// Terminal input
+<Input className="font-mono" placeholder="> enter_text" />
+
+// Neon heading (always uppercase)
+<h1 className="font-display text-5xl uppercase text-neon">
+  QUIZMASTER
+</h1>
+
+// Full-page CRT container
+<div className="crt-screen bg-game-gradient min-h-screen">
+  {content}
+</div>
+```
+
+### Critical Design Rules
+1. **Colors**: Only purple/pink/cyan neon on dark backgrounds
+2. **Buttons**: Must have retro-shadow (8px pixel shadow)
+3. **Typography**: Press Start 2P always uppercase
+4. **Corners**: Max 12px radius for arcade elements
+5. **Fills**: Solid colors on buttons, no gradients
+6. **Effects**: Apply CRT screen to full-page views
+
+See [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md) "Agent Reference" section for complete technical details.
 
 ---
 
