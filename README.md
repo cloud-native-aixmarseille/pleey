@@ -15,11 +15,13 @@ Application complète de quiz interactif type Kahoot avec temps réel, système 
 ## 🛠️ Technologies
 
 **Backend:**
-- Node.js + Express (LTS, framework minimaliste)
-- Socket.io (WebSockets, temps réel)
-- SQLite (base de données embarquée)
+- NestJS (framework Node.js moderne et modulaire)
+- Prisma ORM (accès base de données type-safe)
+- PostgreSQL (base de données relationnelle)
 - JWT pour l'authentification (stateless)
 - bcrypt pour les mots de passe (sécurité)
+- Socket.io (WebSockets, temps réel)
+- TypeScript (typage fort)
 
 **Frontend:**
 - React 18 (UI moderne avec hooks)
@@ -30,6 +32,7 @@ Application complète de quiz interactif type Kahoot avec temps réel, système 
 **DevOps & Cloud Native:**
 - Docker & Docker Compose (containerisation)
 - Nginx (reverse proxy, serving statique)
+- PostgreSQL (database conteneurisée)
 - Prometheus & Grafana (monitoring, optionnel)
 - Compatible CNCF (Kubernetes-ready)
 
@@ -125,20 +128,28 @@ L'application démarre sur `http://localhost:5173`
 
 ```
 quiz-app/
-├── backend/
-│   ├── server.js          # Serveur principal
+├── backend/                 # Backend NestJS
+│   ├── src/
+│   │   ├── domain/         # Logique métier (DDD)
+│   │   ├── application/    # Cas d'usage
+│   │   ├── infrastructure/ # Implémentations (Prisma)
+│   │   └── presentation/   # API (Controllers/Gateways)
+│   ├── prisma/
+│   │   └── schema.prisma   # Schéma base de données
 │   ├── package.json
-│   └── quiz.db           # Base de données (créée auto)
+│   └── Dockerfile
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── App.tsx       # Application principale
-│   │   └── main.jsx
+│   │   ├── domains/        # Logique métier par domaine
+│   │   ├── features/       # Composants fonctionnels
+│   │   └── shared/         # Infrastructure partagée
 │   ├── index.html
 │   ├── package.json
 │   ├── tailwind.config.js
 │   └── vite.config.js
 │
+├── docker-compose.yaml     # Configuration Docker
 └── README.md
 ```
 
@@ -203,12 +214,16 @@ Créez `frontend/src/index.css`:
 
 ## 📊 Base de données
 
+**PostgreSQL** avec Prisma ORM
+
 Tables:
 - `users` - Utilisateurs et admins
 - `quizzes` - Quiz créés
 - `questions` - Questions des quiz
 - `game_sessions` - Sessions de jeu en cours
 - `scores` - Scores et statistiques
+
+La base de données est gérée par Prisma avec des migrations automatiques.
 
 
 ## 🚧 Améliorations possibles

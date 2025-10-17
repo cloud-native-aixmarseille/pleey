@@ -1,7 +1,28 @@
 version: "3.8"
 
 services:
-  # Backend Node.js
+  # PostgreSQL Database
+  postgres:
+    image: postgres:14-alpine
+    container_name: quiz-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-quizapp}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-quizapp_password}
+      - POSTGRES_DB=${POSTGRES_DB:-quizdb}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - quiz-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-quizapp}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+
+  # Backend NestJS
   backend:
     build:
       context: ./backend
@@ -14,9 +35,11 @@ services:
       - NODE_ENV=production
       - PORT=3001
       - JWT_SECRET=${JWT_SECRET:-votre_secret_jwt_super_securise_changez_moi}
-    volumes:
-      # Persister la base de données SQLite
-      - quiz-data:/app/data
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-quizapp}:${POSTGRES_PASSWORD:-quizapp_password}@postgres:5432/${POSTGRES_DB:-quizdb}?schema=public
+      - CORS_ORIGIN=*
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - quiz-network
     healthcheck:
@@ -25,7 +48,7 @@ services:
           "CMD",
           "node",
           "-e",
-          "require('http').get('http://localhost:3001/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
+          "require('http').get('http://localhost:3001/health/live', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
         ]
       interval: 30s
       timeout: 10s
@@ -59,5 +82,5 @@ networks:
     driver: bridge
 
 volumes:
-  quiz-data:
+  postgres-data:
     driver: local

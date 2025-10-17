@@ -1,27 +1,50 @@
-# Backend Dockerfile
-FROM node:18-alpine
+# Multi-stage build for NestJS backend
+FROM node:18-alpine AS builder
 
-# Créer le répertoire de l'application
+# Set working directory
 WORKDIR /app
 
-# Copier les fichiers de dépendances
+# Copy package files
 COPY package*.json ./
+COPY prisma ./prisma/
 
-# Installer les dépendances
-RUN npm install --production
+# Install dependencies
+RUN npm ci
 
-# Copier le code source
+# Copy source code
 COPY . .
 
-# Créer le répertoire pour la base de données
-RUN mkdir -p /app/data
+# Generate Prisma Client
+RUN npx prisma generate
 
-# Exposer le port
+# Build the application
+RUN npm run build
+
+# Production stage
+FROM node:18-alpine AS production
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY prisma ./prisma/
+
+# Install production dependencies only
+RUN npm ci --only=production
+
+# Copy Prisma schema and generate client
+RUN npx prisma generate
+
+# Copy built application from builder stage
+COPY --from=builder /app/dist ./dist
+
+# Expose port
 EXPOSE 3001
 
-# Variables d'environnement par défaut
+# Environment variables
 ENV NODE_ENV=production
 ENV PORT=3001
 
-# Démarrer l'application
-CMD ["node", "server.js"]
+# Start the application
+CMD ["node", "dist/main"]
