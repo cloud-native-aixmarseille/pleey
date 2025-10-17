@@ -2,6 +2,37 @@
 
 Application complète de quiz interactif type Kahoot avec temps réel, système de points et classements.
 
+---
+
+## 🚀 NEW: MMO Game Feature - Planning Complete!
+
+**Transform QuizMaster into a massively multiplayer online (MMO) quiz game!**
+
+📚 **[READ THE COMPLETE PLAN →](MMO_GAME_FEATURE_SUMMARY.md)**
+
+**Quick Links:**
+- 📋 [Roadmap (17KB)](.github/MMO_GAME_FEATURE_ROADMAP.md) - Complete technical plan
+- 📊 [Visual Guide (15KB)](.github/VISUAL_ROADMAP.md) - Architecture diagrams
+- ⚡ [Quick Start (14KB)](.github/PHASE1_QUICKSTART.md) - Start coding today!
+
+**Timeline:** 6-8 weeks | **Story Points:** ~90 SP | **Issues:** 16 planned
+
+**What's included:**
+- ✅ Real-time WebSocket infrastructure
+- ✅ Redis caching for 80% faster performance
+- ✅ Horizontal scaling capability
+- ✅ Optimistic UI updates
+- ✅ Security & cheat prevention
+- ✅ Load testing & monitoring
+
+**Get started:**
+```bash
+cd .github
+./create-issues.sh  # Creates all GitHub issues
+```
+
+---
+
 ## ✨ Fonctionnalités
 
 - ✅ Quiz avec questions à choix multiples et vrai/faux
