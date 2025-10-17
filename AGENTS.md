@@ -40,7 +40,7 @@ When working with this codebase, AI agents should:
 
 **Key Files:**
 - `backend/server.js` - **All backend logic** (monolithic)
-- `frontend/src/app.tsx` - **All frontend logic** (monolithic)
+- `frontend/src/App.tsx` - **All frontend logic** (monolithic)
 - See [ARCHITECTURE.md](ARCHITECTURE.md) for complete details
 
 ## 🚨 Critical Constraints (Agent-Specific)
@@ -50,7 +50,7 @@ When working with this codebase, AI agents should:
 **⚠️ CRITICAL**: This project uses intentional monolithic single-file architecture.
 
 - **Backend** (`backend/server.js`): All API endpoints, WebSocket logic, DB operations in ONE file
-- **Frontend** (`frontend/src/app.tsx`): All views, state management, and UI in ONE file
+- **Frontend** (`frontend/src/App.tsx`): All views, state management, and UI in ONE file
 - **DO NOT** split into separate route files or component files unless explicitly requested
 - Keep related logic together in the same file
 
@@ -104,8 +104,8 @@ Without these, CSS output will be ~60 bytes instead of ~18KB.
 ### When Adding WebSocket Events
 
 1. Add listener in `backend/server.js` inside `io.on('connection', ...)`
-2. Add emitter in `frontend/app.tsx`
-3. Add listener in `frontend/app.tsx`
+2. Add emitter in `frontend/src/App.tsx`
+3. Add listener in `frontend/src/App.tsx`
 4. Update game state on both client and server
 5. See [ARCHITECTURE.md](ARCHITECTURE.md) for game flow details
 
@@ -120,14 +120,14 @@ Without these, CSS output will be ~60 bytes instead of ~18KB.
 
 ### When Adding Frontend Views
 
-1. Add view name to existing conditions in `app.tsx`
+1. Add view name to existing conditions in `App.tsx`
 2. Create view rendering logic within the same file (don't split!)
 3. Update navigation functions to support new view
 4. Follow existing Tailwind CSS patterns (see [CONTRIBUTING.md](CONTRIBUTING.md))
 
 ### When Styling Components
 
-Use existing Tailwind CSS utility patterns from `app.tsx`:
+Use existing Tailwind CSS utility patterns from `App.tsx`:
 - Colors: `bg-purple-600`, `bg-pink-500`, `bg-blue-500`
 - Spacing: `p-4`, `mt-8`, `mb-4`, `gap-4`
 - Layout: `flex`, `grid`, `justify-center`, `items-center`
@@ -250,7 +250,7 @@ When passing work to another agent:
 
 ## ⚠️ Critical "DO NOT" List for Agents
 
-- ❌ Do NOT split `backend/server.js` or `frontend/src/app.tsx` into multiple files
+- ❌ Do NOT split `backend/server.js` or `frontend/src/App.tsx` into multiple files
 - ❌ Do NOT change SQLite callback patterns to async/await
 - ❌ Do NOT remove or modify working code without clear reason
 - ❌ Do NOT commit `.env` file or secrets

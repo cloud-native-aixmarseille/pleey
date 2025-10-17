@@ -84,7 +84,7 @@ L'architecture actuelle permet d'évoluer vers :
 ```
 frontend/
 ├── src/
-│   ├── App.jsx           # Composant principal
+│   ├── App.tsx           # Composant principal
 │   ├── main.jsx          # Point d'entrée
 │   └── index.css         # Styles globaux
 ├── public/
