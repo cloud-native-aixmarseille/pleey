@@ -74,6 +74,55 @@ cp .env.example .env
 
 ## 📝 Standards de code
 
+### Principes de développement
+
+Nous suivons ces principes fondamentaux pour garantir la qualité du code :
+
+#### **SOLID Principles**
+- **S**ingle Responsibility : Une fonction/classe = une responsabilité
+- **O**pen/Closed : Ouvert à l'extension, fermé à la modification
+- **L**iskov Substitution : Les sous-types doivent être substituables à leurs types de base
+- **I**nterface Segregation : Interfaces spécifiques plutôt que génériques
+- **D**ependency Inversion : Dépendre des abstractions, pas des implémentations concrètes
+
+#### **Autres Principes Clés**
+- **DRY (Don't Repeat Yourself)** : Éviter la duplication de code
+- **KISS (Keep It Simple, Stupid)** : Privilégier la simplicité
+- **YAGNI (You Aren't Gonna Need It)** : Ne pas sur-ingéniérer
+- **Clean Code** : Code lisible, maintenable et bien organisé
+- **Clean Architecture** : Séparation des préoccupations et indépendance des frameworks
+
+#### **Approche de Développement**
+- **TDD (Test-Driven Development)** : Écrire les tests avant le code (voir [TESTING.md](TESTING.md))
+- **Refactoring continu** : Améliorer le code existant régulièrement
+- **Code reviews** : Revue de code systématique avant merge
+- **Documentation** : Code auto-documenté avec commentaires pertinents
+
+#### **Technologies et Dépendances**
+- ✅ **Utiliser des technologies à jour** : Préférer les versions LTS et stables
+- ✅ **Dépendances bien maintenues** : Vérifier l'activité et la communauté
+- ✅ **Sécurité** : Auditer les dépendances (npm audit, Dependabot)
+- ✅ **CNCF Technologies** : Privilégier les technologies Cloud Native quand applicable
+  - Kubernetes pour l'orchestration (futur)
+  - Prometheus pour le monitoring (optionnel, voir [MONITORING-GUIDE.md](MONITORING-GUIDE.md))
+  - OpenTelemetry pour l'observabilité (recommandé pour la production)
+- ✅ **Standards ouverts** : Préférer les standards ouverts et interopérables
+
+#### **Gestion des Dépendances**
+```bash
+# Vérifier les mises à jour de sécurité
+npm audit
+
+# Mettre à jour les dépendances mineures
+npm update
+
+# Vérifier les dépendances obsolètes
+npm outdated
+
+# Analyser les vulnérabilités
+npm audit fix
+```
+
 ### JavaScript/React
 
 ```javascript

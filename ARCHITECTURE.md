@@ -2,6 +2,34 @@
 
 Documentation complète de l'architecture de l'application.
 
+## 🎯 Principes Architecturaux
+
+Cette application suit des principes d'architecture moderne et maintenable :
+
+### Principes de Conception
+- **Séparation des préoccupations** : Frontend, Backend, et Base de données sont découplés
+- **Architecture monolithique intentionnelle** : Simplicité pour le contexte actuel (MVP/apprentissage)
+- **RESTful API** : Interface claire et standardisée entre frontend et backend
+- **Real-time via WebSocket** : Communication bidirectionnelle pour le gameplay
+- **Stateless Backend** : Authentification via JWT, scalabilité horizontale possible
+
+### Technologies Modernes
+- **React 18** : Framework UI moderne avec hooks et concurrent features
+- **Vite** : Build tool rapide et moderne (remplace Webpack/CRA)
+- **Tailwind CSS** : Utility-first CSS framework, maintenable et performant
+- **Express.js** : Framework web minimaliste et flexible
+- **Socket.io** : WebSocket library mature et bien maintenue
+- **Docker** : Containerisation pour déploiement cohérent
+- **CNCF-ready** : Architecture compatible avec Kubernetes, Prometheus, OpenTelemetry
+
+### Évolutivité Future
+L'architecture actuelle permet d'évoluer vers :
+- **Microservices** : Séparation des services (auth, quiz, game, leaderboard)
+- **Kubernetes** : Orchestration et scaling automatique
+- **PostgreSQL** : Migration de SQLite pour haute concurrence
+- **Redis** : Cache et session store distribué
+- **Message Queue** : RabbitMQ/Kafka pour événements asynchrones
+
 ## 📐 Vue d'ensemble
 
 ```

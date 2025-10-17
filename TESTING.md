@@ -199,12 +199,45 @@ Les seuils de couverture sont configurés dans :
 
 ## Bonnes pratiques
 
-1. **Écrire des tests avant de coder** (TDD)
+### Approche TDD (Test-Driven Development)
+
+1. **Écrire les tests avant le code** (Red-Green-Refactor)
+   - 🔴 **Red** : Écrire un test qui échoue
+   - 🟢 **Green** : Écrire le code minimal pour passer le test
+   - 🔵 **Refactor** : Améliorer le code tout en gardant les tests verts
+
 2. **Tester les cas limites** (edge cases)
+   - Valeurs nulles, vides, négatives
+   - Limites min/max
+   - Conditions d'erreur
+
 3. **Mocker les dépendances externes** (DB, API, Socket)
+   - Isoler le code testé
+   - Tests rapides et déterministes
+   - Pas de dépendances sur services externes
+
 4. **Noms descriptifs** pour les tests
+   - `it('should return error when email is invalid')`
+   - `test('calculates score correctly with time bonus')`
+   - Décrire le comportement attendu
+
 5. **Isoler les tests** (pas de dépendances entre tests)
+   - Chaque test doit être indépendant
+   - Setup et teardown appropriés
+   - Ordre d'exécution ne doit pas impacter les résultats
+
 6. **Vérifier la couverture** régulièrement
+   - Objectif : >80% de couverture
+   - Focus sur les chemins critiques
+   - Ne pas sacrifier la qualité pour la quantité
+
+### Clean Testing Principles
+
+- **Tests lisibles** : Arrange-Act-Assert (AAA pattern)
+- **Un concept par test** : Tester une seule chose à la fois
+- **Tests rapides** : Suite de tests exécutable en <30s
+- **Tests maintenables** : Éviter la duplication dans les tests
+- **Tests fiables** : Pas de tests flaky (aléatoires)
 
 ## Debugging des tests
 
