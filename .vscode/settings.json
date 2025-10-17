@@ -1,0 +1,54 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "editor.tabSize": 2,
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/.git": true,
+    "**/dist": true,
+    "**/.DS_Store": true,
+    "**/quiz.db": false
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/.git": true
+  },
+  "files.associations": {
+    "*.env.example": "properties",
+    "Dockerfile*": "dockerfile",
+    "docker-compose*.yml": "yaml"
+  },
+  "emmet.includeLanguages": {
+    "javascript": "javascriptreact"
+  },
+  "tailwindCSS.experimental.classRegex": [
+    ["class(?:Name)?\\s*=\\s*['\"]([^'\"]*)['\"]", "([^\\s]*)"]
+  ],
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[markdown]": {
+    "editor.formatOnSave": false,
+    "editor.wordWrap": "on"
+  },
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact"
+  ],
+  "javascript.suggest.autoImports": true,
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "docker.dockerComposeBuild": true,
+  "docker.dockerComposeDetached": true,
+  "containers.composeBuild": true,
+  "containers.composeDetached": true
+}

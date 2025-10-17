@@ -1,0 +1,14 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "bradlc.vscode-tailwindcss",
+    "ms-azuretools.vscode-docker",
+    "eamodio.gitlens",
+    "dsznajder.es7-react-js-snippets",
+    "formulahendry.auto-rename-tag",
+    "christian-kohler.path-intellisense",
+    "vincaslt.highlight-matching-tag",
+    "PKief.material-icon-theme"
+  ]
+}

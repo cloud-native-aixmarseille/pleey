@@ -1,0 +1,93 @@
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Node modules
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Database
+*.db
+*.db-journal
+backend/data/*.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# SSL Certificates
+*.pem
+*.key
+*.crt
+*.csr
+nginx/ssl/*
+!nginx/ssl/.gitkeep
+certbot/
+
+# Backups
+backups/
+*.backup
+*.bak
+
+# Docker
+docker-compose.override.yml
+.dockerignore
+
+# Testing
+coverage/
+.nyc_output/
+*.test.js
+
+# Misc
+.cache/
+*.pid
+*.seed
+*.pid.lock
+.npm
+.eslintcache
+.node_repl_history
+*.tgz
+.yarn-integrity
+
+# Monitoring
+prometheus-data/
+grafana-data/
+loki-data/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
