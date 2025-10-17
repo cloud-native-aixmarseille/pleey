@@ -40,19 +40,21 @@ When working with this codebase, AI agents should:
 
 **Key Files:**
 - `backend/server.js` - **All backend logic** (monolithic)
-- `frontend/src/App.tsx` - **All frontend logic** (monolithic)
-- See [ARCHITECTURE.md](ARCHITECTURE.md) for complete details
+- `frontend/src/App.tsx` - **Main application orchestrator** (refactored following Clean Architecture + DDD)
+- See [ARCHITECTURE.md](ARCHITECTURE.md) and `frontend/src/ARCHITECTURE.md` for complete details
 
 ## 🚨 Critical Constraints (Agent-Specific)
 
-### 1. Monolithic Architecture - DO NOT SPLIT
+### 1. Backend Monolithic - Frontend Modular
 
-**⚠️ CRITICAL**: This project uses intentional monolithic single-file architecture.
+**⚠️ IMPORTANT**: Architecture has been updated:
 
-- **Backend** (`backend/server.js`): All API endpoints, WebSocket logic, DB operations in ONE file
-- **Frontend** (`frontend/src/App.tsx`): All views, state management, and UI in ONE file
-- **DO NOT** split into separate route files or component files unless explicitly requested
-- Keep related logic together in the same file
+- **Backend** (`backend/server.js`): Remains monolithic - All API endpoints, WebSocket logic, DB operations in ONE file
+- **Frontend** (`frontend/src/`): Now follows **Screaming Architecture + Clean Architecture + DDD principles**
+  - Organized by domains (`auth/`, `quiz/`, `game/`)
+  - Features are separated (`home/`, `authentication/`, `quiz-management/`, `game-play/`)
+  - Shared infrastructure (`shared/config/`, `shared/socket/`, `shared/types/`, `shared/hooks/`)
+- Frontend refactoring maintains full backward compatibility
 
 ### 2. Database - Use Callbacks, NOT async/await
 
@@ -104,9 +106,9 @@ Without these, CSS output will be ~60 bytes instead of ~18KB.
 ### When Adding WebSocket Events
 
 1. Add listener in `backend/server.js` inside `io.on('connection', ...)`
-2. Add emitter in `frontend/src/App.tsx`
-3. Add listener in `frontend/src/App.tsx`
-4. Update game state on both client and server
+2. Add service method in appropriate `frontend/src/domains/` service (auth, quiz, or game)
+3. Add socket event listener in `frontend/src/shared/hooks/useGameSocket.ts` if needed
+4. Update feature components in `frontend/src/features/` to use the new functionality
 5. See [ARCHITECTURE.md](ARCHITECTURE.md) for game flow details
 
 ### When Modifying Database Schema
@@ -120,14 +122,15 @@ Without these, CSS output will be ~60 bytes instead of ~18KB.
 
 ### When Adding Frontend Views
 
-1. Add view name to existing conditions in `App.tsx`
-2. Create view rendering logic within the same file (don't split!)
-3. Update navigation functions to support new view
+1. Create new component in appropriate `frontend/src/features/[feature]/components/` directory
+2. Add domain service methods in `frontend/src/domains/` if needed
+3. Update routing logic in `frontend/src/App.tsx`
 4. Follow existing Tailwind CSS patterns (see [CONTRIBUTING.md](CONTRIBUTING.md))
+5. See `frontend/src/ARCHITECTURE.md` for detailed structure
 
 ### When Styling Components
 
-Use existing Tailwind CSS utility patterns from `App.tsx`:
+Use existing Tailwind CSS utility patterns from feature components:
 - Colors: `bg-purple-600`, `bg-pink-500`, `bg-blue-500`
 - Spacing: `p-4`, `mt-8`, `mb-4`, `gap-4`
 - Layout: `flex`, `grid`, `justify-center`, `items-center`
@@ -250,7 +253,7 @@ When passing work to another agent:
 
 ## ⚠️ Critical "DO NOT" List for Agents
 
-- ❌ Do NOT split `backend/server.js` or `frontend/src/App.tsx` into multiple files
+- ❌ Do NOT split `backend/server.js` into multiple files (backend remains monolithic)
 - ❌ Do NOT change SQLite callback patterns to async/await
 - ❌ Do NOT remove or modify working code without clear reason
 - ❌ Do NOT commit `.env` file or secrets
@@ -258,6 +261,7 @@ When passing work to another agent:
 - ❌ Do NOT ignore existing patterns and conventions
 - ❌ Do NOT duplicate content from existing documentation files
 - ❌ Do NOT skip testing after making changes
+- ✅ Frontend IS NOW modular following Clean Architecture + DDD (not monolithic anymore)
 
 ## ✅ Agent "ALWAYS" List
 

@@ -84,9 +84,24 @@ L'architecture actuelle permet d'évoluer vers :
 ```
 frontend/
 ├── src/
-│   ├── App.tsx           # Composant principal
-│   ├── main.jsx          # Point d'entrée
-│   └── index.css         # Styles globaux
+│   ├── App.tsx                    # Orchestrateur principal
+│   ├── main.jsx                   # Point d'entrée
+│   ├── index.css                  # Styles globaux
+│   ├── ARCHITECTURE.md            # Documentation architecture frontend
+│   ├── domains/                   # Logique métier (DDD)
+│   │   ├── auth/                  # Domaine authentification
+│   │   ├── quiz/                  # Domaine gestion quiz
+│   │   └── game/                  # Domaine jeu
+│   ├── features/                  # Modules fonctionnels
+│   │   ├── home/                  # Page d'accueil
+│   │   ├── authentication/        # Connexion/Inscription
+│   │   ├── quiz-management/       # Gestion admin quiz
+│   │   └── game-play/             # Jeu (lobby, playing, leaderboard)
+│   └── shared/                    # Infrastructure partagée
+│       ├── config/                # Configuration
+│       ├── socket/                # Client WebSocket
+│       ├── types/                 # Types TypeScript
+│       └── hooks/                 # Hooks React personnalisés
 ├── public/
 ├── index.html
 ├── package.json
