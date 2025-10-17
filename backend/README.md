@@ -130,7 +130,15 @@ JWT-based authentication. See [ARCHITECTURE.md](./ARCHITECTURE.md) for API examp
 
 ## 📚 API Documentation
 
-### Endpoints
+### Health Check Endpoints
+
+- `GET /health` - Complete health check (database, disk, memory)
+- `GET /health/ready` - Readiness probe (database connection)
+- `GET /health/live` - Liveness probe (memory check)
+
+See [health check documentation](./src/infrastructure/health/README.md) for details.
+
+### Application Endpoints
 
 - `POST /api/auth/register` - Register new user
 - `POST /api/auth/login` - Login and get JWT token

@@ -85,7 +85,7 @@ export class OtelLoggerService implements LoggerService {
       severityNumber,
       severityText,
       body,
-      attributes: logAttributes,
+      attributes: logAttributes as Record<string, string | number | boolean>,
       timestamp: Date.now(),
     });
 

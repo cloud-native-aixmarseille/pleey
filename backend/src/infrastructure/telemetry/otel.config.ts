@@ -3,7 +3,7 @@ import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentation
 import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-http';
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
-import { Resource } from '@opentelemetry/resources';
+import { resourceFromAttributes } from '@opentelemetry/resources';
 import {
   BatchLogRecordProcessor,
   ConsoleLogRecordExporter,
@@ -24,7 +24,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Define service resource attributes
-const resource = new Resource({
+const resource = resourceFromAttributes({
   [ATTR_SERVICE_NAME]: 'quiz-backend',
   [ATTR_SERVICE_VERSION]: '1.0.0',
   environment: process.env.NODE_ENV || 'development',
@@ -65,7 +65,8 @@ export const loggerProvider = new LoggerProvider({
   resource,
 });
 
-loggerProvider.addLogRecordProcessor(new BatchLogRecordProcessor(logExporter));
+// Cast to any to avoid TypeScript issues with changing API
+(loggerProvider as any).addLogRecordProcessor?.(new BatchLogRecordProcessor(logExporter));
 
 // Configure and initialize OpenTelemetry SDK
 export const otelSDK = new NodeSDK({

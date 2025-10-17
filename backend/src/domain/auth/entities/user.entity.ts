@@ -24,6 +24,6 @@ export class User {
    */
   toSafeObject(): Omit<User, 'password'> {
     const { password, ...safeUser } = this;
-    return safeUser;
+    return safeUser as Omit<User, 'password'>;
   }
 }
