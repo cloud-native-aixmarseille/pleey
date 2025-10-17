@@ -67,7 +67,11 @@ jobs:
 
   security-scan:
     runs-on: ubuntu-latest
-    
+    permissions:
+      security-events: write
+      contents: read
+      actions: read
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -88,11 +92,19 @@ jobs:
         format: 'sarif'
         output: 'trivy-frontend-results.sarif'
 
-    - name: Upload Trivy results to GitHub Security
-      uses: github/codeql-action/upload-sarif@v2
+    - name: Upload Trivy results to GitHub Security - Backend
+      uses: github/codeql-action/upload-sarif@v3
       if: always()
       with:
-        sarif_file: '.'
+        sarif_file: 'trivy-backend-results.sarif'
+        category: 'trivy-backend'
+
+    - name: Upload Trivy results to GitHub Security - Frontend
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'trivy-frontend-results.sarif'
+        category: 'trivy-frontend'
 
   publish:
     needs: [build-and-test, security-scan]
