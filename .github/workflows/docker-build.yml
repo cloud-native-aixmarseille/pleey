@@ -67,10 +67,6 @@ jobs:
 
   security-scan:
     runs-on: ubuntu-latest
-    permissions:
-      security-events: write
-      contents: read
-      actions: read
 
     steps:
     - name: Checkout code
@@ -92,19 +88,29 @@ jobs:
         format: 'sarif'
         output: 'trivy-frontend-results.sarif'
 
-    - name: Upload Trivy results to GitHub Security - Backend
-      uses: github/codeql-action/upload-sarif@v3
-      if: always()
+    - name: Run Trivy vulnerability scanner - Backend (Table format)
+      uses: aquasecurity/trivy-action@master
       with:
-        sarif_file: 'trivy-backend-results.sarif'
-        category: 'trivy-backend'
+        scan-type: 'fs'
+        scan-ref: './backend'
+        format: 'table'
 
-    - name: Upload Trivy results to GitHub Security - Frontend
-      uses: github/codeql-action/upload-sarif@v3
+    - name: Run Trivy vulnerability scanner - Frontend (Table format)
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: './frontend'
+        format: 'table'
+
+    - name: Upload Trivy results as artifacts
+      uses: actions/upload-artifact@v3
       if: always()
       with:
-        sarif_file: 'trivy-frontend-results.sarif'
-        category: 'trivy-frontend'
+        name: trivy-security-results
+        path: |
+          trivy-backend-results.sarif
+          trivy-frontend-results.sarif
+        retention-days: 30
 
   publish:
     needs: [build-and-test, security-scan]
