@@ -22,7 +22,6 @@ export default function QuizApp() {
   const [showResult, setShowResult] = useState(false);
   const [answerResult, setAnswerResult] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
-  const [playMusic, setPlayMusic] = useState(true);
 
   useEffect(() => {
     socket.on('player-joined', (data) => {
@@ -195,7 +194,6 @@ export default function QuizApp() {
   if (view === 'home') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-red-500 flex items-center justify-center p-4">
-        {playMusic && <audio src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_2e8c9f3f58.mp3" autoPlay loop />}
         <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center">
           <h1 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-8">
             🎮 QuizMaster
@@ -215,12 +213,6 @@ export default function QuizApp() {
               S'inscrire
             </button>
           </div>
-          <button
-            onClick={() => setPlayMusic(!playMusic)}
-            className="mt-6 text-gray-500 hover:text-purple-600"
-          >
-            {playMusic ? '🔊 Musique ON' : '🔇 Musique OFF'}
-          </button>
         </div>
       </div>
     );

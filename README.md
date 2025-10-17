@@ -9,7 +9,6 @@ Application complète de quiz interactif type Kahoot avec temps réel, système 
 - 👥 Inscription et connexion des utilisateurs
 - ⚡ Points basés sur la justesse ET le temps de réponse
 - 🏆 Classement en direct avec podium
-- 🎵 Musique de fond
 - 🎨 Design coloré et fun
 - 🔄 Temps réel avec WebSockets
 
@@ -197,9 +196,6 @@ Tables:
 - `game_sessions` - Sessions de jeu en cours
 - `scores` - Scores et statistiques
 
-## 🎵 Musique
-
-L'application utilise une musique libre de droits. Vous pouvez la remplacer dans le composant en modifiant l'URL de l'audio.
 
 ## 🚧 Améliorations possibles
 
