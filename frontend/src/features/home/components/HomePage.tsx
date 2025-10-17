@@ -6,75 +6,83 @@ interface HomePageProps {
 
 export default function HomePage({ onNavigate }: HomePageProps) {
   return (
-    <div className="min-h-screen bg-game-gradient flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Animated background elements */}
+    <div className="min-h-screen bg-game-gradient flex items-center justify-center p-4 relative overflow-hidden crt-screen">
+      {/* Animated neon grid background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-64 h-64 bg-primary-500/10 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary-500/10 rounded-full blur-3xl animate-float animation-delay-200"></div>
-        <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-accent-500/10 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="absolute top-20 left-10 w-64 h-64 bg-primary-500/20 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary-500/20 rounded-full blur-3xl animate-pulse-slow animation-delay-200"></div>
+        <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-accent-500/20 rounded-full blur-3xl animate-glow"></div>
       </div>
 
       <Container size="sm" className="relative z-10">
-        <Card className="p-10 sm:p-12 text-center animate-scale-in">
-          {/* Logo/Title with gradient text and glow effect */}
+        <Card className="p-10 sm:p-12 text-center animate-scale-in border-4 border-primary-500 bg-dark-400">
+          {/* Retro arcade-style logo */}
           <div className="mb-8">
-            <div className="text-7xl sm:text-8xl mb-4 animate-bounce-slow">🎮</div>
-            <h1 className="text-5xl sm:text-6xl font-black mb-3 text-gradient-neon drop-shadow-lg">
-              QuizMaster
+            <div className="text-7xl sm:text-8xl mb-6 animate-bounce-slow filter drop-shadow-[0_0_20px_rgba(0,255,204,0.8)]">
+              🕹️
+            </div>
+            <h1 className="text-4xl sm:text-6xl font-display mb-4 text-gradient-neon text-neon animate-glow">
+              QUIZMASTER
             </h1>
-            <div className="inline-block px-4 py-2 bg-gradient-to-r from-primary-500/20 to-accent-500/20 rounded-full border border-primary-500/30 backdrop-blur-sm">
-              <p className="text-primary-400 font-bold text-sm sm:text-base">
-                ⚡ Apprenez en vous amusant ! ⚡
+            <div className="inline-block px-6 py-3 bg-dark-500 rounded-none border-2 border-accent-500 relative overflow-hidden">
+              <div className="absolute inset-0 bg-accent-500/10 animate-pulse"></div>
+              <p className="text-accent-400 font-display text-xs sm:text-sm uppercase tracking-widest relative z-10 animate-flicker">
+                &gt;&gt; PRESS START &lt;&lt;
               </p>
             </div>
           </div>
 
-          {/* Feature highlights */}
-          <div className="grid grid-cols-3 gap-3 mb-8">
-            <div className="glass-effect rounded-2xl p-3 hover:bg-white/20 transition-all">
-              <div className="text-2xl mb-1">🚀</div>
-              <p className="text-xs font-semibold text-light-300">Rapide</p>
+          {/* Pixel art style feature badges */}
+          <div className="grid grid-cols-3 gap-4 mb-8">
+            <div className="glass-effect rounded-lg p-4 border-2 border-primary-500/30 hover:border-primary-500 transition-all hover:scale-110 group">
+              <div className="text-3xl mb-2 group-hover:animate-wiggle">⚡</div>
+              <p className="text-xxs font-display text-accent-400 uppercase">Fast</p>
             </div>
-            <div className="glass-effect rounded-2xl p-3 hover:bg-white/20 transition-all">
-              <div className="text-2xl mb-1">🎯</div>
-              <p className="text-xs font-semibold text-light-300">Fun</p>
+            <div className="glass-effect rounded-lg p-4 border-2 border-secondary-500/30 hover:border-secondary-500 transition-all hover:scale-110 group">
+              <div className="text-3xl mb-2 group-hover:animate-wiggle">🎯</div>
+              <p className="text-xxs font-display text-secondary-400 uppercase">Epic</p>
             </div>
-            <div className="glass-effect rounded-2xl p-3 hover:bg-white/20 transition-all">
-              <div className="text-2xl mb-1">🏆</div>
-              <p className="text-xs font-semibold text-light-300">Compétitif</p>
+            <div className="glass-effect rounded-lg p-4 border-2 border-accent-500/30 hover:border-accent-500 transition-all hover:scale-110 group">
+              <div className="text-3xl mb-2 group-hover:animate-wiggle">🏆</div>
+              <p className="text-xxs font-display text-accent-400 uppercase">Win</p>
             </div>
           </div>
 
-          {/* Action buttons */}
+          {/* Arcade-style action buttons with pixel shadow */}
           <div className="space-y-4">
             <Button
               variant="primary"
               size="lg"
               fullWidth
               onClick={() => onNavigate('login')}
+              className="retro-shadow hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all font-display text-base"
             >
-              <span className="flex items-center justify-center gap-2">
-                <span>Se connecter</span>
-                <span className="text-2xl">→</span>
+              <span className="flex items-center justify-center gap-3">
+                <span>► LOGIN</span>
               </span>
             </Button>
             <Button
-              variant="outline"
+              variant="accent"
               size="lg"
               fullWidth
               onClick={() => onNavigate('register')}
+              className="retro-shadow hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all font-display text-base"
             >
-              <span className="flex items-center justify-center gap-2">
-                <span>S'inscrire</span>
-                <span className="text-2xl">✨</span>
+              <span className="flex items-center justify-center gap-3">
+                <span>✦ SIGN UP</span>
               </span>
             </Button>
           </div>
 
-          {/* Footer tagline */}
-          <p className="mt-8 text-light-600 text-sm">
-            Rejoignez des milliers de joueurs passionnés
-          </p>
+          {/* Retro footer */}
+          <div className="mt-8 pt-6 border-t-2 border-primary-500/30">
+            <p className="text-light-400 text-xs font-mono uppercase tracking-wider animate-pulse">
+              [ INSERT COIN TO CONTINUE ]
+            </p>
+            <p className="text-light-500 text-xxs font-mono mt-2">
+              &gt; 1000+ PLAYERS ONLINE
+            </p>
+          </div>
         </Card>
       </Container>
     </div>

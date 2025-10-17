@@ -7,23 +7,22 @@ describe('HomePage', () => {
     const mockNavigate = vi.fn();
     render(<HomePage onNavigate={mockNavigate} />);
 
-    expect(screen.getByText(/QuizMaster/i)).toBeInTheDocument();
-    expect(screen.getByText(/Apprenez en vous amusant/i)).toBeInTheDocument();
+    expect(screen.getByText(/QUIZMASTER/i)).toBeInTheDocument();
   });
 
   it('should render login and register buttons', () => {
     const mockNavigate = vi.fn();
     render(<HomePage onNavigate={mockNavigate} />);
 
-    expect(screen.getByText('Se connecter')).toBeInTheDocument();
-    expect(screen.getByText("S'inscrire")).toBeInTheDocument();
+    expect(screen.getByText(/LOGIN/i)).toBeInTheDocument();
+    expect(screen.getByText(/SIGN UP/i)).toBeInTheDocument();
   });
 
   it('should call onNavigate with "login" when login button is clicked', () => {
     const mockNavigate = vi.fn();
     render(<HomePage onNavigate={mockNavigate} />);
 
-    const loginButton = screen.getByText('Se connecter');
+    const loginButton = screen.getByText(/LOGIN/i);
     fireEvent.click(loginButton);
 
     expect(mockNavigate).toHaveBeenCalledWith('login');
@@ -33,7 +32,7 @@ describe('HomePage', () => {
     const mockNavigate = vi.fn();
     render(<HomePage onNavigate={mockNavigate} />);
 
-    const registerButton = screen.getByText("S'inscrire");
+    const registerButton = screen.getByText(/SIGN UP/i);
     fireEvent.click(registerButton);
 
     expect(mockNavigate).toHaveBeenCalledWith('register');
