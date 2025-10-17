@@ -18,7 +18,7 @@ describe('AdminDashboard', () => {
     render(<AdminDashboard quizzes={[]} {...mockHandlers} />);
 
     expect(screen.getByText(/Panneau Admin/i)).toBeInTheDocument();
-    expect(screen.getByText('+ Créer un quiz')).toBeInTheDocument();
+    expect(screen.getByText(/Créer un quiz/i)).toBeInTheDocument();
   });
 
   it('should display list of quizzes', () => {
