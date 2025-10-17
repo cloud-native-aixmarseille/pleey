@@ -23,10 +23,10 @@ jobs:
         sed -i 's/votre_secret_jwt_super_securise_changez_moi/${{ secrets.JWT_SECRET }}/g' .env
 
     - name: Build Docker images
-      run: docker-compose build
+      run: docker compose build
 
     - name: Start services
-      run: docker-compose up -d
+      run: docker compose up -d
 
     - name: Wait for services to be ready
       run: |
@@ -57,13 +57,13 @@ jobs:
       if: failure()
       run: |
         echo "=== Backend logs ==="
-        docker-compose logs backend
+        docker compose logs backend
         echo "=== Frontend logs ==="
-        docker-compose logs frontend
+        docker compose logs frontend
 
     - name: Stop services
       if: always()
-      run: docker-compose down
+      run: docker compose down
 
   security-scan:
     runs-on: ubuntu-latest
