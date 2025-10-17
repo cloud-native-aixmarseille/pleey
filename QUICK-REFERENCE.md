@@ -125,7 +125,7 @@ quiz-app/
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── App.jsx           # Application React
+│   │   ├── App.tsx           # Application React
 │   │   ├── main.jsx
 │   │   └── index.css
 │   ├── Dockerfile

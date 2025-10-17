@@ -132,7 +132,7 @@ quiz-app/
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── App.jsx       # Application principale
+│   │   ├── App.tsx       # Application principale
 │   │   └── main.jsx
 │   ├── index.html
 │   ├── package.json

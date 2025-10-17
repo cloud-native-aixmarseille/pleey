@@ -163,8 +163,9 @@ const QuizCard = () => { };
 const API_URL = 'http://localhost:3001';
 const MAX_RETRIES = 3;
 
-// Fichiers : kebab-case
-// quiz-card.jsx, user-service.js
+// Fichiers : kebab-case pour les fichiers utilitaires, PascalCase pour composant principal
+// quiz-card.jsx, user-service.js (kebab-case)
+// App.tsx (PascalCase - composant principal React)
 ```
 
 ### Structure des composants React
