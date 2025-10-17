@@ -1,4 +1,4 @@
-import { InputHTMLAttributes, forwardRef } from 'react';
+import { InputHTMLAttributes, forwardRef, useId } from 'react';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -8,11 +8,14 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, darkMode = false, icon, className = '', ...props }, ref) => {
+  ({ label, error, darkMode = false, icon, className = '', id: providedId, ...props }, ref) => {
+    const generatedId = useId();
+    const id = providedId || generatedId;
+    
     return (
       <div className="w-full">
         {label && (
-          <label className={`block mb-2 font-semibold ${darkMode ? 'text-white' : 'text-dark-800'}`}>
+          <label htmlFor={id} className={`block mb-2 font-semibold ${darkMode ? 'text-white' : 'text-dark-800'}`}>
             {label}
           </label>
         )}
@@ -24,6 +27,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           )}
           <input
             ref={ref}
+            id={id}
             className={`
               input
               ${darkMode ? 'input-dark' : ''}

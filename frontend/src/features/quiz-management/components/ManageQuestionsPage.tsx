@@ -1,4 +1,5 @@
 import { Quiz, Question } from '../../../shared/types';
+import { Button, Card, Container } from '../../../shared/components';
 
 interface ManageQuestionsPageProps {
   quiz: Quiz;
@@ -40,67 +41,151 @@ export default function ManageQuestionsPage({
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-6">
-          <h2 className="text-3xl font-black text-gray-800 mb-2">{quiz.title}</h2>
-          <p className="text-gray-600 mb-6">{quiz.description}</p>
-          <button
-            onClick={handleAddQuestion}
-            className="bg-purple-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-purple-700 transition mb-6"
-          >
-            + Ajouter une question
-          </button>
+    <div className="min-h-screen bg-game-gradient p-4 sm:p-8">
+      <Container size="lg">
+        {/* Header */}
+        <Card className="p-6 sm:p-8 mb-6 animate-slide-down">
           <button
             onClick={onBack}
-            className="ml-4 bg-gray-500 text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-600 transition mb-6"
+            className="inline-flex items-center gap-2 text-light-700 hover:text-primary-600 transition-colors mb-4"
           >
-            ← Retour
+            <span className="text-2xl">←</span>
+            <span className="font-semibold">Retour</span>
           </button>
-        </div>
-
-        <div className="space-y-4">
-          {questions.map((q, index) => (
-            <div key={q.id} className="bg-white rounded-2xl shadow-lg p-6">
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-lg font-bold text-gray-800">
-                  Q{index + 1}: {q.question_text}
-                </h3>
-                <span className="bg-purple-100 text-purple-600 px-3 py-1 rounded-full text-sm font-bold">
-                  {q.type === 'multiple' ? 'QCM' : 'Vrai/Faux'}
+          
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-4xl">📝</span>
+                <h2 className="text-3xl sm:text-4xl font-black text-gradient-neon">
+                  {quiz.title}
+                </h2>
+              </div>
+              <p className="text-light-700 mb-4">{quiz.description}</p>
+              <div className="flex items-center gap-4 text-sm">
+                <span className="glass-effect px-3 py-1 rounded-lg text-dark-700 font-semibold">
+                  {questions.length} question{questions.length > 1 ? 's' : ''}
                 </span>
               </div>
-              {q.type === 'multiple' && (
-                <div className="grid grid-cols-2 gap-2 mb-4">
-                  <div className={`p-3 rounded-lg ${q.correct_answer === 'A' ? 'bg-green-100 border-2 border-green-500' : 'bg-gray-100'}`}>
-                    A: {q.option_a}
+            </div>
+            
+            <Button
+              variant="accent"
+              size="lg"
+              onClick={handleAddQuestion}
+              icon={
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+              }
+            >
+              Ajouter une question
+            </Button>
+          </div>
+        </Card>
+
+        {/* Questions List */}
+        {questions.length === 0 ? (
+          <Card className="p-12 text-center animate-scale-in">
+            <div className="text-6xl mb-4">❓</div>
+            <h3 className="text-2xl font-bold text-dark-800 mb-2">
+              Aucune question pour le moment
+            </h3>
+            <p className="text-light-700 mb-6">
+              Commencez par ajouter votre première question !
+            </p>
+            <Button variant="primary" size="lg" onClick={handleAddQuestion}>
+              Ajouter la première question
+            </Button>
+          </Card>
+        ) : (
+          <div className="space-y-4">
+            {questions.map((q, index) => (
+              <Card 
+                key={q.id} 
+                className={`p-6 animate-slide-up`}
+                style={{ animationDelay: `${index * 0.05}s` }}
+              >
+                {/* Question Header */}
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex items-start gap-3 flex-1">
+                    <div className="glass-effect rounded-xl w-10 h-10 flex items-center justify-center flex-shrink-0">
+                      <span className="font-black text-primary-600">Q{index + 1}</span>
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-bold text-dark-800 flex-1">
+                      {q.question_text}
+                    </h3>
                   </div>
-                  <div className={`p-3 rounded-lg ${q.correct_answer === 'B' ? 'bg-green-100 border-2 border-green-500' : 'bg-gray-100'}`}>
-                    B: {q.option_b}
-                  </div>
-                  <div className={`p-3 rounded-lg ${q.correct_answer === 'C' ? 'bg-green-100 border-2 border-green-500' : 'bg-gray-100'}`}>
-                    C: {q.option_c}
-                  </div>
-                  <div className={`p-3 rounded-lg ${q.correct_answer === 'D' ? 'bg-green-100 border-2 border-green-500' : 'bg-gray-100'}`}>
-                    D: {q.option_d}
-                  </div>
-                </div>
-              )}
-              {q.type === 'truefalse' && (
-                <div className="mb-4">
-                  <span className="text-green-600 font-bold">
-                    Réponse: {q.correct_answer === 'true' ? '✓ Vrai' : '✗ Faux'}
+                  <span className={`
+                    px-3 py-1 rounded-full text-xs font-bold flex-shrink-0 ml-2
+                    ${q.type === 'multiple' 
+                      ? 'bg-primary-100 text-primary-700 border border-primary-300' 
+                      : 'bg-secondary-100 text-secondary-700 border border-secondary-300'}
+                  `}>
+                    {q.type === 'multiple' ? 'QCM' : 'Vrai/Faux'}
                   </span>
                 </div>
-              )}
-              <div className="flex justify-between text-sm text-gray-600">
-                <span>⏱️ {q.time_limit}s</span>
-                <span>🏆 {q.points} points</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+
+                {/* Options for Multiple Choice */}
+                {q.type === 'multiple' && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                    {[
+                      { letter: 'A', text: q.option_a, className: 'answer-option-a' },
+                      { letter: 'B', text: q.option_b, className: 'answer-option-b' },
+                      { letter: 'C', text: q.option_c, className: 'answer-option-c' },
+                      { letter: 'D', text: q.option_d, className: 'answer-option-d' }
+                    ].map(option => (
+                      <div
+                        key={option.letter}
+                        className={`
+                          p-3 rounded-xl transition-all
+                          ${q.correct_answer === option.letter 
+                            ? 'bg-success-100 border-2 border-success-500 ring-2 ring-success-200' 
+                            : 'bg-light-100 border-2 border-light-300'}
+                        `}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="font-black text-dark-700">{option.letter}:</span>
+                          <span className="text-dark-800">{option.text}</span>
+                          {q.correct_answer === option.letter && (
+                            <span className="ml-auto text-success-600">✓</span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Answer for True/False */}
+                {q.type === 'truefalse' && (
+                  <div className="mb-4">
+                    <div className="glass-effect rounded-xl p-4 inline-flex items-center gap-2">
+                      <span className="text-2xl">
+                        {q.correct_answer === 'true' ? '✓' : '✗'}
+                      </span>
+                      <span className="font-bold text-dark-800">
+                        Réponse correcte: {q.correct_answer === 'true' ? 'Vrai' : 'Faux'}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Question Stats */}
+                <div className="flex flex-wrap gap-3 text-sm">
+                  <div className="glass-effect rounded-lg px-3 py-2 flex items-center gap-2">
+                    <span>⏱️</span>
+                    <span className="font-semibold text-dark-700">{q.time_limit}s</span>
+                  </div>
+                  <div className="glass-effect rounded-lg px-3 py-2 flex items-center gap-2">
+                    <span>🏆</span>
+                    <span className="font-semibold text-dark-700">{q.points} points</span>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+      </Container>
     </div>
   );
 }

@@ -10,9 +10,9 @@ describe('LoginPage', () => {
     render(<LoginPage onLogin={mockLogin} onNavigate={mockNavigate} />);
 
     expect(screen.getByText('Connexion')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Email')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Mot de passe')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Se connecter' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Email')).toBeInTheDocument();
+    expect(screen.getByLabelText('Mot de passe')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /se connecter/i })).toBeInTheDocument();
   });
 
   it('should call onLogin with email and password when form is submitted', async () => {
@@ -22,9 +22,9 @@ describe('LoginPage', () => {
     
     render(<LoginPage onLogin={mockLogin} onNavigate={mockNavigate} />);
 
-    const emailInput = screen.getByPlaceholderText('Email');
-    const passwordInput = screen.getByPlaceholderText('Mot de passe');
-    const submitButton = screen.getByRole('button', { name: 'Se connecter' });
+    const emailInput = screen.getByLabelText('Email');
+    const passwordInput = screen.getByLabelText('Mot de passe');
+    const submitButton = screen.getByRole('button', { name: /se connecter/i });
 
     await user.type(emailInput, 'test@example.com');
     await user.type(passwordInput, 'password123');
@@ -40,7 +40,7 @@ describe('LoginPage', () => {
     const mockNavigate = vi.fn();
     render(<LoginPage onLogin={mockLogin} onNavigate={mockNavigate} />);
 
-    const backButton = screen.getByText('← Retour');
+    const backButton = screen.getByText('Retour');
     fireEvent.click(backButton);
 
     expect(mockNavigate).toHaveBeenCalledWith('home');

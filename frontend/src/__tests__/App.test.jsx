@@ -28,15 +28,15 @@ describe('QuizApp', () => {
 
   it('should have login and register buttons on home page', () => {
     render(<QuizApp />);
-    expect(screen.getByRole('button', { name: /connexion/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /inscription/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /se connecter/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /s'inscrire/i })).toBeInTheDocument();
   });
 
   it('should switch to login view when login button is clicked', async () => {
     const user = userEvent.setup();
     render(<QuizApp />);
 
-    const loginButton = screen.getByRole('button', { name: /connexion/i });
+    const loginButton = screen.getByRole('button', { name: /se connecter/i });
     await user.click(loginButton);
 
     await waitFor(() => {
@@ -49,7 +49,7 @@ describe('QuizApp', () => {
     const user = userEvent.setup();
     render(<QuizApp />);
 
-    const registerButton = screen.getByRole('button', { name: /inscription/i });
+    const registerButton = screen.getByRole('button', { name: /s'inscrire/i });
     await user.click(registerButton);
 
     await waitFor(() => {
@@ -72,7 +72,7 @@ describe('QuizApp', () => {
     render(<QuizApp />);
 
     // Navigate to login
-    const loginButton = screen.getByRole('button', { name: /connexion/i });
+    const loginButton = screen.getByRole('button', { name: /se connecter/i });
     await user.click(loginButton);
 
     // Fill in login form
@@ -113,7 +113,7 @@ describe('QuizApp', () => {
     render(<QuizApp />);
 
     // Navigate to register
-    const registerButton = screen.getByRole('button', { name: /inscription/i });
+    const registerButton = screen.getByRole('button', { name: /s'inscrire/i });
     await user.click(registerButton);
 
     // Fill in registration form
@@ -126,7 +126,7 @@ describe('QuizApp', () => {
     await user.type(passwordInput, 'newpassword');
 
     // Submit form
-    const submitButton = screen.getByRole('button', { name: /s'inscrire/i });
+    const submitButton = screen.getByRole('button', { name: /créer mon compte/i });
     await user.click(submitButton);
 
     // Verify fetch was called
