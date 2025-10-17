@@ -327,3 +327,5 @@ Before deploying to production:
 - `DOCKER-GUIDE.md` - Docker-specific documentation
 - `DEPLOYMENT-CHECKLIST.md` - Production deployment steps
 - `MONITORING-GUIDE.md` - Monitoring setup and metrics
+- `AGENTS.md` - Comprehensive instructions for AI agents (all assistants)
+- `CLAUDE.md` - This file (specific instructions for Claude AI)

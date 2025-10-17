@@ -208,6 +208,18 @@ Tables:
 - [ ] Sauvegarde des parties
 - [ ] Système de badges
 
+## 📚 Documentation
+
+- [ARCHITECTURE.md](ARCHITECTURE.md) - Architecture détaillée du système
+- [CONTRIBUTING.md](CONTRIBUTING.md) - Guide de contribution
+- [TESTING.md](TESTING.md) - Guide des tests
+- [DOCKER-GUIDE.md](DOCKER-GUIDE.md) - Guide Docker complet
+- [DEPLOYMENT-CHECKLIST.md](DEPLOYMENT-CHECKLIST.md) - Checklist de déploiement
+- [MONITORING-GUIDE.md](MONITORING-GUIDE.md) - Guide de monitoring
+- [QUICK-REFERENCE.md](QUICK-REFERENCE.md) - Référence rapide des commandes
+- [AGENTS.md](AGENTS.md) - Instructions pour les agents IA
+- [CLAUDE.md](CLAUDE.md) - Instructions spécifiques pour Claude AI
+
 ## 📜 Licence
 
 MIT
