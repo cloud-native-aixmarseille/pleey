@@ -15,17 +15,31 @@ Application complète de quiz interactif type Kahoot avec temps réel, système 
 ## 🛠️ Technologies
 
 **Backend:**
-- Node.js + Express
-- Socket.io (WebSockets)
-- SQLite
-- JWT pour l'authentification
-- bcrypt pour les mots de passe
+- Node.js + Express (LTS, framework minimaliste)
+- Socket.io (WebSockets, temps réel)
+- SQLite (base de données embarquée)
+- JWT pour l'authentification (stateless)
+- bcrypt pour les mots de passe (sécurité)
 
 **Frontend:**
-- React 18
-- Vite
-- Tailwind CSS
-- Socket.io-client
+- React 18 (UI moderne avec hooks)
+- Vite (build tool rapide, remplace CRA)
+- Tailwind CSS (utility-first, maintenable)
+- Socket.io-client (communication temps réel)
+
+**DevOps & Cloud Native:**
+- Docker & Docker Compose (containerisation)
+- Nginx (reverse proxy, serving statique)
+- Prometheus & Grafana (monitoring, optionnel)
+- Compatible CNCF (Kubernetes-ready)
+
+### Pourquoi ces technologies ?
+
+- ✅ **Modernes et maintenues** : Versions LTS et communautés actives
+- ✅ **Bien documentées** : Documentation complète et exemples nombreux
+- ✅ **Performantes** : Optimisées pour production
+- ✅ **Scalables** : Architecture évolutive vers microservices si besoin
+- ✅ **Standards ouverts** : Interopérabilité et pérennité
 
 ## 📦 Installation
 
