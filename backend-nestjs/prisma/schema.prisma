@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  isAdmin   Boolean  @default(false) @map("is_admin")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  quizzes       Quiz[]
+  scores        Score[]
+  
+  @@map("users")
+}
+
+model Quiz {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  createdById Int      @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  createdBy User           @relation(fields: [createdById], references: [id])
+  questions Question[]
+  sessions  GameSession[]
+
+  @@map("quizzes")
+}
+
+model Question {
+  id           Int      @id @default(autoincrement())
+  quizId       Int      @map("quiz_id")
+  questionText String   @map("question_text")
+  type         String   // 'multiple' or 'truefalse'
+  correctAnswer String  @map("correct_answer")
+  optionA      String?  @map("option_a")
+  optionB      String?  @map("option_b")
+  optionC      String?  @map("option_c")
+  optionD      String?  @map("option_d")
+  timeLimit    Int      @default(20) @map("time_limit")
+  points       Int      @default(1000)
+
+  quiz   Quiz    @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  scores Score[]
+
+  @@map("questions")
+}
+
+model GameSession {
+  id              Int      @id @default(autoincrement())
+  quizId          Int      @map("quiz_id")
+  pin             String   @unique
+  status          String   @default("waiting")
+  currentQuestion Int      @default(0) @map("current_question")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  quiz   Quiz    @relation(fields: [quizId], references: [id])
+  scores Score[]
+
+  @@map("game_sessions")
+}
+
+model Score {
+  id         Int      @id @default(autoincrement())
+  sessionId  Int      @map("session_id")
+  userId     Int      @map("user_id")
+  questionId Int      @map("question_id")
+  points     Int      @default(0)
+  answerTime Int?     @map("answer_time")
+  isCorrect  Boolean  @default(false) @map("is_correct")
+  answeredAt DateTime @default(now()) @map("answered_at")
+
+  session  GameSession @relation(fields: [sessionId], references: [id])
+  user     User        @relation(fields: [userId], references: [id])
+  question Question    @relation(fields: [questionId], references: [id])
+
+  @@map("scores")
+}
