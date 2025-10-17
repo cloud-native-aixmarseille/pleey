@@ -15,7 +15,7 @@ describe('JoinGamePage', () => {
     render(<JoinGamePage {...mockHandlers} />);
 
     expect(screen.getByText('Rejoindre une partie')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Entrer le code PIN')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('XXXXXX')).toBeInTheDocument();
   });
 
   it('should update game pin when user types', async () => {
@@ -29,7 +29,7 @@ describe('JoinGamePage', () => {
 
     render(<JoinGamePage {...mockHandlers} />);
 
-    const input = screen.getByPlaceholderText('Entrer le code PIN');
+    const input = screen.getByPlaceholderText('XXXXXX');
     await user.type(input, '123456');
 
     expect(mockHandlers.onGamePinChange).toHaveBeenCalled();
@@ -45,7 +45,7 @@ describe('JoinGamePage', () => {
 
     render(<JoinGamePage {...mockHandlers} />);
 
-    const joinButton = screen.getByText('Rejoindre');
+    const joinButton = screen.getByRole('button', { name: /rejoindre maintenant/i });
     expect(joinButton).toBeDisabled();
   });
 
@@ -59,7 +59,7 @@ describe('JoinGamePage', () => {
 
     render(<JoinGamePage {...mockHandlers} />);
 
-    const joinButton = screen.getByText('Rejoindre');
+    const joinButton = screen.getByRole('button', { name: /rejoindre maintenant/i });
     expect(joinButton).not.toBeDisabled();
   });
 
@@ -73,7 +73,7 @@ describe('JoinGamePage', () => {
 
     render(<JoinGamePage {...mockHandlers} />);
 
-    const joinButton = screen.getByText('Rejoindre');
+    const joinButton = screen.getByRole('button', { name: /rejoindre maintenant/i });
     fireEvent.click(joinButton);
 
     expect(mockHandlers.onJoinGame).toHaveBeenCalled();
