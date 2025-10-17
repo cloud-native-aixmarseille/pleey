@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { IQuestionRepository } from '../../../domain/quiz/repositories/question.repository.interface';
-import { IQuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
-import { CreateQuestionDto } from '../dto/create-question.dto';
-import { Question } from '../../../domain/quiz/entities/question.entity';
+import type { Question } from '../../../domain/quiz/entities/question.entity';
+import type { IQuestionRepository } from '../../../domain/quiz/repositories/question.repository.interface';
+import type { IQuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
+import type { CreateQuestionDto } from '../dto/create-question.dto';
 
 /**
  * Create Question Use Case

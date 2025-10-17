@@ -1,4 +1,4 @@
-import { GameSession } from '../entities/game-session.entity';
+import type { GameSession } from '../entities/game-session.entity';
 
 /**
  * GameSession Repository Interface (Port)

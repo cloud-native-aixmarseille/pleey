@@ -1,11 +1,4 @@
-import {
-  IsNotEmpty,
-  IsString,
-  IsIn,
-  IsNumber,
-  IsOptional,
-  Min,
-} from 'class-validator';
+import { IsIn, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
 /**
  * Create Question DTO

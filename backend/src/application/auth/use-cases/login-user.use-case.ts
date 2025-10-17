@@ -1,9 +1,9 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { IUserRepository } from '../../../domain/auth/repositories/user.repository.interface';
-import { PasswordService } from '../../../domain/auth/services/password.service';
-import { LoginUserDto } from '../dto/login-user.dto';
-import { AuthResponseDto } from '../dto/auth-response.dto';
+import type { JwtService } from '@nestjs/jwt';
+import type { IUserRepository } from '../../../domain/auth/repositories/user.repository.interface';
+import type { PasswordService } from '../../../domain/auth/services/password.service';
+import type { AuthResponseDto } from '../dto/auth-response.dto';
+import type { LoginUserDto } from '../dto/login-user.dto';
 
 /**
  * Login User Use Case
@@ -25,10 +25,7 @@ export class LoginUserUseCase {
     }
 
     // Verify password
-    const isPasswordValid = await this.passwordService.compare(
-      dto.password,
-      user.password,
-    );
+    const isPasswordValid = await this.passwordService.compare(dto.password, user.password);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
     }

@@ -1,4 +1,4 @@
-import { Question } from '../entities/question.entity';
+import type { Question } from '../entities/question.entity';
 
 /**
  * Question Repository Interface (Port)

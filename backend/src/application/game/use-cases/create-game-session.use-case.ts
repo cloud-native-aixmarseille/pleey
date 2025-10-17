@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { IGameSessionRepository } from '../../../domain/game/repositories/game-session.repository.interface';
-import { IQuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
+import type { GameSession } from '../../../domain/game/entities/game-session.entity';
+import type { IGameSessionRepository } from '../../../domain/game/repositories/game-session.repository.interface';
 import { PIN } from '../../../domain/game/value-objects/pin.vo';
-import { CreateGameSessionDto } from '../dto/create-game-session.dto';
-import { GameSession } from '../../../domain/game/entities/game-session.entity';
+import type { IQuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
+import type { CreateGameSessionDto } from '../dto/create-game-session.dto';
 
 /**
  * Create Game Session Use Case
@@ -27,10 +27,7 @@ export class CreateGameSessionUseCase {
     const pin = PIN.generate();
 
     // Create session
-    const session = await this.gameSessionRepository.create(
-      dto.quizId,
-      pin.getValue(),
-    );
+    const session = await this.gameSessionRepository.create(dto.quizId, pin.getValue());
 
     return {
       session,

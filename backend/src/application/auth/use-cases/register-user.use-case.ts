@@ -1,8 +1,8 @@
-import { Injectable, ConflictException } from '@nestjs/common';
-import { IUserRepository } from '../../../domain/auth/repositories/user.repository.interface';
-import { PasswordService } from '../../../domain/auth/services/password.service';
-import { RegisterUserDto } from '../dto/register-user.dto';
-import { User } from '../../../domain/auth/entities/user.entity';
+import { ConflictException, Injectable } from '@nestjs/common';
+import type { User } from '../../../domain/auth/entities/user.entity';
+import type { IUserRepository } from '../../../domain/auth/repositories/user.repository.interface';
+import type { PasswordService } from '../../../domain/auth/services/password.service';
+import type { RegisterUserDto } from '../dto/register-user.dto';
 
 /**
  * Register User Use Case

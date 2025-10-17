@@ -1,4 +1,4 @@
-import { Score } from '../entities/score.entity';
+import type { Score } from '../entities/score.entity';
 
 /**
  * Score Repository Interface (Port)

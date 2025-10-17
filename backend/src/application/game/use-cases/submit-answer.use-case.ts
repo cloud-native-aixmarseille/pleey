@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { IGameSessionRepository } from '../../../domain/game/repositories/game-session.repository.interface';
-import { IQuestionRepository } from '../../../domain/quiz/repositories/question.repository.interface';
-import { IScoreRepository } from '../../../domain/game/repositories/score.repository.interface';
-import { ScoreCalculatorService } from '../../../domain/game/services/score-calculator.service';
-import { SubmitAnswerDto } from '../dto/submit-answer.dto';
+import type { IGameSessionRepository } from '../../../domain/game/repositories/game-session.repository.interface';
+import type { IScoreRepository } from '../../../domain/game/repositories/score.repository.interface';
+import type { ScoreCalculatorService } from '../../../domain/game/services/score-calculator.service';
+import type { IQuestionRepository } from '../../../domain/quiz/repositories/question.repository.interface';
+import type { SubmitAnswerDto } from '../dto/submit-answer.dto';
 
 /**
  * Submit Answer Use Case

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { IScoreRepository } from '../../../domain/game/repositories/score.repository.interface';
-import { IGameSessionRepository } from '../../../domain/game/repositories/game-session.repository.interface';
+import type { IGameSessionRepository } from '../../../domain/game/repositories/game-session.repository.interface';
+import type { IScoreRepository } from '../../../domain/game/repositories/score.repository.interface';
 
 /**
  * Get Leaderboard Use Case

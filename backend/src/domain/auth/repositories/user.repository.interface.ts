@@ -1,4 +1,4 @@
-import { User } from '../entities/user.entity';
+import type { User } from '../entities/user.entity';
 
 /**
  * User Repository Interface (Port)
@@ -8,12 +8,7 @@ export interface IUserRepository {
   /**
    * Creates a new user
    */
-  create(
-    username: string,
-    email: string,
-    password: string,
-    isAdmin?: boolean,
-  ): Promise<User>;
+  create(username: string, email: string, password: string, isAdmin?: boolean): Promise<User>;
 
   /**
    * Finds a user by email

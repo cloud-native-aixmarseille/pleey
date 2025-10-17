@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { IQuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
+import type { IQuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
 
 /**
  * Delete Quiz Use Case

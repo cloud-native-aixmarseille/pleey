@@ -1,4 +1,4 @@
-import { Quiz } from '../entities/quiz.entity';
+import type { Quiz } from '../entities/quiz.entity';
 
 /**
  * Quiz Repository Interface (Port)
@@ -8,11 +8,7 @@ export interface IQuizRepository {
   /**
    * Creates a new quiz
    */
-  create(
-    title: string,
-    description: string | null,
-    createdById: number,
-  ): Promise<Quiz>;
+  create(title: string, description: string | null, createdById: number): Promise<Quiz>;
 
   /**
    * Finds a quiz by ID
@@ -37,9 +33,5 @@ export interface IQuizRepository {
   /**
    * Updates a quiz
    */
-  update(
-    id: number,
-    title: string,
-    description: string | null,
-  ): Promise<Quiz>;
+  update(id: number, title: string, description: string | null): Promise<Quiz>;
 }

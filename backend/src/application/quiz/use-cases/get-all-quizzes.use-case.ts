@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { IQuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
-import { Quiz } from '../../../domain/quiz/entities/quiz.entity';
+import type { Quiz } from '../../../domain/quiz/entities/quiz.entity';
+import type { IQuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
 
 /**
  * Get All Quizzes Use Case

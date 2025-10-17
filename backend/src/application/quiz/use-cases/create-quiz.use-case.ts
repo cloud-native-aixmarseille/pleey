@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { IQuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
-import { CreateQuizDto } from '../dto/create-quiz.dto';
-import { Quiz } from '../../../domain/quiz/entities/quiz.entity';
+import type { Quiz } from '../../../domain/quiz/entities/quiz.entity';
+import type { IQuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
+import type { CreateQuizDto } from '../dto/create-quiz.dto';
 
 /**
  * Create Quiz Use Case
@@ -12,10 +12,6 @@ export class CreateQuizUseCase {
   constructor(private readonly quizRepository: IQuizRepository) {}
 
   async execute(dto: CreateQuizDto, userId: number): Promise<Quiz> {
-    return this.quizRepository.create(
-      dto.title,
-      dto.description || null,
-      userId,
-    );
+    return this.quizRepository.create(dto.title, dto.description || null, userId);
   }
 }

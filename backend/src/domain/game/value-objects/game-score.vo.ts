@@ -7,12 +7,7 @@ export class GameScore {
   private readonly timeBonus: number;
   private readonly totalPoints: number;
 
-  constructor(
-    basePoints: number,
-    timeLeft: number,
-    timeLimit: number,
-    isCorrect: boolean,
-  ) {
+  constructor(basePoints: number, timeLeft: number, timeLimit: number, isCorrect: boolean) {
     this.basePoints = basePoints;
     this.timeBonus = this.calculateTimeBonus(timeLeft, timeLimit);
     this.totalPoints = isCorrect ? this.basePoints + this.timeBonus : 0;
