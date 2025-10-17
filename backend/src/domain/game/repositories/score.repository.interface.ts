@@ -4,7 +4,7 @@ import type { Score } from '../entities/score.entity';
  * Score Repository Interface (Port)
  * Defines the contract for score data access
  */
-export interface IScoreRepository {
+export interface ScoreRepository {
   /**
    * Creates a new score entry
    */

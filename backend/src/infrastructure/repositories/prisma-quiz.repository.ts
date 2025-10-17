@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { Quiz } from '../../domain/quiz/entities/quiz.entity';
-import type { IQuizRepository } from '../../domain/quiz/repositories/quiz.repository.interface';
+import type { QuizRepository } from '../../domain/quiz/repositories/quiz.repository.interface';
 import type { PrismaService } from '../database/prisma.service';
 
 /**
  * Prisma Quiz Repository Implementation
- * Implements IQuizRepository using Prisma ORM
+ * Implements QuizRepository using Prisma ORM
  */
 @Injectable()
-export class PrismaQuizRepository implements IQuizRepository {
+export class PrismaQuizRepository implements QuizRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(title: string, description: string | null, createdById: number): Promise<Quiz> {

@@ -4,7 +4,7 @@ import type { GameSession } from '../entities/game-session.entity';
  * GameSession Repository Interface (Port)
  * Defines the contract for game session data access
  */
-export interface IGameSessionRepository {
+export interface GameSessionRepository {
   /**
    * Creates a new game session
    */

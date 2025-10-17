@@ -4,7 +4,7 @@ import type { Quiz } from '../entities/quiz.entity';
  * Quiz Repository Interface (Port)
  * Defines the contract for quiz data access
  */
-export interface IQuizRepository {
+export interface QuizRepository {
   /**
    * Creates a new quiz
    */

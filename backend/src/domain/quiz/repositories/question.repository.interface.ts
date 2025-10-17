@@ -4,7 +4,7 @@ import type { Question } from '../entities/question.entity';
  * Question Repository Interface (Port)
  * Defines the contract for question data access
  */
-export interface IQuestionRepository {
+export interface QuestionRepository {
   /**
    * Creates a new question
    */

@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import type { User } from '../../../domain/auth/entities/user.entity';
-import type { IUserRepository } from '../../../domain/auth/repositories/user.repository.interface';
+import type { UserRepository } from '../../../domain/auth/repositories/user.repository.interface';
 import type { PasswordService } from '../../../domain/auth/services/password.service';
 import type { RegisterUserDto } from '../dto/register-user.dto';
 
@@ -11,7 +11,7 @@ import type { RegisterUserDto } from '../dto/register-user.dto';
 @Injectable()
 export class RegisterUserUseCase {
   constructor(
-    private readonly userRepository: IUserRepository,
+    private readonly userRepository: UserRepository,
     private readonly passwordService: PasswordService,
   ) {}
 

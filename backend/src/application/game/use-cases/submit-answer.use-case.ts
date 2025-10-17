@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import type { IGameSessionRepository } from '../../../domain/game/repositories/game-session.repository.interface';
-import type { IScoreRepository } from '../../../domain/game/repositories/score.repository.interface';
+import type { GameSessionRepository } from '../../../domain/game/repositories/game-session.repository.interface';
+import type { ScoreRepository } from '../../../domain/game/repositories/score.repository.interface';
 import type { ScoreCalculatorService } from '../../../domain/game/services/score-calculator.service';
-import type { IQuestionRepository } from '../../../domain/quiz/repositories/question.repository.interface';
+import type { QuestionRepository } from '../../../domain/quiz/repositories/question.repository.interface';
 import type { SubmitAnswerDto } from '../dto/submit-answer.dto';
 
 /**
@@ -12,9 +12,9 @@ import type { SubmitAnswerDto } from '../dto/submit-answer.dto';
 @Injectable()
 export class SubmitAnswerUseCase {
   constructor(
-    private readonly gameSessionRepository: IGameSessionRepository,
-    private readonly questionRepository: IQuestionRepository,
-    private readonly scoreRepository: IScoreRepository,
+    private readonly gameSessionRepository: GameSessionRepository,
+    private readonly questionRepository: QuestionRepository,
+    private readonly scoreRepository: ScoreRepository,
     private readonly scoreCalculatorService: ScoreCalculatorService,
   ) {}
 

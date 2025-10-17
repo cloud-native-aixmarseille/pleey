@@ -4,7 +4,7 @@ import type { User } from '../entities/user.entity';
  * User Repository Interface (Port)
  * Defines the contract for user data access
  */
-export interface IUserRepository {
+export interface UserRepository {
   /**
    * Creates a new user
    */

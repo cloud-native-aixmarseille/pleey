@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import type { GameSession } from '../../../domain/game/entities/game-session.entity';
-import type { IGameSessionRepository } from '../../../domain/game/repositories/game-session.repository.interface';
+import type { GameSessionRepository } from '../../../domain/game/repositories/game-session.repository.interface';
 import { PIN } from '../../../domain/game/value-objects/pin.vo';
-import type { IQuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
+import type { QuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
 import type { CreateGameSessionDto } from '../dto/create-game-session.dto';
 
 /**
@@ -12,8 +12,8 @@ import type { CreateGameSessionDto } from '../dto/create-game-session.dto';
 @Injectable()
 export class CreateGameSessionUseCase {
   constructor(
-    private readonly gameSessionRepository: IGameSessionRepository,
-    private readonly quizRepository: IQuizRepository,
+    private readonly gameSessionRepository: GameSessionRepository,
+    private readonly quizRepository: QuizRepository,
   ) {}
 
   async execute(dto: CreateGameSessionDto): Promise<{ session: GameSession; pin: string }> {
