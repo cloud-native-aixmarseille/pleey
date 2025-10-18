@@ -153,67 +153,192 @@ xdg-open coverage/index.html  # Linux
 
 ## E2E Tests (Playwright)
 
-### Installation des dépendances
+Les tests E2E utilisent **Playwright v1.48.0** avec TypeScript pour valider les flux critiques de bout en bout.
+
+**Total : 16 tests** (7 smoke tests + 9 cas d'usage nominaux)
+- **Temps d'exécution** : ~2-3 minutes (smoke tests seuls : ~30s)
+- **Framework** : Playwright avec TypeScript
+- **Browser** : Chromium (extensible à Firefox, Safari)
+
+### Quick Start
 
 ```bash
-cd e2e
-npm install
-npx playwright install chromium
+# 1. Démarrer l'application
+docker compose up -d
+
+# 2. Installer les dépendances (première fois)
+cd e2e && npm install && npx playwright install chromium
+
+# 3. Exécuter les tests
+./test-e2e.sh          # Tous les tests (avec auto-checks)
+./test-e2e.sh smoke    # Smoke tests uniquement
+
+# Ou manuellement
+cd e2e && npm test                # Tous les tests
+cd e2e && npm run test:smoke      # Smoke tests uniquement
 ```
 
-### Exécuter les tests
+### Tests Disponibles
 
-```bash
-# Tous les tests E2E
-cd e2e && npm test
-
-# Smoke tests uniquement (rapide, < 1 min)
-cd e2e && npm run test:smoke
-
-# Mode UI interactif
-cd e2e && npm run test:ui
-
-# Mode headed (voir le navigateur)
-cd e2e && npm run test:headed
-
-# Mode debug
-cd e2e && npm run test:debug
-```
-
-### Tests disponibles
-
-#### Smoke Tests (@smoke)
-Tests rapides de santé de l'application :
-- ✅ Frontend charge correctement
-- ✅ Backend health endpoints répondent
-- ✅ Pas d'erreurs console critiques
+#### Smoke Tests (@smoke) - 7 tests
+Tests rapides (~30s) pour vérifier la disponibilité de l'application :
+- ✅ Frontend charge sans erreur
+- ✅ Backend `/health` répond
+- ✅ Backend `/health/live` répond
+- ✅ Backend `/health/ready` répond
+- ✅ Interface login/register visible
 - ✅ Navigation de base fonctionne
+- ✅ Pas d'erreurs console critiques
 
-#### Cas d'usage nominaux
-Tests des flux critiques utilisateur (happy path) :
-- **Authentification** : Inscription, connexion
-- **Gestion Quiz** : Création de quiz, ajout de questions
-- **Jeu** : Rejoindre une partie, flux complet
+**Usage** : Déploiements, CI pipeline, checks rapides
 
-### Visualiser les résultats
+#### Cas d'Usage Nominaux - 9 tests
+Tests des flux critiques (happy path uniquement) :
 
+**Authentification** (3 tests)
+- Inscription utilisateur
+- Connexion valide
+- Rejet connexion invalide
+
+**Gestion Quiz** (3 tests)
+- Admin crée un quiz
+- Admin ajoute des questions
+- Liste des quiz accessible
+
+**Jeu** (3 tests)
+- Rejoindre avec PIN
+- Affichage du lobby
+- Gestion PIN invalide
+
+### Exécution des Tests
+
+**Options d'exécution** :
 ```bash
 cd e2e
-npm run report  # Ouvre le rapport HTML Playwright
+npm test              # Tous les tests
+npm run test:smoke    # Smoke tests uniquement (rapide)
+npm run test:ui       # Mode UI interactif
+npm run test:headed   # Voir le navigateur
+npm run test:debug    # Mode debug step-by-step
+npm run report        # Voir le rapport HTML
 ```
 
-Les résultats incluent :
-- Screenshots des échecs
-- Vidéos des tests qui échouent
-- Traces détaillées pour debugging
+**Avec le script helper** :
+```bash
+./test-e2e.sh         # Tous (auto-checks Docker)
+./test-e2e.sh smoke   # Smoke uniquement
+./test-e2e.sh ui      # Mode UI
+./test-e2e.sh debug   # Mode debug
+```
 
-### Philosophie E2E
+### Debugging
 
-Suivant la **pyramide des tests** :
-- **Peu de tests E2E** (coûteux en temps d'exécution)
-- **Focus sur les flux critiques** uniquement
-- **Smoke tests** pour détecter rapidement les problèmes
-- **Complémente** les tests unitaires et d'intégration
+**Voir les résultats** :
+```bash
+cd e2e && npm run report  # Rapport HTML avec traces
+```
+
+**Artifacts disponibles** :
+- Screenshots des échecs : `e2e/test-results/*/test-failed-*.png`
+- Vidéos : `e2e/test-results/*/video.webm`
+- Traces : Viewer avec `npx playwright show-trace`
+
+**Debug mode** :
+```bash
+cd e2e && npm run test:debug  # Step-by-step debugging
+```
+
+### Structure des Tests
+
+```
+e2e/
+├── tests/
+│   ├── smoke/
+│   │   └── health.spec.ts       # 7 smoke tests
+│   └── features/
+│       ├── auth.spec.ts         # 3 tests authentification
+│       ├── quiz-management.spec.ts  # 3 tests gestion quiz
+│       └── game-flow.spec.ts    # 3 tests flux de jeu
+├── playwright.config.ts         # Configuration Playwright
+├── tsconfig.json               # Configuration TypeScript
+└── package.json                # Scripts et dépendances
+```
+
+### Principes et Bonnes Pratiques
+
+**Pourquoi peu de tests E2E ?**
+- Tests lents et coûteux (2-3 min vs secondes pour unit tests)
+- Focus sur flux critiques uniquement
+- Edge cases couverts par tests unitaires
+- Respecte la pyramide : beaucoup de unit tests, peu de E2E
+
+**Bonnes pratiques appliquées** :
+- ✅ Tests indépendants (pas d'état partagé)
+- ✅ Noms descriptifs
+- ✅ Waits appropriés (pas de `waitForTimeout` flaky)
+- ✅ Tag `@smoke` pour tests rapides
+- ✅ Happy paths uniquement (nominal use cases)
+
+**À éviter** :
+- ❌ Tester tous les edge cases en E2E
+- ❌ Ajouter des tests E2E inutiles
+- ❌ Partager l'état entre tests
+- ❌ Utiliser `waitForTimeout` (préférer `waitForLoadState`)
+
+### CI/CD Integration
+
+Les tests E2E s'exécutent automatiquement dans GitHub Actions :
+1. Après les tests unitaires (backend + frontend)
+2. Smoke tests d'abord (fast-fail)
+3. Tous les tests E2E
+4. Bloque le déploiement en cas d'échec
+
+**Artifacts uploadés** :
+- Rapports HTML : 30 jours
+- Screenshots/vidéos : 7 jours
+
+### Ajouter de Nouveaux Tests E2E
+
+**1. Identifier le type** :
+- **Smoke test** ? → Rapide (<5s), check basique → `tests/smoke/`
+- **Use case critique** ? → Flux complet utilisateur → `tests/features/`
+
+**2. Créer le test** :
+```typescript
+import { test, expect } from '@playwright/test';
+
+test.describe('Feature Name', () => {
+  test('should perform critical action @smoke', async ({ page }) => {
+    await page.goto('/');
+    await page.click('button#action');
+    await expect(page.locator('.success')).toBeVisible();
+  });
+});
+```
+
+**3. Tester** :
+```bash
+cd e2e && npm run test:debug  # Debug le nouveau test
+```
+
+### Troubleshooting
+
+**Tests échouent immédiatement** :
+```bash
+docker compose ps              # Vérifier les services
+curl http://localhost:3001/health  # Tester le backend
+```
+
+**Timeouts** :
+- Augmenter timeout dans `playwright.config.ts`
+- Vérifier que les services démarrent bien
+
+**Tests flaky** :
+- Utiliser `waitForLoadState('networkidle')`
+- Éviter `waitForTimeout`
+- Vérifier les conditions réseau
+
+Pour plus de détails, voir `e2e/README.md`
 
 ## Tests dans Docker
 
