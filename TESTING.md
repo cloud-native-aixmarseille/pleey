@@ -2,25 +2,51 @@
 
 Ce document explique comment exécuter et développer les tests pour l'application QuizMaster.
 
+## Testing Pyramid
+
+QuizMaster suit le principe de la **pyramide des tests** :
+
+```
+        /\
+       /  \  E2E Tests (few) - Smoke tests & critical flows
+      /____\
+     /      \
+    /  INT   \ Integration Tests (some) - Component interactions
+   /__________\
+  /            \
+ /     UNIT     \ Unit Tests (many) - Business logic
+/________________\
+```
+
+- **Unit Tests** (nombreux) : Logique métier, composants isolés
+- **Integration Tests** (quelques-uns) : Interactions entre composants
+- **E2E Tests** (peu) : Flux critiques utilisateur et smoke tests
+
 ## Structure des Tests
 
 ```
 quiz-app/
 ├── backend/
-│   ├── __tests__/
-│   │   ├── auth.test.js         # Tests d'authentification
-│   │   ├── quiz.test.js         # Tests API quiz
-│   │   └── websocket.test.js    # Tests WebSocket
-│   ├── jest.config.js           # Configuration Jest
+│   ├── src/
+│   │   └── domain/          # Tests unitaires domaine (*.spec.ts)
+│   ├── test/
+│   │   └── app.e2e-spec.ts  # Tests E2E backend
+│   ├── vitest.config.ts     # Configuration Vitest
 │   └── package.json
-└── frontend/
-    ├── src/
-    │   ├── __tests__/
-    │   │   ├── App.test.jsx     # Tests composants React
-    │   │   └── utils.test.js    # Tests logique métier
-    │   └── test/
-    │       └── setup.js         # Configuration tests
-    ├── vitest.config.js         # Configuration Vitest
+├── frontend/
+│   ├── src/
+│   │   ├── __tests__/       # Tests composants React
+│   │   ├── domains/
+│   │   │   └── **/__tests__/  # Tests services
+│   │   └── features/
+│   │       └── **/__tests__/  # Tests features
+│   ├── vitest.config.js     # Configuration Vitest
+│   └── package.json
+└── e2e/                     # Tests End-to-End (Playwright)
+    ├── tests/
+    │   ├── smoke/           # Smoke tests (@smoke)
+    │   └── features/        # Use cases nominaux
+    ├── playwright.config.ts
     └── package.json
 ```
 
@@ -125,6 +151,70 @@ open coverage/index.html  # macOS
 xdg-open coverage/index.html  # Linux
 ```
 
+## E2E Tests (Playwright)
+
+### Installation des dépendances
+
+```bash
+cd e2e
+npm install
+npx playwright install chromium
+```
+
+### Exécuter les tests
+
+```bash
+# Tous les tests E2E
+cd e2e && npm test
+
+# Smoke tests uniquement (rapide, < 1 min)
+cd e2e && npm run test:smoke
+
+# Mode UI interactif
+cd e2e && npm run test:ui
+
+# Mode headed (voir le navigateur)
+cd e2e && npm run test:headed
+
+# Mode debug
+cd e2e && npm run test:debug
+```
+
+### Tests disponibles
+
+#### Smoke Tests (@smoke)
+Tests rapides de santé de l'application :
+- ✅ Frontend charge correctement
+- ✅ Backend health endpoints répondent
+- ✅ Pas d'erreurs console critiques
+- ✅ Navigation de base fonctionne
+
+#### Cas d'usage nominaux
+Tests des flux critiques utilisateur (happy path) :
+- **Authentification** : Inscription, connexion
+- **Gestion Quiz** : Création de quiz, ajout de questions
+- **Jeu** : Rejoindre une partie, flux complet
+
+### Visualiser les résultats
+
+```bash
+cd e2e
+npm run report  # Ouvre le rapport HTML Playwright
+```
+
+Les résultats incluent :
+- Screenshots des échecs
+- Vidéos des tests qui échouent
+- Traces détaillées pour debugging
+
+### Philosophie E2E
+
+Suivant la **pyramide des tests** :
+- **Peu de tests E2E** (coûteux en temps d'exécution)
+- **Focus sur les flux critiques** uniquement
+- **Smoke tests** pour détecter rapidement les problèmes
+- **Complémente** les tests unitaires et d'intégration
+
 ## Tests dans Docker
 
 ### Exécuter les tests dans les conteneurs
@@ -135,6 +225,10 @@ docker compose exec backend npm test
 
 # Frontend
 docker compose run --rm frontend npm test
+
+# E2E (nécessite que l'application tourne)
+docker-compose up -d
+cd e2e && npm test
 ```
 
 ## CI/CD - GitHub Actions
