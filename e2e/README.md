@@ -129,6 +129,60 @@ Tests run in GitHub Actions:
 4. Use @smoke tag for quick checks
 5. Keep it focused on happy paths
 
+## Adding New Tests
+
+1. Identify if it's a smoke test or feature test
+2. Create in appropriate directory
+3. Follow existing patterns
+4. Use @smoke tag for quick checks
+5. Keep it focused on happy paths
+
+### Example: Adding a New Feature Test
+
+```typescript
+import { test, expect } from '@playwright/test';
+
+test.describe('New Feature - Nominal Use Case', () => {
+  
+  test('should perform critical user action', async ({ page }) => {
+    // Arrange - Set up initial state
+    await page.goto('/');
+    
+    // Act - Perform the action
+    await page.click('button#important-action');
+    
+    // Assert - Verify expected outcome
+    await expect(page.locator('.success-message')).toBeVisible();
+  });
+});
+```
+
+### Test Naming Convention
+
+- **Descriptive**: `should allow user to complete checkout process`
+- **Action-based**: `should reject invalid email format`
+- **Outcome-focused**: `should display error when form is incomplete`
+
+### Test Independence
+
+Each test should:
+- ✅ Run independently (no shared state)
+- ✅ Clean up after itself
+- ✅ Not depend on test execution order
+- ✅ Have its own setup/teardown if needed
+
+```typescript
+test.beforeEach(async ({ page }) => {
+  // Set up test state
+  await page.goto('/');
+  // Login if needed, etc.
+});
+
+test.afterEach(async ({ page }) => {
+  // Clean up (if needed)
+});
+```
+
 ## Troubleshooting
 
 **Tests fail immediately**
