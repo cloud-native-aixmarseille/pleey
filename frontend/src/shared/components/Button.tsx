@@ -1,4 +1,4 @@
-import { ReactNode, ButtonHTMLAttributes } from 'react';
+import { ReactNode, ButtonHTMLAttributes, forwardRef } from 'react';
 
 type ButtonVariant = 'primary' | 'secondary' | 'accent' | 'success' | 'danger' | 'outline' | 'ghost';
 type ButtonSize = 'sm' | 'md' | 'lg' | 'xl';
@@ -28,7 +28,7 @@ const variantClasses = {
   ghost: 'btn-ghost',
 };
 
-export default function Button({ 
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ 
   variant = 'primary', 
   size = 'md', 
   fullWidth = false,
@@ -37,9 +37,10 @@ export default function Button({
   className = '',
   disabled,
   ...props 
-}: ButtonProps) {
+}, ref) => {
   return (
     <button
+      ref={ref}
       className={`
         btn
         ${variantClasses[variant]}
@@ -55,4 +56,8 @@ export default function Button({
       {children}
     </button>
   );
-}
+});
+
+Button.displayName = 'Button';
+
+export default Button;

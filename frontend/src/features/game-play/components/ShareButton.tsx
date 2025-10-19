@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '../../../shared/components';
 
 interface ShareButtonProps {
@@ -20,6 +20,57 @@ export function ShareButton({
 }: ShareButtonProps) {
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [copied, setCopied] = useState(false);
+  const shareButtonRef = useRef<HTMLButtonElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Handle Escape key to close modal
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showShareMenu) {
+        setShowShareMenu(false);
+        shareButtonRef.current?.focus();
+      }
+    };
+    
+    if (showShareMenu) {
+      document.addEventListener('keydown', handleEscape);
+      return () => document.removeEventListener('keydown', handleEscape);
+    }
+  }, [showShareMenu]);
+
+  // Focus trap in modal
+  useEffect(() => {
+    if (!showShareMenu || !modalRef.current) return;
+
+    const modal = modalRef.current;
+    const focusableElements = modal.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          lastElement?.focus();
+          e.preventDefault();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          firstElement?.focus();
+          e.preventDefault();
+        }
+      }
+    };
+
+    modal.addEventListener('keydown', handleTab);
+    firstElement?.focus();
+
+    return () => modal.removeEventListener('keydown', handleTab);
+  }, [showShareMenu]);
 
   // Handle native Web Share API
   const handleNativeShare = async () => {
@@ -75,13 +126,16 @@ export function ShareButton({
   return (
     <div className="relative">
       <Button
+        ref={shareButtonRef}
         variant={variant}
         size={size}
         onClick={handleNativeShare}
         className={`font-display uppercase tracking-wider ${className}`}
+        aria-haspopup="dialog"
+        aria-expanded={showShareMenu}
       >
         <span className="flex items-center justify-center gap-2">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
           </svg>
           <span>Share</span>
@@ -94,18 +148,31 @@ export function ShareButton({
           {/* Backdrop */}
           <div 
             className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm animate-fade-in"
-            onClick={() => setShowShareMenu(false)}
+            onClick={() => {
+              setShowShareMenu(false);
+              shareButtonRef.current?.focus();
+            }}
+            aria-hidden="true"
           ></div>
 
           {/* Share Menu */}
-          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md p-4 animate-scale-in">
+          <div 
+            ref={modalRef}
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md p-4 animate-scale-in"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="share-dialog-title"
+          >
             <div className="bg-dark-400 border-2 border-primary-500 rounded-2xl p-6 shadow-neon-accent">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-bold text-white font-display uppercase">Share Results</h3>
+                <h3 id="share-dialog-title" className="text-2xl font-bold text-white font-display uppercase">Share Results</h3>
                 <button
-                  onClick={() => setShowShareMenu(false)}
+                  onClick={() => {
+                    setShowShareMenu(false);
+                    shareButtonRef.current?.focus();
+                  }}
                   className="text-white hover:text-danger-500 transition-colors text-3xl leading-none"
-                  aria-label="Close"
+                  aria-label="Close share dialog"
                 >
                   ×
                 </button>
