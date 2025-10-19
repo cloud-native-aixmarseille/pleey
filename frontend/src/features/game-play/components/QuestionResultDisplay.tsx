@@ -51,9 +51,25 @@ export default function QuestionResultDisplay({
         ? 'bg-gradient-to-br from-success-500 to-accent-500' 
         : 'bg-gradient-to-br from-danger-500 to-secondary-500'}
     `}>
+      {/* Screen reader announcement */}
+      <div 
+        role="status" 
+        aria-live="polite" 
+        aria-atomic="true" 
+        className="sr-only"
+      >
+        {isCorrect 
+          ? `Correct! You earned ${answerResult.points} points.`
+          : `Incorrect. The correct answer was ${answerResult.correctAnswer}.`
+        }
+        {answerResult.statistics && 
+          ` ${answerResult.statistics.totalAnswers} players have answered this question.`
+        }
+      </div>
+
       {/* Animated background shine effect */}
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-float" 
-           style={{ animationDuration: '2s' }}></div>
+           style={{ animationDuration: '2s' }} aria-hidden="true"></div>
 
       <div className="relative z-10">
         {/* Result Icon with bounce animation */}
@@ -83,15 +99,16 @@ export default function QuestionResultDisplay({
             <h4 className="text-xl font-bold mb-4 text-center font-display uppercase">
               📊 Answer Distribution
             </h4>
-            <div className="space-y-3">
+            <div className="space-y-3" role="list" aria-label="Answer distribution statistics">
               {currentQuestion.type === 'multiple' ? (
                 ['A', 'B', 'C', 'D'].map((option) => {
                   const percentage = getPercentage(option);
                   const isUserAnswer = option === userAnswer;
                   const isCorrectAnswer = option === answerResult.correctAnswer;
+                  const count = answerResult.statistics.answerDistribution[option] || 0;
                   
                   return (
-                    <div key={option} className="relative">
+                    <div key={option} className="relative" role="listitem">
                       <div className="flex items-center justify-between mb-1 text-sm font-mono">
                         <span className="font-bold">
                           {option}. {currentQuestion[`option_${option.toLowerCase()}`]}
@@ -100,17 +117,25 @@ export default function QuestionResultDisplay({
                         </span>
                         <span className="font-black">{percentage}%</span>
                       </div>
-                      <div className="relative h-8 bg-dark-700/50 rounded-full overflow-hidden border border-white/20">
+                      <div 
+                        className="relative h-8 bg-dark-700/50 rounded-full overflow-hidden border border-white/20"
+                        role="progressbar"
+                        aria-valuenow={percentage}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-label={`Option ${option}: ${percentage}% of players, ${count} out of ${answerResult.statistics.totalAnswers} players selected this answer${isCorrectAnswer ? ', correct answer' : ''}${isUserAnswer ? ', your answer' : ''}`}
+                      >
                         <div
                           className={`h-full bg-gradient-to-r ${getOptionColor(option)} transition-all duration-1000 flex items-center justify-end px-3`}
                           style={{ 
                             width: `${percentage}%`,
                             animationDelay: `${0.1 * ['A', 'B', 'C', 'D'].indexOf(option)}s`
                           }}
+                          aria-hidden="true"
                         >
                           {percentage > 10 && (
                             <span className="text-white font-black text-sm drop-shadow-lg">
-                              {answerResult.statistics.answerDistribution[option] || 0}
+                              {count}
                             </span>
                           )}
                         </div>
@@ -123,9 +148,10 @@ export default function QuestionResultDisplay({
                   const percentage = getPercentage(option);
                   const isUserAnswer = option === userAnswer;
                   const isCorrectAnswer = option === answerResult.correctAnswer;
+                  const count = answerResult.statistics.answerDistribution[option] || 0;
                   
                   return (
-                    <div key={option} className="relative">
+                    <div key={option} className="relative" role="listitem">
                       <div className="flex items-center justify-between mb-1 text-sm font-mono">
                         <span className="font-bold uppercase">
                           {option === 'true' ? '✓ VRAI' : '✗ FAUX'}
@@ -134,17 +160,25 @@ export default function QuestionResultDisplay({
                         </span>
                         <span className="font-black">{percentage}%</span>
                       </div>
-                      <div className="relative h-8 bg-dark-700/50 rounded-full overflow-hidden border border-white/20">
+                      <div 
+                        className="relative h-8 bg-dark-700/50 rounded-full overflow-hidden border border-white/20"
+                        role="progressbar"
+                        aria-valuenow={percentage}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-label={`${option === 'true' ? 'True' : 'False'}: ${percentage}% of players, ${count} out of ${answerResult.statistics.totalAnswers} players selected this answer${isCorrectAnswer ? ', correct answer' : ''}${isUserAnswer ? ', your answer' : ''}`}
+                      >
                         <div
                           className={`h-full bg-gradient-to-r ${getOptionColor(option)} transition-all duration-1000 flex items-center justify-end px-3`}
                           style={{ 
                             width: `${percentage}%`,
                             animationDelay: `${option === 'true' ? '0s' : '0.1s'}`
                           }}
+                          aria-hidden="true"
                         >
                           {percentage > 10 && (
                             <span className="text-white font-black text-sm drop-shadow-lg">
-                              {answerResult.statistics.answerDistribution[option] || 0}
+                              {count}
                             </span>
                           )}
                         </div>
