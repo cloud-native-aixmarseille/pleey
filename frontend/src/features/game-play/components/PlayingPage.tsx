@@ -1,5 +1,6 @@
 import { Question, AnswerResult } from '../../../shared/types';
 import { Button, Card, Container } from '../../../shared/components';
+import QuestionResultDisplay from './QuestionResultDisplay';
 
 interface PlayingPageProps {
   currentQuestion: Question;
@@ -138,40 +139,14 @@ export default function PlayingPage({
             </div>
           )
         ) : answerResult && (
-          <Card className={`
-            p-10 sm:p-12 text-center text-white animate-scale-in
-            ${answerResult.isCorrect 
-              ? 'bg-gradient-to-br from-success-500 to-accent-500' 
-              : 'bg-gradient-to-br from-danger-500 to-secondary-500'}
-          `}>
-            <div className="text-7xl sm:text-8xl mb-6 animate-bounce-slow">
-              {answerResult.isCorrect ? '🎉' : '😢'}
-            </div>
-            <h3 className="text-4xl sm:text-5xl font-black mb-4">
-              {answerResult.isCorrect ? 'BRAVO !' : 'OUPS !'}
-            </h3>
-            <div className="glass-effect rounded-2xl p-6 mb-6 border-2 border-white/30">
-              <p className="text-2xl sm:text-3xl font-bold">
-                {answerResult.isCorrect 
-                  ? `+${answerResult.points} points` 
-                  : `Bonne réponse: ${answerResult.correctAnswer}`
-                }
-              </p>
-            </div>
-            {isAdmin && (
-              <Button
-                variant="ghost"
-                size="xl"
-                onClick={onNextQuestion}
-                className="border-2 border-white text-white hover:bg-white hover:text-dark-900"
-              >
-                <span className="flex items-center gap-2">
-                  <span>Question suivante</span>
-                  <span className="text-2xl">→</span>
-                </span>
-              </Button>
-            )}
-          </Card>
+          <QuestionResultDisplay
+            answerResult={answerResult}
+            currentQuestion={currentQuestion}
+            questionNumber={questionNumber}
+            userAnswer={userAnswer}
+            isAdmin={isAdmin}
+            onNextQuestion={onNextQuestion}
+          />
         )}
       </Container>
     </div>
