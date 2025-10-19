@@ -113,7 +113,7 @@ describe('LeaderboardPage', () => {
 
     await waitFor(
       () => {
-        expect(screen.getByText('Share Results')).toBeInTheDocument();
+        expect(screen.getByText('Share')).toBeInTheDocument();
       },
       { timeout: 4000 }
     );

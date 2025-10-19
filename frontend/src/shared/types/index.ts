@@ -42,10 +42,24 @@ export interface AnswerResult {
   isCorrect: boolean;
   points: number;
   correctAnswer: string;
+  statistics?: AnswerStatistics;
+}
+
+export interface AnswerStatistics {
+  totalAnswers: number;
+  answerDistribution: {
+    A?: number;
+    B?: number;
+    C?: number;
+    D?: number;
+    true?: number;
+    false?: number;
+  };
 }
 
 export interface LeaderboardEntry {
   username: string;
   totalPoints: number;
   rank: number;
+  userId?: number;
 }
