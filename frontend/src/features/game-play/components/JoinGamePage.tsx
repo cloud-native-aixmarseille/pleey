@@ -1,4 +1,4 @@
-import { Button, Card, Container, Input } from '../../../shared/components';
+import { Button, Card, Container } from '../../../shared/components';
 
 interface JoinGamePageProps {
   gamePin: string;
@@ -13,97 +13,160 @@ export default function JoinGamePage({
   onJoinGame,
   onNavigate
 }: JoinGamePageProps) {
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && gamePin.length === 6) {
+      onJoinGame();
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-game-gradient flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Animated background */}
+    <div className="min-h-screen bg-game-gradient crt-screen flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-20 w-72 h-72 bg-secondary-500/10 rounded-full blur-3xl animate-float"></div>
         <div className="absolute bottom-20 right-20 w-96 h-96 bg-primary-500/10 rounded-full blur-3xl animate-float animation-delay-200"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent-500/5 rounded-full blur-3xl animate-pulse-slow"></div>
       </div>
 
       <Container size="sm" className="relative z-10">
         <div className="animate-slide-up">
-          {/* Header */}
-          <div className="text-center mb-8">
+          {/* Arcade-style header */}
+          <div className="text-center mb-10">
             <button
               onClick={() => onNavigate('home')}
-              className="inline-flex items-center gap-2 text-white hover:text-secondary-400 transition-colors mb-4"
+              className="inline-flex items-center gap-2 text-accent-400 hover:text-accent-300 transition-all mb-6 font-mono text-sm hover:scale-105 transform"
             >
-              <span className="text-2xl">←</span>
-              <span className="font-semibold">Retour</span>
+              <span className="text-2xl">◄</span>
+              <span className="uppercase tracking-wider">BACK TO MENU</span>
             </button>
-            <div className="text-6xl mb-4 animate-bounce-slow">🎮</div>
-            <h2 className="text-4xl sm:text-5xl font-black text-white mb-2">
-              Rejoindre une partie
-            </h2>
-            <p className="text-light-400">
-              Entrez le code PIN partagé par l'hôte
+            
+            {/* Pixel art style icon */}
+            <div className="relative inline-block mb-6">
+              <div className="text-7xl animate-bounce-slow">🎮</div>
+              <div className="absolute -top-2 -right-2 w-6 h-6 bg-accent-500 rounded-full animate-pulse"></div>
+            </div>
+
+            <h1 className="font-display text-4xl sm:text-5xl uppercase text-neon text-accent-500 mb-3 tracking-wider">
+              ► JOIN GAME
+            </h1>
+            <p className="text-light-300 font-mono text-sm sm:text-base animate-pulse-slow">
+              &gt; Enter the PIN code to start playing
             </p>
           </div>
 
-          <Card className="p-8 sm:p-10">
-            {/* PIN Input */}
+          {/* Main card with arcade styling */}
+          <Card className="p-8 sm:p-12 retro-shadow border-4 border-primary-500/50">
+            {/* Terminal-style header */}
+            <div className="mb-8 pb-4 border-b-2 border-primary-500/30">
+              <p className="font-mono text-accent-400 text-xs sm:text-sm">
+                <span className="text-success-500 animate-pulse">●</span> SYSTEM READY
+              </p>
+              <p className="font-mono text-primary-300 text-xs mt-1">
+                &gt; WAITING FOR INPUT...
+              </p>
+            </div>
+
+            {/* PIN Input - Arcade style */}
             <div className="mb-8">
-              <label className="block text-dark-800 font-bold text-lg mb-4 text-center">
-                Code PIN
+              <label className="block font-display text-primary-300 text-xs sm:text-sm mb-4 text-center uppercase tracking-wider">
+                ► Enter Game PIN ◄
               </label>
               <input
                 type="text"
                 value={gamePin}
                 onChange={(e) => onGamePinChange(e.target.value.toUpperCase())}
-                placeholder="XXXXXX"
-                className="w-full p-6 border-4 border-primary-300 rounded-2xl text-center text-5xl font-black tracking-widest focus:border-primary-500 focus:ring-4 focus:ring-primary-200 focus:outline-none transition-all bg-gradient-to-br from-light-50 to-white"
+                onKeyPress={handleKeyPress}
+                placeholder="••••••"
+                className="w-full p-6 sm:p-8 bg-dark-500 border-4 border-accent-500/50 rounded-xl text-center text-4xl sm:text-6xl font-display tracking-[0.5em] focus:border-accent-500 focus:ring-4 focus:ring-accent-500/30 focus:outline-none transition-all text-accent-400 placeholder-dark-300 uppercase shadow-neon-accent"
                 maxLength={6}
+                autoFocus
+                aria-label="Game PIN code"
               />
-              <p className="text-sm text-light-600 text-center mt-3">
-                Le code PIN contient 6 caractères
-              </p>
+              <div className="flex justify-center items-center gap-3 mt-4">
+                <span className="font-mono text-xs text-light-500">PIN LENGTH:</span>
+                <span className={`font-display text-sm transition-colors ${gamePin.length === 6 ? 'text-success-500 animate-pulse' : 'text-primary-400'}`}>
+                  {gamePin.length}/6
+                </span>
+              </div>
             </div>
 
-            {/* Visual feedback for PIN entry */}
-            <div className="flex justify-center gap-2 mb-8">
+            {/* Pixel indicators for PIN entry */}
+            <div className="flex justify-center gap-3 mb-10">
               {[...Array(6)].map((_, i) => (
                 <div
                   key={i}
                   className={`
-                    w-3 h-3 rounded-full transition-all duration-300
+                    w-4 h-4 transition-all duration-300 transform
                     ${i < gamePin.length 
-                      ? 'bg-gradient-to-r from-primary-500 to-secondary-500 scale-125' 
-                      : 'bg-light-300'}
+                      ? 'bg-accent-500 shadow-neon-accent scale-125 rotate-45' 
+                      : 'bg-dark-400 border-2 border-primary-500/30'}
                   `}
+                  style={{ 
+                    animationDelay: `${i * 0.05}s`,
+                    animation: i < gamePin.length ? 'pixelPop 0.3s ease-out' : 'none'
+                  }}
                 />
               ))}
             </div>
 
-            {/* Join Button */}
+            {/* Join Button - Arcade style with retro shadow */}
             <Button
-              variant="secondary"
+              variant="accent"
               size="xl"
               fullWidth
               onClick={onJoinGame}
               disabled={gamePin.length !== 6}
+              className="retro-shadow font-display text-base sm:text-lg hover:scale-105 transform transition-all"
             >
-              <span className="flex items-center justify-center gap-2">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                <span>Rejoindre maintenant</span>
+              <span className="flex items-center justify-center gap-3">
+                <span className="animate-pulse">►</span>
+                <span>START GAME</span>
+                <span className="animate-pulse">◄</span>
               </span>
             </Button>
 
-            {/* Info box */}
-            <div className="mt-8 glass-effect rounded-2xl p-4 border border-primary-200/30">
+            {/* Status message */}
+            {gamePin.length === 6 && (
+              <div className="mt-6 text-center animate-fade-in">
+                <p className="font-mono text-success-500 text-sm animate-pulse">
+                  ✓ PIN COMPLETE - PRESS START OR ENTER
+                </p>
+              </div>
+            )}
+
+            {/* Instructions - Terminal style */}
+            <div className="mt-8 glass-effect rounded-xl p-5 border-2 border-accent-500/30">
               <div className="flex items-start gap-3">
-                <span className="text-2xl">💡</span>
+                <span className="text-2xl flex-shrink-0">💡</span>
                 <div className="flex-1">
-                  <p className="text-sm text-dark-700 font-medium">
-                    <strong>Astuce :</strong> Demandez le code PIN à l'organisateur de la partie. 
-                    Il s'affiche en grand sur son écran !
+                  <p className="font-display text-accent-400 text-xxs mb-2 uppercase tracking-wider">
+                    ► HOW TO JOIN
                   </p>
+                  <ul className="font-mono text-xs text-light-300 space-y-1">
+                    <li className="flex items-start gap-2">
+                      <span className="text-accent-500 flex-shrink-0">•</span>
+                      <span>Ask the game host for the 6-character PIN code</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-accent-500 flex-shrink-0">•</span>
+                      <span>The PIN is displayed in large text on the host's screen</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-accent-500 flex-shrink-0">•</span>
+                      <span>Enter it above and press START GAME to join!</span>
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
           </Card>
+
+          {/* Fun footer message */}
+          <div className="mt-6 text-center">
+            <p className="font-mono text-primary-400 text-xs animate-pulse-slow">
+              &gt; GET READY FOR AN EPIC QUIZ BATTLE! &lt;
+            </p>
+          </div>
         </div>
       </Container>
     </div>

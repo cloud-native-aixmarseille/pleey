@@ -14,8 +14,8 @@ describe('JoinGamePage', () => {
 
     render(<JoinGamePage {...mockHandlers} />);
 
-    expect(screen.getByText('Rejoindre une partie')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('XXXXXX')).toBeInTheDocument();
+    expect(screen.getByText(/JOIN GAME/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('••••••')).toBeInTheDocument();
   });
 
   it('should update game pin when user types', async () => {
@@ -29,7 +29,7 @@ describe('JoinGamePage', () => {
 
     render(<JoinGamePage {...mockHandlers} />);
 
-    const input = screen.getByPlaceholderText('XXXXXX');
+    const input = screen.getByPlaceholderText('••••••');
     await user.type(input, '123456');
 
     expect(mockHandlers.onGamePinChange).toHaveBeenCalled();
@@ -45,7 +45,7 @@ describe('JoinGamePage', () => {
 
     render(<JoinGamePage {...mockHandlers} />);
 
-    const joinButton = screen.getByRole('button', { name: /rejoindre maintenant/i });
+    const joinButton = screen.getByRole('button', { name: /START GAME/i });
     expect(joinButton).toBeDisabled();
   });
 
@@ -59,7 +59,7 @@ describe('JoinGamePage', () => {
 
     render(<JoinGamePage {...mockHandlers} />);
 
-    const joinButton = screen.getByRole('button', { name: /rejoindre maintenant/i });
+    const joinButton = screen.getByRole('button', { name: /START GAME/i });
     expect(joinButton).not.toBeDisabled();
   });
 
@@ -73,8 +73,24 @@ describe('JoinGamePage', () => {
 
     render(<JoinGamePage {...mockHandlers} />);
 
-    const joinButton = screen.getByRole('button', { name: /rejoindre maintenant/i });
+    const joinButton = screen.getByRole('button', { name: /START GAME/i });
     fireEvent.click(joinButton);
+
+    expect(mockHandlers.onJoinGame).toHaveBeenCalled();
+  });
+
+  it('should call onJoinGame when Enter key is pressed with valid PIN', () => {
+    const mockHandlers = {
+      gamePin: '123456',
+      onGamePinChange: vi.fn(),
+      onJoinGame: vi.fn(),
+      onNavigate: vi.fn()
+    };
+
+    render(<JoinGamePage {...mockHandlers} />);
+
+    const input = screen.getByPlaceholderText('••••••');
+    fireEvent.keyPress(input, { key: 'Enter', code: 'Enter', charCode: 13 });
 
     expect(mockHandlers.onJoinGame).toHaveBeenCalled();
   });
