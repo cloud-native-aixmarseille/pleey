@@ -18,7 +18,7 @@ describe('LobbyPage', () => {
 
     render(<LobbyPage {...mockHandlers} />);
 
-    expect(screen.getByText(/Code PIN du jeu/i)).toBeInTheDocument();
+    expect(screen.getByText(/GAME LOBBY/i)).toBeInTheDocument();
     expect(screen.getByText('123456')).toBeInTheDocument();
   });
 
@@ -32,7 +32,7 @@ describe('LobbyPage', () => {
 
     render(<LobbyPage {...mockHandlers} />);
 
-    const playerCountElements = screen.getAllByText(/joueurs connectés/i);
+    const playerCountElements = screen.getAllByText(/Connected Players/i);
     expect(playerCountElements.length).toBeGreaterThan(0);
   });
 
@@ -60,7 +60,7 @@ describe('LobbyPage', () => {
 
     render(<LobbyPage {...mockHandlers} />);
 
-    expect(screen.getByRole('button', { name: /Démarrer la partie/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /START GAME/i })).toBeInTheDocument();
   });
 
   it('should not show start button for non-admin', () => {
@@ -73,7 +73,7 @@ describe('LobbyPage', () => {
 
     render(<LobbyPage {...mockHandlers} />);
 
-    expect(screen.queryByRole('button', { name: /Démarrer la partie/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /START GAME/i })).not.toBeInTheDocument();
   });
 
   it('should call onStartGame when admin clicks start button', () => {
@@ -86,9 +86,35 @@ describe('LobbyPage', () => {
 
     render(<LobbyPage {...mockHandlers} />);
 
-    const startButton = screen.getByRole('button', { name: /Démarrer la partie/i });
+    const startButton = screen.getByRole('button', { name: /START GAME/i });
     fireEvent.click(startButton);
 
     expect(mockHandlers.onStartGame).toHaveBeenCalled();
+  });
+
+  it('should show copy PIN button', () => {
+    const mockHandlers = {
+      gamePin: '123456',
+      players: mockPlayers,
+      isAdmin: false,
+      onStartGame: vi.fn()
+    };
+
+    render(<LobbyPage {...mockHandlers} />);
+
+    expect(screen.getByRole('button', { name: /Copy PIN to clipboard/i })).toBeInTheDocument();
+  });
+
+  it('should show join instructions', () => {
+    const mockHandlers = {
+      gamePin: '123456',
+      players: mockPlayers,
+      isAdmin: false,
+      onStartGame: vi.fn()
+    };
+
+    render(<LobbyPage {...mockHandlers} />);
+
+    expect(screen.getByText(/HOW TO JOIN THIS GAME/i)).toBeInTheDocument();
   });
 });
