@@ -239,6 +239,28 @@
         transparent 8px
       ) 4;
   }
+
+  /* Retro Shadow Effect */
+  .retro-shadow {
+    box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.8);
+  }
+
+  .retro-shadow:hover {
+    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.8);
+  }
+
+  .retro-shadow:active {
+    box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.8);
+  }
+
+  /* Shadow variations for podium */
+  .shadow-float {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 4px 15px rgba(107, 72, 255, 0.2);
+  }
+
+  .shadow-float-lg {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 0 6px 20px rgba(107, 72, 255, 0.3);
+  }
 }
 
 @layer utilities {
@@ -277,8 +299,26 @@
   .retro-shadow {
     box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.8);
   }
-  
+
+  /* Grid background utility */
+  .bg-grid-size {
+    background-size: 20px 20px;
+  }
+
+  /* Accessibility - Respect reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
   .hover-glitch:hover {
     animation: glitch 0.3s infinite;
   }
 }
+
