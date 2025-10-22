@@ -9,34 +9,34 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './tests',
-  
+
   // Maximum time one test can run for
   timeout: 30 * 1000,
-  
+
   // Test execution settings
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  
+
   // Reporter to use
   reporter: [
     ['html', { outputFolder: 'playwright-report' }],
     ['list'],
     ['junit', { outputFile: 'test-results/junit.xml' }]
   ],
-  
+
   // Shared settings for all projects
   use: {
     // Base URL to use in actions like `await page.goto('/')`
-    baseURL: process.env.BASE_URL || 'http://localhost',
-    
+    baseURL: process.env.BASE_URL || 'http://localhost:5173',
+
     // Collect trace when retrying the failed test
     trace: 'on-first-retry',
-    
+
     // Screenshot on failure
     screenshot: 'only-on-failure',
-    
+
     // Video on failure
     video: 'retain-on-failure',
   },
@@ -47,7 +47,7 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-    
+
     // Uncomment for cross-browser testing
     // {
     //   name: 'firefox',
@@ -63,7 +63,7 @@ export default defineConfig({
   // For E2E tests, we expect docker-compose to be running
   webServer: process.env.CI ? undefined : {
     command: 'echo "Make sure docker-compose is running: docker-compose up -d"',
-    url: 'http://localhost/health',
+    url: (process.env.BASE_URL || 'http://localhost:5173') + '/health',
     reuseExistingServer: true,
     timeout: 5 * 1000,
   },
