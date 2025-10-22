@@ -11,6 +11,7 @@ Application complète de quiz interactif type Kahoot avec temps réel, système 
 - 🏆 Classement en direct avec podium
 - 🎨 Design coloré et fun
 - 🔄 Temps réel avec WebSockets
+- 🌍 Support multilingue (Anglais/Français)
 
 ## 🛠️ Technologies
 
@@ -22,12 +23,14 @@ Application complète de quiz interactif type Kahoot avec temps réel, système 
 - bcrypt pour les mots de passe (sécurité)
 - Socket.io (WebSockets, temps réel)
 - TypeScript (typage fort)
+- nestjs-i18n (internationalisation)
 
 **Frontend:**
 - React 18 (UI moderne avec hooks)
 - Vite (build tool rapide, remplace CRA)
 - Tailwind CSS (utility-first, maintenable)
 - Socket.io-client (communication temps réel)
+- react-i18next (internationalisation)
 
 **DevOps & Cloud Native:**
 - Docker & Docker Compose (containerisation)
@@ -242,6 +245,7 @@ La base de données est gérée par Prisma avec des migrations automatiques.
 - [ARCHITECTURE.md](ARCHITECTURE.md) - Architecture détaillée du système
 - [CONTRIBUTING.md](CONTRIBUTING.md) - Guide de contribution
 - [TESTING.md](TESTING.md) - Guide des tests
+- [I18N.md](I18N.md) - Guide d'internationalisation (i18n)
 - [DOCKER-GUIDE.md](DOCKER-GUIDE.md) - Guide Docker complet
 - [DEPLOYMENT-CHECKLIST.md](DEPLOYMENT-CHECKLIST.md) - Checklist de déploiement
 - [MONITORING-GUIDE.md](MONITORING-GUIDE.md) - Guide de monitoring
