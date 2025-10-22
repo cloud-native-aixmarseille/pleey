@@ -83,13 +83,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "18"
-          cache: "npm"
-          cache-dependency-path: e2e/package-lock.json
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
@@ -98,18 +91,36 @@ jobs:
           cp .env.example .env
           sed -i 's/votre_secret_jwt_super_securise_changez_moi/${{ env.JWT_SECRET }}/g' .env
 
-      - name: Build and start services
-        run: docker compose up -d --build
+      - name: Build Docker images
+        run: docker compose build
+
+      - name: Start services
+        run: docker compose up -d
 
       - name: Wait for services to be ready
         run: |
-          echo "Waiting for backend health endpoint..."
-          timeout 90 bash -c 'until curl -f http://localhost:3001/health; do echo "Waiting..."; sleep 3; done'
-          echo "Backend is ready!"
-
+          echo "Waiting for backend..."
+          timeout 60 bash -c 'until curl -f http://localhost:3001/api/health; do sleep 2; done'
           echo "Waiting for frontend..."
-          timeout 60 bash -c 'until curl -f http://localhost:5173; do echo "Waiting..."; sleep 2; done'
-          echo "Frontend is ready!"
+          timeout 60 bash -c 'until curl -f http://localhost:5173; do sleep 2; done'
+
+      - name: Run backend health check
+        run: |
+          response=$(curl -s http://localhost:3001/api/health)
+          echo "Backend health: $response"
+          if [[ $response != *"ok"* ]]; then
+            echo "Backend health check failed"
+            exit 1
+          fi
+
+      - name: Run frontend health check
+        run: |
+          status=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5173)
+          echo "Frontend status: $status"
+          if [[ $status != "200" ]]; then
+            echo "Frontend health check failed"
+            exit 1
+          fi
 
       - name: Install e2e test dependencies
         run: |
