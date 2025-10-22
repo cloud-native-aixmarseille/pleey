@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import { User, Quiz, Question } from "./shared/types";
 import { authService } from "./domains/auth/auth.service";
 import { quizService } from "./domains/quiz/quiz.service";
@@ -20,24 +28,71 @@ import LeaderboardPage from "./features/game-play/components/LeaderboardPage";
 const TOKEN_STORAGE_KEY = "quizmaster_token";
 const USER_STORAGE_KEY = "quizmaster_user";
 
-export default function QuizApp() {
-  // Navigation state
-  const [view, setView] = useState("home");
+type QuestionsByQuiz = Record<number, Question[]>;
 
-  // Authentication state
+interface ManageQuestionsRouteProps {
+  quizzes: Quiz[];
+  questionsByQuiz: QuestionsByQuiz;
+  hasLoadedQuizzes: boolean;
+  loadQuizQuestions: (quizId: number) => Promise<void>;
+  onAddQuestion: (questionData: Partial<Question>) => Promise<void>;
+}
+
+function ManageQuestionsRoute({
+  quizzes,
+  questionsByQuiz,
+  hasLoadedQuizzes,
+  loadQuizQuestions,
+  onAddQuestion,
+}: ManageQuestionsRouteProps) {
+  const { quizId } = useParams();
+  const numericQuizId = Number(quizId);
+
+  useEffect(() => {
+    if (!Number.isFinite(numericQuizId)) {
+      return;
+    }
+    if (questionsByQuiz[numericQuizId]) {
+      return;
+    }
+    loadQuizQuestions(numericQuizId).catch(() => {
+      // Failed loads are handled upstream; no-op here to avoid crash.
+    });
+  }, [numericQuizId, questionsByQuiz, loadQuizQuestions]);
+
+  const quiz = quizzes.find((item) => item.id === numericQuizId);
+  const questions = questionsByQuiz[numericQuizId];
+
+  if (!quiz) {
+    if (!hasLoadedQuizzes) {
+      return null;
+    }
+    return <Navigate to="/admin" replace />;
+  }
+
+  return (
+    <ManageQuestionsPage
+      quiz={quiz}
+      questions={questions ?? []}
+      onAddQuestion={onAddQuestion}
+    />
+  );
+}
+
+export default function QuizApp() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
-  // Quiz management state
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
-  const [currentQuiz, setCurrentQuiz] = useState<Quiz | null>(null);
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const [questionsByQuiz, setQuestionsByQuiz] = useState<QuestionsByQuiz>({});
+  const [hasLoadedQuizzes, setHasLoadedQuizzes] = useState(false);
 
-  // Game state
   const [gamePin, setGamePin] = useState("");
   const [userAnswer, setUserAnswer] = useState<string | null>(null);
 
-  // Socket state
   const {
     players,
     currentQuestion,
@@ -52,51 +107,65 @@ export default function QuizApp() {
     gameEnded,
   } = useGameSocket();
 
-  // Timer effect
   useTimer(timeLeft, setTimeLeft, !!currentQuestion, !!userAnswer);
 
-  const loadQuizzes = useCallback(
-    async (authToken: string) => {
+  const loadQuizzes = useCallback(async (authToken: string) => {
+    setHasLoadedQuizzes(false);
+    try {
       const data = await quizService.getQuizzes(authToken);
       setQuizzes(data);
+    } finally {
+      setHasLoadedQuizzes(true);
+    }
+  }, []);
+
+  const loadQuizQuestions = useCallback(
+    async (quizId: number) => {
+      if (!token) return;
+      const data = await quizService.getQuestions(token, quizId);
+      setQuestionsByQuiz((prev: QuestionsByQuiz) => ({
+        ...prev,
+        [quizId]: data,
+      }));
     },
-    [setQuizzes]
+    [token]
   );
 
-  // Authentication handlers
-  const handleLogin = async (email: string, password: string) => {
-    const data = await authService.login(email, password);
+  const handleLogin = useCallback(
+    async (email: string, password: string) => {
+      const data = await authService.login(email, password);
 
-    setToken(data.token);
-    setUser(data.user);
+      setToken(data.token);
+      setUser(data.user);
 
-    if (typeof window !== "undefined") {
-      localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
-      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data.user));
-    }
+      if (typeof window !== "undefined") {
+        localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
+        localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data.user));
+      }
 
-    if (data.user.isAdmin) {
-      setView("admin");
-      await loadQuizzes(data.token);
-      return;
-    }
+      if (data.user.isAdmin) {
+        await loadQuizzes(data.token);
+        navigate("/admin", { replace: true });
+        return;
+      }
 
-    setView("join");
-  };
+      navigate("/game/join", { replace: true });
+    },
+    [loadQuizzes, navigate]
+  );
 
-  const handleRegister = async (
-    username: string,
-    email: string,
-    password: string
-  ) => {
-    try {
-      await authService.register(username, email, password);
-      alert("Inscription réussie ! Connectez-vous.");
-      setView("login");
-    } catch (error) {
-      alert("Erreur lors de l'inscription");
-    }
-  };
+  const handleRegister = useCallback(
+    async (username: string, email: string, password: string) => {
+      try {
+        await authService.register(username, email, password);
+        alert("Inscription réussie ! Connectez-vous.");
+        navigate("/auth/login", { replace: true });
+      } catch (error) {
+        alert("Erreur lors de l'inscription");
+      }
+    },
+    [navigate]
+  );
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -116,145 +185,148 @@ export default function QuizApp() {
       setUser(parsedUser);
 
       if (parsedUser.isAdmin) {
-        setView("admin");
         loadQuizzes(storedToken).catch(() => {
           localStorage.removeItem(TOKEN_STORAGE_KEY);
           localStorage.removeItem(USER_STORAGE_KEY);
           setToken(null);
           setUser(null);
-          setView("login");
+          navigate("/auth/login", { replace: true });
         });
+
+        if (
+          location.pathname === "/" ||
+          location.pathname.startsWith("/auth")
+        ) {
+          navigate("/admin", { replace: true });
+        }
         return;
       }
 
-      setView("join");
+      if (location.pathname === "/" || location.pathname.startsWith("/auth")) {
+        navigate("/game/join", { replace: true });
+      }
     } catch (error) {
       localStorage.removeItem(TOKEN_STORAGE_KEY);
       localStorage.removeItem(USER_STORAGE_KEY);
     }
-  }, [loadQuizzes]);
+  }, [loadQuizzes, navigate, location.pathname]);
 
-  const handleCreateQuiz = async (title: string, description: string) => {
-    if (!token) return;
-    await quizService.createQuiz(token, title, description);
-    await loadQuizzes(token);
-  };
+  const handleCreateQuiz = useCallback(
+    async (title: string, description: string) => {
+      if (!token) return;
+      await quizService.createQuiz(token, title, description);
+      await loadQuizzes(token);
+    },
+    [token, loadQuizzes]
+  );
 
-  const handleManageQuiz = async (quiz: Quiz) => {
-    setCurrentQuiz(quiz);
-    if (token) {
-      const data = await quizService.getQuestions(token, quiz.id);
-      setQuestions(data);
-    }
-    setView("manage-questions");
-  };
+  const handleManageQuiz = useCallback(
+    async (quiz: Quiz) => {
+      await loadQuizQuestions(quiz.id);
+      navigate(`/admin/quizzes/${quiz.id}`);
+    },
+    [loadQuizQuestions, navigate]
+  );
 
-  const handleAddQuestion = async (questionData: Partial<Question>) => {
-    if (!token) return;
-    await quizService.addQuestion(token, questionData);
-    if (currentQuiz) {
-      const data = await quizService.getQuestions(token, currentQuiz.id);
-      setQuestions(data);
-    }
-  };
+  const handleAddQuestion = useCallback(
+    async (questionData: Partial<Question>) => {
+      if (!token) return;
+      await quizService.addQuestion(token, questionData);
+      if (questionData.quiz_id) {
+        await loadQuizQuestions(Number(questionData.quiz_id));
+      }
+    },
+    [token, loadQuizQuestions]
+  );
 
-  // Game handlers
-  const handleLaunchQuiz = async (quizId: number) => {
-    if (!token || !user) return;
-    const data = await gameService.createSession(token, quizId);
-    setGamePin(data.pin);
-    setView("lobby");
-    gameService.joinGame(data.pin, user.username, user.id);
-  };
+  const handleLaunchQuiz = useCallback(
+    async (quizId: number) => {
+      if (!token || !user) return;
+      const data = await gameService.createSession(token, quizId);
+      setGamePin(data.pin);
+      navigate("/game/lobby");
+      gameService.joinGame(data.pin, user.username, user.id);
+    },
+    [token, user, navigate]
+  );
 
-  const handleJoinGame = () => {
+  const handleJoinGame = useCallback(() => {
     if (!user) return;
     gameService.joinGame(gamePin, user.username, user.id);
-    setView("lobby");
-  };
+    navigate("/game/lobby");
+  }, [user, gamePin, navigate]);
 
-  const handleStartGame = () => {
+  const handleStartGame = useCallback(() => {
     gameService.startGame(gamePin);
-  };
+  }, [gamePin]);
 
-  const handleSubmitAnswer = (answer: string) => {
-    if (!user) return;
-    setUserAnswer(answer);
-    gameService.submitAnswer(gamePin, user.id, answer, timeLeft);
-  };
+  const handleSubmitAnswer = useCallback(
+    (answer: string) => {
+      if (!user) return;
+      setUserAnswer(answer);
+      gameService.submitAnswer(gamePin, user.id, answer, timeLeft);
+    },
+    [user, gamePin, timeLeft]
+  );
 
-  const handleNextQuestion = () => {
+  const handleNextQuestion = useCallback(() => {
     gameService.nextQuestion(gamePin);
     setUserAnswer(null);
-  };
+  }, [gamePin]);
 
-  // Navigation effects
-  if (gameStarted && view === "lobby") {
-    setView("playing");
-  }
+  useEffect(() => {
+    if (gameStarted) {
+      navigate("/game/playing");
+    }
+  }, [gameStarted, navigate]);
 
-  if (gameEnded && view === "playing") {
-    setView("leaderboard");
-  }
+  useEffect(() => {
+    if (gameEnded) {
+      navigate("/game/leaderboard");
+    }
+  }, [gameEnded, navigate]);
 
-  // Route rendering
-  if (view === "home") {
-    return <HomePage onNavigate={setView} />;
-  }
+  const isAuthenticated = !!user;
+  const isAdmin = user?.isAdmin ?? false;
 
-  if (view === "login") {
-    return <LoginPage onLogin={handleLogin} onNavigate={setView} />;
-  }
+  const joinRouteElement = useMemo(() => {
+    if (!isAuthenticated) {
+      return <Navigate to="/auth/login" replace />;
+    }
 
-  if (view === "register") {
-    return <RegisterPage onRegister={handleRegister} onNavigate={setView} />;
-  }
-
-  if (view === "admin") {
-    return (
-      <AdminDashboard
-        quizzes={quizzes}
-        onCreateQuiz={handleCreateQuiz}
-        onManageQuiz={handleManageQuiz}
-        onLaunchQuiz={handleLaunchQuiz}
-      />
-    );
-  }
-
-  if (view === "manage-questions" && currentQuiz) {
-    return (
-      <ManageQuestionsPage
-        quiz={currentQuiz}
-        questions={questions}
-        onAddQuestion={handleAddQuestion}
-        onBack={() => setView("admin")}
-      />
-    );
-  }
-
-  if (view === "join") {
     return (
       <JoinGamePage
         gamePin={gamePin}
         onGamePinChange={setGamePin}
         onJoinGame={handleJoinGame}
-        onNavigate={setView}
       />
     );
-  }
+  }, [isAuthenticated, gamePin, handleJoinGame]);
 
-  if (view === "lobby") {
+  const lobbyRouteElement = useMemo(() => {
+    if (!isAuthenticated) {
+      return <Navigate to="/auth/login" replace />;
+    }
+
     return (
       <LobbyPage
         gamePin={gamePin}
         players={players}
-        isAdmin={user?.isAdmin || false}
+        isAdmin={isAdmin}
         onStartGame={handleStartGame}
       />
     );
-  }
+  }, [isAuthenticated, gamePin, players, isAdmin, handleStartGame]);
 
-  if (view === "playing" && currentQuestion) {
+  const playingRouteElement = useMemo(() => {
+    if (!isAuthenticated) {
+      return <Navigate to="/auth/login" replace />;
+    }
+
+    if (!currentQuestion) {
+      return <Navigate to="/game/lobby" replace />;
+    }
+
     return (
       <PlayingPage
         currentQuestion={currentQuestion}
@@ -264,16 +336,81 @@ export default function QuizApp() {
         userAnswer={userAnswer}
         showResult={showResult}
         answerResult={answerResult}
-        isAdmin={user?.isAdmin || false}
+        isAdmin={isAdmin}
         onSubmitAnswer={handleSubmitAnswer}
         onNextQuestion={handleNextQuestion}
       />
     );
-  }
+  }, [
+    isAuthenticated,
+    currentQuestion,
+    questionNumber,
+    totalQuestions,
+    timeLeft,
+    userAnswer,
+    showResult,
+    answerResult,
+    isAdmin,
+    handleSubmitAnswer,
+    handleNextQuestion,
+  ]);
 
-  if (view === "leaderboard") {
-    return <LeaderboardPage leaderboard={leaderboard} onNavigate={setView} />;
-  }
+  const leaderboardRouteElement = useMemo(() => {
+    if (!isAuthenticated) {
+      return <Navigate to="/auth/login" replace />;
+    }
 
-  return null;
+    return <LeaderboardPage leaderboard={leaderboard} />;
+  }, [isAuthenticated, leaderboard]);
+
+  return (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/auth/login" element={<LoginPage onLogin={handleLogin} />} />
+      <Route
+        path="/auth/register"
+        element={<RegisterPage onRegister={handleRegister} />}
+      />
+
+      <Route
+        path="/admin"
+        element={
+          isAdmin ? (
+            <AdminDashboard
+              quizzes={quizzes}
+              onCreateQuiz={handleCreateQuiz}
+              onManageQuiz={handleManageQuiz}
+              onLaunchQuiz={handleLaunchQuiz}
+            />
+          ) : (
+            <Navigate to="/auth/login" replace />
+          )
+        }
+      />
+
+      <Route
+        path="/admin/quizzes/:quizId"
+        element={
+          isAdmin ? (
+            <ManageQuestionsRoute
+              quizzes={quizzes}
+              questionsByQuiz={questionsByQuiz}
+              hasLoadedQuizzes={hasLoadedQuizzes}
+              loadQuizQuestions={loadQuizQuestions}
+              onAddQuestion={handleAddQuestion}
+            />
+          ) : (
+            <Navigate to="/auth/login" replace />
+          )
+        }
+      />
+
+      <Route path="/game/join" element={joinRouteElement} />
+      <Route path="/game/lobby" element={lobbyRouteElement} />
+      <Route path="/game/playing" element={playingRouteElement} />
+      <Route path="/game/leaderboard" element={leaderboardRouteElement} />
+
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
 }

@@ -1,20 +1,22 @@
-import { Button, Card, Container } from '../../../shared/components';
+import { KeyboardEvent } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button, Card, Container } from "../../../shared/components";
 
 interface JoinGamePageProps {
   gamePin: string;
   onGamePinChange: (pin: string) => void;
   onJoinGame: () => void;
-  onNavigate: (view: string) => void;
 }
 
 export default function JoinGamePage({
   gamePin,
   onGamePinChange,
   onJoinGame,
-  onNavigate
 }: JoinGamePageProps) {
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && gamePin.length === 6) {
+  const navigate = useNavigate();
+
+  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && gamePin.length === 6) {
       onJoinGame();
     }
   };
@@ -33,13 +35,13 @@ export default function JoinGamePage({
           {/* Arcade-style header */}
           <div className="text-center mb-10">
             <button
-              onClick={() => onNavigate('home')}
+              onClick={() => navigate("/")}
               className="inline-flex items-center gap-2 text-accent-400 hover:text-accent-300 transition-all mb-6 font-mono text-sm hover:scale-105 transform"
             >
               <span className="text-2xl">◄</span>
               <span className="uppercase tracking-wider">BACK TO MENU</span>
             </button>
-            
+
             {/* Pixel art style icon */}
             <div className="relative inline-block mb-6">
               <div className="text-7xl animate-bounce-slow">🎮</div>
@@ -59,7 +61,8 @@ export default function JoinGamePage({
             {/* Terminal-style header */}
             <div className="mb-8 pb-4 border-b-2 border-primary-500/30">
               <p className="font-mono text-accent-400 text-xs sm:text-sm">
-                <span className="text-success-500 animate-pulse">●</span> SYSTEM READY
+                <span className="text-success-500 animate-pulse">●</span> SYSTEM
+                READY
               </p>
               <p className="font-mono text-primary-300 text-xs mt-1">
                 &gt; WAITING FOR INPUT...
@@ -83,8 +86,16 @@ export default function JoinGamePage({
                 aria-label="Game PIN code"
               />
               <div className="flex justify-center items-center gap-3 mt-4">
-                <span className="font-mono text-xs text-light-500">PIN LENGTH:</span>
-                <span className={`font-display text-sm transition-colors ${gamePin.length === 6 ? 'text-success-500 animate-pulse' : 'text-primary-400'}`}>
+                <span className="font-mono text-xs text-light-500">
+                  PIN LENGTH:
+                </span>
+                <span
+                  className={`font-display text-sm transition-colors ${
+                    gamePin.length === 6
+                      ? "text-success-500 animate-pulse"
+                      : "text-primary-400"
+                  }`}
+                >
                   {gamePin.length}/6
                 </span>
               </div>
@@ -97,13 +108,16 @@ export default function JoinGamePage({
                   key={i}
                   className={`
                     w-4 h-4 transition-all duration-300 transform
-                    ${i < gamePin.length 
-                      ? 'bg-accent-500 shadow-neon-accent scale-125 rotate-45' 
-                      : 'bg-dark-400 border-2 border-primary-500/30'}
+                    ${
+                      i < gamePin.length
+                        ? "bg-accent-500 shadow-neon-accent scale-125 rotate-45"
+                        : "bg-dark-400 border-2 border-primary-500/30"
+                    }
                   `}
-                  style={{ 
+                  style={{
                     animationDelay: `${i * 0.05}s`,
-                    animation: i < gamePin.length ? 'pixelPop 0.3s ease-out' : 'none'
+                    animation:
+                      i < gamePin.length ? "pixelPop 0.3s ease-out" : "none",
                   }}
                 />
               ))}
@@ -145,11 +159,15 @@ export default function JoinGamePage({
                   <ul className="font-mono text-xs text-light-300 space-y-1">
                     <li className="flex items-start gap-2">
                       <span className="text-accent-500 flex-shrink-0">•</span>
-                      <span>Ask the game host for the 6-character PIN code</span>
+                      <span>
+                        Ask the game host for the 6-character PIN code
+                      </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-accent-500 flex-shrink-0">•</span>
-                      <span>The PIN is displayed in large text on the host's screen</span>
+                      <span>
+                        The PIN is displayed in large text on the host's screen
+                      </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-accent-500 flex-shrink-0">•</span>

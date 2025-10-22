@@ -1,13 +1,22 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import LoginPage from "../LoginPage";
 
+const mockNavigate = vi.fn();
+
+vi.mock("react-router-dom", () => ({
+  useNavigate: () => mockNavigate,
+}));
+
 describe("LoginPage", () => {
+  beforeEach(() => {
+    mockNavigate.mockReset();
+  });
+
   it("should render login form", () => {
     const mockLogin = vi.fn();
-    const mockNavigate = vi.fn();
-    render(<LoginPage onLogin={mockLogin} onNavigate={mockNavigate} />);
+    render(<LoginPage onLogin={mockLogin} />);
 
     expect(screen.getByText("Connexion")).toBeInTheDocument();
     expect(screen.getByLabelText("Email")).toBeInTheDocument();
@@ -20,9 +29,8 @@ describe("LoginPage", () => {
   it("should call onLogin with email and password when form is submitted", async () => {
     const user = userEvent.setup();
     const mockLogin = vi.fn().mockResolvedValue(undefined);
-    const mockNavigate = vi.fn();
 
-    render(<LoginPage onLogin={mockLogin} onNavigate={mockNavigate} />);
+    render(<LoginPage onLogin={mockLogin} />);
 
     const emailInput = screen.getByLabelText("Email");
     const passwordInput = screen.getByLabelText("Mot de passe");
@@ -42,9 +50,8 @@ describe("LoginPage", () => {
     const mockLogin = vi
       .fn()
       .mockRejectedValue(new Error("Identifiants invalides"));
-    const mockNavigate = vi.fn();
 
-    render(<LoginPage onLogin={mockLogin} onNavigate={mockNavigate} />);
+    render(<LoginPage onLogin={mockLogin} />);
 
     await user.type(screen.getByLabelText("Email"), "wrong@example.com");
     await user.type(screen.getByLabelText("Mot de passe"), "badpass");
@@ -57,12 +64,11 @@ describe("LoginPage", () => {
 
   it("should navigate back to home when back button is clicked", () => {
     const mockLogin = vi.fn();
-    const mockNavigate = vi.fn();
-    render(<LoginPage onLogin={mockLogin} onNavigate={mockNavigate} />);
+    render(<LoginPage onLogin={mockLogin} />);
 
     const backButton = screen.getByText("Retour");
     fireEvent.click(backButton);
 
-    expect(mockNavigate).toHaveBeenCalledWith("home");
+    expect(mockNavigate).toHaveBeenCalledWith("/");
   });
 });

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
 import QuizApp from "../App";
 
 // Mock socket.io-client
@@ -22,13 +23,20 @@ describe("QuizApp", () => {
     window.localStorage.clear();
   });
 
+  const renderApp = (initialEntries = ["/"]) =>
+    render(
+      <MemoryRouter initialEntries={initialEntries}>
+        <QuizApp />
+      </MemoryRouter>
+    );
+
   it("should render the home view by default", () => {
-    render(<QuizApp />);
+    renderApp();
     expect(screen.getByText(/QuizMaster/i)).toBeInTheDocument();
   });
 
   it("should have login and register buttons on home page", () => {
-    render(<QuizApp />);
+    renderApp();
     expect(screen.getByRole("button", { name: /login/i })).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /sign up/i })
@@ -37,7 +45,7 @@ describe("QuizApp", () => {
 
   it("should switch to login view when login button is clicked", async () => {
     const user = userEvent.setup();
-    render(<QuizApp />);
+    renderApp();
 
     const loginButton = screen.getByRole("button", { name: /login/i });
     await user.click(loginButton);
@@ -50,7 +58,7 @@ describe("QuizApp", () => {
 
   it("should switch to register view when register button is clicked", async () => {
     const user = userEvent.setup();
-    render(<QuizApp />);
+    renderApp();
 
     const registerButton = screen.getByRole("button", { name: /sign up/i });
     await user.click(registerButton);
@@ -72,7 +80,7 @@ describe("QuizApp", () => {
       }),
     });
 
-    render(<QuizApp />);
+    renderApp();
 
     // Navigate to login
     const loginButton = screen.getByRole("button", { name: /login/i });
@@ -103,6 +111,12 @@ describe("QuizApp", () => {
         })
       );
     });
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: /start game/i })
+      ).toBeInTheDocument();
+    });
   });
 
   it("should handle registration", async () => {
@@ -116,7 +130,7 @@ describe("QuizApp", () => {
     // Mock window.alert
     const alertMock = vi.spyOn(window, "alert").mockImplementation(() => {});
 
-    render(<QuizApp />);
+    renderApp();
 
     // Navigate to register
     const registerButton = screen.getByRole("button", { name: /sign up/i });
@@ -145,6 +159,12 @@ describe("QuizApp", () => {
           method: "POST",
         })
       );
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: /se connecter/i })
+      ).toBeInTheDocument();
     });
 
     alertMock.mockRestore();

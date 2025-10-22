@@ -1,18 +1,26 @@
-import { FormEvent } from 'react';
-import { Button, Card, Container, Input } from '../../../shared/components';
+import { FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button, Card, Container, Input } from "../../../shared/components";
 
 interface RegisterPageProps {
-  onRegister: (username: string, email: string, password: string) => Promise<void>;
-  onNavigate: (view: string) => void;
+  onRegister: (
+    username: string,
+    email: string,
+    password: string
+  ) => Promise<void>;
 }
 
-export default function RegisterPage({ onRegister, onNavigate }: RegisterPageProps) {
+export default function RegisterPage({ onRegister }: RegisterPageProps) {
+  const navigate = useNavigate();
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
-    const username = (form.elements.namedItem('username') as HTMLInputElement).value;
-    const email = (form.elements.namedItem('email') as HTMLInputElement).value;
-    const password = (form.elements.namedItem('password') as HTMLInputElement).value;
+    const username = (form.elements.namedItem("username") as HTMLInputElement)
+      .value;
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
+    const password = (form.elements.namedItem("password") as HTMLInputElement)
+      .value;
     await onRegister(username, email, password);
   };
 
@@ -29,7 +37,7 @@ export default function RegisterPage({ onRegister, onNavigate }: RegisterPagePro
           {/* Header */}
           <div className="text-center mb-6">
             <button
-              onClick={() => onNavigate('home')}
+              onClick={() => navigate("/")}
               className="inline-flex items-center gap-2 text-white hover:text-accent-400 transition-colors mb-4"
             >
               <span className="text-2xl">←</span>
@@ -52,8 +60,18 @@ export default function RegisterPage({ onRegister, onNavigate }: RegisterPagePro
                 placeholder="JohnDoe123"
                 label="Nom d'utilisateur"
                 icon={
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
                   </svg>
                 }
                 required
@@ -66,8 +84,18 @@ export default function RegisterPage({ onRegister, onNavigate }: RegisterPagePro
                 placeholder="votre@email.com"
                 label="Email"
                 icon={
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"
+                    />
                   </svg>
                 }
                 required
@@ -80,8 +108,18 @@ export default function RegisterPage({ onRegister, onNavigate }: RegisterPagePro
                 placeholder="••••••••"
                 label="Mot de passe"
                 icon={
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                    />
                   </svg>
                 }
                 required
@@ -101,12 +139,7 @@ export default function RegisterPage({ onRegister, onNavigate }: RegisterPagePro
               </div>
 
               {/* Submit Button */}
-              <Button
-                type="submit"
-                variant="accent"
-                size="lg"
-                fullWidth
-              >
+              <Button type="submit" variant="accent" size="lg" fullWidth>
                 <span className="flex items-center justify-center gap-2">
                   <span>Créer mon compte</span>
                   <span>✨</span>
@@ -131,7 +164,7 @@ export default function RegisterPage({ onRegister, onNavigate }: RegisterPagePro
               variant="ghost"
               size="md"
               fullWidth
-              onClick={() => onNavigate('login')}
+              onClick={() => navigate("/auth/login")}
               className="border-2 border-accent-500/20"
             >
               <span className="flex items-center justify-center gap-2">

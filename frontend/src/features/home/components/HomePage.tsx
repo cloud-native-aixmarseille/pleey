@@ -1,10 +1,9 @@
-import { Button, Card, Container } from '../../../shared/components';
+import { useNavigate } from "react-router-dom";
+import { Button, Card, Container } from "../../../shared/components";
 
-interface HomePageProps {
-  onNavigate: (view: string) => void;
-}
+export default function HomePage() {
+  const navigate = useNavigate();
 
-export default function HomePage({ onNavigate }: HomePageProps) {
   return (
     <div className="min-h-screen bg-game-gradient flex items-center justify-center p-4 relative overflow-hidden crt-screen">
       {/* Animated neon grid background */}
@@ -36,15 +35,21 @@ export default function HomePage({ onNavigate }: HomePageProps) {
           <div className="grid grid-cols-3 gap-4 mb-8">
             <div className="glass-effect rounded-lg p-4 border-2 border-primary-500/30 hover:border-primary-500 transition-all hover:scale-110 group">
               <div className="text-3xl mb-2 group-hover:animate-wiggle">⚡</div>
-              <p className="text-xxs font-display text-accent-400 uppercase">Fast</p>
+              <p className="text-xxs font-display text-accent-400 uppercase">
+                Fast
+              </p>
             </div>
             <div className="glass-effect rounded-lg p-4 border-2 border-secondary-500/30 hover:border-secondary-500 transition-all hover:scale-110 group">
               <div className="text-3xl mb-2 group-hover:animate-wiggle">🎯</div>
-              <p className="text-xxs font-display text-secondary-400 uppercase">Epic</p>
+              <p className="text-xxs font-display text-secondary-400 uppercase">
+                Epic
+              </p>
             </div>
             <div className="glass-effect rounded-lg p-4 border-2 border-accent-500/30 hover:border-accent-500 transition-all hover:scale-110 group">
               <div className="text-3xl mb-2 group-hover:animate-wiggle">🏆</div>
-              <p className="text-xxs font-display text-accent-400 uppercase">Win</p>
+              <p className="text-xxs font-display text-accent-400 uppercase">
+                Win
+              </p>
             </div>
           </div>
 
@@ -54,7 +59,7 @@ export default function HomePage({ onNavigate }: HomePageProps) {
               variant="primary"
               size="lg"
               fullWidth
-              onClick={() => onNavigate('login')}
+              onClick={() => navigate("/auth/login")}
               className="retro-shadow hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all font-display text-base"
             >
               <span className="flex items-center justify-center gap-3">
@@ -65,7 +70,7 @@ export default function HomePage({ onNavigate }: HomePageProps) {
               variant="accent"
               size="lg"
               fullWidth
-              onClick={() => onNavigate('register')}
+              onClick={() => navigate("/auth/register")}
               className="retro-shadow hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all font-display text-base"
             >
               <span className="flex items-center justify-center gap-3">

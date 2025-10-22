@@ -1,13 +1,14 @@
 import { FormEvent, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button, Card, Container, Input } from "../../../shared/components";
 
 interface LoginPageProps {
   onLogin: (email: string, password: string) => Promise<void>;
-  onNavigate: (view: string) => void;
 }
 
-export default function LoginPage({ onLogin, onNavigate }: LoginPageProps) {
+export default function LoginPage({ onLogin }: LoginPageProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -41,7 +42,7 @@ export default function LoginPage({ onLogin, onNavigate }: LoginPageProps) {
           {/* Header */}
           <div className="text-center mb-6">
             <button
-              onClick={() => onNavigate("home")}
+              onClick={() => navigate("/")}
               className="inline-flex items-center gap-2 text-white hover:text-primary-400 transition-colors mb-4"
             >
               <span className="text-2xl">←</span>
@@ -140,7 +141,7 @@ export default function LoginPage({ onLogin, onNavigate }: LoginPageProps) {
               variant="ghost"
               size="md"
               fullWidth
-              onClick={() => onNavigate("register")}
+              onClick={() => navigate("/auth/register")}
               className="border-2 border-primary-500/20"
             >
               <span className="flex items-center justify-center gap-2">
