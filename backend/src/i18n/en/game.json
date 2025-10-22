@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "gameNotFound": "Game session not found",
+    "invalidPin": "Invalid PIN",
+    "gameAlreadyStarted": "Game has already started",
+    "gameNotStarted": "Game has not started yet",
+    "invalidAnswer": "Invalid answer"
+  },
+  "success": {
+    "gameCreated": "Game session created successfully",
+    "answerSubmitted": "Answer submitted successfully"
+  }
+}

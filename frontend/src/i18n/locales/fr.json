@@ -1,0 +1,93 @@
+{
+  "home": {
+    "title": "QUIZMASTER",
+    "subtitle": ">> APPUYEZ SUR START <<",
+    "fast": "Rapide",
+    "epic": "Épique",
+    "win": "Gagnez",
+    "login": "► CONNEXION",
+    "signup": "✦ INSCRIPTION",
+    "insertCoin": "[ INSÉREZ UNE PIÈCE POUR CONTINUER ]",
+    "playersOnline": "> 1000+ JOUEURS EN LIGNE"
+  },
+  "auth": {
+    "login": "Connexion",
+    "register": "Inscription",
+    "back": "Retour",
+    "email": "Email",
+    "password": "Mot de passe",
+    "username": "Nom d'utilisateur",
+    "loginTitle": "Connexion",
+    "loginSubtitle": "Bienvenue ! Connectez-vous pour continuer",
+    "registerTitle": "Inscription",
+    "registerSubtitle": "Rejoignez QuizMaster et commencez à jouer",
+    "loginButton": "Se connecter",
+    "registerButton": "Créer un compte",
+    "newToQuizMaster": "Nouveau sur QuizMaster ?",
+    "alreadyHaveAccount": "Vous avez déjà un compte ?",
+    "createAccount": "Créer un compte",
+    "signIn": "Se connecter",
+    "errors": {
+      "invalidCredentials": "Impossible de se connecter. Vérifiez vos identifiants.",
+      "registrationFailed": "L'inscription a échoué. Veuillez réessayer."
+    }
+  },
+  "admin": {
+    "title": "Tableau de bord Admin",
+    "createQuiz": "Créer un Quiz",
+    "myQuizzes": "Mes Quiz",
+    "noQuizzes": "Aucun quiz créé pour le moment",
+    "quizTitle": "Titre du Quiz",
+    "description": "Description",
+    "manageQuestions": "Gérer les Questions",
+    "startGame": "Démarrer le Jeu",
+    "delete": "Supprimer"
+  },
+  "quiz": {
+    "title": "Quiz",
+    "addQuestion": "Ajouter une Question",
+    "questionText": "Texte de la Question",
+    "questionType": "Type de Question",
+    "multipleChoice": "Choix Multiple",
+    "trueFalse": "Vrai/Faux",
+    "correctAnswer": "Réponse Correcte",
+    "timeLimit": "Temps Limite (secondes)",
+    "points": "Points",
+    "optionA": "Option A",
+    "optionB": "Option B",
+    "optionC": "Option C",
+    "optionD": "Option D",
+    "save": "Enregistrer",
+    "cancel": "Annuler"
+  },
+  "game": {
+    "joinGame": "Rejoindre le Jeu",
+    "enterPin": "Entrer le PIN",
+    "join": "Rejoindre",
+    "lobby": "Lobby",
+    "waitingForPlayers": "En attente de joueurs...",
+    "players": "Joueurs",
+    "startGame": "Démarrer le Jeu",
+    "question": "Question",
+    "of": "sur",
+    "timeLeft": "Temps restant",
+    "yourAnswer": "Votre Réponse",
+    "correct": "Correct !",
+    "incorrect": "Incorrect",
+    "leaderboard": "Classement",
+    "finalResults": "Résultats Finaux",
+    "playAgain": "Rejouer",
+    "points": "points",
+    "rank": "Rang",
+    "player": "Joueur",
+    "score": "Score"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "logout": "Déconnexion",
+    "confirm": "Confirmer",
+    "cancel": "Annuler"
+  }
+}

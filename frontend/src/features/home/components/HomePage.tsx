@@ -1,11 +1,17 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button, Card, Container } from "../../../shared/components";
+import LanguageSwitcher from "../../../shared/components/LanguageSwitcher";
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <div className="min-h-screen bg-game-gradient flex items-center justify-center p-4 relative overflow-hidden crt-screen">
+      {/* Language Switcher */}
+      <LanguageSwitcher />
+
       {/* Animated neon grid background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-64 h-64 bg-primary-500/20 rounded-full blur-3xl animate-pulse-slow"></div>
@@ -21,12 +27,12 @@ export default function HomePage() {
               🕹️
             </div>
             <h1 className="text-4xl sm:text-6xl font-display mb-4 text-gradient-neon text-neon animate-glow">
-              QUIZMASTER
+              {t('home.title')}
             </h1>
             <div className="inline-block px-6 py-3 bg-dark-500 rounded-none border-2 border-accent-500 relative overflow-hidden">
               <div className="absolute inset-0 bg-accent-500/10 animate-pulse"></div>
               <p className="text-accent-400 font-display text-xs sm:text-sm uppercase tracking-widest relative z-10 animate-flicker">
-                &gt;&gt; PRESS START &lt;&lt;
+                {t('home.subtitle')}
               </p>
             </div>
           </div>
@@ -36,19 +42,19 @@ export default function HomePage() {
             <div className="glass-effect rounded-lg p-4 border-2 border-primary-500/30 hover:border-primary-500 transition-all hover:scale-110 group">
               <div className="text-3xl mb-2 group-hover:animate-wiggle">⚡</div>
               <p className="text-xxs font-display text-accent-400 uppercase">
-                Fast
+                {t('home.fast')}
               </p>
             </div>
             <div className="glass-effect rounded-lg p-4 border-2 border-secondary-500/30 hover:border-secondary-500 transition-all hover:scale-110 group">
               <div className="text-3xl mb-2 group-hover:animate-wiggle">🎯</div>
               <p className="text-xxs font-display text-secondary-400 uppercase">
-                Epic
+                {t('home.epic')}
               </p>
             </div>
             <div className="glass-effect rounded-lg p-4 border-2 border-accent-500/30 hover:border-accent-500 transition-all hover:scale-110 group">
               <div className="text-3xl mb-2 group-hover:animate-wiggle">🏆</div>
               <p className="text-xxs font-display text-accent-400 uppercase">
-                Win
+                {t('home.win')}
               </p>
             </div>
           </div>
@@ -63,7 +69,7 @@ export default function HomePage() {
               className="retro-shadow hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all font-display text-base"
             >
               <span className="flex items-center justify-center gap-3">
-                <span>► LOGIN</span>
+                <span>{t('home.login')}</span>
               </span>
             </Button>
             <Button
@@ -74,7 +80,7 @@ export default function HomePage() {
               className="retro-shadow hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all font-display text-base"
             >
               <span className="flex items-center justify-center gap-3">
-                <span>✦ SIGN UP</span>
+                <span>{t('home.signup')}</span>
               </span>
             </Button>
           </div>
@@ -82,10 +88,10 @@ export default function HomePage() {
           {/* Retro footer */}
           <div className="mt-8 pt-6 border-t-2 border-primary-500/30">
             <p className="text-light-400 text-xs font-mono uppercase tracking-wider animate-pulse">
-              [ INSERT COIN TO CONTINUE ]
+              {t('home.insertCoin')}
             </p>
             <p className="text-light-500 text-xxs font-mono mt-2">
-              &gt; 1000+ PLAYERS ONLINE
+              {t('home.playersOnline')}
             </p>
           </div>
         </Card>
