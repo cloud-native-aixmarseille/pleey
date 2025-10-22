@@ -1,6 +1,7 @@
 import { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Card, Container, Input } from "../../../shared/components";
+import { useTranslation } from "react-i18next";
+import { Button, Card, Container, Input, LanguageSwitcher } from "../../../shared/components";
 
 interface RegisterPageProps {
   onRegister: (
@@ -12,6 +13,7 @@ interface RegisterPageProps {
 
 export default function RegisterPage({ onRegister }: RegisterPageProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -26,6 +28,9 @@ export default function RegisterPage({ onRegister }: RegisterPageProps) {
 
   return (
     <div className="min-h-screen bg-game-gradient flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Language Switcher */}
+      <LanguageSwitcher />
+
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-80 h-80 bg-accent-500/10 rounded-full blur-3xl animate-float"></div>
@@ -41,13 +46,13 @@ export default function RegisterPage({ onRegister }: RegisterPageProps) {
               className="inline-flex items-center gap-2 text-white hover:text-accent-400 transition-colors mb-4"
             >
               <span className="text-2xl">←</span>
-              <span className="font-semibold">Retour</span>
+              <span className="font-semibold">{t('auth.back')}</span>
             </button>
             <h2 className="text-4xl sm:text-5xl font-black text-white mb-2">
-              Inscription
+              {t('auth.registerTitle')}
             </h2>
             <p className="text-light-400">
-              Créez votre compte et commencez à jouer !
+              {t('auth.registerSubtitle')}
             </p>
           </div>
 
@@ -58,7 +63,7 @@ export default function RegisterPage({ onRegister }: RegisterPageProps) {
                 type="text"
                 name="username"
                 placeholder="JohnDoe123"
-                label="Nom d'utilisateur"
+                label={t('auth.username')}
                 icon={
                   <svg
                     className="w-5 h-5"
@@ -82,7 +87,7 @@ export default function RegisterPage({ onRegister }: RegisterPageProps) {
                 type="email"
                 name="email"
                 placeholder="votre@email.com"
-                label="Email"
+                label={t('auth.email')}
                 icon={
                   <svg
                     className="w-5 h-5"
@@ -106,7 +111,7 @@ export default function RegisterPage({ onRegister }: RegisterPageProps) {
                 type="password"
                 name="password"
                 placeholder="••••••••"
-                label="Mot de passe"
+                label={t('auth.password')}
                 icon={
                   <svg
                     className="w-5 h-5"
@@ -125,23 +130,10 @@ export default function RegisterPage({ onRegister }: RegisterPageProps) {
                 required
               />
 
-              {/* Password requirements hint */}
-              <div className="glass-effect rounded-xl p-4">
-                <p className="text-xs text-dark-600 font-medium mb-2">
-                  Votre mot de passe doit contenir :
-                </p>
-                <ul className="text-xs text-dark-600 space-y-1">
-                  <li className="flex items-center gap-2">
-                    <span className="text-success-500">✓</span>
-                    <span>Au moins 6 caractères</span>
-                  </li>
-                </ul>
-              </div>
-
               {/* Submit Button */}
               <Button type="submit" variant="accent" size="lg" fullWidth>
                 <span className="flex items-center justify-center gap-2">
-                  <span>Créer mon compte</span>
+                  <span>{t('auth.registerButton')}</span>
                   <span>✨</span>
                 </span>
               </Button>
@@ -154,7 +146,7 @@ export default function RegisterPage({ onRegister }: RegisterPageProps) {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-4 bg-white text-light-600 font-medium">
-                  Déjà inscrit ?
+                  {t('auth.alreadyHaveAccount')}
                 </span>
               </div>
             </div>
@@ -168,7 +160,7 @@ export default function RegisterPage({ onRegister }: RegisterPageProps) {
               className="border-2 border-accent-500/20"
             >
               <span className="flex items-center justify-center gap-2">
-                <span>Se connecter</span>
+                <span>{t('auth.signIn')}</span>
                 <span>→</span>
               </span>
             </Button>
