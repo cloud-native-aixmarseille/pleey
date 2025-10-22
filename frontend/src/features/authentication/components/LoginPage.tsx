@@ -1,5 +1,5 @@
-import { FormEvent } from 'react';
-import { Button, Card, Container, Input } from '../../../shared/components';
+import { FormEvent, useState } from "react";
+import { Button, Card, Container, Input } from "../../../shared/components";
 
 interface LoginPageProps {
   onLogin: (email: string, password: string) => Promise<void>;
@@ -7,12 +7,25 @@ interface LoginPageProps {
 }
 
 export default function LoginPage({ onLogin, onNavigate }: LoginPageProps) {
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
-    const email = (form.elements.namedItem('email') as HTMLInputElement).value;
-    const password = (form.elements.namedItem('password') as HTMLInputElement).value;
-    await onLogin(email, password);
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
+    const password = (form.elements.namedItem("password") as HTMLInputElement)
+      .value;
+    setErrorMessage(null);
+
+    try {
+      await onLogin(email, password);
+    } catch (error) {
+      const message =
+        error instanceof Error && error.message
+          ? error.message
+          : "Impossible de se connecter. Vérifiez vos identifiants.";
+      setErrorMessage(message);
+    }
   };
 
   return (
@@ -28,7 +41,7 @@ export default function LoginPage({ onLogin, onNavigate }: LoginPageProps) {
           {/* Header */}
           <div className="text-center mb-6">
             <button
-              onClick={() => onNavigate('home')}
+              onClick={() => onNavigate("home")}
               className="inline-flex items-center gap-2 text-white hover:text-primary-400 transition-colors mb-4"
             >
               <span className="text-2xl">←</span>
@@ -44,6 +57,15 @@ export default function LoginPage({ onLogin, onNavigate }: LoginPageProps) {
 
           <Card className="p-8 sm:p-10">
             <form onSubmit={handleSubmit} className="space-y-6">
+              {errorMessage && (
+                <div
+                  role="alert"
+                  className="rounded-md border border-danger-500/40 bg-danger-500/10 px-4 py-3 text-sm font-mono text-danger-500 shadow-[4px_4px_0_0_rgba(255,0,0,0.35)]"
+                >
+                  {errorMessage}
+                </div>
+              )}
+
               {/* Email Input */}
               <Input
                 type="email"
@@ -51,8 +73,18 @@ export default function LoginPage({ onLogin, onNavigate }: LoginPageProps) {
                 placeholder="votre@email.com"
                 label="Email"
                 icon={
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"
+                    />
                   </svg>
                 }
                 required
@@ -65,20 +97,25 @@ export default function LoginPage({ onLogin, onNavigate }: LoginPageProps) {
                 placeholder="••••••••"
                 label="Mot de passe"
                 icon={
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                    />
                   </svg>
                 }
                 required
               />
 
               {/* Submit Button */}
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                fullWidth
-              >
+              <Button type="submit" variant="primary" size="lg" fullWidth>
                 <span className="flex items-center justify-center gap-2">
                   <span>Se connecter</span>
                   <span>🚀</span>
@@ -103,7 +140,7 @@ export default function LoginPage({ onLogin, onNavigate }: LoginPageProps) {
               variant="ghost"
               size="md"
               fullWidth
-              onClick={() => onNavigate('register')}
+              onClick={() => onNavigate("register")}
               className="border-2 border-primary-500/20"
             >
               <span className="flex items-center justify-center gap-2">

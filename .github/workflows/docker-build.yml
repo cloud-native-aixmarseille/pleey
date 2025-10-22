@@ -2,133 +2,136 @@ name: Build and Test Docker Images
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
+
+env:
+  JWT_SECRET: ${{ secrets.JWT_SECRET || 'test_jwt_secret_for_ci' }}
 
 jobs:
   test-backend:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: backend/package-lock.json
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: backend/package-lock.json
 
-    - name: Install backend dependencies
-      run: |
-        cd backend
-        npm ci
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          npm ci
 
-    - name: Run backend tests
-      run: |
-        cd backend
-        npm test
+      - name: Run backend tests
+        run: |
+          cd backend
+          npm test
 
-    - name: Upload backend coverage
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: backend-coverage
-        path: backend/coverage
-        retention-days: 30
+      - name: Upload backend coverage
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-coverage
+          path: backend/coverage
+          retention-days: 30
 
   test-frontend:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: frontend/package-lock.json
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
 
-    - name: Install frontend dependencies
-      run: |
-        cd frontend
-        npm ci
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm ci
 
-    - name: Run frontend tests
-      run: |
-        cd frontend
-        npm test
+      - name: Run frontend tests
+        run: |
+          cd frontend
+          npm test
 
-    - name: Upload frontend coverage
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: frontend-coverage
-        path: frontend/coverage
-        retention-days: 30
+      - name: Upload frontend coverage
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontend-coverage
+          path: frontend/coverage
+          retention-days: 30
 
   build-and-test:
     needs: [test-backend, test-frontend]
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-    - name: Create .env file
-      run: |
-        cp .env.example .env
-        sed -i 's/votre_secret_jwt_super_securise_changez_moi/${{ secrets.JWT_SECRET }}/g' .env
+      - name: Create .env file
+        run: |
+          cp .env.example .env
+          sed -i 's/votre_secret_jwt_super_securise_changez_moi/${{ env.JWT_SECRET }}/g' .env
 
-    - name: Build Docker images
-      run: docker compose build
+      - name: Build Docker images
+        run: docker compose build
 
-    - name: Start services
-      run: docker compose up -d
+      - name: Start services
+        run: docker compose up -d
 
-    - name: Wait for services to be ready
-      run: |
-        echo "Waiting for backend..."
-        timeout 60 bash -c 'until curl -f http://localhost:3001/api/health; do sleep 2; done'
-        echo "Waiting for frontend..."
-        timeout 60 bash -c 'until curl -f http://localhost; do sleep 2; done'
+      - name: Wait for services to be ready
+        run: |
+          echo "Waiting for backend..."
+          timeout 60 bash -c 'until curl -f http://localhost:3001/api/health; do sleep 2; done'
+          echo "Waiting for frontend..."
+          timeout 60 bash -c 'until curl -f http://localhost; do sleep 2; done'
 
-    - name: Run backend health check
-      run: |
-        response=$(curl -s http://localhost:3001/api/health)
-        echo "Backend health: $response"
-        if [[ $response != *"ok"* ]]; then
-          echo "Backend health check failed"
-          exit 1
-        fi
+      - name: Run backend health check
+        run: |
+          response=$(curl -s http://localhost:3001/api/health)
+          echo "Backend health: $response"
+          if [[ $response != *"ok"* ]]; then
+            echo "Backend health check failed"
+            exit 1
+          fi
 
-    - name: Run frontend health check
-      run: |
-        status=$(curl -s -o /dev/null -w "%{http_code}" http://localhost)
-        echo "Frontend status: $status"
-        if [[ $status != "200" ]]; then
-          echo "Frontend health check failed"
-          exit 1
-        fi
+      - name: Run frontend health check
+        run: |
+          status=$(curl -s -o /dev/null -w "%{http_code}" http://localhost)
+          echo "Frontend status: $status"
+          if [[ $status != "200" ]]; then
+            echo "Frontend health check failed"
+            exit 1
+          fi
 
-    - name: Display logs on failure
-      if: failure()
-      run: |
-        echo "=== Backend logs ==="
-        docker compose logs backend
-        echo "=== Frontend logs ==="
-        docker compose logs frontend
+      - name: Display logs on failure
+        if: failure()
+        run: |
+          echo "=== Backend logs ==="
+          docker compose logs backend
+          echo "=== Frontend logs ==="
+          docker compose logs frontend
 
-    - name: Stop services
-      if: always()
-      run: docker compose down
+      - name: Stop services
+        if: always()
+        run: docker compose down
 
   e2e-tests:
     needs: [test-backend, test-frontend]
@@ -136,169 +139,169 @@ jobs:
     timeout-minutes: 15
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: e2e/package-lock.json
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: e2e/package-lock.json
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-    - name: Create .env file
-      run: |
-        cp .env.example .env
-        sed -i 's/votre_secret_jwt_super_securise_changez_moi/${{ secrets.JWT_SECRET || "test_jwt_secret_for_ci" }}/g' .env
+      - name: Create .env file
+        run: |
+          cp .env.example .env
+          sed -i 's/votre_secret_jwt_super_securise_changez_moi/${{ env.JWT_SECRET }}/g' .env
 
-    - name: Build and start services
-      run: docker compose up -d --build
+      - name: Build and start services
+        run: docker compose up -d --build
 
-    - name: Wait for services to be ready
-      run: |
-        echo "Waiting for backend health endpoint..."
-        timeout 90 bash -c 'until curl -f http://localhost:3001/health; do echo "Waiting..."; sleep 3; done'
-        echo "Backend is ready!"
-        
-        echo "Waiting for frontend..."
-        timeout 60 bash -c 'until curl -f http://localhost; do echo "Waiting..."; sleep 2; done'
-        echo "Frontend is ready!"
+      - name: Wait for services to be ready
+        run: |
+          echo "Waiting for backend health endpoint..."
+          timeout 90 bash -c 'until curl -f http://localhost:3001/health; do echo "Waiting..."; sleep 3; done'
+          echo "Backend is ready!"
 
-    - name: Install e2e test dependencies
-      run: |
-        cd e2e
-        npm ci
+          echo "Waiting for frontend..."
+          timeout 60 bash -c 'until curl -f http://localhost; do echo "Waiting..."; sleep 2; done'
+          echo "Frontend is ready!"
 
-    - name: Install Playwright browsers
-      run: |
-        cd e2e
-        npx playwright install --with-deps chromium
+      - name: Install e2e test dependencies
+        run: |
+          cd e2e
+          npm ci
 
-    - name: Run smoke tests
-      run: |
-        cd e2e
-        npm run test:smoke
-      continue-on-error: true
+      - name: Install Playwright browsers
+        run: |
+          cd e2e
+          npx playwright install --with-deps chromium
 
-    - name: Run all e2e tests
-      run: |
-        cd e2e
-        npm test
+      - name: Run smoke tests
+        run: |
+          cd e2e
+          npm run test:smoke
+        continue-on-error: true
 
-    - name: Upload test results
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: playwright-report
-        path: e2e/playwright-report/
-        retention-days: 30
+      - name: Run all e2e tests
+        run: |
+          cd e2e
+          npm test
 
-    - name: Upload test artifacts
-      uses: actions/upload-artifact@v4
-      if: failure()
-      with:
-        name: e2e-test-results
-        path: e2e/test-results/
-        retention-days: 7
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: e2e/playwright-report/
+          retention-days: 30
 
-    - name: Display logs on failure
-      if: failure()
-      run: |
-        echo "=== Backend logs ==="
-        docker compose logs backend
-        echo "=== Frontend logs ==="
-        docker compose logs frontend
+      - name: Upload test artifacts
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-test-results
+          path: e2e/test-results/
+          retention-days: 7
 
-    - name: Stop services
-      if: always()
-      run: docker compose down
+      - name: Display logs on failure
+        if: failure()
+        run: |
+          echo "=== Backend logs ==="
+          docker compose logs backend
+          echo "=== Frontend logs ==="
+          docker compose logs frontend
+
+      - name: Stop services
+        if: always()
+        run: docker compose down
 
   security-scan:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Run Trivy vulnerability scanner - Backend
-      uses: aquasecurity/trivy-action@master
-      with:
-        scan-type: 'fs'
-        scan-ref: './backend'
-        format: 'sarif'
-        output: 'trivy-backend-results.sarif'
+      - name: Run Trivy vulnerability scanner - Backend
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          scan-ref: "./backend"
+          format: "sarif"
+          output: "trivy-backend-results.sarif"
 
-    - name: Run Trivy vulnerability scanner - Frontend
-      uses: aquasecurity/trivy-action@master
-      with:
-        scan-type: 'fs'
-        scan-ref: './frontend'
-        format: 'sarif'
-        output: 'trivy-frontend-results.sarif'
+      - name: Run Trivy vulnerability scanner - Frontend
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          scan-ref: "./frontend"
+          format: "sarif"
+          output: "trivy-frontend-results.sarif"
 
-    - name: Run Trivy vulnerability scanner - Backend (Table format)
-      uses: aquasecurity/trivy-action@master
-      with:
-        scan-type: 'fs'
-        scan-ref: './backend'
-        format: 'table'
+      - name: Run Trivy vulnerability scanner - Backend (Table format)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          scan-ref: "./backend"
+          format: "table"
 
-    - name: Run Trivy vulnerability scanner - Frontend (Table format)
-      uses: aquasecurity/trivy-action@master
-      with:
-        scan-type: 'fs'
-        scan-ref: './frontend'
-        format: 'table'
+      - name: Run Trivy vulnerability scanner - Frontend (Table format)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          scan-ref: "./frontend"
+          format: "table"
 
-    - name: Upload Trivy results as artifacts
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: trivy-security-results
-        path: |
-          trivy-backend-results.sarif
-          trivy-frontend-results.sarif
-        retention-days: 30
+      - name: Upload Trivy results as artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trivy-security-results
+          path: |
+            trivy-backend-results.sarif
+            trivy-frontend-results.sarif
+          retention-days: 30
 
   publish:
     needs: [build-and-test, e2e-tests, security-scan]
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Login to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-    - name: Build and push backend image
-      uses: docker/build-push-action@v4
-      with:
-        context: ./backend
-        push: true
-        tags: |
-          ${{ secrets.DOCKER_USERNAME }}/quizmaster-backend:latest
-          ${{ secrets.DOCKER_USERNAME }}/quizmaster-backend:${{ github.sha }}
-        cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/quizmaster-backend:buildcache
-        cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/quizmaster-backend:buildcache,mode=max
+      - name: Build and push backend image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/quizmaster-backend:latest
+            ${{ secrets.DOCKER_USERNAME }}/quizmaster-backend:${{ github.sha }}
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/quizmaster-backend:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/quizmaster-backend:buildcache,mode=max
 
-    - name: Build and push frontend image
-      uses: docker/build-push-action@v4
-      with:
-        context: ./frontend
-        push: true
-        tags: |
-          ${{ secrets.DOCKER_USERNAME }}/quizmaster-frontend:latest
-          ${{ secrets.DOCKER_USERNAME }}/quizmaster-frontend:${{ github.sha }}
-        cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/quizmaster-frontend:buildcache
-        cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/quizmaster-frontend:buildcache,mode=max
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./frontend
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/quizmaster-frontend:latest
+            ${{ secrets.DOCKER_USERNAME }}/quizmaster-frontend:${{ github.sha }}
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/quizmaster-frontend:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/quizmaster-frontend:buildcache,mode=max

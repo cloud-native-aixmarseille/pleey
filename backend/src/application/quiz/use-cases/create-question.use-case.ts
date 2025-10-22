@@ -1,7 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type { Question } from '../../../domain/quiz/entities/question.entity';
-import type { QuestionRepository } from '../../../domain/quiz/repositories/question.repository.interface';
-import type { QuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
+import {
+  QuestionRepositoryProvider,
+  type QuestionRepository,
+} from '../../../domain/quiz/repositories/question.repository.interface';
+import {
+  QuizRepositoryProvider,
+  type QuizRepository,
+} from '../../../domain/quiz/repositories/quiz.repository.interface';
 import type { CreateQuestionDto } from '../dto/create-question.dto';
 
 /**
@@ -11,9 +17,11 @@ import type { CreateQuestionDto } from '../dto/create-question.dto';
 @Injectable()
 export class CreateQuestionUseCase {
   constructor(
+    @Inject(QuestionRepositoryProvider)
     private readonly questionRepository: QuestionRepository,
+    @Inject(QuizRepositoryProvider)
     private readonly quizRepository: QuizRepository,
-  ) {}
+  ) { }
 
   async execute(dto: CreateQuestionDto): Promise<Question> {
     // Verify quiz exists

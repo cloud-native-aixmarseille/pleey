@@ -1,5 +1,7 @@
 import type { Question } from '../entities/question.entity';
 
+export const QuestionRepositoryProvider = Symbol('QuestionRepository');
+
 /**
  * Question Repository Interface (Port)
  * Defines the contract for question data access

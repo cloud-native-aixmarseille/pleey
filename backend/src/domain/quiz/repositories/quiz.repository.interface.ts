@@ -1,5 +1,7 @@
 import type { Quiz } from '../entities/quiz.entity';
 
+export const QuizRepositoryProvider = Symbol('QuizRepository');
+
 /**
  * Quiz Repository Interface (Port)
  * Defines the contract for quiz data access

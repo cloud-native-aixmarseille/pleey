@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   # PostgreSQL Database
   postgres:
@@ -15,28 +13,37 @@ services:
     networks:
       - quiz-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-quizapp}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-quizapp} -d ${POSTGRES_DB:-quizdb}",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
     ports:
       - "5432:5432"
 
-  # Backend NestJS
+  # Backend NestJS (dev watch mode)
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: node:18-alpine
     container_name: quiz-backend
     restart: unless-stopped
+    working_dir: /app
+    command: sh -c "npm install && npx prisma generate && npm run start:dev"
+    volumes:
+      - ./backend:/app
+      - backend-node-modules:/app/node_modules
     ports:
       - "3001:3001"
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development
       - PORT=3001
       - JWT_SECRET=${JWT_SECRET:-votre_secret_jwt_super_securise_changez_moi}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-quizapp}:${POSTGRES_PASSWORD:-quizapp_password}@postgres:5432/${POSTGRES_DB:-quizdb}?schema=public
       - CORS_ORIGIN=*
+      - CHOKIDAR_USEPOLLING=1
+      - CHOKIDAR_INTERVAL=500
     depends_on:
       postgres:
         condition: service_healthy
@@ -55,27 +62,26 @@ services:
       retries: 3
       start_period: 40s
 
-  # Frontend React avec Nginx
+  # Frontend React (Vite dev server with watch)
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: node:18-alpine
     container_name: quiz-frontend
     restart: unless-stopped
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
+    volumes:
+      - ./frontend:/app
+      - frontend-node-modules:/app/node_modules
     ports:
-      - "80:80"
+      - "5173:5173"
     depends_on:
       - backend
     networks:
       - quiz-network
     environment:
+      - NODE_ENV=development
       - VITE_API_URL=http://localhost:3001
-    healthcheck:
-      test:
-        ["CMD", "curl", "-f", "http://localhost/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - CHOKIDAR_USEPOLLING=1
 
 networks:
   quiz-network:
@@ -83,4 +89,8 @@ networks:
 
 volumes:
   postgres-data:
+    driver: local
+  backend-node-modules:
+    driver: local
+  frontend-node-modules:
     driver: local

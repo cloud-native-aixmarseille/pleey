@@ -1,5 +1,7 @@
 import type { Score } from '../entities/score.entity';
 
+export const ScoreRepositoryProvider = Symbol('ScoreRepository');
+
 /**
  * Score Repository Interface (Port)
  * Defines the contract for score data access

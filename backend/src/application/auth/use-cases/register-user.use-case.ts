@@ -1,7 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import type { User } from '../../../domain/auth/entities/user.entity';
+import { UserRepositoryProvider } from '../../../domain/auth/repositories/user.repository.interface';
 import type { UserRepository } from '../../../domain/auth/repositories/user.repository.interface';
-import type { PasswordService } from '../../../domain/auth/services/password.service';
+import { PasswordService } from '../../../domain/auth/services/password.service';
 import type { RegisterUserDto } from '../dto/register-user.dto';
 
 /**
@@ -11,9 +12,9 @@ import type { RegisterUserDto } from '../dto/register-user.dto';
 @Injectable()
 export class RegisterUserUseCase {
   constructor(
-    private readonly userRepository: UserRepository,
+    @Inject(UserRepositoryProvider) private readonly userRepository: UserRepository,
     private readonly passwordService: PasswordService,
-  ) {}
+  ) { }
 
   async execute(dto: RegisterUserDto): Promise<User> {
     // Check if user already exists

@@ -47,4 +47,6 @@ ENV NODE_ENV=production
 ENV PORT=3001
 
 # Start the application
-CMD ["node", "dist/main"]
+# The Nest build outputs compiled JS under dist/src (preserves `src` folder),
+# so run the actual built entry file.
+CMD ["node", "dist/src/main.js"]

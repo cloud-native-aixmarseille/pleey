@@ -1,6 +1,6 @@
 # Makefile pour QuizMaster
 
-.PHONY: help build up down restart logs clean backup restore
+.PHONY: help build up down restart logs clean backup restore seed
 
 # Couleurs pour l'affichage
 GREEN=\033[0;32m
@@ -15,7 +15,6 @@ setup: ## Configuration initiale (première installation)
 	@echo "$(GREEN)Configuration de l'environnement...$(NC)"
 	@cp -n .env.example .env || true
 	@echo "$(YELLOW)⚠️  N'oubliez pas de modifier le JWT_SECRET dans .env$(NC)"
-	@mkdir -p backend/data
 
 build: ## Construire les images Docker
 	@echo "$(GREEN)Construction des images...$(NC)"
@@ -23,9 +22,9 @@ build: ## Construire les images Docker
 
 up: ## Démarrer l'application
 	@echo "$(GREEN)Démarrage de l'application...$(NC)"
-	docker-compose up -d
+	docker-compose up -d	
 	@echo "$(GREEN)✓ Application démarrée$(NC)"
-	@echo "Frontend: http://localhost"
+	@echo "Frontend: http://localhost:5173"
 	@echo "Backend: http://localhost:3001"
 
 down: ## Arrêter l'application
@@ -46,6 +45,11 @@ logs-backend: ## Logs du backend uniquement
 
 logs-frontend: ## Logs du frontend uniquement
 	docker-compose logs -f frontend
+
+seed: ## Peupler la base de données avec les fixtures Prisma
+	@echo "$(GREEN)Exécution du seed Prisma...$(NC)"
+	docker-compose exec -T backend npx prisma db seed
+	@echo "$(GREEN)✓ Fixtures insérées$(NC)"
 
 ps: ## Afficher le status des conteneurs
 	docker-compose ps
@@ -105,7 +109,7 @@ install: setup build up ## Installation complète (première fois)
 	@echo "$(GREEN)═══════════════════════════════════════$(NC)"
 	@echo ""
 	@echo "Application disponible sur:"
-	@echo "  Frontend: $(YELLOW)http://localhost$(NC)"
+	@echo "  Frontend: $(YELLOW)http://localhost:5173$(NC)"
 	@echo "  Backend:  $(YELLOW)http://localhost:3001$(NC)"
 	@echo ""
 	@echo "Compte admin par défaut:"

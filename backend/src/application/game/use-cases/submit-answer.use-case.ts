@@ -1,8 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import type { GameSessionRepository } from '../../../domain/game/repositories/game-session.repository.interface';
-import type { ScoreRepository } from '../../../domain/game/repositories/score.repository.interface';
-import type { ScoreCalculatorService } from '../../../domain/game/services/score-calculator.service';
-import type { QuestionRepository } from '../../../domain/quiz/repositories/question.repository.interface';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  GameSessionRepositoryProvider,
+  type GameSessionRepository,
+} from '../../../domain/game/repositories/game-session.repository.interface';
+import {
+  ScoreRepositoryProvider,
+  type ScoreRepository,
+} from '../../../domain/game/repositories/score.repository.interface';
+import { ScoreCalculatorService } from '../../../domain/game/services/score-calculator.service';
+import {
+  QuestionRepositoryProvider,
+  type QuestionRepository,
+} from '../../../domain/quiz/repositories/question.repository.interface';
 import type { SubmitAnswerDto } from '../dto/submit-answer.dto';
 
 /**
@@ -12,11 +21,14 @@ import type { SubmitAnswerDto } from '../dto/submit-answer.dto';
 @Injectable()
 export class SubmitAnswerUseCase {
   constructor(
+    @Inject(GameSessionRepositoryProvider)
     private readonly gameSessionRepository: GameSessionRepository,
+    @Inject(QuestionRepositoryProvider)
     private readonly questionRepository: QuestionRepository,
+    @Inject(ScoreRepositoryProvider)
     private readonly scoreRepository: ScoreRepository,
     private readonly scoreCalculatorService: ScoreCalculatorService,
-  ) {}
+  ) { }
 
   async execute(dto: SubmitAnswerDto): Promise<{
     isCorrect: boolean;

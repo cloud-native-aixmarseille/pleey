@@ -1,8 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type { GameSession } from '../../../domain/game/entities/game-session.entity';
-import type { GameSessionRepository } from '../../../domain/game/repositories/game-session.repository.interface';
+import {
+  GameSessionRepositoryProvider,
+  type GameSessionRepository,
+} from '../../../domain/game/repositories/game-session.repository.interface';
 import { PIN } from '../../../domain/game/value-objects/pin.vo';
-import type { QuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
+import {
+  QuizRepositoryProvider,
+  type QuizRepository,
+} from '../../../domain/quiz/repositories/quiz.repository.interface';
 import type { CreateGameSessionDto } from '../dto/create-game-session.dto';
 
 /**
@@ -12,9 +18,11 @@ import type { CreateGameSessionDto } from '../dto/create-game-session.dto';
 @Injectable()
 export class CreateGameSessionUseCase {
   constructor(
+    @Inject(GameSessionRepositoryProvider)
     private readonly gameSessionRepository: GameSessionRepository,
+    @Inject(QuizRepositoryProvider)
     private readonly quizRepository: QuizRepository,
-  ) {}
+  ) { }
 
   async execute(dto: CreateGameSessionDto): Promise<{ session: GameSession; pin: string }> {
     // Verify quiz exists

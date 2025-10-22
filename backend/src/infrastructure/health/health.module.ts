@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TerminusModule } from '@nestjs/terminus';
-import { PrismaService } from '../database/prisma.service';
+import { DatabaseModule } from '../database/database.module';
 import { HealthController } from './health.controller';
 import { PrismaHealthIndicator } from './prisma-health.indicator';
 
@@ -9,8 +9,8 @@ import { PrismaHealthIndicator } from './prisma-health.indicator';
  * Provides health check endpoints and indicators
  */
 @Module({
-  imports: [TerminusModule],
+  imports: [TerminusModule, DatabaseModule],
   controllers: [HealthController],
-  providers: [PrismaHealthIndicator, PrismaService],
+  providers: [PrismaHealthIndicator],
 })
-export class HealthModule {}
+export class HealthModule { }

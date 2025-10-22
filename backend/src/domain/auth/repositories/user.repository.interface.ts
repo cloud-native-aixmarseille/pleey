@@ -1,5 +1,7 @@
 import type { User } from '../entities/user.entity';
 
+export const UserRepositoryProvider = Symbol('UserRepository');
+
 /**
  * User Repository Interface (Port)
  * Defines the contract for user data access

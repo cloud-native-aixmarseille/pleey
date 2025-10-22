@@ -1,48 +1,68 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import LoginPage from '../LoginPage';
+import { describe, it, expect, vi } from "vitest";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import LoginPage from "../LoginPage";
 
-describe('LoginPage', () => {
-  it('should render login form', () => {
+describe("LoginPage", () => {
+  it("should render login form", () => {
     const mockLogin = vi.fn();
     const mockNavigate = vi.fn();
     render(<LoginPage onLogin={mockLogin} onNavigate={mockNavigate} />);
 
-    expect(screen.getByText('Connexion')).toBeInTheDocument();
-    expect(screen.getByLabelText('Email')).toBeInTheDocument();
-    expect(screen.getByLabelText('Mot de passe')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /se connecter/i })).toBeInTheDocument();
+    expect(screen.getByText("Connexion")).toBeInTheDocument();
+    expect(screen.getByLabelText("Email")).toBeInTheDocument();
+    expect(screen.getByLabelText("Mot de passe")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /se connecter/i })
+    ).toBeInTheDocument();
   });
 
-  it('should call onLogin with email and password when form is submitted', async () => {
+  it("should call onLogin with email and password when form is submitted", async () => {
     const user = userEvent.setup();
     const mockLogin = vi.fn().mockResolvedValue(undefined);
     const mockNavigate = vi.fn();
-    
+
     render(<LoginPage onLogin={mockLogin} onNavigate={mockNavigate} />);
 
-    const emailInput = screen.getByLabelText('Email');
-    const passwordInput = screen.getByLabelText('Mot de passe');
-    const submitButton = screen.getByRole('button', { name: /se connecter/i });
+    const emailInput = screen.getByLabelText("Email");
+    const passwordInput = screen.getByLabelText("Mot de passe");
+    const submitButton = screen.getByRole("button", { name: /se connecter/i });
 
-    await user.type(emailInput, 'test@example.com');
-    await user.type(passwordInput, 'password123');
+    await user.type(emailInput, "test@example.com");
+    await user.type(passwordInput, "password123");
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockLogin).toHaveBeenCalledWith('test@example.com', 'password123');
+      expect(mockLogin).toHaveBeenCalledWith("test@example.com", "password123");
     });
   });
 
-  it('should navigate back to home when back button is clicked', () => {
+  it("should display an error message when login fails", async () => {
+    const user = userEvent.setup();
+    const mockLogin = vi
+      .fn()
+      .mockRejectedValue(new Error("Identifiants invalides"));
+    const mockNavigate = vi.fn();
+
+    render(<LoginPage onLogin={mockLogin} onNavigate={mockNavigate} />);
+
+    await user.type(screen.getByLabelText("Email"), "wrong@example.com");
+    await user.type(screen.getByLabelText("Mot de passe"), "badpass");
+    await user.click(screen.getByRole("button", { name: /se connecter/i }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Identifiants invalides"
+    );
+  });
+
+  it("should navigate back to home when back button is clicked", () => {
     const mockLogin = vi.fn();
     const mockNavigate = vi.fn();
     render(<LoginPage onLogin={mockLogin} onNavigate={mockNavigate} />);
 
-    const backButton = screen.getByText('Retour');
+    const backButton = screen.getByText("Retour");
     fireEvent.click(backButton);
 
-    expect(mockNavigate).toHaveBeenCalledWith('home');
+    expect(mockNavigate).toHaveBeenCalledWith("home");
   });
 });

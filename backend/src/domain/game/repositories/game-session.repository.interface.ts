@@ -1,5 +1,7 @@
 import type { GameSession } from '../entities/game-session.entity';
 
+export const GameSessionRepositoryProvider = Symbol('GameSessionRepository');
+
 /**
  * GameSession Repository Interface (Port)
  * Defines the contract for game session data access

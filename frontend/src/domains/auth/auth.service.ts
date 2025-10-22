@@ -8,7 +8,22 @@ export class AuthService {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
     });
-    return await response.json();
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      const message =
+        (typeof data?.message === 'string' && data.message) ||
+        (typeof data?.error === 'string' && data.error) ||
+        'Identifiants invalides';
+      throw new Error(message);
+    }
+
+    if (!data?.token || !data?.user) {
+      throw new Error('Réponse de connexion invalide');
+    }
+
+    return data;
   }
 
   async register(username: string, email: string, password: string): Promise<void> {

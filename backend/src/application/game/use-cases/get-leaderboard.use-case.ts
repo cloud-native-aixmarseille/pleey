@@ -1,6 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import type { GameSessionRepository } from '../../../domain/game/repositories/game-session.repository.interface';
-import type { ScoreRepository } from '../../../domain/game/repositories/score.repository.interface';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  GameSessionRepositoryProvider,
+  type GameSessionRepository,
+} from '../../../domain/game/repositories/game-session.repository.interface';
+import {
+  ScoreRepositoryProvider,
+  type ScoreRepository,
+} from '../../../domain/game/repositories/score.repository.interface';
 
 /**
  * Get Leaderboard Use Case
@@ -9,9 +15,11 @@ import type { ScoreRepository } from '../../../domain/game/repositories/score.re
 @Injectable()
 export class GetLeaderboardUseCase {
   constructor(
+    @Inject(ScoreRepositoryProvider)
     private readonly scoreRepository: ScoreRepository,
+    @Inject(GameSessionRepositoryProvider)
     private readonly gameSessionRepository: GameSessionRepository,
-  ) {}
+  ) { }
 
   async execute(pin: string): Promise<
     Array<{

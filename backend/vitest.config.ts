@@ -1,7 +1,11 @@
-import { resolve } from 'node:path';
-import { defineConfig } from 'vitest/config';
+declare function require(moduleName: string): any;
+declare const __dirname: string;
 
-export default defineConfig({
+const { resolve } = require('path');
+
+const srcRoot = resolve(__dirname, 'src');
+
+export default {
   test: {
     globals: true,
     environment: 'node',
@@ -15,7 +19,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': resolve(__dirname, './src'),
+      '@': srcRoot,
     },
   },
-});
+};
