@@ -22,15 +22,14 @@ describe("HomePage", () => {
   it("should render login and register buttons", () => {
     render(<HomePage />);
 
-    // Updated to French since test setup uses French
-    expect(screen.getByText(/CONNEXION/i)).toBeInTheDocument();
-    expect(screen.getByText(/INSCRIPTION/i)).toBeInTheDocument();
+    expect(screen.getByText(/LOGIN/i)).toBeInTheDocument();
+    expect(screen.getByText(/SIGN UP/i)).toBeInTheDocument();
   });
 
   it('should call onNavigate with "login" when login button is clicked', () => {
     render(<HomePage />);
 
-    const loginButton = screen.getByText(/CONNEXION/i);
+    const loginButton = screen.getByText(/LOGIN/i);
     fireEvent.click(loginButton);
 
     expect(mockNavigate).toHaveBeenCalledWith("/auth/login");
@@ -39,7 +38,7 @@ describe("HomePage", () => {
   it('should call onNavigate with "register" when register button is clicked', () => {
     render(<HomePage />);
 
-    const registerButton = screen.getByText(/INSCRIPTION/i);
+    const registerButton = screen.getByText(/SIGN UP/i);
     fireEvent.click(registerButton);
 
     expect(mockNavigate).toHaveBeenCalledWith("/auth/register");

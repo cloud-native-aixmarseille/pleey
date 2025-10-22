@@ -18,12 +18,12 @@ describe("RegisterPage", () => {
     const mockRegister = vi.fn();
     render(<RegisterPage onRegister={mockRegister} />);
 
-    expect(screen.getByText("Inscription")).toBeInTheDocument();
-    expect(screen.getByLabelText("Nom d'utilisateur")).toBeInTheDocument();
+    expect(screen.getByText("Sign Up")).toBeInTheDocument();
+    expect(screen.getByLabelText("Username")).toBeInTheDocument();
     expect(screen.getByLabelText("Email")).toBeInTheDocument();
-    expect(screen.getByLabelText("Mot de passe")).toBeInTheDocument();
+    expect(screen.getByLabelText("Password")).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /créer un compte/i })
+      screen.getByRole("button", { name: /create account/i })
     ).toBeInTheDocument();
   });
 
@@ -33,11 +33,11 @@ describe("RegisterPage", () => {
 
     render(<RegisterPage onRegister={mockRegister} />);
 
-    const usernameInput = screen.getByLabelText("Nom d'utilisateur");
+    const usernameInput = screen.getByLabelText("Username");
     const emailInput = screen.getByLabelText("Email");
-    const passwordInput = screen.getByLabelText("Mot de passe");
+    const passwordInput = screen.getByLabelText("Password");
     const submitButton = screen.getByRole("button", {
-      name: /créer un compte/i,
+      name: /create account/i,
     });
 
     await user.type(usernameInput, "newuser");
@@ -58,7 +58,7 @@ describe("RegisterPage", () => {
     const mockRegister = vi.fn();
     render(<RegisterPage onRegister={mockRegister} />);
 
-    const loginButton = screen.getByRole("button", { name: /se connecter/i });
+    const loginButton = screen.getByRole("button", { name: /sign in/i });
     fireEvent.click(loginButton);
 
     expect(mockNavigate).toHaveBeenCalledWith("/auth/login");

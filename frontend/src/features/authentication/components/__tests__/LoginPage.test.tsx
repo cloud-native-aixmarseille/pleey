@@ -18,11 +18,11 @@ describe("LoginPage", () => {
     const mockLogin = vi.fn();
     render(<LoginPage onLogin={mockLogin} />);
 
-    expect(screen.getByText("Connexion")).toBeInTheDocument();
+    expect(screen.getByText("Login")).toBeInTheDocument();
     expect(screen.getByLabelText("Email")).toBeInTheDocument();
-    expect(screen.getByLabelText("Mot de passe")).toBeInTheDocument();
+    expect(screen.getByLabelText("Password")).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /se connecter/i })
+      screen.getByRole("button", { name: /sign in/i })
     ).toBeInTheDocument();
   });
 
@@ -33,8 +33,8 @@ describe("LoginPage", () => {
     render(<LoginPage onLogin={mockLogin} />);
 
     const emailInput = screen.getByLabelText("Email");
-    const passwordInput = screen.getByLabelText("Mot de passe");
-    const submitButton = screen.getByRole("button", { name: /se connecter/i });
+    const passwordInput = screen.getByLabelText("Password");
+    const submitButton = screen.getByRole("button", { name: /sign in/i });
 
     await user.type(emailInput, "test@example.com");
     await user.type(passwordInput, "password123");
@@ -49,16 +49,16 @@ describe("LoginPage", () => {
     const user = userEvent.setup();
     const mockLogin = vi
       .fn()
-      .mockRejectedValue(new Error("Identifiants invalides"));
+      .mockRejectedValue(new Error("Invalid credentials"));
 
     render(<LoginPage onLogin={mockLogin} />);
 
     await user.type(screen.getByLabelText("Email"), "wrong@example.com");
-    await user.type(screen.getByLabelText("Mot de passe"), "badpass");
-    await user.click(screen.getByRole("button", { name: /se connecter/i }));
+    await user.type(screen.getByLabelText("Password"), "badpass");
+    await user.click(screen.getByRole("button", { name: /sign in/i }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
-      "Identifiants invalides"
+      "Invalid credentials"
     );
   });
 
@@ -66,7 +66,7 @@ describe("LoginPage", () => {
     const mockLogin = vi.fn();
     render(<LoginPage onLogin={mockLogin} />);
 
-    const backButton = screen.getByText("Retour");
+    const backButton = screen.getByText("Back");
     fireEvent.click(backButton);
 
     expect(mockNavigate).toHaveBeenCalledWith("/");
