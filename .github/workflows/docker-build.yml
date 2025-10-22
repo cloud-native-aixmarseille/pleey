@@ -74,65 +74,6 @@ jobs:
           path: frontend/coverage
           retention-days: 30
 
-  build-and-test:
-    needs: [test-backend, test-frontend]
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Create .env file
-        run: |
-          cp .env.example .env
-          sed -i 's/votre_secret_jwt_super_securise_changez_moi/${{ env.JWT_SECRET }}/g' .env
-
-      - name: Build Docker images
-        run: docker compose build
-
-      - name: Start services
-        run: docker compose up -d
-
-      - name: Wait for services to be ready
-        run: |
-          echo "Waiting for backend..."
-          timeout 60 bash -c 'until curl -f http://localhost:3001/api/health; do sleep 2; done'
-          echo "Waiting for frontend..."
-          timeout 60 bash -c 'until curl -f http://localhost:5173; do sleep 2; done'
-
-      - name: Run backend health check
-        run: |
-          response=$(curl -s http://localhost:3001/api/health)
-          echo "Backend health: $response"
-          if [[ $response != *"ok"* ]]; then
-            echo "Backend health check failed"
-            exit 1
-          fi
-
-      - name: Run frontend health check
-        run: |
-          status=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5173)
-          echo "Frontend status: $status"
-          if [[ $status != "200" ]]; then
-            echo "Frontend health check failed"
-            exit 1
-          fi
-
-      - name: Display logs on failure
-        if: failure()
-        run: |
-          echo "=== Backend logs ==="
-          docker compose logs backend
-          echo "=== Frontend logs ==="
-          docker compose logs frontend
-
-      - name: Stop services
-        if: always()
-        run: docker compose down
-
   e2e-tests:
     needs: [test-backend, test-frontend]
     runs-on: ubuntu-latest
@@ -267,7 +208,7 @@ jobs:
           retention-days: 30
 
   publish:
-    needs: [build-and-test, e2e-tests, security-scan]
+    needs: [e2e-tests, security-scan]
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 

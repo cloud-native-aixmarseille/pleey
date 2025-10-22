@@ -44,7 +44,10 @@ services:
       - CORS_ORIGIN=*
       - CHOKIDAR_USEPOLLING=1
       - CHOKIDAR_INTERVAL=500
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
     depends_on:
+      otel-collector:
+        condition: service_healthy
       postgres:
         condition: service_healthy
     networks:
@@ -82,6 +85,19 @@ services:
       - NODE_ENV=development
       - VITE_API_URL=http://localhost:3001
       - CHOKIDAR_USEPOLLING=1
+
+  otel-collector:
+    image: otel/opentelemetry-collector:0.105.0
+    volumes:
+      - ./docker/otel-collector/config.yaml:/etc/otelcol/config.yaml
+    networks:
+      - quiz-network
+    healthcheck:
+      test: ["CMD", "/otelcol", "validate", "--config=/etc/otelcol/config.yaml"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
 networks:
   quiz-network:
