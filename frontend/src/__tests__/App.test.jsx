@@ -148,7 +148,7 @@ describe("QuizApp", () => {
 
     // Submit form
     const submitButton = screen.getByRole("button", {
-      name: /créer mon compte/i,
+      name: /créer un compte/i,
     });
     await user.click(submitButton);
 

@@ -41,7 +41,8 @@
     "description": "Description",
     "manageQuestions": "Manage Questions",
     "startGame": "Start Game",
-    "delete": "Delete"
+    "delete": "Delete",
+    "logout": "Logout"
   },
   "quiz": {
     "title": "Quiz",
@@ -58,7 +59,10 @@
     "optionC": "Option C",
     "optionD": "Option D",
     "save": "Save",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "backToAdmin": "Back to Admin",
+    "questions": "Questions",
+    "noQuestions": "No questions yet. Add your first question!"
   },
   "game": {
     "joinGame": "Join Game",

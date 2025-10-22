@@ -23,7 +23,7 @@ describe("RegisterPage", () => {
     expect(screen.getByLabelText("Email")).toBeInTheDocument();
     expect(screen.getByLabelText("Mot de passe")).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /créer mon compte/i })
+      screen.getByRole("button", { name: /créer un compte/i })
     ).toBeInTheDocument();
   });
 
@@ -37,7 +37,7 @@ describe("RegisterPage", () => {
     const emailInput = screen.getByLabelText("Email");
     const passwordInput = screen.getByLabelText("Mot de passe");
     const submitButton = screen.getByRole("button", {
-      name: /créer mon compte/i,
+      name: /créer un compte/i,
     });
 
     await user.type(usernameInput, "newuser");
