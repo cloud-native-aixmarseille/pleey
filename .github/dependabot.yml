@@ -1,0 +1,62 @@
+version: 2
+
+updates:
+  - package-ecosystem: "npm"
+    open-pull-requests-limit: 20
+    directories:
+      - "/backend"
+      - "/frontend"
+    versioning-strategy: increase
+    schedule:
+      interval: "weekly"
+    groups:
+      npm-nestjs-dependencies:
+        patterns:
+          - "@nestjs/*"
+          - "nestjs-*"
+          - "class-validator"
+          - "class-transformer"
+          - "reflect-metadata"
+          - "rxjs"
+      npm-opentelemetry-dependencies:
+        patterns:
+          - "@opentelemetry/*"
+      npm-prisma-dependencies:
+        patterns:
+          - "prisma"
+          - "@prisma/*"
+      npm-react-dependencies:
+        patterns:
+          - "react"
+          - "react-*"
+      npm-development-dependencies:
+        dependency-type: "development"
+
+  - package-ecosystem: github-actions
+    open-pull-requests-limit: 20
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      github-actions-dependencies:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "devcontainers"
+    open-pull-requests-limit: 20
+    directory: "/"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: "docker"
+    open-pull-requests-limit: 20
+    directories:
+      - "/"
+      - "/backend"
+      - "/frontend"
+    schedule:
+      interval: "weekly"
+    groups:
+      docker-dependencies:
+        patterns:
+          - "*"
