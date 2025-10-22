@@ -37,10 +37,9 @@ describe("QuizApp", () => {
 
   it("should have login and register buttons on home page", () => {
     renderApp();
-    // Updated to French since test setup uses French
-    expect(screen.getByRole("button", { name: /connexion/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /login/i })).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /inscription/i })
+      screen.getByRole("button", { name: /sign up/i })
     ).toBeInTheDocument();
   });
 
@@ -48,12 +47,12 @@ describe("QuizApp", () => {
     const user = userEvent.setup();
     renderApp();
 
-    const loginButton = screen.getByRole("button", { name: /connexion/i });
+    const loginButton = screen.getByRole("button", { name: /login/i });
     await user.click(loginButton);
 
     await waitFor(() => {
       expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/mot de passe/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
     });
   });
 
@@ -61,11 +60,11 @@ describe("QuizApp", () => {
     const user = userEvent.setup();
     renderApp();
 
-    const registerButton = screen.getByRole("button", { name: /inscription/i });
+    const registerButton = screen.getByRole("button", { name: /sign up/i });
     await user.click(registerButton);
 
     await waitFor(() => {
-      expect(screen.getByLabelText(/nom d'utilisateur/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
     });
   });
@@ -84,18 +83,18 @@ describe("QuizApp", () => {
     renderApp();
 
     // Navigate to login
-    const loginButton = screen.getByRole("button", { name: /connexion/i });
+    const loginButton = screen.getByRole("button", { name: /login/i });
     await user.click(loginButton);
 
     // Fill in login form
     const emailInput = screen.getByLabelText(/email/i);
-    const passwordInput = screen.getByLabelText(/mot de passe/i);
+    const passwordInput = screen.getByLabelText(/password/i);
 
     await user.type(emailInput, "test@example.com");
     await user.type(passwordInput, "password123");
 
     // Submit form
-    const submitButton = screen.getByRole("button", { name: /se connecter/i });
+    const submitButton = screen.getByRole("button", { name: /sign in/i });
     await user.click(submitButton);
 
     // Verify fetch was called
@@ -134,13 +133,13 @@ describe("QuizApp", () => {
     renderApp();
 
     // Navigate to register
-    const registerButton = screen.getByRole("button", { name: /inscription/i });
+    const registerButton = screen.getByRole("button", { name: /sign up/i });
     await user.click(registerButton);
 
     // Fill in registration form
-    const usernameInput = screen.getByLabelText(/nom d'utilisateur/i);
+    const usernameInput = screen.getByLabelText(/username/i);
     const emailInput = screen.getByLabelText(/email/i);
-    const passwordInput = screen.getByLabelText(/mot de passe/i);
+    const passwordInput = screen.getByLabelText(/password/i);
 
     await user.type(usernameInput, "newuser");
     await user.type(emailInput, "new@example.com");
@@ -148,7 +147,7 @@ describe("QuizApp", () => {
 
     // Submit form
     const submitButton = screen.getByRole("button", {
-      name: /créer un compte/i,
+      name: /create account/i,
     });
     await user.click(submitButton);
 
@@ -164,7 +163,7 @@ describe("QuizApp", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByRole("button", { name: /se connecter/i })
+        screen.getByRole("button", { name: /sign in/i })
       ).toBeInTheDocument();
     });
 

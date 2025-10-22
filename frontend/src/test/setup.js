@@ -3,9 +3,9 @@ import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import i18n from '../i18n/config';
 
-// Initialize i18n for tests with French as default to match existing tests
+// Initialize i18n for tests with English as default
 beforeAll(async () => {
-  await i18n.changeLanguage('fr');
+  await i18n.changeLanguage('en');
 });
 
 // Cleanup after each test
