@@ -124,7 +124,7 @@ jobs:
 
       - name: Inject seeds data
         run: |
-          docker-compose exec -T backend npx prisma db seed
+          docker compose exec -T backend npx prisma db seed
 
       - name: Install e2e test dependencies
         run: |
