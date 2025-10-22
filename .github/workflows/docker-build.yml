@@ -124,6 +124,7 @@ jobs:
 
       - name: Inject seeds data
         run: |
+          docker compose exec -T backend npx prisma migrate deploy
           docker compose exec -T backend npx prisma db seed
 
       - name: Install e2e test dependencies
@@ -223,41 +224,31 @@ jobs:
           retention-days: 30
 
   publish:
+    permissions:
+      contents: read
+      issues: read
+      packages: write
+      pull-requests: read
+      id-token: write
     needs: [e2e-tests, security-scan]
-    runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Build and push backend image
-        uses: docker/build-push-action@v4
-        with:
-          context: ./backend
-          push: true
-          tags: |
-            ${{ secrets.DOCKER_USERNAME }}/quizmaster-backend:latest
-            ${{ secrets.DOCKER_USERNAME }}/quizmaster-backend:${{ github.sha }}
-          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/quizmaster-backend:buildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/quizmaster-backend:buildcache,mode=max
-
-      - name: Build and push frontend image
-        uses: docker/build-push-action@v4
-        with:
-          context: ./frontend
-          push: true
-          tags: |
-            ${{ secrets.DOCKER_USERNAME }}/quizmaster-frontend:latest
-            ${{ secrets.DOCKER_USERNAME }}/quizmaster-frontend:${{ github.sha }}
-          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/quizmaster-frontend:buildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/quizmaster-frontend:buildcache,mode=max
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@4f29319e02dd65152386c436e8c3136f380a0e71 # 0.28.0
+    secrets:
+      oci-registry-password: ${{ secrets.GITHUB_TOKEN }}
+    with:
+      sign: true
+      images: |
+        [
+          {
+            "name": "backend",
+            "context": "./backend",
+            "dockerfile": "Dockerfile",
+            "platforms": ["linux/amd64", "linux/arm64"]
+          },
+          {
+            "name": "frontend",
+            "context": "./frontend",
+            "dockerfile": "Dockerfile",
+            "platforms": ["linux/amd64", "linux/arm64"]
+          }
+        ]
