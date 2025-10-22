@@ -101,7 +101,7 @@ jobs:
           echo "Waiting for backend..."
           timeout 60 bash -c 'until curl -f http://localhost:3001/api/health; do sleep 2; done'
           echo "Waiting for frontend..."
-          timeout 60 bash -c 'until curl -f http://localhost; do sleep 2; done'
+          timeout 60 bash -c 'until curl -f http://localhost:5173; do sleep 2; done'
 
       - name: Run backend health check
         run: |
@@ -114,7 +114,7 @@ jobs:
 
       - name: Run frontend health check
         run: |
-          status=$(curl -s -o /dev/null -w "%{http_code}" http://localhost)
+          status=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5173)
           echo "Frontend status: $status"
           if [[ $status != "200" ]]; then
             echo "Frontend health check failed"
@@ -167,7 +167,7 @@ jobs:
           echo "Backend is ready!"
 
           echo "Waiting for frontend..."
-          timeout 60 bash -c 'until curl -f http://localhost; do echo "Waiting..."; sleep 2; done'
+          timeout 60 bash -c 'until curl -f http://localhost:5173; do echo "Waiting..."; sleep 2; done'
           echo "Frontend is ready!"
 
       - name: Install e2e test dependencies
