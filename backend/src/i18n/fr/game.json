@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "gameNotFound": "Session de jeu introuvable",
+    "invalidPin": "PIN invalide",
+    "gameAlreadyStarted": "Le jeu a déjà commencé",
+    "gameNotStarted": "Le jeu n'a pas encore commencé",
+    "invalidAnswer": "Réponse invalide"
+  },
+  "success": {
+    "gameCreated": "Session de jeu créée avec succès",
+    "answerSubmitted": "Réponse soumise avec succès"
+  }
+}

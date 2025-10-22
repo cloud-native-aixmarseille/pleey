@@ -37,9 +37,10 @@ describe("QuizApp", () => {
 
   it("should have login and register buttons on home page", () => {
     renderApp();
-    expect(screen.getByRole("button", { name: /login/i })).toBeInTheDocument();
+    // Updated to French since test setup uses French
+    expect(screen.getByRole("button", { name: /connexion/i })).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /sign up/i })
+      screen.getByRole("button", { name: /inscription/i })
     ).toBeInTheDocument();
   });
 
@@ -47,7 +48,7 @@ describe("QuizApp", () => {
     const user = userEvent.setup();
     renderApp();
 
-    const loginButton = screen.getByRole("button", { name: /login/i });
+    const loginButton = screen.getByRole("button", { name: /connexion/i });
     await user.click(loginButton);
 
     await waitFor(() => {
@@ -60,7 +61,7 @@ describe("QuizApp", () => {
     const user = userEvent.setup();
     renderApp();
 
-    const registerButton = screen.getByRole("button", { name: /sign up/i });
+    const registerButton = screen.getByRole("button", { name: /inscription/i });
     await user.click(registerButton);
 
     await waitFor(() => {
@@ -83,7 +84,7 @@ describe("QuizApp", () => {
     renderApp();
 
     // Navigate to login
-    const loginButton = screen.getByRole("button", { name: /login/i });
+    const loginButton = screen.getByRole("button", { name: /connexion/i });
     await user.click(loginButton);
 
     // Fill in login form
@@ -133,7 +134,7 @@ describe("QuizApp", () => {
     renderApp();
 
     // Navigate to register
-    const registerButton = screen.getByRole("button", { name: /sign up/i });
+    const registerButton = screen.getByRole("button", { name: /inscription/i });
     await user.click(registerButton);
 
     // Fill in registration form

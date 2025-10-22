@@ -1,6 +1,8 @@
 import { FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button, Card, Container, Input } from "../../../shared/components";
+import LanguageSwitcher from "../../../shared/components/LanguageSwitcher";
 
 interface LoginPageProps {
   onLogin: (email: string, password: string) => Promise<void>;
@@ -9,6 +11,7 @@ interface LoginPageProps {
 export default function LoginPage({ onLogin }: LoginPageProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -24,13 +27,16 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
       const message =
         error instanceof Error && error.message
           ? error.message
-          : "Impossible de se connecter. Vérifiez vos identifiants.";
+          : t('auth.errors.invalidCredentials');
       setErrorMessage(message);
     }
   };
 
   return (
     <div className="min-h-screen bg-game-gradient flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Language Switcher */}
+      <LanguageSwitcher />
+
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-10 right-20 w-72 h-72 bg-primary-500/10 rounded-full blur-3xl animate-float"></div>
@@ -46,13 +52,13 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
               className="inline-flex items-center gap-2 text-white hover:text-primary-400 transition-colors mb-4"
             >
               <span className="text-2xl">←</span>
-              <span className="font-semibold">Retour</span>
+              <span className="font-semibold">{t('auth.back')}</span>
             </button>
             <h2 className="text-4xl sm:text-5xl font-black text-white mb-2">
-              Connexion
+              {t('auth.loginTitle')}
             </h2>
             <p className="text-light-400">
-              Bienvenue ! Connectez-vous pour continuer
+              {t('auth.loginSubtitle')}
             </p>
           </div>
 
@@ -72,7 +78,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                 type="email"
                 name="email"
                 placeholder="votre@email.com"
-                label="Email"
+                label={t('auth.email')}
                 icon={
                   <svg
                     className="w-5 h-5"
@@ -96,7 +102,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                 type="password"
                 name="password"
                 placeholder="••••••••"
-                label="Mot de passe"
+                label={t('auth.password')}
                 icon={
                   <svg
                     className="w-5 h-5"
@@ -118,7 +124,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
               {/* Submit Button */}
               <Button type="submit" variant="primary" size="lg" fullWidth>
                 <span className="flex items-center justify-center gap-2">
-                  <span>Se connecter</span>
+                  <span>{t('auth.loginButton')}</span>
                   <span>🚀</span>
                 </span>
               </Button>
@@ -131,7 +137,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-4 bg-white text-light-600 font-medium">
-                  Nouveau sur QuizMaster ?
+                  {t('auth.newToQuizMaster')}
                 </span>
               </div>
             </div>
@@ -145,7 +151,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
               className="border-2 border-primary-500/20"
             >
               <span className="flex items-center justify-center gap-2">
-                <span>Créer un compte</span>
+                <span>{t('auth.createAccount')}</span>
                 <span>✨</span>
               </span>
             </Button>

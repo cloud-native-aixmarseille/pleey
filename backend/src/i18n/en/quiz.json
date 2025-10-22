@@ -1,0 +1,15 @@
+{
+  "errors": {
+    "titleRequired": "Title is required",
+    "descriptionRequired": "Description is required",
+    "quizNotFound": "Quiz not found",
+    "questionNotFound": "Question not found",
+    "invalidQuestionType": "Invalid question type"
+  },
+  "success": {
+    "quizCreated": "Quiz created successfully",
+    "quizDeleted": "Quiz deleted successfully",
+    "questionCreated": "Question created successfully",
+    "questionDeleted": "Question deleted successfully"
+  }
+}

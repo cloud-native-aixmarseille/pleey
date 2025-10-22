@@ -1,0 +1,93 @@
+{
+  "home": {
+    "title": "QUIZMASTER",
+    "subtitle": ">> PRESS START <<",
+    "fast": "Fast",
+    "epic": "Epic",
+    "win": "Win",
+    "login": "► LOGIN",
+    "signup": "✦ SIGN UP",
+    "insertCoin": "[ INSERT COIN TO CONTINUE ]",
+    "playersOnline": "> 1000+ PLAYERS ONLINE"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "back": "Back",
+    "email": "Email",
+    "password": "Password",
+    "username": "Username",
+    "loginTitle": "Login",
+    "loginSubtitle": "Welcome! Login to continue",
+    "registerTitle": "Sign Up",
+    "registerSubtitle": "Join QuizMaster and start playing",
+    "loginButton": "Sign In",
+    "registerButton": "Create Account",
+    "newToQuizMaster": "New to QuizMaster?",
+    "alreadyHaveAccount": "Already have an account?",
+    "createAccount": "Create an account",
+    "signIn": "Sign In",
+    "errors": {
+      "invalidCredentials": "Unable to login. Check your credentials.",
+      "registrationFailed": "Registration failed. Please try again."
+    }
+  },
+  "admin": {
+    "title": "Admin Dashboard",
+    "createQuiz": "Create Quiz",
+    "myQuizzes": "My Quizzes",
+    "noQuizzes": "No quizzes created yet",
+    "quizTitle": "Quiz Title",
+    "description": "Description",
+    "manageQuestions": "Manage Questions",
+    "startGame": "Start Game",
+    "delete": "Delete"
+  },
+  "quiz": {
+    "title": "Quiz",
+    "addQuestion": "Add Question",
+    "questionText": "Question Text",
+    "questionType": "Question Type",
+    "multipleChoice": "Multiple Choice",
+    "trueFalse": "True/False",
+    "correctAnswer": "Correct Answer",
+    "timeLimit": "Time Limit (seconds)",
+    "points": "Points",
+    "optionA": "Option A",
+    "optionB": "Option B",
+    "optionC": "Option C",
+    "optionD": "Option D",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "game": {
+    "joinGame": "Join Game",
+    "enterPin": "Enter PIN",
+    "join": "Join",
+    "lobby": "Lobby",
+    "waitingForPlayers": "Waiting for players...",
+    "players": "Players",
+    "startGame": "Start Game",
+    "question": "Question",
+    "of": "of",
+    "timeLeft": "Time left",
+    "yourAnswer": "Your Answer",
+    "correct": "Correct!",
+    "incorrect": "Incorrect",
+    "leaderboard": "Leaderboard",
+    "finalResults": "Final Results",
+    "playAgain": "Play Again",
+    "points": "points",
+    "rank": "Rank",
+    "player": "Player",
+    "score": "Score"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "logout": "Logout",
+    "confirm": "Confirm",
+    "cancel": "Cancel"
+  }
+}
