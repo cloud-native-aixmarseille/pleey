@@ -8,78 +8,86 @@ import { test, expect } from '@playwright/test';
  */
 
 test.describe('Quiz Management Flow - Nominal Use Case', () => {
-  
-  // Login as admin before each test
+  const adminCredentials = {
+    email: 'admin@example.com',
+    password: 'adminpass',
+  };
+
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-    
-    // Login as admin
-    const loginButton = page.locator('text=/login|connexion|se connecter/i').first();
-    await loginButton.click();
-    
+    await page.goto('/auth/login');
     await page.waitForLoadState('networkidle');
-    
-    await page.fill('input[type="email"], input[placeholder*="email"], input[name="email"]', 'admin@quiz.com');
-    await page.fill('input[type="password"], input[placeholder*="password"], input[name="password"]', 'admin123');
-    
-    const submitButton = page.locator('button[type="submit"]').first();
-    await submitButton.click();
-    
-    await page.waitForTimeout(2000);
+
+    await page.fill('input[name="email"]', adminCredentials.email);
+    await page.fill('input[name="password"]', adminCredentials.password);
+
+    await Promise.all([
+      page.waitForURL(/\/admin/),
+      page.getByRole('button', { name: /se connecter|login/i }).click(),
+    ]);
+
+    await page.waitForLoadState('networkidle');
   });
 
   test('should create a new quiz', async ({ page }) => {
-    // Navigate to quiz creation (admin dashboard)
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
-    
-    // Look for admin/create quiz button
-    const createQuizButton = page.locator('text=/create|new quiz|nouveau|créer/i, button:has-text("Quiz")').first();
-    
-    if (await createQuizButton.isVisible()) {
-      await createQuizButton.click();
-      await page.waitForTimeout(1000);
-      
-      // Fill quiz details
-      const quizTitle = `Test Quiz ${Date.now()}`;
-      await page.fill('input[name="title"], input[placeholder*="title"], input[placeholder*="titre"]', quizTitle);
-      await page.fill('textarea, input[name="description"]', 'Test quiz description');
-      
-      // Save quiz
-      const saveButton = page.locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")').first();
-      await saveButton.click();
-      
-      await page.waitForTimeout(1000);
-      
-      // Verify quiz was created - look for the quiz in the list
-      const quizExists = await page.locator(`text="${quizTitle}"`).count() > 0;
-      expect(quizExists).toBeTruthy();
-    } else {
-      // If we can't find the create button, just verify we're logged in as admin
-      const adminIndicator = await page.locator('text=/admin|dashboard/i').count();
-      expect(adminIndicator).toBeGreaterThan(0);
-    }
+    await expect(page.locator('text=/Panneau Admin/i')).toBeVisible();
+
+    const quizTitle = `Test Quiz ${Date.now()}`;
+
+    let dialogCount = 0;
+    const handleDialog = async (dialog: import('@playwright/test').Dialog) => {
+      if (dialogCount === 0) {
+        await dialog.accept(quizTitle);
+      } else {
+        await dialog.accept('Test quiz description');
+      }
+      dialogCount += 1;
+    };
+
+    page.on('dialog', handleDialog);
+
+    const createQuizResponse = page.waitForResponse((response) => {
+      return (
+        response.url().includes('/api/quizzes') &&
+        response.request().method() === 'POST' &&
+        response.status() < 500 &&
+        (response.request().postData() || '').includes(quizTitle)
+      );
+    });
+
+    const quizzesRefreshResponse = page.waitForResponse((response) => {
+      return (
+        response.url().includes('/api/quizzes') &&
+        response.request().method() === 'GET' &&
+        response.status() < 500
+      );
+    });
+
+    await page.getByRole('button', { name: /créer un quiz/i }).click();
+
+    const [createResponse] = await Promise.all([createQuizResponse, quizzesRefreshResponse]);
+    page.off('dialog', handleDialog);
+
+    expect(createResponse.ok()).toBeTruthy();
+    const createdQuiz = await createResponse.json();
+    expect(createdQuiz.title).toBe(quizTitle);
+
+    await expect.poll(async () => {
+      return await page.getByText(quizTitle, { exact: false }).count();
+    }, { timeout: 10000 }).toBeGreaterThan(0);
   });
 
   test('should add questions to a quiz', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
-    
-    // This test verifies the question management interface is accessible
-    // The actual form may vary, so we check for common elements
-    
-    // Look for quiz list or admin panel
-    const hasQuizManagement = await page.locator('text=/quiz|question|manage/i').count() > 0;
-    expect(hasQuizManagement).toBeGreaterThan(0);
+    await expect(page.locator('text=/Panneau Admin/i')).toBeVisible();
+
+    await page.getByRole('button', { name: /gérer/i }).first().click();
+
+    await expect(page).toHaveURL(/\/admin\/quizzes\//);
+    await expect(page.locator('text=/Ajouter une question/i')).toBeVisible();
   });
 
   test('should view list of quizzes', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
-    
-    // Admin should be able to see their quizzes
-    // Look for quiz-related content
-    const hasQuizContent = await page.locator('text=/quiz|questions/i').count() > 0;
-    expect(hasQuizContent).toBeTruthy();
+    await expect(page.locator('text=/Panneau Admin/i')).toBeVisible();
+
+    await expect(page.getByText('Total Quiz').first()).toBeVisible();
   });
 });

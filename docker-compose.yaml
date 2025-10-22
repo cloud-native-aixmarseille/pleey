@@ -88,6 +88,7 @@ services:
 
   otel-collector:
     image: otel/opentelemetry-collector:0.105.0
+    restart: unless-stopped
     volumes:
       - ./docker/otel-collector/config.yaml:/etc/otelcol/config.yaml
     networks:

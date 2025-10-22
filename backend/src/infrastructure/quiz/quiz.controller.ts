@@ -1,13 +1,48 @@
-import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Get, Param, ParseIntPipe, Post, Req, UseGuards } from '@nestjs/common';
+import type { Request } from 'express';
+import { CreateQuizDto } from '../../application/quiz/dto/create-quiz.dto';
+import { CreateQuizUseCase } from '../../application/quiz/use-cases/create-quiz.use-case';
 import { GetAllQuizzesUseCase } from '../../application/quiz/use-cases/get-all-quizzes.use-case';
 import { GetQuizQuestionsUseCase } from '../../application/quiz/use-cases/get-quiz-questions.use-case';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: number;
+    username: string;
+    isAdmin: boolean;
+  };
+}
 
 @Controller('quizzes')
 export class QuizController {
   constructor(
+    private readonly createQuizUseCase: CreateQuizUseCase,
     private readonly getAllQuizzesUseCase: GetAllQuizzesUseCase,
     private readonly getQuizQuestionsUseCase: GetQuizQuestionsUseCase,
   ) { }
+
+  @Post()
+  @UseGuards(JwtAuthGuard)
+  async create(@Body() dto: CreateQuizDto, @Req() request: AuthenticatedRequest) {
+    const user = request.user;
+    if (!user) {
+      throw new ForbiddenException('Authentication required');
+    }
+
+    if (!user.isAdmin) {
+      throw new ForbiddenException('Admin privileges are required to create quizzes');
+    }
+
+    const quiz = await this.createQuizUseCase.execute(dto, user.id);
+    return {
+      id: quiz.id,
+      title: quiz.title,
+      description: quiz.description,
+      createdById: quiz.createdById,
+      createdAt: quiz.createdAt,
+    };
+  }
 
   @Get()
   async findAll() {
