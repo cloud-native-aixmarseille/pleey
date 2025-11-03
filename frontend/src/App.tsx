@@ -93,6 +93,7 @@ export default function QuizApp() {
   const [hasLoadedQuizzes, setHasLoadedQuizzes] = useState(false);
 
   const [gamePin, setGamePin] = useState("");
+  const [activeQuizQuestionCount, setActiveQuizQuestionCount] = useState(0);
   const [userAnswer, setUserAnswer] = useState<string | null>(null);
 
   const {
@@ -244,12 +245,40 @@ export default function QuizApp() {
   const handleLaunchQuiz = useCallback(
     async (quizId: number) => {
       if (!token || !user) return;
+
+      let questions = questionsByQuiz[quizId];
+
+      if (!questions || questions.length === 0) {
+        try {
+          const fetchedQuestions = await quizService.getQuestions(
+            token,
+            quizId
+          );
+          setQuestionsByQuiz((prev: QuestionsByQuiz) => ({
+            ...prev,
+            [quizId]: fetchedQuestions,
+          }));
+          questions = fetchedQuestions;
+        } catch (error) {
+          window.alert(
+            "Unable to load questions for this quiz. Please try again."
+          );
+          return;
+        }
+      }
+
+      if (!questions || questions.length === 0) {
+        window.alert("Add at least one question before starting this game.");
+        return;
+      }
+
       const data = await gameService.createSession(token, quizId);
       setGamePin(data.pin);
+      setActiveQuizQuestionCount(questions.length);
       navigate("/game/lobby");
       gameService.joinGame(data.pin, user.username, user.id);
     },
-    [token, user, navigate]
+    [token, user, navigate, questionsByQuiz]
   );
 
   const handleJoinGame = useCallback(() => {
@@ -316,9 +345,17 @@ export default function QuizApp() {
         players={players}
         isAdmin={isAdmin}
         onStartGame={handleStartGame}
+        questionCount={activeQuizQuestionCount}
       />
     );
-  }, [isAuthenticated, gamePin, players, isAdmin, handleStartGame]);
+  }, [
+    isAuthenticated,
+    gamePin,
+    players,
+    isAdmin,
+    handleStartGame,
+    activeQuizQuestionCount,
+  ]);
 
   const playingRouteElement = useMemo(() => {
     if (!isAuthenticated) {
