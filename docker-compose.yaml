@@ -26,7 +26,7 @@ services:
 
   # Backend NestJS (dev watch mode)
   backend:
-    image: node:18-alpine
+    image: node:20-alpine
     container_name: quiz-backend
     restart: unless-stopped
     working_dir: /app
@@ -67,7 +67,7 @@ services:
 
   # Frontend React (Vite dev server with watch)
   frontend:
-    image: node:18-alpine
+    image: node:20-alpine
     container_name: quiz-frontend
     restart: unless-stopped
     working_dir: /app
