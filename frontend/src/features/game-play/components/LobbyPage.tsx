@@ -43,6 +43,23 @@ export default function LobbyPage({
 
       <Container size="lg" className="relative z-10">
         <div>
+          {/* Admin Host Badge - Visible only to admin */}
+          {isAdmin && (
+            <div className="mb-6 flex justify-center">
+              <div className="glass-effect rounded-2xl px-6 py-3 border-2 border-accent-500 inline-flex items-center gap-3 animate-glow">
+                <span className="text-3xl animate-bounce-slow">👑</span>
+                <div className="text-center">
+                  <span className="font-display text-accent-400 uppercase text-base sm:text-lg tracking-wider block">
+                    HOST MODE
+                  </span>
+                  <span className="font-mono text-accent-500 text-xs uppercase tracking-wider">
+                    💡 Screen share this view to players
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Arcade-style header */}
           <div className="text-center mb-8">
             <h1 className="font-display text-3xl sm:text-4xl md:text-5xl uppercase text-neon text-accent-500 mb-2 tracking-wider animate-glow">

@@ -24,6 +24,8 @@ import JoinGamePage from "./features/game-play/components/JoinGamePage";
 import LobbyPage from "./features/game-play/components/LobbyPage";
 import PlayingPage from "./features/game-play/components/PlayingPage";
 import LeaderboardPage from "./features/game-play/components/LeaderboardPage";
+import AdminHostPlayingView from "./features/game-play/components/AdminHostPlayingView";
+import AdminHostLeaderboardView from "./features/game-play/components/AdminHostLeaderboardView";
 
 const TOKEN_STORAGE_KEY = "quizmaster_token";
 const USER_STORAGE_KEY = "quizmaster_user";
@@ -327,6 +329,21 @@ export default function QuizApp() {
       return <Navigate to="/game/lobby" replace />;
     }
 
+    // Admin sees host view (display-only), players see interactive view
+    if (isAdmin) {
+      return (
+        <AdminHostPlayingView
+          currentQuestion={currentQuestion}
+          questionNumber={questionNumber}
+          totalQuestions={totalQuestions}
+          timeLeft={timeLeft}
+          showResult={showResult}
+          answerResult={answerResult}
+          onNextQuestion={handleNextQuestion}
+        />
+      );
+    }
+
     return (
       <PlayingPage
         currentQuestion={currentQuestion}
@@ -360,8 +377,13 @@ export default function QuizApp() {
       return <Navigate to="/auth/login" replace />;
     }
 
+    // Admin sees enhanced host view, players see regular view
+    if (isAdmin) {
+      return <AdminHostLeaderboardView leaderboard={leaderboard} />;
+    }
+
     return <LeaderboardPage leaderboard={leaderboard} />;
-  }, [isAuthenticated, leaderboard]);
+  }, [isAuthenticated, isAdmin, leaderboard]);
 
   return (
     <Routes>
