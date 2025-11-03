@@ -169,4 +169,66 @@ describe("QuizApp", () => {
 
     alertMock.mockRestore();
   });
+
+  it("should prevent launching a quiz that has no questions", async () => {
+    const user = userEvent.setup();
+
+    const loginResponse = {
+      token: "admin-token",
+      user: { id: 1, username: "admin", isAdmin: true },
+    };
+
+    const quizzesResponse = [
+      {
+        id: 1,
+        title: "Empty Quiz",
+        description: "",
+        createdById: 1,
+        createdAt: new Date().toISOString(),
+      },
+    ];
+
+    global.fetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => loginResponse,
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => quizzesResponse,
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => [],
+      });
+
+    const alertMock = vi.spyOn(window, "alert").mockImplementation(() => {});
+
+    renderApp(["/auth/login"]);
+
+    const emailInput = screen.getByLabelText(/email/i);
+    const passwordInput = screen.getByLabelText(/password/i);
+
+    await user.type(emailInput, "admin@example.com");
+    await user.type(passwordInput, "password123");
+
+    const loginButton = screen.getByRole("button", { name: /sign in/i });
+    await user.click(loginButton);
+
+    const launchButton = await screen.findByRole("button", { name: /lancer/i });
+    await user.click(launchButton);
+
+    await waitFor(() => {
+      expect(alertMock).toHaveBeenCalledWith(
+        expect.stringContaining("Add at least one question")
+      );
+    });
+
+    const createSessionCall = global.fetch.mock.calls.find(
+      ([url]) => typeof url === "string" && url.includes("/api/sessions/create")
+    );
+    expect(createSessionCall).toBeUndefined();
+
+    alertMock.mockRestore();
+  });
 });
