@@ -63,7 +63,7 @@ export default defineConfig({
   // For E2E tests, we expect docker-compose to be running
   webServer: process.env.CI ? undefined : {
     command: 'echo "Make sure docker-compose is running: docker-compose up -d"',
-    url: (process.env.BASE_URL || 'http://localhost:5173') + '/health',
+    url: process.env.API_BASE_URL ? `${process.env.API_BASE_URL}/health` : 'http://localhost:3001/api/health',
     reuseExistingServer: true,
     timeout: 5 * 1000,
   },
