@@ -17,8 +17,8 @@ describe('AdminDashboard', () => {
 
     render(<AdminDashboard quizzes={[]} {...mockHandlers} />);
 
-    expect(screen.getByText(/Panneau Admin/i)).toBeInTheDocument();
-    expect(screen.getByText(/Créer un quiz/i)).toBeInTheDocument();
+    expect(screen.getByText(/Admin Dashboard/i)).toBeInTheDocument();
+    expect(screen.getByText(/Create Quiz/i)).toBeInTheDocument();
   });
 
   it('should display list of quizzes', () => {
@@ -45,7 +45,7 @@ describe('AdminDashboard', () => {
 
     render(<AdminDashboard quizzes={mockQuizzes} {...mockHandlers} />);
 
-    const manageButtons = screen.getAllByText('Gérer');
+    const manageButtons = screen.getAllByText('Manage');
     fireEvent.click(manageButtons[0]);
 
     expect(mockHandlers.onManageQuiz).toHaveBeenCalledWith(mockQuizzes[0]);
@@ -60,7 +60,7 @@ describe('AdminDashboard', () => {
 
     render(<AdminDashboard quizzes={mockQuizzes} {...mockHandlers} />);
 
-    const launchButtons = screen.getAllByText('Lancer');
+    const launchButtons = screen.getAllByText('Launch');
     fireEvent.click(launchButtons[0]);
 
     expect(mockHandlers.onLaunchQuiz).toHaveBeenCalledWith(mockQuizzes[0].id);

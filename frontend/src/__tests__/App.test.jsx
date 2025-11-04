@@ -183,8 +183,10 @@ describe("QuizApp", () => {
         id: 1,
         title: "Empty Quiz",
         description: "",
-        createdById: 1,
-        createdAt: new Date().toISOString(),
+        created_by: 1,
+        created_at: new Date().toISOString(),
+        is_active: true,
+        question_count: 0,
       },
     ];
 
@@ -215,7 +217,13 @@ describe("QuizApp", () => {
     const loginButton = screen.getByRole("button", { name: /sign in/i });
     await user.click(loginButton);
 
-    const launchButton = await screen.findByRole("button", { name: /lancer/i });
+    // Wait for the quiz to load
+    await waitFor(() => {
+      expect(screen.queryByText("No quizzes yet")).not.toBeInTheDocument();
+    });
+    await screen.findByText("Empty Quiz");
+    
+    const launchButton = await screen.findByRole("button", { name: /launch/i });
     await user.click(launchButton);
 
     await waitFor(() => {
