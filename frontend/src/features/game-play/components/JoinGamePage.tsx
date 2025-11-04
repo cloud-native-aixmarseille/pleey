@@ -86,7 +86,6 @@ export default function JoinGamePage({
                 placeholder="••••••"
                 className="w-full p-6 sm:p-8 bg-dark-500 border-4 border-accent-500/50 rounded-xl text-center text-4xl sm:text-6xl font-display tracking-[0.5em] focus:border-accent-500 focus:ring-4 focus:ring-accent-500/30 focus:outline-none transition-all text-accent-400 placeholder-dark-300 uppercase shadow-neon-accent"
                 maxLength={6}
-                aria-label="Game PIN code"
                 aria-describedby="pin-length-indicator"
               />
               <div className="flex justify-center items-center gap-3 mt-4" id="pin-length-indicator">
