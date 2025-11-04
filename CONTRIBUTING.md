@@ -66,6 +66,73 @@ git checkout -b feature/my-new-feature
 - **KISS**: Keep It Simple
 - **Clean Code**: Readable and maintainable code
 - **Clean Architecture**: Separation of concerns
+- **Conventional Commits**: Follow the [Conventional Commits](https://www.conventionalcommits.org/) specification
+- **Semantic Versioning**: Follow [Semantic Versioning 2.0.0](https://semver.org/)
+- **Accessibility First**: WCAG 2.1 AA compliance is mandatory for all UI changes
+
+### Conventional Commits
+
+All commit messages must follow the Conventional Commits specification:
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+**Types:**
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation changes
+- `style`: Code style changes (formatting, missing semicolons, etc.)
+- `refactor`: Code refactoring
+- `test`: Adding or updating tests
+- `chore`: Maintenance tasks
+- `perf`: Performance improvements
+- `ci`: CI/CD changes
+- `build`: Build system changes
+
+**Examples:**
+```
+feat(quiz): add timer pause functionality
+fix(auth): resolve JWT token expiration issue
+docs(readme): update installation instructions
+style(button): fix linting errors
+refactor(game): simplify score calculation logic
+test(quiz): add unit tests for quiz service
+chore(deps): update dependencies
+```
+
+### Semantic Versioning
+
+This project follows [Semantic Versioning 2.0.0](https://semver.org/):
+
+- **MAJOR** version: Incompatible API changes
+- **MINOR** version: Backward-compatible functionality additions
+- **PATCH** version: Backward-compatible bug fixes
+
+Format: `MAJOR.MINOR.PATCH` (e.g., 1.2.3)
+
+### Accessibility Standards
+
+**Accessibility is non-negotiable.** All contributions must:
+
+- ✅ Meet WCAG 2.1 Level AA standards (minimum)
+- ✅ Support keyboard navigation
+- ✅ Include proper ARIA labels and roles
+- ✅ Maintain sufficient color contrast ratios
+- ✅ Provide text alternatives for non-text content
+- ✅ Be tested with screen readers
+- ✅ Follow the guidelines in [Accessibility Documentation](docs/docs/technical/accessibility.md)
+
+**Before submitting a PR with UI changes:**
+1. Run accessibility audits (axe DevTools, Lighthouse)
+2. Test keyboard navigation
+3. Verify color contrast ratios
+4. Test with a screen reader (NVDA, JAWS, or VoiceOver)
+5. Document any accessibility considerations
 
 ### Architecture
 

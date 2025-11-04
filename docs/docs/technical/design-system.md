@@ -4,25 +4,6 @@ sidebar_position: 2
 
 # 🎮 Cyber Arcade Design System
 
-**Version**: 1.0.0  
-**Last Updated**: 2025-10-17  
-**Status**: Active
-
-## 📖 Table of Contents
-
-- [Overview](#overview)
-- [Design Philosophy](#design-philosophy)
-- [Color Palette](#color-palette)
-- [Typography](#typography)
-- [Components](#components)
-- [Visual Effects](#visual-effects)
-- [Layout & Spacing](#layout--spacing)
-- [Accessibility](#accessibility)
-- [Implementation Guide](#implementation-guide)
-- [Agent Reference](#agent-reference)
-
----
-
 ## Overview
 
 The **Cyber Arcade** design system is a retro-futuristic design language that combines 80s arcade aesthetics with synthwave cyberpunk elements. It creates an immersive gaming experience through authentic pixel art styling, CRT screen effects, and neon-soaked visuals.
@@ -652,6 +633,10 @@ xl:   0.75rem   (12px)
 
 ## Accessibility
 
+**Accessibility is a first-class citizen in QuizMaster.** All design decisions must comply with WCAG 2.1 AA standards (minimum) and follow accessibility best practices.
+
+For complete accessibility guidelines, standards, and implementation details, see the **[Accessibility Documentation](accessibility.md)**.
+
 ### Contrast Ratios
 
 All color combinations meet WCAG 2.1 AA standards:
@@ -1017,31 +1002,3 @@ When implementing components:
 - Report design issues: GitHub Issues
 - Suggest improvements: Pull Requests
 - Ask questions: GitHub Discussions
-
----
-
-## Changelog
-
-### Version 1.0.0 (2025-10-17)
-- Initial release of Cyber Arcade design system
-- Complete color palette with synthwave theme
-- Typography system with retro fonts
-- Core component library (Button, Card, Input, Container)
-- CRT screen effects and grid backgrounds
-- Comprehensive accessibility standards
-- Full documentation for humans and agents
-
----
-
-## License
-
-This design system is part of the QuizMaster project and follows the same license terms.
-
-**Design System**: © 2025 QuizMaster Team  
-**Fonts**: See individual font licenses (SIL Open Font License)
-
----
-
-**Last Updated**: 2025-10-17  
-**Maintained by**: QuizMaster Development Team  
-**Questions?**: Open an issue on GitHub

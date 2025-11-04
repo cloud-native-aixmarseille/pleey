@@ -5,7 +5,10 @@ sidebar_position: 6
 # Accessibility Implementation Guide
 
 ## Overview
-This document describes the accessibility features implemented and best practices for the question answering results display.
+
+**Accessibility is a first-class citizen in QuizMaster.** This application is built with accessibility at its core, not as an afterthought. All features, components, and user interactions MUST follow WCAG 2.1 AA standards and best practices. Accessibility compliance is mandatory and non-negotiable for all contributions to this project.
+
+This document describes the accessibility features implemented and the standards that must be followed.
 
 ## Current Accessibility Features
 
@@ -344,14 +347,3 @@ export default function QuestionResultDisplay({ ... }) {
 - [WebAIM Resources](https://webaim.org/resources/)
 - [axe DevTools](https://www.deque.com/axe/devtools/)
 - [Inclusive Components](https://inclusive-components.design/)
-
-## Next Steps
-
-1. Implement focus trap in ShareButton modal
-2. Add ARIA live regions to QuestionResultDisplay
-3. Add progress bar ARIA attributes
-4. Run automated accessibility audit
-5. Conduct manual keyboard testing
-6. Test with screen readers
-7. Document any issues found
-8. Fix critical issues before release
