@@ -50,9 +50,10 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
         ${className}
       `}
       disabled={disabled}
+      aria-disabled={disabled}
       {...props}
     >
-      {icon && <span className="inline-flex items-center mr-2">{icon}</span>}
+      {icon && <span className="inline-flex items-center mr-2" aria-hidden="true">{icon}</span>}
       {children}
     </button>
   );

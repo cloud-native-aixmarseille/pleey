@@ -27,14 +27,32 @@ export default function Card({
   onClick,
   style,
 }: CardProps) {
+  // If onClick is provided, make it a button for proper accessibility
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        className={`
+          ${variantClasses[variant]}
+          ${hover ? "card-hover cursor-pointer" : ""}
+          ${className}
+          w-full text-left border-0
+        `}
+        onClick={onClick}
+        style={style}
+      >
+        {children}
+      </button>
+    );
+  }
+  
   return (
     <div
       className={`
         ${variantClasses[variant]}
-        ${hover ? "card-hover cursor-pointer" : ""}
+        ${hover ? "card-hover" : ""}
         ${className}
       `}
-      onClick={onClick}
       style={style}
     >
       {children}

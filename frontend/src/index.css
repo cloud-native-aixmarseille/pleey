@@ -330,6 +330,21 @@
     border-width: 0;
   }
 
+  /* Skip link - visible on focus */
+  .skip-link {
+    @apply sr-only;
+  }
+
+  .skip-link:focus {
+    @apply not-sr-only;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 9999;
+    @apply bg-accent-500 text-dark-900 px-6 py-3 rounded-lg font-display uppercase tracking-wider;
+    @apply shadow-neon-accent focus:outline-none focus:ring-4 focus:ring-accent-300;
+  }
+
   .hover-glitch:hover {
     animation: glitch 0.3s infinite;
   }
