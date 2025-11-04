@@ -107,21 +107,33 @@ npm outdated
 - Logs enabled but without sensitive data
 
 #### **Security Headers**
-```javascript
-// Express security headers
-const helmet = require('helmet');
+```typescript
+// NestJS security headers with Helmet
+import helmet from 'helmet';
+
+// In main.ts
 app.use(helmet());
 
 // CORS configuration
-app.use(cors({
+app.enableCors({
   origin: process.env.CORS_ORIGIN,
   credentials: true
-}));
+});
 ```
 
 #### **Rate Limiting**
-```javascript
-const rateLimit = require('express-rate-limit');
+```typescript
+// NestJS rate limiting with throttler
+import { ThrottlerModule } from '@nestjs/throttler';
+
+@Module({
+  imports: [
+    ThrottlerModule.forRoot({
+      ttl: 60,
+      limit: 10,
+    }),
+  ],
+})
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes

@@ -42,7 +42,7 @@ make clean-all         # Delete everything (⚠️ data included)
 make health            # Check app status
 make shell-backend     # Access backend shell
 make shell-frontend    # Access frontend shell
-make db                # Access SQLite database
+make db                # Access PostgreSQL database
 make monitoring-up     # Start with monitoring
 make grafana           # Open Grafana
 make prometheus        # Open Prometheus
@@ -95,7 +95,7 @@ docker inspect quiz-backend
 
 # Copy files
 docker cp file.txt quiz-backend:/app/
-docker cp quiz-backend:/app/data/quiz.db ./backup.db
+docker cp quiz-backend:/app/backup.sql ./backup.sql
 ```
 
 ### Cleanup
@@ -121,17 +121,24 @@ docker system prune -a --volumes
 ```
 quiz-app/
 ├── backend/
-│   ├── server.js              # Main server
+│   ├── src/                   # NestJS source code
+│   │   ├── domain/           # Domain layer (DDD)
+│   │   ├── application/      # Use cases
+│   │   ├── infrastructure/   # External services
+│   │   └── main.ts          # Entry point
+│   ├── prisma/
+│   │   ├── schema.prisma    # Database schema
+│   │   └── migrations/      # Database migrations
 │   ├── package.json
-│   ├── Dockerfile
-│   └── data/
-│       └── quiz.db           # SQLite database
+│   └── Dockerfile
 │
 ├── frontend/
 │   ├── src/
 │   │   ├── App.tsx           # React application
 │   │   ├── main.jsx
-│   │   └── index.css
+│   │   ├── domains/          # Domain logic (DDD)
+│   │   ├── features/         # Feature modules
+│   │   └── shared/           # Shared components
 │   ├── Dockerfile
 │   ├── nginx.conf
 │   └── package.json
@@ -189,7 +196,7 @@ openssl rand -base64 32
 |---------|---------|----------|
 | Frontend | http://localhost:5173 | http://localhost |
 | Backend | http://localhost:3001 | http://localhost:3001 |
-| Health Check | http://localhost:3001/api/health | |
+| Health Check | http://localhost:3001/health | |
 | Grafana | http://localhost:3000 | |
 | Prometheus | http://localhost:9090 | |
 | cAdvisor | http://localhost:8080 | |
@@ -224,21 +231,20 @@ docker-compose -f docker-compose.prod.yml up -d
 ```bash
 make backup
 # or
-docker exec quiz-backend cat /app/data/quiz.db > backup-$(date +%Y%m%d).db
+docker-compose exec db pg_dump -U quizuser quizdb > backup-$(date +%Y%m%d).sql
 ```
 
 ### Automatic backup (cron)
 ```bash
 # Add to crontab
-0 3 * * * cd /path/to/quiz-app && make backup >> /var/log/quiz-backup.log 2>&1
+0 3 * * * cd /path/to/quiz-app && docker-compose exec db pg_dump -U quizuser quizdb > /path/to/backups/quiz-$(date +\%Y\%m\%d).sql 2>&1
 ```
 
 ### Restore
 ```bash
 make restore
 # or
-docker cp backup.db quiz-backend:/app/data/quiz.db
-docker-compose restart backend
+docker-compose exec -T db psql -U quizuser -d quizdb < backup.sql
 ```
 
 ---
@@ -268,7 +274,7 @@ docker-compose logs --since="2024-01-01T00:00:00"
 
 ```bash
 # Health check
-curl http://localhost:3001/api/health
+curl http://localhost:3001/health
 
 # Container status
 docker-compose ps
@@ -287,16 +293,14 @@ make health
 make db
 
 # Or manually
-docker exec -it quiz-backend sh
-cd /app/data
-sqlite3 quiz.db
+docker-compose exec db psql -U quizuser -d quizdb
 
-# SQLite commands
-.tables                          # List tables
-.schema users                    # Table schema
+# PostgreSQL commands
+\dt                              # List tables
+\d users                         # Table schema
 SELECT * FROM users;             # Query
 SELECT COUNT(*) FROM quizzes;    # Count
-.exit                            # Exit
+\q                               # Exit
 ```
 
 ---

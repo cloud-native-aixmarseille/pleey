@@ -660,7 +660,9 @@ See the full Swagger documentation at `/api/docs` (if implemented)
 ## 🔗 External Resources
 
 - [React](https://react.dev/)
-- [Express.js](https://expressjs.com/)
+- [NestJS](https://nestjs.com/)
+- [Prisma](https://www.prisma.io/)
+- [PostgreSQL](https://www.postgresql.org/)
 - [Socket.io](https://socket.io/)
 - [Docker](https://docs.docker.com/)
 - [Tailwind CSS](https://tailwindcss.com/)
