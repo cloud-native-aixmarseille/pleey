@@ -74,7 +74,7 @@ export default function PlayingPage({
             aria-valuenow={progressPercent}
             aria-valuemin={0}
             aria-valuemax={100}
-            aria-label={`Time remaining: ${Math.round(progressPercent)}%`}
+            aria-label={`Question time progress`}
           >
             <div
               className={`

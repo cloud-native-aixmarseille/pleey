@@ -36,7 +36,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               ${error ? 'border-danger-500 focus:border-danger-500 focus:ring-danger-200' : ''}
               ${className}
             `}
-            aria-invalid={error ? 'true' : 'false'}
+            aria-invalid={error ? 'true' : undefined}
             aria-describedby={error ? errorId : undefined}
             {...props}
           />

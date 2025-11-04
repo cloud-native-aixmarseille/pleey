@@ -145,7 +145,6 @@ it('should not have accessibility violations', async () => {
 <label htmlFor="game-pin-input">Enter Game PIN</label>
 <input
   id="game-pin-input"
-  aria-label="Game PIN code"
   aria-describedby="pin-length-indicator"
 />
 <div id="pin-length-indicator">
@@ -215,20 +214,6 @@ Used throughout the app for dynamic content updates:
 - `role="alert"` for error messages
 
 #### ARIA Labels and Descriptions
-- All form inputs have associated labels
-- Interactive elements have descriptive aria-labels
-- Complex widgets use aria-describedby for additional context
-
-## Testing Checklist
-      <tr key={player.userId}>
-        <td>{index + 1}</td>
-        <td>{player.username}</td>
-        <td>{player.totalPoints} pts</td>
-      </tr>
-    ))}
-  </tbody>
-</table>
-```
 
 However, the current implementation with visual podium is acceptable if we add ARIA labels.
 
