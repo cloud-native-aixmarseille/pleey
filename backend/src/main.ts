@@ -4,6 +4,8 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { initializeOpenTelemetry, OtelLoggerService } from './infrastructure/telemetry';
+import { I18nHttpExceptionFilter } from './infrastructure/filters/i18n-http-exception.filter';
+import { I18nService } from 'nestjs-i18n';
 
 async function bootstrap() {
   await initializeOpenTelemetry();
@@ -14,6 +16,12 @@ async function bootstrap() {
 
   // Enable CORS
   app.enableCors();
+
+  // Get I18n service for exception filters
+  const i18nService = app.get(I18nService);
+
+  // Register global exception filter for i18n
+  app.useGlobalFilters(new I18nHttpExceptionFilter(i18nService));
 
   // Enforce DTO validation and strip unknown fields
   app.useGlobalPipes(
