@@ -112,7 +112,7 @@ export default function LobbyPage({
 
     previousPlayerCount.current = totalPlayers;
     setPlayerCountMessage(message);
-  }, [players.length, t]);
+  }, [players.length]);
 
   useEffect(() => {
     return () => {

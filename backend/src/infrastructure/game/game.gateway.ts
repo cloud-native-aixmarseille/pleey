@@ -302,7 +302,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     const errors = await validate(dto as object);
 
     if (errors.length > 0) {
-      const errorMessage = Object.values(errors[0].constraints ?? { error: await this.i18n.translate('game.errors.validationFailed') })[0];
+      const errorMessage = Object.values(errors[0].constraints ?? {})[0] 
+        ?? await this.i18n.translate('game.errors.validationFailed');
       throw new WsException(errorMessage);
     }
 
