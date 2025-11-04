@@ -2,52 +2,52 @@
 sidebar_position: 1
 ---
 
-# 🏗️ Architecture QuizMaster
+# 🏗️ QuizMaster Architecture
 
-Documentation complète de l'architecture de l'application.
+Complete documentation of the application's architecture.
 
-## 🎯 Principes Architecturaux
+## 🎯 Architectural Principles
 
-Cette application suit des principes d'architecture moderne et maintenable :
+This application follows modern, maintainable architectural principles:
 
-### Principes de Conception
-- **Séparation des préoccupations** : Frontend, Backend, et Base de données sont découplés
-- **Architecture monolithique intentionnelle** : Simplicité pour le contexte actuel (MVP/apprentissage)
-- **RESTful API** : Interface claire et standardisée entre frontend et backend
-- **Real-time via WebSocket** : Communication bidirectionnelle pour le gameplay
-- **Stateless Backend** : Authentification via JWT, scalabilité horizontale possible
+### Design Principles
+- **Separation of concerns**: Frontend, backend, and database are decoupled
+- **Intentional monolithic architecture**: Simplicity for the current context (MVP/learning)
+- **RESTful API**: Clear, standardized interface between frontend and backend
+- **Real-time via WebSocket**: Bidirectional communication for gameplay
+- **Stateless backend**: JWT authentication, horizontal scalability is possible
 
-### Technologies Modernes
-- **React 18** : Framework UI moderne avec hooks et concurrent features
-- **Vite** : Build tool rapide et moderne (remplace Webpack/CRA)
-- **Tailwind CSS** : Utility-first CSS framework, maintenable et performant
-- **Express.js** : Framework web minimaliste et flexible
-- **Socket.io** : WebSocket library mature et bien maintenue
-- **Docker** : Containerisation pour déploiement cohérent
-- **CNCF-ready** : Architecture compatible avec Kubernetes, Prometheus, OpenTelemetry
+### Modern Technologies
+- **React 18**: Modern UI framework with hooks and concurrent features
+- **Vite**: Fast, modern build tool (replacement for Webpack/CRA)
+- **Tailwind CSS**: Utility-first CSS framework, maintainable and performant
+- **Express.js**: Minimalist, flexible web framework
+- **Socket.io**: Mature, well-maintained WebSocket library
+- **Docker**: Containerization for consistent deployment
+- **CNCF-ready**: Architecture compatible with Kubernetes, Prometheus, OpenTelemetry
 
-### Évolutivité Future
-L'architecture actuelle permet d'évoluer vers :
-- **Microservices** : Séparation des services (auth, quiz, game, leaderboard)
-- **Kubernetes** : Orchestration et scaling automatique
-- **PostgreSQL** : Migration de SQLite pour haute concurrence
-- **Redis** : Cache et session store distribué
-- **Message Queue** : RabbitMQ/Kafka pour événements asynchrones
+### Future Scalability
+The current architecture can evolve toward:
+- **Microservices**: Split services (auth, quiz, game, leaderboard)
+- **Kubernetes**: Orchestration and automatic scaling
+- **PostgreSQL**: Migrate from SQLite for high concurrency
+- **Redis**: Distributed cache and session store
+- **Message queue**: RabbitMQ/Kafka for asynchronous events
 
-## 📐 Vue d'ensemble
+## 📐 Overview
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                         UTILISATEURS                         │
+│                            USERS                            │
 └────────────────┬────────────────────────────────────────────┘
                  │
                  ↓
 ┌─────────────────────────────────────────────────────────────┐
 │                    NGINX (Frontend)                          │
-│  - Servir les fichiers statiques React                      │
-│  - Proxy vers Backend                                        │
-│  - SSL/TLS Termination                                       │
-│  - Compression gzip                                          │
+│  - Serve React static assets                                │
+│  - Proxy to the backend                                     │
+│  - SSL/TLS termination                                      │
+│  - gzip compression                                         │
 └────────────────┬────────────────────────────────────────────┘
                  │
       ┌──────────┴──────────┐
@@ -57,9 +57,9 @@ L'architecture actuelle permet d'évoluer vers :
 │   React     │      │   Node.js/Express│
 │   Frontend  │◄────►│     Backend      │
 │             │ WS   │                  │
-│  - UI/UX    │      │  - API REST      │
+│  - UI/UX    │      │  - REST API      │
 │  - Socket.io│      │  - WebSocket     │
-│  - State    │      │  - Auth JWT      │
+│  - State    │      │  - JWT auth      │
 └─────────────┘      └────────┬─────────┘
                               │
                               ↓
@@ -74,38 +74,38 @@ L'architecture actuelle permet d'évoluer vers :
                      └────────────────┘
 ```
 
-## 🎯 Composants principaux
+## 🎯 Main Components
 
 ### 1. Frontend (React + Vite)
 
-**Technologies :**
+**Technologies:**
 - React 18
 - Vite (build tool)
 - Tailwind CSS
 - Socket.io-client
 
-**Structure :**
+**Structure:**
 ```
 frontend/
 ├── src/
-│   ├── App.tsx                    # Orchestrateur principal
-│   ├── main.jsx                   # Point d'entrée
-│   ├── index.css                  # Styles globaux
-│   ├── ARCHITECTURE.md            # Documentation architecture frontend
-│   ├── domains/                   # Logique métier (DDD)
-│   │   ├── auth/                  # Domaine authentification
-│   │   ├── quiz/                  # Domaine gestion quiz
-│   │   └── game/                  # Domaine jeu
-│   ├── features/                  # Modules fonctionnels
-│   │   ├── home/                  # Page d'accueil
-│   │   ├── authentication/        # Connexion/Inscription
-│   │   ├── quiz-management/       # Gestion admin quiz
-│   │   └── game-play/             # Jeu (lobby, playing, leaderboard)
-│   └── shared/                    # Infrastructure partagée
+│   ├── App.tsx                    # Main orchestrator
+│   ├── main.jsx                   # Entry point
+│   ├── index.css                  # Global styles
+│   ├── ARCHITECTURE.md            # Frontend architecture documentation
+│   ├── domains/                   # Domain logic (DDD)
+│   │   ├── auth/                  # Authentication domain
+│   │   ├── quiz/                  # Quiz management domain
+│   │   └── game/                  # Game domain
+│   ├── features/                  # Feature modules
+│   │   ├── home/                  # Home page
+│   │   ├── authentication/        # Sign in/up
+│   │   ├── quiz-management/       # Quiz admin management
+│   │   └── game-play/             # Gameplay (lobby, playing, leaderboard)
+│   └── shared/                    # Shared infrastructure
 │       ├── config/                # Configuration
-│       ├── socket/                # Client WebSocket
-│       ├── types/                 # Types TypeScript
-│       └── hooks/                 # Hooks React personnalisés
+│       ├── socket/                # WebSocket client
+│       ├── types/                 # TypeScript types
+│       └── hooks/                 # Custom React hooks
 ├── public/
 ├── index.html
 ├── package.json
@@ -113,17 +113,17 @@ frontend/
 └── tailwind.config.js
 ```
 
-**Vues principales :**
-- Home (Accueil)
-- Login/Register (Authentification)
-- Admin (Gestion des quiz)
-- Manage Questions (Édition des questions)
-- Join (Rejoindre une partie)
-- Lobby (Salle d'attente)
-- Playing (Jeu en cours)
-- Leaderboard (Classement)
+**Key views:**
+- Home
+- Login/Register (authentication)
+- Admin (quiz management)
+- Manage Questions (question editing)
+- Join (join a game)
+- Lobby (waiting room)
+- Playing (live game)
+- Leaderboard (ranking)
 
-**Flux de données :**
+**Data flow:**
 ```
 User Action → State Update → API Call/WebSocket → Backend
                 ↓
@@ -132,54 +132,54 @@ User Action → State Update → API Call/WebSocket → Backend
 
 ### 2. Backend (Node.js + Express)
 
-**Technologies :**
+**Technologies:**
 - Express.js
 - Socket.io
 - SQLite3
 - JWT (jsonwebtoken)
 - bcrypt
 
-**Structure :**
+**Structure:**
 ```
 backend/
-├── server.js             # Serveur principal
+├── server.js             # Main server
 ├── package.json
 └── data/
-    └── quiz.db          # Base de données
+    └── quiz.db          # Database
 ```
 
-**Endpoints API REST :**
+**REST API endpoints:**
 
-| Méthode | Endpoint | Description | Auth |
-|---------|----------|-------------|------|
-| POST | `/api/register` | Inscription | ✗ |
-| POST | `/api/login` | Connexion | ✗ |
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | `/api/register` | Registration | ✗ |
+| POST | `/api/login` | Login | ✗ |
 | GET | `/api/health` | Health check | ✗ |
-| GET | `/api/quizzes` | Liste des quiz | ✓ |
-| POST | `/api/quizzes` | Créer un quiz | ✓ |
-| DELETE | `/api/quizzes/:id` | Supprimer un quiz | ✓ |
-| GET | `/api/quizzes/:id/questions` | Questions d'un quiz | ✓ |
-| POST | `/api/questions` | Ajouter une question | ✓ |
-| DELETE | `/api/questions/:id` | Supprimer une question | ✓ |
-| POST | `/api/sessions/create` | Créer une session de jeu | ✓ |
+| GET | `/api/quizzes` | List quizzes | ✓ |
+| POST | `/api/quizzes` | Create a quiz | ✓ |
+| DELETE | `/api/quizzes/:id` | Delete a quiz | ✓ |
+| GET | `/api/quizzes/:id/questions` | Questions of a quiz | ✓ |
+| POST | `/api/questions` | Add a question | ✓ |
+| DELETE | `/api/questions/:id` | Delete a question | ✓ |
+| POST | `/api/sessions/create` | Create a game session | ✓ |
 
-**Events WebSocket :**
+**WebSocket events:**
 
 | Event | Direction | Description |
 |-------|-----------|-------------|
-| `join-game` | Client → Server | Rejoindre une partie |
-| `player-joined` | Server → Clients | Nouveau joueur |
-| `start-game` | Client → Server | Démarrer la partie (admin) |
-| `game-started` | Server → Clients | Partie démarrée |
-| `submit-answer` | Client → Server | Soumettre une réponse |
-| `answer-result` | Server → Client | Résultat de la réponse |
-| `next-question` | Client → Server | Question suivante (admin) |
-| `game-ended` | Server → Clients | Fin de la partie |
-| `player-left` | Server → Clients | Joueur déconnecté |
+| `join-game` | Client → Server | Join a game |
+| `player-joined` | Server → Clients | New player |
+| `start-game` | Client → Server | Start the game (admin) |
+| `game-started` | Server → Clients | Game started |
+| `submit-answer` | Client → Server | Submit an answer |
+| `answer-result` | Server → Client | Answer result |
+| `next-question` | Client → Server | Next question (admin) |
+| `game-ended` | Server → Clients | Game ended |
+| `player-left` | Server → Clients | Player disconnected |
 
-### 3. Base de données (SQLite)
+### 3. Database (SQLite)
 
-**Schéma :**
+**Schema:**
 
 ```sql
 ┌─────────────────────┐
@@ -252,33 +252,33 @@ backend/
 └─────────────────────┘
 ```
 
-## 🔐 Sécurité
+## 🔐 Security
 
-### Authentification
+### Authentication
 
-**Flux JWT :**
+**JWT flow:**
 ```
-1. User login → Email + Password
-2. Backend vérifie → bcrypt.compare()
-3. JWT généré → jwt.sign({id, username, isAdmin})
-4. Token retourné → Client stocke en mémoire
-5. Requêtes suivantes → Header: Authorization: Bearer <token>
-6. Middleware vérifie → jwt.verify()
+1. User login → Email + password
+2. Backend verifies → bcrypt.compare()
+3. JWT generated → jwt.sign({id, username, isAdmin})
+4. Token returned → Client stores in memory
+5. Subsequent requests → Header: Authorization: Bearer <token>
+6. Middleware verifies → jwt.verify()
 ```
 
-**Stockage des mots de passe :**
-- Hash avec bcrypt (salt rounds: 10)
-- Jamais de stockage en clair
-- Validation côté serveur
+**Password storage:**
+- Hash with bcrypt (salt rounds: 10)
+- Never store in plain text
+- Validate on the server side
 
-### Protection des routes
+### Route protection
 
 ```javascript
-// Middleware d'authentification
+// Authentication middleware
 const authenticateToken = (req, res, next) => {
   const token = req.headers['authorization']?.split(' ')[1];
   if (!token) return res.sendStatus(401);
-  
+
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) return res.sendStatus(403);
     req.user = user;
@@ -286,61 +286,61 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// Utilisation
+// Usage
 app.get('/api/quizzes', authenticateToken, (req, res) => {
-  // Route protégée
+  // Protected route
 });
 ```
 
-## 🎮 Flux de jeu
+## 🎮 Game Flow
 
-### 1. Création d'une partie
+### 1. Creating a game
 
 ```
-Admin → Sélectionne Quiz → Crée Session → PIN généré
+Admin → Selects quiz → Creates session → PIN generated
                                               ↓
-                                        Partage PIN
+                                        Share PIN
 ```
 
-### 2. Rejoindre une partie
+### 2. Joining a game
 
 ```
-Joueur → Entre PIN → Vérifie session → Rejoint lobby
+Player → Enters PIN → Validates session → Joins lobby
                                               ↓
-                                        Attend démarrage
+                                        Waits for start
 ```
 
-### 3. Déroulement du jeu
+### 3. Running the game
 
 ```
-Admin démarre
+Admin starts
     ↓
-Question 1 affichée → Chrono démarre
+Question 1 displayed → Timer starts
     ↓
-Joueurs répondent → Calcul points (justesse + temps)
+Players answer → Score calculation (accuracy + time)
     ↓
-Résultats affichés → Mise à jour classement
+Results displayed → Leaderboard updated
     ↓
-Admin passe à Question 2 → Répéter
+Admin moves to Question 2 → Repeat
     ↓
-Dernière question → Podium final
+Final question → Final podium
 ```
 
-### 4. Calcul des points
+### 4. Scoring calculation
 
 ```javascript
-const basePoints = question.points; // Ex: 1000
+const basePoints = question.points; // e.g., 1000
 const timeBonus = Math.floor((timeLeft / timeLimit) * 500);
 const totalPoints = isCorrect ? basePoints + timeBonus : 0;
 
-// Exemple:
-// - Réponse correcte en 5s sur 20s
+// Example:
+// - Correct answer in 5s out of 20s
 // - Points: 1000 + (5/20 * 500) = 1125 points
 ```
 
-## 🐳 Architecture Docker
+## 🐳 Docker Architecture
 
-### Développement
+### Development
 
 ```yaml
 ┌──────────────────┐
@@ -385,13 +385,13 @@ const totalPoints = isCorrect ? basePoints + timeBonus : 0;
 ┌──────────────┐
 │  SQLite DB   │
 │  Volume      │
-│  Persistant  │
+│  Persistent  │
 └──────────────┘
 ```
 
-### Avec Monitoring
+### With Monitoring
 
-```yaml
+```
 ┌────────────────────────────────────┐
 │  docker-compose + monitoring       │
 └────────────┬───────────────────────┘
@@ -413,14 +413,14 @@ const totalPoints = isCorrect ? basePoints + timeBonus : 0;
      │         ↑                    ↑
      │         │                    │
      └─────────┴────────────────────┘
-            Métriques + Logs
+            Metrics + Logs
 ```
 
-## 🚀 Déploiement
+## 🚀 Deployment
 
-### Stratégies de déploiement
+### Deployment strategies
 
-#### 1. Déploiement simple (Single Server)
+#### 1. Simple deployment (single server)
 
 ```
 Server VPS/Cloud
@@ -430,16 +430,16 @@ Server VPS/Cloud
 └── Nginx (SSL)
 ```
 
-**Avantages :**
+**Advantages:**
 - Simple
-- Peu coûteux
-- Facile à gérer
+- Low cost
+- Easy to manage
 
-**Limites :**
-- Pas de haute disponibilité
-- Scalabilité limitée
+**Limitations:**
+- No high availability
+- Limited scalability
 
-#### 2. Déploiement avec Load Balancer
+#### 2. Deployment with load balancer
 
 ```
           ┌─────────────┐
@@ -460,12 +460,12 @@ Server VPS/Cloud
           └──────────┘
 ```
 
-**Avantages :**
-- Haute disponibilité
-- Scalabilité horizontale
-- Répartition de charge
+**Advantages:**
+- High availability
+- Horizontal scalability
+- Load distribution
 
-#### 3. Déploiement Kubernetes (Avancé)
+#### 3. Kubernetes deployment (advanced)
 
 ```yaml
 apiVersion: apps/v1
@@ -491,9 +491,9 @@ spec:
 
 ## 📊 Performance
 
-### Optimisations Frontend
+### Frontend optimizations
 
-1. **Code Splitting**
+1. **Code splitting**
 ```javascript
 const Admin = lazy(() => import('./views/Admin'));
 ```
@@ -508,28 +508,28 @@ const MemoizedComponent = React.memo(ExpensiveComponent);
 const debouncedSearch = debounce(searchFunction, 300);
 ```
 
-### Optimisations Backend
+### Backend optimizations
 
-1. **Connection Pooling** (si PostgreSQL)
-2. **Caching Redis** (optionnel)
-3. **Compression gzip**
-4. **Rate Limiting**
+1. **Connection pooling** (if PostgreSQL)
+2. **Redis caching** (optional)
+3. **gzip compression**
+4. **Rate limiting**
 
 ```javascript
 const rateLimit = require('express-rate-limit');
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limite de 100 requêtes
+  max: 100 // limit of 100 requests
 });
 
 app.use('/api/', limiter);
 ```
 
-### Optimisations Base de données
+### Database optimizations
 
 ```sql
--- Indexes pour améliorer les performances
+-- Indexes to improve performance
 CREATE INDEX idx_quiz_created_by ON quizzes(created_by);
 CREATE INDEX idx_questions_quiz_id ON questions(quiz_id);
 CREATE INDEX idx_sessions_pin ON game_sessions(pin);
@@ -538,7 +538,7 @@ CREATE INDEX idx_scores_session ON scores(session_id);
 
 ## 🔄 CI/CD
 
-### Pipeline GitHub Actions
+### GitHub Actions pipeline
 
 ```
 Push to main
@@ -558,47 +558,47 @@ Health Checks
 Notifications
 ```
 
-## 📈 Scalabilité
+## 📈 Scalability
 
-### Limites actuelles (Single Server)
+### Current limits (single server)
 
-- ~100 utilisateurs simultanés
-- ~10 quiz simultanés
-- SQLite (limite pour writes concurrents)
+- ~100 concurrent users
+- ~10 concurrent quizzes
+- SQLite (limited for concurrent writes)
 
-### Améliorations possibles
+### Potential improvements
 
-1. **PostgreSQL** : Meilleure concurrence
-2. **Redis** : Caching et sessions
-3. **CDN** : Assets statiques
-4. **Load Balancer** : Multi-instances
-5. **Message Queue** : Tâches asynchrones
+1. **PostgreSQL**: Better concurrency
+2. **Redis**: Caching and sessions
+3. **CDN**: Static assets
+4. **Load balancer**: Multiple instances
+5. **Message queue**: Asynchronous tasks
 
 ## 🛠️ Maintenance
 
 ### Logs
 
 ```bash
-# Structure des logs
+# Log structure
 logs/
-├── backend.log      # Logs applicatifs
-├── nginx-access.log # Accès HTTP
-├── nginx-error.log  # Erreurs HTTP
-└── docker.log       # Logs conteneurs
+├── backend.log      # Application logs
+├── nginx-access.log # HTTP access
+├── nginx-error.log  # HTTP errors
+└── docker.log       # Container logs
 ```
 
 ### Monitoring
 
-- **Métriques** : CPU, RAM, Disque, Réseau
-- **APM** : Latence, erreurs, throughput
-- **Logs** : Agrégation et recherche
-- **Alertes** : Notifications automatiques
+- **Metrics**: CPU, RAM, disk, network
+- **APM**: Latency, errors, throughput
+- **Logs**: Aggregation and search
+- **Alerts**: Automatic notifications
 
-## 📚 Documentation API
+## 📚 API Documentation
 
-Voir la documentation complète Swagger à `/api/docs` (si implémentée)
+See the full Swagger documentation at `/api/docs` (if implemented)
 
-## 🔗 Ressources externes
+## 🔗 External Resources
 
 - [React](https://react.dev/)
 - [Express.js](https://expressjs.com/)

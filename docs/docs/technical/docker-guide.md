@@ -2,153 +2,153 @@
 sidebar_position: 3
 ---
 
-# 🐳 Guide Docker - QuizMaster
+# 🐳 Docker Guide - QuizMaster
 
-Guide complet pour déployer l'application QuizMaster avec Docker et Docker Compose.
+Complete guide to deploy the QuizMaster application with Docker and Docker Compose.
 
-## 📋 Prérequis
+## 📋 Prerequisites
 
 - Docker (version 20.10+)
 - Docker Compose (version 2.0+)
 
-Vérifier les installations :
+Check installations:
 ```bash
 docker --version
 docker-compose --version
 ```
 
-## 📁 Structure des fichiers Docker
+## 📁 Docker files structure
 
 ```
 quiz-app/
-├── docker-compose.yml          # Orchestration des services
-├── .env.example               # Variables d'environnement
+├── docker-compose.yml          # Services orchestration
+├── .env.example               # Environment variables
 │
 ├── backend/
-│   ├── Dockerfile            # Image backend
-│   ├── .dockerignore         # Fichiers à exclure
+│   ├── Dockerfile            # Backend image
+│   ├── .dockerignore         # Files to exclude
 │   ├── server.js
 │   └── package.json
 │
 └── frontend/
-    ├── Dockerfile            # Image frontend multi-stage
-    ├── .dockerignore         # Fichiers à exclure
-    ├── nginx.conf            # Config Nginx
+    ├── Dockerfile            # Multi-stage frontend image
+    ├── .dockerignore         # Files to exclude
+    ├── nginx.conf            # Nginx config
     ├── src/
     └── package.json
 ```
 
-## 🚀 Démarrage rapide
+## 🚀 Quick start
 
-### 1. Configuration des variables d'environnement
+### 1. Environment variables configuration
 
 ```bash
-# Copier le fichier exemple
+# Copy the example file
 cp .env.example .env
 
-# Éditer le fichier .env et CHANGER le JWT_SECRET
+# Edit the .env file and CHANGE the JWT_SECRET
 nano .env
 ```
 
-### 2. Lancer l'application
+### 2. Start the application
 
 ```bash
-# Build et démarrage des conteneurs
+# Build and start containers
 docker-compose up -d --build
 
-# Vérifier que tout fonctionne
+# Check everything is working
 docker-compose ps
 ```
 
-### 3. Accéder à l'application
+### 3. Access the application
 
-- **Frontend** : http://localhost
-- **Backend API** : http://localhost:3001
-- **Health check** : http://localhost:3001/api/health
+- **Frontend**: http://localhost
+- **Backend API**: http://localhost:3001
+- **Health check**: http://localhost:3001/api/health
 
-### 4. Compte admin par défaut
+### 4. Default admin account
 
-- Email : `admin@quiz.com`
-- Mot de passe : `admin123`
+- Email: `admin@quiz.com`
+- Password: `admin123`
 
-## 🔧 Commandes Docker utiles
+## 🔧 Useful Docker commands
 
-### Gestion des conteneurs
+### Container management
 
 ```bash
-# Démarrer les services
+# Start services
 docker-compose up -d
 
-# Arrêter les services
+# Stop services
 docker-compose down
 
-# Voir les logs
+# View logs
 docker-compose logs -f
 
-# Logs d'un service spécifique
+# Logs for a specific service
 docker-compose logs -f backend
 docker-compose logs -f frontend
 
-# Redémarrer un service
+# Restart a service
 docker-compose restart backend
 
-# Reconstruire les images
+# Rebuild images
 docker-compose build --no-cache
 
-# Arrêter et supprimer tout (y compris volumes)
+# Stop and remove everything (including volumes)
 docker-compose down -v
 ```
 
-### Monitoring et debug
+### Monitoring and debugging
 
 ```bash
-# Status des conteneurs
+# Container status
 docker-compose ps
 
-# Ressources utilisées
+# Resources used
 docker stats
 
-# Entrer dans un conteneur
+# Enter a container
 docker-compose exec backend sh
 docker-compose exec frontend sh
 
-# Voir les processus dans un conteneur
+# View processes in a container
 docker-compose top backend
 ```
 
-### Base de données
+### Database
 
 ```bash
-# Accéder à la base de données SQLite
+# Access SQLite database
 docker-compose exec backend sh
 cd data
 sqlite3 quiz.db
 
-# Backup de la base de données
+# Database backup
 docker-compose exec backend cat /app/data/quiz.db > backup_$(date +%Y%m%d).db
 
-# Restaurer un backup
+# Restore a backup
 docker cp backup.db quiz-backend:/app/data/quiz.db
 ```
 
-## 🔐 Sécurité en production
+## 🔐 Production security
 
-### 1. Changer le JWT_SECRET
+### 1. Change JWT_SECRET
 
 ```bash
-# Générer un secret aléatoire
+# Generate a random secret
 openssl rand -base64 32
 
-# Mettre à jour .env
-JWT_SECRET=votre_nouveau_secret_genere
+# Update .env
+JWT_SECRET=your_new_generated_secret
 ```
 
-### 2. Utiliser HTTPS
+### 2. Use HTTPS
 
-Ajouter un reverse proxy comme Nginx ou Traefik avec Let's Encrypt :
+Add a reverse proxy like Nginx or Traefik with Let's Encrypt:
 
 ```yaml
-# Exemple avec Traefik (à ajouter au docker-compose.yml)
+# Example with Traefik (to add to docker-compose.yml)
 services:
   traefik:
     image: traefik:v2.10
@@ -166,9 +166,9 @@ services:
       - ./letsencrypt:/letsencrypt
 ```
 
-### 3. Limiter les ressources
+### 3. Limit resources
 
-Modifier `docker-compose.yml` :
+Modify `docker-compose.yml`:
 
 ```yaml
 services:
@@ -183,180 +183,180 @@ services:
           memory: 256M
 ```
 
-## 📊 Volumes et persistance
+## 📊 Volumes and persistence
 
-### Volume de données
+### Data volume
 
-Le volume `quiz-data` persiste la base de données SQLite :
+The `quiz-data` volume persists the SQLite database:
 
 ```bash
-# Lister les volumes
+# List volumes
 docker volume ls
 
-# Inspecter le volume
+# Inspect volume
 docker volume inspect quiz-app_quiz-data
 
-# Backup du volume
+# Volume backup
 docker run --rm -v quiz-app_quiz-data:/data -v $(pwd):/backup alpine tar czf /backup/quiz-data-backup.tar.gz /data
 
-# Restaurer le volume
+# Restore volume
 docker run --rm -v quiz-app_quiz-data:/data -v $(pwd):/backup alpine tar xzf /backup/quiz-data-backup.tar.gz -C /
 ```
 
-## 🌐 Configuration réseau
+## 🌐 Network configuration
 
-### Ports utilisés
+### Ports used
 
-- **80** : Frontend (Nginx)
-- **3001** : Backend (Node.js)
+- **80**: Frontend (Nginx)
+- **3001**: Backend (Node.js)
 
-### Changer les ports
+### Change ports
 
-Modifier dans `docker-compose.yml` :
+Modify in `docker-compose.yml`:
 
 ```yaml
 services:
   frontend:
     ports:
-      - "8080:80"  # Utiliser le port 8080 au lieu de 80
+      - "8080:80"  # Use port 8080 instead of 80
   
   backend:
     ports:
-      - "3002:3001"  # Utiliser le port 3002 au lieu de 3001
+      - "3002:3001"  # Use port 3002 instead of 3001
 ```
 
-## 🔄 Mises à jour
+## 🔄 Updates
 
-### Mise à jour de l'application
+### Application update
 
 ```bash
-# 1. Arrêter les services
+# 1. Stop services
 docker-compose down
 
-# 2. Récupérer les dernières modifications
+# 2. Get latest changes
 git pull
 
-# 3. Reconstruire les images
+# 3. Rebuild images
 docker-compose build --no-cache
 
-# 4. Redémarrer
+# 4. Restart
 docker-compose up -d
 
-# 5. Vérifier les logs
+# 5. Check logs
 docker-compose logs -f
 ```
 
-### Migration de base de données
+### Database migration
 
-Si vous modifiez la structure de la base :
+If you modify the database structure:
 
 ```bash
 # 1. Backup
 docker-compose exec backend cat /app/data/quiz.db > backup.db
 
-# 2. Arrêter le backend
+# 2. Stop backend
 docker-compose stop backend
 
-# 3. Appliquer les migrations (si nécessaire)
+# 3. Apply migrations (if needed)
 # ...
 
-# 4. Redémarrer
+# 4. Restart
 docker-compose start backend
 ```
 
-## 🐛 Dépannage
+## 🐛 Troubleshooting
 
-### Les conteneurs ne démarrent pas
+### Containers won't start
 
 ```bash
-# Vérifier les logs
+# Check logs
 docker-compose logs
 
-# Vérifier l'état des conteneurs
+# Check container status
 docker-compose ps
 
-# Reconstruire depuis zéro
+# Rebuild from scratch
 docker-compose down -v
 docker-compose build --no-cache
 docker-compose up -d
 ```
 
-### Problèmes de connexion backend/frontend
+### Backend/frontend connection issues
 
 ```bash
-# Vérifier que le backend est accessible
+# Check backend is accessible
 curl http://localhost:3001/api/health
 
-# Vérifier les connexions réseau
+# Check network connections
 docker network inspect quiz-app_quiz-network
 
-# Redémarrer le réseau
+# Restart network
 docker-compose down
 docker-compose up -d
 ```
 
-### Base de données corrompue
+### Corrupted database
 
 ```bash
-# Restaurer depuis un backup
+# Restore from backup
 docker cp backup.db quiz-backend:/app/data/quiz.db
 docker-compose restart backend
 
-# Ou supprimer et recréer
+# Or delete and recreate
 docker-compose down -v
 docker-compose up -d
 ```
 
-### Espace disque insuffisant
+### Insufficient disk space
 
 ```bash
-# Nettoyer les images inutilisées
+# Clean unused images
 docker image prune -a
 
-# Nettoyer tout ce qui n'est pas utilisé
+# Clean everything not in use
 docker system prune -a --volumes
 
-# Voir l'espace utilisé
+# See used space
 docker system df
 ```
 
-## 🚀 Déploiement en production
+## 🚀 Production deployment
 
-### Avec Docker Swarm
+### With Docker Swarm
 
 ```bash
-# Initialiser Swarm
+# Initialize Swarm
 docker swarm init
 
-# Déployer la stack
+# Deploy stack
 docker stack deploy -c docker-compose.yml quiz-app
 
-# Voir les services
+# View services
 docker stack services quiz-app
 ```
 
-### Avec Kubernetes
+### With Kubernetes
 
-Convertir avec Kompose :
+Convert with Kompose:
 
 ```bash
-# Installer kompose
+# Install kompose
 curl -L https://github.com/kubernetes/kompose/releases/download/v1.31.2/kompose-linux-amd64 -o kompose
 chmod +x kompose
 sudo mv ./kompose /usr/local/bin/kompose
 
-# Convertir
+# Convert
 kompose convert -f docker-compose.yml
 ```
 
 ## 📈 Monitoring
 
-### Logs centralisés
+### Centralized logs
 
-Utiliser un système comme ELK ou Loki :
+Use a system like ELK or Loki:
 
 ```yaml
-# Ajouter au docker-compose.yml
+# Add to docker-compose.yml
 logging:
   driver: "json-file"
   options:
@@ -366,28 +366,28 @@ logging:
 
 ### Health checks
 
-Les health checks sont déjà configurés dans le `docker-compose.yml` :
+Health checks are already configured in `docker-compose.yml`:
 
 ```bash
-# Vérifier la santé des conteneurs
+# Check container health
 docker-compose ps
 ```
 
-## 🔒 Checklist de sécurité
+## 🔒 Security checklist
 
-- [ ] JWT_SECRET changé et sécurisé
-- [ ] Variables d'environnement non commitées
-- [ ] HTTPS configuré avec certificats valides
-- [ ] Firewall configuré (ports 80, 443 uniquement)
-- [ ] Logs rotatés et sauvegardés
-- [ ] Backups automatiques de la base de données
-- [ ] Mots de passe admin changés
-- [ ] Rate limiting configuré
-- [ ] Images Docker mises à jour régulièrement
+- [ ] JWT_SECRET changed and secured
+- [ ] Environment variables not committed
+- [ ] HTTPS configured with valid certificates
+- [ ] Firewall configured (ports 80, 443 only)
+- [ ] Logs rotated and backed up
+- [ ] Automatic database backups
+- [ ] Admin passwords changed
+- [ ] Rate limiting configured
+- [ ] Docker images regularly updated
 
-## 📚 Ressources
+## 📚 Resources
 
-- [Documentation Docker](https://docs.docker.com/)
-- [Documentation Docker Compose](https://docs.docker.com/compose/)
-- [Best practices Docker](https://docs.docker.com/develop/dev-best-practices/)
+- [Docker Documentation](https://docs.docker.com/)
+- [Docker Compose Documentation](https://docs.docker.com/compose/)
+- [Docker best practices](https://docs.docker.com/develop/dev-best-practices/)
 - [Node.js Docker best practices](https://github.com/nodejs/docker-node/blob/main/docs/BestPractices.md)

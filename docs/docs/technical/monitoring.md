@@ -2,68 +2,68 @@
 sidebar_position: 8
 ---
 
-# 📊 Guide de Monitoring - QuizMaster
+# 📊 Monitoring Guide - QuizMaster
 
-Guide complet pour le monitoring et l'observabilité de l'application QuizMaster.
+Complete guide for monitoring and observability of the QuizMaster application.
 
-## 🎯 Stack de monitoring
+## 🎯 Monitoring stack
 
-- **Prometheus** : Collecte des métriques
-- **Grafana** : Visualisation et dashboards
-- **Loki** : Agrégation des logs
-- **Promtail** : Collecte des logs
-- **Node Exporter** : Métriques système
-- **cAdvisor** : Métriques Docker
+- **Prometheus**: Metrics collection
+- **Grafana**: Visualization and dashboards
+- **Loki**: Log aggregation
+- **Promtail**: Log collection
+- **Node Exporter**: System metrics
+- **cAdvisor**: Docker metrics
 
 ## 🚀 Installation
 
-### Démarrage avec monitoring
+### Start with monitoring
 
 ```bash
-# Démarrer l'application avec monitoring
+# Start application with monitoring
 docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d
 
-# Ou avec le Makefile
+# Or with Makefile
 make monitoring-up
 ```
 
-### Accès aux interfaces
+### Access interfaces
 
-- **Grafana** : http://localhost:3000 (admin/admin123)
-- **Prometheus** : http://localhost:9090
-- **cAdvisor** : http://localhost:8080
-- **Loki** : http://localhost:3100
+- **Grafana**: http://localhost:3000 (admin/admin123)
+- **Prometheus**: http://localhost:9090
+- **cAdvisor**: http://localhost:8080
+- **Loki**: http://localhost:3100
 
-## 📈 Métriques collectées
+## 📈 Collected metrics
 
-### Métriques Backend (Node.js)
+### Backend metrics (Node.js)
 
-- Requêtes HTTP (total, erreurs, latence)
-- WebSocket connexions actives
-- Utilisateurs connectés
-- Quiz en cours
-- Performance base de données
-- Utilisation mémoire/CPU
+- HTTP requests (total, errors, latency)
+- Active WebSocket connections
+- Connected users
+- Active quizzes
+- Database performance
+- Memory/CPU usage
 
-### Métriques Système (Node Exporter)
+### System metrics (Node Exporter)
 
-- CPU utilisation
-- Mémoire (utilisée, disponible)
-- Disque (I/O, espace)
-- Réseau (trafic, erreurs)
-- Charge système
+- CPU utilization
+- Memory (used, available)
+- Disk (I/O, space)
+- Network (traffic, errors)
+- System load
 
-### Métriques Docker (cAdvisor)
+### Docker metrics (cAdvisor)
 
-- Utilisation CPU par conteneur
-- Mémoire par conteneur
-- Réseau par conteneur
-- Disque par conteneur
-- Performance globale
+- CPU usage per container
+- Memory per container
+- Network per container
+- Disk per container
+- Overall performance
 
-## 📊 Configuration Grafana
+## 📊 Grafana configuration
 
-### 1. Première connexion
+### 1. First login
 
 ```
 URL: http://localhost:3000
@@ -71,141 +71,141 @@ User: admin
 Pass: admin123
 ```
 
-Changez immédiatement le mot de passe !
+Change the password immediately!
 
-### 2. Ajouter Prometheus comme source de données
+### 2. Add Prometheus as data source
 
 1. Configuration → Data Sources
 2. Add data source → Prometheus
-3. URL : `http://prometheus:9090`
+3. URL: `http://prometheus:9090`
 4. Save & Test
 
-### 3. Ajouter Loki pour les logs
+### 3. Add Loki for logs
 
 1. Configuration → Data Sources
 2. Add data source → Loki
-3. URL : `http://loki:3100`
+3. URL: `http://loki:3100`
 4. Save & Test
 
-### 4. Importer des dashboards
+### 4. Import dashboards
 
-**Dashboard Docker :**
-- Dashboard ID: 193 (pour cAdvisor)
-- Ou créer un custom dashboard
+**Docker Dashboard:**
+- Dashboard ID: 193 (for cAdvisor)
+- Or create a custom dashboard
 
-**Dashboard Node Exporter :**
+**Node Exporter Dashboard:**
 - Dashboard ID: 1860
-- Source de données : Prometheus
+- Data source: Prometheus
 
-## 🔍 Requêtes Prometheus utiles
+## 🔍 Useful Prometheus queries
 
-### Performance Backend
+### Backend performance
 
 ```promql
-# Taux de requêtes par seconde
+# Request rate per second
 rate(http_requests_total[5m])
 
-# Latence moyenne
+# Average latency
 rate(http_request_duration_seconds_sum[5m]) / rate(http_request_duration_seconds_count[5m])
 
-# Taux d'erreur
+# Error rate
 rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m])
 
-# Utilisateurs connectés
+# Connected users
 websocket_connections_active
 ```
 
-### Ressources système
+### System resources
 
 ```promql
-# CPU utilisation
+# CPU utilization
 100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
 
-# Mémoire disponible
+# Available memory
 node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100
 
-# Disque libre
+# Free disk space
 node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"} * 100
 ```
 
-### Docker conteneurs
+### Docker containers
 
 ```promql
-# CPU par conteneur
+# CPU per container
 rate(container_cpu_usage_seconds_total[5m])
 
-# Mémoire par conteneur
+# Memory per container
 container_memory_usage_bytes
 
-# Réseau reçu
+# Network received
 rate(container_network_receive_bytes_total[5m])
 ```
 
-## 📝 Logs avec Loki
+## 📝 Logs with Loki
 
-### Requêtes LogQL utiles
+### Useful LogQL queries
 
 ```logql
-# Tous les logs du backend
+# All backend logs
 {container="quiz-backend"}
 
-# Erreurs uniquement
+# Errors only
 {container="quiz-backend"} |= "error" or "ERROR"
 
-# Logs des 5 dernières minutes
+# Logs from last 5 minutes
 {container="quiz-backend"} [5m]
 
-# Taux d'erreurs
+# Error rate
 rate({container="quiz-backend"} |= "error" [5m])
 
-# Recherche de pattern
+# Pattern search
 {container="quiz-backend"} |~ "user.*login"
 ```
 
-## 🚨 Alertes (Configuration avancée)
+## 🚨 Alerts (Advanced configuration)
 
-### Créer une alerte dans Grafana
+### Create an alert in Grafana
 
-1. Créer un dashboard avec une requête
+1. Create a dashboard with a query
 2. Edit Panel → Alert tab
-3. Configurer les conditions
-4. Définir les notifications
+3. Configure conditions
+4. Define notifications
 
-### Exemples d'alertes
+### Alert examples
 
-**Backend down :**
+**Backend down:**
 ```promql
 up{job="backend"} == 0
 ```
 
-**Haute utilisation CPU :**
+**High CPU usage:**
 ```promql
 100 - (avg(irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
 ```
 
-**Mémoire faible :**
+**Low memory:**
 ```promql
 node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 10
 ```
 
-**Taux d'erreur élevé :**
+**High error rate:**
 ```promql
 rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
 ```
 
 ## 📧 Notifications
 
-### Configurer Slack
+### Configure Slack
 
 1. Grafana → Alerting → Contact points
 2. New contact point
-3. Type : Slack
-4. Webhook URL : votre webhook Slack
+3. Type: Slack
+4. Webhook URL: your Slack webhook
 5. Test & Save
 
-### Configurer Email
+### Configure Email
 
-1. Modifier `grafana.ini` ou variables d'environnement :
+1. Modify `grafana.ini` or environment variables:
 
 ```yaml
 environment:
@@ -216,9 +216,9 @@ environment:
   - GF_SMTP_FROM_ADDRESS=your-email@gmail.com
 ```
 
-## 🔧 Dashboard personnalisé
+## 🔧 Custom dashboard
 
-### Créer un dashboard pour QuizMaster
+### Create a dashboard for QuizMaster
 
 ```json
 {
@@ -254,31 +254,31 @@ environment:
 }
 ```
 
-## 🎨 Widgets recommandés
+## 🎨 Recommended widgets
 
-1. **Single Stat** : Nombre d'utilisateurs actifs
-2. **Graph** : Requêtes HTTP dans le temps
-3. **Gauge** : Utilisation CPU/Mémoire
-4. **Table** : Top erreurs
-5. **Logs** : Stream des logs en temps réel
-6. **Heatmap** : Distribution des latences
+1. **Single Stat**: Active users count
+2. **Graph**: HTTP requests over time
+3. **Gauge**: CPU/Memory usage
+4. **Table**: Top errors
+5. **Logs**: Real-time log stream
+6. **Heatmap**: Latency distribution
 
-## 📊 Métriques métier
+## 📊 Business metrics
 
-### Ajouter des métriques custom au backend
+### Add custom metrics to backend
 
-Modifier `server.js` pour exposer des métriques :
+Modify `server.js` to expose metrics:
 
 ```javascript
 const promClient = require('prom-client');
 
-// Créer un registre
+// Create registry
 const register = new promClient.Registry();
 
-// Métriques par défaut
+// Default metrics
 promClient.collectDefaultMetrics({ register });
 
-// Métriques custom
+// Custom metrics
 const activeUsers = new promClient.Gauge({
   name: 'websocket_connections_active',
   help: 'Number of active WebSocket connections',
@@ -291,13 +291,13 @@ const activeQuizzes = new promClient.Gauge({
   registers: [register]
 });
 
-// Endpoint métriques
+// Metrics endpoint
 app.get('/metrics', async (req, res) => {
   res.set('Content-Type', register.contentType);
   res.end(await register.metrics());
 });
 
-// Mettre à jour les métriques
+// Update metrics
 io.on('connection', () => {
   activeUsers.inc();
 });
@@ -307,72 +307,72 @@ io.on('disconnect', () => {
 });
 ```
 
-## 🔍 Debugging avec les logs
+## 🔍 Debugging with logs
 
-### Visualiser les logs en temps réel
+### Visualize logs in real-time
 
 ```bash
-# Dans Grafana Explore
+# In Grafana Explore
 {container="quiz-backend"} | json
 
-# Filtrer par niveau
+# Filter by level
 {container="quiz-backend"} | json | level="error"
 
-# Compter les erreurs
+# Count errors
 count_over_time({container="quiz-backend"} |= "error" [1h])
 ```
 
 ## 📈 Performance tracking
 
-### KPIs à surveiller
+### KPIs to monitor
 
-1. **Disponibilité** : Uptime > 99.9%
-2. **Latence** : P95 < 200ms
-3. **Taux d'erreur** : < 1%
-4. **Utilisateurs actifs** : Trend
-5. **Quiz complétés** : Par jour
-6. **WebSocket connexions** : Stabilité
+1. **Availability**: Uptime > 99.9%
+2. **Latency**: P95 < 200ms
+3. **Error rate**: < 1%
+4. **Active users**: Trend
+5. **Completed quizzes**: Per day
+6. **WebSocket connections**: Stability
 
 ## 🛠️ Maintenance
 
-### Rotation des logs
+### Log rotation
 
-Loki retient les logs selon la configuration. Pour gérer manuellement :
+Loki retains logs according to configuration. To manage manually:
 
 ```bash
-# Nettoyer les vieux logs
+# Clean old logs
 docker exec quiz-loki rm -rf /loki/chunks/fake/*/
 
-# Redémarrer Loki
+# Restart Loki
 docker-compose restart loki
 ```
 
-### Backup des dashboards Grafana
+### Grafana dashboard backup
 
 ```bash
-# Export des dashboards
+# Export dashboards
 docker exec quiz-grafana grafana-cli admin export-dashboard > dashboards-backup.json
 
-# Backup du volume
+# Volume backup
 docker run --rm -v quiz-app_grafana-data:/data -v $(pwd):/backup alpine tar czf /backup/grafana-backup.tar.gz /data
 ```
 
-## 🚀 Mode production
+## 🚀 Production mode
 
-### Checklist monitoring production
+### Production monitoring checklist
 
-- [ ] Alertes configurées (CPU, mémoire, erreurs)
-- [ ] Notifications (Slack/Email) testées
-- [ ] Rétention des logs configurée
-- [ ] Dashboards créés et partagés
-- [ ] Métriques métier ajoutées
-- [ ] Backup automatique Grafana
-- [ ] Documentation des alertes
-- [ ] Rotation des logs activée
-- [ ] SSL sur Grafana (reverse proxy)
-- [ ] Authentification renforcée
+- [ ] Alerts configured (CPU, memory, errors)
+- [ ] Notifications (Slack/Email) tested
+- [ ] Log retention configured
+- [ ] Dashboards created and shared
+- [ ] Business metrics added
+- [ ] Automatic Grafana backup
+- [ ] Alert documentation
+- [ ] Log rotation enabled
+- [ ] SSL on Grafana (reverse proxy)
+- [ ] Enhanced authentication
 
-## 📚 Ressources
+## 📚 Resources
 
 - [Prometheus Documentation](https://prometheus.io/docs/)
 - [Grafana Tutorials](https://grafana.com/tutorials/)

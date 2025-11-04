@@ -2,13 +2,13 @@
 sidebar_position: 10
 ---
 
-# ⚡ QuizMaster - Guide de référence rapide
+# ⚡ QuizMaster - Quick Reference Guide
 
-Guide ultra-rapide pour toutes les commandes essentielles.
+Ultra-fast guide for all essential commands.
 
-## 🚀 Démarrage rapide
+## 🚀 Quick start
 
-### Installation en 3 commandes
+### Installation in 3 commands
 
 ```bash
 git clone <repo-url> && cd quiz-app
@@ -16,55 +16,55 @@ cp .env.example .env
 make install
 ```
 
-**Accès :**
-- Frontend : http://localhost
-- Backend : http://localhost:3001
-- Admin : admin@quiz.com / admin123
+**Access:**
+- Frontend: http://localhost
+- Backend: http://localhost:3001
+- Admin: admin@quiz.com / admin123
 
 ---
 
-## 📋 Commandes Make
+## 📋 Make commands
 
 ```bash
-make help              # Liste toutes les commandes
-make install           # Installation complète (première fois)
-make up                # Démarrer l'application
-make down              # Arrêter l'application
-make restart           # Redémarrer
-make logs              # Voir les logs (temps réel)
-make ps                # Status des conteneurs
-make build             # Construire les images
-make rebuild           # Reconstruire et redémarrer
-make backup            # Sauvegarder la base de données
-make restore           # Restaurer le dernier backup
-make clean             # Nettoyer (garde les données)
-make clean-all         # Tout supprimer (⚠️ données incluses)
-make health            # Vérifier l'état de l'app
-make shell-backend     # Accéder au shell backend
-make shell-frontend    # Accéder au shell frontend
-make db                # Accéder à la base SQLite
-make monitoring-up     # Démarrer avec monitoring
-make grafana           # Ouvrir Grafana
-make prometheus        # Ouvrir Prometheus
+make help              # List all commands
+make install           # Complete installation (first time)
+make up                # Start application
+make down              # Stop application
+make restart           # Restart
+make logs              # View logs (real-time)
+make ps                # Container status
+make build             # Build images
+make rebuild           # Rebuild and restart
+make backup            # Backup database
+make restore           # Restore latest backup
+make clean             # Clean (keep data)
+make clean-all         # Delete everything (⚠️ data included)
+make health            # Check app status
+make shell-backend     # Access backend shell
+make shell-frontend    # Access frontend shell
+make db                # Access SQLite database
+make monitoring-up     # Start with monitoring
+make grafana           # Open Grafana
+make prometheus        # Open Prometheus
 ```
 
 ---
 
-## 🐳 Commandes Docker
+## 🐳 Docker commands
 
-### Gestion des conteneurs
+### Container management
 
 ```bash
-# Démarrer
+# Start
 docker-compose up -d
 
-# Arrêter
+# Stop
 docker-compose down
 
-# Redémarrer
+# Restart
 docker-compose restart
 
-# Voir les logs
+# View logs
 docker-compose logs -f
 docker-compose logs -f backend
 docker-compose logs -f frontend
@@ -72,10 +72,10 @@ docker-compose logs -f frontend
 # Status
 docker-compose ps
 
-# Stats temps réel
+# Real-time stats
 docker stats
 
-# Reconstruire
+# Rebuild
 docker-compose build --no-cache
 docker-compose up -d --force-recreate
 ```
@@ -83,53 +83,53 @@ docker-compose up -d --force-recreate
 ### Debug
 
 ```bash
-# Shell dans un conteneur
+# Shell in a container
 docker exec -it quiz-backend sh
 docker exec -it quiz-frontend sh
 
-# Voir les processus
+# View processes
 docker-compose top
 
-# Inspecter un conteneur
+# Inspect a container
 docker inspect quiz-backend
 
-# Copier des fichiers
-docker cp fichier.txt quiz-backend:/app/
+# Copy files
+docker cp file.txt quiz-backend:/app/
 docker cp quiz-backend:/app/data/quiz.db ./backup.db
 ```
 
-### Nettoyage
+### Cleanup
 
 ```bash
-# Supprimer les conteneurs arrêtés
+# Remove stopped containers
 docker container prune
 
-# Supprimer les images non utilisées
+# Remove unused images
 docker image prune -a
 
-# Supprimer les volumes non utilisés
+# Remove unused volumes
 docker volume prune
 
-# Tout nettoyer
+# Clean everything
 docker system prune -a --volumes
 ```
 
 ---
 
-## 📁 Structure des fichiers
+## 📁 File structure
 
 ```
 quiz-app/
 ├── backend/
-│   ├── server.js              # Serveur principal
+│   ├── server.js              # Main server
 │   ├── package.json
 │   ├── Dockerfile
 │   └── data/
-│       └── quiz.db           # Base de données SQLite
+│       └── quiz.db           # SQLite database
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── App.tsx           # Application React
+│   │   ├── App.tsx           # React application
 │   │   ├── main.jsx
 │   │   └── index.css
 │   ├── Dockerfile
@@ -141,19 +141,19 @@ quiz-app/
 │   ├── loki-config.yml
 │   └── promtail-config.yml
 │
-├── docker-compose.yml         # Composition dev
-├── docker-compose.prod.yml    # Composition production
+├── docker-compose.yml         # Dev composition
+├── docker-compose.prod.yml    # Production composition
 ├── docker-compose.monitoring.yml
-├── .env.example               # Variables d'environnement
-├── Makefile                   # Commandes simplifiées
-├── deploy.sh                  # Script de déploiement
-├── setup-ssl.sh               # Configuration SSL
+├── .env.example               # Environment variables
+├── Makefile                   # Simplified commands
+├── deploy.sh                  # Deployment script
+├── setup-ssl.sh               # SSL configuration
 └── README.md                  # Documentation
 ```
 
 ---
 
-## 🔧 Variables d'environnement
+## 🔧 Environment variables
 
 ```bash
 # .env
@@ -162,30 +162,30 @@ NODE_ENV=production
 PORT=3001
 ```
 
-**Générer un secret JWT :**
+**Generate a JWT secret:**
 ```bash
 openssl rand -base64 32
 ```
 
 ---
 
-## 🔐 Comptes par défaut
+## 🔐 Default accounts
 
 ### Admin
-- Email : `admin@quiz.com`
-- Password : `admin123`
-- ⚠️ **À changer en production !**
+- Email: `admin@quiz.com`
+- Password: `admin123`
+- ⚠️ **Change in production!**
 
-### Grafana (si monitoring)
-- URL : http://localhost:3000
-- User : `admin`
-- Password : `admin123`
+### Grafana (if monitoring)
+- URL: http://localhost:3000
+- User: `admin`
+- Password: `admin123`
 
 ---
 
-## 📊 URLs importantes
+## 📊 Important URLs
 
-| Service | URL Dev | URL Prod |
+| Service | Dev URL | Prod URL |
 |---------|---------|----------|
 | Frontend | http://localhost:5173 | http://localhost |
 | Backend | http://localhost:3001 | http://localhost:3001 |
@@ -196,9 +196,9 @@ openssl rand -base64 32
 
 ---
 
-## 🛠️ Déploiement
+## 🛠️ Deployment
 
-### Développement
+### Development
 ```bash
 docker-compose up -d
 ```
@@ -206,13 +206,13 @@ docker-compose up -d
 ### Production
 ```bash
 ./deploy.sh prod
-# ou
+# or
 docker-compose -f docker-compose.prod.yml up -d
 ```
 
-### Avec SSL
+### With SSL
 ```bash
-./setup-ssl.sh votre-domaine.com email@example.com
+./setup-ssl.sh your-domain.com email@example.com
 ./deploy.sh prod
 ```
 
@@ -220,23 +220,23 @@ docker-compose -f docker-compose.prod.yml up -d
 
 ## 💾 Backup & Restore
 
-### Backup manuel
+### Manual backup
 ```bash
 make backup
-# ou
+# or
 docker exec quiz-backend cat /app/data/quiz.db > backup-$(date +%Y%m%d).db
 ```
 
-### Backup automatique (cron)
+### Automatic backup (cron)
 ```bash
-# Ajouter au crontab
+# Add to crontab
 0 3 * * * cd /path/to/quiz-app && make backup >> /var/log/quiz-backup.log 2>&1
 ```
 
-### Restaurer
+### Restore
 ```bash
 make restore
-# ou
+# or
 docker cp backup.db quiz-backend:/app/data/quiz.db
 docker-compose restart backend
 ```
@@ -248,133 +248,133 @@ docker-compose restart backend
 ### Logs
 
 ```bash
-# Tous les logs
+# All logs
 make logs
 
-# Backend uniquement
+# Backend only
 docker-compose logs -f backend
 
-# Erreurs uniquement
+# Errors only
 docker-compose logs | grep -i error
 
-# Dernières 100 lignes
+# Last 100 lines
 docker-compose logs --tail=100
 
-# Depuis une date
+# From a date
 docker-compose logs --since="2024-01-01T00:00:00"
 ```
 
-### Vérifier la santé
+### Check health
 
 ```bash
 # Health check
 curl http://localhost:3001/api/health
 
-# Status des conteneurs
+# Container status
 docker-compose ps
 
-# Utilisation des ressources
+# Resource usage
 docker stats
 
-# Script complet
+# Complete script
 make health
 ```
 
-### Accéder à la base de données
+### Access database
 
 ```bash
 # Via Make
 make db
 
-# Ou manuellement
+# Or manually
 docker exec -it quiz-backend sh
 cd /app/data
 sqlite3 quiz.db
 
-# Commandes SQLite
-.tables                          # Liste des tables
-.schema users                    # Schéma d'une table
-SELECT * FROM users;             # Requête
-SELECT COUNT(*) FROM quizzes;    # Compter
-.exit                            # Quitter
+# SQLite commands
+.tables                          # List tables
+.schema users                    # Table schema
+SELECT * FROM users;             # Query
+SELECT COUNT(*) FROM quizzes;    # Count
+.exit                            # Exit
 ```
 
 ---
 
-## 🚨 Problèmes courants
+## 🚨 Common issues
 
-### Backend ne démarre pas
+### Backend won't start
 
 ```bash
-# Vérifier les logs
+# Check logs
 docker-compose logs backend
 
-# Recréer le conteneur
+# Recreate container
 docker-compose down
 docker-compose up -d
 
-# Vérifier les permissions
+# Check permissions
 docker exec quiz-backend ls -la /app/data
 ```
 
-### Frontend ne charge pas
+### Frontend doesn't load
 
 ```bash
-# Vérifier Nginx
+# Check Nginx
 docker-compose logs frontend
 
-# Reconstruire
+# Rebuild
 docker-compose build frontend --no-cache
 docker-compose up -d frontend
 ```
 
-### WebSocket ne fonctionne pas
+### WebSocket not working
 
 ```bash
-# Vérifier que le backend écoute
+# Check backend is listening
 netstat -tlnp | grep 3001
 
-# Vérifier les connexions actives
+# Check active connections
 docker exec quiz-backend netstat -an | grep 3001
 
-# Tester manuellement
+# Test manually
 wscat -c ws://localhost:3001/socket.io/?transport=websocket
 ```
 
-### Erreur "Port already in use"
+### Error "Port already in use"
 
 ```bash
-# Trouver quel processus utilise le port
+# Find which process is using the port
 sudo lsof -i :3001
 sudo lsof -i :80
 
-# Arrêter le processus
+# Stop the process
 sudo kill -9 <PID>
 
-# Ou changer le port dans docker-compose.yml
+# Or change port in docker-compose.yml
 ```
 
-### Base de données corrompue
+### Corrupted database
 
 ```bash
-# Restaurer un backup
+# Restore a backup
 make restore
 
-# Ou recréer
+# Or recreate
 docker-compose down -v
 docker-compose up -d
 ```
 
-### Mémoire insuffisante
+### Insufficient memory
 
 ```bash
-# Libérer de la mémoire
+# Free memory
 docker system prune -a
 
-# Voir l'utilisation
+# See usage
 docker stats
 
-# Limiter les ressources dans docker-compose.yml
+# Limit resources in docker-compose.yml
 deploy:
   resources:
     limits:
@@ -383,21 +383,21 @@ deploy:
 
 ---
 
-## 🔒 Sécurité
+## 🔒 Security
 
-### Checklist avant la production
+### Pre-production checklist
 
-- [ ] JWT_SECRET changé
-- [ ] Mots de passe admin changés
-- [ ] SSL/HTTPS configuré
-- [ ] Firewall activé (ports 80, 443 uniquement)
-- [ ] `.env` non commité
-- [ ] Logs ne contiennent pas de données sensibles
-- [ ] Backups automatiques configurés
-- [ ] Monitoring activé
-- [ ] Rate limiting configuré
+- [ ] JWT_SECRET changed
+- [ ] Admin passwords changed
+- [ ] SSL/HTTPS configured
+- [ ] Firewall enabled (ports 80, 443 only)
+- [ ] `.env` not committed
+- [ ] Logs don't contain sensitive data
+- [ ] Automatic backups configured
+- [ ] Monitoring enabled
+- [ ] Rate limiting configured
 
-### Configurer le firewall
+### Configure firewall
 
 ```bash
 # UFW (Ubuntu)
@@ -412,34 +412,34 @@ sudo ufw status
 
 ## 📈 Monitoring
 
-### Métriques clés
+### Key metrics
 
 ```bash
-# CPU, RAM, Disque
+# CPU, RAM, Disk
 docker stats
 
-# Requêtes HTTP
+# HTTP requests
 curl http://localhost:9090/api/v1/query?query=rate(http_requests_total[5m])
 
-# Utilisateurs actifs
+# Active users
 curl http://localhost:9090/api/v1/query?query=websocket_connections_active
 ```
 
 ### Grafana Dashboards
 
-1. Importer dashboard Docker (ID: 193)
-2. Importer dashboard Node Exporter (ID: 1860)
-3. Créer dashboard custom pour QuizMaster
+1. Import Docker dashboard (ID: 193)
+2. Import Node Exporter dashboard (ID: 1860)
+3. Create custom dashboard for QuizMaster
 
 ---
 
-## 🔄 Mise à jour
+## 🔄 Update
 
 ```bash
-# Méthode simple
+# Simple method
 make update
 
-# Ou manuel
+# Or manual
 make backup
 git pull
 docker-compose build --no-cache
@@ -448,12 +448,12 @@ docker-compose up -d
 
 ---
 
-## 📚 Documentation complète
+## 📚 Complete documentation
 
-- [Documentation Home](../functional/intro) - Vue d'ensemble
-- [Docker Guide](docker-guide) - Guide Docker
+- [Documentation Home](../functional/intro) - Overview
+- [Docker Guide](docker-guide) - Docker guide
 - [Monitoring Guide](monitoring) - Monitoring
-- [Deployment Checklist](deployment) - Déploiement
+- [Deployment Checklist](deployment) - Deployment
 - [Architecture](architecture) - Architecture
 - See main repository for CONTRIBUTING.md
 
@@ -461,23 +461,23 @@ docker-compose up -d
 
 ## 🆘 Support
 
-### Ordre de diagnostic
+### Diagnostic order
 
-1. Vérifier les logs : `make logs`
-2. Vérifier le health check : `make health`
-3. Vérifier les ressources : `docker stats`
-4. Consulter la documentation
-5. Chercher dans les issues GitHub
-6. Créer une nouvelle issue
+1. Check logs: `make logs`
+2. Check health check: `make health`
+3. Check resources: `docker stats`
+4. Consult documentation
+5. Search in GitHub issues
+6. Create new issue
 
-### Informations à fournir pour le support
+### Information to provide for support
 
 ```bash
-# Version Docker
+# Docker version
 docker --version
 docker-compose --version
 
-# Système d'exploitation
+# Operating system
 uname -a
 
 # Logs
@@ -492,11 +492,11 @@ docker-compose ps
 
 ---
 
-## ⚡ Astuces Pro
+## ⚡ Pro tips
 
-### Alias utiles
+### Useful aliases
 
-Ajouter dans `~/.bashrc` ou `~/.zshrc` :
+Add to `~/.bashrc` or `~/.zshrc`:
 
 ```bash
 alias dcu='docker-compose up -d'
@@ -507,21 +507,21 @@ alias dcr='docker-compose restart'
 alias qm='cd /path/to/quiz-app'
 ```
 
-### Watch mode pour les logs
+### Watch mode for logs
 
 ```bash
-# Suivre les erreurs en temps réel
+# Follow errors in real-time
 watch -n 1 'docker-compose logs --tail=20 | grep -i error'
 ```
 
-### Backup rapide avant modifications
+### Quick backup before changes
 
 ```bash
 # One-liner
 docker exec quiz-backend cat /app/data/quiz.db > backup-before-change.db && echo "Backup OK"
 ```
 
-### Test de performance
+### Performance test
 
 ```bash
 # Apache Bench
@@ -535,10 +535,10 @@ wrk -t12 -c400 -d30s http://localhost:3001/api/health
 
 ## 📞 Contacts
 
-- **Issues** : https://github.com/OWNER/quiz-app/issues
-- **Discussions** : https://github.com/OWNER/quiz-app/discussions
-- **Email** : support@example.com
+- **Issues**: https://github.com/OWNER/quiz-app/issues
+- **Discussions**: https://github.com/OWNER/quiz-app/discussions
+- **Email**: support@example.com
 
 ---
 
-**Dernière mise à jour** : Octobre 2024
+**Last updated**: October 2024

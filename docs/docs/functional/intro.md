@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # 🎮 Welcome to QuizMaster
 
-QuizMaster is an interactive quiz application inspired by Kahoot, designed for real-time multiplayer quiz games with a retro arcade aesthetic.
+QuizMaster is an interactive quiz application, designed for real-time multiplayer quiz games with a retro arcade aesthetic.
 
 ## ✨ Features
 
