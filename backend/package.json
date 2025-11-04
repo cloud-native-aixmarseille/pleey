@@ -1,7 +1,7 @@
 {
   "name": "quiz-backend",
   "version": "0.0.1",
-  "description": "QuizMaster backend with NestJS, GraphQL, Prisma, and Clean Architecture",
+  "description": "QuizMaster backend with NestJS, Prisma, PostgreSQL, and Clean Architecture",
   "author": "",
   "private": true,
   "license": "UNLICENSED",
