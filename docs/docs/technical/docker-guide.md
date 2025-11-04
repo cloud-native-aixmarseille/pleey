@@ -108,9 +108,18 @@ docker compose ps
 
 ### 3. Access the application
 
-- **Frontend**: http://localhost:5173 (development)
-- **Backend API**: http://localhost:3001
-- **Health check**: http://localhost:3001/health/live
+:::info Traefik Reverse Proxy
+This project uses **Traefik** as a reverse proxy to avoid port conflicts. Services are accessed via domain names instead of direct ports.
+:::
+
+- **Frontend**: http://frontend.quiz-master.localhost
+- **Backend API**: http://backend.quiz-master.localhost
+- **Traefik Dashboard**: http://localhost:8080
+- **Health check**: http://backend.quiz-master.localhost/health/live
+
+:::tip DNS Resolution
+The `.localhost` TLD and its subdomains automatically resolve to `127.0.0.1` (RFC 6761). No hosts file configuration needed!
+:::
 
 ### 4. Default admin account
 
@@ -333,7 +342,108 @@ docker run --rm -v quiz-app_quiz-data:/data -v $(pwd):/backup alpine tar xzf /ba
 
 ## 🌐 Network configuration
 
-### Ports used
+### Traefik Reverse Proxy (Development)
+
+The development environment uses **Traefik v3.1** as a reverse proxy to avoid port conflicts and provide clean URLs.
+
+#### Services exposed via Traefik:
+
+- **Frontend**: `http://frontend.quiz-master.localhost` → Container port 5173
+- **Backend**: `http://backend.quiz-master.localhost` → Container port 3001
+- **Traefik Dashboard**: `http://localhost:8080` → Admin interface
+
+#### Benefits:
+- ✅ No port binding conflicts
+- ✅ Run multiple projects simultaneously
+- ✅ Clean, semantic URLs
+- ✅ Production-like reverse proxy setup
+- ✅ Automatic service discovery
+
+#### Traefik Configuration:
+
+The `compose.yaml` includes Traefik with automatic Docker service discovery:
+
+```yaml
+services:
+  traefik:
+    image: traefik:v3.1
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"      # HTTP traffic
+      - "8080:8080"  # Dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+```
+
+#### Service Routing:
+
+Services use Traefik labels for routing:
+
+```yaml
+services:
+  backend:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`backend.quiz-master.localhost`)"
+      - "traefik.http.services.backend.loadbalancer.server.port=3001"
+  
+  frontend:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`frontend.quiz-master.localhost`)"
+      - "traefik.http.services.frontend.loadbalancer.server.port=5173"
+```
+
+#### Database Access:
+
+PostgreSQL is not exposed externally. Use these methods:
+
+```bash
+# CLI access via docker exec
+docker exec -it quiz-postgres psql -U quizapp -d quizdb
+
+# Or use Makefile shortcut
+make db-shell
+```
+
+#### Troubleshooting Traefik:
+
+**Issue: Cannot access `*.quiz-master.localhost`**
+
+Solution:
+```bash
+# 1. Check Traefik is running
+docker ps | grep traefik
+
+# 2. Check dashboard for routes
+# Visit: http://localhost:8080
+# Navigate to HTTP → Routers
+
+# 3. Test DNS resolution (should resolve to 127.0.0.1)
+ping frontend.quiz-master.localhost
+
+# 4. Check service logs
+docker logs quiz-traefik
+```
+
+**Issue: Frontend can't connect to backend**
+
+Solution:
+```bash
+# Verify environment variable
+docker exec quiz-frontend env | grep VITE_API_URL
+# Should show: VITE_API_URL=http://backend.quiz-master.localhost
+
+# Rebuild if needed
+docker compose build frontend --no-cache
+docker compose up -d frontend
+```
+
+### Ports used (Production without Traefik)
 
 - **80**: Frontend (Nginx)
 - **3001**: Backend (Node.js)

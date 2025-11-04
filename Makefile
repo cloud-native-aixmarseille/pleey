@@ -28,8 +28,9 @@ up: ## Start the application
 	@echo "$(GREEN)Starting application...$(NC)"
 	$(COMPOSE) up -d	
 	@echo "$(GREEN)✓ Application started$(NC)"
-	@echo "Frontend: http://localhost:5173"
-	@echo "Backend: http://localhost:3001"
+	@echo "Frontend: http://frontend.quiz-master.localhost"
+	@echo "Backend: http://backend.quiz-master.localhost"
+	@echo "Traefik Dashboard: http://localhost:8080"
 
 down: ## Stop the application
 	@echo "$(YELLOW)Stopping application...$(NC)"
@@ -99,13 +100,17 @@ shell-backend: ## Access backend shell
 shell-frontend: ## Access frontend shell
 	$(COMPOSE) exec frontend sh
 
-db: ## Access PostgreSQL database
+db-shell: ## Access PostgreSQL database shell
 	$(COMPOSE) exec postgres psql -U ${POSTGRES_USER:-quizapp} -d ${POSTGRES_DB:-quizdb}
+
+traefik: ## Open Traefik dashboard
+	@echo "$(GREEN)Opening Traefik dashboard...$(NC)"
+	@command -v xdg-open >/dev/null 2>&1 && xdg-open http://localhost:8080 || open http://localhost:8080 || echo "Open http://localhost:8080"
 
 health: ## Check application health
 	@echo "$(GREEN)Checking status...$(NC)"
-	@curl -s http://localhost:3001/api/health | jq '.' || echo "$(YELLOW)Backend unavailable$(NC)"
-	@curl -s -o /dev/null -w "Frontend: %{http_code}\n" http://localhost/
+	@curl -s http://backend.quiz-master.localhost/health/live | jq '.' || echo "$(YELLOW)Backend unavailable$(NC)"
+	@curl -s -o /dev/null -w "Frontend: %{http_code}\n" http://frontend.quiz-master.localhost/
 
 install: setup build up ## Complete installation (first time)
 	@echo "$(GREEN)═══════════════════════════════════════$(NC)"
@@ -113,8 +118,9 @@ install: setup build up ## Complete installation (first time)
 	@echo "$(GREEN)═══════════════════════════════════════$(NC)"
 	@echo ""
 	@echo "Application available at:"
-	@echo "  Frontend: $(YELLOW)http://localhost:5173$(NC)"
-	@echo "  Backend:  $(YELLOW)http://localhost:3001$(NC)"
+	@echo "  Frontend: $(YELLOW)http://frontend.quiz-master.localhost$(NC)"
+	@echo "  Backend:  $(YELLOW)http://backend.quiz-master.localhost$(NC)"
+	@echo "  Traefik:  $(YELLOW)http://localhost:8080$(NC)"
 	@echo ""
 	@echo "Default admin account:"
 	@echo "  Email:    $(YELLOW)admin@quiz.com$(NC)"

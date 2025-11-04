@@ -100,3 +100,6 @@ docs/node_modules/
 docs/.docusaurus/
 docs/build/
 docs/.DS_Store
+
+# Environment file backups
+.env.backup.*

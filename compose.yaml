@@ -1,7 +1,33 @@
 # Docker Compose V2 - Development Configuration
 # Optimized with BuildKit cache mounts and multi-stage builds
+# Using Traefik for reverse proxy to avoid port collisions
 
 services:
+  # Traefik Reverse Proxy
+  traefik:
+    image: traefik:v3.1
+    container_name: quiz-traefik
+    restart: unless-stopped
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--log.level=INFO"
+      - "--ping=true"
+    ports:
+      - "80:80" # HTTP traffic
+      - "8080:8080" # Traefik dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - quiz-network
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   # PostgreSQL Database
   postgres:
     image: postgres:16-alpine
@@ -24,8 +50,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    ports:
-      - "5432:5432"
+    # No port binding - use docker exec or expose via Traefik if needed
+    # For database tools, you can still use: docker exec -it quiz-postgres psql
 
   # Backend NestJS (dev watch mode)
   backend:
@@ -39,11 +65,12 @@ services:
         - BUILDKIT_INLINE_CACHE=1
     container_name: quiz-backend
     restart: unless-stopped
+    user: "1000:1000" # Run as host user to avoid permission issues
     volumes:
       - ./backend:/app
       - backend-node-modules:/app/node_modules
-    ports:
-      - "3001:3001"
+    expose:
+      - "3001"
     environment:
       - NODE_ENV=development
       - PORT=3001
@@ -54,19 +81,26 @@ services:
       - CHOKIDAR_INTERVAL=500
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
     depends_on:
+      traefik:
+        condition: service_healthy
       otel-collector:
         condition: service_healthy
       postgres:
         condition: service_healthy
     networks:
       - quiz-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`backend.quiz-master.localhost`)"
+      - "traefik.http.routers.backend.entrypoints=web"
+      - "traefik.http.services.backend.loadbalancer.server.port=3001"
     healthcheck:
       test:
         [
           "CMD",
           "node",
           "-e",
-          "require('http').get('http://localhost:3001/health/live', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
+          "require('http').get('http://localhost:3001/api/health/live', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
         ]
       interval: 30s
       timeout: 10s
@@ -85,19 +119,26 @@ services:
         - BUILDKIT_INLINE_CACHE=1
     container_name: quiz-frontend
     restart: unless-stopped
+    user: "1000:1000" # Run as host user to avoid permission issues
     volumes:
       - ./frontend:/app
       - frontend-node-modules:/app/node_modules
-    ports:
-      - "5173:5173"
+    expose:
+      - "5173"
     depends_on:
+      - traefik
       - backend
     networks:
       - quiz-network
     environment:
       - NODE_ENV=development
-      - VITE_API_URL=http://localhost:3001
+      - VITE_API_URL=http://backend.quiz-master.localhost
       - CHOKIDAR_USEPOLLING=1
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`frontend.quiz-master.localhost`)"
+      - "traefik.http.routers.frontend.entrypoints=web"
+      - "traefik.http.services.frontend.loadbalancer.server.port=5173"
 
   otel-collector:
     image: otel/opentelemetry-collector:0.105.0

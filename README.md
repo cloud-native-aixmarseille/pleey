@@ -24,8 +24,11 @@ make up
 ```
 
 The application will be available at:
-- Frontend: http://localhost:5173
-- Backend: http://localhost:3001
+- Frontend: http://frontend.quiz-master.localhost
+- Backend: http://backend.quiz-master.localhost
+- Traefik Dashboard: http://localhost:8080
+
+> **Note**: This project uses Traefik reverse proxy to avoid port conflicts. See [Docker Guide - Traefik section](docs/docs/technical/docker-guide.md#traefik-reverse-proxy-development) for details.
 
 **Default admin account:**
 - Email: admin@quiz.com

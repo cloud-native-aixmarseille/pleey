@@ -18,7 +18,7 @@ async function bootstrap() {
   app.enableCors();
 
   // Get I18n service for exception filters
-  const i18nService = app.get(I18nService);
+  const i18nService = app.get<I18nService<Record<string, unknown>>>(I18nService);
 
   // Register global exception filter for i18n
   app.useGlobalFilters(new I18nHttpExceptionFilter(i18nService));

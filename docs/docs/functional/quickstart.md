@@ -20,8 +20,14 @@ docker-compose up -d
 
 ## 🎮 Immediate Access
 
-- **Application**: http://localhost
-- **Admin**: admin@quiz.com / admin123
+:::info Traefik URLs
+The application uses Traefik reverse proxy for clean URLs.
+:::
+
+- **Frontend**: http://frontend.quiz-master.localhost
+- **Backend API**: http://backend.quiz-master.localhost
+- **Traefik Dashboard**: http://localhost:8080
+- **Admin Credentials**: admin@quiz.com / admin123
 
 ## 🎯 Create Your First Quiz
 

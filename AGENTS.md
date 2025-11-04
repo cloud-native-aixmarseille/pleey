@@ -32,6 +32,7 @@ When working with this codebase, AI agents should:
 4. **Test changes** - Always validate changes don't break existing functionality
 5. **Follow existing patterns** - Maintain consistency with the codebase style
 6. **Document significant changes** - Update relevant documentation in `/docs`
+7. **DO NOT create new root-level .md files** - All documentation belongs in `/docs` folder structure
 
 ### Quick Architecture Reference
 
@@ -151,6 +152,7 @@ See [Architecture](docs/docs/technical/architecture/index.md) for detailed troub
 ## ⚠️ Critical "DO NOT" List
 
 - ❌ Do NOT duplicate content from `/docs` documentation
+- ❌ Do NOT create new markdown files in project root (use `/docs` folder structure)
 - ❌ Do NOT change database queries without using Prisma ORM
 - ❌ Do NOT remove or modify working code without clear reason
 - ❌ Do NOT commit `.env` file or secrets
@@ -161,6 +163,7 @@ See [Architecture](docs/docs/technical/architecture/index.md) for detailed troub
 ## ✅ Agent "ALWAYS" List
 
 - ✅ ALWAYS reference `/docs` documentation first
+- ✅ ALWAYS update existing documentation in `/docs` (never create root-level .md files)
 - ✅ ALWAYS test changes locally before committing
 - ✅ ALWAYS follow existing code patterns
 - ✅ ALWAYS preserve backward compatibility
@@ -173,6 +176,8 @@ See [Architecture](docs/docs/technical/architecture/index.md) for detailed troub
 ## 📚 Documentation Structure
 
 All documentation is centralized in `/docs` using Docusaurus:
+
+**❗ IMPORTANT: Never create standalone .md files in project root. All documentation must go in the `/docs` folder structure.**
 
 ### Functional Documentation (User-Facing)
 - [Introduction](docs/docs/functional/intro.md)
