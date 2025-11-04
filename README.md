@@ -1,6 +1,6 @@
 # 🎮 QuizMaster - Interactive Quiz Application
 
-Complete interactive quiz application (Kahoot-style) with real-time gameplay, scoring system, and leaderboards.
+Complete interactive quiz application with real-time gameplay, scoring system, and leaderboards.
 
 ## ✨ Features
 

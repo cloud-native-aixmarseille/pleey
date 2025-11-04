@@ -4,13 +4,6 @@ sidebar_position: 9
 
 # 🔐 Security Policy - QuizMaster
 
-## Supported Versions
-
-| Version | Supported          |
-| ------- | ------------------ |
-| main    | :white_check_mark: |
-| < 1.0   | :x:                |
-
 ## 🛡️ Security Best Practices
 
 ### Development Principles
@@ -188,7 +181,3 @@ For validated critical vulnerabilities:
 - [Node.js Security Best Practices](https://nodejs.org/en/docs/guides/security/)
 - [npm Security](https://docs.npmjs.com/auditing-package-dependencies-for-security-vulnerabilities)
 - [Snyk Vulnerability Database](https://snyk.io/vuln/)
-
----
-
-**Last Updated**: 2025-10-17

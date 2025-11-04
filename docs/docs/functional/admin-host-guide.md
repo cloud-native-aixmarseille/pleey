@@ -150,17 +150,6 @@ Currently not implemented, but could be added:
 - `Space` - Start game / Next question / Advance
 - `Esc` - Return to admin dashboard
 
-## Accessibility
-
-Admin host views include:
-
-- ✅ **High contrast** colors (WCAG AA compliant)
-- ✅ **Large text** for screen reader compatibility
-- ✅ **Clear visual hierarchy**
-- ✅ **Semantic HTML** structure
-- ✅ **ARIA labels** where appropriate
-- ✅ **Color + icon** indicators (not color-only)
-
 ## Troubleshooting
 
 ### "I accidentally answered a question as admin"
@@ -184,41 +173,3 @@ The UI is already optimized for large displays. If still too small:
 1. Use browser zoom (Ctrl/Cmd + `+`)
 2. Increase display resolution
 3. Move closer to the screen/projector
-
-## Future Enhancements
-
-Potential improvements for future versions:
-
-- [ ] **Picture-in-Picture mode** for admin to see both host view and player view
-- [ ] **Live chat/reactions** from players during game
-- [ ] **Replay mode** to review game highlights
-- [ ] **Downloadable certificates** for winners
-- [ ] **Custom animations** per quiz theme
-- [ ] **Background music** toggle
-- [ ] **Admin notes** feature for adding commentary
-- [ ] **Time adjustment** controls (pause/resume timer)
-
-## Related Files
-
-- `frontend/src/features/game-play/components/AdminHostPlayingView.tsx`
-- `frontend/src/features/game-play/components/AdminHostLeaderboardView.tsx`
-- `frontend/src/features/game-play/components/LobbyPage.tsx`
-- `frontend/src/App.tsx` (routing logic)
-
-## Testing
-
-Comprehensive test suites are available:
-
-- `AdminHostPlayingView.test.tsx` - 12 tests
-- `AdminHostLeaderboardView.test.tsx` - 16 tests
-
-Run tests with:
-```bash
-npm test
-```
-
----
-
-**Last Updated**: 2025-11-03  
-**Version**: 1.0.0  
-**Author**: QuizMaster Development Team
