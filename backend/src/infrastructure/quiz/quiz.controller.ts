@@ -1,5 +1,6 @@
 import { Body, Controller, ForbiddenException, Get, Param, ParseIntPipe, Post, Req, UseGuards } from '@nestjs/common';
 import type { Request } from 'express';
+import { I18nService } from 'nestjs-i18n';
 import { CreateQuizDto } from '../../application/quiz/dto/create-quiz.dto';
 import { CreateQuizUseCase } from '../../application/quiz/use-cases/create-quiz.use-case';
 import { GetAllQuizzesUseCase } from '../../application/quiz/use-cases/get-all-quizzes.use-case';
@@ -20,6 +21,7 @@ export class QuizController {
     private readonly createQuizUseCase: CreateQuizUseCase,
     private readonly getAllQuizzesUseCase: GetAllQuizzesUseCase,
     private readonly getQuizQuestionsUseCase: GetQuizQuestionsUseCase,
+    private readonly i18n: I18nService,
   ) { }
 
   @Post()
@@ -27,11 +29,15 @@ export class QuizController {
   async create(@Body() dto: CreateQuizDto, @Req() request: AuthenticatedRequest) {
     const user = request.user;
     if (!user) {
-      throw new ForbiddenException('Authentication required');
+      throw new ForbiddenException(
+        await this.i18n.translate('quiz.errors.authenticationRequired')
+      );
     }
 
     if (!user.isAdmin) {
-      throw new ForbiddenException('Admin privileges are required to create quizzes');
+      throw new ForbiddenException(
+        await this.i18n.translate('quiz.errors.adminPrivilegesRequired')
+      );
     }
 
     const quiz = await this.createQuizUseCase.execute(dto, user.id);
