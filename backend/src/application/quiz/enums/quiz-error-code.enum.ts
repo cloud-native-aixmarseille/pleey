@@ -1,0 +1,10 @@
+/**
+ * Quiz Error Codes
+ * Used to identify specific quiz-related errors
+ */
+export enum QuizErrorCode {
+  QUIZ_NOT_FOUND = 'QUIZ_NOT_FOUND',
+  QUESTION_NOT_FOUND = 'QUESTION_NOT_FOUND',
+  AUTHENTICATION_REQUIRED = 'AUTHENTICATION_REQUIRED',
+  ADMIN_PRIVILEGES_REQUIRED = 'ADMIN_PRIVILEGES_REQUIRED',
+}

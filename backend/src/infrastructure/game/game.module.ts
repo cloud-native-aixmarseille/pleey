@@ -16,6 +16,7 @@ import { PrismaQuizRepository } from '../repositories/prisma-quiz.repository';
 import { PrismaScoreRepository } from '../repositories/prisma-score.repository';
 import { GameController } from './game.controller';
 import { GameGateway } from './game.gateway';
+import { I18nWsExceptionFilter } from '../filters/i18n-ws-exception.filter';
 
 @Module({
   imports: [DatabaseModule],
@@ -46,6 +47,7 @@ import { GameGateway } from './game.gateway';
       useExisting: PrismaQuizRepository,
     },
     GameGateway,
+    I18nWsExceptionFilter,
   ],
 })
 export class GameModule { }

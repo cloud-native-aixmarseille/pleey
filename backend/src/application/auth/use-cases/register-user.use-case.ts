@@ -4,7 +4,7 @@ import { UserRepositoryProvider } from '../../../domain/auth/repositories/user.r
 import type { UserRepository } from '../../../domain/auth/repositories/user.repository.interface';
 import { PasswordService } from '../../../domain/auth/services/password.service';
 import type { RegisterUserDto } from '../dto/register-user.dto';
-import { I18nService } from 'nestjs-i18n';
+import { AuthErrorCode } from '../enums/auth-error-code.enum';
 
 /**
  * Register User Use Case
@@ -15,23 +15,18 @@ export class RegisterUserUseCase {
   constructor(
     @Inject(UserRepositoryProvider) private readonly userRepository: UserRepository,
     private readonly passwordService: PasswordService,
-    private readonly i18n: I18nService,
   ) { }
 
   async execute(dto: RegisterUserDto): Promise<User> {
     // Check if user already exists
     const exists = await this.userRepository.exists(dto.email, dto.username);
     if (exists) {
-      throw new ConflictException(
-        await this.i18n.translate('auth.errors.userWithEmailOrUsernameExists')
-      );
+      throw new ConflictException(AuthErrorCode.USER_ALREADY_EXISTS);
     }
 
     // Validate password strength
     if (!this.passwordService.isValidPassword(dto.password)) {
-      throw new BadRequestException(
-        await this.i18n.translate('auth.errors.passwordTooShort')
-      );
+      throw new BadRequestException(AuthErrorCode.PASSWORD_TOO_SHORT);
     }
 
     // Hash password
