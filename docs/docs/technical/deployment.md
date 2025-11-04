@@ -2,140 +2,104 @@
 sidebar_position: 7
 ---
 
-# ✅ Checklist de déploiement - QuizMaster
+# ✅ Deployment Checklist - QuizMaster
 
-Guide complet pour déployer QuizMaster en production de manière sécurisée.
+Comprehensive guide to deploy QuizMaster to production securely.
 
-## 📋 Avant le déploiement
+## � Deployment
 
-### Prérequis serveur
-
-- [ ] Serveur Linux (Ubuntu 20.04+ recommandé)
-- [ ] Docker 20.10+ installé
-- [ ] Docker Compose 2.0+ installé
-- [ ] Domaine configuré pointant vers le serveur
-- [ ] Ports 80 et 443 ouverts dans le firewall
-- [ ] Au moins 2GB RAM et 20GB disque disponible
-- [ ] Accès SSH configuré
-
-### Configuration initiale
+### Method 1: Automated script
 
 ```bash
-# Mettre à jour le système
-sudo apt update && sudo apt upgrade -y
+# Clone the project
+- [ ] Generate a strong JWT_SECRET: `openssl rand -base64 32`
+cd quiz-app
 
-# Installer Docker
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
+# Make scripts executable
+chmod +x deploy.sh setup-ssl.sh
 
-# Installer Docker Compose
-sudo apt install docker-compose-plugin
-
-# Ajouter l'utilisateur au groupe docker
-sudo usermod -aG docker $USER
+# Deploy
+./deploy.sh prod
 ```
 
-## 🔐 Sécurité
+### Method 2: Manual
 
-### Variables d'environnement
+```bash
+# 1. Configuration
+cp .env.example .env
+nano .env  # Update JWT_SECRET
 
-- [ ] Copier `.env.example` vers `.env`
-- [ ] Générer un JWT_SECRET fort : `openssl rand -base64 32`
-- [ ] Mettre à jour JWT_SECRET dans `.env`
-- [ ] Vérifier que `.env` est dans `.gitignore`
-- [ ] Ne JAMAIS commiter `.env`
+# 2. SSL (optional but recommended)
+./setup-ssl.sh your-domain.com email@example.com
+
+# 3. Build and start
+docker-compose -f docker-compose.prod.yml build
+docker-compose -f docker-compose.prod.yml up -d
+
+# 4. Verify
+docker-compose ps
+curl http://localhost:3001/api/health
+```
+- [ ] Update JWT_SECRET in `.env`
+- [ ] Ensure `.env` is in `.gitignore`
+- [ ] NEVER commit `.env`
 
 ### SSL/HTTPS
 
-- [ ] Domaine configuré et DNS propagé
-- [ ] Exécuter `./setup-ssl.sh votre-domaine.com votre-email@example.com`
-- [ ] Vérifier les certificats dans `nginx/ssl/`
-- [ ] Tester HTTPS : `curl -I https://votre-domaine.com`
-- [ ] Configurer le renouvellement automatique (cron)
+- [ ] Domain configured and DNS propagated
+- [ ] Run `./setup-ssl.sh your-domain.com your-email@example.com`
+- [ ] Inspect certificates in `nginx/ssl/`
+- [ ] Test HTTPS: `curl -I https://your-domain.com`
+- [ ] Configure automatic renewal (cron)
 
 ### Firewall
 
 ```bash
-# Installer UFW
+# Install UFW
 sudo apt install ufw
 
-# Configurer les règles
+# Configure rules
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
 sudo ufw allow ssh
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
 
-# Activer
+# Enable
 sudo ufw enable
 sudo ufw status
 ```
 
-### Utilisateurs et mots de passe
+### Users and passwords
 
-- [ ] Changer le mot de passe admin de l'application
-- [ ] Changer le mot de passe Grafana (si monitoring)
-- [ ] Désactiver les comptes de test/développement
-- [ ] Utiliser des mots de passe forts (16+ caractères)
+- [ ] Change the application admin password
+- [ ] Change the Grafana password (if monitoring is enabled)
+- [ ] Disable test/development accounts
+- [ ] Use strong passwords (16+ characters)
 
-## 🚀 Déploiement
-
-### Méthode 1 : Script automatique
-
-```bash
-# Cloner le projet
-git clone <votre-repo>
-cd quiz-app
-
-# Rendre les scripts exécutables
-chmod +x deploy.sh setup-ssl.sh
-
-# Déployer
-./deploy.sh prod
-```
-
-### Méthode 2 : Manuel
-
-```bash
-# 1. Configuration
-cp .env.example .env
-nano .env  # Modifier JWT_SECRET
-
-# 2. SSL (optionnel mais recommandé)
-./setup-ssl.sh votre-domaine.com email@example.com
-
-# 3. Build et démarrage
-docker-compose -f docker-compose.prod.yml build
-docker-compose -f docker-compose.prod.yml up -d
-
-# 4. Vérifier
-docker-compose ps
-curl http://localhost:3001/api/health
-```
-
-## 🔍 Vérifications post-déploiement
+## � Post-deployment checks
 
 ### Services
 
-- [ ] Backend répond : `curl http://localhost:3001/api/health`
-- [ ] Frontend accessible : `curl http://localhost`
-- [ ] WebSocket fonctionne (tester un quiz)
-- [ ] Base de données créée : `docker exec quiz-backend ls -la /app/data/`
+- [ ] Backend responds: `curl http://localhost:3001/api/health`
+- [ ] Frontend accessible: `curl http://localhost`
+- [ ] WebSocket works (test a quiz)
+- [ ] Database created: `docker exec quiz-backend ls -la /app/data/`
 
 ### Performance
 
 ```bash
-# Vérifier l'utilisation des ressources
+# Check resource usage
 docker stats
 
-# Logs sans erreurs
+# Logs without errors
 docker-compose logs --tail=100
 
-# Temps de réponse
+# Response time
 curl -w "@curl-format.txt" -o /dev/null -s http://localhost:3001/api/health
 ```
 
-Créer `curl-format.txt` :
+Create `curl-format.txt`:
 ```
 time_namelookup:  %{time_namelookup}\n
 time_connect:  %{time_connect}\n
@@ -146,18 +110,18 @@ time_starttransfer:  %{time_starttransfer}\n
 time_total:  %{time_total}\n
 ```
 
-### Sécurité
+### Security
 
-- [ ] HTTPS fonctionne (certificat valide)
-- [ ] Headers de sécurité présents
-- [ ] Pas de données sensibles dans les logs
-- [ ] Firewall actif : `sudo ufw status`
-- [ ] Containers ne tournent pas en root
+- [ ] HTTPS works (valid certificate)
+- [ ] Security headers present
+- [ ] No sensitive data in logs
+- [ ] Firewall active: `sudo ufw status`
+- [ ] Containers don't run as root
 
-### Base de données
+### Database
 
 ```bash
-# Vérifier la base
+# Check database
 docker exec -it quiz-backend sh
 cd /app/data
 sqlite3 quiz.db
@@ -166,33 +130,33 @@ sqlite3 quiz.db
 > .quit
 ```
 
-## 📊 Monitoring (Optionnel)
+## 📊 Monitoring (Optional)
 
-- [ ] Démarrer le monitoring : `make monitoring-up`
-- [ ] Accéder à Grafana : http://localhost:3000
-- [ ] Configurer les alertes
-- [ ] Tester les notifications
-- [ ] Créer les dashboards
+- [ ] Start monitoring: `make monitoring-up`
+- [ ] Access Grafana: http://localhost:3000
+- [ ] Configure alerts
+- [ ] Test notifications
+- [ ] Create dashboards
 
 ## 💾 Backups
 
-### Configuration automatique
+### Automated configuration
 
 ```bash
-# Créer le script de backup
+# Create backup script
 cat > /usr/local/bin/backup-quizmaster.sh << 'EOF'
 #!/bin/bash
 BACKUP_DIR="/backups/quizmaster"
 DATE=$(date +%Y%m%d_%H%M%S)
 mkdir -p $BACKUP_DIR
 
-# Backup base de données
+# Backup database
 docker exec quiz-backend cat /app/data/quiz.db > $BACKUP_DIR/quiz-$DATE.db
 
 # Backup .env
 cp /path/to/quiz-app/.env $BACKUP_DIR/env-$DATE
 
-# Nettoyer les vieux backups (garder 30 jours)
+# Clean old backups (keep 30 days)
 find $BACKUP_DIR -name "quiz-*.db" -mtime +30 -delete
 
 # Log
@@ -201,40 +165,40 @@ EOF
 
 chmod +x /usr/local/bin/backup-quizmaster.sh
 
-# Ajouter au cron (tous les jours à 3h)
+# Add to cron (daily at 3am)
 (crontab -l 2>/dev/null; echo "0 3 * * * /usr/local/bin/backup-quizmaster.sh") | crontab -
 ```
 
-### Backup manuel
+### Manual backup
 
 ```bash
-# Créer un backup maintenant
+# Create a backup now
 make backup
 
-# Ou manuellement
+# Or manually
 docker exec quiz-backend cat /app/data/quiz.db > backup-$(date +%Y%m%d).db
 ```
 
-### Restauration
+### Restore
 
 ```bash
-# Restaurer le dernier backup
+# Restore latest backup
 make restore
 
-# Ou manuellement
+# Or manually
 docker cp backup.db quiz-backend:/app/data/quiz.db
 docker-compose restart backend
 ```
 
-## 🔄 Mises à jour
+## 🔄 Updates
 
-### Mise à jour de l'application
+### Application update
 
 ```bash
-# Méthode simple
+# Simple method
 make update
 
-# Ou manuel
+# Or manual
 make backup
 git pull
 docker-compose -f docker-compose.prod.yml build --no-cache
@@ -242,32 +206,32 @@ docker-compose -f docker-compose.prod.yml up -d
 docker-compose logs -f
 ```
 
-### Mise à jour des dépendances
+### Dependencies update
 
 ```bash
-# Mettre à jour les images Docker
+# Update Docker images
 docker-compose pull
 docker-compose up -d
 ```
 
-## 📈 Optimisations
+## 📈 Optimizations
 
 ### Performance
 
-- [ ] Activer la compression gzip (déjà dans nginx.conf)
-- [ ] Configurer le cache navigateur
-- [ ] Limiter les ressources des conteneurs
-- [ ] Utiliser un CDN pour les assets statiques
-- [ ] Optimiser les images (compression)
+- [ ] Enable gzip compression (already in nginx.conf)
+- [ ] Configure browser cache
+- [ ] Limit container resources
+- [ ] Use CDN for static assets
+- [ ] Optimize images (compression)
 
-### Scalabilité
+### Scalability
 
 ```yaml
 # docker-compose.prod.yml
 services:
   backend:
     deploy:
-      replicas: 3  # 3 instances du backend
+      replicas: 3  # 3 backend instances
       resources:
         limits:
           cpus: '1'
@@ -276,117 +240,117 @@ services:
 
 ## 🚨 Troubleshooting
 
-### Backend ne démarre pas
+### Backend won't start
 
 ```bash
-# Vérifier les logs
+# Check logs
 docker-compose logs backend
 
-# Vérifier les permissions
+# Check permissions
 docker exec -it quiz-backend ls -la /app/data
 
-# Recréer le conteneur
+# Recreate container
 docker-compose down
 docker-compose up -d
 ```
 
-### Certificat SSL expiré
+### SSL certificate expired
 
 ```bash
-# Renouveler manuellement
+# Renew manually
 ./renew-ssl.sh
 
-# Ou avec certbot
+# Or with certbot
 docker-compose -f docker-compose.certbot.yml run --rm certbot renew
 docker-compose restart frontend
 ```
 
-### Base de données corrompue
+### Corrupted database
 
 ```bash
-# Restaurer un backup
+# Restore a backup
 make restore
 
-# Ou recréer
+# Or recreate
 docker-compose down -v
 docker-compose up -d
 ```
 
-### Mémoire insuffisante
+### Insufficient memory
 
 ```bash
-# Vérifier l'utilisation
+# Check usage
 docker stats
 
-# Augmenter les limites ou libérer de la mémoire
+# Increase limits or free memory
 docker system prune -a
 ```
 
-## 📞 Support et maintenance
+## 📞 Support and maintenance
 
-### Logs centralisés
+### Centralized logs
 
 ```bash
-# Tous les logs
+# All logs
 make logs
 
-# Logs spécifiques
+# Specific logs
 docker-compose logs -f backend
 docker-compose logs -f frontend
 
-# Erreurs uniquement
+# Errors only
 docker-compose logs | grep -i error
 ```
 
-### Surveillance continue
+### Continuous monitoring
 
 ```bash
-# Créer un script de health check
+# Create health check script
 cat > /usr/local/bin/check-quizmaster.sh << 'EOF'
 #!/bin/bash
 if ! curl -sf http://localhost:3001/api/health > /dev/null; then
     echo "Backend DOWN! Restarting..."
     docker-compose restart backend
-    # Envoyer une alerte (email, Slack, etc.)
+    # Send alert (email, Slack, etc.)
 fi
 EOF
 
-# Exécuter toutes les 5 minutes
+# Run every 5 minutes
 */5 * * * * /usr/local/bin/check-quizmaster.sh
 ```
 
-## 🎉 Lancement
+## 🎉 Launch
 
-### Checklist finale
+### Final checklist
 
-- [ ] Tous les tests passent
-- [ ] SSL configuré et testé
-- [ ] Backups automatiques en place
-- [ ] Monitoring actif
-- [ ] Alertes configurées
-- [ ] Documentation à jour
-- [ ] Mots de passe changés
-- [ ] Firewall activé
-- [ ] Logs vérifiés
-- [ ] Performance testée
+- [ ] All tests pass
+- [ ] SSL configured and tested
+- [ ] Automated backups in place
+- [ ] Monitoring active
+- [ ] Alerts configured
+- [ ] Documentation up to date
+- [ ] Passwords changed
+- [ ] Firewall enabled
+- [ ] Logs verified
+- [ ] Performance tested
 
 ### Communication
 
-- [ ] Annoncer la mise en production
-- [ ] Fournir les URLs
-- [ ] Documenter les comptes de test
-- [ ] Préparer un guide utilisateur
-- [ ] Mettre en place un canal de support
+- [ ] Announce production deployment
+- [ ] Provide URLs
+- [ ] Document test accounts
+- [ ] Prepare user guide
+- [ ] Set up support channel
 
 ## 📚 Documentation
 
-- [Documentation Home](../functional/intro) - Guide général
-- [Docker Guide](docker-guide) - Guide Docker
-- [Monitoring Guide](monitoring) - Guide monitoring
-- [Deployment Checklist](deployment) - Cette checklist
+- [Documentation Home](../functional/intro) - General guide
+- [Docker Guide](docker-guide) - Docker guide
+- [Monitoring Guide](monitoring) - Monitoring guide
+- [Deployment Checklist](deployment) - This checklist
 
 ## 🆘 Contacts
 
-- Issues : GitHub Issues
-- Email : support@example.com
-- Documentation : https://docs.example.com
+- Issues: GitHub Issues
+- Email: support@example.com
+- Documentation: https://docs.example.com
