@@ -121,13 +121,23 @@ time_total:  %{time_total}\n
 ### Database
 
 ```bash
-# Check database
-docker exec -it quiz-backend sh
-cd /app/data
-sqlite3 quiz.db
-> .tables
-> SELECT COUNT(*) FROM users;
-> .quit
+# Check database connection
+docker-compose exec backend npx prisma db pull
+
+# Run migrations
+docker-compose exec backend npx prisma migrate deploy
+
+# Access PostgreSQL
+docker-compose exec db psql -U quizuser -d quizdb
+
+# Check tables
+\dt
+
+# Check user count
+SELECT COUNT(*) FROM users;
+
+# Exit
+\q
 ```
 
 ## 📊 Monitoring (Optional)

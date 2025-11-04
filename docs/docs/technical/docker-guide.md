@@ -27,7 +27,8 @@ quiz-app/
 ├── backend/
 │   ├── Dockerfile            # Backend image
 │   ├── .dockerignore         # Files to exclude
-│   ├── server.js
+│   ├── src/                  # NestJS source code
+│   ├── prisma/               # Prisma schema and migrations
 │   └── package.json
 │
 └── frontend/
@@ -64,7 +65,7 @@ docker-compose ps
 
 - **Frontend**: http://localhost
 - **Backend API**: http://localhost:3001
-- **Health check**: http://localhost:3001/api/health
+- **Health check**: http://localhost:3001/health
 
 ### 4. Default admin account
 
@@ -119,16 +120,20 @@ docker-compose top backend
 ### Database
 
 ```bash
-# Access SQLite database
-docker-compose exec backend sh
-cd data
-sqlite3 quiz.db
+# Access PostgreSQL database
+docker-compose exec db psql -U quizuser -d quizdb
 
 # Database backup
-docker-compose exec backend cat /app/data/quiz.db > backup_$(date +%Y%m%d).db
+docker-compose exec db pg_dump -U quizuser quizdb > backup_$(date +%Y%m%d).sql
 
 # Restore a backup
-docker cp backup.db quiz-backend:/app/data/quiz.db
+docker-compose exec -T db psql -U quizuser -d quizdb < backup.sql
+
+# Run Prisma migrations
+docker-compose exec backend npx prisma migrate deploy
+
+# View database schema
+docker-compose exec backend npx prisma studio
 ```
 
 ## 🔐 Production security
@@ -185,19 +190,23 @@ services:
 
 ## 📊 Volumes and persistence
 
-### Data volume
+### Data volumes
 
-The `quiz-data` volume persists the SQLite database:
+The application uses the following volumes:
+
+- `postgres-data`: Persists PostgreSQL database
+- `backend-node-modules`: Caches backend dependencies (development)
+- `frontend-node-modules`: Caches frontend dependencies (development)
 
 ```bash
 # List volumes
 docker volume ls
 
 # Inspect volume
-docker volume inspect quiz-app_quiz-data
+docker volume inspect quiz-app_postgres-data
 
-# Volume backup
-docker run --rm -v quiz-app_quiz-data:/data -v $(pwd):/backup alpine tar czf /backup/quiz-data-backup.tar.gz /data
+# Volume backup (PostgreSQL)
+docker-compose exec db pg_dump -U quizuser quizdb > backup_$(date +%Y%m%d).sql
 
 # Restore volume
 docker run --rm -v quiz-app_quiz-data:/data -v $(pwd):/backup alpine tar xzf /backup/quiz-data-backup.tar.gz -C /
