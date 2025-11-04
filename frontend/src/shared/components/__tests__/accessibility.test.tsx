@@ -1,9 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
-import { axe } from '../test/axe-config';
-import Button from './Button';
-import Input from './Input';
-import Card from './Card';
+import { axe } from 'vitest-axe';
+import * as matchers from 'vitest-axe/matchers';
+import Button from '../Button';
+import Input from '../Input';
+import Card from '../Card';
+
+// Extend Vitest's expect with accessibility matchers
+expect.extend(matchers);
 
 describe('Accessibility Tests - Shared Components', () => {
   describe('Button Component', () => {
