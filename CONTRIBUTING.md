@@ -1,104 +1,104 @@
-# 🤝 Guide de contribution - QuizMaster
+# 🤝 Contributing Guide - QuizMaster
 
-Merci de votre intérêt pour contribuer à QuizMaster ! Ce guide vous aidera à démarrer.
+Thank you for your interest in contributing to QuizMaster! This guide will help you get started.
 
-## 📚 Documentation complète
+## 📚 Complete Documentation
 
-**La documentation détaillée est disponible dans `/docs`.**
+**Detailed documentation is available in `/docs`.**
 
-Pour les guides complets :
-- **[Tests](docs/docs/technical/testing.md)** - Guide complet des tests
-- **[Architecture](docs/docs/technical/architecture.md)** - Architecture du système
+For complete guides:
+- **[Testing](docs/docs/technical/testing.md)** - Complete testing guide
+- **[Architecture](docs/docs/technical/architecture.md)** - System architecture
 - **[Design System](docs/docs/technical/design-system.md)** - Cyber Arcade design system
-- **[Docker](docs/docs/technical/docker-guide.md)** - Guide Docker
-- **[Security](docs/docs/technical/security.md)** - Sécurité
+- **[Docker](docs/docs/technical/docker-guide.md)** - Docker guide
+- **[Security](docs/docs/technical/security.md)** - Security
 
-## 🤝 Code de conduite
+## 🤝 Code of Conduct
 
-- Soyez respectueux et inclusif
-- Acceptez les critiques constructives
-- Concentrez-vous sur ce qui est le mieux pour la communauté
-- Faites preuve d'empathie envers les autres membres
+- Be respectful and inclusive
+- Accept constructive criticism
+- Focus on what's best for the community
+- Show empathy towards other community members
 
-## 🎯 Types de contributions
+## 🎯 Types of Contributions
 
-1. **Corrections de bugs** 🐛
-2. **Nouvelles fonctionnalités** ✨
+1. **Bug Fixes** 🐛
+2. **New Features** ✨
 3. **Documentation** 📚
 4. **Tests** 🧪
-5. **Optimisations** ⚡
-6. **Traductions** 🌍
+5. **Optimizations** ⚡
+6. **Translations** 🌍
 
-## 🛠️ Configuration de l'environnement
+## 🛠️ Environment Setup
 
-### Prérequis
+### Prerequisites
 
 - Node.js 18+
 - Docker & Docker Compose
 - Git
-- Un éditeur de code (VS Code recommandé)
+- Code editor (VS Code recommended)
 
-### Installation rapide
+### Quick Installation
 
 ```bash
-# 1. Fork le projet sur GitHub
+# 1. Fork the project on GitHub
 
-# 2. Cloner votre fork
-git clone https://github.com/VOTRE-USERNAME/quiz-app.git
+# 2. Clone your fork
+git clone https://github.com/YOUR-USERNAME/quiz-app.git
 cd quiz-app
 
-# 3. Installer avec Docker (recommandé)
+# 3. Install with Docker (recommended)
 make install
 make up
 
-# 4. Créer une branche pour votre contribution
-git checkout -b feature/ma-nouvelle-fonctionnalite
+# 4. Create a branch for your contribution
+git checkout -b feature/my-new-feature
 ```
 
-📘 **Pour plus de détails** : Voir [Docker Guide](docs/docs/technical/docker-guide.md)
+📘 **For more details**: See [Docker Guide](docs/docs/technical/docker-guide.md)
 
-## 📝 Standards de code
+## 📝 Code Standards
 
-### Principes de développement
+### Development Principles
 
-- **SOLID Principles** : Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion
-- **DRY** : Don't Repeat Yourself
-- **KISS** : Keep It Simple
-- **Clean Code** : Code lisible et maintenable
-- **Clean Architecture** : Séparation des préoccupations
+- **SOLID Principles**: Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion
+- **DRY**: Don't Repeat Yourself
+- **KISS**: Keep It Simple
+- **Clean Code**: Readable and maintainable code
+- **Clean Architecture**: Separation of concerns
 
 ### Architecture
 
-- **Backend** : NestJS avec DDD (Domain-Driven Design)
-- **Frontend** : React avec Clean Architecture
-- **Styling** : Tailwind CSS avec Cyber Arcade design system
+- **Backend**: NestJS with DDD (Domain-Driven Design)
+- **Frontend**: React with Clean Architecture
+- **Styling**: Tailwind CSS with Cyber Arcade design system
 
-📘 **Voir** [Architecture](docs/docs/technical/architecture.md) pour les détails complets
+📘 **See** [Architecture](docs/docs/technical/architecture.md) for complete details
 
-### Conventions de nommage
+### Naming Conventions
 
 ```typescript
-// Variables et fonctions : camelCase
+// Variables and functions: camelCase
 const userName = 'John';
 const getUserById = (id) => {};
 
-// Classes et composants React : PascalCase
+// Classes and React components: PascalCase
 class UserService {}
 const QuizCard = () => {};
 
-// Constants : UPPER_SNAKE_CASE
+// Constants: UPPER_SNAKE_CASE
 const API_URL = 'http://localhost:3001';
 ```
 
 ### Styling
 
-**Important** : Suivre le [Cyber Arcade Design System](docs/docs/technical/design-system.md)
+**Important**: Follow the [Cyber Arcade Design System](docs/docs/technical/design-system.md)
 
-- Utiliser les couleurs du thème (purple/pink/cyan)
-- Appliquer les effets retro (neon glow, pixel shadows)
-- Respecter la typographie (Press Start 2P, VT323, Orbitron)
+- Use theme colors (purple/pink/cyan)
+- Apply retro effects (neon glow, pixel shadows)
+- Follow typography guidelines (Press Start 2P, VT323, Orbitron)
 
-## 🧪 Tests
+## 🧪 Testing
 
 ```bash
 # Backend tests
@@ -111,80 +111,80 @@ cd frontend && npm test
 ./test-e2e.sh
 ```
 
-📘 **Guide complet** : [Testing Guide](docs/docs/technical/testing.md)
+📘 **Complete guide**: [Testing Guide](docs/docs/technical/testing.md)
 
-## 🔄 Process de Pull Request
+## 🔄 Pull Request Process
 
-1. **Créer une branche** depuis `main`
+1. **Create a branch** from `main`
    ```bash
-   git checkout -b feature/nom-de-la-fonctionnalite
+   git checkout -b feature/feature-name
    ```
 
-2. **Faire vos modifications**
-   - Suivre les standards de code
-   - Ajouter des tests
-   - Mettre à jour la documentation si nécessaire
+2. **Make your changes**
+   - Follow code standards
+   - Add tests
+   - Update documentation if necessary
 
-3. **Tester localement**
+3. **Test locally**
    ```bash
-   npm test  # Tests unitaires
-   ./test-e2e.sh  # Tests E2E
+   npm test  # Unit tests
+   ./test-e2e.sh  # E2E tests
    ```
 
-4. **Commit vos changements**
+4. **Commit your changes**
    ```bash
    git add .
-   git commit -m "feat: description de la fonctionnalité"
+   git commit -m "feat: feature description"
    ```
 
-5. **Push vers votre fork**
+5. **Push to your fork**
    ```bash
-   git push origin feature/nom-de-la-fonctionnalite
+   git push origin feature/feature-name
    ```
 
-6. **Créer une Pull Request** sur GitHub
-   - Décrire clairement vos changements
-   - Référencer les issues liées
-   - Attendre la revue de code
+6. **Create a Pull Request** on GitHub
+   - Clearly describe your changes
+   - Reference related issues
+   - Wait for code review
 
-### Format des messages de commit
+### Commit Message Format
 
-Utiliser [Conventional Commits](https://www.conventionalcommits.org/):
+Use [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```
-feat: ajout de nouvelle fonctionnalité
-fix: correction de bug
-docs: mise à jour documentation
-style: formatage code
+feat: add new feature
+fix: bug fix
+docs: documentation update
+style: code formatting
 refactor: refactoring
-test: ajout/modification tests
-chore: tâches diverses
+test: add/modify tests
+chore: miscellaneous tasks
 ```
 
-## 🐛 Reporting de bugs
+## 🐛 Bug Reporting
 
-Créer une issue GitHub avec :
+Create a GitHub issue with:
 
-1. **Titre clair** décrivant le problème
-2. **Description détaillée** du bug
-3. **Étapes pour reproduire** le problème
-4. **Comportement attendu** vs **comportement observé**
-5. **Environnement** (OS, navigateur, version Node.js, etc.)
-6. **Screenshots** si applicable
+1. **Clear title** describing the problem
+2. **Detailed description** of the bug
+3. **Steps to reproduce** the issue
+4. **Expected behavior** vs **observed behavior**
+5. **Environment** (OS, browser, Node.js version, etc.)
+6. **Screenshots** if applicable
 
-## ✨ Suggestions de fonctionnalités
+## ✨ Feature Suggestions
 
-Créer une issue GitHub avec :
+Create a GitHub issue with:
 
-1. **Titre clair** décrivant la fonctionnalité
-2. **Description détaillée** de la proposition
-3. **Cas d'usage** concrets
-4. **Bénéfices** pour les utilisateurs
-5. **Mockups** ou exemples si applicable
+1. **Clear title** describing the feature
+2. **Detailed description** of the proposal
+3. **Concrete use cases**
+4. **User benefits**
+5. **Mockups** or examples if applicable
 
-## 📚 Ressources utiles
+## 📚 Useful Resources
 
-### Documentation technique
+### Technical Documentation
 - [Architecture](docs/docs/technical/architecture.md)
 - [Design System](docs/docs/technical/design-system.md)
 - [Testing Guide](docs/docs/technical/testing.md)
@@ -192,14 +192,14 @@ Créer une issue GitHub avec :
 - [Deployment](docs/docs/technical/deployment.md)
 - [Security](docs/docs/technical/security.md)
 
-### Guides pour agents IA
-- [AGENTS.md](AGENTS.md) - Instructions pour les agents IA
-- [CLAUDE.md](CLAUDE.md) - Instructions pour Claude
+### For AI Agents
+- [AGENTS.md](AGENTS.md) - Instructions for AI agents
+- [CLAUDE.md](CLAUDE.md) - Instructions for Claude
 
-## 🙏 Remerciements
+## 🙏 Acknowledgments
 
-Merci de contribuer à QuizMaster ! Chaque contribution, aussi petite soit-elle, est appréciée. 🎉
+Thank you for contributing to QuizMaster! Every contribution, no matter how small, is appreciated. 🎉
 
 ---
 
-**Questions ?** Ouvrez une issue GitHub ou consultez la [documentation](docs/).
+**Questions?** Open a GitHub issue or consult the [documentation](docs/).

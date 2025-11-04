@@ -1,77 +1,77 @@
-# 🎮 QuizMaster - Application de Quiz Interactive
+# 🎮 QuizMaster - Interactive Quiz Application
 
-Application complète de quiz interactif type Kahoot avec temps réel, système de points et classements.
+Complete interactive quiz application (Kahoot-style) with real-time gameplay, scoring system, and leaderboards.
 
-## ✨ Fonctionnalités
+## ✨ Features
 
-- ✅ Quiz avec questions à choix multiples et vrai/faux
-- 👑 Interface d'administration complète
-- 👥 Inscription et connexion des utilisateurs
-- ⚡ Points basés sur la justesse ET le temps de réponse
-- 🏆 Classement en direct avec podium
+- ✅ Multiple choice and true/false questions
+- 👑 Complete admin interface
+- 👥 User registration and authentication
+- ⚡ Points based on accuracy AND response time
+- 🏆 Live leaderboards with podium
 - 🎨 Cyber Arcade design system (retro synthwave aesthetic)
-- 🔄 Temps réel avec WebSockets
-- 🌍 Support multilingue (Anglais/Français)
+- 🔄 Real-time with WebSockets
+- 🌍 Multi-language support (English/French)
 
 ## 🚀 Quick Start
 
 ```bash
-# Installation en une commande
+# One-command installation
 make install
 
-# Démarrer l'application
+# Start the application
 make up
 ```
 
-L'application sera disponible sur :
-- Frontend : http://localhost
-- Backend : http://localhost:3001
+The application will be available at:
+- Frontend: http://localhost
+- Backend: http://localhost:3001
 
-**Compte admin par défaut :**
+**Default admin account:**
 - Email: admin@quiz.com
-- Mot de passe: admin123
+- Password: admin123
 
-📘 **Pour plus de détails** : Voir [Guide de démarrage rapide](docs/docs/functional/quickstart.md)
+📘 **For more details**: See [Quick Start Guide](docs/docs/functional/quickstart.md)
 
-## 🛠️ Stack Technique
+## 🛠️ Tech Stack
 
 **Backend:** NestJS + Prisma ORM + PostgreSQL + Socket.io + JWT  
 **Frontend:** React 18 + Vite + Tailwind CSS  
 **DevOps:** Docker + Nginx + Prometheus + Grafana
 
-📘 **Pour l'architecture complète** : Voir [Architecture](docs/docs/technical/architecture.md)
+📘 **For complete architecture**: See [Architecture](docs/docs/technical/architecture.md)
 
 ## 📚 Documentation
 
-La documentation complète est disponible dans le dossier `/docs` via Docusaurus.
+Complete documentation is available in the `/docs` folder via Docusaurus.
 
-### 📖 Pour les utilisateurs
-- **[Guide de démarrage rapide](docs/docs/functional/quickstart.md)** - Installation et premiers pas
-- **[Guide Admin/Hôte](docs/docs/functional/admin-host-guide.md)** - Créer et animer des quiz
+### 📖 For Users
+- **[Quick Start Guide](docs/docs/functional/quickstart.md)** - Installation and first steps
+- **[Admin & Host Guide](docs/docs/functional/admin-host-guide.md)** - Create and host quizzes
 
-### 🛠️ Pour les développeurs
-- **[Architecture](docs/docs/technical/architecture.md)** - Architecture technique du système
-- **[Guide Docker](docs/docs/technical/docker-guide.md)** - Utilisation de Docker
-- **[Tests](docs/docs/technical/testing.md)** - Guide des tests
+### 🛠️ For Developers
+- **[Architecture](docs/docs/technical/architecture.md)** - System architecture
+- **[Docker Guide](docs/docs/technical/docker-guide.md)** - Docker usage
+- **[Testing](docs/docs/technical/testing.md)** - Testing guide
 - **[Design System](docs/docs/technical/design-system.md)** - Cyber Arcade design system
-- **[Déploiement](docs/docs/technical/deployment.md)** - Checklist de déploiement
-- **[Monitoring](docs/docs/technical/monitoring.md)** - Guide de monitoring
-- **[Sécurité](docs/docs/technical/security.md)** - Politique de sécurité
-- **[i18n](docs/docs/technical/i18n.md)** - Internationalisation
-- **[Accessibilité](docs/docs/technical/accessibility.md)** - Guide d'accessibilité
-- **[Référence rapide](docs/docs/technical/quick-reference.md)** - Commandes et références
+- **[Deployment](docs/docs/technical/deployment.md)** - Deployment checklist
+- **[Monitoring](docs/docs/technical/monitoring.md)** - Monitoring guide
+- **[Security](docs/docs/technical/security.md)** - Security policy
+- **[i18n](docs/docs/technical/i18n.md)** - Internationalization
+- **[Accessibility](docs/docs/technical/accessibility.md)** - Accessibility guide
+- **[Quick Reference](docs/docs/technical/quick-reference.md)** - Commands and references
 
-### 🤖 Pour les agents IA
-- **[AGENTS.md](AGENTS.md)** - Instructions pour les agents IA
-- **[CLAUDE.md](CLAUDE.md)** - Instructions spécifiques pour Claude
+### 🤖 For AI Agents
+- **[AGENTS.md](AGENTS.md)** - Instructions for AI agents
+- **[CLAUDE.md](CLAUDE.md)** - Instructions for Claude
 
-### 🤝 Contribution
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Guide de contribution
+### 🤝 Contributing
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Contribution guide
 
-## 📜 Licence
+## 📜 License
 
 MIT
 
-## 👨‍💻 Auteur
+## 👨‍💻 Author
 
-Créé avec ❤️ pour l'apprentissage interactif
+Created with ❤️ for interactive learning

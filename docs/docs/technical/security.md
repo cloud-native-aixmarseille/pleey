@@ -16,104 +16,104 @@ sidebar_position: 9
 ### Development Principles
 
 #### **Secure by Design**
-- **Principle of Least Privilege** : Accès minimal nécessaire
-- **Defense in Depth** : Multiples couches de sécurité
-- **Fail Secure** : En cas d'erreur, fermer l'accès plutôt que l'ouvrir
-- **Keep it Simple** : La complexité est l'ennemi de la sécurité
-- **Never Trust User Input** : Valider et sanitiser toutes les entrées
+- **Principle of Least Privilege**: Minimal necessary access
+- **Defense in Depth**: Multiple layers of security
+- **Fail Secure**: In case of error, deny access rather than grant it
+- **Keep it Simple**: Complexity is the enemy of security
+- **Never Trust User Input**: Validate and sanitize all inputs
 
 #### **OWASP Top 10 Protection**
-1. **Injection** : Utiliser des requêtes paramétrées (pas de concaténation SQL)
-2. **Broken Authentication** : JWT sécurisés, bcrypt pour les mots de passe
-3. **Sensitive Data Exposure** : Chiffrement des données sensibles, HTTPS obligatoire
-4. **XML External Entities** : N/A (pas d'utilisation XML)
-5. **Broken Access Control** : Vérification des permissions à chaque requête
-6. **Security Misconfiguration** : Configuration sécurisée par défaut
-7. **XSS** : Sanitization des entrées, CSP headers
-8. **Insecure Deserialization** : Validation stricte des données désérialisées
-9. **Using Components with Known Vulnerabilities** : npm audit régulier
-10. **Insufficient Logging & Monitoring** : Logs d'audit pour actions sensibles
+1. **Injection**: Use parameterized queries (no SQL concatenation)
+2. **Broken Authentication**: Secure JWT, bcrypt for passwords
+3. **Sensitive Data Exposure**: Encryption of sensitive data, mandatory HTTPS
+4. **XML External Entities**: N/A (no XML usage)
+5. **Broken Access Control**: Permission verification on every request
+6. **Security Misconfiguration**: Secure configuration by default
+7. **XSS**: Input sanitization, CSP headers
+8. **Insecure Deserialization**: Strict validation of deserialized data
+9. **Using Components with Known Vulnerabilities**: Regular npm audit
+10. **Insufficient Logging & Monitoring**: Audit logs for sensitive actions
 
 ### Code Security
 
-#### **Variables d'Environnement**
+#### **Environment Variables**
 ```bash
-# ❌ JAMAIS faire ça
+# ❌ NEVER do this
 const secret = "hardcoded-secret-key";
 
-# ✅ Toujours utiliser les variables d'environnement
+# ✅ Always use environment variables
 const secret = process.env.JWT_SECRET;
 if (!secret) throw new Error('JWT_SECRET is required');
 ```
 
-#### **Mots de Passe**
+#### **Passwords**
 ```javascript
-// ✅ Bon : Hash avec bcrypt
+// ✅ Good: Hash with bcrypt
 const bcrypt = require('bcrypt');
 const hashedPassword = await bcrypt.hash(password, 10);
 
-// ❌ Mauvais : Stockage en clair
+// ❌ Bad: Plain text storage
 const password = req.body.password; // NEVER store plain text!
 ```
 
 #### **SQL Injection Prevention**
 ```javascript
-// ✅ Bon : Requêtes paramétrées
+// ✅ Good: Parameterized queries
 db.all('SELECT * FROM users WHERE id = ?', [userId], callback);
 
-// ❌ Mauvais : Concaténation
+// ❌ Bad: Concatenation
 db.all(`SELECT * FROM users WHERE id = ${userId}`, callback);
 ```
 
 #### **XSS Prevention**
 ```javascript
-// ✅ Bon : Validation et sanitization
+// ✅ Good: Validation and sanitization
 const sanitizeHtml = require('sanitize-html');
 const clean = sanitizeHtml(userInput);
 
-// ❌ Mauvais : Insertion directe
+// ❌ Bad: Direct insertion
 element.innerHTML = userInput; // Dangerous!
 ```
 
 ### Dependency Management
 
-#### **Audits Réguliers**
+#### **Regular Audits**
 ```bash
-# Vérifier les vulnérabilités
+# Check for vulnerabilities
 npm audit
 
-# Corriger automatiquement si possible
+# Auto-fix if possible
 npm audit fix
 
-# Forcer les corrections (peut casser la compatibilité)
+# Force fixes (may break compatibility)
 npm audit fix --force
 
-# Vérifier les dépendances obsolètes
+# Check outdated dependencies
 npm outdated
 ```
 
-#### **Dépendances de Confiance**
-- ✅ **Packages bien maintenus** : Activité récente, communauté active
-- ✅ **Packages populaires** : Utilisés par de nombreux projets
-- ✅ **Licenses ouvertes** : MIT, Apache, BSD
-- ✅ **Code audité** : Préférer les packages avec audits de sécurité
-- ⚠️ **Éviter** : Packages abandonnés, sans maintenance, téléchargements faibles
+#### **Trusted Dependencies**
+- ✅ **Well-maintained packages**: Recent activity, active community
+- ✅ **Popular packages**: Used by many projects
+- ✅ **Open licenses**: MIT, Apache, BSD
+- ✅ **Audited code**: Prefer packages with security audits
+- ⚠️ **Avoid**: Abandoned packages, unmaintained, low downloads
 
 #### **Dependabot & Renovate**
-- Activer Dependabot sur GitHub pour alertes automatiques
-- Mettre à jour régulièrement les dépendances
-- Tester les mises à jour dans un environnement de staging
+- Enable Dependabot on GitHub for automatic alerts
+- Update dependencies regularly
+- Test updates in staging environment
 
 ### Production Security
 
-#### **Variables d'Environnement Production**
-- JWT_SECRET : 256-bit random (`openssl rand -base64 32`)
+#### **Production Environment Variables**
+- JWT_SECRET: 256-bit random (`openssl rand -base64 32`)
 - NODE_ENV=production
-- CORS_ORIGIN : Domaine spécifique, pas `*`
-- Rate limiting activé
-- Logs activés mais sans données sensibles
+- CORS_ORIGIN: Specific domain, not `*`
+- Rate limiting enabled
+- Logs enabled but without sensitive data
 
-#### **Headers de Sécurité**
+#### **Security Headers**
 ```javascript
 // Express security headers
 const helmet = require('helmet');
@@ -132,7 +132,7 @@ const rateLimit = require('express-rate-limit');
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limite par IP
+  max: 100 // limit per IP
 });
 
 app.use('/api/', limiter);
@@ -141,48 +141,48 @@ app.use('/api/', limiter);
 ### Monitoring & Incident Response
 
 #### **Logging**
-- ✅ Loguer : Tentatives d'authentification, erreurs, actions admin
-- ❌ Ne pas loguer : Mots de passe, tokens, données PII
-- Utiliser des niveaux de log appropriés (error, warn, info, debug)
-- Centraliser les logs (ELK, Loki, CloudWatch)
+- ✅ Log: Authentication attempts, errors, admin actions
+- ❌ Don't log: Passwords, tokens, PII data
+- Use appropriate log levels (error, warn, info, debug)
+- Centralize logs (ELK, Loki, CloudWatch)
 
-#### **Alertes**
-- Configurer des alertes pour :
-  - Tentatives d'authentification multiples échouées
-  - Erreurs 500 répétées
-  - Utilisation anormale de ressources
-  - Accès à des endpoints sensibles
+#### **Alerts**
+- Configure alerts for:
+  - Multiple failed authentication attempts
+  - Repeated 500 errors
+  - Abnormal resource usage
+  - Access to sensitive endpoints
 
 ## 🚨 Reporting a Vulnerability
 
-### Comment Signaler
+### How to Report
 
-Si vous découvrez une vulnérabilité de sécurité :
+If you discover a security vulnerability:
 
-1. **NE PAS** créer une issue publique GitHub
-2. **Envoyer un email** à : security@example.com
-3. **Inclure** :
-   - Description de la vulnérabilité
-   - Étapes pour reproduire
-   - Impact potentiel
-   - Suggestions de correction (si possible)
+1. **DO NOT** create a public GitHub issue
+2. **Send an email** to: security@example.com
+3. **Include**:
+   - Vulnerability description
+   - Steps to reproduce
+   - Potential impact
+   - Fix suggestions (if possible)
 
-### Processus de Réponse
+### Response Process
 
-1. **Confirmation** : Réponse dans les 48h
-2. **Investigation** : Analyse et reproduction (5-7 jours)
-3. **Correction** : Développement du patch
-4. **Publication** : Release avec notes de sécurité
-5. **Disclosure** : Crédit au découvreur (si souhaité)
+1. **Confirmation**: Response within 48h
+2. **Investigation**: Analysis and reproduction (5-7 days)
+3. **Fix**: Patch development
+4. **Release**: Release with security notes
+5. **Disclosure**: Credit to discoverer (if desired)
 
-### Récompenses
+### Rewards
 
-Pour les vulnérabilités critiques validées :
-- Crédit dans les release notes
-- Mention dans le README
-- Reconnaissance de la communauté
+For validated critical vulnerabilities:
+- Credit in release notes
+- Mention in README
+- Community recognition
 
-## 📚 Ressources
+## 📚 Resources
 
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
 - [Node.js Security Best Practices](https://nodejs.org/en/docs/guides/security/)
@@ -191,4 +191,4 @@ Pour les vulnérabilités critiques validées :
 
 ---
 
-**Dernière mise à jour** : 2025-10-17
+**Last Updated**: 2025-10-17
