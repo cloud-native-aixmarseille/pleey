@@ -1,5 +1,17 @@
 # Backend Refactoring Documentation
 
+## 📚 Centralized Documentation
+
+**Complete project documentation is available in [/docs](/docs):**
+- **[Architecture](/docs/docs/technical/architecture.md)** - Complete system architecture
+- **[Testing](/docs/docs/technical/testing.md)** - Testing guide and strategies
+- **[Docker Guide](/docs/docs/technical/docker-guide.md)** - Docker setup
+- **[Deployment](/docs/docs/technical/deployment.md)** - Deployment guide
+
+This document provides **backend-specific** architecture details.
+
+---
+
 ## Overview
 
 This document describes the refactored backend architecture for the QuizMaster application. The backend has been completely rebuilt using **NestJS**, **Prisma ORM**, and following **Clean Architecture**, **Domain-Driven Design (DDD)**, and **Test-Driven Development (TDD)** principles.
