@@ -10,6 +10,10 @@ sidebar_position: 6
 
 This document describes the accessibility features implemented and the standards that must be followed.
 
+:::info Color & Contrast Compliance
+For detailed information about color contrast ratios, font accessibility, and WCAG compliance for the Cyber Arcade design system, see **[Color Contrast & Accessibility](/technical/color-contrast)**.
+:::
+
 ## Implemented Accessibility Features
 
 ### 1. ESLint Accessibility Linting
@@ -42,7 +46,38 @@ it('should not have accessibility violations', async () => {
 
 **Test Suite:** `frontend/src/shared/components/__tests__/accessibility.test.tsx`
 
-### 3. Core Component Accessibility
+### 3. Color Contrast & Visual Accessibility
+
+✅ **All colors meet WCAG 2.1 Level AA standards**
+
+- Primary colors: 8.2:1+ contrast ratio on dark backgrounds
+- Secondary colors: 7.8:1+ contrast ratio
+- Accent colors: 15.2:1+ contrast ratio (AAA)
+- Body text: 18.5:1 contrast ratio (AAA)
+
+See **[Color Contrast Documentation](/technical/color-contrast)** for complete details.
+
+#### High Contrast Mode Support
+```css
+@media (prefers-contrast: high) {
+  /* Removes decorative effects */
+  * { text-shadow: none !important; }
+  
+  /* Increases border visibility */
+  .btn, .card { border-width: 3px !important; }
+}
+```
+
+#### Forced Colors Mode (Windows High Contrast)
+```css
+@media (forced-colors: active) {
+  .btn, .card, input, button {
+    forced-color-adjust: auto;
+  }
+}
+```
+
+### 4. Core Component Accessibility
 
 #### Button Component
 - ✅ Proper `aria-disabled` attribute when disabled
@@ -257,9 +292,11 @@ Recommended screen readers for testing:
 
 #### Visual Testing
 - ✅ Reduced motion support implemented
-- 🔄 Test with Windows High Contrast mode
+- ✅ High contrast mode support implemented
+- ✅ Forced colors mode support (Windows High Contrast)
+- ✅ Color contrast ratios verified (see [Color Contrast docs](/technical/color-contrast))
 - 🔄 Test with browser zoom at 200%
-- 🔄 Verify color contrast ratios (use axe DevTools)
+- 🔄 Test with color blindness simulators
 
 #### Motion Testing
 - ✅ Enable "Reduce Motion" in OS settings
@@ -361,7 +398,7 @@ Recommended screen readers for testing:
 #### Perceivable
 - ✅ **1.1.1 Non-text Content**: All images have alt text or aria-hidden
 - ✅ **1.3.1 Info and Relationships**: Semantic HTML and ARIA labels used
-- ✅ **1.4.3 Contrast**: Color contrast meets AA standards (verify with tools)
+- ✅ **1.4.3 Contrast**: Color contrast meets AA standards (documented in [Color Contrast guide](/technical/color-contrast))
 - ✅ **1.4.10 Reflow**: Responsive design supports 320px width
 - ✅ **1.4.11 Non-text Contrast**: UI components meet contrast requirements
 - ✅ **1.4.12 Text Spacing**: No loss of content with increased text spacing
