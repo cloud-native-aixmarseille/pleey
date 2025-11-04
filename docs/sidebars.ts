@@ -1,4 +1,4 @@
-import type {SidebarsConfig} from '@docusaurus/plugin-content-docs';
+import type { SidebarsConfig } from '@docusaurus/plugin-content-docs';
 
 /**
  * Sidebar configuration for QuizMaster documentation
@@ -24,7 +24,7 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: '🏗️ Architecture & Design',
       items: [
-        'technical/architecture',
+        'technical/architecture/index',
         'technical/design-system',
       ],
     },

@@ -541,6 +541,10 @@ title: Optional Custom Title
 ### Local Development
 
 ```bash
+# Quick start: Open documentation (recommended)
+make docs
+
+# OR manually:
 # Navigate to docs directory
 cd docs
 
@@ -556,6 +560,8 @@ npm run build
 # Serve production build locally
 npm run serve
 ```
+
+**Note**: The `make docs` command automatically navigates to the docs directory and starts the development server. The documentation will be available at http://localhost:3000 with hot-reload enabled.
 
 ### Common Docusaurus Features
 

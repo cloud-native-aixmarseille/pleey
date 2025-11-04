@@ -46,6 +46,7 @@ make db                # Access PostgreSQL database
 make monitoring-up     # Start with monitoring
 make grafana           # Open Grafana
 make prometheus        # Open Prometheus
+make docs              # Open documentation (Docusaurus)
 ```
 
 ---

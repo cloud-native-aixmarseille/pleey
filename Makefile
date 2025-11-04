@@ -1,6 +1,6 @@
 # Makefile for QuizMaster
 
-.PHONY: help build up down restart logs clean backup restore seed
+.PHONY: help build up down restart logs clean backup restore seed docs
 
 # Colors for display
 GREEN=\033[0;32m
@@ -150,3 +150,11 @@ grafana: ## Open Grafana
 prometheus: ## Open Prometheus
 	@echo "$(GREEN)Opening Prometheus...$(NC)"
 	@command -v xdg-open >/dev/null 2>&1 && xdg-open http://localhost:9090 || open http://localhost:9090 || echo "Open http://localhost:9090"
+
+docs: ## Open documentation (Docusaurus)
+	@echo "$(GREEN)Opening documentation...$(NC)"
+	@if [ ! -d "docs/node_modules" ]; then \
+		echo "$(YELLOW)Installing documentation dependencies...$(NC)"; \
+		cd docs && npm install; \
+	fi
+	@cd docs && npm run start
