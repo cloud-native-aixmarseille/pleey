@@ -4,7 +4,10 @@
     "descriptionRequired": "Description is required",
     "quizNotFound": "Quiz not found",
     "questionNotFound": "Question not found",
-    "invalidQuestionType": "Invalid question type"
+    "invalidQuestionType": "Invalid question type",
+    "authenticationRequired": "Authentication required",
+    "adminPrivilegesRequired": "Admin privileges are required to create quizzes",
+    "pinMustBe6Digits": "PIN must be exactly 6 digits"
   },
   "success": {
     "quizCreated": "Quiz created successfully",

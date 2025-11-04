@@ -14,6 +14,7 @@ import {
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import type { Server, Socket } from 'socket.io';
+import { I18nService } from 'nestjs-i18n';
 import { SubmitAnswerUseCase } from '../../application/game/use-cases/submit-answer.use-case';
 import { GetLeaderboardUseCase } from '../../application/game/use-cases/get-leaderboard.use-case';
 import { JoinGameDto } from '../../application/game/dto/join-game.dto';
@@ -77,6 +78,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     private readonly questionRepository: QuestionRepository,
     private readonly submitAnswerUseCase: SubmitAnswerUseCase,
     private readonly getLeaderboardUseCase: GetLeaderboardUseCase,
+    private readonly i18n: I18nService,
   ) { }
 
   afterInit(): void {
@@ -139,11 +141,11 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       const session = await this.gameSessionRepository.findByPin(dto.pin);
 
       if (!session) {
-        throw new WsException('Game session not found');
+        throw new WsException(await this.i18n.translate('game.errors.gameNotFound'));
       }
 
       if (!state.questions.length) {
-        throw new WsException('No questions available for this quiz');
+        throw new WsException(await this.i18n.translate('game.errors.noQuestionsAvailable'));
       }
 
       state.currentQuestionIndex = 0;
@@ -217,7 +219,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     const session = await this.gameSessionRepository.findByPin(pin);
 
     if (!session) {
-      throw new WsException('Game session not found');
+      throw new WsException(await this.i18n.translate('game.errors.gameNotFound'));
     }
 
     const questions = await this.questionRepository.findByQuizId(session.quizId);
@@ -300,7 +302,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     const errors = await validate(dto as object);
 
     if (errors.length > 0) {
-      throw new WsException(Object.values(errors[0].constraints ?? { error: 'Validation failed' })[0]);
+      const errorMessage = Object.values(errors[0].constraints ?? { error: await this.i18n.translate('game.errors.validationFailed') })[0];
+      throw new WsException(errorMessage);
     }
 
     return dto;

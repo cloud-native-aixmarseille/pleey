@@ -4,7 +4,11 @@
     "invalidPin": "PIN invalide",
     "gameAlreadyStarted": "Le jeu a déjà commencé",
     "gameNotStarted": "Le jeu n'a pas encore commencé",
-    "invalidAnswer": "Réponse invalide"
+    "invalidAnswer": "Réponse invalide",
+    "noQuestionsAvailable": "Aucune question disponible pour ce quiz",
+    "validationFailed": "Échec de la validation",
+    "gameCanOnlyBeStartedFromWaiting": "Le jeu ne peut être démarré que depuis le statut d'attente",
+    "canOnlyMoveToNextInActive": "Ne peut passer à la question suivante que dans un jeu actif"
   },
   "success": {
     "gameCreated": "Session de jeu créée avec succès",
