@@ -7,6 +7,7 @@ import {
   useNavigate,
   useParams,
 } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { User, Quiz, Question } from "./shared/types";
 import { authService } from "./domains/auth/auth.service";
 import { quizService } from "./domains/quiz/quiz.service";
@@ -84,6 +85,7 @@ function ManageQuestionsRoute({
 export default function QuizApp() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
 
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -161,13 +163,13 @@ export default function QuizApp() {
     async (username: string, email: string, password: string) => {
       try {
         await authService.register(username, email, password);
-        alert("Inscription réussie ! Connectez-vous.");
+        alert(t("errors.registrationSuccess"));
         navigate("/auth/login", { replace: true });
       } catch (error) {
-        alert("Erreur lors de l'inscription");
+        alert(t("errors.registrationError"));
       }
     },
-    [navigate]
+    [navigate, t]
   );
 
   useEffect(() => {
@@ -261,14 +263,14 @@ export default function QuizApp() {
           questions = fetchedQuestions;
         } catch (error) {
           window.alert(
-            "Unable to load questions for this quiz. Please try again."
+            t("errors.unableToLoadQuestions")
           );
           return;
         }
       }
 
       if (!questions || questions.length === 0) {
-        window.alert("Add at least one question before starting this game.");
+        window.alert(t("errors.addAtLeastOneQuestion"));
         return;
       }
 

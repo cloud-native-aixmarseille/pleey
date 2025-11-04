@@ -1,6 +1,7 @@
 import { Player } from "../../../shared/types";
 import { Button, Card, Container } from "../../../shared/components";
 import { useState, useEffect, useRef, useId } from "react";
+import { useTranslation } from "react-i18next";
 
 interface LobbyPageProps {
   gamePin: string;
@@ -17,12 +18,13 @@ export default function LobbyPage({
   onStartGame,
   questionCount = 0,
 }: LobbyPageProps) {
+  const { t } = useTranslation();
   const [copiedPin, setCopiedPin] = useState(false);
   const [copyStatusMessage, setCopyStatusMessage] = useState("");
   const [playerCountMessage, setPlayerCountMessage] = useState(() =>
     players.length === 0
-      ? "No players connected yet."
-      : `${players.length} player${players.length !== 1 ? "s" : ""} ready.`
+      ? t("game.noPlayersYet")
+      : `${players.length} ${players.length !== 1 ? t("game.playersReady") : t("game.playerReady")}`
   );
 
   const copyResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
@@ -62,11 +64,11 @@ export default function LobbyPage({
 
       await navigator.clipboard.writeText(gamePin);
       setCopiedPin(true);
-      setCopyStatusMessage("Game PIN copied to clipboard.");
+      setCopyStatusMessage(t("game.clipboardCopied"));
     } catch (error) {
       setCopiedPin(false);
       setCopyStatusMessage(
-        `Unable to copy automatically. The PIN is ${gamePin}.`
+        t("game.clipboardError", { pin: gamePin })
       );
     }
 
@@ -91,26 +93,26 @@ export default function LobbyPage({
 
     let message =
       totalPlayers === 0
-        ? "No players connected yet."
-        : `${totalPlayers} player${totalPlayers !== 1 ? "s" : ""} ready.`;
+        ? t("game.noPlayersYet")
+        : `${totalPlayers} ${totalPlayers !== 1 ? t("game.playersReady") : t("game.playerReady")}`;
 
     if (totalPlayers !== previousCount) {
       const delta = totalPlayers - previousCount;
       if (delta > 0) {
-        message = `${delta} new player${
-          delta > 1 ? "s" : ""
-        } joined. ${totalPlayers} total.`;
+        message = `${delta} ${
+          delta > 1 ? t("game.newPlayersJoined") : t("game.newPlayerJoined")
+        } ${totalPlayers} ${t("game.totalPlayers")}`;
       } else {
         const absDelta = Math.abs(delta);
-        message = `${absDelta} player${
-          absDelta > 1 ? "s" : ""
-        } left. ${totalPlayers} remaining.`;
+        message = `${absDelta} ${
+          absDelta > 1 ? t("game.playersLeft") : t("game.playerLeft")
+        } ${totalPlayers} ${t("game.remainingPlayers")}`;
       }
     }
 
     previousPlayerCount.current = totalPlayers;
     setPlayerCountMessage(message);
-  }, [players.length]);
+  }, [players.length, t]);
 
   useEffect(() => {
     return () => {
@@ -154,10 +156,10 @@ export default function LobbyPage({
                 <span className="text-3xl animate-bounce-slow">👑</span>
                 <div className="text-center">
                   <span className="font-display text-accent-400 uppercase text-base sm:text-lg tracking-wider block">
-                    HOST MODE
+                    {t("game.hostMode")}
                   </span>
                   <span className="font-mono text-accent-500 text-xs uppercase tracking-wider">
-                    💡 Screen share this view to players
+                    {t("game.screenShareHint")}
                   </span>
                 </div>
               </div>
@@ -170,10 +172,10 @@ export default function LobbyPage({
               id={lobbyTitleId}
               className="font-display text-3xl sm:text-4xl md:text-5xl uppercase text-neon text-accent-500 mb-2 tracking-wider animate-glow"
             >
-              ► GAME LOBBY ◄
+              {t("game.gameLobby")}
             </h1>
             <p className="font-mono text-primary-300 text-xs sm:text-sm animate-pulse-slow">
-              &gt; WAITING FOR PLAYERS TO JOIN...
+              {t("game.waitingForPlayersToJoin")}
             </p>
           </div>
 
@@ -190,19 +192,19 @@ export default function LobbyPage({
                     id={instructionsTitleId}
                     className="font-display text-accent-400 text-xs sm:text-sm uppercase tracking-wider mb-3"
                   >
-                    ★ HOW TO JOIN THIS GAME ★
+                    {t("game.howToJoinTitle")}
                   </h2>
                   <ol className="space-y-2 font-mono text-light-200 text-xs sm:text-sm text-left sm:text-center list-decimal list-inside">
-                    <li>Open the game on your device.</li>
-                    <li>Choose "Join Game" and enter the PIN below.</li>
-                    <li>Stay ready until the host starts the quiz.</li>
+                    <li>{t("game.howToJoinStep1")}</li>
+                    <li>{t("game.howToJoinStep2")}</li>
+                    <li>{t("game.howToJoinStep3")}</li>
                   </ol>
                 </div>
               </div>
 
               <div className="mb-4 sm:mb-6">
                 <h3 className="font-display text-xl sm:text-2xl md:text-3xl text-primary-300 uppercase text-center tracking-wider mb-2">
-                  ► ENTER THIS PIN ◄
+                  {t("game.enterThisPin")}
                 </h3>
               </div>
 
@@ -229,12 +231,12 @@ export default function LobbyPage({
                   {copiedPin ? (
                     <>
                       <span className="text-success-500">✓</span>
-                      <span className="text-success-500">COPIED!</span>
+                      <span className="text-success-500">{t("game.copied")}</span>
                     </>
                   ) : (
                     <>
                       <span aria-hidden="true">📋</span>
-                      <span>Copy PIN</span>
+                      <span>{t("game.copyPin")}</span>
                     </>
                   )}
                 </button>
@@ -261,7 +263,7 @@ export default function LobbyPage({
                     {players.length}
                   </div>
                   <div className="font-mono text-xs sm:text-sm text-light-400 uppercase">
-                    Player{players.length !== 1 ? "s" : ""} Ready
+                    {t("game.playersReadyLabel")}
                   </div>
                 </div>
                 <div
@@ -294,7 +296,7 @@ export default function LobbyPage({
                       <span className="text-xl sm:text-2xl" aria-hidden="true">
                         ▶
                       </span>
-                      <span>START GAME</span>
+                      <span>{t("game.startGame").toUpperCase()}</span>
                       <span className="text-xl sm:text-2xl" aria-hidden="true">
                         ◀
                       </span>
@@ -317,7 +319,7 @@ export default function LobbyPage({
                         <span className="relative inline-flex rounded-full h-3 w-3 bg-primary-500"></span>
                       </span>
                       <span className="uppercase tracking-wider">
-                        Waiting for host to start...
+                        {t("game.waitingForHost")}
                       </span>
                     </p>
                   </div>
@@ -331,7 +333,7 @@ export default function LobbyPage({
                       role="status"
                       aria-live="polite"
                     >
-                      &gt; Need at least 1 player to start the game
+                      {t("game.needOnePlayer")}
                     </p>
                   </div>
                 )}
@@ -344,7 +346,7 @@ export default function LobbyPage({
                       role="status"
                       aria-live="polite"
                     >
-                      &gt; Add at least one question before starting
+                      {t("game.addOneQuestion")}
                     </p>
                   </div>
                 )}
@@ -360,7 +362,7 @@ export default function LobbyPage({
                 id={playersSectionTitleId}
                 className="font-display text-base sm:text-xl text-primary-300 uppercase tracking-wider flex items-center gap-2"
               >
-                <span>Connected Players</span>
+                <span>{t("game.connectedPlayers")}</span>
                 <span className="glass-effect rounded-full px-3 py-1 text-sm sm:text-lg border-2 border-accent-500/30 text-accent-400">
                   {players.length}
                 </span>
@@ -411,7 +413,7 @@ export default function LobbyPage({
                           className="w-1.5 h-1.5 bg-success-500 rounded-full animate-pulse"
                           aria-hidden="true"
                         ></span>
-                        <span>Ready</span>
+                        <span>{t("game.ready")}</span>
                       </div>
                     </Card>
                   </li>
@@ -427,7 +429,7 @@ export default function LobbyPage({
                       >
                         <div className="text-4xl sm:text-5xl mb-3">👤</div>
                         <div className="font-mono text-xxs sm:text-xs text-light-600 uppercase">
-                          Waiting...
+                          {t("game.waiting")}
                         </div>
                       </Card>
                     </li>
@@ -446,10 +448,10 @@ export default function LobbyPage({
                   👥
                 </div>
                 <p className="font-display text-lg sm:text-xl text-primary-400 uppercase mb-2">
-                  No Players Yet
+                  {t("game.noPlayersYetTitle")}
                 </p>
                 <p className="font-mono text-xs sm:text-sm text-light-500">
-                  &gt; Share the PIN above to invite players!
+                  {t("game.sharePin")}
                 </p>
               </div>
             )}
