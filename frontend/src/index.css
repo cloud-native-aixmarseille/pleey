@@ -348,5 +348,43 @@
   .hover-glitch:hover {
     animation: glitch 0.3s infinite;
   }
+
+  /* High Contrast Mode Support */
+  @media (prefers-contrast: high) {
+    * {
+      text-shadow: none !important;
+    }
+    
+    .btn,
+    .card,
+    .input {
+      border-width: 3px !important;
+    }
+
+    .shadow-neon,
+    .shadow-neon-secondary,
+    .shadow-neon-accent {
+      box-shadow: none !important;
+    }
+
+    /* Ensure sufficient contrast in high contrast mode */
+    .btn-primary {
+      @apply bg-primary-600 border-primary-400;
+    }
+
+    .btn-danger {
+      @apply bg-danger-700 border-danger-400;
+    }
+  }
+
+  /* Forced Colors Mode (Windows High Contrast) */
+  @media (forced-colors: active) {
+    .btn,
+    .card,
+    input,
+    button {
+      forced-color-adjust: auto;
+    }
+  }
 }
 
