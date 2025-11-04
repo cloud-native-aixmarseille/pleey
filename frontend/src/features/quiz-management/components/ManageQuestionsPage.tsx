@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Quiz, Question } from "../../../shared/types";
 import { Button, Card, Container } from "../../../shared/components";
 
@@ -14,12 +15,13 @@ export default function ManageQuestionsPage({
   onAddQuestion,
 }: ManageQuestionsPageProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleAddQuestion = () => {
-    const type = confirm("Type: OK = Choix multiple, Annuler = Vrai/Faux")
+    const type = confirm(t("quiz.confirmQuestionType"))
       ? "multiple"
       : "truefalse";
-    const question_text = prompt("Question:");
+    const question_text = prompt(t("quiz.promptQuestion"));
     if (!question_text) return;
 
     const questionData: Partial<Question> & { quiz_id: number } = {
@@ -31,15 +33,15 @@ export default function ManageQuestionsPage({
     };
 
     if (type === "multiple") {
-      questionData.option_a = prompt("Option A:") ?? undefined;
-      questionData.option_b = prompt("Option B:") ?? undefined;
-      questionData.option_c = prompt("Option C:") ?? undefined;
-      questionData.option_d = prompt("Option D:") ?? undefined;
+      questionData.option_a = prompt(t("quiz.promptOptionA")) ?? undefined;
+      questionData.option_b = prompt(t("quiz.promptOptionB")) ?? undefined;
+      questionData.option_c = prompt(t("quiz.promptOptionC")) ?? undefined;
+      questionData.option_d = prompt(t("quiz.promptOptionD")) ?? undefined;
       questionData.correct_answer =
-        prompt("Réponse correcte (A/B/C/D):") ?? undefined;
+        prompt(t("quiz.promptCorrectAnswer")) ?? undefined;
     } else {
       questionData.correct_answer = confirm(
-        "Réponse: OK = Vrai, Annuler = Faux"
+        t("quiz.confirmTrueFalse")
       )
         ? "true"
         : "false";
@@ -58,7 +60,7 @@ export default function ManageQuestionsPage({
             className="inline-flex items-center gap-2 text-light-700 hover:text-primary-600 transition-colors mb-4"
           >
             <span className="text-2xl">←</span>
-            <span className="font-semibold">Retour</span>
+            <span className="font-semibold">{t("quiz.back")}</span>
           </button>
 
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -72,7 +74,7 @@ export default function ManageQuestionsPage({
               <p className="text-light-700 mb-4">{quiz.description}</p>
               <div className="flex items-center gap-4 text-sm">
                 <span className="glass-effect px-3 py-1 rounded-lg text-dark-700 font-semibold">
-                  {questions.length} question{questions.length > 1 ? "s" : ""}
+                  {questions.length} {questions.length === 1 ? t("quiz.question") : t("quiz.questionsPlural")}
                 </span>
               </div>
             </div>
@@ -97,7 +99,7 @@ export default function ManageQuestionsPage({
                 </svg>
               }
             >
-              Ajouter une question
+              {t("quiz.addQuestion")}
             </Button>
           </div>
         </Card>
@@ -107,13 +109,13 @@ export default function ManageQuestionsPage({
           <Card className="p-12 text-center animate-scale-in">
             <div className="text-6xl mb-4">❓</div>
             <h3 className="text-2xl font-bold text-dark-800 mb-2">
-              Aucune question pour le moment
+              {t("quiz.noQuestionsTitle")}
             </h3>
             <p className="text-light-700 mb-6">
-              Commencez par ajouter votre première question !
+              {t("quiz.noQuestionsDescription")}
             </p>
             <Button variant="primary" size="lg" onClick={handleAddQuestion}>
-              Ajouter la première question
+              {t("quiz.addFirstQuestion")}
             </Button>
           </Card>
         ) : (
@@ -146,7 +148,7 @@ export default function ManageQuestionsPage({
                     }
                   `}
                   >
-                    {q.type === "multiple" ? "QCM" : "Vrai/Faux"}
+                    {q.type === "multiple" ? t("quiz.multipleChoiceShort") : t("quiz.trueFalseShort")}
                   </span>
                 </div>
 
@@ -208,8 +210,8 @@ export default function ManageQuestionsPage({
                         {q.correct_answer === "true" ? "✓" : "✗"}
                       </span>
                       <span className="font-bold text-dark-800">
-                        Réponse correcte:{" "}
-                        {q.correct_answer === "true" ? "Vrai" : "Faux"}
+                        {t("quiz.correctAnswer")}:{" "}
+                        {q.correct_answer === "true" ? t("quiz.trueAnswer") : t("quiz.falseAnswer")}
                       </span>
                     </div>
                   </div>

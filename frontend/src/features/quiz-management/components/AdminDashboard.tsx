@@ -1,5 +1,6 @@
 import { Quiz } from '../../../shared/types';
 import { Button, Card, Container } from '../../../shared/components';
+import { useTranslation } from 'react-i18next';
 
 interface AdminDashboardProps {
   quizzes: Quiz[];
@@ -14,9 +15,11 @@ export default function AdminDashboard({
   onManageQuiz,
   onLaunchQuiz
 }: AdminDashboardProps) {
+  const { t } = useTranslation();
+  
   const handleCreateQuiz = () => {
-    const title = prompt('Titre du quiz:');
-    const description = prompt('Description:');
+    const title = prompt(t('admin.promptQuizTitle'));
+    const description = prompt(t('admin.promptQuizDescription'));
     if (title) onCreateQuiz(title, description || '');
   };
 
@@ -30,11 +33,11 @@ export default function AdminDashboard({
               <div className="flex items-center gap-3 mb-2">
                 <span className="text-5xl animate-bounce-slow">👑</span>
                 <h2 className="text-3xl sm:text-4xl font-black text-gradient-neon">
-                  Panneau Admin
+                  {t('admin.dashboard')}
                 </h2>
               </div>
               <p className="text-light-700">
-                Gérez vos quiz et lancez des sessions de jeu
+                {t('admin.manageQuizzesSubtitle')}
               </p>
             </div>
             <Button
@@ -47,7 +50,7 @@ export default function AdminDashboard({
                 </svg>
               }
             >
-              Créer un quiz
+              {t('admin.createQuiz')}
             </Button>
           </div>
         </Card>
@@ -57,7 +60,7 @@ export default function AdminDashboard({
           <Card className="p-6 bg-gradient-to-br from-primary-50 to-primary-100 border-2 border-primary-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-primary-600 font-semibold text-sm mb-1">Total Quiz</p>
+                <p className="text-primary-600 font-semibold text-sm mb-1">{t('admin.totalQuizzes')}</p>
                 <p className="text-4xl font-black text-primary-700">{quizzes.length}</p>
               </div>
               <div className="text-5xl opacity-20">📚</div>
@@ -66,7 +69,7 @@ export default function AdminDashboard({
           <Card className="p-6 bg-gradient-to-br from-secondary-50 to-secondary-100 border-2 border-secondary-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-secondary-600 font-semibold text-sm mb-1">Quiz Actifs</p>
+                <p className="text-secondary-600 font-semibold text-sm mb-1">{t('admin.activeQuizzes')}</p>
                 <p className="text-4xl font-black text-secondary-700">
                   {quizzes.filter(q => q.is_active).length}
                 </p>
@@ -77,7 +80,7 @@ export default function AdminDashboard({
           <Card className="p-6 bg-gradient-to-br from-accent-50 to-accent-100 border-2 border-accent-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-accent-700 font-semibold text-sm mb-1">Questions</p>
+                <p className="text-accent-700 font-semibold text-sm mb-1">{t('admin.questions')}</p>
                 <p className="text-4xl font-black text-accent-800">
                   {quizzes.reduce((sum, quiz) => sum + (quiz.question_count || 0), 0)}
                 </p>
@@ -92,13 +95,13 @@ export default function AdminDashboard({
           <Card className="p-12 text-center animate-scale-in">
             <div className="text-6xl mb-4">🎮</div>
             <h3 className="text-2xl font-bold text-dark-800 mb-2">
-              Aucun quiz pour le moment
+              {t('admin.noQuizzesTitle')}
             </h3>
             <p className="text-light-700 mb-6">
-              Créez votre premier quiz pour commencer !
+              {t('admin.noQuizzesDescription')}
             </p>
             <Button variant="primary" size="lg" onClick={handleCreateQuiz}>
-              Créer mon premier quiz
+              {t('admin.createFirstQuiz')}
             </Button>
           </Card>
         ) : (
@@ -118,19 +121,19 @@ export default function AdminDashboard({
                     {quiz.is_active && (
                       <span className="inline-flex items-center gap-1 px-2 py-1 bg-success-100 text-success-700 rounded-lg text-xs font-bold">
                         <span className="w-2 h-2 bg-success-500 rounded-full animate-pulse"></span>
-                        Actif
+                        {t('admin.active')}
                       </span>
                     )}
                   </div>
                   <p className="text-light-700 text-sm line-clamp-2 mb-3">
-                    {quiz.description || 'Aucune description'}
+                    {quiz.description || t('admin.noDescription')}
                   </p>
                   <div className="flex items-center gap-3 text-xs text-light-600">
                     <span className="flex items-center gap-1">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      {quiz.question_count || 0} questions
+                      {quiz.question_count || 0} {quiz.question_count === 1 ? t('quiz.question') : t('quiz.questionsPlural')}
                     </span>
                   </div>
                 </div>
@@ -146,7 +149,7 @@ export default function AdminDashboard({
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
-                      Gérer
+                      {t('admin.manage')}
                     </span>
                   </Button>
                   <Button
@@ -160,7 +163,7 @@ export default function AdminDashboard({
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      Lancer
+                      {t('admin.launch')}
                     </span>
                   </Button>
                 </div>
