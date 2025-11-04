@@ -2,511 +2,402 @@
 sidebar_position: 4
 ---
 
-# Guide des Tests - QuizMaster
+# Testing Guide - QuizMaster
 
-Ce document explique comment exécuter et développer les tests pour l'application QuizMaster.
+This document explains how to run and develop tests for the QuizMaster application.
 
 ## Testing Pyramid
 
-QuizMaster suit le principe de la **pyramide des tests** :
+QuizMaster follows the **testing pyramid** principle:
 
 ```
-        /\
        /  \  E2E Tests (few) - Smoke tests & critical flows
-      /____\
-     /      \
     /  INT   \ Integration Tests (some) - Component interactions
-   /__________\
-  /            \
  /     UNIT     \ Unit Tests (many) - Business logic
-/________________\
 ```
 
-- **Unit Tests** (nombreux) : Logique métier, composants isolés
-- **Integration Tests** (quelques-uns) : Interactions entre composants
-- **E2E Tests** (peu) : Flux critiques utilisateur et smoke tests
+- **Unit Tests** (many): Business logic, isolated components
+- **Integration Tests** (some): Component interactions
+- **E2E Tests** (few): Critical user flows and smoke tests
 
-## Structure des Tests
+## Test Structure
 
 ```
 quiz-app/
 ├── backend/
 │   ├── src/
-│   │   └── domain/          # Tests unitaires domaine (*.spec.ts)
+│   │   ├── **/*.spec.ts    # Unit tests alongside source
+│   │   └── domain/         # Domain unit tests (*.spec.ts)
 │   ├── test/
-│   │   └── app.e2e-spec.ts  # Tests E2E backend
-│   ├── vitest.config.ts     # Configuration Vitest
-│   └── package.json
+│   │   └── app.e2e-spec.ts # Backend E2E tests
+│   ├── vitest.config.ts    # Vitest configuration
+│
 ├── frontend/
 │   ├── src/
-│   │   ├── __tests__/       # Tests composants React
-│   │   ├── domains/
-│   │   │   └── **/__tests__/  # Tests services
-│   │   └── features/
-│   │       └── **/__tests__/  # Tests features
-│   ├── vitest.config.js     # Configuration Vitest
-│   └── package.json
-└── e2e/                     # Tests End-to-End (Playwright)
+│   │   ├── __tests__/      # React component tests
+│   │   │   └── **/__tests__/ # Service tests
+│   │       └── **/__tests__/ # Feature tests
+│   ├── vitest.config.js    # Vitest configuration
+│
+└── e2e/                    # End-to-End Tests (Playwright)
     ├── tests/
-    │   ├── smoke/           # Smoke tests (@smoke)
-    │   └── features/        # Use cases nominaux
+    │   ├── smoke/          # Critical smoke tests
+    │   ├── features/       # Feature flows
+    │   └── admin/          # Admin scenarios
     ├── playwright.config.ts
     └── package.json
 ```
 
-## Backend Tests (Jest)
+## Running Tests
 
-### Installation des dépendances
+### Quick Test Commands
+
+```bash
+# Run ALL tests (backend + frontend + E2E)
+./test.sh
+
+# Backend tests only
+cd backend && npm test
+
+# Frontend tests only  
+cd frontend && npm test
+
+# E2E tests only
+./test-e2e.sh
+
+# Watch mode (development)
+cd backend && npm run test:watch
+cd frontend && npm run test:watch
+```
+
+### Backend Tests (Vitest)
 
 ```bash
 cd backend
-npm install
-```
 
-### Exécuter les tests
-
-```bash
-# Exécuter tous les tests avec couverture
+# Run all tests
 npm test
 
-# Mode watch (re-run automatique)
+# Watch mode
 npm run test:watch
 
-# Exécuter un fichier spécifique
-npx jest __tests__/auth.test.js
+# Coverage
+npm run test:cov
+
+# Run specific test file
+npm test src/domain/user/user.service.spec.ts
+
+# Run tests matching pattern
+npm test -- user
 ```
 
-### Tests disponibles
+**Test Files**:
+- Unit tests: `src/**/*.spec.ts`
+- E2E tests: `test/**/*.e2e-spec.ts`
 
-- **auth.test.js** : Tests des endpoints d'authentification
-  - Inscription utilisateur
-  - Connexion
-  - Validation token
-  - Health check
-
-- **quiz.test.js** : Tests des endpoints de gestion de quiz
-  - CRUD quiz
-  - CRUD questions
-  - Permissions admin
-
-- **websocket.test.js** : Tests des événements WebSocket
-  - Connexion socket
-  - Événements de jeu
-  - Calcul de score
-
-### Couverture de code
-
-Après l'exécution des tests, le rapport de couverture est disponible dans :
-- Console : Affichage résumé
-- HTML : `backend/coverage/lcov-report/index.html`
-
-Ouvrir le rapport HTML :
-```bash
-cd backend
-open coverage/lcov-report/index.html  # macOS
-xdg-open coverage/lcov-report/index.html  # Linux
-```
-
-## Frontend Tests (Vitest)
-
-### Installation des dépendances
+### Frontend Tests (Vitest + React Testing Library)
 
 ```bash
 cd frontend
-npm install
-```
 
-### Exécuter les tests
-
-```bash
-# Exécuter tous les tests avec couverture
+# Run all tests
 npm test
 
-# Mode watch (re-run automatique)
+# Watch mode
 npm run test:watch
 
-# Interface UI interactive
+# Coverage
+npm run test:coverage
+
+# UI mode (interactive)
 npm run test:ui
 ```
 
-### Tests disponibles
+**Test Files**:
+- Component tests: `src/**/__tests__/**/*.test.tsx`
+- Hook tests: `src/**/__tests__/**/*.test.ts`
+- Integration tests: `src/**/__tests__/**/*.integration.test.tsx`
 
-- **App.test.jsx** : Tests des composants React
-  - Navigation entre vues
-  - Formulaires login/register
-  - Interactions utilisateur
-
-- **utils.test.js** : Tests de la logique métier
-  - Calcul de score
-  - Validation PIN
-  - Tri leaderboard
-  - Transitions d'état
-
-### Couverture de code
-
-Rapport de couverture disponible dans :
-- Console : Affichage résumé
-- HTML : `frontend/coverage/index.html`
-
-Ouvrir le rapport HTML :
-```bash
-cd frontend
-open coverage/index.html  # macOS
-xdg-open coverage/index.html  # Linux
-```
-
-## E2E Tests (Playwright)
-
-Les tests E2E utilisent **Playwright v1.48.0** avec TypeScript pour valider les flux critiques de bout en bout.
-
-**Total : 16 tests** (7 smoke tests + 9 cas d'usage nominaux)
-- **Temps d'exécution** : ~2-3 minutes (smoke tests seuls : ~30s)
-- **Framework** : Playwright avec TypeScript
-- **Browser** : Chromium (extensible à Firefox, Safari)
-
-### Quick Start
+### E2E Tests (Playwright)
 
 ```bash
-# 1. Démarrer l'application
-docker compose up -d
+# Run all E2E tests
+./test-e2e.sh
 
-# 2. Installer les dépendances (première fois)
-cd e2e && npm install && npx playwright install chromium
-
-# 3. Exécuter les tests
-./test-e2e.sh          # Tous les tests (avec auto-checks)
-./test-e2e.sh smoke    # Smoke tests uniquement
-
-# Ou manuellement
-cd e2e && npm test                # Tous les tests
-cd e2e && npm run test:smoke      # Smoke tests uniquement
-```
-
-### Tests Disponibles
-
-#### Smoke Tests (@smoke) - 7 tests
-Tests rapides (~30s) pour vérifier la disponibilité de l'application :
-- ✅ Frontend charge sans erreur
-- ✅ Backend `/health` répond
-- ✅ Backend `/health/live` répond
-- ✅ Backend `/health/ready` répond
-- ✅ Interface login/register visible
-- ✅ Navigation de base fonctionne
-- ✅ Pas d'erreurs console critiques
-
-**Usage** : Déploiements, CI pipeline, checks rapides
-
-#### Cas d'Usage Nominaux - 9 tests
-Tests des flux critiques (happy path uniquement) :
-
-**Authentification** (3 tests)
-- Inscription utilisateur
-- Connexion valide
-- Rejet connexion invalide
-
-**Gestion Quiz** (3 tests)
-- Admin crée un quiz
-- Admin ajoute des questions
-- Liste des quiz accessible
-
-**Jeu** (3 tests)
-- Rejoindre avec PIN
-- Affichage du lobby
-- Gestion PIN invalide
-
-### Exécution des Tests
-
-**Options d'exécution** :
-```bash
+# Or manually:
 cd e2e
-npm test              # Tous les tests
-npm run test:smoke    # Smoke tests uniquement (rapide)
-npm run test:ui       # Mode UI interactif
-npm run test:headed   # Voir le navigateur
-npm run test:debug    # Mode debug step-by-step
-npm run report        # Voir le rapport HTML
+npm install
+npx playwright test
+
+# Run specific test
+npx playwright test tests/smoke/homepage.spec.ts
+
+# Debug mode
+npx playwright test --debug
+
+# UI mode
+npx playwright test --ui
+
+# Run specific browser
+npx playwright test --project=chromium
+
+# Headed mode (see browser)
+npx playwright test --headed
 ```
 
-**Avec le script helper** :
-```bash
-./test-e2e.sh         # Tous (auto-checks Docker)
-./test-e2e.sh smoke   # Smoke uniquement
-./test-e2e.sh ui      # Mode UI
-./test-e2e.sh debug   # Mode debug
+## Writing Tests
+
+### Backend Unit Tests (Vitest)
+
+```typescript
+import { describe, it, expect, beforeEach } from 'vitest';
+import { UserService } from './user.service';
+
+describe('UserService', () => {
+  let userService: UserService;
+
+  beforeEach(() => {
+    userService = new UserService();
+  });
+
+  it('should create a user', async () => {
+    const user = await userService.create({
+      username: 'testuser',
+      email: 'test@example.com'
+    });
+
+    expect(user).toBeDefined();
+    expect(user.username).toBe('testuser');
+  });
+
+  it('should validate email format', () => {
+    expect(() => {
+      userService.validateEmail('invalid');
+    }).toThrow('Invalid email');
+  });
+});
 ```
 
-### Debugging
+### Frontend Component Tests
 
-**Voir les résultats** :
-```bash
-cd e2e && npm run report  # Rapport HTML avec traces
+```typescript
+import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { QuizCard } from './QuizCard';
+
+describe('QuizCard', () => {
+  it('should render quiz title', () => {
+    render(<QuizCard title="My Quiz" />);
+    expect(screen.getByText('My Quiz')).toBeInTheDocument();
+  });
+
+  it('should call onStart when clicked', () => {
+    const onStart = vi.fn();
+    render(<QuizCard title="Quiz" onStart={onStart} />);
+    
+    fireEvent.click(screen.getByText('Start'));
+    expect(onStart).toHaveBeenCalled();
+  });
+});
 ```
 
-**Artifacts disponibles** :
-- Screenshots des échecs : `e2e/test-results/*/test-failed-*.png`
-- Vidéos : `e2e/test-results/*/video.webm`
-- Traces : Viewer avec `npx playwright show-trace`
+### E2E Tests (Playwright)
 
-**Debug mode** :
-```bash
-cd e2e && npm run test:debug  # Step-by-step debugging
-```
-
-### Structure des Tests
-
-```
-e2e/
-├── tests/
-│   ├── smoke/
-│   │   └── health.spec.ts       # 7 smoke tests
-│   └── features/
-│       ├── auth.spec.ts         # 3 tests authentification
-│       ├── quiz-management.spec.ts  # 3 tests gestion quiz
-│       └── game-flow.spec.ts    # 3 tests flux de jeu
-├── playwright.config.ts         # Configuration Playwright
-├── tsconfig.json               # Configuration TypeScript
-└── package.json                # Scripts et dépendances
-```
-
-### Principes et Bonnes Pratiques
-
-**Pourquoi peu de tests E2E ?**
-- Tests lents et coûteux (2-3 min vs secondes pour unit tests)
-- Focus sur flux critiques uniquement
-- Edge cases couverts par tests unitaires
-- Respecte la pyramide : beaucoup de unit tests, peu de E2E
-
-**Bonnes pratiques appliquées** :
-- ✅ Tests indépendants (pas d'état partagé)
-- ✅ Noms descriptifs
-- ✅ Waits appropriés (pas de `waitForTimeout` flaky)
-- ✅ Tag `@smoke` pour tests rapides
-- ✅ Happy paths uniquement (nominal use cases)
-
-**À éviter** :
-- ❌ Tester tous les edge cases en E2E
-- ❌ Ajouter des tests E2E inutiles
-- ❌ Partager l'état entre tests
-- ❌ Utiliser `waitForTimeout` (préférer `waitForLoadState`)
-
-### CI/CD Integration
-
-Les tests E2E s'exécutent automatiquement dans GitHub Actions :
-1. Après les tests unitaires (backend + frontend)
-2. Smoke tests d'abord (fast-fail)
-3. Tous les tests E2E
-4. Bloque le déploiement en cas d'échec
-
-**Artifacts uploadés** :
-- Rapports HTML : 30 jours
-- Screenshots/vidéos : 7 jours
-
-### Ajouter de Nouveaux Tests E2E
-
-**1. Identifier le type** :
-- **Smoke test** ? → Rapide (moins de 5s), check basique → `tests/smoke/`
-- **Use case critique** ? → Flux complet utilisateur → `tests/features/`
-
-**2. Créer le test** :
 ```typescript
 import { test, expect } from '@playwright/test';
 
-test.describe('Feature Name', () => {
-  test('should perform critical action @smoke', async ({ page }) => {
-    await page.goto('/');
-    await page.click('button#action');
-    await expect(page.locator('.success')).toBeVisible();
+test.describe('Quiz Flow', () => {
+  test('should create and start quiz', async ({ page }) => {
+    // Login as admin
+    await page.goto('/login');
+    await page.fill('[name="email"]', 'admin@quiz.com');
+    await page.fill('[name="password"]', 'admin123');
+    await page.click('button[type="submit"]');
+
+    // Create quiz
+    await page.click('text=Create Quiz');
+    await page.fill('[name="title"]', 'Test Quiz');
+    await page.click('text=Save');
+
+    // Verify quiz created
+    await expect(page.locator('text=Test Quiz')).toBeVisible();
   });
 });
 ```
 
-**3. Tester** :
-```bash
-cd e2e && npm run test:debug  # Debug le nouveau test
+## Test Configuration
+
+### Vitest Configuration (Backend)
+
+```typescript
+// backend/vitest.config.ts
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    globals: true,
+    environment: 'node',
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+    },
+  },
+});
 ```
 
-### Troubleshooting
+### Vitest Configuration (Frontend)
 
-**Tests échouent immédiatement** :
-```bash
-docker compose ps              # Vérifier les services
-curl http://localhost:3001/health  # Tester le backend
+```typescript
+// frontend/vitest.config.js
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.ts',
+  },
+});
 ```
 
-**Timeouts** :
-- Augmenter timeout dans `playwright.config.ts`
-- Vérifier que les services démarrent bien
+### Playwright Configuration
 
-**Tests flaky** :
-- Utiliser `waitForLoadState('networkidle')`
-- Éviter `waitForTimeout`
-- Vérifier les conditions réseau
+```typescript
+// e2e/playwright.config.ts
+import { defineConfig } from '@playwright/test';
 
-Pour plus de détails, voir `e2e/README.md`
+export default defineConfig({
+  testDir: './tests',
+  timeout: 30000,
+  retries: 2,
+  use: {
+    baseURL: 'http://localhost',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+  },
+  projects: [
+    { name: 'chromium', use: { browserName: 'chromium' } },
+    { name: 'firefox', use: { browserName: 'firefox' } },
+  ],
+});
+```
 
-## Tests dans Docker
+## CI/CD Integration
 
-### Exécuter les tests dans les conteneurs
+### GitHub Actions
+
+```yaml
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Backend Tests
+        run: |
+          cd backend
+          npm install
+          npm test
+
+      - name: Frontend Tests
+        run: |
+          cd frontend
+          npm install
+          npm test
+
+      - name: E2E Tests
+        run: |
+          docker-compose up -d
+          ./test-e2e.sh
+```
+
+## Test Coverage
+
+### Coverage Goals
+
+- **Unit Tests**: 80% coverage minimum
+- **Integration Tests**: Critical paths covered
+- **E2E Tests**: Smoke tests + critical user flows
+
+### View Coverage
 
 ```bash
 # Backend
-docker compose exec backend npm test
+cd backend && npm run test:cov
+# Open: backend/coverage/index.html
 
 # Frontend
-docker compose run --rm frontend npm test
+cd frontend && npm run test:coverage
+# Open: frontend/coverage/index.html
+```
 
-# E2E (nécessite que l'application tourne)
+## Best Practices
+
+### Unit Tests
+- ✅ Test one thing at a time
+- ✅ Use descriptive test names
+- ✅ Follow AAA pattern (Arrange, Act, Assert)
+- ✅ Mock external dependencies
+- ✅ Test edge cases and errors
+
+### Integration Tests
+- ✅ Test real component interactions
+- ✅ Use minimal mocking
+- ✅ Test API integration
+- ✅ Verify database interactions
+
+### E2E Tests
+- ✅ Test critical user journeys
+- ✅ Use page object pattern
+- ✅ Test across browsers
+- ✅ Keep tests independent
+- ✅ Use meaningful assertions
+
+## Troubleshooting
+
+### Tests Fail Locally
+
+```bash
+# Clear cache
+rm -rf node_modules .vite
+npm install
+
+# Reset database
+docker-compose down -v
 docker-compose up -d
-cd e2e && npm test
 ```
 
-## CI/CD - GitHub Actions
+### E2E Tests Timeout
 
-Les tests sont automatiquement exécutés sur GitHub Actions lors de :
-- Push sur `main` ou `develop`
-- Pull requests vers `main`
+```bash
+# Increase timeout in playwright.config.ts
+timeout: 60000, // 60 seconds
 
-### Workflow
-
-1. **test-backend** : Exécute les tests backend avec Jest
-2. **test-frontend** : Exécute les tests frontend avec Vitest
-3. **build-and-test** : Build Docker et health checks (après tests unitaires)
-4. **security-scan** : Scan de sécurité avec Trivy
-5. **publish** : Publish images Docker (uniquement sur main)
-
-### Artifacts
-
-Les rapports de couverture sont uploadés comme artifacts et disponibles pendant 30 jours :
-- `backend-coverage`
-- `frontend-coverage`
-
-Télécharger depuis : Actions → Workflow run → Section "Artifacts"
-
-## Ajouter de nouveaux tests
-
-### Backend (Jest)
-
-Créer un fichier dans `backend/__tests__/` :
-
-```javascript
-const request = require('supertest');
-
-describe('My Test Suite', () => {
-  test('should do something', () => {
-    expect(true).toBe(true);
-  });
+# Or specific test
+test('slow test', async ({ page }) => {
+  test.setTimeout(60000);
+  // ...
 });
 ```
 
-### Frontend (Vitest)
+### Flaky Tests
 
-Créer un fichier dans `frontend/src/__tests__/` :
+- Use `test.retry(2)` for specific tests
+- Add explicit waits: `await page.waitForSelector()`
+- Use `toBeVisible()` instead of `toBeTruthy()`
 
-```javascript
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+## Additional Resources
 
-describe('My Component', () => {
-  it('should render', () => {
-    render(<MyComponent />);
-    expect(screen.getByText('Hello')).toBeInTheDocument();
-  });
-});
-```
-
-## Objectifs de couverture
-
-Les seuils de couverture sont configurés dans :
-- Backend : `jest.config.js` (50% minimum)
-- Frontend : `vitest.config.js` (pas de seuil strict)
-
-## Bonnes pratiques
-
-### Approche TDD (Test-Driven Development)
-
-1. **Écrire les tests avant le code** (Red-Green-Refactor)
-   - 🔴 **Red** : Écrire un test qui échoue
-   - 🟢 **Green** : Écrire le code minimal pour passer le test
-   - 🔵 **Refactor** : Améliorer le code tout en gardant les tests verts
-
-2. **Tester les cas limites** (edge cases)
-   - Valeurs nulles, vides, négatives
-   - Limites min/max
-   - Conditions d'erreur
-
-3. **Mocker les dépendances externes** (DB, API, Socket)
-   - Isoler le code testé
-   - Tests rapides et déterministes
-   - Pas de dépendances sur services externes
-
-4. **Noms descriptifs** pour les tests
-   - `it('should return error when email is invalid')`
-   - `test('calculates score correctly with time bonus')`
-   - Décrire le comportement attendu
-
-5. **Isoler les tests** (pas de dépendances entre tests)
-   - Chaque test doit être indépendant
-   - Setup et teardown appropriés
-   - Ordre d'exécution ne doit pas impacter les résultats
-
-6. **Vérifier la couverture** régulièrement
-   - Objectif : >80% de couverture
-   - Focus sur les chemins critiques
-   - Ne pas sacrifier la qualité pour la quantité
-
-### Clean Testing Principles
-
-- **Tests lisibles** : Arrange-Act-Assert (AAA pattern)
-- **Un concept par test** : Tester une seule chose à la fois
-- **Tests rapides** : Suite de tests exécutable en moins de 30s
-- **Tests maintenables** : Éviter la duplication dans les tests
-- **Tests fiables** : Pas de tests flaky (aléatoires)
-
-## Debugging des tests
-
-### Backend
-
-```bash
-# Activer les logs détaillés
-DEBUG=* npm test
-
-# Exécuter un seul test
-npx jest -t "should register a new user"
-```
-
-### Frontend
-
-```bash
-# Mode debug avec interface
-npm run test:ui
-
-# Voir les logs dans le terminal
-npm run test:watch
-```
-
-## Résolution des problèmes
-
-### Tests backend échouent
-
-- Vérifier que les mocks SQLite sont corrects
-- S'assurer que JWT_SECRET est défini
-- Nettoyer le cache Jest : `npx jest --clearCache`
-
-### Tests frontend échouent
-
-- Vérifier les mocks de socket.io-client
-- S'assurer que jsdom est installé
-- Nettoyer node_modules : `rm -rf node_modules && npm install`
-
-### CI/CD échoue
-
-- Vérifier que package-lock.json est à jour
-- Tester localement avec les mêmes commandes que CI
-- Vérifier les secrets GitHub (JWT_SECRET, etc.)
-
-## Ressources
-
-- [Jest Documentation](https://jestjs.io/)
 - [Vitest Documentation](https://vitest.dev/)
-- [React Testing Library](https://testing-library.com/react)
-- [Supertest Documentation](https://github.com/visionmedia/supertest)
+- [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
+- [Playwright Documentation](https://playwright.dev/)
+- [Testing Best Practices](https://github.com/goldbergyoni/javascript-testing-best-practices)
