@@ -7,7 +7,7 @@ This document provides instructions for AI agents (like GitHub Copilot, Claude, 
 **All detailed information is now centralized in the `/docs` folder via Docusaurus.**
 
 ### For complete technical documentation:
-- **[Architecture](docs/docs/technical/architecture.md)** - Complete technical architecture and system design
+- **[Architecture](docs/docs/technical/architecture/index.md)** - Complete technical architecture and system design
 - **[Design System](docs/docs/technical/design-system.md)** - Cyber Arcade design system guide (colors, typography, components)
 - **[Testing](docs/docs/technical/testing.md)** - Testing setup, running tests, and writing new tests
 - **[Docker Guide](docs/docs/technical/docker-guide.md)** - Docker commands and container management
@@ -40,19 +40,19 @@ When working with this codebase, AI agents should:
 **Deployment**: Docker + Nginx  
 **Authentication**: JWT tokens with bcrypt  
 
-📘 **See [Architecture](docs/docs/technical/architecture.md) for complete details**
+📘 **See [Architecture](docs/docs/technical/architecture/index.md) for complete details**
 
 ## 🚨 Critical Constraints (Agent-Specific)
 
 ### 1. Backend Architecture
 - **Backend**: NestJS with DDD principles (domain, application, infrastructure, presentation layers)
 - **Frontend**: React with Clean Architecture + DDD (organized by domains and features)
-- See [Architecture](docs/docs/technical/architecture.md) for complete details
+- See [Architecture](docs/docs/technical/architecture/index.md) for complete details
 
 ### 2. Database - Prisma ORM
 - Uses Prisma ORM with PostgreSQL
 - Migrations managed by Prisma
-- See [Architecture](docs/docs/technical/architecture.md) for schema details
+- See [Architecture](docs/docs/technical/architecture/index.md) for schema details
 
 ### 3. Styling - Cyber Arcade Design System
 - **Critical**: Follow the Cyber Arcade design system (purple/pink/cyan neon colors)
@@ -72,7 +72,7 @@ When working with this codebase, AI agents should:
 ## 🛠️ Quick Task Patterns
 
 ### When Adding Features
-1. Check [Architecture](docs/docs/technical/architecture.md) for existing patterns
+1. Check [Architecture](docs/docs/technical/architecture/index.md) for existing patterns
 2. Follow DDD principles for backend (domain, application, infrastructure)
 3. Follow Clean Architecture for frontend (domains, features, shared)
 4. Add tests (see [Testing](docs/docs/technical/testing.md))
@@ -146,7 +146,7 @@ docker-compose build frontend --no-cache
 make restart
 ```
 
-See [Architecture](docs/docs/technical/architecture.md) for detailed troubleshooting
+See [Architecture](docs/docs/technical/architecture/index.md) for detailed troubleshooting
 
 ## ⚠️ Critical "DO NOT" List
 
@@ -180,7 +180,7 @@ All documentation is centralized in `/docs` using Docusaurus:
 - [Admin/Host Guide](docs/docs/functional/admin-host-guide.md)
 
 ### Technical Documentation (Developer-Facing)
-- **Architecture & Design**: [Architecture](docs/docs/technical/architecture.md), [Design System](docs/docs/technical/design-system.md)
+- **Architecture & Design**: [Architecture](docs/docs/technical/architecture/index.md), [Design System](docs/docs/technical/design-system.md)
 - **Development**: [Docker](docs/docs/technical/docker-guide.md), [Testing](docs/docs/technical/testing.md), [i18n](docs/docs/technical/i18n.md), [Accessibility](docs/docs/technical/accessibility.md)
 - **Operations**: [Deployment](docs/docs/technical/deployment.md), [Monitoring](docs/docs/technical/monitoring.md), [Security](docs/docs/technical/security.md)
 - **Reference**: [Quick Reference](docs/docs/technical/quick-reference.md)

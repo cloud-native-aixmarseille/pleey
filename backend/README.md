@@ -124,9 +124,11 @@ npm run test:e2e
 
 ## 🔒 Authentication
 
-JWT-based authentication with Passport.js strategy. See [Architecture Documentation](/docs/docs/technical/architecture.md#security) for complete details.
+JWT-based authentication with Passport.js strategy. See [Backend Architecture](/docs/docs/technical/architecture/backend.md#security) for complete details.
 
 ## 📚 API Documentation
+
+For complete API documentation including REST endpoints and WebSocket events, see [Backend Architecture](/docs/docs/technical/architecture/backend.md).
 
 ### Health Check Endpoints
 
@@ -136,34 +138,11 @@ JWT-based authentication with Passport.js strategy. See [Architecture Documentat
 
 See [health check documentation](./src/infrastructure/health/README.md) for details.
 
-### Application Endpoints
-
-- `POST /register` - Register new user
-- `POST /login` - Login and get JWT token
-- `GET /quizzes` - Get all quizzes (protected)
-- `POST /quizzes` - Create a quiz (protected)
-- `GET /quizzes/:id` - Get quiz details (protected)
-- `PUT /quizzes/:id` - Update a quiz (protected)
-- `DELETE /quizzes/:id` - Delete a quiz (protected)
-- `GET /quizzes/:id/questions` - Get questions for a quiz (protected)
-- `POST /quizzes/:id/questions` - Add a question (protected)
-- `PUT /questions/:id` - Update a question (protected)
-- `DELETE /questions/:id` - Delete a question (protected)
-- `POST /sessions` - Create game session (protected)
-- `GET /sessions/:pin` - Get session by PIN (protected)
-
-### WebSocket Events
-
-- `join-game` - Join a game
-- `start-game` - Start the game
-- `submit-answer` - Submit an answer
-- `get-leaderboard` - Get leaderboard
-
-See [Architecture Documentation](/docs/docs/technical/architecture.md) for complete API documentation.
-
 ## 📖 Documentation
 
-- [Architecture Documentation](/docs/docs/technical/architecture.md) - Complete system architecture
+- [Backend Architecture](/docs/docs/technical/architecture/backend.md) - Complete backend architecture
+- [Frontend Architecture](/docs/docs/technical/architecture/frontend.md) - Frontend architecture
+- [Architecture Overview](/docs/docs/technical/architecture/index.md) - System architecture overview
 - [OpenTelemetry Guide](./src/infrastructure/telemetry/README.md) - Observability setup
 - [Prisma Schema](./prisma/schema.prisma) - Database schema
 

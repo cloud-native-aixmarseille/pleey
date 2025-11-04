@@ -39,7 +39,7 @@ The application will be available at:
 **Frontend:** React 18 + Vite + Tailwind CSS  
 **DevOps:** Docker + Nginx + Prometheus + Grafana
 
-📘 **For complete architecture**: See [Architecture](docs/docs/technical/architecture.md)
+📘 **For complete architecture**: See [Architecture](docs/docs/technical/architecture/index.md)
 
 ## 📚 Documentation
 
@@ -50,7 +50,7 @@ Complete documentation is available in the `/docs` folder via Docusaurus.
 - **[Admin & Host Guide](docs/docs/functional/admin-host-guide.md)** - Create and host quizzes
 
 ### 🛠️ For Developers
-- **[Architecture](docs/docs/technical/architecture.md)** - System architecture
+- **[Architecture](docs/docs/technical/architecture/index.md)** - System architecture
 - **[Docker Guide](docs/docs/technical/docker-guide.md)** - Docker usage
 - **[Testing](docs/docs/technical/testing.md)** - Testing guide
 - **[Design System](docs/docs/technical/design-system.md)** - Cyber Arcade design system

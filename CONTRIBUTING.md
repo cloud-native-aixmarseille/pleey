@@ -8,7 +8,7 @@ Thank you for your interest in contributing to QuizMaster! This guide will help 
 
 For complete guides:
 - **[Testing](docs/docs/technical/testing.md)** - Complete testing guide
-- **[Architecture](docs/docs/technical/architecture.md)** - System architecture
+- **[Architecture](docs/docs/technical/architecture/index.md)** - System architecture
 - **[Design System](docs/docs/technical/design-system.md)** - Cyber Arcade design system
 - **[Docker](docs/docs/technical/docker-guide.md)** - Docker guide
 - **[Security](docs/docs/technical/security.md)** - Security
@@ -141,7 +141,7 @@ Format: `MAJOR.MINOR.PATCH` (e.g., 1.2.3)
 - **Frontend**: React with Clean Architecture
 - **Styling**: Tailwind CSS with Cyber Arcade design system
 
-📘 **See** [Architecture](docs/docs/technical/architecture.md) for complete details
+📘 **See** [Architecture](docs/docs/technical/architecture/index.md) for complete details
 
 ### Naming Conventions
 
@@ -253,7 +253,7 @@ Create a GitHub issue with:
 ## 📚 Useful Resources
 
 ### Technical Documentation
-- [Architecture](docs/docs/technical/architecture.md)
+- [Architecture](docs/docs/technical/architecture/index.md)
 - [Design System](docs/docs/technical/design-system.md)
 - [Testing Guide](docs/docs/technical/testing.md)
 - [Docker Guide](docs/docs/technical/docker-guide.md)
