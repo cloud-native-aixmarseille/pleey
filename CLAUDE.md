@@ -2,11 +2,19 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**Note**: This project uses AGENTS.md files for detailed guidance.
+## Primary References
 
-## Primary Reference
+1. **[AGENTS.md](AGENTS.md)** - Main guidance for AI agents working with this codebase
+2. **[/docs](docs/)** - Complete documentation via Docusaurus (functional and technical docs)
 
-Please see `AGENTS.md` in this same directory for the main project documentation and guidance.
+All detailed documentation has been migrated to the `/docs` folder for centralized access.
+
+## Documentation Structure
+
+- **Functional docs**: `/docs/docs/functional/` - User-facing documentation
+- **Technical docs**: `/docs/docs/technical/` - Developer documentation
+
+See AGENTS.md for quick links to specific documentation sections.
 
 ## Additional Component-Specific Guidance
 
@@ -14,12 +22,12 @@ For detailed module-specific implementation guides, also check for AGENTS.md fil
 
 These component-specific AGENTS.md files contain targeted guidance for working with those particular areas of the codebase.
 
-## Updating AGENTS.md Files
+## Updating Documentation
 
 When you discover new information that would be helpful for future development work, please:
 
-- **Update existing AGENTS.md files** when you learn implementation details, debugging insights, or architectural patterns specific to that component
-- **Create new AGENTS.md files** in relevant directories when working with areas that don't yet have documentation
-- **Add valuable insights** such as common pitfalls, debugging techniques, dependency relationships, or implementation patterns
+- **Update existing `/docs` documentation** for general project knowledge
+- **Update AGENTS.md files** for agent-specific guidance and constraints
+- **Add valuable insights** such as common pitfalls, debugging techniques, or implementation patterns
 
 This helps build a comprehensive knowledge base for the codebase over time.
