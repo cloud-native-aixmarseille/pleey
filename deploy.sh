@@ -1,11 +1,12 @@
 #!/bin/bash
 
-# Script de déploiement automatisé pour QuizMaster
+# Automated deployment script for QuizMaster
 # Usage: ./deploy.sh [dev|prod]
+# Updated for Docker Compose V2
 
-set -e  # Arrêter en cas d'erreur
+set -e  # Stop on error
 
-# Couleurs
+# Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -16,14 +17,15 @@ NC='\033[0m' # No Color
 ENVIRONMENT=${1:-dev}
 BACKUP_DIR="./backups"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+COMPOSE_CMD="docker compose"
 
-# Fonctions
+# Functions
 print_step() {
     echo -e "${BLUE}==>${NC} ${GREEN}$1${NC}"
 }
 
 print_error() {
-    echo -e "${RED}❌ Erreur: $1${NC}"
+    echo -e "${RED}❌ Error: $1${NC}"
 }
 
 print_warning() {
@@ -34,157 +36,170 @@ print_success() {
     echo -e "${GREEN}✅ $1${NC}"
 }
 
-# Vérifier Docker
+# Check Docker
 check_docker() {
-    print_step "Vérification de Docker..."
+    print_step "Checking Docker..."
     if ! command -v docker &> /dev/null; then
-        print_error "Docker n'est pas installé"
+        print_error "Docker is not installed"
         exit 1
     fi
     
-    if ! command -v docker-compose &> /dev/null; then
-        print_error "Docker Compose n'est pas installé"
+    # Check for Docker Compose V2
+    if ! docker compose version &> /dev/null; then
+        print_error "Docker Compose V2 is not installed"
+        print_warning "Install Docker Compose V2 or use 'docker-compose'"
         exit 1
     fi
     
-    print_success "Docker OK"
+    print_success "Docker & Docker Compose V2 OK"
 }
 
-# Vérifier les fichiers requis
+# Check required files
 check_files() {
-    print_step "Vérification des fichiers..."
+    print_step "Checking required files..."
     
     if [ ! -f ".env" ]; then
-        print_warning ".env non trouvé, création depuis .env.example"
+        print_warning ".env not found, creating from .env.example"
         cp .env.example .env
-        print_warning "⚠️  N'oubliez pas de modifier JWT_SECRET dans .env !"
-        read -p "Appuyez sur Entrée pour continuer..."
+        print_warning "⚠️  Don't forget to change JWT_SECRET in .env!"
+        read -p "Press Enter to continue..."
     fi
     
-    print_success "Fichiers OK"
+    print_success "Files OK"
 }
 
-# Backup de la base de données
+# Database backup
 backup_database() {
-    print_step "Backup de la base de données..."
+    print_step "Backing up database..."
     
     mkdir -p "$BACKUP_DIR"
     
-    if docker ps | grep -q quiz-backend; then
-        docker-compose exec -T backend cat /app/data/quiz.db > "$BACKUP_DIR/quiz-backup-$TIMESTAMP.db" 2>/dev/null || true
+    if docker ps | grep -q quiz-postgres || docker ps | grep -q quiz-backend; then
+        $COMPOSE_CMD exec -T postgres pg_dump -U ${POSTGRES_USER:-quizapp} ${POSTGRES_DB:-quizdb} > "$BACKUP_DIR/quiz-backup-$TIMESTAMP.sql" 2>/dev/null || true
         
-        if [ -f "$BACKUP_DIR/quiz-backup-$TIMESTAMP.db" ]; then
-            print_success "Backup créé: $BACKUP_DIR/quiz-backup-$TIMESTAMP.db"
+        if [ -f "$BACKUP_DIR/quiz-backup-$TIMESTAMP.sql" ]; then
+            print_success "Backup created: $BACKUP_DIR/quiz-backup-$TIMESTAMP.sql"
         else
-            print_warning "Pas de backup (base vide ou première installation)"
+            print_warning "No backup (empty database or first installation)"
         fi
     else
-        print_warning "Backend non démarré, backup ignoré"
+        print_warning "Database not started, backup skipped"
     fi
 }
 
-# Déploiement en développement
+# Development deployment
 deploy_dev() {
-    print_step "🚀 Déploiement en mode DÉVELOPPEMENT"
+    print_step "🚀 Deploying in DEVELOPMENT mode"
     
-    docker-compose down
-    docker-compose build
-    docker-compose up -d
+    $COMPOSE_CMD down
+    $COMPOSE_CMD build
+    $COMPOSE_CMD up -d
     
-    print_success "Application démarrée en mode développement"
+    print_success "Application started in development mode"
 }
 
-# Déploiement en production
+# Production deployment
 deploy_prod() {
-    print_step "🚀 Déploiement en mode PRODUCTION"
+    print_step "🚀 Deploying in PRODUCTION mode"
     
-    # Vérifier JWT_SECRET
+    # Check JWT_SECRET
     if grep -q "votre_secret_jwt" .env; then
-        print_error "JWT_SECRET n'a pas été modifié dans .env !"
-        print_warning "Générez un secret avec: openssl rand -base64 32"
+        print_error "JWT_SECRET has not been changed in .env!"
+        print_warning "Generate a secret with: openssl rand -base64 32"
         exit 1
     fi
     
-    # Backup avant déploiement
+    # Backup before deployment
     backup_database
     
-    # Arrêter les services
-    docker-compose -f docker-compose.prod.yml down
+    # Stop services
+    $COMPOSE_CMD -f compose.prod.yaml down
     
-    # Build des images
-    print_step "Construction des images..."
-    docker-compose -f docker-compose.prod.yml build --no-cache
+    # Build images
+    print_step "Building images..."
+    DOCKER_BUILDKIT=1 $COMPOSE_CMD -f compose.prod.yaml build --no-cache
     
-    # Démarrage
-    print_step "Démarrage des services..."
-    docker-compose -f docker-compose.prod.yml up -d
+    # Start services
+    print_step "Starting services..."
+    $COMPOSE_CMD -f compose.prod.yaml up -d
     
-    print_success "Application démarrée en mode production"
+    print_success "Application started in production mode"
 }
 
-# Vérifier la santé
+# Check health
 check_health() {
-    print_step "Vérification de l'état de l'application..."
+    print_step "Checking application health..."
     
-    # Attendre que les services démarrent
-    sleep 5
+    # Wait for services to start
+    sleep 10
     
-    # Vérifier backend
-    if curl -sf http://localhost:3001/api/health > /dev/null; then
+    # Check backend
+    if curl -sf http://localhost:3001/health/live > /dev/null; then
         print_success "Backend OK"
     else
-        print_error "Backend non accessible"
-        docker-compose logs backend
+        print_error "Backend not accessible"
+        $COMPOSE_CMD logs backend
         exit 1
     fi
     
-    # Vérifier frontend
-    if curl -sf http://localhost > /dev/null; then
+    # Check frontend (dev mode on port 5173, prod on port 80)
+    if [ "$ENVIRONMENT" = "dev" ]; then
+        FRONTEND_URL="http://localhost:5173"
+    else
+        FRONTEND_URL="http://localhost"
+    fi
+    
+    if curl -sf $FRONTEND_URL > /dev/null; then
         print_success "Frontend OK"
     else
-        print_error "Frontend non accessible"
-        docker-compose logs frontend
+        print_error "Frontend not accessible"
+        $COMPOSE_CMD logs frontend
         exit 1
     fi
 }
 
-# Afficher les informations
+# Display information
 display_info() {
     echo ""
     echo -e "${GREEN}════════════════════════════════════════${NC}"
-    echo -e "${GREEN}✅ Déploiement terminé avec succès !${NC}"
+    echo -e "${GREEN}✅ Deployment completed successfully!${NC}"
     echo -e "${GREEN}════════════════════════════════════════${NC}"
     echo ""
     echo -e "🌐 URLs:"
-    echo -e "   Frontend: ${YELLOW}http://localhost${NC}"
-    echo -e "   Backend:  ${YELLOW}http://localhost:3001${NC}"
+    if [ "$ENVIRONMENT" = "dev" ]; then
+        echo -e "   Frontend: ${YELLOW}http://localhost:5173${NC}"
+        echo -e "   Backend:  ${YELLOW}http://localhost:3001${NC}"
+    else
+        echo -e "   Frontend: ${YELLOW}http://localhost${NC}"
+        echo -e "   Backend:  ${YELLOW}http://localhost:3001${NC}"
+    fi
     echo ""
-    echo -e "👤 Compte admin par défaut:"
+    echo -e "👤 Default admin account:"
     echo -e "   Email:    ${YELLOW}admin@quiz.com${NC}"
     echo -e "   Password: ${YELLOW}admin123${NC}"
     echo ""
-    echo -e "📊 Commandes utiles:"
-    echo -e "   make logs        - Voir les logs"
-    echo -e "   make ps          - Status des conteneurs"
-    echo -e "   make backup      - Sauvegarder la DB"
-    echo -e "   make restart     - Redémarrer"
+    echo -e "📊 Useful commands:"
+    echo -e "   make logs        - View logs"
+    echo -e "   make ps          - Container status"
+    echo -e "   make backup      - Backup database"
+    echo -e "   make restart     - Restart services"
     echo ""
     
     if [ "$ENVIRONMENT" = "prod" ]; then
-        echo -e "${YELLOW}⚠️  En production, pensez à:${NC}"
-        echo -e "   - Configurer SSL/HTTPS"
-        echo -e "   - Changer le mot de passe admin"
-        echo -e "   - Mettre en place des sauvegardes automatiques"
-        echo -e "   - Configurer un pare-feu"
+        echo -e "${YELLOW}⚠️  In production, remember to:${NC}"
+        echo -e "   - Configure SSL/HTTPS"
+        echo -e "   - Change admin password"
+        echo -e "   - Set up automatic backups"
+        echo -e "   - Configure firewall"
         echo ""
     fi
 }
 
-# Fonction principale
+# Main function
 main() {
     echo -e "${BLUE}"
     echo "╔═══════════════════════════════════════╗"
-    echo "║     QuizMaster - Déploiement         ║"
+    echo "║     QuizMaster - Deployment          ║"
     echo "╚═══════════════════════════════════════╝"
     echo -e "${NC}"
     
@@ -199,7 +214,7 @@ main() {
             deploy_prod
             ;;
         *)
-            print_error "Environnement invalide: $ENVIRONMENT"
+            print_error "Invalid environment: $ENVIRONMENT"
             echo "Usage: $0 [dev|prod]"
             exit 1
             ;;
@@ -209,8 +224,8 @@ main() {
     display_info
 }
 
-# Gestion des erreurs
-trap 'print_error "Déploiement échoué"; exit 1' ERR
+# Error handling
+trap 'print_error "Deployment failed"; exit 1' ERR
 
-# Exécution
+# Execute
 main

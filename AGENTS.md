@@ -35,7 +35,7 @@ When working with this codebase, AI agents should:
 
 ### Quick Architecture Reference
 
-**Project Type**: Interactive quiz application (Kahoot-style)  
+**Project Type**: Interactive quiz application  
 **Stack**: NestJS + Prisma + PostgreSQL (backend) | React 18 + Vite + Tailwind (frontend)  
 **Deployment**: Docker + Nginx  
 **Authentication**: JWT tokens with bcrypt  

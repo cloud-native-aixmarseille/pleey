@@ -23,14 +23,14 @@ echo -e "${BLUE}║   QuizMaster E2E Tests Runner        ║${NC}"
 echo -e "${BLUE}╚═══════════════════════════════════════╝${NC}"
 echo ""
 
-# Check if docker-compose is running
+# Check if docker compose is running
 check_docker_running() {
     echo -e "${BLUE}[1/3]${NC} Checking Docker containers..."
     
     if ! docker ps | grep -q quiz-backend || ! docker ps | grep -q quiz-frontend; then
         echo -e "${YELLOW}⚠ Warning: Containers not running${NC}"
-        echo -e "${YELLOW}Starting docker-compose...${NC}"
-        docker-compose up -d
+        echo -e "${YELLOW}Starting docker compose...${NC}"
+        docker compose up -d
         echo -e "${GREEN}✓ Containers started${NC}"
         sleep 5
     else
@@ -56,7 +56,7 @@ wait_for_backend() {
     
     echo ""
     echo -e "${RED}✗ Backend did not become ready in time${NC}"
-    echo -e "${YELLOW}Check logs: docker-compose logs backend${NC}"
+    echo -e "${YELLOW}Check logs: docker compose logs backend${NC}"
     exit 1
 }
 
@@ -78,7 +78,7 @@ wait_for_frontend() {
     
     echo ""
     echo -e "${RED}✗ Frontend did not become ready in time${NC}"
-    echo -e "${YELLOW}Check logs: docker-compose logs frontend${NC}"
+    echo -e "${YELLOW}Check logs: docker compose logs frontend${NC}"
     exit 1
 }
 

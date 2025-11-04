@@ -1,6 +1,10 @@
 # Makefile for QuizMaster
+# Using Docker Compose V2
 
 .PHONY: help build up down restart logs clean backup restore seed docs
+
+# Docker Compose command (V2)
+COMPOSE := docker compose
 
 # Colors for display
 GREEN=\033[0;32m
@@ -18,47 +22,47 @@ setup: ## Initial setup (first installation)
 
 build: ## Build Docker images
 	@echo "$(GREEN)Building images...$(NC)"
-	docker-compose build
+	$(COMPOSE) build
 
 up: ## Start the application
 	@echo "$(GREEN)Starting application...$(NC)"
-	docker-compose up -d	
+	$(COMPOSE) up -d	
 	@echo "$(GREEN)✓ Application started$(NC)"
 	@echo "Frontend: http://localhost:5173"
 	@echo "Backend: http://localhost:3001"
 
 down: ## Stop the application
 	@echo "$(YELLOW)Stopping application...$(NC)"
-	docker-compose down
+	$(COMPOSE) down
 	@echo "$(GREEN)✓ Application stopped$(NC)"
 
 restart: ## Restart the application
 	@echo "$(YELLOW)Restarting...$(NC)"
-	docker-compose restart
+	$(COMPOSE) restart
 	@echo "$(GREEN)✓ Application restarted$(NC)"
 
 logs: ## Display logs in real-time
-	docker-compose logs -f
+	$(COMPOSE) logs -f
 
 logs-backend: ## Backend logs only
-	docker-compose logs -f backend
+	$(COMPOSE) logs -f backend
 
 logs-frontend: ## Frontend logs only
-	docker-compose logs -f frontend
+	$(COMPOSE) logs -f frontend
 
 seed: ## Populate database with Prisma fixtures
 	@echo "$(GREEN)Running Prisma seed...$(NC)"
-	docker-compose exec -T backend npx prisma db seed
+	$(COMPOSE) exec -T backend npx prisma db seed
 	@echo "$(GREEN)✓ Fixtures inserted$(NC)"
 
 ps: ## Display container status
-	docker-compose ps
+	$(COMPOSE) ps
 
 rebuild: down build up ## Rebuild and restart
 
 clean: ## Clean (without deleting data)
 	@echo "$(YELLOW)Cleaning...$(NC)"
-	docker-compose down
+	$(COMPOSE) down
 	docker system prune -f
 	@echo "$(GREEN)✓ Cleaning completed$(NC)"
 
@@ -67,7 +71,7 @@ clean-all: ## Clean everything (including data volumes)
 	@read -p "Are you sure? [y/N] " -n 1 -r; \
 	echo; \
 	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
-		docker-compose down -v; \
+		$(COMPOSE) down -v; \
 		rm -rf backend/data; \
 		echo "$(GREEN)✓ Everything deleted$(NC)"; \
 	fi
@@ -75,28 +79,28 @@ clean-all: ## Clean everything (including data volumes)
 backup: ## Backup the database
 	@echo "$(GREEN)Creating backup...$(NC)"
 	@mkdir -p backups
-	@docker-compose exec -T backend cat /app/data/quiz.db > backups/quiz-backup-$$(date +%Y%m%d-%H%M%S).db
+	@$(COMPOSE) exec -T postgres pg_dump -U ${POSTGRES_USER:-quizapp} ${POSTGRES_DB:-quizdb} > backups/quiz-backup-$$(date +%Y%m%d-%H%M%S).sql
 	@echo "$(GREEN)✓ Backup created in backups/$(NC)"
 
 restore: ## Restore the latest backup
 	@echo "$(YELLOW)Restoring latest backup...$(NC)"
-	@LATEST=$$(ls -t backups/quiz-backup-*.db 2>/dev/null | head -1); \
+	@LATEST=$$(ls -t backups/quiz-backup-*.sql 2>/dev/null | head -1); \
 	if [ -z "$$LATEST" ]; then \
 		echo "$(YELLOW)No backup found$(NC)"; \
 		exit 1; \
 	fi; \
-	docker cp $$LATEST quiz-backend:/app/data/quiz.db && \
-	docker-compose restart backend && \
+	$(COMPOSE) exec -T postgres psql -U ${POSTGRES_USER:-quizapp} -d ${POSTGRES_DB:-quizdb} < $$LATEST && \
+	$(COMPOSE) restart backend && \
 	echo "$(GREEN)✓ Backup restored: $$LATEST$(NC)"
 
 shell-backend: ## Access backend shell
-	docker-compose exec backend sh
+	$(COMPOSE) exec backend sh
 
 shell-frontend: ## Access frontend shell
-	docker-compose exec frontend sh
+	$(COMPOSE) exec frontend sh
 
-db: ## Access SQLite database
-	docker-compose exec backend sh -c "cd data && sqlite3 quiz.db"
+db: ## Access PostgreSQL database
+	$(COMPOSE) exec postgres psql -U ${POSTGRES_USER:-quizapp} -d ${POSTGRES_DB:-quizdb}
 
 health: ## Check application health
 	@echo "$(GREEN)Checking status...$(NC)"
@@ -119,7 +123,7 @@ install: setup build up ## Complete installation (first time)
 	@echo "$(YELLOW)⚠️  Don't forget to change JWT_SECRET in .env !$(NC)"
 
 dev: ## Development mode (real-time logs)
-	docker-compose up
+	$(COMPOSE) up
 
 prod: build up ## Production deployment
 	@echo "$(GREEN)✓ Deployed to production$(NC)"
@@ -132,16 +136,16 @@ update: ## Update the application
 
 monitoring-up: ## Start with monitoring
 	@echo "$(GREEN)Starting with monitoring...$(NC)"
-	docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d
+	$(COMPOSE) -f compose.yaml -f compose.monitoring.yaml up -d
 	@echo "$(GREEN)✓ Monitoring enabled$(NC)"
 	@echo "Grafana: http://localhost:3000 (admin/admin123)"
 	@echo "Prometheus: http://localhost:9090"
 
 monitoring-down: ## Stop monitoring
-	docker-compose -f docker-compose.monitoring.yml down
+	$(COMPOSE) -f compose.monitoring.yaml down
 
 monitoring-logs: ## Monitoring logs
-	docker-compose -f docker-compose.monitoring.yml logs -f
+	$(COMPOSE) -f compose.monitoring.yaml logs -f
 
 grafana: ## Open Grafana
 	@echo "$(GREEN)Opening Grafana...$(NC)"

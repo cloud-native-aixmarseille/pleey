@@ -24,7 +24,7 @@ make up
 ```
 
 The application will be available at:
-- Frontend: http://localhost
+- Frontend: http://localhost:5173
 - Backend: http://localhost:3001
 
 **Default admin account:**
@@ -37,7 +37,7 @@ The application will be available at:
 
 **Backend:** NestJS + Prisma ORM + PostgreSQL + Socket.io + JWT  
 **Frontend:** React 18 + Vite + Tailwind CSS  
-**DevOps:** Docker + Nginx + Prometheus + Grafana
+**DevOps:** Docker Compose V2 + Nginx + Prometheus + Grafana
 
 📘 **For complete architecture**: See [Architecture](docs/docs/technical/architecture/index.md)
 

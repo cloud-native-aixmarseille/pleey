@@ -57,28 +57,28 @@ make docs              # Open documentation (Docusaurus)
 
 ```bash
 # Start
-docker-compose up -d
+docker compose up -d
 
 # Stop
-docker-compose down
+docker compose down
 
 # Restart
-docker-compose restart
+docker compose restart
 
 # View logs
-docker-compose logs -f
-docker-compose logs -f backend
-docker-compose logs -f frontend
+docker compose logs -f
+docker compose logs -f backend
+docker compose logs -f frontend
 
 # Status
-docker-compose ps
+docker compose ps
 
 # Real-time stats
 docker stats
 
 # Rebuild
-docker-compose build --no-cache
-docker-compose up -d --force-recreate
+docker compose build --no-cache
+docker compose up -d --force-recreate
 ```
 
 ### Debug
@@ -89,7 +89,7 @@ docker exec -it quiz-backend sh
 docker exec -it quiz-frontend sh
 
 # View processes
-docker-compose top
+docker compose top
 
 # Inspect a container
 docker inspect quiz-backend
@@ -149,9 +149,9 @@ quiz-app/
 │   ├── loki-config.yml
 │   └── promtail-config.yml
 │
-├── docker-compose.yml         # Dev composition
-├── docker-compose.prod.yml    # Production composition
-├── docker-compose.monitoring.yml
+├── compose.yaml         # Dev composition
+├── compose.prod.yaml    # Production composition
+├── compose.monitoring.yaml
 ├── .env.example               # Environment variables
 ├── Makefile                   # Simplified commands
 ├── deploy.sh                  # Deployment script
@@ -208,14 +208,14 @@ openssl rand -base64 32
 
 ### Development
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 ### Production
 ```bash
 ./deploy.sh prod
 # or
-docker-compose -f docker-compose.prod.yml up -d
+docker compose -f compose.prod.yaml up -d
 ```
 
 ### With SSL
@@ -232,20 +232,20 @@ docker-compose -f docker-compose.prod.yml up -d
 ```bash
 make backup
 # or
-docker-compose exec db pg_dump -U quizuser quizdb > backup-$(date +%Y%m%d).sql
+docker compose exec db pg_dump -U quizuser quizdb > backup-$(date +%Y%m%d).sql
 ```
 
 ### Automatic backup (cron)
 ```bash
 # Add to crontab
-0 3 * * * cd /path/to/quiz-app && docker-compose exec db pg_dump -U quizuser quizdb > /path/to/backups/quiz-$(date +\%Y\%m\%d).sql 2>&1
+0 3 * * * cd /path/to/quiz-app && docker compose exec db pg_dump -U quizuser quizdb > /path/to/backups/quiz-$(date +\%Y\%m\%d).sql 2>&1
 ```
 
 ### Restore
 ```bash
 make restore
 # or
-docker-compose exec -T db psql -U quizuser -d quizdb < backup.sql
+docker compose exec -T db psql -U quizuser -d quizdb < backup.sql
 ```
 
 ---
@@ -259,16 +259,16 @@ docker-compose exec -T db psql -U quizuser -d quizdb < backup.sql
 make logs
 
 # Backend only
-docker-compose logs -f backend
+docker compose logs -f backend
 
 # Errors only
-docker-compose logs | grep -i error
+docker compose logs | grep -i error
 
 # Last 100 lines
-docker-compose logs --tail=100
+docker compose logs --tail=100
 
 # From a date
-docker-compose logs --since="2024-01-01T00:00:00"
+docker compose logs --since="2024-01-01T00:00:00"
 ```
 
 ### Check health
@@ -278,7 +278,7 @@ docker-compose logs --since="2024-01-01T00:00:00"
 curl http://localhost:3001/health
 
 # Container status
-docker-compose ps
+docker compose ps
 
 # Resource usage
 docker stats
@@ -294,7 +294,7 @@ make health
 make db
 
 # Or manually
-docker-compose exec db psql -U quizuser -d quizdb
+docker compose exec db psql -U quizuser -d quizdb
 
 # PostgreSQL commands
 \dt                              # List tables
@@ -312,11 +312,11 @@ SELECT COUNT(*) FROM quizzes;    # Count
 
 ```bash
 # Check logs
-docker-compose logs backend
+docker compose logs backend
 
 # Recreate container
-docker-compose down
-docker-compose up -d
+docker compose down
+docker compose up -d
 
 # Check permissions
 docker exec quiz-backend ls -la /app/data
@@ -326,11 +326,11 @@ docker exec quiz-backend ls -la /app/data
 
 ```bash
 # Check Nginx
-docker-compose logs frontend
+docker compose logs frontend
 
 # Rebuild
-docker-compose build frontend --no-cache
-docker-compose up -d frontend
+docker compose build frontend --no-cache
+docker compose up -d frontend
 ```
 
 ### WebSocket not working
@@ -356,7 +356,7 @@ sudo lsof -i :80
 # Stop the process
 sudo kill -9 <PID>
 
-# Or change port in docker-compose.yml
+# Or change port in compose.yaml
 ```
 
 ### Corrupted database
@@ -366,8 +366,8 @@ sudo kill -9 <PID>
 make restore
 
 # Or recreate
-docker-compose down -v
-docker-compose up -d
+docker compose down -v
+docker compose up -d
 ```
 
 ### Insufficient memory
@@ -379,7 +379,7 @@ docker system prune -a
 # See usage
 docker stats
 
-# Limit resources in docker-compose.yml
+# Limit resources in compose.yaml
 deploy:
   resources:
     limits:
@@ -447,8 +447,8 @@ make update
 # Or manual
 make backup
 git pull
-docker-compose build --no-cache
-docker-compose up -d
+docker compose build --no-cache
+docker compose up -d
 ```
 
 ---
@@ -480,19 +480,19 @@ docker-compose up -d
 ```bash
 # Docker version
 docker --version
-docker-compose --version
+docker compose --version
 
 # Operating system
 uname -a
 
 # Logs
-docker-compose logs --tail=100
+docker compose logs --tail=100
 
 # Configuration
-cat docker-compose.yml
+cat compose.yaml
 
 # Status
-docker-compose ps
+docker compose ps
 ```
 
 ---
@@ -504,11 +504,11 @@ docker-compose ps
 Add to `~/.bashrc` or `~/.zshrc`:
 
 ```bash
-alias dcu='docker-compose up -d'
-alias dcd='docker-compose down'
-alias dcl='docker-compose logs -f'
-alias dcp='docker-compose ps'
-alias dcr='docker-compose restart'
+alias dcu='docker compose up -d'
+alias dcd='docker compose down'
+alias dcl='docker compose logs -f'
+alias dcp='docker compose ps'
+alias dcr='docker compose restart'
 alias qm='cd /path/to/quiz-app'
 ```
 
@@ -516,7 +516,7 @@ alias qm='cd /path/to/quiz-app'
 
 ```bash
 # Follow errors in real-time
-watch -n 1 'docker-compose logs --tail=20 | grep -i error'
+watch -n 1 'docker compose logs --tail=20 | grep -i error'
 ```
 
 ### Quick backup before changes

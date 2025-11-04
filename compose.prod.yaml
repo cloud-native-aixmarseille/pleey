@@ -1,9 +1,51 @@
+# Docker Compose V2 - Production Configuration
+# Optimized with BuildKit and multi-stage builds
+
 services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: quiz-postgres-prod
+    restart: always
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - quiz-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.5"
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   # Backend Node.js - Configuration Production
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      target: production
+      cache_from:
+        - type=registry,ref=ghcr.io/quiz-app/backend:latest
+        - type=registry,ref=ghcr.io/quiz-app/backend:cache
+      args:
+        - BUILDKIT_INLINE_CACHE=1
+        - NODE_ENV=production
     container_name: quiz-backend-prod
     restart: always
     ports:
@@ -12,9 +54,11 @@ services:
       - NODE_ENV=production
       - PORT=3001
       - JWT_SECRET=${JWT_SECRET}
-    volumes:
-      - quiz-data:/app/data
-      - backend-logs:/app/logs
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - quiz-network
     deploy:
@@ -48,7 +92,12 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      target: production
+      cache_from:
+        - type=registry,ref=ghcr.io/quiz-app/frontend:latest
+        - type=registry,ref=ghcr.io/quiz-app/frontend:cache
       args:
+        - BUILDKIT_INLINE_CACHE=1
         - NODE_ENV=production
     container_name: quiz-frontend-prod
     restart: always
@@ -60,8 +109,7 @@ services:
     networks:
       - quiz-network
     volumes:
-      - ./nginx/ssl:/etc/nginx/ssl:ro # Certificats SSL
-      - frontend-logs:/var/log/nginx
+      - ./nginx/ssl:/etc/nginx/ssl:ro # Certificats SSL (if exists)
     deploy:
       resources:
         limits:
@@ -96,14 +144,26 @@ services:
     networks:
       - quiz-network
 
+  # OpenTelemetry Collector
+  otel-collector:
+    image: otel/opentelemetry-collector:0.105.0
+    container_name: quiz-otel-collector-prod
+    restart: always
+    volumes:
+      - ./docker/otel-collector/config.yaml:/etc/otelcol/config.yaml
+    networks:
+      - quiz-network
+    healthcheck:
+      test: ["CMD", "/otelcol", "validate", "--config=/etc/otelcol/config.yaml"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
 networks:
   quiz-network:
     driver: bridge
 
 volumes:
-  quiz-data:
-    driver: local
-  backend-logs:
-    driver: local
-  frontend-logs:
+  postgres-data:
     driver: local

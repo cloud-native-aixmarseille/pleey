@@ -1,11 +1,12 @@
 #!/bin/bash
 
-# Script d'installation automatique QuizMaster
+# QuizMaster Automatic Installation Script
 # Usage: curl -fsSL https://raw.githubusercontent.com/OWNER/quiz-app/main/install.sh | bash
+# Updated for Docker Compose V2
 
 set -e
 
-# Couleurs
+# Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -19,17 +20,16 @@ REPO_URL="https://github.com/OWNER/quiz-app.git"
 INSTALL_DIR="$HOME/quiz-app"
 MIN_DOCKER_VERSION="20.10"
 MIN_COMPOSE_VERSION="2.0"
+COMPOSE_CMD="docker compose"
 
-# Fonctions d'affichage
+# Display Functions
 print_banner() {
     echo -e "${PURPLE}"
-    echo "╔═══════════════════════════════════════════════════════════╗"
-    echo "║                                                           ║"
-    echo "║              🎮 QuizMaster Installation 🎮                ║"
-    echo "║                                                           ║"
-    echo "║         Application de Quiz Interactive type Kahoot      ║"
-    echo "║                                                           ║"
-    echo "╚═══════════════════════════════════════════════════════════╝"
+    echo "╔══════════════════════════════════════════════════════════╗"
+    echo "║                                                          ║"
+    echo "║              Interactive Quiz Application                ║"
+    echo "║                                                          ║"
+    echo "╚══════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
 }
 
@@ -53,37 +53,37 @@ print_info() {
     echo -e "${CYAN}ℹ${NC}  $1"
 }
 
-# Vérifier les prérequis
+# Check prerequisites
 check_os() {
-    print_step "Vérification du système d'exploitation..."
+    print_step "Checking operating system..."
     
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        print_success "Linux détecté"
+        print_success "Linux detected"
     elif [[ "$OSTYPE" == "darwin"* ]]; then
-        print_success "macOS détecté"
+        print_success "macOS detected"
     else
-        print_warning "OS non testé : $OSTYPE"
+        print_warning "Untested OS : $OSTYPE"
     fi
 }
 
 check_docker() {
-    print_step "Vérification de Docker..."
+    print_step "Checking Docker..."
     
     if ! command -v docker &> /dev/null; then
-        print_error "Docker n'est pas installé"
+        print_error "Docker is not installed"
         echo ""
-        echo "Installation de Docker..."
+        echo "Installing Docker..."
         
         if [[ "$OSTYPE" == "linux-gnu"* ]]; then
             curl -fsSL https://get.docker.com -o get-docker.sh
             sudo sh get-docker.sh
             sudo usermod -aG docker $USER
             rm get-docker.sh
-            print_success "Docker installé"
-            print_warning "Vous devez vous déconnecter/reconnecter pour utiliser Docker sans sudo"
-            read -p "Appuyez sur Entrée pour continuer..."
+            print_success "Docker installed"
+            print_warning "You must log out/log in to use Docker without sudo"
+            read -p "Press Enter to continue..."
         else
-            print_error "Veuillez installer Docker Desktop manuellement"
+            print_error "Please install Docker Desktop manually"
             print_info "https://docs.docker.com/get-docker/"
             exit 1
         fi
@@ -94,39 +94,39 @@ check_docker() {
 }
 
 check_docker_compose() {
-    print_step "Vérification de Docker Compose..."
+    print_step "Checking Docker Compose V2..."
     
-    if ! command -v docker-compose &> /dev/null; then
-        print_error "Docker Compose n'est pas installé"
+    if ! docker compose version &> /dev/null; then
+        print_error "Docker Compose V2 is not installed"
         
         if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-            echo "Installation de Docker Compose..."
+            echo "Installing Docker Compose V2..."
             sudo apt-get update
-            sudo apt-get install -y docker-compose-plugin
-            print_success "Docker Compose installé"
+            sudo apt-get install -y $COMPOSE_CMD-plugin
+            print_success "Docker Compose V2 installed"
         else
-            print_error "Veuillez installer Docker Compose manuellement"
+            print_error "Please install Docker Compose V2 manually"
             exit 1
         fi
     else
-        COMPOSE_VERSION=$(docker-compose --version | awk '{print $4}')
+        COMPOSE_VERSION=$(docker compose version --short)
         print_success "Docker Compose $COMPOSE_VERSION installé"
     fi
 }
 
 check_git() {
-    print_step "Vérification de Git..."
+    print_step "Checking Git..."
     
     if ! command -v git &> /dev/null; then
-        print_error "Git n'est pas installé"
+        print_error "Git is not installed"
         
         if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-            echo "Installation de Git..."
+            echo "Installing Git..."
             sudo apt-get update
             sudo apt-get install -y git
-            print_success "Git installé"
+            print_success "Git installed"
         else
-            print_error "Veuillez installer Git manuellement"
+            print_error "Please install Git manually"
             exit 1
         fi
     else
@@ -157,7 +157,7 @@ clone_repository() {
 }
 
 configure_environment() {
-    print_step "Configuration de l'environnement..."
+    print_step "Configuring environment..."
     
     if [ ! -f ".env" ]; then
         cp .env.example .env
@@ -172,7 +172,7 @@ configure_environment() {
             print_warning "Veuillez modifier JWT_SECRET dans .env"
         fi
         
-        print_success "Fichier .env créé"
+        print_success ".env file created"
     else
         print_info ".env existe déjà"
     fi
@@ -185,8 +185,8 @@ build_and_start() {
     print_info "Cela peut prendre quelques minutes..."
     echo ""
     
-    docker-compose build
-    docker-compose up -d
+    $COMPOSE_CMD build
+    $COMPOSE_CMD up -d
     
     print_success "Application démarrée"
 }
@@ -218,7 +218,7 @@ wait_for_services() {
 display_info() {
     echo ""
     echo -e "${GREEN}════════════════════════════════════════════════════════════${NC}"
-    echo -e "${GREEN}           ✅ Installation terminée avec succès ! ✅          ${NC}"
+    echo -e "${GREEN}           ✅ Installation completed successfully ! ✅          ${NC}"
     echo -e "${GREEN}════════════════════════════════════════════════════════════${NC}"
     echo ""
     echo -e "${CYAN}🌐 Accès à l'application:${NC}"
@@ -233,13 +233,13 @@ display_info() {
     echo -e "${CYAN}📂 Répertoire d'installation:${NC}"
     echo -e "   ${YELLOW}$INSTALL_DIR${NC}"
     echo ""
-    echo -e "${CYAN}🛠️  Commandes utiles:${NC}"
+    echo -e "${CYAN}🛠️  Useful commands:${NC}"
     echo -e "   ${YELLOW}cd $INSTALL_DIR${NC}             - Aller au répertoire"
     echo -e "   ${YELLOW}make help${NC}                   - Liste des commandes"
-    echo -e "   ${YELLOW}make logs${NC}                   - Voir les logs"
-    echo -e "   ${YELLOW}make restart${NC}                - Redémarrer"
+    echo -e "   ${YELLOW}make logs${NC}                   - View logs"
+    echo -e "   ${YELLOW}make restart${NC}                - Restart"
     echo -e "   ${YELLOW}make backup${NC}                 - Sauvegarder la DB"
-    echo -e "   ${YELLOW}docker-compose down${NC}         - Arrêter l'application"
+    echo -e "   ${YELLOW}$COMPOSE_CMD down${NC}         - Stop application"
     echo ""
     echo -e "${CYAN}📚 Documentation:${NC}"
     echo -e "   ${YELLOW}cat README.md${NC}               - Guide complet"
@@ -293,7 +293,7 @@ show_menu() {
 }
 
 install_with_monitoring() {
-    docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d
+    $COMPOSE_CMD -f $COMPOSE_CMD.yml -f $COMPOSE_CMD.monitoring.yml up -d
     print_success "Application démarrée avec monitoring"
     echo ""
     print_info "Grafana: http://localhost:3000"
@@ -311,7 +311,7 @@ install_with_ssl() {
     ./setup-ssl.sh "$DOMAIN" "$EMAIL"
     
     print_step "Démarrage en mode production..."
-    docker-compose -f docker-compose.prod.yml up -d
+    $COMPOSE_CMD -f $COMPOSE_CMD.prod.yml up -d
     
     print_success "Application démarrée avec SSL"
     echo ""
@@ -341,11 +341,11 @@ main() {
             build_and_start
             ;;
         monitoring)
-            docker-compose build
+            $COMPOSE_CMD build
             install_with_monitoring
             ;;
         ssl)
-            docker-compose -f docker-compose.prod.yml build
+            $COMPOSE_CMD -f $COMPOSE_CMD.prod.yml build
             install_with_ssl
             ;;
     esac

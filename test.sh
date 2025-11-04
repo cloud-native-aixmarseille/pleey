@@ -243,7 +243,7 @@ test_cors_headers() {
 test_logs_for_errors() {
     print_test "Recent logs for errors"
     
-    ERROR_COUNT=$(docker-compose logs --tail=100 2>&1 | grep -i error | grep -v "error.log" | wc -l)
+    ERROR_COUNT=$(docker compose logs --tail=100 2>&1 | grep -i error | grep -v "error.log" | wc -l)
     
     if [ "$ERROR_COUNT" -eq 0 ]; then
         print_pass "No errors in recent logs"
@@ -333,7 +333,7 @@ main() {
 # Vérifier que l'application est lancée
 if ! curl -s "$BACKEND_URL/api/health" > /dev/null 2>&1; then
     echo -e "${RED}Error: Application not running${NC}"
-    echo "Please start the application first: docker-compose up -d"
+    echo "Please start the application first: docker compose up -d"
     exit 1
 fi
 

@@ -1,5 +1,5 @@
-# Configuration complète avec monitoring (Optionnel)
-# Usage: docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d
+# Docker Compose V2 - Monitoring Stack (Optional)
+# Usage: docker compose -f compose.yaml -f compose.monitoring.yaml up -d
 
 services:
   # Prometheus - Collecte des métriques
@@ -114,4 +114,5 @@ volumes:
 
 networks:
   quiz-network:
+    name: quiz-app_quiz-network
     external: true

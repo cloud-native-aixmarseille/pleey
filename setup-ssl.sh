@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Script de configuration SSL avec Let's Encrypt
+# SSL Configuration Script with Let's Encrypt
 # Usage: ./setup-ssl.sh your-domain.com your-email@example.com
 
 set -e
 
-# Couleurs
+# Colors
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
@@ -16,17 +16,17 @@ print_step() {
 }
 
 print_error() {
-    echo -e "${RED}❌ Erreur: $1${NC}"
+    echo -e "${RED}❌ Error: $1${NC}"
 }
 
 print_warning() {
     echo -e "${YELLOW}⚠️  $1${NC}"
 }
 
-# Vérifier les arguments
+# Check arguments
 if [ $# -lt 2 ]; then
     echo "Usage: $0 <domain> <email>"
-    echo "Exemple: $0 quiz.example.com admin@example.com"
+    echo "Example: $0 quiz.example.com admin@example.com"
     exit 1
 fi
 
@@ -35,22 +35,22 @@ EMAIL=$2
 SSL_DIR="./nginx/ssl"
 CERTBOT_DIR="./certbot"
 
-print_step "Configuration SSL pour $DOMAIN"
+print_step "SSL configuration for $DOMAIN"
 
-# Créer les répertoires
+# Create directories
 mkdir -p "$SSL_DIR"
 mkdir -p "$CERTBOT_DIR/conf"
 mkdir -p "$CERTBOT_DIR/www"
 
 # Vérifier que le domaine pointe vers ce serveur
-print_step "Vérification DNS..."
+print_step "Checking DNS..."
 SERVER_IP=$(curl -s http://icanhazip.com)
 DOMAIN_IP=$(dig +short $DOMAIN | tail -n1)
 
 if [ "$SERVER_IP" != "$DOMAIN_IP" ]; then
-    print_warning "Le domaine $DOMAIN ne pointe pas vers ce serveur ($SERVER_IP)"
-    print_warning "IP du domaine: $DOMAIN_IP"
-    print_warning "Continuez uniquement si vous êtes sûr"
+    print_warning "The domain $DOMAIN does not point to this server ($SERVER_IP)"
+    print_warning "Domain IP: $DOMAIN_IP"
+    print_warning "Continue only if you are sure"
     read -p "Continuer? [y/N] " -n 1 -r
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
@@ -58,8 +58,8 @@ if [ "$SERVER_IP" != "$DOMAIN_IP" ]; then
     fi
 fi
 
-# Créer un docker-compose temporaire pour Certbot
-cat > docker-compose.certbot.yml << EOF
+# Create temporary docker compose for Certbot
+cat > docker compose.certbot.yml << EOF
 version: '3.8'
 
 services:
@@ -81,7 +81,7 @@ services:
       - ./nginx-temp.conf:/etc/nginx/conf.d/default.conf
 EOF
 
-# Créer une config Nginx temporaire pour le challenge ACME
+# Create temporary Nginx config for ACME challenge
 cat > nginx-temp.conf << EOF
 server {
     listen 80;
@@ -98,66 +98,66 @@ server {
 }
 EOF
 
-print_step "Arrêt des services existants..."
-docker-compose down 2>/dev/null || true
+print_step "Stopping existing services..."
+docker compose down 2>/dev/null || true
 
-print_step "Démarrage du serveur temporaire pour le challenge ACME..."
-docker-compose -f docker-compose.certbot.yml up -d nginx-temp
+print_step "Starting temporary server for ACME challenge..."
+docker compose -f docker compose.certbot.yml up -d nginx-temp
 sleep 3
 
-print_step "Obtention des certificats SSL..."
-docker-compose -f docker-compose.certbot.yml run --rm certbot
+print_step "Obtaining SSL certificates..."
+docker compose -f docker compose.certbot.yml run --rm certbot
 
-# Vérifier que les certificats ont été créés
+# Check that certificates were created
 if [ ! -f "./certbot/conf/live/$DOMAIN/fullchain.pem" ]; then
-    print_error "Échec de l'obtention des certificats"
-    docker-compose -f docker-compose.certbot.yml down
+    print_error "Failed to obtain certificates"
+    docker compose -f docker compose.certbot.yml down
     exit 1
 fi
 
-print_step "Certificats obtenus avec succès!"
+print_step "Certificates obtained successfully!"
 
-# Copier les certificats dans le dossier SSL
+# Copy certificates to SSL folder
 cp "./certbot/conf/live/$DOMAIN/fullchain.pem" "$SSL_DIR/"
 cp "./certbot/conf/live/$DOMAIN/privkey.pem" "$SSL_DIR/"
 
-# Arrêter le serveur temporaire
-docker-compose -f docker-compose.certbot.yml down
+# Stop temporary server
+docker compose -f docker compose.certbot.yml down
 
 # Mettre à jour la configuration Nginx
 print_step "Mise à jour de la configuration Nginx..."
 sed -i "s/your-domain.com/$DOMAIN/g" frontend/nginx.prod.conf
 
 # Créer un cron job pour le renouvellement automatique
-print_step "Configuration du renouvellement automatique..."
+print_step "Configuring automatic renewal..."
 
 cat > renew-ssl.sh << 'EOF'
 #!/bin/bash
-docker-compose -f docker-compose.certbot.yml run --rm certbot renew
-docker-compose restart frontend
+docker compose -f docker compose.certbot.yml run --rm certbot renew
+docker compose restart frontend
 EOF
 
 chmod +x renew-ssl.sh
 
-# Ajouter au crontab (renouvellement tous les jours à 2h du matin)
+# Add to crontab (renewal every day at 2am)
 CRON_JOB="0 2 * * * cd $(pwd) && ./renew-ssl.sh >> /var/log/certbot-renew.log 2>&1"
 (crontab -l 2>/dev/null | grep -v "renew-ssl.sh"; echo "$CRON_JOB") | crontab -
 
-print_step "Nettoyage..."
-rm -f nginx-temp.conf docker-compose.certbot.yml
+print_step "Cleaning up..."
+rm -f nginx-temp.conf docker compose.certbot.yml
 
 echo ""
 echo -e "${GREEN}════════════════════════════════════════${NC}"
-echo -e "${GREEN}✅ SSL configuré avec succès !${NC}"
+echo -e "${GREEN}✅ SSL configured successfully!${NC}"
 echo -e "${GREEN}════════════════════════════════════════${NC}"
 echo ""
-echo -e "📁 Certificats:"
+echo -e "📁 Certificates:"
 echo -e "   $SSL_DIR/fullchain.pem"
 echo -e "   $SSL_DIR/privkey.pem"
 echo ""
-echo -e "🔄 Renouvellement automatique configuré (cron)"
+echo -e "🔄 Automatic renewal configured (cron)"
 echo ""
-echo -e "🚀 Prochaines étapes:"
-echo -e "   1. Démarrer l'application: ${YELLOW}./deploy.sh prod${NC}"
-echo -e "   2. Tester HTTPS: ${YELLOW}https://$DOMAIN${NC}"
+echo -e "🚀 Next steps:"
+echo -e "   1. Start application: ${YELLOW}./deploy.sh prod${NC}"
+echo -e "   2. Test HTTPS: ${YELLOW}https://$DOMAIN${NC}"
 echo ""
