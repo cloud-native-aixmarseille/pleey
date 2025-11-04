@@ -19,11 +19,11 @@
     "seed": "node prisma/seed.js",
     "db:migrate": "prisma migrate deploy",
     "db:seed": "npm run db:migrate && npm run seed",
-    "test": "vitest",
-    "test:watch": "vitest --watch",
-    "test:cov": "vitest --coverage",
-    "test:ui": "vitest --ui",
-    "test:e2e": "vitest --config ./test/vitest.config.e2e.ts"
+    "test": "npx vitest run",
+    "test:watch": "npx vitest --watch",
+    "test:cov": "npx vitest --coverage",
+    "test:ui": "npx vitest --ui",
+    "test:e2e": "npx vitest --config ./test/vitest.config.e2e.ts"
   },
   "dependencies": {
     "@apollo/server": "^5.0.0",

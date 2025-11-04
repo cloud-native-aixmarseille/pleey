@@ -40,10 +40,28 @@ make up         # Start the application
 make down       # Stop the application
 make logs       # View real-time logs
 make seed       # Populate database with sample data
+make test       # Run all tests (backend + frontend + e2e)
 make help       # See all available commands
 ```
 
 > **Note**: All development is managed through `make` commands. See [Quick Reference](docs/docs/technical/quick-reference.md) for complete command list.
+
+### Testing Commands
+
+```bash
+make test              # Run all tests
+make test-backend      # Backend tests only
+make test-frontend     # Frontend tests only
+make test-e2e          # E2E tests only
+make test-watch        # Watch mode (interactive)
+make test-cov          # Coverage reports
+
+# Or use the quick script
+./test-quick.sh        # Run all tests
+./test-quick.sh watch  # Watch mode
+```
+
+📋 **See [TEST-QUICK-REF.md](TEST-QUICK-REF.md) for complete test reference**
 
 📘 **For more details**: See [Quick Start Guide](docs/docs/functional/quickstart.md)
 

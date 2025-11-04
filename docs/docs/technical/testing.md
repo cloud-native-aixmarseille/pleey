@@ -6,6 +6,54 @@ sidebar_position: 4
 
 This document explains how to run and develop tests for the QuizMaster application.
 
+## Quick Start
+
+### Run All Tests (Easiest Way)
+
+```bash
+# Using Makefile (recommended)
+make test              # Run all tests (backend + frontend + e2e)
+make test-backend      # Run backend tests only
+make test-frontend     # Run frontend tests only
+make test-e2e          # Run E2E tests only
+
+# Using quick script
+./test-quick.sh        # Run all tests
+./test-quick.sh backend     # Backend only
+./test-quick.sh frontend    # Frontend only
+./test-quick.sh e2e         # E2E only
+```
+
+### Watch Mode (Development)
+
+```bash
+# Interactive selection
+make test-watch
+
+# Or directly
+make test-backend-watch    # Backend watch mode
+make test-frontend-watch   # Frontend watch mode
+```
+
+### Coverage Reports
+
+```bash
+make test-cov              # Both backend + frontend coverage
+make test-backend-cov      # Backend coverage only
+make test-frontend-cov     # Frontend coverage only
+
+# View reports
+open backend/coverage/index.html
+open frontend/coverage/index.html
+```
+
+### Test UI (Interactive)
+
+```bash
+make test-ui               # Interactive selection
+make test-e2e-ui          # Playwright UI mode
+```
+
 ## Testing Pyramid
 
 QuizMaster follows the **testing pyramid** principle:
@@ -47,6 +95,47 @@ quiz-app/
     ├── playwright.config.ts
     └── package.json
 ```
+
+## Available Make Commands
+
+### Core Test Commands
+
+| Command | Description |
+|---------|-------------|
+| `make test` | Run all tests (backend + frontend + e2e) |
+| `make test-backend` | Run backend unit tests |
+| `make test-frontend` | Run frontend unit tests |
+| `make test-e2e` | Run end-to-end tests |
+| `make test-e2e-smoke` | Run smoke tests only |
+
+### Watch Mode
+
+| Command | Description |
+|---------|-------------|
+| `make test-watch` | Interactive watch mode selection |
+| `make test-backend-watch` | Backend tests in watch mode |
+| `make test-frontend-watch` | Frontend tests in watch mode |
+
+### Coverage
+
+| Command | Description |
+|---------|-------------|
+| `make test-cov` | Coverage for backend + frontend |
+| `make test-backend-cov` | Backend coverage only |
+| `make test-frontend-cov` | Frontend coverage only |
+
+### UI Mode
+
+| Command | Description |
+|---------|-------------|
+| `make test-ui` | Interactive UI mode selection |
+| `make test-e2e-ui` | Playwright UI mode |
+
+### Setup
+
+| Command | Description |
+|---------|-------------|
+| `make test-install` | Install all test dependencies |
 
 ## Running Tests
 

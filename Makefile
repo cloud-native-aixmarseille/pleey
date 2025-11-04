@@ -1,7 +1,7 @@
 # Makefile for QuizMaster
 # Using Docker Compose V2
 
-.PHONY: help build up down restart logs clean backup restore seed docs
+.PHONY: help build up down restart logs clean backup restore seed docs test test-backend test-frontend test-e2e test-all test-watch test-cov
 
 # Docker Compose command (V2)
 COMPOSE := docker compose
@@ -168,3 +168,146 @@ docs: ## Open documentation (Docusaurus)
 		cd docs && npm install; \
 	fi
 	@cd docs && npm run start
+
+# ==========================================
+# Testing Commands
+# ==========================================
+
+test: ## Run all tests (backend + frontend + e2e)
+	@echo "$(GREEN)Running all tests...$(NC)"
+	@echo "$(YELLOW)Note: Ensure containers are running (make up) or install dependencies locally$(NC)"
+	@FAILED=0; \
+	$(MAKE) test-backend || FAILED=$$((FAILED + 1)); \
+	$(MAKE) test-frontend || FAILED=$$((FAILED + 1)); \
+	$(MAKE) test-e2e || FAILED=$$((FAILED + 1)); \
+	if [ $$FAILED -eq 0 ]; then \
+		echo "$(GREEN)✓ All tests completed successfully!$(NC)"; \
+	else \
+		echo "$(RED)✗ $$FAILED test suite(s) failed$(NC)"; \
+		exit 1; \
+	fi
+
+test-backend: ## Run backend unit tests
+	@echo "$(GREEN)Running backend tests...$(NC)"
+	@if [ -d "backend/node_modules/.bin/vitest" ]; then \
+		cd backend && npm test; \
+	elif docker compose ps backend | grep -q "Up"; then \
+		docker compose exec -T backend npm test; \
+	else \
+		echo "$(RED)Error: Backend container not running and local dependencies not found$(NC)"; \
+		echo "$(YELLOW)Run 'make up' to start containers, or 'cd backend && npm install' for local testing$(NC)"; \
+		exit 1; \
+	fi
+	@echo "$(GREEN)✓ Backend tests completed$(NC)"
+
+test-frontend: ## Run frontend unit tests
+	@echo "$(GREEN)Running frontend tests...$(NC)"
+	@if [ -d "frontend/node_modules/.bin/vitest" ]; then \
+		cd frontend && npm test; \
+	elif docker compose ps frontend | grep -q "Up"; then \
+		docker compose exec -T frontend npm test; \
+	else \
+		echo "$(RED)Error: Frontend container not running and local dependencies not found$(NC)"; \
+		echo "$(YELLOW)Run 'make up' to start containers, or 'cd frontend && npm install' for local testing$(NC)"; \
+		exit 1; \
+	fi
+	@echo "$(GREEN)✓ Frontend tests completed$(NC)"
+
+test-e2e: ## Run end-to-end tests
+	@echo "$(GREEN)Running E2E tests...$(NC)"
+	@if [ -d "e2e/node_modules" ]; then \
+		cd e2e && npm test; \
+	else \
+		echo "$(YELLOW)Installing E2E dependencies...$(NC)"; \
+		cd e2e && npm install && npm test; \
+	fi
+	@echo "$(GREEN)✓ E2E tests completed$(NC)"
+
+test-e2e-ui: ## Run E2E tests in UI mode
+	@echo "$(GREEN)Opening Playwright UI...$(NC)"
+	@cd e2e && npm run test:ui
+
+test-e2e-smoke: ## Run smoke tests only
+	@echo "$(GREEN)Running smoke tests...$(NC)"
+	@cd e2e && npm run test:smoke
+	@echo "$(GREEN)✓ Smoke tests completed$(NC)"
+
+test-watch: ## Run tests in watch mode (backend + frontend)
+	@echo "$(GREEN)Which tests to watch?$(NC)"
+	@echo "  1) Backend"
+	@echo "  2) Frontend"
+	@read -p "Choose [1-2]: " choice; \
+	case $$choice in \
+		1) $(MAKE) test-backend-watch ;; \
+		2) $(MAKE) test-frontend-watch ;; \
+		*) echo "$(YELLOW)Invalid choice$(NC)" ;; \
+	esac
+
+test-backend-watch: ## Run backend tests in watch mode
+	@echo "$(GREEN)Starting backend tests in watch mode...$(NC)"
+	@if [ -d "backend/node_modules" ]; then \
+		cd backend && npm run test:watch; \
+	else \
+		$(COMPOSE) exec backend npm run test:watch; \
+	fi
+
+test-frontend-watch: ## Run frontend tests in watch mode
+	@echo "$(GREEN)Starting frontend tests in watch mode...$(NC)"
+	@if [ -d "frontend/node_modules" ]; then \
+		cd frontend && npm run test:watch; \
+	else \
+		$(COMPOSE) exec frontend npm run test:watch; \
+	fi
+
+test-cov: ## Run tests with coverage (backend + frontend)
+	@echo "$(GREEN)Running tests with coverage...$(NC)"
+	@echo "$(YELLOW)Backend coverage:$(NC)"
+	@if [ -d "backend/node_modules" ]; then \
+		cd backend && npm run test:cov; \
+	else \
+		$(COMPOSE) exec -T backend npm run test:cov; \
+	fi
+	@echo ""
+	@echo "$(YELLOW)Frontend coverage:$(NC)"
+	@if [ -d "frontend/node_modules" ]; then \
+		cd frontend && npm run test:cov; \
+	else \
+		$(COMPOSE) exec -T frontend npm run test:cov; \
+	fi
+	@echo "$(GREEN)✓ Coverage reports generated$(NC)"
+
+test-backend-cov: ## Run backend tests with coverage
+	@echo "$(GREEN)Running backend tests with coverage...$(NC)"
+	@if [ -d "backend/node_modules" ]; then \
+		cd backend && npm run test:cov; \
+	else \
+		$(COMPOSE) exec -T backend npm run test:cov; \
+	fi
+	@echo "$(GREEN)✓ Backend coverage report: backend/coverage/index.html$(NC)"
+
+test-frontend-cov: ## Run frontend tests with coverage
+	@echo "$(GREEN)Running frontend tests with coverage...$(NC)"
+	@if [ -d "frontend/node_modules" ]; then \
+		cd frontend && npm run test:cov; \
+	else \
+		$(COMPOSE) exec -T frontend npm run test:cov; \
+	fi
+	@echo "$(GREEN)✓ Frontend coverage report: frontend/coverage/index.html$(NC)"
+
+test-ui: ## Run tests with UI (backend or frontend)
+	@echo "$(GREEN)Which tests UI to open?$(NC)"
+	@echo "  1) Backend"
+	@echo "  2) Frontend"
+	@read -p "Choose [1-2]: " choice; \
+	case $$choice in \
+		1) cd backend && npm run test:ui ;; \
+		2) cd frontend && npm run test:ui ;; \
+		*) echo "$(YELLOW)Invalid choice$(NC)" ;; \
+	esac
+
+test-install: ## Install test dependencies for all projects
+	@echo "$(GREEN)Installing test dependencies...$(NC)"
+	@cd backend && npm install
+	@cd frontend && npm install
+	@cd e2e && npm install
+	@echo "$(GREEN)✓ Test dependencies installed$(NC)"
