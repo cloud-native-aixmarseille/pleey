@@ -52,6 +52,7 @@ const sidebars: SidebarsConfig = {
       label: '📖 Reference',
       items: [
         'technical/quick-reference',
+        'technical/documentation-guide',
       ],
     },
   ],

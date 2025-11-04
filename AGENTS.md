@@ -17,6 +17,7 @@ This document provides instructions for AI agents (like GitHub Copilot, Claude, 
 - **[Quick Reference](docs/docs/technical/quick-reference.md)** - Command cheat sheet
 - **[i18n](docs/docs/technical/i18n.md)** - Internationalization guide
 - **[Accessibility](docs/docs/technical/accessibility.md)** - Accessibility guide
+- **[Documentation Guide](docs/docs/technical/documentation-guide.md)** - How to write and maintain documentation
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** - Code standards and contribution guidelines
 
 ## 🎯 Agent-Specific Guidelines

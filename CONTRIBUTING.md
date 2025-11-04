@@ -12,6 +12,7 @@ For complete guides:
 - **[Design System](docs/docs/technical/design-system.md)** - Cyber Arcade design system
 - **[Docker](docs/docs/technical/docker-guide.md)** - Docker guide
 - **[Security](docs/docs/technical/security.md)** - Security
+- **[Documentation Guide](docs/docs/technical/documentation-guide.md)** - How to write and maintain docs
 
 ## 🤝 Code of Conduct
 
@@ -24,7 +25,7 @@ For complete guides:
 
 1. **Bug Fixes** 🐛
 2. **New Features** ✨
-3. **Documentation** 📚
+3. **Documentation** 📚 - See [Documentation Guide](docs/docs/technical/documentation-guide.md)
 4. **Tests** 🧪
 5. **Optimizations** ⚡
 6. **Translations** 🌍
@@ -258,6 +259,7 @@ Create a GitHub issue with:
 - [Docker Guide](docs/docs/technical/docker-guide.md)
 - [Deployment](docs/docs/technical/deployment.md)
 - [Security](docs/docs/technical/security.md)
+- [Documentation Guide](docs/docs/technical/documentation-guide.md)
 
 ### For AI Agents
 - [AGENTS.md](AGENTS.md) - Instructions for AI agents
