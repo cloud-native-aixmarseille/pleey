@@ -7,7 +7,7 @@ sidebar_position: 2
 ## 🚀 One-Line Installation
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/OWNER/quiz-app/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/cloud-native-aixmarseille/quiz-app/main/install.sh | bash
 ```
 
 ## 📋 OR Manual Installation in 3 Commands
