@@ -1,6 +1,6 @@
 # QuizMaster Backend (NestJS)
 
-Modern, refactored backend for the QuizMaster quiz application, built with NestJS, Prisma, and following Clean Architecture, Domain-Driven Design (DDD), and Test-Driven Development (TDD) principles.
+Modern backend for the QuizMaster quiz application, built with NestJS, Prisma, and PostgreSQL, following Clean Architecture, Domain-Driven Design (DDD), and best practices.
 
 ## 📚 Documentation
 
@@ -10,7 +10,6 @@ Modern, refactored backend for the QuizMaster quiz application, built with NestJ
 - **[Docker Guide](/docs/docs/technical/docker-guide.md)** - Docker setup and commands
 
 **Backend-specific documentation:**
-- [ARCHITECTURE.md](./ARCHITECTURE.md) - Backend architecture details
 - [Health Checks](./src/infrastructure/health/README.md) - Health monitoring
 - [OpenTelemetry](./src/infrastructure/telemetry/README.md) - Observability
 
@@ -125,7 +124,7 @@ npm run test:e2e
 
 ## 🔒 Authentication
 
-JWT-based authentication. See [ARCHITECTURE.md](./ARCHITECTURE.md) for API examples.
+JWT-based authentication with Passport.js strategy. See [Architecture Documentation](/docs/docs/technical/architecture.md#security) for complete details.
 
 ## 📚 API Documentation
 
@@ -139,11 +138,19 @@ See [health check documentation](./src/infrastructure/health/README.md) for deta
 
 ### Application Endpoints
 
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - Login and get JWT token
-- `GET /api/quizzes` - Get all quizzes (protected)
-- `POST /api/quizzes` - Create a quiz (protected)
-- `POST /api/sessions/create` - Create game session (protected)
+- `POST /register` - Register new user
+- `POST /login` - Login and get JWT token
+- `GET /quizzes` - Get all quizzes (protected)
+- `POST /quizzes` - Create a quiz (protected)
+- `GET /quizzes/:id` - Get quiz details (protected)
+- `PUT /quizzes/:id` - Update a quiz (protected)
+- `DELETE /quizzes/:id` - Delete a quiz (protected)
+- `GET /quizzes/:id/questions` - Get questions for a quiz (protected)
+- `POST /quizzes/:id/questions` - Add a question (protected)
+- `PUT /questions/:id` - Update a question (protected)
+- `DELETE /questions/:id` - Delete a question (protected)
+- `POST /sessions` - Create game session (protected)
+- `GET /sessions/:pin` - Get session by PIN (protected)
 
 ### WebSocket Events
 
@@ -152,11 +159,11 @@ See [health check documentation](./src/infrastructure/health/README.md) for deta
 - `submit-answer` - Submit an answer
 - `get-leaderboard` - Get leaderboard
 
-See [ARCHITECTURE.md](./ARCHITECTURE.md) for complete API documentation.
+See [Architecture Documentation](/docs/docs/technical/architecture.md) for complete API documentation.
 
 ## 📖 Documentation
 
-- [ARCHITECTURE.md](./ARCHITECTURE.md) - Detailed architecture documentation
+- [Architecture Documentation](/docs/docs/technical/architecture.md) - Complete system architecture
 - [OpenTelemetry Guide](./src/infrastructure/telemetry/README.md) - Observability setup
 - [Prisma Schema](./prisma/schema.prisma) - Database schema
 

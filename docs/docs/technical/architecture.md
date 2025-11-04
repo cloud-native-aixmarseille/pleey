@@ -21,8 +21,10 @@ This application follows modern, maintainable architectural principles:
 - **React 18**: Modern UI framework with hooks and concurrent features
 - **Vite**: Fast, modern build tool (replacement for Webpack/CRA)
 - **Tailwind CSS**: Utility-first CSS framework, maintainable and performant
-- **Express.js**: Minimalist, flexible web framework
-- **Socket.io**: Mature, well-maintained WebSocket library
+- **NestJS**: Progressive Node.js framework for building efficient, scalable server-side applications
+- **Prisma**: Next-generation ORM for type-safe database access
+- **PostgreSQL**: Powerful, open-source relational database
+- **Socket.io**: Real-time bidirectional event-based communication via NestJS WebSocket Gateways
 - **Docker**: Containerization for consistent deployment
 - **CNCF-ready**: Architecture compatible with Kubernetes, Prometheus, OpenTelemetry
 
@@ -30,9 +32,9 @@ This application follows modern, maintainable architectural principles:
 The current architecture can evolve toward:
 - **Microservices**: Split services (auth, quiz, game, leaderboard)
 - **Kubernetes**: Orchestration and automatic scaling
-- **PostgreSQL**: Migrate from SQLite for high concurrency
 - **Redis**: Distributed cache and session store
 - **Message queue**: RabbitMQ/Kafka for asynchronous events
+- **GraphQL**: Optional migration to GraphQL API for more flexible data fetching
 
 ## 📐 Overview
 
@@ -54,17 +56,17 @@ The current architecture can evolve toward:
       │                     │
       ↓                     ↓
 ┌─────────────┐      ┌──────────────────┐
-│   React     │      │   Node.js/Express│
-│   Frontend  │◄────►│     Backend      │
-│             │ WS   │                  │
-│  - UI/UX    │      │  - REST API      │
-│  - Socket.io│      │  - WebSocket     │
-│  - State    │      │  - JWT auth      │
+│   React     │      │  NestJS Backend  │
+│   Frontend  │◄────►│                  │
+│             │ WS   │  - REST API      │
+│  - UI/UX    │      │  - WebSockets    │
+│  - Socket.io│      │  - JWT auth      │
+│  - State    │      │  - Prisma ORM    │
 └─────────────┘      └────────┬─────────┘
                               │
                               ↓
                      ┌────────────────┐
-                     │  SQLite DB     │
+                     │ PostgreSQL DB  │
                      │                │
                      │  - users       │
                      │  - quizzes     │
@@ -130,38 +132,70 @@ User Action → State Update → API Call/WebSocket → Backend
             UI Update ← Backend Response
 ```
 
-### 2. Backend (Node.js + Express)
+### 2. Backend (NestJS + Prisma)
 
 **Technologies:**
-- Express.js
-- Socket.io
-- SQLite3
+- NestJS (Progressive Node.js framework)
+- Prisma ORM (Type-safe database access)
+- PostgreSQL (Relational database)
+- Socket.io (WebSockets via NestJS Gateways)
 - JWT (jsonwebtoken)
 - bcrypt
+
+**Architecture:**
+- **Domain-Driven Design (DDD)**: Business logic organized by domains
+- **Clean Architecture**: Separation of concerns (domain, application, infrastructure, presentation)
+- **Use Cases**: Application logic encapsulated in use cases
+- **Repositories**: Data access abstracted via repository pattern with Prisma
 
 **Structure:**
 ```
 backend/
-├── server.js             # Main server
+├── src/
+│   ├── domain/              # Core business logic (entities, value objects)
+│   │   ├── auth/            # Authentication domain
+│   │   ├── quiz/            # Quiz management domain
+│   │   └── game/            # Game play domain
+│   ├── application/         # Use cases and DTOs
+│   │   ├── auth/            # Auth use cases
+│   │   ├── quiz/            # Quiz use cases
+│   │   └── game/            # Game use cases
+│   ├── infrastructure/      # External implementations
+│   │   ├── database/        # Prisma repositories
+│   │   ├── auth/            # Auth controllers
+│   │   ├── quiz/            # Quiz controllers
+│   │   ├── game/            # Game controllers & gateway
+│   │   ├── health/          # Health check endpoints
+│   │   └── telemetry/       # OpenTelemetry observability
+│   └── main.ts              # Application entry point
+├── prisma/
+│   ├── schema.prisma        # Database schema
+│   ├── migrations/          # Database migrations
+│   └── seed.ts              # Database seeding
 ├── package.json
-└── data/
-    └── quiz.db          # Database
+└── test/                    # E2E tests
 ```
 
 **REST API endpoints:**
 
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| POST | `/api/register` | Registration | ✗ |
-| POST | `/api/login` | Login | ✗ |
-| GET | `/api/health` | Health check | ✗ |
-| GET | `/api/quizzes` | List quizzes | ✓ |
-| POST | `/api/quizzes` | Create a quiz | ✓ |
-| DELETE | `/api/quizzes/:id` | Delete a quiz | ✓ |
-| GET | `/api/quizzes/:id/questions` | Questions of a quiz | ✓ |
-| POST | `/api/questions` | Add a question | ✓ |
-| DELETE | `/api/questions/:id` | Delete a question | ✓ |
-| POST | `/api/sessions/create` | Create a game session | ✓ |
+| POST | `/register` | Registration | ✗ |
+| POST | `/login` | Login | ✗ |
+| GET | `/health` | Health check | ✗ |
+| GET | `/health/ready` | Readiness probe | ✗ |
+| GET | `/health/live` | Liveness probe | ✗ |
+| GET | `/quizzes` | List quizzes | ✓ |
+| POST | `/quizzes` | Create a quiz | ✓ |
+| GET | `/quizzes/:id` | Get quiz details | ✓ |
+| PUT | `/quizzes/:id` | Update a quiz | ✓ |
+| DELETE | `/quizzes/:id` | Delete a quiz | ✓ |
+| GET | `/quizzes/:id/questions` | Questions of a quiz | ✓ |
+| POST | `/quizzes/:id/questions` | Add a question | ✓ |
+| PUT | `/questions/:id` | Update a question | ✓ |
+| DELETE | `/questions/:id` | Delete a question | ✓ |
+| POST | `/sessions` | Create a game session | ✓ |
+| GET | `/sessions/:pin` | Get session by PIN | ✓ |
 
 **WebSocket events:**
 
@@ -177,79 +211,91 @@ backend/
 | `game-ended` | Server → Clients | Game ended |
 | `player-left` | Server → Clients | Player disconnected |
 
-### 3. Database (SQLite)
+### 3. Database (PostgreSQL + Prisma)
 
-**Schema:**
+**Schema (Prisma):**
 
-```sql
+Prisma manages the database schema and migrations. The schema is defined in `backend/prisma/schema.prisma`.
+
+**Key Models:**
+
+```
 ┌─────────────────────┐
-│       users         │
+│       User          │
 ├─────────────────────┤
 │ id (PK)            │
 │ username           │
 │ email              │
 │ password (hash)    │
-│ is_admin           │
-│ created_at         │
+│ isAdmin            │
+│ createdAt          │
 └─────────────────────┘
          │
          │ 1:N
          ↓
 ┌─────────────────────┐
-│      quizzes        │
+│       Quiz          │
 ├─────────────────────┤
 │ id (PK)            │
 │ title              │
 │ description        │
-│ created_by (FK)    │
-│ created_at         │
+│ createdById (FK)   │
+│ createdAt          │
 └─────────────────────┘
          │
          │ 1:N
          ↓
 ┌─────────────────────┐
-│     questions       │
+│     Question        │
 ├─────────────────────┤
 │ id (PK)            │
-│ quiz_id (FK)       │
-│ question_text      │
+│ quizId (FK)        │
+│ questionText       │
 │ type               │
-│ correct_answer     │
-│ option_a           │
-│ option_b           │
-│ option_c           │
-│ option_d           │
-│ time_limit         │
+│ correctAnswer      │
+│ optionA            │
+│ optionB            │
+│ optionC            │
+│ optionD            │
+│ timeLimit          │
 │ points             │
 └─────────────────────┘
          │
          │ N:1
          ↓
 ┌─────────────────────┐
-│   game_sessions     │
+│   GameSession       │
 ├─────────────────────┤
 │ id (PK)            │
-│ quiz_id (FK)       │
+│ quizId (FK)        │
 │ pin (unique)       │
 │ status             │
-│ current_question   │
-│ created_at         │
+│ currentQuestion    │
+│ createdAt          │
 └─────────────────────┘
          │
          │ 1:N
          ↓
 ┌─────────────────────┐
-│       scores        │
+│       Score         │
 ├─────────────────────┤
 │ id (PK)            │
-│ session_id (FK)    │
-│ user_id (FK)       │
-│ question_id (FK)   │
+│ sessionId (FK)     │
+│ userId (FK)        │
+│ questionId (FK)    │
 │ points             │
-│ answer_time        │
-│ is_correct         │
-│ answered_at        │
+│ answerTime         │
+│ isCorrect          │
+│ answeredAt         │
 └─────────────────────┘
+```
+
+**Migrations:**
+Prisma migrations are stored in `backend/prisma/migrations/`. To create a new migration:
+```bash
+cd backend
+npx prisma migrate dev --name description_of_change
+```
 ```
 
 ## 🔐 Security
@@ -273,23 +319,27 @@ backend/
 
 ### Route protection
 
-```javascript
-// Authentication middleware
-const authenticateToken = (req, res, next) => {
-  const token = req.headers['authorization']?.split(' ')[1];
-  if (!token) return res.sendStatus(401);
+NestJS uses Guards for route protection:
 
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) return res.sendStatus(403);
-    req.user = user;
-    next();
-  });
-};
+```typescript
+// JWT Authentication Guard
+@Injectable()
+export class JwtAuthGuard extends AuthGuard('jwt') {
+  canActivate(context: ExecutionContext) {
+    return super.canActivate(context);
+  }
+}
 
-// Usage
-app.get('/api/quizzes', authenticateToken, (req, res) => {
-  // Protected route
-});
+// Usage in controllers
+@Controller('quizzes')
+export class QuizController {
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  async findAll(@Request() req) {
+    // req.user contains the authenticated user
+    // Protected route
+  }
+}
 ```
 
 ## 🎮 Game Flow
@@ -348,20 +398,14 @@ const totalPoints = isCorrect ? basePoints + timeBonus : 0;
 │      dev         │
 └────────┬─────────┘
          │
-    ┌────┴─────┐
-    ↓          ↓
-┌─────────┐ ┌──────────┐
-│ Backend │ │ Frontend │
-│ Node:18 │ │ Node:18  │
-│ Port    │ │ + Vite   │
-│ 3001    │ │ Port 5173│
-└────┬────┘ └──────────┘
-     │
-     ↓
-┌─────────────┐
-│ SQLite DB   │
-│ Volume      │
-└─────────────┘
+    ┌────┴─────┬──────────┐
+    ↓          ↓          ↓
+┌─────────┐ ┌──────────┐ ┌──────────┐
+│ Backend │ │ Frontend │ │PostgreSQL│
+│ NestJS  │ │ React +  │ │ Database │
+│ Port    │ │ Vite     │ │ Port     │
+│ 3001    │ │ Port 5173│ │ 5432     │
+└─────────┘ └──────────┘ └──────────┘
 ```
 
 ### Production
@@ -371,22 +415,17 @@ const totalPoints = isCorrect ? basePoints + timeBonus : 0;
 │  docker-compose.prod │
 └──────────┬───────────┘
            │
-    ┌──────┴────────────────┐
-    ↓                       ↓
-┌─────────────┐      ┌──────────────┐
-│   Backend   │      │   Frontend   │
-│   Node:18   │      │ Multi-stage: │
-│ Production  │      │ 1. Build     │
-│ Port 3001   │      │ 2. Nginx     │
-└──────┬──────┘      │ Port 80/443  │
-       │             └──────────────┘
-       │
-       ↓
-┌──────────────┐
-│  SQLite DB   │
-│  Volume      │
-│  Persistent  │
-└──────────────┘
+    ┌──────┴──────┬────────────┐
+    ↓             ↓            ↓
+┌─────────────┐ ┌──────────┐ ┌──────────┐
+│   Backend   │ │ Frontend │ │PostgreSQL│
+│   NestJS    │ │ Multi-   │ │ Database │
+│ Production  │ │ stage:   │ │ Port     │
+│ Port 3001   │ │ 1. Build │ │ 5432     │
+└─────────────┘ │ 2. Nginx │ └──────────┘
+                │ Port     │
+                │ 80/443   │
+                └──────────┘
 ```
 
 ### With Monitoring
@@ -528,12 +567,31 @@ app.use('/api/', limiter);
 
 ### Database optimizations
 
-```sql
--- Indexes to improve performance
-CREATE INDEX idx_quiz_created_by ON quizzes(created_by);
-CREATE INDEX idx_questions_quiz_id ON questions(quiz_id);
-CREATE INDEX idx_sessions_pin ON game_sessions(pin);
-CREATE INDEX idx_scores_session ON scores(session_id);
+With Prisma and PostgreSQL:
+
+```typescript
+// Prisma automatically creates indexes for:
+// - Primary keys (@id)
+// - Unique fields (@unique)
+// - Foreign keys (relations)
+
+// Additional custom indexes can be defined in schema.prisma:
+model Quiz {
+  id          Int      @id @default(autoincrement())
+  title       String
+  createdById Int      @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  
+  @@index([createdById]) // Custom index
+  @@index([createdAt])   // Custom index
+  @@map("quizzes")
+}
+```
+
+**Connection Pooling:**
+Prisma manages connection pooling automatically. Configure in `.env`:
+```
+DATABASE_URL="postgresql://user:pass@localhost:5432/db?connection_limit=10"
 ```
 
 ## 🔄 CI/CD
@@ -562,17 +620,18 @@ Notifications
 
 ### Current limits (single server)
 
-- ~100 concurrent users
-- ~10 concurrent quizzes
-- SQLite (limited for concurrent writes)
+- ~1000 concurrent users (with PostgreSQL)
+- ~50 concurrent quizzes
+- PostgreSQL (excellent for concurrent reads and writes)
+- Horizontal scalability via load balancing
 
 ### Potential improvements
 
-1. **PostgreSQL**: Better concurrency
-2. **Redis**: Caching and sessions
-3. **CDN**: Static assets
-4. **Load balancer**: Multiple instances
-5. **Message queue**: Asynchronous tasks
+1. **Redis**: Caching and sessions
+2. **CDN**: Static assets
+3. **Load balancer**: Multiple instances
+4. **Message queue**: Asynchronous tasks
+5. **GraphQL**: Optional migration for more flexible API
 
 ## 🛠️ Maintenance
 
