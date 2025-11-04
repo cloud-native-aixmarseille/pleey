@@ -114,7 +114,7 @@ npm test
 **File Paths:**
 - Use inline code: `path/to/file.ts`
 - Always use forward slashes: `/docs/docs/technical/`
-- Use absolute paths from project root: `/home/runner/work/quiz-app/quiz-app/`
+- Use absolute paths from project root when applicable
 
 **Commands:**
 - Use code blocks for multi-line commands
@@ -197,16 +197,25 @@ This is dangerous - be careful!
 ### Code Documentation
 
 #### Code Snippets
-```markdown
-\`\`\`typescript
+
+**Always include language specifier and explanatory comments:**
+
+```typescript
 // Always include comments explaining what the code does
 const example = (param: string): void => {
   console.log(param);
 };
-\`\`\`
 ```
 
+**To create a code block in markdown:**
+1. Start with three backticks followed by the language name (e.g., `typescript`, `bash`, `json`)
+2. Add your code
+3. End with three backticks
+
 #### API Documentation
+
+**Structure for documenting functions/methods:**
+
 ```markdown
 ### Function Name
 
@@ -219,28 +228,19 @@ const example = (param: string): void => {
 **Returns**: Description of return value
 
 **Example**:
-\`\`\`typescript
-const result = functionName('value', 42);
-\`\`\`
+(code block with usage example)
 ```
 
 #### Configuration Examples
-Always include before/after examples for configuration:
+
+**Always include before/after examples for configuration:**
 
 ```markdown
 **Before:**
-\`\`\`json
-{
-  "old": "value"
-}
-\`\`\`
+(JSON/YAML code block with old configuration)
 
 **After:**
-\`\`\`json
-{
-  "new": "value"
-}
-\`\`\`
+(JSON/YAML code block with new configuration)
 ```
 
 ## 📋 Documentation Types
@@ -539,7 +539,7 @@ title: Optional Custom Title
 
 ```bash
 # Navigate to docs directory
-cd /home/runner/work/quiz-app/quiz-app/docs
+cd docs
 
 # Install dependencies (first time only)
 npm install
