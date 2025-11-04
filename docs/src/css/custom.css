@@ -1,0 +1,175 @@
+/**
+ * Custom CSS for QuizMaster Cyber Arcade theme
+ * Based on the Cyber Arcade Design System (purple/pink/cyan neon colors)
+ */
+
+/* Import retro gaming fonts */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+
+/* Cyber Arcade color palette */
+:root {
+  /* Primary - Electric Purple */
+  --ifm-color-primary: #6b48ff;
+  --ifm-color-primary-dark: #5533ff;
+  --ifm-color-primary-darker: #4a26ff;
+  --ifm-color-primary-darkest: #3300ff;
+  --ifm-color-primary-light: #835dff;
+  --ifm-color-primary-lighter: #9872ff;
+  --ifm-color-primary-lightest: #c3b3ff;
+  
+  /* Secondary - Hot Pink */
+  --ifm-color-secondary: #ff33c6;
+  
+  /* Accent - Cyber Cyan */
+  --ifm-color-accent: #00ffcc;
+  
+  /* Success - Matrix Green */
+  --ifm-color-success: #00ff41;
+  
+  /* Danger - Pure Red */
+  --ifm-color-danger: #ff0000;
+  
+  /* Background - Deep Space */
+  --ifm-background-color: #0a0a1f;
+  --ifm-background-surface-color: #151530;
+  
+  /* Fonts */
+  --ifm-font-family-base: 'Orbitron', sans-serif;
+  --ifm-font-family-monospace: 'VT323', monospace;
+  --ifm-heading-font-family: 'Press Start 2P', cursive;
+  
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(107, 72, 255, 0.2);
+  
+  /* Navbar */
+  --ifm-navbar-background-color: #0a0a1f;
+  --ifm-navbar-shadow: 0 4px 28px rgba(107, 72, 255, 0.3);
+}
+
+/* Dark mode theme (default for Cyber Arcade) */
+[data-theme='dark'] {
+  --ifm-color-primary: #6b48ff;
+  --ifm-color-primary-dark: #5533ff;
+  --ifm-color-primary-darker: #4a26ff;
+  --ifm-color-primary-darkest: #3300ff;
+  --ifm-color-primary-light: #835dff;
+  --ifm-color-primary-lighter: #9872ff;
+  --ifm-color-primary-lightest: #c3b3ff;
+  
+  --ifm-background-color: #0a0a1f;
+  --ifm-background-surface-color: #151530;
+  --ifm-footer-background-color: #0a0a1f;
+  
+  --docusaurus-highlighted-code-line-bg: rgba(107, 72, 255, 0.3);
+}
+
+/* Cyber Arcade headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--ifm-heading-font-family);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Add neon glow to headings */
+h1 {
+  color: #6b48ff;
+  text-shadow: 
+    0 0 10px rgba(107, 72, 255, 0.8),
+    0 0 20px rgba(107, 72, 255, 0.6),
+    0 0 30px rgba(107, 72, 255, 0.4);
+  font-size: 1.5rem;
+}
+
+h2 {
+  color: #ff33c6;
+  text-shadow: 
+    0 0 8px rgba(255, 51, 198, 0.8),
+    0 0 15px rgba(255, 51, 198, 0.6);
+  font-size: 1.2rem;
+}
+
+h3 {
+  color: #00ffcc;
+  text-shadow: 
+    0 0 6px rgba(0, 255, 204, 0.8),
+    0 0 12px rgba(0, 255, 204, 0.6);
+  font-size: 1rem;
+}
+
+/* Links with neon effect */
+a {
+  color: var(--ifm-color-accent);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+a:hover {
+  color: var(--ifm-color-primary-lighter);
+  text-shadow: 0 0 8px rgba(107, 72, 255, 0.8);
+}
+
+/* Code blocks with terminal style */
+code {
+  font-family: var(--ifm-font-family-monospace);
+  background-color: rgba(21, 21, 48, 0.8);
+  border: 1px solid rgba(107, 72, 255, 0.3);
+  color: var(--ifm-color-accent);
+}
+
+/* Buttons with retro shadow */
+.button {
+  font-family: var(--ifm-font-family-base);
+  text-transform: uppercase;
+  font-weight: 700;
+  box-shadow: 4px 4px 0px rgba(107, 72, 255, 0.5);
+  transition: all 0.2s ease;
+}
+
+.button:hover {
+  box-shadow: 6px 6px 0px rgba(107, 72, 255, 0.7);
+  transform: translate(-2px, -2px);
+}
+
+/* Navbar styling */
+.navbar {
+  background: linear-gradient(135deg, #0a0a1f 0%, #151530 100%);
+  border-bottom: 2px solid rgba(107, 72, 255, 0.5);
+}
+
+.navbar__title {
+  font-family: var(--ifm-heading-font-family);
+  text-transform: uppercase;
+  color: var(--ifm-color-primary-lighter);
+  text-shadow: 0 0 10px rgba(107, 72, 255, 0.8);
+  font-size: 1rem;
+}
+
+/* Sidebar with cyber styling */
+.menu {
+  font-family: var(--ifm-font-family-base);
+}
+
+.menu__link {
+  color: var(--ifm-color-accent);
+  transition: all 0.3s ease;
+}
+
+.menu__link:hover,
+.menu__link--active {
+  color: var(--ifm-color-primary-lighter);
+  background-color: rgba(107, 72, 255, 0.1);
+  border-left: 3px solid var(--ifm-color-primary);
+}
+
+/* Footer styling */
+.footer {
+  background: linear-gradient(135deg, #0a0a1f 0%, #151530 100%);
+  border-top: 2px solid rgba(107, 72, 255, 0.5);
+}
+
+.footer__title {
+  font-family: var(--ifm-heading-font-family);
+  text-transform: uppercase;
+  color: var(--ifm-color-primary-lighter);
+  font-size: 0.8rem;
+}
