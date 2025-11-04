@@ -35,7 +35,7 @@ For developers, QA engineers, and AI agents working on the codebase:
 
 - [GitHub Repository](https://github.com/cloud-native-aixmarseille/quiz-app)
 - [Quickstart Guide](quickstart)
-- [Architecture Documentation](../technical/architecture)
+- [Architecture Documentation](../technical/architecture/index)
 
 ## 🎨 Design Philosophy
 

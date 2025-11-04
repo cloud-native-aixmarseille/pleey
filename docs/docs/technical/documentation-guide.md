@@ -37,7 +37,10 @@ This guide provides comprehensive instructions, guidelines, and best practices f
 │   │   ├── quickstart.md     # Quick start guide
 │   │   └── admin-host-guide.md  # Admin/host guide
 │   └── technical/            # Developer documentation
-│       ├── architecture.md   # System architecture
+│       ├── architecture/      # System architecture
+│       │   ├── index.md      # Architecture overview
+│       │   ├── backend.md    # Backend architecture
+│       │   └── frontend.md   # Frontend architecture
 │       ├── design-system.md  # Design system guide
 │       ├── docker-guide.md   # Docker guide
 │       ├── testing.md        # Testing guide
@@ -133,7 +136,7 @@ npm test
 
 **Links:**
 - Use descriptive link text: `[Testing Guide](testing.md)` (not `[click here](testing.md)`)
-- Use relative links within docs: `[Architecture](architecture.md)`
+- Use relative links within docs: `[Architecture](architecture/index.md)`
 - Use absolute links for external resources: `https://docusaurus.io/`
 
 ### Markdown Conventions
@@ -336,7 +339,7 @@ example command
 - **Goal**: Clarify and illuminate topics
 - **Format**: Discussion, context, background
 - **Example**: "Architecture Overview", "Design Principles"
-- **Location**: Usually `technical/architecture.md`
+- **Location**: Usually `technical/architecture/`
 
 **Structure:**
 ```markdown
@@ -721,7 +724,9 @@ Run the tests (you know how).
 ## 📖 Resources
 
 ### Internal Documentation
-- [Architecture](architecture.md) - System architecture
+- [Architecture Overview](architecture/index.md) - System architecture overview
+- [Backend Architecture](architecture/backend.md) - Backend architecture
+- [Frontend Architecture](architecture/frontend.md) - Frontend architecture
 - [CONTRIBUTING.md](https://github.com/cloud-native-aixmarseille/quiz-app/blob/main/CONTRIBUTING.md) - Contribution guidelines
 - [AGENTS.md](https://github.com/cloud-native-aixmarseille/quiz-app/blob/main/AGENTS.md) - AI agent instructions
 
