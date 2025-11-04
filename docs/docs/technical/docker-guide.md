@@ -4,22 +4,23 @@ sidebar_position: 3
 
 # 🐳 Docker Guide - QuizMaster
 
-Complete guide to deploy the QuizMaster application with Docker and Docker Compose V2.
+Complete guide to the Docker setup and container management for QuizMaster.
 
-:::info Docker Compose V2 Migration
-This project uses **Docker Compose V2** (command: `docker compose` without hyphen).
-All Dockerfiles have been optimized with multi-stage builds and BuildKit for better performance and security.
+:::tip Primary Interface
+**Use `make` commands for all operations.** This guide shows the underlying Docker commands for reference and troubleshooting.
 :::
 
 ## 📋 Prerequisites
 
 - Docker (version 20.10+)
 - Docker Compose V2 (version 2.0+)
+- Make (usually pre-installed on Linux/macOS)
 
 Check installations:
 ```bash
 docker --version
-docker compose version  # Note: no hyphen in V2!
+docker compose version
+make --version
 ```
 
 ### Install Docker Compose V2 (if needed)
@@ -29,176 +30,148 @@ docker compose version  # Note: no hyphen in V2!
 sudo apt-get update
 sudo apt-get install docker-compose-plugin
 
+# macOS (via Homebrew)
+brew install docker-compose
+
 # Verify installation
 docker compose version
 ```
 
-## 📁 Docker files structure
+## 🚀 Getting Started
 
-```
-quiz-app/
-├── compose.yaml                # Development services (Docker Compose V2)
-├── compose.prod.yaml           # Production configuration
-├── compose.monitoring.yaml     # Monitoring stack (optional)
-├── .env.example               # Environment variables template
-│
-├── backend/
-│   ├── Dockerfile            # Multi-stage backend image
-│   ├── .dockerignore         # Build context exclusions
-│   ├── src/                  # NestJS source code
-│   ├── prisma/               # Prisma schema and migrations
-│   └── package.json
-│
-└── frontend/
-    ├── Dockerfile            # Multi-stage frontend image
-    ├── .dockerignore         # Build context exclusions
-    ├── nginx.prod.conf       # Nginx production config
-    ├── src/
-    └── package.json
-```
-
-## 🎯 Multi-Stage Dockerfiles
-
-Both backend and frontend use optimized multi-stage builds with 5 targets:
-
-### Backend Stages
-- **base**: Common dependencies layer
-- **development**: Dev environment with hot-reload
-- **builder**: TypeScript compilation
-- **production**: Optimized production image (~180MB)
-- **ci**: CI/CD testing environment
-
-### Frontend Stages
-- **base**: Common dependencies layer
-- **development**: Vite dev server with hot-reload
-- **builder**: Production build
-- **production**: Nginx-based image (~45MB)
-- **ci**: CI/CD testing environment
-
-### BuildKit Optimizations
-- Cache mounts for NPM dependencies
-- Layer caching for faster rebuilds
-- Non-root users for security
-- Minimal production images
-
-## 🚀 Quick start
-
-### 1. Environment variables configuration
+### Quick Setup (Recommended)
 
 ```bash
-# Copy the example file
+# 1. Clone and enter directory
+git clone <repo-url> && cd quiz-app
+
+# 2. Copy environment configuration
 cp .env.example .env
 
-# Edit the .env file and CHANGE the JWT_SECRET
-nano .env
+# 3. Install everything
+make install
 ```
 
-### 2. Start the application
+The `make install` command handles:
+- ✅ Environment setup
+- ✅ Docker image building
+- ✅ Service startup
+- ✅ Database migrations
+- ✅ Database seeding
 
-```bash
-# Using Makefile (recommended)
-make up
+### Access Points
 
-# Or using docker compose directly
-docker compose up -d
-
-# Check everything is working
-docker compose ps
-```
-
-### 3. Access the application
-
-:::info Traefik Reverse Proxy
-This project uses **Traefik** as a reverse proxy to avoid port conflicts. Services are accessed via domain names instead of direct ports.
-:::
+After installation, access the application at:
 
 - **Frontend**: http://frontend.quiz-master.localhost
 - **Backend API**: http://backend.quiz-master.localhost
 - **Traefik Dashboard**: http://localhost:8080
-- **Health check**: http://backend.quiz-master.localhost/health/live
+- **Health Check**: http://backend.quiz-master.localhost/api/health/live
 
-:::tip DNS Resolution
-The `.localhost` TLD and its subdomains automatically resolve to `127.0.0.1` (RFC 6761). No hosts file configuration needed!
+:::info Traefik Reverse Proxy
+This project uses **Traefik** for domain-based routing instead of port binding. The `.localhost` TLD automatically resolves to `127.0.0.1` (RFC 6761). No hosts file configuration needed!
 :::
 
-### 4. Default admin account
+## 📋 Essential Make Commands
 
-- Email: `admin@quiz.com`
-- Password: `admin123`
+All Docker operations are simplified through `make` targets:
 
-## 🔧 Docker Compose V2 Commands
-
-:::warning Command Syntax Change
-Docker Compose V2 uses `docker compose` (space, no hyphen) instead of `docker-compose` (hyphen).
-:::
-
-### Container management
+### Daily Operations
 
 ```bash
-# Start services
-docker compose up -d
-
-# Stop services
-docker compose down
-
-# View logs
-docker compose logs -f
-
-# Logs for a specific service
-docker compose logs -f backend
-docker compose logs -f frontend
-
-# Restart a service
-docker compose restart backend
-
-# Rebuild images
-docker compose build --no-cache
-
-# Stop and remove everything (including volumes)
-docker compose down -v
+make up              # Start all services
+make down            # Stop all services
+make restart         # Restart all services
+make ps              # Check services status
+make logs            # View real-time logs (all services)
+make logs-backend    # View backend logs only
+make logs-frontend   # View frontend logs only
 ```
 
-### Makefile shortcuts
-
-All Makefile commands have been updated for V2:
+### Development Tasks
 
 ```bash
-make up              # Start application
-make down            # Stop application
-make build           # Build images
-make rebuild         # Rebuild and restart
-make logs            # View all logs
-make logs-backend    # Backend logs only
-make logs-frontend   # Frontend logs only
-make ps              # Container status
-make clean           # Clean up
-make clean-all       # Deep clean with volumes
-make backup          # Backup database
-make restore         # Restore database
+make build           # Build Docker images
+make rebuild         # Rebuild images and restart
+make seed            # Seed database with sample data
+make shell-backend   # Access backend container shell
+make shell-frontend  # Access frontend container shell
+make db-shell        # Access PostgreSQL shell
 ```
 
-### Monitoring and debugging
+### Maintenance
 
 ```bash
-# Container status
-docker compose ps
-
-# Resources used
-docker stats
-
-# Enter a container
-docker compose exec backend sh
-docker compose exec frontend sh
-
-# View processes in a container
-docker compose top backend
-
-# Validate compose file
-docker compose config
-
-# View effective configuration
-docker compose config --services
+make clean           # Clean up (keep data volumes)
+make clean-all       # Deep clean (removes all data)
+make backup          # Backup PostgreSQL database
+make restore         # Restore latest backup
+make health          # Check application health
 ```
+
+### Complete Command List
+
+```bash
+make help            # Display all available commands
+```
+
+## 📁 Docker Architecture
+
+### File Structure
+
+```
+quiz-app/
+├── compose.yaml                # Main services configuration
+├── compose.prod.yaml           # Production overrides
+├── compose.monitoring.yaml     # Monitoring stack (optional)
+├── .env.example               # Environment variables template
+├── Makefile                   # Make commands (primary interface)
+│
+├── backend/
+│   ├── Dockerfile            # Multi-stage NestJS build
+│   ├── .dockerignore
+│   ├── src/
+│   ├── prisma/
+│   └── package.json
+│
+└── frontend/
+    ├── Dockerfile            # Multi-stage React + Nginx build
+    ├── .dockerignore
+    ├── nginx.conf           # Development Nginx config
+    ├── nginx.prod.conf      # Production Nginx config
+    ├── src/
+    └── package.json
+```
+
+### Services Overview
+
+The application runs 5 services:
+
+| Service | Purpose | Exposed |
+|---------|---------|---------|
+| **traefik** | Reverse proxy & routing | Dashboard: :8080 |
+| **backend** | NestJS API + WebSockets | Via Traefik |
+| **frontend** | React app (dev/prod) | Via Traefik |
+| **postgres** | PostgreSQL 16 database | Internal only |
+| **otel-collector** | OpenTelemetry collector | Internal only |
+
+### Multi-Stage Dockerfiles
+
+Both backend and frontend use optimized multi-stage builds:
+
+**Backend Stages:**
+- `base` - Common dependencies layer
+- `development` - Dev with hot-reload
+- `builder` - TypeScript compilation
+- `production` - Optimized (~180MB)
+- `ci` - Testing environment
+
+**Frontend Stages:**
+- `base` - Common dependencies layer
+- `development` - Vite dev server with HMR
+- `builder` - Production build
+- `production` - Nginx serving (~45MB)
+- `ci` - Testing environment
 
 ### Build targets
 
@@ -224,26 +197,190 @@ docker compose build
 # Access PostgreSQL database
 docker compose exec postgres psql -U quizapp -d quizdb
 
-# Database backup
-docker compose exec postgres pg_dump -U quizapp quizdb > backup_$(date +%Y%m%d).sql
+## 🔧 Advanced Operations
 
-# Or use Makefile
+### Database Management
+
+```bash
+# Apply migrations
+make shell-backend
+npm run db:migrate
+
+# Seed database
+make seed
+
+# Access database shell
+make db-shell
+
+# Backup database
 make backup
 
-# Restore a backup
-docker compose exec -T postgres psql -U quizapp -d quizdb < backup.sql
-
-# Or use Makefile
+# Restore database
 make restore
+```
 
-# Run Prisma migrations
+:::tip Direct Commands
+If you prefer Docker commands directly:
+
+```bash
+# Migrations
 docker compose exec backend npx prisma migrate deploy
 
+# Seed
+docker compose exec backend npm run seed
+
+# Database shell
+docker compose exec postgres psql -U quizapp -d quizdb
+```
+:::
+
+### Prisma Operations
+
+```bash
 # Generate Prisma Client
 docker compose exec backend npx prisma generate
 
-# View database schema
+# View database in Prisma Studio
 docker compose exec backend npx prisma studio
+```
+
+### Viewing Logs
+
+```bash
+# All services
+make logs
+
+# Specific service
+make logs-backend
+make logs-frontend
+
+# Follow logs with filtering
+docker compose logs -f backend | grep ERROR
+
+# Last 100 lines
+docker compose logs --tail 100 backend
+```
+
+### Resource Monitoring
+
+```bash
+# Real-time resource usage
+docker stats
+
+# Service status
+make ps
+
+# Detailed service info
+docker compose ps --all
+```
+
+## 🔐 Production Deployment
+
+### Production Configuration
+
+```bash
+# Use production compose file
+docker compose -f compose.yaml -f compose.prod.yaml up -d
+
+# Or use deployment script
+./deploy.sh prod
+```
+
+### Security Checklist
+
+- ✅ **Change JWT_SECRET**: Generate with `openssl rand -base64 32`
+- ✅ **Use HTTPS**: Configure SSL/TLS certificates
+- ✅ **Update passwords**: Change default admin password
+- ✅ **Enable firewall**: Restrict access to necessary ports only
+- ✅ **Resource limits**: Apply CPU and memory constraints
+- ✅ **Regular backups**: Schedule automated database backups
+
+### Resource Limits (Production)
+
+The `compose.prod.yaml` includes resource constraints:
+
+```yaml
+services:
+  backend:
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+```
+
+## 📊 Data Persistence
+
+### Volumes Used
+
+- **postgres-data**: PostgreSQL database (persistent)
+- **backend-node-modules**: Backend dependencies (development only)
+- **frontend-node-modules**: Frontend dependencies (development only)
+
+### Volume Management
+
+```bash
+# List volumes
+docker volume ls | grep quiz
+
+# Inspect volume
+docker volume inspect quiz-app_postgres-data
+
+# Remove unused volumes
+docker volume prune
+```
+
+:::warning Data Loss
+`make clean-all` removes all volumes including the database. Use `make clean` to preserve data.
+:::
+
+## 🌐 Networking
+
+### Traefik Reverse Proxy (Development)
+
+The development environment uses **Traefik v3.1** as a reverse proxy.
+
+**Benefits:**
+- ✅ No port binding conflicts
+- ✅ Clean, semantic URLs
+- ✅ Run multiple projects simultaneously
+- ✅ Production-like setup
+- ✅ Automatic service discovery
+
+**Access Points:**
+- Frontend: `http://frontend.quiz-master.localhost`
+- Backend: `http://backend.quiz-master.localhost`
+- Traefik Dashboard: `http://localhost:8080`
+
+:::info DNS Resolution
+The `.localhost` TLD automatically resolves to `127.0.0.1` (RFC 6761). No hosts file configuration needed!
+:::
+
+### Service Discovery
+
+Traefik automatically discovers services using Docker labels:
+
+```yaml
+labels:
+  - "traefik.enable=true"
+  - "traefik.http.routers.backend.rule=Host(`backend.quiz-master.localhost`)"
+  - "traefik.http.services.backend.loadbalancer.server.port=3001"
+```
+
+### Database Access
+
+PostgreSQL is not exposed externally. Access via:
+
+```bash
+# Using Make command (recommended)
+make db-shell
+
+# Or Docker directly
+docker compose exec postgres psql -U quizapp -d quizdb
+```
 ```
 
 ## 🔐 Production security
@@ -537,51 +674,218 @@ DOCKER_BUILDKIT=1 docker compose build
 
 ## 🐛 Troubleshooting
 
-### "docker-compose: command not found"
-
-You need Docker Compose V2:
+### Services Not Starting
 
 ```bash
-# Linux
-sudo apt-get update
-sudo apt-get install docker-compose-plugin
+# Check all service logs
+make logs
 
-# Verify
-docker compose version
-```
+# Check specific service
+make logs-backend
+make logs-frontend
 
-### Containers won't start
-
-```bash
-# Check logs
-docker compose logs
-
-# Check container status
-docker compose ps
+# Check service status
+make ps
 
 # Rebuild from scratch
-docker compose down -v
-docker compose build --no-cache
-docker compose up -d
+make clean-all
+make install
 ```
 
-### Backend/frontend connection issues
+### Cannot Access Application
+
+**Issue: `*.quiz-master.localhost` not accessible**
 
 ```bash
-# Check backend is accessible
-curl http://localhost:3001/health/live
+# 1. Verify Traefik is running
+make ps | grep traefik
 
-# Check network connections
-docker network inspect quiz-app_quiz-network
+# 2. Check Traefik dashboard
+# Open: http://localhost:8080
+# Navigate to HTTP → Routers
 
-# Restart network
-docker compose down
-docker compose up -d
+# 3. Test DNS resolution (should return 127.0.0.1)
+ping frontend.quiz-master.localhost
+
+# 4. View Traefik logs
+make logs | grep traefik
 ```
 
-### Permission issues with non-root users
+**Issue: Frontend can't connect to backend**
 
-The containers now run as non-root users:
+```bash
+# Verify backend API URL environment variable
+docker compose exec frontend env | grep VITE_API_URL
+# Should show: VITE_API_URL=http://backend.quiz-master.localhost
+
+# If incorrect, rebuild frontend
+docker compose build frontend --no-cache
+make restart
+```
+
+### Database Issues
+
+```bash
+# Check database is running
+make ps | grep postgres
+
+# Access database shell
+make db-shell
+
+# Reset database (⚠️ deletes all data)
+make clean-all
+make install
+```
+
+### Permission Errors
+
+Containers run as non-root users (UID 1000:1000). If you encounter permission issues:
+
+```bash
+# Fix ownership of volumes
+docker compose down -v
+sudo chown -R 1000:1000 backend/data
+make up
+```
+
+### Performance Issues
+
+```bash
+# View resource usage
+docker stats
+
+# Check available disk space
+df -h
+
+# Clean up unused Docker resources
+docker system prune -a
+```
+
+## 🔄 Updates and Maintenance
+
+### Updating the Application
+
+```bash
+# Pull latest changes
+git pull
+
+# Rebuild and restart
+make rebuild
+
+# Check everything is working
+make ps
+make health
+```
+
+### Database Migrations
+
+```bash
+# Migrations are automatically applied by `make seed`
+# Or run manually:
+docker compose exec backend npx prisma migrate deploy
+
+# Check migration status
+docker compose exec backend npx prisma migrate status
+```
+
+### Backup and Restore
+
+```bash
+# Create backup
+make backup
+# Creates: backups/quiz-backup-YYYYMMDD-HHMMSS.sql
+
+# Restore latest backup
+make restore
+
+# Restore specific backup
+docker compose exec -T postgres psql -U quizapp -d quizdb < backups/quiz-backup-20241104-210000.sql
+make restart
+```
+
+## 📚 Reference: Docker Compose Commands
+
+:::tip Use Make Commands
+While these Docker Compose commands work, **use `make` commands** for simpler, consistent operations.
+:::
+
+### If You Need Docker Compose Directly
+
+```bash
+# Start services
+docker compose up -d
+
+# Stop services
+docker compose down
+
+# View logs
+docker compose logs -f [service_name]
+
+# Rebuild service
+docker compose build [service_name] --no-cache
+
+# Restart service
+docker compose restart [service_name]
+
+# Execute command in service
+docker compose exec [service_name] [command]
+
+# Service status
+docker compose ps
+
+# Validate configuration
+docker compose config
+```
+
+### Monitoring Stack (Optional)
+
+```bash
+# Start with monitoring
+make monitoring-up
+
+# Access monitoring tools
+make grafana      # Opens Grafana (admin/admin123)
+make prometheus   # Opens Prometheus
+
+# View monitoring logs
+make monitoring-logs
+
+# Stop monitoring
+make monitoring-down
+```
+
+## 🎓 Best Practices
+
+### Development Workflow
+
+1. **Start your day**: `make up`
+2. **View logs**: `make logs`
+3. **Make changes**: Edit code (hot-reload enabled)
+4. **Test changes**: Changes reflect immediately
+5. **Reset database**: `make seed` (if needed)
+6. **End your day**: `make down`
+
+### When Things Go Wrong
+
+1. **Check logs**: `make logs` or `make logs-backend`
+2. **Check status**: `make ps`
+3. **Restart services**: `make restart`
+4. **Full reset**: `make clean-all && make install`
+
+### Performance Tips
+
+- **Use BuildKit**: Already enabled in project
+- **Keep Docker images updated**: `docker system prune -a` monthly
+- **Monitor resources**: `docker stats`
+- **Backup regularly**: `make backup`
+
+## 📖 Related Documentation
+
+- **[Quick Reference](quick-reference)** - Command cheat sheet
+- **[Architecture](architecture/index)** - System architecture
+- **[Deployment](deployment)** - Production deployment guide
+- **[Monitoring](monitoring)** - Monitoring and observability
+- **[Security](security)** - Security best practices
 
 ```bash
 # Fix backend permissions (if needed)

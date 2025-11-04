@@ -4,11 +4,15 @@ sidebar_position: 10
 
 # ⚡ QuizMaster - Quick Reference Guide
 
-Ultra-fast guide for all essential commands.
+Fast reference for all essential development commands.
 
-## 🚀 Quick start
+:::tip Primary Interface
+**Use `make` commands for all operations.** They provide a simpler, consistent interface to the underlying Docker and npm commands.
+:::
 
-### Installation in 3 commands
+## 🚀 Quick Start
+
+### First-Time Installation
 
 ```bash
 git clone <repo-url> && cd quiz-app
@@ -17,89 +21,216 @@ make install
 ```
 
 **Access:**
-- Frontend: http://localhost
-- Backend: http://localhost:3001
+- Frontend: http://frontend.quiz-master.localhost
+- Backend: http://backend.quiz-master.localhost
+- Traefik Dashboard: http://localhost:8080
 - Admin: admin@quiz.com / admin123
 
 ---
 
-## 📋 Make commands
+## 📋 Essential Make Commands
+
+### Daily Operations
 
 ```bash
-make help              # List all commands
+make up                # Start all services
+make down              # Stop all services
+make restart           # Restart all services
+make ps                # Check services status
+make logs              # View real-time logs (all)
+make logs-backend      # View backend logs only
+make logs-frontend     # View frontend logs only
+```
+
+### Development
+
+```bash
 make install           # Complete installation (first time)
-make up                # Start application
-make down              # Stop application
-make restart           # Restart
-make logs              # View logs (real-time)
-make ps                # Container status
-make build             # Build images
-make rebuild           # Rebuild and restart
-make backup            # Backup database
+make build             # Build Docker images
+make rebuild           # Rebuild images and restart
+make seed              # Seed database with sample data
+make shell-backend     # Access backend container shell
+make shell-frontend    # Access frontend container shell
+make db-shell          # Access PostgreSQL database shell
+```
+
+### Maintenance
+
+```bash
+make clean             # Clean up (keep data volumes)
+make clean-all         # Deep clean (⚠️ removes all data)
+make backup            # Backup PostgreSQL database
 make restore           # Restore latest backup
-make clean             # Clean (keep data)
-make clean-all         # Delete everything (⚠️ data included)
-make health            # Check app status
-make shell-backend     # Access backend shell
-make shell-frontend    # Access frontend shell
-make db                # Access PostgreSQL database
-make monitoring-up     # Start with monitoring
-make grafana           # Open Grafana
+make health            # Check application health
+make help              # Display all available commands
+```
+
+### Monitoring (Optional)
+
+```bash
+make monitoring-up     # Start with monitoring stack
+make monitoring-down   # Stop monitoring
+make grafana           # Open Grafana dashboard
 make prometheus        # Open Prometheus
-make docs              # Open documentation (Docusaurus)
+```
+
+### Documentation
+
+```bash
+make docs              # Open Docusaurus documentation
 ```
 
 ---
 
-## 🐳 Docker commands
+## 🎯 Common Workflows
 
-### Container management
+### Starting Your Day
 
 ```bash
-# Start
+make up                # Start everything
+make logs              # Check if everything is running
+```
+
+### Making Code Changes
+
+```bash
+# Just edit code - hot-reload is enabled!
+# View logs to see changes:
+make logs-backend      # For backend changes
+make logs-frontend     # For frontend changes
+```
+
+### Resetting Database
+
+```bash
+make seed              # Applies migrations + seeds data
+```
+
+### Full Reset
+
+```bash
+make clean-all         # Remove everything (including data)
+make install           # Fresh installation
+```
+
+### Debugging Issues
+
+```bash
+make ps                # Check service status
+make logs              # Check all logs
+make logs-backend      # Check backend logs
+make health            # Test health endpoints
+```
+
+---
+
+## � Service Access
+
+### Application URLs
+
+- **Frontend**: http://frontend.quiz-master.localhost
+- **Backend API**: http://backend.quiz-master.localhost
+- **Traefik Dashboard**: http://localhost:8080
+- **Health Check**: http://backend.quiz-master.localhost/api/health/live
+
+### Default Credentials
+
+- **Admin Email**: admin@quiz.com
+- **Admin Password**: admin123
+
+:::warning Change Password
+Change the admin password after first login!
+:::
+
+---
+
+## 🗄️ Database Operations
+
+### Using Make Commands (Recommended)
+
+```bash
+make db-shell          # Access PostgreSQL shell
+make seed              # Apply migrations + seed data
+make backup            # Create database backup
+make restore           # Restore latest backup
+```
+
+### Direct Prisma Commands
+
+```bash
+# Access backend container first
+make shell-backend
+
+# Then run Prisma commands:
+npx prisma migrate deploy    # Apply migrations
+npx prisma generate          # Generate Prisma Client
+npx prisma studio            # Open Prisma Studio
+npm run seed                 # Seed database
+```
+
+---
+
+## 📊 Monitoring & Debugging
+
+### Check Service Status
+
+```bash
+make ps                # Service status
+docker stats           # Resource usage
+make health            # Application health check
+```
+
+### View Logs
+
+```bash
+make logs              # All services
+make logs-backend      # Backend only
+make logs-frontend     # Frontend only
+
+# Follow specific service logs
+docker compose logs -f backend | grep ERROR
+```
+
+### Container Shell Access
+
+```bash
+make shell-backend     # Backend container
+make shell-frontend    # Frontend container
+make db-shell          # PostgreSQL database
+```
+
+---
+
+## 🔧 Advanced Operations
+
+:::tip Prefer Make Commands
+These Docker commands work but `make` commands are simpler and more consistent.
+:::
+
+### Docker Compose Commands
+
+```bash
+# Start services
 docker compose up -d
 
-# Stop
+# Stop services
 docker compose down
 
-# Restart
-docker compose restart
+# Rebuild specific service
+docker compose build backend --no-cache
+docker compose up -d backend
 
-# View logs
-docker compose logs -f
-docker compose logs -f backend
-docker compose logs -f frontend
+# Execute command in service
+docker compose exec backend npm run test
 
-# Status
+# View service status
 docker compose ps
 
-# Real-time stats
-docker stats
-
-# Rebuild
-docker compose build --no-cache
-docker compose up -d --force-recreate
+# Validate configuration
+docker compose config
 ```
 
-### Debug
-
-```bash
-# Shell in a container
-docker exec -it quiz-backend sh
-docker exec -it quiz-frontend sh
-
-# View processes
-docker compose top
-
-# Inspect a container
-docker inspect quiz-backend
-
-# Copy files
-docker cp file.txt quiz-backend:/app/
-docker cp quiz-backend:/app/backup.sql ./backup.sql
-```
-
-### Cleanup
+### Docker Cleanup
 
 ```bash
 # Remove stopped containers
@@ -108,19 +239,23 @@ docker container prune
 # Remove unused images
 docker image prune -a
 
-# Remove unused volumes
+# Remove unused volumes (⚠️ deletes data)
 docker volume prune
 
-# Clean everything
+# Clean everything (⚠️ deletes all data)
 docker system prune -a --volumes
 ```
 
 ---
 
-## 📁 File structure
+## 📁 Project Structure
 
 ```
 quiz-app/
+├── Makefile                   # Primary command interface
+├── compose.yaml               # Docker services configuration
+├── .env.example              # Environment template
+│
 ├── backend/
 │   ├── src/                   # NestJS source code
 │   │   ├── domain/           # Domain layer (DDD)
@@ -306,103 +441,145 @@ SELECT COUNT(*) FROM quizzes;    # Count
 
 ---
 
-## 🚨 Common issues
+## 🚨 Troubleshooting
 
-### Backend won't start
+### Services Not Starting
 
 ```bash
-# Check logs
-docker compose logs backend
+# Check status
+make ps
 
-# Recreate container
-docker compose down
-docker compose up -d
+# View logs
+make logs
 
-# Check permissions
-docker exec quiz-backend ls -la /app/data
+# Full reset
+make clean-all
+make install
 ```
 
-### Frontend doesn't load
+### Cannot Access Application
+
+**Problem: `*.quiz-master.localhost` URLs not working**
 
 ```bash
-# Check Nginx
-docker compose logs frontend
+# Check Traefik is running
+make ps | grep traefik
 
-# Rebuild
+# View Traefik dashboard
+# Open: http://localhost:8080
+
+# Test DNS resolution
+ping frontend.quiz-master.localhost
+# Should resolve to 127.0.0.1
+
+# Restart Traefik
+docker compose restart traefik
+```
+
+### Backend Not Responding
+
+```bash
+# Check backend logs
+make logs-backend
+
+# Check health endpoint
+curl http://backend.quiz-master.localhost/api/health/live
+
+# Restart backend
+docker compose restart backend
+
+# Rebuild if needed
+docker compose build backend --no-cache
+make restart
+```
+
+### Frontend Not Loading
+
+```bash
+# Check frontend logs
+make logs-frontend
+
+# Verify environment variables
+docker compose exec frontend env | grep VITE_API_URL
+# Should show: VITE_API_URL=http://backend.quiz-master.localhost
+
+# Rebuild if needed
 docker compose build frontend --no-cache
-docker compose up -d frontend
+make restart
 ```
 
-### WebSocket not working
+### Database Issues
+
+```bash
+# Check database status
+make ps | grep postgres
+
+# Access database
+make db-shell
+
+# Reset database (⚠️ deletes all data)
+make clean-all
+make install
+```
+
+### WebSocket Not Working
 
 ```bash
 # Check backend is listening
-netstat -tlnp | grep 3001
+docker compose exec backend netstat -an | grep 3001
 
-# Check active connections
-docker exec quiz-backend netstat -an | grep 3001
+# Check WebSocket configuration in frontend
+# Verify VITE_API_URL is set correctly
 
-# Test manually
-wscat -c ws://localhost:3001/socket.io/?transport=websocket
+# Restart services
+make restart
 ```
 
-### Error "Port already in use"
+### Port Conflicts
+
+:::info No Port Conflicts with Traefik
+Traefik eliminates port conflicts by using domain-based routing. Only port 80 and 8080 are exposed.
+:::
 
 ```bash
-# Find which process is using the port
-sudo lsof -i :3001
+# If port 80 is in use:
 sudo lsof -i :80
-
-# Stop the process
 sudo kill -9 <PID>
 
-# Or change port in compose.yaml
+# Or stop conflicting service
+sudo systemctl stop nginx  # if another nginx is running
 ```
 
-### Corrupted database
+### Memory / Performance Issues
 
 ```bash
-# Restore a backup
-make restore
-
-# Or recreate
-docker compose down -v
-docker compose up -d
-```
-
-### Insufficient memory
-
-```bash
-# Free memory
-docker system prune -a
-
-# See usage
+# Check resource usage
 docker stats
 
-# Limit resources in compose.yaml
-deploy:
-  resources:
-    limits:
-      memory: 512M
+# Clean up Docker
+docker system prune -a
+
+# Restart Docker
+sudo systemctl restart docker
+make up
 ```
 
 ---
 
-## 🔒 Security
+## � Security Checklist
 
-### Pre-production checklist
+### Pre-Production
 
-- [ ] JWT_SECRET changed
-- [ ] Admin passwords changed
-- [ ] SSL/HTTPS configured
-- [ ] Firewall enabled (ports 80, 443 only)
-- [ ] `.env` not committed
-- [ ] Logs don't contain sensitive data
-- [ ] Automatic backups configured
-- [ ] Monitoring enabled
-- [ ] Rate limiting configured
+- [ ] Change JWT_SECRET in `.env`
+- [ ] Change admin password (admin@quiz.com)
+- [ ] Configure HTTPS/SSL
+- [ ] Enable firewall (ports 80, 443 only)
+- [ ] Verify `.env` is not in git
+- [ ] Enable rate limiting
+- [ ] Configure automated backups
+- [ ] Set up monitoring
 
-### Configure firewall
+### Configure Firewall
 
 ```bash
 # UFW (Ubuntu)

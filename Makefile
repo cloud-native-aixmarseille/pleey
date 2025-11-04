@@ -52,8 +52,8 @@ logs-frontend: ## Frontend logs only
 	$(COMPOSE) logs -f frontend
 
 seed: ## Populate database with Prisma fixtures
-	@echo "$(GREEN)Running Prisma seed...$(NC)"
-	$(COMPOSE) exec -T backend npx prisma db seed
+	@echo "$(GREEN)Applying migrations and seeding database...$(NC)"
+	@$(COMPOSE) exec -T backend npm run db:seed 2>&1 | grep -v "warn The configuration property" | grep -v "For more information, see: https://pris.ly/prisma-config" | grep -v "warn The Prisma config file" || true
 	@echo "$(GREEN)✓ Fixtures inserted$(NC)"
 
 ps: ## Display container status

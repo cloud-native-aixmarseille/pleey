@@ -15,32 +15,43 @@ Complete interactive quiz application with real-time gameplay, scoring system, a
 
 ## 🚀 Quick Start
 
-```bash
-# One-command installation
-make install
+### Installation (3 commands)
 
-# Start the application
-make up
+```bash
+git clone <repo-url> && cd quiz-app
+cp .env.example .env
+make install
 ```
 
-The application will be available at:
+**That's it!** The application will be available at:
 - Frontend: http://frontend.quiz-master.localhost
 - Backend: http://backend.quiz-master.localhost
 - Traefik Dashboard: http://localhost:8080
 
-> **Note**: This project uses Traefik reverse proxy to avoid port conflicts. See [Docker Guide - Traefik section](docs/docs/technical/docker-guide.md#traefik-reverse-proxy-development) for details.
-
 **Default admin account:**
-- Email: admin@quiz.com
-- Password: admin123
+- Email: `admin@quiz.com`
+- Password: `admin123`
+
+### Essential Commands
+
+```bash
+make install    # First-time setup (builds, starts, seeds database)
+make up         # Start the application
+make down       # Stop the application
+make logs       # View real-time logs
+make seed       # Populate database with sample data
+make help       # See all available commands
+```
+
+> **Note**: All development is managed through `make` commands. See [Quick Reference](docs/docs/technical/quick-reference.md) for complete command list.
 
 📘 **For more details**: See [Quick Start Guide](docs/docs/functional/quickstart.md)
 
 ## 🛠️ Tech Stack
 
 **Backend:** NestJS + Prisma ORM + PostgreSQL + Socket.io + JWT  
-**Frontend:** React 18 + Vite + Tailwind CSS  
-**DevOps:** Docker Compose V2 + Nginx + Prometheus + Grafana
+**Frontend:** React 18 + Vite + Tailwind CSS + WebSockets  
+**DevOps:** Docker Compose + Traefik + Nginx + Prometheus + Grafana
 
 📘 **For complete architecture**: See [Architecture](docs/docs/technical/architecture/index.md)
 

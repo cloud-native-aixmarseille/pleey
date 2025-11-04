@@ -16,6 +16,9 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
+    "seed": "node prisma/seed.js",
+    "db:migrate": "prisma migrate deploy",
+    "db:seed": "npm run db:migrate && npm run seed",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:cov": "vitest --coverage",
@@ -76,6 +79,7 @@
     "typescript": "^5.7.3",
     "vitest": "^3.2.4"
   },
+  "_comment": "The 'prisma' section is required for Prisma 6.x seed functionality. While deprecated, it's the only supported method until Prisma 7. See: https://pris.ly/prisma-config",
   "prisma": {
     "seed": "node prisma/seed.js"
   }
