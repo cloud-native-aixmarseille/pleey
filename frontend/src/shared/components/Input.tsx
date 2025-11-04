@@ -11,6 +11,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, darkMode = false, icon, className = '', id: providedId, ...props }, ref) => {
     const generatedId = useId();
     const id = providedId || generatedId;
+    const errorId = `${id}-error`;
     
     return (
       <div className="w-full">
@@ -21,7 +22,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         )}
         <div className="relative">
           {icon && (
-            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-light-600">
+            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-light-600" aria-hidden="true">
               {icon}
             </div>
           )}
@@ -35,11 +36,15 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               ${error ? 'border-danger-500 focus:border-danger-500 focus:ring-danger-200' : ''}
               ${className}
             `}
+            aria-invalid={error ? 'true' : 'false'}
+            aria-describedby={error ? errorId : undefined}
             {...props}
           />
         </div>
         {error && (
-          <p className="mt-2 text-sm text-danger-500 font-medium">{error}</p>
+          <p id={errorId} className="mt-2 text-sm text-danger-500 font-medium" role="alert">
+            {error}
+          </p>
         )}
       </div>
     );

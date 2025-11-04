@@ -37,8 +37,9 @@ export default function JoinGamePage({
             <button
               onClick={() => navigate("/")}
               className="inline-flex items-center gap-2 text-accent-400 hover:text-accent-300 transition-all mb-6 font-mono text-sm hover:scale-105 transform"
+              aria-label="Back to main menu"
             >
-              <span className="text-2xl">◄</span>
+              <span className="text-2xl" aria-hidden="true">◄</span>
               <span className="uppercase tracking-wider">BACK TO MENU</span>
             </button>
 
@@ -71,10 +72,13 @@ export default function JoinGamePage({
 
             {/* PIN Input - Arcade style */}
             <div className="mb-8">
-              <label className="block font-display text-primary-300 text-xs sm:text-sm mb-4 text-center uppercase tracking-wider">
+              <label 
+                htmlFor="game-pin-input"
+                className="block font-display text-primary-300 text-xs sm:text-sm mb-4 text-center uppercase tracking-wider">
                 ► Enter Game PIN ◄
               </label>
               <input
+                id="game-pin-input"
                 type="text"
                 value={gamePin}
                 onChange={(e) => onGamePinChange(e.target.value.toUpperCase())}
@@ -82,10 +86,10 @@ export default function JoinGamePage({
                 placeholder="••••••"
                 className="w-full p-6 sm:p-8 bg-dark-500 border-4 border-accent-500/50 rounded-xl text-center text-4xl sm:text-6xl font-display tracking-[0.5em] focus:border-accent-500 focus:ring-4 focus:ring-accent-500/30 focus:outline-none transition-all text-accent-400 placeholder-dark-300 uppercase shadow-neon-accent"
                 maxLength={6}
-                autoFocus
                 aria-label="Game PIN code"
+                aria-describedby="pin-length-indicator"
               />
-              <div className="flex justify-center items-center gap-3 mt-4">
+              <div className="flex justify-center items-center gap-3 mt-4" id="pin-length-indicator">
                 <span className="font-mono text-xs text-light-500">
                   PIN LENGTH:
                 </span>
@@ -95,6 +99,7 @@ export default function JoinGamePage({
                       ? "text-success-500 animate-pulse"
                       : "text-primary-400"
                   }`}
+                  aria-live="polite"
                 >
                   {gamePin.length}/6
                 </span>
