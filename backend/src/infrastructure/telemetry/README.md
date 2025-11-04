@@ -2,6 +2,13 @@
 
 This directory contains the OpenTelemetry infrastructure for the QuizMaster backend.
 
+## 📚 Documentation
+
+**Complete documentation is available in the [centralized docs](/docs):**
+- **[Architecture](/docs/docs/technical/architecture.md)** - System architecture
+- **[Monitoring](/docs/docs/technical/monitoring.md)** - Monitoring and observability guide
+- **[Deployment](/docs/docs/technical/deployment.md)** - Deployment configuration
+
 ## Overview
 
 The backend uses OpenTelemetry for:

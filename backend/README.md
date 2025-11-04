@@ -2,18 +2,17 @@
 
 Modern, refactored backend for the QuizMaster quiz application, built with NestJS, Prisma, and following Clean Architecture, Domain-Driven Design (DDD), and Test-Driven Development (TDD) principles.
 
-## 🏗️ Architecture
+## 📚 Documentation
 
-This backend is built following industry best practices:
+**Complete documentation is available in the [centralized docs](/docs):**
+- **[Architecture](/docs/docs/technical/architecture.md)** - Complete system architecture
+- **[Testing](/docs/docs/technical/testing.md)** - Testing guide and strategies
+- **[Docker Guide](/docs/docs/technical/docker-guide.md)** - Docker setup and commands
 
-- **Clean Architecture**: Clear separation between domain, application, infrastructure, and presentation layers
-- **Domain-Driven Design (DDD)**: Rich domain models, value objects, and domain services
-- **Screaming Architecture**: Directory structure that clearly shows the domain (auth, quiz, game)
-- **SOLID Principles**: Single responsibility, dependency inversion, and interface segregation
-- **Test-Driven Development**: Comprehensive test coverage at all layers
-- **OpenTelemetry**: Distributed tracing, metrics, and structured logging
-
-See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed architecture documentation.
+**Backend-specific documentation:**
+- [ARCHITECTURE.md](./ARCHITECTURE.md) - Backend architecture details
+- [Health Checks](./src/infrastructure/health/README.md) - Health monitoring
+- [OpenTelemetry](./src/infrastructure/telemetry/README.md) - Observability
 
 ## 🚀 Quick Start
 

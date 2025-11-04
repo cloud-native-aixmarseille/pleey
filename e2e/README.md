@@ -2,16 +2,13 @@
 
 End-to-end tests for the QuizMaster application using Playwright.
 
-## Philosophy
+## 📚 Documentation
 
-Following the **Testing Pyramid** principle:
-- **E2E tests (few)**: Critical user flows and smoke tests
-- **Integration tests (some)**: Component interactions
-- **Unit tests (many)**: Business logic and functions
+**Complete testing documentation is available in the [centralized docs](/docs):**
+- **[Testing Guide](/docs/docs/technical/testing.md)** - Complete testing guide, strategies, and best practices
+- **[Quick Reference](/docs/docs/technical/quick-reference.md)** - Command reference
 
-These E2E tests focus on:
-1. **Smoke tests** - Quick health checks (@smoke tag)
-2. **Nominal use cases** - Happy path scenarios for critical flows
+## 🎯 Quick Start
 
 ## Prerequisites
 

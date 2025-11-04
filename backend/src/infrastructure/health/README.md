@@ -2,6 +2,13 @@
 
 This module provides comprehensive health check endpoints for the QuizMaster backend using [NestJS Terminus](https://docs.nestjs.com/recipes/terminus).
 
+## 📚 Documentation
+
+**Complete documentation is available in the [centralized docs](/docs):**
+- **[Architecture](/docs/docs/technical/architecture.md)** - System architecture
+- **[Deployment](/docs/docs/technical/deployment.md)** - Deployment guide with health checks
+- **[Monitoring](/docs/docs/technical/monitoring.md)** - Monitoring and observability
+
 ## Overview
 
 Health checks are essential for monitoring the application's status in production environments, especially in containerized deployments with orchestration platforms like Kubernetes.

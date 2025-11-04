@@ -1,8 +1,16 @@
 # Frontend Architecture
 
-## 🏗️ Screaming Architecture + Clean Architecture + DDD
+## 📚 Documentation
 
-This frontend follows Clean Architecture, Screaming Architecture, and Domain-Driven Design principles.
+**Complete documentation is available in the [centralized docs](/docs):**
+- **[Architecture](/docs/docs/technical/architecture.md)** - Complete system architecture
+- **[Design System](/docs/docs/technical/design-system.md)** - Cyber Arcade design system
+- **[Testing](/docs/docs/technical/testing.md)** - Testing guide
+- **[Accessibility](/docs/docs/technical/accessibility.md)** - Accessibility standards
+
+## 🏗️ Quick Overview
+
+This frontend follows **Clean Architecture**, **Screaming Architecture**, and **Domain-Driven Design** principles.
 
 ### 📁 Directory Structure
 
