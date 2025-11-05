@@ -284,6 +284,52 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     }
   }
 
+  @SubscribeMessage('stop-game')
+  async handleStopGame(@ConnectedSocket() client: Socket, @MessageBody() payload: unknown): Promise<void> {
+    try {
+      const dto = await this.validatePayload(GamePinDto, payload);
+      const session = await this.gameSessionRepository.findByPin(dto.pin);
+
+      if (!session) {
+        throw new WsException(GameErrorCode.GAME_NOT_FOUND);
+      }
+
+      await this.gameSessionRepository.updateStatus(session.id, 'paused');
+
+      this.server.to(dto.pin).emit('game-paused', {
+        message: 'Game has been paused by the host',
+      });
+    } catch (error) {
+      this.handleError(client, error);
+    }
+  }
+
+  @SubscribeMessage('resume-game')
+  async handleResumeGame(@ConnectedSocket() client: Socket, @MessageBody() payload: unknown): Promise<void> {
+    try {
+      const dto = await this.validatePayload(GamePinDto, payload);
+      const state = await this.ensureSessionState(dto.pin);
+      const session = await this.gameSessionRepository.findByPin(dto.pin);
+
+      if (!session) {
+        throw new WsException(GameErrorCode.GAME_NOT_FOUND);
+      }
+
+      await this.gameSessionRepository.updateStatus(session.id, 'active');
+
+      // Emit current question to resume the game
+      const currentQuestion = state.questions[state.currentQuestionIndex];
+      this.server.to(dto.pin).emit('game-resumed', {
+        question: this.mapQuestion(currentQuestion),
+        questionNumber: state.currentQuestionIndex + 1,
+        totalQuestions: state.questions.length,
+      });
+    } catch (error) {
+      this.handleError(client, error);
+    }
+  }
+
+
   private async ensureSessionState(pin: string): Promise<SessionState> {
     let state = this.sessions.get(pin);
 
