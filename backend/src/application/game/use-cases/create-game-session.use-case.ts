@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type { GameSession } from '../../../domain/game/entities/game-session.entity';
 import {
   GameSessionRepositoryProvider,
@@ -31,11 +31,19 @@ export class CreateGameSessionUseCase {
       throw new NotFoundException('Quiz not found');
     }
 
+    // Check for existing active sessions for this admin
+    const activeSessions = await this.gameSessionRepository.findActiveByAdminId(dto.adminId);
+    if (activeSessions.length > 0) {
+      throw new BadRequestException(
+        'You already have an active game session. Please stop or complete it before starting a new one.'
+      );
+    }
+
     // Generate unique PIN
     const pin = PIN.generate();
 
     // Create session
-    const session = await this.gameSessionRepository.create(dto.quizId, pin.getValue());
+    const session = await this.gameSessionRepository.create(dto.quizId, dto.adminId, pin.getValue());
 
     return {
       session,

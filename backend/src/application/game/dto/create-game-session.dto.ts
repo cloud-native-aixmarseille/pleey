@@ -8,4 +8,8 @@ export class CreateGameSessionDto {
   @IsNumber()
   @IsNotEmpty()
   quizId: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  adminId: number;
 }

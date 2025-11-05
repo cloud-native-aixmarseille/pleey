@@ -10,10 +10,11 @@ import { PrismaService } from '../database/prisma.service';
 export class PrismaGameSessionRepository implements GameSessionRepository {
   constructor(private readonly prisma: PrismaService) { }
 
-  async create(quizId: number, pin: string): Promise<GameSession> {
+  async create(quizId: number, adminId: number, pin: string): Promise<GameSession> {
     const session = await this.prisma.gameSession.create({
       data: {
         quizId,
+        adminId,
         pin,
       },
     });
@@ -39,6 +40,22 @@ export class PrismaGameSessionRepository implements GameSessionRepository {
     if (!session) return null;
 
     return this.toDomain(session);
+  }
+
+  async findActiveByAdminId(adminId: number): Promise<GameSession[]> {
+    const sessions = await this.prisma.gameSession.findMany({
+      where: {
+        adminId,
+        status: {
+          in: ['waiting', 'active', 'paused'],
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return sessions.map(session => this.toDomain(session));
   }
 
   async updateStatus(id: number, status: string): Promise<GameSession> {
@@ -75,6 +92,7 @@ export class PrismaGameSessionRepository implements GameSessionRepository {
     return new GameSession(
       session.id,
       session.quizId,
+      session.adminId,
       session.pin,
       session.status,
       session.currentQuestion,

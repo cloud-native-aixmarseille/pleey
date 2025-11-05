@@ -6,6 +6,7 @@ export class GameSession {
   constructor(
     public readonly id: number,
     public readonly quizId: number,
+    public readonly adminId: number,
     public readonly pin: string,
     public status: string,
     public currentQuestion: number,
@@ -18,6 +19,26 @@ export class GameSession {
   start(): void {
     if (this.status !== 'waiting') {
       throw new Error('Game can only be started from waiting status');
+    }
+    this.status = 'active';
+  }
+
+  /**
+   * Pauses the game session
+   */
+  pause(): void {
+    if (this.status !== 'active') {
+      throw new Error('Can only pause an active game');
+    }
+    this.status = 'paused';
+  }
+
+  /**
+   * Resumes a paused game session
+   */
+  resume(): void {
+    if (this.status !== 'paused') {
+      throw new Error('Can only resume a paused game');
     }
     this.status = 'active';
   }
@@ -51,5 +72,12 @@ export class GameSession {
    */
   isWaiting(): boolean {
     return this.status === 'waiting';
+  }
+
+  /**
+   * Checks if game is paused
+   */
+  isPaused(): boolean {
+    return this.status === 'paused';
   }
 }
