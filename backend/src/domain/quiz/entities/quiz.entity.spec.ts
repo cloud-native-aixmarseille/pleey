@@ -10,6 +10,7 @@ describe('Quiz Entity', () => {
         'JavaScript Basics',
         'Test your JavaScript knowledge',
         100,
+        1,
         now,
       );
 
@@ -17,6 +18,7 @@ describe('Quiz Entity', () => {
       expect(quiz.title).toBe('JavaScript Basics');
       expect(quiz.description).toBe('Test your JavaScript knowledge');
       expect(quiz.createdById).toBe(100);
+      expect(quiz.organizationId).toBe(1);
       expect(quiz.createdAt).toBe(now);
     });
 
@@ -26,6 +28,7 @@ describe('Quiz Entity', () => {
         'Math Quiz',
         null,
         100,
+        1,
         new Date(),
       );
 
@@ -40,6 +43,7 @@ describe('Quiz Entity', () => {
         'Valid Title',
         'Description',
         100,
+        1,
         new Date(),
       );
 
@@ -64,6 +68,7 @@ describe('Quiz Entity', () => {
         '   ',
         'Description',
         100,
+        1,
         new Date(),
       );
 
@@ -76,6 +81,7 @@ describe('Quiz Entity', () => {
         '  Valid Title  ',
         'Description',
         100,
+        1,
         new Date(),
       );
 
@@ -88,6 +94,7 @@ describe('Quiz Entity', () => {
         'A',
         'Description',
         100,
+        1,
         new Date(),
       );
 

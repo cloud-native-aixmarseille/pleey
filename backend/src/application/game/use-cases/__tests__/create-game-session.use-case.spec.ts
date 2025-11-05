@@ -3,6 +3,9 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { CreateGameSessionUseCase } from '../create-game-session.use-case';
 import type { GameSessionRepository } from '../../../../domain/game/repositories/game-session.repository.interface';
 import type { QuizRepository } from '../../../../domain/quiz/repositories/quiz.repository.interface';
+import type { OrganizationMemberRepository } from '../../../../domain/organization/repositories/organization-member.repository.interface';
+import { OrganizationMember } from '../../../../domain/organization/entities/organization-member.entity';
+import { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
 import { GameSession } from '../../../../domain/game/entities/game-session.entity';
 import { Quiz } from '../../../../domain/quiz/entities/quiz.entity';
 
@@ -10,6 +13,7 @@ describe('CreateGameSessionUseCase', () => {
   let useCase: CreateGameSessionUseCase;
   let mockGameSessionRepository: GameSessionRepository;
   let mockQuizRepository: QuizRepository;
+  let mockMemberRepository: OrganizationMemberRepository;
 
   beforeEach(() => {
     mockGameSessionRepository = {
@@ -20,6 +24,16 @@ describe('CreateGameSessionUseCase', () => {
       updateStatus: vi.fn(),
       updateCurrentQuestion: vi.fn(),
       deleteOldSessions: vi.fn(),
+    };
+
+    mockMemberRepository = {
+      create: vi.fn(),
+      findById: vi.fn(),
+      findByOrganizationAndUser: vi.fn(),
+      findByOrganization: vi.fn(),
+      findByUser: vi.fn(),
+      updateRole: vi.fn(),
+      delete: vi.fn(),
     };
 
     mockQuizRepository = {
@@ -33,16 +47,20 @@ describe('CreateGameSessionUseCase', () => {
 
     useCase = new CreateGameSessionUseCase(
       mockGameSessionRepository,
-      mockQuizRepository
+      mockQuizRepository,
+      mockMemberRepository
     );
   });
 
   describe('execute', () => {
     it('should create a game session successfully when quiz exists and no active sessions', async () => {
-      const mockQuiz = new Quiz(1, 'Test Quiz', 'Description', 100, new Date(), []);
-      const mockSession = new GameSession(1, 1, 100, '123456', 'waiting', 0, new Date());
+      const mockQuiz = new Quiz(1, 'Test Quiz', 'Description', 100, 1, new Date());
+      const mockSession = new GameSession(1, 1, 100, 1, '123456', 'waiting', 0, new Date());
 
       vi.spyOn(mockQuizRepository, 'findById').mockResolvedValue(mockQuiz);
+      vi.spyOn(mockMemberRepository, 'findByOrganizationAndUser').mockResolvedValue(
+        new OrganizationMember(1, 1, 100, OrganizationRole.OWNER, new Date())
+      );
       vi.spyOn(mockGameSessionRepository, 'findActiveByAdminId').mockResolvedValue([]);
       vi.spyOn(mockGameSessionRepository, 'create').mockResolvedValue(mockSession);
 
@@ -65,10 +83,13 @@ describe('CreateGameSessionUseCase', () => {
     });
 
     it('should throw BadRequestException when admin has active sessions', async () => {
-      const mockQuiz = new Quiz(1, 'Test Quiz', 'Description', 100, new Date(), []);
-      const activeSession = new GameSession(1, 1, 100, '123456', 'active', 2, new Date());
+      const mockQuiz = new Quiz(1, 'Test Quiz', 'Description', 100, 1, new Date());
+      const activeSession = new GameSession(1, 1, 100, 1, '123456', 'active', 2, new Date());
 
       vi.spyOn(mockQuizRepository, 'findById').mockResolvedValue(mockQuiz);
+      vi.spyOn(mockMemberRepository, 'findByOrganizationAndUser').mockResolvedValue(
+        new OrganizationMember(1, 1, 100, OrganizationRole.OWNER, new Date())
+      );
       vi.spyOn(mockGameSessionRepository, 'findActiveByAdminId').mockResolvedValue([activeSession]);
 
       await expect(
@@ -79,10 +100,13 @@ describe('CreateGameSessionUseCase', () => {
     });
 
     it('should throw BadRequestException when admin has paused sessions', async () => {
-      const mockQuiz = new Quiz(1, 'Test Quiz', 'Description', 100, new Date(), []);
-      const pausedSession = new GameSession(1, 1, 100, '123456', 'paused', 2, new Date());
+      const mockQuiz = new Quiz(1, 'Test Quiz', 'Description', 100, 1, new Date());
+      const pausedSession = new GameSession(1, 1, 100, 1, '123456', 'paused', 2, new Date());
 
       vi.spyOn(mockQuizRepository, 'findById').mockResolvedValue(mockQuiz);
+      vi.spyOn(mockMemberRepository, 'findByOrganizationAndUser').mockResolvedValue(
+        new OrganizationMember(1, 1, 100, OrganizationRole.OWNER, new Date())
+      );
       vi.spyOn(mockGameSessionRepository, 'findActiveByAdminId').mockResolvedValue([pausedSession]);
 
       await expect(
@@ -93,10 +117,13 @@ describe('CreateGameSessionUseCase', () => {
     });
 
     it('should allow creating new session when previous session is ended', async () => {
-      const mockQuiz = new Quiz(1, 'Test Quiz', 'Description', 100, new Date(), []);
-      const mockSession = new GameSession(1, 1, 100, '123456', 'waiting', 0, new Date());
+      const mockQuiz = new Quiz(1, 'Test Quiz', 'Description', 100, 1, new Date());
+      const mockSession = new GameSession(1, 1, 100, 1, '123456', 'waiting', 0, new Date());
 
       vi.spyOn(mockQuizRepository, 'findById').mockResolvedValue(mockQuiz);
+      vi.spyOn(mockMemberRepository, 'findByOrganizationAndUser').mockResolvedValue(
+        new OrganizationMember(1, 1, 100, OrganizationRole.OWNER, new Date())
+      );
       vi.spyOn(mockGameSessionRepository, 'findActiveByAdminId').mockResolvedValue([]);
       vi.spyOn(mockGameSessionRepository, 'create').mockResolvedValue(mockSession);
 

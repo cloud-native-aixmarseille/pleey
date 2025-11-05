@@ -24,6 +24,7 @@ describe('SubmitAnswerUseCase - Guest Player Support', () => {
       findById: vi.fn(),
       findActiveByAdminId: vi.fn(),
       deleteOldSessions: vi.fn(),
+      findByOrganization: vi.fn(),
     };
 
     mockQuestionRepository = {
@@ -54,7 +55,7 @@ describe('SubmitAnswerUseCase - Guest Player Support', () => {
   describe('Guest player answer submission', () => {
     it('should not persist scores to database for guest players', async () => {
       // Setup
-      const mockSession = new GameSession(1, 100, 200, 'ABC123', 'active', 0, new Date());
+      const mockSession = new GameSession(1, 100, 200, 1, 'ABC123', 'active', 0, new Date());
       const mockQuestion = new Question(
         1,
         100,
@@ -89,7 +90,7 @@ describe('SubmitAnswerUseCase - Guest Player Support', () => {
 
     it('should persist scores to database for authenticated players', async () => {
       // Setup
-      const mockSession = new GameSession(1, 100, 200, 'ABC123', 'active', 0, new Date());
+      const mockSession = new GameSession(1, 100, 200, 1, 'ABC123', 'active', 0, new Date());
       const mockQuestion = new Question(
         1,
         100,
@@ -131,7 +132,7 @@ describe('SubmitAnswerUseCase - Guest Player Support', () => {
 
     it('should calculate correct scores for both guest and authenticated players', async () => {
       // Setup
-      const mockSession = new GameSession(1, 100, 200, 'ABC123', 'active', 0, new Date());
+      const mockSession = new GameSession(1, 100, 200, 1, 'ABC123', 'active', 0, new Date());
       const mockQuestion = new Question(
         1,
         100,

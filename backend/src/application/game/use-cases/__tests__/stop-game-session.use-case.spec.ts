@@ -17,6 +17,7 @@ describe('StopGameSessionUseCase', () => {
       updateStatus: vi.fn(),
       updateCurrentQuestion: vi.fn(),
       deleteOldSessions: vi.fn(),
+      findByOrganization: vi.fn(),
     };
 
     useCase = new StopGameSessionUseCase(mockGameSessionRepository);
@@ -24,8 +25,8 @@ describe('StopGameSessionUseCase', () => {
 
   describe('execute', () => {
     it('should pause an active game session successfully', async () => {
-      const mockSession = new GameSession(1, 10, 100, '123456', 'active', 2, new Date());
-      const pausedSession = new GameSession(1, 10, 100, '123456', 'paused', 2, new Date());
+      const mockSession = new GameSession(1, 10, 100, 1, '123456', 'active', 2, new Date());
+      const pausedSession = new GameSession(1, 10, 100, 1, '123456', 'paused', 2, new Date());
 
       vi.spyOn(mockGameSessionRepository, 'findById').mockResolvedValue(mockSession);
       vi.spyOn(mockGameSessionRepository, 'updateStatus').mockResolvedValue(pausedSession);
@@ -47,7 +48,7 @@ describe('StopGameSessionUseCase', () => {
     });
 
     it('should throw ForbiddenException when admin does not own the session', async () => {
-      const mockSession = new GameSession(1, 10, 100, '123456', 'active', 2, new Date());
+      const mockSession = new GameSession(1, 10, 100, 1, '123456', 'active', 2, new Date());
 
       vi.spyOn(mockGameSessionRepository, 'findById').mockResolvedValue(mockSession);
 
@@ -59,7 +60,7 @@ describe('StopGameSessionUseCase', () => {
     });
 
     it('should throw error when trying to pause non-active session', async () => {
-      const mockSession = new GameSession(1, 10, 100, '123456', 'waiting', 0, new Date());
+      const mockSession = new GameSession(1, 10, 100, 1, '123456', 'waiting', 0, new Date());
 
       vi.spyOn(mockGameSessionRepository, 'findById').mockResolvedValue(mockSession);
 

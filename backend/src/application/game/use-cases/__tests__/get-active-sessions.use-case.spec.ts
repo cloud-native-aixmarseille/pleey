@@ -16,6 +16,7 @@ describe('GetActiveSessionsUseCase', () => {
       updateStatus: vi.fn(),
       updateCurrentQuestion: vi.fn(),
       deleteOldSessions: vi.fn(),
+      findByOrganization: vi.fn(),
     };
 
     useCase = new GetActiveSessionsUseCase(mockGameSessionRepository);
@@ -24,8 +25,8 @@ describe('GetActiveSessionsUseCase', () => {
   describe('execute', () => {
     it('should return all active sessions for an admin', async () => {
       const mockSessions = [
-        new GameSession(1, 10, 100, '123456', 'active', 2, new Date()),
-        new GameSession(2, 11, 100, '789012', 'paused', 1, new Date()),
+        new GameSession(1, 10, 100, 1, '123456', 'active', 2, new Date()),
+        new GameSession(2, 11, 100, 1, '789012', 'paused', 1, new Date()),
       ];
 
       vi.spyOn(mockGameSessionRepository, 'findActiveByAdminId').mockResolvedValue(mockSessions);
@@ -49,9 +50,9 @@ describe('GetActiveSessionsUseCase', () => {
 
     it('should only return waiting, active, and paused sessions', async () => {
       const mockSessions = [
-        new GameSession(1, 10, 100, '123456', 'waiting', 0, new Date()),
-        new GameSession(2, 11, 100, '789012', 'active', 2, new Date()),
-        new GameSession(3, 12, 100, '345678', 'paused', 1, new Date()),
+        new GameSession(1, 10, 100, 1, '123456', 'waiting', 0, new Date()),
+        new GameSession(2, 11, 100, 1, '789012', 'active', 2, new Date()),
+        new GameSession(3, 12, 100, 1, '345678', 'paused', 1, new Date()),
       ];
 
       vi.spyOn(mockGameSessionRepository, 'findActiveByAdminId').mockResolvedValue(mockSessions);
