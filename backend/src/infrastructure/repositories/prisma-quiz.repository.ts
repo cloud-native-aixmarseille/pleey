@@ -11,16 +11,29 @@ import { PrismaService } from '../database/prisma.service';
 export class PrismaQuizRepository implements QuizRepository {
   constructor(private readonly prisma: PrismaService) { }
 
-  async create(title: string, description: string | null, createdById: number): Promise<Quiz> {
+  async create(
+    title: string,
+    description: string | null,
+    createdById: number,
+    organizationId: number,
+  ): Promise<Quiz> {
     const quiz = await this.prisma.quiz.create({
       data: {
         title,
         description,
         createdById,
+        organizationId,
       },
     });
 
-    return new Quiz(quiz.id, quiz.title, quiz.description, quiz.createdById, quiz.createdAt);
+    return new Quiz(
+      quiz.id,
+      quiz.title,
+      quiz.description,
+      quiz.createdById,
+      quiz.organizationId,
+      quiz.createdAt,
+    );
   }
 
   async findById(id: number): Promise<Quiz | null> {
@@ -30,7 +43,14 @@ export class PrismaQuizRepository implements QuizRepository {
 
     if (!quiz) return null;
 
-    return new Quiz(quiz.id, quiz.title, quiz.description, quiz.createdById, quiz.createdAt);
+    return new Quiz(
+      quiz.id,
+      quiz.title,
+      quiz.description,
+      quiz.createdById,
+      quiz.organizationId,
+      quiz.createdAt,
+    );
   }
 
   async findAll(): Promise<Quiz[]> {
@@ -39,7 +59,34 @@ export class PrismaQuizRepository implements QuizRepository {
     });
 
     return quizzes.map(
-      (quiz) => new Quiz(quiz.id, quiz.title, quiz.description, quiz.createdById, quiz.createdAt),
+      (quiz) =>
+        new Quiz(
+          quiz.id,
+          quiz.title,
+          quiz.description,
+          quiz.createdById,
+          quiz.organizationId,
+          quiz.createdAt,
+        ),
+    );
+  }
+
+  async findByOrganization(organizationId: number): Promise<Quiz[]> {
+    const quizzes = await this.prisma.quiz.findMany({
+      where: { organizationId },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return quizzes.map(
+      (quiz) =>
+        new Quiz(
+          quiz.id,
+          quiz.title,
+          quiz.description,
+          quiz.createdById,
+          quiz.organizationId,
+          quiz.createdAt,
+        ),
     );
   }
 
@@ -50,7 +97,15 @@ export class PrismaQuizRepository implements QuizRepository {
     });
 
     return quizzes.map(
-      (quiz) => new Quiz(quiz.id, quiz.title, quiz.description, quiz.createdById, quiz.createdAt),
+      (quiz) =>
+        new Quiz(
+          quiz.id,
+          quiz.title,
+          quiz.description,
+          quiz.createdById,
+          quiz.organizationId,
+          quiz.createdAt,
+        ),
     );
   }
 
@@ -66,6 +121,13 @@ export class PrismaQuizRepository implements QuizRepository {
       data: { title, description },
     });
 
-    return new Quiz(quiz.id, quiz.title, quiz.description, quiz.createdById, quiz.createdAt);
+    return new Quiz(
+      quiz.id,
+      quiz.title,
+      quiz.description,
+      quiz.createdById,
+      quiz.organizationId,
+      quiz.createdAt,
+    );
   }
 }

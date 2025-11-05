@@ -10,7 +10,12 @@ export interface GameSessionRepository {
   /**
    * Creates a new game session
    */
-  create(quizId: number, adminId: number, pin: string): Promise<GameSession>;
+  create(
+    quizId: number,
+    adminId: number,
+    organizationId: number,
+    pin: string,
+  ): Promise<GameSession>;
 
   /**
    * Finds a game session by PIN
@@ -26,6 +31,11 @@ export interface GameSessionRepository {
    * Finds active or paused sessions for a specific admin
    */
   findActiveByAdminId(adminId: number): Promise<GameSession[]>;
+
+  /**
+   * Finds sessions by organization
+   */
+  findByOrganization(organizationId: number): Promise<GameSession[]>;
 
   /**
    * Updates game session status

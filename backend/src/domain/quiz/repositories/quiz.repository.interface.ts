@@ -10,7 +10,12 @@ export interface QuizRepository {
   /**
    * Creates a new quiz
    */
-  create(title: string, description: string | null, createdById: number): Promise<Quiz>;
+  create(
+    title: string,
+    description: string | null,
+    createdById: number,
+    organizationId: number,
+  ): Promise<Quiz>;
 
   /**
    * Finds a quiz by ID
@@ -21,6 +26,11 @@ export interface QuizRepository {
    * Finds all quizzes
    */
   findAll(): Promise<Quiz[]>;
+
+  /**
+   * Finds quizzes by organization
+   */
+  findByOrganization(organizationId: number): Promise<Quiz[]>;
 
   /**
    * Finds quizzes created by a specific user
