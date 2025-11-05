@@ -8,8 +8,6 @@ interface PlayersSectionProps {
   readonly sectionTitleId: string;
 }
 
-const AVATARS = ["🦊", "🐻", "🐼", "🐨", "🦁", "🐯", "🐸", "🐷", "🐵", "🐶"];
-
 function PlayersSectionComponent({
   players,
   sectionTitleId,
@@ -54,10 +52,14 @@ function PlayersSectionComponent({
                 style={{ animationDelay: `${index * 0.05}s` }}
               >
                 <div
-                  className="text-4xl sm:text-5xl mb-3 animate-bounce-slow"
+                  className="text-4xl sm:text-5xl mb-3 animate-bounce-slow flex justify-center"
                   aria-hidden="true"
                 >
-                  {AVATARS[index % AVATARS.length]}
+                  <img 
+                    src={player.avatar} 
+                    alt="" 
+                    className="w-16 h-16 sm:w-20 sm:h-20"
+                  />
                 </div>
                 <div
                   className="font-mono text-xs sm:text-sm text-accent-400 truncate font-bold uppercase"

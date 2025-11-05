@@ -36,6 +36,7 @@ export interface GameSession {
 export interface Player {
   id: number;
   username: string;
+  avatar: string;
 }
 
 export interface AnswerResult {
