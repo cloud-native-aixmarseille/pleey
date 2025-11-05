@@ -131,9 +131,9 @@
     "gameLobby": "► LOBBY DU JEU ◄",
     "waitingForPlayersToJoin": "> EN ATTENTE DE JOUEURS...",
     "howToJoinTitle": "★ COMMENT REJOINDRE CE JEU ★",
-    "howToJoinStep1": "Ouvrez le jeu sur votre appareil.",
-    "howToJoinStep2": "Choisissez \"Rejoindre\" et entrez le PIN ci-dessous.",
-    "howToJoinStep3": "Restez prêt jusqu'à ce que l'hôte démarre le quiz.",
+    "howToJoinStep1": "Entrez le PIN ci-dessous dans l'écran Rejoindre",
+    "howToJoinStep2": "Ou scannez le QR code avec votre appareil mobile",
+    "howToJoinStep3": "Attendez que l'hôte démarre le quiz",
     "enterThisPin": "► ENTREZ CE PIN ◄",
     "copyPin": "Copier le PIN",
     "copied": "COPIÉ !",
@@ -147,7 +147,10 @@
     "ready": "Prêt",
     "clipboardCopied": "PIN du jeu copié dans le presse-papiers.",
     "clipboardError": "Impossible de copier automatiquement. Le PIN est {{pin}}.",
-    "waiting": "En attente..."
+    "waiting": "En attente...",
+    "scanQrCode": "Ou scannez ce QR code",
+    "qrCodeAlt": "QR code pour rejoindre le jeu avec le PIN {{pin}}",
+    "joinOptions": "Rejoindre ce jeu"
   },
   "common": {
     "loading": "Chargement...",
