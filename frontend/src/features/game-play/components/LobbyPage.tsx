@@ -203,12 +203,6 @@ export default function LobbyPage({
                 </div>
               </div>
 
-              <div className="mb-4 sm:mb-6">
-                <h3 className="font-display text-xl sm:text-2xl md:text-3xl text-primary-300 uppercase text-center tracking-wider mb-2">
-                  {t("game.enterThisPin")}
-                </h3>
-              </div>
-
               {/* PIN Display - Large and prominent */}
               <div className="relative mb-6 sm:mb-8">
                 <div className="bg-dark-500 border-4 border-accent-500 rounded-2xl p-1 inline-block shadow-neon-accent animate-pulse-slow">
