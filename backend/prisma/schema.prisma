@@ -20,6 +20,7 @@ model User {
 
   quizzes       Quiz[]
   scores        Score[]
+  gameSessions  GameSession[]
   
   @@map("users")
 }
@@ -60,12 +61,14 @@ model Question {
 model GameSession {
   id              Int      @id @default(autoincrement())
   quizId          Int      @map("quiz_id")
+  adminId         Int      @map("admin_id")
   pin             String   @unique
   status          String   @default("waiting")
   currentQuestion Int      @default(0) @map("current_question")
   createdAt       DateTime @default(now()) @map("created_at")
 
-  quiz   Quiz    @relation(fields: [quizId], references: [id])
+  quiz  Quiz @relation(fields: [quizId], references: [id])
+  admin User @relation(fields: [adminId], references: [id])
   scores Score[]
 
   @@map("game_sessions")
