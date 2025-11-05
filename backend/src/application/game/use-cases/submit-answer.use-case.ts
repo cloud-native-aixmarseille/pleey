@@ -62,15 +62,19 @@ export class SubmitAnswerUseCase {
       isCorrect,
     );
 
-    // Save score
-    await this.scoreRepository.create({
-      sessionId: session.id,
-      userId: dto.userId,
-      questionId: currentQuestion.id,
-      points: gameScore.getTotalPoints(),
-      answerTime: currentQuestion.timeLimit - dto.timeLeft,
-      isCorrect,
-    });
+    // Save score only for authenticated users (not guests)
+    const isGuest = !dto.userId;
+    if (!isGuest && dto.userId) {
+      await this.scoreRepository.create({
+        sessionId: session.id,
+        userId: dto.userId,
+        questionId: currentQuestion.id,
+        points: gameScore.getTotalPoints(),
+        answerTime: currentQuestion.timeLimit - dto.timeLeft,
+        isCorrect,
+      });
+    }
+    // Guest scores are not persisted to database, only tracked in session state
 
     return {
       isCorrect,
