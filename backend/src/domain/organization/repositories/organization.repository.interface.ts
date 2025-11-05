@@ -7,6 +7,7 @@ import type { Organization } from '../entities/organization.entity';
 export interface OrganizationRepository {
   create(name: string, description: string | null): Promise<Organization>;
   findById(id: number): Promise<Organization | null>;
+  findByIds(ids: number[]): Promise<Organization[]>;
   findByName(name: string): Promise<Organization | null>;
   findAll(): Promise<Organization[]>;
   update(

@@ -25,17 +25,8 @@ export class GetOrganizationsByUserUseCase {
       return [];
     }
 
-    // Get organization details for each membership
-    const organizations: Organization[] = [];
-    for (const membership of memberships) {
-      const org = await this.organizationRepository.findById(
-        membership.organizationId,
-      );
-      if (org) {
-        organizations.push(org);
-      }
-    }
-
-    return organizations;
+    // Get organization details in a single query
+    const organizationIds = memberships.map((m) => m.organizationId);
+    return await this.organizationRepository.findByIds(organizationIds);
   }
 }

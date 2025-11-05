@@ -23,13 +23,7 @@ export class PrismaOrganizationMemberRepository
       },
     });
 
-    return new OrganizationMember(
-      member.id,
-      member.organizationId,
-      member.userId,
-      member.role as OrganizationRole,
-      member.joinedAt,
-    );
+    return this.toDomain(member);
   }
 
   async findById(id: number): Promise<OrganizationMember | null> {
@@ -41,13 +35,7 @@ export class PrismaOrganizationMemberRepository
       return null;
     }
 
-    return new OrganizationMember(
-      member.id,
-      member.organizationId,
-      member.userId,
-      member.role as OrganizationRole,
-      member.joinedAt,
-    );
+    return this.toDomain(member);
   }
 
   async findByOrganizationAndUser(
@@ -67,13 +55,7 @@ export class PrismaOrganizationMemberRepository
       return null;
     }
 
-    return new OrganizationMember(
-      member.id,
-      member.organizationId,
-      member.userId,
-      member.role as OrganizationRole,
-      member.joinedAt,
-    );
+    return this.toDomain(member);
   }
 
   async findByOrganization(
@@ -88,13 +70,7 @@ export class PrismaOrganizationMemberRepository
 
     return members.map(
       (member) =>
-        new OrganizationMember(
-          member.id,
-          member.organizationId,
-          member.userId,
-          member.role as OrganizationRole,
-          member.joinedAt,
-        ),
+        this.toDomain(member),
     );
   }
 
@@ -108,13 +84,7 @@ export class PrismaOrganizationMemberRepository
 
     return members.map(
       (member) =>
-        new OrganizationMember(
-          member.id,
-          member.organizationId,
-          member.userId,
-          member.role as OrganizationRole,
-          member.joinedAt,
-        ),
+        this.toDomain(member),
     );
   }
 
@@ -127,6 +97,16 @@ export class PrismaOrganizationMemberRepository
       data: { role },
     });
 
+    return this.toDomain(member);
+  }
+
+  async delete(id: number): Promise<void> {
+    await this.prisma.organizationMember.delete({
+      where: { id },
+    });
+  }
+
+  private toDomain(member: any): OrganizationMember {
     return new OrganizationMember(
       member.id,
       member.organizationId,
@@ -134,11 +114,5 @@ export class PrismaOrganizationMemberRepository
       member.role as OrganizationRole,
       member.joinedAt,
     );
-  }
-
-  async delete(id: number): Promise<void> {
-    await this.prisma.organizationMember.delete({
-      where: { id },
-    });
   }
 }
