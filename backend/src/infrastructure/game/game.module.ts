@@ -13,11 +13,13 @@ import {
 import { ScoreRepositoryProvider } from '../../domain/game/repositories/score.repository.interface';
 import { QuestionRepositoryProvider } from '../../domain/quiz/repositories/question.repository.interface';
 import { QuizRepositoryProvider } from '../../domain/quiz/repositories/quiz.repository.interface';
+import { OrganizationMemberRepositoryProvider } from '../../domain/organization/repositories/organization-member.repository.interface';
 import { DatabaseModule } from '../database/database.module';
 import { PrismaGameSessionRepository } from '../repositories/prisma-game-session.repository';
 import { PrismaQuestionRepository } from '../repositories/prisma-question.repository';
 import { PrismaQuizRepository } from '../repositories/prisma-quiz.repository';
 import { PrismaScoreRepository } from '../repositories/prisma-score.repository';
+import { PrismaOrganizationMemberRepository } from '../repositories/prisma-organization-member.repository';
 import { GameController } from './game.controller';
 import { GameGateway } from './game.gateway';
 import { I18nWsExceptionFilter } from '../filters/i18n-ws-exception.filter';
@@ -38,6 +40,7 @@ import { I18nWsExceptionFilter } from '../filters/i18n-ws-exception.filter';
     PrismaScoreRepository,
     PrismaQuestionRepository,
     PrismaQuizRepository,
+    PrismaOrganizationMemberRepository,
     {
       provide: GameSessionRepositoryProvider,
       useExisting: PrismaGameSessionRepository,
@@ -54,8 +57,12 @@ import { I18nWsExceptionFilter } from '../filters/i18n-ws-exception.filter';
       provide: QuizRepositoryProvider,
       useExisting: PrismaQuizRepository,
     },
+    {
+      provide: OrganizationMemberRepositoryProvider,
+      useExisting: PrismaOrganizationMemberRepository,
+    },
     GameGateway,
     I18nWsExceptionFilter,
   ],
 })
-export class GameModule { }
+export class GameModule {}

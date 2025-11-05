@@ -5,6 +5,7 @@ import { AuthModule } from './infrastructure/auth';
 import { GameModule } from './infrastructure/game';
 import { QuizModule } from './infrastructure/quiz/quiz.module';
 import { HealthModule } from './infrastructure/health';
+import { OrganizationModule } from './infrastructure/organization';
 
 @Module({
   imports: [
@@ -21,10 +22,11 @@ import { HealthModule } from './infrastructure/health';
     }),
     HealthModule,
     AuthModule,
+    OrganizationModule,
     QuizModule,
     GameModule,
   ],
   controllers: [],
   providers: [],
 })
-export class AppModule { }
+export class AppModule {}
