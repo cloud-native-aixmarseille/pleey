@@ -31,6 +31,7 @@ import {
 } from '../../domain/quiz/repositories/question.repository.interface';
 import { GameErrorCode } from '../../application/game/enums/game-error-code.enum';
 import { I18nWsExceptionFilter } from '../filters/i18n-ws-exception.filter';
+import { AvatarGeneratorService } from '../../domain/game/services/avatar-generator.service';
 
 const RAW_SOCKET_ORIGINS = process.env.CORS_ORIGIN ?? '';
 const PARSED_SOCKET_ORIGINS = RAW_SOCKET_ORIGINS.split(',')
@@ -45,6 +46,7 @@ interface PlayerState {
   userId: number;
   username: string;
   socketId: string;
+  avatar: string;
 }
 
 interface SessionState {
@@ -82,6 +84,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     private readonly submitAnswerUseCase: SubmitAnswerUseCase,
     private readonly getLeaderboardUseCase: GetLeaderboardUseCase,
     private readonly i18n: I18nService,
+    private readonly avatarGenerator: AvatarGeneratorService,
   ) { }
 
   afterInit(): void {
@@ -116,6 +119,12 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       const state = await this.ensureSessionState(dto.pin);
       const existingEntry = this.findPlayerByUserId(state.players, dto.userId);
 
+      // Generate avatar for the player
+      const avatar = this.avatarGenerator.generateAvatar(dto.userId, state.sessionId);
+
+      // Reuse existing avatar if player is reconnecting
+      const playerAvatar = existingEntry?.avatar ?? avatar;
+
       if (existingEntry) {
         state.players.delete(existingEntry.socketId);
       }
@@ -124,6 +133,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         socketId: client.id,
         userId: dto.userId,
         username: dto.username,
+        avatar: playerAvatar,
       });
 
       client.join(dto.pin);
@@ -267,10 +277,11 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     this.sessions.delete(pin);
   }
 
-  private mapPlayers(players: Map<string, PlayerState>): Array<{ id: number; username: string }> {
+  private mapPlayers(players: Map<string, PlayerState>): Array<{ id: number; username: string; avatar: string }> {
     return Array.from(players.values()).map((player) => ({
       id: player.userId,
       username: player.username,
+      avatar: player.avatar,
     }));
   }
 

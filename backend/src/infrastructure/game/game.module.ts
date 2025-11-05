@@ -3,6 +3,7 @@ import { CreateGameSessionUseCase } from '../../application/game/use-cases/creat
 import { GetLeaderboardUseCase } from '../../application/game/use-cases/get-leaderboard.use-case';
 import { SubmitAnswerUseCase } from '../../application/game/use-cases/submit-answer.use-case';
 import { ScoreCalculatorService } from '../../domain/game/services/score-calculator.service';
+import { AvatarGeneratorService } from '../../domain/game/services/avatar-generator.service';
 import {
   GameSessionRepositoryProvider,
 } from '../../domain/game/repositories/game-session.repository.interface';
@@ -26,6 +27,7 @@ import { I18nWsExceptionFilter } from '../filters/i18n-ws-exception.filter';
     GetLeaderboardUseCase,
     SubmitAnswerUseCase,
     ScoreCalculatorService,
+    AvatarGeneratorService,
     PrismaGameSessionRepository,
     PrismaScoreRepository,
     PrismaQuestionRepository,
