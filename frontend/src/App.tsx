@@ -262,9 +262,7 @@ export default function QuizApp() {
           }));
           questions = fetchedQuestions;
         } catch (error) {
-          window.alert(
-            t("errors.unableToLoadQuestions")
-          );
+          window.alert(t("errors.unableToLoadQuestions"));
           return;
         }
       }
@@ -346,6 +344,8 @@ export default function QuizApp() {
         gamePin={gamePin}
         players={players}
         isAdmin={isAdmin}
+        hostUserId={isAdmin && user ? user.id : null}
+        hostUsername={isAdmin && user ? user.username : null}
         onStartGame={handleStartGame}
         questionCount={activeQuizQuestionCount}
       />
@@ -355,6 +355,7 @@ export default function QuizApp() {
     gamePin,
     players,
     isAdmin,
+    user,
     handleStartGame,
     activeQuizQuestionCount,
   ]);

@@ -27,7 +27,7 @@ build: ## Build Docker images
 
 up: ## Start the application
 	@echo "$(GREEN)Starting application...$(NC)"
-	$(COMPOSE) up -d	
+	$(COMPOSE) up --build -d
 	@echo "$(GREEN)✓ Application started$(NC)"
 	@echo "Frontend: http://frontend.quiz-master.localhost"
 	@echo "Backend: http://backend.quiz-master.localhost"

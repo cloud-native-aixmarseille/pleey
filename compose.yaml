@@ -56,19 +56,12 @@ services:
   # Backend NestJS (dev watch mode)
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
-      target: development
-      cache_from:
-        - type=registry,ref=ghcr.io/quiz-app/backend:cache
-      args:
-        - BUILDKIT_INLINE_CACHE=1
-    container_name: quiz-backend
+      dockerfile: backend/Dockerfile
+      target: dev
     restart: unless-stopped
-    user: "1000:1000" # Run as host user to avoid permission issues
+    user: "${UID:-1000}:${GID:-1000}" # Run as host user to avoid permission issues
     volumes:
-      - ./backend:/app
-      - backend-node-modules:/app/node_modules
+      - ./backend:/usr/src/app
     expose:
       - "3001"
     environment:
@@ -110,19 +103,12 @@ services:
   # Frontend React (Vite dev server with watch)
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      target: development
-      cache_from:
-        - type=registry,ref=ghcr.io/quiz-app/frontend:cache
-      args:
-        - BUILDKIT_INLINE_CACHE=1
-    container_name: quiz-frontend
+      dockerfile: ./frontend/Dockerfile
+      target: dev
     restart: unless-stopped
-    user: "1000:1000" # Run as host user to avoid permission issues
+    user: "${UID:-1000}:${GID:-1000}" # Run as host user to avoid permission issues
     volumes:
-      - ./frontend:/app
-      - frontend-node-modules:/app/node_modules
+      - ./frontend:/usr/src/app
     expose:
       - "5173"
     depends_on:
@@ -160,8 +146,4 @@ networks:
 
 volumes:
   postgres-data:
-    driver: local
-  backend-node-modules:
-    driver: local
-  frontend-node-modules:
     driver: local

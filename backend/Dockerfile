@@ -1,159 +1,77 @@
-# syntax=docker/dockerfile:1.4
+FROM node:24.11-bookworm-slim AS base
 
-# =============================================================================
-# Backend Multi-stage Dockerfile with BuildKit optimization
-# Stages: base, development, builder, production, ci
-# =============================================================================
+ENV DEBIAN_FRONTEND=noninteractive
+RUN \
+    --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    set -eu; \
+    rm -f /etc/apt/apt.conf.d/docker-clean && \
+    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' >/etc/apt/apt.conf.d/keep-cache && \
+    apt-get update && apt-get install -y --no-install-recommends curl ca-certificates dumb-init
 
-# -----------------------------------------------------------------------------
-# Stage: base - Common base with dependencies
-# -----------------------------------------------------------------------------
-FROM node:20-alpine AS base
-
-# Install security updates and required tools
-RUN apk update && \
-    apk upgrade && \
-    apk add --no-cache \
-        dumb-init \
-        tini && \
-    rm -rf /var/cache/apk/*
-
-# Set working directory
-WORKDIR /app
-
-# Create non-root user for security
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nestjs -u 1001
-
-# Copy package files for dependency installation
-COPY --chown=nestjs:nodejs package*.json ./
-COPY --chown=nestjs:nodejs prisma ./prisma/
-
-# -----------------------------------------------------------------------------
-# Stage: development - For local development with hot-reload
-# -----------------------------------------------------------------------------
-FROM base AS development
-
-# Set environment
-ENV NODE_ENV=development
-
-# Install all dependencies (including devDependencies)
 RUN --mount=type=cache,target=/root/.npm \
-    npm ci
+    set -eu; \
+    npm install -g npm;
 
-# Generate Prisma Client
-RUN npx prisma generate
+USER node
+WORKDIR /usr/src/app
 
-# Copy source code
-COPY --chown=nestjs:nodejs . .
+FROM base AS build
 
-# Switch to non-root user
-USER nestjs
+COPY ./backend/package*.json /usr/src/app/
 
-# Expose port
-EXPOSE 3001
+RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc \
+    --mount=type=cache,target=/root/.npm \
+    set -eu; \
+    npm ci --include=dev;
 
-# Use tini as entrypoint for proper signal handling
-ENTRYPOINT ["/sbin/tini", "--"]
+COPY --chown=node:node ./backend/prisma /usr/src/app/
+RUN set -eu; \
+    npm run prisma:generate;
 
-# Start development server with hot-reload
-CMD ["npm", "run", "start:dev"]
-
-# -----------------------------------------------------------------------------
-# Stage: builder - Build the application
-# -----------------------------------------------------------------------------
-FROM base AS builder
-
-# Set environment
-ENV NODE_ENV=production
-
-# Install ALL dependencies (including devDependencies for build)
-RUN --mount=type=cache,target=/root/.npm \
-    npm ci --include=dev
-
-# Generate Prisma Client
-RUN npx prisma generate
-
-# Copy source code
-COPY --chown=nestjs:nodejs . .
-
-# Build the application
+COPY --chown=node:node ./backend/ /usr/src/app/
 RUN npm run build
 
-# Now prune dev dependencies and clean cache
-RUN npm prune --production && \
+RUN set -eu; \
+    npm prune --production && \
     npm cache clean --force
 
-# -----------------------------------------------------------------------------
-# Stage: production - Optimized production image
-# -----------------------------------------------------------------------------
-FROM node:20-alpine AS production
+FROM base AS prod
 
-# Install security updates and runtime dependencies only
-RUN apk update && \
-    apk upgrade && \
-    apk add --no-cache \
-        dumb-init \
-        tini \
-        curl && \
-    rm -rf /var/cache/apk/*
+ENV NODE_ENV production
 
-WORKDIR /app
+COPY --from=build-app /usr/bin/dumb-init /usr/bin/dumb-init
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nestjs -u 1001
+COPY --chown=node:node --from=build-app /usr/src/app/node_modules /usr/src/app/node_modules
+COPY --chown=node:node --from=build-app /usr/src/app/prisma /usr/src/app/prisma
+COPY --chown=node:node --from=build-app /usr/src/app/dist /usr/src/app/dist
 
-# Set environment
-ENV NODE_ENV=production \
-    PORT=3001
+CMD dumb-init node --max-old-space-size=200 "/usr/src/app/dist/main.js"
 
-# Copy production dependencies from builder
-COPY --from=builder --chown=nestjs:nodejs /app/node_modules ./node_modules
+FROM base as tools
 
-# Copy Prisma files and generated client
-COPY --from=builder --chown=nestjs:nodejs /app/prisma ./prisma
-COPY --from=builder --chown=nestjs:nodejs /app/package*.json ./
+# Install libs utils for ci
+USER root
+ENV DEBIAN_FRONTEND=noninteractive
+RUN \
+    --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    set -eu; \
+    rm -f /etc/apt/apt.conf.d/docker-clean && \
+    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' >/etc/apt/apt.conf.d/keep-cache && \
+    apt-get update && apt-get install -y --no-install-recommends wait-for-it procps
+USER node
 
-# Copy built application
-COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
+FROM tools AS ci
 
-# Switch to non-root user
-USER nestjs
+COPY --chown=node:node --from=build /usr/src/app/ /usr/src/app/
+
+CMD [ "tail", "-f", "/dev/null" ]
+
+FROM tools AS dev
 
 # Expose port
 EXPOSE 3001
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:3001/health/live', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
-
-# Use tini as entrypoint for proper signal handling
-ENTRYPOINT ["/sbin/tini", "--"]
-
-# Start the application
-CMD ["node", "dist/src/main.js"]
-
-# -----------------------------------------------------------------------------
-# Stage: ci - For CI/CD pipelines (testing, etc.)
-# -----------------------------------------------------------------------------
-FROM base AS ci
-
-# Set environment
-ENV NODE_ENV=test
-
-# Install all dependencies
-RUN --mount=type=cache,target=/root/.npm \
-    npm ci
-
-# Generate Prisma Client
-RUN npx prisma generate
-
-# Copy source code
-COPY --chown=nestjs:nodejs . .
-
-# Switch to non-root user
-USER nestjs
-
-# Default command for CI (can be overridden)
-CMD ["npm", "test"]
+# Start development server with hot-reload after ensuring dependencies
+CMD ["sh", "-c", "npm install && npm run start:dev"]

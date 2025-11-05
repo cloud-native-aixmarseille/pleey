@@ -64,7 +64,6 @@ backups/
 
 # Docker
 docker-compose.override.yml
-.dockerignore
 
 # Testing
 coverage/

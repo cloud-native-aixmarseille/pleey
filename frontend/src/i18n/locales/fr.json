@@ -150,7 +150,16 @@
     "waiting": "En attente...",
     "scanQrCode": "Ou scannez ce QR code",
     "qrCodeAlt": "QR code pour rejoindre le jeu avec le PIN {{pin}}",
-    "joinOptions": "Rejoindre ce jeu"
+    "joinOptions": "Rejoindre ce jeu",
+    "joinOptionsLead": "Demandez aux joueurs de prendre leur téléphone et de rejoindre la partie en quelques secondes.",
+    "joinStepLabel": "Étape {{step}}",
+    "joinStepScanTitle": "Scannez le QR code",
+    "joinStepScanDescription": "Ouvrez l'appareil photo, pointez-le vers le QR code et suivez le lien qui s'affiche.",
+    "joinStepManualTitle": "Entrez le PIN manuellement",
+    "joinStepManualDescription": "Saisissez le PIN affiché ci-dessous.",
+    "joinManualLinkPrefix": "Rejoindre sur",
+    "joinStepWaitDescription": "Restez sur cet écran jusqu'à ce que l'hôte lance le quiz.",
+    "copyPinAriaLabel": "Copier le PIN du jeu dans le presse-papiers"
   },
   "common": {
     "loading": "Chargement...",

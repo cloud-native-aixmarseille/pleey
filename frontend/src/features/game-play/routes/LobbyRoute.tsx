@@ -10,7 +10,7 @@ import LobbyPage from "../components/LobbyPage";
  * Following Single Responsibility Principle
  */
 export function LobbyRoute() {
-  const { isAuthenticated, isAdmin } = useAuth();
+  const { isAuthenticated, isAdmin, user } = useAuth();
   const { gamePin, players, startGame } = useGame();
   const { questionsByQuiz } = useQuiz();
 
@@ -30,6 +30,8 @@ export function LobbyRoute() {
       gamePin={gamePin}
       players={players}
       isAdmin={isAdmin}
+      hostUserId={isAdmin ? user?.id ?? null : null}
+      hostUsername={isAdmin ? user?.username ?? null : null}
       onStartGame={handleStartGame}
       questionCount={questionCount}
     />

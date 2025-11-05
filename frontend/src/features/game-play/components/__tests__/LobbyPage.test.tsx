@@ -1,3 +1,4 @@
+import "@testing-library/jest-dom";
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import LobbyPage from "../LobbyPage";
@@ -20,7 +21,9 @@ describe("LobbyPage", () => {
     render(<LobbyPage {...mockHandlers} />);
 
     expect(screen.getByText(/GAME LOBBY/i)).toBeInTheDocument();
-    expect(screen.getByText("123456")).toBeInTheDocument();
+    expect(
+      screen.getByRole("text", { name: /Enter PIN:? 123456/i })
+    ).toBeInTheDocument();
   });
 
   it("should display number of connected players", () => {
@@ -58,6 +61,7 @@ describe("LobbyPage", () => {
       gamePin: "123456",
       players: mockPlayers,
       isAdmin: true,
+      hostUserId: null,
       onStartGame: vi.fn(),
       questionCount: 2,
     };
@@ -83,6 +87,66 @@ describe("LobbyPage", () => {
     expect(
       screen.queryByRole("button", { name: /START GAME/i })
     ).not.toBeInTheDocument();
+  });
+
+  it("should exclude admin host from player list", () => {
+    const mockHandlers = {
+      gamePin: "123456",
+      players: mockPlayers,
+      isAdmin: true,
+      hostUserId: 1,
+      onStartGame: vi.fn(),
+      questionCount: 2,
+    };
+
+    render(<LobbyPage {...mockHandlers} />);
+
+    expect(screen.queryByText("Player1")).not.toBeInTheDocument();
+    expect(screen.getByText("Player2")).toBeInTheDocument();
+  });
+
+  it("should exclude admin host using username when id is unavailable", () => {
+    const playersMissingId = [
+      { id: undefined as unknown as number, username: "HostUser" },
+      { id: 2 as unknown as number, username: "GuestPlayer" },
+    ];
+
+    render(
+      <LobbyPage
+        gamePin="654321"
+        players={playersMissingId}
+        isAdmin
+        hostUserId={null}
+        hostUsername="HostUser"
+        onStartGame={vi.fn()}
+        questionCount={2}
+      />
+    );
+
+    expect(screen.queryByText("HostUser")).not.toBeInTheDocument();
+    expect(screen.getByText("GuestPlayer")).toBeInTheDocument();
+  });
+
+  it("should exclude admin host when player id uses username value", () => {
+    const playersWithNamedId = [
+      { id: "admin" as unknown as number, username: "admin" },
+      { id: "player-1" as unknown as number, username: "PlayerOne" },
+    ];
+
+    render(
+      <LobbyPage
+        gamePin="222333"
+        players={playersWithNamedId}
+        isAdmin
+        hostUserId={1}
+        hostUsername="Admin"
+        onStartGame={vi.fn()}
+        questionCount={3}
+      />
+    );
+
+    expect(screen.queryByText("admin")).not.toBeInTheDocument();
+    expect(screen.getByText("PlayerOne")).toBeInTheDocument();
   });
 
   it("should call onStartGame when admin clicks start button", () => {
@@ -143,7 +207,10 @@ describe("LobbyPage", () => {
 
     render(<LobbyPage {...mockHandlers} />);
 
-    expect(screen.getByText(/HOW TO JOIN THIS GAME/i)).toBeInTheDocument();
+    expect(screen.getByText(/Join this game/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Ask players to grab their phones and join in seconds/i)
+    ).toBeInTheDocument();
   });
 
   it("should display QR code for joining", () => {
@@ -158,10 +225,12 @@ describe("LobbyPage", () => {
     render(<LobbyPage {...mockHandlers} />);
 
     // Check for QR code section heading
-    expect(screen.getByText(/Or scan this QR code/i)).toBeInTheDocument();
+    expect(screen.getByText(/Scan the QR code/i)).toBeInTheDocument();
 
     // Check for QR code image with proper aria-label
-    const qrCode = screen.getByRole("img", { name: /QR code to join game with PIN 123456/i });
+    const qrCode = screen.getByRole("img", {
+      name: /QR code to join game with PIN 123456/i,
+    });
     expect(qrCode).toBeInTheDocument();
   });
 

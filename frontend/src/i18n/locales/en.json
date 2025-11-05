@@ -150,7 +150,16 @@
     "waiting": "Waiting...",
     "scanQrCode": "Or scan this QR code",
     "qrCodeAlt": "QR code to join game with PIN {{pin}}",
-    "joinOptions": "Join this game"
+    "joinOptions": "Join this game",
+    "joinOptionsLead": "Ask players to grab their phones and join in seconds.",
+    "joinStepLabel": "Step {{step}}",
+    "joinStepScanTitle": "Scan the QR code",
+    "joinStepScanDescription": "Open your camera, point it at the QR code, and follow the link that pops up.",
+    "joinStepManualTitle": "Enter the PIN manually",
+    "joinStepManualDescription": "Enter the PIN shown below.",
+    "joinManualLinkPrefix": "Join at",
+    "joinStepWaitDescription": "Stay here until the host launches the quiz.",
+    "copyPinAriaLabel": "Copy game PIN to clipboard"
   },
   "common": {
     "loading": "Loading...",
