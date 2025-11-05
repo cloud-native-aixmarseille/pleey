@@ -131,9 +131,9 @@
     "gameLobby": "► GAME LOBBY ◄",
     "waitingForPlayersToJoin": "> WAITING FOR PLAYERS TO JOIN...",
     "howToJoinTitle": "★ HOW TO JOIN THIS GAME ★",
-    "howToJoinStep1": "Open the game on your device.",
-    "howToJoinStep2": "Choose \"Join Game\" and enter the PIN below.",
-    "howToJoinStep3": "Stay ready until the host starts the quiz.",
+    "howToJoinStep1": "Enter the PIN below in the Join Game screen",
+    "howToJoinStep2": "Or scan the QR code with your mobile device",
+    "howToJoinStep3": "Wait for the host to start the quiz",
     "enterThisPin": "► ENTER THIS PIN ◄",
     "copyPin": "Copy PIN",
     "copied": "COPIED!",
@@ -147,7 +147,10 @@
     "ready": "Ready",
     "clipboardCopied": "Game PIN copied to clipboard.",
     "clipboardError": "Unable to copy automatically. The PIN is {{pin}}.",
-    "waiting": "Waiting..."
+    "waiting": "Waiting...",
+    "scanQrCode": "Or scan this QR code",
+    "qrCodeAlt": "QR code to join game with PIN {{pin}}",
+    "joinOptions": "Join this game"
   },
   "common": {
     "loading": "Loading...",

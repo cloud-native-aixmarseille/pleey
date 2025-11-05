@@ -145,4 +145,51 @@ describe("LobbyPage", () => {
 
     expect(screen.getByText(/HOW TO JOIN THIS GAME/i)).toBeInTheDocument();
   });
+
+  it("should display QR code for joining", () => {
+    const mockHandlers = {
+      gamePin: "123456",
+      players: mockPlayers,
+      isAdmin: false,
+      onStartGame: vi.fn(),
+      questionCount: 2,
+    };
+
+    render(<LobbyPage {...mockHandlers} />);
+
+    // Check for QR code section heading
+    expect(screen.getByText(/Or scan this QR code/i)).toBeInTheDocument();
+
+    // Check for QR code image with proper aria-label
+    const qrCode = screen.getByRole("img", { name: /QR code to join game with PIN 123456/i });
+    expect(qrCode).toBeInTheDocument();
+  });
+
+  it("should show host mode badge only for admin", () => {
+    const mockHandlers = {
+      gamePin: "123456",
+      players: mockPlayers,
+      isAdmin: true,
+      onStartGame: vi.fn(),
+      questionCount: 2,
+    };
+
+    render(<LobbyPage {...mockHandlers} />);
+
+    expect(screen.getByText(/HOST MODE/i)).toBeInTheDocument();
+  });
+
+  it("should not show host mode badge for non-admin", () => {
+    const mockHandlers = {
+      gamePin: "123456",
+      players: mockPlayers,
+      isAdmin: false,
+      onStartGame: vi.fn(),
+      questionCount: 2,
+    };
+
+    render(<LobbyPage {...mockHandlers} />);
+
+    expect(screen.queryByText(/HOST MODE/i)).not.toBeInTheDocument();
+  });
 });

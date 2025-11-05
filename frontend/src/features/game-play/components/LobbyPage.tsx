@@ -2,6 +2,7 @@ import { Player } from "../../../shared/types";
 import { Button, Card, Container } from "../../../shared/components";
 import { useState, useEffect, useRef, useId } from "react";
 import { useTranslation } from "react-i18next";
+import { QRCodeSVG } from "qrcode.react";
 
 interface LobbyPageProps {
   gamePin: string;
@@ -240,6 +241,34 @@ export default function LobbyPage({
                     </>
                   )}
                 </button>
+              </div>
+
+              {/* QR Code Section - Alternative join method */}
+              <div className="mb-6 sm:mb-8">
+                <div className="glass-effect rounded-2xl p-6 border-2 border-secondary-500/30">
+                  <h3 className="font-display text-sm sm:text-base text-secondary-300 uppercase text-center tracking-wider mb-4">
+                    {t("game.scanQrCode")}
+                  </h3>
+                  <div className="flex justify-center">
+                    <div 
+                      className="bg-white p-4 rounded-xl border-4 border-accent-500/50 shadow-neon-accent"
+                      role="img"
+                      aria-label={t("game.qrCodeAlt", { pin: gamePin })}
+                    >
+                      <QRCodeSVG
+                        value={`${window.location.origin}/join?pin=${gamePin}`}
+                        size={180}
+                        level="H"
+                        includeMargin={true}
+                        fgColor="#0a0a1f"
+                        bgColor="#ffffff"
+                      />
+                    </div>
+                  </div>
+                  <p className="font-mono text-xs text-light-400 text-center mt-4">
+                    {t("game.qrCodeAlt", { pin: gamePin })}
+                  </p>
+                </div>
               </div>
 
               {/* Player Count with Heartbeat */}
