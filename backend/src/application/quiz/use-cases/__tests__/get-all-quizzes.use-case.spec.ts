@@ -6,13 +6,14 @@ import { GetAllQuizzesUseCase } from '../get-all-quizzes.use-case';
 describe('GetAllQuizzesUseCase', () => {
   it('returns quizzes provided by the repository', async () => {
     const createdAt = new Date('2025-01-01T00:00:00.000Z');
-    const quizzes = [new Quiz(1, 'Arcade Trivia', 'Fast-paced retro quiz', 42, createdAt)];
+    const quizzes = [new Quiz(1, 'Arcade Trivia', 'Fast-paced retro quiz', 42, 1, createdAt)];
 
     const quizRepository: QuizRepository = {
       create: vi.fn(),
       findById: vi.fn(),
       findAll: vi.fn().mockResolvedValue(quizzes),
       findByCreator: vi.fn(),
+      findByOrganization: vi.fn(),
       delete: vi.fn(),
       update: vi.fn(),
     };
