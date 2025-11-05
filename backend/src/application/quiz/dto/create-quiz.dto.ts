@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 /**
  * Create Quiz DTO
@@ -12,4 +12,8 @@ export class CreateQuizDto {
   @IsString()
   @IsOptional()
   description?: string;
+
+  @IsInt()
+  @IsNotEmpty()
+  organizationId: number;
 }

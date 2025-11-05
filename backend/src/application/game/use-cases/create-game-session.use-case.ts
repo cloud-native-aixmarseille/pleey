@@ -1,4 +1,10 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import type { GameSession } from '../../../domain/game/entities/game-session.entity';
 import {
   GameSessionRepositoryProvider,
@@ -10,6 +16,9 @@ import {
   type QuizRepository,
 } from '../../../domain/quiz/repositories/quiz.repository.interface';
 import type { CreateGameSessionDto } from '../dto/create-game-session.dto';
+import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/repositories/organization-member.repository.interface';
+import type { OrganizationMemberRepository } from '../../../domain/organization/repositories/organization-member.repository.interface';
+import { OrganizationErrorCode } from '../../organization/enums/organization-error-code.enum';
 
 /**
  * Create Game Session Use Case
@@ -22,28 +31,47 @@ export class CreateGameSessionUseCase {
     private readonly gameSessionRepository: GameSessionRepository,
     @Inject(QuizRepositoryProvider)
     private readonly quizRepository: QuizRepository,
-  ) { }
+    @Inject(OrganizationMemberRepositoryProvider)
+    private readonly memberRepository: OrganizationMemberRepository,
+  ) {}
 
-  async execute(dto: CreateGameSessionDto): Promise<{ session: GameSession; pin: string }> {
+  async execute(
+    dto: CreateGameSessionDto,
+  ): Promise<{ session: GameSession; pin: string }> {
     // Verify quiz exists
     const quiz = await this.quizRepository.findById(dto.quizId);
     if (!quiz) {
       throw new NotFoundException('Quiz not found');
     }
 
+    // Verify user is a member of the quiz's organization
+    const membership = await this.memberRepository.findByOrganizationAndUser(
+      quiz.organizationId,
+      dto.adminId,
+    );
+    if (!membership) {
+      throw new ForbiddenException(OrganizationErrorCode.NOT_A_MEMBER);
+    }
+
     // Check for existing active sessions for this admin
-    const activeSessions = await this.gameSessionRepository.findActiveByAdminId(dto.adminId);
+    const activeSessions =
+      await this.gameSessionRepository.findActiveByAdminId(dto.adminId);
     if (activeSessions.length > 0) {
       throw new BadRequestException(
-        'You already have an active game session. Please stop or complete it before starting a new one.'
+        'You already have an active game session. Please stop or complete it before starting a new one.',
       );
     }
 
     // Generate unique PIN
     const pin = PIN.generate();
 
-    // Create session
-    const session = await this.gameSessionRepository.create(dto.quizId, dto.adminId, pin.getValue());
+    // Create session with the quiz's organization
+    const session = await this.gameSessionRepository.create(
+      dto.quizId,
+      dto.adminId,
+      quiz.organizationId,
+      pin.getValue(),
+    );
 
     return {
       session,
