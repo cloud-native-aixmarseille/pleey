@@ -15,17 +15,67 @@ export class GameHttpRepository implements IGameRepository {
   }
 
   async createSession(token: string, quizId: number): Promise<GameSession> {
-    const response = await fetch(`${this.baseUrl}/api/game/create`, {
+    const response = await fetch(`${this.baseUrl}/api/sessions/create`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ quiz_id: quizId }),
+      body: JSON.stringify({ quizId }),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to create game session');
+      const errorData = await response.json().catch(() => ({ message: 'Failed to create game session' }));
+      throw new Error(errorData.message || 'Failed to create game session');
+    }
+
+    return response.json();
+  }
+
+  async getActiveSessions(token: string): Promise<GameSession[]> {
+    const response = await fetch(`${this.baseUrl}/api/sessions/active`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch active sessions');
+    }
+
+    const data = await response.json();
+    return data.sessions || [];
+  }
+
+  async stopSession(token: string, sessionId: number): Promise<GameSession> {
+    const response = await fetch(`${this.baseUrl}/api/sessions/${sessionId}/stop`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to stop game session');
+    }
+
+    return response.json();
+  }
+
+  async resumeSession(token: string, sessionId: number): Promise<GameSession> {
+    const response = await fetch(`${this.baseUrl}/api/sessions/${sessionId}/resume`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to resume game session');
     }
 
     return response.json();

@@ -15,6 +15,14 @@ export class GameSocketAdapter implements IGameSocket {
     socket.emit('start-game', { pin });
   }
 
+  stopGame(pin: string): void {
+    socket.emit('stop-game', { pin });
+  }
+
+  resumeGame(pin: string): void {
+    socket.emit('resume-game', { pin });
+  }
+
   submitAnswer(pin: string, userId: number | undefined, answer: string, timeLeft: number, guestId?: string): void {
     socket.emit('submit-answer', { pin, userId, answer, timeLeft, guestId });
   }

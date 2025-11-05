@@ -20,6 +20,18 @@ export interface IGameSocket {
   startGame(pin: string): void;
 
   /**
+   * Stop (pause) the game (admin only)
+   * @param pin - Game PIN
+   */
+  stopGame(pin: string): void;
+
+  /**
+   * Resume a paused game (admin only)
+   * @param pin - Game PIN
+   */
+  resumeGame(pin: string): void;
+
+  /**
    * Submit an answer
    * @param pin - Game PIN
    * @param userId - Player user ID (optional for guest players)
@@ -35,3 +47,4 @@ export interface IGameSocket {
    */
   nextQuestion(pin: string): void;
 }
+
