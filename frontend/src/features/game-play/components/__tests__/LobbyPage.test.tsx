@@ -5,8 +5,8 @@ import LobbyPage from "../LobbyPage";
 
 describe("LobbyPage", () => {
   const mockPlayers = [
-    { id: 1, username: "Player1" },
-    { id: 2, username: "Player2" },
+    { id: 1, username: "Player1", avatar: "data:image/svg+xml;base64,test1" },
+    { id: 2, username: "Player2", avatar: "data:image/svg+xml;base64,test2" },
   ];
 
   it("should render lobby page with PIN", () => {
@@ -107,8 +107,8 @@ describe("LobbyPage", () => {
 
   it("should exclude admin host using username when id is unavailable", () => {
     const playersMissingId = [
-      { id: undefined as unknown as number, username: "HostUser" },
-      { id: 2 as unknown as number, username: "GuestPlayer" },
+      { id: undefined as unknown as number, username: "HostUser", avatar: "data:image/svg+xml;base64,test1" },
+      { id: 2 as unknown as number, username: "GuestPlayer", avatar: "data:image/svg+xml;base64,test2" },
     ];
 
     render(
@@ -129,8 +129,8 @@ describe("LobbyPage", () => {
 
   it("should exclude admin host when player id uses username value", () => {
     const playersWithNamedId = [
-      { id: "admin" as unknown as number, username: "admin" },
-      { id: "player-1" as unknown as number, username: "PlayerOne" },
+      { id: "admin" as unknown as number, username: "admin", avatar: "data:image/svg+xml;base64,test1" },
+      { id: "player-1" as unknown as number, username: "PlayerOne", avatar: "data:image/svg+xml;base64,test2" },
     ];
 
     render(
