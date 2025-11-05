@@ -18,23 +18,26 @@ model User {
   isAdmin   Boolean  @default(false) @map("is_admin")
   createdAt DateTime @default(now()) @map("created_at")
 
-  quizzes       Quiz[]
-  scores        Score[]
-  gameSessions  GameSession[]
+  quizzes              Quiz[]
+  scores               Score[]
+  gameSessions         GameSession[]
+  organizationMembers  OrganizationMember[]
   
   @@map("users")
 }
 
 model Quiz {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String?
-  createdById Int      @map("created_by")
-  createdAt   DateTime @default(now()) @map("created_at")
+  id             Int      @id @default(autoincrement())
+  title          String
+  description    String?
+  createdById    Int      @map("created_by")
+  organizationId Int      @map("organization_id")
+  createdAt      DateTime @default(now()) @map("created_at")
 
-  createdBy User           @relation(fields: [createdById], references: [id])
-  questions Question[]
-  sessions  GameSession[]
+  createdBy    User           @relation(fields: [createdById], references: [id])
+  organization Organization   @relation(fields: [organizationId], references: [id])
+  questions    Question[]
+  sessions     GameSession[]
 
   @@map("quizzes")
 }
@@ -62,14 +65,16 @@ model GameSession {
   id              Int      @id @default(autoincrement())
   quizId          Int      @map("quiz_id")
   adminId         Int      @map("admin_id")
+  organizationId  Int      @map("organization_id")
   pin             String   @unique
   status          String   @default("waiting")
   currentQuestion Int      @default(0) @map("current_question")
   createdAt       DateTime @default(now()) @map("created_at")
 
-  quiz  Quiz @relation(fields: [quizId], references: [id])
-  admin User @relation(fields: [adminId], references: [id])
-  scores Score[]
+  quiz         Quiz         @relation(fields: [quizId], references: [id])
+  admin        User         @relation(fields: [adminId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
+  scores       Score[]
 
   @@map("game_sessions")
 }
@@ -89,4 +94,32 @@ model Score {
   question Question    @relation(fields: [questionId], references: [id])
 
   @@map("scores")
+}
+
+model Organization {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  members      OrganizationMember[]
+  quizzes      Quiz[]
+  gameSessions GameSession[]
+
+  @@map("organizations")
+}
+
+model OrganizationMember {
+  id             Int      @id @default(autoincrement())
+  organizationId Int      @map("organization_id")
+  userId         Int      @map("user_id")
+  role           String   @default("member") // owner, admin, member
+  joinedAt       DateTime @default(now()) @map("joined_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@map("organization_members")
 }
