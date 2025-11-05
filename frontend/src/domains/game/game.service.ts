@@ -14,8 +14,8 @@ export class GameService {
     });
     
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Failed to create session' }));
-      throw new Error(errorData.message || 'Failed to create session');
+      const errorData = await response.json().catch(() => ({ message: 'game.errors.sessionCreateFailed' }));
+      throw new Error(errorData.message || 'game.errors.sessionCreateFailed');
     }
     
     return await response.json();
@@ -31,7 +31,7 @@ export class GameService {
     });
     
     if (!response.ok) {
-      throw new Error('Failed to fetch active sessions');
+      throw new Error('game.errors.activeSessionsFetchFailed');
     }
     
     const data = await response.json();
@@ -48,7 +48,7 @@ export class GameService {
     });
     
     if (!response.ok) {
-      throw new Error('Failed to stop session');
+      throw new Error('game.errors.sessionStopFailed');
     }
     
     return await response.json();
@@ -64,7 +64,7 @@ export class GameService {
     });
     
     if (!response.ok) {
-      throw new Error('Failed to resume session');
+      throw new Error('game.errors.sessionResumeFailed');
     }
     
     return await response.json();

@@ -297,13 +297,14 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
       // Verify admin ownership
       if (session.adminId !== dto.adminId) {
-        throw new WsException('You do not have permission to stop this game');
+        throw new WsException(GameErrorCode.UNAUTHORIZED_SESSION_CONTROL);
       }
 
       await this.gameSessionRepository.updateStatus(session.id, 'paused');
 
+      const message = await this.i18n.translate('game.errors.gamePaused');
       this.server.to(dto.pin).emit('game-paused', {
-        message: 'Game has been paused by the host',
+        message,
       });
     } catch (error) {
       this.handleError(client, error);
@@ -323,7 +324,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
       // Verify admin ownership
       if (session.adminId !== dto.adminId) {
-        throw new WsException('You do not have permission to resume this game');
+        throw new WsException(GameErrorCode.UNAUTHORIZED_SESSION_CONTROL);
       }
 
       await this.gameSessionRepository.updateStatus(session.id, 'active');

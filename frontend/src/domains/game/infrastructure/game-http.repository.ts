@@ -42,7 +42,7 @@ export class GameHttpRepository implements IGameRepository {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch active sessions');
+      throw new Error('game.errors.activeSessionsFetchFailed');
     }
 
     const data = await response.json();
@@ -59,7 +59,7 @@ export class GameHttpRepository implements IGameRepository {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to stop game session');
+      throw new Error('game.errors.sessionStopFailed');
     }
 
     return response.json();
@@ -75,7 +75,7 @@ export class GameHttpRepository implements IGameRepository {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to resume game session');
+      throw new Error('game.errors.sessionResumeFailed');
     }
 
     return response.json();

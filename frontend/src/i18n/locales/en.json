@@ -159,7 +159,13 @@
     "joinStepManualDescription": "Enter the PIN shown below.",
     "joinManualLinkPrefix": "Join at",
     "joinStepWaitDescription": "Stay here until the host launches the quiz.",
-    "copyPinAriaLabel": "Copy game PIN to clipboard"
+    "copyPinAriaLabel": "Copy game PIN to clipboard",
+    "errors": {
+      "sessionCreateFailed": "Failed to create session",
+      "activeSessionsFetchFailed": "Failed to fetch active sessions",
+      "sessionStopFailed": "Failed to stop session",
+      "sessionResumeFailed": "Failed to resume session"
+    }
   },
   "common": {
     "loading": "Loading...",

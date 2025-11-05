@@ -97,7 +97,7 @@ describe('GameSession Entity', () => {
         new Date(),
       );
 
-      expect(() => session.pause()).toThrow('Can only pause an active game');
+      expect(() => session.pause()).toThrow('CAN_ONLY_PAUSE_ACTIVE_GAME');
     });
 
     it('should throw error when pausing ended game', () => {
@@ -111,7 +111,7 @@ describe('GameSession Entity', () => {
         new Date(),
       );
 
-      expect(() => session.pause()).toThrow('Can only pause an active game');
+      expect(() => session.pause()).toThrow('CAN_ONLY_PAUSE_ACTIVE_GAME');
     });
   });
 
@@ -142,7 +142,7 @@ describe('GameSession Entity', () => {
         new Date(),
       );
 
-      expect(() => session.resume()).toThrow('Can only resume a paused game');
+      expect(() => session.resume()).toThrow('CAN_ONLY_RESUME_PAUSED_GAME');
     });
 
     it('should throw error when resuming ended game', () => {
@@ -156,7 +156,7 @@ describe('GameSession Entity', () => {
         new Date(),
       );
 
-      expect(() => session.resume()).toThrow('Can only resume a paused game');
+      expect(() => session.resume()).toThrow('CAN_ONLY_RESUME_PAUSED_GAME');
     });
   });
 
