@@ -26,14 +26,7 @@ export class PrismaQuizRepository implements QuizRepository {
       },
     });
 
-    return new Quiz(
-      quiz.id,
-      quiz.title,
-      quiz.description,
-      quiz.createdById,
-      quiz.organizationId,
-      quiz.createdAt,
-    );
+    return this.toDomain(quiz);
   }
 
   async findById(id: number): Promise<Quiz | null> {
@@ -43,14 +36,7 @@ export class PrismaQuizRepository implements QuizRepository {
 
     if (!quiz) return null;
 
-    return new Quiz(
-      quiz.id,
-      quiz.title,
-      quiz.description,
-      quiz.createdById,
-      quiz.organizationId,
-      quiz.createdAt,
-    );
+    return this.toDomain(quiz);
   }
 
   async findAll(): Promise<Quiz[]> {
@@ -58,17 +44,7 @@ export class PrismaQuizRepository implements QuizRepository {
       orderBy: { createdAt: 'desc' },
     });
 
-    return quizzes.map(
-      (quiz) =>
-        new Quiz(
-          quiz.id,
-          quiz.title,
-          quiz.description,
-          quiz.createdById,
-          quiz.organizationId,
-          quiz.createdAt,
-        ),
-    );
+    return quizzes.map((quiz) => this.toDomain(quiz));
   }
 
   async findByOrganization(organizationId: number): Promise<Quiz[]> {
@@ -77,17 +53,7 @@ export class PrismaQuizRepository implements QuizRepository {
       orderBy: { createdAt: 'desc' },
     });
 
-    return quizzes.map(
-      (quiz) =>
-        new Quiz(
-          quiz.id,
-          quiz.title,
-          quiz.description,
-          quiz.createdById,
-          quiz.organizationId,
-          quiz.createdAt,
-        ),
-    );
+    return quizzes.map((quiz) => this.toDomain(quiz));
   }
 
   async findByCreator(userId: number): Promise<Quiz[]> {
@@ -96,17 +62,7 @@ export class PrismaQuizRepository implements QuizRepository {
       orderBy: { createdAt: 'desc' },
     });
 
-    return quizzes.map(
-      (quiz) =>
-        new Quiz(
-          quiz.id,
-          quiz.title,
-          quiz.description,
-          quiz.createdById,
-          quiz.organizationId,
-          quiz.createdAt,
-        ),
-    );
+    return quizzes.map((quiz) => this.toDomain(quiz));
   }
 
   async delete(id: number): Promise<void> {
@@ -121,6 +77,10 @@ export class PrismaQuizRepository implements QuizRepository {
       data: { title, description },
     });
 
+    return this.toDomain(quiz);
+  }
+
+  private toDomain(quiz: any): Quiz {
     return new Quiz(
       quiz.id,
       quiz.title,

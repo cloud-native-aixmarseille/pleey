@@ -63,6 +63,27 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
     );
   }
 
+  async findByIds(ids: number[]): Promise<Organization[]> {
+    const orgs = await this.prisma.organization.findMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+    });
+
+    return orgs.map(
+      (org) =>
+        new Organization(
+          org.id,
+          org.name,
+          org.description,
+          org.createdAt,
+          org.updatedAt,
+        ),
+    );
+  }
+
   async findAll(): Promise<Organization[]> {
     const orgs = await this.prisma.organization.findMany({
       orderBy: {
