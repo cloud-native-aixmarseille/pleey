@@ -10,6 +10,7 @@ export class GameSession {
     public readonly id: number,
     public readonly quizId: number,
     public readonly adminId: number,
+    public readonly organizationId: number,
     public readonly pin: string,
     public status: string,
     public currentQuestion: number,
@@ -82,5 +83,12 @@ export class GameSession {
    */
   isPaused(): boolean {
     return this.status === GameSessionStatus.PAUSED;
+  }
+
+  /**
+   * Checks if the session belongs to a specific organization
+   */
+  belongsToOrganization(organizationId: number): boolean {
+    return this.organizationId === organizationId;
   }
 }
