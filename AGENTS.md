@@ -88,7 +88,7 @@ When working with this codebase, AI agents should:
 ### When Testing
 1. See [Testing Guide](docs/docs/technical/testing.md)
 2. Run tests: `npm test` (backend), `npm test` (frontend)
-3. E2E tests: `./test-e2e.sh`
+3. E2E tests: `./scripts/test-runner.sh e2e`
 
 ### When Deploying
 1. See [Deployment Checklist](docs/docs/technical/deployment.md)

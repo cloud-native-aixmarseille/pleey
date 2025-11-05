@@ -88,6 +88,10 @@ make logs-backend    # View backend logs only
 make logs-frontend   # View frontend logs only
 ```
 
+:::info Advanced
+Use `make logs SERVICE=<name>` to target any service without relying on predefined aliases.
+:::
+
 ### Development Tasks
 
 ```bash
@@ -98,6 +102,10 @@ make shell-backend   # Access backend container shell
 make shell-frontend  # Access frontend container shell
 make db-shell        # Access PostgreSQL shell
 ```
+
+:::info Advanced
+`make shell SERVICE=<name>` is available when you want a single command that works for any container.
+:::
 
 ### Maintenance
 
@@ -279,11 +287,11 @@ docker compose ps --all
 ### Production Configuration
 
 ```bash
-# Use production compose file
-docker compose -f compose.yaml -f compose.prod.yaml up -d
+# Build images with production optimisations
+make build
 
-# Or use deployment script
-./deploy.sh prod
+# Use production overrides
+docker compose -f compose.yaml -f compose.prod.yaml up -d
 ```
 
 ### Security Checklist
@@ -389,10 +397,7 @@ docker compose exec postgres psql -U quizapp -d quizdb
 
 ```bash
 # Production deployment
-docker compose -f compose.prod.yaml up -d
-
-# Or use deployment script
-./deploy.sh prod
+docker compose -f compose.yaml -f compose.prod.yaml up -d
 ```
 
 ### 2. Change JWT_SECRET
@@ -605,8 +610,8 @@ services:
 ### Application update
 
 ```bash
-# Using deployment script (recommended)
-./deploy.sh dev   # or ./deploy.sh prod
+# Using Make command (recommended)
+make update
 
 # Or manually:
 # 1. Stop services
@@ -938,22 +943,22 @@ docker builder prune -af
 
 ## 🚀 Production deployment
 
-### Using deployment script
+### Standard Docker Compose flow
 
 ```bash
-# Development
-./deploy.sh dev
+# Build images (optional when using BuildKit cache)
+make build
 
-# Production
-./deploy.sh prod
+# Launch with production overrides
+docker compose -f compose.yaml -f compose.prod.yaml up -d
 ```
 
-The script automatically:
-- Validates configuration
-- Backs up database
-- Builds optimized images
-- Runs health checks
-- Shows deployment info
+Recommended manual steps after the stack is running:
+- Validate `.env` (especially `JWT_SECRET`, database credentials, telemetry endpoints)
+- Run `make backup` before major upgrades
+- Watch container start logs: `make logs` or `docker compose logs --tail=100`
+- Verify health endpoints (`curl http://backend.quiz-master.localhost/api/health`)
+- Confirm the frontend is accessible via Traefik (`http://frontend.quiz-master.localhost`)
 
 ### With Docker Swarm
 

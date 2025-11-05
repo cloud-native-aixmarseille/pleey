@@ -42,6 +42,10 @@ make logs-backend      # View backend logs only
 make logs-frontend     # View frontend logs only
 ```
 
+:::info Advanced
+You can also pass `SERVICE=<name>` to `make logs` (for example `make logs SERVICE=backend`) if you prefer a single command syntax.
+:::
+
 ### Development
 
 ```bash
@@ -53,6 +57,10 @@ make shell-backend     # Access backend container shell
 make shell-frontend    # Access frontend container shell
 make db-shell          # Access PostgreSQL database shell
 ```
+
+:::info Advanced
+`make shell SERVICE=<name>` is also available when you want a generic entry point.
+:::
 
 ### Maintenance
 
@@ -289,8 +297,6 @@ quiz-app/
 ├── compose.monitoring.yaml
 ├── .env.example               # Environment variables
 ├── Makefile                   # Simplified commands
-├── deploy.sh                  # Deployment script
-├── setup-ssl.sh               # SSL configuration
 └── README.md                  # Documentation
 ```
 
@@ -343,21 +349,16 @@ openssl rand -base64 32
 
 ### Development
 ```bash
-docker compose up -d
+make up
 ```
 
 ### Production
 ```bash
-./deploy.sh prod
-# or
+make build
 docker compose -f compose.prod.yaml up -d
 ```
 
-### With SSL
-```bash
-./setup-ssl.sh your-domain.com email@example.com
-./deploy.sh prod
-```
+> 📘 See [Deployment Guide](./deployment.md) for TLS/Traefik configuration and hardened production checklists.
 
 ---
 

@@ -6,59 +6,49 @@ sidebar_position: 7
 
 Comprehensive guide to deploy QuizMaster to production securely.
 
-## � Deployment
+## 🚀 Deployment
 
-### Method 1: Automated script
-
-```bash
-# Clone the project
-- [ ] Generate a strong JWT_SECRET: `openssl rand -base64 32`
-cd quiz-app
-
-# Make scripts executable
-chmod +x deploy.sh setup-ssl.sh
-
-# Deploy
-./deploy.sh prod
-```
-
-### Method 2: Manual
+### Core workflow
 
 ```bash
-# 1. Configuration
+# 1. Clone and prepare configuration
+git clone <repo-url> && cd quiz-app
 cp .env.example .env
-nano .env  # Update JWT_SECRET
+${EDITOR:-nano} .env  # Update JWT_SECRET and production env vars
 
-# 2. SSL (optional but recommended)
-./setup-ssl.sh your-domain.com email@example.com
+# 2. Build production images (optional if CI delivers them)
+docker compose logs --tail=100
 
-# 3. Build and start
-docker-compose -f docker-compose.prod.yml build
-docker-compose -f docker-compose.prod.yml up -d
+# 3. Start the stack with production overrides
+docker compose -f compose.yaml -f compose.prod.yaml up -d
 
-# 4. Verify
-docker-compose ps
-curl http://localhost:3001/api/health
-```
-- [ ] Update JWT_SECRET in `.env`
-- [ ] Ensure `.env` is in `.gitignore`
-- [ ] NEVER commit `.env`
+# 4. Verify services
+make ps
+docker compose logs -f backend
+docker compose logs -f frontend
+
+Deployment checklist:
+docker compose logs | grep -i error
+- [ ] `.env` kept out of version control
+- [ ] Backups available before upgrades (`make backup`)
+- [ ] Health checks return HTTP 200
 
 ### SSL/HTTPS
 
-- [ ] Domain configured and DNS propagated
-- [ ] Run `./setup-ssl.sh your-domain.com your-email@example.com`
-- [ ] Inspect certificates in `nginx/ssl/`
-- [ ] Test HTTPS: `curl -I https://your-domain.com`
-- [ ] Configure automatic renewal (cron)
+docker compose exec -T postgres psql -U ${POSTGRES_USER:-quizapp} -d ${POSTGRES_DB:-quizdb} < backup.sql
+docker compose restart backend
+- [ ] `nginx/ssl/fullchain.pem` and `nginx/ssl/privkey.pem` populated
+- [ ] `frontend/nginx.prod.conf` updated with your domain name
+- [ ] HTTPS validated: `curl -I https://your-domain.com`
+- [ ] Renewal in place (Certbot cron, managed certificates, or reverse proxy automation)
 
 ### Firewall
-
-```bash
 # Install UFW
 sudo apt install ufw
-
+docker compose logs -f backend
+docker compose logs -f frontend
 # Configure rules
+docker compose logs | grep -i error
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
 sudo ufw allow ssh
@@ -69,7 +59,7 @@ sudo ufw allow 443/tcp
 sudo ufw enable
 sudo ufw status
 ```
-
+  docker compose restart backend
 ### Users and passwords
 
 - [ ] Change the application admin password
@@ -93,7 +83,7 @@ sudo ufw status
 docker stats
 
 # Logs without errors
-docker-compose logs --tail=100
+docker compose logs --tail=100
 
 # Response time
 curl -w "@curl-format.txt" -o /dev/null -s http://localhost:3001/api/health
@@ -122,13 +112,13 @@ time_total:  %{time_total}\n
 
 ```bash
 # Check database connection
-docker-compose exec backend npx prisma db pull
+docker compose exec backend npx prisma db pull
 
 # Run migrations
-docker-compose exec backend npx prisma migrate deploy
+docker compose exec backend npx prisma migrate deploy
 
 # Access PostgreSQL
-docker-compose exec db psql -U quizuser -d quizdb
+docker compose exec postgres psql -U ${POSTGRES_USER:-quizapp} -d ${POSTGRES_DB:-quizdb}
 
 # Check tables
 \dt
@@ -196,8 +186,8 @@ docker exec quiz-backend cat /app/data/quiz.db > backup-$(date +%Y%m%d).db
 make restore
 
 # Or manually
-docker cp backup.db quiz-backend:/app/data/quiz.db
-docker-compose restart backend
+docker compose exec -T postgres psql -U ${POSTGRES_USER:-quizapp} -d ${POSTGRES_DB:-quizdb} < backup.sql
+docker compose restart backend
 ```
 
 ## 🔄 Updates
@@ -211,17 +201,17 @@ make update
 # Or manual
 make backup
 git pull
-docker-compose -f docker-compose.prod.yml build --no-cache
-docker-compose -f docker-compose.prod.yml up -d
-docker-compose logs -f
+docker compose -f compose.yaml -f compose.prod.yaml build --no-cache
+docker compose -f compose.yaml -f compose.prod.yaml up -d
+docker compose logs -f
 ```
 
 ### Dependencies update
 
 ```bash
 # Update Docker images
-docker-compose pull
-docker-compose up -d
+docker compose pull
+docker compose up -d
 ```
 
 ## 📈 Optimizations
@@ -237,7 +227,7 @@ docker-compose up -d
 ### Scalability
 
 ```yaml
-# docker-compose.prod.yml
+# compose.prod.yaml
 services:
   backend:
     deploy:
@@ -254,26 +244,21 @@ services:
 
 ```bash
 # Check logs
-docker-compose logs backend
+make logs SERVICE=backend
 
 # Check permissions
 docker exec -it quiz-backend ls -la /app/data
 
 # Recreate container
-docker-compose down
-docker-compose up -d
+docker compose down
+docker compose up -d
 ```
 
 ### SSL certificate expired
 
-```bash
-# Renew manually
-./renew-ssl.sh
-
-# Or with certbot
-docker-compose -f docker-compose.certbot.yml run --rm certbot renew
-docker-compose restart frontend
-```
+- Re-issue certificates with your ACME provider (Certbot, Traefik, Caddy, etc.)
+- Replace `nginx/ssl/fullchain.pem` and `nginx/ssl/privkey.pem`
+- Reload the stack: `docker compose restart frontend`
 
 ### Corrupted database
 
@@ -282,8 +267,8 @@ docker-compose restart frontend
 make restore
 
 # Or recreate
-docker-compose down -v
-docker-compose up -d
+docker compose down -v
+docker compose up -d
 ```
 
 ### Insufficient memory
@@ -305,11 +290,11 @@ docker system prune -a
 make logs
 
 # Specific logs
-docker-compose logs -f backend
-docker-compose logs -f frontend
+docker compose logs -f backend
+docker compose logs -f frontend
 
 # Errors only
-docker-compose logs | grep -i error
+docker compose logs | grep -i error
 ```
 
 ### Continuous monitoring
@@ -320,7 +305,7 @@ cat > /usr/local/bin/check-quizmaster.sh << 'EOF'
 #!/bin/bash
 if ! curl -sf http://localhost:3001/api/health > /dev/null; then
     echo "Backend DOWN! Restarting..."
-    docker-compose restart backend
+  docker compose restart backend
     # Send alert (email, Slack, etc.)
 fi
 EOF

@@ -49,19 +49,23 @@ make help       # See all available commands
 ### Testing Commands
 
 ```bash
-make test              # Run all tests
+make test              # Run all tests (backend + frontend + e2e)
 make test-backend      # Backend tests only
 make test-frontend     # Frontend tests only
 make test-e2e          # E2E tests only
 make test-watch        # Watch mode (interactive)
 make test-cov          # Coverage reports
 
-# Or use the quick script
-./test-quick.sh        # Run all tests
-./test-quick.sh watch  # Watch mode
+# Or use the helper script
+./scripts/test-runner.sh all           # Backend + frontend + e2e
+./scripts/test-runner.sh backend       # Backend tests only
+./scripts/test-runner.sh frontend --watch
+./scripts/test-runner.sh e2e smoke
 ```
 
-📋 **See [TEST-QUICK-REF.md](TEST-QUICK-REF.md) for complete test reference**
+📋 **See [Testing Guide](docs/docs/technical/testing.md) for complete reference**
+
+> 💡 Prefer the aliases above for day-to-day work. `make test` also accepts `SCOPE=<...>` and `MODE=<...>` parameters if you want a single entry point.
 
 📘 **For more details**: See [Quick Start Guide](docs/docs/functional/quickstart.md)
 

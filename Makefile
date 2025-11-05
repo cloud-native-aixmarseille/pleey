@@ -1,7 +1,7 @@
 # Makefile for QuizMaster
 # Using Docker Compose V2
 
-.PHONY: help build up down restart logs clean backup restore seed docs test test-backend test-frontend test-e2e test-all test-watch test-cov
+.PHONY: help setup build up down restart logs clean clean-all backup restore seed ps rebuild update monitoring-up monitoring-down monitoring-logs grafana prometheus docs test test-watch test-ui test-cov test-e2e-smoke test-e2e-ui shell db-shell traefik dev prod install health _test-scope _run-node _run-e2e
 
 # Docker Compose command (V2)
 COMPOSE := docker compose
@@ -9,6 +9,7 @@ COMPOSE := docker compose
 # Colors for display
 GREEN=\033[0;32m
 YELLOW=\033[1;33m
+RED=\033[0;31m
 NC=\033[0m # No Color
 
 help: ## Display this help
@@ -42,14 +43,16 @@ restart: ## Restart the application
 	$(COMPOSE) restart
 	@echo "$(GREEN)✓ Application restarted$(NC)"
 
-logs: ## Display logs in real-time
-	$(COMPOSE) logs -f
+logs: ## Display logs (set SERVICE=<name> for a specific service)
+	@if [ -n "$(SERVICE)" ]; then \
+		echo "$(GREEN)Tailing logs for '$(SERVICE)'...$(NC)"; \
+		$(COMPOSE) logs -f $(SERVICE); \
+	else \
+		$(COMPOSE) logs -f; \
+	fi
 
-logs-backend: ## Backend logs only
-	$(COMPOSE) logs -f backend
-
-logs-frontend: ## Frontend logs only
-	$(COMPOSE) logs -f frontend
+logs-%: ## Shortcut to tail logs for a specific service (e.g. make logs-backend)
+	@$(MAKE) --no-print-directory logs SERVICE=$*
 
 seed: ## Populate database with Prisma fixtures
 	@echo "$(GREEN)Applying migrations and seeding database...$(NC)"
@@ -94,11 +97,15 @@ restore: ## Restore the latest backup
 	$(COMPOSE) restart backend && \
 	echo "$(GREEN)✓ Backup restored: $$LATEST$(NC)"
 
-shell-backend: ## Access backend shell
-	$(COMPOSE) exec backend sh
+shell: ## Open a service shell (set SERVICE=<name>)
+	@if [ -z "$(SERVICE)" ]; then \
+		echo "$(YELLOW)Usage: make shell SERVICE=backend$(NC)"; \
+		exit 1; \
+	fi
+	$(COMPOSE) exec $(SERVICE) sh
 
-shell-frontend: ## Access frontend shell
-	$(COMPOSE) exec frontend sh
+shell-%: ## Shortcut to open a specific service shell (e.g. make shell-backend)
+	@$(MAKE) --no-print-directory shell SERVICE=$*
 
 db-shell: ## Access PostgreSQL database shell
 	$(COMPOSE) exec postgres psql -U ${POSTGRES_USER:-quizapp} -d ${POSTGRES_DB:-quizdb}
@@ -173,137 +180,73 @@ docs: ## Open documentation (Docusaurus)
 # Testing Commands
 # ==========================================
 
-test: ## Run all tests (backend + frontend + e2e)
-	@echo "$(GREEN)Running all tests...$(NC)"
-	@echo "$(YELLOW)Note: Ensure containers are running (make up) or install dependencies locally$(NC)"
-	@FAILED=0; \
-	$(MAKE) test-backend || FAILED=$$((FAILED + 1)); \
-	$(MAKE) test-frontend || FAILED=$$((FAILED + 1)); \
-	$(MAKE) test-e2e || FAILED=$$((FAILED + 1)); \
-	if [ $$FAILED -eq 0 ]; then \
-		echo "$(GREEN)✓ All tests completed successfully!$(NC)"; \
+test: ## Run tests (SCOPE=all|backend|frontend|e2e, MODE=default|watch|cov|ui|smoke)
+	@set -e; \
+	TARGET_SCOPE="$(SCOPE)"; \
+	TARGET_MODE="$(MODE)"; \
+	if [ -z "$$TARGET_SCOPE" ]; then \
+		TARGET_SCOPE="all"; \
+	fi; \
+	if [ -z "$$TARGET_MODE" ]; then \
+		TARGET_MODE="default"; \
+	fi; \
+	if [ "$$TARGET_SCOPE" = "all" ]; then \
+		case "$$TARGET_MODE" in \
+			default) \
+				echo "$(GREEN)Running all tests...$(NC)"; \
+				echo "$(YELLOW)Note: Ensure containers are running (make up) or install dependencies locally$(NC)"; \
+				$(MAKE) --no-print-directory _test-scope SCOPE=backend MODE=default; \
+				$(MAKE) --no-print-directory _test-scope SCOPE=frontend MODE=default; \
+				$(MAKE) --no-print-directory _test-scope SCOPE=e2e MODE=default; \
+				echo "$(GREEN)✓ All tests completed successfully!$(NC)"; \
+				;; \
+			cov) \
+				echo "$(GREEN)Running tests with coverage...$(NC)"; \
+				$(MAKE) --no-print-directory _test-scope SCOPE=backend MODE=cov; \
+				echo ""; \
+				$(MAKE) --no-print-directory _test-scope SCOPE=frontend MODE=cov; \
+				echo "$(GREEN)✓ Coverage reports generated$(NC)"; \
+				;; \
+			*) \
+				echo "$(YELLOW)Mode '$$TARGET_MODE' requires SCOPE=backend|frontend|e2e$(NC)"; \
+				exit 1; \
+				;; \
+		esac; \
 	else \
-		echo "$(RED)✗ $$FAILED test suite(s) failed$(NC)"; \
+		$(MAKE) --no-print-directory _test-scope SCOPE=$$TARGET_SCOPE MODE=$$TARGET_MODE; \
+	fi
+
+test-%: ## Run tests for a specific scope (supports MODE, e.g. make test-backend MODE=watch)
+	@$(MAKE) --no-print-directory test SCOPE=$* MODE=$(MODE)
+
+test-%-watch: ## Run tests in watch mode for a scope (e.g. make test-backend-watch)
+	@$(MAKE) --no-print-directory test-$* MODE=watch
+
+test-%-cov: ## Run coverage for a scope (e.g. make test-frontend-cov)
+	@$(MAKE) --no-print-directory test-$* MODE=cov
+
+test-%-ui: ## Run test UI for a scope (e.g. make test-frontend-ui)
+	@$(MAKE) --no-print-directory test-$* MODE=ui
+
+test-%-smoke: ## Run smoke tests for a scope (e.g. make test-e2e-smoke)
+	@$(MAKE) --no-print-directory test-$* MODE=smoke
+
+test-watch: ## Run tests in watch mode (set SCOPE=backend|frontend)
+	@if [ -z "$(SCOPE)" ]; then \
+		echo "$(YELLOW)Usage: make test-watch SCOPE=backend|frontend$(NC)"; \
 		exit 1; \
 	fi
+	@$(MAKE) --no-print-directory test SCOPE=$(SCOPE) MODE=watch
 
-test-backend: ## Run backend unit tests
-	@echo "$(GREEN)Running backend tests...$(NC)"
-	@if [ -d "backend/node_modules/.bin/vitest" ]; then \
-		cd backend && npm test; \
-	elif docker compose ps backend | grep -q "Up"; then \
-		docker compose exec -T backend npm test; \
-	else \
-		echo "$(RED)Error: Backend container not running and local dependencies not found$(NC)"; \
-		echo "$(YELLOW)Run 'make up' to start containers, or 'cd backend && npm install' for local testing$(NC)"; \
+test-ui: ## Run Vitest UI (set SCOPE=backend|frontend|e2e)
+	@if [ -z "$(SCOPE)" ]; then \
+		echo "$(YELLOW)Usage: make test-ui SCOPE=backend|frontend|e2e$(NC)"; \
 		exit 1; \
 	fi
-	@echo "$(GREEN)✓ Backend tests completed$(NC)"
+	@$(MAKE) --no-print-directory test SCOPE=$(SCOPE) MODE=ui
 
-test-frontend: ## Run frontend unit tests
-	@echo "$(GREEN)Running frontend tests...$(NC)"
-	@if [ -d "frontend/node_modules/.bin/vitest" ]; then \
-		cd frontend && npm test; \
-	elif docker compose ps frontend | grep -q "Up"; then \
-		docker compose exec -T frontend npm test; \
-	else \
-		echo "$(RED)Error: Frontend container not running and local dependencies not found$(NC)"; \
-		echo "$(YELLOW)Run 'make up' to start containers, or 'cd frontend && npm install' for local testing$(NC)"; \
-		exit 1; \
-	fi
-	@echo "$(GREEN)✓ Frontend tests completed$(NC)"
-
-test-e2e: ## Run end-to-end tests
-	@echo "$(GREEN)Running E2E tests...$(NC)"
-	@if [ -d "e2e/node_modules" ]; then \
-		cd e2e && npm test; \
-	else \
-		echo "$(YELLOW)Installing E2E dependencies...$(NC)"; \
-		cd e2e && npm install && npm test; \
-	fi
-	@echo "$(GREEN)✓ E2E tests completed$(NC)"
-
-test-e2e-ui: ## Run E2E tests in UI mode
-	@echo "$(GREEN)Opening Playwright UI...$(NC)"
-	@cd e2e && npm run test:ui
-
-test-e2e-smoke: ## Run smoke tests only
-	@echo "$(GREEN)Running smoke tests...$(NC)"
-	@cd e2e && npm run test:smoke
-	@echo "$(GREEN)✓ Smoke tests completed$(NC)"
-
-test-watch: ## Run tests in watch mode (backend + frontend)
-	@echo "$(GREEN)Which tests to watch?$(NC)"
-	@echo "  1) Backend"
-	@echo "  2) Frontend"
-	@read -p "Choose [1-2]: " choice; \
-	case $$choice in \
-		1) $(MAKE) test-backend-watch ;; \
-		2) $(MAKE) test-frontend-watch ;; \
-		*) echo "$(YELLOW)Invalid choice$(NC)" ;; \
-	esac
-
-test-backend-watch: ## Run backend tests in watch mode
-	@echo "$(GREEN)Starting backend tests in watch mode...$(NC)"
-	@if [ -d "backend/node_modules" ]; then \
-		cd backend && npm run test:watch; \
-	else \
-		$(COMPOSE) exec backend npm run test:watch; \
-	fi
-
-test-frontend-watch: ## Run frontend tests in watch mode
-	@echo "$(GREEN)Starting frontend tests in watch mode...$(NC)"
-	@if [ -d "frontend/node_modules" ]; then \
-		cd frontend && npm run test:watch; \
-	else \
-		$(COMPOSE) exec frontend npm run test:watch; \
-	fi
-
-test-cov: ## Run tests with coverage (backend + frontend)
-	@echo "$(GREEN)Running tests with coverage...$(NC)"
-	@echo "$(YELLOW)Backend coverage:$(NC)"
-	@if [ -d "backend/node_modules" ]; then \
-		cd backend && npm run test:cov; \
-	else \
-		$(COMPOSE) exec -T backend npm run test:cov; \
-	fi
-	@echo ""
-	@echo "$(YELLOW)Frontend coverage:$(NC)"
-	@if [ -d "frontend/node_modules" ]; then \
-		cd frontend && npm run test:cov; \
-	else \
-		$(COMPOSE) exec -T frontend npm run test:cov; \
-	fi
-	@echo "$(GREEN)✓ Coverage reports generated$(NC)"
-
-test-backend-cov: ## Run backend tests with coverage
-	@echo "$(GREEN)Running backend tests with coverage...$(NC)"
-	@if [ -d "backend/node_modules" ]; then \
-		cd backend && npm run test:cov; \
-	else \
-		$(COMPOSE) exec -T backend npm run test:cov; \
-	fi
-	@echo "$(GREEN)✓ Backend coverage report: backend/coverage/index.html$(NC)"
-
-test-frontend-cov: ## Run frontend tests with coverage
-	@echo "$(GREEN)Running frontend tests with coverage...$(NC)"
-	@if [ -d "frontend/node_modules" ]; then \
-		cd frontend && npm run test:cov; \
-	else \
-		$(COMPOSE) exec -T frontend npm run test:cov; \
-	fi
-	@echo "$(GREEN)✓ Frontend coverage report: frontend/coverage/index.html$(NC)"
-
-test-ui: ## Run tests with UI (backend or frontend)
-	@echo "$(GREEN)Which tests UI to open?$(NC)"
-	@echo "  1) Backend"
-	@echo "  2) Frontend"
-	@read -p "Choose [1-2]: " choice; \
-	case $$choice in \
-		1) cd backend && npm run test:ui ;; \
-		2) cd frontend && npm run test:ui ;; \
-		*) echo "$(YELLOW)Invalid choice$(NC)" ;; \
-	esac
+test-cov: ## Run backend and frontend coverage (alias for make test MODE=cov)
+	@$(MAKE) --no-print-directory test MODE=cov
 
 test-install: ## Install test dependencies for all projects
 	@echo "$(GREEN)Installing test dependencies...$(NC)"
@@ -311,3 +254,130 @@ test-install: ## Install test dependencies for all projects
 	@cd frontend && npm install
 	@cd e2e && npm install
 	@echo "$(GREEN)✓ Test dependencies installed$(NC)"
+
+_run-node:
+	@TTY_FLAG="-T"; \
+	if [ "$(TTY)" = "1" ]; then \
+		TTY_FLAG=""; \
+	fi; \
+	if [ -d "$(DIR)/node_modules" ]; then \
+		cd $(DIR) && npm run $(SCRIPT); \
+	elif $(COMPOSE) ps $(SERVICE) | grep -q "Up"; then \
+		$(COMPOSE) exec $$TTY_FLAG $(SERVICE) npm run $(SCRIPT); \
+	else \
+		echo "$(RED)Error: $(SERVICE) container not running and local dependencies not found$(NC)"; \
+		echo "$(YELLOW)Run 'make up' to start containers, or 'cd $(DIR) && npm install' for local testing$(NC)"; \
+		exit 1; \
+	fi
+
+_run-e2e:
+	@if [ -d "e2e/node_modules" ]; then \
+		cd e2e && npm run $(SCRIPT); \
+	else \
+		echo "$(YELLOW)Installing E2E dependencies...$(NC)"; \
+		cd e2e && npm install && npm run $(SCRIPT); \
+	fi
+
+_test-scope:
+	@set -e; \
+	TARGET_SCOPE="$(SCOPE)"; \
+	TARGET_MODE="$(MODE)"; \
+	if [ -z "$$TARGET_SCOPE" ]; then \
+		echo "$(RED)Error: SCOPE is required$(NC)"; \
+		exit 1; \
+	fi; \
+	if [ -z "$$TARGET_MODE" ]; then \
+		TARGET_MODE="default"; \
+	fi; \
+	case "$$TARGET_SCOPE" in \
+		backend) \
+			case "$$TARGET_MODE" in \
+				default) \
+					echo "$(GREEN)Running backend tests...$(NC)"; \
+					$(MAKE) --no-print-directory _run-node DIR=backend SCRIPT=test SERVICE=backend; \
+					echo "$(GREEN)✓ Backend tests completed$(NC)"; \
+					;; \
+				watch) \
+					echo "$(GREEN)Starting backend tests in watch mode...$(NC)"; \
+					$(MAKE) --no-print-directory _run-node DIR=backend SCRIPT=test:watch SERVICE=backend TTY=1; \
+					;; \
+				cov) \
+					echo "$(GREEN)Running backend tests with coverage...$(NC)"; \
+					$(MAKE) --no-print-directory _run-node DIR=backend SCRIPT=test:cov SERVICE=backend; \
+					echo "$(GREEN)✓ Backend coverage report: backend/coverage/index.html$(NC)"; \
+					;; \
+				ui) \
+					echo "$(GREEN)Opening backend test UI...$(NC)"; \
+					$(MAKE) --no-print-directory _run-node DIR=backend SCRIPT=test:ui SERVICE=backend TTY=1; \
+					;; \
+				smoke) \
+					echo "$(YELLOW)Smoke mode is not available for backend tests$(NC)"; \
+					exit 1; \
+					;; \
+				*) \
+					echo "$(RED)Unknown MODE '$$TARGET_MODE' for backend$(NC)"; \
+					exit 1; \
+					;; \
+			esac; \
+			;; \
+		frontend) \
+			case "$$TARGET_MODE" in \
+				default) \
+					echo "$(GREEN)Running frontend tests...$(NC)"; \
+					$(MAKE) --no-print-directory _run-node DIR=frontend SCRIPT=test SERVICE=frontend; \
+					echo "$(GREEN)✓ Frontend tests completed$(NC)"; \
+					;; \
+				watch) \
+					echo "$(GREEN)Starting frontend tests in watch mode...$(NC)"; \
+					$(MAKE) --no-print-directory _run-node DIR=frontend SCRIPT=test:watch SERVICE=frontend TTY=1; \
+					;; \
+				cov) \
+					echo "$(GREEN)Running frontend tests with coverage...$(NC)"; \
+					$(MAKE) --no-print-directory _run-node DIR=frontend SCRIPT=test:cov SERVICE=frontend; \
+					echo "$(GREEN)✓ Frontend coverage report: frontend/coverage/index.html$(NC)"; \
+					;; \
+				ui) \
+					echo "$(GREEN)Opening frontend test UI...$(NC)"; \
+					$(MAKE) --no-print-directory _run-node DIR=frontend SCRIPT=test:ui SERVICE=frontend TTY=1; \
+					;; \
+				smoke) \
+					echo "$(YELLOW)Smoke mode is not available for frontend tests$(NC)"; \
+					exit 1; \
+					;; \
+				*) \
+					echo "$(RED)Unknown MODE '$$TARGET_MODE' for frontend$(NC)"; \
+					exit 1; \
+					;; \
+			esac; \
+			;; \
+		e2e) \
+			case "$$TARGET_MODE" in \
+				default) \
+					echo "$(GREEN)Running E2E tests...$(NC)"; \
+					$(MAKE) --no-print-directory _run-e2e SCRIPT=test; \
+					echo "$(GREEN)✓ E2E tests completed$(NC)"; \
+					;; \
+				ui) \
+					echo "$(GREEN)Opening Playwright UI...$(NC)"; \
+					$(MAKE) --no-print-directory _run-e2e SCRIPT=test:ui; \
+					;; \
+				smoke) \
+					echo "$(GREEN)Running smoke tests...$(NC)"; \
+					$(MAKE) --no-print-directory _run-e2e SCRIPT=test:smoke; \
+					echo "$(GREEN)✓ Smoke tests completed$(NC)"; \
+					;; \
+				watch|cov) \
+					echo "$(YELLOW)Mode '$$TARGET_MODE' is not supported for E2E tests$(NC)"; \
+					exit 1; \
+					;; \
+				*) \
+					echo "$(RED)Unknown MODE '$$TARGET_MODE' for e2e$(NC)"; \
+					exit 1; \
+					;; \
+			esac; \
+			;; \
+		*) \
+			echo "$(RED)Unknown SCOPE '$$TARGET_SCOPE'$(NC)"; \
+			exit 1; \
+			;; \
+	esac

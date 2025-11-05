@@ -18,11 +18,16 @@ make test-frontend     # Run frontend tests only
 make test-e2e          # Run E2E tests only
 
 # Using quick script
-./test-quick.sh        # Run all tests
-./test-quick.sh backend     # Backend only
-./test-quick.sh frontend    # Frontend only
-./test-quick.sh e2e         # E2E only
+# Using helper script
+./scripts/test-runner.sh all       # Run all tests
+./scripts/test-runner.sh backend   # Backend only
+./scripts/test-runner.sh frontend  # Frontend only
+./scripts/test-runner.sh e2e       # E2E only
 ```
+
+:::info Advanced usage
+You can pass `SCOPE=<backend|frontend|e2e>` and `MODE=<watch|cov|ui|smoke>` to `make test` if you prefer a single entry point, but the shortcuts like `make test-backend` remain the recommended public interface.
+:::
 
 ### Watch Mode (Development)
 
@@ -131,6 +136,8 @@ quiz-app/
 | `make test-ui` | Interactive UI mode selection |
 | `make test-e2e-ui` | Playwright UI mode |
 
+Scoped aliases such as `make test-backend-ui`, `make test-frontend-ui`, and their `-cov`/`-watch` counterparts continue to work when you need a specific suite.
+
 ### Setup
 
 | Command | Description |
@@ -143,20 +150,23 @@ quiz-app/
 
 ```bash
 # Run ALL tests (backend + frontend + E2E)
-./test.sh
+./scripts/test-runner.sh all
 
 # Backend tests only
-cd backend && npm test
+./scripts/test-runner.sh backend
 
 # Frontend tests only  
-cd frontend && npm test
+./scripts/test-runner.sh frontend
 
 # E2E tests only
-./test-e2e.sh
+./scripts/test-runner.sh e2e
+
+# E2E smoke tests
+./scripts/test-runner.sh e2e smoke
 
 # Watch mode (development)
-cd backend && npm run test:watch
-cd frontend && npm run test:watch
+./scripts/test-runner.sh backend --watch
+./scripts/test-runner.sh frontend --watch
 ```
 
 ### Backend Tests (Vitest)
@@ -211,7 +221,7 @@ npm run test:ui
 
 ```bash
 # Run all E2E tests
-./test-e2e.sh
+./scripts/test-runner.sh e2e
 
 # Or manually:
 cd e2e
@@ -405,8 +415,8 @@ jobs:
 
       - name: E2E Tests
         run: |
-          docker-compose up -d
-          ./test-e2e.sh
+          docker compose up -d
+          ./scripts/test-runner.sh e2e
 ```
 
 ## Test Coverage

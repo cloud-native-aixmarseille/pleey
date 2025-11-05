@@ -176,7 +176,7 @@ cd backend && npm test
 cd frontend && npm test
 
 # E2E tests
-./test-e2e.sh
+./scripts/test-runner.sh e2e
 ```
 
 📘 **Complete guide**: [Testing Guide](docs/docs/technical/testing.md)
@@ -196,7 +196,7 @@ cd frontend && npm test
 3. **Test locally**
    ```bash
    npm test  # Unit tests
-   ./test-e2e.sh  # E2E tests
+   ./scripts/test-runner.sh e2e  # E2E tests
    ```
 
 4. **Commit your changes**
