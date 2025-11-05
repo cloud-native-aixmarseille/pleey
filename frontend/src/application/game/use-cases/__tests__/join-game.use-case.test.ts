@@ -17,37 +17,63 @@ describe('JoinGameUseCase', () => {
     joinGameUseCase = new JoinGameUseCase(mockGameSocket);
   });
 
-  it('should join game successfully', () => {
-    joinGameUseCase.execute({
-      pin: '123456',
-      username: 'player1',
-      userId: 1,
+  describe('Authenticated user join', () => {
+    it('should join game successfully with userId', () => {
+      joinGameUseCase.execute({
+        pin: '123456',
+        username: 'player1',
+        userId: 1,
+      });
+
+      expect(mockGameSocket.joinGame).toHaveBeenCalledWith('123456', 'player1', 1, undefined);
+    });
+  });
+
+  describe('Guest user join', () => {
+    it('should join game successfully with guestId', () => {
+      joinGameUseCase.execute({
+        pin: '123456',
+        username: 'guest_player',
+        guestId: 'guest-xyz',
+      });
+
+      expect(mockGameSocket.joinGame).toHaveBeenCalledWith('123456', 'guest_player', undefined, 'guest-xyz');
     });
 
-    expect(mockGameSocket.joinGame).toHaveBeenCalledWith('123456', 'player1', 1);
+    it('should join game with both username and guestId, no userId', () => {
+      joinGameUseCase.execute({
+        pin: 'ABC123',
+        username: 'John',
+        guestId: 'guest-123',
+      });
+
+      expect(mockGameSocket.joinGame).toHaveBeenCalledWith('ABC123', 'John', undefined, 'guest-123');
+    });
   });
 
-  it('should throw error when PIN is empty', () => {
-    expect(() =>
-      joinGameUseCase.execute({
-        pin: '',
-        username: 'player1',
-        userId: 1,
-      })
-    ).toThrow('Game PIN is required');
+  describe('Validation', () => {
+    it('should throw error when PIN is empty', () => {
+      expect(() =>
+        joinGameUseCase.execute({
+          pin: '',
+          username: 'player1',
+          userId: 1,
+        })
+      ).toThrow('Game PIN is required');
 
-    expect(mockGameSocket.joinGame).not.toHaveBeenCalled();
-  });
+      expect(mockGameSocket.joinGame).not.toHaveBeenCalled();
+    });
 
-  it('should throw error when PIN is whitespace', () => {
-    expect(() =>
-      joinGameUseCase.execute({
-        pin: '   ',
-        username: 'player1',
-        userId: 1,
-      })
-    ).toThrow('Game PIN is required');
+    it('should throw error when PIN is whitespace', () => {
+      expect(() =>
+        joinGameUseCase.execute({
+          pin: '   ',
+          username: 'player1',
+          userId: 1,
+        })
+      ).toThrow('Game PIN is required');
 
-    expect(mockGameSocket.joinGame).not.toHaveBeenCalled();
+      expect(mockGameSocket.joinGame).not.toHaveBeenCalled();
+    });
   });
 });
