@@ -20,6 +20,7 @@ import { GetLeaderboardUseCase } from '../../application/game/use-cases/get-lead
 import { JoinGameDto } from '../../application/game/dto/join-game.dto';
 import { SubmitAnswerDto } from '../../application/game/dto/submit-answer.dto';
 import { GamePinDto } from '../../application/game/dto/game-pin.dto';
+import { AdminGameControlDto } from '../../application/game/dto/admin-game-control.dto';
 import type { Question } from '../../domain/quiz/entities/question.entity';
 import {
   GameSessionRepositoryProvider,
@@ -287,11 +288,16 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @SubscribeMessage('stop-game')
   async handleStopGame(@ConnectedSocket() client: Socket, @MessageBody() payload: unknown): Promise<void> {
     try {
-      const dto = await this.validatePayload(GamePinDto, payload);
+      const dto = await this.validatePayload(AdminGameControlDto, payload);
       const session = await this.gameSessionRepository.findByPin(dto.pin);
 
       if (!session) {
         throw new WsException(GameErrorCode.GAME_NOT_FOUND);
+      }
+
+      // Verify admin ownership
+      if (session.adminId !== dto.adminId) {
+        throw new WsException('You do not have permission to stop this game');
       }
 
       await this.gameSessionRepository.updateStatus(session.id, 'paused');
@@ -307,12 +313,17 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @SubscribeMessage('resume-game')
   async handleResumeGame(@ConnectedSocket() client: Socket, @MessageBody() payload: unknown): Promise<void> {
     try {
-      const dto = await this.validatePayload(GamePinDto, payload);
+      const dto = await this.validatePayload(AdminGameControlDto, payload);
       const state = await this.ensureSessionState(dto.pin);
       const session = await this.gameSessionRepository.findByPin(dto.pin);
 
       if (!session) {
         throw new WsException(GameErrorCode.GAME_NOT_FOUND);
+      }
+
+      // Verify admin ownership
+      if (session.adminId !== dto.adminId) {
+        throw new WsException('You do not have permission to resume this game');
       }
 
       await this.gameSessionRepository.updateStatus(session.id, 'active');

@@ -22,14 +22,16 @@ export interface IGameSocket {
   /**
    * Stop (pause) the game (admin only)
    * @param pin - Game PIN
+   * @param adminId - Admin user ID
    */
-  stopGame(pin: string): void;
+  stopGame(pin: string, adminId: number): void;
 
   /**
    * Resume a paused game (admin only)
    * @param pin - Game PIN
+   * @param adminId - Admin user ID
    */
-  resumeGame(pin: string): void;
+  resumeGame(pin: string, adminId: number): void;
 
   /**
    * Submit an answer

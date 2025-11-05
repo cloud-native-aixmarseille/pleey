@@ -28,9 +28,17 @@ export interface Question {
 }
 
 export interface GameSession {
+  sessionId?: number;
   pin: string;
-  quiz_id: number;
+  quizId?: number;
+  quiz_id?: number;
+  adminId?: number;
+  admin_id?: number;
   status: string;
+  currentQuestion?: number;
+  current_question?: number;
+  createdAt?: string;
+  created_at?: string;
 }
 
 export interface Player {

@@ -1,5 +1,6 @@
 import { API_URL } from '../../shared/config/api.config';
 import { socket } from '../../shared/socket/socket.client';
+import { GameSession } from '../../shared/types';
 
 export class GameService {
   async createSession(token: string, quizId: number): Promise<{ pin: string }> {
@@ -11,10 +12,16 @@ export class GameService {
       },
       body: JSON.stringify({ quizId })
     });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'Failed to create session' }));
+      throw new Error(errorData.message || 'Failed to create session');
+    }
+    
     return await response.json();
   }
 
-  async getActiveSessions(token: string): Promise<any[]> {
+  async getActiveSessions(token: string): Promise<GameSession[]> {
     const response = await fetch(`${API_URL}/api/sessions/active`, {
       method: 'GET',
       headers: {
@@ -22,11 +29,16 @@ export class GameService {
         'Authorization': `Bearer ${token}`
       }
     });
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch active sessions');
+    }
+    
     const data = await response.json();
     return data.sessions || [];
   }
 
-  async stopSession(token: string, sessionId: number): Promise<any> {
+  async stopSession(token: string, sessionId: number): Promise<GameSession> {
     const response = await fetch(`${API_URL}/api/sessions/${sessionId}/stop`, {
       method: 'PATCH',
       headers: {
@@ -34,10 +46,15 @@ export class GameService {
         'Authorization': `Bearer ${token}`
       }
     });
+    
+    if (!response.ok) {
+      throw new Error('Failed to stop session');
+    }
+    
     return await response.json();
   }
 
-  async resumeSession(token: string, sessionId: number): Promise<any> {
+  async resumeSession(token: string, sessionId: number): Promise<GameSession> {
     const response = await fetch(`${API_URL}/api/sessions/${sessionId}/resume`, {
       method: 'PATCH',
       headers: {
@@ -45,6 +62,11 @@ export class GameService {
         'Authorization': `Bearer ${token}`
       }
     });
+    
+    if (!response.ok) {
+      throw new Error('Failed to resume session');
+    }
+    
     return await response.json();
   }
 
@@ -56,12 +78,12 @@ export class GameService {
     socket.emit('start-game', { pin });
   }
 
-  stopGame(pin: string): void {
-    socket.emit('stop-game', { pin });
+  stopGame(pin: string, adminId: number): void {
+    socket.emit('stop-game', { pin, adminId });
   }
 
-  resumeGame(pin: string): void {
-    socket.emit('resume-game', { pin });
+  resumeGame(pin: string, adminId: number): void {
+    socket.emit('resume-game', { pin, adminId });
   }
 
   submitAnswer(pin: string, userId: number | undefined, answer: string, timeLeft: number, guestId?: string): void {
