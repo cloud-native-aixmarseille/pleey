@@ -1,8 +1,9 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 /**
  * Join Game DTO
  * Data Transfer Object for joining a game
+ * Supports both authenticated users (with userId) and guest players (without userId)
  */
 export class JoinGameDto {
   @IsString()
@@ -14,6 +15,10 @@ export class JoinGameDto {
   username: string;
 
   @IsNumber()
-  @IsNotEmpty()
-  userId: number;
+  @IsOptional()
+  userId?: number;
+
+  @IsString()
+  @IsOptional()
+  guestId?: string;
 }

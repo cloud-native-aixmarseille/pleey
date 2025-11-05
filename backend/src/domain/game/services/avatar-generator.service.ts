@@ -10,17 +10,17 @@ import { bottts } from '@dicebear/collection';
 export class AvatarGeneratorService {
   /**
    * Generates an avatar URL for a player
-   * @param userId - The user's ID
+   * @param seed - A unique identifier (userId as string, or guestId)
    * @param sessionId - The session ID to ensure uniqueness across sessions
    * @returns SVG data URL string for the avatar
    */
-  generateAvatar(userId: number, sessionId: number): string {
-    // Create a stable seed based on userId and sessionId
-    const seed = `${userId}-${sessionId}`;
+  generateAvatar(seed: string, sessionId: number): string {
+    // Create a stable seed based on player seed and sessionId
+    const combinedSeed = `${seed}-${sessionId}`;
 
     // Generate the avatar using DiceBear bottts style
     const avatar = createAvatar(bottts, {
-      seed,
+      seed: combinedSeed,
       size: 128,
     });
 

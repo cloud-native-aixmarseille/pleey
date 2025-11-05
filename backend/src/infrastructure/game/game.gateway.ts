@@ -43,16 +43,26 @@ const SOCKET_ORIGINS = PARSED_SOCKET_ORIGINS.length > 0
 const SOCKET_ALLOW_WILDCARD = SOCKET_ORIGINS.includes('*');
 
 interface PlayerState {
-  userId: number;
+  userId?: number; // Present for authenticated users
+  guestId?: string; // Present for guest players
   username: string;
   socketId: string;
   avatar: string;
+  isGuest: boolean;
+}
+
+interface PlayerScore {
+  playerId: string; // userId or guestId
+  username: string;
+  totalPoints: number;
+  isGuest: boolean;
 }
 
 interface SessionState {
   sessionId: number;
   quizId: number;
   players: Map<string, PlayerState>;
+  scores: Map<string, PlayerScore>; // Track scores in memory
   questions: Question[];
   currentQuestionIndex: number;
 }
@@ -117,10 +127,24 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     try {
       const dto = await this.validatePayload(JoinGameDto, payload);
       const state = await this.ensureSessionState(dto.pin);
-      const existingEntry = this.findPlayerByUserId(state.players, dto.userId);
+      
+      // Determine if this is a guest or authenticated user
+      const isGuest = !dto.userId;
+      let guestId = dto.guestId;
+      
+      // Generate guestId if not provided for guest players
+      if (isGuest && !guestId) {
+        guestId = `guest-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+      }
+      
+      // Find existing player by userId or guestId
+      const existingEntry = isGuest 
+        ? this.findPlayerByGuestId(state.players, guestId!)
+        : this.findPlayerByUserId(state.players, dto.userId!);
 
-      // Reuse existing avatar if player is reconnecting, otherwise generate new one
-      const avatar = existingEntry?.avatar ?? this.avatarGenerator.generateAvatar(dto.userId, state.sessionId);
+      // Generate avatar seed based on player type
+      const avatarSeed = isGuest ? guestId! : `${dto.userId}`;
+      const avatar = existingEntry?.avatar ?? this.avatarGenerator.generateAvatar(avatarSeed, state.sessionId);
 
       if (existingEntry) {
         state.players.delete(existingEntry.socketId);
@@ -129,8 +153,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       state.players.set(client.id, {
         socketId: client.id,
         userId: dto.userId,
+        guestId: isGuest ? guestId : undefined,
         username: dto.username,
         avatar,
+        isGuest,
       });
 
       client.join(dto.pin);
@@ -176,8 +202,26 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   async handleSubmitAnswer(@ConnectedSocket() client: Socket, @MessageBody() payload: unknown): Promise<void> {
     try {
       const dto = await this.validatePayload(SubmitAnswerDto, payload);
-      await this.ensureSessionState(dto.pin);
+      const state = await this.ensureSessionState(dto.pin);
       const result = await this.submitAnswerUseCase.execute(dto);
+
+      // Update in-memory scores
+      const playerId = dto.userId ? `user-${dto.userId}` : `guest-${dto.guestId}`;
+      const player = Array.from(state.players.values()).find(p => 
+        (dto.userId && p.userId === dto.userId) || (dto.guestId && p.guestId === dto.guestId)
+      );
+      
+      if (player) {
+        const existingScore = state.scores.get(playerId);
+        const totalPoints = (existingScore?.totalPoints ?? 0) + result.points;
+        
+        state.scores.set(playerId, {
+          playerId,
+          username: player.username,
+          totalPoints,
+          isGuest: player.isGuest,
+        });
+      }
 
       client.emit('answer-result', {
         isCorrect: result.isCorrect,
@@ -185,7 +229,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         correctAnswer: result.correctAnswer,
       });
 
-      await this.broadcastLeaderboard(dto.pin);
+      await this.broadcastLeaderboard(dto.pin, state);
     } catch (error) {
       this.handleError(client, error);
     }
@@ -238,6 +282,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       sessionId: session.id,
       quizId: session.quizId,
       players: new Map(),
+      scores: new Map(),
       questions,
       currentQuestionIndex: session.currentQuestion ?? 0,
     };
@@ -246,14 +291,27 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     return state;
   }
 
-  private async broadcastLeaderboard(pin: string): Promise<void> {
-    const leaderboard = await this.getLeaderboardUseCase.execute(pin);
-    const formatted = leaderboard.map((entry, index) => ({
-      userId: entry.userId,
-      username: entry.username,
-      totalPoints: entry.totalScore,
-      rank: index + 1,
-    }));
+  private async broadcastLeaderboard(pin: string, state: SessionState): Promise<void> {
+    // Get in-memory scores (includes both guests and authenticated users)
+    const scores = Array.from(state.scores.values());
+    
+    // Sort by totalPoints descending
+    scores.sort((a, b) => b.totalPoints - a.totalPoints);
+    
+    const formatted = scores.map((entry, index) => {
+      const player = Array.from(state.players.values()).find(p => 
+        (entry.isGuest ? p.guestId === entry.playerId.replace('guest-', '') : p.userId?.toString() === entry.playerId.replace('user-', ''))
+      );
+      
+      return {
+        userId: entry.isGuest ? undefined : Number.parseInt(entry.playerId.replace('user-', '')),
+        guestId: entry.isGuest ? entry.playerId.replace('guest-', '') : undefined,
+        username: entry.username,
+        totalPoints: entry.totalPoints,
+        rank: index + 1,
+        isGuest: entry.isGuest,
+      };
+    });
 
     this.server.to(pin).emit('leaderboard-updated', {
       leaderboard: formatted,
@@ -262,23 +320,39 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   private async endGame(pin: string, state: SessionState): Promise<void> {
     await this.gameSessionRepository.updateStatus(state.sessionId, 'ended');
-    const leaderboard = await this.getLeaderboardUseCase.execute(pin);
-    const formatted = leaderboard.map((entry, index) => ({
-      userId: entry.userId,
-      username: entry.username,
-      totalPoints: entry.totalScore,
-      rank: index + 1,
-    }));
+    
+    // Get in-memory scores for final leaderboard
+    const scores = Array.from(state.scores.values());
+    scores.sort((a, b) => b.totalPoints - a.totalPoints);
+    
+    const formatted = scores.map((entry, index) => {
+      return {
+        userId: entry.isGuest ? undefined : Number.parseInt(entry.playerId.replace('user-', '')),
+        guestId: entry.isGuest ? entry.playerId.replace('guest-', '') : undefined,
+        username: entry.username,
+        totalPoints: entry.totalPoints,
+        rank: index + 1,
+        isGuest: entry.isGuest,
+      };
+    });
 
     this.server.to(pin).emit('game-ended', { leaderboard: formatted });
     this.sessions.delete(pin);
   }
 
-  private mapPlayers(players: Map<string, PlayerState>): Array<{ id: number; username: string; avatar: string }> {
+  private mapPlayers(players: Map<string, PlayerState>): Array<{ 
+    id?: number; 
+    guestId?: string; 
+    username: string; 
+    avatar: string;
+    isGuest: boolean;
+  }> {
     return Array.from(players.values()).map((player) => ({
       id: player.userId,
+      guestId: player.guestId,
       username: player.username,
       avatar: player.avatar,
+      isGuest: player.isGuest,
     }));
   }
 
@@ -301,6 +375,16 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   private findPlayerByUserId(players: Map<string, PlayerState>, userId: number): PlayerState | null {
     for (const player of players.values()) {
       if (player.userId === userId) {
+        return player;
+      }
+    }
+
+    return null;
+  }
+
+  private findPlayerByGuestId(players: Map<string, PlayerState>, guestId: string): PlayerState | null {
+    for (const player of players.values()) {
+      if (player.guestId === guestId) {
         return player;
       }
     }
