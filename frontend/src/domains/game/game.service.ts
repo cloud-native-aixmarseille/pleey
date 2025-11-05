@@ -14,16 +14,16 @@ export class GameService {
     return await response.json();
   }
 
-  joinGame(pin: string, username: string, userId: number): void {
-    socket.emit('join-game', { pin, username, userId });
+  joinGame(pin: string, username: string, userId?: number, guestId?: string): void {
+    socket.emit('join-game', { pin, username, userId, guestId });
   }
 
   startGame(pin: string): void {
     socket.emit('start-game', { pin });
   }
 
-  submitAnswer(pin: string, userId: number, answer: string, timeLeft: number): void {
-    socket.emit('submit-answer', { pin, userId, answer, timeLeft });
+  submitAnswer(pin: string, userId: number | undefined, answer: string, timeLeft: number, guestId?: string): void {
+    socket.emit('submit-answer', { pin, userId, answer, timeLeft, guestId });
   }
 
   nextQuestion(pin: string): void {

@@ -21,7 +21,7 @@ import LoginPage from "./features/authentication/components/LoginPage";
 import RegisterPage from "./features/authentication/components/RegisterPage";
 import AdminDashboard from "./features/quiz-management/components/AdminDashboard";
 import ManageQuestionsPage from "./features/quiz-management/components/ManageQuestionsPage";
-import JoinGamePage from "./features/game-play/components/JoinGamePage";
+import JoinGameWithGuestPage from "./features/game-play/components/JoinGameWithGuestPage";
 import LobbyPage from "./features/game-play/components/LobbyPage";
 import PlayingPage from "./features/game-play/components/PlayingPage";
 import LeaderboardPage from "./features/game-play/components/LeaderboardPage";
@@ -89,6 +89,10 @@ export default function QuizApp() {
 
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
+
+  // Guest player state
+  const [guestNickname, setGuestNickname] = useState<string>("");
+  const [guestId, setGuestId] = useState<string | null>(null);
 
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [questionsByQuiz, setQuestionsByQuiz] = useState<QuestionsByQuiz>({});
@@ -287,17 +291,36 @@ export default function QuizApp() {
     navigate("/game/lobby");
   }, [user, gamePin, navigate]);
 
+  const handleJoinAsGuest = useCallback((nickname: string) => {
+    // Generate a unique guest ID
+    const newGuestId = `guest-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    setGuestId(newGuestId);
+    setGuestNickname(nickname);
+    
+    // Store in session storage for reconnection
+    sessionStorage.setItem('guestNickname', nickname);
+    sessionStorage.setItem('guestId', newGuestId);
+    
+    gameService.joinGame(gamePin, nickname, undefined, newGuestId);
+    navigate("/game/lobby");
+  }, [gamePin, navigate]);
+
   const handleStartGame = useCallback(() => {
     gameService.startGame(gamePin);
   }, [gamePin]);
 
   const handleSubmitAnswer = useCallback(
     (answer: string) => {
-      if (!user) return;
-      setUserAnswer(answer);
-      gameService.submitAnswer(gamePin, user.id, answer, timeLeft);
+      // Support both authenticated users and guests
+      if (user) {
+        setUserAnswer(answer);
+        gameService.submitAnswer(gamePin, user.id, answer, timeLeft);
+      } else if (guestId) {
+        setUserAnswer(answer);
+        gameService.submitAnswer(gamePin, undefined, answer, timeLeft, guestId);
+      }
     },
-    [user, gamePin, timeLeft]
+    [user, guestId, gamePin, timeLeft]
   );
 
   const handleNextQuestion = useCallback(() => {
@@ -321,22 +344,25 @@ export default function QuizApp() {
   const isAdmin = user?.isAdmin ?? false;
 
   const joinRouteElement = useMemo(() => {
-    if (!isAuthenticated) {
-      return <Navigate to="/auth/login" replace />;
-    }
-
+    // Allow both authenticated and guest players
     return (
-      <JoinGamePage
+      <JoinGameWithGuestPage
         gamePin={gamePin}
         onGamePinChange={setGamePin}
         onJoinGame={handleJoinGame}
+        onJoinAsGuest={handleJoinAsGuest}
+        isAuthenticated={isAuthenticated}
+        username={user?.username}
       />
     );
-  }, [isAuthenticated, gamePin, handleJoinGame]);
+  }, [isAuthenticated, gamePin, handleJoinGame, handleJoinAsGuest, user]);
 
   const lobbyRouteElement = useMemo(() => {
-    if (!isAuthenticated) {
-      return <Navigate to="/auth/login" replace />;
+    // Allow both authenticated users and guests
+    const hasPlayerIdentity = isAuthenticated || guestNickname;
+    
+    if (!hasPlayerIdentity) {
+      return <Navigate to="/game/join" replace />;
     }
 
     return (
@@ -352,6 +378,7 @@ export default function QuizApp() {
     );
   }, [
     isAuthenticated,
+    guestNickname,
     gamePin,
     players,
     isAdmin,
@@ -361,8 +388,11 @@ export default function QuizApp() {
   ]);
 
   const playingRouteElement = useMemo(() => {
-    if (!isAuthenticated) {
-      return <Navigate to="/auth/login" replace />;
+    // Allow both authenticated users and guests
+    const hasPlayerIdentity = isAuthenticated || guestNickname;
+    
+    if (!hasPlayerIdentity) {
+      return <Navigate to="/game/join" replace />;
     }
 
     if (!currentQuestion) {
@@ -400,6 +430,7 @@ export default function QuizApp() {
     );
   }, [
     isAuthenticated,
+    guestNickname,
     currentQuestion,
     questionNumber,
     totalQuestions,
@@ -413,8 +444,11 @@ export default function QuizApp() {
   ]);
 
   const leaderboardRouteElement = useMemo(() => {
-    if (!isAuthenticated) {
-      return <Navigate to="/auth/login" replace />;
+    // Allow both authenticated users and guests
+    const hasPlayerIdentity = isAuthenticated || guestNickname;
+    
+    if (!hasPlayerIdentity) {
+      return <Navigate to="/game/join" replace />;
     }
 
     // Admin sees enhanced host view, players see regular view
@@ -423,7 +457,7 @@ export default function QuizApp() {
     }
 
     return <LeaderboardPage leaderboard={leaderboard} />;
-  }, [isAuthenticated, isAdmin, leaderboard]);
+  }, [isAuthenticated, guestNickname, isAdmin, leaderboard]);
 
   return (
     <Routes>

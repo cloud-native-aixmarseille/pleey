@@ -8,9 +8,10 @@ export interface IGameSocket {
    * Join a game session
    * @param pin - Game PIN
    * @param username - Player username
-   * @param userId - Player user ID
+   * @param userId - Player user ID (optional for guest players)
+   * @param guestId - Guest player ID (optional, for guest players)
    */
-  joinGame(pin: string, username: string, userId: number): void;
+  joinGame(pin: string, username: string, userId?: number, guestId?: string): void;
 
   /**
    * Start the game (admin only)
@@ -21,11 +22,12 @@ export interface IGameSocket {
   /**
    * Submit an answer
    * @param pin - Game PIN
-   * @param userId - Player user ID
+   * @param userId - Player user ID (optional for guest players)
    * @param answer - Selected answer
    * @param timeLeft - Time remaining when answered
+   * @param guestId - Guest player ID (optional, for guest players)
    */
-  submitAnswer(pin: string, userId: number, answer: string, timeLeft: number): void;
+  submitAnswer(pin: string, userId: number | undefined, answer: string, timeLeft: number, guestId?: string): void;
 
   /**
    * Move to next question (admin only)
