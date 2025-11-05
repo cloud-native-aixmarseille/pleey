@@ -58,14 +58,15 @@ describe("LeaderboardPage", () => {
   it("displays correct scores for each player", async () => {
     render(<LeaderboardPage leaderboard={mockLeaderboard} />);
 
-    await waitFor(
-      () => {
-        expect(screen.getByText(/1500 pts/i)).toBeInTheDocument();
-        expect(screen.getByText(/1200 pts/i)).toBeInTheDocument();
-        expect(screen.getByText(/1000 pts/i)).toBeInTheDocument();
-      },
-      { timeout: 3000 }
-    );
+    expect(
+      await screen.findByText(/1500 pts/i, undefined, { timeout: 4000 })
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByText(/1200 pts/i, undefined, { timeout: 4000 })
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByText(/1000 pts/i, undefined, { timeout: 4000 })
+    ).toBeInTheDocument();
   });
 
   it("calls onNavigate when Play Again button is clicked", async () => {

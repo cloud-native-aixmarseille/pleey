@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { GameSocketAdapter } from '../game-socket.adapter';
-import { socket } from '../../../shared/socket/socket.client';
+import { socket } from '../../../../shared/socket/socket.client';
 
-vi.mock('../../../shared/socket/socket.client', () => ({
+vi.mock('../../../../shared/socket/socket.client', () => ({
   socket: {
     emit: vi.fn(),
     on: vi.fn(),
