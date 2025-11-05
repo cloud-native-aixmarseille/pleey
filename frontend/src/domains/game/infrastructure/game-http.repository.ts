@@ -25,8 +25,8 @@ export class GameHttpRepository implements IGameRepository {
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Failed to create game session' }));
-      throw new Error(errorData.message || 'Failed to create game session');
+      const errorData = await response.json().catch(() => ({ message: 'game.errors.sessionCreateFailed' }));
+      throw new Error(errorData.message || 'game.errors.sessionCreateFailed');
     }
 
     return response.json();
