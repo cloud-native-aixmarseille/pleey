@@ -128,12 +128,20 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       const dto = await this.validatePayload(JoinGameDto, payload);
       const state = await this.ensureSessionState(dto.pin);
       
+      // Validate that exactly one of userId or guestId is provided
+      const hasUserId = dto.userId !== undefined && dto.userId !== null;
+      const hasGuestId = dto.guestId !== undefined && dto.guestId !== null && dto.guestId.trim() !== '';
+      
+      if (hasUserId && hasGuestId) {
+        throw new WsException('Cannot provide both userId and guestId');
+      }
+      
       // Determine if this is a guest or authenticated user
-      const isGuest = !dto.userId;
+      const isGuest = !hasUserId;
       let guestId = dto.guestId;
       
       // Generate guestId if not provided for guest players
-      if (isGuest && !guestId) {
+      if (isGuest && !hasGuestId) {
         guestId = `guest-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
       }
       
@@ -203,10 +211,23 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     try {
       const dto = await this.validatePayload(SubmitAnswerDto, payload);
       const state = await this.ensureSessionState(dto.pin);
+      
+      // Validate that exactly one of userId or guestId is provided
+      const hasUserId = dto.userId !== undefined && dto.userId !== null;
+      const hasGuestId = dto.guestId !== undefined && dto.guestId !== null && dto.guestId.trim() !== '';
+      
+      if (!hasUserId && !hasGuestId) {
+        throw new WsException('Must provide either userId or guestId');
+      }
+      
+      if (hasUserId && hasGuestId) {
+        throw new WsException('Cannot provide both userId and guestId');
+      }
+      
       const result = await this.submitAnswerUseCase.execute(dto);
 
       // Update in-memory scores
-      const playerId = dto.userId ? `user-${dto.userId}` : `guest-${dto.guestId}`;
+      const playerId = this.createPlayerId(dto.userId, dto.guestId);
       const player = Array.from(state.players.values()).find(p => 
         (dto.userId && p.userId === dto.userId) || (dto.guestId && p.guestId === dto.guestId)
       );
@@ -299,13 +320,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     scores.sort((a, b) => b.totalPoints - a.totalPoints);
     
     const formatted = scores.map((entry, index) => {
-      const player = Array.from(state.players.values()).find(p => 
-        (entry.isGuest ? p.guestId === entry.playerId.replace('guest-', '') : p.userId?.toString() === entry.playerId.replace('user-', ''))
-      );
-      
       return {
-        userId: entry.isGuest ? undefined : Number.parseInt(entry.playerId.replace('user-', '')),
-        guestId: entry.isGuest ? entry.playerId.replace('guest-', '') : undefined,
+        userId: this.extractUserIdFromPlayerId(entry.playerId),
+        guestId: this.extractGuestIdFromPlayerId(entry.playerId),
         username: entry.username,
         totalPoints: entry.totalPoints,
         rank: index + 1,
@@ -327,8 +344,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     
     const formatted = scores.map((entry, index) => {
       return {
-        userId: entry.isGuest ? undefined : Number.parseInt(entry.playerId.replace('user-', '')),
-        guestId: entry.isGuest ? entry.playerId.replace('guest-', '') : undefined,
+        userId: this.extractUserIdFromPlayerId(entry.playerId),
+        guestId: this.extractGuestIdFromPlayerId(entry.playerId),
         username: entry.username,
         totalPoints: entry.totalPoints,
         rank: index + 1,
@@ -354,6 +371,30 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       avatar: player.avatar,
       isGuest: player.isGuest,
     }));
+  }
+
+  private createPlayerId(userId?: number, guestId?: string): string {
+    if (userId !== undefined && userId !== null) {
+      return `user-${userId}`;
+    }
+    if (guestId) {
+      return `guest-${guestId}`;
+    }
+    throw new Error('Must provide either userId or guestId');
+  }
+
+  private extractUserIdFromPlayerId(playerId: string): number | undefined {
+    if (playerId.startsWith('user-')) {
+      return Number.parseInt(playerId.substring(5), 10);
+    }
+    return undefined;
+  }
+
+  private extractGuestIdFromPlayerId(playerId: string): string | undefined {
+    if (playerId.startsWith('guest-')) {
+      return playerId.substring(6);
+    }
+    return undefined;
   }
 
   private mapQuestion(question: Question): Record<string, unknown> {

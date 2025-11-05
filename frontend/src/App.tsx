@@ -183,6 +183,15 @@ export default function QuizApp() {
 
     const storedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
     const storedUser = localStorage.getItem(USER_STORAGE_KEY);
+    
+    // Restore guest state from session storage
+    const storedGuestNickname = sessionStorage.getItem('guestNickname');
+    const storedGuestId = sessionStorage.getItem('guestId');
+    
+    if (storedGuestNickname && storedGuestId) {
+      setGuestNickname(storedGuestNickname);
+      setGuestId(storedGuestId);
+    }
 
     if (!storedToken || !storedUser) {
       return;
