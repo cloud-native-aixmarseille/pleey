@@ -187,7 +187,25 @@ See **[Color Contrast Documentation](/technical/color-contrast)** for complete d
 </div>
 ```
 
-### 8. Animation Considerations (✅ IMPLEMENTED)
+### 8. Game Lobby QR Code (✅ IMPLEMENTED)
+
+#### QR Code Accessibility
+The lobby provides a QR code alternative for joining games:
+- ✅ QR code has `role="img"` and descriptive `aria-label`
+- ✅ Text fallback displays PIN below QR code
+- ✅ Auto-fills PIN when scanned via URL parameter
+- ✅ All text meets WCAG AAA contrast (11.4:1 to 15.2:1)
+
+```tsx
+<QRCodeSVG
+  value={`${window.location.origin}/join?pin=${gamePin}`}
+  aria-label={t("game.qrCodeAlt", { pin: gamePin })}
+  role="img"
+/>
+<p>{t("game.qrCodeAlt", { pin: gamePin })}</p>
+```
+
+### 9. Animation Considerations (✅ IMPLEMENTED)
 
 #### Reduced Motion Support
 Implemented in global CSS (`frontend/src/index.css`):
@@ -207,7 +225,7 @@ Implemented in global CSS (`frontend/src/index.css`):
 
 This respects user preferences for reduced motion and is compliant with WCAG 2.1 Success Criterion 2.3.3.
 
-### 9. Skip Links (✅ IMPLEMENTED)
+### 10. Skip Links (✅ IMPLEMENTED)
 
 Skip links allow keyboard users to quickly navigate to main content:
 
@@ -230,7 +248,7 @@ Skip links allow keyboard users to quickly navigate to main content:
 }
 ```
 
-### 10. Keyboard Navigation
+### 11. Keyboard Navigation
 
 All interactive elements are keyboard accessible:
 - ✅ Tab navigation through all interactive elements
@@ -239,7 +257,7 @@ All interactive elements are keyboard accessible:
 - ✅ Arrow keys for navigation where applicable
 - ✅ Focus visible indicators on all interactive elements
 
-### 11. Screen Reader Support
+### 12. Screen Reader Support
 
 #### ARIA Live Regions
 Used throughout the app for dynamic content updates:
