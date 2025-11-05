@@ -250,11 +250,7 @@ export default function LobbyPage({
                     {t("game.scanQrCode")}
                   </h3>
                   <div className="flex justify-center">
-                    <div 
-                      className="bg-white p-4 rounded-xl border-4 border-accent-500/50 shadow-neon-accent"
-                      role="img"
-                      aria-label={t("game.qrCodeAlt", { pin: gamePin })}
-                    >
+                    <div className="bg-white p-4 rounded-xl border-4 border-accent-500/50 shadow-neon-accent">
                       <QRCodeSVG
                         value={`${window.location.origin}/join?pin=${gamePin}`}
                         size={180}
@@ -262,6 +258,8 @@ export default function LobbyPage({
                         includeMargin={true}
                         fgColor="#0a0a1f"
                         bgColor="#ffffff"
+                        aria-label={t("game.qrCodeAlt", { pin: gamePin })}
+                        role="img"
                       />
                     </div>
                   </div>
