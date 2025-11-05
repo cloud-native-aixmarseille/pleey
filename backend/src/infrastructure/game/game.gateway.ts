@@ -119,11 +119,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       const state = await this.ensureSessionState(dto.pin);
       const existingEntry = this.findPlayerByUserId(state.players, dto.userId);
 
-      // Generate avatar for the player
-      const avatar = this.avatarGenerator.generateAvatar(dto.userId, state.sessionId);
-
-      // Reuse existing avatar if player is reconnecting
-      const playerAvatar = existingEntry?.avatar ?? avatar;
+      // Reuse existing avatar if player is reconnecting, otherwise generate new one
+      const avatar = existingEntry?.avatar ?? this.avatarGenerator.generateAvatar(dto.userId, state.sessionId);
 
       if (existingEntry) {
         state.players.delete(existingEntry.socketId);
@@ -133,7 +130,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         socketId: client.id,
         userId: dto.userId,
         username: dto.username,
-        avatar: playerAvatar,
+        avatar,
       });
 
       client.join(dto.pin);

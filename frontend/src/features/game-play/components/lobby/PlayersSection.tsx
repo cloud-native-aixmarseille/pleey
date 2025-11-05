@@ -57,7 +57,7 @@ function PlayersSectionComponent({
                 >
                   <img 
                     src={player.avatar} 
-                    alt="" 
+                    alt={`Avatar for ${player.username}`}
                     className="w-16 h-16 sm:w-20 sm:h-20"
                   />
                 </div>
