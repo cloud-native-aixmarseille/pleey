@@ -1,7 +1,8 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../../shared/context/AuthContext";
 import { useGame } from "../../../shared/context/GameContext";
 import JoinGamePage from "../components/JoinGamePage";
+import { useEffect } from "react";
 
 /**
  * Join Game Route Component
@@ -12,6 +13,15 @@ export function JoinGameRoute() {
   const { isAuthenticated } = useAuth();
   const { gamePin, setGamePin, joinGame } = useGame();
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+
+  // Auto-fill PIN from QR code scan
+  useEffect(() => {
+    const pinFromUrl = searchParams.get("pin");
+    if (pinFromUrl && pinFromUrl.length === 6) {
+      setGamePin(pinFromUrl);
+    }
+  }, [searchParams, setGamePin]);
 
   if (!isAuthenticated) {
     return <Navigate to="/auth/login" replace />;
