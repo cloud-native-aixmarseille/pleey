@@ -1,3 +1,6 @@
+import { GameSessionStatus } from '../enums/game-session-status.enum';
+import { GameErrorCode } from '../../../application/game/enums/game-error-code.enum';
+
 /**
  * GameSession Domain Entity
  * Represents a game session in the domain
@@ -17,44 +20,44 @@ export class GameSession {
    * Starts the game session
    */
   start(): void {
-    if (this.status !== 'waiting') {
+    if (this.status !== GameSessionStatus.WAITING) {
       throw new Error('Game can only be started from waiting status');
     }
-    this.status = 'active';
+    this.status = GameSessionStatus.ACTIVE;
   }
 
   /**
    * Pauses the game session
    */
   pause(): void {
-    if (this.status !== 'active') {
-      throw new Error('Can only pause an active game');
+    if (this.status !== GameSessionStatus.ACTIVE) {
+      throw new Error(GameErrorCode.CAN_ONLY_PAUSE_ACTIVE_GAME);
     }
-    this.status = 'paused';
+    this.status = GameSessionStatus.PAUSED;
   }
 
   /**
    * Resumes a paused game session
    */
   resume(): void {
-    if (this.status !== 'paused') {
-      throw new Error('Can only resume a paused game');
+    if (this.status !== GameSessionStatus.PAUSED) {
+      throw new Error(GameErrorCode.CAN_ONLY_RESUME_PAUSED_GAME);
     }
-    this.status = 'active';
+    this.status = GameSessionStatus.ACTIVE;
   }
 
   /**
    * Ends the game session
    */
   end(): void {
-    this.status = 'ended';
+    this.status = GameSessionStatus.ENDED;
   }
 
   /**
    * Moves to next question
    */
   nextQuestion(): void {
-    if (this.status !== 'active') {
+    if (this.status !== GameSessionStatus.ACTIVE) {
       throw new Error('Can only move to next question in active game');
     }
     this.currentQuestion++;
@@ -64,20 +67,20 @@ export class GameSession {
    * Checks if game is active
    */
   isActive(): boolean {
-    return this.status === 'active';
+    return this.status === GameSessionStatus.ACTIVE;
   }
 
   /**
    * Checks if game is waiting to start
    */
   isWaiting(): boolean {
-    return this.status === 'waiting';
+    return this.status === GameSessionStatus.WAITING;
   }
 
   /**
    * Checks if game is paused
    */
   isPaused(): boolean {
-    return this.status === 'paused';
+    return this.status === GameSessionStatus.PAUSED;
   }
 }

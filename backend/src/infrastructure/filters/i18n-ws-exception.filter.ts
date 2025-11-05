@@ -48,6 +48,9 @@ export class I18nWsExceptionFilter extends BaseWsExceptionFilter {
       [GameErrorCode.GAME_NOT_FOUND]: 'game.errors.gameNotFound',
       [GameErrorCode.NO_QUESTIONS_AVAILABLE]: 'game.errors.noQuestionsAvailable',
       [GameErrorCode.VALIDATION_FAILED]: 'game.errors.validationFailed',
+      [GameErrorCode.CAN_ONLY_PAUSE_ACTIVE_GAME]: 'game.errors.canOnlyPauseActiveGame',
+      [GameErrorCode.CAN_ONLY_RESUME_PAUSED_GAME]: 'game.errors.canOnlyResumePausedGame',
+      [GameErrorCode.UNAUTHORIZED_SESSION_CONTROL]: 'game.errors.unauthorizedSessionControl',
     };
 
     return this.i18n.translate(errorMap[code]);

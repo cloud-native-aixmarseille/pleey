@@ -8,7 +8,15 @@
     "noQuestionsAvailable": "No questions available for this quiz",
     "validationFailed": "Validation failed",
     "gameCanOnlyBeStartedFromWaiting": "Game can only be started from waiting status",
-    "canOnlyMoveToNextInActive": "Can only move to next question in active game"
+    "canOnlyMoveToNextInActive": "Can only move to next question in active game",
+    "canOnlyPauseActiveGame": "Can only pause an active game",
+    "canOnlyResumePausedGame": "Can only resume a paused game",
+    "unauthorizedSessionControl": "You do not have permission to control this game",
+    "gamePaused": "Game has been paused by the host",
+    "sessionCreateFailed": "Failed to create session",
+    "activeSessionsFetchFailed": "Failed to fetch active sessions",
+    "sessionStopFailed": "Failed to stop session",
+    "sessionResumeFailed": "Failed to resume session"
   },
   "success": {
     "gameCreated": "Game session created successfully",

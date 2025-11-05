@@ -159,7 +159,13 @@
     "joinStepManualDescription": "Saisissez le PIN affiché ci-dessous.",
     "joinManualLinkPrefix": "Rejoindre sur",
     "joinStepWaitDescription": "Restez sur cet écran jusqu'à ce que l'hôte lance le quiz.",
-    "copyPinAriaLabel": "Copier le PIN du jeu dans le presse-papiers"
+    "copyPinAriaLabel": "Copier le PIN du jeu dans le presse-papiers",
+    "errors": {
+      "sessionCreateFailed": "Échec de la création de la session",
+      "activeSessionsFetchFailed": "Échec de la récupération des sessions actives",
+      "sessionStopFailed": "Échec de l'arrêt de la session",
+      "sessionResumeFailed": "Échec de la reprise de la session"
+    }
   },
   "common": {
     "loading": "Chargement...",

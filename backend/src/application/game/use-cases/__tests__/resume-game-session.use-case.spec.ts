@@ -65,7 +65,7 @@ describe('ResumeGameSessionUseCase', () => {
 
       await expect(
         useCase.execute(1, 100)
-      ).rejects.toThrow('Can only resume a paused game');
+      ).rejects.toThrow('CAN_ONLY_RESUME_PAUSED_GAME');
     });
 
     it('should throw error when trying to resume ended session', async () => {
@@ -75,7 +75,7 @@ describe('ResumeGameSessionUseCase', () => {
 
       await expect(
         useCase.execute(1, 100)
-      ).rejects.toThrow('Can only resume a paused game');
+      ).rejects.toThrow('CAN_ONLY_RESUME_PAUSED_GAME');
     });
   });
 });

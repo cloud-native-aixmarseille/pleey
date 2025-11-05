@@ -65,7 +65,7 @@ describe('StopGameSessionUseCase', () => {
 
       await expect(
         useCase.execute(1, 100)
-      ).rejects.toThrow('Can only pause an active game');
+      ).rejects.toThrow('CAN_ONLY_PAUSE_ACTIVE_GAME');
     });
   });
 });
