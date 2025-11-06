@@ -1,0 +1,173 @@
+name: Helm Chart CI
+
+on:
+  pull_request:
+    paths:
+      - 'charts/**'
+      - '.github/workflows/helm-ci.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'charts/**'
+
+permissions:
+  contents: read
+
+jobs:
+  lint-and-test:
+    name: Lint and Test Helm Chart
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: 'v3.19.0'
+      
+      - name: Add Helm repositories
+        run: |
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo update
+      
+      - name: Update Helm dependencies
+        run: |
+          cd charts/application
+          helm dependency update
+      
+      - name: Lint Helm chart
+        run: |
+          cd charts/application
+          helm lint . --strict
+      
+      - name: Template Helm chart (dev)
+        run: |
+          cd charts/application
+          helm template quiz-app . -f values-dev.yaml > /tmp/quiz-app-dev.yaml
+      
+      - name: Template Helm chart (staging)
+        run: |
+          cd charts/application
+          helm template quiz-app . -f values-staging.yaml \
+            --set postgresql.auth.existingSecret="" \
+            --set postgresql.auth.password="test-password" \
+            > /tmp/quiz-app-staging.yaml
+      
+      - name: Template Helm chart (prod)
+        run: |
+          cd charts/application
+          helm template quiz-app . -f values-prod.yaml \
+            --set postgresql.auth.existingSecret="" \
+            --set postgresql.auth.password="test-password" \
+            --set backend.secrets.jwtSecret="test-jwt-secret" \
+            > /tmp/quiz-app-prod.yaml
+      
+      - name: Install kubeval
+        run: |
+          wget https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz
+          tar xf kubeval-linux-amd64.tar.gz
+          sudo mv kubeval /usr/local/bin
+      
+      - name: Validate Kubernetes manifests (dev)
+        run: |
+          kubeval --strict --ignore-missing-schemas /tmp/quiz-app-dev.yaml
+      
+      - name: Validate Kubernetes manifests (staging)
+        run: |
+          kubeval --strict --ignore-missing-schemas /tmp/quiz-app-staging.yaml
+      
+      - name: Validate Kubernetes manifests (prod)
+        run: |
+          kubeval --strict --ignore-missing-schemas /tmp/quiz-app-prod.yaml
+      
+      - name: Package Helm chart
+        run: |
+          cd charts
+          helm package application
+      
+      - name: Upload Helm chart artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: helm-chart
+          path: charts/*.tgz
+          retention-days: 30
+
+  test-install:
+    name: Test Installation in Kind
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+    
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: 'v3.19.0'
+      
+      - name: Create Kind cluster
+        uses: helm/kind-action@v1.12.0
+        with:
+          cluster_name: quiz-test
+          wait: 60s
+      
+      - name: Install NGINX Ingress Controller
+        run: |
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+          kubectl wait --namespace ingress-nginx \
+            --for=condition=ready pod \
+            --selector=app.kubernetes.io/component=controller \
+            --timeout=90s
+      
+      - name: Add Helm repositories
+        run: |
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo update
+      
+      - name: Install Helm chart
+        run: |
+          cd charts/application
+          helm dependency update
+          helm install quiz-app . -f values-dev.yaml \
+            --wait \
+            --timeout 5m \
+            --debug
+      
+      - name: Check deployment status
+        run: |
+          kubectl get all -n default
+          kubectl get ingress -n default
+      
+      - name: Wait for pods to be ready
+        run: |
+          kubectl wait --for=condition=ready pod \
+            --selector=app.kubernetes.io/instance=quiz-app \
+            --timeout=300s
+      
+      - name: Test backend health endpoint
+        run: |
+          kubectl port-forward svc/quiz-app-backend 3001:3001 &
+          sleep 5
+          curl -f http://localhost:3001/api/health/live || exit 1
+      
+      - name: Show logs on failure
+        if: failure()
+        run: |
+          echo "=== Backend logs ==="
+          kubectl logs -l app.kubernetes.io/component=backend --tail=100
+          echo "=== Frontend logs ==="
+          kubectl logs -l app.kubernetes.io/component=frontend --tail=100
+          echo "=== PostgreSQL logs ==="
+          kubectl logs -l app.kubernetes.io/name=postgresql --tail=100

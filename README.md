@@ -79,8 +79,8 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 
 # Install the chart
-helm install quiz-app ./deploy/helm/quiz-app \
-  -f ./deploy/helm/quiz-app/values-prod.yaml \
+helm install quiz-app ./charts/application \
+  -f ./charts/application/values-prod.yaml \
   --namespace quiz-app \
   --create-namespace
 ```

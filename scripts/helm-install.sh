@@ -15,7 +15,7 @@ NC='\033[0m' # No Color
 ENVIRONMENT="${1:-dev}"
 NAMESPACE="quiz-app"
 RELEASE_NAME="quiz-app"
-CHART_PATH="./deploy/helm/quiz-app"
+CHART_PATH="./charts/application"
 
 echo -e "${GREEN}QuizMaster Helm Chart Installation${NC}"
 echo "===================================="

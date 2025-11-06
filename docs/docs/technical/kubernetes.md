@@ -69,8 +69,8 @@ git clone https://github.com/cloud-native-aixmarseille/quiz-app.git
 cd quiz-app
 
 # Install with development values
-helm install quiz-app ./deploy/helm/quiz-app \
-  -f ./deploy/helm/quiz-app/values-dev.yaml \
+helm install quiz-app ./charts/application \
+  -f ./charts/application/values-dev.yaml \
   --create-namespace \
   --namespace quiz-app
 ```
@@ -92,8 +92,8 @@ kubectl create secret generic quiz-app-postgresql-secret \
   --namespace quiz-app
 
 # Install with production values
-helm install quiz-app ./deploy/helm/quiz-app \
-  -f ./deploy/helm/quiz-app/values-prod.yaml \
+helm install quiz-app ./charts/application \
+  -f ./charts/application/values-prod.yaml \
   --namespace quiz-app \
   --set ingress.hosts[0].host=quiz.example.com \
   --set ingress.tls[0].hosts[0]=quiz.example.com
@@ -135,8 +135,8 @@ The chart includes pre-configured values files for different environments:
 #### Development Environment
 
 ```bash
-helm install quiz-app ./deploy/helm/quiz-app \
-  -f ./deploy/helm/quiz-app/values-dev.yaml \
+helm install quiz-app ./charts/application \
+  -f ./charts/application/values-dev.yaml \
   --namespace quiz-app
 ```
 
@@ -150,8 +150,8 @@ Features:
 #### Staging Environment
 
 ```bash
-helm install quiz-app ./deploy/helm/quiz-app \
-  -f ./deploy/helm/quiz-app/values-staging.yaml \
+helm install quiz-app ./charts/application \
+  -f ./charts/application/values-staging.yaml \
   --namespace quiz-app-staging \
   --set postgresql.auth.existingSecret=quiz-app-postgresql-secret
 ```
@@ -166,8 +166,8 @@ Features:
 #### Production Environment
 
 ```bash
-helm install quiz-app ./deploy/helm/quiz-app \
-  -f ./deploy/helm/quiz-app/values-prod.yaml \
+helm install quiz-app ./charts/application \
+  -f ./charts/application/values-prod.yaml \
   --namespace quiz-app-prod \
   --set postgresql.auth.existingSecret=quiz-app-postgresql-secret \
   --set ingress.hosts[0].host=quiz.example.com
@@ -188,7 +188,7 @@ Features:
 If you prefer using a managed database service (RDS, Cloud SQL, etc.):
 
 ```bash
-helm install quiz-app ./deploy/helm/quiz-app \
+helm install quiz-app ./charts/application \
   --set postgresql.enabled=false \
   --set backend.secrets.databaseUrl="postgresql://user:pass@db-host:5432/quizdb" \
   --namespace quiz-app
@@ -226,7 +226,7 @@ ingress:
 Install with custom values:
 
 ```bash
-helm install quiz-app ./deploy/helm/quiz-app \
+helm install quiz-app ./charts/application \
   -f my-values.yaml \
   --namespace quiz-app
 ```
@@ -235,14 +235,14 @@ helm install quiz-app ./deploy/helm/quiz-app \
 
 ### Key Configuration Parameters
 
-Refer to the [Helm Chart README](../../deploy/helm/quiz-app/README.md) for a complete list of configuration parameters.
+Refer to the [Helm Chart README](../../charts/application/README.md) for a complete list of configuration parameters.
 
 ### Common Customizations
 
 #### Change Image Tag
 
 ```bash
-helm upgrade quiz-app ./deploy/helm/quiz-app \
+helm upgrade quiz-app ./charts/application \
   --set backend.image.tag=v1.2.0 \
   --set frontend.image.tag=v1.2.0 \
   --namespace quiz-app
@@ -251,7 +251,7 @@ helm upgrade quiz-app ./deploy/helm/quiz-app \
 #### Scale Replicas
 
 ```bash
-helm upgrade quiz-app ./deploy/helm/quiz-app \
+helm upgrade quiz-app ./charts/application \
   --set backend.replicaCount=5 \
   --set frontend.replicaCount=5 \
   --namespace quiz-app
@@ -260,7 +260,7 @@ helm upgrade quiz-app ./deploy/helm/quiz-app \
 #### Enable Autoscaling
 
 ```bash
-helm upgrade quiz-app ./deploy/helm/quiz-app \
+helm upgrade quiz-app ./charts/application \
   --set backend.autoscaling.enabled=true \
   --set backend.autoscaling.minReplicas=2 \
   --set backend.autoscaling.maxReplicas=10 \
@@ -270,7 +270,7 @@ helm upgrade quiz-app ./deploy/helm/quiz-app \
 #### Update Resource Limits
 
 ```bash
-helm upgrade quiz-app ./deploy/helm/quiz-app \
+helm upgrade quiz-app ./charts/application \
   --set backend.resources.limits.cpu=2000m \
   --set backend.resources.limits.memory=1Gi \
   --namespace quiz-app
@@ -288,7 +288,7 @@ kubectl create secret generic quiz-app-backend \
   --namespace quiz-app
 
 # Reference in values
-helm install quiz-app ./deploy/helm/quiz-app \
+helm install quiz-app ./charts/application \
   --namespace quiz-app
 ```
 
@@ -426,7 +426,7 @@ cert-manager.io/cluster-issuer: "letsencrypt-prod"
 ### Enable Monitoring
 
 ```bash
-helm upgrade quiz-app ./deploy/helm/quiz-app \
+helm upgrade quiz-app ./charts/application \
   --set monitoring.enabled=true \
   --set monitoring.serviceMonitor.enabled=true \
   --namespace quiz-app
@@ -462,15 +462,15 @@ kubectl port-forward -n monitoring svc/kube-prometheus-grafana 3000:80
 git pull
 
 # Upgrade release
-helm upgrade quiz-app ./deploy/helm/quiz-app \
-  -f ./deploy/helm/quiz-app/values-prod.yaml \
+helm upgrade quiz-app ./charts/application \
+  -f ./charts/application/values-prod.yaml \
   --namespace quiz-app
 ```
 
 ### Update Application Version
 
 ```bash
-helm upgrade quiz-app ./deploy/helm/quiz-app \
+helm upgrade quiz-app ./charts/application \
   --set backend.image.tag=v1.3.0 \
   --set frontend.image.tag=v1.3.0 \
   --namespace quiz-app
@@ -673,7 +673,7 @@ kubectl delete pvc -n quiz-app --all
 
 ## Additional Resources
 
-- [Helm Chart README](../../deploy/helm/quiz-app/README.md)
+- [Helm Chart README](../../charts/application/README.md)
 - [Kubernetes Documentation](https://kubernetes.io/docs/)
 - [Helm Documentation](https://helm.sh/docs/)
 - [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/)
