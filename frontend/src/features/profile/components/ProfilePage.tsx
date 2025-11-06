@@ -14,6 +14,7 @@ interface ProfilePageProps {
   onSubmit: (updates: { username: string; email: string }) => Promise<void>;
   onRegenerateAvatar: () => Promise<void>;
   onLogout: () => void;
+  onBack?: () => void;
   isSaving?: boolean;
 }
 
@@ -22,6 +23,7 @@ export default function ProfilePage({
   onSubmit,
   onRegenerateAvatar,
   onLogout,
+  onBack,
   isSaving = false,
 }: ProfilePageProps) {
   const { t } = useTranslation();
@@ -82,6 +84,19 @@ export default function ProfilePage({
     <div className="min-h-screen bg-game-gradient p-4 sm:p-8">
       <Container size="md">
         <Card className="p-6 sm:p-10 space-y-8 animate-fade-in">
+          {onBack && (
+            <div className="flex justify-start">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={onBack}
+                className="text-light-600 hover:text-light-200"
+              >
+                {t("profile.backToDashboard")}
+              </Button>
+            </div>
+          )}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
             <div className="flex items-center gap-4">
               <Avatar name={user.username} src={user.avatarUrl} size="lg" />

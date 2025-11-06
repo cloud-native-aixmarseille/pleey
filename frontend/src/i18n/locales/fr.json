@@ -56,6 +56,7 @@
     "avatarRegenerateSuccess": "Votre avatar a été régénéré.",
     "avatarRegenerateError": "Impossible de régénérer votre avatar. Veuillez réessayer.",
     "logoutConfirm": "Êtes-vous sûr de vouloir vous déconnecter ?",
+    "backToDashboard": "Retour au tableau de bord",
     "errors": {
       "loadFailed": "Impossible de charger votre profil. Veuillez réessayer."
     }

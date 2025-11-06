@@ -52,6 +52,20 @@ export function ProfileRoute() {
     navigate("/auth/login", { replace: true });
   }, [clearSession, navigate]);
 
+  const handleBack = useCallback(() => {
+    if (!user) {
+      navigate("/", { replace: true });
+      return;
+    }
+
+    if (user.isAdmin) {
+      navigate("/admin", { replace: true });
+      return;
+    }
+
+    navigate("/", { replace: true });
+  }, [navigate, user]);
+
   if (!isAuthenticated || !user) {
     return <Navigate to="/auth/login" replace />;
   }
@@ -62,6 +76,7 @@ export function ProfileRoute() {
       onSubmit={handleSubmit}
       onRegenerateAvatar={handleRegenerateAvatar}
       onLogout={handleLogout}
+      onBack={handleBack}
       isSaving={isSaving}
     />
   );
