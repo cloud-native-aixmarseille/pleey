@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import type { NavigateFunction } from "react-router-dom";
 import type { User } from "../../../shared/types";
+import type { ToastVariant } from "../context/NotificationContext";
 
 interface LoginResult {
   token: string;
@@ -16,7 +17,7 @@ interface AuthHandlersParams {
   }) => Promise<void>;
   loadQuizzes: (token: string) => Promise<unknown>;
   clearSession: () => void;
-  notify: (messageKey: string) => void;
+  notify: (messageKey: string, variant?: ToastVariant) => void;
   notifyFromError: (error: unknown, fallbackKey: string) => void;
   navigate: NavigateFunction;
 }
@@ -56,7 +57,7 @@ export function useAuthHandlers({
     async (username: string, email: string, password: string) => {
       try {
         await register({ username, email, password });
-        notify("errors.registrationSuccess");
+        notify("errors.registrationSuccess", "success");
         navigate("/auth/login", { replace: true });
       } catch (error) {
         notifyFromError(error, "errors.registrationError");

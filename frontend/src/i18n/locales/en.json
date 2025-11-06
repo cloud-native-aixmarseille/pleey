@@ -252,5 +252,12 @@
     "addAtLeastOneQuestion": "Add at least one question before starting this game.",
     "createQuizFailed": "Failed to create quiz. Please try again.",
     "quizzesLoadFailed": "Failed to load quizzes. Please log in again."
+  },
+  "notifications": {
+    "labels": {
+      "info": "Heads up",
+      "success": "Mission accomplished",
+      "error": "System error"
+    }
   }
 }

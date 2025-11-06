@@ -26,7 +26,7 @@ export function ProfileRoute() {
       setIsSaving(true);
       try {
         await updateProfile(updates);
-        notifications.notify("profile.updateSuccess");
+        notifications.notify("profile.updateSuccess", "success");
       } catch (error) {
         notifications.notifyFromError(error, "profile.updateError");
         throw error;
@@ -40,7 +40,7 @@ export function ProfileRoute() {
   const handleRegenerateAvatar = useCallback(async () => {
     try {
       await regenerateAvatar();
-      notifications.notify("profile.avatarRegenerateSuccess");
+      notifications.notify("profile.avatarRegenerateSuccess", "success");
     } catch (error) {
       notifications.notifyFromError(error, "profile.avatarRegenerateError");
       throw error;

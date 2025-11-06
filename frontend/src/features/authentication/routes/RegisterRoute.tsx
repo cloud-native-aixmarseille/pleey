@@ -15,7 +15,7 @@ export function RegisterRoute() {
   ) => {
     try {
       await register({ username, email, password });
-      notifications.notify("errors.registrationSuccess");
+      notifications.notify("errors.registrationSuccess", "success");
       navigate("/auth/login", { replace: true });
     } catch (error) {
       notifications.notifyFromError(error, "errors.registrationError");

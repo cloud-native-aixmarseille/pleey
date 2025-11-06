@@ -4,6 +4,7 @@ import { gameService } from "../../../domains/game/game.service";
 import { useGameSocket } from "../../../shared/hooks/useGameSocket";
 import { useTimer } from "../../../shared/hooks/useTimer";
 import type { Question, Quiz, User } from "../../../shared/types";
+import type { ToastVariant } from "../context/NotificationContext";
 
 type QuestionsByQuiz = Record<number, Question[]>;
 
@@ -15,7 +16,7 @@ interface RegisterGuestResult {
 
 type RegisterGuest = (nickname: string) => RegisterGuestResult;
 
-type Notify = (messageKey: string) => void;
+type Notify = (messageKey: string, variant?: ToastVariant) => void;
 
 type NotifyFromError = (error: unknown, fallbackKey: string) => void;
 
@@ -82,7 +83,7 @@ export function useGameSessionManager({
       }
 
       if (!questions.length) {
-        notify("errors.addAtLeastOneQuestion");
+        notify("errors.addAtLeastOneQuestion", "error");
         return;
       }
 
@@ -90,7 +91,9 @@ export function useGameSessionManager({
         // Stop any active sessions before creating a new one
         const activeSessions = await gameService.getActiveSessions(token);
         for (const session of activeSessions) {
-          await gameService.stopSession(token, session.sessionId);
+          if (typeof session.sessionId === "number") {
+            await gameService.stopSession(token, session.sessionId);
+          }
         }
 
         const data = await gameService.createSession(token, quizId);
