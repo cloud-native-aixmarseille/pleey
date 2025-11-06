@@ -1,0 +1,98 @@
+# Development environment values for QuizMaster
+# Usage: helm install quiz-app ./deploy/helm/quiz-app -f ./deploy/helm/quiz-app/values-dev.yaml
+
+backend:
+  replicaCount: 1
+  
+  image:
+    tag: "dev"
+    pullPolicy: Always
+  
+  env:
+    nodeEnv: development
+    corsOrigin: "*"
+  
+  resources:
+    limits:
+      cpu: 500m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  
+  autoscaling:
+    enabled: false
+
+frontend:
+  replicaCount: 1
+  
+  image:
+    tag: "dev"
+    pullPolicy: Always
+  
+  resources:
+    limits:
+      cpu: 250m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+  
+  autoscaling:
+    enabled: false
+
+postgresql:
+  enabled: true
+  
+  auth:
+    username: quizapp
+    password: quizapp_dev_password
+    database: quizdb
+  
+  primary:
+    persistence:
+      enabled: true
+      size: 2Gi
+    
+    resources:
+      limits:
+        cpu: 500m
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+ingress:
+  enabled: true
+  className: "nginx"
+  
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+  
+  hosts:
+    - host: quiz-dev.local
+      paths:
+        - path: /api
+          pathType: Prefix
+          service:
+            name: backend
+            port: 3001
+        - path: /socket.io
+          pathType: Prefix
+          service:
+            name: backend
+            port: 3001
+        - path: /
+          pathType: Prefix
+          service:
+            name: frontend
+            port: 80
+  
+  tls: []
+
+otelCollector:
+  enabled: false
+
+monitoring:
+  enabled: false

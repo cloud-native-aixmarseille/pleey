@@ -1,0 +1,12 @@
+{{- if .Values.backend.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "quiz-app.fullname" . }}-backend
+  labels:
+    {{- include "quiz-app.backend.labels" . | nindent 4 }}
+data:
+  NODE_ENV: {{ .Values.backend.env.nodeEnv | quote }}
+  PORT: {{ .Values.backend.env.port | quote }}
+  CORS_ORIGIN: {{ .Values.backend.env.corsOrigin | quote }}
+{{- end }}

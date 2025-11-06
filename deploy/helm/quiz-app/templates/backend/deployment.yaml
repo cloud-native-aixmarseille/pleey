@@ -1,0 +1,107 @@
+{{- if .Values.backend.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "quiz-app.fullname" . }}-backend
+  labels:
+    {{- include "quiz-app.backend.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.backend.autoscaling.enabled }}
+  replicas: {{ .Values.backend.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "quiz-app.backend.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/backend/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/backend/secret.yaml") . | sha256sum }}
+        {{- with .Values.backend.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "quiz-app.backend.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "quiz-app.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.backend.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: wait-for-db
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              until nc -z {{ include "quiz-app.fullname" . }}-postgresql 5432; do
+                echo "Waiting for PostgreSQL..."
+                sleep 2
+              done
+              echo "PostgreSQL is ready!"
+        - name: db-migrate
+          image: {{ include "quiz-app.backend.image" . }}
+          imagePullPolicy: {{ include "quiz-app.imagePullPolicy" . }}
+          command:
+            - sh
+            - -c
+            - npx prisma migrate deploy
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "quiz-app.fullname" . }}-backend
+                  key: database-url
+      containers:
+        - name: backend
+          securityContext:
+            {{- toYaml .Values.backend.securityContext | nindent 12 }}
+          image: {{ include "quiz-app.backend.image" . }}
+          imagePullPolicy: {{ include "quiz-app.imagePullPolicy" . }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.backend.service.targetPort }}
+              protocol: TCP
+          env:
+            - name: NODE_ENV
+              value: {{ .Values.backend.env.nodeEnv | quote }}
+            - name: PORT
+              value: {{ .Values.backend.env.port | quote }}
+            - name: CORS_ORIGIN
+              value: {{ .Values.backend.env.corsOrigin | quote }}
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "quiz-app.fullname" . }}-backend
+                  key: jwt-secret
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "quiz-app.fullname" . }}-backend
+                  key: database-url
+            {{- if .Values.otelCollector.enabled }}
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: {{ .Values.backend.env.otelExporterOtlpEndpoint | quote }}
+            {{- end }}
+          livenessProbe:
+            {{- toYaml .Values.backend.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.backend.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.backend.resources | nindent 12 }}
+      {{- with .Values.backend.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.backend.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.backend.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

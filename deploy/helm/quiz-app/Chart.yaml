@@ -1,0 +1,27 @@
+apiVersion: v2
+name: quiz-app
+description: QuizMaster - Interactive Quiz Application with real-time gameplay
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - quiz
+  - education
+  - websocket
+  - nestjs
+  - react
+home: https://github.com/cloud-native-aixmarseille/quiz-app
+sources:
+  - https://github.com/cloud-native-aixmarseille/quiz-app
+maintainers:
+  - name: QuizMaster Team
+    email: support@example.com
+
+# Dependencies - PostgreSQL database
+dependencies:
+  - name: postgresql
+    version: "15.x.x"
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
+    tags:
+      - database

@@ -1,0 +1,10 @@
+{{- if .Values.frontend.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "quiz-app.fullname" . }}-frontend
+  labels:
+    {{- include "quiz-app.frontend.labels" . | nindent 4 }}
+data:
+  VITE_API_URL: {{ .Values.frontend.env.apiUrl | quote }}
+{{- end }}
