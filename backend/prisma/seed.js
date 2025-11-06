@@ -7,9 +7,9 @@ async function main() {
   console.log("Seeding database...");
 
   // Create admin user (idempotent)
-  const adminPassword = await bcrypt.hash("adminpass", 10);
+  const adminPassword = await bcrypt.hash("admin123", 10);
   const admin = await prisma.user.upsert({
-    where: { email: "admin@example.com" },
+    where: { email: "admin@quiz.com" },
     update: {
       username: "admin",
       password: adminPassword,
@@ -17,16 +17,16 @@ async function main() {
     },
     create: {
       username: "admin",
-      email: "admin@example.com",
+      email: "admin@quiz.com",
       password: adminPassword,
       isAdmin: true,
     },
   });
 
   // Create a test player
-  const playerPassword = await bcrypt.hash("playerpass", 10);
+  const playerPassword = await bcrypt.hash("player123", 10);
   const player = await prisma.user.upsert({
-    where: { email: "player@example.com" },
+    where: { email: "player@quiz.com" },
     update: {
       username: "player1",
       password: playerPassword,
@@ -34,7 +34,7 @@ async function main() {
     },
     create: {
       username: "player1",
-      email: "player@example.com",
+      email: "player@quiz.com",
       password: playerPassword,
       isAdmin: false,
     },

@@ -119,7 +119,7 @@ health: ## Check application health
 	@curl -s http://backend.quiz-master.localhost/health/live | jq '.' || echo "$(YELLOW)Backend unavailable$(NC)"
 	@curl -s -o /dev/null -w "Frontend: %{http_code}\n" http://frontend.quiz-master.localhost/
 
-install: setup build up ## Complete installation (first time)
+install: setup build up seed ## Complete installation (first time)
 	@echo "$(GREEN)═══════════════════════════════════════$(NC)"
 	@echo "$(GREEN)✓ Installation completed successfully!$(NC)"
 	@echo "$(GREEN)═══════════════════════════════════════$(NC)"
@@ -132,6 +132,10 @@ install: setup build up ## Complete installation (first time)
 	@echo "Default admin account:"
 	@echo "  Email:    $(YELLOW)admin@quiz.com$(NC)"
 	@echo "  Password: $(YELLOW)admin123$(NC)"
+	@echo ""
+	@echo "Test player account:"
+	@echo "  Email:    $(YELLOW)player@quiz.com$(NC)"
+	@echo "  Password: $(YELLOW)player123$(NC)"
 	@echo ""
 	@echo "$(YELLOW)⚠️  Don't forget to change JWT_SECRET in .env !$(NC)"
 
