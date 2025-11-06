@@ -84,13 +84,9 @@ export function useAuthManager() {
       return null;
     }
 
-    try {
-      const nextUser = await authService.getProfile();
-      storeUser(nextUser);
-      return nextUser;
-    } catch (error) {
-      return null;
-    }
+    const nextUser = await authService.getProfile();
+    storeUser(nextUser);
+    return nextUser;
   }, [storeUser, token]);
 
   const updateProfile = useCallback(

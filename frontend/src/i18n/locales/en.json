@@ -220,6 +220,10 @@
       "network": "Network error. Check your connection and try again."
     }
   },
+  "accountBar": {
+    "openMenu": "Open account menu",
+    "closeMenu": "Close account menu"
+  },
   "organization": {
     "title": "Organization",
     "selectOrganization": "Select Organization",
