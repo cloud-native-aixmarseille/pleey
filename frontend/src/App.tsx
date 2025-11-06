@@ -21,6 +21,7 @@ import LoginPage from "./features/authentication/components/LoginPage";
 import RegisterPage from "./features/authentication/components/RegisterPage";
 import AdminDashboard from "./features/quiz-management/components/AdminDashboard";
 import ManageQuestionsPage from "./features/quiz-management/components/ManageQuestionsPage";
+import { OrganizationDashboard } from "./features/organization-management/components/OrganizationDashboard";
 import JoinGameWithGuestPage from "./features/game-play/components/JoinGameWithGuestPage";
 import LobbyPage from "./features/game-play/components/LobbyPage";
 import PlayingPage from "./features/game-play/components/PlayingPage";
@@ -230,9 +231,9 @@ export default function QuizApp() {
   }, [loadQuizzes, navigate, location.pathname]);
 
   const handleCreateQuiz = useCallback(
-    async (title: string, description: string) => {
+    async (title: string, description: string, organizationId: number) => {
       if (!token) return;
-      await quizService.createQuiz(token, title, description);
+      await quizService.createQuiz(token, title, description, organizationId);
       await loadQuizzes(token);
     },
     [token, loadQuizzes]
@@ -504,6 +505,17 @@ export default function QuizApp() {
               loadQuizQuestions={loadQuizQuestions}
               onAddQuestion={handleAddQuestion}
             />
+          ) : (
+            <Navigate to="/auth/login" replace />
+          )
+        }
+      />
+
+      <Route
+        path="/admin/organization"
+        element={
+          isAdmin ? (
+            <OrganizationDashboard />
           ) : (
             <Navigate to="/auth/login" replace />
           )
