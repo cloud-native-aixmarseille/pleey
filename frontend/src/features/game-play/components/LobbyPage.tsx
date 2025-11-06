@@ -19,6 +19,7 @@ interface LobbyPageProps {
   players: Player[];
   isAdmin: boolean;
   onStartGame: () => void;
+  onBackToAdmin?: () => void;
   questionCount?: number;
   hostUserId?: number | null;
   hostUsername?: string | null;
@@ -29,6 +30,7 @@ export default function LobbyPage({
   players,
   isAdmin,
   onStartGame,
+  onBackToAdmin,
   questionCount = 0,
   hostUserId = null,
   hostUsername = null,
@@ -189,6 +191,7 @@ export default function LobbyPage({
                 isAdmin={isAdmin}
                 cannotStartGame={cannotStartGame}
                 onStartGame={onStartGame}
+                onBackToAdmin={onBackToAdmin}
                 startButtonDescription={startButtonDescription}
                 startHintId={startHintId}
                 questionHintId={questionHintId}
