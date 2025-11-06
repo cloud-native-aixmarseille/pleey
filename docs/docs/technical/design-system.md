@@ -723,6 +723,10 @@ function MyComponent() {
 }
 ```
 
+:::tip React 19 Compatible
+All design system components are fully compatible with React 19's concurrent features and automatic batching. No special configuration needed!
+:::
+
 ### Component Reference
 
 All components are located in `frontend/src/shared/components/`:
