@@ -1,6 +1,6 @@
-import { API_URL } from '../../../shared/config/api.config';
 import { Organization, OrganizationDashboard, OrganizationMember } from '../../../shared/types';
 import { IOrganizationRepository } from '../ports/organization.repository.interface';
+import { apiClient, fetchClient, queryClient } from '../../../shared/api/openapiClient';
 
 /**
  * Organization HTTP Repository
@@ -8,16 +8,25 @@ import { IOrganizationRepository } from '../ports/organization.repository.interf
  */
 export class OrganizationHttpRepository implements IOrganizationRepository {
   async getMyOrganizations(token: string): Promise<Organization[]> {
-    const response = await fetch(`${API_URL}/api/organizations/my-organizations`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    
-    if (!response.ok) {
-      throw new Error('organization.errors.fetchFailed');
+    if (!token) {
+      return [];
     }
-    
-    const data = await response.json();
-    return data.organizations || [];
+
+    const data = await queryClient.fetchQuery(
+      apiClient.queryOptions('get', '/api/organizations/my-organizations'),
+    );
+
+    if (!data) {
+      return [];
+    }
+
+    const result = data as { organizations?: Organization[] } | Organization[];
+
+    if (Array.isArray(result)) {
+      return result;
+    }
+
+    return result.organizations ?? [];
   }
 
   async createOrganization(
@@ -25,38 +34,46 @@ export class OrganizationHttpRepository implements IOrganizationRepository {
     name: string,
     description?: string
   ): Promise<Organization> {
-    const response = await fetch(`${API_URL}/api/organizations`, {
-      method: 'POST',
+    const { data, error } = await fetchClient.POST('/api/organizations', {
+      body: { name, description } as any,
       headers: {
-        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ name, description }),
     });
 
-    if (!response.ok) {
+    if (error || !data) {
       throw new Error('organization.errors.createFailed');
     }
 
-    return await response.json();
+    await queryClient.invalidateQueries({ queryKey: ['get', '/api/organizations/my-organizations'] });
+
+    return data as Organization;
   }
 
   async getOrganizationDashboard(
     token: string,
     organizationId: number
   ): Promise<OrganizationDashboard> {
-    const response = await fetch(
-      `${API_URL}/api/organizations/${organizationId}/dashboard`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-
-    if (!response.ok) {
+    if (!token) {
       throw new Error('organization.errors.dashboardFailed');
     }
 
-    return await response.json();
+    const data = await queryClient.fetchQuery(
+      apiClient.queryOptions('get', '/api/organizations/{id}/dashboard', {
+        params: {
+          path: {
+            id: organizationId,
+          },
+        },
+      }),
+    );
+
+    if (!data) {
+      throw new Error('organization.errors.dashboardFailed');
+    }
+
+    return data as OrganizationDashboard;
   }
 
   async addMember(
@@ -65,37 +82,55 @@ export class OrganizationHttpRepository implements IOrganizationRepository {
     userId: number,
     role: 'owner' | 'admin' | 'member'
   ): Promise<OrganizationMember> {
-    const response = await fetch(
-      `${API_URL}/api/organizations/${organizationId}/members`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+    const { data, error } = await fetchClient.POST('/api/organizations/{id}/members', {
+      params: {
+        path: {
+          id: organizationId,
         },
-        body: JSON.stringify({ userId, role }),
-      }
-    );
+      },
+      body: { userId, role } as any,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
 
-    if (!response.ok) {
+    if (error || !data) {
       throw new Error('organization.errors.addMemberFailed');
     }
 
-    return await response.json();
+    await queryClient.invalidateQueries({
+      predicate: (query) =>
+        Array.isArray(query.queryKey) &&
+        query.queryKey[0] === 'get' &&
+        query.queryKey[1] === '/api/organizations/{id}/dashboard',
+    });
+
+    return data as OrganizationMember;
   }
 
   async removeMember(token: string, memberId: number): Promise<void> {
-    const response = await fetch(
-      `${API_URL}/api/organizations/members/${memberId}`,
-      {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
+    const { error } = await fetchClient.DELETE('/api/organizations/members/{memberId}', {
+      params: {
+        path: {
+          memberId,
+        },
+      },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-    if (!response.ok) {
+    if (error) {
       throw new Error('organization.errors.removeMemberFailed');
     }
+
+    await queryClient.invalidateQueries({
+      predicate: (query) =>
+        Array.isArray(query.queryKey) &&
+        query.queryKey[0] === 'get' &&
+        query.queryKey[1] === '/api/organizations/{id}/dashboard',
+    });
   }
 }
 

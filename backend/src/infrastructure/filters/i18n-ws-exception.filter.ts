@@ -21,7 +21,7 @@ export class I18nWsExceptionFilter extends BaseWsExceptionFilter {
       message = await this.translateErrorCode(error);
     } else if (typeof error === 'object' && 'message' in error) {
       const msgValue = (error as any).message;
-      message = typeof msgValue === 'string' 
+      message = typeof msgValue === 'string'
         ? await this.translateErrorCode(msgValue)
         : await this.i18n.translate('game.errors.validationFailed');
     } else {
@@ -38,7 +38,7 @@ export class I18nWsExceptionFilter extends BaseWsExceptionFilter {
     if (Object.values(GameErrorCode).includes(code as GameErrorCode)) {
       return this.translateGameError(code as GameErrorCode);
     }
-    
+
     // If it's not an error code, return as is (might be a validation message)
     return code;
   }
@@ -51,6 +51,8 @@ export class I18nWsExceptionFilter extends BaseWsExceptionFilter {
       [GameErrorCode.CAN_ONLY_PAUSE_ACTIVE_GAME]: 'game.errors.canOnlyPauseActiveGame',
       [GameErrorCode.CAN_ONLY_RESUME_PAUSED_GAME]: 'game.errors.canOnlyResumePausedGame',
       [GameErrorCode.UNAUTHORIZED_SESSION_CONTROL]: 'game.errors.unauthorizedSessionControl',
+      [GameErrorCode.ACTIVE_SESSION_EXISTS]: 'game.errors.activeSessionExists',
+      [GameErrorCode.QUIZ_NOT_FOUND]: 'game.errors.quizNotFound',
     };
 
     return this.i18n.translate(errorMap[code]);

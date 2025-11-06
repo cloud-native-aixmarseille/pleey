@@ -219,6 +219,7 @@
     "registrationError": "Error during registration",
     "unableToLoadQuestions": "Unable to load questions for this quiz. Please try again.",
     "addAtLeastOneQuestion": "Add at least one question before starting this game.",
-    "createQuizFailed": "Failed to create quiz. Please try again."
+    "createQuizFailed": "Failed to create quiz. Please try again.",
+    "quizzesLoadFailed": "Failed to load quizzes. Please log in again."
   }
 }

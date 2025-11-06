@@ -40,10 +40,56 @@ async function main() {
     },
   });
 
+  // Ensure default organization exists
+  const organizationName = "Arcade Labs";
+  let organization = await prisma.organization.findFirst({
+    where: { name: organizationName },
+  });
+
+  if (!organization) {
+    organization = await prisma.organization.create({
+      data: {
+        name: organizationName,
+        description: "Default organization for local development",
+      },
+    });
+  }
+
+  // Ensure organization memberships
+  await prisma.organizationMember.upsert({
+    where: {
+      organizationId_userId: {
+        organizationId: organization.id,
+        userId: admin.id,
+      },
+    },
+    update: { role: "owner" },
+    create: {
+      organizationId: organization.id,
+      userId: admin.id,
+      role: "owner",
+    },
+  });
+
+  await prisma.organizationMember.upsert({
+    where: {
+      organizationId_userId: {
+        organizationId: organization.id,
+        userId: player.id,
+      },
+    },
+    update: { role: "member" },
+    create: {
+      organizationId: organization.id,
+      userId: player.id,
+      role: "member",
+    },
+  });
+
   // Create a sample quiz
   const quizTitle = "General Knowledge - Sample";
   let quiz = await prisma.quiz.findFirst({
-    where: { title: quizTitle },
+    where: { title: quizTitle, organizationId: organization.id },
   });
 
   if (!quiz) {
@@ -51,7 +97,17 @@ async function main() {
       data: {
         title: quizTitle,
         description: "A short sample quiz for local development",
-        createdById: admin.id,
+        createdBy: { connect: { id: admin.id } },
+        organization: { connect: { id: organization.id } },
+      },
+    });
+  } else {
+    quiz = await prisma.quiz.update({
+      where: { id: quiz.id },
+      data: {
+        description: "A short sample quiz for local development",
+        createdBy: { connect: { id: admin.id } },
+        organization: { connect: { id: organization.id } },
       },
     });
   }
@@ -110,8 +166,19 @@ async function main() {
   const sessionPin = "123456";
   const session = await prisma.gameSession.upsert({
     where: { pin: sessionPin },
-    update: { status: "waiting", quizId: quiz.id },
-    create: { quizId: quiz.id, pin: sessionPin, status: "waiting" },
+    update: {
+      status: "waiting",
+      quiz: { connect: { id: quiz.id } },
+      admin: { connect: { id: admin.id } },
+      organization: { connect: { id: organization.id } },
+    },
+    create: {
+      quiz: { connect: { id: quiz.id } },
+      admin: { connect: { id: admin.id } },
+      organization: { connect: { id: organization.id } },
+      pin: sessionPin,
+      status: "waiting",
+    },
   });
 
   // Create a couple of scores for the player

@@ -1,12 +1,22 @@
-import { API_URL } from '../../shared/config/api.config';
 import { Quiz, Question } from '../../shared/types';
+import { apiClient, fetchClient, queryClient } from '../../shared/api/openapiClient';
+import { API_URL } from '../../shared/config/api.config';
 
 export class QuizService {
   async getQuizzes(token: string): Promise<Quiz[]> {
-    const response = await fetch(`${API_URL}/api/quizzes`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    return await response.json();
+    if (!token) {
+      return [];
+    }
+
+    const result = await queryClient.fetchQuery(
+      apiClient.queryOptions('get', '/api/quizzes'),
+    );
+
+    if (!result) {
+      return [];
+    }
+
+    return result as Quiz[];
   }
 
   async createQuiz(
@@ -15,27 +25,44 @@ export class QuizService {
     description: string,
     organizationId: number
   ): Promise<Quiz> {
-    const response = await fetch(`${API_URL}/api/quizzes`, {
-      method: 'POST',
+    const { data, error } = await fetchClient.POST('/api/quizzes', {
+      body: { title, description, organizationId } as any,
       headers: {
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ title, description, organizationId })
     });
-    
-    if (!response.ok) {
+
+    if (error || !data) {
       throw new Error('errors.createQuizFailed');
     }
-    
-    return await response.json();
+
+    const createdQuiz = data as Quiz;
+    await queryClient.invalidateQueries({ queryKey: ['get', '/api/quizzes'] });
+
+    return createdQuiz;
   }
 
   async getQuestions(token: string, quizId: number): Promise<Question[]> {
-    const response = await fetch(`${API_URL}/api/quizzes/${quizId}/questions`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    return await response.json();
+    if (!token) {
+      return [];
+    }
+
+    const result = await queryClient.fetchQuery(
+      apiClient.queryOptions('get', '/api/quizzes/{quizId}/questions', {
+        params: {
+          path: {
+            quizId,
+          },
+        },
+      }),
+    );
+
+    if (!result) {
+      return [];
+    }
+
+    return result as Question[];
   }
 
   async addQuestion(token: string, questionData: Partial<Question>): Promise<void> {

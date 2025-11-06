@@ -21,8 +21,12 @@ export class PrismaQuizRepository implements QuizRepository {
       data: {
         title,
         description,
-        createdById,
-        organizationId,
+        createdBy: {
+          connect: { id: createdById },
+        },
+        organization: {
+          connect: { id: organizationId },
+        },
       },
     });
 
@@ -41,6 +45,9 @@ export class PrismaQuizRepository implements QuizRepository {
 
   async findAll(): Promise<Quiz[]> {
     const quizzes = await this.prisma.quiz.findMany({
+      include: {
+        organization: true,
+      },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -49,7 +56,12 @@ export class PrismaQuizRepository implements QuizRepository {
 
   async findByOrganization(organizationId: number): Promise<Quiz[]> {
     const quizzes = await this.prisma.quiz.findMany({
-      where: { organizationId },
+      where: {
+        organization: { id: organizationId },
+      },
+      include: {
+        organization: true,
+      },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -58,7 +70,12 @@ export class PrismaQuizRepository implements QuizRepository {
 
   async findByCreator(userId: number): Promise<Quiz[]> {
     const quizzes = await this.prisma.quiz.findMany({
-      where: { createdById: userId },
+      where: {
+        createdBy: { id: userId },
+      },
+      include: {
+        organization: true,
+      },
       orderBy: { createdAt: 'desc' },
     });
 

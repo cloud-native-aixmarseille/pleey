@@ -1,6 +1,6 @@
 import { IAuthRepository } from '../ports/auth.repository.interface';
 import { User } from '../../../shared/types';
-import { API_URL } from '../../../shared/config/api.config';
+import { fetchClient } from '../../../shared/api/openapiClient';
 
 /**
  * HTTP implementation of Authentication Repository
@@ -8,49 +8,44 @@ import { API_URL } from '../../../shared/config/api.config';
  * Following Repository Pattern and Single Responsibility Principle
  */
 export class AuthHttpRepository implements IAuthRepository {
-  private readonly baseUrl: string;
-
-  constructor(baseUrl: string = API_URL) {
-    this.baseUrl = baseUrl;
-  }
-
   async login(email: string, password: string): Promise<{ token: string; user: User }> {
-    const response = await fetch(`${this.baseUrl}/api/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+    const { data, error } = await fetchClient.POST('/api/login', {
+      body: { email, password } as any,
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
 
-    const data = await response.json();
-
-    if (!response.ok) {
+    if (error || !data) {
       const message =
-        (typeof data?.message === 'string' && data.message) ||
-        (typeof data?.error === 'string' && data.error) ||
-        'Invalid credentials';
+        (typeof error === 'object' && error !== null && 'message' in error && typeof (error as { message?: unknown }).message === 'string'
+          ? (error as { message: string }).message
+          : 'Invalid credentials');
       throw new Error(message);
     }
 
-    if (!data?.token || !data?.user) {
+    const result = data as { token?: string; user?: User };
+
+    if (!result.token || !result.user) {
       throw new Error('Invalid login response');
     }
 
-    return data;
+    return { token: result.token, user: result.user };
   }
 
   async register(username: string, email: string, password: string): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/api/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, email, password }),
+    const { error } = await fetchClient.POST('/api/register', {
+      body: { username, email, password } as any,
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
 
-    if (!response.ok) {
-      const data = await response.json();
+    if (error) {
       const message =
-        (typeof data?.message === 'string' && data.message) ||
-        (typeof data?.error === 'string' && data.error) ||
-        'Registration failed';
+        (typeof error === 'object' && error !== null && 'message' in error && typeof (error as { message?: unknown }).message === 'string'
+          ? (error as { message: string }).message
+          : 'Registration failed');
       throw new Error(message);
     }
   }

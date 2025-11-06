@@ -219,6 +219,7 @@
     "registrationError": "Erreur lors de l'inscription",
     "unableToLoadQuestions": "Impossible de charger les questions pour ce quiz. Veuillez réessayer.",
     "addAtLeastOneQuestion": "Ajoutez au moins une question avant de démarrer ce jeu.",
-    "createQuizFailed": "Échec de la création du quiz. Veuillez réessayer."
+    "createQuizFailed": "Échec de la création du quiz. Veuillez réessayer.",
+    "quizzesLoadFailed": "Échec du chargement des quiz. Veuillez vous reconnecter."
   }
 }

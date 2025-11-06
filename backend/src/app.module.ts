@@ -1,5 +1,10 @@
 import { Module } from '@nestjs/common';
-import { AcceptLanguageResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
+import {
+  AcceptLanguageResolver,
+  I18nJsonLoader,
+  I18nModule,
+  QueryResolver,
+} from 'nestjs-i18n';
 import * as path from 'node:path';
 import { AuthModule } from './infrastructure/auth';
 import { GameModule } from './infrastructure/game';
@@ -11,9 +16,10 @@ import { OrganizationModule } from './infrastructure/organization';
   imports: [
     I18nModule.forRoot({
       fallbackLanguage: 'en',
+      loader: I18nJsonLoader,
       loaderOptions: {
         path: path.join(__dirname, '../i18n/'),
-        watch: true,
+        watch: process.env.NODE_ENV === 'development',
       },
       resolvers: [
         { use: QueryResolver, options: ['lang'] },
@@ -29,4 +35,4 @@ import { OrganizationModule } from './infrastructure/organization';
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule { }

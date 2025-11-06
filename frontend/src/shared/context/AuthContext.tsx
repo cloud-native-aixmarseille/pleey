@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import { User } from "../../shared/types";
 import { container } from "../../shared/di/container";
+import { setAuthToken } from "../api/openapiClient";
 
 interface AuthContextValue {
   user: User | null;
@@ -61,6 +62,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setToken(null);
   }, []);
+
+  useEffect(() => {
+    setAuthToken(token);
+  }, [token]);
 
   const value: AuthContextValue = {
     user,

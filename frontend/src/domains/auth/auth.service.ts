@@ -1,39 +1,46 @@
-import { API_URL } from '../../shared/config/api.config';
+import { fetchClient } from '../../shared/api/openapiClient';
 import { User } from '../../shared/types';
 
 export class AuthService {
   async login(email: string, password: string): Promise<{ token: string; user: User }> {
-    const response = await fetch(`${API_URL}/api/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+    const { data, error } = await fetchClient.POST('/api/login', {
+      body: { email, password } as any,
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
 
-    const data = await response.json();
-
-    if (!response.ok) {
+    if (error || !data) {
       const message =
-        (typeof data?.message === 'string' && data.message) ||
-        (typeof data?.error === 'string' && data.error) ||
-        'Identifiants invalides';
+        (typeof error === 'object' && error !== null && 'message' in error && typeof (error as { message?: unknown }).message === 'string'
+          ? (error as { message: string }).message
+          : 'Identifiants invalides');
       throw new Error(message);
     }
 
-    if (!data?.token || !data?.user) {
+    const result = data as { token?: string; user?: User };
+
+    if (!result.token || !result.user) {
       throw new Error('Réponse de connexion invalide');
     }
 
-    return data;
+    return { token: result.token, user: result.user };
   }
 
   async register(username: string, email: string, password: string): Promise<void> {
-    const response = await fetch(`${API_URL}/api/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, email, password })
+    const { error } = await fetchClient.POST('/api/register', {
+      body: { username, email, password } as any,
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
-    if (!response.ok) {
-      throw new Error('Registration failed');
+
+    if (error) {
+      const message =
+        (typeof error === 'object' && error !== null && 'message' in error && typeof (error as { message?: unknown }).message === 'string'
+          ? (error as { message: string }).message
+          : 'Registration failed');
+      throw new Error(message);
     }
   }
 }

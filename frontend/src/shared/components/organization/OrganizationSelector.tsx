@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { useOrganization } from '../../context/OrganizationContext';
-import { useTranslation } from 'react-i18next';
-import { Button } from '../Button';
-import { Card } from '../Card';
+import React, { useState } from "react";
+import { useOrganization } from "../../context/OrganizationContext";
+import { useTranslation } from "react-i18next";
+import Button from "../Button";
+import Card from "../Card";
 
 /**
  * Organization Selector Component
@@ -17,11 +17,11 @@ export function OrganizationSelector() {
     createOrganization,
     isLoading,
   } = useOrganization();
-  
+
   const [showDropdown, setShowDropdown] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [newOrgName, setNewOrgName] = useState('');
-  const [newOrgDescription, setNewOrgDescription] = useState('');
+  const [newOrgName, setNewOrgName] = useState("");
+  const [newOrgDescription, setNewOrgDescription] = useState("");
   const [isCreating, setIsCreating] = useState(false);
 
   const handleCreateOrganization = async (e: React.FormEvent) => {
@@ -33,11 +33,11 @@ export function OrganizationSelector() {
       const newOrg = await createOrganization(newOrgName, newOrgDescription);
       setCurrentOrganization(newOrg);
       setShowCreateForm(false);
-      setNewOrgName('');
-      setNewOrgDescription('');
+      setNewOrgName("");
+      setNewOrgDescription("");
     } catch (error) {
       // Show user-friendly error message
-      alert(t('organization.errors.createFailed'));
+      alert(t("organization.errors.createFailed"));
     } finally {
       setIsCreating(false);
     }
@@ -47,7 +47,7 @@ export function OrganizationSelector() {
     return (
       <div className="flex items-center gap-2 text-light-700">
         <div className="animate-spin">⚙️</div>
-        <span>{t('common.loading')}</span>
+        <span>{t("common.loading")}</span>
       </div>
     );
   }
@@ -61,14 +61,16 @@ export function OrganizationSelector() {
       >
         <span className="text-xl">🏢</span>
         <div className="text-left">
-          <div className="text-xs text-light-700">{t('organization.title')}</div>
+          <div className="text-xs text-light-700">
+            {t("organization.title")}
+          </div>
           <div className="font-bold text-primary-400">
-            {currentOrganization?.name || t('organization.selectOrganization')}
+            {currentOrganization?.name || t("organization.selectOrganization")}
           </div>
         </div>
         <svg
           className={`w-4 h-4 text-light-700 transition-transform ${
-            showDropdown ? 'rotate-180' : ''
+            showDropdown ? "rotate-180" : ""
           }`}
           fill="none"
           stroke="currentColor"
@@ -98,8 +100,8 @@ export function OrganizationSelector() {
                   }}
                   className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
                     currentOrganization?.id === org.id
-                      ? 'bg-primary-500 text-white'
-                      : 'hover:bg-dark-700 text-light-200'
+                      ? "bg-primary-500 text-white"
+                      : "hover:bg-dark-700 text-light-200"
                   }`}
                 >
                   <div className="font-semibold">{org.name}</div>
@@ -134,7 +136,7 @@ export function OrganizationSelector() {
                     d="M12 4v16m8-8H4"
                   />
                 </svg>
-                <span>{t('organization.createNew')}</span>
+                <span>{t("organization.createNew")}</span>
               </button>
             </div>
           </Card>
@@ -146,32 +148,32 @@ export function OrganizationSelector() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <Card className="w-full max-w-md p-6">
             <h2 className="text-2xl font-bold text-gradient-neon mb-4">
-              {t('organization.createNew')}
+              {t("organization.createNew")}
             </h2>
             <form onSubmit={handleCreateOrganization} className="space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-light-700 mb-2">
-                  {t('organization.organizationNameRequired')}
+                  {t("organization.organizationNameRequired")}
                 </label>
                 <input
                   type="text"
                   value={newOrgName}
                   onChange={(e) => setNewOrgName(e.target.value)}
                   className="w-full px-4 py-2 bg-dark-800 border-2 border-primary-500 rounded-lg text-light-100 focus:outline-none focus:border-primary-400"
-                  placeholder={t('organization.enterOrganizationName')}
+                  placeholder={t("organization.enterOrganizationName")}
                   required
                   autoFocus
                 />
               </div>
               <div>
                 <label className="block text-sm font-semibold text-light-700 mb-2">
-                  {t('organization.descriptionOptional')}
+                  {t("organization.descriptionOptional")}
                 </label>
                 <textarea
                   value={newOrgDescription}
                   onChange={(e) => setNewOrgDescription(e.target.value)}
                   className="w-full px-4 py-2 bg-dark-800 border-2 border-primary-500 rounded-lg text-light-100 focus:outline-none focus:border-primary-400"
-                  placeholder={t('organization.enterOrganizationDescription')}
+                  placeholder={t("organization.enterOrganizationDescription")}
                   rows={3}
                 />
               </div>
@@ -182,19 +184,21 @@ export function OrganizationSelector() {
                   disabled={isCreating || !newOrgName.trim()}
                   className="flex-1"
                 >
-                  {isCreating ? t('organization.creating') : t('organization.createOrganization')}
+                  {isCreating
+                    ? t("organization.creating")
+                    : t("organization.createOrganization")}
                 </Button>
                 <Button
                   type="button"
                   variant="secondary"
                   onClick={() => {
                     setShowCreateForm(false);
-                    setNewOrgName('');
-                    setNewOrgDescription('');
+                    setNewOrgName("");
+                    setNewOrgDescription("");
                   }}
                   disabled={isCreating}
                 >
-                  {t('common.cancel')}
+                  {t("common.cancel")}
                 </Button>
               </div>
             </form>
