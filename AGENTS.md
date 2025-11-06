@@ -34,6 +34,7 @@ When working with this codebase, AI agents should:
 6. **Document significant changes** - Update relevant documentation in `/docs`
 7. **DO NOT create new root-level .md files** - All documentation belongs in `/docs` folder structure
 8. **Enforce translations and error enums** - All user-facing text must use locale files and every error must originate from an enum that maps to translated messages.
+9. **Remove `console.*` before committing** - Frontend contributions must not rely on browser console logging.
 
 ### Quick Architecture Reference
 
@@ -161,6 +162,7 @@ See [Architecture](docs/docs/technical/architecture/index.md) for detailed troub
 - ❌ Do NOT ignore Cyber Arcade design system guidelines
 - ❌ Do NOT skip testing after making changes
 - ❌ Do NOT merge code with hardcoded user-facing strings or untranslated error messages
+- ❌ Do NOT commit `console.*` usage in frontend code
 
 ## ✅ Agent "ALWAYS" List
 
@@ -175,6 +177,7 @@ See [Architecture](docs/docs/technical/architecture/index.md) for detailed troub
 - ✅ ALWAYS check [Design System](docs/docs/technical/design-system.md) when styling
 - ✅ ALWAYS use Cyber Arcade colors (purple/pink/cyan)
 - ✅ ALWAYS ensure new strings and error codes have translations in `en` and `fr`
+- ✅ ALWAYS prefer telemetry or UI feedback instead of browser console logs
 
 ## 📚 Documentation Structure
 

@@ -160,6 +160,12 @@
     "joinManualLinkPrefix": "Join at",
     "joinStepWaitDescription": "Stay here until the host launches the quiz.",
     "copyPinAriaLabel": "Copy game PIN to clipboard",
+    "share": {
+      "errors": {
+        "nativeShareFailed": "Sharing failed. Copy the link manually instead.",
+        "copyFailed": "We couldn't copy the link. Please copy it manually."
+      }
+    },
     "errors": {
       "sessionCreateFailed": "Failed to create session",
       "activeSessionsFetchFailed": "Failed to fetch active sessions",

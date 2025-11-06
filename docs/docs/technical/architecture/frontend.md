@@ -14,7 +14,14 @@ React 18 application with Vite, following Clean Architecture and Domain-Driven D
 - **Socket.io-client**: Real-time bidirectional communication
 - **TypeScript**: Type-safe JavaScript
 
-## 📁 Project Structure
+## 🔎 Logging & Debugging
+
+- **Never commit `console.*` calls** in frontend code (components, hooks, use cases, repositories).
+- Surface recoverable issues through translated UI feedback or dedicated error handling utilities instead of console logs.
+- Capture unexpected failures with telemetry/reporting services rather than `console` (stub only in tests when spying on React warnings).
+- Use browser devtools or `vitest` debugging locally, then remove temporary logging before opening a pull request.
+
+## 🗂️ Project Structure
 
 ```
 frontend/

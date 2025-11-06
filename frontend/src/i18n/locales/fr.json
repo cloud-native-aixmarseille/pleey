@@ -160,6 +160,12 @@
     "joinManualLinkPrefix": "Rejoindre sur",
     "joinStepWaitDescription": "Restez sur cet écran jusqu'à ce que l'hôte lance le quiz.",
     "copyPinAriaLabel": "Copier le PIN du jeu dans le presse-papiers",
+    "share": {
+      "errors": {
+        "nativeShareFailed": "Le partage a échoué. Copiez le lien manuellement.",
+        "copyFailed": "Impossible de copier le lien. Copiez-le manuellement."
+      }
+    },
     "errors": {
       "sessionCreateFailed": "Échec de la création de la session",
       "activeSessionsFetchFailed": "Échec de la récupération des sessions actives",

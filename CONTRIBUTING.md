@@ -77,6 +77,12 @@ git checkout -b feature/my-new-feature
 - **Error messages come from enums**: define domain-specific error enums and map each enum value to a translation key; surface the translated message when returning or displaying errors.
 - **Code reviews enforce coverage**: pull requests get blocked if translations or enum mappings are missing for any new text or error.
 
+### Frontend Logging
+
+- **`console.*` is forbidden in committed frontend code** (components, hooks, use cases, repositories).
+- Prefer translated UI notifications, domain-specific error flows, or telemetry utilities to surface issues.
+- Limit console stubbing to test helpers when intercepting React warnings/errors.
+
 ### Conventional Commits
 
 All commit messages must follow the Conventional Commits specification:
