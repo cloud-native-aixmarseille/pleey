@@ -60,7 +60,7 @@ export default function StartControls({
             <span className="text-lg sm:text-xl" aria-hidden="true">
               ←
             </span>
-            <span>{t("game.backToAdmin", "BACK TO ADMIN PANEL").toUpperCase()}</span>
+            <span>{t("quiz.backToAdmin", "BACK TO ADMIN PANEL").toUpperCase()}</span>
           </span>
         </Button>
       )}
