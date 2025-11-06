@@ -87,6 +87,12 @@ export function useGameSessionManager({
       }
 
       try {
+        // Stop any active sessions before creating a new one
+        const activeSessions = await gameService.getActiveSessions(token);
+        for (const session of activeSessions) {
+          await gameService.stopSession(token, session.sessionId);
+        }
+
         const data = await gameService.createSession(token, quizId);
         setGamePin(data.pin);
         setActiveQuizQuestionCount(questions.length);

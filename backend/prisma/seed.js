@@ -162,12 +162,12 @@ async function main() {
     where: { quizId: quiz.id },
   });
 
-  // Create a game session
+  // Create a game session (finished status so it doesn't block new sessions)
   const sessionPin = "123456";
   const session = await prisma.gameSession.upsert({
     where: { pin: sessionPin },
     update: {
-      status: "waiting",
+      status: "finished",
       quiz: { connect: { id: quiz.id } },
       admin: { connect: { id: admin.id } },
       organization: { connect: { id: organization.id } },
@@ -177,7 +177,7 @@ async function main() {
       admin: { connect: { id: admin.id } },
       organization: { connect: { id: organization.id } },
       pin: sessionPin,
-      status: "waiting",
+      status: "finished",
     },
   });
 

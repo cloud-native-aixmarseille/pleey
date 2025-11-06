@@ -19,7 +19,7 @@ export class GameController {
   @UseGuards(JwtAuthGuard)
   async create(@Body() dto: CreateGameSessionDto, @Request() req: any) {
     // Override adminId from authenticated user
-    const enrichedDto = { ...dto, adminId: req.user.userId };
+    const enrichedDto = { ...dto, adminId: req.user.id };
     const { session, pin } = await this.createGameSessionUseCase.execute(enrichedDto);
 
     return {
@@ -36,7 +36,7 @@ export class GameController {
   @Get('active')
   @UseGuards(JwtAuthGuard)
   async getActiveSessions(@Request() req: any) {
-    const sessions = await this.getActiveSessionsUseCase.execute(req.user.userId);
+    const sessions = await this.getActiveSessionsUseCase.execute(req.user.id);
     return {
       sessions: sessions.map(session => ({
         sessionId: session.id,
@@ -53,7 +53,7 @@ export class GameController {
   @Patch(':id/stop')
   @UseGuards(JwtAuthGuard)
   async stop(@Param('id', ParseIntPipe) id: number, @Request() req: any) {
-    const session = await this.stopGameSessionUseCase.execute(id, req.user.userId);
+    const session = await this.stopGameSessionUseCase.execute(id, req.user.id);
     return {
       sessionId: session.id,
       quizId: session.quizId,
@@ -68,7 +68,7 @@ export class GameController {
   @Patch(':id/resume')
   @UseGuards(JwtAuthGuard)
   async resume(@Param('id', ParseIntPipe) id: number, @Request() req: any) {
-    const session = await this.resumeGameSessionUseCase.execute(id, req.user.userId);
+    const session = await this.resumeGameSessionUseCase.execute(id, req.user.id);
     return {
       sessionId: session.id,
       quizId: session.quizId,

@@ -39,6 +39,11 @@ export class CreateGameSessionUseCase {
   async execute(
     dto: CreateGameSessionDto,
   ): Promise<{ session: GameSession; pin: string }> {
+    // Ensure adminId is provided (should be set by controller from JWT)
+    if (!dto.adminId) {
+      throw new BadRequestException('Admin ID is required');
+    }
+
     // Verify quiz exists
     const quiz = await this.quizRepository.findById(dto.quizId);
     if (!quiz) {

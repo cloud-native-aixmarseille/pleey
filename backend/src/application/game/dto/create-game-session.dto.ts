@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 
 /**
  * Create Game Session DTO
@@ -10,6 +10,6 @@ export class CreateGameSessionDto {
   quizId: number;
 
   @IsNumber()
-  @IsNotEmpty()
-  adminId: number;
+  @IsOptional()
+  adminId?: number;
 }
