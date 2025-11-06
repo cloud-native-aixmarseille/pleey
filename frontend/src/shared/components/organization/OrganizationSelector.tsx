@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useOrganization } from '../../context/OrganizationContext';
 import { useTranslation } from 'react-i18next';
-import { Button } from '../Button';
-import { Card } from '../Card';
+import { Button, Card } from '../index';
 
 /**
  * Organization Selector Component
