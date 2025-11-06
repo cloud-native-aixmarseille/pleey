@@ -61,6 +61,12 @@
       "loadFailed": "Unable to load your profile. Please try again."
     }
   },
+  "navigation": {
+    "home": "Home",
+    "joinGame": "Join Game",
+    "organizations": "Organizations",
+    "admin": "Dashboard"
+  },
   "admin": {
     "title": "Admin Dashboard",
     "createQuiz": "Create Quiz",

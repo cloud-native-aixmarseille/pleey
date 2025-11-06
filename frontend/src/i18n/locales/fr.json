@@ -61,6 +61,12 @@
       "loadFailed": "Impossible de charger votre profil. Veuillez réessayer."
     }
   },
+  "navigation": {
+    "home": "Accueil",
+    "joinGame": "Rejoindre",
+    "organizations": "Organisations",
+    "admin": "Tableau de bord"
+  },
   "admin": {
     "title": "Tableau de bord Admin",
     "createQuiz": "Créer un Quiz",

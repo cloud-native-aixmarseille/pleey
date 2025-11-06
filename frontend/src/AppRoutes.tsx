@@ -22,29 +22,31 @@ export function AppRoutes() {
   return (
     <>
       <AppLifecycleManager />
-      <AccountBar />
+      <div className="pt-36 pb-12">
+        <AccountBar />
 
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/auth/login" element={<LoginRoute />} />
-        <Route path="/auth/register" element={<RegisterRoute />} />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/auth/login" element={<LoginRoute />} />
+          <Route path="/auth/register" element={<RegisterRoute />} />
 
-        <Route path="/admin" element={<AdminRoute />} />
-        <Route
-          path="/admin/quizzes/:quizId"
-          element={<ManageQuestionsRoute />}
-        />
-        <Route path="/admin/organization" element={<OrganizationRoute />} />
+          <Route path="/admin" element={<AdminRoute />} />
+          <Route
+            path="/admin/quizzes/:quizId"
+            element={<ManageQuestionsRoute />}
+          />
+          <Route path="/admin/organization" element={<OrganizationRoute />} />
 
-        <Route path="/game/join" element={<JoinGameRoute />} />
-        <Route path="/game/lobby" element={<LobbyRoute />} />
-        <Route path="/game/playing" element={<PlayingRoute />} />
-        <Route path="/game/leaderboard" element={<LeaderboardRoute />} />
+          <Route path="/game/join" element={<JoinGameRoute />} />
+          <Route path="/game/lobby" element={<LobbyRoute />} />
+          <Route path="/game/playing" element={<PlayingRoute />} />
+          <Route path="/game/leaderboard" element={<LeaderboardRoute />} />
 
-        <Route path="/profile" element={<ProfileRoute />} />
+          <Route path="/profile" element={<ProfileRoute />} />
 
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
     </>
   );
 }

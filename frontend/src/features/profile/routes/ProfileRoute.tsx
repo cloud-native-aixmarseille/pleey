@@ -11,13 +11,8 @@ import { useNotifications } from "../../../application/app/hooks/useNotification
 export function ProfileRoute() {
   const navigate = useNavigate();
   const notifications = useNotifications();
-  const {
-    user,
-    isAuthenticated,
-    updateProfile,
-    regenerateAvatar,
-    clearSession,
-  } = useAuthManagerContext();
+  const { user, isAuthenticated, updateProfile, regenerateAvatar } =
+    useAuthManagerContext();
 
   const [isSaving, setIsSaving] = useState(false);
 
@@ -47,11 +42,6 @@ export function ProfileRoute() {
     }
   }, [notifications, regenerateAvatar]);
 
-  const handleLogout = useCallback(() => {
-    clearSession();
-    navigate("/auth/login", { replace: true });
-  }, [clearSession, navigate]);
-
   const handleBack = useCallback(() => {
     if (!user) {
       navigate("/", { replace: true });
@@ -75,7 +65,6 @@ export function ProfileRoute() {
       user={user}
       onSubmit={handleSubmit}
       onRegenerateAvatar={handleRegenerateAvatar}
-      onLogout={handleLogout}
       onBack={handleBack}
       isSaving={isSaving}
     />

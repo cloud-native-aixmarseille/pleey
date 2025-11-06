@@ -13,7 +13,6 @@ interface ProfilePageProps {
   user: User;
   onSubmit: (updates: { username: string; email: string }) => Promise<void>;
   onRegenerateAvatar: () => Promise<void>;
-  onLogout: () => void;
   onBack?: () => void;
   isSaving?: boolean;
 }
@@ -22,7 +21,6 @@ export default function ProfilePage({
   user,
   onSubmit,
   onRegenerateAvatar,
-  onLogout,
   onBack,
   isSaving = false,
 }: ProfilePageProps) {
@@ -74,12 +72,6 @@ export default function ProfilePage({
     }
   };
 
-  const handleLogout = () => {
-    if (window.confirm(t("profile.logoutConfirm"))) {
-      onLogout();
-    }
-  };
-
   return (
     <div className="min-h-screen bg-game-gradient p-4 sm:p-8">
       <Container size="md">
@@ -121,13 +113,6 @@ export default function ProfilePage({
                 {isRegenerating
                   ? t("common.loading")
                   : t("profile.regenerateAvatar")}
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={handleLogout}
-                className="w-full sm:w-auto"
-              >
-                {t("common.logout")}
               </Button>
             </div>
           </div>
