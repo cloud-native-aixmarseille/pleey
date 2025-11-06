@@ -1,10 +1,12 @@
 import { Quiz } from '../../../shared/types';
 import { Button, Card, Container } from '../../../shared/components';
+import { OrganizationSelector } from '../../../shared/components/organization/OrganizationSelector';
+import { useOrganization } from '../../../shared/context/OrganizationContext';
 import { useTranslation } from 'react-i18next';
 
 interface AdminDashboardProps {
   quizzes: Quiz[];
-  onCreateQuiz: (title: string, description: string) => Promise<void>;
+  onCreateQuiz: (title: string, description: string, organizationId: number) => Promise<void>;
   onManageQuiz: (quiz: Quiz) => void;
   onLaunchQuiz: (quizId: number) => Promise<void>;
 }
@@ -16,11 +18,17 @@ export default function AdminDashboard({
   onLaunchQuiz
 }: AdminDashboardProps) {
   const { t } = useTranslation();
+  const { currentOrganization } = useOrganization();
   
   const handleCreateQuiz = () => {
+    if (!currentOrganization) {
+      alert('Please select an organization first');
+      return;
+    }
+    
     const title = prompt(t('admin.promptQuizTitle'));
     const description = prompt(t('admin.promptQuizDescription'));
-    if (title) onCreateQuiz(title, description || '');
+    if (title) onCreateQuiz(title, description || '', currentOrganization.id);
   };
 
   return (
@@ -29,7 +37,7 @@ export default function AdminDashboard({
         {/* Header Section */}
         <Card className="p-6 sm:p-8 mb-6 animate-fade-in">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
+            <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
                 <span className="text-5xl animate-bounce-slow">👑</span>
                 <h2 className="text-3xl sm:text-4xl font-black text-gradient-neon">
@@ -40,18 +48,22 @@ export default function AdminDashboard({
                 {t('admin.manageQuizzesSubtitle')}
               </p>
             </div>
-            <Button
-              variant="accent"
-              size="lg"
-              onClick={handleCreateQuiz}
-              icon={
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-              }
-            >
-              {t('admin.createQuiz')}
-            </Button>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <OrganizationSelector />
+              <Button
+                variant="accent"
+                size="lg"
+                onClick={handleCreateQuiz}
+                disabled={!currentOrganization}
+                icon={
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                }
+              >
+                {t('admin.createQuiz')}
+              </Button>
+            </div>
           </div>
         </Card>
 

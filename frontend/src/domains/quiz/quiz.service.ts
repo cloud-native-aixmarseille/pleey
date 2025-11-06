@@ -9,15 +9,25 @@ export class QuizService {
     return await response.json();
   }
 
-  async createQuiz(token: string, title: string, description: string): Promise<Quiz> {
+  async createQuiz(
+    token: string,
+    title: string,
+    description: string,
+    organizationId: number
+  ): Promise<Quiz> {
     const response = await fetch(`${API_URL}/api/quizzes`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ title, description })
+      body: JSON.stringify({ title, description, organizationId })
     });
+    
+    if (!response.ok) {
+      throw new Error('Failed to create quiz');
+    }
+    
     return await response.json();
   }
 

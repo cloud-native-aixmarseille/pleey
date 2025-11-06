@@ -5,11 +5,43 @@ export interface User {
   isAdmin: boolean;
 }
 
+export interface Organization {
+  id: number;
+  name: string;
+  description: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OrganizationMember {
+  id: number;
+  organizationId: number;
+  userId: number;
+  role: 'owner' | 'admin' | 'member';
+  joinedAt: string;
+}
+
+export interface OrganizationDashboard {
+  organization: {
+    id: number;
+    name: string;
+    description: string | null;
+  };
+  stats: {
+    totalQuizzes: number;
+    totalGameSessions: number;
+    activeGameSessions: number;
+    totalMembers: number;
+  };
+}
+
 export interface Quiz {
   id: number;
   title: string;
   description: string;
   created_by: number;
+  organizationId?: number;
+  organization_id?: number;
   created_at: string;
 }
 
