@@ -16,23 +16,23 @@ global:
 ## Backend NestJS configuration
 backend:
   enabled: true
-  
+
   # Number of replicas
   replicaCount: 2
-  
+
   image:
     registry: ghcr.io
     repository: cloud-native-aixmarseille/quiz-app/backend
     tag: "latest"
     pullPolicy: IfNotPresent
-  
+
   # Service configuration
   service:
     type: ClusterIP
     port: 3001
     targetPort: 3001
     annotations: {}
-  
+
   # Application environment variables
   env:
     nodeEnv: production
@@ -40,14 +40,14 @@ backend:
     corsOrigin: "*"
     # OTEL configuration
     otelExporterOtlpEndpoint: "http://otel-collector:4318"
-  
+
   # Secrets - these should be overridden in production
   secrets:
     # JWT secret for authentication
     jwtSecret: "change-me-in-production-use-strong-random-secret"
     # Database connection (if not using postgresql subchart)
     databaseUrl: ""
-  
+
   # Resource limits and requests
   resources:
     limits:
@@ -56,7 +56,7 @@ backend:
     requests:
       cpu: 500m
       memory: 256Mi
-  
+
   # Health checks
   livenessProbe:
     httpGet:
@@ -66,7 +66,7 @@ backend:
     periodSeconds: 30
     timeoutSeconds: 10
     failureThreshold: 3
-  
+
   readinessProbe:
     httpGet:
       path: /api/health/ready
@@ -75,16 +75,16 @@ backend:
     periodSeconds: 10
     timeoutSeconds: 5
     failureThreshold: 3
-  
+
   # Pod annotations
   podAnnotations: {}
-  
+
   # Pod security context
   podSecurityContext:
     runAsNonRoot: true
     runAsUser: 1000
     fsGroup: 1000
-  
+
   # Container security context
   securityContext:
     allowPrivilegeEscalation: false
@@ -92,16 +92,16 @@ backend:
     capabilities:
       drop:
         - ALL
-  
+
   # Node selector
   nodeSelector: {}
-  
+
   # Tolerations
   tolerations: []
-  
+
   # Affinity rules
   affinity: {}
-  
+
   # Autoscaling
   autoscaling:
     enabled: false
@@ -113,28 +113,28 @@ backend:
 ## Frontend React/Nginx configuration
 frontend:
   enabled: true
-  
+
   # Number of replicas
   replicaCount: 2
-  
+
   image:
     registry: ghcr.io
     repository: cloud-native-aixmarseille/quiz-app/frontend
     tag: "latest"
     pullPolicy: IfNotPresent
-  
+
   # Service configuration
   service:
     type: ClusterIP
     port: 80
     targetPort: 80
     annotations: {}
-  
+
   # Application environment variables
   env:
     # API URL - will be injected into the frontend build
     apiUrl: "http://backend:3001"
-  
+
   # Resource limits and requests
   resources:
     limits:
@@ -143,7 +143,7 @@ frontend:
     requests:
       cpu: 250m
       memory: 128Mi
-  
+
   # Health checks
   livenessProbe:
     httpGet:
@@ -152,7 +152,7 @@ frontend:
     initialDelaySeconds: 10
     periodSeconds: 30
     timeoutSeconds: 10
-  
+
   readinessProbe:
     httpGet:
       path: /
@@ -160,16 +160,16 @@ frontend:
     initialDelaySeconds: 5
     periodSeconds: 10
     timeoutSeconds: 5
-  
+
   # Pod annotations
   podAnnotations: {}
-  
+
   # Pod security context
   podSecurityContext:
     runAsNonRoot: true
     runAsUser: 101
     fsGroup: 101
-  
+
   # Container security context
   securityContext:
     allowPrivilegeEscalation: false
@@ -177,16 +177,16 @@ frontend:
     capabilities:
       drop:
         - ALL
-  
+
   # Node selector
   nodeSelector: {}
-  
+
   # Tolerations
   tolerations: []
-  
+
   # Affinity rules
   affinity: {}
-  
+
   # Autoscaling
   autoscaling:
     enabled: false
@@ -198,7 +198,7 @@ frontend:
 # Using Bitnami PostgreSQL chart
 postgresql:
   enabled: true
-  
+
   # PostgreSQL authentication
   auth:
     username: quizapp
@@ -209,14 +209,14 @@ postgresql:
     secretKeys:
       adminPasswordKey: postgres-password
       userPasswordKey: password
-  
+
   # Primary configuration
   primary:
     persistence:
       enabled: true
       size: 8Gi
       # storageClass: ""
-    
+
     resources:
       limits:
         cpu: 1000m
@@ -224,16 +224,16 @@ postgresql:
       requests:
         cpu: 500m
         memory: 256Mi
-    
+
     # PostgreSQL configuration
     extendedConfiguration: |
       max_connections = 100
       shared_buffers = 128MB
-  
+
   # Read replicas (optional)
   readReplicas:
     replicaCount: 0
-  
+
   # Metrics exporter for Prometheus
   metrics:
     enabled: false
@@ -243,10 +243,10 @@ postgresql:
 ## Ingress configuration
 ingress:
   enabled: true
-  
+
   # Ingress class name
   className: "nginx"
-  
+
   # Annotations for ingress controller
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
@@ -255,7 +255,7 @@ ingress:
     # WebSocket support for backend
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
-  
+
   # Hosts configuration
   hosts:
     - host: quiz.example.com
@@ -275,7 +275,7 @@ ingress:
           service:
             name: frontend
             port: 80
-  
+
   # TLS configuration
   tls:
     - secretName: quiz-app-tls
@@ -285,17 +285,17 @@ ingress:
 ## OpenTelemetry Collector (optional)
 otelCollector:
   enabled: false
-  
+
   image:
     registry: docker.io
     repository: otel/opentelemetry-collector
     tag: "0.105.0"
     pullPolicy: IfNotPresent
-  
+
   service:
     type: ClusterIP
     port: 4318
-  
+
   resources:
     limits:
       cpu: 500m
@@ -337,14 +337,14 @@ networkPolicy:
 ## Monitoring with Prometheus
 monitoring:
   enabled: false
-  
+
   # ServiceMonitor for Prometheus Operator
   serviceMonitor:
     enabled: false
     interval: 30s
     scrapeTimeout: 10s
     labels: {}
-  
+
   # PrometheusRule for alerts
   prometheusRule:
     enabled: false
@@ -356,3 +356,14 @@ grafana:
   enabled: false
   # ConfigMap with dashboards
   dashboards: {}
+
+postgresql:
+  enabled: true
+  image:
+    repository: bitnamilegacy/postgresql
+  metrics:
+    image:
+      repository: bitnamilegacy/postgres-exporter
+  volumePermissions:
+    image:
+      repository: bitnamilegacy/os-shell
