@@ -67,8 +67,6 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'organization.errors.loadError';
       setError(errorMessage);
-      // Notify user of the error
-      console.error('Failed to load organizations:', err);
     } finally {
       setIsLoading(false);
     }
@@ -87,8 +85,6 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'organization.errors.dashboardFailed';
       setError(errorMessage);
-      // Notify user of dashboard load failure
-      console.error('Failed to load dashboard:', err);
     }
   }, [token, currentOrganization]);
 
