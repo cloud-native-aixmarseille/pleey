@@ -71,6 +71,12 @@ git checkout -b feature/my-new-feature
 - **Semantic Versioning**: Follow [Semantic Versioning 2.0.0](https://semver.org/)
 - **Accessibility First**: WCAG 2.1 AA compliance is mandatory for all UI changes
 
+### Internationalization & Error Handling
+
+- **All user-facing text must use translations**: never hardcode strings—add keys to both `en` and `fr` locales in frontend (`frontend/src/i18n/locales/`) and backend (`backend/src/i18n/`).
+- **Error messages come from enums**: define domain-specific error enums and map each enum value to a translation key; surface the translated message when returning or displaying errors.
+- **Code reviews enforce coverage**: pull requests get blocked if translations or enum mappings are missing for any new text or error.
+
 ### Conventional Commits
 
 All commit messages must follow the Conventional Commits specification:
