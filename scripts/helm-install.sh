@@ -47,7 +47,12 @@ echo ""
 
 # Add Bitnami repository
 echo "Adding Helm repositories..."
-helm repo add bitnami https://charts.bitnami.com/bitnami || true
+if ! helm repo list | grep -q bitnami; then
+    helm repo add bitnami https://charts.bitnami.com/bitnami
+    echo "Added Bitnami repository"
+else
+    echo "Bitnami repository already exists"
+fi
 helm repo update
 echo -e "${GREEN}✓${NC} Helm repositories updated"
 echo ""
