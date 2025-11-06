@@ -19,6 +19,7 @@ import type { CreateGameSessionDto } from '../dto/create-game-session.dto';
 import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/repositories/organization-member.repository.interface';
 import type { OrganizationMemberRepository } from '../../../domain/organization/repositories/organization-member.repository.interface';
 import { OrganizationErrorCode } from '../../organization/enums/organization-error-code.enum';
+import { GameErrorCode } from '../enums/game-error-code.enum';
 
 /**
  * Create Game Session Use Case
@@ -41,7 +42,7 @@ export class CreateGameSessionUseCase {
     // Verify quiz exists
     const quiz = await this.quizRepository.findById(dto.quizId);
     if (!quiz) {
-      throw new NotFoundException('Quiz not found');
+      throw new NotFoundException(GameErrorCode.QUIZ_NOT_FOUND);
     }
 
     // Verify user is a member of the quiz's organization
@@ -57,9 +58,7 @@ export class CreateGameSessionUseCase {
     const activeSessions =
       await this.gameSessionRepository.findActiveByAdminId(dto.adminId);
     if (activeSessions.length > 0) {
-      throw new BadRequestException(
-        'You already have an active game session. Please stop or complete it before starting a new one.',
-      );
+      throw new BadRequestException(GameErrorCode.ACTIVE_SESSION_EXISTS);
     }
 
     // Generate unique PIN
