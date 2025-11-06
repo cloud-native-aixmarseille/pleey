@@ -1,196 +1,297 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, act } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import userEvent from '@testing-library/user-event';
-import AdminHostLeaderboardView from '../AdminHostLeaderboardView';
-import { LeaderboardEntry } from '../../../../shared/types';
+import "@testing-library/jest-dom";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
+import AdminHostLeaderboardView from "../AdminHostLeaderboardView";
+import { LeaderboardEntry } from "../../../../shared/types";
 
 const mockLeaderboard: LeaderboardEntry[] = [
-  { userId: 1, username: 'Alice', totalPoints: 500, rank: 1 },
-  { userId: 2, username: 'Bob', totalPoints: 400, rank: 2 },
-  { userId: 3, username: 'Charlie', totalPoints: 300, rank: 3 },
-  { userId: 4, username: 'David', totalPoints: 200, rank: 4 },
-  { userId: 5, username: 'Eve', totalPoints: 100, rank: 5 },
+  { userId: 1, username: "Alice", totalPoints: 500, rank: 1 },
+  { userId: 2, username: "Bob", totalPoints: 400, rank: 2 },
+  { userId: 3, username: "Charlie", totalPoints: 300, rank: 3 },
+  { userId: 4, username: "David", totalPoints: 200, rank: 4 },
+  { userId: 5, username: "Eve", totalPoints: 100, rank: 5 },
 ];
 
-// Mock the navigate function
+const testAnimationDelays = {
+  title: 1,
+  firstPlace: 2,
+  secondPlace: 3,
+  thirdPlace: 4,
+  remainingPlayers: 5,
+};
+
 const mockNavigate = vi.fn();
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
+vi.mock("react-router-dom", async () => {
+  const actual = await vi.importActual<typeof import("react-router-dom")>(
+    "react-router-dom"
+  );
   return {
     ...actual,
     useNavigate: () => mockNavigate,
   };
 });
 
-describe('AdminHostLeaderboardView', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-    mockNavigate.mockClear();
-  });
+vi.mock("../Confetti", () => ({
+  default: () => <div data-testid="confetti" />,
+}));
 
-  afterEach(() => {
-    vi.runOnlyPendingTimers();
-    vi.useRealTimers();
+describe("AdminHostLeaderboardView", () => {
+  beforeEach(() => {
+    mockNavigate.mockClear();
   });
 
   const renderWithRouter = (component: React.ReactElement) => {
     return render(<MemoryRouter>{component}</MemoryRouter>);
   };
 
-  const advanceTimers = async (ms: number) => {
-    await act(async () => {
-      vi.advanceTimersByTime(ms);
-      await Promise.resolve();
-    });
-  };
-
-  it('renders host mode badge', () => {
-    renderWithRouter(<AdminHostLeaderboardView leaderboard={mockLeaderboard} />);
+  it("renders host mode badge", () => {
+    renderWithRouter(
+      <AdminHostLeaderboardView
+        leaderboard={mockLeaderboard}
+        animationDelays={testAnimationDelays}
+        initialAnimationStage={5}
+        disableConfetti
+      />
+    );
 
     expect(screen.getByText(/HOST VIEW/i)).toBeInTheDocument();
   });
 
-  it('displays game over title', async () => {
-    renderWithRouter(<AdminHostLeaderboardView leaderboard={mockLeaderboard} />);
+  it("displays game over title", () => {
+    renderWithRouter(
+      <AdminHostLeaderboardView
+        leaderboard={mockLeaderboard}
+        animationDelays={testAnimationDelays}
+        initialAnimationStage={5}
+        disableConfetti
+      />
+    );
 
-    await advanceTimers(600);
     expect(screen.getByText(/GAME OVER/i)).toBeInTheDocument();
   });
 
-  it('displays final leaderboard heading', async () => {
-    renderWithRouter(<AdminHostLeaderboardView leaderboard={mockLeaderboard} />);
+  it("displays final leaderboard heading", () => {
+    renderWithRouter(
+      <AdminHostLeaderboardView
+        leaderboard={mockLeaderboard}
+        animationDelays={testAnimationDelays}
+        initialAnimationStage={5}
+        disableConfetti
+      />
+    );
 
-    await advanceTimers(600);
     expect(screen.getByText(/Final Leaderboard/i)).toBeInTheDocument();
   });
 
-  it('displays top 3 players on podium', async () => {
-    renderWithRouter(<AdminHostLeaderboardView leaderboard={mockLeaderboard} />);
+  it("displays top 3 players on podium", () => {
+    renderWithRouter(
+      <AdminHostLeaderboardView
+        leaderboard={mockLeaderboard}
+        animationDelays={testAnimationDelays}
+        initialAnimationStage={5}
+        disableConfetti
+      />
+    );
 
-    await advanceTimers(4000);
-    expect(screen.getByText('Alice')).toBeInTheDocument();
-    expect(screen.getByText('Bob')).toBeInTheDocument();
-    expect(screen.getByText('Charlie')).toBeInTheDocument();
+    expect(screen.getByText("Alice")).toBeInTheDocument();
+    expect(screen.getByText("Bob")).toBeInTheDocument();
+    expect(screen.getByText("Charlie")).toBeInTheDocument();
   });
 
-  it('displays winner with crown emoji', async () => {
-    renderWithRouter(<AdminHostLeaderboardView leaderboard={mockLeaderboard} />);
+  it("displays winner with crown emoji", () => {
+    renderWithRouter(
+      <AdminHostLeaderboardView
+        leaderboard={mockLeaderboard}
+        animationDelays={testAnimationDelays}
+        initialAnimationStage={5}
+        disableConfetti
+      />
+    );
 
-    await advanceTimers(2000);
-    expect(screen.getByText('Alice')).toBeInTheDocument();
-    const crownElements = screen.getAllByText('👑');
+    expect(screen.getByText("Alice")).toBeInTheDocument();
+    const crownElements = screen.getAllByText("👑");
     expect(crownElements.length).toBeGreaterThan(0);
   });
 
-  it('displays points for top players', async () => {
-    renderWithRouter(<AdminHostLeaderboardView leaderboard={mockLeaderboard} />);
+  it("displays points for top players", () => {
+    renderWithRouter(
+      <AdminHostLeaderboardView
+        leaderboard={mockLeaderboard}
+        animationDelays={testAnimationDelays}
+        initialAnimationStage={5}
+        disableConfetti
+      />
+    );
 
-    await advanceTimers(4000);
     expect(screen.getByText(/500 pts/i)).toBeInTheDocument();
     expect(screen.getByText(/400 pts/i)).toBeInTheDocument();
     expect(screen.getByText(/300 pts/i)).toBeInTheDocument();
   });
 
-  it('displays other players below podium', async () => {
-    renderWithRouter(<AdminHostLeaderboardView leaderboard={mockLeaderboard} />);
+  it("displays other players below podium", () => {
+    renderWithRouter(
+      <AdminHostLeaderboardView
+        leaderboard={mockLeaderboard}
+        animationDelays={testAnimationDelays}
+        initialAnimationStage={5}
+        disableConfetti
+      />
+    );
 
-    await advanceTimers(5000);
-    expect(screen.getByText('David')).toBeInTheDocument();
-    expect(screen.getByText('Eve')).toBeInTheDocument();
+    expect(screen.getByText("David")).toBeInTheDocument();
+    expect(screen.getByText("Eve")).toBeInTheDocument();
     expect(screen.getByText(/200 pts/i)).toBeInTheDocument();
     expect(screen.getByText(/100 pts/i)).toBeInTheDocument();
   });
 
-  it('displays rank numbers for other players', async () => {
-    renderWithRouter(<AdminHostLeaderboardView leaderboard={mockLeaderboard} />);
+  it("displays rank numbers for other players", () => {
+    renderWithRouter(
+      <AdminHostLeaderboardView
+        leaderboard={mockLeaderboard}
+        animationDelays={testAnimationDelays}
+        initialAnimationStage={5}
+        disableConfetti
+      />
+    );
 
-    await advanceTimers(5000);
-    expect(screen.getByText('#4')).toBeInTheDocument();
-    expect(screen.getByText('#5')).toBeInTheDocument();
+    expect(screen.getByText("#4")).toBeInTheDocument();
+    expect(screen.getByText("#5")).toBeInTheDocument();
   });
 
-  it('displays admin controls section', async () => {
-    renderWithRouter(<AdminHostLeaderboardView leaderboard={mockLeaderboard} />);
+  it("displays admin controls section", () => {
+    renderWithRouter(
+      <AdminHostLeaderboardView
+        leaderboard={mockLeaderboard}
+        initialAnimationStage={5}
+        disableConfetti
+      />
+    );
 
-    await advanceTimers(5000);
     expect(screen.getByText(/Admin Controls/i)).toBeInTheDocument();
   });
 
-  it('displays back to dashboard button', async () => {
-    renderWithRouter(<AdminHostLeaderboardView leaderboard={mockLeaderboard} />);
+  it("displays back to dashboard button", () => {
+    renderWithRouter(
+      <AdminHostLeaderboardView
+        leaderboard={mockLeaderboard}
+        initialAnimationStage={5}
+        disableConfetti
+      />
+    );
 
-    await advanceTimers(5000);
     expect(
-      screen.getByRole('button', { name: /BACK TO ADMIN DASHBOARD/i })
+      screen.getByRole("button", { name: /BACK TO ADMIN DASHBOARD/i })
     ).toBeInTheDocument();
   });
 
-  it('displays new game button', async () => {
-    renderWithRouter(<AdminHostLeaderboardView leaderboard={mockLeaderboard} />);
+  it("displays new game button", () => {
+    renderWithRouter(
+      <AdminHostLeaderboardView
+        leaderboard={mockLeaderboard}
+        initialAnimationStage={5}
+        disableConfetti
+      />
+    );
 
-    await advanceTimers(5000);
-    expect(screen.getByRole('button', { name: /NEW GAME/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /NEW GAME/i })
+    ).toBeInTheDocument();
   });
 
-  it('navigates to admin dashboard when button clicked', async () => {
-    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-    renderWithRouter(<AdminHostLeaderboardView leaderboard={mockLeaderboard} />);
+  it("navigates to admin dashboard when button clicked", () => {
+    renderWithRouter(
+      <AdminHostLeaderboardView
+        leaderboard={mockLeaderboard}
+        initialAnimationStage={5}
+        disableConfetti
+      />
+    );
 
-    await advanceTimers(5000);
-
-    const dashboardButton = screen.getByRole('button', {
+    const dashboardButton = screen.getByRole("button", {
       name: /BACK TO ADMIN DASHBOARD/i,
     });
-    await user.click(dashboardButton);
+    fireEvent.click(dashboardButton);
 
-    expect(mockNavigate).toHaveBeenCalledWith('/admin');
+    expect(mockNavigate).toHaveBeenCalledWith("/admin");
   });
 
-  it('navigates to home when new game button clicked', async () => {
-    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-    renderWithRouter(<AdminHostLeaderboardView leaderboard={mockLeaderboard} />);
+  it("navigates to home when new game button clicked", () => {
+    renderWithRouter(
+      <AdminHostLeaderboardView
+        leaderboard={mockLeaderboard}
+        initialAnimationStage={5}
+        disableConfetti
+      />
+    );
 
-    await advanceTimers(5000);
+    const newGameButton = screen.getByRole("button", { name: /NEW GAME/i });
+    fireEvent.click(newGameButton);
 
-    const newGameButton = screen.getByRole('button', { name: /NEW GAME/i });
-    await user.click(newGameButton);
-
-    expect(mockNavigate).toHaveBeenCalledWith('/');
+    expect(mockNavigate).toHaveBeenCalledWith("/");
   });
 
-  it('handles leaderboard with only 1 player', async () => {
+  it("handles leaderboard with only 1 player", () => {
     const singlePlayer = [mockLeaderboard[0]];
-    renderWithRouter(<AdminHostLeaderboardView leaderboard={singlePlayer} />);
+    renderWithRouter(
+      <AdminHostLeaderboardView
+        leaderboard={singlePlayer}
+        initialAnimationStage={5}
+        disableConfetti
+      />
+    );
 
-    await advanceTimers(2000);
-    expect(screen.getByText('Alice')).toBeInTheDocument();
+    expect(screen.getByText("Alice")).toBeInTheDocument();
 
     // Should not render 2nd and 3rd place
-    expect(screen.queryByText('Bob')).not.toBeInTheDocument();
-    expect(screen.queryByText('Charlie')).not.toBeInTheDocument();
+    expect(screen.queryByText("Bob")).not.toBeInTheDocument();
+    expect(screen.queryByText("Charlie")).not.toBeInTheDocument();
   });
 
-  it('handles leaderboard with only 2 players', async () => {
+  it("handles leaderboard with only 2 players", () => {
     const twoPlayers = mockLeaderboard.slice(0, 2);
-    renderWithRouter(<AdminHostLeaderboardView leaderboard={twoPlayers} />);
+    renderWithRouter(
+      <AdminHostLeaderboardView
+        leaderboard={twoPlayers}
+        initialAnimationStage={5}
+        disableConfetti
+      />
+    );
 
-    await advanceTimers(3000);
-    expect(screen.getByText('Alice')).toBeInTheDocument();
-    expect(screen.getByText('Bob')).toBeInTheDocument();
+    expect(screen.getByText("Alice")).toBeInTheDocument();
+    expect(screen.getByText("Bob")).toBeInTheDocument();
 
     // Should not render 3rd place
-    expect(screen.queryByText('Charlie')).not.toBeInTheDocument();
+    expect(screen.queryByText("Charlie")).not.toBeInTheDocument();
   });
 
-  it('does not show other players section when only 3 or fewer players', async () => {
+  it("does not show other players section when only 3 or fewer players", () => {
     const threePlayers = mockLeaderboard.slice(0, 3);
-    renderWithRouter(<AdminHostLeaderboardView leaderboard={threePlayers} />);
+    renderWithRouter(
+      <AdminHostLeaderboardView
+        leaderboard={threePlayers}
+        initialAnimationStage={5}
+        disableConfetti
+      />
+    );
 
-    await advanceTimers(3000);
-    expect(screen.getByText('Alice')).toBeInTheDocument();
+    expect(screen.getByText("Alice")).toBeInTheDocument();
 
     // Should not show "Other Top Players" heading
+    expect(screen.queryByText(/Other Top Players/i)).not.toBeInTheDocument();
+  });
+
+  it("allows staged rendering control for testing", () => {
+    renderWithRouter(
+      <AdminHostLeaderboardView
+        leaderboard={mockLeaderboard}
+        initialAnimationStage={2}
+        disableConfetti
+      />
+    );
+
+    expect(screen.getByText("Alice")).toBeInTheDocument();
+    expect(screen.queryByText("Charlie")).not.toBeInTheDocument();
     expect(screen.queryByText(/Other Top Players/i)).not.toBeInTheDocument();
   });
 });

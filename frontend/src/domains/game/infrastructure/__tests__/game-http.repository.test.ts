@@ -18,6 +18,7 @@ describe('GameHttpRepository', () => {
     it('should create a game session', async () => {
       const mockSession: GameSession = {
         pin: '123456',
+        quizId: 1,
         quiz_id: 1,
         status: 'waiting',
       };

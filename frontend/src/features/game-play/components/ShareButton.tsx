@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useId } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../../shared/components";
 
@@ -25,6 +25,7 @@ export function ShareButton({
   const [shareError, setShareError] = useState<string | null>(null);
   const shareButtonRef = useRef<HTMLButtonElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
+  const shareDialogTitleId = useId();
 
   // Handle Escape key to close modal
   useEffect(() => {
@@ -190,12 +191,12 @@ export function ShareButton({
             className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md p-4 animate-scale-in"
             role="dialog"
             aria-modal="true"
-            aria-labelledby="share-dialog-title"
+            aria-labelledby={shareDialogTitleId}
           >
             <div className="bg-dark-400 border-2 border-primary-500 rounded-2xl p-6 shadow-neon-accent">
               <div className="flex justify-between items-center mb-6">
                 <h3
-                  id="share-dialog-title"
+                  id={shareDialogTitleId}
                   className="text-2xl font-bold text-white font-display uppercase"
                 >
                   Share Results

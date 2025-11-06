@@ -59,6 +59,7 @@ interface MockQuizContext {
   quizzes: Quiz[];
   questionsByQuiz: Record<number, Question[]>;
   hasLoadedQuizzes: boolean;
+  isPending: boolean;
   loadQuizQuestions: ReturnType<typeof vi.fn>;
   addQuestion: ReturnType<typeof vi.fn>;
   deleteQuestion: ReturnType<typeof vi.fn>;
@@ -69,7 +70,10 @@ function renderRoute(initialEntry = "/admin/quizzes/42") {
   return render(
     <MemoryRouter initialEntries={[initialEntry]}>
       <Routes>
-        <Route path="/admin/quizzes/:quizId" element={<ManageQuestionsRoute />} />
+        <Route
+          path="/admin/quizzes/:quizId"
+          element={<ManageQuestionsRoute />}
+        />
         <Route path="/auth/login" element={<div>Login Page</div>} />
         <Route path="/admin" element={<div>Admin Page</div>} />
       </Routes>
@@ -92,12 +96,21 @@ function setup({ auth, quiz }: SetupOptions = {}) {
 
   const quizContext: MockQuizContext = {
     quizzes: quiz?.quizzes ?? [defaultQuiz],
-    questionsByQuiz: (quiz?.questionsByQuiz as Record<number, Question[]>) ?? {},
+    questionsByQuiz:
+      (quiz?.questionsByQuiz as Record<number, Question[]>) ?? {},
     hasLoadedQuizzes: quiz?.hasLoadedQuizzes ?? true,
-    loadQuizQuestions: (quiz?.loadQuizQuestions as MockQuizContext["loadQuizQuestions"]) ?? loadQuizQuestions,
-    addQuestion: (quiz?.addQuestion as MockQuizContext["addQuestion"]) ?? addQuestion,
-    deleteQuestion: (quiz?.deleteQuestion as MockQuizContext["deleteQuestion"]) ?? deleteQuestion,
-    updateQuestion: (quiz?.updateQuestion as MockQuizContext["updateQuestion"]) ?? updateQuestion,
+    isPending: quiz?.isPending ?? false,
+    loadQuizQuestions:
+      (quiz?.loadQuizQuestions as MockQuizContext["loadQuizQuestions"]) ??
+      loadQuizQuestions,
+    addQuestion:
+      (quiz?.addQuestion as MockQuizContext["addQuestion"]) ?? addQuestion,
+    deleteQuestion:
+      (quiz?.deleteQuestion as MockQuizContext["deleteQuestion"]) ??
+      deleteQuestion,
+    updateQuestion:
+      (quiz?.updateQuestion as MockQuizContext["updateQuestion"]) ??
+      updateQuestion,
   };
 
   mocks.useQuizManagerContext.mockReturnValue(quizContext);

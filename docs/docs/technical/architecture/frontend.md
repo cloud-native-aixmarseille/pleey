@@ -4,15 +4,42 @@ sidebar_position: 2
 
 # 🎨 Frontend Architecture
 
-React 18 application with Vite, following Clean Architecture and Domain-Driven Design principles.
+React 19 application with Vite, following Clean Architecture and Domain-Driven Design principles.
 
 ## 🛠️ Technologies
 
-- **React 18**: Modern UI framework with hooks and concurrent features
-- **Vite**: Fast, modern build tool (replacement for Webpack/CRA)
+- **React 19**: Modern UI framework with enhanced concurrent features, automatic batching, and improved performance
+- **Vite 5**: Fast, modern build tool with optimized HMR and build performance
 - **Tailwind CSS**: Utility-first CSS framework, maintainable and performant
 - **Socket.io-client**: Real-time bidirectional communication
-- **TypeScript**: Type-safe JavaScript
+- **React Router 6**: Declarative routing for React applications
+- **Vitest**: Fast unit test framework powered by Vite
+- **Testing Library**: Testing utilities for React components
+
+## 🚀 React 19 Features & Best Practices
+
+The application leverages React 19's enhanced features for improved performance and developer experience:
+
+### Concurrent Features
+- **Automatic Batching**: All state updates are automatically batched, reducing re-renders
+- **Transitions**: Use `useTransition` for non-urgent updates (e.g., filtering, searching)
+- **Suspense**: Improved Suspense for data fetching (future enhancement)
+
+### Modern APIs
+- **createRoot**: Uses React 19's concurrent root API (see `main.jsx`)
+- **forwardRef**: Simplified ref forwarding in components
+- **useId**: Generate unique IDs for accessibility (aria-* attributes)
+
+### Performance Optimizations
+- **Automatic memo**: React 19 automatically optimizes component rendering
+- **Server Components**: Ready for future SSR implementation
+- **Improved hydration**: Better performance for server-side rendering scenarios
+
+### Migration from React 18
+- ✅ No legacy ReactDOM.render usage
+- ✅ Using createRoot API
+- ✅ All components compatible with concurrent rendering
+- ✅ StrictMode enabled for development
 
 ## 🔎 Logging & Debugging
 

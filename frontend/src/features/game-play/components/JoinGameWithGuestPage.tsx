@@ -1,4 +1,4 @@
-import { KeyboardEvent, useState } from "react";
+import { KeyboardEvent, useId, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Card, Container } from "../../../shared/components";
 
@@ -22,6 +22,9 @@ export default function JoinGameWithGuestPage({
   const navigate = useNavigate();
   const [nickname, setNickname] = useState("");
   const [showGuestForm, setShowGuestForm] = useState(false);
+  const pinInputId = useId();
+  const pinLengthIndicatorId = useId();
+  const nicknameInputId = useId();
 
   const handleKeyPressPin = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && gamePin.length === 6) {
@@ -71,7 +74,9 @@ export default function JoinGameWithGuestPage({
               className="inline-flex items-center gap-2 text-accent-400 hover:text-accent-300 transition-all mb-6 font-mono text-sm hover:scale-105 transform"
               aria-label="Back to main menu"
             >
-              <span className="text-2xl" aria-hidden="true">◄</span>
+              <span className="text-2xl" aria-hidden="true">
+                ◄
+              </span>
               <span className="uppercase tracking-wider">BACK TO MENU</span>
             </button>
 
@@ -85,8 +90,8 @@ export default function JoinGameWithGuestPage({
               ► JOIN GAME
             </h1>
             <p className="text-light-300 font-mono text-sm sm:text-base animate-pulse-slow">
-              {showGuestForm 
-                ? "> Enter your nickname to join as guest" 
+              {showGuestForm
+                ? "> Enter your nickname to join as guest"
                 : "> Enter the PIN code to start playing"}
             </p>
           </div>
@@ -100,11 +105,11 @@ export default function JoinGameWithGuestPage({
                 READY
               </p>
               <p className="font-mono text-primary-300 text-xs mt-1">
-                {isAuthenticated 
-                  ? `> LOGGED IN AS: ${username}` 
-                  : showGuestForm 
-                    ? "> GUEST MODE ACTIVATED" 
-                    : "> WAITING FOR INPUT..."}
+                {isAuthenticated
+                  ? `> LOGGED IN AS: ${username}`
+                  : showGuestForm
+                  ? "> GUEST MODE ACTIVATED"
+                  : "> WAITING FOR INPUT..."}
               </p>
             </div>
 
@@ -112,23 +117,29 @@ export default function JoinGameWithGuestPage({
               <>
                 {/* PIN Input - Arcade style */}
                 <div className="mb-8">
-                  <label 
-                    htmlFor="game-pin-input"
-                    className="block font-display text-primary-300 text-xs sm:text-sm mb-4 text-center uppercase tracking-wider">
+                  <label
+                    htmlFor={pinInputId}
+                    className="block font-display text-primary-300 text-xs sm:text-sm mb-4 text-center uppercase tracking-wider"
+                  >
                     ► Enter Game PIN ◄
                   </label>
                   <input
-                    id="game-pin-input"
+                    id={pinInputId}
                     type="text"
                     value={gamePin}
-                    onChange={(e) => onGamePinChange(e.target.value.toUpperCase())}
+                    onChange={(e) =>
+                      onGamePinChange(e.target.value.toUpperCase())
+                    }
                     onKeyPress={handleKeyPressPin}
                     placeholder="••••••"
                     className="w-full p-6 sm:p-8 bg-dark-500 border-4 border-accent-500/50 rounded-xl text-center text-4xl sm:text-6xl font-display tracking-[0.5em] focus:border-accent-500 focus:ring-4 focus:ring-accent-500/30 focus:outline-none transition-all text-accent-400 placeholder-dark-300 uppercase shadow-neon-accent"
                     maxLength={6}
-                    aria-describedby="pin-length-indicator"
+                    aria-describedby={pinLengthIndicatorId}
                   />
-                  <div className="flex justify-center items-center gap-3 mt-4" id="pin-length-indicator">
+                  <div
+                    className="flex justify-center items-center gap-3 mt-4"
+                    id={pinLengthIndicatorId}
+                  >
                     <span className="font-mono text-xs text-light-500">
                       PIN LENGTH:
                     </span>
@@ -161,7 +172,9 @@ export default function JoinGameWithGuestPage({
                       style={{
                         animationDelay: `${i * 0.05}s`,
                         animation:
-                          i < gamePin.length ? "pixelPop 0.3s ease-out" : "none",
+                          i < gamePin.length
+                            ? "pixelPop 0.3s ease-out"
+                            : "none",
                       }}
                     />
                   ))}
@@ -202,13 +215,14 @@ export default function JoinGameWithGuestPage({
               <>
                 {/* Guest Nickname Input */}
                 <div className="mb-8">
-                  <label 
-                    htmlFor="nickname-input"
-                    className="block font-display text-primary-300 text-xs sm:text-sm mb-4 text-center uppercase tracking-wider">
+                  <label
+                    htmlFor={nicknameInputId}
+                    className="block font-display text-primary-300 text-xs sm:text-sm mb-4 text-center uppercase tracking-wider"
+                  >
                     ► Choose Your Nickname ◄
                   </label>
                   <input
-                    id="nickname-input"
+                    id={nicknameInputId}
                     type="text"
                     value={nickname}
                     onChange={(e) => setNickname(e.target.value)}
@@ -253,7 +267,8 @@ export default function JoinGameWithGuestPage({
             {gamePin.length === 6 && !showGuestForm && (
               <div className="mt-6 text-center animate-fade-in">
                 <p className="font-mono text-success-500 text-sm animate-pulse">
-                  ✓ PIN COMPLETE - {isAuthenticated ? "PRESS JOIN" : "PRESS CONTINUE"}
+                  ✓ PIN COMPLETE -{" "}
+                  {isAuthenticated ? "PRESS JOIN" : "PRESS CONTINUE"}
                 </p>
               </div>
             )}
@@ -276,14 +291,20 @@ export default function JoinGameWithGuestPage({
                     <li className="flex items-start gap-2">
                       <span className="text-accent-500 flex-shrink-0">•</span>
                       <span>
-                        {isAuthenticated 
-                          ? "Join with your account to save your progress" 
+                        {isAuthenticated
+                          ? "Join with your account to save your progress"
                           : "Play as guest (no account needed) or sign in"}
                       </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-accent-500 flex-shrink-0">•</span>
-                      <span>Enter the PIN and {isAuthenticated ? "press JOIN" : "choose your nickname"}!</span>
+                      <span>
+                        Enter the PIN and{" "}
+                        {isAuthenticated
+                          ? "press JOIN"
+                          : "choose your nickname"}
+                        !
+                      </span>
                     </li>
                   </ul>
                 </div>
