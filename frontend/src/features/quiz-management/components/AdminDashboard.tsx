@@ -22,7 +22,7 @@ export default function AdminDashboard({
   
   const handleCreateQuiz = () => {
     if (!currentOrganization) {
-      alert('Please select an organization first');
+      alert(t('admin.selectOrganizationFirst'));
       return;
     }
     

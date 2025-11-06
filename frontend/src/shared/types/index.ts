@@ -41,7 +41,6 @@ export interface Quiz {
   description: string;
   created_by: number;
   organizationId?: number;
-  organization_id?: number;
   created_at: string;
 }
 

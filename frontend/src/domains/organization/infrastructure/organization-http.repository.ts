@@ -13,7 +13,7 @@ export class OrganizationHttpRepository implements IOrganizationRepository {
     });
     
     if (!response.ok) {
-      throw new Error('Failed to fetch organizations');
+      throw new Error('organization.errors.fetchFailed');
     }
     
     const data = await response.json();
@@ -35,7 +35,7 @@ export class OrganizationHttpRepository implements IOrganizationRepository {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to create organization');
+      throw new Error('organization.errors.createFailed');
     }
 
     return await response.json();
@@ -53,7 +53,7 @@ export class OrganizationHttpRepository implements IOrganizationRepository {
     );
 
     if (!response.ok) {
-      throw new Error('Failed to fetch organization dashboard');
+      throw new Error('organization.errors.dashboardFailed');
     }
 
     return await response.json();
@@ -78,7 +78,7 @@ export class OrganizationHttpRepository implements IOrganizationRepository {
     );
 
     if (!response.ok) {
-      throw new Error('Failed to add member');
+      throw new Error('organization.errors.addMemberFailed');
     }
 
     return await response.json();
@@ -94,7 +94,7 @@ export class OrganizationHttpRepository implements IOrganizationRepository {
     );
 
     if (!response.ok) {
-      throw new Error('Failed to remove member');
+      throw new Error('organization.errors.removeMemberFailed');
     }
   }
 }

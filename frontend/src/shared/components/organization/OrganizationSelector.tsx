@@ -36,8 +36,8 @@ export function OrganizationSelector() {
       setNewOrgName('');
       setNewOrgDescription('');
     } catch (error) {
-      console.error('Failed to create organization:', error);
-      alert('Failed to create organization. Please try again.');
+      // Show user-friendly error message
+      alert(t('organization.errors.createFailed'));
     } finally {
       setIsCreating(false);
     }
@@ -61,9 +61,9 @@ export function OrganizationSelector() {
       >
         <span className="text-xl">🏢</span>
         <div className="text-left">
-          <div className="text-xs text-light-700">Organization</div>
+          <div className="text-xs text-light-700">{t('organization.title')}</div>
           <div className="font-bold text-primary-400">
-            {currentOrganization?.name || 'Select Organization'}
+            {currentOrganization?.name || t('organization.selectOrganization')}
           </div>
         </div>
         <svg
@@ -134,7 +134,7 @@ export function OrganizationSelector() {
                     d="M12 4v16m8-8H4"
                   />
                 </svg>
-                <span>Create New Organization</span>
+                <span>{t('organization.createNew')}</span>
               </button>
             </div>
           </Card>
@@ -146,32 +146,32 @@ export function OrganizationSelector() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <Card className="w-full max-w-md p-6">
             <h2 className="text-2xl font-bold text-gradient-neon mb-4">
-              Create New Organization
+              {t('organization.createNew')}
             </h2>
             <form onSubmit={handleCreateOrganization} className="space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-light-700 mb-2">
-                  Organization Name *
+                  {t('organization.organizationNameRequired')}
                 </label>
                 <input
                   type="text"
                   value={newOrgName}
                   onChange={(e) => setNewOrgName(e.target.value)}
                   className="w-full px-4 py-2 bg-dark-800 border-2 border-primary-500 rounded-lg text-light-100 focus:outline-none focus:border-primary-400"
-                  placeholder="Enter organization name"
+                  placeholder={t('organization.enterOrganizationName')}
                   required
                   autoFocus
                 />
               </div>
               <div>
                 <label className="block text-sm font-semibold text-light-700 mb-2">
-                  Description (Optional)
+                  {t('organization.descriptionOptional')}
                 </label>
                 <textarea
                   value={newOrgDescription}
                   onChange={(e) => setNewOrgDescription(e.target.value)}
                   className="w-full px-4 py-2 bg-dark-800 border-2 border-primary-500 rounded-lg text-light-100 focus:outline-none focus:border-primary-400"
-                  placeholder="Enter organization description"
+                  placeholder={t('organization.enterOrganizationDescription')}
                   rows={3}
                 />
               </div>
@@ -182,7 +182,7 @@ export function OrganizationSelector() {
                   disabled={isCreating || !newOrgName.trim()}
                   className="flex-1"
                 >
-                  {isCreating ? 'Creating...' : 'Create Organization'}
+                  {isCreating ? t('organization.creating') : t('organization.createOrganization')}
                 </Button>
                 <Button
                   type="button"
@@ -194,7 +194,7 @@ export function OrganizationSelector() {
                   }}
                   disabled={isCreating}
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
               </div>
             </form>
