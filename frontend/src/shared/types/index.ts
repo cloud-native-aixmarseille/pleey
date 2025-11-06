@@ -3,6 +3,7 @@ export interface User {
   username: string;
   email: string;
   isAdmin: boolean;
+  avatarUrl?: string | null;
 }
 
 export interface Organization {

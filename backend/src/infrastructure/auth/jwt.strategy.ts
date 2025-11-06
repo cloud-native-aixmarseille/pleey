@@ -7,6 +7,7 @@ interface JwtPayload {
   id: number;
   username: string;
   isAdmin: boolean;
+  avatarUrl: string | null;
 }
 
 /**

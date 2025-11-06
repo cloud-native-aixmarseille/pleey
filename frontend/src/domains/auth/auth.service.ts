@@ -1,5 +1,6 @@
 import { fetchClient } from '../../shared/api/openapiClient';
 import { User } from '../../shared/types';
+import { resolveAuthErrorKey } from './utils/resolve-auth-error';
 
 export class AuthService {
   async login(email: string, password: string): Promise<{ token: string; user: User }> {
@@ -11,17 +12,14 @@ export class AuthService {
     });
 
     if (error || !data) {
-      const message =
-        (typeof error === 'object' && error !== null && 'message' in error && typeof (error as { message?: unknown }).message === 'string'
-          ? (error as { message: string }).message
-          : 'Identifiants invalides');
-      throw new Error(message);
+      const messageKey = resolveAuthErrorKey(error, 'auth.errors.invalidCredentials');
+      throw new Error(messageKey);
     }
 
     const result = data as { token?: string; user?: User };
 
     if (!result.token || !result.user) {
-      throw new Error('Réponse de connexion invalide');
+      throw new Error('auth.errors.invalidResponse');
     }
 
     return { token: result.token, user: result.user };
@@ -36,12 +34,47 @@ export class AuthService {
     });
 
     if (error) {
-      const message =
-        (typeof error === 'object' && error !== null && 'message' in error && typeof (error as { message?: unknown }).message === 'string'
-          ? (error as { message: string }).message
-          : 'Registration failed');
-      throw new Error(message);
+      const messageKey = resolveAuthErrorKey(error, 'auth.errors.registrationFailed');
+      throw new Error(messageKey);
     }
+  }
+
+  async getProfile(): Promise<User> {
+    const { data, error } = await fetchClient.GET('/api/profile/me', {} as any);
+
+    if (error || !data) {
+      const messageKey = resolveAuthErrorKey(error, 'profile.errors.loadFailed');
+      throw new Error(messageKey);
+    }
+
+    return data as User;
+  }
+
+  async updateProfile(updates: { username?: string; email?: string }): Promise<User> {
+    const { data, error } = await fetchClient.PATCH('/api/profile/me', {
+      body: updates as any,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    } as any);
+
+    if (error || !data) {
+      const messageKey = resolveAuthErrorKey(error, 'profile.updateError');
+      throw new Error(messageKey);
+    }
+
+    return data as User;
+  }
+
+  async regenerateAvatar(): Promise<User> {
+    const { data, error } = await fetchClient.POST('/api/profile/me/avatar' as any, {} as any);
+
+    if (error || !data) {
+      const messageKey = resolveAuthErrorKey(error, 'profile.avatarRegenerateError');
+      throw new Error(messageKey);
+    }
+
+    return data as User;
   }
 }
 

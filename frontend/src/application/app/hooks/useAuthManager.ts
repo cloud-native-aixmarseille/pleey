@@ -27,6 +27,17 @@ export function useAuthManager() {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
+  const storeUser = useCallback((nextUser: User) => {
+    setUser(nextUser);
+    void queryClient.invalidateQueries();
+
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(nextUser));
+  }, []);
+
   const persistSession = useCallback(({ token: nextToken, user: nextUser }: SetSessionParams) => {
     setToken(nextToken);
     setUser(nextUser);
@@ -68,6 +79,35 @@ export function useAuthManager() {
     await authService.register(username, email, password);
   }, []);
 
+  const refreshProfile = useCallback(async (): Promise<User | null> => {
+    if (!token) {
+      return null;
+    }
+
+    try {
+      const nextUser = await authService.getProfile();
+      storeUser(nextUser);
+      return nextUser;
+    } catch (error) {
+      return null;
+    }
+  }, [storeUser, token]);
+
+  const updateProfile = useCallback(
+    async (updates: { username?: string; email?: string }): Promise<User> => {
+      const nextUser = await authService.updateProfile(updates);
+      storeUser(nextUser);
+      return nextUser;
+    },
+    [storeUser],
+  );
+
+  const regenerateAvatar = useCallback(async (): Promise<User> => {
+    const nextUser = await authService.regenerateAvatar();
+    storeUser(nextUser);
+    return nextUser;
+  }, [storeUser]);
+
   const restoreSession = useCallback((): User | null => {
     if (typeof window === 'undefined') {
       return null;
@@ -101,5 +141,8 @@ export function useAuthManager() {
     restoreSession,
     persistSession,
     clearSession,
+    refreshProfile,
+    updateProfile,
+    regenerateAvatar,
   };
 }

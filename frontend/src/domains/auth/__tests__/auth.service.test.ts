@@ -1,13 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { Mock } from 'vitest';
 import { authService } from '../auth.service';
 
 // Mock fetch globally
-global.fetch = vi.fn();
+globalThis.fetch = vi.fn();
+const fetchMock = globalThis.fetch as unknown as Mock;
 
 describe('AuthService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    global.fetch.mockReset();
+    fetchMock.mockReset();
   });
 
   describe('login', () => {
@@ -18,18 +20,19 @@ describe('AuthService', () => {
           id: 1,
           username: 'testuser',
           email: 'test@example.com',
-          isAdmin: false
+          isAdmin: false,
+          avatarUrl: null
         }
       };
 
-      global.fetch.mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         json: async () => mockResponse,
         ok: true
       });
 
       const result = await authService.login('test@example.com', 'password123');
 
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(globalThis.fetch).toHaveBeenCalledWith(
         expect.stringContaining('/api/login'),
         expect.objectContaining({
           method: 'POST',
@@ -44,23 +47,23 @@ describe('AuthService', () => {
     });
 
     it('should handle login failure', async () => {
-      global.fetch.mockRejectedValueOnce(new Error('Network error'));
+      fetchMock.mockRejectedValueOnce(new Error('Network error'));
 
       await expect(authService.login('wrong@example.com', 'wrongpass'))
-        .rejects.toThrow('Network error');
+        .rejects.toThrow('common.errors.network');
     });
   });
 
   describe('register', () => {
     it('should successfully register a new user', async () => {
-      global.fetch.mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ success: true })
       });
 
       await authService.register('newuser', 'new@example.com', 'password123');
 
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(globalThis.fetch).toHaveBeenCalledWith(
         expect.stringContaining('/api/register'),
         expect.objectContaining({
           method: 'POST',
@@ -75,13 +78,50 @@ describe('AuthService', () => {
     });
 
     it('should throw error when registration fails', async () => {
-      global.fetch.mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: false,
         status: 400
       });
 
       await expect(authService.register('user', 'email@test.com', 'pass'))
-        .rejects.toThrow('Registration failed');
+        .rejects.toThrow('auth.errors.registrationFailed');
+    });
+  });
+
+  describe('regenerateAvatar', () => {
+    it('should regenerate avatar successfully', async () => {
+      const mockUser = {
+        id: 1,
+        username: 'testuser',
+        email: 'test@example.com',
+        isAdmin: false,
+        avatarUrl: 'data:image/svg+xml;base64,ZmFrZQ=='
+      };
+
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockUser
+      });
+
+      const result = await authService.regenerateAvatar();
+
+      expect(globalThis.fetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/profile/me/avatar'),
+        expect.objectContaining({
+          method: 'POST'
+        })
+      );
+
+      expect(result).toEqual(mockUser);
+    });
+
+    it('should throw error when regeneration fails', async () => {
+      fetchMock.mockResolvedValueOnce({
+        ok: false,
+        status: 500
+      });
+
+      await expect(authService.regenerateAvatar()).rejects.toThrow('profile.avatarRegenerateError');
     });
   });
 });

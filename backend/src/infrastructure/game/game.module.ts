@@ -6,7 +6,7 @@ import { GetActiveSessionsUseCase } from '../../application/game/use-cases/get-a
 import { GetLeaderboardUseCase } from '../../application/game/use-cases/get-leaderboard.use-case';
 import { SubmitAnswerUseCase } from '../../application/game/use-cases/submit-answer.use-case';
 import { ScoreCalculatorService } from '../../domain/game/services/score-calculator.service';
-import { AvatarGeneratorService } from '../../domain/game/services/avatar-generator.service';
+import { AvatarGeneratorService } from '../../domain/shared/services/avatar-generator.service';
 import {
   GameSessionRepositoryProvider,
 } from '../../domain/game/repositories/game-session.repository.interface';
@@ -65,4 +65,4 @@ import { I18nWsExceptionFilter } from '../filters/i18n-ws-exception.filter';
     I18nWsExceptionFilter,
   ],
 })
-export class GameModule {}
+export class GameModule { }

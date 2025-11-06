@@ -14,6 +14,7 @@ interface UseAppLifecycleParams {
   restoreSession: RestoreSession;
   user: User | null;
   token: string | null;
+  refreshProfile: () => Promise<User | null>;
   loadQuizzes: LoadQuizzes;
   clearSession: ClearSession;
   notifyFromError: NotifyFromError;
@@ -27,6 +28,7 @@ export function useAppLifecycle({
   restoreSession,
   user,
   token,
+  refreshProfile,
   loadQuizzes,
   clearSession,
   notifyFromError,
@@ -38,6 +40,16 @@ export function useAppLifecycle({
   useEffect(() => {
     restoreSession();
   }, [restoreSession]);
+
+  useEffect(() => {
+    if (!token) {
+      return;
+    }
+
+    refreshProfile().catch(() => {
+      // Suppress errors here, the user will be prompted on-demand when interacting.
+    });
+  }, [refreshProfile, token]);
 
   useEffect(() => {
     if (!user?.isAdmin || !token) {

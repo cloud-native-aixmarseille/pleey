@@ -37,6 +37,7 @@ export class LoginUserUseCase {
       id: user.id,
       username: user.username,
       isAdmin: user.isAdmin,
+      avatarUrl: user.avatarUrl,
     };
     const token = this.jwtService.sign(payload);
 
@@ -48,6 +49,7 @@ export class LoginUserUseCase {
         username: user.username,
         email: user.email,
         isAdmin: user.isAdmin,
+        avatarUrl: user.avatarUrl,
       },
     };
   }

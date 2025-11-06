@@ -29,7 +29,35 @@
     "signIn": "Sign In",
     "errors": {
       "invalidCredentials": "Unable to login. Check your credentials.",
-      "registrationFailed": "Registration failed. Please try again."
+      "registrationFailed": "Registration failed. Please try again.",
+      "invalidResponse": "Invalid login response. Please try again.",
+      "userAlreadyExists": "An account already exists for this email.",
+      "passwordTooShort": "Password must be at least 6 characters long.",
+      "userNotFound": "User not found.",
+      "unauthorized": "You are not authorized to perform this action.",
+      "serverError": "An unexpected server error occurred. Please try again later.",
+      "generic": "Authentication failed. Please try again."
+    }
+  },
+  "profile": {
+    "title": "My Profile",
+    "subtitle": "Update your personal information",
+    "username": "Username",
+    "email": "Email",
+    "regenerateAvatar": "Regenerate avatar",
+    "avatarManagedBySystem": "Avatars are generated automatically. Use the button to refresh yours.",
+    "save": "Save changes",
+    "cancel": "Cancel",
+    "logout": "Logout",
+    "viewingAs": "Signed in as",
+    "missingAvatar": "No avatar provided",
+    "updateSuccess": "Profile updated successfully.",
+    "updateError": "Unable to update your profile. Please try again.",
+    "avatarRegenerateSuccess": "Your avatar has been regenerated.",
+    "avatarRegenerateError": "Unable to regenerate your avatar. Please try again.",
+    "logoutConfirm": "Are you sure you want to logout?",
+    "errors": {
+      "loadFailed": "Unable to load your profile. Please try again."
     }
   },
   "admin": {
@@ -180,7 +208,10 @@
     "success": "Success",
     "logout": "Logout",
     "confirm": "Confirm",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "errors": {
+      "network": "Network error. Check your connection and try again."
+    }
   },
   "organization": {
     "title": "Organization",

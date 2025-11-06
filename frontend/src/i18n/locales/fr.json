@@ -29,7 +29,35 @@
     "signIn": "Se connecter",
     "errors": {
       "invalidCredentials": "Impossible de se connecter. Vérifiez vos identifiants.",
-      "registrationFailed": "L'inscription a échoué. Veuillez réessayer."
+      "registrationFailed": "L'inscription a échoué. Veuillez réessayer.",
+      "invalidResponse": "Réponse de connexion invalide. Veuillez réessayer.",
+      "userAlreadyExists": "Un compte existe déjà pour cet e-mail.",
+      "passwordTooShort": "Le mot de passe doit contenir au moins 6 caractères.",
+      "userNotFound": "Utilisateur introuvable.",
+      "unauthorized": "Vous n'êtes pas autorisé à effectuer cette action.",
+      "serverError": "Une erreur serveur est survenue. Veuillez réessayer plus tard.",
+      "generic": "L'authentification a échoué. Veuillez réessayer."
+    }
+  },
+  "profile": {
+    "title": "Mon profil",
+    "subtitle": "Mettez à jour vos informations personnelles",
+    "username": "Nom d'utilisateur",
+    "email": "Email",
+    "regenerateAvatar": "Régénérer l'avatar",
+    "avatarManagedBySystem": "Les avatars sont générés automatiquement. Utilisez le bouton pour renouveler le vôtre.",
+    "save": "Enregistrer les modifications",
+    "cancel": "Annuler",
+    "logout": "Se déconnecter",
+    "viewingAs": "Connecté en tant que",
+    "missingAvatar": "Aucun avatar fourni",
+    "updateSuccess": "Profil mis à jour avec succès.",
+    "updateError": "Impossible de mettre à jour votre profil. Veuillez réessayer.",
+    "avatarRegenerateSuccess": "Votre avatar a été régénéré.",
+    "avatarRegenerateError": "Impossible de régénérer votre avatar. Veuillez réessayer.",
+    "logoutConfirm": "Êtes-vous sûr de vouloir vous déconnecter ?",
+    "errors": {
+      "loadFailed": "Impossible de charger votre profil. Veuillez réessayer."
     }
   },
   "admin": {
@@ -180,7 +208,10 @@
     "success": "Succès",
     "logout": "Déconnexion",
     "confirm": "Confirmer",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "errors": {
+      "network": "Erreur réseau. Vérifiez votre connexion et réessayez."
+    }
   },
   "organization": {
     "title": "Organisation",

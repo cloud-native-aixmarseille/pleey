@@ -32,7 +32,7 @@ import {
 } from '../../domain/quiz/repositories/question.repository.interface';
 import { GameErrorCode } from '../../application/game/enums/game-error-code.enum';
 import { I18nWsExceptionFilter } from '../filters/i18n-ws-exception.filter';
-import { AvatarGeneratorService } from '../../domain/game/services/avatar-generator.service';
+import { AvatarGeneratorService } from '../../domain/shared/services/avatar-generator.service';
 
 const RAW_SOCKET_ORIGINS = process.env.CORS_ORIGIN ?? '';
 const PARSED_SOCKET_ORIGINS = RAW_SOCKET_ORIGINS.split(',')
@@ -128,26 +128,26 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     try {
       const dto = await this.validatePayload(JoinGameDto, payload);
       const state = await this.ensureSessionState(dto.pin);
-      
+
       // Validate that exactly one of userId or guestId is provided
       const hasUserId = dto.userId !== undefined && dto.userId !== null;
       const hasGuestId = dto.guestId !== undefined && dto.guestId !== null && dto.guestId.trim() !== '';
-      
+
       if (hasUserId && hasGuestId) {
         throw new WsException('Cannot provide both userId and guestId');
       }
-      
+
       // Determine if this is a guest or authenticated user
       const isGuest = !hasUserId;
       let guestId = dto.guestId;
-      
+
       // Generate guestId if not provided for guest players
       if (isGuest && !hasGuestId) {
         guestId = `guest-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
       }
-      
+
       // Find existing player by userId or guestId
-      const existingEntry = isGuest 
+      const existingEntry = isGuest
         ? this.findPlayerByGuestId(state.players, guestId!)
         : this.findPlayerByUserId(state.players, dto.userId!);
 
@@ -212,31 +212,31 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     try {
       const dto = await this.validatePayload(SubmitAnswerDto, payload);
       const state = await this.ensureSessionState(dto.pin);
-      
+
       // Validate that exactly one of userId or guestId is provided
       const hasUserId = dto.userId !== undefined && dto.userId !== null;
       const hasGuestId = dto.guestId !== undefined && dto.guestId !== null && dto.guestId.trim() !== '';
-      
+
       if (!hasUserId && !hasGuestId) {
         throw new WsException('Must provide either userId or guestId');
       }
-      
+
       if (hasUserId && hasGuestId) {
         throw new WsException('Cannot provide both userId and guestId');
       }
-      
+
       const result = await this.submitAnswerUseCase.execute(dto);
 
       // Update in-memory scores
       const playerId = this.createPlayerId(dto.userId, dto.guestId);
-      const player = Array.from(state.players.values()).find(p => 
+      const player = Array.from(state.players.values()).find(p =>
         (dto.userId && p.userId === dto.userId) || (dto.guestId && p.guestId === dto.guestId)
       );
-      
+
       if (player) {
         const existingScore = state.scores.get(playerId);
         const totalPoints = (existingScore?.totalPoints ?? 0) + result.points;
-        
+
         state.scores.set(playerId, {
           playerId,
           username: player.username,
@@ -373,10 +373,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   private async broadcastLeaderboard(pin: string, state: SessionState): Promise<void> {
     // Get in-memory scores (includes both guests and authenticated users)
     const scores = Array.from(state.scores.values());
-    
+
     // Sort by totalPoints descending
     scores.sort((a, b) => b.totalPoints - a.totalPoints);
-    
+
     const formatted = scores.map((entry, index) => {
       return {
         userId: this.extractUserIdFromPlayerId(entry.playerId),
@@ -395,11 +395,11 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   private async endGame(pin: string, state: SessionState): Promise<void> {
     await this.gameSessionRepository.updateStatus(state.sessionId, 'ended');
-    
+
     // Get in-memory scores for final leaderboard
     const scores = Array.from(state.scores.values());
     scores.sort((a, b) => b.totalPoints - a.totalPoints);
-    
+
     const formatted = scores.map((entry, index) => {
       return {
         userId: this.extractUserIdFromPlayerId(entry.playerId),
@@ -415,10 +415,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     this.sessions.delete(pin);
   }
 
-  private mapPlayers(players: Map<string, PlayerState>): Array<{ 
-    id?: number; 
-    guestId?: string; 
-    username: string; 
+  private mapPlayers(players: Map<string, PlayerState>): Array<{
+    id?: number;
+    guestId?: string;
+    username: string;
     avatar: string;
     isGuest: boolean;
   }> {

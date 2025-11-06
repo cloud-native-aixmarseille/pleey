@@ -12,6 +12,7 @@ interface AuthenticatedRequest extends Request {
     id: number;
     username: string;
     isAdmin: boolean;
+    avatarUrl: string | null;
   };
 }
 

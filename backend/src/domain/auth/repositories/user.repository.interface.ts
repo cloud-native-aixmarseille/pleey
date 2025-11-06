@@ -10,7 +10,13 @@ export interface UserRepository {
   /**
    * Creates a new user
    */
-  create(username: string, email: string, password: string, isAdmin?: boolean): Promise<User>;
+  create(
+    username: string,
+    email: string,
+    password: string,
+    isAdmin?: boolean,
+    avatarUrl?: string | null,
+  ): Promise<User>;
 
   /**
    * Finds a user by email
@@ -31,4 +37,16 @@ export interface UserRepository {
    * Checks if a user exists by email or username
    */
   exists(email: string, username: string): Promise<boolean>;
+
+  /**
+   * Updates a user profile and returns the updated entity
+   */
+  updateProfile(
+    id: number,
+    updates: {
+      username?: string;
+      email?: string;
+      avatarUrl?: string | null;
+    },
+  ): Promise<User>;
 }

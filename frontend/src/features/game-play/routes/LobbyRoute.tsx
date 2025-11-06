@@ -1,39 +1,34 @@
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../../../shared/context/AuthContext";
-import { useGame } from "../../../shared/context/GameContext";
-import { useQuiz } from "../../../shared/context/QuizContext";
 import LobbyPage from "../components/LobbyPage";
+import { useAuthManagerContext } from "../../../application/app/context/AuthManagerContext";
+import { useGameSessionContext } from "../../../application/app/context/GameSessionContext";
+import { useGuestSessionContext } from "../../../application/app/context/GuestSessionContext";
 
 /**
  * Lobby Route Component
- * Handles lobby page logic and authentication
- * Following Single Responsibility Principle
+ * Requires either an authenticated user or a registered guest.
  */
 export function LobbyRoute() {
-  const { isAuthenticated, isAdmin, user } = useAuth();
-  const { gamePin, players, startGame } = useGame();
-  const { questionsByQuiz } = useQuiz();
+  const { isAuthenticated, isAdmin, user } = useAuthManagerContext();
+  const { guestNickname } = useGuestSessionContext();
+  const { gamePin, players, activeQuizQuestionCount, handleStartGame } =
+    useGameSessionContext();
 
-  if (!isAuthenticated) {
-    return <Navigate to="/auth/login" replace />;
+  const hasIdentity = isAuthenticated || Boolean(guestNickname);
+
+  if (!hasIdentity) {
+    return <Navigate to="/game/join" replace />;
   }
-
-  // Calculate question count from loaded quizzes
-  const questionCount = Object.values(questionsByQuiz).flat().length;
-
-  const handleStartGame = () => {
-    startGame(gamePin);
-  };
 
   return (
     <LobbyPage
       gamePin={gamePin}
       players={players}
       isAdmin={isAdmin}
-      hostUserId={isAdmin ? user?.id ?? null : null}
-      hostUsername={isAdmin ? user?.username ?? null : null}
+      hostUserId={isAdmin && user ? user.id : null}
+      hostUsername={isAdmin && user ? user.username : null}
       onStartGame={handleStartGame}
-      questionCount={questionCount}
+      questionCount={activeQuizQuestionCount}
     />
   );
 }

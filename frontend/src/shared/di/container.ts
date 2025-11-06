@@ -9,6 +9,9 @@ import { LoginUseCase } from '../../application/auth/use-cases/login.use-case';
 import { RegisterUseCase } from '../../application/auth/use-cases/register.use-case';
 import { LogoutUseCase } from '../../application/auth/use-cases/logout.use-case';
 import { RestoreSessionUseCase } from '../../application/auth/use-cases/restore-session.use-case';
+import { GetProfileUseCase } from '../../application/auth/use-cases/get-profile.use-case';
+import { UpdateProfileUseCase } from '../../application/auth/use-cases/update-profile.use-case';
+import { RegenerateAvatarUseCase } from '../../application/auth/use-cases/regenerate-avatar.use-case';
 
 // Quiz Use Cases
 import { GetQuizzesUseCase } from '../../application/quiz/use-cases/get-quizzes.use-case';
@@ -39,6 +42,9 @@ export class DependencyContainer {
   readonly registerUseCase = new RegisterUseCase(this.authRepository);
   readonly logoutUseCase = new LogoutUseCase(this.storage);
   readonly restoreSessionUseCase = new RestoreSessionUseCase(this.storage);
+  readonly getProfileUseCase = new GetProfileUseCase(this.authRepository, this.storage);
+  readonly updateProfileUseCase = new UpdateProfileUseCase(this.authRepository, this.storage);
+  readonly regenerateAvatarUseCase = new RegenerateAvatarUseCase(this.authRepository, this.storage);
 
   // Quiz Use Cases
   readonly getQuizzesUseCase = new GetQuizzesUseCase(this.quizRepository);

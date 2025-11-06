@@ -1,23 +1,25 @@
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../../../shared/context/AuthContext";
-import { useGame } from "../../../shared/context/GameContext";
 import LeaderboardPage from "../components/LeaderboardPage";
 import AdminHostLeaderboardView from "../components/AdminHostLeaderboardView";
+import { useAuthManagerContext } from "../../../application/app/context/AuthManagerContext";
+import { useGameSessionContext } from "../../../application/app/context/GameSessionContext";
+import { useGuestSessionContext } from "../../../application/app/context/GuestSessionContext";
 
 /**
  * Leaderboard Route Component
- * Handles leaderboard page logic and authentication
- * Following Single Responsibility Principle
+ * Shows admin host leaderboard or participant leaderboard based on role.
  */
 export function LeaderboardRoute() {
-  const { isAuthenticated, isAdmin } = useAuth();
-  const { leaderboard } = useGame();
+  const { isAuthenticated, isAdmin } = useAuthManagerContext();
+  const { guestNickname } = useGuestSessionContext();
+  const { leaderboard } = useGameSessionContext();
 
-  if (!isAuthenticated) {
-    return <Navigate to="/auth/login" replace />;
+  const hasIdentity = isAuthenticated || Boolean(guestNickname);
+
+  if (!hasIdentity) {
+    return <Navigate to="/game/join" replace />;
   }
 
-  // Admin sees enhanced host view, players see regular view
   if (isAdmin) {
     return <AdminHostLeaderboardView leaderboard={leaderboard} />;
   }

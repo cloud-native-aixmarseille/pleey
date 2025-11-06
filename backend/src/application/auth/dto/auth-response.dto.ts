@@ -9,5 +9,6 @@ export class AuthResponseDto {
     username: string;
     email: string;
     isAdmin: boolean;
+    avatarUrl: string | null;
   };
 }

@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { AvatarGeneratorService } from './avatar-generator.service';
 
@@ -37,9 +38,8 @@ describe('AvatarGeneratorService', () => {
       expect(avatar1).not.toBe(avatar2);
     });
 
-    it('should generate avatars for guest players', () => {
-      const guestId = 'guest-abc123';
-      const avatar = service.generateAvatar(guestId, 100);
+    it('should generate avatars when sessionId is omitted', () => {
+      const avatar = service.generateAvatar('seed-only');
 
       expect(avatar).toContain('data:image/svg+xml;base64,');
       expect(avatar.length).toBeGreaterThan(100);
@@ -49,10 +49,8 @@ describe('AvatarGeneratorService', () => {
       const avatar = service.generateAvatar('1', 100);
       const base64Part = avatar.replace('data:image/svg+xml;base64,', '');
 
-      // Should be able to decode base64
       const decoded = Buffer.from(base64Part, 'base64').toString('utf-8');
 
-      // Should contain SVG elements
       expect(decoded).toContain('<svg');
       expect(decoded).toContain('</svg>');
     });

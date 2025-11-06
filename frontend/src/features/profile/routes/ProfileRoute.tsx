@@ -1,0 +1,68 @@
+import { useCallback, useState } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
+import ProfilePage from "../components/ProfilePage";
+import { useAuthManagerContext } from "../../../application/app/context/AuthManagerContext";
+import { useNotifications } from "../../../application/app/hooks/useNotifications";
+
+/**
+ * Route container for the profile page. Bridges presentation component with
+ * domain services via context hooks.
+ */
+export function ProfileRoute() {
+  const navigate = useNavigate();
+  const notifications = useNotifications();
+  const {
+    user,
+    isAuthenticated,
+    updateProfile,
+    regenerateAvatar,
+    clearSession,
+  } = useAuthManagerContext();
+
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSubmit = useCallback(
+    async (updates: { username: string; email: string }) => {
+      setIsSaving(true);
+      try {
+        await updateProfile(updates);
+        notifications.notify("profile.updateSuccess");
+      } catch (error) {
+        notifications.notifyFromError(error, "profile.updateError");
+        throw error;
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    [notifications, updateProfile]
+  );
+
+  const handleRegenerateAvatar = useCallback(async () => {
+    try {
+      await regenerateAvatar();
+      notifications.notify("profile.avatarRegenerateSuccess");
+    } catch (error) {
+      notifications.notifyFromError(error, "profile.avatarRegenerateError");
+      throw error;
+    }
+  }, [notifications, regenerateAvatar]);
+
+  const handleLogout = useCallback(() => {
+    clearSession();
+    navigate("/auth/login", { replace: true });
+  }, [clearSession, navigate]);
+
+  if (!isAuthenticated || !user) {
+    return <Navigate to="/auth/login" replace />;
+  }
+
+  return (
+    <ProfilePage
+      user={user}
+      onSubmit={handleSubmit}
+      onRegenerateAvatar={handleRegenerateAvatar}
+      onLogout={handleLogout}
+      isSaving={isSaving}
+    />
+  );
+}

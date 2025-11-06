@@ -9,8 +9,9 @@ export class User {
     public readonly email: string,
     public readonly password: string,
     public readonly isAdmin: boolean,
+    public readonly avatarUrl: string | null,
     public readonly createdAt: Date,
-  ) {}
+  ) { }
 
   /**
    * Checks if user has admin privileges

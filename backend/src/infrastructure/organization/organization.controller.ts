@@ -24,6 +24,7 @@ interface AuthenticatedRequest extends Request {
     id: number;
     username: string;
     isAdmin: boolean;
+    avatarUrl: string | null;
   };
 }
 
@@ -35,7 +36,7 @@ export class OrganizationController {
     private readonly addMemberToOrganizationUseCase: AddMemberToOrganizationUseCase,
     private readonly removeMemberFromOrganizationUseCase: RemoveMemberFromOrganizationUseCase,
     private readonly getOrganizationDashboardUseCase: GetOrganizationDashboardUseCase,
-  ) {}
+  ) { }
 
   @Post()
   @UseGuards(JwtAuthGuard)

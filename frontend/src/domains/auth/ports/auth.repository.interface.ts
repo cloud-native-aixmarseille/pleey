@@ -17,4 +17,19 @@ export interface IAuthRepository {
    * @throws Error if registration fails
    */
   register(username: string, email: string, password: string): Promise<void>;
+
+  /**
+   * Retrieve the authenticated user profile
+   */
+  getCurrentUser(): Promise<User>;
+
+  /**
+   * Update the authenticated user profile
+   */
+  updateProfile(updates: { username?: string; email?: string }): Promise<User>;
+
+  /**
+   * Request the backend to regenerate the authenticated user's avatar
+   */
+  regenerateAvatar(): Promise<User>;
 }

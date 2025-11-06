@@ -28,6 +28,25 @@ build: ## Build Docker images
 up: ## Start the application
 	@echo "$(GREEN)Starting application...$(NC)"
 	$(COMPOSE) up --build -d
+	@echo "$(GREEN)Running database migrations...$(NC)"
+	@$(COMPOSE) exec -T backend npm run db:migrate
+	@echo "$(GREEN)✓ Database migrations applied$(NC)"
+	@echo "$(GREEN)Waiting for backend OpenAPI endpoint...$(NC)"
+	@ATTEMPTS=0; \
+	until $(COMPOSE) exec -T backend sh -c "curl -sf http://localhost:3001/api/openapi.json >/dev/null"; do \
+		ATTEMPTS=$$((ATTEMPTS+1)); \
+		if [ $$ATTEMPTS -gt 30 ]; then \
+			echo "$(RED)Backend API did not become ready in time$(NC)"; \
+			exit 1; \
+		fi; \
+		echo "$(YELLOW)Waiting for backend API (attempt $$ATTEMPTS)...$(NC)"; \
+		sleep 2; \
+	done
+	@echo "$(GREEN)Backend API ready$(NC)"
+	@echo "$(GREEN)Regenerating OpenAPI types...$(NC)"
+	@$(COMPOSE) exec -T frontend npx --yes openapi-typescript@7.10.1 http://backend:3001/api/openapi.json --output src/shared/api/openapi-schema.ts
+	@echo "$(GREEN)✓ OpenAPI types updated$(NC)"
+
 	@echo "$(GREEN)✓ Application started$(NC)"
 	@echo "Frontend: http://frontend.quiz-master.localhost"
 	@echo "Backend: http://backend.quiz-master.localhost"
