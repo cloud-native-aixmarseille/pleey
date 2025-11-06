@@ -27,10 +27,10 @@ helm repo update
 
 ```bash
 # Install with default values
-helm install quiz-app ./deploy/helm/quiz-app
+helm install quiz-app ./charts/application
 
 # Or with development values
-helm install quiz-app ./deploy/helm/quiz-app -f ./deploy/helm/quiz-app/values-dev.yaml
+helm install quiz-app ./charts/application -f ./charts/application/values-dev.yaml
 ```
 
 #### Production Installation
@@ -40,8 +40,8 @@ helm install quiz-app ./deploy/helm/quiz-app -f ./deploy/helm/quiz-app/values-de
 kubectl create namespace quiz-app
 
 # Install with production values
-helm install quiz-app ./deploy/helm/quiz-app \
-  -f ./deploy/helm/quiz-app/values-prod.yaml \
+helm install quiz-app ./charts/application \
+  -f ./charts/application/values-prod.yaml \
   --namespace quiz-app \
   --set backend.secrets.jwtSecret="your-super-secret-jwt-key" \
   --set postgresql.auth.password="your-secure-database-password"
@@ -137,7 +137,7 @@ The chart includes pre-configured values files for different environments:
 ### Install with Custom Values
 
 ```bash
-helm install quiz-app ./deploy/helm/quiz-app \
+helm install quiz-app ./charts/application \
   --set backend.replicaCount=3 \
   --set frontend.replicaCount=3 \
   --set postgresql.primary.persistence.size=20Gi
@@ -146,7 +146,7 @@ helm install quiz-app ./deploy/helm/quiz-app \
 ### Install with External Database
 
 ```bash
-helm install quiz-app ./deploy/helm/quiz-app \
+helm install quiz-app ./charts/application \
   --set postgresql.enabled=false \
   --set backend.secrets.databaseUrl="postgresql://user:pass@external-db:5432/quizdb"
 ```
@@ -154,7 +154,7 @@ helm install quiz-app ./deploy/helm/quiz-app \
 ### Enable Autoscaling
 
 ```bash
-helm install quiz-app ./deploy/helm/quiz-app \
+helm install quiz-app ./charts/application \
   --set backend.autoscaling.enabled=true \
   --set backend.autoscaling.minReplicas=2 \
   --set backend.autoscaling.maxReplicas=10 \
@@ -164,7 +164,7 @@ helm install quiz-app ./deploy/helm/quiz-app \
 ### Enable Monitoring
 
 ```bash
-helm install quiz-app ./deploy/helm/quiz-app \
+helm install quiz-app ./charts/application \
   --set monitoring.enabled=true \
   --set monitoring.serviceMonitor.enabled=true \
   --set postgresql.metrics.enabled=true
@@ -176,12 +176,12 @@ helm install quiz-app ./deploy/helm/quiz-app \
 
 ```bash
 # Upgrade with new values
-helm upgrade quiz-app ./deploy/helm/quiz-app \
-  -f ./deploy/helm/quiz-app/values-prod.yaml \
+helm upgrade quiz-app ./charts/application \
+  -f ./charts/application/values-prod.yaml \
   --namespace quiz-app
 
 # Upgrade with specific image tags
-helm upgrade quiz-app ./deploy/helm/quiz-app \
+helm upgrade quiz-app ./charts/application \
   --set backend.image.tag=v1.1.0 \
   --set frontend.image.tag=v1.1.0
 ```
@@ -256,7 +256,7 @@ echo -n "my-super-secret-jwt-key" | kubectl create secret generic quiz-app-backe
 
 ```bash
 # Use helm-secrets plugin
-helm secrets install quiz-app ./deploy/helm/quiz-app -f secrets.yaml
+helm secrets install quiz-app ./charts/application -f secrets.yaml
 ```
 
 ### Network Policies
@@ -346,11 +346,11 @@ kubectl create configmap quiz-app-dashboards \
 
 ```bash
 # Lint the chart
-helm lint ./deploy/helm/quiz-app
+helm lint ./charts/application
 
 # Template the chart to check output
-helm template quiz-app ./deploy/helm/quiz-app \
-  -f ./deploy/helm/quiz-app/values-dev.yaml > output.yaml
+helm template quiz-app ./charts/application \
+  -f ./charts/application/values-dev.yaml > output.yaml
 ```
 
 ### Testing with Kind
@@ -363,7 +363,7 @@ kind create cluster --name quiz-test
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
 
 # Install the chart
-helm install quiz-app ./deploy/helm/quiz-app -f ./deploy/helm/quiz-app/values-dev.yaml
+helm install quiz-app ./charts/application -f ./charts/application/values-dev.yaml
 ```
 
 ## Support
