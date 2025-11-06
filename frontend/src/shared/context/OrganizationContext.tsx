@@ -4,6 +4,7 @@ import React, {
   useState,
   useCallback,
   useEffect,
+  useRef,
   ReactNode,
 } from 'react';
 import { Organization, OrganizationDashboard } from '../types';
@@ -15,10 +16,12 @@ interface OrganizationContextValue {
   currentOrganization: Organization | null;
   dashboard: OrganizationDashboard | null;
   isLoading: boolean;
+  error: string | null;
   setCurrentOrganization: (org: Organization | null) => void;
   loadOrganizations: () => Promise<void>;
   loadDashboard: () => Promise<void>;
   createOrganization: (name: string, description?: string) => Promise<Organization>;
+  clearError: () => void;
 }
 
 const OrganizationContext = createContext<OrganizationContextValue | undefined>(
@@ -27,7 +30,7 @@ const OrganizationContext = createContext<OrganizationContextValue | undefined>(
 
 /**
  * Organization Context Provider
- * Manages organization state and operations
+ * Manages organization state and operations with proper error handling
  */
 export function OrganizationProvider({ children }: { children: ReactNode }) {
   const { token } = useAuth();
@@ -35,11 +38,20 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
   const [currentOrganization, setCurrentOrganizationState] = useState<Organization | null>(null);
   const [dashboard, setDashboard] = useState<OrganizationDashboard | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Use ref to track if we've initialized to avoid unnecessary loads
+  const hasInitialized = useRef(false);
+
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
 
   const loadOrganizations = useCallback(async () => {
     if (!token) return;
     
     setIsLoading(true);
+    setError(null);
     try {
       const orgs = await organizationService.getMyOrganizations(token);
       setOrganizations(orgs);
@@ -52,9 +64,11 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
           : orgs[0];
         setCurrentOrganizationState(orgToSelect);
       }
-    } catch (error) {
-      // Error loading organizations - silently fail
-      // User can try again by refreshing
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'organization.errors.loadError';
+      setError(errorMessage);
+      // Notify user of the error
+      console.error('Failed to load organizations:', err);
     } finally {
       setIsLoading(false);
     }
@@ -63,15 +77,18 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
   const loadDashboard = useCallback(async () => {
     if (!token || !currentOrganization) return;
     
+    setError(null);
     try {
       const dashboardData = await organizationService.getOrganizationDashboard(
         token,
         currentOrganization.id
       );
       setDashboard(dashboardData);
-    } catch (error) {
-      // Error loading dashboard - silently fail
-      // Dashboard will show no data
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'organization.errors.dashboardFailed';
+      setError(errorMessage);
+      // Notify user of dashboard load failure
+      console.error('Failed to load dashboard:', err);
     }
   }, [token, currentOrganization]);
 
@@ -89,30 +106,40 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
     async (name: string, description?: string): Promise<Organization> => {
       if (!token) throw new Error('organization.errors.notAuthenticated');
       
-      const newOrg = await organizationService.createOrganization(
-        token,
-        name,
-        description
-      );
-      
-      // Reload organizations to include the new one
-      await loadOrganizations();
-      
-      return newOrg;
+      setError(null);
+      try {
+        const newOrg = await organizationService.createOrganization(
+          token,
+          name,
+          description
+        );
+        
+        // Reload organizations to include the new one
+        await loadOrganizations();
+        
+        return newOrg;
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'organization.errors.createFailed';
+        setError(errorMessage);
+        throw err;
+      }
     },
     [token, loadOrganizations]
   );
 
   // Load organizations on mount and when token changes
   useEffect(() => {
-    if (token) {
+    if (token && !hasInitialized.current) {
+      hasInitialized.current = true;
       loadOrganizations();
-    } else {
+    } else if (!token) {
+      hasInitialized.current = false;
       setOrganizations([]);
-      setCurrentOrganization(null);
+      setCurrentOrganizationState(null);
       setDashboard(null);
+      setError(null);
     }
-  }, [token, loadOrganizations, setCurrentOrganization]);
+  }, [token, loadOrganizations]);
 
   // Load dashboard when current organization changes
   useEffect(() => {
@@ -126,10 +153,12 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
     currentOrganization,
     dashboard,
     isLoading,
+    error,
     setCurrentOrganization,
     loadOrganizations,
     loadDashboard,
     createOrganization,
+    clearError,
   };
 
   return (

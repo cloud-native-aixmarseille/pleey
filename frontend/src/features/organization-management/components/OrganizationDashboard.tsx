@@ -1,6 +1,8 @@
 import React from 'react';
 import { useOrganization } from '../../../shared/context/OrganizationContext';
 import { Card, Container } from '../../../shared/components';
+import { StatsCard } from '../../../shared/components/stats/StatsCard';
+import { InfoItem } from '../../../shared/components/info/InfoItem';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -52,61 +54,30 @@ export function OrganizationDashboard() {
         {/* Stats Cards */}
         {dashboard && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 animate-slide-up">
-            <Card className="p-6 bg-gradient-to-br from-primary-50 to-primary-100 border-2 border-primary-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-primary-600 font-semibold text-sm mb-1">
-                    {t('organization.totalQuizzes')}
-                  </p>
-                  <p className="text-4xl font-black text-primary-700">
-                    {dashboard.stats.totalQuizzes}
-                  </p>
-                </div>
-                <div className="text-5xl opacity-20">📚</div>
-              </div>
-            </Card>
-
-            <Card className="p-6 bg-gradient-to-br from-secondary-50 to-secondary-100 border-2 border-secondary-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-secondary-600 font-semibold text-sm mb-1">
-                    {t('organization.gameSessions')}
-                  </p>
-                  <p className="text-4xl font-black text-secondary-700">
-                    {dashboard.stats.totalGameSessions}
-                  </p>
-                </div>
-                <div className="text-5xl opacity-20">🎮</div>
-              </div>
-            </Card>
-
-            <Card className="p-6 bg-gradient-to-br from-accent-50 to-accent-100 border-2 border-accent-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-accent-700 font-semibold text-sm mb-1">
-                    {t('organization.activeSessions')}
-                  </p>
-                  <p className="text-4xl font-black text-accent-800">
-                    {dashboard.stats.activeGameSessions}
-                  </p>
-                </div>
-                <div className="text-5xl opacity-20">🎯</div>
-              </div>
-            </Card>
-
-            <Card className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-purple-600 font-semibold text-sm mb-1">
-                    {t('organization.members')}
-                  </p>
-                  <p className="text-4xl font-black text-purple-700">
-                    {dashboard.stats.totalMembers}
-                  </p>
-                </div>
-                <div className="text-5xl opacity-20">👥</div>
-              </div>
-            </Card>
+            <StatsCard
+              label={t('organization.totalQuizzes')}
+              value={dashboard.stats.totalQuizzes}
+              icon="📚"
+              variant="primary"
+            />
+            <StatsCard
+              label={t('organization.gameSessions')}
+              value={dashboard.stats.totalGameSessions}
+              icon="🎮"
+              variant="secondary"
+            />
+            <StatsCard
+              label={t('organization.activeSessions')}
+              value={dashboard.stats.activeGameSessions}
+              icon="🎯"
+              variant="accent"
+            />
+            <StatsCard
+              label={t('organization.members')}
+              value={dashboard.stats.totalMembers}
+              icon="👥"
+              variant="purple"
+            />
           </div>
         )}
 
@@ -116,35 +87,23 @@ export function OrganizationDashboard() {
             {t('organization.organizationDetails')}
           </h2>
           <div className="space-y-3">
-            <div className="flex items-start gap-3">
-              <span className="text-2xl">📋</span>
-              <div>
-                <p className="text-sm text-light-700">{t('organization.organizationNameLabel')}</p>
-                <p className="font-semibold text-dark-800">
-                  {currentOrganization.name}
-                </p>
-              </div>
-            </div>
+            <InfoItem
+              icon="📋"
+              label={t('organization.organizationNameLabel')}
+              value={currentOrganization.name}
+            />
             {currentOrganization.description && (
-              <div className="flex items-start gap-3">
-                <span className="text-2xl">📝</span>
-                <div>
-                  <p className="text-sm text-light-700">{t('organization.descriptionLabel')}</p>
-                  <p className="font-semibold text-dark-800">
-                    {currentOrganization.description}
-                  </p>
-                </div>
-              </div>
+              <InfoItem
+                icon="📝"
+                label={t('organization.descriptionLabel')}
+                value={currentOrganization.description}
+              />
             )}
-            <div className="flex items-start gap-3">
-              <span className="text-2xl">📅</span>
-              <div>
-                <p className="text-sm text-light-700">{t('organization.created')}</p>
-                <p className="font-semibold text-dark-800">
-                  {new Date(currentOrganization.createdAt).toLocaleDateString()}
-                </p>
-              </div>
-            </div>
+            <InfoItem
+              icon="📅"
+              label={t('organization.created')}
+              value={new Date(currentOrganization.createdAt).toLocaleDateString()}
+            />
           </div>
         </Card>
       </Container>
