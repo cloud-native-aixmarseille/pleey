@@ -30,13 +30,12 @@ import { QuestionsController } from './questions.controller';
     GetAllQuizzesUseCase,
     GetQuizQuestionsUseCase,
     UpdateQuestionUseCase,
-    PrismaQuizRepository,
     PrismaQuestionRepository,
     PrismaOrganizationMemberRepository,
     PrismaGameSessionRepository,
     {
       provide: QuizRepositoryProvider,
-      useExisting: PrismaQuizRepository,
+      useClass: PrismaQuizRepository,
     },
     {
       provide: QuestionRepositoryProvider,

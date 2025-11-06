@@ -69,18 +69,16 @@ describe("QuizApp", () => {
 
   it("should handle successful login", async () => {
     const user = userEvent.setup();
-    const loginSpy = vi
-      .spyOn(authService, "login")
-      .mockResolvedValue({
-        token: "fake-token",
-        user: {
-          id: 1,
-          username: "testuser",
-          email: "test@example.com",
-          isAdmin: false,
-          avatarUrl: null,
-        },
-      });
+    const loginSpy = vi.spyOn(authService, "login").mockResolvedValue({
+      token: "fake-token",
+      user: {
+        id: 1,
+        username: "testuser",
+        email: "test@example.com",
+        isAdmin: false,
+        avatarUrl: null,
+      },
+    });
     vi.spyOn(organizationService, "getMyOrganizations").mockResolvedValue([]);
 
     renderApp();
@@ -111,9 +109,7 @@ describe("QuizApp", () => {
 
   it("should handle registration", async () => {
     const user = userEvent.setup();
-    const registerSpy = vi
-      .spyOn(authService, "register")
-      .mockResolvedValue();
+    const registerSpy = vi.spyOn(authService, "register").mockResolvedValue();
     vi.spyOn(organizationService, "getMyOrganizations").mockResolvedValue([]);
 
     renderApp();
@@ -138,10 +134,16 @@ describe("QuizApp", () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(registerSpy).toHaveBeenCalledWith("newuser", "new@example.com", "newpassword");
+      expect(registerSpy).toHaveBeenCalledWith(
+        "newuser",
+        "new@example.com",
+        "newpassword"
+      );
     });
 
-    expect(await screen.findByRole("button", { name: /sign in/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("button", { name: /sign in/i })
+    ).toBeInTheDocument();
   });
 
   // TODO: Fix this flaky integration test - login flow timing issues

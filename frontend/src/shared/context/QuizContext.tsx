@@ -4,6 +4,7 @@ import React, {
   useState,
   useCallback,
   ReactNode,
+  useTransition,
 } from "react";
 import { Quiz, Question } from "../../shared/types";
 import { container } from "../../shared/di/container";
@@ -14,6 +15,7 @@ interface QuizContextValue {
   quizzes: Quiz[];
   questionsByQuiz: QuestionsByQuiz;
   hasLoadedQuizzes: boolean;
+  isPending: boolean;
   loadQuizzes: (token: string) => Promise<void>;
   loadQuizQuestions: (token: string, quizId: number) => Promise<void>;
   createQuiz: (
@@ -38,16 +40,22 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [questionsByQuiz, setQuestionsByQuiz] = useState<QuestionsByQuiz>({});
   const [hasLoadedQuizzes, setHasLoadedQuizzes] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
-  const loadQuizzes = useCallback(async (token: string) => {
-    setHasLoadedQuizzes(false);
-    try {
-      const data = await container.getQuizzesUseCase.execute({ token });
-      setQuizzes(data);
-    } finally {
-      setHasLoadedQuizzes(true);
-    }
-  }, []);
+  const loadQuizzes = useCallback(
+    async (token: string) => {
+      setHasLoadedQuizzes(false);
+      try {
+        const data = await container.getQuizzesUseCase.execute({ token });
+        startTransition(() => {
+          setQuizzes(data);
+        });
+      } finally {
+        setHasLoadedQuizzes(true);
+      }
+    },
+    [startTransition]
+  );
 
   const loadQuizQuestions = useCallback(
     async (token: string, quizId: number) => {
@@ -55,12 +63,14 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         token,
         quizId,
       });
-      setQuestionsByQuiz((prev) => ({
-        ...prev,
-        [quizId]: data,
-      }));
+      startTransition(() => {
+        setQuestionsByQuiz((prev) => ({
+          ...prev,
+          [quizId]: data,
+        }));
+      });
     },
-    []
+    [startTransition]
   );
 
   const createQuiz = useCallback(
@@ -85,6 +95,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     quizzes,
     questionsByQuiz,
     hasLoadedQuizzes,
+    isPending,
     loadQuizzes,
     loadQuizQuestions,
     createQuiz,

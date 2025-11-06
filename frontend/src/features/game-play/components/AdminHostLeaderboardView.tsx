@@ -1,33 +1,90 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { LeaderboardEntry } from "../../../shared/types";
 import { Button, Card, Container } from "../../../shared/components";
 import Confetti from "./Confetti";
 
+type AnimationDelays = {
+  title: number;
+  firstPlace: number;
+  secondPlace: number;
+  thirdPlace: number;
+  remainingPlayers: number;
+  confettiStop: number;
+};
+
 interface AdminHostLeaderboardViewProps {
   leaderboard: LeaderboardEntry[];
+  animationDelays?: Partial<AnimationDelays>;
+  initialAnimationStage?: number;
+  disableConfetti?: boolean;
 }
 
-export default function AdminHostLeaderboardView({ 
-  leaderboard 
+const DEFAULT_ANIMATION_DELAYS: AnimationDelays = {
+  title: 500,
+  firstPlace: 1500,
+  secondPlace: 2500,
+  thirdPlace: 3500,
+  remainingPlayers: 4500,
+  confettiStop: 10000,
+};
+
+export default function AdminHostLeaderboardView({
+  leaderboard,
+  animationDelays,
+  initialAnimationStage,
+  disableConfetti = false,
 }: AdminHostLeaderboardViewProps) {
-  const [showConfetti, setShowConfetti] = useState(true);
-  const [animationStage, setAnimationStage] = useState(0);
+  const [showConfetti, setShowConfetti] = useState(!disableConfetti);
+  const [animationStage, setAnimationStage] = useState(
+    typeof initialAnimationStage === "number" ? initialAnimationStage : 0
+  );
   const navigate = useNavigate();
+  const delays = useMemo(
+    () => ({
+      ...DEFAULT_ANIMATION_DELAYS,
+      ...animationDelays,
+    }),
+    [animationDelays]
+  );
 
   useEffect(() => {
+    if (typeof initialAnimationStage === "number") {
+      setAnimationStage(initialAnimationStage);
+      setShowConfetti(!disableConfetti && initialAnimationStage < 5);
+      return;
+    }
+
     // Cinematic animation sequence for screen sharing
+    const schedule = (delay: number, callback: () => void) => {
+      if (delay <= 0) {
+        callback();
+        return null;
+      }
+
+      const timerId = window.setTimeout(callback, delay);
+      return timerId;
+    };
+
     const timers = [
-      setTimeout(() => setAnimationStage(1), 500), // Show title
-      setTimeout(() => setAnimationStage(2), 1500), // Show 1st place
-      setTimeout(() => setAnimationStage(3), 2500), // Show 2nd place
-      setTimeout(() => setAnimationStage(4), 3500), // Show 3rd place
-      setTimeout(() => setAnimationStage(5), 4500), // Show rest
-      setTimeout(() => setShowConfetti(false), 10000), // Stop confetti
+      schedule(delays.title, () => setAnimationStage(1)),
+      schedule(delays.firstPlace, () => setAnimationStage(2)),
+      schedule(delays.secondPlace, () => setAnimationStage(3)),
+      schedule(delays.thirdPlace, () => setAnimationStage(4)),
+      schedule(delays.remainingPlayers, () => setAnimationStage(5)),
+      disableConfetti
+        ? null
+        : schedule(delays.confettiStop, () => setShowConfetti(false)),
     ];
 
-    return () => timers.forEach((timer) => clearTimeout(timer));
-  }, []);
+    return () => {
+      timers.forEach((timer) => {
+        if (timer !== null) {
+          clearTimeout(timer);
+        }
+      });
+    };
+  }, [delays, initialAnimationStage, disableConfetti]);
 
   const podiumColors = {
     1: {
@@ -277,7 +334,7 @@ export default function AdminHostLeaderboardView({
                     <span>BACK TO ADMIN DASHBOARD</span>
                   </span>
                 </Button>
-                
+
                 <Button
                   variant="primary"
                   size="xl"

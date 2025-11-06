@@ -6,9 +6,12 @@ import { useQuizManagerContext } from "../../../application/app/context/QuizMana
 import { useGameSessionContext } from "../../../application/app/context/GameSessionContext";
 import { useAdminQuizActions } from "../../../application/app/hooks/useAdminQuizActions";
 import { useNotifications } from "../../../application/app/hooks/useNotifications";
+import { useTranslation } from "react-i18next";
+import { Card, Container } from "../../../shared/components";
 
 export function AdminRoute() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { notifyFromError } = useNotifications();
   const { token, isAdmin, isAuthenticated } = useAuthManagerContext();
   const {
@@ -19,6 +22,7 @@ export function AdminRoute() {
     addQuestion,
     deleteQuiz,
     hasLoadedQuizzes,
+    isPending,
   } = useQuizManagerContext();
   const { handleLaunchQuiz } = useGameSessionContext();
 
@@ -51,6 +55,20 @@ export function AdminRoute() {
       return <Navigate to="/auth/login" replace />;
     }
 
+    if (!hasLoadedQuizzes || isPending) {
+      return (
+        <div className="min-h-screen bg-game-gradient flex items-center justify-center p-6">
+          <Container size="md">
+            <Card className="p-10 text-center border-2 border-primary-500/50 glass-effect animate-pulse">
+              <span className="font-display text-2xl uppercase tracking-wider text-accent-400">
+                {t("common.loading")}
+              </span>
+            </Card>
+          </Container>
+        </div>
+      );
+    }
+
     return (
       <AdminDashboard
         quizzes={quizzes}
@@ -68,6 +86,9 @@ export function AdminRoute() {
     handleManageQuiz,
     handleDeleteQuiz,
     handleLaunchQuiz,
+    hasLoadedQuizzes,
+    isPending,
+    t,
   ]);
 
   return routeElement;

@@ -217,6 +217,42 @@ npm run test:ui
 - Hook tests: `src/**/__tests__/**/*.test.ts`
 - Integration tests: `src/**/__tests__/**/*.integration.test.tsx`
 
+#### React 19 Testing Best Practices
+
+The frontend uses **React 19** with **Testing Library 16.x**, which fully supports concurrent features:
+
+**Key Changes from React 18 Testing:**
+- ✅ **Automatic act() wrapping**: Testing Library handles concurrent updates automatically
+- ✅ **Improved async utilities**: `waitFor`, `findBy*` work seamlessly with React 19
+- ✅ **StrictMode testing**: All tests run with StrictMode enabled
+- ✅ **No legacy warnings**: Removed React 18 migration warnings
+
+**Testing Concurrent Features:**
+```typescript
+import { render, screen, waitFor } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+
+describe('Component with transitions', () => {
+  it('should handle concurrent updates', async () => {
+    render(<SearchComponent />);
+    
+    // Testing Library automatically handles React 19's automatic batching
+    const input = screen.getByRole('textbox');
+    await userEvent.type(input, 'search term');
+    
+    // No need for manual act() - it's automatic!
+    await waitFor(() => {
+      expect(screen.getByText('Results')).toBeInTheDocument();
+    });
+  });
+});
+```
+
+**React 19 Specific Test Setup:**
+- `globalThis.IS_REACT_ACT_ENVIRONMENT = true` - Enables automatic act() handling
+- Suppresses expected React 19 warnings in test output
+- See `src/test/setup.js` for complete configuration
+
 ### E2E Tests (Playwright)
 
 ```bash

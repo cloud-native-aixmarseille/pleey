@@ -14,10 +14,14 @@ const fetchMock = globalThis.fetch as unknown as ReturnType<typeof vi.fn>;
 
 describe('GameService', () => {
   const mockToken = 'mock-jwt-token';
+  const fetchMock = vi.fn();
+
+  // Ensure fetch exists on the global scope for the tests
+  globalThis.fetch = fetchMock as unknown as typeof fetch;
 
   beforeEach(() => {
-  vi.clearAllMocks();
-  fetchMock.mockReset();
+    vi.clearAllMocks();
+    fetchMock.mockReset();
   });
 
   describe('createSession', () => {
@@ -44,6 +48,15 @@ describe('GameService', () => {
       );
       expect(result).toEqual(mockSession);
       expect(result.pin).toBe('123456');
+    });
+
+    it('should throw translated error when API fails', async () => {
+      fetchMock.mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({ message: 'unit.test.error' })
+      });
+
+      await expect(gameService.createSession(mockToken, 1)).rejects.toThrow('unit.test.error');
     });
   });
 

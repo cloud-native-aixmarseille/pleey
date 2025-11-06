@@ -28,6 +28,34 @@ make install
 
 ---
 
+## 🛠️ Tech Stack
+
+### Frontend
+- **React 19**: Modern UI framework with concurrent features
+- **Vite 5**: Fast build tool with HMR
+- **Tailwind CSS 3**: Utility-first CSS framework
+- **React Router 6**: Declarative routing
+- **Socket.io Client 4**: Real-time communication
+- **Vitest**: Fast unit testing
+- **Testing Library 16**: React component testing
+
+### Backend
+- **NestJS 11**: Progressive Node.js framework
+- **Prisma 6**: Type-safe ORM
+- **PostgreSQL**: Relational database
+- **Socket.io**: WebSocket server
+- **JWT**: Authentication
+- **OpenTelemetry**: Observability
+
+### DevOps
+- **Docker**: Containerization
+- **Nginx**: Web server & reverse proxy
+- **Traefik**: HTTP reverse proxy and load balancer
+- **Prometheus**: Metrics collection
+- **Grafana**: Metrics visualization
+
+---
+
 ## 📋 Essential Make Commands
 
 ### Daily Operations

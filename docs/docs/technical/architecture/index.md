@@ -18,7 +18,7 @@ This application follows modern, maintainable architectural principles:
 - **Stateless backend**: JWT authentication, horizontal scalability is possible
 
 ### Modern Technologies
-- **React 18**: Modern UI framework with hooks and concurrent features
+- **React 19**: Modern UI framework with enhanced concurrent features, automatic batching, and improved performance
 - **Vite**: Fast, modern build tool (replacement for Webpack/CRA)
 - **Tailwind CSS**: Utility-first CSS framework, maintainable and performant
 - **NestJS**: Progressive Node.js framework for building efficient, scalable server-side applications
