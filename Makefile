@@ -1,7 +1,7 @@
 # Makefile for QuizMaster
 # Using Docker Compose V2
 
-.PHONY: help setup build up down restart logs clean clean-all backup restore seed ps rebuild update monitoring-up monitoring-down monitoring-logs grafana prometheus docs test test-watch test-ui test-cov test-e2e-smoke test-e2e-ui shell db-shell traefik dev prod install health _test-scope _run-node _run-e2e
+.PHONY: help setup build up down restart logs clean clean-all backup restore seed ps rebuild monitoring-up monitoring-down monitoring-logs grafana prometheus test test-watch test-ui test-cov test-e2e-smoke test-e2e-ui shell db-shell traefik install health _test-scope _run-node _run-e2e
 
 # Docker Compose command (V2)
 COMPOSE := docker compose
@@ -16,6 +16,26 @@ help: ## Display this help
 	@echo "$(GREEN)QuizMaster - Available commands:$(NC)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-15s$(NC) %s\n", $$1, $$2}'
 
+install: setup build up migrate seed openapi ## Complete installation (first time)
+	@echo "$(GREEN)═══════════════════════════════════════$(NC)"
+	@echo "$(GREEN)✓ Installation completed successfully!$(NC)"
+	@echo "$(GREEN)═══════════════════════════════════════$(NC)"
+	@echo ""
+	@echo "Application available at:"
+	@echo "  Frontend: $(YELLOW)http://frontend.quiz-master.localhost$(NC)"
+	@echo "  Backend:  $(YELLOW)http://backend.quiz-master.localhost$(NC)"
+	@echo "  Traefik:  $(YELLOW)http://localhost:8080$(NC)"
+	@echo ""
+	@echo "Default admin account:"
+	@echo "  Email:    $(YELLOW)admin@quiz.com$(NC)"
+	@echo "  Password: $(YELLOW)admin123$(NC)"
+	@echo ""
+	@echo "Test player account:"
+	@echo "  Email:    $(YELLOW)player@quiz.com$(NC)"
+	@echo "  Password: $(YELLOW)player123$(NC)"
+	@echo ""
+	@echo "$(YELLOW)⚠️  Don't forget to change JWT_SECRET in .env !$(NC)"
+
 setup: ## Initial setup (first installation)
 	@echo "$(GREEN)Configuring environment...$(NC)"
 	@cp -n .env.example .env || true
@@ -27,10 +47,7 @@ build: ## Build Docker images
 
 up: ## Start the application
 	@echo "$(GREEN)Starting application...$(NC)"
-	$(COMPOSE) up --build -d
-	@echo "$(GREEN)Running database migrations...$(NC)"
-	@$(COMPOSE) exec -T backend npm run db:migrate
-	@echo "$(GREEN)✓ Database migrations applied$(NC)"
+	$(COMPOSE) up -d
 	@echo "$(GREEN)Waiting for backend OpenAPI endpoint...$(NC)"
 	@ATTEMPTS=0; \
 	until $(COMPOSE) exec -T backend sh -c "curl -sf http://localhost:3001/api/openapi.json >/dev/null"; do \
@@ -43,14 +60,25 @@ up: ## Start the application
 		sleep 2; \
 	done
 	@echo "$(GREEN)Backend API ready$(NC)"
-	@echo "$(GREEN)Regenerating OpenAPI types...$(NC)"
-	@$(COMPOSE) exec -T frontend npx --yes openapi-typescript@7.10.1 http://backend:3001/api/openapi.json --output src/shared/api/openapi-schema.ts
-	@echo "$(GREEN)✓ OpenAPI types updated$(NC)"
-
 	@echo "$(GREEN)✓ Application started$(NC)"
 	@echo "Frontend: http://frontend.quiz-master.localhost"
 	@echo "Backend: http://backend.quiz-master.localhost"
 	@echo "Traefik Dashboard: http://localhost:8080"
+
+migrate: ## Apply database migrations
+	@echo "$(GREEN)Applying database migrations...$(NC)"
+	@$(COMPOSE) exec -T backend npm run db:migrate
+	@echo "$(GREEN)✓ Migrations applied$(NC)"
+
+seed: ## Seed the database
+	@echo "$(GREEN)Seeding database...$(NC)"
+	@$(COMPOSE) exec -T backend npm run db:seed
+	@echo "$(GREEN)✓ Database seeded$(NC)"
+
+openapi: ## Generate OpenAPI types
+	@echo "$(GREEN)Generating OpenAPI documentation...$(NC)"
+	@$(COMPOSE) exec -T frontend npm run openapi:generate
+	@echo "$(GREEN)✓ OpenAPI documentation generated$(NC)"
 
 down: ## Stop the application
 	@echo "$(YELLOW)Stopping application...$(NC)"
@@ -138,38 +166,6 @@ health: ## Check application health
 	@curl -s http://backend.quiz-master.localhost/health/live | jq '.' || echo "$(YELLOW)Backend unavailable$(NC)"
 	@curl -s -o /dev/null -w "Frontend: %{http_code}\n" http://frontend.quiz-master.localhost/
 
-install: setup build up seed ## Complete installation (first time)
-	@echo "$(GREEN)═══════════════════════════════════════$(NC)"
-	@echo "$(GREEN)✓ Installation completed successfully!$(NC)"
-	@echo "$(GREEN)═══════════════════════════════════════$(NC)"
-	@echo ""
-	@echo "Application available at:"
-	@echo "  Frontend: $(YELLOW)http://frontend.quiz-master.localhost$(NC)"
-	@echo "  Backend:  $(YELLOW)http://backend.quiz-master.localhost$(NC)"
-	@echo "  Traefik:  $(YELLOW)http://localhost:8080$(NC)"
-	@echo ""
-	@echo "Default admin account:"
-	@echo "  Email:    $(YELLOW)admin@quiz.com$(NC)"
-	@echo "  Password: $(YELLOW)admin123$(NC)"
-	@echo ""
-	@echo "Test player account:"
-	@echo "  Email:    $(YELLOW)player@quiz.com$(NC)"
-	@echo "  Password: $(YELLOW)player123$(NC)"
-	@echo ""
-	@echo "$(YELLOW)⚠️  Don't forget to change JWT_SECRET in .env !$(NC)"
-
-dev: ## Development mode (real-time logs)
-	$(COMPOSE) up
-
-prod: build up ## Production deployment
-	@echo "$(GREEN)✓ Deployed to production$(NC)"
-
-update: ## Update the application
-	@echo "$(GREEN)Updating...$(NC)"
-	git pull
-	$(MAKE) rebuild
-	@echo "$(GREEN)✓ Update completed$(NC)"
-
 monitoring-up: ## Start with monitoring
 	@echo "$(GREEN)Starting with monitoring...$(NC)"
 	$(COMPOSE) -f compose.yaml -f compose.monitoring.yaml up -d
@@ -190,14 +186,6 @@ grafana: ## Open Grafana
 prometheus: ## Open Prometheus
 	@echo "$(GREEN)Opening Prometheus...$(NC)"
 	@command -v xdg-open >/dev/null 2>&1 && xdg-open http://localhost:9090 || open http://localhost:9090 || echo "Open http://localhost:9090"
-
-docs: ## Open documentation (Docusaurus)
-	@echo "$(GREEN)Opening documentation...$(NC)"
-	@if [ ! -d "docs/node_modules" ]; then \
-		echo "$(YELLOW)Installing documentation dependencies...$(NC)"; \
-		cd docs && npm install; \
-	fi
-	@cd docs && npm run start
 
 # ==========================================
 # Testing Commands
