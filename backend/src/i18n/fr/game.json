@@ -16,7 +16,9 @@
     "sessionCreateFailed": "Échec de la création de la session",
     "activeSessionsFetchFailed": "Échec de la récupération des sessions actives",
     "sessionStopFailed": "Échec de l'arrêt de la session",
-    "sessionResumeFailed": "Échec de la reprise de la session"
+    "sessionResumeFailed": "Échec de la reprise de la session",
+    "quizNotFound": "Quiz introuvable",
+    "activeSessionExists": "Vous avez déjà une session de jeu active. Veuillez l'arrêter ou la terminer avant d'en démarrer une nouvelle."
   },
   "success": {
     "gameCreated": "Session de jeu créée avec succès",
