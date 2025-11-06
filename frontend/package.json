@@ -11,7 +11,7 @@
     "test": "npx vitest run --coverage",
     "test:watch": "npx vitest",
     "test:ui": "npx vitest --ui",
-    "openapi:generate": "openapi-typescript http://backend.quiz-master.localhost/api/openapi.json --output src/shared/api/openapi-schema.ts"
+    "openapi:generate": "openapi-typescript http://backend:3001/api/openapi.json --output src/shared/api/openapi-schema.ts"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.7",
