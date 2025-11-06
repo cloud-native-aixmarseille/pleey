@@ -5,6 +5,7 @@ interface StartControlsProps {
   readonly isAdmin: boolean;
   readonly cannotStartGame: boolean;
   readonly onStartGame: () => void;
+  readonly onBackToAdmin?: () => void;
   readonly startButtonDescription?: string;
   readonly startHintId: string;
   readonly questionHintId: string;
@@ -16,6 +17,7 @@ export default function StartControls({
   isAdmin,
   cannotStartGame,
   onStartGame,
+  onBackToAdmin,
   startButtonDescription,
   startHintId,
   questionHintId,
@@ -45,7 +47,24 @@ export default function StartControls({
   }
 
   return (
-    <>
+    <div className="space-y-3">
+      {onBackToAdmin && (
+        <Button
+          variant="secondary"
+          size="lg"
+          fullWidth
+          onClick={onBackToAdmin}
+          className="retro-shadow font-display text-sm sm:text-base hover:scale-105 transform transition-all"
+        >
+          <span className="flex items-center justify-center gap-2">
+            <span className="text-lg sm:text-xl" aria-hidden="true">
+              ←
+            </span>
+            <span>{t("game.backToAdmin", "BACK TO ADMIN PANEL").toUpperCase()}</span>
+          </span>
+        </Button>
+      )}
+
       <Button
         variant="success"
         size="xl"
@@ -91,6 +110,6 @@ export default function StartControls({
           </p>
         </div>
       )}
-    </>
+    </div>
   );
 }
