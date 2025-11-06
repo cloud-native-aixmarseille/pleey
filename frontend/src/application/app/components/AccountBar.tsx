@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Avatar, Button, LanguageSwitcher } from "../../../shared/components";
@@ -13,11 +13,18 @@ export function AccountBar() {
   const location = useLocation();
   const { t } = useTranslation();
   const { user, isAuthenticated, clearSession } = useAuthManagerContext();
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const handleLogout = useCallback(() => {
     clearSession();
     navigate("/auth/login", { replace: true });
+    setIsOpen(false);
   }, [clearSession, navigate]);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname]);
 
   const navigationItems = useMemo(() => {
     if (!user) {

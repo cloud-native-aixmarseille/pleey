@@ -46,10 +46,10 @@ export function useAppLifecycle({
       return;
     }
 
-    refreshProfile().catch(() => {
-      // Suppress errors here, the user will be prompted on-demand when interacting.
+    refreshProfile().catch((error) => {
+      notifyFromError(error, "profile.errors.loadFailed");
     });
-  }, [refreshProfile, token]);
+  }, [refreshProfile, token, notifyFromError]);
 
   useEffect(() => {
     if (!user?.isAdmin || !token) {

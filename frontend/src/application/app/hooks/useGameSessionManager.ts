@@ -3,8 +3,8 @@ import type { NavigateFunction } from "react-router-dom";
 import { gameService } from "../../../domains/game/game.service";
 import { useGameSocket } from "../../../shared/hooks/useGameSocket";
 import { useTimer } from "../../../shared/hooks/useTimer";
-import type { Question, Quiz, User } from "../../../shared/types";
 import type { ToastVariant } from "../context/NotificationContext";
+import type { Question, User } from "../../../shared/types";
 
 type QuestionsByQuiz = Record<number, Question[]>;
 
@@ -91,9 +91,10 @@ export function useGameSessionManager({
         // Stop any active sessions before creating a new one
         const activeSessions = await gameService.getActiveSessions(token);
         for (const session of activeSessions) {
-          if (typeof session.sessionId === "number") {
-            await gameService.stopSession(token, session.sessionId);
+          if (!session.sessionId) {
+            continue;
           }
+          await gameService.stopSession(token, session.sessionId);
         }
 
         const data = await gameService.createSession(token, quizId);

@@ -220,6 +220,10 @@
       "network": "Erreur réseau. Vérifiez votre connexion et réessayez."
     }
   },
+  "accountBar": {
+    "openMenu": "Ouvrir le menu du compte",
+    "closeMenu": "Fermer le menu du compte"
+  },
   "organization": {
     "title": "Organisation",
     "selectOrganization": "Sélectionner une organisation",
