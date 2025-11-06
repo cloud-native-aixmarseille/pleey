@@ -69,11 +69,30 @@ make test-cov          # Coverage reports
 
 📘 **For more details**: See [Quick Start Guide](docs/docs/functional/quickstart.md)
 
+### Kubernetes Deployment
+
+Deploy QuizMaster on Kubernetes using Helm:
+
+```bash
+# Add Bitnami repository
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+
+# Install the chart
+helm install quiz-app ./deploy/helm/quiz-app \
+  -f ./deploy/helm/quiz-app/values-prod.yaml \
+  --namespace quiz-app \
+  --create-namespace
+```
+
+📘 **For complete Kubernetes guide**: See [Kubernetes Deployment](docs/docs/technical/kubernetes.md)
+
 ## 🛠️ Tech Stack
 
 **Backend:** NestJS + Prisma ORM + PostgreSQL + Socket.io + JWT  
 **Frontend:** React 18 + Vite + Tailwind CSS + WebSockets  
-**DevOps:** Docker Compose + Traefik + Nginx + Prometheus + Grafana
+**DevOps:** Docker Compose + Traefik + Nginx + Prometheus + Grafana  
+**Kubernetes:** Helm Chart + NGINX Ingress + cert-manager
 
 📘 **For complete architecture**: See [Architecture](docs/docs/technical/architecture/index.md)
 
@@ -88,6 +107,7 @@ Complete documentation is available in the `/docs` folder via Docusaurus.
 ### 🛠️ For Developers
 - **[Architecture](docs/docs/technical/architecture/index.md)** - System architecture
 - **[Docker Guide](docs/docs/technical/docker-guide.md)** - Docker usage
+- **[Kubernetes](docs/docs/technical/kubernetes.md)** - Kubernetes deployment with Helm
 - **[Testing](docs/docs/technical/testing.md)** - Testing guide
 - **[Design System](docs/docs/technical/design-system.md)** - Cyber Arcade design system
 - **[Deployment](docs/docs/technical/deployment.md)** - Deployment checklist
