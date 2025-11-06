@@ -25,7 +25,7 @@ export class QuizService {
     });
     
     if (!response.ok) {
-      throw new Error('Failed to create quiz');
+      throw new Error('errors.createQuizFailed');
     }
     
     return await response.json();

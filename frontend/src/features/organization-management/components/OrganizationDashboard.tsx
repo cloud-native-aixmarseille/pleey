@@ -17,10 +17,10 @@ export function OrganizationDashboard() {
         <Card className="p-8 text-center">
           <div className="text-6xl mb-4">🏢</div>
           <h3 className="text-2xl font-bold text-dark-800 mb-2">
-            No Organization Selected
+            {t('organization.noOrganizationSelected')}
           </h3>
           <p className="text-light-700">
-            Please select an organization to view the dashboard
+            {t('organization.selectToView')}
           </p>
         </Card>
       </div>
@@ -56,7 +56,7 @@ export function OrganizationDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-primary-600 font-semibold text-sm mb-1">
-                    Total Quizzes
+                    {t('organization.totalQuizzes')}
                   </p>
                   <p className="text-4xl font-black text-primary-700">
                     {dashboard.stats.totalQuizzes}
@@ -70,7 +70,7 @@ export function OrganizationDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-secondary-600 font-semibold text-sm mb-1">
-                    Game Sessions
+                    {t('organization.gameSessions')}
                   </p>
                   <p className="text-4xl font-black text-secondary-700">
                     {dashboard.stats.totalGameSessions}
@@ -84,7 +84,7 @@ export function OrganizationDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-accent-700 font-semibold text-sm mb-1">
-                    Active Sessions
+                    {t('organization.activeSessions')}
                   </p>
                   <p className="text-4xl font-black text-accent-800">
                     {dashboard.stats.activeGameSessions}
@@ -98,7 +98,7 @@ export function OrganizationDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-purple-600 font-semibold text-sm mb-1">
-                    Members
+                    {t('organization.members')}
                   </p>
                   <p className="text-4xl font-black text-purple-700">
                     {dashboard.stats.totalMembers}
@@ -113,13 +113,13 @@ export function OrganizationDashboard() {
         {/* Organization Info */}
         <Card className="p-6 animate-fade-in">
           <h2 className="text-2xl font-bold text-dark-800 mb-4">
-            Organization Details
+            {t('organization.organizationDetails')}
           </h2>
           <div className="space-y-3">
             <div className="flex items-start gap-3">
               <span className="text-2xl">📋</span>
               <div>
-                <p className="text-sm text-light-700">Organization Name</p>
+                <p className="text-sm text-light-700">{t('organization.organizationNameLabel')}</p>
                 <p className="font-semibold text-dark-800">
                   {currentOrganization.name}
                 </p>
@@ -129,7 +129,7 @@ export function OrganizationDashboard() {
               <div className="flex items-start gap-3">
                 <span className="text-2xl">📝</span>
                 <div>
-                  <p className="text-sm text-light-700">Description</p>
+                  <p className="text-sm text-light-700">{t('organization.descriptionLabel')}</p>
                   <p className="font-semibold text-dark-800">
                     {currentOrganization.description}
                   </p>
@@ -139,7 +139,7 @@ export function OrganizationDashboard() {
             <div className="flex items-start gap-3">
               <span className="text-2xl">📅</span>
               <div>
-                <p className="text-sm text-light-700">Created</p>
+                <p className="text-sm text-light-700">{t('organization.created')}</p>
                 <p className="font-semibold text-dark-800">
                   {new Date(currentOrganization.createdAt).toLocaleDateString()}
                 </p>

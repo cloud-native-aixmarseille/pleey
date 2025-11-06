@@ -53,7 +53,8 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
         setCurrentOrganizationState(orgToSelect);
       }
     } catch (error) {
-      console.error('Failed to load organizations:', error);
+      // Error loading organizations - silently fail
+      // User can try again by refreshing
     } finally {
       setIsLoading(false);
     }
@@ -69,7 +70,8 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
       );
       setDashboard(dashboardData);
     } catch (error) {
-      console.error('Failed to load dashboard:', error);
+      // Error loading dashboard - silently fail
+      // Dashboard will show no data
     }
   }, [token, currentOrganization]);
 
@@ -85,7 +87,7 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
 
   const createOrganization = useCallback(
     async (name: string, description?: string): Promise<Organization> => {
-      if (!token) throw new Error('Not authenticated');
+      if (!token) throw new Error('organization.errors.notAuthenticated');
       
       const newOrg = await organizationService.createOrganization(
         token,

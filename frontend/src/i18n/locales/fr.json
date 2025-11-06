@@ -56,7 +56,8 @@
     "manage": "Gérer",
     "launch": "Lancer",
     "promptQuizTitle": "Titre du quiz:",
-    "promptQuizDescription": "Description:"
+    "promptQuizDescription": "Description:",
+    "selectOrganizationFirst": "Veuillez d'abord sélectionner une organisation"
   },
   "quiz": {
     "title": "Quiz",
@@ -181,10 +182,43 @@
     "confirm": "Confirmer",
     "cancel": "Annuler"
   },
+  "organization": {
+    "title": "Organisation",
+    "selectOrganization": "Sélectionner une organisation",
+    "noOrganizationSelected": "Aucune organisation sélectionnée",
+    "selectToView": "Veuillez sélectionner une organisation pour afficher le tableau de bord",
+    "createNew": "Créer une nouvelle organisation",
+    "organizationName": "Nom de l'organisation",
+    "organizationNameRequired": "Nom de l'organisation *",
+    "description": "Description",
+    "descriptionOptional": "Description (Optionnelle)",
+    "createOrganization": "Créer une organisation",
+    "creating": "Création...",
+    "totalQuizzes": "Total Quiz",
+    "gameSessions": "Sessions de jeu",
+    "activeSessions": "Sessions actives",
+    "members": "Membres",
+    "organizationDetails": "Détails de l'organisation",
+    "organizationNameLabel": "Nom de l'organisation",
+    "descriptionLabel": "Description",
+    "created": "Créé le",
+    "enterOrganizationName": "Entrez le nom de l'organisation",
+    "enterOrganizationDescription": "Entrez la description de l'organisation",
+    "errors": {
+      "fetchFailed": "Échec du chargement des organisations",
+      "createFailed": "Échec de la création de l'organisation",
+      "dashboardFailed": "Échec du chargement du tableau de bord de l'organisation",
+      "addMemberFailed": "Échec de l'ajout du membre",
+      "removeMemberFailed": "Échec de la suppression du membre",
+      "notAuthenticated": "Non authentifié",
+      "loadError": "Échec du chargement des organisations"
+    }
+  },
   "errors": {
     "registrationSuccess": "Inscription réussie ! Connectez-vous.",
     "registrationError": "Erreur lors de l'inscription",
     "unableToLoadQuestions": "Impossible de charger les questions pour ce quiz. Veuillez réessayer.",
-    "addAtLeastOneQuestion": "Ajoutez au moins une question avant de démarrer ce jeu."
+    "addAtLeastOneQuestion": "Ajoutez au moins une question avant de démarrer ce jeu.",
+    "createQuizFailed": "Échec de la création du quiz. Veuillez réessayer."
   }
 }

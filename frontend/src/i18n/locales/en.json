@@ -56,7 +56,8 @@
     "manage": "Manage",
     "launch": "Launch",
     "promptQuizTitle": "Quiz title:",
-    "promptQuizDescription": "Description:"
+    "promptQuizDescription": "Description:",
+    "selectOrganizationFirst": "Please select an organization first"
   },
   "quiz": {
     "title": "Quiz",
@@ -181,10 +182,43 @@
     "confirm": "Confirm",
     "cancel": "Cancel"
   },
+  "organization": {
+    "title": "Organization",
+    "selectOrganization": "Select Organization",
+    "noOrganizationSelected": "No Organization Selected",
+    "selectToView": "Please select an organization to view the dashboard",
+    "createNew": "Create New Organization",
+    "organizationName": "Organization Name",
+    "organizationNameRequired": "Organization Name *",
+    "description": "Description",
+    "descriptionOptional": "Description (Optional)",
+    "createOrganization": "Create Organization",
+    "creating": "Creating...",
+    "totalQuizzes": "Total Quizzes",
+    "gameSessions": "Game Sessions",
+    "activeSessions": "Active Sessions",
+    "members": "Members",
+    "organizationDetails": "Organization Details",
+    "organizationNameLabel": "Organization Name",
+    "descriptionLabel": "Description",
+    "created": "Created",
+    "enterOrganizationName": "Enter organization name",
+    "enterOrganizationDescription": "Enter organization description",
+    "errors": {
+      "fetchFailed": "Failed to fetch organizations",
+      "createFailed": "Failed to create organization",
+      "dashboardFailed": "Failed to fetch organization dashboard",
+      "addMemberFailed": "Failed to add member",
+      "removeMemberFailed": "Failed to remove member",
+      "notAuthenticated": "Not authenticated",
+      "loadError": "Failed to load organizations"
+    }
+  },
   "errors": {
     "registrationSuccess": "Registration successful! Please log in.",
     "registrationError": "Error during registration",
     "unableToLoadQuestions": "Unable to load questions for this quiz. Please try again.",
-    "addAtLeastOneQuestion": "Add at least one question before starting this game."
+    "addAtLeastOneQuestion": "Add at least one question before starting this game.",
+    "createQuizFailed": "Failed to create quiz. Please try again."
   }
 }
