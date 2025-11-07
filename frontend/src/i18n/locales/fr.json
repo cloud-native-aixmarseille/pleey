@@ -93,7 +93,15 @@
     "promptQuizTitle": "Titre du quiz:",
     "promptQuizDescription": "Description:",
     "selectOrganizationFirst": "Veuillez d'abord sélectionner une organisation",
-    "confirmDeleteQuiz": "Voulez-vous vraiment supprimer \"{{title}}\" ? Cette action est irréversible."
+    "confirmDeleteQuiz": "Voulez-vous vraiment supprimer \"{{title}}\" ? Cette action est irréversible.",
+    "createQuizModalTitle": "Créer un nouveau quiz",
+    "createQuizModalDescription": "Donnez un nom néon à votre défi et ajoutez une description facultative.",
+    "createQuizSuccess": "Quiz créé avec succès.",
+    "deleteQuizSuccess": "Quiz supprimé avec succès.",
+    "deleteQuizModalTitle": "Supprimer le quiz",
+    "deleteQuizModalDescription": "Cela supprimera \"{{title}}\" ainsi que toutes ses questions.",
+    "deleteQuizModalWarning": "Cette action est irréversible.",
+    "confirmDelete": "Supprimer le quiz"
   },
   "quiz": {
     "title": "Quiz",
@@ -147,6 +155,23 @@
     },
     "errors": {
       "quizHasActiveSession": "Vous ne pouvez pas supprimer ce quiz tant qu'une session est active."
+    },
+    "saveChanges": "Enregistrer les modifications",
+    "optionPlaceholder": "Saisissez l'option {{option}}",
+    "formErrors": {
+      "questionRequired": "Saisissez le texte de la question avant d'enregistrer.",
+      "timeLimitPositive": "Le temps limite doit être supérieur à zéro.",
+      "pointsPositive": "Les points doivent être supérieurs à zéro.",
+      "optionsRequired": "Les options A et B sont requises pour une question à choix multiple.",
+      "correctAnswerRequired": "Choisissez la réponse correcte pour cette question."
+    },
+    "modals": {
+      "createTitle": "Ajouter une question",
+      "editTitle": "Modifier la question",
+      "description": "Configurez le contenu, le type et le score de cette question.",
+      "deleteTitle": "Supprimer la question",
+      "deleteDescription": "Cette question sera retirée du quiz.",
+      "deletePrompt": "Voulez-vous vraiment supprimer \"{{question}}\" ?"
     }
   },
   "game": {
@@ -233,6 +258,8 @@
     "logout": "Déconnexion",
     "confirm": "Confirmer",
     "cancel": "Annuler",
+    "dismiss": "Fermer la notification",
+    "close": "Fermer",
     "errors": {
       "network": "Erreur réseau. Vérifiez votre connexion et réessayez."
     }

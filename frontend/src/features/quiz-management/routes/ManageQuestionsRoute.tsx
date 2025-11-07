@@ -78,6 +78,7 @@ export function ManageQuestionsRoute() {
       notify("quiz.success.questionCreated", "success");
     } catch (error) {
       notifyFromError(error, "errors.unableToLoadQuestions");
+      throw error;
     }
   };
 
@@ -91,6 +92,7 @@ export function ManageQuestionsRoute() {
       notify("quiz.success.questionDeleted", "success");
     } catch (error) {
       notifyFromError(error, "errors.questionDeleteFailed");
+      throw error;
     }
   };
 
@@ -107,6 +109,7 @@ export function ManageQuestionsRoute() {
       notify("quiz.success.questionUpdated", "success");
     } catch (error) {
       notifyFromError(error, "errors.questionUpdateFailed");
+      throw error;
     }
   };
 

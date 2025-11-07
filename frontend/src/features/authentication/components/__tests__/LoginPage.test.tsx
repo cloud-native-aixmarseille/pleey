@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import LoginPage from "../LoginPage";
+import { NotificationProvider } from "../../../../application/app/context/NotificationContext";
 
 const mockNavigate = vi.fn();
 
@@ -20,9 +21,19 @@ describe("LoginPage", () => {
     mockNavigate.mockReset();
   });
 
+  const renderLoginPage = (
+    onLogin: (email: string, password: string) => Promise<void>
+  ) => {
+    return render(
+      <NotificationProvider>
+        <LoginPage onLogin={onLogin} />
+      </NotificationProvider>
+    );
+  };
+
   it("should render login form", () => {
     const mockLogin = vi.fn();
-    render(<LoginPage onLogin={mockLogin} />);
+    renderLoginPage(mockLogin);
 
     expect(screen.getByText("Login")).toBeInTheDocument();
     expect(screen.getByLabelText("Email")).toBeInTheDocument();
@@ -36,7 +47,7 @@ describe("LoginPage", () => {
     const user = userEvent.setup();
     const mockLogin = vi.fn().mockResolvedValue(undefined);
 
-    render(<LoginPage onLogin={mockLogin} />);
+    renderLoginPage(mockLogin);
 
     const emailInput = screen.getByLabelText("Email");
     const passwordInput = screen.getByLabelText("Password");
@@ -57,20 +68,18 @@ describe("LoginPage", () => {
       .fn()
       .mockRejectedValue(new Error("Invalid credentials"));
 
-    render(<LoginPage onLogin={mockLogin} />);
+    renderLoginPage(mockLogin);
 
     await user.type(screen.getByLabelText("Email"), "wrong@example.com");
     await user.type(screen.getByLabelText("Password"), "badpass");
     await user.click(screen.getByRole("button", { name: /sign in/i }));
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      "Invalid credentials"
-    );
+    expect(await screen.findByText("Invalid credentials")).toBeInTheDocument();
   });
 
   it("should navigate back to home when back button is clicked", () => {
     const mockLogin = vi.fn();
-    render(<LoginPage onLogin={mockLogin} />);
+    renderLoginPage(mockLogin);
 
     const backButton = screen.getByText("Back");
     fireEvent.click(backButton);

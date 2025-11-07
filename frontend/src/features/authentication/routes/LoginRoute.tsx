@@ -19,7 +19,7 @@ export function LoginRoute() {
       } catch (error) {
         clearSession();
         notifications.notifyFromError(error, "errors.quizzesLoadFailed");
-        throw error;
+        return;
       }
 
       navigate("/admin", { replace: true });
