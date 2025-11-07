@@ -4,6 +4,7 @@ import { RegisterUserDto } from '../../application/auth/dto/register-user.dto';
 import type { AuthResponseDto } from '../../application/auth/dto/auth-response.dto';
 import { LoginUserUseCase } from '../../application/auth/use-cases/login-user.use-case';
 import { RegisterUserUseCase } from '../../application/auth/use-cases/register-user.use-case';
+import { mapUserToPublicProfile } from '../../application/shared/utils/avatar-url.util';
 import type { User } from '../../domain/auth/entities/user.entity';
 
 type SafeUser = Omit<User, 'password'>;
@@ -26,7 +27,7 @@ export class AuthController {
   async register(@Body() dto: RegisterUserDto): Promise<{ user: SafeUser }> {
     const user = await this.registerUserUseCase.execute(dto);
     return {
-      user: user.toSafeObject(),
+      user: mapUserToPublicProfile(user),
     };
   }
 }

@@ -96,7 +96,7 @@ describe('AuthHttpRepository', () => {
         username: 'testuser',
         email: 'test@example.com',
         isAdmin: false,
-        avatarUrl: 'data:image/svg+xml;base64,ZmFrZQ==',
+        avatarUrl: '/api/avatars/users/1?v=fingerprint',
       };
 
       const postSpy = vi.spyOn(fetchClient, 'POST') as unknown as Mock;

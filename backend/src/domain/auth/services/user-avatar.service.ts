@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { randomUUID } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import { AvatarGeneratorService } from '../../shared/services/avatar-generator.service';
@@ -23,6 +24,20 @@ export class UserAvatarService {
    */
   generateRandomAvatar(): string {
     return this.avatarGenerator.generateAvatar(this.generateSeed());
+  }
+
+  /**
+   * Converts an avatar data URI to a UTF-8 SVG buffer.
+   */
+  toSvgBuffer(avatarDataUri: string): Buffer {
+    const sanitized = avatarDataUri.trim();
+    const dataUriPrefix = 'data:image/svg+xml;base64,';
+    if (!sanitized.startsWith(dataUriPrefix)) {
+      throw new Error('Invalid avatar data URI');
+    }
+
+    const base64Payload = sanitized.slice(dataUriPrefix.length);
+    return Buffer.from(base64Payload, 'base64');
   }
 
   private generateSeed(): string {

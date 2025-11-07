@@ -2,6 +2,7 @@ import { ConflictException, Inject, Injectable, NotFoundException } from '@nestj
 import { UserRepositoryProvider } from '../../../domain/auth/repositories/user.repository.interface';
 import type { UserRepository } from '../../../domain/auth/repositories/user.repository.interface';
 import { AuthErrorCode } from '../enums/auth-error-code.enum';
+import { mapUserToPublicProfile } from '../../shared/utils/avatar-url.util';
 import type { UpdateProfileDto } from '../dto/update-profile.dto';
 
 @Injectable()
@@ -37,6 +38,6 @@ export class UpdateUserProfileUseCase {
       email: dto.email,
     });
 
-    return updated.toSafeObject();
+    return mapUserToPublicProfile(updated);
   }
 }
