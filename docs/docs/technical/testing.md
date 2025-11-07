@@ -217,7 +217,7 @@ npm run test:ui
 - Hook tests: `src/**/__tests__/**/*.test.ts`
 - Integration tests: `src/**/__tests__/**/*.integration.test.tsx`
 
-#### React 19 Testing Best Practices
+#### React Testing Best Practices
 
 The frontend uses **React 19** with **Testing Library 16.x**, which fully supports concurrent features:
 
