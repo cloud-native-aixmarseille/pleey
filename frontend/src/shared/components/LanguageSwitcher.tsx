@@ -23,15 +23,15 @@ export default function LanguageSwitcher({
       } ${className}`.trim()}
     >
       <div
-        className={`flex items-center gap-1.5 rounded-xl border border-primary-500/25 transition-colors ${
+        className={`flex gap-2 rounded-lg border-2 border-primary-500/30 transition-colors ${
           variant === "inline"
             ? "bg-dark-500/60 backdrop-blur-sm px-2 py-1"
-            : "bg-dark-500/80 backdrop-blur-sm px-3 py-2"
+            : "bg-dark-500/80 backdrop-blur-sm p-2"
         }`}
       >
         <button
           onClick={() => changeLanguage("en")}
-          className={`px-2.5 py-1 rounded-lg font-display text-[0.7rem] uppercase tracking-[0.25em] transition-all ${
+          className={`px-3 py-1.5 rounded font-display text-xs uppercase transition-all ${
             i18n.language === "en"
               ? "bg-primary-500 text-white retro-shadow"
               : "text-light-400 hover:text-primary-400 hover:bg-primary-500/10"
@@ -42,7 +42,7 @@ export default function LanguageSwitcher({
         </button>
         <button
           onClick={() => changeLanguage("fr")}
-          className={`px-2.5 py-1 rounded-lg font-display text-[0.7rem] uppercase tracking-[0.25em] transition-all ${
+          className={`px-3 py-1.5 rounded font-display text-xs uppercase transition-all ${
             i18n.language === "fr"
               ? "bg-primary-500 text-white retro-shadow"
               : "text-light-400 hover:text-primary-400 hover:bg-primary-500/10"

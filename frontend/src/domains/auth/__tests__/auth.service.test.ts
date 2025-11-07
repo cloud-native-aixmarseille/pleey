@@ -1,15 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { Mock } from 'vitest';
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { authService } from '../auth.service';
-
-// Mock fetch globally
-globalThis.fetch = vi.fn();
-const fetchMock = globalThis.fetch as unknown as Mock;
+import { fetchClient } from '../../../shared/api/openapiClient';
 
 describe('AuthService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    fetchMock.mockReset();
   });
 
   describe('login', () => {
@@ -25,19 +20,18 @@ describe('AuthService', () => {
         }
       };
 
-      fetchMock.mockResolvedValueOnce({
-        json: async () => mockResponse,
-        ok: true
-      });
+      const postSpy = vi.spyOn(fetchClient, 'POST') as unknown as Mock;
+      postSpy.mockResolvedValueOnce({
+          data: mockResponse,
+          error: undefined,
+        } as any);
 
       const result = await authService.login('test@example.com', 'password123');
 
-      expect(globalThis.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/api/login'),
+      expect(postSpy).toHaveBeenCalledWith(
+        '/api/login',
         expect.objectContaining({
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: 'test@example.com', password: 'password123' })
+          body: { email: 'test@example.com', password: 'password123' },
         })
       );
 
@@ -47,44 +41,46 @@ describe('AuthService', () => {
     });
 
     it('should handle login failure', async () => {
-      fetchMock.mockRejectedValueOnce(new Error('Network error'));
+      const postSpy = vi.spyOn(fetchClient, 'POST') as unknown as Mock;
+      postSpy.mockResolvedValueOnce({
+        data: undefined,
+        error: new Error('Network error'),
+      } as any);
 
-      await expect(authService.login('wrong@example.com', 'wrongpass'))
-        .rejects.toThrow('common.errors.network');
+      await expect(authService.login('wrong@example.com', 'wrongpass')).rejects.toThrow(
+        'common.errors.network',
+      );
     });
   });
 
   describe('register', () => {
     it('should successfully register a new user', async () => {
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ success: true })
-      });
+      const postSpy = vi.spyOn(fetchClient, 'POST') as unknown as Mock;
+      postSpy.mockResolvedValueOnce({
+          data: undefined,
+          error: undefined,
+        } as any);
 
       await authService.register('newuser', 'new@example.com', 'password123');
 
-      expect(globalThis.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/api/register'),
+      expect(postSpy).toHaveBeenCalledWith(
+        '/api/register',
         expect.objectContaining({
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            username: 'newuser',
-            email: 'new@example.com',
-            password: 'password123'
-          })
+          body: { username: 'newuser', email: 'new@example.com', password: 'password123' },
         })
       );
     });
 
     it('should throw error when registration fails', async () => {
-      fetchMock.mockResolvedValueOnce({
-        ok: false,
-        status: 400
-      });
+      const postSpy = vi.spyOn(fetchClient, 'POST') as unknown as Mock;
+      postSpy.mockResolvedValueOnce({
+        data: undefined,
+        error: new Error('Password too short'),
+      } as any);
 
-      await expect(authService.register('user', 'email@test.com', 'pass'))
-        .rejects.toThrow('auth.errors.registrationFailed');
+      await expect(authService.register('user', 'email@test.com', 'pass')).rejects.toThrow(
+        'auth.errors.passwordTooShort',
+      );
     });
   });
 
@@ -98,30 +94,30 @@ describe('AuthService', () => {
         avatarUrl: 'data:image/svg+xml;base64,ZmFrZQ=='
       };
 
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockUser
-      });
+      const postSpy = vi.spyOn(fetchClient, 'POST') as unknown as Mock;
+      postSpy.mockResolvedValueOnce({
+          data: mockUser,
+          error: undefined,
+        } as any);
 
       const result = await authService.regenerateAvatar();
 
-      expect(globalThis.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/api/profile/me/avatar'),
-        expect.objectContaining({
-          method: 'POST'
-        })
+      expect(postSpy).toHaveBeenCalledWith(
+        '/api/profile/me/avatar',
+        expect.any(Object)
       );
 
       expect(result).toEqual(mockUser);
     });
 
     it('should throw error when regeneration fails', async () => {
-      fetchMock.mockResolvedValueOnce({
-        ok: false,
-        status: 500
-      });
+      const postSpy = vi.spyOn(fetchClient, 'POST') as unknown as Mock;
+      postSpy.mockResolvedValueOnce({
+        data: undefined,
+        error: new Error('Unauthorized'),
+      } as any);
 
-      await expect(authService.regenerateAvatar()).rejects.toThrow('profile.avatarRegenerateError');
+      await expect(authService.regenerateAvatar()).rejects.toThrow('auth.errors.unauthorized');
     });
   });
 });

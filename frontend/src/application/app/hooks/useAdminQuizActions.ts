@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import type { NavigateFunction } from "react-router-dom";
 import type { Question, Quiz } from "../../../shared/types";
+import type { CreateQuestionPayload } from "../../../domains/quiz/quiz.service";
 
 type LoadQuizQuestions = (token: string, quizId: number) => Promise<Question[]>;
 
@@ -15,8 +16,10 @@ type CreateQuiz = (
 
 type AddQuestion = (
   token: string,
-  questionData: Partial<Question>
-) => Promise<void>;
+  payload: CreateQuestionPayload
+) => Promise<Question>;
+
+type DeleteQuiz = (token: string, quizId: number) => Promise<void>;
 
 type NotifyFromError = (error: unknown, fallbackKey: string) => void;
 
@@ -26,6 +29,7 @@ interface UseAdminQuizActionsParams {
   loadQuizzes: LoadQuizzes;
   fetchQuizQuestions: LoadQuizQuestions;
   addQuestion: AddQuestion;
+  deleteQuiz: DeleteQuiz;
   notifyFromError: NotifyFromError;
   navigate: NavigateFunction;
 }
@@ -36,6 +40,7 @@ export function useAdminQuizActions({
   loadQuizzes,
   fetchQuizQuestions,
   addQuestion,
+  deleteQuiz,
   notifyFromError,
   navigate,
 }: UseAdminQuizActionsParams) {
@@ -75,21 +80,33 @@ export function useAdminQuizActions({
   );
 
   const handleAddQuestion = useCallback(
-    async (questionData: Partial<Question>) => {
+    async (questionData: CreateQuestionPayload) => {
       if (!token) {
         return;
       }
 
       try {
         await addQuestion(token, questionData);
-        if (questionData.quiz_id) {
-          await fetchQuizQuestions(token, Number(questionData.quiz_id));
-        }
       } catch (error) {
         notifyFromError(error, "errors.unableToLoadQuestions");
       }
     },
-    [token, addQuestion, fetchQuizQuestions, notifyFromError]
+    [token, addQuestion, notifyFromError]
+  );
+
+  const handleDeleteQuiz = useCallback(
+    async (quizId: number) => {
+      if (!token) {
+        return;
+      }
+
+      try {
+        await deleteQuiz(token, quizId);
+      } catch (error) {
+        notifyFromError(error, "errors.deleteQuizFailed");
+      }
+    },
+    [token, deleteQuiz, notifyFromError]
   );
 
   return {
@@ -97,5 +114,6 @@ export function useAdminQuizActions({
     handleCreateQuiz,
     handleManageQuiz,
     handleAddQuestion,
+    handleDeleteQuiz,
   };
 }

@@ -1,25 +1,26 @@
-import { IsIn, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { IsIn, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
 /**
- * Create Question DTO
- * Data Transfer Object for creating a question
+ * Update Question DTO
+ * Allows partial updates on an existing question
  */
-export class CreateQuestionDto {
+export class UpdateQuestionDto {
   @IsNumber()
-  @IsNotEmpty()
-  quizId: number;
+  @IsOptional()
+  quizId?: number;
 
   @IsString()
-  @IsNotEmpty()
-  questionText: string;
+  @IsOptional()
+  questionText?: string;
 
   @IsString()
   @IsIn(['multiple', 'truefalse'])
-  type: 'multiple' | 'truefalse';
+  @IsOptional()
+  type?: 'multiple' | 'truefalse';
 
   @IsString()
-  @IsNotEmpty()
-  correctAnswer: string;
+  @IsOptional()
+  correctAnswer?: string;
 
   @IsString()
   @IsOptional()

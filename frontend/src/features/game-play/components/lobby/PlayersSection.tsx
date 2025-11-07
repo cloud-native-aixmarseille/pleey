@@ -53,7 +53,6 @@ function PlayersSectionComponent({
               >
                 <div
                   className="text-4xl sm:text-5xl mb-3 animate-bounce-slow flex justify-center"
-                  aria-hidden="true"
                 >
                   <img 
                     src={player.avatar} 

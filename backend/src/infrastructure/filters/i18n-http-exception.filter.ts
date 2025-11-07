@@ -10,16 +10,16 @@ import { QuizErrorCode } from '../../application/quiz/enums/quiz-error-code.enum
  */
 @Catch(HttpException)
 export class I18nHttpExceptionFilter implements ExceptionFilter {
-  constructor(private readonly i18n: I18nService) {}
+  constructor(private readonly i18n: I18nService) { }
 
   async catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const status = exception.getStatus();
     const exceptionResponse = exception.getResponse();
-    
+
     let message: string;
-    
+
     // Check if the message is an error code enum
     if (typeof exceptionResponse === 'string') {
       message = await this.translateErrorCode(exceptionResponse);
@@ -48,12 +48,12 @@ export class I18nHttpExceptionFilter implements ExceptionFilter {
     if (Object.values(AuthErrorCode).includes(code as AuthErrorCode)) {
       return this.translateAuthError(code as AuthErrorCode);
     }
-    
+
     // Check if it's a quiz error code
     if (Object.values(QuizErrorCode).includes(code as QuizErrorCode)) {
       return this.translateQuizError(code as QuizErrorCode);
     }
-    
+
     // If it's not an error code, return as is (might be a validation message)
     return code;
   }
@@ -76,6 +76,7 @@ export class I18nHttpExceptionFilter implements ExceptionFilter {
       [QuizErrorCode.QUESTION_NOT_FOUND]: 'quiz.errors.questionNotFound',
       [QuizErrorCode.AUTHENTICATION_REQUIRED]: 'quiz.errors.authenticationRequired',
       [QuizErrorCode.ADMIN_PRIVILEGES_REQUIRED]: 'quiz.errors.adminPrivilegesRequired',
+      [QuizErrorCode.QUIZ_HAS_ACTIVE_SESSION]: 'quiz.errors.quizHasActiveSession',
     };
 
     return this.i18n.translate(errorMap[code]);

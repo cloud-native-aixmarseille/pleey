@@ -48,6 +48,11 @@ export interface GameSessionRepository {
   updateCurrentQuestion(id: number, questionNumber: number): Promise<GameSession>;
 
   /**
+   * Counts active or paused sessions by quiz ID
+   */
+  countActiveByQuizId(quizId: number): Promise<number>;
+
+  /**
    * Deletes old completed sessions
    */
   deleteOldSessions(olderThanDays: number): Promise<void>;

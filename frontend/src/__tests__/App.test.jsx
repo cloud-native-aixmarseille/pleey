@@ -3,6 +3,8 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import QuizApp from "../App";
+import { authService } from "../domains/auth/auth.service";
+import { organizationService } from "../domains/organization/organization.service";
 
 // Mock socket.io-client
 vi.mock("socket.io-client", () => ({
@@ -13,14 +15,9 @@ vi.mock("socket.io-client", () => ({
   })),
 }));
 
-// Mock fetch
-globalThis.fetch = vi.fn();
-const fetchMock = globalThis.fetch;
-
 describe("QuizApp", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    fetchMock.mockReset();
+    vi.restoreAllMocks();
     globalThis.localStorage?.clear();
   });
 
@@ -72,10 +69,9 @@ describe("QuizApp", () => {
 
   it("should handle successful login", async () => {
     const user = userEvent.setup();
-
-    globalThis.fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
+    const loginSpy = vi
+      .spyOn(authService, "login")
+      .mockResolvedValue({
         token: "fake-token",
         user: {
           id: 1,
@@ -84,8 +80,8 @@ describe("QuizApp", () => {
           isAdmin: false,
           avatarUrl: null,
         },
-      }),
-    });
+      });
+    vi.spyOn(organizationService, "getMyOrganizations").mockResolvedValue([]);
 
     renderApp();
 
@@ -104,40 +100,21 @@ describe("QuizApp", () => {
     const submitButton = screen.getByRole("button", { name: /sign in/i });
     await user.click(submitButton);
 
-    // Verify fetch was called
     await waitFor(() => {
-      expect(globalThis.fetch).toHaveBeenCalledWith(
-        expect.stringContaining("/api/login"),
-        expect.objectContaining({
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: "test@example.com",
-            password: "password123",
-          }),
-        })
-      );
+      expect(loginSpy).toHaveBeenCalledWith("test@example.com", "password123");
     });
 
-    await waitFor(() => {
-      expect(
-        screen.getByRole("button", { name: /start game/i })
-      ).toBeInTheDocument();
-    });
+    expect(
+      await screen.findByRole("button", { name: /logout/i })
+    ).toBeInTheDocument();
   });
 
   it("should handle registration", async () => {
     const user = userEvent.setup();
-
-    globalThis.fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ message: "Success" }),
-    });
-
-    // Mock window.alert
-    const alertMock = vi
-      .spyOn(globalThis, "alert")
-      .mockImplementation(() => {});
+    const registerSpy = vi
+      .spyOn(authService, "register")
+      .mockResolvedValue();
+    vi.spyOn(organizationService, "getMyOrganizations").mockResolvedValue([]);
 
     renderApp();
 
@@ -160,23 +137,11 @@ describe("QuizApp", () => {
     });
     await user.click(submitButton);
 
-    // Verify fetch was called
     await waitFor(() => {
-      expect(globalThis.fetch).toHaveBeenCalledWith(
-        expect.stringContaining("/api/register"),
-        expect.objectContaining({
-          method: "POST",
-        })
-      );
+      expect(registerSpy).toHaveBeenCalledWith("newuser", "new@example.com", "newpassword");
     });
 
-    await waitFor(() => {
-      expect(
-        screen.getByRole("button", { name: /sign in/i })
-      ).toBeInTheDocument();
-    });
-
-    alertMock.mockRestore();
+    expect(await screen.findByRole("button", { name: /sign in/i })).toBeInTheDocument();
   });
 
   // TODO: Fix this flaky integration test - login flow timing issues

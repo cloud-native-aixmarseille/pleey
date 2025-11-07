@@ -9,6 +9,7 @@ import {
   type QuizRepository,
 } from '../../../domain/quiz/repositories/quiz.repository.interface';
 import type { CreateQuestionDto } from '../dto/create-question.dto';
+import { QuizErrorCode } from '../enums/quiz-error-code.enum';
 
 /**
  * Create Question Use Case
@@ -27,7 +28,7 @@ export class CreateQuestionUseCase {
     // Verify quiz exists
     const quiz = await this.quizRepository.findById(dto.quizId);
     if (!quiz) {
-      throw new NotFoundException('Quiz not found');
+      throw new NotFoundException(QuizErrorCode.QUIZ_NOT_FOUND);
     }
 
     // Create question
@@ -36,12 +37,12 @@ export class CreateQuestionUseCase {
       questionText: dto.questionText,
       type: dto.type,
       correctAnswer: dto.correctAnswer,
-      optionA: dto.optionA || null,
-      optionB: dto.optionB || null,
-      optionC: dto.optionC || null,
-      optionD: dto.optionD || null,
-      timeLimit: dto.timeLimit || 20,
-      points: dto.points || 1000,
+      optionA: dto.optionA ?? null,
+      optionB: dto.optionB ?? null,
+      optionC: dto.optionC ?? null,
+      optionD: dto.optionD ?? null,
+      timeLimit: dto.timeLimit ?? 20,
+      points: dto.points ?? 1000,
     });
   }
 }

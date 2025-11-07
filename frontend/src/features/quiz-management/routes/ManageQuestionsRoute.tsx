@@ -4,7 +4,10 @@ import ManageQuestionsPage from "../components/ManageQuestionsPage";
 import { useAuthManagerContext } from "../../../application/app/context/AuthManagerContext";
 import { useQuizManagerContext } from "../../../application/app/context/QuizManagerContext";
 import { useNotifications } from "../../../application/app/hooks/useNotifications";
-import type { Question } from "../../../shared/types";
+import type {
+  CreateQuestionPayload,
+  UpdateQuestionPayload,
+} from "../../../domains/quiz/quiz.service";
 
 /**
  * Route container for managing quiz questions. Handles data loading concerns
@@ -13,7 +16,7 @@ import type { Question } from "../../../shared/types";
 export function ManageQuestionsRoute() {
   const { quizId } = useParams();
   const quizIdNumber = Number(quizId);
-  const notifications = useNotifications();
+  const { notify, notifyFromError } = useNotifications();
 
   const { isAuthenticated, isAdmin, token } = useAuthManagerContext();
 
@@ -23,6 +26,8 @@ export function ManageQuestionsRoute() {
     hasLoadedQuizzes,
     loadQuizQuestions,
     addQuestion,
+    deleteQuestion,
+    updateQuestion,
   } = useQuizManagerContext();
 
   useEffect(() => {
@@ -35,9 +40,15 @@ export function ManageQuestionsRoute() {
     }
 
     loadQuizQuestions(token, quizIdNumber).catch((error) => {
-      notifications.notifyFromError(error, "errors.unableToLoadQuestions");
+      notifyFromError(error, "errors.unableToLoadQuestions");
     });
-  }, [loadQuizQuestions, notifications, questionsByQuiz, quizIdNumber, token]);
+  }, [
+    loadQuizQuestions,
+    notifyFromError,
+    questionsByQuiz,
+    quizIdNumber,
+    token,
+  ]);
 
   const quiz = useMemo(
     () => quizzes.find((item) => item.id === quizIdNumber),
@@ -57,16 +68,45 @@ export function ManageQuestionsRoute() {
 
   const questions = questionsByQuiz[quizIdNumber] ?? [];
 
-  const handleAddQuestion = async (questionData: Partial<Question>) => {
+  const handleAddQuestion = async (payload: CreateQuestionPayload) => {
     if (!token) {
       return;
     }
 
     try {
-      await addQuestion(token, questionData);
-      await loadQuizQuestions(token, quizIdNumber);
+      await addQuestion(token, payload);
+      notify("quiz.success.questionCreated", "success");
     } catch (error) {
-      notifications.notifyFromError(error, "errors.unableToLoadQuestions");
+      notifyFromError(error, "errors.unableToLoadQuestions");
+    }
+  };
+
+  const handleDeleteQuestion = async (questionId: number) => {
+    if (!token) {
+      return;
+    }
+
+    try {
+      await deleteQuestion(token, quizIdNumber, questionId);
+      notify("quiz.success.questionDeleted", "success");
+    } catch (error) {
+      notifyFromError(error, "errors.questionDeleteFailed");
+    }
+  };
+
+  const handleUpdateQuestion = async (
+    questionId: number,
+    payload: UpdateQuestionPayload
+  ) => {
+    if (!token) {
+      return;
+    }
+
+    try {
+      await updateQuestion(token, quizIdNumber, questionId, payload);
+      notify("quiz.success.questionUpdated", "success");
+    } catch (error) {
+      notifyFromError(error, "errors.questionUpdateFailed");
     }
   };
 
@@ -75,6 +115,8 @@ export function ManageQuestionsRoute() {
       quiz={quiz}
       questions={questions}
       onAddQuestion={handleAddQuestion}
+      onDeleteQuestion={handleDeleteQuestion}
+      onUpdateQuestion={handleUpdateQuestion}
     />
   );
 }

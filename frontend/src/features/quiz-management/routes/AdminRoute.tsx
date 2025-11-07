@@ -17,6 +17,7 @@ export function AdminRoute() {
     loadQuizQuestions,
     createQuiz,
     addQuestion,
+    deleteQuiz,
     hasLoadedQuizzes,
   } = useQuizManagerContext();
   const { handleLaunchQuiz } = useGameSessionContext();
@@ -37,11 +38,13 @@ export function AdminRoute() {
     loadQuizzes,
     fetchQuizQuestions: loadQuizQuestions,
     addQuestion,
+    deleteQuiz,
     notifyFromError,
     navigate,
   });
 
-  const { handleCreateQuiz, handleManageQuiz } = adminQuizActions;
+  const { handleCreateQuiz, handleManageQuiz, handleDeleteQuiz } =
+    adminQuizActions;
 
   const routeElement = useMemo(() => {
     if (!isAuthenticated || !isAdmin) {
@@ -53,6 +56,7 @@ export function AdminRoute() {
         quizzes={quizzes}
         onCreateQuiz={handleCreateQuiz}
         onManageQuiz={handleManageQuiz}
+        onDeleteQuiz={handleDeleteQuiz}
         onLaunchQuiz={handleLaunchQuiz}
       />
     );
@@ -62,6 +66,7 @@ export function AdminRoute() {
     quizzes,
     handleCreateQuiz,
     handleManageQuiz,
+    handleDeleteQuiz,
     handleLaunchQuiz,
   ]);
 

@@ -28,8 +28,8 @@ export class StopGameSessionUseCase {
       throw new ForbiddenException('You do not have permission to stop this game session');
     }
 
-    // End the session (works for any status: waiting, active, paused)
-    session.end();
+    // Pause the session - ensures only active sessions can be stopped temporarily
+    session.pause();
 
     // Update in database
     return await this.gameSessionRepository.updateStatus(session.id, session.status);
