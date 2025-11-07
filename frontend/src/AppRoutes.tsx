@@ -13,16 +13,20 @@ import { LeaderboardRoute } from "./features/game-play/routes/LeaderboardRoute";
 import { ProfileRoute } from "./features/profile/routes/ProfileRoute";
 import { AccountBar } from "./application/app/components/AccountBar";
 import { AppLifecycleManager } from "./application/app/components/AppLifecycleManager";
+import { useAuthManagerContext } from "./application/app/context/AuthManagerContext";
 
 /**
  * Application routes and global UI shell. Keeps routing declarations declarative
  * while lifecycle and chrome live in dedicated components.
  */
 export function AppRoutes() {
+  const { isAuthenticated } = useAuthManagerContext();
+  const contentSpacing = isAuthenticated ? "pt-36 pb-12" : "pt-12 pb-12";
+
   return (
     <>
       <AppLifecycleManager />
-      <div className="pt-36 pb-12">
+      <div className={contentSpacing}>
         <AccountBar />
 
         <Routes>

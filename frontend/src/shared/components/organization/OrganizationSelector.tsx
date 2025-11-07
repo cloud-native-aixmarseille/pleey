@@ -3,6 +3,7 @@ import { useOrganization } from "../../context/OrganizationContext";
 import { useTranslation } from "react-i18next";
 import Button from "../Button";
 import Card from "../Card";
+import { useNotifications } from "../../../application/app/hooks/useNotifications";
 
 /**
  * Organization Selector Component
@@ -17,6 +18,7 @@ export function OrganizationSelector() {
     createOrganization,
     isLoading,
   } = useOrganization();
+  const { notifyFromError } = useNotifications();
 
   const [showDropdown, setShowDropdown] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -36,8 +38,7 @@ export function OrganizationSelector() {
       setNewOrgName("");
       setNewOrgDescription("");
     } catch (error) {
-      // Show user-friendly error message
-      alert(t("organization.errors.createFailed"));
+      notifyFromError(error, "organization.errors.createFailed");
     } finally {
       setIsCreating(false);
     }

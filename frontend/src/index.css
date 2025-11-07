@@ -1,55 +1,119 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Press+Start+2P&family=VT323&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Press+Start+2P&family=VT323&display=swap");
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.js";
 
 @layer base {
   * {
     @apply antialiased;
   }
-  
+
   body {
-    @apply font-body text-light-100 bg-dark-500;
-    background-image: 
-      repeating-linear-gradient(
-        0deg,
-        rgba(0, 0, 0, 0.15),
-        rgba(0, 0, 0, 0.15) 1px,
-        transparent 1px,
-        transparent 2px
-      );
+    color: #f5f5ff;
+    background-color: #0a0a1f;
+    font-family: "Orbitron", system-ui, sans-serif;
+    background-image: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.15),
+      rgba(0, 0, 0, 0.15) 1px,
+      transparent 1px,
+      transparent 2px
+    );
     background-size: 100% 2px;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-display font-bold uppercase tracking-wider;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Press Start 2P", system-ui, sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
     text-shadow: 0 0 10px currentColor;
   }
-  
+
   /* CRT Screen Effect */
   @keyframes crt-flicker {
-    0% { opacity: 0.27861; }
-    5% { opacity: 0.34769; }
-    10% { opacity: 0.23604; }
-    15% { opacity: 0.90626; }
-    20% { opacity: 0.18128; }
-    25% { opacity: 0.83891; }
-    30% { opacity: 0.65583; }
-    35% { opacity: 0.67807; }
-    40% { opacity: 0.26559; }
-    45% { opacity: 0.84693; }
-    50% { opacity: 0.96019; }
-    55% { opacity: 0.08594; }
-    60% { opacity: 0.20313; }
-    65% { opacity: 0.71988; }
-    70% { opacity: 0.53455; }
-    75% { opacity: 0.37288; }
-    80% { opacity: 0.71428; }
-    85% { opacity: 0.70419; }
-    90% { opacity: 0.7003; }
-    95% { opacity: 0.36108; }
-    100% { opacity: 0.24387; }
+    0% {
+      opacity: 0.27861;
+    }
+    5% {
+      opacity: 0.34769;
+    }
+    10% {
+      opacity: 0.23604;
+    }
+    15% {
+      opacity: 0.90626;
+    }
+    20% {
+      opacity: 0.18128;
+    }
+    25% {
+      opacity: 0.83891;
+    }
+    30% {
+      opacity: 0.65583;
+    }
+    35% {
+      opacity: 0.67807;
+    }
+    40% {
+      opacity: 0.26559;
+    }
+    45% {
+      opacity: 0.84693;
+    }
+    50% {
+      opacity: 0.96019;
+    }
+    55% {
+      opacity: 0.08594;
+    }
+    60% {
+      opacity: 0.20313;
+    }
+    65% {
+      opacity: 0.71988;
+    }
+    70% {
+      opacity: 0.53455;
+    }
+    75% {
+      opacity: 0.37288;
+    }
+    80% {
+      opacity: 0.71428;
+    }
+    85% {
+      opacity: 0.70419;
+    }
+    90% {
+      opacity: 0.7003;
+    }
+    95% {
+      opacity: 0.36108;
+    }
+    100% {
+      opacity: 0.24387;
+    }
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: "Press Start 2P", system-ui, sans-serif;
+  }
+
+  .font-body {
+    font-family: "Orbitron", system-ui, sans-serif;
+  }
+
+  .font-mono {
+    font-family: "VT323", "Fira Code", monospace;
   }
 }
 
@@ -91,7 +155,8 @@
   /* Card Components - Retro Style */
   .card {
     @apply bg-dark-400 rounded-lg overflow-hidden transition-all duration-300 border-2 border-primary-500/30;
-    box-shadow: 0 0 20px rgba(107, 72, 255, 0.3), inset 0 0 60px rgba(107, 72, 255, 0.05);
+    box-shadow: 0 0 20px rgba(107, 72, 255, 0.3),
+      inset 0 0 60px rgba(107, 72, 255, 0.05);
   }
 
   .card-hover {
@@ -100,7 +165,8 @@
 
   .card-glass {
     @apply bg-dark-400/50 backdrop-blur-xl border-2 border-accent-500/30 rounded-lg;
-    box-shadow: 0 0 30px rgba(0, 255, 204, 0.2), inset 0 0 60px rgba(0, 255, 204, 0.05);
+    box-shadow: 0 0 30px rgba(0, 255, 204, 0.2),
+      inset 0 0 60px rgba(0, 255, 204, 0.05);
   }
 
   .card-dark {
@@ -109,7 +175,8 @@
 
   .card-arcade {
     @apply bg-gradient-to-br from-dark-400 to-dark-500 border-4 border-accent-500 rounded-none;
-    box-shadow: 8px 8px 0px rgba(0, 255, 204, 0.5), 0 0 40px rgba(0, 255, 204, 0.3);
+    box-shadow: 8px 8px 0px rgba(0, 255, 204, 0.5),
+      0 0 40px rgba(0, 255, 204, 0.3);
   }
 
   /* Input Components - Terminal Style */
@@ -125,11 +192,17 @@
   /* Background Gradients - Synthwave */
   .bg-game-gradient {
     @apply bg-dark-500;
-    background-image: 
-      linear-gradient(rgba(107, 72, 255, 0.1) 1px, transparent 1px),
+    background-image: linear-gradient(
+        rgba(107, 72, 255, 0.1) 1px,
+        transparent 1px
+      ),
       linear-gradient(90deg, rgba(107, 72, 255, 0.1) 1px, transparent 1px),
       radial-gradient(ellipse at top, rgba(107, 72, 255, 0.15), transparent 70%),
-      radial-gradient(ellipse at bottom, rgba(255, 51, 198, 0.15), transparent 70%);
+      radial-gradient(
+        ellipse at bottom,
+        rgba(255, 51, 198, 0.15),
+        transparent 70%
+      );
     background-size: 20px 20px, 20px 20px, 100% 100%, 100% 100%;
   }
 
@@ -159,10 +232,8 @@
   /* Special Effects - CRT & Arcade */
   .neon-border {
     @apply border-2 border-primary-500;
-    box-shadow: 0 0 5px theme('colors.primary.400'), 
-                0 0 20px theme('colors.primary.500'),
-                0 0 40px theme('colors.primary.600'),
-                inset 0 0 20px theme('colors.primary.900');
+    box-shadow: 0 0 5px #8a73ff, 0 0 20px #6b48ff, 0 0 40px #5c3ad6,
+      inset 0 0 20px #2f1870;
   }
 
   .glass-effect {
@@ -173,9 +244,9 @@
     position: relative;
     overflow: hidden;
   }
-  
+
   .crt-screen::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -191,9 +262,9 @@
     pointer-events: none;
     z-index: 10;
   }
-  
+
   .crt-screen::after {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -225,19 +296,19 @@
     @apply bg-accent-500 border-4 border-accent-300 hover:bg-accent-400;
     box-shadow: 0 0 20px rgba(0, 255, 204, 0.5), 4px 4px 0px rgba(0, 0, 0, 0.8);
   }
-  
+
   /* Pixel Art Styles */
   .pixel-border {
     border-style: solid;
     border-width: 4px;
-    border-image: 
-      repeating-linear-gradient(
+    border-image: repeating-linear-gradient(
         0deg,
         currentColor,
         currentColor 4px,
         transparent 4px,
         transparent 8px
-      ) 4;
+      )
+      4;
   }
 
   /* Retro Shadow Effect */
@@ -255,11 +326,13 @@
 
   /* Shadow variations for podium */
   .shadow-float {
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 4px 15px rgba(107, 72, 255, 0.2);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3),
+      0 4px 15px rgba(107, 72, 255, 0.2);
   }
 
   .shadow-float-lg {
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 0 6px 20px rgba(107, 72, 255, 0.3);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4),
+      0 6px 20px rgba(107, 72, 255, 0.3);
   }
 }
 
@@ -267,15 +340,15 @@
   .animation-delay-100 {
     animation-delay: 0.1s;
   }
-  
+
   .animation-delay-200 {
     animation-delay: 0.2s;
   }
-  
+
   .animation-delay-300 {
     animation-delay: 0.3s;
   }
-  
+
   .animation-delay-400 {
     animation-delay: 0.4s;
   }
@@ -287,15 +360,12 @@
   .text-shadow-lg {
     text-shadow: 0 0 20px currentColor, 0 0 40px currentColor;
   }
-  
+
   .text-neon {
-    text-shadow: 
-      0 0 7px currentColor,
-      0 0 10px currentColor,
-      0 0 21px currentColor,
-      0 0 42px currentColor;
+    text-shadow: 0 0 7px currentColor, 0 0 10px currentColor,
+      0 0 21px currentColor, 0 0 42px currentColor;
   }
-  
+
   .retro-shadow {
     box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.8);
   }
@@ -354,7 +424,7 @@
     * {
       text-shadow: none !important;
     }
-    
+
     .btn,
     .card,
     .input {
@@ -387,4 +457,3 @@
     }
   }
 }
-

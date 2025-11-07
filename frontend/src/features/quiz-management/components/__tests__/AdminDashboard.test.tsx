@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import AdminDashboard from "../AdminDashboard";
+import { NotificationProvider } from "../../../../application/app/context/NotificationContext";
 
 const organizationContextMock = vi.hoisted(() => ({
   useOrganization: vi.fn(),
@@ -57,7 +58,9 @@ describe("AdminDashboard", () => {
     };
 
     render(
-      <AdminDashboard quizzes={[]} {...mockHandlers} onDeleteQuiz={vi.fn()} />
+      <NotificationProvider>
+        <AdminDashboard quizzes={[]} {...mockHandlers} onDeleteQuiz={vi.fn()} />
+      </NotificationProvider>
     );
 
     expect(screen.getByText(/Admin Dashboard/i)).toBeInTheDocument();
@@ -72,11 +75,13 @@ describe("AdminDashboard", () => {
     };
 
     render(
-      <AdminDashboard
-        quizzes={mockQuizzes}
-        {...mockHandlers}
-        onDeleteQuiz={vi.fn()}
-      />
+      <NotificationProvider>
+        <AdminDashboard
+          quizzes={mockQuizzes}
+          {...mockHandlers}
+          onDeleteQuiz={vi.fn()}
+        />
+      </NotificationProvider>
     );
 
     expect(screen.getByText("Quiz 1")).toBeInTheDocument();
@@ -93,11 +98,13 @@ describe("AdminDashboard", () => {
     };
 
     render(
-      <AdminDashboard
-        quizzes={mockQuizzes}
-        {...mockHandlers}
-        onDeleteQuiz={vi.fn()}
-      />
+      <NotificationProvider>
+        <AdminDashboard
+          quizzes={mockQuizzes}
+          {...mockHandlers}
+          onDeleteQuiz={vi.fn()}
+        />
+      </NotificationProvider>
     );
 
     const user = userEvent.setup();
@@ -115,11 +122,13 @@ describe("AdminDashboard", () => {
     };
 
     render(
-      <AdminDashboard
-        quizzes={mockQuizzes}
-        {...mockHandlers}
-        onDeleteQuiz={vi.fn()}
-      />
+      <NotificationProvider>
+        <AdminDashboard
+          quizzes={mockQuizzes}
+          {...mockHandlers}
+          onDeleteQuiz={vi.fn()}
+        />
+      </NotificationProvider>
     );
 
     const user = userEvent.setup();

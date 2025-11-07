@@ -93,7 +93,15 @@
     "promptQuizTitle": "Quiz title:",
     "promptQuizDescription": "Description:",
     "selectOrganizationFirst": "Please select an organization first",
-    "confirmDeleteQuiz": "Are you sure you want to delete \"{{title}}\"? This cannot be undone."
+    "confirmDeleteQuiz": "Are you sure you want to delete \"{{title}}\"? This cannot be undone.",
+    "createQuizModalTitle": "Create a new quiz",
+    "createQuizModalDescription": "Give your neon challenge a name and an optional description.",
+    "createQuizSuccess": "Quiz created successfully.",
+    "deleteQuizSuccess": "Quiz deleted successfully.",
+    "deleteQuizModalTitle": "Delete quiz",
+    "deleteQuizModalDescription": "This will remove \"{{title}}\" and all of its questions.",
+    "deleteQuizModalWarning": "This action cannot be undone.",
+    "confirmDelete": "Delete quiz"
   },
   "quiz": {
     "title": "Quiz",
@@ -147,6 +155,23 @@
     },
     "errors": {
       "quizHasActiveSession": "You can't delete this quiz while a game session is active."
+    },
+    "saveChanges": "Save changes",
+    "optionPlaceholder": "Enter option {{option}}",
+    "formErrors": {
+      "questionRequired": "Provide the question text before saving.",
+      "timeLimitPositive": "Time limit must be greater than zero.",
+      "pointsPositive": "Points must be greater than zero.",
+      "optionsRequired": "Options A and B are required for multiple choice questions.",
+      "correctAnswerRequired": "Choose the correct answer for this question."
+    },
+    "modals": {
+      "createTitle": "Add question",
+      "editTitle": "Edit question",
+      "description": "Configure the content, type, and scoring for this question.",
+      "deleteTitle": "Delete question",
+      "deleteDescription": "This question will be removed from the quiz.",
+      "deletePrompt": "Are you sure you want to delete \"{{question}}\"?"
     }
   },
   "game": {
@@ -233,6 +258,8 @@
     "logout": "Logout",
     "confirm": "Confirm",
     "cancel": "Cancel",
+    "dismiss": "Dismiss notification",
+    "close": "Close",
     "errors": {
       "network": "Network error. Check your connection and try again."
     }

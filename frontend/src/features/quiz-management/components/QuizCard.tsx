@@ -74,6 +74,36 @@ export function QuizCard({
           variant="primary"
           size="sm"
           fullWidth
+          onClick={() => onLaunch(quiz.id)}
+          aria-label={t("admin.launch")}
+          icon={
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          }
+        >
+          {t("admin.launch")}
+        </Button>
+        <Button
+          variant="secondary"
+          size="sm"
+          fullWidth
           onClick={() => onManage(quiz)}
         >
           <span className="flex items-center justify-center gap-1">
@@ -99,8 +129,9 @@ export function QuizCard({
             size="sm"
             fullWidth
             onClick={() => onDelete(quiz.id)}
-          >
-            <span className="flex items-center justify-center gap-1">
+            aria-label={t("admin.delete")}
+            tooltip={t("admin.delete")}
+            icon={
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -114,39 +145,11 @@ export function QuizCard({
                   d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                 />
               </svg>
-              {t("admin.delete")}
-            </span>
+            }
+          >
+            <span className="sr-only">{t("admin.delete")}</span>
           </Button>
         )}
-        <Button
-          variant="success"
-          size="sm"
-          fullWidth
-          onClick={() => onLaunch(quiz.id)}
-        >
-          <span className="flex items-center justify-center gap-1">
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            {t("admin.launch")}
-          </span>
-        </Button>
       </div>
     </Card>
   );

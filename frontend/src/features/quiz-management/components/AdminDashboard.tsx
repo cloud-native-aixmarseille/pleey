@@ -1,10 +1,18 @@
+import { useState } from "react";
 import { Quiz } from "../../../shared/types";
-import { Button, Card, Container } from "../../../shared/components";
+import {
+  Button,
+  Card,
+  Container,
+  Input,
+  Modal,
+} from "../../../shared/components";
 import { OrganizationSelector } from "../../../shared/components/organization/OrganizationSelector";
 import { StatsCard } from "../../../shared/components/stats/StatsCard";
 import { QuizCard } from "./QuizCard";
 import { useOrganization } from "../../../shared/context/OrganizationContext";
 import { useTranslation } from "react-i18next";
+import { useNotifications } from "../../../application/app/hooks/useNotifications";
 
 interface AdminDashboardProps {
   quizzes: Quiz[];
@@ -25,33 +33,77 @@ export default function AdminDashboard({
   onDeleteQuiz,
   onLaunchQuiz,
 }: AdminDashboardProps) {
-  const handleDeleteQuiz = async (quiz: Quiz) => {
-    if (!onDeleteQuiz) {
-      return;
-    }
-
-    const confirmed = confirm(
-      t("admin.confirmDeleteQuiz", { title: quiz.title })
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    await onDeleteQuiz(quiz.id);
-  };
   const { t } = useTranslation();
   const { currentOrganization } = useOrganization();
+  const { notify, notifyFromError } = useNotifications();
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [createTitle, setCreateTitle] = useState("");
+  const [createDescription, setCreateDescription] = useState("");
+  const [quizPendingDeletion, setQuizPendingDeletion] = useState<Quiz | null>(
+    null
+  );
 
-  const handleCreateQuiz = () => {
+  const openCreateModal = () => {
     if (!currentOrganization) {
-      alert(t("admin.selectOrganizationFirst"));
+      notify("admin.selectOrganizationFirst", "error");
       return;
     }
 
-    const title = prompt(t("admin.promptQuizTitle"));
-    const description = prompt(t("admin.promptQuizDescription"));
-    if (title) onCreateQuiz(title, description || "", currentOrganization.id);
+    setIsCreateModalOpen(true);
+  };
+
+  const closeCreateModal = () => {
+    setIsCreateModalOpen(false);
+    setCreateTitle("");
+    setCreateDescription("");
+    setIsProcessing(false);
+  };
+
+  const submitCreateQuiz = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!currentOrganization || !createTitle.trim()) {
+      return;
+    }
+
+    try {
+      setIsProcessing(true);
+      await onCreateQuiz(
+        createTitle.trim(),
+        createDescription.trim(),
+        currentOrganization.id
+      );
+      notify("admin.createQuizSuccess", "success");
+      closeCreateModal();
+    } catch (error) {
+      setIsProcessing(false);
+      notifyFromError(error, "errors.createQuizFailed");
+    }
+  };
+
+  const requestDeleteQuiz = (quiz: Quiz) => {
+    setQuizPendingDeletion(quiz);
+  };
+
+  const cancelDeleteQuiz = () => {
+    setQuizPendingDeletion(null);
+    setIsProcessing(false);
+  };
+
+  const confirmDeleteQuiz = async () => {
+    if (!quizPendingDeletion || !onDeleteQuiz) {
+      return;
+    }
+
+    try {
+      setIsProcessing(true);
+      await onDeleteQuiz(quizPendingDeletion.id);
+      notify("admin.deleteQuizSuccess", "success");
+      cancelDeleteQuiz();
+    } catch (error) {
+      setIsProcessing(false);
+      notifyFromError(error, "errors.deleteQuizFailed");
+    }
   };
 
   const activeQuizzes = quizzes.filter((q) => q.is_active);
@@ -82,7 +134,7 @@ export default function AdminDashboard({
               <Button
                 variant="accent"
                 size="lg"
-                onClick={handleCreateQuiz}
+                onClick={openCreateModal}
                 disabled={!currentOrganization}
                 icon={
                   <svg
@@ -138,7 +190,7 @@ export default function AdminDashboard({
             <p className="text-light-700 mb-6">
               {t("admin.noQuizzesDescription")}
             </p>
-            <Button variant="primary" size="lg" onClick={handleCreateQuiz}>
+            <Button variant="primary" size="lg" onClick={openCreateModal}>
               {t("admin.createFirstQuiz")}
             </Button>
           </Card>
@@ -150,13 +202,103 @@ export default function AdminDashboard({
                 quiz={quiz}
                 index={index}
                 onManage={onManageQuiz}
-                onDelete={() => handleDeleteQuiz(quiz)}
+                onDelete={() => requestDeleteQuiz(quiz)}
                 onLaunch={onLaunchQuiz}
               />
             ))}
           </div>
         )}
       </Container>
+
+      <Modal
+        isOpen={isCreateModalOpen}
+        onClose={closeCreateModal}
+        title={t("admin.createQuizModalTitle")}
+        description={t("admin.createQuizModalDescription")}
+        footer={
+          <>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={closeCreateModal}
+              disabled={isProcessing}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              type="submit"
+              form="create-quiz-form"
+              variant="accent"
+              disabled={isProcessing || !createTitle.trim()}
+            >
+              {isProcessing ? t("common.loading") : t("admin.createQuiz")}
+            </Button>
+          </>
+        }
+      >
+        <form id="create-quiz-form" onSubmit={submitCreateQuiz}>
+          <div className="space-y-6">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-[0.3em] text-light-500">
+                {t("admin.quizTitle")}
+              </label>
+              <Input
+                type="text"
+                value={createTitle}
+                onChange={(event) => setCreateTitle(event.target.value)}
+                placeholder={t("admin.quizTitle")}
+                required
+                className="mt-2"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-[0.3em] text-light-500">
+                {t("admin.description")}
+              </label>
+              <textarea
+                value={createDescription}
+                onChange={(event) => setCreateDescription(event.target.value)}
+                rows={4}
+                className="mt-2 w-full rounded-2xl border border-primary-500/30 bg-dark-500/60 p-4 text-sm text-light-100 shadow-inner focus:border-primary-400 focus:outline-none"
+                placeholder={t("admin.promptQuizDescription")}
+              />
+            </div>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal
+        isOpen={quizPendingDeletion !== null}
+        onClose={cancelDeleteQuiz}
+        title={t("admin.deleteQuizModalTitle")}
+        description={t("admin.deleteQuizModalDescription", {
+          title: quizPendingDeletion?.title ?? "",
+        })}
+        footer={
+          <>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={cancelDeleteQuiz}
+              disabled={isProcessing}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              type="button"
+              variant="danger"
+              onClick={confirmDeleteQuiz}
+              disabled={isProcessing}
+            >
+              {isProcessing ? t("common.loading") : t("admin.confirmDelete")}
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm text-light-200">
+          {t("admin.deleteQuizModalWarning")}
+        </p>
+      </Modal>
     </div>
   );
 }

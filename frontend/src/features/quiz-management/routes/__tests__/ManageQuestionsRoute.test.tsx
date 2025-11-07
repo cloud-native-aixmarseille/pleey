@@ -252,12 +252,14 @@ describe("ManageQuestionsRoute", () => {
       onAddQuestion: (payload: CreateQuestionPayload) => Promise<unknown>;
     };
 
-    await props.onAddQuestion({
-      quizId: 42,
-      questionText: "fail",
-      type: "truefalse",
-      correctAnswer: "true",
-    });
+    await expect(
+      props.onAddQuestion({
+        quizId: 42,
+        questionText: "fail",
+        type: "truefalse",
+        correctAnswer: "true",
+      })
+    ).rejects.toThrow(error);
 
     expect(notifyFromError).toHaveBeenCalledWith(
       error,
@@ -317,7 +319,7 @@ describe("ManageQuestionsRoute", () => {
       onDeleteQuestion: (id: number) => Promise<void>;
     };
 
-    await props.onDeleteQuestion(999);
+    await expect(props.onDeleteQuestion(999)).rejects.toThrow(error);
 
     expect(notifyFromError).toHaveBeenCalledWith(
       error,
@@ -384,7 +386,9 @@ describe("ManageQuestionsRoute", () => {
       ) => Promise<unknown>;
     };
 
-    await props.onUpdateQuestion(10, { questionText: "bad" });
+    await expect(
+      props.onUpdateQuestion(10, { questionText: "bad" })
+    ).rejects.toThrow(error);
 
     expect(notifyFromError).toHaveBeenCalledWith(
       error,

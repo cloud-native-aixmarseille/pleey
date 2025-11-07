@@ -1,17 +1,18 @@
-import { FormEvent, useState } from "react";
+import { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button, Card, Container, Input } from "../../../shared/components";
 import LanguageSwitcher from "../../../shared/components/LanguageSwitcher";
+import { useNotifications } from "../../../application/app/hooks/useNotifications";
 
 interface LoginPageProps {
   onLogin: (email: string, password: string) => Promise<void>;
 }
 
 export default function LoginPage({ onLogin }: LoginPageProps) {
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { notifyFromError } = useNotifications();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -19,16 +20,10 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
     const email = (form.elements.namedItem("email") as HTMLInputElement).value;
     const password = (form.elements.namedItem("password") as HTMLInputElement)
       .value;
-    setErrorMessage(null);
-
     try {
       await onLogin(email, password);
     } catch (error) {
-      const message =
-        error instanceof Error && error.message
-          ? error.message
-          : t('auth.errors.invalidCredentials');
-      setErrorMessage(message);
+      notifyFromError(error, "auth.errors.invalidCredentials");
     }
   };
 
@@ -52,33 +47,22 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
               className="inline-flex items-center gap-2 text-white hover:text-primary-400 transition-colors mb-4"
             >
               <span className="text-2xl">←</span>
-              <span className="font-semibold">{t('auth.back')}</span>
+              <span className="font-semibold">{t("auth.back")}</span>
             </button>
             <h2 className="text-4xl sm:text-5xl font-black text-white mb-2">
-              {t('auth.loginTitle')}
+              {t("auth.loginTitle")}
             </h2>
-            <p className="text-light-400">
-              {t('auth.loginSubtitle')}
-            </p>
+            <p className="text-light-400">{t("auth.loginSubtitle")}</p>
           </div>
 
           <Card className="p-8 sm:p-10">
             <form onSubmit={handleSubmit} className="space-y-6">
-              {errorMessage && (
-                <div
-                  role="alert"
-                  className="rounded-md border border-danger-500/40 bg-danger-500/10 px-4 py-3 text-sm font-mono text-danger-500 shadow-[4px_4px_0_0_rgba(255,0,0,0.35)]"
-                >
-                  {errorMessage}
-                </div>
-              )}
-
               {/* Email Input */}
               <Input
                 type="email"
                 name="email"
                 placeholder="votre@email.com"
-                label={t('auth.email')}
+                label={t("auth.email")}
                 icon={
                   <svg
                     className="w-5 h-5"
@@ -102,7 +86,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                 type="password"
                 name="password"
                 placeholder="••••••••"
-                label={t('auth.password')}
+                label={t("auth.password")}
                 icon={
                   <svg
                     className="w-5 h-5"
@@ -124,7 +108,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
               {/* Submit Button */}
               <Button type="submit" variant="primary" size="lg" fullWidth>
                 <span className="flex items-center justify-center gap-2">
-                  <span>{t('auth.loginButton')}</span>
+                  <span>{t("auth.loginButton")}</span>
                   <span>🚀</span>
                 </span>
               </Button>
@@ -137,7 +121,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-4 bg-white text-light-600 font-medium">
-                  {t('auth.newToQuizMaster')}
+                  {t("auth.newToQuizMaster")}
                 </span>
               </div>
             </div>
@@ -151,7 +135,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
               className="border-2 border-primary-500/20"
             >
               <span className="flex items-center justify-center gap-2">
-                <span>{t('auth.createAccount')}</span>
+                <span>{t("auth.createAccount")}</span>
                 <span>✨</span>
               </span>
             </Button>
