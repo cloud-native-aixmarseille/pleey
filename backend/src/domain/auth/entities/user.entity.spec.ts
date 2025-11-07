@@ -11,6 +11,7 @@ describe('User Entity', () => {
         'test@example.com',
         'hashedpassword',
         false,
+        null,
         now,
       );
 
@@ -31,6 +32,7 @@ describe('User Entity', () => {
         'admin@example.com',
         'hashedpassword',
         true,
+        null,
         new Date(),
       );
 
@@ -44,6 +46,7 @@ describe('User Entity', () => {
         'user@example.com',
         'hashedpassword',
         false,
+        null,
         new Date(),
       );
 
@@ -60,6 +63,7 @@ describe('User Entity', () => {
         'test@example.com',
         'hashedpassword',
         false,
+        'https://cdn/avatar.png',
         now,
       );
 
@@ -69,6 +73,7 @@ describe('User Entity', () => {
       expect(safeUser).toHaveProperty('username', 'testuser');
       expect(safeUser).toHaveProperty('email', 'test@example.com');
       expect(safeUser).toHaveProperty('isAdmin', false);
+      expect(safeUser).toHaveProperty('avatarUrl', 'https://cdn/avatar.png');
       expect(safeUser).toHaveProperty('createdAt', now);
       expect(safeUser).not.toHaveProperty('password');
     });
@@ -80,6 +85,7 @@ describe('User Entity', () => {
         'test@example.com',
         'secretpassword',
         false,
+        null,
         new Date(),
       );
 

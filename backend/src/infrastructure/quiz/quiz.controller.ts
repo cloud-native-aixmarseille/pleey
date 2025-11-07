@@ -1,7 +1,8 @@
-import { Body, Controller, ForbiddenException, Get, Param, ParseIntPipe, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, HttpCode, Param, ParseIntPipe, Post, Req, UseGuards } from '@nestjs/common';
 import type { Request } from 'express';
 import { CreateQuizDto } from '../../application/quiz/dto/create-quiz.dto';
 import { CreateQuizUseCase } from '../../application/quiz/use-cases/create-quiz.use-case';
+import { DeleteQuizUseCase } from '../../application/quiz/use-cases/delete-quiz.use-case';
 import { GetAllQuizzesUseCase } from '../../application/quiz/use-cases/get-all-quizzes.use-case';
 import { GetQuizQuestionsUseCase } from '../../application/quiz/use-cases/get-quiz-questions.use-case';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -20,6 +21,7 @@ interface AuthenticatedRequest extends Request {
 export class QuizController {
   constructor(
     private readonly createQuizUseCase: CreateQuizUseCase,
+    private readonly deleteQuizUseCase: DeleteQuizUseCase,
     private readonly getAllQuizzesUseCase: GetAllQuizzesUseCase,
     private readonly getQuizQuestionsUseCase: GetQuizQuestionsUseCase,
   ) { }
@@ -75,5 +77,24 @@ export class QuizController {
       time_limit: question.timeLimit,
       points: question.points,
     }));
+  }
+
+  @Delete(':quizId')
+  @HttpCode(204)
+  @UseGuards(JwtAuthGuard)
+  async delete(
+    @Param('quizId', ParseIntPipe) quizId: number,
+    @Req() request: AuthenticatedRequest,
+  ): Promise<void> {
+    const user = request.user;
+    if (!user) {
+      throw new ForbiddenException(QuizErrorCode.AUTHENTICATION_REQUIRED);
+    }
+
+    if (!user.isAdmin) {
+      throw new ForbiddenException(QuizErrorCode.ADMIN_PRIVILEGES_REQUIRED);
+    }
+
+    await this.deleteQuizUseCase.execute(quizId);
   }
 }

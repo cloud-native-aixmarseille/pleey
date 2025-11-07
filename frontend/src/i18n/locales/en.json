@@ -92,7 +92,8 @@
     "launch": "Launch",
     "promptQuizTitle": "Quiz title:",
     "promptQuizDescription": "Description:",
-    "selectOrganizationFirst": "Please select an organization first"
+    "selectOrganizationFirst": "Please select an organization first",
+    "confirmDeleteQuiz": "Are you sure you want to delete \"{{title}}\"? This cannot be undone."
   },
   "quiz": {
     "title": "Quiz",
@@ -130,7 +131,23 @@
     "multipleChoiceShort": "MC",
     "trueFalseShort": "T/F",
     "trueAnswer": "True",
-    "falseAnswer": "False"
+    "falseAnswer": "False",
+    "editQuestion": "Edit",
+    "deleteQuestion": "Delete",
+    "confirmDeleteQuestion": "Are you sure you want to delete this question?",
+    "promptEditQuestion": "Update question text:",
+    "promptTrueFalseAnswer": "Correct answer (true/false):",
+    "confirmToggleTrueFalse": "Set the correct answer to true? (Cancel = false)",
+    "promptTimeLimit": "Time limit (seconds):",
+    "promptPoints": "Points:",
+    "success": {
+      "questionCreated": "Question created successfully.",
+      "questionDeleted": "Question deleted successfully.",
+      "questionUpdated": "Question updated successfully."
+    },
+    "errors": {
+      "quizHasActiveSession": "You can't delete this quiz while a game session is active."
+    }
   },
   "game": {
     "joinGame": "Join Game",
@@ -262,7 +279,11 @@
     "unableToLoadQuestions": "Unable to load questions for this quiz. Please try again.",
     "addAtLeastOneQuestion": "Add at least one question before starting this game.",
     "createQuizFailed": "Failed to create quiz. Please try again.",
-    "quizzesLoadFailed": "Failed to load quizzes. Please log in again."
+    "quizzesLoadFailed": "Failed to load quizzes. Please log in again.",
+    "deleteQuizFailed": "Failed to delete quiz. Please try again.",
+    "questionCreateFailed": "Failed to create question. Please try again.",
+    "questionDeleteFailed": "Failed to delete question. Please try again.",
+    "questionUpdateFailed": "Failed to update question. Please try again."
   },
   "notifications": {
     "labels": {

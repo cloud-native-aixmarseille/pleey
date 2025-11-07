@@ -93,6 +93,17 @@ export class PrismaGameSessionRepository implements GameSessionRepository {
     return this.toDomain(session);
   }
 
+  async countActiveByQuizId(quizId: number): Promise<number> {
+    return this.prisma.gameSession.count({
+      where: {
+        quizId,
+        status: {
+          in: ['waiting', 'active', 'paused'],
+        },
+      },
+    });
+  }
+
   async deleteOldSessions(olderThanDays: number): Promise<void> {
     const cutoff = new Date(Date.now() - olderThanDays * 24 * 60 * 60 * 1000);
 

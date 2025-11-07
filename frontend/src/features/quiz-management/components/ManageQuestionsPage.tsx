@@ -2,20 +2,55 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Quiz, Question } from "../../../shared/types";
 import { Button, Card, Container } from "../../../shared/components";
+import type {
+  CreateQuestionPayload,
+  UpdateQuestionPayload,
+} from "../../../domains/quiz/quiz.service";
 
 interface ManageQuestionsPageProps {
   quiz: Quiz;
   questions: Question[];
-  onAddQuestion: (questionData: Partial<Question>) => Promise<void>;
+  onAddQuestion: (payload: CreateQuestionPayload) => Promise<unknown>;
+  onDeleteQuestion: (questionId: number) => Promise<void>;
+  onUpdateQuestion: (
+    questionId: number,
+    payload: UpdateQuestionPayload
+  ) => Promise<unknown>;
 }
 
 export default function ManageQuestionsPage({
   quiz,
   questions,
   onAddQuestion,
+  onDeleteQuestion,
+  onUpdateQuestion,
 }: ManageQuestionsPageProps) {
   const navigate = useNavigate();
   const { t } = useTranslation();
+
+  const promptOptionalText = (key: string, current?: string | null) => {
+    const value = prompt(t(key), current ?? undefined);
+    if (value === null) {
+      return undefined;
+    }
+
+    const trimmed = value.trim();
+    return trimmed.length === 0 ? null : trimmed;
+  };
+
+  const promptOptionalNumber = (key: string, current: number) => {
+    const value = prompt(t(key), String(current));
+    if (value === null) {
+      return undefined;
+    }
+
+    const parsed = Number(value);
+    if (Number.isNaN(parsed) || parsed <= 0) {
+      return undefined;
+    }
+
+    return parsed;
+  };
 
   const handleAddQuestion = () => {
     const type = confirm(t("quiz.confirmQuestionType"))
@@ -24,30 +59,129 @@ export default function ManageQuestionsPage({
     const question_text = prompt(t("quiz.promptQuestion"));
     if (!question_text) return;
 
-    const questionData: Partial<Question> & { quiz_id: number } = {
-      quiz_id: quiz.id,
-      question_text,
+    const payload: CreateQuestionPayload = {
+      quizId: quiz.id,
+      questionText: question_text,
       type,
-      time_limit: 20,
+      timeLimit: 20,
       points: 1000,
+      correctAnswer: "",
     };
 
     if (type === "multiple") {
-      questionData.option_a = prompt(t("quiz.promptOptionA")) ?? undefined;
-      questionData.option_b = prompt(t("quiz.promptOptionB")) ?? undefined;
-      questionData.option_c = prompt(t("quiz.promptOptionC")) ?? undefined;
-      questionData.option_d = prompt(t("quiz.promptOptionD")) ?? undefined;
-      questionData.correct_answer =
-        prompt(t("quiz.promptCorrectAnswer")) ?? undefined;
+      payload.optionA = promptOptionalText("quiz.promptOptionA", null);
+      payload.optionB = promptOptionalText("quiz.promptOptionB", null);
+      payload.optionC = promptOptionalText("quiz.promptOptionC", null);
+      payload.optionD = promptOptionalText("quiz.promptOptionD", null);
+      const answer = prompt(t("quiz.promptCorrectAnswer"), "A");
+      const normalizedAnswer = (answer ?? "A").trim().toUpperCase();
+      payload.correctAnswer = ["A", "B", "C", "D"].includes(normalizedAnswer)
+        ? normalizedAnswer
+        : "A";
     } else {
-      questionData.correct_answer = confirm(
-        t("quiz.confirmTrueFalse")
-      )
+      payload.correctAnswer = confirm(t("quiz.confirmTrueFalse"))
         ? "true"
         : "false";
     }
 
-    onAddQuestion(questionData);
+    void onAddQuestion(payload);
+  };
+
+  const handleDeleteQuestion = (questionId: number) => {
+    const confirmed = confirm(t("quiz.confirmDeleteQuestion"));
+    if (!confirmed) {
+      return;
+    }
+
+    void onDeleteQuestion(questionId);
+  };
+
+  const handleEditQuestion = (question: Question) => {
+    const updatedText = prompt(
+      t("quiz.promptEditQuestion"),
+      question.question_text
+    );
+    if (updatedText === null) {
+      return;
+    }
+
+    const payload: UpdateQuestionPayload = {
+      questionText: updatedText.trim(),
+    };
+
+    if (!payload.questionText) {
+      return;
+    }
+
+    if (question.type === "multiple") {
+      const optionA = promptOptionalText(
+        "quiz.promptOptionA",
+        question.option_a
+      );
+      if (optionA !== undefined) {
+        payload.optionA = optionA;
+      }
+      const optionB = promptOptionalText(
+        "quiz.promptOptionB",
+        question.option_b
+      );
+      if (optionB !== undefined) {
+        payload.optionB = optionB;
+      }
+      const optionC = promptOptionalText(
+        "quiz.promptOptionC",
+        question.option_c
+      );
+      if (optionC !== undefined) {
+        payload.optionC = optionC;
+      }
+      const optionD = promptOptionalText(
+        "quiz.promptOptionD",
+        question.option_d
+      );
+      if (optionD !== undefined) {
+        payload.optionD = optionD;
+      }
+      const newCorrect = prompt(
+        t("quiz.promptCorrectAnswer"),
+        question.correct_answer
+      );
+      if (newCorrect !== null && newCorrect.trim() !== "") {
+        const normalized = newCorrect.trim().toUpperCase();
+        if (["A", "B", "C", "D"].includes(normalized)) {
+          payload.correctAnswer = normalized;
+        }
+      }
+    } else {
+      const nextValue = prompt(
+        t("quiz.promptTrueFalseAnswer"),
+        question.correct_answer
+      );
+      if (nextValue !== null && nextValue.trim() !== "") {
+        const normalized = nextValue.trim().toLowerCase();
+        if (normalized === "true" || normalized === "false") {
+          payload.correctAnswer = normalized;
+        }
+      }
+    }
+
+    const maybeTimeLimit = promptOptionalNumber(
+      "quiz.promptTimeLimit",
+      question.time_limit
+    );
+    if (maybeTimeLimit !== undefined) {
+      payload.timeLimit = maybeTimeLimit;
+    }
+
+    const maybePoints = promptOptionalNumber(
+      "quiz.promptPoints",
+      question.points
+    );
+    if (maybePoints !== undefined) {
+      payload.points = maybePoints;
+    }
+
+    void onUpdateQuestion(question.id, payload);
   };
 
   return (
@@ -74,7 +208,10 @@ export default function ManageQuestionsPage({
               <p className="text-light-700 mb-4">{quiz.description}</p>
               <div className="flex items-center gap-4 text-sm">
                 <span className="glass-effect px-3 py-1 rounded-lg text-dark-700 font-semibold">
-                  {questions.length} {questions.length === 1 ? t("quiz.question") : t("quiz.questionsPlural")}
+                  {questions.length}{" "}
+                  {questions.length === 1
+                    ? t("quiz.question")
+                    : t("quiz.questionsPlural")}
                 </span>
               </div>
             </div>
@@ -138,6 +275,22 @@ export default function ManageQuestionsPage({
                       {q.question_text}
                     </h3>
                   </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEditQuestion(q)}
+                    >
+                      {t("quiz.editQuestion")}
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => handleDeleteQuestion(q.id)}
+                    >
+                      {t("quiz.deleteQuestion")}
+                    </Button>
+                  </div>
                   <span
                     className={`
                     px-3 py-1 rounded-full text-xs font-bold flex-shrink-0 ml-2
@@ -148,7 +301,9 @@ export default function ManageQuestionsPage({
                     }
                   `}
                   >
-                    {q.type === "multiple" ? t("quiz.multipleChoiceShort") : t("quiz.trueFalseShort")}
+                    {q.type === "multiple"
+                      ? t("quiz.multipleChoiceShort")
+                      : t("quiz.trueFalseShort")}
                   </span>
                 </div>
 
@@ -211,7 +366,9 @@ export default function ManageQuestionsPage({
                       </span>
                       <span className="font-bold text-dark-800">
                         {t("quiz.correctAnswer")}:{" "}
-                        {q.correct_answer === "true" ? t("quiz.trueAnswer") : t("quiz.falseAnswer")}
+                        {q.correct_answer === "true"
+                          ? t("quiz.trueAnswer")
+                          : t("quiz.falseAnswer")}
                       </span>
                     </div>
                   </div>

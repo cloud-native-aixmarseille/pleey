@@ -228,6 +228,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/quizzes/{quizId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["QuizController_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/questions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["QuestionsController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/questions/{questionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["QuestionsController_delete"];
+        options?: never;
+        head?: never;
+        patch: operations["QuestionsController_update"];
+        trace?: never;
+    };
     "/api/sessions/create": {
         parameters: {
             query?: never;
@@ -302,6 +350,8 @@ export interface components {
         CreateOrganizationDto: Record<string, never>;
         AddMemberDto: Record<string, never>;
         CreateQuizDto: Record<string, never>;
+        CreateQuestionRequestDto: Record<string, never>;
+        UpdateQuestionRequestDto: Record<string, never>;
         CreateGameSessionDto: Record<string, never>;
     };
     responses: never;
@@ -607,6 +657,88 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    QuizController_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                quizId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    QuestionsController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateQuestionRequestDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    QuestionsController_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                questionId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    QuestionsController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                questionId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateQuestionRequestDto"];
+            };
+        };
         responses: {
             200: {
                 headers: {

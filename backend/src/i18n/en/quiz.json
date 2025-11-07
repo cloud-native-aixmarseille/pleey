@@ -7,12 +7,14 @@
     "invalidQuestionType": "Invalid question type",
     "authenticationRequired": "Authentication required",
     "adminPrivilegesRequired": "Admin privileges are required to create quizzes",
-    "pinMustBe6Digits": "PIN must be exactly 6 digits"
+    "pinMustBe6Digits": "PIN must be exactly 6 digits",
+    "quizHasActiveSession": "You can't delete this quiz while a game session is active"
   },
   "success": {
     "quizCreated": "Quiz created successfully",
     "quizDeleted": "Quiz deleted successfully",
     "questionCreated": "Question created successfully",
-    "questionDeleted": "Question deleted successfully"
+    "questionDeleted": "Question deleted successfully",
+    "questionUpdated": "Question updated successfully"
   }
 }

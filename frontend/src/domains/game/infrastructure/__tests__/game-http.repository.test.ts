@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { GameHttpRepository } from '../game-http.repository';
-import { GameSession } from '../../../shared/types';
+import { GameSession } from '../../../../shared/types';
 
-// Mock fetch
-global.fetch = vi.fn();
+globalThis.fetch = vi.fn();
+const fetchMock = globalThis.fetch as unknown as ReturnType<typeof vi.fn>;
 
 describe('GameHttpRepository', () => {
   let repository: GameHttpRepository;
@@ -11,6 +11,7 @@ describe('GameHttpRepository', () => {
   beforeEach(() => {
     repository = new GameHttpRepository('http://localhost:3001');
     vi.clearAllMocks();
+    fetchMock.mockReset();
   });
 
   describe('createSession', () => {
@@ -21,7 +22,7 @@ describe('GameHttpRepository', () => {
         status: 'waiting',
       };
 
-      vi.mocked(fetch).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => mockSession,
       } as Response);
@@ -29,23 +30,24 @@ describe('GameHttpRepository', () => {
       const result = await repository.createSession('test-token', 1);
 
       expect(result).toEqual(mockSession);
-      expect(fetch).toHaveBeenCalledWith('http://localhost:3001/api/game/create', {
+      expect(fetchMock).toHaveBeenCalledWith('http://localhost:3001/api/sessions/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer test-token',
         },
-        body: JSON.stringify({ quiz_id: 1 }),
+        body: JSON.stringify({ quizId: 1 }),
       });
     });
 
     it('should throw error when session creation fails', async () => {
-      vi.mocked(fetch).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: false,
+        json: async () => ({ message: 'game.errors.sessionCreateFailed' }),
       } as Response);
 
       await expect(repository.createSession('test-token', 1)).rejects.toThrow(
-        'Failed to create game session'
+        'game.errors.sessionCreateFailed'
       );
     });
   });

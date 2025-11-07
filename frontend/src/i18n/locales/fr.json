@@ -92,7 +92,8 @@
     "launch": "Lancer",
     "promptQuizTitle": "Titre du quiz:",
     "promptQuizDescription": "Description:",
-    "selectOrganizationFirst": "Veuillez d'abord sélectionner une organisation"
+    "selectOrganizationFirst": "Veuillez d'abord sélectionner une organisation",
+    "confirmDeleteQuiz": "Voulez-vous vraiment supprimer \"{{title}}\" ? Cette action est irréversible."
   },
   "quiz": {
     "title": "Quiz",
@@ -130,7 +131,23 @@
     "multipleChoiceShort": "QCM",
     "trueFalseShort": "V/F",
     "trueAnswer": "Vrai",
-    "falseAnswer": "Faux"
+    "falseAnswer": "Faux",
+    "editQuestion": "Modifier",
+    "deleteQuestion": "Supprimer",
+    "confirmDeleteQuestion": "Êtes-vous sûr de vouloir supprimer cette question ?",
+    "promptEditQuestion": "Modifier le texte de la question :",
+    "promptTrueFalseAnswer": "Réponse correcte (vrai/faux) :",
+    "confirmToggleTrueFalse": "Définir la bonne réponse sur vrai ? (Annuler = faux)",
+    "promptTimeLimit": "Temps limite (secondes) :",
+    "promptPoints": "Points :",
+    "success": {
+      "questionCreated": "Question créée avec succès.",
+      "questionDeleted": "Question supprimée avec succès.",
+      "questionUpdated": "Question mise à jour avec succès."
+    },
+    "errors": {
+      "quizHasActiveSession": "Vous ne pouvez pas supprimer ce quiz tant qu'une session est active."
+    }
   },
   "game": {
     "joinGame": "Rejoindre le Jeu",
@@ -262,7 +279,11 @@
     "unableToLoadQuestions": "Impossible de charger les questions pour ce quiz. Veuillez réessayer.",
     "addAtLeastOneQuestion": "Ajoutez au moins une question avant de démarrer ce jeu.",
     "createQuizFailed": "Échec de la création du quiz. Veuillez réessayer.",
-    "quizzesLoadFailed": "Échec du chargement des quiz. Veuillez vous reconnecter."
+    "quizzesLoadFailed": "Échec du chargement des quiz. Veuillez vous reconnecter.",
+    "deleteQuizFailed": "Échec de la suppression du quiz. Veuillez réessayer.",
+    "questionCreateFailed": "Échec de la création de la question. Veuillez réessayer.",
+    "questionDeleteFailed": "Échec de la suppression de la question. Veuillez réessayer.",
+    "questionUpdateFailed": "Échec de la mise à jour de la question. Veuillez réessayer."
   },
   "notifications": {
     "labels": {

@@ -39,10 +39,12 @@ export interface OrganizationDashboard {
 export interface Quiz {
   id: number;
   title: string;
-  description: string;
+  description: string | null;
   created_by: number;
   organizationId?: number;
   created_at: string;
+  question_count?: number;
+  is_active?: boolean;
 }
 
 export interface Question {
@@ -51,10 +53,10 @@ export interface Question {
   question_text: string;
   type: string;
   correct_answer: string;
-  option_a: string;
-  option_b: string;
-  option_c: string;
-  option_d: string;
+  option_a: string | null;
+  option_b: string | null;
+  option_c: string | null;
+  option_d: string | null;
   time_limit: number;
   points: number;
 }

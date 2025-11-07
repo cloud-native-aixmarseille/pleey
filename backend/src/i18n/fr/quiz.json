@@ -7,12 +7,14 @@
     "invalidQuestionType": "Type de question invalide",
     "authenticationRequired": "Authentification requise",
     "adminPrivilegesRequired": "Privilèges administrateur requis pour créer des quiz",
-    "pinMustBe6Digits": "Le PIN doit contenir exactement 6 chiffres"
+    "pinMustBe6Digits": "Le PIN doit contenir exactement 6 chiffres",
+    "quizHasActiveSession": "Vous ne pouvez pas supprimer ce quiz tant qu'une session de jeu est active"
   },
   "success": {
     "quizCreated": "Quiz créé avec succès",
     "quizDeleted": "Quiz supprimé avec succès",
     "questionCreated": "Question créée avec succès",
-    "questionDeleted": "Question supprimée avec succès"
+    "questionDeleted": "Question supprimée avec succès",
+    "questionUpdated": "Question mise à jour avec succès"
   }
 }
