@@ -248,7 +248,7 @@ describe('Component with transitions', () => {
 });
 ```
 
-**React 19 Specific Test Setup:**
+**React Specific Test Setup:**
 - `globalThis.IS_REACT_ACT_ENVIRONMENT = true` - Enables automatic act() handling
 - Suppresses expected React 19 warnings in test output
 - See `src/test/setup.js` for complete configuration
