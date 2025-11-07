@@ -2,8 +2,8 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { GameHttpRepository } from '../game-http.repository';
 import { GameSession } from '../../../shared/types';
 
-// Mock fetch
-global.fetch = vi.fn();
+const fetchMock = vi.fn();
+globalThis.fetch = fetchMock as unknown as typeof fetch;
 
 describe('GameHttpRepository', () => {
   let repository: GameHttpRepository;
@@ -11,17 +11,19 @@ describe('GameHttpRepository', () => {
   beforeEach(() => {
     repository = new GameHttpRepository('http://localhost:3001');
     vi.clearAllMocks();
+    fetchMock.mockReset();
   });
 
   describe('createSession', () => {
     it('should create a game session', async () => {
       const mockSession: GameSession = {
         pin: '123456',
+        quizId: 1,
         quiz_id: 1,
         status: 'waiting',
       };
 
-      vi.mocked(fetch).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => mockSession,
       } as Response);
@@ -29,23 +31,24 @@ describe('GameHttpRepository', () => {
       const result = await repository.createSession('test-token', 1);
 
       expect(result).toEqual(mockSession);
-      expect(fetch).toHaveBeenCalledWith('http://localhost:3001/api/game/create', {
+      expect(fetchMock).toHaveBeenCalledWith('http://localhost:3001/api/sessions/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer test-token',
         },
-        body: JSON.stringify({ quiz_id: 1 }),
+        body: JSON.stringify({ quizId: 1 }),
       });
     });
 
     it('should throw error when session creation fails', async () => {
-      vi.mocked(fetch).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: false,
+        json: async () => ({ message: 'custom.error' }),
       } as Response);
 
       await expect(repository.createSession('test-token', 1)).rejects.toThrow(
-        'Failed to create game session'
+        'custom.error'
       );
     });
   });

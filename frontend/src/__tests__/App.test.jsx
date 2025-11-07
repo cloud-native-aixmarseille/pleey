@@ -14,13 +14,13 @@ vi.mock("socket.io-client", () => ({
 }));
 
 // Mock fetch
-global.fetch = vi.fn();
+globalThis.fetch = vi.fn();
 
 describe("QuizApp", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    global.fetch.mockReset();
-    window.localStorage.clear();
+    globalThis.fetch.mockReset();
+    globalThis.localStorage.clear();
   });
 
   const renderApp = (initialEntries = ["/"]) =>
@@ -72,7 +72,7 @@ describe("QuizApp", () => {
   it("should handle successful login", async () => {
     const user = userEvent.setup();
 
-    global.fetch.mockResolvedValueOnce({
+    globalThis.fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({
         token: "fake-token",
@@ -99,7 +99,7 @@ describe("QuizApp", () => {
 
     // Verify fetch was called
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(globalThis.fetch).toHaveBeenCalledWith(
         expect.stringContaining("/api/login"),
         expect.objectContaining({
           method: "POST",
@@ -112,23 +112,24 @@ describe("QuizApp", () => {
       );
     });
 
-    await waitFor(() => {
-      expect(
-        screen.getByRole("button", { name: /start game/i })
-      ).toBeInTheDocument();
+    const joinGameHeading = await screen.findByRole("heading", {
+      name: /join game/i,
     });
+    expect(joinGameHeading).toBeInTheDocument();
   });
 
   it("should handle registration", async () => {
     const user = userEvent.setup();
 
-    global.fetch.mockResolvedValueOnce({
+    globalThis.fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({ message: "Success" }),
     });
 
     // Mock window.alert
-    const alertMock = vi.spyOn(window, "alert").mockImplementation(() => {});
+    const alertMock = vi
+      .spyOn(globalThis, "alert")
+      .mockImplementation(() => {});
 
     renderApp();
 
@@ -153,7 +154,7 @@ describe("QuizApp", () => {
 
     // Verify fetch was called
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(globalThis.fetch).toHaveBeenCalledWith(
         expect.stringContaining("/api/register"),
         expect.objectContaining({
           method: "POST",
@@ -196,7 +197,7 @@ describe("QuizApp", () => {
       },
     ];
 
-    global.fetch
+    globalThis.fetch
       .mockResolvedValueOnce({
         ok: true,
         json: async () => loginResponse,
@@ -206,7 +207,9 @@ describe("QuizApp", () => {
         json: async () => quizzesResponse,
       });
 
-    const alertMock = vi.spyOn(window, "alert").mockImplementation(() => {});
+    const alertMock = vi
+      .spyOn(globalThis, "alert")
+      .mockImplementation(() => {});
 
     // Start at login page
     renderApp(["/auth/login"]);
@@ -246,7 +249,7 @@ describe("QuizApp", () => {
     });
 
     // Verify no session creation API call was made
-    const createSessionCall = global.fetch.mock.calls.find(
+    const createSessionCall = globalThis.fetch.mock.calls.find(
       ([url]) => typeof url === "string" && url.includes("/api/sessions/create")
     );
     expect(createSessionCall).toBeUndefined();

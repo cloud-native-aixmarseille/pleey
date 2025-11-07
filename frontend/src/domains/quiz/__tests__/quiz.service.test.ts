@@ -1,14 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { quizService } from '../quiz.service';
 
-global.fetch = vi.fn();
+const fetchMock = vi.fn();
+globalThis.fetch = fetchMock as unknown as typeof fetch;
 
 describe('QuizService', () => {
   const mockToken = 'mock-jwt-token';
 
   beforeEach(() => {
     vi.clearAllMocks();
-    global.fetch.mockReset();
+    fetchMock.mockReset();
   });
 
   describe('getQuizzes', () => {
@@ -18,13 +19,13 @@ describe('QuizService', () => {
         { id: 2, title: 'Quiz 2', description: 'Test quiz 2', created_by: 1, created_at: '2024-01-02' }
       ];
 
-      global.fetch.mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         json: async () => mockQuizzes
       });
 
       const result = await quizService.getQuizzes(mockToken);
 
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(fetchMock).toHaveBeenCalledWith(
         expect.stringContaining('/api/quizzes'),
         expect.objectContaining({
           headers: { 'Authorization': `Bearer ${mockToken}` }
@@ -45,13 +46,14 @@ describe('QuizService', () => {
         created_at: '2024-01-03'
       };
 
-      global.fetch.mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
         json: async () => newQuiz
       });
 
-      const result = await quizService.createQuiz(mockToken, 'New Quiz', 'New description');
+      const result = await quizService.createQuiz(mockToken, 'New Quiz', 'New description', 42);
 
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(fetchMock).toHaveBeenCalledWith(
         expect.stringContaining('/api/quizzes'),
         expect.objectContaining({
           method: 'POST',
@@ -59,7 +61,7 @@ describe('QuizService', () => {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${mockToken}`
           },
-          body: JSON.stringify({ title: 'New Quiz', description: 'New description' })
+          body: JSON.stringify({ title: 'New Quiz', description: 'New description', organizationId: 42 })
         })
       );
       expect(result).toEqual(newQuiz);
@@ -84,13 +86,13 @@ describe('QuizService', () => {
         }
       ];
 
-      global.fetch.mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         json: async () => mockQuestions
       });
 
       const result = await quizService.getQuestions(mockToken, 1);
 
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(fetchMock).toHaveBeenCalledWith(
         expect.stringContaining('/api/quizzes/1/questions'),
         expect.objectContaining({
           headers: { 'Authorization': `Bearer ${mockToken}` }
@@ -115,11 +117,11 @@ describe('QuizService', () => {
         points: 1000
       };
 
-      global.fetch.mockResolvedValueOnce({ ok: true });
+      fetchMock.mockResolvedValueOnce({ ok: true });
 
       await quizService.addQuestion(mockToken, questionData);
 
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(fetchMock).toHaveBeenCalledWith(
         expect.stringContaining('/api/questions'),
         expect.objectContaining({
           method: 'POST',
@@ -135,11 +137,11 @@ describe('QuizService', () => {
 
   describe('deleteQuiz', () => {
     it('should delete a quiz', async () => {
-      global.fetch.mockResolvedValueOnce({ ok: true });
+      fetchMock.mockResolvedValueOnce({ ok: true });
 
       await quizService.deleteQuiz(mockToken, 1);
 
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(fetchMock).toHaveBeenCalledWith(
         expect.stringContaining('/api/quizzes/1'),
         expect.objectContaining({
           method: 'DELETE',
@@ -151,11 +153,11 @@ describe('QuizService', () => {
 
   describe('deleteQuestion', () => {
     it('should delete a question', async () => {
-      global.fetch.mockResolvedValueOnce({ ok: true });
+      fetchMock.mockResolvedValueOnce({ ok: true });
 
       await quizService.deleteQuestion(mockToken, 1);
 
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(fetchMock).toHaveBeenCalledWith(
         expect.stringContaining('/api/questions/1'),
         expect.objectContaining({
           method: 'DELETE',

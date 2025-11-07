@@ -1,25 +1,25 @@
-import { AuthHttpRepository } from '../domains/auth/infrastructure/auth-http.repository';
-import { QuizHttpRepository } from '../domains/quiz/infrastructure/quiz-http.repository';
-import { GameHttpRepository } from '../domains/game/infrastructure/game-http.repository';
-import { GameSocketAdapter } from '../domains/game/infrastructure/game-socket.adapter';
-import { LocalStorageAdapter } from '../shared/infrastructure/local-storage.adapter';
+import { AuthHttpRepository } from '../../domains/auth/infrastructure/auth-http.repository';
+import { QuizHttpRepository } from '../../domains/quiz/infrastructure/quiz-http.repository';
+import { GameHttpRepository } from '../../domains/game/infrastructure/game-http.repository';
+import { GameSocketAdapter } from '../../domains/game/infrastructure/game-socket.adapter';
+import { LocalStorageAdapter } from '../infrastructure/local-storage.adapter';
 
 // Auth Use Cases
-import { LoginUseCase } from '../application/auth/use-cases/login.use-case';
-import { RegisterUseCase } from '../application/auth/use-cases/register.use-case';
-import { LogoutUseCase } from '../application/auth/use-cases/logout.use-case';
-import { RestoreSessionUseCase } from '../application/auth/use-cases/restore-session.use-case';
+import { LoginUseCase } from '../../application/auth/use-cases/login.use-case';
+import { RegisterUseCase } from '../../application/auth/use-cases/register.use-case';
+import { LogoutUseCase } from '../../application/auth/use-cases/logout.use-case';
+import { RestoreSessionUseCase } from '../../application/auth/use-cases/restore-session.use-case';
 
 // Quiz Use Cases
-import { GetQuizzesUseCase } from '../application/quiz/use-cases/get-quizzes.use-case';
-import { GetQuestionsUseCase } from '../application/quiz/use-cases/get-questions.use-case';
-import { CreateQuizUseCase } from '../application/quiz/use-cases/create-quiz.use-case';
-import { AddQuestionUseCase } from '../application/quiz/use-cases/add-question.use-case';
+import { GetQuizzesUseCase } from '../../application/quiz/use-cases/get-quizzes.use-case';
+import { GetQuestionsUseCase } from '../../application/quiz/use-cases/get-questions.use-case';
+import { CreateQuizUseCase } from '../../application/quiz/use-cases/create-quiz.use-case';
+import { AddQuestionUseCase } from '../../application/quiz/use-cases/add-question.use-case';
 
 // Game Use Cases
-import { LaunchQuizUseCase } from '../application/game/use-cases/launch-quiz.use-case';
-import { JoinGameUseCase } from '../application/game/use-cases/join-game.use-case';
-import { SubmitAnswerUseCase } from '../application/game/use-cases/submit-answer.use-case';
+import { LaunchQuizUseCase } from '../../application/game/use-cases/launch-quiz.use-case';
+import { JoinGameUseCase } from '../../application/game/use-cases/join-game.use-case';
+import { SubmitAnswerUseCase } from '../../application/game/use-cases/submit-answer.use-case';
 
 /**
  * Dependency Injection Container

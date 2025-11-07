@@ -51,12 +51,9 @@ function PlayersSectionComponent({
                 className="p-4 sm:p-6 text-center animate-scale-in border-2 border-accent-500/20 hover:border-accent-500"
                 style={{ animationDelay: `${index * 0.05}s` }}
               >
-                <div
-                  className="text-4xl sm:text-5xl mb-3 animate-bounce-slow flex justify-center"
-                  aria-hidden="true"
-                >
-                  <img 
-                    src={player.avatar} 
+                <div className="text-4xl sm:text-5xl mb-3 animate-bounce-slow flex justify-center">
+                  <img
+                    src={player.avatar}
                     alt={`Avatar for ${player.username}`}
                     className="w-16 h-16 sm:w-20 sm:h-20"
                   />
