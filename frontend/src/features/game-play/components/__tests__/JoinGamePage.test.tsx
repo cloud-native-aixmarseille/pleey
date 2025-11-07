@@ -5,9 +5,15 @@ import JoinGamePage from "../JoinGamePage";
 
 const mockNavigate = vi.fn();
 
-vi.mock("react-router-dom", () => ({
-  useNavigate: () => mockNavigate,
-}));
+vi.mock("react-router-dom", async () => {
+  const actual = await vi.importActual<typeof import("react-router-dom")>(
+    "react-router-dom"
+  );
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
 
 describe("JoinGamePage", () => {
   beforeEach(() => {
