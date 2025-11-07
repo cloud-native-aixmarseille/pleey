@@ -2,6 +2,7 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepositoryProvider } from '../../../domain/auth/repositories/user.repository.interface';
 import type { UserRepository } from '../../../domain/auth/repositories/user.repository.interface';
 import { AuthErrorCode } from '../enums/auth-error-code.enum';
+import { mapUserToPublicProfile } from '../../shared/utils/avatar-url.util';
 
 @Injectable()
 export class GetCurrentUserUseCase {
@@ -17,6 +18,6 @@ export class GetCurrentUserUseCase {
       throw new NotFoundException(AuthErrorCode.USER_NOT_FOUND);
     }
 
-    return user.toSafeObject();
+    return mapUserToPublicProfile(user);
   }
 }

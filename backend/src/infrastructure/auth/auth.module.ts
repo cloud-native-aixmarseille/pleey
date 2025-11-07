@@ -15,6 +15,7 @@ import { DatabaseModule } from '../database/database.module';
 import { PrismaUserRepository } from '../repositories/prisma-user.repository';
 import { AuthController } from './auth.controller';
 import { ProfileController } from './profile.controller';
+import { AvatarController } from './avatar.controller';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { JwtStrategy } from './jwt.strategy';
 
@@ -32,7 +33,7 @@ if (!jwtSecret) {
       signOptions: { expiresIn: '1h' },
     }),
   ],
-  controllers: [AuthController, ProfileController],
+  controllers: [AuthController, ProfileController, AvatarController],
   providers: [
     LoginUserUseCase,
     RegisterUserUseCase,

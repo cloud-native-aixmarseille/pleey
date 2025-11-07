@@ -65,6 +65,7 @@ export class I18nHttpExceptionFilter implements ExceptionFilter {
       [AuthErrorCode.PASSWORD_TOO_SHORT]: 'auth.errors.passwordTooShort',
       [AuthErrorCode.USER_NOT_FOUND]: 'auth.errors.userNotFound',
       [AuthErrorCode.UNAUTHORIZED]: 'auth.errors.unauthorized',
+      [AuthErrorCode.AVATAR_NOT_FOUND]: 'auth.errors.avatarNotFound',
     };
 
     return this.i18n.translate(errorMap[code]);

@@ -5,8 +5,8 @@ import LobbyPage from "../LobbyPage";
 
 describe("LobbyPage", () => {
   const mockPlayers = [
-    { id: 1, username: "Player1", avatar: "data:image/svg+xml;base64,test1" },
-    { id: 2, username: "Player2", avatar: "data:image/svg+xml;base64,test2" },
+    { id: 1, username: "Player1", avatar: "/api/avatars/sessions/1/user-1" },
+    { id: 2, username: "Player2", avatar: "/api/avatars/sessions/1/user-2" },
   ];
 
   it("should render lobby page with PIN", () => {
@@ -107,8 +107,16 @@ describe("LobbyPage", () => {
 
   it("should exclude admin host using username when id is unavailable", () => {
     const playersMissingId = [
-      { id: undefined as unknown as number, username: "HostUser", avatar: "data:image/svg+xml;base64,test1" },
-      { id: 2 as unknown as number, username: "GuestPlayer", avatar: "data:image/svg+xml;base64,test2" },
+      {
+        id: undefined as unknown as number,
+        username: "HostUser",
+        avatar: "/api/avatars/sessions/2/user-host",
+      },
+      {
+        id: 2 as unknown as number,
+        username: "GuestPlayer",
+        avatar: "/api/avatars/sessions/2/guest-1",
+      },
     ];
 
     render(
@@ -129,8 +137,16 @@ describe("LobbyPage", () => {
 
   it("should exclude admin host when player id uses username value", () => {
     const playersWithNamedId = [
-      { id: "admin" as unknown as number, username: "admin", avatar: "data:image/svg+xml;base64,test1" },
-      { id: "player-1" as unknown as number, username: "PlayerOne", avatar: "data:image/svg+xml;base64,test2" },
+      {
+        id: "admin" as unknown as number,
+        username: "admin",
+        avatar: "/api/avatars/sessions/3/user-admin",
+      },
+      {
+        id: "player-1" as unknown as number,
+        username: "PlayerOne",
+        avatar: "/api/avatars/sessions/3/guest-1",
+      },
     ];
 
     render(

@@ -2,6 +2,7 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepositoryProvider } from '../../../domain/auth/repositories/user.repository.interface';
 import type { UserRepository } from '../../../domain/auth/repositories/user.repository.interface';
 import { UserAvatarService } from '../../../domain/auth/services/user-avatar.service';
+import { mapUserToPublicProfile } from '../../shared/utils/avatar-url.util';
 import { AuthErrorCode } from '../enums/auth-error-code.enum';
 
 @Injectable()
@@ -24,6 +25,6 @@ export class RegenerateUserAvatarUseCase {
       avatarUrl,
     });
 
-    return updated.toSafeObject();
+    return mapUserToPublicProfile(updated);
   }
 }

@@ -6,6 +6,7 @@ import { PasswordService } from '../../../domain/auth/services/password.service'
 import type { AuthResponseDto } from '../dto/auth-response.dto';
 import type { LoginUserDto } from '../dto/login-user.dto';
 import { AuthErrorCode } from '../enums/auth-error-code.enum';
+import { mapUserToPublicProfile, toPublicAvatarUrl } from '../../shared/utils/avatar-url.util';
 
 /**
  * Login User Use Case
@@ -33,24 +34,19 @@ export class LoginUserUseCase {
     }
 
     // Generate JWT token
+    const avatarUrl = toPublicAvatarUrl(user);
     const payload = {
       id: user.id,
       username: user.username,
       isAdmin: user.isAdmin,
-      avatarUrl: user.avatarUrl,
+      avatarUrl,
     };
     const token = this.jwtService.sign(payload);
 
     // Return response
     return {
       token,
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        isAdmin: user.isAdmin,
-        avatarUrl: user.avatarUrl,
-      },
+      user: mapUserToPublicProfile(user),
     };
   }
 }

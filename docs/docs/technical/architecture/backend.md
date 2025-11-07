@@ -56,6 +56,8 @@ backend/
 
 ## 🔌 REST API Endpoints
 
+All HTTP routes are exposed under the global `/api` prefix (e.g. `/api/login`).
+
 ### Health Checks
 
 | Method | Endpoint | Description | Auth |
@@ -70,6 +72,23 @@ backend/
 |--------|----------|-------------|------|
 | POST | `/register` | Register new user | ✗ |
 | POST | `/login` | Login and get JWT token | ✗ |
+
+### Profile
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/profile/me` | Retrieve authenticated user profile | ✓ |
+| PATCH | `/profile/me` | Update username / email | ✓ |
+| POST | `/profile/me/avatar` | Regenerate deterministic avatar | ✓ |
+
+### Avatar Media
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/avatars/users/:userId` | Stream the latest SVG avatar for a registered user. Responses include cache-busting `?v=` fingerprint query parameters. | ✗* |
+| GET | `/avatars/sessions/:sessionId/:seed` | Generate transient SVG avatars for lobby/game participants (seeded per session). | ✗* |
+
+> \*Avatars are intentionally served without authentication to enable CDN/browser caching. The `?v=` fingerprint is derived from the stored SVG payload to ensure browsers fetch the most recent avatar immediately after regeneration.
 
 ### Quiz Management
 
@@ -283,6 +302,8 @@ Player → Enters PIN → Validates session → Joins lobby
                                               ↓
                                         Waits for start
 ```
+
+Player roster payloads now include `avatar` fields that point to the session-based `/api/avatars/sessions/:sessionId/:seed` endpoint. Frontend clients should resolve these relative URLs against the configured API origin (see `resolveAvatarUrl` helper) rather than expecting base64 blobs.
 
 ### 3. Running the Game
 

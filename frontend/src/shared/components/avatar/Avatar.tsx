@@ -1,4 +1,5 @@
 import { memo, useMemo } from "react";
+import { resolveAvatarUrl } from "../../utils/resolveAvatarUrl";
 
 interface AvatarProps {
   name: string;
@@ -34,11 +35,12 @@ function AvatarComponent({
   className = "",
 }: AvatarProps) {
   const initials = useMemo(() => getInitials(name), [name]);
+  const resolvedSrc = useMemo(() => resolveAvatarUrl(src), [src]);
 
-  if (src) {
+  if (resolvedSrc) {
     return (
       <img
-        src={src}
+        src={resolvedSrc}
         alt={name}
         className={`rounded-full object-cover border-2 border-primary-500/40 shadow-lg ${sizeStyles[size]} ${className}`}
         referrerPolicy="no-referrer"

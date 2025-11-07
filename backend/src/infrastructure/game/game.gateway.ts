@@ -32,7 +32,7 @@ import {
 } from '../../domain/quiz/repositories/question.repository.interface';
 import { GameErrorCode } from '../../application/game/enums/game-error-code.enum';
 import { I18nWsExceptionFilter } from '../filters/i18n-ws-exception.filter';
-import { AvatarGeneratorService } from '../../domain/shared/services/avatar-generator.service';
+import { buildSessionPlayerAvatarUrl } from '../../application/shared/utils/avatar-url.util';
 
 const RAW_SOCKET_ORIGINS = process.env.CORS_ORIGIN ?? '';
 const PARSED_SOCKET_ORIGINS = RAW_SOCKET_ORIGINS.split(',')
@@ -48,7 +48,7 @@ interface PlayerState {
   guestId?: string; // Present for guest players
   username: string;
   socketId: string;
-  avatar: string;
+  avatarSeed: string;
   isGuest: boolean;
 }
 
@@ -95,7 +95,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     private readonly submitAnswerUseCase: SubmitAnswerUseCase,
     private readonly getLeaderboardUseCase: GetLeaderboardUseCase,
     private readonly i18n: I18nService,
-    private readonly avatarGenerator: AvatarGeneratorService,
   ) { }
 
   afterInit(): void {
@@ -115,7 +114,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
           this.sessions.delete(pin);
         } else {
           this.server.to(pin).emit('player-joined', {
-            players: this.mapPlayers(state.players),
+            players: this.mapPlayers(state),
           });
         }
         break;
@@ -153,7 +152,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
       // Generate avatar seed based on player type
       const avatarSeed = isGuest ? guestId! : `${dto.userId}`;
-      const avatar = existingEntry?.avatar ?? this.avatarGenerator.generateAvatar(avatarSeed, state.sessionId);
+      const resolvedAvatarSeed = existingEntry?.avatarSeed ?? avatarSeed;
 
       if (existingEntry) {
         state.players.delete(existingEntry.socketId);
@@ -164,14 +163,14 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         userId: dto.userId,
         guestId: isGuest ? guestId : undefined,
         username: dto.username,
-        avatar,
+        avatarSeed: resolvedAvatarSeed,
         isGuest,
       });
 
       client.join(dto.pin);
 
       this.server.to(dto.pin).emit('player-joined', {
-        players: this.mapPlayers(state.players),
+        players: this.mapPlayers(state),
       });
     } catch (error) {
       this.handleError(client, error);
@@ -415,18 +414,18 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     this.sessions.delete(pin);
   }
 
-  private mapPlayers(players: Map<string, PlayerState>): Array<{
+  private mapPlayers(state: SessionState): Array<{
     id?: number;
     guestId?: string;
     username: string;
     avatar: string;
     isGuest: boolean;
   }> {
-    return Array.from(players.values()).map((player) => ({
+    return Array.from(state.players.values()).map((player) => ({
       id: player.userId,
       guestId: player.guestId,
       username: player.username,
-      avatar: player.avatar,
+      avatar: buildSessionPlayerAvatarUrl(state.sessionId, player.avatarSeed),
       isGuest: player.isGuest,
     }));
   }

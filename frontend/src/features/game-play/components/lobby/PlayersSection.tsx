@@ -1,6 +1,7 @@
 import { memo, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Card } from "../../../../shared/components";
+import { resolveAvatarUrl } from "../../../../shared/utils/resolveAvatarUrl";
 import { Player } from "../../../../shared/types";
 
 interface PlayersSectionProps {
@@ -44,38 +45,45 @@ function PlayersSectionComponent({
           className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 list-none"
           aria-label={t("game.connectedPlayers")}
         >
-          {players.map((player, index) => (
-            <li key={player.id} className="list-none">
-              <Card
-                hover
-                className="p-4 sm:p-6 text-center animate-scale-in border-2 border-accent-500/20 hover:border-accent-500"
-                style={{ animationDelay: `${index * 0.05}s` }}
-              >
-                <div
-                  className="text-4xl sm:text-5xl mb-3 animate-bounce-slow flex justify-center"
+          {players.map((player, index) => {
+            const avatarUrl = resolveAvatarUrl(player.avatar);
+
+            return (
+              <li key={player.id} className="list-none">
+                <Card
+                  hover
+                  className="p-4 sm:p-6 text-center animate-scale-in border-2 border-accent-500/20 hover:border-accent-500"
+                  style={{ animationDelay: `${index * 0.05}s` }}
                 >
-                  <img 
-                    src={player.avatar} 
-                    alt={`Avatar for ${player.username}`}
-                    className="w-16 h-16 sm:w-20 sm:h-20"
-                  />
-                </div>
-                <div
-                  className="font-mono text-xs sm:text-sm text-accent-400 truncate font-bold uppercase"
-                  title={player.username}
-                >
-                  {player.username}
-                </div>
-                <div className="mt-2 inline-flex items-center gap-1 px-2 py-1 bg-success-500/20 border border-success-500 text-success-400 rounded-lg text-xxs sm:text-xs font-mono uppercase">
-                  <span
-                    className="w-1.5 h-1.5 bg-success-500 rounded-full animate-pulse"
-                    aria-hidden="true"
-                  />
-                  <span>{t("game.ready")}</span>
-                </div>
-              </Card>
-            </li>
-          ))}
+                  <div className="text-4xl sm:text-5xl mb-3 animate-bounce-slow flex justify-center">
+                    {avatarUrl ? (
+                      <img
+                        src={avatarUrl}
+                        alt={`Avatar for ${player.username}`}
+                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-primary-500/30"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <span aria-hidden="true">👤</span>
+                    )}
+                  </div>
+                  <div
+                    className="font-mono text-xs sm:text-sm text-accent-400 truncate font-bold uppercase"
+                    title={player.username}
+                  >
+                    {player.username}
+                  </div>
+                  <div className="mt-2 inline-flex items-center gap-1 px-2 py-1 bg-success-500/20 border border-success-500 text-success-400 rounded-lg text-xxs sm:text-xs font-mono uppercase">
+                    <span
+                      className="w-1.5 h-1.5 bg-success-500 rounded-full animate-pulse"
+                      aria-hidden="true"
+                    />
+                    <span>{t("game.ready")}</span>
+                  </div>
+                </Card>
+              </li>
+            );
+          })}
 
           {fillerSlots.map((_, index) => (
             <li key={`empty-${index}`} className="list-none">

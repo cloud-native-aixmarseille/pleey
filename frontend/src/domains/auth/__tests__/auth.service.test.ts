@@ -22,9 +22,9 @@ describe('AuthService', () => {
 
       const postSpy = vi.spyOn(fetchClient, 'POST') as unknown as Mock;
       postSpy.mockResolvedValueOnce({
-          data: mockResponse,
-          error: undefined,
-        } as any);
+        data: mockResponse,
+        error: undefined,
+      } as any);
 
       const result = await authService.login('test@example.com', 'password123');
 
@@ -57,9 +57,9 @@ describe('AuthService', () => {
     it('should successfully register a new user', async () => {
       const postSpy = vi.spyOn(fetchClient, 'POST') as unknown as Mock;
       postSpy.mockResolvedValueOnce({
-          data: undefined,
-          error: undefined,
-        } as any);
+        data: undefined,
+        error: undefined,
+      } as any);
 
       await authService.register('newuser', 'new@example.com', 'password123');
 
@@ -91,14 +91,14 @@ describe('AuthService', () => {
         username: 'testuser',
         email: 'test@example.com',
         isAdmin: false,
-        avatarUrl: 'data:image/svg+xml;base64,ZmFrZQ=='
+        avatarUrl: '/api/avatars/users/1?v=fingerprint'
       };
 
       const postSpy = vi.spyOn(fetchClient, 'POST') as unknown as Mock;
       postSpy.mockResolvedValueOnce({
-          data: mockUser,
-          error: undefined,
-        } as any);
+        data: mockUser,
+        error: undefined,
+      } as any);
 
       const result = await authService.regenerateAvatar();
 
