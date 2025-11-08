@@ -3,6 +3,7 @@ import { CreateGameSessionUseCase } from '../../application/game/use-cases/creat
 import { StopGameSessionUseCase } from '../../application/game/use-cases/stop-game-session.use-case';
 import { ResumeGameSessionUseCase } from '../../application/game/use-cases/resume-game-session.use-case';
 import { GetActiveSessionsUseCase } from '../../application/game/use-cases/get-active-sessions.use-case';
+import { GetQuizSessionsUseCase } from '../../application/game/use-cases/get-quiz-sessions.use-case';
 import { GetLeaderboardUseCase } from '../../application/game/use-cases/get-leaderboard.use-case';
 import { SubmitAnswerUseCase } from '../../application/game/use-cases/submit-answer.use-case';
 import { ScoreCalculatorService } from '../../domain/game/services/score-calculator.service';
@@ -32,6 +33,7 @@ import { I18nWsExceptionFilter } from '../filters/i18n-ws-exception.filter';
     StopGameSessionUseCase,
     ResumeGameSessionUseCase,
     GetActiveSessionsUseCase,
+    GetQuizSessionsUseCase,
     GetLeaderboardUseCase,
     SubmitAnswerUseCase,
     ScoreCalculatorService,

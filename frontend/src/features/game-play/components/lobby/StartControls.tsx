@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Button } from "../../../../shared/components";
+import { BackToButton, Button } from "../../../../shared/components";
 
 interface StartControlsProps {
   readonly isAdmin: boolean;
@@ -49,20 +49,11 @@ export default function StartControls({
   return (
     <div className="space-y-3">
       {onBackToAdmin && (
-        <Button
-          variant="secondary"
-          size="lg"
-          fullWidth
+        <BackToButton
+          label={t("quiz.backToAdmin", "BACK TO ADMIN PANEL")}
           onClick={onBackToAdmin}
-          className="retro-shadow font-display text-sm sm:text-base hover:scale-105 transform transition-all"
-        >
-          <span className="flex items-center justify-center gap-2">
-            <span className="text-lg sm:text-xl" aria-hidden="true">
-              ←
-            </span>
-            <span>{t("quiz.backToAdmin", "BACK TO ADMIN PANEL").toUpperCase()}</span>
-          </span>
-        </Button>
+          fullWidth
+        />
       )}
 
       <Button

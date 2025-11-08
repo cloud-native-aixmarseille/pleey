@@ -33,6 +33,16 @@ export interface GameSessionRepository {
   findActiveByAdminId(adminId: number): Promise<GameSession[]>;
 
   /**
+   * Finds the active or paused session for a specific quiz
+   */
+  findActiveByQuizId(quizId: number): Promise<GameSession | null>;
+
+  /**
+   * Finds all sessions for a specific quiz
+   */
+  findByQuizId(quizId: number): Promise<GameSession[]>;
+
+  /**
    * Finds sessions by organization
    */
   findByOrganization(organizationId: number): Promise<GameSession[]>;

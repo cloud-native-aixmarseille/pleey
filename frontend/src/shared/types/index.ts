@@ -63,6 +63,7 @@ export interface Question {
 
 export interface GameSession {
   sessionId?: number;
+  session_id?: number;
   pin: string;
   quizId?: number;
   quiz_id?: number;

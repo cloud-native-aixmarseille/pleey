@@ -22,7 +22,10 @@
     "registerTitle": "Sign Up",
     "registerSubtitle": "Join QuizMaster and start playing",
     "loginButton": "Sign In",
+    "emailPlaceholder": "your@email.com",
+    "passwordPlaceholder": "********",
     "registerButton": "Create Account",
+    "usernamePlaceholder": "PlayerOne",
     "newToQuizMaster": "New to QuizMaster?",
     "alreadyHaveAccount": "Already have an account?",
     "createAccount": "Create an account",
@@ -80,6 +83,8 @@
     "logout": "Logout",
     "dashboard": "Admin Dashboard",
     "manageQuizzesSubtitle": "Manage your quizzes and launch game sessions",
+    "liveSessionsTitle": "Live game sessions",
+    "liveSessionsSubtitle": "Monitor active sessions and their PINs.",
     "totalQuizzes": "Total Quizzes",
     "activeQuizzes": "Active Quizzes",
     "questions": "Questions",
@@ -101,7 +106,44 @@
     "deleteQuizModalTitle": "Delete quiz",
     "deleteQuizModalDescription": "This will remove \"{{title}}\" and all of its questions.",
     "deleteQuizModalWarning": "This action cannot be undone.",
-    "confirmDelete": "Delete quiz"
+    "confirmDelete": "Delete quiz",
+    "liveSessionBadge": "LIVE",
+    "liveSessionView": "Open quiz",
+    "liveSessionLaunchBlocked": "Stop the live session before launching another.",
+    "noLiveSessions": "No live sessions right now.",
+    "unknownQuiz": "Unknown quiz",
+    "sessionPinLabel": "PIN {{pin}}",
+    "sessionStartedLabel": "Started {{date}}",
+    "sessionUnknownDate": "Unknown start time",
+    "sessionListTitle": "Session history",
+    "sessionListSubtitle": "Review current and past sessions.",
+    "viewSessions": "View session history",
+    "viewQuestions": "Back to questions",
+    "sessionRefresh": "Refresh sessions",
+    "sessionEmpty": "No sessions recorded for this quiz yet.",
+    "sessionEmptyDescription": "Launch a live game to start building this history.",
+    "sessionCurrentQuestion": "Current question #{{index}}",
+    "sessionRejoin": "Rejoin session",
+    "sessionViewDetails": "View details",
+    "sessionStatus": {
+      "waiting": "Waiting",
+      "active": "Active",
+      "paused": "Paused",
+      "completed": "Completed",
+      "ended": "Ended"
+    },
+    "sessionDetailsTitle": "Session PIN {{pin}} details",
+    "sessionDetailsDescription": "Status: {{status}}",
+    "sessionDetailsFields": {
+      "status": "Status",
+      "startedAt": "Started at",
+      "sessionId": "Session ID",
+      "questionIndex": "Final question"
+    },
+    "sessionPaginationSummary": "Showing {{start}}-{{end}} of {{total}} sessions",
+    "sessionPaginationPrevious": "Previous",
+    "sessionPaginationNext": "Next",
+    "sessionPaginationPage": "Page {{page}} / {{totalPages}}"
   },
   "quiz": {
     "title": "Quiz",
@@ -238,6 +280,51 @@
     "joinManualLinkPrefix": "Join at",
     "joinStepWaitDescription": "Stay here until the host launches the quiz.",
     "copyPinAriaLabel": "Copy game PIN to clipboard",
+    "playing": {
+      "timer": {
+        "questionProgress": "Question {{current}} / {{total}}",
+        "ariaTimeRemaining": "Time remaining: {{count}} seconds",
+        "progressLabel": "Question time progress",
+        "remainingLabel": "{{time}}s"
+      },
+      "trueFalse": {
+        "trueWord": "TRUE",
+        "falseWord": "FALSE"
+      },
+      "result": {
+        "titleCorrect": "BRAVO !",
+        "titleIncorrect": "OOPS !",
+        "summaryPoints": "+{{points}} points",
+        "summaryCorrectAnswer": "Correct answer: {{answer}}",
+        "distributionTitle": "📊 Answer Distribution",
+        "distributionAriaLabel": "Answer distribution statistics",
+        "distributionCount_one": "{{count}} response",
+        "distributionCount_other": "{{count}} responses",
+        "optionLabel": "{{option}}. {{text}}",
+        "booleanLabel": {
+          "true": "✓ TRUE",
+          "false": "✗ FALSE"
+        },
+        "booleanAria": {
+          "true": "True",
+          "false": "False"
+        },
+        "announcementCorrect": "Correct! You earned {{points}} points.",
+        "announcementIncorrect": "Incorrect. The correct answer was {{answer}}.",
+        "announcementStatistics": "{{count}} players have answered this question.",
+        "ariaPercent": "{{percent}}% of players",
+        "ariaCount": "{{count}} out of {{total}} players selected this answer",
+        "ariaCorrect": "correct answer",
+        "ariaUser": "your answer",
+        "shareTitle": "QuizMaster - Question Result",
+        "shareText": "I {{result}} and scored {{points}} points on question {{question}}! 🎯",
+        "shareTextResult": {
+          "correct": "got it right",
+          "incorrect": "missed it"
+        },
+        "nextQuestion": "Next question"
+      }
+    },
     "share": {
       "errors": {
         "nativeShareFailed": "Sharing failed. Copy the link manually instead.",
@@ -248,7 +335,8 @@
       "sessionCreateFailed": "Failed to create session",
       "activeSessionsFetchFailed": "Failed to fetch active sessions",
       "sessionStopFailed": "Failed to stop session",
-      "sessionResumeFailed": "Failed to resume session"
+      "sessionResumeFailed": "Failed to resume session",
+      "quizSessionAlreadyActive": "This quiz already has a live session. Close it before starting another."
     }
   },
   "common": {
@@ -310,7 +398,8 @@
     "deleteQuizFailed": "Failed to delete quiz. Please try again.",
     "questionCreateFailed": "Failed to create question. Please try again.",
     "questionDeleteFailed": "Failed to delete question. Please try again.",
-    "questionUpdateFailed": "Failed to update question. Please try again."
+    "questionUpdateFailed": "Failed to update question. Please try again.",
+    "sessionsLoadFailed": "Failed to load sessions. Please try again."
   },
   "notifications": {
     "labels": {

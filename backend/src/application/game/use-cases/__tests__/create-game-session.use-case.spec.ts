@@ -21,8 +21,12 @@ describe('CreateGameSessionUseCase', () => {
       findByPin: vi.fn(),
       findById: vi.fn(),
       findActiveByAdminId: vi.fn(),
+      findActiveByQuizId: vi.fn(),
+      findByQuizId: vi.fn(),
+      findByOrganization: vi.fn(),
       updateStatus: vi.fn(),
       updateCurrentQuestion: vi.fn(),
+      countActiveByQuizId: vi.fn(),
       deleteOldSessions: vi.fn(),
     };
 
@@ -37,12 +41,13 @@ describe('CreateGameSessionUseCase', () => {
     };
 
     mockQuizRepository = {
+      create: vi.fn(),
       findById: vi.fn(),
       findAll: vi.fn(),
-      create: vi.fn(),
+      findByOrganization: vi.fn(),
+      findByCreator: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
-      findByCreatedBy: vi.fn(),
     };
 
     useCase = new CreateGameSessionUseCase(
@@ -61,6 +66,7 @@ describe('CreateGameSessionUseCase', () => {
       vi.spyOn(mockMemberRepository, 'findByOrganizationAndUser').mockResolvedValue(
         new OrganizationMember(1, 1, 100, OrganizationRole.OWNER, new Date())
       );
+      vi.spyOn(mockGameSessionRepository, 'findActiveByQuizId').mockResolvedValue(null);
       vi.spyOn(mockGameSessionRepository, 'findActiveByAdminId').mockResolvedValue([]);
       vi.spyOn(mockGameSessionRepository, 'create').mockResolvedValue(mockSession);
 
@@ -70,6 +76,7 @@ describe('CreateGameSessionUseCase', () => {
       expect(result.pin).toBeDefined();
       expect(result.pin).toHaveLength(6);
       expect(mockQuizRepository.findById).toHaveBeenCalledWith(1);
+      expect(mockGameSessionRepository.findActiveByQuizId).toHaveBeenCalledWith(1);
       expect(mockGameSessionRepository.findActiveByAdminId).toHaveBeenCalledWith(100);
       expect(mockGameSessionRepository.create).toHaveBeenCalled();
     });
@@ -82,37 +89,75 @@ describe('CreateGameSessionUseCase', () => {
       ).rejects.toThrow(NotFoundException);
     });
 
-    it('should throw BadRequestException when admin has active sessions', async () => {
+    it('should throw BadRequestException when admin has other active sessions', async () => {
       const mockQuiz = new Quiz(1, 'Test Quiz', 'Description', 100, 1, new Date());
-      const activeSession = new GameSession(1, 1, 100, 1, '123456', 'active', 2, new Date());
+      const activeSession = new GameSession(2, 2, 100, 1, '654321', 'active', 2, new Date());
 
       vi.spyOn(mockQuizRepository, 'findById').mockResolvedValue(mockQuiz);
       vi.spyOn(mockMemberRepository, 'findByOrganizationAndUser').mockResolvedValue(
         new OrganizationMember(1, 1, 100, OrganizationRole.OWNER, new Date())
       );
+      vi.spyOn(mockGameSessionRepository, 'findActiveByQuizId').mockResolvedValue(null);
       vi.spyOn(mockGameSessionRepository, 'findActiveByAdminId').mockResolvedValue([activeSession]);
 
       await expect(
         useCase.execute({ quizId: 1, adminId: 100 })
       ).rejects.toThrow(BadRequestException);
-      
+
       expect(mockGameSessionRepository.create).not.toHaveBeenCalled();
     });
 
-    it('should throw BadRequestException when admin has paused sessions', async () => {
+    it('should throw BadRequestException when quiz already has an active session', async () => {
       const mockQuiz = new Quiz(1, 'Test Quiz', 'Description', 100, 1, new Date());
-      const pausedSession = new GameSession(1, 1, 100, 1, '123456', 'paused', 2, new Date());
+      const quizSession = new GameSession(5, 1, 999, 1, '999999', 'active', 1, new Date());
 
       vi.spyOn(mockQuizRepository, 'findById').mockResolvedValue(mockQuiz);
       vi.spyOn(mockMemberRepository, 'findByOrganizationAndUser').mockResolvedValue(
         new OrganizationMember(1, 1, 100, OrganizationRole.OWNER, new Date())
       );
+      vi.spyOn(mockGameSessionRepository, 'findActiveByQuizId').mockResolvedValue(quizSession);
+
+      await expect(
+        useCase.execute({ quizId: 1, adminId: 100 })
+      ).rejects.toThrow(BadRequestException);
+
+      expect(mockGameSessionRepository.findActiveByAdminId).not.toHaveBeenCalled();
+      expect(mockGameSessionRepository.create).not.toHaveBeenCalled();
+    });
+
+    it('should throw BadRequestException when admin has paused sessions', async () => {
+      const mockQuiz = new Quiz(1, 'Test Quiz', 'Description', 100, 1, new Date());
+      const pausedSession = new GameSession(3, 2, 100, 1, '123456', 'paused', 2, new Date());
+
+      vi.spyOn(mockQuizRepository, 'findById').mockResolvedValue(mockQuiz);
+      vi.spyOn(mockMemberRepository, 'findByOrganizationAndUser').mockResolvedValue(
+        new OrganizationMember(1, 1, 100, OrganizationRole.OWNER, new Date())
+      );
+      vi.spyOn(mockGameSessionRepository, 'findActiveByQuizId').mockResolvedValue(null);
       vi.spyOn(mockGameSessionRepository, 'findActiveByAdminId').mockResolvedValue([pausedSession]);
 
       await expect(
         useCase.execute({ quizId: 1, adminId: 100 })
       ).rejects.toThrow(BadRequestException);
-      
+
+      expect(mockGameSessionRepository.create).not.toHaveBeenCalled();
+    });
+
+    it('should return existing session when admin already has active session for quiz', async () => {
+      const mockQuiz = new Quiz(1, 'Test Quiz', 'Description', 100, 1, new Date());
+      const existingSession = new GameSession(5, 1, 100, 1, '999999', 'active', 1, new Date());
+
+      vi.spyOn(mockQuizRepository, 'findById').mockResolvedValue(mockQuiz);
+      vi.spyOn(mockMemberRepository, 'findByOrganizationAndUser').mockResolvedValue(
+        new OrganizationMember(1, 1, 100, OrganizationRole.OWNER, new Date())
+      );
+      vi.spyOn(mockGameSessionRepository, 'findActiveByQuizId').mockResolvedValue(existingSession);
+
+      const result = await useCase.execute({ quizId: 1, adminId: 100 });
+
+      expect(result.session).toBe(existingSession);
+      expect(result.pin).toBe(existingSession.pin);
+      expect(mockGameSessionRepository.findActiveByAdminId).not.toHaveBeenCalled();
       expect(mockGameSessionRepository.create).not.toHaveBeenCalled();
     });
 
@@ -124,6 +169,7 @@ describe('CreateGameSessionUseCase', () => {
       vi.spyOn(mockMemberRepository, 'findByOrganizationAndUser').mockResolvedValue(
         new OrganizationMember(1, 1, 100, OrganizationRole.OWNER, new Date())
       );
+      vi.spyOn(mockGameSessionRepository, 'findActiveByQuizId').mockResolvedValue(null);
       vi.spyOn(mockGameSessionRepository, 'findActiveByAdminId').mockResolvedValue([]);
       vi.spyOn(mockGameSessionRepository, 'create').mockResolvedValue(mockSession);
 

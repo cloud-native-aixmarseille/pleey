@@ -1,6 +1,6 @@
 import { ReactNode, ButtonHTMLAttributes, forwardRef } from "react";
 
-type ButtonVariant =
+export type ButtonVariant =
   | "primary"
   | "secondary"
   | "accent"
@@ -8,9 +8,9 @@ type ButtonVariant =
   | "danger"
   | "outline"
   | "ghost";
-type ButtonSize = "sm" | "md" | "lg" | "xl";
+export type ButtonSize = "sm" | "md" | "lg" | "xl";
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
   fullWidth?: boolean;

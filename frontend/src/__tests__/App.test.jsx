@@ -102,9 +102,7 @@ describe("QuizApp", () => {
       expect(loginSpy).toHaveBeenCalledWith("test@example.com", "password123");
     });
 
-    expect(
-      await screen.findByRole("button", { name: /logout/i })
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/testuser/i)).toBeInTheDocument();
   });
 
   it("should handle registration", async () => {
@@ -141,9 +139,7 @@ describe("QuizApp", () => {
       );
     });
 
-    expect(
-      await screen.findByRole("button", { name: /sign in/i })
-    ).toBeInTheDocument();
+    expect(await screen.findByLabelText(/email/i)).toBeInTheDocument();
   });
 
   // TODO: Fix this flaky integration test - login flow timing issues

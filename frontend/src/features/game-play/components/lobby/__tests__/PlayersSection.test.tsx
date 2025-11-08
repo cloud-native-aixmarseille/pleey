@@ -3,7 +3,14 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import PlayersSection from "../PlayersSection";
 
-// Mock i18next
+// Mock i18next with stable language state for components using LanguageSwitcher
+const mockI18n = {
+  language: "en",
+  changeLanguage: vi.fn((lng: string) => {
+    mockI18n.language = lng;
+  }),
+};
+
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key: string) => {
@@ -16,6 +23,7 @@ vi.mock("react-i18next", () => ({
       };
       return translations[key] || key;
     },
+    i18n: mockI18n,
   }),
 }));
 

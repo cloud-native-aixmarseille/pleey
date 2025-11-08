@@ -1,6 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Button, Card, Container } from "../../../shared/components";
+import {
+  Button,
+  Card,
+  Container,
+  PrimaryButton,
+} from "../../../shared/components";
 import LanguageSwitcher from "../../../shared/components/LanguageSwitcher";
 
 export default function HomePage() {
@@ -27,12 +32,12 @@ export default function HomePage() {
               🕹️
             </div>
             <h1 className="text-4xl sm:text-6xl font-display mb-4 text-gradient-neon text-neon animate-glow">
-              {t('home.title')}
+              {t("home.title")}
             </h1>
             <div className="inline-block px-6 py-3 bg-dark-500 rounded-none border-2 border-accent-500 relative overflow-hidden">
               <div className="absolute inset-0 bg-accent-500/10 animate-pulse"></div>
               <p className="text-accent-400 font-display text-xs sm:text-sm uppercase tracking-widest relative z-10 animate-flicker">
-                {t('home.subtitle')}
+                {t("home.subtitle")}
               </p>
             </div>
           </div>
@@ -42,36 +47,35 @@ export default function HomePage() {
             <div className="glass-effect rounded-lg p-4 border-2 border-primary-500/30 hover:border-primary-500 transition-all hover:scale-110 group">
               <div className="text-3xl mb-2 group-hover:animate-wiggle">⚡</div>
               <p className="text-xxs font-display text-accent-400 uppercase">
-                {t('home.fast')}
+                {t("home.fast")}
               </p>
             </div>
             <div className="glass-effect rounded-lg p-4 border-2 border-secondary-500/30 hover:border-secondary-500 transition-all hover:scale-110 group">
               <div className="text-3xl mb-2 group-hover:animate-wiggle">🎯</div>
               <p className="text-xxs font-display text-secondary-400 uppercase">
-                {t('home.epic')}
+                {t("home.epic")}
               </p>
             </div>
             <div className="glass-effect rounded-lg p-4 border-2 border-accent-500/30 hover:border-accent-500 transition-all hover:scale-110 group">
               <div className="text-3xl mb-2 group-hover:animate-wiggle">🏆</div>
               <p className="text-xxs font-display text-accent-400 uppercase">
-                {t('home.win')}
+                {t("home.win")}
               </p>
             </div>
           </div>
 
           {/* Arcade-style action buttons with pixel shadow */}
           <div className="space-y-4">
-            <Button
-              variant="primary"
+            <PrimaryButton
               size="lg"
               fullWidth
               onClick={() => navigate("/auth/login")}
               className="retro-shadow hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all font-display text-base"
             >
               <span className="flex items-center justify-center gap-3">
-                <span>{t('home.login')}</span>
+                <span>{t("home.login")}</span>
               </span>
-            </Button>
+            </PrimaryButton>
             <Button
               variant="accent"
               size="lg"
@@ -80,7 +84,7 @@ export default function HomePage() {
               className="retro-shadow hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all font-display text-base"
             >
               <span className="flex items-center justify-center gap-3">
-                <span>{t('home.signup')}</span>
+                <span>{t("home.signup")}</span>
               </span>
             </Button>
           </div>
@@ -88,10 +92,10 @@ export default function HomePage() {
           {/* Retro footer */}
           <div className="mt-8 pt-6 border-t-2 border-primary-500/30">
             <p className="text-light-400 text-xs font-mono uppercase tracking-wider animate-pulse">
-              {t('home.insertCoin')}
+              {t("home.insertCoin")}
             </p>
             <p className="text-light-500 text-xxs font-mono mt-2">
-              {t('home.playersOnline')}
+              {t("home.playersOnline")}
             </p>
           </div>
         </Card>

@@ -1,10 +1,10 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { NavigateFunction } from "react-router-dom";
 import { gameService } from "../../../domains/game/game.service";
 import { useGameSocket } from "../../../shared/hooks/useGameSocket";
 import { useTimer } from "../../../shared/hooks/useTimer";
 import type { ToastVariant } from "../context/NotificationContext";
-import type { Question, User } from "../../../shared/types";
+import type { GameSession, Question, User } from "../../../shared/types";
 
 type QuestionsByQuiz = Record<number, Question[]>;
 
@@ -46,6 +46,8 @@ export function useGameSessionManager({
   const [gamePin, setGamePin] = useState("");
   const [activeQuizQuestionCount, setActiveQuizQuestionCount] = useState(0);
   const [userAnswer, setUserAnswer] = useState<string | null>(null);
+  const [activeSessions, setActiveSessions] = useState<GameSession[]>([]);
+  const [sessionsByQuiz, setSessionsByQuiz] = useState<Record<number, GameSession[]>>({});
 
   const {
     players,
@@ -64,6 +66,57 @@ export function useGameSessionManager({
   const isQuestionActive = useMemo(() => !!currentQuestion, [currentQuestion]);
   const hasSubmittedAnswer = useMemo(() => !!userAnswer, [userAnswer]);
   useTimer(timeLeft, setTimeLeft, isQuestionActive, hasSubmittedAnswer);
+
+  const refreshActiveSessions = useCallback(async (): Promise<GameSession[]> => {
+    if (!token) {
+      setActiveSessions([]);
+      return [];
+    }
+
+    try {
+      const sessions = await gameService.getActiveSessions(token);
+      setActiveSessions(sessions);
+      return sessions;
+    } catch (error) {
+      notifyFromError(error, "game.errors.activeSessionsFetchFailed");
+      return [];
+    }
+  }, [token, notifyFromError]);
+
+  const loadSessionsForQuiz = useCallback(
+    async (quizId: number): Promise<GameSession[]> => {
+      if (!token) {
+        setSessionsByQuiz((previous) => ({
+          ...previous,
+          [quizId]: [],
+        }));
+        return [];
+      }
+
+      try {
+        const sessions = await gameService.getSessionsByQuiz(token, quizId);
+        setSessionsByQuiz((previous) => ({
+          ...previous,
+          [quizId]: sessions,
+        }));
+        return sessions;
+      } catch (error) {
+        notifyFromError(error, "game.errors.activeSessionsFetchFailed");
+        throw error;
+      }
+    },
+    [token, notifyFromError]
+  );
+
+  useEffect(() => {
+    if (!token) {
+      setActiveSessions([]);
+      setSessionsByQuiz({});
+      return;
+    }
+
+    refreshActiveSessions().catch(() => undefined);
+  }, [token, refreshActiveSessions]);
 
   const handleLaunchQuiz = useCallback(
     async (quizId: number) => {
@@ -88,18 +141,25 @@ export function useGameSessionManager({
       }
 
       try {
-        // Stop any active sessions before creating a new one
-        const activeSessions = await gameService.getActiveSessions(token);
-        for (const session of activeSessions) {
-          if (!session.sessionId) {
-            continue;
-          }
-          await gameService.stopSession(token, session.sessionId);
+        const currentSessions = await refreshActiveSessions();
+        const liveSession = currentSessions.find((session) => {
+          const sessionQuizId = session.quizId ?? session.quiz_id;
+          return (
+            sessionQuizId === quizId &&
+            ["waiting", "active", "paused"].includes(session.status)
+          );
+        });
+
+        if (liveSession) {
+          notify("game.errors.quizSessionAlreadyActive", "error");
+          return;
         }
 
         const data = await gameService.createSession(token, quizId);
         setGamePin(data.pin);
         setActiveQuizQuestionCount(questions.length);
+        await refreshActiveSessions();
+        await loadSessionsForQuiz(quizId);
         navigate("/game/lobby");
         gameService.joinGame(data.pin, user.username, user.id);
       } catch (error) {
@@ -114,6 +174,8 @@ export function useGameSessionManager({
       notify,
       notifyFromError,
       navigate,
+      refreshActiveSessions,
+      loadSessionsForQuiz,
     ]
   );
 
@@ -168,6 +230,52 @@ export function useGameSessionManager({
     setUserAnswer(null);
   }, [gamePin]);
 
+  const rejoinSession = useCallback(
+    async (session: GameSession) => {
+      if (!token || !user) {
+        notify("errors.sessionsLoadFailed", "error");
+        return;
+      }
+
+      const quizId = session.quizId ?? session.quiz_id;
+      if (typeof quizId !== "number") {
+        notify("errors.sessionsLoadFailed", "error");
+        return;
+      }
+
+      let questions = questionsByQuiz[quizId] ?? [];
+
+      if (!questions.length) {
+        try {
+          questions = await fetchQuizQuestions(token, quizId);
+        } catch (error) {
+          notifyFromError(error, "errors.unableToLoadQuestions");
+          return;
+        }
+      }
+
+      setGamePin(session.pin);
+      setActiveQuizQuestionCount(questions.length);
+
+      await refreshActiveSessions();
+      await loadSessionsForQuiz(quizId);
+
+      navigate("/game/lobby");
+      gameService.joinGame(session.pin, user.username, user.id);
+    },
+    [
+      token,
+      user,
+      questionsByQuiz,
+      fetchQuizQuestions,
+      notifyFromError,
+      notify,
+      refreshActiveSessions,
+      loadSessionsForQuiz,
+      navigate,
+    ]
+  );
+
   return {
     gamePin,
     setGamePin,
@@ -183,6 +291,11 @@ export function useGameSessionManager({
     leaderboard,
     gameStarted,
     gameEnded,
+    activeSessions,
+    sessionsByQuiz,
+    refreshActiveSessions,
+    loadSessionsForQuiz,
+    rejoinSession,
     handleLaunchQuiz,
     handleJoinGame,
     handleJoinAsGuest,

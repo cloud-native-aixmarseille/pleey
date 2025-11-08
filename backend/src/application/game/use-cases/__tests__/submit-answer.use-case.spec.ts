@@ -23,6 +23,9 @@ describe('SubmitAnswerUseCase - Guest Player Support', () => {
       updateCurrentQuestion: vi.fn(),
       findById: vi.fn(),
       findActiveByAdminId: vi.fn(),
+      findActiveByQuizId: vi.fn(),
+      findByQuizId: vi.fn(),
+      countActiveByQuizId: vi.fn(),
       deleteOldSessions: vi.fn(),
       findByOrganization: vi.fn(),
     };
@@ -31,7 +34,8 @@ describe('SubmitAnswerUseCase - Guest Player Support', () => {
       findByQuizId: vi.fn(),
       findById: vi.fn(),
       create: vi.fn(),
-      deleteByQuizId: vi.fn(),
+      delete: vi.fn(),
+      update: vi.fn(),
     };
 
     mockScoreRepository = {

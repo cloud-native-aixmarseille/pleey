@@ -18,7 +18,8 @@
     "sessionStopFailed": "Échec de l'arrêt de la session",
     "sessionResumeFailed": "Échec de la reprise de la session",
     "quizNotFound": "Quiz introuvable",
-    "activeSessionExists": "Vous avez déjà une session de jeu active. Veuillez l'arrêter ou la terminer avant d'en démarrer une nouvelle."
+    "activeSessionExists": "Vous avez déjà une session de jeu active. Veuillez l'arrêter ou la terminer avant d'en démarrer une nouvelle.",
+    "quizSessionAlreadyActive": "Ce quiz possède déjà une session en cours. Terminez-la avant d'en démarrer une autre."
   },
   "success": {
     "gameCreated": "Session de jeu créée avec succès",

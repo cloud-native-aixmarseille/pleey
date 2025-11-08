@@ -22,7 +22,10 @@
     "registerTitle": "Inscription",
     "registerSubtitle": "Rejoignez QuizMaster et commencez à jouer",
     "loginButton": "Se connecter",
+    "emailPlaceholder": "votre@email.com",
+    "passwordPlaceholder": "********",
     "registerButton": "Créer un compte",
+    "usernamePlaceholder": "JoueurPro",
     "newToQuizMaster": "Nouveau sur QuizMaster ?",
     "alreadyHaveAccount": "Vous avez déjà un compte ?",
     "createAccount": "Créer un compte",
@@ -80,6 +83,8 @@
     "logout": "Déconnexion",
     "dashboard": "Panneau Admin",
     "manageQuizzesSubtitle": "Gérez vos quiz et lancez des sessions de jeu",
+    "liveSessionsTitle": "Sessions de jeu en direct",
+    "liveSessionsSubtitle": "Surveillez les sessions actives et leurs codes PIN.",
     "totalQuizzes": "Total Quiz",
     "activeQuizzes": "Quiz Actifs",
     "questions": "Questions",
@@ -101,7 +106,44 @@
     "deleteQuizModalTitle": "Supprimer le quiz",
     "deleteQuizModalDescription": "Cela supprimera \"{{title}}\" ainsi que toutes ses questions.",
     "deleteQuizModalWarning": "Cette action est irréversible.",
-    "confirmDelete": "Supprimer le quiz"
+    "confirmDelete": "Supprimer le quiz",
+    "liveSessionBadge": "EN DIRECT",
+    "liveSessionView": "Ouvrir le quiz",
+    "liveSessionLaunchBlocked": "Terminez la session en cours avant d'en lancer une autre.",
+    "noLiveSessions": "Aucune session en direct pour le moment.",
+    "unknownQuiz": "Quiz inconnu",
+    "sessionPinLabel": "PIN {{pin}}",
+    "sessionStartedLabel": "Début {{date}}",
+    "sessionUnknownDate": "Horodatage inconnu",
+    "sessionListTitle": "Historique des sessions",
+    "sessionListSubtitle": "Consultez les sessions en cours et passées.",
+    "sessionRefresh": "Actualiser les sessions",
+    "sessionEmpty": "Aucune session enregistrée pour ce quiz.",
+    "viewSessions": "Voir l'historique des sessions",
+    "viewQuestions": "Retour aux questions",
+    "sessionCurrentQuestion": "Question en cours n°{{index}}",
+    "sessionRejoin": "Rejoindre la session",
+    "sessionViewDetails": "Voir les détails",
+    "sessionStatus": {
+      "waiting": "En attente",
+      "active": "En direct",
+      "paused": "En pause",
+      "completed": "Terminée",
+      "ended": "Terminée"
+    },
+    "sessionDetailsTitle": "Détails du PIN {{pin}}",
+    "sessionDetailsDescription": "Statut : {{status}}",
+    "sessionDetailsFields": {
+      "status": "Statut",
+      "startedAt": "Début",
+      "sessionId": "ID de session",
+      "questionIndex": "Dernière question"
+    },
+    "sessionEmptyDescription": "Lancez une partie pour alimenter cet historique.",
+    "sessionPaginationSummary": "Affichage {{start}}-{{end}} sur {{total}} sessions",
+    "sessionPaginationPrevious": "Précédent",
+    "sessionPaginationNext": "Suivant",
+    "sessionPaginationPage": "Page {{page}} / {{totalPages}}"
   },
   "quiz": {
     "title": "Quiz",
@@ -238,6 +280,51 @@
     "joinManualLinkPrefix": "Rejoindre sur",
     "joinStepWaitDescription": "Restez sur cet écran jusqu'à ce que l'hôte lance le quiz.",
     "copyPinAriaLabel": "Copier le PIN du jeu dans le presse-papiers",
+    "playing": {
+      "timer": {
+        "questionProgress": "Question {{current}} / {{total}}",
+        "ariaTimeRemaining": "Temps restant : {{count}} secondes",
+        "progressLabel": "Progression du temps de la question",
+        "remainingLabel": "{{time}} s"
+      },
+      "trueFalse": {
+        "trueWord": "VRAI",
+        "falseWord": "FAUX"
+      },
+      "result": {
+        "titleCorrect": "BRAVO !",
+        "titleIncorrect": "OUPS !",
+        "summaryPoints": "+{{points}} points",
+        "summaryCorrectAnswer": "Bonne réponse : {{answer}}",
+        "distributionTitle": "📊 Répartition des réponses",
+        "distributionAriaLabel": "Statistiques de répartition des réponses",
+        "distributionCount_one": "{{count}} réponse",
+        "distributionCount_other": "{{count}} réponses",
+        "optionLabel": "{{option}}. {{text}}",
+        "booleanLabel": {
+          "true": "✓ VRAI",
+          "false": "✗ FAUX"
+        },
+        "booleanAria": {
+          "true": "Vrai",
+          "false": "Faux"
+        },
+        "announcementCorrect": "Correct ! Vous avez gagné {{points}} points.",
+        "announcementIncorrect": "Incorrect. La bonne réponse était {{answer}}.",
+        "announcementStatistics": "{{count}} joueurs ont répondu à cette question.",
+        "ariaPercent": "{{percent}} des joueurs",
+        "ariaCount": "{{count}} sur {{total}} joueurs ont choisi cette réponse",
+        "ariaCorrect": "réponse correcte",
+        "ariaUser": "votre réponse",
+        "shareTitle": "QuizMaster - Résultat de la question",
+        "shareText": "J'ai {{result}} et marqué {{points}} points à la question {{question}} ! 🎯",
+        "shareTextResult": {
+          "correct": "réussi",
+          "incorrect": "échoué"
+        },
+        "nextQuestion": "Question suivante"
+      }
+    },
     "share": {
       "errors": {
         "nativeShareFailed": "Le partage a échoué. Copiez le lien manuellement.",
@@ -248,7 +335,8 @@
       "sessionCreateFailed": "Échec de la création de la session",
       "activeSessionsFetchFailed": "Échec de la récupération des sessions actives",
       "sessionStopFailed": "Échec de l'arrêt de la session",
-      "sessionResumeFailed": "Échec de la reprise de la session"
+      "sessionResumeFailed": "Échec de la reprise de la session",
+      "quizSessionAlreadyActive": "Ce quiz possède déjà une session en cours. Terminez-la avant d'en démarrer une autre."
     }
   },
   "common": {
@@ -310,7 +398,8 @@
     "deleteQuizFailed": "Échec de la suppression du quiz. Veuillez réessayer.",
     "questionCreateFailed": "Échec de la création de la question. Veuillez réessayer.",
     "questionDeleteFailed": "Échec de la suppression de la question. Veuillez réessayer.",
-    "questionUpdateFailed": "Échec de la mise à jour de la question. Veuillez réessayer."
+    "questionUpdateFailed": "Échec de la mise à jour de la question. Veuillez réessayer.",
+    "sessionsLoadFailed": "Échec du chargement des sessions. Veuillez réessayer."
   },
   "notifications": {
     "labels": {

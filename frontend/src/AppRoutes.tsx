@@ -5,6 +5,7 @@ import { LoginRoute } from "./features/authentication/routes/LoginRoute";
 import { RegisterRoute } from "./features/authentication/routes/RegisterRoute";
 import { AdminRoute } from "./features/quiz-management/routes/AdminRoute";
 import { ManageQuestionsRoute } from "./features/quiz-management/routes/ManageQuestionsRoute";
+import { ManageQuizSessionsRoute } from "./features/quiz-management/routes/ManageQuizSessionsRoute";
 import { OrganizationRoute } from "./features/organization-management/routes/OrganizationRoute";
 import { JoinGameRoute } from "./features/game-play/routes/JoinGameRoute";
 import { LobbyRoute } from "./features/game-play/routes/LobbyRoute";
@@ -38,6 +39,10 @@ export function AppRoutes() {
           <Route
             path="/admin/quizzes/:quizId"
             element={<ManageQuestionsRoute />}
+          />
+          <Route
+            path="/admin/quizzes/:quizId/sessions"
+            element={<ManageQuizSessionsRoute />}
           />
           <Route path="/admin/organization" element={<OrganizationRoute />} />
 
