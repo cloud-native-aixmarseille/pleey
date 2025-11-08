@@ -5,6 +5,7 @@ import { CreateGameSessionUseCase } from '../../application/game/use-cases/creat
 import { StopGameSessionUseCase } from '../../application/game/use-cases/stop-game-session.use-case';
 import { ResumeGameSessionUseCase } from '../../application/game/use-cases/resume-game-session.use-case';
 import { GetActiveSessionsUseCase } from '../../application/game/use-cases/get-active-sessions.use-case';
+import { GetQuizSessionsUseCase } from '../../application/game/use-cases/get-quiz-sessions.use-case';
 
 @Controller('sessions')
 export class GameController {
@@ -13,6 +14,7 @@ export class GameController {
     private readonly stopGameSessionUseCase: StopGameSessionUseCase,
     private readonly resumeGameSessionUseCase: ResumeGameSessionUseCase,
     private readonly getActiveSessionsUseCase: GetActiveSessionsUseCase,
+    private readonly getQuizSessionsUseCase: GetQuizSessionsUseCase,
   ) { }
 
   @Post('create')
@@ -39,6 +41,26 @@ export class GameController {
     const sessions = await this.getActiveSessionsUseCase.execute(req.user.id);
     return {
       sessions: sessions.map(session => ({
+        sessionId: session.id,
+        quizId: session.quizId,
+        adminId: session.adminId,
+        pin: session.pin,
+        status: session.status,
+        currentQuestion: session.currentQuestion,
+        createdAt: session.createdAt,
+      })),
+    };
+  }
+
+  @Get('quiz/:quizId')
+  @UseGuards(JwtAuthGuard)
+  async getQuizSessions(
+    @Param('quizId', ParseIntPipe) quizId: number,
+    @Request() req: any,
+  ) {
+    const sessions = await this.getQuizSessionsUseCase.execute(quizId, req.user.id);
+    return {
+      sessions: sessions.map((session) => ({
         sessionId: session.id,
         quizId: session.quizId,
         adminId: session.adminId,

@@ -28,7 +28,7 @@ vi.mock("../../../../application/app/hooks/useNotifications", () => ({
   useNotifications: () => mocks.useNotifications(),
 }));
 
-vi.mock("../../components/ManageQuestionsPage", () => ({
+vi.mock("../../components/questions/ManageQuestionsPage", () => ({
   __esModule: true,
   default: (props: Record<string, unknown>) => {
     mocks.managePageProps = props;

@@ -3,6 +3,7 @@ import { Response } from 'express';
 import { I18nService } from 'nestjs-i18n';
 import { AuthErrorCode } from '../../application/auth/enums/auth-error-code.enum';
 import { QuizErrorCode } from '../../application/quiz/enums/quiz-error-code.enum';
+import { GameErrorCode } from '../../application/game/enums/game-error-code.enum';
 
 /**
  * HTTP Exception Filter with i18n support
@@ -54,6 +55,10 @@ export class I18nHttpExceptionFilter implements ExceptionFilter {
       return this.translateQuizError(code as QuizErrorCode);
     }
 
+    if (Object.values(GameErrorCode).includes(code as GameErrorCode)) {
+      return this.translateGameError(code as GameErrorCode);
+    }
+
     // If it's not an error code, return as is (might be a validation message)
     return code;
   }
@@ -81,5 +86,22 @@ export class I18nHttpExceptionFilter implements ExceptionFilter {
     };
 
     return this.i18n.translate(errorMap[code]);
+  }
+
+  private async translateGameError(code: GameErrorCode): Promise<string> {
+    const errorMap: Partial<Record<GameErrorCode, string>> = {
+      [GameErrorCode.GAME_NOT_FOUND]: 'game.errors.gameNotFound',
+      [GameErrorCode.NO_QUESTIONS_AVAILABLE]: 'game.errors.noQuestionsAvailable',
+      [GameErrorCode.VALIDATION_FAILED]: 'game.errors.validationFailed',
+      [GameErrorCode.CAN_ONLY_PAUSE_ACTIVE_GAME]: 'game.errors.canOnlyPauseActiveGame',
+      [GameErrorCode.CAN_ONLY_RESUME_PAUSED_GAME]: 'game.errors.canOnlyResumePausedGame',
+      [GameErrorCode.UNAUTHORIZED_SESSION_CONTROL]: 'game.errors.unauthorizedSessionControl',
+      [GameErrorCode.QUIZ_NOT_FOUND]: 'game.errors.quizNotFound',
+      [GameErrorCode.ACTIVE_SESSION_EXISTS]: 'game.errors.activeSessionExists',
+      [GameErrorCode.QUIZ_SESSION_ALREADY_ACTIVE]: 'game.errors.quizSessionAlreadyActive',
+    };
+
+    const translationKey = errorMap[code] ?? 'game.errors.validationFailed';
+    return this.i18n.translate(translationKey);
   }
 }

@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useOrganization } from "../../context/OrganizationContext";
 import { useTranslation } from "react-i18next";
-import Button from "../Button";
+import Button from "../button/Button";
+import SecondaryButton from "../button/SecondaryButton";
 import Card from "../Card";
 import { useNotifications } from "../../../application/app/hooks/useNotifications";
 
@@ -189,9 +190,8 @@ export function OrganizationSelector() {
                     ? t("organization.creating")
                     : t("organization.createOrganization")}
                 </Button>
-                <Button
+                <SecondaryButton
                   type="button"
-                  variant="secondary"
                   onClick={() => {
                     setShowCreateForm(false);
                     setNewOrgName("");
@@ -200,7 +200,7 @@ export function OrganizationSelector() {
                   disabled={isCreating}
                 >
                   {t("common.cancel")}
-                </Button>
+                </SecondaryButton>
               </div>
             </form>
           </Card>

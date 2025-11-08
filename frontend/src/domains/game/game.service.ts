@@ -2,8 +2,18 @@ import { API_URL } from '../../shared/config/api.config';
 import { socket } from '../../shared/socket/socket.client';
 import { GameSession } from '../../shared/types';
 
+interface CreateSessionResponse {
+  pin: string;
+  sessionId: number;
+  quizId: number;
+  adminId: number;
+  status: string;
+  currentQuestion: number | null;
+  createdAt: string;
+}
+
 export class GameService {
-  async createSession(token: string, quizId: number): Promise<{ pin: string }> {
+  async createSession(token: string, quizId: number): Promise<CreateSessionResponse> {
     const response = await fetch(`${API_URL}/api/sessions/create`, {
       method: 'POST',
       headers: {
@@ -12,12 +22,12 @@ export class GameService {
       },
       body: JSON.stringify({ quizId })
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ message: 'game.errors.sessionCreateFailed' }));
       throw new Error(errorData.message || 'game.errors.sessionCreateFailed');
     }
-    
+
     return await response.json();
   }
 
@@ -29,11 +39,28 @@ export class GameService {
         'Authorization': `Bearer ${token}`
       }
     });
-    
+
     if (!response.ok) {
       throw new Error('game.errors.activeSessionsFetchFailed');
     }
-    
+
+    const data = await response.json();
+    return data.sessions || [];
+  }
+
+  async getSessionsByQuiz(token: string, quizId: number): Promise<GameSession[]> {
+    const response = await fetch(`${API_URL}/api/sessions/quiz/${quizId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('game.errors.activeSessionsFetchFailed');
+    }
+
     const data = await response.json();
     return data.sessions || [];
   }
@@ -46,11 +73,11 @@ export class GameService {
         'Authorization': `Bearer ${token}`
       }
     });
-    
+
     if (!response.ok) {
       throw new Error('game.errors.sessionStopFailed');
     }
-    
+
     return await response.json();
   }
 
@@ -62,11 +89,11 @@ export class GameService {
         'Authorization': `Bearer ${token}`
       }
     });
-    
+
     if (!response.ok) {
       throw new Error('game.errors.sessionResumeFailed');
     }
-    
+
     return await response.json();
   }
 

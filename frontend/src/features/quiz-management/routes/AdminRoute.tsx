@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import AdminDashboard from "../components/AdminDashboard";
+import AdminDashboard from "../components/dashboard/AdminDashboard";
 import { useAuthManagerContext } from "../../../application/app/context/AuthManagerContext";
 import { useQuizManagerContext } from "../../../application/app/context/QuizManagerContext";
 import { useGameSessionContext } from "../../../application/app/context/GameSessionContext";
@@ -24,7 +24,7 @@ export function AdminRoute() {
     hasLoadedQuizzes,
     isPending,
   } = useQuizManagerContext();
-  const { handleLaunchQuiz } = useGameSessionContext();
+  const { handleLaunchQuiz, activeSessions } = useGameSessionContext();
 
   useEffect(() => {
     if (!token || hasLoadedQuizzes) {
@@ -72,6 +72,7 @@ export function AdminRoute() {
     return (
       <AdminDashboard
         quizzes={quizzes}
+        activeSessions={activeSessions}
         onCreateQuiz={handleCreateQuiz}
         onManageQuiz={handleManageQuiz}
         onDeleteQuiz={handleDeleteQuiz}
@@ -86,6 +87,7 @@ export function AdminRoute() {
     handleManageQuiz,
     handleDeleteQuiz,
     handleLaunchQuiz,
+    activeSessions,
     hasLoadedQuizzes,
     isPending,
     t,

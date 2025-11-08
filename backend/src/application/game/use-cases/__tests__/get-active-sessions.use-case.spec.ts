@@ -13,8 +13,11 @@ describe('GetActiveSessionsUseCase', () => {
       findByPin: vi.fn(),
       findById: vi.fn(),
       findActiveByAdminId: vi.fn(),
+      findActiveByQuizId: vi.fn(),
+      findByQuizId: vi.fn(),
       updateStatus: vi.fn(),
       updateCurrentQuestion: vi.fn(),
+      countActiveByQuizId: vi.fn(),
       deleteOldSessions: vi.fn(),
       findByOrganization: vi.fn(),
     };

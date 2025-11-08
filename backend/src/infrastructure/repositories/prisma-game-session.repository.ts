@@ -64,6 +64,37 @@ export class PrismaGameSessionRepository implements GameSessionRepository {
     return sessions.map((session) => this.toDomain(session));
   }
 
+  async findActiveByQuizId(quizId: number): Promise<GameSession | null> {
+    const session = await this.prisma.gameSession.findFirst({
+      where: {
+        quizId,
+        status: {
+          in: ['waiting', 'active', 'paused'],
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    if (!session) {
+      return null;
+    }
+
+    return this.toDomain(session);
+  }
+
+  async findByQuizId(quizId: number): Promise<GameSession[]> {
+    const sessions = await this.prisma.gameSession.findMany({
+      where: { quizId },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return sessions.map((session) => this.toDomain(session));
+  }
+
   async findByOrganization(organizationId: number): Promise<GameSession[]> {
     const sessions = await this.prisma.gameSession.findMany({
       where: { organizationId },

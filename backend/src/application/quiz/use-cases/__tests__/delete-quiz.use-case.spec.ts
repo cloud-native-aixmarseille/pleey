@@ -27,6 +27,8 @@ describe('DeleteQuizUseCase', () => {
       create: vi.fn(),
       deleteOldSessions: vi.fn(),
       findActiveByAdminId: vi.fn(),
+      findActiveByQuizId: vi.fn(),
+      findByQuizId: vi.fn(),
       findById: vi.fn(),
       findByOrganization: vi.fn(),
       findByPin: vi.fn(),

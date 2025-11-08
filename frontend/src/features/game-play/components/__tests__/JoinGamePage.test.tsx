@@ -100,7 +100,7 @@ describe("JoinGamePage", () => {
     render(<JoinGamePage {...mockHandlers} />);
 
     const input = screen.getByPlaceholderText("••••••");
-    fireEvent.keyPress(input, { key: "Enter", code: "Enter", charCode: 13 });
+    fireEvent.keyDown(input, { key: "Enter", code: "Enter" });
 
     expect(mockHandlers.onJoinGame).toHaveBeenCalled();
   });

@@ -1,14 +1,15 @@
+import "@testing-library/jest-dom";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import AdminDashboard from "../AdminDashboard";
-import { NotificationProvider } from "../../../../application/app/context/NotificationContext";
+import { NotificationProvider } from "../../../../../application/app/context/NotificationContext";
 
 const organizationContextMock = vi.hoisted(() => ({
   useOrganization: vi.fn(),
 }));
 
-vi.mock("../../../../shared/context/OrganizationContext", () => ({
+vi.mock("../../../../../shared/context/OrganizationContext", () => ({
   useOrganization: organizationContextMock.useOrganization,
 }));
 
@@ -59,7 +60,12 @@ describe("AdminDashboard", () => {
 
     render(
       <NotificationProvider>
-        <AdminDashboard quizzes={[]} {...mockHandlers} onDeleteQuiz={vi.fn()} />
+        <AdminDashboard
+          quizzes={[]}
+          activeSessions={[]}
+          {...mockHandlers}
+          onDeleteQuiz={vi.fn()}
+        />
       </NotificationProvider>
     );
 
@@ -78,6 +84,7 @@ describe("AdminDashboard", () => {
       <NotificationProvider>
         <AdminDashboard
           quizzes={mockQuizzes}
+          activeSessions={[]}
           {...mockHandlers}
           onDeleteQuiz={vi.fn()}
         />
@@ -101,6 +108,7 @@ describe("AdminDashboard", () => {
       <NotificationProvider>
         <AdminDashboard
           quizzes={mockQuizzes}
+          activeSessions={[]}
           {...mockHandlers}
           onDeleteQuiz={vi.fn()}
         />
@@ -125,6 +133,7 @@ describe("AdminDashboard", () => {
       <NotificationProvider>
         <AdminDashboard
           quizzes={mockQuizzes}
+          activeSessions={[]}
           {...mockHandlers}
           onDeleteQuiz={vi.fn()}
         />

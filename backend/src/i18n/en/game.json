@@ -18,7 +18,8 @@
     "sessionStopFailed": "Failed to stop session",
     "sessionResumeFailed": "Failed to resume session",
     "quizNotFound": "Quiz not found",
-    "activeSessionExists": "You already have an active game session. Please stop or complete it before starting a new one."
+    "activeSessionExists": "You already have an active game session. Please stop or complete it before starting a new one.",
+    "quizSessionAlreadyActive": "This quiz already has a live session. Close it before starting another."
   },
   "success": {
     "gameCreated": "Game session created successfully",

@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { Navigate, useParams } from "react-router-dom";
-import ManageQuestionsPage from "../components/ManageQuestionsPage";
+import ManageQuestionsPage from "../components/questions/ManageQuestionsPage";
 import { useAuthManagerContext } from "../../../application/app/context/AuthManagerContext";
 import { useQuizManagerContext } from "../../../application/app/context/QuizManagerContext";
 import { useNotifications } from "../../../application/app/hooks/useNotifications";

@@ -34,7 +34,7 @@ export class CreateGameSessionUseCase {
     private readonly quizRepository: QuizRepository,
     @Inject(OrganizationMemberRepositoryProvider)
     private readonly memberRepository: OrganizationMemberRepository,
-  ) {}
+  ) { }
 
   async execute(
     dto: CreateGameSessionDto,
@@ -59,10 +59,30 @@ export class CreateGameSessionUseCase {
       throw new ForbiddenException(OrganizationErrorCode.NOT_A_MEMBER);
     }
 
+    const quizActiveSession = await this.gameSessionRepository.findActiveByQuizId(
+      dto.quizId,
+    );
+
+    if (quizActiveSession) {
+      if (quizActiveSession.adminId !== dto.adminId) {
+        throw new BadRequestException(GameErrorCode.QUIZ_SESSION_ALREADY_ACTIVE);
+      }
+
+      return {
+        session: quizActiveSession,
+        pin: quizActiveSession.pin,
+      };
+    }
+
     // Check for existing active sessions for this admin
     const activeSessions =
       await this.gameSessionRepository.findActiveByAdminId(dto.adminId);
-    if (activeSessions.length > 0) {
+
+    const conflictingSession = activeSessions.find(
+      (session) => session.quizId !== dto.quizId,
+    );
+
+    if (conflictingSession) {
       throw new BadRequestException(GameErrorCode.ACTIVE_SESSION_EXISTS);
     }
 

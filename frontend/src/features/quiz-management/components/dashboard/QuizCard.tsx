@@ -1,7 +1,10 @@
-import React from "react";
-import { Quiz } from "../../../shared/types";
-import { Button, Card } from "../../../shared/components";
 import { useTranslation } from "react-i18next";
+import {
+  Card,
+  PrimaryButton,
+  SecondaryButton,
+} from "../../../../shared/components";
+import type { Quiz } from "../../../../shared/types";
 
 interface QuizCardProps {
   quiz: Quiz;
@@ -9,20 +12,19 @@ interface QuizCardProps {
   onManage: (quiz: Quiz) => void;
   onDelete?: (quizId: number) => void | Promise<void>;
   onLaunch: (quizId: number) => Promise<void>;
+  isLive?: boolean;
 }
 
-/**
- * Reusable Quiz Card Component
- * Displays quiz information with manage and launch actions
- */
 export function QuizCard({
   quiz,
   index,
   onManage,
   onLaunch,
   onDelete,
+  isLive,
 }: QuizCardProps) {
   const { t } = useTranslation();
+  const isSessionLive = isLive ?? Boolean(quiz.is_active);
 
   return (
     <Card
@@ -36,12 +38,12 @@ export function QuizCard({
           <h3 className="text-xl font-bold text-dark-800 flex-1 pr-2">
             {quiz.title}
           </h3>
-          {quiz.is_active && (
-            <span className="inline-flex items-center gap-1 px-2 py-1 bg-success-100 text-success-700 rounded-lg text-xs font-bold">
-              <span className="w-2 h-2 bg-success-500 rounded-full animate-pulse"></span>
-              {t("admin.active")}
+          {isSessionLive ? (
+            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-primary-500/20 text-accent-200 border border-primary-500/40 text-xs font-bold">
+              <span className="w-2 h-2 bg-accent-400 rounded-full animate-pulse" />
+              {t("admin.liveSessionBadge")}
             </span>
-          )}
+          ) : null}
         </div>
         <p className="text-light-700 text-sm line-clamp-2 mb-3">
           {quiz.description || t("admin.noDescription")}
@@ -69,13 +71,16 @@ export function QuizCard({
         </div>
       </div>
 
-      <div className="flex gap-2">
-        <Button
-          variant="primary"
+      <div className="flex items-center gap-2">
+        <PrimaryButton
           size="sm"
-          fullWidth
+          className="flex-1"
           onClick={() => onLaunch(quiz.id)}
           aria-label={t("admin.launch")}
+          disabled={isSessionLive}
+          tooltip={
+            isSessionLive ? t("admin.liveSessionLaunchBlocked") : undefined
+          }
           icon={
             <svg
               className="w-4 h-4"
@@ -99,14 +104,13 @@ export function QuizCard({
           }
         >
           {t("admin.launch")}
-        </Button>
-        <Button
-          variant="secondary"
+        </PrimaryButton>
+        <SecondaryButton
           size="sm"
-          fullWidth
           onClick={() => onManage(quiz)}
-        >
-          <span className="flex items-center justify-center gap-1">
+          aria-label={t("admin.manage")}
+          tooltip={t("admin.manage")}
+          icon={
             <svg
               className="w-4 h-4"
               fill="none"
@@ -120,14 +124,13 @@ export function QuizCard({
                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
               />
             </svg>
-            {t("admin.manage")}
-          </span>
-        </Button>
-        {onDelete && (
-          <Button
-            variant="danger"
+          }
+        >
+          <span className="sr-only">{t("admin.manage")}</span>
+        </SecondaryButton>
+        {onDelete ? (
+          <SecondaryButton
             size="sm"
-            fullWidth
             onClick={() => onDelete(quiz.id)}
             aria-label={t("admin.delete")}
             tooltip={t("admin.delete")}
@@ -148,8 +151,8 @@ export function QuizCard({
             }
           >
             <span className="sr-only">{t("admin.delete")}</span>
-          </Button>
-        )}
+          </SecondaryButton>
+        ) : null}
       </div>
     </Card>
   );

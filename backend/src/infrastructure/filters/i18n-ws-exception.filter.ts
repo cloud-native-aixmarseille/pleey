@@ -53,8 +53,9 @@ export class I18nWsExceptionFilter extends BaseWsExceptionFilter {
       [GameErrorCode.UNAUTHORIZED_SESSION_CONTROL]: 'game.errors.unauthorizedSessionControl',
       [GameErrorCode.ACTIVE_SESSION_EXISTS]: 'game.errors.activeSessionExists',
       [GameErrorCode.QUIZ_NOT_FOUND]: 'game.errors.quizNotFound',
+      [GameErrorCode.QUIZ_SESSION_ALREADY_ACTIVE]: 'game.errors.quizSessionAlreadyActive',
     };
 
-    return this.i18n.translate(errorMap[code]);
+    return this.i18n.translate(errorMap[code] ?? 'game.errors.validationFailed');
   }
 }

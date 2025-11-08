@@ -14,8 +14,11 @@ describe('StopGameSessionUseCase', () => {
       findByPin: vi.fn(),
       findById: vi.fn(),
       findActiveByAdminId: vi.fn(),
+      findActiveByQuizId: vi.fn(),
+      findByQuizId: vi.fn(),
       updateStatus: vi.fn(),
       updateCurrentQuestion: vi.fn(),
+      countActiveByQuizId: vi.fn(),
       deleteOldSessions: vi.fn(),
       findByOrganization: vi.fn(),
     };
@@ -43,7 +46,7 @@ describe('StopGameSessionUseCase', () => {
       await expect(
         useCase.execute(999, 100)
       ).rejects.toThrow(NotFoundException);
-      
+
       expect(mockGameSessionRepository.updateStatus).not.toHaveBeenCalled();
     });
 
@@ -55,7 +58,7 @@ describe('StopGameSessionUseCase', () => {
       await expect(
         useCase.execute(1, 999) // Different admin
       ).rejects.toThrow(ForbiddenException);
-      
+
       expect(mockGameSessionRepository.updateStatus).not.toHaveBeenCalled();
     });
 
