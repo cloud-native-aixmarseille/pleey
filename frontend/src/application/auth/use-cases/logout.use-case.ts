@@ -1,4 +1,4 @@
-import { IStorage } from '../../shared/ports/storage.interface';
+import { IStorage } from '../../../shared/ports/storage.interface';
 
 const TOKEN_STORAGE_KEY = 'quizmaster_token';
 const USER_STORAGE_KEY = 'quizmaster_user';

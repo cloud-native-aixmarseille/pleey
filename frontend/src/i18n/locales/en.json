@@ -39,7 +39,12 @@
       "userNotFound": "User not found.",
       "unauthorized": "You are not authorized to perform this action.",
       "serverError": "An unexpected server error occurred. Please try again later.",
-      "generic": "Authentication failed. Please try again."
+      "generic": "Authentication failed. Please try again.",
+      "invalidRefreshToken": "Your session is no longer valid. Please sign in again.",
+      "refreshTokenExpired": "Your session has expired. Please sign in again."
+    },
+    "notifications": {
+      "sessionExpired": "Session expired. Please sign in again."
     }
   },
   "profile": {

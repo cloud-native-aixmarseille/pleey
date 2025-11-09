@@ -5,6 +5,9 @@ import type { ToastVariant } from "../context/NotificationContext";
 
 interface LoginResult {
   token: string;
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
   user: User;
 }
 

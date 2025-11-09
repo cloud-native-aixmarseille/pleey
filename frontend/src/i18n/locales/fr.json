@@ -39,7 +39,12 @@
       "userNotFound": "Utilisateur introuvable.",
       "unauthorized": "Vous n'êtes pas autorisé à effectuer cette action.",
       "serverError": "Une erreur serveur est survenue. Veuillez réessayer plus tard.",
-      "generic": "L'authentification a échoué. Veuillez réessayer."
+      "generic": "L'authentification a échoué. Veuillez réessayer.",
+      "invalidRefreshToken": "Votre session n'est plus valide. Veuillez vous reconnecter.",
+      "refreshTokenExpired": "Votre session a expiré. Veuillez vous reconnecter."
+    },
+    "notifications": {
+      "sessionExpired": "Session expirée. Veuillez vous reconnecter."
     }
   },
   "profile": {

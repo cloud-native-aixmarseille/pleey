@@ -10,6 +10,8 @@ type PrismaUserRecord = {
   password: string;
   isAdmin: boolean;
   avatarUrl: string | null;
+  refreshTokenHash: string | null;
+  refreshTokenExpiresAt: Date | null;
   createdAt: Date;
 };
 
@@ -51,6 +53,8 @@ export class PrismaUserRepository implements UserRepository {
       user.isAdmin,
       user.avatarUrl ?? null,
       user.createdAt,
+      user.refreshTokenHash ?? null,
+      user.refreshTokenExpiresAt ?? null,
     );
   }
 
@@ -69,6 +73,8 @@ export class PrismaUserRepository implements UserRepository {
       user.isAdmin,
       user.avatarUrl ?? null,
       user.createdAt,
+      user.refreshTokenHash ?? null,
+      user.refreshTokenExpiresAt ?? null,
     );
   }
 
@@ -87,6 +93,8 @@ export class PrismaUserRepository implements UserRepository {
       user.isAdmin,
       user.avatarUrl ?? null,
       user.createdAt,
+      user.refreshTokenHash ?? null,
+      user.refreshTokenExpiresAt ?? null,
     );
   }
 
@@ -105,6 +113,8 @@ export class PrismaUserRepository implements UserRepository {
       user.isAdmin,
       user.avatarUrl ?? null,
       user.createdAt,
+      user.refreshTokenHash ?? null,
+      user.refreshTokenExpiresAt ?? null,
     );
   }
 
@@ -153,6 +163,32 @@ export class PrismaUserRepository implements UserRepository {
       user.isAdmin,
       user.avatarUrl ?? null,
       user.createdAt,
+      user.refreshTokenHash ?? null,
+      user.refreshTokenExpiresAt ?? null,
     );
+  }
+
+  async updateRefreshToken(
+    id: number,
+    refreshTokenHash: string,
+    refreshTokenExpiresAt: Date,
+  ): Promise<void> {
+    await this.prisma.user.update({
+      where: { id },
+      data: {
+        refreshTokenHash,
+        refreshTokenExpiresAt,
+      } as any,
+    });
+  }
+
+  async clearRefreshToken(id: number): Promise<void> {
+    await this.prisma.user.update({
+      where: { id },
+      data: {
+        refreshTokenHash: null,
+        refreshTokenExpiresAt: null,
+      } as any,
+    });
   }
 }

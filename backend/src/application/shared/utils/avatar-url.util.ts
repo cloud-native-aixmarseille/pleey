@@ -30,10 +30,10 @@ export function toPublicAvatarUrl(user: User): string | null {
   return buildUserAvatarUrl(user.id, version);
 }
 
-export function mapUserToPublicProfile(user: User): Omit<User, 'password'> {
+export function mapUserToPublicProfile(user: User): Omit<User, 'password' | 'refreshTokenHash' | 'refreshTokenExpiresAt'> {
   const safeUser = user.toSafeObject();
   return {
     ...safeUser,
     avatarUrl: toPublicAvatarUrl(user),
-  } as Omit<User, 'password'>;
+  } as Omit<User, 'password' | 'refreshTokenHash' | 'refreshTokenExpiresAt'>;
 }

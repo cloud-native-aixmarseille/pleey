@@ -49,4 +49,18 @@ export interface UserRepository {
       avatarUrl?: string | null;
     },
   ): Promise<User>;
+
+  /**
+   * Stores the hashed refresh token for a user
+   */
+  updateRefreshToken(
+    id: number,
+    refreshTokenHash: string,
+    refreshTokenExpiresAt: Date,
+  ): Promise<void>;
+
+  /**
+   * Clears the stored refresh token information
+   */
+  clearRefreshToken(id: number): Promise<void>;
 }

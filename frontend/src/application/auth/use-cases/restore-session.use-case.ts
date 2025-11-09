@@ -1,5 +1,5 @@
-import { IStorage } from '../../shared/ports/storage.interface';
-import { User } from '../../shared/types';
+import { IStorage } from '../../../shared/ports/storage.interface';
+import { User } from '../../../shared/types';
 
 const TOKEN_STORAGE_KEY = 'quizmaster_token';
 const USER_STORAGE_KEY = 'quizmaster_user';
@@ -18,16 +18,19 @@ export class RestoreSessionUseCase {
   constructor(private readonly storage: IStorage) { }
 
   execute(): RestoreSessionResponse | null {
-    const token = this.storage.getItem(TOKEN_STORAGE_KEY);
-    const userJson = this.storage.getItem(USER_STORAGE_KEY);
+    const storedToken = this.storage.getItem(TOKEN_STORAGE_KEY);
+    const storedUser = this.storage.getItem(USER_STORAGE_KEY);
 
-    if (!token || !userJson) {
+    if (!storedToken || !storedUser) {
       return null;
     }
 
     try {
-      const user: User = JSON.parse(userJson);
-      return { token, user };
+      const user = JSON.parse(storedUser) as User;
+      return {
+        token: storedToken,
+        user,
+      };
     } catch (error) {
       // Invalid JSON, clear storage
       this.storage.removeItem(TOKEN_STORAGE_KEY);

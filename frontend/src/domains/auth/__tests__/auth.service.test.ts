@@ -10,7 +10,10 @@ describe('AuthService', () => {
   describe('login', () => {
     it('should successfully login with valid credentials', async () => {
       const mockResponse = {
-        token: 'mock-jwt-token',
+        token: 'legacy-token',
+        accessToken: 'mock-jwt-token',
+        refreshToken: 'mock-refresh-token',
+        expiresIn: 7200,
         user: {
           id: 1,
           username: 'testuser',
@@ -35,7 +38,13 @@ describe('AuthService', () => {
         })
       );
 
-      expect(result).toEqual(mockResponse);
+      expect(result).toEqual({
+        token: 'mock-jwt-token',
+        accessToken: 'mock-jwt-token',
+        refreshToken: 'mock-refresh-token',
+        expiresIn: 7200,
+        user: mockResponse.user,
+      });
       expect(result.token).toBe('mock-jwt-token');
       expect(result.user.username).toBe('testuser');
     });

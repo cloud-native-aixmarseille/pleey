@@ -4,6 +4,10 @@
  */
 export class AuthResponseDto {
   token: string;
+  /** @deprecated Use accessToken instead */
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
   user: {
     id: number;
     username: string;
