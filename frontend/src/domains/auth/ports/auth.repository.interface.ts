@@ -1,5 +1,13 @@
 import { User } from '../../../shared/types';
 
+export interface AuthSession {
+  token: string;
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
+  user: User;
+}
+
 /**
  * Authentication Repository Interface
  * Defines the contract for authentication data operations
@@ -10,7 +18,7 @@ export interface IAuthRepository {
    * Authenticate user with credentials
    * @throws Error if authentication fails
    */
-  login(email: string, password: string): Promise<{ token: string; user: User }>;
+  login(email: string, password: string): Promise<AuthSession>;
 
   /**
    * Register a new user
@@ -32,4 +40,9 @@ export interface IAuthRepository {
    * Request the backend to regenerate the authenticated user's avatar
    */
   regenerateAvatar(): Promise<User>;
+
+  /**
+   * Invalidate the current session on the backend
+   */
+  logout(): Promise<void>;
 }

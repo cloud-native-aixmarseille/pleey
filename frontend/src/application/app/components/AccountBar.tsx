@@ -18,12 +18,12 @@ export function AccountBar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
-  const { user, isAuthenticated, clearSession } = useAuthManagerContext();
+  const { user, isAuthenticated, logout } = useAuthManagerContext();
 
-  const handleLogout = useCallback(() => {
-    clearSession();
+  const handleLogout = useCallback(async () => {
+    await logout();
     navigate("/auth/login", { replace: true });
-  }, [clearSession, navigate]);
+  }, [logout, navigate]);
 
   const navigationItems = useMemo(() => {
     if (!user) {

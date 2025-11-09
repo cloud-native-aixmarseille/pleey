@@ -71,6 +71,8 @@ export class I18nHttpExceptionFilter implements ExceptionFilter {
       [AuthErrorCode.USER_NOT_FOUND]: 'auth.errors.userNotFound',
       [AuthErrorCode.UNAUTHORIZED]: 'auth.errors.unauthorized',
       [AuthErrorCode.AVATAR_NOT_FOUND]: 'auth.errors.avatarNotFound',
+      [AuthErrorCode.INVALID_REFRESH_TOKEN]: 'auth.errors.invalidRefreshToken',
+      [AuthErrorCode.REFRESH_TOKEN_EXPIRED]: 'auth.errors.refreshTokenExpired',
     };
 
     return this.i18n.translate(errorMap[code]);

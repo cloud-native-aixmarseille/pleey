@@ -13,7 +13,10 @@ describe('AuthHttpRepository', () => {
   describe('login', () => {
     it('should login successfully', async () => {
       const mockResponse = {
-        token: 'test-token',
+        token: 'legacy-token',
+        accessToken: 'test-access-token',
+        refreshToken: 'test-refresh-token',
+        expiresIn: 3600,
         user: {
           id: 1,
           username: 'testuser',
@@ -30,7 +33,13 @@ describe('AuthHttpRepository', () => {
 
       const result = await repository.login('test@example.com', 'password123');
 
-      expect(result).toEqual(mockResponse);
+      expect(result).toEqual({
+        token: 'test-access-token',
+        accessToken: 'test-access-token',
+        refreshToken: 'test-refresh-token',
+        expiresIn: 3600,
+        user: mockResponse.user,
+      });
       expect(postSpy).toHaveBeenCalledWith(
         '/api/login',
         expect.objectContaining({

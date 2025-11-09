@@ -18,6 +18,7 @@
     "start:prod": "node dist/main",
     "seed": "node prisma/seed.js",
     "db:migrate": "prisma migrate deploy",
+    "db:generate": "prisma generate",
     "db:seed": "npm run db:migrate && npm run seed",
     "test": "npx vitest run",
     "test:watch": "npx vitest --watch",

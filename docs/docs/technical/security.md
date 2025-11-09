@@ -105,6 +105,14 @@ npm outdated
 - CORS_ORIGIN: Specific domain, not `*`
 - Rate limiting enabled
 - Logs enabled but without sensitive data
+- JWT_ACCESS_EXPIRES_IN_SECONDS: keep access tokens short-lived (default 3600)
+- JWT_REFRESH_SECRET / JWT_REFRESH_EXPIRES_IN_SECONDS: refresh tokens with independent secret and max lifetime (default 14 days)
+
+### JWT & Refresh Tokens
+- Access tokens are short-lived and refreshed transparently via `/api/refresh`.
+- Refresh tokens are hashed before storage and rotated on every login/refresh.
+- Refresh tokens are invalidated on logout or when verification fails.
+- Client-side cache clears tokens and prompts re-authentication whenever refresh fails.
 
 #### **Security Headers**
 ```typescript

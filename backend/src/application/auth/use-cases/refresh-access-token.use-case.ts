@@ -3,48 +3,51 @@ import { UserRepositoryProvider } from '../../../domain/auth/repositories/user.r
 import type { UserRepository } from '../../../domain/auth/repositories/user.repository.interface';
 import { PasswordService } from '../../../domain/auth/services/password.service';
 import type { AuthResponseDto } from '../dto/auth-response.dto';
-import type { LoginUserDto } from '../dto/login-user.dto';
 import { AuthErrorCode } from '../enums/auth-error-code.enum';
 import { mapUserToPublicProfile, toPublicAvatarUrl } from '../../shared/utils/avatar-url.util';
 import { AuthTokenService } from '../services/auth-token.service';
 
-/**
- * Login User Use Case
- * Handles user login and JWT token generation
- */
 @Injectable()
-export class LoginUserUseCase {
+export class RefreshAccessTokenUseCase {
   constructor(
     @Inject(UserRepositoryProvider) private readonly userRepository: UserRepository,
     private readonly passwordService: PasswordService,
     private readonly authTokenService: AuthTokenService,
   ) { }
 
-  async execute(dto: LoginUserDto): Promise<AuthResponseDto> {
-    // Find user by email
-    const user = await this.userRepository.findByEmail(dto.email);
-    if (!user) {
-      throw new UnauthorizedException(AuthErrorCode.INVALID_CREDENTIALS);
+  async execute(refreshToken: string): Promise<AuthResponseDto> {
+    const userId = await this.authTokenService.verifyRefreshToken(refreshToken);
+
+    const user = await this.userRepository.findById(userId);
+    if (!user || !user.refreshTokenHash) {
+      throw new UnauthorizedException(AuthErrorCode.INVALID_REFRESH_TOKEN);
     }
 
-    // Verify password
-    const isPasswordValid = await this.passwordService.compare(dto.password, user.password);
-    if (!isPasswordValid) {
-      throw new UnauthorizedException(AuthErrorCode.INVALID_CREDENTIALS);
+    if (!user.refreshTokenExpiresAt || user.refreshTokenExpiresAt.getTime() <= Date.now()) {
+      await this.userRepository.clearRefreshToken(userId);
+      throw new UnauthorizedException(AuthErrorCode.REFRESH_TOKEN_EXPIRED);
     }
 
-    // Generate JWT token
+    const isTokenValid = await this.passwordService.compare(refreshToken, user.refreshTokenHash);
+    if (!isTokenValid) {
+      await this.userRepository.clearRefreshToken(userId);
+      throw new UnauthorizedException(AuthErrorCode.INVALID_REFRESH_TOKEN);
+    }
+
     const avatarUrl = toPublicAvatarUrl(user);
-    const payload = {
+    const tokenPair = this.authTokenService.createTokenPair({
       id: user.id,
       username: user.username,
       isAdmin: user.isAdmin,
       avatarUrl,
-    };
-    const tokenPair = this.authTokenService.createTokenPair(payload);
+    });
 
     const hashedRefreshToken = await this.passwordService.hash(tokenPair.refreshToken);
-    await this.userRepository.updateRefreshToken(user.id, hashedRefreshToken, tokenPair.refreshTokenExpiresAt);
+    await this.userRepository.updateRefreshToken(
+      user.id,
+      hashedRefreshToken,
+      tokenPair.refreshTokenExpiresAt,
+    );
 
     return this.authTokenService.mapTokensToResponse(
       tokenPair,

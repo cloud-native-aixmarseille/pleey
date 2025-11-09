@@ -18,6 +18,13 @@ const KNOWN_ERROR_MESSAGE_MAP = new Map<string, string>([
   ['unable to update profile', 'profile.updateError'],
   ['unable to regenerate avatar', 'profile.avatarRegenerateError'],
   ['unauthorized', 'auth.errors.unauthorized'],
+  ['invalid refresh token', 'auth.errors.invalidRefreshToken'],
+  ['refresh token expired', 'auth.errors.refreshTokenExpired'],
+  ['jeton d\'actualisation invalide', 'auth.errors.invalidRefreshToken'],
+  ['jeton de rafraichissement invalide', 'auth.errors.invalidRefreshToken'],
+  ['jeton de rafraîchissement invalide', 'auth.errors.invalidRefreshToken'],
+  ['jeton de rafraichissement expiré', 'auth.errors.refreshTokenExpired'],
+  ['jeton de rafraîchissement expiré', 'auth.errors.refreshTokenExpired'],
 ]);
 
 function extractErrorMessage(error: unknown): string | null {

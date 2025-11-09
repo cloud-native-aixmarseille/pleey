@@ -48,6 +48,24 @@ build: ## Build Docker images
 up: ## Start the application
 	@echo "$(GREEN)Starting application...$(NC)"
 	$(COMPOSE) up -d
+	@echo "$(GREEN)Backend API ready$(NC)"
+	@echo "$(GREEN)✓ Application started$(NC)"
+	@echo "Frontend: http://frontend.quiz-master.localhost"
+	@echo "Backend: http://backend.quiz-master.localhost"
+	@echo "Traefik Dashboard: http://localhost:8080"
+
+migrate: ## Apply database migrations
+	@echo "$(GREEN)Applying database migrations...$(NC)"
+	@$(COMPOSE) exec -T backend npm run db:migrate
+	@$(COMPOSE) exec -T backend npm run db:generate
+	@echo "$(GREEN)✓ Migrations applied$(NC)"
+
+seed: ## Seed the database
+	@echo "$(GREEN)Seeding database...$(NC)"
+	@$(COMPOSE) exec -T backend npm run db:seed
+	@echo "$(GREEN)✓ Database seeded$(NC)"
+
+openapi: ## Generate OpenAPI types
 	@echo "$(GREEN)Waiting for backend OpenAPI endpoint...$(NC)"
 	@ATTEMPTS=0; \
 	until $(COMPOSE) exec -T backend sh -c "curl -sf http://localhost:3001/api/openapi.json >/dev/null"; do \
@@ -59,23 +77,6 @@ up: ## Start the application
 		echo "$(YELLOW)Waiting for backend API (attempt $$ATTEMPTS)...$(NC)"; \
 		sleep 2; \
 	done
-	@echo "$(GREEN)Backend API ready$(NC)"
-	@echo "$(GREEN)✓ Application started$(NC)"
-	@echo "Frontend: http://frontend.quiz-master.localhost"
-	@echo "Backend: http://backend.quiz-master.localhost"
-	@echo "Traefik Dashboard: http://localhost:8080"
-
-migrate: ## Apply database migrations
-	@echo "$(GREEN)Applying database migrations...$(NC)"
-	@$(COMPOSE) exec -T backend npm run db:migrate
-	@echo "$(GREEN)✓ Migrations applied$(NC)"
-
-seed: ## Seed the database
-	@echo "$(GREEN)Seeding database...$(NC)"
-	@$(COMPOSE) exec -T backend npm run db:seed
-	@echo "$(GREEN)✓ Database seeded$(NC)"
-
-openapi: ## Generate OpenAPI types
 	@echo "$(GREEN)Generating OpenAPI documentation...$(NC)"
 	@$(COMPOSE) exec -T frontend npm run openapi:generate
 	@echo "$(GREEN)✓ OpenAPI documentation generated$(NC)"

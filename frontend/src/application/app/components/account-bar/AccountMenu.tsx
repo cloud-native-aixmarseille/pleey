@@ -10,7 +10,7 @@ interface AccountMenuLabels {
 interface AccountMenuProps {
   labels: AccountMenuLabels;
   onNavigateProfile: () => void;
-  onLogout: () => void;
+  onLogout: () => void | Promise<void>;
   closeSignal: string;
 }
 
@@ -59,8 +59,8 @@ function AccountMenuComponent({
     setIsOpen(false);
   }, [onNavigateProfile]);
 
-  const handleLogout = useCallback(() => {
-    onLogout();
+  const handleLogout = useCallback(async () => {
+    await onLogout();
     setIsOpen(false);
   }, [onLogout]);
 
