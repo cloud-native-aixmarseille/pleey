@@ -1,10 +1,12 @@
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Button,
   Card,
   PrimaryButton,
   SecondaryButton,
 } from "../../../../shared/components";
-import type { Quiz } from "../../../../shared/types";
+import type { GameSession, Quiz } from "../../../../shared/types";
 
 interface QuizCardProps {
   quiz: Quiz;
@@ -13,6 +15,9 @@ interface QuizCardProps {
   onDelete?: (quizId: number) => void | Promise<void>;
   onLaunch: (quizId: number) => Promise<void>;
   isLive?: boolean;
+  liveSession?: GameSession | null;
+  onJoinSession?: (session: GameSession) => Promise<void> | void;
+  isLaunchBlocked?: boolean;
 }
 
 export function QuizCard({
@@ -22,9 +27,32 @@ export function QuizCard({
   onLaunch,
   onDelete,
   isLive,
+  liveSession,
+  onJoinSession,
+  isLaunchBlocked = false,
 }: QuizCardProps) {
   const { t } = useTranslation();
-  const isSessionLive = isLive ?? Boolean(quiz.is_active);
+  const [isJoining, setIsJoining] = useState(false);
+  const activeSession = useMemo(() => liveSession ?? null, [liveSession]);
+  const isSessionLive = isLive ?? Boolean(activeSession ?? quiz.is_active);
+  const shouldShowJoin = Boolean(activeSession);
+  const launchTooltip =
+    isSessionLive || isLaunchBlocked
+      ? t("admin.liveSessionLaunchBlocked")
+      : undefined;
+
+  const handleJoin = useCallback(async () => {
+    if (!activeSession || !onJoinSession || isJoining) {
+      return;
+    }
+
+    setIsJoining(true);
+    try {
+      await Promise.resolve(onJoinSession(activeSession));
+    } finally {
+      setIsJoining(false);
+    }
+  }, [activeSession, isJoining, onJoinSession]);
 
   return (
     <Card
@@ -72,39 +100,73 @@ export function QuizCard({
       </div>
 
       <div className="flex items-center gap-2">
-        <PrimaryButton
-          size="sm"
-          className="flex-1"
-          onClick={() => onLaunch(quiz.id)}
-          aria-label={t("admin.launch")}
-          disabled={isSessionLive}
-          tooltip={
-            isSessionLive ? t("admin.liveSessionLaunchBlocked") : undefined
-          }
-          icon={
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          }
-        >
-          {t("admin.launch")}
-        </PrimaryButton>
+        {shouldShowJoin ? (
+          <Button
+            size="sm"
+            className="flex-1"
+            variant="accent"
+            onClick={handleJoin}
+            disabled={isJoining}
+            aria-label={t("admin.joinSessionButtonAria", {
+              pin: activeSession?.pin,
+            })}
+            icon={
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10 7v6l5-3-5-3z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 12A9 9 0 113 12a9 9 0 0118 0z"
+                />
+              </svg>
+            }
+          >
+            {isJoining ? t("common.loading") : t("admin.joinSessionButton")}
+          </Button>
+        ) : (
+          <PrimaryButton
+            size="sm"
+            className="flex-1"
+            onClick={() => onLaunch(quiz.id)}
+            aria-label={t("admin.launch")}
+            disabled={isSessionLive || isLaunchBlocked}
+            tooltip={launchTooltip}
+            icon={
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            }
+          >
+            {t("admin.launch")}
+          </PrimaryButton>
+        )}
         <SecondaryButton
           size="sm"
           onClick={() => onManage(quiz)}

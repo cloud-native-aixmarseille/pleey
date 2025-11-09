@@ -22,6 +22,7 @@ interface UseAppLifecycleParams {
   locationPathname: string;
   gameStarted: boolean;
   gameEnded: boolean;
+  gamePin: string;
 }
 
 export function useAppLifecycle({
@@ -36,6 +37,7 @@ export function useAppLifecycle({
   locationPathname,
   gameStarted,
   gameEnded,
+  gamePin,
 }: UseAppLifecycleParams) {
   useEffect(() => {
     restoreSession();
@@ -82,14 +84,14 @@ export function useAppLifecycle({
   }, [user, locationPathname, navigate]);
 
   useEffect(() => {
-    if (gameStarted) {
-      navigate("/game/playing");
+    if (gameStarted && gamePin) {
+      navigate(`/game/${gamePin}/playing`);
     }
-  }, [gameStarted, navigate]);
+  }, [gameStarted, gamePin, navigate]);
 
   useEffect(() => {
-    if (gameEnded) {
-      navigate("/game/leaderboard");
+    if (gameEnded && gamePin) {
+      navigate(`/game/${gamePin}/leaderboard`);
     }
-  }, [gameEnded, navigate]);
+  }, [gameEnded, gamePin, navigate]);
 }

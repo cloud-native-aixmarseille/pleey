@@ -18,7 +18,7 @@ export function AppLifecycleManager() {
     useAuthManagerContext();
 
   const { loadQuizzes } = useQuizManagerContext();
-  const { gameStarted, gameEnded } = useGameSessionContext();
+  const { gameStarted, gameEnded, gamePin } = useGameSessionContext();
 
   useAppLifecycle({
     restoreSession,
@@ -32,6 +32,7 @@ export function AppLifecycleManager() {
     locationPathname: location.pathname,
     gameStarted,
     gameEnded,
+    gamePin,
   });
 
   return null;

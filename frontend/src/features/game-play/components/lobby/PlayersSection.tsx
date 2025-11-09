@@ -47,9 +47,13 @@ function PlayersSectionComponent({
         >
           {players.map((player, index) => {
             const avatarUrl = resolveAvatarUrl(player.avatar);
+            const playerKey =
+              player.id != null
+                ? `player-${player.id}`
+                : `guest-${player.username}-${index}`;
 
             return (
-              <li key={player.id} className="list-none">
+              <li key={playerKey} className="list-none">
                 <Card
                   hover
                   className="p-4 sm:p-6 text-center animate-scale-in border-2 border-accent-500/20 hover:border-accent-500"

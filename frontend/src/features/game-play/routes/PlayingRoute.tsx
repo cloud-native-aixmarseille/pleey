@@ -1,4 +1,5 @@
-import { Navigate } from "react-router-dom";
+import { useEffect } from "react";
+import { Navigate, useParams } from "react-router-dom";
 import PlayingPage from "../components/PlayingPage";
 import AdminHostPlayingView from "../components/AdminHostPlayingView";
 import { useAuthManagerContext } from "../../../application/app/context/AuthManagerContext";
@@ -12,7 +13,10 @@ import { useGuestSessionContext } from "../../../application/app/context/GuestSe
 export function PlayingRoute() {
   const { isAuthenticated, isAdmin } = useAuthManagerContext();
   const { guestNickname } = useGuestSessionContext();
+  const { sessionId } = useParams<{ sessionId: string }>();
   const {
+    gamePin,
+    setGamePin,
     currentQuestion,
     questionNumber,
     totalQuestions,
@@ -25,13 +29,24 @@ export function PlayingRoute() {
   } = useGameSessionContext();
 
   const hasIdentity = isAuthenticated || Boolean(guestNickname);
+  const normalizedSessionId = sessionId?.toUpperCase() ?? "";
+
+  useEffect(() => {
+    if (normalizedSessionId && normalizedSessionId !== gamePin) {
+      setGamePin(normalizedSessionId);
+    }
+  }, [normalizedSessionId, gamePin, setGamePin]);
+
+  if (!normalizedSessionId) {
+    return <Navigate to="/game/join" replace />;
+  }
 
   if (!hasIdentity) {
     return <Navigate to="/game/join" replace />;
   }
 
   if (!currentQuestion) {
-    return <Navigate to="/game/lobby" replace />;
+    return <Navigate to={`/game/${normalizedSessionId}/lobby`} replace />;
   }
 
   if (isAdmin) {

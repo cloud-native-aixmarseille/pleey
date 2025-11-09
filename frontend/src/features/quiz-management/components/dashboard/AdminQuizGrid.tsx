@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Card, PrimaryButton } from "../../../../shared/components";
-import type { Quiz } from "../../../../shared/types";
+import type { GameSession, Quiz } from "../../../../shared/types";
 import { QuizCard } from "./QuizCard.tsx";
 
 interface AdminQuizGridProps {
@@ -10,6 +10,9 @@ interface AdminQuizGridProps {
   onDeleteQuizRequest: (quiz: Quiz) => void;
   onLaunchQuiz: (quizId: number) => Promise<void>;
   onCreateQuizRequest: () => void;
+  onJoinSession: (session: GameSession) => Promise<void> | void;
+  liveSessionsByQuiz: Map<number, GameSession>;
+  isLaunchBlocked: boolean;
 }
 
 export function AdminQuizGrid({
@@ -19,6 +22,9 @@ export function AdminQuizGrid({
   onDeleteQuizRequest,
   onLaunchQuiz,
   onCreateQuizRequest,
+  onJoinSession,
+  liveSessionsByQuiz,
+  isLaunchBlocked,
 }: AdminQuizGridProps) {
   const { t } = useTranslation();
 
@@ -48,6 +54,9 @@ export function AdminQuizGrid({
           onDelete={() => onDeleteQuizRequest(quiz)}
           onLaunch={onLaunchQuiz}
           isLive={liveQuizIds.has(quiz.id)}
+          liveSession={liveSessionsByQuiz.get(quiz.id)}
+          onJoinSession={onJoinSession}
+          isLaunchBlocked={isLaunchBlocked}
         />
       ))}
     </div>

@@ -19,7 +19,7 @@ export function JoinGameRoute() {
   useEffect(() => {
     const pinFromUrl = searchParams.get("pin");
     if (pinFromUrl && pinFromUrl.length === 6) {
-      setGamePin(pinFromUrl.toUpperCase());
+      setGamePin(pinFromUrl);
     }
   }, [searchParams, setGamePin]);
 

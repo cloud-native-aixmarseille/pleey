@@ -47,9 +47,26 @@ export function AppRoutes() {
           <Route path="/admin/organization" element={<OrganizationRoute />} />
 
           <Route path="/game/join" element={<JoinGameRoute />} />
-          <Route path="/game/lobby" element={<LobbyRoute />} />
-          <Route path="/game/playing" element={<PlayingRoute />} />
-          <Route path="/game/leaderboard" element={<LeaderboardRoute />} />
+          <Route path="/game/:sessionId/lobby" element={<LobbyRoute />} />
+          <Route path="/game/:sessionId/playing" element={<PlayingRoute />} />
+          <Route
+            path="/game/:sessionId/leaderboard"
+            element={<LeaderboardRoute />}
+          />
+
+          {/* Legacy URLs redirect to join flow */}
+          <Route
+            path="/game/lobby"
+            element={<Navigate to="/game/join" replace />}
+          />
+          <Route
+            path="/game/playing"
+            element={<Navigate to="/game/join" replace />}
+          />
+          <Route
+            path="/game/leaderboard"
+            element={<Navigate to="/game/join" replace />}
+          />
 
           <Route path="/profile" element={<ProfileRoute />} />
 
