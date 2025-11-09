@@ -17,7 +17,7 @@ interface PlayerCountFormatters {
   readonly left: (delta: number, totalPlayers: number) => string;
 }
 
-export function useJoinLink(joinPath: string = "/join") {
+export function useJoinLink(joinPath: string = "/game/join") {
   const [joinUrl, setJoinUrl] = useState<string | null>(null);
 
   useEffect(() => {

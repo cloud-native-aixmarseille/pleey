@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useCallback, useMemo, useState } from "react";
 import { Container } from "../../../../shared/components";
 import type { GameSession, Quiz } from "../../../../shared/types";
 import { useOrganization } from "../../../../shared/context/OrganizationContext";
@@ -9,6 +9,7 @@ import { AdminStatsSection } from "./AdminStatsSection.tsx";
 import { AdminQuizGrid } from "./AdminQuizGrid.tsx";
 import { CreateQuizModal } from "./modals/CreateQuizModal.tsx";
 import { DeleteQuizModal } from "./modals/DeleteQuizModal.tsx";
+import { useAuthManagerContext } from "../../../../application/app/context/AuthManagerContext";
 
 interface AdminDashboardProps {
   quizzes: Quiz[];
@@ -21,6 +22,7 @@ interface AdminDashboardProps {
   onManageQuiz: (quiz: Quiz) => void;
   onDeleteQuiz: (quizId: number) => Promise<void> | void;
   onLaunchQuiz: (quizId: number) => Promise<void>;
+  onJoinSession: (session: GameSession) => Promise<void> | void;
 }
 
 export default function AdminDashboard({
@@ -30,8 +32,10 @@ export default function AdminDashboard({
   onManageQuiz,
   onDeleteQuiz,
   onLaunchQuiz,
+  onJoinSession,
 }: AdminDashboardProps) {
   const { currentOrganization } = useOrganization();
+  const { user } = useAuthManagerContext();
   const { notify, notifyFromError } = useNotifications();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -111,24 +115,52 @@ export default function AdminDashboard({
     return map;
   }, [quizzes]);
 
-  const liveQuizIds = useMemo(() => {
-    const ids = new Set<number>();
+  const liveSessionsByQuiz = useMemo(() => {
+    const map = new Map<number, GameSession>();
+    const liveStatuses = new Set(["waiting", "active", "paused"]);
     activeSessions.forEach((session) => {
       const quizId = session.quizId ?? session.quiz_id;
-      if (typeof quizId === "number") {
-        ids.add(quizId);
+      if (!liveStatuses.has(session.status)) {
+        return;
+      }
+      if (typeof quizId === "number" && !map.has(quizId)) {
+        map.set(quizId, session);
       }
     });
-    return ids;
+    return map;
   }, [activeSessions]);
 
+  const liveQuizIds = useMemo(
+    () => new Set(Array.from(liveSessionsByQuiz.keys())),
+    [liveSessionsByQuiz]
+  );
+
   const activeQuizzes = useMemo(
-    () => quizzes.filter((quiz) => liveQuizIds.has(quiz.id)),
-    [quizzes, liveQuizIds]
+    () => quizzes.filter((quiz) => liveSessionsByQuiz.has(quiz.id)),
+    [quizzes, liveSessionsByQuiz]
   );
   const totalQuestions = useMemo(
     () => quizzes.reduce((sum, quiz) => sum + (quiz.question_count || 0), 0),
     [quizzes]
+  );
+
+  const hasHostedLiveSession = useMemo(() => {
+    if (!user) {
+      return false;
+    }
+    const adminId = user.id;
+    const liveStatuses = new Set(["waiting", "active", "paused"]);
+    return activeSessions.some((session) => {
+      const sessionAdminId = session.adminId ?? session.admin_id;
+      return sessionAdminId === adminId && liveStatuses.has(session.status);
+    });
+  }, [activeSessions, user]);
+
+  const handleJoinSession = useCallback(
+    async (session: GameSession) => {
+      await Promise.resolve(onJoinSession(session));
+    },
+    [onJoinSession]
   );
 
   const handleTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -149,7 +181,7 @@ export default function AdminDashboard({
         <AdminLiveSessionsSection
           sessions={activeSessions}
           quizLookup={quizLookup}
-          onManageQuiz={onManageQuiz}
+          onJoinSession={handleJoinSession}
         />
         <AdminStatsSection
           totalQuizzes={quizzes.length}
@@ -163,6 +195,9 @@ export default function AdminDashboard({
           onDeleteQuizRequest={requestDeleteQuiz}
           onLaunchQuiz={onLaunchQuiz}
           onCreateQuizRequest={openCreateModal}
+          onJoinSession={handleJoinSession}
+          liveSessionsByQuiz={liveSessionsByQuiz}
+          isLaunchBlocked={hasHostedLiveSession}
         />
       </Container>
       <CreateQuizModal

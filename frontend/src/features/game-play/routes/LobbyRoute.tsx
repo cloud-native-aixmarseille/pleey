@@ -1,4 +1,5 @@
-import { Navigate, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import LobbyPage from "../components/LobbyPage";
 import { useAuthManagerContext } from "../../../application/app/context/AuthManagerContext";
 import { useGameSessionContext } from "../../../application/app/context/GameSessionContext";
@@ -10,12 +11,29 @@ import { useGuestSessionContext } from "../../../application/app/context/GuestSe
  */
 export function LobbyRoute() {
   const navigate = useNavigate();
+  const { sessionId } = useParams<{ sessionId: string }>();
   const { isAuthenticated, isAdmin, user } = useAuthManagerContext();
   const { guestNickname } = useGuestSessionContext();
-  const { gamePin, players, activeQuizQuestionCount, handleStartGame } =
-    useGameSessionContext();
+  const {
+    gamePin,
+    setGamePin,
+    players,
+    activeQuizQuestionCount,
+    handleStartGame,
+  } = useGameSessionContext();
 
   const hasIdentity = isAuthenticated || Boolean(guestNickname);
+  const normalizedSessionId = sessionId?.toUpperCase() ?? "";
+
+  useEffect(() => {
+    if (normalizedSessionId && normalizedSessionId !== gamePin) {
+      setGamePin(normalizedSessionId);
+    }
+  }, [normalizedSessionId, gamePin, setGamePin]);
+
+  if (!normalizedSessionId) {
+    return <Navigate to="/game/join" replace />;
+  }
 
   if (!hasIdentity) {
     return <Navigate to="/game/join" replace />;

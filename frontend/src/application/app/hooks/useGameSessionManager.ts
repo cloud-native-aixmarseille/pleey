@@ -43,11 +43,15 @@ export function useGameSessionManager({
   notifyFromError,
   navigate,
 }: UseGameSessionManagerParams) {
-  const [gamePin, setGamePin] = useState("");
+  const [gamePinState, setGamePinState] = useState("");
   const [activeQuizQuestionCount, setActiveQuizQuestionCount] = useState(0);
   const [userAnswer, setUserAnswer] = useState<string | null>(null);
   const [activeSessions, setActiveSessions] = useState<GameSession[]>([]);
   const [sessionsByQuiz, setSessionsByQuiz] = useState<Record<number, GameSession[]>>({});
+
+  const setGamePin = useCallback((pin: string) => {
+    setGamePinState(pin.toUpperCase());
+  }, []);
 
   const {
     players,
@@ -156,12 +160,13 @@ export function useGameSessionManager({
         }
 
         const data = await gameService.createSession(token, quizId);
-        setGamePin(data.pin);
+        const normalizedPin = data.pin.toUpperCase();
+        setGamePin(normalizedPin);
         setActiveQuizQuestionCount(questions.length);
         await refreshActiveSessions();
         await loadSessionsForQuiz(quizId);
-        navigate("/game/lobby");
-        gameService.joinGame(data.pin, user.username, user.id);
+        gameService.joinGame(normalizedPin, user.username, user.id);
+        navigate(`/game/${normalizedPin}/lobby`);
       } catch (error) {
         notifyFromError(error, "game.errors.sessionCreateFailed");
       }
@@ -173,62 +178,65 @@ export function useGameSessionManager({
       fetchQuizQuestions,
       notify,
       notifyFromError,
-      navigate,
       refreshActiveSessions,
       loadSessionsForQuiz,
+      navigate,
     ]
   );
 
   const handleJoinGame = useCallback(() => {
-    if (!user) {
+    if (!user || !gamePinState) {
       return;
     }
 
-    gameService.joinGame(gamePin, user.username, user.id);
-    navigate("/game/lobby");
-  }, [user, gamePin, navigate]);
+    gameService.joinGame(gamePinState, user.username, user.id);
+    navigate(`/game/${gamePinState}/lobby`);
+  }, [user, gamePinState, navigate]);
 
   const handleJoinAsGuest = useCallback(
     (nickname: string) => {
+      if (!gamePinState) {
+        return;
+      }
       const { id } = registerGuest(nickname);
-      gameService.joinGame(gamePin, nickname, undefined, id);
-      navigate("/game/lobby");
+      gameService.joinGame(gamePinState, nickname, undefined, id);
+      navigate(`/game/${gamePinState}/lobby`);
     },
-    [registerGuest, gamePin, navigate]
+    [registerGuest, gamePinState, navigate]
   );
 
   const handleStartGame = useCallback(() => {
-    if (!gamePin) {
+    if (!gamePinState) {
       return;
     }
 
-    gameService.startGame(gamePin);
-  }, [gamePin]);
+    gameService.startGame(gamePinState);
+  }, [gamePinState]);
 
   const handleSubmitAnswer = useCallback(
     (answer: string) => {
       if (user) {
         setUserAnswer(answer);
-        gameService.submitAnswer(gamePin, user.id, answer, timeLeft);
+        gameService.submitAnswer(gamePinState, user.id, answer, timeLeft);
         return;
       }
 
       if (guestId) {
         setUserAnswer(answer);
-        gameService.submitAnswer(gamePin, undefined, answer, timeLeft, guestId);
+        gameService.submitAnswer(gamePinState, undefined, answer, timeLeft, guestId);
       }
     },
-    [user, guestId, gamePin, timeLeft]
+    [user, guestId, gamePinState, timeLeft]
   );
 
   const handleNextQuestion = useCallback(() => {
-    if (!gamePin) {
+    if (!gamePinState) {
       return;
     }
 
-    gameService.nextQuestion(gamePin);
+    gameService.nextQuestion(gamePinState);
     setUserAnswer(null);
-  }, [gamePin]);
+  }, [gamePinState]);
 
   const rejoinSession = useCallback(
     async (session: GameSession) => {
@@ -254,14 +262,15 @@ export function useGameSessionManager({
         }
       }
 
-      setGamePin(session.pin);
+      const normalizedPin = session.pin.toUpperCase();
+      setGamePin(normalizedPin);
       setActiveQuizQuestionCount(questions.length);
 
       await refreshActiveSessions();
       await loadSessionsForQuiz(quizId);
 
-      navigate("/game/lobby");
-      gameService.joinGame(session.pin, user.username, user.id);
+      navigate(`/game/${normalizedPin}/lobby`);
+      gameService.joinGame(normalizedPin, user.username, user.id);
     },
     [
       token,
@@ -277,7 +286,7 @@ export function useGameSessionManager({
   );
 
   return {
-    gamePin,
+    gamePin: gamePinState,
     setGamePin,
     activeQuizQuestionCount,
     userAnswer,

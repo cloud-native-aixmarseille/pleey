@@ -24,7 +24,8 @@ export function AdminRoute() {
     hasLoadedQuizzes,
     isPending,
   } = useQuizManagerContext();
-  const { handleLaunchQuiz, activeSessions } = useGameSessionContext();
+  const { handleLaunchQuiz, activeSessions, rejoinSession } =
+    useGameSessionContext();
 
   useEffect(() => {
     if (!token || hasLoadedQuizzes) {
@@ -77,6 +78,7 @@ export function AdminRoute() {
         onManageQuiz={handleManageQuiz}
         onDeleteQuiz={handleDeleteQuiz}
         onLaunchQuiz={handleLaunchQuiz}
+        onJoinSession={rejoinSession}
       />
     );
   }, [
@@ -88,6 +90,7 @@ export function AdminRoute() {
     handleDeleteQuiz,
     handleLaunchQuiz,
     activeSessions,
+    rejoinSession,
     hasLoadedQuizzes,
     isPending,
     t,

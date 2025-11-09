@@ -1,4 +1,5 @@
-import { Navigate } from "react-router-dom";
+import { useEffect } from "react";
+import { Navigate, useParams } from "react-router-dom";
 import LeaderboardPage from "../components/LeaderboardPage";
 import AdminHostLeaderboardView from "../components/AdminHostLeaderboardView";
 import { useAuthManagerContext } from "../../../application/app/context/AuthManagerContext";
@@ -12,9 +13,21 @@ import { useGuestSessionContext } from "../../../application/app/context/GuestSe
 export function LeaderboardRoute() {
   const { isAuthenticated, isAdmin } = useAuthManagerContext();
   const { guestNickname } = useGuestSessionContext();
-  const { leaderboard } = useGameSessionContext();
+  const { sessionId } = useParams<{ sessionId: string }>();
+  const { gamePin, setGamePin, leaderboard } = useGameSessionContext();
 
   const hasIdentity = isAuthenticated || Boolean(guestNickname);
+  const normalizedSessionId = sessionId?.toUpperCase() ?? "";
+
+  useEffect(() => {
+    if (normalizedSessionId && normalizedSessionId !== gamePin) {
+      setGamePin(normalizedSessionId);
+    }
+  }, [normalizedSessionId, gamePin, setGamePin]);
+
+  if (!normalizedSessionId) {
+    return <Navigate to="/game/join" replace />;
+  }
 
   if (!hasIdentity) {
     return <Navigate to="/game/join" replace />;
