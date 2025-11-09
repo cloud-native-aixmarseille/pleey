@@ -65,8 +65,9 @@ export function useQuizManager() {
     startTransition(() => {
       setQuizzes((prev) => prev.filter((quiz) => quiz.id !== quizId));
       setQuestionsByQuiz((prev) => {
-        const { [quizId]: _removed, ...rest } = prev;
-        return rest;
+        const next = { ...prev };
+        delete next[quizId];
+        return next;
       });
     });
   }, [startTransition]);
@@ -80,8 +81,9 @@ export function useQuizManager() {
           const nextQuestions = current.filter((question) => question.id !== questionId);
 
           if (nextQuestions.length === 0) {
-            const { [quizId]: _removed, ...rest } = prev;
-            return rest;
+            const next = { ...prev };
+            delete next[quizId];
+            return next;
           }
 
           return {

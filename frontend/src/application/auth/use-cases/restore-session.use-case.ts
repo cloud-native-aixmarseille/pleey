@@ -31,7 +31,7 @@ export class RestoreSessionUseCase {
         token: storedToken,
         user,
       };
-    } catch (error) {
+    } catch {
       // Invalid JSON, clear storage
       this.storage.removeItem(TOKEN_STORAGE_KEY);
       this.storage.removeItem(USER_STORAGE_KEY);

@@ -22,6 +22,12 @@ import { QuestionsEmptyState } from "./components/QuestionsEmptyState";
 import { QuestionList } from "./components/QuestionList";
 import { QuestionFormModal } from "./components/QuestionFormModal";
 import { QuestionDeleteModal } from "./components/QuestionDeleteModal";
+import { createStyles } from "../../../../shared/ui/styles";
+
+const styles = createStyles("ManageQuestionsPage", {
+  slot1: "min-h-screen bg-game-gradient p-4 sm:p-8",
+});
+
 
 type QuestionFormMode = "create" | "edit";
 
@@ -223,7 +229,7 @@ export default function ManageQuestionsPage({
   };
 
   return (
-    <div className="min-h-screen bg-game-gradient p-4 sm:p-8">
+    <div {...styles.slot1}>
       <Container size="lg">
         <QuestionsHeader
           quiz={quiz}

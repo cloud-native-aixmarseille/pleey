@@ -1,12 +1,39 @@
-import { useState, useEffect, useRef, useId } from "react";
+import { useState, useEffect, useRef, useId, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../../shared/components";
+import { createStyles } from "../../../shared/ui/styles";
+
+const styles = createStyles("ShareButton", {
+  slot1: "relative",
+  slot2: "flex items-center justify-center gap-2",
+  slot3: "w-5 h-5",
+  slot4: "fixed inset-0 bg-black/50 z-40 backdrop-blur-sm animate-fade-in",
+  slot5:
+    "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md p-4 animate-scale-in",
+  slot6:
+    "bg-dark-400 border-2 border-primary-500 rounded-2xl p-6 shadow-neon-accent",
+  slot7: "flex justify-between items-center mb-6",
+  slot8: "text-2xl font-bold text-white font-display uppercase",
+  slot9:
+    "text-white hover:text-danger-500 transition-colors text-3xl leading-none",
+  slot10: "space-y-3",
+  slot11:
+    "w-full flex items-center gap-4 p-4 bg-gradient-to-r from-[#1DA1F2] to-[#0d8bd9] text-white rounded-lg hover:scale-105 transition-transform retro-shadow",
+  slot12: "w-6 h-6",
+  slot13: "font-bold font-body",
+  slot14:
+    "w-full flex items-center gap-4 p-4 bg-gradient-to-r from-[#1877F2] to-[#0d5fbf] text-white rounded-lg hover:scale-105 transition-transform retro-shadow",
+  slot15:
+    "w-full flex items-center gap-4 p-4 bg-gradient-to-r from-[#0077B5] to-[#005582] text-white rounded-lg hover:scale-105 transition-transform retro-shadow",
+  slot16:
+    "w-full flex items-center gap-4 p-4 bg-gradient-to-r from-accent-500 to-accent-600 text-dark-900 rounded-lg hover:scale-105 transition-transform retro-shadow",
+  slot17: "mt-4 text-sm text-danger-400 font-medium",
+});
 
 interface ShareButtonProps {
   title: string;
   text: string;
   url?: string;
-  className?: string;
   variant?: "primary" | "secondary" | "accent" | "outline" | "ghost";
   size?: "sm" | "md" | "lg" | "xl";
 }
@@ -15,7 +42,6 @@ export function ShareButton({
   title,
   text,
   url = window.location.href,
-  className = "",
   variant = "outline",
   size = "lg",
 }: ShareButtonProps) {
@@ -26,14 +52,17 @@ export function ShareButton({
   const shareButtonRef = useRef<HTMLButtonElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const shareDialogTitleId = useId();
+  const closeShareMenu = useCallback(() => {
+    setShowShareMenu(false);
+    setShareError(null);
+    shareButtonRef.current?.focus();
+  }, []);
 
   // Handle Escape key to close modal
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape" && showShareMenu) {
-        setShowShareMenu(false);
-        setShareError(null);
-        shareButtonRef.current?.focus();
+        closeShareMenu();
       }
     };
 
@@ -41,7 +70,7 @@ export function ShareButton({
       document.addEventListener("keydown", handleEscape);
       return () => document.removeEventListener("keydown", handleEscape);
     }
-  }, [showShareMenu]);
+  }, [closeShareMenu, showShareMenu]);
 
   // Focus trap in modal
   useEffect(() => {
@@ -88,6 +117,11 @@ export function ShareButton({
         });
         setShareError(null);
       } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") {
+          setShareError(null);
+          return;
+        }
+
         setShareError(t("game.share.errors.nativeShareFailed"));
         setShowShareMenu(true);
       }
@@ -104,8 +138,7 @@ export function ShareButton({
       text
     )}&url=${encodeURIComponent(url)}`;
     window.open(twitterUrl, "_blank", "width=550,height=420");
-    setShareError(null);
-    setShowShareMenu(false);
+    closeShareMenu();
   };
 
   const shareToFacebook = () => {
@@ -113,8 +146,7 @@ export function ShareButton({
       url
     )}&quote=${encodeURIComponent(text)}`;
     window.open(facebookUrl, "_blank", "width=550,height=420");
-    setShareError(null);
-    setShowShareMenu(false);
+    closeShareMenu();
   };
 
   const shareToLinkedIn = () => {
@@ -122,8 +154,7 @@ export function ShareButton({
       url
     )}`;
     window.open(linkedInUrl, "_blank", "width=550,height=420");
-    setShareError(null);
-    setShowShareMenu(false);
+    closeShareMenu();
   };
 
   const copyToClipboard = async () => {
@@ -133,28 +164,32 @@ export function ShareButton({
       setShareError(null);
       setTimeout(() => {
         setCopied(false);
-        setShowShareMenu(false);
+        closeShareMenu();
       }, 2000);
     } catch (err) {
-      setShareError(t("game.share.errors.copyFailed"));
+      const messageKey =
+        err instanceof DOMException && err.name === "NotAllowedError"
+          ? "game.share.errors.copyPermissionDenied"
+          : "game.share.errors.copyFailed";
+
+      setShareError(t(messageKey));
       setCopied(false);
     }
   };
 
   return (
-    <div className="relative">
+    <div {...styles.slot1}>
       <Button
         ref={shareButtonRef}
         variant={variant}
         size={size}
         onClick={handleNativeShare}
-        className={`font-display uppercase tracking-wider ${className}`}
         aria-haspopup="dialog"
         aria-expanded={showShareMenu}
       >
-        <span className="flex items-center justify-center gap-2">
+        <span {...styles.slot2}>
           <svg
-            className="w-5 h-5"
+            {...styles.slot3}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -176,97 +211,82 @@ export function ShareButton({
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm animate-fade-in"
-            onClick={() => {
-              setShowShareMenu(false);
-              setShareError(null);
-              shareButtonRef.current?.focus();
+            {...styles.slot4}
+            role="button"
+            tabIndex={0}
+            aria-label="Close share dialog"
+            onClick={closeShareMenu}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                closeShareMenu();
+              }
             }}
-            aria-hidden="true"
-          ></div>
+          />
 
           {/* Share Menu */}
           <div
             ref={modalRef}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md p-4 animate-scale-in"
+            {...styles.slot5}
             role="dialog"
             aria-modal="true"
             aria-labelledby={shareDialogTitleId}
           >
-            <div className="bg-dark-400 border-2 border-primary-500 rounded-2xl p-6 shadow-neon-accent">
-              <div className="flex justify-between items-center mb-6">
-                <h3
-                  id={shareDialogTitleId}
-                  className="text-2xl font-bold text-white font-display uppercase"
-                >
+            <div {...styles.slot6}>
+              <div {...styles.slot7}>
+                <h3 id={shareDialogTitleId} {...styles.slot8}>
                   Share Results
                 </h3>
                 <button
-                  onClick={() => {
-                    setShowShareMenu(false);
-                    setShareError(null);
-                    shareButtonRef.current?.focus();
-                  }}
-                  className="text-white hover:text-danger-500 transition-colors text-3xl leading-none"
+                  onClick={closeShareMenu}
+                  {...styles.slot9}
                   aria-label="Close share dialog"
                 >
                   ×
                 </button>
               </div>
 
-              <div className="space-y-3">
+              <div {...styles.slot10}>
                 {/* Twitter */}
-                <button
-                  onClick={shareToTwitter}
-                  className="w-full flex items-center gap-4 p-4 bg-gradient-to-r from-[#1DA1F2] to-[#0d8bd9] text-white rounded-lg hover:scale-105 transition-transform retro-shadow"
-                >
+                <button onClick={shareToTwitter} {...styles.slot11}>
                   <svg
-                    className="w-6 h-6"
+                    {...styles.slot12}
                     fill="currentColor"
                     viewBox="0 0 24 24"
                   >
                     <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
                   </svg>
-                  <span className="font-bold font-body">Share on Twitter</span>
+                  <span {...styles.slot13}>Share on Twitter</span>
                 </button>
 
                 {/* Facebook */}
-                <button
-                  onClick={shareToFacebook}
-                  className="w-full flex items-center gap-4 p-4 bg-gradient-to-r from-[#1877F2] to-[#0d5fbf] text-white rounded-lg hover:scale-105 transition-transform retro-shadow"
-                >
+                <button onClick={shareToFacebook} {...styles.slot14}>
                   <svg
-                    className="w-6 h-6"
+                    {...styles.slot12}
                     fill="currentColor"
                     viewBox="0 0 24 24"
                   >
                     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                   </svg>
-                  <span className="font-bold font-body">Share on Facebook</span>
+                  <span {...styles.slot13}>Share on Facebook</span>
                 </button>
 
                 {/* LinkedIn */}
-                <button
-                  onClick={shareToLinkedIn}
-                  className="w-full flex items-center gap-4 p-4 bg-gradient-to-r from-[#0077B5] to-[#005582] text-white rounded-lg hover:scale-105 transition-transform retro-shadow"
-                >
+                <button onClick={shareToLinkedIn} {...styles.slot15}>
                   <svg
-                    className="w-6 h-6"
+                    {...styles.slot12}
                     fill="currentColor"
                     viewBox="0 0 24 24"
                   >
                     <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                   </svg>
-                  <span className="font-bold font-body">Share on LinkedIn</span>
+                  <span {...styles.slot13}>Share on LinkedIn</span>
                 </button>
 
                 {/* Copy Link */}
-                <button
-                  onClick={copyToClipboard}
-                  className="w-full flex items-center gap-4 p-4 bg-gradient-to-r from-accent-500 to-accent-600 text-dark-900 rounded-lg hover:scale-105 transition-transform retro-shadow"
-                >
+                <button onClick={copyToClipboard} {...styles.slot16}>
                   <svg
-                    className="w-6 h-6"
+                    {...styles.slot12}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -278,18 +298,14 @@ export function ShareButton({
                       d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
                     />
                   </svg>
-                  <span className="font-bold font-body">
+                  <span {...styles.slot13}>
                     {copied ? "✓ Copied!" : "Copy Link"}
                   </span>
                 </button>
               </div>
 
               {shareError && (
-                <p
-                  className="mt-4 text-sm text-danger-400 font-medium"
-                  role="alert"
-                  aria-live="assertive"
-                >
+                <p {...styles.slot17} role="alert" aria-live="assertive">
                   {shareError}
                 </p>
               )}

@@ -1,5 +1,14 @@
 import { memo } from "react";
 import { Avatar } from "../../../../shared/components";
+import { createStyles } from "../../../../shared/ui/styles";
+
+const styles = createStyles("AccountUserSummary", {
+  slot1: "flex items-center gap-3 rounded-3xl border border-primary-500/20 bg-dark-500/60 px-4 py-2 whitespace-nowrap",
+  slot2: "flex flex-col leading-tight",
+  slot3: "text-sm font-semibold text-light-100",
+  slot4: "text-xs text-light-500",
+});
+
 
 interface AccountUserSummaryProps {
   username: string;
@@ -13,11 +22,11 @@ function AccountUserSummaryComponent({
   avatarUrl,
 }: AccountUserSummaryProps) {
   return (
-    <div className="flex items-center gap-3 rounded-3xl border border-primary-500/20 bg-dark-500/60 px-4 py-2 whitespace-nowrap">
+    <div {...styles.slot1}>
       <Avatar name={username} src={avatarUrl ?? undefined} size="sm" />
-      <div className="flex flex-col leading-tight">
-        <span className="text-sm font-semibold text-light-100">{username}</span>
-        <span className="text-xs text-light-500">{email}</span>
+      <div {...styles.slot2}>
+        <span {...styles.slot3}>{username}</span>
+        <span {...styles.slot4}>{email}</span>
       </div>
     </div>
   );

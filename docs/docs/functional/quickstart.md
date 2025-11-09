@@ -2,126 +2,68 @@
 sidebar_position: 2
 ---
 
-# ⚡ QuizMaster - Quick Start Guide
+# ⚡ QuizMaster - Quick Start (Hosts)
 
-## 🚀 Installation (3 Commands)
+This guide helps facilitators run their first quiz session in minutes—no technical setup required. If your organization handles deployment, you only need a browser (Chrome, Edge, or Firefox) and a stable internet connection.
 
-```bash
-# 1. Clone and enter directory
-git clone <repo-url> && cd quiz-app
+## ✅ Before You Begin
 
-# 2. Copy environment variables
-cp .env.example .env
+- Ask your QuizMaster administrator to create a host account or provide a demo login.
+- Prepare questions or import an existing quiz file.
+- Share the recommended player URL with participants (for local demos this is usually `http://frontend.quiz-app.localhost`).
 
-# 3. Install and start everything
-make install
-```
+## 1. Sign In
 
-**That's it!** ✨ The `make install` command will:
-- Build Docker images
-- Start all services (database, backend, frontend, Traefik)
-- Apply database migrations
-- Seed the database with sample data
+1. Open the QuizMaster dashboard in your browser.
+2. Enter the credentials provided by your administrator.
+3. Update your password if prompted; we recommend enabling multi-factor authentication when available.
 
-## 🎮 Access the Application
+## 2. Create a Quiz
 
-:::success Application Ready
-After installation, the application is immediately accessible at these URLs:
-:::
+1. Select **Quizzes → New Quiz**.
+2. Give the quiz a name, duration, and optional cover image.
+3. Add questions:
+	- Choose **Multiple Choice** or **True / False**.
+	- Provide at least two answer options and mark the correct one(s).
+	- Set points and time limits per question if you want to reward speed.
+4. Click **Save** when the question list is complete.
 
-- **Frontend**: http://frontend.quiz-master.localhost
-- **Backend API**: http://backend.quiz-master.localhost
-- **Traefik Dashboard**: http://localhost:8080
+## 3. Configure Your Session
 
-:::info Traefik Reverse Proxy
-This project uses **Traefik** for domain-based routing. The `.localhost` domain automatically resolves to `127.0.0.1` (RFC 6761). No configuration needed!
-:::
+1. Navigate to **Sessions** and create a new session based on your quiz.
+2. Pick the game mode (Classic, Team Battle, or Sprint) and decide whether to enable features like streak bonuses or leaderboard reveals.
+3. Optionally assign co-hosts who can control the session with you.
 
-### Default Admin Account
+## 4. Invite Players
 
-- **Email**: `admin@quiz.com`
-- **Password**: `admin123`
+1. Start the session; QuizMaster displays a PIN and the player URL on the lobby screen.
+2. Ask participants to open the player URL on their device and enter the PIN.
+3. Monitor the lobby to confirm everyone appears in the player list. Use **Kick** to remove duplicate or test entries.
 
-:::warning Change Password
-Don't forget to change the admin password after first login!
-:::
+## 5. Run the Game
 
-## 🎯 Create Your First Quiz
+1. Press **Start Round** to launch the first question.
+2. Use the progress bar and live answer counter to pace your narration.
+3. Reveal the correct answer and leaderboard between questions. You can pause the game at any time if discussion is needed.
+4. Continue until the quiz ends; the podium view highlights top performers.
 
-1. **Log in** as admin (admin@quiz.com / admin123)
-2. **Create a quiz** - Click "New Quiz"
-3. **Add questions** - Multiple choice or true/false
-4. **Launch a session** - Get a PIN code
-5. **Players join** - Share the PIN with participants
-6. **Start the game** - Click "Start" and enjoy!
+## 6. Review Results
 
-## � Essential Commands
+1. After the game, open **Reports** to view detailed analytics.
+	- Export player scores to CSV for attendance or grading.
+	- Download question-level insights to spot knowledge gaps.
+2. Share highlights with participants—QuizMaster can generate a shareable recap link when enabled by the administrator.
 
-All development tasks use `make` commands:
+## 🙋 Need Help?
 
-```bash
-make install    # First-time setup (builds, starts, seeds)
-make up         # Start the application
-make down       # Stop the application
-make restart    # Restart all services
-make logs       # View real-time logs
-make seed       # Repopulate database with sample data
-make ps         # Check services status
-make help       # See all available commands
-```
+- **Forgot your password?** Use the “Forgot password” link on the sign-in page or contact your administrator.
+- **Lobby issues?** Ask players to refresh their browser or switch to a desktop browser if mobile connectivity is unstable.
+- **Want advanced options?** The [Admin & Host Guide](admin-host-guide) covers live moderation, multimedia questions, and large-event best practices.
 
-:::tip Use `make help`
-Run `make help` to see the complete list of available commands with descriptions.
-:::
+## 📚 Related Guides
 
-## 🔍 Verify Installation
+- **[Admin & Host Guide](admin-host-guide)** — in-depth hosting workflows
+- **[Player Experience](./player-experience)** — what your participants see
+- **[FAQ](./faq)** — quick answers for facilitators
 
-Check that all services are running:
-
-```bash
-make ps
-```
-
-You should see 5 services running:
-- `backend` (healthy)
-- `frontend` (healthy)
-- `postgres` (healthy)
-- `traefik` (healthy)
-- `otel-collector` (healthy)
-
-## 🆘 Troubleshooting
-
-### Services not starting?
-
-```bash
-# View logs to identify the issue
-make logs
-
-# Or check specific service
-make logs-backend
-make logs-frontend
-```
-
-### Need to reset everything?
-
-```bash
-# Stop and remove everything (including database)
-make clean-all
-
-# Then reinstall
-make install
-```
-
-### Database needs reset?
-
-```bash
-# Reseed the database
-make seed
-```
-
-## 📚 Next Steps
-
-- **[Admin & Host Guide](admin-host-guide)** - Learn to create and manage quizzes
-- **[Quick Reference](../technical/quick-reference)** - All commands and troubleshooting
-- **[Docker Guide](../technical/docker-guide)** - Understand the Docker setup
-- **[Architecture](../technical/architecture/index)** - Learn about the system architecture
+Looking for deployment or developer instructions? Visit the technical documentation under the “Technical” section of the sidebar.

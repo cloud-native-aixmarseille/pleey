@@ -8,8 +8,14 @@ import { EmptyOrganizationState } from "./components/EmptyOrganizationState";
 import { OrganizationHeader } from "./components/OrganizationHeader";
 import { OrganizationStatsGrid } from "./components/OrganizationStatsGrid";
 import { OrganizationDetailsCard } from "./components/OrganizationDetailsCard";
+import { createStyles } from "../../../../shared/ui/styles";
 
-const ORGANIZATION_ICON = "🏢";
+const styles = createStyles("OrganizationDashboard", {
+  slot1: "min-h-screen bg-game-gradient p-4 sm:p-6 lg:p-8",
+});
+
+
+const ORGANIZATION_ICON = { name: "Building2", tone: "accent" } as const;
 
 export function OrganizationDashboard() {
   const { t, i18n } = useTranslation();
@@ -35,25 +41,25 @@ export function OrganizationDashboard() {
       {
         label: t("organization.totalQuizzes"),
         value: stats.totalQuizzes,
-        icon: "📚",
+        icon: { name: "BookOpen", tone: "accent" },
         variant: "primary",
       },
       {
         label: t("organization.gameSessions"),
         value: stats.totalGameSessions,
-        icon: "🎮",
+        icon: { name: "Gamepad2", tone: "accent" },
         variant: "secondary",
       },
       {
         label: t("organization.activeSessions"),
         value: stats.activeGameSessions,
-        icon: "🎯",
+        icon: { name: "Target", tone: "inverted" },
         variant: "accent",
       },
       {
         label: t("organization.members"),
         value: stats.totalMembers,
-        icon: "👥",
+        icon: { name: "Users", tone: "accent" },
         variant: "purple",
       },
     ];
@@ -65,7 +71,7 @@ export function OrganizationDashboard() {
   }, [currentOrganization.createdAt, i18n.language]);
 
   return (
-    <div className="min-h-screen bg-game-gradient p-4 sm:p-6 lg:p-8">
+    <div {...styles.slot1}>
       <Container size="xl">
         <OrganizationHeader
           organization={currentOrganization}

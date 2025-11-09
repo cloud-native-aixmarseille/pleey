@@ -109,11 +109,22 @@ export default function Modal({
     }
   };
 
+  const handleOverlayKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onClose();
+    }
+  };
+
   return createPortal(
     <div
       ref={overlayRef}
       onClick={handleOverlayClick}
+      onKeyDown={handleOverlayKeyDown}
       className="fixed inset-0 z-[1300] flex items-center justify-center bg-dark-900/70 backdrop-blur-md px-4 py-6"
+      role="button"
+      tabIndex={0}
+      aria-label={t("common.close", "Close dialog")}
     >
       <div
         ref={dialogRef}

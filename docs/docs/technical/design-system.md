@@ -766,6 +766,13 @@ Key utility classes:
 .animate-pixel-pop    /* Retro pop */
 ```
 
+### Styling Conventions
+
+- Use the shared `createStyles` helper to declare style tokens for every feature-level component.
+- Combine tokens with `mergeStyles` when dynamic variants are required; avoid building class name strings manually.
+- Only shared UI primitives in `frontend/src/shared` may accept raw `className` props. All other components must spread style tokens via `{...styles.foo}` or `{...mergeStyles(...)}`.
+- When migrating existing code, move reusable styling into shared UI components before exposing additional class name hooks.
+
 ### Example Patterns
 
 #### Arcade-Style Card

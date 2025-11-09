@@ -1,6 +1,15 @@
-import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { authService } from '../auth.service';
 import { fetchClient } from '../../../shared/api/openapiClient';
+
+type PostResult = Awaited<ReturnType<typeof fetchClient.POST>>;
+
+const createPostResult = (overrides: Partial<PostResult>): PostResult => ({
+  data: undefined,
+  error: undefined,
+  response: new Response(),
+  ...overrides,
+});
 
 describe('AuthService', () => {
   beforeEach(() => {
@@ -23,11 +32,10 @@ describe('AuthService', () => {
         }
       };
 
-      const postSpy = vi.spyOn(fetchClient, 'POST') as unknown as Mock;
-      postSpy.mockResolvedValueOnce({
-        data: mockResponse,
-        error: undefined,
-      } as any);
+      const postSpy = vi.spyOn(fetchClient, 'POST');
+      postSpy.mockResolvedValueOnce(
+        createPostResult({ data: mockResponse })
+      );
 
       const result = await authService.login('test@example.com', 'password123');
 
@@ -50,11 +58,10 @@ describe('AuthService', () => {
     });
 
     it('should handle login failure', async () => {
-      const postSpy = vi.spyOn(fetchClient, 'POST') as unknown as Mock;
-      postSpy.mockResolvedValueOnce({
-        data: undefined,
-        error: new Error('Network error'),
-      } as any);
+      const postSpy = vi.spyOn(fetchClient, 'POST');
+      postSpy.mockResolvedValueOnce(
+        createPostResult({ data: undefined, error: new Error('Network error') })
+      );
 
       await expect(authService.login('wrong@example.com', 'wrongpass')).rejects.toThrow(
         'common.errors.network',
@@ -64,11 +71,8 @@ describe('AuthService', () => {
 
   describe('register', () => {
     it('should successfully register a new user', async () => {
-      const postSpy = vi.spyOn(fetchClient, 'POST') as unknown as Mock;
-      postSpy.mockResolvedValueOnce({
-        data: undefined,
-        error: undefined,
-      } as any);
+      const postSpy = vi.spyOn(fetchClient, 'POST');
+      postSpy.mockResolvedValueOnce(createPostResult({ data: undefined }));
 
       await authService.register('newuser', 'new@example.com', 'password123');
 
@@ -81,11 +85,10 @@ describe('AuthService', () => {
     });
 
     it('should throw error when registration fails', async () => {
-      const postSpy = vi.spyOn(fetchClient, 'POST') as unknown as Mock;
-      postSpy.mockResolvedValueOnce({
-        data: undefined,
-        error: new Error('Password too short'),
-      } as any);
+      const postSpy = vi.spyOn(fetchClient, 'POST');
+      postSpy.mockResolvedValueOnce(
+        createPostResult({ data: undefined, error: new Error('Password too short') })
+      );
 
       await expect(authService.register('user', 'email@test.com', 'pass')).rejects.toThrow(
         'auth.errors.passwordTooShort',
@@ -103,28 +106,23 @@ describe('AuthService', () => {
         avatarUrl: '/api/avatars/users/1?v=fingerprint'
       };
 
-      const postSpy = vi.spyOn(fetchClient, 'POST') as unknown as Mock;
-      postSpy.mockResolvedValueOnce({
-        data: mockUser,
-        error: undefined,
-      } as any);
+      const postSpy = vi.spyOn(fetchClient, 'POST');
+      postSpy.mockResolvedValueOnce(
+        createPostResult({ data: mockUser })
+      );
 
       const result = await authService.regenerateAvatar();
 
-      expect(postSpy).toHaveBeenCalledWith(
-        '/api/profile/me/avatar',
-        expect.any(Object)
-      );
+      expect(postSpy).toHaveBeenCalledWith('/api/profile/me/avatar', undefined);
 
       expect(result).toEqual(mockUser);
     });
 
     it('should throw error when regeneration fails', async () => {
-      const postSpy = vi.spyOn(fetchClient, 'POST') as unknown as Mock;
-      postSpy.mockResolvedValueOnce({
-        data: undefined,
-        error: new Error('Unauthorized'),
-      } as any);
+      const postSpy = vi.spyOn(fetchClient, 'POST');
+      postSpy.mockResolvedValueOnce(
+        createPostResult({ data: undefined, error: new Error('Unauthorized') })
+      );
 
       await expect(authService.regenerateAvatar()).rejects.toThrow('auth.errors.unauthorized');
     });

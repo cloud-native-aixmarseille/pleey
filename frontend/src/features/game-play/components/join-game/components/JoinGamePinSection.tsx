@@ -1,5 +1,24 @@
 import { ChangeEvent, KeyboardEvent, useId } from "react";
 import { JOIN_GAME_PIN_LENGTH } from "../constants";
+import { createStyles } from "../../../../../shared/ui/styles";
+
+const styles = createStyles("JoinGamePinSection", {
+  slot1: "mb-8",
+  slot2:
+    "block font-display text-primary-300 text-xs sm:text-sm mb-4 text-center uppercase tracking-wider",
+  slot3:
+    "w-full p-6 sm:p-8 bg-dark-500 border-4 border-accent-500/50 rounded-xl text-center text-4xl sm:text-6xl font-display tracking-[0.5em] focus:border-accent-500 focus:ring-4 focus:ring-accent-500/30 focus:outline-none transition-all text-accent-400 placeholder-dark-300 uppercase shadow-neon-accent",
+  slot4: "flex justify-center items-center gap-3 mt-4",
+  slot5: "font-mono text-xs text-light-500",
+  slot6: "flex justify-center gap-3 mb-10 mt-6",
+  pinStatusComplete:
+    "font-display text-sm transition-colors text-success-500 animate-pulse",
+  pinStatusPending: "font-display text-sm transition-colors text-primary-400",
+  pinDotActive:
+    "w-4 h-4 transition-all duration-300 transform bg-accent-500 shadow-neon-accent scale-125 rotate-45",
+  pinDotInactive:
+    "w-4 h-4 transition-all duration-300 transform bg-dark-400 border-2 border-primary-500/30",
+});
 
 interface JoinGamePinSectionProps {
   gamePin: string;
@@ -28,11 +47,8 @@ export function JoinGamePinSection({
   };
 
   return (
-    <section className="mb-8">
-      <label
-        htmlFor={pinInputId}
-        className="block font-display text-primary-300 text-xs sm:text-sm mb-4 text-center uppercase tracking-wider"
-      >
+    <section {...styles.slot1}>
+      <label htmlFor={pinInputId} {...styles.slot2}>
         ► Enter Game PIN ◄
       </label>
       <input
@@ -42,40 +58,28 @@ export function JoinGamePinSection({
         onChange={handlePinChange}
         onKeyDown={handleKeyDown}
         placeholder="••••••"
-        className="w-full p-6 sm:p-8 bg-dark-500 border-4 border-accent-500/50 rounded-xl text-center text-4xl sm:text-6xl font-display tracking-[0.5em] focus:border-accent-500 focus:ring-4 focus:ring-accent-500/30 focus:outline-none transition-all text-accent-400 placeholder-dark-300 uppercase shadow-neon-accent"
+        {...styles.slot3}
         maxLength={JOIN_GAME_PIN_LENGTH}
         aria-describedby={pinLengthIndicatorId}
       />
-      <div
-        className="flex justify-center items-center gap-3 mt-4"
-        id={pinLengthIndicatorId}
-      >
-        <span className="font-mono text-xs text-light-500">PIN LENGTH:</span>
+      <div {...styles.slot4} id={pinLengthIndicatorId}>
+        <span {...styles.slot5}>PIN LENGTH:</span>
         <span
-          className={`font-display text-sm transition-colors ${
-            isComplete ? "text-success-500 animate-pulse" : "text-primary-400"
-          }`}
+          {...(isComplete ? styles.pinStatusComplete : styles.pinStatusPending)}
           aria-live="polite"
         >
           {gamePin.length}/{JOIN_GAME_PIN_LENGTH}
         </span>
       </div>
 
-      <div className="flex justify-center gap-3 mb-10 mt-6">
+      <div {...styles.slot6}>
         {pinCharacters.map((_, index) => {
           const isActive = index < gamePin.length;
 
           return (
             <div
               key={index}
-              className={`
-                w-4 h-4 transition-all duration-300 transform
-                ${
-                  isActive
-                    ? "bg-accent-500 shadow-neon-accent scale-125 rotate-45"
-                    : "bg-dark-400 border-2 border-primary-500/30"
-                }
-              `}
+              {...(isActive ? styles.pinDotActive : styles.pinDotInactive)}
               style={{
                 animationDelay: `${index * 0.05}s`,
                 animation: isActive ? "pixelPop 0.3s ease-out" : "none",

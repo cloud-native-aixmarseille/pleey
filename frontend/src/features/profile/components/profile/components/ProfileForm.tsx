@@ -2,6 +2,15 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 
 import { Button, Input, PrimaryButton } from "../../../../../shared/components";
 import type { User } from "../../../../../shared/types";
+import { createStyles } from "../../../../../shared/ui/styles";
+
+const styles = createStyles("ProfileForm", {
+  slot1: "space-y-6",
+  slot2: "grid grid-cols-1 gap-6",
+  slot3: "flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4",
+  slot4: "sm:w-auto",
+});
+
 
 interface ProfileFormProps {
   user: User;
@@ -65,8 +74,8 @@ export function ProfileForm({
   };
 
   return (
-    <form className="space-y-6" onSubmit={handleSubmit}>
-      <div className="grid grid-cols-1 gap-6">
+    <form {...styles.slot1} onSubmit={handleSubmit}>
+      <div {...styles.slot2}>
         <Input
           label={usernameLabel}
           value={username}
@@ -87,20 +96,19 @@ export function ProfileForm({
         />
       </div>
 
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-        <PrimaryButton
-          type="submit"
-          disabled={disableSave}
-          className="sm:w-auto"
-        >
-          {disableSave ? loadingLabel : saveLabel}
-        </PrimaryButton>
+      <div {...styles.slot3}>
+        <div {...styles.slot4}>
+          <PrimaryButton type="submit" disabled={disableSave}>
+            {disableSave ? loadingLabel : saveLabel}
+          </PrimaryButton>
+        </div>
         <Button
           type="button"
           variant="ghost"
+          tone="neutral"
+          effect="flat"
           onClick={handleReset}
           disabled={!isDirty || isSaving || isSubmitting}
-          className="text-light-600 hover:text-light-800"
         >
           {cancelLabel}
         </Button>

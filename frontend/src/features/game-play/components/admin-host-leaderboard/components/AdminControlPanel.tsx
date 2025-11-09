@@ -1,6 +1,19 @@
 import { useNavigate } from "react-router-dom";
 import { AnimationStage } from "../constants";
 import { Button, Card, PrimaryButton } from "../../../../../shared/components";
+import { createStyles } from "../../../../../shared/ui/styles";
+
+const styles = createStyles("AdminControlPanel", {
+  slot1: "max-w-2xl mx-auto space-y-6 animate-fade-in",
+  slot2: "p-8 bg-gradient-to-br from-accent-500/20 to-primary-500/20 border-4 border-accent-500",
+  slot3: "font-display text-2xl sm:text-3xl text-accent-400 uppercase text-center mb-6 tracking-wider",
+  slot4: "space-y-4",
+  slot5: "flex items-center justify-center gap-4",
+  slot6: "text-3xl",
+  slot7: "text-center pt-6",
+  slot8: "text-light-400 text-lg sm:text-xl font-body",
+});
+
 
 interface AdminControlPanelProps {
   animationStage: AnimationStage;
@@ -18,23 +31,23 @@ export function AdminControlPanel({ animationStage }: AdminControlPanelProps) {
 
   return (
     <div
-      className="max-w-2xl mx-auto space-y-6 animate-fade-in"
+      {...styles.slot1}
       style={{ animationDelay: "0.5s" }}
     >
-      <Card className="p-8 bg-gradient-to-br from-accent-500/20 to-primary-500/20 border-4 border-accent-500">
-        <h3 className="font-display text-2xl sm:text-3xl text-accent-400 uppercase text-center mb-6 tracking-wider">
+      <Card {...styles.slot2}>
+        <h3 {...styles.slot3}>
           👑 Admin Controls
         </h3>
-        <div className="space-y-4">
+        <div {...styles.slot4}>
           <Button
             variant="accent"
             size="xl"
             fullWidth
+            effect="retro"
             onClick={handleNavigateAdmin}
-            className="retro-shadow hover:translate-x-1 hover:translate-y-1 font-display uppercase tracking-wider text-xl py-6"
           >
-            <span className="flex items-center justify-center gap-4">
-              <span className="text-3xl">📊</span>
+            <span {...styles.slot5}>
+              <span {...styles.slot6}>📊</span>
               <span>BACK TO ADMIN DASHBOARD</span>
             </span>
           </Button>
@@ -42,19 +55,19 @@ export function AdminControlPanel({ animationStage }: AdminControlPanelProps) {
           <PrimaryButton
             size="xl"
             fullWidth
+            effect="retro"
             onClick={handleNavigateHome}
-            className="retro-shadow hover:translate-x-1 hover:translate-y-1 font-display uppercase tracking-wider text-xl py-6"
           >
-            <span className="flex items-center justify-center gap-4">
-              <span className="text-3xl">🎮</span>
+            <span {...styles.slot5}>
+              <span {...styles.slot6}>🎮</span>
               <span>NEW GAME</span>
             </span>
           </PrimaryButton>
         </div>
       </Card>
 
-      <div className="text-center pt-6">
-        <p className="text-light-400 text-lg sm:text-xl font-body">
+      <div {...styles.slot7}>
+        <p {...styles.slot8}>
           Thanks for hosting! 🎮✨
         </p>
       </div>

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface CopyMessages {
   readonly success: () => string;
@@ -60,7 +60,7 @@ export function useCopyGamePin({
       await navigator.clipboard.writeText(gamePin);
       setCopiedPin(true);
       setCopyStatusMessage(messages.success());
-    } catch (error) {
+    } catch {
       setCopiedPin(false);
       setCopyStatusMessage(messages.error());
     }

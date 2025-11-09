@@ -1,6 +1,7 @@
 import type { FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  ArcadeToggleGroup,
   Button,
   Input,
   Modal,
@@ -12,6 +13,20 @@ import type {
   QuestionType,
 } from "../questionFormState";
 import { handleNumericFieldChange } from "../questionFormState";
+import { createStyles } from "../../../../../shared/ui/styles";
+import type { ArcadeBadgeTone } from "../../../../../shared/ui/components/ArcadeBadge";
+
+const styles = createStyles("QuestionFormModal", {
+  slot1: "space-y-6",
+  slot2:
+    "block text-xs font-semibold uppercase tracking-[0.3em] text-light-400",
+  slot3:
+    "mt-2 w-full rounded-3xl border border-primary-500/30 bg-dark-500/60 p-4 text-sm text-light-100 shadow-inner focus:border-primary-400 focus:outline-none",
+  slot4: "mt-3 flex flex-wrap gap-3",
+  slot5: "grid grid-cols-1 md:grid-cols-2 gap-4",
+  slot7:
+    "rounded-2xl border border-danger-500/40 bg-danger-500/10 px-4 py-3 text-sm font-medium text-danger-200 shadow-neon-secondary",
+});
 
 interface QuestionFormModalProps {
   isOpen: boolean;
@@ -45,6 +60,22 @@ export function QuestionFormModal({
 }: QuestionFormModalProps) {
   const { t } = useTranslation();
   const correctAnswerOptions = buildCorrectAnswerOptions(formState.type, t);
+  const questionTypeOptions: Array<{
+    value: QuestionType;
+    label: string;
+    tone: ArcadeBadgeTone;
+  }> = [
+    {
+      value: "multiple",
+      label: t("quiz.multipleChoice"),
+      tone: "primary",
+    },
+    {
+      value: "truefalse",
+      label: t("quiz.trueFalse"),
+      tone: "secondary",
+    },
+  ];
 
   return (
     <Modal
@@ -80,55 +111,34 @@ export function QuestionFormModal({
         </>
       }
     >
-      <form id="question-form" onSubmit={onSubmit} className="space-y-6">
+      <form id="question-form" onSubmit={onSubmit} {...styles.slot1}>
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-[0.3em] text-light-400">
-            {t("quiz.questionText")}
-          </label>
+          <label {...styles.slot2}>{t("quiz.questionText")}</label>
           <textarea
             value={formState.questionText}
             onChange={(event) =>
               onFieldChange("questionText", event.target.value)
             }
             rows={3}
-            className="mt-2 w-full rounded-3xl border border-primary-500/30 bg-dark-500/60 p-4 text-sm text-light-100 shadow-inner focus:border-primary-400 focus:outline-none"
+            {...styles.slot3}
             placeholder={t("quiz.questionText")}
             required
           />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-[0.3em] text-light-400">
-            {t("quiz.questionType")}
-          </label>
-          <div className="mt-3 flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={() => onTypeChange("multiple")}
-              className={`rounded-2xl border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition-all ${
-                formState.type === "multiple"
-                  ? "border-primary-400 bg-primary-500/20 text-primary-200 shadow-glow"
-                  : "border-primary-500/20 bg-dark-500/40 text-light-400 hover:border-primary-400/40 hover:text-light-100"
-              }`}
-            >
-              {t("quiz.multipleChoice")}
-            </button>
-            <button
-              type="button"
-              onClick={() => onTypeChange("truefalse")}
-              className={`rounded-2xl border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition-all ${
-                formState.type === "truefalse"
-                  ? "border-secondary-400 bg-secondary-500/20 text-secondary-200 shadow-glow"
-                  : "border-secondary-500/20 bg-dark-500/40 text-light-400 hover:border-secondary-400/40 hover:text-light-100"
-              }`}
-            >
-              {t("quiz.trueFalse")}
-            </button>
-          </div>
+          <label {...styles.slot2}>{t("quiz.questionType")}</label>
+          <ArcadeToggleGroup
+            {...styles.slot4}
+            value={formState.type}
+            onChange={onTypeChange}
+            options={questionTypeOptions}
+            size="md"
+          />
         </div>
 
         {formState.type === "multiple" ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div {...styles.slot5}>
             {(Array.from(["A", "B", "C", "D"]) as OptionKey[]).map(
               (optionKey) => (
                 <Input
@@ -149,35 +159,17 @@ export function QuestionFormModal({
         ) : null}
 
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-[0.3em] text-light-400">
-            {t("quiz.correctAnswer")}
-          </label>
-          <div className="mt-3 flex flex-wrap gap-3">
-            {correctAnswerOptions.map(({ value, label, icon }) => {
-              const isActive = formState.correctAnswer === value;
-              return (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => onSelectCorrectAnswer(value)}
-                  className={`rounded-2xl border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition-all ${
-                    isActive
-                      ? "border-accent-400 bg-accent-500/20 text-accent-100 shadow-glow"
-                      : "border-accent-500/20 bg-dark-500/40 text-light-300 hover:border-accent-400/40 hover:text-light-100"
-                  }`}
-                  aria-pressed={isActive}
-                >
-                  <span className="flex items-center gap-2">
-                    {icon ? <span aria-hidden>{icon}</span> : null}
-                    <span>{label}</span>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+          <label {...styles.slot2}>{t("quiz.correctAnswer")}</label>
+          <ArcadeToggleGroup
+            {...styles.slot4}
+            value={formState.correctAnswer}
+            onChange={onSelectCorrectAnswer}
+            options={correctAnswerOptions}
+            size="md"
+          />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div {...styles.slot5}>
           <Input
             type="number"
             value={formState.timeLimit}
@@ -205,11 +197,7 @@ export function QuestionFormModal({
           />
         </div>
 
-        {formError ? (
-          <div className="rounded-2xl border border-danger-500/40 bg-danger-500/10 px-4 py-3 text-sm font-medium text-danger-200 shadow-neon-secondary">
-            {formError}
-          </div>
-        ) : null}
+        {formError ? <div {...styles.slot7}>{formError}</div> : null}
       </form>
     </Modal>
   );
@@ -221,6 +209,7 @@ type AnswerOption = {
   value: string;
   label: string;
   icon?: string;
+  tone: ArcadeBadgeTone;
 };
 
 function buildCorrectAnswerOptions(
@@ -229,15 +218,25 @@ function buildCorrectAnswerOptions(
 ): AnswerOption[] {
   if (type === "multiple") {
     return [
-      { value: "A", label: t("quiz.optionA") },
-      { value: "B", label: t("quiz.optionB") },
-      { value: "C", label: t("quiz.optionC") },
-      { value: "D", label: t("quiz.optionD") },
+      { value: "A", label: t("quiz.optionA"), tone: "accent" },
+      { value: "B", label: t("quiz.optionB"), tone: "accent" },
+      { value: "C", label: t("quiz.optionC"), tone: "accent" },
+      { value: "D", label: t("quiz.optionD"), tone: "accent" },
     ];
   }
 
   return [
-    { value: "true", label: t("quiz.trueAnswer"), icon: "✓" },
-    { value: "false", label: t("quiz.falseAnswer"), icon: "✗" },
+    {
+      value: "true",
+      label: t("quiz.trueAnswer"),
+      icon: "✓",
+      tone: "success",
+    },
+    {
+      value: "false",
+      label: t("quiz.falseAnswer"),
+      icon: "✗",
+      tone: "danger",
+    },
   ];
 }

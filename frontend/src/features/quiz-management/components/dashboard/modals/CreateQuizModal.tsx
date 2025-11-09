@@ -6,6 +6,15 @@ import {
   Modal,
   SecondaryButton,
 } from "../../../../../shared/components";
+import { createStyles } from "../../../../../shared/ui/styles";
+
+const styles = createStyles("CreateQuizModal", {
+  slot1: "space-y-6",
+  slot2: "block text-xs font-semibold uppercase tracking-[0.3em] text-light-500",
+  slot3: "mt-2",
+  slot4: "mt-2 w-full rounded-2xl border border-primary-500/30 bg-dark-500/60 p-4 text-sm text-light-100 shadow-inner focus:border-primary-400 focus:outline-none",
+});
+
 
 interface CreateQuizModalProps {
   isOpen: boolean;
@@ -57,29 +66,30 @@ export function CreateQuizModal({
       }
     >
       <form id="create-quiz-form" onSubmit={onSubmit}>
-        <div className="space-y-6">
+        <div {...styles.slot1}>
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-[0.3em] text-light-500">
+            <label {...styles.slot2}>
               {t("admin.quizTitle")}
             </label>
-            <Input
-              type="text"
-              value={title}
-              onChange={onTitleChange}
-              placeholder={t("admin.quizTitle")}
-              required
-              className="mt-2"
-            />
+            <div {...styles.slot3}>
+              <Input
+                type="text"
+                value={title}
+                onChange={onTitleChange}
+                placeholder={t("admin.quizTitle")}
+                required
+              />
+            </div>
           </div>
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-[0.3em] text-light-500">
+            <label {...styles.slot2}>
               {t("admin.description")}
             </label>
             <textarea
               value={description}
               onChange={onDescriptionChange}
               rows={4}
-              className="mt-2 w-full rounded-2xl border border-primary-500/30 bg-dark-500/60 p-4 text-sm text-light-100 shadow-inner focus:border-primary-400 focus:outline-none"
+              {...styles.slot4}
               placeholder={t("admin.promptQuizDescription")}
             />
           </div>

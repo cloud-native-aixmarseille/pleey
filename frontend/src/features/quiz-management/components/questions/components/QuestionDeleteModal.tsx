@@ -5,6 +5,12 @@ import {
   SecondaryButton,
 } from "../../../../../shared/components";
 import type { Question } from "../../../../../shared/types";
+import { createStyles } from "../../../../../shared/ui/styles";
+
+const styles = createStyles("QuestionDeleteModal", {
+  slot1: "text-sm text-light-200",
+});
+
 
 interface QuestionDeleteModalProps {
   question: Question | null;
@@ -47,7 +53,7 @@ export function QuestionDeleteModal({
         </>
       }
     >
-      <p className="text-sm text-light-200">
+      <p {...styles.slot1}>
         {t("quiz.modals.deletePrompt", {
           question: question?.question_text ?? "",
         })}

@@ -1,6 +1,7 @@
 import { Organization, OrganizationDashboard, OrganizationMember } from '../../../shared/types';
 import { IOrganizationRepository } from '../ports/organization.repository.interface';
 import { apiClient, fetchClient, queryClient } from '../../../shared/api/openapiClient';
+import { castRequestBody } from '../../../shared/api/castRequestBody';
 
 /**
  * Organization HTTP Repository
@@ -35,7 +36,7 @@ export class OrganizationHttpRepository implements IOrganizationRepository {
     description?: string
   ): Promise<Organization> {
     const { data, error } = await fetchClient.POST('/api/organizations', {
-      body: { name, description } as any,
+      body: castRequestBody({ name, description }),
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -88,7 +89,7 @@ export class OrganizationHttpRepository implements IOrganizationRepository {
           id: organizationId,
         },
       },
-      body: { userId, role } as any,
+      body: castRequestBody({ userId, role }),
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',

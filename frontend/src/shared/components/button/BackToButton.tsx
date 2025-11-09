@@ -1,64 +1,69 @@
 import { forwardRef } from "react";
-import Button, { type ButtonProps, type ButtonVariant } from "./Button";
+import Button, {
+  type ButtonAlignment,
+  type ButtonEffect,
+  type ButtonProps,
+  type ButtonTone,
+  type ButtonVariant,
+} from "./Button";
+import { composeClasses } from "../../ui/utils/composeClasses";
 
 type BackToButtonVariant = "secondary" | "ghost" | "link";
 type BackToButtonTone = "default" | "light" | "accent" | "primary";
-type BackToButtonAlignment = "start" | "center";
+type BackToButtonAlignment = ButtonAlignment;
 
 interface BackToButtonProps
-  extends Omit<
-    ButtonProps,
-    "children" | "variant" | "icon" | "className" | "size"
-  > {
+  extends Omit<ButtonProps, "children" | "variant" | "icon" | "size" | "tone"> {
   label: string;
   variant?: BackToButtonVariant;
   tone?: BackToButtonTone;
   alignment?: BackToButtonAlignment;
 }
 
-const baseClasses = "inline-flex items-center gap-2";
+interface ButtonConfig {
+  variant: ButtonVariant;
+  tone?: ButtonTone;
+  effect: ButtonEffect;
+  iconTone: ButtonTone | "neutral";
+  labelClass?: string;
+}
 
-const variantButtonMap: Record<BackToButtonVariant, ButtonVariant> = {
-  secondary: "secondary",
-  ghost: "ghost",
-  link: "ghost",
+const toneMapping: Record<BackToButtonTone, ButtonTone> = {
+  default: "neutral",
+  light: "primary",
+  accent: "accent",
+  primary: "primary",
 };
 
-const variantBaseClass: Record<BackToButtonVariant, string> = {
-  secondary:
-    "retro-shadow font-display text-sm sm:text-base hover:scale-105 transition-all",
-  ghost: "!bg-transparent !border-0 !shadow-none transition-colors",
-  link: "!bg-transparent !border-0 !shadow-none font-mono text-sm transition-colors underline-offset-4",
-};
-
-const toneClassMap: Record<
-  BackToButtonVariant,
-  Record<BackToButtonTone, string>
-> = {
-  secondary: {
-    default: "",
-    light: "",
-    accent: "",
-    primary: "",
-  },
-  ghost: {
-    default: "text-light-700 hover:text-primary-600",
-    light: "text-white hover:text-primary-400",
-    accent: "text-accent-400 hover:text-accent-300",
-    primary: "text-primary-400 hover:text-primary-300",
-  },
-  link: {
-    default: "text-accent-400 hover:text-accent-300",
-    light: "text-white hover:text-accent-200",
-    accent: "text-accent-400 hover:text-accent-300",
-    primary: "text-primary-400 hover:text-primary-300 underline",
-  },
-};
-
-const alignmentClassMap: Record<BackToButtonAlignment, string> = {
-  start: "",
-  center: "justify-center",
-};
+function resolveConfig(
+  variant: BackToButtonVariant,
+  tone: BackToButtonTone
+): ButtonConfig {
+  switch (variant) {
+    case "ghost":
+      return {
+        variant: "ghost",
+        tone: toneMapping[tone],
+        effect: "flat",
+        iconTone: toneMapping[tone],
+      };
+    case "link":
+      return {
+        variant: "ghost",
+        tone: toneMapping[tone],
+        effect: "flat",
+        iconTone: toneMapping[tone],
+        labelClass: "font-mono text-sm underline underline-offset-4",
+      };
+    case "secondary":
+    default:
+      return {
+        variant: "secondary",
+        effect: "retro",
+        iconTone: "neutral",
+      };
+  }
+}
 
 const BackToButton = forwardRef<HTMLButtonElement, BackToButtonProps>(
   (
@@ -73,32 +78,34 @@ const BackToButton = forwardRef<HTMLButtonElement, BackToButtonProps>(
     ref
   ) => {
     const { ["aria-label"]: ariaLabelFromProps, ...buttonProps } = rawProps;
-    const iconClass = "text-base";
-    const buttonVariant = variantButtonMap[variant] ?? "secondary";
-    const baseClass = variantBaseClass[variant] ?? variantBaseClass.secondary;
-    const toneClasses =
-      toneClassMap[variant]?.[tone] ?? toneClassMap[variant]?.default ?? "";
-    const alignmentClass =
-      alignmentClassMap[alignment] ?? alignmentClassMap.start;
-    const computedClass =
-      `${baseClasses} ${baseClass} ${toneClasses} ${alignmentClass}`.trim();
+    const config = resolveConfig(variant, tone);
+    const labelContent = config.labelClass ? (
+      <span className={config.labelClass}>{label}</span>
+    ) : (
+      label
+    );
 
     return (
       <Button
         ref={ref}
-        variant={buttonVariant}
+        variant={config.variant}
+        tone={config.tone}
+        effect={config.effect}
         size="sm"
         fullWidth={fullWidth}
-        className={computedClass}
-        icon={
-          <span aria-hidden="true" className={iconClass}>
-            ←
-          </span>
-        }
+        alignment={alignment}
+        icon={{ name: "ArrowLeft", tone: config.iconTone }}
         aria-label={ariaLabelFromProps ?? label}
         {...buttonProps}
       >
-        {label}
+        <span
+          className={composeClasses(
+            "inline-flex items-center gap-2",
+            alignment === "center" ? "justify-center" : ""
+          )}
+        >
+          {labelContent}
+        </span>
       </Button>
     );
   }

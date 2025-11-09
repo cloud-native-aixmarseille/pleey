@@ -7,6 +7,24 @@ import {
   SecondaryButton,
 } from "../../../../shared/components";
 import type { GameSession, Quiz } from "../../../../shared/types";
+import { createStyles } from "../../../../shared/ui/styles";
+
+const styles = createStyles("QuizCard", {
+  slot1: "p-6 animate-scale-in",
+  slot2: "mb-4",
+  slot3: "flex items-start justify-between mb-2",
+  slot4: "text-xl font-bold text-dark-800 flex-1 pr-2",
+  slot5: "inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-primary-500/20 text-accent-200 border border-primary-500/40 text-xs font-bold",
+  slot6: "w-2 h-2 bg-accent-400 rounded-full animate-pulse",
+  slot7: "text-light-700 text-sm line-clamp-2 mb-3",
+  slot8: "flex items-center gap-3 text-xs text-light-600",
+  slot9: "flex items-center gap-1",
+  slot10: "w-4 h-4",
+  slot11: "flex items-center gap-2",
+  slot12: "flex-1",
+  slot13: "sr-only",
+});
+
 
 interface QuizCardProps {
   quiz: Quiz;
@@ -58,28 +76,28 @@ export function QuizCard({
     <Card
       key={quiz.id}
       hover
-      className="p-6 animate-scale-in"
+      {...styles.slot1}
       style={{ animationDelay: `${index * 0.1}s` }}
     >
-      <div className="mb-4">
-        <div className="flex items-start justify-between mb-2">
-          <h3 className="text-xl font-bold text-dark-800 flex-1 pr-2">
+      <div {...styles.slot2}>
+        <div {...styles.slot3}>
+          <h3 {...styles.slot4}>
             {quiz.title}
           </h3>
           {isSessionLive ? (
-            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-primary-500/20 text-accent-200 border border-primary-500/40 text-xs font-bold">
-              <span className="w-2 h-2 bg-accent-400 rounded-full animate-pulse" />
+            <span {...styles.slot5}>
+              <span {...styles.slot6} />
               {t("admin.liveSessionBadge")}
             </span>
           ) : null}
         </div>
-        <p className="text-light-700 text-sm line-clamp-2 mb-3">
+        <p {...styles.slot7}>
           {quiz.description || t("admin.noDescription")}
         </p>
-        <div className="flex items-center gap-3 text-xs text-light-600">
-          <span className="flex items-center gap-1">
+        <div {...styles.slot8}>
+          <span {...styles.slot9}>
             <svg
-              className="w-4 h-4"
+              {...styles.slot10}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -99,73 +117,77 @@ export function QuizCard({
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div {...styles.slot11}>
         {shouldShowJoin ? (
-          <Button
-            size="sm"
-            className="flex-1"
-            variant="accent"
-            onClick={handleJoin}
-            disabled={isJoining}
-            aria-label={t("admin.joinSessionButtonAria", {
-              pin: activeSession?.pin,
-            })}
-            icon={
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10 7v6l5-3-5-3z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 12A9 9 0 113 12a9 9 0 0118 0z"
-                />
-              </svg>
-            }
-          >
-            {isJoining ? t("common.loading") : t("admin.joinSessionButton")}
-          </Button>
+          <div {...styles.slot12}>
+            <Button
+              size="sm"
+              fullWidth
+              variant="accent"
+              onClick={handleJoin}
+              disabled={isJoining}
+              aria-label={t("admin.joinSessionButtonAria", {
+                pin: activeSession?.pin,
+              })}
+              icon={
+                <svg
+                  {...styles.slot10}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 7v6l5-3-5-3z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 12A9 9 0 113 12a9 9 0 0118 0z"
+                  />
+                </svg>
+              }
+            >
+              {isJoining ? t("common.loading") : t("admin.joinSessionButton")}
+            </Button>
+          </div>
         ) : (
-          <PrimaryButton
-            size="sm"
-            className="flex-1"
-            onClick={() => onLaunch(quiz.id)}
-            aria-label={t("admin.launch")}
-            disabled={isSessionLive || isLaunchBlocked}
-            tooltip={launchTooltip}
-            icon={
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            }
-          >
-            {t("admin.launch")}
-          </PrimaryButton>
+          <div {...styles.slot12}>
+            <PrimaryButton
+              size="sm"
+              fullWidth
+              onClick={() => onLaunch(quiz.id)}
+              aria-label={t("admin.launch")}
+              disabled={isSessionLive || isLaunchBlocked}
+              tooltip={launchTooltip}
+              icon={
+                <svg
+                  {...styles.slot10}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              }
+            >
+              {t("admin.launch")}
+            </PrimaryButton>
+          </div>
         )}
         <SecondaryButton
           size="sm"
@@ -174,7 +196,7 @@ export function QuizCard({
           tooltip={t("admin.manage")}
           icon={
             <svg
-              className="w-4 h-4"
+              {...styles.slot10}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -188,7 +210,7 @@ export function QuizCard({
             </svg>
           }
         >
-          <span className="sr-only">{t("admin.manage")}</span>
+          <span {...styles.slot13}>{t("admin.manage")}</span>
         </SecondaryButton>
         {onDelete ? (
           <SecondaryButton
@@ -198,7 +220,7 @@ export function QuizCard({
             tooltip={t("admin.delete")}
             icon={
               <svg
-                className="w-4 h-4"
+                {...styles.slot10}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -212,7 +234,7 @@ export function QuizCard({
               </svg>
             }
           >
-            <span className="sr-only">{t("admin.delete")}</span>
+            <span {...styles.slot13}>{t("admin.delete")}</span>
           </SecondaryButton>
         ) : null}
       </div>

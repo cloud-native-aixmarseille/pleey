@@ -8,6 +8,29 @@ import {
   ReactNode,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { createStyles } from "../../../shared/ui/styles";
+
+const TOAST_BASE_CLASSES =
+  "pointer-events-auto overflow-hidden rounded-3xl border px-5 py-4 backdrop-blur-xl transition-transform duration-300 animate-slide-down hover:translate-y-[-2px]";
+
+const styles = createStyles("NotificationContext", {
+  slot1:
+    "pointer-events-none fixed top-6 right-6 z-[1200] flex w-[calc(100vw-1.5rem)] max-w-sm flex-col gap-4",
+  slot2: "flex items-start gap-4",
+  slot3:
+    "mt-0.5 flex h-9 w-9 items-center justify-center rounded-full border border-light-500/20 bg-dark-500/70 text-base font-bold uppercase tracking-widest text-light-50 shadow-glow",
+  slot4: "flex-1",
+  slot5: "text-xs font-bold uppercase tracking-[0.2em] text-light-400",
+  slot6: "mt-1 text-sm font-semibold leading-snug text-light-100",
+  slot7:
+    "ml-2 rounded-full border border-light-500/20 p-1 text-[0.7rem] text-light-400 transition-colors hover:bg-light-500/10 hover:text-light-100",
+  slot8: "mt-4 h-1 overflow-hidden rounded-full bg-dark-400/70",
+  slot9:
+    "h-full rounded-full bg-gradient-to-r from-secondary-400 via-accent-500 to-primary-400",
+  toastInfo: `${TOAST_BASE_CLASSES} border-primary-400/60 bg-gradient-to-br from-dark-500/90 via-primary-500/20 to-dark-400/90 text-light-50 shadow-neon`,
+  toastSuccess: `${TOAST_BASE_CLASSES} border-success-400/60 bg-gradient-to-br from-dark-500/90 via-success-500/20 to-dark-400/90 text-success-100 shadow-neon-accent`,
+  toastError: `${TOAST_BASE_CLASSES} border-danger-400/60 bg-gradient-to-br from-dark-500/90 via-danger-500/20 to-dark-400/90 text-danger-100 shadow-neon-secondary`,
+});
 
 export type ToastVariant = "info" | "success" | "error";
 
@@ -101,7 +124,7 @@ function ToastViewport({ toasts, onDismiss }: ToastViewportProps) {
   };
 
   return (
-    <div className="pointer-events-none fixed top-6 right-6 z-[1200] flex w-[calc(100vw-1.5rem)] max-w-sm flex-col gap-4">
+    <div {...styles.slot1}>
       {toasts.map((toast) => (
         <ToastCard
           key={toast.id}
@@ -138,55 +161,44 @@ function ToastCard({
   const role = toast.variant === "error" ? "alert" : "status";
   const toastDuration = toast.duration ?? 4000;
 
-  const variantCardClasses: Record<ToastVariant, string> = {
-    info: "border-primary-400/60 bg-gradient-to-br from-dark-500/90 via-primary-500/20 to-dark-400/90 text-light-50 shadow-neon",
-    success:
-      "border-success-400/60 bg-gradient-to-br from-dark-500/90 via-success-500/20 to-dark-400/90 text-success-100 shadow-neon-accent",
-    error:
-      "border-danger-400/60 bg-gradient-to-br from-dark-500/90 via-danger-500/20 to-dark-400/90 text-danger-100 shadow-neon-secondary",
-  };
-
   const iconByVariant: Record<ToastVariant, string> = {
     info: "⚡",
     success: "✦",
     error: "⚠",
   };
 
+  const variantStyles: Record<ToastVariant, typeof styles.toastInfo> = {
+    info: styles.toastInfo,
+    success: styles.toastSuccess,
+    error: styles.toastError,
+  };
+
   return (
     <div
       role={role}
       aria-live={toast.variant === "error" ? "assertive" : "polite"}
-      className={`pointer-events-auto overflow-hidden rounded-3xl border px-5 py-4 backdrop-blur-xl transition-transform duration-300 animate-slide-down hover:translate-y-[-2px] ${
-        variantCardClasses[toast.variant]
-      }`}
+      {...variantStyles[toast.variant]}
     >
-      <div className="flex items-start gap-4">
-        <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-full border border-light-500/20 bg-dark-500/70 text-base font-bold uppercase tracking-widest text-light-50 shadow-glow">
+      <div {...styles.slot2}>
+        <div {...styles.slot3}>
           <span aria-hidden>{iconByVariant[toast.variant]}</span>
         </div>
-        <div className="flex-1">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-light-400">
-            {variantLabel}
-          </p>
-          <p className="mt-1 text-sm font-semibold leading-snug text-light-100">
-            {toast.message}
-          </p>
+        <div {...styles.slot4}>
+          <p {...styles.slot5}>{variantLabel}</p>
+          <p {...styles.slot6}>{toast.message}</p>
         </div>
         <button
           type="button"
           onClick={() => onDismiss(toast.id)}
-          className="ml-2 rounded-full border border-light-500/20 p-1 text-[0.7rem] text-light-400 transition-colors hover:bg-light-500/10 hover:text-light-100"
+          {...styles.slot7}
           aria-label={dismissLabel}
         >
           ✕
         </button>
       </div>
-      <div
-        className="mt-4 h-1 overflow-hidden rounded-full bg-dark-400/70"
-        aria-hidden
-      >
+      <div {...styles.slot8} aria-hidden>
         <div
-          className="h-full rounded-full bg-gradient-to-r from-secondary-400 via-accent-500 to-primary-400"
+          {...styles.slot9}
           style={{
             width: progressWidth,
             transition: `width ${toastDuration}ms linear`,

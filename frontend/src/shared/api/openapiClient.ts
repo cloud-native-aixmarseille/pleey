@@ -6,7 +6,7 @@ import createOpenApiQueryClient from "openapi-react-query";
 import type { User } from "../types";
 import type { paths } from "./openapi-schema";
 
-const DEFAULT_API_BASE_URL = "http://backend.quiz-master.localhost";
+const DEFAULT_API_BASE_URL = "http://backend.quiz-app.localhost";
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? DEFAULT_API_BASE_URL;
 
 const fetchClient = createFetchClient<paths>({
@@ -147,7 +147,7 @@ async function refreshSession(): Promise<RefreshResponse | null> {
 
         authHandlers.onSessionRefreshed?.(data);
         return data;
-      } catch (error) {
+      } catch {
         return null;
       } finally {
         refreshPromise = null;

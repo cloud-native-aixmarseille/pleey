@@ -334,7 +334,8 @@
     "share": {
       "errors": {
         "nativeShareFailed": "Le partage a échoué. Copiez le lien manuellement.",
-        "copyFailed": "Impossible de copier le lien. Copiez-le manuellement."
+        "copyFailed": "Impossible de copier le lien. Copiez-le manuellement.",
+        "copyPermissionDenied": "Impossible de copier le lien sans autoriser l'accès au presse-papiers. Autorisez l'accès puis réessayez."
       }
     },
     "errors": {

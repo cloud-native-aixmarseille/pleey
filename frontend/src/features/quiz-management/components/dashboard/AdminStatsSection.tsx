@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { ArcadeCardGrid } from "../../../../shared/components";
 import { StatsCard } from "../../../../shared/components/stats/StatsCard";
 
 interface AdminStatsSectionProps {
@@ -15,25 +16,25 @@ export function AdminStatsSection({
   const { t } = useTranslation();
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 animate-slide-up">
+    <ArcadeCardGrid layout="triple">
       <StatsCard
         label={t("admin.totalQuizzes")}
         value={totalQuizzes}
-        icon="📚"
+        icon={{ name: "Library", tone: "accent" }}
         variant="primary"
       />
       <StatsCard
         label={t("admin.activeQuizzes")}
         value={activeQuizCount}
-        icon="🎯"
+        icon={{ name: "Target", tone: "accent" }}
         variant="secondary"
       />
       <StatsCard
         label={t("admin.questions")}
         value={totalQuestions}
-        icon="❓"
+        icon={{ name: "HelpCircle", tone: "inverted" }}
         variant="accent"
       />
-    </div>
+    </ArcadeCardGrid>
   );
 }

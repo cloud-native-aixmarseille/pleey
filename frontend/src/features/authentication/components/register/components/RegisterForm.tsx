@@ -2,6 +2,12 @@ import { FormEvent, ReactNode } from "react";
 
 import { Button, Input } from "../../../../../shared/components";
 import type { RegisterCredentials } from "../types";
+import { createStyles } from "../../../../../shared/ui/styles";
+
+const styles = createStyles("RegisterForm", {
+  slot1: "space-y-6",
+  slot3: "flex items-center justify-center gap-2",
+});
 
 interface RegisterFormProps {
   onSubmit: (credentials: RegisterCredentials) => Promise<void> | void;
@@ -39,27 +45,13 @@ export function RegisterForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} {...styles.slot1}>
       <Input
         type="text"
         name="username"
         placeholder={usernamePlaceholder}
         label={usernameLabel}
-        icon={
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-            />
-          </svg>
-        }
+        icon={{ name: "UserRound" }}
         required
       />
 
@@ -68,21 +60,7 @@ export function RegisterForm({
         name="email"
         placeholder={emailPlaceholder}
         label={emailLabel}
-        icon={
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"
-            />
-          </svg>
-        }
+        icon={{ name: "Mail" }}
         required
       />
 
@@ -91,26 +69,12 @@ export function RegisterForm({
         name="password"
         placeholder={passwordPlaceholder}
         label={passwordLabel}
-        icon={
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-            />
-          </svg>
-        }
+        icon={{ name: "Lock" }}
         required
       />
 
       <Button type="submit" variant="accent" size="lg" fullWidth>
-        <span className="flex items-center justify-center gap-2">
+        <span {...styles.slot3}>
           <span>{submitLabel}</span>
           {submitIcon ? <span>{submitIcon}</span> : null}
         </span>

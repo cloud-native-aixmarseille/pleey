@@ -13,40 +13,44 @@ afterEach(() => {
   cleanup();
 });
 
-const originalWarn = console.warn.bind(console);
-const originalError = console.error.bind(console);
+const globalConsole = globalThis.console;
 
-const suppressedWarningPatterns = [
-  "React Router Future Flag Warning",
-  "was not wrapped in act",
-];
+if (globalConsole) {
+  const originalWarn = globalConsole.warn.bind(globalConsole);
+  const originalError = globalConsole.error.bind(globalConsole);
 
-const suppressedErrorPatterns = [
-  "Warning: An update to",
-  "Not implemented: HTMLCanvasElement.prototype.getContext",
-];
+  const suppressedWarningPatterns = [
+    "React Router Future Flag Warning",
+    "was not wrapped in act",
+  ];
 
-console.warn = (...args) => {
-  const [firstArg] = args;
-  if (
-    typeof firstArg === "string" &&
-    suppressedWarningPatterns.some((pattern) => firstArg.includes(pattern))
-  ) {
-    return;
-  }
-  originalWarn(...args);
-};
+  const suppressedErrorPatterns = [
+    "Warning: An update to",
+    "Not implemented: HTMLCanvasElement.prototype.getContext",
+  ];
 
-console.error = (...args) => {
-  const [firstArg] = args;
-  if (
-    typeof firstArg === "string" &&
-    suppressedErrorPatterns.some((pattern) => firstArg.includes(pattern))
-  ) {
-    return;
-  }
-  originalError(...args);
-};
+  globalConsole.warn = (...args) => {
+    const [firstArg] = args;
+    if (
+      typeof firstArg === "string" &&
+      suppressedWarningPatterns.some((pattern) => firstArg.includes(pattern))
+    ) {
+      return;
+    }
+    originalWarn(...args);
+  };
+
+  globalConsole.error = (...args) => {
+    const [firstArg] = args;
+    if (
+      typeof firstArg === "string" &&
+      suppressedErrorPatterns.some((pattern) => firstArg.includes(pattern))
+    ) {
+      return;
+    }
+    originalError(...args);
+  };
+}
 
 // Mock window.matchMedia - only in browser environment
 /* global window */
@@ -68,27 +72,29 @@ if (typeof window !== "undefined") {
     }),
   });
 
-  HTMLCanvasElement.prototype.getContext = () => ({
-    fillRect: () => {},
-    clearRect: () => {},
-    getImageData: () => ({ data: [] }),
-    putImageData: () => {},
-    createImageData: () => [],
-    setTransform: () => {},
-    drawImage: () => {},
-    save: () => {},
-    fillText: () => {},
-    restore: () => {},
-    beginPath: () => {},
-    moveTo: () => {},
-    lineTo: () => {},
-    closePath: () => {},
-    stroke: () => {},
-    translate: () => {},
-    scale: () => {},
-    rotate: () => {},
-    arc: () => {},
-    quadraticCurveTo: () => {},
-    canvas: HTMLCanvasElement,
-  });
+  if (window.HTMLCanvasElement) {
+    window.HTMLCanvasElement.prototype.getContext = () => ({
+      fillRect: () => {},
+      clearRect: () => {},
+      getImageData: () => ({ data: [] }),
+      putImageData: () => {},
+      createImageData: () => [],
+      setTransform: () => {},
+      drawImage: () => {},
+      save: () => {},
+      fillText: () => {},
+      restore: () => {},
+      beginPath: () => {},
+      moveTo: () => {},
+      lineTo: () => {},
+      closePath: () => {},
+      stroke: () => {},
+      translate: () => {},
+      scale: () => {},
+      rotate: () => {},
+      arc: () => {},
+      quadraticCurveTo: () => {},
+      canvas: window.HTMLCanvasElement,
+    });
+  }
 }

@@ -1,3 +1,4 @@
+import { ArcadeCardGrid } from "../../../../../shared/components";
 import { StatsCard } from "../../../../../shared/components/stats/StatsCard";
 
 import type { OrganizationStatItem } from "../types";
@@ -12,7 +13,7 @@ export function OrganizationStatsGrid({ stats }: OrganizationStatsGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 animate-slide-up">
+    <ArcadeCardGrid layout="quad">
       {stats.map((stat) => (
         <StatsCard
           key={`${stat.label}-${stat.variant}`}
@@ -22,6 +23,6 @@ export function OrganizationStatsGrid({ stats }: OrganizationStatsGridProps) {
           variant={stat.variant}
         />
       ))}
-    </div>
+    </ArcadeCardGrid>
   );
 }

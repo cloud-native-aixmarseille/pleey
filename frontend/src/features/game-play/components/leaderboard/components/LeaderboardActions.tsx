@@ -1,6 +1,18 @@
 import { Button } from "../../../../../shared/components";
 import { ACTIONS_STAGE } from "../constants";
 import { ShareButton } from "../../ShareButton";
+import { createStyles } from "../../../../../shared/ui/styles";
+
+const styles = createStyles("LeaderboardActions", {
+  slot1: "max-w-md mx-auto space-y-4 animate-fade-in",
+  slot2: "retro-shadow hover:translate-x-1 hover:translate-y-1 font-display uppercase tracking-wider",
+  slot3: "flex items-center justify-center gap-3",
+  slot4: "text-2xl",
+  slot5: "w-full",
+  slot6: "text-center pt-4",
+  slot7: "text-light-400 text-sm font-body",
+});
+
 
 interface LeaderboardActionsProps {
   animationStage: number;
@@ -21,7 +33,7 @@ export function LeaderboardActions({
 
   return (
     <section
-      className="max-w-md mx-auto space-y-4 animate-fade-in"
+      {...styles.slot1}
       style={{ animationDelay: "0.5s" }}
     >
       <Button
@@ -29,10 +41,10 @@ export function LeaderboardActions({
         size="xl"
         fullWidth
         onClick={onPlayAgain}
-        className="retro-shadow hover:translate-x-1 hover:translate-y-1 font-display uppercase tracking-wider"
+        {...styles.slot2}
       >
-        <span className="flex items-center justify-center gap-3">
-          <span className="text-2xl">▶</span>
+        <span {...styles.slot3}>
+          <span {...styles.slot4}>▶</span>
           <span>Play Again</span>
         </span>
       </Button>
@@ -42,11 +54,11 @@ export function LeaderboardActions({
         text={shareText}
         variant="primary"
         size="xl"
-        className="w-full"
+        {...styles.slot5}
       />
 
-      <div className="text-center pt-4">
-        <p className="text-light-400 text-sm font-body">
+      <div {...styles.slot6}>
+        <p {...styles.slot7}>
           Thanks for playing! 🎮✨
         </p>
       </div>

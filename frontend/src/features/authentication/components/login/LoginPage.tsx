@@ -10,6 +10,13 @@ import { LoginHeader } from "./components/LoginHeader";
 import { LoginForm } from "./components/LoginForm";
 import { RegisterPrompt } from "./components/RegisterPrompt";
 import type { LoginCredentials } from "./types";
+import { createStyles } from "../../../../shared/ui/styles";
+
+const styles = createStyles("LoginPage", {
+  slot1: "animate-slide-up",
+  slot2: "p-8 sm:p-10",
+});
+
 
 interface LoginPageProps {
   onLogin: (email: string, password: string) => Promise<void>;
@@ -42,7 +49,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
   return (
     <LoginLayout>
       <Container size="sm">
-        <div className="animate-slide-up">
+        <div {...styles.slot1}>
           <LoginHeader
             title={t("auth.loginTitle")}
             subtitle={t("auth.loginSubtitle")}
@@ -50,7 +57,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
             onBack={handleBack}
           />
 
-          <Card className="p-8 sm:p-10">
+          <Card {...styles.slot2}>
             <LoginForm
               onSubmit={handleSubmit}
               emailLabel={t("auth.email")}
