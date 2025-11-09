@@ -1,4 +1,4 @@
-FROM node:24.11-bookworm-slim AS base
+FROM node:25.1-bookworm-slim AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN \
@@ -32,7 +32,7 @@ RUN set -eu; \
     npm prune --production && \
     npm cache clean --force
 
-FROM nginx:1.27-alpine AS prod
+FROM nginx:1.29-alpine AS prod
 
 # Install security updates
 RUN apk update && \
