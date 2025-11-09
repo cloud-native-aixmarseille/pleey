@@ -1,5 +1,6 @@
 import { Quiz, Question } from '../../shared/types';
 import { apiClient, fetchClient, queryClient } from '../../shared/api/openapiClient';
+import { castRequestBody } from '../../shared/api/castRequestBody';
 import { API_URL } from '../../shared/config/api.config';
 
 type QuestionType = 'multiple' | 'truefalse';
@@ -56,7 +57,7 @@ export class QuizService {
     organizationId: number
   ): Promise<Quiz> {
     const { data, error } = await fetchClient.POST('/api/quizzes', {
-      body: { title, description, organizationId } as any,
+      body: castRequestBody({ title, description, organizationId }),
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',

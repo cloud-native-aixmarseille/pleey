@@ -1,4 +1,13 @@
 import { BackToButton } from "../../../../../shared/components";
+import { createStyles } from "../../../../../shared/ui/styles";
+
+const styles = createStyles("RegisterHeader", {
+  slot1: "text-center mb-6",
+  slot2: "mb-4 flex justify-center",
+  slot3: "text-4xl sm:text-5xl font-black text-white mb-2",
+  slot4: "text-light-400",
+});
+
 
 interface RegisterHeaderProps {
   title: string;
@@ -14,8 +23,8 @@ export function RegisterHeader({
   onBack,
 }: RegisterHeaderProps) {
   return (
-    <div className="text-center mb-6">
-      <div className="mb-4 flex justify-center">
+    <div {...styles.slot1}>
+      <div {...styles.slot2}>
         <BackToButton
           label={backLabel}
           onClick={onBack}
@@ -23,10 +32,10 @@ export function RegisterHeader({
           tone="light"
         />
       </div>
-      <h2 className="text-4xl sm:text-5xl font-black text-white mb-2">
+      <h2 {...styles.slot3}>
         {title}
       </h2>
-      <p className="text-light-400">{subtitle}</p>
+      <p {...styles.slot4}>{subtitle}</p>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 # Makefile for QuizMaster
 # Using Docker Compose V2
 
-.PHONY: help setup build up down restart logs clean clean-all backup restore seed ps rebuild monitoring-up monitoring-down monitoring-logs grafana prometheus test test-watch test-ui test-cov test-e2e-smoke test-e2e-ui shell db-shell traefik install health _test-scope _run-node _run-e2e
+.PHONY: help setup build up down restart logs clean clean-all backup restore seed ps rebuild monitoring-up monitoring-down monitoring-logs grafana prometheus test test-watch test-ui test-cov test-e2e-smoke test-e2e-ui shell db-shell traefik install health setup-traefik _test-scope _run-node _run-e2e
 
 # Docker Compose command (V2)
 COMPOSE := docker compose
@@ -16,15 +16,15 @@ help: ## Display this help
 	@echo "$(GREEN)QuizMaster - Available commands:$(NC)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-15s$(NC) %s\n", $$1, $$2}'
 
-install: setup build up migrate seed openapi ## Complete installation (first time)
+install: setup setup-traefik build up migrate seed openapi ## Complete installation (first time)
 	@echo "$(GREEN)═══════════════════════════════════════$(NC)"
 	@echo "$(GREEN)✓ Installation completed successfully!$(NC)"
 	@echo "$(GREEN)═══════════════════════════════════════$(NC)"
 	@echo ""
 	@echo "Application available at:"
-	@echo "  Frontend: $(YELLOW)http://frontend.quiz-master.localhost$(NC)"
-	@echo "  Backend:  $(YELLOW)http://backend.quiz-master.localhost$(NC)"
-	@echo "  Traefik:  $(YELLOW)http://localhost:8080$(NC)"
+	@echo "  Frontend: $(YELLOW)http://frontend.quiz-app.localhost$(NC)"
+	@echo "  Backend:  $(YELLOW)http://backend.quiz-app.localhost$(NC)"
+	@echo "  Traefik dashboard: $(YELLOW)http://traefik.localhost$(NC) (managed by setup-traefik)"
 	@echo ""
 	@echo "Default admin account:"
 	@echo "  Email:    $(YELLOW)admin@quiz.com$(NC)"
@@ -45,14 +45,36 @@ build: ## Build Docker images
 	@echo "$(GREEN)Building images...$(NC)"
 	$(COMPOSE) build
 
+setup-traefik: ## Setup traefik
+	@TRAEFIK_NETWORK=traefik-proxy; \
+	TRAEFIK_NAME=traefik-local; \
+	docker network ls | grep $$TRAEFIK_NETWORK > /dev/null || (echo "Creating traefik network" && docker network create $$TRAEFIK_NETWORK ); \
+	if docker ps -a | grep $$TRAEFIK_NAME > /dev/null; then \
+		echo "Traefik container already exists"; \
+		if docker ps -a | grep $$TRAEFIK_NAME | grep Exited > /dev/null; then echo "Starting traefik container" && docker start $$TRAEFIK_NAME; fi; \
+		if ! docker inspect -f '{{json .NetworkSettings.Networks}}' $$TRAEFIK_NAME | grep -q '"'$$TRAEFIK_NETWORK'"'; then \
+			echo "Traefik container is not connected to '$$TRAEFIK_NETWORK' network" && exit 1; \
+		fi; \
+	else \
+		echo "Creating traefik container" \
+		&& docker pull traefik \
+		&& docker run -itd \
+			-p 80:80 -p 8080:8080 \
+			-v /var/run/docker.sock:/var/run/docker.sock:ro \
+			--restart unless-stopped --name $$TRAEFIK_NAME --network=$$TRAEFIK_NETWORK \
+			--label "traefik.enable=true" --label "traefik.http.routers.traefik.rule=Host(\`traefik.localhost\`)" --label "traefik.http.routers.traefik.service=api@internal" \
+			traefik \
+			--api.insecure=true --providers.docker.exposedByDefault=false --providers.docker.network=$$TRAEFIK_NETWORK --accessLog=true; \
+	fi
+
 up: ## Start the application
 	@echo "$(GREEN)Starting application...$(NC)"
 	$(COMPOSE) up -d
 	@echo "$(GREEN)Backend API ready$(NC)"
 	@echo "$(GREEN)✓ Application started$(NC)"
-	@echo "Frontend: http://frontend.quiz-master.localhost"
-	@echo "Backend: http://backend.quiz-master.localhost"
-	@echo "Traefik Dashboard: http://localhost:8080"
+	@echo "Frontend: http://frontend.quiz-app.localhost"
+	@echo "Backend: http://backend.quiz-app.localhost"
+	@echo "Traefik Dashboard: http://traefik.localhost (auto-provisioned via setup-traefik)"
 
 migrate: ## Apply database migrations
 	@echo "$(GREEN)Applying database migrations...$(NC)"
@@ -68,7 +90,7 @@ seed: ## Seed the database
 openapi: ## Generate OpenAPI types
 	@echo "$(GREEN)Waiting for backend OpenAPI endpoint...$(NC)"
 	@ATTEMPTS=0; \
-	until $(COMPOSE) exec -T backend sh -c "curl -sf http://localhost:3001/api/openapi.json >/dev/null"; do \
+	until $(COMPOSE) exec -T frontend sh -c "curl -sf http://backend:3001/api/openapi.json >/dev/null"; do \
 		ATTEMPTS=$$((ATTEMPTS+1)); \
 		if [ $$ATTEMPTS -gt 30 ]; then \
 			echo "$(RED)Backend API did not become ready in time$(NC)"; \
@@ -160,14 +182,15 @@ db-shell: ## Access PostgreSQL database shell
 
 traefik: ## Open Traefik dashboard
 	@echo "$(GREEN)Opening Traefik dashboard...$(NC)"
-	@command -v xdg-open >/dev/null 2>&1 && xdg-open http://localhost:8080 || open http://localhost:8080 || echo "Open http://localhost:8080"
+	@command -v xdg-open >/dev/null 2>&1 && xdg-open http://traefik.localhost || open http://traefik.localhost || echo "Open http://traefik.localhost"
 
 health: ## Check application health
 	@echo "$(GREEN)Checking status...$(NC)"
-	@curl -s http://backend.quiz-master.localhost/health/live | jq '.' || echo "$(YELLOW)Backend unavailable$(NC)"
-	@curl -s -o /dev/null -w "Frontend: %{http_code}\n" http://frontend.quiz-master.localhost/
+	@curl -s http://backend.quiz-app.localhost/api/health/live | jq '.' || echo "$(YELLOW)Backend unavailable$(NC)"
+	@curl -s -o /dev/null -w "Frontend: %{http_code}\n" http://frontend.quiz-app.localhost/
 
 monitoring-up: ## Start with monitoring
+	$(MAKE) setup-traefik
 	@echo "$(GREEN)Starting with monitoring...$(NC)"
 	$(COMPOSE) -f compose.yaml -f compose.monitoring.yaml up -d
 	@echo "$(GREEN)✓ Monitoring enabled$(NC)"

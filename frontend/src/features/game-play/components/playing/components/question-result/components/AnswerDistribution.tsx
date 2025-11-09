@@ -5,6 +5,33 @@ import type {
 } from "../../../../../../../shared/types";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
+import { createStyles } from "../../../../../../../shared/ui/styles";
+import { ArcadeProgressBar } from "../../../../../../../shared/components";
+import type { ArcadeProgressTone } from "../../../../../../../shared/ui/components/ArcadeProgressBar";
+
+const styles = createStyles("AnswerDistribution", {
+  slot1:
+    "mb-8 glass-effect rounded-2xl p-6 border-2 border-white/30 animate-fade-in",
+  slot2: "text-xl font-bold mb-4 text-center font-display uppercase",
+  slot3: "space-y-3",
+  slot4: "text-center text-sm mt-4 text-white/80 font-mono",
+  slot5: "relative",
+  slot6: "flex items-center justify-between mb-1 text-sm font-mono",
+  slot7: "font-bold",
+  slot8: "font-black",
+  slot9:
+    "relative h-8 bg-dark-700/50 rounded-full overflow-hidden border border-white/20",
+  slot10: "text-white font-black text-sm drop-shadow-lg",
+});
+
+const PROGRESS_TONES: Record<
+  "correct" | "user" | "neutral",
+  ArcadeProgressTone
+> = {
+  correct: "success",
+  user: "danger",
+  neutral: "neutral",
+};
 
 const MULTIPLE_OPTIONS = ["A", "B", "C", "D"] as const;
 const BOOLEAN_OPTIONS = ["true", "false"] as const;
@@ -36,16 +63,11 @@ export function AnswerDistribution({
     question.type === "multiple" ? MULTIPLE_OPTIONS : BOOLEAN_OPTIONS;
 
   return (
-    <section
-      className="mb-8 glass-effect rounded-2xl p-6 border-2 border-white/30 animate-fade-in"
-      style={{ animationDelay: "0.3s" }}
-    >
-      <h4 className="text-xl font-bold mb-4 text-center font-display uppercase">
-        {t("game.playing.result.distributionTitle")}
-      </h4>
+    <section {...styles.slot1} style={{ animationDelay: "0.3s" }}>
+      <h4 {...styles.slot2}>{t("game.playing.result.distributionTitle")}</h4>
 
       <div
-        className="space-y-3"
+        {...styles.slot3}
         role="list"
         aria-label={t("game.playing.result.distributionAriaLabel")}
       >
@@ -62,7 +84,7 @@ export function AnswerDistribution({
         ))}
       </div>
 
-      <p className="text-center text-sm mt-4 text-white/80 font-mono">
+      <p {...styles.slot4}>
         {t("game.playing.result.distributionCount", {
           count: statistics.totalAnswers,
         })}
@@ -105,40 +127,26 @@ function DistributionOption({
   });
 
   return (
-    <div className="relative" role="listitem">
-      <div className="flex items-center justify-between mb-1 text-sm font-mono">
-        <span className="font-bold">
+    <div {...styles.slot5} role="listitem">
+      <div {...styles.slot6}>
+        <span {...styles.slot7}>
           {label}
           {isCorrectAnswer && " ✓"}
           {isUserAnswer && " ✗"}
         </span>
-        <span className="font-black">{percentage}%</span>
+        <span {...styles.slot8}>{percentage}%</span>
       </div>
 
-      <div
-        className="relative h-8 bg-dark-700/50 rounded-full overflow-hidden border border-white/20"
-        role="progressbar"
-        aria-valuenow={percentage}
-        aria-valuemin={0}
-        aria-valuemax={100}
+      <ArcadeProgressBar
+        value={percentage}
+        max={100}
+        tone={resolveOptionTone(option, answerResult, userAnswer)}
+        animationDelay={`${index * 0.1}s`}
         aria-label={ariaLabel}
+        trackSlot={styles.slot9}
       >
-        <div
-          className={`h-full bg-gradient-to-r ${getOptionColor(
-            option,
-            answerResult,
-            userAnswer
-          )} transition-all duration-1000 flex items-center justify-end px-3`}
-          style={{ width: `${percentage}%`, animationDelay: `${index * 0.1}s` }}
-          aria-hidden="true"
-        >
-          {percentage > 10 && (
-            <span className="text-white font-black text-sm drop-shadow-lg">
-              {count}
-            </span>
-          )}
-        </div>
-      </div>
+        {percentage > 10 && <span {...styles.slot10}>{count}</span>}
+      </ArcadeProgressBar>
     </div>
   );
 }
@@ -179,20 +187,20 @@ function getOptionLabel(
   return t(`game.playing.result.booleanLabel.${booleanKey}`);
 }
 
-function getOptionColor(
+function resolveOptionTone(
   option: AnswerOption,
   answerResult: AnswerResult,
   userAnswer: string | null
-) {
+): ArcadeProgressTone {
   if (option === answerResult.correctAnswer) {
-    return "from-success-500 to-accent-500";
+    return PROGRESS_TONES.correct;
   }
 
   if (option === userAnswer && option !== answerResult.correctAnswer) {
-    return "from-danger-500 to-secondary-500";
+    return PROGRESS_TONES.user;
   }
 
-  return "from-light-300 to-light-400";
+  return PROGRESS_TONES.neutral;
 }
 
 interface AriaLabelArgs {

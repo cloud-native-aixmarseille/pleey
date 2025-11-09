@@ -1,20 +1,21 @@
+import "@testing-library/jest-dom/vitest";
 import { describe, it, expect } from "vitest";
 import { render } from "@testing-library/react";
 import { axe } from "vitest-axe";
-import * as matchers from "vitest-axe/matchers";
 import Button from "../button/Button";
 import Input from "../Input";
 import Card from "../Card";
 
-// Extend Vitest's expect with accessibility matchers
-expect.extend(matchers);
+async function expectNoViolations(container: HTMLElement) {
+  const results = await axe(container);
+  expect(results.violations.length).toBe(0);
+}
 
 describe("Accessibility Tests - Shared Components", () => {
   describe("Button Component", () => {
     it("should not have accessibility violations", async () => {
       const { container } = render(<Button variant="primary">Click Me</Button>);
-      const results = await axe(container);
-      expect(results).toHaveNoViolations();
+      await expectNoViolations(container);
     });
 
     it("should have proper disabled state", async () => {
@@ -23,8 +24,7 @@ describe("Accessibility Tests - Shared Components", () => {
           Disabled Button
         </Button>
       );
-      const results = await axe(container);
-      expect(results).toHaveNoViolations();
+      await expectNoViolations(container);
     });
   });
 
@@ -33,8 +33,7 @@ describe("Accessibility Tests - Shared Components", () => {
       const { container } = render(
         <Input label="Username" placeholder="Enter your username" />
       );
-      const results = await axe(container);
-      expect(results).toHaveNoViolations();
+      await expectNoViolations(container);
     });
 
     it("should properly associate label with input", async () => {
@@ -46,8 +45,7 @@ describe("Accessibility Tests - Shared Components", () => {
       const input = getByLabelText("Email");
       expect(input).toBeInTheDocument();
 
-      const results = await axe(container);
-      expect(results).toHaveNoViolations();
+      await expectNoViolations(container);
     });
 
     it("should properly handle error states", async () => {
@@ -55,37 +53,34 @@ describe("Accessibility Tests - Shared Components", () => {
         <Input label="Password" type="password" error="Password is required" />
       );
 
-      const results = await axe(container);
-      expect(results).toHaveNoViolations();
+      await expectNoViolations(container);
     });
   });
 
   describe("Card Component", () => {
     it("should not have accessibility violations", async () => {
       const { container } = render(
-        <Card variant="default">
+        <Card surface="panel" tone="primary" elevation="panel">
           <h2>Card Title</h2>
           <p>Card content goes here</p>
         </Card>
       );
-      const results = await axe(container);
-      expect(results).toHaveNoViolations();
+      await expectNoViolations(container);
     });
 
     it("should render as button when onClick is provided", async () => {
       const handleClick = () => {};
-      const { container } = render(
-        <Card onClick={handleClick}>
+      const { container, getByRole } = render(
+        <Card onClick={handleClick} interactive tone="primary">
           <h2>Clickable Card</h2>
         </Card>
       );
 
-      const button = container.querySelector("button");
-      expect(button).toBeInTheDocument();
-      expect(button).toHaveAttribute("type", "button");
+      const cardButton = getByRole("button");
+      expect(cardButton).toBeInTheDocument();
+      expect(cardButton).toHaveAttribute("tabindex", "0");
 
-      const results = await axe(container);
-      expect(results).toHaveNoViolations();
+      await expectNoViolations(container);
     });
   });
 });

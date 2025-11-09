@@ -1,5 +1,24 @@
 import { useTranslation } from "react-i18next";
 import { BackToButton, Button } from "../../../../shared/components";
+import { createStyles } from "../../../../shared/ui/styles";
+
+const styles = createStyles("StartControls", {
+  slot1: "glass-effect rounded-xl px-6 py-4 border-2 border-primary-500/30 animate-pulse-slow",
+  slot2: "font-mono text-primary-400 text-sm sm:text-base flex items-center justify-center gap-3",
+  slot3: "relative flex h-3 w-3",
+  slot4: "animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75",
+  slot5: "relative inline-flex rounded-full h-3 w-3 bg-primary-500",
+  slot6: "uppercase tracking-wider",
+  slot7: "space-y-3",
+  slot8: "retro-shadow font-display text-base sm:text-lg hover:scale-105 transform transition-all",
+  slot9: "flex items-center justify-center gap-3",
+  slot10: "text-xl sm:text-2xl",
+  slot11: "text-center mt-4",
+  slot12: "font-mono text-xs text-light-500 animate-pulse",
+  slot13: "text-center mt-2",
+  slot14: "font-mono text-xs text-danger-500 animate-pulse",
+});
+
 
 interface StartControlsProps {
   readonly isAdmin: boolean;
@@ -29,16 +48,16 @@ export default function StartControls({
   if (!isAdmin) {
     return (
       <div
-        className="glass-effect rounded-xl px-6 py-4 border-2 border-primary-500/30 animate-pulse-slow"
+        {...styles.slot1}
         role="status"
         aria-live="polite"
       >
-        <p className="font-mono text-primary-400 text-sm sm:text-base flex items-center justify-center gap-3">
-          <span className="relative flex h-3 w-3" aria-hidden="true">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-primary-500" />
+        <p {...styles.slot2}>
+          <span {...styles.slot3} aria-hidden="true">
+            <span {...styles.slot4} />
+            <span {...styles.slot5} />
           </span>
-          <span className="uppercase tracking-wider">
+          <span {...styles.slot6}>
             {t("game.waitingForHost")}
           </span>
         </p>
@@ -47,7 +66,7 @@ export default function StartControls({
   }
 
   return (
-    <div className="space-y-3">
+    <div {...styles.slot7}>
       {onBackToAdmin && (
         <BackToButton
           label={t("quiz.backToAdmin", "BACK TO ADMIN PANEL")}
@@ -63,24 +82,24 @@ export default function StartControls({
         onClick={onStartGame}
         disabled={cannotStartGame}
         aria-describedby={startButtonDescription}
-        className="retro-shadow font-display text-base sm:text-lg hover:scale-105 transform transition-all"
+        {...styles.slot8}
       >
-        <span className="flex items-center justify-center gap-3">
-          <span className="text-xl sm:text-2xl" aria-hidden="true">
+        <span {...styles.slot9}>
+          <span {...styles.slot10} aria-hidden="true">
             ▶
           </span>
           <span>{t("game.startGame").toUpperCase()}</span>
-          <span className="text-xl sm:text-2xl" aria-hidden="true">
+          <span {...styles.slot10} aria-hidden="true">
             ◀
           </span>
         </span>
       </Button>
 
       {mustWaitForPlayers && (
-        <div className="text-center mt-4">
+        <div {...styles.slot11}>
           <p
             id={startHintId}
-            className="font-mono text-xs text-light-500 animate-pulse"
+            {...styles.slot12}
             role="status"
             aria-live="polite"
           >
@@ -90,10 +109,10 @@ export default function StartControls({
       )}
 
       {!hasQuestions && (
-        <div className="text-center mt-2">
+        <div {...styles.slot13}>
           <p
             id={questionHintId}
-            className="font-mono text-xs text-danger-500 animate-pulse"
+            {...styles.slot14}
             role="status"
             aria-live="polite"
           >

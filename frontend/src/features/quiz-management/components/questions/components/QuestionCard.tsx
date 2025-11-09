@@ -1,6 +1,41 @@
 import { useTranslation } from "react-i18next";
-import { Button, Card } from "../../../../../shared/components";
+import { ArcadeBadge, Button, Card } from "../../../../../shared/components";
 import type { Question } from "../../../../../shared/types";
+import { createStyles } from "../../../../../shared/ui/styles";
+import type { ArcadeBadgeTone } from "../../../../../shared/ui/components/ArcadeBadge";
+
+const styles = createStyles("QuestionCard", {
+  slot1: "p-6",
+  slot2: "flex justify-between items-start mb-4",
+  slot3: "flex items-start gap-3 flex-1",
+  slot4:
+    "glass-effect rounded-xl w-10 h-10 flex items-center justify-center flex-shrink-0",
+  slot5: "font-black text-primary-600",
+  slot6: "text-lg sm:text-xl font-bold text-dark-800 flex-1",
+  slot7: "flex items-center gap-2",
+  slot9: "sr-only",
+  slot10: "flex flex-wrap gap-3 text-sm",
+  slot11: "glass-effect rounded-lg px-3 py-2 flex items-center gap-2",
+  slot12: "font-semibold text-dark-700",
+  slot13: "grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4",
+  slot14: "font-black text-dark-700",
+  slot15: "text-dark-800",
+  slot16: "ml-auto text-success-600",
+  slot17: "mb-4",
+  slot18: "glass-effect rounded-xl p-4 inline-flex items-center gap-2",
+  slot19: "text-2xl",
+  slot20: "font-bold text-dark-800",
+  optionCardCorrect:
+    "p-3 rounded-xl transition-all border-2 bg-success-100 border-success-500 ring-2 ring-success-200",
+  optionCardDefault:
+    "p-3 rounded-xl transition-all border-2 bg-light-100 border-light-300",
+  cardWrapper: "animate-slide-up",
+});
+
+const TYPE_BADGE_TONES: Record<"multiple" | "truefalse", ArcadeBadgeTone> = {
+  multiple: "primary",
+  truefalse: "secondary",
+};
 
 interface QuestionCardProps {
   question: Question;
@@ -17,81 +52,57 @@ export function QuestionCard({
 }: QuestionCardProps) {
   const { t } = useTranslation();
   const isMultipleChoice = question.type === "multiple";
+  const badgeType: keyof typeof TYPE_BADGE_TONES = isMultipleChoice
+    ? "multiple"
+    : "truefalse";
 
   return (
-    <Card
-      className="p-6 animate-slide-up"
-      style={{ animationDelay: `${index * 0.05}s` }}
-    >
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex items-start gap-3 flex-1">
-          <div className="glass-effect rounded-xl w-10 h-10 flex items-center justify-center flex-shrink-0">
-            <span className="font-black text-primary-600">Q{index + 1}</span>
+    <div {...styles.cardWrapper} style={{ animationDelay: `${index * 0.05}s` }}>
+      <Card {...styles.slot1}>
+        <div {...styles.slot2}>
+          <div {...styles.slot3}>
+            <div {...styles.slot4}>
+              <span {...styles.slot5}>Q{index + 1}</span>
+            </div>
+            <h3 {...styles.slot6}>{question.question_text}</h3>
           </div>
-          <h3 className="text-lg sm:text-xl font-bold text-dark-800 flex-1">
-            {question.question_text}
-          </h3>
+          <div {...styles.slot7}>
+            <Button variant="ghost" size="sm" onClick={() => onEdit(question)}>
+              {t("quiz.editQuestion")}
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={() => onDelete(question)}
+              aria-label={t("quiz.deleteQuestion")}
+              icon={{ name: "Trash2" }}
+            >
+              <span {...styles.slot9}>{t("quiz.deleteQuestion")}</span>
+            </Button>
+          </div>
+          <ArcadeBadge tone={TYPE_BADGE_TONES[badgeType]}>
+            {isMultipleChoice
+              ? t("quiz.multipleChoiceShort")
+              : t("quiz.trueFalseShort")}
+          </ArcadeBadge>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={() => onEdit(question)}>
-            {t("quiz.editQuestion")}
-          </Button>
-          <Button
-            variant="danger"
-            size="sm"
-            onClick={() => onDelete(question)}
-            aria-label={t("quiz.deleteQuestion")}
-            icon={
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                />
-              </svg>
-            }
-          >
-            <span className="sr-only">{t("quiz.deleteQuestion")}</span>
-          </Button>
-        </div>
-        <span
-          className={`px-3 py-1 rounded-full text-xs font-bold flex-shrink-0 ml-2 ${
-            isMultipleChoice
-              ? "bg-primary-100 text-primary-700 border border-primary-300"
-              : "bg-secondary-100 text-secondary-700 border border-secondary-300"
-          }`}
-        >
-          {isMultipleChoice
-            ? t("quiz.multipleChoiceShort")
-            : t("quiz.trueFalseShort")}
-        </span>
-      </div>
 
-      {isMultipleChoice
-        ? renderMultipleChoice(question)
-        : renderTrueFalse(question, t)}
+        {isMultipleChoice
+          ? renderMultipleChoice(question)
+          : renderTrueFalse(question, t)}
 
-      <div className="flex flex-wrap gap-3 text-sm">
-        <div className="glass-effect rounded-lg px-3 py-2 flex items-center gap-2">
-          <span>⏱️</span>
-          <span className="font-semibold text-dark-700">
-            {question.time_limit}s
-          </span>
+        <div {...styles.slot10}>
+          <div {...styles.slot11}>
+            <span>⏱️</span>
+            <span {...styles.slot12}>{question.time_limit}s</span>
+          </div>
+          <div {...styles.slot11}>
+            <span>🏆</span>
+            <span {...styles.slot12}>{question.points} points</span>
+          </div>
         </div>
-        <div className="glass-effect rounded-lg px-3 py-2 flex items-center gap-2">
-          <span>🏆</span>
-          <span className="font-semibold text-dark-700">
-            {question.points} points
-          </span>
-        </div>
-      </div>
-    </Card>
+      </Card>
+    </div>
   );
 }
 
@@ -104,21 +115,19 @@ function renderMultipleChoice(question: Question) {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+    <div {...styles.slot13}>
       {options.map((option) => (
         <div
           key={option.letter}
-          className={`p-3 rounded-xl transition-all ${
-            question.correct_answer === option.letter
-              ? "bg-success-100 border-2 border-success-500 ring-2 ring-success-200"
-              : "bg-light-100 border-2 border-light-300"
-          }`}
+          {...(question.correct_answer === option.letter
+            ? styles.optionCardCorrect
+            : styles.optionCardDefault)}
         >
-          <div className="flex items-center gap-2">
-            <span className="font-black text-dark-700">{option.letter}:</span>
-            <span className="text-dark-800">{option.text}</span>
+          <div {...styles.slot7}>
+            <span {...styles.slot14}>{option.letter}:</span>
+            <span {...styles.slot15}>{option.text}</span>
             {question.correct_answer === option.letter ? (
-              <span className="ml-auto text-success-600">✓</span>
+              <span {...styles.slot16}>✓</span>
             ) : null}
           </div>
         </div>
@@ -132,12 +141,12 @@ function renderTrueFalse(
   t: ReturnType<typeof useTranslation>["t"]
 ) {
   return (
-    <div className="mb-4">
-      <div className="glass-effect rounded-xl p-4 inline-flex items-center gap-2">
-        <span className="text-2xl">
+    <div {...styles.slot17}>
+      <div {...styles.slot18}>
+        <span {...styles.slot19}>
           {question.correct_answer === "true" ? "✓" : "✗"}
         </span>
-        <span className="font-bold text-dark-800">
+        <span {...styles.slot20}>
           {t("quiz.correctAnswer")}:{" "}
           {question.correct_answer === "true"
             ? t("quiz.trueAnswer")

@@ -2,6 +2,16 @@ import { useTranslation } from "react-i18next";
 import { Card, PrimaryButton } from "../../../../shared/components";
 import type { GameSession, Quiz } from "../../../../shared/types";
 import { QuizCard } from "./QuizCard.tsx";
+import { createStyles } from "../../../../shared/ui/styles";
+
+const styles = createStyles("AdminQuizGrid", {
+  slot1: "p-12 text-center animate-scale-in",
+  slot2: "text-6xl mb-4",
+  slot3: "text-2xl font-bold text-dark-800 mb-2",
+  slot4: "text-light-700 mb-6",
+  slot5: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6",
+});
+
 
 interface AdminQuizGridProps {
   quizzes: Quiz[];
@@ -30,12 +40,12 @@ export function AdminQuizGrid({
 
   if (quizzes.length === 0) {
     return (
-      <Card className="p-12 text-center animate-scale-in">
-        <div className="text-6xl mb-4">🎮</div>
-        <h3 className="text-2xl font-bold text-dark-800 mb-2">
+      <Card {...styles.slot1}>
+        <div {...styles.slot2}>🎮</div>
+        <h3 {...styles.slot3}>
           {t("admin.noQuizzesTitle")}
         </h3>
-        <p className="text-light-700 mb-6">{t("admin.noQuizzesDescription")}</p>
+        <p {...styles.slot4}>{t("admin.noQuizzesDescription")}</p>
         <PrimaryButton size="lg" onClick={onCreateQuizRequest}>
           {t("admin.createFirstQuiz")}
         </PrimaryButton>
@@ -44,7 +54,7 @@ export function AdminQuizGrid({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div {...styles.slot5}>
       {quizzes.map((quiz, index) => (
         <QuizCard
           key={quiz.id}

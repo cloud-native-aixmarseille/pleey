@@ -1,6 +1,18 @@
 import { ReactNode } from "react";
 
 import { Button } from "../../../../../shared/components";
+import { createStyles } from "../../../../../shared/ui/styles";
+
+const styles = createStyles("RegisterPrompt", {
+  slot1: "relative my-6",
+  slot2: "absolute inset-0 flex items-center",
+  slot3: "w-full border-t border-light-300",
+  slot4: "relative flex justify-center text-sm",
+  slot5: "px-4 bg-white text-light-600 font-medium flex items-center gap-2",
+  slot6: "border-2 border-primary-500/20",
+  slot7: "flex items-center justify-center gap-2",
+});
+
 
 interface RegisterPromptProps {
   message: string;
@@ -19,12 +31,12 @@ export function RegisterPrompt({
 }: RegisterPromptProps) {
   return (
     <div>
-      <div className="relative my-6">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-light-300" />
+      <div {...styles.slot1}>
+        <div {...styles.slot2}>
+          <div {...styles.slot3} />
         </div>
-        <div className="relative flex justify-center text-sm">
-          <span className="px-4 bg-white text-light-600 font-medium flex items-center gap-2">
+        <div {...styles.slot4}>
+          <span {...styles.slot5}>
             {dividerIcon}
             <span>{message}</span>
           </span>
@@ -36,9 +48,9 @@ export function RegisterPrompt({
         size="md"
         fullWidth
         onClick={onCtaClick}
-        className="border-2 border-primary-500/20"
+        {...styles.slot6}
       >
-        <span className="flex items-center justify-center gap-2">
+        <span {...styles.slot7}>
           <span>{ctaLabel}</span>
           {ctaIcon ? <span>{ctaIcon}</span> : null}
         </span>

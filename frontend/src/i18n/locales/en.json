@@ -334,7 +334,8 @@
     "share": {
       "errors": {
         "nativeShareFailed": "Sharing failed. Copy the link manually instead.",
-        "copyFailed": "We couldn't copy the link. Please copy it manually."
+        "copyFailed": "We couldn't copy the link. Please copy it manually.",
+        "copyPermissionDenied": "We can't copy the link without clipboard permissions. Allow access and try again."
       }
     },
     "errors": {

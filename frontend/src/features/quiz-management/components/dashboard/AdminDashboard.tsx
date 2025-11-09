@@ -10,6 +10,12 @@ import { AdminQuizGrid } from "./AdminQuizGrid.tsx";
 import { CreateQuizModal } from "./modals/CreateQuizModal.tsx";
 import { DeleteQuizModal } from "./modals/DeleteQuizModal.tsx";
 import { useAuthManagerContext } from "../../../../application/app/context/AuthManagerContext";
+import { createStyles } from "../../../../shared/ui/styles";
+
+const styles = createStyles("AdminDashboard", {
+  slot1: "min-h-screen bg-game-gradient p-4 sm:p-6 lg:p-8",
+});
+
 
 interface AdminDashboardProps {
   quizzes: Quiz[];
@@ -172,7 +178,7 @@ export default function AdminDashboard({
   };
 
   return (
-    <div className="min-h-screen bg-game-gradient p-4 sm:p-6 lg:p-8">
+    <div {...styles.slot1}>
       <Container size="xl">
         <AdminDashboardHeader
           onOpenCreateModal={openCreateModal}

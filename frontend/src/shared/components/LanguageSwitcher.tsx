@@ -1,13 +1,21 @@
 import { useTranslation } from "react-i18next";
+import Button from "./button/Button";
+import Card from "./Card";
+import { composeClasses } from "../ui/utils/composeClasses";
 
 interface LanguageSwitcherProps {
   variant?: "fixed" | "inline";
   className?: string;
 }
 
+const LANGUAGES = [
+  { code: "en", label: "EN", ariaLabel: "Switch to English" },
+  { code: "fr", label: "FR", ariaLabel: "Passer au français" },
+];
+
 export default function LanguageSwitcher({
   variant = "fixed",
-  className = "",
+  className,
 }: LanguageSwitcherProps) {
   const { i18n } = useTranslation();
 
@@ -16,42 +24,40 @@ export default function LanguageSwitcher({
     localStorage.setItem("quizmaster_language", lng);
   };
 
+  const wrapperClass = composeClasses(
+    variant === "fixed" ? "fixed top-4 right-4 z-50" : undefined,
+    className
+  );
+
   return (
-    <div
-      className={`${
-        variant === "fixed" ? "fixed top-4 right-4 z-50" : ""
-      } ${className}`.trim()}
-    >
-      <div
-        className={`flex gap-2 rounded-lg border-2 border-primary-500/30 transition-colors ${
-          variant === "inline"
-            ? "bg-dark-500/60 backdrop-blur-sm px-2 py-1"
-            : "bg-dark-500/80 backdrop-blur-sm p-2"
-        }`}
+    <div className={wrapperClass}>
+      <Card
+        surface="glass"
+        tone="accent"
+        padding={variant === "inline" ? "xs" : "sm"}
+        elevation="panel"
+        fullWidth={false}
       >
-        <button
-          onClick={() => changeLanguage("en")}
-          className={`px-3 py-1.5 rounded font-display text-xs uppercase transition-all ${
-            i18n.language === "en"
-              ? "bg-primary-500 text-white retro-shadow"
-              : "text-light-400 hover:text-primary-400 hover:bg-primary-500/10"
-          }`}
-          aria-label="Switch to English"
-        >
-          EN
-        </button>
-        <button
-          onClick={() => changeLanguage("fr")}
-          className={`px-3 py-1.5 rounded font-display text-xs uppercase transition-all ${
-            i18n.language === "fr"
-              ? "bg-primary-500 text-white retro-shadow"
-              : "text-light-400 hover:text-primary-400 hover:bg-primary-500/10"
-          }`}
-          aria-label="Passer au français"
-        >
-          FR
-        </button>
-      </div>
+        <div className="flex items-center gap-2">
+          {LANGUAGES.map(({ code, label, ariaLabel }) => {
+            const isActive = i18n.language === code;
+
+            return (
+              <Button
+                key={code}
+                variant={isActive ? "accent" : "ghost"}
+                tone="accent"
+                size="sm"
+                effect={isActive ? "retro" : "flat"}
+                onClick={() => changeLanguage(code)}
+                aria-label={ariaLabel}
+              >
+                {label}
+              </Button>
+            );
+          })}
+        </div>
+      </Card>
     </div>
   );
 }

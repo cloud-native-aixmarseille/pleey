@@ -118,6 +118,91 @@
 }
 
 @layer components {
+  button[data-arcade-button] {
+    border-color: var(--arcade-btn-border);
+    background: var(--arcade-btn-bg);
+    color: var(--arcade-btn-text);
+    box-shadow: var(--arcade-btn-shadow);
+    transition: transform var(--arcade-transition-base) ease,
+      box-shadow var(--arcade-transition-base) ease,
+      background-color var(--arcade-transition-fast) ease,
+      color var(--arcade-transition-fast) ease;
+  }
+
+  button[data-arcade-button]:hover:not(:disabled):not([aria-disabled="true"]) {
+    background: var(--arcade-btn-bg-hover);
+    color: var(--arcade-btn-text-hover);
+    border-color: var(--arcade-btn-border-hover);
+    box-shadow: var(--arcade-btn-shadow-hover);
+  }
+
+  button[data-arcade-button]:disabled,
+  button[data-arcade-button][aria-disabled="true"] {
+    background: var(--arcade-btn-bg-disabled);
+    color: var(--arcade-btn-text-disabled);
+    border-color: var(--arcade-btn-border-disabled);
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
+  button[data-arcade-button][data-effect="retro"] {
+    box-shadow: var(--arcade-btn-shadow);
+  }
+
+  button[data-arcade-button][data-effect="retro"]:hover:not(:disabled):not(
+      [aria-disabled="true"]
+    ) {
+    transform: translate(2px, 2px);
+  }
+
+  button[data-arcade-button][data-effect="flat"] {
+    box-shadow: none;
+  }
+
+  input[data-arcade-input="true"] {
+    background: var(--arcade-input-bg);
+    border-color: var(--arcade-input-border);
+    color: var(--arcade-input-text);
+    transition: border-color var(--arcade-transition-fast) ease,
+      box-shadow var(--arcade-transition-base) ease,
+      background-color var(--arcade-transition-fast) ease;
+  }
+
+  input[data-arcade-input="true"]::placeholder {
+    color: var(--arcade-input-placeholder);
+  }
+
+  input[data-arcade-input="true"]:focus {
+    background: var(--arcade-input-bg-focus);
+    border-color: var(--arcade-input-border-focus);
+    box-shadow: var(--arcade-effect-focus-ring);
+    outline: none;
+  }
+
+  input[data-arcade-input="true"]:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  [data-arcade-card="true"] {
+    background: var(--arcade-card-bg);
+    border-color: var(--arcade-card-border);
+    color: var(--arcade-card-text);
+    box-shadow: var(--arcade-card-shadow);
+    transition: transform var(--arcade-transition-base) ease,
+      box-shadow var(--arcade-transition-base) ease,
+      border-color var(--arcade-transition-base) ease;
+  }
+
+  [data-arcade-card="true"][data-interactive] {
+    cursor: pointer;
+  }
+
+  [data-arcade-card="true"][data-interactive]:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--arcade-card-shadow);
+  }
+
   /* Button Components - Arcade Style */
   .btn {
     @apply px-6 py-3 rounded-lg font-display text-sm uppercase tracking-wider transition-all duration-200 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 border-2 border-current;
@@ -274,27 +359,6 @@
     animation: crt-flicker 0.15s infinite;
     pointer-events: none;
     z-index: 11;
-  }
-
-  /* Answer Option Styles - Arcade Colors */
-  .answer-option-a {
-    @apply bg-danger-500 border-4 border-danger-300 hover:bg-danger-400;
-    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5), 4px 4px 0px rgba(0, 0, 0, 0.8);
-  }
-
-  .answer-option-b {
-    @apply bg-primary-500 border-4 border-primary-300 hover:bg-primary-400;
-    box-shadow: 0 0 20px rgba(107, 72, 255, 0.5), 4px 4px 0px rgba(0, 0, 0, 0.8);
-  }
-
-  .answer-option-c {
-    @apply bg-secondary-500 border-4 border-secondary-300 hover:bg-secondary-400;
-    box-shadow: 0 0 20px rgba(255, 51, 198, 0.5), 4px 4px 0px rgba(0, 0, 0, 0.8);
-  }
-
-  .answer-option-d {
-    @apply bg-accent-500 border-4 border-accent-300 hover:bg-accent-400;
-    box-shadow: 0 0 20px rgba(0, 255, 204, 0.5), 4px 4px 0px rgba(0, 0, 0, 0.8);
   }
 
   /* Pixel Art Styles */

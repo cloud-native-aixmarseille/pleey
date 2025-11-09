@@ -1,6 +1,15 @@
-import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { AuthHttpRepository } from '../auth-http.repository';
 import { fetchClient } from '../../../../shared/api/openapiClient';
+
+type PostResult = Awaited<ReturnType<typeof fetchClient.POST>>;
+
+const createPostResult = (overrides: Partial<PostResult>): PostResult => ({
+  data: undefined,
+  error: undefined,
+  response: new Response(),
+  ...overrides,
+});
 
 describe('AuthHttpRepository', () => {
   let repository: AuthHttpRepository;
@@ -25,11 +34,8 @@ describe('AuthHttpRepository', () => {
         },
       };
 
-      const postSpy = vi.spyOn(fetchClient, 'POST') as unknown as Mock;
-      postSpy.mockResolvedValueOnce({
-        data: mockResponse,
-        error: undefined,
-      } as any);
+      const postSpy = vi.spyOn(fetchClient, 'POST');
+      postSpy.mockResolvedValueOnce(createPostResult({ data: mockResponse }));
 
       const result = await repository.login('test@example.com', 'password123');
 
@@ -49,21 +55,19 @@ describe('AuthHttpRepository', () => {
     });
 
     it('should throw error on invalid credentials', async () => {
-      const postSpy = vi.spyOn(fetchClient, 'POST') as unknown as Mock;
-      postSpy.mockResolvedValueOnce({
-        data: undefined,
-        error: new Error('Invalid credentials'),
-      } as any);
+      const postSpy = vi.spyOn(fetchClient, 'POST');
+      postSpy.mockResolvedValueOnce(
+        createPostResult({ data: undefined, error: new Error('Invalid credentials') })
+      );
 
       await expect(repository.login('test@example.com', 'wrong-password')).rejects.toThrow('auth.errors.invalidCredentials');
     });
 
     it('should throw error on invalid response structure', async () => {
-      const postSpy = vi.spyOn(fetchClient, 'POST') as unknown as Mock;
-      postSpy.mockResolvedValueOnce({
-        data: { token: 'test-token' },
-        error: undefined,
-      } as any);
+      const postSpy = vi.spyOn(fetchClient, 'POST');
+      postSpy.mockResolvedValueOnce(
+        createPostResult({ data: { token: 'test-token' } as never })
+      );
 
       await expect(repository.login('test@example.com', 'password123')).rejects.toThrow('auth.errors.invalidResponse');
     });
@@ -71,11 +75,8 @@ describe('AuthHttpRepository', () => {
 
   describe('register', () => {
     it('should register successfully', async () => {
-      const postSpy = vi.spyOn(fetchClient, 'POST') as unknown as Mock;
-      postSpy.mockResolvedValueOnce({
-        data: undefined,
-        error: undefined,
-      } as any);
+      const postSpy = vi.spyOn(fetchClient, 'POST');
+      postSpy.mockResolvedValueOnce(createPostResult({ data: undefined }));
 
       await repository.register('testuser', 'test@example.com', 'password123');
 
@@ -88,11 +89,10 @@ describe('AuthHttpRepository', () => {
     });
 
     it('should throw error on registration failure', async () => {
-      const postSpy = vi.spyOn(fetchClient, 'POST') as unknown as Mock;
-      postSpy.mockResolvedValueOnce({
-        data: undefined,
-        error: new Error('Email already exists'),
-      } as any);
+      const postSpy = vi.spyOn(fetchClient, 'POST');
+      postSpy.mockResolvedValueOnce(
+        createPostResult({ data: undefined, error: new Error('Email already exists') })
+      );
 
       await expect(repository.register('testuser', 'test@example.com', 'password123')).rejects.toThrow('auth.errors.userAlreadyExists');
     });
@@ -108,27 +108,20 @@ describe('AuthHttpRepository', () => {
         avatarUrl: '/api/avatars/users/1?v=fingerprint',
       };
 
-      const postSpy = vi.spyOn(fetchClient, 'POST') as unknown as Mock;
-      postSpy.mockResolvedValueOnce({
-        data: mockUser,
-        error: undefined,
-      } as any);
+      const postSpy = vi.spyOn(fetchClient, 'POST');
+      postSpy.mockResolvedValueOnce(createPostResult({ data: mockUser }));
 
       const result = await repository.regenerateAvatar();
 
-      expect(postSpy).toHaveBeenCalledWith(
-        '/api/profile/me/avatar',
-        expect.any(Object),
-      );
+      expect(postSpy).toHaveBeenCalledWith('/api/profile/me/avatar', undefined);
       expect(result).toEqual(mockUser);
     });
 
     it('should throw error when regeneration fails', async () => {
-      const postSpy = vi.spyOn(fetchClient, 'POST') as unknown as Mock;
-      postSpy.mockResolvedValueOnce({
-        data: undefined,
-        error: new Error('Unable to regenerate avatar'),
-      } as any);
+      const postSpy = vi.spyOn(fetchClient, 'POST');
+      postSpy.mockResolvedValueOnce(
+        createPostResult({ data: undefined, error: new Error('Unable to regenerate avatar') })
+      );
 
       await expect(repository.regenerateAvatar()).rejects.toThrow('profile.avatarRegenerateError');
     });

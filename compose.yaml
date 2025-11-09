@@ -3,31 +3,6 @@
 # Using Traefik for reverse proxy to avoid port collisions
 
 services:
-  # Traefik Reverse Proxy
-  traefik:
-    image: traefik:v3.1
-    container_name: quiz-traefik
-    restart: unless-stopped
-    command:
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-      - "--log.level=INFO"
-      - "--ping=true"
-    ports:
-      - "80:80" # HTTP traffic
-      - "8080:8080" # Traefik dashboard
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    networks:
-      - quiz-network
-    healthcheck:
-      test: ["CMD", "traefik", "healthcheck", "--ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-
   # PostgreSQL Database
   postgres:
     image: postgres:16-alpine
@@ -74,19 +49,19 @@ services:
       - CHOKIDAR_INTERVAL=500
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
     depends_on:
-      traefik:
-        condition: service_healthy
       otel-collector:
         condition: service_healthy
       postgres:
         condition: service_healthy
     networks:
       - quiz-network
+      - traefik-proxy
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`backend.quiz-master.localhost`)"
-      - "traefik.http.routers.backend.entrypoints=web"
+      - "traefik.http.routers.backend.rule=Host(`backend.quiz-app.localhost`)"
+      - "traefik.http.routers.backend.entrypoints=http"
       - "traefik.http.services.backend.loadbalancer.server.port=3001"
+      - "traefik.docker.network=traefik-proxy"
     healthcheck:
       test:
         [
@@ -112,19 +87,20 @@ services:
     expose:
       - "5173"
     depends_on:
-      - traefik
       - backend
     networks:
       - quiz-network
+      - traefik-proxy
     environment:
       - NODE_ENV=development
-      - VITE_API_URL=http://backend.quiz-master.localhost
+      - VITE_API_URL=http://backend.quiz-app.localhost
       - CHOKIDAR_USEPOLLING=1
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`frontend.quiz-master.localhost`)"
-      - "traefik.http.routers.frontend.entrypoints=web"
+      - "traefik.http.routers.frontend.rule=Host(`frontend.quiz-app.localhost`)"
+      - "traefik.http.routers.frontend.entrypoints=http"
       - "traefik.http.services.frontend.loadbalancer.server.port=5173"
+      - "traefik.docker.network=traefik-proxy"
 
   otel-collector:
     image: otel/opentelemetry-collector:0.105.0
@@ -143,6 +119,9 @@ services:
 networks:
   quiz-network:
     driver: bridge
+  traefik-proxy:
+    name: traefik-proxy
+    external: true
 
 volumes:
   postgres-data:

@@ -75,7 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const updated = await container.getProfileUseCase.execute();
       setUser(updated);
       return updated;
-    } catch (error) {
+    } catch {
       return null;
     }
   }, []);

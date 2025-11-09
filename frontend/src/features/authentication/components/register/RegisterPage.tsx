@@ -9,6 +9,13 @@ import { RegisterHeader } from "./components/RegisterHeader";
 import { RegisterForm } from "./components/RegisterForm";
 import { LoginPrompt } from "./components/LoginPrompt";
 import type { RegisterCredentials } from "./types";
+import { createStyles } from "../../../../shared/ui/styles";
+
+const styles = createStyles("RegisterPage", {
+  slot1: "animate-slide-up",
+  slot2: "p-8 sm:p-10",
+});
+
 
 interface RegisterPageProps {
   onRegister: (
@@ -40,7 +47,7 @@ export function RegisterPage({ onRegister }: RegisterPageProps) {
   return (
     <RegisterLayout>
       <Container size="sm">
-        <div className="animate-slide-up">
+        <div {...styles.slot1}>
           <RegisterHeader
             title={t("auth.registerTitle")}
             subtitle={t("auth.registerSubtitle")}
@@ -48,7 +55,7 @@ export function RegisterPage({ onRegister }: RegisterPageProps) {
             onBack={handleBack}
           />
 
-          <Card className="p-8 sm:p-10">
+          <Card {...styles.slot2}>
             <RegisterForm
               onSubmit={handleSubmit}
               usernameLabel={t("auth.username")}

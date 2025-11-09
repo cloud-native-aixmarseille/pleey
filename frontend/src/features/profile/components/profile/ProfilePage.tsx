@@ -8,6 +8,12 @@ import { ProfileLayout } from "./components/ProfileLayout";
 import { ProfileCard } from "./components/ProfileCard";
 import { ProfileHeader } from "./components/ProfileHeader";
 import { ProfileForm } from "./components/ProfileForm";
+import { createStyles } from "../../../../shared/ui/styles";
+
+const styles = createStyles("ProfilePage", {
+  slot1: "text-xs text-light-600",
+});
+
 
 interface ProfilePageProps {
   user: User;
@@ -57,7 +63,7 @@ export function ProfilePage({
             isRegenerating={isRegenerating}
           />
 
-          <p className="text-xs text-light-600">
+          <p {...styles.slot1}>
             {t("profile.avatarManagedBySystem")}
           </p>
 

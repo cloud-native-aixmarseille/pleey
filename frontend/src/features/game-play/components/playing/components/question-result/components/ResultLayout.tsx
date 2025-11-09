@@ -1,6 +1,22 @@
 import { ReactNode } from "react";
 
 import { Card } from "../../../../../../../shared/components";
+import {
+  createStyles,
+  type StyleEntry,
+} from "../../../../../../../shared/ui/styles";
+
+const CARD_BASE_CLASSES =
+  "p-8 sm:p-12 text-white animate-scale-in relative overflow-hidden";
+
+const styles = createStyles("ResultLayout", {
+  slot1:
+    "absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-float",
+  slot2: "relative z-10",
+  slot3: "sr-only",
+  cardCorrect: `${CARD_BASE_CLASSES} bg-gradient-to-br from-success-500 to-accent-500`,
+  cardIncorrect: `${CARD_BASE_CLASSES} bg-gradient-to-br from-danger-500 to-secondary-500`,
+});
 
 interface ResultLayoutProps {
   isCorrect: boolean;
@@ -9,8 +25,10 @@ interface ResultLayoutProps {
   children: ReactNode;
 }
 
-const CORRECT_GRADIENT = "bg-gradient-to-br from-success-500 to-accent-500";
-const INCORRECT_GRADIENT = "bg-gradient-to-br from-danger-500 to-secondary-500";
+const CARD_VARIANTS: Record<"correct" | "incorrect", StyleEntry> = {
+  correct: styles.cardCorrect,
+  incorrect: styles.cardIncorrect,
+};
 
 export function ResultLayout({
   isCorrect,
@@ -18,24 +36,22 @@ export function ResultLayout({
   statisticsAnnouncement,
   children,
 }: ResultLayoutProps) {
-  const gradientClass = isCorrect ? CORRECT_GRADIENT : INCORRECT_GRADIENT;
+  const cardVariant = CARD_VARIANTS[isCorrect ? "correct" : "incorrect"];
 
   return (
-    <Card
-      className={`p-8 sm:p-12 text-white animate-scale-in relative overflow-hidden ${gradientClass}`}
-    >
+    <Card {...cardVariant}>
       <ScreenReaderAnnouncement
         announcement={announcement}
         statisticsAnnouncement={statisticsAnnouncement}
       />
 
       <div
-        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-float"
+        {...styles.slot1}
         style={{ animationDuration: "2s" }}
         aria-hidden="true"
       />
 
-      <div className="relative z-10">{children}</div>
+      <div {...styles.slot2}>{children}</div>
     </Card>
   );
 }
@@ -50,12 +66,7 @@ function ScreenReaderAnnouncement({
   statisticsAnnouncement,
 }: ScreenReaderAnnouncementProps) {
   return (
-    <div
-      role="status"
-      aria-live="polite"
-      aria-atomic="true"
-      className="sr-only"
-    >
+    <div role="status" aria-live="polite" aria-atomic="true" {...styles.slot3}>
       {announcement}
       {statisticsAnnouncement ? ` ${statisticsAnnouncement}` : null}
     </div>

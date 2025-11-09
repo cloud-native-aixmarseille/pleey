@@ -1,12 +1,5 @@
-import { forwardRef } from "react";
-import Button, { type ButtonProps } from "./Button";
-
-export type PrimaryButtonProps = Omit<ButtonProps, "variant">;
-
-const PrimaryButton = forwardRef<HTMLButtonElement, PrimaryButtonProps>(
-  (props, ref) => <Button ref={ref} variant="primary" {...props} />
-);
-
-PrimaryButton.displayName = "PrimaryButton";
-
-export default PrimaryButton;
+export {
+  PrimaryButton as default,
+  PrimaryButton,
+} from "../../ui/components/PrimaryButton";
+export type { PrimaryButtonProps } from "../../ui/components/PrimaryButton";

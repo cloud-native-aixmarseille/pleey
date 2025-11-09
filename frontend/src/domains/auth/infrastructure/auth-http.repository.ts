@@ -2,6 +2,8 @@ import { IAuthRepository } from '../ports/auth.repository.interface';
 import { User } from '../../../shared/types';
 import { fetchClient } from '../../../shared/api/openapiClient';
 import { resolveAuthErrorKey } from '../utils/resolve-auth-error';
+import { castRequestBody } from '../../../shared/api/castRequestBody';
+import { isAuthResponsePayload, isUserPayload } from '../utils/auth-response.guard';
 
 /**
  * HTTP implementation of Authentication Repository
@@ -17,30 +19,24 @@ export class AuthHttpRepository implements IAuthRepository {
     user: User;
   }> {
     const { data, error } = await fetchClient.POST('/api/login', {
-      body: { email, password } as any,
+      body: castRequestBody({ email, password }),
       headers: {
         'Content-Type': 'application/json',
       },
     });
 
-    if (error || !data) {
+    const authPayload = data as unknown;
+
+    if (error || !isAuthResponsePayload(authPayload)) {
       const messageKey = resolveAuthErrorKey(error, 'auth.errors.invalidCredentials');
       throw new Error(messageKey);
     }
 
-    const result = data as Partial<{
-      token: string;
-      accessToken: string;
-      refreshToken: string;
-      expiresIn: number;
-      user: User;
-    }>;
+    const accessToken = authPayload.accessToken ?? authPayload.token;
+    const refreshToken = authPayload.refreshToken;
+    const user = authPayload.user;
 
-    const accessToken = result.accessToken ?? result.token;
-    const refreshToken = result.refreshToken;
-    const user = result.user;
-
-    if (!accessToken || !refreshToken || !user) {
+    if (!accessToken || !refreshToken || !isUserPayload(user)) {
       throw new Error('auth.errors.invalidResponse');
     }
 
@@ -48,14 +44,14 @@ export class AuthHttpRepository implements IAuthRepository {
       token: accessToken,
       accessToken,
       refreshToken,
-      expiresIn: result.expiresIn ?? 0,
+      expiresIn: authPayload.expiresIn ?? 0,
       user,
     };
   }
 
   async register(username: string, email: string, password: string): Promise<void> {
     const { error } = await fetchClient.POST('/api/register', {
-      body: { username, email, password } as any,
+      body: castRequestBody({ username, email, password }),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -68,56 +64,56 @@ export class AuthHttpRepository implements IAuthRepository {
   }
 
   async getCurrentUser(): Promise<User> {
-    const { data, error } = await fetchClient.GET('/api/profile/me', {} as any);
+    const { data, error } = await fetchClient.GET('/api/profile/me');
 
-    if (error || !data) {
+    if (error || !isUserPayload(data)) {
       const messageKey = resolveAuthErrorKey(error, 'profile.errors.loadFailed');
       throw new Error(messageKey);
     }
 
-    return data as User;
+    return data;
   }
 
   async updateProfile(updates: { username?: string; email?: string }): Promise<User> {
     const { data, error } = await fetchClient.PATCH('/api/profile/me', {
-      body: updates as any,
+      body: castRequestBody(updates),
       headers: {
         'Content-Type': 'application/json',
       },
-    } as any);
+    });
 
-    if (error || !data) {
+    if (error || !isUserPayload(data)) {
       const messageKey = resolveAuthErrorKey(error, 'profile.updateError');
       throw new Error(messageKey);
     }
 
-    return data as User;
+    return data;
   }
 
   async regenerateAvatar(): Promise<User> {
-    const { data, error } = await fetchClient.POST('/api/profile/me/avatar' as any, {} as any);
+    const { data, error } = await fetchClient.POST('/api/profile/me/avatar');
 
-    if (error || !data) {
+    if (error || !isUserPayload(data)) {
       const messageKey = resolveAuthErrorKey(error, 'profile.avatarRegenerateError');
       throw new Error(messageKey);
     }
 
-    return data as User;
+    return data;
   }
 
   async logout(): Promise<void> {
-    const { error } = await fetchClient.POST('/api/logout' as any, {
+    const { error } = await fetchClient.POST('/api/logout', {
       headers: {
         'Content-Type': 'application/json',
       },
       middleware: [
         {
-          onRequest: ({ request }: { request: Request }) => {
+          onRequest: ({ request }) => {
             request.headers.set('x-refresh-attempted', 'true');
           },
         },
       ],
-    } as any);
+    });
 
     if (error) {
       // No-op: treat backend logout failure as non-blocking

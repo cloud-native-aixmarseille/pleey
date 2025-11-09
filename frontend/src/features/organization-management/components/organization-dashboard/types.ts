@@ -1,9 +1,12 @@
-export type OrganizationStatVariant = "primary" | "secondary" | "accent" | "purple";
+import type { StatsCardVariant } from "../../../../shared/components/stats/StatsCard";
+import type { IconDescriptor } from "../../../../shared/ui/icons";
+
+export type OrganizationStatVariant = StatsCardVariant;
 
 export interface OrganizationStatItem {
   label: string;
   value: number;
-  icon: string;
+  icon: IconDescriptor;
   variant: OrganizationStatVariant;
 }
 

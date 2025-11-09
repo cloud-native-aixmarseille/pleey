@@ -8,6 +8,14 @@ import { useAdminQuizActions } from "../../../application/app/hooks/useAdminQuiz
 import { useNotifications } from "../../../application/app/hooks/useNotifications";
 import { useTranslation } from "react-i18next";
 import { Card, Container } from "../../../shared/components";
+import { createStyles } from "../../../shared/ui/styles";
+
+const styles = createStyles("AdminRoute", {
+  slot1: "min-h-screen bg-game-gradient flex items-center justify-center p-6",
+  slot2: "p-10 text-center border-2 border-primary-500/50 glass-effect animate-pulse",
+  slot3: "font-display text-2xl uppercase tracking-wider text-accent-400",
+});
+
 
 export function AdminRoute() {
   const navigate = useNavigate();
@@ -58,10 +66,10 @@ export function AdminRoute() {
 
     if (!hasLoadedQuizzes || isPending) {
       return (
-        <div className="min-h-screen bg-game-gradient flex items-center justify-center p-6">
+        <div {...styles.slot1}>
           <Container size="md">
-            <Card className="p-10 text-center border-2 border-primary-500/50 glass-effect animate-pulse">
-              <span className="font-display text-2xl uppercase tracking-wider text-accent-400">
+            <Card {...styles.slot2}>
+              <span {...styles.slot3}>
                 {t("common.loading")}
               </span>
             </Card>

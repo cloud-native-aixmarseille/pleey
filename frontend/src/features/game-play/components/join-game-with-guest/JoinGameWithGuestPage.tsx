@@ -11,6 +11,14 @@ import { JoinGamePrimaryAction } from "../join-game/components/JoinGamePrimaryAc
 import { JoinGameInstructions } from "../join-game/components/JoinGameInstructions";
 import { JoinGameFooterMessage } from "../join-game/components/JoinGameFooterMessage";
 import { GuestNicknameForm } from "./components/GuestNicknameForm";
+import { createStyles } from "../../../../shared/ui/styles";
+
+const styles = createStyles("JoinGameWithGuestPage", {
+  slot1: "text-center",
+  slot2: "font-mono text-xs text-light-400 mb-2",
+  slot3: "font-mono text-sm text-accent-400 hover:text-accent-300 underline",
+});
+
 
 interface JoinGameWithGuestPageProps {
   gamePin: string;
@@ -118,14 +126,14 @@ export default function JoinGameWithGuestPage({
             />
 
             {!isAuthenticated && (
-              <div className="text-center">
-                <p className="font-mono text-xs text-light-400 mb-2">
+              <div {...styles.slot1}>
+                <p {...styles.slot2}>
                   Already have an account?
                 </p>
                 <button
                   type="button"
                   onClick={handleSignIn}
-                  className="font-mono text-sm text-accent-400 hover:text-accent-300 underline"
+                  {...styles.slot3}
                 >
                   Sign in instead
                 </button>

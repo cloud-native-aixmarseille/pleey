@@ -1,4 +1,10 @@
 import { useEffect, useState } from 'react';
+import { createStyles } from "../../../shared/ui/styles";
+
+const styles = createStyles("Confetti", {
+  slot1: "fixed inset-0 pointer-events-none z-50 overflow-hidden",
+});
+
 
 interface ConfettiPiece {
   id: number;
@@ -126,7 +132,7 @@ export default function Confetti() {
 
   return (
     <div 
-      className="fixed inset-0 pointer-events-none z-50 overflow-hidden"
+      {...styles.slot1}
       aria-hidden="true"
     >
       {pieces.map(renderShape)}

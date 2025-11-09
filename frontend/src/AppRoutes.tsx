@@ -15,6 +15,12 @@ import { ProfileRoute } from "./features/profile/routes/ProfileRoute";
 import { AccountBar } from "./application/app/components/AccountBar";
 import { AppLifecycleManager } from "./application/app/components/AppLifecycleManager";
 import { useAuthManagerContext } from "./application/app/context/AuthManagerContext";
+import { createStyles } from "./shared/ui/styles";
+
+const styles = createStyles("AppRoutes", {
+  shellAuthenticated: "pt-36 pb-12",
+  shellAnonymous: "pt-12 pb-12",
+});
 
 /**
  * Application routes and global UI shell. Keeps routing declarations declarative
@@ -22,12 +28,14 @@ import { useAuthManagerContext } from "./application/app/context/AuthManagerCont
  */
 export function AppRoutes() {
   const { isAuthenticated } = useAuthManagerContext();
-  const contentSpacing = isAuthenticated ? "pt-36 pb-12" : "pt-12 pb-12";
+  const shellStyles = isAuthenticated
+    ? styles.shellAuthenticated
+    : styles.shellAnonymous;
 
   return (
     <>
       <AppLifecycleManager />
-      <div className={contentSpacing}>
+      <div {...shellStyles}>
         <AccountBar />
 
         <Routes>

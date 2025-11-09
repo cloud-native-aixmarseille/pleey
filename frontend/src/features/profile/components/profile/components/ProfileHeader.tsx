@@ -1,5 +1,17 @@
 import { Avatar, Button } from "../../../../../shared/components";
 import type { User } from "../../../../../shared/types";
+import { createStyles } from "../../../../../shared/ui/styles";
+
+const styles = createStyles("ProfileHeader", {
+  slot1: "flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6",
+  slot2: "flex items-center gap-4",
+  slot3: "text-sm text-light-600 uppercase tracking-wide",
+  slot4: "text-3xl font-black text-gradient-neon",
+  slot5: "text-light-700",
+  slot6: "flex flex-col sm:flex-row gap-3 w-full sm:w-auto",
+  slot7: "w-full sm:w-auto",
+});
+
 
 interface ProfileHeaderProps {
   user: User;
@@ -23,26 +35,26 @@ export function ProfileHeader({
   isRegenerating,
 }: ProfileHeaderProps) {
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-      <div className="flex items-center gap-4">
+    <div {...styles.slot1}>
+      <div {...styles.slot2}>
         <Avatar name={user.username} src={user.avatarUrl} size="lg" />
         <div>
-          <p className="text-sm text-light-600 uppercase tracking-wide">
+          <p {...styles.slot3}>
             {viewingAsLabel}
           </p>
-          <h1 className="text-3xl font-black text-gradient-neon">
+          <h1 {...styles.slot4}>
             {user.username}
           </h1>
-          <p className="text-light-700">{subtitle}</p>
+          <p {...styles.slot5}>{subtitle}</p>
         </div>
       </div>
-      <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+      <div {...styles.slot6}>
         <Button
           type="button"
           variant="outline"
           onClick={onRegenerate}
           disabled={disableRegenerate}
-          className="w-full sm:w-auto"
+          {...styles.slot7}
         >
           {isRegenerating ? loadingLabel : regenerateLabel}
         </Button>

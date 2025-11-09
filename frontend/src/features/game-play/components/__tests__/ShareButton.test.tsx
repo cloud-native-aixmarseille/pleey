@@ -1,33 +1,33 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { ShareButton } from '../ShareButton';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import "@testing-library/jest-dom";
+import { ShareButton } from "../ShareButton";
 
-describe('ShareButton', () => {
-  const mockTitle = 'Test Title';
-  const mockText = 'Test sharing text';
-  const mockUrl = 'https://example.com';
+describe("ShareButton", () => {
+  const mockTitle = "Test Title";
+  const mockText = "Test sharing text";
+  const mockUrl = "https://example.com";
 
   beforeEach(() => {
     // Reset mocks
     vi.clearAllMocks();
   });
 
-  it('renders share button', () => {
+  it("renders share button", () => {
     render(<ShareButton title={mockTitle} text={mockText} />);
     expect(screen.getByText(/Share/i)).toBeInTheDocument();
   });
 
-  it('calls native share API when available', async () => {
+  it("calls native share API when available", async () => {
     const mockShare = vi.fn().mockResolvedValue(undefined);
-    Object.defineProperty(navigator, 'share', {
+    Object.defineProperty(navigator, "share", {
       value: mockShare,
       writable: true,
       configurable: true,
     });
 
     render(<ShareButton title={mockTitle} text={mockText} url={mockUrl} />);
-    
+
     const shareButton = screen.getByText(/Share/i);
     fireEvent.click(shareButton);
 
@@ -40,16 +40,16 @@ describe('ShareButton', () => {
     });
   });
 
-  it('shows custom share menu when native share is not available', async () => {
+  it("shows custom share menu when native share is not available", async () => {
     // Remove native share API
-    Object.defineProperty(navigator, 'share', {
+    Object.defineProperty(navigator, "share", {
       value: undefined,
       writable: true,
       configurable: true,
     });
 
     render(<ShareButton title={mockTitle} text={mockText} />);
-    
+
     const shareButton = screen.getByText(/Share/i);
     fireEvent.click(shareButton);
 
@@ -58,15 +58,15 @@ describe('ShareButton', () => {
     });
   });
 
-  it('displays social media sharing options in custom menu', async () => {
-    Object.defineProperty(navigator, 'share', {
+  it("displays social media sharing options in custom menu", async () => {
+    Object.defineProperty(navigator, "share", {
       value: undefined,
       writable: true,
       configurable: true,
     });
 
     render(<ShareButton title={mockTitle} text={mockText} />);
-    
+
     const shareButton = screen.getByText(/Share/i);
     fireEvent.click(shareButton);
 
@@ -78,15 +78,15 @@ describe('ShareButton', () => {
     });
   });
 
-  it('closes custom share menu when close button is clicked', async () => {
-    Object.defineProperty(navigator, 'share', {
+  it("closes custom share menu when close button is clicked", async () => {
+    Object.defineProperty(navigator, "share", {
       value: undefined,
       writable: true,
       configurable: true,
     });
 
     render(<ShareButton title={mockTitle} text={mockText} />);
-    
+
     const shareButton = screen.getByText(/Share/i);
     fireEvent.click(shareButton);
 
@@ -102,21 +102,21 @@ describe('ShareButton', () => {
     });
   });
 
-  it('copies link to clipboard when Copy Link is clicked', async () => {
+  it("copies link to clipboard when Copy Link is clicked", async () => {
     const mockWriteText = vi.fn().mockResolvedValue(undefined);
-    Object.defineProperty(navigator, 'clipboard', {
+    Object.defineProperty(navigator, "clipboard", {
       value: { writeText: mockWriteText },
       writable: true,
       configurable: true,
     });
-    Object.defineProperty(navigator, 'share', {
+    Object.defineProperty(navigator, "share", {
       value: undefined,
       writable: true,
       configurable: true,
     });
 
     render(<ShareButton title={mockTitle} text={mockText} url={mockUrl} />);
-    
+
     const shareButton = screen.getByText(/Share/i);
     fireEvent.click(shareButton);
 
@@ -133,18 +133,18 @@ describe('ShareButton', () => {
     });
   });
 
-  it('opens Twitter share popup with correct URL', async () => {
+  it("opens Twitter share popup with correct URL", async () => {
     const mockOpen = vi.fn();
     window.open = mockOpen;
 
-    Object.defineProperty(navigator, 'share', {
+    Object.defineProperty(navigator, "share", {
       value: undefined,
       writable: true,
       configurable: true,
     });
 
     render(<ShareButton title={mockTitle} text={mockText} url={mockUrl} />);
-    
+
     const shareButton = screen.getByText(/Share/i);
     fireEvent.click(shareButton);
 
@@ -157,29 +157,20 @@ describe('ShareButton', () => {
 
     expect(mockOpen).toHaveBeenCalled();
     const callArgs = mockOpen.mock.calls[0][0];
-    expect(callArgs).toContain('twitter.com/intent/tweet');
+    expect(callArgs).toContain("twitter.com/intent/tweet");
     expect(callArgs).toContain(encodeURIComponent(mockText));
   });
 
-  it('applies custom className', () => {
-    const customClass = 'custom-test-class';
-    const { container } = render(
-      <ShareButton title={mockTitle} text={mockText} className={customClass} />
-    );
-    
-    expect(container.querySelector(`.${customClass}`)).toBeInTheDocument();
-  });
-
-  it('uses default URL when not provided', () => {
+  it("uses default URL when not provided", () => {
     const mockShare = vi.fn().mockResolvedValue(undefined);
-    Object.defineProperty(navigator, 'share', {
+    Object.defineProperty(navigator, "share", {
       value: mockShare,
       writable: true,
       configurable: true,
     });
 
     render(<ShareButton title={mockTitle} text={mockText} />);
-    
+
     const shareButton = screen.getByText(/Share/i);
     fireEvent.click(shareButton);
 

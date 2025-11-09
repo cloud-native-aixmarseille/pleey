@@ -123,7 +123,7 @@ export function useAuthManager() {
   const logout = useCallback(async (): Promise<void> => {
     try {
       await authService.logout();
-    } catch (error) {
+    } catch {
       // Ignore logout failures to avoid blocking client-side cleanup
     } finally {
       clearSession();
@@ -148,7 +148,7 @@ export function useAuthManager() {
       const parsedUser: User = JSON.parse(storedUser);
       persistSession({ accessToken: storedToken, refreshToken: storedRefreshToken, user: parsedUser });
       return parsedUser;
-    } catch (error) {
+    } catch {
       clearSession();
       return null;
     }

@@ -1,4 +1,16 @@
 import { BackToButton } from "../../../../../shared/components";
+import { createStyles } from "../../../../../shared/ui/styles";
+
+const styles = createStyles("JoinGameHeader", {
+  slot1: "text-center mb-10",
+  slot2: "mb-6 flex justify-center",
+  slot3: "relative inline-block mb-6",
+  slot4: "text-7xl animate-bounce-slow",
+  slot5: "absolute -top-2 -right-2 w-6 h-6 bg-accent-500 rounded-full animate-pulse",
+  slot6: "font-display text-4xl sm:text-5xl uppercase text-neon text-accent-500 mb-3 tracking-wider",
+  slot7: "text-light-300 font-mono text-sm sm:text-base animate-pulse-slow",
+});
+
 
 interface JoinGameHeaderProps {
   onNavigateHome: () => void;
@@ -15,8 +27,8 @@ export function JoinGameHeader({
   subtitle = DEFAULT_SUBTITLE,
 }: JoinGameHeaderProps) {
   return (
-    <header className="text-center mb-10">
-      <div className="mb-6 flex justify-center">
+    <header {...styles.slot1}>
+      <div {...styles.slot2}>
         <BackToButton
           label="BACK TO MENU"
           onClick={onNavigateHome}
@@ -26,15 +38,15 @@ export function JoinGameHeader({
         />
       </div>
 
-      <div className="relative inline-block mb-6">
-        <div className="text-7xl animate-bounce-slow">🎮</div>
-        <div className="absolute -top-2 -right-2 w-6 h-6 bg-accent-500 rounded-full animate-pulse" />
+      <div {...styles.slot3}>
+        <div {...styles.slot4}>🎮</div>
+        <div {...styles.slot5} />
       </div>
 
-      <h1 className="font-display text-4xl sm:text-5xl uppercase text-neon text-accent-500 mb-3 tracking-wider">
+      <h1 {...styles.slot6}>
         {title}
       </h1>
-      <p className="text-light-300 font-mono text-sm sm:text-base animate-pulse-slow">
+      <p {...styles.slot7}>
         {subtitle}
       </p>
     </header>

@@ -1,8 +1,13 @@
 import { memo, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Card } from "../../../../shared/components";
-import { resolveAvatarUrl } from "../../../../shared/utils/resolveAvatarUrl";
+import {
+  ArcadeBadge,
+  ArcadeCardGrid,
+  ArcadeGlassStack,
+  Card,
+} from "../../../../shared/components";
 import { Player } from "../../../../shared/types";
+import { resolveAvatarUrl } from "../../../../shared/utils/resolveAvatarUrl";
 
 interface PlayersSectionProps {
   readonly players: readonly Player[];
@@ -25,24 +30,33 @@ function PlayersSectionComponent({
   }, [playerCount]);
 
   return (
-    <section aria-labelledby={sectionTitleId}>
-      <div className="flex items-center justify-center gap-3 mb-6">
-        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-primary-500 to-transparent" />
-        <h2
-          id={sectionTitleId}
-          className="font-display text-base sm:text-xl text-primary-300 uppercase tracking-wider flex items-center gap-2"
-        >
-          <span>{t("game.connectedPlayers")}</span>
-          <span className="glass-effect rounded-full px-3 py-1 text-sm sm:text-lg border-2 border-accent-500/30 text-accent-400">
-            {playerCount}
-          </span>
-        </h2>
-        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-primary-500 to-transparent" />
+    <ArcadeGlassStack
+      title={t("game.connectedPlayers")}
+      tone="primary"
+      align="center"
+      width="lg"
+      spacing="lg"
+      titleId={sectionTitleId}
+    >
+      <div className="flex items-center justify-center gap-3 sm:gap-4">
+        <span
+          aria-hidden="true"
+          className="hidden h-px flex-1 bg-gradient-to-r from-transparent via-primary-500/50 to-transparent sm:block"
+        />
+        <ArcadeBadge tone="accent" size="sm" indicator pulse>
+          {playerCount}
+        </ArcadeBadge>
+        <span
+          aria-hidden="true"
+          className="hidden h-px flex-1 bg-gradient-to-r from-transparent via-primary-500/50 to-transparent sm:block"
+        />
       </div>
 
       {playerCount > 0 ? (
-        <ul
-          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 list-none"
+        <ArcadeCardGrid
+          layout="quad"
+          bottomSpacing="none"
+          role="list"
           aria-label={t("game.connectedPlayers")}
         >
           {players.map((player, index) => {
@@ -53,73 +67,97 @@ function PlayersSectionComponent({
                 : `guest-${player.username}-${index}`;
 
             return (
-              <li key={playerKey} className="list-none">
+              <div
+                key={playerKey}
+                className="group animate-slide-up"
+                role="listitem"
+                style={{ animationDelay: `${index * 0.05}s` }}
+              >
                 <Card
-                  hover
-                  className="p-4 sm:p-6 text-center animate-scale-in border-2 border-accent-500/20 hover:border-accent-500"
-                  style={{ animationDelay: `${index * 0.05}s` }}
+                  surface="glass"
+                  tone="primary"
+                  padding="md"
+                  elevation="glow"
+                  alignment="center"
                 >
-                  <div className="text-4xl sm:text-5xl mb-3 animate-bounce-slow flex justify-center">
-                    {avatarUrl ? (
-                      <img
-                        src={avatarUrl}
-                        alt={`Avatar for ${player.username}`}
-                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-primary-500/30"
-                        referrerPolicy="no-referrer"
-                      />
-                    ) : (
-                      <span aria-hidden="true">👤</span>
-                    )}
-                  </div>
-                  <div
-                    className="font-mono text-xs sm:text-sm text-accent-400 truncate font-bold uppercase"
-                    title={player.username}
-                  >
-                    {player.username}
-                  </div>
-                  <div className="mt-2 inline-flex items-center gap-1 px-2 py-1 bg-success-500/20 border border-success-500 text-success-400 rounded-lg text-xxs sm:text-xs font-mono uppercase">
-                    <span
-                      className="w-1.5 h-1.5 bg-success-500 rounded-full animate-pulse"
+                  <div className="flex flex-col items-center gap-4 text-center">
+                    <div
                       aria-hidden="true"
-                    />
-                    <span>{t("game.ready")}</span>
+                      className="flex justify-center text-4xl sm:text-5xl"
+                    >
+                      {avatarUrl ? (
+                        <img
+                          src={avatarUrl}
+                          alt={`Avatar for ${player.username}`}
+                          className="h-16 w-16 rounded-full border-2 border-primary-500/40 object-cover sm:h-20 sm:w-20"
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : (
+                        <span>👤</span>
+                      )}
+                    </div>
+                    <div
+                      className="w-full truncate font-mono text-xs uppercase tracking-[0.24em] text-accent-200 sm:text-sm"
+                      title={player.username}
+                    >
+                      {player.username}
+                    </div>
+                    <ArcadeBadge tone="success" size="xs" indicator pulse>
+                      {t("game.ready")}
+                    </ArcadeBadge>
                   </div>
                 </Card>
-              </li>
+              </div>
             );
           })}
 
           {fillerSlots.map((_, index) => (
-            <li key={`empty-${index}`} className="list-none">
+            <div
+              key={`empty-${index}`}
+              className="animate-slide-up opacity-40"
+              role="listitem"
+            >
               <Card
-                className="p-4 sm:p-6 text-center opacity-20 border-2 border-dashed border-primary-500/30"
+                surface="glass"
+                tone="neutral"
+                padding="md"
+                elevation="glow"
+                alignment="center"
                 aria-hidden="true"
               >
-                <div className="text-4xl sm:text-5xl mb-3">👤</div>
-                <div className="font-mono text-xxs sm:text-xs text-light-600 uppercase">
-                  {t("game.waiting")}
+                <div className="flex flex-col items-center gap-4 text-center">
+                  <span aria-hidden="true" className="text-4xl sm:text-5xl">
+                    👤
+                  </span>
+                  <span className="font-mono text-xs uppercase tracking-[0.24em] text-light-500 sm:text-sm">
+                    {t("game.waiting")}
+                  </span>
                 </div>
               </Card>
-            </li>
+            </div>
           ))}
-        </ul>
+        </ArcadeCardGrid>
       ) : (
-        <div className="text-center py-12" role="status" aria-live="polite">
-          <div
-            className="text-6xl sm:text-8xl mb-4 opacity-30 animate-pulse-slow"
+        <div
+          className="flex flex-col items-center gap-4 py-12 text-center"
+          role="status"
+          aria-live="polite"
+        >
+          <span
             aria-hidden="true"
+            className="text-6xl opacity-30 animate-pulse-slow sm:text-7xl"
           >
             👥
-          </div>
-          <p className="font-display text-lg sm:text-xl text-primary-400 uppercase mb-2">
+          </span>
+          <p className="font-display text-lg uppercase tracking-[0.3em] text-primary-200 sm:text-xl">
             {t("game.noPlayersYetTitle")}
           </p>
-          <p className="font-mono text-xs sm:text-sm text-light-500">
+          <p className="text-sm text-light-500 sm:text-base">
             {t("game.sharePin")}
           </p>
         </div>
       )}
-    </section>
+    </ArcadeGlassStack>
   );
 }
 

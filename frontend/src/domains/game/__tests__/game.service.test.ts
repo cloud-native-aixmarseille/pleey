@@ -9,33 +9,29 @@ vi.mock('../../../shared/socket/socket.client', () => ({
   }
 }));
 
-globalThis.fetch = vi.fn();
-const fetchMock = globalThis.fetch as unknown as ReturnType<typeof vi.fn>;
+const fetchSpy = vi.fn();
 
 describe('GameService', () => {
   const mockToken = 'mock-jwt-token';
-  const fetchMock = vi.fn();
-
-  // Ensure fetch exists on the global scope for the tests
-  globalThis.fetch = fetchMock as unknown as typeof fetch;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    fetchMock.mockReset();
+    fetchSpy.mockReset();
+    globalThis.fetch = fetchSpy as unknown as typeof fetch;
   });
 
   describe('createSession', () => {
     it('should create a game session', async () => {
       const mockSession = { pin: '123456' };
 
-      fetchMock.mockResolvedValueOnce({
+      fetchSpy.mockResolvedValueOnce({
         ok: true,
         json: async () => mockSession
       } as Response);
 
       const result = await gameService.createSession(mockToken, 1);
 
-      expect(fetchMock).toHaveBeenCalledWith(
+      expect(fetchSpy).toHaveBeenCalledWith(
         expect.stringContaining('/api/sessions/create'),
         expect.objectContaining({
           method: 'POST',
@@ -51,7 +47,7 @@ describe('GameService', () => {
     });
 
     it('should throw translated error when API fails', async () => {
-      fetchMock.mockResolvedValueOnce({
+      fetchSpy.mockResolvedValueOnce({
         ok: false,
         json: async () => ({ message: 'unit.test.error' })
       });
@@ -61,7 +57,7 @@ describe('GameService', () => {
   });
 
   it('should throw when session creation fails', async () => {
-    fetchMock.mockResolvedValueOnce({
+    fetchSpy.mockResolvedValueOnce({
       ok: false,
       json: async () => ({ message: 'game.errors.sessionCreateFailed' })
     } as Response);

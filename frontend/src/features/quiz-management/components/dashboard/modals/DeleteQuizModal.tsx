@@ -5,6 +5,12 @@ import {
   SecondaryButton,
 } from "../../../../../shared/components";
 import type { Quiz } from "../../../../../shared/types";
+import { createStyles } from "../../../../../shared/ui/styles";
+
+const styles = createStyles("DeleteQuizModal", {
+  slot1: "text-sm text-light-200",
+});
+
 
 interface DeleteQuizModalProps {
   quiz: Quiz | null;
@@ -49,7 +55,7 @@ export function DeleteQuizModal({
         </>
       }
     >
-      <p className="text-sm text-light-200">
+      <p {...styles.slot1}>
         {t("admin.deleteQuizModalWarning")}
       </p>
     </Modal>

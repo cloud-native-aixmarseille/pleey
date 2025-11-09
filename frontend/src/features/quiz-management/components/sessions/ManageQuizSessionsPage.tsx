@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
+  ArcadeBadge,
   BackToButton,
   Button,
   Card,
@@ -14,6 +15,47 @@ import {
   formatSessionDate,
   getSessionStatusTone,
 } from "../shared/sessionUtils";
+import { createStyles } from "../../../../shared/ui/styles";
+
+const styles = createStyles("ManageQuizSessionsPage", {
+  slot1: "min-h-screen bg-game-gradient p-4 sm:p-8",
+  slot2: "p-6 sm:p-8 mb-6 animate-slide-down",
+  slot3: "mb-4",
+  slot4:
+    "flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4",
+  slot5: "flex-1",
+  slot6: "flex items-center gap-2 mb-2",
+  slot7: "text-4xl",
+  slot8: "text-3xl sm:text-4xl font-black text-gradient-neon",
+  slot9: "text-light-700 mb-4",
+  slot10: "flex flex-wrap items-center gap-3 text-sm text-light-400",
+  slot11: "glass-effect px-3 py-1 rounded-lg text-dark-700 font-semibold",
+  slot12: "rounded-lg bg-dark-500/60 px-3 py-1",
+  slot13: "flex flex-col sm:flex-row gap-3",
+  slot15:
+    "p-10 text-center border-dashed border-primary-500/40 bg-dark-500/40 animate-fade-in",
+  slot16: "text-5xl mb-3",
+  slot17: "text-2xl font-bold text-light-200 mb-2",
+  slot18: "text-light-500 max-w-xl mx-auto",
+  slot19: "space-y-4 animate-slide-up",
+  slot20: "flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between",
+  slot21: "text-sm text-light-500",
+  slot22: "flex items-center gap-2",
+  slot23: "text-sm font-semibold text-light-400",
+  slot24: "flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between",
+  slot25: "flex flex-wrap items-center gap-3 text-xs text-light-400",
+  slot27: "font-mono text-sm text-accent-200",
+  slot28: "flex flex-col items-start gap-2 text-xs text-light-500 sm:items-end",
+  slot29: "flex flex-wrap items-center gap-2 text-xs text-light-300",
+  slot30: "space-y-5",
+  slot31:
+    "rounded-[2rem] border border-primary-500/30 bg-dark-600/50 p-6 shadow-inner",
+  slot32: "grid gap-6 sm:grid-cols-2",
+  slot33: "text-xs font-semibold uppercase tracking-[0.25em] text-light-500",
+  slot34: "mt-2 text-sm text-light-100",
+  sessionCardLive: "border-primary-500/40 bg-dark-500/60",
+  sessionCardDefault: "border-dark-500/40 bg-dark-600/40",
+});
 
 interface ManageQuizSessionsPageProps {
   quiz: Quiz;
@@ -23,8 +65,6 @@ interface ManageQuizSessionsPageProps {
 }
 
 const SESSION_PAGE_SIZE = 10;
-const DEFAULT_STATUS_TONE =
-  "bg-primary-500/20 text-accent-200 border border-primary-500/30";
 
 export function ManageQuizSessionsPage({
   quiz,
@@ -126,10 +166,10 @@ export function ManageQuizSessionsPage({
     : null;
 
   return (
-    <div className="min-h-screen bg-game-gradient p-4 sm:p-8">
+    <div {...styles.slot1}>
       <Container size="lg">
-        <Card className="p-6 sm:p-8 mb-6 animate-slide-down">
-          <div className="mb-4">
+        <Card {...styles.slot2}>
+          <div {...styles.slot3}>
             <BackToButton
               label={t("admin.viewQuestions")}
               onClick={() => navigate(`/admin/quizzes/${quiz.id}`)}
@@ -137,54 +177,26 @@ export function ManageQuizSessionsPage({
             />
           </div>
 
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-4xl">🕹️</span>
-                <h2 className="text-3xl sm:text-4xl font-black text-gradient-neon">
-                  {t("admin.sessionListTitle")}
-                </h2>
+          <div {...styles.slot4}>
+            <div {...styles.slot5}>
+              <div {...styles.slot6}>
+                <span {...styles.slot7}>🕹️</span>
+                <h2 {...styles.slot8}>{t("admin.sessionListTitle")}</h2>
               </div>
-              <p className="text-light-700 mb-4">
-                {t("admin.sessionListSubtitle")}
-              </p>
-              <div className="flex flex-wrap items-center gap-3 text-sm text-light-400">
-                <span className="glass-effect px-3 py-1 rounded-lg text-dark-700 font-semibold">
-                  {quiz.title}
-                </span>
+              <p {...styles.slot9}>{t("admin.sessionListSubtitle")}</p>
+              <div {...styles.slot10}>
+                <span {...styles.slot11}>{quiz.title}</span>
                 {quiz.description ? (
-                  <span className="rounded-lg bg-dark-500/60 px-3 py-1">
-                    {quiz.description}
-                  </span>
+                  <span {...styles.slot12}>{quiz.description}</span>
                 ) : null}
               </div>
             </div>
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div {...styles.slot13}>
               <SecondaryButton
                 size="lg"
                 onClick={handleRefresh}
                 disabled={isRefreshing}
-                icon={
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 4v6h6M20 20v-6h-6"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5.64 17.36A9 9 0 1118.36 4.64"
-                    />
-                  </svg>
-                }
+                icon={{ name: "RefreshCw" }}
               >
                 {isRefreshing ? t("common.loading") : t("admin.sessionRefresh")}
               </SecondaryButton>
@@ -200,19 +212,15 @@ export function ManageQuizSessionsPage({
         </Card>
 
         {sortedSessions.length === 0 ? (
-          <Card className="p-10 text-center border-dashed border-primary-500/40 bg-dark-500/40 animate-fade-in">
-            <div className="text-5xl mb-3">🛰️</div>
-            <h3 className="text-2xl font-bold text-light-200 mb-2">
-              {t("admin.sessionEmpty")}
-            </h3>
-            <p className="text-light-500 max-w-xl mx-auto">
-              {t("admin.sessionEmptyDescription")}
-            </p>
+          <Card {...styles.slot15}>
+            <div {...styles.slot16}>🛰️</div>
+            <h3 {...styles.slot17}>{t("admin.sessionEmpty")}</h3>
+            <p {...styles.slot18}>{t("admin.sessionEmptyDescription")}</p>
           </Card>
         ) : (
-          <div className="space-y-4 animate-slide-up">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm text-light-500">
+          <div {...styles.slot19}>
+            <div {...styles.slot20}>
+              <p {...styles.slot21}>
                 {t("admin.sessionPaginationSummary", {
                   start: (page - 1) * SESSION_PAGE_SIZE + 1,
                   end: Math.min(
@@ -222,7 +230,7 @@ export function ManageQuizSessionsPage({
                   total: sortedSessions.length,
                 })}
               </p>
-              <div className="flex items-center gap-2">
+              <div {...styles.slot22}>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -232,7 +240,7 @@ export function ManageQuizSessionsPage({
                 >
                   {t("admin.sessionPaginationPrevious")}
                 </Button>
-                <span className="text-sm font-semibold text-light-400">
+                <span {...styles.slot23}>
                   {t("admin.sessionPaginationPage", { page, totalPages })}
                 </span>
                 <Button
@@ -259,29 +267,19 @@ export function ManageQuizSessionsPage({
               }-${session.status}-${createdAt ?? 0}`;
               const sessionQuestions =
                 session.currentQuestion ?? session.current_question ?? null;
-              const tone = getSessionStatusTone(
-                session.status,
-                DEFAULT_STATUS_TONE
-              );
+              const tone = getSessionStatusTone(session.status);
+              const cardTone = isLive
+                ? styles.sessionCardLive
+                : styles.sessionCardDefault;
 
               return (
-                <Card
-                  key={sessionKey}
-                  className={
-                    isLive
-                      ? "border-primary-500/40 bg-dark-500/60"
-                      : "border-dark-500/40 bg-dark-600/40"
-                  }
-                >
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex flex-wrap items-center gap-3 text-xs text-light-400">
-                      <span
-                        className={`inline-flex items-center gap-2 rounded-full px-3 py-1 font-semibold ${tone}`}
-                      >
-                        <span className="w-2 h-2 rounded-full bg-current animate-pulse" />
+                <Card key={sessionKey} {...cardTone}>
+                  <div {...styles.slot24}>
+                    <div {...styles.slot25}>
+                      <ArcadeBadge tone={tone} indicator pulse>
                         {resolveSessionStatusLabel(session.status)}
-                      </span>
-                      <span className="font-mono text-sm text-accent-200">
+                      </ArcadeBadge>
+                      <span {...styles.slot27}>
                         {t("admin.sessionPinLabel", { pin: session.pin })}
                       </span>
                       <span>
@@ -292,13 +290,13 @@ export function ManageQuizSessionsPage({
                         })}
                       </span>
                     </div>
-                    <div className="flex flex-col items-start gap-2 text-xs text-light-500 sm:items-end">
+                    <div {...styles.slot28}>
                       {sessionQuestions
                         ? t("admin.sessionCurrentQuestion", {
                             index: sessionQuestions,
                           })
                         : null}
-                      <div className="flex flex-wrap items-center gap-2 text-xs text-light-300">
+                      <div {...styles.slot29}>
                         {isLive ? (
                           <Button
                             variant="accent"
@@ -340,22 +338,22 @@ export function ManageQuizSessionsPage({
         }
       >
         {detailSession ? (
-          <div className="space-y-5">
-            <div className="rounded-[2rem] border border-primary-500/30 bg-dark-600/50 p-6 shadow-inner">
-              <dl className="grid gap-6 sm:grid-cols-2">
+          <div {...styles.slot30}>
+            <div {...styles.slot31}>
+              <dl {...styles.slot32}>
                 <div>
-                  <dt className="text-xs font-semibold uppercase tracking-[0.25em] text-light-500">
+                  <dt {...styles.slot33}>
                     {t("admin.sessionDetailsFields.status")}
                   </dt>
-                  <dd className="mt-2 text-sm text-light-100">
+                  <dd {...styles.slot34}>
                     {resolveSessionStatusLabel(detailSession.status)}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs font-semibold uppercase tracking-[0.25em] text-light-500">
+                  <dt {...styles.slot33}>
                     {t("admin.sessionDetailsFields.startedAt")}
                   </dt>
-                  <dd className="mt-2 text-sm text-light-100">
+                  <dd {...styles.slot34}>
                     {formatSessionDate(
                       detailSession.createdAt ??
                         detailSession.created_at ??
@@ -366,20 +364,18 @@ export function ManageQuizSessionsPage({
                 </div>
                 {detailSessionId ? (
                   <div>
-                    <dt className="text-xs font-semibold uppercase tracking-[0.25em] text-light-500">
+                    <dt {...styles.slot33}>
                       {t("admin.sessionDetailsFields.sessionId")}
                     </dt>
-                    <dd className="mt-2 text-sm text-light-100">
-                      #{detailSessionId}
-                    </dd>
+                    <dd {...styles.slot34}>#{detailSessionId}</dd>
                   </div>
                 ) : null}
                 {detailQuestionIndex ? (
                   <div>
-                    <dt className="text-xs font-semibold uppercase tracking-[0.25em] text-light-500">
+                    <dt {...styles.slot33}>
                       {t("admin.sessionDetailsFields.questionIndex")}
                     </dt>
-                    <dd className="mt-2 text-sm text-light-100">
+                    <dd {...styles.slot34}>
                       {t("admin.sessionCurrentQuestion", {
                         index: detailQuestionIndex,
                       })}

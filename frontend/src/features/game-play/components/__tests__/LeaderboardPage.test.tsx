@@ -142,9 +142,7 @@ describe("LeaderboardPage", () => {
   });
 
   it("respects animation timing sequence", async () => {
-    const { container } = render(
-      <LeaderboardPage leaderboard={mockLeaderboard} />
-    );
+    render(<LeaderboardPage leaderboard={mockLeaderboard} />);
 
     // Title should appear first (after 500ms)
     await waitFor(

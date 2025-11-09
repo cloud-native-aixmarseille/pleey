@@ -1,5 +1,15 @@
 import { Button } from "../../../../../shared/components";
 import { JOIN_GAME_PIN_LENGTH } from "../constants";
+import { createStyles } from "../../../../../shared/ui/styles";
+
+const styles = createStyles("JoinGamePrimaryAction", {
+  slot1: "retro-shadow font-display text-base sm:text-lg hover:scale-105 transform transition-all",
+  slot2: "flex items-center justify-center gap-3",
+  slot3: "animate-pulse",
+  slot4: "mt-6 text-center animate-fade-in",
+  slot5: "font-mono text-success-500 text-sm animate-pulse",
+});
+
 
 interface JoinGamePrimaryActionProps {
   gamePin: string;
@@ -27,18 +37,18 @@ export function JoinGamePrimaryAction({
         fullWidth
         onClick={onSubmit}
         disabled={!isComplete}
-        className="retro-shadow font-display text-base sm:text-lg hover:scale-105 transform transition-all"
+        {...styles.slot1}
       >
-        <span className="flex items-center justify-center gap-3">
-          <span className="animate-pulse">►</span>
+        <span {...styles.slot2}>
+          <span {...styles.slot3}>►</span>
           <span>{buttonLabel}</span>
-          <span className="animate-pulse">◄</span>
+          <span {...styles.slot3}>◄</span>
         </span>
       </Button>
 
       {isComplete && completeMessage && (
-        <div className="mt-6 text-center animate-fade-in">
-          <p className="font-mono text-success-500 text-sm animate-pulse">
+        <div {...styles.slot4}>
+          <p {...styles.slot5}>
             {completeMessage}
           </p>
         </div>

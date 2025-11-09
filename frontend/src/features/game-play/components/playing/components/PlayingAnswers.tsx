@@ -32,22 +32,18 @@ function getMultipleChoiceOptions(question: Question) {
     {
       letter: "A",
       text: question.option_a ?? "",
-      className: "answer-option-a",
     },
     {
       letter: "B",
       text: question.option_b ?? "",
-      className: "answer-option-b",
     },
     {
       letter: "C",
       text: question.option_c ?? "",
-      className: "answer-option-c",
     },
     {
       letter: "D",
       text: question.option_d ?? "",
-      className: "answer-option-d",
     },
   ];
 }

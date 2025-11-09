@@ -13,6 +13,14 @@ import {
   useJoinLink,
   usePlayerCountMessage,
 } from "./lobby";
+import { createStyles } from "../../../shared/ui/styles";
+
+const styles = createStyles("LobbyPage", {
+  slot1: "min-h-screen bg-game-gradient crt-screen p-4 sm:p-6 relative overflow-hidden",
+  slot2: "relative z-10",
+  slot3: "sr-only",
+});
+
 
 interface LobbyPageProps {
   gamePin: string;
@@ -149,24 +157,24 @@ export default function LobbyPage({
   });
 
   return (
-    <div className="min-h-screen bg-game-gradient crt-screen p-4 sm:p-6 relative overflow-hidden">
+    <div {...styles.slot1}>
       <LobbyBackground />
 
       <Container size="lg">
         <main
           role="main"
           aria-labelledby={lobbyTitleId}
-          className="relative z-10"
+          {...styles.slot2}
         >
           <div
-            className="sr-only"
+            {...styles.slot3}
             role="status"
             aria-live="assertive"
             id={copyFeedbackId}
           >
             {copyStatusMessage}
           </div>
-          <div className="sr-only" role="status" aria-live="polite">
+          <div {...styles.slot3} role="status" aria-live="polite">
             {playerCountMessage}
           </div>
 
