@@ -4,6 +4,7 @@ import {
   QuestionRepositoryProvider,
   type QuestionRepository,
 } from '../../../domain/quiz/repositories/question.repository.interface';
+import { VALID_MULTIPLE_CHOICE_OPTIONS } from '../../../domain/quiz/constants/question.constants';
 import { QuizErrorCode } from '../enums/quiz-error-code.enum';
 import { UpdateQuestionDto } from '../dto/update-question.dto';
 
@@ -43,8 +44,7 @@ export class UpdateQuestionUseCase {
     // Validate correct answer based on question type
     if (finalType === 'multiple') {
       // For multiple choice, correctAnswer must be A, B, C, or D
-      const validOptions = ['A', 'B', 'C', 'D'];
-      if (!validOptions.includes(finalCorrectAnswer)) {
+      if (!VALID_MULTIPLE_CHOICE_OPTIONS.includes(finalCorrectAnswer)) {
         throw new BadRequestException(QuizErrorCode.INVALID_CORRECT_ANSWER);
       }
 
