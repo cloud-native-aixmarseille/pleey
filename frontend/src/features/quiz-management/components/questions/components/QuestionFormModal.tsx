@@ -123,6 +123,7 @@ export function QuestionFormModal({
             {...styles.slot3}
             placeholder={t("quiz.questionText")}
             required
+            autoFocus
           />
         </div>
 

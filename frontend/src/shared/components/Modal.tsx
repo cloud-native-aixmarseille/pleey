@@ -44,7 +44,12 @@ export default function Modal({
     if (node) {
       const focusable = node.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
       const firstFocusable = focusable[0];
-      (firstFocusable ?? node).focus();
+      // Only focus on initial mount when modal opens
+      if (firstFocusable) {
+        firstFocusable.focus();
+      } else {
+        node.focus();
+      }
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
