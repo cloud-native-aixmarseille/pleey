@@ -115,6 +115,11 @@ export default function Modal({
   };
 
   const handleOverlayKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    // Only handle keyboard events if the overlay itself is the target (not bubbled from children)
+    if (event.target !== overlayRef.current) {
+      return;
+    }
+
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       onClose();
