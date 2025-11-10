@@ -8,6 +8,7 @@ import {
   QuizRepositoryProvider,
   type QuizRepository,
 } from '../../../domain/quiz/repositories/quiz.repository.interface';
+import { VALID_MULTIPLE_CHOICE_OPTIONS } from '../../../domain/quiz/constants/question.constants';
 import type { CreateQuestionDto } from '../dto/create-question.dto';
 import { QuizErrorCode } from '../enums/quiz-error-code.enum';
 
@@ -34,8 +35,7 @@ export class CreateQuestionUseCase {
     // Validate correct answer based on question type
     if (dto.type === 'multiple') {
       // For multiple choice, correctAnswer must be A, B, C, or D
-      const validOptions = ['A', 'B', 'C', 'D'];
-      if (!validOptions.includes(dto.correctAnswer)) {
+      if (!VALID_MULTIPLE_CHOICE_OPTIONS.includes(dto.correctAnswer)) {
         throw new BadRequestException(QuizErrorCode.INVALID_CORRECT_ANSWER);
       }
 
