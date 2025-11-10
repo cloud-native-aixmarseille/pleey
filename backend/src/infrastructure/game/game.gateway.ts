@@ -252,7 +252,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
       // Check if player already answered this question
       if (state.currentQuestionAnswers.has(playerId)) {
-        throw new WsException('You have already answered this question');
+        throw new WsException(await this.i18n.translate('game.errors.alreadyAnswered'));
       }
 
       const result = await this.submitAnswerUseCase.execute(dto);
