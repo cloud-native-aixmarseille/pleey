@@ -13,6 +13,7 @@ export function useGameSocket() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [gameStarted, setGameStarted] = useState(false);
   const [gameEnded, setGameEnded] = useState(false);
+  const [answerSubmitted, setAnswerSubmitted] = useState(false);
 
   useEffect(() => {
     socket.on('player-joined', (data: { players: Player[] }) => {
@@ -25,6 +26,11 @@ export function useGameSocket() {
       setTotalQuestions(data.totalQuestions);
       setTimeLeft(data.question.time_limit);
       setGameStarted(true);
+      setAnswerSubmitted(false);
+    });
+
+    socket.on('answer-submitted', () => {
+      setAnswerSubmitted(true);
     });
 
     socket.on('answer-result', (data: AnswerResult) => {
@@ -38,6 +44,7 @@ export function useGameSocket() {
       setTimeLeft(data.question.time_limit);
       setShowResult(false);
       setAnswerResult(null);
+      setAnswerSubmitted(false);
     });
 
     socket.on('game-ended', (data: { leaderboard: LeaderboardEntry[] }) => {
@@ -48,6 +55,7 @@ export function useGameSocket() {
     return () => {
       socket.off('player-joined');
       socket.off('game-started');
+      socket.off('answer-submitted');
       socket.off('answer-result');
       socket.off('next-question');
       socket.off('game-ended');
@@ -66,5 +74,6 @@ export function useGameSocket() {
     leaderboard,
     gameStarted,
     gameEnded,
+    answerSubmitted,
   };
 }

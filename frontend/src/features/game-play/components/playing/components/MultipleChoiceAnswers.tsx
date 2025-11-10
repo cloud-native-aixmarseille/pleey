@@ -30,12 +30,14 @@ interface MultipleChoiceAnswersProps {
     text: string;
   }>;
   userAnswer: string | null;
+  answerSubmitted: boolean;
   onSubmit: (value: string) => void;
 }
 
 export function MultipleChoiceAnswers({
   options,
   userAnswer,
+  answerSubmitted,
   onSubmit,
 }: MultipleChoiceAnswersProps) {
   return (
@@ -45,7 +47,7 @@ export function MultipleChoiceAnswers({
           key={option.letter}
           type="button"
           onClick={() => onSubmit(option.letter)}
-          disabled={userAnswer !== null}
+          disabled={answerSubmitted}
           {...(OPTION_VARIANTS[option.letter] ?? styles.optionVariantA)}
           style={{ animationDelay: `${index * 0.1}s` }}
         >

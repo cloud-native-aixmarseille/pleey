@@ -65,10 +65,11 @@ export function useGameSessionManager({
     leaderboard,
     gameStarted,
     gameEnded,
+    answerSubmitted,
   } = useGameSocket();
 
   const isQuestionActive = useMemo(() => !!currentQuestion, [currentQuestion]);
-  const hasSubmittedAnswer = useMemo(() => !!userAnswer, [userAnswer]);
+  const hasSubmittedAnswer = useMemo(() => answerSubmitted, [answerSubmitted]);
   useTimer(timeLeft, setTimeLeft, isQuestionActive, hasSubmittedAnswer);
 
   const refreshActiveSessions = useCallback(async (): Promise<GameSession[]> => {
@@ -290,6 +291,7 @@ export function useGameSessionManager({
     setGamePin,
     activeQuizQuestionCount,
     userAnswer,
+    answerSubmitted,
     players,
     currentQuestion,
     questionNumber,

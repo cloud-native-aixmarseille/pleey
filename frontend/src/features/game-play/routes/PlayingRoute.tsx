@@ -22,6 +22,7 @@ export function PlayingRoute() {
     totalQuestions,
     timeLeft,
     userAnswer,
+    answerSubmitted,
     showResult,
     answerResult,
     handleSubmitAnswer,
@@ -70,6 +71,7 @@ export function PlayingRoute() {
       totalQuestions={totalQuestions}
       timeLeft={timeLeft}
       userAnswer={userAnswer}
+      answerSubmitted={answerSubmitted}
       showResult={showResult}
       answerResult={answerResult}
       isAdmin={isAdmin}

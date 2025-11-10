@@ -10,11 +10,13 @@ const styles = createStyles("TrueFalseAnswers", {
 
 interface TrueFalseAnswersProps {
   userAnswer: string | null;
+  answerSubmitted: boolean;
   onSubmit: (value: string) => void;
 }
 
 export function TrueFalseAnswers({
   userAnswer,
+  answerSubmitted,
   onSubmit,
 }: TrueFalseAnswersProps) {
   return (
@@ -22,7 +24,7 @@ export function TrueFalseAnswers({
       <button
         type="button"
         onClick={() => onSubmit("true")}
-        disabled={userAnswer !== null}
+        disabled={answerSubmitted}
         {...styles.slot2}
       >
         <div {...styles.slot3}>✓</div>
@@ -31,7 +33,7 @@ export function TrueFalseAnswers({
       <button
         type="button"
         onClick={() => onSubmit("false")}
-        disabled={userAnswer !== null}
+        disabled={answerSubmitted}
         {...styles.slot5}
       >
         <div {...styles.slot3}>✗</div>
