@@ -29,7 +29,6 @@ export function AdminControlPanel({ animationStage }: AdminControlPanelProps) {
   };
 
   const handleNavigateHome = () => {
-    console.log("Navigating to home...");
     // Force full page reload to clear all state
     window.location.href = "/";
   };
