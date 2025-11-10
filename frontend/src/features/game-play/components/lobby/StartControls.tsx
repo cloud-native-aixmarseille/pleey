@@ -1,24 +1,5 @@
 import { useTranslation } from "react-i18next";
 import { BackToButton, Button } from "../../../../shared/components";
-import { createStyles } from "../../../../shared/ui/styles";
-
-const styles = createStyles("StartControls", {
-  slot1: "glass-effect rounded-xl px-6 py-4 border-2 border-primary-500/30 animate-pulse-slow",
-  slot2: "font-mono text-primary-400 text-sm sm:text-base flex items-center justify-center gap-3",
-  slot3: "relative flex h-3 w-3",
-  slot4: "animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75",
-  slot5: "relative inline-flex rounded-full h-3 w-3 bg-primary-500",
-  slot6: "uppercase tracking-wider",
-  slot7: "space-y-3",
-  slot8: "retro-shadow font-display text-base sm:text-lg hover:scale-105 transform transition-all",
-  slot9: "flex items-center justify-center gap-3",
-  slot10: "text-xl sm:text-2xl",
-  slot11: "text-center mt-4",
-  slot12: "font-mono text-xs text-light-500 animate-pulse",
-  slot13: "text-center mt-2",
-  slot14: "font-mono text-xs text-danger-500 animate-pulse",
-});
-
 
 interface StartControlsProps {
   readonly isAdmin: boolean;
@@ -48,25 +29,24 @@ export default function StartControls({
   if (!isAdmin) {
     return (
       <div
-        {...styles.slot1}
+        className="flex items-center justify-center gap-3 rounded-2xl border border-primary-500/35 bg-primary-500/10 px-6 py-4 text-center shadow-[0_0_22px_rgba(101,74,255,0.15)] animate-pulse-slow"
         role="status"
         aria-live="polite"
+        data-start-controls="waiting"
       >
-        <p {...styles.slot2}>
-          <span {...styles.slot3} aria-hidden="true">
-            <span {...styles.slot4} />
-            <span {...styles.slot5} />
+        <p className="flex items-center justify-center gap-3 font-mono text-sm uppercase tracking-[0.3em] text-primary-200 sm:text-base">
+          <span className="relative flex h-3 w-3" aria-hidden="true">
+            <span className="absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75 animate-ping" />
+            <span className="relative inline-flex h-3 w-3 rounded-full bg-primary-500" />
           </span>
-          <span {...styles.slot6}>
-            {t("game.waitingForHost")}
-          </span>
+          <span>{t("game.waitingForHost")}</span>
         </p>
       </div>
     );
   }
 
   return (
-    <div {...styles.slot7}>
+    <div className="space-y-3" data-start-controls="admin">
       {onBackToAdmin && (
         <BackToButton
           label={t("quiz.backToAdmin", "BACK TO ADMIN PANEL")}
@@ -75,31 +55,29 @@ export default function StartControls({
         />
       )}
 
-      <Button
-        variant="success"
-        size="xl"
-        fullWidth
-        onClick={onStartGame}
-        disabled={cannotStartGame}
-        aria-describedby={startButtonDescription}
-        {...styles.slot8}
-      >
-        <span {...styles.slot9}>
-          <span {...styles.slot10} aria-hidden="true">
-            ▶
+      <div className="transition-transform duration-200 hover:scale-[1.02]">
+        <Button
+          variant="success"
+          size="xl"
+          fullWidth
+          effect="retro"
+          onClick={onStartGame}
+          disabled={cannotStartGame}
+          aria-describedby={startButtonDescription || undefined}
+        >
+          <span className="flex items-center justify-center gap-4 text-lg sm:text-xl">
+            <span aria-hidden="true">▶</span>
+            <span>{t("game.startGame").toUpperCase()}</span>
+            <span aria-hidden="true">◀</span>
           </span>
-          <span>{t("game.startGame").toUpperCase()}</span>
-          <span {...styles.slot10} aria-hidden="true">
-            ◀
-          </span>
-        </span>
-      </Button>
+        </Button>
+      </div>
 
       {mustWaitForPlayers && (
-        <div {...styles.slot11}>
+        <div className="mt-4 text-center">
           <p
             id={startHintId}
-            {...styles.slot12}
+            className="font-mono text-xs uppercase tracking-[0.25em] text-light-500 animate-pulse"
             role="status"
             aria-live="polite"
           >
@@ -109,10 +87,10 @@ export default function StartControls({
       )}
 
       {!hasQuestions && (
-        <div {...styles.slot13}>
+        <div className="mt-2 text-center">
           <p
             id={questionHintId}
-            {...styles.slot14}
+            className="font-mono text-xs uppercase tracking-[0.25em] text-danger-400 animate-pulse"
             role="status"
             aria-live="polite"
           >

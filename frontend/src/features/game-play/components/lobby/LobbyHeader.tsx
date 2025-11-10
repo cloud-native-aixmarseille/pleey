@@ -1,12 +1,4 @@
 import { useTranslation } from "react-i18next";
-import { createStyles } from "../../../../shared/ui/styles";
-
-const styles = createStyles("LobbyHeader", {
-  slot1: "text-center mb-8",
-  slot2: "font-display text-3xl sm:text-4xl md:text-5xl uppercase text-neon text-accent-500 mb-2 tracking-wider animate-glow",
-  slot3: "font-mono text-primary-300 text-xs sm:text-sm animate-pulse-slow",
-});
-
 
 interface LobbyHeaderProps {
   readonly titleId: string;
@@ -16,14 +8,14 @@ export default function LobbyHeader({ titleId }: LobbyHeaderProps) {
   const { t } = useTranslation();
 
   return (
-    <div {...styles.slot1}>
+    <div className="mb-8 text-center" data-lobby-header="true">
       <h1
         id={titleId}
-        {...styles.slot2}
+        className="font-display text-3xl sm:text-4xl md:text-5xl uppercase tracking-[0.35em] text-accent-200 drop-shadow-[0_0_18px_rgba(255,51,198,0.45)] animate-glow"
       >
         {t("game.gameLobby")}
       </h1>
-      <p {...styles.slot3}>
+      <p className="font-mono text-xs sm:text-sm text-primary-300 animate-pulse-slow">
         {t("game.waitingForPlayersToJoin")}
       </p>
     </div>
