@@ -489,7 +489,11 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   private async broadcastLeaderboard(pin: string, state: SessionState): Promise<void> {
     // Get in-memory scores (includes both guests and authenticated users)
-    const scores = Array.from(state.scores.values());
+    // Filter out admin from leaderboard
+    const scores = Array.from(state.scores.values()).filter((score) => {
+      const userId = this.extractUserIdFromPlayerId(score.playerId);
+      return userId !== state.adminId;
+    });
 
     // Sort by totalPoints descending
     scores.sort((a, b) => b.totalPoints - a.totalPoints);
@@ -520,7 +524,11 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     await this.gameSessionRepository.updateStatus(state.sessionId, 'ended');
 
     // Get in-memory scores for final leaderboard
-    const scores = Array.from(state.scores.values());
+    // Filter out admin from final leaderboard
+    const scores = Array.from(state.scores.values()).filter((score) => {
+      const userId = this.extractUserIdFromPlayerId(score.playerId);
+      return userId !== state.adminId;
+    });
     scores.sort((a, b) => b.totalPoints - a.totalPoints);
 
     const formatted = scores.map((entry, index) => {
@@ -545,13 +553,16 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     avatar: string;
     isGuest: boolean;
   }> {
-    return Array.from(state.players.values()).map((player) => ({
-      id: player.userId,
-      guestId: player.guestId,
-      username: player.username,
-      avatar: buildSessionPlayerAvatarUrl(state.sessionId, player.avatarSeed),
-      isGuest: player.isGuest,
-    }));
+    // Filter out admin from player list
+    return Array.from(state.players.values())
+      .filter((player) => player.userId !== state.adminId)
+      .map((player) => ({
+        id: player.userId,
+        guestId: player.guestId,
+        username: player.username,
+        avatar: buildSessionPlayerAvatarUrl(state.sessionId, player.avatarSeed),
+        isGuest: player.isGuest,
+      }));
   }
 
   private createPlayerId(userId?: number, guestId?: string): string {
