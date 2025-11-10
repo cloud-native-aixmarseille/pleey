@@ -27,10 +27,18 @@ export class UpdateQuestionUseCase {
     // Determine the final state after update
     const finalType = dto.type ?? question.type;
     const finalCorrectAnswer = dto.correctAnswer ?? question.correctAnswer;
-    const finalOptionA = dto.optionA !== undefined ? dto.optionA : question.optionA;
-    const finalOptionB = dto.optionB !== undefined ? dto.optionB : question.optionB;
-    const finalOptionC = dto.optionC !== undefined ? dto.optionC : question.optionC;
-    const finalOptionD = dto.optionD !== undefined ? dto.optionD : question.optionD;
+    // Extract final option values using a loop to reduce repetition
+    const optionKeys = ['A', 'B', 'C', 'D'] as const;
+    const finalOptions: Record<typeof optionKeys[number], string | null> = {} as any;
+    for (const key of optionKeys) {
+      const dtoKey = `option${key}` as keyof UpdateQuestionDto;
+      const questionKey = `option${key}` as keyof Question;
+      finalOptions[key] = dto[dtoKey] !== undefined ? dto[dtoKey] as string | null : question[questionKey] as string | null;
+    }
+    const finalOptionA = finalOptions['A'];
+    const finalOptionB = finalOptions['B'];
+    const finalOptionC = finalOptions['C'];
+    const finalOptionD = finalOptions['D'];
 
     // Validate correct answer based on question type
     if (finalType === 'multiple') {
