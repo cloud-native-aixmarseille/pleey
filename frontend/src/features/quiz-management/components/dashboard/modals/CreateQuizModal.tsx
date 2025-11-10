@@ -78,6 +78,7 @@ export function CreateQuizModal({
                 onChange={onTitleChange}
                 placeholder={t("admin.quizTitle")}
                 required
+                autoFocus
               />
             </div>
           </div>
