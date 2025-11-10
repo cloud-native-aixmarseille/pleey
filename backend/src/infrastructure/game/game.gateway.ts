@@ -70,6 +70,7 @@ interface PlayerAnswer {
 interface SessionState {
   sessionId: number;
   quizId: number;
+  adminId: number; // Track admin to exclude from player count
   players: Map<string, PlayerState>;
   scores: Map<string, PlayerScore>; // Track scores in memory
   questions: Question[];
@@ -287,12 +288,16 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         acknowledged: true,
       });
 
-      // Check if all players have answered
-      const totalPlayers = state.players.size;
+      // Check if all non-admin players have answered
+      // Count players excluding the admin
+      const nonAdminPlayers = Array.from(state.players.values()).filter(
+        p => p.userId !== state.adminId
+      );
+      const totalNonAdminPlayers = nonAdminPlayers.length;
       const answeredPlayers = state.currentQuestionAnswers.size;
 
-      if (answeredPlayers === totalPlayers) {
-        // All players have answered, reveal answers immediately
+      if (totalNonAdminPlayers > 0 && answeredPlayers === totalNonAdminPlayers) {
+        // All non-admin players have answered, reveal answers immediately
         this.revealAnswers(dto.pin, state);
       }
     } catch (error) {
@@ -421,6 +426,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     state = {
       sessionId: session.id,
       quizId: session.quizId,
+      adminId: session.adminId,
       players: new Map(),
       scores: new Map(),
       questions,
