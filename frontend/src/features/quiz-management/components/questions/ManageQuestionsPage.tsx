@@ -169,12 +169,7 @@ export default function ManageQuestionsPage({
         return false;
       }
 
-      // Verify that a correct answer has been selected
-      if (!formState.correctAnswer || !formState.correctAnswer.trim()) {
-        setFormError(t("quiz.formErrors.correctAnswerRequired"));
-        return false;
-      }
-
+      // Verify that a correct answer has been selected and the selected option is not empty
       const selected = formState.options[formState.correctAnswer as OptionKey];
 
       if (!selected || !selected.trim()) {
