@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type { Question } from '../../../domain/quiz/entities/question.entity';
 import {
   QuestionRepositoryProvider,
@@ -29,6 +29,32 @@ export class CreateQuestionUseCase {
     const quiz = await this.quizRepository.findById(dto.quizId);
     if (!quiz) {
       throw new NotFoundException(QuizErrorCode.QUIZ_NOT_FOUND);
+    }
+
+    // Validate correct answer based on question type
+    if (dto.type === 'multiple') {
+      // For multiple choice, correctAnswer must be A, B, C, or D
+      const validOptions = ['A', 'B', 'C', 'D'];
+      if (!validOptions.includes(dto.correctAnswer)) {
+        throw new BadRequestException(QuizErrorCode.INVALID_CORRECT_ANSWER);
+      }
+
+      // Verify that the selected option is not empty
+      const optionValues: Record<string, string | null | undefined> = {
+        A: dto.optionA,
+        B: dto.optionB,
+        C: dto.optionC,
+        D: dto.optionD,
+      };
+      const selectedOption = optionValues[dto.correctAnswer];
+      if (!selectedOption || !selectedOption.trim()) {
+        throw new BadRequestException(QuizErrorCode.CORRECT_ANSWER_OPTION_EMPTY);
+      }
+    } else if (dto.type === 'truefalse') {
+      // For true/false, correctAnswer must be "true" or "false"
+      if (dto.correctAnswer !== 'true' && dto.correctAnswer !== 'false') {
+        throw new BadRequestException(QuizErrorCode.INVALID_CORRECT_ANSWER);
+      }
     }
 
     // Create question

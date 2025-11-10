@@ -169,9 +169,27 @@ export default function ManageQuestionsPage({
         return false;
       }
 
+      // Verify that a correct answer has been selected
+      if (!formState.correctAnswer || !formState.correctAnswer.trim()) {
+        setFormError(t("quiz.formErrors.correctAnswerRequired"));
+        return false;
+      }
+
       const selected = formState.options[formState.correctAnswer as OptionKey];
 
       if (!selected || !selected.trim()) {
+        setFormError(t("quiz.formErrors.correctAnswerRequired"));
+        return false;
+      }
+    } else if (formState.type === "truefalse") {
+      // Verify that a correct answer has been selected for true/false questions
+      if (!formState.correctAnswer || !formState.correctAnswer.trim()) {
+        setFormError(t("quiz.formErrors.correctAnswerRequired"));
+        return false;
+      }
+
+      // Ensure the answer is either "true" or "false"
+      if (formState.correctAnswer !== "true" && formState.correctAnswer !== "false") {
         setFormError(t("quiz.formErrors.correctAnswerRequired"));
         return false;
       }
