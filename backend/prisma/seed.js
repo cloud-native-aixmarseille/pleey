@@ -117,7 +117,7 @@ async function main() {
     {
       questionText: "What is the capital of France?",
       type: "multiple",
-      correctAnswer: "Paris",
+      correctAnswer: "A",
       optionA: "Paris",
       optionB: "Berlin",
       optionC: "Madrid",

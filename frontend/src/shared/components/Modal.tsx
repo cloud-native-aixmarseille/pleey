@@ -44,7 +44,12 @@ export default function Modal({
     if (node) {
       const focusable = node.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
       const firstFocusable = focusable[0];
-      (firstFocusable ?? node).focus();
+      // Only focus on initial mount when modal opens
+      if (firstFocusable) {
+        firstFocusable.focus();
+      } else {
+        node.focus();
+      }
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -110,6 +115,11 @@ export default function Modal({
   };
 
   const handleOverlayKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    // Only handle keyboard events if the overlay itself is the target (not bubbled from children)
+    if (event.target !== overlayRef.current) {
+      return;
+    }
+
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       onClose();

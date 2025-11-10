@@ -8,7 +8,9 @@
     "authenticationRequired": "Authentication required",
     "adminPrivilegesRequired": "Admin privileges are required to create quizzes",
     "pinMustBe6Digits": "PIN must be exactly 6 digits",
-    "quizHasActiveSession": "You can't delete this quiz while a game session is active"
+    "quizHasActiveSession": "You can't delete this quiz while a game session is active",
+    "invalidCorrectAnswer": "Invalid correct answer value",
+    "correctAnswerOptionEmpty": "The selected correct answer option cannot be empty"
   },
   "success": {
     "quizCreated": "Quiz created successfully",

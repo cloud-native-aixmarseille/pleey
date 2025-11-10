@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Container } from "../../../../shared/components";
@@ -63,11 +63,11 @@ export default function ManageQuestionsPage({
 
   const questionCount = useMemo(() => questions.length, [questions.length]);
 
-  const resetFormState = () => {
+  const resetFormState = useCallback(() => {
     setFormState(createDefaultQuestionFormState());
     setFormError(null);
     setIsSubmitting(false);
-  };
+  }, []);
 
   const handleOpenSessions = () => {
     navigate(`/admin/quizzes/${quiz.id}/sessions`);
@@ -93,27 +93,27 @@ export default function ManageQuestionsPage({
     setIsFormOpen(true);
   };
 
-  const handleCloseForm = () => {
+  const handleCloseForm = useCallback(() => {
     setIsFormOpen(false);
     setEditingQuestion(null);
     resetFormState();
-  };
+  }, [resetFormState]);
 
-  const handleFieldChange = <K extends keyof QuestionFormState>(
+  const handleFieldChange = useCallback(<K extends keyof QuestionFormState>(
     key: K,
     value: QuestionFormState[K]
   ) => {
     setFormState((previous) => ({ ...previous, [key]: value }));
-  };
+  }, []);
 
-  const handleOptionChange = (key: OptionKey, value: string) => {
+  const handleOptionChange = useCallback((key: OptionKey, value: string) => {
     setFormState((previous) => ({
       ...previous,
       options: { ...previous.options, [key]: value },
     }));
-  };
+  }, []);
 
-  const handleTypeChange = (type: QuestionType) => {
+  const handleTypeChange = useCallback((type: QuestionType) => {
     setFormState((previous) => {
       if (type === "multiple") {
         const validAnswers: OptionKey[] = ["A", "B", "C", "D"];
@@ -140,11 +140,11 @@ export default function ManageQuestionsPage({
       };
     });
     setFormError(null);
-  };
+  }, []);
 
-  const handleCorrectAnswerSelect = (value: string) => {
+  const handleCorrectAnswerSelect = useCallback((value: string) => {
     setFormState((previous) => ({ ...previous, correctAnswer: value }));
-  };
+  }, []);
 
   const validateForm = () => {
     if (!formState.questionText.trim()) {
@@ -169,9 +169,22 @@ export default function ManageQuestionsPage({
         return false;
       }
 
+      // Verify that a correct answer has been selected and the selected option is not empty
       const selected = formState.options[formState.correctAnswer as OptionKey];
 
       if (!selected || !selected.trim()) {
+        setFormError(t("quiz.formErrors.correctAnswerRequired"));
+        return false;
+      }
+    } else if (formState.type === "truefalse") {
+      // Verify that a correct answer has been selected for true/false questions
+      if (!formState.correctAnswer || !formState.correctAnswer.trim()) {
+        setFormError(t("quiz.formErrors.correctAnswerRequired"));
+        return false;
+      }
+
+      // Ensure the answer is either "true" or "false"
+      if (formState.correctAnswer !== "true" && formState.correctAnswer !== "false") {
         setFormError(t("quiz.formErrors.correctAnswerRequired"));
         return false;
       }

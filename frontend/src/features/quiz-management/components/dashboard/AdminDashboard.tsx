@@ -60,14 +60,14 @@ export default function AdminDashboard({
     setIsCreateModalOpen(true);
   };
 
-  const closeCreateModal = () => {
+  const closeCreateModal = useCallback(() => {
     setIsCreateModalOpen(false);
     setCreateTitle("");
     setCreateDescription("");
     setIsProcessing(false);
-  };
+  }, []);
 
-  const submitCreateQuiz = async (event: FormEvent<HTMLFormElement>) => {
+  const submitCreateQuiz = useCallback(async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!currentOrganization || !createTitle.trim()) {
       return;
@@ -86,7 +86,7 @@ export default function AdminDashboard({
       setIsProcessing(false);
       notifyFromError(error, "errors.createQuizFailed");
     }
-  };
+  }, [currentOrganization, createTitle, createDescription, onCreateQuiz, notify, notifyFromError, closeCreateModal]);
 
   const requestDeleteQuiz = (quiz: Quiz) => {
     setQuizPendingDeletion(quiz);
@@ -169,13 +169,13 @@ export default function AdminDashboard({
     [onJoinSession]
   );
 
-  const handleTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleTitleChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     setCreateTitle(event.target.value);
-  };
+  }, []);
 
-  const handleDescriptionChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+  const handleDescriptionChange = useCallback((event: ChangeEvent<HTMLTextAreaElement>) => {
     setCreateDescription(event.target.value);
-  };
+  }, []);
 
   return (
     <div {...styles.slot1}>

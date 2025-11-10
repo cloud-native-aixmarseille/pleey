@@ -175,7 +175,7 @@ Prisma manages the database schema and migrations. The schema is defined in `bac
 │ quizId (FK)        │
 │ questionText       │
 │ type               │
-│ correctAnswer      │
+│ correctAnswer *    │
 │ optionA            │
 │ optionB            │
 │ optionC            │
@@ -183,6 +183,10 @@ Prisma manages the database schema and migrations. The schema is defined in `bac
 │ timeLimit          │
 │ points             │
 └─────────────────────┘
+
+* correctAnswer format:
+  - For type="multiple": "A", "B", "C", or "D" (option key)
+  - For type="truefalse": "true" or "false"
          │
          │ N:1
          ↓
