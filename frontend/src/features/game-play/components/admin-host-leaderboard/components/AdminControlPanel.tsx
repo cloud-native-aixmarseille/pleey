@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { AnimationStage } from "../constants";
 import { Button, Card, PrimaryButton } from "../../../../../shared/components";
 import { createStyles } from "../../../../../shared/ui/styles";
@@ -20,14 +19,21 @@ interface AdminControlPanelProps {
 }
 
 export function AdminControlPanel({ animationStage }: AdminControlPanelProps) {
-  const navigate = useNavigate();
-
   if (animationStage < 5) {
     return null;
   }
 
-  const handleNavigateAdmin = () => navigate("/admin");
-  const handleNavigateHome = () => navigate("/");
+  const handleNavigateAdmin = () => {
+    console.log("Navigating to admin dashboard...");
+    // Force full page reload to clear all state
+    window.location.href = "/admin";
+  };
+
+  const handleNavigateHome = () => {
+    console.log("Navigating to home...");
+    // Force full page reload to clear all state
+    window.location.href = "/";
+  };
 
   return (
     <div
