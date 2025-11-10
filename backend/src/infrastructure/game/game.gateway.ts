@@ -217,7 +217,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
       // Set up timer to auto-reveal answers when time expires
       state.answerRevealTimer = setTimeout(() => {
-        this.revealAnswers(dto.pin, state);
+        void this.revealAnswers(dto.pin, state).catch((error) => {
+          this.logger.error('Error revealing answers on timer:', error);
+        });
       }, currentQuestion.timeLimit * 1000);
 
       this.server.to(dto.pin).emit('game-started', {
@@ -298,7 +300,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
       if (totalNonAdminPlayers > 0 && answeredPlayers === totalNonAdminPlayers) {
         // All non-admin players have answered, reveal answers immediately
-        this.revealAnswers(dto.pin, state);
+        await this.revealAnswers(dto.pin, state);
       }
     } catch (error) {
       this.handleError(client, error);
@@ -332,7 +334,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
       // Set up timer to auto-reveal answers when time expires
       state.answerRevealTimer = setTimeout(() => {
-        this.revealAnswers(dto.pin, state);
+        void this.revealAnswers(dto.pin, state).catch((error) => {
+          this.logger.error('Error revealing answers on timer:', error);
+        });
       }, nextQuestion.timeLimit * 1000);
 
       this.server.to(dto.pin).emit('next-question', {
@@ -438,7 +442,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     return state;
   }
 
-  private revealAnswers(pin: string, state: SessionState): void {
+  private async revealAnswers(pin: string, state: SessionState): Promise<void> {
     // Clear any existing timer
     if (state.answerRevealTimer) {
       clearTimeout(state.answerRevealTimer);
@@ -484,7 +488,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     }
 
     // Broadcast updated leaderboard
-    this.broadcastLeaderboard(pin, state);
+    await this.broadcastLeaderboard(pin, state);
   }
 
   private async broadcastLeaderboard(pin: string, state: SessionState): Promise<void> {
