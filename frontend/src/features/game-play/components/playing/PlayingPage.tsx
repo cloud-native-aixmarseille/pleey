@@ -13,6 +13,7 @@ interface PlayingPageProps {
   totalQuestions: number;
   timeLeft: number;
   userAnswer: string | null;
+  answerSubmitted: boolean;
   showResult: boolean;
   answerResult: AnswerResult | null;
   isAdmin: boolean;
@@ -26,6 +27,7 @@ export default function PlayingPage({
   totalQuestions,
   timeLeft,
   userAnswer,
+  answerSubmitted,
   showResult,
   answerResult,
   isAdmin,
@@ -54,6 +56,7 @@ export default function PlayingPage({
         <PlayingAnswers
           question={currentQuestion}
           userAnswer={userAnswer}
+          answerSubmitted={answerSubmitted}
           onSubmitAnswer={onSubmitAnswer}
         />
       )}

@@ -59,13 +59,24 @@ interface PlayerScore {
   isGuest: boolean;
 }
 
+interface PlayerAnswer {
+  playerId: string;
+  answer: string;
+  isCorrect: boolean;
+  points: number;
+  timeLeft: number;
+}
+
 interface SessionState {
   sessionId: number;
   quizId: number;
+  adminId: number; // Track admin to exclude from player count
   players: Map<string, PlayerState>;
   scores: Map<string, PlayerScore>; // Track scores in memory
   questions: Question[];
   currentQuestionIndex: number;
+  currentQuestionAnswers: Map<string, PlayerAnswer>; // Track answers for current question
+  answerRevealTimer?: NodeJS.Timeout; // Timer to auto-reveal answers
 }
 
 @UseFilters(I18nWsExceptionFilter)
@@ -196,8 +207,23 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       await this.gameSessionRepository.updateStatus(state.sessionId, 'active');
       await this.gameSessionRepository.updateCurrentQuestion(state.sessionId, 0);
 
+      // Reset answer tracking for new question
+      state.currentQuestionAnswers.clear();
+      if (state.answerRevealTimer) {
+        clearTimeout(state.answerRevealTimer);
+      }
+
+      const currentQuestion = state.questions[0];
+
+      // Set up timer to auto-reveal answers when time expires
+      state.answerRevealTimer = setTimeout(() => {
+        void this.revealAnswers(dto.pin, state).catch((error) => {
+          this.logger.error('Error revealing answers on timer:', error);
+        });
+      }, currentQuestion.timeLimit * 1000);
+
       this.server.to(dto.pin).emit('game-started', {
-        question: this.mapQuestion(state.questions[0]),
+        question: this.mapQuestion(currentQuestion),
         questionNumber: 1,
         totalQuestions: state.questions.length,
       });
@@ -224,10 +250,16 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         throw new WsException('Cannot provide both userId and guestId');
       }
 
+      const playerId = this.createPlayerId(dto.userId, dto.guestId);
+
+      // Check if player already answered this question
+      if (state.currentQuestionAnswers.has(playerId)) {
+        throw new WsException(await this.i18n.translate('game.errors.alreadyAnswered'));
+      }
+
       const result = await this.submitAnswerUseCase.execute(dto);
 
       // Update in-memory scores
-      const playerId = this.createPlayerId(dto.userId, dto.guestId);
       const player = Array.from(state.players.values()).find(p =>
         (dto.userId && p.userId === dto.userId) || (dto.guestId && p.guestId === dto.guestId)
       );
@@ -244,13 +276,32 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         });
       }
 
-      client.emit('answer-result', {
+      // Store the answer without revealing it yet
+      state.currentQuestionAnswers.set(playerId, {
+        playerId,
+        answer: dto.answer,
         isCorrect: result.isCorrect,
         points: result.points,
-        correctAnswer: result.correctAnswer,
+        timeLeft: dto.timeLeft,
       });
 
-      await this.broadcastLeaderboard(dto.pin, state);
+      // Acknowledge answer submission without revealing correctness
+      client.emit('answer-submitted', {
+        acknowledged: true,
+      });
+
+      // Check if all non-admin players have answered
+      // Count players excluding the admin
+      const nonAdminPlayers = Array.from(state.players.values()).filter(
+        p => p.userId !== state.adminId
+      );
+      const totalNonAdminPlayers = nonAdminPlayers.length;
+      const answeredPlayers = state.currentQuestionAnswers.size;
+
+      if (totalNonAdminPlayers > 0 && answeredPlayers === totalNonAdminPlayers) {
+        // All non-admin players have answered, reveal answers immediately
+        await this.revealAnswers(dto.pin, state);
+      }
     } catch (error) {
       this.handleError(client, error);
     }
@@ -273,7 +324,20 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         state.currentQuestionIndex,
       );
 
+      // Reset answer tracking for new question
+      state.currentQuestionAnswers.clear();
+      if (state.answerRevealTimer) {
+        clearTimeout(state.answerRevealTimer);
+      }
+
       const nextQuestion = state.questions[state.currentQuestionIndex];
+
+      // Set up timer to auto-reveal answers when time expires
+      state.answerRevealTimer = setTimeout(() => {
+        void this.revealAnswers(dto.pin, state).catch((error) => {
+          this.logger.error('Error revealing answers on timer:', error);
+        });
+      }, nextQuestion.timeLimit * 1000);
 
       this.server.to(dto.pin).emit('next-question', {
         question: this.mapQuestion(nextQuestion),
@@ -288,6 +352,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   async handleStopGame(@ConnectedSocket() client: Socket, @MessageBody() payload: unknown): Promise<void> {
     try {
       const dto = await this.validatePayload(AdminGameControlDto, payload);
+      const state = await this.ensureSessionState(dto.pin);
       const session = await this.gameSessionRepository.findByPin(dto.pin);
 
       if (!session) {
@@ -297,6 +362,12 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       // Verify admin ownership
       if (session.adminId !== dto.adminId) {
         throw new WsException(GameErrorCode.UNAUTHORIZED_SESSION_CONTROL);
+      }
+
+      // Clear timer when pausing
+      if (state.answerRevealTimer) {
+        clearTimeout(state.answerRevealTimer);
+        state.answerRevealTimer = undefined;
       }
 
       await this.gameSessionRepository.updateStatus(session.id, 'paused');
@@ -359,19 +430,74 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     state = {
       sessionId: session.id,
       quizId: session.quizId,
+      adminId: session.adminId,
       players: new Map(),
       scores: new Map(),
       questions,
       currentQuestionIndex: session.currentQuestion ?? 0,
+      currentQuestionAnswers: new Map(),
     };
 
     this.sessions.set(pin, state);
     return state;
   }
 
+  private async revealAnswers(pin: string, state: SessionState): Promise<void> {
+    // Clear any existing timer
+    if (state.answerRevealTimer) {
+      clearTimeout(state.answerRevealTimer);
+      state.answerRevealTimer = undefined;
+    }
+
+    const currentQuestion = state.questions[state.currentQuestionIndex];
+
+    // Calculate answer statistics
+    const answerDistribution: Record<string, number> = {};
+    for (const playerAnswer of state.currentQuestionAnswers.values()) {
+      answerDistribution[playerAnswer.answer] = (answerDistribution[playerAnswer.answer] || 0) + 1;
+    }
+
+    // Send individual results to each player
+    for (const [socketId, player] of state.players.entries()) {
+      const playerId = this.createPlayerId(player.userId, player.guestId);
+      const playerAnswer = state.currentQuestionAnswers.get(playerId);
+
+      if (playerAnswer) {
+        // Player answered - send their result
+        this.server.to(socketId).emit('answer-result', {
+          isCorrect: playerAnswer.isCorrect,
+          points: playerAnswer.points,
+          correctAnswer: currentQuestion.correctAnswer,
+          statistics: {
+            totalAnswers: state.currentQuestionAnswers.size,
+            answerDistribution,
+          },
+        });
+      } else {
+        // Player didn't answer - send correct answer with no points
+        this.server.to(socketId).emit('answer-result', {
+          isCorrect: false,
+          points: 0,
+          correctAnswer: currentQuestion.correctAnswer,
+          statistics: {
+            totalAnswers: state.currentQuestionAnswers.size,
+            answerDistribution,
+          },
+        });
+      }
+    }
+
+    // Broadcast updated leaderboard
+    await this.broadcastLeaderboard(pin, state);
+  }
+
   private async broadcastLeaderboard(pin: string, state: SessionState): Promise<void> {
     // Get in-memory scores (includes both guests and authenticated users)
-    const scores = Array.from(state.scores.values());
+    // Filter out admin from leaderboard
+    const scores = Array.from(state.scores.values()).filter((score) => {
+      const userId = this.extractUserIdFromPlayerId(score.playerId);
+      return userId !== state.adminId;
+    });
 
     // Sort by totalPoints descending
     scores.sort((a, b) => b.totalPoints - a.totalPoints);
@@ -393,10 +519,20 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   private async endGame(pin: string, state: SessionState): Promise<void> {
+    // Clear timer when ending game
+    if (state.answerRevealTimer) {
+      clearTimeout(state.answerRevealTimer);
+      state.answerRevealTimer = undefined;
+    }
+
     await this.gameSessionRepository.updateStatus(state.sessionId, 'ended');
 
     // Get in-memory scores for final leaderboard
-    const scores = Array.from(state.scores.values());
+    // Filter out admin from final leaderboard
+    const scores = Array.from(state.scores.values()).filter((score) => {
+      const userId = this.extractUserIdFromPlayerId(score.playerId);
+      return userId !== state.adminId;
+    });
     scores.sort((a, b) => b.totalPoints - a.totalPoints);
 
     const formatted = scores.map((entry, index) => {
@@ -421,13 +557,16 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     avatar: string;
     isGuest: boolean;
   }> {
-    return Array.from(state.players.values()).map((player) => ({
-      id: player.userId,
-      guestId: player.guestId,
-      username: player.username,
-      avatar: buildSessionPlayerAvatarUrl(state.sessionId, player.avatarSeed),
-      isGuest: player.isGuest,
-    }));
+    // Filter out admin from player list
+    return Array.from(state.players.values())
+      .filter((player) => player.userId !== state.adminId)
+      .map((player) => ({
+        id: player.userId,
+        guestId: player.guestId,
+        username: player.username,
+        avatar: buildSessionPlayerAvatarUrl(state.sessionId, player.avatarSeed),
+        isGuest: player.isGuest,
+      }));
   }
 
   private createPlayerId(userId?: number, guestId?: string): string {
