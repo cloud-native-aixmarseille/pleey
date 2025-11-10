@@ -24,7 +24,6 @@ export function AdminControlPanel({ animationStage }: AdminControlPanelProps) {
   }
 
   const handleNavigateAdmin = () => {
-    console.log("Navigating to admin dashboard...");
     // Force full page reload to clear all state
     window.location.href = "/admin";
   };
