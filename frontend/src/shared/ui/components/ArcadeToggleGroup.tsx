@@ -55,7 +55,7 @@ export interface ArcadeToggleOption<T extends string> {
 export interface ArcadeToggleGroupProps<T extends string>
   extends Omit<ComponentPropsWithoutRef<"div">, "children" | "onChange"> {
   value: T | null;
-  onChange: (value: T) => void;
+  onChange: (value: T | null) => void;
   options: Array<ArcadeToggleOption<T>>;
   size?: ArcadeToggleSize;
   multiSelect?: boolean;
@@ -94,7 +94,7 @@ export function ArcadeToggleGroup<T extends string>({
     // Sort values alphabetically for consistency
     newValues.sort();
 
-    onChange(newValues.join(',') as T);
+    onChange((newValues.length > 0 ? newValues.join(',') : null) as T | null);
   };
 
   return (

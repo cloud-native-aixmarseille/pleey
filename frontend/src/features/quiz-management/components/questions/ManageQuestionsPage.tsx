@@ -142,8 +142,8 @@ export default function ManageQuestionsPage({
     setFormError(null);
   }, []);
 
-  const handleCorrectAnswerSelect = useCallback((value: string) => {
-    setFormState((previous) => ({ ...previous, correctAnswer: value }));
+  const handleCorrectAnswerSelect = useCallback((value: string | null) => {
+    setFormState((previous) => ({ ...previous, correctAnswer: value ?? '' }));
   }, []);
 
   const validateForm = () => {

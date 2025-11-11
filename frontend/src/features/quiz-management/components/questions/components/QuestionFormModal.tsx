@@ -42,7 +42,7 @@ interface QuestionFormModalProps {
   ) => void;
   onOptionChange: (key: OptionKey, value: string) => void;
   onTypeChange: (type: QuestionType) => void;
-  onSelectCorrectAnswer: (value: string) => void;
+  onSelectCorrectAnswer: (value: string | null) => void;
 }
 
 export function QuestionFormModal({
