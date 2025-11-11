@@ -39,7 +39,7 @@ interface QuestionFormModalProps {
   ) => void;
   onOptionChange: (key: OptionKey, value: string) => void;
   onTypeChange: (type: QuestionType) => void;
-  onSelectCorrectAnswer: (value: string) => void;
+  onSelectCorrectAnswer: (value: string | null) => void;
 }
 
 export function QuestionFormModal({
@@ -164,13 +164,18 @@ export function QuestionFormModal({
         ) : null}
 
         <div>
-          <label className={LABEL_CLASSES}>{t("quiz.correctAnswer")}</label>
+          <label className={LABEL_CLASSES}>
+            {formState.type === "multiple"
+              ? t("quiz.correctAnswers")
+              : t("quiz.correctAnswer")}
+          </label>
           <ArcadeToggleGroup
             className={TOGGLE_GROUP_CLASSES}
             value={formState.correctAnswer}
             onChange={onSelectCorrectAnswer}
             options={correctAnswerOptions}
             size="md"
+            multiSelect={formState.type === "multiple"}
           />
         </div>
 

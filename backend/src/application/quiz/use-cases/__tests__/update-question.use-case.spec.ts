@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { describe, expect, it, vi, beforeEach, type Mocked } from 'vitest';
 import { Question } from '../../../../domain/quiz/entities/question.entity';
 import type { QuestionRepository } from '../../../../domain/quiz/repositories/question.repository.interface';
@@ -59,6 +59,29 @@ describe('UpdateQuestionUseCase', () => {
       (error) => {
         expect(error).toBeInstanceOf(NotFoundException);
         expect(error.message).toBe(QuizErrorCode.QUESTION_NOT_FOUND);
+      },
+    );
+  });
+
+  it('should throw when updating with duplicate correct answers', async () => {
+    const existing = buildQuestion({
+      type: 'multiple',
+      correctAnswer: 'A',
+      optionA: 'Option A',
+      optionB: 'Option B',
+      optionC: 'Option C',
+      optionD: 'Option D',
+    });
+
+    questionRepository.findById.mockResolvedValue(existing);
+
+    await useCase.execute(existing.id, { correctAnswer: 'A,A,D' }).then(
+      () => {
+        throw new Error('Expected BadRequestException to be thrown');
+      },
+      (error) => {
+        expect(error).toBeInstanceOf(BadRequestException);
+        expect(error.message).toBe(QuizErrorCode.INVALID_CORRECT_ANSWER);
       },
     );
   });
