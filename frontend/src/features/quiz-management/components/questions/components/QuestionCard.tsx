@@ -114,24 +114,30 @@ function renderMultipleChoice(question: Question) {
     { letter: "D", text: question.option_d },
   ];
 
+  // Support multiple correct answers (e.g., "A,D")
+  const correctAnswers = question.correct_answer.split(',').map(a => a.trim());
+
   return (
     <div {...styles.slot13}>
-      {options.map((option) => (
-        <div
-          key={option.letter}
-          {...(question.correct_answer === option.letter
-            ? styles.optionCardCorrect
-            : styles.optionCardDefault)}
-        >
-          <div {...styles.slot7}>
-            <span {...styles.slot14}>{option.letter}:</span>
-            <span {...styles.slot15}>{option.text}</span>
-            {question.correct_answer === option.letter ? (
-              <span {...styles.slot16}>✓</span>
-            ) : null}
+      {options.map((option) => {
+        const isCorrect = correctAnswers.includes(option.letter);
+        return (
+          <div
+            key={option.letter}
+            {...(isCorrect
+              ? styles.optionCardCorrect
+              : styles.optionCardDefault)}
+          >
+            <div {...styles.slot7}>
+              <span {...styles.slot14}>{option.letter}:</span>
+              <span {...styles.slot15}>{option.text}</span>
+              {isCorrect ? (
+                <span {...styles.slot16}>✓</span>
+              ) : null}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

@@ -160,13 +160,18 @@ export function QuestionFormModal({
         ) : null}
 
         <div>
-          <label {...styles.slot2}>{t("quiz.correctAnswer")}</label>
+          <label {...styles.slot2}>
+            {formState.type === "multiple"
+              ? t("quiz.correctAnswers")
+              : t("quiz.correctAnswer")}
+          </label>
           <ArcadeToggleGroup
             {...styles.slot4}
             value={formState.correctAnswer}
             onChange={onSelectCorrectAnswer}
             options={correctAnswerOptions}
             size="md"
+            multiSelect={formState.type === "multiple"}
           />
         </div>
 

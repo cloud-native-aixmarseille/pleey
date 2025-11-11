@@ -117,10 +117,10 @@ export default function ManageQuestionsPage({
     setFormState((previous) => {
       if (type === "multiple") {
         const validAnswers: OptionKey[] = ["A", "B", "C", "D"];
-        const currentAnswer = previous.correctAnswer as OptionKey;
-        const nextAnswer = validAnswers.includes(currentAnswer)
-          ? currentAnswer
-          : "A";
+        // Handle multiple answers: keep first valid answer from comma-separated list
+        const currentAnswers = previous.correctAnswer.split(',').map(a => a.trim() as OptionKey);
+        const firstValidAnswer = currentAnswers.find(a => validAnswers.includes(a));
+        const nextAnswer = firstValidAnswer || "A";
 
         return {
           ...previous,
@@ -169,12 +169,15 @@ export default function ManageQuestionsPage({
         return false;
       }
 
-      // Verify that a correct answer has been selected and the selected option is not empty
-      const selected = formState.options[formState.correctAnswer as OptionKey];
+      // Verify that correct answer(s) have been selected and each selected option is not empty
+      const correctAnswers = formState.correctAnswer.split(',').map(a => a.trim());
 
-      if (!selected || !selected.trim()) {
-        setFormError(t("quiz.formErrors.correctAnswerRequired"));
-        return false;
+      for (const answer of correctAnswers) {
+        const selected = formState.options[answer as OptionKey];
+        if (!selected || !selected.trim()) {
+          setFormError(t("quiz.formErrors.correctAnswerRequired"));
+          return false;
+        }
       }
     } else if (formState.type === "truefalse") {
       // Verify that a correct answer has been selected for true/false questions

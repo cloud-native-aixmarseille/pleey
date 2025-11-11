@@ -43,21 +43,29 @@ export class UpdateQuestionUseCase {
 
     // Validate correct answer based on question type
     if (finalType === 'multiple') {
-      // For multiple choice, correctAnswer must be A, B, C, or D
-      if (!VALID_MULTIPLE_CHOICE_OPTIONS.includes(finalCorrectAnswer)) {
-        throw new BadRequestException(QuizErrorCode.INVALID_CORRECT_ANSWER);
+      // For multiple choice, correctAnswer can be single (e.g., "A") or multiple (e.g., "A,D")
+      const correctAnswers = finalCorrectAnswer.split(',').map(a => a.trim());
+
+      // Validate each correct answer
+      for (const answer of correctAnswers) {
+        if (!VALID_MULTIPLE_CHOICE_OPTIONS.includes(answer)) {
+          throw new BadRequestException(QuizErrorCode.INVALID_CORRECT_ANSWER);
+        }
       }
 
-      // Verify that the selected option is not empty
+      // Verify that each selected option is not empty
       const optionValues: Record<string, string | null> = {
         A: finalOptionA,
         B: finalOptionB,
         C: finalOptionC,
         D: finalOptionD,
       };
-      const selectedOption = optionValues[finalCorrectAnswer];
-      if (!selectedOption || !selectedOption.trim()) {
-        throw new BadRequestException(QuizErrorCode.CORRECT_ANSWER_OPTION_EMPTY);
+
+      for (const answer of correctAnswers) {
+        const selectedOption = optionValues[answer];
+        if (!selectedOption || !selectedOption.trim()) {
+          throw new BadRequestException(QuizErrorCode.CORRECT_ANSWER_OPTION_EMPTY);
+        }
       }
     } else if (finalType === 'truefalse') {
       // For true/false, correctAnswer must be "true" or "false"

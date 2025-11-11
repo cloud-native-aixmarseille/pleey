@@ -159,6 +159,7 @@
     "multipleChoice": "Multiple Choice",
     "trueFalse": "True/False",
     "correctAnswer": "Correct Answer",
+    "correctAnswers": "Correct Answers (select one or more)",
     "timeLimit": "Time Limit (seconds)",
     "points": "Points",
     "optionA": "Option A",

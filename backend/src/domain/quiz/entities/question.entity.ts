@@ -18,10 +18,27 @@ export class Question {
   ) {}
 
   /**
+   * Gets all correct answers for this question
+   * Supports both single answer (e.g., "A") and multiple answers (e.g., "A,D")
+   */
+  getCorrectAnswers(): string[] {
+    return this.correctAnswer.split(',').map(a => a.trim());
+  }
+
+  /**
+   * Checks if this question has multiple correct answers
+   */
+  hasMultipleCorrectAnswers(): boolean {
+    return this.getCorrectAnswers().length > 1;
+  }
+
+  /**
    * Checks if the answer is correct
+   * Supports both single and multiple correct answers
    */
   isAnswerCorrect(answer: string): boolean {
-    return answer === this.correctAnswer;
+    const correctAnswers = this.getCorrectAnswers();
+    return correctAnswers.includes(answer);
   }
 
   /**
