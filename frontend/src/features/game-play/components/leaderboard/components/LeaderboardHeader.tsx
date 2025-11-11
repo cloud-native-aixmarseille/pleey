@@ -1,14 +1,14 @@
-import { createStyles } from "../../../../../shared/ui/styles";
-
-const styles = createStyles("LeaderboardHeader", {
-  slot1: "text-center mb-12 animate-scale-in",
-  slot2: "inline-block relative",
-  slot3: "font-display text-6xl sm:text-7xl md:text-8xl text-transparent bg-clip-text bg-gradient-to-r from-accent-500 via-primary-500 to-secondary-500 mb-4 animate-glow uppercase tracking-wider",
-  slot4: "absolute -inset-4 bg-gradient-to-r from-accent-500/20 via-primary-500/20 to-secondary-500/20 blur-2xl -z-10 animate-pulse-slow",
-  slot5: "text-7xl sm:text-8xl mb-4 animate-bounce-slow",
-  slot6: "font-display text-3xl sm:text-4xl text-accent-500 mb-2 uppercase animate-glow",
-  slot7: "text-light-300 text-lg sm:text-xl font-body",
-});
+const HEADER_WRAPPER_CLASSES = "mb-12 text-center animate-scale-in";
+const HEADER_TITLE_WRAPPER_CLASSES = "relative inline-block";
+const HEADER_TITLE_CLASSES =
+  "mb-4 inline-block bg-gradient-to-r from-accent-500 via-primary-500 to-secondary-500 bg-clip-text font-display text-6xl uppercase tracking-wider text-transparent animate-glow sm:text-7xl md:text-8xl";
+const HEADER_TITLE_GLOW_CLASSES =
+  "absolute -inset-4 -z-10 bg-gradient-to-r from-accent-500/20 via-primary-500/20 to-secondary-500/20 blur-2xl animate-pulse-slow";
+const HEADER_TROPHY_CLASSES = "mb-4 text-7xl animate-bounce-slow sm:text-8xl";
+const HEADER_SUBTITLE_CLASSES =
+  "mb-2 font-display text-3xl uppercase text-accent-500 animate-glow sm:text-4xl";
+const HEADER_DESCRIPTION_CLASSES =
+  "font-body text-lg text-light-300 sm:text-xl";
 
 interface LeaderboardHeaderProps {
   isVisible: boolean;
@@ -20,18 +20,14 @@ export function LeaderboardHeader({ isVisible }: LeaderboardHeaderProps) {
   }
 
   return (
-    <header {...styles.slot1}>
-      <div {...styles.slot2}>
-        <h1 {...styles.slot3}>
-          GAME OVER
-        </h1>
-        <div {...styles.slot4} />
+    <header className={HEADER_WRAPPER_CLASSES}>
+      <div className={HEADER_TITLE_WRAPPER_CLASSES}>
+        <h1 className={HEADER_TITLE_CLASSES}>GAME OVER</h1>
+        <div className={HEADER_TITLE_GLOW_CLASSES} />
       </div>
-      <div {...styles.slot5}>🏆</div>
-      <h2 {...styles.slot6}>
-        Final Results
-      </h2>
-      <p {...styles.slot7}>
+      <div className={HEADER_TROPHY_CLASSES}>🏆</div>
+      <h2 className={HEADER_SUBTITLE_CLASSES}>Final Results</h2>
+      <p className={HEADER_DESCRIPTION_CLASSES}>
         Congratulations to all players! 🎉
       </p>
     </header>

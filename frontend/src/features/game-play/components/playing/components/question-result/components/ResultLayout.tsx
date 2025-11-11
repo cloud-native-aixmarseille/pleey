@@ -1,22 +1,23 @@
 import { ReactNode } from "react";
 
-import { Card } from "../../../../../../../shared/components";
-import {
-  createStyles,
-  type StyleEntry,
-} from "../../../../../../../shared/ui/styles";
+import { composeClasses } from "../../../../../../../shared/ui/utils/composeClasses";
 
-const CARD_BASE_CLASSES =
-  "p-8 sm:p-12 text-white animate-scale-in relative overflow-hidden";
+const BASE_CONTAINER_CLASSES = composeClasses(
+  "relative overflow-hidden rounded-[var(--arcade-radius-xl)]",
+  "border-2 border-white/15 text-white shadow-[0_25px_50px_rgba(0,0,0,0.35)]",
+  "animate-scale-in"
+);
 
-const styles = createStyles("ResultLayout", {
-  slot1:
-    "absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-float",
-  slot2: "relative z-10",
-  slot3: "sr-only",
-  cardCorrect: `${CARD_BASE_CLASSES} bg-gradient-to-br from-success-500 to-accent-500`,
-  cardIncorrect: `${CARD_BASE_CLASSES} bg-gradient-to-br from-danger-500 to-secondary-500`,
-});
+const VARIANT_CLASS_MAP: Record<"correct" | "incorrect", string> = {
+  correct: "bg-gradient-to-br from-success-500 via-accent-500/80 to-accent-500",
+  incorrect:
+    "bg-gradient-to-br from-danger-500 via-secondary-500/80 to-secondary-500",
+};
+
+const CONTENT_CLASSES = "relative z-10 p-8 sm:p-12";
+const OVERLAY_CLASSES =
+  "pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-float";
+const SCREEN_READER_CLASSES = "sr-only";
 
 interface ResultLayoutProps {
   isCorrect: boolean;
@@ -25,34 +26,32 @@ interface ResultLayoutProps {
   children: ReactNode;
 }
 
-const CARD_VARIANTS: Record<"correct" | "incorrect", StyleEntry> = {
-  correct: styles.cardCorrect,
-  incorrect: styles.cardIncorrect,
-};
-
 export function ResultLayout({
   isCorrect,
   announcement,
   statisticsAnnouncement,
   children,
 }: ResultLayoutProps) {
-  const cardVariant = CARD_VARIANTS[isCorrect ? "correct" : "incorrect"];
+  const containerClasses = composeClasses(
+    BASE_CONTAINER_CLASSES,
+    VARIANT_CLASS_MAP[isCorrect ? "correct" : "incorrect"]
+  );
 
   return (
-    <Card {...cardVariant}>
+    <section className={containerClasses} data-result-layout="true">
       <ScreenReaderAnnouncement
         announcement={announcement}
         statisticsAnnouncement={statisticsAnnouncement}
       />
 
       <div
-        {...styles.slot1}
+        className={OVERLAY_CLASSES}
         style={{ animationDuration: "2s" }}
         aria-hidden="true"
       />
 
-      <div {...styles.slot2}>{children}</div>
-    </Card>
+      <div className={CONTENT_CLASSES}>{children}</div>
+    </section>
   );
 }
 
@@ -66,7 +65,12 @@ function ScreenReaderAnnouncement({
   statisticsAnnouncement,
 }: ScreenReaderAnnouncementProps) {
   return (
-    <div role="status" aria-live="polite" aria-atomic="true" {...styles.slot3}>
+    <div
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+      className={SCREEN_READER_CLASSES}
+    >
       {announcement}
       {statisticsAnnouncement ? ` ${statisticsAnnouncement}` : null}
     </div>

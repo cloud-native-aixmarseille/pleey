@@ -5,24 +5,26 @@ import type {
 } from "../../../../../../../shared/types";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
-import { createStyles } from "../../../../../../../shared/ui/styles";
-import { ArcadeProgressBar } from "../../../../../../../shared/components";
+import {
+  ArcadeProgressBar,
+  Card,
+} from "../../../../../../../shared/components";
 import type { ArcadeProgressTone } from "../../../../../../../shared/ui/components/ArcadeProgressBar";
 
-const styles = createStyles("AnswerDistribution", {
-  slot1:
-    "mb-8 glass-effect rounded-2xl p-6 border-2 border-white/30 animate-fade-in",
-  slot2: "text-xl font-bold mb-4 text-center font-display uppercase",
-  slot3: "space-y-3",
-  slot4: "text-center text-sm mt-4 text-white/80 font-mono",
-  slot5: "relative",
-  slot6: "flex items-center justify-between mb-1 text-sm font-mono",
-  slot7: "font-bold",
-  slot8: "font-black",
-  slot9:
-    "relative h-8 bg-dark-700/50 rounded-full overflow-hidden border border-white/20",
-  slot10: "text-white font-black text-sm drop-shadow-lg",
-});
+const DISTRIBUTION_WRAPPER_CLASSES = "mb-8 animate-fade-in";
+const DISTRIBUTION_TITLE_CLASSES =
+  "mb-4 text-center font-display text-xl font-bold uppercase tracking-[0.24em] text-light-100";
+const DISTRIBUTION_LIST_CLASSES = "space-y-3";
+const DISTRIBUTION_FOOTER_CLASSES =
+  "mt-4 text-center text-sm font-mono text-light-400";
+const OPTION_WRAPPER_CLASSES = "relative";
+const OPTION_HEADER_CLASSES =
+  "mb-1 flex items-center justify-between text-sm font-mono text-light-100";
+const OPTION_LABEL_CLASSES = "font-bold";
+const OPTION_PERCENTAGE_CLASSES = "font-black";
+const PROGRESS_TRACK_CLASSES =
+  "relative h-8 overflow-hidden rounded-full border border-white/20 bg-dark-700/50";
+const PROGRESS_VALUE_CLASSES = "text-sm font-black text-white drop-shadow-lg";
 
 const PROGRESS_TONES: Record<
   "correct" | "user" | "neutral",
@@ -63,32 +65,46 @@ export function AnswerDistribution({
     question.type === "multiple" ? MULTIPLE_OPTIONS : BOOLEAN_OPTIONS;
 
   return (
-    <section {...styles.slot1} style={{ animationDelay: "0.3s" }}>
-      <h4 {...styles.slot2}>{t("game.playing.result.distributionTitle")}</h4>
-
-      <div
-        {...styles.slot3}
-        role="list"
-        aria-label={t("game.playing.result.distributionAriaLabel")}
+    <section
+      className={DISTRIBUTION_WRAPPER_CLASSES}
+      data-answer-distribution="true"
+      style={{ animationDelay: "0.3s" }}
+    >
+      <Card
+        surface="glass"
+        tone="neutral"
+        padding="lg"
+        elevation="glow"
+        border="regular"
       >
-        {options.map((option, index) => (
-          <DistributionOption
-            key={option}
-            option={option}
-            index={index}
-            question={question}
-            answerResult={answerResult}
-            userAnswer={userAnswer}
-            t={t}
-          />
-        ))}
-      </div>
+        <h4 className={DISTRIBUTION_TITLE_CLASSES}>
+          {t("game.playing.result.distributionTitle")}
+        </h4>
 
-      <p {...styles.slot4}>
-        {t("game.playing.result.distributionCount", {
-          count: statistics.totalAnswers,
-        })}
-      </p>
+        <div
+          className={DISTRIBUTION_LIST_CLASSES}
+          role="list"
+          aria-label={t("game.playing.result.distributionAriaLabel")}
+        >
+          {options.map((option, index) => (
+            <DistributionOption
+              key={option}
+              option={option}
+              index={index}
+              question={question}
+              answerResult={answerResult}
+              userAnswer={userAnswer}
+              t={t}
+            />
+          ))}
+        </div>
+
+        <p className={DISTRIBUTION_FOOTER_CLASSES}>
+          {t("game.playing.result.distributionCount", {
+            count: statistics.totalAnswers,
+          })}
+        </p>
+      </Card>
     </section>
   );
 }
@@ -127,14 +143,14 @@ function DistributionOption({
   });
 
   return (
-    <div {...styles.slot5} role="listitem">
-      <div {...styles.slot6}>
-        <span {...styles.slot7}>
+    <div className={OPTION_WRAPPER_CLASSES} role="listitem">
+      <div className={OPTION_HEADER_CLASSES}>
+        <span className={OPTION_LABEL_CLASSES}>
           {label}
           {isCorrectAnswer && " ✓"}
           {isUserAnswer && " ✗"}
         </span>
-        <span {...styles.slot8}>{percentage}%</span>
+        <span className={OPTION_PERCENTAGE_CLASSES}>{percentage}%</span>
       </div>
 
       <ArcadeProgressBar
@@ -143,9 +159,11 @@ function DistributionOption({
         tone={resolveOptionTone(option, answerResult, userAnswer)}
         animationDelay={`${index * 0.1}s`}
         aria-label={ariaLabel}
-        trackSlot={styles.slot9}
+        className={PROGRESS_TRACK_CLASSES}
       >
-        {percentage > 10 && <span {...styles.slot10}>{count}</span>}
+        {percentage > 10 && (
+          <span className={PROGRESS_VALUE_CLASSES}>{count}</span>
+        )}
       </ArcadeProgressBar>
     </div>
   );

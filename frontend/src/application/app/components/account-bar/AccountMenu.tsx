@@ -1,20 +1,17 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Button, LanguageSwitcher } from "../../../../shared/components";
 import { Icon } from "../../../../shared/ui/icons";
-import { createStyles } from "../../../../shared/ui/styles";
 
-const styles = createStyles("AccountMenu", {
-  slot1: "relative",
-  slot3: "sr-only",
-  slot4:
-    "absolute right-0 mt-2 min-w-[12rem] space-y-2 rounded-2xl border border-primary-500/30 bg-dark-500/95 p-3 shadow-neon",
-  slot5: "border-b border-primary-500/20 pb-2",
-  slot6: "w-full justify-between",
-  slot7:
-    "flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-light-100 transition-colors hover:bg-primary-500/20 hover:text-primary-100",
-  slot8:
-    "flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-light-100 transition-colors hover:bg-danger-500/20 hover:text-danger-100",
-});
+const ACCOUNT_MENU_CONTAINER_CLASSES = "relative";
+const ACCOUNT_MENU_TRIGGER_LABEL_CLASSES = "sr-only";
+const ACCOUNT_MENU_PANEL_CLASSES =
+  "absolute right-0 mt-2 min-w-[12rem] space-y-2 rounded-2xl border border-primary-500/30 bg-dark-500/95 p-3 shadow-neon";
+const ACCOUNT_MENU_TOP_SECTION_CLASSES = "border-b border-primary-500/20 pb-2";
+const ACCOUNT_MENU_LANGUAGE_SWITCHER_CLASSES = "w-full justify-between";
+const ACCOUNT_MENU_ITEM_CLASSES =
+  "flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-light-100 transition-colors hover:bg-primary-500/20 hover:text-primary-100";
+const ACCOUNT_MENU_LOGOUT_CLASSES =
+  "flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-light-100 transition-colors hover:bg-danger-500/20 hover:text-danger-100";
 
 interface AccountMenuLabels {
   accountMenu: string;
@@ -80,7 +77,11 @@ function AccountMenuComponent({
   }, [onLogout]);
 
   return (
-    <div {...styles.slot1} ref={menuRef}>
+    <div
+      className={ACCOUNT_MENU_CONTAINER_CLASSES}
+      ref={menuRef}
+      data-account-menu="true"
+    >
       <Button
         type="button"
         variant="ghost"
@@ -91,18 +92,23 @@ function AccountMenuComponent({
         tooltip={labels.accountMenu}
         icon={{ name: "EllipsisVertical", strokeWidth: 1.5 }}
       >
-        <span {...styles.slot3}>{labels.accountMenu}</span>
+        <span className={ACCOUNT_MENU_TRIGGER_LABEL_CLASSES}>
+          {labels.accountMenu}
+        </span>
       </Button>
       {isOpen && (
-        <div role="menu" {...styles.slot4}>
-          <div {...styles.slot5}>
-            <LanguageSwitcher variant="inline" {...styles.slot6} />
+        <div role="menu" className={ACCOUNT_MENU_PANEL_CLASSES}>
+          <div className={ACCOUNT_MENU_TOP_SECTION_CLASSES}>
+            <LanguageSwitcher
+              variant="inline"
+              className={ACCOUNT_MENU_LANGUAGE_SWITCHER_CLASSES}
+            />
           </div>
           <button
             type="button"
             role="menuitem"
             onClick={handleProfile}
-            {...styles.slot7}
+            className={ACCOUNT_MENU_ITEM_CLASSES}
           >
             <Icon name="UserRound" size={20} strokeWidth={1.5} tone="accent" />
             {labels.profile}
@@ -111,7 +117,7 @@ function AccountMenuComponent({
             type="button"
             role="menuitem"
             onClick={handleLogout}
-            {...styles.slot8}
+            className={ACCOUNT_MENU_LOGOUT_CLASSES}
           >
             <Icon name="LogOut" size={20} strokeWidth={1.5} tone="danger" />
             {labels.logout}

@@ -22,12 +22,9 @@ import { QuestionsEmptyState } from "./components/QuestionsEmptyState";
 import { QuestionList } from "./components/QuestionList";
 import { QuestionFormModal } from "./components/QuestionFormModal";
 import { QuestionDeleteModal } from "./components/QuestionDeleteModal";
-import { createStyles } from "../../../../shared/ui/styles";
 
-const styles = createStyles("ManageQuestionsPage", {
-  slot1: "min-h-screen bg-game-gradient p-4 sm:p-8",
-});
-
+const QUESTION_PAGE_WRAPPER_CLASSES =
+  "min-h-screen bg-game-gradient p-4 sm:p-8";
 
 type QuestionFormMode = "create" | "edit";
 
@@ -99,12 +96,15 @@ export default function ManageQuestionsPage({
     resetFormState();
   }, [resetFormState]);
 
-  const handleFieldChange = useCallback(<K extends keyof QuestionFormState>(
-    key: K,
-    value: QuestionFormState[K]
-  ) => {
-    setFormState((previous) => ({ ...previous, [key]: value }));
-  }, []);
+  const handleFieldChange = useCallback(
+    <K extends keyof QuestionFormState>(
+      key: K,
+      value: QuestionFormState[K]
+    ) => {
+      setFormState((previous) => ({ ...previous, [key]: value }));
+    },
+    []
+  );
 
   const handleOptionChange = useCallback((key: OptionKey, value: string) => {
     setFormState((previous) => ({
@@ -184,7 +184,10 @@ export default function ManageQuestionsPage({
       }
 
       // Ensure the answer is either "true" or "false"
-      if (formState.correctAnswer !== "true" && formState.correctAnswer !== "false") {
+      if (
+        formState.correctAnswer !== "true" &&
+        formState.correctAnswer !== "false"
+      ) {
         setFormError(t("quiz.formErrors.correctAnswerRequired"));
         return false;
       }
@@ -242,7 +245,7 @@ export default function ManageQuestionsPage({
   };
 
   return (
-    <div {...styles.slot1}>
+    <div className={QUESTION_PAGE_WRAPPER_CLASSES} data-questions-page="true">
       <Container size="lg">
         <QuestionsHeader
           quiz={quiz}

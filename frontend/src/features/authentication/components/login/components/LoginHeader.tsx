@@ -1,13 +1,9 @@
 import { BackToButton } from "../../../../../shared/components";
-import { createStyles } from "../../../../../shared/ui/styles";
 
-const styles = createStyles("LoginHeader", {
-  slot1: "text-center mb-6",
-  slot2: "mb-4 flex justify-center",
-  slot3: "text-4xl sm:text-5xl font-black text-white mb-2",
-  slot4: "text-light-400",
-});
-
+const HEADER_CONTAINER_CLASSES = "mb-6 text-center";
+const HEADER_BACK_WRAPPER_CLASSES = "mb-4 flex justify-center";
+const HEADER_TITLE_CLASSES = "mb-2 text-4xl font-black text-white sm:text-5xl";
+const HEADER_SUBTITLE_CLASSES = "text-light-400";
 
 interface LoginHeaderProps {
   title: string;
@@ -23,8 +19,8 @@ export function LoginHeader({
   onBack,
 }: LoginHeaderProps) {
   return (
-    <div {...styles.slot1}>
-      <div {...styles.slot2}>
+    <div className={HEADER_CONTAINER_CLASSES}>
+      <div className={HEADER_BACK_WRAPPER_CLASSES}>
         <BackToButton
           label={backLabel}
           onClick={onBack}
@@ -32,10 +28,8 @@ export function LoginHeader({
           tone="light"
         />
       </div>
-      <h2 {...styles.slot3}>
-        {title}
-      </h2>
-      <p {...styles.slot4}>{subtitle}</p>
+      <h2 className={HEADER_TITLE_CLASSES}>{title}</h2>
+      <p className={HEADER_SUBTITLE_CLASSES}>{subtitle}</p>
     </div>
   );
 }

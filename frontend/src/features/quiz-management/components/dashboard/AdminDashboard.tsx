@@ -10,12 +10,8 @@ import { AdminQuizGrid } from "./AdminQuizGrid.tsx";
 import { CreateQuizModal } from "./modals/CreateQuizModal.tsx";
 import { DeleteQuizModal } from "./modals/DeleteQuizModal.tsx";
 import { useAuthManagerContext } from "../../../../application/app/context/AuthManagerContext";
-import { createStyles } from "../../../../shared/ui/styles";
-
-const styles = createStyles("AdminDashboard", {
-  slot1: "min-h-screen bg-game-gradient p-4 sm:p-6 lg:p-8",
-});
-
+const DASHBOARD_WRAPPER_CLASSES =
+  "min-h-screen bg-game-gradient p-4 sm:p-6 lg:p-8";
 
 interface AdminDashboardProps {
   quizzes: Quiz[];
@@ -67,26 +63,37 @@ export default function AdminDashboard({
     setIsProcessing(false);
   }, []);
 
-  const submitCreateQuiz = useCallback(async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!currentOrganization || !createTitle.trim()) {
-      return;
-    }
+  const submitCreateQuiz = useCallback(
+    async (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      if (!currentOrganization || !createTitle.trim()) {
+        return;
+      }
 
-    try {
-      setIsProcessing(true);
-      await onCreateQuiz(
-        createTitle.trim(),
-        createDescription.trim(),
-        currentOrganization.id
-      );
-      notify("admin.createQuizSuccess", "success");
-      closeCreateModal();
-    } catch (error) {
-      setIsProcessing(false);
-      notifyFromError(error, "errors.createQuizFailed");
-    }
-  }, [currentOrganization, createTitle, createDescription, onCreateQuiz, notify, notifyFromError, closeCreateModal]);
+      try {
+        setIsProcessing(true);
+        await onCreateQuiz(
+          createTitle.trim(),
+          createDescription.trim(),
+          currentOrganization.id
+        );
+        notify("admin.createQuizSuccess", "success");
+        closeCreateModal();
+      } catch (error) {
+        setIsProcessing(false);
+        notifyFromError(error, "errors.createQuizFailed");
+      }
+    },
+    [
+      currentOrganization,
+      createTitle,
+      createDescription,
+      onCreateQuiz,
+      notify,
+      notifyFromError,
+      closeCreateModal,
+    ]
+  );
 
   const requestDeleteQuiz = (quiz: Quiz) => {
     setQuizPendingDeletion(quiz);
@@ -169,16 +176,22 @@ export default function AdminDashboard({
     [onJoinSession]
   );
 
-  const handleTitleChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    setCreateTitle(event.target.value);
-  }, []);
+  const handleTitleChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      setCreateTitle(event.target.value);
+    },
+    []
+  );
 
-  const handleDescriptionChange = useCallback((event: ChangeEvent<HTMLTextAreaElement>) => {
-    setCreateDescription(event.target.value);
-  }, []);
+  const handleDescriptionChange = useCallback(
+    (event: ChangeEvent<HTMLTextAreaElement>) => {
+      setCreateDescription(event.target.value);
+    },
+    []
+  );
 
   return (
-    <div {...styles.slot1}>
+    <div className={DASHBOARD_WRAPPER_CLASSES} data-admin-dashboard="true">
       <Container size="xl">
         <AdminDashboardHeader
           onOpenCreateModal={openCreateModal}

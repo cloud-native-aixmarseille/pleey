@@ -1,48 +1,49 @@
-import { createStyles } from "../../../../../shared/ui/styles";
+import { useTranslation } from "react-i18next";
 
-const styles = createStyles("JoinGameInstructions", {
-  slot1: "mt-8 glass-effect rounded-xl p-5 border-2 border-accent-500/30",
-  slot2: "flex items-start gap-3",
-  slot3: "text-2xl flex-shrink-0",
-  slot4: "flex-1",
-  slot5: "font-display text-accent-400 text-xxs mb-2 uppercase tracking-wider",
-  slot6: "font-mono text-xs text-light-300 space-y-1",
-  slot7: "flex items-start gap-2",
-  slot8: "text-accent-500 flex-shrink-0",
-});
+const INSTRUCTIONS_WRAPPER_CLASSES =
+  "mt-8 rounded-xl border-2 border-accent-500/30 p-5 glass-effect";
+const INSTRUCTIONS_CONTENT_CLASSES = "flex items-start gap-3";
+const INSTRUCTIONS_ICON_CLASSES = "flex-shrink-0 text-2xl";
+const INSTRUCTIONS_BODY_CLASSES = "flex-1";
+const INSTRUCTIONS_TITLE_CLASSES =
+  "mb-2 font-display text-xxs uppercase tracking-wider text-accent-400";
+const INSTRUCTIONS_LIST_CLASSES = "font-mono text-xs text-light-300 space-y-1";
+const INSTRUCTIONS_ITEM_CLASSES = "flex items-start gap-2";
+const INSTRUCTIONS_BULLET_CLASSES = "flex-shrink-0 text-accent-500";
 
 interface JoinGameInstructionsProps {
   title?: string;
   items?: string[];
 }
 
-const DEFAULT_TITLE = "► HOW TO JOIN";
-const DEFAULT_ITEMS = [
-  "Ask the game host for the 6-character PIN code",
-  "The PIN is displayed in large text on the host's screen",
-  "Enter it above and press START GAME to join!",
-];
-
 export function JoinGameInstructions({
-  title = DEFAULT_TITLE,
-  items = DEFAULT_ITEMS,
+  title,
+  items,
 }: JoinGameInstructionsProps) {
+  const { t } = useTranslation();
+  const fallbackItemsRaw = t("game.joinPage.instructions.items", {
+    returnObjects: true,
+  });
+  const fallbackItems = Array.isArray(fallbackItemsRaw) ? fallbackItemsRaw : [];
+  const resolvedTitle = title ?? t("game.joinPage.instructions.title");
+  const resolvedItems = Array.isArray(items) ? items : fallbackItems;
+
   return (
-    <section {...styles.slot1}>
-      <div {...styles.slot2}>
-        <span {...styles.slot3}>💡</span>
-        <div {...styles.slot4}>
-          <p {...styles.slot5}>
-            {title}
-          </p>
-          <ul {...styles.slot6}>
-            {items.map((item, index) => (
-              <li key={index} {...styles.slot7}>
-                <span {...styles.slot8}>•</span>
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
+    <section className={INSTRUCTIONS_WRAPPER_CLASSES}>
+      <div className={INSTRUCTIONS_CONTENT_CLASSES}>
+        <span className={INSTRUCTIONS_ICON_CLASSES}>💡</span>
+        <div className={INSTRUCTIONS_BODY_CLASSES}>
+          <p className={INSTRUCTIONS_TITLE_CLASSES}>{resolvedTitle}</p>
+          {resolvedItems.length > 0 ? (
+            <ul className={INSTRUCTIONS_LIST_CLASSES}>
+              {resolvedItems.map((item, index) => (
+                <li key={index} className={INSTRUCTIONS_ITEM_CLASSES}>
+                  <span className={INSTRUCTIONS_BULLET_CLASSES}>•</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          ) : null}
         </div>
       </div>
     </section>

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { LeaderboardEntry } from "../../../../../shared/types";
 import {
   ArcadeGlassStack,
@@ -14,6 +15,7 @@ export function LeaderboardAdditionalPlayers({
   leaderboard,
   animationStage,
 }: LeaderboardAdditionalPlayersProps) {
+  const { t } = useTranslation();
   const remainingPlayers = leaderboard.slice(3);
 
   if (remainingPlayers.length === 0 || animationStage < 5) {
@@ -22,7 +24,7 @@ export function LeaderboardAdditionalPlayers({
 
   return (
     <ArcadeGlassStack
-      title="Other Top Players"
+      title={t("game.hostLeaderboard.additionalPlayers.title")}
       tone="accent"
       align="center"
       width="lg"

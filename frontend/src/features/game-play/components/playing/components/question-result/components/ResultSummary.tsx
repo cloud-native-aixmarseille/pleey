@@ -1,9 +1,8 @@
-import { createStyles } from "../../../../../../../shared/ui/styles";
+import { Card } from "../../../../../../../shared/components";
 
-const styles = createStyles("ResultSummary", {
-  slot1: "glass-effect rounded-2xl p-6 mb-8 border-2 border-white/30",
-  slot2: "text-2xl sm:text-3xl font-bold text-center font-body",
-});
+const SUMMARY_WRAPPER_CLASSES = "mb-8 animate-scale-in";
+const SUMMARY_TEXT_CLASSES =
+  "font-body text-2xl font-bold text-center text-light-100 sm:text-3xl";
 
 interface ResultSummaryProps {
   summary: string;
@@ -11,10 +10,17 @@ interface ResultSummaryProps {
 
 export function ResultSummary({ summary }: ResultSummaryProps) {
   return (
-    <div {...styles.slot1}>
-      <p {...styles.slot2}>
-        {summary}
-      </p>
+    <div className={SUMMARY_WRAPPER_CLASSES} data-result-summary="true">
+      <Card
+        surface="glass"
+        tone="neutral"
+        padding="lg"
+        elevation="glow"
+        border="regular"
+        alignment="center"
+      >
+        <p className={SUMMARY_TEXT_CLASSES}>{summary}</p>
+      </Card>
     </div>
   );
 }

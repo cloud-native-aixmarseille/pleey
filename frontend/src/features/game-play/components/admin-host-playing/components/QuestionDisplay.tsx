@@ -1,36 +1,44 @@
-import { Card } from "../../../../../shared/components";
+import { ArcadeBadge, Card } from "../../../../../shared/components";
+import { useTranslation } from "react-i18next";
 import { Question } from "../../../../../shared/types";
-import { createStyles } from "../../../../../shared/ui/styles";
 
-const styles = createStyles("QuestionDisplay", {
-  slot1: "p-10 sm:p-16 mb-6 sm:mb-8 text-center animate-scale-in bg-gradient-to-br from-white to-light-100 border-4 border-accent-500/50 shadow-neon-accent",
-  slot2: "mb-6",
-  slot3: "inline-block glass-effect rounded-xl px-6 py-2 border-2 border-primary-500/30 mb-4",
-  slot4: "font-display text-primary-600 text-sm sm:text-base uppercase tracking-wider",
-  slot5: "text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-dark-900 leading-tight font-display uppercase",
-});
-
+const QUESTION_CARD_CONTENT_CLASSES =
+  "flex flex-col items-center gap-6 text-center animate-scale-in";
+const QUESTION_BADGE_WRAPPER_CLASSES = "flex justify-center";
+const QUESTION_TITLE_CLASSES =
+  "font-display text-4xl font-black uppercase leading-tight text-dark-900 sm:text-5xl md:text-6xl lg:text-7xl";
 
 interface QuestionDisplayProps {
   question: Question;
 }
 
 export function QuestionDisplay({ question }: QuestionDisplayProps) {
+  const { t } = useTranslation();
   const questionTypeLabel =
-    question.type === "multiple" ? "📋 Multiple Choice" : "✓/✗ True or False";
+    question.type === "multiple"
+      ? t("game.hostPlaying.question.type.multiple")
+      : t("game.hostPlaying.question.type.trueFalse");
+  const badgeTone = question.type === "multiple" ? "accent" : "secondary";
 
   return (
-    <Card {...styles.slot1}>
-      <div {...styles.slot2}>
-        <div {...styles.slot3}>
-          <p {...styles.slot4}>
+    <Card
+      surface="panel"
+      tone="neutral"
+      padding="xl"
+      border="thick"
+      elevation="glow"
+      motion="scale"
+      alignment="center"
+      data-question-display="true"
+    >
+      <div className={QUESTION_CARD_CONTENT_CLASSES}>
+        <div className={QUESTION_BADGE_WRAPPER_CLASSES}>
+          <ArcadeBadge tone={badgeTone} size="sm">
             {questionTypeLabel}
-          </p>
+          </ArcadeBadge>
         </div>
+        <h2 className={QUESTION_TITLE_CLASSES}>{question.question_text}</h2>
       </div>
-      <h2 {...styles.slot5}>
-        {question.question_text}
-      </h2>
     </Card>
   );
 }

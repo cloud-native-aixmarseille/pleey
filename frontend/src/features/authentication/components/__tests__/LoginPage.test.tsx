@@ -1,3 +1,4 @@
+import "@testing-library/jest-dom/vitest";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -75,6 +76,30 @@ describe("LoginPage", () => {
     await user.click(screen.getByRole("button", { name: /sign in/i }));
 
     expect(await screen.findByText("Invalid credentials")).toBeInTheDocument();
+  });
+
+  it("should allow toggling password visibility", async () => {
+    const user = userEvent.setup();
+    const mockLogin = vi.fn();
+
+    renderLoginPage(mockLogin);
+
+    const passwordInput = screen.getByLabelText("Password") as HTMLInputElement;
+    const toggleButton = screen.getByRole("button", {
+      name: /show password/i,
+    });
+
+    expect(passwordInput.type).toBe("password");
+
+    await user.click(toggleButton);
+    expect(passwordInput.type).toBe("text");
+
+    const hideButton = screen.getByRole("button", {
+      name: /hide password/i,
+    });
+
+    await user.click(hideButton);
+    expect(passwordInput.type).toBe("password");
   });
 
   it("should navigate back to home when back button is clicked", () => {

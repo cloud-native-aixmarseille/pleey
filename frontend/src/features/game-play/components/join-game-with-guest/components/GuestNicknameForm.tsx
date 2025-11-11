@@ -1,20 +1,22 @@
 import { ChangeEvent, KeyboardEvent, useEffect, useId, useRef } from "react";
+import { useTranslation } from "react-i18next";
+
 import { Button, BackToButton } from "../../../../../shared/components";
 import { GUEST_NICKNAME_MAX_LENGTH } from "../constants";
-import { createStyles } from "../../../../../shared/ui/styles";
 
-const styles = createStyles("GuestNicknameForm", {
-  slot1: "mb-8",
-  slot2:
-    "block font-display text-primary-300 text-xs sm:text-sm mb-4 text-center uppercase tracking-wider",
-  slot3:
-    "w-full p-4 bg-dark-500 border-4 border-accent-500/50 rounded-xl text-center text-2xl font-display focus:border-accent-500 focus:ring-4 focus:ring-accent-500/30 focus:outline-none transition-all text-accent-400 placeholder-dark-300 shadow-neon-accent",
-  slot4: "text-center font-mono text-xs text-light-500 mt-2",
-  slot5:
-    "retro-shadow font-display text-base sm:text-lg hover:scale-105 transform transition-all mb-4",
-  slot6: "flex items-center justify-center gap-3",
-  slot7: "animate-pulse",
-});
+const NICKNAME_SECTION_CLASSES = "mb-8";
+const NICKNAME_LABEL_CLASSES =
+  "mb-4 block text-center font-display text-xs uppercase tracking-wider text-primary-300 sm:text-sm";
+const NICKNAME_INPUT_CLASSES =
+  "w-full rounded-xl border-4 border-accent-500/50 bg-dark-500 p-4 text-center font-display text-2xl text-accent-400 shadow-neon-accent transition-all placeholder-dark-300 focus:border-accent-500 focus:outline-none focus:ring-4 focus:ring-accent-500/30";
+const NICKNAME_HELPER_CLASSES =
+  "mt-2 text-center font-mono text-xs text-light-500";
+
+const BUTTON_WRAPPER_CLASSES =
+  "mb-4 transform transition-transform hover:scale-105 retro-shadow";
+const BUTTON_CONTENT_CLASSES =
+  "flex items-center justify-center gap-3 font-display text-base sm:text-lg";
+const BUTTON_ICON_CLASSES = "animate-pulse";
 
 interface GuestNicknameFormProps {
   nickname: string;
@@ -31,6 +33,7 @@ export function GuestNicknameForm({
   onBack,
   autoFocus = true,
 }: GuestNicknameFormProps) {
+  const { t } = useTranslation();
   const nicknameInputId = useId();
   const trimmedNickname = nickname.trim();
   const isDisabled = trimmedNickname.length === 0;
@@ -56,9 +59,9 @@ export function GuestNicknameForm({
 
   return (
     <>
-      <div {...styles.slot1}>
-        <label htmlFor={nicknameInputId} {...styles.slot2}>
-          ► Choose Your Nickname ◄
+      <div className={NICKNAME_SECTION_CLASSES}>
+        <label htmlFor={nicknameInputId} className={NICKNAME_LABEL_CLASSES}>
+          {t("game.joinGuest.nicknameForm.label")}
         </label>
         <input
           id={nicknameInputId}
@@ -67,30 +70,37 @@ export function GuestNicknameForm({
           value={nickname}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          placeholder="Enter nickname..."
-          {...styles.slot3}
+          placeholder={t("game.joinGuest.nicknameForm.placeholder")}
+          className={NICKNAME_INPUT_CLASSES}
           maxLength={GUEST_NICKNAME_MAX_LENGTH}
         />
-        <p {...styles.slot4}>Max {GUEST_NICKNAME_MAX_LENGTH} characters</p>
+        <p className={NICKNAME_HELPER_CLASSES}>
+          {t("game.joinGuest.nicknameForm.helper", {
+            max: GUEST_NICKNAME_MAX_LENGTH,
+          })}
+        </p>
       </div>
 
-      <Button
-        variant="accent"
-        size="xl"
-        fullWidth
-        onClick={onSubmit}
-        disabled={isDisabled}
-        {...styles.slot5}
-      >
-        <span {...styles.slot6}>
-          <span {...styles.slot7}>►</span>
-          <span>JOIN AS GUEST</span>
-          <span {...styles.slot7}>◄</span>
-        </span>
-      </Button>
+      <div className={BUTTON_WRAPPER_CLASSES}>
+        <Button
+          variant="accent"
+          size="xl"
+          fullWidth
+          effect="retro"
+          alignment="center"
+          onClick={onSubmit}
+          disabled={isDisabled}
+        >
+          <span className={BUTTON_CONTENT_CLASSES}>
+            <span className={BUTTON_ICON_CLASSES}>►</span>
+            <span>{t("game.joinGuest.nicknameForm.submit")}</span>
+            <span className={BUTTON_ICON_CLASSES}>◄</span>
+          </span>
+        </Button>
+      </div>
 
       <BackToButton
-        label="Back to PIN entry"
+        label={t("game.joinGuest.nicknameForm.back")}
         onClick={onBack}
         variant="link"
         tone="primary"

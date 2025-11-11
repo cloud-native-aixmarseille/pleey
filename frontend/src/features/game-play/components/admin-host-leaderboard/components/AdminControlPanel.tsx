@@ -1,24 +1,25 @@
+import { useTranslation } from "react-i18next";
 import { AnimationStage } from "../constants";
-import { Button, Card, PrimaryButton } from "../../../../../shared/components";
-import { createStyles } from "../../../../../shared/ui/styles";
+import {
+  ArcadeGlassStack,
+  Button,
+  Card,
+  PrimaryButton,
+} from "../../../../../shared/components";
 
-const styles = createStyles("AdminControlPanel", {
-  slot1: "max-w-2xl mx-auto space-y-6 animate-fade-in",
-  slot2: "p-8 bg-gradient-to-br from-accent-500/20 to-primary-500/20 border-4 border-accent-500",
-  slot3: "font-display text-2xl sm:text-3xl text-accent-400 uppercase text-center mb-6 tracking-wider",
-  slot4: "space-y-4",
-  slot5: "flex items-center justify-center gap-4",
-  slot6: "text-3xl",
-  slot7: "text-center pt-6",
-  slot8: "text-light-400 text-lg sm:text-xl font-body",
-});
-
+const PANEL_WRAPPER_CLASSES = "mx-auto max-w-2xl space-y-6 animate-fade-in";
+const BUTTON_CONTENT_CLASSES = "flex items-center justify-center gap-4";
+const BUTTON_ICON_CLASSES = "text-3xl";
+const PANEL_FOOTER_WRAPPER_CLASSES = "pt-6 text-center";
+const PANEL_FOOTER_TEXT_CLASSES = "font-body text-lg text-light-400 sm:text-xl";
 
 interface AdminControlPanelProps {
   animationStage: AnimationStage;
 }
 
 export function AdminControlPanel({ animationStage }: AdminControlPanelProps) {
+  const { t } = useTranslation();
+
   if (animationStage < 5) {
     return null;
   }
@@ -34,45 +35,57 @@ export function AdminControlPanel({ animationStage }: AdminControlPanelProps) {
   };
 
   return (
-    <div
-      {...styles.slot1}
-      style={{ animationDelay: "0.5s" }}
-    >
-      <Card {...styles.slot2}>
-        <h3 {...styles.slot3}>
-          👑 Admin Controls
-        </h3>
-        <div {...styles.slot4}>
-          <Button
-            variant="accent"
-            size="xl"
-            fullWidth
-            effect="retro"
-            onClick={handleNavigateAdmin}
-          >
-            <span {...styles.slot5}>
-              <span {...styles.slot6}>📊</span>
-              <span>BACK TO ADMIN DASHBOARD</span>
-            </span>
-          </Button>
+    <div className={PANEL_WRAPPER_CLASSES} style={{ animationDelay: "0.5s" }}>
+      <Card
+        surface="panel"
+        tone="accent"
+        padding="lg"
+        border="thick"
+        elevation="panel"
+        alignment="center"
+      >
+        <ArcadeGlassStack
+          title={t("game.hostLeaderboard.controls.heading")}
+          align="center"
+          tone="accent"
+          spacing="lg"
+        >
+          <div className="space-y-4">
+            <Button
+              variant="accent"
+              size="xl"
+              fullWidth
+              effect="retro"
+              onClick={handleNavigateAdmin}
+            >
+              <span className={BUTTON_CONTENT_CLASSES}>
+                <span className={BUTTON_ICON_CLASSES} aria-hidden>
+                  📊
+                </span>
+                <span>{t("game.hostLeaderboard.controls.backToAdmin")}</span>
+              </span>
+            </Button>
 
-          <PrimaryButton
-            size="xl"
-            fullWidth
-            effect="retro"
-            onClick={handleNavigateHome}
-          >
-            <span {...styles.slot5}>
-              <span {...styles.slot6}>🎮</span>
-              <span>NEW GAME</span>
-            </span>
-          </PrimaryButton>
-        </div>
+            <PrimaryButton
+              size="xl"
+              fullWidth
+              effect="retro"
+              onClick={handleNavigateHome}
+            >
+              <span className={BUTTON_CONTENT_CLASSES}>
+                <span className={BUTTON_ICON_CLASSES} aria-hidden>
+                  🎮
+                </span>
+                <span>{t("game.hostLeaderboard.controls.newGame")}</span>
+              </span>
+            </PrimaryButton>
+          </div>
+        </ArcadeGlassStack>
       </Card>
 
-      <div {...styles.slot7}>
-        <p {...styles.slot8}>
-          Thanks for hosting! 🎮✨
+      <div className={PANEL_FOOTER_WRAPPER_CLASSES}>
+        <p className={PANEL_FOOTER_TEXT_CLASSES}>
+          {t("game.hostLeaderboard.controls.footer")}
         </p>
       </div>
     </div>

@@ -1,13 +1,15 @@
 import { FormEvent, ReactNode } from "react";
 
-import { Button, Input } from "../../../../../shared/components";
+import {
+  Button,
+  Input,
+  PasswordInput,
+  type PasswordToggleLabels,
+} from "../../../../../shared/components";
 import type { RegisterCredentials } from "../types";
-import { createStyles } from "../../../../../shared/ui/styles";
 
-const styles = createStyles("RegisterForm", {
-  slot1: "space-y-6",
-  slot3: "flex items-center justify-center gap-2",
-});
+const FORM_CLASSES = "space-y-6";
+const ACTION_CONTENT_CLASSES = "flex items-center justify-center gap-2";
 
 interface RegisterFormProps {
   onSubmit: (credentials: RegisterCredentials) => Promise<void> | void;
@@ -19,6 +21,7 @@ interface RegisterFormProps {
   passwordPlaceholder: string;
   submitLabel: string;
   submitIcon?: ReactNode;
+  passwordToggleLabels: PasswordToggleLabels;
 }
 
 export function RegisterForm({
@@ -31,6 +34,7 @@ export function RegisterForm({
   passwordPlaceholder,
   submitLabel,
   submitIcon,
+  passwordToggleLabels,
 }: RegisterFormProps) {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -45,7 +49,7 @@ export function RegisterForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} {...styles.slot1}>
+    <form onSubmit={handleSubmit} className={FORM_CLASSES}>
       <Input
         type="text"
         name="username"
@@ -64,17 +68,16 @@ export function RegisterForm({
         required
       />
 
-      <Input
-        type="password"
+      <PasswordInput
         name="password"
         placeholder={passwordPlaceholder}
         label={passwordLabel}
-        icon={{ name: "Lock" }}
+        toggleLabels={passwordToggleLabels}
         required
       />
 
       <Button type="submit" variant="accent" size="lg" fullWidth>
-        <span {...styles.slot3}>
+        <span className={ACTION_CONTENT_CLASSES}>
           <span>{submitLabel}</span>
           {submitIcon ? <span>{submitIcon}</span> : null}
         </span>

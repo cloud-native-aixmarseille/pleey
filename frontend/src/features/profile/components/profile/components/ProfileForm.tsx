@@ -2,15 +2,12 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 
 import { Button, Input, PrimaryButton } from "../../../../../shared/components";
 import type { User } from "../../../../../shared/types";
-import { createStyles } from "../../../../../shared/ui/styles";
 
-const styles = createStyles("ProfileForm", {
-  slot1: "space-y-6",
-  slot2: "grid grid-cols-1 gap-6",
-  slot3: "flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4",
-  slot4: "sm:w-auto",
-});
-
+const FORM_WRAPPER_CLASSES = "flex flex-col gap-6";
+const FORM_FIELDS_GRID_CLASSES = "grid grid-cols-1 gap-6";
+const ACTION_ROW_CLASSES =
+  "flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-center";
+const PRIMARY_BUTTON_WRAPPER_CLASSES = "sm:w-auto";
 
 interface ProfileFormProps {
   user: User;
@@ -74,8 +71,8 @@ export function ProfileForm({
   };
 
   return (
-    <form {...styles.slot1} onSubmit={handleSubmit}>
-      <div {...styles.slot2}>
+    <form className={FORM_WRAPPER_CLASSES} onSubmit={handleSubmit}>
+      <div className={FORM_FIELDS_GRID_CLASSES}>
         <Input
           label={usernameLabel}
           value={username}
@@ -96,9 +93,9 @@ export function ProfileForm({
         />
       </div>
 
-      <div {...styles.slot3}>
-        <div {...styles.slot4}>
-          <PrimaryButton type="submit" disabled={disableSave}>
+      <div className={ACTION_ROW_CLASSES}>
+        <div className={PRIMARY_BUTTON_WRAPPER_CLASSES}>
+          <PrimaryButton type="submit" disabled={disableSave} fullWidth>
             {disableSave ? loadingLabel : saveLabel}
           </PrimaryButton>
         </div>
@@ -109,6 +106,7 @@ export function ProfileForm({
           effect="flat"
           onClick={handleReset}
           disabled={!isDirty || isSaving || isSubmitting}
+          fullWidth
         >
           {cancelLabel}
         </Button>

@@ -15,12 +15,9 @@ import { ProfileRoute } from "./features/profile/routes/ProfileRoute";
 import { AccountBar } from "./application/app/components/AccountBar";
 import { AppLifecycleManager } from "./application/app/components/AppLifecycleManager";
 import { useAuthManagerContext } from "./application/app/context/AuthManagerContext";
-import { createStyles } from "./shared/ui/styles";
 
-const styles = createStyles("AppRoutes", {
-  shellAuthenticated: "pt-36 pb-12",
-  shellAnonymous: "pt-12 pb-12",
-});
+const SHELL_AUTHENTICATED_CLASSES = "pt-36 pb-12";
+const SHELL_ANONYMOUS_CLASSES = "pt-12 pb-12";
 
 /**
  * Application routes and global UI shell. Keeps routing declarations declarative
@@ -28,14 +25,14 @@ const styles = createStyles("AppRoutes", {
  */
 export function AppRoutes() {
   const { isAuthenticated } = useAuthManagerContext();
-  const shellStyles = isAuthenticated
-    ? styles.shellAuthenticated
-    : styles.shellAnonymous;
+  const shellClassName = isAuthenticated
+    ? SHELL_AUTHENTICATED_CLASSES
+    : SHELL_ANONYMOUS_CLASSES;
 
   return (
     <>
       <AppLifecycleManager />
-      <div {...shellStyles}>
+      <div className={shellClassName} data-app-shell="true">
         <AccountBar />
 
         <Routes>

@@ -1,54 +1,54 @@
-import {
-  ArcadeProgressBar,
-  Button,
-  Card,
-} from "../../../../../shared/components";
+import { ArcadeProgressBar, Button } from "../../../../../shared/components";
 import { AnswerResult, Question } from "../../../../../shared/types";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import {
   ANSWER_OPTION_KEYS,
   MIN_DISPLAY_PERCENTAGE,
   AnswerOptionKey,
 } from "../constants";
-import { createStyles } from "../../../../../shared/ui/styles";
 import type { ArcadeProgressTone } from "../../../../../shared/ui/components/ArcadeProgressBar";
 
-const styles = createStyles("ResultsDisplay", {
-  slot1:
-    "p-8 sm:p-12 bg-gradient-to-br from-accent-500 to-primary-600 text-white animate-scale-in border-4 border-accent-400",
-  slot2: "text-center mb-8",
-  slot3: "text-8xl sm:text-9xl mb-4 animate-bounce-slow",
-  slot4:
-    "text-4xl sm:text-5xl md:text-6xl font-black mb-4 font-display uppercase animate-glow",
-  slot5:
-    "inline-block glass-effect rounded-2xl px-8 py-4 border-2 border-white/50",
-  slot6: "text-3xl sm:text-4xl font-bold font-body",
-  slot7: "text-success-200",
-  slot8:
-    "glass-effect rounded-2xl p-8 border-4 border-white/30 animate-fade-in",
-  slot9:
-    "text-2xl sm:text-3xl font-bold mb-6 text-center font-display uppercase",
-  slot10: "space-y-4",
-  slot11: "relative",
-  slot12: "flex items-center justify-between mb-2 text-lg sm:text-xl font-mono",
-  slot13: "font-bold flex items-center gap-2",
-  slot14: "text-2xl",
-  slot15: "text-3xl",
-  slot16: "font-black text-2xl sm:text-3xl",
-  slot17:
-    "relative h-12 sm:h-16 bg-dark-700/50 rounded-2xl overflow-hidden border-2 border-white/30",
-  slot18: "text-white font-black text-xl sm:text-2xl drop-shadow-lg",
-  slot19: "font-bold uppercase flex items-center gap-2",
-  slot20: "text-center mt-6",
-  slot21:
-    "inline-block glass-effect rounded-xl px-6 py-3 border-2 border-white/30",
-  slot22: "text-xl sm:text-2xl font-bold font-mono",
-  slot23: "mt-8",
-  slot24:
-    "border-4 border-white text-white hover:bg-white hover:text-dark-900 font-display uppercase text-xl sm:text-2xl py-6 sm:py-8 retro-shadow",
-  slot25: "flex items-center justify-center gap-4",
-  slot26: "text-3xl sm:text-4xl",
-  slot27: "px-4 sm:px-6",
-});
+const RESULTS_WRAPPER_CLASSES =
+  "animate-scale-in rounded-[var(--arcade-radius-2xl)] border-4 border-accent-400 bg-gradient-to-br from-accent-500 to-primary-600 p-8 text-white shadow-neon-accent sm:p-12";
+const RESULTS_CONTENT_CLASSES = "space-y-10";
+const RESULTS_HEADER_CLASSES = "space-y-4 text-center";
+const RESULTS_ICON_CLASSES =
+  "mx-auto text-7xl animate-bounce-slow drop-shadow-[0_0_25px_rgba(255,255,255,0.35)] sm:text-8xl";
+const RESULTS_TITLE_CLASSES =
+  "font-display text-4xl font-black uppercase tracking-[0.45em] animate-glow sm:text-5xl md:text-6xl";
+const CORRECT_ANSWER_BADGE_CLASSES =
+  "mx-auto inline-flex items-center justify-center gap-3 rounded-2xl border-2 border-white/40 bg-white/10 px-8 py-4 shadow-[0_0_25px_rgba(255,255,255,0.12)]";
+const CORRECT_ANSWER_TEXT_CLASSES =
+  "font-body text-2xl font-semibold sm:text-3xl";
+const CORRECT_ANSWER_VALUE_CLASSES = "text-success-200";
+const RESPONSES_SECTION_CLASSES =
+  "rounded-2xl border-4 border-white/30 bg-dark-900/45 p-8 backdrop-blur-md shadow-[0_0_35px_rgba(15,118,110,0.35)] animate-fade-in";
+const RESPONSES_TITLE_CLASSES =
+  "mb-6 text-center font-display text-2xl font-black uppercase tracking-[0.35em]";
+const RESPONSE_LIST_CLASSES = "space-y-4";
+const RESPONSE_ROW_CLASSES = "space-y-2";
+const RESPONSE_HEADER_CLASSES =
+  "flex items-center justify-between text-lg font-mono sm:text-xl";
+const RESPONSE_LABEL_GROUP_CLASSES =
+  "flex items-center gap-2 font-display text-xl font-semibold sm:text-2xl";
+const RESPONSE_OPTION_INDEX_CLASSES = "text-2xl";
+const RESPONSE_CORRECT_ICON_CLASSES = "text-3xl";
+const RESPONSE_PERCENTAGE_CLASSES =
+  "font-display text-2xl font-black sm:text-3xl";
+const PROGRESS_TRACK_CLASSES =
+  "relative h-12 overflow-hidden rounded-2xl border-2 border-white/30 bg-dark-700/60 sm:h-16";
+const PROGRESS_FILL_CLASSES = "px-4 sm:px-6";
+const PROGRESS_VALUE_TEXT_CLASSES =
+  "font-display text-xl font-black drop-shadow-lg sm:text-2xl";
+const TRUE_FALSE_LABEL_CLASSES =
+  "flex items-center gap-2 font-display text-xl font-semibold uppercase sm:text-2xl";
+const TOTAL_WRAPPER_CLASSES = "mt-6 text-center";
+const TOTAL_BADGE_CLASSES =
+  "inline-flex items-center gap-3 rounded-xl border-2 border-white/30 bg-white/10 px-6 py-3 font-body text-xl font-semibold sm:text-2xl";
+const CTA_WRAPPER_CLASSES = "mt-8";
+const CTA_CONTENT_CLASSES = "flex items-center justify-center gap-4";
+const CTA_ICON_CLASSES = "text-3xl sm:text-4xl";
 
 const PROGRESS_TONES: Record<"correct" | "default", ArcadeProgressTone> = {
   correct: "success",
@@ -97,149 +97,208 @@ export function ResultsDisplay({
   answerResult,
   onNextQuestion,
 }: ResultsDisplayProps) {
+  const { t } = useTranslation();
   const statistics = answerResult.statistics;
   const totalResponses = statistics?.totalAnswers ?? 0;
   const distribution: Partial<Record<DistributionKey, number>> =
     statistics?.answerDistribution ?? {};
 
   return (
-    <Card {...styles.slot1}>
-      <div {...styles.slot2}>
-        <div {...styles.slot3}>🎯</div>
-        <h3 {...styles.slot4}>RESULTS</h3>
-        <div {...styles.slot5}>
-          <p {...styles.slot6}>
-            Correct Answer:{" "}
-            <span {...styles.slot7}>{answerResult.correctAnswer}</span>
-          </p>
-        </div>
-      </div>
-
-      {statistics && totalResponses > 0 && (
-        <div {...styles.slot8}>
-          <h4 {...styles.slot9}>📊 Player Responses</h4>
-
-          <div {...styles.slot10}>
-            {question.type === "multiple"
-              ? ANSWER_OPTION_KEYS.map((optionKey, index) => {
-                  const optionText = getMultipleChoiceText(question, optionKey);
-                  const percentage = getPercentage(answerResult, optionKey);
-                  const count = distribution[optionKey] || 0;
-                  const isCorrect = optionKey === answerResult.correctAnswer;
-                  const optionLabel = optionText
-                    ? `${optionKey}. ${optionText}`
-                    : `Option ${optionKey}`;
-                  const ariaLabel = buildProgressAriaLabel({
-                    label: optionLabel,
-                    percentage,
-                    count,
-                    total: totalResponses,
-                    isCorrect,
-                  });
-                  const tone = resolveProgressTone(isCorrect);
-
-                  return (
-                    <div key={optionKey} {...styles.slot11}>
-                      <div {...styles.slot12}>
-                        <span {...styles.slot13}>
-                          <span {...styles.slot14}>{optionKey}.</span>
-                          <span>{optionText}</span>
-                          {isCorrect && <span {...styles.slot15}>✓</span>}
-                        </span>
-                        <span {...styles.slot16}>{percentage}%</span>
-                      </div>
-                      <ArcadeProgressBar
-                        value={percentage}
-                        max={100}
-                        tone={tone}
-                        animationDelay={`${index * 0.1}s`}
-                        aria-label={ariaLabel}
-                        trackSlot={styles.slot17}
-                        fillSlot={styles.slot27}
-                        size="lg"
-                      >
-                        {percentage > MIN_DISPLAY_PERCENTAGE && (
-                          <span {...styles.slot18}>
-                            {count} player{count !== 1 ? "s" : ""}
-                          </span>
-                        )}
-                      </ArcadeProgressBar>
-                    </div>
-                  );
-                })
-              : (["true", "false"] as const).map((optionKey, index) => {
-                  const label = optionKey === "true" ? "VRAI" : "FAUX";
-                  const icon = optionKey === "true" ? "✓" : "✗";
-                  const percentage = getPercentage(answerResult, optionKey);
-                  const count = distribution[optionKey] || 0;
-                  const isCorrect = optionKey === answerResult.correctAnswer;
-                  const ariaLabel = buildProgressAriaLabel({
-                    label,
-                    percentage,
-                    count,
-                    total: totalResponses,
-                    isCorrect,
-                  });
-                  const tone = resolveProgressTone(isCorrect);
-
-                  return (
-                    <div key={optionKey} {...styles.slot11}>
-                      <div {...styles.slot12}>
-                        <span {...styles.slot19}>
-                          <span {...styles.slot14}>{icon}</span>
-                          <span>{label}</span>
-                          {isCorrect && <span {...styles.slot15}>✓</span>}
-                        </span>
-                        <span {...styles.slot16}>{percentage}%</span>
-                      </div>
-                      <ArcadeProgressBar
-                        value={percentage}
-                        max={100}
-                        tone={tone}
-                        animationDelay={`${index * 0.1}s`}
-                        aria-label={ariaLabel}
-                        trackSlot={styles.slot17}
-                        fillSlot={styles.slot27}
-                        size="lg"
-                      >
-                        {percentage > MIN_DISPLAY_PERCENTAGE && (
-                          <span {...styles.slot18}>
-                            {count} player{count !== 1 ? "s" : ""}
-                          </span>
-                        )}
-                      </ArcadeProgressBar>
-                    </div>
-                  );
-                })}
+    <div className={RESULTS_WRAPPER_CLASSES}>
+      <div className={RESULTS_CONTENT_CLASSES}>
+        <div className={RESULTS_HEADER_CLASSES}>
+          <div className={RESULTS_ICON_CLASSES} aria-hidden>
+            🎯
           </div>
+          <h3 className={RESULTS_TITLE_CLASSES}>
+            {t("game.hostPlaying.results.title")}
+          </h3>
+          <div className={CORRECT_ANSWER_BADGE_CLASSES}>
+            <p className={CORRECT_ANSWER_TEXT_CLASSES}>
+              {t("game.hostPlaying.results.correctAnswerLabel")}{" "}
+              <span className={CORRECT_ANSWER_VALUE_CLASSES}>
+                {answerResult.correctAnswer}
+              </span>
+            </p>
+          </div>
+        </div>
 
-          <div {...styles.slot20}>
-            <div {...styles.slot21}>
-              <p {...styles.slot22}>
-                Total: {totalResponses}{" "}
-                {totalResponses === 1 ? "response" : "responses"}
-              </p>
+        {statistics && totalResponses > 0 && (
+          <div className={RESPONSES_SECTION_CLASSES}>
+            <h4 className={RESPONSES_TITLE_CLASSES}>
+              {t("game.hostPlaying.results.responsesTitle")}
+            </h4>
+
+            <div className={RESPONSE_LIST_CLASSES}>
+              {question.type === "multiple"
+                ? ANSWER_OPTION_KEYS.map((optionKey, index) => {
+                    const optionText = getMultipleChoiceText(
+                      question,
+                      optionKey
+                    );
+                    const percentage = getPercentage(answerResult, optionKey);
+                    const count = distribution[optionKey] || 0;
+                    const isCorrect = optionKey === answerResult.correctAnswer;
+                    const fallbackLabel = t(
+                      "game.hostPlaying.results.fallbackOption",
+                      {
+                        letter: optionKey,
+                      }
+                    );
+                    const optionLabel = optionText
+                      ? t("game.hostPlaying.results.optionLabel", {
+                          letter: optionKey,
+                          text: optionText,
+                        })
+                      : fallbackLabel;
+                    const ariaLabel = buildProgressAriaLabel({
+                      label: optionLabel,
+                      percentage,
+                      count,
+                      total: totalResponses,
+                      isCorrect,
+                      t,
+                    });
+                    const tone = resolveProgressTone(isCorrect);
+
+                    return (
+                      <div key={optionKey} className={RESPONSE_ROW_CLASSES}>
+                        <div className={RESPONSE_HEADER_CLASSES}>
+                          <span className={RESPONSE_LABEL_GROUP_CLASSES}>
+                            <span className={RESPONSE_OPTION_INDEX_CLASSES}>
+                              {optionKey}.
+                            </span>
+                            <span>{optionText || fallbackLabel}</span>
+                            {isCorrect && (
+                              <span
+                                className={RESPONSE_CORRECT_ICON_CLASSES}
+                                aria-hidden
+                              >
+                                ✓
+                              </span>
+                            )}
+                          </span>
+                          <span className={RESPONSE_PERCENTAGE_CLASSES}>
+                            {t("game.hostPlaying.results.percentage", {
+                              percentage,
+                            })}
+                          </span>
+                        </div>
+                        <ArcadeProgressBar
+                          value={percentage}
+                          max={100}
+                          tone={tone}
+                          animationDelay={`${index * 0.1}s`}
+                          aria-label={ariaLabel}
+                          className={PROGRESS_TRACK_CLASSES}
+                          fillClassName={PROGRESS_FILL_CLASSES}
+                          size="lg"
+                        >
+                          {percentage > MIN_DISPLAY_PERCENTAGE && (
+                            <span className={PROGRESS_VALUE_TEXT_CLASSES}>
+                              {t("game.hostPlaying.results.playerCount", {
+                                count,
+                              })}
+                            </span>
+                          )}
+                        </ArcadeProgressBar>
+                      </div>
+                    );
+                  })
+                : (["true", "false"] as const).map((optionKey, index) => {
+                    const label =
+                      optionKey === "true"
+                        ? t("game.playing.trueFalse.trueWord")
+                        : t("game.playing.trueFalse.falseWord");
+                    const icon = optionKey === "true" ? "✓" : "✗";
+                    const percentage = getPercentage(answerResult, optionKey);
+                    const count = distribution[optionKey] || 0;
+                    const isCorrect = optionKey === answerResult.correctAnswer;
+                    const ariaLabel = buildProgressAriaLabel({
+                      label,
+                      percentage,
+                      count,
+                      total: totalResponses,
+                      isCorrect,
+                      t,
+                    });
+                    const tone = resolveProgressTone(isCorrect);
+
+                    return (
+                      <div key={optionKey} className={RESPONSE_ROW_CLASSES}>
+                        <div className={RESPONSE_HEADER_CLASSES}>
+                          <span className={TRUE_FALSE_LABEL_CLASSES}>
+                            <span>{icon}</span>
+                            <span>{label}</span>
+                            {isCorrect && (
+                              <span
+                                className={RESPONSE_CORRECT_ICON_CLASSES}
+                                aria-hidden
+                              >
+                                ✓
+                              </span>
+                            )}
+                          </span>
+                          <span className={RESPONSE_PERCENTAGE_CLASSES}>
+                            {t("game.hostPlaying.results.percentage", {
+                              percentage,
+                            })}
+                          </span>
+                        </div>
+                        <ArcadeProgressBar
+                          value={percentage}
+                          max={100}
+                          tone={tone}
+                          animationDelay={`${index * 0.1}s`}
+                          aria-label={ariaLabel}
+                          className={PROGRESS_TRACK_CLASSES}
+                          fillClassName={PROGRESS_FILL_CLASSES}
+                          size="lg"
+                        >
+                          {percentage > MIN_DISPLAY_PERCENTAGE && (
+                            <span className={PROGRESS_VALUE_TEXT_CLASSES}>
+                              {t("game.hostPlaying.results.playerCount", {
+                                count,
+                              })}
+                            </span>
+                          )}
+                        </ArcadeProgressBar>
+                      </div>
+                    );
+                  })}
+            </div>
+
+            <div className={TOTAL_WRAPPER_CLASSES}>
+              <div className={TOTAL_BADGE_CLASSES}>
+                {t("game.hostPlaying.results.totalResponses", {
+                  count: totalResponses,
+                })}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      <div {...styles.slot23}>
-        <Button
-          variant="ghost"
-          size="xl"
-          fullWidth
-          onClick={onNextQuestion}
-          {...styles.slot24}
-        >
-          <span {...styles.slot25}>
-            <span {...styles.slot26}>▶</span>
-            <span>NEXT QUESTION</span>
-            <span {...styles.slot26}>◀</span>
-          </span>
-        </Button>
+        <div className={CTA_WRAPPER_CLASSES}>
+          <Button
+            variant="accent"
+            size="xl"
+            fullWidth
+            effect="retro"
+            onClick={onNextQuestion}
+          >
+            <span className={CTA_CONTENT_CLASSES}>
+              <span className={CTA_ICON_CLASSES} aria-hidden>
+                ▶
+              </span>
+              <span>{t("game.hostPlaying.results.nextQuestion")}</span>
+              <span className={CTA_ICON_CLASSES} aria-hidden>
+                ◀
+              </span>
+            </span>
+          </Button>
+        </div>
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -253,6 +312,7 @@ interface ProgressLabelArgs {
   count: number;
   total: number;
   isCorrect: boolean;
+  t: TFunction;
 }
 
 function buildProgressAriaLabel({
@@ -261,11 +321,15 @@ function buildProgressAriaLabel({
   count,
   total,
   isCorrect,
+  t,
 }: ProgressLabelArgs) {
-  const segments = [`${label}: ${percentage}%`, `${count} of ${total} players`];
+  const segments = [
+    t("game.hostPlaying.results.aria.percent", { label, percentage }),
+    t("game.hostPlaying.results.aria.count", { count, total }),
+  ];
 
   if (isCorrect) {
-    segments.push("Correct answer");
+    segments.push(t("game.hostPlaying.results.aria.correct"));
   }
 
   return segments.join(", ");

@@ -24,6 +24,12 @@
     "loginButton": "Se connecter",
     "emailPlaceholder": "votre@email.com",
     "passwordPlaceholder": "********",
+    "passwordToggle": {
+      "show": "Afficher",
+      "hide": "Masquer",
+      "showAria": "Afficher le mot de passe",
+      "hideAria": "Masquer le mot de passe"
+    },
     "registerButton": "Créer un compte",
     "usernamePlaceholder": "JoueurPro",
     "newToQuizMaster": "Nouveau sur QuizMaster ?",
@@ -286,6 +292,87 @@
     "joinManualLinkPrefix": "Rejoindre sur",
     "joinStepWaitDescription": "Restez sur cet écran jusqu'à ce que l'hôte lance le quiz.",
     "copyPinAriaLabel": "Copier le PIN du jeu dans le presse-papiers",
+    "joinPage": {
+      "header": {
+        "title": "► REJOINDRE UNE PARTIE",
+        "subtitle": "> Entrez le code PIN pour commencer",
+        "backLabel": "RETOUR AU MENU",
+        "backAria": "Retour au menu principal"
+      },
+      "systemStatus": {
+        "label": "SYSTÈME PRÊT",
+        "waiting": "> EN ATTENTE D'UNE ENTRÉE..."
+      },
+      "pin": {
+        "label": "► Entrez le PIN du jeu ◄",
+        "lengthLabel": "TAILLE DU PIN :",
+        "lengthValue": "{{current}}/{{total}}",
+        "placeholder": "••••••"
+      },
+      "primaryAction": {
+        "button": "LANCER LA PARTIE",
+        "completeMessage": "✓ PIN COMPLET - APPUYEZ SUR START OU ENTRÉE"
+      },
+      "instructions": {
+        "title": "► COMMENT REJOINDRE",
+        "items": [
+          "Demandez au maître du jeu le code PIN à 6 caractères",
+          "Le PIN s'affiche en grand sur l'écran de l'hôte",
+          "Saisissez-le ci-dessus et appuyez sur LANCER LA PARTIE !"
+        ]
+      },
+      "footer": "> PRÉPAREZ-VOUS POUR UN QUIZ ÉPIQUE ! <"
+    },
+    "joinGuest": {
+      "header": {
+        "subtitlePin": "> Entrez le PIN ou continuez en invité",
+        "subtitleGuest": "> Mode invité activé - choisissez votre pseudo"
+      },
+      "status": {
+        "anonymous": "Joueur invité",
+        "authenticated": "Connecté en tant que {{username}}",
+        "guestMode": "> Mode invité prêt - choisissez un pseudo"
+      },
+      "instructions": {
+        "title": {
+          "default": "► COMMENT REJOINDRE",
+          "guestMode": "► CHOISISSEZ VOTRE PSEUDO",
+          "authenticated": "► PRÊT À JOUER"
+        },
+        "default": [
+          "Entrez le PIN à 6 caractères pour rejoindre l'arène.",
+          "Connectez-vous pour l'expérience complète ou continuez en invité.",
+          "Appuyez sur LANCER LA PARTIE lorsque le PIN est complet."
+        ],
+        "guestMode": [
+          "Choisissez un pseudo pour le classement.",
+          "Gardez un style rétro et respectez la limite de caractères.",
+          "Appuyez sur REJOINDRE EN INVITÉ pour entrer en jeu."
+        ],
+        "authenticated": [
+          "PIN complet ? Appuyez sur LANCER LA PARTIE pour rejoindre instantanément.",
+          "Vous êtes déjà connecté et prêt à jouer.",
+          "Besoin de changer de compte ? Retournez au menu principal."
+        ]
+      },
+      "primaryButton": {
+        "authenticated": "CONFIRMER ET REJOINDRE",
+        "continue": "CONTINUER",
+        "completeAuthenticated": "✓ PIN COMPLET - APPUYEZ SUR ENTRÉE POUR REJOINDRE",
+        "completeContinue": "✓ PIN COMPLET - APPUYEZ SUR START OU ENTRÉE"
+      },
+      "signIn": {
+        "prompt": "> Vous avez un compte ? Connectez-vous pour vos stats et récompenses.",
+        "cta": "CONNEXION"
+      },
+      "nicknameForm": {
+        "label": "► Choisissez votre pseudo ◄",
+        "placeholder": "Saisissez un pseudo...",
+        "helper": "Max {{max}} caractères",
+        "submit": "REJOINDRE EN INVITÉ",
+        "back": "Retour à la saisie du PIN"
+      }
+    },
     "playing": {
       "timer": {
         "questionProgress": "Question {{current}} / {{total}}",
@@ -329,6 +416,62 @@
           "incorrect": "échoué"
         },
         "nextQuestion": "Question suivante"
+      }
+    },
+    "hostPlaying": {
+      "badge": "VUE HÔTE - MODE PARTAGE D'ÉCRAN",
+      "round": {
+        "questionLabel": "Question",
+        "secondsLabel": "secondes",
+        "answeredLabel": "Réponses"
+      },
+      "question": {
+        "type": {
+          "multiple": "📋 Choix multiple",
+          "trueFalse": "✓/✗ Vrai ou Faux"
+        }
+      },
+      "waiting": {
+        "heading": "⏳ En attente des réponses des joueurs..."
+      },
+      "results": {
+        "title": "RÉSULTATS",
+        "correctAnswerLabel": "Réponse correcte :",
+        "responsesTitle": "📊 Réponses des joueurs",
+        "optionLabel": "{{letter}}. {{text}}",
+        "fallbackOption": "Option {{letter}}",
+        "percentage": "{{percentage}} %",
+        "playerCount_one": "{{count}} joueur",
+        "playerCount_other": "{{count}} joueurs",
+        "totalResponses_one": "Total : {{count}} réponse",
+        "totalResponses_other": "Total : {{count}} réponses",
+        "nextQuestion": "QUESTION SUIVANTE",
+        "aria": {
+          "percent": "{{label}} : {{percentage}} %",
+          "count": "{{count}} sur {{total}} joueurs",
+          "correct": "Réponse correcte"
+        }
+      }
+    },
+    "hostLeaderboard": {
+      "badge": "VUE HÔTE",
+      "title": {
+        "main": "FIN DU JEU",
+        "subtitle": "Classement final",
+        "message": "Bravo à tous les joueurs ! 🎉"
+      },
+      "controls": {
+        "heading": "👑 Contrôles Admin",
+        "backToAdmin": "RETOUR AU TABLEAU DE BORD ADMIN",
+        "newGame": "NOUVELLE PARTIE",
+        "footer": "Merci d'avoir animé la partie ! 🎮✨"
+      },
+      "additionalPlayers": {
+        "title": "Autres meilleurs joueurs"
+      },
+      "points": {
+        "suffix": "{{count}} pts",
+        "celebration": "🎯 {{count}} pts"
       }
     },
     "share": {

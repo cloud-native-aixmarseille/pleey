@@ -1,42 +1,31 @@
-import { ArcadeProgressBar, Card } from "../../../../../shared/components";
+import {
+  ArcadeProgressBar,
+  ArcadeTimer,
+  Card,
+} from "../../../../../shared/components";
+import { useTranslation } from "react-i18next";
 import { TimerUrgency } from "../constants";
-import { createStyles, type StyleEntry } from "../../../../../shared/ui/styles";
 import type { ArcadeProgressTone } from "../../../../../shared/ui/components/ArcadeProgressBar";
+import type { ArcadeTimerTone } from "../../../../../shared/ui/components/ArcadeTimer";
 
-const styles = createStyles("RoundStatusCard", {
-  container:
-    "p-6 sm:p-8 mb-6 sm:mb-8 animate-slide-down border-4 border-primary-500/50",
-  headerRow:
-    "flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-6 mb-4",
-  infoCard: "glass-effect rounded-2xl px-6 py-4 border-2 border-accent-500/50",
-  centered: "text-center",
-  accentLabel:
-    "font-display text-accent-500 text-sm mb-1 uppercase tracking-wider",
-  prominentValue: "font-display text-white font-bold text-3xl sm:text-4xl",
-  timerIcon: "text-5xl sm:text-6xl",
-  timerValue: "font-display text-6xl sm:text-7xl tracking-wider",
-  timerSubLabel: "font-mono text-sm uppercase tracking-wider opacity-80",
-  answeredCard:
-    "glass-effect rounded-2xl px-6 py-4 border-2 border-primary-500/50",
-  answeredLabel:
-    "font-display text-primary-500 text-sm mb-1 uppercase tracking-wider",
-  progressTrack:
-    "relative w-full bg-dark-700 rounded-full h-8 overflow-hidden border-4 border-dark-600 shadow-inner",
-  progressGlow:
-    "absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-float",
-  timerLowStable:
-    "flex items-center gap-4 px-8 py-5 rounded-2xl font-black border-4 transition-all duration-300 transform scale-100 bg-danger-500/30 text-danger-400 border-danger-500 animate-pulse shadow-neon-danger",
-  timerLowPulse:
-    "flex items-center gap-4 px-8 py-5 rounded-2xl font-black border-4 transition-all duration-300 transform scale-110 bg-danger-500/30 text-danger-400 border-danger-500 animate-pulse shadow-neon-danger",
-  timerMediumStable:
-    "flex items-center gap-4 px-8 py-5 rounded-2xl font-black border-4 transition-all duration-300 transform scale-100 bg-secondary-500/30 text-secondary-400 border-secondary-500 shadow-neon-secondary",
-  timerMediumPulse:
-    "flex items-center gap-4 px-8 py-5 rounded-2xl font-black border-4 transition-all duration-300 transform scale-110 bg-secondary-500/30 text-secondary-400 border-secondary-500 shadow-neon-secondary",
-  timerHighStable:
-    "flex items-center gap-4 px-8 py-5 rounded-2xl font-black border-4 transition-all duration-300 transform scale-100 bg-success-500/30 text-success-400 border-success-500 shadow-neon-accent",
-  timerHighPulse:
-    "flex items-center gap-4 px-8 py-5 rounded-2xl font-black border-4 transition-all duration-300 transform scale-110 bg-success-500/30 text-success-400 border-success-500 shadow-neon-accent",
-});
+const CARD_WRAPPER_CLASSES = "mb-6 sm:mb-8 animate-slide-down";
+const HEADER_ROW_CLASSES =
+  "mb-4 flex flex-col items-center justify-between gap-4 sm:flex-row sm:gap-6";
+const INFO_CARD_CLASSES =
+  "glass-effect rounded-2xl border-2 border-accent-500/50 px-6 py-4";
+const ANSWERED_CARD_CLASSES =
+  "glass-effect rounded-2xl border-2 border-primary-500/50 px-6 py-4";
+const CENTERED_TEXT_CLASSES = "text-center";
+const ACCENT_LABEL_CLASSES =
+  "mb-1 font-display text-sm uppercase tracking-wider text-accent-500";
+const ANSWERED_LABEL_CLASSES =
+  "mb-1 font-display text-sm uppercase tracking-wider text-primary-500";
+const PROMINENT_VALUE_CLASSES =
+  "font-display text-3xl font-bold text-white sm:text-4xl";
+const PROGRESS_TRACK_CLASSES =
+  "relative h-8 w-full overflow-hidden rounded-full border-4 border-dark-600 bg-dark-700 shadow-inner";
+const PROGRESS_GLOW_CLASSES =
+  "pointer-events-none absolute inset-0 animate-float bg-gradient-to-r from-transparent via-white/40 to-transparent";
 
 interface RoundStatusCardProps {
   questionNumber: number;
@@ -49,19 +38,13 @@ interface RoundStatusCardProps {
   showResult: boolean;
 }
 
-const TIMER_VARIANTS: Record<
-  TimerUrgency,
-  { stable: StyleEntry; pulse: StyleEntry }
-> = {
-  low: { stable: styles.timerLowStable, pulse: styles.timerLowPulse },
-  medium: {
-    stable: styles.timerMediumStable,
-    pulse: styles.timerMediumPulse,
-  },
-  high: { stable: styles.timerHighStable, pulse: styles.timerHighPulse },
+const PROGRESS_TONES: Record<TimerUrgency, ArcadeProgressTone> = {
+  low: "danger",
+  medium: "warning",
+  high: "success",
 };
 
-const PROGRESS_TONES: Record<TimerUrgency, ArcadeProgressTone> = {
+const TIMER_TONES: Record<TimerUrgency, ArcadeTimerTone> = {
   low: "danger",
   medium: "warning",
   high: "success",
@@ -77,50 +60,66 @@ export function RoundStatusCard({
   totalAnswers,
   showResult,
 }: RoundStatusCardProps) {
-  const urgencyVariants = TIMER_VARIANTS[timerUrgency];
-  const timerStyle = pulseAnimation
-    ? urgencyVariants.pulse
-    : urgencyVariants.stable;
+  const { t } = useTranslation();
+  const questionLabel = t("game.hostPlaying.round.questionLabel");
+  const secondsLabel = t("game.hostPlaying.round.secondsLabel");
+  const answeredLabel = t("game.hostPlaying.round.answeredLabel");
+  const ariaTimeRemaining = t("game.playing.timer.ariaTimeRemaining", {
+    count: timeLeft,
+  });
 
   return (
-    <Card {...styles.container}>
-      <div {...styles.headerRow}>
-        <div {...styles.infoCard}>
-          <div {...styles.centered}>
-            <div {...styles.accentLabel}>Question</div>
-            <div {...styles.prominentValue}>
-              {questionNumber} / {totalQuestions}
-            </div>
-          </div>
-        </div>
-
-        <div {...timerStyle}>
-          <span {...styles.timerIcon}>⏱️</span>
-          <div {...styles.centered}>
-            <div {...styles.timerValue}>{timeLeft}</div>
-            <div {...styles.timerSubLabel}>seconds</div>
-          </div>
-        </div>
-
-        {!showResult && typeof totalAnswers === "number" && (
-          <div {...styles.answeredCard}>
-            <div {...styles.centered}>
-              <div {...styles.answeredLabel}>Answered</div>
-              <div {...styles.prominentValue}>{totalAnswers}</div>
-            </div>
-          </div>
-        )}
-      </div>
-      <ArcadeProgressBar
-        value={progressPercent}
-        min={0}
-        max={100}
-        tone={PROGRESS_TONES[timerUrgency]}
-        pulse={timerUrgency === "low"}
-        trackSlot={styles.progressTrack}
+    <div className={CARD_WRAPPER_CLASSES} data-round-status-card="true">
+      <Card
+        surface="panel"
+        tone="primary"
+        elevation="panel"
+        padding="lg"
+        border="thick"
+        motion="slide-down"
       >
-        <div {...styles.progressGlow} />
-      </ArcadeProgressBar>
-    </Card>
+        <div className={HEADER_ROW_CLASSES}>
+          <div className={INFO_CARD_CLASSES}>
+            <div className={CENTERED_TEXT_CLASSES}>
+              <div className={ACCENT_LABEL_CLASSES}>{questionLabel}</div>
+              <div className={PROMINENT_VALUE_CLASSES}>
+                {questionNumber} / {totalQuestions}
+              </div>
+            </div>
+          </div>
+
+          <ArcadeTimer
+            value={timeLeft}
+            label={secondsLabel}
+            tone={TIMER_TONES[timerUrgency]}
+            variant="panel"
+            size="lg"
+            pulse={pulseAnimation}
+            role="timer"
+            ariaLabel={ariaTimeRemaining}
+            ariaLive="polite"
+          />
+
+          {!showResult && typeof totalAnswers === "number" ? (
+            <div className={ANSWERED_CARD_CLASSES}>
+              <div className={CENTERED_TEXT_CLASSES}>
+                <div className={ANSWERED_LABEL_CLASSES}>{answeredLabel}</div>
+                <div className={PROMINENT_VALUE_CLASSES}>{totalAnswers}</div>
+              </div>
+            </div>
+          ) : null}
+        </div>
+        <ArcadeProgressBar
+          value={progressPercent}
+          min={0}
+          max={100}
+          tone={PROGRESS_TONES[timerUrgency]}
+          pulse={timerUrgency === "low"}
+          className={PROGRESS_TRACK_CLASSES}
+        >
+          <div className={PROGRESS_GLOW_CLASSES} aria-hidden />
+        </ArcadeProgressBar>
+      </Card>
+    </div>
   );
 }

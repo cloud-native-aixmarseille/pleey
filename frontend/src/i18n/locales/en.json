@@ -24,6 +24,12 @@
     "loginButton": "Sign In",
     "emailPlaceholder": "your@email.com",
     "passwordPlaceholder": "********",
+    "passwordToggle": {
+      "show": "Show",
+      "hide": "Hide",
+      "showAria": "Show password",
+      "hideAria": "Hide password"
+    },
     "registerButton": "Create Account",
     "usernamePlaceholder": "PlayerOne",
     "newToQuizMaster": "New to QuizMaster?",
@@ -54,6 +60,40 @@
     "email": "Email",
     "regenerateAvatar": "Regenerate avatar",
     "avatarManagedBySystem": "Avatars are generated automatically. Use the button to refresh yours.",
+    "hostPlaying": {
+      "badge": "HOST VIEW - SCREEN SHARE MODE",
+      "round": {
+        "questionLabel": "Question",
+        "secondsLabel": "seconds",
+        "answeredLabel": "Answered"
+      },
+      "question": {
+        "type": {
+          "multiple": "📋 Multiple Choice",
+          "trueFalse": "✓/✗ True or False"
+        }
+      },
+      "waiting": {
+        "heading": "⏳ Waiting for players to answer..."
+      },
+      "results": {
+        "title": "RESULTS",
+        "correctAnswerLabel": "Correct Answer:",
+        "responsesTitle": "📊 Player Responses",
+        "optionLabel": "{{letter}}. {{text}}",
+        "optionFallback": "Option {{letter}}",
+        "totalLabel_one": "Total: {{count}} response",
+        "totalLabel_other": "Total: {{count}} responses",
+        "nextQuestion": "NEXT QUESTION",
+        "countLabel_one": "{{count}} player",
+        "countLabel_other": "{{count}} players",
+        "aria": {
+          "percent": "{{label}}: {{percentage}}%",
+          "count": "{{count}} of {{total}} players",
+          "correct": "Correct answer"
+        }
+      }
+    },
     "save": "Save changes",
     "cancel": "Cancel",
     "logout": "Logout",
@@ -286,6 +326,87 @@
     "joinManualLinkPrefix": "Join at",
     "joinStepWaitDescription": "Stay here until the host launches the quiz.",
     "copyPinAriaLabel": "Copy game PIN to clipboard",
+    "joinPage": {
+      "header": {
+        "title": "► JOIN GAME",
+        "subtitle": "> Enter the PIN code to start playing",
+        "backLabel": "BACK TO MENU",
+        "backAria": "Back to main menu"
+      },
+      "systemStatus": {
+        "label": "SYSTEM READY",
+        "waiting": "> WAITING FOR INPUT..."
+      },
+      "pin": {
+        "label": "► Enter Game PIN ◄",
+        "lengthLabel": "PIN LENGTH:",
+        "lengthValue": "{{current}}/{{total}}",
+        "placeholder": "••••••"
+      },
+      "primaryAction": {
+        "button": "START GAME",
+        "completeMessage": "✓ PIN COMPLETE - PRESS START OR ENTER"
+      },
+      "instructions": {
+        "title": "► HOW TO JOIN",
+        "items": [
+          "Ask the game host for the 6-character PIN code",
+          "The PIN is displayed in large text on the host's screen",
+          "Enter it above and press START GAME to join!"
+        ]
+      },
+      "footer": "> GET READY FOR AN EPIC QUIZ BATTLE! <"
+    },
+    "joinGuest": {
+      "header": {
+        "subtitlePin": "> Enter the PIN or continue as guest",
+        "subtitleGuest": "> Guest mode activated - choose your nickname"
+      },
+      "status": {
+        "anonymous": "Guest Player",
+        "authenticated": "Signed in as {{username}}",
+        "guestMode": "> Guest mode ready - pick a nickname"
+      },
+      "instructions": {
+        "title": {
+          "default": "► HOW TO JOIN",
+          "guestMode": "► CHOOSE YOUR NICKNAME",
+          "authenticated": "► READY TO PLAY"
+        },
+        "default": [
+          "Enter the 6-character PIN to join the arena.",
+          "Sign in for the full experience or continue as a guest.",
+          "Press START GAME when the PIN is complete."
+        ],
+        "guestMode": [
+          "Choose a nickname for the scoreboard.",
+          "Keep it retro and within the character limit.",
+          "Hit JOIN AS GUEST to jump into the action."
+        ],
+        "authenticated": [
+          "PIN complete? Press START GAME to join instantly.",
+          "You're already signed in and ready to play.",
+          "Need to switch accounts? Return to the main menu."
+        ]
+      },
+      "primaryButton": {
+        "authenticated": "CONFIRM & JOIN",
+        "continue": "CONTINUE",
+        "completeAuthenticated": "✓ PIN COMPLETE - PRESS ENTER TO JOIN",
+        "completeContinue": "✓ PIN COMPLETE - PRESS START OR ENTER"
+      },
+      "signIn": {
+        "prompt": "> Have an account? Sign in for stats and rewards.",
+        "cta": "SIGN IN"
+      },
+      "nicknameForm": {
+        "label": "► Choose Your Nickname ◄",
+        "placeholder": "Enter nickname...",
+        "helper": "Max {{max}} characters",
+        "submit": "JOIN AS GUEST",
+        "back": "Back to PIN entry"
+      }
+    },
     "playing": {
       "timer": {
         "questionProgress": "Question {{current}} / {{total}}",
@@ -329,6 +450,62 @@
           "incorrect": "missed it"
         },
         "nextQuestion": "Next question"
+      }
+    },
+    "hostPlaying": {
+      "badge": "HOST VIEW - SCREEN SHARE MODE",
+      "round": {
+        "questionLabel": "Question",
+        "secondsLabel": "seconds",
+        "answeredLabel": "Answered"
+      },
+      "question": {
+        "type": {
+          "multiple": "📋 Multiple Choice",
+          "trueFalse": "✓/✗ True or False"
+        }
+      },
+      "waiting": {
+        "heading": "⏳ Waiting for players to answer..."
+      },
+      "results": {
+        "title": "RESULTS",
+        "correctAnswerLabel": "Correct Answer:",
+        "responsesTitle": "📊 Player Responses",
+        "optionLabel": "{{letter}}. {{text}}",
+        "fallbackOption": "Option {{letter}}",
+        "percentage": "{{percentage}}%",
+        "playerCount_one": "{{count}} player",
+        "playerCount_other": "{{count}} players",
+        "totalResponses_one": "Total: {{count}} response",
+        "totalResponses_other": "Total: {{count}} responses",
+        "nextQuestion": "NEXT QUESTION",
+        "aria": {
+          "percent": "{{label}}: {{percentage}}%",
+          "count": "{{count}} of {{total}} players",
+          "correct": "Correct answer"
+        }
+      }
+    },
+    "hostLeaderboard": {
+      "badge": "HOST VIEW",
+      "title": {
+        "main": "GAME OVER",
+        "subtitle": "Final Leaderboard",
+        "message": "Congratulations to all players! 🎉"
+      },
+      "controls": {
+        "heading": "👑 Admin Controls",
+        "backToAdmin": "BACK TO ADMIN DASHBOARD",
+        "newGame": "NEW GAME",
+        "footer": "Thanks for hosting! 🎮✨"
+      },
+      "additionalPlayers": {
+        "title": "Other Top Players"
+      },
+      "points": {
+        "suffix": "{{count}} pts",
+        "celebration": "🎯 {{count}} pts"
       }
     },
     "share": {

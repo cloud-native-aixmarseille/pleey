@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import { JOIN_GAME_PIN_LENGTH } from "../join-game/constants";
 import { JoinGameLayout } from "../join-game/components/JoinGameLayout";
@@ -11,14 +12,11 @@ import { JoinGamePrimaryAction } from "../join-game/components/JoinGamePrimaryAc
 import { JoinGameInstructions } from "../join-game/components/JoinGameInstructions";
 import { JoinGameFooterMessage } from "../join-game/components/JoinGameFooterMessage";
 import { GuestNicknameForm } from "./components/GuestNicknameForm";
-import { createStyles } from "../../../../shared/ui/styles";
 
-const styles = createStyles("JoinGameWithGuestPage", {
-  slot1: "text-center",
-  slot2: "font-mono text-xs text-light-400 mb-2",
-  slot3: "font-mono text-sm text-accent-400 hover:text-accent-300 underline",
-});
-
+const SIGN_IN_SECTION_CLASSES = "mt-10 text-center";
+const SIGN_IN_PROMPT_CLASSES = "mb-2 font-mono text-xs text-light-400";
+const SIGN_IN_BUTTON_CLASSES =
+  "font-mono text-sm text-accent-400 underline transition-colors hover:text-accent-300";
 
 interface JoinGameWithGuestPageProps {
   gamePin: string;
@@ -40,6 +38,14 @@ export default function JoinGameWithGuestPage({
   const navigate = useNavigate();
   const [nickname, setNickname] = useState("");
   const [showGuestForm, setShowGuestForm] = useState(false);
+  const { t } = useTranslation();
+  const getStringOrUndefined = (
+    key: string,
+    options?: Record<string, unknown>
+  ) => {
+    const value = t(key, options);
+    return typeof value === "string" && value !== key ? value : undefined;
+  };
 
   const isPinComplete = gamePin.length === JOIN_GAME_PIN_LENGTH;
   const trimmedNickname = nickname.trim();
@@ -70,38 +76,47 @@ export default function JoinGameWithGuestPage({
 
   const handleBackToPinEntry = () => setShowGuestForm(false);
 
+  const displayName = username ?? t("game.joinGuest.status.anonymous");
   const subtitle = showGuestForm
-    ? "> Enter your nickname to join as guest"
-    : "> Enter the PIN code to start playing";
+    ? t("game.joinGuest.header.subtitleGuest")
+    : t("game.joinGuest.header.subtitlePin");
 
   const statusMessage = isAuthenticated
-    ? `> LOGGED IN AS: ${username ?? ""}`
+    ? t("game.joinGuest.status.authenticated", { username: displayName })
     : showGuestForm
-    ? "> GUEST MODE ACTIVATED"
-    : "> WAITING FOR INPUT...";
+    ? t("game.joinGuest.status.guestMode")
+    : undefined;
 
-  const instructionsItems = isAuthenticated
-    ? [
-        "Ask the game host for the 6-character PIN code",
-        "Join with your account to save your progress",
-        "Enter the PIN and press JOIN!",
-      ]
+  const instructionsItemsKey = isAuthenticated
+    ? "game.joinGuest.instructions.authenticated"
     : showGuestForm
-    ? [
-        "Ask the game host for the 6-character PIN code",
-        "Play as guest (no account needed) or sign in",
-        "Enter your nickname and press JOIN!",
-      ]
-    : [
-        "Ask the game host for the 6-character PIN code",
-        "Play as guest (no account needed) or sign in",
-        "Enter the PIN and choose your nickname!",
-      ];
+    ? "game.joinGuest.instructions.guestMode"
+    : "game.joinGuest.instructions.default";
+  const instructionsItemsRaw = t(instructionsItemsKey, {
+    returnObjects: true,
+  });
+  const instructionsItems = Array.isArray(instructionsItemsRaw)
+    ? instructionsItemsRaw
+    : undefined;
+  const instructionsTitleKey = isAuthenticated
+    ? "game.joinGuest.instructions.title.authenticated"
+    : showGuestForm
+    ? "game.joinGuest.instructions.title.guestMode"
+    : "game.joinGuest.instructions.title.default";
+  const instructionsTitle = getStringOrUndefined(instructionsTitleKey);
 
-  const primaryButtonLabel = isAuthenticated ? "JOIN GAME" : "CONTINUE";
-  const completeMessage = isAuthenticated
-    ? "✓ PIN COMPLETE - PRESS JOIN"
-    : "✓ PIN COMPLETE - PRESS CONTINUE";
+  const primaryButtonLabel = getStringOrUndefined(
+    isAuthenticated
+      ? "game.joinGuest.primaryButton.authenticated"
+      : "game.joinGuest.primaryButton.continue"
+  );
+  const completeMessage = getStringOrUndefined(
+    isAuthenticated
+      ? "game.joinGuest.primaryButton.completeAuthenticated"
+      : "game.joinGuest.primaryButton.completeContinue"
+  );
+  const signInPrompt = getStringOrUndefined("game.joinGuest.signIn.prompt");
+  const signInCta = getStringOrUndefined("game.joinGuest.signIn.cta");
 
   return (
     <JoinGameLayout>
@@ -125,17 +140,15 @@ export default function JoinGameWithGuestPage({
               completeMessage={completeMessage}
             />
 
-            {!isAuthenticated && (
-              <div {...styles.slot1}>
-                <p {...styles.slot2}>
-                  Already have an account?
-                </p>
+            {!isAuthenticated && signInPrompt && signInCta && (
+              <div className={SIGN_IN_SECTION_CLASSES}>
+                <p className={SIGN_IN_PROMPT_CLASSES}>{signInPrompt}</p>
                 <button
                   type="button"
                   onClick={handleSignIn}
-                  {...styles.slot3}
+                  className={SIGN_IN_BUTTON_CLASSES}
                 >
-                  Sign in instead
+                  {signInCta}
                 </button>
               </div>
             )}
@@ -149,7 +162,10 @@ export default function JoinGameWithGuestPage({
           />
         )}
 
-        <JoinGameInstructions items={instructionsItems} />
+        <JoinGameInstructions
+          title={instructionsTitle}
+          items={instructionsItems}
+        />
       </JoinGameContentCard>
 
       <JoinGameFooterMessage />

@@ -1,3 +1,4 @@
+import "@testing-library/jest-dom/vitest";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -58,6 +59,31 @@ describe("RegisterPage", () => {
         "password123"
       );
     });
+  });
+
+  it("should allow toggling password visibility", async () => {
+    const user = userEvent.setup();
+    const mockRegister = vi.fn();
+
+    render(<RegisterPage onRegister={mockRegister} />);
+
+    const passwordInput = screen.getByLabelText("Password") as HTMLInputElement;
+
+    expect(passwordInput.type).toBe("password");
+
+    const showButton = screen.getByRole("button", {
+      name: /show password/i,
+    });
+
+    await user.click(showButton);
+    expect(passwordInput.type).toBe("text");
+
+    const hideButton = screen.getByRole("button", {
+      name: /hide password/i,
+    });
+
+    await user.click(hideButton);
+    expect(passwordInput.type).toBe("password");
   });
 
   it("should navigate to login when the button is clicked", () => {
