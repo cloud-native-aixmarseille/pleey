@@ -1,16 +1,15 @@
-import { createStyles } from "../../../../../shared/ui/styles";
+import { useTranslation } from "react-i18next";
 
-const styles = createStyles("JoinGameFooterMessage", {
-  slot1: "mt-6 text-center",
-  slot2: "font-mono text-primary-400 text-xs animate-pulse-slow",
-});
+const FOOTER_WRAPPER_CLASSES = "mt-6 text-center";
+const FOOTER_TEXT_CLASSES =
+  "font-mono text-xs text-primary-400 animate-pulse-slow";
 
 export function JoinGameFooterMessage() {
+  const { t } = useTranslation();
+
   return (
-    <footer {...styles.slot1}>
-      <p {...styles.slot2}>
-        &gt; GET READY FOR AN EPIC QUIZ BATTLE! &lt;
-      </p>
+    <footer className={FOOTER_WRAPPER_CLASSES}>
+      <p className={FOOTER_TEXT_CLASSES}>{t("game.joinPage.footer")}</p>
     </footer>
   );
 }

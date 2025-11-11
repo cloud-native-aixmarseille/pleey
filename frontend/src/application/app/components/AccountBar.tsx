@@ -9,14 +9,12 @@ import {
   AccountUserSummary,
   NavigationItem,
 } from "./account-bar";
-import { createStyles } from "../../../shared/ui/styles";
 
-const styles = createStyles("AccountBar", {
-  slot1: "pointer-events-none fixed left-1/2 top-4 z-50 -translate-x-1/2 px-4",
-  slot2: "pointer-events-auto flex flex-wrap items-center gap-4 rounded-4xl border border-primary-500/40 bg-dark-500/80 px-5 py-4 shadow-neon backdrop-blur-2xl",
-  slot3: "ml-auto flex items-center gap-3",
-});
-
+const ACCOUNT_BAR_CONTAINER_CLASSES =
+  "pointer-events-none fixed left-1/2 top-4 z-50 -translate-x-1/2 px-4";
+const ACCOUNT_BAR_CONTENT_CLASSES =
+  "pointer-events-auto flex flex-wrap items-center gap-4 rounded-4xl border border-primary-500/40 bg-dark-500/80 px-5 py-4 shadow-neon backdrop-blur-2xl";
+const ACCOUNT_BAR_ACTIONS_CLASSES = "ml-auto flex items-center gap-3";
 
 /**
  * Fixed account toolbar for authenticated users.
@@ -80,8 +78,12 @@ export function AccountBar() {
   }
 
   return (
-    <nav {...styles.slot1}>
-      <div {...styles.slot2}>
+    <nav
+      className={ACCOUNT_BAR_CONTAINER_CLASSES}
+      data-account-bar="true"
+      aria-label={t("common.accountMenu", "Account menu")}
+    >
+      <div className={ACCOUNT_BAR_CONTENT_CLASSES}>
         <AccountBrand
           title={t("home.title")}
           subtitle={t("home.subtitle")}
@@ -94,7 +96,7 @@ export function AccountBar() {
           onNavigate={navigate}
         />
 
-        <div {...styles.slot3}>
+        <div className={ACCOUNT_BAR_ACTIONS_CLASSES}>
           <AccountUserSummary
             username={user.username}
             email={user.email}

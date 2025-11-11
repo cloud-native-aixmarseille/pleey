@@ -1,15 +1,13 @@
 import { Button } from "../../../../../../../shared/components";
 import { ShareButton } from "../../../../ShareButton";
-import { createStyles } from "../../../../../../../shared/ui/styles";
 
-const styles = createStyles("ResultActions", {
-  slot1: "flex flex-col sm:flex-row gap-4 items-center justify-center",
-  slot2: "flex-1 w-full sm:w-auto",
-  slot3: "border-2 border-white text-white hover:bg-white hover:text-dark-900 flex-1 w-full sm:w-auto font-display uppercase",
-  slot4: "flex items-center gap-2",
-  slot5: "text-2xl",
-});
-
+const ACTIONS_CONTAINER_CLASSES =
+  "flex flex-col items-center justify-center gap-4 sm:flex-row";
+const SHARE_BUTTON_CONTAINER_CLASSES =
+  "flex w-full flex-1 justify-center sm:w-auto";
+const NEXT_BUTTON_WRAPPER_CLASSES = "flex w-full flex-1 sm:w-auto";
+const NEXT_BUTTON_CONTENT_CLASSES = "flex items-center gap-3";
+const NEXT_BUTTON_ICON_CLASSES = "text-2xl";
 
 interface ResultActionsProps {
   shareTitle: string;
@@ -27,25 +25,29 @@ export function ResultActions({
   nextQuestionLabel,
 }: ResultActionsProps) {
   return (
-    <div {...styles.slot1}>
-      <ShareButton
-        title={shareTitle}
-        text={shareText}
-        {...styles.slot2}
-      />
+    <div className={ACTIONS_CONTAINER_CLASSES} data-result-actions="true">
+      <div className={SHARE_BUTTON_CONTAINER_CLASSES}>
+        <ShareButton title={shareTitle} text={shareText} size="xl" />
+      </div>
 
       {isAdmin && (
-        <Button
-          variant="ghost"
-          size="xl"
-          onClick={onNextQuestion}
-          {...styles.slot3}
-        >
-          <span {...styles.slot4}>
-            <span>{nextQuestionLabel}</span>
-            <span {...styles.slot5}>→</span>
-          </span>
-        </Button>
+        <div className={NEXT_BUTTON_WRAPPER_CLASSES}>
+          <Button
+            variant="ghost"
+            tone="neutral"
+            size="xl"
+            effect="glow"
+            fullWidth
+            onClick={onNextQuestion}
+          >
+            <span className={NEXT_BUTTON_CONTENT_CLASSES}>
+              <span>{nextQuestionLabel}</span>
+              <span className={NEXT_BUTTON_ICON_CLASSES} aria-hidden="true">
+                →
+              </span>
+            </span>
+          </Button>
+        </div>
       )}
     </div>
   );

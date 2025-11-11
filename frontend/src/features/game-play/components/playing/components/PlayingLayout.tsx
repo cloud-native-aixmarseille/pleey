@@ -1,32 +1,30 @@
 import { ReactNode } from "react";
 
-import { Container } from "../../../../../shared/components";
-import { createStyles } from "../../../../../shared/ui/styles";
-
-const styles = createStyles("PlayingLayout", {
-  slot1: "min-h-screen bg-game-gradient p-4 relative overflow-hidden",
-  slot2: "absolute inset-0 overflow-hidden pointer-events-none",
-  slot3: "absolute top-20 left-20 w-96 h-96 bg-primary-500/10 rounded-full blur-3xl animate-pulse-slow",
-  slot4: "absolute bottom-20 right-20 w-96 h-96 bg-secondary-500/10 rounded-full blur-3xl animate-pulse-slow animation-delay-200",
-  slot5: "relative z-10",
-});
-
+import { ArcadePage } from "../../../../../shared/components";
 
 interface PlayingLayoutProps {
   children: ReactNode;
 }
 
+const OVERLAY_CONTENT = (
+  <div className="pointer-events-none absolute inset-0 overflow-hidden">
+    <div className="absolute left-10 top-16 h-80 w-80 rounded-full bg-primary-500/10 blur-3xl animate-float" />
+    <div className="absolute bottom-16 right-12 h-96 w-96 rounded-full bg-secondary-500/10 blur-3xl animate-float [animation-delay:250ms]" />
+  </div>
+);
+
 export function PlayingLayout({ children }: PlayingLayoutProps) {
   return (
-    <div {...styles.slot1}>
-      <div {...styles.slot2}>
-        <div {...styles.slot3} />
-        <div {...styles.slot4} />
-      </div>
-
-      <Container size="xl" {...styles.slot5}>
+    <div className="crt-screen" data-playing-layout="true">
+      <ArcadePage
+        variant="gradient"
+        padding="lg"
+        contentWidth="xl"
+        gap="lg"
+        overlays={OVERLAY_CONTENT}
+      >
         {children}
-      </Container>
+      </ArcadePage>
     </div>
   );
 }

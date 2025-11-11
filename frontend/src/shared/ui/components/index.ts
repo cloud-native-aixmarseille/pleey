@@ -10,6 +10,11 @@ export {
 export { Card, type CardProps } from "./Card";
 export { Input, type InputProps } from "./Input";
 export {
+  PasswordInput,
+  type PasswordInputProps,
+  type PasswordToggleLabels,
+} from "./PasswordInput";
+export {
   ArcadePage,
   type ArcadePageProps,
 } from "./ArcadePage";
@@ -42,3 +47,11 @@ export {
   type ArcadeLeaderboardRowProps,
   type ArcadeLeaderboardRowTone,
 } from "./ArcadeLeaderboardRow";
+export {
+  ArcadeTimer,
+  type ArcadeTimerProps,
+  type ArcadeTimerTone,
+  type ArcadeTimerVariant,
+  type ArcadeTimerAlign,
+  type ArcadeTimerSize,
+} from "./ArcadeTimer";

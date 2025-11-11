@@ -2,20 +2,16 @@ import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-import { Card, Container } from "../../../../shared/components";
+import { Card } from "../../../../shared/components";
 
 import { RegisterLayout } from "./components/RegisterLayout";
 import { RegisterHeader } from "./components/RegisterHeader";
 import { RegisterForm } from "./components/RegisterForm";
 import { LoginPrompt } from "./components/LoginPrompt";
 import type { RegisterCredentials } from "./types";
-import { createStyles } from "../../../../shared/ui/styles";
 
-const styles = createStyles("RegisterPage", {
-  slot1: "animate-slide-up",
-  slot2: "p-8 sm:p-10",
-});
-
+const PAGE_CONTENT_CLASSES = "flex flex-col gap-6 animate-slide-up";
+const CARD_CONTENT_CLASSES = "space-y-6";
 
 interface RegisterPageProps {
   onRegister: (
@@ -46,16 +42,16 @@ export function RegisterPage({ onRegister }: RegisterPageProps) {
 
   return (
     <RegisterLayout>
-      <Container size="sm">
-        <div {...styles.slot1}>
-          <RegisterHeader
-            title={t("auth.registerTitle")}
-            subtitle={t("auth.registerSubtitle")}
-            backLabel={t("auth.back")}
-            onBack={handleBack}
-          />
+      <div className={PAGE_CONTENT_CLASSES}>
+        <RegisterHeader
+          title={t("auth.registerTitle")}
+          subtitle={t("auth.registerSubtitle")}
+          backLabel={t("auth.back")}
+          onBack={handleBack}
+        />
 
-          <Card {...styles.slot2}>
+        <Card padding="xl" surface="panel" border="none" motion="slide-up">
+          <div className={CARD_CONTENT_CLASSES}>
             <RegisterForm
               onSubmit={handleSubmit}
               usernameLabel={t("auth.username")}
@@ -66,6 +62,12 @@ export function RegisterPage({ onRegister }: RegisterPageProps) {
               passwordPlaceholder={t("auth.passwordPlaceholder")}
               submitLabel={t("auth.registerButton")}
               submitIcon="✨"
+              passwordToggleLabels={{
+                show: t("auth.passwordToggle.show"),
+                hide: t("auth.passwordToggle.hide"),
+                showAria: t("auth.passwordToggle.showAria"),
+                hideAria: t("auth.passwordToggle.hideAria"),
+              }}
             />
 
             <LoginPrompt
@@ -74,9 +76,9 @@ export function RegisterPage({ onRegister }: RegisterPageProps) {
               onCtaClick={handleLoginNavigation}
               ctaIcon="→"
             />
-          </Card>
-        </div>
-      </Container>
+          </div>
+        </Card>
+      </div>
     </RegisterLayout>
   );
 }

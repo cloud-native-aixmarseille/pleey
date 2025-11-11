@@ -1,34 +1,46 @@
 import { useState, useEffect, useRef, useId, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { Button } from "../../../shared/components";
-import { createStyles } from "../../../shared/ui/styles";
+import { Button, Card } from "../../../shared/components";
+import { composeClasses } from "../../../shared/ui/utils/composeClasses";
 
-const styles = createStyles("ShareButton", {
-  slot1: "relative",
-  slot2: "flex items-center justify-center gap-2",
-  slot3: "w-5 h-5",
-  slot4: "fixed inset-0 bg-black/50 z-40 backdrop-blur-sm animate-fade-in",
-  slot5:
-    "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md p-4 animate-scale-in",
-  slot6:
-    "bg-dark-400 border-2 border-primary-500 rounded-2xl p-6 shadow-neon-accent",
-  slot7: "flex justify-between items-center mb-6",
-  slot8: "text-2xl font-bold text-white font-display uppercase",
-  slot9:
-    "text-white hover:text-danger-500 transition-colors text-3xl leading-none",
-  slot10: "space-y-3",
-  slot11:
-    "w-full flex items-center gap-4 p-4 bg-gradient-to-r from-[#1DA1F2] to-[#0d8bd9] text-white rounded-lg hover:scale-105 transition-transform retro-shadow",
-  slot12: "w-6 h-6",
-  slot13: "font-bold font-body",
-  slot14:
-    "w-full flex items-center gap-4 p-4 bg-gradient-to-r from-[#1877F2] to-[#0d5fbf] text-white rounded-lg hover:scale-105 transition-transform retro-shadow",
-  slot15:
-    "w-full flex items-center gap-4 p-4 bg-gradient-to-r from-[#0077B5] to-[#005582] text-white rounded-lg hover:scale-105 transition-transform retro-shadow",
-  slot16:
-    "w-full flex items-center gap-4 p-4 bg-gradient-to-r from-accent-500 to-accent-600 text-dark-900 rounded-lg hover:scale-105 transition-transform retro-shadow",
-  slot17: "mt-4 text-sm text-danger-400 font-medium",
-});
+const SHARE_BUTTON_WRAPPER_CLASSES = "relative";
+const SHARE_BUTTON_CONTENT_CLASSES = "flex items-center justify-center gap-2";
+const SHARE_BUTTON_ICON_CLASSES = "h-5 w-5";
+
+const SHARE_BACKDROP_CLASSES =
+  "fixed inset-0 z-40 bg-black/50 backdrop-blur-sm animate-fade-in";
+const SHARE_DIALOG_POSITIONER_CLASSES =
+  "fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 p-4 animate-scale-in";
+const SHARE_DIALOG_CONTENT_CLASSES = "flex flex-col gap-6";
+const SHARE_DIALOG_HEADER_CLASSES = "flex items-center justify-between";
+const SHARE_DIALOG_TITLE_CLASSES =
+  "font-display text-2xl font-bold uppercase text-light-100";
+const SHARE_DIALOG_CLOSE_BUTTON_CLASSES =
+  "text-3xl leading-none text-light-200 transition-colors hover:text-danger-400";
+
+const SHARE_OPTIONS_LIST_CLASSES = "space-y-3";
+const SHARE_OPTION_BASE_CLASSES =
+  "flex w-full items-center gap-4 rounded-lg p-4 transition-transform hover:scale-105 retro-shadow";
+const SHARE_OPTION_TWITTER_CLASSES = composeClasses(
+  SHARE_OPTION_BASE_CLASSES,
+  "bg-gradient-to-r from-[#1DA1F2] to-[#0d8bd9] text-white"
+);
+const SHARE_OPTION_FACEBOOK_CLASSES = composeClasses(
+  SHARE_OPTION_BASE_CLASSES,
+  "bg-gradient-to-r from-[#1877F2] to-[#0d5fbf] text-white"
+);
+const SHARE_OPTION_LINKEDIN_CLASSES = composeClasses(
+  SHARE_OPTION_BASE_CLASSES,
+  "bg-gradient-to-r from-[#0077B5] to-[#005582] text-white"
+);
+const SHARE_OPTION_COPY_CLASSES = composeClasses(
+  SHARE_OPTION_BASE_CLASSES,
+  "bg-gradient-to-r from-accent-500 to-accent-600 text-dark-900"
+);
+
+const SHARE_OPTION_ICON_CLASSES = "h-6 w-6";
+const SHARE_OPTION_LABEL_CLASSES = "font-body font-bold";
+const SHARE_ERROR_TEXT_CLASSES = "mt-4 text-sm font-medium text-danger-400";
 
 interface ShareButtonProps {
   title: string;
@@ -41,7 +53,7 @@ interface ShareButtonProps {
 export function ShareButton({
   title,
   text,
-  url = window.location.href,
+  url,
   variant = "outline",
   size = "lg",
 }: ShareButtonProps) {
@@ -52,6 +64,8 @@ export function ShareButton({
   const shareButtonRef = useRef<HTMLButtonElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const shareDialogTitleId = useId();
+  const resolvedUrl =
+    url ?? (typeof window !== "undefined" ? window.location.href : "");
   const closeShareMenu = useCallback(() => {
     setShowShareMenu(false);
     setShareError(null);
@@ -113,7 +127,7 @@ export function ShareButton({
         await navigator.share({
           title,
           text,
-          url,
+          url: resolvedUrl,
         });
         setShareError(null);
       } catch (err) {
@@ -136,14 +150,14 @@ export function ShareButton({
   const shareToTwitter = () => {
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
       text
-    )}&url=${encodeURIComponent(url)}`;
+    )}&url=${encodeURIComponent(resolvedUrl)}`;
     window.open(twitterUrl, "_blank", "width=550,height=420");
     closeShareMenu();
   };
 
   const shareToFacebook = () => {
     const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-      url
+      resolvedUrl
     )}&quote=${encodeURIComponent(text)}`;
     window.open(facebookUrl, "_blank", "width=550,height=420");
     closeShareMenu();
@@ -151,7 +165,7 @@ export function ShareButton({
 
   const shareToLinkedIn = () => {
     const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
-      url
+      resolvedUrl
     )}`;
     window.open(linkedInUrl, "_blank", "width=550,height=420");
     closeShareMenu();
@@ -159,7 +173,7 @@ export function ShareButton({
 
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(`${text} ${url}`);
+      await navigator.clipboard.writeText(`${text} ${resolvedUrl}`);
       setCopied(true);
       setShareError(null);
       setTimeout(() => {
@@ -178,7 +192,7 @@ export function ShareButton({
   };
 
   return (
-    <div {...styles.slot1}>
+    <div className={SHARE_BUTTON_WRAPPER_CLASSES} data-share-button="true">
       <Button
         ref={shareButtonRef}
         variant={variant}
@@ -187,9 +201,9 @@ export function ShareButton({
         aria-haspopup="dialog"
         aria-expanded={showShareMenu}
       >
-        <span {...styles.slot2}>
+        <span className={SHARE_BUTTON_CONTENT_CLASSES}>
           <svg
-            {...styles.slot3}
+            className={SHARE_BUTTON_ICON_CLASSES}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -211,7 +225,7 @@ export function ShareButton({
         <>
           {/* Backdrop */}
           <div
-            {...styles.slot4}
+            className={SHARE_BACKDROP_CLASSES}
             role="button"
             tabIndex={0}
             aria-label="Close share dialog"
@@ -227,89 +241,118 @@ export function ShareButton({
           {/* Share Menu */}
           <div
             ref={modalRef}
-            {...styles.slot5}
+            className={SHARE_DIALOG_POSITIONER_CLASSES}
             role="dialog"
             aria-modal="true"
             aria-labelledby={shareDialogTitleId}
           >
-            <div {...styles.slot6}>
-              <div {...styles.slot7}>
-                <h3 id={shareDialogTitleId} {...styles.slot8}>
-                  Share Results
-                </h3>
-                <button
-                  onClick={closeShareMenu}
-                  {...styles.slot9}
-                  aria-label="Close share dialog"
-                >
-                  ×
-                </button>
+            <Card
+              surface="glass"
+              tone="primary"
+              padding="xl"
+              border="regular"
+              elevation="glow"
+            >
+              <div className={SHARE_DIALOG_CONTENT_CLASSES}>
+                <div className={SHARE_DIALOG_HEADER_CLASSES}>
+                  <h3
+                    id={shareDialogTitleId}
+                    className={SHARE_DIALOG_TITLE_CLASSES}
+                  >
+                    Share Results
+                  </h3>
+                  <button
+                    onClick={closeShareMenu}
+                    className={SHARE_DIALOG_CLOSE_BUTTON_CLASSES}
+                    aria-label="Close share dialog"
+                  >
+                    ×
+                  </button>
+                </div>
+
+                <div className={SHARE_OPTIONS_LIST_CLASSES}>
+                  <button
+                    onClick={shareToTwitter}
+                    className={SHARE_OPTION_TWITTER_CLASSES}
+                  >
+                    <svg
+                      className={SHARE_OPTION_ICON_CLASSES}
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
+                    </svg>
+                    <span className={SHARE_OPTION_LABEL_CLASSES}>
+                      Share on Twitter
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={shareToFacebook}
+                    className={SHARE_OPTION_FACEBOOK_CLASSES}
+                  >
+                    <svg
+                      className={SHARE_OPTION_ICON_CLASSES}
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                    </svg>
+                    <span className={SHARE_OPTION_LABEL_CLASSES}>
+                      Share on Facebook
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={shareToLinkedIn}
+                    className={SHARE_OPTION_LINKEDIN_CLASSES}
+                  >
+                    <svg
+                      className={SHARE_OPTION_ICON_CLASSES}
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                    </svg>
+                    <span className={SHARE_OPTION_LABEL_CLASSES}>
+                      Share on LinkedIn
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={copyToClipboard}
+                    className={SHARE_OPTION_COPY_CLASSES}
+                  >
+                    <svg
+                      className={SHARE_OPTION_ICON_CLASSES}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <span className={SHARE_OPTION_LABEL_CLASSES}>
+                      {copied ? "✓ Copied!" : "Copy Link"}
+                    </span>
+                  </button>
+                </div>
+
+                {shareError && (
+                  <p
+                    className={SHARE_ERROR_TEXT_CLASSES}
+                    role="alert"
+                    aria-live="assertive"
+                  >
+                    {shareError}
+                  </p>
+                )}
               </div>
-
-              <div {...styles.slot10}>
-                {/* Twitter */}
-                <button onClick={shareToTwitter} {...styles.slot11}>
-                  <svg
-                    {...styles.slot12}
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
-                  </svg>
-                  <span {...styles.slot13}>Share on Twitter</span>
-                </button>
-
-                {/* Facebook */}
-                <button onClick={shareToFacebook} {...styles.slot14}>
-                  <svg
-                    {...styles.slot12}
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                  </svg>
-                  <span {...styles.slot13}>Share on Facebook</span>
-                </button>
-
-                {/* LinkedIn */}
-                <button onClick={shareToLinkedIn} {...styles.slot15}>
-                  <svg
-                    {...styles.slot12}
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                  </svg>
-                  <span {...styles.slot13}>Share on LinkedIn</span>
-                </button>
-
-                {/* Copy Link */}
-                <button onClick={copyToClipboard} {...styles.slot16}>
-                  <svg
-                    {...styles.slot12}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                    />
-                  </svg>
-                  <span {...styles.slot13}>
-                    {copied ? "✓ Copied!" : "Copy Link"}
-                  </span>
-                </button>
-              </div>
-
-              {shareError && (
-                <p {...styles.slot17} role="alert" aria-live="assertive">
-                  {shareError}
-                </p>
-              )}
-            </div>
+            </Card>
           </div>
         </>
       )}

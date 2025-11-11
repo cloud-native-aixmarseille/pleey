@@ -4,13 +4,10 @@ import { InfoItem } from "../../../../../shared/components/info/InfoItem";
 import { useTheme } from "../../../../../shared/ui/theme";
 
 import type { OrganizationDetailsLabels } from "../types";
-import { createStyles } from "../../../../../shared/ui/styles";
 
-const styles = createStyles("OrganizationDetailsCard", {
-  slot1: "space-y-4",
-  slot2: "text-2xl font-black tracking-[0.24em]",
-});
-
+const DETAILS_STACK_CLASSES = "flex flex-col gap-4";
+const TITLE_CLASSES = "text-2xl font-black tracking-[0.24em]";
+const ITEMS_STACK_CLASSES = "flex flex-col gap-4";
 
 interface OrganizationDetailsCardProps {
   organization: Organization;
@@ -27,14 +24,14 @@ export function OrganizationDetailsCard({
 
   return (
     <Card surface="panel" tone="primary" elevation="panel" padding="lg">
-      <div {...styles.slot1}>
+      <div className={DETAILS_STACK_CLASSES}>
         <h2
-          {...styles.slot2}
+          className={TITLE_CLASSES}
           style={{ color: theme.palette.text.primary }}
         >
           {labels.title}
         </h2>
-        <div {...styles.slot1}>
+        <div className={ITEMS_STACK_CLASSES}>
           <InfoItem
             icon={{ name: "ClipboardList", tone: "accent" }}
             label={labels.name}

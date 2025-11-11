@@ -31,6 +31,7 @@ export interface ArcadeCardGridProps
   layout?: ArcadeCardGridLayout;
   motion?: ArcadeCardGridMotion;
   bottomSpacing?: ArcadeCardGridSpacing;
+  className?: string;
 }
 
 export function ArcadeCardGrid({
@@ -38,6 +39,7 @@ export function ArcadeCardGrid({
   layout = "triple",
   motion = "slide-up",
   bottomSpacing = "md",
+  className,
   ...rest
 }: ArcadeCardGridProps) {
   return (
@@ -46,7 +48,8 @@ export function ArcadeCardGrid({
         "w-full gap-4",
         LAYOUT_CLASS_MAP[layout],
         MOTION_CLASS_MAP[motion],
-        BOTTOM_SPACING_MAP[bottomSpacing]
+        BOTTOM_SPACING_MAP[bottomSpacing],
+        className
       )}
       data-arcade-card-grid="true"
       {...rest}

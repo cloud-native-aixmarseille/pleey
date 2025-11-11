@@ -1,14 +1,11 @@
 import { useTranslation } from "react-i18next";
 import { Card, PrimaryButton } from "../../../../../shared/components";
-import { createStyles } from "../../../../../shared/ui/styles";
 
-const styles = createStyles("QuestionsEmptyState", {
-  slot1: "p-12 text-center animate-scale-in",
-  slot2: "text-6xl mb-4",
-  slot3: "text-2xl font-bold text-dark-800 mb-2",
-  slot4: "text-light-700 mb-6",
-});
-
+const EMPTY_STATE_WRAPPER_CLASSES = "animate-scale-in text-center";
+const EMPTY_STATE_CONTENT_CLASSES = "flex flex-col items-center gap-4 p-12";
+const EMPTY_STATE_ICON_CLASSES = "text-6xl";
+const EMPTY_STATE_TITLE_CLASSES = "text-2xl font-bold text-dark-800";
+const EMPTY_STATE_DESCRIPTION_CLASSES = "text-light-700";
 
 interface QuestionsEmptyStateProps {
   onAddQuestion: () => void;
@@ -20,15 +17,30 @@ export function QuestionsEmptyState({
   const { t } = useTranslation();
 
   return (
-    <Card {...styles.slot1}>
-      <div {...styles.slot2}>❓</div>
-      <h3 {...styles.slot3}>
-        {t("quiz.noQuestionsTitle")}
-      </h3>
-      <p {...styles.slot4}>{t("quiz.noQuestionsDescription")}</p>
-      <PrimaryButton size="lg" onClick={onAddQuestion}>
-        {t("quiz.addFirstQuestion")}
-      </PrimaryButton>
-    </Card>
+    <div className={EMPTY_STATE_WRAPPER_CLASSES} data-questions-empty="true">
+      <Card
+        surface="glass"
+        tone="neutral"
+        padding="xl"
+        elevation="glow"
+        border="regular"
+        alignment="center"
+      >
+        <div className={EMPTY_STATE_CONTENT_CLASSES}>
+          <div className={EMPTY_STATE_ICON_CLASSES} aria-hidden="true">
+            ❓
+          </div>
+          <h3 className={EMPTY_STATE_TITLE_CLASSES}>
+            {t("quiz.noQuestionsTitle")}
+          </h3>
+          <p className={EMPTY_STATE_DESCRIPTION_CLASSES}>
+            {t("quiz.noQuestionsDescription")}
+          </p>
+          <PrimaryButton size="lg" onClick={onAddQuestion}>
+            {t("quiz.addFirstQuestion")}
+          </PrimaryButton>
+        </div>
+      </Card>
+    </div>
   );
 }

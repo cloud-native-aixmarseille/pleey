@@ -29,27 +29,31 @@ export function QuestionsHeader({
 
   return (
     <Card motion="slide-down">
-      <ArcadeSectionHeader
-        leadingSlot={
+      <div className="flex flex-col gap-6">
+        <div className="flex items-start justify-between gap-4">
           <BackToButton
             label={t("quiz.back")}
             onClick={onBack}
             variant="ghost"
           />
-        }
-        icon="📝"
-        title={quiz.title}
-        subtitle={quiz.description ?? undefined}
-        meta={`${questionCount} ${questionLabel}`}
-        actions={
-          <>
-            <SecondaryButton
-              size="lg"
-              onClick={onViewSessions}
-              icon={{ name: "CalendarClock" }}
-            >
-              {t("admin.viewSessions")}
-            </SecondaryButton>
+          <SecondaryButton
+            size="md"
+            onClick={onViewSessions}
+            icon={{ name: "CalendarClock" }}
+          >
+            {t("admin.viewSessions")}
+          </SecondaryButton>
+        </div>
+
+        <div className="relative">
+          <ArcadeSectionHeader
+            icon="📝"
+            title={quiz.title}
+            subtitle={quiz.description ?? undefined}
+            meta={`${questionCount} ${questionLabel}`}
+          />
+
+          <div className="mt-6 flex justify-end">
             <Button
               variant="accent"
               size="lg"
@@ -58,9 +62,9 @@ export function QuestionsHeader({
             >
               {t("quiz.addQuestion")}
             </Button>
-          </>
-        }
-      />
+          </div>
+        </div>
+      </div>
     </Card>
   );
 }

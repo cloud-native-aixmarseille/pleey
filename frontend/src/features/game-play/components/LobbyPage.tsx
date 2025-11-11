@@ -1,6 +1,6 @@
 import { useId, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Container } from "../../../shared/components";
+import { ArcadePage } from "../../../shared/components";
 import { Player } from "../../../shared/types";
 import {
   AdminHostBadge,
@@ -13,14 +13,9 @@ import {
   useJoinLink,
   usePlayerCountMessage,
 } from "./lobby";
-import { createStyles } from "../../../shared/ui/styles";
 
-const styles = createStyles("LobbyPage", {
-  slot1: "min-h-screen bg-game-gradient crt-screen p-4 sm:p-6 relative overflow-hidden",
-  slot2: "relative z-10",
-  slot3: "sr-only",
-});
-
+const MAIN_CONTENT_CLASSES = "relative z-10 flex w-full flex-col gap-10";
+const SR_ONLY_CLASSES = "sr-only";
 
 interface LobbyPageProps {
   gamePin: string;
@@ -157,28 +152,33 @@ export default function LobbyPage({
   });
 
   return (
-    <div {...styles.slot1}>
-      <LobbyBackground />
-
-      <Container size="lg">
+    <div className="crt-screen" data-lobby-page="true">
+      <ArcadePage
+        variant="gradient"
+        padding="sm"
+        contentWidth="full"
+        gap="lg"
+        verticalAlign="start"
+        overlays={<LobbyBackground />}
+      >
         <main
           role="main"
           aria-labelledby={lobbyTitleId}
-          {...styles.slot2}
+          className={MAIN_CONTENT_CLASSES}
         >
           <div
-            {...styles.slot3}
+            className={SR_ONLY_CLASSES}
             role="status"
             aria-live="assertive"
             id={copyFeedbackId}
           >
             {copyStatusMessage}
           </div>
-          <div {...styles.slot3} role="status" aria-live="polite">
+          <div className={SR_ONLY_CLASSES} role="status" aria-live="polite">
             {playerCountMessage}
           </div>
 
-          {isAdmin && <AdminHostBadge />}
+          {isAdmin ? <AdminHostBadge /> : null}
 
           <LobbyHeader titleId={lobbyTitleId} />
 
@@ -214,7 +214,7 @@ export default function LobbyPage({
             sectionTitleId={playersSectionTitleId}
           />
         </main>
-      </Container>
+      </ArcadePage>
     </div>
   );
 }

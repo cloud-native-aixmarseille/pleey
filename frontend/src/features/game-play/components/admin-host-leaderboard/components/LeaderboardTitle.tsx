@@ -1,41 +1,36 @@
+import { useTranslation } from "react-i18next";
 import { AnimationStage } from "../constants";
-import { createStyles } from "../../../../../shared/ui/styles";
+import { ArcadeSectionHeader } from "../../../../../shared/components";
 
-const styles = createStyles("LeaderboardTitle", {
-  slot1: "text-center mb-16 animate-scale-in",
-  slot2: "inline-block relative",
-  slot3: "font-display text-7xl sm:text-8xl md:text-9xl text-transparent bg-clip-text bg-gradient-to-r from-accent-500 via-primary-500 to-secondary-500 mb-6 animate-glow uppercase tracking-wider",
-  slot4: "absolute -inset-8 bg-gradient-to-r from-accent-500/30 via-primary-500/30 to-secondary-500/30 blur-3xl -z-10 animate-pulse-slow",
-  slot5: "text-8xl sm:text-9xl mb-6 animate-bounce-slow",
-  slot6: "font-display text-4xl sm:text-5xl md:text-6xl text-accent-500 mb-4 uppercase animate-glow",
-  slot7: "text-light-300 text-xl sm:text-2xl md:text-3xl font-body",
-});
-
+const TITLE_WRAPPER_CLASSES = "mb-16 animate-scale-in";
+const SECTION_WRAPPER_CLASSES =
+  "relative overflow-hidden rounded-3xl border-2 border-accent-500/40 bg-dark-600/60 px-6 py-10 shadow-neon-accent";
+const HALO_CLASSES =
+  "pointer-events-none absolute inset-0 -z-10 bg-gradient-to-r from-accent-500/25 via-primary-500/20 to-secondary-500/25 blur-3xl";
 
 interface LeaderboardTitleProps {
   animationStage: AnimationStage;
 }
 
 export function LeaderboardTitle({ animationStage }: LeaderboardTitleProps) {
+  const { t } = useTranslation();
+
   if (animationStage < 1) {
     return null;
   }
 
   return (
-    <div {...styles.slot1}>
-      <div {...styles.slot2}>
-        <h1 {...styles.slot3}>
-          GAME OVER
-        </h1>
-        <div {...styles.slot4} />
+    <div className={TITLE_WRAPPER_CLASSES}>
+      <div className={SECTION_WRAPPER_CLASSES}>
+        <div className={HALO_CLASSES} aria-hidden />
+        <ArcadeSectionHeader
+          icon="🏆"
+          eyebrow={t("game.hostLeaderboard.title.subtitle")}
+          title={t("game.hostLeaderboard.title.main")}
+          subtitle={t("game.hostLeaderboard.title.message")}
+          align="center"
+        />
       </div>
-      <div {...styles.slot5}>🏆</div>
-      <h2 {...styles.slot6}>
-        Final Leaderboard
-      </h2>
-      <p {...styles.slot7}>
-        Congratulations to all players! 🎉
-      </p>
     </div>
   );
 }

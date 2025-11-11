@@ -3,6 +3,7 @@ import {
   useId,
   type CSSProperties,
   type InputHTMLAttributes,
+  type ReactNode,
 } from "react";
 import { composeClasses } from "../utils/composeClasses";
 import { withAlpha } from "../utils/color";
@@ -25,6 +26,7 @@ export interface InputProps extends BaseInputProps {
   tone?: InputTone;
   fullWidth?: boolean;
   icon?: InputIcon;
+  trailingNode?: ReactNode;
 }
 
 type InputSurface = {
@@ -72,6 +74,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       icon,
       id: providedId,
       disabled,
+      trailingNode,
       ...rest
     },
     ref
@@ -93,6 +96,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     } as CSSProperties & Record<string, string>;
 
     const hasError = Boolean(error);
+    const hasTrailingNode = Boolean(trailingNode);
     const iconNode = renderIconNode(icon, {
       fallbackTone: tone === "dark" ? "accent" : "primary",
       size: 18,
@@ -132,6 +136,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               {iconNode}
             </span>
           ) : null}
+          {trailingNode ? (
+            <span className="absolute right-3 flex items-center">
+              {trailingNode}
+            </span>
+          ) : null}
           <input
             ref={ref}
             id={inputId}
@@ -142,6 +151,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               "w-full rounded-[var(--arcade-radius-lg)] border bg-[var(--arcade-input-bg)]",
               "border-[var(--arcade-input-border)] px-5 py-4 font-mono text-sm",
               iconNode ? "pl-12" : undefined,
+              hasTrailingNode ? "pr-16" : undefined,
               fullWidth ? "max-w-full" : undefined
             )}
             style={style}

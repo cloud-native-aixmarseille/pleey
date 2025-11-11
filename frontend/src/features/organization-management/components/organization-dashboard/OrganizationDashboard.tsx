@@ -2,18 +2,12 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import { useOrganization } from "../../../../shared/context/OrganizationContext";
-import { Container } from "../../../../shared/components";
+import { ArcadePage, Container } from "../../../../shared/components";
 import type { OrganizationStatItem } from "./types";
 import { EmptyOrganizationState } from "./components/EmptyOrganizationState";
 import { OrganizationHeader } from "./components/OrganizationHeader";
 import { OrganizationStatsGrid } from "./components/OrganizationStatsGrid";
 import { OrganizationDetailsCard } from "./components/OrganizationDetailsCard";
-import { createStyles } from "../../../../shared/ui/styles";
-
-const styles = createStyles("OrganizationDashboard", {
-  slot1: "min-h-screen bg-game-gradient p-4 sm:p-6 lg:p-8",
-});
-
 
 const ORGANIZATION_ICON = { name: "Building2", tone: "accent" } as const;
 
@@ -71,8 +65,15 @@ export function OrganizationDashboard() {
   }, [currentOrganization.createdAt, i18n.language]);
 
   return (
-    <div {...styles.slot1}>
-      <Container size="xl">
+    <ArcadePage
+      variant="gradient"
+      padding="lg"
+      contentWidth="xl"
+      gap="lg"
+      verticalAlign="start"
+      data-organization-dashboard="true"
+    >
+      <Container size="xl" center>
         <OrganizationHeader
           organization={currentOrganization}
           icon={ORGANIZATION_ICON}
@@ -91,6 +92,6 @@ export function OrganizationDashboard() {
           }}
         />
       </Container>
-    </div>
+    </ArcadePage>
   );
 }

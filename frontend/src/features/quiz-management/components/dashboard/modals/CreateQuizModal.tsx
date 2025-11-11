@@ -1,4 +1,4 @@
-import type { ChangeEvent, FormEvent } from "react";
+import { useEffect, useRef, type ChangeEvent, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Button,
@@ -6,15 +6,13 @@ import {
   Modal,
   SecondaryButton,
 } from "../../../../../shared/components";
-import { createStyles } from "../../../../../shared/ui/styles";
 
-const styles = createStyles("CreateQuizModal", {
-  slot1: "space-y-6",
-  slot2: "block text-xs font-semibold uppercase tracking-[0.3em] text-light-500",
-  slot3: "mt-2",
-  slot4: "mt-2 w-full rounded-2xl border border-primary-500/30 bg-dark-500/60 p-4 text-sm text-light-100 shadow-inner focus:border-primary-400 focus:outline-none",
-});
-
+const FORM_CONTENT_CLASSES = "space-y-6";
+const LABEL_CLASSES =
+  "block text-xs font-semibold uppercase tracking-[0.3em] text-light-500";
+const INPUT_WRAPPER_CLASSES = "mt-2";
+const TEXTAREA_CLASSES =
+  "mt-2 w-full rounded-2xl border border-primary-500/30 bg-dark-500/60 p-4 text-sm text-light-100 shadow-inner focus:border-primary-400 focus:outline-none";
 
 interface CreateQuizModalProps {
   isOpen: boolean;
@@ -38,6 +36,13 @@ export function CreateQuizModal({
   onDescriptionChange,
 }: CreateQuizModalProps) {
   const { t } = useTranslation();
+  const titleInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isOpen && titleInputRef.current) {
+      titleInputRef.current.focus({ preventScroll: true });
+    }
+  }, [isOpen]);
 
   return (
     <Modal
@@ -66,31 +71,27 @@ export function CreateQuizModal({
       }
     >
       <form id="create-quiz-form" onSubmit={onSubmit}>
-        <div {...styles.slot1}>
+        <div className={FORM_CONTENT_CLASSES}>
           <div>
-            <label {...styles.slot2}>
-              {t("admin.quizTitle")}
-            </label>
-            <div {...styles.slot3}>
+            <label className={LABEL_CLASSES}>{t("admin.quizTitle")}</label>
+            <div className={INPUT_WRAPPER_CLASSES}>
               <Input
+                ref={titleInputRef}
                 type="text"
                 value={title}
                 onChange={onTitleChange}
                 placeholder={t("admin.quizTitle")}
                 required
-                autoFocus
               />
             </div>
           </div>
           <div>
-            <label {...styles.slot2}>
-              {t("admin.description")}
-            </label>
+            <label className={LABEL_CLASSES}>{t("admin.description")}</label>
             <textarea
               value={description}
               onChange={onDescriptionChange}
               rows={4}
-              {...styles.slot4}
+              className={TEXTAREA_CLASSES}
               placeholder={t("admin.promptQuizDescription")}
             />
           </div>

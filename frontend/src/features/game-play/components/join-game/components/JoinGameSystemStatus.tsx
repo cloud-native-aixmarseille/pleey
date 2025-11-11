@@ -1,27 +1,28 @@
-import { createStyles } from "../../../../../shared/ui/styles";
+import { useTranslation } from "react-i18next";
 
-const styles = createStyles("JoinGameSystemStatus", {
-  slot1: "mb-8 pb-4 border-b-2 border-primary-500/30",
-  slot2: "font-mono text-accent-400 text-xs sm:text-sm",
-  slot3: "text-success-500 animate-pulse",
-  slot4: "font-mono text-primary-300 text-xs mt-1",
-});
+const STATUS_WRAPPER_CLASSES = "mb-8 border-b-2 border-primary-500/30 pb-4";
+const STATUS_LABEL_CLASSES = "font-mono text-xs text-accent-400 sm:text-sm";
+const STATUS_INDICATOR_CLASSES = "text-success-500 animate-pulse";
+const STATUS_MESSAGE_CLASSES = "mt-1 font-mono text-xs text-primary-300";
 
 interface JoinGameSystemStatusProps {
   statusMessage?: string;
 }
 
-const DEFAULT_STATUS_MESSAGE = "> WAITING FOR INPUT...";
-
 export function JoinGameSystemStatus({
-  statusMessage = DEFAULT_STATUS_MESSAGE,
+  statusMessage,
 }: JoinGameSystemStatusProps) {
+  const { t } = useTranslation();
+  const resolvedStatusMessage =
+    statusMessage ?? t("game.joinPage.systemStatus.waiting");
+
   return (
-    <section {...styles.slot1}>
-      <p {...styles.slot2}>
-        <span {...styles.slot3}>●</span> SYSTEM READY
+    <section className={STATUS_WRAPPER_CLASSES}>
+      <p className={STATUS_LABEL_CLASSES}>
+        <span className={STATUS_INDICATOR_CLASSES}>●</span>{" "}
+        {t("game.joinPage.systemStatus.label")}
       </p>
-      <p {...styles.slot4}>{statusMessage}</p>
+      <p className={STATUS_MESSAGE_CLASSES}>{resolvedStatusMessage}</p>
     </section>
   );
 }

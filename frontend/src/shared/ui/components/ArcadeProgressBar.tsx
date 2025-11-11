@@ -4,7 +4,6 @@ import {
   type ReactNode,
 } from "react";
 import { composeClasses } from "../utils/composeClasses";
-import type { StyleEntry } from "../styles/createStyles";
 
 export type ArcadeProgressTone =
   | "primary"
@@ -51,8 +50,6 @@ export interface ArcadeProgressBarProps
   size?: ArcadeProgressSize;
   pulse?: boolean;
   animationDelay?: number | string;
-  trackSlot?: StyleEntry;
-  fillSlot?: StyleEntry;
   fillClassName?: string;
   fillStyle?: CSSProperties;
   children?: ReactNode;
@@ -66,8 +63,6 @@ export function ArcadeProgressBar({
   size = "md",
   pulse = false,
   animationDelay,
-  trackSlot,
-  fillSlot,
   fillClassName,
   fillStyle,
   children,
@@ -84,21 +79,15 @@ export function ArcadeProgressBar({
     TRACK_BASE_CLASSES,
     TRACK_SIZE_MAP[size],
     TRACK_BG_CLASSES,
-    trackSlot?.className,
     className
   );
-
-  const trackStyleId = trackSlot?.["data-style-id"];
 
   const fillClassNames = composeClasses(
     FILL_BASE_CLASSES,
     FILL_TONE_MAP[tone],
     pulse ? "animate-pulse" : undefined,
-    fillSlot?.className,
     fillClassName
   );
-
-  const fillStyleId = fillSlot?.["data-style-id"];
 
   const computedFillStyle: CSSProperties = {
     width: `${progressPercent}%`,
@@ -121,11 +110,9 @@ export function ArcadeProgressBar({
       aria-valuemin={safeMin}
       aria-valuemax={safeMax}
       className={trackClassName}
-      data-style-id={trackStyleId}
     >
       <div
         className={fillClassNames}
-        data-style-id={fillStyleId}
         style={computedFillStyle}
         aria-hidden="true"
       >

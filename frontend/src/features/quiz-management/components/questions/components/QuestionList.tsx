@@ -1,11 +1,7 @@
 import type { Question } from "../../../../../shared/types";
 import { QuestionCard } from "./QuestionCard";
-import { createStyles } from "../../../../../shared/ui/styles";
 
-const styles = createStyles("QuestionList", {
-  slot1: "space-y-4",
-});
-
+const QUESTION_LIST_CLASSES = "space-y-4";
 
 interface QuestionListProps {
   questions: Question[];
@@ -19,7 +15,7 @@ export function QuestionList({
   onDelete,
 }: QuestionListProps) {
   return (
-    <div {...styles.slot1}>
+    <div className={QUESTION_LIST_CLASSES} data-question-list="true">
       {questions.map((question, index) => (
         <QuestionCard
           key={question.id}

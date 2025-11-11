@@ -1,14 +1,9 @@
-import { ReactNode } from "react";
+import { type ReactNode } from "react";
 
 import { Button, Card } from "../../../../../shared/components";
-import { createStyles } from "../../../../../shared/ui/styles";
 
-const styles = createStyles("ProfileCard", {
-  slot1: "p-6 sm:p-10 space-y-8 animate-fade-in",
-  slot2: "flex justify-start",
-  slot3: "text-light-600 hover:text-light-200",
-});
-
+const CARD_CONTENT_CLASSES = "flex flex-col gap-8";
+const BACK_ACTION_ROW_CLASSES = "flex justify-start";
 
 interface ProfileCardProps {
   children: ReactNode;
@@ -18,22 +13,33 @@ interface ProfileCardProps {
 
 export function ProfileCard({ children, onBack, backLabel }: ProfileCardProps) {
   return (
-    <Card {...styles.slot1}>
-      {onBack && (
-        <div {...styles.slot2}>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={onBack}
-            {...styles.slot3}
-          >
-            {backLabel}
-          </Button>
-        </div>
-      )}
+    <Card
+      surface="glass"
+      tone="neutral"
+      padding="lg"
+      elevation="glow"
+      border="regular"
+      motion="fade"
+    >
+      <div className={CARD_CONTENT_CLASSES}>
+        {onBack ? (
+          <div className={BACK_ACTION_ROW_CLASSES}>
+            <Button
+              type="button"
+              variant="ghost"
+              tone="neutral"
+              effect="flat"
+              size="sm"
+              onClick={onBack}
+              alignment="start"
+            >
+              {backLabel}
+            </Button>
+          </div>
+        ) : null}
 
-      {children}
+        {children}
+      </div>
     </Card>
   );
 }

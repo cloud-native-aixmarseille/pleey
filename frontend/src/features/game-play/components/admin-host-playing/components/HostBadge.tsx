@@ -1,19 +1,23 @@
-import { createStyles } from "../../../../../shared/ui/styles";
+import { useTranslation } from "react-i18next";
 
-const styles = createStyles("HostBadge", {
-  slot1: "mb-4 flex justify-center",
-  slot2: "glass-effect rounded-2xl px-6 py-3 border-2 border-accent-500 inline-flex items-center gap-3 animate-glow",
-  slot3: "text-3xl animate-bounce-slow",
-  slot4: "font-display text-accent-400 uppercase text-lg tracking-wider",
-});
+const HOST_BADGE_WRAPPER_CLASSES = "mb-4 flex justify-center";
+const HOST_BADGE_CONTENT_CLASSES =
+  "glass-effect inline-flex items-center gap-3 rounded-2xl border-2 border-accent-500 px-6 py-3 animate-glow";
+const HOST_BADGE_ICON_CLASSES = "text-3xl animate-bounce-slow";
+const HOST_BADGE_TEXT_CLASSES =
+  "font-display text-lg uppercase tracking-wider text-accent-400";
 
 export function HostBadge() {
+  const { t } = useTranslation();
+
   return (
-    <div {...styles.slot1}>
-      <div {...styles.slot2}>
-        <span {...styles.slot3}>👑</span>
-        <span {...styles.slot4}>
-          HOST VIEW - SCREEN SHARE MODE
+    <div className={HOST_BADGE_WRAPPER_CLASSES}>
+      <div className={HOST_BADGE_CONTENT_CLASSES}>
+        <span className={HOST_BADGE_ICON_CLASSES} aria-hidden>
+          👑
+        </span>
+        <span className={HOST_BADGE_TEXT_CLASSES}>
+          {t("game.hostPlaying.badge")}
         </span>
       </div>
     </div>

@@ -12,7 +12,7 @@ import { PinCharacter } from "./types";
 import { composeClasses } from "../../../../shared/ui/utils/composeClasses";
 
 const PIN_SLOT_BASE =
-  "inline-flex min-w-[3rem] items-center justify-center rounded-2xl border-2 px-4 py-3 font-display text-3xl tracking-[0.24em] transition-transform sm:min-w-[3.5rem] sm:px-5 sm:py-4 md:min-w-[4rem] md:px-6 md:py-5 md:text-4xl";
+  "inline-flex min-w-[clamp(2rem,10vw,2.75rem)] items-center justify-center rounded-2xl border-2 px-2.5 py-3 font-display text-center text-[clamp(1.6rem,5.5vw,2rem)] leading-none transition-transform sm:px-3 sm:py-3";
 const PIN_SLOT_ACTIVE =
   "border-accent-400 text-accent-200 shadow-[0_0_32px_rgba(59,255,235,0.45)] bg-dark-900/70";
 const PIN_SLOT_PLACEHOLDER =
@@ -38,7 +38,6 @@ export default function JoinOptionsSection({
   gamePin,
   joinLink,
   joinUrlForDisplay,
-  manualJoinInstructions,
   pinCharacters,
   pinAriaLabel,
   copyFeedbackId,
@@ -60,15 +59,16 @@ export default function JoinOptionsSection({
       titleId={instructionsTitleId}
     >
       <ArcadeCardGrid layout="double" bottomSpacing="md">
-        <div className="h-full">
+        <div className="flex h-full flex-col">
           <Card
             surface="glass"
             tone="accent"
             padding="lg"
             elevation="glow"
             border="regular"
+            fullWidth
           >
-            <div className="flex h-full flex-col gap-6 text-center sm:text-left">
+            <div className="flex h-full min-h-[22rem] flex-col gap-6 text-center sm:min-h-[24rem] sm:text-left">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <ArcadeBadge tone="accent" size="sm">
                   {t("game.joinStepLabel", { step: "1" })}
@@ -100,15 +100,17 @@ export default function JoinOptionsSection({
           </Card>
         </div>
 
-        <div className="flex h-full flex-col gap-6">
+        <div className="flex h-full flex-col">
           <Card
             surface="glass"
             tone="primary"
-            padding="lg"
+            padding="none"
             elevation="glow"
             border="regular"
+            overflow="hidden"
+            fullWidth
           >
-            <div className="flex flex-col gap-6">
+            <div className="flex h-full min-h-[22rem] flex-col gap-6 bg-gradient-to-br from-primary-900/60 via-dark-700/75 to-dark-800/80 px-6 py-6 sm:min-h-[24rem] sm:px-8">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <ArcadeBadge tone="primary" size="sm">
                   {t("game.joinStepLabel", { step: "2" })}
@@ -135,16 +137,12 @@ export default function JoinOptionsSection({
                 </p>
               ) : null}
 
-              <p className="text-sm leading-relaxed text-light-200 sm:text-base">
-                {manualJoinInstructions}
-              </p>
-
               <div className="flex flex-col items-center gap-5 rounded-2xl border border-primary-500/30 bg-primary-900/35 px-4 py-6 text-center sm:px-6">
                 <span className="font-display text-xs uppercase tracking-[0.45em] text-primary-200 sm:text-sm">
                   {t("game.enterThisPin")}
                 </span>
                 <div
-                  className="flex justify-center gap-3 sm:gap-4"
+                  className="flex max-w-full justify-center gap-2 sm:gap-3 md:gap-3.5"
                   aria-label={pinAriaLabel}
                 >
                   {pinCharacters.map(({ value, isPlaceholder }, index) => (
@@ -187,7 +185,9 @@ export default function JoinOptionsSection({
               </div>
             </div>
           </Card>
+        </div>
 
+        <div className="md:col-span-2">
           <Card
             surface="glass"
             tone="neutral"

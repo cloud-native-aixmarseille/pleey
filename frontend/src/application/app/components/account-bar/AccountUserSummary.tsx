@@ -1,14 +1,11 @@
 import { memo } from "react";
 import { Avatar } from "../../../../shared/components";
-import { createStyles } from "../../../../shared/ui/styles";
 
-const styles = createStyles("AccountUserSummary", {
-  slot1: "flex items-center gap-3 rounded-3xl border border-primary-500/20 bg-dark-500/60 px-4 py-2 whitespace-nowrap",
-  slot2: "flex flex-col leading-tight",
-  slot3: "text-sm font-semibold text-light-100",
-  slot4: "text-xs text-light-500",
-});
-
+const USER_SUMMARY_CONTAINER_CLASSES =
+  "flex items-center gap-3 whitespace-nowrap rounded-3xl border border-primary-500/20 bg-dark-500/60 px-4 py-2";
+const USER_SUMMARY_TEXT_STACK_CLASSES = "flex flex-col leading-tight";
+const USER_SUMMARY_NAME_CLASSES = "text-sm font-semibold text-light-100";
+const USER_SUMMARY_EMAIL_CLASSES = "text-xs text-light-500";
 
 interface AccountUserSummaryProps {
   username: string;
@@ -22,11 +19,14 @@ function AccountUserSummaryComponent({
   avatarUrl,
 }: AccountUserSummaryProps) {
   return (
-    <div {...styles.slot1}>
+    <div
+      className={USER_SUMMARY_CONTAINER_CLASSES}
+      data-account-user-summary="true"
+    >
       <Avatar name={username} src={avatarUrl ?? undefined} size="sm" />
-      <div {...styles.slot2}>
-        <span {...styles.slot3}>{username}</span>
-        <span {...styles.slot4}>{email}</span>
+      <div className={USER_SUMMARY_TEXT_STACK_CLASSES}>
+        <span className={USER_SUMMARY_NAME_CLASSES}>{username}</span>
+        <span className={USER_SUMMARY_EMAIL_CLASSES}>{email}</span>
       </div>
     </div>
   );

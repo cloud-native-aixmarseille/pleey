@@ -1,14 +1,9 @@
-import { Card } from "../../../../../shared/components";
-import { createStyles } from "../../../../../shared/ui/styles";
+import { ArcadePage, Card } from "../../../../../shared/components";
 
-const styles = createStyles("EmptyOrganizationState", {
-  slot1: "min-h-screen bg-game-gradient p-4 sm:p-6 lg:p-8 flex items-center justify-center",
-  slot2: "p-8 text-center",
-  slot3: "text-6xl mb-4",
-  slot4: "text-2xl font-bold text-dark-800 mb-2",
-  slot5: "text-light-700",
-});
-
+const EMPTY_CARD_CLASSES = "text-center";
+const ICON_CLASSES = "mb-4 text-6xl";
+const TITLE_CLASSES = "mb-2 text-2xl font-bold text-dark-800";
+const DESCRIPTION_CLASSES = "text-light-700";
 
 interface EmptyOrganizationStateProps {
   title: string;
@@ -20,14 +15,30 @@ export function EmptyOrganizationState({
   description,
 }: EmptyOrganizationStateProps) {
   return (
-    <div {...styles.slot1}>
-      <Card {...styles.slot2}>
-        <div {...styles.slot3} aria-hidden="true">
-          🏢
+    <ArcadePage
+      variant="gradient"
+      padding="lg"
+      contentWidth="md"
+      align="center"
+      verticalAlign="center"
+      data-empty-organization="true"
+    >
+      <Card
+        surface="glass"
+        tone="neutral"
+        padding="xl"
+        border="regular"
+        elevation="glow"
+        alignment="center"
+      >
+        <div className={EMPTY_CARD_CLASSES}>
+          <div className={ICON_CLASSES} aria-hidden="true">
+            🏢
+          </div>
+          <h3 className={TITLE_CLASSES}>{title}</h3>
+          <p className={DESCRIPTION_CLASSES}>{description}</p>
         </div>
-        <h3 {...styles.slot4}>{title}</h3>
-        <p {...styles.slot5}>{description}</p>
       </Card>
-    </div>
+    </ArcadePage>
   );
 }

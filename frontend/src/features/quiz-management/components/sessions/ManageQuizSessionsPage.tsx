@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   ArcadeBadge,
+  ArcadePage,
   BackToButton,
   Button,
   Card,
-  Container,
   Modal,
   SecondaryButton,
 } from "../../../../shared/components";
@@ -15,47 +15,57 @@ import {
   formatSessionDate,
   getSessionStatusTone,
 } from "../shared/sessionUtils";
-import { createStyles } from "../../../../shared/ui/styles";
+const BACK_BUTTON_WRAPPER_CLASSES = "mb-4";
+const HEADER_LAYOUT_CLASSES =
+  "flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between";
+const HEADER_INFO_CLASSES = "flex-1";
+const HEADER_TITLE_ROW_CLASSES = "flex items-center gap-2";
+const HEADER_ICON_CLASSES = "text-4xl";
+const HEADER_TITLE_CLASSES =
+  "text-3xl font-black text-gradient-neon sm:text-4xl";
+const HEADER_SUBTITLE_CLASSES = "mb-4 text-light-700";
+const HEADER_META_CLASSES =
+  "flex flex-wrap items-center gap-3 text-sm text-light-400";
+const QUIZ_TITLE_BADGE_CLASSES =
+  "glass-effect rounded-lg px-3 py-1 font-semibold text-light-100 drop-shadow-[0_0_12px_rgba(120,210,255,0.35)]";
+const QUIZ_DESCRIPTION_BADGE_CLASSES = "rounded-lg bg-dark-500/60 px-3 py-1";
+const HEADER_ACTIONS_CLASSES = "flex flex-col gap-3 sm:flex-row";
 
-const styles = createStyles("ManageQuizSessionsPage", {
-  slot1: "min-h-screen bg-game-gradient p-4 sm:p-8",
-  slot2: "p-6 sm:p-8 mb-6 animate-slide-down",
-  slot3: "mb-4",
-  slot4:
-    "flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4",
-  slot5: "flex-1",
-  slot6: "flex items-center gap-2 mb-2",
-  slot7: "text-4xl",
-  slot8: "text-3xl sm:text-4xl font-black text-gradient-neon",
-  slot9: "text-light-700 mb-4",
-  slot10: "flex flex-wrap items-center gap-3 text-sm text-light-400",
-  slot11: "glass-effect px-3 py-1 rounded-lg text-dark-700 font-semibold",
-  slot12: "rounded-lg bg-dark-500/60 px-3 py-1",
-  slot13: "flex flex-col sm:flex-row gap-3",
-  slot15:
-    "p-10 text-center border-dashed border-primary-500/40 bg-dark-500/40 animate-fade-in",
-  slot16: "text-5xl mb-3",
-  slot17: "text-2xl font-bold text-light-200 mb-2",
-  slot18: "text-light-500 max-w-xl mx-auto",
-  slot19: "space-y-4 animate-slide-up",
-  slot20: "flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between",
-  slot21: "text-sm text-light-500",
-  slot22: "flex items-center gap-2",
-  slot23: "text-sm font-semibold text-light-400",
-  slot24: "flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between",
-  slot25: "flex flex-wrap items-center gap-3 text-xs text-light-400",
-  slot27: "font-mono text-sm text-accent-200",
-  slot28: "flex flex-col items-start gap-2 text-xs text-light-500 sm:items-end",
-  slot29: "flex flex-wrap items-center gap-2 text-xs text-light-300",
-  slot30: "space-y-5",
-  slot31:
-    "rounded-[2rem] border border-primary-500/30 bg-dark-600/50 p-6 shadow-inner",
-  slot32: "grid gap-6 sm:grid-cols-2",
-  slot33: "text-xs font-semibold uppercase tracking-[0.25em] text-light-500",
-  slot34: "mt-2 text-sm text-light-100",
-  sessionCardLive: "border-primary-500/40 bg-dark-500/60",
-  sessionCardDefault: "border-dark-500/40 bg-dark-600/40",
-});
+const EMPTY_STATE_CONTENT_CLASSES = "flex flex-col items-center text-center";
+const EMPTY_STATE_PANEL_CLASSES =
+  "w-full animate-fade-in rounded-[var(--arcade-radius-lg)] border border-dashed border-primary-500/40 bg-dark-500/40 p-10";
+const EMPTY_ICON_CLASSES = "mb-3 text-5xl";
+const EMPTY_TITLE_CLASSES = "mb-2 text-2xl font-bold text-light-200";
+const EMPTY_DESCRIPTION_CLASSES = "mx-auto max-w-xl text-light-500";
+
+const SESSION_LIST_WRAPPER_CLASSES = "space-y-4 animate-slide-up";
+const PAGINATION_BAR_CLASSES =
+  "flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between";
+const PAGINATION_SUMMARY_CLASSES = "text-sm text-light-500";
+const PAGINATION_CONTROLS_CLASSES = "flex items-center gap-2";
+const PAGINATION_PAGE_LABEL_CLASSES = "text-sm font-semibold text-light-400";
+
+const SESSION_CARD_WRAPPER_BASE_CLASSES =
+  "rounded-[var(--arcade-radius-xl)] border bg-dark-600/40 shadow-lg transition-all";
+const SESSION_CARD_LIVE_CLASSES = "border-primary-500/40 bg-dark-500/60";
+const SESSION_CARD_DEFAULT_CLASSES = "border-dark-500/40 bg-dark-600/40";
+const SESSION_CARD_CONTENT_CLASSES =
+  "flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between";
+const SESSION_META_ROW_CLASSES =
+  "flex flex-wrap items-center gap-3 text-xs text-light-400";
+const SESSION_PIN_CLASSES = "font-mono text-sm text-accent-200";
+const SESSION_ACTIONS_COLUMN_CLASSES =
+  "flex flex-col items-start gap-2 text-xs text-light-500 sm:items-end";
+const SESSION_ACTIONS_ROW_CLASSES =
+  "flex flex-wrap items-center gap-2 text-xs text-light-300";
+
+const DETAIL_MODAL_CONTENT_CLASSES = "space-y-5";
+const DETAIL_CARD_WRAPPER_CLASSES =
+  "rounded-[2rem] border border-primary-500/30 bg-dark-600/50 p-6 shadow-inner";
+const DETAIL_GRID_CLASSES = "grid gap-6 sm:grid-cols-2";
+const DETAIL_TERM_CLASSES =
+  "text-xs font-semibold uppercase tracking-[0.25em] text-light-500";
+const DETAIL_VALUE_CLASSES = "mt-2 text-sm text-light-100";
 
 interface ManageQuizSessionsPageProps {
   quiz: Quiz;
@@ -166,10 +176,10 @@ export function ManageQuizSessionsPage({
     : null;
 
   return (
-    <div {...styles.slot1}>
-      <Container size="lg">
-        <Card {...styles.slot2}>
-          <div {...styles.slot3}>
+    <>
+      <ArcadePage variant="gradient" padding="lg" contentWidth="xl" gap="lg">
+        <Card padding="lg" surface="panel" border="none" motion="slide-down">
+          <div className={BACK_BUTTON_WRAPPER_CLASSES}>
             <BackToButton
               label={t("admin.viewQuestions")}
               onClick={() => navigate(`/admin/quizzes/${quiz.id}`)}
@@ -177,21 +187,30 @@ export function ManageQuizSessionsPage({
             />
           </div>
 
-          <div {...styles.slot4}>
-            <div {...styles.slot5}>
-              <div {...styles.slot6}>
-                <span {...styles.slot7}>🕹️</span>
-                <h2 {...styles.slot8}>{t("admin.sessionListTitle")}</h2>
+          <div className={HEADER_LAYOUT_CLASSES}>
+            <div className={HEADER_INFO_CLASSES}>
+              <div className={HEADER_TITLE_ROW_CLASSES}>
+                <span aria-hidden className={HEADER_ICON_CLASSES}>
+                  🕹️
+                </span>
+                <h2 className={HEADER_TITLE_CLASSES}>
+                  {t("admin.sessionListTitle")}
+                </h2>
               </div>
-              <p {...styles.slot9}>{t("admin.sessionListSubtitle")}</p>
-              <div {...styles.slot10}>
-                <span {...styles.slot11}>{quiz.title}</span>
+              <p className={HEADER_SUBTITLE_CLASSES}>
+                {t("admin.sessionListSubtitle")}
+              </p>
+              <div className={HEADER_META_CLASSES}>
+                <span className={QUIZ_TITLE_BADGE_CLASSES}>{quiz.title}</span>
                 {quiz.description ? (
-                  <span {...styles.slot12}>{quiz.description}</span>
+                  <span className={QUIZ_DESCRIPTION_BADGE_CLASSES}>
+                    {quiz.description}
+                  </span>
                 ) : null}
               </div>
             </div>
-            <div {...styles.slot13}>
+
+            <div className={HEADER_ACTIONS_CLASSES}>
               <SecondaryButton
                 size="lg"
                 onClick={handleRefresh}
@@ -200,132 +219,155 @@ export function ManageQuizSessionsPage({
               >
                 {isRefreshing ? t("common.loading") : t("admin.sessionRefresh")}
               </SecondaryButton>
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={() => navigate(`/admin/quizzes/${quiz.id}`)}
-              >
-                {t("admin.viewQuestions")}
-              </Button>
             </div>
           </div>
         </Card>
 
         {sortedSessions.length === 0 ? (
-          <Card {...styles.slot15}>
-            <div {...styles.slot16}>🛰️</div>
-            <h3 {...styles.slot17}>{t("admin.sessionEmpty")}</h3>
-            <p {...styles.slot18}>{t("admin.sessionEmptyDescription")}</p>
+          <Card
+            padding="lg"
+            surface="panel"
+            border="none"
+            motion="fade"
+            alignment="center"
+          >
+            <div
+              className={`${EMPTY_STATE_PANEL_CLASSES} ${EMPTY_STATE_CONTENT_CLASSES}`}
+            >
+              <span aria-hidden className={EMPTY_ICON_CLASSES}>
+                🛰️
+              </span>
+              <h3 className={EMPTY_TITLE_CLASSES}>{t("admin.sessionEmpty")}</h3>
+              <p className={EMPTY_DESCRIPTION_CLASSES}>
+                {t("admin.sessionEmptyDescription")}
+              </p>
+            </div>
           </Card>
         ) : (
-          <div {...styles.slot19}>
-            <div {...styles.slot20}>
-              <p {...styles.slot21}>
-                {t("admin.sessionPaginationSummary", {
-                  start: (page - 1) * SESSION_PAGE_SIZE + 1,
-                  end: Math.min(
-                    page * SESSION_PAGE_SIZE,
-                    sortedSessions.length
-                  ),
-                  total: sortedSessions.length,
-                })}
-              </p>
-              <div {...styles.slot22}>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-                  disabled={page === 1}
-                  aria-label={t("admin.sessionPaginationPrevious")}
-                >
-                  {t("admin.sessionPaginationPrevious")}
-                </Button>
-                <span {...styles.slot23}>
-                  {t("admin.sessionPaginationPage", { page, totalPages })}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() =>
-                    setPage((prev) => Math.min(totalPages, prev + 1))
-                  }
-                  disabled={page === totalPages}
-                  aria-label={t("admin.sessionPaginationNext")}
-                >
-                  {t("admin.sessionPaginationNext")}
-                </Button>
+          <Card padding="lg" surface="panel" border="none" motion="none">
+            <div className={SESSION_LIST_WRAPPER_CLASSES}>
+              <div className={PAGINATION_BAR_CLASSES}>
+                <p className={PAGINATION_SUMMARY_CLASSES}>
+                  {t("admin.sessionPaginationSummary", {
+                    start: (page - 1) * SESSION_PAGE_SIZE + 1,
+                    end: Math.min(
+                      page * SESSION_PAGE_SIZE,
+                      sortedSessions.length
+                    ),
+                    total: sortedSessions.length,
+                  })}
+                </p>
+                <div className={PAGINATION_CONTROLS_CLASSES}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                    disabled={page === 1}
+                    aria-label={t("admin.sessionPaginationPrevious")}
+                  >
+                    {t("admin.sessionPaginationPrevious")}
+                  </Button>
+                  <span className={PAGINATION_PAGE_LABEL_CLASSES}>
+                    {t("admin.sessionPaginationPage", { page, totalPages })}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() =>
+                      setPage((prev) => Math.min(totalPages, prev + 1))
+                    }
+                    disabled={page === totalPages}
+                    aria-label={t("admin.sessionPaginationNext")}
+                  >
+                    {t("admin.sessionPaginationNext")}
+                  </Button>
+                </div>
               </div>
-            </div>
 
-            {paginatedSessions.map((session) => {
-              const isLive = ["waiting", "active", "paused"].includes(
-                session.status
-              );
-              const createdAt = session.createdAt ?? session.created_at ?? null;
-              const sessionKey = `${
-                session.sessionId ?? session.pin ?? "session"
-              }-${session.status}-${createdAt ?? 0}`;
-              const sessionQuestions =
-                session.currentQuestion ?? session.current_question ?? null;
-              const tone = getSessionStatusTone(session.status);
-              const cardTone = isLive
-                ? styles.sessionCardLive
-                : styles.sessionCardDefault;
+              {paginatedSessions.map((session) => {
+                const isLive = ["waiting", "active", "paused"].includes(
+                  session.status
+                );
+                const createdAt =
+                  session.createdAt ?? session.created_at ?? null;
+                const sessionKey = `${
+                  session.sessionId ?? session.pin ?? "session"
+                }-${session.status}-${createdAt ?? 0}`;
+                const sessionQuestions =
+                  session.currentQuestion ?? session.current_question ?? null;
+                const tone = getSessionStatusTone(session.status);
+                const sessionWrapperClasses = `${SESSION_CARD_WRAPPER_BASE_CLASSES} ${
+                  isLive
+                    ? SESSION_CARD_LIVE_CLASSES
+                    : SESSION_CARD_DEFAULT_CLASSES
+                }`;
 
-              return (
-                <Card key={sessionKey} {...cardTone}>
-                  <div {...styles.slot24}>
-                    <div {...styles.slot25}>
-                      <ArcadeBadge tone={tone} indicator pulse>
-                        {resolveSessionStatusLabel(session.status)}
-                      </ArcadeBadge>
-                      <span {...styles.slot27}>
-                        {t("admin.sessionPinLabel", { pin: session.pin })}
-                      </span>
-                      <span>
-                        {t("admin.sessionStartedLabel", {
-                          date: formatSessionDate(createdAt, {
-                            fallback: t("admin.sessionUnknownDate"),
-                          }),
-                        })}
-                      </span>
-                    </div>
-                    <div {...styles.slot28}>
-                      {sessionQuestions
-                        ? t("admin.sessionCurrentQuestion", {
-                            index: sessionQuestions,
-                          })
-                        : null}
-                      <div {...styles.slot29}>
-                        {isLive ? (
-                          <Button
-                            variant="accent"
-                            size="sm"
-                            onClick={() => handleRejoin(session, sessionKey)}
-                            disabled={rejoiningKey === sessionKey}
-                          >
-                            {rejoiningKey === sessionKey
-                              ? t("common.loading")
-                              : t("admin.sessionRejoin")}
-                          </Button>
-                        ) : (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleOpenDetails(session)}
-                          >
-                            {t("admin.sessionViewDetails")}
-                          </Button>
-                        )}
+                return (
+                  <div key={sessionKey} className={sessionWrapperClasses}>
+                    <Card
+                      padding="md"
+                      surface="panel"
+                      border="none"
+                      motion="none"
+                    >
+                      <div className={SESSION_CARD_CONTENT_CLASSES}>
+                        <div className={SESSION_META_ROW_CLASSES}>
+                          <ArcadeBadge tone={tone} indicator pulse>
+                            {resolveSessionStatusLabel(session.status)}
+                          </ArcadeBadge>
+                          <span className={SESSION_PIN_CLASSES}>
+                            {t("admin.sessionPinLabel", { pin: session.pin })}
+                          </span>
+                          <span>
+                            {t("admin.sessionStartedLabel", {
+                              date: formatSessionDate(createdAt, {
+                                fallback: t("admin.sessionUnknownDate"),
+                              }),
+                            })}
+                          </span>
+                        </div>
+
+                        <div className={SESSION_ACTIONS_COLUMN_CLASSES}>
+                          {sessionQuestions
+                            ? t("admin.sessionCurrentQuestion", {
+                                index: sessionQuestions,
+                              })
+                            : null}
+                          <div className={SESSION_ACTIONS_ROW_CLASSES}>
+                            {isLive ? (
+                              <Button
+                                variant="accent"
+                                size="sm"
+                                onClick={() =>
+                                  handleRejoin(session, sessionKey)
+                                }
+                                disabled={rejoiningKey === sessionKey}
+                              >
+                                {rejoiningKey === sessionKey
+                                  ? t("common.loading")
+                                  : t("admin.sessionRejoin")}
+                              </Button>
+                            ) : (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleOpenDetails(session)}
+                              >
+                                {t("admin.sessionViewDetails")}
+                              </Button>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                    </Card>
                   </div>
-                </Card>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          </Card>
         )}
-      </Container>
+      </ArcadePage>
+
       <Modal
         isOpen={detailSession !== null}
         onClose={handleCloseDetails}
@@ -338,22 +380,22 @@ export function ManageQuizSessionsPage({
         }
       >
         {detailSession ? (
-          <div {...styles.slot30}>
-            <div {...styles.slot31}>
-              <dl {...styles.slot32}>
+          <div className={DETAIL_MODAL_CONTENT_CLASSES}>
+            <div className={DETAIL_CARD_WRAPPER_CLASSES}>
+              <dl className={DETAIL_GRID_CLASSES}>
                 <div>
-                  <dt {...styles.slot33}>
+                  <dt className={DETAIL_TERM_CLASSES}>
                     {t("admin.sessionDetailsFields.status")}
                   </dt>
-                  <dd {...styles.slot34}>
+                  <dd className={DETAIL_VALUE_CLASSES}>
                     {resolveSessionStatusLabel(detailSession.status)}
                   </dd>
                 </div>
                 <div>
-                  <dt {...styles.slot33}>
+                  <dt className={DETAIL_TERM_CLASSES}>
                     {t("admin.sessionDetailsFields.startedAt")}
                   </dt>
-                  <dd {...styles.slot34}>
+                  <dd className={DETAIL_VALUE_CLASSES}>
                     {formatSessionDate(
                       detailSession.createdAt ??
                         detailSession.created_at ??
@@ -364,18 +406,18 @@ export function ManageQuizSessionsPage({
                 </div>
                 {detailSessionId ? (
                   <div>
-                    <dt {...styles.slot33}>
+                    <dt className={DETAIL_TERM_CLASSES}>
                       {t("admin.sessionDetailsFields.sessionId")}
                     </dt>
-                    <dd {...styles.slot34}>#{detailSessionId}</dd>
+                    <dd className={DETAIL_VALUE_CLASSES}>#{detailSessionId}</dd>
                   </div>
                 ) : null}
                 {detailQuestionIndex ? (
                   <div>
-                    <dt {...styles.slot33}>
+                    <dt className={DETAIL_TERM_CLASSES}>
                       {t("admin.sessionDetailsFields.questionIndex")}
                     </dt>
-                    <dd {...styles.slot34}>
+                    <dd className={DETAIL_VALUE_CLASSES}>
                       {t("admin.sessionCurrentQuestion", {
                         index: detailQuestionIndex,
                       })}
@@ -387,6 +429,6 @@ export function ManageQuizSessionsPage({
           </div>
         ) : null}
       </Modal>
-    </div>
+    </>
   );
 }

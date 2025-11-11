@@ -1,16 +1,11 @@
-import { BackToButton } from "../../../../../shared/components";
-import { createStyles } from "../../../../../shared/ui/styles";
+import {
+  ArcadeSectionHeader,
+  BackToButton,
+} from "../../../../../shared/components";
+import { useTranslation } from "react-i18next";
 
-const styles = createStyles("JoinGameHeader", {
-  slot1: "text-center mb-10",
-  slot2: "mb-6 flex justify-center",
-  slot3: "relative inline-block mb-6",
-  slot4: "text-7xl animate-bounce-slow",
-  slot5: "absolute -top-2 -right-2 w-6 h-6 bg-accent-500 rounded-full animate-pulse",
-  slot6: "font-display text-4xl sm:text-5xl uppercase text-neon text-accent-500 mb-3 tracking-wider",
-  slot7: "text-light-300 font-mono text-sm sm:text-base animate-pulse-slow",
-});
-
+const HEADER_WRAPPER_CLASSES = "mb-10";
+const BACK_BUTTON_WRAPPER_CLASSES = "mb-6 flex justify-center sm:justify-start";
 
 interface JoinGameHeaderProps {
   onNavigateHome: () => void;
@@ -18,37 +13,34 @@ interface JoinGameHeaderProps {
   subtitle?: string;
 }
 
-const DEFAULT_TITLE = "► JOIN GAME";
-const DEFAULT_SUBTITLE = "> Enter the PIN code to start playing";
-
 export function JoinGameHeader({
   onNavigateHome,
-  title = DEFAULT_TITLE,
-  subtitle = DEFAULT_SUBTITLE,
+  title,
+  subtitle,
 }: JoinGameHeaderProps) {
+  const { t } = useTranslation();
+  const resolvedTitle = title ?? t("game.joinPage.header.title");
+  const resolvedSubtitle = subtitle ?? t("game.joinPage.header.subtitle");
+  const backLabel = t("game.joinPage.header.backLabel");
+  const backAria = t("game.joinPage.header.backAria");
+
   return (
-    <header {...styles.slot1}>
-      <div {...styles.slot2}>
+    <header className={HEADER_WRAPPER_CLASSES}>
+      <div className={BACK_BUTTON_WRAPPER_CLASSES}>
         <BackToButton
-          label="BACK TO MENU"
+          label={backLabel}
           onClick={onNavigateHome}
           variant="link"
           tone="accent"
-          aria-label="Back to main menu"
+          aria-label={backAria}
         />
       </div>
-
-      <div {...styles.slot3}>
-        <div {...styles.slot4}>🎮</div>
-        <div {...styles.slot5} />
-      </div>
-
-      <h1 {...styles.slot6}>
-        {title}
-      </h1>
-      <p {...styles.slot7}>
-        {subtitle}
-      </p>
+      <ArcadeSectionHeader
+        icon="🎮"
+        title={resolvedTitle}
+        subtitle={resolvedSubtitle}
+        align="center"
+      />
     </header>
   );
 }

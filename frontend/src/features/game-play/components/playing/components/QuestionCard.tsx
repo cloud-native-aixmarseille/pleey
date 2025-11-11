@@ -1,11 +1,4 @@
 import { Card } from "../../../../../shared/components";
-import { createStyles } from "../../../../../shared/ui/styles";
-
-const styles = createStyles("QuestionCard", {
-  slot1: "p-8 sm:p-12 mb-6 text-center animate-scale-in bg-gradient-to-br from-white to-light-100",
-  slot2: "text-3xl sm:text-4xl md:text-5xl font-black text-dark-900 leading-tight",
-});
-
 
 interface QuestionCardProps {
   questionText: string;
@@ -13,10 +6,19 @@ interface QuestionCardProps {
 
 export function QuestionCard({ questionText }: QuestionCardProps) {
   return (
-    <Card {...styles.slot1}>
-      <h2 {...styles.slot2}>
-        {questionText}
-      </h2>
-    </Card>
+    <div className="mb-6 animate-scale-in">
+      <Card
+        surface="glass"
+        tone="neutral"
+        padding="xl"
+        elevation="glow"
+        border="regular"
+        alignment="center"
+      >
+        <h2 className="font-display text-3xl font-black leading-tight text-light-100 sm:text-4xl md:text-5xl">
+          {questionText}
+        </h2>
+      </Card>
+    </div>
   );
 }

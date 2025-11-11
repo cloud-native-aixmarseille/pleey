@@ -1,4 +1,4 @@
-import type { FormEvent } from "react";
+import { useEffect, useRef, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ArcadeToggleGroup,
@@ -13,20 +13,17 @@ import type {
   QuestionType,
 } from "../questionFormState";
 import { handleNumericFieldChange } from "../questionFormState";
-import { createStyles } from "../../../../../shared/ui/styles";
 import type { ArcadeBadgeTone } from "../../../../../shared/ui/components/ArcadeBadge";
 
-const styles = createStyles("QuestionFormModal", {
-  slot1: "space-y-6",
-  slot2:
-    "block text-xs font-semibold uppercase tracking-[0.3em] text-light-400",
-  slot3:
-    "mt-2 w-full rounded-3xl border border-primary-500/30 bg-dark-500/60 p-4 text-sm text-light-100 shadow-inner focus:border-primary-400 focus:outline-none",
-  slot4: "mt-3 flex flex-wrap gap-3",
-  slot5: "grid grid-cols-1 md:grid-cols-2 gap-4",
-  slot7:
-    "rounded-2xl border border-danger-500/40 bg-danger-500/10 px-4 py-3 text-sm font-medium text-danger-200 shadow-neon-secondary",
-});
+const FORM_CLASSES = "space-y-6";
+const LABEL_CLASSES =
+  "block text-xs font-semibold uppercase tracking-[0.3em] text-light-400";
+const TEXTAREA_CLASSES =
+  "mt-2 w-full rounded-3xl border border-primary-500/30 bg-dark-500/60 p-4 text-sm text-light-100 shadow-inner focus:border-primary-400 focus:outline-none";
+const TOGGLE_GROUP_CLASSES = "mt-3 flex flex-wrap gap-3";
+const OPTIONS_GRID_CLASSES = "grid grid-cols-1 gap-4 md:grid-cols-2";
+const ERROR_MESSAGE_CLASSES =
+  "rounded-2xl border border-danger-500/40 bg-danger-500/10 px-4 py-3 text-sm font-medium text-danger-200 shadow-neon-secondary";
 
 interface QuestionFormModalProps {
   isOpen: boolean;
@@ -76,6 +73,13 @@ export function QuestionFormModal({
       tone: "secondary",
     },
   ];
+  const questionTextRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (isOpen && questionTextRef.current) {
+      questionTextRef.current.focus({ preventScroll: true });
+    }
+  }, [isOpen]);
 
   return (
     <Modal
@@ -111,26 +115,26 @@ export function QuestionFormModal({
         </>
       }
     >
-      <form id="question-form" onSubmit={onSubmit} {...styles.slot1}>
+      <form id="question-form" onSubmit={onSubmit} className={FORM_CLASSES}>
         <div>
-          <label {...styles.slot2}>{t("quiz.questionText")}</label>
+          <label className={LABEL_CLASSES}>{t("quiz.questionText")}</label>
           <textarea
+            ref={questionTextRef}
             value={formState.questionText}
             onChange={(event) =>
               onFieldChange("questionText", event.target.value)
             }
             rows={3}
-            {...styles.slot3}
+            className={TEXTAREA_CLASSES}
             placeholder={t("quiz.questionText")}
             required
-            autoFocus
           />
         </div>
 
         <div>
-          <label {...styles.slot2}>{t("quiz.questionType")}</label>
+          <label className={LABEL_CLASSES}>{t("quiz.questionType")}</label>
           <ArcadeToggleGroup
-            {...styles.slot4}
+            className={TOGGLE_GROUP_CLASSES}
             value={formState.type}
             onChange={onTypeChange}
             options={questionTypeOptions}
@@ -139,7 +143,7 @@ export function QuestionFormModal({
         </div>
 
         {formState.type === "multiple" ? (
-          <div {...styles.slot5}>
+          <div className={OPTIONS_GRID_CLASSES}>
             {(Array.from(["A", "B", "C", "D"]) as OptionKey[]).map(
               (optionKey) => (
                 <Input
@@ -160,9 +164,9 @@ export function QuestionFormModal({
         ) : null}
 
         <div>
-          <label {...styles.slot2}>{t("quiz.correctAnswer")}</label>
+          <label className={LABEL_CLASSES}>{t("quiz.correctAnswer")}</label>
           <ArcadeToggleGroup
-            {...styles.slot4}
+            className={TOGGLE_GROUP_CLASSES}
             value={formState.correctAnswer}
             onChange={onSelectCorrectAnswer}
             options={correctAnswerOptions}
@@ -170,7 +174,7 @@ export function QuestionFormModal({
           />
         </div>
 
-        <div {...styles.slot5}>
+        <div className={OPTIONS_GRID_CLASSES}>
           <Input
             type="number"
             value={formState.timeLimit}
@@ -198,7 +202,9 @@ export function QuestionFormModal({
           />
         </div>
 
-        {formError ? <div {...styles.slot7}>{formError}</div> : null}
+        {formError ? (
+          <div className={ERROR_MESSAGE_CLASSES}>{formError}</div>
+        ) : null}
       </form>
     </Modal>
   );

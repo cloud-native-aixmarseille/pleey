@@ -8,29 +8,30 @@ import {
   ReactNode,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { createStyles } from "../../../shared/ui/styles";
 
 const TOAST_BASE_CLASSES =
   "pointer-events-auto overflow-hidden rounded-3xl border px-5 py-4 backdrop-blur-xl transition-transform duration-300 animate-slide-down hover:translate-y-[-2px]";
 
-const styles = createStyles("NotificationContext", {
-  slot1:
-    "pointer-events-none fixed top-6 right-6 z-[1200] flex w-[calc(100vw-1.5rem)] max-w-sm flex-col gap-4",
-  slot2: "flex items-start gap-4",
-  slot3:
-    "mt-0.5 flex h-9 w-9 items-center justify-center rounded-full border border-light-500/20 bg-dark-500/70 text-base font-bold uppercase tracking-widest text-light-50 shadow-glow",
-  slot4: "flex-1",
-  slot5: "text-xs font-bold uppercase tracking-[0.2em] text-light-400",
-  slot6: "mt-1 text-sm font-semibold leading-snug text-light-100",
-  slot7:
-    "ml-2 rounded-full border border-light-500/20 p-1 text-[0.7rem] text-light-400 transition-colors hover:bg-light-500/10 hover:text-light-100",
-  slot8: "mt-4 h-1 overflow-hidden rounded-full bg-dark-400/70",
-  slot9:
-    "h-full rounded-full bg-gradient-to-r from-secondary-400 via-accent-500 to-primary-400",
-  toastInfo: `${TOAST_BASE_CLASSES} border-primary-400/60 bg-gradient-to-br from-dark-500/90 via-primary-500/20 to-dark-400/90 text-light-50 shadow-neon`,
-  toastSuccess: `${TOAST_BASE_CLASSES} border-success-400/60 bg-gradient-to-br from-dark-500/90 via-success-500/20 to-dark-400/90 text-success-100 shadow-neon-accent`,
-  toastError: `${TOAST_BASE_CLASSES} border-danger-400/60 bg-gradient-to-br from-dark-500/90 via-danger-500/20 to-dark-400/90 text-danger-100 shadow-neon-secondary`,
-});
+const TOAST_VIEWPORT_CLASSES =
+  "pointer-events-none fixed top-6 right-6 z-[1200] flex w-[calc(100vw-1.5rem)] max-w-sm flex-col gap-4";
+const TOAST_CONTENT_CLASSES = "flex items-start gap-4";
+const TOAST_ICON_WRAPPER_CLASSES =
+  "mt-0.5 flex h-9 w-9 items-center justify-center rounded-full border border-light-500/20 bg-dark-500/70 text-base font-bold uppercase tracking-widest text-light-50 shadow-glow";
+const TOAST_TEXT_STACK_CLASSES = "flex-1";
+const TOAST_VARIANT_LABEL_CLASSES =
+  "text-xs font-bold uppercase tracking-[0.2em] text-light-400";
+const TOAST_MESSAGE_CLASSES =
+  "mt-1 text-sm font-semibold leading-snug text-light-100";
+const TOAST_DISMISS_BUTTON_CLASSES =
+  "ml-2 rounded-full border border-light-500/20 p-1 text-[0.7rem] text-light-400 transition-colors hover:bg-light-500/10 hover:text-light-100";
+const TOAST_PROGRESS_TRACK_CLASSES =
+  "mt-4 h-1 overflow-hidden rounded-full bg-dark-400/70";
+const TOAST_PROGRESS_FILL_CLASSES =
+  "h-full rounded-full bg-gradient-to-r from-secondary-400 via-accent-500 to-primary-400";
+
+const TOAST_INFO_CLASSES = `${TOAST_BASE_CLASSES} border-primary-400/60 bg-gradient-to-br from-dark-500/90 via-primary-500/20 to-dark-400/90 text-light-50 shadow-neon`;
+const TOAST_SUCCESS_CLASSES = `${TOAST_BASE_CLASSES} border-success-400/60 bg-gradient-to-br from-dark-500/90 via-success-500/20 to-dark-400/90 text-success-100 shadow-neon-accent`;
+const TOAST_ERROR_CLASSES = `${TOAST_BASE_CLASSES} border-danger-400/60 bg-gradient-to-br from-dark-500/90 via-danger-500/20 to-dark-400/90 text-danger-100 shadow-neon-secondary`;
 
 export type ToastVariant = "info" | "success" | "error";
 
@@ -124,7 +125,12 @@ function ToastViewport({ toasts, onDismiss }: ToastViewportProps) {
   };
 
   return (
-    <div {...styles.slot1}>
+    <div
+      className={TOAST_VIEWPORT_CLASSES}
+      data-toast-viewport="true"
+      role="region"
+      aria-live="polite"
+    >
       {toasts.map((toast) => (
         <ToastCard
           key={toast.id}
@@ -167,38 +173,39 @@ function ToastCard({
     error: "⚠",
   };
 
-  const variantStyles: Record<ToastVariant, typeof styles.toastInfo> = {
-    info: styles.toastInfo,
-    success: styles.toastSuccess,
-    error: styles.toastError,
+  const variantClasses: Record<ToastVariant, string> = {
+    info: TOAST_INFO_CLASSES,
+    success: TOAST_SUCCESS_CLASSES,
+    error: TOAST_ERROR_CLASSES,
   };
 
   return (
     <div
       role={role}
       aria-live={toast.variant === "error" ? "assertive" : "polite"}
-      {...variantStyles[toast.variant]}
+      className={variantClasses[toast.variant]}
+      data-toast-card={toast.variant}
     >
-      <div {...styles.slot2}>
-        <div {...styles.slot3}>
+      <div className={TOAST_CONTENT_CLASSES}>
+        <div className={TOAST_ICON_WRAPPER_CLASSES}>
           <span aria-hidden>{iconByVariant[toast.variant]}</span>
         </div>
-        <div {...styles.slot4}>
-          <p {...styles.slot5}>{variantLabel}</p>
-          <p {...styles.slot6}>{toast.message}</p>
+        <div className={TOAST_TEXT_STACK_CLASSES}>
+          <p className={TOAST_VARIANT_LABEL_CLASSES}>{variantLabel}</p>
+          <p className={TOAST_MESSAGE_CLASSES}>{toast.message}</p>
         </div>
         <button
           type="button"
           onClick={() => onDismiss(toast.id)}
-          {...styles.slot7}
+          className={TOAST_DISMISS_BUTTON_CLASSES}
           aria-label={dismissLabel}
         >
           ✕
         </button>
       </div>
-      <div {...styles.slot8} aria-hidden>
+      <div className={TOAST_PROGRESS_TRACK_CLASSES} aria-hidden>
         <div
-          {...styles.slot9}
+          className={TOAST_PROGRESS_FILL_CLASSES}
           style={{
             width: progressWidth,
             transition: `width ${toastDuration}ms linear`,

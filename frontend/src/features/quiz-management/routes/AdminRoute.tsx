@@ -7,15 +7,13 @@ import { useGameSessionContext } from "../../../application/app/context/GameSess
 import { useAdminQuizActions } from "../../../application/app/hooks/useAdminQuizActions";
 import { useNotifications } from "../../../application/app/hooks/useNotifications";
 import { useTranslation } from "react-i18next";
-import { Card, Container } from "../../../shared/components";
-import { createStyles } from "../../../shared/ui/styles";
+import { ArcadePage, Card } from "../../../shared/components";
 
-const styles = createStyles("AdminRoute", {
-  slot1: "min-h-screen bg-game-gradient flex items-center justify-center p-6",
-  slot2: "p-10 text-center border-2 border-primary-500/50 glass-effect animate-pulse",
-  slot3: "font-display text-2xl uppercase tracking-wider text-accent-400",
-});
-
+const LOADING_WRAPPER_CLASSES = "crt-screen";
+const LOADING_CARD_WRAPPER_CLASSES =
+  "animate-pulse rounded-[var(--arcade-radius-xl)] border-2 border-primary-500/50 glass-effect";
+const LOADING_TEXT_CLASSES =
+  "font-display text-2xl uppercase tracking-wider text-accent-400";
 
 export function AdminRoute() {
   const navigate = useNavigate();
@@ -66,14 +64,23 @@ export function AdminRoute() {
 
     if (!hasLoadedQuizzes || isPending) {
       return (
-        <div {...styles.slot1}>
-          <Container size="md">
-            <Card {...styles.slot2}>
-              <span {...styles.slot3}>
-                {t("common.loading")}
-              </span>
-            </Card>
-          </Container>
+        <div className={LOADING_WRAPPER_CLASSES} data-admin-loading="true">
+          <ArcadePage
+            variant="gradient"
+            padding="md"
+            contentWidth="sm"
+            gap="md"
+            align="center"
+            verticalAlign="center"
+          >
+            <div className={LOADING_CARD_WRAPPER_CLASSES}>
+              <Card padding="lg" elevation="glow" surface="glass" border="none">
+                <span className={LOADING_TEXT_CLASSES}>
+                  {t("common.loading")}
+                </span>
+              </Card>
+            </div>
+          </ArcadePage>
         </div>
       );
     }
