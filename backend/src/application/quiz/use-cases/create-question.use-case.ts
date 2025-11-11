@@ -44,6 +44,11 @@ export class CreateQuestionUseCase {
         }
       }
 
+      // Check for duplicate correct answers
+      if (correctAnswers.length !== new Set(correctAnswers).size) {
+        throw new BadRequestException(QuizErrorCode.INVALID_CORRECT_ANSWER);
+      }
+
       // Verify that each selected option is not empty
       const optionValues: Record<string, string | null | undefined> = {
         A: dto.optionA,
