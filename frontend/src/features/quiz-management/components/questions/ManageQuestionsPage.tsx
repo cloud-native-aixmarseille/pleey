@@ -170,6 +170,10 @@ export default function ManageQuestionsPage({
       }
 
       // Verify that correct answer(s) have been selected and each selected option is not empty
+      if (!formState.correctAnswer.trim()) {
+        setFormError(t("quiz.formErrors.correctAnswerRequired"));
+        return false;
+      }
       const correctAnswers = formState.correctAnswer.split(',').map(a => a.trim());
 
       for (const answer of correctAnswers) {
