@@ -135,26 +135,34 @@ function renderMultipleChoice(question: Question) {
     { letter: "D", text: question.option_d },
   ];
 
+  // Support multiple correct answers (e.g., "A,D")
+  const correctAnswers = question.correct_answer
+    .split(",")
+    .map((a) => a.trim());
+
   return (
     <div className={MULTIPLE_OPTIONS_GRID_CLASSES}>
-      {options.map((option) => (
-        <div
-          key={option.letter}
-          className={
-            question.correct_answer === option.letter
-              ? OPTION_CARD_CORRECT_CLASSES
-              : OPTION_CARD_DEFAULT_CLASSES
-          }
-        >
-          <div className={OPTION_CONTENT_CLASSES}>
-            <span className={OPTION_LETTER_CLASSES}>{option.letter}:</span>
-            <span className={OPTION_TEXT_CLASSES}>{option.text}</span>
-            {question.correct_answer === option.letter ? (
-              <span className={OPTION_CORRECT_ICON_CLASSES}>✓</span>
-            ) : null}
+      {options.map((option) => {
+        const isCorrect = correctAnswers.includes(option.letter);
+        return (
+          <div
+            key={option.letter}
+            className={
+              isCorrect
+                ? OPTION_CARD_CORRECT_CLASSES
+                : OPTION_CARD_DEFAULT_CLASSES
+            }
+          >
+            <div className={OPTION_CONTENT_CLASSES}>
+              <span className={OPTION_LETTER_CLASSES}>{option.letter}:</span>
+              <span className={OPTION_TEXT_CLASSES}>{option.text}</span>
+              {isCorrect ? (
+                <span className={OPTION_CORRECT_ICON_CLASSES}>✓</span>
+              ) : null}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

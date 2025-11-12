@@ -55,9 +55,10 @@ export interface ArcadeToggleOption<T extends string> {
 export interface ArcadeToggleGroupProps<T extends string>
   extends Omit<ComponentPropsWithoutRef<"div">, "children" | "onChange"> {
   value: T | null;
-  onChange: (value: T) => void;
+  onChange: (value: T | null) => void;
   options: Array<ArcadeToggleOption<T>>;
   size?: ArcadeToggleSize;
+  multiSelect?: boolean;
 }
 
 export function ArcadeToggleGroup<T extends string>({
@@ -65,17 +66,45 @@ export function ArcadeToggleGroup<T extends string>({
   onChange,
   options,
   size = "md",
+  multiSelect = false,
   className,
   ...rest
 }: ArcadeToggleGroupProps<T>) {
+  const selectedValues = multiSelect && value ? value.split(',').map(v => v.trim()) : [value];
+
+  const handleClick = (optionValue: T) => {
+    if (!multiSelect) {
+      onChange(optionValue);
+      return;
+    }
+
+    // Multi-select logic: toggle the value
+    const currentValues = value ? value.split(',').map(v => v.trim() as T) : [];
+    const isSelected = currentValues.includes(optionValue);
+
+    let newValues: T[];
+    if (isSelected) {
+      // Remove the value
+      newValues = currentValues.filter(v => v !== optionValue);
+    } else {
+      // Add the value
+      newValues = [...currentValues, optionValue];
+    }
+
+    // Sort values alphabetically for consistency
+    newValues.sort();
+
+    onChange((newValues.length > 0 ? newValues.join(',') : null) as T | null);
+  };
+
   return (
     <div
       {...rest}
       className={composeClasses(GROUP_BASE_CLASSES, className)}
-      role="radiogroup"
+      role={multiSelect ? "group" : "radiogroup"}
     >
       {options.map((option) => {
-        const isActive = option.value === value;
+        const isActive = selectedValues.includes(option.value);
         const tone = option.tone ?? "neutral";
         const buttonClassName = composeClasses(
           BASE_BUTTON_CLASSES,
@@ -87,9 +116,9 @@ export function ArcadeToggleGroup<T extends string>({
           <button
             key={option.value}
             type="button"
-            onClick={() => onChange(option.value)}
+            onClick={() => handleClick(option.value)}
             className={buttonClassName}
-            role="radio"
+            role={multiSelect ? "checkbox" : "radio"}
             aria-checked={isActive}
             data-active={isActive ? "true" : "false"}
           >

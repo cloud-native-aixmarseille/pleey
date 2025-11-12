@@ -165,6 +165,7 @@
     "multipleChoice": "Choix Multiple",
     "trueFalse": "Vrai/Faux",
     "correctAnswer": "Réponse Correcte",
+    "correctAnswers": "Réponses Correctes (sélectionnez-en une ou plusieurs)",
     "timeLimit": "Temps Limite (secondes)",
     "points": "Points",
     "optionA": "Option A",

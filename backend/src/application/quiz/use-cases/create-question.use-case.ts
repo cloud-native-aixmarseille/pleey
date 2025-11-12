@@ -34,21 +34,34 @@ export class CreateQuestionUseCase {
 
     // Validate correct answer based on question type
     if (dto.type === 'multiple') {
-      // For multiple choice, correctAnswer must be A, B, C, or D
-      if (!VALID_MULTIPLE_CHOICE_OPTIONS.includes(dto.correctAnswer)) {
+      // For multiple choice, correctAnswer can be single (e.g., "A") or multiple (e.g., "A,D")
+      const correctAnswers = dto.correctAnswer.split(',').map(a => a.trim());
+
+      // Validate each correct answer
+      for (const answer of correctAnswers) {
+        if (!VALID_MULTIPLE_CHOICE_OPTIONS.includes(answer)) {
+          throw new BadRequestException(QuizErrorCode.INVALID_CORRECT_ANSWER);
+        }
+      }
+
+      // Check for duplicate correct answers
+      if (correctAnswers.length !== new Set(correctAnswers).size) {
         throw new BadRequestException(QuizErrorCode.INVALID_CORRECT_ANSWER);
       }
 
-      // Verify that the selected option is not empty
+      // Verify that each selected option is not empty
       const optionValues: Record<string, string | null | undefined> = {
         A: dto.optionA,
         B: dto.optionB,
         C: dto.optionC,
         D: dto.optionD,
       };
-      const selectedOption = optionValues[dto.correctAnswer];
-      if (!selectedOption || !selectedOption.trim()) {
-        throw new BadRequestException(QuizErrorCode.CORRECT_ANSWER_OPTION_EMPTY);
+
+      for (const answer of correctAnswers) {
+        const selectedOption = optionValues[answer];
+        if (!selectedOption || !selectedOption.trim()) {
+          throw new BadRequestException(QuizErrorCode.CORRECT_ANSWER_OPTION_EMPTY);
+        }
       }
     } else if (dto.type === 'truefalse') {
       // For true/false, correctAnswer must be "true" or "false"
