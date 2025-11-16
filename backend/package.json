@@ -37,7 +37,7 @@
     "@nestjs/graphql": "^13.2.0",
     "@nestjs/jwt": "^11.0.1",
     "@nestjs/passport": "^11.0.5",
-    "@nestjs/swagger": "^11.2.1",
+    "@nestjs/swagger": "^11.2.2",
     "@nestjs/platform-express": "^11.1.8",
     "@nestjs/platform-socket.io": "^11.1.8",
     "@nestjs/terminus": "^11.0.0",
