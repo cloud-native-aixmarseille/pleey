@@ -3,9 +3,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-BACKEND_URL="${BACKEND_URL:-http://localhost:3001}"
 BACKEND_HEALTH_PATH="${BACKEND_HEALTH_PATH:-/api/health}"
-FRONTEND_URL="${FRONTEND_URL:-http://localhost}"
 MAX_WAIT_TIME="${MAX_WAIT_TIME:-60}"
 POLL_INTERVAL="${POLL_INTERVAL:-2}"
 
@@ -17,38 +15,14 @@ command_exists() {
   command -v "$1" >/dev/null 2>&1
 }
 
-container_running() {
-  docker ps --format '{{.Names}}' | grep -Fxq "$1"
-}
-
 ensure_stack() {
   if ! command_exists docker; then
     echo "docker is required for E2E tests" >&2
     exit 1
   fi
 
-  local needs_start=0
-  if ! container_running "quiz-backend" || ! container_running "quiz-frontend"; then
-    needs_start=1
-  fi
-
-  if (( needs_start )); then
-    log "Starting docker compose stack..."
-    (cd "$ROOT_DIR" && docker compose up -d)
-    sleep 5
-  fi
-}
-
-join_url() {
-  local base="$1"
-  local path="$2"
-  if [[ "$base" == */ && "$path" == /* ]]; then
-    printf '%s%s' "${base%/}" "$path"
-  elif [[ "$base" != */ && "$path" != /* ]]; then
-    printf '%s/%s' "$base" "$path"
-  else
-    printf '%s%s' "$base" "$path"
-  fi
+  log "Ensuring docker compose stack is running..."
+  (cd "$ROOT_DIR" && docker compose up -d postgres backend frontend otel-collector)
 }
 
 wait_for_http() {
@@ -58,7 +32,7 @@ wait_for_http() {
 
   log "Waiting for $name ($url)..."
   while (( elapsed < MAX_WAIT_TIME )); do
-    if curl -sf "$url" >/dev/null; then
+    if (cd "$ROOT_DIR" && docker compose run --rm --no-deps -T e2e-tests curl -sf "$url" >/dev/null); then
       log "$name ready"
       return 0
     fi
@@ -72,7 +46,7 @@ wait_for_http() {
 
 run_backend() {
   local mode="${1:-}";
-  (cd "$ROOT_DIR/backend" && case "$mode" in
+  (cd "$ROOT_DIR/application/backend" && case "$mode" in
     --watch) npm run test:watch ;;
     --coverage|--cov) npm run test:cov ;;
     '' ) npm test ;;
@@ -82,7 +56,7 @@ run_backend() {
 
 run_frontend() {
   local mode="${1:-}";
-  (cd "$ROOT_DIR/frontend" && case "$mode" in
+  (cd "$ROOT_DIR/application/frontend" && case "$mode" in
     --watch) npm run test:watch ;;
     --coverage|--cov) npm run test:cov ;;
     '' ) npm test ;;
@@ -93,17 +67,27 @@ run_frontend() {
 run_e2e() {
   local mode="${1:-all}"
   ensure_stack
-  wait_for_http "$(join_url "$BACKEND_URL" "$BACKEND_HEALTH_PATH")" "backend"
-  wait_for_http "$FRONTEND_URL" "frontend"
+  wait_for_http "http://backend:3001${BACKEND_HEALTH_PATH}" "backend"
+  wait_for_http "http://frontend:5173" "frontend"
 
-  (cd "$ROOT_DIR/e2e" && case "$mode" in
-    smoke) npm run test:smoke ;;
-    ui) npm run test:ui ;;
-    debug) npm run test:debug ;;
-    headed) npm run test:headed ;;
-    all|'') npm test ;;
+  local script_cmd
+  case "$mode" in
+    smoke) script_cmd="test:smoke" ;;
+    ui) script_cmd="test:ui" ;;
+    debug) script_cmd="test:debug" ;;
+    headed) script_cmd="test:headed" ;;
+    all|'') script_cmd="test" ;;
     *) echo "Unknown e2e mode: $mode" >&2; exit 1 ;;
-  esac)
+  esac
+
+  (cd "$ROOT_DIR" && docker compose run --rm -T \
+    -e BASE_URL="${BASE_URL:-http://frontend:5173}" \
+    -e API_BASE_URL="${API_BASE_URL:-http://backend:3001/api}" \
+    -e E2E_ADMIN_EMAIL="${E2E_ADMIN_EMAIL:-admin@quiz.com}" \
+    -e E2E_ADMIN_PASSWORD="${E2E_ADMIN_PASSWORD:-admin123}" \
+    -e E2E_PLAYER_EMAIL="${E2E_PLAYER_EMAIL:-player@quiz.com}" \
+    -e E2E_PLAYER_PASSWORD="${E2E_PLAYER_PASSWORD:-player123}" \
+    e2e-tests npm run "$script_cmd")
 }
 
 run_all() {

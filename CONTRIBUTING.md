@@ -73,7 +73,7 @@ git checkout -b feature/my-new-feature
 
 ### Internationalization & Error Handling
 
-- **All user-facing text must use translations**: never hardcode strings—add keys to both `en` and `fr` locales in frontend (`frontend/src/i18n/locales/`) and backend (`backend/src/i18n/`).
+- **All user-facing text must use translations**: never hardcode strings—add keys to both `en` and `fr` locales in frontend (`application/frontend/src/i18n/locales/`) and backend (`application/backend/src/i18n/`).
 - **Error messages come from enums**: define domain-specific error enums and map each enum value to a translation key; surface the translated message when returning or displaying errors.
 - **Code reviews enforce coverage**: pull requests get blocked if translations or enum mappings are missing for any new text or error.
 
@@ -182,10 +182,10 @@ const API_URL = 'http://localhost:3001';
 
 ```bash
 # Backend tests
-cd backend && npm test
+cd application/backend && npm test
 
 # Frontend tests
-cd frontend && npm test
+cd application/frontend && npm test
 
 # E2E tests
 ./scripts/test-runner.sh e2e

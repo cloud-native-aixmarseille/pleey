@@ -4,8 +4,8 @@ updates:
   - package-ecosystem: "npm"
     open-pull-requests-limit: 20
     directories:
-      - "/backend"
-      - "/frontend"
+      - "/application/backend"
+      - "/application/frontend"
     versioning-strategy: increase
     schedule:
       interval: "weekly"
@@ -52,8 +52,8 @@ updates:
     open-pull-requests-limit: 20
     directories:
       - "/"
-      - "/backend"
-      - "/frontend"
+      - "/application/backend"
+      - "/application/frontend"
     schedule:
       interval: "weekly"
     groups:

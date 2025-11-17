@@ -15,7 +15,7 @@ build/
 # Database
 *.db
 *.db-journal
-backend/data/*.db
+application/backend/data/*.db
 
 # Logs
 logs/

@@ -292,33 +292,19 @@ quiz-app/
 ├── compose.yaml               # Docker services configuration
 ├── .env.example              # Environment template
 │
-├── backend/
-│   ├── src/                   # NestJS source code
-│   │   ├── domain/           # Domain layer (DDD)
-│   │   ├── application/      # Use cases
-│   │   ├── infrastructure/   # External services
-│   │   └── main.ts          # Entry point
-│   ├── prisma/
-│   │   ├── schema.prisma    # Database schema
-│   │   └── migrations/      # Database migrations
-│   ├── package.json
-│   └── Dockerfile
-│
-├── frontend/
-│   ├── src/
-│   │   ├── App.tsx           # React application
-│   │   ├── main.jsx
-│   │   ├── domains/          # Domain logic (DDD)
-│   │   ├── features/         # Feature modules
-│   │   └── shared/           # Shared components
-│   ├── Dockerfile
-│   ├── nginx.conf
-│   └── package.json
-│
-├── monitoring/
-│   ├── prometheus.yml
-│   ├── loki-config.yml
-│   └── promtail-config.yml
+├── application/
+│   ├── backend/              # NestJS service
+│   │   ├── src/              # Domain, application, infra layers
+│   │   ├── prisma/           # Schema + migrations
+│   │   └── Dockerfile
+│   ├── frontend/             # React client
+│   │   ├── src/              # Domains, features, shared UI
+│   │   ├── nginx.*.conf
+│   │   └── Dockerfile
+│   └── monitoring/           # Prometheus/Grafana/Loki config
+│       ├── prometheus.yml
+│       ├── loki-config.yml
+│       └── promtail-config.yml
 │
 ├── compose.yaml         # Dev composition
 ├── compose.prod.yaml    # Production composition

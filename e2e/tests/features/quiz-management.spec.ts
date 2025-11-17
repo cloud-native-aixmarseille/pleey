@@ -9,8 +9,8 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Quiz Management Flow - Nominal Use Case', () => {
   const adminCredentials = {
-    email: 'admin@example.com',
-    password: 'adminpass',
+    email: process.env.E2E_ADMIN_EMAIL ?? 'admin@quiz.com',
+    password: process.env.E2E_ADMIN_PASSWORD ?? 'admin123',
   };
 
   test.beforeEach(async ({ page }) => {

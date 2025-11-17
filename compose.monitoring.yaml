@@ -10,7 +10,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./application/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
@@ -33,8 +33,8 @@ services:
       - GF_USERS_ALLOW_SIGN_UP=false
     volumes:
       - grafana-data:/var/lib/grafana
-      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
-      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+      - ./application/monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./application/monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
     networks:
       - quiz-network
     depends_on:
@@ -84,7 +84,7 @@ services:
       - "3100:3100"
     volumes:
       - loki-data:/loki
-      - ./monitoring/loki-config.yml:/etc/loki/local-config.yaml
+      - ./application/monitoring/loki-config.yml:/etc/loki/local-config.yaml
     command: -config.file=/etc/loki/local-config.yaml
     networks:
       - quiz-network
@@ -97,7 +97,7 @@ services:
     volumes:
       - /var/log:/var/log:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - ./monitoring/promtail-config.yml:/etc/promtail/config.yml
+      - ./application/monitoring/promtail-config.yml:/etc/promtail/config.yml
     command: -config.file=/etc/promtail/config.yml
     networks:
       - quiz-network

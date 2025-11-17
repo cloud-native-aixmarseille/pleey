@@ -68,6 +68,9 @@ setup-traefik: ## Setup traefik
 	fi
 
 up: ## Start the application
+	@if [ "$(TTY)" = "1" ]; then \
+		TTY_FLAG=""; \
+	fi;
 	@echo "$(GREEN)Starting application...$(NC)"
 	$(COMPOSE) up -d
 	@echo "$(GREEN)Backend API ready$(NC)"
@@ -146,7 +149,7 @@ clean-all: ## Clean everything (including data volumes)
 	echo; \
 	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
 		$(COMPOSE) down -v; \
-		rm -rf backend/data; \
+		rm -rf application/backend/data; \
 		echo "$(GREEN)✓ Everything deleted$(NC)"; \
 	fi
 
@@ -285,8 +288,8 @@ test-cov: ## Run backend and frontend coverage (alias for make test MODE=cov)
 
 test-install: ## Install test dependencies for all projects
 	@echo "$(GREEN)Installing test dependencies...$(NC)"
-	@cd backend && npm install
-	@cd frontend && npm install
+	@cd application/backend && npm install
+	@cd application/frontend && npm install
 	@cd e2e && npm install
 	@echo "$(GREEN)✓ Test dependencies installed$(NC)"
 
@@ -306,12 +309,18 @@ _run-node:
 	fi
 
 _run-e2e:
-	@if [ -d "e2e/node_modules" ]; then \
-		cd e2e && npm run $(SCRIPT); \
-	else \
-		echo "$(YELLOW)Installing E2E dependencies...$(NC)"; \
-		cd e2e && npm install && npm run $(SCRIPT); \
-	fi
+	@SCRIPT_NAME="$(SCRIPT)"; \
+	if [ -z "$$SCRIPT_NAME" ]; then SCRIPT_NAME="test"; fi; \
+	case "$$SCRIPT_NAME" in \
+		"test") MODE_ARG="all" ;; \
+		"test:smoke") MODE_ARG="smoke" ;; \
+		"test:ui") MODE_ARG="ui" ;; \
+		"test:debug") MODE_ARG="debug" ;; \
+		"test:headed") MODE_ARG="headed" ;; \
+		*) echo "$(RED)Unknown E2E script '$$SCRIPT_NAME'$(NC)"; exit 1 ;; \
+	esac; \
+	echo "$(GREEN)Running E2E tests via docker compose ($(YELLOW)$$MODE_ARG$(GREEN))...$(NC)"; \
+	./scripts/test-runner.sh e2e "$$MODE_ARG"
 
 _test-scope:
 	@set -e; \
@@ -329,21 +338,21 @@ _test-scope:
 			case "$$TARGET_MODE" in \
 				default) \
 					echo "$(GREEN)Running backend tests...$(NC)"; \
-					$(MAKE) --no-print-directory _run-node DIR=backend SCRIPT=test SERVICE=backend; \
+					$(MAKE) --no-print-directory _run-node DIR=application/backend SCRIPT=test SERVICE=backend; \
 					echo "$(GREEN)✓ Backend tests completed$(NC)"; \
 					;; \
 				watch) \
 					echo "$(GREEN)Starting backend tests in watch mode...$(NC)"; \
-					$(MAKE) --no-print-directory _run-node DIR=backend SCRIPT=test:watch SERVICE=backend TTY=1; \
+					$(MAKE) --no-print-directory _run-node DIR=application/backend SCRIPT=test:watch SERVICE=backend TTY=1; \
 					;; \
 				cov) \
 					echo "$(GREEN)Running backend tests with coverage...$(NC)"; \
-					$(MAKE) --no-print-directory _run-node DIR=backend SCRIPT=test:cov SERVICE=backend; \
-					echo "$(GREEN)✓ Backend coverage report: backend/coverage/index.html$(NC)"; \
+					$(MAKE) --no-print-directory _run-node DIR=application/backend SCRIPT=test:cov SERVICE=backend; \
+					echo "$(GREEN)✓ Backend coverage report: application/backend/coverage/index.html$(NC)"; \
 					;; \
 				ui) \
 					echo "$(GREEN)Opening backend test UI...$(NC)"; \
-					$(MAKE) --no-print-directory _run-node DIR=backend SCRIPT=test:ui SERVICE=backend TTY=1; \
+					$(MAKE) --no-print-directory _run-node DIR=application/backend SCRIPT=test:ui SERVICE=backend TTY=1; \
 					;; \
 				smoke) \
 					echo "$(YELLOW)Smoke mode is not available for backend tests$(NC)"; \
@@ -359,21 +368,21 @@ _test-scope:
 			case "$$TARGET_MODE" in \
 				default) \
 					echo "$(GREEN)Running frontend tests...$(NC)"; \
-					$(MAKE) --no-print-directory _run-node DIR=frontend SCRIPT=test SERVICE=frontend; \
+					$(MAKE) --no-print-directory _run-node DIR=application/frontend SCRIPT=test SERVICE=frontend; \
 					echo "$(GREEN)✓ Frontend tests completed$(NC)"; \
 					;; \
 				watch) \
 					echo "$(GREEN)Starting frontend tests in watch mode...$(NC)"; \
-					$(MAKE) --no-print-directory _run-node DIR=frontend SCRIPT=test:watch SERVICE=frontend TTY=1; \
+					$(MAKE) --no-print-directory _run-node DIR=application/frontend SCRIPT=test:watch SERVICE=frontend TTY=1; \
 					;; \
 				cov) \
 					echo "$(GREEN)Running frontend tests with coverage...$(NC)"; \
-					$(MAKE) --no-print-directory _run-node DIR=frontend SCRIPT=test:cov SERVICE=frontend; \
-					echo "$(GREEN)✓ Frontend coverage report: frontend/coverage/index.html$(NC)"; \
+					$(MAKE) --no-print-directory _run-node DIR=application/frontend SCRIPT=test:cov SERVICE=frontend; \
+					echo "$(GREEN)✓ Frontend coverage report: application/frontend/coverage/index.html$(NC)"; \
 					;; \
 				ui) \
 					echo "$(GREEN)Opening frontend test UI...$(NC)"; \
-					$(MAKE) --no-print-directory _run-node DIR=frontend SCRIPT=test:ui SERVICE=frontend TTY=1; \
+					$(MAKE) --no-print-directory _run-node DIR=application/frontend SCRIPT=test:ui SERVICE=frontend TTY=1; \
 					;; \
 				smoke) \
 					echo "$(YELLOW)Smoke mode is not available for frontend tests$(NC)"; \

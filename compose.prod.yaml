@@ -37,7 +37,7 @@ services:
   # Backend Node.js - Configuration Production
   backend:
     build:
-      context: ./backend
+      context: ./application/backend
       dockerfile: Dockerfile
       target: production
       cache_from:
@@ -90,7 +90,7 @@ services:
   # Frontend React avec Nginx - Configuration Production
   frontend:
     build:
-      context: ./frontend
+      context: ./application/frontend
       dockerfile: Dockerfile
       target: production
       cache_from:

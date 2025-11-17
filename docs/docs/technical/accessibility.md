@@ -28,7 +28,7 @@ npm run lint
 npm run lint:fix
 ```
 
-**Configuration:** `frontend/eslint.config.mjs` and `docs/eslint.config.mjs`
+**Configuration:** `application/frontend/eslint.config.mjs` and `docs/eslint.config.mjs`
 
 ### 2. Automated Accessibility Testing
 
@@ -44,7 +44,7 @@ it('should not have accessibility violations', async () => {
 });
 ```
 
-**Test Suite:** `frontend/src/shared/components/__tests__/accessibility.test.tsx`
+**Test Suite:** `application/frontend/src/shared/components/__tests__/accessibility.test.tsx`
 
 ### 3. Color Contrast & Visual Accessibility
 
@@ -208,7 +208,7 @@ The lobby provides a QR code alternative for joining games:
 ### 9. Animation Considerations (✅ IMPLEMENTED)
 
 #### Reduced Motion Support
-Implemented in global CSS (`frontend/src/index.css`):
+Implemented in global CSS (`application/frontend/src/index.css`):
 
 ```css
 @media (prefers-reduced-motion: reduce) {
