@@ -1,4 +1,4 @@
-FROM node:25.1-bookworm-slim AS base
+FROM node:25.2-bookworm-slim AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN \
