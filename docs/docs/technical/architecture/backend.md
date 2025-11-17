@@ -28,7 +28,7 @@ The backend follows **Domain-Driven Design (DDD)** and **Clean Architecture**:
 ## 📁 Project Structure
 
 ```
-backend/
+application/backend/
 ├── src/
 │   ├── domain/              # Core business logic (entities, value objects)
 │   │   ├── auth/            # Authentication domain
@@ -138,7 +138,7 @@ Real-time gameplay events via Socket.io:
 
 **PostgreSQL** with **Prisma ORM** for type-safe database access.
 
-Prisma manages the database schema and migrations. The schema is defined in `backend/prisma/schema.prisma`.
+Prisma manages the database schema and migrations. The schema is defined in `application/backend/prisma/schema.prisma`.
 
 ### Key Models
 
@@ -219,7 +219,7 @@ Prisma manages the database schema and migrations. The schema is defined in `bac
 
 ### Database Migrations
 
-Prisma migrations are stored in `backend/prisma/migrations/`. 
+Prisma migrations are stored in `application/backend/prisma/migrations/`. 
 
 To create a new migration:
 ```bash

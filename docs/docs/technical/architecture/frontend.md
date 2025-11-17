@@ -51,7 +51,7 @@ The application leverages React 19's enhanced features for improved performance 
 ## 🗂️ Project Structure
 
 ```
-frontend/
+application/frontend/
 ├── src/
 │   ├── App.tsx                    # Main app with context providers
 │   ├── AppRoutes.tsx              # Routing configuration
@@ -380,7 +380,7 @@ Landing page with navigation
 ## 📚 Additional Resources
 
 For more details, see:
-- **[REFACTORING.md](../../../../frontend/REFACTORING.md)** - Detailed refactoring documentation
+- **[REFACTORING.md](../../../../application/frontend/REFACTORING.md)** - Detailed refactoring documentation
 - **[Design System](../design-system.md)** - Cyber Arcade theme
 - **[Testing Guide](../testing.md)** - Testing strategies
 - **[i18n Guide](../i18n.md)** - Internationalization

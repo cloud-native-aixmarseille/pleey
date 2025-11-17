@@ -48,8 +48,8 @@ make test-backend-cov      # Backend coverage only
 make test-frontend-cov     # Frontend coverage only
 
 # View reports
-open backend/coverage/index.html
-open frontend/coverage/index.html
+open application/backend/coverage/index.html
+open application/frontend/coverage/index.html
 ```
 
 ### Test UI (Interactive)
@@ -77,7 +77,7 @@ QuizMaster follows the **testing pyramid** principle:
 
 ```
 quiz-app/
-├── backend/
+├── application/backend/
 │   ├── src/
 │   │   ├── **/*.spec.ts    # Unit tests alongside source
 │   │   └── domain/         # Domain unit tests (*.spec.ts)
@@ -85,7 +85,7 @@ quiz-app/
 │   │   └── app.e2e-spec.ts # Backend E2E tests
 │   ├── vitest.config.ts    # Vitest configuration
 │
-├── frontend/
+├── application/frontend/
 │   ├── src/
 │   │   ├── __tests__/      # React component tests
 │   │   │   └── **/__tests__/ # Service tests
@@ -172,7 +172,7 @@ Scoped aliases such as `make test-backend-ui`, `make test-frontend-ui`, and thei
 ### Backend Tests (Vitest)
 
 ```bash
-cd backend
+cd application/backend
 
 # Run all tests
 npm test
@@ -197,7 +197,7 @@ npm test -- user
 ### Frontend Tests (Vitest + React Testing Library)
 
 ```bash
-cd frontend
+cd application/frontend
 
 # Run all tests
 npm test
@@ -255,30 +255,38 @@ describe('Component with transitions', () => {
 
 ### E2E Tests (Playwright)
 
+> **Important:** Playwright suites **must** run inside the Docker Compose `e2e-tests` service so they share the same network as the backend/frontend containers. Running `npx playwright test` directly on the host is no longer supported.
+
+:::caution Docker-only E2E target
+The Playwright configuration now rejects any `BASE_URL` or `API_BASE_URL` containing `localhost`, `127.0.0.1`, or `0.0.0.0`. Always use the docker-compose hostnames (`http://frontend:5173` and `http://backend:3001/api`) via `make test-e2e` or `./scripts/test-runner.sh e2e`.
+:::
+
 ```bash
-# Run all E2E tests
+# Run all E2E tests (docker compose run e2e-tests npm test)
 ./scripts/test-runner.sh e2e
 
-# Or manually:
-cd e2e
-npm install
-npx playwright test
+# Equivalent Makefile shortcut
+make test-e2e
 
-# Run specific test
-npx playwright test tests/smoke/homepage.spec.ts
+# Direct docker compose invocation if you need custom flags
+docker compose run --rm \
+  -e BASE_URL=http://frontend:5173 \
+  -e API_BASE_URL=http://backend:3001/api \
+  e2e-tests npm test
 
-# Debug mode
-npx playwright test --debug
+# Run specific test (inside docker)
+docker compose run --rm e2e-tests npx playwright test tests/smoke/health.spec.ts
 
-# UI mode
-npx playwright test --ui
+# Debug/UI/headed modes
+docker compose run --rm e2e-tests npx playwright test --debug
+docker compose run --rm e2e-tests npx playwright test --ui
+docker compose run --rm e2e-tests npx playwright test --headed
 
-# Run specific browser
-npx playwright test --project=chromium
-
-# Headed mode (see browser)
-npx playwright test --headed
+# Run specific browser (set via Playwright flags)
+docker compose run --rm e2e-tests npx playwright test --project=chromium
 ```
+
+The helper script/Makefile will `docker compose up -d` the core services (`postgres`, `backend`, `frontend`, telemetry) and wait for their readiness before launching the Playwright runner container.
 
 ## Writing Tests
 
@@ -365,7 +373,7 @@ test.describe('Quiz Flow', () => {
 ### Vitest Configuration (Backend)
 
 ```typescript
-// backend/vitest.config.ts
+// application/backend/vitest.config.ts
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -383,7 +391,7 @@ export default defineConfig({
 ### Vitest Configuration (Frontend)
 
 ```typescript
-// frontend/vitest.config.js
+// application/frontend/vitest.config.js
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 
@@ -439,13 +447,13 @@ jobs:
       
       - name: Backend Tests
         run: |
-          cd backend
+          cd application/backend
           npm install
           npm test
 
       - name: Frontend Tests
         run: |
-          cd frontend
+          cd application/frontend
           npm install
           npm test
 
@@ -467,12 +475,12 @@ jobs:
 
 ```bash
 # Backend
-cd backend && npm run test:cov
-# Open: backend/coverage/index.html
+cd application/backend && npm run test:cov
+# Open: application/backend/coverage/index.html
 
 # Frontend
-cd frontend && npm run test:coverage
-# Open: frontend/coverage/index.html
+cd application/frontend && npm run test:coverage
+# Open: application/frontend/coverage/index.html
 ```
 
 ## Best Practices

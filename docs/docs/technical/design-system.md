@@ -729,7 +729,7 @@ All design system components are fully compatible with React 19's concurrent fea
 
 ### Component Reference
 
-All components are located in `frontend/src/shared/components/`:
+All components are located in `application/frontend/src/shared/components/`:
 
 - `Button.tsx` - All button variants
 - `Card.tsx` - Card containers
@@ -770,7 +770,7 @@ Key utility classes:
 
 - Use the shared `createStyles` helper to declare style tokens for every feature-level component.
 - Combine tokens with `mergeStyles` when dynamic variants are required; avoid building class name strings manually.
-- Only shared UI primitives in `frontend/src/shared` may accept raw `className` props. All other components must spread style tokens via `{...styles.foo}` or `{...mergeStyles(...)}`.
+- Only shared UI primitives in `application/frontend/src/shared` may accept raw `className` props. All other components must spread style tokens via `{...styles.foo}` or `{...mergeStyles(...)}`.
 - When migrating existing code, move reusable styling into shared UI components before exposing additional class name hooks.
 
 ### Example Patterns
@@ -995,10 +995,10 @@ When implementing components:
 
 ### Design Files
 
-- Tailwind Config: `frontend/tailwind.config.js`
-- CSS Components: `frontend/src/index.css`
-- React Components: `frontend/src/shared/components/`
-- Example Pages: `frontend/src/features/home/components/HomePage.tsx`
+- Tailwind Config: `application/frontend/tailwind.config.js`
+- CSS Components: `application/frontend/src/index.css`
+- React Components: `application/frontend/src/shared/components/`
+- Example Pages: `application/frontend/src/features/home/components/HomePage.tsx`
 
 ### External References
 

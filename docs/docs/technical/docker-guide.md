@@ -57,7 +57,7 @@ See the [Quick Reference](./quick-reference) for the wider command catalogue (te
 - The Traefik dashboard is available at http://traefik.localhost.
 - The hostname stays generic so the same proxy can route multiple local projects.
 
-Routing labels live in `compose.yaml`, and the frontend default API URL is defined in `frontend/src/shared/api/openapiClient.ts`.
+Routing labels live in `compose.yaml`, and the frontend default API URL is defined in `application/frontend/src/shared/api/openapiClient.ts`.
 
 ## Data & Maintenance
 

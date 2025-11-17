@@ -11,8 +11,8 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Game Flow - Nominal Use Case', () => {
   const playerCredentials = {
-    email: 'player@example.com',
-    password: 'playerpass',
+    email: process.env.E2E_PLAYER_EMAIL ?? 'player@quiz.com',
+    password: process.env.E2E_PLAYER_PASSWORD ?? 'player123',
   };
 
   const getPinInput = (page: import('@playwright/test').Page) =>

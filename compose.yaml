@@ -31,12 +31,12 @@ services:
   # Backend NestJS (dev watch mode)
   backend:
     build:
-      dockerfile: backend/Dockerfile
+      dockerfile: application/backend/Dockerfile
       target: dev
     restart: unless-stopped
     user: "${UID:-1000}:${GID:-1000}" # Run as host user to avoid permission issues
     volumes:
-      - ./backend:/usr/src/app
+      - ./application/backend:/usr/src/app
     expose:
       - "3001"
     environment:
@@ -78,12 +78,12 @@ services:
   # Frontend React (Vite dev server with watch)
   frontend:
     build:
-      dockerfile: ./frontend/Dockerfile
+      dockerfile: ./application/frontend/Dockerfile
       target: dev
     restart: unless-stopped
     user: "${UID:-1000}:${GID:-1000}" # Run as host user to avoid permission issues
     volumes:
-      - ./frontend:/usr/src/app
+      - ./application/frontend:/usr/src/app
     expose:
       - "5173"
     depends_on:
@@ -101,6 +101,29 @@ services:
       - "traefik.http.routers.frontend.entrypoints=http"
       - "traefik.http.services.frontend.loadbalancer.server.port=5173"
       - "traefik.docker.network=traefik-proxy"
+
+  e2e-tests:
+    image: mcr.microsoft.com/playwright:v1.56.1-jammy
+    working_dir: /workspace
+    init: true
+    stdin_open: true
+    tty: true
+    environment:
+      - BASE_URL=${BASE_URL:-http://frontend:5173}
+      - API_BASE_URL=${API_BASE_URL:-http://backend:3001/api}
+      - E2E_ADMIN_EMAIL=${E2E_ADMIN_EMAIL:-admin@quiz.com}
+      - E2E_ADMIN_PASSWORD=${E2E_ADMIN_PASSWORD:-admin123}
+      - E2E_PLAYER_EMAIL=${E2E_PLAYER_EMAIL:-player@quiz.com}
+      - E2E_PLAYER_PASSWORD=${E2E_PLAYER_PASSWORD:-player123}
+    volumes:
+      - ./e2e:/workspace
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_started
+    networks:
+      - quiz-network
 
   otel-collector:
     image: otel/opentelemetry-collector:0.105.0

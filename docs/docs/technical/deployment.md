@@ -38,7 +38,7 @@ docker compose logs | grep -i error
 docker compose exec -T postgres psql -U ${POSTGRES_USER:-quizapp} -d ${POSTGRES_DB:-quizdb} < backup.sql
 docker compose restart backend
 - [ ] `nginx/ssl/fullchain.pem` and `nginx/ssl/privkey.pem` populated
-- [ ] `frontend/nginx.prod.conf` updated with your domain name
+- [ ] `application/frontend/nginx.prod.conf` updated with your domain name
 - [ ] HTTPS validated: `curl -I https://your-domain.com`
 - [ ] Renewal in place (Certbot cron, managed certificates, or reverse proxy automation)
 

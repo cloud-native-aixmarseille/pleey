@@ -143,7 +143,7 @@ make restart
 ### Frontend shows blank page
 ```bash
 # Check Tailwind config
-ls frontend/tailwind.config.js frontend/postcss.config.js
+ls application/frontend/tailwind.config.js application/frontend/postcss.config.js
 # Rebuild if needed
 docker-compose build frontend --no-cache
 make restart

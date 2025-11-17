@@ -8,6 +8,10 @@ import { test, expect } from '@playwright/test';
  */
 
 test.describe('Authentication Flow - Nominal Use Case', () => {
+  const adminCredentials = {
+    email: process.env.E2E_ADMIN_EMAIL ?? 'admin@quiz.com',
+    password: process.env.E2E_ADMIN_PASSWORD ?? 'admin123',
+  };
 
   const testUser = {
     username: `testuser_${Date.now()}`,
@@ -50,8 +54,8 @@ test.describe('Authentication Flow - Nominal Use Case', () => {
     await page.goto('/auth/login');
     await page.waitForLoadState('networkidle');
 
-    await page.fill('input[name="email"]', 'admin@example.com');
-    await page.fill('input[name="password"]', 'adminpass');
+    await page.fill('input[name="email"]', adminCredentials.email);
+    await page.fill('input[name="password"]', adminCredentials.password);
 
     await Promise.all([
       page.waitForURL(/\/admin/),
