@@ -1,0 +1,21 @@
+name: "Prepare release"
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+permissions: {}
+
+jobs:
+  release:
+    uses: hoverkraft-tech/ci-github-publish/.github/workflows/prepare-release.yml@44e0f1bacebf3711bf90895fc45d815e9fe582e8 # v0.18.0
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    with:
+      github-app-id: ${{ vars.CI_BOT_APP_ID }}
+    secrets:
+      github-app-key: ${{ secrets.CI_BOT_APP_PRIVATE_KEY }}

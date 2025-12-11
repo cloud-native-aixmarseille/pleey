@@ -32,6 +32,8 @@ RUN set -eu; \
 COPY --chown=node:node ./application/backend/ /usr/src/app/
 RUN npm run build
 
+FROM build AS build-prod
+
 RUN set -eu; \
     npm prune --production && \
     npm cache clean --force
@@ -40,11 +42,11 @@ FROM base AS prod
 
 ENV NODE_ENV production
 
-COPY --from=build-app /usr/bin/dumb-init /usr/bin/dumb-init
+COPY --from=build-prod /usr/bin/dumb-init /usr/bin/dumb-init
 
-COPY --chown=node:node --from=build-app /usr/src/app/node_modules /usr/src/app/node_modules
-COPY --chown=node:node --from=build-app /usr/src/app/prisma /usr/src/app/prisma
-COPY --chown=node:node --from=build-app /usr/src/app/dist /usr/src/app/dist
+COPY --chown=node:node --from=build-prod /usr/src/app/node_modules /usr/src/app/node_modules
+COPY --chown=node:node --from=build-prod /usr/src/app/prisma /usr/src/app/prisma
+COPY --chown=node:node --from=build-prod /usr/src/app/dist /usr/src/app/dist
 
 CMD dumb-init node --max-old-space-size=200 "/usr/src/app/dist/main.js"
 

@@ -1,0 +1,40 @@
+name: "• 🚀 Release"
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to deploy to"
+        required: true
+        type: choice
+        options: [uat, production]
+
+permissions: {}
+
+jobs:
+  ci:
+    uses: ./.github/workflows/__shared-ci.yml
+    permissions:
+      actions: read
+      checks: write
+      contents: read
+      id-token: write
+      issues: read
+      packages: write
+      pull-requests: write
+      security-events: write
+      statuses: write
+    secrets: inherit
+
+  release:
+    needs: [ci]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.create-release.outputs.tag }}
+    steps:
+      - id: create-release
+        uses: hoverkraft-tech/ci-github-publish/actions/release/create@44e0f1bacebf3711bf90895fc45d815e9fe582e8 # v0.18.0
+        with:
+          prerelease: ${{ inputs.environment == 'uat' }}

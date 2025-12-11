@@ -1,0 +1,54 @@
+name: Main - Continuous Integration
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  clean:
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/prune-pull-requests-images-tags.yml@3256ec78f48fdaa4c9691c87dc7136fa561c456e # v0.30.3
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+      pull-requests: read
+    with:
+      images: '["backend","frontend","backend-ci","frontend-ci"]'
+
+  ci:
+    uses: ./.github/workflows/__shared-ci.yml
+    permissions:
+      actions: read
+      checks: write
+      contents: read
+      id-token: write
+      issues: read
+      packages: write
+      pull-requests: write
+      security-events: write
+      statuses: write
+    secrets: inherit
+
+  helm-docs:
+    needs: ci
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@main
+      - uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@3256ec78f48fdaa4c9691c87dc7136fa561c456e # v0.30.3
+        with:
+          working-directory: ./charts
+          github-app-id: ${{ vars.CI_BOT_APP_ID }}
+          github-app-key: ${{ secrets.CI_BOT_APP_PRIVATE_KEY }}

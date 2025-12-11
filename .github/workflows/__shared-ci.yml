@@ -1,0 +1,115 @@
+name: Shared - Continuous Integration
+
+on:
+  workflow_call:
+
+permissions: {}
+
+jobs:
+  linter:
+    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@666b7b6eb000db3e8614647871fa60c9f1eb7179 # v0.31.4
+    permissions:
+      actions: read
+      contents: read
+      statuses: write
+      security-events: write
+
+  build:
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@3256ec78f48fdaa4c9691c87dc7136fa561c456e # v0.30.3
+    permissions:
+      contents: read
+      packages: write
+      issues: read
+      pull-requests: read
+      id-token: write
+    with:
+      oci-registry: ${{ vars.OCI_REGISTRY }}
+      sign: false
+      images: |
+        [
+          {
+            "name": "backend-ci",
+            "context": ".",
+            "dockerfile": "./application/backend/Dockerfile",
+            "build-args": { "APP_PATH": "./application/backend/" },
+            "target": "ci",
+            "platforms": ["linux/amd64"]
+          },
+          {
+            "name": "backend",
+            "context": ".",
+            "dockerfile": "./application/backend/Dockerfile",
+            "build-args": { "APP_PATH": "./application/backend/" },
+            "target": "prod",
+            "platforms": ["linux/amd64"]
+          },
+          {
+            "name": "frontend-ci",
+            "context": ".",
+            "dockerfile": "./application/frontend/Dockerfile",
+            "build-args": { "APP_PATH": "./application/frontend/" },
+            "target": "ci",
+            "platforms": ["linux/amd64"]
+          },
+          {
+            "name": "frontend",
+            "context": ".",
+            "dockerfile": "./application/frontend/Dockerfile",
+            "build-args": { "APP_PATH": "./application/frontend/" },
+            "target": "prod",
+            "platforms": ["linux/amd64"]
+          }
+        ]
+    secrets:
+      oci-registry-password: ${{ secrets.GITHUB_TOKEN }}
+
+  continuous-integration:
+    strategy:
+      matrix:
+        service: ["backend", "frontend"]
+    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@25ef8d971c0a866fb9e5d90130c7aaa084619df6 # v0.21.0
+    needs: build
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+      security-events: write
+      packages: read
+    with:
+      working-directory: /usr/src/app
+      container: |
+        {
+          "image": ${{ toJSON(fromJSON(needs.build.outputs.built-images)[format('{0}-ci', matrix.service)].images[0]) }},
+          "credentials": {
+            "username": ${{ toJson(github.repository_owner) }}
+          },
+          "pathMapping": {
+            "/usr/src/app": format("./application/{0}", matrix.service)
+          }
+        }
+      code-ql: ""
+      dependency-review: false
+    secrets:
+      container-password: ${{ secrets.GITHUB_TOKEN }}
+
+  tests-charts:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Test helm chart (umbrella)
+        uses: hoverkraft-tech/ci-github-container/actions/helm/test-chart@3256ec78f48fdaa4c9691c87dc7136fa561c456e # v0.30.3
+        with:
+          helm-set: |
+            backend.image.registry=${{ fromJSON(needs.build.outputs.built-images).backend.registry }}
+            backend.image.repository=${{ fromJSON(needs.build.outputs.built-images).backend.repository }}
+            backend.image.tag=${{ fromJSON(needs.build.outputs.built-images).backend.tags[0] }}
+            backend.image.digest=${{ fromJSON(needs.build.outputs.built-images).backend.digest }}
+            frontend.image.registry=${{ fromJSON(needs.build.outputs.built-images).frontend.registry }}
+            frontend.image.repository=${{ fromJSON(needs.build.outputs.built-images).frontend.repository }}
+            frontend.image.tag=${{ fromJSON(needs.build.outputs.built-images).frontend.tags[0] }}
+            frontend.image.digest=${{ fromJSON(needs.build.outputs.built-images).frontend.digest }}
+          oci-registry: ${{ vars.OCI_REGISTRY }}
+          oci-registry-password: ${{ github.token }}

@@ -28,6 +28,8 @@ RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc \
 COPY --chown=node:node ./application/frontend/ /usr/src/app/
 RUN npm run build
 
+FROM build AS build-prod
+
 RUN set -eu; \
     npm prune --production && \
     npm cache clean --force
@@ -45,7 +47,7 @@ RUN rm -rf /usr/share/nginx/html/* && \
     rm /etc/nginx/conf.d/default.conf
 
 # Copy built application from builder
-COPY --from=build /usr/src/app/dist /usr/share/nginx/html
+COPY --from=build-prod /usr/src/app/dist /usr/share/nginx/html
 
 # Copy custom Nginx configuration
 COPY ./application/frontend/nginx.prod.conf /etc/nginx/conf.d/default.conf
