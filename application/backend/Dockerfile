@@ -25,7 +25,8 @@ RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc \
     set -eu; \
     npm ci --include=dev;
 
-COPY --chown=node:node ./application/backend/prisma /usr/src/app/
+COPY --chown=node:node ./application/backend/prisma /usr/src/app/prisma
+COPY --chown=node:node ./application/backend/prisma.config.ts /usr/src/app/
 RUN set -eu; \
     DATABASE_URL="postgresql://user:pass@localhost:5432/db" npm run db:generate;
 
