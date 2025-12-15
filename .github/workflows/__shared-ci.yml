@@ -12,7 +12,7 @@ jobs:
       actions: read
       contents: read
       statuses: write
-      security-events: write
+      # security-events: write  # Disabled: Code Security not enabled on repository
 
   build:
     uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@3256ec78f48fdaa4c9691c87dc7136fa561c456e # v0.30.3
@@ -23,7 +23,8 @@ jobs:
       pull-requests: read
       id-token: write
     with:
-      oci-registry: ${{ vars.OCI_REGISTRY }}
+      oci-registry: ${{ vars.OCI_REGISTRY || 'ghcr.io' }}
+      oci-registry-username: ${{ github.repository_owner }}
       sign: false
       images: |
         [
@@ -111,5 +112,6 @@ jobs:
             frontend.image.repository=${{ fromJSON(needs.build.outputs.built-images).frontend.repository }}
             frontend.image.tag=${{ fromJSON(needs.build.outputs.built-images).frontend.tags[0] }}
             frontend.image.digest=${{ fromJSON(needs.build.outputs.built-images).frontend.digest }}
-          oci-registry: ${{ vars.OCI_REGISTRY }}
+          oci-registry: ${{ vars.OCI_REGISTRY || 'ghcr.io' }}
+          oci-registry-username: ${{ github.repository_owner }}
           oci-registry-password: ${{ github.token }}
