@@ -12,7 +12,7 @@ jobs:
       actions: read
       contents: read
       statuses: write
-      security-events: write
+      # security-events: write  # Disabled: Code Security not enabled on repository
 
   build:
     uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@3256ec78f48fdaa4c9691c87dc7136fa561c456e # v0.30.3
