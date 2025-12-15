@@ -27,7 +27,7 @@ RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc \
 
 COPY --chown=node:node ./application/backend/prisma /usr/src/app/
 RUN set -eu; \
-    npm run prisma:generate;
+    DATABASE_URL="postgresql://user:pass@localhost:5432/db" npm run db:generate;
 
 COPY --chown=node:node ./application/backend/ /usr/src/app/
 RUN npm run build
