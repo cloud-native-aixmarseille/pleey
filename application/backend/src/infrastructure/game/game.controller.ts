@@ -1,11 +1,11 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Request, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { CreateGameSessionDto } from '../../application/game/dto/create-game-session.dto';
-import { CreateGameSessionUseCase } from '../../application/game/use-cases/create-game-session.use-case';
-import { StopGameSessionUseCase } from '../../application/game/use-cases/stop-game-session.use-case';
-import { ResumeGameSessionUseCase } from '../../application/game/use-cases/resume-game-session.use-case';
-import { GetActiveSessionsUseCase } from '../../application/game/use-cases/get-active-sessions.use-case';
-import { GetQuizSessionsUseCase } from '../../application/game/use-cases/get-quiz-sessions.use-case';
+import type { CreateGameSessionDto } from '../../application/game/dto/create-game-session.dto';
+import type { CreateGameSessionUseCase } from '../../application/game/use-cases/create-game-session.use-case';
+import type { StopGameSessionUseCase } from '../../application/game/use-cases/stop-game-session.use-case';
+import type { ResumeGameSessionUseCase } from '../../application/game/use-cases/resume-game-session.use-case';
+import type { GetActiveSessionsUseCase } from '../../application/game/use-cases/get-active-sessions.use-case';
+import type { GetQuizSessionsUseCase } from '../../application/game/use-cases/get-quiz-sessions.use-case';
 
 @Controller('sessions')
 export class GameController {

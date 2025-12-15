@@ -1,10 +1,10 @@
 import { Body, Controller, Delete, ForbiddenException, Get, HttpCode, Param, ParseIntPipe, Post, Req, UseGuards } from '@nestjs/common';
 import type { Request } from 'express';
-import { CreateQuizDto } from '../../application/quiz/dto/create-quiz.dto';
-import { CreateQuizUseCase } from '../../application/quiz/use-cases/create-quiz.use-case';
-import { DeleteQuizUseCase } from '../../application/quiz/use-cases/delete-quiz.use-case';
-import { GetAllQuizzesUseCase } from '../../application/quiz/use-cases/get-all-quizzes.use-case';
-import { GetQuizQuestionsUseCase } from '../../application/quiz/use-cases/get-quiz-questions.use-case';
+import type { CreateQuizDto } from '../../application/quiz/dto/create-quiz.dto';
+import type { CreateQuizUseCase } from '../../application/quiz/use-cases/create-quiz.use-case';
+import type { DeleteQuizUseCase } from '../../application/quiz/use-cases/delete-quiz.use-case';
+import type { GetAllQuizzesUseCase } from '../../application/quiz/use-cases/get-all-quizzes.use-case';
+import type { GetQuizQuestionsUseCase } from '../../application/quiz/use-cases/get-quiz-questions.use-case';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { QuizErrorCode } from '../../application/quiz/enums/quiz-error-code.enum';
 

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { HealthCheckError, HealthIndicator, type HealthIndicatorResult } from '@nestjs/terminus';
-import { PrismaService } from '../database/prisma.service';
+import type { PrismaService } from '../database/prisma.service';
 
 /**
  * Health indicator for Prisma database connection

@@ -24,11 +24,13 @@ make install
 ```
 
 **That's it!** The application will be available at:
-- Frontend: http://frontend.quiz-app.localhost
-- Backend: http://backend.quiz-app.localhost
-- Traefik Dashboard: http://traefik.localhost (provisioned automatically by `make up`)
+
+- Frontend: <http://frontend.quiz-app.localhost>
+- Backend: <http://backend.quiz-app.localhost>
+- Traefik Dashboard: <http://traefik.localhost> (provisioned automatically by `make up`)
 
 **Default admin account:**
+
 - Email: `admin@quiz.com`
 - Password: `admin123`
 
@@ -101,10 +103,12 @@ helm install quiz-app ./charts/application \
 Complete documentation is available in the `/docs` folder via Docusaurus.
 
 ### 📖 For Users
+
 - **[Quick Start Guide](docs/docs/functional/quickstart.md)** - Installation and first steps
 - **[Admin & Host Guide](docs/docs/functional/admin-host-guide.md)** - Create and host quizzes
 
 ### 🛠️ For Developers
+
 - **[Architecture](docs/docs/technical/architecture/index.md)** - System architecture
 - **[Docker Guide](docs/docs/technical/docker-guide.md)** - Docker usage
 - **[Kubernetes](docs/docs/technical/kubernetes.md)** - Kubernetes deployment with Helm
@@ -118,10 +122,12 @@ Complete documentation is available in the `/docs` folder via Docusaurus.
 - **[Quick Reference](docs/docs/technical/quick-reference.md)** - Commands and references
 
 ### 🤖 For AI Agents
+
 - **[AGENTS.md](AGENTS.md)** - Instructions for AI agents
 - **[CLAUDE.md](CLAUDE.md)** - Instructions for Claude
 
 ### 🤝 Contributing
+
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** - Contribution guide
 
 ## 📜 License

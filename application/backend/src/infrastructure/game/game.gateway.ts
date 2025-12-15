@@ -3,9 +3,9 @@ import { Inject, Logger, UseFilters } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
-  OnGatewayConnection,
-  OnGatewayDisconnect,
-  OnGatewayInit,
+  type OnGatewayConnection,
+  type OnGatewayDisconnect,
+  type OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -14,9 +14,9 @@ import {
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import type { Server, Socket } from 'socket.io';
-import { I18nService } from 'nestjs-i18n';
-import { SubmitAnswerUseCase } from '../../application/game/use-cases/submit-answer.use-case';
-import { GetLeaderboardUseCase } from '../../application/game/use-cases/get-leaderboard.use-case';
+import type { I18nService } from 'nestjs-i18n';
+import type { SubmitAnswerUseCase } from '../../application/game/use-cases/submit-answer.use-case';
+import type { GetLeaderboardUseCase } from '../../application/game/use-cases/get-leaderboard.use-case';
 import { JoinGameDto } from '../../application/game/dto/join-game.dto';
 import { SubmitAnswerDto } from '../../application/game/dto/submit-answer.dto';
 import { GamePinDto } from '../../application/game/dto/game-pin.dto';

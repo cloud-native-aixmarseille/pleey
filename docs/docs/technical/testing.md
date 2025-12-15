@@ -71,7 +71,7 @@ QuizMaster follows the **testing pyramid** principle:
 
 - **Unit Tests** (many): Business logic, isolated components
 - **Integration Tests** (some): Component interactions
-- **E2E Tests** (few): Critical user flows and smoke tests
+- **End-to-end Tests** (few): Critical user flows and smoke tests
 
 ## Test Structure
 
@@ -105,43 +105,43 @@ quiz-app/
 
 ### Core Test Commands
 
-| Command | Description |
-|---------|-------------|
-| `make test` | Run all tests (backend + frontend + e2e) |
-| `make test-backend` | Run backend unit tests |
-| `make test-frontend` | Run frontend unit tests |
-| `make test-e2e` | Run end-to-end tests |
-| `make test-e2e-smoke` | Run smoke tests only |
+| Command               | Description                                     |
+| --------------------- | ----------------------------------------------- |
+| `make test`           | Run all tests (backend + frontend + end-to-end) |
+| `make test-backend`   | Run backend unit tests                          |
+| `make test-frontend`  | Run frontend unit tests                         |
+| `make test-e2e`       | Run end-to-end tests                            |
+| `make test-e2e-smoke` | Run smoke tests only                            |
 
 ### Watch Mode
 
-| Command | Description |
-|---------|-------------|
-| `make test-watch` | Interactive watch mode selection |
-| `make test-backend-watch` | Backend tests in watch mode |
-| `make test-frontend-watch` | Frontend tests in watch mode |
+| Command                    | Description                      |
+| -------------------------- | -------------------------------- |
+| `make test-watch`          | Interactive watch mode selection |
+| `make test-backend-watch`  | Backend tests in watch mode      |
+| `make test-frontend-watch` | Frontend tests in watch mode     |
 
 ### Coverage
 
-| Command | Description |
-|---------|-------------|
-| `make test-cov` | Coverage for backend + frontend |
-| `make test-backend-cov` | Backend coverage only |
-| `make test-frontend-cov` | Frontend coverage only |
+| Command                  | Description                     |
+| ------------------------ | ------------------------------- |
+| `make test-cov`          | Coverage for backend + frontend |
+| `make test-backend-cov`  | Backend coverage only           |
+| `make test-frontend-cov` | Frontend coverage only          |
 
 ### UI Mode
 
-| Command | Description |
-|---------|-------------|
-| `make test-ui` | Interactive UI mode selection |
-| `make test-e2e-ui` | Playwright UI mode |
+| Command            | Description                   |
+| ------------------ | ----------------------------- |
+| `make test-ui`     | Interactive UI mode selection |
+| `make test-e2e-ui` | Playwright UI mode            |
 
 Scoped aliases such as `make test-backend-ui`, `make test-frontend-ui`, and their `-cov`/`-watch` counterparts continue to work when you need a specific suite.
 
 ### Setup
 
-| Command | Description |
-|---------|-------------|
+| Command             | Description                   |
+| ------------------- | ----------------------------- |
 | `make test-install` | Install all test dependencies |
 
 ## Running Tests
@@ -155,7 +155,7 @@ Scoped aliases such as `make test-backend-ui`, `make test-frontend-ui`, and thei
 # Backend tests only
 ./scripts/test-runner.sh backend
 
-# Frontend tests only  
+# Frontend tests only
 ./scripts/test-runner.sh frontend
 
 # E2E tests only
@@ -191,8 +191,9 @@ npm test -- user
 ```
 
 **Test Files**:
+
 - Unit tests: `src/**/*.spec.ts`
-- E2E tests: `test/**/*.e2e-spec.ts`
+- End-to-end tests: `test/**/*.e2e-spec.ts`
 
 ### Frontend Tests (Vitest + React Testing Library)
 
@@ -213,6 +214,7 @@ npm run test:ui
 ```
 
 **Test Files**:
+
 - Component tests: `src/**/__tests__/**/*.test.tsx`
 - Hook tests: `src/**/__tests__/**/*.test.ts`
 - Integration tests: `src/**/__tests__/**/*.integration.test.tsx`
@@ -222,12 +224,14 @@ npm run test:ui
 The frontend uses **React 19** with **Testing Library 16.x**, which fully supports concurrent features:
 
 **Key Changes from React 18 Testing:**
+
 - ✅ **Automatic act() wrapping**: Testing Library handles concurrent updates automatically
 - ✅ **Improved async utilities**: `waitFor`, `findBy*` work seamlessly with React 19
 - ✅ **StrictMode testing**: All tests run with StrictMode enabled
 - ✅ **No legacy warnings**: Removed React 18 migration warnings
 
 **Testing Concurrent Features:**
+
 ```typescript
 import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
@@ -235,11 +239,11 @@ import { describe, it, expect } from 'vitest';
 describe('Component with transitions', () => {
   it('should handle concurrent updates', async () => {
     render(<SearchComponent />);
-    
+
     // Testing Library automatically handles React 19's automatic batching
     const input = screen.getByRole('textbox');
     await userEvent.type(input, 'search term');
-    
+
     // No need for manual act() - it's automatic!
     await waitFor(() => {
       expect(screen.getByText('Results')).toBeInTheDocument();
@@ -249,15 +253,16 @@ describe('Component with transitions', () => {
 ```
 
 **React Specific Test Setup:**
+
 - `globalThis.IS_REACT_ACT_ENVIRONMENT = true` - Enables automatic act() handling
 - Suppresses expected React 19 warnings in test output
 - See `src/test/setup.js` for complete configuration
 
-### E2E Tests (Playwright)
+### End-to-end Tests (Playwright)
 
 > **Important:** Playwright suites **must** run inside the Docker Compose `e2e-tests` service so they share the same network as the backend/frontend containers. Running `npx playwright test` directly on the host is no longer supported.
 
-:::caution Docker-only E2E target
+:::caution Docker-only end-to-end target
 The Playwright configuration now rejects any `BASE_URL` or `API_BASE_URL` containing `localhost`, `127.0.0.1`, or `0.0.0.0`. Always use the docker-compose hostnames (`http://frontend:5173` and `http://backend:3001/api`) via `make test-e2e` or `./scripts/test-runner.sh e2e`.
 :::
 
@@ -293,30 +298,30 @@ The helper script/Makefile will `docker compose up -d` the core services (`postg
 ### Backend Unit Tests (Vitest)
 
 ```typescript
-import { describe, it, expect, beforeEach } from 'vitest';
-import { UserService } from './user.service';
+import { describe, it, expect, beforeEach } from "vitest";
+import { UserService } from "./user.service";
 
-describe('UserService', () => {
+describe("UserService", () => {
   let userService: UserService;
 
   beforeEach(() => {
     userService = new UserService();
   });
 
-  it('should create a user', async () => {
+  it("should create a user", async () => {
     const user = await userService.create({
-      username: 'testuser',
-      email: 'test@example.com'
+      username: "testuser",
+      email: "test@example.com",
     });
 
     expect(user).toBeDefined();
-    expect(user.username).toBe('testuser');
+    expect(user.username).toBe("testuser");
   });
 
-  it('should validate email format', () => {
+  it("should validate email format", () => {
     expect(() => {
-      userService.validateEmail('invalid');
-    }).toThrow('Invalid email');
+      userService.validateEmail("invalid");
+    }).toThrow("Invalid email");
   });
 });
 ```
@@ -337,33 +342,33 @@ describe('QuizCard', () => {
   it('should call onStart when clicked', () => {
     const onStart = vi.fn();
     render(<QuizCard title="Quiz" onStart={onStart} />);
-    
+
     fireEvent.click(screen.getByText('Start'));
     expect(onStart).toHaveBeenCalled();
   });
 });
 ```
 
-### E2E Tests (Playwright)
+### End-to-end Tests (Playwright)
 
 ```typescript
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test.describe('Quiz Flow', () => {
-  test('should create and start quiz', async ({ page }) => {
+test.describe("Quiz Flow", () => {
+  test("should create and start quiz", async ({ page }) => {
     // Login as admin
-    await page.goto('/login');
-    await page.fill('[name="email"]', 'admin@quiz.com');
-    await page.fill('[name="password"]', 'admin123');
+    await page.goto("/login");
+    await page.fill('[name="email"]', "admin@quiz.com");
+    await page.fill('[name="password"]', "admin123");
     await page.click('button[type="submit"]');
 
     // Create quiz
-    await page.click('text=Create Quiz');
-    await page.fill('[name="title"]', 'Test Quiz');
-    await page.click('text=Save');
+    await page.click("text=Create Quiz");
+    await page.fill('[name="title"]', "Test Quiz");
+    await page.click("text=Save");
 
     // Verify quiz created
-    await expect(page.locator('text=Test Quiz')).toBeVisible();
+    await expect(page.locator("text=Test Quiz")).toBeVisible();
   });
 });
 ```
@@ -374,15 +379,15 @@ test.describe('Quiz Flow', () => {
 
 ```typescript
 // application/backend/vitest.config.ts
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
     globals: true,
-    environment: 'node',
+    environment: "node",
     coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html'],
+      provider: "v8",
+      reporter: ["text", "json", "html"],
     },
   },
 });
@@ -392,15 +397,15 @@ export default defineConfig({
 
 ```typescript
 // application/frontend/vitest.config.js
-import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from "vitest/config";
+import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
   test: {
     globals: true,
-    environment: 'jsdom',
-    setupFiles: './src/test/setup.ts',
+    environment: "jsdom",
+    setupFiles: "./src/test/setup.ts",
   },
 });
 ```
@@ -409,20 +414,20 @@ export default defineConfig({
 
 ```typescript
 // e2e/playwright.config.ts
-import { defineConfig } from '@playwright/test';
+import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
-  testDir: './tests',
+  testDir: "./tests",
   timeout: 30000,
   retries: 2,
   use: {
-    baseURL: 'http://localhost',
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    baseURL: "http://localhost",
+    screenshot: "only-on-failure",
+    video: "retain-on-failure",
   },
   projects: [
-    { name: 'chromium', use: { browserName: 'chromium' } },
-    { name: 'firefox', use: { browserName: 'firefox' } },
+    { name: "chromium", use: { browserName: "chromium" } },
+    { name: "firefox", use: { browserName: "firefox" } },
   ],
 });
 ```
@@ -443,8 +448,8 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: '18'
-      
+          node-version: "18"
+
       - name: Backend Tests
         run: |
           cd application/backend
@@ -469,7 +474,7 @@ jobs:
 
 - **Unit Tests**: 80% coverage minimum
 - **Integration Tests**: Critical paths covered
-- **E2E Tests**: Smoke tests + critical user flows
+- **End-to-end Tests**: Smoke tests + critical user flows
 
 ### View Coverage
 
@@ -486,6 +491,7 @@ cd application/frontend && npm run test:coverage
 ## Best Practices
 
 ### Unit Tests
+
 - ✅ Test one thing at a time
 - ✅ Use descriptive test names
 - ✅ Follow AAA pattern (Arrange, Act, Assert)
@@ -493,12 +499,14 @@ cd application/frontend && npm run test:coverage
 - ✅ Test edge cases and errors
 
 ### Integration Tests
+
 - ✅ Test real component interactions
 - ✅ Use minimal mocking
 - ✅ Test API integration
 - ✅ Verify database interactions
 
-### E2E Tests
+### End-to-end Tests
+
 - ✅ Test critical user journeys
 - ✅ Use page object pattern
 - ✅ Test across browsers
@@ -519,7 +527,7 @@ docker-compose down -v
 docker-compose up -d
 ```
 
-### E2E Tests Timeout
+### End-to-end Tests Timeout
 
 ```bash
 # Increase timeout in playwright.config.ts

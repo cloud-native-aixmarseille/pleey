@@ -20,12 +20,16 @@ QuizMaster is an interactive quiz application, designed for real-time multiplaye
 ## 🎯 What You'll Find Here
 
 ### 🎮 User Guide (Functional Documentation)
+
 Documentation for end users who want to create quizzes, host games, and play:
+
 - **[Quickstart Guide](quickstart)** - Get up and running quickly
 - **[Admin & Host Guide](admin-host-guide)** - Create quizzes and manage games
 
 ### 🛠️ Technical Documentation
+
 For developers, QA engineers, and AI agents working on the codebase:
+
 - **Architecture & Design** - System architecture and design patterns
 - **Development** - Docker, testing, i18n, accessibility
 - **Deployment & Operations** - Deployment, monitoring, security
@@ -40,6 +44,7 @@ For developers, QA engineers, and AI agents working on the codebase:
 ## 🎨 Design Philosophy
 
 QuizMaster uses the **Cyber Arcade** design system, a retro-futuristic aesthetic that combines:
+
 - 80s arcade gaming nostalgia
 - Synthwave purple/pink/cyan color palette
 - Terminal-style interfaces

@@ -9,7 +9,7 @@ export class UpdateProfileDto {
   @IsString()
   @MinLength(3)
   @MaxLength(32)
-  @Matches(/^[A-Za-z0-9_\-]+$/)
+  @Matches(/^[A-Za-z0-9_-]+$/)
   username?: string;
 
   @IsOptional()

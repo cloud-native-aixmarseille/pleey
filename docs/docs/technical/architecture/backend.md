@@ -60,77 +60,77 @@ All HTTP routes are exposed under the global `/api` prefix (e.g. `/api/login`).
 
 ### Health Checks
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| GET | `/health` | Complete health check (database, disk, memory) | ✗ |
-| GET | `/health/ready` | Readiness probe (database connection) | ✗ |
-| GET | `/health/live` | Liveness probe (memory check) | ✗ |
+| Method | Endpoint        | Description                                    | Auth |
+| ------ | --------------- | ---------------------------------------------- | ---- |
+| GET    | `/health`       | Complete health check (database, disk, memory) | ✗    |
+| GET    | `/health/ready` | Readiness probe (database connection)          | ✗    |
+| GET    | `/health/live`  | Liveness probe (memory check)                  | ✗    |
 
 ### Authentication
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| POST | `/register` | Register new user | ✗ |
-| POST | `/login` | Login and get JWT token | ✗ |
+| Method | Endpoint    | Description             | Auth |
+| ------ | ----------- | ----------------------- | ---- |
+| POST   | `/register` | Register new user       | ✗    |
+| POST   | `/login`    | Login and get JWT token | ✗    |
 
 ### Profile
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| GET | `/profile/me` | Retrieve authenticated user profile | ✓ |
-| PATCH | `/profile/me` | Update username / email | ✓ |
-| POST | `/profile/me/avatar` | Regenerate deterministic avatar | ✓ |
+| Method | Endpoint             | Description                         | Auth |
+| ------ | -------------------- | ----------------------------------- | ---- |
+| GET    | `/profile/me`        | Retrieve authenticated user profile | ✓    |
+| PATCH  | `/profile/me`        | Update username / email             | ✓    |
+| POST   | `/profile/me/avatar` | Regenerate deterministic avatar     | ✓    |
 
 ### Avatar Media
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| GET | `/avatars/users/:userId` | Stream the latest SVG avatar for a registered user. Responses include cache-busting `?v=` fingerprint query parameters. | ✗* |
-| GET | `/avatars/sessions/:sessionId/:seed` | Generate transient SVG avatars for lobby/game participants (seeded per session). | ✗* |
+| Method | Endpoint                             | Description                                                                                                             | Auth |
+| ------ | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- | ---- |
+| GET    | `/avatars/users/:userId`             | Stream the latest SVG avatar for a registered user. Responses include cache-busting `?v=` fingerprint query parameters. | ✗\*  |
+| GET    | `/avatars/sessions/:sessionId/:seed` | Generate transient SVG avatars for lobby/game participants (seeded per session).                                        | ✗\*  |
 
 > \*Avatars are intentionally served without authentication to enable CDN/browser caching. The `?v=` fingerprint is derived from the stored SVG payload to ensure browsers fetch the most recent avatar immediately after regeneration.
 
 ### Quiz Management
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| GET | `/quizzes` | List all quizzes | ✓ |
-| POST | `/quizzes` | Create a new quiz | ✓ |
-| GET | `/quizzes/:id` | Get quiz details | ✓ |
-| PUT | `/quizzes/:id` | Update a quiz | ✓ |
-| DELETE | `/quizzes/:id` | Delete a quiz | ✓ |
+| Method | Endpoint       | Description       | Auth |
+| ------ | -------------- | ----------------- | ---- |
+| GET    | `/quizzes`     | List all quizzes  | ✓    |
+| POST   | `/quizzes`     | Create a new quiz | ✓    |
+| GET    | `/quizzes/:id` | Get quiz details  | ✓    |
+| PUT    | `/quizzes/:id` | Update a quiz     | ✓    |
+| DELETE | `/quizzes/:id` | Delete a quiz     | ✓    |
 
 ### Question Management
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| GET | `/quizzes/:id/questions` | Get all questions for a quiz | ✓ |
-| POST | `/quizzes/:id/questions` | Add a question to a quiz | ✓ |
-| PUT | `/questions/:id` | Update a question | ✓ |
-| DELETE | `/questions/:id` | Delete a question | ✓ |
+| Method | Endpoint                 | Description                  | Auth |
+| ------ | ------------------------ | ---------------------------- | ---- |
+| GET    | `/quizzes/:id/questions` | Get all questions for a quiz | ✓    |
+| POST   | `/quizzes/:id/questions` | Add a question to a quiz     | ✓    |
+| PUT    | `/questions/:id`         | Update a question            | ✓    |
+| DELETE | `/questions/:id`         | Delete a question            | ✓    |
 
 ### Game Sessions
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| POST | `/sessions` | Create a game session | ✓ |
-| GET | `/sessions/:pin` | Get session by PIN | ✓ |
+| Method | Endpoint         | Description           | Auth |
+| ------ | ---------------- | --------------------- | ---- |
+| POST   | `/sessions`      | Create a game session | ✓    |
+| GET    | `/sessions/:pin` | Get session by PIN    | ✓    |
 
 ## 🔌 WebSocket Events
 
 Real-time gameplay events via Socket.io:
 
-| Event | Direction | Description |
-|-------|-----------|-------------|
-| `join-game` | Client → Server | Join a game session |
-| `player-joined` | Server → Clients | Notify all players of new player |
-| `start-game` | Client → Server | Start the game (admin only) |
-| `game-started` | Server → Clients | Notify all players game has started |
-| `submit-answer` | Client → Server | Submit an answer to a question |
-| `answer-result` | Server → Client | Send answer result to player |
-| `next-question` | Client → Server | Move to next question (admin only) |
-| `game-ended` | Server → Clients | Notify all players game has ended |
-| `player-left` | Server → Clients | Notify all players of disconnection |
+| Event           | Direction        | Description                         |
+| --------------- | ---------------- | ----------------------------------- |
+| `join-game`     | Client → Server  | Join a game session                 |
+| `player-joined` | Server → Clients | Notify all players of new player    |
+| `start-game`    | Client → Server  | Start the game (admin only)         |
+| `game-started`  | Server → Clients | Notify all players game has started |
+| `submit-answer` | Client → Server  | Submit an answer to a question      |
+| `answer-result` | Server → Client  | Send answer result to player        |
+| `next-question` | Client → Server  | Move to next question (admin only)  |
+| `game-ended`    | Server → Clients | Notify all players game has ended   |
+| `player-left`   | Server → Clients | Notify all players of disconnection |
 
 ## 🗄️ Database Schema
 
@@ -219,15 +219,17 @@ Prisma manages the database schema and migrations. The schema is defined in `app
 
 ### Database Migrations
 
-Prisma migrations are stored in `application/backend/prisma/migrations/`. 
+Prisma migrations are stored in `application/backend/prisma/migrations/`.
 
 To create a new migration:
+
 ```bash
 cd backend
 npx prisma migrate dev --name description_of_change
 ```
 
 To apply migrations in production:
+
 ```bash
 npx prisma migrate deploy
 ```
@@ -251,7 +253,7 @@ npx prisma migrate deploy
 
 - Hash with **bcrypt** (salt rounds: 10)
 - Never store passwords in plain text
-- Validate on the server side
+- Validate on the server-side
 - Enforce password complexity requirements
 
 ### Route Protection
@@ -261,14 +263,14 @@ NestJS uses **Guards** for route protection:
 ```typescript
 // JWT Authentication Guard
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {
+export class JwtAuthGuard extends AuthGuard("jwt") {
   canActivate(context: ExecutionContext) {
     return super.canActivate(context);
   }
 }
 
 // Usage in controllers
-@Controller('quizzes')
+@Controller("quizzes")
 export class QuizController {
   @Get()
   @UseGuards(JwtAuthGuard)
@@ -341,7 +343,7 @@ const totalPoints = isCorrect ? basePoints + timeBonus : 0;
 
 - **Unit Tests**: Test domain logic and use cases
 - **Integration Tests**: Test API endpoints
-- **E2E Tests**: Test complete workflows
+- **End-to-end Tests**: Test complete workflows
 
 See [Testing Guide](../testing.md) for complete details.
 

@@ -1,7 +1,7 @@
 # Makefile for QuizMaster
 # Using Docker Compose V2
 
-.PHONY: help setup build up down restart logs clean clean-all backup restore seed ps rebuild monitoring-up monitoring-down monitoring-logs grafana prometheus test test-watch test-ui test-cov test-e2e-smoke test-e2e-ui shell db-shell traefik install health setup-traefik _test-scope _run-node _run-e2e
+.PHONY: help install setup build up down restart logs ps rebuild shell setup-traefik migrate seed openapi linter-fix test test-install
 
 # Docker Compose command (V2)
 COMPOSE := docker compose
@@ -15,6 +15,10 @@ NC=\033[0m # No Color
 help: ## Display this help
 	@echo "$(GREEN)QuizMaster - Available commands:$(NC)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-15s$(NC) %s\n", $$1, $$2}'
+
+# ==========================================
+# Manage stack
+# ==========================================
 
 install: setup setup-traefik build up migrate seed openapi ## Complete installation (first time)
 	@echo "$(GREEN)═══════════════════════════════════════$(NC)"
@@ -45,28 +49,6 @@ build: ## Build Docker images
 	@echo "$(GREEN)Building images...$(NC)"
 	$(COMPOSE) build
 
-setup-traefik: ## Setup traefik
-	@TRAEFIK_NETWORK=traefik-proxy; \
-	TRAEFIK_NAME=traefik-local; \
-	docker network ls | grep $$TRAEFIK_NETWORK > /dev/null || (echo "Creating traefik network" && docker network create $$TRAEFIK_NETWORK ); \
-	if docker ps -a | grep $$TRAEFIK_NAME > /dev/null; then \
-		echo "Traefik container already exists"; \
-		if docker ps -a | grep $$TRAEFIK_NAME | grep Exited > /dev/null; then echo "Starting traefik container" && docker start $$TRAEFIK_NAME; fi; \
-		if ! docker inspect -f '{{json .NetworkSettings.Networks}}' $$TRAEFIK_NAME | grep -q '"'$$TRAEFIK_NETWORK'"'; then \
-			echo "Traefik container is not connected to '$$TRAEFIK_NETWORK' network" && exit 1; \
-		fi; \
-	else \
-		echo "Creating traefik container" \
-		&& docker pull traefik \
-		&& docker run -itd \
-			-p 80:80 -p 8080:8080 \
-			-v /var/run/docker.sock:/var/run/docker.sock:ro \
-			--restart unless-stopped --name $$TRAEFIK_NAME --network=$$TRAEFIK_NETWORK \
-			--label "traefik.enable=true" --label "traefik.http.routers.traefik.rule=Host(\`traefik.localhost\`)" --label "traefik.http.routers.traefik.service=api@internal" \
-			traefik \
-			--api.insecure=true --providers.docker.exposedByDefault=false --providers.docker.network=$$TRAEFIK_NETWORK --accessLog=true; \
-	fi
-
 up: ## Start the application
 	@if [ "$(TTY)" = "1" ]; then \
 		TTY_FLAG=""; \
@@ -78,33 +60,6 @@ up: ## Start the application
 	@echo "Frontend: http://frontend.quiz-app.localhost"
 	@echo "Backend: http://backend.quiz-app.localhost"
 	@echo "Traefik Dashboard: http://traefik.localhost (auto-provisioned via setup-traefik)"
-
-migrate: ## Apply database migrations
-	@echo "$(GREEN)Applying database migrations...$(NC)"
-	@$(COMPOSE) exec -T backend npm run db:migrate
-	@$(COMPOSE) exec -T backend npm run db:generate
-	@echo "$(GREEN)✓ Migrations applied$(NC)"
-
-seed: ## Seed the database
-	@echo "$(GREEN)Seeding database...$(NC)"
-	@$(COMPOSE) exec -T backend npm run db:seed
-	@echo "$(GREEN)✓ Database seeded$(NC)"
-
-openapi: ## Generate OpenAPI types
-	@echo "$(GREEN)Waiting for backend OpenAPI endpoint...$(NC)"
-	@ATTEMPTS=0; \
-	until $(COMPOSE) exec -T frontend sh -c "curl -sf http://backend:3001/api/openapi.json >/dev/null"; do \
-		ATTEMPTS=$$((ATTEMPTS+1)); \
-		if [ $$ATTEMPTS -gt 30 ]; then \
-			echo "$(RED)Backend API did not become ready in time$(NC)"; \
-			exit 1; \
-		fi; \
-		echo "$(YELLOW)Waiting for backend API (attempt $$ATTEMPTS)...$(NC)"; \
-		sleep 2; \
-	done
-	@echo "$(GREEN)Generating OpenAPI documentation...$(NC)"
-	@$(COMPOSE) exec -T frontend npm run openapi:generate
-	@echo "$(GREEN)✓ OpenAPI documentation generated$(NC)"
 
 down: ## Stop the application
 	@echo "$(YELLOW)Stopping application...$(NC)"
@@ -127,48 +82,10 @@ logs: ## Display logs (set SERVICE=<name> for a specific service)
 logs-%: ## Shortcut to tail logs for a specific service (e.g. make logs-backend)
 	@$(MAKE) --no-print-directory logs SERVICE=$*
 
-seed: ## Populate database with Prisma fixtures
-	@echo "$(GREEN)Applying migrations and seeding database...$(NC)"
-	@$(COMPOSE) exec -T backend npm run db:seed 2>&1 | grep -v "warn The configuration property" | grep -v "For more information, see: https://pris.ly/prisma-config" | grep -v "warn The Prisma config file" || true
-	@echo "$(GREEN)✓ Fixtures inserted$(NC)"
-
 ps: ## Display container status
 	$(COMPOSE) ps
 
 rebuild: down build up ## Rebuild and restart
-
-clean: ## Clean (without deleting data)
-	@echo "$(YELLOW)Cleaning...$(NC)"
-	$(COMPOSE) down
-	docker system prune -f
-	@echo "$(GREEN)✓ Cleaning completed$(NC)"
-
-clean-all: ## Clean everything (including data volumes)
-	@echo "$(YELLOW)⚠️  Deleting all data...$(NC)"
-	@read -p "Are you sure? [y/N] " -n 1 -r; \
-	echo; \
-	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
-		$(COMPOSE) down -v; \
-		rm -rf application/backend/data; \
-		echo "$(GREEN)✓ Everything deleted$(NC)"; \
-	fi
-
-backup: ## Backup the database
-	@echo "$(GREEN)Creating backup...$(NC)"
-	@mkdir -p backups
-	@$(COMPOSE) exec -T postgres pg_dump -U ${POSTGRES_USER:-quizapp} ${POSTGRES_DB:-quizdb} > backups/quiz-backup-$$(date +%Y%m%d-%H%M%S).sql
-	@echo "$(GREEN)✓ Backup created in backups/$(NC)"
-
-restore: ## Restore the latest backup
-	@echo "$(YELLOW)Restoring latest backup...$(NC)"
-	@LATEST=$$(ls -t backups/quiz-backup-*.sql 2>/dev/null | head -1); \
-	if [ -z "$$LATEST" ]; then \
-		echo "$(YELLOW)No backup found$(NC)"; \
-		exit 1; \
-	fi; \
-	$(COMPOSE) exec -T postgres psql -U ${POSTGRES_USER:-quizapp} -d ${POSTGRES_DB:-quizdb} < $$LATEST && \
-	$(COMPOSE) restart backend && \
-	echo "$(GREEN)✓ Backup restored: $$LATEST$(NC)"
 
 shell: ## Open a service shell (set SERVICE=<name>)
 	@if [ -z "$(SERVICE)" ]; then \
@@ -180,8 +97,31 @@ shell: ## Open a service shell (set SERVICE=<name>)
 shell-%: ## Shortcut to open a specific service shell (e.g. make shell-backend)
 	@$(MAKE) --no-print-directory shell SERVICE=$*
 
-db-shell: ## Access PostgreSQL database shell
-	$(COMPOSE) exec postgres psql -U ${POSTGRES_USER:-quizapp} -d ${POSTGRES_DB:-quizdb}
+# ==========================================
+# Network
+# ==========================================
+
+setup-traefik: ## Setup traefik
+	@TRAEFIK_NETWORK=traefik-proxy; \
+	TRAEFIK_NAME=traefik-local; \
+	docker network ls | grep $$TRAEFIK_NETWORK > /dev/null || (echo "Creating traefik network" && docker network create $$TRAEFIK_NETWORK ); \
+	if docker ps -a | grep $$TRAEFIK_NAME > /dev/null; then \
+		echo "Traefik container already exists"; \
+		if docker ps -a | grep $$TRAEFIK_NAME | grep Exited > /dev/null; then echo "Starting traefik container" && docker start $$TRAEFIK_NAME; fi; \
+		if ! docker inspect -f '{{json .NetworkSettings.Networks}}' $$TRAEFIK_NAME | grep -q '"'$$TRAEFIK_NETWORK'"'; then \
+			echo "Traefik container is not connected to '$$TRAEFIK_NETWORK' network" && exit 1; \
+		fi; \
+	else \
+		echo "Creating traefik container" \
+		&& docker pull traefik \
+		&& docker run -itd \
+			-p 80:80 -p 8080:8080 \
+			-v /var/run/docker.sock:/var/run/docker.sock:ro \
+			--restart unless-stopped --name $$TRAEFIK_NAME --network=$$TRAEFIK_NETWORK \
+			--label "traefik.enable=true" --label "traefik.http.routers.traefik.rule=Host(\`traefik.localhost\`)" --label "traefik.http.routers.traefik.service=api@internal" \
+			traefik \
+			--api.insecure=true --providers.docker.exposedByDefault=false --providers.docker.network=$$TRAEFIK_NETWORK --accessLog=true; \
+	fi
 
 traefik: ## Open Traefik dashboard
 	@echo "$(GREEN)Opening Traefik dashboard...$(NC)"
@@ -192,27 +132,81 @@ health: ## Check application health
 	@curl -s http://backend.quiz-app.localhost/api/health/live | jq '.' || echo "$(YELLOW)Backend unavailable$(NC)"
 	@curl -s -o /dev/null -w "Frontend: %{http_code}\n" http://frontend.quiz-app.localhost/
 
-monitoring-up: ## Start with monitoring
-	$(MAKE) setup-traefik
-	@echo "$(GREEN)Starting with monitoring...$(NC)"
-	$(COMPOSE) -f compose.yaml -f compose.monitoring.yaml up -d
-	@echo "$(GREEN)✓ Monitoring enabled$(NC)"
-	@echo "Grafana: http://localhost:3000 (admin/admin123)"
-	@echo "Prometheus: http://localhost:9090"
+# ==========================================
+# Database
+# ==========================================
 
-monitoring-down: ## Stop monitoring
-	$(COMPOSE) -f compose.monitoring.yaml down
+migrate: ## Apply database migrations
+	@echo "$(GREEN)Applying database migrations...$(NC)"
+	@$(COMPOSE) exec -T backend npm run db:migrate
+	@$(COMPOSE) exec -T backend npm run db:generate
+	@echo "$(GREEN)✓ Migrations applied$(NC)"
 
-monitoring-logs: ## Monitoring logs
-	$(COMPOSE) -f compose.monitoring.yaml logs -f
+seed: ## Seed the database
+	@echo "$(GREEN)Seeding database...$(NC)"
+	@$(COMPOSE) exec -T backend npm run db:seed
+	@echo "$(GREEN)✓ Database seeded$(NC)"
 
-grafana: ## Open Grafana
-	@echo "$(GREEN)Opening Grafana...$(NC)"
-	@command -v xdg-open >/dev/null 2>&1 && xdg-open http://localhost:3000 || open http://localhost:3000 || echo "Open http://localhost:3000"
+db-shell: ## Access PostgreSQL database shell
+	$(COMPOSE) exec postgres psql -U ${POSTGRES_USER:-quizapp} -d ${POSTGRES_DB:-quizdb}
 
-prometheus: ## Open Prometheus
-	@echo "$(GREEN)Opening Prometheus...$(NC)"
-	@command -v xdg-open >/dev/null 2>&1 && xdg-open http://localhost:9090 || open http://localhost:9090 || echo "Open http://localhost:9090"
+# ==========================================
+# Backend
+# ==========================================
+
+openapi: ## Generate OpenAPI types
+	@echo "$(GREEN)Waiting for backend OpenAPI endpoint...$(NC)"
+	@ATTEMPTS=0; \
+	until $(COMPOSE) exec -T frontend sh -c "curl -sf http://backend:3001/api/openapi.json >/dev/null"; do \
+		ATTEMPTS=$$((ATTEMPTS+1)); \
+		if [ $$ATTEMPTS -gt 30 ]; then \
+			echo "$(RED)Backend API did not become ready in time$(NC)"; \
+			exit 1; \
+		fi; \
+		echo "$(YELLOW)Waiting for backend API (attempt $$ATTEMPTS)...$(NC)"; \
+		sleep 2; \
+	done
+	@echo "$(GREEN)Generating OpenAPI documentation...$(NC)"
+	@$(COMPOSE) exec -T frontend npm run openapi:generate
+	@echo "$(GREEN)✓ OpenAPI documentation generated$(NC)"
+
+# ==========================================
+# Linting Commands
+# ==========================================
+
+lint-fix: ## Execute linting and fix (alias for linter-fix)
+	@$(COMPOSE) exec -T backend npm run lint:fix
+	@$(COMPOSE) exec -T frontend npm run lint:fix
+	@helm-docs
+	@ct lint
+	@$(MAKE) linter-fix
+
+linter-fix: ## Execute linting and fix
+	$(call run_linter, \
+		-e FIX_CSS_PRETTIER=true \
+		-e FIX_JSON_PRETTIER=true \
+		-e FIX_JAVASCRIPT_PRETTIER=true \
+		-e FIX_YAML_PRETTIER=true \
+		-e FIX_MARKDOWN=true \
+		-e FIX_MARKDOWN_PRETTIER=true \
+		-e FIX_NATURAL_LANGUAGE=true)
+
+define run_linter
+	DEFAULT_WORKSPACE="$(CURDIR)"; \
+	LINTER_IMAGE="linter:latest"; \
+	VOLUME="$$DEFAULT_WORKSPACE:$$DEFAULT_WORKSPACE"; \
+	docker build --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --tag $$LINTER_IMAGE .; \
+	docker run \
+		-e DEFAULT_WORKSPACE="$$DEFAULT_WORKSPACE" \
+		-e FILTER_REGEX_INCLUDE="$(filter-out $@,$(MAKECMDGOALS))" \
+		-e IGNORE_GITIGNORED_FILES=true \
+		-e VALIDATE_TYPESCRIPT_ES=false \
+        -e VALIDATE_CSS=false \
+		$(1) \
+		-v $$VOLUME \
+		--rm \
+		$$LINTER_IMAGE
+endef
 
 # ==========================================
 # Testing Commands

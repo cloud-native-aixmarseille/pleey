@@ -1,15 +1,15 @@
 import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards, Req } from '@nestjs/common';
 import type { Request } from 'express';
-import { LoginUserDto } from '../../application/auth/dto/login-user.dto';
-import { RegisterUserDto } from '../../application/auth/dto/register-user.dto';
+import type { LoginUserDto } from '../../application/auth/dto/login-user.dto';
+import type { RegisterUserDto } from '../../application/auth/dto/register-user.dto';
 import type { AuthResponseDto } from '../../application/auth/dto/auth-response.dto';
-import { LoginUserUseCase } from '../../application/auth/use-cases/login-user.use-case';
-import { RegisterUserUseCase } from '../../application/auth/use-cases/register-user.use-case';
+import type { LoginUserUseCase } from '../../application/auth/use-cases/login-user.use-case';
+import type { RegisterUserUseCase } from '../../application/auth/use-cases/register-user.use-case';
 import { mapUserToPublicProfile } from '../../application/shared/utils/avatar-url.util';
 import type { User } from '../../domain/auth/entities/user.entity';
-import { RefreshAccessTokenUseCase } from '../../application/auth/use-cases/refresh-access-token.use-case';
-import { RefreshTokenDto } from '../../application/auth/dto/refresh-token.dto';
-import { LogoutUserUseCase } from '../../application/auth/use-cases/logout-user.use-case';
+import type { RefreshAccessTokenUseCase } from '../../application/auth/use-cases/refresh-access-token.use-case';
+import type { RefreshTokenDto } from '../../application/auth/dto/refresh-token.dto';
+import type { LogoutUserUseCase } from '../../application/auth/use-cases/logout-user.use-case';
 import { JwtAuthGuard } from './jwt-auth.guard';
 
 type SafeUser = Omit<User, 'password' | 'refreshTokenHash' | 'refreshTokenExpiresAt'>;

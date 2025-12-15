@@ -86,11 +86,6 @@ e2e/playwright/.cache/
 *.tgz
 .yarn-integrity
 
-# Monitoring
-prometheus-data/
-grafana-data/
-loki-data/
-
 # Temporary files
 tmp/
 temp/

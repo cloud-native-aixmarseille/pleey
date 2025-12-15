@@ -11,6 +11,7 @@ Complete documentation of the application's architecture.
 This application follows modern, maintainable architectural principles:
 
 ### Design Principles
+
 - **Separation of concerns**: Frontend, backend, and database are decoupled
 - **Intentional monolithic architecture**: Simplicity for the current context (MVP/learning)
 - **RESTful API**: Clear, standardized interface between frontend and backend
@@ -18,8 +19,9 @@ This application follows modern, maintainable architectural principles:
 - **Stateless backend**: JWT authentication, horizontal scalability is possible
 
 ### Modern Technologies
+
 - **React 19**: Modern UI framework with enhanced concurrent features, automatic batching, and improved performance
-- **Vite**: Fast, modern build tool (replacement for Webpack/CRA)
+- **Vite**: Fast, modern build tool (replacement for webpack/CRA)
 - **Tailwind CSS**: Utility-first CSS framework, maintainable and performant
 - **NestJS**: Progressive Node.js framework for building efficient, scalable server-side applications
 - **Prisma**: Next-generation ORM for type-safe database access
@@ -29,7 +31,9 @@ This application follows modern, maintainable architectural principles:
 - **CNCF-ready**: Architecture compatible with Kubernetes, Prometheus, OpenTelemetry
 
 ### Future Scalability
+
 The current architecture can evolve toward:
+
 - **Microservices**: Split services (auth, quiz, game, leaderboard)
 - **Kubernetes**: Orchestration and automatic scaling
 - **Redis**: Distributed cache and session store

@@ -21,16 +21,18 @@ make install
 ```
 
 **Access:**
-- Frontend: http://frontend.quiz-app.localhost
-- Backend: http://backend.quiz-app.localhost
-- Traefik Dashboard: http://traefik.localhost (`make up` runs `setup-traefik` for you)
-- Admin: admin@quiz.com / admin123
+
+- Frontend: <http://frontend.quiz-app.localhost>
+- Backend: <http://backend.quiz-app.localhost>
+- Traefik Dashboard: <http://traefik.localhost> (`make up` runs `setup-traefik` for you)
+- Admin: <admin@quiz.com> / admin123
 
 ---
 
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - **React 19**: Modern UI framework with concurrent features
 - **Vite 5**: Fast build tool with HMR
 - **Tailwind CSS 3**: Utility-first CSS framework
@@ -40,6 +42,7 @@ make install
 - **Testing Library 16**: React component testing
 
 ### Backend
+
 - **NestJS 11**: Progressive Node.js framework
 - **Prisma 6**: Type-safe ORM
 - **PostgreSQL**: Relational database
@@ -48,6 +51,7 @@ make install
 - **OpenTelemetry**: Observability
 
 ### DevOps
+
 - **Docker**: Containerization
 - **Nginx**: Web server & reverse proxy
 - **Traefik**: HTTP reverse proxy and load balancer
@@ -164,14 +168,14 @@ make health            # Test health endpoints
 
 ### Application URLs
 
-- **Frontend**: http://frontend.quiz-app.localhost
-- **Backend API**: http://backend.quiz-app.localhost
-- **Traefik Dashboard**: http://traefik.localhost (`make setup-traefik`)
-- **Health Check**: http://backend.quiz-app.localhost/api/health/live
+- **Frontend**: <http://frontend.quiz-app.localhost>
+- **Backend API**: <http://backend.quiz-app.localhost>
+- **Traefik Dashboard**: <http://traefik.localhost> (`make setup-traefik`)
+- **Health Check**: <http://backend.quiz-app.localhost/api/health/live>
 
 ### Default Credentials
 
-- **Admin Email**: admin@quiz.com
+- **Admin Email**: <admin@quiz.com>
 - **Admin Password**: admin123
 
 :::warning Change Password
@@ -326,6 +330,7 @@ PORT=3001
 ```
 
 **Generate a JWT secret:**
+
 ```bash
 openssl rand -base64 32
 ```
@@ -335,12 +340,14 @@ openssl rand -base64 32
 ## 🔐 Default accounts
 
 ### Admin
+
 - Email: `admin@quiz.com`
 - Password: `admin123`
 - ⚠️ **Change in production!**
 
 ### Grafana (if monitoring)
-- URL: http://localhost:3000
+
+- URL: <http://localhost:3000>
 - User: `admin`
 - Password: `admin123`
 
@@ -348,25 +355,27 @@ openssl rand -base64 32
 
 ## 📊 Important URLs
 
-| Service | Dev URL | Prod URL |
-|---------|---------|----------|
-| Frontend | http://localhost:5173 | http://localhost |
-| Backend | http://localhost:3001 | http://localhost:3001 |
-| Health Check | http://localhost:3001/health | |
-| Grafana | http://localhost:3000 | |
-| Prometheus | http://localhost:9090 | |
-| cAdvisor | http://localhost:8080 | |
+| Service      | Dev URL                        | Prod URL                |
+| ------------ | ------------------------------ | ----------------------- |
+| Frontend     | <http://localhost:5173>        | <http://localhost>      |
+| Backend      | <http://localhost:3001>        | <http://localhost:3001> |
+| Health Check | <http://localhost:3001/health> |                         |
+| Grafana      | <http://localhost:3000>        |                         |
+| Prometheus   | <http://localhost:9090>        |                         |
+| cAdvisor     | <http://localhost:8080>        |                         |
 
 ---
 
 ## 🛠️ Deployment
 
 ### Development
+
 ```bash
 make up
 ```
 
 ### Production
+
 ```bash
 make build
 docker compose -f compose.prod.yaml up -d
@@ -379,6 +388,7 @@ docker compose -f compose.prod.yaml up -d
 ## 💾 Backup & Restore
 
 ### Manual backup
+
 ```bash
 make backup
 # or
@@ -386,12 +396,14 @@ docker compose exec db pg_dump -U quizuser quizdb > backup-$(date +%Y%m%d).sql
 ```
 
 ### Automatic backup (cron)
+
 ```bash
 # Add to crontab
 0 3 * * * cd /path/to/quiz-app && docker compose exec db pg_dump -U quizuser quizdb > /path/to/backups/quiz-$(date +\%Y\%m\%d).sql 2>&1
 ```
 
 ### Restore
+
 ```bash
 make restore
 # or
@@ -587,10 +599,10 @@ make up
 ### Pre-Production
 
 - [ ] Change JWT_SECRET in `.env`
-- [ ] Change admin password (admin@quiz.com)
+- [ ] Change admin password (<admin@quiz.com>)
 - [ ] Configure HTTPS/SSL
 - [ ] Enable firewall (ports 80, 443 only)
-- [ ] Verify `.env` is not in git
+- [ ] Verify `.env` is not in Git
 - [ ] Enable rate limiting
 - [ ] Configure automated backups
 - [ ] Set up monitoring
@@ -733,9 +745,9 @@ wrk -t12 -c400 -d30s http://localhost:3001/api/health
 
 ## 📞 Contacts
 
-- **Issues**: https://github.com/OWNER/quiz-app/issues
-- **Discussions**: https://github.com/OWNER/quiz-app/discussions
-- **Email**: support@example.com
+- **Issues**: <https://github.com/OWNER/quiz-app/issues>
+- **Discussions**: <https://github.com/OWNER/quiz-app/discussions>
+- **Email**: <support@example.com>
 
 ---
 

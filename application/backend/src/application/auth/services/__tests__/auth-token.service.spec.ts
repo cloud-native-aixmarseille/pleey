@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { JwtService } from '@nestjs/jwt';
-import { AuthTokenService, TokenPair } from '../auth-token.service';
+import { AuthTokenService, type TokenPair } from '../auth-token.service';
 
 const accessTokenConfig = {
   secret: 'test-access-secret',

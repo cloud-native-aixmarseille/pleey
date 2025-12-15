@@ -1,6 +1,6 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from '@nestjs/common';
-import { Response } from 'express';
-import { I18nService } from 'nestjs-i18n';
+import { type ArgumentsHost, Catch, type ExceptionFilter, HttpException } from '@nestjs/common';
+import type { Response } from 'express';
+import type { I18nService } from 'nestjs-i18n';
 import { AuthErrorCode } from '../../application/auth/enums/auth-error-code.enum';
 import { QuizErrorCode } from '../../application/quiz/enums/quiz-error-code.enum';
 import { GameErrorCode } from '../../application/game/enums/game-error-code.enum';

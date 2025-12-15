@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import type { OrganizationMemberRepository } from '../../domain/organization/repositories/organization-member.repository.interface';
 import { OrganizationMember } from '../../domain/organization/entities/organization-member.entity';
-import { OrganizationRole } from '../../domain/organization/enums/organization-role.enum';
-import { PrismaService } from '../database/prisma.service';
+import type { OrganizationRole } from '../../domain/organization/enums/organization-role.enum';
+import type { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class PrismaOrganizationMemberRepository

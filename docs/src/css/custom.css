@@ -4,7 +4,7 @@
  */
 
 /* Import retro gaming fonts */
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Orbitron:wght@400;500;600;700;800;900&display=swap");
 
 /* Cyber Arcade color palette */
 :root {
@@ -16,38 +16,38 @@
   --ifm-color-primary-light: #835dff;
   --ifm-color-primary-lighter: #9872ff;
   --ifm-color-primary-lightest: #c3b3ff;
-  
+
   /* Secondary - Hot Pink */
   --ifm-color-secondary: #ff33c6;
-  
+
   /* Accent - Cyber Cyan */
   --ifm-color-accent: #00ffcc;
-  
+
   /* Success - Matrix Green */
   --ifm-color-success: #00ff41;
-  
+
   /* Danger - Pure Red */
   --ifm-color-danger: #ff0000;
-  
+
   /* Background - Deep Space */
   --ifm-background-color: #0a0a1f;
   --ifm-background-surface-color: #151530;
-  
+
   /* Fonts */
-  --ifm-font-family-base: 'Orbitron', sans-serif;
-  --ifm-font-family-monospace: 'VT323', monospace;
-  --ifm-heading-font-family: 'Press Start 2P', cursive;
-  
+  --ifm-font-family-base: "Orbitron", sans-serif;
+  --ifm-font-family-monospace: "VT323", monospace;
+  --ifm-heading-font-family: "Press Start 2P", cursive;
+
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(107, 72, 255, 0.2);
-  
+
   /* Navbar */
   --ifm-navbar-background-color: #0a0a1f;
   --ifm-navbar-shadow: 0 4px 28px rgba(107, 72, 255, 0.3);
 }
 
 /* Dark mode theme (default for Cyber Arcade) */
-[data-theme='dark'] {
+[data-theme="dark"] {
   --ifm-color-primary: #6b48ff;
   --ifm-color-primary-dark: #5533ff;
   --ifm-color-primary-darker: #4a26ff;
@@ -55,16 +55,21 @@
   --ifm-color-primary-light: #835dff;
   --ifm-color-primary-lighter: #9872ff;
   --ifm-color-primary-lightest: #c3b3ff;
-  
+
   --ifm-background-color: #0a0a1f;
   --ifm-background-surface-color: #151530;
   --ifm-footer-background-color: #0a0a1f;
-  
+
   --docusaurus-highlighted-code-line-bg: rgba(107, 72, 255, 0.3);
 }
 
 /* Cyber Arcade headings */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--ifm-heading-font-family);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -73,7 +78,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Add neon glow to headings */
 h1 {
   color: #6b48ff;
-  text-shadow: 
+  text-shadow:
     0 0 10px rgba(107, 72, 255, 0.8),
     0 0 20px rgba(107, 72, 255, 0.6),
     0 0 30px rgba(107, 72, 255, 0.4);
@@ -82,7 +87,7 @@ h1 {
 
 h2 {
   color: #ff33c6;
-  text-shadow: 
+  text-shadow:
     0 0 8px rgba(255, 51, 198, 0.8),
     0 0 15px rgba(255, 51, 198, 0.6);
   font-size: 1.2rem;
@@ -90,7 +95,7 @@ h2 {
 
 h3 {
   color: #00ffcc;
-  text-shadow: 
+  text-shadow:
     0 0 6px rgba(0, 255, 204, 0.8),
     0 0 12px rgba(0, 255, 204, 0.6);
   font-size: 1rem;

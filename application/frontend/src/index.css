@@ -123,7 +123,8 @@
     background: var(--arcade-btn-bg);
     color: var(--arcade-btn-text);
     box-shadow: var(--arcade-btn-shadow);
-    transition: transform var(--arcade-transition-base) ease,
+    transition:
+      transform var(--arcade-transition-base) ease,
       box-shadow var(--arcade-transition-base) ease,
       background-color var(--arcade-transition-fast) ease,
       color var(--arcade-transition-fast) ease;
@@ -163,7 +164,8 @@
     background: var(--arcade-input-bg);
     border-color: var(--arcade-input-border);
     color: var(--arcade-input-text);
-    transition: border-color var(--arcade-transition-fast) ease,
+    transition:
+      border-color var(--arcade-transition-fast) ease,
       box-shadow var(--arcade-transition-base) ease,
       background-color var(--arcade-transition-fast) ease;
   }
@@ -189,7 +191,8 @@
     border-color: var(--arcade-card-border);
     color: var(--arcade-card-text);
     box-shadow: var(--arcade-card-shadow);
-    transition: transform var(--arcade-transition-base) ease,
+    transition:
+      transform var(--arcade-transition-base) ease,
       box-shadow var(--arcade-transition-base) ease,
       border-color var(--arcade-transition-base) ease;
   }
@@ -240,7 +243,8 @@
   /* Card Components - Retro Style */
   .card {
     @apply bg-dark-400 rounded-lg overflow-hidden transition-all duration-300 border-2 border-primary-500/30;
-    box-shadow: 0 0 20px rgba(107, 72, 255, 0.3),
+    box-shadow:
+      0 0 20px rgba(107, 72, 255, 0.3),
       inset 0 0 60px rgba(107, 72, 255, 0.05);
   }
 
@@ -250,7 +254,8 @@
 
   .card-glass {
     @apply bg-dark-400/50 backdrop-blur-xl border-2 border-accent-500/30 rounded-lg;
-    box-shadow: 0 0 30px rgba(0, 255, 204, 0.2),
+    box-shadow:
+      0 0 30px rgba(0, 255, 204, 0.2),
       inset 0 0 60px rgba(0, 255, 204, 0.05);
   }
 
@@ -260,7 +265,8 @@
 
   .card-arcade {
     @apply bg-gradient-to-br from-dark-400 to-dark-500 border-4 border-accent-500 rounded-none;
-    box-shadow: 8px 8px 0px rgba(0, 255, 204, 0.5),
+    box-shadow:
+      8px 8px 0px rgba(0, 255, 204, 0.5),
       0 0 40px rgba(0, 255, 204, 0.3);
   }
 
@@ -277,18 +283,24 @@
   /* Background Gradients - Synthwave */
   .bg-game-gradient {
     @apply bg-dark-500;
-    background-image: linear-gradient(
-        rgba(107, 72, 255, 0.1) 1px,
-        transparent 1px
-      ),
+    background-image:
+      linear-gradient(rgba(107, 72, 255, 0.1) 1px, transparent 1px),
       linear-gradient(90deg, rgba(107, 72, 255, 0.1) 1px, transparent 1px),
-      radial-gradient(ellipse at top, rgba(107, 72, 255, 0.15), transparent 70%),
+      radial-gradient(
+        ellipse at top,
+        rgba(107, 72, 255, 0.15),
+        transparent 70%
+      ),
       radial-gradient(
         ellipse at bottom,
         rgba(255, 51, 198, 0.15),
         transparent 70%
       );
-    background-size: 20px 20px, 20px 20px, 100% 100%, 100% 100%;
+    background-size:
+      20px 20px,
+      20px 20px,
+      100% 100%,
+      100% 100%;
   }
 
   .bg-quiz-gradient {
@@ -317,7 +329,10 @@
   /* Special Effects - CRT & Arcade */
   .neon-border {
     @apply border-2 border-primary-500;
-    box-shadow: 0 0 5px #8a73ff, 0 0 20px #6b48ff, 0 0 40px #5c3ad6,
+    box-shadow:
+      0 0 5px #8a73ff,
+      0 0 20px #6b48ff,
+      0 0 40px #5c3ad6,
       inset 0 0 20px #2f1870;
   }
 
@@ -390,12 +405,14 @@
 
   /* Shadow variations for podium */
   .shadow-float {
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3),
+    box-shadow:
+      0 8px 30px rgba(0, 0, 0, 0.3),
       0 4px 15px rgba(107, 72, 255, 0.2);
   }
 
   .shadow-float-lg {
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4),
+    box-shadow:
+      0 12px 40px rgba(0, 0, 0, 0.4),
       0 6px 20px rgba(107, 72, 255, 0.3);
   }
 }
@@ -422,12 +439,17 @@
   }
 
   .text-shadow-lg {
-    text-shadow: 0 0 20px currentColor, 0 0 40px currentColor;
+    text-shadow:
+      0 0 20px currentColor,
+      0 0 40px currentColor;
   }
 
   .text-neon {
-    text-shadow: 0 0 7px currentColor, 0 0 10px currentColor,
-      0 0 21px currentColor, 0 0 42px currentColor;
+    text-shadow:
+      0 0 7px currentColor,
+      0 0 10px currentColor,
+      0 0 21px currentColor,
+      0 0 42px currentColor;
   }
 
   .retro-shadow {

@@ -1,14 +1,14 @@
 import { Body, Controller, Delete, ForbiddenException, HttpCode, Param, ParseIntPipe, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import type { Request } from 'express';
-import { CreateQuestionDto } from '../../application/quiz/dto/create-question.dto';
-import { UpdateQuestionDto } from '../../application/quiz/dto/update-question.dto';
+import type { CreateQuestionDto } from '../../application/quiz/dto/create-question.dto';
+import type { UpdateQuestionDto } from '../../application/quiz/dto/update-question.dto';
 import { QuizErrorCode } from '../../application/quiz/enums/quiz-error-code.enum';
-import { CreateQuestionUseCase } from '../../application/quiz/use-cases/create-question.use-case';
-import { DeleteQuestionUseCase } from '../../application/quiz/use-cases/delete-question.use-case';
-import { UpdateQuestionUseCase } from '../../application/quiz/use-cases/update-question.use-case';
+import type { CreateQuestionUseCase } from '../../application/quiz/use-cases/create-question.use-case';
+import type { DeleteQuestionUseCase } from '../../application/quiz/use-cases/delete-question.use-case';
+import type { UpdateQuestionUseCase } from '../../application/quiz/use-cases/update-question.use-case';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { CreateQuestionRequestDto } from './dto/create-question.request.dto';
-import { UpdateQuestionRequestDto } from './dto/update-question.request.dto';
+import type { CreateQuestionRequestDto } from './dto/create-question.request.dto';
+import type { UpdateQuestionRequestDto } from './dto/update-question.request.dto';
 
 interface AuthenticatedRequest extends Request {
   user?: {

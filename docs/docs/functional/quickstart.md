@@ -23,9 +23,11 @@ This guide helps facilitators run their first quiz session in minutes—no techn
 1. Select **Quizzes → New Quiz**.
 2. Give the quiz a name, duration, and optional cover image.
 3. Add questions:
-	- Choose **Multiple Choice** or **True / False**.
-	- Provide at least two answer options and mark the correct one(s).
-	- Set points and time limits per question if you want to reward speed.
+
+- Choose **Multiple Choice** or **True / False**.
+- Provide at least two answer options and mark the correct one(s).
+- Set points and time limits per question if you want to reward speed.
+
 4. Click **Save** when the question list is complete.
 
 ## 3. Configure Your Session
@@ -50,8 +52,10 @@ This guide helps facilitators run their first quiz session in minutes—no techn
 ## 6. Review Results
 
 1. After the game, open **Reports** to view detailed analytics.
-	- Export player scores to CSV for attendance or grading.
-	- Download question-level insights to spot knowledge gaps.
+
+- Export player scores to CSV for attendance or grading.
+- Download question-level insights to spot knowledge gaps.
+
 2. Share highlights with participants—QuizMaster can generate a shareable recap link when enabled by the administrator.
 
 ## 🙋 Need Help?

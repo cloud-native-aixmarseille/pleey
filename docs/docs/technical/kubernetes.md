@@ -9,6 +9,7 @@ Complete guide for deploying QuizMaster on Kubernetes using Helm.
 ## Overview
 
 QuizMaster provides an umbrella Helm chart that orchestrates all required components:
+
 - **Backend**: NestJS application with WebSocket support
 - **Frontend**: React SPA served by Nginx
 - **PostgreSQL**: Database (bundled or external)
@@ -141,6 +142,7 @@ helm install quiz-app ./charts/application \
 ```
 
 Features:
+
 - Single replica for all components
 - Minimal resource allocation
 - No TLS/HTTPS
@@ -157,6 +159,7 @@ helm install quiz-app ./charts/application \
 ```
 
 Features:
+
 - 2 replicas for HA
 - Autoscaling enabled
 - TLS with Let's Encrypt staging
@@ -174,6 +177,7 @@ helm install quiz-app ./charts/application \
 ```
 
 Features:
+
 - 3+ replicas for HA
 - Autoscaling (2-10 pods)
 - TLS with Let's Encrypt production
@@ -203,10 +207,10 @@ backend:
   replicaCount: 3
   image:
     tag: "v1.2.3"
-  
+
   secrets:
     jwtSecret: "my-super-secret-jwt-key"
-  
+
   resources:
     limits:
       cpu: 2000m
@@ -235,7 +239,7 @@ helm install quiz-app ./charts/application \
 
 ### Key Configuration Parameters
 
-Refer to the [Helm Chart README](../../charts/application/README.md) for a complete list of configuration parameters.
+Refer to the [Helm Chart readme](../../charts/application/README.md) for a complete list of configuration parameters.
 
 ### Common Customizations
 
@@ -417,6 +421,7 @@ kubectl apply -f cluster-issuer.yaml
 ```
 
 The chart is pre-configured to use cert-manager with the annotation:
+
 ```yaml
 cert-manager.io/cluster-issuer: "letsencrypt-prod"
 ```
@@ -641,7 +646,7 @@ kubectl delete pvc -n quiz-app --all
 
 ### Security
 
-1. **Use External Secrets**: Never commit secrets to git
+1. **Use External Secrets**: Never commit secrets to Git
 2. **Enable Network Policies**: Restrict pod-to-pod communication
 3. **Use Pod Security Standards**: Run containers as non-root
 4. **Enable TLS**: Always use HTTPS in production
@@ -673,7 +678,7 @@ kubectl delete pvc -n quiz-app --all
 
 ## Additional Resources
 
-- [Helm Chart README](../../charts/application/README.md)
+- [Helm Chart readme](../../charts/application/README.md)
 - [Kubernetes Documentation](https://kubernetes.io/docs/)
 - [Helm Documentation](https://helm.sh/docs/)
 - [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/)
@@ -683,5 +688,6 @@ kubectl delete pvc -n quiz-app --all
 ## Support
 
 For issues and questions:
-- GitHub Issues: https://github.com/cloud-native-aixmarseille/quiz-app/issues
-- Documentation: https://github.com/cloud-native-aixmarseille/quiz-app/docs
+
+- GitHub Issues: <https://github.com/cloud-native-aixmarseille/quiz-app/issues>
+- Documentation: <https://github.com/cloud-native-aixmarseille/quiz-app/docs>

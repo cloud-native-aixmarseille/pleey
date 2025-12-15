@@ -65,18 +65,21 @@ This guide provides comprehensive instructions, guidelines, and best practices f
 ### Documentation Categories
 
 #### 1. **Functional Documentation** (`/docs/docs/functional/`)
+
 - **Audience**: End users, quiz hosts, admins
 - **Purpose**: How to use the application
 - **Examples**: User guides, tutorials, feature explanations
 - **Tone**: User-friendly, step-by-step, with screenshots
 
 #### 2. **Technical Documentation** (`/docs/docs/technical/`)
+
 - **Audience**: Developers, DevOps, QA engineers, AI agents
 - **Purpose**: How the system works and how to work with it
 - **Examples**: Architecture, API docs, testing guides, deployment
 - **Tone**: Technical, precise, comprehensive
 
 #### 3. **Root Documentation Files**
+
 - **CONTRIBUTING.md**: How to contribute (lightweight, references `/docs`)
 - **AGENTS.md**: Instructions for AI agents (lightweight, references `/docs`)
 - **README.md**: Project overview (lightweight, references `/docs`)
@@ -97,6 +100,7 @@ This guide provides comprehensive instructions, guidelines, and best practices f
 ### Writing Style
 
 #### Voice and Tone
+
 - ✅ **Active voice**: "Run `npm install`" (not "The command should be run")
 - ✅ **Second person**: "You can configure..." (not "One can configure...")
 - ✅ **Present tense**: "The server listens on port 3001" (not "will listen")
@@ -105,6 +109,7 @@ This guide provides comprehensive instructions, guidelines, and best practices f
 #### Formatting Conventions
 
 **Code Blocks:**
+
 ```bash
 # Always specify the language
 npm install
@@ -115,26 +120,31 @@ npm test
 ```
 
 **File Paths:**
+
 - Use inline code: `path/to/file.ts`
 - Always use forward slashes: `/docs/docs/technical/`
 - Use absolute paths from project root when applicable
 
 **Commands:**
+
 - Use code blocks for multi-line commands
 - Use inline code for single commands: `npm install`
 - Show output when helpful
 
 **Emphasis:**
+
 - **Bold** for important terms, UI elements, warnings
-- *Italic* for emphasis (use sparingly)
+- _Italic_ for emphasis (use sparingly)
 - `Code` for filenames, commands, variables, code
 
 **Lists:**
+
 - Use numbered lists for sequential steps
 - Use bullet lists for non-sequential items
 - Keep list items parallel in structure
 
 **Links:**
+
 - Use descriptive link text: `[Testing Guide](testing.md)` (not `[click here](testing.md)`)
 - Use relative links within docs: `[Architecture](architecture/index.md)`
 - Use absolute links for external resources: `https://docusaurus.io/`
@@ -142,6 +152,7 @@ npm test
 ### Markdown Conventions
 
 #### Front Matter
+
 Every documentation file should include front matter:
 
 ```markdown
@@ -152,15 +163,21 @@ title: Page Title (optional, defaults to H1)
 ```
 
 #### Headings
+
 ```markdown
 # H1 - Page Title (only one per file)
+
 ## H2 - Main Section
+
 ### H3 - Subsection
+
 #### H4 - Details (use sparingly)
 ```
 
 #### Emojis
+
 Use emojis consistently for visual navigation:
+
 - 🎯 Goals, objectives, principles
 - 📚 Documentation, guides, references
 - 🏗️ Architecture, structure, design
@@ -168,11 +185,12 @@ Use emojis consistently for visual navigation:
 - 🚀 Deployment, production, operations
 - 🔐 Security, authentication, authorization
 - ✅ Success, recommended, best practices
-- ❌ Failures, warnings, anti-patterns
+- ❌ Failures, warnings, antipatterns
 - 💡 Tips, notes, important information
 - ⚠️ Warnings, cautions, breaking changes
 
 #### Admonitions (Callouts)
+
 Docusaurus supports admonitions for special notes:
 
 ```markdown
@@ -210,7 +228,8 @@ const example = (param: string): void => {
 };
 ```
 
-**To create a code block in markdown:**
+**To create a code block in Markdown:**
+
 1. Start with three backticks followed by the language name (e.g., `typescript`, `bash`, `json`)
 2. Add your code
 3. End with three backticks
@@ -225,6 +244,7 @@ const example = (param: string): void => {
 **Description**: Brief description of what it does
 
 **Parameters**:
+
 - `param1` (string): Description of parameter
 - `param2` (number, optional): Description of optional parameter
 
@@ -249,71 +269,88 @@ const example = (param: string): void => {
 ## 📋 Documentation Types
 
 ### 1. **Tutorials** (Learning-Oriented)
+
 - **Goal**: Help newcomers learn by doing
 - **Format**: Step-by-step instructions
 - **Example**: "Getting Started with QuizMaster"
 - **Location**: `functional/` or `technical/` depending on audience
 
 **Structure:**
+
 ```markdown
 # Tutorial Title
 
 ## What You'll Learn
+
 - Learning objective 1
 - Learning objective 2
 
 ## Prerequisites
+
 - Requirement 1
 - Requirement 2
 
 ## Step 1: First Step
+
 Instructions...
 
 ## Step 2: Next Step
+
 Instructions...
 
 ## Next Steps
+
 Where to go from here...
 ```
 
 ### 2. **How-To Guides** (Task-Oriented)
+
 - **Goal**: Help users accomplish specific tasks
 - **Format**: Clear steps to solve a problem
 - **Example**: "How to Deploy to Production"
 - **Location**: Usually `technical/`
 
 **Structure:**
+
 ```markdown
 # How to [Task]
 
 ## Overview
+
 Brief explanation of the task
 
 ## Prerequisites
+
 - What you need before starting
 
 ## Steps
 
 ### 1. First Step
+
 Instructions...
 
 ### 2. Second Step
+
 Instructions...
 
 ## Troubleshooting
+
 Common issues and solutions
 
 ## Related
+
 Links to related documentation
 ```
 
 ### 3. **Reference Documentation** (Information-Oriented)
+
 - **Goal**: Provide technical descriptions
 - **Format**: Systematic, comprehensive
 - **Example**: "API Reference", "Command Reference"
 - **Location**: `technical/quick-reference.md` or dedicated files
 
 **Structure:**
+
 ```markdown
 # Reference Title
 
@@ -324,6 +361,7 @@ Links to related documentation
 **Syntax**: How to use it
 
 **Options/Parameters**:
+
 - Option 1: Description
 - Option 2: Description
 
@@ -336,28 +374,35 @@ example command
 ```
 
 ### 4. **Explanation/Conceptual** (Understanding-Oriented)
+
 - **Goal**: Clarify and illuminate topics
 - **Format**: Discussion, context, background
 - **Example**: "Architecture Overview", "Design Principles"
 - **Location**: Usually `technical/architecture/`
 
 **Structure:**
+
 ```markdown
 # Concept Title
 
 ## Overview
+
 High-level explanation
 
 ## Why This Matters
+
 Context and importance
 
 ## How It Works
+
 Detailed explanation with diagrams
 
 ## Trade-offs
+
 Benefits and limitations
 
 ## Related Concepts
+
 Links to related topics
 ```
 
@@ -366,6 +411,7 @@ Links to related topics
 ### When to Update Documentation
 
 **ALWAYS update documentation when:**
+
 - ✅ Adding new features or functionality
 - ✅ Changing existing behavior or APIs
 - ✅ Modifying configuration options
@@ -376,6 +422,7 @@ Links to related topics
 - ✅ Updating security practices
 
 **Consider updating documentation when:**
+
 - 🤔 Improving code clarity or architecture
 - 🤔 Adding performance optimizations
 - 🤔 Refactoring without changing behavior
@@ -410,7 +457,7 @@ Links to related topics
 
 6. **Update Cross-References**
    - Update related documentation sections
-   - Add links from root files (README, CONTRIBUTING, AGENTS.md)
+   - Add links from root files (readme, CONTRIBUTING, AGENTS.md)
    - Update sidebar if adding new pages
 
 7. **Commit with Documentation**
@@ -436,23 +483,27 @@ When submitting a PR:
 ### Language and Grammar
 
 **Capitalization:**
+
 - ✅ Sentence case for headings: "How to deploy to production"
 - ❌ Title Case for headings: "How To Deploy To Production"
 - ✅ Proper nouns capitalized: "Docker", "React", "QuizMaster"
 - ✅ UI elements as shown: "Click **Save**"
 
 **Punctuation:**
+
 - ✅ Period at end of sentences
 - ❌ Period at end of headings
 - ✅ Colon before code blocks or lists
 - ✅ Oxford comma in lists: "a, b, and c"
 
 **Numbers:**
+
 - ✅ Numbers 0-9 spelled out in prose: "three steps"
 - ✅ Numbers 10+ as numerals: "15 users"
 - ✅ Always numerals for technical values: "Node.js 18", "port 3001"
 
 **Technical Terms:**
+
 - ✅ Consistent terminology (pick one and stick with it)
 - ✅ Define acronyms on first use: "Domain-Driven Design (DDD)"
 - ✅ Use industry-standard terms when available
@@ -460,6 +511,7 @@ When submitting a PR:
 ### Visual Elements
 
 **Screenshots:**
+
 - Always include for UI changes
 - Use PNG format for clarity
 - Store in `/docs/static/img/`
@@ -468,12 +520,14 @@ When submitting a PR:
 - Highlight important areas if needed
 
 **Diagrams:**
+
 - Use Mermaid for architecture diagrams (Docusaurus supports it)
 - Use ASCII art for simple layouts
 - Store complex diagrams as SVG in `/docs/static/img/`
 - Always include text descriptions
 
 **Mermaid Example:**
+
 ````markdown
 ```mermaid
 graph TD
@@ -484,26 +538,30 @@ graph TD
 ````
 
 **Tables:**
+
 ```markdown
 | Column 1 | Column 2 | Column 3 |
-|----------|----------|----------|
+| -------- | -------- | -------- |
 | Value 1  | Value 2  | Value 3  |
 | Value 4  | Value 5  | Value 6  |
 ```
 
 ### File and Folder Naming
 
-**File Names:**
+**Filenames:**
+
 - Use kebab-case: `documentation-guide.md`
 - Be descriptive: `docker-guide.md` not `docker.md`
 - Use `.md` extension for Markdown files
 
 **Folder Names:**
+
 - Use kebab-case: `technical/`, `functional/`
 - Group logically by audience/purpose
 - Keep shallow hierarchy (max 2-3 levels)
 
 **Image Names:**
+
 - Descriptive: `architecture-overview.png`
 - Include context: `login-screen-mobile.png`
 - Use kebab-case
@@ -516,13 +574,16 @@ graph TD
 
 1. Create `.md` file in appropriate directory
 2. Add front matter:
+
 ```markdown
 ---
 sidebar_position: 5
 title: Optional Custom Title
 ---
 ```
+
 3. Update `sidebars.ts` if needed:
+
 ```typescript
 {
   type: 'category',
@@ -534,6 +595,7 @@ title: Optional Custom Title
 ```
 
 **Sidebar Position:**
+
 - Lower numbers appear first
 - Use gaps (1, 5, 10) to allow insertions
 - Group related docs with similar positions
@@ -561,11 +623,12 @@ npm run build
 npm run serve
 ```
 
-**Note**: The `make docs` command automatically navigates to the docs directory and starts the development server. The documentation will be available at http://localhost:3000 with hot-reload enabled.
+**Note**: The `make docs` command automatically navigates to the docs directory and starts the development server. The documentation will be available at <http://localhost:3000> with hot-reload enabled.
 
 ### Common Docusaurus Features
 
 **Code Blocks with Title:**
+
 ```markdown
 \`\`\`typescript title="src/example.ts"
 const example = 'code';
@@ -573,6 +636,7 @@ const example = 'code';
 ```
 
 **Code Block with Line Highlighting:**
+
 ```markdown
 \`\`\`typescript {2,4-6}
 const a = 1;
@@ -585,6 +649,7 @@ const f = 6; // Highlighted
 ```
 
 **Tabs:**
+
 ```markdown
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
@@ -608,6 +673,7 @@ import TabItem from '@theme/TabItem';
 Before finalizing documentation, verify:
 
 ### Content Quality
+
 - [ ] **Accurate**: Information is correct and up-to-date
 - [ ] **Complete**: Covers all necessary information
 - [ ] **Clear**: Easy to understand for target audience
@@ -617,6 +683,7 @@ Before finalizing documentation, verify:
 - [ ] **Context**: Explains why, not just how
 
 ### Technical Quality
+
 - [ ] **Code Examples Work**: All examples tested and functional
 - [ ] **Links Work**: No broken internal or external links
 - [ ] **Builds Successfully**: `npm run build` passes
@@ -626,6 +693,7 @@ Before finalizing documentation, verify:
 - [ ] **Mobile-Friendly**: Readable on mobile devices
 
 ### Structural Quality
+
 - [ ] **Front Matter**: Correct sidebar position and metadata
 - [ ] **Headings**: Logical hierarchy (H1 → H2 → H3)
 - [ ] **TOC-Friendly**: Headings create useful table of contents
@@ -634,6 +702,7 @@ Before finalizing documentation, verify:
 - [ ] **Searchable**: Uses keywords users would search
 
 ### Accessibility
+
 - [ ] **Alt Text**: All images have descriptive alt text
 - [ ] **Semantic HTML**: Uses proper heading levels
 - [ ] **Color**: Not relying on color alone to convey information
@@ -645,18 +714,21 @@ Before finalizing documentation, verify:
 ### Regular Documentation Review
 
 **Monthly:**
+
 - Review analytics (if available) to find popular/unpopular pages
 - Check for outdated screenshots or examples
 - Verify external links still work
 - Look for common support questions that should be documented
 
 **Quarterly:**
+
 - Review all documentation for accuracy
 - Update dependencies and version numbers
 - Reorganize if structure no longer serves users
 - Archive or remove obsolete documentation
 
 **Per Release:**
+
 - Update version-specific information
 - Add release notes or changelog entries
 - Update screenshots if UI changed
@@ -677,6 +749,7 @@ Like technical debt, documentation debt accumulates. Prevent it by:
 When deprecating features:
 
 1. **Mark as deprecated** in documentation:
+
 ```markdown
 :::warning Deprecated
 This feature is deprecated and will be removed in v3.0.0.
@@ -705,22 +778,28 @@ AI agents (GitHub Copilot, Claude, etc.) use documentation extensively. Help the
 ### AI-Friendly Patterns
 
 **Good:**
+
 ```markdown
 ## How to Run Tests
 
 \`\`\`bash
+
 # Navigate to backend directory
+
 cd backend
 
 # Run all tests
+
 npm test
 
 # Run specific test file
+
 npm test -- users.test.ts
 \`\`\`
 ```
 
 **Avoid:**
+
 ```markdown
 ## Testing
 
@@ -730,6 +809,7 @@ Run the tests (you know how).
 ## 📖 Resources
 
 ### Internal Documentation
+
 - [Architecture Overview](architecture/index.md) - System architecture overview
 - [Backend Architecture](architecture/backend.md) - Backend architecture
 - [Frontend Architecture](architecture/frontend.md) - Frontend architecture
@@ -737,6 +817,7 @@ Run the tests (you know how).
 - [AGENTS.md](https://github.com/cloud-native-aixmarseille/quiz-app/blob/main/AGENTS.md) - AI agent instructions
 
 ### External Resources
+
 - [Docusaurus Documentation](https://docusaurus.io/docs)
 - [Markdown Guide](https://www.markdownguide.org/)
 - [Google Developer Documentation Style Guide](https://developers.google.com/style)
@@ -755,6 +836,7 @@ Run the tests (you know how).
 ### Reporting Documentation Issues
 
 Create a GitHub issue with:
+
 - **Title**: "Docs: [brief description]"
 - **Type**: Documentation
 - **Description**: What's wrong or missing

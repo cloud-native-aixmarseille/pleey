@@ -7,7 +7,7 @@ import {
   ScoreRepositoryProvider,
   type ScoreRepository,
 } from '../../../domain/game/repositories/score.repository.interface';
-import { ScoreCalculatorService } from '../../../domain/game/services/score-calculator.service';
+import type { ScoreCalculatorService } from '../../../domain/game/services/score-calculator.service';
 import {
   QuestionRepositoryProvider,
   type QuestionRepository,
