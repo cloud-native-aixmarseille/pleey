@@ -37,6 +37,9 @@
             ]
           }
         }
+      },
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "zsh"
       }
     }
   }

@@ -1,6 +1,6 @@
-import { ArgumentsHost, Catch } from '@nestjs/common';
+import { type ArgumentsHost, Catch } from '@nestjs/common';
 import { BaseWsExceptionFilter, WsException } from '@nestjs/websockets';
-import { I18nService } from 'nestjs-i18n';
+import type { I18nService } from 'nestjs-i18n';
 import { GameErrorCode } from '../../application/game/enums/game-error-code.enum';
 
 /**

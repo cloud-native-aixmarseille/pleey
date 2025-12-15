@@ -1,12 +1,12 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserRepositoryProvider } from '../../../domain/auth/repositories/user.repository.interface';
 import type { UserRepository } from '../../../domain/auth/repositories/user.repository.interface';
-import { PasswordService } from '../../../domain/auth/services/password.service';
+import type { PasswordService } from '../../../domain/auth/services/password.service';
 import type { AuthResponseDto } from '../dto/auth-response.dto';
 import type { LoginUserDto } from '../dto/login-user.dto';
 import { AuthErrorCode } from '../enums/auth-error-code.enum';
 import { mapUserToPublicProfile, toPublicAvatarUrl } from '../../shared/utils/avatar-url.util';
-import { AuthTokenService } from '../services/auth-token.service';
+import type { AuthTokenService } from '../services/auth-token.service';
 
 /**
  * Login User Use Case

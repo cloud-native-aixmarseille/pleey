@@ -1,7 +1,7 @@
 import { Buffer } from 'node:buffer';
 import { randomUUID } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
-import { AvatarGeneratorService } from '../../shared/services/avatar-generator.service';
+import type { AvatarGeneratorService } from '../../shared/services/avatar-generator.service';
 
 /**
  * User Avatar Service

@@ -11,11 +11,13 @@ jobs:
     permissions:
       actions: read
       contents: read
+      security-events: write
       statuses: write
-      # security-events: write  # Disabled: Code Security not enabled on repository
+    with:
+      codeql-languages: "" # FIXME: Let default value when CodeQL will be available (paid feature)
 
   build:
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@3256ec78f48fdaa4c9691c87dc7136fa561c456e # v0.30.3
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@18c35d287eb2f66e00741c88954106b44b812ae0 # v0.30.4
     permissions:
       contents: read
       packages: write
@@ -23,7 +25,7 @@ jobs:
       pull-requests: read
       id-token: write
     with:
-      oci-registry: ${{ vars.OCI_REGISTRY || 'ghcr.io' }}
+      oci-registry: ${{ vars.OCI_REGISTRY }}
       oci-registry-username: ${{ github.repository_owner }}
       sign: false
       images: |
@@ -85,11 +87,11 @@ jobs:
             "username": ${{ toJson(github.repository_owner) }}
           },
           "pathMapping": {
-            "/usr/src/app": format("./application/{0}", matrix.service)
+            "/usr/src/app": ${{ toJson(format('./application/{0}', matrix.service)) }}
           }
         }
-      code-ql: ""
-      dependency-review: false
+      code-ql: "" # FIXME: Set `typescript` when CodeQL will be available (paid feature)
+      dependency-review: false # FIXME: Set `true` when Dependency Review will be available (paid feature)
     secrets:
       container-password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -101,8 +103,10 @@ jobs:
       packages: read
     steps:
       - name: Test helm chart (umbrella)
-        uses: hoverkraft-tech/ci-github-container/actions/helm/test-chart@3256ec78f48fdaa4c9691c87dc7136fa561c456e # v0.30.3
+        uses: hoverkraft-tech/ci-github-container/actions/helm/test-chart@18c35d287eb2f66e00741c88954106b44b812ae0 # v0.30.4
         with:
+          helm-repositories: |
+            bitnami https://charts.bitnami.com/bitnami
           helm-set: |
             backend.image.registry=${{ fromJSON(needs.build.outputs.built-images).backend.registry }}
             backend.image.repository=${{ fromJSON(needs.build.outputs.built-images).backend.repository }}
@@ -112,6 +116,6 @@ jobs:
             frontend.image.repository=${{ fromJSON(needs.build.outputs.built-images).frontend.repository }}
             frontend.image.tag=${{ fromJSON(needs.build.outputs.built-images).frontend.tags[0] }}
             frontend.image.digest=${{ fromJSON(needs.build.outputs.built-images).frontend.digest }}
-          oci-registry: ${{ vars.OCI_REGISTRY || 'ghcr.io' }}
+          oci-registry: ${{ vars.OCI_REGISTRY }}
           oci-registry-username: ${{ github.repository_owner }}
           oci-registry-password: ${{ github.token }}

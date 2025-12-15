@@ -7,6 +7,7 @@ Thank you for your interest in contributing to QuizMaster! This guide will help 
 **Detailed documentation is available in `/docs`.**
 
 For complete guides:
+
 - **[Testing](docs/docs/technical/testing.md)** - Complete testing guide
 - **[Architecture](docs/docs/technical/architecture/index.md)** - System architecture
 - **[Design System](docs/docs/technical/design-system.md)** - Cyber Arcade design system
@@ -23,7 +24,7 @@ For complete guides:
 
 ## 🎯 Types of Contributions
 
-1. **Bug Fixes** 🐛
+1. **Bugfixes** 🐛
 2. **New Features** ✨
 3. **Documentation** 📚 - See [Documentation Guide](docs/docs/technical/documentation-guide.md)
 4. **Tests** 🧪
@@ -37,7 +38,7 @@ For complete guides:
 - Node.js 18+
 - Docker & Docker Compose
 - Git
-- Code editor (VS Code recommended)
+- Code editor (Visual Studio Code recommended)
 
 ### Quick Installation
 
@@ -96,8 +97,9 @@ All commit messages must follow the Conventional Commits specification:
 ```
 
 **Types:**
+
 - `feat`: New feature
-- `fix`: Bug fix
+- `fix`: bugfix
 - `docs`: Documentation changes
 - `style`: Code style changes (formatting, missing semicolons, etc.)
 - `refactor`: Code refactoring
@@ -105,9 +107,10 @@ All commit messages must follow the Conventional Commits specification:
 - `chore`: Maintenance tasks
 - `perf`: Performance improvements
 - `ci`: CI/CD changes
-- `build`: Build system changes
+- `build`: build tool changes
 
 **Examples:**
+
 ```
 feat(quiz): add timer pause functionality
 fix(auth): resolve JWT token expiration issue
@@ -124,7 +127,7 @@ This project follows [Semantic Versioning 2.0.0](https://semver.org/):
 
 - **MAJOR** version: Incompatible API changes
 - **MINOR** version: Backward-compatible functionality additions
-- **PATCH** version: Backward-compatible bug fixes
+- **PATCH** version: Backward-compatible bugfixes
 
 Format: `MAJOR.MINOR.PATCH` (e.g., 1.2.3)
 
@@ -141,6 +144,7 @@ Format: `MAJOR.MINOR.PATCH` (e.g., 1.2.3)
 - ✅ Follow the guidelines in [Accessibility Documentation](docs/docs/technical/accessibility.md)
 
 **Before submitting a PR with UI changes:**
+
 1. Run accessibility audits (axe DevTools, Lighthouse)
 2. Test keyboard navigation
 3. Verify color contrast ratios
@@ -159,7 +163,7 @@ Format: `MAJOR.MINOR.PATCH` (e.g., 1.2.3)
 
 ```typescript
 // Variables and functions: camelCase
-const userName = 'John';
+const userName = "John";
 const getUserById = (id) => {};
 
 // Classes and React components: PascalCase
@@ -167,7 +171,7 @@ class UserService {}
 const QuizCard = () => {};
 
 // Constants: UPPER_SNAKE_CASE
-const API_URL = 'http://localhost:3001';
+const API_URL = "http://localhost:3001";
 ```
 
 ### Styling
@@ -196,6 +200,7 @@ cd application/frontend && npm test
 ## 🔄 Pull Request Process
 
 1. **Create a branch** from `main`
+
    ```bash
    git checkout -b feature/feature-name
    ```
@@ -206,18 +211,21 @@ cd application/frontend && npm test
    - Update documentation if necessary
 
 3. **Test locally**
+
    ```bash
    npm test  # Unit tests
    ./scripts/test-runner.sh e2e  # E2E tests
    ```
 
 4. **Commit your changes**
+
    ```bash
    git add .
    git commit -m "feat: feature description"
    ```
 
 5. **Push to your fork**
+
    ```bash
    git push origin feature/feature-name
    ```
@@ -265,6 +273,7 @@ Create a GitHub issue with:
 ## 📚 Useful Resources
 
 ### Technical Documentation
+
 - [Architecture](docs/docs/technical/architecture/index.md)
 - [Design System](docs/docs/technical/design-system.md)
 - [Testing Guide](docs/docs/technical/testing.md)
@@ -274,6 +283,7 @@ Create a GitHub issue with:
 - [Documentation Guide](docs/docs/technical/documentation-guide.md)
 
 ### For AI Agents
+
 - [AGENTS.md](AGENTS.md) - Instructions for AI agents
 - [CLAUDE.md](CLAUDE.md) - Instructions for Claude
 

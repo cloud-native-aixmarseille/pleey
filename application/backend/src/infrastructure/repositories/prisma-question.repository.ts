@@ -4,7 +4,7 @@ import { Question } from '../../domain/quiz/entities/question.entity';
 import type {
   QuestionRepository,
 } from '../../domain/quiz/repositories/question.repository.interface';
-import { PrismaService } from '../database/prisma.service';
+import type { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class PrismaQuestionRepository implements QuestionRepository {

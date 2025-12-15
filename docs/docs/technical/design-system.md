@@ -25,6 +25,7 @@ The Cyber Arcade design system embodies five core principles:
 ### 1. 🕹️ Retro Gaming Nostalgia
 
 Authentic recreation of 80s/90s arcade machine aesthetics:
+
 - Sharp corners and pixel-perfect edges (no border-radius on primary elements)
 - Pixel shadows that mimic sprite rendering
 - Arcade cabinet-inspired card layouts
@@ -33,6 +34,7 @@ Authentic recreation of 80s/90s arcade machine aesthetics:
 ### 2. 🌈 Synthwave Culture
 
 Color palette inspired by synthwave music and vaporwave art:
+
 - Purple/pink/cyan neon glow combinations
 - High contrast against dark backgrounds
 - Triple-layer shadow effects for depth
@@ -41,6 +43,7 @@ Color palette inspired by synthwave music and vaporwave art:
 ### 3. 💻 Hacker Terminal
 
 Command-line interface aesthetics:
+
 - Monospace fonts for technical elements
 - Terminal-style prompts and readouts
 - Matrix green for success states
@@ -49,6 +52,7 @@ Command-line interface aesthetics:
 ### 4. 📺 CRT Screen Effects
 
 Authentic vintage monitor simulation:
+
 - Horizontal scanlines overlay
 - Subtle screen flicker animation
 - Phosphor glow on text elements
@@ -57,6 +61,7 @@ Authentic vintage monitor simulation:
 ### 5. ✨ Pixel Art
 
 8-bit and 16-bit sprite rendering techniques:
+
 - Solid color fills (minimal gradients)
 - 8px offset shadows for depth
 - Sharp anti-aliasing disabled on key elements
@@ -69,9 +74,11 @@ Authentic vintage monitor simulation:
 ### Primary Colors
 
 #### Electric Purple `#6b48ff`
+
 **Usage**: Primary actions, main branding, primary buttons  
 **Accessibility**: AAA on dark backgrounds, AA on light backgrounds  
 **Scale**:
+
 ```
 primary-50:  #f0f0ff  (lightest - backgrounds)
 primary-100: #e0dcff
@@ -86,9 +93,11 @@ primary-900: #2f1870  (darkest - text on light)
 ```
 
 #### Hot Pink `#ff33c6`
+
 **Usage**: Secondary actions, accents, highlights  
 **Accessibility**: AAA on dark backgrounds  
 **Scale**:
+
 ```
 secondary-50:  #fff0fb
 secondary-100: #ffd6f3
@@ -103,9 +112,11 @@ secondary-900: #6d144f
 ```
 
 #### Cyber Cyan `#00ffcc`
+
 **Usage**: Accent elements, terminal text, interactive states  
 **Accessibility**: AAA on dark backgrounds  
 **Scale**:
+
 ```
 accent-50:  #e6fff9
 accent-100: #b3fff0
@@ -122,16 +133,19 @@ accent-900: #006d52
 ### Semantic Colors
 
 #### Matrix Green `#00ff41` (Success)
+
 **Usage**: Success states, confirmations, positive feedback  
 **Accessibility**: AAA on dark backgrounds  
 **Meaning**: Classic hacker terminal green, represents completion and success
 
 #### Pure Red `#ff0000` (Danger)
+
 **Usage**: Errors, warnings, game over screens  
 **Accessibility**: AAA on dark backgrounds  
 **Meaning**: Arcade alert color, high visibility for critical actions
 
 #### Deep Space `#0a0a1f` (Dark)
+
 **Usage**: Backgrounds, card backgrounds, containers  
 **Accessibility**: Provides high contrast base for neon colors  
 **Meaning**: Almost-black void reminiscent of CRT screens when off
@@ -151,6 +165,7 @@ arcade-pink:   #ff00ff
 ### Color Usage Guidelines
 
 **DO:**
+
 - ✅ Use primary purple for main CTAs and branding
 - ✅ Use secondary pink for highlights and secondary actions
 - ✅ Use accent cyan for terminal-style text and interactive states
@@ -158,6 +173,7 @@ arcade-pink:   #ff00ff
 - ✅ Combine colors with neon glow effects for emphasis
 
 **DON'T:**
+
 - ❌ Use neon colors on light backgrounds (poor contrast)
 - ❌ Mix more than 3 neon colors in a single component
 - ❌ Use subtle pastels (breaks the vibrant aesthetic)
@@ -170,6 +186,7 @@ arcade-pink:   #ff00ff
 ### Font Stack
 
 #### Display Font: Press Start 2P
+
 **Usage**: Headings, titles, game text, arcade-style elements  
 **Weight**: Regular (400)  
 **Source**: Google Fonts  
@@ -180,6 +197,7 @@ font-family: "Press Start 2P", system-ui, sans-serif;
 ```
 
 **Characteristics**:
+
 - Authentic 8-bit pixel font
 - Fixed-width characters
 - Best at larger sizes (18px+)
@@ -187,6 +205,7 @@ font-family: "Press Start 2P", system-ui, sans-serif;
 - Letter spacing: `0.1em` to `0.2em`
 
 **Usage Example**:
+
 ```css
 h1 {
   font-family: "Press Start 2P";
@@ -198,6 +217,7 @@ h1 {
 ```
 
 #### Monospace Font: VT323
+
 **Usage**: Terminal text, code snippets, technical readouts  
 **Weight**: Regular (400)  
 **Source**: Google Fonts  
@@ -208,12 +228,14 @@ font-family: "VT323", "Fira Code", monospace;
 ```
 
 **Characteristics**:
+
 - Terminal/console aesthetic
 - Excellent readability at small sizes
 - Authentic retro computing feel
 - Use for: timestamps, counters, technical data
 
 #### Body Font: Orbitron
+
 **Usage**: Body text, descriptions, longer content  
 **Weights**: 400, 500, 600, 700, 800, 900  
 **Source**: Google Fonts  
@@ -224,6 +246,7 @@ font-family: "Orbitron", system-ui, sans-serif;
 ```
 
 **Characteristics**:
+
 - Futuristic sci-fi aesthetic
 - Geometric letterforms
 - Better readability than pixel fonts
@@ -252,11 +275,12 @@ font-9xl:  8rem      (128px) - Ultra
 ### Text Effects
 
 #### Neon Glow
+
 **Usage**: Headings, important text, calls to action
 
 ```css
 .text-neon {
-  text-shadow: 
+  text-shadow:
     0 0 7px currentColor,
     0 0 10px currentColor,
     0 0 21px currentColor,
@@ -265,6 +289,7 @@ font-9xl:  8rem      (128px) - Ultra
 ```
 
 #### CRT Glow
+
 **Usage**: Subtle emphasis on body text
 
 ```css
@@ -274,6 +299,7 @@ font-9xl:  8rem      (128px) - Ultra
 ```
 
 #### Terminal Blink
+
 **Usage**: Cursor effects, loading states
 
 ```css
@@ -282,8 +308,13 @@ font-9xl:  8rem      (128px) - Ultra
 }
 
 @keyframes flicker {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.8; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
 }
 ```
 
@@ -294,6 +325,7 @@ font-9xl:  8rem      (128px) - Ultra
 ### Buttons
 
 #### Primary Button
+
 **Usage**: Main actions, login, submit forms
 
 ```tsx
@@ -303,6 +335,7 @@ font-9xl:  8rem      (128px) - Ultra
 ```
 
 **Styling**:
+
 - Background: `primary-500` (#6b48ff)
 - Text: White
 - Border: 2px solid `primary-300`
@@ -312,6 +345,7 @@ font-9xl:  8rem      (128px) - Ultra
 - Hover: Scale 1.05, brighter glow
 
 #### Secondary Button
+
 **Usage**: Alternative actions, navigation
 
 ```tsx
@@ -321,6 +355,7 @@ font-9xl:  8rem      (128px) - Ultra
 ```
 
 **Styling**:
+
 - Background: `secondary-500` (#ff33c6)
 - Text: White
 - Border: 2px solid `secondary-300`
@@ -328,6 +363,7 @@ font-9xl:  8rem      (128px) - Ultra
 - Hover: Scale 1.05
 
 #### Accent Button
+
 **Usage**: Special actions, highlights
 
 ```tsx
@@ -337,6 +373,7 @@ font-9xl:  8rem      (128px) - Ultra
 ```
 
 **Styling**:
+
 - Background: `accent-500` (#00ffcc)
 - Text: `dark-500`
 - Border: 2px solid `accent-300`
@@ -344,12 +381,15 @@ font-9xl:  8rem      (128px) - Ultra
 - Font weight: Black
 
 #### Retro Shadow Effect
+
 **All buttons include**:
+
 ```css
 box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.8);
 ```
 
 On hover, the button moves down-right and shadow disappears:
+
 ```css
 &:hover {
   transform: translate(1px, 1px);
@@ -360,6 +400,7 @@ On hover, the button moves down-right and shadow disappears:
 ### Cards
 
 #### Standard Card
+
 **Usage**: Content containers, quiz items, player displays
 
 ```tsx
@@ -370,6 +411,7 @@ On hover, the button moves down-right and shadow disappears:
 ```
 
 **Styling**:
+
 - Background: `dark-400` with subtle purple tint
 - Border: 2px solid `primary-500/30`
 - Border radius: `0.5rem` (8px)
@@ -377,6 +419,7 @@ On hover, the button moves down-right and shadow disappears:
 - Padding: `1.5rem` (24px)
 
 #### Glass Card
+
 **Usage**: Overlays, floating elements, special highlights
 
 ```tsx
@@ -386,12 +429,14 @@ On hover, the button moves down-right and shadow disappears:
 ```
 
 **Styling**:
+
 - Background: `dark-400/50` with backdrop blur
 - Border: 2px solid `accent-500/30`
 - Backdrop filter: `blur(12px)`
 - Box shadow: Cyan glow
 
 #### Arcade Card
+
 **Usage**: Special announcements, game over screens
 
 ```tsx
@@ -401,6 +446,7 @@ On hover, the button moves down-right and shadow disappears:
 ```
 
 **Styling**:
+
 - Background: Gradient `dark-400` to `dark-500`
 - Border: 4px solid `accent-500`
 - Border radius: 0 (sharp corners)
@@ -409,17 +455,15 @@ On hover, the button moves down-right and shadow disappears:
 ### Inputs
 
 #### Terminal Input
+
 **Usage**: All text inputs, email, password, search
 
 ```tsx
-<Input 
-  label="Email"
-  placeholder="your@email.com"
-  icon={<EmailIcon />}
-/>
+<Input label="Email" placeholder="your@email.com" icon={<EmailIcon />} />
 ```
 
 **Styling**:
+
 - Background: `dark-400` with inset purple glow
 - Border: 2px solid `primary-500/50`
 - Text: `accent-500` (cyan)
@@ -428,6 +472,7 @@ On hover, the button moves down-right and shadow disappears:
 - Focus: Border `primary-500`, ring glow
 
 **Special Features**:
+
 - Inset box shadow for depth
 - Monospace font for authenticity
 - Icon support with left padding
@@ -436,6 +481,7 @@ On hover, the button moves down-right and shadow disappears:
 ### Badges
 
 #### Feature Badge
+
 **Usage**: Stats, labels, status indicators
 
 ```tsx
@@ -446,8 +492,9 @@ On hover, the button moves down-right and shadow disappears:
 ```
 
 **Variants**:
+
 - Primary: Purple border
-- Secondary: Pink border  
+- Secondary: Pink border
 - Accent: Cyan border
 - Success: Green border
 - Danger: Red border
@@ -461,24 +508,24 @@ On hover, the button moves down-right and shadow disappears:
 Apply to full-page containers for authentic monitor feel:
 
 ```tsx
-<div className="crt-screen">
-  {/* Content */}
-</div>
+<div className="crt-screen">{/* Content */}</div>
 ```
 
 **Includes**:
+
 1. **Scanlines**: Horizontal lines overlay
 2. **Flicker**: Subtle random opacity variation
 3. **Phosphor Glow**: Slight purple tint
 
 **Implementation**:
+
 ```css
 .crt-screen {
   position: relative;
 }
 
 .crt-screen::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background: repeating-linear-gradient(
@@ -493,7 +540,7 @@ Apply to full-page containers for authentic monitor feel:
 }
 
 .crt-screen::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background: rgba(107, 72, 255, 0.02);
@@ -510,12 +557,20 @@ Tron-inspired perspective grid:
 ```css
 .bg-game-gradient {
   background-color: #0a0a1f;
-  background-image: 
+  background-image:
     linear-gradient(rgba(107, 72, 255, 0.1) 1px, transparent 1px),
     linear-gradient(90deg, rgba(107, 72, 255, 0.1) 1px, transparent 1px),
     radial-gradient(ellipse at top, rgba(107, 72, 255, 0.15), transparent 70%),
-    radial-gradient(ellipse at bottom, rgba(255, 51, 198, 0.15), transparent 70%);
-  background-size: 20px 20px, 20px 20px, 100% 100%, 100% 100%;
+    radial-gradient(
+      ellipse at bottom,
+      rgba(255, 51, 198, 0.15),
+      transparent 70%
+    );
+  background-size:
+    20px 20px,
+    20px 20px,
+    100% 100%,
+    100% 100%;
 }
 ```
 
@@ -526,7 +581,7 @@ Triple-layer shadow for authentic neon effect:
 ```css
 .neon-border {
   border: 2px solid #6b48ff;
-  box-shadow: 
+  box-shadow:
     0 0 5px rgba(107, 72, 255, 0.5),
     0 0 20px rgba(107, 72, 255, 0.6),
     0 0 40px rgba(107, 72, 255, 0.7),
@@ -545,6 +600,7 @@ Triple-layer shadow for authentic neon effect:
 ```
 
 On interactive elements:
+
 ```css
 &:active {
   transform: translate(8px, 8px);
@@ -562,9 +618,16 @@ Cyberpunk-style position shift:
 }
 
 @keyframes glitch {
-  0%, 100% { transform: translate(0); }
-  33% { transform: translate(-2px, 2px); }
-  66% { transform: translate(2px, -2px); }
+  0%,
+  100% {
+    transform: translate(0);
+  }
+  33% {
+    transform: translate(-2px, 2px);
+  }
+  66% {
+    transform: translate(2px, -2px);
+  }
 }
 ```
 
@@ -641,14 +704,14 @@ For complete accessibility guidelines, standards, and implementation details, se
 
 All color combinations meet WCAG 2.1 AA standards:
 
-| Combination | Ratio | Level |
-|------------|-------|-------|
-| Purple on Dark | 12.5:1 | AAA |
-| Pink on Dark | 11.8:1 | AAA |
-| Cyan on Dark | 15.2:1 | AAA |
-| Green on Dark | 14.1:1 | AAA |
-| Red on Dark | 9.4:1 | AAA |
-| White on Dark | 18.5:1 | AAA |
+| Combination    | Ratio  | Level |
+| -------------- | ------ | ----- |
+| Purple on Dark | 12.5:1 | AAA   |
+| Pink on Dark   | 11.8:1 | AAA   |
+| Cyan on Dark   | 15.2:1 | AAA   |
+| Green on Dark  | 14.1:1 | AAA   |
+| Red on Dark    | 9.4:1  | AAA   |
+| White on Dark  | 18.5:1 | AAA   |
 
 ### Focus States
 
@@ -697,19 +760,22 @@ Respect user motion preferences:
 ### Quick Start
 
 1. **Install Dependencies**
+
 ```bash
 npm install
 ```
 
 2. **Import Fonts**
-Already configured in `index.css`:
+   Already configured in `index.css`:
+
 ```css
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Press+Start+2P&family=VT323&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Press+Start+2P&family=VT323&display=swap");
 ```
 
 3. **Use Components**
+
 ```tsx
-import { Button, Card, Input, Container } from '@/shared/components';
+import { Button, Card, Input, Container } from "@/shared/components";
 
 function MyComponent() {
   return (
@@ -776,18 +842,16 @@ Key utility classes:
 ### Example Patterns
 
 #### Arcade-Style Card
+
 ```tsx
 <Card className="border-4 border-accent-500 rounded-none retro-shadow">
-  <h2 className="font-display text-2xl text-neon uppercase">
-    INSERT COIN
-  </h2>
-  <p className="font-mono text-accent-400">
-    &gt; PRESS START
-  </p>
+  <h2 className="font-display text-2xl text-neon uppercase">INSERT COIN</h2>
+  <p className="font-mono text-accent-400">&gt; PRESS START</p>
 </Card>
 ```
 
 #### Terminal Input
+
 ```tsx
 <Input
   label="Username"
@@ -798,6 +862,7 @@ Key utility classes:
 ```
 
 #### Neon Button Group
+
 ```tsx
 <div className="space-y-4">
   <Button variant="primary" fullWidth className="retro-shadow">
@@ -823,12 +888,12 @@ Use these Tailwind color tokens:
 
 ```typescript
 // Primary colors
-primary-500   // #6b48ff - Electric Purple
-secondary-500 // #ff33c6 - Hot Pink
-accent-500    // #00ffcc - Cyber Cyan
-success-500   // #00ff41 - Matrix Green
-danger-500    // #ff0000 - Pure Red
-dark-500      // #0a0a1f - Deep Space
+primary - 500; // #6b48ff - Electric Purple
+secondary - 500; // #ff33c6 - Hot Pink
+accent - 500; // #00ffcc - Cyber Cyan
+success - 500; // #00ff41 - Matrix Green
+danger - 500; // #ff0000 - Pure Red
+dark - 500; // #0a0a1f - Deep Space
 
 // Use with bg-, text-, border- prefixes
 ```
@@ -837,9 +902,9 @@ dark-500      // #0a0a1f - Deep Space
 
 ```typescript
 // Tailwind classes
-font-display  // "Press Start 2P" - Headings, arcade text
-font-mono     // "VT323" - Terminal, technical text
-font-body     // "Orbitron" - Body text, UI labels
+font - display; // "Press Start 2P" - Headings, arcade text
+font - mono; // "VT323" - Terminal, technical text
+font - body; // "Orbitron" - Body text, UI labels
 ```
 
 #### Component Props
@@ -847,8 +912,15 @@ font-body     // "Orbitron" - Body text, UI labels
 ```typescript
 // Button
 interface ButtonProps {
-  variant?: 'primary' | 'secondary' | 'accent' | 'success' | 'danger' | 'outline' | 'ghost';
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  variant?:
+    | "primary"
+    | "secondary"
+    | "accent"
+    | "success"
+    | "danger"
+    | "outline"
+    | "ghost";
+  size?: "sm" | "md" | "lg" | "xl";
   fullWidth?: boolean;
   icon?: ReactNode;
   children: ReactNode;
@@ -857,7 +929,7 @@ interface ButtonProps {
 
 // Card
 interface CardProps {
-  variant?: 'default' | 'glass' | 'dark' | 'gradient';
+  variant?: "default" | "glass" | "dark" | "gradient";
   hover?: boolean;
   className?: string;
   children: ReactNode;
@@ -876,25 +948,25 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 
 ```typescript
 // Apply these classes for standard effects
-'crt-screen'        // CRT scanlines + flicker
-'bg-game-gradient'  // Grid background
-'glass-effect'      // Frosted glass
-'neon-border'       // Neon glow border
-'retro-shadow'      // 8px pixel shadow
-'text-neon'         // Triple glow text
-'hover-glitch'      // Glitch on hover
+"crt-screen"; // CRT scanlines + flicker
+"bg-game-gradient"; // Grid background
+"glass-effect"; // Frosted glass
+"neon-border"; // Neon glow border
+"retro-shadow"; // 8px pixel shadow
+"text-neon"; // Triple glow text
+"hover-glitch"; // Glitch on hover
 ```
 
 #### Animation Classes
 
 ```typescript
 // Built-in animations
-'animate-glow'       // Pulsing neon glow
-'animate-flicker'    // CRT flicker (0.15s)
-'animate-glitch'     // Position glitch (0.5s)
-'animate-pixel-pop'  // Scale + rotate (0.3s)
-'animate-pulse-slow' // Slow pulse (4s)
-'animate-float'      // Floating motion (3s)
+"animate-glow"; // Pulsing neon glow
+"animate-flicker"; // CRT flicker (0.15s)
+"animate-glitch"; // Position glitch (0.5s)
+"animate-pixel-pop"; // Scale + rotate (0.3s)
+"animate-pulse-slow"; // Slow pulse (4s)
+"animate-float"; // Floating motion (3s)
 ```
 
 #### Design Tokens
@@ -902,28 +974,28 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 ```typescript
 // Spacing (8px grid)
 const spacing = {
-  1: '8px',
-  2: '16px',
-  3: '24px',
-  4: '32px',
-  6: '48px',
-  8: '64px',
+  1: "8px",
+  2: "16px",
+  3: "24px",
+  4: "32px",
+  6: "48px",
+  8: "64px",
 };
 
 // Border radius
 const borderRadius = {
-  sm: '2px',
-  md: '4px',
-  lg: '8px',
-  xl: '12px',
-  '2xl': '16px',
+  sm: "2px",
+  md: "4px",
+  lg: "8px",
+  xl: "12px",
+  "2xl": "16px",
 };
 
 // Shadows
 const boxShadow = {
-  pixel: '8px 8px 0px rgba(0, 0, 0, 0.8)',
-  neon: '0 0 5px, 0 0 20px, 0 0 40px',
-  glow: '0 0 20px rgba(107, 72, 255, 0.6)',
+  pixel: "8px 8px 0px rgba(0, 0, 0, 0.8)",
+  neon: "0 0 5px, 0 0 20px, 0 0 40px",
+  glow: "0 0 20px rgba(107, 72, 255, 0.6)",
 };
 ```
 
@@ -959,6 +1031,7 @@ const boxShadow = {
 #### Critical Constraints
 
 **DO:**
+
 - ✅ Use uppercase text for Press Start 2P font
 - ✅ Apply retro-shadow to all primary buttons
 - ✅ Use neon colors on dark backgrounds only
@@ -967,6 +1040,7 @@ const boxShadow = {
 - ✅ Use monospace font for technical readouts
 
 **DON'T:**
+
 - ❌ Use gradients on primary buttons (solid fills only)
 - ❌ Round corners more than 12px on arcade elements
 - ❌ Apply neon effects to body text (headings only)

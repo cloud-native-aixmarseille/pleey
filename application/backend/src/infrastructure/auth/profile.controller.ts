@@ -1,10 +1,10 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Patch, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import type { Request } from 'express';
 import { JwtAuthGuard } from './jwt-auth.guard';
-import { GetCurrentUserUseCase } from '../../application/auth/use-cases/get-current-user.use-case';
-import { UpdateUserProfileUseCase } from '../../application/auth/use-cases/update-user-profile.use-case';
-import { RegenerateUserAvatarUseCase } from '../../application/auth/use-cases/regenerate-user-avatar.use-case';
-import { UpdateProfileDto } from '../../application/auth/dto/update-profile.dto';
+import type { GetCurrentUserUseCase } from '../../application/auth/use-cases/get-current-user.use-case';
+import type { UpdateUserProfileUseCase } from '../../application/auth/use-cases/update-user-profile.use-case';
+import type { RegenerateUserAvatarUseCase } from '../../application/auth/use-cases/regenerate-user-avatar.use-case';
+import type { UpdateProfileDto } from '../../application/auth/dto/update-profile.dto';
 import { AuthErrorCode } from '../../application/auth/enums/auth-error-code.enum';
 
 interface AuthenticatedRequest extends Request {

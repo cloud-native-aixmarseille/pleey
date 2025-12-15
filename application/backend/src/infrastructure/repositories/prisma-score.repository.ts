@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import type { Score as PrismaScore } from '@prisma/client';
 import { Score } from '../../domain/game/entities/score.entity';
 import type { ScoreRepository } from '../../domain/game/repositories/score.repository.interface';
-import { PrismaService } from '../database/prisma.service';
+import type { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class PrismaScoreRepository implements ScoreRepository {

@@ -1,5 +1,5 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import type { JwtService } from '@nestjs/jwt';
 import type { AuthResponseDto } from '../dto/auth-response.dto';
 import { AuthErrorCode } from '../enums/auth-error-code.enum';
 

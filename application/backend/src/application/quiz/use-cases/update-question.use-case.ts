@@ -6,7 +6,7 @@ import {
 } from '../../../domain/quiz/repositories/question.repository.interface';
 import { VALID_MULTIPLE_CHOICE_OPTIONS } from '../../../domain/quiz/constants/question.constants';
 import { QuizErrorCode } from '../enums/quiz-error-code.enum';
-import { UpdateQuestionDto } from '../dto/update-question.dto';
+import type { UpdateQuestionDto } from '../dto/update-question.dto';
 
 /**
  * Update Question Use Case

@@ -4,7 +4,7 @@ import { GameSession } from '../../domain/game/entities/game-session.entity';
 import type {
   GameSessionRepository,
 } from '../../domain/game/repositories/game-session.repository.interface';
-import { PrismaService } from '../database/prisma.service';
+import type { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class PrismaGameSessionRepository implements GameSessionRepository {

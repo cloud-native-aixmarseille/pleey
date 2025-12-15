@@ -3,15 +3,15 @@
 
 backend:
   replicaCount: 2
-  
+
   image:
     tag: "staging"
     pullPolicy: IfNotPresent
-  
+
   env:
     nodeEnv: production
     corsOrigin: "https://quiz-staging.example.com"
-  
+
   resources:
     limits:
       cpu: 750m
@@ -19,11 +19,11 @@ backend:
     requests:
       cpu: 250m
       memory: 192Mi
-  
+
   secrets:
     # Override these in a separate sealed-secrets or external secrets operator
     jwtSecret: "OVERRIDE_IN_SEALED_SECRETS"
-  
+
   autoscaling:
     enabled: true
     minReplicas: 2
@@ -31,14 +31,14 @@ backend:
 
 frontend:
   replicaCount: 2
-  
+
   image:
     tag: "staging"
     pullPolicy: IfNotPresent
-  
+
   env:
     apiUrl: "https://quiz-staging.example.com/api"
-  
+
   resources:
     limits:
       cpu: 400m
@@ -46,7 +46,7 @@ frontend:
     requests:
       cpu: 150m
       memory: 96Mi
-  
+
   autoscaling:
     enabled: true
     minReplicas: 2
@@ -54,18 +54,18 @@ frontend:
 
 postgresql:
   enabled: true
-  
+
   auth:
     username: quizapp
     # Use existing secret for password
     existingSecret: "quiz-app-postgresql-secret"
     database: quizdb
-  
+
   primary:
     persistence:
       enabled: true
       size: 5Gi
-    
+
     resources:
       limits:
         cpu: 750m
@@ -77,14 +77,14 @@ postgresql:
 ingress:
   enabled: true
   className: "nginx"
-  
+
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-staging"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
-  
+
   hosts:
     - host: quiz-staging.example.com
       paths:
@@ -103,7 +103,7 @@ ingress:
           service:
             name: frontend
             port: 80
-  
+
   tls:
     - secretName: quiz-app-staging-tls
       hosts:
@@ -114,6 +114,6 @@ otelCollector:
 
 monitoring:
   enabled: true
-  
+
   serviceMonitor:
     enabled: true

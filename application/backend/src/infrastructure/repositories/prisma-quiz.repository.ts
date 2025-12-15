@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Quiz } from '../../domain/quiz/entities/quiz.entity';
 import type { QuizRepository } from '../../domain/quiz/repositories/quiz.repository.interface';
-import { PrismaService } from '../database/prisma.service';
+import type { PrismaService } from '../database/prisma.service';
 
 /**
  * Prisma Quiz Repository Implementation

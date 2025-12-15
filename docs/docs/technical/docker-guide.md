@@ -33,19 +33,19 @@ make install
 
 `make install` performs the full bootstrap: builds images, ensures the shared `traefik-proxy` network exists, starts services, applies Prisma migrations, and seeds demo data. When it finishes, access the stack at:
 
-- Frontend → http://frontend.quiz-app.localhost
-- Backend API → http://backend.quiz-app.localhost
-- Traefik dashboard → http://traefik.localhost (created by `make setup-traefik`)
+- Frontend → <http://frontend.quiz-app.localhost>
+- Backend API → <http://backend.quiz-app.localhost>
+- Traefik dashboard → <http://traefik.localhost> (created by `make setup-traefik`)
 
 ## Daily Workflow
 
-| Task | Command |
-| --- | --- |
-| Start core services | `make up` |
-| Follow logs | `make logs` or `make logs-SERVICE` |
-| Reseed database | `make seed` |
-| Stop services | `make down` |
-| Full reset (⚠️ wipes volumes) | `make clean-all` |
+| Task                          | Command                            |
+| ----------------------------- | ---------------------------------- |
+| Start core services           | `make up`                          |
+| Follow logs                   | `make logs` or `make logs-SERVICE` |
+| Reseed database               | `make seed`                        |
+| Stop services                 | `make down`                        |
+| Full reset (⚠️ wipes volumes) | `make clean-all`                   |
 
 See the [Quick Reference](./quick-reference) for the wider command catalogue (tests, monitoring, docs).
 
@@ -54,7 +54,7 @@ See the [Quick Reference](./quick-reference) for the wider command catalogue (te
 - `make setup-traefik` provisions a long-lived `traefik-local` container and the shared `traefik-proxy` network. The target runs automatically before `make up`.
 - If you already run another reverse proxy on ports 80/443, stop `traefik-local` (`docker stop traefik-local`) and attach your proxy to the `traefik-proxy` network instead.
 - QuizMaster services join the same network and expose hostnames under `*.quiz-app.localhost` (resolved automatically by RFC 6761).
-- The Traefik dashboard is available at http://traefik.localhost.
+- The Traefik dashboard is available at <http://traefik.localhost>.
 - The hostname stays generic so the same proxy can route multiple local projects.
 
 Routing labels live in `compose.yaml`, and the frontend default API URL is defined in `application/frontend/src/shared/api/openapiClient.ts`.
@@ -66,7 +66,7 @@ Routing labels live in `compose.yaml`, and the frontend default API URL is defin
 - `make db-shell` opens an interactive `psql` session without exposing ports.
 - Production overrides and resource limits are defined in `compose.prod.yaml`; review the [Deployment](./deployment) guide before releasing.
 
-## Troubleshooting Cheatsheet
+## Troubleshooting cheat sheet
 
 - `make ps` → inspect container state and health.
 - `make health` → confirm backend liveness and frontend availability.

@@ -1,376 +1,193 @@
-# QuizMaster Helm Chart
-
-This Helm chart deploys the QuizMaster application on Kubernetes, including the backend (NestJS), frontend (React), PostgreSQL database, and optional monitoring components.
-
-## Prerequisites
-
-- Kubernetes 1.23+
-- Helm 3.8+
-- PV provisioner support in the underlying infrastructure (for PostgreSQL persistence)
-- Ingress controller (NGINX recommended)
-- cert-manager (optional, for TLS certificates)
-
-## Quick Start
-
-### Add Bitnami Repository
-
-The chart depends on Bitnami's PostgreSQL chart:
-
-```bash
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm repo update
-```
-
-### Install the Chart
-
-#### Basic Installation (Development)
-
-```bash
-# Install with default values
-helm install quiz-app ./charts/application
-
-# Or with development values
-helm install quiz-app ./charts/application -f ./charts/application/values-dev.yaml
-```
-
-#### Production Installation
-
-```bash
-# Create namespace
-kubectl create namespace quiz-app
-
-# Install with production values
-helm install quiz-app ./charts/application \
-  -f ./charts/application/values-prod.yaml \
-  --namespace quiz-app \
-  --set backend.secrets.jwtSecret="your-super-secret-jwt-key" \
-  --set postgresql.auth.password="your-secure-database-password"
-```
-
-### Access the Application
-
-After installation, follow the instructions displayed in the NOTES section:
-
-```bash
-# Get the application URL
-kubectl get ingress -n quiz-app
-
-# Or use port-forward for testing
-kubectl port-forward -n quiz-app svc/quiz-app-frontend 8080:80
-```
-
-Visit `http://localhost:8080` in your browser.
-
-## Configuration
-
-### Key Configuration Parameters
-
-#### Global Settings
-
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `global.imageRegistry` | Global Docker image registry | `""` |
-| `global.imagePullPolicy` | Global image pull policy | `IfNotPresent` |
-| `global.imagePullSecrets` | Global Docker registry secret names | `[]` |
-| `global.storageClass` | Global storage class for PVCs | `""` |
-
-#### Backend Configuration
-
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `backend.enabled` | Enable backend deployment | `true` |
-| `backend.replicaCount` | Number of backend replicas | `2` |
-| `backend.image.repository` | Backend image repository | `cloud-native-aixmarseille/quiz-app/backend` |
-| `backend.image.tag` | Backend image tag | `latest` |
-| `backend.service.type` | Kubernetes service type | `ClusterIP` |
-| `backend.service.port` | Backend service port | `3001` |
-| `backend.secrets.jwtSecret` | JWT secret for authentication | `change-me-in-production` |
-| `backend.resources.limits.cpu` | CPU limit | `1000m` |
-| `backend.resources.limits.memory` | Memory limit | `512Mi` |
-| `backend.autoscaling.enabled` | Enable horizontal pod autoscaling | `false` |
-
-#### Frontend Configuration
-
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `frontend.enabled` | Enable frontend deployment | `true` |
-| `frontend.replicaCount` | Number of frontend replicas | `2` |
-| `frontend.image.repository` | Frontend image repository | `cloud-native-aixmarseille/quiz-app/frontend` |
-| `frontend.image.tag` | Frontend image tag | `latest` |
-| `frontend.service.type` | Kubernetes service type | `ClusterIP` |
-| `frontend.service.port` | Frontend service port | `80` |
-| `frontend.resources.limits.cpu` | CPU limit | `500m` |
-| `frontend.resources.limits.memory` | Memory limit | `256Mi` |
-
-#### PostgreSQL Configuration
-
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `postgresql.enabled` | Enable PostgreSQL subchart | `true` |
-| `postgresql.auth.username` | PostgreSQL username | `quizapp` |
-| `postgresql.auth.password` | PostgreSQL password | `quizapp_password` |
-| `postgresql.auth.database` | PostgreSQL database name | `quizdb` |
-| `postgresql.auth.existingSecret` | Use existing secret for credentials | `""` |
-| `postgresql.primary.persistence.enabled` | Enable persistence | `true` |
-| `postgresql.primary.persistence.size` | PVC size | `8Gi` |
-
-#### Ingress Configuration
-
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `ingress.enabled` | Enable ingress | `true` |
-| `ingress.className` | Ingress class name | `nginx` |
-| `ingress.annotations` | Ingress annotations | See values.yaml |
-| `ingress.hosts` | Ingress hostnames and paths | See values.yaml |
-| `ingress.tls` | TLS configuration | See values.yaml |
-
-### Environment-Specific Configurations
-
-The chart includes pre-configured values files for different environments:
-
-- **Development**: `values-dev.yaml` - Minimal resources, no autoscaling
-- **Staging**: `values-staging.yaml` - Production-like setup with moderate resources
-- **Production**: `values-prod.yaml` - Full production setup with HA, autoscaling, and monitoring
-
-## Examples
-
-### Install with Custom Values
-
-```bash
-helm install quiz-app ./charts/application \
-  --set backend.replicaCount=3 \
-  --set frontend.replicaCount=3 \
-  --set postgresql.primary.persistence.size=20Gi
-```
-
-### Install with External Database
-
-```bash
-helm install quiz-app ./charts/application \
-  --set postgresql.enabled=false \
-  --set backend.secrets.databaseUrl="postgresql://user:pass@external-db:5432/quizdb"
-```
-
-### Enable Autoscaling
-
-```bash
-helm install quiz-app ./charts/application \
-  --set backend.autoscaling.enabled=true \
-  --set backend.autoscaling.minReplicas=2 \
-  --set backend.autoscaling.maxReplicas=10 \
-  --set frontend.autoscaling.enabled=true
-```
-
-### Enable Monitoring
-
-```bash
-helm install quiz-app ./charts/application \
-  --set monitoring.enabled=true \
-  --set monitoring.serviceMonitor.enabled=true \
-  --set postgresql.metrics.enabled=true
-```
-
-## Upgrading
-
-### Upgrade the Release
-
-```bash
-# Upgrade with new values
-helm upgrade quiz-app ./charts/application \
-  -f ./charts/application/values-prod.yaml \
-  --namespace quiz-app
-
-# Upgrade with specific image tags
-helm upgrade quiz-app ./charts/application \
-  --set backend.image.tag=v1.1.0 \
-  --set frontend.image.tag=v1.1.0
-```
-
-### Rollback
-
-```bash
-# List releases
-helm history quiz-app -n quiz-app
-
-# Rollback to previous version
-helm rollback quiz-app -n quiz-app
-
-# Rollback to specific revision
-helm rollback quiz-app 2 -n quiz-app
-```
-
-## Uninstalling
-
-```bash
-# Uninstall the release
-helm uninstall quiz-app -n quiz-app
-
-# Delete the namespace (if created)
-kubectl delete namespace quiz-app
-```
-
-**Note**: By default, PersistentVolumeClaims are not deleted. To delete them:
-
-```bash
-kubectl delete pvc -n quiz-app --all
-```
-
-## Security Considerations
-
-### Production Secrets
-
-**DO NOT** use default values for secrets in production. Use one of these approaches:
-
-#### 1. External Secrets Operator
-
-```yaml
-# Install External Secrets Operator first
-# Then create ExternalSecret resources
-apiVersion: external-secrets.io/v1beta1
-kind: ExternalSecret
-metadata:
-  name: quiz-app-secrets
-spec:
-  secretStoreRef:
-    name: aws-secretsmanager
-    kind: SecretStore
-  target:
-    name: quiz-app-backend
-  data:
-    - secretKey: jwt-secret
-      remoteRef:
-        key: quiz-app/jwt-secret
-```
-
-#### 2. Sealed Secrets
-
-```bash
-# Install Sealed Secrets controller
-# Create a sealed secret
-echo -n "my-super-secret-jwt-key" | kubectl create secret generic quiz-app-backend \
-  --dry-run=client --from-file=jwt-secret=/dev/stdin -o yaml | \
-  kubeseal -o yaml > sealed-secret.yaml
-```
-
-#### 3. Helm Values with Encryption
-
-```bash
-# Use helm-secrets plugin
-helm secrets install quiz-app ./charts/application -f secrets.yaml
-```
-
-### Network Policies
-
-Enable network policies in production:
-
-```yaml
-networkPolicy:
-  enabled: true
-```
-
-### Pod Security
-
-The chart follows security best practices:
-- Non-root containers
-- Read-only root filesystem (where applicable)
-- Dropped capabilities
-- Resource limits
-
-## Troubleshooting
-
-### Check Pod Status
-
-```bash
-kubectl get pods -n quiz-app
-kubectl describe pod <pod-name> -n quiz-app
-kubectl logs <pod-name> -n quiz-app
-```
-
-### Check Services
-
-```bash
-kubectl get svc -n quiz-app
-kubectl get ingress -n quiz-app
-```
-
-### Database Connection Issues
-
-```bash
-# Check PostgreSQL pod
-kubectl logs -n quiz-app quiz-app-postgresql-0
-
-# Connect to PostgreSQL
-kubectl exec -it -n quiz-app quiz-app-postgresql-0 -- psql -U quizapp -d quizdb
-
-# Test database connection from backend
-kubectl exec -it -n quiz-app <backend-pod> -- sh
-# Inside the pod:
-npx prisma db pull
-```
-
-### Common Issues
-
-1. **ImagePullBackOff**: Check image name and registry credentials
-2. **CrashLoopBackOff**: Check logs with `kubectl logs`
-3. **Database connection failed**: Verify DATABASE_URL and PostgreSQL pod status
-4. **Ingress not working**: Verify ingress controller is installed and hostname is correct
-
-## Monitoring
-
-### Prometheus Integration
-
-When `monitoring.enabled=true`, the chart creates ServiceMonitor resources for Prometheus Operator:
-
-```bash
-# Check ServiceMonitors
-kubectl get servicemonitor -n quiz-app
-
-# Access Prometheus (if installed)
-kubectl port-forward -n monitoring svc/prometheus-operated 9090:9090
-```
-
-### Grafana Dashboards
-
-Import the provided Grafana dashboards (if monitoring is enabled):
-
-```bash
-# Dashboards are available in the monitoring/ directory
-kubectl create configmap quiz-app-dashboards \
-  --from-file=monitoring/grafana/ \
-  -n monitoring
-```
-
-## Development
-
-### Linting the Chart
-
-```bash
-# Lint the chart
-helm lint ./charts/application
-
-# Template the chart to check output
-helm template quiz-app ./charts/application \
-  -f ./charts/application/values-dev.yaml > output.yaml
-```
-
-### Testing with Kind
-
-```bash
-# Create a local cluster
-kind create cluster --name quiz-test
-
-# Install NGINX Ingress
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-
-# Install the chart
-helm install quiz-app ./charts/application -f ./charts/application/values-dev.yaml
-```
-
-## Support
-
-- **Documentation**: [https://github.com/cloud-native-aixmarseille/quiz-app/docs](https://github.com/cloud-native-aixmarseille/quiz-app/docs)
-- **Issues**: [https://github.com/cloud-native-aixmarseille/quiz-app/issues](https://github.com/cloud-native-aixmarseille/quiz-app/issues)
-
-## License
-
-MIT
+# quiz-app
+
+![Version: 0.0.0](https://img.shields.io/badge/Version-0.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.0](https://img.shields.io/badge/AppVersion-0.0.0-informational?style=flat-square)
+
+QuizMaster - Interactive Quiz Application with real-time gameplay
+
+**Homepage:** <https://github.com/cloud-native-aixmarseille/quiz-app>
+
+## Maintainers
+
+| Name | Email | Url |
+| ---- | ------ | --- |
+| QuizMaster Team | <support@example.com> |  |
+
+## Source Code
+
+* <https://github.com/cloud-native-aixmarseille/quiz-app>
+
+## Requirements
+
+| Repository | Name | Version |
+|------------|------|---------|
+| https://charts.bitnami.com/bitnami | postgresql | 15.x.x |
+
+## Values
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| backend.affinity | object | `{}` |  |
+| backend.autoscaling.enabled | bool | `false` |  |
+| backend.autoscaling.maxReplicas | int | `10` |  |
+| backend.autoscaling.minReplicas | int | `2` |  |
+| backend.autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
+| backend.autoscaling.targetMemoryUtilizationPercentage | int | `80` |  |
+| backend.enabled | bool | `true` |  |
+| backend.env.corsOrigin | string | `"*"` |  |
+| backend.env.nodeEnv | string | `"production"` |  |
+| backend.env.otelExporterOtlpEndpoint | string | `"http://otel-collector:4318"` |  |
+| backend.env.port | int | `3001` |  |
+| backend.image.pullPolicy | string | `"IfNotPresent"` |  |
+| backend.image.registry | string | `"ghcr.io"` |  |
+| backend.image.repository | string | `"cloud-native-aixmarseille/quiz-app/backend"` |  |
+| backend.image.tag | string | `"latest"` |  |
+| backend.livenessProbe.failureThreshold | int | `3` |  |
+| backend.livenessProbe.httpGet.path | string | `"/api/health/live"` |  |
+| backend.livenessProbe.httpGet.port | int | `3001` |  |
+| backend.livenessProbe.initialDelaySeconds | int | `40` |  |
+| backend.livenessProbe.periodSeconds | int | `30` |  |
+| backend.livenessProbe.timeoutSeconds | int | `10` |  |
+| backend.nodeSelector | object | `{}` |  |
+| backend.podAnnotations | object | `{}` |  |
+| backend.podSecurityContext.fsGroup | int | `1000` |  |
+| backend.podSecurityContext.runAsNonRoot | bool | `true` |  |
+| backend.podSecurityContext.runAsUser | int | `1000` |  |
+| backend.readinessProbe.failureThreshold | int | `3` |  |
+| backend.readinessProbe.httpGet.path | string | `"/api/health/ready"` |  |
+| backend.readinessProbe.httpGet.port | int | `3001` |  |
+| backend.readinessProbe.initialDelaySeconds | int | `30` |  |
+| backend.readinessProbe.periodSeconds | int | `10` |  |
+| backend.readinessProbe.timeoutSeconds | int | `5` |  |
+| backend.replicaCount | int | `2` |  |
+| backend.resources.limits.cpu | string | `"1000m"` |  |
+| backend.resources.limits.memory | string | `"512Mi"` |  |
+| backend.resources.requests.cpu | string | `"500m"` |  |
+| backend.resources.requests.memory | string | `"256Mi"` |  |
+| backend.secrets.databaseUrl | string | `""` |  |
+| backend.secrets.jwtSecret | string | `"change-me-in-production-use-strong-random-secret"` |  |
+| backend.securityContext.allowPrivilegeEscalation | bool | `false` |  |
+| backend.securityContext.capabilities.drop[0] | string | `"ALL"` |  |
+| backend.securityContext.readOnlyRootFilesystem | bool | `false` |  |
+| backend.service.annotations | object | `{}` |  |
+| backend.service.port | int | `3001` |  |
+| backend.service.targetPort | int | `3001` |  |
+| backend.service.type | string | `"ClusterIP"` |  |
+| backend.tolerations | list | `[]` |  |
+| frontend.affinity | object | `{}` |  |
+| frontend.autoscaling.enabled | bool | `false` |  |
+| frontend.autoscaling.maxReplicas | int | `10` |  |
+| frontend.autoscaling.minReplicas | int | `2` |  |
+| frontend.autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
+| frontend.enabled | bool | `true` |  |
+| frontend.env.apiUrl | string | `"http://backend:3001"` |  |
+| frontend.image.pullPolicy | string | `"IfNotPresent"` |  |
+| frontend.image.registry | string | `"ghcr.io"` |  |
+| frontend.image.repository | string | `"cloud-native-aixmarseille/quiz-app/frontend"` |  |
+| frontend.image.tag | string | `"latest"` |  |
+| frontend.livenessProbe.httpGet.path | string | `"/"` |  |
+| frontend.livenessProbe.httpGet.port | int | `80` |  |
+| frontend.livenessProbe.initialDelaySeconds | int | `10` |  |
+| frontend.livenessProbe.periodSeconds | int | `30` |  |
+| frontend.livenessProbe.timeoutSeconds | int | `10` |  |
+| frontend.nodeSelector | object | `{}` |  |
+| frontend.podAnnotations | object | `{}` |  |
+| frontend.podSecurityContext.fsGroup | int | `101` |  |
+| frontend.podSecurityContext.runAsNonRoot | bool | `true` |  |
+| frontend.podSecurityContext.runAsUser | int | `101` |  |
+| frontend.readinessProbe.httpGet.path | string | `"/"` |  |
+| frontend.readinessProbe.httpGet.port | int | `80` |  |
+| frontend.readinessProbe.initialDelaySeconds | int | `5` |  |
+| frontend.readinessProbe.periodSeconds | int | `10` |  |
+| frontend.readinessProbe.timeoutSeconds | int | `5` |  |
+| frontend.replicaCount | int | `2` |  |
+| frontend.resources.limits.cpu | string | `"500m"` |  |
+| frontend.resources.limits.memory | string | `"256Mi"` |  |
+| frontend.resources.requests.cpu | string | `"250m"` |  |
+| frontend.resources.requests.memory | string | `"128Mi"` |  |
+| frontend.securityContext.allowPrivilegeEscalation | bool | `false` |  |
+| frontend.securityContext.capabilities.drop[0] | string | `"ALL"` |  |
+| frontend.securityContext.readOnlyRootFilesystem | bool | `true` |  |
+| frontend.service.annotations | object | `{}` |  |
+| frontend.service.port | int | `80` |  |
+| frontend.service.targetPort | int | `80` |  |
+| frontend.service.type | string | `"ClusterIP"` |  |
+| frontend.tolerations | list | `[]` |  |
+| global.imagePullPolicy | string | `"IfNotPresent"` |  |
+| global.imagePullSecrets | list | `[]` |  |
+| global.imageRegistry | string | `""` |  |
+| global.storageClass | string | `""` |  |
+| grafana.dashboards | object | `{}` |  |
+| grafana.enabled | bool | `false` |  |
+| ingress.annotations."cert-manager.io/cluster-issuer" | string | `"letsencrypt-prod"` |  |
+| ingress.annotations."nginx.ingress.kubernetes.io/force-ssl-redirect" | string | `"true"` |  |
+| ingress.annotations."nginx.ingress.kubernetes.io/proxy-read-timeout" | string | `"3600"` |  |
+| ingress.annotations."nginx.ingress.kubernetes.io/proxy-send-timeout" | string | `"3600"` |  |
+| ingress.annotations."nginx.ingress.kubernetes.io/ssl-redirect" | string | `"true"` |  |
+| ingress.className | string | `"nginx"` |  |
+| ingress.enabled | bool | `true` |  |
+| ingress.hosts[0].host | string | `"quiz.example.com"` |  |
+| ingress.hosts[0].paths[0].path | string | `"/api"` |  |
+| ingress.hosts[0].paths[0].pathType | string | `"Prefix"` |  |
+| ingress.hosts[0].paths[0].service.name | string | `"backend"` |  |
+| ingress.hosts[0].paths[0].service.port | int | `3001` |  |
+| ingress.hosts[0].paths[1].path | string | `"/socket.io"` |  |
+| ingress.hosts[0].paths[1].pathType | string | `"Prefix"` |  |
+| ingress.hosts[0].paths[1].service.name | string | `"backend"` |  |
+| ingress.hosts[0].paths[1].service.port | int | `3001` |  |
+| ingress.hosts[0].paths[2].path | string | `"/"` |  |
+| ingress.hosts[0].paths[2].pathType | string | `"Prefix"` |  |
+| ingress.hosts[0].paths[2].service.name | string | `"frontend"` |  |
+| ingress.hosts[0].paths[2].service.port | int | `80` |  |
+| ingress.tls[0].hosts[0] | string | `"quiz.example.com"` |  |
+| ingress.tls[0].secretName | string | `"quiz-app-tls"` |  |
+| monitoring.enabled | bool | `false` |  |
+| monitoring.prometheusRule.enabled | bool | `false` |  |
+| monitoring.prometheusRule.labels | object | `{}` |  |
+| monitoring.prometheusRule.rules | list | `[]` |  |
+| monitoring.serviceMonitor.enabled | bool | `false` |  |
+| monitoring.serviceMonitor.interval | string | `"30s"` |  |
+| monitoring.serviceMonitor.labels | object | `{}` |  |
+| monitoring.serviceMonitor.scrapeTimeout | string | `"10s"` |  |
+| networkPolicy.egress[0].to[0].namespaceSelector | object | `{}` |  |
+| networkPolicy.enabled | bool | `false` |  |
+| networkPolicy.ingress[0].from[0].namespaceSelector.matchLabels.name | string | `"ingress-nginx"` |  |
+| otelCollector.enabled | bool | `false` |  |
+| otelCollector.image.pullPolicy | string | `"IfNotPresent"` |  |
+| otelCollector.image.registry | string | `"docker.io"` |  |
+| otelCollector.image.repository | string | `"otel/opentelemetry-collector"` |  |
+| otelCollector.image.tag | string | `"0.105.0"` |  |
+| otelCollector.resources.limits.cpu | string | `"500m"` |  |
+| otelCollector.resources.limits.memory | string | `"256Mi"` |  |
+| otelCollector.resources.requests.cpu | string | `"100m"` |  |
+| otelCollector.resources.requests.memory | string | `"128Mi"` |  |
+| otelCollector.service.port | int | `4318` |  |
+| otelCollector.service.type | string | `"ClusterIP"` |  |
+| podDisruptionBudget.enabled | bool | `false` |  |
+| podDisruptionBudget.minAvailable | int | `1` |  |
+| postgresql.auth.database | string | `"quizdb"` |  |
+| postgresql.auth.existingSecret | string | `""` |  |
+| postgresql.auth.password | string | `"quizapp_password"` |  |
+| postgresql.auth.secretKeys.adminPasswordKey | string | `"postgres-password"` |  |
+| postgresql.auth.secretKeys.userPasswordKey | string | `"password"` |  |
+| postgresql.auth.username | string | `"quizapp"` |  |
+| postgresql.enabled | bool | `true` |  |
+| postgresql.enabled | bool | `true` |  |
+| postgresql.image.repository | string | `"bitnamilegacy/postgresql"` |  |
+| postgresql.metrics.enabled | bool | `false` |  |
+| postgresql.metrics.image.repository | string | `"bitnamilegacy/postgres-exporter"` |  |
+| postgresql.metrics.serviceMonitor.enabled | bool | `false` |  |
+| postgresql.primary.extendedConfiguration | string | `"max_connections = 100\nshared_buffers = 128MB\n"` |  |
+| postgresql.primary.persistence.enabled | bool | `true` |  |
+| postgresql.primary.persistence.size | string | `"8Gi"` |  |
+| postgresql.primary.resources.limits.cpu | string | `"1000m"` |  |
+| postgresql.primary.resources.limits.memory | string | `"512Mi"` |  |
+| postgresql.primary.resources.requests.cpu | string | `"500m"` |  |
+| postgresql.primary.resources.requests.memory | string | `"256Mi"` |  |
+| postgresql.readReplicas.replicaCount | int | `0` |  |
+| postgresql.volumePermissions.image.repository | string | `"bitnamilegacy/os-shell"` |  |
+| serviceAccount.annotations | object | `{}` |  |
+| serviceAccount.create | bool | `true` |  |
+| serviceAccount.name | string | `""` |  |
+
+----------------------------------------------
+Autogenerated from chart metadata using [helm-docs v1.14.2](https://github.com/norwoodj/helm-docs/releases/v1.14.2)

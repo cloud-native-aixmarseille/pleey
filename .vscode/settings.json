@@ -41,10 +41,7 @@
     "editor.formatOnSave": false,
     "editor.wordWrap": "on"
   },
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact"
-  ],
+  "eslint.validate": ["javascript", "javascriptreact"],
   "javascript.suggest.autoImports": true,
   "javascript.updateImportsOnFileMove.enabled": "always",
   "docker.dockerComposeBuild": true,

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '../../domain/auth/entities/user.entity';
 import type { UserRepository } from '../../domain/auth/repositories/user.repository.interface';
-import { PrismaService } from '../database/prisma.service';
+import type { PrismaService } from '../database/prisma.service';
 
 type PrismaUserRecord = {
   id: number;

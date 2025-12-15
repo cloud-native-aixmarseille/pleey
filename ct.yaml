@@ -1,0 +1,10 @@
+---
+chart-dirs:
+  - charts
+charts:
+  - charts/application
+chart-yaml-schema: charts/chart-schema.yaml
+lint-conf: charts/lintconf.yaml
+helm-dependency-extra-args:
+  - --skip-refresh
+validate-maintainers: false

@@ -21,21 +21,25 @@ React 19 application with Vite, following Clean Architecture and Domain-Driven D
 The application leverages React 19's enhanced features for improved performance and developer experience:
 
 ### Concurrent Features
+
 - **Automatic Batching**: All state updates are automatically batched, reducing re-renders
 - **Transitions**: Use `useTransition` for non-urgent updates (e.g., filtering, searching)
 - **Suspense**: Improved Suspense for data fetching (future enhancement)
 
 ### Modern APIs
+
 - **createRoot**: Uses React 19's concurrent root API (see `main.jsx`)
 - **forwardRef**: Simplified ref forwarding in components
-- **useId**: Generate unique IDs for accessibility (aria-* attributes)
+- **useId**: Generate unique IDs for accessibility (aria-\* attributes)
 
 ### Performance Optimizations
+
 - **Automatic memo**: React 19 automatically optimizes component rendering
 - **Server Components**: Ready for future SSR implementation
 - **Improved hydration**: Better performance for server-side rendering scenarios
 
 ### Migration from React 18
+
 - ✅ No legacy ReactDOM.render usage
 - ✅ Using createRoot API
 - ✅ All components compatible with concurrent rendering
@@ -148,6 +152,7 @@ User Action → Context Hook → Use Case → Repository → API/WebSocket
 The frontend follows **Clean Architecture** principles with strict layer separation:
 
 ### 1. Domain Layer (`domains/`)
+
 **Core business entities and interfaces**
 
 - Defines **ports** (interfaces) following **Dependency Inversion Principle**
@@ -156,15 +161,20 @@ The frontend follows **Clean Architecture** principles with strict layer separat
 - **Pure TypeScript** with no React dependencies
 
 Example:
+
 ```typescript
 // domains/auth/ports/auth.repository.interface.ts
 export interface IAuthRepository {
-  login(email: string, password: string): Promise<{ token: string; user: User }>;
+  login(
+    email: string,
+    password: string,
+  ): Promise<{ token: string; user: User }>;
   register(username: string, email: string, password: string): Promise<void>;
 }
 ```
 
 ### 2. Application Layer (`application/`)
+
 **Use cases and business logic**
 
 - Implements **business logic** independent of UI
@@ -173,24 +183,29 @@ export interface IAuthRepository {
 - **Testable in isolation** with mocked dependencies
 
 Example:
+
 ```typescript
 // application/auth/use-cases/login.use-case.ts
 export class LoginUseCase {
   constructor(
     private readonly authRepository: IAuthRepository,
-    private readonly storage: IStorage
+    private readonly storage: IStorage,
   ) {}
 
   async execute(request: LoginRequest): Promise<LoginResponse> {
-    const { token, user } = await this.authRepository.login(request.email, request.password);
-    this.storage.setItem('token', token);
-    this.storage.setItem('user', JSON.stringify(user));
+    const { token, user } = await this.authRepository.login(
+      request.email,
+      request.password,
+    );
+    this.storage.setItem("token", token);
+    this.storage.setItem("user", JSON.stringify(user));
     return { token, user };
   }
 }
 ```
 
 ### 3. Infrastructure Layer (`domains/*/infrastructure/`, `shared/infrastructure/`)
+
 **External adapters and implementations**
 
 - Implements domain interfaces (repositories, adapters)
@@ -199,13 +214,14 @@ export class LoginUseCase {
 - **Easily replaceable** (e.g., mock for testing)
 
 Example:
+
 ```typescript
 // domains/auth/infrastructure/auth-http.repository.ts
 export class AuthHttpRepository implements IAuthRepository {
   async login(email: string, password: string) {
     const response = await fetch(`${API_URL}/api/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
     return response.json();
@@ -214,6 +230,7 @@ export class AuthHttpRepository implements IAuthRepository {
 ```
 
 ### 4. Presentation Layer (`features/`)
+
 **UI components and React-specific code**
 
 - Consumes use cases via **React Context**
@@ -222,11 +239,12 @@ export class AuthHttpRepository implements IAuthRepository {
 - Uses **Cyber Arcade design system**
 
 Example:
+
 ```typescript
 // features/authentication/components/LoginPage.tsx
 export default function LoginPage() {
   const { login } = useAuth(); // From context
-  
+
   const handleSubmit = async (email, password) => {
     await login(email, password);
   };
@@ -234,6 +252,7 @@ export default function LoginPage() {
 ```
 
 ### 5. Dependency Injection (`shared/di/`)
+
 **Wiring and configuration**
 
 - **Single source of truth** for dependencies
@@ -242,12 +261,13 @@ export default function LoginPage() {
 - Follows **Dependency Injection Pattern**
 
 Example:
+
 ```typescript
 // shared/di/container.ts
 export class DependencyContainer {
   private readonly authRepository = new AuthHttpRepository();
   private readonly storage = new LocalStorageAdapter();
-  
+
   readonly loginUseCase = new LoginUseCase(this.authRepository, this.storage);
 }
 
@@ -257,24 +277,29 @@ export const container = new DependencyContainer();
 ## 🎯 SOLID Principles
 
 ### Single Responsibility Principle (SRP)
+
 - ✅ Each use case has **one responsibility**
 - ✅ Repositories only handle **data access**
 - ✅ Components only handle **presentation**
 - ✅ Route components only handle **routing logic**
 
 ### Open/Closed Principle (OCP)
+
 - ✅ Interfaces define contracts (closed for modification)
 - ✅ Easy to add new implementations (open for extension)
 
 ### Liskov Substitution Principle (LSP)
+
 - ✅ All repository implementations are **substitutable**
 - ✅ Mock implementations for testing
 
 ### Interface Segregation Principle (ISP)
+
 - ✅ Small, **focused interfaces**
 - ✅ No fat interfaces forcing unused methods
 
 ### Dependency Inversion Principle (DIP)
+
 - ✅ High-level modules depend on **abstractions** (interfaces)
 - ✅ Low-level modules implement abstractions
 - ✅ **Dependency injection** container manages dependencies
@@ -282,31 +307,35 @@ export const container = new DependencyContainer();
 ## 🧪 Testing Strategy
 
 ### Unit Tests (Use Cases)
+
 ```typescript
 describe('LoginUseCase', () => {
   it('should login and store credentials', async () => {
     const mockRepo: IAuthRepository = { login: vi.fn().mockResolvedValue(...) };
     const mockStorage: IStorage = { setItem: vi.fn() };
     const useCase = new LoginUseCase(mockRepo, mockStorage);
-    
+
     await useCase.execute({ email, password });
-    
+
     expect(mockStorage.setItem).toHaveBeenCalledWith('token', 'test-token');
   });
 });
 ```
 
 ### Integration Tests (Repositories)
+
 - Test HTTP communication
 - Test error handling
 - Test response parsing
 
 ### Component Tests (UI)
+
 - Test user interactions
 - Test rendering
 - Test context integration
 
-### E2E Tests (Playwright)
+### End-to-end Tests (Playwright)
+
 - Complete user journeys
 - Cross-browser testing
 - See [Testing Guide](../testing.md)
@@ -316,16 +345,19 @@ describe('LoginUseCase', () => {
 **React Context API** for global state:
 
 ### AuthContext
+
 - User authentication state
 - Login/logout operations
 - Session restoration
 
 ### QuizContext
+
 - Quiz and question management
 - CRUD operations
 - Cache management
 
 ### GameContext
+
 - Real-time game state
 - WebSocket events
 - Player interactions
@@ -342,16 +374,19 @@ WebSocket communication via **Socket.IO**:
 ## 🧩 Domains
 
 ### Authentication Domain (`auth/`)
+
 - User login and registration
 - JWT token management
 - Session persistence
 
 ### Quiz Domain (`quiz/`)
+
 - Quiz creation and management
 - Question CRUD operations
 - Quiz metadata
 
 ### Game Domain (`game/`)
+
 - Game session management
 - Real-time gameplay
 - Leaderboard tracking
@@ -359,19 +394,23 @@ WebSocket communication via **Socket.IO**:
 ## 🎯 Features
 
 ### Home
+
 Landing page with navigation
 
 ### Authentication
+
 - Login page
 - Registration page
 - Password validation
 
 ### Quiz Management (Admin)
+
 - Quiz dashboard
 - Question editor
 - Quiz launch
 
 ### Game Play
+
 - Join game (PIN entry)
 - Lobby (waiting room)
 - Playing (live quiz)
@@ -380,6 +419,7 @@ Landing page with navigation
 ## 📚 Additional Resources
 
 For more details, see:
+
 - **[REFACTORING.md](../../../../application/frontend/REFACTORING.md)** - Detailed refactoring documentation
 - **[Design System](../design-system.md)** - Cyber Arcade theme
 - **[Testing Guide](../testing.md)** - Testing strategies

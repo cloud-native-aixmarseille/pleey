@@ -1,4 +1,4 @@
-import { Buffer } from 'node:buffer';
+import type { Buffer } from 'node:buffer';
 import { Controller, Get, Inject, NotFoundException, Param, ParseIntPipe, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthErrorCode } from '../../application/auth/enums/auth-error-code.enum';
@@ -6,8 +6,8 @@ import {
   UserRepositoryProvider,
   type UserRepository,
 } from '../../domain/auth/repositories/user.repository.interface';
-import { UserAvatarService } from '../../domain/auth/services/user-avatar.service';
-import { AvatarGeneratorService } from '../../domain/shared/services/avatar-generator.service';
+import type { UserAvatarService } from '../../domain/auth/services/user-avatar.service';
+import type { AvatarGeneratorService } from '../../domain/shared/services/avatar-generator.service';
 
 @Controller('avatars')
 export class AvatarController {
