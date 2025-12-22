@@ -7,7 +7,7 @@ permissions: {}
 
 jobs:
   linter:
-    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@666b7b6eb000db3e8614647871fa60c9f1eb7179 # v0.31.4
+    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@b17226e57c8ef31f860719766656ebb6df017218 # v0.31.6
     permissions:
       actions: read
       contents: read
@@ -17,7 +17,7 @@ jobs:
       codeql-languages: "" # FIXME: Let default value when CodeQL will be available (paid feature)
 
   build:
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@18c35d287eb2f66e00741c88954106b44b812ae0 # v0.30.4
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@a0bab9151cc074af9f6c8204ab42a48d2d570379 # v0.30.6
     permissions:
       contents: read
       packages: write
@@ -70,7 +70,7 @@ jobs:
     strategy:
       matrix:
         service: ["backend", "frontend"]
-    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@25ef8d971c0a866fb9e5d90130c7aaa084619df6 # v0.21.0
+    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@c9d9d041ba4ef35695ee469c4782fa6a8bbebbcc # v0.21.2
     needs: build
     permissions:
       contents: read
@@ -103,7 +103,7 @@ jobs:
       packages: read
     steps:
       - name: Test helm chart (umbrella)
-        uses: hoverkraft-tech/ci-github-container/actions/helm/test-chart@18c35d287eb2f66e00741c88954106b44b812ae0 # v0.30.4
+        uses: hoverkraft-tech/ci-github-container/actions/helm/test-chart@a0bab9151cc074af9f6c8204ab42a48d2d570379 # v0.30.6
         with:
           helm-repositories: |
             bitnami https://charts.bitnami.com/bitnami
