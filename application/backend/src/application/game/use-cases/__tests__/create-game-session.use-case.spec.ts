@@ -1,13 +1,13 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { CreateGameSessionUseCase } from '../create-game-session.use-case';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { GameSession } from '../../../../domain/game/entities/game-session.entity';
 import type { GameSessionRepository } from '../../../../domain/game/repositories/game-session.repository.interface';
-import type { QuizRepository } from '../../../../domain/quiz/repositories/quiz.repository.interface';
-import type { OrganizationMemberRepository } from '../../../../domain/organization/repositories/organization-member.repository.interface';
 import { OrganizationMember } from '../../../../domain/organization/entities/organization-member.entity';
 import { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
-import { GameSession } from '../../../../domain/game/entities/game-session.entity';
+import type { OrganizationMemberRepository } from '../../../../domain/organization/repositories/organization-member.repository.interface';
 import { Quiz } from '../../../../domain/quiz/entities/quiz.entity';
+import type { QuizRepository } from '../../../../domain/quiz/repositories/quiz.repository.interface';
+import { CreateGameSessionUseCase } from '../create-game-session.use-case';
 
 describe('CreateGameSessionUseCase', () => {
   let useCase: CreateGameSessionUseCase;
@@ -53,7 +53,7 @@ describe('CreateGameSessionUseCase', () => {
     useCase = new CreateGameSessionUseCase(
       mockGameSessionRepository,
       mockQuizRepository,
-      mockMemberRepository
+      mockMemberRepository,
     );
   });
 
@@ -64,7 +64,7 @@ describe('CreateGameSessionUseCase', () => {
 
       vi.spyOn(mockQuizRepository, 'findById').mockResolvedValue(mockQuiz);
       vi.spyOn(mockMemberRepository, 'findByOrganizationAndUser').mockResolvedValue(
-        new OrganizationMember(1, 1, 100, OrganizationRole.OWNER, new Date())
+        new OrganizationMember(1, 1, 100, OrganizationRole.OWNER, new Date()),
       );
       vi.spyOn(mockGameSessionRepository, 'findActiveByQuizId').mockResolvedValue(null);
       vi.spyOn(mockGameSessionRepository, 'findActiveByAdminId').mockResolvedValue([]);
@@ -84,9 +84,9 @@ describe('CreateGameSessionUseCase', () => {
     it('should throw NotFoundException when quiz does not exist', async () => {
       vi.spyOn(mockQuizRepository, 'findById').mockResolvedValue(null);
 
-      await expect(
-        useCase.execute({ quizId: 999, adminId: 100 })
-      ).rejects.toThrow(NotFoundException);
+      await expect(useCase.execute({ quizId: 999, adminId: 100 })).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should throw BadRequestException when admin has other active sessions', async () => {
@@ -95,14 +95,14 @@ describe('CreateGameSessionUseCase', () => {
 
       vi.spyOn(mockQuizRepository, 'findById').mockResolvedValue(mockQuiz);
       vi.spyOn(mockMemberRepository, 'findByOrganizationAndUser').mockResolvedValue(
-        new OrganizationMember(1, 1, 100, OrganizationRole.OWNER, new Date())
+        new OrganizationMember(1, 1, 100, OrganizationRole.OWNER, new Date()),
       );
       vi.spyOn(mockGameSessionRepository, 'findActiveByQuizId').mockResolvedValue(null);
       vi.spyOn(mockGameSessionRepository, 'findActiveByAdminId').mockResolvedValue([activeSession]);
 
-      await expect(
-        useCase.execute({ quizId: 1, adminId: 100 })
-      ).rejects.toThrow(BadRequestException);
+      await expect(useCase.execute({ quizId: 1, adminId: 100 })).rejects.toThrow(
+        BadRequestException,
+      );
 
       expect(mockGameSessionRepository.create).not.toHaveBeenCalled();
     });
@@ -113,13 +113,13 @@ describe('CreateGameSessionUseCase', () => {
 
       vi.spyOn(mockQuizRepository, 'findById').mockResolvedValue(mockQuiz);
       vi.spyOn(mockMemberRepository, 'findByOrganizationAndUser').mockResolvedValue(
-        new OrganizationMember(1, 1, 100, OrganizationRole.OWNER, new Date())
+        new OrganizationMember(1, 1, 100, OrganizationRole.OWNER, new Date()),
       );
       vi.spyOn(mockGameSessionRepository, 'findActiveByQuizId').mockResolvedValue(quizSession);
 
-      await expect(
-        useCase.execute({ quizId: 1, adminId: 100 })
-      ).rejects.toThrow(BadRequestException);
+      await expect(useCase.execute({ quizId: 1, adminId: 100 })).rejects.toThrow(
+        BadRequestException,
+      );
 
       expect(mockGameSessionRepository.findActiveByAdminId).not.toHaveBeenCalled();
       expect(mockGameSessionRepository.create).not.toHaveBeenCalled();
@@ -131,14 +131,14 @@ describe('CreateGameSessionUseCase', () => {
 
       vi.spyOn(mockQuizRepository, 'findById').mockResolvedValue(mockQuiz);
       vi.spyOn(mockMemberRepository, 'findByOrganizationAndUser').mockResolvedValue(
-        new OrganizationMember(1, 1, 100, OrganizationRole.OWNER, new Date())
+        new OrganizationMember(1, 1, 100, OrganizationRole.OWNER, new Date()),
       );
       vi.spyOn(mockGameSessionRepository, 'findActiveByQuizId').mockResolvedValue(null);
       vi.spyOn(mockGameSessionRepository, 'findActiveByAdminId').mockResolvedValue([pausedSession]);
 
-      await expect(
-        useCase.execute({ quizId: 1, adminId: 100 })
-      ).rejects.toThrow(BadRequestException);
+      await expect(useCase.execute({ quizId: 1, adminId: 100 })).rejects.toThrow(
+        BadRequestException,
+      );
 
       expect(mockGameSessionRepository.create).not.toHaveBeenCalled();
     });
@@ -149,7 +149,7 @@ describe('CreateGameSessionUseCase', () => {
 
       vi.spyOn(mockQuizRepository, 'findById').mockResolvedValue(mockQuiz);
       vi.spyOn(mockMemberRepository, 'findByOrganizationAndUser').mockResolvedValue(
-        new OrganizationMember(1, 1, 100, OrganizationRole.OWNER, new Date())
+        new OrganizationMember(1, 1, 100, OrganizationRole.OWNER, new Date()),
       );
       vi.spyOn(mockGameSessionRepository, 'findActiveByQuizId').mockResolvedValue(existingSession);
 
@@ -167,7 +167,7 @@ describe('CreateGameSessionUseCase', () => {
 
       vi.spyOn(mockQuizRepository, 'findById').mockResolvedValue(mockQuiz);
       vi.spyOn(mockMemberRepository, 'findByOrganizationAndUser').mockResolvedValue(
-        new OrganizationMember(1, 1, 100, OrganizationRole.OWNER, new Date())
+        new OrganizationMember(1, 1, 100, OrganizationRole.OWNER, new Date()),
       );
       vi.spyOn(mockGameSessionRepository, 'findActiveByQuizId').mockResolvedValue(null);
       vi.spyOn(mockGameSessionRepository, 'findActiveByAdminId').mockResolvedValue([]);

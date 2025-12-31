@@ -1,14 +1,14 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { VALID_MULTIPLE_CHOICE_OPTIONS } from '../../../domain/quiz/constants/question.constants';
 import type { Question } from '../../../domain/quiz/entities/question.entity';
 import {
-  QuestionRepositoryProvider,
   type QuestionRepository,
+  QuestionRepositoryProvider,
 } from '../../../domain/quiz/repositories/question.repository.interface';
 import {
-  QuizRepositoryProvider,
   type QuizRepository,
+  QuizRepositoryProvider,
 } from '../../../domain/quiz/repositories/quiz.repository.interface';
-import { VALID_MULTIPLE_CHOICE_OPTIONS } from '../../../domain/quiz/constants/question.constants';
 import type { CreateQuestionDto } from '../dto/create-question.dto';
 import { QuizErrorCode } from '../enums/quiz-error-code.enum';
 
@@ -23,7 +23,7 @@ export class CreateQuestionUseCase {
     private readonly questionRepository: QuestionRepository,
     @Inject(QuizRepositoryProvider)
     private readonly quizRepository: QuizRepository,
-  ) { }
+  ) {}
 
   async execute(dto: CreateQuestionDto): Promise<Question> {
     // Verify quiz exists
@@ -35,7 +35,7 @@ export class CreateQuestionUseCase {
     // Validate correct answer based on question type
     if (dto.type === 'multiple') {
       // For multiple choice, correctAnswer can be single (e.g., "A") or multiple (e.g., "A,D")
-      const correctAnswers = dto.correctAnswer.split(',').map(a => a.trim());
+      const correctAnswers = dto.correctAnswer.split(',').map((a) => a.trim());
 
       // Validate each correct answer
       for (const answer of correctAnswers) {

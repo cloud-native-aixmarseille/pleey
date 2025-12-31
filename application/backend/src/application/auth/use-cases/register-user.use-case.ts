@@ -1,9 +1,9 @@
-import { ConflictException, Inject, Injectable, BadRequestException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable } from '@nestjs/common';
 import type { User } from '../../../domain/auth/entities/user.entity';
-import { UserRepositoryProvider } from '../../../domain/auth/repositories/user.repository.interface';
 import type { UserRepository } from '../../../domain/auth/repositories/user.repository.interface';
-import type { PasswordService } from '../../../domain/auth/services/password.service';
-import type { UserAvatarService } from '../../../domain/auth/services/user-avatar.service';
+import { UserRepositoryProvider } from '../../../domain/auth/repositories/user.repository.interface';
+import { PasswordService } from '../../../domain/auth/services/password.service';
+import { UserAvatarService } from '../../../domain/auth/services/user-avatar.service';
 import type { RegisterUserDto } from '../dto/register-user.dto';
 import { AuthErrorCode } from '../enums/auth-error-code.enum';
 
@@ -14,10 +14,11 @@ import { AuthErrorCode } from '../enums/auth-error-code.enum';
 @Injectable()
 export class RegisterUserUseCase {
   constructor(
-    @Inject(UserRepositoryProvider) private readonly userRepository: UserRepository,
+    @Inject(UserRepositoryProvider)
+    private readonly userRepository: UserRepository,
     private readonly passwordService: PasswordService,
     private readonly userAvatarService: UserAvatarService,
-  ) { }
+  ) {}
 
   async execute(dto: RegisterUserDto): Promise<User> {
     // Check if user already exists

@@ -1,7 +1,7 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { UserRepositoryProvider } from '../../../domain/auth/repositories/user.repository.interface';
 import type { UserRepository } from '../../../domain/auth/repositories/user.repository.interface';
-import type { UserAvatarService } from '../../../domain/auth/services/user-avatar.service';
+import { UserRepositoryProvider } from '../../../domain/auth/repositories/user.repository.interface';
+import { UserAvatarService } from '../../../domain/auth/services/user-avatar.service';
 import { mapUserToPublicProfile } from '../../shared/utils/avatar-url.util';
 import { AuthErrorCode } from '../enums/auth-error-code.enum';
 
@@ -11,7 +11,7 @@ export class RegenerateUserAvatarUseCase {
     @Inject(UserRepositoryProvider)
     private readonly userRepository: UserRepository,
     private readonly userAvatarService: UserAvatarService,
-  ) { }
+  ) {}
 
   async execute(userId: number) {
     const user = await this.userRepository.findById(userId);

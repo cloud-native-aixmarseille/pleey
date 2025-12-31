@@ -6,18 +6,18 @@ import { DeleteQuizUseCase } from '../../application/quiz/use-cases/delete-quiz.
 import { GetAllQuizzesUseCase } from '../../application/quiz/use-cases/get-all-quizzes.use-case';
 import { GetQuizQuestionsUseCase } from '../../application/quiz/use-cases/get-quiz-questions.use-case';
 import { UpdateQuestionUseCase } from '../../application/quiz/use-cases/update-question.use-case';
+import { GameSessionRepositoryProvider } from '../../domain/game/repositories/game-session.repository.interface';
+import { OrganizationMemberRepositoryProvider } from '../../domain/organization/repositories/organization-member.repository.interface';
 import { QuestionRepositoryProvider } from '../../domain/quiz/repositories/question.repository.interface';
 import { QuizRepositoryProvider } from '../../domain/quiz/repositories/quiz.repository.interface';
-import { OrganizationMemberRepositoryProvider } from '../../domain/organization/repositories/organization-member.repository.interface';
-import { GameSessionRepositoryProvider } from '../../domain/game/repositories/game-session.repository.interface';
 import { AuthModule } from '../auth/auth.module';
 import { DatabaseModule } from '../database/database.module';
+import { PrismaGameSessionRepository } from '../repositories/prisma-game-session.repository';
+import { PrismaOrganizationMemberRepository } from '../repositories/prisma-organization-member.repository';
 import { PrismaQuestionRepository } from '../repositories/prisma-question.repository';
 import { PrismaQuizRepository } from '../repositories/prisma-quiz.repository';
-import { PrismaOrganizationMemberRepository } from '../repositories/prisma-organization-member.repository';
-import { PrismaGameSessionRepository } from '../repositories/prisma-game-session.repository';
-import { QuizController } from './quiz.controller';
 import { QuestionsController } from './questions.controller';
+import { QuizController } from './quiz.controller';
 
 @Module({
   imports: [DatabaseModule, AuthModule],
@@ -51,4 +51,4 @@ import { QuestionsController } from './questions.controller';
     },
   ],
 })
-export class QuizModule { }
+export class QuizModule {}

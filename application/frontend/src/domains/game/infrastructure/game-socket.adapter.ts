@@ -1,5 +1,5 @@
-import { IGameSocket } from '../ports/game-socket.interface';
-import { socket } from '../../../shared/socket/socket.client';
+import { IGameSocket } from "../ports/game-socket.interface";
+import { socket } from "../../../shared/socket/socket.client";
 
 /**
  * Socket.IO implementation of Game Socket
@@ -7,27 +7,38 @@ import { socket } from '../../../shared/socket/socket.client';
  * Following Adapter Pattern and Single Responsibility Principle
  */
 export class GameSocketAdapter implements IGameSocket {
-  joinGame(pin: string, username: string, userId?: number, guestId?: string): void {
-    socket.emit('join-game', { pin, username, userId, guestId });
+  joinGame(
+    pin: string,
+    username: string,
+    userId?: number,
+    guestId?: string,
+  ): void {
+    socket.emit("join-game", { pin, username, userId, guestId });
   }
 
   startGame(pin: string): void {
-    socket.emit('start-game', { pin });
+    socket.emit("start-game", { pin });
   }
 
   stopGame(pin: string, adminId: number): void {
-    socket.emit('stop-game', { pin, adminId });
+    socket.emit("stop-game", { pin, adminId });
   }
 
   resumeGame(pin: string, adminId: number): void {
-    socket.emit('resume-game', { pin, adminId });
+    socket.emit("resume-game", { pin, adminId });
   }
 
-  submitAnswer(pin: string, userId: number | undefined, answer: string, timeLeft: number, guestId?: string): void {
-    socket.emit('submit-answer', { pin, userId, answer, timeLeft, guestId });
+  submitAnswer(
+    pin: string,
+    userId: number | undefined,
+    answer: string,
+    timeLeft: number,
+    guestId?: string,
+  ): void {
+    socket.emit("submit-answer", { pin, userId, answer, timeLeft, guestId });
   }
 
   nextQuestion(pin: string): void {
-    socket.emit('next-question', { pin });
+    socket.emit("next-question", { pin });
   }
 }

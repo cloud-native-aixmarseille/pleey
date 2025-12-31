@@ -13,7 +13,7 @@ export class User {
     public readonly createdAt: Date,
     public readonly refreshTokenHash: string | null = null,
     public readonly refreshTokenExpiresAt: Date | null = null,
-  ) { }
+  ) {}
 
   /**
    * Checks if user has admin privileges
@@ -26,12 +26,7 @@ export class User {
    * Creates a sanitized version of user without sensitive data
    */
   toSafeObject(): Omit<User, 'password' | 'refreshTokenHash' | 'refreshTokenExpiresAt'> {
-    const {
-      password,
-      refreshTokenHash,
-      refreshTokenExpiresAt,
-      ...safeUser
-    } = this;
+    const { password, refreshTokenHash, refreshTokenExpiresAt, ...safeUser } = this;
     return safeUser as Omit<User, 'password' | 'refreshTokenHash' | 'refreshTokenExpiresAt'>;
   }
 }

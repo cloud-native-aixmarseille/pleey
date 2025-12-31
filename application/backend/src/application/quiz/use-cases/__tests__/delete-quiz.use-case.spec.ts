@@ -1,10 +1,10 @@
 import { ConflictException, NotFoundException } from '@nestjs/common';
-import { describe, expect, it, vi, beforeEach, type Mocked } from 'vitest';
+import { beforeEach, describe, expect, it, type Mocked, vi } from 'vitest';
+import type { GameSessionRepository } from '../../../../domain/game/repositories/game-session.repository.interface';
 import { Quiz } from '../../../../domain/quiz/entities/quiz.entity';
 import type { QuizRepository } from '../../../../domain/quiz/repositories/quiz.repository.interface';
-import type { GameSessionRepository } from '../../../../domain/game/repositories/game-session.repository.interface';
-import { DeleteQuizUseCase } from '../delete-quiz.use-case';
 import { QuizErrorCode } from '../../enums/quiz-error-code.enum';
+import { DeleteQuizUseCase } from '../delete-quiz.use-case';
 
 describe('DeleteQuizUseCase', () => {
   let quizRepository: Mocked<QuizRepository>;

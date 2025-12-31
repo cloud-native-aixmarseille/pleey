@@ -40,7 +40,9 @@ export function createDefaultQuestionFormState(): QuestionFormState {
   };
 }
 
-export function buildFormStateFromQuestion(question: Question): QuestionFormState {
+export function buildFormStateFromQuestion(
+  question: Question,
+): QuestionFormState {
   if (question.type === "multiple") {
     return {
       questionText: question.question_text,
@@ -69,7 +71,7 @@ export function buildFormStateFromQuestion(question: Question): QuestionFormStat
 
 export function toCreatePayload(
   form: QuestionFormState,
-  quizId: number
+  quizId: number,
 ): CreateQuestionPayload {
   const base = toPayloadBase(form);
 
@@ -97,7 +99,9 @@ export function toCreatePayload(
   };
 }
 
-export function toUpdatePayload(form: QuestionFormState): UpdateQuestionPayload {
+export function toUpdatePayload(
+  form: QuestionFormState,
+): UpdateQuestionPayload {
   const base = toPayloadBase(form);
 
   if (form.type === "multiple") {
@@ -124,7 +128,7 @@ export function toUpdatePayload(form: QuestionFormState): UpdateQuestionPayload 
 
 export function handleNumericFieldChange(
   event: ChangeEvent<HTMLInputElement>,
-  fallback: number
+  fallback: number,
 ) {
   const value = Number(event.target.value);
   return Number.isNaN(value) ? fallback : value;
@@ -136,7 +140,7 @@ function sanitizeOptions(options: Record<OptionKey, string>) {
       ...accumulator,
       [key]: options[key].trim() || null,
     }),
-    {} as Record<OptionKey, string | null>
+    {} as Record<OptionKey, string | null>,
   );
 }
 
@@ -146,5 +150,8 @@ function toPayloadBase(form: QuestionFormState) {
     type: form.type,
     timeLimit: form.timeLimit,
     points: form.points,
-  } satisfies Pick<CreateQuestionPayload, "questionText" | "type" | "timeLimit" | "points">;
+  } satisfies Pick<
+    CreateQuestionPayload,
+    "questionText" | "type" | "timeLimit" | "points"
+  >;
 }

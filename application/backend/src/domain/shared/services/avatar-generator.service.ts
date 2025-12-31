@@ -1,7 +1,7 @@
 import { Buffer } from 'node:buffer';
-import { Injectable } from '@nestjs/common';
-import { createAvatar } from '@dicebear/core';
 import { bottts } from '@dicebear/collection';
+import { createAvatar } from '@dicebear/core';
+import { Injectable } from '@nestjs/common';
 
 /**
  * Avatar Generator Service

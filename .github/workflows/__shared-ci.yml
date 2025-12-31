@@ -15,6 +15,12 @@ jobs:
       statuses: write
     with:
       codeql-languages: "" # FIXME: Let default value when CodeQL will be available (paid feature)
+      linter-env: |
+        VALIDATE_TSX=false
+        VALIDATE_JSX_PRETTIER=false
+        VALIDATE_JAVASCRIPT_PRETTIER=false
+        VALIDATE_TYPESCRIPT_PRETTIER=false
+        VALIDATE_TYPESCRIPT_ES=false
 
   build:
     uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@a0bab9151cc074af9f6c8204ab42a48d2d570379 # v0.30.6

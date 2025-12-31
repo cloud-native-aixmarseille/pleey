@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import type { Quiz as PrismaQuiz } from '@prisma/client';
 import { Quiz } from '../../domain/quiz/entities/quiz.entity';
 import type { QuizRepository } from '../../domain/quiz/repositories/quiz.repository.interface';
-import type { PrismaService } from '../database/prisma.service';
+import { PrismaService } from '../database/prisma.service';
 
 /**
  * Prisma Quiz Repository Implementation
@@ -9,7 +10,7 @@ import type { PrismaService } from '../database/prisma.service';
  */
 @Injectable()
 export class PrismaQuizRepository implements QuizRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(
     title: string,
@@ -51,7 +52,7 @@ export class PrismaQuizRepository implements QuizRepository {
       orderBy: { createdAt: 'desc' },
     });
 
-    return quizzes.map((quiz) => this.toDomain(quiz));
+    return quizzes.map((quiz: PrismaQuiz) => this.toDomain(quiz));
   }
 
   async findByOrganization(organizationId: number): Promise<Quiz[]> {
@@ -65,7 +66,7 @@ export class PrismaQuizRepository implements QuizRepository {
       orderBy: { createdAt: 'desc' },
     });
 
-    return quizzes.map((quiz) => this.toDomain(quiz));
+    return quizzes.map((quiz: PrismaQuiz) => this.toDomain(quiz));
   }
 
   async findByCreator(userId: number): Promise<Quiz[]> {
@@ -79,7 +80,7 @@ export class PrismaQuizRepository implements QuizRepository {
       orderBy: { createdAt: 'desc' },
     });
 
-    return quizzes.map((quiz) => this.toDomain(quiz));
+    return quizzes.map((quiz: PrismaQuiz) => this.toDomain(quiz));
   }
 
   async delete(id: number): Promise<void> {
@@ -97,7 +98,7 @@ export class PrismaQuizRepository implements QuizRepository {
     return this.toDomain(quiz);
   }
 
-  private toDomain(quiz: any): Quiz {
+  private toDomain(quiz: PrismaQuiz): Quiz {
     return new Quiz(
       quiz.id,
       quiz.title,

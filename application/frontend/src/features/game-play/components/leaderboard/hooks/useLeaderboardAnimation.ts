@@ -8,12 +8,30 @@ export function useLeaderboardAnimation() {
 
   useEffect(() => {
     const timers: ReturnType<typeof setTimeout>[] = [
-      setTimeout(() => setAnimationStage(1), LEADERBOARD_ANIMATION_TIMINGS.title),
-      setTimeout(() => setAnimationStage(2), LEADERBOARD_ANIMATION_TIMINGS.firstPlace),
-      setTimeout(() => setAnimationStage(3), LEADERBOARD_ANIMATION_TIMINGS.secondPlace),
-      setTimeout(() => setAnimationStage(4), LEADERBOARD_ANIMATION_TIMINGS.thirdPlace),
-      setTimeout(() => setAnimationStage(5), LEADERBOARD_ANIMATION_TIMINGS.rest),
-      setTimeout(() => setShowConfetti(false), LEADERBOARD_ANIMATION_TIMINGS.confettiStop),
+      setTimeout(
+        () => setAnimationStage(1),
+        LEADERBOARD_ANIMATION_TIMINGS.title,
+      ),
+      setTimeout(
+        () => setAnimationStage(2),
+        LEADERBOARD_ANIMATION_TIMINGS.firstPlace,
+      ),
+      setTimeout(
+        () => setAnimationStage(3),
+        LEADERBOARD_ANIMATION_TIMINGS.secondPlace,
+      ),
+      setTimeout(
+        () => setAnimationStage(4),
+        LEADERBOARD_ANIMATION_TIMINGS.thirdPlace,
+      ),
+      setTimeout(
+        () => setAnimationStage(5),
+        LEADERBOARD_ANIMATION_TIMINGS.rest,
+      ),
+      setTimeout(
+        () => setShowConfetti(false),
+        LEADERBOARD_ANIMATION_TIMINGS.confettiStop,
+      ),
     ];
 
     return () => timers.forEach((timer) => clearTimeout(timer));

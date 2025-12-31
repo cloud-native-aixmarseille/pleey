@@ -1,17 +1,12 @@
-import {
-  Inject,
-  Injectable,
-  NotFoundException,
-  ForbiddenException,
-} from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import type { GameSessionRepository } from '../../../domain/game/repositories/game-session.repository.interface';
+import { GameSessionRepositoryProvider } from '../../../domain/game/repositories/game-session.repository.interface';
 import type { OrganizationRepository } from '../../../domain/organization/repositories/organization.repository.interface';
 import { OrganizationRepositoryProvider } from '../../../domain/organization/repositories/organization.repository.interface';
 import type { OrganizationMemberRepository } from '../../../domain/organization/repositories/organization-member.repository.interface';
 import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/repositories/organization-member.repository.interface';
 import type { QuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
 import { QuizRepositoryProvider } from '../../../domain/quiz/repositories/quiz.repository.interface';
-import type { GameSessionRepository } from '../../../domain/game/repositories/game-session.repository.interface';
-import { GameSessionRepositoryProvider } from '../../../domain/game/repositories/game-session.repository.interface';
 import { OrganizationErrorCode } from '../enums/organization-error-code.enum';
 
 export interface OrganizationDashboard {
@@ -44,13 +39,9 @@ export class GetOrganizationDashboardUseCase {
     private readonly sessionRepository: GameSessionRepository,
   ) {}
 
-  async execute(
-    organizationId: number,
-    requestingUserId: number,
-  ): Promise<OrganizationDashboard> {
+  async execute(organizationId: number, requestingUserId: number): Promise<OrganizationDashboard> {
     // Verify organization exists
-    const organization =
-      await this.organizationRepository.findById(organizationId);
+    const organization = await this.organizationRepository.findById(organizationId);
     if (!organization) {
       throw new NotFoundException(OrganizationErrorCode.ORGANIZATION_NOT_FOUND);
     }
@@ -66,10 +57,8 @@ export class GetOrganizationDashboardUseCase {
 
     // Get stats
     const quizzes = await this.quizRepository.findByOrganization(organizationId);
-    const sessions =
-      await this.sessionRepository.findByOrganization(organizationId);
-    const members =
-      await this.memberRepository.findByOrganization(organizationId);
+    const sessions = await this.sessionRepository.findByOrganization(organizationId);
+    const members = await this.memberRepository.findByOrganization(organizationId);
 
     const activeSessions = sessions.filter(
       (s) => s.status === 'waiting' || s.status === 'active' || s.status === 'paused',

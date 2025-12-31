@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { Quiz } from '../../../domain/quiz/entities/quiz.entity';
-import { QuizRepositoryProvider } from '../../../domain/quiz/repositories/quiz.repository.interface';
 import type { QuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
+import { QuizRepositoryProvider } from '../../../domain/quiz/repositories/quiz.repository.interface';
 
 /**
  * Get All Quizzes Use Case
@@ -10,8 +10,9 @@ import type { QuizRepository } from '../../../domain/quiz/repositories/quiz.repo
 @Injectable()
 export class GetAllQuizzesUseCase {
   constructor(
-    @Inject(QuizRepositoryProvider) private readonly quizRepository: QuizRepository,
-  ) { }
+    @Inject(QuizRepositoryProvider)
+    private readonly quizRepository: QuizRepository,
+  ) {}
 
   async execute(): Promise<Quiz[]> {
     return this.quizRepository.findAll();

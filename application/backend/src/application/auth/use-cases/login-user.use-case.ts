@@ -1,12 +1,12 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import { UserRepositoryProvider } from '../../../domain/auth/repositories/user.repository.interface';
 import type { UserRepository } from '../../../domain/auth/repositories/user.repository.interface';
-import type { PasswordService } from '../../../domain/auth/services/password.service';
+import { UserRepositoryProvider } from '../../../domain/auth/repositories/user.repository.interface';
+import { PasswordService } from '../../../domain/auth/services/password.service';
+import { mapUserToPublicProfile, toPublicAvatarUrl } from '../../shared/utils/avatar-url.util';
 import type { AuthResponseDto } from '../dto/auth-response.dto';
 import type { LoginUserDto } from '../dto/login-user.dto';
 import { AuthErrorCode } from '../enums/auth-error-code.enum';
-import { mapUserToPublicProfile, toPublicAvatarUrl } from '../../shared/utils/avatar-url.util';
-import type { AuthTokenService } from '../services/auth-token.service';
+import { AuthTokenService } from '../services/auth-token.service';
 
 /**
  * Login User Use Case
@@ -15,10 +15,11 @@ import type { AuthTokenService } from '../services/auth-token.service';
 @Injectable()
 export class LoginUserUseCase {
   constructor(
-    @Inject(UserRepositoryProvider) private readonly userRepository: UserRepository,
+    @Inject(UserRepositoryProvider)
+    private readonly userRepository: UserRepository,
     private readonly passwordService: PasswordService,
     private readonly authTokenService: AuthTokenService,
-  ) { }
+  ) {}
 
   async execute(dto: LoginUserDto): Promise<AuthResponseDto> {
     // Find user by email
@@ -44,11 +45,12 @@ export class LoginUserUseCase {
     const tokenPair = this.authTokenService.createTokenPair(payload);
 
     const hashedRefreshToken = await this.passwordService.hash(tokenPair.refreshToken);
-    await this.userRepository.updateRefreshToken(user.id, hashedRefreshToken, tokenPair.refreshTokenExpiresAt);
-
-    return this.authTokenService.mapTokensToResponse(
-      tokenPair,
-      mapUserToPublicProfile(user),
+    await this.userRepository.updateRefreshToken(
+      user.id,
+      hashedRefreshToken,
+      tokenPair.refreshTokenExpiresAt,
     );
+
+    return this.authTokenService.mapTokensToResponse(tokenPair, mapUserToPublicProfile(user));
   }
 }

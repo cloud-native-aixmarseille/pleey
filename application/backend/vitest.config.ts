@@ -1,7 +1,7 @@
-declare function require(moduleName: string): any;
+declare function require(moduleName: string): unknown;
 declare const __dirname: string;
 
-const { resolve } = require('path');
+const { resolve } = require('node:path') as typeof import('node:path');
 
 const srcRoot = resolve(__dirname, 'src');
 

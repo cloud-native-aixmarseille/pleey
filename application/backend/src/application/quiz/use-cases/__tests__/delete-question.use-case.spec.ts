@@ -1,9 +1,9 @@
 import { NotFoundException } from '@nestjs/common';
-import { describe, expect, it, vi, beforeEach, type Mocked } from 'vitest';
+import { beforeEach, describe, expect, it, type Mocked, vi } from 'vitest';
 import { Question } from '../../../../domain/quiz/entities/question.entity';
 import type { QuestionRepository } from '../../../../domain/quiz/repositories/question.repository.interface';
-import { DeleteQuestionUseCase } from '../delete-question.use-case';
 import { QuizErrorCode } from '../../enums/quiz-error-code.enum';
+import { DeleteQuestionUseCase } from '../delete-question.use-case';
 
 describe('DeleteQuestionUseCase', () => {
   let questionRepository: Mocked<QuestionRepository>;

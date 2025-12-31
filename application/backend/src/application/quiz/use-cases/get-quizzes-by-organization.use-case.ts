@@ -1,9 +1,9 @@
-import { Inject, Injectable, ForbiddenException } from '@nestjs/common';
-import type { Quiz } from '../../../domain/quiz/entities/quiz.entity';
-import { QuizRepositoryProvider } from '../../../domain/quiz/repositories/quiz.repository.interface';
-import type { QuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
-import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/repositories/organization-member.repository.interface';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import type { OrganizationMemberRepository } from '../../../domain/organization/repositories/organization-member.repository.interface';
+import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/repositories/organization-member.repository.interface';
+import type { Quiz } from '../../../domain/quiz/entities/quiz.entity';
+import type { QuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
+import { QuizRepositoryProvider } from '../../../domain/quiz/repositories/quiz.repository.interface';
 import { OrganizationErrorCode } from '../../organization/enums/organization-error-code.enum';
 
 /**

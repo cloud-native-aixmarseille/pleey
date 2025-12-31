@@ -668,7 +668,7 @@ kubectl delete pvc -n quiz-app --all
 4. **CDN**: Use a CDN for static assets
 5. **Caching**: Implement caching strategies
 
-### Monitoring
+### Monitoring (Best Practices)
 
 1. **Enable Metrics**: Use Prometheus for metrics collection
 2. **Set Up Alerts**: Configure alerts for critical issues

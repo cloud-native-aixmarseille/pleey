@@ -1,17 +1,17 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { authService } from '../../../domains/auth/auth.service';
-import type { User } from '../../../shared/types';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { authService } from "../../../domains/auth/auth.service";
+import type { User } from "../../../shared/types";
 import {
   TOKEN_STORAGE_KEY,
   REFRESH_TOKEN_STORAGE_KEY,
   USER_STORAGE_KEY,
-} from '../../../shared/constants/storageKeys';
+} from "../../../shared/constants/storageKeys";
 import {
   queryClient,
   registerAuthSessionHandlers,
   setAuthSessionTokens,
-} from '../../../shared/api/openapiClient';
-import { useNotifications } from './useNotifications';
+} from "../../../shared/api/openapiClient";
+import { useNotifications } from "./useNotifications";
 
 interface LoginParams {
   email: string;
@@ -40,28 +40,38 @@ export function useAuthManager() {
     setUser(nextUser);
     void queryClient.invalidateQueries();
 
-    if (typeof window === 'undefined') {
+    if (typeof window === "undefined") {
       return;
     }
 
     localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(nextUser));
   }, []);
 
-  const persistSession = useCallback(({ accessToken: nextToken, refreshToken: nextRefreshToken, user: nextUser }: SetSessionParams) => {
-    setToken(nextToken);
-    setUser(nextUser);
-    setAuthSessionTokens({ accessToken: nextToken, refreshToken: nextRefreshToken });
-    void queryClient.invalidateQueries();
-    sessionExpiryNotified.current = false;
+  const persistSession = useCallback(
+    ({
+      accessToken: nextToken,
+      refreshToken: nextRefreshToken,
+      user: nextUser,
+    }: SetSessionParams) => {
+      setToken(nextToken);
+      setUser(nextUser);
+      setAuthSessionTokens({
+        accessToken: nextToken,
+        refreshToken: nextRefreshToken,
+      });
+      void queryClient.invalidateQueries();
+      sessionExpiryNotified.current = false;
 
-    if (typeof window === 'undefined') {
-      return;
-    }
+      if (typeof window === "undefined") {
+        return;
+      }
 
-    localStorage.setItem(TOKEN_STORAGE_KEY, nextToken);
-    localStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, nextRefreshToken);
-    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(nextUser));
-  }, []);
+      localStorage.setItem(TOKEN_STORAGE_KEY, nextToken);
+      localStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, nextRefreshToken);
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(nextUser));
+    },
+    [],
+  );
 
   const clearSession = useCallback(() => {
     setToken(null);
@@ -69,7 +79,7 @@ export function useAuthManager() {
     setAuthSessionTokens({ accessToken: null, refreshToken: null });
     queryClient.clear();
 
-    if (typeof window === 'undefined') {
+    if (typeof window === "undefined") {
       return;
     }
 
@@ -91,9 +101,12 @@ export function useAuthManager() {
     [persistSession],
   );
 
-  const register = useCallback(async ({ username, email, password }: RegisterParams) => {
-    await authService.register(username, email, password);
-  }, []);
+  const register = useCallback(
+    async ({ username, email, password }: RegisterParams) => {
+      await authService.register(username, email, password);
+    },
+    [],
+  );
 
   const refreshProfile = useCallback(async (): Promise<User | null> => {
     if (!token) {
@@ -132,7 +145,7 @@ export function useAuthManager() {
   }, [clearSession]);
 
   const restoreSession = useCallback((): User | null => {
-    if (typeof window === 'undefined') {
+    if (typeof window === "undefined") {
       return null;
     }
 
@@ -146,7 +159,11 @@ export function useAuthManager() {
 
     try {
       const parsedUser: User = JSON.parse(storedUser);
-      persistSession({ accessToken: storedToken, refreshToken: storedRefreshToken, user: parsedUser });
+      persistSession({
+        accessToken: storedToken,
+        refreshToken: storedRefreshToken,
+        user: parsedUser,
+      });
       return parsedUser;
     } catch {
       clearSession();
@@ -156,7 +173,7 @@ export function useAuthManager() {
 
   const handleSessionInvalidated = useCallback(() => {
     if (!sessionExpiryNotified.current) {
-      notify('auth.notifications.sessionExpired', 'error');
+      notify("auth.notifications.sessionExpired", "error");
       sessionExpiryNotified.current = true;
     }
     clearSession();

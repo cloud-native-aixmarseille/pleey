@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { ScoreCalculatorService } from './score-calculator.service';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { GameScore } from '../value-objects/game-score.vo';
+import { ScoreCalculatorService } from './score-calculator.service';
 
 describe('ScoreCalculatorService', () => {
   let service: ScoreCalculatorService;

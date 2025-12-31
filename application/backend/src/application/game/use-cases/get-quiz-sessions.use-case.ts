@@ -1,19 +1,19 @@
 import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type { GameSession } from '../../../domain/game/entities/game-session.entity';
 import {
-  GameSessionRepositoryProvider,
   type GameSessionRepository,
+  GameSessionRepositoryProvider,
 } from '../../../domain/game/repositories/game-session.repository.interface';
 import {
-  QuizRepositoryProvider,
-  type QuizRepository,
-} from '../../../domain/quiz/repositories/quiz.repository.interface';
-import {
-  OrganizationMemberRepositoryProvider,
   type OrganizationMemberRepository,
+  OrganizationMemberRepositoryProvider,
 } from '../../../domain/organization/repositories/organization-member.repository.interface';
-import { GameErrorCode } from '../enums/game-error-code.enum';
+import {
+  type QuizRepository,
+  QuizRepositoryProvider,
+} from '../../../domain/quiz/repositories/quiz.repository.interface';
 import { OrganizationErrorCode } from '../../organization/enums/organization-error-code.enum';
+import { GameErrorCode } from '../enums/game-error-code.enum';
 
 /**
  * Get Quiz Sessions Use Case
@@ -28,7 +28,7 @@ export class GetQuizSessionsUseCase {
     private readonly quizRepository: QuizRepository,
     @Inject(OrganizationMemberRepositoryProvider)
     private readonly memberRepository: OrganizationMemberRepository,
-  ) { }
+  ) {}
 
   async execute(quizId: number, requesterId: number): Promise<GameSession[]> {
     const quiz = await this.quizRepository.findById(quizId);

@@ -88,7 +88,7 @@ git checkout -b feature/my-new-feature
 
 All commit messages must follow the Conventional Commits specification:
 
-```
+```text
 <type>[optional scope]: <description>
 
 [optional body]
@@ -111,7 +111,7 @@ All commit messages must follow the Conventional Commits specification:
 
 **Examples:**
 
-```
+```text
 feat(quiz): add timer pause functionality
 fix(auth): resolve JWT token expiration issue
 docs(readme): update installation instructions
@@ -239,7 +239,7 @@ cd application/frontend && npm test
 
 Use [Conventional Commits](https://www.conventionalcommits.org/):
 
-```
+```text
 feat: add new feature
 fix: bug fix
 docs: documentation update

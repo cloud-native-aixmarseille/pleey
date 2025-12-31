@@ -47,7 +47,9 @@ export function useGameSessionManager({
   const [activeQuizQuestionCount, setActiveQuizQuestionCount] = useState(0);
   const [userAnswer, setUserAnswer] = useState<string | null>(null);
   const [activeSessions, setActiveSessions] = useState<GameSession[]>([]);
-  const [sessionsByQuiz, setSessionsByQuiz] = useState<Record<number, GameSession[]>>({});
+  const [sessionsByQuiz, setSessionsByQuiz] = useState<
+    Record<number, GameSession[]>
+  >({});
 
   const setGamePin = useCallback((pin: string) => {
     setGamePinState(pin.toUpperCase());
@@ -72,7 +74,9 @@ export function useGameSessionManager({
   const hasSubmittedAnswer = useMemo(() => answerSubmitted, [answerSubmitted]);
   useTimer(timeLeft, setTimeLeft, isQuestionActive, hasSubmittedAnswer);
 
-  const refreshActiveSessions = useCallback(async (): Promise<GameSession[]> => {
+  const refreshActiveSessions = useCallback(async (): Promise<
+    GameSession[]
+  > => {
     if (!token) {
       setActiveSessions([]);
       return [];
@@ -110,7 +114,7 @@ export function useGameSessionManager({
         throw error;
       }
     },
-    [token, notifyFromError]
+    [token, notifyFromError],
   );
 
   useEffect(() => {
@@ -182,7 +186,7 @@ export function useGameSessionManager({
       refreshActiveSessions,
       loadSessionsForQuiz,
       navigate,
-    ]
+    ],
   );
 
   const handleJoinGame = useCallback(() => {
@@ -203,7 +207,7 @@ export function useGameSessionManager({
       gameService.joinGame(gamePinState, nickname, undefined, id);
       navigate(`/game/${gamePinState}/lobby`);
     },
-    [registerGuest, gamePinState, navigate]
+    [registerGuest, gamePinState, navigate],
   );
 
   const handleStartGame = useCallback(() => {
@@ -224,10 +228,16 @@ export function useGameSessionManager({
 
       if (guestId) {
         setUserAnswer(answer);
-        gameService.submitAnswer(gamePinState, undefined, answer, timeLeft, guestId);
+        gameService.submitAnswer(
+          gamePinState,
+          undefined,
+          answer,
+          timeLeft,
+          guestId,
+        );
       }
     },
-    [user, guestId, gamePinState, timeLeft]
+    [user, guestId, gamePinState, timeLeft],
   );
 
   const handleNextQuestion = useCallback(() => {
@@ -283,7 +293,7 @@ export function useGameSessionManager({
       refreshActiveSessions,
       loadSessionsForQuiz,
       navigate,
-    ]
+    ],
   );
 
   return {

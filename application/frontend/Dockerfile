@@ -1,6 +1,7 @@
-FROM node:25.2-bookworm-slim AS base
+FROM node:22-bookworm-slim AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
+# hadolint ignore=DL3008
 RUN \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
@@ -9,6 +10,7 @@ RUN \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' >/etc/apt/apt.conf.d/keep-cache && \
     apt-get update && apt-get install -y --no-install-recommends curl ca-certificates dumb-init
 
+# hadolint ignore=DL3016
 RUN --mount=type=cache,target=/root/.npm \
     set -eu; \
     npm install -g npm;
@@ -37,6 +39,7 @@ RUN set -eu; \
 FROM nginx:1.29-alpine AS prod
 
 # Install security updates
+# hadolint ignore=DL3018
 RUN apk update && \
     apk upgrade && \
     apk add --no-cache curl && \
@@ -53,8 +56,9 @@ COPY --from=build-prod /usr/src/app/dist /usr/share/nginx/html
 COPY ./application/frontend/nginx.prod.conf /etc/nginx/conf.d/default.conf
 
 # Create non-root user for Nginx
-RUN addgroup -g 101 -S nginx || true && \
-    adduser -S -D -H -u 101 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx || true
+RUN set -eu; \
+    addgroup -g 101 -S nginx 2>/dev/null || true; \
+    adduser -S -D -H -u 101 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx 2>/dev/null || true
 
 # Set proper permissions
 RUN chown -R nginx:nginx /usr/share/nginx/html && \

@@ -38,7 +38,7 @@ All admin views are designed for maximum visibility when screen sharing:
 
 ### 1. **Launch Game** (from Admin Dashboard)
 
-```
+```text
 Admin Dashboard → Select Quiz → Click "Launch" → Lobby
 ```
 

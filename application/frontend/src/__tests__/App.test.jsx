@@ -1,3 +1,4 @@
+import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -149,7 +150,12 @@ describe("QuizApp", () => {
       );
     });
 
-    expect(await screen.findByLabelText(/email/i)).toBeInTheDocument();
+    // Registration redirects to login; wait for the login view to be rendered.
+    await screen.findByRole("button", { name: /sign in/i }, { timeout: 5000 });
+
+    expect(
+      screen.getByLabelText(/email/i, { selector: "input" })
+    ).toBeInTheDocument();
   });
 
   // TODO: Fix this flaky integration test - login flow timing issues

@@ -22,8 +22,6 @@ export class Organization {
    * Checks if the organization name is unique (business logic)
    */
   isNameUnique(existingNames: string[]): boolean {
-    return !existingNames.some(
-      (name) => name.toLowerCase() === this.name.toLowerCase(),
-    );
+    return !existingNames.some((name) => name.toLowerCase() === this.name.toLowerCase());
   }
 }

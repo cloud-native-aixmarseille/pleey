@@ -1,6 +1,6 @@
-import { API_URL } from '../../shared/config/api.config';
-import { socket } from '../../shared/socket/socket.client';
-import { GameSession } from '../../shared/types';
+import { API_URL } from "../../shared/config/api.config";
+import { socket } from "../../shared/socket/socket.client";
+import { GameSession } from "../../shared/types";
 
 interface CreateSessionResponse {
   pin: string;
@@ -13,19 +13,24 @@ interface CreateSessionResponse {
 }
 
 export class GameService {
-  async createSession(token: string, quizId: number): Promise<CreateSessionResponse> {
+  async createSession(
+    token: string,
+    quizId: number,
+  ): Promise<CreateSessionResponse> {
     const response = await fetch(`${API_URL}/api/sessions/create`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ quizId })
+      body: JSON.stringify({ quizId }),
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'game.errors.sessionCreateFailed' }));
-      throw new Error(errorData.message || 'game.errors.sessionCreateFailed');
+      const errorData = await response
+        .json()
+        .catch(() => ({ message: "game.errors.sessionCreateFailed" }));
+      throw new Error(errorData.message || "game.errors.sessionCreateFailed");
     }
 
     return await response.json();
@@ -33,32 +38,35 @@ export class GameService {
 
   async getActiveSessions(token: string): Promise<GameSession[]> {
     const response = await fetch(`${API_URL}/api/sessions/active`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     if (!response.ok) {
-      throw new Error('game.errors.activeSessionsFetchFailed');
+      throw new Error("game.errors.activeSessionsFetchFailed");
     }
 
     const data = await response.json();
     return data.sessions || [];
   }
 
-  async getSessionsByQuiz(token: string, quizId: number): Promise<GameSession[]> {
+  async getSessionsByQuiz(
+    token: string,
+    quizId: number,
+  ): Promise<GameSession[]> {
     const response = await fetch(`${API_URL}/api/sessions/quiz/${quizId}`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
     });
 
     if (!response.ok) {
-      throw new Error('game.errors.activeSessionsFetchFailed');
+      throw new Error("game.errors.activeSessionsFetchFailed");
     }
 
     const data = await response.json();
@@ -67,58 +75,72 @@ export class GameService {
 
   async stopSession(token: string, sessionId: number): Promise<GameSession> {
     const response = await fetch(`${API_URL}/api/sessions/${sessionId}/stop`, {
-      method: 'PATCH',
+      method: "PATCH",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     if (!response.ok) {
-      throw new Error('game.errors.sessionStopFailed');
+      throw new Error("game.errors.sessionStopFailed");
     }
 
     return await response.json();
   }
 
   async resumeSession(token: string, sessionId: number): Promise<GameSession> {
-    const response = await fetch(`${API_URL}/api/sessions/${sessionId}/resume`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
-    });
+    const response = await fetch(
+      `${API_URL}/api/sessions/${sessionId}/resume`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
 
     if (!response.ok) {
-      throw new Error('game.errors.sessionResumeFailed');
+      throw new Error("game.errors.sessionResumeFailed");
     }
 
     return await response.json();
   }
 
-  joinGame(pin: string, username: string, userId?: number, guestId?: string): void {
-    socket.emit('join-game', { pin, username, userId, guestId });
+  joinGame(
+    pin: string,
+    username: string,
+    userId?: number,
+    guestId?: string,
+  ): void {
+    socket.emit("join-game", { pin, username, userId, guestId });
   }
 
   startGame(pin: string): void {
-    socket.emit('start-game', { pin });
+    socket.emit("start-game", { pin });
   }
 
   stopGame(pin: string, adminId: number): void {
-    socket.emit('stop-game', { pin, adminId });
+    socket.emit("stop-game", { pin, adminId });
   }
 
   resumeGame(pin: string, adminId: number): void {
-    socket.emit('resume-game', { pin, adminId });
+    socket.emit("resume-game", { pin, adminId });
   }
 
-  submitAnswer(pin: string, userId: number | undefined, answer: string, timeLeft: number, guestId?: string): void {
-    socket.emit('submit-answer', { pin, userId, answer, timeLeft, guestId });
+  submitAnswer(
+    pin: string,
+    userId: number | undefined,
+    answer: string,
+    timeLeft: number,
+    guestId?: string,
+  ): void {
+    socket.emit("submit-answer", { pin, userId, answer, timeLeft, guestId });
   }
 
   nextQuestion(pin: string): void {
-    socket.emit('next-question', { pin });
+    socket.emit("next-question", { pin });
   }
 }
 

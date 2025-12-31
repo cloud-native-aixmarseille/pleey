@@ -1,4 +1,4 @@
-import { GameSession } from '../../../shared/types';
+import { GameSession } from "../../../shared/types";
 
 /**
  * Game Repository Interface
@@ -33,4 +33,3 @@ export interface IGameRepository {
    */
   resumeSession(token: string, sessionId: number): Promise<GameSession>;
 }
-

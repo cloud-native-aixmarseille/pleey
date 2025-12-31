@@ -1,3 +1,4 @@
+---
 # Default values for QuizMaster
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
@@ -7,11 +8,30 @@ global:
   # Default image registry
   imageRegistry: ""
   # Default image pull policy
-  imagePullPolicy: IfNotPresent
+  imagePullPolicy: Always
   # Pull secrets for private registries
   imagePullSecrets: []
   # Storage class for persistent volumes
   storageClass: ""
+
+  # Shared namespace override used by subcharts (including PostgreSQL)
+  namespaceOverride: "quiz-app"
+
+  initContainers:
+    waitForDb:
+      image:
+        registry: ""
+        repository: busybox
+        tag: "1.36"
+        # Replace with the real digest for your registry/image.
+        digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+
+## Kubernetes namespace
+# Checkov’s Helm framework renders charts into the "default" namespace unless
+# overridden.
+# Use a non-default namespace by default to satisfy CKV_K8S_21, and override per
+# environment.
+namespaceOverride: "quiz-app"
 
 ## Backend NestJS configuration
 backend:
@@ -23,8 +43,10 @@ backend:
   image:
     registry: ghcr.io
     repository: cloud-native-aixmarseille/quiz-app/backend
-    tag: "latest"
-    pullPolicy: IfNotPresent
+    tag: "0.0.0"
+    pullPolicy: Always
+    # Replace with the real digest for your registry/image.
+    digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
 
   # Service configuration
   service:
@@ -44,7 +66,7 @@ backend:
   # Secrets - these should be overridden in production
   secrets:
     # JWT secret for authentication
-    jwtSecret: "change-me-in-production-use-strong-random-secret"
+    jwtSecret: "CHANGE_ME"
     # Database connection (if not using postgresql subchart)
     databaseUrl: ""
 
@@ -82,13 +104,16 @@ backend:
   # Pod security context
   podSecurityContext:
     runAsNonRoot: true
-    runAsUser: 1000
-    fsGroup: 1000
+    runAsUser: 10001
+    runAsGroup: 10001
+    fsGroup: 10001
+    seccompProfile:
+      type: RuntimeDefault
 
   # Container security context
   securityContext:
     allowPrivilegeEscalation: false
-    readOnlyRootFilesystem: false
+    readOnlyRootFilesystem: true
     capabilities:
       drop:
         - ALL
@@ -120,8 +145,10 @@ frontend:
   image:
     registry: ghcr.io
     repository: cloud-native-aixmarseille/quiz-app/frontend
-    tag: "latest"
-    pullPolicy: IfNotPresent
+    tag: "0.0.0"
+    pullPolicy: Always
+    # Replace with the real digest for your registry/image.
+    digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
 
   # Service configuration
   service:
@@ -167,8 +194,11 @@ frontend:
   # Pod security context
   podSecurityContext:
     runAsNonRoot: true
-    runAsUser: 101
-    fsGroup: 101
+    runAsUser: 10001
+    runAsGroup: 10001
+    fsGroup: 10001
+    seccompProfile:
+      type: RuntimeDefault
 
   # Container security context
   securityContext:
@@ -199,6 +229,12 @@ frontend:
 postgresql:
   enabled: true
 
+  image:
+    repository: bitnamilegacy/postgresql
+    pullPolicy: Always
+    # Replace with the real digest for your registry/image.
+    digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+
   # PostgreSQL authentication
   auth:
     username: quizapp
@@ -206,12 +242,20 @@ postgresql:
     database: quizdb
     # Use existing secret (recommended for production)
     existingSecret: ""
-    secretKeys:
-      adminPasswordKey: postgres-password
-      userPasswordKey: password
+    # Prefer using secret volumes (files) over env vars
+    usePasswordFiles: true
 
   # Primary configuration
   primary:
+    podSecurityContext:
+      enabled: true
+      fsGroup: 10001
+    containerSecurityContext:
+      enabled: true
+      runAsUser: 10001
+      runAsGroup: 10001
+      runAsNonRoot: true
+
     persistence:
       enabled: true
       size: 8Gi
@@ -237,8 +281,14 @@ postgresql:
   # Metrics exporter for Prometheus
   metrics:
     enabled: false
+    image:
+      repository: bitnamilegacy/postgres-exporter
     serviceMonitor:
       enabled: false
+
+  volumePermissions:
+    image:
+      repository: bitnamilegacy/os-shell
 
 ## Ingress configuration
 ingress:
@@ -311,7 +361,8 @@ serviceAccount:
   # Annotations to add to the service account
   annotations: {}
   # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
+  # If not set and create is true, a name is generated using the fullname
+  # template.
   name: ""
 
 ## Pod Disruption Budget
@@ -326,13 +377,13 @@ networkPolicy:
   # Ingress rules
   ingress:
     - from:
-      - namespaceSelector:
-          matchLabels:
-            name: ingress-nginx
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
   # Egress rules
   egress:
     - to:
-      - namespaceSelector: {}
+        - namespaceSelector: {}
 
 ## Monitoring with Prometheus
 monitoring:
@@ -356,14 +407,3 @@ grafana:
   enabled: false
   # ConfigMap with dashboards
   dashboards: {}
-
-postgresql:
-  enabled: true
-  image:
-    repository: bitnamilegacy/postgresql
-  metrics:
-    image:
-      repository: bitnamilegacy/postgres-exporter
-  volumePermissions:
-    image:
-      repository: bitnamilegacy/os-shell

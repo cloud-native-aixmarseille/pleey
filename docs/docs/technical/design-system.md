@@ -79,7 +79,7 @@ Authentic vintage monitor simulation:
 **Accessibility**: AAA on dark backgrounds, AA on light backgrounds  
 **Scale**:
 
-```
+```text
 primary-50:  #f0f0ff  (lightest - backgrounds)
 primary-100: #e0dcff
 primary-200: #c7c0ff
@@ -98,7 +98,7 @@ primary-900: #2f1870  (darkest - text on light)
 **Accessibility**: AAA on dark backgrounds  
 **Scale**:
 
-```
+```text
 secondary-50:  #fff0fb
 secondary-100: #ffd6f3
 secondary-200: #ffade8
@@ -117,7 +117,7 @@ secondary-900: #6d144f
 **Accessibility**: AAA on dark backgrounds  
 **Scale**:
 
-```
+```text
 accent-50:  #e6fff9
 accent-100: #b3fff0
 accent-200: #80ffe6
@@ -574,7 +574,7 @@ Tron-inspired perspective grid:
 }
 ```
 
-### Neon Glow
+### Neon Glow (CSS)
 
 Triple-layer shadow for authentic neon effect:
 
@@ -850,7 +850,7 @@ Key utility classes:
 </Card>
 ```
 
-#### Terminal Input
+#### Terminal Input (Example)
 
 ```tsx
 <Input

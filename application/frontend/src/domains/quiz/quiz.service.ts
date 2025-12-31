@@ -1,9 +1,13 @@
-import { Quiz, Question } from '../../shared/types';
-import { apiClient, fetchClient, queryClient } from '../../shared/api/openapiClient';
-import { castRequestBody } from '../../shared/api/castRequestBody';
-import { API_URL } from '../../shared/config/api.config';
+import { Quiz, Question } from "../../shared/types";
+import {
+  apiClient,
+  fetchClient,
+  queryClient,
+} from "../../shared/api/openapiClient";
+import { castRequestBody } from "../../shared/api/castRequestBody";
+import { API_URL } from "../../shared/config/api.config";
 
-type QuestionType = 'multiple' | 'truefalse';
+type QuestionType = "multiple" | "truefalse";
 
 export interface CreateQuestionPayload {
   quizId: number;
@@ -40,7 +44,7 @@ export class QuizService {
     }
 
     const result = await queryClient.fetchQuery(
-      apiClient.queryOptions('get', '/api/quizzes'),
+      apiClient.queryOptions("get", "/api/quizzes"),
     );
 
     if (!result) {
@@ -54,22 +58,22 @@ export class QuizService {
     token: string,
     title: string,
     description: string,
-    organizationId: number
+    organizationId: number,
   ): Promise<Quiz> {
-    const { data, error } = await fetchClient.POST('/api/quizzes', {
+    const { data, error } = await fetchClient.POST("/api/quizzes", {
       body: castRequestBody({ title, description, organizationId }),
       headers: {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
     if (error || !data) {
-      throw new Error('errors.createQuizFailed');
+      throw new Error("errors.createQuizFailed");
     }
 
     const createdQuiz = data as Quiz;
-    await queryClient.invalidateQueries({ queryKey: ['get', '/api/quizzes'] });
+    await queryClient.invalidateQueries({ queryKey: ["get", "/api/quizzes"] });
 
     return createdQuiz;
   }
@@ -80,7 +84,7 @@ export class QuizService {
     }
 
     const result = await queryClient.fetchQuery(
-      apiClient.queryOptions('get', '/api/quizzes/{quizId}/questions', {
+      apiClient.queryOptions("get", "/api/quizzes/{quizId}/questions", {
         params: {
           path: {
             quizId,
@@ -96,15 +100,18 @@ export class QuizService {
     return result as Question[];
   }
 
-  async addQuestion(token: string, payload: CreateQuestionPayload): Promise<Question> {
+  async addQuestion(
+    token: string,
+    payload: CreateQuestionPayload,
+  ): Promise<Question> {
     const response = await fetch(`${API_URL}/api/questions`, {
-      method: 'POST',
+      method: "POST",
       headers: this.buildHeaders(token),
       body: JSON.stringify(this.toApiPayload(payload)),
     });
 
     if (!response.ok) {
-      throw await this.buildError(response, 'errors.questionCreateFailed');
+      throw await this.buildError(response, "errors.questionCreateFailed");
     }
 
     const data = (await response.json()) as Question;
@@ -113,23 +120,23 @@ export class QuizService {
 
   async deleteQuiz(token: string, quizId: number): Promise<void> {
     const response = await fetch(`${API_URL}/api/quizzes/${quizId}`, {
-      method: 'DELETE',
+      method: "DELETE",
       headers: this.buildHeaders(token, false),
     });
 
     if (!response.ok) {
-      throw await this.buildError(response, 'errors.deleteQuizFailed');
+      throw await this.buildError(response, "errors.deleteQuizFailed");
     }
   }
 
   async deleteQuestion(token: string, questionId: number): Promise<void> {
     const response = await fetch(`${API_URL}/api/questions/${questionId}`, {
-      method: 'DELETE',
+      method: "DELETE",
       headers: this.buildHeaders(token, false),
     });
 
     if (!response.ok) {
-      throw await this.buildError(response, 'errors.questionDeleteFailed');
+      throw await this.buildError(response, "errors.questionDeleteFailed");
     }
   }
 
@@ -139,13 +146,13 @@ export class QuizService {
     payload: UpdateQuestionPayload,
   ): Promise<Question> {
     const response = await fetch(`${API_URL}/api/questions/${questionId}`, {
-      method: 'PATCH',
+      method: "PATCH",
       headers: this.buildHeaders(token),
       body: JSON.stringify(this.toApiPayload(payload)),
     });
 
     if (!response.ok) {
-      throw await this.buildError(response, 'errors.questionUpdateFailed');
+      throw await this.buildError(response, "errors.questionUpdateFailed");
     }
 
     const data = (await response.json()) as Question;
@@ -158,16 +165,19 @@ export class QuizService {
     };
 
     if (includeJson) {
-      headers['Content-Type'] = 'application/json';
+      headers["Content-Type"] = "application/json";
     }
 
     return headers;
   }
 
-  private async buildError(response: Response, fallbackKey: string): Promise<Error> {
+  private async buildError(
+    response: Response,
+    fallbackKey: string,
+  ): Promise<Error> {
     try {
       const body = await response.json();
-      if (body && typeof body === 'object' && 'message' in body) {
+      if (body && typeof body === "object" && "message" in body) {
         return new Error(String(body.message));
       }
     } catch {
@@ -177,37 +187,39 @@ export class QuizService {
     return new Error(fallbackKey);
   }
 
-  private toApiPayload(payload: CreateQuestionPayload | UpdateQuestionPayload): ApiQuestionPayload | Partial<ApiQuestionPayload> {
+  private toApiPayload(
+    payload: CreateQuestionPayload | UpdateQuestionPayload,
+  ): ApiQuestionPayload | Partial<ApiQuestionPayload> {
     const result: Partial<ApiQuestionPayload> = {};
 
-    if ('quizId' in payload && payload.quizId !== undefined) {
+    if ("quizId" in payload && payload.quizId !== undefined) {
       result.quiz_id = payload.quizId;
     }
-    if ('questionText' in payload && payload.questionText !== undefined) {
+    if ("questionText" in payload && payload.questionText !== undefined) {
       result.question_text = payload.questionText;
     }
-    if ('type' in payload && payload.type !== undefined) {
+    if ("type" in payload && payload.type !== undefined) {
       result.type = payload.type;
     }
-    if ('correctAnswer' in payload && payload.correctAnswer !== undefined) {
+    if ("correctAnswer" in payload && payload.correctAnswer !== undefined) {
       result.correct_answer = payload.correctAnswer;
     }
-    if ('optionA' in payload && payload.optionA !== undefined) {
+    if ("optionA" in payload && payload.optionA !== undefined) {
       result.option_a = payload.optionA;
     }
-    if ('optionB' in payload && payload.optionB !== undefined) {
+    if ("optionB" in payload && payload.optionB !== undefined) {
       result.option_b = payload.optionB;
     }
-    if ('optionC' in payload && payload.optionC !== undefined) {
+    if ("optionC" in payload && payload.optionC !== undefined) {
       result.option_c = payload.optionC;
     }
-    if ('optionD' in payload && payload.optionD !== undefined) {
+    if ("optionD" in payload && payload.optionD !== undefined) {
       result.option_d = payload.optionD;
     }
-    if ('timeLimit' in payload && payload.timeLimit !== undefined) {
+    if ("timeLimit" in payload && payload.timeLimit !== undefined) {
       result.time_limit = payload.timeLimit;
     }
-    if ('points' in payload && payload.points !== undefined) {
+    if ("points" in payload && payload.points !== undefined) {
       result.points = payload.points;
     }
 

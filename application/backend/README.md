@@ -12,7 +12,7 @@ Modern backend for the QuizMaster quiz application, built with NestJS, Prisma, a
 
 ## 📁 Project Structure
 
-```
+```text
 backend/
 ├── src/
 │   ├── domain/              # Core business logic (DDD)

@@ -1,9 +1,9 @@
 import { type ArgumentsHost, Catch, type ExceptionFilter, HttpException } from '@nestjs/common';
 import type { Response } from 'express';
-import type { I18nService } from 'nestjs-i18n';
+import { I18nService } from 'nestjs-i18n';
 import { AuthErrorCode } from '../../application/auth/enums/auth-error-code.enum';
-import { QuizErrorCode } from '../../application/quiz/enums/quiz-error-code.enum';
 import { GameErrorCode } from '../../application/game/enums/game-error-code.enum';
+import { QuizErrorCode } from '../../application/quiz/enums/quiz-error-code.enum';
 
 /**
  * HTTP Exception Filter with i18n support
@@ -11,7 +11,7 @@ import { GameErrorCode } from '../../application/game/enums/game-error-code.enum
  */
 @Catch(HttpException)
 export class I18nHttpExceptionFilter implements ExceptionFilter {
-  constructor(private readonly i18n: I18nService) { }
+  constructor(private readonly i18n: I18nService) {}
 
   async catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
@@ -24,8 +24,12 @@ export class I18nHttpExceptionFilter implements ExceptionFilter {
     // Check if the message is an error code enum
     if (typeof exceptionResponse === 'string') {
       message = await this.translateErrorCode(exceptionResponse);
-    } else if (typeof exceptionResponse === 'object' && 'message' in exceptionResponse) {
-      const msgValue = (exceptionResponse as any).message;
+    } else if (
+      exceptionResponse &&
+      typeof exceptionResponse === 'object' &&
+      'message' in exceptionResponse
+    ) {
+      const msgValue = (exceptionResponse as { message?: unknown }).message;
       if (typeof msgValue === 'string') {
         message = await this.translateErrorCode(msgValue);
       } else if (Array.isArray(msgValue)) {

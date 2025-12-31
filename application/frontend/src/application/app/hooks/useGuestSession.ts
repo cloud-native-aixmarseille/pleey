@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from "react";
 import {
   GUEST_ID_KEY,
   GUEST_NICKNAME_KEY,
-} from '../../../shared/constants/storageKeys';
+} from "../../../shared/constants/storageKeys";
 
 interface GuestState {
   nickname: string;
@@ -10,11 +10,11 @@ interface GuestState {
 }
 
 export function useGuestSession() {
-  const [guestNickname, setGuestNickname] = useState('');
+  const [guestNickname, setGuestNickname] = useState("");
   const [guestId, setGuestId] = useState<string | null>(null);
 
   const syncToStorage = useCallback((state: GuestState | null) => {
-    if (typeof window === 'undefined') {
+    if (typeof window === "undefined") {
       return;
     }
 
@@ -29,7 +29,7 @@ export function useGuestSession() {
   }, []);
 
   const hydrateFromStorage = useCallback(() => {
-    if (typeof window === 'undefined') {
+    if (typeof window === "undefined") {
       return;
     }
 
@@ -43,7 +43,7 @@ export function useGuestSession() {
   }, []);
 
   const clearGuest = useCallback(() => {
-    setGuestNickname('');
+    setGuestNickname("");
     setGuestId(null);
     syncToStorage(null);
   }, [syncToStorage]);

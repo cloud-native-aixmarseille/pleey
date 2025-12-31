@@ -53,7 +53,6 @@ if (globalConsole) {
 }
 
 // Mock window.matchMedia - only in browser environment
-/* global window */
 if (typeof window !== "undefined") {
   // Ensure React treats this environment as act-compatible to avoid noisy warnings
   globalThis.IS_REACT_ACT_ENVIRONMENT = true;

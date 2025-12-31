@@ -1,5 +1,5 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import type { JwtService } from '@nestjs/jwt';
+import { JwtService } from '@nestjs/jwt';
 import type { AuthResponseDto } from '../dto/auth-response.dto';
 import { AuthErrorCode } from '../enums/auth-error-code.enum';
 
@@ -34,9 +34,11 @@ export interface TokenPair {
 export class AuthTokenService {
   constructor(
     private readonly jwtService: JwtService,
-    @Inject(ACCESS_TOKEN_CONFIG) private readonly accessTokenConfig: TokenConfig,
-    @Inject(REFRESH_TOKEN_CONFIG) private readonly refreshTokenConfig: TokenConfig,
-  ) { }
+    @Inject(ACCESS_TOKEN_CONFIG)
+    private readonly accessTokenConfig: TokenConfig,
+    @Inject(REFRESH_TOKEN_CONFIG)
+    private readonly refreshTokenConfig: TokenConfig,
+  ) {}
 
   createTokenPair(payload: AccessTokenPayload): TokenPair {
     const accessToken = this.jwtService.sign(payload, {
@@ -84,11 +86,10 @@ export class AuthTokenService {
     }
   }
 
-  mapTokensToResponse({
-    accessToken,
-    refreshToken,
-    accessTokenExpiresIn,
-  }: TokenPair, user: AuthResponseDto['user']): AuthResponseDto {
+  mapTokensToResponse(
+    { accessToken, refreshToken, accessTokenExpiresIn }: TokenPair,
+    user: AuthResponseDto['user'],
+  ): AuthResponseDto {
     return {
       token: accessToken,
       accessToken,

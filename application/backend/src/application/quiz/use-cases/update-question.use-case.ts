@@ -1,12 +1,12 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { VALID_MULTIPLE_CHOICE_OPTIONS } from '../../../domain/quiz/constants/question.constants';
 import type { Question } from '../../../domain/quiz/entities/question.entity';
 import {
-  QuestionRepositoryProvider,
   type QuestionRepository,
+  QuestionRepositoryProvider,
 } from '../../../domain/quiz/repositories/question.repository.interface';
-import { VALID_MULTIPLE_CHOICE_OPTIONS } from '../../../domain/quiz/constants/question.constants';
-import { QuizErrorCode } from '../enums/quiz-error-code.enum';
 import type { UpdateQuestionDto } from '../dto/update-question.dto';
+import { QuizErrorCode } from '../enums/quiz-error-code.enum';
 
 /**
  * Update Question Use Case
@@ -17,7 +17,7 @@ export class UpdateQuestionUseCase {
   constructor(
     @Inject(QuestionRepositoryProvider)
     private readonly questionRepository: QuestionRepository,
-  ) { }
+  ) {}
 
   async execute(questionId: number, dto: UpdateQuestionDto): Promise<Question> {
     const question = await this.questionRepository.findById(questionId);
@@ -30,21 +30,29 @@ export class UpdateQuestionUseCase {
     const finalCorrectAnswer = dto.correctAnswer ?? question.correctAnswer;
     // Extract final option values using a loop to reduce repetition
     const optionKeys = ['A', 'B', 'C', 'D'] as const;
-    const finalOptions: Record<typeof optionKeys[number], string | null> = {} as any;
+    const finalOptions: Record<(typeof optionKeys)[number], string | null> = {
+      A: null,
+      B: null,
+      C: null,
+      D: null,
+    };
     for (const key of optionKeys) {
       const dtoKey = `option${key}` as keyof UpdateQuestionDto;
       const questionKey = `option${key}` as keyof Question;
-      finalOptions[key] = dto[dtoKey] !== undefined ? dto[dtoKey] as string | null : question[questionKey] as string | null;
+      finalOptions[key] =
+        dto[dtoKey] !== undefined
+          ? (dto[dtoKey] as string | null)
+          : (question[questionKey] as string | null);
     }
-    const finalOptionA = finalOptions['A'];
-    const finalOptionB = finalOptions['B'];
-    const finalOptionC = finalOptions['C'];
-    const finalOptionD = finalOptions['D'];
+    const finalOptionA = finalOptions.A;
+    const finalOptionB = finalOptions.B;
+    const finalOptionC = finalOptions.C;
+    const finalOptionD = finalOptions.D;
 
     // Validate correct answer based on question type
     if (finalType === 'multiple') {
       // For multiple choice, correctAnswer can be single (e.g., "A") or multiple (e.g., "A,D")
-      const correctAnswers = finalCorrectAnswer.split(',').map(a => a.trim());
+      const correctAnswers = finalCorrectAnswer.split(',').map((a) => a.trim());
 
       // Validate each correct answer
       for (const answer of correctAnswers) {

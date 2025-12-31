@@ -1,5 +1,15 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.3.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.8/schema.json",
+  "files": {
+    "includes": [
+      "src/**",
+      "test/**",
+      "prisma/**",
+      "prisma.config.ts",
+      "vitest.config.ts",
+      "vitest.config.mts"
+    ]
+  },
   "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
     "enabled": true,
@@ -9,6 +19,7 @@
         "noExplicitAny": "warn"
       },
       "style": {
+        "useImportType": "off",
         "useConst": "error",
         "noNonNullAssertion": "warn"
       },

@@ -95,7 +95,10 @@ export const queryClient = new QueryClient({
   },
 });
 
-export function setAuthSessionTokens(tokens: { accessToken: string | null; refreshToken: string | null }) {
+export function setAuthSessionTokens(tokens: {
+  accessToken: string | null;
+  refreshToken: string | null;
+}) {
   accessToken = tokens.accessToken;
   refreshToken = tokens.refreshToken;
 }

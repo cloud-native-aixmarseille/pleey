@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { Question } from './question.entity';
 
 describe('Question Entity', () => {
@@ -235,37 +235,13 @@ describe('Question Entity', () => {
     });
 
     it('should return false for empty question text', () => {
-      const question = new Question(
-        1,
-        10,
-        '',
-        'multiple',
-        'A',
-        '4',
-        '3',
-        null,
-        null,
-        30,
-        1000,
-      );
+      const question = new Question(1, 10, '', 'multiple', 'A', '4', '3', null, null, 30, 1000);
 
       expect(question.isValid()).toBe(false);
     });
 
     it('should return false for whitespace-only question text', () => {
-      const question = new Question(
-        1,
-        10,
-        '   ',
-        'multiple',
-        'A',
-        '4',
-        '3',
-        null,
-        null,
-        30,
-        1000,
-      );
+      const question = new Question(1, 10, '   ', 'multiple', 'A', '4', '3', null, null, 30, 1000);
 
       expect(question.isValid()).toBe(false);
     });

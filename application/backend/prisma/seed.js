@@ -1,47 +1,55 @@
-const { PrismaClient } = require("@prisma/client");
-const bcrypt = require("bcryptjs");
+const { PrismaClient } = require('@prisma/client');
+const { PrismaPg } = require('@prisma/adapter-pg');
+const bcrypt = require('bcryptjs');
 
-const prisma = new PrismaClient();
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  throw new Error('DATABASE_URL is required to run seed');
+}
+
+const prisma = new PrismaClient({
+  adapter: new PrismaPg({ connectionString }),
+});
 
 async function main() {
-  console.log("Seeding database...");
+  console.log('Seeding database...');
 
   // Create admin user (idempotent)
-  const adminPassword = await bcrypt.hash("admin123", 10);
+  const adminPassword = await bcrypt.hash('admin123', 10);
   const admin = await prisma.user.upsert({
-    where: { username: "admin" },
+    where: { username: 'admin' },
     update: {
-      email: "admin@quiz.com",
+      email: 'admin@quiz.com',
       password: adminPassword,
       isAdmin: true,
     },
     create: {
-      username: "admin",
-      email: "admin@quiz.com",
+      username: 'admin',
+      email: 'admin@quiz.com',
       password: adminPassword,
       isAdmin: true,
     },
   });
 
   // Create a test player
-  const playerPassword = await bcrypt.hash("player123", 10);
+  const playerPassword = await bcrypt.hash('player123', 10);
   const player = await prisma.user.upsert({
-    where: { username: "player1" },
+    where: { username: 'player1' },
     update: {
-      email: "player@quiz.com",
+      email: 'player@quiz.com',
       password: playerPassword,
       isAdmin: false,
     },
     create: {
-      username: "player1",
-      email: "player@quiz.com",
+      username: 'player1',
+      email: 'player@quiz.com',
       password: playerPassword,
       isAdmin: false,
     },
   });
 
   // Ensure default organization exists
-  const organizationName = "Arcade Labs";
+  const organizationName = 'Arcade Labs';
   let organization = await prisma.organization.findFirst({
     where: { name: organizationName },
   });
@@ -50,7 +58,7 @@ async function main() {
     organization = await prisma.organization.create({
       data: {
         name: organizationName,
-        description: "Default organization for local development",
+        description: 'Default organization for local development',
       },
     });
   }
@@ -63,11 +71,11 @@ async function main() {
         userId: admin.id,
       },
     },
-    update: { role: "owner" },
+    update: { role: 'owner' },
     create: {
       organizationId: organization.id,
       userId: admin.id,
-      role: "owner",
+      role: 'owner',
     },
   });
 
@@ -78,16 +86,16 @@ async function main() {
         userId: player.id,
       },
     },
-    update: { role: "member" },
+    update: { role: 'member' },
     create: {
       organizationId: organization.id,
       userId: player.id,
-      role: "member",
+      role: 'member',
     },
   });
 
   // Create a sample quiz
-  const quizTitle = "General Knowledge - Sample";
+  const quizTitle = 'General Knowledge - Sample';
   let quiz = await prisma.quiz.findFirst({
     where: { title: quizTitle, organizationId: organization.id },
   });
@@ -96,7 +104,7 @@ async function main() {
     quiz = await prisma.quiz.create({
       data: {
         title: quizTitle,
-        description: "A short sample quiz for local development",
+        description: 'A short sample quiz for local development',
         createdBy: { connect: { id: admin.id } },
         organization: { connect: { id: organization.id } },
       },
@@ -105,7 +113,7 @@ async function main() {
     quiz = await prisma.quiz.update({
       where: { id: quiz.id },
       data: {
-        description: "A short sample quiz for local development",
+        description: 'A short sample quiz for local development',
         createdBy: { connect: { id: admin.id } },
         organization: { connect: { id: organization.id } },
       },
@@ -115,20 +123,20 @@ async function main() {
   // Add questions (idempotent by question text + quiz)
   const questionsData = [
     {
-      questionText: "What is the capital of France?",
-      type: "multiple",
-      correctAnswer: "A",
-      optionA: "Paris",
-      optionB: "Berlin",
-      optionC: "Madrid",
-      optionD: "Rome",
+      questionText: 'What is the capital of France?',
+      type: 'multiple',
+      correctAnswer: 'A',
+      optionA: 'Paris',
+      optionB: 'Berlin',
+      optionC: 'Madrid',
+      optionD: 'Rome',
       timeLimit: 20,
       points: 1000,
     },
     {
-      questionText: "The earth is flat.",
-      type: "truefalse",
-      correctAnswer: "false",
+      questionText: 'The earth is flat.',
+      type: 'truefalse',
+      correctAnswer: 'false',
       timeLimit: 10,
       points: 500,
     },
@@ -162,12 +170,12 @@ async function main() {
     where: { quizId: quiz.id },
   });
 
-  // Create a game session (finished status so it doesn't block new sessions)
-  const sessionPin = "123456";
+  // Create a game session that players can join during E2E runs
+  const sessionPin = '123456';
   const session = await prisma.gameSession.upsert({
     where: { pin: sessionPin },
     update: {
-      status: "finished",
+      status: 'waiting',
       quiz: { connect: { id: quiz.id } },
       admin: { connect: { id: admin.id } },
       organization: { connect: { id: organization.id } },
@@ -177,7 +185,7 @@ async function main() {
       admin: { connect: { id: admin.id } },
       organization: { connect: { id: organization.id } },
       pin: sessionPin,
-      status: "finished",
+      status: 'waiting',
     },
   });
 
@@ -199,7 +207,7 @@ async function main() {
     });
   }
 
-  console.log("Seeding finished.");
+  console.log('Seeding finished.');
 }
 
 main()

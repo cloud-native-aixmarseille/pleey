@@ -20,7 +20,10 @@ export function useQuestionTimerState(timeLeft: number, timeLimit: number) {
 
     const clampedTimeLeft = Math.max(0, timeLeft);
     const rawProgress = (clampedTimeLeft / timeLimit) * PROGRESS_MAX;
-    const progressPercent = Math.max(PROGRESS_MIN, Math.min(PROGRESS_MAX, rawProgress));
+    const progressPercent = Math.max(
+      PROGRESS_MIN,
+      Math.min(PROGRESS_MAX, rawProgress),
+    );
 
     const severity: TimerSeverity = getSeverity(clampedTimeLeft);
 

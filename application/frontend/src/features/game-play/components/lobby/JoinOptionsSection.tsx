@@ -163,7 +163,7 @@ export default function JoinOptionsSection({
                 </div>
                 <span
                   className="sr-only"
-                  role="text"
+                  role="status"
                   aria-live="polite"
                   aria-label={pinAriaLabel}
                 >

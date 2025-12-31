@@ -2,6 +2,13 @@ import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import jsxA11y from "eslint-plugin-jsx-a11y";
 
+const browserGlobals = {
+  window: "readonly",
+  document: "readonly",
+  navigator: "readonly",
+  location: "readonly",
+};
+
 export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
@@ -17,6 +24,7 @@ export default tseslint.config(
           jsx: true,
         },
       },
+      globals: browserGlobals,
     },
     rules: {
       "no-console": "error",

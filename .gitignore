@@ -12,6 +12,10 @@ dist/
 build/
 *.tsbuildinfo
 
+# Workspace build outputs (monorepo)
+application/backend/dist/
+application/frontend/dist/
+
 # Database
 *.db
 *.db-journal
@@ -69,6 +73,8 @@ docker-compose.override.yml
 coverage/
 .nyc_output/
 *.lcov
+application/**/eslint-report.json
+application/**/junit.xml
 
 # E2E test artifacts
 e2e/test-results/

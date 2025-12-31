@@ -1,12 +1,6 @@
 export { Button, type ButtonProps } from "./Button";
-export {
-  PrimaryButton,
-  type PrimaryButtonProps,
-} from "./PrimaryButton";
-export {
-  SecondaryButton,
-  type SecondaryButtonProps,
-} from "./SecondaryButton";
+export { PrimaryButton, type PrimaryButtonProps } from "./PrimaryButton";
+export { SecondaryButton, type SecondaryButtonProps } from "./SecondaryButton";
 export { Card, type CardProps } from "./Card";
 export { Input, type InputProps } from "./Input";
 export {
@@ -14,18 +8,12 @@ export {
   type PasswordInputProps,
   type PasswordToggleLabels,
 } from "./PasswordInput";
-export {
-  ArcadePage,
-  type ArcadePageProps,
-} from "./ArcadePage";
+export { ArcadePage, type ArcadePageProps } from "./ArcadePage";
 export {
   ArcadeSectionHeader,
   type ArcadeSectionHeaderProps,
 } from "./ArcadeSectionHeader";
-export {
-  ArcadeCardGrid,
-  type ArcadeCardGridProps,
-} from "./ArcadeCardGrid";
+export { ArcadeCardGrid, type ArcadeCardGridProps } from "./ArcadeCardGrid";
 export {
   ArcadeBadge,
   type ArcadeBadgeProps,

@@ -25,6 +25,4 @@ export interface OrganizationMemberRepository {
 /**
  * Provider token for dependency injection
  */
-export const OrganizationMemberRepositoryProvider = Symbol(
-  'OrganizationMemberRepository',
-);
+export const OrganizationMemberRepositoryProvider = Symbol('OrganizationMemberRepository');

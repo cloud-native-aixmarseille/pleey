@@ -1,8 +1,11 @@
 import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { GameSessionRepositoryProvider, type GameSessionRepository } from '../../../domain/game/repositories/game-session.repository.interface';
 import {
-  QuizRepositoryProvider,
+  type GameSessionRepository,
+  GameSessionRepositoryProvider,
+} from '../../../domain/game/repositories/game-session.repository.interface';
+import {
   type QuizRepository,
+  QuizRepositoryProvider,
 } from '../../../domain/quiz/repositories/quiz.repository.interface';
 import { QuizErrorCode } from '../enums/quiz-error-code.enum';
 
@@ -17,7 +20,7 @@ export class DeleteQuizUseCase {
     private readonly quizRepository: QuizRepository,
     @Inject(GameSessionRepositoryProvider)
     private readonly gameSessionRepository: GameSessionRepository,
-  ) { }
+  ) {}
 
   async execute(quizId: number): Promise<void> {
     const quiz = await this.quizRepository.findById(quizId);

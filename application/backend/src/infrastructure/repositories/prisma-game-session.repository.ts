@@ -1,14 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import type { GameSession as PrismaGameSession } from '@prisma/client';
 import { GameSession } from '../../domain/game/entities/game-session.entity';
-import type {
-  GameSessionRepository,
-} from '../../domain/game/repositories/game-session.repository.interface';
-import type { PrismaService } from '../database/prisma.service';
+import type { GameSessionRepository } from '../../domain/game/repositories/game-session.repository.interface';
+import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class PrismaGameSessionRepository implements GameSessionRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(
     quizId: number,
@@ -61,7 +59,7 @@ export class PrismaGameSessionRepository implements GameSessionRepository {
       },
     });
 
-    return sessions.map((session) => this.toDomain(session));
+    return sessions.map((session: PrismaGameSession) => this.toDomain(session));
   }
 
   async findActiveByQuizId(quizId: number): Promise<GameSession | null> {
@@ -92,7 +90,7 @@ export class PrismaGameSessionRepository implements GameSessionRepository {
       },
     });
 
-    return sessions.map((session) => this.toDomain(session));
+    return sessions.map((session: PrismaGameSession) => this.toDomain(session));
   }
 
   async findByOrganization(organizationId: number): Promise<GameSession[]> {
@@ -103,7 +101,7 @@ export class PrismaGameSessionRepository implements GameSessionRepository {
       },
     });
 
-    return sessions.map((session) => this.toDomain(session));
+    return sessions.map((session: PrismaGameSession) => this.toDomain(session));
   }
 
   async updateStatus(id: number, status: string): Promise<GameSession> {

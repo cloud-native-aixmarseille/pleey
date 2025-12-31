@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AuthHttpRepository } from '../auth-http.repository';
-import { fetchClient } from '../../../../shared/api/openapiClient';
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { AuthHttpRepository } from "../auth-http.repository";
+import { fetchClient } from "../../../../shared/api/openapiClient";
 
 type PostResult = Awaited<ReturnType<typeof fetchClient.POST>>;
 
@@ -11,7 +11,7 @@ const createPostResult = (overrides: Partial<PostResult>): PostResult => ({
   ...overrides,
 });
 
-describe('AuthHttpRepository', () => {
+describe("AuthHttpRepository", () => {
   let repository: AuthHttpRepository;
 
   beforeEach(() => {
@@ -19,111 +19,132 @@ describe('AuthHttpRepository', () => {
     vi.clearAllMocks();
   });
 
-  describe('login', () => {
-    it('should login successfully', async () => {
+  describe("login", () => {
+    it("should login successfully", async () => {
       const mockResponse = {
-        token: 'legacy-token',
-        accessToken: 'test-access-token',
-        refreshToken: 'test-refresh-token',
+        token: "legacy-token",
+        accessToken: "test-access-token",
+        refreshToken: "test-refresh-token",
         expiresIn: 3600,
         user: {
           id: 1,
-          username: 'testuser',
-          email: 'test@example.com',
+          username: "testuser",
+          email: "test@example.com",
           isAdmin: false,
         },
       };
 
-      const postSpy = vi.spyOn(fetchClient, 'POST');
+      const postSpy = vi.spyOn(fetchClient, "POST");
       postSpy.mockResolvedValueOnce(createPostResult({ data: mockResponse }));
 
-      const result = await repository.login('test@example.com', 'password123');
+      const result = await repository.login("test@example.com", "password123");
 
       expect(result).toEqual({
-        token: 'test-access-token',
-        accessToken: 'test-access-token',
-        refreshToken: 'test-refresh-token',
+        token: "test-access-token",
+        accessToken: "test-access-token",
+        refreshToken: "test-refresh-token",
         expiresIn: 3600,
         user: mockResponse.user,
       });
       expect(postSpy).toHaveBeenCalledWith(
-        '/api/login',
+        "/api/login",
         expect.objectContaining({
-          body: { email: 'test@example.com', password: 'password123' },
+          body: { email: "test@example.com", password: "password123" },
         }),
       );
     });
 
-    it('should throw error on invalid credentials', async () => {
-      const postSpy = vi.spyOn(fetchClient, 'POST');
+    it("should throw error on invalid credentials", async () => {
+      const postSpy = vi.spyOn(fetchClient, "POST");
       postSpy.mockResolvedValueOnce(
-        createPostResult({ data: undefined, error: new Error('Invalid credentials') })
+        createPostResult({
+          data: undefined,
+          error: new Error("Invalid credentials"),
+        }),
       );
 
-      await expect(repository.login('test@example.com', 'wrong-password')).rejects.toThrow('auth.errors.invalidCredentials');
+      await expect(
+        repository.login("test@example.com", "wrong-password"),
+      ).rejects.toThrow("auth.errors.invalidCredentials");
     });
 
-    it('should throw error on invalid response structure', async () => {
-      const postSpy = vi.spyOn(fetchClient, 'POST');
+    it("should throw error on invalid response structure", async () => {
+      const postSpy = vi.spyOn(fetchClient, "POST");
       postSpy.mockResolvedValueOnce(
-        createPostResult({ data: { token: 'test-token' } as never })
+        createPostResult({ data: { token: "test-token" } as never }),
       );
 
-      await expect(repository.login('test@example.com', 'password123')).rejects.toThrow('auth.errors.invalidResponse');
+      await expect(
+        repository.login("test@example.com", "password123"),
+      ).rejects.toThrow("auth.errors.invalidResponse");
     });
   });
 
-  describe('register', () => {
-    it('should register successfully', async () => {
-      const postSpy = vi.spyOn(fetchClient, 'POST');
+  describe("register", () => {
+    it("should register successfully", async () => {
+      const postSpy = vi.spyOn(fetchClient, "POST");
       postSpy.mockResolvedValueOnce(createPostResult({ data: undefined }));
 
-      await repository.register('testuser', 'test@example.com', 'password123');
+      await repository.register("testuser", "test@example.com", "password123");
 
       expect(postSpy).toHaveBeenCalledWith(
-        '/api/register',
+        "/api/register",
         expect.objectContaining({
-          body: { username: 'testuser', email: 'test@example.com', password: 'password123' },
+          body: {
+            username: "testuser",
+            email: "test@example.com",
+            password: "password123",
+          },
         }),
       );
     });
 
-    it('should throw error on registration failure', async () => {
-      const postSpy = vi.spyOn(fetchClient, 'POST');
+    it("should throw error on registration failure", async () => {
+      const postSpy = vi.spyOn(fetchClient, "POST");
       postSpy.mockResolvedValueOnce(
-        createPostResult({ data: undefined, error: new Error('Email already exists') })
+        createPostResult({
+          data: undefined,
+          error: new Error("Email already exists"),
+        }),
       );
 
-      await expect(repository.register('testuser', 'test@example.com', 'password123')).rejects.toThrow('auth.errors.userAlreadyExists');
+      await expect(
+        repository.register("testuser", "test@example.com", "password123"),
+      ).rejects.toThrow("auth.errors.userAlreadyExists");
     });
   });
 
-  describe('regenerateAvatar', () => {
-    it('should regenerate avatar successfully', async () => {
+  describe("regenerateAvatar", () => {
+    it("should regenerate avatar successfully", async () => {
       const mockUser = {
         id: 1,
-        username: 'testuser',
-        email: 'test@example.com',
+        username: "testuser",
+        email: "test@example.com",
         isAdmin: false,
-        avatarUrl: '/api/avatars/users/1?v=fingerprint',
+        avatarUrl: "/api/avatars/users/1?v=fingerprint",
       };
 
-      const postSpy = vi.spyOn(fetchClient, 'POST');
+      const postSpy = vi.spyOn(fetchClient, "POST");
       postSpy.mockResolvedValueOnce(createPostResult({ data: mockUser }));
 
       const result = await repository.regenerateAvatar();
 
-      expect(postSpy).toHaveBeenCalledWith('/api/profile/me/avatar', undefined);
+      expect(postSpy).toHaveBeenCalledWith("/api/profile/me/avatar", undefined);
       expect(result).toEqual(mockUser);
     });
 
-    it('should throw error when regeneration fails', async () => {
-      const postSpy = vi.spyOn(fetchClient, 'POST');
+    it("should throw error when regeneration fails", async () => {
+      const postSpy = vi.spyOn(fetchClient, "POST");
       postSpy.mockResolvedValueOnce(
-        createPostResult({ data: undefined, error: new Error('Unable to regenerate avatar') })
+        createPostResult({
+          data: undefined,
+          error: new Error("Unable to regenerate avatar"),
+        }),
       );
 
-      await expect(repository.regenerateAvatar()).rejects.toThrow('profile.avatarRegenerateError');
+      await expect(repository.regenerateAvatar()).rejects.toThrow(
+        "profile.avatarRegenerateError",
+      );
     });
   });
 });

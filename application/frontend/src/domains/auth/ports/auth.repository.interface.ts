@@ -1,4 +1,4 @@
-import { User } from '../../../shared/types';
+import { User } from "../../../shared/types";
 
 export interface AuthSession {
   token: string;

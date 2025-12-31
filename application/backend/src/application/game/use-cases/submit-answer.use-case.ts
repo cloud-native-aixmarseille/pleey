@@ -1,16 +1,16 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import {
-  GameSessionRepositoryProvider,
   type GameSessionRepository,
+  GameSessionRepositoryProvider,
 } from '../../../domain/game/repositories/game-session.repository.interface';
 import {
-  ScoreRepositoryProvider,
   type ScoreRepository,
+  ScoreRepositoryProvider,
 } from '../../../domain/game/repositories/score.repository.interface';
-import type { ScoreCalculatorService } from '../../../domain/game/services/score-calculator.service';
+import { ScoreCalculatorService } from '../../../domain/game/services/score-calculator.service';
 import {
-  QuestionRepositoryProvider,
   type QuestionRepository,
+  QuestionRepositoryProvider,
 } from '../../../domain/quiz/repositories/question.repository.interface';
 import type { SubmitAnswerDto } from '../dto/submit-answer.dto';
 
@@ -28,7 +28,7 @@ export class SubmitAnswerUseCase {
     @Inject(ScoreRepositoryProvider)
     private readonly scoreRepository: ScoreRepository,
     private readonly scoreCalculatorService: ScoreCalculatorService,
-  ) { }
+  ) {}
 
   async execute(dto: SubmitAnswerDto): Promise<{
     isCorrect: boolean;
