@@ -1,14 +1,14 @@
 import {
+  BadRequestException,
+  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
-  ForbiddenException,
-  BadRequestException,
 } from '@nestjs/common';
+import { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
 import type { OrganizationMemberRepository } from '../../../domain/organization/repositories/organization-member.repository.interface';
 import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/repositories/organization-member.repository.interface';
 import { OrganizationErrorCode } from '../enums/organization-error-code.enum';
-import { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
 
 /**
  * Use case for removing a member from an organization
@@ -21,10 +21,7 @@ export class RemoveMemberFromOrganizationUseCase {
     private readonly memberRepository: OrganizationMemberRepository,
   ) {}
 
-  async execute(
-    memberId: number,
-    requestingUserId: number,
-  ): Promise<void> {
+  async execute(memberId: number, requestingUserId: number): Promise<void> {
     // Get the member to remove
     const memberToRemove = await this.memberRepository.findById(memberId);
     if (!memberToRemove) {
@@ -32,15 +29,12 @@ export class RemoveMemberFromOrganizationUseCase {
     }
 
     // Get requesting user's membership
-    const requestingMember =
-      await this.memberRepository.findByOrganizationAndUser(
-        memberToRemove.organizationId,
-        requestingUserId,
-      );
+    const requestingMember = await this.memberRepository.findByOrganizationAndUser(
+      memberToRemove.organizationId,
+      requestingUserId,
+    );
     if (!requestingMember || !requestingMember.hasAdminPrivileges()) {
-      throw new ForbiddenException(
-        OrganizationErrorCode.INSUFFICIENT_PERMISSIONS,
-      );
+      throw new ForbiddenException(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
     }
 
     // If removing an owner, check it's not the last one
@@ -50,9 +44,7 @@ export class RemoveMemberFromOrganizationUseCase {
       );
       const ownerCount = allMembers.filter((m) => m.isOwner()).length;
       if (ownerCount <= 1) {
-        throw new BadRequestException(
-          OrganizationErrorCode.CANNOT_REMOVE_LAST_OWNER,
-        );
+        throw new BadRequestException(OrganizationErrorCode.CANNOT_REMOVE_LAST_OWNER);
       }
     }
 

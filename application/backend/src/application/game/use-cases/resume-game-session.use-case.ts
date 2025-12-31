@@ -1,8 +1,8 @@
 import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type { GameSession } from '../../../domain/game/entities/game-session.entity';
 import {
-  GameSessionRepositoryProvider,
   type GameSessionRepository,
+  GameSessionRepositoryProvider,
 } from '../../../domain/game/repositories/game-session.repository.interface';
 
 /**
@@ -14,7 +14,7 @@ export class ResumeGameSessionUseCase {
   constructor(
     @Inject(GameSessionRepositoryProvider)
     private readonly gameSessionRepository: GameSessionRepository,
-  ) { }
+  ) {}
 
   async execute(sessionId: number, adminId: number): Promise<GameSession> {
     // Find the session

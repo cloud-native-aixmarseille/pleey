@@ -1,18 +1,28 @@
 import 'reflect-metadata';
-import process from 'node:process';
-import * as path from 'node:path';
 import { mkdir, writeFile } from 'node:fs/promises';
+import * as path from 'node:path';
+import process from 'node:process';
 import type { Request, Response } from 'express';
-import { ValidationPipe } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { I18nService } from 'nestjs-i18n';
-import { AppModule } from './app.module';
-import { I18nHttpExceptionFilter } from './infrastructure/filters/i18n-http-exception.filter';
 import { initializeOpenTelemetry, OtelLoggerService } from './infrastructure/telemetry';
 
 async function bootstrap() {
   await initializeOpenTelemetry();
+
+  const [
+    { ValidationPipe },
+    { NestFactory },
+    { DocumentBuilder, SwaggerModule },
+    { I18nService },
+    { AppModule },
+    { I18nHttpExceptionFilter },
+  ] = await Promise.all([
+    import('@nestjs/common'),
+    import('@nestjs/core'),
+    import('@nestjs/swagger'),
+    import('nestjs-i18n'),
+    import('./app.module.js'),
+    import('./infrastructure/filters/i18n-http-exception.filter.js'),
+  ]);
 
   const app = await NestFactory.create(AppModule, {
     logger: new OtelLoggerService(),
@@ -22,7 +32,8 @@ async function bootstrap() {
   app.enableCors();
 
   // Get I18n service for exception filters
-  const i18nService = app.get<I18nService<Record<string, unknown>>>(I18nService);
+  const i18nService =
+    app.get<import('nestjs-i18n').I18nService<Record<string, unknown>>>(I18nService);
 
   // Register global exception filter for i18n
   app.useGlobalFilters(new I18nHttpExceptionFilter(i18nService));
@@ -44,15 +55,16 @@ async function bootstrap() {
     .setTitle('QuizMaster API')
     .setDescription('OpenAPI specification for the QuizMaster backend services.')
     .setVersion('1.0.0')
-    .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' })
+    .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }, 'bearerAuth')
+    .addSecurityRequirements('bearerAuth')
     .build();
 
   const openApiDocument = SwaggerModule.createDocument(app, swaggerConfig, {
     deepScanRoutes: true,
   });
 
-  SwaggerModule.setup('docs', app, openApiDocument, {
-    useGlobalPrefix: true,
+  const docsPath = globalPrefix ? `${globalPrefix}/docs` : 'docs';
+  SwaggerModule.setup(docsPath, app, openApiDocument, {
     swaggerOptions: {
       persistAuthorization: true,
     },

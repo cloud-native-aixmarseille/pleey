@@ -1,7 +1,7 @@
-import process from 'node:process';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { getRequiredEnvOrFile } from '../shared/env-secret.util';
 
 interface JwtPayload {
   id: number;
@@ -17,8 +17,10 @@ interface JwtPayload {
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
-    const secret = process.env.JWT_SECRET;
-    if (!secret) {
+    let secret: string;
+    try {
+      secret = getRequiredEnvOrFile('JWT_SECRET');
+    } catch {
       throw new UnauthorizedException('JWT secret is not configured');
     }
 

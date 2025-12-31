@@ -1,19 +1,11 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { User } from './user.entity';
 
 describe('User Entity', () => {
   describe('constructor', () => {
     it('should create a user instance with all properties', () => {
       const now = new Date();
-      const user = new User(
-        1,
-        'testuser',
-        'test@example.com',
-        'hashedpassword',
-        false,
-        null,
-        now,
-      );
+      const user = new User(1, 'testuser', 'test@example.com', 'hashedpassword', false, null, now);
 
       expect(user.id).toBe(1);
       expect(user.username).toBe('testuser');

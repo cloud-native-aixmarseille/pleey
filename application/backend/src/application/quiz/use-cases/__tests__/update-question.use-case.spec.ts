@@ -1,9 +1,9 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { describe, expect, it, vi, beforeEach, type Mocked } from 'vitest';
+import { beforeEach, describe, expect, it, type Mocked, vi } from 'vitest';
 import { Question } from '../../../../domain/quiz/entities/question.entity';
 import type { QuestionRepository } from '../../../../domain/quiz/repositories/question.repository.interface';
-import { UpdateQuestionUseCase } from '../update-question.use-case';
 import { QuizErrorCode } from '../../enums/quiz-error-code.enum';
+import { UpdateQuestionUseCase } from '../update-question.use-case';
 
 const buildQuestion = (overrides: Partial<Question> = {}): Question =>
   new Question(
@@ -43,9 +43,13 @@ describe('UpdateQuestionUseCase', () => {
     questionRepository.findById.mockResolvedValue(existing);
     questionRepository.update.mockResolvedValue(updated);
 
-    const result = await useCase.execute(existing.id, { questionText: 'Updated' });
+    const result = await useCase.execute(existing.id, {
+      questionText: 'Updated',
+    });
 
-    expect(questionRepository.update).toHaveBeenCalledWith(existing.id, { questionText: 'Updated' });
+    expect(questionRepository.update).toHaveBeenCalledWith(existing.id, {
+      questionText: 'Updated',
+    });
     expect(result.questionText).toBe('Updated');
   });
 

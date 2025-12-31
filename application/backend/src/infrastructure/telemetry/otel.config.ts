@@ -1,5 +1,5 @@
-import process from 'node:process';
 import { createConnection } from 'node:net';
+import process from 'node:process';
 import { URL } from 'node:url';
 import { DiagConsoleLogger, DiagLogLevel, diag } from '@opentelemetry/api';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
@@ -75,7 +75,10 @@ async function isEndpointReachable(endpoint: string): Promise<boolean> {
       });
     });
   } catch (error) {
-    console.warn('[Telemetry] Invalid OTLP endpoint provided, using console exporters instead.', error);
+    console.warn(
+      '[Telemetry] Invalid OTLP endpoint provided, using console exporters instead.',
+      error,
+    );
     return false;
   }
 }
@@ -83,26 +86,29 @@ async function isEndpointReachable(endpoint: string): Promise<boolean> {
 function buildExporters(useConsoleExporters: boolean, endpoint?: string) {
   const headers = endpoint ? parseHeaders() : undefined;
 
-  const traceExporter = !useConsoleExporters && endpoint
-    ? new OTLPTraceExporter({
-      url: `${endpoint}/v1/traces`,
-      headers,
-    })
-    : undefined;
+  const traceExporter =
+    !useConsoleExporters && endpoint
+      ? new OTLPTraceExporter({
+          url: `${endpoint}/v1/traces`,
+          headers,
+        })
+      : undefined;
 
-  const metricExporter = !useConsoleExporters && endpoint
-    ? new OTLPMetricExporter({
-      url: `${endpoint}/v1/metrics`,
-      headers,
-    })
-    : new ConsoleMetricExporter();
+  const metricExporter =
+    !useConsoleExporters && endpoint
+      ? new OTLPMetricExporter({
+          url: `${endpoint}/v1/metrics`,
+          headers,
+        })
+      : new ConsoleMetricExporter();
 
-  const logExporter = !useConsoleExporters && endpoint
-    ? new OTLPLogExporter({
-      url: `${endpoint}/v1/logs`,
-      headers,
-    })
-    : new ConsoleLogRecordExporter();
+  const logExporter =
+    !useConsoleExporters && endpoint
+      ? new OTLPLogExporter({
+          url: `${endpoint}/v1/logs`,
+          headers,
+        })
+      : new ConsoleLogRecordExporter();
 
   return { traceExporter, metricExporter, logExporter };
 }
@@ -134,17 +140,29 @@ export async function initializeOpenTelemetry(): Promise<void> {
   );
 
   if (!logProcessorRegistered) {
-    (loggerProvider as any).addLogRecordProcessor?.(new BatchLogRecordProcessor(logExporter));
-    logProcessorRegistered = true;
+    const provider = loggerProvider as unknown as {
+      addLogRecordProcessor?: unknown;
+    };
+    const maybeAddLogRecordProcessor = provider.addLogRecordProcessor;
+
+    if (typeof maybeAddLogRecordProcessor === 'function') {
+      (maybeAddLogRecordProcessor as (processor: BatchLogRecordProcessor) => void).call(
+        loggerProvider,
+        new BatchLogRecordProcessor(logExporter),
+      );
+      logProcessorRegistered = true;
+    }
   }
 
   otelSDK = new NodeSDK({
     resource,
     traceExporter,
-    metricReader: new PeriodicExportingMetricReader({
-      exporter: metricExporter,
-      exportIntervalMillis: 60000,
-    }),
+    metricReaders: [
+      new PeriodicExportingMetricReader({
+        exporter: metricExporter,
+        exportIntervalMillis: 60000,
+      }),
+    ],
     instrumentations: [
       getNodeAutoInstrumentations({
         '@opentelemetry/instrumentation-fs': {

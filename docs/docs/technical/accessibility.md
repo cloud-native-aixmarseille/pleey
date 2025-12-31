@@ -296,7 +296,7 @@ Used throughout the app for dynamic content updates:
 
 However, the current implementation with visual podium is acceptable if we add ARIA labels.
 
-#### ARIA Live Regions
+#### ARIA Live Regions Example
 
 ```tsx
 // Announce when new players appear in leaderboard

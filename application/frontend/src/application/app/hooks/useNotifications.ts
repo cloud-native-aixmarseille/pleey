@@ -1,6 +1,9 @@
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { useNotificationContext, ToastVariant } from "../context/NotificationContext";
+import {
+  useNotificationContext,
+  ToastVariant,
+} from "../context/NotificationContext";
 
 /**
  * Centralized notification helpers backed by the toast system.
@@ -16,7 +19,7 @@ export function useNotifications() {
         variant,
       });
     },
-    [pushToast, t]
+    [pushToast, t],
   );
 
   const notifyFromError = useCallback(
@@ -31,7 +34,7 @@ export function useNotifications() {
 
       notify(fallbackKey, "error");
     },
-    [notify, pushToast, t]
+    [notify, pushToast, t],
   );
 
   return {

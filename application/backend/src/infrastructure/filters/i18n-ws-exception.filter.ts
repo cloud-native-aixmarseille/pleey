@@ -1,6 +1,6 @@
 import { type ArgumentsHost, Catch } from '@nestjs/common';
 import { BaseWsExceptionFilter, WsException } from '@nestjs/websockets';
-import type { I18nService } from 'nestjs-i18n';
+import { I18nService } from 'nestjs-i18n';
 import { GameErrorCode } from '../../application/game/enums/game-error-code.enum';
 
 /**
@@ -19,11 +19,12 @@ export class I18nWsExceptionFilter extends BaseWsExceptionFilter {
 
     if (typeof error === 'string') {
       message = await this.translateErrorCode(error);
-    } else if (typeof error === 'object' && 'message' in error) {
-      const msgValue = (error as any).message;
-      message = typeof msgValue === 'string'
-        ? await this.translateErrorCode(msgValue)
-        : await this.i18n.translate('game.errors.validationFailed');
+    } else if (error && typeof error === 'object' && 'message' in error) {
+      const msgValue = (error as { message?: unknown }).message;
+      message =
+        typeof msgValue === 'string'
+          ? await this.translateErrorCode(msgValue)
+          : await this.i18n.translate('game.errors.validationFailed');
     } else {
       message = await this.i18n.translate('game.errors.validationFailed');
     }

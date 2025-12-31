@@ -27,7 +27,7 @@ The backend follows **Domain-Driven Design (DDD)** and **Clean Architecture**:
 
 ## 📁 Project Structure
 
-```
+```text
 application/backend/
 ├── src/
 │   ├── domain/              # Core business logic (entities, value objects)
@@ -142,7 +142,7 @@ Prisma manages the database schema and migrations. The schema is defined in `app
 
 ### Key Models
 
-```
+```text
 ┌─────────────────────┐
 │       User          │
 ├─────────────────────┤
@@ -240,7 +240,7 @@ npx prisma migrate deploy
 
 **JWT (JSON Web Token) authentication:**
 
-```
+```text
 1. User login → Email + password
 2. Backend verifies → bcrypt.compare()
 3. JWT generated → jwt.sign({id, username, isAdmin})
@@ -295,7 +295,7 @@ See [Monitoring Guide](../monitoring.md) for details.
 
 ### 1. Creating a Game
 
-```
+```text
 Admin → Selects quiz → Creates session → PIN generated
                                               ↓
                                         Share PIN
@@ -303,7 +303,7 @@ Admin → Selects quiz → Creates session → PIN generated
 
 ### 2. Joining a Game
 
-```
+```text
 Player → Enters PIN → Validates session → Joins lobby
                                               ↓
                                         Waits for start
@@ -313,7 +313,7 @@ Player roster payloads now include `avatar` fields that point to the session-bas
 
 ### 3. Running the Game
 
-```
+```text
 Admin starts
     ↓
 Question 1 displayed → Timer starts

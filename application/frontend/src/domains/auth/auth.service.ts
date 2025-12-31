@@ -1,33 +1,42 @@
-import { fetchClient } from '../../shared/api/openapiClient';
-import { User } from '../../shared/types';
-import { resolveAuthErrorKey } from './utils/resolve-auth-error';
-import { castRequestBody } from '../../shared/api/castRequestBody';
-import { isAuthResponsePayload, isUserPayload } from './utils/auth-response.guard';
+import { fetchClient } from "../../shared/api/openapiClient";
+import { User } from "../../shared/types";
+import { resolveAuthErrorKey } from "./utils/resolve-auth-error";
+import { castRequestBody } from "../../shared/api/castRequestBody";
+import {
+  isAuthResponsePayload,
+  isUserPayload,
+} from "./utils/auth-response.guard";
 
 export class AuthService {
-  async login(email: string, password: string): Promise<{
+  async login(
+    email: string,
+    password: string,
+  ): Promise<{
     token: string;
     accessToken: string;
     refreshToken: string;
     expiresIn: number;
     user: User;
   }> {
-    const { data, error } = await fetchClient.POST('/api/login', {
+    const { data, error } = await fetchClient.POST("/api/login", {
       body: castRequestBody({ email, password }),
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
     const authPayload = data as unknown;
 
     if (error) {
-      const messageKey = resolveAuthErrorKey(error, 'auth.errors.invalidCredentials');
+      const messageKey = resolveAuthErrorKey(
+        error,
+        "auth.errors.invalidCredentials",
+      );
       throw new Error(messageKey);
     }
 
     if (!isAuthResponsePayload(authPayload)) {
-      throw new Error('auth.errors.invalidResponse');
+      throw new Error("auth.errors.invalidResponse");
     }
 
     const accessToken = authPayload.accessToken ?? authPayload.token;
@@ -35,7 +44,7 @@ export class AuthService {
     const user = authPayload.user;
 
     if (!accessToken || !refreshToken || !isUserPayload(user)) {
-      throw new Error('auth.errors.invalidResponse');
+      throw new Error("auth.errors.invalidResponse");
     }
 
     return {
@@ -47,41 +56,54 @@ export class AuthService {
     };
   }
 
-  async register(username: string, email: string, password: string): Promise<void> {
-    const { error } = await fetchClient.POST('/api/register', {
+  async register(
+    username: string,
+    email: string,
+    password: string,
+  ): Promise<void> {
+    const { error } = await fetchClient.POST("/api/register", {
       body: castRequestBody({ username, email, password }),
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
     if (error) {
-      const messageKey = resolveAuthErrorKey(error, 'auth.errors.registrationFailed');
+      const messageKey = resolveAuthErrorKey(
+        error,
+        "auth.errors.registrationFailed",
+      );
       throw new Error(messageKey);
     }
   }
 
   async getProfile(): Promise<User> {
-    const { data, error } = await fetchClient.GET('/api/profile/me');
+    const { data, error } = await fetchClient.GET("/api/profile/me");
 
     if (error || !isUserPayload(data)) {
-      const messageKey = resolveAuthErrorKey(error, 'profile.errors.loadFailed');
+      const messageKey = resolveAuthErrorKey(
+        error,
+        "profile.errors.loadFailed",
+      );
       throw new Error(messageKey);
     }
 
     return data;
   }
 
-  async updateProfile(updates: { username?: string; email?: string }): Promise<User> {
-    const { data, error } = await fetchClient.PATCH('/api/profile/me', {
+  async updateProfile(updates: {
+    username?: string;
+    email?: string;
+  }): Promise<User> {
+    const { data, error } = await fetchClient.PATCH("/api/profile/me", {
       body: castRequestBody(updates),
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
     if (error || !isUserPayload(data)) {
-      const messageKey = resolveAuthErrorKey(error, 'profile.updateError');
+      const messageKey = resolveAuthErrorKey(error, "profile.updateError");
       throw new Error(messageKey);
     }
 
@@ -89,10 +111,16 @@ export class AuthService {
   }
 
   async regenerateAvatar(): Promise<User> {
-    const { data, error } = await fetchClient.POST('/api/profile/me/avatar', undefined);
+    const { data, error } = await fetchClient.POST(
+      "/api/profile/me/avatar",
+      undefined,
+    );
 
     if (error || !isUserPayload(data)) {
-      const messageKey = resolveAuthErrorKey(error, 'profile.avatarRegenerateError');
+      const messageKey = resolveAuthErrorKey(
+        error,
+        "profile.avatarRegenerateError",
+      );
       throw new Error(messageKey);
     }
 
@@ -100,14 +128,14 @@ export class AuthService {
   }
 
   async logout(): Promise<void> {
-    const { error } = await fetchClient.POST('/api/logout', {
+    const { error } = await fetchClient.POST("/api/logout", {
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       middleware: [
         {
           onRequest: ({ request }) => {
-            request.headers.set('x-refresh-attempted', 'true');
+            request.headers.set("x-refresh-attempted", "true");
           },
         },
       ],

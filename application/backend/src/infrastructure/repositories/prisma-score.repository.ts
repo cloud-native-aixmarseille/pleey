@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 import type { Score as PrismaScore } from '@prisma/client';
 import { Score } from '../../domain/game/entities/score.entity';
 import type { ScoreRepository } from '../../domain/game/repositories/score.repository.interface';
-import type { PrismaService } from '../database/prisma.service';
+import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class PrismaScoreRepository implements ScoreRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(data: {
     sessionId: number;

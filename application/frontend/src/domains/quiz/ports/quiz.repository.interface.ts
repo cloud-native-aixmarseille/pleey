@@ -1,4 +1,4 @@
-import { Quiz, Question } from '../../../shared/types';
+import { Quiz, Question } from "../../../shared/types";
 
 /**
  * Quiz Repository Interface
@@ -32,5 +32,8 @@ export interface IQuizRepository {
    * @param token - Authentication token
    * @param questionData - Question data
    */
-  addQuestion(token: string, questionData: Partial<Question>): Promise<Question>;
+  addQuestion(
+    token: string,
+    questionData: Partial<Question>,
+  ): Promise<Question>;
 }

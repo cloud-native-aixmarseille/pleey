@@ -1,13 +1,21 @@
 import type { Buffer } from 'node:buffer';
-import { Controller, Get, Inject, NotFoundException, Param, ParseIntPipe, Res } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Inject,
+  NotFoundException,
+  Param,
+  ParseIntPipe,
+  Res,
+} from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthErrorCode } from '../../application/auth/enums/auth-error-code.enum';
 import {
-  UserRepositoryProvider,
   type UserRepository,
+  UserRepositoryProvider,
 } from '../../domain/auth/repositories/user.repository.interface';
-import type { UserAvatarService } from '../../domain/auth/services/user-avatar.service';
-import type { AvatarGeneratorService } from '../../domain/shared/services/avatar-generator.service';
+import { UserAvatarService } from '../../domain/auth/services/user-avatar.service';
+import { AvatarGeneratorService } from '../../domain/shared/services/avatar-generator.service';
 
 @Controller('avatars')
 export class AvatarController {
@@ -16,7 +24,7 @@ export class AvatarController {
     private readonly userRepository: UserRepository,
     private readonly userAvatarService: UserAvatarService,
     private readonly avatarGeneratorService: AvatarGeneratorService,
-  ) { }
+  ) {}
 
   @Get('users/:userId')
   async getUserAvatar(
@@ -38,7 +46,9 @@ export class AvatarController {
     try {
       buffer = this.userAvatarService.toSvgBuffer(user.avatarUrl);
     } catch (error) {
-      throw new NotFoundException(AuthErrorCode.AVATAR_NOT_FOUND, { cause: error as Error });
+      throw new NotFoundException(AuthErrorCode.AVATAR_NOT_FOUND, {
+        cause: error as Error,
+      });
     }
 
     res.setHeader('Content-Type', 'image/svg+xml');
@@ -59,7 +69,9 @@ export class AvatarController {
     try {
       seed = decodeURIComponent(encodedSeed);
     } catch (error) {
-      throw new NotFoundException(AuthErrorCode.AVATAR_NOT_FOUND, { cause: error as Error });
+      throw new NotFoundException(AuthErrorCode.AVATAR_NOT_FOUND, {
+        cause: error as Error,
+      });
     }
 
     const buffer = this.avatarGeneratorService.generateAvatarBuffer(seed, sessionId);

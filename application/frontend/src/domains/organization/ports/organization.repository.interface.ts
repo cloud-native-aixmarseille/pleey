@@ -1,4 +1,8 @@
-import { Organization, OrganizationDashboard, OrganizationMember } from '../../../shared/types';
+import {
+  Organization,
+  OrganizationDashboard,
+  OrganizationMember,
+} from "../../../shared/types";
 
 /**
  * Organization Repository Interface
@@ -20,7 +24,7 @@ export interface IOrganizationRepository {
   createOrganization(
     token: string,
     name: string,
-    description?: string
+    description?: string,
   ): Promise<Organization>;
 
   /**
@@ -30,7 +34,7 @@ export interface IOrganizationRepository {
    */
   getOrganizationDashboard(
     token: string,
-    organizationId: number
+    organizationId: number,
   ): Promise<OrganizationDashboard>;
 
   /**
@@ -44,7 +48,7 @@ export interface IOrganizationRepository {
     token: string,
     organizationId: number,
     userId: number,
-    role: 'owner' | 'admin' | 'member'
+    role: "owner" | "admin" | "member",
   ): Promise<OrganizationMember>;
 
   /**

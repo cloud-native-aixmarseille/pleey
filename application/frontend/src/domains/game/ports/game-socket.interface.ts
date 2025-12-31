@@ -11,7 +11,12 @@ export interface IGameSocket {
    * @param userId - Player user ID (optional for guest players)
    * @param guestId - Guest player ID (optional, for guest players)
    */
-  joinGame(pin: string, username: string, userId?: number, guestId?: string): void;
+  joinGame(
+    pin: string,
+    username: string,
+    userId?: number,
+    guestId?: string,
+  ): void;
 
   /**
    * Start the game (admin only)
@@ -41,7 +46,13 @@ export interface IGameSocket {
    * @param timeLeft - Time remaining when answered
    * @param guestId - Guest player ID (optional, for guest players)
    */
-  submitAnswer(pin: string, userId: number | undefined, answer: string, timeLeft: number, guestId?: string): void;
+  submitAnswer(
+    pin: string,
+    userId: number | undefined,
+    answer: string,
+    timeLeft: number,
+    guestId?: string,
+  ): void;
 
   /**
    * Move to next question (admin only)
@@ -49,4 +60,3 @@ export interface IGameSocket {
    */
   nextQuestion(pin: string): void;
 }
-

@@ -63,7 +63,7 @@ make test-e2e-ui          # Playwright UI mode
 
 QuizMaster follows the **testing pyramid** principle:
 
-```
+```text
        /  \  E2E Tests (few) - Smoke tests & critical flows
     /  INT   \ Integration Tests (some) - Component interactions
  /     UNIT     \ Unit Tests (many) - Business logic
@@ -75,7 +75,7 @@ QuizMaster follows the **testing pyramid** principle:
 
 ## Test Structure
 
-```
+```text
 quiz-app/
 ├── application/backend/
 │   ├── src/
@@ -258,7 +258,7 @@ describe('Component with transitions', () => {
 - Suppresses expected React 19 warnings in test output
 - See `src/test/setup.js` for complete configuration
 
-### End-to-end Tests (Playwright)
+### End-to-end Tests (Playwright Example)
 
 > **Important:** Playwright suites **must** run inside the Docker Compose `e2e-tests` service so they share the same network as the backend/frontend containers. Running `npx playwright test` directly on the host is no longer supported.
 

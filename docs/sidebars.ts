@@ -1,4 +1,4 @@
-import type { SidebarsConfig } from '@docusaurus/plugin-content-docs';
+import type { SidebarsConfig } from "@docusaurus/plugin-content-docs";
 
 /**
  * Sidebar configuration for QuizMaster documentation
@@ -8,12 +8,12 @@ const sidebars: SidebarsConfig = {
   // Functional documentation for end users
   functionalSidebar: [
     {
-      type: 'category',
-      label: '🎮 User Guide',
+      type: "category",
+      label: "🎮 User Guide",
       items: [
-        'functional/intro',
-        'functional/quickstart',
-        'functional/admin-host-guide',
+        "functional/intro",
+        "functional/quickstart",
+        "functional/admin-host-guide",
       ],
     },
   ],
@@ -21,39 +21,33 @@ const sidebars: SidebarsConfig = {
   // Technical documentation for developers, QA, and agents
   technicalSidebar: [
     {
-      type: 'category',
-      label: '🏗️ Architecture & Design',
+      type: "category",
+      label: "🏗️ Architecture & Design",
+      items: ["technical/architecture/index", "technical/design-system"],
+    },
+    {
+      type: "category",
+      label: "🛠️ Development",
       items: [
-        'technical/architecture/index',
-        'technical/design-system',
+        "technical/docker-guide",
+        "technical/testing",
+        "technical/i18n",
+        "technical/accessibility",
       ],
     },
     {
-      type: 'category',
-      label: '🛠️ Development',
+      type: "category",
+      label: "🚀 Deployment & Operations",
       items: [
-        'technical/docker-guide',
-        'technical/testing',
-        'technical/i18n',
-        'technical/accessibility',
+        "technical/deployment",
+        "technical/monitoring",
+        "technical/security",
       ],
     },
     {
-      type: 'category',
-      label: '🚀 Deployment & Operations',
-      items: [
-        'technical/deployment',
-        'technical/monitoring',
-        'technical/security',
-      ],
-    },
-    {
-      type: 'category',
-      label: '📖 Reference',
-      items: [
-        'technical/quick-reference',
-        'technical/documentation-guide',
-      ],
+      type: "category",
+      label: "📖 Reference",
+      items: ["technical/quick-reference", "technical/documentation-guide"],
     },
   ],
 };

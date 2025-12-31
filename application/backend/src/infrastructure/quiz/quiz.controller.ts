@@ -1,12 +1,24 @@
-import { Body, Controller, Delete, ForbiddenException, Get, HttpCode, Param, ParseIntPipe, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  ForbiddenException,
+  Get,
+  HttpCode,
+  Param,
+  ParseIntPipe,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import type { Request } from 'express';
-import type { CreateQuizDto } from '../../application/quiz/dto/create-quiz.dto';
-import type { CreateQuizUseCase } from '../../application/quiz/use-cases/create-quiz.use-case';
-import type { DeleteQuizUseCase } from '../../application/quiz/use-cases/delete-quiz.use-case';
-import type { GetAllQuizzesUseCase } from '../../application/quiz/use-cases/get-all-quizzes.use-case';
-import type { GetQuizQuestionsUseCase } from '../../application/quiz/use-cases/get-quiz-questions.use-case';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CreateQuizDto } from '../../application/quiz/dto/create-quiz.dto';
 import { QuizErrorCode } from '../../application/quiz/enums/quiz-error-code.enum';
+import { CreateQuizUseCase } from '../../application/quiz/use-cases/create-quiz.use-case';
+import { DeleteQuizUseCase } from '../../application/quiz/use-cases/delete-quiz.use-case';
+import { GetAllQuizzesUseCase } from '../../application/quiz/use-cases/get-all-quizzes.use-case';
+import { GetQuizQuestionsUseCase } from '../../application/quiz/use-cases/get-quiz-questions.use-case';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -24,7 +36,7 @@ export class QuizController {
     private readonly deleteQuizUseCase: DeleteQuizUseCase,
     private readonly getAllQuizzesUseCase: GetAllQuizzesUseCase,
     private readonly getQuizQuestionsUseCase: GetQuizQuestionsUseCase,
-  ) { }
+  ) {}
 
   @Post()
   @UseGuards(JwtAuthGuard)

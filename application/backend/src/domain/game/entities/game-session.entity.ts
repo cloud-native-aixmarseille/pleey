@@ -1,5 +1,5 @@
-import { GameSessionStatus } from '../enums/game-session-status.enum';
 import { GameErrorCode } from '../../../application/game/enums/game-error-code.enum';
+import { GameSessionStatus } from '../enums/game-session-status.enum';
 
 /**
  * GameSession Domain Entity

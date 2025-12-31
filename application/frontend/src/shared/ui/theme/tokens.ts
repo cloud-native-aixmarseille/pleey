@@ -1,7 +1,4 @@
-import type {
-  ThemeTokens,
-  ThemeTokenOverrides,
-} from "./types";
+import type { ThemeTokens, ThemeTokenOverrides } from "./types";
 
 const NEON_COLOR_PRIMARY = {
   50: "#f0f0ff",
@@ -196,9 +193,7 @@ function mergeDeep<T extends Mergeable>(target: T, source: Mergeable): T {
   return output as T;
 }
 
-export function mergeThemeTokens(
-  overrides?: ThemeTokenOverrides
-): ThemeTokens {
+export function mergeThemeTokens(overrides?: ThemeTokenOverrides): ThemeTokens {
   if (!overrides) {
     return { ...NEON_THEME_TOKENS };
   }

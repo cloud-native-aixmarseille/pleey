@@ -11,12 +11,12 @@ type CreateQuiz = (
   token: string,
   title: string,
   description: string,
-  organizationId: number
+  organizationId: number,
 ) => Promise<Quiz>;
 
 type AddQuestion = (
   token: string,
-  payload: CreateQuestionPayload
+  payload: CreateQuestionPayload,
 ) => Promise<Question>;
 
 type DeleteQuiz = (token: string, quizId: number) => Promise<void>;
@@ -52,7 +52,7 @@ export function useAdminQuizActions({
 
       await fetchQuizQuestions(token, quizId);
     },
-    [token, fetchQuizQuestions]
+    [token, fetchQuizQuestions],
   );
 
   const handleCreateQuiz = useCallback(
@@ -68,7 +68,7 @@ export function useAdminQuizActions({
         notifyFromError(error, "errors.createQuizFailed");
       }
     },
-    [token, createQuiz, loadQuizzes, notifyFromError]
+    [token, createQuiz, loadQuizzes, notifyFromError],
   );
 
   const handleManageQuiz = useCallback(
@@ -76,7 +76,7 @@ export function useAdminQuizActions({
       await handleLoadQuizQuestions(quiz.id);
       navigate(`/admin/quizzes/${quiz.id}`);
     },
-    [handleLoadQuizQuestions, navigate]
+    [handleLoadQuizQuestions, navigate],
   );
 
   const handleAddQuestion = useCallback(
@@ -91,7 +91,7 @@ export function useAdminQuizActions({
         notifyFromError(error, "errors.unableToLoadQuestions");
       }
     },
-    [token, addQuestion, notifyFromError]
+    [token, addQuestion, notifyFromError],
   );
 
   const handleDeleteQuiz = useCallback(
@@ -106,7 +106,7 @@ export function useAdminQuizActions({
         notifyFromError(error, "errors.deleteQuizFailed");
       }
     },
-    [token, deleteQuiz, notifyFromError]
+    [token, deleteQuiz, notifyFromError],
   );
 
   return {

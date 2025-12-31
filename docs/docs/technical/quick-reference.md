@@ -290,7 +290,7 @@ docker system prune -a --volumes
 
 ## 📁 Project Structure
 
-```
+```text
 quiz-app/
 ├── Makefile                   # Primary command interface
 ├── compose.yaml               # Docker services configuration
@@ -368,7 +368,7 @@ openssl rand -base64 32
 
 ## 🛠️ Deployment
 
-### Development
+### Development (Deployment)
 
 ```bash
 make up

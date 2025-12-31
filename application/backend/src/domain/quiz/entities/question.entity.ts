@@ -22,7 +22,7 @@ export class Question {
    * Supports both single answer (e.g., "A") and multiple answers (e.g., "A,D")
    */
   getCorrectAnswers(): string[] {
-    return this.correctAnswer.split(',').map(a => a.trim());
+    return this.correctAnswer.split(',').map((a) => a.trim());
   }
 
   /**

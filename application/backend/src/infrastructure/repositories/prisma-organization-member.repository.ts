@@ -1,13 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import type { OrganizationMemberRepository } from '../../domain/organization/repositories/organization-member.repository.interface';
+import type { OrganizationMember as PrismaOrganizationMember } from '@prisma/client';
 import { OrganizationMember } from '../../domain/organization/entities/organization-member.entity';
 import type { OrganizationRole } from '../../domain/organization/enums/organization-role.enum';
-import type { PrismaService } from '../database/prisma.service';
+import type { OrganizationMemberRepository } from '../../domain/organization/repositories/organization-member.repository.interface';
+import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
-export class PrismaOrganizationMemberRepository
-  implements OrganizationMemberRepository
-{
+export class PrismaOrganizationMemberRepository implements OrganizationMemberRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(
@@ -58,9 +57,7 @@ export class PrismaOrganizationMemberRepository
     return this.toDomain(member);
   }
 
-  async findByOrganization(
-    organizationId: number,
-  ): Promise<OrganizationMember[]> {
+  async findByOrganization(organizationId: number): Promise<OrganizationMember[]> {
     const members = await this.prisma.organizationMember.findMany({
       where: { organizationId },
       orderBy: {
@@ -68,10 +65,7 @@ export class PrismaOrganizationMemberRepository
       },
     });
 
-    return members.map(
-      (member) =>
-        this.toDomain(member),
-    );
+    return members.map((member: PrismaOrganizationMember) => this.toDomain(member));
   }
 
   async findByUser(userId: number): Promise<OrganizationMember[]> {
@@ -82,16 +76,10 @@ export class PrismaOrganizationMemberRepository
       },
     });
 
-    return members.map(
-      (member) =>
-        this.toDomain(member),
-    );
+    return members.map((member: PrismaOrganizationMember) => this.toDomain(member));
   }
 
-  async updateRole(
-    id: number,
-    role: OrganizationRole,
-  ): Promise<OrganizationMember> {
+  async updateRole(id: number, role: OrganizationRole): Promise<OrganizationMember> {
     const member = await this.prisma.organizationMember.update({
       where: { id },
       data: { role },
@@ -106,7 +94,7 @@ export class PrismaOrganizationMemberRepository
     });
   }
 
-  private toDomain(member: any): OrganizationMember {
+  private toDomain(member: PrismaOrganizationMember): OrganizationMember {
     return new OrganizationMember(
       member.id,
       member.organizationId,

@@ -1,0 +1,50 @@
+{
+  "rules": {
+    "at-rule-no-unknown": [
+      true,
+      {
+        "ignoreAtRules": [
+          "tailwind",
+          "apply",
+          "layer",
+          "config",
+          "variants",
+          "responsive",
+          "screen"
+        ]
+      }
+    ],
+    "at-rule-no-deprecated": null,
+    "import-notation": null,
+
+    "selector-class-pattern": [
+      "^([a-z][a-z0-9]*)(-[a-z0-9]+)*(__[a-z0-9]+(-[a-z0-9]+)*)?(--[a-z0-9]+(-[a-z0-9]+)*)?$|^[a-z][a-zA-Z0-9]+$",
+      {
+        "resolveNestedSelectors": true
+      }
+    ],
+    "selector-not-notation": null,
+    "no-descending-specificity": null,
+
+    "media-feature-name-value-no-unknown": null,
+    "media-feature-range-notation": null,
+
+    "color-hex-length": null,
+    "color-function-alias-notation": null,
+    "color-function-notation": null,
+    "alpha-value-notation": null,
+    "value-keyword-case": null,
+
+    "font-family-name-quotes": null,
+
+    "number-max-precision": null,
+    "length-zero-no-unit": null,
+
+    "at-rule-empty-line-before": null,
+    "custom-property-empty-line-before": null,
+    "rule-empty-line-before": null,
+    "declaration-empty-line-before": null,
+
+    "declaration-block-no-redundant-longhand-properties": null
+  }
+}

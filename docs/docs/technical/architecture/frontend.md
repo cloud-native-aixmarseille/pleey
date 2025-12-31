@@ -54,7 +54,7 @@ The application leverages React 19's enhanced features for improved performance 
 
 ## 🗂️ Project Structure
 
-```
+```text
 application/frontend/
 ├── src/
 │   ├── App.tsx                    # Main app with context providers
@@ -139,7 +139,7 @@ application/frontend/
 
 ## 🔄 Data Flow
 
-```
+```text
 User Action → Context Hook → Use Case → Repository → API/WebSocket
                     ↓
             State Update ← Backend Response ← Repository ← Use Case

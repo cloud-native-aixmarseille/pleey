@@ -1,5 +1,7 @@
+---
 # Production environment values for QuizMaster
-# Usage: helm install quiz-app ./deploy/helm/quiz-app -f ./deploy/helm/quiz-app/values-prod.yaml
+# Usage: helm install quiz-app ./deploy/helm/quiz-app \
+#   -f ./deploy/helm/quiz-app/values-prod.yaml
 
 backend:
   replicaCount: 3
@@ -25,7 +27,7 @@ backend:
   secrets:
     # Use external secrets operator or sealed secrets for production
     # DO NOT commit actual secrets to git
-    jwtSecret: "OVERRIDE_WITH_EXTERNAL_SECRETS"
+    jwtSecret: "CHANGE_ME"
 
   autoscaling:
     enabled: true
@@ -68,7 +70,8 @@ postgresql:
   auth:
     username: quizapp
     # Use external secret management
-    existingSecret: "quiz-app-postgresql-secret"
+    # Provide this at deploy time (e.g. --set postgresql.auth.existingSecret=my-secret)
+    existingSecret: ""
     database: quizdb
 
   primary:

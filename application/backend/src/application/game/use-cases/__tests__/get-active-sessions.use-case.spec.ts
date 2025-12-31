@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { GetActiveSessionsUseCase } from '../get-active-sessions.use-case';
-import type { GameSessionRepository } from '../../../../domain/game/repositories/game-session.repository.interface';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { GameSession } from '../../../../domain/game/entities/game-session.entity';
+import type { GameSessionRepository } from '../../../../domain/game/repositories/game-session.repository.interface';
+import { GetActiveSessionsUseCase } from '../get-active-sessions.use-case';
 
 describe('GetActiveSessionsUseCase', () => {
   let useCase: GetActiveSessionsUseCase;
@@ -63,7 +63,7 @@ describe('GetActiveSessionsUseCase', () => {
       const result = await useCase.execute(100);
 
       expect(result).toHaveLength(3);
-      expect(result.every(s => ['waiting', 'active', 'paused'].includes(s.status))).toBe(true);
+      expect(result.every((s) => ['waiting', 'active', 'paused'].includes(s.status))).toBe(true);
     });
   });
 });

@@ -3,6 +3,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ include "quiz-app.fullname" . }}
+  namespace: {{ include "quiz-app.namespace" . | quote }}
   labels:
     {{- include "quiz-app.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}

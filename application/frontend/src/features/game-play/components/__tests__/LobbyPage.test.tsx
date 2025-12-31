@@ -22,7 +22,7 @@ describe("LobbyPage", () => {
 
     expect(screen.getByText(/GAME LOBBY/i)).toBeInTheDocument();
     expect(
-      screen.getByRole("text", { name: /Enter PIN:? 123456/i })
+      screen.getByRole("status", { name: /Enter PIN:\s*123456/i })
     ).toBeInTheDocument();
   });
 

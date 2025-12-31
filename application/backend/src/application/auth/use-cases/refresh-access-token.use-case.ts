@@ -1,19 +1,20 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import { UserRepositoryProvider } from '../../../domain/auth/repositories/user.repository.interface';
 import type { UserRepository } from '../../../domain/auth/repositories/user.repository.interface';
-import type { PasswordService } from '../../../domain/auth/services/password.service';
+import { UserRepositoryProvider } from '../../../domain/auth/repositories/user.repository.interface';
+import { PasswordService } from '../../../domain/auth/services/password.service';
+import { mapUserToPublicProfile, toPublicAvatarUrl } from '../../shared/utils/avatar-url.util';
 import type { AuthResponseDto } from '../dto/auth-response.dto';
 import { AuthErrorCode } from '../enums/auth-error-code.enum';
-import { mapUserToPublicProfile, toPublicAvatarUrl } from '../../shared/utils/avatar-url.util';
-import type { AuthTokenService } from '../services/auth-token.service';
+import { AuthTokenService } from '../services/auth-token.service';
 
 @Injectable()
 export class RefreshAccessTokenUseCase {
   constructor(
-    @Inject(UserRepositoryProvider) private readonly userRepository: UserRepository,
+    @Inject(UserRepositoryProvider)
+    private readonly userRepository: UserRepository,
     private readonly passwordService: PasswordService,
     private readonly authTokenService: AuthTokenService,
-  ) { }
+  ) {}
 
   async execute(refreshToken: string): Promise<AuthResponseDto> {
     const userId = await this.authTokenService.verifyRefreshToken(refreshToken);
@@ -49,9 +50,6 @@ export class RefreshAccessTokenUseCase {
       tokenPair.refreshTokenExpiresAt,
     );
 
-    return this.authTokenService.mapTokensToResponse(
-      tokenPair,
-      mapUserToPublicProfile(user),
-    );
+    return this.authTokenService.mapTokensToResponse(tokenPair, mapUserToPublicProfile(user));
   }
 }

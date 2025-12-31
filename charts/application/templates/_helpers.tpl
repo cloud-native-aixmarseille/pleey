@@ -98,10 +98,19 @@ Backend image
 {{- $registry := .Values.backend.image.registry | default .Values.global.imageRegistry -}}
 {{- $repository := .Values.backend.image.repository -}}
 {{- $tag := .Values.backend.image.tag | default .Chart.AppVersion -}}
+{{- $digest := .Values.backend.image.digest -}}
 {{- if $registry }}
+{{- if $digest }}
+{{- printf "%s/%s@%s" $registry $repository $digest }}
+{{- else }}
 {{- printf "%s/%s:%s" $registry $repository $tag }}
+{{- end }}
+{{- else }}
+{{- if $digest }}
+{{- printf "%s@%s" $repository $digest }}
 {{- else }}
 {{- printf "%s:%s" $repository $tag }}
+{{- end }}
 {{- end }}
 {{- end }}
 
@@ -112,10 +121,42 @@ Frontend image
 {{- $registry := .Values.frontend.image.registry | default .Values.global.imageRegistry -}}
 {{- $repository := .Values.frontend.image.repository -}}
 {{- $tag := .Values.frontend.image.tag | default .Chart.AppVersion -}}
+{{- $digest := .Values.frontend.image.digest -}}
 {{- if $registry }}
+{{- if $digest }}
+{{- printf "%s/%s@%s" $registry $repository $digest }}
+{{- else }}
 {{- printf "%s/%s:%s" $registry $repository $tag }}
+{{- end }}
+{{- else }}
+{{- if $digest }}
+{{- printf "%s@%s" $repository $digest }}
 {{- else }}
 {{- printf "%s:%s" $repository $tag }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Wait-for-db init container image
+*/}}
+{{- define "quiz-app.waitForDb.image" -}}
+{{- $registry := .Values.global.initContainers.waitForDb.image.registry | default .Values.global.imageRegistry -}}
+{{- $repository := .Values.global.initContainers.waitForDb.image.repository | default "busybox" -}}
+{{- $tag := .Values.global.initContainers.waitForDb.image.tag | default "1.36" -}}
+{{- $digest := .Values.global.initContainers.waitForDb.image.digest -}}
+{{- if $registry }}
+{{- if $digest }}
+{{- printf "%s/%s@%s" $registry $repository $digest }}
+{{- else }}
+{{- printf "%s/%s:%s" $registry $repository $tag }}
+{{- end }}
+{{- else }}
+{{- if $digest }}
+{{- printf "%s@%s" $repository $digest }}
+{{- else }}
+{{- printf "%s:%s" $repository $tag }}
+{{- end }}
 {{- end }}
 {{- end }}
 
@@ -141,4 +182,15 @@ Image pull policy
 */}}
 {{- define "quiz-app.imagePullPolicy" -}}
 {{- .Values.global.imagePullPolicy | default "IfNotPresent" }}
+{{- end }}
+
+{{/*
+Namespace to deploy resources into
+
+Checkov’s Helm scan renders with namespace=default; by defaulting the
+namespace override to a non-default value in values.yaml, we avoid
+CKV_K8S_21 failures while still allowing overrides per environment.
+*/}}
+{{- define "quiz-app.namespace" -}}
+{{- .Values.global.namespaceOverride | default .Values.namespaceOverride | default .Release.Namespace -}}
 {{- end }}

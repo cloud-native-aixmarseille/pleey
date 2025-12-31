@@ -26,15 +26,11 @@
         "servers": {
           "playwright": {
             "command": "npx",
-            "args": [
-              "@playwright/mcp@latest"
-            ]
+            "args": ["@playwright/mcp@latest"]
           },
           "lighthouse": {
             "command": "npx",
-            "args": [
-              "lighthouse-mcp"
-            ]
+            "args": ["lighthouse-mcp"]
           }
         }
       },

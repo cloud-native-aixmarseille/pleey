@@ -1,5 +1,5 @@
-import { Organization, OrganizationDashboard } from '../../shared/types';
-import { organizationRepository } from './infrastructure/organization-http.repository';
+import { Organization, OrganizationDashboard } from "../../shared/types";
+import { organizationRepository } from "./infrastructure/organization-http.repository";
 
 /**
  * Organization Service
@@ -13,16 +13,23 @@ export class OrganizationService {
   async createOrganization(
     token: string,
     name: string,
-    description?: string
+    description?: string,
   ): Promise<Organization> {
-    return await organizationRepository.createOrganization(token, name, description);
+    return await organizationRepository.createOrganization(
+      token,
+      name,
+      description,
+    );
   }
 
   async getOrganizationDashboard(
     token: string,
-    organizationId: number
+    organizationId: number,
   ): Promise<OrganizationDashboard> {
-    return await organizationRepository.getOrganizationDashboard(token, organizationId);
+    return await organizationRepository.getOrganizationDashboard(
+      token,
+      organizationId,
+    );
   }
 }
 

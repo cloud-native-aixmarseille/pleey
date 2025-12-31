@@ -8,19 +8,25 @@ interface AuthResponsePayload {
   user?: unknown;
 }
 
-export function isAuthResponsePayload(value: unknown): value is AuthResponsePayload {
+export function isAuthResponsePayload(
+  value: unknown,
+): value is AuthResponsePayload {
   if (!value || typeof value !== "object") {
     return false;
   }
 
   const candidate = value as AuthResponsePayload;
   const hasAccessToken =
-    typeof candidate.accessToken === "string" || typeof candidate.token === "string";
+    typeof candidate.accessToken === "string" ||
+    typeof candidate.token === "string";
   const hasRefreshToken = typeof candidate.refreshToken === "string";
   const hasExpiresIn =
-    candidate.expiresIn === undefined || typeof candidate.expiresIn === "number";
+    candidate.expiresIn === undefined ||
+    typeof candidate.expiresIn === "number";
 
-  return hasAccessToken && hasRefreshToken && hasExpiresIn && "user" in candidate;
+  return (
+    hasAccessToken && hasRefreshToken && hasExpiresIn && "user" in candidate
+  );
 }
 
 export function isUserPayload(value: unknown): value is User {
@@ -37,4 +43,3 @@ export function isUserPayload(value: unknown): value is User {
     typeof candidate.isAdmin === "boolean"
   );
 }
-

@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook } from '@testing-library/react';
-import { useTimer } from '../useTimer';
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { renderHook } from "@testing-library/react";
+import { useTimer } from "../useTimer";
 
-describe('useTimer', () => {
+describe("useTimer", () => {
   beforeEach(() => {
     vi.useFakeTimers();
   });
@@ -12,7 +12,7 @@ describe('useTimer', () => {
     vi.restoreAllMocks();
   });
 
-  it('should decrement timeLeft when active and no answer', async () => {
+  it("should decrement timeLeft when active and no answer", async () => {
     const setTimeLeft = vi.fn();
 
     renderHook(() => useTimer(10, setTimeLeft, true, false));
@@ -22,7 +22,7 @@ describe('useTimer', () => {
     expect(setTimeLeft).toHaveBeenCalledWith(9);
   });
 
-  it('should not decrement when not active', async () => {
+  it("should not decrement when not active", async () => {
     const setTimeLeft = vi.fn();
 
     renderHook(() => useTimer(10, setTimeLeft, false, false));
@@ -32,7 +32,7 @@ describe('useTimer', () => {
     expect(setTimeLeft).not.toHaveBeenCalled();
   });
 
-  it('should not decrement when answer is submitted', async () => {
+  it("should not decrement when answer is submitted", async () => {
     const setTimeLeft = vi.fn();
 
     renderHook(() => useTimer(10, setTimeLeft, true, true));
@@ -42,7 +42,7 @@ describe('useTimer', () => {
     expect(setTimeLeft).not.toHaveBeenCalled();
   });
 
-  it('should not decrement when time is 0', async () => {
+  it("should not decrement when time is 0", async () => {
     const setTimeLeft = vi.fn();
 
     renderHook(() => useTimer(0, setTimeLeft, true, false));

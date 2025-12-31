@@ -1,12 +1,12 @@
-import { Inject, Injectable, ConflictException } from '@nestjs/common';
+import { ConflictException, Inject, Injectable } from '@nestjs/common';
+import type { Organization } from '../../../domain/organization/entities/organization.entity';
+import { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
 import type { OrganizationRepository } from '../../../domain/organization/repositories/organization.repository.interface';
 import { OrganizationRepositoryProvider } from '../../../domain/organization/repositories/organization.repository.interface';
 import type { OrganizationMemberRepository } from '../../../domain/organization/repositories/organization-member.repository.interface';
 import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/repositories/organization-member.repository.interface';
-import { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
 import type { CreateOrganizationDto } from '../dto/create-organization.dto';
 import { OrganizationErrorCode } from '../enums/organization-error-code.enum';
-import type { Organization } from '../../../domain/organization/entities/organization.entity';
 
 /**
  * Use case for creating a new organization
@@ -21,16 +21,11 @@ export class CreateOrganizationUseCase {
     private readonly memberRepository: OrganizationMemberRepository,
   ) {}
 
-  async execute(
-    dto: CreateOrganizationDto,
-    creatorUserId: number,
-  ): Promise<Organization> {
+  async execute(dto: CreateOrganizationDto, creatorUserId: number): Promise<Organization> {
     // Check if organization name already exists
     const existing = await this.organizationRepository.findByName(dto.name);
     if (existing) {
-      throw new ConflictException(
-        OrganizationErrorCode.ORGANIZATION_NAME_ALREADY_EXISTS,
-      );
+      throw new ConflictException(OrganizationErrorCode.ORGANIZATION_NAME_ALREADY_EXISTS);
     }
 
     // Create the organization
@@ -40,11 +35,7 @@ export class CreateOrganizationUseCase {
     );
 
     // Add the creator as owner
-    await this.memberRepository.create(
-      organization.id,
-      creatorUserId,
-      OrganizationRole.OWNER,
-    );
+    await this.memberRepository.create(organization.id, creatorUserId, OrganizationRole.OWNER);
 
     return organization;
   }

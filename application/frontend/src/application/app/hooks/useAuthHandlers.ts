@@ -53,7 +53,7 @@ export function useAuthHandlers({
 
       navigate("/game/join", { replace: true });
     },
-    [login, loadQuizzes, clearSession, notifyFromError, navigate]
+    [login, loadQuizzes, clearSession, notifyFromError, navigate],
   );
 
   const handleRegister = useCallback(
@@ -66,7 +66,7 @@ export function useAuthHandlers({
         notifyFromError(error, "errors.registrationError");
       }
     },
-    [register, notify, notifyFromError, navigate]
+    [register, notify, notifyFromError, navigate],
   );
 
   return {

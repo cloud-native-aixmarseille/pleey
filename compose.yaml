@@ -93,7 +93,7 @@ services:
       - traefik-proxy
     environment:
       - NODE_ENV=development
-      - VITE_API_URL=http://backend.quiz-app.localhost
+      - VITE_API_URL=${VITE_API_URL:-}
       - CHOKIDAR_USEPOLLING=1
     labels:
       - "traefik.enable=true"
@@ -108,6 +108,8 @@ services:
     init: true
     stdin_open: true
     tty: true
+    expose:
+      - "9323"
     environment:
       - BASE_URL=${BASE_URL:-http://frontend:5173}
       - API_BASE_URL=${API_BASE_URL:-http://backend:3001/api}
@@ -124,6 +126,13 @@ services:
         condition: service_started
     networks:
       - quiz-network
+      - traefik-proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.e2e-tests.rule=Host(`e2e.quiz-app.localhost`)"
+      - "traefik.http.routers.e2e-tests.entrypoints=http"
+      - "traefik.http.services.e2e-tests.loadbalancer.server.port=9323"
+      - "traefik.docker.network=traefik-proxy"
 
   otel-collector:
     image: otel/opentelemetry-collector:0.105.0

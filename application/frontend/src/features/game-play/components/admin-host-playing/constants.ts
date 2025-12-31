@@ -21,7 +21,7 @@ export function determineTimerUrgency(timeLeft: number): TimerUrgency {
 
 export function calculateProgressPercentage(
   timeLeft: number,
-  timeLimit: number
+  timeLimit: number,
 ): number {
   if (timeLimit <= 0) {
     return 0;

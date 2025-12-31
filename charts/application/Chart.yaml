@@ -1,3 +1,4 @@
+---
 apiVersion: v2
 name: quiz-app
 description: QuizMaster - Interactive Quiz Application with real-time gameplay

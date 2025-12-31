@@ -1,6 +1,7 @@
-FROM node:25.2-bookworm-slim AS base
+FROM node:22-bookworm-slim AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
+# hadolint ignore=DL3008
 RUN \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
@@ -9,6 +10,7 @@ RUN \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' >/etc/apt/apt.conf.d/keep-cache && \
     apt-get update && apt-get install -y --no-install-recommends curl ca-certificates dumb-init
 
+# hadolint ignore=DL3016
 RUN --mount=type=cache,target=/root/.npm \
     set -eu; \
     npm install -g npm;
@@ -27,7 +29,7 @@ RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc \
 
 COPY --chown=node:node ./application/backend/prisma /usr/src/app/prisma
 RUN set -eu; \
-    DATABASE_URL="postgresql://user:pass@localhost:5432/db" npm run db:generate;
+    npm run db:generate;
 
 COPY --chown=node:node ./application/backend/ /usr/src/app/
 RUN npm run build
@@ -48,13 +50,17 @@ COPY --chown=node:node --from=build-prod /usr/src/app/node_modules /usr/src/app/
 COPY --chown=node:node --from=build-prod /usr/src/app/prisma /usr/src/app/prisma
 COPY --chown=node:node --from=build-prod /usr/src/app/dist /usr/src/app/dist
 
-CMD dumb-init node --max-old-space-size=200 "/usr/src/app/dist/main.js"
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+    CMD curl -fsS http://localhost:3001/api/health/ready || exit 1
+
+CMD ["dumb-init", "node", "--max-old-space-size=200", "/usr/src/app/dist/main.js"]
 
 FROM base as tools
 
 # Install libs utils for ci
 USER root
 ENV DEBIAN_FRONTEND=noninteractive
+# hadolint ignore=DL3008
 RUN \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
@@ -76,4 +82,4 @@ FROM tools AS dev
 EXPOSE 3001
 
 # Start development server with hot-reload after ensuring dependencies
-CMD ["sh", "-c", "npm install && npm run start:dev"]
+CMD ["sh", "-c", "npm install && npm run db:generate && npm run start:dev"]

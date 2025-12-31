@@ -1,10 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
 export function useTimer(
   timeLeft: number,
   setTimeLeft: (time: number) => void,
   isActive: boolean,
-  hasAnswer: boolean
+  hasAnswer: boolean,
 ) {
   useEffect(() => {
     if (isActive && timeLeft > 0 && !hasAnswer) {

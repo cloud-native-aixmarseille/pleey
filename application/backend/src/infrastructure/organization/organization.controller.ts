@@ -10,14 +10,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import type { Request } from 'express';
+import { AddMemberDto } from '../../application/organization/dto/add-member.dto';
+import { CreateOrganizationDto } from '../../application/organization/dto/create-organization.dto';
+import { AddMemberToOrganizationUseCase } from '../../application/organization/use-cases/add-member-to-organization.use-case';
+import { CreateOrganizationUseCase } from '../../application/organization/use-cases/create-organization.use-case';
+import { GetOrganizationDashboardUseCase } from '../../application/organization/use-cases/get-organization-dashboard.use-case';
+import { GetOrganizationsByUserUseCase } from '../../application/organization/use-cases/get-organizations-by-user.use-case';
+import { RemoveMemberFromOrganizationUseCase } from '../../application/organization/use-cases/remove-member-from-organization.use-case';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import type { CreateOrganizationUseCase } from '../../application/organization/use-cases/create-organization.use-case';
-import type { GetOrganizationsByUserUseCase } from '../../application/organization/use-cases/get-organizations-by-user.use-case';
-import type { AddMemberToOrganizationUseCase } from '../../application/organization/use-cases/add-member-to-organization.use-case';
-import type { RemoveMemberFromOrganizationUseCase } from '../../application/organization/use-cases/remove-member-from-organization.use-case';
-import type { GetOrganizationDashboardUseCase } from '../../application/organization/use-cases/get-organization-dashboard.use-case';
-import type { CreateOrganizationDto } from '../../application/organization/dto/create-organization.dto';
-import type { AddMemberDto } from '../../application/organization/dto/add-member.dto';
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -36,23 +36,17 @@ export class OrganizationController {
     private readonly addMemberToOrganizationUseCase: AddMemberToOrganizationUseCase,
     private readonly removeMemberFromOrganizationUseCase: RemoveMemberFromOrganizationUseCase,
     private readonly getOrganizationDashboardUseCase: GetOrganizationDashboardUseCase,
-  ) { }
+  ) {}
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  async create(
-    @Body() dto: CreateOrganizationDto,
-    @Req() request: AuthenticatedRequest,
-  ) {
+  async create(@Body() dto: CreateOrganizationDto, @Req() request: AuthenticatedRequest) {
     const userId = request.user?.id;
     if (!userId) {
       throw new Error('User not authenticated');
     }
 
-    const organization = await this.createOrganizationUseCase.execute(
-      dto,
-      userId,
-    );
+    const organization = await this.createOrganizationUseCase.execute(dto, userId);
 
     return {
       id: organization.id,
@@ -71,8 +65,7 @@ export class OrganizationController {
       throw new Error('User not authenticated');
     }
 
-    const organizations =
-      await this.getOrganizationsByUserUseCase.execute(userId);
+    const organizations = await this.getOrganizationsByUserUseCase.execute(userId);
 
     return {
       organizations: organizations.map((org) => ({
@@ -87,10 +80,7 @@ export class OrganizationController {
 
   @Get(':id/dashboard')
   @UseGuards(JwtAuthGuard)
-  async getDashboard(
-    @Param('id', ParseIntPipe) id: number,
-    @Req() request: AuthenticatedRequest,
-  ) {
+  async getDashboard(@Param('id', ParseIntPipe) id: number, @Req() request: AuthenticatedRequest) {
     const userId = request.user?.id;
     if (!userId) {
       throw new Error('User not authenticated');
@@ -111,11 +101,7 @@ export class OrganizationController {
       throw new Error('User not authenticated');
     }
 
-    const member = await this.addMemberToOrganizationUseCase.execute(
-      organizationId,
-      dto,
-      userId,
-    );
+    const member = await this.addMemberToOrganizationUseCase.execute(organizationId, dto, userId);
 
     return {
       id: member.id,

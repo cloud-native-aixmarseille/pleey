@@ -29,7 +29,7 @@ This guide provides comprehensive instructions, guidelines, and best practices f
 
 ### Overview
 
-```
+```text
 /docs/                          # Docusaurus documentation root
 ├── docs/                       # Documentation content
 │   ├── functional/            # User-facing documentation

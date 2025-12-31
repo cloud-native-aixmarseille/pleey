@@ -1,11 +1,11 @@
-import { Inject, Injectable, ForbiddenException } from '@nestjs/common';
-import type { Quiz } from '../../../domain/quiz/entities/quiz.entity';
-import { QuizRepositoryProvider } from '../../../domain/quiz/repositories/quiz.repository.interface';
-import type { QuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
-import type { CreateQuizDto } from '../dto/create-quiz.dto';
-import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/repositories/organization-member.repository.interface';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import type { OrganizationMemberRepository } from '../../../domain/organization/repositories/organization-member.repository.interface';
+import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/repositories/organization-member.repository.interface';
+import type { Quiz } from '../../../domain/quiz/entities/quiz.entity';
+import type { QuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
+import { QuizRepositoryProvider } from '../../../domain/quiz/repositories/quiz.repository.interface';
 import { OrganizationErrorCode } from '../../organization/enums/organization-error-code.enum';
+import type { CreateQuizDto } from '../dto/create-quiz.dto';
 
 /**
  * Create Quiz Use Case
@@ -32,9 +32,7 @@ export class CreateQuizUseCase {
 
     // Check if member can create quizzes
     if (!membership.canCreateQuizzes()) {
-      throw new ForbiddenException(
-        OrganizationErrorCode.INSUFFICIENT_PERMISSIONS,
-      );
+      throw new ForbiddenException(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
     }
 
     return this.quizRepository.create(

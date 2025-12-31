@@ -1,13 +1,13 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
-import { GetQuizSessionsUseCase } from '../get-quiz-sessions.use-case';
-import type { GameSessionRepository } from '../../../../domain/game/repositories/game-session.repository.interface';
-import type { QuizRepository } from '../../../../domain/quiz/repositories/quiz.repository.interface';
-import type { OrganizationMemberRepository } from '../../../../domain/organization/repositories/organization-member.repository.interface';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { GameSession } from '../../../../domain/game/entities/game-session.entity';
-import { Quiz } from '../../../../domain/quiz/entities/quiz.entity';
+import type { GameSessionRepository } from '../../../../domain/game/repositories/game-session.repository.interface';
 import { OrganizationMember } from '../../../../domain/organization/entities/organization-member.entity';
 import { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
+import type { OrganizationMemberRepository } from '../../../../domain/organization/repositories/organization-member.repository.interface';
+import { Quiz } from '../../../../domain/quiz/entities/quiz.entity';
+import type { QuizRepository } from '../../../../domain/quiz/repositories/quiz.repository.interface';
+import { GetQuizSessionsUseCase } from '../get-quiz-sessions.use-case';
 
 describe('GetQuizSessionsUseCase', () => {
   let useCase: GetQuizSessionsUseCase;
@@ -50,11 +50,7 @@ describe('GetQuizSessionsUseCase', () => {
       delete: vi.fn(),
     };
 
-    useCase = new GetQuizSessionsUseCase(
-      gameSessionRepository,
-      quizRepository,
-      memberRepository,
-    );
+    useCase = new GetQuizSessionsUseCase(gameSessionRepository, quizRepository, memberRepository);
   });
 
   it('returns sessions when quiz exists and requester is a member', async () => {

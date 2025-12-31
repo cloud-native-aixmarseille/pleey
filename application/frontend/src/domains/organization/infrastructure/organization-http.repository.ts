@@ -1,7 +1,15 @@
-import { Organization, OrganizationDashboard, OrganizationMember } from '../../../shared/types';
-import { IOrganizationRepository } from '../ports/organization.repository.interface';
-import { apiClient, fetchClient, queryClient } from '../../../shared/api/openapiClient';
-import { castRequestBody } from '../../../shared/api/castRequestBody';
+import {
+  Organization,
+  OrganizationDashboard,
+  OrganizationMember,
+} from "../../../shared/types";
+import { IOrganizationRepository } from "../ports/organization.repository.interface";
+import {
+  apiClient,
+  fetchClient,
+  queryClient,
+} from "../../../shared/api/openapiClient";
+import { castRequestBody } from "../../../shared/api/castRequestBody";
 
 /**
  * Organization HTTP Repository
@@ -14,7 +22,7 @@ export class OrganizationHttpRepository implements IOrganizationRepository {
     }
 
     const data = await queryClient.fetchQuery(
-      apiClient.queryOptions('get', '/api/organizations/my-organizations'),
+      apiClient.queryOptions("get", "/api/organizations/my-organizations"),
     );
 
     if (!data) {
@@ -33,35 +41,37 @@ export class OrganizationHttpRepository implements IOrganizationRepository {
   async createOrganization(
     token: string,
     name: string,
-    description?: string
+    description?: string,
   ): Promise<Organization> {
-    const { data, error } = await fetchClient.POST('/api/organizations', {
+    const { data, error } = await fetchClient.POST("/api/organizations", {
       body: castRequestBody({ name, description }),
       headers: {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
     if (error || !data) {
-      throw new Error('organization.errors.createFailed');
+      throw new Error("organization.errors.createFailed");
     }
 
-    await queryClient.invalidateQueries({ queryKey: ['get', '/api/organizations/my-organizations'] });
+    await queryClient.invalidateQueries({
+      queryKey: ["get", "/api/organizations/my-organizations"],
+    });
 
     return data as Organization;
   }
 
   async getOrganizationDashboard(
     token: string,
-    organizationId: number
+    organizationId: number,
   ): Promise<OrganizationDashboard> {
     if (!token) {
-      throw new Error('organization.errors.dashboardFailed');
+      throw new Error("organization.errors.dashboardFailed");
     }
 
     const data = await queryClient.fetchQuery(
-      apiClient.queryOptions('get', '/api/organizations/{id}/dashboard', {
+      apiClient.queryOptions("get", "/api/organizations/{id}/dashboard", {
         params: {
           path: {
             id: organizationId,
@@ -71,7 +81,7 @@ export class OrganizationHttpRepository implements IOrganizationRepository {
     );
 
     if (!data) {
-      throw new Error('organization.errors.dashboardFailed');
+      throw new Error("organization.errors.dashboardFailed");
     }
 
     return data as OrganizationDashboard;
@@ -81,56 +91,62 @@ export class OrganizationHttpRepository implements IOrganizationRepository {
     token: string,
     organizationId: number,
     userId: number,
-    role: 'owner' | 'admin' | 'member'
+    role: "owner" | "admin" | "member",
   ): Promise<OrganizationMember> {
-    const { data, error } = await fetchClient.POST('/api/organizations/{id}/members', {
-      params: {
-        path: {
-          id: organizationId,
+    const { data, error } = await fetchClient.POST(
+      "/api/organizations/{id}/members",
+      {
+        params: {
+          path: {
+            id: organizationId,
+          },
+        },
+        body: castRequestBody({ userId, role }),
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       },
-      body: castRequestBody({ userId, role }),
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
+    );
 
     if (error || !data) {
-      throw new Error('organization.errors.addMemberFailed');
+      throw new Error("organization.errors.addMemberFailed");
     }
 
     await queryClient.invalidateQueries({
       predicate: (query) =>
         Array.isArray(query.queryKey) &&
-        query.queryKey[0] === 'get' &&
-        query.queryKey[1] === '/api/organizations/{id}/dashboard',
+        query.queryKey[0] === "get" &&
+        query.queryKey[1] === "/api/organizations/{id}/dashboard",
     });
 
     return data as OrganizationMember;
   }
 
   async removeMember(token: string, memberId: number): Promise<void> {
-    const { error } = await fetchClient.DELETE('/api/organizations/members/{memberId}', {
-      params: {
-        path: {
-          memberId,
+    const { error } = await fetchClient.DELETE(
+      "/api/organizations/members/{memberId}",
+      {
+        params: {
+          path: {
+            memberId,
+          },
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
       },
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    );
 
     if (error) {
-      throw new Error('organization.errors.removeMemberFailed');
+      throw new Error("organization.errors.removeMemberFailed");
     }
 
     await queryClient.invalidateQueries({
       predicate: (query) =>
         Array.isArray(query.queryKey) &&
-        query.queryKey[0] === 'get' &&
-        query.queryKey[1] === '/api/organizations/{id}/dashboard',
+        query.queryKey[0] === "get" &&
+        query.queryKey[1] === "/api/organizations/{id}/dashboard",
     });
   }
 }

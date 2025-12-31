@@ -3,6 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "quiz-app.fullname" . }}-backend
+  namespace: {{ include "quiz-app.namespace" . | quote }}
   labels:
     {{- include "quiz-app.backend.labels" . | nindent 4 }}
 spec:
@@ -28,11 +29,15 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "quiz-app.serviceAccountName" . }}
+      automountServiceAccountToken: false
       securityContext:
         {{- toYaml .Values.backend.podSecurityContext | nindent 8 }}
       initContainers:
         - name: wait-for-db
-          image: busybox:1.36
+          image: {{ include "quiz-app.waitForDb.image" . }}
+          imagePullPolicy: {{ include "quiz-app.imagePullPolicy" . }}
+          securityContext:
+            {{- toYaml .Values.backend.securityContext | nindent 12 }}
           command:
             - sh
             - -c
@@ -42,19 +47,27 @@ spec:
                 sleep 2
               done
               echo "PostgreSQL is ready!"
+          resources:
+            {{- toYaml .Values.backend.resources | nindent 12 }}
         - name: db-migrate
           image: {{ include "quiz-app.backend.image" . }}
           imagePullPolicy: {{ include "quiz-app.imagePullPolicy" . }}
+          securityContext:
+            {{- toYaml .Values.backend.securityContext | nindent 12 }}
           command:
             - sh
             - -c
-            - npx prisma migrate deploy
-          env:
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "quiz-app.fullname" . }}-backend
-                  key: database-url
+            - |
+              export DATABASE_URL="$(cat /run/secrets/database-url)";
+              npx prisma migrate deploy
+          resources:
+            {{- toYaml .Values.backend.resources | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: backend-secrets
+              mountPath: /run/secrets
+              readOnly: true
       containers:
         - name: backend
           securityContext:
@@ -72,16 +85,10 @@ spec:
               value: {{ .Values.backend.env.port | quote }}
             - name: CORS_ORIGIN
               value: {{ .Values.backend.env.corsOrigin | quote }}
-            - name: JWT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "quiz-app.fullname" . }}-backend
-                  key: jwt-secret
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "quiz-app.fullname" . }}-backend
-                  key: database-url
+            - name: JWT_SECRET_FILE
+              value: /run/secrets/jwt-secret
+            - name: DATABASE_URL_FILE
+              value: /run/secrets/database-url
             {{- if .Values.otelCollector.enabled }}
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
               value: {{ .Values.backend.env.otelExporterOtlpEndpoint | quote }}
@@ -92,6 +99,19 @@ spec:
             {{- toYaml .Values.backend.readinessProbe | nindent 12 }}
           resources:
             {{- toYaml .Values.backend.resources | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: backend-secrets
+              mountPath: /run/secrets
+              readOnly: true
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: backend-secrets
+          secret:
+            secretName: {{ include "quiz-app.fullname" . }}-backend
+            defaultMode: 0400
       {{- with .Values.backend.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

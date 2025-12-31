@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
 import { JwtService } from '@nestjs/jwt';
+import { describe, expect, it } from 'vitest';
 import { AuthTokenService, type TokenPair } from '../auth-token.service';
 
 const accessTokenConfig = {

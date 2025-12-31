@@ -1,5 +1,7 @@
+---
 # Development environment values for QuizMaster
-# Usage: helm install quiz-app ./deploy/helm/quiz-app -f ./deploy/helm/quiz-app/values-dev.yaml
+# Usage: helm install quiz-app ./deploy/helm/quiz-app \
+#   -f ./deploy/helm/quiz-app/values-dev.yaml
 
 backend:
   replicaCount: 1

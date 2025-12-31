@@ -7,10 +7,12 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext .ts,.tsx",
-    "lint:fix": "eslint . --ext .ts,.tsx --fix",
-    "test": "npx vitest run --coverage",
-    "test:watch": "npx vitest",
-    "test:ui": "npx vitest --ui",
+    "lint:fix": "npm run lint -- --fix",
+    "lint:ci": "npm run lint -- --format json -o eslint-report.json",
+    "test": "vitest run --coverage",
+    "test:ci": "vitest run --reporter=default --reporter=junit --outputFile=junit.xml --coverage.enabled --coverage.reporter=lcov --coverage.reporter=text",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
     "openapi:generate": "openapi-typescript http://backend:3001/api/openapi.json --output src/shared/api/openapi-schema.ts"
   },
   "dependencies": {

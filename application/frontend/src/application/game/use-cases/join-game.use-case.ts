@@ -1,4 +1,4 @@
-import { IGameSocket } from '../../domains/game/ports/game-socket.interface';
+import { IGameSocket } from "../../domains/game/ports/game-socket.interface";
 
 export interface JoinGameRequest {
   pin: string;
@@ -13,14 +13,14 @@ export interface JoinGameRequest {
  * Following Clean Architecture and Single Responsibility Principle
  */
 export class JoinGameUseCase {
-  constructor(private readonly gameSocket: IGameSocket) { }
+  constructor(private readonly gameSocket: IGameSocket) {}
 
   execute(request: JoinGameRequest): void {
     const { pin, username, userId, guestId } = request;
 
     // Business rule: validate PIN
     if (!pin || pin.trim().length === 0) {
-      throw new Error('Game PIN is required');
+      throw new Error("Game PIN is required");
     }
 
     this.gameSocket.joinGame(pin, username, userId, guestId);

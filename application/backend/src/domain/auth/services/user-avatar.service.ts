@@ -1,7 +1,7 @@
 import { Buffer } from 'node:buffer';
 import { randomUUID } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
-import type { AvatarGeneratorService } from '../../shared/services/avatar-generator.service';
+import { AvatarGeneratorService } from '../../shared/services/avatar-generator.service';
 
 /**
  * User Avatar Service
@@ -9,7 +9,7 @@ import type { AvatarGeneratorService } from '../../shared/services/avatar-genera
  */
 @Injectable()
 export class UserAvatarService {
-  constructor(private readonly avatarGenerator: AvatarGeneratorService) { }
+  constructor(private readonly avatarGenerator: AvatarGeneratorService) {}
 
   /**
    * Generates an avatar using the provided seed or a random one.

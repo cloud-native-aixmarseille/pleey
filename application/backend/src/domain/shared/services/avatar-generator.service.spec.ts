@@ -1,5 +1,5 @@
 import { Buffer } from 'node:buffer';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { AvatarGeneratorService } from './avatar-generator.service';
 
 describe('AvatarGeneratorService', () => {

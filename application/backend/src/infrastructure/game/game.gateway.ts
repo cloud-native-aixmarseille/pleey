@@ -13,34 +13,32 @@ import {
 } from '@nestjs/websockets';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
+import { I18nService } from 'nestjs-i18n';
 import type { Server, Socket } from 'socket.io';
-import type { I18nService } from 'nestjs-i18n';
-import type { SubmitAnswerUseCase } from '../../application/game/use-cases/submit-answer.use-case';
-import type { GetLeaderboardUseCase } from '../../application/game/use-cases/get-leaderboard.use-case';
+import { AdminGameControlDto } from '../../application/game/dto/admin-game-control.dto';
+import { GamePinDto } from '../../application/game/dto/game-pin.dto';
 import { JoinGameDto } from '../../application/game/dto/join-game.dto';
 import { SubmitAnswerDto } from '../../application/game/dto/submit-answer.dto';
-import { GamePinDto } from '../../application/game/dto/game-pin.dto';
-import { AdminGameControlDto } from '../../application/game/dto/admin-game-control.dto';
+import { GameErrorCode } from '../../application/game/enums/game-error-code.enum';
+import { SubmitAnswerUseCase } from '../../application/game/use-cases/submit-answer.use-case';
+import { buildSessionPlayerAvatarUrl } from '../../application/shared/utils/avatar-url.util';
+import {
+  type GameSessionRepository,
+  GameSessionRepositoryProvider,
+} from '../../domain/game/repositories/game-session.repository.interface';
 import type { Question } from '../../domain/quiz/entities/question.entity';
 import {
-  GameSessionRepositoryProvider,
-  type GameSessionRepository,
-} from '../../domain/game/repositories/game-session.repository.interface';
-import {
-  QuestionRepositoryProvider,
   type QuestionRepository,
+  QuestionRepositoryProvider,
 } from '../../domain/quiz/repositories/question.repository.interface';
-import { GameErrorCode } from '../../application/game/enums/game-error-code.enum';
 import { I18nWsExceptionFilter } from '../filters/i18n-ws-exception.filter';
-import { buildSessionPlayerAvatarUrl } from '../../application/shared/utils/avatar-url.util';
 
 const RAW_SOCKET_ORIGINS = process.env.CORS_ORIGIN ?? '';
 const PARSED_SOCKET_ORIGINS = RAW_SOCKET_ORIGINS.split(',')
   .map((origin: string) => origin.trim())
   .filter((origin: string) => origin.length > 0);
-const SOCKET_ORIGINS = PARSED_SOCKET_ORIGINS.length > 0
-  ? PARSED_SOCKET_ORIGINS
-  : ['http://localhost:5173'];
+const SOCKET_ORIGINS =
+  PARSED_SOCKET_ORIGINS.length > 0 ? PARSED_SOCKET_ORIGINS : ['http://localhost:5173'];
 const SOCKET_ALLOW_WILDCARD = SOCKET_ORIGINS.includes('*');
 
 interface PlayerState {
@@ -83,13 +81,13 @@ interface SessionState {
 @WebSocketGateway({
   cors: SOCKET_ALLOW_WILDCARD
     ? {
-      origin: '*',
-      credentials: false,
-    }
+        origin: '*',
+        credentials: false,
+      }
     : {
-      origin: SOCKET_ORIGINS,
-      credentials: true,
-    },
+        origin: SOCKET_ORIGINS,
+        credentials: true,
+      },
 })
 export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
@@ -104,9 +102,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     @Inject(QuestionRepositoryProvider)
     private readonly questionRepository: QuestionRepository,
     private readonly submitAnswerUseCase: SubmitAnswerUseCase,
-    private readonly getLeaderboardUseCase: GetLeaderboardUseCase,
     private readonly i18n: I18nService,
-  ) { }
+  ) {}
 
   afterInit(): void {
     this.logger.log('GameGateway initialized');
@@ -134,14 +131,18 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   @SubscribeMessage('join-game')
-  async handleJoinGame(@ConnectedSocket() client: Socket, @MessageBody() payload: unknown): Promise<void> {
+  async handleJoinGame(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: unknown,
+  ): Promise<void> {
     try {
       const dto = await this.validatePayload(JoinGameDto, payload);
       const state = await this.ensureSessionState(dto.pin);
 
       // Validate that exactly one of userId or guestId is provided
       const hasUserId = dto.userId !== undefined && dto.userId !== null;
-      const hasGuestId = dto.guestId !== undefined && dto.guestId !== null && dto.guestId.trim() !== '';
+      const hasGuestId =
+        dto.guestId !== undefined && dto.guestId !== null && dto.guestId.trim() !== '';
 
       if (hasUserId && hasGuestId) {
         throw new WsException('Cannot provide both userId and guestId');
@@ -156,27 +157,57 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         guestId = `guest-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
       }
 
-      // Find existing player by userId or guestId
-      const existingEntry = isGuest
-        ? this.findPlayerByGuestId(state.players, guestId!)
-        : this.findPlayerByUserId(state.players, dto.userId!);
-
-      // Generate avatar seed based on player type
-      const avatarSeed = isGuest ? guestId! : `${dto.userId}`;
-      const resolvedAvatarSeed = existingEntry?.avatarSeed ?? avatarSeed;
-
-      if (existingEntry) {
-        state.players.delete(existingEntry.socketId);
+      if (isGuest && !guestId) {
+        throw new WsException('Guest ID is required for guest players');
       }
 
-      state.players.set(client.id, {
-        socketId: client.id,
-        userId: dto.userId,
-        guestId: isGuest ? guestId : undefined,
-        username: dto.username,
-        avatarSeed: resolvedAvatarSeed,
-        isGuest,
-      });
+      if (!isGuest && (dto.userId === undefined || dto.userId === null)) {
+        throw new WsException('User ID is required for authenticated players');
+      }
+
+      if (isGuest) {
+        const ensuredGuestId = guestId;
+        if (!ensuredGuestId) {
+          throw new WsException('Guest ID is required for guest players');
+        }
+
+        const existingEntry = this.findPlayerByGuestId(state.players, ensuredGuestId);
+        const avatarSeed = existingEntry?.avatarSeed ?? ensuredGuestId;
+
+        if (existingEntry) {
+          state.players.delete(existingEntry.socketId);
+        }
+
+        state.players.set(client.id, {
+          socketId: client.id,
+          userId: undefined,
+          guestId: ensuredGuestId,
+          username: dto.username,
+          avatarSeed,
+          isGuest: true,
+        });
+      } else {
+        const ensuredUserId = dto.userId;
+        if (ensuredUserId === undefined || ensuredUserId === null) {
+          throw new WsException('User ID is required for authenticated players');
+        }
+
+        const existingEntry = this.findPlayerByUserId(state.players, ensuredUserId);
+        const avatarSeed = existingEntry?.avatarSeed ?? `${ensuredUserId}`;
+
+        if (existingEntry) {
+          state.players.delete(existingEntry.socketId);
+        }
+
+        state.players.set(client.id, {
+          socketId: client.id,
+          userId: ensuredUserId,
+          guestId: undefined,
+          username: dto.username,
+          avatarSeed,
+          isGuest: false,
+        });
+      }
 
       client.join(dto.pin);
 
@@ -189,7 +220,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   @SubscribeMessage('start-game')
-  async handleStartGame(@ConnectedSocket() client: Socket, @MessageBody() payload: unknown): Promise<void> {
+  async handleStartGame(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: unknown,
+  ): Promise<void> {
     try {
       const dto = await this.validatePayload(GamePinDto, payload);
       const state = await this.ensureSessionState(dto.pin);
@@ -233,14 +267,18 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   @SubscribeMessage('submit-answer')
-  async handleSubmitAnswer(@ConnectedSocket() client: Socket, @MessageBody() payload: unknown): Promise<void> {
+  async handleSubmitAnswer(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: unknown,
+  ): Promise<void> {
     try {
       const dto = await this.validatePayload(SubmitAnswerDto, payload);
       const state = await this.ensureSessionState(dto.pin);
 
       // Validate that exactly one of userId or guestId is provided
       const hasUserId = dto.userId !== undefined && dto.userId !== null;
-      const hasGuestId = dto.guestId !== undefined && dto.guestId !== null && dto.guestId.trim() !== '';
+      const hasGuestId =
+        dto.guestId !== undefined && dto.guestId !== null && dto.guestId.trim() !== '';
 
       if (!hasUserId && !hasGuestId) {
         throw new WsException('Must provide either userId or guestId');
@@ -260,8 +298,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       const result = await this.submitAnswerUseCase.execute(dto);
 
       // Update in-memory scores
-      const player = Array.from(state.players.values()).find(p =>
-        (dto.userId && p.userId === dto.userId) || (dto.guestId && p.guestId === dto.guestId)
+      const player = Array.from(state.players.values()).find(
+        (p) =>
+          (dto.userId && p.userId === dto.userId) || (dto.guestId && p.guestId === dto.guestId),
       );
 
       if (player) {
@@ -293,7 +332,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       // Check if all non-admin players have answered
       // Count players excluding the admin
       const nonAdminPlayers = Array.from(state.players.values()).filter(
-        p => p.userId !== state.adminId
+        (p) => p.userId !== state.adminId,
       );
       const totalNonAdminPlayers = nonAdminPlayers.length;
       const answeredPlayers = state.currentQuestionAnswers.size;
@@ -308,7 +347,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   @SubscribeMessage('next-question')
-  async handleNextQuestion(@ConnectedSocket() client: Socket, @MessageBody() payload: unknown): Promise<void> {
+  async handleNextQuestion(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: unknown,
+  ): Promise<void> {
     try {
       const dto = await this.validatePayload(GamePinDto, payload);
       const state = await this.ensureSessionState(dto.pin);
@@ -349,7 +391,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   @SubscribeMessage('stop-game')
-  async handleStopGame(@ConnectedSocket() client: Socket, @MessageBody() payload: unknown): Promise<void> {
+  async handleStopGame(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: unknown,
+  ): Promise<void> {
     try {
       const dto = await this.validatePayload(AdminGameControlDto, payload);
       const state = await this.ensureSessionState(dto.pin);
@@ -382,7 +427,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   @SubscribeMessage('resume-game')
-  async handleResumeGame(@ConnectedSocket() client: Socket, @MessageBody() payload: unknown): Promise<void> {
+  async handleResumeGame(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: unknown,
+  ): Promise<void> {
     try {
       const dto = await this.validatePayload(AdminGameControlDto, payload);
       const state = await this.ensureSessionState(dto.pin);
@@ -410,7 +458,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       this.handleError(client, error);
     }
   }
-
 
   private async ensureSessionState(pin: string): Promise<SessionState> {
     let state = this.sessions.get(pin);
@@ -609,7 +656,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     };
   }
 
-  private findPlayerByUserId(players: Map<string, PlayerState>, userId: number): PlayerState | null {
+  private findPlayerByUserId(
+    players: Map<string, PlayerState>,
+    userId: number,
+  ): PlayerState | null {
     for (const player of players.values()) {
       if (player.userId === userId) {
         return player;
@@ -619,7 +669,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     return null;
   }
 
-  private findPlayerByGuestId(players: Map<string, PlayerState>, guestId: string): PlayerState | null {
+  private findPlayerByGuestId(
+    players: Map<string, PlayerState>,
+    guestId: string,
+  ): PlayerState | null {
     for (const player of players.values()) {
       if (player.guestId === guestId) {
         return player;
@@ -634,7 +687,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     const errors = await validate(dto as object);
 
     if (errors.length > 0) {
-      const errorMessage = Object.values(errors[0].constraints ?? {})[0] ?? GameErrorCode.VALIDATION_FAILED;
+      const errorMessage =
+        Object.values(errors[0].constraints ?? {})[0] ?? GameErrorCode.VALIDATION_FAILED;
       throw new WsException(errorMessage);
     }
 

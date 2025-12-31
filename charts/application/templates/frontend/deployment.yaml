@@ -3,6 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "quiz-app.fullname" . }}-frontend
+  namespace: {{ include "quiz-app.namespace" . | quote }}
   labels:
     {{- include "quiz-app.frontend.labels" . | nindent 4 }}
 spec:
@@ -27,6 +28,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "quiz-app.serviceAccountName" . }}
+      automountServiceAccountToken: false
       securityContext:
         {{- toYaml .Values.frontend.podSecurityContext | nindent 8 }}
       containers:
@@ -53,10 +55,14 @@ spec:
               mountPath: /var/cache/nginx
             - name: run
               mountPath: /var/run
+            - name: tmp
+              mountPath: /tmp
       volumes:
         - name: cache
           emptyDir: {}
         - name: run
+          emptyDir: {}
+        - name: tmp
           emptyDir: {}
       {{- with .Values.frontend.nodeSelector }}
       nodeSelector:

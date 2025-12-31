@@ -1,7 +1,7 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import {
-  QuestionRepositoryProvider,
   type QuestionRepository,
+  QuestionRepositoryProvider,
 } from '../../../domain/quiz/repositories/question.repository.interface';
 import { QuizErrorCode } from '../enums/quiz-error-code.enum';
 
@@ -14,7 +14,7 @@ export class DeleteQuestionUseCase {
   constructor(
     @Inject(QuestionRepositoryProvider)
     private readonly questionRepository: QuestionRepository,
-  ) { }
+  ) {}
 
   async execute(questionId: number): Promise<void> {
     const question = await this.questionRepository.findById(questionId);

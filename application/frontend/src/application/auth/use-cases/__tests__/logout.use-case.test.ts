@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { LogoutUseCase } from '../logout.use-case';
-import { IStorage } from '../../../shared/ports/storage.interface';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { LogoutUseCase } from "../logout.use-case";
+import { IStorage } from "../../../shared/ports/storage.interface";
 
-describe('LogoutUseCase', () => {
+describe("LogoutUseCase", () => {
   let logoutUseCase: LogoutUseCase;
   let mockStorage: IStorage;
 
@@ -17,14 +17,14 @@ describe('LogoutUseCase', () => {
     logoutUseCase = new LogoutUseCase(mockStorage);
   });
 
-  it('should remove token and user from storage', () => {
+  it("should remove token and user from storage", () => {
     logoutUseCase.execute();
 
-    expect(mockStorage.removeItem).toHaveBeenCalledWith('quizmaster_token');
-    expect(mockStorage.removeItem).toHaveBeenCalledWith('quizmaster_user');
+    expect(mockStorage.removeItem).toHaveBeenCalledWith("quizmaster_token");
+    expect(mockStorage.removeItem).toHaveBeenCalledWith("quizmaster_user");
   });
 
-  it('should call removeItem exactly twice', () => {
+  it("should call removeItem exactly twice", () => {
     logoutUseCase.execute();
 
     expect(mockStorage.removeItem).toHaveBeenCalledTimes(2);

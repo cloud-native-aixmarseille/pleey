@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { RegisterUseCase } from '../register.use-case';
-import { IAuthRepository } from '../../../domains/auth/ports/auth.repository.interface';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { RegisterUseCase } from "../register.use-case";
+import { IAuthRepository } from "../../../domains/auth/ports/auth.repository.interface";
 
-describe('RegisterUseCase', () => {
+describe("RegisterUseCase", () => {
   let registerUseCase: RegisterUseCase;
   let mockAuthRepository: IAuthRepository;
 
@@ -15,33 +15,33 @@ describe('RegisterUseCase', () => {
     registerUseCase = new RegisterUseCase(mockAuthRepository);
   });
 
-  it('should register successfully', async () => {
+  it("should register successfully", async () => {
     vi.mocked(mockAuthRepository.register).mockResolvedValue();
 
     await registerUseCase.execute({
-      username: 'testuser',
-      email: 'test@example.com',
-      password: 'password123',
+      username: "testuser",
+      email: "test@example.com",
+      password: "password123",
     });
 
     expect(mockAuthRepository.register).toHaveBeenCalledWith(
-      'testuser',
-      'test@example.com',
-      'password123'
+      "testuser",
+      "test@example.com",
+      "password123",
     );
   });
 
-  it('should throw error when registration fails', async () => {
+  it("should throw error when registration fails", async () => {
     vi.mocked(mockAuthRepository.register).mockRejectedValue(
-      new Error('Email already exists')
+      new Error("Email already exists"),
     );
 
     await expect(
       registerUseCase.execute({
-        username: 'testuser',
-        email: 'test@example.com',
-        password: 'password123',
-      })
-    ).rejects.toThrow('Email already exists');
+        username: "testuser",
+        email: "test@example.com",
+        password: "password123",
+      }),
+    ).rejects.toThrow("Email already exists");
   });
 });

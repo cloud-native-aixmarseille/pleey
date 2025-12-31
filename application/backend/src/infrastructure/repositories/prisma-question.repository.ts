@@ -1,14 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import type { Question as PrismaQuestion } from '@prisma/client';
 import { Question } from '../../domain/quiz/entities/question.entity';
-import type {
-  QuestionRepository,
-} from '../../domain/quiz/repositories/question.repository.interface';
-import type { PrismaService } from '../database/prisma.service';
+import type { QuestionRepository } from '../../domain/quiz/repositories/question.repository.interface';
+import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class PrismaQuestionRepository implements QuestionRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(data: {
     quizId: number;

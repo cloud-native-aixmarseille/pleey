@@ -83,11 +83,11 @@ export function useCopyGamePin({
 
 export function usePlayerCountMessage(
   totalPlayers: number,
-  formatters: PlayerCountFormatters
+  formatters: PlayerCountFormatters,
 ) {
   const previousCountRef = useRef(totalPlayers);
   const [message, setMessage] = useState(() =>
-    formatters.initial(totalPlayers)
+    formatters.initial(totalPlayers),
   );
 
   useEffect(() => {

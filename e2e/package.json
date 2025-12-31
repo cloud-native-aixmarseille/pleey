@@ -9,7 +9,7 @@
     "test:headed": "playwright test --headed",
     "test:smoke": "playwright test --grep @smoke",
     "test:debug": "playwright test --debug",
-    "report": "playwright show-report"
+    "report": "playwright show-report --host 0.0.0.0 --port 9323"
   },
   "keywords": [
     "e2e",

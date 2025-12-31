@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { SubmitAnswerUseCase } from '../submit-answer.use-case';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { GameSession } from '../../../../domain/game/entities/game-session.entity';
 import type { GameSessionRepository } from '../../../../domain/game/repositories/game-session.repository.interface';
-import type { QuestionRepository } from '../../../../domain/quiz/repositories/question.repository.interface';
 import type { ScoreRepository } from '../../../../domain/game/repositories/score.repository.interface';
 import { ScoreCalculatorService } from '../../../../domain/game/services/score-calculator.service';
-import { GameSession } from '../../../../domain/game/entities/game-session.entity';
 import { Question } from '../../../../domain/quiz/entities/question.entity';
+import type { QuestionRepository } from '../../../../domain/quiz/repositories/question.repository.interface';
+import { SubmitAnswerUseCase } from '../submit-answer.use-case';
 
 describe('SubmitAnswerUseCase - Guest Player Support', () => {
   let useCase: SubmitAnswerUseCase;
@@ -52,7 +52,7 @@ describe('SubmitAnswerUseCase - Guest Player Support', () => {
       mockGameSessionRepository,
       mockQuestionRepository,
       mockScoreRepository,
-      scoreCalculatorService
+      scoreCalculatorService,
     );
   });
 
@@ -71,7 +71,7 @@ describe('SubmitAnswerUseCase - Guest Player Support', () => {
         'Option C',
         'Option D',
         20,
-        1000
+        1000,
       );
 
       vi.spyOn(mockGameSessionRepository, 'findByPin').mockResolvedValue(mockSession);
@@ -106,7 +106,7 @@ describe('SubmitAnswerUseCase - Guest Player Support', () => {
         'Option C',
         'Option D',
         20,
-        1000
+        1000,
       );
 
       vi.spyOn(mockGameSessionRepository, 'findByPin').mockResolvedValue(mockSession);
@@ -130,7 +130,7 @@ describe('SubmitAnswerUseCase - Guest Player Support', () => {
           userId: 42,
           questionId: 1,
           isCorrect: true,
-        })
+        }),
       );
     });
 
@@ -148,7 +148,7 @@ describe('SubmitAnswerUseCase - Guest Player Support', () => {
         'Option C',
         'Option D',
         20,
-        1000
+        1000,
       );
 
       vi.spyOn(mockGameSessionRepository, 'findByPin').mockResolvedValue(mockSession);

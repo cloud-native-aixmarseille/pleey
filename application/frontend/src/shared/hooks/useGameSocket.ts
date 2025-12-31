@@ -1,6 +1,11 @@
-import { useEffect, useState } from 'react';
-import { socket } from '../../shared/socket/socket.client';
-import { Question, Player, AnswerResult, LeaderboardEntry } from '../../shared/types';
+import { useEffect, useState } from "react";
+import { socket } from "../../shared/socket/socket.client";
+import {
+  Question,
+  Player,
+  AnswerResult,
+  LeaderboardEntry,
+} from "../../shared/types";
 
 export function useGameSocket() {
   const [players, setPlayers] = useState<Player[]>([]);
@@ -16,49 +21,59 @@ export function useGameSocket() {
   const [answerSubmitted, setAnswerSubmitted] = useState(false);
 
   useEffect(() => {
-    socket.on('player-joined', (data: { players: Player[] }) => {
+    socket.on("player-joined", (data: { players: Player[] }) => {
       setPlayers(data.players);
     });
 
-    socket.on('game-started', (data: { question: Question; questionNumber: number; totalQuestions: number }) => {
-      setCurrentQuestion(data.question);
-      setQuestionNumber(data.questionNumber);
-      setTotalQuestions(data.totalQuestions);
-      setTimeLeft(data.question.time_limit);
-      setGameStarted(true);
-      setAnswerSubmitted(false);
-    });
+    socket.on(
+      "game-started",
+      (data: {
+        question: Question;
+        questionNumber: number;
+        totalQuestions: number;
+      }) => {
+        setCurrentQuestion(data.question);
+        setQuestionNumber(data.questionNumber);
+        setTotalQuestions(data.totalQuestions);
+        setTimeLeft(data.question.time_limit);
+        setGameStarted(true);
+        setAnswerSubmitted(false);
+      },
+    );
 
-    socket.on('answer-submitted', () => {
+    socket.on("answer-submitted", () => {
       setAnswerSubmitted(true);
     });
 
-    socket.on('answer-result', (data: AnswerResult) => {
+    socket.on("answer-result", (data: AnswerResult) => {
       setAnswerResult(data);
       setShowResult(true);
     });
 
-    socket.on('next-question', (data: { question: Question; questionNumber: number }) => {
-      setCurrentQuestion(data.question);
-      setQuestionNumber(data.questionNumber);
-      setTimeLeft(data.question.time_limit);
-      setShowResult(false);
-      setAnswerResult(null);
-      setAnswerSubmitted(false);
-    });
+    socket.on(
+      "next-question",
+      (data: { question: Question; questionNumber: number }) => {
+        setCurrentQuestion(data.question);
+        setQuestionNumber(data.questionNumber);
+        setTimeLeft(data.question.time_limit);
+        setShowResult(false);
+        setAnswerResult(null);
+        setAnswerSubmitted(false);
+      },
+    );
 
-    socket.on('game-ended', (data: { leaderboard: LeaderboardEntry[] }) => {
+    socket.on("game-ended", (data: { leaderboard: LeaderboardEntry[] }) => {
       setLeaderboard(data.leaderboard);
       setGameEnded(true);
     });
 
     return () => {
-      socket.off('player-joined');
-      socket.off('game-started');
-      socket.off('answer-submitted');
-      socket.off('answer-result');
-      socket.off('next-question');
-      socket.off('game-ended');
+      socket.off("player-joined");
+      socket.off("game-started");
+      socket.off("answer-submitted");
+      socket.off("answer-result");
+      socket.off("next-question");
+      socket.off("game-ended");
     };
   }, []);
 

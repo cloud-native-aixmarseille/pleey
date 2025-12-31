@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import type { Prisma } from '@prisma/client';
 import { User } from '../../domain/auth/entities/user.entity';
 import type { UserRepository } from '../../domain/auth/repositories/user.repository.interface';
-import type { PrismaService } from '../database/prisma.service';
+import { PrismaService } from '../database/prisma.service';
 
 type PrismaUserRecord = {
   id: number;
@@ -21,7 +22,7 @@ type PrismaUserRecord = {
  */
 @Injectable()
 export class PrismaUserRepository implements UserRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(
     username: string,
@@ -30,19 +31,16 @@ export class PrismaUserRepository implements UserRepository {
     isAdmin: boolean = false,
     avatarUrl: string | null = null,
   ): Promise<User> {
-    const data = {
+    const data: Prisma.UserCreateInput = {
       username,
       email,
       password,
       isAdmin,
-    } as Record<string, unknown>;
-
-    if (avatarUrl !== undefined) {
-      data.avatarUrl = avatarUrl;
-    }
+      avatarUrl,
+    };
 
     const user = (await this.prisma.user.create({
-      data: data as any,
+      data,
     })) as PrismaUserRecord;
 
     return new User(
@@ -136,7 +134,7 @@ export class PrismaUserRepository implements UserRepository {
       avatarUrl?: string | null;
     },
   ): Promise<User> {
-    const data = {} as Record<string, unknown>;
+    const data: Prisma.UserUpdateInput = {};
 
     if (typeof updates.username !== 'undefined') {
       data.username = updates.username;
@@ -152,7 +150,7 @@ export class PrismaUserRepository implements UserRepository {
 
     const user = (await this.prisma.user.update({
       where: { id },
-      data: data as any,
+      data,
     })) as PrismaUserRecord;
 
     return new User(
@@ -178,7 +176,7 @@ export class PrismaUserRepository implements UserRepository {
       data: {
         refreshTokenHash,
         refreshTokenExpiresAt,
-      } as any,
+      },
     });
   }
 
@@ -188,7 +186,7 @@ export class PrismaUserRepository implements UserRepository {
       data: {
         refreshTokenHash: null,
         refreshTokenExpiresAt: null,
-      } as any,
+      },
     });
   }
 }

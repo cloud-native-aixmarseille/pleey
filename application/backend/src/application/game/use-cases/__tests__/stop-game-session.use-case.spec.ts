@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
-import { StopGameSessionUseCase } from '../stop-game-session.use-case';
-import type { GameSessionRepository } from '../../../../domain/game/repositories/game-session.repository.interface';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { GameSession } from '../../../../domain/game/entities/game-session.entity';
+import type { GameSessionRepository } from '../../../../domain/game/repositories/game-session.repository.interface';
+import { StopGameSessionUseCase } from '../stop-game-session.use-case';
 
 describe('StopGameSessionUseCase', () => {
   let useCase: StopGameSessionUseCase;
@@ -43,9 +43,7 @@ describe('StopGameSessionUseCase', () => {
     it('should throw NotFoundException when session does not exist', async () => {
       vi.spyOn(mockGameSessionRepository, 'findById').mockResolvedValue(null);
 
-      await expect(
-        useCase.execute(999, 100)
-      ).rejects.toThrow(NotFoundException);
+      await expect(useCase.execute(999, 100)).rejects.toThrow(NotFoundException);
 
       expect(mockGameSessionRepository.updateStatus).not.toHaveBeenCalled();
     });
@@ -56,7 +54,7 @@ describe('StopGameSessionUseCase', () => {
       vi.spyOn(mockGameSessionRepository, 'findById').mockResolvedValue(mockSession);
 
       await expect(
-        useCase.execute(1, 999) // Different admin
+        useCase.execute(1, 999), // Different admin
       ).rejects.toThrow(ForbiddenException);
 
       expect(mockGameSessionRepository.updateStatus).not.toHaveBeenCalled();
@@ -67,9 +65,7 @@ describe('StopGameSessionUseCase', () => {
 
       vi.spyOn(mockGameSessionRepository, 'findById').mockResolvedValue(mockSession);
 
-      await expect(
-        useCase.execute(1, 100)
-      ).rejects.toThrow('CAN_ONLY_PAUSE_ACTIVE_GAME');
+      await expect(useCase.execute(1, 100)).rejects.toThrow('CAN_ONLY_PAUSE_ACTIVE_GAME');
     });
   });
 });

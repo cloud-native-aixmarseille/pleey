@@ -7,18 +7,18 @@ import {
 } from '@nestjs/common';
 import type { GameSession } from '../../../domain/game/entities/game-session.entity';
 import {
-  GameSessionRepositoryProvider,
   type GameSessionRepository,
+  GameSessionRepositoryProvider,
 } from '../../../domain/game/repositories/game-session.repository.interface';
 import { PIN } from '../../../domain/game/value-objects/pin.vo';
-import {
-  QuizRepositoryProvider,
-  type QuizRepository,
-} from '../../../domain/quiz/repositories/quiz.repository.interface';
-import type { CreateGameSessionDto } from '../dto/create-game-session.dto';
-import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/repositories/organization-member.repository.interface';
 import type { OrganizationMemberRepository } from '../../../domain/organization/repositories/organization-member.repository.interface';
+import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/repositories/organization-member.repository.interface';
+import {
+  type QuizRepository,
+  QuizRepositoryProvider,
+} from '../../../domain/quiz/repositories/quiz.repository.interface';
 import { OrganizationErrorCode } from '../../organization/enums/organization-error-code.enum';
+import type { CreateGameSessionDto } from '../dto/create-game-session.dto';
 import { GameErrorCode } from '../enums/game-error-code.enum';
 
 /**
@@ -34,11 +34,9 @@ export class CreateGameSessionUseCase {
     private readonly quizRepository: QuizRepository,
     @Inject(OrganizationMemberRepositoryProvider)
     private readonly memberRepository: OrganizationMemberRepository,
-  ) { }
+  ) {}
 
-  async execute(
-    dto: CreateGameSessionDto,
-  ): Promise<{ session: GameSession; pin: string }> {
+  async execute(dto: CreateGameSessionDto): Promise<{ session: GameSession; pin: string }> {
     // Ensure adminId is provided (should be set by controller from JWT)
     if (!dto.adminId) {
       throw new BadRequestException('Admin ID is required');
@@ -59,9 +57,7 @@ export class CreateGameSessionUseCase {
       throw new ForbiddenException(OrganizationErrorCode.NOT_A_MEMBER);
     }
 
-    const quizActiveSession = await this.gameSessionRepository.findActiveByQuizId(
-      dto.quizId,
-    );
+    const quizActiveSession = await this.gameSessionRepository.findActiveByQuizId(dto.quizId);
 
     if (quizActiveSession) {
       if (quizActiveSession.adminId !== dto.adminId) {
@@ -75,12 +71,9 @@ export class CreateGameSessionUseCase {
     }
 
     // Check for existing active sessions for this admin
-    const activeSessions =
-      await this.gameSessionRepository.findActiveByAdminId(dto.adminId);
+    const activeSessions = await this.gameSessionRepository.findActiveByAdminId(dto.adminId);
 
-    const conflictingSession = activeSessions.find(
-      (session) => session.quizId !== dto.quizId,
-    );
+    const conflictingSession = activeSessions.find((session) => session.quizId !== dto.quizId);
 
     if (conflictingSession) {
       throw new BadRequestException(GameErrorCode.ACTIVE_SESSION_EXISTS);

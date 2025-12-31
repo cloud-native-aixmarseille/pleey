@@ -1,16 +1,11 @@
-import { Module } from '@nestjs/common';
-import {
-  AcceptLanguageResolver,
-  I18nJsonLoader,
-  I18nModule,
-  QueryResolver,
-} from 'nestjs-i18n';
 import * as path from 'node:path';
+import { Module } from '@nestjs/common';
+import { AcceptLanguageResolver, I18nJsonLoader, I18nModule, QueryResolver } from 'nestjs-i18n';
 import { AuthModule } from './infrastructure/auth';
 import { GameModule } from './infrastructure/game';
-import { QuizModule } from './infrastructure/quiz/quiz.module';
 import { HealthModule } from './infrastructure/health';
 import { OrganizationModule } from './infrastructure/organization';
+import { QuizModule } from './infrastructure/quiz/quiz.module';
 
 const isProdBuild = process.env.NODE_ENV === 'production';
 const i18nDirectory = isProdBuild
@@ -26,10 +21,7 @@ const i18nDirectory = isProdBuild
         path: i18nDirectory,
         watch: !isProdBuild,
       },
-      resolvers: [
-        { use: QueryResolver, options: ['lang'] },
-        AcceptLanguageResolver,
-      ],
+      resolvers: [{ use: QueryResolver, options: ['lang'] }, AcceptLanguageResolver],
     }),
     HealthModule,
     AuthModule,
@@ -40,4 +32,4 @@ const i18nDirectory = isProdBuild
   controllers: [],
   providers: [],
 })
-export class AppModule { }
+export class AppModule {}

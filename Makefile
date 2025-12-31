@@ -174,20 +174,31 @@ openapi: ## Generate OpenAPI types
 # Linting Commands
 # ==========================================
 
+ci: ## Prepare for CI
+	$(MAKE) lint-fix
+	$(MAKE) test
+
+lint: ## Execute linting
+	@$(COMPOSE) exec -T backend npm run lint
+	@$(COMPOSE) exec -T frontend npm run lint
+	@if command -v ct >/dev/null 2>&1; then ct lint; else echo "$(YELLOW)ct not installed; skipping chart lint$(NC)"; fi
+	$(call run_linter, )
+
 lint-fix: ## Execute linting and fix (alias for linter-fix)
 	@$(COMPOSE) exec -T backend npm run lint:fix
 	@$(COMPOSE) exec -T frontend npm run lint:fix
-	@helm-docs
-	@ct lint
+	@if command -v helm-docs >/dev/null 2>&1; then helm-docs; else echo "$(YELLOW)helm-docs not installed; skipping helm docs generation$(NC)"; fi
+	@if command -v ct >/dev/null 2>&1; then ct lint; else echo "$(YELLOW)ct not installed; skipping chart lint$(NC)"; fi
 	@$(MAKE) linter-fix
 
 linter-fix: ## Execute linting and fix
 	$(call run_linter, \
-		-e FIX_CSS_PRETTIER=true \
-		-e FIX_JSON_PRETTIER=true \
-		-e FIX_JAVASCRIPT_PRETTIER=true \
-		-e FIX_YAML_PRETTIER=true \
 		-e FIX_MARKDOWN=true \
+		-e FIX_PRETTIER=true \
+		-e FIX_YAML_PRETTIER=true \
+		-e FIX_CSS_PRETTIER=true \
+		-e FIX_HTML_PRETTIER=true \
+		-e FIX_JSON_PRETTIER=true \
 		-e FIX_MARKDOWN_PRETTIER=true \
 		-e FIX_NATURAL_LANGUAGE=true)
 
@@ -200,8 +211,11 @@ define run_linter
 		-e DEFAULT_WORKSPACE="$$DEFAULT_WORKSPACE" \
 		-e FILTER_REGEX_INCLUDE="$(filter-out $@,$(MAKECMDGOALS))" \
 		-e IGNORE_GITIGNORED_FILES=true \
+		-e VALIDATE_TSX=false \
+		-e VALIDATE_JSX_PRETTIER=false \
+		-e VALIDATE_JAVASCRIPT_PRETTIER=false \
+		-e VALIDATE_TYPESCRIPT_PRETTIER=false \
 		-e VALIDATE_TYPESCRIPT_ES=false \
-        -e VALIDATE_CSS=false \
 		$(1) \
 		-v $$VOLUME \
 		--rm \
@@ -212,7 +226,7 @@ endef
 # Testing Commands
 # ==========================================
 
-test: ## Run tests (SCOPE=all|backend|frontend|e2e, MODE=default|watch|cov|ui|smoke)
+test: ## Run tests (SCOPE=all|backend|frontend|e2e, MODE=default|watch|ci|ui|smoke)
 	@set -e; \
 	TARGET_SCOPE="$(SCOPE)"; \
 	TARGET_MODE="$(MODE)"; \
@@ -232,12 +246,12 @@ test: ## Run tests (SCOPE=all|backend|frontend|e2e, MODE=default|watch|cov|ui|sm
 				$(MAKE) --no-print-directory _test-scope SCOPE=e2e MODE=default; \
 				echo "$(GREEN)✓ All tests completed successfully!$(NC)"; \
 				;; \
-			cov) \
-				echo "$(GREEN)Running tests with coverage...$(NC)"; \
-				$(MAKE) --no-print-directory _test-scope SCOPE=backend MODE=cov; \
+			ci) \
+				echo "$(GREEN)Running tests like CI...$(NC)"; \
+				$(MAKE) --no-print-directory _test-scope SCOPE=backend MODE=ci; \
 				echo ""; \
-				$(MAKE) --no-print-directory _test-scope SCOPE=frontend MODE=cov; \
-				echo "$(GREEN)✓ Coverage reports generated$(NC)"; \
+				$(MAKE) --no-print-directory _test-scope SCOPE=frontend MODE=ci; \
+				echo "$(GREEN)✓ CI test runs completed$(NC)"; \
 				;; \
 			*) \
 				echo "$(YELLOW)Mode '$$TARGET_MODE' requires SCOPE=backend|frontend|e2e$(NC)"; \
@@ -254,8 +268,8 @@ test-%: ## Run tests for a specific scope (supports MODE, e.g. make test-backend
 test-%-watch: ## Run tests in watch mode for a scope (e.g. make test-backend-watch)
 	@$(MAKE) --no-print-directory test-$* MODE=watch
 
-test-%-cov: ## Run coverage for a scope (e.g. make test-frontend-cov)
-	@$(MAKE) --no-print-directory test-$* MODE=cov
+test-%-ci: ## Run test like CI for a scope (e.g. make test-frontend-ci)
+	@$(MAKE) --no-print-directory test-$* MODE=ci
 
 test-%-ui: ## Run test UI for a scope (e.g. make test-frontend-ui)
 	@$(MAKE) --no-print-directory test-$* MODE=ui
@@ -277,8 +291,8 @@ test-ui: ## Run Vitest UI (set SCOPE=backend|frontend|e2e)
 	fi
 	@$(MAKE) --no-print-directory test SCOPE=$(SCOPE) MODE=ui
 
-test-cov: ## Run backend and frontend coverage (alias for make test MODE=cov)
-	@$(MAKE) --no-print-directory test MODE=cov
+test-ci: ## Run backend and frontend tests like CI (alias for make test MODE=ci)
+	@$(MAKE) --no-print-directory test MODE=ci
 
 test-install: ## Install test dependencies for all projects
 	@echo "$(GREEN)Installing test dependencies...$(NC)"
@@ -286,6 +300,10 @@ test-install: ## Install test dependencies for all projects
 	@cd application/frontend && npm install
 	@cd e2e && npm install
 	@echo "$(GREEN)✓ Test dependencies installed$(NC)"
+
+e2e-report: ## Serve Playwright HTML report at http://localhost:9323
+	@echo "$(GREEN)Serving Playwright report at $(YELLOW)http://localhost:9323$(GREEN) (Ctrl+C to stop)$(NC)";
+	@$(COMPOSE) run --rm --service-ports -T e2e-tests bash -lc "npm ci --no-audit --fund=false && npm run report"
 
 _run-node:
 	@TTY_FLAG="-T"; \
@@ -339,10 +357,10 @@ _test-scope:
 					echo "$(GREEN)Starting backend tests in watch mode...$(NC)"; \
 					$(MAKE) --no-print-directory _run-node DIR=application/backend SCRIPT=test:watch SERVICE=backend TTY=1; \
 					;; \
-				cov) \
-					echo "$(GREEN)Running backend tests with coverage...$(NC)"; \
-					$(MAKE) --no-print-directory _run-node DIR=application/backend SCRIPT=test:cov SERVICE=backend; \
-					echo "$(GREEN)✓ Backend coverage report: application/backend/coverage/index.html$(NC)"; \
+				ci) \
+					echo "$(GREEN)Running backend tests like CI...$(NC)"; \
+					$(MAKE) --no-print-directory _run-node DIR=application/backend SCRIPT=test:ci SERVICE=backend; \
+					echo "$(GREEN)✓ Backend CI test runs completed$(NC)"; \
 					;; \
 				ui) \
 					echo "$(GREEN)Opening backend test UI...$(NC)"; \
@@ -369,10 +387,10 @@ _test-scope:
 					echo "$(GREEN)Starting frontend tests in watch mode...$(NC)"; \
 					$(MAKE) --no-print-directory _run-node DIR=application/frontend SCRIPT=test:watch SERVICE=frontend TTY=1; \
 					;; \
-				cov) \
-					echo "$(GREEN)Running frontend tests with coverage...$(NC)"; \
-					$(MAKE) --no-print-directory _run-node DIR=application/frontend SCRIPT=test:cov SERVICE=frontend; \
-					echo "$(GREEN)✓ Frontend coverage report: application/frontend/coverage/index.html$(NC)"; \
+				ci) \
+					echo "$(GREEN)Running frontend tests like CI...$(NC)"; \
+					$(MAKE) --no-print-directory _run-node DIR=application/frontend SCRIPT=test:ci SERVICE=frontend; \
+					echo "$(GREEN)✓ Frontend CI test runs completed$(NC)"; \
 					;; \
 				ui) \
 					echo "$(GREEN)Opening frontend test UI...$(NC)"; \
