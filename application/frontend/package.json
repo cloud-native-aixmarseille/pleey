@@ -18,7 +18,7 @@
   "dependencies": {
     "@tanstack/react-query": "^5.90.16",
     "i18next": "^25.7.1",
-    "lucide-react": "^0.555.0",
+    "lucide-react": "^0.562.0",
     "openapi-react-query": "^0.5.1",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
