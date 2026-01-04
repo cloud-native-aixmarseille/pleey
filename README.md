@@ -56,7 +56,7 @@ make test-backend      # Backend tests only
 make test-frontend     # Frontend tests only
 make test-e2e          # E2E tests only
 make test-watch        # Watch mode (interactive)
-make test-cov          # Coverage reports
+make test-ci           # CI mode (JUnit + coverage)
 
 # Or use the helper script
 ./scripts/test-runner.sh all           # Backend + frontend + e2e
