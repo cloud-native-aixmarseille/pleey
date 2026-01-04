@@ -1,5 +1,18 @@
 {
   "threshold": 5,
   "gitignore": true,
-  "ignore": ["**/charts/application/charts/**"]
+  "ignore": [
+    "**/.venv/**",
+    ".venv/**",
+    "**/.venv-ct/**",
+    ".venv-ct/**",
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/coverage/**",
+    "**/.docusaurus/**",
+    "**/playwright-report/**",
+    "**/test-results/**",
+    "**/charts/application/charts/**"
+  ]
 }

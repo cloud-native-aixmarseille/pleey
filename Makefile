@@ -181,14 +181,22 @@ ci: ## Prepare for CI
 lint: ## Execute linting
 	@$(COMPOSE) exec -T backend npm run lint
 	@$(COMPOSE) exec -T frontend npm run lint
-	@if command -v ct >/dev/null 2>&1; then ct lint; else echo "$(YELLOW)ct not installed; skipping chart lint$(NC)"; fi
+	@if command -v ct >/dev/null 2>&1; then \
+		if command -v yamale >/dev/null 2>&1; then ct lint; else echo "$(YELLOW)yamale not installed; skipping chart lint$(NC)"; fi; \
+	else \
+		echo "$(YELLOW)ct not installed; skipping chart lint$(NC)"; \
+	fi
 	$(call run_linter, )
 
 lint-fix: ## Execute linting and fix (alias for linter-fix)
 	@$(COMPOSE) exec -T backend npm run lint:fix
 	@$(COMPOSE) exec -T frontend npm run lint:fix
 	@if command -v helm-docs >/dev/null 2>&1; then helm-docs; else echo "$(YELLOW)helm-docs not installed; skipping helm docs generation$(NC)"; fi
-	@if command -v ct >/dev/null 2>&1; then ct lint; else echo "$(YELLOW)ct not installed; skipping chart lint$(NC)"; fi
+	@if command -v ct >/dev/null 2>&1; then \
+		if command -v yamale >/dev/null 2>&1; then ct lint; else echo "$(YELLOW)yamale not installed; skipping chart lint$(NC)"; fi; \
+	else \
+		echo "$(YELLOW)ct not installed; skipping chart lint$(NC)"; \
+	fi
 	@$(MAKE) linter-fix
 
 linter-fix: ## Execute linting and fix

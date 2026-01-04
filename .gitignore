@@ -51,6 +51,11 @@ Thumbs.db
 .settings/
 *.sublime-project
 *.sublime-workspace
+.venv
+
+# Local chart-testing virtualenv
+.venv-ct
+.venv-ct/
 
 # SSL Certificates
 *.pem

@@ -170,7 +170,7 @@ Database URL for backend
 {{- $username := .Values.postgresql.auth.username -}}
 {{- $password := .Values.postgresql.auth.password -}}
 {{- $database := .Values.postgresql.auth.database -}}
-{{- $host := printf "%s-postgresql" (include "quiz-app.fullname" .) -}}
+{{- $host := printf "%s-postgresql" .Release.Name -}}
 {{- printf "postgresql://%s:%s@%s:5432/%s?schema=public" $username $password $host $database }}
 {{- else }}
 {{- required "Either postgresql.enabled must be true or backend.secrets.databaseUrl must be provided" .Values.backend.secrets.databaseUrl }}
@@ -192,5 +192,12 @@ namespace override to a non-default value in values.yaml, we avoid
 CKV_K8S_21 failures while still allowing overrides per environment.
 */}}
 {{- define "quiz-app.namespace" -}}
-{{- .Values.global.namespaceOverride | default .Values.namespaceOverride | default .Release.Namespace -}}
+{{- $override := coalesce .Values.global.namespaceOverride .Values.namespaceOverride -}}
+{{- if $override -}}
+{{- $override -}}
+{{- else if eq .Release.Namespace "default" -}}
+{{- "quiz-app" -}}
+{{- else -}}
+{{- .Release.Namespace -}}
+{{- end -}}
 {{- end }}

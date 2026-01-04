@@ -24,7 +24,8 @@ spec:
       labels:
         {{- include "quiz-app.backend.selectorLabels" . | nindent 8 }}
     spec:
-      {{- with .Values.global.imagePullSecrets }}
+      {{- $imagePullSecrets := coalesce .Values.imagePullSecrets .Values.global.imagePullSecrets }}
+      {{- with $imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -54,12 +55,17 @@ spec:
           imagePullPolicy: {{ include "quiz-app.imagePullPolicy" . }}
           securityContext:
             {{- toYaml .Values.backend.securityContext | nindent 12 }}
+          env:
+            - name: HOME
+              value: /tmp
+            - name: npm_config_cache
+              value: /tmp/.npm
           command:
             - sh
             - -c
             - |
-              export DATABASE_URL="$(cat /run/secrets/database-url)";
-              npx prisma migrate deploy
+              export DATABASE_URL="$(cat /run/secrets/database-url)"
+              /usr/src/app/node_modules/.bin/prisma migrate deploy
           resources:
             {{- toYaml .Values.backend.resources | nindent 12 }}
           volumeMounts:
@@ -83,6 +89,8 @@ spec:
               value: {{ .Values.backend.env.nodeEnv | quote }}
             - name: PORT
               value: {{ .Values.backend.env.port | quote }}
+            - name: OPENAPI_JSON_PATH
+              value: /tmp/openapi.json
             - name: CORS_ORIGIN
               value: {{ .Values.backend.env.corsOrigin | quote }}
             - name: JWT_SECRET_FILE
@@ -111,7 +119,7 @@ spec:
         - name: backend-secrets
           secret:
             secretName: {{ include "quiz-app.fullname" . }}-backend
-            defaultMode: 0400
+            defaultMode: 0444
       {{- with .Values.backend.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
