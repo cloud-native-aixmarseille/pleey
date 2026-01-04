@@ -23,7 +23,8 @@ spec:
       labels:
         {{- include "quiz-app.frontend.selectorLabels" . | nindent 8 }}
     spec:
-      {{- with .Values.global.imagePullSecrets }}
+      {{- $imagePullSecrets := coalesce .Values.imagePullSecrets .Values.global.imagePullSecrets }}
+      {{- with $imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}

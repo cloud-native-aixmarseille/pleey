@@ -15,7 +15,7 @@ global:
   storageClass: ""
 
   # Shared namespace override used by subcharts (including PostgreSQL)
-  namespaceOverride: "quiz-app"
+  namespaceOverride: ""
 
   initContainers:
     waitForDb:
@@ -24,21 +24,21 @@ global:
         repository: busybox
         tag: "1.36"
         # Replace with the real digest for your registry/image.
-        digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+        digest: "sha256:00baf5736376036ea4bc1a1c075784fc98a79186604d5d41305cd9b428b3b737"
 
 ## Kubernetes namespace
 # Checkov’s Helm framework renders charts into the "default" namespace unless
 # overridden.
 # Use a non-default namespace by default to satisfy CKV_K8S_21, and override per
 # environment.
-namespaceOverride: "quiz-app"
+namespaceOverride: ""
 
 ## Backend NestJS configuration
 backend:
   enabled: true
 
   # Number of replicas
-  replicaCount: 2
+  replicaCount: 1
 
   image:
     registry: ghcr.io
@@ -73,11 +73,11 @@ backend:
   # Resource limits and requests
   resources:
     limits:
-      cpu: 1000m
-      memory: 512Mi
-    requests:
-      cpu: 500m
+      cpu: 200m
       memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
 
   # Health checks
   livenessProbe:
@@ -140,7 +140,7 @@ frontend:
   enabled: true
 
   # Number of replicas
-  replicaCount: 2
+  replicaCount: 1
 
   image:
     registry: ghcr.io
@@ -154,7 +154,7 @@ frontend:
   service:
     type: ClusterIP
     port: 80
-    targetPort: 80
+    targetPort: 8080
     annotations: {}
 
   # Application environment variables
@@ -165,17 +165,17 @@ frontend:
   # Resource limits and requests
   resources:
     limits:
-      cpu: 500m
-      memory: 256Mi
-    requests:
-      cpu: 250m
+      cpu: 100m
       memory: 128Mi
+    requests:
+      cpu: 25m
+      memory: 64Mi
 
   # Health checks
   livenessProbe:
     httpGet:
       path: /
-      port: 80
+      port: 8080
     initialDelaySeconds: 10
     periodSeconds: 30
     timeoutSeconds: 10
@@ -183,7 +183,7 @@ frontend:
   readinessProbe:
     httpGet:
       path: /
-      port: 80
+      port: 8080
     initialDelaySeconds: 5
     periodSeconds: 10
     timeoutSeconds: 5
@@ -233,7 +233,7 @@ postgresql:
     repository: bitnamilegacy/postgresql
     pullPolicy: Always
     # Replace with the real digest for your registry/image.
-    digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    digest: "sha256:94c148526e3de5a414cc53f75701ed0d57ff3719466851723512fcbd1182522a"
 
   # PostgreSQL authentication
   auth:
@@ -257,17 +257,17 @@ postgresql:
       runAsNonRoot: true
 
     persistence:
-      enabled: true
+      enabled: false
       size: 8Gi
       # storageClass: ""
 
     resources:
       limits:
-        cpu: 1000m
-        memory: 512Mi
-      requests:
-        cpu: 500m
+        cpu: 200m
         memory: 256Mi
+      requests:
+        cpu: 50m
+        memory: 128Mi
 
     # PostgreSQL configuration
     extendedConfiguration: |

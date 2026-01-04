@@ -30,12 +30,6 @@ RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc \
 COPY --chown=node:node ./application/frontend/ /usr/src/app/
 RUN npm run build
 
-FROM build AS build-prod
-
-RUN set -eu; \
-    npm prune --production && \
-    npm cache clean --force
-
 FROM nginx:1.29-alpine AS prod
 
 # Install security updates
@@ -50,33 +44,34 @@ RUN rm -rf /usr/share/nginx/html/* && \
     rm /etc/nginx/conf.d/default.conf
 
 # Copy built application from builder
-COPY --from=build-prod /usr/src/app/dist /usr/share/nginx/html
+COPY --from=build /usr/src/app/dist /usr/share/nginx/html
 
 # Copy custom Nginx configuration
 COPY ./application/frontend/nginx.prod.conf /etc/nginx/conf.d/default.conf
 
-# Create non-root user for Nginx
+# Create non-root user for Nginx (high UID to satisfy security scanners)
 RUN set -eu; \
-    addgroup -g 101 -S nginx 2>/dev/null || true; \
-    adduser -S -D -H -u 101 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx 2>/dev/null || true
+    addgroup -g 10001 -S app 2>/dev/null || true; \
+    adduser -S -D -H -u 10001 -h /var/cache/nginx -s /sbin/nologin -G app app 2>/dev/null || true
 
 # Set proper permissions
-RUN chown -R nginx:nginx /usr/share/nginx/html && \
-    chown -R nginx:nginx /var/cache/nginx && \
-    chown -R nginx:nginx /var/log/nginx && \
-    chown -R nginx:nginx /etc/nginx/conf.d && \
+RUN chown -R 10001:10001 /usr/share/nginx/html && \
+    chown -R 10001:10001 /var/cache/nginx && \
+    chown -R 10001:10001 /var/log/nginx && \
+    chown -R 10001:10001 /etc/nginx/conf.d && \
+    mkdir -p /var/run && \
     touch /var/run/nginx.pid && \
-    chown -R nginx:nginx /var/run/nginx.pid
+    chown -R 10001:10001 /var/run/nginx.pid
 
 # Switch to non-root user
-USER nginx
+USER 10001
 
 # Expose port
-EXPOSE 80
+EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost/ || exit 1
+    CMD curl -f http://localhost:8080/ || exit 1
 
 # Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
