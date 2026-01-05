@@ -9,12 +9,26 @@ const browserGlobals = {
   location: "readonly",
 };
 
+const nodeGlobals = {
+  process: "readonly",
+};
+
 export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   jsxA11y.flatConfigs.recommended,
   {
     ignores: ["dist/", "node_modules/", "coverage/"],
+  },
+  {
+    files: [
+      "vite.config.{js,mjs,cjs,ts}",
+      "vitest.config.{js,mjs,cjs,ts}",
+      "playwright.config.{js,mjs,cjs,ts}",
+    ],
+    languageOptions: {
+      globals: nodeGlobals,
+    },
   },
   {
     files: ["**/*.{ts,tsx,js,jsx}"],

@@ -26,8 +26,8 @@ install: setup setup-traefik build up migrate seed openapi ## Complete installat
 	@echo "$(GREEN)═══════════════════════════════════════$(NC)"
 	@echo ""
 	@echo "Application available at:"
-	@echo "  Frontend: $(YELLOW)http://frontend.quiz-app.localhost$(NC)"
-	@echo "  Backend:  $(YELLOW)http://backend.quiz-app.localhost$(NC)"
+	@echo "  Frontend: $(YELLOW)http://quiz-app.localhost$(NC)"
+	@echo "  Backend:  $(YELLOW)http://quiz-app.localhost/api$(NC)"
 	@echo "  Traefik dashboard: $(YELLOW)http://traefik.localhost$(NC) (managed by setup-traefik)"
 	@echo ""
 	@echo "Default admin account:"
@@ -57,9 +57,6 @@ up: ## Start the application
 	$(COMPOSE) up -d
 	@echo "$(GREEN)Backend API ready$(NC)"
 	@echo "$(GREEN)✓ Application started$(NC)"
-	@echo "Frontend: http://frontend.quiz-app.localhost"
-	@echo "Backend: http://backend.quiz-app.localhost"
-	@echo "Traefik Dashboard: http://traefik.localhost (auto-provisioned via setup-traefik)"
 
 down: ## Stop the application
 	@echo "$(YELLOW)Stopping application...$(NC)"
@@ -129,8 +126,8 @@ traefik: ## Open Traefik dashboard
 
 health: ## Check application health
 	@echo "$(GREEN)Checking status...$(NC)"
-	@curl -s http://backend.quiz-app.localhost/api/health/live | jq '.' || echo "$(YELLOW)Backend unavailable$(NC)"
-	@curl -s -o /dev/null -w "Frontend: %{http_code}\n" http://frontend.quiz-app.localhost/
+	@curl -s http://quiz-app.localhost/api/health/live | jq '.' || echo "$(YELLOW)Backend unavailable$(NC)"
+	@curl -s -o /dev/null -w "Frontend: %{http_code}\n" http://quiz-app.localhost/
 
 # ==========================================
 # Database
@@ -157,6 +154,7 @@ db-shell: ## Access PostgreSQL database shell
 openapi: ## Generate OpenAPI types
 	@echo "$(GREEN)Waiting for backend OpenAPI endpoint...$(NC)"
 	@ATTEMPTS=0; \
+	sleep 1; \
 	until $(COMPOSE) exec -T frontend sh -c "curl -sf http://backend:3001/api/openapi.json >/dev/null"; do \
 		ATTEMPTS=$$((ATTEMPTS+1)); \
 		if [ $$ATTEMPTS -gt 30 ]; then \

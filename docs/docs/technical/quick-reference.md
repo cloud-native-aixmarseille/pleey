@@ -22,10 +22,10 @@ make install
 
 **Access:**
 
-- Frontend: <http://frontend.quiz-app.localhost>
-- Backend: <http://backend.quiz-app.localhost>
-- Traefik Dashboard: <http://traefik.localhost> (`make up` runs `setup-traefik` for you)
-- Admin: <admin@quiz.com> / admin123
+- Frontend: `<http://quiz-app.localhost>`
+- Backend API: `<http://quiz-app.localhost/api>`
+- Traefik Dashboard: `<http://traefik.localhost>` (`make up` runs `setup-traefik` for you)
+- Admin: `admin@quiz.com` / `admin123`
 
 ---
 
@@ -168,15 +168,15 @@ make health            # Test health endpoints
 
 ### Application URLs
 
-- **Frontend**: <http://frontend.quiz-app.localhost>
-- **Backend API**: <http://backend.quiz-app.localhost>
-- **Traefik Dashboard**: <http://traefik.localhost> (`make setup-traefik`)
-- **Health Check**: <http://backend.quiz-app.localhost/api/health/live>
+- **Frontend**: `<http://quiz-app.localhost>`
+- **Backend API**: `<http://quiz-app.localhost/API>`
+- **Traefik Dashboard**: `<http://traefik.localhost>` (`make setup-traefik`)
+- **Health Check**: `<http://quiz-app.localhost/api/health/live>`
 
 ### Default Credentials
 
-- **Admin Email**: <admin@quiz.com>
-- **Admin Password**: admin123
+- **Admin Email**: `admin@quiz.com`
+- **Admin Password**: `admin123`
 
 :::warning Change Password
 Change the admin password after first login!
@@ -497,7 +497,7 @@ docker ps --filter "name=traefik-local"
 # Open: http://traefik.localhost
 
 # Test DNS resolution
-ping frontend.quiz-app.localhost
+ping quiz-app.localhost
 # Should resolve to 127.0.0.1
 
 # Restart Traefik
@@ -511,7 +511,7 @@ docker restart traefik-local
 make logs-backend
 
 # Check health endpoint
-curl http://backend.quiz-app.localhost/api/health/live
+curl http://quiz-app.localhost/api/health/live
 
 # Restart backend
 docker compose restart backend
@@ -529,7 +529,7 @@ make logs-frontend
 
 # Verify environment variables
 docker compose exec frontend env | grep VITE_API_URL
-# Should show: VITE_API_URL=http://backend.quiz-app.localhost
+# Under Traefik, VITE_API_URL can be empty because the frontend infers API from the current origin.
 
 # Rebuild if needed
 docker compose build frontend --no-cache
