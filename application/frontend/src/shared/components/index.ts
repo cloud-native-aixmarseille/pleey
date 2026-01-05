@@ -11,6 +11,8 @@ export {
 } from "../ui/components/PasswordInput";
 export { default as Container } from "./Container";
 export { default as LanguageSwitcher } from "./LanguageSwitcher";
+export { default as ThemeSwitcher } from "./ThemeSwitcher";
+export { QuickSettingsMenu } from "./QuickSettingsMenu";
 export { default as Avatar } from "./avatar/Avatar";
 export { default as Modal } from "./Modal";
 export { StatsCard } from "./stats/StatsCard";

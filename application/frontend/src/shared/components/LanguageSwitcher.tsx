@@ -9,15 +9,15 @@ interface LanguageSwitcherProps {
 }
 
 const LANGUAGES = [
-  { code: "en", label: "EN", ariaLabel: "Switch to English" },
-  { code: "fr", label: "FR", ariaLabel: "Passer au français" },
+  { code: "en", label: "EN" },
+  { code: "fr", label: "FR" },
 ];
 
 export default function LanguageSwitcher({
   variant = "fixed",
   className,
 }: LanguageSwitcherProps) {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
@@ -39,8 +39,12 @@ export default function LanguageSwitcher({
         fullWidth={false}
       >
         <div className="flex items-center gap-2">
-          {LANGUAGES.map(({ code, label, ariaLabel }) => {
+          {LANGUAGES.map(({ code, label }) => {
             const isActive = i18n.language === code;
+            const ariaLabel =
+              code === "en"
+                ? t("common.language.switchToEnglish")
+                : t("common.language.switchToFrench");
 
             return (
               <Button

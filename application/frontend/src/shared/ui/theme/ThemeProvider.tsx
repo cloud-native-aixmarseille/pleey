@@ -5,7 +5,12 @@ import {
   type ReactNode,
 } from "react";
 import { ThemeContext } from "./ThemeContext";
-import { mergeThemeTokens, NEON_THEME_TOKENS } from "./tokens";
+import {
+  LIGHT_THEME_TOKENS,
+  mergeThemeTokensWithBase,
+  NEON_THEME_TOKENS,
+} from "./tokens";
+import { useColorScheme } from "./ColorSchemeProvider";
 import type { ThemeTokenOverrides, ThemeTokens } from "./types";
 
 interface ThemeProviderProps {
@@ -99,7 +104,14 @@ export function ThemeProvider({
   children,
   tokens,
 }: ThemeProviderProps): ReactElement {
-  const mergedTokens = useMemo(() => mergeThemeTokens(tokens), [tokens]);
+  const { resolved } = useColorScheme();
+  const baseTokens =
+    resolved === "dark" ? NEON_THEME_TOKENS : LIGHT_THEME_TOKENS;
+
+  const mergedTokens = useMemo(
+    () => mergeThemeTokensWithBase(baseTokens, tokens),
+    [baseTokens, tokens]
+  );
 
   const cssVariables = useMemo(
     () => tokensToCssVariables(mergedTokens),
@@ -110,7 +122,7 @@ export function ThemeProvider({
 
   return (
     <ThemeContext.Provider value={mergedTokens}>
-      <div data-arcade-theme="neon" style={style}>
+      <div data-arcade-theme={resolved} style={style}>
         {children}
       </div>
     </ThemeContext.Provider>

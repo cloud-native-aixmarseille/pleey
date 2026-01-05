@@ -459,6 +459,31 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     }
   }
 
+  @SubscribeMessage('end-game')
+  async handleEndGame(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: unknown,
+  ): Promise<void> {
+    try {
+      const dto = await this.validatePayload(AdminGameControlDto, payload);
+      const state = await this.ensureSessionState(dto.pin);
+      const session = await this.gameSessionRepository.findByPin(dto.pin);
+
+      if (!session) {
+        throw new WsException(GameErrorCode.GAME_NOT_FOUND);
+      }
+
+      // Verify admin ownership
+      if (session.adminId !== dto.adminId) {
+        throw new WsException(GameErrorCode.UNAUTHORIZED_SESSION_CONTROL);
+      }
+
+      await this.endGame(dto.pin, state);
+    } catch (error) {
+      this.handleError(client, error);
+    }
+  }
+
   private async ensureSessionState(pin: string): Promise<SessionState> {
     let state = this.sessions.get(pin);
 

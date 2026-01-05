@@ -1,7 +1,7 @@
 {
   "home": {
     "title": "QUIZMASTER",
-    "subtitle": ">> PRESS START <<",
+    "subtitle": ">> PRESS ENTER <<",
     "fast": "Fast",
     "epic": "Epic",
     "win": "Win",
@@ -271,6 +271,7 @@
     "waitingForPlayers": "Waiting for players...",
     "players": "Players",
     "startGame": "Start Game",
+    "stopSession": "Stop Session",
     "question": "Question",
     "of": "of",
     "timeLeft": "Time left",
@@ -544,6 +545,19 @@
     "cancel": "Cancel",
     "dismiss": "Dismiss notification",
     "close": "Close",
+    "quickSettings": {
+      "label": "Quick settings"
+    },
+    "language": {
+      "switchToEnglish": "Switch to English",
+      "switchToFrench": "Switch to French"
+    },
+    "theme": {
+      "ariaLabel": "Theme",
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark"
+    },
     "errors": {
       "network": "Network error. Check your connection and try again."
     }

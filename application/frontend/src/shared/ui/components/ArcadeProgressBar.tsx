@@ -26,7 +26,7 @@ const TRACK_SIZE_MAP: Record<ArcadeProgressSize, string> = {
 };
 
 const TRACK_BG_CLASSES =
-  "bg-dark-700/60 border-dark-600/60 shadow-inner transition-colors";
+  "bg-light-200/70 border-primary-200/80 shadow-inner transition-colors dark:bg-dark-700/60 dark:border-dark-600/60";
 
 const FILL_BASE_CLASSES =
   "h-full bg-gradient-to-r transition-all duration-1000 ease-out origin-left flex items-center justify-end px-3";

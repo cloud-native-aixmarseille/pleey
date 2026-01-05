@@ -84,14 +84,22 @@ export function useAppLifecycle({
   }, [user, locationPathname, navigate]);
 
   useEffect(() => {
+    if (!locationPathname.startsWith("/game")) {
+      return;
+    }
+
     if (gameStarted && gamePin) {
       navigate(`/game/${gamePin}/playing`);
     }
-  }, [gameStarted, gamePin, navigate]);
+  }, [gameStarted, gamePin, navigate, locationPathname]);
 
   useEffect(() => {
+    if (!locationPathname.startsWith("/game")) {
+      return;
+    }
+
     if (gameEnded && gamePin) {
       navigate(`/game/${gamePin}/leaderboard`);
     }
-  }, [gameEnded, gamePin, navigate]);
+  }, [gameEnded, gamePin, navigate, locationPathname]);
 }

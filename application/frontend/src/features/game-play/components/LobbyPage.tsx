@@ -14,7 +14,7 @@ import {
   usePlayerCountMessage,
 } from "./lobby";
 
-const MAIN_CONTENT_CLASSES = "relative z-10 flex w-full flex-col gap-10";
+const MAIN_CONTENT_CLASSES = "relative z-10 flex w-full flex-col gap-6";
 const SR_ONLY_CLASSES = "sr-only";
 
 interface LobbyPageProps {
@@ -22,6 +22,7 @@ interface LobbyPageProps {
   players: Player[];
   isAdmin: boolean;
   onStartGame: () => void;
+  onStopSession?: () => void;
   onBackToAdmin?: () => void;
   questionCount?: number;
   hostUserId?: number | null;
@@ -33,6 +34,7 @@ export default function LobbyPage({
   players,
   isAdmin,
   onStartGame,
+  onStopSession,
   onBackToAdmin,
   questionCount = 0,
   hostUserId = null,
@@ -152,13 +154,15 @@ export default function LobbyPage({
   });
 
   return (
-    <div className="crt-screen" data-lobby-page="true">
+    <div data-lobby-page="true">
       <ArcadePage
         variant="gradient"
         padding="sm"
+        disableVerticalPadding
         contentWidth="full"
-        gap="lg"
+        gap="md"
         verticalAlign="start"
+        fitViewport
         overlays={<LobbyBackground />}
       >
         <main
@@ -182,23 +186,32 @@ export default function LobbyPage({
 
           <LobbyHeader titleId={lobbyTitleId} />
 
-          <JoinOptionsSection
-            instructionsTitleId={instructionsTitleId}
-            gamePin={gamePin}
-            joinLink={joinLink}
-            joinUrlForDisplay={joinUrlForDisplay}
-            manualJoinInstructions={manualJoinInstructions}
-            pinCharacters={pinCharacters}
-            pinAriaLabel={pinAriaLabel}
-            copyFeedbackId={copyFeedbackId}
-            copyStatusMessage={copyStatusMessage}
-            copiedPin={copiedPin}
-            copyPinToClipboard={copyPinToClipboard}
-            footer={
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 xl:items-start">
+            <JoinOptionsSection
+              instructionsTitleId={instructionsTitleId}
+              gamePin={gamePin}
+              joinLink={joinLink}
+              joinUrlForDisplay={joinUrlForDisplay}
+              manualJoinInstructions={manualJoinInstructions}
+              pinCharacters={pinCharacters}
+              pinAriaLabel={pinAriaLabel}
+              copyFeedbackId={copyFeedbackId}
+              copyStatusMessage={copyStatusMessage}
+              copiedPin={copiedPin}
+              copyPinToClipboard={copyPinToClipboard}
+            />
+
+            <PlayersSection
+              players={visiblePlayers}
+              sectionTitleId={playersSectionTitleId}
+            />
+
+            <div className="xl:col-span-2 w-full">
               <StartControls
                 isAdmin={isAdmin}
                 cannotStartGame={cannotStartGame}
                 onStartGame={onStartGame}
+                onStopSession={onStopSession}
                 onBackToAdmin={onBackToAdmin}
                 startButtonDescription={startButtonDescription}
                 startHintId={startHintId}
@@ -206,13 +219,8 @@ export default function LobbyPage({
                 mustWaitForPlayers={mustWaitForPlayers}
                 hasQuestions={hasQuestions}
               />
-            }
-          />
-
-          <PlayersSection
-            players={visiblePlayers}
-            sectionTitleId={playersSectionTitleId}
-          />
+            </div>
+          </div>
         </main>
       </ArcadePage>
     </div>

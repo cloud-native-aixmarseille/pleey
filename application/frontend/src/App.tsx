@@ -5,21 +5,26 @@ import { QuizManagerProvider } from "./application/app/context/QuizManagerContex
 import { GameSessionProvider } from "./application/app/context/GameSessionContext";
 import { OrganizationProvider } from "./shared/context/OrganizationContext";
 import { AppRoutes } from "./AppRoutes";
+import { ColorSchemeProvider, ThemeProvider } from "./shared/ui/theme";
 
 export default function App() {
   return (
-    <NotificationProvider>
-      <AuthManagerProvider>
-        <GuestSessionProvider>
-          <QuizManagerProvider>
-            <GameSessionProvider>
-              <OrganizationProvider>
-                <AppRoutes />
-              </OrganizationProvider>
-            </GameSessionProvider>
-          </QuizManagerProvider>
-        </GuestSessionProvider>
-      </AuthManagerProvider>
-    </NotificationProvider>
+    <ColorSchemeProvider>
+      <ThemeProvider>
+        <NotificationProvider>
+          <AuthManagerProvider>
+            <GuestSessionProvider>
+              <QuizManagerProvider>
+                <GameSessionProvider>
+                  <OrganizationProvider>
+                    <AppRoutes />
+                  </OrganizationProvider>
+                </GameSessionProvider>
+              </QuizManagerProvider>
+            </GuestSessionProvider>
+          </AuthManagerProvider>
+        </NotificationProvider>
+      </ThemeProvider>
+    </ColorSchemeProvider>
   );
 }

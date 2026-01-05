@@ -5,6 +5,7 @@ interface StartControlsProps {
   readonly isAdmin: boolean;
   readonly cannotStartGame: boolean;
   readonly onStartGame: () => void;
+  readonly onStopSession?: () => void;
   readonly onBackToAdmin?: () => void;
   readonly startButtonDescription?: string;
   readonly startHintId: string;
@@ -17,6 +18,7 @@ export default function StartControls({
   isAdmin,
   cannotStartGame,
   onStartGame,
+  onStopSession,
   onBackToAdmin,
   startButtonDescription,
   startHintId,
@@ -34,7 +36,7 @@ export default function StartControls({
         aria-live="polite"
         data-start-controls="waiting"
       >
-        <p className="flex items-center justify-center gap-3 font-mono text-sm uppercase tracking-[0.3em] text-primary-200 sm:text-base">
+        <p className="flex items-center justify-center gap-3 font-mono text-sm uppercase tracking-[0.3em] text-primary-900 dark:text-primary-200 sm:text-base">
           <span className="relative flex h-3 w-3" aria-hidden="true">
             <span className="absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75 animate-ping" />
             <span className="relative inline-flex h-3 w-3 rounded-full bg-primary-500" />
@@ -47,37 +49,66 @@ export default function StartControls({
 
   return (
     <div className="space-y-3" data-start-controls="admin">
-      {onBackToAdmin && (
-        <BackToButton
-          label={t("quiz.backToAdmin", "BACK TO ADMIN PANEL")}
-          onClick={onBackToAdmin}
-          fullWidth
-        />
-      )}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-start">
+        <div className="flex flex-col gap-3 sm:justify-self-start">
+          {onBackToAdmin && (
+            <div className="w-full sm:w-auto sm:max-w-xs">
+              <BackToButton
+                label={t("quiz.backToAdmin", "BACK TO ADMIN PANEL")}
+                onClick={onBackToAdmin}
+                fullWidth
+              />
+            </div>
+          )}
 
-      <div className="transition-transform duration-200 hover:scale-[1.02]">
-        <Button
-          variant="success"
-          size="xl"
-          fullWidth
-          effect="retro"
-          onClick={onStartGame}
-          disabled={cannotStartGame}
-          aria-describedby={startButtonDescription || undefined}
-        >
-          <span className="flex items-center justify-center gap-4 text-lg sm:text-xl">
-            <span aria-hidden="true">▶</span>
-            <span>{t("game.startGame").toUpperCase()}</span>
-            <span aria-hidden="true">◀</span>
-          </span>
-        </Button>
+          {onStopSession && (
+            <div className="w-full sm:w-auto sm:max-w-xs">
+              <Button
+                variant="danger"
+                size="lg"
+                effect="flat"
+                className="w-full"
+                onClick={onStopSession}
+              >
+                <span className="flex items-center justify-center gap-3 text-base sm:text-lg">
+                  <span aria-hidden="true">■</span>
+                  <span>
+                    {t("game.stopSession", "Stop Session").toUpperCase()}
+                  </span>
+                </span>
+              </Button>
+            </div>
+          )}
+        </div>
+
+        <div className="flex justify-center sm:justify-self-center">
+          <div className="w-full max-w-sm transition-transform duration-200 hover:scale-[1.02]">
+            <Button
+              variant="success"
+              size="xl"
+              effect="retro"
+              className="w-full"
+              onClick={onStartGame}
+              disabled={cannotStartGame}
+              aria-describedby={startButtonDescription || undefined}
+            >
+              <span className="flex items-center justify-center gap-4 text-lg sm:text-xl">
+                <span aria-hidden="true">▶</span>
+                <span>{t("game.startGame").toUpperCase()}</span>
+                <span aria-hidden="true">◀</span>
+              </span>
+            </Button>
+          </div>
+        </div>
+
+        <div className="hidden sm:block" aria-hidden="true" />
       </div>
 
       {mustWaitForPlayers && (
         <div className="mt-4 text-center">
           <p
             id={startHintId}
-            className="font-mono text-xs uppercase tracking-[0.25em] text-light-500 animate-pulse"
+            className="font-mono text-xs uppercase tracking-[0.25em] text-dark-400 dark:text-light-500 animate-pulse"
             role="status"
             aria-live="polite"
           >

@@ -182,6 +182,43 @@ describe("LobbyPage", () => {
     expect(mockHandlers.onStartGame).toHaveBeenCalled();
   });
 
+  it("should show stop session button only for admin when handler provided", () => {
+    const stopSession = vi.fn();
+
+    const { rerender } = render(
+      <LobbyPage
+        gamePin="123456"
+        players={mockPlayers}
+        isAdmin
+        onStartGame={vi.fn()}
+        onStopSession={stopSession}
+        questionCount={2}
+      />
+    );
+
+    expect(
+      screen.getByRole("button", { name: /STOP SESSION/i })
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /STOP SESSION/i }));
+    expect(stopSession).toHaveBeenCalled();
+
+    rerender(
+      <LobbyPage
+        gamePin="123456"
+        players={mockPlayers}
+        isAdmin={false}
+        onStartGame={vi.fn()}
+        onStopSession={stopSession}
+        questionCount={2}
+      />
+    );
+
+    expect(
+      screen.queryByRole("button", { name: /STOP SESSION/i })
+    ).not.toBeInTheDocument();
+  });
+
   it("should disable start button when quiz has no questions", () => {
     const mockHandlers = {
       gamePin: "123456",

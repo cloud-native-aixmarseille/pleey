@@ -35,7 +35,7 @@ function PlayersSectionComponent({
       tone="primary"
       align="center"
       width="lg"
-      spacing="lg"
+      spacing="md"
       titleId={sectionTitleId}
     >
       <div className="flex items-center justify-center gap-3 sm:gap-4">
@@ -76,7 +76,7 @@ function PlayersSectionComponent({
                 <Card
                   surface="glass"
                   tone="primary"
-                  padding="md"
+                  padding="sm"
                   elevation="glow"
                   alignment="center"
                 >
@@ -96,7 +96,7 @@ function PlayersSectionComponent({
                       )}
                     </div>
                     <div
-                      className="w-full truncate font-mono text-xs uppercase tracking-[0.24em] text-accent-200 sm:text-sm"
+                      className="w-full truncate font-mono text-xs uppercase tracking-[0.24em] text-accent-900 dark:text-accent-200 sm:text-sm"
                       title={player.username}
                     >
                       {player.username}
@@ -119,7 +119,7 @@ function PlayersSectionComponent({
               <Card
                 surface="glass"
                 tone="neutral"
-                padding="md"
+                padding="sm"
                 elevation="glow"
                 alignment="center"
                 aria-hidden="true"
@@ -128,7 +128,7 @@ function PlayersSectionComponent({
                   <span aria-hidden="true" className="text-4xl sm:text-5xl">
                     👤
                   </span>
-                  <span className="font-mono text-xs uppercase tracking-[0.24em] text-light-500 sm:text-sm">
+                  <span className="font-mono text-xs uppercase tracking-[0.24em] text-dark-400 dark:text-light-500 sm:text-sm">
                     {t("game.waiting")}
                   </span>
                 </div>
@@ -148,10 +148,10 @@ function PlayersSectionComponent({
           >
             👥
           </span>
-          <p className="font-display text-lg uppercase tracking-[0.3em] text-primary-200 sm:text-xl">
+          <p className="font-display text-lg uppercase tracking-[0.3em] text-primary-900 dark:text-primary-200 sm:text-xl">
             {t("game.noPlayersYetTitle")}
           </p>
-          <p className="text-sm text-light-500 sm:text-base">
+          <p className="text-sm text-dark-500 dark:text-light-500 sm:text-base">
             {t("game.sharePin")}
           </p>
         </div>

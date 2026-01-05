@@ -6,8 +6,9 @@ import { QuizCard } from "./QuizCard.tsx";
 const EMPTY_STATE_WRAPPER_CLASSES = "animate-scale-in text-center";
 const EMPTY_STATE_CONTENT_CLASSES = "flex flex-col items-center gap-4 p-12";
 const EMPTY_STATE_ICON_CLASSES = "text-6xl";
-const EMPTY_STATE_TITLE_CLASSES = "text-2xl font-bold text-dark-800";
-const EMPTY_STATE_DESCRIPTION_CLASSES = "text-light-700";
+const EMPTY_STATE_TITLE_CLASSES =
+  "text-xl font-semibold text-dark-900 dark:text-2xl dark:font-bold dark:text-light-100";
+const EMPTY_STATE_DESCRIPTION_CLASSES = "text-dark-400 dark:text-light-700";
 const QUIZ_GRID_CLASSES =
   "grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3";
 

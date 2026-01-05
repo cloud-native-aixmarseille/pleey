@@ -28,17 +28,17 @@ const ALIGNMENT_CLASS_MAP: Record<ArcadeGlassStackAlignment, string> = {
 };
 
 const TITLE_TONE_CLASS_MAP: Record<ArcadeGlassStackTone, string> = {
-  primary: "text-primary-100",
-  secondary: "text-secondary-100",
-  accent: "text-accent-100",
-  neutral: "text-light-100",
+  primary: "text-primary-900 dark:text-primary-100",
+  secondary: "text-secondary-900 dark:text-secondary-100",
+  accent: "text-accent-900 dark:text-accent-100",
+  neutral: "text-dark-500 dark:text-light-100",
 };
 
 const SUBTITLE_TONE_CLASS_MAP: Record<ArcadeGlassStackTone, string> = {
-  primary: "text-primary-200",
-  secondary: "text-secondary-200",
-  accent: "text-accent-200",
-  neutral: "text-light-400",
+  primary: "text-primary-800 dark:text-primary-200",
+  secondary: "text-secondary-800 dark:text-secondary-200",
+  accent: "text-accent-800 dark:text-accent-200",
+  neutral: "text-dark-400 dark:text-light-400",
 };
 
 export interface ArcadeGlassStackProps {
@@ -81,7 +81,7 @@ export function ArcadeGlassStack({
           )}
         >
           {eyebrow ? (
-            <span className="text-xs font-semibold uppercase tracking-[0.4em] text-light-500">
+            <span className="text-xs font-semibold uppercase tracking-[0.4em] text-dark-400 dark:text-light-500">
               {eyebrow}
             </span>
           ) : null}
@@ -99,7 +99,7 @@ export function ArcadeGlassStack({
           {subtitle ? (
             <p
               className={composeClasses(
-                "text-sm font-medium text-light-400",
+                "text-sm font-medium",
                 SUBTITLE_TONE_CLASS_MAP[tone]
               )}
             >

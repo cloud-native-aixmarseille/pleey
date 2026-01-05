@@ -11,7 +11,7 @@ import { CreateQuizModal } from "./modals/CreateQuizModal.tsx";
 import { DeleteQuizModal } from "./modals/DeleteQuizModal.tsx";
 import { useAuthManagerContext } from "../../../../application/app/context/AuthManagerContext";
 const DASHBOARD_WRAPPER_CLASSES =
-  "min-h-screen bg-game-gradient p-4 sm:p-6 lg:p-8";
+  "min-h-[calc(100dvh-var(--app-shell-padding-top,0px)-var(--app-shell-padding-bottom,0px))] bg-game-gradient pt-0 px-4 pb-4 sm:px-6 sm:pb-6 lg:px-8 lg:pb-8";
 
 interface AdminDashboardProps {
   quizzes: Quiz[];

@@ -15,23 +15,23 @@ const TOAST_BASE_CLASSES =
 const TOAST_VIEWPORT_CLASSES =
   "pointer-events-none fixed top-6 right-6 z-[1200] flex w-[calc(100vw-1.5rem)] max-w-sm flex-col gap-4";
 const TOAST_CONTENT_CLASSES = "flex items-start gap-4";
-const TOAST_ICON_WRAPPER_CLASSES =
-  "mt-0.5 flex h-9 w-9 items-center justify-center rounded-full border border-light-500/20 bg-dark-500/70 text-base font-bold uppercase tracking-widest text-light-50 shadow-glow";
+const TOAST_ICON_WRAPPER_BASE_CLASSES =
+  "mt-0.5 flex h-9 w-9 items-center justify-center rounded-full border bg-light-100 text-base font-bold uppercase tracking-widest text-dark-500 shadow-glow dark:border-light-500/20 dark:bg-dark-500/70 dark:text-light-50";
 const TOAST_TEXT_STACK_CLASSES = "flex-1";
 const TOAST_VARIANT_LABEL_CLASSES =
-  "text-xs font-bold uppercase tracking-[0.2em] text-light-400";
+  "text-xs font-bold uppercase tracking-[0.2em] text-dark-300 dark:text-light-400";
 const TOAST_MESSAGE_CLASSES =
-  "mt-1 text-sm font-semibold leading-snug text-light-100";
+  "mt-1 text-sm font-semibold leading-snug text-dark-500 dark:text-light-100";
 const TOAST_DISMISS_BUTTON_CLASSES =
-  "ml-2 rounded-full border border-light-500/20 p-1 text-[0.7rem] text-light-400 transition-colors hover:bg-light-500/10 hover:text-light-100";
+  "ml-2 rounded-full border border-primary-500/20 p-1 text-[0.7rem] text-dark-300 transition-colors hover:bg-primary-500/10 hover:text-dark-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-light-100 dark:border-light-500/20 dark:text-light-400 dark:hover:bg-light-500/10 dark:hover:text-light-100 dark:focus-visible:ring-offset-dark-500";
 const TOAST_PROGRESS_TRACK_CLASSES =
-  "mt-4 h-1 overflow-hidden rounded-full bg-dark-400/70";
+  "mt-4 h-1 overflow-hidden rounded-full bg-light-200/80 dark:bg-dark-400/70";
 const TOAST_PROGRESS_FILL_CLASSES =
   "h-full rounded-full bg-gradient-to-r from-secondary-400 via-accent-500 to-primary-400";
 
-const TOAST_INFO_CLASSES = `${TOAST_BASE_CLASSES} border-primary-400/60 bg-gradient-to-br from-dark-500/90 via-primary-500/20 to-dark-400/90 text-light-50 shadow-neon`;
-const TOAST_SUCCESS_CLASSES = `${TOAST_BASE_CLASSES} border-success-400/60 bg-gradient-to-br from-dark-500/90 via-success-500/20 to-dark-400/90 text-success-100 shadow-neon-accent`;
-const TOAST_ERROR_CLASSES = `${TOAST_BASE_CLASSES} border-danger-400/60 bg-gradient-to-br from-dark-500/90 via-danger-500/20 to-dark-400/90 text-danger-100 shadow-neon-secondary`;
+const TOAST_INFO_CLASSES = `${TOAST_BASE_CLASSES} border-primary-500/25 bg-light-50/95 text-dark-500 shadow-neon dark:border-primary-400/60 dark:bg-gradient-to-br dark:from-dark-500/90 dark:via-primary-500/20 dark:to-dark-400/90 dark:text-light-50`;
+const TOAST_SUCCESS_CLASSES = `${TOAST_BASE_CLASSES} border-success-500/25 bg-light-50/95 text-dark-500 shadow-neon-accent dark:border-success-400/60 dark:bg-gradient-to-br dark:from-dark-500/90 dark:via-success-500/20 dark:to-dark-400/90 dark:text-success-100`;
+const TOAST_ERROR_CLASSES = `${TOAST_BASE_CLASSES} border-danger-500/25 bg-light-50/95 text-dark-500 shadow-neon-secondary dark:border-danger-400/60 dark:bg-gradient-to-br dark:from-dark-500/90 dark:via-danger-500/20 dark:to-dark-400/90 dark:text-danger-100`;
 
 export type ToastVariant = "info" | "success" | "error";
 
@@ -179,6 +179,12 @@ function ToastCard({
     error: TOAST_ERROR_CLASSES,
   };
 
+  const iconWrapperClassesByVariant: Record<ToastVariant, string> = {
+    info: `${TOAST_ICON_WRAPPER_BASE_CLASSES} border-primary-500/20`,
+    success: `${TOAST_ICON_WRAPPER_BASE_CLASSES} border-success-500/20`,
+    error: `${TOAST_ICON_WRAPPER_BASE_CLASSES} border-danger-500/20`,
+  };
+
   return (
     <div
       role={role}
@@ -187,7 +193,7 @@ function ToastCard({
       data-toast-card={toast.variant}
     >
       <div className={TOAST_CONTENT_CLASSES}>
-        <div className={TOAST_ICON_WRAPPER_CLASSES}>
+        <div className={iconWrapperClassesByVariant[toast.variant]}>
           <span aria-hidden>{iconByVariant[toast.variant]}</span>
         </div>
         <div className={TOAST_TEXT_STACK_CLASSES}>

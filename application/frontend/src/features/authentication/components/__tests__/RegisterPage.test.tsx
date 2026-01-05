@@ -3,6 +3,10 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import RegisterPage from "../RegisterPage";
+import {
+  ColorSchemeProvider,
+  ThemeProvider,
+} from "../../../../shared/ui/theme";
 
 const mockNavigate = vi.fn();
 
@@ -23,7 +27,13 @@ describe("RegisterPage", () => {
 
   it("should render registration form", () => {
     const mockRegister = vi.fn();
-    render(<RegisterPage onRegister={mockRegister} />);
+    render(
+      <ColorSchemeProvider>
+        <ThemeProvider>
+          <RegisterPage onRegister={mockRegister} />
+        </ThemeProvider>
+      </ColorSchemeProvider>
+    );
 
     expect(screen.getByText("Sign Up")).toBeInTheDocument();
     expect(screen.getByLabelText("Username")).toBeInTheDocument();
@@ -38,7 +48,13 @@ describe("RegisterPage", () => {
     const user = userEvent.setup();
     const mockRegister = vi.fn().mockResolvedValue(undefined);
 
-    render(<RegisterPage onRegister={mockRegister} />);
+    render(
+      <ColorSchemeProvider>
+        <ThemeProvider>
+          <RegisterPage onRegister={mockRegister} />
+        </ThemeProvider>
+      </ColorSchemeProvider>
+    );
 
     const usernameInput = screen.getByLabelText("Username");
     const emailInput = screen.getByLabelText("Email");
@@ -65,7 +81,13 @@ describe("RegisterPage", () => {
     const user = userEvent.setup();
     const mockRegister = vi.fn();
 
-    render(<RegisterPage onRegister={mockRegister} />);
+    render(
+      <ColorSchemeProvider>
+        <ThemeProvider>
+          <RegisterPage onRegister={mockRegister} />
+        </ThemeProvider>
+      </ColorSchemeProvider>
+    );
 
     const passwordInput = screen.getByLabelText("Password") as HTMLInputElement;
 
@@ -88,7 +110,13 @@ describe("RegisterPage", () => {
 
   it("should navigate to login when the button is clicked", () => {
     const mockRegister = vi.fn();
-    render(<RegisterPage onRegister={mockRegister} />);
+    render(
+      <ColorSchemeProvider>
+        <ThemeProvider>
+          <RegisterPage onRegister={mockRegister} />
+        </ThemeProvider>
+      </ColorSchemeProvider>
+    );
 
     const loginButton = screen.getByRole("button", { name: /sign in/i });
     fireEvent.click(loginButton);

@@ -1,17 +1,22 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
-import { Button, LanguageSwitcher } from "../../../../shared/components";
+import {
+  Button,
+  LanguageSwitcher,
+  ThemeSwitcher,
+} from "../../../../shared/components";
 import { Icon } from "../../../../shared/ui/icons";
 
 const ACCOUNT_MENU_CONTAINER_CLASSES = "relative";
 const ACCOUNT_MENU_TRIGGER_LABEL_CLASSES = "sr-only";
 const ACCOUNT_MENU_PANEL_CLASSES =
-  "absolute right-0 mt-2 min-w-[12rem] space-y-2 rounded-2xl border border-primary-500/30 bg-dark-500/95 p-3 shadow-neon";
+  "absolute right-0 mt-2 min-w-[12rem] space-y-2 rounded-2xl border border-primary-500/25 bg-light-50/95 p-3 text-dark-500 shadow-neon dark:border-primary-500/30 dark:bg-dark-500/95 dark:text-light-100";
 const ACCOUNT_MENU_TOP_SECTION_CLASSES = "border-b border-primary-500/20 pb-2";
 const ACCOUNT_MENU_LANGUAGE_SWITCHER_CLASSES = "w-full justify-between";
+const ACCOUNT_MENU_THEME_SWITCHER_CLASSES = "w-full justify-between";
 const ACCOUNT_MENU_ITEM_CLASSES =
-  "flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-light-100 transition-colors hover:bg-primary-500/20 hover:text-primary-100";
+  "flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-dark-500 transition-colors hover:bg-primary-500/15 hover:text-primary-900 dark:text-light-100 dark:hover:bg-primary-500/20 dark:hover:text-primary-100";
 const ACCOUNT_MENU_LOGOUT_CLASSES =
-  "flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-light-100 transition-colors hover:bg-danger-500/20 hover:text-danger-100";
+  "flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-dark-500 transition-colors hover:bg-danger-500/12 hover:text-danger-900 dark:text-light-100 dark:hover:bg-danger-500/20 dark:hover:text-danger-100";
 
 interface AccountMenuLabels {
   accountMenu: string;
@@ -99,10 +104,16 @@ function AccountMenuComponent({
       {isOpen && (
         <div role="menu" className={ACCOUNT_MENU_PANEL_CLASSES}>
           <div className={ACCOUNT_MENU_TOP_SECTION_CLASSES}>
-            <LanguageSwitcher
-              variant="inline"
-              className={ACCOUNT_MENU_LANGUAGE_SWITCHER_CLASSES}
-            />
+            <div className="flex flex-col gap-3">
+              <LanguageSwitcher
+                variant="inline"
+                className={ACCOUNT_MENU_LANGUAGE_SWITCHER_CLASSES}
+              />
+              <ThemeSwitcher
+                variant="inline"
+                className={ACCOUNT_MENU_THEME_SWITCHER_CLASSES}
+              />
+            </div>
           </div>
           <button
             type="button"

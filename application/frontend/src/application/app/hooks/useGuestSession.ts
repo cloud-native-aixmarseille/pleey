@@ -12,6 +12,7 @@ interface GuestState {
 export function useGuestSession() {
   const [guestNickname, setGuestNickname] = useState("");
   const [guestId, setGuestId] = useState<string | null>(null);
+  const [hasHydratedGuest, setHasHydratedGuest] = useState(false);
 
   const syncToStorage = useCallback((state: GuestState | null) => {
     if (typeof window === "undefined") {
@@ -30,6 +31,7 @@ export function useGuestSession() {
 
   const hydrateFromStorage = useCallback(() => {
     if (typeof window === "undefined") {
+      setHasHydratedGuest(true);
       return;
     }
 
@@ -40,6 +42,8 @@ export function useGuestSession() {
       setGuestNickname(storedNickname);
       setGuestId(storedId);
     }
+
+    setHasHydratedGuest(true);
   }, []);
 
   const clearGuest = useCallback(() => {
@@ -71,6 +75,7 @@ export function useGuestSession() {
   return {
     guestNickname,
     guestId,
+    hasHydratedGuest,
     registerGuest,
     clearGuest,
   };

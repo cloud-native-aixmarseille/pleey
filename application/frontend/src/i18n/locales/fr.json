@@ -1,7 +1,7 @@
 {
   "home": {
     "title": "QUIZMASTER",
-    "subtitle": ">> APPUYEZ SUR START <<",
+    "subtitle": ">> APPUYEZ SUR ENTRÉE <<",
     "fast": "Rapide",
     "epic": "Épique",
     "win": "Gagnez",
@@ -230,6 +230,7 @@
     }
   },
   "game": {
+    "stopSession": "Arrêter la session",
     "joinGame": "Rejoindre le Jeu",
     "enterPin": "Entrer le PIN",
     "join": "Rejoindre",
@@ -510,6 +511,19 @@
     "cancel": "Annuler",
     "dismiss": "Fermer la notification",
     "close": "Fermer",
+    "quickSettings": {
+      "label": "Paramètres rapides"
+    },
+    "language": {
+      "switchToEnglish": "Passer à l'anglais",
+      "switchToFrench": "Passer au français"
+    },
+    "theme": {
+      "ariaLabel": "Thème",
+      "system": "Système",
+      "light": "Clair",
+      "dark": "Sombre"
+    },
     "errors": {
       "network": "Erreur réseau. Vérifiez votre connexion et réessayez."
     }

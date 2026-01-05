@@ -4,12 +4,13 @@ import { JOIN_GAME_PIN_LENGTH } from "../constants";
 
 const PIN_SECTION_WRAPPER_CLASSES = "mb-8";
 const PIN_LABEL_CLASSES =
-  "mb-4 block text-center font-display text-xs uppercase tracking-wider text-primary-300 sm:text-sm";
+  "mb-4 block text-center font-display text-xs uppercase tracking-wider text-dark-400 dark:text-primary-300 sm:text-sm";
 const PIN_INPUT_CLASSES =
-  "w-full rounded-xl border-4 border-accent-500/50 bg-dark-500 p-6 text-center font-display text-4xl uppercase tracking-[0.5em] text-accent-400 shadow-neon-accent transition-all placeholder-dark-300 focus:border-accent-500 focus:outline-none focus:ring-4 focus:ring-accent-500/30 sm:p-8 sm:text-6xl";
+  "w-full rounded-xl border-4 border-accent-500/50 bg-light-50 p-6 text-center font-display text-4xl uppercase tracking-[0.5em] text-dark-500 shadow-neon-accent transition-all placeholder-dark-300 focus:border-accent-500 focus:outline-none focus:ring-4 focus:ring-accent-500/30 dark:bg-dark-500 dark:text-accent-400 sm:p-8 sm:text-6xl";
 const PIN_STATUS_WRAPPER_CLASSES =
   "mt-4 flex items-center justify-center gap-3";
-const PIN_STATUS_LABEL_CLASSES = "font-mono text-xs text-light-500";
+const PIN_STATUS_LABEL_CLASSES =
+  "font-mono text-xs text-dark-300 dark:text-light-500";
 const PIN_STATUS_COMPLETE_CLASSES =
   "font-display text-sm text-success-500 transition-colors animate-pulse";
 const PIN_STATUS_PENDING_CLASSES =
@@ -18,7 +19,7 @@ const PIN_DOTS_WRAPPER_CLASSES = "mt-6 mb-10 flex justify-center gap-3";
 const PIN_DOT_ACTIVE_CLASSES =
   "h-4 w-4 transform rotate-45 bg-accent-500 shadow-neon-accent transition-all duration-300 scale-125";
 const PIN_DOT_INACTIVE_CLASSES =
-  "h-4 w-4 transform border-2 border-primary-500/30 bg-dark-400 transition-all duration-300";
+  "h-4 w-4 transform border-2 border-primary-500/30 bg-light-200 transition-all duration-300 dark:bg-dark-400";
 
 interface JoinGamePinSectionProps {
   gamePin: string;

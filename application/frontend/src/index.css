@@ -4,18 +4,30 @@
 @config "../tailwind.config.js";
 
 @layer base {
+  :root {
+    --app-bg: #f5f5ff;
+    --app-text: #0a0a1f;
+    --app-scanline: rgba(0, 0, 0, 0.15);
+  }
+
+  :root.dark {
+    --app-bg: #0a0a1f;
+    --app-text: #f5f5ff;
+    --app-scanline: rgba(0, 0, 0, 0.15);
+  }
+
   * {
     @apply antialiased;
   }
 
   body {
-    color: #f5f5ff;
-    background-color: #0a0a1f;
+    color: var(--app-text);
+    background-color: var(--app-bg);
     font-family: "Orbitron", system-ui, sans-serif;
     background-image: repeating-linear-gradient(
       0deg,
-      rgba(0, 0, 0, 0.15),
-      rgba(0, 0, 0, 0.15) 1px,
+      var(--app-scanline),
+      var(--app-scanline) 1px,
       transparent 1px,
       transparent 2px
     );
@@ -237,12 +249,14 @@
   }
 
   .btn-ghost {
-    @apply bg-dark-400/30 backdrop-blur-sm text-accent-500 hover:bg-dark-400/50 focus:ring-accent-300 border-accent-500/50;
+    @apply bg-light-50/70 backdrop-blur-sm text-primary-800 hover:bg-primary-500/10 focus:ring-primary-300 border-primary-500/30;
+    @apply dark:bg-dark-400/30 dark:text-accent-500 dark:hover:bg-dark-400/50 dark:focus:ring-accent-300 dark:border-accent-500/50;
   }
 
   /* Card Components - Retro Style */
   .card {
-    @apply bg-dark-400 rounded-lg overflow-hidden transition-all duration-300 border-2 border-primary-500/30;
+    @apply bg-light-50 rounded-lg overflow-hidden transition-all duration-300 border-2 border-primary-500/20;
+    @apply dark:bg-dark-400 dark:border-primary-500/30;
     box-shadow:
       0 0 20px rgba(107, 72, 255, 0.3),
       inset 0 0 60px rgba(107, 72, 255, 0.05);
@@ -253,18 +267,21 @@
   }
 
   .card-glass {
-    @apply bg-dark-400/50 backdrop-blur-xl border-2 border-accent-500/30 rounded-lg;
+    @apply bg-light-50/70 backdrop-blur-xl border-2 border-primary-500/20 rounded-lg;
+    @apply dark:bg-dark-400/50 dark:border-accent-500/30;
     box-shadow:
       0 0 30px rgba(0, 255, 204, 0.2),
       inset 0 0 60px rgba(0, 255, 204, 0.05);
   }
 
   .card-dark {
-    @apply bg-dark-500 text-white rounded-lg border-2 border-dark-300;
+    @apply bg-light-50 text-dark-500 rounded-lg border-2 border-primary-500/20;
+    @apply dark:bg-dark-500 dark:text-light-100 dark:border-dark-300;
   }
 
   .card-arcade {
-    @apply bg-gradient-to-br from-dark-400 to-dark-500 border-4 border-accent-500 rounded-none;
+    @apply bg-gradient-to-br from-light-50 to-light-100 border-4 border-accent-500 rounded-none;
+    @apply dark:from-dark-400 dark:to-dark-500;
     box-shadow:
       8px 8px 0px rgba(0, 255, 204, 0.5),
       0 0 40px rgba(0, 255, 204, 0.3);
@@ -272,17 +289,19 @@
 
   /* Input Components - Terminal Style */
   .input {
-    @apply w-full px-5 py-4 bg-dark-400 border-2 border-primary-500/50 rounded-lg text-accent-500 placeholder-light-400 transition-all duration-300 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/30 focus:outline-none font-mono;
+    @apply w-full px-5 py-4 bg-light-50 border-2 border-primary-500/40 rounded-lg text-dark-500 placeholder-dark-300 transition-all duration-300 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/30 focus:outline-none font-mono;
+    @apply dark:bg-dark-400 dark:border-primary-500/50 dark:text-accent-500 dark:placeholder-light-400;
     box-shadow: inset 0 0 20px rgba(107, 72, 255, 0.2);
   }
 
   .input-dark {
-    @apply bg-dark-500 border-accent-500/50 text-accent-400 placeholder-light-500 focus:border-accent-500 focus:ring-accent-500/30;
+    @apply bg-light-100 border-primary-500/35 text-dark-500 placeholder-dark-300 focus:border-primary-500 focus:ring-primary-500/30;
+    @apply dark:bg-dark-500 dark:border-accent-500/50 dark:text-accent-400 dark:placeholder-light-500 dark:focus:border-accent-500 dark:focus:ring-accent-500/30;
   }
 
   /* Background Gradients - Synthwave */
   .bg-game-gradient {
-    @apply bg-dark-500;
+    @apply bg-light-100 dark:bg-dark-500;
     background-image:
       linear-gradient(rgba(107, 72, 255, 0.1) 1px, transparent 1px),
       linear-gradient(90deg, rgba(107, 72, 255, 0.1) 1px, transparent 1px),
@@ -304,7 +323,8 @@
   }
 
   .bg-quiz-gradient {
-    @apply bg-gradient-to-br from-primary-900 via-dark-500 to-secondary-900;
+    @apply bg-gradient-to-br from-primary-50 via-light-100 to-secondary-50;
+    @apply dark:from-primary-900 dark:via-dark-500 dark:to-secondary-900;
   }
 
   .bg-success-gradient {
@@ -337,7 +357,8 @@
   }
 
   .glass-effect {
-    @apply bg-dark-400/30 backdrop-blur-xl border-2 border-accent-500/20;
+    @apply bg-light-50/70 backdrop-blur-xl border-2 border-primary-500/20;
+    @apply dark:bg-dark-400/30 dark:border-accent-500/20;
   }
 
   .crt-screen {

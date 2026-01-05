@@ -4,8 +4,17 @@ import { useTranslation } from "react-i18next";
 import Button from "../button/Button";
 import SecondaryButton from "../button/SecondaryButton";
 import Card from "../Card";
+import Modal from "../Modal";
+import Input from "../Input";
 import { Icon } from "../../ui/icons";
 import { useNotifications } from "../../../application/app/hooks/useNotifications";
+
+const CREATE_FORM_CONTENT_CLASSES = "space-y-6";
+const CREATE_LABEL_CLASSES =
+  "block text-xs font-semibold uppercase tracking-[0.3em] text-light-500";
+const CREATE_INPUT_WRAPPER_CLASSES = "mt-2";
+const CREATE_TEXTAREA_CLASSES =
+  "mt-2 w-full rounded-2xl border border-primary-500/30 bg-dark-500/60 p-4 text-sm text-light-100 shadow-inner focus:border-primary-400 focus:outline-none";
 
 /**
  * Organization Selector Component
@@ -55,9 +64,15 @@ export function OrganizationSelector() {
     }
   };
 
+  const closeCreateForm = () => {
+    setShowCreateForm(false);
+    setNewOrgName("");
+    setNewOrgDescription("");
+  };
+
   if (isLoading) {
     return (
-      <div className="flex items-center gap-2 text-light-700">
+      <div className="flex items-center gap-2 text-dark-500 dark:text-light-700">
         <div className="animate-spin">⚙️</div>
         <span>{t("common.loading")}</span>
       </div>
@@ -78,10 +93,10 @@ export function OrganizationSelector() {
         <div className="flex items-center gap-3">
           <Icon name="Building2" tone="accent" size={24} />
           <div className="flex-1 text-left">
-            <div className="text-xs text-light-700">
+            <div className="text-xs text-dark-500 dark:text-light-700">
               {t("organization.title")}
             </div>
-            <div className="font-bold text-primary-300">
+            <div className="font-bold text-primary-800 dark:text-primary-300">
               {currentOrganization?.name ||
                 t("organization.selectOrganization")}
             </div>
@@ -101,7 +116,7 @@ export function OrganizationSelector() {
       {showDropdown && (
         <div className="absolute top-full mt-2 left-0 z-50 w-80">
           <Card surface="glass" tone="accent" padding="xs" elevation="panel">
-            <div className="max-h-96 overflow-y-auto">
+            <div className="max-h-96 overflow-y-auto overflow-x-hidden">
               {/* Organization List */}
               <div className="space-y-2">
                 {organizations.map((org) => {
@@ -123,7 +138,7 @@ export function OrganizationSelector() {
                       <div className="space-y-1">
                         <div className="font-semibold text-sm">{org.name}</div>
                         {org.description && (
-                          <p className="text-xs text-light-400">
+                          <p className="text-xs text-dark-400 dark:text-light-400">
                             {org.description}
                           </p>
                         )}
@@ -134,7 +149,7 @@ export function OrganizationSelector() {
               </div>
 
               {/* Create New Organization Button */}
-              <div className="mt-3 pt-3 border-t border-dark-700">
+              <div className="mt-3 pt-3 border-t border-light-300 dark:border-dark-700">
                 <Button
                   onClick={() => {
                     setShowCreateForm(true);
@@ -146,9 +161,12 @@ export function OrganizationSelector() {
                   fullWidth
                   alignment="start"
                   size="sm"
+                  className="min-w-0"
                   icon={{ name: "Plus", tone: "accent", size: 18 }}
                 >
-                  {t("organization.createNew")}
+                  <span className="min-w-0 whitespace-normal break-words text-left">
+                    {t("organization.createNew")}
+                  </span>
                 </Button>
               </div>
             </div>
@@ -157,70 +175,64 @@ export function OrganizationSelector() {
       )}
 
       {/* Create Organization Modal */}
-      {showCreateForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-md">
-            <Card surface="panel" tone="primary" padding="md" elevation="panel">
-              <h2 className="text-2xl font-bold text-gradient-neon mb-4">
-                {t("organization.createNew")}
-              </h2>
-              <form onSubmit={handleCreateOrganization} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-light-700 mb-2">
-                    {t("organization.organizationNameRequired")}
-                  </label>
-                  <input
-                    type="text"
-                    ref={nameInputRef}
-                    value={newOrgName}
-                    onChange={(e) => setNewOrgName(e.target.value)}
-                    className="w-full px-4 py-2 bg-dark-800 border-2 border-primary-500 rounded-lg text-light-100 focus:outline-none focus:border-primary-400"
-                    placeholder={t("organization.enterOrganizationName")}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-light-700 mb-2">
-                    {t("organization.descriptionOptional")}
-                  </label>
-                  <textarea
-                    value={newOrgDescription}
-                    onChange={(e) => setNewOrgDescription(e.target.value)}
-                    className="w-full px-4 py-2 bg-dark-800 border-2 border-primary-500 rounded-lg text-light-100 focus:outline-none focus:border-primary-400"
-                    placeholder={t("organization.enterOrganizationDescription")}
-                    rows={3}
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <div className="flex-1">
-                    <Button
-                      type="submit"
-                      variant="accent"
-                      fullWidth
-                      disabled={isCreating || !newOrgName.trim()}
-                    >
-                      {isCreating
-                        ? t("organization.creating")
-                        : t("organization.createOrganization")}
-                    </Button>
-                  </div>
-                  <SecondaryButton
-                    type="button"
-                    onClick={() => {
-                      setShowCreateForm(false);
-                      setNewOrgName("");
-                      setNewOrgDescription("");
-                    }}
-                    disabled={isCreating}
-                  >
-                    {t("common.cancel")}
-                  </SecondaryButton>
-                </div>
-              </form>
-            </Card>
+      <Modal
+        isOpen={showCreateForm}
+        onClose={closeCreateForm}
+        title={t("organization.createNew")}
+        footer={
+          <>
+            <SecondaryButton
+              type="button"
+              onClick={closeCreateForm}
+              disabled={isCreating}
+            >
+              {t("common.cancel")}
+            </SecondaryButton>
+            <Button
+              type="submit"
+              form="create-organization-form"
+              variant="accent"
+              disabled={isCreating || !newOrgName.trim()}
+            >
+              {isCreating
+                ? t("organization.creating")
+                : t("organization.createOrganization")}
+            </Button>
+          </>
+        }
+      >
+        <form id="create-organization-form" onSubmit={handleCreateOrganization}>
+          <div className={CREATE_FORM_CONTENT_CLASSES}>
+            <div>
+              <label className={CREATE_LABEL_CLASSES}>
+                {t("organization.organizationNameRequired")}
+              </label>
+              <div className={CREATE_INPUT_WRAPPER_CLASSES}>
+                <Input
+                  ref={nameInputRef}
+                  type="text"
+                  value={newOrgName}
+                  onChange={(e) => setNewOrgName(e.target.value)}
+                  placeholder={t("organization.enterOrganizationName")}
+                  required
+                />
+              </div>
+            </div>
+            <div>
+              <label className={CREATE_LABEL_CLASSES}>
+                {t("organization.descriptionOptional")}
+              </label>
+              <textarea
+                value={newOrgDescription}
+                onChange={(e) => setNewOrgDescription(e.target.value)}
+                rows={3}
+                className={CREATE_TEXTAREA_CLASSES}
+                placeholder={t("organization.enterOrganizationDescription")}
+              />
+            </div>
           </div>
-        </div>
-      )}
+        </form>
+      </Modal>
     </div>
   );
 }

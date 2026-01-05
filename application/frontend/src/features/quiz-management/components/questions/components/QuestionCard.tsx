@@ -8,16 +8,18 @@ const CARD_HEADER_CLASSES = "mb-4 flex items-start justify-between gap-3";
 const CARD_TITLE_STACK_CLASSES = "flex flex-1 items-start gap-3";
 const CARD_INDEX_BADGE_CLASSES =
   "glass-effect flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl border border-primary-500/30";
-const CARD_INDEX_TEXT_CLASSES = "font-black text-primary-200";
+const CARD_INDEX_TEXT_CLASSES =
+  "font-black text-primary-700 dark:text-primary-200";
 const CARD_QUESTION_TEXT_CLASSES =
-  "flex-1 text-lg font-bold text-light-100 drop-shadow-[0_0_18px_rgba(79,209,197,0.35)] sm:text-xl";
+  "flex-1 text-base font-medium text-dark-950 dark:text-light-100 sm:text-lg";
 const ACTION_GROUP_CLASSES = "flex items-center gap-2";
 const SR_ONLY_TEXT_CLASSES = "sr-only";
 const QUESTION_META_LIST_CLASSES =
-  "flex flex-wrap gap-3 text-sm text-light-300";
+  "flex flex-wrap gap-3 text-sm text-dark-600 dark:text-light-300";
 const QUESTION_META_ITEM_CLASSES =
-  "glass-effect flex items-center gap-2 rounded-lg border border-primary-500/20 px-3 py-2 text-light-300";
-const QUESTION_META_VALUE_CLASSES = "font-semibold text-light-100";
+  "glass-effect flex items-center gap-2 rounded-lg border border-primary-500/20 px-3 py-2 text-dark-600 dark:text-light-300";
+const QUESTION_META_VALUE_CLASSES =
+  "font-semibold text-dark-950 dark:text-light-100";
 const MULTIPLE_OPTIONS_GRID_CLASSES =
   "mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2";
 const OPTION_CONTENT_CLASSES = "flex items-center gap-2";

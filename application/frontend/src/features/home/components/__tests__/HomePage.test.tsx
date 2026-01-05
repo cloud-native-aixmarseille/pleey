@@ -1,6 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import HomePage from "../HomePage";
+import {
+  ColorSchemeProvider,
+  ThemeProvider,
+} from "../../../../shared/ui/theme";
 
 const mockNavigate = vi.fn();
 
@@ -20,20 +24,38 @@ describe("HomePage", () => {
   });
 
   it("should render the home page with title", () => {
-    render(<HomePage />);
+    render(
+      <ColorSchemeProvider>
+        <ThemeProvider>
+          <HomePage />
+        </ThemeProvider>
+      </ColorSchemeProvider>
+    );
 
     expect(screen.getByText(/QUIZMASTER/i)).toBeInTheDocument();
   });
 
   it("should render login and register buttons", () => {
-    render(<HomePage />);
+    render(
+      <ColorSchemeProvider>
+        <ThemeProvider>
+          <HomePage />
+        </ThemeProvider>
+      </ColorSchemeProvider>
+    );
 
     expect(screen.getByText(/LOGIN/i)).toBeInTheDocument();
     expect(screen.getByText(/SIGN UP/i)).toBeInTheDocument();
   });
 
   it('should call onNavigate with "login" when login button is clicked', () => {
-    render(<HomePage />);
+    render(
+      <ColorSchemeProvider>
+        <ThemeProvider>
+          <HomePage />
+        </ThemeProvider>
+      </ColorSchemeProvider>
+    );
 
     const loginButton = screen.getByText(/LOGIN/i);
     fireEvent.click(loginButton);
@@ -42,11 +64,31 @@ describe("HomePage", () => {
   });
 
   it('should call onNavigate with "register" when register button is clicked', () => {
-    render(<HomePage />);
+    render(
+      <ColorSchemeProvider>
+        <ThemeProvider>
+          <HomePage />
+        </ThemeProvider>
+      </ColorSchemeProvider>
+    );
 
     const registerButton = screen.getByText(/SIGN UP/i);
     fireEvent.click(registerButton);
 
     expect(mockNavigate).toHaveBeenCalledWith("/auth/register");
+  });
+
+  it('should navigate to "/auth/login" when Enter key is pressed', () => {
+    render(
+      <ColorSchemeProvider>
+        <ThemeProvider>
+          <HomePage />
+        </ThemeProvider>
+      </ColorSchemeProvider>
+    );
+
+    fireEvent.keyDown(window, { key: "Enter" });
+
+    expect(mockNavigate).toHaveBeenCalledWith("/auth/login");
   });
 });

@@ -4,6 +4,10 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import LoginPage from "../LoginPage";
 import { NotificationProvider } from "../../../../application/app/context/NotificationContext";
+import {
+  ColorSchemeProvider,
+  ThemeProvider,
+} from "../../../../shared/ui/theme";
 
 const mockNavigate = vi.fn();
 
@@ -26,9 +30,13 @@ describe("LoginPage", () => {
     onLogin: (email: string, password: string) => Promise<void>
   ) => {
     return render(
-      <NotificationProvider>
-        <LoginPage onLogin={onLogin} />
-      </NotificationProvider>
+      <ColorSchemeProvider>
+        <ThemeProvider>
+          <NotificationProvider>
+            <LoginPage onLogin={onLogin} />
+          </NotificationProvider>
+        </ThemeProvider>
+      </ColorSchemeProvider>
     );
   };
 
