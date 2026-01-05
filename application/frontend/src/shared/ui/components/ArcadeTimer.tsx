@@ -13,8 +13,8 @@ export type ArcadeTimerAlign = "start" | "center";
 
 const VARIANT_BASE_CLASS_MAP: Record<ArcadeTimerVariant, string> = {
   panel:
-    "flex items-center gap-4 rounded-2xl border-4 px-6 py-4 font-display font-black uppercase tracking-[0.2em] transition-all duration-300",
-  chip: "flex items-center gap-3 rounded-2xl px-5 py-2 font-display text-2xl font-black uppercase tracking-[0.15em] transition-all duration-300",
+    "flex items-center gap-4 rounded-lg border-4 px-6 py-4 font-display font-black uppercase tracking-[0.2em] transition-all duration-300",
+  chip: "flex items-center gap-3 rounded-lg px-5 py-2 font-display text-2xl font-black uppercase tracking-[0.15em] transition-all duration-300",
 };
 
 const VARIANT_TONE_CLASS_MAP: Record<
@@ -23,21 +23,23 @@ const VARIANT_TONE_CLASS_MAP: Record<
 > = {
   panel: {
     success:
-      "border-success-500 bg-success-500/30 text-success-300 shadow-neon-accent",
+      "border-success-500 bg-success-500/30 text-success-900 dark:text-success-300 shadow-neon-accent",
     warning:
-      "border-secondary-500 bg-secondary-500/30 text-secondary-200 shadow-neon-secondary",
+      "border-secondary-500 bg-secondary-500/30 text-secondary-900 dark:text-secondary-200 shadow-neon-secondary",
     danger:
-      "border-danger-500 bg-danger-500/30 text-danger-200 shadow-neon-danger",
+      "border-danger-500 bg-danger-500/30 text-danger-900 dark:text-danger-200 shadow-neon-danger",
     accent:
-      "border-accent-500 bg-accent-500/25 text-accent-200 shadow-neon-accent",
-    neutral: "border-dark-500 bg-dark-500/40 text-light-200 shadow-neon-accent",
+      "border-accent-500 bg-accent-500/25 text-accent-900 dark:text-accent-200 shadow-neon-accent",
+    neutral:
+      "border-dark-300 bg-light-50/80 text-dark-500 shadow-neon-accent dark:border-dark-500 dark:bg-dark-500/40 dark:text-light-200",
   },
   chip: {
-    success: "bg-success-500/15 text-success-200",
-    warning: "bg-secondary-500/15 text-secondary-200",
-    danger: "bg-danger-500/20 text-danger-200",
-    accent: "bg-accent-500/20 text-accent-100",
-    neutral: "bg-dark-500/40 text-light-200",
+    success: "bg-success-500/12 text-success-900 dark:text-success-200",
+    warning: "bg-secondary-500/12 text-secondary-900 dark:text-secondary-200",
+    danger: "bg-danger-500/15 text-danger-900 dark:text-danger-200",
+    accent: "bg-accent-500/15 text-accent-900 dark:text-accent-100",
+    neutral:
+      "bg-light-100/70 text-dark-500 dark:bg-dark-500/40 dark:text-light-200",
   },
 };
 
@@ -74,12 +76,12 @@ const SIZE_LABEL_CLASS_MAP: Record<
   Record<ArcadeTimerSize, string>
 > = {
   panel: {
-    md: "font-mono text-xs uppercase tracking-wider text-light-200/80",
-    lg: "font-mono text-sm uppercase tracking-wider text-light-200/80",
+    md: "font-mono text-xs uppercase tracking-wider text-dark-400 dark:text-light-200/80",
+    lg: "font-mono text-sm uppercase tracking-wider text-dark-400 dark:text-light-200/80",
   },
   chip: {
-    md: "text-xs font-semibold uppercase tracking-[0.2em] text-light-200/90",
-    lg: "text-sm font-semibold uppercase tracking-[0.22em] text-light-200/90",
+    md: "text-xs font-semibold uppercase tracking-[0.2em] text-dark-400 dark:text-light-200/90",
+    lg: "text-sm font-semibold uppercase tracking-[0.22em] text-dark-400 dark:text-light-200/90",
   },
 };
 

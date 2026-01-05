@@ -3,6 +3,62 @@ import * as LucideIcons from "lucide-react";
 import type { LucideProps } from "lucide-react";
 import { useTheme } from "../theme";
 
+function normalizeHex(hex: string): string | null {
+  const trimmed = hex.trim();
+  if (/^#([0-9a-fA-F]{3}){1,2}$/.test(trimmed)) {
+    if (trimmed.length === 4) {
+      const r = trimmed[1];
+      const g = trimmed[2];
+      const b = trimmed[3];
+      return `#${r}${r}${g}${g}${b}${b}`;
+    }
+    return trimmed;
+  }
+
+  return null;
+}
+
+function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+  const normalized = normalizeHex(hex);
+  if (!normalized) {
+    return null;
+  }
+
+  const value = normalized.replace("#", "");
+  const r = parseInt(value.slice(0, 2), 16);
+  const g = parseInt(value.slice(2, 4), 16);
+  const b = parseInt(value.slice(4, 6), 16);
+
+  if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) {
+    return null;
+  }
+
+  return { r, g, b };
+}
+
+function relativeLuminance({ r, g, b }: { r: number; g: number; b: number }) {
+  const toLinear = (value: number) => {
+    const channel = value / 255;
+    return channel <= 0.03928
+      ? channel / 12.92
+      : Math.pow((channel + 0.055) / 1.055, 2.4);
+  };
+
+  const R = toLinear(r);
+  const G = toLinear(g);
+  const B = toLinear(b);
+  return 0.2126 * R + 0.7152 * G + 0.0722 * B;
+}
+
+function isLightTheme(theme: ReturnType<typeof useTheme>): boolean {
+  const rgb = hexToRgb(theme.palette.surface.base);
+  if (!rgb) {
+    return false;
+  }
+
+  return relativeLuminance(rgb) > 0.6;
+}
+
 export type IconDescriptor = {
   name: IconName;
   tone?: IconTone;
@@ -36,13 +92,26 @@ export interface IconProps
 }
 
 const toneToColor = {
-  primary: (theme: ReturnType<typeof useTheme>) => theme.palette.primary[300],
+  primary: (theme: ReturnType<typeof useTheme>) =>
+    isLightTheme(theme)
+      ? theme.palette.primary[700]
+      : theme.palette.primary[300],
   secondary: (theme: ReturnType<typeof useTheme>) =>
-    theme.palette.secondary[300],
-  accent: (theme: ReturnType<typeof useTheme>) => theme.palette.accent[300],
-  success: (theme: ReturnType<typeof useTheme>) => theme.palette.success[200],
-  danger: (theme: ReturnType<typeof useTheme>) => theme.palette.danger[200],
-  neutral: (theme: ReturnType<typeof useTheme>) => theme.palette.neutral[300],
+    isLightTheme(theme)
+      ? theme.palette.secondary[700]
+      : theme.palette.secondary[300],
+  accent: (theme: ReturnType<typeof useTheme>) =>
+    isLightTheme(theme) ? theme.palette.text.accent : theme.palette.accent[300],
+  success: (theme: ReturnType<typeof useTheme>) =>
+    isLightTheme(theme)
+      ? theme.palette.text.success
+      : theme.palette.success[200],
+  danger: (theme: ReturnType<typeof useTheme>) =>
+    isLightTheme(theme) ? theme.palette.text.danger : theme.palette.danger[200],
+  neutral: (theme: ReturnType<typeof useTheme>) =>
+    isLightTheme(theme)
+      ? theme.palette.neutral[700]
+      : theme.palette.neutral[300],
   muted: (theme: ReturnType<typeof useTheme>) => theme.palette.text.muted,
   inverted: (theme: ReturnType<typeof useTheme>) => theme.palette.text.inverted,
 } as const;

@@ -3,7 +3,7 @@ import { Input, type InputProps } from "./Input";
 import type { IconSource } from "../icons";
 
 const PASSWORD_TOGGLE_BUTTON_CLASSES =
-  "inline-flex items-center justify-center rounded-xl border border-primary-500/40 bg-dark-500/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-200 transition hover:bg-primary-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-0";
+  "inline-flex items-center justify-center rounded-lg border border-primary-500/35 bg-light-50/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-900 transition hover:bg-primary-500/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-0 dark:border-primary-500/40 dark:bg-dark-500/60 dark:text-primary-200 dark:hover:bg-primary-500/20";
 
 export interface PasswordToggleLabels {
   show: string;

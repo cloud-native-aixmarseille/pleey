@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 
 import HomePage from "./features/home/components/HomePage";
 import { LoginRoute } from "./features/authentication/routes/LoginRoute";
@@ -14,25 +14,18 @@ import { LeaderboardRoute } from "./features/game-play/routes/LeaderboardRoute";
 import { ProfileRoute } from "./features/profile/routes/ProfileRoute";
 import { AccountBar } from "./application/app/components/AccountBar";
 import { AppLifecycleManager } from "./application/app/components/AppLifecycleManager";
-import { useAuthManagerContext } from "./application/app/context/AuthManagerContext";
-
-const SHELL_AUTHENTICATED_CLASSES = "pt-36 pb-12";
-const SHELL_ANONYMOUS_CLASSES = "pt-12 pb-12";
 
 /**
  * Application routes and global UI shell. Keeps routing declarations declarative
  * while lifecycle and chrome live in dedicated components.
  */
 export function AppRoutes() {
-  const { isAuthenticated } = useAuthManagerContext();
-  const shellClassName = isAuthenticated
-    ? SHELL_AUTHENTICATED_CLASSES
-    : SHELL_ANONYMOUS_CLASSES;
+  const location = useLocation();
 
   return (
     <>
       <AppLifecycleManager />
-      <div className={shellClassName} data-app-shell="true">
+      <div data-app-shell="true">
         <AccountBar />
 
         <Routes>

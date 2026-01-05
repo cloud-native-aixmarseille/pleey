@@ -18,29 +18,33 @@ const POSITION_BASE_CLASSES = composeClasses(
 );
 
 const POSITION_TONE_MAP: Record<ArcadeLeaderboardRowTone, string> = {
-  primary: "text-primary-100",
-  secondary: "text-secondary-100",
-  accent: "text-accent-100",
-  neutral: "text-light-200",
+  primary: "text-primary-900 dark:text-primary-100",
+  secondary: "text-secondary-900 dark:text-secondary-100",
+  accent: "text-accent-900 dark:text-accent-100",
+  neutral: "text-dark-500 dark:text-light-200",
 };
 
 const NAME_CLASSES = composeClasses(
   "flex-1 min-w-0 font-display uppercase",
-  "text-xl sm:text-2xl tracking-[0.24em] text-light-100",
+  "text-xl sm:text-2xl tracking-[0.24em] text-dark-500 dark:text-light-100",
   "truncate drop-shadow-[0_0_10px_rgba(255,255,255,0.25)]"
 );
 
 const POINTS_BASE_CLASSES = composeClasses(
-  "inline-flex items-center gap-2 rounded-2xl border px-4 py-2",
+  "inline-flex items-center gap-2 rounded-lg border px-4 py-2",
   "font-black uppercase tracking-[0.28em] text-xs sm:text-sm",
   "transition-transform duration-200 group-hover:scale-105"
 );
 
 const POINTS_TONE_MAP: Record<ArcadeLeaderboardRowTone, string> = {
-  primary: "bg-primary-500/15 text-primary-100 border-primary-400/50",
-  secondary: "bg-secondary-500/15 text-secondary-100 border-secondary-400/50",
-  accent: "bg-accent-500/15 text-accent-100 border-accent-400/45",
-  neutral: "bg-light-500/10 text-light-100 border-light-400/40",
+  primary:
+    "bg-primary-500/12 text-primary-900 border-primary-400/50 dark:text-primary-100",
+  secondary:
+    "bg-secondary-500/12 text-secondary-900 border-secondary-400/50 dark:text-secondary-100",
+  accent:
+    "bg-accent-500/12 text-accent-900 border-accent-400/45 dark:text-accent-100",
+  neutral:
+    "bg-light-200/70 text-dark-500 border-dark-300/30 dark:bg-light-500/10 dark:text-light-100 dark:border-light-400/40",
 };
 
 export interface ArcadeLeaderboardRowProps {

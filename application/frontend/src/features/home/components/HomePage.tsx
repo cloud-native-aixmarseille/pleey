@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -5,8 +6,8 @@ import {
   Button,
   Card,
   PrimaryButton,
+  QuickSettingsMenu,
 } from "../../../shared/components";
-import LanguageSwitcher from "../../../shared/components/LanguageSwitcher";
 
 const OVERLAY_CONTENT = (
   <>
@@ -17,21 +18,21 @@ const OVERLAY_CONTENT = (
 );
 
 const CONTENT_WRAPPER_CLASSES = "relative flex w-full justify-center";
-const LANGUAGE_SWITCHER_WRAPPER_CLASSES =
-  "absolute right-4 top-4 z-40 sm:right-6 sm:top-6";
+const QUICK_SETTINGS_WRAPPER_CLASSES =
+  "fixed right-4 top-4 z-50 sm:right-6 sm:top-6";
 const HERO_CARD_WRAPPER_CLASSES =
-  "w-full max-w-3xl rounded-[var(--arcade-radius-2xl)] border-4 border-primary-500 bg-dark-400/95 shadow-[0_0_45px_rgba(56,189,248,0.25)]";
+  "w-full max-w-3xl rounded-[var(--arcade-radius-xl)] border-4 border-primary-500 bg-light-50/95 text-dark-500 shadow-[0_0_45px_rgba(56,189,248,0.25)] dark:bg-dark-400/95 dark:text-light-100";
 const HERO_CARD_CONTENT_CLASSES = "space-y-8 text-center";
 const HERO_ICON_CLASSES =
   "mb-6 text-7xl drop-shadow-[0_0_20px_rgba(0,255,204,0.8)] animate-bounce-slow sm:text-8xl";
 const HERO_TITLE_CLASSES =
   "text-gradient-neon text-4xl font-display animate-glow sm:text-6xl";
 const HERO_SUBTITLE_WRAPPER_CLASSES =
-  "relative inline-flex overflow-hidden border-2 border-accent-500 bg-dark-500 px-6 py-3";
+  "relative inline-flex overflow-hidden border-2 border-accent-500 bg-light-100 px-6 py-3 dark:bg-dark-500";
 const HERO_SUBTITLE_OVERLAY_CLASSES =
   "pointer-events-none absolute inset-0 bg-accent-500/10 animate-pulse";
 const HERO_SUBTITLE_TEXT_CLASSES =
-  "relative z-10 font-display text-xs uppercase tracking-[0.5em] text-accent-400 sm:text-sm";
+  "relative z-10 font-display text-xs uppercase tracking-[0.5em] text-dark-500 dark:text-accent-400 sm:text-sm";
 
 const FEATURE_GRID_CLASSES = "grid grid-cols-1 gap-4 sm:grid-cols-3";
 const FEATURE_CARD_BASE_CLASSES =
@@ -41,28 +42,57 @@ const FEATURE_CARD_SECONDARY_CLASSES = `${FEATURE_CARD_BASE_CLASSES} border-2 bo
 const FEATURE_CARD_ACCENT_CLASSES = `${FEATURE_CARD_BASE_CLASSES} border-2 border-accent-500/30 hover:border-accent-500`;
 const FEATURE_ICON_CLASSES = "mb-2 text-3xl group-hover:animate-wiggle";
 const FEATURE_LABEL_PRIMARY_CLASSES =
-  "font-display text-xxs uppercase text-accent-400";
+  "font-display text-xxs uppercase text-dark-400 dark:text-accent-400";
 const FEATURE_LABEL_SECONDARY_CLASSES =
-  "font-display text-xxs uppercase text-secondary-400";
+  "font-display text-xxs uppercase text-dark-400 dark:text-secondary-400";
 
 const ACTIONS_WRAPPER_CLASSES = "space-y-4";
 const ACTION_BUTTON_CONTAINER_CLASSES = "sm:w-auto";
 const ACTION_BUTTON_CONTENT_CLASSES = "flex items-center justify-center gap-3";
 
+const AUTH_CTA_WRAPPER_CLASSES =
+  "rounded-[var(--arcade-radius-lg)] border border-primary-500/20 bg-light-50/70 p-[2px] dark:bg-dark-700/40";
+
 const FOOTER_WRAPPER_CLASSES = "mt-8 border-t-2 border-primary-500/30 pt-6";
 const FOOTER_PRIMARY_TEXT_CLASSES =
-  "font-mono text-xs uppercase tracking-widest text-light-400 animate-pulse";
-const FOOTER_SECONDARY_TEXT_CLASSES = "mt-2 font-mono text-xxs text-light-500";
+  "font-mono text-xs uppercase tracking-widest text-dark-400 animate-pulse dark:text-light-400";
+const FOOTER_SECONDARY_TEXT_CLASSES =
+  "mt-2 font-mono text-xxs text-dark-300 dark:text-light-500";
 
 export default function HomePage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key !== "Enter") {
+        return;
+      }
+
+      const target = event.target as HTMLElement | null;
+      const isEditableTarget =
+        target?.isContentEditable ||
+        target?.tagName === "INPUT" ||
+        target?.tagName === "TEXTAREA" ||
+        target?.tagName === "SELECT";
+
+      if (isEditableTarget) {
+        return;
+      }
+
+      navigate("/auth/login");
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [navigate]);
 
   return (
     <div className="crt-screen">
       <ArcadePage
         variant="gradient"
         padding="lg"
+        disableVerticalPadding
         contentWidth="md"
         align="center"
         verticalAlign="center"
@@ -70,9 +100,7 @@ export default function HomePage() {
         overlays={OVERLAY_CONTENT}
       >
         <div className={CONTENT_WRAPPER_CLASSES}>
-          <div className={LANGUAGE_SWITCHER_WRAPPER_CLASSES}>
-            <LanguageSwitcher />
-          </div>
+          <QuickSettingsMenu className={QUICK_SETTINGS_WRAPPER_CLASSES} />
 
           <div className={HERO_CARD_WRAPPER_CLASSES}>
             <Card padding="xl" surface="panel" border="none" motion="scale">
@@ -123,17 +151,19 @@ export default function HomePage() {
                     </PrimaryButton>
                   </div>
                   <div className={ACTION_BUTTON_CONTAINER_CLASSES}>
-                    <Button
-                      variant="accent"
-                      size="lg"
-                      fullWidth
-                      effect="retro"
-                      onClick={() => navigate("/auth/register")}
-                    >
-                      <span className={ACTION_BUTTON_CONTENT_CLASSES}>
-                        <span>{t("home.signup")}</span>
-                      </span>
-                    </Button>
+                    <div className={AUTH_CTA_WRAPPER_CLASSES}>
+                      <Button
+                        variant="ghost"
+                        tone="accent"
+                        size="md"
+                        fullWidth
+                        onClick={() => navigate("/auth/register")}
+                      >
+                        <span className={ACTION_BUTTON_CONTENT_CLASSES}>
+                          <span>{t("home.signup")}</span>
+                        </span>
+                      </Button>
+                    </div>
                   </div>
                 </div>
 

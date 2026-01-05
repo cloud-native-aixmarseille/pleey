@@ -22,12 +22,18 @@ const BASE_CLASSES = composeClasses(
 );
 
 const TONE_CLASS_MAP: Record<ArcadeBadgeTone, string> = {
-  primary: "bg-primary-500/20 text-primary-100 border-primary-500/40",
-  secondary: "bg-secondary-500/20 text-secondary-100 border-secondary-500/40",
-  accent: "bg-accent-500/15 text-accent-100 border-accent-500/40",
-  success: "bg-success-500/15 text-success-100 border-success-500/35",
-  danger: "bg-danger-500/15 text-danger-100 border-danger-500/35",
-  neutral: "bg-dark-500/55 text-light-200 border-dark-400/40",
+  primary:
+    "bg-primary-500/15 text-primary-900 border-primary-500/40 dark:text-primary-100",
+  secondary:
+    "bg-secondary-500/15 text-secondary-900 border-secondary-500/40 dark:text-secondary-100",
+  accent:
+    "bg-accent-500/12 text-accent-900 border-accent-500/40 dark:text-accent-100",
+  success:
+    "bg-success-500/12 text-success-900 border-success-500/35 dark:text-success-100",
+  danger:
+    "bg-danger-500/12 text-danger-900 border-danger-500/35 dark:text-danger-100",
+  neutral:
+    "bg-light-100/70 text-dark-500 border-dark-300/40 dark:bg-dark-500/55 dark:text-light-200 dark:border-dark-400/40",
 };
 
 function resolveIndicatorClass(pulse: boolean) {

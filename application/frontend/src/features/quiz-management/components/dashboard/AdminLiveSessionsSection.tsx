@@ -7,33 +7,36 @@ import {
   getSessionStatusTone,
 } from "../shared/sessionUtils";
 
-const SECTION_CARD_WRAPPER_CLASSES =
-  "mb-6 animate-fade-in rounded-[var(--arcade-radius-xl)] border border-primary-500/30 bg-dark-700/80 p-6 shadow-xl sm:p-8";
+const SECTION_WRAPPER_CLASSES = "mb-6 animate-fade-in";
 const SECTION_CONTENT_CLASSES = "flex flex-col gap-4";
 const HEADER_WRAPPER_CLASSES = "mb-2 flex items-center gap-3";
 const HEADER_ICON_CLASSES = "text-5xl";
-const HEADER_TITLE_CLASSES = "text-2xl font-black text-accent-200";
-const HEADER_SUBTITLE_CLASSES = "text-light-400";
+const HEADER_TITLE_CLASSES =
+  "text-lg font-semibold text-primary-900 dark:text-2xl dark:font-black dark:text-accent-200";
+const HEADER_SUBTITLE_CLASSES = "text-dark-400 dark:text-light-400";
 
 const EMPTY_CARD_WRAPPER_CLASSES =
-  "rounded-[var(--arcade-radius-lg)] border border-dashed border-primary-500/50 bg-dark-800/90 p-6 text-light-300 shadow-inner";
+  "rounded-[var(--arcade-radius-lg)] border border-dashed border-primary-500/35 bg-light-50/80 p-6 text-dark-500 shadow-inner dark:border-primary-500/50 dark:bg-dark-800/90 dark:text-light-300";
 const EMPTY_CARD_CONTENT_CLASSES = "flex items-center gap-3";
 const EMPTY_ICON_CLASSES = "text-2xl";
 const EMPTY_TEXT_CLASSES = "text-base font-medium";
 
 const LIST_WRAPPER_CLASSES = "space-y-4";
-const SESSION_CARD_WRAPPER_CLASSES =
-  "rounded-[var(--arcade-radius-xl)] border border-primary-500/50 bg-dark-800/90 shadow-lg transition-all focus-within:border-accent-400";
+const SESSION_CARD_CLASSES =
+  "transition-all focus-within:ring-2 focus-within:ring-primary-500/30 dark:focus-within:ring-accent-400/30";
 const SESSION_CARD_CONTENT_CLASSES =
   "flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between";
 const SESSION_INFO_CLASSES = "flex-1 min-w-0";
 const SESSION_BADGE_ROW_CLASSES = "flex flex-wrap items-center gap-3";
 const LIVE_BADGE_CLASSES =
-  "inline-flex items-center gap-2 rounded-full border border-primary-500/50 bg-primary-500/25 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-light-100";
-const SESSION_TITLE_CLASSES = "mt-3 text-lg font-semibold text-light-100";
+  "inline-flex items-center gap-2 rounded-full border border-primary-500/40 bg-primary-100/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-primary-900 dark:border-primary-500/50 dark:bg-primary-500/25 dark:text-light-100";
+const SESSION_TITLE_CLASSES =
+  "mt-3 text-base font-medium text-dark-900 dark:text-lg dark:font-semibold dark:text-light-100";
 const SESSION_META_CLASSES =
-  "mt-3 flex flex-wrap items-center gap-3 text-sm text-light-300";
-const SESSION_PIN_CLASSES = "flex items-center gap-2 font-mono text-accent-200";
+  "mt-3 flex flex-wrap items-center gap-3 text-sm text-dark-500 dark:text-light-300";
+const SESSION_PIN_CLASSES =
+  "flex items-center gap-2 font-mono text-accent-900 dark:text-accent-200";
+const SESSION_PIN_VALUE_CLASSES = "text-lg font-semibold tabular-nums";
 const SESSION_ACTIONS_CLASSES = "flex items-center gap-2";
 const SR_ONLY_CLASSES = "sr-only";
 
@@ -104,8 +107,14 @@ export function AdminLiveSessionsSection({
 
   if (liveSessions.length === 0) {
     return (
-      <div className={SECTION_CARD_WRAPPER_CLASSES} data-live-sessions="empty">
-        <Card padding="lg" border="none" surface="panel" motion="none">
+      <div className={SECTION_WRAPPER_CLASSES} data-live-sessions="empty">
+        <Card
+          padding="lg"
+          border="thin"
+          elevation="panel"
+          surface="panel"
+          motion="none"
+        >
           <div className={SECTION_CONTENT_CLASSES}>
             {renderHeader()}
             <div className={EMPTY_CARD_WRAPPER_CLASSES}>
@@ -125,8 +134,14 @@ export function AdminLiveSessionsSection({
   }
 
   return (
-    <div className={SECTION_CARD_WRAPPER_CLASSES} data-live-sessions="list">
-      <Card padding="lg" border="none" surface="panel" motion="none">
+    <div className={SECTION_WRAPPER_CLASSES} data-live-sessions="list">
+      <Card
+        padding="lg"
+        border="thin"
+        elevation="panel"
+        surface="panel"
+        motion="none"
+      >
         <div className="flex flex-col gap-6">
           {renderHeader()}
           <div className={LIST_WRAPPER_CLASSES}>
@@ -144,61 +159,67 @@ export function AdminLiveSessionsSection({
               const isJoining = joiningKey === sessionKey;
 
               return (
-                <div key={sessionKey} className={SESSION_CARD_WRAPPER_CLASSES}>
-                  <Card
-                    padding="md"
-                    border="none"
-                    surface="panel"
-                    motion="none"
-                  >
-                    <div className={SESSION_CARD_CONTENT_CLASSES}>
-                      <div className={SESSION_INFO_CLASSES}>
-                        <div className={SESSION_BADGE_ROW_CLASSES}>
-                          <span className={LIVE_BADGE_CLASSES}>
-                            {t("admin.liveSessionBadge")}
-                          </span>
-                          <ArcadeBadge tone={tone} indicator pulse>
-                            {t(`admin.sessionStatus.${session.status}`, {
-                              defaultValue: session.status,
-                            })}
-                          </ArcadeBadge>
-                        </div>
-                        <h4 className={SESSION_TITLE_CLASSES}>
-                          {relatedQuiz?.title ?? t("admin.unknownQuiz")}
-                        </h4>
-                        <div className={SESSION_META_CLASSES}>
-                          <span className={SESSION_PIN_CLASSES}>
-                            <span className={SR_ONLY_CLASSES}>
-                              {t("admin.sessionPinLabel", { pin: session.pin })}
-                            </span>
-                            <span aria-hidden="true">PIN</span>
-                            <span aria-hidden="true">{session.pin}</span>
-                          </span>
-                          <span>
-                            {t("admin.sessionStartedLabel", {
-                              date: formatSessionDate(createdAt),
-                            })}
-                          </span>
-                        </div>
-                      </div>
-                      <div className={SESSION_ACTIONS_CLASSES}>
-                        <Button
-                          size="sm"
-                          variant="accent"
-                          onClick={() => handleJoinSession(session, sessionKey)}
-                          disabled={isJoining}
-                          aria-label={t("admin.joinSessionButtonAria", {
-                            pin: session.pin,
+                <Card
+                  key={sessionKey}
+                  padding="md"
+                  border="thin"
+                  elevation="panel"
+                  surface="panel"
+                  motion="none"
+                  className={SESSION_CARD_CLASSES}
+                >
+                  <div className={SESSION_CARD_CONTENT_CLASSES}>
+                    <div className={SESSION_INFO_CLASSES}>
+                      <div className={SESSION_BADGE_ROW_CLASSES}>
+                        <span className={LIVE_BADGE_CLASSES}>
+                          {t("admin.liveSessionBadge")}
+                        </span>
+                        <ArcadeBadge tone={tone} indicator pulse>
+                          {t(`admin.sessionStatus.${session.status}`, {
+                            defaultValue: session.status,
                           })}
-                        >
-                          {isJoining
-                            ? t("common.loading")
-                            : t("admin.joinSessionButton")}
-                        </Button>
+                        </ArcadeBadge>
+                      </div>
+                      <h4 className={SESSION_TITLE_CLASSES}>
+                        {relatedQuiz?.title ?? t("admin.unknownQuiz")}
+                      </h4>
+                      <div className={SESSION_META_CLASSES}>
+                        <span className={SESSION_PIN_CLASSES}>
+                          <span className={SR_ONLY_CLASSES}>
+                            {t("admin.sessionPinLabel", { pin: session.pin })}
+                          </span>
+                          <span aria-hidden="true">PIN</span>
+                          <span
+                            aria-hidden="true"
+                            className={SESSION_PIN_VALUE_CLASSES}
+                          >
+                            {session.pin}
+                          </span>
+                        </span>
+                        <span>
+                          {t("admin.sessionStartedLabel", {
+                            date: formatSessionDate(createdAt),
+                          })}
+                        </span>
                       </div>
                     </div>
-                  </Card>
-                </div>
+                    <div className={SESSION_ACTIONS_CLASSES}>
+                      <Button
+                        size="sm"
+                        variant="accent"
+                        onClick={() => handleJoinSession(session, sessionKey)}
+                        disabled={isJoining}
+                        aria-label={t("admin.joinSessionButtonAria", {
+                          pin: session.pin,
+                        })}
+                      >
+                        {isJoining
+                          ? t("common.loading")
+                          : t("admin.joinSessionButton")}
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
               );
             })}
           </div>

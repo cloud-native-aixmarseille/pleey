@@ -12,13 +12,15 @@ const CARD_CONTAINER_CLASSES = "animate-scale-in";
 const CARD_HEADER_WRAPPER_CLASSES = "mb-4";
 const CARD_TITLE_ROW_CLASSES = "mb-2 flex items-start justify-between";
 const CARD_TITLE_CLASSES =
-  "flex-1 pr-2 text-xl font-bold text-light-100 drop-shadow-[0_0_12px_rgba(120,210,255,0.25)]";
+  "flex-1 pr-2 text-base font-medium text-dark-900 dark:text-lg dark:font-semibold dark:text-light-100";
 const LIVE_BADGE_CLASSES =
-  "inline-flex items-center gap-1 rounded-lg border border-primary-500/40 bg-primary-500/20 px-2 py-1 text-xs font-bold text-accent-200";
+  "inline-flex items-center gap-1 rounded-lg border border-primary-500/40 bg-primary-200/60 px-2 py-1 text-xs font-bold text-accent-900 dark:bg-primary-500/20 dark:text-accent-200";
 const LIVE_BADGE_INDICATOR_CLASSES =
   "h-2 w-2 rounded-full bg-accent-400 animate-pulse";
-const DESCRIPTION_CLASSES = "mb-3 text-sm text-light-700 line-clamp-2";
-const META_ROW_CLASSES = "flex items-center gap-3 text-xs text-light-600";
+const DESCRIPTION_CLASSES =
+  "mb-3 text-sm text-dark-500 dark:text-light-700 line-clamp-2";
+const META_ROW_CLASSES =
+  "flex items-center gap-3 text-xs text-dark-400 dark:text-light-600";
 const META_ITEM_CLASSES = "flex items-center gap-1";
 const ICON_CLASSES = "h-4 w-4";
 const ACTIONS_ROW_CLASSES = "flex items-center gap-2";

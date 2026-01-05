@@ -24,7 +24,7 @@ import { QuestionFormModal } from "./components/QuestionFormModal";
 import { QuestionDeleteModal } from "./components/QuestionDeleteModal";
 
 const QUESTION_PAGE_WRAPPER_CLASSES =
-  "min-h-screen bg-game-gradient p-4 sm:p-8";
+  "min-h-[calc(100dvh-var(--app-shell-padding-top,0px)-var(--app-shell-padding-bottom,0px))] bg-game-gradient pt-0 px-4 pb-4 sm:px-8 sm:pb-8";
 
 type QuestionFormMode = "create" | "edit";
 
@@ -118,8 +118,12 @@ export default function ManageQuestionsPage({
       if (type === "multiple") {
         const validAnswers: OptionKey[] = ["A", "B", "C", "D"];
         // Handle multiple answers: keep first valid answer from comma-separated list
-        const currentAnswers = previous.correctAnswer.split(',').map(a => a.trim() as OptionKey);
-        const firstValidAnswer = currentAnswers.find(a => validAnswers.includes(a));
+        const currentAnswers = previous.correctAnswer
+          .split(",")
+          .map((a) => a.trim() as OptionKey);
+        const firstValidAnswer = currentAnswers.find((a) =>
+          validAnswers.includes(a)
+        );
         const nextAnswer = firstValidAnswer || "A";
 
         return {
@@ -143,7 +147,7 @@ export default function ManageQuestionsPage({
   }, []);
 
   const handleCorrectAnswerSelect = useCallback((value: string | null) => {
-    setFormState((previous) => ({ ...previous, correctAnswer: value ?? '' }));
+    setFormState((previous) => ({ ...previous, correctAnswer: value ?? "" }));
   }, []);
 
   const validateForm = () => {
@@ -174,7 +178,9 @@ export default function ManageQuestionsPage({
         setFormError(t("quiz.formErrors.correctAnswerRequired"));
         return false;
       }
-      const correctAnswers = formState.correctAnswer.split(',').map(a => a.trim());
+      const correctAnswers = formState.correctAnswer
+        .split(",")
+        .map((a) => a.trim());
 
       for (const answer of correctAnswers) {
         const selected = formState.options[answer as OptionKey];

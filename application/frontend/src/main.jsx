@@ -7,6 +7,32 @@ import "./i18n/config";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./shared/api/openapiClient";
 
+function bootstrapColorScheme() {
+  try {
+    const stored = window.localStorage.getItem("quizmaster_color_scheme");
+    const preference =
+      stored === "light" || stored === "dark" || stored === "system"
+        ? stored
+        : "system";
+
+    const systemResolved = window.matchMedia?.("(prefers-color-scheme: dark)")
+      .matches
+      ? "dark"
+      : "light";
+
+    const resolved = preference === "system" ? systemResolved : preference;
+
+    const root = document.documentElement;
+    root.classList.toggle("dark", resolved === "dark");
+    root.dataset.colorScheme = resolved;
+    root.style.colorScheme = resolved;
+  } catch {
+    // ignore
+  }
+}
+
+bootstrapColorScheme();
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
@@ -14,5 +40,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <App />
       </QueryClientProvider>
     </BrowserRouter>
-  </React.StrictMode>,
+  </React.StrictMode>
 );

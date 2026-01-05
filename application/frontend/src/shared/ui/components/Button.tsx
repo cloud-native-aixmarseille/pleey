@@ -10,6 +10,80 @@ import { withAlpha } from "../utils/color";
 import { useTheme } from "../theme";
 import { Icon, type IconTone, type IconSource, renderIconNode } from "../icons";
 
+function normalizeHex(hex: string): string | null {
+  const trimmed = hex.trim();
+  if (/^#([0-9a-fA-F]{3}){1,2}$/.test(trimmed)) {
+    if (trimmed.length === 4) {
+      const r = trimmed[1];
+      const g = trimmed[2];
+      const b = trimmed[3];
+      return `#${r}${r}${g}${g}${b}${b}`;
+    }
+    return trimmed;
+  }
+
+  return null;
+}
+
+function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+  const normalized = normalizeHex(hex);
+  if (!normalized) {
+    return null;
+  }
+
+  const value = normalized.replace("#", "");
+  const r = parseInt(value.slice(0, 2), 16);
+  const g = parseInt(value.slice(2, 4), 16);
+  const b = parseInt(value.slice(4, 6), 16);
+
+  if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) {
+    return null;
+  }
+
+  return { r, g, b };
+}
+
+function relativeLuminance({ r, g, b }: { r: number; g: number; b: number }) {
+  const toLinear = (value: number) => {
+    const channel = value / 255;
+    return channel <= 0.03928
+      ? channel / 12.92
+      : Math.pow((channel + 0.055) / 1.055, 2.4);
+  };
+
+  const R = toLinear(r);
+  const G = toLinear(g);
+  const B = toLinear(b);
+  return 0.2126 * R + 0.7152 * G + 0.0722 * B;
+}
+
+function isLightColor(hex: string): boolean {
+  const rgb = hexToRgb(hex);
+  if (!rgb) {
+    return false;
+  }
+
+  return relativeLuminance(rgb) > 0.6;
+}
+
+function pickReadableTextColor(
+  backgroundHex: string,
+  theme: ReturnType<typeof useTheme>
+): string {
+  return isLightColor(backgroundHex)
+    ? theme.palette.text.primary
+    : theme.palette.text.inverted;
+}
+
+function isLightTheme(theme: ReturnType<typeof useTheme>): boolean {
+  const rgb = hexToRgb(theme.palette.surface.base);
+  if (!rgb) {
+    return false;
+  }
+
+  return relativeLuminance(rgb) > 0.6;
+}
+
 export type ButtonVariant =
   | "primary"
   | "secondary"
@@ -39,11 +113,12 @@ type IconPosition = "start" | "end";
 
 type BaseButtonProps = Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
-  "className" | "style" | "children"
+  "style" | "children"
 >;
 
 export interface ButtonProps extends BaseButtonProps {
   children: ReactNode;
+  className?: string;
   variant?: ButtonVariant;
   tone?: ButtonTone;
   size?: ButtonSize;
@@ -109,6 +184,7 @@ function resolveButtonSurface(
   theme: ReturnType<typeof useTheme>
 ): ButtonSurface {
   const palette = resolveTonePalette(tone, theme);
+  const lightTheme = isLightTheme(theme);
   const defaultSurface: ButtonSurface = {
     background: palette[500],
     backgroundHover: palette[400],
@@ -122,8 +198,10 @@ function resolveButtonSurface(
   };
 
   if (variant === "outline" || (variant === "ghost" && tone !== "neutral")) {
-    defaultSurface.text = palette[500];
-    defaultSurface.textHover = theme.palette.text.inverted;
+    defaultSurface.text = lightTheme ? palette[800] : palette[500];
+    defaultSurface.textHover = lightTheme
+      ? theme.palette.text.primary
+      : theme.palette.text.inverted;
   }
 
   switch (variant) {
@@ -142,8 +220,8 @@ function resolveButtonSurface(
         ...defaultSurface,
         background: theme.palette.accent[500],
         backgroundHover: theme.palette.accent[400],
-        text: theme.palette.text.inverted,
-        textHover: theme.palette.text.inverted,
+        text: pickReadableTextColor(theme.palette.accent[500], theme),
+        textHover: pickReadableTextColor(theme.palette.accent[400], theme),
         border: theme.palette.accent[300],
         borderHover: theme.palette.accent[200],
       };
@@ -169,13 +247,18 @@ function resolveButtonSurface(
       const outlinePalette = resolveTonePalette(tone, theme);
       return {
         background: "transparent",
-        backgroundHover: withAlpha(outlinePalette[500], 0.18),
+        backgroundHover: withAlpha(
+          outlinePalette[500],
+          lightTheme ? 0.12 : 0.18
+        ),
         backgroundDisabled: withAlpha(theme.palette.neutral[800], 0.4),
-        text: outlinePalette[400],
-        textHover: theme.palette.text.inverted,
+        text: lightTheme ? outlinePalette[800] : outlinePalette[400],
+        textHover: lightTheme
+          ? theme.palette.text.primary
+          : theme.palette.text.inverted,
         textDisabled: withAlpha(theme.palette.text.primary, 0.4),
-        border: outlinePalette[400],
-        borderHover: outlinePalette[300],
+        border: lightTheme ? outlinePalette[700] : outlinePalette[400],
+        borderHover: lightTheme ? outlinePalette[800] : outlinePalette[300],
         borderDisabled: withAlpha(theme.palette.neutral[600], 0.4),
       };
     }
@@ -185,23 +268,34 @@ function resolveButtonSurface(
         tone === "neutral"
           ? withAlpha(theme.palette.surface.overlay, 0.75)
           : withAlpha(ghostPalette[500], 0.12);
+
+      const tintedText = lightTheme ? ghostPalette[800] : ghostPalette[300];
+      const tintedTextHover = lightTheme
+        ? ghostPalette[900]
+        : ghostPalette[200];
+      const tintedBorder = lightTheme
+        ? withAlpha(ghostPalette[700], 0.45)
+        : withAlpha(ghostPalette[500], 0.35);
+      const tintedBorderHover = lightTheme
+        ? ghostPalette[800]
+        : ghostPalette[400];
+
       return {
         background: baseBackground,
-        backgroundHover: withAlpha(ghostPalette[500], 0.22),
+        backgroundHover: withAlpha(ghostPalette[500], lightTheme ? 0.16 : 0.22),
         backgroundDisabled: withAlpha(theme.palette.surface.muted, 0.45),
-        text:
-          tone === "neutral" ? theme.palette.text.secondary : ghostPalette[300],
+        text: tone === "neutral" ? theme.palette.text.secondary : tintedText,
         textHover:
-          tone === "neutral" ? theme.palette.text.primary : ghostPalette[200],
+          tone === "neutral" ? theme.palette.text.primary : tintedTextHover,
         textDisabled: withAlpha(theme.palette.text.primary, 0.45),
         border:
           tone === "neutral"
             ? withAlpha(theme.palette.neutral[400], 0.4)
-            : withAlpha(ghostPalette[500], 0.35),
+            : tintedBorder,
         borderHover:
           tone === "neutral"
             ? withAlpha(theme.palette.neutral[300], 0.5)
-            : ghostPalette[400],
+            : tintedBorderHover,
         borderDisabled: withAlpha(theme.palette.neutral[600], 0.35),
       };
     }
@@ -235,6 +329,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
       children,
+      className,
       variant = "primary",
       tone = "primary",
       size = "md",
@@ -299,7 +394,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       SIZE_CLASS_MAP[size],
       fullWidth ? "w-full" : undefined,
       isDisabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer",
-      loading ? "pointer-events-none" : undefined
+      loading ? "pointer-events-none" : undefined,
+      className
     );
 
     const resolvedIcon = renderIconNode(icon, {

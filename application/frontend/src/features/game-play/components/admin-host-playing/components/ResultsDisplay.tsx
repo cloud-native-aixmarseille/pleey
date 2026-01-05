@@ -10,7 +10,7 @@ import {
 import type { ArcadeProgressTone } from "../../../../../shared/ui/components/ArcadeProgressBar";
 
 const RESULTS_WRAPPER_CLASSES =
-  "animate-scale-in rounded-[var(--arcade-radius-2xl)] border-4 border-accent-400 bg-gradient-to-br from-accent-500 to-primary-600 p-8 text-white shadow-neon-accent sm:p-12";
+  "animate-scale-in rounded-[var(--arcade-radius-xl)] border-4 border-accent-400 bg-gradient-to-br from-accent-500 to-primary-600 p-8 text-white shadow-neon-accent sm:p-12";
 const RESULTS_CONTENT_CLASSES = "space-y-10";
 const RESULTS_HEADER_CLASSES = "space-y-4 text-center";
 const RESULTS_ICON_CLASSES =

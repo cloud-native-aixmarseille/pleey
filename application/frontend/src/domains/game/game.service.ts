@@ -125,6 +125,10 @@ export class GameService {
     socket.emit("stop-game", { pin, adminId });
   }
 
+  endGame(pin: string, adminId: number): void {
+    socket.emit("end-game", { pin, adminId });
+  }
+
   resumeGame(pin: string, adminId: number): void {
     socket.emit("resume-game", { pin, adminId });
   }

@@ -14,10 +14,7 @@ export type InputTone = "default" | "dark";
 
 type InputIcon = IconSource;
 
-type BaseInputProps = Omit<
-  InputHTMLAttributes<HTMLInputElement>,
-  "className" | "style"
->;
+type BaseInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "style">;
 
 export interface InputProps extends BaseInputProps {
   label?: string;
@@ -27,6 +24,7 @@ export interface InputProps extends BaseInputProps {
   fullWidth?: boolean;
   icon?: InputIcon;
   trailingNode?: ReactNode;
+  className?: string;
 }
 
 type InputSurface = {
@@ -75,6 +73,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       id: providedId,
       disabled,
       trailingNode,
+      className,
       ...rest
     },
     ref
@@ -119,7 +118,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         {label ? (
           <label
             htmlFor={inputId}
-            className="block text-xs font-semibold uppercase tracking-[0.2em] text-light-500"
+            className="block text-xs font-semibold uppercase tracking-[0.2em] text-dark-400 dark:text-light-500"
           >
             {label}
           </label>
@@ -152,7 +151,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               "border-[var(--arcade-input-border)] px-5 py-4 font-mono text-sm",
               iconNode ? "pl-12" : undefined,
               hasTrailingNode ? "pr-16" : undefined,
-              fullWidth ? "max-w-full" : undefined
+              fullWidth ? "max-w-full" : undefined,
+              className
             )}
             style={style}
             data-arcade-input="true"
@@ -160,7 +160,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           />
         </div>
         {hint && !error ? (
-          <p id={hintId} className="mt-2 text-xs text-light-500">
+          <p
+            id={hintId}
+            className="mt-2 text-xs text-dark-400 dark:text-light-500"
+          >
             {hint}
           </p>
         ) : null}

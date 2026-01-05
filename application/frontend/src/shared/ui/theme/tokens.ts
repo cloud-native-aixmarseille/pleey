@@ -86,6 +86,14 @@ const SURFACE_MUTED = "rgba(15, 13, 35, 0.65)";
 const SURFACE_GRADIENT =
   "linear-gradient(145deg, rgba(107,72,255,0.25), rgba(255,51,198,0.15))";
 
+const LIGHT_SURFACE_BASE = "#f5f5ff";
+const LIGHT_SURFACE_ELEVATED = "#ffffff";
+const LIGHT_SURFACE_OVERLAY = "rgba(245, 245, 255, 0.85)";
+const LIGHT_SURFACE_INVERTED = "#0a0a1f";
+const LIGHT_SURFACE_MUTED = "rgba(224, 220, 255, 0.7)";
+const LIGHT_SURFACE_GRADIENT =
+  "linear-gradient(145deg, rgba(107,72,255,0.12), rgba(255,51,198,0.08))";
+
 export const NEON_THEME_TOKENS: ThemeTokens = {
   palette: {
     primary: NEON_COLOR_PRIMARY,
@@ -114,10 +122,10 @@ export const NEON_THEME_TOKENS: ThemeTokens = {
   },
   radii: {
     none: "0",
-    sm: "0.5rem",
-    md: "1rem",
-    lg: "1.5rem",
-    xl: "2rem",
+    sm: "0.125rem",
+    md: "0.25rem",
+    lg: "0.5rem",
+    xl: "0.75rem",
     pill: "999px",
   },
   spacing: {
@@ -165,6 +173,44 @@ export const NEON_THEME_TOKENS: ThemeTokens = {
   },
 };
 
+export const LIGHT_THEME_TOKENS: ThemeTokens = {
+  palette: {
+    primary: NEON_COLOR_PRIMARY,
+    secondary: NEON_COLOR_SECONDARY,
+    accent: NEON_COLOR_ACCENT,
+    success: NEON_COLOR_SUCCESS,
+    danger: NEON_COLOR_DANGER,
+    neutral: NEON_COLOR_NEUTRAL,
+    surface: {
+      base: LIGHT_SURFACE_BASE,
+      elevated: LIGHT_SURFACE_ELEVATED,
+      overlay: LIGHT_SURFACE_OVERLAY,
+      inverted: LIGHT_SURFACE_INVERTED,
+      muted: LIGHT_SURFACE_MUTED,
+      gradient: LIGHT_SURFACE_GRADIENT,
+    },
+    text: {
+      primary: "#0a0a1f",
+      secondary: "#2d2d70",
+      muted: "#4d4da3",
+      inverted: "#f5f5ff",
+      accent: NEON_COLOR_ACCENT[900],
+      success: NEON_COLOR_SUCCESS[900],
+      danger: NEON_COLOR_DANGER[800],
+    },
+  },
+  radii: NEON_THEME_TOKENS.radii,
+  spacing: NEON_THEME_TOKENS.spacing,
+  typography: NEON_THEME_TOKENS.typography,
+  effects: {
+    ...NEON_THEME_TOKENS.effects,
+    focusRing: "0 0 0 4px rgba(107, 72, 255, 0.22)",
+    focusRingColor: "rgba(107, 72, 255, 0.26)",
+  },
+  borderWidths: NEON_THEME_TOKENS.borderWidths,
+  transitions: NEON_THEME_TOKENS.transitions,
+};
+
 type Mergeable = Record<string, unknown>;
 
 function mergeDeep<T extends Mergeable>(target: T, source: Mergeable): T {
@@ -194,9 +240,16 @@ function mergeDeep<T extends Mergeable>(target: T, source: Mergeable): T {
 }
 
 export function mergeThemeTokens(overrides?: ThemeTokenOverrides): ThemeTokens {
+  return mergeThemeTokensWithBase(NEON_THEME_TOKENS, overrides);
+}
+
+export function mergeThemeTokensWithBase(
+  base: ThemeTokens,
+  overrides?: ThemeTokenOverrides
+): ThemeTokens {
   if (!overrides) {
-    return { ...NEON_THEME_TOKENS };
+    return { ...base };
   }
 
-  return mergeDeep({ ...NEON_THEME_TOKENS }, overrides as Mergeable);
+  return mergeDeep({ ...base }, overrides as Mergeable);
 }

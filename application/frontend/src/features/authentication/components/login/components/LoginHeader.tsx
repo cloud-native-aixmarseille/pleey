@@ -2,8 +2,9 @@ import { BackToButton } from "../../../../../shared/components";
 
 const HEADER_CONTAINER_CLASSES = "mb-6 text-center";
 const HEADER_BACK_WRAPPER_CLASSES = "mb-4 flex justify-center";
-const HEADER_TITLE_CLASSES = "mb-2 text-4xl font-black text-white sm:text-5xl";
-const HEADER_SUBTITLE_CLASSES = "text-light-400";
+const HEADER_TITLE_CLASSES =
+  "mb-2 text-4xl font-black text-dark-500 dark:text-white sm:text-5xl";
+const HEADER_SUBTITLE_CLASSES = "text-dark-400 dark:text-light-400";
 
 interface LoginHeaderProps {
   title: string;

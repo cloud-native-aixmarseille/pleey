@@ -33,6 +33,7 @@ interface SetSessionParams {
 export function useAuthManager() {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [hasRestoredSession, setHasRestoredSession] = useState(false);
   const sessionExpiryNotified = useRef(false);
   const { notify } = useNotifications();
 
@@ -146,6 +147,7 @@ export function useAuthManager() {
 
   const restoreSession = useCallback((): User | null => {
     if (typeof window === "undefined") {
+      setHasRestoredSession(true);
       return null;
     }
 
@@ -154,6 +156,7 @@ export function useAuthManager() {
     const storedUser = localStorage.getItem(USER_STORAGE_KEY);
 
     if (!storedToken || !storedRefreshToken || !storedUser) {
+      setHasRestoredSession(true);
       return null;
     }
 
@@ -164,9 +167,11 @@ export function useAuthManager() {
         refreshToken: storedRefreshToken,
         user: parsedUser,
       });
+      setHasRestoredSession(true);
       return parsedUser;
     } catch {
       clearSession();
+      setHasRestoredSession(true);
       return null;
     }
   }, [clearSession, persistSession]);
@@ -197,6 +202,7 @@ export function useAuthManager() {
     token,
     isAuthenticated: Boolean(user),
     isAdmin: user?.isAdmin ?? false,
+    hasRestoredSession,
     login,
     register,
     logout,

@@ -6,11 +6,11 @@ import { GUEST_NICKNAME_MAX_LENGTH } from "../constants";
 
 const NICKNAME_SECTION_CLASSES = "mb-8";
 const NICKNAME_LABEL_CLASSES =
-  "mb-4 block text-center font-display text-xs uppercase tracking-wider text-primary-300 sm:text-sm";
+  "mb-4 block text-center font-display text-xs uppercase tracking-wider text-dark-400 dark:text-primary-300 sm:text-sm";
 const NICKNAME_INPUT_CLASSES =
-  "w-full rounded-xl border-4 border-accent-500/50 bg-dark-500 p-4 text-center font-display text-2xl text-accent-400 shadow-neon-accent transition-all placeholder-dark-300 focus:border-accent-500 focus:outline-none focus:ring-4 focus:ring-accent-500/30";
+  "w-full rounded-xl border-4 border-accent-500/50 bg-light-50 p-4 text-center font-display text-2xl text-dark-500 shadow-neon-accent transition-all placeholder-dark-300 focus:border-accent-500 focus:outline-none focus:ring-4 focus:ring-accent-500/30 dark:bg-dark-500 dark:text-accent-400";
 const NICKNAME_HELPER_CLASSES =
-  "mt-2 text-center font-mono text-xs text-light-500";
+  "mt-2 text-center font-mono text-xs text-dark-300 dark:text-light-500";
 
 const BUTTON_WRAPPER_CLASSES =
   "mb-4 transform transition-transform hover:scale-105 retro-shadow";

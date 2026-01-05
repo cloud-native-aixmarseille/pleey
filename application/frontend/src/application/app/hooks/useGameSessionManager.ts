@@ -218,6 +218,55 @@ export function useGameSessionManager({
     gameService.startGame(gamePinState);
   }, [gamePinState]);
 
+  const handleStopSession = useCallback(async () => {
+    if (!token || !user || !gamePinState) {
+      return;
+    }
+
+    const normalizedPin = gamePinState.toUpperCase();
+
+    const findSessionByPin = (sessions: GameSession[]) =>
+      sessions.find(
+        (session) => session.pin?.trim().toUpperCase() === normalizedPin,
+      );
+
+    const sessionFromActive = findSessionByPin(activeSessions);
+    const sessionFromQuizLists = sessionFromActive
+      ? null
+      : Object.values(sessionsByQuiz)
+        .flat()
+        .find(
+          (session) => session.pin?.trim().toUpperCase() === normalizedPin,
+        );
+
+    const session = sessionFromActive ?? sessionFromQuizLists;
+    const quizId = session?.quizId ?? session?.quiz_id;
+
+    try {
+      gameService.endGame(normalizedPin, user.id);
+
+      await refreshActiveSessions();
+
+      if (typeof quizId === "number") {
+        await loadSessionsForQuiz(quizId);
+      }
+
+      navigate("/admin");
+    } catch (error) {
+      notifyFromError(error, "game.errors.sessionStopFailed");
+    }
+  }, [
+    token,
+    user,
+    gamePinState,
+    activeSessions,
+    sessionsByQuiz,
+    refreshActiveSessions,
+    loadSessionsForQuiz,
+    navigate,
+    notifyFromError,
+  ]);
+
   const handleSubmitAnswer = useCallback(
     (answer: string) => {
       if (user) {
@@ -321,6 +370,7 @@ export function useGameSessionManager({
     handleJoinGame,
     handleJoinAsGuest,
     handleStartGame,
+    handleStopSession,
     handleSubmitAnswer,
     handleNextQuestion,
   };

@@ -14,35 +14,40 @@ const SIZE_CLASS_MAP: Record<ArcadeToggleSize, string> = {
 };
 
 const BASE_BUTTON_CLASSES = composeClasses(
-  "group relative inline-flex items-center gap-2 rounded-2xl border",
+  "group relative inline-flex items-center gap-2 rounded-lg border",
   "font-semibold uppercase tracking-[0.2em] transition-all duration-200",
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current",
-  "focus-visible:ring-offset-2 focus-visible:ring-offset-dark-700"
+  "focus-visible:ring-offset-2 focus-visible:ring-offset-light-100 dark:focus-visible:ring-offset-dark-700"
 );
 
 const ACTIVE_TONE_CLASS_MAP: Record<ToggleTone, string> = {
-  primary: "border-primary-400 bg-primary-500/20 text-primary-100 shadow-glow",
+  primary:
+    "border-primary-400 bg-primary-500/20 text-primary-900 dark:text-primary-100 shadow-glow",
   secondary:
-    "border-secondary-400 bg-secondary-500/20 text-secondary-100 shadow-glow",
-  accent: "border-accent-400 bg-accent-500/20 text-accent-100 shadow-glow",
-  success: "border-success-400 bg-success-500/20 text-success-100 shadow-glow",
-  danger: "border-danger-400 bg-danger-500/20 text-danger-100 shadow-glow",
-  neutral: "border-dark-400 bg-dark-500/40 text-light-100 shadow-glow",
+    "border-secondary-400 bg-secondary-500/20 text-secondary-900 dark:text-secondary-100 shadow-glow",
+  accent:
+    "border-accent-400 bg-accent-500/20 text-accent-900 dark:text-accent-100 shadow-glow",
+  success:
+    "border-success-400 bg-success-500/20 text-success-900 dark:text-success-100 shadow-glow",
+  danger:
+    "border-danger-400 bg-danger-500/20 text-danger-900 dark:text-danger-100 shadow-glow",
+  neutral:
+    "border-dark-300 bg-light-50/80 text-dark-500 shadow-glow dark:border-dark-400 dark:bg-dark-500/40 dark:text-light-100",
 };
 
 const INACTIVE_TONE_CLASS_MAP: Record<ToggleTone, string> = {
   primary:
-    "border-primary-500/20 bg-dark-500/40 text-light-400 hover:border-primary-400/40 hover:text-light-100",
+    "border-primary-500/25 bg-light-50/80 text-dark-400 hover:border-primary-400/40 hover:text-dark-500 dark:bg-dark-500/40 dark:text-light-400 dark:hover:text-light-100",
   secondary:
-    "border-secondary-500/20 bg-dark-500/40 text-light-400 hover:border-secondary-400/40 hover:text-light-100",
+    "border-secondary-500/25 bg-light-50/80 text-dark-400 hover:border-secondary-400/40 hover:text-dark-500 dark:bg-dark-500/40 dark:text-light-400 dark:hover:text-light-100",
   accent:
-    "border-accent-500/20 bg-dark-500/40 text-light-300 hover:border-accent-400/40 hover:text-light-100",
+    "border-accent-500/25 bg-light-50/80 text-dark-400 hover:border-accent-400/40 hover:text-dark-500 dark:bg-dark-500/40 dark:text-light-300 dark:hover:text-light-100",
   success:
-    "border-success-500/25 bg-dark-500/40 text-light-300 hover:border-success-400/40 hover:text-light-100",
+    "border-success-500/25 bg-light-50/80 text-dark-400 hover:border-success-400/40 hover:text-dark-500 dark:bg-dark-500/40 dark:text-light-300 dark:hover:text-light-100",
   danger:
-    "border-danger-500/25 bg-dark-500/40 text-light-300 hover:border-danger-400/40 hover:text-light-100",
+    "border-danger-500/25 bg-light-50/80 text-dark-400 hover:border-danger-400/40 hover:text-dark-500 dark:bg-dark-500/40 dark:text-light-300 dark:hover:text-light-100",
   neutral:
-    "border-dark-500/45 bg-dark-700/60 text-light-300 hover:border-dark-400/40 hover:text-light-100",
+    "border-dark-300/50 bg-light-100/60 text-dark-400 hover:border-dark-400/60 hover:text-dark-500 dark:border-dark-500/45 dark:bg-dark-700/60 dark:text-light-300 dark:hover:border-dark-400/40 dark:hover:text-light-100",
 };
 
 export interface ArcadeToggleOption<T extends string> {
@@ -70,7 +75,8 @@ export function ArcadeToggleGroup<T extends string>({
   className,
   ...rest
 }: ArcadeToggleGroupProps<T>) {
-  const selectedValues = multiSelect && value ? value.split(',').map(v => v.trim()) : [value];
+  const selectedValues =
+    multiSelect && value ? value.split(",").map((v) => v.trim()) : [value];
 
   const handleClick = (optionValue: T) => {
     if (!multiSelect) {
@@ -79,13 +85,15 @@ export function ArcadeToggleGroup<T extends string>({
     }
 
     // Multi-select logic: toggle the value
-    const currentValues = value ? value.split(',').map(v => v.trim() as T) : [];
+    const currentValues = value
+      ? value.split(",").map((v) => v.trim() as T)
+      : [];
     const isSelected = currentValues.includes(optionValue);
 
     let newValues: T[];
     if (isSelected) {
       // Remove the value
-      newValues = currentValues.filter(v => v !== optionValue);
+      newValues = currentValues.filter((v) => v !== optionValue);
     } else {
       // Add the value
       newValues = [...currentValues, optionValue];
@@ -94,7 +102,7 @@ export function ArcadeToggleGroup<T extends string>({
     // Sort values alphabetically for consistency
     newValues.sort();
 
-    onChange((newValues.length > 0 ? newValues.join(',') : null) as T | null);
+    onChange((newValues.length > 0 ? newValues.join(",") : null) as T | null);
   };
 
   return (

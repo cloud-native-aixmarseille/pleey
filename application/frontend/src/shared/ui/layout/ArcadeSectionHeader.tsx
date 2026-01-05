@@ -32,12 +32,12 @@ export function ArcadeSectionHeader({
     align === "center" ? "space-y-3 text-center" : "space-y-3";
   const subtitleClasses =
     align === "center"
-      ? "max-w-3xl text-light-700 text-base sm:text-lg leading-relaxed text-center"
-      : "max-w-3xl text-light-700 text-base sm:text-lg leading-relaxed";
+      ? "max-w-3xl text-dark-400 dark:text-light-700 text-base sm:text-lg leading-relaxed text-center"
+      : "max-w-3xl text-dark-400 dark:text-light-700 text-base sm:text-lg leading-relaxed";
   const metaWrapperClasses =
     align === "center"
-      ? "inline-flex items-center gap-2 glass-effect px-3 py-1 rounded-lg text-light-200 font-semibold uppercase tracking-[0.2em] text-xs sm:text-sm mx-auto"
-      : "inline-flex items-center gap-2 glass-effect px-3 py-1 rounded-lg text-light-200 font-semibold uppercase tracking-[0.2em] text-xs sm:text-sm";
+      ? "inline-flex items-center gap-2 glass-effect px-3 py-1 rounded-lg text-dark-500 dark:text-light-200 font-semibold uppercase tracking-[0.2em] text-xs sm:text-sm mx-auto"
+      : "inline-flex items-center gap-2 glass-effect px-3 py-1 rounded-lg text-dark-500 dark:text-light-200 font-semibold uppercase tracking-[0.2em] text-xs sm:text-sm";
 
   return (
     <div className="flex flex-col gap-6" data-arcade-section-header="true">
@@ -64,11 +64,11 @@ export function ArcadeSectionHeader({
             ) : null}
             <div className={headingTextWrapperClasses}>
               {eyebrow ? (
-                <span className="block text-xs font-semibold uppercase tracking-[0.3em] text-light-400">
+                <span className="block text-xs font-semibold uppercase tracking-[0.3em] text-dark-400 dark:text-light-400">
                   {eyebrow}
                 </span>
               ) : null}
-              <h2 className="text-3xl sm:text-4xl font-black text-gradient-neon">
+              <h2 className="text-3xl sm:text-4xl font-black text-dark-950 dark:text-gradient-neon">
                 {title}
               </h2>
             </div>

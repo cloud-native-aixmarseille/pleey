@@ -10,6 +10,8 @@ import type { RegisterCredentials } from "../types";
 
 const FORM_CLASSES = "space-y-6";
 const ACTION_CONTENT_CLASSES = "flex items-center justify-center gap-2";
+const AUTH_CTA_WRAPPER_CLASSES =
+  "rounded-[var(--arcade-radius-lg)] border border-primary-500/20 bg-light-50/70 p-[2px] dark:bg-dark-700/40";
 
 interface RegisterFormProps {
   onSubmit: (credentials: RegisterCredentials) => Promise<void> | void;
@@ -76,12 +78,14 @@ export function RegisterForm({
         required
       />
 
-      <Button type="submit" variant="accent" size="lg" fullWidth>
-        <span className={ACTION_CONTENT_CLASSES}>
-          <span>{submitLabel}</span>
-          {submitIcon ? <span>{submitIcon}</span> : null}
-        </span>
-      </Button>
+      <div className={AUTH_CTA_WRAPPER_CLASSES}>
+        <Button type="submit" variant="ghost" tone="accent" size="md" fullWidth>
+          <span className={ACTION_CONTENT_CLASSES}>
+            <span>{submitLabel}</span>
+            {submitIcon ? <span>{submitIcon}</span> : null}
+          </span>
+        </Button>
+      </div>
     </form>
   );
 }

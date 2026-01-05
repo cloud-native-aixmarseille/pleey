@@ -1,7 +1,9 @@
 import { ReactNode } from "react";
 
-import { ArcadePage } from "../../../../../shared/components";
-import LanguageSwitcher from "../../../../../shared/components/LanguageSwitcher";
+import {
+  ArcadePage,
+  QuickSettingsMenu,
+} from "../../../../../shared/components";
 
 interface RegisterLayoutProps {
   children: ReactNode;
@@ -12,12 +14,13 @@ export function RegisterLayout({ children }: RegisterLayoutProps) {
     <ArcadePage
       variant="gradient"
       padding="md"
+      disableVerticalPadding
       contentWidth="sm"
       align="center"
       verticalAlign="center"
       gap="md"
     >
-      <LanguageSwitcher />
+      <QuickSettingsMenu className="fixed top-4 right-4 z-50 sm:top-6 sm:right-6" />
       {children}
     </ArcadePage>
   );

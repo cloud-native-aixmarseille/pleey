@@ -7,7 +7,8 @@ const INSTRUCTIONS_ICON_CLASSES = "flex-shrink-0 text-2xl";
 const INSTRUCTIONS_BODY_CLASSES = "flex-1";
 const INSTRUCTIONS_TITLE_CLASSES =
   "mb-2 font-display text-xxs uppercase tracking-wider text-accent-400";
-const INSTRUCTIONS_LIST_CLASSES = "font-mono text-xs text-light-300 space-y-1";
+const INSTRUCTIONS_LIST_CLASSES =
+  "font-mono text-xs text-dark-600 dark:text-light-300 space-y-1";
 const INSTRUCTIONS_ITEM_CLASSES = "flex items-start gap-2";
 const INSTRUCTIONS_BULLET_CLASSES = "flex-shrink-0 text-accent-500";
 

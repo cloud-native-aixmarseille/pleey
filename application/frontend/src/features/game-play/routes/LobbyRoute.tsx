@@ -12,17 +12,20 @@ import { useGuestSessionContext } from "../../../application/app/context/GuestSe
 export function LobbyRoute() {
   const navigate = useNavigate();
   const { sessionId } = useParams<{ sessionId: string }>();
-  const { isAuthenticated, isAdmin, user } = useAuthManagerContext();
-  const { guestNickname } = useGuestSessionContext();
+  const { isAuthenticated, isAdmin, user, hasRestoredSession } =
+    useAuthManagerContext();
+  const { guestNickname, hasHydratedGuest } = useGuestSessionContext();
   const {
     gamePin,
     setGamePin,
     players,
     activeQuizQuestionCount,
     handleStartGame,
+    handleStopSession,
   } = useGameSessionContext();
 
   const hasIdentity = isAuthenticated || Boolean(guestNickname);
+  const isHydratingIdentity = !hasRestoredSession || !hasHydratedGuest;
   const normalizedSessionId = sessionId?.toUpperCase() ?? "";
 
   useEffect(() => {
@@ -36,6 +39,9 @@ export function LobbyRoute() {
   }
 
   if (!hasIdentity) {
+    if (isHydratingIdentity) {
+      return <div />;
+    }
     return <Navigate to="/game/join" replace />;
   }
 
@@ -49,6 +55,7 @@ export function LobbyRoute() {
       hostUserId={isAdmin && user ? user.id : null}
       hostUsername={isAdmin && user ? user.username : null}
       onStartGame={handleStartGame}
+      onStopSession={isAdmin ? handleStopSession : undefined}
       onBackToAdmin={handleBackToAdmin}
       questionCount={activeQuizQuestionCount}
     />

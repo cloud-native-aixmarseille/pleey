@@ -14,9 +14,10 @@ import { JoinGameFooterMessage } from "../join-game/components/JoinGameFooterMes
 import { GuestNicknameForm } from "./components/GuestNicknameForm";
 
 const SIGN_IN_SECTION_CLASSES = "mt-10 text-center";
-const SIGN_IN_PROMPT_CLASSES = "mb-2 font-mono text-xs text-light-400";
+const SIGN_IN_PROMPT_CLASSES =
+  "mb-2 font-mono text-xs text-dark-400 dark:text-light-400";
 const SIGN_IN_BUTTON_CLASSES =
-  "font-mono text-sm text-accent-400 underline transition-colors hover:text-accent-300";
+  "font-mono text-sm text-accent-600 underline transition-colors hover:text-accent-500 dark:text-accent-400 dark:hover:text-accent-300";
 
 interface JoinGameWithGuestPageProps {
   gamePin: string;

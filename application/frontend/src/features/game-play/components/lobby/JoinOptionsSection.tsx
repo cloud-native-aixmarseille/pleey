@@ -14,9 +14,9 @@ import { composeClasses } from "../../../../shared/ui/utils/composeClasses";
 const PIN_SLOT_BASE =
   "inline-flex min-w-[clamp(2rem,10vw,2.75rem)] items-center justify-center rounded-2xl border-2 px-2.5 py-3 font-display text-center text-[clamp(1.6rem,5.5vw,2rem)] leading-none transition-transform sm:px-3 sm:py-3";
 const PIN_SLOT_ACTIVE =
-  "border-accent-400 text-accent-200 shadow-[0_0_32px_rgba(59,255,235,0.45)] bg-dark-900/70";
+  "border-accent-400 text-accent-900 bg-light-50/80 dark:text-accent-200 dark:bg-dark-900/70 dark:shadow-[0_0_32px_rgba(59,255,235,0.45)]";
 const PIN_SLOT_PLACEHOLDER =
-  "border-dashed border-accent-500/35 text-accent-500/30 bg-dark-900/40";
+  "border-dashed border-accent-500/35 text-accent-900/35 bg-light-50/60 dark:text-accent-500/30 dark:bg-dark-900/40";
 
 interface JoinOptionsSectionProps {
   readonly instructionsTitleId: string;
@@ -55,7 +55,7 @@ export default function JoinOptionsSection({
       tone="accent"
       align="center"
       width="lg"
-      spacing="lg"
+      spacing="md"
       titleId={instructionsTitleId}
     >
       <ArcadeCardGrid layout="double" bottomSpacing="md">
@@ -63,28 +63,28 @@ export default function JoinOptionsSection({
           <Card
             surface="glass"
             tone="accent"
-            padding="lg"
+            padding="md"
             elevation="glow"
             border="regular"
             fullWidth
           >
-            <div className="flex h-full min-h-[22rem] flex-col gap-6 text-center sm:min-h-[24rem] sm:text-left">
+            <div className="flex h-full flex-col gap-5 text-center sm:text-left">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <ArcadeBadge tone="accent" size="sm">
                   {t("game.joinStepLabel", { step: "1" })}
                 </ArcadeBadge>
-                <span className="font-display text-xl uppercase tracking-[0.24em] text-light-100 sm:text-2xl">
+                <span className="font-display text-xl uppercase tracking-[0.24em] text-dark-900 dark:text-light-100 sm:text-2xl">
                   {t("game.joinStepScanTitle")}
                 </span>
               </div>
-              <p className="text-sm leading-relaxed text-light-200 sm:text-base">
+              <p className="text-sm leading-relaxed text-dark-500 dark:text-light-200 sm:text-base">
                 {t("game.joinStepScanDescription")}
               </p>
               <div className="flex flex-1 flex-col items-center gap-4">
-                <div className="rounded-2xl border-2 border-accent-400/40 bg-white/95 p-4 shadow-[0_16px_36px_rgba(59,255,235,0.25)] sm:p-6">
+                <div className="rounded-2xl border-2 border-accent-400/40 bg-white/95 p-3 shadow-[0_16px_36px_rgba(59,255,235,0.25)] sm:p-4">
                   <QRCode
                     value={joinLink || gamePin}
-                    size={220}
+                    size={180}
                     level="H"
                     fgColor="#0a0a1f"
                     bgColor="#ffffff"
@@ -110,19 +110,19 @@ export default function JoinOptionsSection({
             overflow="hidden"
             fullWidth
           >
-            <div className="flex h-full min-h-[22rem] flex-col gap-6 bg-gradient-to-br from-primary-900/60 via-dark-700/75 to-dark-800/80 px-6 py-6 sm:min-h-[24rem] sm:px-8">
+            <div className="flex h-full flex-col gap-5 bg-light-50/70 px-5 py-5 text-dark-500 dark:bg-gradient-to-br dark:from-primary-900/60 dark:via-dark-700/75 dark:to-dark-800/80 dark:text-light-100 sm:px-6">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <ArcadeBadge tone="primary" size="sm">
                   {t("game.joinStepLabel", { step: "2" })}
                 </ArcadeBadge>
-                <span className="font-display text-xl uppercase tracking-[0.24em] text-light-100 sm:text-2xl">
+                <span className="font-display text-xl uppercase tracking-[0.24em] text-dark-900 dark:text-light-100 sm:text-2xl">
                   {t("game.joinStepManualTitle")}
                 </span>
               </div>
 
               {joinLink ? (
-                <p className="text-sm leading-relaxed text-light-200 sm:text-base">
-                  <span className="font-semibold text-primary-200">
+                <p className="text-sm leading-relaxed text-dark-500 dark:text-light-200 sm:text-base">
+                  <span className="font-semibold text-primary-900 dark:text-primary-200">
                     {t("game.joinManualLinkPrefix")}:
                   </span>
                   <br />
@@ -130,15 +130,15 @@ export default function JoinOptionsSection({
                     href={joinLink}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-accent-200 underline decoration-dotted transition-colors hover:text-accent-100"
+                    className="text-accent-900 underline decoration-dotted transition-colors hover:text-accent-800 dark:text-accent-200 dark:hover:text-accent-100"
                   >
                     {joinUrlForDisplay}
                   </a>
                 </p>
               ) : null}
 
-              <div className="flex flex-col items-center gap-5 rounded-2xl border border-primary-500/30 bg-primary-900/35 px-4 py-6 text-center sm:px-6">
-                <span className="font-display text-xs uppercase tracking-[0.45em] text-primary-200 sm:text-sm">
+              <div className="flex flex-col items-center gap-4 rounded-2xl border border-primary-500/25 bg-light-50/70 px-4 py-5 text-center dark:border-primary-500/30 dark:bg-primary-900/35 sm:px-6">
+                <span className="font-display text-xs uppercase tracking-[0.45em] text-primary-900 dark:text-primary-200 sm:text-sm">
                   {t("game.enterThisPin")}
                 </span>
                 <div
@@ -201,7 +201,7 @@ export default function JoinOptionsSection({
             border="regular"
             alignment="center"
           >
-            <span className="font-mono text-sm uppercase tracking-[0.3em] text-light-200 sm:text-base">
+            <span className="font-mono text-sm uppercase tracking-[0.3em] text-dark-500 dark:text-light-200 sm:text-base">
               {t("game.joinStepLabel", { step: "3" })} —{" "}
               {t("game.joinStepWaitDescription")}
             </span>

@@ -131,7 +131,7 @@ export default function Modal({
       ref={overlayRef}
       onClick={handleOverlayClick}
       onKeyDown={handleOverlayKeyDown}
-      className="fixed inset-0 z-[1300] flex items-center justify-center bg-dark-900/70 backdrop-blur-md px-4 py-6"
+      className="fixed inset-0 z-[1300] flex items-center justify-center bg-dark-900/50 backdrop-blur-md px-4 py-6 dark:bg-dark-900/70"
       role="button"
       tabIndex={0}
       aria-label={t("common.close", "Close dialog")}
@@ -143,20 +143,20 @@ export default function Modal({
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
         tabIndex={-1}
-        className="relative w-full max-w-2xl animate-scale-in rounded-[2.5rem] border border-primary-500/40 bg-dark-500/90 p-8 shadow-neon backdrop-blur-xl"
+        className="relative w-full max-w-2xl animate-scale-in rounded-lg border border-primary-500/30 bg-light-50/95 p-8 text-dark-500 shadow-neon backdrop-blur-xl dark:border-primary-500/40 dark:bg-dark-500/90 dark:text-light-100"
       >
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2
               id={titleId}
-              className="text-2xl font-black uppercase tracking-[0.3em] text-primary-200"
+              className="text-2xl font-black uppercase tracking-[0.3em] text-primary-900 dark:text-primary-200"
             >
               {title}
             </h2>
             {description ? (
               <p
                 id={descriptionId}
-                className="mt-2 max-w-xl text-sm font-medium text-light-300"
+                className="mt-2 max-w-xl text-sm font-medium text-dark-400 dark:text-light-300"
               >
                 {description}
               </p>
@@ -165,14 +165,14 @@ export default function Modal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-primary-400/40 bg-primary-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-light-300 transition hover:bg-primary-500/20 hover:text-light-100"
+            className="rounded-full border border-primary-400/35 bg-primary-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-dark-400 transition hover:bg-primary-500/20 hover:text-dark-500 dark:border-primary-400/40 dark:text-light-300 dark:hover:text-light-100"
             aria-label={t("common.close", "Close dialog")}
           >
             ✕
           </button>
         </div>
 
-        <div className="mt-6 max-h-[60vh] overflow-y-auto pr-2 text-light-100">
+        <div className="mt-6 max-h-[60vh] overflow-y-auto pr-2 text-dark-500 dark:text-light-100">
           {children}
         </div>
 

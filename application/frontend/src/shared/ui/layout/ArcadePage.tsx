@@ -15,13 +15,19 @@ type ArcadePageVerticalAlign = "start" | "center";
 
 const VARIANT_CLASS_MAP: Record<ArcadePageVariant, string> = {
   gradient: "bg-game-gradient",
-  dark: "bg-dark-500",
+  dark: "bg-light-100 dark:bg-dark-500",
 };
 
-const PADDING_CLASS_MAP: Record<ArcadePagePadding, string> = {
-  sm: "px-4 py-6 sm:px-6",
-  md: "px-6 py-10 sm:px-10",
-  lg: "px-8 py-16 sm:px-16",
+const PADDING_X_CLASS_MAP: Record<ArcadePagePadding, string> = {
+  sm: "px-4 sm:px-6",
+  md: "px-6 sm:px-10",
+  lg: "px-8 sm:px-16",
+};
+
+const PADDING_Y_CLASS_MAP: Record<ArcadePagePadding, string> = {
+  sm: "py-6",
+  md: "py-10",
+  lg: "py-16",
 };
 
 const CONTENT_WIDTH_CLASS_MAP: Record<ArcadePageWidth, string> = {
@@ -88,6 +94,8 @@ export interface ArcadePageProps {
   children: ReactNode;
   variant?: ArcadePageVariant;
   padding?: ArcadePagePadding;
+  disableVerticalPadding?: boolean;
+  fitViewport?: boolean;
   contentWidth?: ArcadePageWidth;
   gap?: ArcadePageGap;
   align?: ArcadePageAlign;
@@ -99,6 +107,8 @@ export function ArcadePage({
   children,
   variant = "gradient",
   padding = "md",
+  disableVerticalPadding = false,
+  fitViewport = false,
   contentWidth = "lg",
   gap = "lg",
   align = "start",
@@ -107,10 +117,15 @@ export function ArcadePage({
 }: ArcadePageProps) {
   const glowConfiguration = GLOW_VARIANTS[variant];
 
+  const viewportHeightClass = fitViewport
+    ? "h-[calc(100dvh-var(--app-shell-padding-top,0px)-var(--app-shell-padding-bottom,0px))]"
+    : "min-h-[calc(100dvh-var(--app-shell-padding-top,0px)-var(--app-shell-padding-bottom,0px))]";
+
   return (
     <div
       className={composeClasses(
-        "relative min-h-screen overflow-hidden",
+        "relative overflow-hidden",
+        viewportHeightClass,
         VARIANT_CLASS_MAP[variant]
       )}
       data-arcade-page="true"
@@ -144,15 +159,17 @@ export function ArcadePage({
 
       <div
         className={composeClasses(
-          "relative z-20 min-h-screen flex w-full",
-          PADDING_CLASS_MAP[padding],
+          "relative z-20 flex w-full",
+          viewportHeightClass,
+          PADDING_X_CLASS_MAP[padding],
+          disableVerticalPadding ? "py-0" : PADDING_Y_CLASS_MAP[padding],
           VERTICAL_ALIGN_MAP[verticalAlign]
         )}
       >
-        <div className="flex-1 w-full">
+        <div className="flex-1 w-full min-h-0">
           <div
             className={composeClasses(
-              "mx-auto flex w-full flex-col",
+              "mx-auto flex h-full min-h-0 w-full flex-col",
               CONTENT_WIDTH_CLASS_MAP[contentWidth],
               GAP_CLASS_MAP[gap],
               ALIGN_CLASS_MAP[align]
