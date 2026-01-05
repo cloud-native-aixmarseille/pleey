@@ -10,7 +10,7 @@ This guide helps facilitators run their first quiz session in minutes—no techn
 
 - Ask your QuizMaster administrator to create a host account or provide a demo login.
 - Prepare questions or import an existing quiz file.
-- Share the recommended player URL with participants (for local demos this is usually `http://frontend.quiz-app.localhost`).
+- Share the recommended player URL with participants (for local demos this is usually `http://quiz-app.localhost`).
 
 ## 1. Sign In
 

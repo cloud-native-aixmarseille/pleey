@@ -25,9 +25,9 @@ make install
 
 **That's it!** The application will be available at:
 
-- Frontend: <http://frontend.quiz-app.localhost>
-- Backend: <http://backend.quiz-app.localhost>
-- Traefik Dashboard: <http://traefik.localhost> (provisioned automatically by `make up`)
+- Frontend: `http://quiz-app.localhost`
+- Backend API: `http://quiz-app.localhost/api`
+- Traefik Dashboard: `http://traefik.localhost` (provisioned automatically by `make up`)
 
 **Default admin account:**
 

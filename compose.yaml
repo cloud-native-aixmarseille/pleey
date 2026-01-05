@@ -58,8 +58,9 @@ services:
       - traefik-proxy
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`backend.quiz-app.localhost`)"
+      - "traefik.http.routers.backend.rule=Host(`quiz-app.localhost`) && (PathPrefix(`/api`) || PathPrefix(`/socket.io`))"
       - "traefik.http.routers.backend.entrypoints=http"
+      - "traefik.http.routers.backend.priority=100"
       - "traefik.http.services.backend.loadbalancer.server.port=3001"
       - "traefik.docker.network=traefik-proxy"
     healthcheck:
@@ -93,12 +94,13 @@ services:
       - traefik-proxy
     environment:
       - NODE_ENV=development
-      - VITE_API_URL=${VITE_API_URL:-}
       - CHOKIDAR_USEPOLLING=1
+      - VITE_DEV_PROXY_TARGET=http://backend:3001
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`frontend.quiz-app.localhost`)"
+      - "traefik.http.routers.frontend.rule=Host(`quiz-app.localhost`) && !PathPrefix(`/api`) && !PathPrefix(`/socket.io`)"
       - "traefik.http.routers.frontend.entrypoints=http"
+      - "traefik.http.routers.frontend.priority=1"
       - "traefik.http.services.frontend.loadbalancer.server.port=5173"
       - "traefik.docker.network=traefik-proxy"
 

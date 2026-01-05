@@ -33,9 +33,9 @@ make install
 
 `make install` performs the full bootstrap: builds images, ensures the shared `traefik-proxy` network exists, starts services, applies Prisma migrations, and seeds demo data. When it finishes, access the stack at:
 
-- Frontend → <http://frontend.quiz-app.localhost>
-- Backend API → <http://backend.quiz-app.localhost>
-- Traefik dashboard → <http://traefik.localhost> (created by `make setup-traefik`)
+- Frontend → `http://quiz-app.localhost`
+- Backend API → `http://quiz-app.localhost/api`
+- Traefik dashboard → `http://traefik.localhost` (created by `make setup-traefik`)
 
 ## Daily Workflow
 
