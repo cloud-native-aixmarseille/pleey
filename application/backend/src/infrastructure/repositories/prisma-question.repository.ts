@@ -39,8 +39,14 @@ export class PrismaQuestionRepository implements QuestionRepository {
   }
 
   async findById(id: number): Promise<Question | null> {
-    const question = await this.prisma.question.findUnique({
-      where: { id },
+    const question = await this.prisma.question.findFirst({
+      where: {
+        id,
+        deletedAt: null,
+        quiz: {
+          deletedAt: null,
+        },
+      },
     });
 
     if (!question) return null;
@@ -50,7 +56,13 @@ export class PrismaQuestionRepository implements QuestionRepository {
 
   async findByQuizId(quizId: number): Promise<Question[]> {
     const questions = await this.prisma.question.findMany({
-      where: { quizId },
+      where: {
+        quizId,
+        deletedAt: null,
+        quiz: {
+          deletedAt: null,
+        },
+      },
       orderBy: { id: 'asc' },
     });
 
@@ -58,8 +70,11 @@ export class PrismaQuestionRepository implements QuestionRepository {
   }
 
   async delete(id: number): Promise<void> {
-    await this.prisma.question.delete({
+    await this.prisma.question.update({
       where: { id },
+      data: {
+        deletedAt: new Date(),
+      },
     });
   }
 
