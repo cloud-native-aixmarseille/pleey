@@ -1,6 +1,6 @@
 import { IQuizRepository } from "../ports/quiz.repository.interface";
-import { Quiz, Question } from "../../../shared/types";
-import { API_URL } from "../../../shared/config/api.config";
+import type { Quiz, Question } from "../types";
+import { API_URL } from "../../../app/config/api.config";
 
 /**
  * HTTP implementation of Quiz Repository
@@ -86,3 +86,4 @@ export class QuizHttpRepository implements IQuizRepository {
     return response.json();
   }
 }
+

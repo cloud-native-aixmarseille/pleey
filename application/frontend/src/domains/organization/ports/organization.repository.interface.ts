@@ -1,8 +1,8 @@
-import {
+import type {
   Organization,
   OrganizationDashboard,
   OrganizationMember,
-} from "../../../shared/types";
+} from "../types";
 
 /**
  * Organization Repository Interface
@@ -58,3 +58,4 @@ export interface IOrganizationRepository {
    */
   removeMember(token: string, memberId: number): Promise<void>;
 }
+

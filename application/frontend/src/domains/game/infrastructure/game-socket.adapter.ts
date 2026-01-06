@@ -1,5 +1,5 @@
 import { IGameSocket } from "../ports/game-socket.interface";
-import { socket } from "../../../shared/socket/socket.client";
+import { socket } from "../../../infrastructure/socket/socket.client";
 
 /**
  * Socket.IO implementation of Game Socket

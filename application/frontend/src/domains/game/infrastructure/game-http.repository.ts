@@ -1,6 +1,6 @@
 import { IGameRepository } from "../ports/game.repository.interface";
-import { GameSession } from "../../../shared/types";
-import { API_URL } from "../../../shared/config/api.config";
+import type { GameSession } from "../types";
+import { API_URL } from "../../../app/config/api.config";
 
 /**
  * HTTP implementation of Game Repository
@@ -89,3 +89,4 @@ export class GameHttpRepository implements IGameRepository {
     return response.json();
   }
 }
+

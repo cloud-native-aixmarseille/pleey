@@ -1,15 +1,15 @@
-import {
+import type {
   Organization,
   OrganizationDashboard,
   OrganizationMember,
-} from "../../../shared/types";
+} from "../types";
 import { IOrganizationRepository } from "../ports/organization.repository.interface";
 import {
   apiClient,
   fetchClient,
   queryClient,
-} from "../../../shared/api/openapiClient";
-import { castRequestBody } from "../../../shared/api/castRequestBody";
+} from "../../../infrastructure/http/api/openapiClient";
+import { castRequestBody } from "../../../infrastructure/http/api/castRequestBody";
 
 /**
  * Organization HTTP Repository
@@ -150,5 +150,6 @@ export class OrganizationHttpRepository implements IOrganizationRepository {
     });
   }
 }
+
 
 export const organizationRepository = new OrganizationHttpRepository();

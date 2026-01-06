@@ -1,5 +1,5 @@
 import { IQuizRepository } from "../../domains/quiz/ports/quiz.repository.interface";
-import { Quiz } from "../../shared/types";
+import type { Quiz } from "../../domains/quiz/types";
 
 export interface CreateQuizRequest {
   token: string;
@@ -13,7 +13,7 @@ export interface CreateQuizRequest {
  * Following Clean Architecture and Single Responsibility Principle
  */
 export class CreateQuizUseCase {
-  constructor(private readonly quizRepository: IQuizRepository) {}
+  constructor(private readonly quizRepository: IQuizRepository) { }
 
   async execute(request: CreateQuizRequest): Promise<Quiz> {
     const { token, title, description } = request;
@@ -26,3 +26,4 @@ export class CreateQuizUseCase {
     return this.quizRepository.createQuiz(token, title, description);
   }
 }
+

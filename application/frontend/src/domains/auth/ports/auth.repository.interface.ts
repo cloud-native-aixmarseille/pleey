@@ -1,4 +1,4 @@
-import { User } from "../../../shared/types";
+import type { User } from "../types";
 
 export interface AuthSession {
   token: string;
@@ -46,3 +46,4 @@ export interface IAuthRepository {
    */
   logout(): Promise<void>;
 }
+

@@ -1,0 +1,236 @@
+import "@testing-library/jest-dom";
+import { describe, it, expect, vi } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
+import LobbyPage from "./LobbyPage";
+
+describe("LobbyPage", () => {
+  const mockPlayers = [
+    { id: 1, username: "Player1", avatar: "/api/avatars/sessions/1/user-1" },
+    { id: 2, username: "Player2", avatar: "/api/avatars/sessions/1/user-2" },
+  ];
+
+  it("should render lobby page with PIN", () => {
+    const mockHandlers = {
+      gamePin: "123456",
+      players: mockPlayers,
+      isAdmin: false,
+      onStartGame: vi.fn(),
+      questionCount: 2,
+    };
+
+    render(<LobbyPage {...mockHandlers} />);
+
+    expect(screen.getByText(/GAME LOBBY/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole("status", { name: /Enter PIN:\s*123456/i })
+    ).toBeInTheDocument();
+  });
+
+  it("should display number of connected players", () => {
+    const mockHandlers = {
+      gamePin: "123456",
+      players: mockPlayers,
+      isAdmin: false,
+      onStartGame: vi.fn(),
+      questionCount: 2,
+    };
+
+    render(<LobbyPage {...mockHandlers} />);
+
+    const playerCountElements = screen.getAllByText(/Connected Players/i);
+    expect(playerCountElements.length).toBeGreaterThan(0);
+  });
+
+  it("should display player list", () => {
+    const mockHandlers = {
+      gamePin: "123456",
+      players: mockPlayers,
+      isAdmin: false,
+      onStartGame: vi.fn(),
+      questionCount: 2,
+    };
+
+    render(<LobbyPage {...mockHandlers} />);
+
+    expect(screen.getByText("Player1")).toBeInTheDocument();
+    expect(screen.getByText("Player2")).toBeInTheDocument();
+  });
+
+  it("should show start button only for admin", () => {
+    const mockHandlers = {
+      gamePin: "123456",
+      players: mockPlayers,
+      isAdmin: true,
+      hostUserId: null,
+      onStartGame: vi.fn(),
+      questionCount: 2,
+    };
+
+    render(<LobbyPage {...mockHandlers} />);
+
+    expect(
+      screen.getByRole("button", { name: /START GAME/i })
+    ).toBeInTheDocument();
+  });
+
+  it("should not show start button for non-admin", () => {
+    const mockHandlers = {
+      gamePin: "123456",
+      players: mockPlayers,
+      isAdmin: false,
+      onStartGame: vi.fn(),
+      questionCount: 2,
+    };
+
+    render(<LobbyPage {...mockHandlers} />);
+
+    expect(
+      screen.queryByRole("button", { name: /START GAME/i })
+    ).not.toBeInTheDocument();
+  });
+
+  it("should exclude admin host from player list", () => {
+    const mockHandlers = {
+      gamePin: "123456",
+      players: mockPlayers,
+      isAdmin: true,
+      hostUserId: 1,
+      onStartGame: vi.fn(),
+      questionCount: 2,
+    };
+
+    render(<LobbyPage {...mockHandlers} />);
+
+    expect(screen.queryByText("Player1")).not.toBeInTheDocument();
+    expect(screen.getByText("Player2")).toBeInTheDocument();
+  });
+
+  it("should exclude admin host using username when id is unavailable", () => {
+    const playersMissingId = [
+      {
+        id: undefined as unknown as number,
+        username: "HostUser",
+        avatar: "/api/avatars/sessions/2/user-host",
+      },
+      {
+        id: 2 as unknown as number,
+        username: "GuestPlayer",
+        avatar: "/api/avatars/sessions/2/guest-1",
+      },
+    ];
+
+    render(
+      <LobbyPage
+        gamePin="654321"
+        players={playersMissingId}
+        isAdmin
+        hostUserId={null}
+        hostUsername="HostUser"
+        onStartGame={vi.fn()}
+        questionCount={2}
+      />
+    );
+
+    expect(screen.queryByText("HostUser")).not.toBeInTheDocument();
+    expect(screen.getByText("GuestPlayer")).toBeInTheDocument();
+  });
+
+  it("should exclude admin host when player id uses username value", () => {
+    const playersWithNamedId = [
+      {
+        id: "admin" as unknown as number,
+        username: "admin",
+        avatar: "/api/avatars/sessions/3/user-admin",
+      },
+      {
+        id: "player-1" as unknown as number,
+        username: "PlayerOne",
+        avatar: "/api/avatars/sessions/3/guest-1",
+      },
+    ];
+
+    render(
+      <LobbyPage
+        gamePin="222333"
+        players={playersWithNamedId}
+        isAdmin
+        hostUserId={1}
+        hostUsername="Admin"
+        onStartGame={vi.fn()}
+        questionCount={3}
+      />
+    );
+
+    expect(screen.queryByText("admin")).not.toBeInTheDocument();
+    expect(screen.getByText("PlayerOne")).toBeInTheDocument();
+  });
+
+  it("should call onStartGame when admin clicks start button", () => {
+    const mockHandlers = {
+      gamePin: "123456",
+      players: mockPlayers,
+      isAdmin: true,
+      onStartGame: vi.fn(),
+      questionCount: 2,
+    };
+
+    render(<LobbyPage {...mockHandlers} />);
+
+    const startButton = screen.getByRole("button", { name: /START GAME/i });
+    fireEvent.click(startButton);
+
+    expect(mockHandlers.onStartGame).toHaveBeenCalled();
+  });
+
+  it("should show stop session button only for admin when handler provided", () => {
+    const stopSession = vi.fn();
+
+    const { rerender } = render(
+      <LobbyPage
+        gamePin="123456"
+        players={mockPlayers}
+        isAdmin
+        onStartGame={vi.fn()}
+        onStopSession={stopSession}
+        questionCount={2}
+      />
+    );
+
+    expect(
+      screen.getByRole("button", { name: /STOP SESSION/i })
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /STOP SESSION/i }));
+    expect(stopSession).toHaveBeenCalled();
+
+    rerender(
+      <LobbyPage
+        gamePin="123456"
+        players={mockPlayers}
+        isAdmin={false}
+        onStartGame={vi.fn()}
+        onStopSession={stopSession}
+        questionCount={2}
+      />
+    );
+
+    expect(
+      screen.queryByRole("button", { name: /STOP SESSION/i })
+    ).not.toBeInTheDocument();
+  });
+
+  it("should disable start button when quiz has no questions", () => {
+    const mockHandlers = {
+      gamePin: "123456",
+      players: mockPlayers,
+      isAdmin: true,
+      onStartGame: vi.fn(),
+      questionCount: 0,
+    };
+
+    render(<LobbyPage {...mockHandlers} />);
+
+    const startButton = screen.getByRole("button", { name: /START GAME/i });
+    expect(startButton).toBeDisabled();
+  });
+});

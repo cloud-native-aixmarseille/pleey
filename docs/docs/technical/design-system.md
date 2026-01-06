@@ -836,15 +836,15 @@ Key utility classes:
 
 - Use the shared `createStyles` helper to declare style tokens for every feature-level component.
 - Combine tokens with `mergeStyles` when dynamic variants are required; avoid building class name strings manually.
-- Only shared UI primitives in `application/frontend/src/shared` may accept raw `className` props. All other components must spread style tokens via `{...styles.foo}` or `{...mergeStyles(...)}`.
-- When migrating existing code, move reusable styling into shared UI components before exposing additional class name hooks.
+- Do not add raw `className` props to shared UI primitives. Prefer dedicated behavior props (e.g. `tone`, `variant`, `size`, `effect`, `padding`, `border`, `elevation`) or update the primitive to support the needed behavior.
+- Feature-level components should use `createStyles` + `mergeStyles` and spread tokens via `{...styles.foo}` / `{...mergeStyles(...)}`.
 
 ### Example Patterns
 
 #### Arcade-Style Card
 
 ```tsx
-<Card className="border-4 border-accent-500 rounded-none retro-shadow">
+<Card surface="panel" tone="accent" border="thick" elevation="retro">
   <h2 className="font-display text-2xl text-neon uppercase">INSERT COIN</h2>
   <p className="font-mono text-accent-400">&gt; PRESS START</p>
 </Card>
@@ -856,8 +856,8 @@ Key utility classes:
 <Input
   label="Username"
   placeholder="> player_1"
-  className="font-mono"
-  icon={<TerminalIcon />}
+  tone="dark"
+  icon={{ name: "Terminal" }}
 />
 ```
 
@@ -865,10 +865,10 @@ Key utility classes:
 
 ```tsx
 <div className="space-y-4">
-  <Button variant="primary" fullWidth className="retro-shadow">
+  <Button variant="primary" fullWidth effect="retro">
     ► LOGIN
   </Button>
-  <Button variant="accent" fullWidth className="retro-shadow">
+  <Button variant="accent" fullWidth effect="retro">
     ✦ SIGN UP
   </Button>
 </div>
