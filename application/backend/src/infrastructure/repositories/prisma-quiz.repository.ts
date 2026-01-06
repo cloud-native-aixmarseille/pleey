@@ -35,8 +35,14 @@ export class PrismaQuizRepository implements QuizRepository {
   }
 
   async findById(id: number): Promise<Quiz | null> {
-    const quiz = await this.prisma.quiz.findUnique({
-      where: { id },
+    const quiz = await this.prisma.quiz.findFirst({
+      where: {
+        id,
+        deletedAt: null,
+        organization: {
+          deletedAt: null,
+        },
+      },
     });
 
     if (!quiz) return null;
@@ -46,6 +52,12 @@ export class PrismaQuizRepository implements QuizRepository {
 
   async findAll(): Promise<Quiz[]> {
     const quizzes = await this.prisma.quiz.findMany({
+      where: {
+        deletedAt: null,
+        organization: {
+          deletedAt: null,
+        },
+      },
       include: {
         organization: true,
       },
@@ -58,7 +70,11 @@ export class PrismaQuizRepository implements QuizRepository {
   async findByOrganization(organizationId: number): Promise<Quiz[]> {
     const quizzes = await this.prisma.quiz.findMany({
       where: {
-        organization: { id: organizationId },
+        organizationId,
+        deletedAt: null,
+        organization: {
+          deletedAt: null,
+        },
       },
       include: {
         organization: true,
@@ -72,7 +88,11 @@ export class PrismaQuizRepository implements QuizRepository {
   async findByCreator(userId: number): Promise<Quiz[]> {
     const quizzes = await this.prisma.quiz.findMany({
       where: {
-        createdBy: { id: userId },
+        createdById: userId,
+        deletedAt: null,
+        organization: {
+          deletedAt: null,
+        },
       },
       include: {
         organization: true,
@@ -84,9 +104,22 @@ export class PrismaQuizRepository implements QuizRepository {
   }
 
   async delete(id: number): Promise<void> {
-    await this.prisma.quiz.delete({
-      where: { id },
-    });
+    await this.prisma.$transaction([
+      this.prisma.quiz.update({
+        where: { id },
+        data: {
+          deletedAt: new Date(),
+        },
+      }),
+      this.prisma.question.updateMany({
+        where: {
+          quizId: id,
+        },
+        data: {
+          deletedAt: new Date(),
+        },
+      }),
+    ]);
   }
 
   async update(id: number, title: string, description: string | null): Promise<Quiz> {

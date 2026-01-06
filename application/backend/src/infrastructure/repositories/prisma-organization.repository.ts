@@ -20,8 +20,11 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
   }
 
   async findById(id: number): Promise<Organization | null> {
-    const organization = await this.prisma.organization.findUnique({
-      where: { id },
+    const organization = await this.prisma.organization.findFirst({
+      where: {
+        id,
+        deletedAt: null,
+      },
     });
 
     if (!organization) {
@@ -33,7 +36,10 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
 
   async findByName(name: string): Promise<Organization | null> {
     const organization = await this.prisma.organization.findFirst({
-      where: { name },
+      where: {
+        name,
+        deletedAt: null,
+      },
     });
 
     if (!organization) {
@@ -49,6 +55,7 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
         id: {
           in: ids,
         },
+        deletedAt: null,
       },
     });
 
@@ -57,6 +64,9 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
 
   async findAll(): Promise<Organization[]> {
     const organizations = await this.prisma.organization.findMany({
+      where: {
+        deletedAt: null,
+      },
       orderBy: {
         createdAt: 'desc',
       },
@@ -78,8 +88,11 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
   }
 
   async delete(id: number): Promise<void> {
-    await this.prisma.organization.delete({
+    await this.prisma.organization.update({
       where: { id },
+      data: {
+        deletedAt: new Date(),
+      },
     });
   }
 

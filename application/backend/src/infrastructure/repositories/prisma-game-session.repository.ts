@@ -27,8 +27,17 @@ export class PrismaGameSessionRepository implements GameSessionRepository {
   }
 
   async findByPin(pin: string): Promise<GameSession | null> {
-    const session = await this.prisma.gameSession.findUnique({
-      where: { pin },
+    const session = await this.prisma.gameSession.findFirst({
+      where: {
+        pin,
+        deletedAt: null,
+        quiz: {
+          deletedAt: null,
+        },
+        organization: {
+          deletedAt: null,
+        },
+      },
     });
 
     if (!session) return null;
@@ -37,8 +46,17 @@ export class PrismaGameSessionRepository implements GameSessionRepository {
   }
 
   async findById(id: number): Promise<GameSession | null> {
-    const session = await this.prisma.gameSession.findUnique({
-      where: { id },
+    const session = await this.prisma.gameSession.findFirst({
+      where: {
+        id,
+        deletedAt: null,
+        quiz: {
+          deletedAt: null,
+        },
+        organization: {
+          deletedAt: null,
+        },
+      },
     });
 
     if (!session) return null;
@@ -50,8 +68,15 @@ export class PrismaGameSessionRepository implements GameSessionRepository {
     const sessions = await this.prisma.gameSession.findMany({
       where: {
         adminId,
+        deletedAt: null,
         status: {
           in: ['waiting', 'active', 'paused'],
+        },
+        quiz: {
+          deletedAt: null,
+        },
+        organization: {
+          deletedAt: null,
         },
       },
       orderBy: {
@@ -66,8 +91,15 @@ export class PrismaGameSessionRepository implements GameSessionRepository {
     const session = await this.prisma.gameSession.findFirst({
       where: {
         quizId,
+        deletedAt: null,
         status: {
           in: ['waiting', 'active', 'paused'],
+        },
+        quiz: {
+          deletedAt: null,
+        },
+        organization: {
+          deletedAt: null,
         },
       },
       orderBy: {
@@ -84,7 +116,16 @@ export class PrismaGameSessionRepository implements GameSessionRepository {
 
   async findByQuizId(quizId: number): Promise<GameSession[]> {
     const sessions = await this.prisma.gameSession.findMany({
-      where: { quizId },
+      where: {
+        quizId,
+        deletedAt: null,
+        quiz: {
+          deletedAt: null,
+        },
+        organization: {
+          deletedAt: null,
+        },
+      },
       orderBy: {
         createdAt: 'desc',
       },
@@ -95,7 +136,16 @@ export class PrismaGameSessionRepository implements GameSessionRepository {
 
   async findByOrganization(organizationId: number): Promise<GameSession[]> {
     const sessions = await this.prisma.gameSession.findMany({
-      where: { organizationId },
+      where: {
+        organizationId,
+        deletedAt: null,
+        quiz: {
+          deletedAt: null,
+        },
+        organization: {
+          deletedAt: null,
+        },
+      },
       orderBy: {
         createdAt: 'desc',
       },
@@ -126,8 +176,15 @@ export class PrismaGameSessionRepository implements GameSessionRepository {
     return this.prisma.gameSession.count({
       where: {
         quizId,
+        deletedAt: null,
         status: {
           in: ['waiting', 'active', 'paused'],
+        },
+        quiz: {
+          deletedAt: null,
+        },
+        organization: {
+          deletedAt: null,
         },
       },
     });
@@ -136,11 +193,15 @@ export class PrismaGameSessionRepository implements GameSessionRepository {
   async deleteOldSessions(olderThanDays: number): Promise<void> {
     const cutoff = new Date(Date.now() - olderThanDays * 24 * 60 * 60 * 1000);
 
-    await this.prisma.gameSession.deleteMany({
+    await this.prisma.gameSession.updateMany({
       where: {
         createdAt: {
           lt: cutoff,
         },
+        deletedAt: null,
+      },
+      data: {
+        deletedAt: new Date(),
       },
     });
   }

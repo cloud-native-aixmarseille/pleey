@@ -26,8 +26,14 @@ export class PrismaOrganizationMemberRepository implements OrganizationMemberRep
   }
 
   async findById(id: number): Promise<OrganizationMember | null> {
-    const member = await this.prisma.organizationMember.findUnique({
-      where: { id },
+    const member = await this.prisma.organizationMember.findFirst({
+      where: {
+        id,
+        deletedAt: null,
+        organization: {
+          deletedAt: null,
+        },
+      },
     });
 
     if (!member) {
@@ -41,11 +47,13 @@ export class PrismaOrganizationMemberRepository implements OrganizationMemberRep
     organizationId: number,
     userId: number,
   ): Promise<OrganizationMember | null> {
-    const member = await this.prisma.organizationMember.findUnique({
+    const member = await this.prisma.organizationMember.findFirst({
       where: {
-        organizationId_userId: {
-          organizationId,
-          userId,
+        organizationId,
+        userId,
+        deletedAt: null,
+        organization: {
+          deletedAt: null,
         },
       },
     });
@@ -59,7 +67,13 @@ export class PrismaOrganizationMemberRepository implements OrganizationMemberRep
 
   async findByOrganization(organizationId: number): Promise<OrganizationMember[]> {
     const members = await this.prisma.organizationMember.findMany({
-      where: { organizationId },
+      where: {
+        organizationId,
+        deletedAt: null,
+        organization: {
+          deletedAt: null,
+        },
+      },
       orderBy: {
         joinedAt: 'asc',
       },
@@ -70,7 +84,13 @@ export class PrismaOrganizationMemberRepository implements OrganizationMemberRep
 
   async findByUser(userId: number): Promise<OrganizationMember[]> {
     const members = await this.prisma.organizationMember.findMany({
-      where: { userId },
+      where: {
+        userId,
+        deletedAt: null,
+        organization: {
+          deletedAt: null,
+        },
+      },
       orderBy: {
         joinedAt: 'desc',
       },
@@ -89,8 +109,11 @@ export class PrismaOrganizationMemberRepository implements OrganizationMemberRep
   }
 
   async delete(id: number): Promise<void> {
-    await this.prisma.organizationMember.delete({
+    await this.prisma.organizationMember.update({
       where: { id },
+      data: {
+        deletedAt: new Date(),
+      },
     });
   }
 
