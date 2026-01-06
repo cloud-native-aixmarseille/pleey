@@ -1,7 +1,7 @@
 import { IAuthRepository } from "../../domains/auth/ports/auth.repository.interface";
-import { IStorage } from "../../shared/ports/storage.interface";
-import { USER_STORAGE_KEY } from "../../shared/constants/storageKeys";
-import type { User } from "../../shared/types";
+import { IStorage } from "../../application/shared/ports/storage.interface";
+import { USER_STORAGE_KEY } from "../../application/shared/constants/storageKeys";
+import type { User } from "../../domains/auth/types";
 
 export interface UpdateProfileRequest {
   username?: string;
@@ -16,7 +16,7 @@ export class UpdateProfileUseCase {
   constructor(
     private readonly authRepository: IAuthRepository,
     private readonly storage: IStorage,
-  ) {}
+  ) { }
 
   async execute(updates: UpdateProfileRequest): Promise<User> {
     const user = await this.authRepository.updateProfile(updates);
@@ -24,3 +24,4 @@ export class UpdateProfileUseCase {
     return user;
   }
 }
+

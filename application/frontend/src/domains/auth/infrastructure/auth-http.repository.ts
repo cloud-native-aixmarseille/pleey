@@ -1,8 +1,8 @@
 import { IAuthRepository } from "../ports/auth.repository.interface";
-import { User } from "../../../shared/types";
-import { fetchClient } from "../../../shared/api/openapiClient";
+import type { User } from "../types";
+import { fetchClient } from "../../../infrastructure/http/api/openapiClient";
 import { resolveAuthErrorKey } from "../utils/resolve-auth-error";
-import { castRequestBody } from "../../../shared/api/castRequestBody";
+import { castRequestBody } from "../../../infrastructure/http/api/castRequestBody";
 import {
   isAuthResponsePayload,
   isUserPayload,
@@ -153,3 +153,4 @@ export class AuthHttpRepository implements IAuthRepository {
     }
   }
 }
+

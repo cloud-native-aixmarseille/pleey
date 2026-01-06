@@ -1,4 +1,4 @@
-import type { User } from "../../../shared/types";
+import type { User } from "../types";
 
 interface AuthResponsePayload {
   token?: string;
@@ -43,3 +43,4 @@ export function isUserPayload(value: unknown): value is User {
     typeof candidate.isAdmin === "boolean"
   );
 }
+

@@ -1,4 +1,4 @@
-import { Organization, OrganizationDashboard } from "../../shared/types";
+import type { Organization, OrganizationDashboard } from "./types";
 import { organizationRepository } from "./infrastructure/organization-http.repository";
 
 /**
@@ -34,3 +34,4 @@ export class OrganizationService {
 }
 
 export const organizationService = new OrganizationService();
+

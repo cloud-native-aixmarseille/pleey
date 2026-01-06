@@ -1,11 +1,11 @@
-import { Quiz, Question } from "../../shared/types";
+import type { Quiz, Question } from "./types";
 import {
   apiClient,
   fetchClient,
   queryClient,
-} from "../../shared/api/openapiClient";
-import { castRequestBody } from "../../shared/api/castRequestBody";
-import { API_URL } from "../../shared/config/api.config";
+} from "../../infrastructure/http/api/openapiClient";
+import { castRequestBody } from "../../infrastructure/http/api/castRequestBody";
+import { API_URL } from "../../app/config/api.config";
 
 type QuestionType = "multiple" | "truefalse";
 

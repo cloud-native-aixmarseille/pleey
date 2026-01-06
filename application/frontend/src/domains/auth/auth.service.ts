@@ -1,7 +1,7 @@
-import { fetchClient } from "../../shared/api/openapiClient";
-import { User } from "../../shared/types";
+import { fetchClient } from "../../infrastructure/http/api/openapiClient";
+import type { User } from "./types";
 import { resolveAuthErrorKey } from "./utils/resolve-auth-error";
-import { castRequestBody } from "../../shared/api/castRequestBody";
+import { castRequestBody } from "../../infrastructure/http/api/castRequestBody";
 import {
   isAuthResponsePayload,
   isUserPayload,
@@ -147,5 +147,6 @@ export class AuthService {
     }
   }
 }
+
 
 export const authService = new AuthService();

@@ -1,7 +1,7 @@
 import { IAuthRepository } from "../../domains/auth/ports/auth.repository.interface";
-import { IStorage } from "../../shared/ports/storage.interface";
-import { USER_STORAGE_KEY } from "../../shared/constants/storageKeys";
-import type { User } from "../../shared/types";
+import { IStorage } from "../../application/shared/ports/storage.interface";
+import { USER_STORAGE_KEY } from "../../application/shared/constants/storageKeys";
+import type { User } from "../../domains/auth/types";
 
 /**
  * Regenerate Avatar Use Case
@@ -11,7 +11,7 @@ export class RegenerateAvatarUseCase {
   constructor(
     private readonly authRepository: IAuthRepository,
     private readonly storage: IStorage,
-  ) {}
+  ) { }
 
   async execute(): Promise<User> {
     const user = await this.authRepository.regenerateAvatar();
@@ -19,3 +19,4 @@ export class RegenerateAvatarUseCase {
     return user;
   }
 }
+

@@ -1,6 +1,6 @@
-import { API_URL } from "../../shared/config/api.config";
-import { socket } from "../../shared/socket/socket.client";
-import { GameSession } from "../../shared/types";
+import { API_URL } from "../../app/config/api.config";
+import { socket } from "../../infrastructure/socket/socket.client";
+import type { GameSession } from "./types";
 
 interface CreateSessionResponse {
   pin: string;

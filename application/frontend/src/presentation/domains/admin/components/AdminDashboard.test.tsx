@@ -1,0 +1,199 @@
+import "@testing-library/jest-dom";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import AdminDashboard from "./AdminDashboard";
+import { NotificationProvider } from "../../app-shell/contexts/NotificationContext";
+import type { GameSession } from "../../../../domains/game/types";
+
+const organizationContextMock = vi.hoisted(() => ({
+  useOrganization: vi.fn(),
+}));
+
+const authContextMock = vi.hoisted(() => ({
+  useAuthManagerContext: vi.fn(),
+}));
+
+vi.mock("../context/OrganizationContext", () => ({
+  useOrganization: organizationContextMock.useOrganization,
+}));
+
+vi.mock("../../auth", () => ({
+  useAuthManagerContext: authContextMock.useAuthManagerContext,
+}));
+
+describe("AdminDashboard", () => {
+  const mockQuizzes = [
+    {
+      id: 1,
+      title: "Quiz 1",
+      description: "Description 1",
+      created_by: 1,
+      created_at: "2024-01-01",
+      question_count: 3,
+      is_active: true,
+    },
+    {
+      id: 2,
+      title: "Quiz 2",
+      description: "Description 2",
+      created_by: 1,
+      created_at: "2024-01-02",
+      question_count: 5,
+      is_active: false,
+    },
+  ];
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    organizationContextMock.useOrganization.mockReturnValue({
+      organizations: [],
+      currentOrganization: { id: 1, name: "Org 1" },
+      dashboard: null,
+      isLoading: false,
+      error: null,
+      setCurrentOrganization: vi.fn(),
+      loadOrganizations: vi.fn(),
+      loadDashboard: vi.fn(),
+      createOrganization: vi.fn(),
+      clearError: vi.fn(),
+    });
+    authContextMock.useAuthManagerContext.mockReturnValue({
+      user: { id: 99, username: "admin", email: "admin@example.com" },
+    });
+  });
+
+  it("should render admin dashboard with title", () => {
+    const mockHandlers = {
+      onCreateQuiz: vi.fn(),
+      onManageQuiz: vi.fn(),
+      onLaunchQuiz: vi.fn(),
+      onJoinSession: vi.fn(),
+    };
+
+    render(
+      <NotificationProvider>
+        <AdminDashboard
+          quizzes={[]}
+          activeSessions={[]}
+          {...mockHandlers}
+          onDeleteQuiz={vi.fn()}
+        />
+      </NotificationProvider>
+    );
+
+    expect(screen.getByText(/Admin Dashboard/i)).toBeInTheDocument();
+    expect(screen.getByText(/Create Quiz/i)).toBeInTheDocument();
+  });
+
+  it("should display list of quizzes", () => {
+    const mockHandlers = {
+      onCreateQuiz: vi.fn(),
+      onManageQuiz: vi.fn(),
+      onLaunchQuiz: vi.fn(),
+      onJoinSession: vi.fn(),
+    };
+
+    render(
+      <NotificationProvider>
+        <AdminDashboard
+          quizzes={mockQuizzes}
+          activeSessions={[]}
+          {...mockHandlers}
+          onDeleteQuiz={vi.fn()}
+        />
+      </NotificationProvider>
+    );
+
+    expect(screen.getByText("Quiz 1")).toBeInTheDocument();
+    expect(screen.getByText("Description 1")).toBeInTheDocument();
+    expect(screen.getByText("Quiz 2")).toBeInTheDocument();
+    expect(screen.getByText("Description 2")).toBeInTheDocument();
+  });
+
+  it("should call onManageQuiz when manage button is clicked", async () => {
+    const mockHandlers = {
+      onCreateQuiz: vi.fn(),
+      onManageQuiz: vi.fn(),
+      onLaunchQuiz: vi.fn(),
+      onJoinSession: vi.fn(),
+    };
+
+    render(
+      <NotificationProvider>
+        <AdminDashboard
+          quizzes={mockQuizzes}
+          activeSessions={[]}
+          {...mockHandlers}
+          onDeleteQuiz={vi.fn()}
+        />
+      </NotificationProvider>
+    );
+
+    const user = userEvent.setup();
+    const manageButtons = screen.getAllByRole("button", { name: /manage/i });
+    await user.click(manageButtons[0]);
+
+    expect(mockHandlers.onManageQuiz).toHaveBeenCalledWith(mockQuizzes[0]);
+  });
+
+  it("should call onLaunchQuiz when launch button is clicked", async () => {
+    const mockHandlers = {
+      onCreateQuiz: vi.fn(),
+      onManageQuiz: vi.fn(),
+      onLaunchQuiz: vi.fn(),
+      onJoinSession: vi.fn(),
+    };
+
+    render(
+      <NotificationProvider>
+        <AdminDashboard
+          quizzes={mockQuizzes}
+          activeSessions={[]}
+          {...mockHandlers}
+          onDeleteQuiz={vi.fn()}
+        />
+      </NotificationProvider>
+    );
+
+    const user = userEvent.setup();
+    const launchButtons = screen.getAllByRole("button", { name: /launch/i });
+    await user.click(launchButtons[0]);
+
+    expect(mockHandlers.onLaunchQuiz).toHaveBeenCalledWith(mockQuizzes[0].id);
+  });
+
+  it("should show join button when a live session exists", () => {
+    const mockHandlers = {
+      onCreateQuiz: vi.fn(),
+      onManageQuiz: vi.fn(),
+      onLaunchQuiz: vi.fn(),
+      onJoinSession: vi.fn(),
+    };
+
+    const activeSessions: GameSession[] = [
+      {
+        sessionId: 100,
+        pin: "123456",
+        quizId: 1,
+        adminId: 42,
+        status: "waiting",
+        createdAt: "2024-01-03",
+      },
+    ];
+
+    render(
+      <NotificationProvider>
+        <AdminDashboard
+          quizzes={mockQuizzes}
+          activeSessions={activeSessions}
+          {...mockHandlers}
+          onDeleteQuiz={vi.fn()}
+        />
+      </NotificationProvider>
+    );
+
+    const joinButtons = screen.getAllByText(/Join session/i);
+    expect(joinButtons).toHaveLength(2);
+  });
+});
