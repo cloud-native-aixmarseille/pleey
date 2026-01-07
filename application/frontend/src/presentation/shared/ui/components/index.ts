@@ -1,7 +1,8 @@
-export { Button, type ButtonProps } from "./Button";
-export { PrimaryButton, type PrimaryButtonProps } from "./PrimaryButton";
-export { SecondaryButton, type SecondaryButtonProps } from "./SecondaryButton";
-export { BackToButton, type BackToButtonProps } from "./BackToButton";
+export { Button, type ButtonProps } from "./buttons/Button";
+export { PrimaryButton, type PrimaryButtonProps } from "./buttons/PrimaryButton";
+export { SecondaryButton, type SecondaryButtonProps } from "./buttons/SecondaryButton";
+export { DangerButton, type DangerButtonProps } from "./buttons/DangerButton";
+export { BackToButton, type BackToButtonProps } from "./buttons/BackToButton";
 export { Card, type CardProps } from "./Card";
 export { Input, type InputProps } from "./Input";
 export { Container, type ContainerProps, type ContainerSize } from "./Container";

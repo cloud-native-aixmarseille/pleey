@@ -57,7 +57,7 @@ export function LoginForm({
         required
       />
 
-      <PrimaryButton type="submit" size="lg" fullWidth>
+      <PrimaryButton type="submit" size="lg" fullWidth effect="retro">
         <span className={ACTION_CONTENT_CLASSES}>
           <span>{submitLabel}</span>
           {submitIcon ? <span>{submitIcon}</span> : null}

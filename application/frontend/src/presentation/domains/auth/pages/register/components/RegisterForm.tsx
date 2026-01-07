@@ -1,7 +1,7 @@
 import { FormEvent, ReactNode } from "react";
 
 import {
-  Button,
+  PrimaryButton,
   Input,
   PasswordInput,
 } from "../../../../../../presentation/shared/ui/components";
@@ -75,12 +75,12 @@ export function RegisterForm({
       />
 
       <div className={AUTH_CTA_WRAPPER_CLASSES}>
-        <Button type="submit" variant="ghost" tone="accent" size="md" fullWidth>
+        <PrimaryButton type="submit" size="md" fullWidth effect="retro">
           <span className={ACTION_CONTENT_CLASSES}>
             <span>{submitLabel}</span>
             {submitIcon ? <span>{submitIcon}</span> : null}
           </span>
-        </Button>
+        </PrimaryButton>
       </div>
     </form>
   );

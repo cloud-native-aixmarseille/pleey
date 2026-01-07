@@ -137,7 +137,7 @@ export default function LobbyPage({
   const pinAriaLabel = `${t("game.enterPin")}: ${gamePin}`;
 
   const mustWaitForPlayers = visiblePlayers.length < 1;
-  const hasQuestions = questionCount > 0;
+  const hasQuestions = questionCount !== 0;
   const cannotStartGame = mustWaitForPlayers || !hasQuestions;
   const startButtonDescription =
     [

@@ -15,7 +15,7 @@ export default function LobbyHeader({ titleId }: LobbyHeaderProps) {
       >
         {t("game.gameLobby")}
       </h1>
-      <p className="font-mono text-xs sm:text-sm text-dark-400 dark:text-primary-300 animate-pulse-slow">
+      <p className="font-mono text-lg sm:text-xl text-dark-400 dark:text-primary-300 animate-pulse-slow">
         {t("game.waitingForPlayersToJoin")}
       </p>
     </div>

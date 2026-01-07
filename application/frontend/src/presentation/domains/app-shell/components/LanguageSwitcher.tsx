@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 
-import Button from "../../../../presentation/shared/ui/components/Button";
+import { PrimaryButton, SecondaryButton } from "../../../shared/ui/components";
 import Card from "../../../../presentation/shared/ui/components/Card";
 import { composeClasses } from "../../../shared/utils/composeClasses";
 
@@ -34,7 +34,7 @@ export default function LanguageSwitcher({
     <div className={wrapperClass}>
       <Card
         surface="glass"
-        tone="accent"
+        variant="accent"
         padding={variant === "inline" ? "xs" : "sm"}
         elevation="panel"
         fullWidth={false}
@@ -47,18 +47,26 @@ export default function LanguageSwitcher({
                 ? t("common.language.switchToEnglish")
                 : t("common.language.switchToFrench");
 
-            return (
-              <Button
+            return isActive ? (
+              <PrimaryButton
                 key={code}
-                variant={isActive ? "accent" : "ghost"}
-                tone="accent"
                 size="sm"
-                effect={isActive ? "retro" : "flat"}
+                effect="retro"
                 onClick={() => changeLanguage(code)}
                 aria-label={ariaLabel}
               >
                 {label}
-              </Button>
+              </PrimaryButton>
+            ) : (
+              <SecondaryButton
+                key={code}
+                size="sm"
+                effect="flat"
+                onClick={() => changeLanguage(code)}
+                aria-label={ariaLabel}
+              >
+                {label}
+              </SecondaryButton>
             );
           })}
         </div>

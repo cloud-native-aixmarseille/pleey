@@ -1,7 +1,7 @@
 import { forwardRef } from "react";
 import { Button, type ButtonProps } from "./Button";
 
-export type SecondaryButtonProps = Omit<ButtonProps, "variant" | "tone">;
+export type SecondaryButtonProps = Omit<ButtonProps, "variant">;
 
 export const SecondaryButton = forwardRef<
   HTMLButtonElement,

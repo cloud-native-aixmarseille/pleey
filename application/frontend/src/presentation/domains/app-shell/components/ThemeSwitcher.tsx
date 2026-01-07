@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
-import Button from "../../../../presentation/shared/ui/components/Button";
+import { PrimaryButton, SecondaryButton } from "../../../shared/ui/components";
 import Card from "../../../../presentation/shared/ui/components/Card";
 import { composeClasses } from "../../../shared/utils/composeClasses";
 import {
@@ -57,7 +57,7 @@ export default function ThemeSwitcher({
     <div className={wrapperClass} data-theme-switcher="true">
       <Card
         surface="glass"
-        tone="accent"
+        variant="accent"
         padding={variant === "inline" ? "xs" : "sm"}
         elevation="panel"
         fullWidth={false}
@@ -68,14 +68,15 @@ export default function ThemeSwitcher({
         >
           {options.map((option) => {
             const isActive = preference === option.value;
+            const ThemeOptionButton = isActive
+              ? PrimaryButton
+              : SecondaryButton;
 
             return (
-              <Button
+              <ThemeOptionButton
                 key={option.value}
                 type="button"
                 size="sm"
-                variant={isActive ? "outline" : "ghost"}
-                tone={option.tone}
                 effect={isActive ? "retro" : "flat"}
                 tooltip={option.label}
                 aria-label={option.label}
@@ -86,7 +87,7 @@ export default function ThemeSwitcher({
                 icon={option.icon}
               >
                 <span className="sr-only">{option.label}</span>
-              </Button>
+              </ThemeOptionButton>
             );
           })}
         </div>

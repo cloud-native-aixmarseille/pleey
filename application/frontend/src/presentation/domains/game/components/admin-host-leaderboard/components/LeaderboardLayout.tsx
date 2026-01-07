@@ -42,7 +42,7 @@ export function LeaderboardLayout({
 
         <div className="relative w-full">
           <div className="pointer-events-none absolute left-1/2 top-6 z-40 -translate-x-1/2">
-            <ArcadeBadge tone="accent" size="sm" pulse indicator>
+            <ArcadeBadge variant="accent" size="sm" pulse indicator>
               <span className="flex items-center gap-2">
                 <span className="text-2xl animate-bounce-slow" aria-hidden>
                   👑

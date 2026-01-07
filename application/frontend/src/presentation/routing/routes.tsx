@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 
 import { homeRoutes } from "../domains/home/routing/home.routes";
 import { authRoutes } from "../domains/auth/routing/auth.routes";
@@ -9,14 +9,34 @@ import { LobbyRoute } from "../domains/game/routes/LobbyRoute";
 import { PlayingRoute } from "../domains/game/routes/PlayingRoute";
 import { LeaderboardRoute } from "../domains/game/routes/LeaderboardRoute";
 import { profileRoutes } from "../domains/profile/routing/profile.routes";
-import { AccountBar, AppLifecycleManager } from "../domains/app-shell";
+import {
+  AccountBar,
+  AppLifecycleManager,
+  QuickSettingsMenu,
+} from "../domains/app-shell";
+
+const QUICK_SETTINGS_WRAPPER_CLASSES =
+  "fixed right-4 top-4 z-50 sm:right-6 sm:top-6";
 
 export function AppRoutes() {
+  const location = useLocation();
+  const isGameJoinRoute = location.pathname === "/game/join";
+  const isGameLobbyRoute =
+    location.pathname === "/game/lobby" ||
+    /^\/game\/[^/]+\/lobby\/?$/.test(location.pathname);
+  const isGameLeaderboardRoute = /^\/game\/[^/]+\/leaderboard\/?$/.test(
+    location.pathname
+  );
+
   return (
     <>
       <AppLifecycleManager />
       <div data-app-shell="true">
-        <AccountBar />
+        {isGameLobbyRoute || isGameJoinRoute || isGameLeaderboardRoute ? (
+          <QuickSettingsMenu className={QUICK_SETTINGS_WRAPPER_CLASSES} />
+        ) : (
+          <AccountBar />
+        )}
 
         <Routes>
           {homeRoutes}

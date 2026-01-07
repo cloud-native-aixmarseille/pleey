@@ -70,7 +70,7 @@ export function RoundStatusCard({
     <div className={CARD_WRAPPER_CLASSES} data-round-status-card="true">
       <Card
         surface="panel"
-        tone="primary"
+        variant="primary"
         elevation="panel"
         padding="lg"
         border="thick"

@@ -9,6 +9,8 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 
+import { SecondaryButton } from "../../../shared/ui/components";
+
 const TOAST_BASE_CLASSES =
   "pointer-events-auto overflow-hidden rounded-3xl border px-5 py-4 backdrop-blur-xl transition-transform duration-300 animate-slide-down hover:translate-y-[-2px]";
 
@@ -200,14 +202,16 @@ function ToastCard({
           <p className={TOAST_VARIANT_LABEL_CLASSES}>{variantLabel}</p>
           <p className={TOAST_MESSAGE_CLASSES}>{toast.message}</p>
         </div>
-        <button
+        <SecondaryButton
           type="button"
           onClick={() => onDismiss(toast.id)}
+          effect="flat"
+          size="sm"
           className={TOAST_DISMISS_BUTTON_CLASSES}
           aria-label={dismissLabel}
         >
           ✕
-        </button>
+        </SecondaryButton>
       </div>
       <div className={TOAST_PROGRESS_TRACK_CLASSES} aria-hidden>
         <div

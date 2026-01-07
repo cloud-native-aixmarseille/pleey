@@ -25,7 +25,7 @@ export function OrganizationDetailsCard({
   const theme = useTheme();
 
   return (
-    <Card surface="panel" tone="primary" elevation="panel" padding="lg">
+    <Card surface="panel" variant="primary" elevation="panel" padding="lg">
       <div className={DETAILS_STACK_CLASSES}>
         <h2
           className={TITLE_CLASSES}

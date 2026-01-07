@@ -163,6 +163,44 @@ describe("AdminDashboard", () => {
     expect(mockHandlers.onLaunchQuiz).toHaveBeenCalledWith(mockQuizzes[0].id);
   });
 
+  it("should disable launch button when quiz has no questions", () => {
+    const quizzesWithEmpty = [
+      {
+        ...mockQuizzes[0],
+        id: 999,
+        title: "Empty Quiz",
+        question_count: 0,
+      },
+    ];
+
+    const mockHandlers = {
+      onCreateQuiz: vi.fn(),
+      onManageQuiz: vi.fn(),
+      onLaunchQuiz: vi.fn(),
+      onJoinSession: vi.fn(),
+    };
+
+    render(
+      <NotificationProvider>
+        <AdminDashboard
+          quizzes={quizzesWithEmpty}
+          activeSessions={[]}
+          {...mockHandlers}
+          onDeleteQuiz={vi.fn()}
+        />
+      </NotificationProvider>
+    );
+
+    const launchButton = screen.getByRole("button", { name: /launch/i });
+    expect(launchButton).toBeDisabled();
+    const title = launchButton.getAttribute("title");
+    expect(title).toBeTruthy();
+    expect(
+      title === "errors.addAtLeastOneQuestion" ||
+        /add at least one question/i.test(title ?? "")
+    ).toBe(true);
+  });
+
   it("should show join button when a live session exists", () => {
     const mockHandlers = {
       onCreateQuiz: vi.fn(),
@@ -195,5 +233,46 @@ describe("AdminDashboard", () => {
 
     const joinButtons = screen.getAllByText(/Join session/i);
     expect(joinButtons).toHaveLength(2);
+  });
+
+  it("should disable delete button when a live session exists", () => {
+    const mockHandlers = {
+      onCreateQuiz: vi.fn(),
+      onManageQuiz: vi.fn(),
+      onLaunchQuiz: vi.fn(),
+      onJoinSession: vi.fn(),
+    };
+
+    const activeSessions: GameSession[] = [
+      {
+        sessionId: 100,
+        pin: "123456",
+        quizId: 1,
+        adminId: 42,
+        status: "waiting",
+        createdAt: "2024-01-03",
+      },
+    ];
+
+    render(
+      <NotificationProvider>
+        <AdminDashboard
+          quizzes={mockQuizzes}
+          activeSessions={activeSessions}
+          {...mockHandlers}
+          onDeleteQuiz={vi.fn()}
+        />
+      </NotificationProvider>
+    );
+
+    const deleteButtons = screen.getAllByRole("button", { name: /delete/i });
+    expect(deleteButtons[0]).toBeDisabled();
+
+    const title = deleteButtons[0].getAttribute("title");
+    expect(title).toBeTruthy();
+    expect(
+      title === "quiz.errors.quizHasActiveSession" ||
+        /can't delete|cannot delete|session is active/i.test(title ?? "")
+    ).toBe(true);
   });
 });

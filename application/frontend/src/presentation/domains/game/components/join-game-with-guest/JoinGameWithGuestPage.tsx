@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { SecondaryButton } from "../../../../../presentation/shared/ui/components";
 
 import { JOIN_GAME_PIN_LENGTH } from "../join-game/constants";
 import { JoinGameLayout } from "../join-game/components/JoinGameLayout";
@@ -144,13 +145,15 @@ export default function JoinGameWithGuestPage({
             {!isAuthenticated && signInPrompt && signInCta && (
               <div className={SIGN_IN_SECTION_CLASSES}>
                 <p className={SIGN_IN_PROMPT_CLASSES}>{signInPrompt}</p>
-                <button
+                <SecondaryButton
                   type="button"
                   onClick={handleSignIn}
+                  effect="flat"
+                  size="sm"
                   className={SIGN_IN_BUTTON_CLASSES}
                 >
                   {signInCta}
-                </button>
+                </SecondaryButton>
               </div>
             )}
           </>

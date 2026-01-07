@@ -34,6 +34,11 @@ make install
 - Email: `admin@quiz.com`
 - Password: `admin123`
 
+**Default player account:**
+
+- Email: `player@quiz.com`
+- Password: `player123`
+
 ### Essential Commands
 
 ```bash

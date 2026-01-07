@@ -46,7 +46,7 @@ export function useGameSessionManager({
   navigate,
 }: UseGameSessionManagerParams) {
   const [gamePinState, setGamePinState] = useState("");
-  const [activeQuizQuestionCount, setActiveQuizQuestionCount] = useState(0);
+  const [activeQuizQuestionCount, setActiveQuizQuestionCount] = useState(-1);
   const [userAnswer, setUserAnswer] = useState<string | null>(null);
   const [activeSessions, setActiveSessions] = useState<GameSession[]>([]);
   const [sessionsByQuiz, setSessionsByQuiz] = useState<
@@ -126,6 +126,71 @@ export function useGameSessionManager({
 
     refreshActiveSessions().catch(() => undefined);
   }, [token, refreshActiveSessions]);
+
+  useEffect(() => {
+    if (!token || !user) {
+      return;
+    }
+
+    const normalizedPin = gamePinState.trim().toUpperCase();
+    if (!normalizedPin) {
+      return;
+    }
+
+    if (activeQuizQuestionCount > 0) {
+      return;
+    }
+
+    let cancelled = false;
+
+    async function hydrateQuestionCount() {
+      const findSessionByPin = (sessions: GameSession[]) =>
+        sessions.find(
+          (session) => session.pin?.trim().toUpperCase() === normalizedPin,
+        );
+
+      let session = findSessionByPin(activeSessions);
+      if (!session) {
+        const refreshed = await refreshActiveSessions();
+        session = findSessionByPin(refreshed);
+      }
+
+      const quizId = session?.quizId ?? session?.quiz_id;
+      if (typeof quizId !== "number") {
+        return;
+      }
+
+      let questions = questionsByQuiz[quizId] ?? [];
+      if (!questions.length) {
+        try {
+          questions = await fetchQuizQuestions(token, quizId);
+        } catch {
+          return;
+        }
+      }
+
+      if (cancelled) {
+        return;
+      }
+
+      setActiveQuizQuestionCount(questions.length);
+    }
+
+    hydrateQuestionCount().catch(() => undefined);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    token,
+    user,
+    gamePinState,
+    activeQuizQuestionCount,
+    activeSessions,
+    questionsByQuiz,
+    fetchQuizQuestions,
+    refreshActiveSessions,
+  ]);
 
   const handleLaunchQuiz = useCallback(
     async (quizId: number) => {

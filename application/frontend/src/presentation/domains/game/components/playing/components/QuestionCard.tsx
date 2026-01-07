@@ -9,7 +9,7 @@ export function QuestionCard({ questionText }: QuestionCardProps) {
     <div className="mb-6 animate-scale-in">
       <Card
         surface="glass"
-        tone="neutral"
+        variant="neutral"
         padding="xl"
         elevation="glow"
         border="regular"

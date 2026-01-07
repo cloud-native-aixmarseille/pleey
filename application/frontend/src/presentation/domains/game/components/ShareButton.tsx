@@ -1,6 +1,11 @@
 import { useState, useEffect, useRef, useId, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { Button, Card } from "../../../../presentation/shared/ui/components";
+import {
+  Card,
+  DangerButton,
+  PrimaryButton,
+  SecondaryButton,
+} from "../../../../presentation/shared/ui/components";
 import { composeClasses } from "../../../shared/utils/composeClasses";
 
 const SHARE_BUTTON_WRAPPER_CLASSES = "relative";
@@ -46,7 +51,7 @@ interface ShareButtonProps {
   title: string;
   text: string;
   url?: string;
-  variant?: "primary" | "secondary" | "accent" | "outline" | "ghost";
+  variant?: "primary" | "secondary" | "danger";
   size?: "sm" | "md" | "lg" | "xl";
 }
 
@@ -54,7 +59,7 @@ export function ShareButton({
   title,
   text,
   url,
-  variant = "outline",
+  variant = "secondary",
   size = "lg",
 }: ShareButtonProps) {
   const { t } = useTranslation();
@@ -193,32 +198,85 @@ export function ShareButton({
 
   return (
     <div className={SHARE_BUTTON_WRAPPER_CLASSES} data-share-button="true">
-      <Button
-        ref={shareButtonRef}
-        variant={variant}
-        size={size}
-        onClick={handleNativeShare}
-        aria-haspopup="dialog"
-        aria-expanded={showShareMenu}
-      >
-        <span className={SHARE_BUTTON_CONTENT_CLASSES}>
-          <svg
-            className={SHARE_BUTTON_ICON_CLASSES}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-            />
-          </svg>
-          <span>{t("game.share.buttonLabel")}</span>
-        </span>
-      </Button>
+      {variant === "primary" ? (
+        <PrimaryButton
+          ref={shareButtonRef}
+          size={size}
+          onClick={handleNativeShare}
+          aria-haspopup="dialog"
+          aria-expanded={showShareMenu}
+        >
+          <span className={SHARE_BUTTON_CONTENT_CLASSES}>
+            <svg
+              className={SHARE_BUTTON_ICON_CLASSES}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+              />
+            </svg>
+            <span>{t("game.share.buttonLabel")}</span>
+          </span>
+        </PrimaryButton>
+      ) : variant === "secondary" ? (
+        <SecondaryButton
+          ref={shareButtonRef}
+          size={size}
+          onClick={handleNativeShare}
+          aria-haspopup="dialog"
+          aria-expanded={showShareMenu}
+        >
+          <span className={SHARE_BUTTON_CONTENT_CLASSES}>
+            <svg
+              className={SHARE_BUTTON_ICON_CLASSES}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+              />
+            </svg>
+            <span>{t("game.share.buttonLabel")}</span>
+          </span>
+        </SecondaryButton>
+      ) : (
+        <DangerButton
+          ref={shareButtonRef}
+          size={size}
+          onClick={handleNativeShare}
+          aria-haspopup="dialog"
+          aria-expanded={showShareMenu}
+        >
+          <span className={SHARE_BUTTON_CONTENT_CLASSES}>
+            <svg
+              className={SHARE_BUTTON_ICON_CLASSES}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+              />
+            </svg>
+            <span>{t("game.share.buttonLabel")}</span>
+          </span>
+        </DangerButton>
+      )}
 
       {/* Custom Share Menu (fallback for browsers without Web Share API) */}
       {showShareMenu && (
@@ -248,7 +306,7 @@ export function ShareButton({
           >
             <Card
               surface="glass"
-              tone="primary"
+              variant="primary"
               padding="xl"
               border="regular"
               elevation="glow"
@@ -261,19 +319,26 @@ export function ShareButton({
                   >
                     {t("game.share.dialogTitle")}
                   </h3>
-                  <button
+                  <SecondaryButton
+                    type="button"
                     onClick={closeShareMenu}
+                    effect="flat"
+                    size="sm"
                     className={SHARE_DIALOG_CLOSE_BUTTON_CLASSES}
                     aria-label={t("game.share.closeLabel")}
                   >
                     ×
-                  </button>
+                  </SecondaryButton>
                 </div>
 
                 <div className={SHARE_OPTIONS_LIST_CLASSES}>
-                  <button
+                  <SecondaryButton
+                    type="button"
                     onClick={shareToTwitter}
-                    className={SHARE_OPTION_TWITTER_CLASSES}
+                    effect="flat"
+                    size="md"
+                    alignment="start"
+                    className={`${SHARE_OPTION_TWITTER_CLASSES} normal-case`}
                   >
                     <svg
                       className={SHARE_OPTION_ICON_CLASSES}
@@ -285,11 +350,15 @@ export function ShareButton({
                     <span className={SHARE_OPTION_LABEL_CLASSES}>
                       {t("game.share.options.twitter")}
                     </span>
-                  </button>
+                  </SecondaryButton>
 
-                  <button
+                  <SecondaryButton
+                    type="button"
                     onClick={shareToFacebook}
-                    className={SHARE_OPTION_FACEBOOK_CLASSES}
+                    effect="flat"
+                    size="md"
+                    alignment="start"
+                    className={`${SHARE_OPTION_FACEBOOK_CLASSES} normal-case`}
                   >
                     <svg
                       className={SHARE_OPTION_ICON_CLASSES}
@@ -301,11 +370,15 @@ export function ShareButton({
                     <span className={SHARE_OPTION_LABEL_CLASSES}>
                       {t("game.share.options.facebook")}
                     </span>
-                  </button>
+                  </SecondaryButton>
 
-                  <button
+                  <SecondaryButton
+                    type="button"
                     onClick={shareToLinkedIn}
-                    className={SHARE_OPTION_LINKEDIN_CLASSES}
+                    effect="flat"
+                    size="md"
+                    alignment="start"
+                    className={`${SHARE_OPTION_LINKEDIN_CLASSES} normal-case`}
                   >
                     <svg
                       className={SHARE_OPTION_ICON_CLASSES}
@@ -317,11 +390,15 @@ export function ShareButton({
                     <span className={SHARE_OPTION_LABEL_CLASSES}>
                       {t("game.share.options.linkedin")}
                     </span>
-                  </button>
+                  </SecondaryButton>
 
-                  <button
+                  <SecondaryButton
+                    type="button"
                     onClick={copyToClipboard}
-                    className={SHARE_OPTION_COPY_CLASSES}
+                    effect="flat"
+                    size="md"
+                    alignment="start"
+                    className={`${SHARE_OPTION_COPY_CLASSES} normal-case`}
                   >
                     <svg
                       className={SHARE_OPTION_ICON_CLASSES}
@@ -341,7 +418,7 @@ export function ShareButton({
                         ? t("game.share.copySuccess")
                         : t("game.share.copyLink")}
                     </span>
-                  </button>
+                  </SecondaryButton>
                 </div>
 
                 {shareError && (

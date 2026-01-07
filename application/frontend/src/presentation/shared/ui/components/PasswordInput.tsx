@@ -1,5 +1,6 @@
 import { forwardRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { SecondaryButton } from "./buttons/SecondaryButton";
 import { Input, type InputProps } from "./Input";
 import type { IconSource } from "../icons";
 
@@ -34,15 +35,17 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
         icon={DEFAULT_ICON}
         trailingNode={
           <div className="flex items-center gap-2">
-            <button
+            <SecondaryButton
               type="button"
               onClick={handleToggle}
+              effect="flat"
+              size="sm"
               className={PASSWORD_TOGGLE_BUTTON_CLASSES}
               aria-label={isVisible ? hideAria : showAria}
               aria-pressed={isVisible}
             >
               {isVisible ? hide : show}
-            </button>
+            </SecondaryButton>
           </div>
         }
         {...rest}

@@ -1,5 +1,9 @@
 import { useTranslation } from "react-i18next";
-import { BackToButton, Button } from "../../../../../presentation/shared/ui/components";
+import {
+  BackToButton,
+  DangerButton,
+  PrimaryButton,
+} from "../../../../../presentation/shared/ui/components";
 
 interface StartControlsProps {
   readonly isAdmin: boolean;
@@ -63,10 +67,9 @@ export default function StartControls({
 
           {onStopSession && (
             <div className="w-full sm:w-auto sm:max-w-xs">
-              <Button
-                variant="danger"
+              <DangerButton
                 size="lg"
-                effect="flat"
+                effect="retro"
                 className="w-full"
                 onClick={onStopSession}
               >
@@ -76,29 +79,26 @@ export default function StartControls({
                     {t("game.stopSession", "Stop Session").toUpperCase()}
                   </span>
                 </span>
-              </Button>
+              </DangerButton>
             </div>
           )}
         </div>
 
         <div className="flex justify-center sm:justify-self-center">
-          <div className="w-full max-w-sm transition-transform duration-200 hover:scale-[1.02]">
-            <Button
-              variant="success"
-              size="xl"
-              effect="retro"
-              className="w-full"
-              onClick={onStartGame}
-              disabled={cannotStartGame}
-              aria-describedby={startButtonDescription || undefined}
-            >
-              <span className="flex items-center justify-center gap-4 text-lg sm:text-xl">
-                <span aria-hidden="true">▶</span>
-                <span>{t("game.startGame").toUpperCase()}</span>
-                <span aria-hidden="true">◀</span>
-              </span>
-            </Button>
-          </div>
+          <PrimaryButton
+            size="xl"
+            effect="retro"
+            className="w-full max-w-sm"
+            onClick={onStartGame}
+            disabled={cannotStartGame}
+            aria-describedby={startButtonDescription || undefined}
+          >
+            <span className="flex items-center justify-center gap-4 text-lg sm:text-xl">
+              <span aria-hidden="true">▶</span>
+              <span>{t("game.startGame").toUpperCase()}</span>
+              <span aria-hidden="true">◀</span>
+            </span>
+          </PrimaryButton>
         </div>
 
         <div className="hidden sm:block" aria-hidden="true" />
@@ -108,7 +108,7 @@ export default function StartControls({
         <div className="mt-4 text-center">
           <p
             id={startHintId}
-            className="font-mono text-xs uppercase tracking-[0.25em] text-dark-400 dark:text-light-500 animate-pulse"
+            className="font-mono text-lg sm:text-xl uppercase tracking-[0.25em] text-dark-400 dark:text-light-500 animate-pulse"
             role="status"
             aria-live="polite"
           >

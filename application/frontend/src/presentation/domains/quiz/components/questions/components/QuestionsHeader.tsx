@@ -2,8 +2,8 @@ import { useTranslation } from "react-i18next";
 import {
   ArcadeSectionHeader,
   BackToButton,
-  Button,
   Card,
+  PrimaryButton,
   SecondaryButton,
 } from "../../../../../../presentation/shared/ui/components";
 import type { Quiz } from "../../../../../../domains/quiz/types";
@@ -31,11 +31,7 @@ export function QuestionsHeader({
     <Card motion="slide-down">
       <div className="flex flex-col gap-6">
         <div className="flex items-start justify-between gap-4">
-          <BackToButton
-            label={t("quiz.back")}
-            onClick={onBack}
-            variant="ghost"
-          />
+          <BackToButton label={t("quiz.back")} onClick={onBack} />
           <SecondaryButton
             size="md"
             onClick={onViewSessions}
@@ -54,14 +50,13 @@ export function QuestionsHeader({
           />
 
           <div className="mt-6 flex justify-end">
-            <Button
-              variant="accent"
+            <PrimaryButton
               size="lg"
               onClick={onAddQuestion}
               icon={{ name: "CirclePlus" }}
             >
               {t("quiz.addQuestion")}
-            </Button>
+            </PrimaryButton>
           </div>
         </div>
       </div>

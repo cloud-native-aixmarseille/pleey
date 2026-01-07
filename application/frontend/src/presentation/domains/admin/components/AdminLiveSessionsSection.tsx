@@ -3,8 +3,8 @@ import { useTranslation } from "react-i18next";
 
 import {
   ArcadeBadge,
-  Button,
   Card,
+  PrimaryButton,
 } from "../../../../presentation/shared/ui/components";
 import type { GameSession } from "../../../../domains/game/types";
 import type { Quiz } from "../../../../domains/quiz/types";
@@ -166,67 +166,66 @@ export function AdminLiveSessionsSection({
               const isJoining = joiningKey === sessionKey;
 
               return (
-                <Card
-                  key={sessionKey}
-                  padding="md"
-                  border="thin"
-                  elevation="panel"
-                  surface="panel"
-                  motion="none"
-                  className={SESSION_CARD_CLASSES}
-                >
-                  <div className={SESSION_CARD_CONTENT_CLASSES}>
-                    <div className={SESSION_INFO_CLASSES}>
-                      <div className={SESSION_BADGE_ROW_CLASSES}>
-                        <span className={LIVE_BADGE_CLASSES}>
-                          {t("admin.liveSessionBadge")}
-                        </span>
-                        <ArcadeBadge tone={tone} indicator pulse>
-                          {t(`admin.sessionStatus.${session.status}`, {
-                            defaultValue: session.status,
-                          })}
-                        </ArcadeBadge>
+                <div key={sessionKey} className={SESSION_CARD_CLASSES}>
+                  <Card
+                    padding="md"
+                    border="thin"
+                    elevation="panel"
+                    surface="panel"
+                    motion="none"
+                  >
+                    <div className={SESSION_CARD_CONTENT_CLASSES}>
+                      <div className={SESSION_INFO_CLASSES}>
+                        <div className={SESSION_BADGE_ROW_CLASSES}>
+                          <span className={LIVE_BADGE_CLASSES}>
+                            {t("admin.liveSessionBadge")}
+                          </span>
+                          <ArcadeBadge variant={tone} indicator pulse>
+                            {t(`admin.sessionStatus.${session.status}`, {
+                              defaultValue: session.status,
+                            })}
+                          </ArcadeBadge>
+                        </div>
+                        <h4 className={SESSION_TITLE_CLASSES}>
+                          {relatedQuiz?.title ?? t("admin.unknownQuiz")}
+                        </h4>
+                        <div className={SESSION_META_CLASSES}>
+                          <span className={SESSION_PIN_CLASSES}>
+                            <span className={SR_ONLY_CLASSES}>
+                              {t("admin.sessionPinLabel", { pin: session.pin })}
+                            </span>
+                            <span aria-hidden="true">PIN</span>
+                            <span
+                              aria-hidden="true"
+                              className={SESSION_PIN_VALUE_CLASSES}
+                            >
+                              {session.pin}
+                            </span>
+                          </span>
+                          <span>
+                            {t("admin.sessionStartedLabel", {
+                              date: formatSessionDate(createdAt),
+                            })}
+                          </span>
+                        </div>
                       </div>
-                      <h4 className={SESSION_TITLE_CLASSES}>
-                        {relatedQuiz?.title ?? t("admin.unknownQuiz")}
-                      </h4>
-                      <div className={SESSION_META_CLASSES}>
-                        <span className={SESSION_PIN_CLASSES}>
-                          <span className={SR_ONLY_CLASSES}>
-                            {t("admin.sessionPinLabel", { pin: session.pin })}
-                          </span>
-                          <span aria-hidden="true">PIN</span>
-                          <span
-                            aria-hidden="true"
-                            className={SESSION_PIN_VALUE_CLASSES}
-                          >
-                            {session.pin}
-                          </span>
-                        </span>
-                        <span>
-                          {t("admin.sessionStartedLabel", {
-                            date: formatSessionDate(createdAt),
+                      <div className={SESSION_ACTIONS_CLASSES}>
+                        <PrimaryButton
+                          size="sm"
+                          onClick={() => handleJoinSession(session, sessionKey)}
+                          disabled={isJoining}
+                          aria-label={t("admin.joinSessionButtonAria", {
+                            pin: session.pin,
                           })}
-                        </span>
+                        >
+                          {isJoining
+                            ? t("common.loading")
+                            : t("admin.joinSessionButton")}
+                        </PrimaryButton>
                       </div>
                     </div>
-                    <div className={SESSION_ACTIONS_CLASSES}>
-                      <Button
-                        size="sm"
-                        variant="accent"
-                        onClick={() => handleJoinSession(session, sessionKey)}
-                        disabled={isJoining}
-                        aria-label={t("admin.joinSessionButtonAria", {
-                          pin: session.pin,
-                        })}
-                      >
-                        {isJoining
-                          ? t("common.loading")
-                          : t("admin.joinSessionButton")}
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
+                  </Card>
+                </div>
               );
             })}
           </div>

@@ -1,3 +1,4 @@
+import { createElement } from "react";
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
@@ -73,12 +74,14 @@ vi.mock("./components/ResultActions", () => ({
     nextQuestionLabel: string;
   }) => (
     <div>
-      <button data-testid="share-button">{shareText}</button>
-      {isAdmin && (
-        <button type="button" onClick={onNextQuestion}>
-          {nextQuestionLabel}
-        </button>
-      )}
+      {createElement("button", { "data-testid": "share-button" }, shareText)}
+      {isAdmin
+        ? createElement(
+            "button",
+            { type: "button", onClick: onNextQuestion },
+            nextQuestionLabel
+          )
+        : null}
     </div>
   ),
 }));

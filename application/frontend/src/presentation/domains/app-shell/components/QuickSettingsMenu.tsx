@@ -1,14 +1,14 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import Button from "../../../../presentation/shared/ui/components/Button";
+import { SecondaryButton } from "../../../shared/ui/components";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ThemeSwitcher from "./ThemeSwitcher";
 
 const MENU_CONTAINER_CLASSES = "relative";
 const MENU_TRIGGER_LABEL_CLASSES = "sr-only";
 const MENU_PANEL_CLASSES =
-  "absolute right-0 mt-2 min-w-[12rem] space-y-2 rounded-lg border border-primary-500/25 bg-light-50/95 p-3 text-dark-500 shadow-neon dark:border-primary-500/30 dark:bg-dark-500/95 dark:text-light-100 animate-scale-in origin-top-right";
+  "absolute right-0 mt-2 min-w-[12rem] space-y-2 rounded-[var(--arcade-radius-sm)] border border-primary-500/25 bg-light-50/95 p-3 text-dark-500 shadow-[var(--arcade-effect-glow)] dark:border-primary-500/30 dark:bg-dark-500/95 dark:text-light-100 animate-scale-in origin-top-right";
 
 const MENU_TOP_SECTION_CLASSES = "flex flex-col gap-3";
 const MENU_LANGUAGE_SWITCHER_CLASSES = "w-full justify-between";
@@ -55,10 +55,10 @@ function QuickSettingsMenuComponent({ className }: QuickSettingsMenuProps) {
   return (
     <div className={className} data-quick-settings="true">
       <div className={MENU_CONTAINER_CLASSES} ref={menuRef}>
-        <Button
+        <SecondaryButton
           type="button"
-          variant="ghost"
           size="sm"
+          effect="flat"
           onClick={toggleMenu}
           aria-haspopup="menu"
           aria-expanded={isOpen}
@@ -66,7 +66,7 @@ function QuickSettingsMenuComponent({ className }: QuickSettingsMenuProps) {
           icon={{ name: "EllipsisVertical", strokeWidth: 1.5 }}
         >
           <span className={MENU_TRIGGER_LABEL_CLASSES}>{label}</span>
-        </Button>
+        </SecondaryButton>
 
         {isOpen ? (
           <div role="menu" className={MENU_PANEL_CLASSES}>

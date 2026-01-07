@@ -1,4 +1,7 @@
-import { ArcadeCardGrid } from "../../../../../../presentation/shared/ui/components";
+import {
+  ArcadeCardGrid,
+  SecondaryButton,
+} from "../../../../../../presentation/shared/ui/components";
 import { composeClasses } from "../../../../../shared/utils/composeClasses";
 
 const OPTION_BASE_CLASSES = composeClasses(
@@ -35,10 +38,12 @@ export function TrueFalseAnswers({
 }: TrueFalseAnswersProps) {
   return (
     <ArcadeCardGrid layout="double" bottomSpacing="none" role="group">
-      <button
+      <SecondaryButton
         type="button"
         onClick={() => onSubmit("true")}
         disabled={answerSubmitted}
+        effect="flat"
+        size="xl"
         className={composeClasses(
           OPTION_BASE_CLASSES,
           OPTION_VARIANT_MAP.true,
@@ -50,11 +55,13 @@ export function TrueFalseAnswers({
           ✓
         </div>
         <div className={LABEL_CLASSES}>VRAI</div>
-      </button>
-      <button
+      </SecondaryButton>
+      <SecondaryButton
         type="button"
         onClick={() => onSubmit("false")}
         disabled={answerSubmitted}
+        effect="flat"
+        size="xl"
         className={composeClasses(
           OPTION_BASE_CLASSES,
           OPTION_VARIANT_MAP.false,
@@ -67,7 +74,7 @@ export function TrueFalseAnswers({
           ✗
         </div>
         <div className={LABEL_CLASSES}>FAUX</div>
-      </button>
+      </SecondaryButton>
     </ArcadeCardGrid>
   );
 }

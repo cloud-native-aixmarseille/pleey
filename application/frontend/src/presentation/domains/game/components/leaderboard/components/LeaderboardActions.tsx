@@ -1,4 +1,4 @@
-import { Button } from "../../../../../../presentation/shared/ui/components";
+import { PrimaryButton } from "../../../../../../presentation/shared/ui/components";
 import { ACTIONS_STAGE } from "../constants";
 import { ShareButton } from "../../ShareButton";
 
@@ -35,8 +35,7 @@ export function LeaderboardActions({
       style={{ animationDelay: "0.5s" }}
     >
       <div className={PLAY_AGAIN_WRAPPER_CLASSES}>
-        <Button
-          variant="accent"
+        <PrimaryButton
           size="xl"
           fullWidth
           effect="retro"
@@ -47,7 +46,7 @@ export function LeaderboardActions({
             <span className={PLAY_AGAIN_ICON_CLASSES}>▶</span>
             <span>Play Again</span>
           </span>
-        </Button>
+        </PrimaryButton>
       </div>
 
       <div className={SHARE_BUTTON_WRAPPER_CLASSES}>

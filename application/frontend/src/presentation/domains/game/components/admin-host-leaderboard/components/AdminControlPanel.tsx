@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { AnimationStage } from "../constants";
 import {
   ArcadeGlassStack,
-  Button,
+  BackToButton,
   Card,
-  PrimaryButton,
+  SecondaryButton,
 } from "../../../../../../presentation/shared/ui/components";
 
 const PANEL_WRAPPER_CLASSES = "mx-auto max-w-2xl space-y-6 animate-fade-in";
@@ -38,7 +38,7 @@ export function AdminControlPanel({ animationStage }: AdminControlPanelProps) {
     <div className={PANEL_WRAPPER_CLASSES} style={{ animationDelay: "0.5s" }}>
       <Card
         surface="panel"
-        tone="accent"
+        variant="accent"
         padding="lg"
         border="thick"
         elevation="panel"
@@ -51,22 +51,14 @@ export function AdminControlPanel({ animationStage }: AdminControlPanelProps) {
           spacing="lg"
         >
           <div className="space-y-4">
-            <Button
-              variant="accent"
-              size="xl"
+            <BackToButton
               fullWidth
-              effect="retro"
+              alignment="center"
               onClick={handleNavigateAdmin}
-            >
-              <span className={BUTTON_CONTENT_CLASSES}>
-                <span className={BUTTON_ICON_CLASSES} aria-hidden>
-                  📊
-                </span>
-                <span>{t("game.hostLeaderboard.controls.backToAdmin")}</span>
-              </span>
-            </Button>
+              label={t("game.hostLeaderboard.controls.backToAdmin")}
+            />
 
-            <PrimaryButton
+            <SecondaryButton
               size="xl"
               fullWidth
               effect="retro"
@@ -78,7 +70,7 @@ export function AdminControlPanel({ animationStage }: AdminControlPanelProps) {
                 </span>
                 <span>{t("game.hostLeaderboard.controls.newGame")}</span>
               </span>
-            </PrimaryButton>
+            </SecondaryButton>
           </div>
         </ArcadeGlassStack>
       </Card>

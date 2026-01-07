@@ -5,9 +5,9 @@ import {
   ArcadeBadge,
   ArcadePage,
   BackToButton,
-  Button,
   Card,
   Modal,
+  PrimaryButton,
   SecondaryButton,
 } from "../../../../presentation/shared/ui/components";
 import type { GameSession } from "../../../../domains/game/types";
@@ -184,7 +184,6 @@ export function ManageQuizSessionsPage({
             <BackToButton
               label={t("admin.viewQuestions")}
               onClick={() => navigate(`/admin/quizzes/${quiz.id}`)}
-              variant="ghost"
             />
           </div>
 
@@ -259,29 +258,29 @@ export function ManageQuizSessionsPage({
                   })}
                 </p>
                 <div className={PAGINATION_CONTROLS_CLASSES}>
-                  <Button
-                    variant="ghost"
+                  <SecondaryButton
                     size="sm"
                     onClick={() => setPage((prev) => Math.max(1, prev - 1))}
                     disabled={page === 1}
                     aria-label={t("admin.sessionPaginationPrevious")}
+                    effect="flat"
                   >
                     {t("admin.sessionPaginationPrevious")}
-                  </Button>
+                  </SecondaryButton>
                   <span className={PAGINATION_PAGE_LABEL_CLASSES}>
                     {t("admin.sessionPaginationPage", { page, totalPages })}
                   </span>
-                  <Button
-                    variant="ghost"
+                  <SecondaryButton
                     size="sm"
                     onClick={() =>
                       setPage((prev) => Math.min(totalPages, prev + 1))
                     }
                     disabled={page === totalPages}
                     aria-label={t("admin.sessionPaginationNext")}
+                    effect="flat"
                   >
                     {t("admin.sessionPaginationNext")}
-                  </Button>
+                  </SecondaryButton>
                 </div>
               </div>
 
@@ -313,7 +312,7 @@ export function ManageQuizSessionsPage({
                     >
                       <div className={SESSION_CARD_CONTENT_CLASSES}>
                         <div className={SESSION_META_ROW_CLASSES}>
-                          <ArcadeBadge tone={tone} indicator pulse>
+                          <ArcadeBadge variant={tone} indicator pulse>
                             {resolveSessionStatusLabel(session.status)}
                           </ArcadeBadge>
                           <span className={SESSION_PIN_CLASSES}>
@@ -336,8 +335,7 @@ export function ManageQuizSessionsPage({
                             : null}
                           <div className={SESSION_ACTIONS_ROW_CLASSES}>
                             {isLive ? (
-                              <Button
-                                variant="accent"
+                              <PrimaryButton
                                 size="sm"
                                 onClick={() =>
                                   handleRejoin(session, sessionKey)
@@ -347,15 +345,15 @@ export function ManageQuizSessionsPage({
                                 {rejoiningKey === sessionKey
                                   ? t("common.loading")
                                   : t("admin.sessionRejoin")}
-                              </Button>
+                              </PrimaryButton>
                             ) : (
-                              <Button
-                                variant="ghost"
+                              <SecondaryButton
                                 size="sm"
                                 onClick={() => handleOpenDetails(session)}
+                                effect="flat"
                               >
                                 {t("admin.sessionViewDetails")}
-                              </Button>
+                              </SecondaryButton>
                             )}
                           </div>
                         </div>
@@ -375,9 +373,9 @@ export function ManageQuizSessionsPage({
         title={detailTitle}
         description={detailDescription}
         footer={
-          <Button variant="accent" size="sm" onClick={handleCloseDetails}>
+          <PrimaryButton size="sm" onClick={handleCloseDetails}>
             {t("common.close")}
-          </Button>
+          </PrimaryButton>
         }
       >
         {detailSession ? (

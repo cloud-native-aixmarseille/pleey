@@ -2,8 +2,8 @@ import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import {
-  Button,
   Card,
+  DangerButton,
   PrimaryButton,
   SecondaryButton,
 } from "../../../../presentation/shared/ui/components";
@@ -57,10 +57,16 @@ export function QuizCard({
   const activeSession = useMemo(() => liveSession ?? null, [liveSession]);
   const isSessionLive = isLive ?? Boolean(activeSession ?? quiz.is_active);
   const shouldShowJoin = Boolean(activeSession);
-  const launchTooltip =
-    isSessionLive || isLaunchBlocked
-      ? t("admin.liveSessionLaunchBlocked")
-      : undefined;
+  const hasQuestions = quiz.question_count !== 0;
+  const isDeleteBlocked = isSessionLive;
+  const launchTooltip = !hasQuestions
+    ? t("errors.addAtLeastOneQuestion")
+    : isSessionLive || isLaunchBlocked
+    ? t("admin.liveSessionLaunchBlocked")
+    : undefined;
+  const deleteTooltip = isDeleteBlocked
+    ? t("quiz.errors.quizHasActiveSession")
+    : t("admin.delete");
 
   const handleJoin = useCallback(async () => {
     if (!activeSession || !onJoinSession || isJoining) {
@@ -122,10 +128,9 @@ export function QuizCard({
         <div className={ACTIONS_ROW_CLASSES}>
           {shouldShowJoin ? (
             <div className={PRIMARY_ACTION_CONTAINER_CLASSES}>
-              <Button
+              <PrimaryButton
                 size="sm"
                 fullWidth
-                variant="accent"
                 onClick={handleJoin}
                 disabled={isJoining}
                 aria-label={t("admin.joinSessionButtonAria", {
@@ -154,7 +159,7 @@ export function QuizCard({
                 }
               >
                 {isJoining ? t("common.loading") : t("admin.joinSessionButton")}
-              </Button>
+              </PrimaryButton>
             </div>
           ) : (
             <div className={PRIMARY_ACTION_CONTAINER_CLASSES}>
@@ -163,7 +168,7 @@ export function QuizCard({
                 fullWidth
                 onClick={() => onLaunch(quiz.id)}
                 aria-label={t("admin.launch")}
-                disabled={isSessionLive || isLaunchBlocked}
+                disabled={isSessionLive || isLaunchBlocked || !hasQuestions}
                 tooltip={launchTooltip}
                 icon={
                   <svg
@@ -215,11 +220,12 @@ export function QuizCard({
             <span className={SR_ONLY_CLASSES}>{t("admin.manage")}</span>
           </SecondaryButton>
           {onDelete ? (
-            <SecondaryButton
+            <DangerButton
               size="sm"
               onClick={() => onDelete(quiz.id)}
               aria-label={t("admin.delete")}
-              tooltip={t("admin.delete")}
+              tooltip={deleteTooltip}
+              disabled={isDeleteBlocked}
               icon={
                 <svg
                   className={ICON_CLASSES}
@@ -237,7 +243,7 @@ export function QuizCard({
               }
             >
               <span className={SR_ONLY_CLASSES}>{t("admin.delete")}</span>
-            </SecondaryButton>
+            </DangerButton>
           ) : null}
         </div>
       </Card>

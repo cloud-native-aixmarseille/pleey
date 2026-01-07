@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 
-import { Button } from "../../../../../presentation/shared/ui/components";
+import { SecondaryButton } from "../../../../../presentation/shared/ui/components";
 import { Icon } from "../../../../../presentation/shared/ui/icons";
 import LanguageSwitcher from "../LanguageSwitcher";
 import ThemeSwitcher from "../ThemeSwitcher";
@@ -8,14 +8,15 @@ import ThemeSwitcher from "../ThemeSwitcher";
 const ACCOUNT_MENU_CONTAINER_CLASSES = "relative";
 const ACCOUNT_MENU_TRIGGER_LABEL_CLASSES = "sr-only";
 const ACCOUNT_MENU_PANEL_CLASSES =
-  "absolute right-0 mt-2 min-w-[12rem] space-y-2 rounded-2xl border border-primary-500/25 bg-light-50/95 p-3 text-dark-500 shadow-neon dark:border-primary-500/30 dark:bg-dark-500/95 dark:text-light-100";
-const ACCOUNT_MENU_TOP_SECTION_CLASSES = "border-b border-primary-500/20 pb-2";
+  "absolute right-0 mt-2 min-w-[12rem] space-y-2 rounded-[var(--arcade-radius-sm)] border p-3 shadow-[var(--arcade-effect-glow)] text-[color:var(--arcade-color-text-primary)] bg-[color:var(--arcade-color-surface-overlay)] border-[color:color-mix(in_srgb,var(--arcade-color-primary-500)_25%,transparent)]";
+const ACCOUNT_MENU_TOP_SECTION_CLASSES =
+  "border-b pb-2 border-[color:color-mix(in_srgb,var(--arcade-color-primary-500)_20%,transparent)]";
 const ACCOUNT_MENU_LANGUAGE_SWITCHER_CLASSES = "w-full justify-between";
 const ACCOUNT_MENU_THEME_SWITCHER_CLASSES = "w-full justify-between";
 const ACCOUNT_MENU_ITEM_CLASSES =
-  "flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-dark-500 transition-colors hover:bg-primary-500/15 hover:text-primary-900 dark:text-light-100 dark:hover:bg-primary-500/20 dark:hover:text-primary-100";
+  "flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition-colors text-[color:var(--arcade-color-text-primary)] hover:text-[color:var(--arcade-color-text-primary)]";
 const ACCOUNT_MENU_LOGOUT_CLASSES =
-  "flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-dark-500 transition-colors hover:bg-danger-500/12 hover:text-danger-900 dark:text-light-100 dark:hover:bg-danger-500/20 dark:hover:text-danger-100";
+  "flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition-colors text-[color:var(--arcade-color-text-primary)] hover:text-[color:var(--arcade-color-danger-700)]";
 
 interface AccountMenuLabels {
   accountMenu: string;
@@ -86,10 +87,10 @@ function AccountMenuComponent({
       ref={menuRef}
       data-account-menu="true"
     >
-      <Button
+      <SecondaryButton
         type="button"
-        variant="ghost"
         size="sm"
+        effect="flat"
         onClick={toggleMenu}
         aria-haspopup="menu"
         aria-expanded={isOpen}
@@ -99,7 +100,7 @@ function AccountMenuComponent({
         <span className={ACCOUNT_MENU_TRIGGER_LABEL_CLASSES}>
           {labels.accountMenu}
         </span>
-      </Button>
+      </SecondaryButton>
       {isOpen && (
         <div role="menu" className={ACCOUNT_MENU_PANEL_CLASSES}>
           <div className={ACCOUNT_MENU_TOP_SECTION_CLASSES}>
@@ -114,24 +115,30 @@ function AccountMenuComponent({
               />
             </div>
           </div>
-          <button
+          <SecondaryButton
             type="button"
             role="menuitem"
             onClick={handleProfile}
-            className={ACCOUNT_MENU_ITEM_CLASSES}
+            effect="flat"
+            size="sm"
+            alignment="start"
+            className={`${ACCOUNT_MENU_ITEM_CLASSES} normal-case`}
           >
             <Icon name="UserRound" size={20} strokeWidth={1.5} tone="accent" />
             {labels.profile}
-          </button>
-          <button
+          </SecondaryButton>
+          <SecondaryButton
             type="button"
             role="menuitem"
             onClick={handleLogout}
-            className={ACCOUNT_MENU_LOGOUT_CLASSES}
+            effect="flat"
+            size="sm"
+            alignment="start"
+            className={`${ACCOUNT_MENU_LOGOUT_CLASSES} normal-case`}
           >
             <Icon name="LogOut" size={20} strokeWidth={1.5} tone="danger" />
             {labels.logout}
-          </button>
+          </SecondaryButton>
         </div>
       )}
     </div>

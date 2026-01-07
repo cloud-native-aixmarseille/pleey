@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import Button from "../../../../../presentation/shared/ui/components/Button";
-import SecondaryButton from "../../../../../presentation/shared/ui/components/SecondaryButton";
+import {
+  PrimaryButton,
+  SecondaryButton,
+} from "../../../../../presentation/shared/ui/components";
 import Card from "../../../../../presentation/shared/ui/components/Card";
 import Modal from "../../../../../presentation/shared/ui/components/Modal";
 import Input from "../../../../../presentation/shared/ui/components/Input";
@@ -79,39 +81,42 @@ export function OrganizationSelector() {
 
   return (
     <div className="relative">
-      <Card
-        surface="panel"
-        tone="primary"
-        padding="sm"
-        elevation="panel"
-        interactive
+      <SecondaryButton
+        type="button"
+        effect="flat"
+        size="md"
+        fullWidth
+        alignment="start"
+        className="min-w-0"
+        aria-haspopup="menu"
+        aria-expanded={showDropdown}
         onClick={() => setShowDropdown(!showDropdown)}
+        icon={{ name: "Building2", tone: "accent", size: 20 }}
       >
-        <div className="flex items-center gap-3">
-          <Icon name="Building2" tone="accent" size={24} />
-          <div className="flex-1 text-left">
-            <div className="text-xs text-dark-500 dark:text-light-700">
+        <span className="flex w-full min-w-0 items-center justify-between gap-3">
+          <span className="min-w-0 flex-1 text-left">
+            <span className="block text-xs text-dark-500 dark:text-light-700">
               {t("organization.title")}
-            </div>
-            <div className="font-bold text-primary-800 dark:text-primary-300">
+            </span>
+            <span className="block truncate font-bold text-primary-800 dark:text-primary-300">
               {currentOrganization?.name ||
                 t("organization.selectOrganization")}
-            </div>
-          </div>
+            </span>
+          </span>
           <span
-            className={`transition-transform ${
+            className={`shrink-0 transition-transform ${
               showDropdown ? "rotate-180" : ""
             }`}
             aria-hidden
           >
             <Icon name="ChevronDown" tone="neutral" size={18} />
           </span>
-        </div>
-      </Card>
+        </span>
+      </SecondaryButton>
 
       {showDropdown && (
         <div className="absolute top-full mt-2 left-0 z-50 w-80">
-          <Card surface="glass" tone="accent" padding="xs" elevation="panel">
+          <Card surface="glass" variant="accent" padding="xs" elevation="panel">
             <div className="max-h-96 overflow-y-auto overflow-x-hidden">
               <div className="space-y-2">
                 {organizations.map((org) => {
@@ -121,7 +126,7 @@ export function OrganizationSelector() {
                     <Card
                       key={org.id}
                       surface={isActive ? "accent" : "base"}
-                      tone={isActive ? "accent" : "primary"}
+                      variant={isActive ? "accent" : "primary"}
                       padding="sm"
                       elevation={isActive ? "glow" : "none"}
                       interactive
@@ -144,13 +149,11 @@ export function OrganizationSelector() {
               </div>
 
               <div className="mt-3 pt-3 border-t border-light-300 dark:border-dark-700">
-                <Button
+                <SecondaryButton
                   onClick={() => {
                     setShowCreateForm(true);
                     setShowDropdown(false);
                   }}
-                  variant="ghost"
-                  tone="accent"
                   effect="flat"
                   fullWidth
                   alignment="start"
@@ -161,7 +164,7 @@ export function OrganizationSelector() {
                   <span className="min-w-0 whitespace-normal break-words text-left">
                     {t("organization.createNew")}
                   </span>
-                </Button>
+                </SecondaryButton>
               </div>
             </div>
           </Card>
@@ -181,16 +184,15 @@ export function OrganizationSelector() {
             >
               {t("common.cancel")}
             </SecondaryButton>
-            <Button
+            <PrimaryButton
               type="submit"
               form="create-organization-form"
-              variant="accent"
               disabled={isCreating || !newOrgName.trim()}
             >
               {isCreating
                 ? t("organization.creating")
                 : t("organization.createOrganization")}
-            </Button>
+            </PrimaryButton>
           </>
         }
       >

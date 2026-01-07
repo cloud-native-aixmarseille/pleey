@@ -1,4 +1,7 @@
-import { ArcadeCardGrid } from "../../../../../../presentation/shared/ui/components";
+import {
+  ArcadeCardGrid,
+  SecondaryButton,
+} from "../../../../../../presentation/shared/ui/components";
 import { composeClasses } from "../../../../../shared/utils/composeClasses";
 
 const OPTION_BASE_CLASSES = composeClasses(
@@ -53,11 +56,13 @@ export function MultipleChoiceAnswers({
   return (
     <ArcadeCardGrid layout="double" bottomSpacing="none" role="list">
       {options.map((option, index) => (
-        <button
+        <SecondaryButton
           key={option.letter}
           type="button"
           onClick={() => onSubmit(option.letter)}
           disabled={answerSubmitted}
+          effect="flat"
+          size="xl"
           className={composeClasses(
             OPTION_BASE_CLASSES,
             OPTION_VARIANT_CLASS_MAP[option.letter] ??
@@ -83,7 +88,7 @@ export function MultipleChoiceAnswers({
               </div>
             </div>
           </div>
-        </button>
+        </SecondaryButton>
       ))}
     </ArcadeCardGrid>
   );

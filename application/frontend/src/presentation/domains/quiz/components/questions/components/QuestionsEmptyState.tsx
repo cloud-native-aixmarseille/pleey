@@ -1,5 +1,8 @@
 import { useTranslation } from "react-i18next";
-import { Card, PrimaryButton } from "../../../../../../presentation/shared/ui/components";
+import {
+  Card,
+  PrimaryButton,
+} from "../../../../../../presentation/shared/ui/components";
 
 const EMPTY_STATE_WRAPPER_CLASSES = "animate-scale-in text-center";
 const EMPTY_STATE_CONTENT_CLASSES = "flex flex-col items-center gap-4 p-12";
@@ -20,7 +23,7 @@ export function QuestionsEmptyState({
     <div className={EMPTY_STATE_WRAPPER_CLASSES} data-questions-empty="true">
       <Card
         surface="glass"
-        tone="neutral"
+        variant="neutral"
         padding="xl"
         elevation="glow"
         border="regular"

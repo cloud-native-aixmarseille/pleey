@@ -13,6 +13,19 @@ const NEON_COLOR_PRIMARY = {
   900: "#2f1870",
 } as const;
 
+const LIGHT_COLOR_PRIMARY = {
+  50: "#eef9ff",
+  100: "#d7f0ff",
+  200: "#b1e2ff",
+  300: "#7fceff",
+  400: "#42b4ff",
+  500: "#1f8bff",
+  600: "#146ee6",
+  700: "#0f56bf",
+  800: "#0b3f8f",
+  900: "#082e66",
+} as const;
+
 const NEON_COLOR_SECONDARY = {
   50: "#fff0fb",
   100: "#ffd6f3",
@@ -175,7 +188,7 @@ export const NEON_THEME_TOKENS: ThemeTokens = {
 
 export const LIGHT_THEME_TOKENS: ThemeTokens = {
   palette: {
-    primary: NEON_COLOR_PRIMARY,
+    primary: LIGHT_COLOR_PRIMARY,
     secondary: NEON_COLOR_SECONDARY,
     accent: NEON_COLOR_ACCENT,
     success: NEON_COLOR_SUCCESS,
@@ -204,8 +217,8 @@ export const LIGHT_THEME_TOKENS: ThemeTokens = {
   typography: NEON_THEME_TOKENS.typography,
   effects: {
     ...NEON_THEME_TOKENS.effects,
-    focusRing: "0 0 0 4px rgba(107, 72, 255, 0.22)",
-    focusRingColor: "rgba(107, 72, 255, 0.26)",
+    focusRing: "0 0 0 4px rgba(31, 139, 255, 0.22)",
+    focusRingColor: "rgba(31, 139, 255, 0.26)",
   },
   borderWidths: NEON_THEME_TOKENS.borderWidths,
   transitions: NEON_THEME_TOKENS.transitions,

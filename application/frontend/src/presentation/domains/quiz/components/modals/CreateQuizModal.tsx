@@ -1,9 +1,9 @@
 import { useEffect, useRef, type ChangeEvent, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  Button,
   Input,
   Modal,
+  PrimaryButton,
   SecondaryButton,
 } from "../../../../../presentation/shared/ui/components";
 
@@ -59,14 +59,13 @@ export function CreateQuizModal({
           >
             {t("common.cancel")}
           </SecondaryButton>
-          <Button
+          <PrimaryButton
             type="submit"
             form="create-quiz-form"
-            variant="accent"
             disabled={isProcessing || !title.trim()}
           >
             {isProcessing ? t("common.loading") : t("admin.createQuiz")}
-          </Button>
+          </PrimaryButton>
         </>
       }
     >

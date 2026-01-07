@@ -14,9 +14,9 @@ import {
 const ACCOUNT_BAR_CONTAINER_CLASSES =
   "pointer-events-none fixed left-1/2 top-4 z-50 -translate-x-1/2 px-4";
 const ACCOUNT_BAR_CONTAINER_ADMIN_CLASSES =
-  "pointer-events-none sticky top-0 z-50 px-4 pt-4 flex justify-center";
+  "pointer-events-none sticky top-0 z-50 px-4 pt-4 mb-4 flex justify-center";
 const ACCOUNT_BAR_CONTENT_CLASSES =
-  "pointer-events-auto flex flex-wrap items-center gap-4 rounded-4xl border border-primary-500/35 bg-light-50/85 px-5 py-4 text-dark-500 shadow-neon backdrop-blur-2xl dark:border-primary-500/40 dark:bg-dark-500/80 dark:text-light-100";
+  "pointer-events-auto flex flex-wrap items-center gap-4 rounded-[var(--arcade-radius-lg)] border px-5 py-4 backdrop-blur-2xl text-[color:var(--arcade-color-text-primary)] shadow-[var(--arcade-effect-panel)] bg-[color:var(--arcade-color-surface-overlay)] border-[color:color-mix(in_srgb,var(--arcade-color-primary-500)_35%,transparent)]";
 const ACCOUNT_BAR_ACTIONS_CLASSES = "ml-auto flex items-center gap-3";
 
 /**
@@ -102,10 +102,7 @@ export function AccountBar() {
       aria-label={t("common.accountMenu", "Account menu")}
     >
       <div className={ACCOUNT_BAR_CONTENT_CLASSES}>
-        <AccountBrand
-          title={t("home.title")}
-          onNavigateHome={() => navigate("/")}
-        />
+        <AccountBrand title={t("home.title")} to="/" />
 
         <AccountNavigation
           items={navigationItems}

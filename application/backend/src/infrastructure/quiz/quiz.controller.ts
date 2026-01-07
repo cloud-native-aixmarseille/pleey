@@ -69,6 +69,7 @@ export class QuizController {
       description: quiz.description,
       createdById: quiz.createdById,
       createdAt: quiz.createdAt,
+      question_count: quiz.questionCount,
     }));
   }
 

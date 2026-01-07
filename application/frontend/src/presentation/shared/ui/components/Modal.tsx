@@ -1,5 +1,6 @@
 import { type ReactNode, useEffect, useId, useRef } from "react";
 import { createPortal } from "react-dom";
+import { SecondaryButton } from "./buttons/SecondaryButton";
 import { useTranslation } from "react-i18next";
 
 export interface ModalProps {
@@ -122,6 +123,9 @@ export function Modal({
 
   const closeLabel = t("common.close", "Close dialog");
 
+  const portalTarget =
+    document.querySelector("[data-arcade-theme]") ?? document.body;
+
   return createPortal(
     <div
       ref={overlayRef}
@@ -158,14 +162,16 @@ export function Modal({
               </p>
             ) : null}
           </div>
-          <button
+          <SecondaryButton
             type="button"
             onClick={onClose}
+            effect="flat"
+            size="sm"
             className="rounded-full border border-primary-400/35 bg-primary-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-dark-400 transition hover:bg-primary-500/20 hover:text-dark-500 dark:border-primary-400/40 dark:text-light-300 dark:hover:text-light-100"
             aria-label={closeLabel}
           >
             ✕
-          </button>
+          </SecondaryButton>
         </div>
 
         <div className="mt-6 max-h-[60vh] overflow-y-auto pr-2 text-dark-500 dark:text-light-100">
@@ -179,7 +185,7 @@ export function Modal({
         ) : null}
       </div>
     </div>,
-    document.body
+    portalTarget
   );
 }
 
