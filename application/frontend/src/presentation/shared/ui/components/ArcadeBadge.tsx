@@ -45,7 +45,7 @@ function resolveIndicatorClass(pulse: boolean) {
 
 export interface ArcadeBadgeProps {
   children: ReactNode;
-  tone?: ArcadeBadgeTone;
+  variant?: ArcadeBadgeTone;
   size?: ArcadeBadgeSize;
   indicator?: boolean;
   pulse?: boolean;
@@ -53,7 +53,7 @@ export interface ArcadeBadgeProps {
 
 export function ArcadeBadge({
   children,
-  tone = "primary",
+  variant = "primary",
   size = "xs",
   indicator = false,
   pulse = false,
@@ -63,7 +63,7 @@ export function ArcadeBadge({
       className={composeClasses(
         BASE_CLASSES,
         SIZE_CLASS_MAP[size],
-        TONE_CLASS_MAP[tone]
+        TONE_CLASS_MAP[variant]
       )}
       data-arcade-badge="true"
     >

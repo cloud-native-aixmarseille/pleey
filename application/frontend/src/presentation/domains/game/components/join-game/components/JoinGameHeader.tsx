@@ -30,8 +30,6 @@ export function JoinGameHeader({
         <BackToButton
           label={backLabel}
           onClick={onNavigateHome}
-          variant="link"
-          tone="accent"
           aria-label={backAria}
         />
       </div>

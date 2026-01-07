@@ -1,6 +1,9 @@
 import { type ReactNode } from "react";
 
-import { Button, Card } from "../../../../../../presentation/shared/ui/components";
+import {
+  Card,
+  BackToButton,
+} from "../../../../../../presentation/shared/ui/components";
 
 const CARD_CONTENT_CLASSES = "flex flex-col gap-8";
 const BACK_ACTION_ROW_CLASSES = "flex justify-start";
@@ -15,7 +18,7 @@ export function ProfileCard({ children, onBack, backLabel }: ProfileCardProps) {
   return (
     <Card
       surface="glass"
-      tone="neutral"
+      variant="neutral"
       padding="lg"
       elevation="glow"
       border="regular"
@@ -24,17 +27,7 @@ export function ProfileCard({ children, onBack, backLabel }: ProfileCardProps) {
       <div className={CARD_CONTENT_CLASSES}>
         {onBack ? (
           <div className={BACK_ACTION_ROW_CLASSES}>
-            <Button
-              type="button"
-              variant="ghost"
-              tone="neutral"
-              effect="flat"
-              size="sm"
-              onClick={onBack}
-              alignment="start"
-            >
-              {backLabel}
-            </Button>
+            <BackToButton label={backLabel} onClick={onBack} />
           </div>
         ) : null}
 

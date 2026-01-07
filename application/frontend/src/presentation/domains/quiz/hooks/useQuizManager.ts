@@ -38,6 +38,16 @@ export function useQuizManager() {
           ...prev,
           [quizId]: data,
         }));
+        setQuizzes((prev) =>
+          prev.map((quiz) =>
+            quiz.id === quizId
+              ? {
+                ...quiz,
+                question_count: data.length,
+              }
+              : quiz
+          )
+        );
       });
       return data;
     },
@@ -77,6 +87,16 @@ export function useQuizManager() {
             [quizId]: [...existing, created],
           };
         });
+        setQuizzes((prev) =>
+          prev.map((quiz) =>
+            quiz.id === created.quiz_id
+              ? {
+                ...quiz,
+                question_count: (quiz.question_count ?? 0) + 1,
+              }
+              : quiz
+          )
+        );
       });
       return created;
     },
@@ -119,6 +139,16 @@ export function useQuizManager() {
             [quizId]: nextQuestions,
           };
         });
+        setQuizzes((prev) =>
+          prev.map((quiz) =>
+            quiz.id === quizId
+              ? {
+                ...quiz,
+                question_count: Math.max(0, (quiz.question_count ?? 0) - 1),
+              }
+              : quiz
+          )
+        );
       });
     },
     [startTransition]

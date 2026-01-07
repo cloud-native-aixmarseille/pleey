@@ -1,7 +1,10 @@
 import { ChangeEvent, KeyboardEvent, useEffect, useId, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
-import { Button, BackToButton } from "../../../../../../presentation/shared/ui/components";
+import {
+  BackToButton,
+  PrimaryButton,
+} from "../../../../../../presentation/shared/ui/components";
 import { GUEST_NICKNAME_MAX_LENGTH } from "../constants";
 
 const NICKNAME_SECTION_CLASSES = "mb-8";
@@ -82,8 +85,7 @@ export function GuestNicknameForm({
       </div>
 
       <div className={BUTTON_WRAPPER_CLASSES}>
-        <Button
-          variant="accent"
+        <PrimaryButton
           size="xl"
           fullWidth
           effect="retro"
@@ -96,14 +98,12 @@ export function GuestNicknameForm({
             <span>{t("game.joinGuest.nicknameForm.submit")}</span>
             <span className={BUTTON_ICON_CLASSES}>◄</span>
           </span>
-        </Button>
+        </PrimaryButton>
       </div>
 
       <BackToButton
         label={t("game.joinGuest.nicknameForm.back")}
         onClick={onBack}
-        variant="link"
-        tone="primary"
         alignment="center"
         fullWidth
       />

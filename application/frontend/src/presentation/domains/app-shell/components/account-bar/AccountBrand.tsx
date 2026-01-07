@@ -1,27 +1,28 @@
 import { memo, useMemo } from "react";
+import { Link } from "react-router-dom";
 
 import { Icon } from "../../../../../presentation/shared/ui/icons";
 
 const BRAND_BUTTON_CLASSES =
-  "flex items-center gap-3 rounded-3xl border border-primary-500/35 bg-primary-100/70 px-4 py-2 text-left shadow-neon transition-transform hover:-translate-y-0.5 hover:border-primary-400/60 hover:bg-primary-200/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-light-50 dark:border-primary-500/40 dark:bg-primary-500/20 dark:hover:bg-primary-500/30 dark:focus-visible:ring-primary-400 dark:focus-visible:ring-offset-dark-900";
+  "flex items-center gap-3 rounded-3xl px-4 py-2 text-left transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:[box-shadow:var(--arcade-effect-focus-ring)]";
 const BRAND_ICON_WRAPPER_CLASSES =
-  "hidden h-10 w-10 items-center justify-center rounded-full border border-primary-500/30 bg-primary-200/70 text-primary-900 md:flex dark:border-primary-400/40 dark:bg-primary-500/30 dark:text-primary-100";
+  "hidden h-10 w-10 items-center justify-center rounded-full border md:flex border-[color:color-mix(in_srgb,var(--arcade-color-primary-500)_30%,transparent)] bg-[color:color-mix(in_srgb,var(--arcade-color-primary-500)_10%,var(--arcade-color-surface-elevated))] text-[color:var(--arcade-color-primary-400)]";
 const BRAND_TEXT_STACK_CLASSES = "flex flex-col gap-0.5";
 const BRAND_TITLE_CLASSES =
-  "font-display text-xs uppercase tracking-[0.5em] text-primary-900 dark:text-primary-100";
+  "font-display text-xs uppercase tracking-[0.5em] text-[color:var(--arcade-color-primary-400)] text-neon";
 const BRAND_SUBTITLE_CLASSES =
-  "text-[0.6rem] uppercase tracking-[0.45em] text-dark-400 dark:text-light-400";
+  "text-[0.6rem] uppercase tracking-[0.45em] text-[color:var(--arcade-color-text-muted)]";
 
 interface AccountBrandProps {
   title: string;
   subtitle?: string;
-  onNavigateHome: () => void;
+  to?: string;
 }
 
 function AccountBrandComponent({
   title,
   subtitle,
-  onNavigateHome,
+  to = "/",
 }: AccountBrandProps) {
   const ariaLabel = useMemo(
     () => (subtitle ? `${title} – ${subtitle}` : title),
@@ -29,9 +30,8 @@ function AccountBrandComponent({
   );
 
   return (
-    <button
-      type="button"
-      onClick={onNavigateHome}
+    <Link
+      to={to}
       aria-label={ariaLabel}
       className={BRAND_BUTTON_CLASSES}
       data-account-brand="true"
@@ -45,7 +45,7 @@ function AccountBrandComponent({
           <span className={BRAND_SUBTITLE_CLASSES}>{subtitle}</span>
         ) : null}
       </div>
-    </button>
+    </Link>
   );
 }
 

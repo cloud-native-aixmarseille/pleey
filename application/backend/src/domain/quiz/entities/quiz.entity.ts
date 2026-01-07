@@ -10,6 +10,7 @@ export class Quiz {
     public readonly createdById: number,
     public readonly organizationId: number,
     public readonly createdAt: Date,
+    public readonly questionCount: number = 0,
   ) {}
 
   /**

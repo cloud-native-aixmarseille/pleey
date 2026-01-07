@@ -43,7 +43,7 @@ function PlayersSectionComponent({
           aria-hidden="true"
           className="hidden h-px flex-1 bg-gradient-to-r from-transparent via-primary-500/50 to-transparent sm:block"
         />
-        <ArcadeBadge tone="accent" size="sm" indicator pulse>
+        <ArcadeBadge variant="accent" size="sm" indicator pulse>
           {playerCount}
         </ArcadeBadge>
         <span
@@ -75,7 +75,7 @@ function PlayersSectionComponent({
               >
                 <Card
                   surface="glass"
-                  tone="primary"
+                  variant="primary"
                   padding="sm"
                   elevation="glow"
                   alignment="center"
@@ -101,7 +101,7 @@ function PlayersSectionComponent({
                     >
                       {player.username}
                     </div>
-                    <ArcadeBadge tone="success" size="xs" indicator pulse>
+                    <ArcadeBadge variant="success" size="xs" indicator pulse>
                       {t("game.ready")}
                     </ArcadeBadge>
                   </div>
@@ -118,7 +118,7 @@ function PlayersSectionComponent({
             >
               <Card
                 surface="glass"
-                tone="neutral"
+                variant="neutral"
                 padding="sm"
                 elevation="glow"
                 alignment="center"

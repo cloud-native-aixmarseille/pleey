@@ -64,7 +64,27 @@ export class PrismaQuizRepository implements QuizRepository {
       orderBy: { createdAt: 'desc' },
     });
 
-    return quizzes.map((quiz: PrismaQuiz) => this.toDomain(quiz));
+    const quizIds = quizzes.map((quiz) => quiz.id);
+    const counts = quizIds.length
+      ? await this.prisma.question.groupBy({
+          by: ['quizId'],
+          where: {
+            quizId: {
+              in: quizIds,
+            },
+            deletedAt: null,
+          },
+          _count: {
+            _all: true,
+          },
+        })
+      : [];
+
+    const countByQuizId = new Map<number, number>(
+      counts.map((row) => [row.quizId, row._count._all]),
+    );
+
+    return quizzes.map((quiz: PrismaQuiz) => this.toDomain(quiz, countByQuizId.get(quiz.id) ?? 0));
   }
 
   async findByOrganization(organizationId: number): Promise<Quiz[]> {
@@ -131,7 +151,7 @@ export class PrismaQuizRepository implements QuizRepository {
     return this.toDomain(quiz);
   }
 
-  private toDomain(quiz: PrismaQuiz): Quiz {
+  private toDomain(quiz: PrismaQuiz, questionCount = 0): Quiz {
     return new Quiz(
       quiz.id,
       quiz.title,
@@ -139,6 +159,7 @@ export class PrismaQuizRepository implements QuizRepository {
       quiz.createdById,
       quiz.organizationId,
       quiz.createdAt,
+      questionCount,
     );
   }
 }

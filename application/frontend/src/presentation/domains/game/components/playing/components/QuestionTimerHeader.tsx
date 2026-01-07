@@ -53,7 +53,7 @@ export function QuestionTimerHeader({
     <div className={CONTAINER_CLASSES}>
       <Card
         surface="glass"
-        tone="neutral"
+        variant="neutral"
         padding="lg"
         elevation="glow"
         border="regular"

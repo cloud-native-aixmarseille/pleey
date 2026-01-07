@@ -1,4 +1,4 @@
-import { Button } from "../../../../../../../../presentation/shared/ui/components";
+import { SecondaryButton } from "../../../../../../../../presentation/shared/ui/components";
 import { ShareButton } from "../../../../ShareButton";
 
 const ACTIONS_CONTAINER_CLASSES =
@@ -32,21 +32,14 @@ export function ResultActions({
 
       {isAdmin && (
         <div className={NEXT_BUTTON_WRAPPER_CLASSES}>
-          <Button
-            variant="ghost"
-            tone="neutral"
-            size="xl"
-            effect="glow"
-            fullWidth
-            onClick={onNextQuestion}
-          >
+          <SecondaryButton size="xl" fullWidth onClick={onNextQuestion}>
             <span className={NEXT_BUTTON_CONTENT_CLASSES}>
               <span>{nextQuestionLabel}</span>
               <span className={NEXT_BUTTON_ICON_CLASSES} aria-hidden="true">
                 →
               </span>
             </span>
-          </Button>
+          </SecondaryButton>
         </div>
       )}
     </div>

@@ -130,48 +130,6 @@
 }
 
 @layer components {
-  button[data-arcade-button] {
-    border-color: var(--arcade-btn-border);
-    background: var(--arcade-btn-bg);
-    color: var(--arcade-btn-text);
-    box-shadow: var(--arcade-btn-shadow);
-    transition:
-      transform var(--arcade-transition-base) ease,
-      box-shadow var(--arcade-transition-base) ease,
-      background-color var(--arcade-transition-fast) ease,
-      color var(--arcade-transition-fast) ease;
-  }
-
-  button[data-arcade-button]:hover:not(:disabled):not([aria-disabled="true"]) {
-    background: var(--arcade-btn-bg-hover);
-    color: var(--arcade-btn-text-hover);
-    border-color: var(--arcade-btn-border-hover);
-    box-shadow: var(--arcade-btn-shadow-hover);
-  }
-
-  button[data-arcade-button]:disabled,
-  button[data-arcade-button][aria-disabled="true"] {
-    background: var(--arcade-btn-bg-disabled);
-    color: var(--arcade-btn-text-disabled);
-    border-color: var(--arcade-btn-border-disabled);
-    box-shadow: none;
-    cursor: not-allowed;
-  }
-
-  button[data-arcade-button][data-effect="retro"] {
-    box-shadow: var(--arcade-btn-shadow);
-  }
-
-  button[data-arcade-button][data-effect="retro"]:hover:not(:disabled):not(
-      [aria-disabled="true"]
-    ) {
-    transform: translate(2px, 2px);
-  }
-
-  button[data-arcade-button][data-effect="flat"] {
-    box-shadow: none;
-  }
-
   input[data-arcade-input="true"] {
     background: var(--arcade-input-bg);
     border-color: var(--arcade-input-border);
@@ -216,41 +174,6 @@
   [data-arcade-card="true"][data-interactive]:hover {
     transform: translateY(-4px);
     box-shadow: var(--arcade-card-shadow);
-  }
-
-  /* Button Components - Arcade Style */
-  .btn {
-    @apply px-6 py-3 rounded-lg font-display text-sm uppercase tracking-wider transition-all duration-200 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 border-2 border-current;
-    text-shadow: 0 0 10px currentColor;
-  }
-
-  .btn-primary {
-    @apply bg-primary-500 text-white shadow-neon border-primary-300 hover:shadow-glow-lg focus:ring-primary-300 hover:bg-primary-400;
-  }
-
-  .btn-secondary {
-    @apply bg-secondary-500 text-white shadow-neon-secondary border-secondary-300 hover:shadow-glow-lg focus:ring-secondary-300 hover:bg-secondary-400;
-  }
-
-  .btn-accent {
-    @apply bg-accent-500 text-dark-500 shadow-neon-accent border-accent-300 hover:shadow-glow-lg focus:ring-accent-300 hover:bg-accent-400 font-black;
-  }
-
-  .btn-success {
-    @apply bg-success-500 text-dark-500 shadow-neon border-success-300 hover:shadow-glow-lg focus:ring-success-300 hover:bg-success-400;
-  }
-
-  .btn-danger {
-    @apply bg-danger-500 text-white shadow-neon border-danger-300 hover:shadow-glow-lg focus:ring-danger-300 hover:bg-danger-400;
-  }
-
-  .btn-outline {
-    @apply bg-transparent border-2 border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white focus:ring-primary-300 shadow-neon;
-  }
-
-  .btn-ghost {
-    @apply bg-light-50/70 backdrop-blur-sm text-primary-800 hover:bg-primary-500/10 focus:ring-primary-300 border-primary-500/30;
-    @apply dark:bg-dark-400/30 dark:text-accent-500 dark:hover:bg-dark-400/50 dark:focus:ring-accent-300 dark:border-accent-500/50;
   }
 
   /* Card Components - Retro Style */
@@ -532,7 +455,6 @@
       text-shadow: none !important;
     }
 
-    .btn,
     .card,
     .input {
       border-width: 3px !important;
@@ -543,20 +465,10 @@
     .shadow-neon-accent {
       box-shadow: none !important;
     }
-
-    /* Ensure sufficient contrast in high contrast mode */
-    .btn-primary {
-      @apply bg-primary-600 border-primary-400;
-    }
-
-    .btn-danger {
-      @apply bg-danger-700 border-danger-400;
-    }
   }
 
   /* Forced Colors Mode (Windows High Contrast) */
   @media (forced-colors: active) {
-    .btn,
     .card,
     input,
     button {

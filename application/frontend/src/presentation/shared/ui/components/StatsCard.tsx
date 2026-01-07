@@ -76,7 +76,7 @@ export function StatsCard({
   return (
     <Card
       surface={config.surface}
-      tone={config.tone}
+      variant={config.tone}
       elevation={config.elevation}
       padding="lg"
     >

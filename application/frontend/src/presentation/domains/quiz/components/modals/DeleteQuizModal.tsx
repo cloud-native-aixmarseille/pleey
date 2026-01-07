@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import {
-  Button,
+  DangerButton,
   Modal,
   SecondaryButton,
 } from "../../../../../presentation/shared/ui/components";
@@ -39,14 +39,13 @@ export function DeleteQuizModal({
           >
             {t("common.cancel")}
           </SecondaryButton>
-          <Button
+          <DangerButton
             type="button"
-            variant="danger"
             onClick={onConfirm}
             disabled={isProcessing}
           >
             {isProcessing ? t("common.loading") : t("admin.confirmDelete")}
-          </Button>
+          </DangerButton>
         </>
       }
     >

@@ -222,19 +222,16 @@ describe("QuizApp", () => {
       { timeout: 5000 }
     );
 
-    // Find and click the launch button for the empty quiz
+    // Launch button should be disabled for an empty quiz
     const launchButtons = await screen.findAllByRole("button", {
       name: /launch/i,
     });
     expect(launchButtons.length).toBeGreaterThan(0);
-    await user.click(launchButtons[0]);
+    expect(launchButtons[0]).toBeDisabled();
 
-    // Should show alert about needing questions
-    await waitFor(() => {
-      expect(alertMock).toHaveBeenCalledWith(
-        expect.stringContaining("Add at least one question")
-      );
-    });
+    // Ensure clicking does nothing when disabled
+    await user.click(launchButtons[0]);
+    expect(alertMock).not.toHaveBeenCalled();
 
     // Verify no session creation API call was made
     const createSessionCall = globalThis.fetch.mock.calls.find(

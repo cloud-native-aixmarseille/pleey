@@ -1,9 +1,9 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
 import {
-  Button,
   Input,
   PrimaryButton,
+  SecondaryButton,
 } from "../../../../../../presentation/shared/ui/components";
 import type { User } from "../../../../../../domains/auth/types";
 
@@ -103,17 +103,15 @@ export function ProfileForm({
             {disableSave ? loadingLabel : saveLabel}
           </PrimaryButton>
         </div>
-        <Button
+        <SecondaryButton
           type="button"
-          variant="ghost"
-          tone="neutral"
           effect="flat"
           onClick={handleReset}
           disabled={!isDirty || isSaving || isSubmitting}
           fullWidth
         >
           {cancelLabel}
-        </Button>
+        </SecondaryButton>
       </div>
     </form>
   );

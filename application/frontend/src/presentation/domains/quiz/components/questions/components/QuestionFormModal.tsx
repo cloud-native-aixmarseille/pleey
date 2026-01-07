@@ -2,9 +2,9 @@ import { useEffect, useRef, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ArcadeToggleGroup,
-  Button,
   Input,
   Modal,
+  PrimaryButton,
   SecondaryButton,
 } from "../../../../../../presentation/shared/ui/components";
 import type {
@@ -99,10 +99,9 @@ export function QuestionFormModal({
           >
             {t("quiz.cancel")}
           </SecondaryButton>
-          <Button
+          <PrimaryButton
             type="submit"
             form="question-form"
-            variant="accent"
             disabled={isSubmitting}
           >
             {isSubmitting
@@ -110,7 +109,7 @@ export function QuestionFormModal({
               : mode === "create"
               ? t("quiz.save")
               : t("quiz.saveChanges")}
-          </Button>
+          </PrimaryButton>
         </>
       }
     >

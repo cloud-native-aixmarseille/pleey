@@ -1,6 +1,6 @@
 import {
   ArcadeProgressBar,
-  Button,
+  PrimaryButton,
 } from "../../../../../../presentation/shared/ui/components";
 import type { AnswerResult } from "../../../../../../domains/game/types";
 import type { Question } from "../../../../../../domains/quiz/types";
@@ -280,8 +280,7 @@ export function ResultsDisplay({
         )}
 
         <div className={CTA_WRAPPER_CLASSES}>
-          <Button
-            variant="accent"
+          <PrimaryButton
             size="xl"
             fullWidth
             effect="retro"
@@ -296,7 +295,7 @@ export function ResultsDisplay({
                 ◀
               </span>
             </span>
-          </Button>
+          </PrimaryButton>
         </div>
       </div>
     </div>

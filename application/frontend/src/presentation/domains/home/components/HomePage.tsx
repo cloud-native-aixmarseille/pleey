@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   ArcadePage,
-  Button,
   Card,
   PrimaryButton,
+  SecondaryButton,
 } from "../../../../presentation/shared/ui/components";
 import { QuickSettingsMenu } from "../../app-shell/components/QuickSettingsMenu";
 
@@ -49,9 +49,6 @@ const FEATURE_LABEL_SECONDARY_CLASSES =
 const ACTIONS_WRAPPER_CLASSES = "space-y-4";
 const ACTION_BUTTON_CONTAINER_CLASSES = "sm:w-auto";
 const ACTION_BUTTON_CONTENT_CLASSES = "flex items-center justify-center gap-3";
-
-const AUTH_CTA_WRAPPER_CLASSES =
-  "rounded-[var(--arcade-radius-lg)] border border-primary-500/20 bg-light-50/70 p-[2px] dark:bg-dark-700/40";
 
 const FOOTER_WRAPPER_CLASSES = "mt-8 border-t-2 border-primary-500/30 pt-6";
 const FOOTER_PRIMARY_TEXT_CLASSES =
@@ -151,19 +148,16 @@ export default function HomePage() {
                     </PrimaryButton>
                   </div>
                   <div className={ACTION_BUTTON_CONTAINER_CLASSES}>
-                    <div className={AUTH_CTA_WRAPPER_CLASSES}>
-                      <Button
-                        variant="ghost"
-                        tone="accent"
-                        size="md"
-                        fullWidth
-                        onClick={() => navigate("/auth/register")}
-                      >
-                        <span className={ACTION_BUTTON_CONTENT_CLASSES}>
-                          <span>{t("home.signup")}</span>
-                        </span>
-                      </Button>
-                    </div>
+                    <SecondaryButton
+                      size="md"
+                      fullWidth
+                      onClick={() => navigate("/auth/register")}
+                      effect="retro"
+                    >
+                      <span className={ACTION_BUTTON_CONTENT_CLASSES}>
+                        <span>{t("home.signup")}</span>
+                      </span>
+                    </SecondaryButton>
                   </div>
                 </div>
 

@@ -1,8 +1,9 @@
 import { useTranslation } from "react-i18next";
 import {
   ArcadeBadge,
-  Button,
   Card,
+  DangerButton,
+  SecondaryButton,
 } from "../../../../../../presentation/shared/ui/components";
 import type { Question } from "../../../../../../domains/quiz/types";
 import type { ArcadeBadgeTone } from "../../../../../../presentation/shared/ui/components/ArcadeBadge";
@@ -74,7 +75,7 @@ export function QuestionCard({
     >
       <Card
         surface="glass"
-        tone="neutral"
+        variant="neutral"
         padding="md"
         border="regular"
         elevation="glow"
@@ -89,11 +90,14 @@ export function QuestionCard({
             </h3>
           </div>
           <div className={ACTION_GROUP_CLASSES}>
-            <Button variant="ghost" size="sm" onClick={() => onEdit(question)}>
+            <SecondaryButton
+              size="sm"
+              effect="flat"
+              onClick={() => onEdit(question)}
+            >
               {t("quiz.editQuestion")}
-            </Button>
-            <Button
-              variant="danger"
+            </SecondaryButton>
+            <DangerButton
               size="sm"
               onClick={() => onDelete(question)}
               aria-label={t("quiz.deleteQuestion")}
@@ -102,9 +106,9 @@ export function QuestionCard({
               <span className={SR_ONLY_TEXT_CLASSES}>
                 {t("quiz.deleteQuestion")}
               </span>
-            </Button>
+            </DangerButton>
           </div>
-          <ArcadeBadge tone={TYPE_BADGE_TONES[badgeType]}>
+          <ArcadeBadge variant={TYPE_BADGE_TONES[badgeType]}>
             {isMultipleChoice
               ? t("quiz.multipleChoiceShort")
               : t("quiz.trueFalseShort")}

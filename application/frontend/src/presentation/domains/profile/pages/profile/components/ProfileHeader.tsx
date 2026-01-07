@@ -1,6 +1,6 @@
 import {
   Avatar,
-  Button,
+  SecondaryButton,
 } from "../../../../../../presentation/shared/ui/components";
 import type { User } from "../../../../../../domains/auth/types";
 
@@ -45,15 +45,14 @@ export function ProfileHeader({
         </div>
       </div>
       <div className={ACTIONS_STACK_CLASSES}>
-        <Button
+        <SecondaryButton
           type="button"
-          variant="outline"
           onClick={onRegenerate}
           disabled={disableRegenerate}
           fullWidth
         >
           {isRegenerating ? loadingLabel : regenerateLabel}
-        </Button>
+        </SecondaryButton>
       </div>
     </div>
   );

@@ -22,12 +22,7 @@ export function RegisterHeader({
   return (
     <div className={HEADER_CONTAINER_CLASSES}>
       <div className={HEADER_BACK_WRAPPER_CLASSES}>
-        <BackToButton
-          label={backLabel}
-          onClick={onBack}
-          variant="ghost"
-          tone="light"
-        />
+        <BackToButton label={backLabel} onClick={onBack} />
       </div>
       <h2 className={HEADER_TITLE_CLASSES}>{title}</h2>
       <p className={HEADER_SUBTITLE_CLASSES}>{subtitle}</p>

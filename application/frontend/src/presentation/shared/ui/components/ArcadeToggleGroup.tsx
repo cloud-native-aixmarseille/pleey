@@ -1,6 +1,8 @@
 import { type ReactNode } from "react";
 import { composeClasses } from "../../utils/composeClasses";
 import type { ArcadeBadgeTone } from "./ArcadeBadge";
+import { PrimaryButton } from "./buttons/PrimaryButton";
+import { SecondaryButton } from "./buttons/SecondaryButton";
 
 type ArcadeToggleSize = "sm" | "md";
 
@@ -132,11 +134,15 @@ export function ArcadeToggleGroup<T extends string>({
           isActive ? ACTIVE_TONE_CLASS_MAP[tone] : INACTIVE_TONE_CLASS_MAP[tone]
         );
 
+        const ToggleButton = isActive ? PrimaryButton : SecondaryButton;
+
         return (
-          <button
+          <ToggleButton
             key={option.value}
             type="button"
             onClick={() => handleClick(option.value)}
+            effect="flat"
+            size="sm"
             className={buttonClassName}
             role={multiSelect ? "checkbox" : "radio"}
             aria-checked={isActive}
@@ -148,7 +154,7 @@ export function ArcadeToggleGroup<T extends string>({
               </span>
             ) : null}
             <span className="whitespace-nowrap">{option.label}</span>
-          </button>
+          </ToggleButton>
         );
       })}
     </div>

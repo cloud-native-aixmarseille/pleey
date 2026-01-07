@@ -100,7 +100,7 @@ type BaseCardProps = Omit<
 export interface CardProps extends BaseCardProps {
   children: ReactNode;
   surface?: CardSurface;
-  tone?: CardTone;
+  variant?: CardTone;
   padding?: CardPadding;
   elevation?: CardElevation;
   border?: "none" | "thin" | "regular" | "thick";
@@ -136,8 +136,11 @@ const MOTION_CLASS_MAP: Record<CardMotion, string> = {
   "slide-down": "animate-slide-down",
 };
 
-function resolveToneColor(tone: CardTone, theme: ReturnType<typeof useTheme>) {
-  switch (tone) {
+function resolveVariantColor(
+  variant: CardTone,
+  theme: ReturnType<typeof useTheme>
+) {
+  switch (variant) {
     case "secondary":
       return theme.palette.secondary;
     case "accent":
@@ -158,10 +161,10 @@ function resolveToneColor(tone: CardTone, theme: ReturnType<typeof useTheme>) {
 
 function resolveSurfaceTokens(
   surface: CardSurface,
-  tone: CardTone,
+  variant: CardTone,
   theme: ReturnType<typeof useTheme>
 ): CardSurfaceTokens {
-  const tonePalette = resolveToneColor(tone, theme);
+  const tonePalette = resolveVariantColor(variant, theme);
   const lightTheme = isLightTheme(theme);
 
   switch (surface) {
@@ -236,7 +239,7 @@ export const Card = forwardRef<HTMLElement, CardProps>(
     {
       children,
       surface = "base",
-      tone = "primary",
+      variant = "primary",
       padding = "lg",
       elevation = "glow",
       border = "regular",
@@ -253,8 +256,8 @@ export const Card = forwardRef<HTMLElement, CardProps>(
   ) => {
     const theme = useTheme();
     const resolvedSurface = useMemo(
-      () => resolveSurfaceTokens(surface, tone, theme),
-      [surface, tone, theme]
+      () => resolveSurfaceTokens(surface, variant, theme),
+      [surface, variant, theme]
     );
     const resolvedShadow = useMemo(
       () => resolveElevationShadow(elevation, theme),

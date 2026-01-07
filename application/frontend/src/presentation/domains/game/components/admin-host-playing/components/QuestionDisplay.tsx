@@ -26,7 +26,7 @@ export function QuestionDisplay({ question }: QuestionDisplayProps) {
   return (
     <Card
       surface="panel"
-      tone="neutral"
+      variant="neutral"
       padding="xl"
       border="thick"
       elevation="glow"
@@ -36,7 +36,7 @@ export function QuestionDisplay({ question }: QuestionDisplayProps) {
     >
       <div className={QUESTION_CARD_CONTENT_CLASSES}>
         <div className={QUESTION_BADGE_WRAPPER_CLASSES}>
-          <ArcadeBadge tone={badgeTone} size="sm">
+          <ArcadeBadge variant={badgeTone} size="sm">
             {questionTypeLabel}
           </ArcadeBadge>
         </div>

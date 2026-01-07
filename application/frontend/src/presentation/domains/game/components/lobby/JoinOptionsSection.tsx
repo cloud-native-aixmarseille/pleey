@@ -5,8 +5,8 @@ import {
   ArcadeBadge,
   ArcadeCardGrid,
   ArcadeGlassStack,
-  Button,
   Card,
+  PrimaryButton,
 } from "../../../../../presentation/shared/ui/components";
 import { PinCharacter } from "./types";
 import { composeClasses } from "../../../../shared/utils/composeClasses";
@@ -62,7 +62,7 @@ export default function JoinOptionsSection({
         <div className="flex h-full flex-col">
           <Card
             surface="glass"
-            tone="accent"
+            variant="accent"
             padding="md"
             elevation="glow"
             border="regular"
@@ -70,7 +70,7 @@ export default function JoinOptionsSection({
           >
             <div className="flex h-full flex-col gap-5 text-center sm:text-left">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <ArcadeBadge tone="accent" size="sm">
+                <ArcadeBadge variant="accent" size="sm">
                   {t("game.joinStepLabel", { step: "1" })}
                 </ArcadeBadge>
                 <span className="font-display text-xl uppercase tracking-[0.24em] text-dark-900 dark:text-light-100 sm:text-2xl">
@@ -103,7 +103,7 @@ export default function JoinOptionsSection({
         <div className="flex h-full flex-col">
           <Card
             surface="glass"
-            tone="primary"
+            variant="primary"
             padding="none"
             elevation="glow"
             border="regular"
@@ -112,7 +112,7 @@ export default function JoinOptionsSection({
           >
             <div className="flex h-full flex-col gap-5 bg-light-50/70 px-5 py-5 text-dark-500 dark:bg-gradient-to-br dark:from-primary-900/60 dark:via-dark-700/75 dark:to-dark-800/80 dark:text-light-100 sm:px-6">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <ArcadeBadge tone="primary" size="sm">
+                <ArcadeBadge variant="primary" size="sm">
                   {t("game.joinStepLabel", { step: "2" })}
                 </ArcadeBadge>
                 <span className="font-display text-xl uppercase tracking-[0.24em] text-dark-900 dark:text-light-100 sm:text-2xl">
@@ -169,11 +169,9 @@ export default function JoinOptionsSection({
                 >
                   {pinAriaLabel}
                 </span>
-                <Button
-                  variant={copiedPin ? "success" : "accent"}
-                  tone={copiedPin ? "success" : "accent"}
+                <PrimaryButton
                   size="md"
-                  effect="glow"
+                  effect="retro"
                   onClick={copyPinToClipboard}
                   aria-describedby={
                     copyStatusMessage ? copyFeedbackId : undefined
@@ -182,11 +180,9 @@ export default function JoinOptionsSection({
                 >
                   <span className="flex items-center gap-3">
                     <span aria-hidden="true">{copiedPin ? "✓" : "📋"}</span>
-                    <span>
-                      {copiedPin ? t("game.copied") : t("game.copyPin")}
-                    </span>
+                    <span>{t(copiedPin ? "game.copied" : "game.copyPin")}</span>
                   </span>
-                </Button>
+                </PrimaryButton>
               </div>
             </div>
           </Card>
@@ -195,7 +191,7 @@ export default function JoinOptionsSection({
         <div className="md:col-span-2">
           <Card
             surface="glass"
-            tone="neutral"
+            variant="neutral"
             padding="md"
             elevation="glow"
             border="regular"
