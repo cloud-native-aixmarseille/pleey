@@ -5,6 +5,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
+    setupFiles: [resolve(__dirname, './vitest.e2e.setup.ts')],
     include: ['**/*.e2e-spec.ts'],
     coverage: {
       provider: 'v8',
