@@ -6,6 +6,12 @@ import {
   ThemeProvider,
 } from "../../../../presentation/shared/ui/theme";
 
+vi.mock("../../auth", () => ({
+  useAuthManagerContext: () => ({
+    hasRestoredSession: true,
+  }),
+}));
+
 const mockNavigate = vi.fn();
 
 vi.mock("react-router-dom", async () => {

@@ -538,6 +538,9 @@
   },
   "common": {
     "loading": "Loading...",
+    "patience": {
+      "aria": "Still working — please wait."
+    },
     "error": "Error",
     "success": "Success",
     "logout": "Logout",

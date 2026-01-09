@@ -8,6 +8,11 @@ import {
   SecondaryButton,
 } from "../../../../presentation/shared/ui/components";
 import { QuickSettingsMenu } from "../../app-shell/components/QuickSettingsMenu";
+import {
+  PatienceOverlay,
+  PatiencePlayground,
+} from "../../../shared/ui/patience";
+import { useUserIdle } from "../../../shared/ui/patience/hooks/useUserIdle";
 
 const OVERLAY_CONTENT = (
   <>
@@ -59,6 +64,7 @@ const FOOTER_SECONDARY_TEXT_CLASSES =
 export default function HomePage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const isIdle = useUserIdle(true, 10_000);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -86,94 +92,98 @@ export default function HomePage() {
 
   return (
     <div className="crt-screen">
-      <ArcadePage
-        variant="gradient"
-        padding="lg"
-        disableVerticalPadding
-        contentWidth="md"
-        align="center"
-        verticalAlign="center"
-        gap="lg"
-        overlays={OVERLAY_CONTENT}
-      >
-        <div className={CONTENT_WRAPPER_CLASSES}>
-          <QuickSettingsMenu className={QUICK_SETTINGS_WRAPPER_CLASSES} />
+      <PatiencePlayground className="relative">
+        <ArcadePage
+          variant="gradient"
+          padding="lg"
+          disableVerticalPadding
+          contentWidth="md"
+          align="center"
+          verticalAlign="center"
+          gap="lg"
+          overlays={OVERLAY_CONTENT}
+        >
+          <div className={CONTENT_WRAPPER_CLASSES}>
+            <QuickSettingsMenu className={QUICK_SETTINGS_WRAPPER_CLASSES} />
 
-          <div className={HERO_CARD_WRAPPER_CLASSES}>
-            <Card padding="xl" surface="panel" border="none" motion="scale">
-              <div className={HERO_CARD_CONTENT_CLASSES}>
-                <div>
-                  <div className={HERO_ICON_CLASSES}>🕹️</div>
-                  <h1 className={HERO_TITLE_CLASSES}>{t("home.title")}</h1>
-                  <div className={HERO_SUBTITLE_WRAPPER_CLASSES}>
-                    <div className={HERO_SUBTITLE_OVERLAY_CLASSES} />
-                    <p className={HERO_SUBTITLE_TEXT_CLASSES}>
-                      {t("home.subtitle")}
+            <div className={HERO_CARD_WRAPPER_CLASSES}>
+              <Card padding="xl" surface="panel" border="none" motion="scale">
+                <div className={HERO_CARD_CONTENT_CLASSES}>
+                  <div>
+                    <div className={HERO_ICON_CLASSES}>🕹️</div>
+                    <h1 className={HERO_TITLE_CLASSES}>{t("home.title")}</h1>
+                    <div className={HERO_SUBTITLE_WRAPPER_CLASSES}>
+                      <div className={HERO_SUBTITLE_OVERLAY_CLASSES} />
+                      <p className={HERO_SUBTITLE_TEXT_CLASSES}>
+                        {t("home.subtitle")}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className={FEATURE_GRID_CLASSES}>
+                    <div className={FEATURE_CARD_PRIMARY_CLASSES}>
+                      <div className={FEATURE_ICON_CLASSES}>⚡</div>
+                      <p className={FEATURE_LABEL_PRIMARY_CLASSES}>
+                        {t("home.fast")}
+                      </p>
+                    </div>
+                    <div className={FEATURE_CARD_SECONDARY_CLASSES}>
+                      <div className={FEATURE_ICON_CLASSES}>🎯</div>
+                      <p className={FEATURE_LABEL_SECONDARY_CLASSES}>
+                        {t("home.epic")}
+                      </p>
+                    </div>
+                    <div className={FEATURE_CARD_ACCENT_CLASSES}>
+                      <div className={FEATURE_ICON_CLASSES}>🏆</div>
+                      <p className={FEATURE_LABEL_PRIMARY_CLASSES}>
+                        {t("home.win")}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className={ACTIONS_WRAPPER_CLASSES}>
+                    <div className={ACTION_BUTTON_CONTAINER_CLASSES}>
+                      <PrimaryButton
+                        size="lg"
+                        fullWidth
+                        effect="retro"
+                        onClick={() => navigate("/auth/login")}
+                      >
+                        <span className={ACTION_BUTTON_CONTENT_CLASSES}>
+                          <span>{t("home.login")}</span>
+                        </span>
+                      </PrimaryButton>
+                    </div>
+                    <div className={ACTION_BUTTON_CONTAINER_CLASSES}>
+                      <SecondaryButton
+                        size="md"
+                        fullWidth
+                        onClick={() => navigate("/auth/register")}
+                        effect="retro"
+                      >
+                        <span className={ACTION_BUTTON_CONTENT_CLASSES}>
+                          <span>{t("home.signup")}</span>
+                        </span>
+                      </SecondaryButton>
+                    </div>
+                  </div>
+
+                  <div className={FOOTER_WRAPPER_CLASSES}>
+                    <p className={FOOTER_PRIMARY_TEXT_CLASSES}>
+                      {t("home.insertCoin")}
+                    </p>
+                    <p className={FOOTER_SECONDARY_TEXT_CLASSES}>
+                      {t("home.playersOnline")}
                     </p>
                   </div>
                 </div>
-
-                <div className={FEATURE_GRID_CLASSES}>
-                  <div className={FEATURE_CARD_PRIMARY_CLASSES}>
-                    <div className={FEATURE_ICON_CLASSES}>⚡</div>
-                    <p className={FEATURE_LABEL_PRIMARY_CLASSES}>
-                      {t("home.fast")}
-                    </p>
-                  </div>
-                  <div className={FEATURE_CARD_SECONDARY_CLASSES}>
-                    <div className={FEATURE_ICON_CLASSES}>🎯</div>
-                    <p className={FEATURE_LABEL_SECONDARY_CLASSES}>
-                      {t("home.epic")}
-                    </p>
-                  </div>
-                  <div className={FEATURE_CARD_ACCENT_CLASSES}>
-                    <div className={FEATURE_ICON_CLASSES}>🏆</div>
-                    <p className={FEATURE_LABEL_PRIMARY_CLASSES}>
-                      {t("home.win")}
-                    </p>
-                  </div>
-                </div>
-
-                <div className={ACTIONS_WRAPPER_CLASSES}>
-                  <div className={ACTION_BUTTON_CONTAINER_CLASSES}>
-                    <PrimaryButton
-                      size="lg"
-                      fullWidth
-                      effect="retro"
-                      onClick={() => navigate("/auth/login")}
-                    >
-                      <span className={ACTION_BUTTON_CONTENT_CLASSES}>
-                        <span>{t("home.login")}</span>
-                      </span>
-                    </PrimaryButton>
-                  </div>
-                  <div className={ACTION_BUTTON_CONTAINER_CLASSES}>
-                    <SecondaryButton
-                      size="md"
-                      fullWidth
-                      onClick={() => navigate("/auth/register")}
-                      effect="retro"
-                    >
-                      <span className={ACTION_BUTTON_CONTENT_CLASSES}>
-                        <span>{t("home.signup")}</span>
-                      </span>
-                    </SecondaryButton>
-                  </div>
-                </div>
-
-                <div className={FOOTER_WRAPPER_CLASSES}>
-                  <p className={FOOTER_PRIMARY_TEXT_CLASSES}>
-                    {t("home.insertCoin")}
-                  </p>
-                  <p className={FOOTER_SECONDARY_TEXT_CLASSES}>
-                    {t("home.playersOnline")}
-                  </p>
-                </div>
-              </div>
-            </Card>
+              </Card>
+            </div>
           </div>
-        </div>
-      </ArcadePage>
+        </ArcadePage>
+
+        <PatienceOverlay active={isIdle} />
+      </PatiencePlayground>
     </div>
   );
 }
