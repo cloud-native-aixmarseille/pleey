@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import JoinGameWithGuestPage from "../components/JoinGameWithGuestPage";
+import JoinGamePage from "../components/join-game/JoinGamePage";
 import { useAuthManagerContext } from "../../auth";
 import { useGameSessionContext } from "../contexts/GameSessionContext";
 import { useGuestSessionContext } from "../contexts/GuestSessionContext";
@@ -35,7 +35,7 @@ export function JoinGameRoute() {
 
   return (
     <PatiencePlayground className="relative">
-      <JoinGameWithGuestPage
+      <JoinGamePage
         gamePin={gamePin}
         onGamePinChange={setGamePin}
         onJoinGame={handleJoinGame}

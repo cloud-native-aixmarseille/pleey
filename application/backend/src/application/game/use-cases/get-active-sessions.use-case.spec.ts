@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { GameSession } from '../../../domain/game/entities/game-session.entity';
 import type { GameSessionRepository } from '../../../domain/game/repositories/game-session.repository.interface';
+import { createGameSessionFixture } from '../../../test-utils/fixtures';
+import { createGameSessionRepositoryMock } from '../../../test-utils/mock-factories';
 import { GetActiveSessionsUseCase } from './get-active-sessions.use-case';
 
 describe('GetActiveSessionsUseCase', () => {
@@ -8,57 +9,58 @@ describe('GetActiveSessionsUseCase', () => {
   let mockGameSessionRepository: GameSessionRepository;
 
   beforeEach(() => {
-    mockGameSessionRepository = {
-      create: vi.fn(),
-      findByPin: vi.fn(),
-      findById: vi.fn(),
-      findActiveByAdminId: vi.fn(),
-      findActiveByQuizId: vi.fn(),
-      findByQuizId: vi.fn(),
-      updateStatus: vi.fn(),
-      updateCurrentQuestion: vi.fn(),
-      countActiveByQuizId: vi.fn(),
-      deleteOldSessions: vi.fn(),
-      findByOrganization: vi.fn(),
-    };
+    mockGameSessionRepository = createGameSessionRepositoryMock();
 
     useCase = new GetActiveSessionsUseCase(mockGameSessionRepository);
   });
 
   describe('execute', () => {
-    it('should return all active sessions for an admin', async () => {
+    it('should return all active sessions for a host', async () => {
       const mockSessions = [
-        new GameSession(1, 10, 100, 1, '123456', 'active', 2, new Date()),
-        new GameSession(2, 11, 100, 1, '789012', 'paused', 1, new Date()),
+        createGameSessionFixture({
+          status: 'active',
+        }),
+        createGameSessionFixture({
+          id: 2,
+          status: 'paused',
+        }),
       ];
 
-      vi.spyOn(mockGameSessionRepository, 'findActiveByAdminId').mockResolvedValue(mockSessions);
+      vi.spyOn(mockGameSessionRepository, 'findActiveByHostId').mockResolvedValue(mockSessions);
 
       const result = await useCase.execute(100);
 
       expect(result).toHaveLength(2);
       expect(result[0].status).toBe('active');
       expect(result[1].status).toBe('paused');
-      expect(mockGameSessionRepository.findActiveByAdminId).toHaveBeenCalledWith(100);
+      expect(mockGameSessionRepository.findActiveByHostId).toHaveBeenCalledWith(100);
     });
 
-    it('should return empty array when admin has no active sessions', async () => {
-      vi.spyOn(mockGameSessionRepository, 'findActiveByAdminId').mockResolvedValue([]);
+    it('should return empty array when host has no active sessions', async () => {
+      vi.spyOn(mockGameSessionRepository, 'findActiveByHostId').mockResolvedValue([]);
 
       const result = await useCase.execute(100);
 
       expect(result).toHaveLength(0);
-      expect(mockGameSessionRepository.findActiveByAdminId).toHaveBeenCalledWith(100);
+      expect(mockGameSessionRepository.findActiveByHostId).toHaveBeenCalledWith(100);
     });
 
     it('should only return waiting, active, and paused sessions', async () => {
       const mockSessions = [
-        new GameSession(1, 10, 100, 1, '123456', 'waiting', 0, new Date()),
-        new GameSession(2, 11, 100, 1, '789012', 'active', 2, new Date()),
-        new GameSession(3, 12, 100, 1, '345678', 'paused', 1, new Date()),
+        createGameSessionFixture({
+          status: 'waiting',
+        }),
+        createGameSessionFixture({
+          id: 2,
+          status: 'active',
+        }),
+        createGameSessionFixture({
+          id: 3,
+          status: 'paused',
+        }),
       ];
 
-      vi.spyOn(mockGameSessionRepository, 'findActiveByAdminId').mockResolvedValue(mockSessions);
+      vi.spyOn(mockGameSessionRepository, 'findActiveByHostId').mockResolvedValue(mockSessions);
 
       const result = await useCase.execute(100);
 

@@ -1,15 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { authService } from "./auth.service";
 import { fetchClient } from "../../infrastructure/http/api/openapiClient";
-
-type PostResult = Awaited<ReturnType<typeof fetchClient.POST>>;
-
-const createPostResult = (overrides: Partial<PostResult>): PostResult => ({
-  data: undefined,
-  error: undefined,
-  response: new Response(),
-  ...overrides,
-});
+import { createFetchClientResult } from "../../test/mock-factories/openapi-client.mock-factory";
+import {
+  createAuthResponsePayloadFixture,
+  createUserFixture,
+} from "../../test/fixtures";
 
 describe("AuthService", () => {
   beforeEach(() => {
@@ -18,22 +14,16 @@ describe("AuthService", () => {
 
   describe("login", () => {
     it("should successfully login with valid credentials", async () => {
-      const mockResponse = {
+      const mockResponse = createAuthResponsePayloadFixture({
         token: "legacy-token",
         accessToken: "mock-jwt-token",
         refreshToken: "mock-refresh-token",
         expiresIn: 7200,
-        user: {
-          id: 1,
-          username: "testuser",
-          email: "test@example.com",
-          isAdmin: false,
-          avatarUrl: null,
-        },
-      };
+        user: createUserFixture(),
+      });
 
       const postSpy = vi.spyOn(fetchClient, "POST");
-      postSpy.mockResolvedValueOnce(createPostResult({ data: mockResponse }));
+      postSpy.mockResolvedValueOnce(createFetchClientResult<"POST">({ data: mockResponse }));
 
       const result = await authService.login("test@example.com", "password123");
 
@@ -58,7 +48,7 @@ describe("AuthService", () => {
     it("should handle login failure", async () => {
       const postSpy = vi.spyOn(fetchClient, "POST");
       postSpy.mockResolvedValueOnce(
-        createPostResult({
+        createFetchClientResult<"POST">({
           data: undefined,
           error: new Error("Network error"),
         }),
@@ -73,7 +63,7 @@ describe("AuthService", () => {
   describe("register", () => {
     it("should successfully register a new user", async () => {
       const postSpy = vi.spyOn(fetchClient, "POST");
-      postSpy.mockResolvedValueOnce(createPostResult({ data: undefined }));
+      postSpy.mockResolvedValueOnce(createFetchClientResult<"POST">({ data: undefined }));
 
       await authService.register("newuser", "new@example.com", "password123");
 
@@ -92,7 +82,7 @@ describe("AuthService", () => {
     it("should throw error when registration fails", async () => {
       const postSpy = vi.spyOn(fetchClient, "POST");
       postSpy.mockResolvedValueOnce(
-        createPostResult({
+        createFetchClientResult<"POST">({
           data: undefined,
           error: new Error("Password too short"),
         }),
@@ -106,16 +96,12 @@ describe("AuthService", () => {
 
   describe("regenerateAvatar", () => {
     it("should regenerate avatar successfully", async () => {
-      const mockUser = {
-        id: 1,
-        username: "testuser",
-        email: "test@example.com",
-        isAdmin: false,
+      const mockUser = createUserFixture({
         avatarUrl: "/api/avatars/users/1?v=fingerprint",
-      };
+      });
 
       const postSpy = vi.spyOn(fetchClient, "POST");
-      postSpy.mockResolvedValueOnce(createPostResult({ data: mockUser }));
+      postSpy.mockResolvedValueOnce(createFetchClientResult<"POST">({ data: mockUser }));
 
       const result = await authService.regenerateAvatar();
 
@@ -127,7 +113,7 @@ describe("AuthService", () => {
     it("should throw error when regeneration fails", async () => {
       const postSpy = vi.spyOn(fetchClient, "POST");
       postSpy.mockResolvedValueOnce(
-        createPostResult({ data: undefined, error: new Error("Unauthorized") }),
+        createFetchClientResult<"POST">({ data: undefined, error: new Error("Unauthorized") }),
       );
 
       await expect(authService.regenerateAvatar()).rejects.toThrow(

@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { QuizHttpRepository } from "./quiz-http.repository";
 import type { Quiz, Question } from "../types";
+import { createQuestionFixture, createQuizFixture } from "../../../test/fixtures";
 
 // Mock fetch
-global.fetch = vi.fn();
+globalThis.fetch = vi.fn();
 
 describe("QuizHttpRepository", () => {
   let repository: QuizHttpRepository;
@@ -16,13 +17,7 @@ describe("QuizHttpRepository", () => {
   describe("getQuizzes", () => {
     it("should fetch all quizzes", async () => {
       const mockQuizzes: Quiz[] = [
-        {
-          id: 1,
-          title: "Quiz 1",
-          description: "Description 1",
-          created_by: 1,
-          created_at: "2025-11-04T00:00:00Z",
-        },
+        createQuizFixture(),
       ];
 
       vi.mocked(fetch).mockResolvedValueOnce({
@@ -52,19 +47,7 @@ describe("QuizHttpRepository", () => {
   describe("getQuestions", () => {
     it("should fetch questions for a quiz", async () => {
       const mockQuestions: Question[] = [
-        {
-          id: 1,
-          quiz_id: 1,
-          question_text: "What is 2+2?",
-          type: "multiple_choice",
-          correct_answer: "A",
-          option_a: "4",
-          option_b: "3",
-          option_c: "5",
-          option_d: "6",
-          time_limit: 20,
-          points: 100,
-        },
+        createQuestionFixture(),
       ];
 
       vi.mocked(fetch).mockResolvedValueOnce({
@@ -86,13 +69,7 @@ describe("QuizHttpRepository", () => {
 
   describe("createQuiz", () => {
     it("should create a quiz", async () => {
-      const mockQuiz: Quiz = {
-        id: 1,
-        title: "New Quiz",
-        description: "New Description",
-        created_by: 1,
-        created_at: "2025-11-04T00:00:00Z",
-      };
+      const mockQuiz: Quiz = createQuizFixture();
 
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
@@ -122,19 +99,7 @@ describe("QuizHttpRepository", () => {
 
   describe("addQuestion", () => {
     it("should add a question", async () => {
-      const mockQuestion: Question = {
-        id: 1,
-        quiz_id: 1,
-        question_text: "What is 2+2?",
-        type: "multiple_choice",
-        correct_answer: "A",
-        option_a: "4",
-        option_b: "3",
-        option_c: "5",
-        option_d: "6",
-        time_limit: 20,
-        points: 100,
-      };
+      const mockQuestion: Question = createQuestionFixture();
 
       const questionData: Partial<Question> = {
         quiz_id: 1,

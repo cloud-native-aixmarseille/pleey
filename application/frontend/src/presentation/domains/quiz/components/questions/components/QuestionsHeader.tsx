@@ -13,6 +13,7 @@ interface QuestionsHeaderProps {
   questionCount: number;
   onBack: () => void;
   onViewSessions: () => void;
+  onEditQuizTitle: () => void;
   onAddQuestion: () => void;
 }
 
@@ -21,6 +22,7 @@ export function QuestionsHeader({
   questionCount,
   onBack,
   onViewSessions,
+  onEditQuizTitle,
   onAddQuestion,
 }: QuestionsHeaderProps) {
   const { t } = useTranslation();
@@ -32,13 +34,22 @@ export function QuestionsHeader({
       <div className="flex flex-col gap-6">
         <div className="flex items-start justify-between gap-4">
           <BackToButton label={t("quiz.back")} onClick={onBack} />
-          <SecondaryButton
-            size="md"
-            onClick={onViewSessions}
-            icon={{ name: "CalendarClock" }}
-          >
-            {t("admin.viewSessions")}
-          </SecondaryButton>
+          <div className="flex gap-2">
+            <SecondaryButton
+              size="md"
+              onClick={onEditQuizTitle}
+              icon={{ name: "Pencil" }}
+            >
+              {t("quiz.editQuizTitle")}
+            </SecondaryButton>
+            <SecondaryButton
+              size="md"
+              onClick={onViewSessions}
+              icon={{ name: "CalendarClock" }}
+            >
+              {t("admin.viewSessions")}
+            </SecondaryButton>
+          </div>
         </div>
 
         <div className="relative">

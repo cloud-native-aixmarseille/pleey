@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { GameScore } from '../value-objects/game-score.vo';
+import { GameScore } from '../entities/game-score';
 
 /**
  * Score Calculator Service

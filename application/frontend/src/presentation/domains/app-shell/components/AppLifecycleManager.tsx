@@ -19,7 +19,8 @@ export function AppLifecycleManager() {
     useAuthManagerContext();
 
   const { loadQuizzes } = useQuizManagerContext();
-  const { gameStarted, gameEnded, gamePin } = useGameSessionContext();
+  const { gameStarted, gameEnded, gamePin, currentQuestion } =
+    useGameSessionContext();
 
   useAppLifecycle({
     restoreSession,
@@ -34,6 +35,7 @@ export function AppLifecycleManager() {
     gameStarted,
     gameEnded,
     gamePin,
+    currentQuestionId: currentQuestion?.id ?? null,
   });
 
   return null;

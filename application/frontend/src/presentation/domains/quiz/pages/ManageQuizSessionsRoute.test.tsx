@@ -5,6 +5,10 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import type { GameSession } from "../../../../domains/game/types";
 import type { Quiz } from "../../../../domains/quiz/types";
+import {
+  createGameSessionFixture,
+  createQuizFixture,
+} from "../../../../test/fixtures";
 
 const mocks = vi.hoisted(() => ({
   useAuthManagerContext: vi.fn(),
@@ -48,13 +52,9 @@ interface SetupOptions {
   gameSessions?: Partial<MockGameSessionContext>;
 }
 
-const defaultQuiz: Quiz = {
+const defaultQuiz: Quiz = createQuizFixture({
   id: 99,
-  title: "Cyber Trivia",
-  description: "Retro quiz",
-  created_by: 1,
-  created_at: "2024-02-02T00:00:00.000Z",
-};
+});
 
 interface MockQuizContext {
   quizzes: Quiz[];
@@ -194,11 +194,7 @@ describe("ManageQuizSessionsRoute", () => {
 
   it("provides rejoin handler that calls context", async () => {
     const rejoinSession = vi.fn().mockResolvedValue(undefined);
-    const session: GameSession = {
-      sessionId: 42,
-      pin: "123ABC",
-      status: "completed",
-    };
+    const session: GameSession = createGameSessionFixture();
 
     setup({
       gameSessions: {

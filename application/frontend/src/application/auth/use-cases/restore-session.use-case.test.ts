@@ -2,17 +2,13 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { RestoreSessionUseCase } from "./restore-session.use-case";
 import { IStorage } from "../../../domains/shared/ports/storage.interface";
 import type { User } from "../../../domains/auth/types";
+import { createUserFixture } from "../../../test/fixtures";
 
 describe("RestoreSessionUseCase", () => {
   let restoreSessionUseCase: RestoreSessionUseCase;
   let mockStorage: IStorage;
 
-  const mockUser: User = {
-    id: 1,
-    username: "testuser",
-    email: "test@example.com",
-    isAdmin: false,
-  };
+  const mockUser: User = createUserFixture();
 
   beforeEach(() => {
     mockStorage = {

@@ -11,11 +11,11 @@ import { OrganizationMemberRepositoryProvider } from '../../domain/organization/
 import { QuizRepositoryProvider } from '../../domain/quiz/repositories/quiz.repository.interface';
 import { AuthModule } from '../auth/auth.module';
 import { DatabaseModule } from '../database/database.module';
-import { PrismaGameSessionRepository } from '../repositories/prisma-game-session.repository';
-import { PrismaOrganizationRepository } from '../repositories/prisma-organization.repository';
-import { PrismaOrganizationMemberRepository } from '../repositories/prisma-organization-member.repository';
-import { PrismaQuizRepository } from '../repositories/prisma-quiz.repository';
+import { PrismaGameSessionRepository } from '../game/repositories/prisma-game-session.repository';
+import { PrismaQuizRepository } from '../quiz/repositories/prisma-quiz.repository';
 import { OrganizationController } from './organization.controller';
+import { PrismaOrganizationRepository } from './repositories/prisma-organization.repository';
+import { PrismaOrganizationMemberRepository } from './repositories/prisma-organization-member.repository';
 
 @Module({
   imports: [DatabaseModule, AuthModule],

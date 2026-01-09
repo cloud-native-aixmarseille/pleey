@@ -2,7 +2,7 @@ import { Card } from "../../../../../../../../presentation/shared/ui/components"
 
 const SUMMARY_WRAPPER_CLASSES = "mb-8 animate-scale-in";
 const SUMMARY_TEXT_CLASSES =
-  "font-body text-2xl font-bold text-center text-light-100 sm:text-3xl";
+  "font-body text-2xl font-bold text-center text-dark-950 dark:text-light-100 sm:text-3xl";
 
 interface ResultSummaryProps {
   summary: string;

@@ -7,7 +7,7 @@ import {
 import type { GameSession } from "../../../../domains/game/types";
 import type { Quiz } from "../../../../domains/quiz/types";
 
-import { QuizCard } from "./QuizCard.tsx";
+import { QuizCard } from "./QuizCard";
 
 const EMPTY_STATE_WRAPPER_CLASSES = "animate-scale-in text-center";
 const EMPTY_STATE_CONTENT_CLASSES = "flex flex-col items-center gap-4 p-12";
@@ -48,7 +48,6 @@ export function AdminQuizGrid({
       <div className={EMPTY_STATE_WRAPPER_CLASSES} data-admin-quiz-empty="true">
         <Card
           surface="glass"
-          tone="neutral"
           padding="xl"
           elevation="glow"
           border="regular"

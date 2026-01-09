@@ -61,7 +61,7 @@
     "regenerateAvatar": "Regenerate avatar",
     "avatarManagedBySystem": "Avatars are generated automatically. Use the button to refresh yours.",
     "hostPlaying": {
-      "badge": "HOST VIEW - SCREEN SHARE MODE",
+      "badgeLabel": "HOST VIEW",
       "round": {
         "questionLabel": "Question",
         "secondsLabel": "seconds",
@@ -240,7 +240,8 @@
     "success": {
       "questionCreated": "Question created successfully.",
       "questionDeleted": "Question deleted successfully.",
-      "questionUpdated": "Question updated successfully."
+      "questionUpdated": "Question updated successfully.",
+      "quizTitleUpdated": "Quiz title updated successfully."
     },
     "errors": {
       "quizHasActiveSession": "You can't delete this quiz while a game session is active."
@@ -257,21 +258,28 @@
     "modals": {
       "createTitle": "Add question",
       "editTitle": "Edit question",
+      "editQuizTitle": "Edit quiz title",
+      "editQuizTitleDescription": "Update the quiz title.",
       "description": "Configure the content, type, and scoring for this question.",
       "deleteTitle": "Delete question",
       "deleteDescription": "This question will be removed from the quiz.",
       "deletePrompt": "Are you sure you want to delete \"{{question}}\"?"
-    }
+    },
+    "editQuizTitle": "Edit title"
   },
   "game": {
     "joinGame": "Join Game",
     "enterPin": "Enter PIN",
     "join": "Join",
+    "backToHostPanel": "BACK TO HOST PANEL",
     "lobby": "Lobby",
     "waitingForPlayers": "Waiting for players...",
     "players": "Players",
     "startGame": "Start Game",
     "stopSession": "Stop Session",
+    "stopSessionConfirmTitle": "Stop session",
+    "stopSessionConfirmDescription": "This will end the current session for all players.",
+    "stopSessionConfirmPrompt": "Are you sure you want to stop this session?",
     "question": "Question",
     "of": "of",
     "timeLeft": "Time left",
@@ -279,6 +287,24 @@
     "correct": "Correct!",
     "incorrect": "Incorrect",
     "leaderboard": "Leaderboard",
+    "leaderboardPage": {
+      "title": {
+        "main": "GAME OVER",
+        "subtitle": "Final Results",
+        "message": "Congratulations to all players! 🎉"
+      },
+      "additionalPlayers": {
+        "title": "Other Players"
+      },
+      "actions": {
+        "playAgain": "Play Again",
+        "footer": "Thanks for playing! 🎮✨"
+      },
+      "share": {
+        "title": "QuizMaster Results",
+        "text": "I scored {{score}} points in QuizMaster! 🏆 Can you beat my score?"
+      }
+    },
     "finalResults": "Final Results",
     "playAgain": "Play Again",
     "points": "points",
@@ -313,6 +339,7 @@
     "needOnePlayer": "> Need at least 1 player to start the game",
     "addOneQuestion": "> Add at least one question before starting",
     "ready": "Ready",
+    "you": "You",
     "clipboardCopied": "Game PIN copied to clipboard.",
     "clipboardError": "Unable to copy automatically. The PIN is {{pin}}.",
     "waiting": "Waiting...",
@@ -455,7 +482,7 @@
       }
     },
     "hostPlaying": {
-      "badge": "HOST VIEW - SCREEN SHARE MODE",
+      "badgeLabel": "HOST VIEW",
       "round": {
         "questionLabel": "Question",
         "secondsLabel": "seconds",
@@ -489,6 +516,14 @@
         }
       }
     },
+    "hostControlMenu": {
+      "menuLabel": "Host Controls",
+      "pauseGame": "Pause Game",
+      "resumeGame": "Resume Game",
+      "backToLobby": "Back to Lobby",
+      "backToAdmin": "Back to Admin",
+      "endGame": "End Game"
+    },
     "hostLeaderboard": {
       "badge": "HOST VIEW",
       "title": {
@@ -497,7 +532,7 @@
         "message": "Congratulations to all players! 🎉"
       },
       "controls": {
-        "heading": "👑 Admin Controls",
+        "heading": "👑 Host Controls",
         "backToAdmin": "BACK TO ADMIN DASHBOARD",
         "newGame": "NEW GAME",
         "footer": "Thanks for hosting! 🎮✨"
@@ -509,6 +544,10 @@
         "suffix": "{{count}} pts",
         "celebration": "🎯 {{count}} pts"
       }
+    },
+    "paused": {
+      "title": "GAME PAUSED",
+      "message": "Waiting for the host to resume..."
     },
     "share": {
       "buttonLabel": "Share",
@@ -533,7 +572,9 @@
       "activeSessionsFetchFailed": "Failed to fetch active sessions",
       "sessionStopFailed": "Failed to stop session",
       "sessionResumeFailed": "Failed to resume session",
-      "quizSessionAlreadyActive": "This quiz already has a live session. Close it before starting another."
+      "quizSessionAlreadyActive": "This quiz already has a live session. Close it before starting another.",
+      "gameNotFound": "Game session not found",
+      "gameSessionEnded": "This game session has ended."
     }
   },
   "common": {
@@ -612,6 +653,7 @@
     "questionCreateFailed": "Failed to create question. Please try again.",
     "questionDeleteFailed": "Failed to delete question. Please try again.",
     "questionUpdateFailed": "Failed to update question. Please try again.",
+    "quizUpdateFailed": "Failed to update quiz. Please try again.",
     "sessionsLoadFailed": "Failed to load sessions. Please try again."
   },
   "notifications": {

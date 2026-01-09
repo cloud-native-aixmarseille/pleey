@@ -2,24 +2,13 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { AddQuestionUseCase } from "./add-question.use-case";
 import { IQuizRepository } from "../../../domains/quiz/ports/quiz.repository.interface";
 import type { Question } from "../../../domains/quiz/types";
+import { createQuestionFixture } from "../../../test/fixtures";
 
 describe("AddQuestionUseCase", () => {
   let addQuestionUseCase: AddQuestionUseCase;
   let mockQuizRepository: IQuizRepository;
 
-  const mockQuestion: Question = {
-    id: 1,
-    quiz_id: 1,
-    question_text: "What is 2+2?",
-    type: "multiple_choice",
-    correct_answer: "A",
-    option_a: "4",
-    option_b: "3",
-    option_c: "5",
-    option_d: "6",
-    time_limit: 20,
-    points: 100,
-  };
+  const mockQuestion: Question = createQuestionFixture();
 
   beforeEach(() => {
     mockQuizRepository = {
@@ -38,11 +27,6 @@ describe("AddQuestionUseCase", () => {
     const questionData: Partial<Question> = {
       quiz_id: 1,
       question_text: "What is 2+2?",
-      correct_answer: "A",
-      option_a: "4",
-      option_b: "3",
-      option_c: "5",
-      option_d: "6",
     };
 
     const result = await addQuestionUseCase.execute({

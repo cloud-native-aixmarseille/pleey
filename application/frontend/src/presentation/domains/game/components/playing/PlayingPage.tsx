@@ -1,12 +1,8 @@
 import type { AnswerResult } from "../../../../../domains/game/types";
 import type { Question } from "../../../../../domains/quiz/types";
 
-import QuestionResultDisplay from "./components/question-result/QuestionResultDisplay";
-import { PlayingLayout } from "./components/PlayingLayout";
-import { QuestionTimerHeader } from "./components/QuestionTimerHeader";
-import { QuestionCard } from "./components/QuestionCard";
-import { PlayingAnswers } from "./components/PlayingAnswers";
-import { useQuestionTimerState } from "./hooks/useQuestionTimerState";
+import HostPlayingView from "./host/HostPlayingView";
+import { PlayingQuestionPage } from "./PlayingQuestionPage";
 
 interface PlayingPageProps {
   currentQuestion: Question;
@@ -17,7 +13,12 @@ interface PlayingPageProps {
   answerSubmitted: boolean;
   showResult: boolean;
   answerResult: AnswerResult | null;
-  isAdmin: boolean;
+  isHost: boolean;
+  isPaused?: boolean;
+  quizTitle?: string | null;
+  onBackToLobby: () => void;
+  onBackToAdmin: () => void;
+  onTogglePause: () => void;
   onSubmitAnswer: (answer: string) => void;
   onNextQuestion: () => void;
 }
@@ -31,47 +32,48 @@ export default function PlayingPage({
   answerSubmitted,
   showResult,
   answerResult,
-  isAdmin,
+  isHost,
+  isPaused = false,
+  quizTitle,
+  onBackToLobby,
+  onBackToAdmin,
+  onTogglePause,
   onSubmitAnswer,
   onNextQuestion,
 }: PlayingPageProps) {
-  const timeLimit = currentQuestion.time_limit ?? 0;
-  const { progressPercent, severity } = useQuestionTimerState(
-    timeLeft,
-    timeLimit
-  );
-
-  return (
-    <PlayingLayout>
-      <QuestionTimerHeader
+  if (isHost) {
+    return (
+      <HostPlayingView
+        currentQuestion={currentQuestion}
         questionNumber={questionNumber}
         totalQuestions={totalQuestions}
         timeLeft={timeLeft}
-        progressPercent={progressPercent}
-        severity={severity}
+        showResult={showResult}
+        answerResult={answerResult}
+        onNextQuestion={onNextQuestion}
+        quizTitle={quizTitle}
+        isPaused={isPaused}
+        onBackToLobby={onBackToLobby}
+        onBackToAdmin={onBackToAdmin}
+        onTogglePause={onTogglePause}
       />
+    );
+  }
 
-      <QuestionCard questionText={currentQuestion.question_text} />
-
-      {!showResult && (
-        <PlayingAnswers
-          question={currentQuestion}
-          userAnswer={userAnswer}
-          answerSubmitted={answerSubmitted}
-          onSubmitAnswer={onSubmitAnswer}
-        />
-      )}
-
-      {showResult && answerResult && (
-        <QuestionResultDisplay
-          answerResult={answerResult}
-          currentQuestion={currentQuestion}
-          questionNumber={questionNumber}
-          userAnswer={userAnswer}
-          isAdmin={isAdmin}
-          onNextQuestion={onNextQuestion}
-        />
-      )}
-    </PlayingLayout>
+  return (
+    <PlayingQuestionPage
+      currentQuestion={currentQuestion}
+      questionNumber={questionNumber}
+      totalQuestions={totalQuestions}
+      timeLeft={timeLeft}
+      userAnswer={userAnswer}
+      answerSubmitted={answerSubmitted}
+      showResult={showResult}
+      answerResult={answerResult}
+      isHost={isHost}
+      isPaused={isPaused}
+      onSubmitAnswer={onSubmitAnswer}
+      onNextQuestion={onNextQuestion}
+    />
   );
 }

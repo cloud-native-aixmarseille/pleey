@@ -1,18 +1,20 @@
 import { API_URL } from "../../app/config/api.config";
-import { socket } from "../../infrastructure/socket/socket.client";
+import { GameSocketAdapter } from "./infrastructure/game-socket.adapter";
 import type { GameSession } from "./types";
 
 interface CreateSessionResponse {
   pin: string;
   sessionId: number;
   quizId: number;
-  adminId: number;
+  hostId: number;
   status: string;
   currentQuestion: number | null;
   createdAt: string;
 }
 
 export class GameService {
+  private readonly gameSocket = new GameSocketAdapter();
+
   async createSession(
     token: string,
     quizId: number,
@@ -114,23 +116,29 @@ export class GameService {
     userId?: number,
     guestId?: string,
   ): void {
-    socket.emit("join-game", { pin, username, userId, guestId });
+    this.gameSocket.publish({
+      type: "join-game",
+      pin,
+      username,
+      userId,
+      guestId,
+    });
   }
 
   startGame(pin: string): void {
-    socket.emit("start-game", { pin });
+    this.gameSocket.publish({ type: "start-game", pin });
   }
 
-  stopGame(pin: string, adminId: number): void {
-    socket.emit("stop-game", { pin, adminId });
+  stopGame(pin: string, hostId: number): void {
+    this.gameSocket.publish({ type: "stop-game", pin, hostId });
   }
 
-  endGame(pin: string, adminId: number): void {
-    socket.emit("end-game", { pin, adminId });
+  endGame(pin: string, hostId: number): void {
+    this.gameSocket.publish({ type: "end-game", pin, hostId });
   }
 
-  resumeGame(pin: string, adminId: number): void {
-    socket.emit("resume-game", { pin, adminId });
+  resumeGame(pin: string, hostId: number): void {
+    this.gameSocket.publish({ type: "resume-game", pin, hostId });
   }
 
   submitAnswer(
@@ -140,11 +148,18 @@ export class GameService {
     timeLeft: number,
     guestId?: string,
   ): void {
-    socket.emit("submit-answer", { pin, userId, answer, timeLeft, guestId });
+    this.gameSocket.publish({
+      type: "submit-answer",
+      pin,
+      userId,
+      guestId,
+      answer,
+      timeLeft,
+    });
   }
 
   nextQuestion(pin: string): void {
-    socket.emit("next-question", { pin });
+    this.gameSocket.publish({ type: "next-question", pin });
   }
 }
 

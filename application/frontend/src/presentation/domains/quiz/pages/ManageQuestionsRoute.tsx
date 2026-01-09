@@ -26,6 +26,7 @@ export function ManageQuestionsRoute() {
     hasLoadedQuizzes,
     loadQuizQuestions,
     addQuestion,
+    updateQuiz,
     deleteQuestion,
     updateQuestion,
   } = useQuizManagerContext();
@@ -113,6 +114,20 @@ export function ManageQuestionsRoute() {
     }
   };
 
+  const handleUpdateQuizTitle = async (title: string) => {
+    if (!token) {
+      return;
+    }
+
+    try {
+      await updateQuiz(token, quizIdNumber, { title });
+      notify("quiz.success.quizTitleUpdated", "success");
+    } catch (error) {
+      notifyFromError(error, "errors.quizUpdateFailed");
+      throw error;
+    }
+  };
+
   return (
     <ManageQuestionsPage
       quiz={quiz}
@@ -120,6 +135,7 @@ export function ManageQuestionsRoute() {
       onAddQuestion={handleAddQuestion}
       onDeleteQuestion={handleDeleteQuestion}
       onUpdateQuestion={handleUpdateQuestion}
+      onUpdateQuizTitle={handleUpdateQuizTitle}
     />
   );
 }

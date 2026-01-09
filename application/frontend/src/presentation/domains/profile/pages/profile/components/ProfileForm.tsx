@@ -1,9 +1,9 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
 import {
+  CancelButton,
   Input,
-  PrimaryButton,
-  SecondaryButton,
+  SaveButton,
 } from "../../../../../../presentation/shared/ui/components";
 import type { User } from "../../../../../../domains/auth/types";
 
@@ -18,9 +18,6 @@ interface ProfileFormProps {
   emailPlaceholder: string;
   usernameLabel: string;
   emailLabel: string;
-  saveLabel: string;
-  cancelLabel: string;
-  loadingLabel: string;
   onSubmit: (updates: { username: string; email: string }) => Promise<void>;
   onReset?: () => void;
   isSaving: boolean;
@@ -31,9 +28,6 @@ export function ProfileForm({
   emailPlaceholder,
   usernameLabel,
   emailLabel,
-  saveLabel,
-  cancelLabel,
-  loadingLabel,
   onSubmit,
   onReset,
   isSaving,
@@ -51,7 +45,8 @@ export function ProfileForm({
     return username !== user.username || email !== user.email;
   }, [email, user.email, user.username, username]);
 
-  const disableSave = isSaving || isSubmitting || !isDirty;
+  const isLoading = isSaving || isSubmitting;
+  const disableSave = isLoading || !isDirty;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -99,19 +94,20 @@ export function ProfileForm({
 
       <div className={ACTION_ROW_CLASSES}>
         <div className={PRIMARY_BUTTON_WRAPPER_CLASSES}>
-          <PrimaryButton type="submit" disabled={disableSave} fullWidth>
-            {disableSave ? loadingLabel : saveLabel}
-          </PrimaryButton>
+          <SaveButton
+            type="submit"
+            disabled={disableSave}
+            fullWidth
+            isLoading={isLoading}
+          />
         </div>
-        <SecondaryButton
+        <CancelButton
           type="button"
           effect="flat"
           onClick={handleReset}
           disabled={!isDirty || isSaving || isSubmitting}
           fullWidth
-        >
-          {cancelLabel}
-        </SecondaryButton>
+        />
       </div>
     </form>
   );

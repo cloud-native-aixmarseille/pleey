@@ -10,4 +10,6 @@ data:
   NODE_ENV: {{ .Values.backend.env.nodeEnv | quote }}
   PORT: {{ .Values.backend.env.port | quote }}
   CORS_ORIGIN: {{ .Values.backend.env.corsOrigin | quote }}
+  VALKEY_URL: {{ include "quiz-app.valkeyUrl" . | quote }}
+  SESSION_STATE_TTL_SECONDS: {{ .Values.backend.env.sessionStateTtlSeconds | quote }}
 {{- end }}

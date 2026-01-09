@@ -5,16 +5,16 @@ import { ArcadePage } from "../../../../../presentation/shared/ui/components";
 import type { Player } from "../../../../../domains/game/types";
 
 import {
-  AdminHostBadge,
-  JoinOptionsSection,
+  LobbyHostBadge,
   LobbyBackground,
   LobbyHeader,
-  PlayersSection,
-  StartControls,
-  useCopyGamePin,
-  useJoinLink,
   usePlayerCountMessage,
 } from ".";
+
+import HostLobbyLayout from "./layouts/HostLobbyLayout";
+import PlayerLobbyLayout from "./layouts/PlayerLobbyLayout";
+import { GamePausedOverlay } from "../playing/components/GamePausedOverlay";
+import { PausedHostBanner } from "../shared/PausedHostBanner";
 
 const MAIN_CONTENT_CLASSES = "relative z-10 flex w-full flex-col gap-6";
 const SR_ONLY_CLASSES = "sr-only";
@@ -22,10 +22,16 @@ const SR_ONLY_CLASSES = "sr-only";
 interface LobbyPageProps {
   gamePin: string;
   players: Player[];
-  isAdmin: boolean;
+  isHost: boolean;
+  isPaused?: boolean;
+  quizTitle?: string | null;
+  currentPlayerId?: number | string | null;
+  currentPlayerUsername?: string | null;
   onStartGame: () => void;
   onStopSession?: () => void;
-  onBackToAdmin?: () => void;
+  onBackToHost?: () => void;
+  onBack?: () => void;
+  onTogglePause?: () => void;
   questionCount?: number;
   hostUserId?: number | null;
   hostUsername?: string | null;
@@ -34,10 +40,16 @@ interface LobbyPageProps {
 export default function LobbyPage({
   gamePin,
   players,
-  isAdmin,
+  isHost,
+  isPaused = false,
+  quizTitle = null,
+  currentPlayerId = null,
+  currentPlayerUsername = null,
   onStartGame,
   onStopSession,
-  onBackToAdmin,
+  onBackToHost,
+  onBack,
+  onTogglePause,
   questionCount = 0,
   hostUserId = null,
   hostUsername = null,
@@ -57,7 +69,7 @@ export default function LobbyPage({
     : null;
 
   const hostIdentifiers = useMemo(() => {
-    if (!isAdmin) {
+    if (!isHost) {
       return null;
     }
 
@@ -72,7 +84,7 @@ export default function LobbyPage({
     }
 
     return identifiers.size > 0 ? identifiers : null;
-  }, [isAdmin, normalizedHostId, normalizedHostUsername]);
+  }, [isHost, normalizedHostId, normalizedHostUsername]);
 
   const visiblePlayers = useMemo(() => {
     if (!hostIdentifiers) {
@@ -111,22 +123,6 @@ export default function LobbyPage({
       } ${totalPlayers} ${t("game.remainingPlayers")}`,
   });
 
-  const joinUrl = useJoinLink();
-  const joinLink = useMemo(
-    () => (joinUrl ? `${joinUrl}?pin=${gamePin}` : null),
-    [joinUrl, gamePin]
-  );
-  const joinUrlForDisplay = useMemo(
-    () => (joinUrl ? joinUrl.replace(/^https?:\/\//, "") : ""),
-    [joinUrl]
-  );
-  const manualJoinInstructions = useMemo(
-    () =>
-      joinUrl
-        ? t("game.joinStepManualDescription", { url: joinUrlForDisplay })
-        : t("game.howToJoinStep1"),
-    [joinUrl, joinUrlForDisplay, t]
-  );
   const pinCharacters = useMemo(() => {
     const slots = Math.max(gamePin.length, 6);
     return Array.from({ length: slots }, (_, index) => ({
@@ -147,13 +143,7 @@ export default function LobbyPage({
       .filter(Boolean)
       .join(" ") || undefined;
 
-  const { copiedPin, copyStatusMessage, copyPinToClipboard } = useCopyGamePin({
-    gamePin,
-    messages: {
-      success: () => t("game.clipboardCopied"),
-      error: () => t("game.clipboardError", { pin: gamePin }),
-    },
-  });
+  const showHostLayout = isHost;
 
   return (
     <div data-lobby-page="true">
@@ -172,59 +162,59 @@ export default function LobbyPage({
           aria-labelledby={lobbyTitleId}
           className={MAIN_CONTENT_CLASSES}
         >
-          <div
-            className={SR_ONLY_CLASSES}
-            role="status"
-            aria-live="assertive"
-            id={copyFeedbackId}
-          >
-            {copyStatusMessage}
-          </div>
           <div className={SR_ONLY_CLASSES} role="status" aria-live="polite">
             {playerCountMessage}
           </div>
 
-          {isAdmin ? <AdminHostBadge /> : null}
+          {isHost ? <LobbyHostBadge /> : null}
 
-          <LobbyHeader titleId={lobbyTitleId} />
+          {isHost && onTogglePause ? (
+            <PausedHostBanner isPaused={isPaused} onResume={onTogglePause} />
+          ) : null}
 
-          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 xl:items-start">
-            <JoinOptionsSection
-              instructionsTitleId={instructionsTitleId}
+          <LobbyHeader titleId={lobbyTitleId} quizTitle={quizTitle} />
+
+          {showHostLayout ? (
+            <HostLobbyLayout
               gamePin={gamePin}
-              joinLink={joinLink}
-              joinUrlForDisplay={joinUrlForDisplay}
-              manualJoinInstructions={manualJoinInstructions}
+              instructionsTitleId={instructionsTitleId}
               pinCharacters={pinCharacters}
               pinAriaLabel={pinAriaLabel}
               copyFeedbackId={copyFeedbackId}
-              copyStatusMessage={copyStatusMessage}
-              copiedPin={copiedPin}
-              copyPinToClipboard={copyPinToClipboard}
-            />
-
-            <PlayersSection
               players={visiblePlayers}
-              sectionTitleId={playersSectionTitleId}
+              playersSectionTitleId={playersSectionTitleId}
+              highlightPlayerId={currentPlayerId}
+              highlightPlayerUsername={currentPlayerUsername}
+              cannotStartGame={cannotStartGame}
+              onStartGame={onStartGame}
+              onStopSession={onStopSession}
+              onBackToHost={onBackToHost}
+              startButtonDescription={startButtonDescription}
+              startHintId={startHintId}
+              questionHintId={questionHintId}
+              mustWaitForPlayers={mustWaitForPlayers}
+              hasQuestions={hasQuestions}
             />
-
-            <div className="xl:col-span-2 w-full">
-              <StartControls
-                isAdmin={isAdmin}
-                cannotStartGame={cannotStartGame}
-                onStartGame={onStartGame}
-                onStopSession={onStopSession}
-                onBackToAdmin={onBackToAdmin}
-                startButtonDescription={startButtonDescription}
-                startHintId={startHintId}
-                questionHintId={questionHintId}
-                mustWaitForPlayers={mustWaitForPlayers}
-                hasQuestions={hasQuestions}
-              />
-            </div>
-          </div>
+          ) : (
+            <PlayerLobbyLayout
+              gamePin={gamePin}
+              pinAriaLabel={pinAriaLabel}
+              onBack={onBack}
+              players={visiblePlayers}
+              playersSectionTitleId={playersSectionTitleId}
+              highlightPlayerId={currentPlayerId}
+              highlightPlayerUsername={currentPlayerUsername}
+              startButtonDescription={startButtonDescription}
+              startHintId={startHintId}
+              questionHintId={questionHintId}
+              mustWaitForPlayers={mustWaitForPlayers}
+              hasQuestions={hasQuestions}
+            />
+          )}
         </main>
       </ArcadePage>
+
+      {isPaused && !isHost ? <GamePausedOverlay /> : null}
     </div>
   );
 }

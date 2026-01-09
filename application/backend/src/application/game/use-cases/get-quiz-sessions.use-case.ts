@@ -1,5 +1,5 @@
 import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import type { GameSession } from '../../../domain/game/entities/game-session.entity';
+import type { GameSession } from '../../../domain/game/entities/game-session';
 import {
   type GameSessionRepository,
   GameSessionRepositoryProvider,

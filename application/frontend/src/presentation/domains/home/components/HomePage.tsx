@@ -53,7 +53,6 @@ const FEATURE_LABEL_SECONDARY_CLASSES =
 
 const ACTIONS_WRAPPER_CLASSES = "space-y-4";
 const ACTION_BUTTON_CONTAINER_CLASSES = "sm:w-auto";
-const ACTION_BUTTON_CONTENT_CLASSES = "flex items-center justify-center gap-3";
 
 const FOOTER_WRAPPER_CLASSES = "mt-8 border-t-2 border-primary-500/30 pt-6";
 const FOOTER_PRIMARY_TEXT_CLASSES =
@@ -149,9 +148,7 @@ export default function HomePage() {
                         effect="retro"
                         onClick={() => navigate("/auth/login")}
                       >
-                        <span className={ACTION_BUTTON_CONTENT_CLASSES}>
-                          <span>{t("home.login")}</span>
-                        </span>
+                        {t("home.login")}
                       </PrimaryButton>
                     </div>
                     <div className={ACTION_BUTTON_CONTAINER_CLASSES}>
@@ -161,9 +158,7 @@ export default function HomePage() {
                         onClick={() => navigate("/auth/register")}
                         effect="retro"
                       >
-                        <span className={ACTION_BUTTON_CONTENT_CLASSES}>
-                          <span>{t("home.signup")}</span>
-                        </span>
+                        {t("home.signup")}
                       </SecondaryButton>
                     </div>
                   </div>

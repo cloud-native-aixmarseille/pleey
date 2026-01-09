@@ -6,6 +6,7 @@ import { GameModule } from './infrastructure/game';
 import { HealthModule } from './infrastructure/health';
 import { OrganizationModule } from './infrastructure/organization';
 import { QuizModule } from './infrastructure/quiz/quiz.module';
+import { ErrorTranslationService } from './infrastructure/shared/filters/error-translation.service';
 
 const isProdBuild = process.env.NODE_ENV === 'production';
 const i18nDirectory = isProdBuild
@@ -30,6 +31,6 @@ const i18nDirectory = isProdBuild
     GameModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [ErrorTranslationService],
 })
 export class AppModule {}

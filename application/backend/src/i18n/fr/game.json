@@ -7,6 +7,7 @@
     "invalidAnswer": "Réponse invalide",
     "noQuestionsAvailable": "Aucune question disponible pour ce quiz",
     "validationFailed": "Échec de la validation",
+    "unknownError": "Une erreur inattendue s'est produite",
     "gameCanOnlyBeStartedFromWaiting": "Le jeu ne peut être démarré que depuis le statut d'attente",
     "canOnlyMoveToNextInActive": "Ne peut passer à la question suivante que dans un jeu actif",
     "canOnlyPauseActiveGame": "Ne peut mettre en pause qu'un jeu actif",
@@ -19,7 +20,9 @@
     "sessionResumeFailed": "Échec de la reprise de la session",
     "quizNotFound": "Quiz introuvable",
     "activeSessionExists": "Vous avez déjà une session de jeu active. Veuillez l'arrêter ou la terminer avant d'en démarrer une nouvelle.",
-    "quizSessionAlreadyActive": "Ce quiz possède déjà une session en cours. Terminez-la avant d'en démarrer une autre."
+    "quizSessionAlreadyActive": "Ce quiz possède déjà une session en cours. Terminez-la avant d'en démarrer une autre.",
+    "alreadyAnswered": "Vous avez déjà soumis une réponse pour cette question.",
+    "gameSessionEnded": "Cette session de jeu est terminée."
   },
   "success": {
     "gameCreated": "Session de jeu créée avec succès",

@@ -1,7 +1,11 @@
-import { afterEach, beforeAll } from "vitest";
+import { afterEach, beforeAll, vi } from "vitest";
 import { cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import i18n from "../i18n/config";
+import {
+  queryClient,
+  setAuthSessionTokens,
+} from "../infrastructure/http/api/openapiClient";
 
 // Initialize i18n for tests with English as default
 beforeAll(async () => {
@@ -11,6 +15,9 @@ beforeAll(async () => {
 // Cleanup after each test
 afterEach(() => {
   cleanup();
+  queryClient.clear();
+  setAuthSessionTokens({ accessToken: null, refreshToken: null });
+  vi.useRealTimers();
 });
 
 const globalConsole = globalThis.console;

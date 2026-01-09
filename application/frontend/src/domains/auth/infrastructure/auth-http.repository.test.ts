@@ -1,15 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { AuthHttpRepository } from "./auth-http.repository";
 import { fetchClient } from "../../../infrastructure/http/api/openapiClient";
-
-type PostResult = Awaited<ReturnType<typeof fetchClient.POST>>;
-
-const createPostResult = (overrides: Partial<PostResult>): PostResult => ({
-  data: undefined,
-  error: undefined,
-  response: new Response(),
-  ...overrides,
-});
+import { createFetchClientResult } from "../../../test/mock-factories/openapi-client.mock-factory";
+import {
+  createAuthResponsePayloadFixture,
+  createUserFixture,
+} from "../../../test/fixtures";
 
 describe("AuthHttpRepository", () => {
   let repository: AuthHttpRepository;
@@ -21,21 +17,16 @@ describe("AuthHttpRepository", () => {
 
   describe("login", () => {
     it("should login successfully", async () => {
-      const mockResponse = {
+      const mockResponse = createAuthResponsePayloadFixture({
         token: "legacy-token",
         accessToken: "test-access-token",
         refreshToken: "test-refresh-token",
         expiresIn: 3600,
-        user: {
-          id: 1,
-          username: "testuser",
-          email: "test@example.com",
-          isAdmin: false,
-        },
-      };
+        user: createUserFixture(),
+      });
 
       const postSpy = vi.spyOn(fetchClient, "POST");
-      postSpy.mockResolvedValueOnce(createPostResult({ data: mockResponse }));
+      postSpy.mockResolvedValueOnce(createFetchClientResult<"POST">({ data: mockResponse }));
 
       const result = await repository.login("test@example.com", "password123");
 
@@ -57,7 +48,7 @@ describe("AuthHttpRepository", () => {
     it("should throw error on invalid credentials", async () => {
       const postSpy = vi.spyOn(fetchClient, "POST");
       postSpy.mockResolvedValueOnce(
-        createPostResult({
+        createFetchClientResult<"POST">({
           data: undefined,
           error: new Error("Invalid credentials"),
         }),
@@ -71,7 +62,7 @@ describe("AuthHttpRepository", () => {
     it("should throw error on invalid response structure", async () => {
       const postSpy = vi.spyOn(fetchClient, "POST");
       postSpy.mockResolvedValueOnce(
-        createPostResult({ data: { token: "test-token" } as never }),
+        createFetchClientResult<"POST">({ data: { token: "test-token" } as never }),
       );
 
       await expect(
@@ -83,7 +74,7 @@ describe("AuthHttpRepository", () => {
   describe("register", () => {
     it("should register successfully", async () => {
       const postSpy = vi.spyOn(fetchClient, "POST");
-      postSpy.mockResolvedValueOnce(createPostResult({ data: undefined }));
+      postSpy.mockResolvedValueOnce(createFetchClientResult<"POST">({ data: undefined }));
 
       await repository.register("testuser", "test@example.com", "password123");
 
@@ -102,7 +93,7 @@ describe("AuthHttpRepository", () => {
     it("should throw error on registration failure", async () => {
       const postSpy = vi.spyOn(fetchClient, "POST");
       postSpy.mockResolvedValueOnce(
-        createPostResult({
+        createFetchClientResult<"POST">({
           data: undefined,
           error: new Error("Email already exists"),
         }),
@@ -116,16 +107,12 @@ describe("AuthHttpRepository", () => {
 
   describe("regenerateAvatar", () => {
     it("should regenerate avatar successfully", async () => {
-      const mockUser = {
-        id: 1,
-        username: "testuser",
-        email: "test@example.com",
-        isAdmin: false,
+      const mockUser = createUserFixture({
         avatarUrl: "/api/avatars/users/1?v=fingerprint",
-      };
+      });
 
       const postSpy = vi.spyOn(fetchClient, "POST");
-      postSpy.mockResolvedValueOnce(createPostResult({ data: mockUser }));
+      postSpy.mockResolvedValueOnce(createFetchClientResult<"POST">({ data: mockUser }));
 
       const result = await repository.regenerateAvatar();
 
@@ -136,7 +123,7 @@ describe("AuthHttpRepository", () => {
     it("should throw error when regeneration fails", async () => {
       const postSpy = vi.spyOn(fetchClient, "POST");
       postSpy.mockResolvedValueOnce(
-        createPostResult({
+        createFetchClientResult<"POST">({
           data: undefined,
           error: new Error("Unable to regenerate avatar"),
         }),

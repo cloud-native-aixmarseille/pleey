@@ -1,6 +1,7 @@
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import jsxA11y from "eslint-plugin-jsx-a11y";
+import uiComponentsPlugin from "./eslint-rules/ui-components.mjs";
 
 const browserGlobals = {
   window: "readonly",
@@ -40,8 +41,13 @@ export default tseslint.config(
       },
       globals: browserGlobals,
     },
+    plugins: {
+      ui: uiComponentsPlugin,
+    },
     rules: {
       "no-console": "error",
+
+      "ui/no-classname-on-ui-components": "error",
       // Accessibility rules
       "jsx-a11y/alt-text": "error",
       "jsx-a11y/anchor-has-content": "error",

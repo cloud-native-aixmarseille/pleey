@@ -1,13 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { gameService } from "./game.service";
 import { socket } from "../../infrastructure/socket/socket.client";
+import { GAME_SOCKET_OUTBOUND_EVENT } from "./infrastructure/game-socket-outbound-events";
+import { createGameSessionFixture } from "../../test/fixtures";
 
 // Mock the socket client
-vi.mock("../../infrastructure/socket/socket.client", () => ({
-  socket: {
-    emit: vi.fn(),
-  },
-}));
+vi.mock("../../infrastructure/socket/socket.client", async () => {
+  const { createSocketClientMock } = await import(
+    "../../test/mock-factories/socket-client.mock-factory"
+  );
+  return {
+    socket: createSocketClientMock(),
+  };
+});
 
 const fetchSpy = vi.fn();
 
@@ -22,7 +27,7 @@ describe("GameService", () => {
 
   describe("createSession", () => {
     it("should create a game session", async () => {
-      const mockSession = { pin: "123456" };
+      const mockSession = createGameSessionFixture();
 
       fetchSpy.mockResolvedValueOnce({
         ok: true,
@@ -73,7 +78,7 @@ describe("GameService", () => {
     it("should emit join-game event", () => {
       gameService.joinGame("123456", "testuser", 1);
 
-      expect(socket.emit).toHaveBeenCalledWith("join-game", {
+      expect(socket.emit).toHaveBeenCalledWith(GAME_SOCKET_OUTBOUND_EVENT.JOIN_GAME, {
         pin: "123456",
         username: "testuser",
         userId: 1,
@@ -85,7 +90,7 @@ describe("GameService", () => {
     it("should emit start-game event", () => {
       gameService.startGame("123456");
 
-      expect(socket.emit).toHaveBeenCalledWith("start-game", {
+      expect(socket.emit).toHaveBeenCalledWith(GAME_SOCKET_OUTBOUND_EVENT.START_GAME, {
         pin: "123456",
       });
     });
@@ -95,7 +100,7 @@ describe("GameService", () => {
     it("should emit submit-answer event with answer data", () => {
       gameService.submitAnswer("123456", 1, "A", 15);
 
-      expect(socket.emit).toHaveBeenCalledWith("submit-answer", {
+      expect(socket.emit).toHaveBeenCalledWith(GAME_SOCKET_OUTBOUND_EVENT.SUBMIT_ANSWER, {
         pin: "123456",
         userId: 1,
         answer: "A",
@@ -108,7 +113,7 @@ describe("GameService", () => {
     it("should emit next-question event", () => {
       gameService.nextQuestion("123456");
 
-      expect(socket.emit).toHaveBeenCalledWith("next-question", {
+      expect(socket.emit).toHaveBeenCalledWith(GAME_SOCKET_OUTBOUND_EVENT.NEXT_QUESTION, {
         pin: "123456",
       });
     });

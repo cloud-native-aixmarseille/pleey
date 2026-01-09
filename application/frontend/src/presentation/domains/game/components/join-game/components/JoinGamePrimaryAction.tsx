@@ -1,9 +1,6 @@
 import { PrimaryButton } from "../../../../../../presentation/shared/ui/components";
 import { useTranslation } from "react-i18next";
 import { JOIN_GAME_PIN_LENGTH } from "../constants";
-
-const BUTTON_CONTENT_CLASSES =
-  "flex items-center justify-center gap-3 font-display text-base sm:text-lg";
 const COMPLETE_MESSAGE_WRAPPER_CLASSES = "mt-6 animate-fade-in text-center";
 const COMPLETE_MESSAGE_TEXT_CLASSES =
   "font-mono text-sm text-success-500 animate-pulse";
@@ -37,12 +34,9 @@ export function JoinGamePrimaryAction({
         alignment="center"
         onClick={onSubmit}
         disabled={!isComplete}
+        icon={{ name: "Play" }}
       >
-        <span className={BUTTON_CONTENT_CLASSES}>
-          <span aria-hidden="true">►</span>
-          <span>{resolvedButtonLabel}</span>
-          <span aria-hidden="true">◄</span>
-        </span>
+        {resolvedButtonLabel}
       </PrimaryButton>
 
       {isComplete && resolvedCompleteMessage ? (

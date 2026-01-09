@@ -1,6 +1,7 @@
 import { PrimaryButton } from "../../../../../../presentation/shared/ui/components";
 import { ACTIONS_STAGE } from "../constants";
 import { ShareButton } from "../../ShareButton";
+import { useTranslation } from "react-i18next";
 
 const ACTIONS_WRAPPER_CLASSES = "mx-auto max-w-md space-y-4 animate-fade-in";
 const PLAY_AGAIN_WRAPPER_CLASSES =
@@ -25,6 +26,8 @@ export function LeaderboardActions({
   shareTitle,
   shareText,
 }: LeaderboardActionsProps) {
+  const { t } = useTranslation();
+
   if (animationStage < ACTIONS_STAGE) {
     return null;
   }
@@ -44,7 +47,7 @@ export function LeaderboardActions({
         >
           <span className={PLAY_AGAIN_CONTENT_CLASSES}>
             <span className={PLAY_AGAIN_ICON_CLASSES}>▶</span>
-            <span>Play Again</span>
+            <span>{t("game.leaderboardPage.actions.playAgain")}</span>
           </span>
         </PrimaryButton>
       </div>
@@ -59,7 +62,9 @@ export function LeaderboardActions({
       </div>
 
       <div className={FOOTER_WRAPPER_CLASSES}>
-        <p className={FOOTER_TEXT_CLASSES}>Thanks for playing! 🎮✨</p>
+        <p className={FOOTER_TEXT_CLASSES}>
+          {t("game.leaderboardPage.actions.footer")}
+        </p>
       </div>
     </section>
   );

@@ -1,7 +1,8 @@
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { GameSession } from '../../../domain/game/entities/game-session.entity';
 import type { GameSessionRepository } from '../../../domain/game/repositories/game-session.repository.interface';
+import { createGameSessionFixture } from '../../../test-utils/fixtures';
+import { createGameSessionRepositoryMock } from '../../../test-utils/mock-factories';
 import { StopGameSessionUseCase } from './stop-game-session.use-case';
 
 describe('StopGameSessionUseCase', () => {
@@ -9,27 +10,15 @@ describe('StopGameSessionUseCase', () => {
   let mockGameSessionRepository: GameSessionRepository;
 
   beforeEach(() => {
-    mockGameSessionRepository = {
-      create: vi.fn(),
-      findByPin: vi.fn(),
-      findById: vi.fn(),
-      findActiveByAdminId: vi.fn(),
-      findActiveByQuizId: vi.fn(),
-      findByQuizId: vi.fn(),
-      updateStatus: vi.fn(),
-      updateCurrentQuestion: vi.fn(),
-      countActiveByQuizId: vi.fn(),
-      deleteOldSessions: vi.fn(),
-      findByOrganization: vi.fn(),
-    };
+    mockGameSessionRepository = createGameSessionRepositoryMock();
 
     useCase = new StopGameSessionUseCase(mockGameSessionRepository);
   });
 
   describe('execute', () => {
     it('should pause an active game session successfully', async () => {
-      const mockSession = new GameSession(1, 10, 100, 1, '123456', 'active', 2, new Date());
-      const pausedSession = new GameSession(1, 10, 100, 1, '123456', 'paused', 2, new Date());
+      const mockSession = createGameSessionFixture({ hostId: 100, status: 'active' });
+      const pausedSession = createGameSessionFixture({ hostId: 100, status: 'paused' });
 
       vi.spyOn(mockGameSessionRepository, 'findById').mockResolvedValue(mockSession);
       vi.spyOn(mockGameSessionRepository, 'updateStatus').mockResolvedValue(pausedSession);
@@ -49,7 +38,10 @@ describe('StopGameSessionUseCase', () => {
     });
 
     it('should throw ForbiddenException when admin does not own the session', async () => {
-      const mockSession = new GameSession(1, 10, 100, 1, '123456', 'active', 2, new Date());
+      const mockSession = createGameSessionFixture({
+        hostId: 100,
+        status: 'active',
+      });
 
       vi.spyOn(mockGameSessionRepository, 'findById').mockResolvedValue(mockSession);
 
@@ -61,7 +53,10 @@ describe('StopGameSessionUseCase', () => {
     });
 
     it('should throw error when trying to pause non-active session', async () => {
-      const mockSession = new GameSession(1, 10, 100, 1, '123456', 'waiting', 0, new Date());
+      const mockSession = createGameSessionFixture({
+        hostId: 100,
+        status: 'waiting',
+      });
 
       vi.spyOn(mockGameSessionRepository, 'findById').mockResolvedValue(mockSession);
 

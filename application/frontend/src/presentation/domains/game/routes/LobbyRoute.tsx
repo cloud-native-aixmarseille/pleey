@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 
-import LobbyPage from "../components/LobbyPage";
+import LobbyPage from "../components/lobby/LobbyPage";
 import { useAuthManagerContext } from "../../auth";
 import { useGameSessionContext } from "../contexts/GameSessionContext";
 import { useGuestSessionContext } from "../contexts/GuestSessionContext";
@@ -26,7 +26,10 @@ export function LobbyRoute() {
     setGamePin,
     players,
     activeQuizQuestionCount,
+    activeQuizTitle,
+    isPaused,
     handleStartGame,
+    handleTogglePause,
     handleStopSession,
   } = useGameSessionContext();
 
@@ -57,19 +60,33 @@ export function LobbyRoute() {
     return <Navigate to="/game/join" replace />;
   }
 
-  const handleBackToAdmin = isAdmin ? () => navigate("/admin") : undefined;
+  const isHost = isAdmin;
+
+  const handleBackToHost = isHost ? () => navigate("/admin") : undefined;
+  const handleBackFromLobby = !isHost
+    ? () => navigate("/game/join")
+    : undefined;
+  const currentPlayerId = isAuthenticated && user ? user.id : null;
+  const currentPlayerUsername =
+    isAuthenticated && user ? user.username : guestNickname ?? null;
 
   return (
     <PatiencePlayground className="relative">
       <LobbyPage
         gamePin={gamePin}
         players={players}
-        isAdmin={isAdmin}
-        hostUserId={isAdmin && user ? user.id : null}
-        hostUsername={isAdmin && user ? user.username : null}
+        isHost={isHost}
+        isPaused={isPaused}
+        onTogglePause={isHost ? handleTogglePause : undefined}
+        quizTitle={activeQuizTitle}
+        currentPlayerId={currentPlayerId}
+        currentPlayerUsername={currentPlayerUsername}
+        hostUserId={isHost && user ? user.id : null}
+        hostUsername={isHost && user ? user.username : null}
         onStartGame={handleStartGame}
-        onStopSession={isAdmin ? handleStopSession : undefined}
-        onBackToAdmin={handleBackToAdmin}
+        onStopSession={isHost ? handleStopSession : undefined}
+        onBackToHost={handleBackToHost}
+        onBack={handleBackFromLobby}
         questionCount={activeQuizQuestionCount}
       />
       <PatienceOverlay active={isIdle} />

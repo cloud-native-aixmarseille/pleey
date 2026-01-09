@@ -2,25 +2,14 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { GetQuestionsUseCase } from "./get-questions.use-case";
 import { IQuizRepository } from "../../../domains/quiz/ports/quiz.repository.interface";
 import type { Question } from "../../../domains/quiz/types";
+import { createQuestionFixture } from "../../../test/fixtures";
 
 describe("GetQuestionsUseCase", () => {
   let getQuestionsUseCase: GetQuestionsUseCase;
   let mockQuizRepository: IQuizRepository;
 
   const mockQuestions: Question[] = [
-    {
-      id: 1,
-      quiz_id: 1,
-      question_text: "What is 2+2?",
-      type: "multiple_choice",
-      correct_answer: "A",
-      option_a: "4",
-      option_b: "3",
-      option_c: "5",
-      option_d: "6",
-      time_limit: 20,
-      points: 100,
-    },
+    createQuestionFixture(),
   ];
 
   beforeEach(() => {

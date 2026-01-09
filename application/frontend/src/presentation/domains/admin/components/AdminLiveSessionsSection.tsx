@@ -67,12 +67,8 @@ export function AdminLiveSessionsSection({
 
   const sortedSessions = useMemo(() => {
     return [...sessions].sort((left, right) => {
-      const leftDate = new Date(
-        left.createdAt ?? left.created_at ?? 0
-      ).getTime();
-      const rightDate = new Date(
-        right.createdAt ?? right.created_at ?? 0
-      ).getTime();
+      const leftDate = new Date(left.createdAt ?? 0).getTime();
+      const rightDate = new Date(right.createdAt ?? 0).getTime();
       return rightDate - leftDate;
     });
   }, [sessions]);
@@ -153,10 +149,10 @@ export function AdminLiveSessionsSection({
           {renderHeader()}
           <div className={LIST_WRAPPER_CLASSES}>
             {liveSessions.map((session) => {
-              const quizId = session.quizId ?? session.quiz_id;
+              const quizId = session.quizId;
               const relatedQuiz =
                 typeof quizId === "number" ? quizLookup.get(quizId) : undefined;
-              const createdAt = session.createdAt ?? session.created_at ?? null;
+              const createdAt = session.createdAt ?? null;
               const sessionKey = String(
                 session.sessionId ??
                   session.pin ??

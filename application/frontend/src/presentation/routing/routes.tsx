@@ -6,7 +6,7 @@ import { adminRoutes } from "../domains/admin/routing/admin.routes";
 import { quizRoutes } from "../domains/quiz/routing/quiz.routes";
 import { JoinGameRoute } from "../domains/game/routes/JoinGameRoute";
 import { LobbyRoute } from "../domains/game/routes/LobbyRoute";
-import { PlayingRoute } from "../domains/game/routes/PlayingRoute";
+import { PlayingQuestionRoute } from "../domains/game/routes/PlayingQuestionRoute";
 import { LeaderboardRoute } from "../domains/game/routes/LeaderboardRoute";
 import { profileRoutes } from "../domains/profile/routing/profile.routes";
 import {
@@ -24,15 +24,23 @@ export function AppRoutes() {
   const isGameLobbyRoute =
     location.pathname === "/game/lobby" ||
     /^\/game\/[^/]+\/lobby\/?$/.test(location.pathname);
+  const isGamePlayingRoute = /^\/game\/[^/]+\/playing\/[^/]+\/?$/.test(
+    location.pathname
+  );
   const isGameLeaderboardRoute = /^\/game\/[^/]+\/leaderboard\/?$/.test(
     location.pathname
   );
+
+  const showQuickSettingsOnly =
+    isGameJoinRoute || isGameLobbyRoute || isGameLeaderboardRoute;
+
+  const hideHeader = isGamePlayingRoute;
 
   return (
     <>
       <AppLifecycleManager />
       <div data-app-shell="true">
-        {isGameLobbyRoute || isGameJoinRoute || isGameLeaderboardRoute ? (
+        {hideHeader ? null : showQuickSettingsOnly ? (
           <QuickSettingsMenu className={QUICK_SETTINGS_WRAPPER_CLASSES} />
         ) : (
           <AccountBar />
@@ -46,7 +54,10 @@ export function AppRoutes() {
 
           <Route path="/game/join" element={<JoinGameRoute />} />
           <Route path="/game/:sessionId/lobby" element={<LobbyRoute />} />
-          <Route path="/game/:sessionId/playing" element={<PlayingRoute />} />
+          <Route
+            path="/game/:sessionId/playing/:questionId"
+            element={<PlayingQuestionRoute />}
+          />
           <Route
             path="/game/:sessionId/leaderboard"
             element={<LeaderboardRoute />}

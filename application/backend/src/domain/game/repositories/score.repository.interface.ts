@@ -1,4 +1,4 @@
-import type { Score } from '../entities/score.entity';
+import type { Score } from '../entities/score';
 
 export const ScoreRepositoryProvider = Symbol('ScoreRepository');
 

@@ -16,9 +16,9 @@ vi.mock("react-i18next", () => ({
       const translations: Record<string, string> = {
         "game.connectedPlayers": "Connected Players",
         "game.ready": "Ready",
-        "game.waiting": "Waiting",
-        "game.noPlayersYetTitle": "No players yet",
-        "game.sharePin": "Share the PIN",
+        "game.waiting": "Waiting...",
+        "game.noPlayersYetTitle": "No Players Yet",
+        "game.sharePin": "> Share the PIN above to invite players!",
       };
       return translations[key] || key;
     },
@@ -74,8 +74,8 @@ describe("PlayersSection", () => {
   it("should render empty state when no players", () => {
     render(<PlayersSection players={[]} sectionTitleId="test-section" />);
 
-    expect(screen.getByText("No players yet")).toBeInTheDocument();
-    expect(screen.getByText("Share the PIN")).toBeInTheDocument();
+    expect(screen.getByText(/No Players Yet/i)).toBeInTheDocument();
+    expect(screen.getByText(/Share the PIN/i)).toBeInTheDocument();
   });
 
   it("should render filler slots for less than 8 players", () => {
@@ -84,7 +84,7 @@ describe("PlayersSection", () => {
       <PlayersSection players={singlePlayer} sectionTitleId="test-section" />
     );
 
-    const waitingTexts = screen.getAllByText("Waiting");
+    const waitingTexts = screen.getAllByText(/Waiting/i);
     expect(waitingTexts.length).toBeGreaterThanOrEqual(3);
   });
 

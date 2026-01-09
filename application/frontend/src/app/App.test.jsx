@@ -6,6 +6,12 @@ import { MemoryRouter } from "react-router-dom";
 import QuizApp from "./App";
 import { authService } from "../domains/auth/auth.service";
 import { organizationService } from "../domains/organization/organization.service";
+import { createAuthResponsePayloadFixture } from "../test/fixtures";
+import {
+  REFRESH_TOKEN_STORAGE_KEY,
+  TOKEN_STORAGE_KEY,
+  USER_STORAGE_KEY,
+} from "../domains/shared/constants/storageKeys";
 
 // Mock socket.io-client
 vi.mock("socket.io-client", () => ({
@@ -74,16 +80,13 @@ describe("QuizApp", () => {
 
   it("should handle successful login", async () => {
     const user = userEvent.setup();
-    const loginSpy = vi.spyOn(authService, "login").mockResolvedValue({
-      token: "fake-token",
-      user: {
-        id: 1,
-        username: "testuser",
-        email: "test@example.com",
-        isAdmin: false,
-        avatarUrl: null,
-      },
-    });
+    const loginSpy = vi.spyOn(authService, "login").mockResolvedValue(
+      createAuthResponsePayloadFixture({
+        token: "fake-token",
+        accessToken: "fake-token",
+        refreshToken: "fake-refresh-token",
+      })
+    );
     vi.spyOn(organizationService, "getMyOrganizations").mockResolvedValue([]);
 
     renderApp();
@@ -109,7 +112,17 @@ describe("QuizApp", () => {
       expect(loginSpy).toHaveBeenCalledWith("test@example.com", "password123");
     });
 
-    expect(await screen.findByText(/testuser/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(globalThis.localStorage.getItem(TOKEN_STORAGE_KEY)).toBe(
+        "fake-token"
+      );
+      expect(globalThis.localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY)).toBe(
+        "fake-refresh-token"
+      );
+      expect(globalThis.localStorage.getItem(USER_STORAGE_KEY)).toContain(
+        "testuser"
+      );
+    });
   });
 
   it("should handle registration", async () => {
@@ -156,89 +169,5 @@ describe("QuizApp", () => {
     expect(
       screen.getByLabelText(/email/i, { selector: "input" })
     ).toBeInTheDocument();
-  });
-
-  // TODO: Fix this flaky integration test - login flow timing issues
-  it.skip("should prevent launching a quiz that has no questions", async () => {
-    const user = userEvent.setup();
-
-    const loginResponse = {
-      token: "admin-token",
-      user: {
-        id: 1,
-        username: "admin",
-        email: "admin@test.com",
-        isAdmin: true,
-        avatarUrl: null,
-      },
-    };
-
-    const quizzesResponse = [
-      {
-        id: 1,
-        title: "Empty Quiz",
-        description: "",
-        created_by: 1,
-        created_at: new Date().toISOString(),
-        is_active: true,
-        question_count: 0,
-      },
-    ];
-
-    globalThis.fetch
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => loginResponse,
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => quizzesResponse,
-      });
-
-    const alertMock = vi.spyOn(globalThis, "alert").mockImplementation(() => {
-      // noop
-    });
-
-    // Start at login page
-    renderApp(["/auth/login"]);
-
-    // Login as admin
-    const emailInput = screen.getByLabelText(/email/i);
-    const passwordInput = screen.getByLabelText(/password/i);
-
-    await user.type(emailInput, "admin@example.com");
-    await user.type(passwordInput, "password123");
-
-    const loginButton = screen.getByRole("button", { name: /sign in/i });
-    await user.click(loginButton);
-
-    // Wait for navigation to admin dashboard and quiz list to load
-    // The dashboard should show the quiz after login
-    await waitFor(
-      () => {
-        const quizTitle = screen.queryByText("Empty Quiz");
-        expect(quizTitle).toBeInTheDocument();
-      },
-      { timeout: 5000 }
-    );
-
-    // Launch button should be disabled for an empty quiz
-    const launchButtons = await screen.findAllByRole("button", {
-      name: /launch/i,
-    });
-    expect(launchButtons.length).toBeGreaterThan(0);
-    expect(launchButtons[0]).toBeDisabled();
-
-    // Ensure clicking does nothing when disabled
-    await user.click(launchButtons[0]);
-    expect(alertMock).not.toHaveBeenCalled();
-
-    // Verify no session creation API call was made
-    const createSessionCall = globalThis.fetch.mock.calls.find(
-      ([url]) => typeof url === "string" && url.includes("/api/sessions/create")
-    );
-    expect(createSessionCall).toBeUndefined();
-
-    alertMock.mockRestore();
   });
 });

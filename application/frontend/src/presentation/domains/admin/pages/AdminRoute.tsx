@@ -1,5 +1,5 @@
-import { useEffect, useMemo } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useRef } from "react";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import { useTranslation } from "react-i18next";
 
@@ -15,6 +15,8 @@ import { useGameSessionContext } from "../../game/contexts/GameSessionContext";
 import { useAdminQuizActions } from "../../quiz/hooks/useAdminQuizActions";
 import { useNotifications } from "../../app-shell";
 
+const ADMIN_REFRESH_INTERVAL_MS = 15000;
+
 const LOADING_WRAPPER_CLASSES = "crt-screen";
 const LOADING_CARD_WRAPPER_CLASSES =
   "animate-pulse rounded-[var(--arcade-radius-xl)] border-2 border-primary-500/50 glass-effect";
@@ -23,9 +25,11 @@ const LOADING_TEXT_CLASSES =
 
 export function AdminRoute() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
   const { notifyFromError } = useNotifications();
   const { token, isAdmin, isAuthenticated } = useAuthManagerContext();
+  const lastAdminLocationKeyRef = useRef<string | null>(null);
   const {
     quizzes,
     loadQuizzes,
@@ -40,14 +44,40 @@ export function AdminRoute() {
     useGameSessionContext();
 
   useEffect(() => {
-    if (!token || hasLoadedQuizzes) {
+    if (!token || !isAuthenticated || !isAdmin) {
       return;
     }
 
-    loadQuizzes(token).catch((error) => {
+    const isNewNavigationEntry =
+      lastAdminLocationKeyRef.current !== location.key;
+    if (!isNewNavigationEntry && hasLoadedQuizzes) {
+      return;
+    }
+
+    lastAdminLocationKeyRef.current = location.key;
+
+    loadQuizzes(token, { force: true, silent: true }).catch((error) => {
       notifyFromError(error, "errors.quizzesLoadFailed");
     });
-  }, [token, hasLoadedQuizzes, loadQuizzes, notifyFromError]);
+
+    const intervalId = window.setInterval(() => {
+      loadQuizzes(token, { force: true, silent: true }).catch((error) => {
+        notifyFromError(error, "errors.quizzesLoadFailed");
+      });
+    }, ADMIN_REFRESH_INTERVAL_MS);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [
+    token,
+    isAuthenticated,
+    isAdmin,
+    hasLoadedQuizzes,
+    loadQuizzes,
+    notifyFromError,
+    location.key,
+  ]);
 
   const adminQuizActions = useAdminQuizActions({
     token,
@@ -68,7 +98,7 @@ export function AdminRoute() {
       return <Navigate to="/auth/login" replace />;
     }
 
-    if (!hasLoadedQuizzes || isPending) {
+    if (!hasLoadedQuizzes) {
       return (
         <div className={LOADING_WRAPPER_CLASSES} data-admin-loading="true">
           <ArcadePage

@@ -8,10 +8,7 @@ describe("SubmitAnswerUseCase", () => {
 
   beforeEach(() => {
     mockGameSocket = {
-      joinGame: vi.fn(),
-      startGame: vi.fn(),
-      submitAnswer: vi.fn(),
-      nextQuestion: vi.fn(),
+      publish: vi.fn(),
     };
 
     submitAnswerUseCase = new SubmitAnswerUseCase(mockGameSocket);
@@ -25,12 +22,13 @@ describe("SubmitAnswerUseCase", () => {
       timeLeft: 15,
     });
 
-    expect(mockGameSocket.submitAnswer).toHaveBeenCalledWith(
-      "123456",
-      1,
-      "A",
-      15,
-    );
+    expect(mockGameSocket.publish).toHaveBeenCalledWith({
+      type: "submit-answer",
+      pin: "123456",
+      userId: 1,
+      answer: "A",
+      timeLeft: 15,
+    });
   });
 
   it("should throw error when answer is empty", () => {
@@ -43,7 +41,7 @@ describe("SubmitAnswerUseCase", () => {
       }),
     ).toThrow("Answer is required");
 
-    expect(mockGameSocket.submitAnswer).not.toHaveBeenCalled();
+    expect(mockGameSocket.publish).not.toHaveBeenCalled();
   });
 
   it("should throw error when answer is whitespace", () => {
@@ -56,6 +54,6 @@ describe("SubmitAnswerUseCase", () => {
       }),
     ).toThrow("Answer is required");
 
-    expect(mockGameSocket.submitAnswer).not.toHaveBeenCalled();
+    expect(mockGameSocket.publish).not.toHaveBeenCalled();
   });
 });

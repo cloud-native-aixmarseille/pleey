@@ -1,16 +1,18 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   BackToButton,
+  ConfirmModal,
   DangerButton,
   PrimaryButton,
 } from "../../../../../presentation/shared/ui/components";
 
 interface StartControlsProps {
-  readonly isAdmin: boolean;
+  readonly isHost: boolean;
   readonly cannotStartGame: boolean;
   readonly onStartGame: () => void;
   readonly onStopSession?: () => void;
-  readonly onBackToAdmin?: () => void;
+  readonly onBackToHost?: () => void;
   readonly startButtonDescription?: string;
   readonly startHintId: string;
   readonly questionHintId: string;
@@ -19,11 +21,11 @@ interface StartControlsProps {
 }
 
 export default function StartControls({
-  isAdmin,
+  isHost,
   cannotStartGame,
   onStartGame,
   onStopSession,
-  onBackToAdmin,
+  onBackToHost,
   startButtonDescription,
   startHintId,
   questionHintId,
@@ -31,8 +33,10 @@ export default function StartControls({
   hasQuestions,
 }: StartControlsProps) {
   const { t } = useTranslation();
+  const [isStopSessionModalOpen, setIsStopSessionModalOpen] = useState(false);
+  const [isStoppingSession, setIsStoppingSession] = useState(false);
 
-  if (!isAdmin) {
+  if (!isHost) {
     return (
       <div
         className="flex items-center justify-center gap-3 rounded-2xl border border-primary-500/35 bg-primary-500/10 px-6 py-4 text-center shadow-[0_0_22px_rgba(101,74,255,0.15)] animate-pulse-slow"
@@ -52,14 +56,14 @@ export default function StartControls({
   }
 
   return (
-    <div className="space-y-3" data-start-controls="admin">
+    <div className="space-y-3" data-start-controls="host">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-start">
         <div className="flex flex-col gap-3 sm:justify-self-start">
-          {onBackToAdmin && (
+          {onBackToHost && (
             <div className="w-full sm:w-auto sm:max-w-xs">
               <BackToButton
-                label={t("quiz.backToAdmin", "BACK TO ADMIN PANEL")}
-                onClick={onBackToAdmin}
+                label={t("game.backToHostPanel")}
+                onClick={onBackToHost}
                 fullWidth
               />
             </div>
@@ -70,8 +74,9 @@ export default function StartControls({
               <DangerButton
                 size="lg"
                 effect="retro"
-                className="w-full"
-                onClick={onStopSession}
+                fullWidth
+                onClick={() => setIsStopSessionModalOpen(true)}
+                disabled={isStoppingSession}
               >
                 <span className="flex items-center justify-center gap-3 text-base sm:text-lg">
                   <span aria-hidden="true">■</span>
@@ -85,20 +90,22 @@ export default function StartControls({
         </div>
 
         <div className="flex justify-center sm:justify-self-center">
-          <PrimaryButton
-            size="xl"
-            effect="retro"
-            className="w-full max-w-sm"
-            onClick={onStartGame}
-            disabled={cannotStartGame}
-            aria-describedby={startButtonDescription || undefined}
-          >
-            <span className="flex items-center justify-center gap-4 text-lg sm:text-xl">
-              <span aria-hidden="true">▶</span>
-              <span>{t("game.startGame").toUpperCase()}</span>
-              <span aria-hidden="true">◀</span>
-            </span>
-          </PrimaryButton>
+          <div className="w-full max-w-sm">
+            <PrimaryButton
+              size="xl"
+              effect="retro"
+              fullWidth
+              onClick={onStartGame}
+              disabled={cannotStartGame}
+              aria-describedby={startButtonDescription || undefined}
+            >
+              <span className="flex items-center justify-center gap-4 text-lg sm:text-xl">
+                <span aria-hidden="true">▶</span>
+                <span>{t("game.startGame").toUpperCase()}</span>
+                <span aria-hidden="true">◀</span>
+              </span>
+            </PrimaryButton>
+          </div>
         </div>
 
         <div className="hidden sm:block" aria-hidden="true" />
@@ -129,6 +136,28 @@ export default function StartControls({
           </p>
         </div>
       )}
+
+      {onStopSession ? (
+        <ConfirmModal
+          isOpen={isStopSessionModalOpen}
+          onCancel={() => setIsStopSessionModalOpen(false)}
+          onConfirm={async () => {
+            try {
+              setIsStoppingSession(true);
+              await onStopSession();
+              setIsStopSessionModalOpen(false);
+            } finally {
+              setIsStoppingSession(false);
+            }
+          }}
+          isProcessing={isStoppingSession}
+          title={t("game.stopSessionConfirmTitle")}
+          description={t("game.stopSessionConfirmDescription")}
+          confirmLabel={t("game.stopSession")}
+          body={t("game.stopSessionConfirmPrompt")}
+          variant="danger"
+        />
+      ) : null}
     </div>
   );
 }

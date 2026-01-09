@@ -93,6 +93,10 @@ spec:
               value: /tmp/openapi.json
             - name: CORS_ORIGIN
               value: {{ .Values.backend.env.corsOrigin | quote }}
+            - name: VALKEY_URL
+              value: {{ include "quiz-app.valkeyUrl" . | quote }}
+            - name: SESSION_STATE_TTL_SECONDS
+              value: {{ .Values.backend.env.sessionStateTtlSeconds | quote }}
             - name: JWT_SECRET_FILE
               value: /run/secrets/jwt-secret
             - name: DATABASE_URL_FILE

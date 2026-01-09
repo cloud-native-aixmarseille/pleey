@@ -30,6 +30,19 @@ services:
     # No port binding - use docker exec or expose via Traefik if needed
     # For database tools, you can still use: docker exec -it quiz-postgres psql
 
+  # Valkey (Redis-compatible) - shared session state for WebSockets
+  valkey:
+    image: valkey/valkey:8-alpine
+    container_name: quiz-valkey
+    restart: unless-stopped
+    networks:
+      - quiz-network
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # Backend NestJS (dev watch mode)
   backend:
     build:
@@ -47,6 +60,7 @@ services:
       - JWT_SECRET=${JWT_SECRET:-votre_secret_jwt_super_securise_changez_moi}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-quizapp}:${POSTGRES_PASSWORD:-quizapp_password}@postgres:5432/${POSTGRES_DB:-quizdb}?schema=public
       - DATABASE_URL_TEST=postgresql://${POSTGRES_USER:-quizapp}:${POSTGRES_PASSWORD:-quizapp_password}@postgres:5432/${POSTGRES_TEST_DB:-quizdb_test}?schema=public
+      - VALKEY_URL=redis://valkey:6379
       - CORS_ORIGIN=*
       - CHOKIDAR_USEPOLLING=1
       - CHOKIDAR_INTERVAL=500
@@ -55,6 +69,8 @@ services:
       otel-collector:
         condition: service_healthy
       postgres:
+        condition: service_healthy
+      valkey:
         condition: service_healthy
     networks:
       - quiz-network

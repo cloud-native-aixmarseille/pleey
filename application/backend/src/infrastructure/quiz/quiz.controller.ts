@@ -7,17 +7,20 @@ import {
   HttpCode,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { CreateQuizDto } from '../../application/quiz/dto/create-quiz.dto';
+import { UpdateQuizDto } from '../../application/quiz/dto/update-quiz.dto';
 import { QuizErrorCode } from '../../application/quiz/enums/quiz-error-code.enum';
 import { CreateQuizUseCase } from '../../application/quiz/use-cases/create-quiz.use-case';
 import { DeleteQuizUseCase } from '../../application/quiz/use-cases/delete-quiz.use-case';
 import { GetAllQuizzesUseCase } from '../../application/quiz/use-cases/get-all-quizzes.use-case';
 import { GetQuizQuestionsUseCase } from '../../application/quiz/use-cases/get-quiz-questions.use-case';
+import { UpdateQuizUseCase } from '../../application/quiz/use-cases/update-quiz.use-case';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 interface AuthenticatedRequest extends Request {
@@ -36,6 +39,7 @@ export class QuizController {
     private readonly deleteQuizUseCase: DeleteQuizUseCase,
     private readonly getAllQuizzesUseCase: GetAllQuizzesUseCase,
     private readonly getQuizQuestionsUseCase: GetQuizQuestionsUseCase,
+    private readonly updateQuizUseCase: UpdateQuizUseCase,
   ) {}
 
   @Post()
@@ -109,5 +113,32 @@ export class QuizController {
     }
 
     await this.deleteQuizUseCase.execute(quizId);
+  }
+
+  @Patch(':quizId')
+  @UseGuards(JwtAuthGuard)
+  async update(
+    @Param('quizId', ParseIntPipe) quizId: number,
+    @Body() dto: UpdateQuizDto,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    const user = request.user;
+    if (!user) {
+      throw new ForbiddenException(QuizErrorCode.AUTHENTICATION_REQUIRED);
+    }
+
+    if (!user.isAdmin) {
+      throw new ForbiddenException(QuizErrorCode.ADMIN_PRIVILEGES_REQUIRED);
+    }
+
+    const quiz = await this.updateQuizUseCase.execute(quizId, dto);
+    return {
+      id: quiz.id,
+      title: quiz.title,
+      description: quiz.description,
+      createdById: quiz.createdById,
+      createdAt: quiz.createdAt,
+      question_count: quiz.questionCount,
+    };
   }
 }

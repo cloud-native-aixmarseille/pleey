@@ -1,4 +1,4 @@
-import type { Organization } from '../entities/organization.entity';
+import type { Organization } from '../entities/organization';
 
 /**
  * Organization Repository Interface

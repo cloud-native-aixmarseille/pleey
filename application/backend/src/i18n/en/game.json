@@ -7,6 +7,7 @@
     "invalidAnswer": "Invalid answer",
     "noQuestionsAvailable": "No questions available for this quiz",
     "validationFailed": "Validation failed",
+    "unknownError": "An unexpected error occurred",
     "gameCanOnlyBeStartedFromWaiting": "Game can only be started from waiting status",
     "canOnlyMoveToNextInActive": "Can only move to next question in active game",
     "canOnlyPauseActiveGame": "Can only pause an active game",
@@ -19,7 +20,9 @@
     "sessionResumeFailed": "Failed to resume session",
     "quizNotFound": "Quiz not found",
     "activeSessionExists": "You already have an active game session. Please stop or complete it before starting a new one.",
-    "quizSessionAlreadyActive": "This quiz already has a live session. Close it before starting another."
+    "quizSessionAlreadyActive": "This quiz already has a live session. Close it before starting another.",
+    "alreadyAnswered": "You have already submitted an answer for this question",
+    "gameSessionEnded": "This game session has ended."
   },
   "success": {
     "gameCreated": "Game session created successfully",

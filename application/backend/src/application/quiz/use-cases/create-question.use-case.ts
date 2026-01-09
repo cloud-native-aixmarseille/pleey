@@ -1,6 +1,6 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { VALID_MULTIPLE_CHOICE_OPTIONS } from '../../../domain/quiz/constants/question.constants';
-import type { Question } from '../../../domain/quiz/entities/question.entity';
+import type { Question } from '../../../domain/quiz/entities/question';
 import {
   type QuestionRepository,
   QuestionRepositoryProvider,

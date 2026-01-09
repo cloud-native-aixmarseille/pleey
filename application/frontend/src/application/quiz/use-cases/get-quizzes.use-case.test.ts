@@ -2,26 +2,15 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { GetQuizzesUseCase } from "./get-quizzes.use-case";
 import { IQuizRepository } from "../../../domains/quiz/ports/quiz.repository.interface";
 import type { Quiz } from "../../../domains/quiz/types";
+import { createQuizFixture } from "../../../test/fixtures";
 
 describe("GetQuizzesUseCase", () => {
   let getQuizzesUseCase: GetQuizzesUseCase;
   let mockQuizRepository: IQuizRepository;
 
   const mockQuizzes: Quiz[] = [
-    {
-      id: 1,
-      title: "Quiz 1",
-      description: "Description 1",
-      created_by: 1,
-      created_at: "2025-11-04T00:00:00Z",
-    },
-    {
-      id: 2,
-      title: "Quiz 2",
-      description: "Description 2",
-      created_by: 1,
-      created_at: "2025-11-04T00:00:00Z",
-    },
+    createQuizFixture(),
+    createQuizFixture(),
   ];
 
   beforeEach(() => {

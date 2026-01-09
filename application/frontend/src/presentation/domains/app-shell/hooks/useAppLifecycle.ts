@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import type { NavigateFunction } from "react-router-dom";
 
 import type { User } from "../../../../domains/auth/types";
@@ -24,6 +24,7 @@ interface UseAppLifecycleParams {
   gameStarted: boolean;
   gameEnded: boolean;
   gamePin: string;
+  currentQuestionId: number | null;
 }
 
 
@@ -40,7 +41,10 @@ export function useAppLifecycle({
   gameStarted,
   gameEnded,
   gamePin,
+  currentQuestionId,
 }: UseAppLifecycleParams) {
+  const wasGameStartedRef = useRef<boolean>(gameStarted);
+
   useEffect(() => {
     restoreSession();
   }, [restoreSession]);
@@ -90,18 +94,53 @@ export function useAppLifecycle({
       return;
     }
 
-    if (gameStarted && gamePin) {
-      navigate(`/game/${gamePin}/playing`);
-    }
-  }, [gameStarted, gamePin, navigate, locationPathname]);
+    const wasGameStarted = wasGameStartedRef.current;
+    wasGameStartedRef.current = gameStarted;
 
-  useEffect(() => {
-    if (!locationPathname.startsWith("/game")) {
+    const isGameLobbyRoute =
+      locationPathname === "/game/lobby" ||
+      /^\/game\/[^/]+\/lobby\/?$/.test(locationPathname);
+
+    // Hosts can intentionally navigate back to the lobby while a game is running.
+    // Avoid forcing them back to the playing route.
+    // But if the game has *just started* (transition false -> true), still redirect
+    // the host to the playing route.
+    if (user?.isAdmin && isGameLobbyRoute && gameStarted && !gameEnded && wasGameStarted) {
       return;
     }
 
-    if (gameEnded && gamePin) {
-      navigate(`/game/${gamePin}/leaderboard`);
+    const normalizedPin = gamePin.trim().toUpperCase();
+    if (!normalizedPin) {
+      return;
     }
-  }, [gameEnded, gamePin, navigate, locationPathname]);
+
+    const isPlayingRoute = new RegExp(
+      `^/game/${normalizedPin}/playing/[^/]+/?$`,
+      "i"
+    ).test(locationPathname);
+    const isLeaderboardRoute = new RegExp(
+      `^/game/${normalizedPin}/leaderboard/?$`,
+      "i"
+    ).test(locationPathname);
+
+    if (gameEnded && isLeaderboardRoute) {
+      return;
+    }
+
+    if (gameStarted && !gameEnded && isPlayingRoute) {
+      return;
+    }
+
+    const nextPath = gameEnded
+      ? `/game/${normalizedPin}/leaderboard`
+      : gameStarted && currentQuestionId
+        ? `/game/${normalizedPin}/playing/${currentQuestionId}`
+        : null;
+
+    if (!nextPath || locationPathname === nextPath) {
+      return;
+    }
+
+    navigate(nextPath, { replace: true });
+  }, [gameStarted, gameEnded, gamePin, navigate, locationPathname]);
 }

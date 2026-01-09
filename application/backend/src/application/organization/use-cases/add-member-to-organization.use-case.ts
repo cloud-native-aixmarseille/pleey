@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import type { OrganizationMember } from '../../../domain/organization/entities/organization-member.entity';
+import type { OrganizationMember } from '../../../domain/organization/entities/organization-member';
 import type { OrganizationRepository } from '../../../domain/organization/repositories/organization.repository.interface';
 import { OrganizationRepositoryProvider } from '../../../domain/organization/repositories/organization.repository.interface';
 import type { OrganizationMemberRepository } from '../../../domain/organization/repositories/organization-member.repository.interface';

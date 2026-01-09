@@ -81,6 +81,29 @@ app.kubernetes.io/component: frontend
 {{- end }}
 
 {{/*
+Valkey labels
+*/}}
+{{- define "quiz-app.valkey.labels" -}}
+{{ include "quiz-app.labels" . }}
+app.kubernetes.io/component: valkey
+{{- end }}
+
+{{/*
+Valkey selector labels
+*/}}
+{{- define "quiz-app.valkey.selectorLabels" -}}
+{{ include "quiz-app.selectorLabels" . }}
+app.kubernetes.io/component: valkey
+{{- end }}
+
+{{/*
+Valkey full name
+*/}}
+{{- define "quiz-app.valkey.fullname" -}}
+{{- printf "%s-valkey" (include "quiz-app.fullname" .) -}}
+{{- end }}
+
+{{/*
 Create the name of the service account to use
 */}}
 {{- define "quiz-app.serviceAccountName" -}}
@@ -174,6 +197,19 @@ Database URL for backend
 {{- printf "postgresql://%s:%s@%s:5432/%s?schema=public" $username $password $host $database }}
 {{- else }}
 {{- required "Either postgresql.enabled must be true or backend.secrets.databaseUrl must be provided" .Values.backend.secrets.databaseUrl }}
+{{- end }}
+
+{{/*
+Valkey URL for backend
+*/}}
+{{- define "quiz-app.valkeyUrl" -}}
+{{- if .Values.backend.env.valkeyUrl }}
+{{- .Values.backend.env.valkeyUrl -}}
+{{- else if .Values.valkey.enabled }}
+{{- printf "redis://%s:%d" (include "quiz-app.valkey.fullname" .) (int .Values.valkey.service.port) -}}
+{{- else }}
+{{- required "Either valkey.enabled must be true or backend.env.valkeyUrl must be provided" .Values.backend.env.valkeyUrl -}}
+{{- end }}
 {{- end }}
 {{- end }}
 

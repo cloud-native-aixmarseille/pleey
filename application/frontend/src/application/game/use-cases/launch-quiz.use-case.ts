@@ -1,7 +1,7 @@
-import { IGameRepository } from "../../domains/game/ports/game.repository.interface";
-import { IGameSocket } from "../../domains/game/ports/game-socket.interface";
-import type { GameSession } from "../../domains/game/types";
-import type { User } from "../../domains/auth/types";
+import { IGameRepository } from "../../../domains/game/ports/game.repository.interface";
+import { IGameSocket } from "../../../domains/game/ports/game-socket.interface";
+import type { GameSession } from "../../../domains/game/types";
+import type { User } from "../../../domains/auth/types";
 
 export interface LaunchQuizRequest {
   token: string;
@@ -37,7 +37,12 @@ export class LaunchQuizUseCase {
     const session = await this.gameRepository.createSession(token, quizId);
 
     // Join game as host
-    this.gameSocket.joinGame(session.pin, user.username, user.id);
+    this.gameSocket.publish({
+      type: "join-game",
+      pin: session.pin,
+      username: user.username,
+      userId: user.id,
+    });
 
     return { session };
   }

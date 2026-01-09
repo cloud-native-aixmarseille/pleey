@@ -4,7 +4,6 @@ import {
   useMemo,
   type ButtonHTMLAttributes,
   type CSSProperties,
-  type ReactNode,
 } from "react";
 import { composeClasses } from "../../../utils/composeClasses";
 import { withAlpha } from "../../../utils/color";
@@ -23,11 +22,11 @@ type ButtonIcon = IconSource;
 
 type BaseButtonProps = Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
-  "children"
+  "children" | "className"
 >;
 
 export interface ButtonProps extends BaseButtonProps {
-  children: ReactNode;
+  children: string;
   variant?: ButtonVariant;
   size?: ButtonSize;
   fullWidth?: boolean;
@@ -149,12 +148,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const theme = useTheme();
-    const {
-      title: nativeTitle,
-      className,
-      style: styleFromProps,
-      ...domProps
-    } = rest;
+    const { title: nativeTitle, style: styleFromProps, ...domProps } = rest;
     const surface = useMemo(
       () => resolveButtonSurface(variant, theme),
       [variant, theme]
@@ -302,7 +296,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         disabled: isDisabled,
         title,
         style,
-        className: composeClasses(baseClasses, className),
+        className: baseClasses,
         ...domProps,
       },
       content

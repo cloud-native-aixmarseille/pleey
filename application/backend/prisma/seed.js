@@ -177,12 +177,12 @@ async function main() {
     update: {
       status: 'waiting',
       quiz: { connect: { id: quiz.id } },
-      admin: { connect: { id: admin.id } },
+      host: { connect: { id: admin.id } },
       organization: { connect: { id: organization.id } },
     },
     create: {
       quiz: { connect: { id: quiz.id } },
-      admin: { connect: { id: admin.id } },
+      host: { connect: { id: admin.id } },
       organization: { connect: { id: organization.id } },
       pin: sessionPin,
       status: 'waiting',

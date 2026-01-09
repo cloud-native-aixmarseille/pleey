@@ -6,13 +6,11 @@ const ACTIONS_CONTAINER_CLASSES =
 const SHARE_BUTTON_CONTAINER_CLASSES =
   "flex w-full flex-1 justify-center sm:w-auto";
 const NEXT_BUTTON_WRAPPER_CLASSES = "flex w-full flex-1 sm:w-auto";
-const NEXT_BUTTON_CONTENT_CLASSES = "flex items-center gap-3";
-const NEXT_BUTTON_ICON_CLASSES = "text-2xl";
 
 interface ResultActionsProps {
   shareTitle: string;
   shareText: string;
-  isAdmin: boolean;
+  isHost: boolean;
   onNextQuestion: () => void;
   nextQuestionLabel: string;
 }
@@ -20,7 +18,7 @@ interface ResultActionsProps {
 export function ResultActions({
   shareTitle,
   shareText,
-  isAdmin,
+  isHost,
   onNextQuestion,
   nextQuestionLabel,
 }: ResultActionsProps) {
@@ -30,15 +28,15 @@ export function ResultActions({
         <ShareButton title={shareTitle} text={shareText} size="xl" />
       </div>
 
-      {isAdmin && (
+      {isHost && (
         <div className={NEXT_BUTTON_WRAPPER_CLASSES}>
-          <SecondaryButton size="xl" fullWidth onClick={onNextQuestion}>
-            <span className={NEXT_BUTTON_CONTENT_CLASSES}>
-              <span>{nextQuestionLabel}</span>
-              <span className={NEXT_BUTTON_ICON_CLASSES} aria-hidden="true">
-                →
-              </span>
-            </span>
+          <SecondaryButton
+            size="xl"
+            fullWidth
+            onClick={onNextQuestion}
+            icon={{ name: "ArrowRight" }}
+          >
+            {nextQuestionLabel}
           </SecondaryButton>
         </div>
       )}

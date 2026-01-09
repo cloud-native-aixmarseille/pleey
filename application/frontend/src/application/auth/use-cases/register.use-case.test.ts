@@ -10,6 +10,10 @@ describe("RegisterUseCase", () => {
     mockAuthRepository = {
       login: vi.fn(),
       register: vi.fn(),
+      getCurrentUser: vi.fn(),
+      updateProfile: vi.fn(),
+      regenerateAvatar: vi.fn(),
+      logout: vi.fn(),
     };
 
     registerUseCase = new RegisterUseCase(mockAuthRepository);

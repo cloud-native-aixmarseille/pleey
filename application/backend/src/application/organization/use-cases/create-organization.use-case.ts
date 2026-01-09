@@ -1,5 +1,5 @@
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
-import type { Organization } from '../../../domain/organization/entities/organization.entity';
+import type { Organization } from '../../../domain/organization/entities/organization';
 import { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
 import type { OrganizationRepository } from '../../../domain/organization/repositories/organization.repository.interface';
 import { OrganizationRepositoryProvider } from '../../../domain/organization/repositories/organization.repository.interface';

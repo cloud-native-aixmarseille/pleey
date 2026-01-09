@@ -5,12 +5,13 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import type { GameSession } from '../../../domain/game/entities/game-session.entity';
+import type { GameSession } from '../../../domain/game/entities/game-session';
+import { PIN } from '../../../domain/game/entities/pin';
+import { PinAlreadyInUseError } from '../../../domain/game/errors/pin-already-in-use.error';
 import {
   type GameSessionRepository,
   GameSessionRepositoryProvider,
 } from '../../../domain/game/repositories/game-session.repository.interface';
-import { PIN } from '../../../domain/game/value-objects/pin.vo';
 import type { OrganizationMemberRepository } from '../../../domain/organization/repositories/organization-member.repository.interface';
 import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/repositories/organization-member.repository.interface';
 import {
@@ -27,6 +28,8 @@ import { GameErrorCode } from '../enums/game-error-code.enum';
  */
 @Injectable()
 export class CreateGameSessionUseCase {
+  private static readonly MAX_PIN_GENERATION_ATTEMPTS = 10;
+
   constructor(
     @Inject(GameSessionRepositoryProvider)
     private readonly gameSessionRepository: GameSessionRepository,
@@ -37,9 +40,9 @@ export class CreateGameSessionUseCase {
   ) {}
 
   async execute(dto: CreateGameSessionDto): Promise<{ session: GameSession; pin: string }> {
-    // Ensure adminId is provided (should be set by controller from JWT)
-    if (!dto.adminId) {
-      throw new BadRequestException('Admin ID is required');
+    // Ensure hostId is provided (should be set by controller from JWT)
+    if (!dto.hostId) {
+      throw new BadRequestException(GameErrorCode.VALIDATION_FAILED);
     }
 
     // Verify quiz exists
@@ -51,7 +54,7 @@ export class CreateGameSessionUseCase {
     // Verify user is a member of the quiz's organization
     const membership = await this.memberRepository.findByOrganizationAndUser(
       quiz.organizationId,
-      dto.adminId,
+      dto.hostId,
     );
     if (!membership) {
       throw new ForbiddenException(OrganizationErrorCode.NOT_A_MEMBER);
@@ -60,7 +63,7 @@ export class CreateGameSessionUseCase {
     const quizActiveSession = await this.gameSessionRepository.findActiveByQuizId(dto.quizId);
 
     if (quizActiveSession) {
-      if (quizActiveSession.adminId !== dto.adminId) {
+      if (quizActiveSession.hostId !== dto.hostId) {
         throw new BadRequestException(GameErrorCode.QUIZ_SESSION_ALREADY_ACTIVE);
       }
 
@@ -70,8 +73,8 @@ export class CreateGameSessionUseCase {
       };
     }
 
-    // Check for existing active sessions for this admin
-    const activeSessions = await this.gameSessionRepository.findActiveByAdminId(dto.adminId);
+    // Check for existing active sessions for this host
+    const activeSessions = await this.gameSessionRepository.findActiveByHostId(dto.hostId);
 
     const conflictingSession = activeSessions.find((session) => session.quizId !== dto.quizId);
 
@@ -79,20 +82,34 @@ export class CreateGameSessionUseCase {
       throw new BadRequestException(GameErrorCode.ACTIVE_SESSION_EXISTS);
     }
 
-    // Generate unique PIN
-    const pin = PIN.generate();
+    for (
+      let attempt = 0;
+      attempt < CreateGameSessionUseCase.MAX_PIN_GENERATION_ATTEMPTS;
+      attempt += 1
+    ) {
+      const pin = PIN.generate();
 
-    // Create session with the quiz's organization
-    const session = await this.gameSessionRepository.create(
-      dto.quizId,
-      dto.adminId,
-      quiz.organizationId,
-      pin.getValue(),
-    );
+      try {
+        const session = await this.gameSessionRepository.create(
+          dto.quizId,
+          dto.hostId,
+          quiz.organizationId,
+          pin.getValue(),
+        );
 
-    return {
-      session,
-      pin: pin.getValue(),
-    };
+        return {
+          session,
+          pin: pin.getValue(),
+        };
+      } catch (error) {
+        if (error instanceof PinAlreadyInUseError) {
+          continue;
+        }
+
+        throw error;
+      }
+    }
+
+    throw new BadRequestException(GameErrorCode.VALIDATION_FAILED);
   }
 }

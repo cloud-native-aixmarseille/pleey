@@ -1,4 +1,4 @@
-import type { Quiz } from '../entities/quiz.entity';
+import type { Quiz } from '../entities/quiz';
 
 export const QuizRepositoryProvider = Symbol('QuizRepository');
 

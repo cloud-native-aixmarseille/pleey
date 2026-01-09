@@ -1,12 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
-import { Quiz } from '../../../domain/quiz/entities/quiz.entity';
 import type { QuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
+import { createQuizFixture } from '../../../test-utils/fixtures';
 import { GetAllQuizzesUseCase } from './get-all-quizzes.use-case';
 
 describe('GetAllQuizzesUseCase', () => {
   it('returns quizzes provided by the repository', async () => {
-    const createdAt = new Date('2025-01-01T00:00:00.000Z');
-    const quizzes = [new Quiz(1, 'Arcade Trivia', 'Fast-paced retro quiz', 42, 1, createdAt)];
+    const quizzes = [createQuizFixture()];
 
     const quizRepository: QuizRepository = {
       create: vi.fn(),

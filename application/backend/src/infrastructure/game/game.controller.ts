@@ -37,15 +37,15 @@ export class GameController {
   @Post('create')
   @UseGuards(JwtAuthGuard)
   async create(@Body() dto: CreateGameSessionDto, @Request() req: AuthenticatedRequest) {
-    // Override adminId from authenticated user
-    const enrichedDto = { ...dto, adminId: req.user.id };
+    // Override hostId from authenticated user
+    const enrichedDto = { ...dto, hostId: req.user.id };
     const { session, pin } = await this.createGameSessionUseCase.execute(enrichedDto);
 
     return {
       pin,
       sessionId: session.id,
       quizId: session.quizId,
-      adminId: session.adminId,
+      hostId: session.hostId,
       status: session.status,
       currentQuestion: session.currentQuestion,
       createdAt: session.createdAt,
@@ -60,7 +60,7 @@ export class GameController {
       sessions: sessions.map((session) => ({
         sessionId: session.id,
         quizId: session.quizId,
-        adminId: session.adminId,
+        hostId: session.hostId,
         pin: session.pin,
         status: session.status,
         currentQuestion: session.currentQuestion,
@@ -80,7 +80,7 @@ export class GameController {
       sessions: sessions.map((session) => ({
         sessionId: session.id,
         quizId: session.quizId,
-        adminId: session.adminId,
+        hostId: session.hostId,
         pin: session.pin,
         status: session.status,
         currentQuestion: session.currentQuestion,
@@ -96,7 +96,7 @@ export class GameController {
     return {
       sessionId: session.id,
       quizId: session.quizId,
-      adminId: session.adminId,
+      hostId: session.hostId,
       pin: session.pin,
       status: session.status,
       currentQuestion: session.currentQuestion,
@@ -111,7 +111,7 @@ export class GameController {
     return {
       sessionId: session.id,
       quizId: session.quizId,
-      adminId: session.adminId,
+      hostId: session.hostId,
       pin: session.pin,
       status: session.status,
       currentQuestion: session.currentQuestion,

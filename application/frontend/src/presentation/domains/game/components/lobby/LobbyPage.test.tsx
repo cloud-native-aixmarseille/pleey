@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom";
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, within } from "@testing-library/react";
 import LobbyPage from "./LobbyPage";
 
 describe("LobbyPage", () => {
@@ -13,7 +13,7 @@ describe("LobbyPage", () => {
     const mockHandlers = {
       gamePin: "123456",
       players: mockPlayers,
-      isAdmin: false,
+      isHost: false,
       onStartGame: vi.fn(),
       questionCount: 2,
     };
@@ -30,7 +30,7 @@ describe("LobbyPage", () => {
     const mockHandlers = {
       gamePin: "123456",
       players: mockPlayers,
-      isAdmin: false,
+      isHost: false,
       onStartGame: vi.fn(),
       questionCount: 2,
     };
@@ -45,7 +45,7 @@ describe("LobbyPage", () => {
     const mockHandlers = {
       gamePin: "123456",
       players: mockPlayers,
-      isAdmin: false,
+      isHost: false,
       onStartGame: vi.fn(),
       questionCount: 2,
     };
@@ -56,11 +56,68 @@ describe("LobbyPage", () => {
     expect(screen.getByText("Player2")).toBeInTheDocument();
   });
 
-  it("should show start button only for admin", () => {
+  it("should highlight the current player when username provided", () => {
+    render(
+      <LobbyPage
+        gamePin="123456"
+        players={mockPlayers}
+        isHost={false}
+        currentPlayerUsername="Player2"
+        onStartGame={vi.fn()}
+        questionCount={2}
+      />
+    );
+
+    const highlighted = document.querySelector('[data-current-player="true"]');
+    expect(highlighted).toBeTruthy();
+    expect(
+      within(highlighted as HTMLElement).getByText("Player2")
+    ).toBeInTheDocument();
+
+    const player2Occurrences = screen.getAllByText("Player2");
+    expect(player2Occurrences).toHaveLength(1);
+  });
+
+  it("should display quiz title when provided", () => {
+    render(
+      <LobbyPage
+        gamePin="123456"
+        players={mockPlayers}
+        isHost={false}
+        quizTitle="My Awesome Quiz"
+        onStartGame={vi.fn()}
+        questionCount={2}
+      />
+    );
+
+    expect(screen.getByTestId("lobby-quiz-title")).toHaveTextContent(
+      "My Awesome Quiz"
+    );
+  });
+
+  it("should render back button for non-host players when handler provided", () => {
+    const onBack = vi.fn();
+
+    render(
+      <LobbyPage
+        gamePin="123456"
+        players={mockPlayers}
+        isHost={false}
+        onStartGame={vi.fn()}
+        onBack={onBack}
+        questionCount={2}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /BACK/i }));
+    expect(onBack).toHaveBeenCalledTimes(1);
+  });
+
+  it("should show start button only for host", () => {
     const mockHandlers = {
       gamePin: "123456",
       players: mockPlayers,
-      isAdmin: true,
+      isHost: true,
       hostUserId: null,
       onStartGame: vi.fn(),
       questionCount: 2,
@@ -73,11 +130,11 @@ describe("LobbyPage", () => {
     ).toBeInTheDocument();
   });
 
-  it("should not show start button for non-admin", () => {
+  it("should not show start button for non-host", () => {
     const mockHandlers = {
       gamePin: "123456",
       players: mockPlayers,
-      isAdmin: false,
+      isHost: false,
       onStartGame: vi.fn(),
       questionCount: 2,
     };
@@ -89,11 +146,11 @@ describe("LobbyPage", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("should exclude admin host from player list", () => {
+  it("should exclude host from player list", () => {
     const mockHandlers = {
       gamePin: "123456",
       players: mockPlayers,
-      isAdmin: true,
+      isHost: true,
       hostUserId: 1,
       onStartGame: vi.fn(),
       questionCount: 2,
@@ -105,7 +162,7 @@ describe("LobbyPage", () => {
     expect(screen.getByText("Player2")).toBeInTheDocument();
   });
 
-  it("should exclude admin host using username when id is unavailable", () => {
+  it("should exclude host using username when id is unavailable", () => {
     const playersMissingId = [
       {
         id: undefined as unknown as number,
@@ -123,7 +180,7 @@ describe("LobbyPage", () => {
       <LobbyPage
         gamePin="654321"
         players={playersMissingId}
-        isAdmin
+        isHost
         hostUserId={null}
         hostUsername="HostUser"
         onStartGame={vi.fn()}
@@ -135,12 +192,12 @@ describe("LobbyPage", () => {
     expect(screen.getByText("GuestPlayer")).toBeInTheDocument();
   });
 
-  it("should exclude admin host when player id uses username value", () => {
+  it("should exclude host when player id uses username value", () => {
     const playersWithNamedId = [
       {
-        id: "admin" as unknown as number,
-        username: "admin",
-        avatar: "/api/avatars/sessions/3/user-admin",
+        id: "host" as unknown as number,
+        username: "host",
+        avatar: "/api/avatars/sessions/3/user-host",
       },
       {
         id: "player-1" as unknown as number,
@@ -153,23 +210,23 @@ describe("LobbyPage", () => {
       <LobbyPage
         gamePin="222333"
         players={playersWithNamedId}
-        isAdmin
+        isHost
         hostUserId={1}
-        hostUsername="Admin"
+        hostUsername="Host"
         onStartGame={vi.fn()}
         questionCount={3}
       />
     );
 
-    expect(screen.queryByText("admin")).not.toBeInTheDocument();
+    expect(screen.queryByText("host")).not.toBeInTheDocument();
     expect(screen.getByText("PlayerOne")).toBeInTheDocument();
   });
 
-  it("should call onStartGame when admin clicks start button", () => {
+  it("should call onStartGame when host clicks start button", () => {
     const mockHandlers = {
       gamePin: "123456",
       players: mockPlayers,
-      isAdmin: true,
+      isHost: true,
       onStartGame: vi.fn(),
       questionCount: 2,
     };
@@ -182,14 +239,14 @@ describe("LobbyPage", () => {
     expect(mockHandlers.onStartGame).toHaveBeenCalled();
   });
 
-  it("should show stop session button only for admin when handler provided", () => {
+  it("should show stop session button only for host when handler provided", () => {
     const stopSession = vi.fn();
 
     const { rerender } = render(
       <LobbyPage
         gamePin="123456"
         players={mockPlayers}
-        isAdmin
+        isHost
         onStartGame={vi.fn()}
         onStopSession={stopSession}
         questionCount={2}
@@ -201,13 +258,19 @@ describe("LobbyPage", () => {
     ).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /STOP SESSION/i }));
+    expect(stopSession).not.toHaveBeenCalled();
+
+    const dialog = screen.getByRole("dialog");
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: /stop session/i })
+    );
     expect(stopSession).toHaveBeenCalled();
 
     rerender(
       <LobbyPage
         gamePin="123456"
         players={mockPlayers}
-        isAdmin={false}
+        isHost={false}
         onStartGame={vi.fn()}
         onStopSession={stopSession}
         questionCount={2}
@@ -223,7 +286,7 @@ describe("LobbyPage", () => {
     const mockHandlers = {
       gamePin: "123456",
       players: mockPlayers,
-      isAdmin: true,
+      isHost: true,
       onStartGame: vi.fn(),
       questionCount: 0,
     };
@@ -232,5 +295,42 @@ describe("LobbyPage", () => {
 
     const startButton = screen.getByRole("button", { name: /START GAME/i });
     expect(startButton).toBeDisabled();
+  });
+
+  it("should render paused overlay when session is paused", () => {
+    render(
+      <LobbyPage
+        gamePin="123456"
+        players={mockPlayers}
+        isHost={false}
+        isPaused
+        onStartGame={vi.fn()}
+        questionCount={2}
+      />
+    );
+
+    expect(screen.getByRole("alertdialog")).toBeInTheDocument();
+  });
+
+  it("should not render paused overlay for the host", () => {
+    const onTogglePause = vi.fn();
+
+    render(
+      <LobbyPage
+        gamePin="123456"
+        players={mockPlayers}
+        isHost
+        isPaused
+        onTogglePause={onTogglePause}
+        onStartGame={vi.fn()}
+        questionCount={2}
+      />
+    );
+
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+    expect(screen.getByTestId("paused-host-banner")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /resume/i }));
+    expect(onTogglePause).toHaveBeenCalledTimes(1);
   });
 });

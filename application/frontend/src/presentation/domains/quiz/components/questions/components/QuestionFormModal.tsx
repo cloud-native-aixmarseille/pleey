@@ -2,10 +2,10 @@ import { useEffect, useRef, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ArcadeToggleGroup,
+  CancelButton,
   Input,
   Modal,
-  PrimaryButton,
-  SecondaryButton,
+  SaveButton,
 } from "../../../../../../presentation/shared/ui/components";
 import type {
   OptionKey,
@@ -92,24 +92,17 @@ export function QuestionFormModal({
       description={t("quiz.modals.description")}
       footer={
         <>
-          <SecondaryButton
+          <CancelButton
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-          >
-            {t("quiz.cancel")}
-          </SecondaryButton>
-          <PrimaryButton
+          />
+          <SaveButton
             type="submit"
             form="question-form"
             disabled={isSubmitting}
-          >
-            {isSubmitting
-              ? t("common.loading")
-              : mode === "create"
-              ? t("quiz.save")
-              : t("quiz.saveChanges")}
-          </PrimaryButton>
+            isLoading={isSubmitting}
+          />
         </>
       }
     >

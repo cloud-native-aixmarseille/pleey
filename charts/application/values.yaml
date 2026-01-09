@@ -60,6 +60,10 @@ backend:
     nodeEnv: production
     port: 3001
     corsOrigin: "*"
+    # Valkey (Redis-compatible) session state (used by WebSocket game sessions)
+    # If empty and valkey.enabled=true, it will default to the in-cluster service URL.
+    valkeyUrl: ""
+    sessionStateTtlSeconds: 21600
     # OTEL configuration
     otelExporterOtlpEndpoint: "http://otel-collector:4318"
 
@@ -258,6 +262,44 @@ postgresql:
 
     persistence:
       enabled: false
+
+## Valkey (Redis-compatible) configuration
+valkey:
+  enabled: true
+
+  image:
+    repository: valkey/valkey
+    tag: "8-alpine"
+    pullPolicy: Always
+
+  service:
+    port: 6379
+
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 25m
+      memory: 64Mi
+
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 10001
+    runAsGroup: 10001
+    fsGroup: 10001
+    seccompProfile:
+      type: RuntimeDefault
+
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+
+  persistence:
+    enabled: false
       size: 8Gi
       # storageClass: ""
 

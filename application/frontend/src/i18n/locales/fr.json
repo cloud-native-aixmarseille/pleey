@@ -3,6 +3,7 @@
     "title": "QUIZMASTER",
     "subtitle": ">> APPUYEZ SUR ENTRÉE <<",
     "fast": "Rapide",
+    "backToHostPanel": "RETOUR AU PANNEAU HÔTE",
     "epic": "Épique",
     "win": "Gagnez",
     "login": "► CONNEXION",
@@ -206,7 +207,8 @@
     "success": {
       "questionCreated": "Question créée avec succès.",
       "questionDeleted": "Question supprimée avec succès.",
-      "questionUpdated": "Question mise à jour avec succès."
+      "questionUpdated": "Question mise à jour avec succès.",
+      "quizTitleUpdated": "Titre du quiz mis à jour avec succès."
     },
     "errors": {
       "quizHasActiveSession": "Vous ne pouvez pas supprimer ce quiz tant qu'une session est active."
@@ -223,14 +225,20 @@
     "modals": {
       "createTitle": "Ajouter une question",
       "editTitle": "Modifier la question",
+      "editQuizTitle": "Modifier le titre du quiz",
+      "editQuizTitleDescription": "Mettre à jour le titre du quiz.",
       "description": "Configurez le contenu, le type et le score de cette question.",
       "deleteTitle": "Supprimer la question",
       "deleteDescription": "Cette question sera retirée du quiz.",
       "deletePrompt": "Voulez-vous vraiment supprimer \"{{question}}\" ?"
-    }
+    },
+    "editQuizTitle": "Modifier le titre"
   },
   "game": {
     "stopSession": "Arrêter la session",
+    "stopSessionConfirmTitle": "Arrêter la session",
+    "stopSessionConfirmDescription": "Cela mettra fin à la session en cours pour tous les joueurs.",
+    "stopSessionConfirmPrompt": "Voulez-vous vraiment arrêter cette session ?",
     "joinGame": "Rejoindre le Jeu",
     "enterPin": "Entrer le PIN",
     "join": "Rejoindre",
@@ -245,6 +253,24 @@
     "correct": "Correct !",
     "incorrect": "Incorrect",
     "leaderboard": "Classement",
+    "leaderboardPage": {
+      "title": {
+        "main": "FIN DU JEU",
+        "subtitle": "Résultats finaux",
+        "message": "Bravo à tous les joueurs ! 🎉"
+      },
+      "additionalPlayers": {
+        "title": "Autres joueurs"
+      },
+      "actions": {
+        "playAgain": "Rejouer",
+        "footer": "Merci d'avoir joué ! 🎮✨"
+      },
+      "share": {
+        "title": "Résultats QuizMaster",
+        "text": "J'ai marqué {{score}} points sur QuizMaster ! 🏆 Peux-tu battre mon score ?"
+      }
+    },
     "finalResults": "Résultats Finaux",
     "playAgain": "Rejouer",
     "points": "points",
@@ -279,6 +305,7 @@
     "needOnePlayer": "> Au moins 1 joueur est nécessaire pour démarrer",
     "addOneQuestion": "> Ajoutez au moins une question avant de démarrer",
     "ready": "Prêt",
+    "you": "Vous",
     "clipboardCopied": "PIN du jeu copié dans le presse-papiers.",
     "clipboardError": "Impossible de copier automatiquement. Le PIN est {{pin}}.",
     "waiting": "En attente...",
@@ -421,7 +448,7 @@
       }
     },
     "hostPlaying": {
-      "badge": "VUE HÔTE - MODE PARTAGE D'ÉCRAN",
+      "badgeLabel": "VUE HÔTE",
       "round": {
         "questionLabel": "Question",
         "secondsLabel": "secondes",
@@ -455,6 +482,14 @@
         }
       }
     },
+    "hostControlMenu": {
+      "menuLabel": "Contrôles hôte",
+      "pauseGame": "Mettre en pause",
+      "resumeGame": "Reprendre",
+      "backToLobby": "Retour au lobby",
+      "backToAdmin": "Retour à l'admin",
+      "endGame": "Terminer la partie"
+    },
     "hostLeaderboard": {
       "badge": "VUE HÔTE",
       "title": {
@@ -463,7 +498,7 @@
         "message": "Bravo à tous les joueurs ! 🎉"
       },
       "controls": {
-        "heading": "👑 Contrôles Admin",
+        "heading": "👑 Contrôles hôte",
         "backToAdmin": "RETOUR AU TABLEAU DE BORD ADMIN",
         "newGame": "NOUVELLE PARTIE",
         "footer": "Merci d'avoir animé la partie ! 🎮✨"
@@ -475,6 +510,10 @@
         "suffix": "{{count}} pts",
         "celebration": "🎯 {{count}} pts"
       }
+    },
+    "paused": {
+      "title": "JEU EN PAUSE",
+      "message": "En attente de la reprise par l'hôte..."
     },
     "share": {
       "buttonLabel": "Partager",
@@ -499,7 +538,9 @@
       "activeSessionsFetchFailed": "Échec de la récupération des sessions actives",
       "sessionStopFailed": "Échec de l'arrêt de la session",
       "sessionResumeFailed": "Échec de la reprise de la session",
-      "quizSessionAlreadyActive": "Ce quiz possède déjà une session en cours. Terminez-la avant d'en démarrer une autre."
+      "quizSessionAlreadyActive": "Ce quiz possède déjà une session en cours. Terminez-la avant d'en démarrer une autre.",
+      "gameNotFound": "Session de jeu introuvable",
+      "gameSessionEnded": "Cette session de jeu est terminée."
     }
   },
   "common": {
@@ -578,6 +619,7 @@
     "questionCreateFailed": "Échec de la création de la question. Veuillez réessayer.",
     "questionDeleteFailed": "Échec de la suppression de la question. Veuillez réessayer.",
     "questionUpdateFailed": "Échec de la mise à jour de la question. Veuillez réessayer.",
+    "quizUpdateFailed": "Échec de la mise à jour du quiz. Veuillez réessayer.",
     "sessionsLoadFailed": "Échec du chargement des sessions. Veuillez réessayer."
   },
   "notifications": {

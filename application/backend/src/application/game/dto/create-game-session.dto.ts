@@ -11,5 +11,5 @@ export class CreateGameSessionDto {
 
   @IsNumber()
   @IsOptional()
-  adminId?: number;
+  hostId?: number;
 }
