@@ -12,8 +12,10 @@ services:
       - POSTGRES_USER=${POSTGRES_USER:-quizapp}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-quizapp_password}
       - POSTGRES_DB=${POSTGRES_DB:-quizdb}
+      - POSTGRES_TEST_DB=${POSTGRES_TEST_DB:-quizdb_test}
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
     networks:
       - quiz-network
     healthcheck:
@@ -44,6 +46,7 @@ services:
       - PORT=3001
       - JWT_SECRET=${JWT_SECRET:-votre_secret_jwt_super_securise_changez_moi}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-quizapp}:${POSTGRES_PASSWORD:-quizapp_password}@postgres:5432/${POSTGRES_DB:-quizdb}?schema=public
+      - DATABASE_URL_TEST=postgresql://${POSTGRES_USER:-quizapp}:${POSTGRES_PASSWORD:-quizapp_password}@postgres:5432/${POSTGRES_TEST_DB:-quizdb_test}?schema=public
       - CORS_ORIGIN=*
       - CHOKIDAR_USEPOLLING=1
       - CHOKIDAR_INTERVAL=500

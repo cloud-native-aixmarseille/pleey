@@ -206,7 +206,9 @@ linter-fix: ## Execute linting and fix
 		-e FIX_HTML_PRETTIER=true \
 		-e FIX_JSON_PRETTIER=true \
 		-e FIX_MARKDOWN_PRETTIER=true \
-		-e FIX_NATURAL_LANGUAGE=true)
+		-e FIX_NATURAL_LANGUAGE=true \
+		-e FIX_SHELL_SHFMT=true \
+	)
 
 define run_linter
 	DEFAULT_WORKSPACE="$(CURDIR)"; \
