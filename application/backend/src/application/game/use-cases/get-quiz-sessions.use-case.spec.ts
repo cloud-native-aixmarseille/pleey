@@ -1,12 +1,14 @@
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { GameSession } from '../../../domain/game/entities/game-session.entity';
 import type { GameSessionRepository } from '../../../domain/game/repositories/game-session.repository.interface';
-import { OrganizationMember } from '../../../domain/organization/entities/organization-member.entity';
 import { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
 import type { OrganizationMemberRepository } from '../../../domain/organization/repositories/organization-member.repository.interface';
-import { Quiz } from '../../../domain/quiz/entities/quiz.entity';
 import type { QuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
+import {
+  createGameSessionFixture,
+  createOrganizationMemberFixture,
+  createQuizFixture,
+} from '../../../test-utils/fixtures';
 import { GetQuizSessionsUseCase } from './get-quiz-sessions.use-case';
 
 describe('GetQuizSessionsUseCase', () => {
@@ -20,7 +22,7 @@ describe('GetQuizSessionsUseCase', () => {
       create: vi.fn(),
       findByPin: vi.fn(),
       findById: vi.fn(),
-      findActiveByAdminId: vi.fn(),
+      findActiveByHostId: vi.fn(),
       findActiveByQuizId: vi.fn(),
       findByQuizId: vi.fn(),
       findByOrganization: vi.fn(),
@@ -54,11 +56,38 @@ describe('GetQuizSessionsUseCase', () => {
   });
 
   it('returns sessions when quiz exists and requester is a member', async () => {
-    const quiz = new Quiz(1, 'Arcade Trivia', null, 42, 99, new Date());
-    const member = new OrganizationMember(1, 99, 7, OrganizationRole.OWNER, new Date());
+    const quiz = createQuizFixture({
+      id: 1,
+      title: 'Arcade Trivia',
+      description: null,
+      createdById: 42,
+      organizationId: 99,
+    });
+    const member = createOrganizationMemberFixture({
+      id: 1,
+      organizationId: 99,
+      userId: 7,
+      role: OrganizationRole.OWNER,
+    });
     const sessions = [
-      new GameSession(10, 1, 7, 99, '123456', 'active', 2, new Date()),
-      new GameSession(11, 1, 7, 99, '654321', 'completed', 8, new Date()),
+      createGameSessionFixture({
+        id: 10,
+        quizId: 1,
+        hostId: 7,
+        organizationId: 99,
+        pin: '123456',
+        status: 'active',
+        currentQuestion: 2,
+      }),
+      createGameSessionFixture({
+        id: 11,
+        quizId: 1,
+        hostId: 7,
+        organizationId: 99,
+        pin: '654321',
+        status: 'completed',
+        currentQuestion: 8,
+      }),
     ];
 
     vi.spyOn(quizRepository, 'findById').mockResolvedValue(quiz);
@@ -79,7 +108,13 @@ describe('GetQuizSessionsUseCase', () => {
   });
 
   it('throws ForbiddenException when requester is not a member', async () => {
-    const quiz = new Quiz(1, 'Arcade Trivia', null, 42, 99, new Date());
+    const quiz = createQuizFixture({
+      id: 1,
+      title: 'Arcade Trivia',
+      description: null,
+      createdById: 42,
+      organizationId: 99,
+    });
     vi.spyOn(quizRepository, 'findById').mockResolvedValue(quiz);
     vi.spyOn(memberRepository, 'findByOrganizationAndUser').mockResolvedValue(null);
 

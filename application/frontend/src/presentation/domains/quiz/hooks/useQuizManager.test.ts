@@ -2,6 +2,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { useQuizManager } from "./useQuizManager";
 import { quizService } from "../../../../domains/quiz/quiz.service";
+import type { Question } from "../../../../domains/quiz/types";
+import { createQuestionFixture, createQuizFixture } from "../../../../test/fixtures";
 
 vi.mock("../../../../domains/quiz/quiz.service", () => ({
   quizService: {
@@ -21,33 +23,50 @@ describe("useQuizManager", () => {
   });
 
   it("should increment quiz.question_count when adding a question", async () => {
-     
-    quizService.getQuizzes.mockResolvedValueOnce([
-      {
-        id: 1,
-        title: "Quiz",
-        description: null,
-        created_by: 1,
-        created_at: new Date().toISOString(),
-        question_count: 0,
-        is_active: false,
-      },
+    vi.mocked(quizService.getQuizzes).mockResolvedValueOnce([
+      createQuizFixture(),
     ]);
+    vi.mocked(quizService.addQuestion).mockResolvedValueOnce(
+      createQuestionFixture(),
+    );
 
-     
-    quizService.addQuestion.mockResolvedValueOnce({
-      id: 10,
-      quiz_id: 1,
-      question_text: "Q?",
-      type: "multiple",
-      correct_answer: "A",
-      option_a: "A",
-      option_b: "B",
-      option_c: null,
-      option_d: null,
-      time_limit: 20,
-      points: 100,
+    const { result } = renderHook(() => useQuizManager());
+
+    await act(async () => {
+      await result.current.loadQuizzes("token");
     });
+
+    await waitFor(() => {
+      expect(result.current.quizzes).toHaveLength(1);
+      expect(result.current.quizzes[0].question_count).toBe(0);
+    });
+
+    await act(async () => {
+      await result.current.addQuestion("token", {
+        quizId: 1,
+        questionText: "Q?",
+        type: "multiple",
+        correctAnswer: "A",
+        optionA: "A",
+        optionB: "B",
+      });
+    });
+
+    await waitFor(() => {
+      expect(result.current.quizzes[0].question_count).toBe(1);
+    });
+  });
+
+  it("should increment quiz.question_count when addQuestion returns quiz_id as a string", async () => {
+    vi.mocked(quizService.getQuizzes).mockResolvedValueOnce([
+      createQuizFixture(),
+    ]);
+    vi.mocked(quizService.addQuestion).mockResolvedValueOnce(
+      {
+        ...createQuestionFixture(),
+        quiz_id: "1",
+      } as unknown as Question,
+    );
 
     const { result } = renderHook(() => useQuizManager());
 
@@ -77,21 +96,12 @@ describe("useQuizManager", () => {
   });
 
   it("should decrement quiz.question_count when deleting a question", async () => {
-     
-    quizService.getQuizzes.mockResolvedValueOnce([
-      {
-        id: 1,
-        title: "Quiz",
-        description: null,
-        created_by: 1,
-        created_at: new Date().toISOString(),
+    vi.mocked(quizService.getQuizzes).mockResolvedValueOnce([
+      createQuizFixture({
         question_count: 1,
-        is_active: false,
-      },
+      }),
     ]);
-
-     
-    quizService.deleteQuestion.mockResolvedValueOnce(undefined);
+    vi.mocked(quizService.deleteQuestion).mockResolvedValueOnce(undefined);
 
     const { result } = renderHook(() => useQuizManager());
 
@@ -107,19 +117,7 @@ describe("useQuizManager", () => {
     act(() => {
       result.current.setQuestionsByQuiz({
         1: [
-          {
-            id: 10,
-            quiz_id: 1,
-            question_text: "Q?",
-            type: "multiple",
-            correct_answer: "A",
-            option_a: "A",
-            option_b: "B",
-            option_c: null,
-            option_d: null,
-            time_limit: 20,
-            points: 100,
-          },
+          createQuestionFixture({ id: 10 }),
         ],
       });
     });

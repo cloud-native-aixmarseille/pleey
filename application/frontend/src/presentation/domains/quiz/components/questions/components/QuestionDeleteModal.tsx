@@ -1,11 +1,6 @@
 import { useTranslation } from "react-i18next";
-import {
-  DangerButton,
-  Modal,
-  SecondaryButton,
-} from "../../../../../../presentation/shared/ui/components";
+import { ConfirmModal } from "../../../../../../presentation/shared/ui/components";
 import type { Question } from "../../../../../../domains/quiz/types";
-const WARNING_TEXT_CLASSES = "text-sm text-light-200";
 
 interface QuestionDeleteModalProps {
   question: Question | null;
@@ -23,35 +18,18 @@ export function QuestionDeleteModal({
   const { t } = useTranslation();
 
   return (
-    <Modal
+    <ConfirmModal
       isOpen={question !== null}
-      onClose={onCancel}
+      onCancel={onCancel}
+      onConfirm={onConfirm}
+      isProcessing={isProcessing}
       title={t("quiz.modals.deleteTitle")}
       description={t("quiz.modals.deleteDescription")}
-      footer={
-        <>
-          <SecondaryButton
-            type="button"
-            onClick={onCancel}
-            disabled={isProcessing}
-          >
-            {t("common.cancel")}
-          </SecondaryButton>
-          <DangerButton
-            type="button"
-            onClick={onConfirm}
-            disabled={isProcessing}
-          >
-            {isProcessing ? t("common.loading") : t("quiz.deleteQuestion")}
-          </DangerButton>
-        </>
-      }
-    >
-      <p className={WARNING_TEXT_CLASSES}>
-        {t("quiz.modals.deletePrompt", {
-          question: question?.question_text ?? "",
-        })}
-      </p>
-    </Modal>
+      confirmLabel={t("quiz.deleteQuestion")}
+      body={t("quiz.modals.deletePrompt", {
+        question: question?.question_text ?? "",
+      })}
+      variant="danger"
+    />
   );
 }

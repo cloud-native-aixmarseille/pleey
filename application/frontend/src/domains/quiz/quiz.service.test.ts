@@ -3,6 +3,7 @@ import type {
   CreateQuestionPayload,
   UpdateQuestionPayload,
 } from "./quiz.service";
+import { createQuestionFixture, createQuizFixture } from "../../test/fixtures";
 
 const mocks = vi.hoisted(() => ({
   queryOptionsMock: vi.fn(),
@@ -45,20 +46,8 @@ describe("QuizService", () => {
   describe("getQuizzes", () => {
     it("should fetch all quizzes", async () => {
       const mockQuizzes = [
-        {
-          id: 1,
-          title: "Quiz 1",
-          description: "Test quiz 1",
-          created_by: 1,
-          created_at: "2024-01-01",
-        },
-        {
-          id: 2,
-          title: "Quiz 2",
-          description: "Test quiz 2",
-          created_by: 1,
-          created_at: "2024-01-02",
-        },
+        createQuizFixture(),
+        createQuizFixture(),
       ];
 
       const queryOptions = { path: "/api/quizzes" };
@@ -80,13 +69,7 @@ describe("QuizService", () => {
 
   describe("createQuiz", () => {
     it("should create a new quiz and invalidate cache", async () => {
-      const newQuiz = {
-        id: 3,
-        title: "New Quiz",
-        description: "New description",
-        created_by: 1,
-        created_at: "2024-01-03",
-      };
+      const newQuiz = createQuizFixture();
 
       mocks.fetchClientPostMock.mockResolvedValueOnce({
         data: newQuiz,
@@ -121,19 +104,7 @@ describe("QuizService", () => {
   describe("getQuestions", () => {
     it("should fetch questions for a quiz", async () => {
       const mockQuestions = [
-        {
-          id: 1,
-          quiz_id: 1,
-          question_text: "What is 2+2?",
-          type: "multiple",
-          correct_answer: "A",
-          option_a: "4",
-          option_b: "3",
-          option_c: "5",
-          option_d: "6",
-          time_limit: 20,
-          points: 1000,
-        },
+        createQuestionFixture(),
       ];
 
       const queryOptions = { path: "/api/quizzes/1/questions" };
@@ -171,19 +142,7 @@ describe("QuizService", () => {
         points: 1000,
       };
 
-      const createdQuestion = {
-        id: 10,
-        quiz_id: 1,
-        question_text: "New question?",
-        type: "multiple",
-        correct_answer: "A",
-        option_a: "Answer A",
-        option_b: "Answer B",
-        option_c: "Answer C",
-        option_d: "Answer D",
-        time_limit: 20,
-        points: 1000,
-      };
+      const createdQuestion = createQuestionFixture();
 
       globalFetchMock.mockResolvedValueOnce({
         ok: true,
@@ -257,19 +216,7 @@ describe("QuizService", () => {
         points: 1500,
       };
 
-      const updatedQuestion = {
-        id: 5,
-        quiz_id: 2,
-        question_text: "Updated",
-        type: "truefalse",
-        correct_answer: "true",
-        option_a: null,
-        option_b: null,
-        option_c: null,
-        option_d: null,
-        time_limit: 30,
-        points: 1500,
-      };
+      const updatedQuestion = createQuestionFixture();
 
       globalFetchMock.mockResolvedValueOnce({
         ok: true,

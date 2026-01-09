@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { NavigateFunction } from "react-router-dom";
 import { gameService } from "../../../../domains/game/game.service";
 import { useTimer } from "../../../../presentation/shared/hooks/useTimer";
 import type { User } from "../../../../domains/auth/types";
 import type { GameSession } from "../../../../domains/game/types";
-import type { Question } from "../../../../domains/quiz/types";
+import type { Question, Quiz } from "../../../../domains/quiz/types";
 import type { ToastVariant } from "../../app-shell/contexts/NotificationContext";
 import { useGameSocket } from "./useGameSocket";
 
@@ -26,7 +26,9 @@ interface UseGameSessionManagerParams {
   token: string | null;
   user: User | null;
   guestId: string | null;
+  guestNickname: string;
   registerGuest: RegisterGuest;
+  quizzes: Quiz[];
   questionsByQuiz: QuestionsByQuiz;
   fetchQuizQuestions: LoadQuizQuestions;
   notify: Notify;
@@ -38,7 +40,9 @@ export function useGameSessionManager({
   token,
   user,
   guestId,
+  guestNickname,
   registerGuest,
+  quizzes,
   questionsByQuiz,
   fetchQuizQuestions,
   notify,
@@ -47,6 +51,7 @@ export function useGameSessionManager({
 }: UseGameSessionManagerParams) {
   const [gamePinState, setGamePinState] = useState("");
   const [activeQuizQuestionCount, setActiveQuizQuestionCount] = useState(-1);
+  const [activeQuizTitle, setActiveQuizTitle] = useState<string | null>(null);
   const [userAnswer, setUserAnswer] = useState<string | null>(null);
   const [activeSessions, setActiveSessions] = useState<GameSession[]>([]);
   const [sessionsByQuiz, setSessionsByQuiz] = useState<
@@ -55,7 +60,51 @@ export function useGameSessionManager({
 
   const setGamePin = useCallback((pin: string) => {
     setGamePinState(pin.toUpperCase());
+    setActiveQuizTitle(null);
   }, []);
+
+  const lastGuestJoinPinRef = useRef<string | null>(null);
+  const lastUserJoinPinRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      return;
+    }
+
+    if (!guestId || !guestNickname) {
+      return;
+    }
+
+    const normalizedPin = gamePinState.trim().toUpperCase();
+    if (!normalizedPin) {
+      return;
+    }
+
+    if (lastGuestJoinPinRef.current === normalizedPin) {
+      return;
+    }
+
+    lastGuestJoinPinRef.current = normalizedPin;
+    gameService.joinGame(normalizedPin, guestNickname, undefined, guestId);
+  }, [user, guestId, guestNickname, gamePinState]);
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    const normalizedPin = gamePinState.trim().toUpperCase();
+    if (!normalizedPin) {
+      return;
+    }
+
+    if (lastUserJoinPinRef.current === normalizedPin) {
+      return;
+    }
+
+    lastUserJoinPinRef.current = normalizedPin;
+    gameService.joinGame(normalizedPin, user.username, user.id);
+  }, [user, gamePinState]);
 
   const {
     players,
@@ -70,11 +119,38 @@ export function useGameSessionManager({
     gameStarted,
     gameEnded,
     answerSubmitted,
-  } = useGameSocket();
+    isPaused,
+    lastErrorCode,
+  } = useGameSocket(gamePinState);
+
+  const lastHandledSocketErrorRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!lastErrorCode) {
+      return;
+    }
+
+    if (lastHandledSocketErrorRef.current === lastErrorCode) {
+      return;
+    }
+
+    lastHandledSocketErrorRef.current = lastErrorCode;
+
+    if (lastErrorCode === "GAME_SESSION_ENDED") {
+      notify("game.errors.gameSessionEnded", "error");
+      navigate("/game/join", { replace: true });
+      return;
+    }
+
+    if (lastErrorCode === "GAME_NOT_FOUND") {
+      notify("game.errors.gameNotFound", "error");
+      navigate("/game/join", { replace: true });
+    }
+  }, [lastErrorCode, navigate, notify]);
 
   const isQuestionActive = useMemo(() => !!currentQuestion, [currentQuestion]);
   const hasSubmittedAnswer = useMemo(() => answerSubmitted, [answerSubmitted]);
-  useTimer(timeLeft, setTimeLeft, isQuestionActive, hasSubmittedAnswer);
+  useTimer(timeLeft, setTimeLeft, isQuestionActive, hasSubmittedAnswer, isPaused);
 
   const refreshActiveSessions = useCallback(async (): Promise<GameSession[]> => {
     if (!token) {
@@ -119,13 +195,48 @@ export function useGameSessionManager({
 
   useEffect(() => {
     if (!token) {
-      setActiveSessions([]);
-      setSessionsByQuiz({});
+      setActiveSessions((previous) => (previous.length ? [] : previous));
+      setSessionsByQuiz((previous) =>
+        Object.keys(previous).length ? {} : previous,
+      );
       return;
     }
 
     refreshActiveSessions().catch(() => undefined);
   }, [token, refreshActiveSessions]);
+
+  useEffect(() => {
+    if (!gamePinState || activeQuizTitle) {
+      return;
+    }
+
+    const normalizedPin = gamePinState.trim().toUpperCase();
+    if (!normalizedPin) {
+      return;
+    }
+
+    const findSessionByPin = (sessions: GameSession[]) =>
+      sessions.find((session) => session.pin?.trim().toUpperCase() === normalizedPin);
+
+    const sessionFromActive = findSessionByPin(activeSessions);
+    const sessionFromQuizLists = sessionFromActive
+      ? null
+      : Object.values(sessionsByQuiz)
+        .flat()
+        .find((session) => session.pin?.trim().toUpperCase() === normalizedPin);
+
+    const session = sessionFromActive ?? sessionFromQuizLists;
+    const quizId = session?.quizId;
+
+    if (typeof quizId !== "number") {
+      return;
+    }
+
+    const title = quizzes.find((quiz) => quiz.id === quizId)?.title ?? null;
+    if (title) {
+      setActiveQuizTitle(title);
+    }
+  }, [gamePinState, activeQuizTitle, activeSessions, sessionsByQuiz, quizzes]);
 
   useEffect(() => {
     if (!token || !user) {
@@ -155,7 +266,7 @@ export function useGameSessionManager({
         session = findSessionByPin(refreshed);
       }
 
-      const quizId = session?.quizId ?? session?.quiz_id;
+      const quizId = session?.quizId;
       if (typeof quizId !== "number") {
         return;
       }
@@ -217,7 +328,7 @@ export function useGameSessionManager({
       try {
         const currentSessions = await refreshActiveSessions();
         const liveSession = currentSessions.find((session) => {
-          const sessionQuizId = session.quizId ?? session.quiz_id;
+          const sessionQuizId = session.quizId;
           return (
             sessionQuizId === quizId &&
             ["waiting", "active", "paused"].includes(session.status)
@@ -231,8 +342,12 @@ export function useGameSessionManager({
 
         const data = await gameService.createSession(token, quizId);
         const normalizedPin = data.pin.toUpperCase();
+        const title = quizzes.find((quiz) => quiz.id === quizId)?.title ?? null;
+
+        lastUserJoinPinRef.current = normalizedPin;
         setGamePin(normalizedPin);
         setActiveQuizQuestionCount(questions.length);
+        setActiveQuizTitle(title);
         await refreshActiveSessions();
         await loadSessionsForQuiz(quizId);
         gameService.joinGame(normalizedPin, user.username, user.id);
@@ -251,6 +366,7 @@ export function useGameSessionManager({
       refreshActiveSessions,
       loadSessionsForQuiz,
       navigate,
+      quizzes,
     ],
   );
 
@@ -259,6 +375,7 @@ export function useGameSessionManager({
       return;
     }
 
+    lastUserJoinPinRef.current = gamePinState.trim().toUpperCase();
     gameService.joinGame(gamePinState, user.username, user.id);
     navigate(`/game/${gamePinState}/lobby`);
   }, [user, gamePinState, navigate]);
@@ -269,6 +386,7 @@ export function useGameSessionManager({
         return;
       }
       const { id } = registerGuest(nickname);
+      lastGuestJoinPinRef.current = gamePinState.trim().toUpperCase();
       gameService.joinGame(gamePinState, nickname, undefined, id);
       navigate(`/game/${gamePinState}/lobby`);
     },
@@ -306,18 +424,20 @@ export function useGameSessionManager({
         );
 
     const session = sessionFromActive ?? sessionFromQuizLists;
-    const quizId = session?.quizId ?? session?.quiz_id;
+    const quizId = session?.quizId;
 
     try {
       gameService.endGame(normalizedPin, user.id);
 
-      await refreshActiveSessions();
+      navigate("/admin", { replace: true });
 
-      if (typeof quizId === "number") {
-        await loadSessionsForQuiz(quizId);
-      }
-
-      navigate("/admin");
+      refreshActiveSessions()
+        .then(async () => {
+          if (typeof quizId === "number") {
+            await loadSessionsForQuiz(quizId);
+          }
+        })
+        .catch(() => undefined);
     } catch (error) {
       notifyFromError(error, "game.errors.sessionStopFailed");
     }
@@ -371,7 +491,7 @@ export function useGameSessionManager({
         return;
       }
 
-      const quizId = session.quizId ?? session.quiz_id;
+      const quizId = session.quizId;
       if (typeof quizId !== "number") {
         notify("errors.sessionsLoadFailed", "error");
         return;
@@ -389,14 +509,24 @@ export function useGameSessionManager({
       }
 
       const normalizedPin = session.pin.toUpperCase();
+
+      lastUserJoinPinRef.current = normalizedPin;
       setGamePin(normalizedPin);
       setActiveQuizQuestionCount(questions.length);
+      setActiveQuizTitle(quizzes.find((quiz) => quiz.id === quizId)?.title ?? null);
 
       await refreshActiveSessions();
       await loadSessionsForQuiz(quizId);
 
-      navigate(`/game/${normalizedPin}/lobby`);
+      // Join the game first, then navigate based on session status
       gameService.joinGame(normalizedPin, user.username, user.id);
+
+      // Navigate to playing route if game is active, otherwise to lobby
+      if (session.status === "active" || session.status === "paused") {
+        navigate(`/game/${normalizedPin}/playing/current`);
+      } else {
+        navigate(`/game/${normalizedPin}/lobby`);
+      }
     },
     [
       token,
@@ -408,13 +538,39 @@ export function useGameSessionManager({
       refreshActiveSessions,
       loadSessionsForQuiz,
       navigate,
+      quizzes,
     ],
   );
+
+  const handleTogglePause = useCallback(() => {
+    if (!gamePinState || !user) {
+      return;
+    }
+
+    if (isPaused) {
+      gameService.resumeGame(gamePinState, user.id);
+    } else {
+      gameService.stopGame(gamePinState, user.id);
+    }
+  }, [gamePinState, user, isPaused]);
+
+  const handleBackToLobby = useCallback(() => {
+    if (!gamePinState) {
+      return;
+    }
+
+    navigate(`/game/${gamePinState}/lobby`);
+  }, [gamePinState, navigate]);
+
+  const handleBackToAdmin = useCallback(() => {
+    navigate("/admin", { replace: true });
+  }, [navigate]);
 
   return {
     gamePin: gamePinState,
     setGamePin,
     activeQuizQuestionCount,
+    activeQuizTitle,
     userAnswer,
     answerSubmitted,
     players,
@@ -427,6 +583,7 @@ export function useGameSessionManager({
     leaderboard,
     gameStarted,
     gameEnded,
+    isPaused,
     activeSessions,
     sessionsByQuiz,
     refreshActiveSessions,
@@ -439,5 +596,8 @@ export function useGameSessionManager({
     handleStopSession,
     handleSubmitAnswer,
     handleNextQuestion,
+    handleTogglePause,
+    handleBackToLobby,
+    handleBackToAdmin,
   };
 }

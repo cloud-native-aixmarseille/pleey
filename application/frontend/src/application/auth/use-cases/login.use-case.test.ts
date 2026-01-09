@@ -2,24 +2,23 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { LoginUseCase } from "./login.use-case";
 import { IAuthRepository } from "../../../domains/auth/ports/auth.repository.interface";
 import { IStorage } from "../../../domains/shared/ports/storage.interface";
-import type { User } from "../../../domains/auth/types";
+import {
+  createAuthResponsePayloadFixture,
+} from "../../../test/fixtures";
 
 describe("LoginUseCase", () => {
   let loginUseCase: LoginUseCase;
   let mockAuthRepository: IAuthRepository;
   let mockStorage: IStorage;
 
-  const mockUser: User = {
-    id: 1,
-    username: "testuser",
-    email: "test@example.com",
-    isAdmin: false,
-  };
-
   beforeEach(() => {
     mockAuthRepository = {
       login: vi.fn(),
       register: vi.fn(),
+      getCurrentUser: vi.fn(),
+      updateProfile: vi.fn(),
+      regenerateAvatar: vi.fn(),
+      logout: vi.fn(),
     };
 
     mockStorage = {
@@ -33,7 +32,7 @@ describe("LoginUseCase", () => {
   });
 
   it("should login successfully and store credentials", async () => {
-    const mockResponse = { token: "test-token", user: mockUser };
+    const mockResponse = createAuthResponsePayloadFixture();
     vi.mocked(mockAuthRepository.login).mockResolvedValue(mockResponse);
 
     const result = await loginUseCase.execute({
@@ -41,18 +40,18 @@ describe("LoginUseCase", () => {
       password: "password123",
     });
 
-    expect(result).toEqual(mockResponse);
+    expect(result).toEqual({ token: mockResponse.token, user: mockResponse.user });
     expect(mockAuthRepository.login).toHaveBeenCalledWith(
       "test@example.com",
       "password123",
     );
     expect(mockStorage.setItem).toHaveBeenCalledWith(
       "quizmaster_token",
-      "test-token",
+      mockResponse.token,
     );
     expect(mockStorage.setItem).toHaveBeenCalledWith(
       "quizmaster_user",
-      JSON.stringify(mockUser),
+      JSON.stringify(mockResponse.user),
     );
   });
 

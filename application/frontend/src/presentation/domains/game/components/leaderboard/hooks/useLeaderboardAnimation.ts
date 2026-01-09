@@ -1,41 +1,57 @@
 import { useEffect, useState } from "react";
 
-import { LEADERBOARD_ANIMATION_TIMINGS } from "../constants";
+import {
+  LEADERBOARD_ANIMATION_TIMINGS,
+  type HostLeaderboardAnimationStage,
+} from "../constants";
 
-export function useLeaderboardAnimation() {
-  const [animationStage, setAnimationStage] = useState(0);
-  const [showConfetti, setShowConfetti] = useState(true);
+type LeaderboardAnimationTimings = {
+  title: number;
+  firstPlace: number;
+  secondPlace: number;
+  thirdPlace: number;
+  rest: number;
+  confettiStop: number;
+};
+
+interface UseLeaderboardAnimationOptions {
+  timings?: LeaderboardAnimationTimings;
+  initialStage?: HostLeaderboardAnimationStage;
+  disableConfetti?: boolean;
+}
+
+export function useLeaderboardAnimation(options?: UseLeaderboardAnimationOptions) {
+  const timings = options?.timings ?? LEADERBOARD_ANIMATION_TIMINGS;
+  const disableConfetti = options?.disableConfetti ?? false;
+
+  const [animationStage, setAnimationStage] = useState<HostLeaderboardAnimationStage>(
+    options?.initialStage ?? 0
+  );
+  const [showConfetti, setShowConfetti] = useState(
+    !disableConfetti && (options?.initialStage ?? 0) < 5
+  );
 
   useEffect(() => {
+    if (typeof options?.initialStage === "number") {
+      setAnimationStage(options.initialStage);
+      setShowConfetti(!disableConfetti && options.initialStage < 5);
+      return;
+    }
+
     const timers: ReturnType<typeof setTimeout>[] = [
-      setTimeout(
-        () => setAnimationStage(1),
-        LEADERBOARD_ANIMATION_TIMINGS.title,
-      ),
-      setTimeout(
-        () => setAnimationStage(2),
-        LEADERBOARD_ANIMATION_TIMINGS.firstPlace,
-      ),
-      setTimeout(
-        () => setAnimationStage(3),
-        LEADERBOARD_ANIMATION_TIMINGS.secondPlace,
-      ),
-      setTimeout(
-        () => setAnimationStage(4),
-        LEADERBOARD_ANIMATION_TIMINGS.thirdPlace,
-      ),
-      setTimeout(
-        () => setAnimationStage(5),
-        LEADERBOARD_ANIMATION_TIMINGS.rest,
-      ),
-      setTimeout(
-        () => setShowConfetti(false),
-        LEADERBOARD_ANIMATION_TIMINGS.confettiStop,
-      ),
+      setTimeout(() => setAnimationStage(1), timings.title),
+      setTimeout(() => setAnimationStage(2), timings.firstPlace),
+      setTimeout(() => setAnimationStage(3), timings.secondPlace),
+      setTimeout(() => setAnimationStage(4), timings.thirdPlace),
+      setTimeout(() => setAnimationStage(5), timings.rest),
     ];
 
+    if (!disableConfetti) {
+      timers.push(setTimeout(() => setShowConfetti(false), timings.confettiStop));
+    }
+
     return () => timers.forEach((timer) => clearTimeout(timer));
-  }, []);
+  }, [disableConfetti, options?.initialStage, timings]);
 
   return { animationStage, showConfetti };
 }

@@ -8,6 +8,10 @@ import type {
   UpdateQuestionPayload,
 } from "../../../../domains/quiz/quiz.service";
 import type { Quiz, Question } from "../../../../domains/quiz/types";
+import {
+  createQuestionFixture,
+  createQuizFixture,
+} from "../../../../test/fixtures";
 
 const mocks = vi.hoisted(() => ({
   useAuthManagerContext: vi.fn(),
@@ -47,13 +51,9 @@ interface SetupOptions {
   quiz?: Partial<MockQuizContext>;
 }
 
-const defaultQuiz: Quiz = {
+const defaultQuiz: Quiz = createQuizFixture({
   id: 42,
-  title: "Neon Trivia",
-  description: "Test quiz",
-  created_by: 1,
-  created_at: "2024-01-01T00:00:00.000Z",
-};
+});
 
 interface MockQuizContext {
   quizzes: Quiz[];
@@ -172,19 +172,7 @@ describe("ManageQuestionsRoute", () => {
   });
 
   it("avoids loading questions when cache already populated", () => {
-    const question = {
-      id: 1,
-      quiz_id: 42,
-      question_text: "What is neon?",
-      type: "truefalse",
-      correct_answer: "true",
-      option_a: null,
-      option_b: null,
-      option_c: null,
-      option_d: null,
-      time_limit: 20,
-      points: 500,
-    };
+    const question = createQuestionFixture();
 
     const { quizContext } = setup({
       quiz: {

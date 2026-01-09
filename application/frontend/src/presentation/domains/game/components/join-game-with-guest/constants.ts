@@ -1,1 +1,0 @@
-export const GUEST_NICKNAME_MAX_LENGTH = 20;

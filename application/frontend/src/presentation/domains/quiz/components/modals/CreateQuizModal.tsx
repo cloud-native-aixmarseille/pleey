@@ -1,10 +1,10 @@
 import { useEffect, useRef, type ChangeEvent, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  CancelButton,
   Input,
   Modal,
   PrimaryButton,
-  SecondaryButton,
 } from "../../../../../presentation/shared/ui/components";
 
 const FORM_CONTENT_CLASSES = "space-y-6";
@@ -52,13 +52,11 @@ export function CreateQuizModal({
       description={t("admin.createQuizModalDescription")}
       footer={
         <>
-          <SecondaryButton
+          <CancelButton
             type="button"
             onClick={onClose}
             disabled={isProcessing}
-          >
-            {t("common.cancel")}
-          </SecondaryButton>
+          />
           <PrimaryButton
             type="submit"
             form="create-quiz-form"

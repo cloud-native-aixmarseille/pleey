@@ -13,7 +13,7 @@ import type {
 } from "../../../../domains/game/types";
 import type { Question } from "../../../../domains/quiz/types";
 import { container } from "../../../../app/di/container";
-import { useGameSocket } from "../../../../presentation/shared/hooks/useGameSocket";
+import { useGameSocket } from "../hooks/useGameSocket";
 
 interface GameContextValue {
   // Game state
@@ -103,7 +103,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
   const startGame = useCallback((pin: string) => {
     const gameSocket = container.getGameSocket();
-    gameSocket.startGame(pin);
+    gameSocket.publish({ type: "start-game", pin });
   }, []);
 
   const submitAnswer = useCallback(
@@ -115,7 +115,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
   const nextQuestion = useCallback((pin: string) => {
     const gameSocket = container.getGameSocket();
-    gameSocket.nextQuestion(pin);
+    gameSocket.publish({ type: "next-question", pin });
     setUserAnswer(null);
   }, []);
 

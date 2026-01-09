@@ -1,56 +1,29 @@
 import { ConflictException, NotFoundException } from '@nestjs/common';
-import { beforeEach, describe, expect, it, type Mocked, vi } from 'vitest';
-import type { GameSessionRepository } from '../../../domain/game/repositories/game-session.repository.interface';
-import { Quiz } from '../../../domain/quiz/entities/quiz.entity';
-import type { QuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
+import { describe, expect, it } from 'vitest';
+import { createQuizFixture } from '../../../test-utils/fixtures';
+import {
+  createGameSessionRepositoryMock,
+  createQuizRepositoryMock,
+} from '../../../test-utils/mock-factories';
 import { QuizErrorCode } from '../enums/quiz-error-code.enum';
 import { DeleteQuizUseCase } from './delete-quiz.use-case';
 
 describe('DeleteQuizUseCase', () => {
-  let quizRepository: Mocked<QuizRepository>;
-  let gameSessionRepository: Mocked<GameSessionRepository>;
-  let useCase: DeleteQuizUseCase;
-
-  beforeEach(() => {
-    quizRepository = {
-      findById: vi.fn(),
-      delete: vi.fn(),
-      create: vi.fn(),
-      findAll: vi.fn(),
-      findByCreator: vi.fn(),
-      findByOrganization: vi.fn(),
-      update: vi.fn(),
-    } as unknown as Mocked<QuizRepository>;
-
-    gameSessionRepository = {
-      countActiveByQuizId: vi.fn(),
-      create: vi.fn(),
-      deleteOldSessions: vi.fn(),
-      findActiveByAdminId: vi.fn(),
-      findActiveByQuizId: vi.fn(),
-      findByQuizId: vi.fn(),
-      findById: vi.fn(),
-      findByOrganization: vi.fn(),
-      findByPin: vi.fn(),
-      updateCurrentQuestion: vi.fn(),
-      updateStatus: vi.fn(),
-    } as unknown as Mocked<GameSessionRepository>;
-
-    useCase = new DeleteQuizUseCase(quizRepository, gameSessionRepository);
-  });
-
   it('should delete quiz when no active sessions exist', async () => {
-    const quiz = new Quiz(1, 'Title', 'Desc', 1, 1, new Date());
-    quizRepository.findById.mockResolvedValue(quiz);
-    gameSessionRepository.countActiveByQuizId.mockResolvedValue(0);
+    const quiz = createQuizFixture();
+    const quizRepository = createQuizRepositoryMock({ findById: quiz });
+    const gameSessionRepository = createGameSessionRepositoryMock({ countActiveByQuizId: 0 });
+    const useCase = new DeleteQuizUseCase(quizRepository as never, gameSessionRepository as never);
 
-    await useCase.execute(1);
+    await useCase.execute(quiz.id);
 
-    expect(quizRepository.delete).toHaveBeenCalledWith(1);
+    expect(quizRepository.delete).toHaveBeenCalledWith(quiz.id);
   });
 
   it('should throw when quiz does not exist', async () => {
-    quizRepository.findById.mockResolvedValue(null);
+    const quizRepository = createQuizRepositoryMock({ findById: null });
+    const gameSessionRepository = createGameSessionRepositoryMock();
+    const useCase = new DeleteQuizUseCase(quizRepository as never, gameSessionRepository as never);
 
     await useCase.execute(42).then(
       () => {
@@ -64,11 +37,12 @@ describe('DeleteQuizUseCase', () => {
   });
 
   it('should throw when active sessions are present', async () => {
-    const quiz = new Quiz(1, 'Title', 'Desc', 1, 1, new Date());
-    quizRepository.findById.mockResolvedValue(quiz);
-    gameSessionRepository.countActiveByQuizId.mockResolvedValue(2);
+    const quiz = createQuizFixture();
+    const quizRepository = createQuizRepositoryMock({ findById: quiz });
+    const gameSessionRepository = createGameSessionRepositoryMock({ countActiveByQuizId: 2 });
+    const useCase = new DeleteQuizUseCase(quizRepository as never, gameSessionRepository as never);
 
-    await useCase.execute(1).then(
+    await useCase.execute(quiz.id).then(
       () => {
         throw new Error('Expected ConflictException to be thrown');
       },

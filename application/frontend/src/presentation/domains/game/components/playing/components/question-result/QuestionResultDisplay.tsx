@@ -14,7 +14,7 @@ interface QuestionResultDisplayProps {
   currentQuestion: Question;
   questionNumber: number;
   userAnswer: string | null;
-  isAdmin: boolean;
+  isHost: boolean;
   onNextQuestion: () => void;
 }
 
@@ -23,7 +23,7 @@ export default function QuestionResultDisplay({
   currentQuestion,
   questionNumber,
   userAnswer,
-  isAdmin,
+  isHost,
   onNextQuestion,
 }: QuestionResultDisplayProps) {
   const { isCorrect, points, correctAnswer, statistics } = answerResult;
@@ -76,7 +76,7 @@ export default function QuestionResultDisplay({
       <ResultActions
         shareTitle={t("game.playing.result.shareTitle")}
         shareText={shareText}
-        isAdmin={isAdmin}
+        isHost={isHost}
         onNextQuestion={onNextQuestion}
         nextQuestionLabel={t("game.playing.result.nextQuestion")}
       />

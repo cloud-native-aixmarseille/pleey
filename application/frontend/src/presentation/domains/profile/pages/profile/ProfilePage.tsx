@@ -4,10 +4,10 @@ import { useTranslation } from "react-i18next";
 import { Container } from "../../../../../presentation/shared/ui/components";
 import type { User } from "../../../../../domains/auth/types";
 
-import { ProfileLayout } from "./components/ProfileLayout.tsx";
-import { ProfileCard } from "./components/ProfileCard.tsx";
-import { ProfileHeader } from "./components/ProfileHeader.tsx";
-import { ProfileForm } from "./components/ProfileForm.tsx";
+import { ProfileLayout } from "./components/ProfileLayout";
+import { ProfileCard } from "./components/ProfileCard";
+import { ProfileHeader } from "./components/ProfileHeader";
+import { ProfileForm } from "./components/ProfileForm";
 
 const AVATAR_NOTE_CLASSES = "text-xs text-light-600";
 
@@ -68,9 +68,6 @@ export function ProfilePage({
             emailPlaceholder={t("profile.emailPlaceholder")}
             usernameLabel={t("profile.username")}
             emailLabel={t("profile.email")}
-            saveLabel={t("profile.save")}
-            cancelLabel={t("profile.cancel")}
-            loadingLabel={loadingLabel}
             onSubmit={onSubmit}
             isSaving={isSaving}
           />

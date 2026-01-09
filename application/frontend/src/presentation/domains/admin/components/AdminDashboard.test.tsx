@@ -5,6 +5,11 @@ import userEvent from "@testing-library/user-event";
 import AdminDashboard from "./AdminDashboard";
 import { NotificationProvider } from "../../app-shell/contexts/NotificationContext";
 import type { GameSession } from "../../../../domains/game/types";
+import {
+  createGameSessionFixture,
+  createQuizFixture,
+  createUserFixture,
+} from "../../../../test/fixtures";
 
 const organizationContextMock = vi.hoisted(() => ({
   useOrganization: vi.fn(),
@@ -24,24 +29,18 @@ vi.mock("../../auth", () => ({
 
 describe("AdminDashboard", () => {
   const mockQuizzes = [
-    {
+    createQuizFixture({
       id: 1,
       title: "Quiz 1",
       description: "Description 1",
-      created_by: 1,
-      created_at: "2024-01-01",
       question_count: 3,
-      is_active: true,
-    },
-    {
+    }),
+    createQuizFixture({
       id: 2,
       title: "Quiz 2",
       description: "Description 2",
-      created_by: 1,
-      created_at: "2024-01-02",
       question_count: 5,
-      is_active: false,
-    },
+    }),
   ];
 
   beforeEach(() => {
@@ -59,7 +58,7 @@ describe("AdminDashboard", () => {
       clearError: vi.fn(),
     });
     authContextMock.useAuthManagerContext.mockReturnValue({
-      user: { id: 99, username: "admin", email: "admin@example.com" },
+      user: createUserFixture({ isAdmin: true }),
     });
   });
 
@@ -210,14 +209,10 @@ describe("AdminDashboard", () => {
     };
 
     const activeSessions: GameSession[] = [
-      {
-        sessionId: 100,
-        pin: "123456",
+      createGameSessionFixture({
         quizId: 1,
-        adminId: 42,
-        status: "waiting",
-        createdAt: "2024-01-03",
-      },
+        sessionId: 100,
+      }),
     ];
 
     render(
@@ -244,14 +239,10 @@ describe("AdminDashboard", () => {
     };
 
     const activeSessions: GameSession[] = [
-      {
-        sessionId: 100,
-        pin: "123456",
+      createGameSessionFixture({
         quizId: 1,
-        adminId: 42,
-        status: "waiting",
-        createdAt: "2024-01-03",
-      },
+        sessionId: 100,
+      }),
     ];
 
     render(

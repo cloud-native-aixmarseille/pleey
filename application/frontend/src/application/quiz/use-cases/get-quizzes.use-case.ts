@@ -1,5 +1,5 @@
-import { IQuizRepository } from "../../domains/quiz/ports/quiz.repository.interface";
-import type { Quiz } from "../../domains/quiz/types";
+import { IQuizRepository } from "../../../domains/quiz/ports/quiz.repository.interface";
+import type { Quiz } from "../../../domains/quiz/types";
 
 export interface GetQuizzesRequest {
   token: string;

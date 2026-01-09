@@ -13,9 +13,9 @@ const CONTAINER_CLASSES = "mb-6 animate-slide-down";
 const HEADER_ROW_CLASSES =
   "mb-4 flex flex-col items-center justify-between gap-4 sm:flex-row";
 const QUESTION_META_CLASSES =
-  "inline-flex items-center gap-3 rounded-2xl border border-white/20 bg-white/10 px-4 py-2";
+  "glass-effect inline-flex items-center gap-3 rounded-2xl px-4 py-2";
 const QUESTION_META_TEXT_CLASSES =
-  "font-mono text-base font-semibold uppercase tracking-[0.24em] text-white";
+  "font-mono text-base font-semibold uppercase tracking-[0.24em] text-dark-950 dark:text-light-100";
 
 const PROGRESS_GLARE_CLASSES =
   "pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent animate-float";

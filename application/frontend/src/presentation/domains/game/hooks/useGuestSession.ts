@@ -20,13 +20,16 @@ export function useGuestSession() {
     }
 
     if (!state) {
+      localStorage.removeItem(GUEST_NICKNAME_KEY);
+      localStorage.removeItem(GUEST_ID_KEY);
+      // Backward-compatible cleanup
       sessionStorage.removeItem(GUEST_NICKNAME_KEY);
       sessionStorage.removeItem(GUEST_ID_KEY);
       return;
     }
 
-    sessionStorage.setItem(GUEST_NICKNAME_KEY, state.nickname);
-    sessionStorage.setItem(GUEST_ID_KEY, state.id);
+    localStorage.setItem(GUEST_NICKNAME_KEY, state.nickname);
+    localStorage.setItem(GUEST_ID_KEY, state.id);
   }, []);
 
   const hydrateFromStorage = useCallback(() => {
@@ -35,12 +38,23 @@ export function useGuestSession() {
       return;
     }
 
-    const storedNickname = sessionStorage.getItem(GUEST_NICKNAME_KEY);
-    const storedId = sessionStorage.getItem(GUEST_ID_KEY);
+    const storedNickname = localStorage.getItem(GUEST_NICKNAME_KEY);
+    const storedId = localStorage.getItem(GUEST_ID_KEY);
 
-    if (storedNickname && storedId) {
-      setGuestNickname(storedNickname);
-      setGuestId(storedId);
+    // Backward-compatible fallback: older versions stored this in sessionStorage.
+    const legacyNickname =
+      storedNickname ?? sessionStorage.getItem(GUEST_NICKNAME_KEY);
+    const legacyId = storedId ?? sessionStorage.getItem(GUEST_ID_KEY);
+
+    if (legacyNickname && legacyId) {
+      setGuestNickname(legacyNickname);
+      setGuestId(legacyId);
+
+      // If we came from legacy sessionStorage, migrate to localStorage.
+      if (!storedNickname || !storedId) {
+        localStorage.setItem(GUEST_NICKNAME_KEY, legacyNickname);
+        localStorage.setItem(GUEST_ID_KEY, legacyId);
+      }
     }
 
     setHasHydratedGuest(true);

@@ -24,6 +24,11 @@ export interface CreateQuestionPayload {
 
 export type UpdateQuestionPayload = Partial<CreateQuestionPayload>;
 
+export interface UpdateQuizPayload {
+  title?: string;
+  description?: string | null;
+}
+
 interface ApiQuestionPayload {
   quiz_id: number;
   question_text: string;
@@ -38,9 +43,18 @@ interface ApiQuestionPayload {
 }
 
 export class QuizService {
-  async getQuizzes(token: string): Promise<Quiz[]> {
+  async getQuizzes(
+    token: string,
+    options?: {
+      force?: boolean;
+    },
+  ): Promise<Quiz[]> {
     if (!token) {
       return [];
+    }
+
+    if (options?.force) {
+      await queryClient.invalidateQueries({ queryKey: ["get", "/api/quizzes"] });
     }
 
     const result = await queryClient.fetchQuery(
@@ -76,6 +90,26 @@ export class QuizService {
     await queryClient.invalidateQueries({ queryKey: ["get", "/api/quizzes"] });
 
     return createdQuiz;
+  }
+
+  async updateQuiz(
+    token: string,
+    quizId: number,
+    payload: UpdateQuizPayload,
+  ): Promise<Quiz> {
+    const response = await fetch(`${API_URL}/api/quizzes/${quizId}`, {
+      method: "PATCH",
+      headers: this.buildHeaders(token),
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw await this.buildError(response, "errors.quizUpdateFailed");
+    }
+
+    const data = (await response.json()) as Quiz;
+    await queryClient.invalidateQueries({ queryKey: ["get", "/api/quizzes"] });
+    return data;
   }
 
   async getQuestions(token: string, quizId: number): Promise<Question[]> {
@@ -115,6 +149,9 @@ export class QuizService {
     }
 
     const data = (await response.json()) as Question;
+
+    await queryClient.invalidateQueries({ queryKey: ["get", "/api/quizzes"] });
+
     return data;
   }
 
@@ -127,6 +164,8 @@ export class QuizService {
     if (!response.ok) {
       throw await this.buildError(response, "errors.deleteQuizFailed");
     }
+
+    await queryClient.invalidateQueries({ queryKey: ["get", "/api/quizzes"] });
   }
 
   async deleteQuestion(token: string, questionId: number): Promise<void> {
@@ -138,6 +177,8 @@ export class QuizService {
     if (!response.ok) {
       throw await this.buildError(response, "errors.questionDeleteFailed");
     }
+
+    await queryClient.invalidateQueries({ queryKey: ["get", "/api/quizzes"] });
   }
 
   async updateQuestion(
@@ -156,6 +197,9 @@ export class QuizService {
     }
 
     const data = (await response.json()) as Question;
+
+    await queryClient.invalidateQueries({ queryKey: ["get", "/api/quizzes"] });
+
     return data;
   }
 

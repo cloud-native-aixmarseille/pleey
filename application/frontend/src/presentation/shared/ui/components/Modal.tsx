@@ -7,6 +7,9 @@ export interface ModalProps {
   isOpen: boolean;
   title: string;
   description?: string;
+  titleClassName?: string;
+  descriptionClassName?: string;
+  contentClassName?: string;
   onClose: () => void;
   children: ReactNode;
   footer?: ReactNode;
@@ -19,6 +22,9 @@ export function Modal({
   isOpen,
   title,
   description,
+  titleClassName,
+  descriptionClassName,
+  contentClassName,
   onClose,
   children,
   footer,
@@ -29,6 +35,11 @@ export function Modal({
   const overlayRef = useRef<HTMLDivElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const previouslyFocusedElementRef = useRef<Element | null>(null);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -51,7 +62,7 @@ export function Modal({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
-        onClose();
+        onCloseRef.current();
         return;
       }
 
@@ -98,7 +109,7 @@ export function Modal({
         previouslyFocused.focus({ preventScroll: true });
       }
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   if (!isOpen || typeof document === "undefined") {
     return null;
@@ -149,14 +160,18 @@ export function Modal({
           <div>
             <h2
               id={titleId}
-              className="text-2xl font-black uppercase tracking-[0.3em] text-primary-900 dark:text-primary-200"
+              className={`text-2xl font-black uppercase tracking-[0.3em] text-primary-900 dark:text-primary-200 ${
+                titleClassName ?? ""
+              }`}
             >
               {title}
             </h2>
             {description ? (
               <p
                 id={descriptionId}
-                className="mt-2 max-w-xl text-sm font-medium text-dark-400 dark:text-light-300"
+                className={`mt-2 max-w-xl text-sm font-medium text-dark-400 dark:text-light-300 ${
+                  descriptionClassName ?? ""
+                }`}
               >
                 {description}
               </p>
@@ -167,14 +182,17 @@ export function Modal({
             onClick={onClose}
             effect="flat"
             size="sm"
-            className="rounded-full border border-primary-400/35 bg-primary-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-dark-400 transition hover:bg-primary-500/20 hover:text-dark-500 dark:border-primary-400/40 dark:text-light-300 dark:hover:text-light-100"
             aria-label={closeLabel}
           >
             ✕
           </SecondaryButton>
         </div>
 
-        <div className="mt-6 max-h-[60vh] overflow-y-auto pr-2 text-dark-500 dark:text-light-100">
+        <div
+          className={`mt-6 max-h-[60vh] overflow-y-auto pr-2 text-dark-500 dark:text-light-100 ${
+            contentClassName ?? ""
+          }`}
+        >
           {children}
         </div>
 

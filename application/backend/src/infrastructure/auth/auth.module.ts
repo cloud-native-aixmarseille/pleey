@@ -19,13 +19,13 @@ import { PasswordService } from '../../domain/auth/services/password.service';
 import { UserAvatarService } from '../../domain/auth/services/user-avatar.service';
 import { AvatarGeneratorService } from '../../domain/shared/services/avatar-generator.service';
 import { DatabaseModule } from '../database/database.module';
-import { PrismaUserRepository } from '../repositories/prisma-user.repository';
 import { getEnvOrFile, getRequiredEnvOrFile } from '../shared/env-secret.util';
 import { AuthController } from './auth.controller';
 import { AvatarController } from './avatar.controller';
 import { JwtStrategy } from './jwt.strategy';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { ProfileController } from './profile.controller';
+import { PrismaUserRepository } from './repositories/prisma-user.repository';
 
 const jwtSecret = getRequiredEnvOrFile('JWT_SECRET');
 

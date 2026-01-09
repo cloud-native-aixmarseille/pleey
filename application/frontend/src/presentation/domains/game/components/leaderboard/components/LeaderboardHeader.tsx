@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 const HEADER_WRAPPER_CLASSES = "mb-12 text-center animate-scale-in";
 const HEADER_TITLE_WRAPPER_CLASSES = "relative inline-block";
 const HEADER_TITLE_CLASSES =
@@ -15,6 +17,8 @@ interface LeaderboardHeaderProps {
 }
 
 export function LeaderboardHeader({ isVisible }: LeaderboardHeaderProps) {
+  const { t } = useTranslation();
+
   if (!isVisible) {
     return null;
   }
@@ -22,13 +26,17 @@ export function LeaderboardHeader({ isVisible }: LeaderboardHeaderProps) {
   return (
     <header className={HEADER_WRAPPER_CLASSES}>
       <div className={HEADER_TITLE_WRAPPER_CLASSES}>
-        <h1 className={HEADER_TITLE_CLASSES}>GAME OVER</h1>
+        <h1 className={HEADER_TITLE_CLASSES}>
+          {t("game.leaderboardPage.title.main")}
+        </h1>
         <div className={HEADER_TITLE_GLOW_CLASSES} />
       </div>
       <div className={HEADER_TROPHY_CLASSES}>🏆</div>
-      <h2 className={HEADER_SUBTITLE_CLASSES}>Final Results</h2>
+      <h2 className={HEADER_SUBTITLE_CLASSES}>
+        {t("game.leaderboardPage.title.subtitle")}
+      </h2>
       <p className={HEADER_DESCRIPTION_CLASSES}>
-        Congratulations to all players! 🎉
+        {t("game.leaderboardPage.title.message")}
       </p>
     </header>
   );

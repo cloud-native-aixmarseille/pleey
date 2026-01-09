@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { GameSession } from '../../../domain/game/entities/game-session.entity';
+import type { GameSession } from '../../../domain/game/entities/game-session';
 import {
   type GameSessionRepository,
   GameSessionRepositoryProvider,
@@ -7,7 +7,7 @@ import {
 
 /**
  * Get Active Sessions Use Case
- * Retrieves all active/paused sessions for an admin
+ * Retrieves all active/paused sessions for a host
  */
 @Injectable()
 export class GetActiveSessionsUseCase {
@@ -16,7 +16,7 @@ export class GetActiveSessionsUseCase {
     private readonly gameSessionRepository: GameSessionRepository,
   ) {}
 
-  async execute(adminId: number): Promise<GameSession[]> {
-    return await this.gameSessionRepository.findActiveByAdminId(adminId);
+  async execute(hostId: number): Promise<GameSession[]> {
+    return await this.gameSessionRepository.findActiveByHostId(hostId);
   }
 }

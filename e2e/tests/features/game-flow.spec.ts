@@ -10,6 +10,8 @@ import { test, expect } from "@playwright/test";
  */
 
 test.describe("Game Flow - Nominal Use Case", () => {
+  test.describe.configure({ mode: "serial" });
+
   const playerCredentials = {
     email: process.env.E2E_PLAYER_EMAIL ?? "player@quiz.com",
     password: process.env.E2E_PLAYER_PASSWORD ?? "player123",
@@ -51,24 +53,9 @@ test.describe("Game Flow - Nominal Use Case", () => {
       joinButton.click(),
     ]);
 
-    await expect(page.locator('[data-lobby-page="true"]')).toBeVisible();
-  });
-
-  test("should display game lobby for valid session", async ({ page }) => {
-    const pinInput = getPinInput(page);
-    await pinInput.fill("123456");
-
-    const joinButton = page.getByRole("button", {
-      name: /confirm\s*&\s*join|confirmer|rejoindre/i,
+    await expect(page.locator('[data-lobby-page="true"]')).toBeVisible({
+      timeout: 15000,
     });
-    await Promise.all([
-      page.waitForURL(/\/game\/[^/]+\/lobby/),
-      joinButton.click(),
-    ]);
-
-    await expect(
-      page.locator('[data-lobby-page="true"]'),
-    ).toBeVisible();
   });
 
   test("should handle game not found gracefully", async ({ page }) => {

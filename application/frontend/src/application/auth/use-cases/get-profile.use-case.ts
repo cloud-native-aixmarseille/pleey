@@ -1,7 +1,7 @@
-import { IAuthRepository } from "../../domains/auth/ports/auth.repository.interface";
-import { IStorage } from "../../application/shared/ports/storage.interface";
-import { USER_STORAGE_KEY } from "../../application/shared/constants/storageKeys";
-import type { User } from "../../domains/auth/types";
+import { IAuthRepository } from "../../../domains/auth/ports/auth.repository.interface";
+import { IStorage } from "../../../domains/shared/ports/storage.interface";
+import { USER_STORAGE_KEY } from "../../../domains/shared/constants/storageKeys";
+import type { User } from "../../../domains/auth/types";
 
 /**
  * Fetches the authenticated user profile from the backend and

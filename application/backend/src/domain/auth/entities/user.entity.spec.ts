@@ -1,11 +1,19 @@
 import { describe, expect, it } from 'vitest';
-import { User } from './user.entity';
+import { createUserFixture } from '../../../test-utils/fixtures';
 
 describe('User Entity', () => {
   describe('constructor', () => {
     it('should create a user instance with all properties', () => {
       const now = new Date();
-      const user = new User(1, 'testuser', 'test@example.com', 'hashedpassword', false, null, now);
+      const user = createUserFixture({
+        id: 1,
+        username: 'testuser',
+        email: 'test@example.com',
+        password: 'hashedpassword',
+        isAdmin: false,
+        avatarUrl: null,
+        createdAt: now,
+      });
 
       expect(user.id).toBe(1);
       expect(user.username).toBe('testuser');
@@ -18,29 +26,29 @@ describe('User Entity', () => {
 
   describe('hasAdminPrivileges', () => {
     it('should return true for admin users', () => {
-      const user = new User(
-        1,
-        'admin',
-        'admin@example.com',
-        'hashedpassword',
-        true,
-        null,
-        new Date(),
-      );
+      const user = createUserFixture({
+        id: 1,
+        username: 'admin',
+        email: 'admin@example.com',
+        password: 'hashedpassword',
+        isAdmin: true,
+        avatarUrl: null,
+        createdAt: new Date(),
+      });
 
       expect(user.hasAdminPrivileges()).toBe(true);
     });
 
     it('should return false for non-admin users', () => {
-      const user = new User(
-        1,
-        'user',
-        'user@example.com',
-        'hashedpassword',
-        false,
-        null,
-        new Date(),
-      );
+      const user = createUserFixture({
+        id: 1,
+        username: 'user',
+        email: 'user@example.com',
+        password: 'hashedpassword',
+        isAdmin: false,
+        avatarUrl: null,
+        createdAt: new Date(),
+      });
 
       expect(user.hasAdminPrivileges()).toBe(false);
     });
@@ -49,15 +57,15 @@ describe('User Entity', () => {
   describe('toSafeObject', () => {
     it('should return user object without password', () => {
       const now = new Date();
-      const user = new User(
-        1,
-        'testuser',
-        'test@example.com',
-        'hashedpassword',
-        false,
-        'https://cdn/avatar.png',
-        now,
-      );
+      const user = createUserFixture({
+        id: 1,
+        username: 'testuser',
+        email: 'test@example.com',
+        password: 'hashedpassword',
+        isAdmin: false,
+        avatarUrl: 'https://cdn/avatar.png',
+        createdAt: now,
+      });
 
       const safeUser = user.toSafeObject();
 
@@ -71,15 +79,15 @@ describe('User Entity', () => {
     });
 
     it('should not expose password in safe object', () => {
-      const user = new User(
-        1,
-        'testuser',
-        'test@example.com',
-        'secretpassword',
-        false,
-        null,
-        new Date(),
-      );
+      const user = createUserFixture({
+        id: 1,
+        username: 'testuser',
+        email: 'test@example.com',
+        password: 'secretpassword',
+        isAdmin: false,
+        avatarUrl: null,
+        createdAt: new Date(),
+      });
 
       const safeUser = user.toSafeObject();
       const keys = Object.keys(safeUser);

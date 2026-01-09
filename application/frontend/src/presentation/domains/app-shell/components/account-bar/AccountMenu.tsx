@@ -1,7 +1,9 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 
-import { SecondaryButton } from "../../../../../presentation/shared/ui/components";
-import { Icon } from "../../../../../presentation/shared/ui/icons";
+import {
+  DangerButton,
+  SecondaryButton,
+} from "../../../../../presentation/shared/ui/components";
 import LanguageSwitcher from "../LanguageSwitcher";
 import ThemeSwitcher from "../ThemeSwitcher";
 
@@ -13,10 +15,6 @@ const ACCOUNT_MENU_TOP_SECTION_CLASSES =
   "border-b pb-2 border-[color:color-mix(in_srgb,var(--arcade-color-primary-500)_20%,transparent)]";
 const ACCOUNT_MENU_LANGUAGE_SWITCHER_CLASSES = "w-full justify-between";
 const ACCOUNT_MENU_THEME_SWITCHER_CLASSES = "w-full justify-between";
-const ACCOUNT_MENU_ITEM_CLASSES =
-  "flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition-colors text-[color:var(--arcade-color-text-primary)] hover:text-[color:var(--arcade-color-text-primary)]";
-const ACCOUNT_MENU_LOGOUT_CLASSES =
-  "flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition-colors text-[color:var(--arcade-color-text-primary)] hover:text-[color:var(--arcade-color-danger-700)]";
 
 interface AccountMenuLabels {
   accountMenu: string;
@@ -122,23 +120,23 @@ function AccountMenuComponent({
             effect="flat"
             size="sm"
             alignment="start"
-            className={`${ACCOUNT_MENU_ITEM_CLASSES} normal-case`}
+            fullWidth
+            icon={{ name: "UserRound" }}
           >
-            <Icon name="UserRound" size={20} strokeWidth={1.5} tone="accent" />
             {labels.profile}
           </SecondaryButton>
-          <SecondaryButton
+          <DangerButton
             type="button"
             role="menuitem"
             onClick={handleLogout}
             effect="flat"
             size="sm"
             alignment="start"
-            className={`${ACCOUNT_MENU_LOGOUT_CLASSES} normal-case`}
+            fullWidth
+            icon={{ name: "LogOut" }}
           >
-            <Icon name="LogOut" size={20} strokeWidth={1.5} tone="danger" />
             {labels.logout}
-          </SecondaryButton>
+          </DangerButton>
         </div>
       )}
     </div>

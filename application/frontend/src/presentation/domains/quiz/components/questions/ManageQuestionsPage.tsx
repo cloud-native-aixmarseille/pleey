@@ -22,6 +22,7 @@ import { QuestionsEmptyState } from "./components/QuestionsEmptyState";
 import { QuestionList } from "./components/QuestionList";
 import { QuestionFormModal } from "./components/QuestionFormModal";
 import { QuestionDeleteModal } from "./components/QuestionDeleteModal";
+import { EditQuizTitleModal } from "../modals/EditQuizTitleModal";
 
 const QUESTION_PAGE_WRAPPER_CLASSES =
   "min-h-[calc(100dvh-var(--app-shell-padding-top,0px)-var(--app-shell-padding-bottom,0px))] bg-game-gradient pt-0 px-4 pb-4 sm:px-8 sm:pb-8";
@@ -37,6 +38,7 @@ interface ManageQuestionsPageProps {
     questionId: number,
     payload: UpdateQuestionPayload
   ) => Promise<unknown>;
+  onUpdateQuizTitle: (title: string) => Promise<unknown>;
 }
 
 export default function ManageQuestionsPage({
@@ -45,6 +47,7 @@ export default function ManageQuestionsPage({
   onAddQuestion,
   onDeleteQuestion,
   onUpdateQuestion,
+  onUpdateQuizTitle,
 }: ManageQuestionsPageProps) {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -58,6 +61,10 @@ export default function ManageQuestionsPage({
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [isEditTitleOpen, setIsEditTitleOpen] = useState(false);
+  const [quizTitleDraft, setQuizTitleDraft] = useState(quiz.title);
+  const [isSavingTitle, setIsSavingTitle] = useState(false);
+
   const questionCount = useMemo(() => questions.length, [questions.length]);
 
   const resetFormState = useCallback(() => {
@@ -70,8 +77,42 @@ export default function ManageQuestionsPage({
     navigate(`/admin/quizzes/${quiz.id}/sessions`);
   };
 
+  const handleOpenEditTitle = () => {
+    setQuizTitleDraft(quiz.title);
+    setIsSavingTitle(false);
+    setIsEditTitleOpen(true);
+  };
+
+  const handleCloseEditTitle = () => {
+    setIsEditTitleOpen(false);
+    setIsSavingTitle(false);
+  };
+
   const handleBack = () => {
     navigate("/admin");
+  };
+
+  const handleQuizTitleChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setQuizTitleDraft(event.target.value);
+  };
+
+  const handleSubmitQuizTitle = async (
+    event: React.FormEvent<HTMLFormElement>
+  ) => {
+    event.preventDefault();
+    if (!quizTitleDraft.trim()) {
+      return;
+    }
+
+    try {
+      setIsSavingTitle(true);
+      await onUpdateQuizTitle(quizTitleDraft.trim());
+      handleCloseEditTitle();
+    } catch {
+      setIsSavingTitle(false);
+    }
   };
 
   const handleOpenCreate = () => {
@@ -265,6 +306,7 @@ export default function ManageQuestionsPage({
           questionCount={questionCount}
           onBack={handleBack}
           onViewSessions={handleOpenSessions}
+          onEditQuizTitle={handleOpenEditTitle}
           onAddQuestion={handleOpenCreate}
         />
 
@@ -298,6 +340,15 @@ export default function ManageQuestionsPage({
         isProcessing={isSubmitting}
         onCancel={handleCancelDelete}
         onConfirm={handleConfirmDelete}
+      />
+
+      <EditQuizTitleModal
+        isOpen={isEditTitleOpen}
+        isProcessing={isSavingTitle}
+        title={quizTitleDraft}
+        onClose={handleCloseEditTitle}
+        onSubmit={handleSubmitQuizTitle}
+        onTitleChange={handleQuizTitleChange}
       />
     </div>
   );

@@ -198,10 +198,7 @@ See **[Color Contrast Documentation](/technical/color-contrast)** for complete d
 
 ```tsx
 <label htmlFor="game-pin-input">Enter Game PIN</label>
-<input
-  id="game-pin-input"
-  aria-describedby="pin-length-indicator"
-/>
+<Input id="game-pin-input" aria-describedby="pin-length-indicator" />
 <div id="pin-length-indicator">
   <span aria-live="polite">{gamePin.length}/6</span>
 </div>

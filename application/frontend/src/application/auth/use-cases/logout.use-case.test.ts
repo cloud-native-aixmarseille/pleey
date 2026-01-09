@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { LogoutUseCase } from "./logout.use-case";
-import { IStorage } from "../../../application/shared/ports/storage.interface";
+import { IStorage } from "../../../domains/shared/ports/storage.interface";
 
 describe("LogoutUseCase", () => {
   let logoutUseCase: LogoutUseCase;

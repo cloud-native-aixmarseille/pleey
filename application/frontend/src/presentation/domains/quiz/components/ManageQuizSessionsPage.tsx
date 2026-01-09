@@ -92,12 +92,8 @@ export function ManageQuizSessionsPage({
 
   const sortedSessions = useMemo(() => {
     return [...sessions].sort((left, right) => {
-      const leftDate = new Date(
-        left.createdAt ?? left.created_at ?? 0
-      ).getTime();
-      const rightDate = new Date(
-        right.createdAt ?? right.created_at ?? 0
-      ).getTime();
+      const leftDate = new Date(left.createdAt ?? 0).getTime();
+      const rightDate = new Date(right.createdAt ?? 0).getTime();
       return rightDate - leftDate;
     });
   }, [sessions]);
@@ -169,11 +165,11 @@ export function ManageQuizSessionsPage({
     : undefined;
 
   const detailSessionId = detailSession
-    ? detailSession.sessionId ?? detailSession.session_id ?? null
+    ? detailSession.sessionId ?? null
     : null;
 
   const detailQuestionIndex = detailSession
-    ? detailSession.currentQuestion ?? detailSession.current_question ?? null
+    ? detailSession.currentQuestion ?? null
     : null;
 
   return (
@@ -288,13 +284,11 @@ export function ManageQuizSessionsPage({
                 const isLive = ["waiting", "active", "paused"].includes(
                   session.status
                 );
-                const createdAt =
-                  session.createdAt ?? session.created_at ?? null;
+                const createdAt = session.createdAt ?? null;
                 const sessionKey = `${
                   session.sessionId ?? session.pin ?? "session"
                 }-${session.status}-${createdAt ?? 0}`;
-                const sessionQuestions =
-                  session.currentQuestion ?? session.current_question ?? null;
+                const sessionQuestions = session.currentQuestion ?? null;
                 const tone = getSessionStatusTone(session.status);
                 const sessionWrapperClasses = `${SESSION_CARD_WRAPPER_BASE_CLASSES} ${
                   isLive
@@ -395,12 +389,9 @@ export function ManageQuizSessionsPage({
                     {t("admin.sessionDetailsFields.startedAt")}
                   </dt>
                   <dd className={DETAIL_VALUE_CLASSES}>
-                    {formatSessionDate(
-                      detailSession.createdAt ??
-                        detailSession.created_at ??
-                        null,
-                      { fallback: t("admin.sessionUnknownDate") }
-                    )}
+                    {formatSessionDate(detailSession.createdAt ?? null, {
+                      fallback: t("admin.sessionUnknownDate"),
+                    })}
                   </dd>
                 </div>
                 {detailSessionId ? (

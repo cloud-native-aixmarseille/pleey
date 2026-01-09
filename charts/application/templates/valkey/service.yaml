@@ -1,0 +1,18 @@
+{{- if .Values.valkey.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "quiz-app.valkey.fullname" . }}
+  namespace: {{ include "quiz-app.namespace" . | quote }}
+  labels:
+    {{- include "quiz-app.valkey.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: redis
+      port: {{ .Values.valkey.service.port }}
+      targetPort: redis
+      protocol: TCP
+  selector:
+    {{- include "quiz-app.valkey.selectorLabels" . | nindent 4 }}
+{{- end }}

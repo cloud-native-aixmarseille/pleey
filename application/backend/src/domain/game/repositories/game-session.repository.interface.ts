@@ -1,4 +1,4 @@
-import type { GameSession } from '../entities/game-session.entity';
+import type { GameSession } from '../entities/game-session';
 
 export const GameSessionRepositoryProvider = Symbol('GameSessionRepository');
 
@@ -10,12 +10,7 @@ export interface GameSessionRepository {
   /**
    * Creates a new game session
    */
-  create(
-    quizId: number,
-    adminId: number,
-    organizationId: number,
-    pin: string,
-  ): Promise<GameSession>;
+  create(quizId: number, hostId: number, organizationId: number, pin: string): Promise<GameSession>;
 
   /**
    * Finds a game session by PIN
@@ -28,9 +23,9 @@ export interface GameSessionRepository {
   findById(id: number): Promise<GameSession | null>;
 
   /**
-   * Finds active or paused sessions for a specific admin
+   * Finds active or paused sessions for a specific host
    */
-  findActiveByAdminId(adminId: number): Promise<GameSession[]>;
+  findActiveByHostId(hostId: number): Promise<GameSession[]>;
 
   /**
    * Finds the active or paused session for a specific quiz

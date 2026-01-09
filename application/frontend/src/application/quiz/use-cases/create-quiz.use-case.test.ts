@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CreateQuizUseCase } from "./create-quiz.use-case";
 import { IQuizRepository } from "../../../domains/quiz/ports/quiz.repository.interface";
 import type { Quiz } from "../../../domains/quiz/types";
+import { createQuizFixture } from "../../../test/fixtures";
 
 describe("CreateQuizUseCase", () => {
   let createQuizUseCase: CreateQuizUseCase;
@@ -19,13 +20,7 @@ describe("CreateQuizUseCase", () => {
   });
 
   it("should create quiz successfully", async () => {
-    const mockQuiz: Quiz = {
-      id: 1,
-      title: "Test Quiz",
-      description: "Test Description",
-      created_by: 1,
-      created_at: new Date().toISOString(),
-    };
+    const mockQuiz: Quiz = createQuizFixture();
 
     vi.mocked(mockQuizRepository.createQuiz).mockResolvedValue(mockQuiz);
 

@@ -1,10 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { GameSession } from '../../../domain/game/entities/game-session.entity';
 import type { GameSessionRepository } from '../../../domain/game/repositories/game-session.repository.interface';
 import type { ScoreRepository } from '../../../domain/game/repositories/score.repository.interface';
 import { ScoreCalculatorService } from '../../../domain/game/services/score-calculator.service';
-import { Question } from '../../../domain/quiz/entities/question.entity';
 import type { QuestionRepository } from '../../../domain/quiz/repositories/question.repository.interface';
+import { createGameSessionFixture, createQuestionFixture } from '../../../test-utils/fixtures';
+import {
+  createGameSessionRepositoryMock,
+  createQuestionRepositoryMock,
+  createScoreRepositoryMock,
+} from '../../../test-utils/mock-factories';
 import { SubmitAnswerUseCase } from './submit-answer.use-case';
 
 describe('SubmitAnswerUseCase - Guest Player Support', () => {
@@ -15,36 +19,9 @@ describe('SubmitAnswerUseCase - Guest Player Support', () => {
   let scoreCalculatorService: ScoreCalculatorService;
 
   beforeEach(() => {
-    // Mock repositories
-    mockGameSessionRepository = {
-      findByPin: vi.fn(),
-      create: vi.fn(),
-      updateStatus: vi.fn(),
-      updateCurrentQuestion: vi.fn(),
-      findById: vi.fn(),
-      findActiveByAdminId: vi.fn(),
-      findActiveByQuizId: vi.fn(),
-      findByQuizId: vi.fn(),
-      countActiveByQuizId: vi.fn(),
-      deleteOldSessions: vi.fn(),
-      findByOrganization: vi.fn(),
-    };
-
-    mockQuestionRepository = {
-      findByQuizId: vi.fn(),
-      findById: vi.fn(),
-      create: vi.fn(),
-      delete: vi.fn(),
-      update: vi.fn(),
-    };
-
-    mockScoreRepository = {
-      create: vi.fn(),
-      findBySessionId: vi.fn(),
-      findBySessionAndUser: vi.fn(),
-      calculateTotalScore: vi.fn(),
-      getLeaderboard: vi.fn(),
-    };
+    mockGameSessionRepository = createGameSessionRepositoryMock();
+    mockQuestionRepository = createQuestionRepositoryMock();
+    mockScoreRepository = createScoreRepositoryMock();
 
     scoreCalculatorService = new ScoreCalculatorService();
 
@@ -59,20 +36,28 @@ describe('SubmitAnswerUseCase - Guest Player Support', () => {
   describe('Guest player answer submission', () => {
     it('should not persist scores to database for guest players', async () => {
       // Setup
-      const mockSession = new GameSession(1, 100, 200, 1, 'ABC123', 'active', 0, new Date());
-      const mockQuestion = new Question(
-        1,
-        100,
-        'Test question',
-        'multiple',
-        'A',
-        'Option A',
-        'Option B',
-        'Option C',
-        'Option D',
-        20,
-        1000,
-      );
+      const mockSession = createGameSessionFixture({
+        id: 1,
+        quizId: 100,
+        hostId: 200,
+        organizationId: 1,
+        pin: 'ABC123',
+        status: 'active',
+        currentQuestion: 0,
+      });
+      const mockQuestion = createQuestionFixture({
+        id: 1,
+        quizId: 100,
+        questionText: 'Test question',
+        type: 'multiple',
+        correctAnswer: 'A',
+        optionA: 'Option A',
+        optionB: 'Option B',
+        optionC: 'Option C',
+        optionD: 'Option D',
+        timeLimit: 20,
+        points: 1000,
+      });
 
       vi.spyOn(mockGameSessionRepository, 'findByPin').mockResolvedValue(mockSession);
       vi.spyOn(mockQuestionRepository, 'findByQuizId').mockResolvedValue([mockQuestion]);
@@ -94,20 +79,28 @@ describe('SubmitAnswerUseCase - Guest Player Support', () => {
 
     it('should persist scores to database for authenticated players', async () => {
       // Setup
-      const mockSession = new GameSession(1, 100, 200, 1, 'ABC123', 'active', 0, new Date());
-      const mockQuestion = new Question(
-        1,
-        100,
-        'Test question',
-        'multiple',
-        'A',
-        'Option A',
-        'Option B',
-        'Option C',
-        'Option D',
-        20,
-        1000,
-      );
+      const mockSession = createGameSessionFixture({
+        id: 1,
+        quizId: 100,
+        hostId: 200,
+        organizationId: 1,
+        pin: 'ABC123',
+        status: 'active',
+        currentQuestion: 0,
+      });
+      const mockQuestion = createQuestionFixture({
+        id: 1,
+        quizId: 100,
+        questionText: 'Test question',
+        type: 'multiple',
+        correctAnswer: 'A',
+        optionA: 'Option A',
+        optionB: 'Option B',
+        optionC: 'Option C',
+        optionD: 'Option D',
+        timeLimit: 20,
+        points: 1000,
+      });
 
       vi.spyOn(mockGameSessionRepository, 'findByPin').mockResolvedValue(mockSession);
       vi.spyOn(mockQuestionRepository, 'findByQuizId').mockResolvedValue([mockQuestion]);
@@ -136,20 +129,28 @@ describe('SubmitAnswerUseCase - Guest Player Support', () => {
 
     it('should calculate correct scores for both guest and authenticated players', async () => {
       // Setup
-      const mockSession = new GameSession(1, 100, 200, 1, 'ABC123', 'active', 0, new Date());
-      const mockQuestion = new Question(
-        1,
-        100,
-        'Test question',
-        'multiple',
-        'B',
-        'Option A',
-        'Option B',
-        'Option C',
-        'Option D',
-        20,
-        1000,
-      );
+      const mockSession = createGameSessionFixture({
+        id: 1,
+        quizId: 100,
+        hostId: 200,
+        organizationId: 1,
+        pin: 'ABC123',
+        status: 'active',
+        currentQuestion: 0,
+      });
+      const mockQuestion = createQuestionFixture({
+        id: 1,
+        quizId: 100,
+        questionText: 'Test question',
+        type: 'multiple',
+        correctAnswer: 'B',
+        optionA: 'Option A',
+        optionB: 'Option B',
+        optionC: 'Option C',
+        optionD: 'Option D',
+        timeLimit: 20,
+        points: 1000,
+      });
 
       vi.spyOn(mockGameSessionRepository, 'findByPin').mockResolvedValue(mockSession);
       vi.spyOn(mockQuestionRepository, 'findByQuizId').mockResolvedValue([mockQuestion]);

@@ -8,7 +8,7 @@ type ArcadeCardGridSpacing = "none" | "sm" | "md" | "lg";
 const LAYOUT_CLASS_MAP: Record<ArcadeCardGridLayout, string> = {
   double: "grid grid-cols-1 md:grid-cols-2",
   triple: "grid grid-cols-1 sm:grid-cols-3",
-  quad: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4",
+  quad: "grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-4",
 };
 
 const BOTTOM_SPACING_MAP: Record<ArcadeCardGridSpacing, string> = {

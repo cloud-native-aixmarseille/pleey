@@ -15,7 +15,7 @@ export function QuestionCard({ questionText }: QuestionCardProps) {
         border="regular"
         alignment="center"
       >
-        <h2 className="font-display text-3xl font-black leading-tight text-light-100 sm:text-4xl md:text-5xl">
+        <h2 className="font-display text-3xl font-black leading-tight text-dark-950 dark:text-light-100 sm:text-4xl md:text-5xl">
           {questionText}
         </h2>
       </Card>

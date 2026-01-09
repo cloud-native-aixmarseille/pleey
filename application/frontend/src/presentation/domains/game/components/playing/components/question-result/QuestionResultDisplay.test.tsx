@@ -5,6 +5,7 @@ import "@testing-library/jest-dom";
 import QuestionResultDisplay from "./QuestionResultDisplay";
 import type { AnswerResult } from "../../../../../../../domains/game/types";
 import type { Question } from "../../../../../../../domains/quiz/types";
+import { createQuestionFixture } from "../../../../../../../test/fixtures";
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
@@ -64,18 +65,18 @@ vi.mock("react-i18next", () => ({
 vi.mock("./components/ResultActions", () => ({
   ResultActions: ({
     shareText,
-    isAdmin,
+    isHost,
     onNextQuestion,
     nextQuestionLabel,
   }: {
     shareText: string;
-    isAdmin: boolean;
+    isHost: boolean;
     onNextQuestion: () => void;
     nextQuestionLabel: string;
   }) => (
     <div>
       {createElement("button", { "data-testid": "share-button" }, shareText)}
-      {isAdmin
+      {isHost
         ? createElement(
             "button",
             { type: "button", onClick: onNextQuestion },
@@ -87,19 +88,14 @@ vi.mock("./components/ResultActions", () => ({
 }));
 
 describe("QuestionResultDisplay", () => {
-  const mockQuestion: Question = {
-    id: 1,
-    quiz_id: 1,
+  const mockQuestion: Question = createQuestionFixture({
     question_text: "What is 2+2?",
-    type: "multiple",
     correct_answer: "A",
     option_a: "4",
     option_b: "3",
     option_c: "5",
     option_d: "6",
-    time_limit: 20,
-    points: 1000,
-  };
+  });
 
   const mockAnswerResultCorrect: AnswerResult = {
     isCorrect: true,
@@ -138,7 +134,7 @@ describe("QuestionResultDisplay", () => {
         currentQuestion={mockQuestion}
         questionNumber={1}
         userAnswer="A"
-        isAdmin={false}
+        isHost={false}
         onNextQuestion={vi.fn()}
       />
     );
@@ -154,7 +150,7 @@ describe("QuestionResultDisplay", () => {
         currentQuestion={mockQuestion}
         questionNumber={1}
         userAnswer="B"
-        isAdmin={false}
+        isHost={false}
         onNextQuestion={vi.fn()}
       />
     );
@@ -170,7 +166,7 @@ describe("QuestionResultDisplay", () => {
         currentQuestion={mockQuestion}
         questionNumber={1}
         userAnswer="A"
-        isAdmin={false}
+        isHost={false}
         onNextQuestion={vi.fn()}
       />
     );
@@ -187,7 +183,7 @@ describe("QuestionResultDisplay", () => {
         currentQuestion={mockQuestion}
         questionNumber={1}
         userAnswer="A"
-        isAdmin={true}
+        isHost={true}
         onNextQuestion={onNextQuestion}
       />
     );
@@ -202,7 +198,7 @@ describe("QuestionResultDisplay", () => {
         currentQuestion={mockQuestion}
         questionNumber={1}
         userAnswer="A"
-        isAdmin={false}
+        isHost={false}
         onNextQuestion={vi.fn()}
       />
     );
@@ -211,11 +207,11 @@ describe("QuestionResultDisplay", () => {
   });
 
   it("displays statistics for true/false questions", () => {
-    const tfQuestion: Question = {
+    const tfQuestion: Question = createQuestionFixture({
       ...mockQuestion,
       type: "truefalse",
       correct_answer: "true",
-    };
+    });
 
     const tfAnswerResult: AnswerResult = {
       isCorrect: true,
@@ -236,7 +232,7 @@ describe("QuestionResultDisplay", () => {
         currentQuestion={tfQuestion}
         questionNumber={1}
         userAnswer="true"
-        isAdmin={false}
+        isHost={false}
         onNextQuestion={vi.fn()}
       />
     );

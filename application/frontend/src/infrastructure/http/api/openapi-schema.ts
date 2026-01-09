@@ -305,7 +305,7 @@ export interface paths {
         delete: operations["QuizController_delete"];
         options?: never;
         head?: never;
-        patch?: never;
+        patch: operations["QuizController_update"];
         trace?: never;
     };
     "/api/questions": {
@@ -431,6 +431,7 @@ export interface components {
         CreateOrganizationDto: Record<string, never>;
         AddMemberDto: Record<string, never>;
         CreateQuizDto: Record<string, never>;
+        UpdateQuizDto: Record<string, never>;
         CreateQuestionRequestDto: Record<string, never>;
         UpdateQuestionRequestDto: Record<string, never>;
         CreateGameSessionDto: Record<string, never>;
@@ -836,6 +837,29 @@ export interface operations {
         requestBody?: never;
         responses: {
             204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    QuizController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                quizId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateQuizDto"];
+            };
+        };
+        responses: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };

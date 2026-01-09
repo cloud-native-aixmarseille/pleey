@@ -1,4 +1,4 @@
-import type { Question } from '../entities/question.entity';
+import type { Question } from '../entities/question';
 
 export const QuestionRepositoryProvider = Symbol('QuestionRepository');
 

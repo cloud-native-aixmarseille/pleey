@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { GameScore } from '../value-objects/game-score.vo';
+import { GameScore } from '../entities/game-score';
 import { ScoreCalculatorService } from './score-calculator.service';
 
 describe('ScoreCalculatorService', () => {

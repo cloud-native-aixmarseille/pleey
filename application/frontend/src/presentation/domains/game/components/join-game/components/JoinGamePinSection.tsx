@@ -1,12 +1,9 @@
 import { ChangeEvent, KeyboardEvent, useId } from "react";
 import { useTranslation } from "react-i18next";
+import { Input } from "../../../../../../presentation/shared/ui/components";
 import { JOIN_GAME_PIN_LENGTH } from "../constants";
 
 const PIN_SECTION_WRAPPER_CLASSES = "mb-8";
-const PIN_LABEL_CLASSES =
-  "mb-4 block text-center font-display text-xs uppercase tracking-wider text-dark-400 dark:text-primary-300 sm:text-sm";
-const PIN_INPUT_CLASSES =
-  "w-full rounded-xl border-4 border-accent-500/50 bg-light-50 p-6 text-center font-display text-4xl uppercase tracking-[0.5em] text-dark-500 shadow-neon-accent transition-all placeholder-dark-300 focus:border-accent-500 focus:outline-none focus:ring-4 focus:ring-accent-500/30 dark:bg-dark-500 dark:text-accent-400 sm:p-8 sm:text-6xl";
 const PIN_STATUS_WRAPPER_CLASSES =
   "mt-4 flex items-center justify-center gap-3";
 const PIN_STATUS_LABEL_CLASSES =
@@ -53,19 +50,17 @@ export function JoinGamePinSection({
 
   return (
     <section className={PIN_SECTION_WRAPPER_CLASSES}>
-      <label htmlFor={pinInputId} className={PIN_LABEL_CLASSES}>
-        {t("game.joinPage.pin.label")}
-      </label>
-      <input
+      <Input
         id={pinInputId}
         type="text"
         value={gamePin}
         onChange={handlePinChange}
         onKeyDown={handleKeyDown}
         placeholder={pinPlaceholder}
-        className={PIN_INPUT_CLASSES}
         maxLength={JOIN_GAME_PIN_LENGTH}
         aria-describedby={pinLengthIndicatorId}
+        label={t("game.joinPage.pin.label")}
+        tone="dark"
       />
       <div className={PIN_STATUS_WRAPPER_CLASSES} id={pinLengthIndicatorId}>
         <span className={PIN_STATUS_LABEL_CLASSES}>

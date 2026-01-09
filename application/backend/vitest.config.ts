@@ -9,6 +9,7 @@ export default {
   test: {
     globals: true,
     environment: 'node',
+    setupFiles: [resolve(__dirname, './vitest.setup.ts')],
     include: ['**/*.spec.ts'],
     exclude: ['node_modules', 'dist', 'test'],
     coverage: {

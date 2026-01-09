@@ -1,8 +1,7 @@
 import { useEffect } from "react";
 import { Navigate, useParams } from "react-router-dom";
 
-import AdminHostLeaderboardView from "../components/AdminHostLeaderboardView";
-import LeaderboardPage from "../components/LeaderboardPage";
+import LeaderboardPage from "../components/leaderboard/LeaderboardPage";
 import { useAuthManagerContext } from "../../auth";
 import { useGameSessionContext } from "../contexts/GameSessionContext";
 import { useGuestSessionContext } from "../contexts/GuestSessionContext";
@@ -14,13 +13,13 @@ import { useUserIdle } from "../../../shared/ui/patience/hooks/useUserIdle";
 
 /**
  * Leaderboard Route Component
- * Shows admin host leaderboard or participant leaderboard based on role.
  */
 export function LeaderboardRoute() {
   const { isAuthenticated, isAdmin } = useAuthManagerContext();
   const { guestNickname } = useGuestSessionContext();
   const { sessionId } = useParams<{ sessionId: string }>();
-  const { gamePin, setGamePin, leaderboard } = useGameSessionContext();
+  const { gamePin, setGamePin, leaderboard, isPaused, handleTogglePause } =
+    useGameSessionContext();
 
   const isIdle = useUserIdle(true, 4_000);
 
@@ -41,18 +40,14 @@ export function LeaderboardRoute() {
     return <Navigate to="/game/join" replace />;
   }
 
-  if (isAdmin) {
-    return (
-      <PatiencePlayground className="relative">
-        <AdminHostLeaderboardView leaderboard={leaderboard} />
-        <PatienceOverlay active={isIdle} />
-      </PatiencePlayground>
-    );
-  }
-
   return (
     <PatiencePlayground className="relative">
-      <LeaderboardPage leaderboard={leaderboard} />
+      <LeaderboardPage
+        leaderboard={leaderboard}
+        isHost={isAdmin}
+        isPaused={isPaused}
+        onTogglePause={isAdmin ? handleTogglePause : undefined}
+      />
       <PatienceOverlay active={isIdle} />
     </PatiencePlayground>
   );

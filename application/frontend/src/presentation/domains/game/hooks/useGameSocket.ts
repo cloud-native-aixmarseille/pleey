@@ -1,9 +1,17 @@
 import { useEffect, useState } from "react";
-import { socket } from "../../../../infrastructure/socket/socket.client";
+import {
+  offGameSocketEvent,
+  GAME_SOCKET_INBOUND_EVENT,
+  onGameSocketEvent,
+} from "../../../../domains/game/infrastructure/game-socket-events";
 import type { AnswerResult, LeaderboardEntry, Player } from "../../../../domains/game/types";
 import type { Question } from "../../../../domains/quiz/types";
 
-export function useGameSocket() {
+function normalizePin(pin?: string) {
+  return (pin ?? "").trim().toUpperCase();
+}
+
+export function useGameSocket(pin = "") {
   const [players, setPlayers] = useState<Player[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [questionNumber, setQuestionNumber] = useState(0);
@@ -15,61 +23,122 @@ export function useGameSocket() {
   const [gameStarted, setGameStarted] = useState(false);
   const [gameEnded, setGameEnded] = useState(false);
   const [answerSubmitted, setAnswerSubmitted] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [lastErrorCode, setLastErrorCode] = useState<string | null>(null);
 
   useEffect(() => {
-    socket.on("player-joined", (data: { players: Player[] }) => {
+    const normalizedPin = normalizePin(pin);
+    if (!normalizedPin) {
+      return;
+    }
+
+    setPlayers([]);
+    setCurrentQuestion(null);
+    setQuestionNumber(0);
+    setTotalQuestions(0);
+    setTimeLeft(20);
+    setAnswerResult(null);
+    setShowResult(false);
+    setLeaderboard([]);
+    setGameStarted(false);
+    setGameEnded(false);
+    setAnswerSubmitted(false);
+    setIsPaused(false);
+    setLastErrorCode(null);
+  }, [pin]);
+
+  useEffect(() => {
+    const handleError = (data: { message?: string }) => {
+      if (typeof data?.message === "string" && data.message.trim()) {
+        setLastErrorCode(data.message);
+      }
+    };
+
+    const handlePlayerJoined = (data: { players: Player[] }) => {
       setPlayers(data.players);
-    });
+    };
 
-    socket.on(
-      "game-started",
-      (data: {
-        question: Question;
-        questionNumber: number;
-        totalQuestions: number;
-      }) => {
-        setCurrentQuestion(data.question);
-        setQuestionNumber(data.questionNumber);
-        setTotalQuestions(data.totalQuestions);
-        setTimeLeft(data.question.time_limit);
-        setGameStarted(true);
-        setAnswerSubmitted(false);
-      },
-    );
+    const handleGameStarted = (data: {
+      question: Question;
+      questionNumber: number;
+      totalQuestions: number;
+    }) => {
+      setCurrentQuestion(data.question);
+      setQuestionNumber(data.questionNumber);
+      setTotalQuestions(data.totalQuestions);
+      setTimeLeft(data.question.time_limit);
+      setGameStarted(true);
+      setAnswerSubmitted(false);
+    };
 
-    socket.on("answer-submitted", () => {
+    const handleGameResumed = (data: {
+      question: Question;
+      questionNumber: number;
+      totalQuestions: number;
+      timeLeft?: number;
+    }) => {
+      setCurrentQuestion(data.question);
+      setQuestionNumber(data.questionNumber);
+      setTotalQuestions(data.totalQuestions);
+      setTimeLeft(data.timeLeft ?? data.question.time_limit);
+      setGameStarted(true);
+      setIsPaused(false);
+    };
+
+    const handleGamePaused = (data: { timeLeft?: number }) => {
+      if (typeof data.timeLeft === "number") {
+        setTimeLeft(data.timeLeft);
+      }
+      setIsPaused(true);
+    };
+
+    const handleAnswerSubmitted = () => {
       setAnswerSubmitted(true);
-    });
+    };
 
-    socket.on("answer-result", (data: AnswerResult) => {
+    const handleAnswerResult = (data: AnswerResult) => {
       setAnswerResult(data);
       setShowResult(true);
-    });
+      setTimeLeft(0);
+    };
 
-    socket.on(
-      "next-question",
-      (data: { question: Question; questionNumber: number }) => {
-        setCurrentQuestion(data.question);
-        setQuestionNumber(data.questionNumber);
-        setTimeLeft(data.question.time_limit);
-        setShowResult(false);
-        setAnswerResult(null);
-        setAnswerSubmitted(false);
-      },
-    );
+    const handleNextQuestion = (data: {
+      question: Question;
+      questionNumber: number;
+    }) => {
+      setCurrentQuestion(data.question);
+      setQuestionNumber(data.questionNumber);
+      setTimeLeft(data.question.time_limit);
+      setShowResult(false);
+      setAnswerResult(null);
+      setAnswerSubmitted(false);
+    };
 
-    socket.on("game-ended", (data: { leaderboard: LeaderboardEntry[] }) => {
+    const handleGameEnded = (data: { leaderboard: LeaderboardEntry[] }) => {
       setLeaderboard(data.leaderboard);
       setGameEnded(true);
-    });
+    };
+
+    onGameSocketEvent(GAME_SOCKET_INBOUND_EVENT.ERROR, handleError);
+    onGameSocketEvent(GAME_SOCKET_INBOUND_EVENT.PLAYER_JOINED, handlePlayerJoined);
+    onGameSocketEvent(GAME_SOCKET_INBOUND_EVENT.GAME_STARTED, handleGameStarted);
+    onGameSocketEvent(GAME_SOCKET_INBOUND_EVENT.GAME_RESUMED, handleGameResumed);
+    onGameSocketEvent(GAME_SOCKET_INBOUND_EVENT.GAME_PAUSED, handleGamePaused);
+    onGameSocketEvent(GAME_SOCKET_INBOUND_EVENT.ANSWER_SUBMITTED, handleAnswerSubmitted);
+    onGameSocketEvent(GAME_SOCKET_INBOUND_EVENT.ANSWER_RESULT, handleAnswerResult);
+    onGameSocketEvent(GAME_SOCKET_INBOUND_EVENT.NEXT_QUESTION, handleNextQuestion);
+    onGameSocketEvent(GAME_SOCKET_INBOUND_EVENT.GAME_ENDED, handleGameEnded);
 
     return () => {
-      socket.off("player-joined");
-      socket.off("game-started");
-      socket.off("answer-submitted");
-      socket.off("answer-result");
-      socket.off("next-question");
-      socket.off("game-ended");
+      offGameSocketEvent(GAME_SOCKET_INBOUND_EVENT.ERROR, handleError);
+      offGameSocketEvent(GAME_SOCKET_INBOUND_EVENT.PLAYER_JOINED, handlePlayerJoined);
+      offGameSocketEvent(GAME_SOCKET_INBOUND_EVENT.GAME_STARTED, handleGameStarted);
+      offGameSocketEvent(GAME_SOCKET_INBOUND_EVENT.GAME_RESUMED, handleGameResumed);
+      offGameSocketEvent(GAME_SOCKET_INBOUND_EVENT.GAME_PAUSED, handleGamePaused);
+      offGameSocketEvent(GAME_SOCKET_INBOUND_EVENT.ANSWER_SUBMITTED, handleAnswerSubmitted);
+      offGameSocketEvent(GAME_SOCKET_INBOUND_EVENT.ANSWER_RESULT, handleAnswerResult);
+      offGameSocketEvent(GAME_SOCKET_INBOUND_EVENT.NEXT_QUESTION, handleNextQuestion);
+      offGameSocketEvent(GAME_SOCKET_INBOUND_EVENT.GAME_ENDED, handleGameEnded);
     };
   }, []);
 
@@ -86,5 +155,7 @@ export function useGameSocket() {
     gameStarted,
     gameEnded,
     answerSubmitted,
+    isPaused,
+    lastErrorCode,
   };
 }

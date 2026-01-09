@@ -1,4 +1,4 @@
-import type { OrganizationMember } from '../entities/organization-member.entity';
+import type { OrganizationMember } from '../entities/organization-member';
 import type { OrganizationRole } from '../enums/organization-role.enum';
 
 /**

@@ -25,6 +25,9 @@ describe("JoinGamePage", () => {
       gamePin: "",
       onGamePinChange: vi.fn(),
       onJoinGame: vi.fn(),
+      onJoinAsGuest: vi.fn(),
+      isAuthenticated: false,
+      username: undefined,
     };
 
     render(<JoinGamePage {...mockHandlers} />);
@@ -39,6 +42,9 @@ describe("JoinGamePage", () => {
       gamePin: "",
       onGamePinChange: vi.fn(),
       onJoinGame: vi.fn(),
+      onJoinAsGuest: vi.fn(),
+      isAuthenticated: false,
+      username: undefined,
     };
 
     render(<JoinGamePage {...mockHandlers} />);
@@ -54,47 +60,60 @@ describe("JoinGamePage", () => {
       gamePin: "123",
       onGamePinChange: vi.fn(),
       onJoinGame: vi.fn(),
+      onJoinAsGuest: vi.fn(),
+      isAuthenticated: false,
+      username: undefined,
     };
 
     render(<JoinGamePage {...mockHandlers} />);
 
-    const joinButton = screen.getByRole("button", { name: /START GAME/i });
+    const joinButton = screen.getByRole("button", { name: /CONTINUE/i });
     expect(joinButton).toBeDisabled();
   });
 
-  it("should enable join button when PIN is 6 characters", () => {
+  it("should enable continue button when PIN is 6 characters", () => {
     const mockHandlers = {
       gamePin: "123456",
       onGamePinChange: vi.fn(),
       onJoinGame: vi.fn(),
+      onJoinAsGuest: vi.fn(),
+      isAuthenticated: false,
+      username: undefined,
     };
 
     render(<JoinGamePage {...mockHandlers} />);
 
-    const joinButton = screen.getByRole("button", { name: /START GAME/i });
+    const joinButton = screen.getByRole("button", { name: /CONTINUE/i });
     expect(joinButton).not.toBeDisabled();
   });
 
-  it("should call onJoinGame when join button is clicked", () => {
+  it("should show guest nickname form when continue is clicked while unauthenticated", () => {
     const mockHandlers = {
       gamePin: "123456",
       onGamePinChange: vi.fn(),
       onJoinGame: vi.fn(),
+      onJoinAsGuest: vi.fn(),
+      isAuthenticated: false,
+      username: undefined,
     };
 
     render(<JoinGamePage {...mockHandlers} />);
 
-    const joinButton = screen.getByRole("button", { name: /START GAME/i });
-    fireEvent.click(joinButton);
+    const continueButton = screen.getByRole("button", { name: /CONTINUE/i });
+    fireEvent.click(continueButton);
 
-    expect(mockHandlers.onJoinGame).toHaveBeenCalled();
+    expect(screen.getByPlaceholderText(/Enter nickname/i)).toBeInTheDocument();
+    expect(mockHandlers.onJoinGame).not.toHaveBeenCalled();
   });
 
-  it("should call onJoinGame when Enter key is pressed with valid PIN", () => {
+  it("should show guest nickname form when Enter key is pressed with valid PIN while unauthenticated", () => {
     const mockHandlers = {
       gamePin: "123456",
       onGamePinChange: vi.fn(),
       onJoinGame: vi.fn(),
+      onJoinAsGuest: vi.fn(),
+      isAuthenticated: false,
+      username: undefined,
     };
 
     render(<JoinGamePage {...mockHandlers} />);
@@ -102,7 +121,52 @@ describe("JoinGamePage", () => {
     const input = screen.getByPlaceholderText("••••••");
     fireEvent.keyDown(input, { key: "Enter", code: "Enter" });
 
-    expect(mockHandlers.onJoinGame).toHaveBeenCalled();
+    expect(screen.getByPlaceholderText(/Enter nickname/i)).toBeInTheDocument();
+    expect(mockHandlers.onJoinGame).not.toHaveBeenCalled();
+  });
+
+  it("should call onJoinGame when authenticated and PIN is complete", () => {
+    const mockHandlers = {
+      gamePin: "123456",
+      onGamePinChange: vi.fn(),
+      onJoinGame: vi.fn(),
+      onJoinAsGuest: vi.fn(),
+      isAuthenticated: true,
+      username: "alice",
+    };
+
+    render(<JoinGamePage {...mockHandlers} />);
+
+    const joinButton = screen.getByRole("button", { name: /CONFIRM & JOIN/i });
+    fireEvent.click(joinButton);
+
+    expect(mockHandlers.onJoinGame).toHaveBeenCalledTimes(1);
+  });
+
+  it("should call onJoinAsGuest with trimmed nickname", () => {
+    const mockHandlers = {
+      gamePin: "123456",
+      onGamePinChange: vi.fn(),
+      onJoinGame: vi.fn(),
+      onJoinAsGuest: vi.fn(),
+      isAuthenticated: false,
+      username: undefined,
+    };
+
+    render(<JoinGamePage {...mockHandlers} />);
+
+    const continueButton = screen.getByRole("button", { name: /CONTINUE/i });
+    fireEvent.click(continueButton);
+
+    const nicknameInput = screen.getByPlaceholderText(/Enter nickname/i);
+    fireEvent.change(nicknameInput, { target: { value: "  bob  " } });
+
+    const joinAsGuestButton = screen.getByRole("button", {
+      name: /JOIN AS GUEST/i,
+    });
+    fireEvent.click(joinAsGuestButton);
+
+    expect(mockHandlers.onJoinAsGuest).toHaveBeenCalledWith("bob");
   });
 
   it("should navigate back to home when back button is clicked", () => {
@@ -110,6 +174,9 @@ describe("JoinGamePage", () => {
       gamePin: "",
       onGamePinChange: vi.fn(),
       onJoinGame: vi.fn(),
+      onJoinAsGuest: vi.fn(),
+      isAuthenticated: false,
+      username: undefined,
     };
 
     render(<JoinGamePage {...mockHandlers} />);

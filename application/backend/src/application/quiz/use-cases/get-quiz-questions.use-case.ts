@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { Question } from '../../../domain/quiz/entities/question.entity';
+import type { Question } from '../../../domain/quiz/entities/question';
 import {
   type QuestionRepository,
   QuestionRepositoryProvider,

@@ -2,6 +2,7 @@ import { useCallback, useState, useTransition } from "react";
 import {
   quizService,
   type CreateQuestionPayload,
+  type UpdateQuizPayload,
   type UpdateQuestionPayload,
 } from "../../../../domains/quiz/quiz.service";
 import type { Question, Quiz } from "../../../../domains/quiz/types";
@@ -15,16 +16,29 @@ export function useQuizManager() {
   const [isPending, startTransition] = useTransition();
 
   const loadQuizzes = useCallback(
-    async (token: string) => {
-      setHasLoadedQuizzes(false);
+    async (
+      token: string,
+      options?: {
+        force?: boolean;
+        silent?: boolean;
+      }
+    ) => {
+      const force = Boolean(options?.force);
+      const silent = Boolean(options?.silent);
+
+      if (!silent) {
+        setHasLoadedQuizzes(false);
+      }
       try {
-        const result = await quizService.getQuizzes(token);
+        const result = await quizService.getQuizzes(token, { force });
         startTransition(() => {
           setQuizzes(result);
         });
         return result;
       } finally {
-        setHasLoadedQuizzes(true);
+        if (!silent) {
+          setHasLoadedQuizzes(true);
+        }
       }
     },
     [startTransition]
@@ -78,9 +92,12 @@ export function useQuizManager() {
   const addQuestion = useCallback(
     async (token: string, payload: CreateQuestionPayload) => {
       const created = await quizService.addQuestion(token, payload);
+      const quizIdFromCreated = Number(created.quiz_id);
+      const quizId = Number.isFinite(quizIdFromCreated)
+        ? quizIdFromCreated
+        : payload.quizId;
       startTransition(() => {
         setQuestionsByQuiz((prev) => {
-          const quizId = created.quiz_id;
           const existing = prev[quizId] ?? [];
           return {
             ...prev,
@@ -89,7 +106,7 @@ export function useQuizManager() {
         });
         setQuizzes((prev) =>
           prev.map((quiz) =>
-            quiz.id === created.quiz_id
+            quiz.id === quizId
               ? {
                 ...quiz,
                 question_count: (quiz.question_count ?? 0) + 1,
@@ -114,6 +131,19 @@ export function useQuizManager() {
           return next;
         });
       });
+    },
+    [startTransition]
+  );
+
+  const updateQuiz = useCallback(
+    async (token: string, quizId: number, payload: UpdateQuizPayload) => {
+      const updated = await quizService.updateQuiz(token, quizId, payload);
+      startTransition(() => {
+        setQuizzes((prev) =>
+          prev.map((quiz) => (quiz.id === quizId ? { ...quiz, ...updated } : quiz))
+        );
+      });
+      return updated;
     },
     [startTransition]
   );
@@ -189,6 +219,7 @@ export function useQuizManager() {
     createQuiz,
     addQuestion,
     deleteQuiz,
+    updateQuiz,
     deleteQuestion,
     updateQuestion,
     setQuestionsByQuiz,

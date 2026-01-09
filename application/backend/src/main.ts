@@ -12,16 +12,16 @@ async function bootstrap() {
     { ValidationPipe },
     { NestFactory },
     { DocumentBuilder, SwaggerModule },
-    { I18nService },
     { AppModule },
     { I18nHttpExceptionFilter },
+    { ErrorTranslationService },
   ] = await Promise.all([
     import('@nestjs/common'),
     import('@nestjs/core'),
     import('@nestjs/swagger'),
-    import('nestjs-i18n'),
     import('./app.module.js'),
-    import('./infrastructure/filters/i18n-http-exception.filter.js'),
+    import('./infrastructure/shared/filters/i18n-http-exception.filter.js'),
+    import('./infrastructure/shared/filters/error-translation.service.js'),
   ]);
 
   const app = await NestFactory.create(AppModule, {
@@ -31,12 +31,9 @@ async function bootstrap() {
   // Enable CORS
   app.enableCors();
 
-  // Get I18n service for exception filters
-  const i18nService =
-    app.get<import('nestjs-i18n').I18nService<Record<string, unknown>>>(I18nService);
-
   // Register global exception filter for i18n
-  app.useGlobalFilters(new I18nHttpExceptionFilter(i18nService));
+  const errorTranslationService = app.get(ErrorTranslationService);
+  app.useGlobalFilters(new I18nHttpExceptionFilter(errorTranslationService));
 
   // Enforce DTO validation and strip unknown fields
   app.useGlobalPipes(

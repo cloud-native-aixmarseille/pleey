@@ -2,13 +2,14 @@ import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import {
+  CancelButton,
+  DropdownTriggerButton,
   PrimaryButton,
   SecondaryButton,
 } from "../../../../../presentation/shared/ui/components";
 import Card from "../../../../../presentation/shared/ui/components/Card";
 import Modal from "../../../../../presentation/shared/ui/components/Modal";
 import Input from "../../../../../presentation/shared/ui/components/Input";
-import { Icon } from "../../../../../presentation/shared/ui/icons";
 
 import { useOrganization } from "../../context/OrganizationContext";
 import { useNotifications } from "../../../app-shell";
@@ -81,38 +82,17 @@ export function OrganizationSelector() {
 
   return (
     <div className="relative">
-      <SecondaryButton
-        type="button"
-        effect="flat"
-        size="md"
-        fullWidth
-        alignment="start"
-        className="min-w-0"
-        aria-haspopup="menu"
-        aria-expanded={showDropdown}
-        onClick={() => setShowDropdown(!showDropdown)}
-        icon={{ name: "Building2", tone: "accent", size: 20 }}
-      >
-        <span className="flex w-full min-w-0 items-center justify-between gap-3">
-          <span className="min-w-0 flex-1 text-left">
-            <span className="block text-xs text-dark-500 dark:text-light-700">
-              {t("organization.title")}
-            </span>
-            <span className="block truncate font-bold text-primary-800 dark:text-primary-300">
-              {currentOrganization?.name ||
-                t("organization.selectOrganization")}
-            </span>
-          </span>
-          <span
-            className={`shrink-0 transition-transform ${
-              showDropdown ? "rotate-180" : ""
-            }`}
-            aria-hidden
-          >
-            <Icon name="ChevronDown" tone="neutral" size={18} />
-          </span>
-        </span>
-      </SecondaryButton>
+      <div className="min-w-0">
+        <DropdownTriggerButton
+          onClick={() => setShowDropdown(!showDropdown)}
+          expanded={showDropdown}
+          icon={{ name: "Building2", tone: "accent", size: 20 }}
+          label={t("organization.title")}
+          value={
+            currentOrganization?.name || t("organization.selectOrganization")
+          }
+        />
+      </div>
 
       {showDropdown && (
         <div className="absolute top-full mt-2 left-0 z-50 w-80">
@@ -149,22 +129,23 @@ export function OrganizationSelector() {
               </div>
 
               <div className="mt-3 pt-3 border-t border-light-300 dark:border-dark-700">
-                <SecondaryButton
-                  onClick={() => {
-                    setShowCreateForm(true);
-                    setShowDropdown(false);
-                  }}
-                  effect="flat"
-                  fullWidth
-                  alignment="start"
-                  size="sm"
-                  className="min-w-0"
-                  icon={{ name: "Plus", tone: "accent", size: 18 }}
-                >
-                  <span className="min-w-0 whitespace-normal break-words text-left">
-                    {t("organization.createNew")}
-                  </span>
-                </SecondaryButton>
+                <div className="min-w-0">
+                  <SecondaryButton
+                    onClick={() => {
+                      setShowCreateForm(true);
+                      setShowDropdown(false);
+                    }}
+                    effect="flat"
+                    fullWidth
+                    alignment="start"
+                    size="sm"
+                    icon={{ name: "Plus", tone: "accent", size: 18 }}
+                  >
+                    <span className="min-w-0 whitespace-normal break-words text-left">
+                      {t("organization.createNew")}
+                    </span>
+                  </SecondaryButton>
+                </div>
               </div>
             </div>
           </Card>
@@ -177,13 +158,11 @@ export function OrganizationSelector() {
         title={t("organization.createNew")}
         footer={
           <>
-            <SecondaryButton
+            <CancelButton
               type="button"
               onClick={closeCreateForm}
               disabled={isCreating}
-            >
-              {t("common.cancel")}
-            </SecondaryButton>
+            />
             <PrimaryButton
               type="submit"
               form="create-organization-form"

@@ -4,29 +4,28 @@ import { IGameRepository } from "../../../domains/game/ports/game.repository.int
 import { IGameSocket } from "../../../domains/game/ports/game-socket.interface";
 import type { User } from "../../../domains/auth/types";
 import type { GameSession } from "../../../domains/game/types";
+import { createGameSessionFixture, createUserFixture } from "../../../test/fixtures";
 
 describe("LaunchQuizUseCase", () => {
   let launchQuizUseCase: LaunchQuizUseCase;
   let mockGameRepository: IGameRepository;
   let mockGameSocket: IGameSocket;
 
-  const mockUser: User = {
-    id: 1,
+  const mockUser: User = createUserFixture({
     username: "admin",
-    email: "admin@example.com",
     isAdmin: true,
-  };
+  });
 
   beforeEach(() => {
     mockGameRepository = {
       createSession: vi.fn(),
+      getActiveSessions: vi.fn(),
+      stopSession: vi.fn(),
+      resumeSession: vi.fn(),
     };
 
     mockGameSocket = {
-      joinGame: vi.fn(),
-      startGame: vi.fn(),
-      submitAnswer: vi.fn(),
-      nextQuestion: vi.fn(),
+      publish: vi.fn(),
     };
 
     launchQuizUseCase = new LaunchQuizUseCase(
@@ -36,11 +35,7 @@ describe("LaunchQuizUseCase", () => {
   });
 
   it("should launch quiz successfully", async () => {
-    const mockSession: GameSession = {
-      pin: "123456",
-      quiz_id: 1,
-      status: "waiting",
-    };
+    const mockSession: GameSession = createGameSessionFixture();
 
     vi.mocked(mockGameRepository.createSession).mockResolvedValue(mockSession);
 
@@ -56,7 +51,12 @@ describe("LaunchQuizUseCase", () => {
       "test-token",
       1,
     );
-    expect(mockGameSocket.joinGame).toHaveBeenCalledWith("123456", "admin", 1);
+    expect(mockGameSocket.publish).toHaveBeenCalledWith({
+      type: "join-game",
+      pin: "123456",
+      username: "admin",
+      userId: 1,
+    });
   });
 
   it("should throw error when question count is zero", async () => {
@@ -70,7 +70,7 @@ describe("LaunchQuizUseCase", () => {
     ).rejects.toThrow("Cannot launch quiz without questions");
 
     expect(mockGameRepository.createSession).not.toHaveBeenCalled();
-    expect(mockGameSocket.joinGame).not.toHaveBeenCalled();
+    expect(mockGameSocket.publish).not.toHaveBeenCalled();
   });
 });
 

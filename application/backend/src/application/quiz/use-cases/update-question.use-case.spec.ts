@@ -1,47 +1,20 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { beforeEach, describe, expect, it, type Mocked, vi } from 'vitest';
-import { Question } from '../../../domain/quiz/entities/question.entity';
-import type { QuestionRepository } from '../../../domain/quiz/repositories/question.repository.interface';
+import { describe, expect, it } from 'vitest';
+import { createQuestionFixture } from '../../../test-utils/fixtures';
+import { createQuestionRepositoryMock } from '../../../test-utils/mock-factories';
 import { QuizErrorCode } from '../enums/quiz-error-code.enum';
 import { UpdateQuestionUseCase } from './update-question.use-case';
 
-const buildQuestion = (overrides: Partial<Question> = {}): Question =>
-  new Question(
-    overrides.id ?? 1,
-    overrides.quizId ?? 2,
-    overrides.questionText ?? 'Text',
-    overrides.type ?? 'multiple',
-    overrides.correctAnswer ?? 'A',
-    overrides.optionA ?? 'A',
-    overrides.optionB ?? 'B',
-    overrides.optionC ?? 'C',
-    overrides.optionD ?? 'D',
-    overrides.timeLimit ?? 20,
-    overrides.points ?? 1000,
-  );
-
 describe('UpdateQuestionUseCase', () => {
-  let questionRepository: Mocked<QuestionRepository>;
-  let useCase: UpdateQuestionUseCase;
-
-  beforeEach(() => {
-    questionRepository = {
-      create: vi.fn(),
-      findById: vi.fn(),
-      findByQuizId: vi.fn(),
-      delete: vi.fn(),
-      update: vi.fn(),
-    } as unknown as Mocked<QuestionRepository>;
-
-    useCase = new UpdateQuestionUseCase(questionRepository);
-  });
-
   it('should update existing question', async () => {
-    const existing = buildQuestion();
-    const updated = buildQuestion({ questionText: 'Updated' });
+    const existing = createQuestionFixture();
+    const updated = createQuestionFixture({ id: existing.id, questionText: 'Updated' });
 
-    questionRepository.findById.mockResolvedValue(existing);
-    questionRepository.update.mockResolvedValue(updated);
+    const questionRepository = createQuestionRepositoryMock({
+      findById: existing,
+      update: updated,
+    });
+    const useCase = new UpdateQuestionUseCase(questionRepository as never);
 
     const result = await useCase.execute(existing.id, {
       questionText: 'Updated',
@@ -54,7 +27,8 @@ describe('UpdateQuestionUseCase', () => {
   });
 
   it('should throw when question does not exist', async () => {
-    questionRepository.findById.mockResolvedValue(null);
+    const questionRepository = createQuestionRepositoryMock({ findById: null });
+    const useCase = new UpdateQuestionUseCase(questionRepository as never);
 
     await useCase.execute(999, { questionText: 'Nope' }).then(
       () => {
@@ -68,7 +42,7 @@ describe('UpdateQuestionUseCase', () => {
   });
 
   it('should throw when updating with duplicate correct answers', async () => {
-    const existing = buildQuestion({
+    const existing = createQuestionFixture({
       type: 'multiple',
       correctAnswer: 'A',
       optionA: 'Option A',
@@ -77,7 +51,8 @@ describe('UpdateQuestionUseCase', () => {
       optionD: 'Option D',
     });
 
-    questionRepository.findById.mockResolvedValue(existing);
+    const questionRepository = createQuestionRepositoryMock({ findById: existing });
+    const useCase = new UpdateQuestionUseCase(questionRepository as never);
 
     await useCase.execute(existing.id, { correctAnswer: 'A,A,D' }).then(
       () => {

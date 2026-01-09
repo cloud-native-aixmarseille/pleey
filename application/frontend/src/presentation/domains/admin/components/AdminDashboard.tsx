@@ -16,8 +16,8 @@ import { AdminDashboardHeader } from "./AdminDashboardHeader";
 import { AdminLiveSessionsSection } from "./AdminLiveSessionsSection";
 import { AdminStatsSection } from "./AdminStatsSection";
 import { AdminQuizGrid } from "./AdminQuizGrid";
-import { CreateQuizModal } from "../../quiz/components/modals/CreateQuizModal.tsx";
-import { DeleteQuizModal } from "../../quiz/components/modals/DeleteQuizModal.tsx";
+import { CreateQuizModal } from "../../quiz/components/modals/CreateQuizModal";
+import { DeleteQuizModal } from "../../quiz/components/modals/DeleteQuizModal";
 import { useAuthManagerContext } from "../../auth";
 
 const DASHBOARD_WRAPPER_CLASSES =
@@ -142,12 +142,11 @@ export default function AdminDashboard({
     const map = new Map<number, GameSession>();
     const liveStatuses = new Set(["waiting", "active", "paused"]);
     activeSessions.forEach((session) => {
-      const quizId = session.quizId ?? session.quiz_id;
       if (!liveStatuses.has(session.status)) {
         return;
       }
-      if (typeof quizId === "number" && !map.has(quizId)) {
-        map.set(quizId, session);
+      if (typeof session.quizId === "number" && !map.has(session.quizId)) {
+        map.set(session.quizId, session);
       }
     });
     return map;
@@ -171,11 +170,10 @@ export default function AdminDashboard({
     if (!user) {
       return false;
     }
-    const adminId = user.id;
+    const hostId = user.id;
     const liveStatuses = new Set(["waiting", "active", "paused"]);
     return activeSessions.some((session) => {
-      const sessionAdminId = session.adminId ?? session.admin_id;
-      return sessionAdminId === adminId && liveStatuses.has(session.status);
+      return session.hostId === hostId && liveStatuses.has(session.status);
     });
   }, [activeSessions, user]);
 

@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { GameHttpRepository } from "./game-http.repository";
 import type { GameSession } from "../types";
+import { createGameSessionFixture } from "../../../test/fixtures";
 
 globalThis.fetch = vi.fn();
 const fetchMock = globalThis.fetch as unknown as ReturnType<typeof vi.fn>;
@@ -16,12 +17,7 @@ describe("GameHttpRepository", () => {
 
   describe("createSession", () => {
     it("should create a game session", async () => {
-      const mockSession: GameSession = {
-        pin: "123456",
-        quizId: 1,
-        quiz_id: 1,
-        status: "waiting",
-      };
+      const mockSession: GameSession = createGameSessionFixture();
 
       fetchMock.mockResolvedValueOnce({
         ok: true,
