@@ -504,6 +504,9 @@
   },
   "common": {
     "loading": "Chargement...",
+    "patience": {
+      "aria": "Chargement en cours — veuillez patienter."
+    },
     "error": "Erreur",
     "success": "Succès",
     "logout": "Déconnexion",

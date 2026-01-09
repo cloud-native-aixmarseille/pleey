@@ -5,6 +5,11 @@ import LobbyPage from "../components/LobbyPage";
 import { useAuthManagerContext } from "../../auth";
 import { useGameSessionContext } from "../contexts/GameSessionContext";
 import { useGuestSessionContext } from "../contexts/GuestSessionContext";
+import {
+  PatienceOverlay,
+  PatiencePlayground,
+} from "../../../shared/ui/patience";
+import { useUserIdle } from "../../../shared/ui/patience/hooks/useUserIdle";
 
 /**
  * Lobby Route Component
@@ -25,6 +30,8 @@ export function LobbyRoute() {
     handleStopSession,
   } = useGameSessionContext();
 
+  const isIdle = useUserIdle(true, 4_000);
+
   const hasIdentity = isAuthenticated || Boolean(guestNickname);
   const isHydratingIdentity = !hasRestoredSession || !hasHydratedGuest;
   const normalizedSessionId = sessionId?.toUpperCase() ?? "";
@@ -41,7 +48,11 @@ export function LobbyRoute() {
 
   if (!hasIdentity) {
     if (isHydratingIdentity) {
-      return <div />;
+      return (
+        <PatiencePlayground className="relative">
+          <div className="crt-screen" />
+        </PatiencePlayground>
+      );
     }
     return <Navigate to="/game/join" replace />;
   }
@@ -49,16 +60,19 @@ export function LobbyRoute() {
   const handleBackToAdmin = isAdmin ? () => navigate("/admin") : undefined;
 
   return (
-    <LobbyPage
-      gamePin={gamePin}
-      players={players}
-      isAdmin={isAdmin}
-      hostUserId={isAdmin && user ? user.id : null}
-      hostUsername={isAdmin && user ? user.username : null}
-      onStartGame={handleStartGame}
-      onStopSession={isAdmin ? handleStopSession : undefined}
-      onBackToAdmin={handleBackToAdmin}
-      questionCount={activeQuizQuestionCount}
-    />
+    <PatiencePlayground className="relative">
+      <LobbyPage
+        gamePin={gamePin}
+        players={players}
+        isAdmin={isAdmin}
+        hostUserId={isAdmin && user ? user.id : null}
+        hostUsername={isAdmin && user ? user.username : null}
+        onStartGame={handleStartGame}
+        onStopSession={isAdmin ? handleStopSession : undefined}
+        onBackToAdmin={handleBackToAdmin}
+        questionCount={activeQuizQuestionCount}
+      />
+      <PatienceOverlay active={isIdle} />
+    </PatiencePlayground>
   );
 }

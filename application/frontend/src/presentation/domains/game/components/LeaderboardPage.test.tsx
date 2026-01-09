@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { render, screen, act, fireEvent } from "@testing-library/react";
 import LeaderboardPage from "./LeaderboardPage";
 import type { LeaderboardEntry } from "../../../../domains/game/types";
+import { LEADERBOARD_ANIMATION_TIMINGS } from "./leaderboard/constants";
 
 const mockNavigate = vi.fn();
 
@@ -19,6 +19,11 @@ vi.mock("react-router-dom", async () => {
 describe("LeaderboardPage", () => {
   beforeEach(() => {
     mockNavigate.mockReset();
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   const mockLeaderboard: LeaderboardEntry[] = [
@@ -31,63 +36,58 @@ describe("LeaderboardPage", () => {
 
   it("renders game over title", async () => {
     render(<LeaderboardPage leaderboard={mockLeaderboard} />);
-    expect(await screen.findByText(/game over/i)).toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(LEADERBOARD_ANIMATION_TIMINGS.title);
+    });
+
+    expect(screen.getByText(/game over/i)).toBeInTheDocument();
   });
 
   it("displays podium with top 3 players", async () => {
     render(<LeaderboardPage leaderboard={mockLeaderboard} />);
 
-    expect(
-      await screen.findByText("Player1", undefined, { timeout: 4000 })
-    ).toBeInTheDocument();
-    expect(
-      await screen.findByText("Player2", undefined, { timeout: 4000 })
-    ).toBeInTheDocument();
-    expect(
-      await screen.findByText("Player3", undefined, { timeout: 4000 })
-    ).toBeInTheDocument();
+    act(() => {
+      vi.advanceTimersByTime(LEADERBOARD_ANIMATION_TIMINGS.thirdPlace);
+    });
+
+    expect(screen.getByText("Player1")).toBeInTheDocument();
+    expect(screen.getByText("Player2")).toBeInTheDocument();
+    expect(screen.getByText("Player3")).toBeInTheDocument();
   });
 
   it("displays remaining players after podium", async () => {
     render(<LeaderboardPage leaderboard={mockLeaderboard} />);
 
-    await waitFor(
-      () => {
-        expect(screen.getByText("Player4")).toBeInTheDocument();
-        expect(screen.getByText("Player5")).toBeInTheDocument();
-      },
-      { timeout: 4000 }
-    );
+    act(() => {
+      vi.advanceTimersByTime(LEADERBOARD_ANIMATION_TIMINGS.rest);
+    });
+
+    expect(screen.getByText("Player4")).toBeInTheDocument();
+    expect(screen.getByText("Player5")).toBeInTheDocument();
   });
 
   it("displays correct scores for each player", async () => {
     render(<LeaderboardPage leaderboard={mockLeaderboard} />);
 
-    expect(
-      await screen.findByText(/1500 pts/i, undefined, { timeout: 4000 })
-    ).toBeInTheDocument();
-    expect(
-      await screen.findByText(/1200 pts/i, undefined, { timeout: 4000 })
-    ).toBeInTheDocument();
-    expect(
-      await screen.findByText(/1000 pts/i, undefined, { timeout: 4000 })
-    ).toBeInTheDocument();
+    act(() => {
+      vi.advanceTimersByTime(LEADERBOARD_ANIMATION_TIMINGS.thirdPlace);
+    });
+
+    expect(screen.getByText(/1500 pts/i)).toBeInTheDocument();
+    expect(screen.getByText(/1200 pts/i)).toBeInTheDocument();
+    expect(screen.getByText(/1000 pts/i)).toBeInTheDocument();
   });
 
   it("calls onNavigate when Play Again button is clicked", async () => {
-    const user = userEvent.setup();
-
     render(<LeaderboardPage leaderboard={mockLeaderboard} />);
 
-    await waitFor(
-      () => {
-        expect(screen.getByText("Play Again")).toBeInTheDocument();
-      },
-      { timeout: 4000 }
-    );
+    act(() => {
+      vi.advanceTimersByTime(LEADERBOARD_ANIMATION_TIMINGS.rest);
+    });
 
     const playAgainButton = screen.getByText("Play Again");
-    await user.click(playAgainButton);
+    fireEvent.click(playAgainButton);
 
     expect(mockNavigate).toHaveBeenCalledWith("/");
   });
@@ -95,12 +95,11 @@ describe("LeaderboardPage", () => {
   it("renders share button", async () => {
     render(<LeaderboardPage leaderboard={mockLeaderboard} />);
 
-    await waitFor(
-      () => {
-        expect(screen.getByText("Share")).toBeInTheDocument();
-      },
-      { timeout: 4000 }
-    );
+    act(() => {
+      vi.advanceTimersByTime(LEADERBOARD_ANIMATION_TIMINGS.rest);
+    });
+
+    expect(screen.getByText("Share")).toBeInTheDocument();
   });
 
   it("renders confetti component", () => {
