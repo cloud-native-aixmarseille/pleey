@@ -1,0 +1,231 @@
+---
+global:
+  applicationName: pleey-app
+  fullnameOverride: ""
+  imageRegistry: ""
+  imagePullPolicy: Always
+  imagePullSecrets: []
+  storageClass: ""
+
+imagePullSecrets: []
+replicaCount: 1
+image:
+  registry: ""
+  repository: ghcr.io/cloud-native-aixmarseille/pleey/backend
+  tag: latest
+  digest: sha256:bb88a828dfefdc6493cb3297f772c15651f8183af3227185af085d96d5848c1b
+  pullPolicy: ""
+service:
+  type: ClusterIP
+  port: 3001
+  targetPort: 3001
+  annotations: {}
+config:
+  nodeEnv: production
+  port: "3001"
+  corsOrigin: "*"
+  apiBaseUrl: ""
+  otelExporterOtlpEndpoint: ""
+  otelExporterOtlpHeaders: ""
+auth:
+  jwtSecret: ""
+  existingSecret:
+    name: ""
+    jwtSecretKey: JWT_SECRET
+serviceAccount:
+  create: true
+  automount: false
+  annotations: {}
+  name: ""
+database:
+  # -- Database backend. `cloudnativepg` creates a Cluster custom resource for
+  # an already-available CloudNativePG operator, while `external` uses an
+  # existing PostgreSQL connection string or secret.
+  provider: cloudnativepg
+  auth:
+    database: pleeydb
+    username: pleeyapp
+  cloudnativepg:
+    clusterName: ""
+    instances: 1
+    imageName: ghcr.io/cloudnative-pg/postgresql:17.6
+    storage:
+      size: 1Gi
+      storageClass: ""
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    postgresql:
+      parameters:
+        max_connections: "100"
+        shared_buffers: 128MB
+    monitoring:
+      enablePodMonitor: false
+    backup: {}
+    annotations: {}
+  external:
+    url: ""
+    host: ""
+    port: 5432
+    existingSecret:
+      name: ""
+      key: DATABASE_URL
+cloudnativepgOperator:
+  # -- Opt in when this chart should also install the CloudNativePG operator.
+  # Leave disabled when the operator is managed separately in the cluster.
+  enabled: false
+# cloudnative-pg mirrors the upstream dependency name. This intentionally keeps
+# the upstream chart name because aliasing it breaks CloudNativePG operator
+# bootstrap expectations.
+cloudnative-pg:
+  fullnameOverride: cloudnativepg-operator
+  crds:
+    create: false
+  image:
+    pullPolicy: Always
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  webhook:
+    mutating:
+      failurePolicy: Ignore
+    validating:
+      failurePolicy: Ignore
+valkey:
+  # Additional official valkey/valkey values can be passed through under this block.
+  enabled: true
+  provider: builtin
+  nameOverride: ""
+  fullnameOverride: ""
+  external:
+    url: ""
+    existingSecret:
+      name: ""
+      key: VALKEY_URL
+  image:
+    registry: docker.io
+    repository: valkey/valkey
+    tag: 9.0.2
+    pullPolicy: Always
+  service:
+    type: ClusterIP
+    port: 6379
+    annotations: {}
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
+  podAnnotations: {}
+  podLabels: {}
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 1000
+    capabilities:
+      drop:
+        - ALL
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+waitForDatabase:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: busybox
+    tag: "1.37.0"
+    digest: sha256:b8d1827e38a1d49cd17217efd7b07d689e4ea1744e39c7dcbb95533d175bea65
+    pullPolicy: ""
+  resources:
+    limits:
+      cpu: 100m
+      memory: 64Mi
+    requests:
+      cpu: 10m
+      memory: 32Mi
+migrationJob:
+  enabled: true
+  backoffLimit: 3
+  annotations: {}
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi
+startupProbe:
+  enabled: true
+  httpGet:
+    path: /api/health/live
+    port: http
+  failureThreshold: 30
+  periodSeconds: 5
+livenessProbe:
+  enabled: true
+  httpGet:
+    path: /api/health/live
+    port: http
+  initialDelaySeconds: 20
+  periodSeconds: 30
+  timeoutSeconds: 5
+  failureThreshold: 3
+readinessProbe:
+  enabled: true
+  httpGet:
+    path: /api/health/ready
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+podAnnotations: {}
+podLabels: {}
+priorityClassName: ""
+terminationGracePeriodSeconds: 30
+topologySpreadConstraints: []
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  fsGroup: 10001
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+extraEnv: []
+extraEnvFrom: []
+extraVolumes: []
+extraVolumeMounts: []
+nodeSelector: {}
+tolerations: []
+affinity: {}
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+

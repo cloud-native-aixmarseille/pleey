@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "pleey.backend.fullname" . }}
+  labels:
+    {{- include "pleey.backend.labels" . | nindent 4 }}
+data:
+  NODE_ENV: {{ .Values.config.nodeEnv | quote }}
+  PORT: {{ .Values.config.port | quote }}
+  CORS_ORIGIN: {{ .Values.config.corsOrigin | quote }}
+  {{- if .Values.config.apiBaseUrl }}
+  API_BASE_URL: {{ .Values.config.apiBaseUrl | quote }}
+  {{- end }}
+  {{- if .Values.config.otelExporterOtlpEndpoint }}
+  OTEL_EXPORTER_OTLP_ENDPOINT: {{ .Values.config.otelExporterOtlpEndpoint | quote }}
+  {{- end }}
+  {{- if .Values.config.otelExporterOtlpHeaders }}
+  OTEL_EXPORTER_OTLP_HEADERS: {{ .Values.config.otelExporterOtlpHeaders | quote }}
+  {{- end }}

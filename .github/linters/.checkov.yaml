@@ -1,4 +1,9 @@
 quiet: true
 skip-path:
-  # This prevents checks (like CKV_K8S_21) from failing on third-party subcharts.
-  - charts/application/pleey/charts/postgresql/templates
+  # Ignore third-party Helm dependency charts vendored by the backend subchart.
+  # Checkov renders them under paths that contain `charts/backend/charts/...`.
+  - (^|.*/)charts/backend/charts/.*
+skip-check:
+  # Checkov's Helm guidance recommends skipping CKV_K8S_21 for Helm-rendered manifests,
+  # because namespace assignment is release-managed and static analysis renders into "default".
+  - CKV_K8S_21

@@ -1,0 +1,43 @@
+{{- if .Values.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "pleey.fullname" . }}
+  labels:
+    {{- include "pleey.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: {{ .Release.Name }}
+    {{- if or .Values.frontend.enabled .Values.backend.enabled (eq (include "pleey.backend.cloudnativepgOperatorEnabled" .) "true") }}
+    - ports:
+        {{- if .Values.frontend.enabled }}
+        - port: {{ include "pleey.frontend.targetPort" . }}
+          protocol: TCP
+        {{- end }}
+        {{- if .Values.backend.enabled }}
+        - port: {{ include "pleey.backend.targetPort" . }}
+          protocol: TCP
+        {{- end }}
+        {{- if eq (include "pleey.backend.cloudnativepgOperatorEnabled" .) "true" }}
+        - port: 9443
+          protocol: TCP
+        {{- end }}
+    {{- end }}
+    {{- with .Values.networkPolicy.ingress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  egress:
+    - {}
+    {{- with .Values.networkPolicy.egress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- end }}

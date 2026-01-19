@@ -34,7 +34,7 @@ import { OrganizationModule } from './modules/organization/organization-module';
 const appConfiguration = new AppConfiguration(new AppEnvironment());
 const isProdBuild = appConfiguration.getServerConfig().isProduction;
 const i18nDirectory = isProdBuild
-  ? path.join(__dirname, '../i18n/')
+  ? path.join(__dirname, '../../i18n/')
   : path.join(process.cwd(), 'src/i18n/');
 const jwtSecret = appConfiguration.getJwtSecret();
 const jwtService = new JwtService();
@@ -64,7 +64,7 @@ function parseAuthorizationHeader(connectionParams?: Record<string, unknown>): s
     AppConfigModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      autoSchemaFile: path.join(process.cwd(), 'src/schema.gql'),
+      autoSchemaFile: isProdBuild ? true : path.join(process.cwd(), 'src/schema.gql'),
       sortSchema: true,
       playground: !isProdBuild,
       subscriptions: {

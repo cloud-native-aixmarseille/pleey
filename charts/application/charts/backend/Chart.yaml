@@ -1,0 +1,28 @@
+apiVersion: v2
+name: backend
+description: Pleey backend API service subchart.
+type: application
+version: 0.1.0
+appVersion: "main"
+home: https://github.com/cloud-native-aixmarseille/pleey
+sources:
+  - https://github.com/cloud-native-aixmarseille/pleey
+keywords:
+  - pleey
+  - backend
+  - nestjs
+  - cloudnativepg
+  - valkey
+maintainers:
+  - name: Pleey Maintainers
+    url: https://github.com/cloud-native-aixmarseille/pleey
+icon: https://raw.githubusercontent.com/cloud-native-aixmarseille/pleey/main/application/frontend/public/favicon/favicon.svg
+dependencies:
+  - name: valkey
+    version: ~0.9.4
+    repository: https://valkey.io/valkey-helm/
+    condition: valkey.enabled
+  - name: cloudnative-pg
+    version: ~0.28.2
+    repository: https://cloudnative-pg.github.io/charts
+    condition: cloudnativepgOperator.enabled

@@ -107,10 +107,7 @@ input LoginInput {
 }
 
 type Mutation {
-  addOrganizationMember(
-    input: AddOrganizationMemberInput!
-    organizationId: Int!
-  ): OrganizationMemberType!
+  addOrganizationMember(input: AddOrganizationMemberInput!, organizationId: Int!): OrganizationMemberType!
   createOrganization(input: CreateOrganizationInput!): OrganizationType!
   createParty(input: CreatePartyInput!): PartyType!
   createPrediction(input: CreatePredictionInput!): PredictionType!
