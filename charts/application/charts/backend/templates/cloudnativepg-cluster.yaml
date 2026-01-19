@@ -1,0 +1,44 @@
+{{- if eq .Values.database.provider "cloudnativepg" }}
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: {{ include "pleey.backend.databaseFullname" . }}
+  labels:
+    {{- include "pleey.backend.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+  {{- with .Values.database.cloudnativepg.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  instances: {{ .Values.database.cloudnativepg.instances }}
+  {{- if .Values.database.cloudnativepg.imageName }}
+  imageName: {{ .Values.database.cloudnativepg.imageName | quote }}
+  {{- end }}
+  bootstrap:
+    initdb:
+      database: {{ .Values.database.auth.database | quote }}
+      owner: {{ .Values.database.auth.username | quote }}
+  storage:
+    size: {{ .Values.database.cloudnativepg.storage.size | quote }}
+    {{- $storageClass := coalesce .Values.database.cloudnativepg.storage.storageClass .Values.global.storageClass }}
+    {{- if $storageClass }}
+    storageClass: {{ $storageClass | quote }}
+    {{- end }}
+  {{- with .Values.database.cloudnativepg.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.database.cloudnativepg.postgresql }}
+  postgresql:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.database.cloudnativepg.monitoring }}
+  monitoring:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.database.cloudnativepg.backup }}
+  backup:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}

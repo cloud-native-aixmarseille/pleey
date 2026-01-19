@@ -1,466 +1,94 @@
 ---
-# Default values for Pleey
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
-## Global configuration
+# global configures values shared with every local subchart.
 global:
-  # Default image registry
+  applicationName: pleey-app
+  fullnameOverride: ""
   imageRegistry: ""
-  # Default image pull policy
   imagePullPolicy: Always
-  # Pull secrets for private registries
   imagePullSecrets: []
-  # Storage class for persistent volumes
   storageClass: ""
 
-  # Shared namespace override used by subcharts (including PostgreSQL)
-  namespaceOverride: ""
-
-  initContainers:
-    waitForDb:
-      image:
-        registry: ""
-        repository: busybox
-        tag: "1.36"
-        # Replace with the real digest for your registry/image.
-        digest: "sha256:00baf5736376036ea4bc1a1c075784fc98a79186604d5d41305cd9b428b3b737"
-
-## Kubernetes namespace
-# Checkov’s Helm framework renders charts into the "default" namespace unless
-# overridden.
-# Use a non-default namespace by default to satisfy CKV_K8S_21, and override per
-# environment.
-namespaceOverride: ""
-
-## Backend NestJS configuration
+# backend configures the backend local subchart and its runtime dependencies.
 backend:
   enabled: true
 
-  # Number of replicas
-  replicaCount: 1
-
-  image:
-    registry: ghcr.io
-    repository: cloud-native-aixmarseille/pleey/backend
-    tag: "0.0.0"
-    pullPolicy: Always
-    # Replace with the real digest for your registry/image.
-    digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
-
-  # Service configuration
-  service:
-    type: ClusterIP
-    port: 3001
-    targetPort: 3001
-    annotations: {}
-
-  # Application environment variables
-  env:
-    nodeEnv: production
-    port: 3001
-    corsOrigin: "*"
-    # Valkey (Redis-compatible) session state (used by WebSocket game sessions)
-    # If empty and valkey.enabled=true, it will default to the in-cluster service URL.
-    valkeyUrl: ""
-    sessionStateTtlSeconds: 21600
-    # OTEL configuration
-    otelExporterOtlpEndpoint: "http://otel-collector:4318"
-
-  # Secrets - these should be overridden in production
-  secrets:
-    # JWT secret for authentication
-    jwtSecret: "CHANGE_ME"
-    # Database connection (if not using postgresql subchart)
-    databaseUrl: ""
-
-  # Resource limits and requests
-  resources:
-    limits:
-      cpu: 200m
-      memory: 256Mi
-    requests:
-      cpu: 50m
-      memory: 128Mi
-
-  # Health checks
-  livenessProbe:
-    httpGet:
-      path: /api/health/live
-      port: 3001
-    initialDelaySeconds: 40
-    periodSeconds: 30
-    timeoutSeconds: 10
-    failureThreshold: 3
-
-  readinessProbe:
-    httpGet:
-      path: /api/health/ready
-      port: 3001
-    initialDelaySeconds: 30
-    periodSeconds: 10
-    timeoutSeconds: 5
-    failureThreshold: 3
-
-  # Pod annotations
-  podAnnotations: {}
-
-  # Pod security context
-  podSecurityContext:
-    runAsNonRoot: true
-    runAsUser: 10001
-    runAsGroup: 10001
-    fsGroup: 10001
-    seccompProfile:
-      type: RuntimeDefault
-
-  # Container security context
-  securityContext:
-    allowPrivilegeEscalation: false
-    readOnlyRootFilesystem: true
-    capabilities:
-      drop:
-        - ALL
-
-  # Node selector
-  nodeSelector: {}
-
-  # Tolerations
-  tolerations: []
-
-  # Affinity rules
-  affinity: {}
-
-  # Autoscaling
-  autoscaling:
-    enabled: false
-    minReplicas: 2
-    maxReplicas: 10
-    targetCPUUtilizationPercentage: 80
-    targetMemoryUtilizationPercentage: 80
-
-## Frontend React/Nginx configuration
+# frontend configures the frontend local subchart.
 frontend:
   enabled: true
 
-  # Number of replicas
-  replicaCount: 1
-
-  image:
-    registry: ghcr.io
-    repository: cloud-native-aixmarseille/pleey/frontend
-    tag: "0.0.0"
-    pullPolicy: Always
-    # Replace with the real digest for your registry/image.
-    digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
-
-  # Service configuration
-  service:
-    type: ClusterIP
-    port: 80
-    targetPort: 8080
+# gateway configures how users reach the frontend and backend API.
+gateway:
+  provider: ingress
+  ingress:
+    className: ""
     annotations: {}
+    host: pleey.localhost
+    tls: []
+    pathType: Prefix
+    frontendPath: /
+    apiPath: /api
+    socketPath: /socket.io
 
-  # Application environment variables
-  env:
-    # API URL - will be injected into the frontend build
-    apiUrl: "http://backend:3001"
-
-  # Resource limits and requests
-  resources:
-    limits:
-      cpu: 100m
-      memory: 128Mi
-    requests:
-      cpu: 25m
-      memory: 64Mi
-
-  # Health checks
-  livenessProbe:
-    httpGet:
-      path: /
-      port: 8080
-    initialDelaySeconds: 10
-    periodSeconds: 30
-    timeoutSeconds: 10
-
-  readinessProbe:
-    httpGet:
-      path: /
-      port: 8080
-    initialDelaySeconds: 5
-    periodSeconds: 10
-    timeoutSeconds: 5
-
-  # Pod annotations
-  podAnnotations: {}
-
-  # Pod security context
-  podSecurityContext:
-    runAsNonRoot: true
-    runAsUser: 10001
-    runAsGroup: 10001
-    fsGroup: 10001
-    seccompProfile:
-      type: RuntimeDefault
-
-  # Container security context
-  securityContext:
-    allowPrivilegeEscalation: false
-    readOnlyRootFilesystem: true
-    capabilities:
-      drop:
-        - ALL
-
-  # Node selector
-  nodeSelector: {}
-
-  # Tolerations
-  tolerations: []
-
-  # Affinity rules
-  affinity: {}
-
-  # Autoscaling
-  autoscaling:
-    enabled: false
-    minReplicas: 2
-    maxReplicas: 10
-    targetCPUUtilizationPercentage: 80
-
-## PostgreSQL database configuration
-# Using Bitnami PostgreSQL chart
-postgresql:
+# networkPolicy configures the baseline release NetworkPolicy and optional extra rules.
+networkPolicy:
   enabled: true
+  ingress: []
+  egress: []
 
-  image:
-    repository: bitnamilegacy/postgresql
-    pullPolicy: Always
-    # Replace with the real digest for your registry/image.
-    digest: "sha256:94c148526e3de5a414cc53f75701ed0d57ff3719466851723512fcbd1182522a"
-
-  # PostgreSQL authentication
-  auth:
-    username: pleeyapp
-    password: pleeyapp_password
-    database: pleeydb
-    # Use existing secret (recommended for production)
-    existingSecret: ""
-    # Prefer using secret volumes (files) over env vars
-    usePasswordFiles: true
-
-  # Primary configuration
-  primary:
-    podSecurityContext:
-      enabled: true
-      fsGroup: 10001
-    containerSecurityContext:
-      enabled: true
-      runAsUser: 10001
-      runAsGroup: 10001
-      runAsNonRoot: true
-
-    persistence:
-      enabled: false
-
-      size: 8Gi
-      # storageClass: ""
-
-    resources:
-      limits:
-        cpu: 200m
-        memory: 256Mi
-      requests:
-        cpu: 50m
-        memory: 128Mi
-
-    # PostgreSQL configuration
-    extendedConfiguration: |
-      max_connections = 100
-      shared_buffers = 128MB
-
-  # Read replicas (optional)
-  readReplicas:
-    replicaCount: 0
-
-  # Metrics exporter for Prometheus
-  metrics:
-    enabled: false
-    image:
-      repository: bitnamilegacy/postgres-exporter
-    serviceMonitor:
-      enabled: false
-
-  volumePermissions:
-    image:
-      repository: bitnamilegacy/os-shell
-
-## Valkey (Redis-compatible) configuration
-valkey:
-  enabled: true
-
-  image:
-    repository: valkey/valkey
-    tag: "8-alpine"
-    pullPolicy: Always
-    digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
-
-  service:
-    port: 6379
-
-  resources:
-    limits:
-      cpu: 100m
-      memory: 128Mi
-    requests:
-      cpu: 25m
-      memory: 64Mi
-
-  livenessProbe:
-    tcpSocket:
-      port: 6379
-    initialDelaySeconds: 10
-    periodSeconds: 30
-    timeoutSeconds: 5
-    failureThreshold: 3
-
-  readinessProbe:
-    tcpSocket:
-      port: 6379
-    initialDelaySeconds: 5
-    periodSeconds: 10
-    timeoutSeconds: 5
-    failureThreshold: 3
-
-  podSecurityContext:
-    runAsNonRoot: true
-    runAsUser: 10001
-    runAsGroup: 10001
-    fsGroup: 10001
-    seccompProfile:
-      type: RuntimeDefault
-
-  securityContext:
-    allowPrivilegeEscalation: false
-    readOnlyRootFilesystem: true
-    capabilities:
-      drop:
-        - ALL
-
-## Ingress configuration
-ingress:
-  enabled: true
-
-  # Ingress class name
-  className: "nginx"
-
-  # Annotations for ingress controller
-  annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    # WebSocket support for backend
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
-
-  # Hosts configuration
-  hosts:
-    - host: pleey.example.com
-      paths:
-        - path: /api
-          pathType: Prefix
-          service:
-            name: backend
-            port: 3001
-        - path: /socket.io
-          pathType: Prefix
-          service:
-            name: backend
-            port: 3001
-        - path: /
-          pathType: Prefix
-          service:
-            name: frontend
-            port: 80
-
-  # TLS configuration
-  tls:
-    - secretName: pleey-tls
-      hosts:
-        - pleey.example.com
-
-## OpenTelemetry Collector (optional)
-otelCollector:
-  enabled: false
-
-  image:
-    registry: docker.io
-    repository: otel/opentelemetry-collector
-    tag: "0.105.0"
-    pullPolicy: IfNotPresent
-
-  service:
-    type: ClusterIP
-    port: 4318
-
-  resources:
-    limits:
-      cpu: 500m
-      memory: 256Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
-
-## Service Account
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname
-  # template.
-  name: ""
-
-## Pod Disruption Budget
+# podDisruptionBudget optionally creates disruption budgets for replicated workloads.
 podDisruptionBudget:
   enabled: false
   minAvailable: 1
-  # maxUnavailable: 1
 
-## Network Policy
-networkPolicy:
-  enabled: false
-  # Ingress rules
-  ingress:
-    - from:
-        - namespaceSelector:
-            matchLabels:
-              name: ingress-nginx
-  # Egress rules
-  egress:
-    - to:
-        - namespaceSelector: {}
-
-## Monitoring with Prometheus
-monitoring:
-  enabled: false
-
-  # ServiceMonitor for Prometheus Operator
-  serviceMonitor:
-    enabled: false
-    interval: 30s
-    scrapeTimeout: 10s
-    labels: {}
-
-  # PrometheusRule for alerts
-  prometheusRule:
-    enabled: false
-    labels: {}
-    rules: []
-
-## Grafana dashboards
-grafana:
-  enabled: false
-  # ConfigMap with dashboards
-  dashboards: {}
+# tests configures optional Helm-native smoke tests for frontend and backend services.
+tests:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: busybox
+    tag: "1.37.0"
+    digest: sha256:b8d1827e38a1d49cd17217efd7b07d689e4ea1744e39c7dcbb95533d175bea65
+    pullPolicy: ""
+  resources:
+    limits:
+      cpu: 50m
+      memory: 32Mi
+    requests:
+      cpu: 10m
+      memory: 16Mi
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 10001
+    runAsGroup: 10001
+    fsGroup: 10001
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 10001
+    runAsGroup: 10001
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+  livenessProbe:
+    exec:
+      command:
+        - sh
+        - -ec
+        - ps -o pid= 1 >/dev/null
+    initialDelaySeconds: 1
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readinessProbe:
+    exec:
+      command:
+        - sh
+        - -ec
+        - ps -o pid= 1 >/dev/null
+    initialDelaySeconds: 1
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3

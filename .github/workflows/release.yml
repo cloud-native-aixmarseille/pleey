@@ -6,8 +6,25 @@ on:
 permissions: {}
 
 jobs:
+  draft-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+    outputs:
+      tag: ${{ steps.draft-release.outputs.tag }}
+    steps:
+      - id: draft-release
+        uses: hoverkraft-tech/ci-github-publish/actions/release/create@2c8e24b416226074aea1e240468f043edefc5760 # 0.23.2
+        with:
+          prerelease: false
+          publish: false
+
   ci:
+    needs: [draft-release]
     uses: ./.github/workflows/__shared-ci.yml
+    with:
+      production-image-tag: ${{ needs.draft-release.outputs.tag }}
     permissions:
       actions: read
       checks: write
@@ -20,15 +37,66 @@ jobs:
       statuses: write
     secrets: inherit
 
-  release:
-    needs: [ci]
+  release-chart:
+    needs: [draft-release, ci]
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    outputs:
-      tag: ${{ steps.create-release.outputs.tag }}
     steps:
-      - id: create-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/create@84e8ace407055e7a40ba6670a8c697e1ce2dfafa # v0.20.1
+      - name: Update chart image defaults
+        uses: hoverkraft-tech/ci-github-container/actions/helm/update-chart-values@644672e12212c7c5e94c187d2d74526edd09a970 # main
         with:
-          prerelease: false
+          path: charts/application
+          values: >-
+            [
+              {
+                "file":"charts/application/charts/backend/values.yaml",
+                "path":".image.tag",
+                "value":"${{ fromJSON(needs.ci.outputs.built-prod-images).backend.tags[0] }}"},
+              {
+                "file":"charts/application/charts/backend/values.yaml",
+                "path":".image.digest",
+                "value":"${{ fromJSON(needs.ci.outputs.built-prod-images).backend.digest }}"},
+              {
+                "file":"charts/application/charts/frontend/values.yaml",
+                "path":".image.tag",
+                "value":"${{ fromJSON(needs.ci.outputs.built-prod-images).frontend.tags[0] }}"},
+              {
+                "file":"charts/application/charts/frontend/values.yaml",
+                "path":".image.digest",
+                "value":"${{ fromJSON(needs.ci.outputs.built-prod-images).frontend.digest }}"}
+            ]
+
+      - name: Regenerate Helm chart documentation
+        uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@2b647ed6f11d50cb6beb6d56333e68ba2c804826 # 0.33.1
+        with:
+          working-directory: ./charts
+
+      - id: release-chart
+        uses: hoverkraft-tech/ci-github-container/actions/helm/release-chart@2b647ed6f11d50cb6beb6d56333e68ba2c804826 # 0.33.1
+        with:
+          oci-registry: ${{ vars.OCI_REGISTRY }}
+          oci-registry-username: ${{ github.repository_owner }}
+          oci-registry-password: ${{ github.token }}
+          chart: application
+          path: charts/application
+          helm-repositories: |
+            cloudnative-pg https://cloudnative-pg.github.io/charts
+            valkey https://valkey.io/valkey-helm/
+          tag: ${{ needs.draft-release.outputs.tag }}
+
+      - name: Commit chart image update
+        uses: stefanzweifel/git-auto-commit-action@04702edda442b2e678b25b537cec683a1493fcb9 # v7.1.0
+        with:
+          commit_message: "chore(charts): publish ${RELEASE_TAG} images in chart defaults [skip ci]"
+          file_pattern: charts/application
+
+  release:
+    needs: [draft-release, release-chart]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+    steps:
+      - id: publish-release
+        uses: hoverkraft-tech/ci-github-publish/actions/release/create@2c8e24b416226074aea1e240468f043edefc5760 # 0.23.2

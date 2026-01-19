@@ -2,6 +2,16 @@ name: Shared - Continuous Integration
 
 on:
   workflow_call:
+    inputs:
+      production-image-tag:
+        description: Force the production backend/frontend image tag.
+        required: false
+        type: string
+        default: ""
+    outputs:
+      built-prod-images:
+        description: Production backend/frontend build metadata.
+        value: ${{ jobs.build-prod.outputs.built-images }}
 
 permissions: {}
 
@@ -104,6 +114,7 @@ jobs:
         [
           {
             "name": "backend",
+            "tag": "${{ inputs.production-image-tag }}",
             "context": ".",
             "dockerfile": "./application/backend/Dockerfile",
             "build-args": { "APP_PATH": "./application/backend/" },
@@ -112,6 +123,7 @@ jobs:
           },
           {
             "name": "frontend",
+            "tag": "${{ inputs.production-image-tag }}",
             "context": ".",
             "dockerfile": "./application/frontend/Dockerfile",
             "build-args": { "APP_PATH": "./application/frontend/" },
@@ -133,16 +145,18 @@ jobs:
         uses: hoverkraft-tech/ci-github-container/actions/helm/test-chart@a0bab9151cc074af9f6c8204ab42a48d2d570379 # v0.30.6
         with:
           helm-repositories: |
-            bitnami https://charts.bitnami.com/bitnami
+            cloudnative-pg https://cloudnative-pg.github.io/charts
           helm-set: |
             backend.image.registry=${{ fromJSON(needs.build-prod.outputs.built-images).backend.registry }}
             backend.image.repository=${{ fromJSON(needs.build-prod.outputs.built-images).backend.repository }}
             backend.image.tag=${{ fromJSON(needs.build-prod.outputs.built-images).backend.tags[0] }}
             backend.image.digest=${{ fromJSON(needs.build-prod.outputs.built-images).backend.digest }}
+            backend.cloudnativepgOperator.enabled=true
             frontend.image.registry=${{ fromJSON(needs.build-prod.outputs.built-images).frontend.registry }}
             frontend.image.repository=${{ fromJSON(needs.build-prod.outputs.built-images).frontend.repository }}
             frontend.image.tag=${{ fromJSON(needs.build-prod.outputs.built-images).frontend.tags[0] }}
             frontend.image.digest=${{ fromJSON(needs.build-prod.outputs.built-images).frontend.digest }}
+            global.imagePullSecrets[0].name=regcred
           oci-registry: ${{ vars.OCI_REGISTRY }}
           oci-registry-username: ${{ github.repository_owner }}
           oci-registry-password: ${{ github.token }}

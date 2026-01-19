@@ -1,0 +1,84 @@
+---
+global:
+  applicationName: pleey-app
+  fullnameOverride: ""
+  imageRegistry: ""
+  imagePullPolicy: Always
+  imagePullSecrets: []
+
+imagePullSecrets: []
+replicaCount: 1
+image:
+  registry: ""
+  repository: ghcr.io/cloud-native-aixmarseille/pleey/frontend
+  tag: latest
+  digest: sha256:81361f6d6b745b6aafd6955197894af773c0ea328f95145a4bd1029f6da12849
+  pullPolicy: ""
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+  annotations: {}
+config:
+  apiUrl: ""
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 50m
+    memory: 128Mi
+startupProbe:
+  enabled: true
+  httpGet:
+    path: /
+    port: http
+  failureThreshold: 12
+  periodSeconds: 5
+livenessProbe:
+  enabled: true
+  httpGet:
+    path: /
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 30
+  timeoutSeconds: 5
+readinessProbe:
+  enabled: true
+  httpGet:
+    path: /
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 5
+podAnnotations: {}
+podLabels: {}
+priorityClassName: ""
+terminationGracePeriodSeconds: 30
+topologySpreadConstraints: []
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  fsGroup: 10001
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+extraEnv: []
+extraEnvFrom: []
+extraVolumes: []
+extraVolumeMounts: []
+nodeSelector: {}
+tolerations: []
+affinity: {}
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+

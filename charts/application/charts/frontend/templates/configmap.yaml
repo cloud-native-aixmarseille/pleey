@@ -1,0 +1,10 @@
+{{- if .Values.config.apiUrl }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "pleey.frontend.fullname" . }}
+  labels:
+    {{- include "pleey.frontend.labels" . | nindent 4 }}
+data:
+  VITE_API_URL: {{ .Values.config.apiUrl | quote }}
+{{- end }}

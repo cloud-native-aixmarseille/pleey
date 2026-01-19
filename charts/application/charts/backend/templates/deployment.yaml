@@ -1,0 +1,155 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "pleey.backend.fullname" . }}
+  labels:
+    {{- include "pleey.backend.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "pleey.backend.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "pleey.backend.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      automountServiceAccountToken: {{ .Values.serviceAccount.automount }}
+      serviceAccountName: {{ include "pleey.backend.serviceAccountName" . }}
+      {{- with .Values.priorityClassName }}
+      priorityClassName: {{ . | quote }}
+      {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+      {{- include "pleey.backend.imagePullSecrets" . | nindent 6 }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- $databaseWaitHost := include "pleey.backend.databaseWaitHost" . }}
+      {{- if and .Values.waitForDatabase.enabled $databaseWaitHost }}
+      initContainers:
+        - name: wait-for-database
+          image: {{ include "pleey.backend.waitForDatabaseImage" . | quote }}
+          imagePullPolicy: {{ include "pleey.backend.waitForDatabaseImagePullPolicy" . }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          command:
+            - sh
+            - -ec
+            - |
+              until nc -z {{ $databaseWaitHost }} {{ include "pleey.backend.databaseWaitPort" . }}; do
+                echo "Waiting for PostgreSQL at {{ $databaseWaitHost }}..."
+                sleep 2
+              done
+          resources:
+            {{- toYaml .Values.waitForDatabase.resources | nindent 12 }}
+      {{- end }}
+      containers:
+        - name: backend
+          image: {{ include "pleey.backend.image" . | quote }}
+          imagePullPolicy: {{ include "pleey.backend.imagePullPolicy" . }}
+          command:
+            - sh
+            - -ec
+            - |
+              export JWT_SECRET="$(cat {{ include "pleey.backend.jwtSecretFile" . }})"
+              until [ -f {{ include "pleey.backend.databaseSecretFile" . | quote }} ]; do
+                echo "Waiting for database secret at {{ include "pleey.backend.databaseSecretFile" . }}..."
+                sleep 2
+              done
+              export DATABASE_URL="$(cat {{ include "pleey.backend.databaseSecretFile" . }})"
+              export VALKEY_URL="$(cat {{ include "pleey.backend.valkeySecretFile" . }})"
+              exec /usr/bin/dumb-init -- node --max-old-space-size=384 /usr/src/app/dist/src/app/main.js
+          envFrom:
+            - configMapRef:
+                name: {{ include "pleey.backend.fullname" . }}
+            {{- with .Values.extraEnvFrom }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          env:
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+              protocol: TCP
+          {{- if .Values.startupProbe.enabled }}
+          startupProbe:
+            {{- toYaml (omit .Values.startupProbe "enabled") | nindent 12 }}
+          {{- end }}
+          {{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            {{- toYaml (omit .Values.livenessProbe "enabled") | nindent 12 }}
+          {{- end }}
+          {{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            {{- toYaml (omit .Values.readinessProbe "enabled") | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: jwt-secret
+              mountPath: {{ include "pleey.backend.jwtSecretMountPath" . }}
+              readOnly: true
+            - name: database-secret
+              mountPath: {{ include "pleey.backend.databaseSecretMountPath" . }}
+              readOnly: true
+            - name: valkey-secret
+              mountPath: {{ include "pleey.backend.valkeySecretMountPath" . }}
+              readOnly: true
+            {{- with .Values.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: jwt-secret
+          secret:
+            secretName: {{ include "pleey.backend.jwtSecretName" . }}
+            items:
+              - key: {{ include "pleey.backend.jwtSecretKey" . }}
+                path: {{ include "pleey.backend.jwtSecretKey" . }}
+        - name: database-secret
+          secret:
+            secretName: {{ include "pleey.backend.databaseSecretName" . }}
+            optional: {{ eq .Values.database.provider "cloudnativepg" }}
+            items:
+              - key: {{ include "pleey.backend.databaseSecretKey" . }}
+                path: {{ include "pleey.backend.databaseSecretKey" . }}
+        - name: valkey-secret
+          secret:
+            secretName: {{ include "pleey.backend.valkeySecretName" . }}
+            items:
+              - key: {{ include "pleey.backend.valkeySecretKey" . }}
+                path: {{ include "pleey.backend.valkeySecretKey" . }}
+        {{- with .Values.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

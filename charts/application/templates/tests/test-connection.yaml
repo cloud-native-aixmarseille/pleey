@@ -1,0 +1,77 @@
+{{- if .Values.tests.enabled }}
+{{- if .Values.frontend.enabled }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ printf "%s-frontend-test" (include "pleey.fullname" .) | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "pleey.frontend.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  automountServiceAccountToken: false
+  securityContext:
+    {{- toYaml .Values.tests.podSecurityContext | nindent 4 }}
+  {{- with .Values.global.imagePullSecrets }}
+  imagePullSecrets:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  containers:
+    - name: frontend-http
+      image: {{ include "pleey.test.image" . | quote }}
+      imagePullPolicy: {{ include "pleey.test.imagePullPolicy" . }}
+      livenessProbe:
+        {{- toYaml .Values.tests.livenessProbe | nindent 8 }}
+      readinessProbe:
+        {{- toYaml .Values.tests.readinessProbe | nindent 8 }}
+      resources:
+        {{- toYaml .Values.tests.resources | nindent 8 }}
+      securityContext:
+        {{- toYaml .Values.tests.securityContext | nindent 8 }}
+      command:
+        - sh
+        - -ec
+        - wget -qO- http://{{ include "pleey.frontend.fullname" . }}:{{ include "pleey.frontend.servicePort" . }}/ >/dev/null
+  restartPolicy: Never
+{{- end }}
+{{- if and .Values.frontend.enabled .Values.backend.enabled }}
+---
+{{- end }}
+{{- if .Values.backend.enabled }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ printf "%s-backend-test" (include "pleey.fullname" .) | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "pleey.backend.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  automountServiceAccountToken: false
+  securityContext:
+    {{- toYaml .Values.tests.podSecurityContext | nindent 4 }}
+  {{- with .Values.global.imagePullSecrets }}
+  imagePullSecrets:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  containers:
+    - name: backend-http
+      image: {{ include "pleey.test.image" . | quote }}
+      imagePullPolicy: {{ include "pleey.test.imagePullPolicy" . }}
+      livenessProbe:
+        {{- toYaml .Values.tests.livenessProbe | nindent 8 }}
+      readinessProbe:
+        {{- toYaml .Values.tests.readinessProbe | nindent 8 }}
+      resources:
+        {{- toYaml .Values.tests.resources | nindent 8 }}
+      securityContext:
+        {{- toYaml .Values.tests.securityContext | nindent 8 }}
+      command:
+        - sh
+        - -ec
+        - wget -qO- http://{{ include "pleey.backend.fullname" . }}:{{ include "pleey.backend.servicePort" . }}/api/health/live >/dev/null
+  restartPolicy: Never
+{{- end }}
+{{- end }}

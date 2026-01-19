@@ -1,0 +1,95 @@
+{{- if .Values.migrationJob.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "pleey.backend.fullname" . }}-migrate
+  labels:
+    {{- include "pleey.backend.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database-migration
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    {{- with .Values.migrationJob.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  backoffLimit: {{ .Values.migrationJob.backoffLimit }}
+  template:
+    metadata:
+      labels:
+        {{- include "pleey.backend.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: database-migration
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: {{ .Values.serviceAccount.automount }}
+      serviceAccountName: {{ include "pleey.backend.serviceAccountName" . }}
+      {{- include "pleey.backend.imagePullSecrets" . | nindent 6 }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- $databaseWaitHost := include "pleey.backend.databaseWaitHost" . }}
+      {{- if and .Values.waitForDatabase.enabled $databaseWaitHost }}
+      initContainers:
+        - name: wait-for-database
+          image: {{ include "pleey.backend.waitForDatabaseImage" . | quote }}
+          imagePullPolicy: {{ include "pleey.backend.waitForDatabaseImagePullPolicy" . }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          command:
+            - sh
+            - -ec
+            - |
+              until nc -z {{ $databaseWaitHost }} {{ include "pleey.backend.databaseWaitPort" . }}; do
+                echo "Waiting for PostgreSQL at {{ $databaseWaitHost }}..."
+                sleep 2
+              done
+          resources:
+            {{- toYaml .Values.waitForDatabase.resources | nindent 12 }}
+      {{- end }}
+      containers:
+        - name: migrate
+          image: {{ include "pleey.backend.image" . | quote }}
+          imagePullPolicy: {{ include "pleey.backend.imagePullPolicy" . }}
+          command:
+            - sh
+            - -ec
+            - |
+              until [ -f {{ include "pleey.backend.databaseSecretFile" . | quote }} ]; do
+                echo "Waiting for database secret at {{ include "pleey.backend.databaseSecretFile" . }}..."
+                sleep 2
+              done
+              export DATABASE_URL="$(cat {{ include "pleey.backend.databaseSecretFile" . }})"
+              exec /usr/src/app/node_modules/.bin/prisma migrate deploy
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: database-secret
+              mountPath: {{ include "pleey.backend.databaseSecretMountPath" . }}
+              readOnly: true
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: database-secret
+          secret:
+            secretName: {{ include "pleey.backend.databaseSecretName" . }}
+            optional: {{ eq .Values.database.provider "cloudnativepg" }}
+            items:
+              - key: {{ include "pleey.backend.databaseSecretKey" . }}
+                path: {{ include "pleey.backend.databaseSecretKey" . }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
