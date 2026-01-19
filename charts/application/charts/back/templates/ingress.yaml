@@ -1,18 +1,17 @@
-{{- if .Values.ingress.enabled }}
+{{- if .Values.ingress.enabled -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "pleey.fullname" . }}
-  namespace: {{ include "pleey.namespace" . | quote }}
+  name: {{ include "default.fullname" . }}
   labels:
-    {{- include "pleey.labels" . | nindent 4 }}
+    {{- include "default.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- if .Values.ingress.className }}
-  ingressClassName: {{ .Values.ingress.className }}
+  {{- with .Values.ingress.className }}
+  ingressClassName: {{ . }}
   {{- end }}
   {{- if .Values.ingress.tls }}
   tls:
@@ -31,12 +30,14 @@ spec:
         paths:
           {{- range .paths }}
           - path: {{ .path }}
-            pathType: {{ .pathType }}
+            {{- with .pathType }}
+            pathType: {{ . }}
+            {{- end }}
             backend:
               service:
-                name: {{ include "pleey.fullname" $ }}-{{ .service.name }}
+                name: {{ include "default.fullname" $ }}
                 port:
-                  number: {{ .service.port }}
+                  number: {{ $.Values.service.port }}
           {{- end }}
     {{- end }}
 {{- end }}

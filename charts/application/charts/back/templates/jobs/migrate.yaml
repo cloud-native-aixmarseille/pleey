@@ -1,0 +1,89 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "default.fullname" . }}-db-migrate
+  annotations:
+    {{- include "default.annotations" . | nindent 4 }}
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-delete-policy": before-hook-creation
+  labels:
+    {{- include "default.labels" . | nindent 4 }}
+    app.kubernetes.io/component: db-migrate
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "default.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        app.kubernetes.io/component: db-migrate
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "default.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      restartPolicy: Never
+      initContainers:
+        - name: wait-for-db
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+                echo "database host : {{ include "default.databaseHost" . }}"
+                until nc -z {{ include "default.databaseHost" . }} 5432; do
+                  echo "Waiting for PostgreSQL..."
+                  sleep 2
+                done
+                echo "PostgreSQL is ready!"
+      containers:
+        - name: db-migrate
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "default.fullname" . }}
+            - secretRef:
+                name: {{ include "default.fullname" . }}
+          command:
+            - sh
+            - -c
+            - |
+                set -x
+                echo "DATABASE_URL=${DATABASE_URL}"
+                /usr/src/app/node_modules/.bin/prisma migrate deploy
+          {{- if .Values.resources }}
+          resources: {{- include "common.tplvalues.render" (dict "value" .Values.resources "context" $) | nindent 12 }}
+          {{- else if ne .Values.resourcesPreset "none" }}
+          resources: {{- include "common.resources.preset" (dict "type" .Values.resourcesPreset) | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

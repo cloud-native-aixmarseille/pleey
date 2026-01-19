@@ -1,6 +1,12 @@
 dependencies:
+- name: front
+  repository: file://charts/front
+  version: 0.1.0
+- name: back
+  repository: file://charts/back
+  version: 0.1.0
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
   version: 15.5.38
-digest: sha256:884f3ffaa28014e413b39706c18e9a5a5620b11edc481cd1d383ab46dc2d67ec
-generated: "2025-11-06T19:05:06.410176+01:00"
+digest: sha256:9d6bbee52c3955a204f133b911a066cbfbee1e41b5142d50e32fef221cf04f89
+generated: "2026-01-19T23:10:27.62743+01:00"

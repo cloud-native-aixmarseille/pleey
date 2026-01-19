@@ -1,0 +1,72 @@
+# back
+
+![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.1.0](https://img.shields.io/badge/AppVersion-0.1.0-informational?style=flat-square)
+
+A Helm chart for the backend component of pleey-app
+
+## Requirements
+
+| Repository                               | Name   | Version |
+| ---------------------------------------- | ------ | ------- |
+| oci://registry-1.docker.io/bitnamicharts | common | 2.31.3  |
+
+## Values
+
+| Key                                                  | Type   | Default                                                | Description                                                                                                                       |
+| ---------------------------------------------------- | ------ | ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| affinity                                             | object | `{}`                                                   |                                                                                                                                   |
+| autoscaling.enabled                                  | bool   | `false`                                                |                                                                                                                                   |
+| autoscaling.maxReplicas                              | int    | `100`                                                  |                                                                                                                                   |
+| autoscaling.minReplicas                              | int    | `1`                                                    |                                                                                                                                   |
+| autoscaling.targetCPUUtilizationPercentage           | int    | `80`                                                   |                                                                                                                                   |
+| commonAnnotations                                    | object | `{}`                                                   |                                                                                                                                   |
+| config.corsOrigin                                    | string | `"*"`                                                  |                                                                                                                                   |
+| config.nodeEnv                                       | string | `"production"`                                         | config.nodeEnv: node environment to be used                                                                                       |
+| config.otelExporterOtlpEndpoint                      | string | `"http://otel-collector:4318"`                         | config.corsOrigin: OTEL configuration                                                                                             |
+| config.secrets.databaseUrl                           | string | `""`                                                   | config.secrets.databaseUrl: URL of postgress database to be used defaults to postgres chart URL if not specified and it's enabled |
+| config.secrets.jwtSecret                             | string | `""`                                                   | config.secrets.jwtSecret: JWT secret to be used by the application default to a random string if not specified                    |
+| fullnameOverride                                     | string | `""`                                                   |                                                                                                                                   |
+| image.pullPolicy                                     | string | `"IfNotPresent"`                                       |                                                                                                                                   |
+| image.repository                                     | string | `"ghcr.io/cloud-native-aixmarseille/quiz-app/backend"` |                                                                                                                                   |
+| image.tag                                            | string | `""`                                                   |                                                                                                                                   |
+| imagePullSecrets                                     | list   | `[]`                                                   |                                                                                                                                   |
+| ingress.annotations."cert-manager.io/cluster-issuer" | string | `"letsencrypt"`                                        |                                                                                                                                   |
+| ingress.className                                    | string | `"nginx"`                                              |                                                                                                                                   |
+| ingress.enabled                                      | bool   | `false`                                                |                                                                                                                                   |
+| ingress.hosts[0].host                                | string | `"chart-example.local"`                                |                                                                                                                                   |
+| ingress.hosts[0].paths[0].path                       | string | `"/"`                                                  |                                                                                                                                   |
+| ingress.hosts[0].paths[0].pathType                   | string | `"ImplementationSpecific"`                             |                                                                                                                                   |
+| ingress.tls[0].hosts[0]                              | string | `"chart-example.local"`                                |                                                                                                                                   |
+| ingress.tls[0].secretName                            | string | `"chart-example-tls"`                                  |                                                                                                                                   |
+| livenessProbe.enabled                                | bool   | `true`                                                 |                                                                                                                                   |
+| livenessProbe.httpGet.path                           | string | `"/api/health/live"`                                   |                                                                                                                                   |
+| livenessProbe.httpGet.port                           | string | `"http"`                                               |                                                                                                                                   |
+| nameOverride                                         | string | `""`                                                   |                                                                                                                                   |
+| nodeSelector                                         | object | `{}`                                                   |                                                                                                                                   |
+| podAnnotations                                       | object | `{}`                                                   |                                                                                                                                   |
+| podLabels                                            | object | `{}`                                                   |                                                                                                                                   |
+| podSecurityContext                                   | object | `{}`                                                   |                                                                                                                                   |
+| readinessProbe.enabled                               | bool   | `true`                                                 |                                                                                                                                   |
+| readinessProbe.httpGet.path                          | string | `"/api/health/ready"`                                  |                                                                                                                                   |
+| readinessProbe.httpGet.port                          | string | `"http"`                                               |                                                                                                                                   |
+| replicaCount                                         | int    | `1`                                                    |                                                                                                                                   |
+| resources                                            | object | `{}`                                                   |                                                                                                                                   |
+| resourcesPreset                                      | string | `"micro"`                                              |                                                                                                                                   |
+| securityContext                                      | object | `{}`                                                   |                                                                                                                                   |
+| service.containerPort                                | int    | `3001`                                                 |                                                                                                                                   |
+| service.port                                         | int    | `80`                                                   |                                                                                                                                   |
+| service.type                                         | string | `"ClusterIP"`                                          |                                                                                                                                   |
+| serviceAccount.annotations                           | object | `{}`                                                   |                                                                                                                                   |
+| serviceAccount.automount                             | bool   | `true`                                                 |                                                                                                                                   |
+| serviceAccount.create                                | bool   | `true`                                                 |                                                                                                                                   |
+| serviceAccount.name                                  | string | `""`                                                   |                                                                                                                                   |
+| startupProbe.enabled                                 | bool   | `true`                                                 |                                                                                                                                   |
+| startupProbe.httpGet.path                            | string | `"/api/health/ready"`                                  |                                                                                                                                   |
+| startupProbe.httpGet.port                            | string | `"http"`                                               |                                                                                                                                   |
+| tolerations                                          | list   | `[]`                                                   |                                                                                                                                   |
+| volumeMounts                                         | list   | `[]`                                                   |                                                                                                                                   |
+| volumes                                              | list   | `[]`                                                   |                                                                                                                                   |
+
+---
+
+Autogenerated from chart metadata using [helm-docs v1.14.2](https://github.com/norwoodj/helm-docs/releases/v1.14.2)
