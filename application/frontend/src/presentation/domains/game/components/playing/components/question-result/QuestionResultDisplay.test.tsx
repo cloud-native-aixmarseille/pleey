@@ -89,25 +89,26 @@ vi.mock("./components/ResultActions", () => ({
 
 describe("QuestionResultDisplay", () => {
   const mockQuestion: Question = createQuestionFixture({
-    question_text: "What is 2+2?",
-    correct_answer: "A",
-    option_a: "4",
-    option_b: "3",
-    option_c: "5",
-    option_d: "6",
+    questionText: "What is 2+2?",
+    answers: [
+      { id: 1, text: "4", position: 0, isCorrect: true },
+      { id: 2, text: "3", position: 1, isCorrect: false },
+      { id: 3, text: "5", position: 2, isCorrect: false },
+      { id: 4, text: "6", position: 3, isCorrect: false },
+    ],
   });
 
   const mockAnswerResultCorrect: AnswerResult = {
     isCorrect: true,
     points: 1250,
-    correctAnswer: "A",
+    correctAnswerIds: [1],
     statistics: {
       totalAnswers: 10,
       answerDistribution: {
-        A: 7,
-        B: 2,
-        C: 1,
-        D: 0,
+        1: 7,
+        2: 2,
+        3: 1,
+        4: 0,
       },
     },
   };
@@ -115,14 +116,14 @@ describe("QuestionResultDisplay", () => {
   const mockAnswerResultIncorrect: AnswerResult = {
     isCorrect: false,
     points: 0,
-    correctAnswer: "A",
+    correctAnswerIds: [1],
     statistics: {
       totalAnswers: 10,
       answerDistribution: {
-        A: 7,
-        B: 2,
-        C: 1,
-        D: 0,
+        1: 7,
+        2: 2,
+        3: 1,
+        4: 0,
       },
     },
   };
@@ -133,7 +134,7 @@ describe("QuestionResultDisplay", () => {
         answerResult={mockAnswerResultCorrect}
         currentQuestion={mockQuestion}
         questionNumber={1}
-        userAnswer="A"
+        userAnswer={1}
         isHost={false}
         onNextQuestion={vi.fn()}
       />
@@ -149,14 +150,14 @@ describe("QuestionResultDisplay", () => {
         answerResult={mockAnswerResultIncorrect}
         currentQuestion={mockQuestion}
         questionNumber={1}
-        userAnswer="B"
+        userAnswer={2}
         isHost={false}
         onNextQuestion={vi.fn()}
       />
     );
 
     expect(screen.getByText(/OOPS/i)).toBeInTheDocument();
-    expect(screen.getByText(/Correct answer: A/i)).toBeInTheDocument();
+    expect(screen.getByText(/Correct answer: 4/i)).toBeInTheDocument();
   });
 
   it("displays answer statistics when available", () => {
@@ -165,7 +166,7 @@ describe("QuestionResultDisplay", () => {
         answerResult={mockAnswerResultCorrect}
         currentQuestion={mockQuestion}
         questionNumber={1}
-        userAnswer="A"
+        userAnswer={1}
         isHost={false}
         onNextQuestion={vi.fn()}
       />
@@ -182,7 +183,7 @@ describe("QuestionResultDisplay", () => {
         answerResult={mockAnswerResultCorrect}
         currentQuestion={mockQuestion}
         questionNumber={1}
-        userAnswer="A"
+        userAnswer={1}
         isHost={true}
         onNextQuestion={onNextQuestion}
       />
@@ -197,7 +198,7 @@ describe("QuestionResultDisplay", () => {
         answerResult={mockAnswerResultCorrect}
         currentQuestion={mockQuestion}
         questionNumber={1}
-        userAnswer="A"
+        userAnswer={1}
         isHost={false}
         onNextQuestion={vi.fn()}
       />
@@ -210,18 +211,21 @@ describe("QuestionResultDisplay", () => {
     const tfQuestion: Question = createQuestionFixture({
       ...mockQuestion,
       type: "truefalse",
-      correct_answer: "true",
+      answers: [
+        { id: 10, text: null, position: 0, isCorrect: true },
+        { id: 11, text: null, position: 1, isCorrect: false },
+      ],
     });
 
     const tfAnswerResult: AnswerResult = {
       isCorrect: true,
       points: 1000,
-      correctAnswer: "true",
+      correctAnswerIds: [10],
       statistics: {
         totalAnswers: 10,
         answerDistribution: {
-          true: 8,
-          false: 2,
+          10: 8,
+          11: 2,
         },
       },
     };
@@ -231,7 +235,7 @@ describe("QuestionResultDisplay", () => {
         answerResult={tfAnswerResult}
         currentQuestion={tfQuestion}
         questionNumber={1}
-        userAnswer="true"
+        userAnswer={10}
         isHost={false}
         onNextQuestion={vi.fn()}
       />

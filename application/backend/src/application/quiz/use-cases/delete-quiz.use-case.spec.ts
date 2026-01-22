@@ -1,11 +1,11 @@
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { describe, expect, it } from 'vitest';
-import { createQuizFixture } from '../../../test-utils/fixtures';
+import { QuizErrorCode } from '../../../domain/quiz/enums/quiz-error-code.enum';
+import { createQuizFixture } from '../../../test-utils/fixtures/unit';
 import {
   createGameSessionRepositoryMock,
   createQuizRepositoryMock,
 } from '../../../test-utils/mock-factories';
-import { QuizErrorCode } from '../enums/quiz-error-code.enum';
 import { DeleteQuizUseCase } from './delete-quiz.use-case';
 
 describe('DeleteQuizUseCase', () => {

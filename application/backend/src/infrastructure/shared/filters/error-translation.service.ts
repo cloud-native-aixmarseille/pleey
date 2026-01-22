@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { I18nService } from 'nestjs-i18n';
-import { AuthErrorCode } from '../../../application/auth/enums/auth-error-code.enum';
-import { GameErrorCode } from '../../../application/game/enums/game-error-code.enum';
-import { QuizErrorCode } from '../../../application/quiz/enums/quiz-error-code.enum';
+import { AuthErrorCode } from '../../../domain/auth/enums/auth-error-code.enum';
+import { GameErrorCode } from '../../../domain/game/enums/game-error-code.enum';
+import { QuizErrorCode } from '../../../domain/quiz/enums/quiz-error-code.enum';
 
 @Injectable()
 export class ErrorTranslationService {
@@ -36,6 +36,8 @@ export class ErrorTranslationService {
       [AuthErrorCode.PASSWORD_TOO_SHORT]: 'auth.errors.passwordTooShort',
       [AuthErrorCode.USER_NOT_FOUND]: 'auth.errors.userNotFound',
       [AuthErrorCode.UNAUTHORIZED]: 'auth.errors.unauthorized',
+      [AuthErrorCode.AUTHENTICATION_REQUIRED]: 'auth.errors.authenticationRequired',
+      [AuthErrorCode.ADMIN_PRIVILEGES_REQUIRED]: 'auth.errors.adminPrivilegesRequired',
       [AuthErrorCode.AVATAR_NOT_FOUND]: 'auth.errors.avatarNotFound',
       [AuthErrorCode.INVALID_REFRESH_TOKEN]: 'auth.errors.invalidRefreshToken',
       [AuthErrorCode.REFRESH_TOKEN_EXPIRED]: 'auth.errors.refreshTokenExpired',
@@ -48,8 +50,6 @@ export class ErrorTranslationService {
     const errorMap: Record<QuizErrorCode, string> = {
       [QuizErrorCode.QUIZ_NOT_FOUND]: 'quiz.errors.quizNotFound',
       [QuizErrorCode.QUESTION_NOT_FOUND]: 'quiz.errors.questionNotFound',
-      [QuizErrorCode.AUTHENTICATION_REQUIRED]: 'quiz.errors.authenticationRequired',
-      [QuizErrorCode.ADMIN_PRIVILEGES_REQUIRED]: 'quiz.errors.adminPrivilegesRequired',
       [QuizErrorCode.QUIZ_HAS_ACTIVE_SESSION]: 'quiz.errors.quizHasActiveSession',
       [QuizErrorCode.INVALID_CORRECT_ANSWER]: 'quiz.errors.invalidCorrectAnswer',
       [QuizErrorCode.CORRECT_ANSWER_OPTION_EMPTY]: 'quiz.errors.correctAnswerOptionEmpty',
@@ -62,10 +62,18 @@ export class ErrorTranslationService {
     const errorMap: Partial<Record<GameErrorCode, string>> = {
       [GameErrorCode.GAME_NOT_FOUND]: 'game.errors.gameNotFound',
       [GameErrorCode.NO_QUESTIONS_AVAILABLE]: 'game.errors.noQuestionsAvailable',
+      [GameErrorCode.NO_CURRENT_QUESTION_TO_RESUME]: 'game.errors.noCurrentQuestionToResume',
+      [GameErrorCode.INVALID_REVEAL_DELAY]: 'game.errors.invalidRevealDelay',
+      [GameErrorCode.PLAYER_IDENTITY_REQUIRED]: 'game.errors.playerIdentityRequired',
+      [GameErrorCode.PLAYER_SCORE_IDENTITY_INVALID]: 'game.errors.playerScoreIdentityInvalid',
+      [GameErrorCode.INVALID_PIN]: 'game.errors.invalidPin',
       [GameErrorCode.VALIDATION_FAILED]: 'game.errors.validationFailed',
       [GameErrorCode.UNKNOWN_ERROR]: 'game.errors.unknownError',
       [GameErrorCode.CAN_ONLY_PAUSE_ACTIVE_GAME]: 'game.errors.canOnlyPauseActiveGame',
       [GameErrorCode.CAN_ONLY_RESUME_PAUSED_GAME]: 'game.errors.canOnlyResumePausedGame',
+      [GameErrorCode.CAN_ONLY_START_WAITING_GAME]: 'game.errors.gameCanOnlyBeStartedFromWaiting',
+      [GameErrorCode.CAN_ONLY_MOVE_TO_NEXT_QUESTION_ACTIVE_GAME]:
+        'game.errors.canOnlyMoveToNextInActive',
       [GameErrorCode.UNAUTHORIZED_SESSION_CONTROL]: 'game.errors.unauthorizedSessionControl',
       [GameErrorCode.ACTIVE_SESSION_EXISTS]: 'game.errors.activeSessionExists',
       [GameErrorCode.QUIZ_NOT_FOUND]: 'game.errors.quizNotFound',

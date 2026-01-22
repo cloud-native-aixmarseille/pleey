@@ -1,5 +1,11 @@
+import { Test, type TestingModule } from '@nestjs/testing';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
+import {
+  createPersistedOrganizationFixture,
+  createPersistedUserFixture,
+} from '../../../test-utils/fixtures/integration';
+import { createOrganizationMemberFixture } from '../../../test-utils/fixtures/unit';
 import { PrismaService } from '../../database/prisma.service';
 import { PrismaOrganizationMemberRepository } from './prisma-organization-member.repository';
 
@@ -7,6 +13,7 @@ const hasDatabase = Boolean((process.env.DATABASE_URL ?? '').trim());
 const describeIfDatabase = hasDatabase ? describe.sequential : describe.skip;
 
 describeIfDatabase('PrismaOrganizationMemberRepository (integration)', () => {
+  let module: TestingModule;
   let prisma: PrismaService;
   let repository: PrismaOrganizationMemberRepository;
 
@@ -15,9 +22,13 @@ describeIfDatabase('PrismaOrganizationMemberRepository (integration)', () => {
   const createdMemberIds: number[] = [];
 
   beforeAll(async () => {
-    prisma = new PrismaService();
+    module = await Test.createTestingModule({
+      providers: [PrismaService, PrismaOrganizationMemberRepository],
+    }).compile();
+
+    prisma = module.get(PrismaService);
+    repository = module.get(PrismaOrganizationMemberRepository);
     await prisma.onModuleInit();
-    repository = new PrismaOrganizationMemberRepository(prisma);
   });
 
   afterAll(async () => {
@@ -31,29 +42,35 @@ describeIfDatabase('PrismaOrganizationMemberRepository (integration)', () => {
       await prisma.user.deleteMany({ where: { id: { in: createdUserIds } } });
     }
     await prisma.onModuleDestroy();
+    await module.close();
   });
 
   it('creates and queries members, and updates role', async () => {
     const unique = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
-    const user = await prisma.user.create({
-      data: {
-        username: `member_${unique}`,
-        email: `member_${unique}@example.com`,
-        password: 'hashed',
-      },
+    const user = await createPersistedUserFixture(prisma, {
+      username: `member_${unique}`,
+      email: `member_${unique}@example.com`,
+      password: 'hashed',
     });
     createdUserIds.push(user.id);
 
-    const organization = await prisma.organization.create({
-      data: {
-        name: `Org ${unique}`,
-        description: null,
-      },
+    const organization = await createPersistedOrganizationFixture(prisma, {
+      name: `Org ${unique}`,
+      description: null,
     });
     createdOrganizationIds.push(organization.id);
 
-    const member = await repository.create(organization.id, user.id, OrganizationRole.MEMBER);
+    const memberFixture = createOrganizationMemberFixture({
+      organizationId: organization.id,
+      userId: user.id,
+      role: OrganizationRole.MEMBER,
+    });
+    const member = await repository.create(
+      memberFixture.organizationId,
+      memberFixture.userId,
+      memberFixture.role,
+    );
     createdMemberIds.push(member.id);
 
     const found = await repository.findByOrganizationAndUser(organization.id, user.id);

@@ -5,37 +5,30 @@ import { GetOrganizationDashboardUseCase } from '../../application/organization/
 import { GetOrganizationsByUserUseCase } from '../../application/organization/use-cases/get-organizations-by-user.use-case';
 import { RemoveMemberFromOrganizationUseCase } from '../../application/organization/use-cases/remove-member-from-organization.use-case';
 import { GetQuizzesByOrganizationUseCase } from '../../application/quiz/use-cases/get-quizzes-by-organization.use-case';
-import { GameSessionRepositoryProvider } from '../../domain/game/repositories/game-session.repository.interface';
-import { OrganizationRepositoryProvider } from '../../domain/organization/repositories/organization.repository.interface';
-import { OrganizationMemberRepositoryProvider } from '../../domain/organization/repositories/organization-member.repository.interface';
-import { QuizRepositoryProvider } from '../../domain/quiz/repositories/quiz.repository.interface';
+import { GameSessionRepositoryProvider } from '../../domain/game/ports/game-session.repository';
+import { OrganizationRepositoryProvider } from '../../domain/organization/ports/organization.repository';
+import { OrganizationMemberRepositoryProvider } from '../../domain/organization/ports/organization-member.repository';
+import { QuizRepositoryProvider } from '../../domain/quiz/ports/quiz.repository';
 import { AuthModule } from '../auth/auth.module';
 import { DatabaseModule } from '../database/database.module';
 import { PrismaGameSessionRepository } from '../game/repositories/prisma-game-session.repository';
 import { PrismaQuizRepository } from '../quiz/repositories/prisma-quiz.repository';
 import { OrganizationController } from './organization.controller';
+import { OrganizationRolesGuard } from './organization-roles.guard';
 import { PrismaOrganizationRepository } from './repositories/prisma-organization.repository';
 import { PrismaOrganizationMemberRepository } from './repositories/prisma-organization-member.repository';
 
 @Module({
-  imports: [DatabaseModule, AuthModule],
+  imports: [AuthModule, DatabaseModule],
   controllers: [OrganizationController],
   providers: [
-    // Use cases
-    CreateOrganizationUseCase,
-    GetOrganizationsByUserUseCase,
-    AddMemberToOrganizationUseCase,
-    RemoveMemberFromOrganizationUseCase,
-    GetOrganizationDashboardUseCase,
-    GetQuizzesByOrganizationUseCase,
-
-    // Repositories
+    // Repository implementations
     PrismaOrganizationRepository,
     PrismaOrganizationMemberRepository,
     PrismaQuizRepository,
     PrismaGameSessionRepository,
 
-    // Repository providers
+    // Repository bindings
     {
       provide: OrganizationRepositoryProvider,
       useExisting: PrismaOrganizationRepository,
@@ -52,7 +45,15 @@ import { PrismaOrganizationMemberRepository } from './repositories/prisma-organi
       provide: GameSessionRepositoryProvider,
       useExisting: PrismaGameSessionRepository,
     },
+
+    // Use cases
+    CreateOrganizationUseCase,
+    GetOrganizationsByUserUseCase,
+    AddMemberToOrganizationUseCase,
+    RemoveMemberFromOrganizationUseCase,
+    GetOrganizationDashboardUseCase,
+    GetQuizzesByOrganizationUseCase,
+    OrganizationRolesGuard,
   ],
-  exports: [OrganizationRepositoryProvider, OrganizationMemberRepositoryProvider],
 })
 export class OrganizationModule {}

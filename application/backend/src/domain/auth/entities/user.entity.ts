@@ -1,15 +1,19 @@
+import type { AvatarUri } from '../types/avatar-uri';
+
+export type UserId = number;
+
 /**
  * User Domain Entity
  * Represents a user in the quiz application
  */
 export class User {
   constructor(
-    public readonly id: number,
+    public readonly id: UserId,
     public readonly username: string,
     public readonly email: string,
     public readonly password: string,
     public readonly isAdmin: boolean,
-    public readonly avatarUrl: string | null,
+    public readonly avatarUri: AvatarUri | null,
     public readonly createdAt: Date,
     public readonly refreshTokenHash: string | null = null,
     public readonly refreshTokenExpiresAt: Date | null = null,

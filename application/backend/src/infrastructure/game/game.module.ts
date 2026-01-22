@@ -1,6 +1,5 @@
-import { Module } from '@nestjs/common';
-import { GameBroadcastServiceProvider } from '../../application/game/ports/game-broadcast.service.interface';
-import { AnswerRevealSchedulerService } from '../../application/game/services/answer-reveal-scheduler.service';
+import { Logger, Module } from '@nestjs/common';
+import { GameBroadcastServiceProvider } from '../../application/game/ports/game-broadcast.service';
 import { CreateGameSessionUseCase } from '../../application/game/use-cases/create-game-session.use-case';
 import { EndGameUseCase } from '../../application/game/use-cases/end-game.use-case';
 import { GetActiveSessionsUseCase } from '../../application/game/use-cases/get-active-sessions.use-case';
@@ -17,16 +16,17 @@ import { StartGameWsUseCase } from '../../application/game/use-cases/start-game-
 import { StopGameSessionUseCase } from '../../application/game/use-cases/stop-game-session.use-case';
 import { SubmitAnswerUseCase } from '../../application/game/use-cases/submit-answer.use-case';
 import { SubmitAnswerWsUseCase } from '../../application/game/use-cases/submit-answer-ws.use-case';
-import { GameTimerServiceProvider } from '../../domain/game/ports/game-timer.service.interface';
-import { GameSessionRepositoryProvider } from '../../domain/game/repositories/game-session.repository.interface';
-import { ScoreRepositoryProvider } from '../../domain/game/repositories/score.repository.interface';
-import { SessionStateRepositoryProvider } from '../../domain/game/repositories/session-state.repository.interface';
+import { GameSessionRepositoryProvider } from '../../domain/game/ports/game-session.repository';
+import { GameTimerServiceProvider } from '../../domain/game/ports/game-timer.service';
+import { ScoreRepositoryProvider } from '../../domain/game/ports/score.repository';
+import { SessionStateRepositoryProvider } from '../../domain/game/ports/session-state.repository';
 import { AnswerRevealPolicy } from '../../domain/game/services/answer-reveal-policy.service';
+import { AnswerRevealSchedulerService } from '../../domain/game/services/answer-reveal-scheduler.service';
+import { GameSessionStateService } from '../../domain/game/services/game-session-state.service';
 import { ScoreCalculatorService } from '../../domain/game/services/score-calculator.service';
-import { OrganizationMemberRepositoryProvider } from '../../domain/organization/repositories/organization-member.repository.interface';
-import { QuestionRepositoryProvider } from '../../domain/quiz/repositories/question.repository.interface';
-import { QuizRepositoryProvider } from '../../domain/quiz/repositories/quiz.repository.interface';
-import { AvatarGeneratorService } from '../../domain/shared/services/avatar-generator.service';
+import { OrganizationMemberRepositoryProvider } from '../../domain/organization/ports/organization-member.repository';
+import { QuestionRepositoryProvider } from '../../domain/quiz/ports/question.repository';
+import { QuizRepositoryProvider } from '../../domain/quiz/ports/quiz.repository';
 import { DatabaseModule } from '../database/database.module';
 import { PrismaOrganizationMemberRepository } from '../organization/repositories/prisma-organization-member.repository';
 import { PrismaQuestionRepository } from '../quiz/repositories/prisma-question.repository';
@@ -45,6 +45,41 @@ import { SocketGameBroadcastService } from './services/socket-game-broadcast.ser
   imports: [DatabaseModule],
   controllers: [GameController],
   providers: [
+    Logger,
+    // Repository implementations
+    PrismaGameSessionRepository,
+    PrismaScoreRepository,
+    ValkeySessionStateRepository,
+    PrismaQuizRepository,
+    PrismaQuestionRepository,
+    PrismaOrganizationMemberRepository,
+
+    // Repository bindings
+    {
+      provide: GameSessionRepositoryProvider,
+      useExisting: PrismaGameSessionRepository,
+    },
+    {
+      provide: ScoreRepositoryProvider,
+      useExisting: PrismaScoreRepository,
+    },
+    {
+      provide: SessionStateRepositoryProvider,
+      useExisting: ValkeySessionStateRepository,
+    },
+    {
+      provide: QuizRepositoryProvider,
+      useExisting: PrismaQuizRepository,
+    },
+    {
+      provide: QuestionRepositoryProvider,
+      useExisting: PrismaQuestionRepository,
+    },
+    {
+      provide: OrganizationMemberRepositoryProvider,
+      useExisting: PrismaOrganizationMemberRepository,
+    },
+
     // Use Cases
     CreateGameSessionUseCase,
     StopGameSessionUseCase,
@@ -65,51 +100,15 @@ import { SocketGameBroadcastService } from './services/socket-game-broadcast.ser
     PauseGameWsUseCase,
     ResumeGameWsUseCase,
 
-    // Application Services
-    AnswerRevealSchedulerService,
-
     // Domain Services
     AnswerRevealPolicy,
+    AnswerRevealSchedulerService,
+    GameSessionStateService,
     ScoreCalculatorService,
-    AvatarGeneratorService,
-
-    // Infrastructure - Repositories (concrete implementations)
-    PrismaGameSessionRepository,
-    PrismaScoreRepository,
-    PrismaQuestionRepository,
-    PrismaQuizRepository,
-    PrismaOrganizationMemberRepository,
-    ValkeySessionStateRepository,
 
     // Infrastructure - Services (concrete implementations)
     NodeGameTimerService,
     SocketGameBroadcastService,
-
-    // Repository Provider Bindings (DIP - depend on abstractions)
-    {
-      provide: GameSessionRepositoryProvider,
-      useExisting: PrismaGameSessionRepository,
-    },
-    {
-      provide: ScoreRepositoryProvider,
-      useExisting: PrismaScoreRepository,
-    },
-    {
-      provide: QuestionRepositoryProvider,
-      useExisting: PrismaQuestionRepository,
-    },
-    {
-      provide: QuizRepositoryProvider,
-      useExisting: PrismaQuizRepository,
-    },
-    {
-      provide: OrganizationMemberRepositoryProvider,
-      useExisting: PrismaOrganizationMemberRepository,
-    },
-    {
-      provide: SessionStateRepositoryProvider,
-      useExisting: ValkeySessionStateRepository,
-    },
 
     // Service Provider Bindings (DIP - depend on abstractions)
     {
@@ -120,7 +119,6 @@ import { SocketGameBroadcastService } from './services/socket-game-broadcast.ser
       provide: GameBroadcastServiceProvider,
       useExisting: SocketGameBroadcastService,
     },
-
     // Gateway & Filters
     GameGateway,
     ErrorTranslationService,

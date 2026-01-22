@@ -10,13 +10,14 @@ import { createQuestionFixture } from "../../../../../test/fixtures";
 import { ColorSchemeProvider } from "../../../../../presentation/shared/ui/theme";
 
 const mockQuestion: Question = createQuestionFixture({
-  question_text: "What is the capital of France?",
-  correct_answer: "A",
-  option_a: "Paris",
-  option_b: "London",
-  option_c: "Berlin",
-  option_d: "Madrid",
-  time_limit: 30,
+  questionText: "What is the capital of France?",
+  answers: [
+    { id: 1, text: "Paris", position: 0, isCorrect: true },
+    { id: 2, text: "London", position: 1, isCorrect: false },
+    { id: 3, text: "Berlin", position: 2, isCorrect: false },
+    { id: 4, text: "Madrid", position: 3, isCorrect: false },
+  ],
+  timeLimit: 30,
 });
 
 describe("PlayingPage (player quick settings)", () => {

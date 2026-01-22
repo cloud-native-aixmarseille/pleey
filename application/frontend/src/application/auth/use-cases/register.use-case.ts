@@ -1,4 +1,4 @@
-import { IAuthRepository } from "../../../domains/auth/ports/auth.repository.interface";
+import { AuthRepository } from "../../../domains/auth/ports/auth.repository";
 
 export interface RegisterRequest {
   username: string;
@@ -12,7 +12,7 @@ export interface RegisterRequest {
  * Following Clean Architecture and Single Responsibility Principle
  */
 export class RegisterUseCase {
-  constructor(private readonly authRepository: IAuthRepository) { }
+  constructor(private readonly authRepository: AuthRepository) { }
 
   async execute(request: RegisterRequest): Promise<void> {
     const { username, email, password } = request;

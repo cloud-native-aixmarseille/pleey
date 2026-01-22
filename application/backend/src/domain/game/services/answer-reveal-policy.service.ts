@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { GameErrorCode } from '../enums/game-error-code.enum';
 
 const TIMER_MULTIPLIER_MS = 1000;
 
@@ -6,7 +7,7 @@ const TIMER_MULTIPLIER_MS = 1000;
 export class AnswerRevealPolicy {
   getRevealDelayMs(timeSeconds: number): number {
     if (!Number.isFinite(timeSeconds)) {
-      throw new Error('timeSeconds must be a finite number');
+      throw new Error(GameErrorCode.INVALID_REVEAL_DELAY);
     }
     if (timeSeconds <= 0) {
       return 0;

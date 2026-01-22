@@ -18,7 +18,6 @@ const CARD_INDEX_TEXT_CLASSES =
 const CARD_QUESTION_TEXT_CLASSES =
   "flex-1 text-base font-medium text-dark-950 dark:text-light-100 sm:text-lg";
 const ACTION_GROUP_CLASSES = "flex items-center gap-2";
-const SR_ONLY_TEXT_CLASSES = "sr-only";
 const QUESTION_META_LIST_CLASSES =
   "flex flex-wrap gap-3 text-sm text-dark-600 dark:text-light-300";
 const QUESTION_META_ITEM_CLASSES =
@@ -86,7 +85,7 @@ export function QuestionCard({
               <span className={CARD_INDEX_TEXT_CLASSES}>Q{index + 1}</span>
             </div>
             <h3 className={CARD_QUESTION_TEXT_CLASSES}>
-              {question.question_text}
+              {question.questionText}
             </h3>
           </div>
           <div className={ACTION_GROUP_CLASSES}>
@@ -103,9 +102,7 @@ export function QuestionCard({
               aria-label={t("quiz.deleteQuestion")}
               icon={{ name: "Trash2" }}
             >
-              <span className={SR_ONLY_TEXT_CLASSES}>
-                {t("quiz.deleteQuestion")}
-              </span>
+              {""}
             </DangerButton>
           </div>
           <ArcadeBadge variant={TYPE_BADGE_TONES[badgeType]}>
@@ -123,7 +120,7 @@ export function QuestionCard({
           <div className={QUESTION_META_ITEM_CLASSES}>
             <span aria-hidden="true">⏱️</span>
             <span className={QUESTION_META_VALUE_CLASSES}>
-              {question.time_limit}s
+              {question.timeLimit}s
             </span>
           </div>
           <div className={QUESTION_META_ITEM_CLASSES}>
@@ -139,22 +136,19 @@ export function QuestionCard({
 }
 
 function renderMultipleChoice(question: Question) {
-  const options = [
-    { letter: "A", text: question.option_a },
-    { letter: "B", text: question.option_b },
-    { letter: "C", text: question.option_c },
-    { letter: "D", text: question.option_d },
-  ];
-
-  // Support multiple correct answers (e.g., "A,D")
-  const correctAnswers = question.correct_answer
-    .split(",")
-    .map((a) => a.trim());
+  const options = [...question.answers]
+    .sort((left, right) => left.position - right.position)
+    .map((answer) => ({
+      letter:
+        MULTIPLE_CHOICE_LABELS[answer.position] ?? `${answer.position + 1}`,
+      text: answer.text ?? "",
+      isCorrect: answer.isCorrect,
+    }));
 
   return (
     <div className={MULTIPLE_OPTIONS_GRID_CLASSES}>
       {options.map((option) => {
-        const isCorrect = correctAnswers.includes(option.letter);
+        const isCorrect = option.isCorrect;
         return (
           <div
             key={option.letter}
@@ -180,17 +174,20 @@ function renderMultipleChoice(question: Question) {
 
 function renderTrueFalse(
   question: Question,
-  t: ReturnType<typeof useTranslation>["t"]
+  t: ReturnType<typeof useTranslation>["t"],
 ) {
+  const correctAnswerValue =
+    question.answers.find((answer) => answer.isCorrect)?.position ?? 0;
+
   return (
     <div className={TRUE_FALSE_WRAPPER_CLASSES}>
       <div className={TRUE_FALSE_CARD_CLASSES}>
         <span className={TRUE_FALSE_ICON_CLASSES} aria-hidden="true">
-          {question.correct_answer === "true" ? "✓" : "✗"}
+          {correctAnswerValue === 0 ? "✓" : "✗"}
         </span>
         <span className={TRUE_FALSE_TEXT_CLASSES}>
           {t("quiz.correctAnswer")}:{" "}
-          {question.correct_answer === "true"
+          {correctAnswerValue === 0
             ? t("quiz.trueAnswer")
             : t("quiz.falseAnswer")}
         </span>
@@ -198,3 +195,5 @@ function renderTrueFalse(
     </div>
   );
 }
+
+const MULTIPLE_CHOICE_LABELS = ["A", "B", "C", "D"];

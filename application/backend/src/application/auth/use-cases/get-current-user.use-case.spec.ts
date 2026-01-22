@@ -1,8 +1,8 @@
 import { NotFoundException } from '@nestjs/common';
 import { describe, expect, it } from 'vitest';
-import { createUserFixture } from '../../../test-utils/fixtures';
+import { AuthErrorCode } from '../../../domain/auth/enums/auth-error-code.enum';
+import { createUserFixture } from '../../../test-utils/fixtures/unit';
 import { createUserRepositoryMock } from '../../../test-utils/mock-factories';
-import { AuthErrorCode } from '../enums/auth-error-code.enum';
 import { GetCurrentUserUseCase } from './get-current-user.use-case';
 
 describe('GetCurrentUserUseCase', () => {

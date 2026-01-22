@@ -1,9 +1,9 @@
-import { IGameSocket } from "../../../domains/game/ports/game-socket.interface";
+import { GameSocket } from "../../../domains/game/ports/game-socket";
 
 export interface SubmitAnswerRequest {
   pin: string;
   userId: number;
-  answer: string;
+  answerId: number;
   timeLeft: number;
 }
 
@@ -13,13 +13,13 @@ export interface SubmitAnswerRequest {
  * Following Clean Architecture and Single Responsibility Principle
  */
 export class SubmitAnswerUseCase {
-  constructor(private readonly gameSocket: IGameSocket) { }
+  constructor(private readonly gameSocket: GameSocket) { }
 
   execute(request: SubmitAnswerRequest): void {
-    const { pin, userId, answer, timeLeft } = request;
+    const { pin, userId, answerId, timeLeft } = request;
 
     // Business rule: validate answer
-    if (!answer || answer.trim().length === 0) {
+    if (!Number.isFinite(answerId)) {
       throw new Error("Answer is required");
     }
 
@@ -27,7 +27,7 @@ export class SubmitAnswerUseCase {
       type: "submit-answer",
       pin,
       userId,
-      answer,
+      answerId,
       timeLeft,
     });
   }

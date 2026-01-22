@@ -211,7 +211,10 @@
       "quizTitleUpdated": "Titre du quiz mis à jour avec succès."
     },
     "errors": {
-      "quizHasActiveSession": "Vous ne pouvez pas supprimer ce quiz tant qu'une session est active."
+      "quizHasActiveSession": "Vous ne pouvez pas supprimer ce quiz tant qu'une session est active.",
+      "questionTextRequired": "Saisissez le texte de la question avant d'enregistrer.",
+      "quizIdRequired": "L'identifiant du quiz est requis.",
+      "quizTitleRequired": "Le titre du quiz est requis."
     },
     "saveChanges": "Enregistrer les modifications",
     "optionPlaceholder": "Saisissez l'option {{option}}",

@@ -1,32 +1,37 @@
 import { WsException } from '@nestjs/websockets';
-import { describe, expect, it, vi } from 'vitest';
-
-import { GameErrorCode } from '../enums/game-error-code.enum';
+import { describe, expect, it } from 'vitest';
+import { GameErrorCode } from '../../../domain/game/enums/game-error-code.enum';
+import { GameSessionStatus } from '../../../domain/game/enums/game-session-status.enum';
+import {
+  createGameSessionFixture,
+  createGameSessionStateFixture,
+  createPlayerScoreFixture,
+} from '../../../test-utils/fixtures/unit';
+import {
+  createGameBroadcastServiceMock,
+  createGameSessionRepositoryMock,
+  createGameSessionStateServiceMock,
+  createGameTimerServiceMock,
+} from '../../../test-utils/mock-factories';
+import { GameBroadcastEventType } from '../ports';
 import { EndGameUseCase } from './end-game.use-case';
 
 describe('EndGameUseCase', () => {
   it('throws UNAUTHORIZED_SESSION_CONTROL when hostId does not match', async () => {
-    const state = {
-      sessionId: 1,
-      getScoresExcludingHost: () => [],
-    };
-    const sessionStateRepository = {
-      getOrCreate: vi.fn().mockResolvedValue(state),
-      remove: vi.fn().mockResolvedValue(undefined),
-    };
-    const gameSessionRepository = {
-      findByPin: vi.fn().mockResolvedValue({ id: 1, hostId: 999 }),
-      updateStatus: vi.fn(),
-    };
-    const timerService = {
-      clearAnswerRevealTimer: vi.fn(),
-    };
-    const broadcastService = {
-      publish: vi.fn(),
-    };
+    const state = createGameSessionStateFixture();
+    const gameSessionStateService = createGameSessionStateServiceMock({
+      getOrCreate: state as never,
+      remove: undefined,
+    });
+    const session = createGameSessionFixture({ id: 1, hostId: 999 });
+    const gameSessionRepository = createGameSessionRepositoryMock({
+      findByPin: session,
+    });
+    const timerService = createGameTimerServiceMock();
+    const broadcastService = createGameBroadcastServiceMock();
 
     const useCase = new EndGameUseCase(
-      sessionStateRepository as never,
+      gameSessionStateService as never,
       gameSessionRepository as never,
       timerService as never,
       broadcastService as never,
@@ -42,29 +47,26 @@ describe('EndGameUseCase', () => {
   });
 
   it('ends the game, clears timers, broadcasts and removes state', async () => {
-    const state = {
-      sessionId: 1,
-      getScoresExcludingHost: () => [
-        { playerId: 'user-1', username: 'alice', totalPoints: 100, isGuest: false },
-      ],
-    };
-    const sessionStateRepository = {
-      getOrCreate: vi.fn().mockResolvedValue(state),
-      remove: vi.fn().mockResolvedValue(undefined),
-    };
-    const gameSessionRepository = {
-      findByPin: vi.fn().mockResolvedValue({ id: 1, hostId: 1, status: 'active' }),
-      updateStatus: vi.fn().mockResolvedValue(undefined),
-    };
-    const timerService = {
-      clearAnswerRevealTimer: vi.fn(),
-    };
-    const broadcastService = {
-      publish: vi.fn(),
-    };
+    const scores = [createPlayerScoreFixture()];
+    const state = createGameSessionStateFixture({ scores });
+    const gameSessionStateService = createGameSessionStateServiceMock({
+      getOrCreate: state as never,
+      remove: undefined,
+    });
+    const session = createGameSessionFixture({
+      id: 1,
+      hostId: 1,
+      status: GameSessionStatus.ACTIVE,
+    });
+    const gameSessionRepository = createGameSessionRepositoryMock({
+      findByPin: session,
+      updateStatus: undefined,
+    });
+    const timerService = createGameTimerServiceMock();
+    const broadcastService = createGameBroadcastServiceMock();
 
     const useCase = new EndGameUseCase(
-      sessionStateRepository as never,
+      gameSessionStateService as never,
       gameSessionRepository as never,
       timerService as never,
       broadcastService as never,
@@ -73,10 +75,10 @@ describe('EndGameUseCase', () => {
     await useCase.execute({ pin: '123456', hostId: 1 });
 
     expect(timerService.clearAnswerRevealTimer).toHaveBeenCalledWith('123456');
-    expect(gameSessionRepository.updateStatus).toHaveBeenCalledWith(1, 'ended');
+    expect(gameSessionRepository.updateStatus).toHaveBeenCalledWith(1, GameSessionStatus.ENDED);
     expect(broadcastService.publish).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'game-ended', pin: '123456' }),
+      expect.objectContaining({ type: GameBroadcastEventType.GAME_ENDED, pin: '123456' }),
     );
-    expect(sessionStateRepository.remove).toHaveBeenCalledWith('123456');
+    expect(gameSessionStateService.remove).toHaveBeenCalledWith('123456');
   });
 });

@@ -1,5 +1,11 @@
+import { Test, type TestingModule } from '@nestjs/testing';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PinAlreadyInUseError } from '../../../domain/game/errors/pin-already-in-use.error';
+import {
+  createPersistedOrganizationFixture,
+  createPersistedQuizFixture,
+  createPersistedUserFixture,
+} from '../../../test-utils/fixtures/integration';
 import { PrismaService } from '../../database/prisma.service';
 import { PrismaGameSessionRepository } from './prisma-game-session.repository';
 
@@ -7,6 +13,7 @@ const hasDatabase = Boolean((process.env.DATABASE_URL ?? '').trim());
 const describeIfDatabase = hasDatabase ? describe.sequential : describe.skip;
 
 describeIfDatabase('PrismaGameSessionRepository (integration)', () => {
+  let module: TestingModule;
   let prisma: PrismaService;
   let repository: PrismaGameSessionRepository;
 
@@ -16,9 +23,13 @@ describeIfDatabase('PrismaGameSessionRepository (integration)', () => {
   const createdSessionIds: number[] = [];
 
   beforeAll(async () => {
-    prisma = new PrismaService();
+    module = await Test.createTestingModule({
+      providers: [PrismaService, PrismaGameSessionRepository],
+    }).compile();
+
+    prisma = module.get(PrismaService);
+    repository = module.get(PrismaGameSessionRepository);
     await prisma.onModuleInit();
-    repository = new PrismaGameSessionRepository(prisma);
   });
 
   afterAll(async () => {
@@ -35,47 +46,42 @@ describeIfDatabase('PrismaGameSessionRepository (integration)', () => {
       await prisma.user.deleteMany({ where: { id: { in: createdUserIds } } });
     }
     await prisma.onModuleDestroy();
+    await module.close();
   });
 
   it('creates sessions and enforces unique pin', async () => {
     const unique = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
-    const host = await prisma.user.create({
-      data: {
-        username: `host_${unique}`,
-        email: `host_${unique}@example.com`,
-        password: 'hashed',
-      },
+    const host = await createPersistedUserFixture(prisma, {
+      username: `host_${unique}`,
+      email: `host_${unique}@example.com`,
+      password: 'hashed',
     });
     createdUserIds.push(host.id);
 
-    const organization = await prisma.organization.create({
-      data: {
-        name: `Org ${unique}`,
-        description: null,
-      },
+    const organization = await createPersistedOrganizationFixture(prisma, {
+      name: `Org ${unique}`,
+      description: null,
     });
     createdOrganizationIds.push(organization.id);
 
-    const quiz = await prisma.quiz.create({
-      data: {
-        title: `Quiz ${unique}`,
-        description: null,
-        createdById: host.id,
-        organizationId: organization.id,
-      },
+    const quiz = await createPersistedQuizFixture(prisma, {
+      title: `Quiz ${unique}`,
+      description: null,
+      createdById: host.id,
+      organizationId: organization.id,
     });
     createdQuizIds.push(quiz.id);
 
     const pin = `PIN-${unique}`;
 
-    const created = await repository.create(quiz.id, host.id, organization.id, pin);
+    const created = await repository.create(quiz.id, host.id, pin);
     createdSessionIds.push(created.id);
 
     const loaded = await repository.findByPin(pin);
     expect(loaded?.id).toBe(created.id);
 
-    await expect(repository.create(quiz.id, host.id, organization.id, pin)).rejects.toBeInstanceOf(
+    await expect(repository.create(quiz.id, host.id, pin)).rejects.toBeInstanceOf(
       PinAlreadyInUseError,
     );
 

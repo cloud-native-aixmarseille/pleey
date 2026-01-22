@@ -1,32 +1,24 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { act, renderHook, waitFor } from "@testing-library/react";
+import {
+  quizRepositoryMock,
+  resetQuizManagerMocks,
+} from "../../../../test/mock-factories/quiz-manager.mocks";
 import { useQuizManager } from "./useQuizManager";
-import { quizService } from "../../../../domains/quiz/quiz.service";
 import type { Question } from "../../../../domains/quiz/types";
 import { createQuestionFixture, createQuizFixture } from "../../../../test/fixtures";
-
-vi.mock("../../../../domains/quiz/quiz.service", () => ({
-  quizService: {
-    getQuizzes: vi.fn(),
-    getQuestions: vi.fn(),
-    addQuestion: vi.fn(),
-    deleteQuestion: vi.fn(),
-    updateQuestion: vi.fn(),
-    createQuiz: vi.fn(),
-    deleteQuiz: vi.fn(),
-  },
-}));
 
 describe("useQuizManager", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    resetQuizManagerMocks();
   });
 
-  it("should increment quiz.question_count when adding a question", async () => {
-    vi.mocked(quizService.getQuizzes).mockResolvedValueOnce([
+  it("should increment quiz.questionCount when adding a question", async () => {
+    quizRepositoryMock.getQuizzes.mockResolvedValueOnce([
       createQuizFixture(),
     ]);
-    vi.mocked(quizService.addQuestion).mockResolvedValueOnce(
+    quizRepositoryMock.addQuestion.mockResolvedValueOnce(
       createQuestionFixture(),
     );
 
@@ -38,7 +30,7 @@ describe("useQuizManager", () => {
 
     await waitFor(() => {
       expect(result.current.quizzes).toHaveLength(1);
-      expect(result.current.quizzes[0].question_count).toBe(0);
+      expect(result.current.quizzes[0].questionCount).toBe(0);
     });
 
     await act(async () => {
@@ -46,25 +38,26 @@ describe("useQuizManager", () => {
         quizId: 1,
         questionText: "Q?",
         type: "multiple",
-        correctAnswer: "A",
-        optionA: "A",
-        optionB: "B",
+        answers: [
+          { id: 1, text: "A", position: 0, isCorrect: true },
+          { id: 2, text: "B", position: 1, isCorrect: false },
+        ],
       });
     });
 
     await waitFor(() => {
-      expect(result.current.quizzes[0].question_count).toBe(1);
+      expect(result.current.quizzes[0].questionCount).toBe(1);
     });
   });
 
-  it("should increment quiz.question_count when addQuestion returns quiz_id as a string", async () => {
-    vi.mocked(quizService.getQuizzes).mockResolvedValueOnce([
+  it("should increment quiz.questionCount when addQuestion returns quizId as a string", async () => {
+    quizRepositoryMock.getQuizzes.mockResolvedValueOnce([
       createQuizFixture(),
     ]);
-    vi.mocked(quizService.addQuestion).mockResolvedValueOnce(
+    quizRepositoryMock.addQuestion.mockResolvedValueOnce(
       {
         ...createQuestionFixture(),
-        quiz_id: "1",
+        quizId: "1",
       } as unknown as Question,
     );
 
@@ -76,7 +69,7 @@ describe("useQuizManager", () => {
 
     await waitFor(() => {
       expect(result.current.quizzes).toHaveLength(1);
-      expect(result.current.quizzes[0].question_count).toBe(0);
+      expect(result.current.quizzes[0].questionCount).toBe(0);
     });
 
     await act(async () => {
@@ -84,24 +77,25 @@ describe("useQuizManager", () => {
         quizId: 1,
         questionText: "Q?",
         type: "multiple",
-        correctAnswer: "A",
-        optionA: "A",
-        optionB: "B",
+        answers: [
+          { id: 1, text: "A", position: 0, isCorrect: true },
+          { id: 2, text: "B", position: 1, isCorrect: false },
+        ],
       });
     });
 
     await waitFor(() => {
-      expect(result.current.quizzes[0].question_count).toBe(1);
+      expect(result.current.quizzes[0].questionCount).toBe(1);
     });
   });
 
-  it("should decrement quiz.question_count when deleting a question", async () => {
-    vi.mocked(quizService.getQuizzes).mockResolvedValueOnce([
+  it("should decrement quiz.questionCount when deleting a question", async () => {
+    quizRepositoryMock.getQuizzes.mockResolvedValueOnce([
       createQuizFixture({
-        question_count: 1,
+        questionCount: 1,
       }),
     ]);
-    vi.mocked(quizService.deleteQuestion).mockResolvedValueOnce(undefined);
+    quizRepositoryMock.deleteQuestion.mockResolvedValueOnce(undefined);
 
     const { result } = renderHook(() => useQuizManager());
 
@@ -111,7 +105,7 @@ describe("useQuizManager", () => {
 
     await waitFor(() => {
       expect(result.current.quizzes).toHaveLength(1);
-      expect(result.current.quizzes[0].question_count).toBe(1);
+      expect(result.current.quizzes[0].questionCount).toBe(1);
     });
 
     act(() => {
@@ -127,7 +121,7 @@ describe("useQuizManager", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.quizzes[0].question_count).toBe(0);
+      expect(result.current.quizzes[0].questionCount).toBe(0);
     });
   });
 });

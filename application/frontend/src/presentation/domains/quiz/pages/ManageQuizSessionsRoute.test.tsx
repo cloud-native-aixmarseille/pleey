@@ -59,6 +59,8 @@ const defaultQuiz: Quiz = createQuizFixture({
 interface MockQuizContext {
   quizzes: Quiz[];
   hasLoadedQuizzes: boolean;
+  questionsByQuiz: Record<number, unknown[]>;
+  loadQuizQuestions: ReturnType<typeof vi.fn>;
 }
 
 interface MockGameSessionContext {
@@ -86,11 +88,14 @@ function setup({ auth, quiz, gameSessions }: SetupOptions = {}) {
   mocks.useAuthManagerContext.mockReturnValue({
     isAuthenticated: auth?.isAuthenticated ?? true,
     isAdmin: auth?.isAdmin ?? true,
+    token: "token",
   });
 
   const quizContext: MockQuizContext = {
     quizzes: quiz?.quizzes ?? [defaultQuiz],
     hasLoadedQuizzes: quiz?.hasLoadedQuizzes ?? true,
+    questionsByQuiz: quiz?.questionsByQuiz ?? {},
+    loadQuizQuestions: quiz?.loadQuizQuestions ?? vi.fn().mockResolvedValue([]),
   };
 
   mocks.useQuizManagerContext.mockReturnValue(quizContext);

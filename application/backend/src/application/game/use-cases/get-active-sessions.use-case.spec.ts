@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { GameSessionRepository } from '../../../domain/game/repositories/game-session.repository.interface';
-import { createGameSessionFixture } from '../../../test-utils/fixtures';
+import { GameSessionStatus } from '../../../domain/game/enums/game-session-status.enum';
+import type { GameSessionRepository } from '../../../domain/game/ports/game-session.repository';
+import { createGameSessionFixture } from '../../../test-utils/fixtures/unit';
 import { createGameSessionRepositoryMock } from '../../../test-utils/mock-factories';
 import { GetActiveSessionsUseCase } from './get-active-sessions.use-case';
 
@@ -18,11 +19,11 @@ describe('GetActiveSessionsUseCase', () => {
     it('should return all active sessions for a host', async () => {
       const mockSessions = [
         createGameSessionFixture({
-          status: 'active',
+          status: GameSessionStatus.ACTIVE,
         }),
         createGameSessionFixture({
           id: 2,
-          status: 'paused',
+          status: GameSessionStatus.PAUSED,
         }),
       ];
 
@@ -31,8 +32,8 @@ describe('GetActiveSessionsUseCase', () => {
       const result = await useCase.execute(100);
 
       expect(result).toHaveLength(2);
-      expect(result[0].status).toBe('active');
-      expect(result[1].status).toBe('paused');
+      expect(result[0].status).toBe(GameSessionStatus.ACTIVE);
+      expect(result[1].status).toBe(GameSessionStatus.PAUSED);
       expect(mockGameSessionRepository.findActiveByHostId).toHaveBeenCalledWith(100);
     });
 
@@ -48,15 +49,15 @@ describe('GetActiveSessionsUseCase', () => {
     it('should only return waiting, active, and paused sessions', async () => {
       const mockSessions = [
         createGameSessionFixture({
-          status: 'waiting',
+          status: GameSessionStatus.WAITING,
         }),
         createGameSessionFixture({
           id: 2,
-          status: 'active',
+          status: GameSessionStatus.ACTIVE,
         }),
         createGameSessionFixture({
           id: 3,
-          status: 'paused',
+          status: GameSessionStatus.PAUSED,
         }),
       ];
 
@@ -65,7 +66,13 @@ describe('GetActiveSessionsUseCase', () => {
       const result = await useCase.execute(100);
 
       expect(result).toHaveLength(3);
-      expect(result.every((s) => ['waiting', 'active', 'paused'].includes(s.status))).toBe(true);
+      expect(
+        result.every((s) =>
+          [GameSessionStatus.WAITING, GameSessionStatus.ACTIVE, GameSessionStatus.PAUSED].includes(
+            s.status,
+          ),
+        ),
+      ).toBe(true);
     });
   });
 });

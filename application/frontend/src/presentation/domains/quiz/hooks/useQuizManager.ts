@@ -1,13 +1,15 @@
 import { useCallback, useState, useTransition } from "react";
 import {
-  quizService,
   type CreateQuestionPayload,
   type UpdateQuizPayload,
   type UpdateQuestionPayload,
-} from "../../../../domains/quiz/quiz.service";
+} from "../../../../domains/quiz/quiz.payloads";
+import { container } from "../../../../app/di/container";
 import type { Question, Quiz } from "../../../../domains/quiz/types";
 
 type QuestionsByQuiz = Record<number, Question[]>;
+
+const { quizRepository } = container;
 
 export function useQuizManager() {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
@@ -30,7 +32,7 @@ export function useQuizManager() {
         setHasLoadedQuizzes(false);
       }
       try {
-        const result = await quizService.getQuizzes(token, { force });
+        const result = await quizRepository.getQuizzes(token, { force });
         startTransition(() => {
           setQuizzes(result);
         });
@@ -46,7 +48,7 @@ export function useQuizManager() {
 
   const loadQuizQuestions = useCallback(
     async (token: string, quizId: number) => {
-      const data = await quizService.getQuestions(token, quizId);
+      const data = await quizRepository.getQuestions(token, quizId);
       startTransition(() => {
         setQuestionsByQuiz((prev) => ({
           ...prev,
@@ -57,7 +59,7 @@ export function useQuizManager() {
             quiz.id === quizId
               ? {
                 ...quiz,
-                question_count: data.length,
+                questionCount: data.length,
               }
               : quiz
           )
@@ -75,7 +77,7 @@ export function useQuizManager() {
       description: string,
       organizationId: number
     ) => {
-      const created = await quizService.createQuiz(
+      const created = await quizRepository.createQuiz(
         token,
         title,
         description,
@@ -91,8 +93,8 @@ export function useQuizManager() {
 
   const addQuestion = useCallback(
     async (token: string, payload: CreateQuestionPayload) => {
-      const created = await quizService.addQuestion(token, payload);
-      const quizIdFromCreated = Number(created.quiz_id);
+      const created = await quizRepository.addQuestion(token, payload);
+      const quizIdFromCreated = Number(created.quizId);
       const quizId = Number.isFinite(quizIdFromCreated)
         ? quizIdFromCreated
         : payload.quizId;
@@ -109,7 +111,7 @@ export function useQuizManager() {
             quiz.id === quizId
               ? {
                 ...quiz,
-                question_count: (quiz.question_count ?? 0) + 1,
+                questionCount: (quiz.questionCount ?? 0) + 1,
               }
               : quiz
           )
@@ -122,7 +124,7 @@ export function useQuizManager() {
 
   const deleteQuiz = useCallback(
     async (token: string, quizId: number) => {
-      await quizService.deleteQuiz(token, quizId);
+      await quizRepository.deleteQuiz(token, quizId);
       startTransition(() => {
         setQuizzes((prev) => prev.filter((quiz) => quiz.id !== quizId));
         setQuestionsByQuiz((prev) => {
@@ -137,7 +139,7 @@ export function useQuizManager() {
 
   const updateQuiz = useCallback(
     async (token: string, quizId: number, payload: UpdateQuizPayload) => {
-      const updated = await quizService.updateQuiz(token, quizId, payload);
+      const updated = await quizRepository.updateQuiz(token, quizId, payload);
       startTransition(() => {
         setQuizzes((prev) =>
           prev.map((quiz) => (quiz.id === quizId ? { ...quiz, ...updated } : quiz))
@@ -150,7 +152,7 @@ export function useQuizManager() {
 
   const deleteQuestion = useCallback(
     async (token: string, quizId: number, questionId: number) => {
-      await quizService.deleteQuestion(token, questionId);
+      await quizRepository.deleteQuestion(token, questionId);
       startTransition(() => {
         setQuestionsByQuiz((prev) => {
           const current = prev[quizId] ?? [];
@@ -174,7 +176,7 @@ export function useQuizManager() {
             quiz.id === quizId
               ? {
                 ...quiz,
-                question_count: Math.max(0, (quiz.question_count ?? 0) - 1),
+                questionCount: Math.max(0, (quiz.questionCount ?? 0) - 1),
               }
               : quiz
           )
@@ -191,7 +193,7 @@ export function useQuizManager() {
       questionId: number,
       payload: UpdateQuestionPayload
     ) => {
-      const updated = await quizService.updateQuestion(
+      const updated = await quizRepository.updateQuestion(
         token,
         questionId,
         payload

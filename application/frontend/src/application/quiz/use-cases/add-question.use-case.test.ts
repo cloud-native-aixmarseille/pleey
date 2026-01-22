@@ -1,22 +1,20 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { AddQuestionUseCase } from "./add-question.use-case";
-import { IQuizRepository } from "../../../domains/quiz/ports/quiz.repository.interface";
+import type { QuizRepository } from "../../../domains/quiz/ports/quiz.repository";
 import type { Question } from "../../../domains/quiz/types";
+import type { CreateQuestionPayload } from "../../../domains/quiz/quiz.payloads";
 import { createQuestionFixture } from "../../../test/fixtures";
+import { QuizErrorCode } from "../enums/quiz-error-code.enum";
+import { createQuizRepositoryMock } from "../../../test/mock-factories/quiz-repository.mock-factory";
 
 describe("AddQuestionUseCase", () => {
   let addQuestionUseCase: AddQuestionUseCase;
-  let mockQuizRepository: IQuizRepository;
+  let mockQuizRepository: QuizRepository;
 
   const mockQuestion: Question = createQuestionFixture();
 
   beforeEach(() => {
-    mockQuizRepository = {
-      getQuizzes: vi.fn(),
-      getQuestions: vi.fn(),
-      createQuiz: vi.fn(),
-      addQuestion: vi.fn(),
-    };
+    mockQuizRepository = createQuizRepositoryMock();
 
     addQuestionUseCase = new AddQuestionUseCase(mockQuizRepository);
   });
@@ -24,9 +22,11 @@ describe("AddQuestionUseCase", () => {
   it("should add question successfully", async () => {
     vi.mocked(mockQuizRepository.addQuestion).mockResolvedValue(mockQuestion);
 
-    const questionData: Partial<Question> = {
-      quiz_id: 1,
-      question_text: "What is 2+2?",
+    const questionData: CreateQuestionPayload = {
+      quizId: 1,
+      questionText: "What is 2+2?",
+      type: "multiple",
+      answers: [{ text: "4", isCorrect: true }],
     };
 
     const result = await addQuestionUseCase.execute({
@@ -46,11 +46,13 @@ describe("AddQuestionUseCase", () => {
       addQuestionUseCase.execute({
         token: "test-token",
         questionData: {
-          quiz_id: 1,
-          question_text: "",
+          quizId: 1,
+          questionText: "",
+          type: "multiple",
+          answers: [{ text: "4", isCorrect: true }],
         },
       }),
-    ).rejects.toThrow("Question text is required");
+    ).rejects.toThrow(QuizErrorCode.QUESTION_TEXT_REQUIRED);
 
     expect(mockQuizRepository.addQuestion).not.toHaveBeenCalled();
   });
@@ -60,24 +62,30 @@ describe("AddQuestionUseCase", () => {
       addQuestionUseCase.execute({
         token: "test-token",
         questionData: {
-          quiz_id: 1,
-          question_text: "   ",
+          quizId: 1,
+          questionText: "   ",
+          type: "multiple",
+          answers: [{ text: "4", isCorrect: true }],
         },
       }),
-    ).rejects.toThrow("Question text is required");
+    ).rejects.toThrow(QuizErrorCode.QUESTION_TEXT_REQUIRED);
 
     expect(mockQuizRepository.addQuestion).not.toHaveBeenCalled();
   });
 
-  it("should throw error when quiz_id is missing", async () => {
+  it("should throw error when quizId is missing", async () => {
+    const invalidQuestionData = {
+      questionText: "What is 2+2?",
+      type: "multiple",
+      answers: [{ text: "4", isCorrect: true }],
+    } as unknown as CreateQuestionPayload;
+
     await expect(
       addQuestionUseCase.execute({
         token: "test-token",
-        questionData: {
-          question_text: "What is 2+2?",
-        },
+        questionData: invalidQuestionData,
       }),
-    ).rejects.toThrow("Quiz ID is required");
+    ).rejects.toThrow(QuizErrorCode.QUIZ_ID_REQUIRED);
 
     expect(mockQuizRepository.addQuestion).not.toHaveBeenCalled();
   });

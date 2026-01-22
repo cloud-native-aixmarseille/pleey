@@ -1,19 +1,24 @@
 import { WsException } from '@nestjs/websockets';
 import { describe, expect, it, vi } from 'vitest';
+import { GameErrorCode } from '../../../domain/game/enums/game-error-code.enum';
+import { GameSessionStatus } from '../../../domain/game/enums/game-session-status.enum';
+import { QuestionType } from '../../../domain/quiz/entities/question';
+import { createGameSessionStateFixture } from '../../../test-utils/fixtures/unit';
 import {
   createAnswerRevealSchedulerMock,
   createGameBroadcastServiceMock,
   createGameSessionRepositoryMock,
-  createSessionStateRepositoryMock,
+  createGameSessionStateServiceMock,
 } from '../../../test-utils/mock-factories';
-import { GameErrorCode } from '../enums/game-error-code.enum';
+import { GameBroadcastEventType } from '../ports';
 import { ResumeGameWsUseCase } from './resume-game-ws.use-case';
 
 describe('ResumeGameWsUseCase', () => {
   it('throws when session is not found', async () => {
-    const state = {};
-    const sessionStateRepository = createSessionStateRepositoryMock({
+    const state = createGameSessionStateFixture();
+    const gameSessionStateService = createGameSessionStateServiceMock({
       getOrCreate: state as never,
+      update: undefined,
     });
 
     const gameSessionRepository = createGameSessionRepositoryMock({ findByPin: null });
@@ -21,7 +26,7 @@ describe('ResumeGameWsUseCase', () => {
     const scheduler = createAnswerRevealSchedulerMock();
 
     const useCase = new ResumeGameWsUseCase(
-      sessionStateRepository as never,
+      gameSessionStateService as never,
       gameSessionRepository as never,
       broadcastService as never,
       scheduler as never,
@@ -36,20 +41,22 @@ describe('ResumeGameWsUseCase', () => {
   });
 
   it('updates status, optionally schedules, and broadcasts state', async () => {
-    const state = {
+    const state = createGameSessionStateFixture({
       resume: vi.fn().mockReturnValue(5),
       currentQuestion: {
+        id: 1,
+        position: 0,
         questionText: 'Q',
-        correctAnswer: 'A',
+        answers: [{ id: 1, text: 'A', position: 0, isCorrect: true }],
         timeLimit: 10,
         points: 1000,
-        type: 'multiple',
+        type: QuestionType.MULTIPLE,
       },
-      currentQuestionIndex: 0,
       totalQuestions: 10,
-    };
-    const sessionStateRepository = createSessionStateRepositoryMock({
+    });
+    const gameSessionStateService = createGameSessionStateServiceMock({
       getOrCreate: state as never,
+      update: undefined,
     });
 
     const gameSessionRepository = createGameSessionRepositoryMock({
@@ -60,7 +67,7 @@ describe('ResumeGameWsUseCase', () => {
     const scheduler = createAnswerRevealSchedulerMock();
 
     const useCase = new ResumeGameWsUseCase(
-      sessionStateRepository as never,
+      gameSessionStateService as never,
       gameSessionRepository as never,
       broadcastService as never,
       scheduler as never,
@@ -68,13 +75,12 @@ describe('ResumeGameWsUseCase', () => {
 
     await useCase.execute('123456', 1);
 
-    expect(gameSessionRepository.updateStatus).toHaveBeenCalledWith(1, 'active');
+    expect(gameSessionRepository.updateStatus).toHaveBeenCalledWith(1, GameSessionStatus.ACTIVE);
     expect(scheduler.schedule).toHaveBeenCalledWith('123456', 5);
     expect(broadcastService.publish).toHaveBeenCalledWith(
       expect.objectContaining({
-        type: 'game-resumed',
+        type: GameBroadcastEventType.GAME_RESUMED,
         pin: '123456',
-        questionNumber: 1,
         totalQuestions: 10,
         timeLeft: 5,
       }),

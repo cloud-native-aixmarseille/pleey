@@ -5,12 +5,13 @@
     "quizNotFound": "Quiz not found",
     "questionNotFound": "Question not found",
     "invalidQuestionType": "Invalid question type",
-    "authenticationRequired": "Authentication required",
-    "adminPrivilegesRequired": "Admin privileges are required to create quizzes",
     "pinMustBe6Digits": "PIN must be exactly 6 digits",
     "quizHasActiveSession": "You can't delete this quiz while a game session is active",
     "invalidCorrectAnswer": "Invalid correct answer value",
-    "correctAnswerOptionEmpty": "The selected correct answer option cannot be empty"
+    "correctAnswerOptionEmpty": "The selected correct answer option cannot be empty",
+    "questionTextRequired": "Question text is required",
+    "quizIdRequired": "Quiz ID is required",
+    "quizTitleRequired": "Quiz title is required"
   },
   "success": {
     "quizCreated": "Quiz created successfully",

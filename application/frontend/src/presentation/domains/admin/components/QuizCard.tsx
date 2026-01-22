@@ -27,7 +27,6 @@ const META_ITEM_CLASSES = "flex items-center gap-1";
 const ICON_CLASSES = "h-4 w-4";
 const ACTIONS_ROW_CLASSES = "flex items-center gap-2";
 const PRIMARY_ACTION_CONTAINER_CLASSES = "flex-1";
-const SR_ONLY_CLASSES = "sr-only";
 
 interface QuizCardProps {
   quiz: Quiz;
@@ -55,15 +54,15 @@ export function QuizCard({
   const { t } = useTranslation();
   const [isJoining, setIsJoining] = useState(false);
   const activeSession = useMemo(() => liveSession ?? null, [liveSession]);
-  const isSessionLive = isLive ?? Boolean(activeSession ?? quiz.is_active);
+  const isSessionLive = isLive ?? Boolean(activeSession ?? quiz.isActive);
   const shouldShowJoin = Boolean(activeSession);
-  const hasQuestions = quiz.question_count !== 0;
+  const hasQuestions = quiz.questionCount !== 0;
   const isDeleteBlocked = isSessionLive;
   const launchTooltip = !hasQuestions
     ? t("errors.addAtLeastOneQuestion")
     : isSessionLive || isLaunchBlocked
-    ? t("admin.liveSessionLaunchBlocked")
-    : undefined;
+      ? t("admin.liveSessionLaunchBlocked")
+      : undefined;
   const deleteTooltip = isDeleteBlocked
     ? t("quiz.errors.quizHasActiveSession")
     : t("admin.delete");
@@ -117,8 +116,8 @@ export function QuizCard({
                   d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              {quiz.question_count || 0}{" "}
-              {quiz.question_count === 1
+              {quiz.questionCount || 0}{" "}
+              {quiz.questionCount === 1
                 ? t("quiz.question")
                 : t("quiz.questionsPlural")}
             </span>
@@ -217,7 +216,7 @@ export function QuizCard({
               </svg>
             }
           >
-            <span className={SR_ONLY_CLASSES}>{t("admin.manage")}</span>
+            {""}
           </SecondaryButton>
           {onDelete ? (
             <DangerButton
@@ -242,7 +241,7 @@ export function QuizCard({
                 </svg>
               }
             >
-              <span className={SR_ONLY_CLASSES}>{t("admin.delete")}</span>
+              {""}
             </DangerButton>
           ) : null}
         </div>

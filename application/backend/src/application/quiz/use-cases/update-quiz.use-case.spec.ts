@@ -1,8 +1,8 @@
 import { NotFoundException } from '@nestjs/common';
 import { describe, expect, it } from 'vitest';
+import { QuizErrorCode } from '../../../domain/quiz/enums/quiz-error-code.enum';
 import { createQuizRepositoryMock } from '../../../test-utils/mock-factories';
 import type { UpdateQuizDto } from '../dto/update-quiz.dto';
-import { QuizErrorCode } from '../enums/quiz-error-code.enum';
 import { UpdateQuizUseCase } from './update-quiz.use-case';
 
 describe('UpdateQuizUseCase', () => {

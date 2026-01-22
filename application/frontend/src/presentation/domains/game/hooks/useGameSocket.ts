@@ -3,7 +3,7 @@ import {
   offGameSocketEvent,
   GAME_SOCKET_INBOUND_EVENT,
   onGameSocketEvent,
-} from "../../../../domains/game/infrastructure/game-socket-events";
+} from "../../../../infrastructure/game/game-socket-events";
 import type { AnswerResult, LeaderboardEntry, Player } from "../../../../domains/game/types";
 import type { Question } from "../../../../domains/quiz/types";
 
@@ -60,27 +60,25 @@ export function useGameSocket(pin = "") {
 
     const handleGameStarted = (data: {
       question: Question;
-      questionNumber: number;
       totalQuestions: number;
     }) => {
       setCurrentQuestion(data.question);
-      setQuestionNumber(data.questionNumber);
+      setQuestionNumber(data.question.position + 1);
       setTotalQuestions(data.totalQuestions);
-      setTimeLeft(data.question.time_limit);
+      setTimeLeft(data.question.timeLimit);
       setGameStarted(true);
       setAnswerSubmitted(false);
     };
 
     const handleGameResumed = (data: {
       question: Question;
-      questionNumber: number;
       totalQuestions: number;
       timeLeft?: number;
     }) => {
       setCurrentQuestion(data.question);
-      setQuestionNumber(data.questionNumber);
+      setQuestionNumber(data.question.position + 1);
       setTotalQuestions(data.totalQuestions);
-      setTimeLeft(data.timeLeft ?? data.question.time_limit);
+      setTimeLeft(data.timeLeft ?? data.question.timeLimit);
       setGameStarted(true);
       setIsPaused(false);
     };
@@ -104,11 +102,10 @@ export function useGameSocket(pin = "") {
 
     const handleNextQuestion = (data: {
       question: Question;
-      questionNumber: number;
     }) => {
       setCurrentQuestion(data.question);
-      setQuestionNumber(data.questionNumber);
-      setTimeLeft(data.question.time_limit);
+      setQuestionNumber(data.question.position + 1);
+      setTimeLeft(data.question.timeLimit);
       setShowResult(false);
       setAnswerResult(null);
       setAnswerSubmitted(false);

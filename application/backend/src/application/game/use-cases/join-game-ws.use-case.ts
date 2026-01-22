@@ -1,30 +1,33 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
+import type { UserId } from '../../../domain/auth/entities/user.entity';
+import type { GameSession } from '../../../domain/game/entities/game-session';
 import type { GameSessionState } from '../../../domain/game/entities/game-session-state';
+import type { GuestId } from '../../../domain/game/entities/player-state';
 import { PlayerState } from '../../../domain/game/entities/player-state';
+import { GameErrorCode } from '../../../domain/game/enums/game-error-code.enum';
+import { GameSessionStatus } from '../../../domain/game/enums/game-session-status.enum';
 import {
   type GameSessionRepository,
   GameSessionRepositoryProvider,
-} from '../../../domain/game/repositories/game-session.repository.interface';
-import {
-  type SessionStateRepository,
-  SessionStateRepositoryProvider,
-} from '../../../domain/game/repositories/session-state.repository.interface';
+} from '../../../domain/game/ports/game-session.repository';
 import { calculateAnswerDistribution } from '../../../domain/game/services/answer-distribution.util';
+import { GameSessionStateService } from '../../../domain/game/services/game-session-state.service';
+import type { Question } from '../../../domain/quiz/entities/question';
 import type { JoinGameDto } from '../dto/join-game.dto';
 import {
   type AnswerResultPayload,
+  GameBroadcastEventType,
   type GameBroadcastService,
   GameBroadcastServiceProvider,
 } from '../ports';
 
-type PlayerIdentity = { isGuest: true; guestId: string } | { isGuest: false; userId: number };
+type PlayerIdentity = { guestId: GuestId } | { userId: UserId };
 
 @Injectable()
 export class JoinGameWsUseCase {
   constructor(
-    @Inject(SessionStateRepositoryProvider)
-    private readonly sessionStateRepository: SessionStateRepository,
+    private readonly gameSessionStateService: GameSessionStateService,
     @Inject(GameSessionRepositoryProvider)
     private readonly gameSessionRepository: GameSessionRepository,
     @Inject(GameBroadcastServiceProvider)
@@ -32,16 +35,16 @@ export class JoinGameWsUseCase {
   ) {}
 
   async execute(socketId: string, dto: JoinGameDto): Promise<void> {
-    const state = await this.sessionStateRepository.getOrCreate(dto.pin);
+    const state = await this.gameSessionStateService.getOrCreate(dto.pin);
 
     const identity = this.validatePlayerIdentity(dto);
 
     const player = this.createPlayerState(socketId, dto.username, identity, state);
     state.addPlayer(player);
-    await this.sessionStateRepository.save(dto.pin, state);
+    await this.gameSessionStateService.update(dto.pin, state);
 
     this.broadcastService.publish({
-      type: 'player-joined',
+      type: GameBroadcastEventType.PLAYER_JOINED,
       pin: dto.pin,
       sessionId: state.sessionId,
       players: state.getNonHostPlayers(),
@@ -53,13 +56,13 @@ export class JoinGameWsUseCase {
 
     // Publish pause state after potential admin game-state hydration,
     // so clients end up with isPaused=true.
-    if (session?.status === 'paused' && state.hasQuestions) {
+    if (session?.status === GameSessionStatus.PAUSED && state.hasQuestions) {
       const currentQuestion = state.currentQuestion;
       const fallbackTimeLeft = currentQuestion?.timeLimit ?? 20;
       const timeLeft = state.pausedTimeLeft ?? fallbackTimeLeft;
 
       this.broadcastService.publish({
-        type: 'game-paused',
+        type: GameBroadcastEventType.GAME_PAUSED,
         pin: dto.pin,
         timeLeft,
       });
@@ -72,28 +75,27 @@ export class JoinGameWsUseCase {
       dto.guestId !== undefined && dto.guestId !== null && dto.guestId.trim() !== '';
 
     if (hasUserId && hasGuestId) {
-      throw new WsException('Cannot provide both userId and guestId');
+      throw new WsException(GameErrorCode.VALIDATION_FAILED);
     }
 
     if (hasUserId) {
       const userId = dto.userId;
       if (userId === undefined || userId === null) {
-        throw new WsException('Must provide either userId or guestId');
+        throw new WsException(GameErrorCode.VALIDATION_FAILED);
       }
-      return { isGuest: false, userId };
+      return { userId };
     }
 
     if (hasGuestId) {
       const guestId = dto.guestId;
       if (guestId === undefined || guestId === null || guestId.trim() === '') {
-        throw new WsException('Must provide either userId or guestId');
+        throw new WsException(GameErrorCode.VALIDATION_FAILED);
       }
-      return { isGuest: true, guestId };
+      return { guestId };
     }
 
     return {
-      isGuest: true,
-      guestId: `guest-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+      guestId: `guest-${Date.now()}-${Math.random().toString(36).substring(2, 9)}` as GuestId,
     };
   }
 
@@ -103,7 +105,7 @@ export class JoinGameWsUseCase {
     identity: PlayerIdentity,
     state: GameSessionState,
   ): PlayerState {
-    if (identity.isGuest) {
+    if ('guestId' in identity) {
       const existingPlayer = state.findPlayerByGuestId(identity.guestId);
       const avatarSeed = existingPlayer?.avatarSeed ?? identity.guestId;
       return PlayerState.createGuest(socketId, identity.guestId, username, avatarSeed);
@@ -118,9 +120,13 @@ export class JoinGameWsUseCase {
     socketId: string,
     dto: JoinGameDto,
     state: GameSessionState,
-    session: { status: string } | null,
+    session: GameSession | null,
   ): Promise<void> {
-    if (!session || !['active', 'paused'].includes(session.status) || !state.hasQuestions) {
+    if (
+      !session ||
+      ![GameSessionStatus.ACTIVE, GameSessionStatus.PAUSED].includes(session.status) ||
+      !state.hasQuestions
+    ) {
       return;
     }
 
@@ -132,10 +138,9 @@ export class JoinGameWsUseCase {
     const timeLeft = this.resolveTimeLeft(state, currentQuestion.timeLimit);
 
     this.broadcastService.publish({
-      type: 'game-state',
+      type: GameBroadcastEventType.GAME_STATE,
       connectionId: socketId,
       question: currentQuestion,
-      questionNumber: state.currentQuestionIndex + 1,
       totalQuestions: state.totalQuestions,
       timeLeft,
     });
@@ -155,7 +160,7 @@ export class JoinGameWsUseCase {
     }
 
     this.broadcastService.publish({
-      type: 'answer-result',
+      type: GameBroadcastEventType.ANSWER_RESULT,
       connectionId: socketId,
       result: answerResult,
     });
@@ -176,7 +181,7 @@ export class JoinGameWsUseCase {
 
   private buildAnswerResultPayload(
     state: GameSessionState,
-    currentQuestion: { correctAnswer: string },
+    currentQuestion: Question,
     player: PlayerState,
   ): AnswerResultPayload | null {
     const answers = state.getAllAnswers();
@@ -189,7 +194,7 @@ export class JoinGameWsUseCase {
     return {
       isCorrect: playerAnswer?.isCorrect ?? false,
       points: playerAnswer?.points ?? 0,
-      correctAnswer: currentQuestion.correctAnswer,
+      correctAnswerIds: currentQuestion.getCorrectAnswers().map((answer) => answer.id),
       statistics,
     };
   }

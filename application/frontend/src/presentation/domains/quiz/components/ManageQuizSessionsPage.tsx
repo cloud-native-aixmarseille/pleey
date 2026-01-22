@@ -11,7 +11,7 @@ import {
   SecondaryButton,
 } from "../../../../presentation/shared/ui/components";
 import type { GameSession } from "../../../../domains/game/types";
-import type { Quiz } from "../../../../domains/quiz/types";
+import type { Question, Quiz } from "../../../../domains/quiz/types";
 import {
   formatSessionDate,
   getSessionStatusTone,
@@ -71,6 +71,7 @@ const DETAIL_VALUE_CLASSES = "mt-2 text-sm text-light-100";
 interface ManageQuizSessionsPageProps {
   quiz: Quiz;
   sessions: GameSession[];
+  questions?: Question[];
   onRefreshSessions: () => Promise<void>;
   onRejoinSession: (session: GameSession) => Promise<void> | void;
 }
@@ -80,6 +81,7 @@ const SESSION_PAGE_SIZE = 10;
 export function ManageQuizSessionsPage({
   quiz,
   sessions,
+  questions,
   onRefreshSessions,
   onRejoinSession,
 }: ManageQuizSessionsPageProps) {
@@ -168,8 +170,20 @@ export function ManageQuizSessionsPage({
     ? detailSession.sessionId ?? null
     : null;
 
-  const detailQuestionIndex = detailSession
-    ? detailSession.currentQuestion ?? null
+  const questionPositionById = useMemo(() => {
+    const entries = (questions ?? []).map((question) => [question.id, question.position] as const);
+    return new Map(entries);
+  }, [questions]);
+
+  const resolveQuestionPosition = (questionId?: number | null) => {
+    if (!questionId) {
+      return null;
+    }
+    return questionPositionById.get(questionId) ?? null;
+  };
+
+  const detailQuestionPosition = detailSession
+    ? resolveQuestionPosition(detailSession.currentQuestionId ?? null)
     : null;
 
   return (
@@ -288,7 +302,9 @@ export function ManageQuizSessionsPage({
                 const sessionKey = `${
                   session.sessionId ?? session.pin ?? "session"
                 }-${session.status}-${createdAt ?? 0}`;
-                const sessionQuestions = session.currentQuestion ?? null;
+                const sessionQuestionPosition = resolveQuestionPosition(
+                  session.currentQuestionId ?? null,
+                );
                 const tone = getSessionStatusTone(session.status);
                 const sessionWrapperClasses = `${SESSION_CARD_WRAPPER_BASE_CLASSES} ${
                   isLive
@@ -322,9 +338,9 @@ export function ManageQuizSessionsPage({
                         </div>
 
                         <div className={SESSION_ACTIONS_COLUMN_CLASSES}>
-                          {sessionQuestions
+                          {sessionQuestionPosition !== null
                             ? t("admin.sessionCurrentQuestion", {
-                                index: sessionQuestions,
+                                index: sessionQuestionPosition,
                               })
                             : null}
                           <div className={SESSION_ACTIONS_ROW_CLASSES}>
@@ -402,14 +418,14 @@ export function ManageQuizSessionsPage({
                     <dd className={DETAIL_VALUE_CLASSES}>#{detailSessionId}</dd>
                   </div>
                 ) : null}
-                {detailQuestionIndex ? (
+                {detailQuestionPosition !== null ? (
                   <div>
                     <dt className={DETAIL_TERM_CLASSES}>
                       {t("admin.sessionDetailsFields.questionIndex")}
                     </dt>
                     <dd className={DETAIL_VALUE_CLASSES}>
                       {t("admin.sessionCurrentQuestion", {
-                        index: detailQuestionIndex,
+                        index: detailQuestionPosition,
                       })}
                     </dd>
                   </div>

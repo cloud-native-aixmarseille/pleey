@@ -6,7 +6,7 @@ import type { Question, Quiz } from "../../../../../domains/quiz/types";
 import type {
   CreateQuestionPayload,
   UpdateQuestionPayload,
-} from "../../../../../domains/quiz/quiz.service";
+} from "../../../../../domains/quiz/quiz.payloads";
 import {
   createDefaultQuestionFormState,
   createEmptyOptions,
@@ -36,7 +36,7 @@ interface ManageQuestionsPageProps {
   onDeleteQuestion: (questionId: number) => Promise<void>;
   onUpdateQuestion: (
     questionId: number,
-    payload: UpdateQuestionPayload
+    payload: UpdateQuestionPayload,
   ) => Promise<unknown>;
   onUpdateQuizTitle: (title: string) => Promise<unknown>;
 }
@@ -53,7 +53,7 @@ export default function ManageQuestionsPage({
   const { t } = useTranslation();
   const [mode, setMode] = useState<QuestionFormMode>("create");
   const [formState, setFormState] = useState<QuestionFormState>(
-    createDefaultQuestionFormState()
+    createDefaultQuestionFormState(),
   );
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
@@ -93,13 +93,13 @@ export default function ManageQuestionsPage({
   };
 
   const handleQuizTitleChange = (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setQuizTitleDraft(event.target.value);
   };
 
   const handleSubmitQuizTitle = async (
-    event: React.FormEvent<HTMLFormElement>
+    event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
     if (!quizTitleDraft.trim()) {
@@ -140,11 +140,11 @@ export default function ManageQuestionsPage({
   const handleFieldChange = useCallback(
     <K extends keyof QuestionFormState>(
       key: K,
-      value: QuestionFormState[K]
+      value: QuestionFormState[K],
     ) => {
       setFormState((previous) => ({ ...previous, [key]: value }));
     },
-    []
+    [],
   );
 
   const handleOptionChange = useCallback((key: OptionKey, value: string) => {
@@ -163,7 +163,7 @@ export default function ManageQuestionsPage({
           .split(",")
           .map((a) => a.trim() as OptionKey);
         const firstValidAnswer = currentAnswers.find((a) =>
-          validAnswers.includes(a)
+          validAnswers.includes(a),
         );
         const nextAnswer = firstValidAnswer || "A";
 

@@ -1,14 +1,19 @@
+import type { UserId } from '../../auth/entities/user.entity';
+import type { OrganizationId } from '../../organization/entities/organization';
+
+export type QuizId = number;
+
 /**
  * Quiz Domain Entity
  * Represents a quiz in the domain
  */
 export class Quiz {
   constructor(
-    public readonly id: number,
+    public readonly id: QuizId,
     public readonly title: string,
     public readonly description: string | null,
-    public readonly createdById: number,
-    public readonly organizationId: number,
+    public readonly createdById: UserId,
+    public readonly organizationId: OrganizationId,
     public readonly createdAt: Date,
     public readonly questionCount: number = 0,
   ) {}
@@ -23,7 +28,7 @@ export class Quiz {
   /**
    * Checks if the quiz belongs to a specific organization
    */
-  belongsToOrganization(organizationId: number): boolean {
+  belongsToOrganization(organizationId: OrganizationId): boolean {
     return this.organizationId === organizationId;
   }
 }

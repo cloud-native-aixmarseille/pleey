@@ -7,10 +7,10 @@ import { GetAllQuizzesUseCase } from '../../application/quiz/use-cases/get-all-q
 import { GetQuizQuestionsUseCase } from '../../application/quiz/use-cases/get-quiz-questions.use-case';
 import { UpdateQuestionUseCase } from '../../application/quiz/use-cases/update-question.use-case';
 import { UpdateQuizUseCase } from '../../application/quiz/use-cases/update-quiz.use-case';
-import { GameSessionRepositoryProvider } from '../../domain/game/repositories/game-session.repository.interface';
-import { OrganizationMemberRepositoryProvider } from '../../domain/organization/repositories/organization-member.repository.interface';
-import { QuestionRepositoryProvider } from '../../domain/quiz/repositories/question.repository.interface';
-import { QuizRepositoryProvider } from '../../domain/quiz/repositories/quiz.repository.interface';
+import { GameSessionRepositoryProvider } from '../../domain/game/ports/game-session.repository';
+import { OrganizationMemberRepositoryProvider } from '../../domain/organization/ports/organization-member.repository';
+import { QuestionRepositoryProvider } from '../../domain/quiz/ports/question.repository';
+import { QuizRepositoryProvider } from '../../domain/quiz/ports/quiz.repository';
 import { AuthModule } from '../auth/auth.module';
 import { DatabaseModule } from '../database/database.module';
 import { PrismaGameSessionRepository } from '../game/repositories/prisma-game-session.repository';
@@ -21,23 +21,19 @@ import { PrismaQuestionRepository } from './repositories/prisma-question.reposit
 import { PrismaQuizRepository } from './repositories/prisma-quiz.repository';
 
 @Module({
-  imports: [DatabaseModule, AuthModule],
+  imports: [AuthModule, DatabaseModule],
   controllers: [QuizController, QuestionsController],
   providers: [
-    CreateQuizUseCase,
-    CreateQuestionUseCase,
-    DeleteQuizUseCase,
-    DeleteQuestionUseCase,
-    GetAllQuizzesUseCase,
-    GetQuizQuestionsUseCase,
-    UpdateQuestionUseCase,
-    UpdateQuizUseCase,
+    // Repository implementations
+    PrismaQuizRepository,
     PrismaQuestionRepository,
     PrismaOrganizationMemberRepository,
     PrismaGameSessionRepository,
+
+    // Repository bindings
     {
       provide: QuizRepositoryProvider,
-      useClass: PrismaQuizRepository,
+      useExisting: PrismaQuizRepository,
     },
     {
       provide: QuestionRepositoryProvider,
@@ -51,6 +47,15 @@ import { PrismaQuizRepository } from './repositories/prisma-quiz.repository';
       provide: GameSessionRepositoryProvider,
       useExisting: PrismaGameSessionRepository,
     },
+
+    CreateQuizUseCase,
+    CreateQuestionUseCase,
+    DeleteQuizUseCase,
+    DeleteQuestionUseCase,
+    GetAllQuizzesUseCase,
+    GetQuizQuestionsUseCase,
+    UpdateQuestionUseCase,
+    UpdateQuizUseCase,
   ],
 })
 export class QuizModule {}

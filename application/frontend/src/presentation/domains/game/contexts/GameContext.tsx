@@ -23,7 +23,7 @@ interface GameContextValue {
   questionNumber: number;
   totalQuestions: number;
   timeLeft: number;
-  userAnswer: string | null;
+  userAnswer: number | null;
   answerResult: AnswerResult | null;
   showResult: boolean;
   leaderboard: LeaderboardEntry[];
@@ -33,7 +33,7 @@ interface GameContextValue {
   // Actions
   setGamePin: (pin: string) => void;
   setTimeLeft: (time: number) => void;
-  setUserAnswer: (answer: string | null) => void;
+  setUserAnswer: (answer: number | null) => void;
   launchQuiz: (
     token: string,
     quizId: number,
@@ -45,7 +45,7 @@ interface GameContextValue {
   submitAnswer: (
     pin: string,
     userId: number,
-    answer: string,
+    answerId: number,
     timeLeft: number
   ) => void;
   nextQuestion: (pin: string) => void;
@@ -60,7 +60,7 @@ const GameContext = createContext<GameContextValue | undefined>(undefined);
  */
 export function GameProvider({ children }: { children: ReactNode }) {
   const [gamePin, setGamePin] = useState("");
-  const [userAnswer, setUserAnswer] = useState<string | null>(null);
+  const [userAnswer, setUserAnswer] = useState<number | null>(null);
 
   const {
     players,
@@ -107,8 +107,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const submitAnswer = useCallback(
-    (pin: string, userId: number, answer: string, timeLeft: number) => {
-      container.submitAnswerUseCase.execute({ pin, userId, answer, timeLeft });
+    (pin: string, userId: number, answerId: number, timeLeft: number) => {
+      container.submitAnswerUseCase.execute({
+        pin,
+        userId,
+        answerId,
+        timeLeft,
+      });
     },
     []
   );

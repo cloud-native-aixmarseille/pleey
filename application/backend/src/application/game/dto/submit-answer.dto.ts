@@ -1,4 +1,8 @@
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import type { UserId } from '../../../domain/auth/entities/user.entity';
+import type { GameSessionPin } from '../../../domain/game/entities/game-session';
+import type { GuestId } from '../../../domain/game/entities/player-state';
+import type { QuestionAnswerId } from '../../../domain/quiz/entities/question-answer';
 
 /**
  * Submit Answer DTO
@@ -8,19 +12,19 @@ import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 export class SubmitAnswerDto {
   @IsString()
   @IsNotEmpty()
-  pin: string;
+  pin: GameSessionPin;
 
   @IsNumber()
   @IsOptional()
-  userId?: number;
+  userId?: UserId;
 
   @IsString()
   @IsOptional()
-  guestId?: string;
+  guestId?: GuestId;
 
-  @IsString()
+  @IsNumber()
   @IsNotEmpty()
-  answer: string;
+  answerId: QuestionAnswerId;
 
   @IsNumber()
   @IsNotEmpty()

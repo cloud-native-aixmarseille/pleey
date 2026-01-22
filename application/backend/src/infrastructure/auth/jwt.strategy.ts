@@ -1,13 +1,15 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import type { UserId } from '../../domain/auth/entities/user.entity';
+import type { AvatarUri } from '../../domain/auth/types/avatar-uri';
 import { getRequiredEnvOrFile } from '../shared/env-secret.util';
 
 interface JwtPayload {
-  id: number;
+  id: UserId;
   username: string;
   isAdmin: boolean;
-  avatarUrl: string | null;
+  avatarUri: AvatarUri | null;
 }
 
 /**

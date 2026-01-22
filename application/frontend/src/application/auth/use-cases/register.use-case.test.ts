@@ -1,20 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { RegisterUseCase } from "./register.use-case";
-import { IAuthRepository } from "../../../domains/auth/ports/auth.repository.interface";
+import type { AuthRepository } from "../../../domains/auth/ports/auth.repository";
+import { createAuthRepositoryMock } from "../../../test/mock-factories/auth-repository.mock-factory";
 
 describe("RegisterUseCase", () => {
   let registerUseCase: RegisterUseCase;
-  let mockAuthRepository: IAuthRepository;
+  let mockAuthRepository: AuthRepository;
 
   beforeEach(() => {
-    mockAuthRepository = {
-      login: vi.fn(),
-      register: vi.fn(),
-      getCurrentUser: vi.fn(),
-      updateProfile: vi.fn(),
-      regenerateAvatar: vi.fn(),
-      logout: vi.fn(),
-    };
+    mockAuthRepository = createAuthRepositoryMock();
 
     registerUseCase = new RegisterUseCase(mockAuthRepository);
   });

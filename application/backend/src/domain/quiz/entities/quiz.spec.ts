@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createQuizFixture } from '../../../test-utils/fixtures';
+import { createQuizFixture } from '../../../test-utils/fixtures/unit';
 
 describe('Quiz', () => {
   describe('constructor', () => {

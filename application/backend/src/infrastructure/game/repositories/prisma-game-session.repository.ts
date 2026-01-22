@@ -1,26 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma, type GameSession as PrismaGameSession } from '@prisma/client';
-import { GameSession } from '../../../domain/game/entities/game-session';
+import type { UserId } from '../../../domain/auth/entities/user.entity';
+import {
+  GameSession,
+  type GameSessionId,
+  type GameSessionPin,
+} from '../../../domain/game/entities/game-session';
+import { GameSessionStatus } from '../../../domain/game/enums/game-session-status.enum';
 import { PinAlreadyInUseError } from '../../../domain/game/errors/pin-already-in-use.error';
-import type { GameSessionRepository } from '../../../domain/game/repositories/game-session.repository.interface';
+import type { GameSessionRepository } from '../../../domain/game/ports/game-session.repository';
+import type { QuestionId } from '../../../domain/quiz/entities/question';
+import type { QuizId } from '../../../domain/quiz/entities/quiz';
 import { PrismaService } from '../../database/prisma.service';
 
 @Injectable()
 export class PrismaGameSessionRepository implements GameSessionRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(
-    quizId: number,
-    hostId: number,
-    organizationId: number,
-    pin: string,
-  ): Promise<GameSession> {
+  async create(quizId: QuizId, hostId: UserId, pin: GameSessionPin): Promise<GameSession> {
     try {
       const session = await this.prisma.gameSession.create({
         data: {
           quizId,
           hostId,
-          organizationId,
           pin,
         },
       });
@@ -41,7 +43,7 @@ export class PrismaGameSessionRepository implements GameSessionRepository {
     }
   }
 
-  async findByPin(pin: string): Promise<GameSession | null> {
+  async findByPin(pin: GameSessionPin): Promise<GameSession | null> {
     const session = await this.prisma.gameSession.findFirst({
       where: {
         pin,
@@ -49,9 +51,6 @@ export class PrismaGameSessionRepository implements GameSessionRepository {
         quiz: {
           deletedAt: null,
         },
-        organization: {
-          deletedAt: null,
-        },
       },
     });
 
@@ -60,7 +59,7 @@ export class PrismaGameSessionRepository implements GameSessionRepository {
     return this.toDomain(session);
   }
 
-  async findById(id: number): Promise<GameSession | null> {
+  async findById(id: GameSessionId): Promise<GameSession | null> {
     const session = await this.prisma.gameSession.findFirst({
       where: {
         id,
@@ -68,9 +67,6 @@ export class PrismaGameSessionRepository implements GameSessionRepository {
         quiz: {
           deletedAt: null,
         },
-        organization: {
-          deletedAt: null,
-        },
       },
     });
 
@@ -79,18 +75,15 @@ export class PrismaGameSessionRepository implements GameSessionRepository {
     return this.toDomain(session);
   }
 
-  async findActiveByHostId(hostId: number): Promise<GameSession[]> {
+  async findActiveByHostId(hostId: UserId): Promise<GameSession[]> {
     const sessions = await this.prisma.gameSession.findMany({
       where: {
         hostId,
         deletedAt: null,
         status: {
-          in: ['waiting', 'active', 'paused'],
+          in: [GameSessionStatus.WAITING, GameSessionStatus.ACTIVE, GameSessionStatus.PAUSED],
         },
         quiz: {
-          deletedAt: null,
-        },
-        organization: {
           deletedAt: null,
         },
       },
@@ -102,18 +95,15 @@ export class PrismaGameSessionRepository implements GameSessionRepository {
     return sessions.map((session: PrismaGameSession) => this.toDomain(session));
   }
 
-  async findActiveByQuizId(quizId: number): Promise<GameSession | null> {
+  async findActiveByQuizId(quizId: QuizId): Promise<GameSession | null> {
     const session = await this.prisma.gameSession.findFirst({
       where: {
         quizId,
         deletedAt: null,
         status: {
-          in: ['waiting', 'active', 'paused'],
+          in: [GameSessionStatus.WAITING, GameSessionStatus.ACTIVE, GameSessionStatus.PAUSED],
         },
         quiz: {
-          deletedAt: null,
-        },
-        organization: {
           deletedAt: null,
         },
       },
@@ -129,7 +119,7 @@ export class PrismaGameSessionRepository implements GameSessionRepository {
     return this.toDomain(session);
   }
 
-  async findByQuizId(quizId: number): Promise<GameSession[]> {
+  async findByQuizId(quizId: QuizId): Promise<GameSession[]> {
     const sessions = await this.prisma.gameSession.findMany({
       where: {
         quizId,
@@ -137,9 +127,6 @@ export class PrismaGameSessionRepository implements GameSessionRepository {
         quiz: {
           deletedAt: null,
         },
-        organization: {
-          deletedAt: null,
-        },
       },
       orderBy: {
         createdAt: 'desc',
@@ -149,27 +136,7 @@ export class PrismaGameSessionRepository implements GameSessionRepository {
     return sessions.map((session: PrismaGameSession) => this.toDomain(session));
   }
 
-  async findByOrganization(organizationId: number): Promise<GameSession[]> {
-    const sessions = await this.prisma.gameSession.findMany({
-      where: {
-        organizationId,
-        deletedAt: null,
-        quiz: {
-          deletedAt: null,
-        },
-        organization: {
-          deletedAt: null,
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
-
-    return sessions.map((session: PrismaGameSession) => this.toDomain(session));
-  }
-
-  async updateStatus(id: number, status: string): Promise<GameSession> {
+  async updateStatus(id: GameSessionId, status: GameSessionStatus): Promise<GameSession> {
     const session = await this.prisma.gameSession.update({
       where: { id },
       data: { status },
@@ -178,27 +145,27 @@ export class PrismaGameSessionRepository implements GameSessionRepository {
     return this.toDomain(session);
   }
 
-  async updateCurrentQuestion(id: number, questionNumber: number): Promise<GameSession> {
+  async updateCurrentQuestion(
+    id: GameSessionId,
+    questionId: QuestionId | null,
+  ): Promise<GameSession> {
     const session = await this.prisma.gameSession.update({
       where: { id },
-      data: { currentQuestion: questionNumber },
+      data: { currentQuestion: questionId ?? undefined },
     });
 
     return this.toDomain(session);
   }
 
-  async countActiveByQuizId(quizId: number): Promise<number> {
+  async countActiveByQuizId(quizId: QuizId): Promise<number> {
     return this.prisma.gameSession.count({
       where: {
         quizId,
         deletedAt: null,
         status: {
-          in: ['waiting', 'active', 'paused'],
+          in: [GameSessionStatus.WAITING, GameSessionStatus.ACTIVE, GameSessionStatus.PAUSED],
         },
         quiz: {
-          deletedAt: null,
-        },
-        organization: {
           deletedAt: null,
         },
       },
@@ -226,9 +193,8 @@ export class PrismaGameSessionRepository implements GameSessionRepository {
       session.id,
       session.quizId,
       session.hostId,
-      session.organizationId,
       session.pin,
-      session.status,
+      session.status as GameSessionStatus,
       session.currentQuestion,
       session.createdAt,
     );

@@ -244,7 +244,10 @@
       "quizTitleUpdated": "Quiz title updated successfully."
     },
     "errors": {
-      "quizHasActiveSession": "You can't delete this quiz while a game session is active."
+      "quizHasActiveSession": "You can't delete this quiz while a game session is active.",
+      "questionTextRequired": "Provide the question text before saving.",
+      "quizIdRequired": "Quiz ID is required.",
+      "quizTitleRequired": "Quiz title is required."
     },
     "saveChanges": "Save changes",
     "optionPlaceholder": "Enter option {{option}}",

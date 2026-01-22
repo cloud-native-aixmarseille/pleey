@@ -1,31 +1,32 @@
 import { describe, expect, it, vi } from 'vitest';
-
+import { QuestionType } from '../../../domain/quiz/entities/question';
+import { createGameSessionStateFixture } from '../../../test-utils/fixtures/unit';
+import {
+  createAnswerRevealSchedulerMock,
+  createEndGameUseCaseMock,
+  createGameBroadcastServiceMock,
+  createGameSessionRepositoryMock,
+  createGameSessionStateServiceMock,
+} from '../../../test-utils/mock-factories';
+import { GameBroadcastEventType } from '../ports';
 import { NextQuestionWsUseCase } from './next-question-ws.use-case';
 
 describe('NextQuestionWsUseCase', () => {
   it('ends the game when there are no more questions', async () => {
-    const state = {
+    const state = createGameSessionStateFixture({
       hasMoreQuestions: false,
-    };
-    const sessionStateRepository = {
-      getOrCreate: vi.fn().mockResolvedValue(state),
-      save: vi.fn().mockResolvedValue(undefined),
-    };
-    const gameSessionRepository = {
-      updateCurrentQuestion: vi.fn(),
-    };
-    const broadcastService = {
-      publish: vi.fn(),
-    };
-    const endGameUseCase = {
-      endGame: vi.fn().mockResolvedValue(undefined),
-    };
-    const scheduler = {
-      schedule: vi.fn(),
-    };
+    });
+    const gameSessionStateService = createGameSessionStateServiceMock({
+      getOrCreate: state as never,
+      update: undefined,
+    });
+    const gameSessionRepository = createGameSessionRepositoryMock();
+    const broadcastService = createGameBroadcastServiceMock();
+    const endGameUseCase = createEndGameUseCaseMock({ endGame: undefined });
+    const scheduler = createAnswerRevealSchedulerMock();
 
     const useCase = new NextQuestionWsUseCase(
-      sessionStateRepository as never,
+      gameSessionStateService as never,
       gameSessionRepository as never,
       broadcastService as never,
       endGameUseCase as never,
@@ -37,42 +38,39 @@ describe('NextQuestionWsUseCase', () => {
   });
 
   it('advances and broadcasts next question when available', async () => {
-    const state = {
+    const advanceToNextQuestion = vi.fn();
+    const state = createGameSessionStateFixture({
       hasMoreQuestions: true,
       sessionId: 1,
-      currentQuestionIndex: 0,
+      currentQuestionId: 55,
       currentQuestion: {
+        id: 55,
+        position: 1,
         questionText: 'Q',
-        correctAnswer: 'A',
+        answers: [{ id: 1, text: 'A', position: 0, isCorrect: true }],
         timeLimit: 10,
         points: 1000,
-        type: 'multiple',
+        type: QuestionType.MULTIPLE,
       },
-      advanceToNextQuestion: vi.fn(),
-    };
-
-    vi.mocked(state.advanceToNextQuestion).mockImplementation(() => {
-      state.currentQuestionIndex = 1;
+      advanceToNextQuestion,
     });
-    const sessionStateRepository = {
-      getOrCreate: vi.fn().mockResolvedValue(state),
-      save: vi.fn().mockResolvedValue(undefined),
-    };
-    const gameSessionRepository = {
-      updateCurrentQuestion: vi.fn().mockResolvedValue(undefined),
-    };
-    const broadcastService = {
-      publish: vi.fn(),
-    };
-    const endGameUseCase = {
-      endGame: vi.fn(),
-    };
-    const scheduler = {
-      schedule: vi.fn(),
-    };
+
+    vi.mocked(advanceToNextQuestion).mockImplementation(() => {
+      state.currentQuestionId = 55;
+    });
+    const gameSessionStateService = createGameSessionStateServiceMock({
+      getOrCreate: state as never,
+      update: undefined,
+    });
+    const gameSessionRepository = createGameSessionRepositoryMock({
+      updateCurrentQuestion: undefined,
+    });
+    const broadcastService = createGameBroadcastServiceMock();
+    const endGameUseCase = createEndGameUseCaseMock();
+    const scheduler = createAnswerRevealSchedulerMock();
 
     const useCase = new NextQuestionWsUseCase(
-      sessionStateRepository as never,
+      gameSessionStateService as never,
       gameSessionRepository as never,
       broadcastService as never,
       endGameUseCase as never,
@@ -80,10 +78,14 @@ describe('NextQuestionWsUseCase', () => {
     );
 
     await useCase.execute('123456');
-    expect(gameSessionRepository.updateCurrentQuestion).toHaveBeenCalledWith(1, 1);
+    expect(gameSessionRepository.updateCurrentQuestion).toHaveBeenCalledWith(1, 55);
     expect(scheduler.schedule).toHaveBeenCalledWith('123456', 10);
     expect(broadcastService.publish).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'next-question', pin: '123456', questionNumber: 2 }),
+      expect.objectContaining({
+        type: GameBroadcastEventType.NEXT_QUESTION,
+        pin: '123456',
+        question: state.currentQuestion,
+      }),
     );
   });
 });

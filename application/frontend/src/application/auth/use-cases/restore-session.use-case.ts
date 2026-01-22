@@ -1,8 +1,6 @@
-import { IStorage } from "../../../domains/shared/ports/storage.interface";
 import type { User } from "../../../domains/auth/types";
-
-const TOKEN_STORAGE_KEY = "quizmaster_token";
-const USER_STORAGE_KEY = "quizmaster_user";
+import { TOKEN_STORAGE_KEY, USER_STORAGE_KEY } from "../../../domains/shared/constants/storageKeys";
+import { Storage } from "../../../domains/shared/ports/storage";
 
 export interface RestoreSessionResponse {
   token: string;
@@ -15,7 +13,7 @@ export interface RestoreSessionResponse {
  * Following Clean Architecture and Single Responsibility Principle
  */
 export class RestoreSessionUseCase {
-  constructor(private readonly storage: IStorage) { }
+  constructor(private readonly storage: Storage) { }
 
   execute(): RestoreSessionResponse | null {
     const storedToken = this.storage.getItem(TOKEN_STORAGE_KEY);

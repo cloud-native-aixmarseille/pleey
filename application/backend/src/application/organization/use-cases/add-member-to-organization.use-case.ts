@@ -5,13 +5,15 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import type { UserId } from '../../../domain/auth/entities/user.entity';
+import type { OrganizationId } from '../../../domain/organization/entities/organization';
 import type { OrganizationMember } from '../../../domain/organization/entities/organization-member';
-import type { OrganizationRepository } from '../../../domain/organization/repositories/organization.repository.interface';
-import { OrganizationRepositoryProvider } from '../../../domain/organization/repositories/organization.repository.interface';
-import type { OrganizationMemberRepository } from '../../../domain/organization/repositories/organization-member.repository.interface';
-import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/repositories/organization-member.repository.interface';
+import { OrganizationErrorCode } from '../../../domain/organization/enums/organization-error-code.enum';
+import type { OrganizationRepository } from '../../../domain/organization/ports/organization.repository';
+import { OrganizationRepositoryProvider } from '../../../domain/organization/ports/organization.repository';
+import type { OrganizationMemberRepository } from '../../../domain/organization/ports/organization-member.repository';
+import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/ports/organization-member.repository';
 import type { AddMemberDto } from '../dto/add-member.dto';
-import { OrganizationErrorCode } from '../enums/organization-error-code.enum';
 
 /**
  * Use case for adding a member to an organization
@@ -27,9 +29,9 @@ export class AddMemberToOrganizationUseCase {
   ) {}
 
   async execute(
-    organizationId: number,
+    organizationId: OrganizationId,
     dto: AddMemberDto,
-    requestingUserId: number,
+    requestingUserId: UserId,
   ): Promise<OrganizationMember> {
     // Verify organization exists
     const organization = await this.organizationRepository.findById(organizationId);

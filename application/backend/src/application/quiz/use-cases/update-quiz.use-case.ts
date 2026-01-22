@@ -1,9 +1,9 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import type { Quiz } from '../../../domain/quiz/entities/quiz';
-import type { QuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
-import { QuizRepositoryProvider } from '../../../domain/quiz/repositories/quiz.repository.interface';
+import type { Quiz, QuizId } from '../../../domain/quiz/entities/quiz';
+import { QuizErrorCode } from '../../../domain/quiz/enums/quiz-error-code.enum';
+import type { QuizRepository } from '../../../domain/quiz/ports/quiz.repository';
+import { QuizRepositoryProvider } from '../../../domain/quiz/ports/quiz.repository';
 import type { UpdateQuizDto } from '../dto/update-quiz.dto';
-import { QuizErrorCode } from '../enums/quiz-error-code.enum';
 
 /**
  * Update Quiz Use Case
@@ -16,7 +16,7 @@ export class UpdateQuizUseCase {
     private readonly quizRepository: QuizRepository,
   ) {}
 
-  async execute(quizId: number, dto: UpdateQuizDto): Promise<Quiz> {
+  async execute(quizId: QuizId, dto: UpdateQuizDto): Promise<Quiz> {
     const quiz = await this.quizRepository.findById(quizId);
     if (!quiz) {
       throw new NotFoundException(QuizErrorCode.QUIZ_NOT_FOUND);

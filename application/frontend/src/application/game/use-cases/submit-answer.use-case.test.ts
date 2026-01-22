@@ -1,15 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { SubmitAnswerUseCase } from "./submit-answer.use-case";
-import { IGameSocket } from "../../../domains/game/ports/game-socket.interface";
+import type { GameSocket } from "../../../domains/game/ports/game-socket";
+import { createGameSocketMock } from "../../../test/mock-factories/game-socket.mock-factory";
 
 describe("SubmitAnswerUseCase", () => {
   let submitAnswerUseCase: SubmitAnswerUseCase;
-  let mockGameSocket: IGameSocket;
+  let mockGameSocket: GameSocket;
 
   beforeEach(() => {
-    mockGameSocket = {
-      publish: vi.fn(),
-    };
+    mockGameSocket = createGameSocketMock();
 
     submitAnswerUseCase = new SubmitAnswerUseCase(mockGameSocket);
   });
@@ -18,7 +17,7 @@ describe("SubmitAnswerUseCase", () => {
     submitAnswerUseCase.execute({
       pin: "123456",
       userId: 1,
-      answer: "A",
+      answerId: 10,
       timeLeft: 15,
     });
 
@@ -26,7 +25,7 @@ describe("SubmitAnswerUseCase", () => {
       type: "submit-answer",
       pin: "123456",
       userId: 1,
-      answer: "A",
+      answerId: 10,
       timeLeft: 15,
     });
   });
@@ -36,7 +35,7 @@ describe("SubmitAnswerUseCase", () => {
       submitAnswerUseCase.execute({
         pin: "123456",
         userId: 1,
-        answer: "",
+        answerId: Number.NaN,
         timeLeft: 15,
       }),
     ).toThrow("Answer is required");
@@ -49,7 +48,7 @@ describe("SubmitAnswerUseCase", () => {
       submitAnswerUseCase.execute({
         pin: "123456",
         userId: 1,
-        answer: "   ",
+        answerId: Number.NaN,
         timeLeft: 15,
       }),
     ).toThrow("Answer is required");

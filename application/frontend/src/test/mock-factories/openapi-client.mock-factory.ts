@@ -1,4 +1,4 @@
-import { fetchClient } from "../../infrastructure/http/api/openapiClient";
+import { fetchClient } from "../../infrastructure/shared/http/api/openapiClient";
 
 type FetchClient = typeof fetchClient;
 type MethodKey = keyof FetchClient;

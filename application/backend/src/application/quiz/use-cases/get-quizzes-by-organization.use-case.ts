@@ -1,10 +1,12 @@
 import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
-import type { OrganizationMemberRepository } from '../../../domain/organization/repositories/organization-member.repository.interface';
-import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/repositories/organization-member.repository.interface';
+import type { UserId } from '../../../domain/auth/entities/user.entity';
+import type { OrganizationId } from '../../../domain/organization/entities/organization';
+import { OrganizationErrorCode } from '../../../domain/organization/enums/organization-error-code.enum';
+import type { OrganizationMemberRepository } from '../../../domain/organization/ports/organization-member.repository';
+import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/ports/organization-member.repository';
 import type { Quiz } from '../../../domain/quiz/entities/quiz';
-import type { QuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
-import { QuizRepositoryProvider } from '../../../domain/quiz/repositories/quiz.repository.interface';
-import { OrganizationErrorCode } from '../../organization/enums/organization-error-code.enum';
+import type { QuizRepository } from '../../../domain/quiz/ports/quiz.repository';
+import { QuizRepositoryProvider } from '../../../domain/quiz/ports/quiz.repository';
 
 /**
  * Get Quizzes By Organization Use Case
@@ -19,7 +21,7 @@ export class GetQuizzesByOrganizationUseCase {
     private readonly memberRepository: OrganizationMemberRepository,
   ) {}
 
-  async execute(organizationId: number, userId: number): Promise<Quiz[]> {
+  async execute(organizationId: OrganizationId, userId: UserId): Promise<Quiz[]> {
     // Verify user is a member of the organization
     const membership = await this.memberRepository.findByOrganizationAndUser(
       organizationId,

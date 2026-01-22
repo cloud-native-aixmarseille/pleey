@@ -1,16 +1,37 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { Logger } from '@nestjs/common';
+import { Test, type TestingModule } from '@nestjs/testing';
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { NodeGameTimerService } from './node-game-timer.service';
 
 describe('NodeGameTimerService (integration)', () => {
+  let module: TestingModule;
+  let service: NodeGameTimerService;
+
+  beforeAll(async () => {
+    module = await Test.createTestingModule({
+      providers: [
+        {
+          provide: Logger,
+          useValue: new Logger(),
+        },
+        NodeGameTimerService,
+      ],
+    }).compile();
+    service = module.get(NodeGameTimerService);
+  });
+
   afterEach(() => {
     vi.useRealTimers();
+  });
+
+  afterAll(async () => {
+    await module.close();
   });
 
   it('fires the callback and clears timer state', async () => {
     vi.useFakeTimers();
 
-    const service = new NodeGameTimerService();
     const pin = `pin-${Date.now()}`;
 
     const callback = vi.fn(async () => {
@@ -29,7 +50,6 @@ describe('NodeGameTimerService (integration)', () => {
   it('can clear a timer before it fires', async () => {
     vi.useFakeTimers();
 
-    const service = new NodeGameTimerService();
     const pin = `pin-${Date.now()}`;
 
     const callback = vi.fn(async () => {

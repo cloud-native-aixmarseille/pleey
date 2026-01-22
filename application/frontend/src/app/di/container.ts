@@ -1,8 +1,9 @@
-import { AuthHttpRepository } from "../../domains/auth/infrastructure/auth-http.repository";
-import { GameSocketAdapter } from "../../domains/game/infrastructure/game-socket.adapter";
-import { GameHttpRepository } from "../../domains/game/infrastructure/game-http.repository";
-import { QuizHttpRepository } from "../../domains/quiz/infrastructure/quiz-http.repository";
-import { LocalStorageAdapter } from "../../infrastructure/storage/local-storage.adapter";
+import { AuthHttpRepository } from "../../infrastructure/auth/auth-http.repository";
+import { GameSocketAdapter } from "../../infrastructure/game/game-socket.adapter";
+import { GameHttpRepository } from "../../infrastructure/game/game-http.repository";
+import { OrganizationHttpRepository } from "../../infrastructure/organization/organization-http.repository";
+import { QuizHttpRepository } from "../../infrastructure/quiz/quiz-http.repository";
+import { LocalStorageAdapter } from "../../infrastructure/shared/storage/local-storage.adapter";
 
 import { GetProfileUseCase } from "../../application/auth/use-cases/get-profile.use-case";
 import { LoginUseCase } from "../../application/auth/use-cases/login.use-case";
@@ -18,13 +19,17 @@ import { AddQuestionUseCase } from "../../application/quiz/use-cases/add-questio
 import { CreateQuizUseCase } from "../../application/quiz/use-cases/create-quiz.use-case";
 import { GetQuestionsUseCase } from "../../application/quiz/use-cases/get-questions.use-case";
 import { GetQuizzesUseCase } from "../../application/quiz/use-cases/get-quizzes.use-case";
+import { GameService } from "../../domains/game/game.service";
 
 export class DependencyContainer {
   private readonly storage = new LocalStorageAdapter();
-  private readonly authRepository = new AuthHttpRepository();
-  private readonly quizRepository = new QuizHttpRepository();
-  private readonly gameRepository = new GameHttpRepository();
+  readonly authRepository = new AuthHttpRepository();
+  readonly organizationRepository = new OrganizationHttpRepository();
+  readonly quizRepository = new QuizHttpRepository();
+  readonly gameRepository = new GameHttpRepository();
   private readonly gameSocket = new GameSocketAdapter();
+
+  readonly gameService = new GameService(this.gameRepository, this.gameSocket);
 
   readonly loginUseCase = new LoginUseCase(this.authRepository, this.storage);
   readonly registerUseCase = new RegisterUseCase(this.authRepository);

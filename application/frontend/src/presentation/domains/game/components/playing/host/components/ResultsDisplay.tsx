@@ -6,11 +6,7 @@ import type { AnswerResult } from "../../../../../../../domains/game/types";
 import type { Question } from "../../../../../../../domains/quiz/types";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
-import {
-  ANSWER_OPTION_KEYS,
-  MIN_DISPLAY_PERCENTAGE,
-  AnswerOptionKey,
-} from "../constants";
+import { MIN_DISPLAY_PERCENTAGE } from "../constants";
 import type { ArcadeProgressTone } from "../../../../../../../presentation/shared/ui/components/ArcadeProgressBar";
 
 const RESULTS_WRAPPER_CLASSES =
@@ -62,7 +58,7 @@ interface ResultsDisplayProps {
   onNextQuestion: () => void;
 }
 
-type DistributionKey = AnswerOptionKey | "true" | "false";
+type DistributionKey = number;
 
 function getPercentage(answerResult: AnswerResult, option: DistributionKey) {
   const { statistics } = answerResult;
@@ -75,24 +71,6 @@ function getPercentage(answerResult: AnswerResult, option: DistributionKey) {
   return Math.round((count / statistics.totalAnswers) * 100);
 }
 
-function getMultipleChoiceText(
-  question: Question,
-  option: AnswerOptionKey
-): string {
-  switch (option) {
-    case "A":
-      return question.option_a ?? "";
-    case "B":
-      return question.option_b ?? "";
-    case "C":
-      return question.option_c ?? "";
-    case "D":
-      return question.option_d ?? "";
-    default:
-      return "";
-  }
-}
-
 export function ResultsDisplay({
   question,
   answerResult,
@@ -103,6 +81,14 @@ export function ResultsDisplay({
   const totalResponses = statistics?.totalAnswers ?? 0;
   const distribution: Partial<Record<DistributionKey, number>> =
     statistics?.answerDistribution ?? {};
+  const sortedAnswers = question.answers
+    .slice()
+    .sort((left, right) => left.position - right.position);
+  const correctAnswerLabel = getCorrectAnswerLabel(
+    question,
+    answerResult.correctAnswerIds,
+    t
+  );
 
   return (
     <div className={RESULTS_WRAPPER_CLASSES}>
@@ -118,7 +104,7 @@ export function ResultsDisplay({
             <p className={CORRECT_ANSWER_TEXT_CLASSES}>
               {t("game.hostPlaying.results.correctAnswerLabel")}{" "}
               <span className={CORRECT_ANSWER_VALUE_CLASSES}>
-                {answerResult.correctAnswer}
+                {correctAnswerLabel}
               </span>
             </p>
           </div>
@@ -131,142 +117,77 @@ export function ResultsDisplay({
             </h4>
 
             <div className={RESPONSE_LIST_CLASSES}>
-              {question.type === "multiple"
-                ? ANSWER_OPTION_KEYS.map((optionKey, index) => {
-                    const optionText = getMultipleChoiceText(
-                      question,
-                      optionKey
-                    );
-                    const percentage = getPercentage(answerResult, optionKey);
-                    const count = distribution[optionKey] || 0;
-                    const isCorrect = optionKey === answerResult.correctAnswer;
-                    const fallbackLabel = t(
-                      "game.hostPlaying.results.fallbackOption",
-                      {
-                        letter: optionKey,
-                      }
-                    );
-                    const optionLabel = optionText
-                      ? t("game.hostPlaying.results.optionLabel", {
-                          letter: optionKey,
-                          text: optionText,
-                        })
-                      : fallbackLabel;
-                    const ariaLabel = buildProgressAriaLabel({
-                      label: optionLabel,
-                      percentage,
-                      count,
-                      total: totalResponses,
-                      isCorrect,
-                      t,
-                    });
-                    const tone = resolveProgressTone(isCorrect);
+              {sortedAnswers.map((answer, index) => {
+                const percentage = getPercentage(answerResult, answer.id);
+                const count = distribution[answer.id] || 0;
+                const isCorrect = answerResult.correctAnswerIds.includes(
+                  answer.id
+                );
+                const { label, icon, displayText, ariaLabelText } =
+                  buildAnswerDisplay(question, answer, t);
+                const ariaLabel = buildProgressAriaLabel({
+                  label: ariaLabelText,
+                  percentage,
+                  count,
+                  total: totalResponses,
+                  isCorrect,
+                  t,
+                });
+                const tone = resolveProgressTone(isCorrect);
 
-                    return (
-                      <div key={optionKey} className={RESPONSE_ROW_CLASSES}>
-                        <div className={RESPONSE_HEADER_CLASSES}>
-                          <span className={RESPONSE_LABEL_GROUP_CLASSES}>
-                            <span className={RESPONSE_OPTION_INDEX_CLASSES}>
-                              {optionKey}.
-                            </span>
-                            <span>{optionText || fallbackLabel}</span>
-                            {isCorrect && (
-                              <span
-                                className={RESPONSE_CORRECT_ICON_CLASSES}
-                                aria-hidden
-                              >
-                                ✓
-                              </span>
-                            )}
+                return (
+                  <div key={answer.id} className={RESPONSE_ROW_CLASSES}>
+                    <div className={RESPONSE_HEADER_CLASSES}>
+                      <span
+                        className={
+                          question.type === "multiple"
+                            ? RESPONSE_LABEL_GROUP_CLASSES
+                            : TRUE_FALSE_LABEL_CLASSES
+                        }
+                      >
+                        {label && (
+                          <span className={RESPONSE_OPTION_INDEX_CLASSES}>
+                            {label}.
                           </span>
-                          <span className={RESPONSE_PERCENTAGE_CLASSES}>
-                            {t("game.hostPlaying.results.percentage", {
-                              percentage,
-                            })}
+                        )}
+                        {icon && <span>{icon}</span>}
+                        <span>{displayText}</span>
+                        {isCorrect && (
+                          <span
+                            className={RESPONSE_CORRECT_ICON_CLASSES}
+                            aria-hidden
+                          >
+                            ✓
                           </span>
-                        </div>
-                        <ArcadeProgressBar
-                          value={percentage}
-                          max={100}
-                          tone={tone}
-                          animationDelay={`${index * 0.1}s`}
-                          ariaLabel={ariaLabel}
-                          trackVariant="results"
-                          fillPadding="results"
-                          size="lg"
-                        >
-                          {percentage > MIN_DISPLAY_PERCENTAGE && (
-                            <span className={PROGRESS_VALUE_TEXT_CLASSES}>
-                              {t("game.hostPlaying.results.playerCount", {
-                                count,
-                              })}
-                            </span>
-                          )}
-                        </ArcadeProgressBar>
-                      </div>
-                    );
-                  })
-                : (["true", "false"] as const).map((optionKey, index) => {
-                    const label =
-                      optionKey === "true"
-                        ? t("game.playing.trueFalse.trueWord")
-                        : t("game.playing.trueFalse.falseWord");
-                    const icon = optionKey === "true" ? "✓" : "✗";
-                    const percentage = getPercentage(answerResult, optionKey);
-                    const count = distribution[optionKey] || 0;
-                    const isCorrect = optionKey === answerResult.correctAnswer;
-                    const ariaLabel = buildProgressAriaLabel({
-                      label,
-                      percentage,
-                      count,
-                      total: totalResponses,
-                      isCorrect,
-                      t,
-                    });
-                    const tone = resolveProgressTone(isCorrect);
-
-                    return (
-                      <div key={optionKey} className={RESPONSE_ROW_CLASSES}>
-                        <div className={RESPONSE_HEADER_CLASSES}>
-                          <span className={TRUE_FALSE_LABEL_CLASSES}>
-                            <span>{icon}</span>
-                            <span>{label}</span>
-                            {isCorrect && (
-                              <span
-                                className={RESPONSE_CORRECT_ICON_CLASSES}
-                                aria-hidden
-                              >
-                                ✓
-                              </span>
-                            )}
-                          </span>
-                          <span className={RESPONSE_PERCENTAGE_CLASSES}>
-                            {t("game.hostPlaying.results.percentage", {
-                              percentage,
-                            })}
-                          </span>
-                        </div>
-                        <ArcadeProgressBar
-                          value={percentage}
-                          max={100}
-                          tone={tone}
-                          animationDelay={`${index * 0.1}s`}
-                          ariaLabel={ariaLabel}
-                          trackVariant="results"
-                          fillPadding="results"
-                          size="lg"
-                        >
-                          {percentage > MIN_DISPLAY_PERCENTAGE && (
-                            <span className={PROGRESS_VALUE_TEXT_CLASSES}>
-                              {t("game.hostPlaying.results.playerCount", {
-                                count,
-                              })}
-                            </span>
-                          )}
-                        </ArcadeProgressBar>
-                      </div>
-                    );
-                  })}
+                        )}
+                      </span>
+                      <span className={RESPONSE_PERCENTAGE_CLASSES}>
+                        {t("game.hostPlaying.results.percentage", {
+                          percentage,
+                        })}
+                      </span>
+                    </div>
+                    <ArcadeProgressBar
+                      value={percentage}
+                      max={100}
+                      tone={tone}
+                      animationDelay={`${index * 0.1}s`}
+                      ariaLabel={ariaLabel}
+                      trackVariant="results"
+                      fillPadding="results"
+                      size="lg"
+                    >
+                      {percentage > MIN_DISPLAY_PERCENTAGE && (
+                        <span className={PROGRESS_VALUE_TEXT_CLASSES}>
+                          {t("game.hostPlaying.results.playerCount", {
+                            count,
+                          })}
+                        </span>
+                      )}
+                    </ArcadeProgressBar>
+                  </div>
+                );
+              })}
             </div>
 
             <div className={TOTAL_WRAPPER_CLASSES}>
@@ -333,4 +254,78 @@ function buildProgressAriaLabel({
   }
 
   return segments.join(", ");
+}
+
+const MULTIPLE_CHOICE_LABELS = ["A", "B", "C", "D"];
+
+function getCorrectAnswerLabel(
+  question: Question,
+  correctAnswerIds: number[],
+  t: TFunction
+) {
+  if (correctAnswerIds.length === 0) {
+    return "";
+  }
+
+  const labels = correctAnswerIds
+    .map((answerId) =>
+      question.answers.find((candidate) => candidate.id === answerId)
+    )
+    .filter((answer): answer is NonNullable<typeof answer> => Boolean(answer))
+    .map((answer) => {
+      if (answer.text && answer.text.trim()) {
+        return answer.text;
+      }
+
+      if (question.type === "truefalse") {
+        return answer.position === 1
+          ? t("game.playing.trueFalse.falseWord")
+          : t("game.playing.trueFalse.trueWord");
+      }
+
+      return (
+        MULTIPLE_CHOICE_LABELS[answer.position] ?? `${answer.position + 1}`
+      );
+    });
+
+  return labels.join(", ");
+}
+
+function buildAnswerDisplay(
+  question: Question,
+  answer: Question["answers"][number],
+  t: TFunction
+) {
+  if (question.type === "truefalse") {
+    const isFalse = answer.position === 1;
+    const label = isFalse
+      ? t("game.playing.trueFalse.falseWord")
+      : t("game.playing.trueFalse.trueWord");
+    return {
+      label: "",
+      icon: isFalse ? "✗" : "✓",
+      displayText: label,
+      ariaLabelText: label,
+    };
+  }
+
+  const letter =
+    MULTIPLE_CHOICE_LABELS[answer.position] ?? `${answer.position + 1}`;
+  const fallbackLabel = t("game.hostPlaying.results.fallbackOption", {
+    letter,
+  });
+  const displayText = answer.text?.trim() ? answer.text : fallbackLabel;
+  const ariaLabelText = answer.text?.trim()
+    ? t("game.hostPlaying.results.optionLabel", {
+        letter,
+        text: answer.text,
+      })
+    : fallbackLabel;
+
+  return {
+    label: letter,
+    icon: "",
+    displayText,
+    ariaLabelText,
+  };
 }

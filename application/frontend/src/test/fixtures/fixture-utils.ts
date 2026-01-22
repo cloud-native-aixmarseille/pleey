@@ -1,4 +1,4 @@
-export const withDefaults = <T extends Record<string, unknown>>(
+export const withDefaults = <T extends object>(
   defaults: T,
   overrides: Partial<T> = {},
 ): T => {

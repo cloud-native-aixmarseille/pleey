@@ -1,8 +1,9 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { describe, expect, it } from 'vitest';
-import { createQuestionFixture } from '../../../test-utils/fixtures';
+import { QuestionType } from '../../../domain/quiz/entities/question';
+import { QuizErrorCode } from '../../../domain/quiz/enums/quiz-error-code.enum';
+import { createQuestionFixture } from '../../../test-utils/fixtures/unit';
 import { createQuestionRepositoryMock } from '../../../test-utils/mock-factories';
-import { QuizErrorCode } from '../enums/quiz-error-code.enum';
 import { UpdateQuestionUseCase } from './update-question.use-case';
 
 describe('UpdateQuestionUseCase', () => {
@@ -20,9 +21,10 @@ describe('UpdateQuestionUseCase', () => {
       questionText: 'Updated',
     });
 
-    expect(questionRepository.update).toHaveBeenCalledWith(existing.id, {
-      questionText: 'Updated',
-    });
+    expect(questionRepository.update).toHaveBeenCalledWith(
+      existing.id,
+      expect.objectContaining({ questionText: 'Updated' }),
+    );
     expect(result.questionText).toBe('Updated');
   });
 
@@ -41,27 +43,29 @@ describe('UpdateQuestionUseCase', () => {
     );
   });
 
-  it('should throw when updating with duplicate correct answers', async () => {
+  it('should throw when no correct answer is provided', async () => {
     const existing = createQuestionFixture({
-      type: 'multiple',
-      correctAnswer: 'A',
-      optionA: 'Option A',
-      optionB: 'Option B',
-      optionC: 'Option C',
-      optionD: 'Option D',
+      type: QuestionType.MULTIPLE,
     });
 
     const questionRepository = createQuestionRepositoryMock({ findById: existing });
     const useCase = new UpdateQuestionUseCase(questionRepository as never);
 
-    await useCase.execute(existing.id, { correctAnswer: 'A,A,D' }).then(
-      () => {
-        throw new Error('Expected BadRequestException to be thrown');
-      },
-      (error) => {
-        expect(error).toBeInstanceOf(BadRequestException);
-        expect(error.message).toBe(QuizErrorCode.INVALID_CORRECT_ANSWER);
-      },
-    );
+    await useCase
+      .execute(existing.id, {
+        answers: [
+          { text: 'Option A', position: 0, isCorrect: false },
+          { text: 'Option B', position: 1, isCorrect: false },
+        ],
+      })
+      .then(
+        () => {
+          throw new Error('Expected BadRequestException to be thrown');
+        },
+        (error) => {
+          expect(error).toBeInstanceOf(BadRequestException);
+          expect(error.message).toBe(QuizErrorCode.INVALID_CORRECT_ANSWER);
+        },
+      );
   });
 });

@@ -1,5 +1,11 @@
-import { GameErrorCode } from '../../../application/game/enums/game-error-code.enum';
+import type { UserId } from '../../auth/entities/user.entity';
+import type { QuestionId } from '../../quiz/entities/question';
+import type { QuizId } from '../../quiz/entities/quiz';
+import { GameErrorCode } from '../enums/game-error-code.enum';
 import { GameSessionStatus } from '../enums/game-session-status.enum';
+
+export type GameSessionId = number;
+export type GameSessionPin = string;
 
 /**
  * GameSession Domain Entity
@@ -7,13 +13,12 @@ import { GameSessionStatus } from '../enums/game-session-status.enum';
  */
 export class GameSession {
   constructor(
-    public readonly id: number,
-    public readonly quizId: number,
-    public readonly hostId: number,
-    public readonly organizationId: number,
-    public readonly pin: string,
-    public status: string,
-    public currentQuestion: number,
+    public readonly id: GameSessionId,
+    public readonly quizId: QuizId,
+    public readonly hostId: UserId,
+    public readonly pin: GameSessionPin,
+    public status: GameSessionStatus,
+    public currentQuestionId: QuestionId | null,
     public readonly createdAt: Date,
   ) {}
 
@@ -22,7 +27,7 @@ export class GameSession {
    */
   start(): void {
     if (this.status !== GameSessionStatus.WAITING) {
-      throw new Error('Game can only be started from waiting status');
+      throw new Error(GameErrorCode.CAN_ONLY_START_WAITING_GAME);
     }
     this.status = GameSessionStatus.ACTIVE;
   }
@@ -57,11 +62,11 @@ export class GameSession {
   /**
    * Moves to next question
    */
-  nextQuestion(): void {
+  nextQuestion(nextQuestionId: QuestionId): void {
     if (this.status !== GameSessionStatus.ACTIVE) {
-      throw new Error('Can only move to next question in active game');
+      throw new Error(GameErrorCode.CAN_ONLY_MOVE_TO_NEXT_QUESTION_ACTIVE_GAME);
     }
-    this.currentQuestion++;
+    this.currentQuestionId = nextQuestionId;
   }
 
   /**
@@ -83,12 +88,5 @@ export class GameSession {
    */
   isPaused(): boolean {
     return this.status === GameSessionStatus.PAUSED;
-  }
-
-  /**
-   * Checks if the session belongs to a specific organization
-   */
-  belongsToOrganization(organizationId: number): boolean {
-    return this.organizationId === organizationId;
   }
 }

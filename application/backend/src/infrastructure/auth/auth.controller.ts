@@ -8,8 +8,8 @@ import { LoginUserUseCase } from '../../application/auth/use-cases/login-user.us
 import { LogoutUserUseCase } from '../../application/auth/use-cases/logout-user.use-case';
 import { RefreshAccessTokenUseCase } from '../../application/auth/use-cases/refresh-access-token.use-case';
 import { RegisterUserUseCase } from '../../application/auth/use-cases/register-user.use-case';
-import { mapUserToPublicProfile } from '../../application/shared/utils/avatar-url.util';
-import type { User } from '../../domain/auth/entities/user.entity';
+import { mapUserToPublicProfile } from '../../application/shared/utils/avatar-uri.util';
+import type { User, UserId } from '../../domain/auth/entities/user.entity';
 import { JwtAuthGuard } from './jwt-auth.guard';
 
 type SafeUser = Omit<User, 'password' | 'refreshTokenHash' | 'refreshTokenExpiresAt'>;
@@ -48,7 +48,7 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthGuard)
   async logout(@Req() request: Request): Promise<void> {
-    const user = request.user as { id: number } | undefined;
+    const user = request.user as { id: UserId } | undefined;
     if (user?.id) {
       await this.logoutUserUseCase.execute(user.id);
     }

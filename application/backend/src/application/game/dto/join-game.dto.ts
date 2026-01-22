@@ -1,4 +1,7 @@
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import type { UserId } from '../../../domain/auth/entities/user.entity';
+import type { GameSessionPin } from '../../../domain/game/entities/game-session';
+import type { GuestId } from '../../../domain/game/entities/player-state';
 
 /**
  * Join Game DTO
@@ -8,7 +11,7 @@ import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 export class JoinGameDto {
   @IsString()
   @IsNotEmpty()
-  pin: string;
+  pin: GameSessionPin;
 
   @IsString()
   @IsNotEmpty()
@@ -16,9 +19,9 @@ export class JoinGameDto {
 
   @IsNumber()
   @IsOptional()
-  userId?: number;
+  userId?: UserId;
 
   @IsString()
   @IsOptional()
-  guestId?: string;
+  guestId?: GuestId;
 }

@@ -1,16 +1,18 @@
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import { GameSessionStatus } from '../../../domain/game/enums/game-session-status.enum';
+import { OrganizationErrorCode } from '../../../domain/organization/enums/organization-error-code.enum';
 import {
   createGameSessionRepositoryMock,
   createOrganizationMemberRepositoryMock,
+  createOrganizationRepositoryMock,
   createQuizRepositoryMock,
 } from '../../../test-utils/mock-factories';
-import { OrganizationErrorCode } from '../enums/organization-error-code.enum';
 import { GetOrganizationDashboardUseCase } from './get-organization-dashboard.use-case';
 
 describe('GetOrganizationDashboardUseCase', () => {
   it('throws when organization does not exist', async () => {
-    const organizationRepository = { findById: vi.fn().mockResolvedValue(null) };
+    const organizationRepository = createOrganizationRepositoryMock({ findById: null });
     const memberRepository = createOrganizationMemberRepositoryMock();
     const quizRepository = createQuizRepositoryMock();
     const sessionRepository = createGameSessionRepositoryMock();
@@ -29,9 +31,9 @@ describe('GetOrganizationDashboardUseCase', () => {
   });
 
   it('throws when user is not a member', async () => {
-    const organizationRepository = {
-      findById: vi.fn().mockResolvedValue({ id: 1, name: 'Org', description: null }),
-    };
+    const organizationRepository = createOrganizationRepositoryMock({
+      findById: { id: 1, name: 'Org', description: null } as never,
+    });
     const memberRepository = createOrganizationMemberRepositoryMock({
       findByOrganizationAndUser: null,
     });
@@ -50,9 +52,9 @@ describe('GetOrganizationDashboardUseCase', () => {
   });
 
   it('returns aggregated stats', async () => {
-    const organizationRepository = {
-      findById: vi.fn().mockResolvedValue({ id: 1, name: 'Org', description: null }),
-    };
+    const organizationRepository = createOrganizationRepositoryMock({
+      findById: { id: 1, name: 'Org', description: null } as never,
+    });
     const memberRepository = createOrganizationMemberRepositoryMock({
       findByOrganizationAndUser: {} as never,
       findByOrganization: [{ id: 1 }, { id: 2 }] as never,
@@ -63,7 +65,10 @@ describe('GetOrganizationDashboardUseCase', () => {
     });
 
     const sessionRepository = createGameSessionRepositoryMock({
-      findByOrganization: [{ status: 'waiting' }, { status: 'ended' }] as never,
+      findByQuizId: [
+        { status: GameSessionStatus.WAITING },
+        { status: GameSessionStatus.ENDED },
+      ] as never,
     });
 
     const useCase = new GetOrganizationDashboardUseCase(

@@ -125,18 +125,22 @@ async function main() {
     {
       questionText: 'What is the capital of France?',
       type: 'multiple',
-      correctAnswer: 'A',
-      optionA: 'Paris',
-      optionB: 'Berlin',
-      optionC: 'Madrid',
-      optionD: 'Rome',
+      answers: [
+        { text: 'Paris', position: 0, isCorrect: true },
+        { text: 'Berlin', position: 1, isCorrect: false },
+        { text: 'Madrid', position: 2, isCorrect: false },
+        { text: 'Rome', position: 3, isCorrect: false },
+      ],
       timeLimit: 20,
       points: 1000,
     },
     {
       questionText: 'The earth is flat.',
       type: 'truefalse',
-      correctAnswer: 'false',
+      answers: [
+        { text: null, position: 0, isCorrect: false },
+        { text: null, position: 1, isCorrect: true },
+      ],
       timeLimit: 10,
       points: 500,
     },
@@ -148,19 +152,24 @@ async function main() {
     });
 
     if (!existing) {
-      await prisma.question.create({
+      const createdQuestion = await prisma.question.create({
         data: {
           quizId: quiz.id,
+          position: questionsData.findIndex((item) => item.questionText === q.questionText),
           questionText: q.questionText,
           type: q.type,
-          correctAnswer: q.correctAnswer,
-          optionA: q.optionA,
-          optionB: q.optionB,
-          optionC: q.optionC,
-          optionD: q.optionD,
           timeLimit: q.timeLimit,
           points: q.points,
         },
+      });
+
+      await prisma.questionAnswer.createMany({
+        data: q.answers.map((answer) => ({
+          questionId: createdQuestion.id,
+          text: answer.text,
+          position: answer.position,
+          isCorrect: answer.isCorrect,
+        })),
       });
     }
   }
@@ -178,12 +187,10 @@ async function main() {
       status: 'waiting',
       quiz: { connect: { id: quiz.id } },
       host: { connect: { id: admin.id } },
-      organization: { connect: { id: organization.id } },
     },
     create: {
       quiz: { connect: { id: quiz.id } },
       host: { connect: { id: admin.id } },
-      organization: { connect: { id: organization.id } },
       pin: sessionPin,
       status: 'waiting',
     },

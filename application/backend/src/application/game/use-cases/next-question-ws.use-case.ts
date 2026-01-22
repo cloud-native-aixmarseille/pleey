@@ -1,21 +1,22 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { GameSessionPin } from '../../../domain/game/entities/game-session';
 import {
   type GameSessionRepository,
   GameSessionRepositoryProvider,
-} from '../../../domain/game/repositories/game-session.repository.interface';
+} from '../../../domain/game/ports/game-session.repository';
+import { AnswerRevealSchedulerService } from '../../../domain/game/services/answer-reveal-scheduler.service';
+import { GameSessionStateService } from '../../../domain/game/services/game-session-state.service';
 import {
-  type SessionStateRepository,
-  SessionStateRepositoryProvider,
-} from '../../../domain/game/repositories/session-state.repository.interface';
-import { type GameBroadcastService, GameBroadcastServiceProvider } from '../ports';
-import { AnswerRevealSchedulerService } from '../services/answer-reveal-scheduler.service';
+  GameBroadcastEventType,
+  type GameBroadcastService,
+  GameBroadcastServiceProvider,
+} from '../ports';
 import { EndGameUseCase } from './end-game.use-case';
 
 @Injectable()
 export class NextQuestionWsUseCase {
   constructor(
-    @Inject(SessionStateRepositoryProvider)
-    private readonly sessionStateRepository: SessionStateRepository,
+    private readonly gameSessionStateService: GameSessionStateService,
     @Inject(GameSessionRepositoryProvider)
     private readonly gameSessionRepository: GameSessionRepository,
     @Inject(GameBroadcastServiceProvider)
@@ -24,8 +25,8 @@ export class NextQuestionWsUseCase {
     private readonly answerRevealScheduler: AnswerRevealSchedulerService,
   ) {}
 
-  async execute(pin: string): Promise<void> {
-    const state = await this.sessionStateRepository.getOrCreate(pin);
+  async execute(pin: GameSessionPin): Promise<void> {
+    const state = await this.gameSessionStateService.getOrCreate(pin);
 
     if (!state.hasMoreQuestions) {
       await this.endGameUseCase.endGame(pin, state);
@@ -33,24 +34,19 @@ export class NextQuestionWsUseCase {
     }
 
     state.advanceToNextQuestion();
-    await this.sessionStateRepository.save(pin, state);
-    await this.gameSessionRepository.updateCurrentQuestion(
-      state.sessionId,
-      state.currentQuestionIndex,
-    );
-
+    await this.gameSessionStateService.update(pin, state);
     const nextQuestion = state.currentQuestion;
     if (!nextQuestion) {
       await this.endGameUseCase.endGame(pin, state);
       return;
     }
+    await this.gameSessionRepository.updateCurrentQuestion(state.sessionId, nextQuestion.id);
     this.answerRevealScheduler.schedule(pin, nextQuestion.timeLimit);
 
     this.broadcastService.publish({
-      type: 'next-question',
+      type: GameBroadcastEventType.NEXT_QUESTION,
       pin,
       question: nextQuestion,
-      questionNumber: state.currentQuestionIndex + 1,
     });
   }
 }

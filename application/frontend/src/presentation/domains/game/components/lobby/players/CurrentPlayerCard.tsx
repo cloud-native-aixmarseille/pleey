@@ -5,7 +5,7 @@ import {
   Card,
 } from "../../../../../../presentation/shared/ui/components";
 import type { Player } from "../../../../../../domains/game/types";
-import { resolveAvatarUrl } from "../../../../../../presentation/shared/utils/resolveAvatarUrl";
+import { resolveAvatarUri } from "../../../../../../presentation/shared/utils/resolveAvatarUri";
 
 interface CurrentPlayerCardProps {
   readonly player: Player;
@@ -30,9 +30,9 @@ export default function CurrentPlayerCard({ player }: CurrentPlayerCardProps) {
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="flex justify-center text-3xl sm:text-4xl">
-              {resolveAvatarUrl(player.avatar) ? (
+              {resolveAvatarUri(player.avatar) ? (
                 <img
-                  src={resolveAvatarUrl(player.avatar) as string}
+                  src={resolveAvatarUri(player.avatar) as string}
                   alt={`Avatar for ${player.username}`}
                   className="h-14 w-14 rounded-full border-2 border-accent-400/50 object-cover sm:h-16 sm:w-16"
                   referrerPolicy="no-referrer"

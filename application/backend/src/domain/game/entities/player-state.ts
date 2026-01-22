@@ -1,27 +1,42 @@
-export interface PlayerStateProps {
+import type { UserId } from '../../auth/entities/user.entity';
+import { GameErrorCode } from '../enums/game-error-code.enum';
+
+export type GuestId = string;
+
+type PlayerIdentityProps =
+  | {
+      userId: UserId;
+      guestId?: never;
+    }
+  | {
+      userId?: never;
+      guestId: GuestId;
+    };
+
+export type PlayerStateProps = PlayerIdentityProps & {
   socketId: string;
-  userId?: number;
-  guestId?: string;
   username: string;
   avatarSeed: string;
-  isGuest: boolean;
-}
+};
 
 export class PlayerState {
   readonly socketId: string;
-  readonly userId?: number;
-  readonly guestId?: string;
+  readonly userId?: UserId;
+  readonly guestId?: GuestId;
   readonly username: string;
   readonly avatarSeed: string;
-  readonly isGuest: boolean;
 
   private constructor(props: PlayerStateProps) {
+    const hasUserId = props.userId !== undefined;
+    const hasGuestId = props.guestId !== undefined;
+    if (hasUserId === hasGuestId) {
+      throw new Error(GameErrorCode.PLAYER_IDENTITY_REQUIRED);
+    }
     this.socketId = props.socketId;
     this.userId = props.userId;
     this.guestId = props.guestId;
     this.username = props.username;
     this.avatarSeed = props.avatarSeed;
-    this.isGuest = props.isGuest;
   }
 
   static create(props: PlayerStateProps): PlayerState {
@@ -30,7 +45,7 @@ export class PlayerState {
 
   static createAuthenticated(
     socketId: string,
-    userId: number,
+    userId: UserId,
     username: string,
     avatarSeed: string,
   ): PlayerState {
@@ -39,13 +54,12 @@ export class PlayerState {
       userId,
       username,
       avatarSeed,
-      isGuest: false,
     });
   }
 
   static createGuest(
     socketId: string,
-    guestId: string,
+    guestId: GuestId,
     username: string,
     avatarSeed: string,
   ): PlayerState {
@@ -54,7 +68,6 @@ export class PlayerState {
       guestId,
       username,
       avatarSeed,
-      isGuest: true,
     });
   }
 
@@ -65,14 +78,14 @@ export class PlayerState {
     if (this.guestId) {
       return `guest-${this.guestId}`;
     }
-    throw new Error('Player must have either userId or guestId');
+    throw new Error(GameErrorCode.PLAYER_IDENTITY_REQUIRED);
   }
 
-  matchesUserId(userId: number): boolean {
+  matchesUserId(userId: UserId): boolean {
     return this.userId === userId;
   }
 
-  matchesGuestId(guestId: string): boolean {
+  matchesGuestId(guestId: GuestId): boolean {
     return this.guestId === guestId;
   }
 }

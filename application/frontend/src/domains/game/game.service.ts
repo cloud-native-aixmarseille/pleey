@@ -1,113 +1,39 @@
-import { API_URL } from "../../app/config/api.config";
-import { GameSocketAdapter } from "./infrastructure/game-socket.adapter";
+import type { GameRepository } from "./ports/game.repository";
+import type { GameSocket } from "./ports/game-socket";
 import type { GameSession } from "./types";
 
-interface CreateSessionResponse {
-  pin: string;
-  sessionId: number;
-  quizId: number;
-  hostId: number;
-  status: string;
-  currentQuestion: number | null;
-  createdAt: string;
-}
+type CreateSessionResponse = GameSession;
 
 export class GameService {
-  private readonly gameSocket = new GameSocketAdapter();
+  constructor(
+    private readonly gameRepository: GameRepository,
+    private readonly gameSocket: GameSocket,
+  ) { }
 
   async createSession(
     token: string,
     quizId: number,
   ): Promise<CreateSessionResponse> {
-    const response = await fetch(`${API_URL}/api/sessions/create`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ quizId }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response
-        .json()
-        .catch(() => ({ message: "game.errors.sessionCreateFailed" }));
-      throw new Error(errorData.message || "game.errors.sessionCreateFailed");
-    }
-
-    return await response.json();
+    return await this.gameRepository.createSession(token, quizId);
   }
 
   async getActiveSessions(token: string): Promise<GameSession[]> {
-    const response = await fetch(`${API_URL}/api/sessions/active`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error("game.errors.activeSessionsFetchFailed");
-    }
-
-    const data = await response.json();
-    return data.sessions || [];
+    return await this.gameRepository.getActiveSessions(token);
   }
 
   async getSessionsByQuiz(
     token: string,
     quizId: number,
   ): Promise<GameSession[]> {
-    const response = await fetch(`${API_URL}/api/sessions/quiz/${quizId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error("game.errors.activeSessionsFetchFailed");
-    }
-
-    const data = await response.json();
-    return data.sessions || [];
+    return await this.gameRepository.getSessionsByQuiz(token, quizId);
   }
 
   async stopSession(token: string, sessionId: number): Promise<GameSession> {
-    const response = await fetch(`${API_URL}/api/sessions/${sessionId}/stop`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error("game.errors.sessionStopFailed");
-    }
-
-    return await response.json();
+    return await this.gameRepository.stopSession(token, sessionId);
   }
 
   async resumeSession(token: string, sessionId: number): Promise<GameSession> {
-    const response = await fetch(
-      `${API_URL}/api/sessions/${sessionId}/resume`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
-
-    if (!response.ok) {
-      throw new Error("game.errors.sessionResumeFailed");
-    }
-
-    return await response.json();
+    return await this.gameRepository.resumeSession(token, sessionId);
   }
 
   joinGame(
@@ -144,7 +70,7 @@ export class GameService {
   submitAnswer(
     pin: string,
     userId: number | undefined,
-    answer: string,
+    answerId: number,
     timeLeft: number,
     guestId?: string,
   ): void {
@@ -153,7 +79,7 @@ export class GameService {
       pin,
       userId,
       guestId,
-      answer,
+      answerId,
       timeLeft,
     });
   }
@@ -162,5 +88,3 @@ export class GameService {
     this.gameSocket.publish({ type: "next-question", pin });
   }
 }
-
-export const gameService = new GameService();

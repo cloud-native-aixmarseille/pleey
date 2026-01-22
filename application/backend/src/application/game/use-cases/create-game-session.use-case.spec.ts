@@ -1,14 +1,15 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { GameSessionStatus } from '../../../domain/game/enums/game-session-status.enum';
 import { PinAlreadyInUseError } from '../../../domain/game/errors/pin-already-in-use.error';
-import type { GameSessionRepository } from '../../../domain/game/repositories/game-session.repository.interface';
-import type { OrganizationMemberRepository } from '../../../domain/organization/repositories/organization-member.repository.interface';
-import type { QuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
+import type { GameSessionRepository } from '../../../domain/game/ports/game-session.repository';
+import type { OrganizationMemberRepository } from '../../../domain/organization/ports/organization-member.repository';
+import type { QuizRepository } from '../../../domain/quiz/ports/quiz.repository';
 import {
   createGameSessionFixture,
   createOrganizationMemberFixture,
   createQuizFixture,
-} from '../../../test-utils/fixtures';
+} from '../../../test-utils/fixtures/unit';
 import {
   createGameSessionRepositoryMock,
   createOrganizationMemberRepositoryMock,
@@ -73,7 +74,7 @@ describe('CreateGameSessionUseCase', () => {
       const activeSession = createGameSessionFixture({
         quizId: 2,
         hostId: 100,
-        status: 'active',
+        status: GameSessionStatus.ACTIVE,
       });
 
       vi.spyOn(mockQuizRepository, 'findById').mockResolvedValue(mockQuiz);
@@ -97,7 +98,7 @@ describe('CreateGameSessionUseCase', () => {
       const quizSession = createGameSessionFixture({
         quizId: 1,
         hostId: 999,
-        status: 'active',
+        status: GameSessionStatus.ACTIVE,
       });
 
       vi.spyOn(mockQuizRepository, 'findById').mockResolvedValue(mockQuiz);
@@ -121,7 +122,7 @@ describe('CreateGameSessionUseCase', () => {
       const pausedSession = createGameSessionFixture({
         quizId: 2,
         hostId: 100,
-        status: 'paused',
+        status: GameSessionStatus.PAUSED,
       });
 
       vi.spyOn(mockQuizRepository, 'findById').mockResolvedValue(mockQuiz);
@@ -142,7 +143,10 @@ describe('CreateGameSessionUseCase', () => {
 
     it('should return existing session when admin already has active session for quiz', async () => {
       const mockQuiz = createQuizFixture();
-      const existingSession = createGameSessionFixture({ hostId: 100, status: 'active' });
+      const existingSession = createGameSessionFixture({
+        hostId: 100,
+        status: GameSessionStatus.ACTIVE,
+      });
 
       vi.spyOn(mockQuizRepository, 'findById').mockResolvedValue(mockQuiz);
       vi.spyOn(mockMemberRepository, 'findByOrganizationAndUser').mockResolvedValue(

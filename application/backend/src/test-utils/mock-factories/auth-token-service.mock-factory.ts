@@ -1,6 +1,6 @@
 import type { Mocked } from 'vitest';
 
-import type { AuthTokenService } from '../../application/auth/services/auth-token.service';
+import type { AuthTokenService } from '../../domain/auth/ports/auth-token.service';
 
 import {
   applyMockFactoryConfig,

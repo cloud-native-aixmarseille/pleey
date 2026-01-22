@@ -1,6 +1,6 @@
 import type { Mocked } from 'vitest';
 
-import type { ScoreRepository } from '../../domain/game/repositories/score.repository.interface';
+import type { ScoreRepository } from '../../domain/game/ports/score.repository';
 
 import {
   applyMockFactoryConfig,

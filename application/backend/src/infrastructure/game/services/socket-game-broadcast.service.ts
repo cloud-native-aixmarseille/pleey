@@ -1,34 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import type { Server } from 'socket.io';
-import type {
-  GameBroadcastEvent,
-  GameBroadcastService,
-} from '../../../application/game/ports/game-broadcast.service.interface';
-import { buildSessionPlayerAvatarUrl } from '../../../application/shared/utils/avatar-url.util';
-import type { PlayerState } from '../../../domain/game/entities/player-state';
-import type { Question } from '../../../domain/quiz/entities/question';
+import {
+  type GameBroadcastEvent,
+  GameBroadcastEventType,
+  type GameBroadcastService,
+} from '../../../application/game/ports/game-broadcast.service';
+import { buildSessionPlayerAvatarUri } from '../../../application/shared/utils/avatar-uri.util';
+import type { UserId } from '../../../domain/auth/entities/user.entity';
+import type { GameSessionId } from '../../../domain/game/entities/game-session';
+import type { GuestId, PlayerState } from '../../../domain/game/entities/player-state';
+import { mapQuestionToResponse } from '../../shared/mappers/question-response.mapper';
 import { SOCKET_OUTBOUND_EVENT_BY_TYPE } from './socket-game-broadcast-events';
 
 interface SocketPlayerPayload {
-  id?: number;
-  guestId?: string;
+  id?: UserId;
+  guestId?: GuestId;
   username: string;
   avatar: string;
-  isGuest: boolean;
-}
-
-interface SocketQuestionPayload {
-  id: number;
-  quiz_id: number;
-  question_text: string;
-  type: string;
-  correct_answer: string;
-  option_a: string | null;
-  option_b: string | null;
-  option_c: string | null;
-  option_d: string | null;
-  time_limit: number;
-  points: number;
 }
 
 /**
@@ -53,51 +41,47 @@ export class SocketGameBroadcastService implements GameBroadcastService {
 
   publish(event: GameBroadcastEvent): void {
     switch (event.type) {
-      case 'player-joined':
+      case GameBroadcastEventType.PLAYER_JOINED:
         this.emitTo(event.pin, event.type, {
           players: event.players.map((player) => this.mapPlayer(player, event.sessionId)),
         });
         return;
-      case 'game-started':
+      case GameBroadcastEventType.GAME_STARTED:
         this.emitTo(event.pin, event.type, {
-          question: this.mapQuestion(event.question),
-          questionNumber: event.questionNumber,
+          question: mapQuestionToResponse(event.question),
           totalQuestions: event.totalQuestions,
         });
         return;
-      case 'next-question':
+      case GameBroadcastEventType.NEXT_QUESTION:
         this.emitTo(event.pin, event.type, {
-          question: this.mapQuestion(event.question),
-          questionNumber: event.questionNumber,
+          question: mapQuestionToResponse(event.question),
         });
         return;
-      case 'game-paused':
+      case GameBroadcastEventType.GAME_PAUSED:
         this.emitTo(event.pin, event.type, { timeLeft: event.timeLeft });
         return;
-      case 'game-resumed':
+      case GameBroadcastEventType.GAME_RESUMED:
         this.emitTo(event.pin, event.type, {
-          question: this.mapQuestion(event.question),
-          questionNumber: event.questionNumber,
+          question: mapQuestionToResponse(event.question),
           totalQuestions: event.totalQuestions,
           timeLeft: event.timeLeft,
         });
         return;
-      case 'game-ended':
+      case GameBroadcastEventType.GAME_ENDED:
         this.emitTo(event.pin, event.type, { leaderboard: event.leaderboard });
         return;
-      case 'answer-acknowledged':
+      case GameBroadcastEventType.ANSWER_ACKNOWLEDGED:
         this.emitTo(event.connectionId, event.type, { acknowledged: true });
         return;
-      case 'answer-result':
+      case GameBroadcastEventType.ANSWER_RESULT:
         this.emitTo(event.connectionId, event.type, event.result);
         return;
-      case 'leaderboard-updated':
+      case GameBroadcastEventType.LEADERBOARD_UPDATED:
         this.emitTo(event.pin, event.type, { leaderboard: event.leaderboard });
         return;
-      case 'game-state':
+      case GameBroadcastEventType.GAME_STATE:
         this.emitTo(event.connectionId, event.type, {
-          question: this.mapQuestion(event.question),
-          questionNumber: event.questionNumber,
+          question: mapQuestionToResponse(event.question),
           totalQuestions: event.totalQuestions,
           timeLeft: event.timeLeft,
         });
@@ -105,29 +89,12 @@ export class SocketGameBroadcastService implements GameBroadcastService {
     }
   }
 
-  private mapQuestion(question: Question): SocketQuestionPayload {
-    return {
-      id: question.id,
-      quiz_id: question.quizId,
-      question_text: question.questionText,
-      type: question.type,
-      correct_answer: question.correctAnswer,
-      option_a: question.optionA,
-      option_b: question.optionB,
-      option_c: question.optionC,
-      option_d: question.optionD,
-      time_limit: question.timeLimit,
-      points: question.points,
-    };
-  }
-
-  private mapPlayer(player: PlayerState, sessionId: number): SocketPlayerPayload {
+  private mapPlayer(player: PlayerState, sessionId: GameSessionId): SocketPlayerPayload {
     return {
       id: player.userId,
       guestId: player.guestId,
       username: player.username,
-      avatar: buildSessionPlayerAvatarUrl(sessionId, player.avatarSeed),
-      isGuest: player.isGuest,
+      avatar: buildSessionPlayerAvatarUri(sessionId, player.avatarSeed),
     };
   }
 }

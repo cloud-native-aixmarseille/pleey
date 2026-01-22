@@ -1,4 +1,8 @@
+import type { UserId } from '../../auth/entities/user.entity';
 import { OrganizationRole } from '../enums/organization-role.enum';
+import type { OrganizationId } from './organization';
+
+export type OrganizationMemberId = number;
 
 /**
  * OrganizationMember Domain Entity
@@ -6,9 +10,9 @@ import { OrganizationRole } from '../enums/organization-role.enum';
  */
 export class OrganizationMember {
   constructor(
-    public readonly id: number,
-    public readonly organizationId: number,
-    public readonly userId: number,
+    public readonly id: OrganizationMemberId,
+    public readonly organizationId: OrganizationId,
+    public readonly userId: UserId,
     public role: OrganizationRole,
     public readonly joinedAt: Date,
   ) {}

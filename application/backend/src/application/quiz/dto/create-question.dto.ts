@@ -1,4 +1,32 @@
-import { IsIn, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  ArrayMinSize,
+  IsArray,
+  IsBoolean,
+  IsIn,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+  ValidateNested,
+} from 'class-validator';
+import { QuestionType } from '../../../domain/quiz/entities/question';
+import type { QuizId } from '../../../domain/quiz/entities/quiz';
+
+export class CreateQuestionAnswerDto {
+  @IsString()
+  @IsOptional()
+  text?: string | null;
+
+  @IsNumber()
+  @IsOptional()
+  position?: number;
+
+  @IsBoolean()
+  @IsOptional()
+  isCorrect?: boolean;
+}
 
 /**
  * Create Question DTO
@@ -7,35 +35,26 @@ import { IsIn, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-val
 export class CreateQuestionDto {
   @IsNumber()
   @IsNotEmpty()
-  quizId: number;
+  quizId: QuizId;
+
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  position?: number;
 
   @IsString()
   @IsNotEmpty()
   questionText: string;
 
   @IsString()
-  @IsIn(['multiple', 'truefalse'])
-  type: 'multiple' | 'truefalse';
+  @IsIn(Object.values(QuestionType))
+  type: QuestionType;
 
-  @IsString()
-  @IsNotEmpty()
-  correctAnswer: string;
-
-  @IsString()
-  @IsOptional()
-  optionA?: string | null;
-
-  @IsString()
-  @IsOptional()
-  optionB?: string | null;
-
-  @IsString()
-  @IsOptional()
-  optionC?: string | null;
-
-  @IsString()
-  @IsOptional()
-  optionD?: string | null;
+  @IsArray()
+  @ArrayMinSize(2)
+  @ValidateNested({ each: true })
+  @Type(() => CreateQuestionAnswerDto)
+  answers: CreateQuestionAnswerDto[];
 
   @IsNumber()
   @Min(1)

@@ -2,21 +2,24 @@
  * PIN Value Object
  * Represents a game session PIN with validation
  */
-export class PIN {
-  private readonly value: string;
+import { GameErrorCode } from '../enums/game-error-code.enum';
+import type { GameSessionPin } from './game-session';
 
-  constructor(pin: string) {
+export class PIN {
+  private readonly value: GameSessionPin;
+
+  constructor(pin: GameSessionPin) {
     this.validate(pin);
     this.value = pin;
   }
 
-  private validate(pin: string): void {
+  private validate(pin: GameSessionPin): void {
     if (!/^\d{6}$/.test(pin)) {
-      throw new Error('PIN must be exactly 6 digits');
+      throw new Error(GameErrorCode.INVALID_PIN);
     }
   }
 
-  getValue(): string {
+  getValue(): GameSessionPin {
     return this.value;
   }
 

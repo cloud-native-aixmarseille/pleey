@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import type { Organization as PrismaOrganization } from '@prisma/client';
-import { Organization } from '../../../domain/organization/entities/organization';
-import type { OrganizationRepository } from '../../../domain/organization/repositories/organization.repository.interface';
+import {
+  Organization,
+  type OrganizationId,
+} from '../../../domain/organization/entities/organization';
+import type { OrganizationRepository } from '../../../domain/organization/ports/organization.repository';
 import { PrismaService } from '../../database/prisma.service';
 
 @Injectable()
@@ -19,7 +22,7 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
     return this.toDomain(organization);
   }
 
-  async findById(id: number): Promise<Organization | null> {
+  async findById(id: OrganizationId): Promise<Organization | null> {
     const organization = await this.prisma.organization.findFirst({
       where: {
         id,
@@ -49,7 +52,7 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
     return this.toDomain(organization);
   }
 
-  async findByIds(ids: number[]): Promise<Organization[]> {
+  async findByIds(ids: OrganizationId[]): Promise<Organization[]> {
     const organizations = await this.prisma.organization.findMany({
       where: {
         id: {
@@ -75,7 +78,11 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
     return organizations.map((organization: PrismaOrganization) => this.toDomain(organization));
   }
 
-  async update(id: number, name: string, description: string | null): Promise<Organization> {
+  async update(
+    id: OrganizationId,
+    name: string,
+    description: string | null,
+  ): Promise<Organization> {
     const organization = await this.prisma.organization.update({
       where: { id },
       data: {
@@ -87,7 +94,7 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
     return this.toDomain(organization);
   }
 
-  async delete(id: number): Promise<void> {
+  async delete(id: OrganizationId): Promise<void> {
     await this.prisma.organization.update({
       where: { id },
       data: {

@@ -1,22 +1,24 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
+import type { UserId } from '../../../domain/auth/entities/user.entity';
 import type { GameSessionState } from '../../../domain/game/entities/game-session-state';
 import { PlayerAnswer } from '../../../domain/game/entities/player-answer';
-import {
-  type SessionStateRepository,
-  SessionStateRepositoryProvider,
-} from '../../../domain/game/repositories/session-state.repository.interface';
+import type { GuestId } from '../../../domain/game/entities/player-state';
+import { GameErrorCode } from '../../../domain/game/enums/game-error-code.enum';
+import { GameSessionStateService } from '../../../domain/game/services/game-session-state.service';
 import type { SubmitAnswerDto } from '../dto/submit-answer.dto';
-import { GameErrorCode } from '../enums/game-error-code.enum';
-import { type GameBroadcastService, GameBroadcastServiceProvider } from '../ports';
+import {
+  GameBroadcastEventType,
+  type GameBroadcastService,
+  GameBroadcastServiceProvider,
+} from '../ports';
 import { RevealAnswersUseCase } from './reveal-answers.use-case';
 import { SubmitAnswerUseCase } from './submit-answer.use-case';
 
 @Injectable()
 export class SubmitAnswerWsUseCase {
   constructor(
-    @Inject(SessionStateRepositoryProvider)
-    private readonly sessionStateRepository: SessionStateRepository,
+    private readonly gameSessionStateService: GameSessionStateService,
     @Inject(GameBroadcastServiceProvider)
     private readonly broadcastService: GameBroadcastService,
     private readonly submitAnswerUseCase: SubmitAnswerUseCase,
@@ -24,7 +26,7 @@ export class SubmitAnswerWsUseCase {
   ) {}
 
   async execute(socketId: string, dto: SubmitAnswerDto): Promise<void> {
-    const state = await this.sessionStateRepository.getOrCreate(dto.pin);
+    const state = await this.gameSessionStateService.getOrCreate(dto.pin);
 
     const { playerId } = this.validateAnswerSubmission(dto, state);
 
@@ -32,23 +34,30 @@ export class SubmitAnswerWsUseCase {
 
     const player = state.findPlayerByIdentity(dto.userId, dto.guestId);
     if (player) {
-      const score = state.getOrCreateScore(playerId, player.username, player.isGuest);
+      const identity =
+        player.userId !== undefined
+          ? { userId: player.userId }
+          : { guestId: player.guestId as GuestId };
+      const score = state.getOrCreateScore(playerId, player.username, identity);
       score.addPoints(result.points);
     }
 
     state.recordAnswer(
       PlayerAnswer.create({
         playerId,
-        answer: dto.answer,
+        answerId: dto.answerId,
         isCorrect: result.isCorrect,
         points: result.points,
         timeLeft: dto.timeLeft,
       }),
     );
 
-    await this.sessionStateRepository.save(dto.pin, state);
+    await this.gameSessionStateService.update(dto.pin, state);
 
-    this.broadcastService.publish({ type: 'answer-acknowledged', connectionId: socketId });
+    this.broadcastService.publish({
+      type: GameBroadcastEventType.ANSWER_ACKNOWLEDGED,
+      connectionId: socketId,
+    });
 
     if (state.haveAllNonHostPlayersAnswered()) {
       await this.revealAnswersUseCase.execute(dto.pin);
@@ -64,11 +73,11 @@ export class SubmitAnswerWsUseCase {
       dto.guestId !== undefined && dto.guestId !== null && dto.guestId.trim() !== '';
 
     if (!hasUserId && !hasGuestId) {
-      throw new WsException('Must provide either userId or guestId');
+      throw new WsException(GameErrorCode.VALIDATION_FAILED);
     }
 
     if (hasUserId && hasGuestId) {
-      throw new WsException('Cannot provide both userId and guestId');
+      throw new WsException(GameErrorCode.VALIDATION_FAILED);
     }
 
     const playerId = this.createPlayerId(dto.userId, dto.guestId);
@@ -80,13 +89,13 @@ export class SubmitAnswerWsUseCase {
     return { playerId };
   }
 
-  private createPlayerId(userId?: number, guestId?: string): string {
+  private createPlayerId(userId?: UserId, guestId?: GuestId): string {
     if (userId !== undefined && userId !== null) {
       return `user-${userId}`;
     }
     if (guestId) {
       return `guest-${guestId}`;
     }
-    throw new Error('Must provide either userId or guestId');
+    throw new Error(GameErrorCode.VALIDATION_FAILED);
   }
 }

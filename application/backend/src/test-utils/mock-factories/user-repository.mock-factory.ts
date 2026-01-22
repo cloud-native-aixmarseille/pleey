@@ -1,6 +1,6 @@
 import type { Mocked } from 'vitest';
 
-import type { UserRepository } from '../../domain/auth/repositories/user.repository.interface';
+import type { UserRepository } from '../../domain/auth/ports/user.repository';
 
 import {
   applyMockFactoryConfig,

@@ -33,18 +33,13 @@ const PROGRESS_TONES: Record<
   neutral: "neutral",
 };
 
-const MULTIPLE_OPTIONS = ["A", "B", "C", "D"] as const;
-const BOOLEAN_OPTIONS = ["true", "false"] as const;
-
 type AnswerDistributionKey = keyof AnswerStatistics["answerDistribution"];
-type AnswerOption =
-  | (typeof MULTIPLE_OPTIONS)[number]
-  | (typeof BOOLEAN_OPTIONS)[number];
+type AnswerOption = number;
 
 interface AnswerDistributionProps {
   question: Question;
   answerResult: AnswerResult;
-  userAnswer: string | null;
+  userAnswer: number | null;
 }
 
 export function AnswerDistribution({
@@ -59,8 +54,10 @@ export function AnswerDistribution({
     return null;
   }
 
-  const options: ReadonlyArray<AnswerOption> =
-    question.type === "multiple" ? MULTIPLE_OPTIONS : BOOLEAN_OPTIONS;
+  const options = question.answers
+    .slice()
+    .sort((left, right) => left.position - right.position)
+    .map((answer) => answer.id);
 
   return (
     <section
@@ -112,7 +109,7 @@ type DistributionOptionProps = {
   index: number;
   question: Question;
   answerResult: AnswerResult;
-  userAnswer: string | null;
+  userAnswer: number | null;
   t: TFunction;
 };
 
@@ -127,7 +124,7 @@ function DistributionOption({
   const statsKey = option as AnswerDistributionKey;
   const percentage = getPercentage(statsKey, answerResult);
   const count = getCount(statsKey, answerResult);
-  const isCorrectAnswer = option === answerResult.correctAnswer;
+  const isCorrectAnswer = answerResult.correctAnswerIds.includes(option);
   const isUserAnswer = option === userAnswer && !isCorrectAnswer;
   const label = getOptionLabel(option, question, t);
   const ariaLabel = buildAriaLabel({
@@ -189,35 +186,44 @@ function getOptionLabel(
   question: Question,
   t: TFunction
 ) {
-  if (question.type === "multiple") {
-    const key = `option_${option.toLowerCase()}` as
-      | "option_a"
-      | "option_b"
-      | "option_c"
-      | "option_d";
-    const text = question[key] ?? "";
-    return t("game.playing.result.optionLabel", { option, text });
+  const answer = question.answers.find((candidate) => candidate.id === option);
+  if (!answer) {
+    return "";
   }
 
-  const booleanKey = option === "true" ? "true" : "false";
+  if (question.type === "multiple") {
+    const label =
+      MULTIPLE_CHOICE_LABELS[answer.position] ?? `${answer.position + 1}`;
+    return t("game.playing.result.optionLabel", {
+      option: label,
+      text: answer.text ?? "",
+    });
+  }
+
+  const booleanKey = answer.position === 1 ? "false" : "true";
   return t(`game.playing.result.booleanLabel.${booleanKey}`);
 }
 
 function resolveOptionTone(
   option: AnswerOption,
   answerResult: AnswerResult,
-  userAnswer: string | null
+  userAnswer: number | null
 ): ArcadeProgressTone {
-  if (option === answerResult.correctAnswer) {
+  if (answerResult.correctAnswerIds.includes(option)) {
     return PROGRESS_TONES.correct;
   }
 
-  if (option === userAnswer && option !== answerResult.correctAnswer) {
+  if (
+    option === userAnswer &&
+    !answerResult.correctAnswerIds.includes(option)
+  ) {
     return PROGRESS_TONES.user;
   }
 
   return PROGRESS_TONES.neutral;
 }
+
+const MULTIPLE_CHOICE_LABELS = ["A", "B", "C", "D"];
 
 interface AriaLabelArgs {
   label: string;

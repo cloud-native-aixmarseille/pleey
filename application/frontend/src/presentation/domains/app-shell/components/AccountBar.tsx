@@ -55,7 +55,7 @@ export function AccountBar() {
           key: "organizations",
           label: t("navigation.organizations", "Organizations"),
           path: "/admin/organization",
-        }
+        },
       );
     }
 
@@ -84,7 +84,7 @@ export function AccountBar() {
 
       return location.pathname.startsWith(path);
     },
-    [location.pathname]
+    [location.pathname],
   );
 
   if (!isAuthenticated || !user) {
@@ -114,7 +114,7 @@ export function AccountBar() {
           <AccountUserSummary
             username={user.username}
             email={user.email}
-            avatarUrl={user.avatarUrl ?? undefined}
+            avatarUri={user.avatarUri ?? undefined}
           />
           <AccountMenu
             labels={{

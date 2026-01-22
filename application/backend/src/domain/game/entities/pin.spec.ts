@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { createPinFixture } from '../../../test-utils/fixtures';
+import { createPinFixture } from '../../../test-utils/fixtures/unit';
+import { GameErrorCode } from '../enums/game-error-code.enum';
 import { PIN } from './pin';
 
 describe('PIN', () => {
@@ -10,27 +11,27 @@ describe('PIN', () => {
     });
 
     it('should throw error for non-numeric PIN', () => {
-      expect(() => createPinFixture({ value: 'abcdef' })).toThrow('PIN must be exactly 6 digits');
+      expect(() => createPinFixture({ value: 'abcdef' })).toThrow(GameErrorCode.INVALID_PIN);
     });
 
     it('should throw error for PIN shorter than 6 digits', () => {
-      expect(() => createPinFixture({ value: '12345' })).toThrow('PIN must be exactly 6 digits');
+      expect(() => createPinFixture({ value: '12345' })).toThrow(GameErrorCode.INVALID_PIN);
     });
 
     it('should throw error for PIN longer than 6 digits', () => {
-      expect(() => createPinFixture({ value: '1234567' })).toThrow('PIN must be exactly 6 digits');
+      expect(() => createPinFixture({ value: '1234567' })).toThrow(GameErrorCode.INVALID_PIN);
     });
 
     it('should throw error for empty string', () => {
-      expect(() => createPinFixture({ value: '' })).toThrow('PIN must be exactly 6 digits');
+      expect(() => createPinFixture({ value: '' })).toThrow(GameErrorCode.INVALID_PIN);
     });
 
     it('should throw error for PIN with special characters', () => {
-      expect(() => createPinFixture({ value: '12-456' })).toThrow('PIN must be exactly 6 digits');
+      expect(() => createPinFixture({ value: '12-456' })).toThrow(GameErrorCode.INVALID_PIN);
     });
 
     it('should throw error for PIN with spaces', () => {
-      expect(() => createPinFixture({ value: '123 456' })).toThrow('PIN must be exactly 6 digits');
+      expect(() => createPinFixture({ value: '123 456' })).toThrow(GameErrorCode.INVALID_PIN);
     });
   });
 

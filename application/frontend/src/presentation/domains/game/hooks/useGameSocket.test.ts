@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { act, renderHook } from "@testing-library/react";
 import { useGameSocket } from "./useGameSocket";
-import { socket } from "../../../../infrastructure/socket/socket.client";
-import { GAME_SOCKET_INBOUND_EVENT } from "../../../../domains/game/infrastructure/game-socket-events";
+import { socket } from "../../../../infrastructure/shared/socket/socket.client";
+import { GAME_SOCKET_INBOUND_EVENT } from "../../../../infrastructure/game/game-socket-events";
 import type { AnswerResult } from "../../../../domains/game/types";
 import type { Question } from "../../../../domains/quiz/types";
 
-vi.mock("../../../../infrastructure/socket/socket.client", () => ({
+vi.mock("../../../../infrastructure/shared/socket/socket.client", () => ({
   socket: {
     on: vi.fn(),
     off: vi.fn(),
@@ -137,24 +137,26 @@ describe("useGameSocket", () => {
     const answerResultPayload: AnswerResult = {
       isCorrect: true,
       points: 100,
-      correctAnswer: "A",
+      correctAnswerIds: [1],
       statistics: {
         totalAnswers: 4,
-        answerDistribution: { A: 3, B: 1, C: 0, D: 0 },
+        answerDistribution: { 1: 3, 2: 1, 3: 0, 4: 0 },
       },
     };
 
     const questionPayload: Question = {
       id: 1,
-      quiz_id: 1,
-      question_text: "Q1",
+      quizId: 1,
+      position: 0,
+      questionText: "Q1",
       type: "multiple",
-      correct_answer: "A",
-      option_a: "A",
-      option_b: "B",
-      option_c: "C",
-      option_d: "D",
-      time_limit: 30,
+      answers: [
+        { id: 1, text: "A", position: 0, isCorrect: true },
+        { id: 2, text: "B", position: 1, isCorrect: false },
+        { id: 3, text: "C", position: 2, isCorrect: false },
+        { id: 4, text: "D", position: 3, isCorrect: false },
+      ],
+      timeLimit: 30,
       points: 100,
     };
 
@@ -176,7 +178,6 @@ describe("useGameSocket", () => {
     act(() => {
       handleGameResumed({
         question: questionPayload,
-        questionNumber: 1,
         totalQuestions: 10,
         timeLeft: 0,
       });

@@ -5,10 +5,12 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import type { UserId } from '../../../domain/auth/entities/user.entity';
+import type { OrganizationMemberId } from '../../../domain/organization/entities/organization-member';
+import { OrganizationErrorCode } from '../../../domain/organization/enums/organization-error-code.enum';
 import { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
-import type { OrganizationMemberRepository } from '../../../domain/organization/repositories/organization-member.repository.interface';
-import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/repositories/organization-member.repository.interface';
-import { OrganizationErrorCode } from '../enums/organization-error-code.enum';
+import type { OrganizationMemberRepository } from '../../../domain/organization/ports/organization-member.repository';
+import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/ports/organization-member.repository';
 
 /**
  * Use case for removing a member from an organization
@@ -21,7 +23,7 @@ export class RemoveMemberFromOrganizationUseCase {
     private readonly memberRepository: OrganizationMemberRepository,
   ) {}
 
-  async execute(memberId: number, requestingUserId: number): Promise<void> {
+  async execute(memberId: OrganizationMemberId, requestingUserId: UserId): Promise<void> {
     // Get the member to remove
     const memberToRemove = await this.memberRepository.findById(memberId);
     if (!memberToRemove) {

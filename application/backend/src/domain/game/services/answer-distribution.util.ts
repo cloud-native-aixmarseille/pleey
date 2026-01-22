@@ -1,9 +1,12 @@
+import type { QuestionAnswerId } from '../../quiz/entities/question-answer';
 import type { PlayerAnswer } from '../entities/player-answer';
 
-export function calculateAnswerDistribution(answers: PlayerAnswer[]): Record<string, number> {
-  const distribution: Record<string, number> = {};
+export function calculateAnswerDistribution(
+  answers: PlayerAnswer[],
+): Record<QuestionAnswerId, number> {
+  const distribution: Record<QuestionAnswerId, number> = {};
   for (const answer of answers) {
-    distribution[answer.answer] = (distribution[answer.answer] || 0) + 1;
+    distribution[answer.answerId] = (distribution[answer.answerId] || 0) + 1;
   }
   return distribution;
 }

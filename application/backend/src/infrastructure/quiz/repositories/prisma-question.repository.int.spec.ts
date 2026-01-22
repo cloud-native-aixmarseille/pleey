@@ -1,5 +1,11 @@
+import { Test, type TestingModule } from '@nestjs/testing';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-
+import {
+  createPersistedOrganizationFixture,
+  createPersistedQuizFixture,
+  createPersistedUserFixture,
+} from '../../../test-utils/fixtures/integration';
+import { createQuestionFixture } from '../../../test-utils/fixtures/unit';
 import { PrismaService } from '../../database/prisma.service';
 import { PrismaQuestionRepository } from './prisma-question.repository';
 
@@ -7,6 +13,7 @@ const hasDatabase = Boolean((process.env.DATABASE_URL ?? '').trim());
 const describeIfDatabase = hasDatabase ? describe.sequential : describe.skip;
 
 describeIfDatabase('PrismaQuestionRepository (integration)', () => {
+  let module: TestingModule;
   let prisma: PrismaService;
   let repository: PrismaQuestionRepository;
 
@@ -16,9 +23,13 @@ describeIfDatabase('PrismaQuestionRepository (integration)', () => {
   const createdQuestionIds: number[] = [];
 
   beforeAll(async () => {
-    prisma = new PrismaService();
+    module = await Test.createTestingModule({
+      providers: [PrismaService, PrismaQuestionRepository],
+    }).compile();
+
+    prisma = module.get(PrismaService);
+    repository = module.get(PrismaQuestionRepository);
     await prisma.onModuleInit();
-    repository = new PrismaQuestionRepository(prisma);
   });
 
   afterAll(async () => {
@@ -35,49 +46,52 @@ describeIfDatabase('PrismaQuestionRepository (integration)', () => {
       await prisma.user.deleteMany({ where: { id: { in: createdUserIds } } });
     }
     await prisma.onModuleDestroy();
+    await module.close();
   });
 
   it('creates, updates, lists and soft-deletes questions', async () => {
     const unique = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
-    const user = await prisma.user.create({
-      data: {
-        username: `author_${unique}`,
-        email: `author_${unique}@example.com`,
-        password: 'hashed',
-      },
+    const user = await createPersistedUserFixture(prisma, {
+      username: `author_${unique}`,
+      email: `author_${unique}@example.com`,
+      password: 'hashed',
     });
     createdUserIds.push(user.id);
 
-    const organization = await prisma.organization.create({
-      data: {
-        name: `Org ${unique}`,
-        description: null,
-      },
+    const organization = await createPersistedOrganizationFixture(prisma, {
+      name: `Org ${unique}`,
+      description: null,
     });
     createdOrganizationIds.push(organization.id);
 
-    const quiz = await prisma.quiz.create({
-      data: {
-        title: `Quiz ${unique}`,
-        description: null,
-        createdById: user.id,
-        organizationId: organization.id,
-      },
+    const quiz = await createPersistedQuizFixture(prisma, {
+      title: `Quiz ${unique}`,
+      description: null,
+      createdById: user.id,
+      organizationId: organization.id,
     });
     createdQuizIds.push(quiz.id);
 
-    const created = await repository.create({
+    const questionFixture = createQuestionFixture({
       quizId: quiz.id,
       questionText: 'What is 2+2?',
-      type: 'multiple',
-      correctAnswer: 'A',
-      optionA: '4',
-      optionB: '3',
-      optionC: '5',
-      optionD: '22',
       timeLimit: 15,
       points: 500,
+    });
+
+    const created = await repository.create({
+      quizId: quiz.id,
+      questionText: questionFixture.questionText,
+      type: questionFixture.type,
+      answers: questionFixture.answers.map((answer) => ({
+        id: answer.id,
+        text: answer.text,
+        position: answer.position,
+        isCorrect: answer.isCorrect,
+      })),
+      timeLimit: questionFixture.timeLimit,
+      points: questionFixture.points,
     });
     createdQuestionIds.push(created.id);
 

@@ -1,20 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CreateQuizUseCase } from "./create-quiz.use-case";
-import { IQuizRepository } from "../../../domains/quiz/ports/quiz.repository.interface";
+import type { QuizRepository } from "../../../domains/quiz/ports/quiz.repository";
 import type { Quiz } from "../../../domains/quiz/types";
 import { createQuizFixture } from "../../../test/fixtures";
+import { QuizErrorCode } from "../enums/quiz-error-code.enum";
+import { createQuizRepositoryMock } from "../../../test/mock-factories/quiz-repository.mock-factory";
 
 describe("CreateQuizUseCase", () => {
   let createQuizUseCase: CreateQuizUseCase;
-  let mockQuizRepository: IQuizRepository;
+  let mockQuizRepository: QuizRepository;
 
   beforeEach(() => {
-    mockQuizRepository = {
-      getQuizzes: vi.fn(),
-      getQuestions: vi.fn(),
-      createQuiz: vi.fn(),
-      addQuestion: vi.fn(),
-    };
+    mockQuizRepository = createQuizRepositoryMock();
 
     createQuizUseCase = new CreateQuizUseCase(mockQuizRepository);
   });
@@ -28,6 +25,7 @@ describe("CreateQuizUseCase", () => {
       token: "test-token",
       title: "Test Quiz",
       description: "Test Description",
+      organizationId: 1,
     });
 
     expect(result).toEqual(mockQuiz);
@@ -35,6 +33,7 @@ describe("CreateQuizUseCase", () => {
       "test-token",
       "Test Quiz",
       "Test Description",
+      1,
     );
   });
 
@@ -44,8 +43,9 @@ describe("CreateQuizUseCase", () => {
         token: "test-token",
         title: "",
         description: "Test Description",
+        organizationId: 1,
       }),
-    ).rejects.toThrow("Quiz title is required");
+    ).rejects.toThrow(QuizErrorCode.QUIZ_TITLE_REQUIRED);
 
     expect(mockQuizRepository.createQuiz).not.toHaveBeenCalled();
   });
@@ -56,8 +56,9 @@ describe("CreateQuizUseCase", () => {
         token: "test-token",
         title: "   ",
         description: "Test Description",
+        organizationId: 1,
       }),
-    ).rejects.toThrow("Quiz title is required");
+    ).rejects.toThrow(QuizErrorCode.QUIZ_TITLE_REQUIRED);
 
     expect(mockQuizRepository.createQuiz).not.toHaveBeenCalled();
   });

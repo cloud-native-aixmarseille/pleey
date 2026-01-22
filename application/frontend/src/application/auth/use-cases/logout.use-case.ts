@@ -1,7 +1,5 @@
-import { IStorage } from "../../../domains/shared/ports/storage.interface";
-
-const TOKEN_STORAGE_KEY = "quizmaster_token";
-const USER_STORAGE_KEY = "quizmaster_user";
+import { TOKEN_STORAGE_KEY, USER_STORAGE_KEY } from "../../../domains/shared/constants/storageKeys";
+import { Storage } from "../../../domains/shared/ports/storage";
 
 /**
  * Logout Use Case
@@ -9,7 +7,7 @@ const USER_STORAGE_KEY = "quizmaster_user";
  * Following Clean Architecture and Single Responsibility Principle
  */
 export class LogoutUseCase {
-  constructor(private readonly storage: IStorage) { }
+  constructor(private readonly storage: Storage) { }
 
   execute(): void {
     this.storage.removeItem(TOKEN_STORAGE_KEY);

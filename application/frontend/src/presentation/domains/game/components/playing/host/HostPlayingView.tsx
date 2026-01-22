@@ -68,7 +68,7 @@ export default function HostPlayingView({
   onBackToAdmin,
   onTogglePause,
 }: HostPlayingViewProps) {
-  const timeLimit = currentQuestion.time_limit ?? 0;
+  const timeLimit = currentQuestion.timeLimit ?? 0;
   const { progressPercent, severity } = useQuestionTimerState(
     timeLeft,
     timeLimit

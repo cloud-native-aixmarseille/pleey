@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { authService } from "../../../../domains/auth/auth.service";
+import { container } from "../../../../app/di/container";
 import type { User } from "../../../../domains/auth/types";
 import {
   TOKEN_STORAGE_KEY,
@@ -10,8 +10,10 @@ import {
   queryClient,
   registerAuthSessionHandlers,
   setAuthSessionTokens,
-} from "../../../../infrastructure/http/api/openapiClient";
+} from "../../../../infrastructure/shared/http/api/openapiClient";
 import { useNotifications } from "../../app-shell";
+
+const { authRepository } = container;
 
 interface LoginParams {
   email: string;
@@ -92,7 +94,7 @@ export function useAuthManager() {
 
   const login = useCallback(
     async ({ email, password }: LoginParams) => {
-      const result = await authService.login(email, password);
+      const result = await authRepository.login(email, password);
       persistSession({
         accessToken: result.accessToken,
         refreshToken: result.refreshToken,
@@ -105,7 +107,7 @@ export function useAuthManager() {
 
   const register = useCallback(
     async ({ username, email, password }: RegisterParams) => {
-      await authService.register(username, email, password);
+      await authRepository.register(username, email, password);
     },
     [],
   );
@@ -115,14 +117,14 @@ export function useAuthManager() {
       return null;
     }
 
-    const nextUser = await authService.getProfile();
+    const nextUser = await authRepository.getCurrentUser();
     storeUser(nextUser);
     return nextUser;
   }, [storeUser, token]);
 
   const updateProfile = useCallback(
     async (updates: { username?: string; email?: string }): Promise<User> => {
-      const nextUser = await authService.updateProfile(updates);
+      const nextUser = await authRepository.updateProfile(updates);
       storeUser(nextUser);
       return nextUser;
     },
@@ -130,14 +132,14 @@ export function useAuthManager() {
   );
 
   const regenerateAvatar = useCallback(async (): Promise<User> => {
-    const nextUser = await authService.regenerateAvatar();
+    const nextUser = await authRepository.regenerateAvatar();
     storeUser(nextUser);
     return nextUser;
   }, [storeUser]);
 
   const logout = useCallback(async (): Promise<void> => {
     try {
-      await authService.logout();
+      await authRepository.logout();
     } catch {
       // Ignore logout failures to avoid blocking client-side cleanup
     } finally {

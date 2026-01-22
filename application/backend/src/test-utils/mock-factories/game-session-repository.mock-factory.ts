@@ -1,6 +1,6 @@
 import type { Mocked } from 'vitest';
 
-import type { GameSessionRepository } from '../../domain/game/repositories/game-session.repository.interface';
+import type { GameSessionRepository } from '../../domain/game/ports/game-session.repository';
 
 import {
   applyMockFactoryConfig,
@@ -17,7 +17,6 @@ const GAME_SESSION_REPOSITORY_METHOD_KINDS: MockFactoryMethodKinds<GameSessionRe
     'findActiveByHostId',
     'findActiveByQuizId',
     'findByQuizId',
-    'findByOrganization',
     'updateStatus',
     'updateCurrentQuestion',
     'countActiveByQuizId',
@@ -36,7 +35,6 @@ export const createGameSessionRepositoryMock = (
     findActiveByHostId: mockFn<GameSessionRepository['findActiveByHostId']>(),
     findActiveByQuizId: mockFn<GameSessionRepository['findActiveByQuizId']>(),
     findByQuizId: mockFn<GameSessionRepository['findByQuizId']>(),
-    findByOrganization: mockFn<GameSessionRepository['findByOrganization']>(),
     updateStatus: mockFn<GameSessionRepository['updateStatus']>(),
     updateCurrentQuestion: mockFn<GameSessionRepository['updateCurrentQuestion']>(),
     countActiveByQuizId: mockFn<GameSessionRepository['countActiveByQuizId']>(),

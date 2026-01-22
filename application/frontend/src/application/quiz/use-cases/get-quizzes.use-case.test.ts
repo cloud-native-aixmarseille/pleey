@@ -1,12 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { GetQuizzesUseCase } from "./get-quizzes.use-case";
-import { IQuizRepository } from "../../../domains/quiz/ports/quiz.repository.interface";
+import type { QuizRepository } from "../../../domains/quiz/ports/quiz.repository";
 import type { Quiz } from "../../../domains/quiz/types";
 import { createQuizFixture } from "../../../test/fixtures";
+import { createQuizRepositoryMock } from "../../../test/mock-factories/quiz-repository.mock-factory";
 
 describe("GetQuizzesUseCase", () => {
   let getQuizzesUseCase: GetQuizzesUseCase;
-  let mockQuizRepository: IQuizRepository;
+  let mockQuizRepository: QuizRepository;
 
   const mockQuizzes: Quiz[] = [
     createQuizFixture(),
@@ -14,12 +15,7 @@ describe("GetQuizzesUseCase", () => {
   ];
 
   beforeEach(() => {
-    mockQuizRepository = {
-      getQuizzes: vi.fn(),
-      getQuestions: vi.fn(),
-      createQuiz: vi.fn(),
-      addQuestion: vi.fn(),
-    };
+    mockQuizRepository = createQuizRepositoryMock();
 
     getQuizzesUseCase = new GetQuizzesUseCase(mockQuizRepository);
   });

@@ -1,29 +1,29 @@
 import { WsException } from '@nestjs/websockets';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
+import { GameSessionStatus } from '../../../domain/game/enums/game-session-status.enum';
+import { createJoinGameSessionStateFixture } from '../../../test-utils/fixtures/unit';
+import {
+  createGameBroadcastServiceMock,
+  createGameSessionRepositoryMock,
+  createGameSessionStateServiceMock,
+} from '../../../test-utils/mock-factories';
 import type { JoinGameDto } from '../dto/join-game.dto';
+import { GameBroadcastEventType } from '../ports';
 import { JoinGameWsUseCase } from './join-game-ws.use-case';
 
 describe('JoinGameWsUseCase', () => {
   it('throws when both userId and guestId are provided', async () => {
-    const sessionStateRepository = {
-      getOrCreate: vi.fn().mockResolvedValue({
-        addPlayer: vi.fn(),
-        getNonHostPlayers: () => [],
-        sessionId: 1,
-        hostId: 999,
-      }),
-      save: vi.fn().mockResolvedValue(undefined),
-    };
-    const gameSessionRepository = {
-      findByPin: vi.fn(),
-    };
-    const broadcastService = {
-      publish: vi.fn(),
-    };
+    const state = createJoinGameSessionStateFixture();
+    const gameSessionStateService = createGameSessionStateServiceMock({
+      getOrCreate: state as never,
+      update: undefined,
+    });
+    const gameSessionRepository = createGameSessionRepositoryMock();
+    const broadcastService = createGameBroadcastServiceMock();
 
     const useCase = new JoinGameWsUseCase(
-      sessionStateRepository as never,
+      gameSessionStateService as never,
       gameSessionRepository as never,
       broadcastService as never,
     );
@@ -39,28 +39,17 @@ describe('JoinGameWsUseCase', () => {
   });
 
   it('broadcasts player list', async () => {
-    const state = {
-      sessionId: 1,
-      hostId: 999,
-      addPlayer: vi.fn(),
-      getNonHostPlayers: () => [],
-      findPlayerByGuestId: vi.fn().mockReturnValue(undefined),
-      findPlayerByUserId: vi.fn().mockReturnValue(undefined),
-    };
+    const state = createJoinGameSessionStateFixture();
 
-    const sessionStateRepository = {
-      getOrCreate: vi.fn().mockResolvedValue(state),
-      save: vi.fn().mockResolvedValue(undefined),
-    };
-    const gameSessionRepository = {
-      findByPin: vi.fn(),
-    };
-    const broadcastService = {
-      publish: vi.fn(),
-    };
+    const gameSessionStateService = createGameSessionStateServiceMock({
+      getOrCreate: state as never,
+      update: undefined,
+    });
+    const gameSessionRepository = createGameSessionRepositoryMock();
+    const broadcastService = createGameBroadcastServiceMock();
 
     const useCase = new JoinGameWsUseCase(
-      sessionStateRepository as never,
+      gameSessionStateService as never,
       gameSessionRepository as never,
       broadcastService as never,
     );
@@ -69,7 +58,7 @@ describe('JoinGameWsUseCase', () => {
     await useCase.execute('socket-1', dto);
 
     expect(broadcastService.publish).toHaveBeenCalledWith({
-      type: 'player-joined',
+      type: GameBroadcastEventType.PLAYER_JOINED,
       pin: '123456',
       sessionId: 1,
       players: [],
@@ -78,33 +67,19 @@ describe('JoinGameWsUseCase', () => {
   });
 
   it('rebroadcasts paused state when joining a paused session', async () => {
-    const state = {
-      sessionId: 1,
-      hostId: 999,
-      hasQuestions: true,
-      pausedTimeLeft: 7,
-      currentQuestionIndex: 0,
-      totalQuestions: 3,
-      currentQuestion: { timeLimit: 20 },
-      addPlayer: vi.fn(),
-      getNonHostPlayers: () => [],
-      findPlayerByGuestId: vi.fn().mockReturnValue(undefined),
-      findPlayerByUserId: vi.fn().mockReturnValue(undefined),
-    };
+    const state = createJoinGameSessionStateFixture({ pausedTimeLeft: 7 });
 
-    const sessionStateRepository = {
-      getOrCreate: vi.fn().mockResolvedValue(state),
-      save: vi.fn().mockResolvedValue(undefined),
-    };
-    const gameSessionRepository = {
-      findByPin: vi.fn().mockResolvedValue({ status: 'paused' }),
-    };
-    const broadcastService = {
-      publish: vi.fn(),
-    };
+    const gameSessionStateService = createGameSessionStateServiceMock({
+      getOrCreate: state as never,
+      update: undefined,
+    });
+    const gameSessionRepository = createGameSessionRepositoryMock({
+      findByPin: { status: GameSessionStatus.PAUSED } as never,
+    });
+    const broadcastService = createGameBroadcastServiceMock();
 
     const useCase = new JoinGameWsUseCase(
-      sessionStateRepository as never,
+      gameSessionStateService as never,
       gameSessionRepository as never,
       broadcastService as never,
     );
@@ -113,57 +88,45 @@ describe('JoinGameWsUseCase', () => {
     await useCase.execute('socket-1', dto);
 
     expect(broadcastService.publish).toHaveBeenNthCalledWith(1, {
-      type: 'player-joined',
+      type: GameBroadcastEventType.PLAYER_JOINED,
       pin: '123456',
       sessionId: 1,
       players: [],
     });
 
     expect(broadcastService.publish).toHaveBeenNthCalledWith(2, {
-      type: 'game-state',
+      type: GameBroadcastEventType.GAME_STATE,
       connectionId: 'socket-1',
       question: state.currentQuestion,
-      questionNumber: 1,
       totalQuestions: 3,
       timeLeft: 7,
     });
 
     expect(broadcastService.publish).toHaveBeenNthCalledWith(3, {
-      type: 'game-paused',
+      type: GameBroadcastEventType.GAME_PAUSED,
       pin: '123456',
       timeLeft: 7,
     });
   });
 
   it('sends game-state to host when joining a paused session, then broadcasts paused state', async () => {
-    const state = {
-      sessionId: 1,
+    const state = createJoinGameSessionStateFixture({
       hostId: 42,
-      hasQuestions: true,
       pausedTimeLeft: 11,
       questionStartTime: Date.now() - 4000,
-      currentQuestionIndex: 0,
-      totalQuestions: 3,
-      currentQuestion: { timeLimit: 20 },
-      addPlayer: vi.fn(),
-      getNonHostPlayers: () => [],
-      findPlayerByGuestId: vi.fn().mockReturnValue(undefined),
-      findPlayerByUserId: vi.fn().mockReturnValue(undefined),
-    };
+    });
 
-    const sessionStateRepository = {
-      getOrCreate: vi.fn().mockResolvedValue(state),
-      save: vi.fn().mockResolvedValue(undefined),
-    };
-    const gameSessionRepository = {
-      findByPin: vi.fn().mockResolvedValue({ status: 'paused' }),
-    };
-    const broadcastService = {
-      publish: vi.fn(),
-    };
+    const gameSessionStateService = createGameSessionStateServiceMock({
+      getOrCreate: state as never,
+      update: undefined,
+    });
+    const gameSessionRepository = createGameSessionRepositoryMock({
+      findByPin: { status: GameSessionStatus.PAUSED } as never,
+    });
+    const broadcastService = createGameBroadcastServiceMock();
 
     const useCase = new JoinGameWsUseCase(
-      sessionStateRepository as never,
+      gameSessionStateService as never,
       gameSessionRepository as never,
       broadcastService as never,
     );
@@ -172,23 +135,22 @@ describe('JoinGameWsUseCase', () => {
     await useCase.execute('socket-host', dto);
 
     expect(broadcastService.publish).toHaveBeenNthCalledWith(1, {
-      type: 'player-joined',
+      type: GameBroadcastEventType.PLAYER_JOINED,
       pin: '123456',
       sessionId: 1,
       players: [],
     });
 
     expect(broadcastService.publish).toHaveBeenNthCalledWith(2, {
-      type: 'game-state',
+      type: GameBroadcastEventType.GAME_STATE,
       connectionId: 'socket-host',
       question: state.currentQuestion,
-      questionNumber: 1,
       totalQuestions: 3,
       timeLeft: 11,
     });
 
     expect(broadcastService.publish).toHaveBeenNthCalledWith(3, {
-      type: 'game-paused',
+      type: GameBroadcastEventType.GAME_PAUSED,
       pin: '123456',
       timeLeft: 11,
     });

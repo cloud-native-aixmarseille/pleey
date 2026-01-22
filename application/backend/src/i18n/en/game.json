@@ -6,6 +6,10 @@
     "gameNotStarted": "Game has not started yet",
     "invalidAnswer": "Invalid answer",
     "noQuestionsAvailable": "No questions available for this quiz",
+    "noCurrentQuestionToResume": "No current question to resume",
+    "invalidRevealDelay": "Reveal delay must be a finite number",
+    "playerIdentityRequired": "Player must have either userId or guestId",
+    "playerScoreIdentityInvalid": "Player score must have exactly one identity (userId or guestId)",
     "validationFailed": "Validation failed",
     "unknownError": "An unexpected error occurred",
     "gameCanOnlyBeStartedFromWaiting": "Game can only be started from waiting status",
@@ -27,5 +31,8 @@
   "success": {
     "gameCreated": "Game session created successfully",
     "answerSubmitted": "Answer submitted successfully"
+  },
+  "labels": {
+    "guest": "Guest"
   }
 }

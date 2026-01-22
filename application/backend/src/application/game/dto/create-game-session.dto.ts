@@ -1,4 +1,6 @@
 import { IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
+import type { UserId } from '../../../domain/auth/entities/user.entity';
+import type { QuizId } from '../../../domain/quiz/entities/quiz';
 
 /**
  * Create Game Session DTO
@@ -7,9 +9,9 @@ import { IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 export class CreateGameSessionDto {
   @IsNumber()
   @IsNotEmpty()
-  quizId: number;
+  quizId: QuizId;
 
   @IsNumber()
   @IsOptional()
-  hostId?: number;
+  hostId?: UserId;
 }

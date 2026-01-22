@@ -1,52 +1,68 @@
-import { Expose, Type } from 'class-transformer';
-import { IsIn, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsBoolean,
+  IsIn,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+  ValidateNested,
+} from 'class-validator';
+import { QuestionType } from '../../../domain/quiz/entities/question';
+import type { QuestionAnswerId } from '../../../domain/quiz/entities/question-answer';
+import type { QuizId } from '../../../domain/quiz/entities/quiz';
 
-/**
- * HTTP DTO for updating a question with snake_case payload support
- */
-export class UpdateQuestionRequestDto {
-  @Expose({ name: 'quiz_id' })
+class UpdateQuestionAnswerRequestDto {
   @Type(() => Number)
   @IsNumber()
   @IsOptional()
-  quizId?: number;
+  id?: QuestionAnswerId;
 
-  @Expose({ name: 'question_text' })
+  @IsString()
+  @IsOptional()
+  text?: string | null;
+
+  @Type(() => Number)
+  @IsNumber()
+  @IsOptional()
+  position?: number;
+
+  @IsBoolean()
+  @IsOptional()
+  isCorrect?: boolean;
+}
+
+/**
+ * HTTP DTO for updating a question
+ */
+export class UpdateQuestionRequestDto {
+  @Type(() => Number)
+  @IsNumber()
+  @IsOptional()
+  quizId?: QuizId;
+
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  position?: number;
+
   @IsString()
   @IsOptional()
   questionText?: string;
 
   @IsString()
-  @IsIn(['multiple', 'truefalse'])
+  @IsIn(Object.values(QuestionType))
   @IsOptional()
-  type?: 'multiple' | 'truefalse';
+  type?: QuestionType;
 
-  @Expose({ name: 'correct_answer' })
-  @IsString()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => UpdateQuestionAnswerRequestDto)
   @IsOptional()
-  correctAnswer?: string;
+  answers?: UpdateQuestionAnswerRequestDto[];
 
-  @Expose({ name: 'option_a' })
-  @IsString()
-  @IsOptional()
-  optionA?: string | null;
-
-  @Expose({ name: 'option_b' })
-  @IsString()
-  @IsOptional()
-  optionB?: string | null;
-
-  @Expose({ name: 'option_c' })
-  @IsString()
-  @IsOptional()
-  optionC?: string | null;
-
-  @Expose({ name: 'option_d' })
-  @IsString()
-  @IsOptional()
-  optionD?: string | null;
-
-  @Expose({ name: 'time_limit' })
   @Type(() => Number)
   @IsNumber()
   @Min(1)

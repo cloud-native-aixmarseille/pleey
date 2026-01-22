@@ -1,61 +1,41 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { gameService } from "./game.service";
-import { socket } from "../../infrastructure/socket/socket.client";
-import { GAME_SOCKET_OUTBOUND_EVENT } from "./infrastructure/game-socket-outbound-events";
+import { GameService } from "./game.service";
+import type { GameRepository } from "./ports/game.repository";
+import type { GameSocket } from "./ports/game-socket";
 import { createGameSessionFixture } from "../../test/fixtures";
-
-// Mock the socket client
-vi.mock("../../infrastructure/socket/socket.client", async () => {
-  const { createSocketClientMock } = await import(
-    "../../test/mock-factories/socket-client.mock-factory"
-  );
-  return {
-    socket: createSocketClientMock(),
-  };
-});
-
-const fetchSpy = vi.fn();
+import { createGameRepositoryMock } from "../../test/mock-factories/game-repository.mock-factory";
+import { createGameSocketMock } from "../../test/mock-factories/game-socket.mock-factory";
 
 describe("GameService", () => {
   const mockToken = "mock-jwt-token";
+  let gameRepository: GameRepository;
+  let gameSocket: GameSocket;
+  let gameService: GameService;
 
   beforeEach(() => {
+    gameRepository = createGameRepositoryMock();
+    gameSocket = createGameSocketMock();
+    gameService = new GameService(gameRepository, gameSocket);
     vi.clearAllMocks();
-    fetchSpy.mockReset();
-    globalThis.fetch = fetchSpy as unknown as typeof fetch;
   });
 
   describe("createSession", () => {
     it("should create a game session", async () => {
       const mockSession = createGameSessionFixture();
 
-      fetchSpy.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockSession,
-      } as Response);
+      vi.mocked(gameRepository.createSession).mockResolvedValueOnce(mockSession);
 
       const result = await gameService.createSession(mockToken, 1);
 
-      expect(fetchSpy).toHaveBeenCalledWith(
-        expect.stringContaining("/api/sessions/create"),
-        expect.objectContaining({
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${mockToken}`,
-          },
-          body: JSON.stringify({ quizId: 1 }),
-        }),
-      );
+      expect(gameRepository.createSession).toHaveBeenCalledWith(mockToken, 1);
       expect(result).toEqual(mockSession);
       expect(result.pin).toBe("123456");
     });
 
     it("should throw translated error when API fails", async () => {
-      fetchSpy.mockResolvedValueOnce({
-        ok: false,
-        json: async () => ({ message: "unit.test.error" }),
-      });
+      vi.mocked(gameRepository.createSession).mockRejectedValueOnce(
+        new Error("unit.test.error"),
+      );
 
       await expect(gameService.createSession(mockToken, 1)).rejects.toThrow(
         "unit.test.error",
@@ -64,10 +44,9 @@ describe("GameService", () => {
   });
 
   it("should throw when session creation fails", async () => {
-    fetchSpy.mockResolvedValueOnce({
-      ok: false,
-      json: async () => ({ message: "game.errors.sessionCreateFailed" }),
-    } as Response);
+    vi.mocked(gameRepository.createSession).mockRejectedValueOnce(
+      new Error("game.errors.sessionCreateFailed"),
+    );
 
     await expect(gameService.createSession(mockToken, 1)).rejects.toThrow(
       "game.errors.sessionCreateFailed",
@@ -78,7 +57,8 @@ describe("GameService", () => {
     it("should emit join-game event", () => {
       gameService.joinGame("123456", "testuser", 1);
 
-      expect(socket.emit).toHaveBeenCalledWith(GAME_SOCKET_OUTBOUND_EVENT.JOIN_GAME, {
+      expect(gameSocket.publish).toHaveBeenCalledWith({
+        type: "join-game",
         pin: "123456",
         username: "testuser",
         userId: 1,
@@ -90,7 +70,8 @@ describe("GameService", () => {
     it("should emit start-game event", () => {
       gameService.startGame("123456");
 
-      expect(socket.emit).toHaveBeenCalledWith(GAME_SOCKET_OUTBOUND_EVENT.START_GAME, {
+      expect(gameSocket.publish).toHaveBeenCalledWith({
+        type: "start-game",
         pin: "123456",
       });
     });
@@ -98,12 +79,13 @@ describe("GameService", () => {
 
   describe("submitAnswer", () => {
     it("should emit submit-answer event with answer data", () => {
-      gameService.submitAnswer("123456", 1, "A", 15);
+      gameService.submitAnswer("123456", 1, 42, 15);
 
-      expect(socket.emit).toHaveBeenCalledWith(GAME_SOCKET_OUTBOUND_EVENT.SUBMIT_ANSWER, {
+      expect(gameSocket.publish).toHaveBeenCalledWith({
+        type: "submit-answer",
         pin: "123456",
         userId: 1,
-        answer: "A",
+        answerId: 42,
         timeLeft: 15,
       });
     });
@@ -113,7 +95,8 @@ describe("GameService", () => {
     it("should emit next-question event", () => {
       gameService.nextQuestion("123456");
 
-      expect(socket.emit).toHaveBeenCalledWith(GAME_SOCKET_OUTBOUND_EVENT.NEXT_QUESTION, {
+      expect(gameSocket.publish).toHaveBeenCalledWith({
+        type: "next-question",
         pin: "123456",
       });
     });

@@ -2,22 +2,24 @@ import process from 'node:process';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import {
-  ACCESS_TOKEN_CONFIG,
-  AuthTokenService,
-  REFRESH_TOKEN_CONFIG,
-} from '../../application/auth/services/auth-token.service';
 import { GetCurrentUserUseCase } from '../../application/auth/use-cases/get-current-user.use-case';
+import { GetSessionAvatarUseCase } from '../../application/auth/use-cases/get-session-avatar.use-case';
+import { GetUserAvatarUseCase } from '../../application/auth/use-cases/get-user-avatar.use-case';
 import { LoginUserUseCase } from '../../application/auth/use-cases/login-user.use-case';
 import { LogoutUserUseCase } from '../../application/auth/use-cases/logout-user.use-case';
 import { RefreshAccessTokenUseCase } from '../../application/auth/use-cases/refresh-access-token.use-case';
 import { RegenerateUserAvatarUseCase } from '../../application/auth/use-cases/regenerate-user-avatar.use-case';
 import { RegisterUserUseCase } from '../../application/auth/use-cases/register-user.use-case';
 import { UpdateUserProfileUseCase } from '../../application/auth/use-cases/update-user-profile.use-case';
-import { UserRepositoryProvider } from '../../domain/auth/repositories/user.repository.interface';
+import {
+  ACCESS_TOKEN_CONFIG,
+  AuthTokenServiceProvider,
+  REFRESH_TOKEN_CONFIG,
+} from '../../domain/auth/ports/auth-token.service';
+import { AvatarGeneratorAdapterProvider } from '../../domain/auth/ports/avatar-generator.adapter';
+import { UserRepositoryProvider } from '../../domain/auth/ports/user.repository';
 import { PasswordService } from '../../domain/auth/services/password.service';
 import { UserAvatarService } from '../../domain/auth/services/user-avatar.service';
-import { AvatarGeneratorService } from '../../domain/shared/services/avatar-generator.service';
 import { DatabaseModule } from '../database/database.module';
 import { getEnvOrFile, getRequiredEnvOrFile } from '../shared/env-secret.util';
 import { AuthController } from './auth.controller';
@@ -26,6 +28,9 @@ import { JwtStrategy } from './jwt.strategy';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { ProfileController } from './profile.controller';
 import { PrismaUserRepository } from './repositories/prisma-user.repository';
+import { RolesGuard } from './roles.guard';
+import { DicebearAvatarGeneratorAdapter } from './services/dicebear-avatar-generator.adapter';
+import { JwtAuthTokenService } from './services/jwt-auth-token.service';
 
 const jwtSecret = getRequiredEnvOrFile('JWT_SECRET');
 
@@ -58,14 +63,24 @@ if (!Number.isFinite(refreshTokenExpiresIn) || refreshTokenExpiresIn <= 0) {
     GetCurrentUserUseCase,
     UpdateUserProfileUseCase,
     RegenerateUserAvatarUseCase,
+    GetUserAvatarUseCase,
+    GetSessionAvatarUseCase,
     PasswordService,
-    AvatarGeneratorService,
+    DicebearAvatarGeneratorAdapter,
     UserAvatarService,
-    AuthTokenService,
+    JwtAuthTokenService,
     PrismaUserRepository,
     {
       provide: UserRepositoryProvider,
       useExisting: PrismaUserRepository,
+    },
+    {
+      provide: AuthTokenServiceProvider,
+      useExisting: JwtAuthTokenService,
+    },
+    {
+      provide: AvatarGeneratorAdapterProvider,
+      useExisting: DicebearAvatarGeneratorAdapter,
     },
     {
       provide: ACCESS_TOKEN_CONFIG,
@@ -83,7 +98,8 @@ if (!Number.isFinite(refreshTokenExpiresIn) || refreshTokenExpiresIn <= 0) {
     },
     JwtStrategy,
     JwtAuthGuard,
+    RolesGuard,
   ],
-  exports: [JwtModule, PassportModule, JwtStrategy, JwtAuthGuard],
+  exports: [JwtModule, PassportModule, JwtStrategy, JwtAuthGuard, RolesGuard],
 })
 export class AuthModule {}
