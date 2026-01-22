@@ -105,6 +105,7 @@ export function OrganizationSelector() {
                   return (
                     <Card
                       key={org.id}
+                      data-organization-option="true"
                       surface={isActive ? "accent" : "base"}
                       variant={isActive ? "accent" : "primary"}
                       padding="sm"

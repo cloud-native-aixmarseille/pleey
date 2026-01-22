@@ -37,7 +37,7 @@ export function SignInPage({ onLogin }: SignInPageProps) {
         notifyFromError(error, "auth.errors.invalidCredentials");
       }
     },
-    [notifyFromError, onLogin]
+    [notifyFromError, onLogin],
   );
 
   const handleBack = useCallback(() => {
@@ -72,7 +72,7 @@ export function SignInPage({ onLogin }: SignInPageProps) {
               />
 
               <RegisterPrompt
-                message={t("auth.newToQuizMaster")}
+                message={t("auth.newHere")}
                 ctaLabel={t("auth.createAccount")}
                 onCtaClick={handleRegisterNavigation}
                 ctaIcon="✨"

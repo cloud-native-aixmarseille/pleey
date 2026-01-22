@@ -3,10 +3,11 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 
 import App from "./App";
+import { COLOR_SCHEME_STORAGE_KEY } from "../domains/shared/constants/storageKeys";
 
 export function bootstrapColorScheme() {
   try {
-    const stored = window.localStorage.getItem("quizmaster_color_scheme");
+    const stored = window.localStorage.getItem(COLOR_SCHEME_STORAGE_KEY);
     const preference =
       stored === "light" || stored === "dark" || stored === "system"
         ? stored
@@ -34,7 +35,7 @@ export function renderApp(rootElement: HTMLElement) {
       <BrowserRouter>
         <App />
       </BrowserRouter>
-    </React.StrictMode>
+    </React.StrictMode>,
   );
 }
 

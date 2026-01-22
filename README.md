@@ -1,6 +1,6 @@
-# 🎮 QuizMaster - Interactive Quiz Application
+# 🎮 Pleey - Community Game Platform
 
-Complete interactive quiz application with real-time gameplay, scoring system, and leaderboards.
+Community game platform with real-time experiences (quizzes and more) to energize events and animate communities.
 
 ## ✨ Features
 
@@ -25,8 +25,8 @@ make install
 
 **That's it!** The application will be available at:
 
-- Frontend: `http://quiz-app.localhost`
-- Backend API: `http://quiz-app.localhost/api`
+- Frontend: `http://pleey.localhost`
+- Backend API: `http://pleey.localhost/api`
 - Traefik Dashboard: `http://traefik.localhost` (provisioned automatically by `make up`)
 
 **Default admin account:**
@@ -78,7 +78,7 @@ make test-ci           # CI mode (JUnit + coverage)
 
 ### Kubernetes Deployment
 
-Deploy QuizMaster on Kubernetes using Helm:
+Deploy Pleey on Kubernetes using Helm:
 
 ```bash
 # Add Bitnami repository

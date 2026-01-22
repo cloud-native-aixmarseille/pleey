@@ -19,7 +19,7 @@ test.describe("Smoke Tests", () => {
     await page.goto("/");
 
     // Verify the page loads
-    await expect(page).toHaveTitle(/QuizMaster|Quiz/i);
+    await expect(page).toHaveTitle(/Pleey|Quiz/i);
 
     // Verify basic UI elements are present
     await expect(page.locator("body")).toBeVisible();

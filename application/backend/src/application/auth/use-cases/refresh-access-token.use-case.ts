@@ -8,7 +8,7 @@ import type { UserRepository } from '../../../domain/auth/ports/user.repository'
 import { UserRepositoryProvider } from '../../../domain/auth/ports/user.repository';
 import { PasswordService } from '../../../domain/auth/services/password.service';
 import type { AuthToken } from '../../../domain/auth/types/auth-token';
-import { mapUserToPublicProfile, toPublicAvatarUri } from '../../shared/utils/avatar-uri.util';
+import { mapUserToPublicProfile } from '../../shared/utils/avatar-uri.util';
 import type { AuthResponseDto } from '../dto/auth-response.dto';
 
 @Injectable()
@@ -44,7 +44,6 @@ export class RefreshAccessTokenUseCase {
       id: user.id,
       username: user.username,
       isAdmin: user.isAdmin,
-      avatarUri: toPublicAvatarUri(user),
     });
 
     const hashedRefreshToken = await this.passwordService.hash(tokenPair.refreshToken);

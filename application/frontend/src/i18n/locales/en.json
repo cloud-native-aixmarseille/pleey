@@ -1,6 +1,6 @@
 {
   "home": {
-    "title": "QUIZMASTER",
+    "title": "PLEEY",
     "subtitle": ">> PRESS ENTER <<",
     "fast": "Fast",
     "epic": "Epic",
@@ -9,6 +9,9 @@
     "signup": "✦ SIGN UP",
     "insertCoin": "[ INSERT COIN TO CONTINUE ]",
     "playersOnline": "> 1000+ PLAYERS ONLINE"
+  },
+  "branding": {
+    "logoAlt": "Pleey logo"
   },
   "auth": {
     "login": "Login",
@@ -20,7 +23,7 @@
     "loginTitle": "Login",
     "loginSubtitle": "Welcome! Login to continue",
     "registerTitle": "Sign Up",
-    "registerSubtitle": "Join QuizMaster and start playing",
+    "registerSubtitle": "Join Pleey and start playing",
     "loginButton": "Sign In",
     "emailPlaceholder": "your@email.com",
     "passwordPlaceholder": "********",
@@ -32,7 +35,7 @@
     },
     "registerButton": "Create Account",
     "usernamePlaceholder": "PlayerOne",
-    "newToQuizMaster": "New to QuizMaster?",
+    "newHere": "New to Pleey?",
     "alreadyHaveAccount": "Already have an account?",
     "createAccount": "Create an account",
     "signIn": "Sign In",
@@ -304,8 +307,8 @@
         "footer": "Thanks for playing! 🎮✨"
       },
       "share": {
-        "title": "QuizMaster Results",
-        "text": "I scored {{score}} points in QuizMaster! 🏆 Can you beat my score?"
+        "title": "Pleey Results",
+        "text": "I scored {{score}} points in Pleey! 🏆 Can you beat my score?"
       }
     },
     "finalResults": "Final Results",
@@ -475,7 +478,7 @@
         "ariaCount": "{{count}} out of {{total}} players selected this answer",
         "ariaCorrect": "correct answer",
         "ariaUser": "your answer",
-        "shareTitle": "QuizMaster - Question Result",
+        "shareTitle": "Pleey - Question Result",
         "shareText": "I {{result}} and scored {{points}} points on question {{question}}! 🎯",
         "shareTextResult": {
           "correct": "got it right",

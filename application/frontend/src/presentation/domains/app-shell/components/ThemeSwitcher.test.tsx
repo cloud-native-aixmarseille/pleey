@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import ThemeSwitcher from "./ThemeSwitcher";
 import { ColorSchemeProvider } from "../../../../presentation/shared/ui/theme";
+import { COLOR_SCHEME_STORAGE_KEY } from "../../../../domains/shared/constants/storageKeys";
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
@@ -48,7 +49,7 @@ describe("ThemeSwitcher", () => {
     render(
       <ColorSchemeProvider>
         <ThemeSwitcher variant="inline" />
-      </ColorSchemeProvider>
+      </ColorSchemeProvider>,
     );
 
     expect(screen.getByRole("button", { name: "System" })).toBeInTheDocument();
@@ -60,7 +61,7 @@ describe("ThemeSwitcher", () => {
     render(
       <ColorSchemeProvider>
         <ThemeSwitcher variant="inline" />
-      </ColorSchemeProvider>
+      </ColorSchemeProvider>,
     );
 
     const systemButton = screen.getByRole("button", { name: "System" });
@@ -71,14 +72,14 @@ describe("ThemeSwitcher", () => {
     render(
       <ColorSchemeProvider>
         <ThemeSwitcher variant="inline" />
-      </ColorSchemeProvider>
+      </ColorSchemeProvider>,
     );
 
     expect(document.documentElement.classList.contains("dark")).toBe(false);
 
     fireEvent.click(screen.getByRole("button", { name: "Dark" }));
 
-    expect(window.localStorage.getItem("quizmaster_color_scheme")).toBe("dark");
+    expect(window.localStorage.getItem(COLOR_SCHEME_STORAGE_KEY)).toBe("dark");
     expect(document.documentElement.classList.contains("dark")).toBe(true);
     expect(document.documentElement.dataset.colorScheme).toBe("dark");
   });

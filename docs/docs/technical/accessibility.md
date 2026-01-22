@@ -6,7 +6,7 @@ sidebar_position: 6
 
 ## Overview
 
-**Accessibility is a first-class citizen in QuizMaster.** This application is built with accessibility at its core, not as an afterthought. All features, components, and user interactions MUST follow WCAG 2.1 AA standards and best practices. Accessibility compliance is mandatory and non-negotiable for all contributions to this project.
+**Accessibility is a first-class citizen in the project.** This application is built with accessibility at its core, not as an afterthought. All features, components, and user interactions MUST follow WCAG 2.1 AA standards and best practices. Accessibility compliance is mandatory and non-negotiable for all contributions to this project.
 
 This document describes the accessibility features implemented and the standards that must be followed.
 
@@ -489,7 +489,7 @@ Recommended screen readers for testing:
 
 ## Summary
 
-QuizMaster is committed to accessibility compliance. We have:
+The project is committed to accessibility compliance. We have:
 
 1. ✅ **Automated Testing**: ESLint + vitest-axe for continuous validation
 2. ✅ **Component Library**: All shared components are accessible

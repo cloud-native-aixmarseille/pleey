@@ -1,5 +1,9 @@
 import type { APIRequestContext, Page } from "@playwright/test";
 
+const TOKEN_STORAGE_KEY = "pleey_token";
+const REFRESH_TOKEN_STORAGE_KEY = "pleey_refresh_token";
+const USER_STORAGE_KEY = "pleey_user";
+
 type Credentials = {
   email: string;
   password: string;
@@ -11,10 +15,6 @@ type AuthPayload = {
   refreshToken?: string;
   user?: unknown;
 };
-
-const TOKEN_STORAGE_KEY = "quizmaster_token";
-const REFRESH_TOKEN_STORAGE_KEY = "quizmaster_refresh_token";
-const USER_STORAGE_KEY = "quizmaster_user";
 
 const resolveApiBaseUrl = () =>
   process.env.API_BASE_URL ?? "http://backend:3001/api";
@@ -43,18 +43,25 @@ export async function loginViaApi(
     throw new Error("Invalid login payload received from API.");
   }
 
-  await page.addInitScript(
-    ({ accessToken, refreshToken, user }) => {
-      localStorage.setItem("quizmaster_token", accessToken);
-      localStorage.setItem("quizmaster_refresh_token", refreshToken);
-      localStorage.setItem("quizmaster_user", JSON.stringify(user));
+  await page.goto("/");
+  await page.evaluate(
+    ({ accessToken, refreshToken, user, keys }) => {
+      localStorage.setItem(keys.token, accessToken);
+      localStorage.setItem(keys.refreshToken, refreshToken);
+      localStorage.setItem(keys.user, JSON.stringify(user));
     },
     {
       accessToken,
       refreshToken,
       user,
+      keys: {
+        token: TOKEN_STORAGE_KEY,
+        refreshToken: REFRESH_TOKEN_STORAGE_KEY,
+        user: USER_STORAGE_KEY,
+      },
     },
   );
+  await page.reload();
 
   return { accessToken, refreshToken, user };
 }

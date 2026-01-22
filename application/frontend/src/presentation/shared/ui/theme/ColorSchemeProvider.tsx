@@ -7,11 +7,10 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { COLOR_SCHEME_STORAGE_KEY } from "../../../../domains/shared/constants/storageKeys";
 
 export type ColorSchemePreference = "system" | "light" | "dark";
 export type ResolvedColorScheme = "light" | "dark";
-
-const STORAGE_KEY = "quizmaster_color_scheme";
 
 interface ColorSchemeContextValue {
   preference: ColorSchemePreference;
@@ -27,7 +26,7 @@ function readStoredPreference(): ColorSchemePreference {
   }
 
   try {
-    const value = window.localStorage.getItem(STORAGE_KEY);
+    const value = window.localStorage.getItem(COLOR_SCHEME_STORAGE_KEY);
     if (value === "light" || value === "dark" || value === "system") {
       return value;
     }
@@ -62,10 +61,10 @@ function applyResolvedSchemeToDom(resolved: ResolvedColorScheme) {
 
 export function ColorSchemeProvider({ children }: { children: ReactNode }) {
   const [preference, setPreferenceState] = useState<ColorSchemePreference>(() =>
-    readStoredPreference()
+    readStoredPreference(),
   );
   const [systemResolved, setSystemResolved] = useState<ResolvedColorScheme>(
-    () => getSystemResolvedScheme()
+    () => getSystemResolvedScheme(),
   );
 
   useEffect(() => {
@@ -103,7 +102,7 @@ export function ColorSchemeProvider({ children }: { children: ReactNode }) {
     setPreferenceState(next);
 
     try {
-      window.localStorage.setItem(STORAGE_KEY, next);
+      window.localStorage.setItem(COLOR_SCHEME_STORAGE_KEY, next);
     } catch {
       // Ignore storage errors
     }
@@ -111,7 +110,7 @@ export function ColorSchemeProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<ColorSchemeContextValue>(
     () => ({ preference, resolved, setPreference }),
-    [preference, resolved, setPreference]
+    [preference, resolved, setPreference],
   );
 
   return (

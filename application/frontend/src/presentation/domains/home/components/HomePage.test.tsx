@@ -15,9 +15,10 @@ vi.mock("../../auth", () => ({
 const mockNavigate = vi.fn();
 
 vi.mock("react-router-dom", async () => {
-  const actual = await vi.importActual<typeof import("react-router-dom")>(
-    "react-router-dom"
-  );
+  const actual =
+    await vi.importActual<typeof import("react-router-dom")>(
+      "react-router-dom",
+    );
   return {
     ...actual,
     useNavigate: () => mockNavigate,
@@ -29,16 +30,18 @@ describe("HomePage", () => {
     mockNavigate.mockReset();
   });
 
-  it("should render the home page with title", () => {
+  it("should render the home page with logo", () => {
     render(
       <ColorSchemeProvider>
         <ThemeProvider>
           <HomePage />
         </ThemeProvider>
-      </ColorSchemeProvider>
+      </ColorSchemeProvider>,
     );
 
-    expect(screen.getByText(/QUIZMASTER/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole("img", { name: /pleey logo/i }),
+    ).toBeInTheDocument();
   });
 
   it("should render login and register buttons", () => {
@@ -47,7 +50,7 @@ describe("HomePage", () => {
         <ThemeProvider>
           <HomePage />
         </ThemeProvider>
-      </ColorSchemeProvider>
+      </ColorSchemeProvider>,
     );
 
     expect(screen.getByText(/LOGIN/i)).toBeInTheDocument();
@@ -60,7 +63,7 @@ describe("HomePage", () => {
         <ThemeProvider>
           <HomePage />
         </ThemeProvider>
-      </ColorSchemeProvider>
+      </ColorSchemeProvider>,
     );
 
     const loginButton = screen.getByText(/LOGIN/i);
@@ -75,7 +78,7 @@ describe("HomePage", () => {
         <ThemeProvider>
           <HomePage />
         </ThemeProvider>
-      </ColorSchemeProvider>
+      </ColorSchemeProvider>,
     );
 
     const registerButton = screen.getByText(/SIGN UP/i);
@@ -90,7 +93,7 @@ describe("HomePage", () => {
         <ThemeProvider>
           <HomePage />
         </ThemeProvider>
-      </ColorSchemeProvider>
+      </ColorSchemeProvider>,
     );
 
     fireEvent.keyDown(window, { key: "Enter" });

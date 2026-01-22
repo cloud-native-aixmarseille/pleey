@@ -2,9 +2,9 @@
 sidebar_position: 1
 ---
 
-# 🎮 Welcome to QuizMaster
+# 🎮 Welcome to Pleey
 
-QuizMaster is an interactive quiz application, designed for real-time multiplayer quiz games with a retro arcade aesthetic.
+Pleey is a community game platform, designed for real-time multiplayer experiences (quizzes and more).
 
 ## ✨ Features
 
@@ -43,7 +43,7 @@ For developers, QA engineers, and AI agents working on the codebase:
 
 ## 🎨 Design Philosophy
 
-QuizMaster uses the **Cyber Arcade** design system, a retro-futuristic aesthetic that combines:
+Pleey uses the **Cyber Arcade** design system, a retro-futuristic aesthetic that combines:
 
 - 80s arcade gaming nostalgia
 - Synthwave purple/pink/cyan color palette

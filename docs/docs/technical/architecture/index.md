@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# 🏗️ QuizMaster Architecture
+# 🏗️ Architecture
 
 Complete documentation of the application's architecture.
 

@@ -1,6 +1,6 @@
-# QuizMaster Backend (NestJS)
+# Pleey Backend (NestJS)
 
-Modern backend for the QuizMaster quiz application, built with NestJS, Prisma, and PostgreSQL, following Clean Architecture, Domain-Driven Design (DDD), and best practices.
+Modern backend for the Pleey community game platform, built with NestJS, Prisma, and PostgreSQL, following Clean Architecture, Domain-Driven Design (DDD), and best practices.
 
 ## 📚 Documentation
 

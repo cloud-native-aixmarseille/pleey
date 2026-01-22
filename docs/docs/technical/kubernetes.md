@@ -4,11 +4,11 @@ sidebar_position: 8
 
 # Kubernetes Deployment Guide
 
-Complete guide for deploying QuizMaster on Kubernetes using Helm.
+Complete guide for deploying the application on Kubernetes using Helm.
 
 ## Overview
 
-QuizMaster provides an umbrella Helm chart that orchestrates all required components:
+The application provides an umbrella Helm chart that orchestrates all required components:
 
 - **Backend**: NestJS application with WebSocket support
 - **Frontend**: React SPA served by Nginx
@@ -18,7 +18,7 @@ QuizMaster provides an umbrella Helm chart that orchestrates all required compon
 
 ## Prerequisites
 
-Before deploying QuizMaster on Kubernetes, ensure you have:
+Before deploying the application on Kubernetes, ensure you have:
 
 ### Required Components
 

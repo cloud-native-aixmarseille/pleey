@@ -4,7 +4,7 @@ export type UserId = number;
 
 /**
  * User Domain Entity
- * Represents a user in the quiz application
+ * Represents a user in the application
  */
 export class User {
   constructor(

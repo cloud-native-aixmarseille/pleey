@@ -1,7 +1,6 @@
 import type { AuthResponseDto } from '../../../application/auth/dto/auth-response.dto';
 import type { UserId } from '../entities/user.entity';
 import type { AuthToken } from '../types/auth-token';
-import type { AvatarUri } from '../types/avatar-uri';
 
 export interface TokenConfig {
   secret: string;
@@ -16,7 +15,6 @@ export type AccessTokenPayload = {
   id: UserId;
   username: string;
   isAdmin: boolean;
-  avatarUri: AvatarUri | null;
 };
 
 export interface TokenPair {

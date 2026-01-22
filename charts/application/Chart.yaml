@@ -1,7 +1,7 @@
 ---
 apiVersion: v2
 name: quiz-app
-description: QuizMaster - Interactive Quiz Application with real-time gameplay
+description: Pleey - Interactive Quiz Application with real-time gameplay
 type: application
 version: 0.0.0
 appVersion: "0.0.0"
@@ -15,7 +15,7 @@ home: https://github.com/cloud-native-aixmarseille/quiz-app
 sources:
   - https://github.com/cloud-native-aixmarseille/quiz-app
 maintainers:
-  - name: QuizMaster Team
+  - name: Pleey Team
     email: support@example.com
 
 # Dependencies - PostgreSQL database

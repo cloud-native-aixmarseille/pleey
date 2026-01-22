@@ -49,8 +49,8 @@ async function bootstrap() {
   app.setGlobalPrefix(globalPrefix);
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('QuizMaster API')
-    .setDescription('OpenAPI specification for the QuizMaster backend services.')
+    .setTitle('Pleey API')
+    .setDescription('OpenAPI specification for the Pleey backend services.')
     .setVersion('1.0.0')
     .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }, 'bearerAuth')
     .addSecurityRequirements('bearerAuth')

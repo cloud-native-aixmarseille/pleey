@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import {
   ArcadePage,
   Card,
+  PleeyLogo,
   PrimaryButton,
   SecondaryButton,
 } from "../../../../presentation/shared/ui/components";
@@ -28,10 +29,7 @@ const QUICK_SETTINGS_WRAPPER_CLASSES =
 const HERO_CARD_WRAPPER_CLASSES =
   "w-full max-w-3xl rounded-[var(--arcade-radius-xl)] border-4 border-primary-500 bg-light-50/95 text-dark-500 shadow-[0_0_45px_rgba(56,189,248,0.25)] dark:bg-dark-400/95 dark:text-light-100";
 const HERO_CARD_CONTENT_CLASSES = "space-y-8 text-center";
-const HERO_ICON_CLASSES =
-  "mb-6 text-7xl drop-shadow-[0_0_20px_rgba(0,255,204,0.8)] animate-bounce-slow sm:text-8xl";
-const HERO_TITLE_CLASSES =
-  "text-gradient-neon text-4xl font-display animate-glow sm:text-6xl";
+const HERO_ICON_CLASSES = "mb-6 flex justify-center animate-bounce-slow";
 const HERO_SUBTITLE_WRAPPER_CLASSES =
   "relative inline-flex overflow-hidden border-2 border-accent-500 bg-light-100 px-6 py-3 dark:bg-dark-500";
 const HERO_SUBTITLE_OVERLAY_CLASSES =
@@ -109,8 +107,12 @@ export default function HomePage() {
               <Card padding="xl" surface="panel" border="none" motion="scale">
                 <div className={HERO_CARD_CONTENT_CLASSES}>
                   <div>
-                    <div className={HERO_ICON_CLASSES}>🕹️</div>
-                    <h1 className={HERO_TITLE_CLASSES}>{t("home.title")}</h1>
+                    <div className={HERO_ICON_CLASSES}>
+                      <PleeyLogo
+                        size="xl"
+                        className="mx-auto h-28 w-28 sm:h-36 sm:w-36 drop-shadow-[0_0_28px_rgba(0,255,204,0.7)]"
+                      />
+                    </div>
                     <div className={HERO_SUBTITLE_WRAPPER_CLASSES}>
                       <div className={HERO_SUBTITLE_OVERLAY_CLASSES} />
                       <p className={HERO_SUBTITLE_TEXT_CLASSES}>

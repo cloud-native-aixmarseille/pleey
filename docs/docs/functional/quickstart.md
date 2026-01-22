@@ -2,19 +2,19 @@
 sidebar_position: 2
 ---
 
-# ⚡ QuizMaster - Quick Start (Hosts)
+# ⚡ Pleey - Quick Start (Hosts)
 
 This guide helps facilitators run their first quiz session in minutes—no technical setup required. If your organization handles deployment, you only need a browser (Chrome, Edge, or Firefox) and a stable internet connection.
 
 ## ✅ Before You Begin
 
-- Ask your QuizMaster administrator to create a host account or provide a demo login.
+- Ask your Pleey administrator to create a host account or provide a demo login.
 - Prepare questions or import an existing quiz file.
-- Share the recommended player URL with participants (for local demos this is usually `http://quiz-app.localhost`).
+- Share the recommended player URL with participants (for local demos this is usually `http://pleey.localhost`).
 
 ## 1. Sign In
 
-1. Open the QuizMaster dashboard in your browser.
+1. Open the Pleey dashboard in your browser.
 2. Enter the credentials provided by your administrator.
 3. Update your password if prompted; we recommend enabling multi-factor authentication when available.
 
@@ -38,7 +38,7 @@ This guide helps facilitators run their first quiz session in minutes—no techn
 
 ## 4. Invite Players
 
-1. Start the session; QuizMaster displays a PIN and the player URL on the lobby screen.
+1. Start the session; Pleey displays a PIN and the player URL on the lobby screen.
 2. Ask participants to open the player URL on their device and enter the PIN.
 3. Monitor the lobby to confirm everyone appears in the player list. Use **Kick** to remove duplicate or test entries.
 
@@ -56,7 +56,7 @@ This guide helps facilitators run their first quiz session in minutes—no techn
 - Export player scores to CSV for attendance or grading.
 - Download question-level insights to spot knowledge gaps.
 
-2. Share highlights with participants—QuizMaster can generate a shareable recap link when enabled by the administrator.
+2. Share highlights with participants—Pleey can generate a shareable recap link when enabled by the administrator.
 
 ## 🙋 Need Help?
 

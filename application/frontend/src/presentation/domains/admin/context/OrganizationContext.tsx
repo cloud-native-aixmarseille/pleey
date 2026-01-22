@@ -14,6 +14,10 @@ import type {
 } from "../../../../domains/organization/types";
 import { container } from "../../../../app/di/container";
 import { useAuthManagerContext } from "../../auth";
+import {
+  TOKEN_STORAGE_KEY,
+  ORGANIZATION_ID_STORAGE_KEY,
+} from "../../../../domains/shared/constants/storageKeys";
 
 interface OrganizationContextValue {
   organizations: Organization[];
@@ -55,16 +59,23 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const loadOrganizations = useCallback(async () => {
-    if (!token) return;
+    const resolvedToken =
+      token ??
+      (typeof window !== "undefined"
+        ? localStorage.getItem(TOKEN_STORAGE_KEY)
+        : null);
+
+    if (!resolvedToken) return;
 
     setIsLoading(true);
     setError(null);
     try {
-      const orgs = await organizationRepository.getMyOrganizations(token);
+      const orgs =
+        await organizationRepository.getMyOrganizations(resolvedToken);
       setOrganizations(orgs);
 
       if (orgs.length > 0 && !currentOrganization) {
-        const savedOrgId = localStorage.getItem("currentOrganizationId");
+        const savedOrgId = localStorage.getItem(ORGANIZATION_ID_STORAGE_KEY);
         const orgToSelect = savedOrgId
           ? orgs.find((org) => org.id === Number(savedOrgId)) || orgs[0]
           : orgs[0];
@@ -80,13 +91,19 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
   }, [token, currentOrganization]);
 
   const loadDashboard = useCallback(async () => {
-    if (!token || !currentOrganization) return;
+    const resolvedToken =
+      token ??
+      (typeof window !== "undefined"
+        ? localStorage.getItem(TOKEN_STORAGE_KEY)
+        : null);
+
+    if (!resolvedToken || !currentOrganization) return;
 
     setError(null);
     try {
       const dashboardData =
         await organizationRepository.getOrganizationDashboard(
-          token,
+          resolvedToken,
           currentOrganization.id,
         );
       setDashboard(dashboardData);
@@ -102,21 +119,29 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
   const setCurrentOrganization = useCallback((org: Organization | null) => {
     setCurrentOrganizationState(org);
     if (org) {
-      localStorage.setItem("currentOrganizationId", org.id.toString());
+      localStorage.setItem(ORGANIZATION_ID_STORAGE_KEY, org.id.toString());
     } else {
-      localStorage.removeItem("currentOrganizationId");
+      localStorage.removeItem(ORGANIZATION_ID_STORAGE_KEY);
     }
     setDashboard(null);
   }, []);
 
   const createOrganization = useCallback(
     async (name: string, description?: string): Promise<Organization> => {
-      if (!token) throw new Error("organization.errors.notAuthenticated");
+      const resolvedToken =
+        token ??
+        (typeof window !== "undefined"
+          ? localStorage.getItem(TOKEN_STORAGE_KEY)
+          : null);
+
+      if (!resolvedToken) {
+        throw new Error("organization.errors.notAuthenticated");
+      }
 
       setError(null);
       try {
         const newOrg = await organizationRepository.createOrganization(
-          token,
+          resolvedToken,
           name,
           description,
         );

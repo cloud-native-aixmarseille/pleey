@@ -6,7 +6,7 @@ import { test, expect } from "@playwright/test";
  * Tests the complete game flow from joining to completion
  * Critical flow: User joins game, plays through questions, sees results
  *
- * This is the core user experience of QuizMaster
+ * This is the core user experience and must work flawlessly.
  */
 
 test.describe("Game Flow - Nominal Use Case", () => {

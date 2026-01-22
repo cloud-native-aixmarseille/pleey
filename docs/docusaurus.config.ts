@@ -5,8 +5,8 @@ import type * as Preset from "@docusaurus/preset-classic";
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: "QuizMaster",
-  tagline: "Interactive Quiz Application - Documentation",
+  title: "Pleey",
+  tagline: "Interactive Community game platform - Documentation",
   favicon: "img/favicon.ico",
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
@@ -60,9 +60,9 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: "QuizMaster",
+      title: "Pleey",
       logo: {
-        alt: "QuizMaster Logo",
+        alt: "Pleey Logo",
         src: "img/logo.svg",
       },
       items: [
@@ -111,7 +111,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} QuizMaster. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Pleey. Built with Docusaurus.`,
     },
     prism: {
       theme: prismThemes.github,

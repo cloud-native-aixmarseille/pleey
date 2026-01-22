@@ -696,7 +696,7 @@ xl:   0.75rem   (12px)
 
 ## Accessibility
 
-**Accessibility is a first-class citizen in QuizMaster.** All design decisions must comply with WCAG 2.1 AA standards (minimum) and follow accessibility best practices.
+**Accessibility is a first-class citizen in the project.** All design decisions must comply with WCAG 2.1 AA standards (minimum) and follow accessibility best practices.
 
 For complete accessibility guidelines, standards, and implementation details, see the **[Accessibility Documentation](accessibility.md)**.
 
@@ -781,7 +781,7 @@ function MyComponent() {
   return (
     <Container size="lg">
       <Card>
-        <h1>QUIZMASTER</h1>
+        <h1>PLEEY</h1>
         <Button variant="primary">► LOGIN</Button>
       </Card>
     </Container>
@@ -1014,7 +1014,7 @@ const boxShadow = {
 
 // Neon heading
 <h1 className="font-display text-5xl uppercase text-gradient-neon text-neon">
-  QUIZMASTER
+  PLEEY
 </h1>
 
 // Glass card

@@ -1,6 +1,6 @@
-# 🤖 Agent Instructions - QuizMaster
+# 🤖 Agent Instructions - Pleey
 
-This document provides instructions for AI agents (like GitHub Copilot, Claude, ChatGPT, and other AI assistants) working with the QuizMaster codebase.
+This document provides instructions for AI agents (like GitHub Copilot, Claude, ChatGPT, and other AI assistants) working with the Pleey codebase.
 
 ## 📚 Primary Documentation References
 
@@ -38,7 +38,7 @@ When working with this codebase, AI agents should:
 
 ### Quick Architecture Reference
 
-**Project Type**: Interactive quiz application  
+**Project Type**: Interactive Community game platform for energizing events with quizzes and more  
 **Stack**: NestJS + Prisma + PostgreSQL (backend) | React 19 + Vite + Tailwind (frontend)  
 **Deployment**: Docker + Nginx  
 **Authentication**: JWT tokens with bcrypt
@@ -210,4 +210,4 @@ All documentation is centralized in `/docs` using Docusaurus:
 
 **Last Updated**: 2025-11-04  
 **Version**: 3.0.0 (Docusaurus migration)  
-**Maintained by**: QuizMaster Development Team
+**Maintained by**: Pleey Development Team
