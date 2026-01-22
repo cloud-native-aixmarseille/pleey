@@ -1,7 +1,7 @@
 import { memo, useMemo } from "react";
 import { Link } from "react-router-dom";
 
-import { Icon } from "../../../../../presentation/shared/ui/icons";
+import { PleeyLogo } from "../../../../../presentation/shared/ui/components";
 
 const BRAND_BUTTON_CLASSES =
   "flex items-center gap-3 rounded-3xl px-4 py-2 text-left transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:[box-shadow:var(--arcade-effect-focus-ring)]";
@@ -26,7 +26,7 @@ function AccountBrandComponent({
 }: AccountBrandProps) {
   const ariaLabel = useMemo(
     () => (subtitle ? `${title} – ${subtitle}` : title),
-    [subtitle, title]
+    [subtitle, title],
   );
 
   return (
@@ -37,7 +37,11 @@ function AccountBrandComponent({
       data-account-brand="true"
     >
       <div className={BRAND_ICON_WRAPPER_CLASSES} aria-hidden="true">
-        <Icon name="Gamepad2" tone="accent" size={22} strokeWidth={1.75} />
+        <PleeyLogo
+          size="md"
+          decorative
+          className="h-9 w-9 drop-shadow-[0_0_14px_rgba(0,255,204,0.6)]"
+        />
       </div>
       <div className={BRAND_TEXT_STACK_CLASSES}>
         <span className={BRAND_TITLE_CLASSES}>{title}</span>

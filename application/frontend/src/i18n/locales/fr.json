@@ -1,6 +1,6 @@
 {
   "home": {
-    "title": "QUIZMASTER",
+    "title": "PLEEY",
     "subtitle": ">> APPUYEZ SUR ENTRÉE <<",
     "fast": "Rapide",
     "backToHostPanel": "RETOUR AU PANNEAU HÔTE",
@@ -10,6 +10,9 @@
     "signup": "✦ INSCRIPTION",
     "insertCoin": "[ INSÉREZ UNE PIÈCE POUR CONTINUER ]",
     "playersOnline": "> 1000+ JOUEURS EN LIGNE"
+  },
+  "branding": {
+    "logoAlt": "Logo Pleey"
   },
   "auth": {
     "login": "Connexion",
@@ -21,7 +24,7 @@
     "loginTitle": "Connexion",
     "loginSubtitle": "Bienvenue ! Connectez-vous pour continuer",
     "registerTitle": "Inscription",
-    "registerSubtitle": "Rejoignez QuizMaster et commencez à jouer",
+    "registerSubtitle": "Rejoignez Pleey et commencez à jouer",
     "loginButton": "Se connecter",
     "emailPlaceholder": "votre@email.com",
     "passwordPlaceholder": "********",
@@ -33,7 +36,7 @@
     },
     "registerButton": "Créer un compte",
     "usernamePlaceholder": "JoueurPro",
-    "newToQuizMaster": "Nouveau sur QuizMaster ?",
+    "newHere": "Nouveau sur Pleey ?",
     "alreadyHaveAccount": "Vous avez déjà un compte ?",
     "createAccount": "Créer un compte",
     "signIn": "Se connecter",
@@ -270,8 +273,8 @@
         "footer": "Merci d'avoir joué ! 🎮✨"
       },
       "share": {
-        "title": "Résultats QuizMaster",
-        "text": "J'ai marqué {{score}} points sur QuizMaster ! 🏆 Peux-tu battre mon score ?"
+        "title": "Résultats Pleey",
+        "text": "J'ai marqué {{score}} points sur Pleey ! 🏆 Peux-tu battre mon score ?"
       }
     },
     "finalResults": "Résultats Finaux",
@@ -441,7 +444,7 @@
         "ariaCount": "{{count}} sur {{total}} joueurs ont choisi cette réponse",
         "ariaCorrect": "réponse correcte",
         "ariaUser": "votre réponse",
-        "shareTitle": "QuizMaster - Résultat de la question",
+        "shareTitle": "Pleey - Résultat de la question",
         "shareText": "J'ai {{result}} et marqué {{points}} points à la question {{question}} ! 🎯",
         "shareTextResult": {
           "correct": "réussi",

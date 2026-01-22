@@ -7,7 +7,7 @@
  */
 const message =
   process.env.PLAYWRIGHT_WAIT_MESSAGE ??
-  "Playwright is waiting for the QuizMaster stack to be available. Run 'make up' or start the dev servers locally.";
+  "Playwright is waiting for the stack to be available. Run 'make up' or start the dev servers locally.";
 
 console.log(message);
 console.log("Press Ctrl+C to stop this helper when tests finish.");

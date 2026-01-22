@@ -1,5 +1,5 @@
 ---
-# Development environment values for QuizMaster
+# Development environment values for Pleey
 # Usage: helm install quiz-app ./deploy/helm/quiz-app \
 #   -f ./deploy/helm/quiz-app/values-dev.yaml
 

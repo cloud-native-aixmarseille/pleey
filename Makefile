@@ -1,4 +1,4 @@
-# Makefile for QuizMaster
+# Makefile for Pleey
 # Using Docker Compose V2
 
 .PHONY: help install setup build up down restart logs ps rebuild shell setup-traefik migrate seed openapi linter-fix test test-install
@@ -13,7 +13,7 @@ RED=\033[0;31m
 NC=\033[0m # No Color
 
 help: ## Display this help
-	@echo "$(GREEN)QuizMaster - Available commands:$(NC)"
+	@echo "$(GREEN)Pleey - Available commands:$(NC)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-15s$(NC) %s\n", $$1, $$2}'
 
 # ==========================================
@@ -26,8 +26,8 @@ install: setup setup-traefik build up migrate seed openapi ## Complete installat
 	@echo "$(GREEN)═══════════════════════════════════════$(NC)"
 	@echo ""
 	@echo "Application available at:"
-	@echo "  Frontend: $(YELLOW)http://quiz-app.localhost$(NC)"
-	@echo "  Backend:  $(YELLOW)http://quiz-app.localhost/api$(NC)"
+	@echo "  Frontend: $(YELLOW)http://pleey.localhost$(NC)"
+	@echo "  Backend:  $(YELLOW)http://pleey.localhost/api$(NC)"
 	@echo "  Traefik dashboard: $(YELLOW)http://traefik.localhost$(NC) (managed by setup-traefik)"
 	@echo ""
 	@echo "Default admin account:"
@@ -126,8 +126,8 @@ traefik: ## Open Traefik dashboard
 
 health: ## Check application health
 	@echo "$(GREEN)Checking status...$(NC)"
-	@curl -s http://quiz-app.localhost/api/health/live | jq '.' || echo "$(YELLOW)Backend unavailable$(NC)"
-	@curl -s -o /dev/null -w "Frontend: %{http_code}\n" http://quiz-app.localhost/
+	@curl -s http://pleey.localhost/api/health/live | jq '.' || echo "$(YELLOW)Backend unavailable$(NC)"
+	@curl -s -o /dev/null -w "Frontend: %{http_code}\n" http://pleey.localhost/
 
 # ==========================================
 # Database

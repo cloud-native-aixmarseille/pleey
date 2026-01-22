@@ -1,5 +1,5 @@
 ---
-# Staging environment values for QuizMaster
+# Staging environment values for Pleey
 # Usage: helm install quiz-app ./deploy/helm/quiz-app \
 #   -f ./deploy/helm/quiz-app/values-staging.yaml
 

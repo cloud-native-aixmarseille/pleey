@@ -1,7 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
 /**
- * Playwright configuration for QuizMaster E2E tests
+ * Playwright configuration for E2E tests
  *
  * These tests follow the testing pyramid principle:
  * - Smoke tests: Quick health checks (@smoke tag)
@@ -14,7 +14,7 @@ if (forbiddenHostPattern.test(defaultBaseUrl)) {
   throw new Error(
     [
       `Invalid BASE_URL "${defaultBaseUrl}" for E2E tests.`,
-      "QuizMaster E2E tests must run inside docker-compose and target internal service hosts (e.g. http://frontend:5173).",
+      "E2E tests must run inside docker-compose and target internal service hosts (e.g. http://frontend:5173).",
       "Use `make test-e2e` or `./scripts/test-runner.sh e2e` to run the suite.",
     ].join(" "),
   );

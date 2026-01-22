@@ -27,10 +27,6 @@ export function computeAvatarVersion(avatarDataUri?: AvatarUri | null): string |
   return hash.slice(0, 12);
 }
 
-export function toPublicAvatarUri(user: User): AvatarUri | null {
-  return user.avatarUri ?? null;
-}
-
 export function mapUserToPublicProfile(user: User): Omit<
   User,
   'password' | 'refreshTokenHash' | 'refreshTokenExpiresAt'
@@ -38,10 +34,9 @@ export function mapUserToPublicProfile(user: User): Omit<
   avatarUri: string | null;
 } {
   const safeUser = user.toSafeObject();
-  const avatarUri = toPublicAvatarUri(user);
   return {
     ...safeUser,
-    avatarUri: avatarUri ? avatarUri.toString('utf8') : null,
+    avatarUri: user.avatarUri ? user.avatarUri.toString('utf8') : null,
   } as Omit<User, 'password' | 'refreshTokenHash' | 'refreshTokenExpiresAt'> & {
     avatarUri: string | null;
   };

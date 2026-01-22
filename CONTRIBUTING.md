@@ -1,6 +1,6 @@
-# 🤝 Contributing Guide - QuizMaster
+# 🤝 Contributing Guide - Pleey
 
-Thank you for your interest in contributing to QuizMaster! This guide will help you get started.
+Thank you for your interest in contributing to Pleey! This guide will help you get started.
 
 ## 📚 Complete Documentation
 
@@ -289,7 +289,7 @@ Create a GitHub issue with:
 
 ## 🙏 Acknowledgments
 
-Thank you for contributing to QuizMaster! Every contribution, no matter how small, is appreciated. 🎉
+Thank you for contributing to Pleey! Every contribution, no matter how small, is appreciated. 🎉
 
 ---
 

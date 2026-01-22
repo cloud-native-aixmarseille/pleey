@@ -29,7 +29,7 @@ vi.mock("react-i18next", () => ({
           "{{count}} out of {{total}} players selected this answer",
         "game.playing.result.ariaCorrect": "correct answer",
         "game.playing.result.ariaUser": "your answer",
-        "game.playing.result.shareTitle": "QuizMaster - Question Result",
+        "game.playing.result.shareTitle": "Pleey - Question Result",
         "game.playing.result.shareText":
           "I {{result}} and scored {{points}} points on question {{question}}! 🎯",
         "game.playing.result.shareTextResult.correct": "got it right",
@@ -80,7 +80,7 @@ vi.mock("./components/ResultActions", () => ({
         ? createElement(
             "button",
             { type: "button", onClick: onNextQuestion },
-            nextQuestionLabel
+            nextQuestionLabel,
           )
         : null}
     </div>
@@ -137,7 +137,7 @@ describe("QuestionResultDisplay", () => {
         userAnswer={1}
         isHost={false}
         onNextQuestion={vi.fn()}
-      />
+      />,
     );
 
     expect(screen.getByText(/BRAVO/i)).toBeInTheDocument();
@@ -153,7 +153,7 @@ describe("QuestionResultDisplay", () => {
         userAnswer={2}
         isHost={false}
         onNextQuestion={vi.fn()}
-      />
+      />,
     );
 
     expect(screen.getByText(/OOPS/i)).toBeInTheDocument();
@@ -169,7 +169,7 @@ describe("QuestionResultDisplay", () => {
         userAnswer={1}
         isHost={false}
         onNextQuestion={vi.fn()}
-      />
+      />,
     );
 
     expect(screen.getByText(/Answer Distribution/i)).toBeInTheDocument();
@@ -186,7 +186,7 @@ describe("QuestionResultDisplay", () => {
         userAnswer={1}
         isHost={true}
         onNextQuestion={onNextQuestion}
-      />
+      />,
     );
 
     expect(screen.getByText(/Next question/i)).toBeInTheDocument();
@@ -201,7 +201,7 @@ describe("QuestionResultDisplay", () => {
         userAnswer={1}
         isHost={false}
         onNextQuestion={vi.fn()}
-      />
+      />,
     );
 
     expect(screen.queryByText(/Next question/i)).not.toBeInTheDocument();
@@ -238,7 +238,7 @@ describe("QuestionResultDisplay", () => {
         userAnswer={10}
         isHost={false}
         onNextQuestion={vi.fn()}
-      />
+      />,
     );
 
     expect(screen.getByText(/TRUE/i)).toBeInTheDocument();

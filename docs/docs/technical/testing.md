@@ -2,9 +2,9 @@
 sidebar_position: 4
 ---
 
-# Testing Guide - QuizMaster
+# Testing Guide
 
-This document explains how to run and develop tests for the QuizMaster application.
+This document explains how to run and develop tests for the application.
 
 ## Quick Start
 
@@ -61,7 +61,7 @@ make test-e2e-ui          # Playwright UI mode
 
 ## Testing Pyramid
 
-QuizMaster follows the **testing pyramid** principle:
+The application follows the **testing pyramid** principle:
 
 ```text
        /  \  E2E Tests (few) - Smoke tests & critical flows

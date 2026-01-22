@@ -1,7 +1,7 @@
 {
-  "name": "quizmaster-e2e-tests",
+  "name": "pleey-e2e-tests",
   "version": "1.0.0",
-  "description": "End-to-end tests for QuizMaster application",
+  "description": "End-to-end tests for Pleey application",
   "private": true,
   "scripts": {
     "test": "playwright test",

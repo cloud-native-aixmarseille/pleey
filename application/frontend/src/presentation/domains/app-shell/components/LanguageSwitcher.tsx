@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { LANGUAGE_STORAGE_KEY } from "../../../../domains/shared/constants/storageKeys";
 
 import { PrimaryButton, SecondaryButton } from "../../../shared/ui/components";
 import Card from "../../../../presentation/shared/ui/components/Card";
@@ -22,12 +23,12 @@ export default function LanguageSwitcher({
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
-    localStorage.setItem("quizmaster_language", lng);
+    localStorage.setItem(LANGUAGE_STORAGE_KEY, lng);
   };
 
   const wrapperClass = composeClasses(
     variant === "fixed" ? "fixed top-4 right-4 z-50" : undefined,
-    className
+    className,
   );
 
   return (

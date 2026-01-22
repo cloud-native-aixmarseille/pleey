@@ -2,7 +2,7 @@
 sidebar_position: 9
 ---
 
-# 🔐 Security Policy - QuizMaster
+# 🔐 Security Policy
 
 ## 🛡️ Security Best Practices
 

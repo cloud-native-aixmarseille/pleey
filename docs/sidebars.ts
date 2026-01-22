@@ -1,7 +1,7 @@
 import type { SidebarsConfig } from "@docusaurus/plugin-content-docs";
 
 /**
- * Sidebar configuration for QuizMaster documentation
+ * Sidebar configuration for documentation
  * Two main sections: Functional (user-facing) and Technical (developer-facing)
  */
 const sidebars: SidebarsConfig = {
@@ -47,7 +47,11 @@ const sidebars: SidebarsConfig = {
     {
       type: "category",
       label: "📖 Reference",
-      items: ["technical/quick-reference", "technical/documentation-guide"],
+      items: [
+        "technical/quick-reference",
+        "technical/documentation-guide",
+        "technical/announcements/rename-quizmaster-to-pleey",
+      ],
     },
   ],
 };

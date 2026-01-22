@@ -6,7 +6,7 @@ sidebar_position: 8
 
 ## Overview
 
-This document provides detailed color contrast ratios for QuizMaster's Cyber Arcade design system, ensuring WCAG 2.1 Level AA compliance for all text and UI elements.
+This document provides detailed color contrast ratios for application's Cyber Arcade design system, ensuring WCAG 2.1 Level AA compliance for all text and UI elements.
 
 ## WCAG 2.1 Standards
 

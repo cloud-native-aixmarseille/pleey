@@ -61,6 +61,8 @@ export {
   type ArcadeTimerSize,
 } from "./ArcadeTimer";
 
+export { PleeyLogo, type PleeyLogoProps, type PleeyLogoSize } from "./PleeyLogo";
+
 export {
   ArcadeGlassStack,
   type ArcadeGlassStackProps,

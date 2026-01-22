@@ -4,7 +4,7 @@ sidebar_position: 10
 
 # 📝 Documentation Management Guide
 
-This guide provides comprehensive instructions, guidelines, and best practices for managing, writing, updating, and maintaining documentation in the QuizMaster project.
+This guide provides comprehensive instructions, guidelines, and best practices for managing, writing, updating, and maintaining documentation in the project.
 
 ## 🎯 Documentation Philosophy
 
@@ -272,7 +272,7 @@ const example = (param: string): void => {
 
 - **Goal**: Help newcomers learn by doing
 - **Format**: Step-by-step instructions
-- **Example**: "Getting Started with QuizMaster"
+- **Example**: "Getting Started"
 - **Location**: `functional/` or `technical/` depending on audience
 
 **Structure:**
@@ -486,7 +486,7 @@ When submitting a PR:
 
 - ✅ Sentence case for headings: "How to deploy to production"
 - ❌ Title Case for headings: "How To Deploy To Production"
-- ✅ Proper nouns capitalized: "Docker", "React", "QuizMaster"
+- ✅ Proper nouns capitalized: "Docker", "React"
 - ✅ UI elements as shown: "Click **Save**"
 
 **Punctuation:**
@@ -846,5 +846,5 @@ Create a GitHub issue with:
 ---
 
 **Last Updated**: 2025-11-04  
-**Maintained By**: QuizMaster Development Team  
+**Maintained By**: Pleey Development Team  
 **Questions?** Open a GitHub issue with the `documentation` label.

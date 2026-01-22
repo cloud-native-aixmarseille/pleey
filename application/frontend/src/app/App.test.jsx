@@ -28,7 +28,9 @@ describe("QuizApp", () => {
 
   it("should render the home view by default", () => {
     renderApp();
-    expect(screen.getByText(/QuizMaster/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole("img", { name: /pleey logo/i }),
+    ).toBeInTheDocument();
   });
 
   it("should have login and register buttons on home page", () => {

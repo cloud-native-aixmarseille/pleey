@@ -2,7 +2,7 @@
 sidebar_position: 10
 ---
 
-# ⚡ QuizMaster - Quick Reference Guide
+# ⚡ Quick Reference Guide
 
 Fast reference for all essential development commands.
 
@@ -22,8 +22,8 @@ make install
 
 **Access:**
 
-- Frontend: `<http://quiz-app.localhost>`
-- Backend API: `<http://quiz-app.localhost/api>`
+- Frontend: `<http://pleey.localhost>`
+- Backend API: `<http://pleey.localhost/api>`
 - Traefik Dashboard: `<http://traefik.localhost>` (`make up` runs `setup-traefik` for you)
 - Admin: `admin@quiz.com` / `admin123`
 
@@ -168,10 +168,10 @@ make health            # Test health endpoints
 
 ### Application URLs
 
-- **Frontend**: `<http://quiz-app.localhost>`
-- **Backend API**: `<http://quiz-app.localhost/API>`
+- **Frontend**: `<http://pleey.localhost>`
+- **Backend API**: `<http://pleey.localhost/API>`
 - **Traefik Dashboard**: `<http://traefik.localhost>` (`make setup-traefik`)
-- **Health Check**: `<http://quiz-app.localhost/api/health/live>`
+- **Health Check**: `<http://pleey.localhost/api/health/live>`
 
 ### Default Credentials
 
@@ -486,7 +486,7 @@ make install
 
 ### Cannot Access Application
 
-**Problem: `*.quiz-app.localhost` URLs not working**
+**Problem: `*.pleey.localhost` URLs not working**
 
 ```bash
 # Check Traefik is running
@@ -497,7 +497,7 @@ docker ps --filter "name=traefik-local"
 # Open: http://traefik.localhost
 
 # Test DNS resolution
-ping quiz-app.localhost
+ping pleey.localhost
 # Should resolve to 127.0.0.1
 
 # Restart Traefik
@@ -511,7 +511,7 @@ docker restart traefik-local
 make logs-backend
 
 # Check health endpoint
-curl http://quiz-app.localhost/api/health/live
+curl http://pleey.localhost/api/health/live
 
 # Restart backend
 docker compose restart backend
@@ -639,7 +639,7 @@ curl http://localhost:9090/api/v1/query?query=websocket_connections_active
 
 1. Import Docker dashboard (ID: 193)
 2. Import Node Exporter dashboard (ID: 1860)
-3. Create custom dashboard for QuizMaster
+3. Create custom dashboard for Pleey
 
 ---
 

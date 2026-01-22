@@ -7,6 +7,10 @@ import {
 } from "../../../test/fixtures";
 import { createAuthRepositoryMock } from "../../../test/mock-factories/auth-repository.mock-factory";
 import { createStorageMock } from "../../../test/mock-factories/storage.mock-factory";
+import {
+  TOKEN_STORAGE_KEY,
+  USER_STORAGE_KEY,
+} from "../../../domains/shared/constants/storageKeys";
 
 describe("LoginUseCase", () => {
   let loginUseCase: LoginUseCase;
@@ -35,11 +39,11 @@ describe("LoginUseCase", () => {
       "password123",
     );
     expect(mockStorage.setItem).toHaveBeenCalledWith(
-      "quizmaster_token",
+      TOKEN_STORAGE_KEY,
       mockResponse.token,
     );
     expect(mockStorage.setItem).toHaveBeenCalledWith(
-      "quizmaster_user",
+      USER_STORAGE_KEY,
       JSON.stringify(mockResponse.user),
     );
   });
