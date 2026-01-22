@@ -1,6 +1,6 @@
 import type { Mocked } from 'vitest';
 
-import type { GameTimerService } from '../../domain/game/ports/game-timer.service.interface';
+import type { GameTimerService } from '../../domain/game/ports/game-timer.service';
 
 import {
   applyMockFactoryConfig,

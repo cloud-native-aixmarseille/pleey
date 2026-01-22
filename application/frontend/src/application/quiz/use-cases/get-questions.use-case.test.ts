@@ -1,24 +1,20 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { GetQuestionsUseCase } from "./get-questions.use-case";
-import { IQuizRepository } from "../../../domains/quiz/ports/quiz.repository.interface";
+import type { QuizRepository } from "../../../domains/quiz/ports/quiz.repository";
 import type { Question } from "../../../domains/quiz/types";
 import { createQuestionFixture } from "../../../test/fixtures";
+import { createQuizRepositoryMock } from "../../../test/mock-factories/quiz-repository.mock-factory";
 
 describe("GetQuestionsUseCase", () => {
   let getQuestionsUseCase: GetQuestionsUseCase;
-  let mockQuizRepository: IQuizRepository;
+  let mockQuizRepository: QuizRepository;
 
   const mockQuestions: Question[] = [
     createQuestionFixture(),
   ];
 
   beforeEach(() => {
-    mockQuizRepository = {
-      getQuizzes: vi.fn(),
-      getQuestions: vi.fn(),
-      createQuiz: vi.fn(),
-      addQuestion: vi.fn(),
-    };
+    mockQuizRepository = createQuizRepositoryMock();
 
     getQuestionsUseCase = new GetQuestionsUseCase(mockQuizRepository);
   });

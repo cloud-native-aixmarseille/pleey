@@ -1,11 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { GameSessionRepository } from '../../../domain/game/repositories/game-session.repository.interface';
-import type { ScoreRepository } from '../../../domain/game/repositories/score.repository.interface';
+import { GameSessionStatus } from '../../../domain/game/enums/game-session-status.enum';
+import type { GameSessionRepository } from '../../../domain/game/ports/game-session.repository';
+import type { ScoreRepository } from '../../../domain/game/ports/score.repository';
 import { ScoreCalculatorService } from '../../../domain/game/services/score-calculator.service';
-import type { QuestionRepository } from '../../../domain/quiz/repositories/question.repository.interface';
-import { createGameSessionFixture, createQuestionFixture } from '../../../test-utils/fixtures';
+import { QuestionType } from '../../../domain/quiz/entities/question';
+import { QuestionAnswer } from '../../../domain/quiz/entities/question-answer';
+import type { QuestionRepository } from '../../../domain/quiz/ports/question.repository';
+import { createGameSessionFixture, createQuestionFixture } from '../../../test-utils/fixtures/unit';
 import {
   createGameSessionRepositoryMock,
+  createGameSessionStateServiceMock,
   createQuestionRepositoryMock,
   createScoreRepositoryMock,
 } from '../../../test-utils/mock-factories';
@@ -16,12 +20,14 @@ describe('SubmitAnswerUseCase - Guest Player Support', () => {
   let mockGameSessionRepository: GameSessionRepository;
   let mockQuestionRepository: QuestionRepository;
   let mockScoreRepository: ScoreRepository;
+  let mockGameSessionStateService: ReturnType<typeof createGameSessionStateServiceMock>;
   let scoreCalculatorService: ScoreCalculatorService;
 
   beforeEach(() => {
     mockGameSessionRepository = createGameSessionRepositoryMock();
     mockQuestionRepository = createQuestionRepositoryMock();
     mockScoreRepository = createScoreRepositoryMock();
+    mockGameSessionStateService = createGameSessionStateServiceMock();
 
     scoreCalculatorService = new ScoreCalculatorService();
 
@@ -29,52 +35,64 @@ describe('SubmitAnswerUseCase - Guest Player Support', () => {
       mockGameSessionRepository,
       mockQuestionRepository,
       mockScoreRepository,
+      mockGameSessionStateService as never,
       scoreCalculatorService,
     );
   });
 
   describe('Guest player answer submission', () => {
-    it('should not persist scores to database for guest players', async () => {
+    it('should persist scores to database for guest players', async () => {
       // Setup
       const mockSession = createGameSessionFixture({
         id: 1,
         quizId: 100,
         hostId: 200,
-        organizationId: 1,
         pin: 'ABC123',
-        status: 'active',
-        currentQuestion: 0,
+        status: GameSessionStatus.ACTIVE,
+        currentQuestionId: 1,
       });
       const mockQuestion = createQuestionFixture({
         id: 1,
         quizId: 100,
         questionText: 'Test question',
-        type: 'multiple',
-        correctAnswer: 'A',
-        optionA: 'Option A',
-        optionB: 'Option B',
-        optionC: 'Option C',
-        optionD: 'Option D',
+        type: QuestionType.MULTIPLE,
+        answers: [
+          new QuestionAnswer(1, 1, 'Option A', 0, true),
+          new QuestionAnswer(2, 1, 'Option B', 1, false),
+          new QuestionAnswer(3, 1, 'Option C', 2, false),
+          new QuestionAnswer(4, 1, 'Option D', 3, false),
+        ],
         timeLimit: 20,
         points: 1000,
       });
 
       vi.spyOn(mockGameSessionRepository, 'findByPin').mockResolvedValue(mockSession);
       vi.spyOn(mockQuestionRepository, 'findByQuizId').mockResolvedValue([mockQuestion]);
+      vi.spyOn(mockGameSessionStateService, 'get').mockResolvedValue({
+        findPlayerByGuestId: () => ({ username: 'Guest Player' }),
+      } as never);
 
       // Execute - guest player (no userId)
       const result = await useCase.execute({
         pin: 'ABC123',
         userId: undefined,
         guestId: 'guest-xyz',
-        answer: 'A',
+        answerId: 1,
         timeLeft: 15,
       });
 
       // Verify
       expect(result.isCorrect).toBe(true);
       expect(result.points).toBeGreaterThan(0);
-      expect(mockScoreRepository.create).not.toHaveBeenCalled(); // Should NOT persist
+      expect(mockScoreRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sessionId: 1,
+          guestId: 'guest-xyz',
+          guestUsername: 'Guest Player',
+          questionId: 1,
+          isCorrect: true,
+        }),
+      );
     });
 
     it('should persist scores to database for authenticated players', async () => {
@@ -83,21 +101,21 @@ describe('SubmitAnswerUseCase - Guest Player Support', () => {
         id: 1,
         quizId: 100,
         hostId: 200,
-        organizationId: 1,
         pin: 'ABC123',
-        status: 'active',
-        currentQuestion: 0,
+        status: GameSessionStatus.ACTIVE,
+        currentQuestionId: 1,
       });
       const mockQuestion = createQuestionFixture({
         id: 1,
         quizId: 100,
         questionText: 'Test question',
-        type: 'multiple',
-        correctAnswer: 'A',
-        optionA: 'Option A',
-        optionB: 'Option B',
-        optionC: 'Option C',
-        optionD: 'Option D',
+        type: QuestionType.MULTIPLE,
+        answers: [
+          new QuestionAnswer(1, 1, 'Option A', 0, true),
+          new QuestionAnswer(2, 1, 'Option B', 1, false),
+          new QuestionAnswer(3, 1, 'Option C', 2, false),
+          new QuestionAnswer(4, 1, 'Option D', 3, false),
+        ],
         timeLimit: 20,
         points: 1000,
       });
@@ -110,7 +128,7 @@ describe('SubmitAnswerUseCase - Guest Player Support', () => {
         pin: 'ABC123',
         userId: 42,
         guestId: undefined,
-        answer: 'A',
+        answerId: 1,
         timeLeft: 15,
       });
 
@@ -133,21 +151,21 @@ describe('SubmitAnswerUseCase - Guest Player Support', () => {
         id: 1,
         quizId: 100,
         hostId: 200,
-        organizationId: 1,
         pin: 'ABC123',
-        status: 'active',
-        currentQuestion: 0,
+        status: GameSessionStatus.ACTIVE,
+        currentQuestionId: 1,
       });
       const mockQuestion = createQuestionFixture({
         id: 1,
         quizId: 100,
         questionText: 'Test question',
-        type: 'multiple',
-        correctAnswer: 'B',
-        optionA: 'Option A',
-        optionB: 'Option B',
-        optionC: 'Option C',
-        optionD: 'Option D',
+        type: QuestionType.MULTIPLE,
+        answers: [
+          new QuestionAnswer(1, 1, 'Option A', 0, false),
+          new QuestionAnswer(2, 1, 'Option B', 1, true),
+          new QuestionAnswer(3, 1, 'Option C', 2, false),
+          new QuestionAnswer(4, 1, 'Option D', 3, false),
+        ],
         timeLimit: 20,
         points: 1000,
       });
@@ -160,14 +178,14 @@ describe('SubmitAnswerUseCase - Guest Player Support', () => {
         pin: 'ABC123',
         userId: undefined,
         guestId: 'guest-xyz',
-        answer: 'A',
+        answerId: 1,
         timeLeft: 15,
       });
 
       const authResult = await useCase.execute({
         pin: 'ABC123',
         userId: 42,
-        answer: 'A',
+        answerId: 1,
         timeLeft: 15,
       });
 

@@ -1,11 +1,15 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import type { UserRepository } from '../../../domain/auth/repositories/user.repository.interface';
-import { UserRepositoryProvider } from '../../../domain/auth/repositories/user.repository.interface';
+import { AuthErrorCode } from '../../../domain/auth/enums/auth-error-code.enum';
+import {
+  type AuthTokenService,
+  AuthTokenServiceProvider,
+} from '../../../domain/auth/ports/auth-token.service';
+import type { UserRepository } from '../../../domain/auth/ports/user.repository';
+import { UserRepositoryProvider } from '../../../domain/auth/ports/user.repository';
 import { PasswordService } from '../../../domain/auth/services/password.service';
-import { mapUserToPublicProfile, toPublicAvatarUrl } from '../../shared/utils/avatar-url.util';
+import type { AuthToken } from '../../../domain/auth/types/auth-token';
+import { mapUserToPublicProfile, toPublicAvatarUri } from '../../shared/utils/avatar-uri.util';
 import type { AuthResponseDto } from '../dto/auth-response.dto';
-import { AuthErrorCode } from '../enums/auth-error-code.enum';
-import { AuthTokenService } from '../services/auth-token.service';
 
 @Injectable()
 export class RefreshAccessTokenUseCase {
@@ -13,10 +17,11 @@ export class RefreshAccessTokenUseCase {
     @Inject(UserRepositoryProvider)
     private readonly userRepository: UserRepository,
     private readonly passwordService: PasswordService,
+    @Inject(AuthTokenServiceProvider)
     private readonly authTokenService: AuthTokenService,
   ) {}
 
-  async execute(refreshToken: string): Promise<AuthResponseDto> {
+  async execute(refreshToken: AuthToken): Promise<AuthResponseDto> {
     const userId = await this.authTokenService.verifyRefreshToken(refreshToken);
 
     const user = await this.userRepository.findById(userId);
@@ -35,12 +40,11 @@ export class RefreshAccessTokenUseCase {
       throw new UnauthorizedException(AuthErrorCode.INVALID_REFRESH_TOKEN);
     }
 
-    const avatarUrl = toPublicAvatarUrl(user);
     const tokenPair = this.authTokenService.createTokenPair({
       id: user.id,
       username: user.username,
       isAdmin: user.isAdmin,
-      avatarUrl,
+      avatarUri: toPublicAvatarUri(user),
     });
 
     const hashedRefreshToken = await this.passwordService.hash(tokenPair.refreshToken);

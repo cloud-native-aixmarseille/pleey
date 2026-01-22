@@ -1,8 +1,8 @@
 import { NotFoundException } from '@nestjs/common';
 import { describe, expect, it } from 'vitest';
-import { createQuestionFixture } from '../../../test-utils/fixtures';
+import { QuizErrorCode } from '../../../domain/quiz/enums/quiz-error-code.enum';
+import { createQuestionFixture } from '../../../test-utils/fixtures/unit';
 import { createQuestionRepositoryMock } from '../../../test-utils/mock-factories';
-import { QuizErrorCode } from '../enums/quiz-error-code.enum';
 import { DeleteQuestionUseCase } from './delete-question.use-case';
 
 describe('DeleteQuestionUseCase', () => {

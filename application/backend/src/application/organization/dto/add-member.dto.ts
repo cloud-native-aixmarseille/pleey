@@ -1,4 +1,5 @@
 import { IsEnum, IsInt, IsNotEmpty } from 'class-validator';
+import type { UserId } from '../../../domain/auth/entities/user.entity';
 import { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
 
 /**
@@ -7,7 +8,7 @@ import { OrganizationRole } from '../../../domain/organization/enums/organizatio
 export class AddMemberDto {
   @IsInt()
   @IsNotEmpty()
-  userId: number;
+  userId: UserId;
 
   @IsEnum(OrganizationRole)
   @IsNotEmpty()

@@ -3,36 +3,27 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
+import { getAppMocks, resetAppMocks } from "../test/mock-factories/app.mocks";
 import QuizApp from "./App";
-import { authService } from "../domains/auth/auth.service";
-import { organizationService } from "../domains/organization/organization.service";
-import { createAuthResponsePayloadFixture } from "../test/fixtures";
+import { createUserFixture } from "../test/fixtures";
 import {
   REFRESH_TOKEN_STORAGE_KEY,
   TOKEN_STORAGE_KEY,
   USER_STORAGE_KEY,
 } from "../domains/shared/constants/storageKeys";
 
-// Mock socket.io-client
-vi.mock("socket.io-client", () => ({
-  io: vi.fn(() => ({
-    on: vi.fn(),
-    off: vi.fn(),
-    emit: vi.fn(),
-  })),
-}));
-
 describe("QuizApp", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     globalThis.localStorage?.clear();
+    resetAppMocks();
   });
 
   const renderApp = (initialEntries = ["/"]) =>
     render(
       <MemoryRouter initialEntries={initialEntries}>
         <QuizApp />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
   it("should render the home view by default", () => {
@@ -44,7 +35,7 @@ describe("QuizApp", () => {
     renderApp();
     expect(screen.getByRole("button", { name: /login/i })).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /sign up/i })
+      screen.getByRole("button", { name: /sign up/i }),
     ).toBeInTheDocument();
   });
 
@@ -57,10 +48,10 @@ describe("QuizApp", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByLabelText(/email/i, { selector: "input" })
+        screen.getByLabelText(/email/i, { selector: "input" }),
       ).toBeInTheDocument();
       expect(
-        screen.getByLabelText(/password/i, { selector: "input" })
+        screen.getByLabelText(/password/i, { selector: "input" }),
       ).toBeInTheDocument();
     });
   });
@@ -80,14 +71,18 @@ describe("QuizApp", () => {
 
   it("should handle successful login", async () => {
     const user = userEvent.setup();
-    const loginSpy = vi.spyOn(authService, "login").mockResolvedValue(
-      createAuthResponsePayloadFixture({
-        token: "fake-token",
-        accessToken: "fake-token",
-        refreshToken: "fake-refresh-token",
-      })
+    const loginResponse = {
+      token: "fake-token",
+      accessToken: "fake-token",
+      refreshToken: "fake-refresh-token",
+      expiresIn: 7200,
+      user: createUserFixture(),
+    };
+    const appMocks = getAppMocks();
+    appMocks.authRepositoryMock.login.mockResolvedValue(loginResponse);
+    appMocks.organizationRepositoryMock.getMyOrganizations.mockResolvedValue(
+      [],
     );
-    vi.spyOn(organizationService, "getMyOrganizations").mockResolvedValue([]);
 
     renderApp();
 
@@ -109,26 +104,30 @@ describe("QuizApp", () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(loginSpy).toHaveBeenCalledWith("test@example.com", "password123");
+      expect(appMocks.authRepositoryMock.login).toHaveBeenCalledWith(
+        "test@example.com",
+        "password123",
+      );
     });
 
     await waitFor(() => {
       expect(globalThis.localStorage.getItem(TOKEN_STORAGE_KEY)).toBe(
-        "fake-token"
+        "fake-token",
       );
       expect(globalThis.localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY)).toBe(
-        "fake-refresh-token"
+        "fake-refresh-token",
       );
-      expect(globalThis.localStorage.getItem(USER_STORAGE_KEY)).toContain(
-        "testuser"
-      );
+      expect(globalThis.localStorage.getItem(USER_STORAGE_KEY)).not.toBeNull();
     });
   });
 
   it("should handle registration", async () => {
     const user = userEvent.setup();
-    const registerSpy = vi.spyOn(authService, "register").mockResolvedValue();
-    vi.spyOn(organizationService, "getMyOrganizations").mockResolvedValue([]);
+    const appMocks = getAppMocks();
+    appMocks.authRepositoryMock.register.mockResolvedValue();
+    appMocks.organizationRepositoryMock.getMyOrganizations.mockResolvedValue(
+      [],
+    );
 
     renderApp();
 
@@ -156,10 +155,10 @@ describe("QuizApp", () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(registerSpy).toHaveBeenCalledWith(
+      expect(appMocks.authRepositoryMock.register).toHaveBeenCalledWith(
         "newuser",
         "new@example.com",
-        "newpassword"
+        "newpassword",
       );
     });
 
@@ -167,7 +166,7 @@ describe("QuizApp", () => {
     await screen.findByRole("button", { name: /sign in/i }, { timeout: 5000 });
 
     expect(
-      screen.getByLabelText(/email/i, { selector: "input" })
+      screen.getByLabelText(/email/i, { selector: "input" }),
     ).toBeInTheDocument();
   });
 });

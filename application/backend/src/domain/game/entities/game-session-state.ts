@@ -1,31 +1,38 @@
-import { Question } from '../../quiz/entities/question';
+import type { UserId } from '../../auth/entities/user.entity';
+import { Question, type QuestionId, type QuestionType } from '../../quiz/entities/question';
+import { QuestionAnswer, type QuestionAnswerId } from '../../quiz/entities/question-answer';
+import type { QuizId } from '../../quiz/entities/quiz';
+import { GameErrorCode } from '../enums/game-error-code.enum';
+import type { GameSessionId } from './game-session';
 import type { PlayerAnswerProps } from './player-answer';
 import { PlayerAnswer } from './player-answer';
 import type { PlayerScoreProps } from './player-score';
 import { PlayerScore } from './player-score';
-import type { PlayerStateProps } from './player-state';
+import type { GuestId, PlayerStateProps } from './player-state';
 import { PlayerState } from './player-state';
 
 export interface QuestionSnapshot {
-  id: number;
-  quizId: number;
+  id: QuestionId;
+  quizId: QuizId;
+  position: number;
   questionText: string;
-  type: 'multiple' | 'truefalse';
-  correctAnswer: string;
-  optionA: string | null;
-  optionB: string | null;
-  optionC: string | null;
-  optionD: string | null;
+  type: QuestionType;
+  answers: Array<{
+    id: QuestionAnswerId;
+    text: string | null;
+    position: number;
+    isCorrect: boolean;
+  }>;
   timeLimit: number;
   points: number;
 }
 
 export interface GameSessionStateSnapshot {
-  sessionId: number;
-  quizId: number;
-  hostId: number;
+  sessionId: GameSessionId;
+  quizId: QuizId;
+  hostId: UserId;
   questions: QuestionSnapshot[];
-  currentQuestionIndex: number;
+  currentQuestionId: QuestionId | null;
   players: PlayerStateProps[];
   scores: PlayerScoreProps[];
   currentQuestionAnswers: PlayerAnswerProps[];
@@ -34,11 +41,11 @@ export interface GameSessionStateSnapshot {
 }
 
 export interface GameSessionStateProps {
-  sessionId: number;
-  quizId: number;
-  hostId: number;
+  sessionId: GameSessionId;
+  quizId: QuizId;
+  hostId: UserId;
   questions: Question[];
-  currentQuestionIndex?: number;
+  currentQuestionId?: QuestionId | null;
 }
 
 /**
@@ -46,12 +53,12 @@ export interface GameSessionStateProps {
  * Encapsulates all in-memory game state and enforces business rules.
  */
 export class GameSessionState {
-  readonly sessionId: number;
-  readonly quizId: number;
-  readonly hostId: number;
+  readonly sessionId: GameSessionId;
+  readonly quizId: QuizId;
+  readonly hostId: UserId;
   readonly questions: Question[];
 
-  private _currentQuestionIndex: number;
+  private _currentQuestionId: QuestionId | null;
   private _players: Map<string, PlayerState>;
   private _scores: Map<string, PlayerScore>;
   private _currentQuestionAnswers: Map<string, PlayerAnswer>;
@@ -63,7 +70,7 @@ export class GameSessionState {
     this.quizId = props.quizId;
     this.hostId = props.hostId;
     this.questions = props.questions;
-    this._currentQuestionIndex = props.currentQuestionIndex ?? 0;
+    this._currentQuestionId = props.currentQuestionId ?? null;
     this._players = new Map();
     this._scores = new Map();
     this._currentQuestionAnswers = new Map();
@@ -83,18 +90,18 @@ export class GameSessionState {
           new Question(
             q.id,
             q.quizId,
+            q.position,
             q.questionText,
             q.type,
-            q.correctAnswer,
-            q.optionA,
-            q.optionB,
-            q.optionC,
-            q.optionD,
+            q.answers.map(
+              (answer) =>
+                new QuestionAnswer(answer.id, q.id, answer.text, answer.position, answer.isCorrect),
+            ),
             q.timeLimit,
             q.points,
           ),
       ),
-      currentQuestionIndex: snapshot.currentQuestionIndex,
+      currentQuestionId: snapshot.currentQuestionId,
     });
 
     state._questionStartTime = snapshot.questionStartTime;
@@ -129,34 +136,60 @@ export class GameSessionState {
       questions: this.questions.map((q) => ({
         id: q.id,
         quizId: q.quizId,
+        position: q.position,
         questionText: q.questionText,
         type: q.type,
-        correctAnswer: q.correctAnswer,
-        optionA: q.optionA,
-        optionB: q.optionB,
-        optionC: q.optionC,
-        optionD: q.optionD,
+        answers: q.answers.map((answer) => ({
+          id: answer.id,
+          text: answer.text,
+          position: answer.position,
+          isCorrect: answer.isCorrect,
+        })),
         timeLimit: q.timeLimit,
         points: q.points,
       })),
-      currentQuestionIndex: this._currentQuestionIndex,
-      players: this.getAllPlayers().map((p) => ({
-        socketId: p.socketId,
-        userId: p.userId,
-        guestId: p.guestId,
-        username: p.username,
-        avatarSeed: p.avatarSeed,
-        isGuest: p.isGuest,
-      })),
-      scores: Array.from(this._scores.values()).map((s) => ({
-        playerId: s.playerId,
-        username: s.username,
-        totalPoints: s.totalPoints,
-        isGuest: s.isGuest,
-      })),
+      currentQuestionId: this._currentQuestionId,
+      players: this.getAllPlayers().map((p) => {
+        if (p.userId !== undefined) {
+          return {
+            socketId: p.socketId,
+            username: p.username,
+            avatarSeed: p.avatarSeed,
+            userId: p.userId,
+          };
+        }
+        if (p.guestId !== undefined) {
+          return {
+            socketId: p.socketId,
+            username: p.username,
+            avatarSeed: p.avatarSeed,
+            guestId: p.guestId,
+          };
+        }
+        throw new Error(GameErrorCode.PLAYER_IDENTITY_REQUIRED);
+      }),
+      scores: Array.from(this._scores.values()).map((s) => {
+        if (s.userId !== undefined) {
+          return {
+            playerId: s.playerId,
+            username: s.username,
+            totalPoints: s.totalPoints,
+            userId: s.userId,
+          };
+        }
+        if (s.guestId !== undefined) {
+          return {
+            playerId: s.playerId,
+            username: s.username,
+            totalPoints: s.totalPoints,
+            guestId: s.guestId,
+          };
+        }
+        throw new Error(GameErrorCode.PLAYER_SCORE_IDENTITY_INVALID);
+      }),
       currentQuestionAnswers: this.getAllAnswers().map((a) => ({
         playerId: a.playerId,
-        answer: a.answer,
+        answerId: a.answerId,
         isCorrect: a.isCorrect,
         points: a.points,
         timeLeft: a.timeLeft,
@@ -167,12 +200,15 @@ export class GameSessionState {
   }
 
   // Getters
-  get currentQuestionIndex(): number {
-    return this._currentQuestionIndex;
+  get currentQuestionId(): QuestionId | null {
+    return this._currentQuestionId;
   }
 
   get currentQuestion(): Question | undefined {
-    return this.questions[this._currentQuestionIndex];
+    if (!this._currentQuestionId) {
+      return undefined;
+    }
+    return this.questions.find((question) => question.id === this._currentQuestionId);
   }
 
   get questionStartTime(): number | undefined {
@@ -184,7 +220,14 @@ export class GameSessionState {
   }
 
   get hasMoreQuestions(): boolean {
-    return this._currentQuestionIndex + 1 < this.questions.length;
+    if (this.questions.length === 0) {
+      return false;
+    }
+    const currentIndex = this.getCurrentQuestionIndex();
+    if (currentIndex < 0) {
+      return true;
+    }
+    return currentIndex + 1 < this.questions.length;
   }
 
   get totalQuestions(): number {
@@ -213,7 +256,7 @@ export class GameSessionState {
     return this._players.get(socketId);
   }
 
-  findPlayerByUserId(userId: number): PlayerState | undefined {
+  findPlayerByUserId(userId: UserId): PlayerState | undefined {
     for (const player of this._players.values()) {
       if (player.matchesUserId(userId)) {
         return player;
@@ -222,7 +265,7 @@ export class GameSessionState {
     return undefined;
   }
 
-  findPlayerByGuestId(guestId: string): PlayerState | undefined {
+  findPlayerByGuestId(guestId: GuestId): PlayerState | undefined {
     for (const player of this._players.values()) {
       if (player.matchesGuestId(guestId)) {
         return player;
@@ -231,7 +274,7 @@ export class GameSessionState {
     return undefined;
   }
 
-  findPlayerByIdentity(userId?: number, guestId?: string): PlayerState | undefined {
+  findPlayerByIdentity(userId?: UserId, guestId?: GuestId): PlayerState | undefined {
     for (const player of this._players.values()) {
       if (userId !== undefined && player.matchesUserId(userId)) {
         return player;
@@ -259,25 +302,28 @@ export class GameSessionState {
     return this._players.size;
   }
 
-  isHost(userId?: number): boolean {
+  isHost(userId?: UserId): boolean {
     return userId !== undefined && userId === this.hostId;
   }
 
   // Score management
-  getOrCreateScore(playerId: string, username: string, isGuest: boolean): PlayerScore {
+  getOrCreateScore(
+    playerId: string,
+    username: string,
+    identity: { userId: UserId; guestId?: never } | { userId?: never; guestId: GuestId },
+  ): PlayerScore {
     let score = this._scores.get(playerId);
     if (!score) {
-      score = PlayerScore.createNew(playerId, username, isGuest);
+      score = PlayerScore.createNew(playerId, username, identity);
       this._scores.set(playerId, score);
     }
     return score;
   }
 
   getScoresExcludingHost(): PlayerScore[] {
-    return Array.from(this._scores.values()).filter((score) => {
-      const userId = this.extractUserIdFromPlayerId(score.playerId);
-      return userId !== this.hostId;
-    });
+    return Array.from(this._scores.values()).filter(
+      (score) => score.userId === undefined || score.userId !== this.hostId,
+    );
   }
 
   // Answer management
@@ -308,14 +354,23 @@ export class GameSessionState {
 
   // Question flow management
   startQuestion(): void {
-    this._currentQuestionIndex = 0;
+    this._currentQuestionId = this.questions[0]?.id ?? null;
     this._currentQuestionAnswers.clear();
     this._questionStartTime = Date.now();
     this._pausedTimeLeft = undefined;
   }
 
   advanceToNextQuestion(): void {
-    this._currentQuestionIndex += 1;
+    if (this.questions.length === 0) {
+      this._currentQuestionId = null;
+    } else {
+      const currentIndex = this.getCurrentQuestionIndex();
+      if (currentIndex < 0) {
+        this._currentQuestionId = this.questions[0].id;
+      } else if (currentIndex + 1 < this.questions.length) {
+        this._currentQuestionId = this.questions[currentIndex + 1].id;
+      }
+    }
     this._currentQuestionAnswers.clear();
     this._questionStartTime = Date.now();
     this._pausedTimeLeft = undefined;
@@ -343,7 +398,7 @@ export class GameSessionState {
   resume(): number {
     const currentQuestion = this.currentQuestion;
     if (!currentQuestion) {
-      throw new Error('No current question to resume');
+      throw new Error(GameErrorCode.NO_CURRENT_QUESTION_TO_RESUME);
     }
 
     const remainingTime = this._pausedTimeLeft ?? currentQuestion.timeLimit;
@@ -368,10 +423,10 @@ export class GameSessionState {
     return undefined;
   }
 
-  private extractUserIdFromPlayerId(playerId: string): number | undefined {
-    if (playerId.startsWith('user-')) {
-      return Number.parseInt(playerId.substring(5), 10);
+  private getCurrentQuestionIndex(): number {
+    if (!this._currentQuestionId) {
+      return -1;
     }
-    return undefined;
+    return this.questions.findIndex((question) => question.id === this._currentQuestionId);
   }
 }

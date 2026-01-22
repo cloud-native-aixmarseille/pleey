@@ -6,7 +6,7 @@ import {
   Card,
 } from "../../../../../../presentation/shared/ui/components";
 import type { Player } from "../../../../../../domains/game/types";
-import { resolveAvatarUrl } from "../../../../../../presentation/shared/utils/resolveAvatarUrl";
+import { resolveAvatarUri } from "../../../../../../presentation/shared/utils/resolveAvatarUri";
 
 interface PlayersGridProps {
   readonly players: readonly Player[];
@@ -27,7 +27,7 @@ export default function PlayersGrid({
       aria-label={t("game.connectedPlayers")}
     >
       {players.map((player, index) => {
-        const avatarUrl = resolveAvatarUrl(player.avatar);
+        const avatarUri = resolveAvatarUri(player.avatar);
         const playerKey =
           player.id != null
             ? `player-${player.id}`
@@ -50,9 +50,9 @@ export default function PlayersGrid({
               >
                 <div className="flex h-full flex-col items-center justify-center gap-2 text-center sm:gap-4">
                   <div className="flex justify-center text-3xl sm:text-5xl">
-                    {avatarUrl ? (
+                    {avatarUri ? (
                       <img
-                        src={avatarUrl}
+                        src={avatarUri}
                         alt={`Avatar for ${player.username}`}
                         className="h-10 w-10 rounded-full border-2 border-primary-500/40 object-cover sm:h-20 sm:w-20"
                         referrerPolicy="no-referrer"

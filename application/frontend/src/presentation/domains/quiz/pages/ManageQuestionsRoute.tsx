@@ -7,7 +7,7 @@ import { useNotifications } from "../../app-shell";
 import type {
   CreateQuestionPayload,
   UpdateQuestionPayload,
-} from "../../../../domains/quiz/quiz.service";
+} from "../../../../domains/quiz/quiz.payloads";
 
 /**
  * Route container for managing quiz questions. Handles data loading concerns
@@ -53,7 +53,7 @@ export function ManageQuestionsRoute() {
 
   const quiz = useMemo(
     () => quizzes.find((item) => item.id === quizIdNumber),
-    [quizzes, quizIdNumber]
+    [quizzes, quizIdNumber],
   );
 
   if (!isAuthenticated || !isAdmin) {
@@ -99,7 +99,7 @@ export function ManageQuestionsRoute() {
 
   const handleUpdateQuestion = async (
     questionId: number,
-    payload: UpdateQuestionPayload
+    payload: UpdateQuestionPayload,
   ) => {
     if (!token) {
       return;

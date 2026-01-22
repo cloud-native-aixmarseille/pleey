@@ -1,11 +1,15 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
+import {
+  createOrganizationMemberRepositoryMock,
+  createOrganizationRepositoryMock,
+} from '../../../test-utils/mock-factories';
 import { GetOrganizationsByUserUseCase } from './get-organizations-by-user.use-case';
 
 describe('GetOrganizationsByUserUseCase', () => {
   it('returns empty array when user has no memberships', async () => {
-    const organizationRepository = { findByIds: vi.fn() };
-    const memberRepository = { findByUser: vi.fn().mockResolvedValue([]) };
+    const organizationRepository = createOrganizationRepositoryMock();
+    const memberRepository = createOrganizationMemberRepositoryMock({ findByUser: [] as never });
 
     const useCase = new GetOrganizationsByUserUseCase(
       organizationRepository as never,
@@ -18,8 +22,12 @@ describe('GetOrganizationsByUserUseCase', () => {
   });
 
   it('fetches organizations by membership ids', async () => {
-    const organizationRepository = { findByIds: vi.fn().mockResolvedValue([{ id: 1 }]) };
-    const memberRepository = { findByUser: vi.fn().mockResolvedValue([{ organizationId: 1 }]) };
+    const organizationRepository = createOrganizationRepositoryMock({
+      findByIds: [{ id: 1 }] as never,
+    });
+    const memberRepository = createOrganizationMemberRepositoryMock({
+      findByUser: [{ organizationId: 1 }] as never,
+    });
 
     const useCase = new GetOrganizationsByUserUseCase(
       organizationRepository as never,

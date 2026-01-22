@@ -1,22 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { RestoreSessionUseCase } from "./restore-session.use-case";
-import { IStorage } from "../../../domains/shared/ports/storage.interface";
+import type { Storage } from "../../../domains/shared/ports/storage";
 import type { User } from "../../../domains/auth/types";
 import { createUserFixture } from "../../../test/fixtures";
+import { createStorageMock } from "../../../test/mock-factories/storage.mock-factory";
 
 describe("RestoreSessionUseCase", () => {
   let restoreSessionUseCase: RestoreSessionUseCase;
-  let mockStorage: IStorage;
+  let mockStorage: Storage;
 
   const mockUser: User = createUserFixture();
 
   beforeEach(() => {
-    mockStorage = {
-      getItem: vi.fn(),
-      setItem: vi.fn(),
-      removeItem: vi.fn(),
-      clear: vi.fn(),
-    };
+    mockStorage = createStorageMock();
 
     restoreSessionUseCase = new RestoreSessionUseCase(mockStorage);
   });

@@ -1,7 +1,7 @@
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { describe, expect, it } from 'vitest';
+import { AuthErrorCode } from '../../../domain/auth/enums/auth-error-code.enum';
 import { createUserRepositoryMock } from '../../../test-utils/mock-factories';
-import { AuthErrorCode } from '../enums/auth-error-code.enum';
 import { UpdateUserProfileUseCase } from './update-user-profile.use-case';
 
 describe('UpdateUserProfileUseCase', () => {
@@ -23,13 +23,13 @@ describe('UpdateUserProfileUseCase', () => {
       username: 'alice',
       email: 'alice@example.com',
       isAdmin: false,
-      avatarUrl: null,
+      avatarUri: null,
       toSafeObject: () => ({
         id: 1,
         username: 'alice',
         email: 'alice@example.com',
         isAdmin: false,
-        avatarUrl: null,
+        avatarUri: null,
       }),
     };
     const userRepository = createUserRepositoryMock({
@@ -52,13 +52,13 @@ describe('UpdateUserProfileUseCase', () => {
       username: 'alice',
       email: 'alice@example.com',
       isAdmin: false,
-      avatarUrl: null,
+      avatarUri: null,
       toSafeObject: () => ({
         id: 1,
         username: 'alice',
         email: 'alice@example.com',
         isAdmin: false,
-        avatarUrl: null,
+        avatarUri: null,
       }),
     };
 
@@ -70,7 +70,7 @@ describe('UpdateUserProfileUseCase', () => {
         username: 'alice2',
         email: 'alice@example.com',
         isAdmin: false,
-        avatarUrl: null,
+        avatarUri: null,
       }),
     };
 

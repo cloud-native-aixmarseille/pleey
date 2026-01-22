@@ -1,11 +1,11 @@
 import { BadRequestException, ConflictException, Inject, Injectable } from '@nestjs/common';
 import type { User } from '../../../domain/auth/entities/user.entity';
-import type { UserRepository } from '../../../domain/auth/repositories/user.repository.interface';
-import { UserRepositoryProvider } from '../../../domain/auth/repositories/user.repository.interface';
+import { AuthErrorCode } from '../../../domain/auth/enums/auth-error-code.enum';
+import type { UserRepository } from '../../../domain/auth/ports/user.repository';
+import { UserRepositoryProvider } from '../../../domain/auth/ports/user.repository';
 import { PasswordService } from '../../../domain/auth/services/password.service';
 import { UserAvatarService } from '../../../domain/auth/services/user-avatar.service';
 import type { RegisterUserDto } from '../dto/register-user.dto';
-import { AuthErrorCode } from '../enums/auth-error-code.enum';
 
 /**
  * Register User Use Case
@@ -35,8 +35,8 @@ export class RegisterUserUseCase {
     // Hash password
     const hashedPassword = await this.passwordService.hash(dto.password);
 
-    // Generate deterministic avatar seed from registration data
-    const avatarUrl = this.userAvatarService.generateAvatar(`${dto.username}-${dto.email}`);
+    // Generate random avatar
+    const avatarBuffer = this.userAvatarService.generateAvatar();
 
     // Create user
     return this.userRepository.create(
@@ -44,7 +44,7 @@ export class RegisterUserUseCase {
       dto.email,
       hashedPassword,
       false, // Not admin by default
-      avatarUrl,
+      avatarBuffer,
     );
   }
 }

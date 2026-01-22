@@ -1,12 +1,15 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import type { UserRepository } from '../../../domain/auth/repositories/user.repository.interface';
-import { UserRepositoryProvider } from '../../../domain/auth/repositories/user.repository.interface';
+import { AuthErrorCode } from '../../../domain/auth/enums/auth-error-code.enum';
+import {
+  type AuthTokenService,
+  AuthTokenServiceProvider,
+} from '../../../domain/auth/ports/auth-token.service';
+import type { UserRepository } from '../../../domain/auth/ports/user.repository';
+import { UserRepositoryProvider } from '../../../domain/auth/ports/user.repository';
 import { PasswordService } from '../../../domain/auth/services/password.service';
-import { mapUserToPublicProfile, toPublicAvatarUrl } from '../../shared/utils/avatar-url.util';
+import { mapUserToPublicProfile, toPublicAvatarUri } from '../../shared/utils/avatar-uri.util';
 import type { AuthResponseDto } from '../dto/auth-response.dto';
 import type { LoginUserDto } from '../dto/login-user.dto';
-import { AuthErrorCode } from '../enums/auth-error-code.enum';
-import { AuthTokenService } from '../services/auth-token.service';
 
 /**
  * Login User Use Case
@@ -18,6 +21,7 @@ export class LoginUserUseCase {
     @Inject(UserRepositoryProvider)
     private readonly userRepository: UserRepository,
     private readonly passwordService: PasswordService,
+    @Inject(AuthTokenServiceProvider)
     private readonly authTokenService: AuthTokenService,
   ) {}
 
@@ -35,12 +39,11 @@ export class LoginUserUseCase {
     }
 
     // Generate JWT token
-    const avatarUrl = toPublicAvatarUrl(user);
     const payload = {
       id: user.id,
       username: user.username,
       isAdmin: user.isAdmin,
-      avatarUrl,
+      avatarUri: toPublicAvatarUri(user),
     };
     const tokenPair = this.authTokenService.createTokenPair(payload);
 

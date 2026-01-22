@@ -1,5 +1,5 @@
 import { memo, useMemo } from "react";
-import { resolveAvatarUrl } from "../../utils/resolveAvatarUrl";
+import { resolveAvatarUri } from "../../utils/resolveAvatarUri";
 
 export interface AvatarProps {
   name: string;
@@ -29,7 +29,7 @@ function getInitials(name: string) {
 
 function AvatarComponent({ name, src, size = "md" }: AvatarProps) {
   const initials = useMemo(() => getInitials(name), [name]);
-  const resolvedSrc = useMemo(() => resolveAvatarUrl(src), [src]);
+  const resolvedSrc = useMemo(() => resolveAvatarUri(src), [src]);
 
   if (resolvedSrc) {
     return (

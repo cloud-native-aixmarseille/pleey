@@ -40,12 +40,18 @@ export function WaitingForAnswers({ question }: WaitingForAnswersProps) {
   const { t } = useTranslation();
 
   if (question.type === "multiple") {
-    const optionTextMap: Record<AnswerOptionKey, string | null | undefined> = {
-      A: question.option_a,
-      B: question.option_b,
-      C: question.option_c,
-      D: question.option_d,
-    };
+    const optionTextMap = question.answers.reduce<
+      Record<AnswerOptionKey, string | null | undefined>
+    >(
+      (accumulator, answer) => {
+        const key = ANSWER_OPTION_KEYS[answer.position];
+        if (key) {
+          accumulator[key] = answer.text ?? "";
+        }
+        return accumulator;
+      },
+      { A: "", B: "", C: "", D: "" }
+    );
 
     return (
       <div className={WAITING_WRAPPER_CLASSES} data-waiting-for-answers="true">

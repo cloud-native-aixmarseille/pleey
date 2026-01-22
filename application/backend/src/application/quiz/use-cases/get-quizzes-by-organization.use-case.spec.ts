@@ -1,10 +1,10 @@
 import { ForbiddenException } from '@nestjs/common';
 import { describe, expect, it } from 'vitest';
+import { OrganizationErrorCode } from '../../../domain/organization/enums/organization-error-code.enum';
 import {
   createOrganizationMemberRepositoryMock,
   createQuizRepositoryMock,
 } from '../../../test-utils/mock-factories';
-import { OrganizationErrorCode } from '../../organization/enums/organization-error-code.enum';
 import { GetQuizzesByOrganizationUseCase } from './get-quizzes-by-organization.use-case';
 
 describe('GetQuizzesByOrganizationUseCase', () => {

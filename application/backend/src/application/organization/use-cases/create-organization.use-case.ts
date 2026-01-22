@@ -1,12 +1,13 @@
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
+import type { UserId } from '../../../domain/auth/entities/user.entity';
 import type { Organization } from '../../../domain/organization/entities/organization';
+import { OrganizationErrorCode } from '../../../domain/organization/enums/organization-error-code.enum';
 import { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
-import type { OrganizationRepository } from '../../../domain/organization/repositories/organization.repository.interface';
-import { OrganizationRepositoryProvider } from '../../../domain/organization/repositories/organization.repository.interface';
-import type { OrganizationMemberRepository } from '../../../domain/organization/repositories/organization-member.repository.interface';
-import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/repositories/organization-member.repository.interface';
+import type { OrganizationRepository } from '../../../domain/organization/ports/organization.repository';
+import { OrganizationRepositoryProvider } from '../../../domain/organization/ports/organization.repository';
+import type { OrganizationMemberRepository } from '../../../domain/organization/ports/organization-member.repository';
+import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/ports/organization-member.repository';
 import type { CreateOrganizationDto } from '../dto/create-organization.dto';
-import { OrganizationErrorCode } from '../enums/organization-error-code.enum';
 
 /**
  * Use case for creating a new organization
@@ -21,7 +22,7 @@ export class CreateOrganizationUseCase {
     private readonly memberRepository: OrganizationMemberRepository,
   ) {}
 
-  async execute(dto: CreateOrganizationDto, creatorUserId: number): Promise<Organization> {
+  async execute(dto: CreateOrganizationDto, creatorUserId: UserId): Promise<Organization> {
     // Check if organization name already exists
     const existing = await this.organizationRepository.findByName(dto.name);
     if (existing) {

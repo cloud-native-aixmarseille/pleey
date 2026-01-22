@@ -1,12 +1,12 @@
 import { UnauthorizedException } from '@nestjs/common';
 import { describe, expect, it } from 'vitest';
-import { createTokenPairFixture, createUserFixture } from '../../../test-utils/fixtures';
+import { AuthErrorCode } from '../../../domain/auth/enums/auth-error-code.enum';
+import { createTokenPairFixture, createUserFixture } from '../../../test-utils/fixtures/unit';
 import {
   createAuthTokenServiceMock,
   createPasswordServiceMock,
   createUserRepositoryMock,
 } from '../../../test-utils/mock-factories';
-import { AuthErrorCode } from '../enums/auth-error-code.enum';
 import { RefreshAccessTokenUseCase } from './refresh-access-token.use-case';
 
 describe('RefreshAccessTokenUseCase', () => {
@@ -16,7 +16,7 @@ describe('RefreshAccessTokenUseCase', () => {
       username: 'alice',
       email: 'alice@example.com',
       isAdmin: false,
-      avatarUrl: null,
+      avatarUri: null,
       refreshTokenHash: 'hash',
       refreshTokenExpiresAt: new Date(Date.now() - 1000),
     });
@@ -47,7 +47,7 @@ describe('RefreshAccessTokenUseCase', () => {
       username: 'alice',
       email: 'alice@example.com',
       isAdmin: false,
-      avatarUrl: null,
+      avatarUri: null,
       refreshTokenHash: 'hash',
       refreshTokenExpiresAt: new Date(Date.now() + 60_000),
     });

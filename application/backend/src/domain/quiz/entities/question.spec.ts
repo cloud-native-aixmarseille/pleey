@@ -1,17 +1,23 @@
 import { describe, expect, it } from 'vitest';
-import { createQuestionFixture, type QuestionFixtureParams } from '../../../test-utils/fixtures';
+import {
+  createQuestionFixture,
+  type QuestionFixtureParams,
+} from '../../../test-utils/fixtures/unit';
+import { Question, QuestionType } from './question';
+import { QuestionAnswer } from './question-answer';
 
 const createMultipleChoiceQuestion = (overrides: QuestionFixtureParams = {}) =>
   createQuestionFixture({
     id: 1,
     quizId: 10,
     questionText: 'What is 2+2?',
-    type: 'multiple',
-    correctAnswer: 'A',
-    optionA: '4',
-    optionB: '3',
-    optionC: '5',
-    optionD: '6',
+    type: QuestionType.MULTIPLE,
+    answers: [
+      new QuestionAnswer(11, 10, '4', 0, true),
+      new QuestionAnswer(12, 10, '3', 1, false),
+      new QuestionAnswer(13, 10, '5', 2, false),
+      new QuestionAnswer(14, 10, '6', 3, false),
+    ],
     timeLimit: 30,
     points: 1000,
     ...overrides,
@@ -22,12 +28,11 @@ const createTrueFalseQuestion = (overrides: QuestionFixtureParams = {}) =>
     id: 1,
     quizId: 10,
     questionText: 'TypeScript is a superset of JavaScript',
-    type: 'truefalse',
-    correctAnswer: 'True',
-    optionA: 'True',
-    optionB: 'False',
-    optionC: null,
-    optionD: null,
+    type: QuestionType.TRUE_FALSE,
+    answers: [
+      new QuestionAnswer(21, 10, null, 0, true),
+      new QuestionAnswer(22, 10, null, 1, false),
+    ],
     timeLimit: 20,
     points: 500,
     ...overrides,
@@ -41,12 +46,8 @@ describe('Question', () => {
       expect(question.id).toBe(1);
       expect(question.quizId).toBe(10);
       expect(question.questionText).toBe('What is 2+2?');
-      expect(question.type).toBe('multiple');
-      expect(question.correctAnswer).toBe('A');
-      expect(question.optionA).toBe('4');
-      expect(question.optionB).toBe('3');
-      expect(question.optionC).toBe('5');
-      expect(question.optionD).toBe('6');
+      expect(question.type).toBe(QuestionType.MULTIPLE);
+      expect(question.answers).toHaveLength(4);
       expect(question.timeLimit).toBe(30);
       expect(question.points).toBe(1000);
     });
@@ -54,12 +55,8 @@ describe('Question', () => {
     it('should create a true/false question', () => {
       const question = createTrueFalseQuestion();
 
-      expect(question.type).toBe('truefalse');
-      expect(question.correctAnswer).toBe('True');
-      expect(question.optionA).toBe('True');
-      expect(question.optionB).toBe('False');
-      expect(question.optionC).toBeNull();
-      expect(question.optionD).toBeNull();
+      expect(question.type).toBe(QuestionType.TRUE_FALSE);
+      expect(question.answers).toHaveLength(2);
     });
   });
 
@@ -67,35 +64,35 @@ describe('Question', () => {
     it('should return true for correct answer', () => {
       const question = createMultipleChoiceQuestion();
 
-      expect(question.isAnswerCorrect('A')).toBe(true);
+      expect(question.isAnswerCorrect(11)).toBe(true);
     });
 
     it('should return false for incorrect answer', () => {
       const question = createMultipleChoiceQuestion();
 
-      expect(question.isAnswerCorrect('B')).toBe(false);
-      expect(question.isAnswerCorrect('C')).toBe(false);
-      expect(question.isAnswerCorrect('D')).toBe(false);
+      expect(question.isAnswerCorrect(12)).toBe(false);
+      expect(question.isAnswerCorrect(13)).toBe(false);
+      expect(question.isAnswerCorrect(14)).toBe(false);
     });
 
-    it('should be case-sensitive', () => {
+    it('should return false for non-matching answer id', () => {
       const question = createMultipleChoiceQuestion({
         questionText: 'Question',
-        optionA: 'Answer',
-        optionB: 'Wrong',
-        optionC: null,
-        optionD: null,
+        answers: [
+          new QuestionAnswer(31, 10, 'Answer', 0, true),
+          new QuestionAnswer(32, 10, 'Wrong', 1, false),
+        ],
       });
 
-      expect(question.isAnswerCorrect('A')).toBe(true);
-      expect(question.isAnswerCorrect('a')).toBe(false);
+      expect(question.isAnswerCorrect(31)).toBe(true);
+      expect(question.isAnswerCorrect(32)).toBe(false);
     });
 
     it('should work with true/false questions', () => {
       const question = createTrueFalseQuestion({ questionText: 'True or false?' });
 
-      expect(question.isAnswerCorrect('True')).toBe(true);
-      expect(question.isAnswerCorrect('False')).toBe(false);
+      expect(question.isAnswerCorrect(21)).toBe(true);
+      expect(question.isAnswerCorrect(22)).toBe(false);
     });
   });
 
@@ -104,7 +101,7 @@ describe('Question', () => {
       const question = createMultipleChoiceQuestion();
 
       const options = question.getOptions();
-      expect(options).toEqual(['4', '3', '5', '6']);
+      expect(options.map((answer) => answer.position)).toEqual([0, 1, 2, 3]);
       expect(options.length).toBe(4);
     });
 
@@ -112,31 +109,29 @@ describe('Question', () => {
       const question = createTrueFalseQuestion({ questionText: 'True or false?' });
 
       const options = question.getOptions();
-      expect(options).toEqual(['True', 'False']);
+      expect(options.map((answer) => answer.position)).toEqual([0, 1]);
       expect(options.length).toBe(2);
     });
 
     it('should handle questions with some null options', () => {
       const question = createMultipleChoiceQuestion({
         questionText: 'Question?',
-        optionA: 'Option 1',
-        optionB: 'Option 2',
-        optionC: 'Option 3',
-        optionD: null,
+        answers: [
+          new QuestionAnswer(41, 10, 'Option 1', 0, true),
+          new QuestionAnswer(42, 10, 'Option 2', 1, false),
+          new QuestionAnswer(43, 10, 'Option 3', 2, false),
+        ],
       });
 
       const options = question.getOptions();
-      expect(options).toEqual(['Option 1', 'Option 2', 'Option 3']);
+      expect(options.map((answer) => answer.position)).toEqual([0, 1, 2]);
       expect(options.length).toBe(3);
     });
 
     it('should return empty array when all options are null', () => {
       const question = createMultipleChoiceQuestion({
         questionText: 'Question?',
-        optionA: null,
-        optionB: null,
-        optionC: null,
-        optionD: null,
+        answers: [],
       });
 
       const options = question.getOptions();
@@ -165,12 +160,21 @@ describe('Question', () => {
     });
 
     it('should return false for empty correct answer', () => {
-      const question = createMultipleChoiceQuestion({
-        questionText: 'Question?',
-        correctAnswer: '',
-        optionC: null,
-        optionD: null,
-      });
+      const question = new Question(
+        1,
+        10,
+        1,
+        'Question?',
+        QuestionType.MULTIPLE,
+        [
+          new QuestionAnswer(11, 10, '4', 0, false),
+          new QuestionAnswer(12, 10, '3', 1, false),
+          new QuestionAnswer(13, 10, '5', 2, false),
+          new QuestionAnswer(14, 10, '6', 3, false),
+        ],
+        30,
+        1000,
+      );
 
       expect(question.isValid()).toBe(false);
     });
@@ -178,8 +182,7 @@ describe('Question', () => {
     it('should return false for zero time limit', () => {
       const question = createMultipleChoiceQuestion({
         questionText: 'Question?',
-        optionC: null,
-        optionD: null,
+        answers: [new QuestionAnswer(51, 10, 'Option 1', 0, true)],
         timeLimit: 0,
       });
 
@@ -189,8 +192,7 @@ describe('Question', () => {
     it('should return false for negative time limit', () => {
       const question = createMultipleChoiceQuestion({
         questionText: 'Question?',
-        optionC: null,
-        optionD: null,
+        answers: [new QuestionAnswer(61, 10, 'Option 1', 0, true)],
         timeLimit: -30,
       });
 
@@ -200,8 +202,7 @@ describe('Question', () => {
     it('should return false for zero points', () => {
       const question = createMultipleChoiceQuestion({
         questionText: 'Question?',
-        optionC: null,
-        optionD: null,
+        answers: [new QuestionAnswer(71, 10, 'Option 1', 0, true)],
         points: 0,
       });
 
@@ -211,8 +212,7 @@ describe('Question', () => {
     it('should return false for negative points', () => {
       const question = createMultipleChoiceQuestion({
         questionText: 'Question?',
-        optionC: null,
-        optionD: null,
+        answers: [new QuestionAnswer(81, 10, 'Option 1', 0, true)],
         points: -1000,
       });
 

@@ -1,19 +1,24 @@
 import { WsException } from '@nestjs/websockets';
 import { describe, expect, it, vi } from 'vitest';
+import { GameErrorCode } from '../../../domain/game/enums/game-error-code.enum';
+import { GameSessionStatus } from '../../../domain/game/enums/game-session-status.enum';
+import { QuestionType } from '../../../domain/quiz/entities/question';
+import { createGameSessionStateFixture } from '../../../test-utils/fixtures/unit';
 import {
   createAnswerRevealSchedulerMock,
   createGameBroadcastServiceMock,
   createGameSessionRepositoryMock,
-  createSessionStateRepositoryMock,
+  createGameSessionStateServiceMock,
 } from '../../../test-utils/mock-factories';
-import { GameErrorCode } from '../enums/game-error-code.enum';
+import { GameBroadcastEventType } from '../ports';
 import { StartGameWsUseCase } from './start-game-ws.use-case';
 
 describe('StartGameWsUseCase', () => {
   it('throws when game session is not found', async () => {
-    const state = { hasQuestions: true };
-    const sessionStateRepository = createSessionStateRepositoryMock({
+    const state = createGameSessionStateFixture({ hasQuestions: true });
+    const gameSessionStateService = createGameSessionStateServiceMock({
       getOrCreate: state as never,
+      update: undefined,
     });
 
     const gameSessionRepository = createGameSessionRepositoryMock({ findByPin: null });
@@ -21,7 +26,7 @@ describe('StartGameWsUseCase', () => {
     const scheduler = createAnswerRevealSchedulerMock();
 
     const useCase = new StartGameWsUseCase(
-      sessionStateRepository as never,
+      gameSessionStateService as never,
       gameSessionRepository as never,
       broadcastService as never,
       scheduler as never,
@@ -36,34 +41,25 @@ describe('StartGameWsUseCase', () => {
   });
 
   it('starts the game, schedules reveal, updates status and broadcasts', async () => {
-    type SessionStateStub = {
-      hasQuestions: boolean;
-      sessionId: number;
-      totalQuestions: number;
-      currentQuestion: {
-        questionText: string;
-        correctAnswer: string;
-        timeLimit: number;
-        points: number;
-        type: string;
-      };
-      startQuestion: () => void;
-    };
-
-    const state: SessionStateStub = {
+    const state = createGameSessionStateFixture({
       hasQuestions: true,
       sessionId: 1,
       totalQuestions: 2,
       currentQuestion: {
+        id: 42,
+        position: 0,
         questionText: 'Q',
-        correctAnswer: 'A',
+        answers: [{ id: 1, text: 'A', position: 0, isCorrect: true }],
         timeLimit: 10,
         points: 1000,
-        type: 'multiple',
+        type: QuestionType.MULTIPLE,
       },
       startQuestion: vi.fn(),
-    };
-    const sessionStateRepository = createSessionStateRepositoryMock({ getOrCreate: state });
+    });
+    const gameSessionStateService = createGameSessionStateServiceMock({
+      getOrCreate: state as never,
+      update: undefined,
+    });
 
     const gameSessionRepository = createGameSessionRepositoryMock({
       findByPin: { id: 1 } as never,
@@ -74,7 +70,7 @@ describe('StartGameWsUseCase', () => {
     const scheduler = createAnswerRevealSchedulerMock();
 
     const useCase = new StartGameWsUseCase(
-      sessionStateRepository as never,
+      gameSessionStateService as never,
       gameSessionRepository as never,
       broadcastService as never,
       scheduler as never,
@@ -82,14 +78,13 @@ describe('StartGameWsUseCase', () => {
 
     await useCase.execute('123456');
 
-    expect(gameSessionRepository.updateStatus).toHaveBeenCalledWith(1, 'active');
-    expect(gameSessionRepository.updateCurrentQuestion).toHaveBeenCalledWith(1, 0);
+    expect(gameSessionRepository.updateStatus).toHaveBeenCalledWith(1, GameSessionStatus.ACTIVE);
+    expect(gameSessionRepository.updateCurrentQuestion).toHaveBeenCalledWith(1, 42);
     expect(scheduler.schedule).toHaveBeenCalledWith('123456', 10);
     expect(broadcastService.publish).toHaveBeenCalledWith(
       expect.objectContaining({
-        type: 'game-started',
+        type: GameBroadcastEventType.GAME_STARTED,
         pin: '123456',
-        questionNumber: 1,
         totalQuestions: 2,
       }),
     );

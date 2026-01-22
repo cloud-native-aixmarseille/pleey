@@ -8,13 +8,14 @@ import i18n from "../../../../../../i18n/config";
 import { createQuestionFixture } from "../../../../../../test/fixtures";
 
 const mockQuestion: Question = createQuestionFixture({
-  question_text: "What is the capital of France?",
-  correct_answer: "A",
-  option_a: "Paris",
-  option_b: "London",
-  option_c: "Berlin",
-  option_d: "Madrid",
-  time_limit: 30,
+  questionText: "What is the capital of France?",
+  answers: [
+    { id: 1, text: "Paris", position: 0, isCorrect: true },
+    { id: 2, text: "London", position: 1, isCorrect: false },
+    { id: 3, text: "Berlin", position: 2, isCorrect: false },
+    { id: 4, text: "Madrid", position: 3, isCorrect: false },
+  ],
+  timeLimit: 30,
 });
 
 const defaultHostCallbacks = {
@@ -26,14 +27,14 @@ const defaultHostCallbacks = {
 const mockAnswerResult: AnswerResult = {
   isCorrect: true,
   points: 100,
-  correctAnswer: "A",
+  correctAnswerIds: [1],
   statistics: {
     totalAnswers: 4,
     answerDistribution: {
-      A: 3,
-      B: 1,
-      C: 0,
-      D: 0,
+      1: 3,
+      2: 1,
+      3: 0,
+      4: 0,
     },
   },
 };
@@ -262,12 +263,11 @@ describe("HostPlayingView", () => {
   it("renders true/false question correctly", () => {
     const trueFalseQuestion: Question = createQuestionFixture({
       ...mockQuestion,
-      type: "boolean" as const,
-      correct_answer: "true",
-      option_a: null,
-      option_b: null,
-      option_c: null,
-      option_d: null,
+      type: "truefalse",
+      answers: [
+        { id: 10, value: "true", text: null, position: 0, isCorrect: true },
+        { id: 11, value: "false", text: null, position: 1, isCorrect: false },
+      ],
     });
 
     render(

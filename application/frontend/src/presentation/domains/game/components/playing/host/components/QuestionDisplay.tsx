@@ -40,7 +40,7 @@ export function QuestionDisplay({ question }: QuestionDisplayProps) {
             {questionTypeLabel}
           </ArcadeBadge>
         </div>
-        <h2 className={QUESTION_TITLE_CLASSES}>{question.question_text}</h2>
+        <h2 className={QUESTION_TITLE_CLASSES}>{question.questionText}</h2>
       </div>
     </Card>
   );

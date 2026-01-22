@@ -6,7 +6,7 @@ import { MemoryRouter, Routes, Route } from "react-router-dom";
 import type {
   CreateQuestionPayload,
   UpdateQuestionPayload,
-} from "../../../../domains/quiz/quiz.service";
+} from "../../../../domains/quiz/quiz.payloads";
 import type { Quiz, Question } from "../../../../domains/quiz/types";
 import {
   createQuestionFixture,
@@ -77,7 +77,7 @@ function renderRoute(initialEntry = "/admin/quizzes/42") {
         <Route path="/auth/login" element={<div>Login Page</div>} />
         <Route path="/admin" element={<div>Admin Page</div>} />
       </Routes>
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 }
 
@@ -206,7 +206,10 @@ describe("ManageQuestionsRoute", () => {
       quizId: 42,
       questionText: "Question?",
       type: "multiple",
-      correctAnswer: "A",
+      answers: [
+        { id: 1, text: "Answer A", position: 0, isCorrect: true },
+        { id: 2, text: "Answer B", position: 1, isCorrect: false },
+      ],
     };
 
     await props.onAddQuestion(payload);
@@ -214,7 +217,7 @@ describe("ManageQuestionsRoute", () => {
     expect(quizContext.addQuestion).toHaveBeenCalledWith("token-abc", payload);
     expect(notify).toHaveBeenCalledWith(
       "quiz.success.questionCreated",
-      "success"
+      "success",
     );
   });
 
@@ -243,13 +246,16 @@ describe("ManageQuestionsRoute", () => {
         quizId: 42,
         questionText: "fail",
         type: "truefalse",
-        correctAnswer: "true",
-      })
+        answers: [
+          { id: 1, text: null, position: 0, isCorrect: true },
+          { id: 2, text: null, position: 1, isCorrect: false },
+        ],
+      }),
     ).rejects.toThrow(error);
 
     expect(notifyFromError).toHaveBeenCalledWith(
       error,
-      "errors.unableToLoadQuestions"
+      "errors.unableToLoadQuestions",
     );
   });
 
@@ -277,11 +283,11 @@ describe("ManageQuestionsRoute", () => {
     expect(quizContext.deleteQuestion).toHaveBeenCalledWith(
       "token-abc",
       42,
-      123
+      123,
     );
     expect(notify).toHaveBeenCalledWith(
       "quiz.success.questionDeleted",
-      "success"
+      "success",
     );
   });
 
@@ -309,7 +315,7 @@ describe("ManageQuestionsRoute", () => {
 
     expect(notifyFromError).toHaveBeenCalledWith(
       error,
-      "errors.questionDeleteFailed"
+      "errors.questionDeleteFailed",
     );
   });
 
@@ -331,7 +337,7 @@ describe("ManageQuestionsRoute", () => {
     const props = mocks.managePageProps as {
       onUpdateQuestion: (
         questionId: number,
-        payload: UpdateQuestionPayload
+        payload: UpdateQuestionPayload,
       ) => Promise<void>;
     };
 
@@ -340,7 +346,10 @@ describe("ManageQuestionsRoute", () => {
       quizId: 42,
       questionText: "Updated?",
       type: "multiple",
-      correctAnswer: "B",
+      answers: [
+        { id: 1, text: "Answer A", position: 0, isCorrect: false },
+        { id: 2, text: "Answer B", position: 1, isCorrect: true },
+      ],
     };
 
     await props.onUpdateQuestion(questionId, payload);
@@ -349,11 +358,11 @@ describe("ManageQuestionsRoute", () => {
       "token-abc",
       42,
       questionId,
-      payload
+      payload,
     );
     expect(notify).toHaveBeenCalledWith(
       "quiz.success.questionUpdated",
-      "success"
+      "success",
     );
   });
 });

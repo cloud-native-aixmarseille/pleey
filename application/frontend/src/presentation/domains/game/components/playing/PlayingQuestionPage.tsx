@@ -18,13 +18,13 @@ interface PlayingQuestionPageProps {
   questionNumber: number;
   totalQuestions: number;
   timeLeft: number;
-  userAnswer: string | null;
+  userAnswer: number | null;
   answerSubmitted: boolean;
   showResult: boolean;
   answerResult: AnswerResult | null;
   isHost: boolean;
   isPaused?: boolean;
-  onSubmitAnswer: (answer: string) => void;
+  onSubmitAnswer: (answerId: number) => void;
   onNextQuestion: () => void;
 }
 
@@ -42,7 +42,7 @@ export function PlayingQuestionPage({
   onSubmitAnswer,
   onNextQuestion,
 }: PlayingQuestionPageProps) {
-  const timeLimit = currentQuestion.time_limit ?? 0;
+  const timeLimit = currentQuestion.timeLimit ?? 0;
   const { progressPercent, severity } = useQuestionTimerState(
     timeLeft,
     timeLimit
@@ -61,7 +61,7 @@ export function PlayingQuestionPage({
         severity={severity}
       />
 
-      <QuestionCard questionText={currentQuestion.question_text} />
+      <QuestionCard questionText={currentQuestion.questionText} />
 
       {!showResult && (
         <PlayingAnswers

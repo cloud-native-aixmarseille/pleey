@@ -1,8 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import type { GameSessionPin } from '../../../domain/game/entities/game-session';
 import type {
   GameTimerService,
   TimerCallback,
-} from '../../../domain/game/ports/game-timer.service.interface';
+} from '../../../domain/game/ports/game-timer.service';
 
 /**
  * Implementation of GameTimerService using Node.js setTimeout.
@@ -10,24 +11,30 @@ import type {
  */
 @Injectable()
 export class NodeGameTimerService implements GameTimerService {
-  private readonly logger = new Logger(NodeGameTimerService.name);
-  private readonly timers = new Map<string, NodeJS.Timeout>();
+  private readonly timers = new Map<GameSessionPin, NodeJS.Timeout>();
 
-  setAnswerRevealTimer(pin: string, delayMs: number, callback: TimerCallback): void {
+  constructor(@Inject(Logger) private readonly logger: Logger) {}
+
+  setAnswerRevealTimer(pin: GameSessionPin, delayMs: number, callback: TimerCallback): void {
     // Clear existing timer if any
     this.clearAnswerRevealTimer(pin);
 
     const timer = setTimeout(() => {
       this.timers.delete(pin);
       callback().catch((error) => {
-        this.logger.error(`Error in timer callback for pin ${pin}:`, error);
+        const trace = error instanceof Error ? error.stack : undefined;
+        this.logger.error(
+          `Error in timer callback for pin ${pin}`,
+          trace,
+          NodeGameTimerService.name,
+        );
       });
     }, delayMs);
 
     this.timers.set(pin, timer);
   }
 
-  clearAnswerRevealTimer(pin: string): void {
+  clearAnswerRevealTimer(pin: GameSessionPin): void {
     const timer = this.timers.get(pin);
     if (timer) {
       clearTimeout(timer);
@@ -35,7 +42,7 @@ export class NodeGameTimerService implements GameTimerService {
     }
   }
 
-  hasTimer(pin: string): boolean {
+  hasTimer(pin: GameSessionPin): boolean {
     return this.timers.has(pin);
   }
 

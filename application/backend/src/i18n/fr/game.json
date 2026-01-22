@@ -6,6 +6,10 @@
     "gameNotStarted": "Le jeu n'a pas encore commencé",
     "invalidAnswer": "Réponse invalide",
     "noQuestionsAvailable": "Aucune question disponible pour ce quiz",
+    "noCurrentQuestionToResume": "Aucune question en cours à reprendre",
+    "invalidRevealDelay": "Le délai de révélation doit être un nombre fini",
+    "playerIdentityRequired": "Le joueur doit avoir un userId ou un guestId",
+    "playerScoreIdentityInvalid": "Le score du joueur doit avoir exactement une identité (userId ou guestId)",
     "validationFailed": "Échec de la validation",
     "unknownError": "Une erreur inattendue s'est produite",
     "gameCanOnlyBeStartedFromWaiting": "Le jeu ne peut être démarré que depuis le statut d'attente",
@@ -27,5 +31,8 @@
   "success": {
     "gameCreated": "Session de jeu créée avec succès",
     "answerSubmitted": "Réponse soumise avec succès"
+  },
+  "labels": {
+    "guest": "Invité"
   }
 }

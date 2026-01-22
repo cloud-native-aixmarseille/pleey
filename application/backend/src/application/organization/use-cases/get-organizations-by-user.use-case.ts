@@ -1,9 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { UserId } from '../../../domain/auth/entities/user.entity';
 import type { Organization } from '../../../domain/organization/entities/organization';
-import type { OrganizationRepository } from '../../../domain/organization/repositories/organization.repository.interface';
-import { OrganizationRepositoryProvider } from '../../../domain/organization/repositories/organization.repository.interface';
-import type { OrganizationMemberRepository } from '../../../domain/organization/repositories/organization-member.repository.interface';
-import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/repositories/organization-member.repository.interface';
+import type { OrganizationRepository } from '../../../domain/organization/ports/organization.repository';
+import { OrganizationRepositoryProvider } from '../../../domain/organization/ports/organization.repository';
+import type { OrganizationMemberRepository } from '../../../domain/organization/ports/organization-member.repository';
+import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/ports/organization-member.repository';
 
 /**
  * Use case for getting all organizations a user belongs to
@@ -17,7 +18,7 @@ export class GetOrganizationsByUserUseCase {
     private readonly memberRepository: OrganizationMemberRepository,
   ) {}
 
-  async execute(userId: number): Promise<Organization[]> {
+  async execute(userId: UserId): Promise<Organization[]> {
     // Get all memberships for the user
     const memberships = await this.memberRepository.findByUser(userId);
 

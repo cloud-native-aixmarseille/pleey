@@ -1,18 +1,20 @@
 import { ConflictException } from '@nestjs/common';
-import { describe, expect, it, vi } from 'vitest';
-
+import { describe, expect, it } from 'vitest';
+import { OrganizationErrorCode } from '../../../domain/organization/enums/organization-error-code.enum';
 import { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
+import {
+  createOrganizationMemberRepositoryMock,
+  createOrganizationRepositoryMock,
+} from '../../../test-utils/mock-factories';
 import type { CreateOrganizationDto } from '../dto/create-organization.dto';
-import { OrganizationErrorCode } from '../enums/organization-error-code.enum';
 import { CreateOrganizationUseCase } from './create-organization.use-case';
 
 describe('CreateOrganizationUseCase', () => {
   it('throws when organization name already exists', async () => {
-    const organizationRepository = {
-      findByName: vi.fn().mockResolvedValue({ id: 1 }),
-      create: vi.fn(),
-    };
-    const memberRepository = { create: vi.fn() };
+    const organizationRepository = createOrganizationRepositoryMock({
+      findByName: { id: 1 } as never,
+    });
+    const memberRepository = createOrganizationMemberRepositoryMock();
     const useCase = new CreateOrganizationUseCase(
       organizationRepository as never,
       memberRepository as never,
@@ -27,11 +29,11 @@ describe('CreateOrganizationUseCase', () => {
   });
 
   it('creates organization and assigns owner role', async () => {
-    const organizationRepository = {
-      findByName: vi.fn().mockResolvedValue(null),
-      create: vi.fn().mockResolvedValue({ id: 10, name: 'Org', description: null }),
-    };
-    const memberRepository = { create: vi.fn().mockResolvedValue(undefined) };
+    const organizationRepository = createOrganizationRepositoryMock({
+      findByName: null,
+      create: { id: 10, name: 'Org', description: null } as never,
+    });
+    const memberRepository = createOrganizationMemberRepositoryMock({ create: undefined });
     const useCase = new CreateOrganizationUseCase(
       organizationRepository as never,
       memberRepository as never,

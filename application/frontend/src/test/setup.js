@@ -5,7 +5,7 @@ import i18n from "../i18n/config";
 import {
   queryClient,
   setAuthSessionTokens,
-} from "../infrastructure/http/api/openapiClient";
+} from "../infrastructure/shared/http/api/openapiClient";
 
 // Initialize i18n for tests with English as default
 beforeAll(async () => {

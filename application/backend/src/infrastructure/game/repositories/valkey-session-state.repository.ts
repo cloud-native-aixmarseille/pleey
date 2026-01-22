@@ -1,18 +1,9 @@
 import { Inject, Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
-import { WsException } from '@nestjs/websockets';
 import { createClient } from 'redis';
-import { GameErrorCode } from '../../../application/game/enums/game-error-code.enum';
+import type { GameSessionPin } from '../../../domain/game/entities/game-session';
 import type { GameSessionStateSnapshot } from '../../../domain/game/entities/game-session-state';
 import { GameSessionState } from '../../../domain/game/entities/game-session-state';
-import {
-  type GameSessionRepository,
-  GameSessionRepositoryProvider,
-} from '../../../domain/game/repositories/game-session.repository.interface';
-import type { SessionStateRepository } from '../../../domain/game/repositories/session-state.repository.interface';
-import {
-  type QuestionRepository,
-  QuestionRepositoryProvider,
-} from '../../../domain/quiz/repositories/question.repository.interface';
+import type { SessionStateRepository } from '../../../domain/game/ports/session-state.repository';
 
 const DEFAULT_SESSION_STATE_TTL_SECONDS = 6 * 60 * 60;
 
@@ -20,48 +11,12 @@ type ValkeyClient = ReturnType<typeof createClient>;
 
 @Injectable()
 export class ValkeySessionStateRepository implements SessionStateRepository, OnModuleDestroy {
-  private readonly logger = new Logger(ValkeySessionStateRepository.name);
-
   private client: ValkeyClient | undefined;
   private connectPromise: Promise<ValkeyClient> | undefined;
 
-  constructor(
-    @Inject(GameSessionRepositoryProvider)
-    private readonly gameSessionRepository: GameSessionRepository,
-    @Inject(QuestionRepositoryProvider)
-    private readonly questionRepository: QuestionRepository,
-  ) {}
+  constructor(@Inject(Logger) private readonly logger: Logger) {}
 
-  async getOrCreate(pin: string): Promise<GameSessionState> {
-    const cached = await this.get(pin);
-    if (cached) {
-      return cached;
-    }
-
-    const session = await this.gameSessionRepository.findByPin(pin);
-    if (!session) {
-      throw new WsException(GameErrorCode.GAME_NOT_FOUND);
-    }
-
-    if (session.status === 'ended') {
-      throw new WsException(GameErrorCode.GAME_SESSION_ENDED);
-    }
-
-    const questions = await this.questionRepository.findByQuizId(session.quizId);
-
-    const state = GameSessionState.create({
-      sessionId: session.id,
-      quizId: session.quizId,
-      hostId: session.hostId,
-      questions,
-      currentQuestionIndex: session.currentQuestion ?? 0,
-    });
-
-    await this.save(pin, state);
-    return state;
-  }
-
-  async get(pin: string): Promise<GameSessionState | undefined> {
+  async get(pin: GameSessionPin): Promise<GameSessionState | undefined> {
     const client = await this.getClient();
     const raw = await client.get(this.stateKey(pin));
     if (!raw) {
@@ -74,13 +29,14 @@ export class ValkeySessionStateRepository implements SessionStateRepository, OnM
     } catch (_error) {
       this.logger.warn(
         `Failed to parse session state snapshot for pin=${pin}; deleting corrupted key`,
+        ValkeySessionStateRepository.name,
       );
       await this.remove(pin);
       return undefined;
     }
   }
 
-  async save(pin: string, state: GameSessionState): Promise<void> {
+  async save(pin: GameSessionPin, state: GameSessionState): Promise<void> {
     const client = await this.getClient();
 
     const ttlSeconds = this.getTtlSeconds();
@@ -121,7 +77,7 @@ export class ValkeySessionStateRepository implements SessionStateRepository, OnM
     await multi.exec();
   }
 
-  async remove(pin: string): Promise<void> {
+  async remove(pin: GameSessionPin): Promise<void> {
     const client = await this.getClient();
 
     const socketsKey = this.socketsKey(pin);
@@ -138,13 +94,13 @@ export class ValkeySessionStateRepository implements SessionStateRepository, OnM
     await multi.exec();
   }
 
-  async has(pin: string): Promise<boolean> {
+  async has(pin: GameSessionPin): Promise<boolean> {
     const client = await this.getClient();
     const exists = await client.exists(this.stateKey(pin));
     return exists === 1;
   }
 
-  async findPinBySocketId(socketId: string): Promise<string | undefined> {
+  async findPinBySocketId(socketId: string): Promise<GameSessionPin | undefined> {
     const client = await this.getClient();
     const pin = await client.get(this.socketToPinKey(socketId));
     return pin ?? undefined;
@@ -192,11 +148,12 @@ export class ValkeySessionStateRepository implements SessionStateRepository, OnM
 
     const client = createClient({ url });
     client.on('error', (error: unknown) => {
-      this.logger.error('Valkey client error', error as Error);
+      const trace = error instanceof Error ? error.stack : undefined;
+      this.logger.error('Valkey client error', trace, ValkeySessionStateRepository.name);
     });
 
     this.connectPromise = client.connect().then(() => {
-      this.logger.log('Connected to Valkey');
+      this.logger.log('Connected to Valkey', ValkeySessionStateRepository.name);
       this.client = client;
       return client;
     });
@@ -204,11 +161,11 @@ export class ValkeySessionStateRepository implements SessionStateRepository, OnM
     return this.connectPromise;
   }
 
-  private stateKey(pin: string): string {
+  private stateKey(pin: GameSessionPin): string {
     return `quiz:session-state:${pin}`;
   }
 
-  private socketsKey(pin: string): string {
+  private socketsKey(pin: GameSessionPin): string {
     return `quiz:session-sockets:${pin}`;
   }
 

@@ -1,32 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { LoginUseCase } from "./login.use-case";
-import { IAuthRepository } from "../../../domains/auth/ports/auth.repository.interface";
-import { IStorage } from "../../../domains/shared/ports/storage.interface";
+import type { AuthRepository } from "../../../domains/auth/ports/auth.repository";
+import type { Storage } from "../../../domains/shared/ports/storage";
 import {
   createAuthResponsePayloadFixture,
 } from "../../../test/fixtures";
+import { createAuthRepositoryMock } from "../../../test/mock-factories/auth-repository.mock-factory";
+import { createStorageMock } from "../../../test/mock-factories/storage.mock-factory";
 
 describe("LoginUseCase", () => {
   let loginUseCase: LoginUseCase;
-  let mockAuthRepository: IAuthRepository;
-  let mockStorage: IStorage;
+  let mockAuthRepository: AuthRepository;
+  let mockStorage: Storage;
 
   beforeEach(() => {
-    mockAuthRepository = {
-      login: vi.fn(),
-      register: vi.fn(),
-      getCurrentUser: vi.fn(),
-      updateProfile: vi.fn(),
-      regenerateAvatar: vi.fn(),
-      logout: vi.fn(),
-    };
-
-    mockStorage = {
-      getItem: vi.fn(),
-      setItem: vi.fn(),
-      removeItem: vi.fn(),
-      clear: vi.fn(),
-    };
+    mockAuthRepository = createAuthRepositoryMock();
+    mockStorage = createStorageMock();
 
     loginUseCase = new LoginUseCase(mockAuthRepository, mockStorage);
   });

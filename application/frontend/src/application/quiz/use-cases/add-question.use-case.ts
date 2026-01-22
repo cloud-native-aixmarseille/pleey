@@ -1,9 +1,11 @@
-import { IQuizRepository } from "../../../domains/quiz/ports/quiz.repository.interface";
+import { QuizRepository } from "../../../domains/quiz/ports/quiz.repository";
 import type { Question } from "../../../domains/quiz/types";
+import type { CreateQuestionPayload } from "../../../domains/quiz/quiz.payloads";
+import { QuizErrorCode } from "../enums/quiz-error-code.enum";
 
 export interface AddQuestionRequest {
   token: string;
-  questionData: Partial<Question>;
+  questionData: CreateQuestionPayload;
 }
 
 /**
@@ -12,21 +14,18 @@ export interface AddQuestionRequest {
  * Following Clean Architecture and Single Responsibility Principle
  */
 export class AddQuestionUseCase {
-  constructor(private readonly quizRepository: IQuizRepository) { }
+  constructor(private readonly quizRepository: QuizRepository) { }
 
   async execute(request: AddQuestionRequest): Promise<Question> {
     const { token, questionData } = request;
 
     // Business rule: validate required fields
-    if (
-      !questionData.question_text ||
-      questionData.question_text.trim().length === 0
-    ) {
-      throw new Error("Question text is required");
+    if (!questionData.questionText || questionData.questionText.trim().length === 0) {
+      throw new Error(QuizErrorCode.QUESTION_TEXT_REQUIRED);
     }
 
-    if (!questionData.quiz_id) {
-      throw new Error("Quiz ID is required");
+    if (!questionData.quizId) {
+      throw new Error(QuizErrorCode.QUIZ_ID_REQUIRED);
     }
 
     return this.quizRepository.addQuestion(token, questionData);

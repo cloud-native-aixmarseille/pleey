@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Delete,
-  ForbiddenException,
   Get,
   HttpCode,
   Param,
@@ -12,25 +11,20 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import type { Request } from 'express';
 import { CreateQuizDto } from '../../application/quiz/dto/create-quiz.dto';
 import { UpdateQuizDto } from '../../application/quiz/dto/update-quiz.dto';
-import { QuizErrorCode } from '../../application/quiz/enums/quiz-error-code.enum';
 import { CreateQuizUseCase } from '../../application/quiz/use-cases/create-quiz.use-case';
 import { DeleteQuizUseCase } from '../../application/quiz/use-cases/delete-quiz.use-case';
 import { GetAllQuizzesUseCase } from '../../application/quiz/use-cases/get-all-quizzes.use-case';
 import { GetQuizQuestionsUseCase } from '../../application/quiz/use-cases/get-quiz-questions.use-case';
 import { UpdateQuizUseCase } from '../../application/quiz/use-cases/update-quiz.use-case';
+import { AppRole } from '../../domain/auth/enums/app-role.enum';
+import type { QuizId } from '../../domain/quiz/entities/quiz';
+import type { AuthenticatedRequest } from '../auth/authenticated-request';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-
-interface AuthenticatedRequest extends Request {
-  user?: {
-    id: number;
-    username: string;
-    isAdmin: boolean;
-    avatarUrl: string | null;
-  };
-}
+import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
+import { mapQuestionToResponse } from '../shared/mappers/question-response.mapper';
 
 @Controller('quizzes')
 export class QuizController {
@@ -43,16 +37,10 @@ export class QuizController {
   ) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(AppRole.ADMIN)
   async create(@Body() dto: CreateQuizDto, @Req() request: AuthenticatedRequest) {
     const user = request.user;
-    if (!user) {
-      throw new ForbiddenException(QuizErrorCode.AUTHENTICATION_REQUIRED);
-    }
-
-    if (!user.isAdmin) {
-      throw new ForbiddenException(QuizErrorCode.ADMIN_PRIVILEGES_REQUIRED);
-    }
 
     const quiz = await this.createQuizUseCase.execute(dto, user.id);
     return {
@@ -73,64 +61,29 @@ export class QuizController {
       description: quiz.description,
       createdById: quiz.createdById,
       createdAt: quiz.createdAt,
-      question_count: quiz.questionCount,
+      questionCount: quiz.questionCount,
     }));
   }
 
   @Get(':quizId/questions')
-  async findQuestions(@Param('quizId', ParseIntPipe) quizId: number) {
+  async findQuestions(@Param('quizId', ParseIntPipe) quizId: QuizId) {
     const questions = await this.getQuizQuestionsUseCase.execute(quizId);
 
-    return questions.map((question) => ({
-      id: question.id,
-      quiz_id: question.quizId,
-      question_text: question.questionText,
-      type: question.type,
-      correct_answer: question.correctAnswer,
-      option_a: question.optionA,
-      option_b: question.optionB,
-      option_c: question.optionC,
-      option_d: question.optionD,
-      time_limit: question.timeLimit,
-      points: question.points,
-    }));
+    return questions.map(mapQuestionToResponse);
   }
 
   @Delete(':quizId')
   @HttpCode(204)
-  @UseGuards(JwtAuthGuard)
-  async delete(
-    @Param('quizId', ParseIntPipe) quizId: number,
-    @Req() request: AuthenticatedRequest,
-  ): Promise<void> {
-    const user = request.user;
-    if (!user) {
-      throw new ForbiddenException(QuizErrorCode.AUTHENTICATION_REQUIRED);
-    }
-
-    if (!user.isAdmin) {
-      throw new ForbiddenException(QuizErrorCode.ADMIN_PRIVILEGES_REQUIRED);
-    }
-
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(AppRole.ADMIN)
+  async delete(@Param('quizId', ParseIntPipe) quizId: QuizId): Promise<void> {
     await this.deleteQuizUseCase.execute(quizId);
   }
 
   @Patch(':quizId')
-  @UseGuards(JwtAuthGuard)
-  async update(
-    @Param('quizId', ParseIntPipe) quizId: number,
-    @Body() dto: UpdateQuizDto,
-    @Req() request: AuthenticatedRequest,
-  ) {
-    const user = request.user;
-    if (!user) {
-      throw new ForbiddenException(QuizErrorCode.AUTHENTICATION_REQUIRED);
-    }
-
-    if (!user.isAdmin) {
-      throw new ForbiddenException(QuizErrorCode.ADMIN_PRIVILEGES_REQUIRED);
-    }
-
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(AppRole.ADMIN)
+  async update(@Param('quizId', ParseIntPipe) quizId: QuizId, @Body() dto: UpdateQuizDto) {
     const quiz = await this.updateQuizUseCase.execute(quizId, dto);
     return {
       id: quiz.id,
@@ -138,7 +91,7 @@ export class QuizController {
       description: quiz.description,
       createdById: quiz.createdById,
       createdAt: quiz.createdAt,
-      question_count: quiz.questionCount,
+      questionCount: quiz.questionCount,
     };
   }
 }

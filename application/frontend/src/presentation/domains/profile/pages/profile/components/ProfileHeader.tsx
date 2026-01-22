@@ -37,7 +37,7 @@ export function ProfileHeader({
   return (
     <div className={HEADER_WRAPPER_CLASSES}>
       <div className={USER_ROW_CLASSES}>
-        <Avatar name={user.username} src={user.avatarUrl} size="lg" />
+        <Avatar name={user.username} src={user.avatarUri} size="lg" />
         <div>
           <p className={VIEWING_AS_CLASSES}>{viewingAsLabel}</p>
           <h1 className={USERNAME_CLASSES}>{user.username}</h1>

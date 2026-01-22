@@ -7,6 +7,7 @@ import React, {
   useTransition,
 } from "react";
 import type { Quiz, Question } from "../../../../domains/quiz/types";
+import type { CreateQuestionPayload } from "../../../../domains/quiz/quiz.payloads";
 import { container } from "../../../../app/di/container";
 
 type QuestionsByQuiz = Record<number, Question[]>;
@@ -21,11 +22,12 @@ interface QuizContextValue {
   createQuiz: (
     token: string,
     title: string,
-    description: string
+    description: string,
+    organizationId: number,
   ) => Promise<void>;
   addQuestion: (
     token: string,
-    questionData: Partial<Question>
+    questionData: CreateQuestionPayload,
   ) => Promise<void>;
 }
 
@@ -54,7 +56,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         setHasLoadedQuizzes(true);
       }
     },
-    [startTransition]
+    [startTransition],
   );
 
   const loadQuizQuestions = useCallback(
@@ -70,25 +72,33 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         }));
       });
     },
-    [startTransition]
+    [startTransition],
   );
 
   const createQuiz = useCallback(
-    async (token: string, title: string, description: string) => {
-      await container.createQuizUseCase.execute({ token, title, description });
+    async (
+      token: string,
+      title: string,
+      description: string,
+      organizationId: number,
+    ) => {
+      await container.createQuizUseCase.execute({
+        token,
+        title,
+        description,
+        organizationId,
+      });
       await loadQuizzes(token);
     },
-    [loadQuizzes]
+    [loadQuizzes],
   );
 
   const addQuestion = useCallback(
-    async (token: string, questionData: Partial<Question>) => {
+    async (token: string, questionData: CreateQuestionPayload) => {
       await container.addQuestionUseCase.execute({ token, questionData });
-      if (questionData.quiz_id) {
-        await loadQuizQuestions(token, Number(questionData.quiz_id));
-      }
+      await loadQuizQuestions(token, Number(questionData.quizId));
     },
-    [loadQuizQuestions]
+    [loadQuizQuestions],
   );
 
   const value: QuizContextValue = {

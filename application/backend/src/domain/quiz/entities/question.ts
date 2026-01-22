@@ -1,61 +1,59 @@
+import type { QuestionAnswer, QuestionAnswerId } from './question-answer';
+import type { QuizId } from './quiz';
+
+export type QuestionId = number;
+
+export enum QuestionType {
+  MULTIPLE = 'multiple',
+  TRUE_FALSE = 'truefalse',
+}
+
 /**
  * Question Domain Entity
  * Represents a quiz question in the domain
  */
 export class Question {
   constructor(
-    public readonly id: number,
-    public readonly quizId: number,
+    public readonly id: QuestionId,
+    public readonly quizId: QuizId,
+    public readonly position: number,
     public readonly questionText: string,
-    public readonly type: 'multiple' | 'truefalse',
-    public readonly correctAnswer: string,
-    public readonly optionA: string | null,
-    public readonly optionB: string | null,
-    public readonly optionC: string | null,
-    public readonly optionD: string | null,
+    public readonly type: QuestionType,
+    public readonly answers: QuestionAnswer[],
     public readonly timeLimit: number,
     public readonly points: number,
   ) {}
 
   /**
-   * Gets all correct answers for this question
-   * Supports both single answer (e.g., "A") and multiple answers (e.g., "A,D")
+   * Returns the correct answers for this question
    */
-  getCorrectAnswers(): string[] {
-    return this.correctAnswer.split(',').map((a) => a.trim());
-  }
-
-  /**
-   * Checks if this question has multiple correct answers
-   */
-  hasMultipleCorrectAnswers(): boolean {
-    return this.getCorrectAnswers().length > 1;
+  getCorrectAnswers(): QuestionAnswer[] {
+    return this.answers.filter((answer) => answer.isCorrect);
   }
 
   /**
    * Checks if the answer is correct
-   * Supports both single and multiple correct answers
    */
-  isAnswerCorrect(answer: string): boolean {
-    const correctAnswers = this.getCorrectAnswers();
-    return correctAnswers.includes(answer);
+  isAnswerCorrect(answerId: QuestionAnswerId): boolean {
+    return this.getCorrectAnswers().some((answer) => answer.id === answerId);
   }
 
   /**
    * Gets all options for the question
    */
-  getOptions(): string[] {
-    const options = [this.optionA, this.optionB, this.optionC, this.optionD];
-    return options.filter((opt) => opt !== null) as string[];
+  getOptions(): QuestionAnswer[] {
+    return this.answers;
   }
 
   /**
    * Validates if question has minimum required data
    */
   isValid(): boolean {
+    const hasCorrectAnswer = this.getCorrectAnswers().length > 0;
     return (
       this.questionText.trim().length > 0 &&
-      this.correctAnswer.trim().length > 0 &&
+      hasCorrectAnswer &&
+      this.answers.length > 0 &&
       this.timeLimit > 0 &&
       this.points > 0
     );

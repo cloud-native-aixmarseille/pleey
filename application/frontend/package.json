@@ -13,7 +13,7 @@
     "test:ci": "vitest run --reporter=default --reporter=junit --outputFile=junit.xml --coverage.enabled --coverage.reporter=lcov --coverage.reporter=text",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
-    "openapi:generate": "openapi-typescript http://backend:3001/api/openapi.json --output src/infrastructure/http/api/openapi-schema.ts"
+    "openapi:generate": "openapi-typescript http://backend:3001/api/openapi.json --output src/infrastructure/shared/http/api/openapi-schema.ts"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.16",

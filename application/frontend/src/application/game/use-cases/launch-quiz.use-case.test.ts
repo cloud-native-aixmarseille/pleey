@@ -1,15 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { LaunchQuizUseCase } from "./launch-quiz.use-case";
-import { IGameRepository } from "../../../domains/game/ports/game.repository.interface";
-import { IGameSocket } from "../../../domains/game/ports/game-socket.interface";
+import type { GameRepository } from "../../../domains/game/ports/game.repository";
+import type { GameSocket } from "../../../domains/game/ports/game-socket";
 import type { User } from "../../../domains/auth/types";
 import type { GameSession } from "../../../domains/game/types";
 import { createGameSessionFixture, createUserFixture } from "../../../test/fixtures";
+import { createGameRepositoryMock } from "../../../test/mock-factories/game-repository.mock-factory";
+import { createGameSocketMock } from "../../../test/mock-factories/game-socket.mock-factory";
 
 describe("LaunchQuizUseCase", () => {
   let launchQuizUseCase: LaunchQuizUseCase;
-  let mockGameRepository: IGameRepository;
-  let mockGameSocket: IGameSocket;
+  let mockGameRepository: GameRepository;
+  let mockGameSocket: GameSocket;
 
   const mockUser: User = createUserFixture({
     username: "admin",
@@ -17,16 +19,8 @@ describe("LaunchQuizUseCase", () => {
   });
 
   beforeEach(() => {
-    mockGameRepository = {
-      createSession: vi.fn(),
-      getActiveSessions: vi.fn(),
-      stopSession: vi.fn(),
-      resumeSession: vi.fn(),
-    };
-
-    mockGameSocket = {
-      publish: vi.fn(),
-    };
+    mockGameRepository = createGameRepositoryMock();
+    mockGameSocket = createGameSocketMock();
 
     launchQuizUseCase = new LaunchQuizUseCase(
       mockGameRepository,

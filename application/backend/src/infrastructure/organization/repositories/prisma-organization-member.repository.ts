@@ -1,8 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import type { OrganizationMember as PrismaOrganizationMember } from '@prisma/client';
-import { OrganizationMember } from '../../../domain/organization/entities/organization-member';
+import type { UserId } from '../../../domain/auth/entities/user.entity';
+import type { OrganizationId } from '../../../domain/organization/entities/organization';
+import {
+  OrganizationMember,
+  type OrganizationMemberId,
+} from '../../../domain/organization/entities/organization-member';
 import type { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
-import type { OrganizationMemberRepository } from '../../../domain/organization/repositories/organization-member.repository.interface';
+import type { OrganizationMemberRepository } from '../../../domain/organization/ports/organization-member.repository';
 import { PrismaService } from '../../database/prisma.service';
 
 @Injectable()
@@ -10,8 +15,8 @@ export class PrismaOrganizationMemberRepository implements OrganizationMemberRep
   constructor(private readonly prisma: PrismaService) {}
 
   async create(
-    organizationId: number,
-    userId: number,
+    organizationId: OrganizationId,
+    userId: UserId,
     role: OrganizationRole,
   ): Promise<OrganizationMember> {
     const member = await this.prisma.organizationMember.create({
@@ -25,7 +30,7 @@ export class PrismaOrganizationMemberRepository implements OrganizationMemberRep
     return this.toDomain(member);
   }
 
-  async findById(id: number): Promise<OrganizationMember | null> {
+  async findById(id: OrganizationMemberId): Promise<OrganizationMember | null> {
     const member = await this.prisma.organizationMember.findFirst({
       where: {
         id,
@@ -44,8 +49,8 @@ export class PrismaOrganizationMemberRepository implements OrganizationMemberRep
   }
 
   async findByOrganizationAndUser(
-    organizationId: number,
-    userId: number,
+    organizationId: OrganizationId,
+    userId: UserId,
   ): Promise<OrganizationMember | null> {
     const member = await this.prisma.organizationMember.findFirst({
       where: {
@@ -65,7 +70,7 @@ export class PrismaOrganizationMemberRepository implements OrganizationMemberRep
     return this.toDomain(member);
   }
 
-  async findByOrganization(organizationId: number): Promise<OrganizationMember[]> {
+  async findByOrganization(organizationId: OrganizationId): Promise<OrganizationMember[]> {
     const members = await this.prisma.organizationMember.findMany({
       where: {
         organizationId,
@@ -82,7 +87,7 @@ export class PrismaOrganizationMemberRepository implements OrganizationMemberRep
     return members.map((member: PrismaOrganizationMember) => this.toDomain(member));
   }
 
-  async findByUser(userId: number): Promise<OrganizationMember[]> {
+  async findByUser(userId: UserId): Promise<OrganizationMember[]> {
     const members = await this.prisma.organizationMember.findMany({
       where: {
         userId,
@@ -99,7 +104,7 @@ export class PrismaOrganizationMemberRepository implements OrganizationMemberRep
     return members.map((member: PrismaOrganizationMember) => this.toDomain(member));
   }
 
-  async updateRole(id: number, role: OrganizationRole): Promise<OrganizationMember> {
+  async updateRole(id: OrganizationMemberId, role: OrganizationRole): Promise<OrganizationMember> {
     const member = await this.prisma.organizationMember.update({
       where: { id },
       data: { role },
@@ -108,7 +113,7 @@ export class PrismaOrganizationMemberRepository implements OrganizationMemberRep
     return this.toDomain(member);
   }
 
-  async delete(id: number): Promise<void> {
+  async delete(id: OrganizationMemberId): Promise<void> {
     await this.prisma.organizationMember.update({
       where: { id },
       data: {

@@ -3,10 +3,16 @@ import type { Question } from "../../../../../domains/quiz/types";
 import type {
   CreateQuestionPayload,
   UpdateQuestionPayload,
-} from "../../../../../domains/quiz/quiz.service";
+} from "../../../../../domains/quiz/quiz.payloads";
 
 export type OptionKey = "A" | "B" | "C" | "D";
 export type QuestionType = "multiple" | "truefalse";
+
+const MULTIPLE_OPTION_KEYS: OptionKey[] = ["A", "B", "C", "D"];
+
+function getOptionKeyByPosition(position: number): OptionKey | null {
+  return MULTIPLE_OPTION_KEYS[position] ?? null;
+}
 
 export interface QuestionFormState {
   questionText: string;
@@ -43,27 +49,40 @@ export function createDefaultQuestionFormState(): QuestionFormState {
 
 export function buildFormStateFromQuestion(question: Question): QuestionFormState {
   if (question.type === "multiple") {
-    return {
-      questionText: question.question_text,
-      type: "multiple",
-      options: {
-        A: question.option_a ?? "",
-        B: question.option_b ?? "",
-        C: question.option_c ?? "",
-        D: question.option_d ?? "",
+    const optionMap = question.answers.reduce<Record<OptionKey, string>>(
+      (accumulator, answer) => {
+        const key = getOptionKeyByPosition(answer.position);
+        if (key && key in accumulator) {
+          accumulator[key] = answer.text ?? "";
+        }
+        return accumulator;
       },
-      correctAnswer: question.correct_answer,
-      timeLimit: question.time_limit,
+      createEmptyOptions()
+    );
+    const correctAnswerValue =
+      getOptionKeyByPosition(
+        question.answers.find((answer) => answer.isCorrect)?.position ?? 0
+      ) ?? "A";
+
+    return {
+      questionText: question.questionText,
+      type: "multiple",
+      options: optionMap,
+      correctAnswer: correctAnswerValue,
+      timeLimit: question.timeLimit,
       points: question.points,
     };
   }
 
+  const correctAnswerValue =
+    question.answers.find((answer) => answer.isCorrect)?.position ?? 0;
+
   return {
-    questionText: question.question_text,
+    questionText: question.questionText,
     type: "truefalse",
     options: createEmptyOptions(),
-    correctAnswer: question.correct_answer === "false" ? "false" : "true",
-    timeLimit: question.time_limit,
+    correctAnswer: correctAnswerValue === 1 ? "false" : "true",
+    timeLimit: question.timeLimit,
     points: question.points,
   };
 }
@@ -75,51 +94,26 @@ export function toCreatePayload(
   const base = toPayloadBase(form);
 
   if (form.type === "multiple") {
-    const sanitized = sanitizeOptions(form.options);
     return {
       quizId,
       ...base,
-      correctAnswer: form.correctAnswer,
-      optionA: sanitized.A,
-      optionB: sanitized.B,
-      optionC: sanitized.C,
-      optionD: sanitized.D,
+      answers: toAnswers(form),
     };
   }
 
   return {
     quizId,
     ...base,
-    correctAnswer: form.correctAnswer === "false" ? "false" : "true",
-    optionA: null,
-    optionB: null,
-    optionC: null,
-    optionD: null,
+    answers: toAnswers(form),
   };
 }
 
 export function toUpdatePayload(form: QuestionFormState): UpdateQuestionPayload {
   const base = toPayloadBase(form);
 
-  if (form.type === "multiple") {
-    const sanitized = sanitizeOptions(form.options);
-    return {
-      ...base,
-      correctAnswer: form.correctAnswer,
-      optionA: sanitized.A,
-      optionB: sanitized.B,
-      optionC: sanitized.C,
-      optionD: sanitized.D,
-    };
-  }
-
   return {
     ...base,
-    correctAnswer: form.correctAnswer === "false" ? "false" : "true",
-    optionA: null,
-    optionB: null,
-    optionC: null,
-    optionD: null,
+    answers: toAnswers(form),
   };
 }
 
@@ -139,6 +133,33 @@ function sanitizeOptions(options: Record<OptionKey, string>) {
     }),
     {} as Record<OptionKey, string | null>
   );
+}
+
+function toAnswers(form: QuestionFormState) {
+  if (form.type === "truefalse") {
+    return [
+      {
+        text: null,
+        position: 0,
+        isCorrect: form.correctAnswer !== "false",
+      },
+      {
+        text: null,
+        position: 1,
+        isCorrect: form.correctAnswer === "false",
+      },
+    ];
+  }
+
+  const sanitized = sanitizeOptions(form.options);
+
+  return (Object.keys(sanitized) as OptionKey[])
+    .filter((key) => Boolean(sanitized[key]?.trim()))
+    .map((key) => ({
+      text: sanitized[key]?.trim() ?? null,
+      position: MULTIPLE_OPTION_KEYS.indexOf(key),
+      isCorrect: form.correctAnswer === key,
+    }));
 }
 
 function toPayloadBase(form: QuestionFormState) {

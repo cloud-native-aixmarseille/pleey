@@ -1,14 +1,20 @@
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { GameSessionRepository } from '../../../domain/game/repositories/game-session.repository.interface';
+import { GameSessionStatus } from '../../../domain/game/enums/game-session-status.enum';
+import type { GameSessionRepository } from '../../../domain/game/ports/game-session.repository';
 import { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
-import type { OrganizationMemberRepository } from '../../../domain/organization/repositories/organization-member.repository.interface';
-import type { QuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
+import type { OrganizationMemberRepository } from '../../../domain/organization/ports/organization-member.repository';
+import type { QuizRepository } from '../../../domain/quiz/ports/quiz.repository';
 import {
   createGameSessionFixture,
   createOrganizationMemberFixture,
   createQuizFixture,
-} from '../../../test-utils/fixtures';
+} from '../../../test-utils/fixtures/unit';
+import {
+  createGameSessionRepositoryMock,
+  createOrganizationMemberRepositoryMock,
+  createQuizRepositoryMock,
+} from '../../../test-utils/mock-factories';
 import { GetQuizSessionsUseCase } from './get-quiz-sessions.use-case';
 
 describe('GetQuizSessionsUseCase', () => {
@@ -18,39 +24,9 @@ describe('GetQuizSessionsUseCase', () => {
   let memberRepository: OrganizationMemberRepository;
 
   beforeEach(() => {
-    gameSessionRepository = {
-      create: vi.fn(),
-      findByPin: vi.fn(),
-      findById: vi.fn(),
-      findActiveByHostId: vi.fn(),
-      findActiveByQuizId: vi.fn(),
-      findByQuizId: vi.fn(),
-      findByOrganization: vi.fn(),
-      updateStatus: vi.fn(),
-      updateCurrentQuestion: vi.fn(),
-      countActiveByQuizId: vi.fn(),
-      deleteOldSessions: vi.fn(),
-    };
-
-    quizRepository = {
-      create: vi.fn(),
-      findById: vi.fn(),
-      findAll: vi.fn(),
-      findByOrganization: vi.fn(),
-      findByCreator: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-    };
-
-    memberRepository = {
-      create: vi.fn(),
-      findById: vi.fn(),
-      findByOrganizationAndUser: vi.fn(),
-      findByOrganization: vi.fn(),
-      findByUser: vi.fn(),
-      updateRole: vi.fn(),
-      delete: vi.fn(),
-    };
+    gameSessionRepository = createGameSessionRepositoryMock();
+    quizRepository = createQuizRepositoryMock();
+    memberRepository = createOrganizationMemberRepositoryMock();
 
     useCase = new GetQuizSessionsUseCase(gameSessionRepository, quizRepository, memberRepository);
   });
@@ -74,19 +50,17 @@ describe('GetQuizSessionsUseCase', () => {
         id: 10,
         quizId: 1,
         hostId: 7,
-        organizationId: 99,
         pin: '123456',
-        status: 'active',
-        currentQuestion: 2,
+        status: GameSessionStatus.ACTIVE,
+        currentQuestionId: 101,
       }),
       createGameSessionFixture({
         id: 11,
         quizId: 1,
         hostId: 7,
-        organizationId: 99,
         pin: '654321',
-        status: 'completed',
-        currentQuestion: 8,
+        status: GameSessionStatus.ENDED,
+        currentQuestionId: 202,
       }),
     ];
 

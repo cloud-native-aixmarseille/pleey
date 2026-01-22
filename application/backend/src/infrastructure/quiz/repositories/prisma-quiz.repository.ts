@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import type { Quiz as PrismaQuiz } from '@prisma/client';
-import { Quiz } from '../../../domain/quiz/entities/quiz';
-import type { QuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
+import type { UserId } from '../../../domain/auth/entities/user.entity';
+import type { OrganizationId } from '../../../domain/organization/entities/organization';
+import { Quiz, type QuizId } from '../../../domain/quiz/entities/quiz';
+import type { QuizRepository } from '../../../domain/quiz/ports/quiz.repository';
 import { PrismaService } from '../../database/prisma.service';
 
 /**
@@ -15,8 +17,8 @@ export class PrismaQuizRepository implements QuizRepository {
   async create(
     title: string,
     description: string | null,
-    createdById: number,
-    organizationId: number,
+    createdById: UserId,
+    organizationId: OrganizationId,
   ): Promise<Quiz> {
     const quiz = await this.prisma.quiz.create({
       data: {
@@ -34,7 +36,7 @@ export class PrismaQuizRepository implements QuizRepository {
     return this.toDomain(quiz);
   }
 
-  async findById(id: number): Promise<Quiz | null> {
+  async findById(id: QuizId): Promise<Quiz | null> {
     const quiz = await this.prisma.quiz.findFirst({
       where: {
         id,
@@ -80,14 +82,14 @@ export class PrismaQuizRepository implements QuizRepository {
         })
       : [];
 
-    const countByQuizId = new Map<number, number>(
+    const countByQuizId = new Map<QuizId, number>(
       counts.map((row) => [row.quizId, row._count._all]),
     );
 
     return quizzes.map((quiz: PrismaQuiz) => this.toDomain(quiz, countByQuizId.get(quiz.id) ?? 0));
   }
 
-  async findByOrganization(organizationId: number): Promise<Quiz[]> {
+  async findByOrganization(organizationId: OrganizationId): Promise<Quiz[]> {
     const quizzes = await this.prisma.quiz.findMany({
       where: {
         organizationId,
@@ -105,7 +107,7 @@ export class PrismaQuizRepository implements QuizRepository {
     return quizzes.map((quiz: PrismaQuiz) => this.toDomain(quiz));
   }
 
-  async findByCreator(userId: number): Promise<Quiz[]> {
+  async findByCreator(userId: UserId): Promise<Quiz[]> {
     const quizzes = await this.prisma.quiz.findMany({
       where: {
         createdById: userId,
@@ -123,7 +125,7 @@ export class PrismaQuizRepository implements QuizRepository {
     return quizzes.map((quiz: PrismaQuiz) => this.toDomain(quiz));
   }
 
-  async delete(id: number): Promise<void> {
+  async delete(id: QuizId): Promise<void> {
     await this.prisma.$transaction([
       this.prisma.quiz.update({
         where: { id },
@@ -142,7 +144,7 @@ export class PrismaQuizRepository implements QuizRepository {
     ]);
   }
 
-  async update(id: number, title: string, description: string | null): Promise<Quiz> {
+  async update(id: QuizId, title: string, description: string | null): Promise<Quiz> {
     const quiz = await this.prisma.quiz.update({
       where: { id },
       data: { title, description },

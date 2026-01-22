@@ -1,17 +1,20 @@
 import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import type { GameSessionRepository } from '../../../domain/game/repositories/game-session.repository.interface';
-import { GameSessionRepositoryProvider } from '../../../domain/game/repositories/game-session.repository.interface';
-import type { OrganizationRepository } from '../../../domain/organization/repositories/organization.repository.interface';
-import { OrganizationRepositoryProvider } from '../../../domain/organization/repositories/organization.repository.interface';
-import type { OrganizationMemberRepository } from '../../../domain/organization/repositories/organization-member.repository.interface';
-import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/repositories/organization-member.repository.interface';
-import type { QuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
-import { QuizRepositoryProvider } from '../../../domain/quiz/repositories/quiz.repository.interface';
-import { OrganizationErrorCode } from '../enums/organization-error-code.enum';
+import type { UserId } from '../../../domain/auth/entities/user.entity';
+import { GameSessionStatus } from '../../../domain/game/enums/game-session-status.enum';
+import type { GameSessionRepository } from '../../../domain/game/ports/game-session.repository';
+import { GameSessionRepositoryProvider } from '../../../domain/game/ports/game-session.repository';
+import type { OrganizationId } from '../../../domain/organization/entities/organization';
+import { OrganizationErrorCode } from '../../../domain/organization/enums/organization-error-code.enum';
+import type { OrganizationRepository } from '../../../domain/organization/ports/organization.repository';
+import { OrganizationRepositoryProvider } from '../../../domain/organization/ports/organization.repository';
+import type { OrganizationMemberRepository } from '../../../domain/organization/ports/organization-member.repository';
+import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/ports/organization-member.repository';
+import type { QuizRepository } from '../../../domain/quiz/ports/quiz.repository';
+import { QuizRepositoryProvider } from '../../../domain/quiz/ports/quiz.repository';
 
 export interface OrganizationDashboard {
   organization: {
-    id: number;
+    id: OrganizationId;
     name: string;
     description: string | null;
   };
@@ -39,7 +42,10 @@ export class GetOrganizationDashboardUseCase {
     private readonly sessionRepository: GameSessionRepository,
   ) {}
 
-  async execute(organizationId: number, requestingUserId: number): Promise<OrganizationDashboard> {
+  async execute(
+    organizationId: OrganizationId,
+    requestingUserId: UserId,
+  ): Promise<OrganizationDashboard> {
     // Verify organization exists
     const organization = await this.organizationRepository.findById(organizationId);
     if (!organization) {
@@ -57,11 +63,18 @@ export class GetOrganizationDashboardUseCase {
 
     // Get stats
     const quizzes = await this.quizRepository.findByOrganization(organizationId);
-    const sessions = await this.sessionRepository.findByOrganization(organizationId);
     const members = await this.memberRepository.findByOrganization(organizationId);
 
+    const sessionsByQuiz = await Promise.all(
+      quizzes.map((quiz) => this.sessionRepository.findByQuizId(quiz.id)),
+    );
+    const sessions = sessionsByQuiz.flat();
+
     const activeSessions = sessions.filter(
-      (s) => s.status === 'waiting' || s.status === 'active' || s.status === 'paused',
+      (session) =>
+        session.status === GameSessionStatus.WAITING ||
+        session.status === GameSessionStatus.ACTIVE ||
+        session.status === GameSessionStatus.PAUSED,
     );
 
     return {

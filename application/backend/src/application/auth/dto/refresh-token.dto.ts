@@ -1,4 +1,5 @@
 import { IsNotEmpty, IsString } from 'class-validator';
+import type { AuthToken } from '../../../domain/auth/types/auth-token';
 
 /**
  * Refresh Token DTO
@@ -7,5 +8,5 @@ import { IsNotEmpty, IsString } from 'class-validator';
 export class RefreshTokenDto {
   @IsString()
   @IsNotEmpty()
-  refreshToken: string;
+  refreshToken: AuthToken;
 }

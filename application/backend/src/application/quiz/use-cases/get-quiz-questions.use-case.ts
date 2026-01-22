@@ -1,9 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { Question } from '../../../domain/quiz/entities/question';
+import type { QuizId } from '../../../domain/quiz/entities/quiz';
 import {
   type QuestionRepository,
   QuestionRepositoryProvider,
-} from '../../../domain/quiz/repositories/question.repository.interface';
+} from '../../../domain/quiz/ports/question.repository';
 
 /**
  * Get Quiz Questions Use Case
@@ -16,7 +17,7 @@ export class GetQuizQuestionsUseCase {
     private readonly questionRepository: QuestionRepository,
   ) {}
 
-  async execute(quizId: number): Promise<Question[]> {
+  async execute(quizId: QuizId): Promise<Question[]> {
     return this.questionRepository.findByQuizId(quizId);
   }
 }

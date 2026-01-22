@@ -13,7 +13,7 @@ interface QuestionResultDisplayProps {
   answerResult: AnswerResult;
   currentQuestion: Question;
   questionNumber: number;
-  userAnswer: string | null;
+  userAnswer: number | null;
   isHost: boolean;
   onNextQuestion: () => void;
 }
@@ -26,8 +26,27 @@ export default function QuestionResultDisplay({
   isHost,
   onNextQuestion,
 }: QuestionResultDisplayProps) {
-  const { isCorrect, points, correctAnswer, statistics } = answerResult;
+  const { isCorrect, points, correctAnswerIds, statistics } = answerResult;
   const { t } = useTranslation();
+
+  const correctAnswerLabel = useMemo(() => {
+    if (correctAnswerIds.length === 0) {
+      return "";
+    }
+    const labels = correctAnswerIds
+      .map((answerId) =>
+        currentQuestion.answers.find((candidate) => candidate.id === answerId)
+      )
+      .filter((answer): answer is NonNullable<typeof answer> => Boolean(answer))
+      .map((answer) => {
+        if (answer.text && answer.text.trim()) {
+          return answer.text;
+        }
+        return getAnswerLabel(currentQuestion.type, answer.position);
+      });
+
+    return labels.join(", ");
+  }, [correctAnswerIds, currentQuestion.answers, currentQuestion.type]);
 
   const shareText = useMemo(() => {
     const resultKey = isCorrect ? "correct" : "incorrect";
@@ -41,7 +60,7 @@ export default function QuestionResultDisplay({
   const announcement = isCorrect
     ? t("game.playing.result.announcementCorrect", { points })
     : t("game.playing.result.announcementIncorrect", {
-        answer: correctAnswer,
+        answer: correctAnswerLabel,
       });
 
   const statisticsAnnouncement = statistics
@@ -57,7 +76,7 @@ export default function QuestionResultDisplay({
   const summary = isCorrect
     ? t("game.playing.result.summaryPoints", { points })
     : t("game.playing.result.summaryCorrectAnswer", {
-        answer: correctAnswer,
+        answer: correctAnswerLabel,
       });
 
   return (
@@ -82,4 +101,13 @@ export default function QuestionResultDisplay({
       />
     </ResultLayout>
   );
+}
+
+const MULTIPLE_CHOICE_LABELS = ["A", "B", "C", "D"];
+
+function getAnswerLabel(type: Question["type"], position: number): string {
+  if (type === "truefalse") {
+    return position === 1 ? "false" : "true";
+  }
+  return MULTIPLE_CHOICE_LABELS[position] ?? `${position + 1}`;
 }

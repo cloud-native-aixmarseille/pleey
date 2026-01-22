@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { UserRepository } from '../../../domain/auth/repositories/user.repository.interface';
-import { UserRepositoryProvider } from '../../../domain/auth/repositories/user.repository.interface';
+import type { UserId } from '../../../domain/auth/entities/user.entity';
+import type { UserRepository } from '../../../domain/auth/ports/user.repository';
+import { UserRepositoryProvider } from '../../../domain/auth/ports/user.repository';
 
 @Injectable()
 export class LogoutUserUseCase {
@@ -9,7 +10,7 @@ export class LogoutUserUseCase {
     private readonly userRepository: UserRepository,
   ) {}
 
-  async execute(userId: number): Promise<void> {
+  async execute(userId: UserId): Promise<void> {
     await this.userRepository.clearRefreshToken(userId);
   }
 }

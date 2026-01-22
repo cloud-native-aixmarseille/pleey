@@ -4,6 +4,6 @@ export interface GameSession {
   quizId?: number;
   hostId?: number;
   status: string;
-  currentQuestion?: number | null;
+  currentQuestionId?: number | null;
   createdAt?: string;
 }

@@ -65,11 +65,9 @@ export function useAppLifecycle({
     }
 
     loadQuizzes(token).catch((error) => {
-      clearSession();
       notifyFromError(error, "errors.quizzesLoadFailed");
-      navigate("/auth/login", { replace: true });
     });
-  }, [user, token, loadQuizzes, clearSession, notifyFromError, navigate]);
+  }, [user, token, loadQuizzes, notifyFromError]);
 
   useEffect(() => {
     if (!user) {

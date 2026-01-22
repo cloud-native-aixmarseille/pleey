@@ -1,15 +1,8 @@
-import { IsOptional, IsString } from 'class-validator';
+import { OmitType, PartialType } from '@nestjs/swagger';
+import { CreateQuizDto } from './create-quiz.dto';
 
 /**
  * Update Quiz DTO
  * Data Transfer Object for updating a quiz
  */
-export class UpdateQuizDto {
-  @IsString()
-  @IsOptional()
-  title?: string;
-
-  @IsString()
-  @IsOptional()
-  description?: string;
-}
+export class UpdateQuizDto extends PartialType(OmitType(CreateQuizDto, ['organizationId'])) {}

@@ -3,7 +3,7 @@ import type { User } from "../../domains/auth/types";
 import { withDefaults } from "./fixture-utils";
 import { createUserFixture } from "./user.fixture";
 
-export type AuthResponsePayloadFixture = {
+type AuthResponsePayloadFixture = {
   token?: string;
   accessToken?: string;
   refreshToken?: string;

@@ -1,6 +1,6 @@
 import type { Mocked } from 'vitest';
 
-import type { QuizRepository } from '../../domain/quiz/repositories/quiz.repository.interface';
+import type { QuizRepository } from '../../domain/quiz/ports/quiz.repository';
 
 import {
   applyMockFactoryConfig,

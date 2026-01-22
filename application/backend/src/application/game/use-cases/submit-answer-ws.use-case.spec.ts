@@ -1,22 +1,31 @@
 import { WsException } from '@nestjs/websockets';
 import { describe, expect, it, vi } from 'vitest';
+import type { GameSessionPin } from '../../../domain/game/entities/game-session';
+import { GameErrorCode } from '../../../domain/game/enums/game-error-code.enum';
+import { createGameSessionStateFixture } from '../../../test-utils/fixtures/unit';
 import {
   createGameBroadcastServiceMock,
-  createSessionStateRepositoryMock,
+  createGameSessionStateServiceMock,
+  createRevealAnswersUseCaseMock,
+  createSubmitAnswerUseCaseMock,
 } from '../../../test-utils/mock-factories';
 import type { SubmitAnswerDto } from '../dto/submit-answer.dto';
-import { GameErrorCode } from '../enums/game-error-code.enum';
+import { GameBroadcastEventType } from '../ports';
 import { SubmitAnswerWsUseCase } from './submit-answer-ws.use-case';
 
 describe('SubmitAnswerWsUseCase', () => {
   it('throws when no identity is provided', async () => {
-    const sessionStateRepository = createSessionStateRepositoryMock({ getOrCreate: {} as never });
+    const state = createGameSessionStateFixture();
+    const gameSessionStateService = createGameSessionStateServiceMock({
+      getOrCreate: state as never,
+      update: undefined,
+    });
     const broadcastService = createGameBroadcastServiceMock();
-    const submitAnswerUseCase = { execute: vi.fn() };
-    const revealAnswersUseCase = { execute: vi.fn() };
+    const submitAnswerUseCase = createSubmitAnswerUseCaseMock();
+    const revealAnswersUseCase = createRevealAnswersUseCaseMock();
 
     const useCase = new SubmitAnswerWsUseCase(
-      sessionStateRepository as never,
+      gameSessionStateService as never,
       broadcastService as never,
       submitAnswerUseCase as never,
       revealAnswersUseCase as never,
@@ -24,26 +33,27 @@ describe('SubmitAnswerWsUseCase', () => {
 
     await expect(
       useCase.execute('socket-1', {
-        pin: '123456',
-        answer: 'A',
+        pin: '123456' as GameSessionPin,
+        answerId: 1,
         timeLeft: 1,
       } satisfies SubmitAnswerDto),
     ).rejects.toBeInstanceOf(WsException);
   });
 
   it('throws ALREADY_ANSWERED when player already answered', async () => {
-    const state = {
+    const state = createGameSessionStateFixture({
       hasPlayerAnswered: vi.fn().mockReturnValue(true),
-    };
-    const sessionStateRepository = createSessionStateRepositoryMock({
+    });
+    const gameSessionStateService = createGameSessionStateServiceMock({
       getOrCreate: state as never,
+      update: undefined,
     });
     const broadcastService = createGameBroadcastServiceMock();
-    const submitAnswerUseCase = { execute: vi.fn() };
-    const revealAnswersUseCase = { execute: vi.fn() };
+    const submitAnswerUseCase = createSubmitAnswerUseCaseMock();
+    const revealAnswersUseCase = createRevealAnswersUseCaseMock();
 
     const useCase = new SubmitAnswerWsUseCase(
-      sessionStateRepository as never,
+      gameSessionStateService as never,
       broadcastService as never,
       submitAnswerUseCase as never,
       revealAnswersUseCase as never,
@@ -51,8 +61,8 @@ describe('SubmitAnswerWsUseCase', () => {
 
     await expect(
       useCase.execute('socket-1', {
-        pin: '123456',
-        answer: 'A',
+        pin: '123456' as GameSessionPin,
+        answerId: 1,
         timeLeft: 1,
         userId: 1,
       } satisfies SubmitAnswerDto),
@@ -60,8 +70,8 @@ describe('SubmitAnswerWsUseCase', () => {
 
     try {
       await useCase.execute('socket-1', {
-        pin: '123456',
-        answer: 'A',
+        pin: '123456' as GameSessionPin,
+        answerId: 1,
         timeLeft: 1,
         userId: 1,
       } satisfies SubmitAnswerDto);
@@ -73,57 +83,43 @@ describe('SubmitAnswerWsUseCase', () => {
   it('acknowledges answer and reveals when all players answered', async () => {
     const score = { addPoints: vi.fn() };
 
-    type SessionStateStub = {
-      hasPlayerAnswered: (playerId: string) => boolean;
-      findPlayerByIdentity: (
-        userId?: number,
-        guestId?: string,
-      ) => { username: string; isGuest: boolean } | undefined;
-      getOrCreateScore: (
-        playerId: string,
-        username: string,
-        isGuest: boolean,
-      ) => { addPoints: (points: number) => void };
-      recordAnswer: (answer: unknown) => void;
-      haveAllNonHostPlayersAnswered: () => boolean;
-    };
-
-    const state: SessionStateStub = {
+    const state = createGameSessionStateFixture({
       hasPlayerAnswered: vi.fn().mockReturnValue(false),
-      findPlayerByIdentity: vi.fn().mockReturnValue({ username: 'alice', isGuest: false }),
+      findPlayerByIdentity: vi.fn().mockReturnValue({ username: 'alice', userId: 1 }),
       getOrCreateScore: vi.fn().mockReturnValue(score),
       recordAnswer: vi.fn(),
       haveAllNonHostPlayersAnswered: vi.fn().mockReturnValue(true),
-    };
+    });
 
-    const sessionStateRepository = createSessionStateRepositoryMock({
+    const gameSessionStateService = createGameSessionStateServiceMock({
       getOrCreate: state as never,
+      update: undefined,
     });
     const broadcastService = createGameBroadcastServiceMock();
-    const submitAnswerUseCase = {
-      execute: vi.fn().mockResolvedValue({ isCorrect: true, points: 100 }),
-    };
-    const revealAnswersUseCase = { execute: vi.fn().mockResolvedValue(undefined) };
+    const submitAnswerUseCase = createSubmitAnswerUseCaseMock({
+      execute: { isCorrect: true, points: 100 } as never,
+    });
+    const revealAnswersUseCase = createRevealAnswersUseCaseMock({ execute: undefined });
 
     const useCase = new SubmitAnswerWsUseCase(
-      sessionStateRepository as never,
+      gameSessionStateService as never,
       broadcastService as never,
       submitAnswerUseCase as never,
       revealAnswersUseCase as never,
     );
 
     await useCase.execute('socket-1', {
-      pin: '123456',
-      answer: 'A',
+      pin: '123456' as GameSessionPin,
+      answerId: 1,
       timeLeft: 1,
       userId: 1,
     } satisfies SubmitAnswerDto);
 
     expect(broadcastService.publish).toHaveBeenCalledWith({
-      type: 'answer-acknowledged',
+      type: GameBroadcastEventType.ANSWER_ACKNOWLEDGED,
       connectionId: 'socket-1',
     });
     expect(score.addPoints).toHaveBeenCalledWith(100);
-    expect(revealAnswersUseCase.execute).toHaveBeenCalledWith('123456');
+    expect(revealAnswersUseCase.execute).toHaveBeenCalledWith('123456' as GameSessionPin);
   });
 });

@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { createGameSessionFixture } from '../../../test-utils/fixtures';
+import { createGameSessionFixture } from '../../../test-utils/fixtures/unit';
+import { GameErrorCode } from '../enums/game-error-code.enum';
+import { GameSessionStatus } from '../enums/game-session-status.enum';
 
 describe('GameSession', () => {
   describe('constructor', () => {
@@ -9,20 +11,18 @@ describe('GameSession', () => {
         id: 1,
         quizId: 10,
         hostId: 100,
-        organizationId: 1,
         pin: '123456',
-        status: 'waiting',
-        currentQuestion: 0,
+        status: GameSessionStatus.WAITING,
+        currentQuestionId: 101,
         createdAt: now,
       });
 
       expect(session.id).toBe(1);
       expect(session.quizId).toBe(10);
       expect(session.hostId).toBe(100);
-      expect(session.organizationId).toBe(1);
       expect(session.pin).toBe('123456');
-      expect(session.status).toBe('waiting');
-      expect(session.currentQuestion).toBe(0);
+      expect(session.status).toBe(GameSessionStatus.WAITING);
+      expect(session.currentQuestionId).toBe(101);
       expect(session.createdAt).toBe(now);
     });
   });
@@ -32,43 +32,40 @@ describe('GameSession', () => {
       const session = createGameSessionFixture({
         quizId: 10,
         hostId: 100,
-        organizationId: 1,
         pin: '123456',
-        status: 'waiting',
-        currentQuestion: 0,
+        status: GameSessionStatus.WAITING,
+        currentQuestionId: null,
         createdAt: new Date(),
       });
 
       session.start();
-      expect(session.status).toBe('active');
+      expect(session.status).toBe(GameSessionStatus.ACTIVE);
     });
 
     it('should throw error when starting from non-waiting status', () => {
       const session = createGameSessionFixture({
         quizId: 10,
         hostId: 100,
-        organizationId: 1,
         pin: '123456',
-        status: 'active',
-        currentQuestion: 0,
+        status: GameSessionStatus.ACTIVE,
+        currentQuestionId: 101,
         createdAt: new Date(),
       });
 
-      expect(() => session.start()).toThrow('Game can only be started from waiting status');
+      expect(() => session.start()).toThrow(GameErrorCode.CAN_ONLY_START_WAITING_GAME);
     });
 
     it('should throw error when starting ended game', () => {
       const session = createGameSessionFixture({
         quizId: 10,
         hostId: 100,
-        organizationId: 1,
         pin: '123456',
-        status: 'ended',
-        currentQuestion: 0,
+        status: GameSessionStatus.ENDED,
+        currentQuestionId: 101,
         createdAt: new Date(),
       });
 
-      expect(() => session.start()).toThrow('Game can only be started from waiting status');
+      expect(() => session.start()).toThrow(GameErrorCode.CAN_ONLY_START_WAITING_GAME);
     });
   });
 
@@ -77,25 +74,23 @@ describe('GameSession', () => {
       const session = createGameSessionFixture({
         quizId: 10,
         hostId: 100,
-        organizationId: 1,
         pin: '123456',
-        status: 'active',
-        currentQuestion: 2,
+        status: GameSessionStatus.ACTIVE,
+        currentQuestionId: 2,
         createdAt: new Date(),
       });
 
       session.pause();
-      expect(session.status).toBe('paused');
+      expect(session.status).toBe(GameSessionStatus.PAUSED);
     });
 
     it('should throw error when pausing from non-active status', () => {
       const session = createGameSessionFixture({
         quizId: 10,
         hostId: 100,
-        organizationId: 1,
         pin: '123456',
-        status: 'waiting',
-        currentQuestion: 0,
+        status: GameSessionStatus.WAITING,
+        currentQuestionId: null,
         createdAt: new Date(),
       });
 
@@ -106,10 +101,9 @@ describe('GameSession', () => {
       const session = createGameSessionFixture({
         quizId: 10,
         hostId: 100,
-        organizationId: 1,
         pin: '123456',
-        status: 'ended',
-        currentQuestion: 5,
+        status: GameSessionStatus.ENDED,
+        currentQuestionId: 5,
         createdAt: new Date(),
       });
 
@@ -122,25 +116,23 @@ describe('GameSession', () => {
       const session = createGameSessionFixture({
         quizId: 10,
         hostId: 100,
-        organizationId: 1,
         pin: '123456',
-        status: 'paused',
-        currentQuestion: 2,
+        status: GameSessionStatus.PAUSED,
+        currentQuestionId: 101,
         createdAt: new Date(),
       });
 
       session.resume();
-      expect(session.status).toBe('active');
+      expect(session.status).toBe(GameSessionStatus.ACTIVE);
     });
 
     it('should throw error when resuming from non-paused status', () => {
       const session = createGameSessionFixture({
         quizId: 10,
         hostId: 100,
-        organizationId: 1,
         pin: '123456',
-        status: 'waiting',
-        currentQuestion: 0,
+        status: GameSessionStatus.WAITING,
+        currentQuestionId: 101,
         createdAt: new Date(),
       });
 
@@ -151,10 +143,9 @@ describe('GameSession', () => {
       const session = createGameSessionFixture({
         quizId: 10,
         hostId: 100,
-        organizationId: 1,
         pin: '123456',
-        status: 'ended',
-        currentQuestion: 5,
+        status: GameSessionStatus.ENDED,
+        currentQuestionId: 5,
         createdAt: new Date(),
       });
 
@@ -167,45 +158,42 @@ describe('GameSession', () => {
       const session = createGameSessionFixture({
         quizId: 10,
         hostId: 100,
-        organizationId: 1,
         pin: '123456',
-        status: 'active',
-        currentQuestion: 5,
+        status: GameSessionStatus.ACTIVE,
+        currentQuestionId: 101,
         createdAt: new Date(),
       });
 
       session.end();
-      expect(session.status).toBe('ended');
+      expect(session.status).toBe(GameSessionStatus.ENDED);
     });
 
     it('should end game from waiting status', () => {
       const session = createGameSessionFixture({
         quizId: 10,
         hostId: 100,
-        organizationId: 1,
         pin: '123456',
-        status: 'waiting',
-        currentQuestion: 0,
+        status: GameSessionStatus.WAITING,
+        currentQuestionId: 101,
         createdAt: new Date(),
       });
 
       session.end();
-      expect(session.status).toBe('ended');
+      expect(session.status).toBe(GameSessionStatus.ENDED);
     });
 
     it('should end already ended game', () => {
       const session = createGameSessionFixture({
         quizId: 10,
         hostId: 100,
-        organizationId: 1,
         pin: '123456',
-        status: 'ended',
-        currentQuestion: 10,
+        status: GameSessionStatus.ENDED,
+        currentQuestionId: 101,
         createdAt: new Date(),
       });
 
       session.end();
-      expect(session.status).toBe('ended');
+      expect(session.status).toBe(GameSessionStatus.ENDED);
     });
   });
 
@@ -214,46 +202,47 @@ describe('GameSession', () => {
       const session = createGameSessionFixture({
         quizId: 10,
         hostId: 100,
-        organizationId: 1,
         pin: '123456',
-        status: 'active',
-        currentQuestion: 0,
+        status: GameSessionStatus.ACTIVE,
+        currentQuestionId: 101,
         createdAt: new Date(),
       });
 
-      session.nextQuestion();
-      expect(session.currentQuestion).toBe(1);
+      session.nextQuestion(102);
+      expect(session.currentQuestionId).toBe(102);
 
-      session.nextQuestion();
-      expect(session.currentQuestion).toBe(2);
+      session.nextQuestion(103);
+      expect(session.currentQuestionId).toBe(103);
     });
 
     it('should throw error when not in active game', () => {
       const session = createGameSessionFixture({
         quizId: 10,
         hostId: 100,
-        organizationId: 1,
         pin: '123456',
-        status: 'waiting',
-        currentQuestion: 0,
+        status: GameSessionStatus.WAITING,
+        currentQuestionId: 101,
         createdAt: new Date(),
       });
 
-      expect(() => session.nextQuestion()).toThrow('Can only move to next question in active game');
+      expect(() => session.nextQuestion(102)).toThrow(
+        GameErrorCode.CAN_ONLY_MOVE_TO_NEXT_QUESTION_ACTIVE_GAME,
+      );
     });
 
     it('should throw error when game is ended', () => {
       const session = createGameSessionFixture({
         quizId: 10,
         hostId: 100,
-        organizationId: 1,
         pin: '123456',
-        status: 'ended',
-        currentQuestion: 5,
+        status: GameSessionStatus.ENDED,
+        currentQuestionId: 5,
         createdAt: new Date(),
       });
 
-      expect(() => session.nextQuestion()).toThrow('Can only move to next question in active game');
+      expect(() => session.nextQuestion(102)).toThrow(
+        GameErrorCode.CAN_ONLY_MOVE_TO_NEXT_QUESTION_ACTIVE_GAME,
+      );
     });
   });
 
@@ -262,10 +251,9 @@ describe('GameSession', () => {
       const session = createGameSessionFixture({
         quizId: 10,
         hostId: 100,
-        organizationId: 1,
         pin: '123456',
-        status: 'active',
-        currentQuestion: 1,
+        status: GameSessionStatus.ACTIVE,
+        currentQuestionId: 1,
         createdAt: new Date(),
       });
 
@@ -276,10 +264,9 @@ describe('GameSession', () => {
       const session = createGameSessionFixture({
         quizId: 10,
         hostId: 100,
-        organizationId: 1,
         pin: '123456',
-        status: 'waiting',
-        currentQuestion: 0,
+        status: GameSessionStatus.WAITING,
+        currentQuestionId: 101,
         createdAt: new Date(),
       });
 
@@ -290,10 +277,9 @@ describe('GameSession', () => {
       const session = createGameSessionFixture({
         quizId: 10,
         hostId: 100,
-        organizationId: 1,
         pin: '123456',
-        status: 'ended',
-        currentQuestion: 10,
+        status: GameSessionStatus.ENDED,
+        currentQuestionId: 10,
         createdAt: new Date(),
       });
 
@@ -306,10 +292,9 @@ describe('GameSession', () => {
       const session = createGameSessionFixture({
         quizId: 10,
         hostId: 100,
-        organizationId: 1,
         pin: '123456',
-        status: 'waiting',
-        currentQuestion: 0,
+        status: GameSessionStatus.WAITING,
+        currentQuestionId: 101,
         createdAt: new Date(),
       });
 
@@ -320,10 +305,9 @@ describe('GameSession', () => {
       const session = createGameSessionFixture({
         quizId: 10,
         hostId: 100,
-        organizationId: 1,
         pin: '123456',
-        status: 'active',
-        currentQuestion: 1,
+        status: GameSessionStatus.ACTIVE,
+        currentQuestionId: 1,
         createdAt: new Date(),
       });
 
@@ -334,10 +318,9 @@ describe('GameSession', () => {
       const session = createGameSessionFixture({
         quizId: 10,
         hostId: 100,
-        organizationId: 1,
         pin: '123456',
-        status: 'ended',
-        currentQuestion: 10,
+        status: GameSessionStatus.ENDED,
+        currentQuestionId: 10,
         createdAt: new Date(),
       });
 
@@ -350,10 +333,9 @@ describe('GameSession', () => {
       const session = createGameSessionFixture({
         quizId: 10,
         hostId: 100,
-        organizationId: 1,
         pin: '123456',
-        status: 'paused',
-        currentQuestion: 2,
+        status: GameSessionStatus.PAUSED,
+        currentQuestionId: 2,
         createdAt: new Date(),
       });
 
@@ -364,10 +346,9 @@ describe('GameSession', () => {
       const session = createGameSessionFixture({
         quizId: 10,
         hostId: 100,
-        organizationId: 1,
         pin: '123456',
-        status: 'active',
-        currentQuestion: 1,
+        status: GameSessionStatus.ACTIVE,
+        currentQuestionId: 1,
         createdAt: new Date(),
       });
 
@@ -378,10 +359,9 @@ describe('GameSession', () => {
       const session = createGameSessionFixture({
         quizId: 10,
         hostId: 100,
-        organizationId: 1,
         pin: '123456',
-        status: 'waiting',
-        currentQuestion: 0,
+        status: GameSessionStatus.WAITING,
+        currentQuestionId: 101,
         createdAt: new Date(),
       });
 
@@ -394,10 +374,9 @@ describe('GameSession', () => {
       const session = createGameSessionFixture({
         quizId: 10,
         hostId: 100,
-        organizationId: 1,
         pin: '123456',
-        status: 'waiting',
-        currentQuestion: 0,
+        status: GameSessionStatus.WAITING,
+        currentQuestionId: 101,
         createdAt: new Date(),
       });
 
@@ -408,23 +387,22 @@ describe('GameSession', () => {
       expect(session.isWaiting()).toBe(false);
       expect(session.isActive()).toBe(true);
 
-      session.nextQuestion();
-      expect(session.currentQuestion).toBe(1);
+      session.nextQuestion(101);
+      expect(session.currentQuestionId).toBe(101);
 
       session.end();
       expect(session.isActive()).toBe(false);
       expect(session.isWaiting()).toBe(false);
-      expect(session.status).toBe('ended');
+      expect(session.status).toBe(GameSessionStatus.ENDED);
     });
 
     it('should allow pause and resume lifecycle: waiting -> active -> paused -> active -> ended', () => {
       const session = createGameSessionFixture({
         quizId: 10,
         hostId: 100,
-        organizationId: 1,
         pin: '123456',
-        status: 'waiting',
-        currentQuestion: 0,
+        status: GameSessionStatus.WAITING,
+        currentQuestionId: null,
         createdAt: new Date(),
       });
 
@@ -433,8 +411,8 @@ describe('GameSession', () => {
       session.start();
       expect(session.isActive()).toBe(true);
 
-      session.nextQuestion();
-      expect(session.currentQuestion).toBe(1);
+      session.nextQuestion(101);
+      expect(session.currentQuestionId).toBe(101);
 
       session.pause();
       expect(session.isPaused()).toBe(true);
@@ -445,7 +423,7 @@ describe('GameSession', () => {
       expect(session.isPaused()).toBe(false);
 
       session.end();
-      expect(session.status).toBe('ended');
+      expect(session.status).toBe(GameSessionStatus.ENDED);
     });
   });
 });

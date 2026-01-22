@@ -13,14 +13,18 @@ const OPTION_WRAPPER_SELECTED_CLASSES =
   "rounded-[var(--arcade-radius-lg)] ring-4 ring-white/80 ring-offset-2 ring-offset-transparent";
 
 interface TrueFalseAnswersProps {
-  userAnswer: string | null;
+  userAnswer: number | null;
   answerSubmitted: boolean;
-  onSubmit: (value: string) => void;
+  trueAnswerId: number;
+  falseAnswerId: number;
+  onSubmit: (answerId: number) => void;
 }
 
 export function TrueFalseAnswers({
   userAnswer,
   answerSubmitted,
+  trueAnswerId,
+  falseAnswerId,
   onSubmit,
 }: TrueFalseAnswersProps) {
   const { t } = useTranslation();
@@ -29,7 +33,7 @@ export function TrueFalseAnswers({
     <ArcadeCardGrid layout="double" bottomSpacing="none" role="group">
       <div
         className={
-          userAnswer === "true"
+          userAnswer === trueAnswerId
             ? `${OPTION_WRAPPER_BASE_CLASSES} ${OPTION_WRAPPER_SELECTED_CLASSES}`
             : OPTION_WRAPPER_BASE_CLASSES
         }
@@ -38,9 +42,9 @@ export function TrueFalseAnswers({
           size="xl"
           effect="retro"
           fullWidth
-          onClick={() => onSubmit("true")}
+          onClick={() => onSubmit(trueAnswerId)}
           disabled={answerSubmitted}
-          aria-pressed={userAnswer === "true"}
+          aria-pressed={userAnswer === trueAnswerId}
           icon={{ name: "Check" }}
         >
           {t("game.playing.trueFalse.trueWord")}
@@ -49,7 +53,7 @@ export function TrueFalseAnswers({
 
       <div
         className={
-          userAnswer === "false"
+          userAnswer === falseAnswerId
             ? `${OPTION_WRAPPER_BASE_CLASSES} ${OPTION_WRAPPER_SELECTED_CLASSES}`
             : OPTION_WRAPPER_BASE_CLASSES
         }
@@ -59,9 +63,9 @@ export function TrueFalseAnswers({
           size="xl"
           effect="retro"
           fullWidth
-          onClick={() => onSubmit("false")}
+          onClick={() => onSubmit(falseAnswerId)}
           disabled={answerSubmitted}
-          aria-pressed={userAnswer === "false"}
+          aria-pressed={userAnswer === falseAnswerId}
           icon={{ name: "Cross" }}
         >
           {t("game.playing.trueFalse.falseWord")}

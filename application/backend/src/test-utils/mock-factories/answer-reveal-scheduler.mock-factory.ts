@@ -1,5 +1,5 @@
 import type { Mocked } from 'vitest';
-
+import type { GameSessionPin } from '../../domain/game/entities/game-session';
 import {
   applyMockFactoryConfig,
   type MockFactoryConfig,
@@ -8,7 +8,7 @@ import {
 } from './mock-factory.utils';
 
 export type AnswerRevealSchedulerLike = {
-  schedule: (pin: string, timeSeconds: number) => void;
+  schedule: (pin: GameSessionPin, timeSeconds: number) => void;
 };
 
 const ANSWER_REVEAL_SCHEDULER_METHOD_KINDS: MockFactoryMethodKinds<AnswerRevealSchedulerLike> = {

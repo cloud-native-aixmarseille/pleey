@@ -1,9 +1,7 @@
-import { IAuthRepository } from "../../../domains/auth/ports/auth.repository.interface";
-import { IStorage } from "../../../domains/shared/ports/storage.interface";
+import { AuthRepository } from "../../../domains/auth/ports/auth.repository";
 import type { User } from "../../../domains/auth/types";
-
-const TOKEN_STORAGE_KEY = "quizmaster_token";
-const USER_STORAGE_KEY = "quizmaster_user";
+import { TOKEN_STORAGE_KEY, USER_STORAGE_KEY } from "../../../domains/shared/constants/storageKeys";
+import { Storage } from "../../../domains/shared/ports/storage";
 
 export interface LoginRequest {
   email: string;
@@ -22,8 +20,8 @@ export interface LoginResponse {
  */
 export class LoginUseCase {
   constructor(
-    private readonly authRepository: IAuthRepository,
-    private readonly storage: IStorage,
+    private readonly authRepository: AuthRepository,
+    private readonly storage: Storage,
   ) { }
 
   async execute(request: LoginRequest): Promise<LoginResponse> {

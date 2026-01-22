@@ -1,10 +1,12 @@
+export type OrganizationId = number;
+
 /**
  * Organization Domain Entity
  * Represents an organization that owns quizzes and game sessions
  */
 export class Organization {
   constructor(
-    public readonly id: number,
+    public readonly id: OrganizationId,
     public readonly name: string,
     public readonly description: string | null,
     public readonly createdAt: Date,

@@ -1,9 +1,10 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import type { UserRepository } from '../../../domain/auth/repositories/user.repository.interface';
-import { UserRepositoryProvider } from '../../../domain/auth/repositories/user.repository.interface';
+import type { UserId } from '../../../domain/auth/entities/user.entity';
+import { AuthErrorCode } from '../../../domain/auth/enums/auth-error-code.enum';
+import type { UserRepository } from '../../../domain/auth/ports/user.repository';
+import { UserRepositoryProvider } from '../../../domain/auth/ports/user.repository';
 import { UserAvatarService } from '../../../domain/auth/services/user-avatar.service';
-import { mapUserToPublicProfile } from '../../shared/utils/avatar-url.util';
-import { AuthErrorCode } from '../enums/auth-error-code.enum';
+import { mapUserToPublicProfile } from '../../shared/utils/avatar-uri.util';
 
 @Injectable()
 export class RegenerateUserAvatarUseCase {
@@ -13,16 +14,16 @@ export class RegenerateUserAvatarUseCase {
     private readonly userAvatarService: UserAvatarService,
   ) {}
 
-  async execute(userId: number) {
+  async execute(userId: UserId) {
     const user = await this.userRepository.findById(userId);
 
     if (!user) {
       throw new NotFoundException(AuthErrorCode.USER_NOT_FOUND);
     }
 
-    const avatarUrl = this.userAvatarService.generateRandomAvatar();
+    const avatarBuffer = this.userAvatarService.generateAvatar();
     const updated = await this.userRepository.updateProfile(userId, {
-      avatarUrl,
+      avatarUri: avatarBuffer,
     });
 
     return mapUserToPublicProfile(updated);

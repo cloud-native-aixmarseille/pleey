@@ -27,7 +27,7 @@ export function QuestionDeleteModal({
       description={t("quiz.modals.deleteDescription")}
       confirmLabel={t("quiz.deleteQuestion")}
       body={t("quiz.modals.deletePrompt", {
-        question: question?.question_text ?? "",
+        question: question?.questionText ?? "",
       })}
       variant="danger"
     />

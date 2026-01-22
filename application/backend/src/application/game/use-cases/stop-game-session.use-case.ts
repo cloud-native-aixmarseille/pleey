@@ -1,10 +1,11 @@
 import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import type { GameSession } from '../../../domain/game/entities/game-session';
+import type { UserId } from '../../../domain/auth/entities/user.entity';
+import type { GameSession, GameSessionId } from '../../../domain/game/entities/game-session';
+import { GameErrorCode } from '../../../domain/game/enums/game-error-code.enum';
 import {
   type GameSessionRepository,
   GameSessionRepositoryProvider,
-} from '../../../domain/game/repositories/game-session.repository.interface';
-import { GameErrorCode } from '../enums/game-error-code.enum';
+} from '../../../domain/game/ports/game-session.repository';
 
 /**
  * Stop Game Session Use Case
@@ -17,7 +18,7 @@ export class StopGameSessionUseCase {
     private readonly gameSessionRepository: GameSessionRepository,
   ) {}
 
-  async execute(sessionId: number, hostId: number): Promise<GameSession> {
+  async execute(sessionId: GameSessionId, hostId: UserId): Promise<GameSession> {
     // Find the session
     const session = await this.gameSessionRepository.findById(sessionId);
     if (!session) {

@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { loginViaApi } from "../helpers/auth";
 
 /**
  * Authentication Flow - Nominal Use Case
@@ -51,20 +52,10 @@ test.describe("Authentication Flow - Nominal Use Case", () => {
     ).toBeVisible();
   });
 
-  test("should login with valid credentials", async ({ page }) => {
-    await page.goto("/auth/login");
-    await page.waitForLoadState("networkidle");
+  test("should login with valid credentials", async ({ page, request }) => {
+    await loginViaApi(page, request, adminCredentials);
 
-    await page.fill('input[name="email"]', adminCredentials.email);
-    await page.fill('input[name="password"]', adminCredentials.password);
-
-    await Promise.all([
-      page.waitForURL(/\/admin/),
-      page
-        .getByRole("button", { name: /se connecter|login|sign\s*in/i })
-        .click(),
-    ]);
-
+    await page.goto("/admin");
     await expect(page.locator('[data-admin-dashboard="true"]')).toBeVisible();
   });
 

@@ -1,15 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { GameSessionPin } from '../../../domain/game/entities/game-session';
 import type { GameSessionState } from '../../../domain/game/entities/game-session-state';
+import type { GuestId } from '../../../domain/game/entities/player-state';
 import {
   type GameTimerService,
   GameTimerServiceProvider,
-} from '../../../domain/game/ports/game-timer.service.interface';
-import {
-  type SessionStateRepository,
-  SessionStateRepositoryProvider,
-} from '../../../domain/game/repositories/session-state.repository.interface';
+} from '../../../domain/game/ports/game-timer.service';
 import { calculateAnswerDistribution } from '../../../domain/game/services/answer-distribution.util';
+import { GameSessionStateService } from '../../../domain/game/services/game-session-state.service';
 import {
+  GameBroadcastEventType,
   type GameBroadcastService,
   GameBroadcastServiceProvider,
   type LeaderboardEntry,
@@ -22,16 +22,15 @@ import {
 @Injectable()
 export class RevealAnswersUseCase {
   constructor(
-    @Inject(SessionStateRepositoryProvider)
-    private readonly sessionStateRepository: SessionStateRepository,
+    private readonly gameSessionStateService: GameSessionStateService,
     @Inject(GameTimerServiceProvider)
     private readonly timerService: GameTimerService,
     @Inject(GameBroadcastServiceProvider)
     private readonly broadcastService: GameBroadcastService,
   ) {}
 
-  async execute(pin: string): Promise<void> {
-    const state = await this.sessionStateRepository.get(pin);
+  async execute(pin: GameSessionPin): Promise<void> {
+    const state = await this.gameSessionStateService.get(pin);
     if (!state) {
       return;
     }
@@ -59,12 +58,12 @@ export class RevealAnswersUseCase {
       const result = {
         isCorrect: playerAnswer?.isCorrect ?? false,
         points: playerAnswer?.points ?? 0,
-        correctAnswer: currentQuestion.correctAnswer,
+        correctAnswerIds: currentQuestion.getCorrectAnswers().map((answer) => answer.id),
         statistics,
       };
 
       this.broadcastService.publish({
-        type: 'answer-result',
+        type: GameBroadcastEventType.ANSWER_RESULT,
         connectionId: socketId,
         result,
       });
@@ -74,33 +73,28 @@ export class RevealAnswersUseCase {
     this.broadcastLeaderboard(pin, state);
   }
 
-  private broadcastLeaderboard(pin: string, state: GameSessionState): void {
+  private broadcastLeaderboard(pin: GameSessionPin, state: GameSessionState): void {
     const scores = state.getScoresExcludingHost();
     scores.sort((a, b) => b.totalPoints - a.totalPoints);
 
-    const leaderboard: LeaderboardEntry[] = scores.map((entry, index) => ({
-      userId: this.extractUserIdFromPlayerId(entry.playerId),
-      guestId: this.extractGuestIdFromPlayerId(entry.playerId),
-      username: entry.username,
-      totalPoints: entry.totalPoints,
-      rank: index + 1,
-      isGuest: entry.isGuest,
-    }));
+    const leaderboard: LeaderboardEntry[] = scores.map((entry, index) => {
+      const identity =
+        entry.userId !== undefined
+          ? { userId: entry.userId }
+          : { guestId: entry.guestId as GuestId };
 
-    this.broadcastService.publish({ type: 'leaderboard-updated', pin, leaderboard });
-  }
+      return {
+        ...identity,
+        username: entry.username,
+        totalPoints: entry.totalPoints,
+        rank: index + 1,
+      };
+    });
 
-  private extractUserIdFromPlayerId(playerId: string): number | undefined {
-    if (playerId.startsWith('user-')) {
-      return Number.parseInt(playerId.substring(5), 10);
-    }
-    return undefined;
-  }
-
-  private extractGuestIdFromPlayerId(playerId: string): string | undefined {
-    if (playerId.startsWith('guest-')) {
-      return playerId.substring(6);
-    }
-    return undefined;
+    this.broadcastService.publish({
+      type: GameBroadcastEventType.LEADERBOARD_UPDATED,
+      pin,
+      leaderboard,
+    });
   }
 }

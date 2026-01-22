@@ -2,17 +2,18 @@
  * Auth Response DTO
  * Response returned after successful authentication
  */
+import type { UserId } from '../../../domain/auth/entities/user.entity';
+import type { AuthToken } from '../../../domain/auth/types/auth-token';
+
 export class AuthResponseDto {
-  token: string;
-  /** @deprecated Use accessToken instead */
-  accessToken: string;
-  refreshToken: string;
+  accessToken: AuthToken;
+  refreshToken: AuthToken;
   expiresIn: number;
   user: {
-    id: number;
+    id: UserId;
     username: string;
     email: string;
     isAdmin: boolean;
-    avatarUrl: string | null;
+    avatarUri: string | null;
   };
 }

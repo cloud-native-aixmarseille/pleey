@@ -11,8 +11,9 @@ export function ManageQuizSessionsRoute() {
   const { quizId } = useParams();
   const quizIdNumber = Number(quizId);
 
-  const { isAuthenticated, isAdmin } = useAuthManagerContext();
-  const { quizzes, hasLoadedQuizzes } = useQuizManagerContext();
+  const { isAuthenticated, isAdmin, token } = useAuthManagerContext();
+  const { quizzes, hasLoadedQuizzes, questionsByQuiz, loadQuizQuestions } =
+    useQuizManagerContext();
   const { sessionsByQuiz, loadSessionsForQuiz, rejoinSession } =
     useGameSessionContext();
   const { notifyFromError } = useNotifications();
@@ -30,6 +31,24 @@ export function ManageQuizSessionsRoute() {
       notifyFromError(error, "errors.sessionsLoadFailed");
     });
   }, [quizIdNumber, loadSessionsForQuiz, notifyFromError, sessionsByQuiz]);
+
+  useEffect(() => {
+    if (!Number.isFinite(quizIdNumber)) {
+      return;
+    }
+
+    if (!token) {
+      return;
+    }
+
+    if (questionsByQuiz[quizIdNumber]) {
+      return;
+    }
+
+    loadQuizQuestions(token, quizIdNumber).catch((error) => {
+      notifyFromError(error, "errors.quizzesLoadFailed");
+    });
+  }, [quizIdNumber, token, questionsByQuiz, loadQuizQuestions, notifyFromError]);
 
   const quiz = useMemo(
     () => quizzes.find((item) => item.id === quizIdNumber),
@@ -65,6 +84,7 @@ export function ManageQuizSessionsRoute() {
     <ManageQuizSessionsPage
       quiz={quiz}
       sessions={sessions}
+      questions={questionsByQuiz[quizIdNumber]}
       onRefreshSessions={handleRefreshSessions}
       onRejoinSession={handleRejoinSession}
     />

@@ -1,5 +1,14 @@
+import { Test, type TestingModule } from '@nestjs/testing';
+import { I18nService } from 'nestjs-i18n';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-
+import { QuestionType } from '../../../domain/quiz/entities/question';
+import {
+  createPersistedGameSessionFixture,
+  createPersistedOrganizationFixture,
+  createPersistedQuestionFixture,
+  createPersistedQuizFixture,
+  createPersistedUserFixture,
+} from '../../../test-utils/fixtures/integration';
 import { PrismaService } from '../../database/prisma.service';
 import { PrismaScoreRepository } from './prisma-score.repository';
 
@@ -7,6 +16,7 @@ const hasDatabase = Boolean((process.env.DATABASE_URL ?? '').trim());
 const describeIfDatabase = hasDatabase ? describe.sequential : describe.skip;
 
 describeIfDatabase('PrismaScoreRepository (integration)', () => {
+  let module: TestingModule;
   let prisma: PrismaService;
   let repository: PrismaScoreRepository;
 
@@ -18,9 +28,22 @@ describeIfDatabase('PrismaScoreRepository (integration)', () => {
   const createdScoreIds: number[] = [];
 
   beforeAll(async () => {
-    prisma = new PrismaService();
+    module = await Test.createTestingModule({
+      providers: [
+        PrismaService,
+        PrismaScoreRepository,
+        {
+          provide: I18nService,
+          useValue: {
+            translate: (key: string) => key,
+          },
+        },
+      ],
+    }).compile();
+
+    prisma = module.get(PrismaService);
+    repository = module.get(PrismaScoreRepository);
     await prisma.onModuleInit();
-    repository = new PrismaScoreRepository(prisma);
   });
 
   afterAll(async () => {
@@ -43,61 +66,46 @@ describeIfDatabase('PrismaScoreRepository (integration)', () => {
       await prisma.user.deleteMany({ where: { id: { in: createdUserIds } } });
     }
     await prisma.onModuleDestroy();
+    await module.close();
   });
 
   it('creates scores, calculates totals and builds a leaderboard', async () => {
     const unique = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
-    const user = await prisma.user.create({
-      data: {
-        username: `player_${unique}`,
-        email: `player_${unique}@example.com`,
-        password: 'hashed',
-      },
+    const user = await createPersistedUserFixture(prisma, {
+      username: `player_${unique}`,
+      email: `player_${unique}@example.com`,
+      password: 'hashed',
     });
     createdUserIds.push(user.id);
 
-    const organization = await prisma.organization.create({
-      data: {
-        name: `Org ${unique}`,
-        description: null,
-      },
+    const organization = await createPersistedOrganizationFixture(prisma, {
+      name: `Org ${unique}`,
+      description: null,
     });
     createdOrganizationIds.push(organization.id);
 
-    const quiz = await prisma.quiz.create({
-      data: {
-        title: `Quiz ${unique}`,
-        description: null,
-        createdById: user.id,
-        organizationId: organization.id,
-      },
+    const quiz = await createPersistedQuizFixture(prisma, {
+      title: `Quiz ${unique}`,
+      description: null,
+      createdById: user.id,
+      organizationId: organization.id,
     });
     createdQuizIds.push(quiz.id);
 
-    const question = await prisma.question.create({
-      data: {
-        quizId: quiz.id,
-        questionText: 'Q1',
-        type: 'multiple',
-        correctAnswer: 'A',
-        optionA: 'A',
-        optionB: 'B',
-        optionC: 'C',
-        optionD: 'D',
-        timeLimit: 20,
-        points: 1000,
-      },
+    const question = await createPersistedQuestionFixture(prisma, {
+      quizId: quiz.id,
+      questionText: 'Q1',
+      type: QuestionType.MULTIPLE,
+      timeLimit: 20,
+      points: 1000,
     });
     createdQuestionIds.push(question.id);
 
-    const session = await prisma.gameSession.create({
-      data: {
-        quizId: quiz.id,
-        hostId: user.id,
-        organizationId: organization.id,
-        pin: `PIN-${unique}`,
-      },
+    const session = await createPersistedGameSessionFixture(prisma, {
+      quizId: quiz.id,
+      hostId: user.id,
+      pin: `PIN-${unique}`,
     });
     createdSessionIds.push(session.id);
 

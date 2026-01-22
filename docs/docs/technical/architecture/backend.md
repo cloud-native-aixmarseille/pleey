@@ -309,7 +309,7 @@ Player → Enters PIN → Validates session → Joins lobby
                                         Waits for start
 ```
 
-Player roster payloads now include `avatar` fields that point to the session-based `/api/avatars/sessions/:sessionId/:seed` endpoint. Frontend clients should resolve these relative URLs against the configured API origin (see `resolveAvatarUrl` helper) rather than expecting base64 blobs.
+Player roster payloads now include `avatar` fields that point to the session-based `/api/avatars/sessions/:sessionId/:seed` endpoint. Frontend clients should resolve these relative URLs against the configured API origin (see `resolveAvatarUri` helper) rather than expecting base64 blobs.
 
 ### 3. Running the Game
 

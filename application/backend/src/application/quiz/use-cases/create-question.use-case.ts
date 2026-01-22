@@ -1,16 +1,16 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { VALID_MULTIPLE_CHOICE_OPTIONS } from '../../../domain/quiz/constants/question.constants';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type { Question } from '../../../domain/quiz/entities/question';
+import { QuizErrorCode } from '../../../domain/quiz/enums/quiz-error-code.enum';
 import {
   type QuestionRepository,
   QuestionRepositoryProvider,
-} from '../../../domain/quiz/repositories/question.repository.interface';
+} from '../../../domain/quiz/ports/question.repository';
 import {
   type QuizRepository,
   QuizRepositoryProvider,
-} from '../../../domain/quiz/repositories/quiz.repository.interface';
+} from '../../../domain/quiz/ports/quiz.repository';
 import type { CreateQuestionDto } from '../dto/create-question.dto';
-import { QuizErrorCode } from '../enums/quiz-error-code.enum';
+import { normalizeAnswers, validateAnswers } from '../utils/question-answer.utils';
 
 /**
  * Create Question Use Case
@@ -32,54 +32,16 @@ export class CreateQuestionUseCase {
       throw new NotFoundException(QuizErrorCode.QUIZ_NOT_FOUND);
     }
 
-    // Validate correct answer based on question type
-    if (dto.type === 'multiple') {
-      // For multiple choice, correctAnswer can be single (e.g., "A") or multiple (e.g., "A,D")
-      const correctAnswers = dto.correctAnswer.split(',').map((a) => a.trim());
-
-      // Validate each correct answer
-      for (const answer of correctAnswers) {
-        if (!VALID_MULTIPLE_CHOICE_OPTIONS.includes(answer)) {
-          throw new BadRequestException(QuizErrorCode.INVALID_CORRECT_ANSWER);
-        }
-      }
-
-      // Check for duplicate correct answers
-      if (correctAnswers.length !== new Set(correctAnswers).size) {
-        throw new BadRequestException(QuizErrorCode.INVALID_CORRECT_ANSWER);
-      }
-
-      // Verify that each selected option is not empty
-      const optionValues: Record<string, string | null | undefined> = {
-        A: dto.optionA,
-        B: dto.optionB,
-        C: dto.optionC,
-        D: dto.optionD,
-      };
-
-      for (const answer of correctAnswers) {
-        const selectedOption = optionValues[answer];
-        if (!selectedOption || !selectedOption.trim()) {
-          throw new BadRequestException(QuizErrorCode.CORRECT_ANSWER_OPTION_EMPTY);
-        }
-      }
-    } else if (dto.type === 'truefalse') {
-      // For true/false, correctAnswer must be "true" or "false"
-      if (dto.correctAnswer !== 'true' && dto.correctAnswer !== 'false') {
-        throw new BadRequestException(QuizErrorCode.INVALID_CORRECT_ANSWER);
-      }
-    }
+    const normalizedAnswers = normalizeAnswers(dto.answers);
+    validateAnswers(dto.type, normalizedAnswers);
 
     // Create question
     return this.questionRepository.create({
       quizId: dto.quizId,
+      position: dto.position,
       questionText: dto.questionText,
       type: dto.type,
-      correctAnswer: dto.correctAnswer,
-      optionA: dto.optionA ?? null,
-      optionB: dto.optionB ?? null,
-      optionC: dto.optionC ?? null,
-      optionD: dto.optionD ?? null,
+      answers: normalizedAnswers,
       timeLimit: dto.timeLimit ?? 20,
       points: dto.points ?? 1000,
     });

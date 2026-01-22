@@ -13,20 +13,20 @@ const USER_SUMMARY_EMAIL_CLASSES =
 interface AccountUserSummaryProps {
   username: string;
   email: string;
-  avatarUrl?: string | null;
+  avatarUri?: string | null;
 }
 
 function AccountUserSummaryComponent({
   username,
   email,
-  avatarUrl,
+  avatarUri,
 }: AccountUserSummaryProps) {
   return (
     <div
       className={USER_SUMMARY_CONTAINER_CLASSES}
       data-account-user-summary="true"
     >
-      <Avatar name={username} src={avatarUrl ?? undefined} size="sm" />
+      <Avatar name={username} src={avatarUri ?? undefined} size="sm" />
       <div className={USER_SUMMARY_TEXT_STACK_CLASSES}>
         <span className={USER_SUMMARY_NAME_CLASSES}>{username}</span>
         <span className={USER_SUMMARY_EMAIL_CLASSES}>{email}</span>

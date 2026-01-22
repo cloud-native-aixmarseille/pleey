@@ -1,5 +1,6 @@
+import { Buffer } from 'node:buffer';
 import { describe, expect, it } from 'vitest';
-import { createUserFixture } from '../../../test-utils/fixtures';
+import { createUserFixture } from '../../../test-utils/fixtures/unit';
 
 describe('User Entity', () => {
   describe('constructor', () => {
@@ -11,7 +12,7 @@ describe('User Entity', () => {
         email: 'test@example.com',
         password: 'hashedpassword',
         isAdmin: false,
-        avatarUrl: null,
+        avatarUri: null,
         createdAt: now,
       });
 
@@ -32,7 +33,7 @@ describe('User Entity', () => {
         email: 'admin@example.com',
         password: 'hashedpassword',
         isAdmin: true,
-        avatarUrl: null,
+        avatarUri: null,
         createdAt: new Date(),
       });
 
@@ -46,7 +47,7 @@ describe('User Entity', () => {
         email: 'user@example.com',
         password: 'hashedpassword',
         isAdmin: false,
-        avatarUrl: null,
+        avatarUri: null,
         createdAt: new Date(),
       });
 
@@ -57,13 +58,14 @@ describe('User Entity', () => {
   describe('toSafeObject', () => {
     it('should return user object without password', () => {
       const now = new Date();
+      const avatarBuffer = Buffer.from('https://cdn/avatar.png', 'utf8');
       const user = createUserFixture({
         id: 1,
         username: 'testuser',
         email: 'test@example.com',
         password: 'hashedpassword',
         isAdmin: false,
-        avatarUrl: 'https://cdn/avatar.png',
+        avatarUri: avatarBuffer,
         createdAt: now,
       });
 
@@ -73,7 +75,7 @@ describe('User Entity', () => {
       expect(safeUser).toHaveProperty('username', 'testuser');
       expect(safeUser).toHaveProperty('email', 'test@example.com');
       expect(safeUser).toHaveProperty('isAdmin', false);
-      expect(safeUser).toHaveProperty('avatarUrl', 'https://cdn/avatar.png');
+      expect(safeUser).toHaveProperty('avatarUri', avatarBuffer);
       expect(safeUser).toHaveProperty('createdAt', now);
       expect(safeUser).not.toHaveProperty('password');
     });
@@ -85,7 +87,7 @@ describe('User Entity', () => {
         email: 'test@example.com',
         password: 'secretpassword',
         isAdmin: false,
-        avatarUrl: null,
+        avatarUri: null,
         createdAt: new Date(),
       });
 

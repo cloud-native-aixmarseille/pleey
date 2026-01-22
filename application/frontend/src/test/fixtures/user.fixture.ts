@@ -9,7 +9,7 @@ export const createUserFixture = (overrides: Partial<User> = {}): User => {
       username: "testuser",
       email: "test@example.com",
       isAdmin: false,
-      avatarUrl: null,
+      avatarUri: null,
     },
     overrides,
   );

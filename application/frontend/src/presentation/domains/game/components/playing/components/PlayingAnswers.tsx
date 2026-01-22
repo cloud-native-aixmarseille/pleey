@@ -5,9 +5,9 @@ import { TrueFalseAnswers } from "./TrueFalseAnswers";
 
 interface PlayingAnswersProps {
   question: Question;
-  userAnswer: string | null;
+  userAnswer: number | null;
   answerSubmitted: boolean;
-  onSubmitAnswer: (value: string) => void;
+  onSubmitAnswer: (answerId: number) => void;
 }
 
 export function PlayingAnswers({
@@ -27,32 +27,36 @@ export function PlayingAnswers({
     );
   }
 
+  const trueAnswer = question.answers.find((answer) => answer.position === 0);
+  const falseAnswer = question.answers.find((answer) => answer.position === 1);
+
+  if (!trueAnswer || !falseAnswer) {
+    return null;
+  }
+
   return (
     <TrueFalseAnswers
       userAnswer={userAnswer}
       answerSubmitted={answerSubmitted}
+      trueAnswerId={trueAnswer.id}
+      falseAnswerId={falseAnswer.id}
       onSubmit={onSubmitAnswer}
     />
   );
 }
 
 function getMultipleChoiceOptions(question: Question) {
-  return [
-    {
-      letter: "A",
-      text: question.option_a ?? "",
-    },
-    {
-      letter: "B",
-      text: question.option_b ?? "",
-    },
-    {
-      letter: "C",
-      text: question.option_c ?? "",
-    },
-    {
-      letter: "D",
-      text: question.option_d ?? "",
-    },
-  ];
+  return [...question.answers]
+    .sort((left, right) => left.position - right.position)
+    .map((answer) => ({
+      id: answer.id,
+      label: getOptionLabel(answer.position),
+      text: answer.text ?? "",
+    }));
+}
+
+const MULTIPLE_OPTION_LABELS = ["A", "B", "C", "D"];
+
+function getOptionLabel(position: number): string {
+  return MULTIPLE_OPTION_LABELS[position] ?? `${position + 1}`;
 }

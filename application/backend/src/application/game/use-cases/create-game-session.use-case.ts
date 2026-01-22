@@ -5,22 +5,22 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import type { GameSession } from '../../../domain/game/entities/game-session';
+import type { GameSession, GameSessionPin } from '../../../domain/game/entities/game-session';
 import { PIN } from '../../../domain/game/entities/pin';
+import { GameErrorCode } from '../../../domain/game/enums/game-error-code.enum';
 import { PinAlreadyInUseError } from '../../../domain/game/errors/pin-already-in-use.error';
 import {
   type GameSessionRepository,
   GameSessionRepositoryProvider,
-} from '../../../domain/game/repositories/game-session.repository.interface';
-import type { OrganizationMemberRepository } from '../../../domain/organization/repositories/organization-member.repository.interface';
-import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/repositories/organization-member.repository.interface';
+} from '../../../domain/game/ports/game-session.repository';
+import { OrganizationErrorCode } from '../../../domain/organization/enums/organization-error-code.enum';
+import type { OrganizationMemberRepository } from '../../../domain/organization/ports/organization-member.repository';
+import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/ports/organization-member.repository';
 import {
   type QuizRepository,
   QuizRepositoryProvider,
-} from '../../../domain/quiz/repositories/quiz.repository.interface';
-import { OrganizationErrorCode } from '../../organization/enums/organization-error-code.enum';
+} from '../../../domain/quiz/ports/quiz.repository';
 import type { CreateGameSessionDto } from '../dto/create-game-session.dto';
-import { GameErrorCode } from '../enums/game-error-code.enum';
 
 /**
  * Create Game Session Use Case
@@ -39,7 +39,7 @@ export class CreateGameSessionUseCase {
     private readonly memberRepository: OrganizationMemberRepository,
   ) {}
 
-  async execute(dto: CreateGameSessionDto): Promise<{ session: GameSession; pin: string }> {
+  async execute(dto: CreateGameSessionDto): Promise<{ session: GameSession; pin: GameSessionPin }> {
     // Ensure hostId is provided (should be set by controller from JWT)
     if (!dto.hostId) {
       throw new BadRequestException(GameErrorCode.VALIDATION_FAILED);
@@ -93,7 +93,6 @@ export class CreateGameSessionUseCase {
         const session = await this.gameSessionRepository.create(
           dto.quizId,
           dto.hostId,
-          quiz.organizationId,
           pin.getValue(),
         );
 

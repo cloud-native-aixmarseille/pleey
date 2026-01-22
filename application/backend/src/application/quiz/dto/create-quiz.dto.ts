@@ -1,4 +1,5 @@
 import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import type { OrganizationId } from '../../../domain/organization/entities/organization';
 
 /**
  * Create Quiz DTO
@@ -15,5 +16,5 @@ export class CreateQuizDto {
 
   @IsInt()
   @IsNotEmpty()
-  organizationId: number;
+  organizationId: OrganizationId;
 }

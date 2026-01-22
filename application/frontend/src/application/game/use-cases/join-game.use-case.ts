@@ -1,4 +1,4 @@
-import { IGameSocket } from "../../../domains/game/ports/game-socket.interface";
+import { GameSocket } from "../../../domains/game/ports/game-socket";
 
 export interface JoinGameRequest {
   pin: string;
@@ -13,7 +13,7 @@ export interface JoinGameRequest {
  * Following Clean Architecture and Single Responsibility Principle
  */
 export class JoinGameUseCase {
-  constructor(private readonly gameSocket: IGameSocket) { }
+  constructor(private readonly gameSocket: GameSocket) { }
 
   execute(request: JoinGameRequest): void {
     const { pin, username, userId, guestId } = request;

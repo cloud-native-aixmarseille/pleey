@@ -162,7 +162,7 @@ export default function AdminDashboard({
     [quizzes, liveSessionsByQuiz]
   );
   const totalQuestions = useMemo(
-    () => quizzes.reduce((sum, quiz) => sum + (quiz.question_count || 0), 0),
+    () => quizzes.reduce((sum, quiz) => sum + (quiz.questionCount || 0), 0),
     [quizzes]
   );
 

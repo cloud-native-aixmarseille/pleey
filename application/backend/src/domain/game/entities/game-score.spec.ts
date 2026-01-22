@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createGameScoreFixture } from '../../../test-utils/fixtures';
+import { createGameScoreFixture } from '../../../test-utils/fixtures/unit';
 
 describe('GameScore', () => {
   describe('constructor with correct answer', () => {

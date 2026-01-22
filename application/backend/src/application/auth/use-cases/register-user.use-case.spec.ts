@@ -1,19 +1,19 @@
+import { Buffer } from 'node:buffer';
 import { BadRequestException, ConflictException } from '@nestjs/common';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import { AuthErrorCode } from '../../../domain/auth/enums/auth-error-code.enum';
 import {
   createPasswordServiceMock,
+  createUserAvatarServiceMock,
   createUserRepositoryMock,
 } from '../../../test-utils/mock-factories';
-import { AuthErrorCode } from '../enums/auth-error-code.enum';
 import { RegisterUserUseCase } from './register-user.use-case';
 
 describe('RegisterUserUseCase', () => {
   it('throws USER_ALREADY_EXISTS when repository reports existing user', async () => {
     const userRepository = createUserRepositoryMock({ exists: true });
     const passwordService = createPasswordServiceMock();
-    const userAvatarService = {
-      generateAvatar: vi.fn(),
-    };
+    const userAvatarService = createUserAvatarServiceMock();
 
     const useCase = new RegisterUserUseCase(
       userRepository,
@@ -32,9 +32,7 @@ describe('RegisterUserUseCase', () => {
   it('throws PASSWORD_TOO_SHORT when password is invalid', async () => {
     const userRepository = createUserRepositoryMock({ exists: false });
     const passwordService = createPasswordServiceMock({ isValidPassword: false });
-    const userAvatarService = {
-      generateAvatar: vi.fn(),
-    };
+    const userAvatarService = createUserAvatarServiceMock();
 
     const useCase = new RegisterUserUseCase(
       userRepository,
@@ -50,7 +48,7 @@ describe('RegisterUserUseCase', () => {
     ).rejects.toThrow(AuthErrorCode.PASSWORD_TOO_SHORT);
   });
 
-  it('creates user with hashed password and generated avatar url', async () => {
+  it('creates user with hashed password and generated avatar uri', async () => {
     const userRepository = createUserRepositoryMock({
       exists: false,
       create: { id: 1 } as never,
@@ -60,9 +58,10 @@ describe('RegisterUserUseCase', () => {
       isValidPassword: true,
       hash: 'hashed',
     });
-    const userAvatarService = {
-      generateAvatar: vi.fn().mockReturnValue('avatar-data-uri'),
-    };
+    const avatarBuffer = Buffer.from('avatar-data-uri', 'utf8');
+    const userAvatarService = createUserAvatarServiceMock({
+      generateAvatar: avatarBuffer,
+    });
 
     const useCase = new RegisterUserUseCase(
       userRepository,
@@ -77,13 +76,13 @@ describe('RegisterUserUseCase', () => {
     });
 
     expect(passwordService.hash).toHaveBeenCalledWith('strong-password');
-    expect(userAvatarService.generateAvatar).toHaveBeenCalledWith('alice-alice@example.com');
+    expect(userAvatarService.generateAvatar).toHaveBeenCalledWith();
     expect(userRepository.create).toHaveBeenCalledWith(
       'alice',
       'alice@example.com',
       'hashed',
       false,
-      'avatar-data-uri',
+      avatarBuffer,
     );
   });
 });

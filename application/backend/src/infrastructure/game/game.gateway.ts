@@ -18,7 +18,6 @@ import { GamePinDto } from '../../application/game/dto/game-pin.dto';
 import { HostGameControlDto } from '../../application/game/dto/host-game-control.dto';
 import { JoinGameDto } from '../../application/game/dto/join-game.dto';
 import { SubmitAnswerDto } from '../../application/game/dto/submit-answer.dto';
-import { GameErrorCode } from '../../application/game/enums/game-error-code.enum';
 import { EndGameUseCase } from '../../application/game/use-cases/end-game.use-case';
 import { HandleDisconnectWsUseCase } from '../../application/game/use-cases/handle-disconnect-ws.use-case';
 import { JoinGameWsUseCase } from '../../application/game/use-cases/join-game-ws.use-case';
@@ -27,6 +26,8 @@ import { PauseGameWsUseCase } from '../../application/game/use-cases/pause-game-
 import { ResumeGameWsUseCase } from '../../application/game/use-cases/resume-game-ws.use-case';
 import { StartGameWsUseCase } from '../../application/game/use-cases/start-game-ws.use-case';
 import { SubmitAnswerWsUseCase } from '../../application/game/use-cases/submit-answer-ws.use-case';
+import type { GameSessionPin } from '../../domain/game/entities/game-session';
+import { GameErrorCode } from '../../domain/game/enums/game-error-code.enum';
 import { I18nWsExceptionFilter } from '../shared/filters/i18n-ws-exception.filter';
 import { GAME_SOCKET_INBOUND_EVENT, GAME_SOCKET_OUTBOUND_EVENT } from './game-socket-events';
 import { SocketGameBroadcastService } from './services/socket-game-broadcast.service';
@@ -60,9 +61,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @WebSocketServer()
   server!: Server;
 
-  private readonly logger = new Logger(GameGateway.name);
-
   constructor(
+    @Inject(Logger)
+    private readonly logger: Logger,
     private readonly handleDisconnectUseCase: HandleDisconnectWsUseCase,
     private readonly joinGameUseCase: JoinGameWsUseCase,
     private readonly startGameUseCase: StartGameWsUseCase,
@@ -77,15 +78,15 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   afterInit(server: Server): void {
     this.broadcastService.setServer(server);
-    this.logger.log('GameGateway initialized');
+    this.logger.log('GameGateway initialized', GameGateway.name);
   }
 
   handleConnection(client: Socket): void {
-    this.logger.debug(`Client connected: ${client.id}`);
+    this.logger.debug(`Client connected: ${client.id}`, GameGateway.name);
   }
 
   async handleDisconnect(client: Socket): Promise<void> {
-    this.logger.debug(`Client disconnected: ${client.id}`);
+    this.logger.debug(`Client disconnected: ${client.id}`, GameGateway.name);
     await this.handleDisconnectUseCase.execute(client.id);
   }
 
@@ -104,7 +105,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     } catch (error) {
       // Best-effort cleanup: if we already joined a room, leave it.
       try {
-        const maybePin = (payload as { pin?: string } | null)?.pin;
+        const maybePin = (payload as { pin?: GameSessionPin } | null)?.pin;
         if (typeof maybePin === 'string' && maybePin.length > 0) {
           client.leave(maybePin);
         }
@@ -220,7 +221,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     }
 
     const logMessage = error instanceof Error ? error.message : String(message);
-    this.logger.error(`Socket error: ${logMessage}`);
+    this.logger.error(`Socket error: ${logMessage}`, undefined, GameGateway.name);
     client.emit(GAME_SOCKET_OUTBOUND_EVENT.ERROR, { message });
   }
 }

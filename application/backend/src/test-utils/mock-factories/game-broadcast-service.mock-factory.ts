@@ -1,6 +1,6 @@
 import type { Mocked } from 'vitest';
 
-import type { GameBroadcastService } from '../../application/game/ports/game-broadcast.service.interface';
+import type { GameBroadcastService } from '../../application/game/ports/game-broadcast.service';
 
 import {
   applyMockFactoryConfig,

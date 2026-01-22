@@ -9,7 +9,7 @@ interface PlayingPageProps {
   questionNumber: number;
   totalQuestions: number;
   timeLeft: number;
-  userAnswer: string | null;
+  userAnswer: number | null;
   answerSubmitted: boolean;
   showResult: boolean;
   answerResult: AnswerResult | null;
@@ -19,7 +19,7 @@ interface PlayingPageProps {
   onBackToLobby: () => void;
   onBackToAdmin: () => void;
   onTogglePause: () => void;
-  onSubmitAnswer: (answer: string) => void;
+  onSubmitAnswer: (answerId: number) => void;
   onNextQuestion: () => void;
 }
 

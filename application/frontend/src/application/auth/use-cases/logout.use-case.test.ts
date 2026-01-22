@@ -1,18 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { LogoutUseCase } from "./logout.use-case";
-import { IStorage } from "../../../domains/shared/ports/storage.interface";
+import type { Storage } from "../../../domains/shared/ports/storage";
+import { createStorageMock } from "../../../test/mock-factories/storage.mock-factory";
 
 describe("LogoutUseCase", () => {
   let logoutUseCase: LogoutUseCase;
-  let mockStorage: IStorage;
+  let mockStorage: Storage;
 
   beforeEach(() => {
-    mockStorage = {
-      getItem: vi.fn(),
-      setItem: vi.fn(),
-      removeItem: vi.fn(),
-      clear: vi.fn(),
-    };
+    mockStorage = createStorageMock();
 
     logoutUseCase = new LogoutUseCase(mockStorage);
   });

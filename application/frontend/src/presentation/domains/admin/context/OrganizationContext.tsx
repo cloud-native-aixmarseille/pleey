@@ -12,7 +12,7 @@ import type {
   Organization,
   OrganizationDashboard,
 } from "../../../../domains/organization/types";
-import { organizationService } from "../../../../domains/organization/organization.service";
+import { container } from "../../../../app/di/container";
 import { useAuthManagerContext } from "../../auth";
 
 interface OrganizationContextValue {
@@ -26,14 +26,16 @@ interface OrganizationContextValue {
   loadDashboard: () => Promise<void>;
   createOrganization: (
     name: string,
-    description?: string
+    description?: string,
   ) => Promise<Organization>;
   clearError: () => void;
 }
 
 const OrganizationContext = createContext<OrganizationContextValue | undefined>(
-  undefined
+  undefined,
 );
+
+const { organizationRepository } = container;
 
 export function OrganizationProvider({ children }: { children: ReactNode }) {
   const { token } = useAuthManagerContext();
@@ -41,7 +43,7 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
   const [currentOrganization, setCurrentOrganizationState] =
     useState<Organization | null>(null);
   const [dashboard, setDashboard] = useState<OrganizationDashboard | null>(
-    null
+    null,
   );
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,7 +60,7 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     setError(null);
     try {
-      const orgs = await organizationService.getMyOrganizations(token);
+      const orgs = await organizationRepository.getMyOrganizations(token);
       setOrganizations(orgs);
 
       if (orgs.length > 0 && !currentOrganization) {
@@ -82,10 +84,11 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
 
     setError(null);
     try {
-      const dashboardData = await organizationService.getOrganizationDashboard(
-        token,
-        currentOrganization.id
-      );
+      const dashboardData =
+        await organizationRepository.getOrganizationDashboard(
+          token,
+          currentOrganization.id,
+        );
       setDashboard(dashboardData);
     } catch (err) {
       const errorMessage =
@@ -112,10 +115,10 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
 
       setError(null);
       try {
-        const newOrg = await organizationService.createOrganization(
+        const newOrg = await organizationRepository.createOrganization(
           token,
           name,
-          description
+          description,
         );
 
         await loadOrganizations();
@@ -130,7 +133,7 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
         throw err;
       }
     },
-    [token, loadOrganizations]
+    [token, loadOrganizations],
   );
 
   useEffect(() => {

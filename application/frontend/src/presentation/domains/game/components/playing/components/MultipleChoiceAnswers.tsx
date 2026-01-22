@@ -21,12 +21,13 @@ const SELECTED_CLASSES =
 
 interface MultipleChoiceAnswersProps {
   options: Array<{
-    letter: string;
+    id: number;
+    label: string;
     text: string;
   }>;
-  userAnswer: string | null;
+  userAnswer: number | null;
   answerSubmitted: boolean;
-  onSubmit: (value: string) => void;
+  onSubmit: (answerId: number) => void;
 }
 
 export function MultipleChoiceAnswers({
@@ -39,12 +40,12 @@ export function MultipleChoiceAnswers({
     <ArcadeCardGrid layout="double" bottomSpacing="none" role="list">
       {options.map((option, index) => (
         <div
-          key={option.letter}
+          key={option.id}
           className={composeClasses(
             OPTION_WRAPPER_BASE_CLASSES,
-            OPTION_WRAPPER_TONE_CLASS_MAP[option.letter] ??
+            OPTION_WRAPPER_TONE_CLASS_MAP[option.label] ??
               OPTION_WRAPPER_TONE_CLASS_MAP.D,
-            userAnswer === option.letter ? SELECTED_CLASSES : undefined,
+            userAnswer === option.id ? SELECTED_CLASSES : undefined,
             answerSubmitted ? "cursor-not-allowed opacity-60" : undefined
           )}
           style={{ animationDelay: `${index * 0.1}s` }}
@@ -53,13 +54,13 @@ export function MultipleChoiceAnswers({
             return (
               <SecondaryButton
                 type="button"
-                onClick={() => onSubmit(option.letter)}
+                onClick={() => onSubmit(option.id)}
                 disabled={answerSubmitted}
                 fullWidth
                 size="xl"
                 alignment="start"
                 effect="flat"
-                aria-pressed={userAnswer === option.letter}
+                aria-pressed={userAnswer === option.id}
               >
                 {option.text}
               </SecondaryButton>

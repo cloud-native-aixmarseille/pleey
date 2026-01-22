@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { NavigateFunction } from "react-router-dom";
-import { gameService } from "../../../../domains/game/game.service";
+import { container } from "../../../../app/di/container";
 import { useTimer } from "../../../../presentation/shared/hooks/useTimer";
 import type { User } from "../../../../domains/auth/types";
 import type { GameSession } from "../../../../domains/game/types";
 import type { Question, Quiz } from "../../../../domains/quiz/types";
 import type { ToastVariant } from "../../app-shell/contexts/NotificationContext";
 import { useGameSocket } from "./useGameSocket";
+
+const { gameService } = container;
 
 type QuestionsByQuiz = Record<number, Question[]>;
 
@@ -52,7 +54,7 @@ export function useGameSessionManager({
   const [gamePinState, setGamePinState] = useState("");
   const [activeQuizQuestionCount, setActiveQuizQuestionCount] = useState(-1);
   const [activeQuizTitle, setActiveQuizTitle] = useState<string | null>(null);
-  const [userAnswer, setUserAnswer] = useState<string | null>(null);
+  const [userAnswer, setUserAnswer] = useState<number | null>(null);
   const [activeSessions, setActiveSessions] = useState<GameSession[]>([]);
   const [sessionsByQuiz, setSessionsByQuiz] = useState<
     Record<number, GameSession[]>
@@ -454,19 +456,19 @@ export function useGameSessionManager({
   ]);
 
   const handleSubmitAnswer = useCallback(
-    (answer: string) => {
+    (answerId: number) => {
       if (user) {
-        setUserAnswer(answer);
-        gameService.submitAnswer(gamePinState, user.id, answer, timeLeft);
+        setUserAnswer(answerId);
+        gameService.submitAnswer(gamePinState, user.id, answerId, timeLeft);
         return;
       }
 
       if (guestId) {
-        setUserAnswer(answer);
+        setUserAnswer(answerId);
         gameService.submitAnswer(
           gamePinState,
           undefined,
-          answer,
+          answerId,
           timeLeft,
           guestId,
         );

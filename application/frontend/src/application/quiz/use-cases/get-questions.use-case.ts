@@ -1,4 +1,4 @@
-import { IQuizRepository } from "../../../domains/quiz/ports/quiz.repository.interface";
+import { QuizRepository } from "../../../domains/quiz/ports/quiz.repository";
 import type { Question } from "../../../domains/quiz/types";
 
 export interface GetQuestionsRequest {
@@ -12,7 +12,7 @@ export interface GetQuestionsRequest {
  * Following Clean Architecture and Single Responsibility Principle
  */
 export class GetQuestionsUseCase {
-  constructor(private readonly quizRepository: IQuizRepository) { }
+  constructor(private readonly quizRepository: QuizRepository) { }
 
   async execute(request: GetQuestionsRequest): Promise<Question[]> {
     return this.quizRepository.getQuestions(request.token, request.quizId);

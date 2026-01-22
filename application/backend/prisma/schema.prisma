@@ -15,7 +15,7 @@ model User {
   email     String   @unique
   password  String
   isAdmin   Boolean  @default(false) @map("is_admin")
-  avatarUrl String?  @map("avatar_url")
+  avatarUri String?  @map("avatar_uri")
   refreshTokenHash String? @map("refresh_token_hash")
   refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at")
   createdAt DateTime @default(now()) @map("created_at")
@@ -48,38 +48,47 @@ model Quiz {
 model Question {
   id           Int      @id @default(autoincrement())
   quizId       Int      @map("quiz_id")
+  position     Int      @map("position")
   questionText String   @map("question_text")
   type         String   // 'multiple' or 'truefalse'
-  correctAnswer String  @map("correct_answer")
-  optionA      String?  @map("option_a")
-  optionB      String?  @map("option_b")
-  optionC      String?  @map("option_c")
-  optionD      String?  @map("option_d")
   timeLimit    Int      @default(20) @map("time_limit")
   points       Int      @default(1000)
   deletedAt    DateTime? @map("deleted_at")
 
-  quiz   Quiz    @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  scores Score[]
+  quiz          Quiz            @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  answers       QuestionAnswer[] @relation("QuestionAnswers")
+  scores        Score[]
 
+  @@unique([quizId, position])
   @@map("questions")
+}
+
+model QuestionAnswer {
+  id         Int     @id @default(autoincrement())
+  questionId Int     @map("question_id")
+  text       String? @map("answer_text")
+  position   Int     @default(0) @map("position")
+  isCorrect  Boolean @default(false) @map("is_correct")
+
+  question   Question @relation("QuestionAnswers", fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, position])
+  @@map("question_answers")
 }
 
 model GameSession {
   id              Int      @id @default(autoincrement())
   quizId          Int      @map("quiz_id")
   hostId          Int      @map("host_id")
-  organizationId  Int      @map("organization_id")
   pin             String   @unique
   status          String   @default("waiting")
-  currentQuestion Int      @default(0) @map("current_question")
+  currentQuestion Int?     @map("current_question")
   createdAt       DateTime @default(now()) @map("created_at")
   deletedAt       DateTime? @map("deleted_at")
 
-  quiz         Quiz         @relation(fields: [quizId], references: [id])
-  host         User         @relation("HostedSessions", fields: [hostId], references: [id])
-  organization Organization @relation(fields: [organizationId], references: [id])
-  scores       Score[]
+  quiz   Quiz  @relation(fields: [quizId], references: [id])
+  host   User  @relation("HostedSessions", fields: [hostId], references: [id])
+  scores Score[]
 
   @@map("game_sessions")
 }
@@ -87,7 +96,9 @@ model GameSession {
 model Score {
   id         Int      @id @default(autoincrement())
   sessionId  Int      @map("session_id")
-  userId     Int      @map("user_id")
+  userId     Int?     @map("user_id")
+  guestId    String?  @map("guest_id")
+  guestUsername String? @map("guest_username")
   questionId Int      @map("question_id")
   points     Int      @default(0)
   answerTime Int?     @map("answer_time")
@@ -95,7 +106,7 @@ model Score {
   answeredAt DateTime @default(now()) @map("answered_at")
 
   session  GameSession @relation(fields: [sessionId], references: [id])
-  user     User        @relation(fields: [userId], references: [id])
+  user     User?       @relation(fields: [userId], references: [id])
   question Question    @relation(fields: [questionId], references: [id])
 
   @@map("scores")
@@ -109,9 +120,8 @@ model Organization {
   updatedAt   DateTime @updatedAt @map("updated_at")
   deletedAt   DateTime? @map("deleted_at")
 
-  members      OrganizationMember[]
-  quizzes      Quiz[]
-  gameSessions GameSession[]
+  members OrganizationMember[]
+  quizzes Quiz[]
 
   @@map("organizations")
 }

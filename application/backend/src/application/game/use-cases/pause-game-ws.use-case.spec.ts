@@ -1,19 +1,22 @@
 import { WsException } from '@nestjs/websockets';
 import { describe, expect, it, vi } from 'vitest';
+import { GameErrorCode } from '../../../domain/game/enums/game-error-code.enum';
+import { GameSessionStatus } from '../../../domain/game/enums/game-session-status.enum';
 import {
   createGameBroadcastServiceMock,
   createGameSessionRepositoryMock,
+  createGameSessionStateServiceMock,
   createGameTimerServiceMock,
-  createSessionStateRepositoryMock,
 } from '../../../test-utils/mock-factories';
-import { GameErrorCode } from '../enums/game-error-code.enum';
+import { GameBroadcastEventType } from '../ports';
 import { PauseGameWsUseCase } from './pause-game-ws.use-case';
 
 describe('PauseGameWsUseCase', () => {
   it('throws when hostId does not match', async () => {
     const state = { pause: vi.fn().mockReturnValue(5) };
-    const sessionStateRepository = createSessionStateRepositoryMock({
+    const gameSessionStateService = createGameSessionStateServiceMock({
       getOrCreate: state as never,
+      update: undefined,
     });
 
     const gameSessionRepository = createGameSessionRepositoryMock({
@@ -23,7 +26,7 @@ describe('PauseGameWsUseCase', () => {
     const broadcastService = createGameBroadcastServiceMock();
 
     const useCase = new PauseGameWsUseCase(
-      sessionStateRepository as never,
+      gameSessionStateService as never,
       gameSessionRepository as never,
       timerService as never,
       broadcastService as never,
@@ -39,8 +42,9 @@ describe('PauseGameWsUseCase', () => {
 
   it('clears timer, updates status and broadcasts remaining time', async () => {
     const state = { pause: vi.fn().mockReturnValue(7) };
-    const sessionStateRepository = createSessionStateRepositoryMock({
+    const gameSessionStateService = createGameSessionStateServiceMock({
       getOrCreate: state as never,
+      update: undefined,
     });
 
     const gameSessionRepository = createGameSessionRepositoryMock({
@@ -51,7 +55,7 @@ describe('PauseGameWsUseCase', () => {
     const broadcastService = createGameBroadcastServiceMock();
 
     const useCase = new PauseGameWsUseCase(
-      sessionStateRepository as never,
+      gameSessionStateService as never,
       gameSessionRepository as never,
       timerService as never,
       broadcastService as never,
@@ -60,9 +64,9 @@ describe('PauseGameWsUseCase', () => {
     await useCase.execute('123456', 1);
 
     expect(timerService.clearAnswerRevealTimer).toHaveBeenCalledWith('123456');
-    expect(gameSessionRepository.updateStatus).toHaveBeenCalledWith(1, 'paused');
+    expect(gameSessionRepository.updateStatus).toHaveBeenCalledWith(1, GameSessionStatus.PAUSED);
     expect(broadcastService.publish).toHaveBeenCalledWith({
-      type: 'game-paused',
+      type: GameBroadcastEventType.GAME_PAUSED,
       pin: '123456',
       timeLeft: 7,
     });

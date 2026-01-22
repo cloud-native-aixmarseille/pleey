@@ -1,5 +1,5 @@
-import { IAuthRepository } from "../../../domains/auth/ports/auth.repository.interface";
-import { IStorage } from "../../../domains/shared/ports/storage.interface";
+import { AuthRepository } from "../../../domains/auth/ports/auth.repository";
+import { Storage } from "../../../domains/shared/ports/storage";
 import { USER_STORAGE_KEY } from "../../../domains/shared/constants/storageKeys";
 import type { User } from "../../../domains/auth/types";
 
@@ -9,8 +9,8 @@ import type { User } from "../../../domains/auth/types";
  */
 export class GetProfileUseCase {
   constructor(
-    private readonly authRepository: IAuthRepository,
-    private readonly storage: IStorage,
+    private readonly authRepository: AuthRepository,
+    private readonly storage: Storage,
   ) { }
 
   async execute(): Promise<User> {

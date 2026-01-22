@@ -1,10 +1,11 @@
 import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
-import type { OrganizationMemberRepository } from '../../../domain/organization/repositories/organization-member.repository.interface';
-import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/repositories/organization-member.repository.interface';
+import type { UserId } from '../../../domain/auth/entities/user.entity';
+import { OrganizationErrorCode } from '../../../domain/organization/enums/organization-error-code.enum';
+import type { OrganizationMemberRepository } from '../../../domain/organization/ports/organization-member.repository';
+import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/ports/organization-member.repository';
 import type { Quiz } from '../../../domain/quiz/entities/quiz';
-import type { QuizRepository } from '../../../domain/quiz/repositories/quiz.repository.interface';
-import { QuizRepositoryProvider } from '../../../domain/quiz/repositories/quiz.repository.interface';
-import { OrganizationErrorCode } from '../../organization/enums/organization-error-code.enum';
+import type { QuizRepository } from '../../../domain/quiz/ports/quiz.repository';
+import { QuizRepositoryProvider } from '../../../domain/quiz/ports/quiz.repository';
 import type { CreateQuizDto } from '../dto/create-quiz.dto';
 
 /**
@@ -20,7 +21,7 @@ export class CreateQuizUseCase {
     private readonly memberRepository: OrganizationMemberRepository,
   ) {}
 
-  async execute(dto: CreateQuizDto, userId: number): Promise<Quiz> {
+  async execute(dto: CreateQuizDto, userId: UserId): Promise<Quiz> {
     // Verify user is a member of the organization
     const membership = await this.memberRepository.findByOrganizationAndUser(
       dto.organizationId,

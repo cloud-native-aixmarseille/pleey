@@ -1,16 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
+import type { UserId } from '../../../domain/auth/entities/user.entity';
 import { User } from '../../../domain/auth/entities/user.entity';
-import type { UserRepository } from '../../../domain/auth/repositories/user.repository.interface';
+import type { UserRepository } from '../../../domain/auth/ports/user.repository';
+import type { AvatarUri } from '../../../domain/auth/types/avatar-uri';
 import { PrismaService } from '../../database/prisma.service';
 
 type PrismaUserRecord = {
-  id: number;
+  id: UserId;
   username: string;
   email: string;
   password: string;
   isAdmin: boolean;
-  avatarUrl: string | null;
+  avatarUri: string | null;
   refreshTokenHash: string | null;
   refreshTokenExpiresAt: Date | null;
   createdAt: Date;
@@ -29,14 +31,15 @@ export class PrismaUserRepository implements UserRepository {
     email: string,
     password: string,
     isAdmin: boolean = false,
-    avatarUrl: string | null = null,
+    avatarUri: AvatarUri | null = null,
   ): Promise<User> {
+    const serializedAvatarUri = avatarUri ? avatarUri.toString('utf8') : null;
     const data: Prisma.UserCreateInput = {
       username,
       email,
       password,
       isAdmin,
-      avatarUrl,
+      avatarUri: serializedAvatarUri,
     };
 
     const user = (await this.prisma.user.create({
@@ -49,7 +52,7 @@ export class PrismaUserRepository implements UserRepository {
       user.email,
       user.password,
       user.isAdmin,
-      user.avatarUrl ?? null,
+      user.avatarUri ? Buffer.from(user.avatarUri, 'utf8') : null,
       user.createdAt,
       user.refreshTokenHash ?? null,
       user.refreshTokenExpiresAt ?? null,
@@ -69,14 +72,14 @@ export class PrismaUserRepository implements UserRepository {
       user.email,
       user.password,
       user.isAdmin,
-      user.avatarUrl ?? null,
+      user.avatarUri ? Buffer.from(user.avatarUri, 'utf8') : null,
       user.createdAt,
       user.refreshTokenHash ?? null,
       user.refreshTokenExpiresAt ?? null,
     );
   }
 
-  async findById(id: number): Promise<User | null> {
+  async findById(id: UserId): Promise<User | null> {
     const user = (await this.prisma.user.findUnique({
       where: { id },
     })) as PrismaUserRecord | null;
@@ -89,7 +92,7 @@ export class PrismaUserRepository implements UserRepository {
       user.email,
       user.password,
       user.isAdmin,
-      user.avatarUrl ?? null,
+      user.avatarUri ? Buffer.from(user.avatarUri, 'utf8') : null,
       user.createdAt,
       user.refreshTokenHash ?? null,
       user.refreshTokenExpiresAt ?? null,
@@ -109,7 +112,7 @@ export class PrismaUserRepository implements UserRepository {
       user.email,
       user.password,
       user.isAdmin,
-      user.avatarUrl ?? null,
+      user.avatarUri ? Buffer.from(user.avatarUri, 'utf8') : null,
       user.createdAt,
       user.refreshTokenHash ?? null,
       user.refreshTokenExpiresAt ?? null,
@@ -127,11 +130,11 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async updateProfile(
-    id: number,
+    id: UserId,
     updates: {
       username?: string;
       email?: string;
-      avatarUrl?: string | null;
+      avatarUri?: AvatarUri | null;
     },
   ): Promise<User> {
     const data: Prisma.UserUpdateInput = {};
@@ -144,8 +147,8 @@ export class PrismaUserRepository implements UserRepository {
       data.email = updates.email;
     }
 
-    if (updates.avatarUrl !== undefined) {
-      data.avatarUrl = updates.avatarUrl;
+    if (updates.avatarUri !== undefined) {
+      data.avatarUri = updates.avatarUri ? updates.avatarUri.toString('utf8') : null;
     }
 
     const user = (await this.prisma.user.update({
@@ -159,7 +162,7 @@ export class PrismaUserRepository implements UserRepository {
       user.email,
       user.password,
       user.isAdmin,
-      user.avatarUrl ?? null,
+      user.avatarUri ? Buffer.from(user.avatarUri, 'utf8') : null,
       user.createdAt,
       user.refreshTokenHash ?? null,
       user.refreshTokenExpiresAt ?? null,
@@ -167,7 +170,7 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async updateRefreshToken(
-    id: number,
+    id: UserId,
     refreshTokenHash: string,
     refreshTokenExpiresAt: Date,
   ): Promise<void> {
@@ -180,7 +183,7 @@ export class PrismaUserRepository implements UserRepository {
     });
   }
 
-  async clearRefreshToken(id: number): Promise<void> {
+  async clearRefreshToken(id: UserId): Promise<void> {
     await this.prisma.user.update({
       where: { id },
       data: {

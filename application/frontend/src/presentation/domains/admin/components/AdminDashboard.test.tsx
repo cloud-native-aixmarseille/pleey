@@ -33,13 +33,13 @@ describe("AdminDashboard", () => {
       id: 1,
       title: "Quiz 1",
       description: "Description 1",
-      question_count: 3,
+      questionCount: 3,
     }),
     createQuizFixture({
       id: 2,
       title: "Quiz 2",
       description: "Description 2",
-      question_count: 5,
+      questionCount: 5,
     }),
   ];
 
@@ -168,7 +168,7 @@ describe("AdminDashboard", () => {
         ...mockQuizzes[0],
         id: 999,
         title: "Empty Quiz",
-        question_count: 0,
+        questionCount: 0,
       },
     ];
 

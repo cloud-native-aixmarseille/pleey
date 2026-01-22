@@ -1,17 +1,21 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import type { GuestId } from '../../../domain/game/entities/player-state';
+import { GameErrorCode } from '../../../domain/game/enums/game-error-code.enum';
 import {
   type GameSessionRepository,
   GameSessionRepositoryProvider,
-} from '../../../domain/game/repositories/game-session.repository.interface';
+} from '../../../domain/game/ports/game-session.repository';
 import {
   type ScoreRepository,
   ScoreRepositoryProvider,
-} from '../../../domain/game/repositories/score.repository.interface';
+} from '../../../domain/game/ports/score.repository';
+import { GameSessionStateService } from '../../../domain/game/services/game-session-state.service';
 import { ScoreCalculatorService } from '../../../domain/game/services/score-calculator.service';
+import type { QuestionAnswerId } from '../../../domain/quiz/entities/question-answer';
 import {
   type QuestionRepository,
   QuestionRepositoryProvider,
-} from '../../../domain/quiz/repositories/question.repository.interface';
+} from '../../../domain/quiz/ports/question.repository';
 import type { SubmitAnswerDto } from '../dto/submit-answer.dto';
 
 /**
@@ -27,32 +31,33 @@ export class SubmitAnswerUseCase {
     private readonly questionRepository: QuestionRepository,
     @Inject(ScoreRepositoryProvider)
     private readonly scoreRepository: ScoreRepository,
+    private readonly gameSessionStateService: GameSessionStateService,
     private readonly scoreCalculatorService: ScoreCalculatorService,
   ) {}
 
   async execute(dto: SubmitAnswerDto): Promise<{
     isCorrect: boolean;
     points: number;
-    correctAnswer: string;
+    correctAnswerIds: QuestionAnswerId[];
   }> {
     // Find game session
     const session = await this.gameSessionRepository.findByPin(dto.pin);
     if (!session) {
-      throw new NotFoundException('Game session not found');
+      throw new NotFoundException(GameErrorCode.GAME_NOT_FOUND);
     }
 
-    // Get current question (need to pass question ID separately in real implementation)
-    // For now, we'll need to modify this logic based on how questions are tracked
-    // This is a simplified version
     const questions = await this.questionRepository.findByQuizId(session.quizId);
-    const currentQuestion = questions[session.currentQuestion];
+    const currentQuestion =
+      session.currentQuestionId !== null
+        ? questions.find((question) => question.id === session.currentQuestionId)
+        : undefined;
 
     if (!currentQuestion) {
-      throw new NotFoundException('Question not found');
+      throw new NotFoundException(GameErrorCode.NO_QUESTIONS_AVAILABLE);
     }
 
     // Check if answer is correct
-    const isCorrect = currentQuestion.isAnswerCorrect(dto.answer);
+    const isCorrect = currentQuestion.isAnswerCorrect(dto.answerId);
 
     // Calculate score
     const gameScore = this.scoreCalculatorService.calculateScore(
@@ -62,8 +67,20 @@ export class SubmitAnswerUseCase {
       isCorrect,
     );
 
-    // Save score only for authenticated users (not guests)
-    const isGuest = !dto.userId;
+    const isGuest = !dto.userId && dto.guestId !== undefined;
+    if (isGuest && dto.guestId) {
+      const guestUsername = await this.resolveGuestUsername(dto.pin, dto.guestId);
+      await this.scoreRepository.create({
+        sessionId: session.id,
+        guestId: dto.guestId,
+        guestUsername,
+        questionId: currentQuestion.id,
+        points: gameScore.getTotalPoints(),
+        answerTime: currentQuestion.timeLimit - dto.timeLeft,
+        isCorrect,
+      });
+    }
+
     if (!isGuest && dto.userId) {
       await this.scoreRepository.create({
         sessionId: session.id,
@@ -74,12 +91,17 @@ export class SubmitAnswerUseCase {
         isCorrect,
       });
     }
-    // Guest scores are not persisted to database, only tracked in session state
 
     return {
       isCorrect,
       points: gameScore.getTotalPoints(),
-      correctAnswer: currentQuestion.correctAnswer,
+      correctAnswerIds: currentQuestion.getCorrectAnswers().map((answer) => answer.id),
     };
+  }
+
+  private async resolveGuestUsername(pin: string, guestId: GuestId): Promise<string | null> {
+    const state = await this.gameSessionStateService.get(pin);
+    const player = state?.findPlayerByGuestId(guestId);
+    return player?.username ?? null;
   }
 }

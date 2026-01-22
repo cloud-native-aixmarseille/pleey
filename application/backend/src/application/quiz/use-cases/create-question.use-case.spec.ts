@@ -1,11 +1,12 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { describe, expect, it } from 'vitest';
+import { QuestionType } from '../../../domain/quiz/entities/question';
+import { QuizErrorCode } from '../../../domain/quiz/enums/quiz-error-code.enum';
 import {
   createQuestionRepositoryMock,
   createQuizRepositoryMock,
 } from '../../../test-utils/mock-factories';
 import type { CreateQuestionDto } from '../dto/create-question.dto';
-import { QuizErrorCode } from '../enums/quiz-error-code.enum';
 import { CreateQuestionUseCase } from './create-question.use-case';
 
 describe('CreateQuestionUseCase', () => {
@@ -17,8 +18,11 @@ describe('CreateQuestionUseCase', () => {
     const dto: CreateQuestionDto = {
       quizId: 1,
       questionText: 'Q',
-      type: 'truefalse',
-      correctAnswer: 'true',
+      type: QuestionType.TRUE_FALSE,
+      answers: [
+        { text: null, position: 0, isCorrect: true },
+        { text: null, position: 1, isCorrect: false },
+      ],
     };
 
     await expect(useCase.execute(dto)).rejects.toBeInstanceOf(NotFoundException);
@@ -33,8 +37,11 @@ describe('CreateQuestionUseCase', () => {
     const dto: CreateQuestionDto = {
       quizId: 1,
       questionText: 'Q',
-      type: 'truefalse',
-      correctAnswer: 'maybe',
+      type: QuestionType.TRUE_FALSE,
+      answers: [
+        { text: null, position: 0, isCorrect: false },
+        { text: null, position: 1, isCorrect: false },
+      ],
     };
 
     await expect(useCase.execute(dto)).rejects.toBeInstanceOf(BadRequestException);
@@ -50,8 +57,11 @@ describe('CreateQuestionUseCase', () => {
     const dto: CreateQuestionDto = {
       quizId: 1,
       questionText: 'Q',
-      type: 'truefalse',
-      correctAnswer: 'true',
+      type: QuestionType.TRUE_FALSE,
+      answers: [
+        { text: null, position: 0, isCorrect: true },
+        { text: null, position: 1, isCorrect: false },
+      ],
     };
 
     await useCase.execute(dto);

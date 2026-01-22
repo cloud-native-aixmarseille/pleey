@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import type { NavigateFunction } from "react-router-dom";
 import type { Question, Quiz } from "../../../../domains/quiz/types";
-import type { CreateQuestionPayload } from "../../../../domains/quiz/quiz.service";
+import type { CreateQuestionPayload } from "../../../../domains/quiz/quiz.payloads";
 
 type LoadQuizQuestions = (token: string, quizId: number) => Promise<Question[]>;
 

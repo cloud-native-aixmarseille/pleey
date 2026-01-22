@@ -1,6 +1,6 @@
 import type { Mocked } from 'vitest';
-
-import type { OrganizationMemberRepository } from '../../domain/organization/repositories/organization-member.repository.interface';
+import type { OrganizationRepository } from '../../domain/organization/ports/organization.repository';
+import type { OrganizationMemberRepository } from '../../domain/organization/ports/organization-member.repository';
 
 import {
   applyMockFactoryConfig,
@@ -23,6 +23,11 @@ const ORGANIZATION_MEMBER_REPOSITORY_METHOD_KINDS: MockFactoryMethodKinds<Organi
     returned: [],
   };
 
+const ORGANIZATION_REPOSITORY_METHOD_KINDS: MockFactoryMethodKinds<OrganizationRepository> = {
+  resolved: ['create', 'findById', 'findByIds', 'findByName', 'findAll', 'update', 'delete'],
+  returned: [],
+};
+
 export const createOrganizationMemberRepositoryMock = (
   config: MockFactoryConfig<OrganizationMemberRepository> = {},
 ): Mocked<OrganizationMemberRepository> => {
@@ -37,5 +42,22 @@ export const createOrganizationMemberRepositoryMock = (
   };
 
   applyMockFactoryConfig(mock, config, ORGANIZATION_MEMBER_REPOSITORY_METHOD_KINDS);
+  return mock;
+};
+
+export const createOrganizationRepositoryMock = (
+  config: MockFactoryConfig<OrganizationRepository> = {},
+): Mocked<OrganizationRepository> => {
+  const mock: Mocked<OrganizationRepository> = {
+    create: mockFn<OrganizationRepository['create']>(),
+    findById: mockFn<OrganizationRepository['findById']>(),
+    findByIds: mockFn<OrganizationRepository['findByIds']>(),
+    findByName: mockFn<OrganizationRepository['findByName']>(),
+    findAll: mockFn<OrganizationRepository['findAll']>(),
+    update: mockFn<OrganizationRepository['update']>(),
+    delete: mockFn<OrganizationRepository['delete']>(),
+  };
+
+  applyMockFactoryConfig(mock, config, ORGANIZATION_REPOSITORY_METHOD_KINDS);
   return mock;
 };

@@ -1,5 +1,5 @@
-import { IGameRepository } from "../../../domains/game/ports/game.repository.interface";
-import { IGameSocket } from "../../../domains/game/ports/game-socket.interface";
+import { GameRepository } from "../../../domains/game/ports/game.repository";
+import { GameSocket } from "../../../domains/game/ports/game-socket";
 import type { GameSession } from "../../../domains/game/types";
 import type { User } from "../../../domains/auth/types";
 
@@ -21,8 +21,8 @@ export interface LaunchQuizResponse {
  */
 export class LaunchQuizUseCase {
   constructor(
-    private readonly gameRepository: IGameRepository,
-    private readonly gameSocket: IGameSocket,
+    private readonly gameRepository: GameRepository,
+    private readonly gameSocket: GameSocket,
   ) { }
 
   async execute(request: LaunchQuizRequest): Promise<LaunchQuizResponse> {
