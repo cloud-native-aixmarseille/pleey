@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@apollo/server": "^5.2.0",
-    "@dicebear/collection": "^9.2.4",
+    "@dicebear/collection": "^9.3.1",
     "@dicebear/core": "^9.2.4",
     "@nestjs/apollo": "^13.2.3",
     "@nestjs/common": "^11.1.11",
