@@ -1,21 +1,33 @@
-import type { PrismaService } from '../../../infrastructure/database/prisma.service';
+import { GameType } from '../../../domain/game/enums/game-type.enum';
+import type { ProjectId } from '../../../domain/project/entities/project';
+import type { PrismaService } from '../../../infrastructure/database/prisma-service';
 import type { QuizFixtureParams } from '../unit/quiz.fixture';
-import { createQuizFixture } from '../unit/quiz.fixture';
 
-export type PersistedQuizFixtureParams = QuizFixtureParams;
+export type PersistedQuizFixtureParams = QuizFixtureParams & {
+  projectId: ProjectId;
+  gameTitle?: string;
+  gameDescription?: string | null;
+};
 
 export const createPersistedQuizFixture = async (
   prisma: PrismaService,
-  params: PersistedQuizFixtureParams = {},
+  params: PersistedQuizFixtureParams,
 ) => {
-  const fixture = createQuizFixture(params);
+  const gameTitle = params.gameTitle ?? 'Arcade Trivia';
+  const gameDescription = params.gameDescription ?? null;
+
+  const game = await prisma.game.create({
+    data: {
+      type: GameType.QUIZ,
+      title: gameTitle,
+      description: gameDescription,
+      projectId: params.projectId,
+    },
+  });
 
   return prisma.quiz.create({
     data: {
-      title: fixture.title,
-      description: fixture.description,
-      createdById: fixture.createdById,
-      organizationId: fixture.organizationId,
+      gameId: game.id,
     },
   });
 };

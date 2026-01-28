@@ -16,37 +16,65 @@ import { ConsoleMetricExporter, PeriodicExportingMetricReader } from '@opentelem
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
 
+export type OpenTelemetryConfig = {
+  consoleDiagnosticsEnabled: boolean;
+  consoleLogsEnabled: boolean;
+  endpoint?: string;
+  environment: string;
+  headersJson?: string;
+};
+
+const DEFAULT_TELEMETRY_CONFIG: OpenTelemetryConfig = {
+  consoleDiagnosticsEnabled: true,
+  consoleLogsEnabled: true,
+  environment: 'development',
+};
+
+let telemetryConfig: OpenTelemetryConfig = DEFAULT_TELEMETRY_CONFIG;
+
+function createResource(config: OpenTelemetryConfig) {
+  return resourceFromAttributes({
+    [ATTR_SERVICE_NAME]: 'quiz-backend',
+    [ATTR_SERVICE_VERSION]: '1.0.0',
+    environment: config.environment,
+  });
+}
+
 /**
  * OpenTelemetry Configuration
  * Sets up tracing, metrics, and logging for the application
  */
-
-// Enable diagnostic logging for OpenTelemetry (only in development)
-if (process.env.NODE_ENV !== 'production') {
-  diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.INFO);
-}
-
-// Define service resource attributes
-const resource = resourceFromAttributes({
-  [ATTR_SERVICE_NAME]: 'quiz-backend',
-  [ATTR_SERVICE_VERSION]: '1.0.0',
-  environment: process.env.NODE_ENV || 'development',
-});
+let resource = createResource(telemetryConfig);
 
 // Configure Logger Provider
-export const loggerProvider = new LoggerProvider({
+let loggerProvider = new LoggerProvider({
   resource,
 });
-export let otelSDK: NodeSDK | null = null;
+let otelSDK: NodeSDK | null = null;
 
 let logProcessorRegistered = false;
 let shutdownHookRegistered = false;
 
-function parseHeaders(): Record<string, string> | undefined {
-  if (!process.env.OTEL_EXPORTER_OTLP_HEADERS) return undefined;
+export function getLoggerProvider(): LoggerProvider {
+  return loggerProvider;
+}
+
+export function isTelemetryConsoleLoggingEnabled(): boolean {
+  return telemetryConfig.consoleLogsEnabled;
+}
+
+function applyTelemetryConfig(config: OpenTelemetryConfig): void {
+  telemetryConfig = config;
+  resource = createResource(config);
+  loggerProvider = new LoggerProvider({ resource });
+  logProcessorRegistered = false;
+}
+
+function parseHeaders(headersJson?: string): Record<string, string> | undefined {
+  if (!headersJson) return undefined;
 
   try {
-    return JSON.parse(process.env.OTEL_EXPORTER_OTLP_HEADERS);
+    return JSON.parse(headersJson) as Record<string, string>;
   } catch (error: unknown) {
     console.warn('[Telemetry] Failed to parse OTEL_EXPORTER_OTLP_HEADERS, ignoring value.', error);
     return undefined;
@@ -83,8 +111,8 @@ async function isEndpointReachable(endpoint: string): Promise<boolean> {
   }
 }
 
-function buildExporters(useConsoleExporters: boolean, endpoint?: string) {
-  const headers = endpoint ? parseHeaders() : undefined;
+function buildExporters(useConsoleExporters: boolean, endpoint?: string, headersJson?: string) {
+  const headers = endpoint ? parseHeaders(headersJson) : undefined;
 
   const traceExporter =
     !useConsoleExporters && endpoint
@@ -117,12 +145,18 @@ function buildExporters(useConsoleExporters: boolean, endpoint?: string) {
  * Initialize OpenTelemetry SDK
  * Should be called before any other application code
  */
-export async function initializeOpenTelemetry(): Promise<void> {
+export async function initializeOpenTelemetry(config: OpenTelemetryConfig): Promise<void> {
   if (otelSDK) {
     return;
   }
 
-  const endpoint = process.env.OTEL_EXPORTER_OTLP_ENDPOINT?.trim();
+  applyTelemetryConfig(config);
+
+  if (config.consoleDiagnosticsEnabled) {
+    diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.INFO);
+  }
+
+  const endpoint = config.endpoint?.trim();
   let useConsoleExporters = !endpoint;
 
   if (endpoint && !(await isEndpointReachable(endpoint))) {
@@ -137,6 +171,7 @@ export async function initializeOpenTelemetry(): Promise<void> {
   const { traceExporter, metricExporter, logExporter } = buildExporters(
     useConsoleExporters,
     activeEndpoint,
+    config.headersJson,
   );
 
   if (!logProcessorRegistered) {

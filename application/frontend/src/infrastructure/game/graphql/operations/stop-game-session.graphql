@@ -1,0 +1,11 @@
+mutation StopDashboardGameSession($sessionId: Int!) {
+  stopGameSession(sessionId: $sessionId) {
+    sessionId
+    gameId
+    pin
+    status
+    currentStageId
+    participantRole
+    createdAt
+  }
+}

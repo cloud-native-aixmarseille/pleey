@@ -1,5 +1,5 @@
-import type { User, UserId } from '../entities/user.entity';
-import type { AvatarUri } from '../types/avatar-uri';
+import type { Media } from '../../media/entities/media';
+import type { User, UserId } from '../entities/user';
 
 export const UserRepositoryProvider = Symbol('UserRepository');
 
@@ -11,13 +11,7 @@ export interface UserRepository {
   /**
    * Creates a new user
    */
-  create(
-    username: string,
-    email: string,
-    password: string,
-    isAdmin?: boolean,
-    avatarUri?: AvatarUri | null,
-  ): Promise<User>;
+  create(username: string, email: string, password: string, avatar?: Media | null): Promise<User>;
 
   /**
    * Finds a user by email
@@ -47,7 +41,7 @@ export interface UserRepository {
     updates: {
       username?: string;
       email?: string;
-      avatarUri?: AvatarUri | null;
+      avatar?: Media | null;
     },
   ): Promise<User>;
 

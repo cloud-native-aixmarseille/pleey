@@ -1,38 +1,35 @@
 import { describe, expect, it } from 'vitest';
-import { createGameScoreFixture } from '../../../test-utils/fixtures/unit';
+import { createGameScoreFixture } from '../../../test-utils/fixtures/unit/game-score.fixture';
 
 describe('GameScore', () => {
-  describe('constructor with correct answer', () => {
-    it('should calculate total points with base points and time bonus for correct answer', () => {
+  describe('constructor with correct action', () => {
+    it('should calculate total points with base points and time bonus for correct action', () => {
       const score = createGameScoreFixture({
         basePoints: 1000,
-        timeLeft: 10,
-        timeLimit: 20,
+        timeBonus: 250,
         isCorrect: true,
       });
 
       expect(score.getBasePoints()).toBe(1000);
-      expect(score.getTimeBonus()).toBe(250); // (10/20) * 500 = 250
+      expect(score.getTimeBonus()).toBe(250);
       expect(score.getTotalPoints()).toBe(1250); // 1000 + 250
     });
 
-    it('should calculate full time bonus when all time is left', () => {
+    it('should use the provided time bonus when all time is left', () => {
       const score = createGameScoreFixture({
         basePoints: 1000,
-        timeLeft: 20,
-        timeLimit: 20,
+        timeBonus: 500,
         isCorrect: true,
       });
 
-      expect(score.getTimeBonus()).toBe(500); // (20/20) * 500 = 500
+      expect(score.getTimeBonus()).toBe(500);
       expect(score.getTotalPoints()).toBe(1500);
     });
 
-    it('should calculate zero time bonus when no time is left', () => {
+    it('should accept zero time bonus when no time is left', () => {
       const score = createGameScoreFixture({
         basePoints: 1000,
-        timeLeft: 0,
-        timeLimit: 20,
+        timeBonus: 0,
         isCorrect: true,
       });
 
@@ -40,38 +37,35 @@ describe('GameScore', () => {
       expect(score.getTotalPoints()).toBe(1000);
     });
 
-    it('should calculate small time bonus when little time is left', () => {
+    it('should use a small time bonus when little time is left', () => {
       const score = createGameScoreFixture({
         basePoints: 1000,
-        timeLeft: 1,
-        timeLimit: 20,
+        timeBonus: 25,
         isCorrect: true,
       });
 
-      expect(score.getTimeBonus()).toBe(25); // (1/20) * 500 = 25
+      expect(score.getTimeBonus()).toBe(25);
       expect(score.getTotalPoints()).toBe(1025);
     });
   });
 
-  describe('constructor with incorrect answer', () => {
-    it('should return zero total points for incorrect answer', () => {
+  describe('constructor with incorrect action', () => {
+    it('should return zero total points for incorrect action', () => {
       const score = createGameScoreFixture({
         basePoints: 1000,
-        timeLeft: 15,
-        timeLimit: 20,
+        timeBonus: 375,
         isCorrect: false,
       });
 
       expect(score.getBasePoints()).toBe(1000);
-      expect(score.getTimeBonus()).toBe(375); // Still calculated
+      expect(score.getTimeBonus()).toBe(375);
       expect(score.getTotalPoints()).toBe(0); // But total is 0 for incorrect
     });
 
     it('should return zero points even with full time bonus', () => {
       const score = createGameScoreFixture({
         basePoints: 1000,
-        timeLeft: 20,
-        timeLimit: 20,
+        timeBonus: 500,
         isCorrect: false,
       });
 
@@ -80,11 +74,10 @@ describe('GameScore', () => {
   });
 
   describe('edge cases', () => {
-    it('should handle negative time left', () => {
+    it('should allow zero time bonus for negative time left', () => {
       const score = createGameScoreFixture({
         basePoints: 1000,
-        timeLeft: -5,
-        timeLimit: 20,
+        timeBonus: 0,
         isCorrect: true,
       });
 
@@ -92,11 +85,10 @@ describe('GameScore', () => {
       expect(score.getTotalPoints()).toBe(1000);
     });
 
-    it('should handle zero time limit', () => {
+    it('should allow zero time bonus for zero time limit', () => {
       const score = createGameScoreFixture({
         basePoints: 1000,
-        timeLeft: 10,
-        timeLimit: 0,
+        timeBonus: 0,
         isCorrect: true,
       });
 
@@ -104,11 +96,10 @@ describe('GameScore', () => {
       expect(score.getTotalPoints()).toBe(1000);
     });
 
-    it('should handle negative time limit', () => {
+    it('should allow zero time bonus for negative time limit', () => {
       const score = createGameScoreFixture({
         basePoints: 1000,
-        timeLeft: 10,
-        timeLimit: -20,
+        timeBonus: 0,
         isCorrect: true,
       });
 
@@ -116,12 +107,10 @@ describe('GameScore', () => {
       expect(score.getTotalPoints()).toBe(1000);
     });
 
-    it('should floor time bonus to integer', () => {
-      // (7/20) * 500 = 175, should be floored
+    it('should keep time bonus as provided', () => {
       const score = createGameScoreFixture({
         basePoints: 1000,
-        timeLeft: 7,
-        timeLimit: 20,
+        timeBonus: 175,
         isCorrect: true,
       });
 
@@ -134,13 +123,12 @@ describe('GameScore', () => {
     it('should return correct values from getters', () => {
       const score = createGameScoreFixture({
         basePoints: 800,
-        timeLeft: 12,
-        timeLimit: 30,
+        timeBonus: 200,
         isCorrect: true,
       });
 
       expect(score.getBasePoints()).toBe(800);
-      expect(score.getTimeBonus()).toBe(200); // (12/30) * 500 = 200
+      expect(score.getTimeBonus()).toBe(200);
       expect(score.getTotalPoints()).toBe(1000); // 800 + 200
     });
   });

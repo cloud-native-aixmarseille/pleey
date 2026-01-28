@@ -1,4 +1,4 @@
-import type { UserId } from '../../auth/entities/user.entity';
+import type { UserId } from '../../auth/entities/user';
 import { OrganizationRole } from '../enums/organization-role.enum';
 import type { OrganizationId } from './organization';
 
@@ -25,17 +25,17 @@ export class OrganizationMember {
   }
 
   /**
-   * Checks if the member is an admin
+   * Checks if the member is a manager
    */
-  isAdmin(): boolean {
-    return this.role === OrganizationRole.ADMIN;
+  isManager(): boolean {
+    return this.role === OrganizationRole.MANAGER;
   }
 
   /**
-   * Checks if the member has admin privileges (owner or admin)
+   * Checks if the member has management privileges (owner or manager)
    */
-  hasAdminPrivileges(): boolean {
-    return this.isOwner() || this.isAdmin();
+  hasManagementPrivileges(): boolean {
+    return this.isOwner() || this.isManager();
   }
 
   /**
@@ -49,14 +49,14 @@ export class OrganizationMember {
    * Checks if a member can manage other members
    */
   canManageMembers(): boolean {
-    return this.hasAdminPrivileges();
+    return this.hasManagementPrivileges();
   }
 
   /**
-   * Checks if a member can create quizzes
+   * Checks if a member can create games
    */
-  canCreateQuizzes(): boolean {
-    // All members can create quizzes by default
+  canCreateGames(): boolean {
+    // All members can create games by default
     return true;
   }
 }

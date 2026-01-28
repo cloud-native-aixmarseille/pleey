@@ -1,6 +1,6 @@
 import type { Mocked } from 'vitest';
 
-import type { ScoreRepository } from '../../domain/game/ports/score.repository';
+import type { ScoreRepository } from '../../domain/game/ports/repositories/score.repository';
 
 import {
   applyMockFactoryConfig,
@@ -10,13 +10,7 @@ import {
 } from './mock-factory.utils';
 
 const SCORE_REPOSITORY_METHOD_KINDS: MockFactoryMethodKinds<ScoreRepository> = {
-  resolved: [
-    'create',
-    'findBySessionId',
-    'findBySessionAndUser',
-    'calculateTotalScore',
-    'getLeaderboard',
-  ],
+  resolved: ['create', 'calculateTotalScore', 'getLeaderboard'],
   returned: [],
 };
 
@@ -25,8 +19,6 @@ export const createScoreRepositoryMock = (
 ): Mocked<ScoreRepository> => {
   const mock: Mocked<ScoreRepository> = {
     create: mockFn<ScoreRepository['create']>(),
-    findBySessionId: mockFn<ScoreRepository['findBySessionId']>(),
-    findBySessionAndUser: mockFn<ScoreRepository['findBySessionAndUser']>(),
     calculateTotalScore: mockFn<ScoreRepository['calculateTotalScore']>(),
     getLeaderboard: mockFn<ScoreRepository['getLeaderboard']>(),
   };

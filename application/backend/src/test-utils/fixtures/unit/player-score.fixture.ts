@@ -1,4 +1,4 @@
-import type { UserId } from '../../../domain/auth/entities/user.entity';
+import type { UserId } from '../../../domain/auth/entities/user';
 import { PlayerScore } from '../../../domain/game/entities/player-score';
 import type { GuestId } from '../../../domain/game/entities/player-state';
 

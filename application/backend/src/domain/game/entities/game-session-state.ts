@@ -1,25 +1,32 @@
-import type { UserId } from '../../auth/entities/user.entity';
-import { Question, type QuestionId, type QuestionType } from '../../quiz/entities/question';
-import { QuestionAnswer, type QuestionAnswerId } from '../../quiz/entities/question-answer';
-import type { QuizId } from '../../quiz/entities/quiz';
+import type { UserId } from '../../auth/entities/user';
+import type { GameId } from '../entities/game';
 import { GameErrorCode } from '../enums/game-error-code.enum';
+import type { GameType } from '../enums/game-type.enum';
 import type { GameSessionId } from './game-session';
-import type { PlayerAnswerProps } from './player-answer';
-import { PlayerAnswer } from './player-answer';
+import {
+  GameAction,
+  type GameActionId,
+  GameStage,
+  type GameStageId,
+  type GameStageType,
+} from './game-stage';
+import type { PlayerActionProps } from './player-action';
+import { PlayerAction } from './player-action';
+import type { GuestId, PlayerIdentity } from './player-identity';
 import type { PlayerScoreProps } from './player-score';
 import { PlayerScore } from './player-score';
-import type { GuestId, PlayerStateProps } from './player-state';
+import type { PlayerStateProps } from './player-state';
 import { PlayerState } from './player-state';
 
-export interface QuestionSnapshot {
-  id: QuestionId;
-  quizId: QuizId;
+interface StageSnapshot {
+  id: GameStageId;
+  sourceId: number;
   position: number;
-  questionText: string;
-  type: QuestionType;
-  answers: Array<{
-    id: QuestionAnswerId;
-    text: string | null;
+  text: string;
+  type: GameStageType;
+  actions: Array<{
+    id: GameActionId;
+    text: string;
     position: number;
     isCorrect: boolean;
   }>;
@@ -29,23 +36,27 @@ export interface QuestionSnapshot {
 
 export interface GameSessionStateSnapshot {
   sessionId: GameSessionId;
-  quizId: QuizId;
+  gameId: GameId;
+  gameTitle: string;
+  gameType: GameType;
   hostId: UserId;
-  questions: QuestionSnapshot[];
-  currentQuestionId: QuestionId | null;
+  stages: StageSnapshot[];
+  currentStageId: GameStageId | null;
   players: PlayerStateProps[];
   scores: PlayerScoreProps[];
-  currentQuestionAnswers: PlayerAnswerProps[];
-  questionStartTime?: number;
+  currentStageActions: PlayerActionProps[];
+  stageStartTime?: number;
   pausedTimeLeft?: number;
 }
 
-export interface GameSessionStateProps {
+interface GameSessionStateProps {
   sessionId: GameSessionId;
-  quizId: QuizId;
+  gameId: GameId;
+  gameTitle: string;
+  gameType: GameType;
   hostId: UserId;
-  questions: Question[];
-  currentQuestionId?: QuestionId | null;
+  stages: GameStage[];
+  currentStageId?: GameStageId | null;
 }
 
 /**
@@ -54,26 +65,30 @@ export interface GameSessionStateProps {
  */
 export class GameSessionState {
   readonly sessionId: GameSessionId;
-  readonly quizId: QuizId;
+  readonly gameId: GameId;
+  readonly gameTitle: string;
+  readonly gameType: GameType;
   readonly hostId: UserId;
-  readonly questions: Question[];
+  readonly stages: GameStage[];
 
-  private _currentQuestionId: QuestionId | null;
+  private _currentStageId: GameStageId | null;
   private _players: Map<string, PlayerState>;
   private _scores: Map<string, PlayerScore>;
-  private _currentQuestionAnswers: Map<string, PlayerAnswer>;
-  private _questionStartTime?: number;
+  private _currentStageActions: Map<string, PlayerAction>;
+  private _stageStartTime?: number;
   private _pausedTimeLeft?: number;
 
   private constructor(props: GameSessionStateProps) {
     this.sessionId = props.sessionId;
-    this.quizId = props.quizId;
+    this.gameId = props.gameId;
+    this.gameTitle = props.gameTitle;
+    this.gameType = props.gameType;
     this.hostId = props.hostId;
-    this.questions = props.questions;
-    this._currentQuestionId = props.currentQuestionId ?? null;
+    this.stages = props.stages;
+    this._currentStageId = props.currentStageId ?? null;
     this._players = new Map();
     this._scores = new Map();
-    this._currentQuestionAnswers = new Map();
+    this._currentStageActions = new Map();
   }
 
   static create(props: GameSessionStateProps): GameSessionState {
@@ -83,28 +98,30 @@ export class GameSessionState {
   static fromSnapshot(snapshot: GameSessionStateSnapshot): GameSessionState {
     const state = new GameSessionState({
       sessionId: snapshot.sessionId,
-      quizId: snapshot.quizId,
+      gameId: snapshot.gameId,
+      gameTitle: snapshot.gameTitle,
+      gameType: snapshot.gameType,
       hostId: snapshot.hostId,
-      questions: snapshot.questions.map(
-        (q) =>
-          new Question(
-            q.id,
-            q.quizId,
-            q.position,
-            q.questionText,
-            q.type,
-            q.answers.map(
-              (answer) =>
-                new QuestionAnswer(answer.id, q.id, answer.text, answer.position, answer.isCorrect),
+      stages: snapshot.stages.map(
+        (p) =>
+          new GameStage(
+            p.id,
+            p.sourceId,
+            p.position,
+            p.text,
+            p.type,
+            p.actions.map(
+              (action) =>
+                new GameAction(action.id, p.id, action.text, action.position, action.isCorrect),
             ),
-            q.timeLimit,
-            q.points,
+            p.timeLimit,
+            p.points,
           ),
       ),
-      currentQuestionId: snapshot.currentQuestionId,
+      currentStageId: snapshot.currentStageId,
     });
 
-    state._questionStartTime = snapshot.questionStartTime;
+    state._stageStartTime = snapshot.stageStartTime;
     state._pausedTimeLeft = snapshot.pausedTimeLeft;
 
     state._players = new Map(
@@ -118,10 +135,10 @@ export class GameSessionState {
       snapshot.scores.map((scoreProps) => [scoreProps.playerId, PlayerScore.create(scoreProps)]),
     );
 
-    state._currentQuestionAnswers = new Map(
-      snapshot.currentQuestionAnswers.map((answerProps) => [
-        answerProps.playerId,
-        PlayerAnswer.create(answerProps),
+    state._currentStageActions = new Map(
+      snapshot.currentStageActions.map((actionProps) => [
+        actionProps.playerId,
+        PlayerAction.create(actionProps),
       ]),
     );
 
@@ -131,24 +148,26 @@ export class GameSessionState {
   toSnapshot(): GameSessionStateSnapshot {
     return {
       sessionId: this.sessionId,
-      quizId: this.quizId,
+      gameId: this.gameId,
+      gameTitle: this.gameTitle,
+      gameType: this.gameType,
       hostId: this.hostId,
-      questions: this.questions.map((q) => ({
-        id: q.id,
-        quizId: q.quizId,
-        position: q.position,
-        questionText: q.questionText,
-        type: q.type,
-        answers: q.answers.map((answer) => ({
-          id: answer.id,
-          text: answer.text,
-          position: answer.position,
-          isCorrect: answer.isCorrect,
+      stages: this.stages.map((p) => ({
+        id: p.id,
+        sourceId: p.sourceId,
+        position: p.position,
+        text: p.text,
+        type: p.type,
+        actions: p.actions.map((action) => ({
+          id: action.id,
+          text: action.text,
+          position: action.position,
+          isCorrect: action.isCorrect,
         })),
-        timeLimit: q.timeLimit,
-        points: q.points,
+        timeLimit: p.timeLimit,
+        points: p.points,
       })),
-      currentQuestionId: this._currentQuestionId,
+      currentStageId: this._currentStageId,
       players: this.getAllPlayers().map((p) => {
         if (p.userId !== undefined) {
           return {
@@ -187,55 +206,67 @@ export class GameSessionState {
         }
         throw new Error(GameErrorCode.PLAYER_SCORE_IDENTITY_INVALID);
       }),
-      currentQuestionAnswers: this.getAllAnswers().map((a) => ({
-        playerId: a.playerId,
-        answerId: a.answerId,
-        isCorrect: a.isCorrect,
-        points: a.points,
-        timeLeft: a.timeLeft,
+      currentStageActions: this.getAllActions().map((action) => ({
+        playerId: action.playerId,
+        actionId: action.actionId,
+        isCorrect: action.isCorrect,
+        points: action.points,
+        timeLeft: action.timeLeft,
       })),
-      questionStartTime: this._questionStartTime,
+      stageStartTime: this._stageStartTime,
       pausedTimeLeft: this._pausedTimeLeft,
     };
   }
 
   // Getters
-  get currentQuestionId(): QuestionId | null {
-    return this._currentQuestionId;
+  get currentStageId(): GameStageId | null {
+    return this._currentStageId;
   }
 
-  get currentQuestion(): Question | undefined {
-    if (!this._currentQuestionId) {
+  get currentStage(): GameStage | undefined {
+    if (!this._currentStageId) {
       return undefined;
     }
-    return this.questions.find((question) => question.id === this._currentQuestionId);
+    return this.stages.find((stage) => stage.id === this._currentStageId);
   }
 
-  get questionStartTime(): number | undefined {
-    return this._questionStartTime;
+  getCorrectActionIds(): GameActionId[] {
+    const currentStage = this.currentStage;
+    if (!currentStage) {
+      return [];
+    }
+    return currentStage.getCorrectActions().map((action) => action.id);
+  }
+
+  get stageStartTime(): number | undefined {
+    return this._stageStartTime;
   }
 
   get pausedTimeLeft(): number | undefined {
     return this._pausedTimeLeft;
   }
 
-  get hasMoreQuestions(): boolean {
-    if (this.questions.length === 0) {
+  get hasMoreStages(): boolean {
+    if (this.stages.length === 0) {
       return false;
     }
-    const currentIndex = this.getCurrentQuestionIndex();
-    if (currentIndex < 0) {
+    const currentStage = this.currentStage;
+    if (!currentStage) {
       return true;
     }
-    return currentIndex + 1 < this.questions.length;
+    return this.stages.some((stage) => stage.position > currentStage.position);
   }
 
-  get totalQuestions(): number {
-    return this.questions.length;
+  get canRewindStage(): boolean {
+    return this.stages.length > 0 && this.currentStage !== undefined;
   }
 
-  get hasQuestions(): boolean {
-    return this.questions.length > 0;
+  get totalStages(): number {
+    return this.stages.length;
+  }
+
+  get hasStages(): boolean {
+    return this.stages.length > 0;
   }
 
   // Player management
@@ -250,6 +281,16 @@ export class GameSessionState {
 
   removePlayerBySocketId(socketId: string): boolean {
     return this._players.delete(socketId);
+  }
+
+  removePlayerByUserId(userId: UserId): boolean {
+    const player = this.findPlayerByUserId(userId);
+
+    if (!player) {
+      return false;
+    }
+
+    return this._players.delete(player.socketId);
   }
 
   getPlayerBySocketId(socketId: string): PlayerState | undefined {
@@ -307,11 +348,7 @@ export class GameSessionState {
   }
 
   // Score management
-  getOrCreateScore(
-    playerId: string,
-    username: string,
-    identity: { userId: UserId; guestId?: never } | { userId?: never; guestId: GuestId },
-  ): PlayerScore {
+  getOrCreateScore(playerId: string, username: string, identity: PlayerIdentity): PlayerScore {
     let score = this._scores.get(playerId);
     if (!score) {
       score = PlayerScore.createNew(playerId, username, identity);
@@ -326,68 +363,100 @@ export class GameSessionState {
     );
   }
 
-  // Answer management
-  hasPlayerAnswered(playerId: string): boolean {
-    return this._currentQuestionAnswers.has(playerId);
+  // Action management
+  hasPlayerActed(playerId: string): boolean {
+    return this._currentStageActions.has(playerId);
   }
 
-  recordAnswer(answer: PlayerAnswer): void {
-    this._currentQuestionAnswers.set(answer.playerId, answer);
+  recordAction(action: PlayerAction): void {
+    this._currentStageActions.set(action.playerId, action);
   }
 
-  getAnswer(playerId: string): PlayerAnswer | undefined {
-    return this._currentQuestionAnswers.get(playerId);
+  getAction(playerId: string): PlayerAction | undefined {
+    return this._currentStageActions.get(playerId);
   }
 
-  getAllAnswers(): PlayerAnswer[] {
-    return Array.from(this._currentQuestionAnswers.values());
+  getAllActions(): PlayerAction[] {
+    return Array.from(this._currentStageActions.values());
   }
 
-  get answeredCount(): number {
-    return this._currentQuestionAnswers.size;
+  get actionCount(): number {
+    return this._currentStageActions.size;
   }
 
-  haveAllNonHostPlayersAnswered(): boolean {
+  haveAllNonHostPlayersActed(): boolean {
     const nonHostPlayers = this.getNonHostPlayers();
-    return nonHostPlayers.length > 0 && this.answeredCount === nonHostPlayers.length;
+    return nonHostPlayers.length > 0 && this.actionCount === nonHostPlayers.length;
   }
 
-  // Question flow management
-  startQuestion(): void {
-    this._currentQuestionId = this.questions[0]?.id ?? null;
-    this._currentQuestionAnswers.clear();
-    this._questionStartTime = Date.now();
+  // Stage flow management
+  startFirstStage(): void {
+    this._currentStageId = this.stages[0]?.id ?? null;
+    this._currentStageActions.clear();
+    this._stageStartTime = Date.now();
     this._pausedTimeLeft = undefined;
   }
 
-  advanceToNextQuestion(): void {
-    if (this.questions.length === 0) {
-      this._currentQuestionId = null;
+  advanceToNextStage(): void {
+    if (this.stages.length === 0) {
+      this._currentStageId = null;
     } else {
-      const currentIndex = this.getCurrentQuestionIndex();
-      if (currentIndex < 0) {
-        this._currentQuestionId = this.questions[0].id;
-      } else if (currentIndex + 1 < this.questions.length) {
-        this._currentQuestionId = this.questions[currentIndex + 1].id;
+      const nextStage = this.resolveNextStage();
+      if (nextStage) {
+        this._currentStageId = nextStage.id;
       }
     }
-    this._currentQuestionAnswers.clear();
-    this._questionStartTime = Date.now();
+    this._currentStageActions.clear();
+    this._stageStartTime = Date.now();
     this._pausedTimeLeft = undefined;
   }
 
-  clearAnswersForNewQuestion(): void {
-    this._currentQuestionAnswers.clear();
-    this._questionStartTime = Date.now();
+  rewindToPreviousStage(): void {
+    if (this.stages.length === 0) {
+      this._currentStageId = null;
+    } else {
+      const previousStage = this.resolvePreviousStage();
+      if (!previousStage) {
+        this._currentStageId = null;
+      } else {
+        this._currentStageId = previousStage.id;
+      }
+    }
+
+    this._currentStageActions.clear();
+    this._stageStartTime = this._currentStageId === null ? undefined : Date.now();
+    this._pausedTimeLeft = undefined;
+  }
+
+  returnToLobby(): void {
+    this._currentStageId = null;
+    this._currentStageActions.clear();
+    this._stageStartTime = undefined;
+    this._pausedTimeLeft = undefined;
+  }
+
+  restartCurrentStage(): void {
+    if (!this.currentStage) {
+      throw new Error(GameErrorCode.NO_CURRENT_STAGE_TO_RESUME);
+    }
+
+    this._currentStageActions.clear();
+    this._stageStartTime = Date.now();
+    this._pausedTimeLeft = undefined;
+  }
+
+  clearActionsForNewStage(): void {
+    this._currentStageActions.clear();
+    this._stageStartTime = Date.now();
   }
 
   // Pause management
   pause(): number {
-    const timeLimit = this.currentQuestion?.timeLimit ?? 20;
+    const timeLimit = this.currentStage?.timeLimit ?? 20;
     let remainingTime = timeLimit;
 
-    if (this._questionStartTime) {
-      const elapsedSeconds = Math.floor((Date.now() - this._questionStartTime) / 1000);
+    if (this._stageStartTime) {
+      const elapsedSeconds = Math.floor((Date.now() - this._stageStartTime) / 1000);
       remainingTime = Math.max(0, timeLimit - elapsedSeconds);
     }
 
@@ -396,18 +465,44 @@ export class GameSessionState {
   }
 
   resume(): number {
-    const currentQuestion = this.currentQuestion;
-    if (!currentQuestion) {
-      throw new Error(GameErrorCode.NO_CURRENT_QUESTION_TO_RESUME);
+    const currentStage = this.currentStage;
+    if (!currentStage) {
+      throw new Error(GameErrorCode.NO_CURRENT_STAGE_TO_RESUME);
     }
 
-    const remainingTime = this._pausedTimeLeft ?? currentQuestion.timeLimit;
+    const remainingTime = this._pausedTimeLeft ?? currentStage.timeLimit;
 
-    // Recalculate question start time for accurate tracking
-    this._questionStartTime = Date.now() - (currentQuestion.timeLimit - remainingTime) * 1000;
+    // Recalculate stage start time for accurate tracking
+    this._stageStartTime = Date.now() - (currentStage.timeLimit - remainingTime) * 1000;
     this._pausedTimeLeft = undefined;
 
     return remainingTime;
+  }
+
+  private resolveNextStage(): GameStage | undefined {
+    const orderedStages = this.getStagesOrderedByPosition();
+    const currentStage = this.currentStage;
+
+    if (!currentStage) {
+      return orderedStages[0];
+    }
+
+    return orderedStages.find((stage) => stage.position > currentStage.position);
+  }
+
+  private resolvePreviousStage(): GameStage | undefined {
+    const orderedStages = this.getStagesOrderedByPosition();
+    const currentStage = this.currentStage;
+
+    if (!currentStage) {
+      return undefined;
+    }
+
+    return orderedStages.findLast((stage) => stage.position < currentStage.position);
+  }
+
+  private getStagesOrderedByPosition(): GameStage[] {
+    return [...this.stages].sort((left, right) => left.position - right.position);
   }
 
   // Utility
@@ -421,12 +516,5 @@ export class GameSessionState {
       }
     }
     return undefined;
-  }
-
-  private getCurrentQuestionIndex(): number {
-    if (!this._currentQuestionId) {
-      return -1;
-    }
-    return this.questions.findIndex((question) => question.id === this._currentQuestionId);
   }
 }

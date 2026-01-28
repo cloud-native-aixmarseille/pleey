@@ -1,4 +1,4 @@
-import type { UserId } from '../../../domain/auth/entities/user.entity';
+import type { UserId } from '../../../domain/auth/entities/user';
 import type { OrganizationId } from '../../../domain/organization/entities/organization';
 import {
   OrganizationMember,

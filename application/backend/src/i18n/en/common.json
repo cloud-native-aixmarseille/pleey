@@ -1,0 +1,5 @@
+{
+  "errors": {
+    "unknownError": "An unexpected error occurred (code: {code})"
+  }
+}

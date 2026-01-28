@@ -1,0 +1,34 @@
+import { describe, expect, it } from 'vitest';
+import { AuthErrorCode } from '../../../../domain/auth/enums/auth-error-code.enum';
+import { Media } from '../../../../domain/media/entities/media';
+import { createUserFixture } from '../../../../test-utils/fixtures/unit/user.fixture';
+import { createUserRepositoryMock } from '../../../../test-utils/mock-factories/user-repository.mock-factory';
+import { GetUserAvatarUseCase } from './get-user-avatar-use-case';
+
+describe('GetUserAvatarUseCase', () => {
+  it('throws USER_NOT_FOUND when user does not exist', async () => {
+    const userRepository = createUserRepositoryMock({ findById: null });
+    const useCase = new GetUserAvatarUseCase(userRepository);
+
+    await expect(useCase.execute(1)).rejects.toThrow(AuthErrorCode.USER_NOT_FOUND);
+  });
+
+  it('throws AVATAR_NOT_FOUND when avatar url is missing', async () => {
+    const user = createUserFixture({ avatar: null });
+    const userRepository = createUserRepositoryMock({ findById: user });
+    const useCase = new GetUserAvatarUseCase(userRepository);
+
+    await expect(useCase.execute(1)).rejects.toThrow(AuthErrorCode.AVATAR_NOT_FOUND);
+  });
+
+  it('returns stored svg buffer when avatar is available', async () => {
+    const avatarBuffer = Buffer.from('<svg />', 'utf8');
+    const avatar = new Media(null, 'image/svg+xml', avatarBuffer);
+    const user = createUserFixture({ avatar });
+    const userRepository = createUserRepositoryMock({ findById: user });
+    const useCase = new GetUserAvatarUseCase(userRepository);
+    const result = await useCase.execute(1);
+
+    expect(result).toBe(avatar);
+  });
+});

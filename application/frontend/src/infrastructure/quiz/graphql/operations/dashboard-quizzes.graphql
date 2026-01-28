@@ -1,0 +1,10 @@
+query DashboardQuizzesByProject($projectId: Int) {
+  quizzes(projectId: $projectId) {
+    id
+    gameId
+    title
+    description
+    createdAt
+    questionCount
+  }
+}

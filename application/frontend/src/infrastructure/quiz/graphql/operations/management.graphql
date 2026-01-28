@@ -1,0 +1,68 @@
+query QuizQuestions($quizId: Int!) {
+  quizQuestions(quizId: $quizId) {
+    id
+    quizId
+    position
+    questionText
+    type
+    answers {
+      id
+      text
+      position
+      isCorrect
+    }
+    timeLimit
+    points
+  }
+}
+
+mutation UpdateQuiz($quizId: Int!, $input: UpdateQuizInput!) {
+  updateQuiz(quizId: $quizId, input: $input) {
+    id
+    gameId
+    title
+    description
+    createdAt
+    questionCount
+  }
+}
+
+mutation CreateQuestion($input: CreateQuestionInput!) {
+  createQuestion(input: $input) {
+    id
+    quizId
+    position
+    questionText
+    type
+    answers {
+      id
+      text
+      position
+      isCorrect
+    }
+    timeLimit
+    points
+  }
+}
+
+mutation UpdateQuestion($questionId: Int!, $input: UpdateQuestionInput!) {
+  updateQuestion(questionId: $questionId, input: $input) {
+    id
+    quizId
+    position
+    questionText
+    type
+    answers {
+      id
+      text
+      position
+      isCorrect
+    }
+    timeLimit
+    points
+  }
+}
+
+mutation DeleteQuestion($questionId: Int!) {
+  deleteQuestion(questionId: $questionId)
+}

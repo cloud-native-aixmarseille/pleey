@@ -21,7 +21,12 @@ spec:
         {{- toYaml .Values.valkey.podSecurityContext | nindent 8 }}
       containers:
         - name: valkey
-          image: {{ printf "%s:%s" .Values.valkey.image.repository .Values.valkey.image.tag | quote }}
+          {{- $valkeyImage := .Values.valkey.image.repository -}}
+          {{- if .Values.valkey.image.digest }}
+          image: {{ printf "%s@%s" $valkeyImage .Values.valkey.image.digest | quote }}
+          {{- else }}
+          image: {{ printf "%s:%s" $valkeyImage .Values.valkey.image.tag | quote }}
+          {{- end }}
           imagePullPolicy: {{ .Values.valkey.image.pullPolicy | default "IfNotPresent" }}
           securityContext:
             {{- toYaml .Values.valkey.securityContext | nindent 12 }}
@@ -36,6 +41,10 @@ spec:
               protocol: TCP
           resources:
             {{- toYaml .Values.valkey.resources | nindent 12 }}
+          livenessProbe:
+            {{- toYaml .Values.valkey.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.valkey.readinessProbe | nindent 12 }}
           volumeMounts:
             - name: data
               mountPath: /data

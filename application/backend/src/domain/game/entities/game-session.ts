@@ -1,26 +1,54 @@
-import type { UserId } from '../../auth/entities/user.entity';
-import type { QuestionId } from '../../quiz/entities/question';
-import type { QuizId } from '../../quiz/entities/quiz';
+import type { UserId } from '../../auth/entities/user';
 import { GameErrorCode } from '../enums/game-error-code.enum';
 import { GameSessionStatus } from '../enums/game-session-status.enum';
+import type { GameId } from './game';
+import type { GameStageId } from './game-stage';
 
 export type GameSessionId = number;
 export type GameSessionPin = string;
+export type GameSessionContext = Record<string, unknown> & {
+  currentStageId?: GameStageId;
+};
 
 /**
  * GameSession Domain Entity
  * Represents a game session in the domain
  */
 export class GameSession {
+  private _context: GameSessionContext | null;
+
   constructor(
     public readonly id: GameSessionId,
-    public readonly quizId: QuizId,
+    public readonly gameId: GameId,
     public readonly hostId: UserId,
     public readonly pin: GameSessionPin,
     public status: GameSessionStatus,
-    public currentQuestionId: QuestionId | null,
+    context: GameSessionContext | null,
     public readonly createdAt: Date,
-  ) {}
+  ) {
+    this._context = context ?? null;
+  }
+
+  get currentStageId(): GameStageId | null {
+    const stageId = this._context?.currentStageId;
+    return typeof stageId === 'number' ? stageId : null;
+  }
+
+  set currentStageId(value: GameStageId | null) {
+    if (value === null) {
+      if (this._context) {
+        const { currentStageId: _ignored, ...rest } = this._context;
+        this._context = Object.keys(rest).length ? (rest as GameSessionContext) : null;
+      }
+      return;
+    }
+
+    this._context = { ...(this._context ?? {}), currentStageId: value };
+  }
+
+  get context(): GameSessionContext | null {
+    return this._context;
+  }
 
   /**
    * Starts the game session
@@ -52,6 +80,19 @@ export class GameSession {
     this.status = GameSessionStatus.ACTIVE;
   }
 
+  resetToLobby(): void {
+    if (
+      this.status !== GameSessionStatus.ACTIVE &&
+      this.status !== GameSessionStatus.PAUSED &&
+      this.status !== GameSessionStatus.ENDED
+    ) {
+      throw new Error(GameErrorCode.CAN_ONLY_RESUME_PAUSED_GAME);
+    }
+
+    this.status = GameSessionStatus.WAITING;
+    this.currentStageId = null;
+  }
+
   /**
    * Ends the game session
    */
@@ -60,13 +101,13 @@ export class GameSession {
   }
 
   /**
-   * Moves to next question
+   * Moves to next stage
    */
-  nextQuestion(nextQuestionId: QuestionId): void {
+  nextStage(nextStageId: GameStageId): void {
     if (this.status !== GameSessionStatus.ACTIVE) {
-      throw new Error(GameErrorCode.CAN_ONLY_MOVE_TO_NEXT_QUESTION_ACTIVE_GAME);
+      throw new Error(GameErrorCode.CAN_ONLY_MOVE_TO_NEXT_STAGE_ACTIVE_GAME);
     }
-    this.currentQuestionId = nextQuestionId;
+    this.currentStageId = nextStageId;
   }
 
   /**

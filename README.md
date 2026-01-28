@@ -19,7 +19,7 @@ Community game platform with real-time experiences (quizzes and more) to energiz
 
 ```bash
 git clone <repo-url> && cd pleey
-make install
+make setup
 ```
 
 **That's it!** The application will be available at:

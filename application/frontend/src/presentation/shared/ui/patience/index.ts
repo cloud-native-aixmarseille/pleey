@@ -1,3 +1,3 @@
-export { PatiencePlayground } from "./playground/PatiencePlayground";
-export { PatienceOverlay } from "./overlay/PatienceOverlay";
-export type { PatienceAnimationId } from "./types";
+export { useUserIdle } from './hooks/use-user-idle';
+export { PatienceOverlay } from './overlay/patience-overlay';
+export { PatiencePlayground } from './playground/patience-playground';

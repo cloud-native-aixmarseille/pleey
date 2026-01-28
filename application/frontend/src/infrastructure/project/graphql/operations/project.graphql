@@ -1,0 +1,35 @@
+query WorkspaceProjectsByOrganization($organizationId: Int!) {
+  organizationProjects(organizationId: $organizationId) {
+    projects {
+      id
+      name
+      description
+      organizationId
+      createdAt
+    }
+  }
+}
+
+mutation CreateProject($organizationId: Int!, $input: CreateProjectInput!) {
+  createProject(organizationId: $organizationId, input: $input) {
+    id
+    name
+    description
+    organizationId
+    createdAt
+  }
+}
+
+mutation UpdateProject($projectId: Int!, $input: UpdateProjectInput!) {
+  updateProject(projectId: $projectId, input: $input) {
+    id
+    name
+    description
+    organizationId
+    createdAt
+  }
+}
+
+mutation DeleteProject($projectId: Int!, $migrationProjectId: Int) {
+  deleteProject(projectId: $projectId, migrationProjectId: $migrationProjectId)
+}

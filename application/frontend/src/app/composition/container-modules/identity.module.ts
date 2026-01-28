@@ -1,0 +1,33 @@
+import { ContainerModule } from 'inversify';
+import { AUTH_SERVICE_ID } from '../../../application/identity/contracts/auth-service-id';
+import { LoginUserUseCase } from '../../../application/identity/use-cases/login-user-use-case';
+import { LogoutUserUseCase } from '../../../application/identity/use-cases/logout-user-use-case';
+import { RegenerateAvatarUseCase } from '../../../application/identity/use-cases/regenerate-avatar-use-case';
+import { RegisterUserUseCase } from '../../../application/identity/use-cases/register-user-use-case';
+import { UpdateProfileUseCase } from '../../../application/identity/use-cases/update-profile-use-case';
+import type { RouteFactory } from '../../../application/shared/contracts/routing.port';
+import { AuthPayloadInspector } from '../../../domains/auth/services/auth-payload-inspector';
+import { GraphqlAuthRepository } from '../../../infrastructure/auth/graphql-auth.repository';
+import { GraphqlClient } from '../../../infrastructure/graphql/client/graphql-client';
+import { LocalStorageAdapter } from '../../../infrastructure/storage/local-storage.adapter';
+import { AuthRoutesFactory } from '../../../presentation/identity/routes/auth-routes-factory';
+import { AppAuthSessionRuntime } from '../../identity/app-auth-session-runtime';
+import { CompositeAuthSessionTransport } from '../../identity/composite-auth-session-transport';
+import { TOKENS } from '../tokens';
+
+export const identityModule = new ContainerModule(({ bind }) => {
+  bind(AuthPayloadInspector).toSelf().inSingletonScope();
+  bind(GraphqlClient).toSelf().inSingletonScope();
+  bind(CompositeAuthSessionTransport).toSelf().inSingletonScope();
+  bind(LocalStorageAdapter).toSelf().inSingletonScope();
+  bind(AppAuthSessionRuntime).toSelf().inSingletonScope();
+  bind(LoginUserUseCase).toSelf().inSingletonScope();
+  bind(RegisterUserUseCase).toSelf().inSingletonScope();
+  bind(LogoutUserUseCase).toSelf().inSingletonScope();
+  bind(UpdateProfileUseCase).toSelf().inSingletonScope();
+  bind(RegenerateAvatarUseCase).toSelf().inSingletonScope();
+  bind(AUTH_SERVICE_ID.authRepository).to(GraphqlAuthRepository).inSingletonScope();
+  bind(AUTH_SERVICE_ID.authSessionTransport).toService(CompositeAuthSessionTransport);
+  bind(AUTH_SERVICE_ID.storagePort).toService(LocalStorageAdapter);
+  bind<RouteFactory>(TOKENS.routeFactory).to(AuthRoutesFactory).inSingletonScope();
+});

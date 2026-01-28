@@ -2,9 +2,6 @@
  * OpenTelemetry Infrastructure Exports
  */
 
-export {
-  initializeOpenTelemetry,
-  loggerProvider,
-  otelSDK,
-} from './otel.config';
-export { OtelLoggerService } from './otel-logger.service';
+export type { OpenTelemetryConfig } from './otel.config';
+export { initializeOpenTelemetry } from './otel.config';
+export { OtelLoggerService } from './otel-logger-service';

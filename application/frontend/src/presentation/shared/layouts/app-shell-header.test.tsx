@@ -1,0 +1,75 @@
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { describe, expect, it, vi } from 'vitest';
+import { renderWithProviders } from '../../../test-utils/render-with-providers';
+import { AppShellHeader } from './app-shell-header';
+
+vi.mock('../ui/navigation/account-menu/account-menu', () => ({
+  AccountMenu: () => <div>account-menu</div>,
+}));
+
+vi.mock('../ui/actions/language-toggle', () => ({
+  LanguageToggle: () => <button type="button">language-toggle</button>,
+}));
+
+vi.mock('../ui/actions/color-scheme-toggle', () => ({
+  ColorSchemeToggle: () => <button type="button">theme-toggle</button>,
+}));
+
+vi.mock('../ui/branding/pleey-logo', () => ({
+  PleeyLogo: () => <div>logo</div>,
+}));
+
+vi.mock('../i18n/use-presentation-translation', async (importOriginal) => {
+  const { PresentationTranslationMockFactory } = await import(
+    'src/test-utils/factories/presentation-translation-mock-factory'
+  );
+
+  return new PresentationTranslationMockFactory().createPartialModule(importOriginal);
+});
+
+describe('AppShellHeader', () => {
+  it('renders authenticated navigation and delegates the burger toggle', async () => {
+    const user = userEvent.setup();
+    const navHandlers = { toggle: vi.fn(), close: vi.fn() };
+
+    renderWithProviders(
+      <AppShellHeader
+        gameJoinRoute="/game/join"
+        isAuthenticated
+        navHandlers={navHandlers}
+        navOpened={false}
+      />,
+    );
+
+    expect(screen.getByText('shared.shell.kicker')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /shared.nav.dashboard/i })).toHaveAttribute(
+      'href',
+      '/workspace/dashboard',
+    );
+    expect(screen.getAllByRole('link', { name: /shared.nav.game/i })[0]).toHaveAttribute(
+      'href',
+      '/game/join',
+    );
+    expect(screen.getByText('account-menu')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'shared.shell.navToggle' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'shared.shell.navToggle' }));
+
+    expect(navHandlers.toggle).toHaveBeenCalledTimes(1);
+  });
+
+  it('hides the dashboard link for guests', () => {
+    renderWithProviders(
+      <AppShellHeader
+        gameJoinRoute="/game/join"
+        isAuthenticated={false}
+        navHandlers={{ toggle: vi.fn(), close: vi.fn() }}
+        navOpened={false}
+      />,
+    );
+
+    expect(screen.queryByRole('link', { name: /shared.nav.dashboard/i })).not.toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: /shared.nav.game/i }).length).toBeGreaterThan(0);
+  });
+});

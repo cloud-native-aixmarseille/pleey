@@ -50,6 +50,7 @@ services:
     user: "${UID:-1000}:${GID:-1000}" # Run as host user to avoid permission issues
     volumes:
       - ./application/backend:/usr/src/app
+      - ./scripts:/usr/src/shared-scripts:ro
     expose:
       - "3001"
     environment:
@@ -102,6 +103,8 @@ services:
     user: "${UID:-1000}:${GID:-1000}" # Run as host user to avoid permission issues
     volumes:
       - ./application/frontend:/usr/src/app
+      - ./application/backend:/usr/src/backend:ro
+      - ./scripts:/usr/src/shared-scripts:ro
     expose:
       - "5173"
     depends_on:

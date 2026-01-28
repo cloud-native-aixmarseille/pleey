@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-const API_BASE_URL = process.env.API_BASE_URL ?? "http://localhost:3001/api";
+const API_BASE_URL = process.env.API_BASE_URL ?? "http://backend:3001/api";
 const HEALTH_ENDPOINT = `${API_BASE_URL}/health`;
 
 /**
@@ -61,7 +61,7 @@ test.describe("Smoke Tests", () => {
     expect(response.status()).toBe(200);
   });
 
-  test("should render login/register options on home page @smoke", async ({
+  test("should render the primary home actions @smoke", async ({
     page,
   }) => {
     await page.goto("/");
@@ -69,18 +69,12 @@ test.describe("Smoke Tests", () => {
     // Wait for the page to be fully loaded
     await page.waitForLoadState("networkidle");
 
-    // Look for authentication-related elements
-    // The page should have either login/register buttons or links
-    const hasAuthElements =
-      (await page
-        .locator("text=/login|register|connexion|inscription/i")
-        .count()) > 0 ||
-      (await page
-        .locator("button, a")
-        .filter({ hasText: /login|register/i })
-        .count()) > 0;
-
-    expect(hasAuthElements).toBeTruthy();
+    await expect(
+      page.getByRole("link", { name: /create your first game/i }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: /join a live session/i }),
+    ).toBeVisible();
   });
 
   test("should have working navigation @smoke", async ({ page }) => {

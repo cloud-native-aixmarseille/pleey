@@ -1,23 +1,9 @@
 {
   "errors": {
-    "titleRequired": "Le titre est requis",
-    "descriptionRequired": "La description est requise",
     "quizNotFound": "Quiz introuvable",
     "questionNotFound": "Question introuvable",
-    "invalidQuestionType": "Type de question invalide",
-    "pinMustBe6Digits": "Le PIN doit contenir exactement 6 chiffres",
     "quizHasActiveSession": "Vous ne pouvez pas supprimer ce quiz tant qu'une session de jeu est active",
     "invalidCorrectAnswer": "Valeur de réponse correcte invalide",
-    "correctAnswerOptionEmpty": "L'option sélectionnée comme réponse correcte ne peut pas être vide",
-    "questionTextRequired": "Le texte de la question est requis",
-    "quizIdRequired": "L'identifiant du quiz est requis",
-    "quizTitleRequired": "Le titre du quiz est requis"
-  },
-  "success": {
-    "quizCreated": "Quiz créé avec succès",
-    "quizDeleted": "Quiz supprimé avec succès",
-    "questionCreated": "Question créée avec succès",
-    "questionDeleted": "Question supprimée avec succès",
-    "questionUpdated": "Question mise à jour avec succès"
+    "correctAnswerOptionEmpty": "L'option sélectionnée comme réponse correcte ne peut pas être vide"
   }
 }

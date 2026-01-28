@@ -1,0 +1,11 @@
+query CurrentPlayerGameSession {
+  currentPlayerSession {
+    sessionId
+    gameId
+    pin
+    status
+    currentStageId
+    participantRole
+    createdAt
+  }
+}

@@ -10,15 +10,7 @@ import {
 } from './mock-factory.utils';
 
 const QUIZ_REPOSITORY_METHOD_KINDS: MockFactoryMethodKinds<QuizRepository> = {
-  resolved: [
-    'create',
-    'findById',
-    'findAll',
-    'findByOrganization',
-    'findByCreator',
-    'delete',
-    'update',
-  ],
+  resolved: ['create', 'findById', 'findByGameId', 'findAll', 'findByProject', 'delete'],
   returned: [],
 };
 
@@ -28,11 +20,10 @@ export const createQuizRepositoryMock = (
   const mock: Mocked<QuizRepository> = {
     create: mockFn<QuizRepository['create']>(),
     findById: mockFn<QuizRepository['findById']>(),
+    findByGameId: mockFn<QuizRepository['findByGameId']>(),
     findAll: mockFn<QuizRepository['findAll']>(),
-    findByOrganization: mockFn<QuizRepository['findByOrganization']>(),
-    findByCreator: mockFn<QuizRepository['findByCreator']>(),
+    findByProject: mockFn<QuizRepository['findByProject']>(),
     delete: mockFn<QuizRepository['delete']>(),
-    update: mockFn<QuizRepository['update']>(),
   };
 
   applyMockFactoryConfig(mock, config, QUIZ_REPOSITORY_METHOD_KINDS);

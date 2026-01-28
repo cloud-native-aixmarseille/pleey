@@ -1,0 +1,3 @@
+mutation LeaveCurrentPlayerGameSession {
+  leaveCurrentPlayerSession
+}

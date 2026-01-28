@@ -1,7 +1,7 @@
 {
   "recommendations": [
+    "biomejs.biome",
     "esbenp.prettier-vscode",
-    "dbaeumer.vscode-eslint",
     "bradlc.vscode-tailwindcss",
     "ms-azuretools.vscode-docker",
     "eamodio.gitlens",

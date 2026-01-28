@@ -1,19 +1,10 @@
-import type { UserId } from '../../auth/entities/user.entity';
+import type { UserId } from '../../auth/entities/user';
 import { GameErrorCode } from '../enums/game-error-code.enum';
+import type { GuestId, PlayerIdentity } from './player-identity';
 
-export type GuestId = string;
+export type { GuestId, PlayerIdentity } from './player-identity';
 
-type PlayerIdentityProps =
-  | {
-      userId: UserId;
-      guestId?: never;
-    }
-  | {
-      userId?: never;
-      guestId: GuestId;
-    };
-
-export type PlayerStateProps = PlayerIdentityProps & {
+export type PlayerStateProps = PlayerIdentity & {
   socketId: string;
   username: string;
   avatarSeed: string;

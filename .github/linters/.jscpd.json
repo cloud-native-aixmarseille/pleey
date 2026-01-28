@@ -1,5 +1,5 @@
 {
-  "threshold": 5,
+  "threshold": 7,
   "gitignore": true,
   "ignore": [
     "**/.venv/**",
