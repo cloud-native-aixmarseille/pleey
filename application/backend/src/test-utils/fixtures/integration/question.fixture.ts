@@ -1,5 +1,5 @@
 import { QuestionType } from '../../../domain/quiz/entities/question';
-import type { PrismaService } from '../../../infrastructure/database/prisma.service';
+import type { PrismaService } from '../../../infrastructure/database/prisma-service';
 import type { QuestionFixtureParams } from '../unit/question.fixture';
 import { createQuestionFixture } from '../unit/question.fixture';
 

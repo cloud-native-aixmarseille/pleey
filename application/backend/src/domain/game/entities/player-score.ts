@@ -1,18 +1,8 @@
-import type { UserId } from '../../auth/entities/user.entity';
+import { UserId } from '../../auth/entities/user';
 import { GameErrorCode } from '../enums/game-error-code.enum';
-import type { GuestId } from './player-state';
+import type { GuestId, PlayerIdentity } from './player-identity';
 
-type PlayerScoreIdentity =
-  | {
-      userId: UserId;
-      guestId?: never;
-    }
-  | {
-      userId?: never;
-      guestId: GuestId;
-    };
-
-export type PlayerScoreProps = PlayerScoreIdentity & {
+export type PlayerScoreProps = PlayerIdentity & {
   playerId: string;
   username: string;
   totalPoints: number;
@@ -44,7 +34,7 @@ export class PlayerScore {
     return new PlayerScore(props);
   }
 
-  static createNew(playerId: string, username: string, identity: PlayerScoreIdentity): PlayerScore {
+  static createNew(playerId: string, username: string, identity: PlayerIdentity): PlayerScore {
     return new PlayerScore({
       playerId,
       username,

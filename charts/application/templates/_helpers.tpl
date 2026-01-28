@@ -198,6 +198,7 @@ Database URL for backend
 {{- else }}
 {{- required "Either postgresql.enabled must be true or backend.secrets.databaseUrl must be provided" .Values.backend.secrets.databaseUrl }}
 {{- end }}
+{{- end }}
 
 {{/*
 Valkey URL for backend
@@ -209,7 +210,6 @@ Valkey URL for backend
 {{- printf "redis://%s:%d" (include "pleey.valkey.fullname" .) (int .Values.valkey.service.port) -}}
 {{- else }}
 {{- required "Either valkey.enabled must be true or backend.env.valkeyUrl must be provided" .Values.backend.env.valkeyUrl -}}
-{{- end }}
 {{- end }}
 {{- end }}
 

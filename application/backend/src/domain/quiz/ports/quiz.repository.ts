@@ -1,5 +1,5 @@
-import type { UserId } from '../../auth/entities/user.entity';
-import type { OrganizationId } from '../../organization/entities/organization';
+import type { GameId } from '../../game/entities/game';
+import type { ProjectId } from '../../project/entities/project';
 import type { Quiz, QuizId } from '../entities/quiz';
 
 export const QuizRepositoryProvider = Symbol('QuizRepository');
@@ -12,17 +12,17 @@ export interface QuizRepository {
   /**
    * Creates a new quiz
    */
-  create(
-    title: string,
-    description: string | null,
-    createdById: UserId,
-    organizationId: OrganizationId,
-  ): Promise<Quiz>;
+  create(gameId: GameId): Promise<Quiz>;
 
   /**
    * Finds a quiz by ID
    */
   findById(id: QuizId): Promise<Quiz | null>;
+
+  /**
+   * Finds a quiz by game ID
+   */
+  findByGameId(gameId: GameId): Promise<Quiz | null>;
 
   /**
    * Finds all quizzes
@@ -32,20 +32,10 @@ export interface QuizRepository {
   /**
    * Finds quizzes by organization
    */
-  findByOrganization(organizationId: OrganizationId): Promise<Quiz[]>;
-
-  /**
-   * Finds quizzes created by a specific user
-   */
-  findByCreator(userId: UserId): Promise<Quiz[]>;
+  findByProject(projectId: ProjectId): Promise<Quiz[]>;
 
   /**
    * Deletes a quiz by ID
    */
   delete(id: QuizId): Promise<void>;
-
-  /**
-   * Updates a quiz
-   */
-  update(id: QuizId, title: string, description: string | null): Promise<Quiz>;
 }

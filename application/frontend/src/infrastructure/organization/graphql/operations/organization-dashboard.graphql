@@ -1,0 +1,16 @@
+query WorkspaceOrganizationDashboard($organizationId: Int!) {
+  organizationDashboard(organizationId: $organizationId) {
+    organization {
+      id
+      name
+      description
+    }
+    stats {
+      totalGames
+      totalGameSessions
+      activeGameSessions
+      totalMembers
+      totalProjects
+    }
+  }
+}

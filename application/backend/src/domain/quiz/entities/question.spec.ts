@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   createQuestionFixture,
   type QuestionFixtureParams,
-} from '../../../test-utils/fixtures/unit';
+} from '../../../test-utils/fixtures/unit/question.fixture';
 import { Question, QuestionType } from './question';
 import { QuestionAnswer } from './question-answer';
 
@@ -50,6 +50,21 @@ describe('Question', () => {
       expect(question.answers).toHaveLength(4);
       expect(question.timeLimit).toBe(30);
       expect(question.points).toBe(1000);
+    });
+
+    it('should create a multiple choice question with more than four answers', () => {
+      const question = createMultipleChoiceQuestion({
+        answers: [
+          new QuestionAnswer(11, 10, '4', 0, true),
+          new QuestionAnswer(12, 10, '3', 1, false),
+          new QuestionAnswer(13, 10, '5', 2, false),
+          new QuestionAnswer(14, 10, '6', 3, false),
+          new QuestionAnswer(15, 10, '7', 4, false),
+        ],
+      });
+
+      expect(question.answers).toHaveLength(5);
+      expect(question.isValid()).toBe(true);
     });
 
     it('should create a true/false question', () => {

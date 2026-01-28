@@ -1,0 +1,371 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input AddOrganizationMemberInput {
+  role: OrganizationRole!
+  userId: Int!
+}
+
+type AuthResponseType {
+  accessToken: String!
+  expiresIn: Int!
+  refreshToken: String!
+  user: AuthUserProfileType!
+}
+
+type AuthUserProfileType {
+  avatarUri: String
+  createdAt: DateTime
+  email: String!
+  id: Int!
+  username: String!
+}
+
+input CreateGameSessionInput {
+  gameId: Int!
+}
+
+input CreateOrganizationInput {
+  description: String
+  name: String!
+}
+
+input CreatePredictionGameInput {
+  description: String
+  projectId: Int!
+  title: String!
+}
+
+input CreatePredictionPromptInput {
+  options: [PredictionOptionInput!]!
+  points: Int
+  position: Int
+  predictionId: Int!
+  promptText: String!
+  timeLimit: Int
+}
+
+input CreateProjectInput {
+  description: String
+  name: String!
+}
+
+input CreateQuestionInput {
+  answers: [QuestionAnswerInput!]!
+  points: Int
+  position: Int
+  questionText: String!
+  quizId: Int!
+  timeLimit: Int
+  type: QuestionType!
+}
+
+input CreateQuizInput {
+  description: String
+  projectId: Int!
+  title: String!
+}
+
+type DashboardGameListItemType {
+  createdAt: DateTime!
+  description: String
+  gameId: Int!
+  id: Int!
+  relatedGameId: Int
+  stageCount: Int!
+  title: String!
+  type: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type GameSessionListType {
+  sessions: [GameSessionType!]!
+}
+
+enum GameSessionParticipantRole {
+  HOST
+  PLAYER
+}
+
+enum GameSessionStatus {
+  ACTIVE
+  ENDED
+  PAUSED
+  WAITING
+}
+
+type GameSessionType {
+  createdAt: DateTime!
+  currentStageId: Int
+  gameId: Int!
+  participantRole: GameSessionParticipantRole!
+  pin: String!
+  sessionId: Int!
+  status: GameSessionStatus!
+}
+
+enum GameType {
+  PREDICTION
+  QUIZ
+}
+
+type HealthStatus {
+  status: String!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type Mutation {
+  addOrganizationMember(input: AddOrganizationMemberInput!, organizationId: Int!): OrganizationMemberType!
+  createGameSession(input: CreateGameSessionInput!): GameSessionType!
+  createOrganization(input: CreateOrganizationInput!): OrganizationType!
+  createPredictionGame(input: CreatePredictionGameInput!): PredictionGameType!
+  createPredictionPrompt(input: CreatePredictionPromptInput!): PredictionPromptType!
+  createProject(input: CreateProjectInput!, organizationId: Int!): ProjectType!
+  createQuestion(input: CreateQuestionInput!): QuestionTypeGql!
+  createQuiz(input: CreateQuizInput!): QuizType!
+  deletePredictionPrompt(promptId: Int!): Boolean!
+  deleteProject(migrationProjectId: Int, projectId: Int!): Boolean!
+  deleteQuestion(questionId: Int!): Boolean!
+  deleteQuiz(quizId: Int!): Boolean!
+  leaveCurrentPlayerSession: Boolean!
+  login(input: LoginInput!): AuthResponseType!
+  logout: Boolean!
+  refresh(input: RefreshTokenInput!): AuthResponseType!
+  regenerateAvatar: AuthUserProfileType!
+  register(input: RegisterInput!): AuthUserProfileType!
+  removeOrganizationMember(memberId: Int!): Boolean!
+  resumeGameSession(sessionId: Int!): GameSessionType!
+  stopGameSession(sessionId: Int!): GameSessionType!
+  updatePredictionPrompt(input: UpdatePredictionPromptInput!, promptId: Int!): PredictionPromptType!
+  updateProfile(input: UpdateProfileInput!): AuthUserProfileType!
+  updateProject(input: UpdateProjectInput!, projectId: Int!): ProjectType!
+  updateQuestion(input: UpdateQuestionInput!, questionId: Int!): QuestionTypeGql!
+  updateQuiz(input: UpdateQuizInput!, quizId: Int!): QuizType!
+}
+
+type OrganizationDashboardEntityType {
+  description: String
+  id: Int!
+  name: String!
+}
+
+type OrganizationDashboardStatsType {
+  activeGameSessions: Int!
+  totalGameSessions: Int!
+  totalGames: Int!
+  totalMembers: Int!
+  totalProjects: Int!
+}
+
+type OrganizationDashboardType {
+  organization: OrganizationDashboardEntityType!
+  stats: OrganizationDashboardStatsType!
+}
+
+type OrganizationListType {
+  organizations: [OrganizationType!]!
+}
+
+type OrganizationMemberType {
+  id: Int!
+  joinedAt: DateTime!
+  organizationId: Int!
+  role: OrganizationRole!
+  userId: Int!
+}
+
+enum OrganizationRole {
+  MANAGER
+  MEMBER
+  OWNER
+}
+
+type OrganizationType {
+  createdAt: DateTime!
+  description: String
+  id: Int!
+  name: String!
+  role: OrganizationRole
+  updatedAt: DateTime!
+}
+
+type PredictionGameType {
+  createdAt: DateTime!
+  description: String
+  id: Int!
+  predictionId: Int!
+  projectId: Int!
+  promptCount: Int!
+  title: String!
+  type: GameType!
+}
+
+input PredictionOptionInput {
+  id: Int
+  isCorrect: Boolean
+  position: Int
+  text: String
+}
+
+type PredictionOptionType {
+  id: Int!
+  isCorrect: Boolean!
+  position: Int!
+  text: String
+}
+
+type PredictionPromptType {
+  id: Int!
+  options: [PredictionOptionType!]!
+  points: Int!
+  position: Int!
+  predictionId: Int!
+  promptText: String!
+  timeLimit: Int!
+}
+
+input ProjectDashboardGamesInput {
+  page: Int! = 1
+  pageSize: Int! = 9
+  projectId: Int!
+  search: String
+  sortDirection: String! = "desc"
+  sortField: String! = "createdAt"
+  types: [String!]
+}
+
+type ProjectDashboardGamesType {
+  items: [DashboardGameListItemType!]!
+  overallCount: Int!
+  page: Int!
+  pageSize: Int!
+  totalCount: Int!
+  totalPages: Int!
+}
+
+type ProjectListType {
+  projects: [ProjectType!]!
+}
+
+type ProjectType {
+  createdAt: DateTime!
+  description: String
+  id: Int!
+  name: String!
+  organizationId: Int!
+}
+
+type Query {
+  activeSessionByPin(pin: String!): GameSessionType
+  activeSessions: GameSessionListType!
+  currentPlayerSession: GameSessionType
+  gameSessions(gameId: Int!): GameSessionListType!
+  health: HealthStatus!
+  live: HealthStatus!
+  me: AuthUserProfileType!
+  myOrganizations: OrganizationListType!
+  organizationDashboard(organizationId: Int!): OrganizationDashboardType!
+  organizationProjects(organizationId: Int!): ProjectListType!
+  predictionGamesByProject(projectId: Int!): [PredictionGameType!]!
+  predictionPrompts(predictionId: Int!): [PredictionPromptType!]!
+  projectDashboardGames(input: ProjectDashboardGamesInput!): ProjectDashboardGamesType!
+  quizQuestions(quizId: Int!): [QuestionTypeGql!]!
+  quizzes(projectId: Int): [QuizType!]!
+  ready: HealthStatus!
+}
+
+input QuestionAnswerInput {
+  id: Int
+  isCorrect: Boolean
+  position: Int
+  text: String
+}
+
+type QuestionAnswerType {
+  id: Int!
+  isCorrect: Boolean!
+  position: Int!
+  text: String
+}
+
+enum QuestionType {
+  MULTIPLE
+  TRUE_FALSE
+}
+
+type QuestionTypeGql {
+  answers: [QuestionAnswerType!]!
+  id: Int!
+  points: Int!
+  position: Int!
+  questionText: String!
+  quizId: Int!
+  timeLimit: Int!
+  type: QuestionType!
+}
+
+type QuizType {
+  createdAt: DateTime!
+  description: String
+  gameId: Int!
+  id: Int!
+  questionCount: Int!
+  title: String!
+}
+
+input RefreshTokenInput {
+  refreshToken: String!
+}
+
+input RegisterInput {
+  email: String!
+  password: String!
+  username: String!
+}
+
+type Subscription {
+  healthTick: HealthStatus!
+}
+
+input UpdatePredictionPromptInput {
+  options: [PredictionOptionInput!]
+  points: Int
+  position: Int
+  predictionId: Int
+  promptText: String
+  timeLimit: Int
+}
+
+input UpdateProfileInput {
+  email: String
+  username: String
+}
+
+input UpdateProjectInput {
+  description: String
+  name: String!
+}
+
+input UpdateQuestionInput {
+  answers: [QuestionAnswerInput!]
+  points: Int
+  position: Int
+  questionText: String
+  quizId: Int
+  timeLimit: Int
+  type: QuestionType
+}
+
+input UpdateQuizInput {
+  description: String
+  title: String
+}

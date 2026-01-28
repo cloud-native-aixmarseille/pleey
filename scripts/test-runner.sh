@@ -23,7 +23,8 @@ ensure_stack() {
 	fi
 
 	log "Ensuring docker compose stack is running..."
-	(cd "$ROOT_DIR" && VITE_API_URL="$VITE_API_URL_E2E" docker compose --env-file /dev/null up -d postgres backend otel-collector)
+	(cd "$ROOT_DIR" && VITE_API_URL="$VITE_API_URL_E2E" docker compose --env-file /dev/null up -d postgres otel-collector)
+	(cd "$ROOT_DIR" && VITE_API_URL="$VITE_API_URL_E2E" docker compose --env-file /dev/null up -d --force-recreate backend)
 	(cd "$ROOT_DIR" && VITE_API_URL="$VITE_API_URL_E2E" docker compose --env-file /dev/null up -d --force-recreate frontend)
 }
 
@@ -77,10 +78,15 @@ run_e2e() {
 	ensure_stack
 	wait_for_http "http://backend:3001${BACKEND_HEALTH_PATH}" "backend"
 
-	log "Applying migrations + seed data..."
-	# Backend container is running in dev mode; ensure Prisma migrations and seed
-	# are applied so E2E credentials and fixtures exist.
-	(cd "$ROOT_DIR" && VITE_API_URL="$VITE_API_URL_E2E" docker compose --env-file /dev/null exec -T backend npm run db:seed)
+	log "Flushing Valkey session state..."
+	(cd "$ROOT_DIR" && VITE_API_URL="$VITE_API_URL_E2E" docker compose --env-file /dev/null exec -T valkey valkey-cli FLUSHALL >/dev/null)
+
+	log "Resetting database + seed data..."
+	# E2E runs must start from a clean schema so dashboard pagination and seeded
+	# fixtures remain deterministic across repeated local and CI executions.
+	(cd "$ROOT_DIR" && VITE_API_URL="$VITE_API_URL_E2E" docker compose --env-file /dev/null exec -T backend sh -lc 'npx prisma migrate reset --force && npm run db:generate && npm run seed')
+
+	wait_for_http "http://backend:3001${BACKEND_HEALTH_PATH}" "backend"
 
 	wait_for_http "http://frontend:5173" "frontend"
 
@@ -100,9 +106,9 @@ run_e2e() {
 	(cd "$ROOT_DIR" && VITE_API_URL="$VITE_API_URL_E2E" docker compose --env-file /dev/null run --rm -T \
 		-e BASE_URL="${BASE_URL:-http://frontend:5173}" \
 		-e API_BASE_URL="${API_BASE_URL:-http://backend:3001/api}" \
-		-e E2E_ADMIN_EMAIL="${E2E_ADMIN_EMAIL:-admin@quiz.com}" \
+		-e E2E_ADMIN_EMAIL="${E2E_ADMIN_EMAIL:-admin@pleey.com}" \
 		-e E2E_ADMIN_PASSWORD="${E2E_ADMIN_PASSWORD:-admin123}" \
-		-e E2E_PLAYER_EMAIL="${E2E_PLAYER_EMAIL:-player@quiz.com}" \
+		-e E2E_PLAYER_EMAIL="${E2E_PLAYER_EMAIL:-player@pleey.com}" \
 		-e E2E_PLAYER_PASSWORD="${E2E_PLAYER_PASSWORD:-player123}" \
 		e2e-tests bash -lc "npm ci --no-audit --fund=false && npm run '$script_cmd'")
 }

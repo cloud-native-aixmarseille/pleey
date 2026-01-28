@@ -15,15 +15,33 @@
     "enabled": true,
     "rules": {
       "recommended": true,
-      "suspicious": {
-        "noExplicitAny": "warn"
-      },
       "style": {
+        "noProcessEnv": "error",
+        "noRestrictedImports": {
+          "level": "error",
+          "options": {
+            "patterns": [
+              {
+                "group": [
+                  "**/app/config",
+                  "**/app/config/**",
+                  "src/app/config",
+                  "src/app/config/**"
+                ],
+                "message": "Only the app layer may import app config readers. Inject derived configuration values into other layers via providers."
+              }
+            ]
+          }
+        },
         "useImportType": "off",
         "useConst": "error",
         "noNonNullAssertion": "warn"
       },
+      "suspicious": {
+        "noExplicitAny": "error"
+      },
       "correctness": {
+        "noUnusedImports": "error",
         "noUnusedVariables": {
           "level": "error",
           "options": {
@@ -52,5 +70,217 @@
     "parser": {
       "unsafeParameterDecoratorsEnabled": true
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["src/app/**/*.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "src/app/config/**/*.ts",
+        "src/**/*.spec.ts",
+        "src/**/*.int.spec.ts",
+        "test/**/*.ts",
+        "prisma/**/*.ts",
+        "prisma.config.ts",
+        "vitest.config.ts",
+        "vitest.config.mts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noProcessEnv": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/application/**/*.ts", "src/domain/**/*.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/infrastructure",
+                      "**/infrastructure/**",
+                      "**/presentation",
+                      "**/presentation/**",
+                      "**/app",
+                      "**/app/**",
+                      "src/infrastructure",
+                      "src/infrastructure/**",
+                      "src/presentation",
+                      "src/presentation/**",
+                      "src/app",
+                      "src/app/**"
+                    ],
+                    "message": "Application and domain layers must not import presentation, app composition, or infrastructure. Depend on domain/application contracts and bind adapters at the composition boundary."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/presentation/**/*.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["**/app", "**/app/**", "src/app", "src/app/**"],
+                    "message": "Presentation adapters must not import app composition code. Inject their dependencies from app modules instead."
+                  },
+                  {
+                    "group": [
+                      "**/infrastructure/**/*resolver*",
+                      "**/infrastructure/**/*controller*",
+                      "**/infrastructure/**/*gateway*",
+                      "**/infrastructure/**/*module*",
+                      "src/infrastructure/**/*resolver*",
+                      "src/infrastructure/**/*controller*",
+                      "src/infrastructure/**/*gateway*",
+                      "src/infrastructure/**/*module*"
+                    ],
+                    "message": "Presentation adapters must not depend on infrastructure transport files. Keep transport ownership inside presentation slices."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/domain/**/*.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["@nestjs/common"],
+                    "importNamePattern": "Exception",
+                    "message": "Domain layer must not import NestJS exceptions. Throw domain errors and translate them in the application/presentation layer."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/application/**/use-cases/**/*.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["@nestjs/common"],
+                    "importNamePattern": "Exception",
+                    "message": "Use cases must not import framework-specific exceptions. Throw ApplicationError/domain errors and map them in infrastructure filters."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/application/dashboard/**/*.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/application/project/use-cases/**",
+                      "src/application/project/use-cases/**"
+                    ],
+                    "message": "Dashboard application code must not depend on project use-cases. Promote shared behavior into dashboard-owned or shared application contracts instead of routing dashboard behavior through project."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/application/game-session/live/host/**/*.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/application/game-session/live/player/**",
+                      "src/application/game-session/live/player/**",
+                      "**/application/game/use-cases/**",
+                      "src/application/game/use-cases/**"
+                    ],
+                    "message": "Live host application code must not depend on live player or legacy game use-case paths. Share behavior through live/shared services or domain services instead."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/application/game-session/live/player/**/*.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/application/game-session/live/host/**",
+                      "src/application/game-session/live/host/**",
+                      "**/application/game/use-cases/**",
+                      "src/application/game/use-cases/**"
+                    ],
+                    "message": "Live player application code must not depend on live host or legacy game use-case paths. Share behavior through live/shared services or domain services instead."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
 }

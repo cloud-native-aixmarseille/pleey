@@ -1,36 +1,25 @@
 {
   "errors": {
-    "gameNotFound": "Game session not found",
+    "gameNotFound": "Game not found",
+    "gameSessionNotFound": "Game session not found",
     "invalidPin": "Invalid PIN",
-    "gameAlreadyStarted": "Game has already started",
-    "gameNotStarted": "Game has not started yet",
-    "invalidAnswer": "Invalid answer",
-    "noQuestionsAvailable": "No questions available for this quiz",
-    "noCurrentQuestionToResume": "No current question to resume",
+    "noStagesAvailable": "No stages available for this game",
+    "noCurrentStageToResume": "No current stage to resume",
     "invalidRevealDelay": "Reveal delay must be a finite number",
     "playerIdentityRequired": "Player must have either userId or guestId",
     "playerScoreIdentityInvalid": "Player score must have exactly one identity (userId or guestId)",
     "validationFailed": "Validation failed",
     "unknownError": "An unexpected error occurred",
     "gameCanOnlyBeStartedFromWaiting": "Game can only be started from waiting status",
-    "canOnlyMoveToNextInActive": "Can only move to next question in active game",
+    "canOnlyMoveToNextStageInActive": "Can only move to next stage in active game",
     "canOnlyPauseActiveGame": "Can only pause an active game",
     "canOnlyResumePausedGame": "Can only resume a paused game",
     "unauthorizedSessionControl": "You do not have permission to control this game",
-    "gamePaused": "Game has been paused by the host",
-    "sessionCreateFailed": "Failed to create session",
-    "activeSessionsFetchFailed": "Failed to fetch active sessions",
-    "sessionStopFailed": "Failed to stop session",
-    "sessionResumeFailed": "Failed to resume session",
-    "quizNotFound": "Quiz not found",
     "activeSessionExists": "You already have an active game session. Please stop or complete it before starting a new one.",
-    "quizSessionAlreadyActive": "This quiz already has a live session. Close it before starting another.",
-    "alreadyAnswered": "You have already submitted an answer for this question",
-    "gameSessionEnded": "This game session has ended."
-  },
-  "success": {
-    "gameCreated": "Game session created successfully",
-    "answerSubmitted": "Answer submitted successfully"
+    "gameAlreadyHasActiveSession": "This game already has a live session. Close it before starting another.",
+    "alreadyActed": "You have already submitted an action for this stage",
+    "gameSessionEnded": "This game session has ended.",
+    "gameTypeNotSupported": "This game type is not supported yet."
   },
   "labels": {
     "guest": "Guest"

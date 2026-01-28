@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createPinFixture } from '../../../test-utils/fixtures/unit';
+import { createPinFixture } from '../../../test-utils/fixtures/unit/pin.fixture';
 import { GameErrorCode } from '../enums/game-error-code.enum';
 import { PIN } from './pin';
 

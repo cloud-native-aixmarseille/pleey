@@ -1,6 +1,6 @@
 import type { Mocked } from 'vitest';
 
-import type { GameTimerService } from '../../domain/game/ports/game-timer.service';
+import type { GameTimerService } from '../../domain/game/ports/services/game-timer.service';
 
 import {
   applyMockFactoryConfig,
@@ -11,17 +11,16 @@ import {
 
 const GAME_TIMER_SERVICE_METHOD_KINDS: MockFactoryMethodKinds<GameTimerService> = {
   resolved: [],
-  returned: ['setAnswerRevealTimer', 'clearAnswerRevealTimer', 'hasTimer', 'clearAll'],
+  returned: ['setResultRevealTimer', 'clearResultRevealTimer', 'hasTimer'],
 };
 
 export const createGameTimerServiceMock = (
   config: MockFactoryConfig<GameTimerService> = {},
 ): Mocked<GameTimerService> => {
   const mock: Mocked<GameTimerService> = {
-    setAnswerRevealTimer: mockFn<GameTimerService['setAnswerRevealTimer']>(),
-    clearAnswerRevealTimer: mockFn<GameTimerService['clearAnswerRevealTimer']>(),
+    setResultRevealTimer: mockFn<GameTimerService['setResultRevealTimer']>(),
+    clearResultRevealTimer: mockFn<GameTimerService['clearResultRevealTimer']>(),
     hasTimer: mockFn<GameTimerService['hasTimer']>(),
-    clearAll: mockFn<GameTimerService['clearAll']>(),
   };
 
   applyMockFactoryConfig(mock, config, GAME_TIMER_SERVICE_METHOD_KINDS);

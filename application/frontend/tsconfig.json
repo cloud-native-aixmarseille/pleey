@@ -10,7 +10,16 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "noEmit": true,
-    "types": ["vite/client"]
+    "strict": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "types": [
+      "vite/client",
+      "vitest/globals",
+      "@testing-library/jest-dom",
+      "node"
+    ],
+    "baseUrl": "."
   },
-  "include": ["src"]
+  "include": ["src", "test"]
 }

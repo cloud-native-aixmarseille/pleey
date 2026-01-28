@@ -1,0 +1,12 @@
+query WorkspaceOrganizations {
+  myOrganizations {
+    organizations {
+      id
+      name
+      description
+      createdAt
+      updatedAt
+      role
+    }
+  }
+}

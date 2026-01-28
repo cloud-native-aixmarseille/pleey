@@ -1,7 +1,7 @@
 # Makefile for Pleey
 # Using Docker Compose V2
 
-.PHONY: help install setup build up down restart logs ps rebuild shell setup-traefik migrate seed openapi linter-fix test test-install
+.PHONY: help setup setup build up down restart logs ps rebuild shell setup-traefik migrate seed graphql-types linter-fix test test-install
 
 # Docker Compose command (V2)
 COMPOSE := docker compose
@@ -20,7 +20,7 @@ help: ## Display this help
 # Manage stack
 # ==========================================
 
-install: setup-traefik build up migrate seed openapi ## Complete installation (first time)
+setup: setup-traefik build up migrate seed graphql-types ## Prepare stack to run
 	@echo "$(GREEN)═══════════════════════════════════════$(NC)"
 	@echo "$(GREEN)✓ Installation completed successfully!$(NC)"
 	@echo "$(GREEN)═══════════════════════════════════════$(NC)"
@@ -146,11 +146,11 @@ db-shell: ## Access PostgreSQL database shell
 # Backend
 # ==========================================
 
-openapi: ## Generate OpenAPI types
-	@echo "$(GREEN)Waiting for backend OpenAPI endpoint...$(NC)"
+graphql-types: ## Generate GraphQL types
+	@echo "$(GREEN)Waiting for backend API...$(NC)"
 	@ATTEMPTS=0; \
 	sleep 1; \
-	until $(COMPOSE) exec -T frontend sh -c "curl -sf http://backend:3001/api/openapi.json >/dev/null"; do \
+		until $(COMPOSE) exec -T frontend sh -c "curl -sf http://backend:3001/api/health/live >/dev/null"; do \
 		ATTEMPTS=$$((ATTEMPTS+1)); \
 		if [ $$ATTEMPTS -gt 30 ]; then \
 			echo "$(RED)Backend API did not become ready in time$(NC)"; \
@@ -159,9 +159,9 @@ openapi: ## Generate OpenAPI types
 		echo "$(YELLOW)Waiting for backend API (attempt $$ATTEMPTS)...$(NC)"; \
 		sleep 2; \
 	done
-	@echo "$(GREEN)Generating OpenAPI documentation...$(NC)"
-	@$(COMPOSE) exec -T frontend npm run openapi:generate
-	@echo "$(GREEN)✓ OpenAPI documentation generated$(NC)"
+	@echo "$(GREEN)Generating GraphQL types...$(NC)"
+	@$(COMPOSE) exec -T frontend sh -c "CODEGEN_SCHEMA=http://backend:3001/graphql npm run graphql:codegen"
+	@echo "$(GREEN)✓ GraphQL types generated$(NC)"
 
 # ==========================================
 # Linting Commands
@@ -201,6 +201,7 @@ linter-fix: ## Execute linting and fix
 		-e FIX_HTML_PRETTIER=true \
 		-e FIX_JSON_PRETTIER=true \
 		-e FIX_MARKDOWN_PRETTIER=true \
+		-e FIX_GRAPHQL_PRETTIER=true \
 		-e FIX_NATURAL_LANGUAGE=true \
 		-e FIX_SHELL_SHFMT=true \
 	)

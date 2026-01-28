@@ -19,25 +19,71 @@ type AuthPayload = {
 const resolveApiBaseUrl = () =>
   process.env.API_BASE_URL ?? "http://backend:3001/api";
 
+const resolveGraphqlUrl = () => {
+  const apiBaseUrl = resolveApiBaseUrl().replace(/\/+$/, "");
+  return apiBaseUrl.endsWith("/graphql")
+    ? apiBaseUrl
+    : `${apiBaseUrl.replace(/\/api$/, "")}/graphql`;
+};
+
 export async function loginViaApi(
   page: Page,
   request: APIRequestContext,
   credentials: Credentials,
 ): Promise<{ accessToken: string; refreshToken: string; user: unknown }> {
-  const response = await request.post(`${resolveApiBaseUrl()}/login`, {
-    data: credentials,
+  const escapedEmail = credentials.email.replace(/\\/g, "\\\\").replace(/\"/g, '\\\"');
+  const escapedPassword = credentials.password
+    .replace(/\\/g, "\\\\")
+    .replace(/\"/g, '\\\"');
+
+  const response = await request.post(resolveGraphqlUrl(), {
+    headers: {
+      "Content-Type": "application/json",
+      "apollo-require-preflight": "true",
+    },
+    data: {
+      query: `
+        mutation Login {
+          login(input: { email: "${escapedEmail}", password: "${escapedPassword}" }) {
+            accessToken
+            refreshToken
+            expiresIn
+            user {
+              id
+              username
+              email
+              avatarUri
+            }
+          }
+        }
+      `,
+    },
   });
 
   if (!response.ok()) {
+    const responseBody = await response.text();
     throw new Error(
-      `Failed to login via API: ${response.status()} ${response.statusText()}`,
+      `Failed to login via API: ${response.status()} ${response.statusText()} ${responseBody}`,
     );
   }
 
-  const payload = (await response.json()) as AuthPayload;
+  const graphqlPayload = (await response.json()) as {
+    data?: { login?: AuthPayload };
+    errors?: Array<{ message?: string }>;
+  };
+  const payload = graphqlPayload.data?.login;
+
+  if (!payload) {
+    const graphqlErrorMessage = graphqlPayload.errors?.[0]?.message;
+    throw new Error(
+      graphqlErrorMessage
+        ? `Invalid login payload received from GraphQL API: ${graphqlErrorMessage}`
+        : "Invalid login payload received from GraphQL API.",
+    );
+  }
   const accessToken = payload.accessToken ?? payload.token;
   const refreshToken = payload.refreshToken;
-  const user = payload.user;
+  const user = payload.user as Record<string, unknown> | undefined;
 
   if (!accessToken || !refreshToken || !user) {
     throw new Error("Invalid login payload received from API.");

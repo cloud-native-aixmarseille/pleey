@@ -303,6 +303,7 @@ valkey:
     repository: valkey/valkey
     tag: "8-alpine"
     pullPolicy: Always
+    digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
 
   service:
     port: 6379
@@ -314,6 +315,22 @@ valkey:
     requests:
       cpu: 25m
       memory: 64Mi
+
+  livenessProbe:
+    tcpSocket:
+      port: 6379
+    initialDelaySeconds: 10
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    tcpSocket:
+      port: 6379
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
 
   podSecurityContext:
     runAsNonRoot: true

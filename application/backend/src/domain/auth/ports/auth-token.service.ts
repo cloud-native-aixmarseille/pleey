@@ -1,6 +1,6 @@
-import type { AuthResponseDto } from '../../../application/auth/dto/auth-response.dto';
-import type { UserId } from '../entities/user.entity';
+import type { UserId } from '../entities/user';
 import type { AuthToken } from '../types/auth-token';
+import type { UserProfileSnapshot } from '../types/user-profile-snapshot';
 
 export interface TokenConfig {
   secret: string;
@@ -14,7 +14,6 @@ export const AuthTokenServiceProvider = Symbol('AuthTokenService');
 export type AccessTokenPayload = {
   id: UserId;
   username: string;
-  isAdmin: boolean;
 };
 
 export interface TokenPair {
@@ -24,8 +23,17 @@ export interface TokenPair {
   refreshTokenExpiresAt: Date;
 }
 
+export type AuthenticatedUserSnapshot = Omit<UserProfileSnapshot, 'createdAt'>;
+
+export interface AuthTokenResponse {
+  accessToken: AuthToken;
+  refreshToken: AuthToken;
+  expiresIn: number;
+  user: AuthenticatedUserSnapshot;
+}
+
 export interface AuthTokenService {
   createTokenPair(payload: AccessTokenPayload): TokenPair;
   verifyRefreshToken(token: AuthToken): Promise<UserId>;
-  mapTokensToResponse(tokens: TokenPair, user: AuthResponseDto['user']): AuthResponseDto;
+  mapTokensToResponse(tokens: TokenPair, user: AuthenticatedUserSnapshot): AuthTokenResponse;
 }

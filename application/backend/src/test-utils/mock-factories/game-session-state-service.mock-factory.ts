@@ -1,6 +1,6 @@
 import type { Mocked } from 'vitest';
 
-import type { GameSessionStateService } from '../../domain/game/services/game-session-state.service';
+import type { GameSessionStateService } from '../../domain/game/services/game-session-state-service';
 
 import {
   applyMockFactoryConfig,
@@ -11,12 +11,30 @@ import {
 
 type GameSessionStateServiceLike = Pick<
   GameSessionStateService,
-  'findPinBySocketId' | 'get' | 'getOrCreate' | 'remove' | 'update'
+  | 'findPinBySocketId'
+  | 'findPinByUserId'
+  | 'get'
+  | 'getOrCreate'
+  | 'remove'
+  | 'removePinByUserId'
+  | 'removePinsBySession'
+  | 'savePinByUserId'
+  | 'update'
 >;
 
 const GAME_SESSION_STATE_SERVICE_METHOD_KINDS: MockFactoryMethodKinds<GameSessionStateServiceLike> =
   {
-    resolved: ['findPinBySocketId', 'get', 'getOrCreate', 'remove', 'update'],
+    resolved: [
+      'findPinBySocketId',
+      'findPinByUserId',
+      'get',
+      'getOrCreate',
+      'remove',
+      'removePinByUserId',
+      'removePinsBySession',
+      'savePinByUserId',
+      'update',
+    ],
     returned: [],
   };
 
@@ -25,9 +43,13 @@ export const createGameSessionStateServiceMock = (
 ): Mocked<GameSessionStateServiceLike> => {
   const mock: Mocked<GameSessionStateServiceLike> = {
     findPinBySocketId: mockFn<GameSessionStateServiceLike['findPinBySocketId']>(),
+    findPinByUserId: mockFn<GameSessionStateServiceLike['findPinByUserId']>(),
     get: mockFn<GameSessionStateServiceLike['get']>(),
     getOrCreate: mockFn<GameSessionStateServiceLike['getOrCreate']>(),
     remove: mockFn<GameSessionStateServiceLike['remove']>(),
+    removePinByUserId: mockFn<GameSessionStateServiceLike['removePinByUserId']>(),
+    removePinsBySession: mockFn<GameSessionStateServiceLike['removePinsBySession']>(),
+    savePinByUserId: mockFn<GameSessionStateServiceLike['savePinByUserId']>(),
     update: mockFn<GameSessionStateServiceLike['update']>(),
   };
 

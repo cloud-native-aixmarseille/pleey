@@ -1,4 +1,4 @@
-import type { PrismaService } from '../../../infrastructure/database/prisma.service';
+import type { PrismaService } from '../../../infrastructure/database/prisma-service';
 import type { OrganizationFixtureParams } from '../unit/organization.fixture';
 import { createOrganizationFixture } from '../unit/organization.fixture';
 

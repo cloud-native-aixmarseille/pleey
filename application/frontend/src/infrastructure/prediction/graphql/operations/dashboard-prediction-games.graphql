@@ -1,0 +1,11 @@
+query DashboardPredictionGamesByProject($projectId: Int!) {
+  predictionGamesByProject(projectId: $projectId) {
+    id
+    predictionId
+    projectId
+    title
+    description
+    promptCount
+    createdAt
+  }
+}

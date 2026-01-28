@@ -8,14 +8,14 @@
   "scripts": {
     "build": "nest build",
     "format": "biome format --write .",
-    "lint": "biome lint --error-on-warnings .",
-    "lint:fix": "biome check --error-on-warnings --write .",
-    "lint:ci": "biome ci --error-on-warnings .",
+    "lint": "node ./scripts/check-naming.mjs && biome lint --error-on-warnings .",
+    "lint:fix": "node ./scripts/check-naming.mjs && biome check --error-on-warnings --write .",
+    "lint:ci": "node ./scripts/check-naming.mjs && biome ci --error-on-warnings .",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/src/main",
-    "seed": "node prisma/seed.js",
+    "start:prod": "node dist/src/app/main",
+    "seed": "ts-node --esm --transpile-only prisma/seed.ts",
     "db:migrate": "prisma migrate deploy",
     "db:generate": "prisma generate",
     "db:seed": "npm run db:migrate && npm run db:generate && npm run seed",
@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@apollo/server": "^5.2.0",
+    "@as-integrations/express5": "^1.1.2",
     "@dicebear/collection": "^9.2.4",
     "@dicebear/core": "^9.2.4",
     "@nestjs/apollo": "^13.2.3",
@@ -56,6 +57,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.3",
     "graphql": "^16.12.0",
+    "graphql-ws": "^6.0.6",
     "nestjs-i18n": "^10.6.0",
     "nestjs-otel": "^8.0.1",
     "passport": "^0.7.0",
@@ -89,6 +91,6 @@
   },
   "_comment": "The 'prisma' section is required for Prisma 6.x seed functionality. While deprecated, it's the only supported method until Prisma 7. See: https://pris.ly/prisma-config",
   "prisma": {
-    "seed": "node prisma/seed.js"
+    "seed": "ts-node --esm --transpile-only prisma/seed.ts"
   }
 }

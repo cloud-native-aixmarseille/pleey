@@ -1,6 +1,6 @@
 import type { Mocked } from 'vitest';
 
-import type { GameSessionRepository } from '../../domain/game/ports/game-session.repository';
+import type { GameSessionRepository } from '../../domain/game/ports/repositories/game-session.repository';
 
 import {
   applyMockFactoryConfig,
@@ -15,12 +15,11 @@ const GAME_SESSION_REPOSITORY_METHOD_KINDS: MockFactoryMethodKinds<GameSessionRe
     'findByPin',
     'findById',
     'findActiveByHostId',
-    'findActiveByQuizId',
-    'findByQuizId',
+    'findActiveByGameId',
+    'findByGameId',
     'updateStatus',
-    'updateCurrentQuestion',
-    'countActiveByQuizId',
-    'deleteOldSessions',
+    'updateCurrentStage',
+    'countActiveByGameId',
   ],
   returned: [],
 };
@@ -33,12 +32,11 @@ export const createGameSessionRepositoryMock = (
     findByPin: mockFn<GameSessionRepository['findByPin']>(),
     findById: mockFn<GameSessionRepository['findById']>(),
     findActiveByHostId: mockFn<GameSessionRepository['findActiveByHostId']>(),
-    findActiveByQuizId: mockFn<GameSessionRepository['findActiveByQuizId']>(),
-    findByQuizId: mockFn<GameSessionRepository['findByQuizId']>(),
+    findActiveByGameId: mockFn<GameSessionRepository['findActiveByGameId']>(),
+    findByGameId: mockFn<GameSessionRepository['findByGameId']>(),
     updateStatus: mockFn<GameSessionRepository['updateStatus']>(),
-    updateCurrentQuestion: mockFn<GameSessionRepository['updateCurrentQuestion']>(),
-    countActiveByQuizId: mockFn<GameSessionRepository['countActiveByQuizId']>(),
-    deleteOldSessions: mockFn<GameSessionRepository['deleteOldSessions']>(),
+    updateCurrentStage: mockFn<GameSessionRepository['updateCurrentStage']>(),
+    countActiveByGameId: mockFn<GameSessionRepository['countActiveByGameId']>(),
   };
 
   applyMockFactoryConfig(mock, config, GAME_SESSION_REPOSITORY_METHOD_KINDS);

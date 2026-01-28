@@ -1,0 +1,11 @@
+mutation CreateDashboardGameSession($input: CreateGameSessionInput!) {
+  createGameSession(input: $input) {
+    sessionId
+    gameId
+    pin
+    status
+    currentStageId
+    participantRole
+    createdAt
+  }
+}

@@ -1,0 +1,57 @@
+fragment AuthUserFields on AuthUserProfileType {
+  id
+  username
+  email
+  avatarUri
+  createdAt
+}
+
+mutation Login($input: LoginInput!) {
+  login(input: $input) {
+    accessToken
+    refreshToken
+    expiresIn
+    user {
+      ...AuthUserFields
+    }
+  }
+}
+
+mutation Register($input: RegisterInput!) {
+  register(input: $input) {
+    ...AuthUserFields
+  }
+}
+
+query Me {
+  me {
+    ...AuthUserFields
+  }
+}
+
+mutation UpdateProfile($input: UpdateProfileInput!) {
+  updateProfile(input: $input) {
+    ...AuthUserFields
+  }
+}
+
+mutation RegenerateAvatar {
+  regenerateAvatar {
+    ...AuthUserFields
+  }
+}
+
+mutation Logout {
+  logout
+}
+
+mutation Refresh($input: RefreshTokenInput!) {
+  refresh(input: $input) {
+    accessToken
+    refreshToken
+    expiresIn
+    user {
+      ...AuthUserFields
+    }
+  }
+}

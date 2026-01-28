@@ -49,7 +49,7 @@ const hasMockResolvedValue = (value: unknown): value is ResolvableMock =>
 const hasMockReturnValue = (value: unknown): value is ReturnableMock =>
   typeof (value as ReturnableMock)?.mockReturnValue === 'function';
 
-export const applyMockFactoryOptions = <T extends object>(
+const applyMockFactoryOptions = <T extends object>(
   mock: T,
   options: MockFactoryOptions<T> = {},
 ): void => {

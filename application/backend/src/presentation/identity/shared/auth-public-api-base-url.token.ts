@@ -1,0 +1,1 @@
+export const AUTH_PUBLIC_API_BASE_URL = Symbol('AUTH_PUBLIC_API_BASE_URL');

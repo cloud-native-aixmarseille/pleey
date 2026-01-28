@@ -1,0 +1,8 @@
+{
+  "errors": {
+    "predictionNotFound": "Prédiction introuvable",
+    "promptNotFound": "Question de prédiction introuvable",
+    "invalidCorrectOption": "Valeur de réponse correcte invalide",
+    "optionTextEmpty": "Le texte de l'option est requis"
+  }
+}

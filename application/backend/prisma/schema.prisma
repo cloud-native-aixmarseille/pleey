@@ -14,13 +14,14 @@ model User {
   username  String   @unique
   email     String   @unique
   password  String
-  isAdmin   Boolean  @default(false) @map("is_admin")
-  avatarUri String?  @map("avatar_uri")
+  avatarMediaId Int? @unique @map("avatar_media_id")
   refreshTokenHash String? @map("refresh_token_hash")
   refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at")
   createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
 
-  quizzes              Quiz[]
+  avatar               Media? @relation("UserAvatar", fields: [avatarMediaId], references: [id], onDelete: SetNull)
   scores               Score[]
   hostedGameSessions   GameSession[] @relation("HostedSessions")
   organizationMembers  OrganizationMember[]
@@ -28,69 +29,69 @@ model User {
   @@map("users")
 }
 
-model Quiz {
+model Media {
+  id        Int      @id @default(autoincrement())
+  mimeType  String   @map("mime_type")
+  content   Bytes
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  avatarForUser User? @relation("UserAvatar")
+
+  @@map("media")
+}
+
+model Game {
   id             Int      @id @default(autoincrement())
+  type           String
   title          String
   description    String?
-  createdById    Int      @map("created_by")
-  organizationId Int      @map("organization_id")
+  projectId      Int      @map("project_id")
   createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
   deletedAt      DateTime? @map("deleted_at")
 
-  createdBy    User           @relation(fields: [createdById], references: [id])
-  organization Organization   @relation(fields: [organizationId], references: [id])
-  questions    Question[]
-  sessions     GameSession[]
+  project      Project @relation(fields: [projectId], references: [id])
+  quiz          Quiz?
+  prediction    Prediction?
+  sessions      GameSession[]
 
-  @@map("quizzes")
-}
-
-model Question {
-  id           Int      @id @default(autoincrement())
-  quizId       Int      @map("quiz_id")
-  position     Int      @map("position")
-  questionText String   @map("question_text")
-  type         String   // 'multiple' or 'truefalse'
-  timeLimit    Int      @default(20) @map("time_limit")
-  points       Int      @default(1000)
-  deletedAt    DateTime? @map("deleted_at")
-
-  quiz          Quiz            @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  answers       QuestionAnswer[] @relation("QuestionAnswers")
-  scores        Score[]
-
-  @@unique([quizId, position])
-  @@map("questions")
-}
-
-model QuestionAnswer {
-  id         Int     @id @default(autoincrement())
-  questionId Int     @map("question_id")
-  text       String? @map("answer_text")
-  position   Int     @default(0) @map("position")
-  isCorrect  Boolean @default(false) @map("is_correct")
-
-  question   Question @relation("QuestionAnswers", fields: [questionId], references: [id], onDelete: Cascade)
-
-  @@unique([questionId, position])
-  @@map("question_answers")
+  @@map("games")
 }
 
 model GameSession {
   id              Int      @id @default(autoincrement())
-  quizId          Int      @map("quiz_id")
+  gameId          Int      @map("game_id")
   hostId          Int      @map("host_id")
   pin             String   @unique
   status          String   @default("waiting")
-  currentQuestion Int?     @map("current_question")
+  context         Json?    @map("context")
   createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
   deletedAt       DateTime? @map("deleted_at")
 
-  quiz   Quiz  @relation(fields: [quizId], references: [id])
+  game   Game  @relation(fields: [gameId], references: [id])
   host   User  @relation("HostedSessions", fields: [hostId], references: [id])
+  guests Guest[]
   scores Score[]
 
   @@map("game_sessions")
+}
+
+model Guest {
+  id         String   @id @default(cuid())
+  sessionId  Int      @map("session_id")
+  username   String
+  avatarSeed String   @map("avatar_seed")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
+
+  session GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  scores  Score[]
+
+  @@map("guests")
 }
 
 model Score {
@@ -98,16 +99,15 @@ model Score {
   sessionId  Int      @map("session_id")
   userId     Int?     @map("user_id")
   guestId    String?  @map("guest_id")
-  guestUsername String? @map("guest_username")
-  questionId Int      @map("question_id")
+  context    Json?    @map("context")
   points     Int      @default(0)
-  answerTime Int?     @map("answer_time")
-  isCorrect  Boolean  @default(false) @map("is_correct")
-  answeredAt DateTime @default(now()) @map("answered_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
 
   session  GameSession @relation(fields: [sessionId], references: [id])
   user     User?       @relation(fields: [userId], references: [id])
-  question Question    @relation(fields: [questionId], references: [id])
+  guest    Guest?      @relation(fields: [guestId], references: [id], onDelete: SetNull)
 
   @@map("scores")
 }
@@ -121,7 +121,7 @@ model Organization {
   deletedAt   DateTime? @map("deleted_at")
 
   members OrganizationMember[]
-  quizzes Quiz[]
+  projects Project[]
 
   @@map("organizations")
 }
@@ -130,8 +130,10 @@ model OrganizationMember {
   id             Int      @id @default(autoincrement())
   organizationId Int      @map("organization_id")
   userId         Int      @map("user_id")
-  role           String   @default("member") // owner, admin, member
+  role           String   @default("member") // owner, manager, member
+  createdAt      DateTime @default(now()) @map("created_at")
   joinedAt       DateTime @default(now()) @map("joined_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
   deletedAt      DateTime? @map("deleted_at")
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
@@ -139,4 +141,116 @@ model OrganizationMember {
 
   @@unique([organizationId, userId])
   @@map("organization_members")
+}
+
+model Project {
+  id             Int      @id @default(autoincrement())
+  name           String
+  description    String?
+  organizationId Int      @map("organization_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  deletedAt      DateTime? @map("deleted_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  games        Game[]
+
+  @@map("projects")
+}
+
+model Quiz {
+  id             Int      @id @default(autoincrement())
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  deletedAt      DateTime? @map("deleted_at")
+
+  game          Game     @relation(fields: [gameId], references: [id])
+  gameId        Int      @unique @map("game_id")
+
+  questions    Question[]
+
+  @@map("quizzes")
+}
+
+model Question {
+  id           Int      @id @default(autoincrement())
+  quizId       Int      @map("quiz_id")
+  position     Int      @map("position")
+  questionText String   @map("question_text")
+  type         String   // 'multiple' or 'truefalse'
+  timeLimit    Int      @default(20) @map("time_limit")
+  points       Int      @default(1000)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+
+  quiz          Quiz            @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  answers       QuestionAnswer[] @relation("QuestionAnswers")
+
+  @@unique([quizId, position])
+  @@map("questions")
+}
+
+model QuestionAnswer {
+  id         Int     @id @default(autoincrement())
+  questionId Int     @map("question_id")
+  text       String? @map("answer_text")
+  position   Int     @default(0) @map("position")
+  isCorrect  Boolean @default(false) @map("is_correct")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
+
+  question   Question @relation("QuestionAnswers", fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, position])
+  @@map("question_answers")
+}
+
+model Prediction {
+  id             Int      @id @default(autoincrement())
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  deletedAt      DateTime? @map("deleted_at")
+
+  game          Game     @relation(fields: [gameId], references: [id])
+  gameId        Int      @unique @map("game_id")
+
+  prompts       PredictionPrompt[]
+
+  @@map("predictions")
+}
+
+model PredictionPrompt {
+  id            Int      @id @default(autoincrement())
+  predictionId  Int      @map("prediction_id")
+  position      Int      @map("position")
+  promptText    String   @map("prompt_text")
+  timeLimit     Int      @default(20) @map("time_limit")
+  points        Int      @default(1000)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  deletedAt     DateTime? @map("deleted_at")
+
+  prediction    Prediction        @relation(fields: [predictionId], references: [id], onDelete: Cascade)
+  options       PredictionOption[] @relation("PredictionOptions")
+
+  @@unique([predictionId, position])
+  @@map("prediction_prompts")
+}
+
+model PredictionOption {
+  id           Int     @id @default(autoincrement())
+  promptId     Int     @map("prompt_id")
+  text         String? @map("option_text")
+  position     Int     @default(0) @map("position")
+  isCorrect    Boolean @default(false) @map("is_correct")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+
+  prompt       PredictionPrompt @relation("PredictionOptions", fields: [promptId], references: [id], onDelete: Cascade)
+
+  @@unique([promptId, position])
+  @@map("prediction_options")
 }

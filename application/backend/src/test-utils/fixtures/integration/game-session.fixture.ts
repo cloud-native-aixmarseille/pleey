@@ -1,4 +1,4 @@
-import type { PrismaService } from '../../../infrastructure/database/prisma.service';
+import type { PrismaService } from '../../../infrastructure/database/prisma-service';
 import type { GameSessionFixtureParams } from '../unit/game-session.fixture';
 import { createGameSessionFixture } from '../unit/game-session.fixture';
 
@@ -12,11 +12,10 @@ export const createPersistedGameSessionFixture = async (
 
   return prisma.gameSession.create({
     data: {
-      quizId: fixture.quizId,
+      gameId: fixture.gameId,
       hostId: fixture.hostId,
       pin: fixture.pin,
       status: fixture.status,
-      currentQuestion: fixture.currentQuestionId ?? undefined,
     },
   });
 };

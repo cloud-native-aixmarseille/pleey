@@ -1,0 +1,13 @@
+query ActiveGameSessions {
+  activeSessions {
+    sessions {
+      sessionId
+      gameId
+      pin
+      status
+      currentStageId
+      participantRole
+      createdAt
+    }
+  }
+}

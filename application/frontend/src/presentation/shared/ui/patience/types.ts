@@ -1,1 +1,3 @@
-export type PatienceAnimationId = "lemmings";
+export enum PatienceAnimationId {
+  LEMMINGS = 'lemmings',
+}

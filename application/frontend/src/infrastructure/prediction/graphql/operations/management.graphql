@@ -1,0 +1,57 @@
+query PredictionPrompts($predictionId: Int!) {
+  predictionPrompts(predictionId: $predictionId) {
+    id
+    predictionId
+    position
+    promptText
+    options {
+      id
+      text
+      position
+      isCorrect
+    }
+    timeLimit
+    points
+  }
+}
+
+mutation CreatePredictionPrompt($input: CreatePredictionPromptInput!) {
+  createPredictionPrompt(input: $input) {
+    id
+    predictionId
+    position
+    promptText
+    options {
+      id
+      text
+      position
+      isCorrect
+    }
+    timeLimit
+    points
+  }
+}
+
+mutation UpdatePredictionPrompt(
+  $promptId: Int!
+  $input: UpdatePredictionPromptInput!
+) {
+  updatePredictionPrompt(promptId: $promptId, input: $input) {
+    id
+    predictionId
+    position
+    promptText
+    options {
+      id
+      text
+      position
+      isCorrect
+    }
+    timeLimit
+    points
+  }
+}
+
+mutation DeletePredictionPrompt($promptId: Int!) {
+  deletePredictionPrompt(promptId: $promptId)
+}

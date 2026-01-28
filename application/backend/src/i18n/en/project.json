@@ -1,0 +1,9 @@
+{
+  "errors": {
+    "cannotDeleteLastProject": "An organization must keep at least one project.",
+    "migrationTargetInvalid": "Choose a different destination project for game migration.",
+    "migrationTargetNotFound": "The destination project for game migration could not be found.",
+    "migrationTargetRequired": "Move this project's games to another project before removing it.",
+    "projectNotFound": "Project not found."
+  }
+}

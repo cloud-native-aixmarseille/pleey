@@ -1,7 +1,7 @@
-import type { Buffer } from 'node:buffer';
+import type { Media } from '../../media/entities/media';
 
 export const AvatarGeneratorAdapterProvider = Symbol('AvatarGeneratorAdapter');
 
 export interface AvatarGeneratorAdapter {
-  generateAvatar(seed: string): Buffer;
+  generateAvatar(seed: string): Media;
 }

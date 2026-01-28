@@ -1,0 +1,70 @@
+export const predictionFr = {
+  prediction: {
+    gameType: {
+      title: 'Prédictions',
+      description: 'Créez et gérez des jeux de prédiction pour vos projets.',
+    },
+    management: {
+      eyebrow: 'Gestion des pronostics',
+      title: 'Gérer les prompts du pronostic',
+      subtitle:
+        'Consultez les métadonnées du pronostic, puis créez, modifiez et supprimez des prompts sans quitter cet écran.',
+      backAction: 'Retour au tableau de bord',
+      contextBarLabel: 'Contexte de gestion des pronostics',
+      createdAt: 'Créé le {{date}}',
+      promptSummary: '{{count}} prompt(s)',
+      metadataTitle: 'Métadonnées du pronostic',
+      metadataDescription:
+        'Le titre et la description du pronostic proviennent de l’enregistrement de jeu de référence créé pour ce projet.',
+      promptsTitle: 'Gestion des prompts',
+      promptsDescription:
+        'Chaque prompt stocke des options de réponse, une issue correcte, un temps limite et une valeur de score.',
+      empty: 'Aucun prompt n’existe encore pour ce jeu de pronostics.',
+      createPromptAction: 'Ajouter un prompt',
+      updatePromptAction: 'Mettre à jour le prompt',
+      cancelEditAction: 'Annuler la modification',
+      editAction: 'Modifier',
+      deleteAction: 'Supprimer',
+      promptLabel: 'Prompt',
+      promptPlaceholder: 'Que doivent prédire les joueurs ?',
+      optionLabel: 'Option {{label}}',
+      correctOptionLabel: 'Option correcte',
+      timeLimitLabel: 'Temps limite (secondes)',
+      pointsLabel: 'Points',
+      predictionMissing:
+        'Ce jeu de pronostics n’est pas disponible pour la sélection actuelle de l’espace de travail.',
+      correctAnswerSummary: 'Option correcte : {{answer}}',
+      correctOptionBadge: 'Correcte',
+    },
+    runtime: {
+      paused: 'En pause',
+      responseLocked: 'Réponse verrouillée — en attente de la révélation du résultat.',
+      correctBadge: 'Correcte',
+      yourPickBadge: 'Votre choix',
+      voteCount: '{{count}} votes',
+      resultCorrect: 'Correct ! Bien joué.',
+      resultIncorrect: 'Pas cette fois.',
+      resultIncorrectHint: 'Consultez la répartition pour voir la bonne réponse.',
+    },
+    success: {
+      promptCreated: 'Le prompt a été créé.',
+      promptUpdated: 'Le prompt a été mis à jour.',
+      promptDeleted: 'Le prompt a été supprimé.',
+    },
+    validation: {
+      promptRequired: 'Saisissez un prompt.',
+      optionsRequired: 'Renseignez au moins deux options.',
+      correctOptionRequired: 'Sélectionnez une option correcte.',
+      timeLimitPositive: 'Le temps limite doit être supérieur à zéro.',
+      pointsPositive: 'Le nombre de points doit être supérieur à zéro.',
+    },
+    errors: {
+      invalidResponse: 'Le serveur a renvoyé une réponse pronostic invalide.',
+      loadFailed: 'Impossible de charger les jeux de pronostics pour ce projet.',
+      promptLoadFailed: 'Impossible de charger les prompts pour ce jeu de pronostics.',
+      promptCreateFailed: 'Impossible de créer ce prompt.',
+      promptUpdateFailed: 'Impossible de mettre à jour ce prompt.',
+      promptDeleteFailed: 'Impossible de supprimer ce prompt.',
+    },
+  },
+};

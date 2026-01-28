@@ -1,4 +1,4 @@
-import type { UserId } from '../../../domain/auth/entities/user.entity';
+import type { UserId } from '../../../domain/auth/entities/user';
 import { type GuestId, PlayerState } from '../../../domain/game/entities/player-state';
 
 export type PlayerStateFixtureParams = {

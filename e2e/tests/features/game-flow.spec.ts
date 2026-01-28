@@ -1,87 +1,37 @@
 import { test, expect } from "@playwright/test";
+import { loginViaApi } from "../helpers/auth";
 
 /**
- * Game Flow - Nominal Use Case
+ * Game Flow Route - Current Use Case
  *
- * Tests the complete game flow from joining to completion
- * Critical flow: User joins game, plays through questions, sees results
- *
- * This is the core user experience and must work flawlessly.
+ * Step 6 now ships the neutral join-game flow itself.
+ * These tests verify the current route contract and explanatory content.
  */
 
-test.describe("Game Flow - Nominal Use Case", () => {
-  test.describe.configure({ mode: "serial" });
-
+test.describe("Game Flow Route - Current Use Case", () => {
   const playerCredentials = {
-    email: process.env.E2E_PLAYER_EMAIL ?? "player@quiz.com",
+    email: process.env.E2E_PLAYER_EMAIL ?? "player@pleey.com",
     password: process.env.E2E_PLAYER_PASSWORD ?? "player123",
   };
 
-  const getPinInput = (page: import("@playwright/test").Page) =>
-    page.locator('input[maxlength="6"]').first();
-
-  test.beforeEach(async ({ page }) => {
-    await page.goto("/auth/login");
-    await page.waitForLoadState("networkidle");
-
-    await page.fill('input[name="email"]', playerCredentials.email);
-    await page.fill('input[name="password"]', playerCredentials.password);
-
-    await Promise.all([
-      page.waitForURL(/\/game\/join/),
-      page
-        .getByRole("button", { name: /se connecter|login|sign\s*in/i })
-        .click(),
-    ]);
-
+  test.beforeEach(async ({ page, request }) => {
+    await loginViaApi(page, request, playerCredentials);
+    await page.goto("/game/join");
     await page.waitForLoadState("networkidle");
   });
 
-  test("should allow user to join a game with PIN", async ({ page }) => {
+  test("should render the neutral join-game screen", async ({ page }) => {
     await expect(page).toHaveURL(/\/game\/join/);
-
-    const pinInput = getPinInput(page);
-    await pinInput.fill("123456");
-
-    const joinButton = page.getByRole("button", {
-      name: /confirm\s*&\s*join|confirmer|rejoindre/i,
-    });
-    await expect(joinButton).toBeEnabled();
-
-    await Promise.all([
-      page.waitForURL(/\/game\/[^/]+\/lobby/),
-      joinButton.click(),
-    ]);
-
-    await expect(page.locator('[data-lobby-page="true"]')).toBeVisible({
-      timeout: 15000,
-    });
+    await expect(page.getByRole("heading", { name: /join a live session/i })).toBeVisible();
+    await expect(
+      page.getByText(/enter a session pin, choose your identity, and join the live room in seconds\./i),
+    ).toBeVisible();
   });
 
-  test("should handle game not found gracefully", async ({ page }) => {
-    await expect(page).toHaveURL(/\/game\/join/);
-
-    const pinInput = getPinInput(page);
-    await pinInput.fill("999999");
-
-    const joinButton = page.getByRole("button", {
-      name: /confirm\s*&\s*join|confirmer|rejoindre/i,
-    });
-    await Promise.all([
-      page
-        .waitForNavigation({ waitUntil: "networkidle", timeout: 2000 })
-        .catch(() => null),
-      joinButton.click(),
-    ]);
-
-    const currentUrl = page.url();
-    const hasFeedback =
-      (await page
-        .locator("text=/error|invalid|introuvable|not found/i")
-        .count()) > 0 ||
-      currentUrl.includes("/game/join") ||
-      /\/game\/[^/]+\/lobby/.test(currentUrl);
-
-    expect(hasFeedback).toBeTruthy();
+  test("should render the three current join-game guidance steps", async ({ page }) => {
+    await expect(page.getByRole("complementary", { name: /join flow guidance/i })).toBeVisible();
+    await expect(page.getByText(/enter pin · choose identity · join the room/i)).toBeVisible();
+    await expect(page.getByText(/session pin/i).first()).toBeVisible();
+    await expect(page.getByRole("button", { name: /join with my account/i })).toBeVisible();
   });
 });

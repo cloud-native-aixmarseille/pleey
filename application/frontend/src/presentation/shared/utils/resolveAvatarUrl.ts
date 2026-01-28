@@ -1,1 +1,0 @@
-export { resolveAvatarUri } from "./resolveAvatarUri";

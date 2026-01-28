@@ -1,0 +1,8 @@
+{
+  "errors": {
+    "predictionNotFound": "Prediction not found",
+    "promptNotFound": "Prediction prompt not found",
+    "invalidCorrectOption": "Invalid correct option value",
+    "optionTextEmpty": "Option text is required"
+  }
+}
