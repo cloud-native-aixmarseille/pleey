@@ -15,11 +15,10 @@ Community game platform with real-time experiences (quizzes and more) to energiz
 
 ## 🚀 Quick Start
 
-### Installation (3 commands)
+### Installation (2 commands)
 
 ```bash
-git clone <repo-url> && cd quiz-app
-cp .env.example .env
+git clone <repo-url> && cd pleey
 make install
 ```
 
@@ -86,9 +85,9 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 
 # Install the chart
-helm install quiz-app ./charts/application \
+helm install pleey ./charts/application \
   -f ./charts/application/values-prod.yaml \
-  --namespace quiz-app \
+  --namespace pleey \
   --create-namespace
 ```
 
@@ -110,7 +109,7 @@ Complete documentation is available in the `/docs` folder via Docusaurus.
 ### 📖 For Users
 
 - **[Quick Start Guide](docs/docs/functional/quickstart.md)** - Installation and first steps
-- **[Admin & Host Guide](docs/docs/functional/admin-host-guide.md)** - Create and host quizzes
+- **[Admin & Host Guide](docs/docs/functional/admin-host-guide.md)** - Create and host games
 
 ### 🛠️ For Developers
 

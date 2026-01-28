@@ -1,7 +1,7 @@
 ---
 # Staging environment values for Pleey
-# Usage: helm install quiz-app ./deploy/helm/quiz-app \
-#   -f ./deploy/helm/quiz-app/values-staging.yaml
+# Usage: helm install pleey ./deploy/helm/pleey \
+#   -f ./deploy/helm/pleey/values-staging.yaml
 
 backend:
   replicaCount: 2
@@ -58,12 +58,11 @@ postgresql:
   enabled: true
 
   auth:
-    username: quizapp
+    username: pleeyapp
     # Use existing secret for password
     # Provide this at deploy time (e.g. --set postgresql.auth.existingSecret=my-secret)
     existingSecret: ""
-    database: quizdb
-
+    database: pleeydb
   primary:
     persistence:
       enabled: true
@@ -89,7 +88,7 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
 
   hosts:
-    - host: quiz-staging.example.com
+    - host: pleey-staging.example.com
       paths:
         - path: /api
           pathType: Prefix
@@ -108,9 +107,9 @@ ingress:
             port: 80
 
   tls:
-    - secretName: quiz-app-staging-tls
+    - secretName: pleey-staging-tls
       hosts:
-        - quiz-staging.example.com
+        - pleey-staging.example.com
 
 otelCollector:
   enabled: true

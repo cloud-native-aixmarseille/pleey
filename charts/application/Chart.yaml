@@ -1,19 +1,22 @@
 ---
 apiVersion: v2
-name: quiz-app
+name: pleey
 description: Pleey - Interactive Quiz Application with real-time gameplay
 type: application
 version: 0.0.0
 appVersion: "0.0.0"
 keywords:
-  - quiz
+  - real-time
+  - interactive
+  - game
   - education
+  - quiz
   - websocket
   - nestjs
   - react
-home: https://github.com/cloud-native-aixmarseille/quiz-app
+home: https://github.com/cloud-native-aixmarseille/pleey
 sources:
-  - https://github.com/cloud-native-aixmarseille/quiz-app
+  - https://github.com/cloud-native-aixmarseille/pleey
 maintainers:
   - name: Pleey Team
     email: support@example.com

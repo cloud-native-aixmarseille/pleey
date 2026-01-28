@@ -1,4 +1,4 @@
 quiet: true
 skip-path:
   # This prevents checks (like CKV_K8S_21) from failing on third-party subcharts.
-  - charts/application/quiz-app/charts/postgresql/templates
+  - charts/application/pleey/charts/postgresql/templates

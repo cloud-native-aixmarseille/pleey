@@ -20,7 +20,7 @@ help: ## Display this help
 # Manage stack
 # ==========================================
 
-install: setup setup-traefik build up migrate seed openapi ## Complete installation (first time)
+install: setup-traefik build up migrate seed openapi ## Complete installation (first time)
 	@echo "$(GREEN)═══════════════════════════════════════$(NC)"
 	@echo "$(GREEN)✓ Installation completed successfully!$(NC)"
 	@echo "$(GREEN)═══════════════════════════════════════$(NC)"
@@ -31,19 +31,14 @@ install: setup setup-traefik build up migrate seed openapi ## Complete installat
 	@echo "  Traefik dashboard: $(YELLOW)http://traefik.localhost$(NC) (managed by setup-traefik)"
 	@echo ""
 	@echo "Default admin account:"
-	@echo "  Email:    $(YELLOW)admin@quiz.com$(NC)"
+	@echo "  Email:    $(YELLOW)admin@pleey.com$(NC)"
 	@echo "  Password: $(YELLOW)admin123$(NC)"
 	@echo ""
 	@echo "Test player account:"
-	@echo "  Email:    $(YELLOW)player@quiz.com$(NC)"
+	@echo "  Email:    $(YELLOW)player@pleey.com$(NC)"
 	@echo "  Password: $(YELLOW)player123$(NC)"
 	@echo ""
-	@echo "$(YELLOW)⚠️  Don't forget to change JWT_SECRET in .env !$(NC)"
 
-setup: ## Initial setup (first installation)
-	@echo "$(GREEN)Configuring environment...$(NC)"
-	@cp -n .env.example .env || true
-	@echo "$(YELLOW)⚠️  Don't forget to modify JWT_SECRET in .env$(NC)"
 
 build: ## Build Docker images
 	@echo "$(GREEN)Building images...$(NC)"
@@ -60,7 +55,7 @@ up: ## Start the application
 
 down: ## Stop the application
 	@echo "$(YELLOW)Stopping application...$(NC)"
-	$(COMPOSE) down
+	$(COMPOSE) down $(filter-out $@,$(MAKECMDGOALS))
 	@echo "$(GREEN)✓ Application stopped$(NC)"
 
 restart: ## Restart the application
@@ -145,7 +140,7 @@ seed: ## Seed the database
 	@echo "$(GREEN)✓ Database seeded$(NC)"
 
 db-shell: ## Access PostgreSQL database shell
-	$(COMPOSE) exec postgres psql -U ${POSTGRES_USER:-quizapp} -d ${POSTGRES_DB:-quizdb}
+	$(COMPOSE) exec postgres psql -U pleeyapp -d pleeydb
 
 # ==========================================
 # Backend

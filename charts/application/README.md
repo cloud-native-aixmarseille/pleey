@@ -1,10 +1,10 @@
-# quiz-app
+# pleey
 
 ![Version: 0.0.0](https://img.shields.io/badge/Version-0.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.0](https://img.shields.io/badge/AppVersion-0.0.0-informational?style=flat-square)
 
-Pleey - Community Game Platform with real-time experiences
+Pleey - Interactive Quiz Application with real-time gameplay
 
-**Homepage:** <https://github.com/cloud-native-aixmarseille/quiz-app>
+**Homepage:** <https://github.com/cloud-native-aixmarseille/pleey>
 
 ## Maintainers
 
@@ -14,7 +14,7 @@ Pleey - Community Game Platform with real-time experiences
 
 ## Source Code
 
-- <https://github.com/cloud-native-aixmarseille/quiz-app>
+- <https://github.com/cloud-native-aixmarseille/pleey>
 
 ## Requirements
 
@@ -37,10 +37,12 @@ Pleey - Community Game Platform with real-time experiences
 | backend.env.nodeEnv                                                  | string | `"production"`                                                              |             |
 | backend.env.otelExporterOtlpEndpoint                                 | string | `"http://otel-collector:4318"`                                              |             |
 | backend.env.port                                                     | int    | `3001`                                                                      |             |
+| backend.env.sessionStateTtlSeconds                                   | int    | `21600`                                                                     |             |
+| backend.env.valkeyUrl                                                | string | `""`                                                                        |             |
 | backend.image.digest                                                 | string | `"sha256:0000000000000000000000000000000000000000000000000000000000000000"` |             |
 | backend.image.pullPolicy                                             | string | `"Always"`                                                                  |             |
 | backend.image.registry                                               | string | `"ghcr.io"`                                                                 |             |
-| backend.image.repository                                             | string | `"cloud-native-aixmarseille/quiz-app/backend"`                              |             |
+| backend.image.repository                                             | string | `"cloud-native-aixmarseille/pleey/backend"`                                 |             |
 | backend.image.tag                                                    | string | `"0.0.0"`                                                                   |             |
 | backend.livenessProbe.failureThreshold                               | int    | `3`                                                                         |             |
 | backend.livenessProbe.httpGet.path                                   | string | `"/api/health/live"`                                                        |             |
@@ -86,7 +88,7 @@ Pleey - Community Game Platform with real-time experiences
 | frontend.image.digest                                                | string | `"sha256:0000000000000000000000000000000000000000000000000000000000000000"` |             |
 | frontend.image.pullPolicy                                            | string | `"Always"`                                                                  |             |
 | frontend.image.registry                                              | string | `"ghcr.io"`                                                                 |             |
-| frontend.image.repository                                            | string | `"cloud-native-aixmarseille/quiz-app/frontend"`                             |             |
+| frontend.image.repository                                            | string | `"cloud-native-aixmarseille/pleey/frontend"`                                |             |
 | frontend.image.tag                                                   | string | `"0.0.0"`                                                                   |             |
 | frontend.livenessProbe.httpGet.path                                  | string | `"/"`                                                                       |             |
 | frontend.livenessProbe.httpGet.port                                  | int    | `8080`                                                                      |             |
@@ -136,7 +138,7 @@ Pleey - Community Game Platform with real-time experiences
 | ingress.annotations."nginx.ingress.kubernetes.io/ssl-redirect"       | string | `"true"`                                                                    |             |
 | ingress.className                                                    | string | `"nginx"`                                                                   |             |
 | ingress.enabled                                                      | bool   | `true`                                                                      |             |
-| ingress.hosts[0].host                                                | string | `"quiz.example.com"`                                                        |             |
+| ingress.hosts[0].host                                                | string | `"pleey.example.com"`                                                       |             |
 | ingress.hosts[0].paths[0].path                                       | string | `"/api"`                                                                    |             |
 | ingress.hosts[0].paths[0].pathType                                   | string | `"Prefix"`                                                                  |             |
 | ingress.hosts[0].paths[0].service.name                               | string | `"backend"`                                                                 |             |
@@ -149,8 +151,8 @@ Pleey - Community Game Platform with real-time experiences
 | ingress.hosts[0].paths[2].pathType                                   | string | `"Prefix"`                                                                  |             |
 | ingress.hosts[0].paths[2].service.name                               | string | `"frontend"`                                                                |             |
 | ingress.hosts[0].paths[2].service.port                               | int    | `80`                                                                        |             |
-| ingress.tls[0].hosts[0]                                              | string | `"quiz.example.com"`                                                        |             |
-| ingress.tls[0].secretName                                            | string | `"quiz-app-tls"`                                                            |             |
+| ingress.tls[0].hosts[0]                                              | string | `"pleey.example.com"`                                                       |             |
+| ingress.tls[0].secretName                                            | string | `"pleey-tls"`                                                               |             |
 | monitoring.enabled                                                   | bool   | `false`                                                                     |             |
 | monitoring.prometheusRule.enabled                                    | bool   | `false`                                                                     |             |
 | monitoring.prometheusRule.labels                                     | object | `{}`                                                                        |             |
@@ -176,11 +178,11 @@ Pleey - Community Game Platform with real-time experiences
 | otelCollector.service.type                                           | string | `"ClusterIP"`                                                               |             |
 | podDisruptionBudget.enabled                                          | bool   | `false`                                                                     |             |
 | podDisruptionBudget.minAvailable                                     | int    | `1`                                                                         |             |
-| postgresql.auth.database                                             | string | `"quizdb"`                                                                  |             |
+| postgresql.auth.database                                             | string | `"pleeydb"`                                                                 |             |
 | postgresql.auth.existingSecret                                       | string | `""`                                                                        |             |
-| postgresql.auth.password                                             | string | `"quizapp_password"`                                                        |             |
+| postgresql.auth.password                                             | string | `"pleeyapp_password"`                                                       |             |
 | postgresql.auth.usePasswordFiles                                     | bool   | `true`                                                                      |             |
-| postgresql.auth.username                                             | string | `"quizapp"`                                                                 |             |
+| postgresql.auth.username                                             | string | `"pleeyapp"`                                                                |             |
 | postgresql.enabled                                                   | bool   | `true`                                                                      |             |
 | postgresql.image.digest                                              | string | `"sha256:94c148526e3de5a414cc53f75701ed0d57ff3719466851723512fcbd1182522a"` |             |
 | postgresql.image.pullPolicy                                          | string | `"Always"`                                                                  |             |
@@ -206,6 +208,23 @@ Pleey - Community Game Platform with real-time experiences
 | serviceAccount.annotations                                           | object | `{}`                                                                        |             |
 | serviceAccount.create                                                | bool   | `true`                                                                      |             |
 | serviceAccount.name                                                  | string | `""`                                                                        |             |
+| valkey.enabled                                                       | bool   | `true`                                                                      |             |
+| valkey.image.pullPolicy                                              | string | `"Always"`                                                                  |             |
+| valkey.image.repository                                              | string | `"valkey/valkey"`                                                           |             |
+| valkey.image.tag                                                     | string | `"8-alpine"`                                                                |             |
+| valkey.podSecurityContext.fsGroup                                    | int    | `10001`                                                                     |             |
+| valkey.podSecurityContext.runAsGroup                                 | int    | `10001`                                                                     |             |
+| valkey.podSecurityContext.runAsNonRoot                               | bool   | `true`                                                                      |             |
+| valkey.podSecurityContext.runAsUser                                  | int    | `10001`                                                                     |             |
+| valkey.podSecurityContext.seccompProfile.type                        | string | `"RuntimeDefault"`                                                          |             |
+| valkey.resources.limits.cpu                                          | string | `"100m"`                                                                    |             |
+| valkey.resources.limits.memory                                       | string | `"128Mi"`                                                                   |             |
+| valkey.resources.requests.cpu                                        | string | `"25m"`                                                                     |             |
+| valkey.resources.requests.memory                                     | string | `"64Mi"`                                                                    |             |
+| valkey.securityContext.allowPrivilegeEscalation                      | bool   | `false`                                                                     |             |
+| valkey.securityContext.capabilities.drop[0]                          | string | `"ALL"`                                                                     |             |
+| valkey.securityContext.readOnlyRootFilesystem                        | bool   | `true`                                                                      |             |
+| valkey.service.port                                                  | int    | `6379`                                                                      |             |
 
 ---
 

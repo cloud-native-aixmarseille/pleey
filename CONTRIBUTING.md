@@ -46,8 +46,8 @@ For complete guides:
 # 1. Fork the project on GitHub
 
 # 2. Clone your fork
-git clone https://github.com/YOUR-USERNAME/quiz-app.git
-cd quiz-app
+git clone https://github.com/YOUR-USERNAME/pleey.git
+cd pleey
 
 # 3. Install with Docker (recommended)
 make install

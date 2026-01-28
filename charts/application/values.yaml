@@ -42,7 +42,7 @@ backend:
 
   image:
     registry: ghcr.io
-    repository: cloud-native-aixmarseille/quiz-app/backend
+    repository: cloud-native-aixmarseille/pleey/backend
     tag: "0.0.0"
     pullPolicy: Always
     # Replace with the real digest for your registry/image.
@@ -148,7 +148,7 @@ frontend:
 
   image:
     registry: ghcr.io
-    repository: cloud-native-aixmarseille/quiz-app/frontend
+    repository: cloud-native-aixmarseille/pleey/frontend
     tag: "0.0.0"
     pullPolicy: Always
     # Replace with the real digest for your registry/image.
@@ -241,9 +241,9 @@ postgresql:
 
   # PostgreSQL authentication
   auth:
-    username: quizapp
-    password: quizapp_password
-    database: quizdb
+    username: pleeyapp
+    password: pleeyapp_password
+    database: pleeydb
     # Use existing secret (recommended for production)
     existingSecret: ""
     # Prefer using secret volumes (files) over env vars
@@ -262,6 +262,38 @@ postgresql:
 
     persistence:
       enabled: false
+
+      size: 8Gi
+      # storageClass: ""
+
+    resources:
+      limits:
+        cpu: 200m
+        memory: 256Mi
+      requests:
+        cpu: 50m
+        memory: 128Mi
+
+    # PostgreSQL configuration
+    extendedConfiguration: |
+      max_connections = 100
+      shared_buffers = 128MB
+
+  # Read replicas (optional)
+  readReplicas:
+    replicaCount: 0
+
+  # Metrics exporter for Prometheus
+  metrics:
+    enabled: false
+    image:
+      repository: bitnamilegacy/postgres-exporter
+    serviceMonitor:
+      enabled: false
+
+  volumePermissions:
+    image:
+      repository: bitnamilegacy/os-shell
 
 ## Valkey (Redis-compatible) configuration
 valkey:
@@ -298,40 +330,6 @@ valkey:
       drop:
         - ALL
 
-  persistence:
-    enabled: false
-      size: 8Gi
-      # storageClass: ""
-
-    resources:
-      limits:
-        cpu: 200m
-        memory: 256Mi
-      requests:
-        cpu: 50m
-        memory: 128Mi
-
-    # PostgreSQL configuration
-    extendedConfiguration: |
-      max_connections = 100
-      shared_buffers = 128MB
-
-  # Read replicas (optional)
-  readReplicas:
-    replicaCount: 0
-
-  # Metrics exporter for Prometheus
-  metrics:
-    enabled: false
-    image:
-      repository: bitnamilegacy/postgres-exporter
-    serviceMonitor:
-      enabled: false
-
-  volumePermissions:
-    image:
-      repository: bitnamilegacy/os-shell
-
 ## Ingress configuration
 ingress:
   enabled: true
@@ -350,7 +348,7 @@ ingress:
 
   # Hosts configuration
   hosts:
-    - host: quiz.example.com
+    - host: pleey.example.com
       paths:
         - path: /api
           pathType: Prefix
@@ -370,9 +368,9 @@ ingress:
 
   # TLS configuration
   tls:
-    - secretName: quiz-app-tls
+    - secretName: pleey-tls
       hosts:
-        - quiz.example.com
+        - pleey.example.com
 
 ## OpenTelemetry Collector (optional)
 otelCollector:

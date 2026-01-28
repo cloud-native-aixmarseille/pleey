@@ -34,7 +34,6 @@ export function useAppLifecycle({
   token,
   refreshProfile,
   loadQuizzes,
-  clearSession,
   notifyFromError,
   navigate,
   locationPathname,

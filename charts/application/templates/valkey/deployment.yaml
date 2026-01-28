@@ -2,19 +2,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "quiz-app.valkey.fullname" . }}
-  namespace: {{ include "quiz-app.namespace" . | quote }}
+  name: {{ include "pleey.valkey.fullname" . }}
+  namespace: {{ include "pleey.namespace" . | quote }}
   labels:
-    {{- include "quiz-app.valkey.labels" . | nindent 4 }}
+    {{- include "pleey.valkey.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      {{- include "quiz-app.valkey.selectorLabels" . | nindent 6 }}
+      {{- include "pleey.valkey.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "quiz-app.valkey.selectorLabels" . | nindent 8 }}
+        {{- include "pleey.valkey.selectorLabels" . | nindent 8 }}
     spec:
       automountServiceAccountToken: false
       securityContext:

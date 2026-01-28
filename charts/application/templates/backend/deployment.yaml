@@ -2,17 +2,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "quiz-app.fullname" . }}-backend
-  namespace: {{ include "quiz-app.namespace" . | quote }}
+  name: {{ include "pleey.fullname" . }}-backend
+  namespace: {{ include "pleey.namespace" . | quote }}
   labels:
-    {{- include "quiz-app.backend.labels" . | nindent 4 }}
+    {{- include "pleey.backend.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.backend.autoscaling.enabled }}
   replicas: {{ .Values.backend.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "quiz-app.backend.selectorLabels" . | nindent 6 }}
+      {{- include "pleey.backend.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       annotations:
@@ -22,21 +22,21 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
       labels:
-        {{- include "quiz-app.backend.selectorLabels" . | nindent 8 }}
+        {{- include "pleey.backend.selectorLabels" . | nindent 8 }}
     spec:
       {{- $imagePullSecrets := coalesce .Values.imagePullSecrets .Values.global.imagePullSecrets }}
       {{- with $imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "quiz-app.serviceAccountName" . }}
+      serviceAccountName: {{ include "pleey.serviceAccountName" . }}
       automountServiceAccountToken: false
       securityContext:
         {{- toYaml .Values.backend.podSecurityContext | nindent 8 }}
       initContainers:
         - name: wait-for-db
-          image: {{ include "quiz-app.waitForDb.image" . }}
-          imagePullPolicy: {{ include "quiz-app.imagePullPolicy" . }}
+          image: {{ include "pleey.waitForDb.image" . }}
+          imagePullPolicy: {{ include "pleey.imagePullPolicy" . }}
           securityContext:
             {{- toYaml .Values.backend.securityContext | nindent 12 }}
           command:
@@ -51,8 +51,8 @@ spec:
           resources:
             {{- toYaml .Values.backend.resources | nindent 12 }}
         - name: db-migrate
-          image: {{ include "quiz-app.backend.image" . }}
-          imagePullPolicy: {{ include "quiz-app.imagePullPolicy" . }}
+          image: {{ include "pleey.backend.image" . }}
+          imagePullPolicy: {{ include "pleey.imagePullPolicy" . }}
           securityContext:
             {{- toYaml .Values.backend.securityContext | nindent 12 }}
           env:
@@ -78,8 +78,8 @@ spec:
         - name: backend
           securityContext:
             {{- toYaml .Values.backend.securityContext | nindent 12 }}
-          image: {{ include "quiz-app.backend.image" . }}
-          imagePullPolicy: {{ include "quiz-app.imagePullPolicy" . }}
+          image: {{ include "pleey.backend.image" . }}
+          imagePullPolicy: {{ include "pleey.imagePullPolicy" . }}
           ports:
             - name: http
               containerPort: {{ .Values.backend.service.targetPort }}
@@ -94,7 +94,7 @@ spec:
             - name: CORS_ORIGIN
               value: {{ .Values.backend.env.corsOrigin | quote }}
             - name: VALKEY_URL
-              value: {{ include "quiz-app.valkeyUrl" . | quote }}
+              value: {{ include "pleey.valkeyUrl" . | quote }}
             - name: SESSION_STATE_TTL_SECONDS
               value: {{ .Values.backend.env.sessionStateTtlSeconds | quote }}
             - name: JWT_SECRET_FILE
@@ -122,7 +122,7 @@ spec:
           emptyDir: {}
         - name: backend-secrets
           secret:
-            secretName: {{ include "quiz-app.fullname" . }}-backend
+            secretName: {{ include "pleey.fullname" . }}-backend
             defaultMode: 0444
       {{- with .Values.backend.nodeSelector }}
       nodeSelector:
