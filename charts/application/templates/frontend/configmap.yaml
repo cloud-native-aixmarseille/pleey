@@ -2,10 +2,10 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "quiz-app.fullname" . }}-frontend
-  namespace: {{ include "quiz-app.namespace" . | quote }}
+  name: {{ include "pleey.fullname" . }}-frontend
+  namespace: {{ include "pleey.namespace" . | quote }}
   labels:
-    {{- include "quiz-app.frontend.labels" . | nindent 4 }}
+    {{- include "pleey.frontend.labels" . | nindent 4 }}
 data:
   VITE_API_URL: {{ .Values.frontend.env.apiUrl | quote }}
 {{- end }}

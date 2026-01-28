@@ -2,17 +2,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "quiz-app.fullname" . }}-frontend
-  namespace: {{ include "quiz-app.namespace" . | quote }}
+  name: {{ include "pleey.fullname" . }}-frontend
+  namespace: {{ include "pleey.namespace" . | quote }}
   labels:
-    {{- include "quiz-app.frontend.labels" . | nindent 4 }}
+    {{- include "pleey.frontend.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.frontend.autoscaling.enabled }}
   replicas: {{ .Values.frontend.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "quiz-app.frontend.selectorLabels" . | nindent 6 }}
+      {{- include "pleey.frontend.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       annotations:
@@ -21,14 +21,14 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
       labels:
-        {{- include "quiz-app.frontend.selectorLabels" . | nindent 8 }}
+        {{- include "pleey.frontend.selectorLabels" . | nindent 8 }}
     spec:
       {{- $imagePullSecrets := coalesce .Values.imagePullSecrets .Values.global.imagePullSecrets }}
       {{- with $imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "quiz-app.serviceAccountName" . }}
+      serviceAccountName: {{ include "pleey.serviceAccountName" . }}
       automountServiceAccountToken: false
       securityContext:
         {{- toYaml .Values.frontend.podSecurityContext | nindent 8 }}
@@ -36,8 +36,8 @@ spec:
         - name: frontend
           securityContext:
             {{- toYaml .Values.frontend.securityContext | nindent 12 }}
-          image: {{ include "quiz-app.frontend.image" . }}
-          imagePullPolicy: {{ include "quiz-app.imagePullPolicy" . }}
+          image: {{ include "pleey.frontend.image" . }}
+          imagePullPolicy: {{ include "pleey.imagePullPolicy" . }}
           ports:
             - name: http
               containerPort: {{ .Values.frontend.service.targetPort }}

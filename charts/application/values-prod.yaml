@@ -1,14 +1,14 @@
 ---
 # Production environment values for Pleey
-# Usage: helm install quiz-app ./deploy/helm/quiz-app \
-#   -f ./deploy/helm/quiz-app/values-prod.yaml
+# Usage: helm install pleey ./deploy/helm/pleey \
+#   -f ./deploy/helm/pleey/values-prod.yaml
 
 backend:
   replicaCount: 3
 
   image:
     registry: ghcr.io
-    repository: cloud-native-aixmarseille/quiz-app/backend
+    repository: cloud-native-aixmarseille/pleey/backend
     tag: "v1.0.0"
     pullPolicy: IfNotPresent
 
@@ -41,7 +41,7 @@ frontend:
 
   image:
     registry: ghcr.io
-    repository: cloud-native-aixmarseille/quiz-app/frontend
+    repository: cloud-native-aixmarseille/pleey/frontend
     tag: "v1.0.0"
     pullPolicy: IfNotPresent
 
@@ -68,12 +68,11 @@ postgresql:
   enabled: true
 
   auth:
-    username: quizapp
+    username: pleeyapp
     # Use external secret management
     # Provide this at deploy time (e.g. --set postgresql.auth.existingSecret=my-secret)
     existingSecret: ""
-    database: quizdb
-
+    database: pleeydb
   primary:
     persistence:
       enabled: true
@@ -128,10 +127,10 @@ ingress:
     nginx.ingress.kubernetes.io/limit-rps: "100"
     # Enable CORS
     nginx.ingress.kubernetes.io/enable-cors: "true"
-    nginx.ingress.kubernetes.io/cors-allow-origin: "https://quiz.example.com"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://pleey.example.com"
 
   hosts:
-    - host: quiz.example.com
+    - host: pleey.example.com
       paths:
         - path: /api
           pathType: Prefix
@@ -150,9 +149,9 @@ ingress:
             port: 80
 
   tls:
-    - secretName: quiz-app-prod-tls
+    - secretName: pleey-prod-tls
       hosts:
-        - quiz.example.com
+        - pleey.example.com
 
 otelCollector:
   enabled: true
@@ -179,15 +178,15 @@ monitoring:
       prometheus: kube-prometheus
     rules:
       - alert: QuizAppBackendDown
-        expr: up{job="quiz-app-backend"} == 0
+        expr: up{job="pleey-backend"} == 0
         for: 5m
         labels:
           severity: critical
         annotations:
-          summary: "QuizApp Backend is down"
+          summary: "Pleey Backend is down"
           description: "Backend has been down for more than 5 minutes"
 
-      - alert: QuizAppHighErrorRate
+      - alert: PleeyHighErrorRate
         expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.05
         for: 5m
         labels:

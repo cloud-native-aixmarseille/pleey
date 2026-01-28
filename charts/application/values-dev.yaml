@@ -1,7 +1,7 @@
 ---
 # Development environment values for Pleey
-# Usage: helm install quiz-app ./deploy/helm/quiz-app \
-#   -f ./deploy/helm/quiz-app/values-dev.yaml
+# Usage: helm install pleey ./deploy/helm/pleey \
+#   -f ./deploy/helm/pleey/values-dev.yaml
 
 backend:
   replicaCount: 1
@@ -47,9 +47,9 @@ postgresql:
   enabled: true
 
   auth:
-    username: quizapp
-    password: quizapp_dev_password
-    database: quizdb
+    username: pleeyapp
+    password: pleeyapp_dev_password
+    database: pleeydb
 
   primary:
     persistence:
@@ -73,7 +73,7 @@ ingress:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
 
   hosts:
-    - host: quiz-dev.local
+    - host: pleey-dev.local
       paths:
         - path: /api
           pathType: Prefix

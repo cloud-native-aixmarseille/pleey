@@ -138,8 +138,8 @@ async function main() {
       questionText: 'The earth is flat.',
       type: 'truefalse',
       answers: [
-        { text: null, position: 0, isCorrect: false },
-        { text: null, position: 1, isCorrect: true },
+        { text: 'True', position: 0, isCorrect: false },
+        { text: 'False', position: 1, isCorrect: true },
       ],
       timeLimit: 10,
       points: 500,
@@ -185,14 +185,16 @@ async function main() {
     where: { pin: sessionPin },
     update: {
       status: 'waiting',
-      quiz: { connect: { id: quiz.id } },
-      host: { connect: { id: admin.id } },
+      quizId: quiz.id,
+      hostId: admin.id,
+      currentQuestion: 0,
     },
     create: {
-      quiz: { connect: { id: quiz.id } },
-      host: { connect: { id: admin.id } },
+      quizId: quiz.id,
+      hostId: admin.id,
       pin: sessionPin,
       status: 'waiting',
+      currentQuestion: 0,
     },
   });
 

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { JoinGameUseCase } from "./join-game.use-case";
 import type { GameSocket } from "../../../domains/game/ports/game-socket";
 import { createGameSocketMock } from "../../../test/mock-factories/game-socket.mock-factory";

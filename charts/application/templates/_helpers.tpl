@@ -1,14 +1,14 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "quiz-app.name" -}}
+{{- define "pleey.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Create a default fully qualified app name.
 */}}
-{{- define "quiz-app.fullname" -}}
+{{- define "pleey.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -24,16 +24,16 @@ Create a default fully qualified app name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "quiz-app.chart" -}}
+{{- define "pleey.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "quiz-app.labels" -}}
-helm.sh/chart: {{ include "quiz-app.chart" . }}
-{{ include "quiz-app.selectorLabels" . }}
+{{- define "pleey.labels" -}}
+helm.sh/chart: {{ include "pleey.chart" . }}
+{{ include "pleey.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -43,72 +43,72 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "quiz-app.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "quiz-app.name" . }}
+{{- define "pleey.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "pleey.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Backend labels
 */}}
-{{- define "quiz-app.backend.labels" -}}
-{{ include "quiz-app.labels" . }}
+{{- define "pleey.backend.labels" -}}
+{{ include "pleey.labels" . }}
 app.kubernetes.io/component: backend
 {{- end }}
 
 {{/*
 Backend selector labels
 */}}
-{{- define "quiz-app.backend.selectorLabels" -}}
-{{ include "quiz-app.selectorLabels" . }}
+{{- define "pleey.backend.selectorLabels" -}}
+{{ include "pleey.selectorLabels" . }}
 app.kubernetes.io/component: backend
 {{- end }}
 
 {{/*
 Frontend labels
 */}}
-{{- define "quiz-app.frontend.labels" -}}
-{{ include "quiz-app.labels" . }}
+{{- define "pleey.frontend.labels" -}}
+{{ include "pleey.labels" . }}
 app.kubernetes.io/component: frontend
 {{- end }}
 
 {{/*
 Frontend selector labels
 */}}
-{{- define "quiz-app.frontend.selectorLabels" -}}
-{{ include "quiz-app.selectorLabels" . }}
+{{- define "pleey.frontend.selectorLabels" -}}
+{{ include "pleey.selectorLabels" . }}
 app.kubernetes.io/component: frontend
 {{- end }}
 
 {{/*
 Valkey labels
 */}}
-{{- define "quiz-app.valkey.labels" -}}
-{{ include "quiz-app.labels" . }}
+{{- define "pleey.valkey.labels" -}}
+{{ include "pleey.labels" . }}
 app.kubernetes.io/component: valkey
 {{- end }}
 
 {{/*
 Valkey selector labels
 */}}
-{{- define "quiz-app.valkey.selectorLabels" -}}
-{{ include "quiz-app.selectorLabels" . }}
+{{- define "pleey.valkey.selectorLabels" -}}
+{{ include "pleey.selectorLabels" . }}
 app.kubernetes.io/component: valkey
 {{- end }}
 
 {{/*
 Valkey full name
 */}}
-{{- define "quiz-app.valkey.fullname" -}}
-{{- printf "%s-valkey" (include "quiz-app.fullname" .) -}}
+{{- define "pleey.valkey.fullname" -}}
+{{- printf "%s-valkey" (include "pleey.fullname" .) -}}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "quiz-app.serviceAccountName" -}}
+{{- define "pleey.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "quiz-app.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "pleey.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
@@ -117,7 +117,7 @@ Create the name of the service account to use
 {{/*
 Backend image
 */}}
-{{- define "quiz-app.backend.image" -}}
+{{- define "pleey.backend.image" -}}
 {{- $registry := .Values.backend.image.registry | default .Values.global.imageRegistry -}}
 {{- $repository := .Values.backend.image.repository -}}
 {{- $tag := .Values.backend.image.tag | default .Chart.AppVersion -}}
@@ -140,7 +140,7 @@ Backend image
 {{/*
 Frontend image
 */}}
-{{- define "quiz-app.frontend.image" -}}
+{{- define "pleey.frontend.image" -}}
 {{- $registry := .Values.frontend.image.registry | default .Values.global.imageRegistry -}}
 {{- $repository := .Values.frontend.image.repository -}}
 {{- $tag := .Values.frontend.image.tag | default .Chart.AppVersion -}}
@@ -163,7 +163,7 @@ Frontend image
 {{/*
 Wait-for-db init container image
 */}}
-{{- define "quiz-app.waitForDb.image" -}}
+{{- define "pleey.waitForDb.image" -}}
 {{- $registry := .Values.global.initContainers.waitForDb.image.registry | default .Values.global.imageRegistry -}}
 {{- $repository := .Values.global.initContainers.waitForDb.image.repository | default "busybox" -}}
 {{- $tag := .Values.global.initContainers.waitForDb.image.tag | default "1.36" -}}
@@ -186,7 +186,7 @@ Wait-for-db init container image
 {{/*
 Database URL for backend
 */}}
-{{- define "quiz-app.databaseUrl" -}}
+{{- define "pleey.databaseUrl" -}}
 {{- if .Values.backend.secrets.databaseUrl }}
 {{- .Values.backend.secrets.databaseUrl }}
 {{- else if .Values.postgresql.enabled }}
@@ -202,11 +202,11 @@ Database URL for backend
 {{/*
 Valkey URL for backend
 */}}
-{{- define "quiz-app.valkeyUrl" -}}
+{{- define "pleey.valkeyUrl" -}}
 {{- if .Values.backend.env.valkeyUrl }}
 {{- .Values.backend.env.valkeyUrl -}}
 {{- else if .Values.valkey.enabled }}
-{{- printf "redis://%s:%d" (include "quiz-app.valkey.fullname" .) (int .Values.valkey.service.port) -}}
+{{- printf "redis://%s:%d" (include "pleey.valkey.fullname" .) (int .Values.valkey.service.port) -}}
 {{- else }}
 {{- required "Either valkey.enabled must be true or backend.env.valkeyUrl must be provided" .Values.backend.env.valkeyUrl -}}
 {{- end }}
@@ -216,7 +216,7 @@ Valkey URL for backend
 {{/*
 Image pull policy
 */}}
-{{- define "quiz-app.imagePullPolicy" -}}
+{{- define "pleey.imagePullPolicy" -}}
 {{- .Values.global.imagePullPolicy | default "IfNotPresent" }}
 {{- end }}
 
@@ -227,12 +227,12 @@ Checkov’s Helm scan renders with namespace=default; by defaulting the
 namespace override to a non-default value in values.yaml, we avoid
 CKV_K8S_21 failures while still allowing overrides per environment.
 */}}
-{{- define "quiz-app.namespace" -}}
+{{- define "pleey.namespace" -}}
 {{- $override := coalesce .Values.global.namespaceOverride .Values.namespaceOverride -}}
 {{- if $override -}}
 {{- $override -}}
 {{- else if eq .Release.Namespace "default" -}}
-{{- "quiz-app" -}}
+{{- "pleey" -}}
 {{- else -}}
 {{- .Release.Namespace -}}
 {{- end -}}

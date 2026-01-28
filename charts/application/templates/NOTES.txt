@@ -6,16 +6,16 @@
   {{- end }}
 {{- end }}
 {{- else if contains "NodePort" .Values.frontend.service.type }}
-  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "quiz-app.fullname" . }}-frontend)
+   export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "pleey.fullname" . }}-frontend)
   export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
   echo http://$NODE_IP:$NODE_PORT
 {{- else if contains "LoadBalancer" .Values.frontend.service.type }}
      NOTE: It may take a few minutes for the LoadBalancer IP to be available.
-           You can watch the status of by running 'kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "quiz-app.fullname" . }}-frontend'
-  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "quiz-app.fullname" . }}-frontend --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+                You can watch the status of by running 'kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "pleey.fullname" . }}-frontend'
+   export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "pleey.fullname" . }}-frontend --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
   echo http://$SERVICE_IP:{{ .Values.frontend.service.port }}
 {{- else if contains "ClusterIP" .Values.frontend.service.type }}
-  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "quiz-app.name" . }},app.kubernetes.io/instance={{ .Release.Name }},app.kubernetes.io/component=frontend" -o jsonpath="{.items[0].metadata.name}")
+   export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "pleey.name" . }},app.kubernetes.io/instance={{ .Release.Name }},app.kubernetes.io/component=frontend" -o jsonpath="{.items[0].metadata.name}")
   export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
   echo "Visit http://127.0.0.1:8080 to use your application"
   kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
@@ -41,13 +41,13 @@
 {{- if .Values.postgresql.enabled }}
    PostgreSQL is running as part of this release.
    Connection details:
-   - Host: {{ include "quiz-app.fullname" . }}-postgresql
+   - Host: {{ include "pleey.fullname" . }}-postgresql
    - Port: 5432
    - Database: {{ .Values.postgresql.auth.database }}
    - Username: {{ .Values.postgresql.auth.username }}
    
    To connect to the database:
-   kubectl exec -it -n {{ .Release.Namespace }} {{ include "quiz-app.fullname" . }}-postgresql-0 -- psql -U {{ .Values.postgresql.auth.username }} -d {{ .Values.postgresql.auth.database }}
+   kubectl exec -it -n {{ .Release.Namespace }} {{ include "pleey.fullname" . }}-postgresql-0 -- psql -U {{ .Values.postgresql.auth.username }} -d {{ .Values.postgresql.auth.database }}
 {{- else }}
    External database configuration detected.
    Ensure your DATABASE_URL is properly configured.
@@ -61,8 +61,8 @@
 {{- end }}
 
 7. For more information:
-   - Documentation: https://github.com/cloud-native-aixmarseille/quiz-app/docs
-   - Issues: https://github.com/cloud-native-aixmarseille/quiz-app/issues
+   - Documentation: https://github.com/cloud-native-aixmarseille/pleey/docs
+   - Issues: https://github.com/cloud-native-aixmarseille/pleey/issues
    - Chart values: helm show values {{ .Chart.Name }}
 
-Happy quizzing! 🎮
+Happy gaming! 🎮

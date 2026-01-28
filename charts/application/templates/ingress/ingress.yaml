@@ -2,10 +2,10 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "quiz-app.fullname" . }}
-  namespace: {{ include "quiz-app.namespace" . | quote }}
+  name: {{ include "pleey.fullname" . }}
+  namespace: {{ include "pleey.namespace" . | quote }}
   labels:
-    {{- include "quiz-app.labels" . | nindent 4 }}
+    {{- include "pleey.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -34,7 +34,7 @@ spec:
             pathType: {{ .pathType }}
             backend:
               service:
-                name: {{ include "quiz-app.fullname" $ }}-{{ .service.name }}
+                name: {{ include "pleey.fullname" $ }}-{{ .service.name }}
                 port:
                   number: {{ .service.port }}
           {{- end }}

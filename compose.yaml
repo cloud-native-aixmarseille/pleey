@@ -6,37 +6,35 @@ services:
   # PostgreSQL Database
   postgres:
     image: postgres:16-alpine
-    container_name: quiz-postgres
     restart: unless-stopped
     environment:
-      - POSTGRES_USER=${POSTGRES_USER:-quizapp}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-quizapp_password}
-      - POSTGRES_DB=${POSTGRES_DB:-quizdb}
-      - POSTGRES_TEST_DB=${POSTGRES_TEST_DB:-quizdb_test}
+      - POSTGRES_USER=${POSTGRES_USER:-pleeyapp}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-pleeyapp_password}
+      - POSTGRES_DB=${POSTGRES_DB:-pleeydb}
+      - POSTGRES_TEST_DB=${POSTGRES_TEST_DB:-pleeydb_test}
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
     networks:
-      - quiz-network
+      - pleey-network
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "pg_isready -U ${POSTGRES_USER:-quizapp} -d ${POSTGRES_DB:-quizdb}",
+          "pg_isready -U ${POSTGRES_USER:-pleeyapp} -d ${POSTGRES_DB:-pleeydb}",
         ]
       interval: 10s
       timeout: 5s
       retries: 5
     # No port binding - use docker exec or expose via Traefik if needed
-    # For database tools, you can still use: docker exec -it quiz-postgres psql
+    # For database tools, you can still use: docker exec -it pleey-postgres psql
 
   # Valkey (Redis-compatible) - shared session state for WebSockets
   valkey:
     image: valkey/valkey:8-alpine
-    container_name: quiz-valkey
     restart: unless-stopped
     networks:
-      - quiz-network
+      - pleey-network
     healthcheck:
       test: ["CMD", "valkey-cli", "ping"]
       interval: 10s
@@ -57,9 +55,9 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3001
-      - JWT_SECRET=${JWT_SECRET:-votre_secret_jwt_super_securise_changez_moi}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-quizapp}:${POSTGRES_PASSWORD:-quizapp_password}@postgres:5432/${POSTGRES_DB:-quizdb}?schema=public
-      - DATABASE_URL_TEST=postgresql://${POSTGRES_USER:-quizapp}:${POSTGRES_PASSWORD:-quizapp_password}@postgres:5432/${POSTGRES_TEST_DB:-quizdb_test}?schema=public
+      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_change_me}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-pleeyapp}:${POSTGRES_PASSWORD:-pleeyapp_password}@postgres:5432/${POSTGRES_DB:-pleeydb}?schema=public
+      - DATABASE_URL_TEST=postgresql://${POSTGRES_USER:-pleeyapp}:${POSTGRES_PASSWORD:-pleeyapp_password}@postgres:5432/${POSTGRES_TEST_DB:-pleeydb_test}?schema=public
       - VALKEY_URL=redis://valkey:6379
       - CORS_ORIGIN=*
       - CHOKIDAR_USEPOLLING=1
@@ -73,7 +71,7 @@ services:
       valkey:
         condition: service_healthy
     networks:
-      - quiz-network
+      - pleey-network
       - traefik-proxy
     labels:
       - "traefik.enable=true"
@@ -109,7 +107,7 @@ services:
     depends_on:
       - backend
     networks:
-      - quiz-network
+      - pleey-network
       - traefik-proxy
     environment:
       - NODE_ENV=development
@@ -134,9 +132,9 @@ services:
     environment:
       - BASE_URL=${BASE_URL:-http://frontend:5173}
       - API_BASE_URL=${API_BASE_URL:-http://backend:3001/api}
-      - E2E_ADMIN_EMAIL=${E2E_ADMIN_EMAIL:-admin@quiz.com}
+      - E2E_ADMIN_EMAIL=${E2E_ADMIN_EMAIL:-admin@pleey.com}
       - E2E_ADMIN_PASSWORD=${E2E_ADMIN_PASSWORD:-admin123}
-      - E2E_PLAYER_EMAIL=${E2E_PLAYER_EMAIL:-player@quiz.com}
+      - E2E_PLAYER_EMAIL=${E2E_PLAYER_EMAIL:-player@pleey.com}
       - E2E_PLAYER_PASSWORD=${E2E_PLAYER_PASSWORD:-player123}
     volumes:
       - ./e2e:/workspace
@@ -146,7 +144,7 @@ services:
       frontend:
         condition: service_started
     networks:
-      - quiz-network
+      - pleey-network
       - traefik-proxy
     labels:
       - "traefik.enable=true"
@@ -161,7 +159,7 @@ services:
     volumes:
       - ./docker/otel-collector/config.yaml:/etc/otelcol/config.yaml
     networks:
-      - quiz-network
+      - pleey-network
     healthcheck:
       test: ["CMD", "/otelcol", "validate", "--config=/etc/otelcol/config.yaml"]
       interval: 30s
@@ -170,7 +168,7 @@ services:
       start_period: 10s
 
 networks:
-  quiz-network:
+  pleey-network:
     driver: bridge
   traefik-proxy:
     name: traefik-proxy

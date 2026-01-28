@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { LogoutUseCase } from "./logout.use-case";
 import type { Storage } from "../../../domains/shared/ports/storage";
 import { createStorageMock } from "../../../test/mock-factories/storage.mock-factory";
