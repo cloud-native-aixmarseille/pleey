@@ -7,7 +7,7 @@ permissions: {}
 
 jobs:
   linter:
-    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@b17226e57c8ef31f860719766656ebb6df017218 # v0.31.6
+    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@f5847cb398fe65d53794e6aba98ebdfa0801f691 # v0.32.0
     permissions:
       actions: read
       contents: read
@@ -76,7 +76,7 @@ jobs:
     strategy:
       matrix:
         service: ["backend", "frontend"]
-    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@c9d9d041ba4ef35695ee469c4782fa6a8bbebbcc # v0.21.2
+    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@775ce0902c528062cc94141dd7d13261083b752a # v0.22.0
     needs: build
     permissions:
       contents: read
