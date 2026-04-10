@@ -34,7 +34,7 @@
     "socket.io-client": "^4.8.3"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.3.11",
+    "@biomejs/biome": "^2.4.11",
     "@graphql-codegen/cli": "^6.2.1",
     "@graphql-codegen/typed-document-node": "^6.1.7",
     "@graphql-codegen/typescript": "^5.0.9",
@@ -44,13 +44,13 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
-    "@vitejs/plugin-react": "^5.1.0",
-    "@vitest/coverage-v8": "^4.0.16",
+    "@vitejs/plugin-react": "^6.0.1",
+    "@vitest/coverage-v8": "^4.1.4",
     "autoprefixer": "^10.4.23",
-    "jsdom": "^27.0.1",
-    "postcss": "^8.5.6",
-    "typescript": "^5.7.3",
-    "vite": "^7.3.0",
+    "jsdom": "^29.0.2",
+    "postcss": "^8.5.9",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.8",
     "vitest": "^4.0.15"
   }
 }
