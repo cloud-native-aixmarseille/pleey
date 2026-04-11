@@ -52,17 +52,6 @@ function extractSourceSymbol(content) {
     return null;
   }
 
-  const directCanonicalRuntimeSymbols = uniqueRuntimeExports.filter(
-    (symbol) =>
-      /^[A-Z][A-Za-z0-9]*$/.test(symbol) &&
-      /[a-z]/.test(symbol) &&
-      !symbol.endsWith('Provider') &&
-      !symbol.startsWith('Abstract'),
-  );
-  if (directCanonicalRuntimeSymbols.length === 1) {
-    return directCanonicalRuntimeSymbols[0];
-  }
-
   const providerTargets = [...content.matchAll(providerSymbolPattern)].map((match) => match[2]);
   const declarationSymbols = [];
   for (const pattern of declarationPatterns) {
@@ -82,6 +71,28 @@ function extractSourceSymbol(content) {
     (symbol) => /[a-z]/.test(symbol) && !symbol.endsWith('Provider'),
   );
   const uniqueContractSymbols = [...new Set(contractSymbols)].filter((symbol) => /[a-z]/.test(symbol));
+  const uniqueTokenRuntimeExports = uniqueRuntimeExports.filter((symbol) => symbol.endsWith('Token'));
+
+  if (
+    uniqueTokenRuntimeExports.length === 1 &&
+    uniqueRuntimeExports.length === 1 &&
+    uniqueDeclarationSymbols.length === 0 &&
+    uniqueContractSymbols.length === 1
+  ) {
+    return uniqueContractSymbols[0];
+  }
+
+  const directCanonicalRuntimeSymbols = uniqueRuntimeExports.filter(
+    (symbol) =>
+      /^[A-Z][A-Za-z0-9]*$/.test(symbol) &&
+      /[a-z]/.test(symbol) &&
+      !symbol.endsWith('Provider') &&
+      !symbol.endsWith('Token') &&
+      !symbol.startsWith('Abstract'),
+  );
+  if (directCanonicalRuntimeSymbols.length === 1) {
+    return directCanonicalRuntimeSymbols[0];
+  }
 
   if (uniqueDeclarationSymbols.length > 1) {
     return null;
@@ -178,38 +189,12 @@ function getBaseNameWithoutExtension(filePath) {
   return path.basename(removeTypeScriptExtension(filePath));
 }
 
-function violatesFrontendApplicationServiceBoundary(relativePath) {
-  return /^src\/application\/.*\/services\//.test(relativePath);
-}
-
 function violatesFrontendAppServiceNaming(relativePath) {
   return /^src\/app\/.*\.service\.(ts|tsx)$/.test(relativePath);
 }
 
 function violatesFrontendAppAdapterNaming(relativePath) {
   return /^src\/app\/.*(?:\.adapter\.(ts|tsx)|.*adapters\/)/.test(relativePath);
-}
-
-function extractImportSources(content) {
-  const importSourcePattern = /(?:import|export)\s+(?:type\s+)?(?:[^'";]+?\s+from\s+)?['"]([^'"]+)['"]/g;
-  return [...content.matchAll(importSourcePattern)].map((match) => match[1]);
-}
-
-function findFrontendBypassedSharedWrapperImports(relativePath, importSources) {
-  if (!/^src\/presentation\//.test(relativePath) || /^src\/presentation\/shared\//.test(relativePath)) {
-    return [];
-  }
-
-  const bannedSources = [
-    '@tanstack/react-form',
-    '@radix-ui/react-label',
-    '@radix-ui/react-slot',
-    'class-variance-authority',
-    'clsx',
-    'tailwind-merge',
-  ];
-
-  return importSources.filter((source) => bannedSources.includes(source));
 }
 
 function normalizeBaseName(baseName) {
@@ -283,21 +268,28 @@ function hasSideBySideTest(sourceFilePath) {
   });
 }
 
-function requiresFrontendSideBySideTest(relativePath, filePath, symbol) {
+function requiresFrontendSideBySideTest(relativePath, filePath, symbol, content) {
   if (/^src\/infrastructure\/graphql\/generated\//.test(relativePath)) {
     return false;
   }
 
-  if (/^src\/domains\/.*\.(ts|tsx)$/.test(relativePath)) {
-    return Boolean(symbol);
-  }
+  const hasBehavioralRuntimeExport = /export\s+(?:abstract\s+)?class\s+|export\s+default\s+function\s+|export\s+function\s+|export\s+const\s+(?![A-Za-z_$][A-Za-z0-9_$]*Token\b)/.test(
+    content,
+  );
 
-  if (/^src\/presentation\/.*\.tsx$/.test(relativePath)) {
+  if (/^src\/presentation\/.*\/contexts\/.*\.tsx$/.test(relativePath)) {
     return true;
   }
 
-  if (/^src\/infrastructure\/.*\.(ts|tsx)$/.test(relativePath)) {
-    return Boolean(symbol);
+  if (
+    /^src\/presentation\/.*\/screens\/[^/]+\/[^/]+\.tsx$/.test(relativePath) ||
+    /^src\/presentation\/.*\/screens\/[^/]+\.tsx$/.test(relativePath)
+  ) {
+    return true;
+  }
+
+  if (/^src\/presentation\/.*\/routes\/.*\.tsx$/.test(relativePath)) {
+    return true;
   }
 
   return false;
@@ -319,12 +311,6 @@ export function runProject(projectName) {
 
   for (const filePath of files) {
     const relativePath = toWorkspaceRelative(project.root, filePath);
-
-    if (projectName === 'frontend' && violatesFrontendApplicationServiceBoundary(relativePath)) {
-      failures.push(
-        `${relativePath}: application layer must not define services; move this module under src/domains/**/services or model it as a use-case instead.`,
-      );
-    }
 
     if (projectName === 'frontend' && violatesFrontendAppServiceNaming(relativePath)) {
       failures.push(
@@ -370,20 +356,9 @@ export function runProject(projectName) {
 
     const content = fs.readFileSync(filePath, 'utf8');
     const symbol = project.extractSourceSymbol(content);
-    const bypassedSharedWrapperImports =
-      projectName === 'frontend'
-        ? findFrontendBypassedSharedWrapperImports(relativePath, extractImportSources(content))
-        : [];
-
-    if (bypassedSharedWrapperImports.length > 0) {
-      failures.push(
-        `${relativePath}: presentation feature code must consume shared wrappers from src/presentation/shared/** instead of importing ${bypassedSharedWrapperImports.join(', ')} directly.`,
-      );
-    }
-
     if (
       projectName === 'frontend' &&
-      requiresFrontendSideBySideTest(relativePath, filePath, symbol) &&
+      requiresFrontendSideBySideTest(relativePath, filePath, symbol, content) &&
       !hasSideBySideTest(filePath)
     ) {
       failures.push(

@@ -1,0 +1,37 @@
+engine biome(1.0)
+language js(typescript, jsx)
+
+or {
+  JsImport() as $statement where {
+    $statement <: contains JsModuleSource() as $source,
+    $source <: or {
+      r"['\"](?:src/)?infrastructure(?:/.*)?['\"]",
+      r"['\"].*/infrastructure(?:/.*)?['\"]",
+      r"['\"](?:src/)?presentation(?:/.*)?['\"]",
+      r"['\"].*/presentation(?:/.*)?['\"]",
+      r"['\"](?:src/)?app(?:/.*)?['\"]",
+      r"['\"].*/app(?:/.*)?['\"]"
+    },
+    register_diagnostic(
+      span = $source,
+      message = "Backend application/domain layers must not import infrastructure, presentation, or app composition code. Depend on domain/application contracts and bind adapters at the composition boundary.",
+      severity = "error"
+    )
+  },
+  JsExportFromClause() as $statement where {
+    $statement <: contains JsModuleSource() as $source,
+    $source <: or {
+      r"['\"](?:src/)?infrastructure(?:/.*)?['\"]",
+      r"['\"].*/infrastructure(?:/.*)?['\"]",
+      r"['\"](?:src/)?presentation(?:/.*)?['\"]",
+      r"['\"].*/presentation(?:/.*)?['\"]",
+      r"['\"](?:src/)?app(?:/.*)?['\"]",
+      r"['\"].*/app(?:/.*)?['\"]"
+    },
+    register_diagnostic(
+      span = $source,
+      message = "Backend application/domain layers must not re-export infrastructure, presentation, or app composition code. Depend on domain/application contracts and bind adapters at the composition boundary.",
+      severity = "error"
+    )
+  }
+}

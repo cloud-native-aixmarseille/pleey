@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "organizationNotFound": "Organisation introuvable",
+    "organizationNameAlreadyExists": "Une organisation avec ce nom existe deja",
+    "memberNotFound": "Membre de l'organisation introuvable",
+    "memberAlreadyExists": "Cet utilisateur est deja membre de l'organisation",
+    "insufficientPermissions": "Vous n'avez pas les permissions necessaires pour effectuer cette action",
+    "cannotRemoveLastOwner": "Vous ne pouvez pas supprimer le dernier proprietaire de l'organisation",
+    "notAMember": "Vous n'etes pas membre de cette organisation"
+  }
+}

@@ -1,7 +1,4 @@
-import { GameSessionStatus } from '../../../../domain/game/enums/game-session-status.enum';
 import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
-import { createGameRepositoryMock } from '../../../../test-utils/mock-factories/game-repository.mock-factory';
-import { createGameSessionRepositoryMock } from '../../../../test-utils/mock-factories/game-session-repository.mock-factory';
 import {
   createOrganizationMemberRepositoryMock,
   createOrganizationRepositoryMock,
@@ -17,16 +14,16 @@ describe('GetOrganizationDashboardUseCase', () => {
     const organizationRepository = createOrganizationRepositoryMock({ findById: null });
     const memberRepository = createOrganizationMemberRepositoryMock();
     const projectRepository = createProjectRepositoryMock();
-    const gameRepository = createGameRepositoryMock();
-    const sessionRepository = createGameSessionRepositoryMock();
+    const workspaceGameManagement = {
+      getOrganizationDashboardStats: vi.fn(),
+    };
 
     const useCase = new GetOrganizationDashboardUseCase(
       defaultWorkspaceService as never,
       organizationRepository as never,
       memberRepository as never,
-      gameRepository as never,
       projectRepository as never,
-      sessionRepository as never,
+      workspaceGameManagement as never,
     );
 
     await expect(useCase.execute(1, 10)).rejects.toThrow(
@@ -46,16 +43,16 @@ describe('GetOrganizationDashboardUseCase', () => {
       findByOrganizationAndUser: null,
     });
     const projectRepository = createProjectRepositoryMock();
-    const gameRepository = createGameRepositoryMock();
-    const sessionRepository = createGameSessionRepositoryMock();
+    const workspaceGameManagement = {
+      getOrganizationDashboardStats: vi.fn(),
+    };
 
     const useCase = new GetOrganizationDashboardUseCase(
       defaultWorkspaceService as never,
       organizationRepository as never,
       memberRepository as never,
-      gameRepository as never,
       projectRepository as never,
-      sessionRepository as never,
+      workspaceGameManagement as never,
     );
 
     await expect(useCase.execute(1, 10)).rejects.toThrow(OrganizationErrorCode.NOT_A_MEMBER);
@@ -77,31 +74,27 @@ describe('GetOrganizationDashboardUseCase', () => {
       findByOrganization: [{ id: 1 }, { id: 2 }] as never,
     });
 
-    const gameRepository = createGameRepositoryMock({
-      findByProject: [{ id: 11 }, { id: 22 }] as never,
-    });
-
-    const sessionRepository = createGameSessionRepositoryMock({
-      findByGameId: [
-        { status: GameSessionStatus.WAITING },
-        { status: GameSessionStatus.ENDED },
-      ] as never,
-    });
+    const workspaceGameManagement = {
+      getOrganizationDashboardStats: vi.fn().mockResolvedValue({
+        totalGames: 4,
+        totalParties: 8,
+        activeParties: 4,
+      }),
+    };
 
     const useCase = new GetOrganizationDashboardUseCase(
       defaultWorkspaceService as never,
       organizationRepository as never,
       memberRepository as never,
-      gameRepository as never,
       projectRepository as never,
-      sessionRepository as never,
+      workspaceGameManagement as never,
     );
 
     const result = await useCase.execute(1, 10);
     expect(result.stats).toEqual({
       totalGames: 4,
-      totalGameSessions: 8,
-      activeGameSessions: 4,
+      totalParties: 8,
+      activeParties: 4,
       totalMembers: 2,
       totalProjects: 2,
     });

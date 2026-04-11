@@ -1,16 +1,21 @@
 import { useCallback, useMemo, useState } from 'react';
-import type { DashboardWorkspaceGateway } from '../../../../../application/workspace/dashboard/facades/dashboard-workspace.facade';
-import type { Organization } from '../../../../../domains/organization/entities/organization';
-import type { Project } from '../../../../../domains/project/entities/project';
+import type {
+  Organization,
+  OrganizationId,
+} from '../../../../../domains/organization/entities/organization';
+import type { Project, ProjectId } from '../../../../../domains/project/entities/project';
 import type {
   CreateProjectCommand,
   DeleteProjectCommand,
   UpdateProjectCommand,
 } from '../../../../../domains/project/ports/project-repository';
-import { useDashboardWorkspace } from '../../../dashboard/hooks/use-dashboard-workspace';
+import {
+  type DashboardWorkspaceSelectionGateway,
+  useDashboardWorkspace,
+} from '../../../dashboard/hooks/use-dashboard-workspace';
 
 interface OrganizationScreenStateParams {
-  readonly dashboardWorkspace: DashboardWorkspaceGateway;
+  readonly dashboardWorkspace: DashboardWorkspaceSelectionGateway;
   readonly createProject: (command: CreateProjectCommand) => Promise<Project>;
   readonly updateProject: (command: UpdateProjectCommand) => Promise<Project>;
   readonly deleteProject: (command: DeleteProjectCommand) => Promise<void>;
@@ -31,34 +36,36 @@ export function useOrganizationScreenState({
   const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [projectPendingRemoval, setProjectPendingRemoval] = useState<Project | null>(null);
-  const [migrationProjectId, setMigrationProjectId] = useState<number | null>(null);
+  const [migrationProjectId, setMigrationProjectId] = useState<ProjectId | null>(null);
   const [actionErrorMessage, setActionErrorMessage] = useState<string | null>(null);
   const [isDeletingProject, setIsDeletingProject] = useState(false);
 
   const stableDashboardWorkspace = useCallback(
-    () => dashboardWorkspace.loadOrganizationSelection(),
+    () => dashboardWorkspace.restoreOrganizationSelection(),
     [dashboardWorkspace, reloadKey],
   );
 
   const stableOrganizationWorkspace = useCallback(
-    (organizationId: number | null) => dashboardWorkspace.loadOrganizationWorkspace(organizationId),
+    (organizationId: OrganizationId | null) =>
+      dashboardWorkspace.loadOrganizationWorkspaceState(organizationId),
     [dashboardWorkspace, reloadKey],
   );
 
   const stableSetOrganizationSelection = useCallback(
-    (organizationId: number | null) => dashboardWorkspace.setOrganizationSelection(organizationId),
+    (organizationId: OrganizationId | null) =>
+      dashboardWorkspace.setOrganizationSelection(organizationId),
     [dashboardWorkspace],
   );
 
   const stableSetProjectSelection = useCallback(
-    (projectId: number | null) => dashboardWorkspace.setProjectSelection(projectId),
+    (projectId: ProjectId | null) => dashboardWorkspace.setProjectSelection(projectId),
     [dashboardWorkspace],
   );
 
   const stableDashboardWorkspaceProxy = useMemo(
     () => ({
-      loadOrganizationSelection: stableDashboardWorkspace,
-      loadOrganizationWorkspace: stableOrganizationWorkspace,
+      restoreOrganizationSelection: stableDashboardWorkspace,
+      loadOrganizationWorkspaceState: stableOrganizationWorkspace,
       setOrganizationSelection: stableSetOrganizationSelection,
       setProjectSelection: stableSetProjectSelection,
     }),

@@ -1,11 +1,4 @@
-import { uiThemeTokens } from '../../../shared/ui/foundation/ui-theme';
-
-const pageStyle = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: uiThemeTokens.spacing.xl,
-} as const;
-
+import { ContentStack } from '../../../shared/ui/layout/containers';
 import { HomeClosingCtaSection } from './home-closing-cta-section';
 import {
   HomeFeaturesSection,
@@ -16,12 +9,12 @@ import { HomeHeroSection } from './home-hero-section';
 
 export function HomeScreen() {
   return (
-    <div style={pageStyle}>
+    <ContentStack gap="xl">
       <HomeHeroSection />
       <HomeValuePropositionSection />
       <HomeHowItWorksSection />
       <HomeFeaturesSection />
       <HomeClosingCtaSection />
-    </div>
+    </ContentStack>
   );
 }

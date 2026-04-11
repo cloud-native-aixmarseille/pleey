@@ -1,0 +1,61 @@
+import type { PartyId } from '../../../../../../../domains/game/party/shared/entities/party';
+import type { PartyObservation } from '../../../../../../../domains/game/party/shared/entities/party-observation';
+import type { StageId } from '../../../../../../../domains/game/party/shared/entities/party-stage';
+import { PartyStatus } from '../../../../../../../domains/game/party/shared/entities/party-status';
+import { PartyScreenSection } from '../use-party-lobby-screen-state';
+
+interface ResolveRuntimeRedirectParams {
+  readonly party: PartyObservation | undefined;
+  readonly requestedStageId: StageId | null;
+  readonly resolvePartyLeaderboardRoute: (partyId: PartyId) => string;
+  readonly resolvePartyLobbyRoute: (partyId: PartyId) => string;
+  readonly resolvePartyResultRoute: (partyId: PartyId, stageId: StageId) => string;
+  readonly resolvePartyStageRoute: (partyId: PartyId, stageId: StageId) => string;
+  readonly screenSection: PartyScreenSection;
+}
+
+export class PartyLobbyRuntimeRedirectResolver {
+  static resolve({
+    party,
+    requestedStageId,
+    resolvePartyLeaderboardRoute,
+    resolvePartyLobbyRoute,
+    resolvePartyResultRoute,
+    resolvePartyStageRoute,
+    screenSection,
+  }: ResolveRuntimeRedirectParams): string | null {
+    if (!party) {
+      return null;
+    }
+
+    const currentResult = party.context?.result?.current ?? null;
+
+    if (party.status === PartyStatus.ENDED && currentResult) {
+      return screenSection === PartyScreenSection.LEADERBOARD
+        ? null
+        : resolvePartyLeaderboardRoute(party.partyId);
+    }
+
+    if (currentResult) {
+      const currentStageId = currentResult.stageId;
+
+      return screenSection === PartyScreenSection.RESULT && requestedStageId === currentStageId
+        ? null
+        : resolvePartyResultRoute(party.partyId, currentStageId);
+    }
+
+    const currentStage = party.context?.stage?.current ?? null;
+
+    if (currentStage) {
+      const currentStageId = currentStage.stageId;
+
+      return screenSection === PartyScreenSection.STAGE && requestedStageId === currentStageId
+        ? null
+        : resolvePartyStageRoute(party.partyId, currentStageId);
+    }
+
+    return screenSection === PartyScreenSection.LOBBY
+      ? null
+      : resolvePartyLobbyRoute(party.partyId);
+  }
+}

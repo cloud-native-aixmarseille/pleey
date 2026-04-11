@@ -4,12 +4,12 @@ import type {
   CreateProjectCommand,
   ProjectRepository,
 } from '../../../../domains/project/ports/project-repository';
-import { PROJECT_SERVICE_ID } from '../contracts/project-service-id';
+import { ProjectRepositoryToken } from '../../../../domains/project/ports/project-repository';
 
 @injectable()
 export class CreateProjectUseCase {
   constructor(
-    @inject(PROJECT_SERVICE_ID.projectRepository)
+    @inject(ProjectRepositoryToken)
     private readonly projectRepository: ProjectRepository,
   ) {}
 

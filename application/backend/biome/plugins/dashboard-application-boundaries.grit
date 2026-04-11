@@ -1,0 +1,31 @@
+engine biome(1.0)
+language js(typescript, jsx)
+
+or {
+  JsImport() as $statement where {
+    $statement <: contains JsModuleSource() as $source,
+    $source <: or {
+      r"['\"](?:src/)?application/workspace/projects/use-cases(?:/.*)?['\"]",
+      r"['\"].*/application/workspace/projects/use-cases(?:/.*)?['\"]",
+      r"['\"].*/projects/use-cases(?:/.*)?['\"]"
+    },
+    register_diagnostic(
+      span = $source,
+      message = "Dashboard application code must not depend on project use-cases. Promote shared behavior into dashboard-owned or shared application contracts instead of routing dashboard behavior through project.",
+      severity = "error"
+    )
+  },
+  JsExportFromClause() as $statement where {
+    $statement <: contains JsModuleSource() as $source,
+    $source <: or {
+      r"['\"](?:src/)?application/workspace/projects/use-cases(?:/.*)?['\"]",
+      r"['\"].*/application/workspace/projects/use-cases(?:/.*)?['\"]",
+      r"['\"].*/projects/use-cases(?:/.*)?['\"]"
+    },
+    register_diagnostic(
+      span = $source,
+      message = "Dashboard application code must not re-export project use-cases. Promote shared behavior into dashboard-owned or shared application contracts instead of routing dashboard behavior through project.",
+      severity = "error"
+    )
+  }
+}

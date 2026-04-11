@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { UserId } from '../../auth/entities/user';
+import type { UserId } from '../../identity/entities/user';
 import type { ProjectRepository } from '../../project/ports/project.repository';
 import { ProjectRepositoryProvider } from '../../project/ports/project.repository';
 import { OrganizationRole } from '../enums/organization-role.enum';

@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import type { DashboardGameListItem } from '../../../../domains/game-catalog/entities/dashboard-game-list-item';
-import type { DashboardGameListPage } from '../../../../domains/game-catalog/entities/dashboard-game-list-page';
-import type { DashboardGameListQuery } from '../../../../domains/game-catalog/entities/dashboard-game-list-query';
+import { useEffect, useEffectEvent, useState } from 'react';
+import type { DashboardGameListItem } from '../../../../domains/game/management/entities/dashboard-game-list-item';
+import type { DashboardGameListPage } from '../../../../domains/game/management/entities/dashboard-game-list-page';
+import type { DashboardGameListQuery } from '../../../../domains/game/management/entities/dashboard-game-list-query';
 
 interface UseProjectGamesOptions {
   readonly query: DashboardGameListQuery | null;
@@ -15,6 +15,7 @@ interface UseProjectGamesResult {
   readonly totalPages: number;
   readonly isLoading: boolean;
   readonly errorMessage: string | null;
+  readonly reload: () => void;
 }
 
 export function useProjectGames({
@@ -22,11 +23,13 @@ export function useProjectGames({
   loadGames,
 }: UseProjectGamesOptions): UseProjectGamesResult {
   const [games, setGames] = useState<DashboardGameListItem[]>([]);
+  const [reloadVersion, setReloadVersion] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   const [overallCount, setOverallCount] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const loadGamesEffect = useEffectEvent(loadGames);
 
   useEffect(() => {
     if (query === null) {
@@ -45,7 +48,7 @@ export function useProjectGames({
       setIsLoading(true);
 
       try {
-        const loaded = await loadGames(query);
+        const loaded = await loadGamesEffect(query);
 
         if (!ignore) {
           setGames([...loaded.items]);
@@ -73,7 +76,11 @@ export function useProjectGames({
     return () => {
       ignore = true;
     };
-  }, [loadGames, query]);
+  }, [query, reloadVersion]);
 
-  return { games, totalCount, overallCount, totalPages, isLoading, errorMessage };
+  const reload = () => {
+    setReloadVersion((current) => current + 1);
+  };
+
+  return { games, totalCount, overallCount, totalPages, isLoading, errorMessage, reload };
 }

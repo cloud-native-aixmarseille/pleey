@@ -16,6 +16,19 @@ type SeedQuestion = {
   points: number;
 };
 
+type SeedPredictionOption = {
+  text: string;
+  position: number;
+  isCorrect: boolean;
+};
+
+type SeedPredictionPrompt = {
+  promptText: string;
+  options: SeedPredictionOption[];
+  timeLimit: number;
+  points: number;
+};
+
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
   throw new Error('DATABASE_URL is required to run seed');
@@ -169,7 +182,7 @@ async function main() {
   }
 
   const predictionTitle = 'Event Predictions - Sample';
-  const existingPredictionGame = await prisma.game.findFirst({
+  let predictionGame = await prisma.game.findFirst({
     where: {
       type: 'prediction',
       title: predictionTitle,
@@ -178,8 +191,8 @@ async function main() {
     },
   });
 
-  if (!existingPredictionGame) {
-    await prisma.game.create({
+  if (!predictionGame) {
+    predictionGame = await prisma.game.create({
       data: {
         type: 'prediction',
         title: predictionTitle,
@@ -187,6 +200,78 @@ async function main() {
         projectId: project.id,
       },
     });
+  } else {
+    predictionGame = await prisma.game.update({
+      where: { id: predictionGame.id },
+      data: {
+        description: 'Sample prediction game for local development',
+        projectId: project.id,
+      },
+    });
+  }
+
+  let prediction = await prisma.prediction.findFirst({
+    where: { gameId: predictionGame.id },
+  });
+
+  if (!prediction) {
+    prediction = await prisma.prediction.create({
+      data: {
+        game: { connect: { id: predictionGame.id } },
+      },
+    });
+  }
+
+  const predictionPromptsData: SeedPredictionPrompt[] = [
+    {
+      promptText: 'Which team will win the opening match?',
+      options: [
+        { text: 'North City FC', position: 0, isCorrect: true },
+        { text: 'South United', position: 1, isCorrect: false },
+        { text: 'Draw after penalties', position: 2, isCorrect: false },
+      ],
+      timeLimit: 20,
+      points: 900,
+    },
+    {
+      promptText: 'How many goals will be scored in total?',
+      options: [
+        { text: '0-1 goals', position: 0, isCorrect: false },
+        { text: '2-3 goals', position: 1, isCorrect: true },
+        { text: '4+ goals', position: 2, isCorrect: false },
+      ],
+      timeLimit: 20,
+      points: 1200,
+    },
+  ];
+
+  for (const prompt of predictionPromptsData) {
+    const existingPrompt = await prisma.predictionPrompt.findFirst({
+      where: { predictionId: prediction.id, promptText: prompt.promptText },
+    });
+
+    if (!existingPrompt) {
+      const createdPrompt = await prisma.predictionPrompt.create({
+        data: {
+          predictionId: prediction.id,
+          position: predictionPromptsData.findIndex(
+            (item) => item.promptText === prompt.promptText,
+          ),
+          promptText: prompt.promptText,
+          timeLimit: prompt.timeLimit,
+          points: prompt.points,
+        },
+      });
+
+      await prisma.predictionOption.createMany({
+        data: prompt.options.map((option) => ({
+          promptId: createdPrompt.id,
+          text: option.text,
+          position: option.position,
+          isCorrect: option.isCorrect,
+        })),
+      });
+    }
   }
 
   const questionsData: SeedQuestion[] = [
@@ -246,9 +331,9 @@ async function main() {
     where: { quizId: quiz.id },
   });
 
-  const sessionPin = '123456';
-  const session = await prisma.gameSession.upsert({
-    where: { pin: sessionPin },
+  const partyPin = '123456';
+  const party = await prisma.party.upsert({
+    where: { pin: partyPin },
     update: {
       status: 'waiting',
       gameId: quizGame.id,
@@ -258,7 +343,7 @@ async function main() {
     create: {
       gameId: quizGame.id,
       hostId: admin.id,
-      pin: sessionPin,
+      pin: partyPin,
       status: 'waiting',
       context: Prisma.JsonNull,
     },
@@ -269,7 +354,7 @@ async function main() {
     await prisma.score.createMany({
       data: [
         {
-          sessionId: session.id,
+          partyId: party.id,
           userId: player.id,
           context: {
             questionId: firstQuestion.id,

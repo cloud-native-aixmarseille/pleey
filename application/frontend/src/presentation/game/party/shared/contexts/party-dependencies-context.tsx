@@ -1,0 +1,58 @@
+import { createContext, createElement, type ReactElement, type ReactNode, useContext } from 'react';
+import type { PartyLobbyGateway } from '../../../../../application/game/party/shared/facades/party-lobby.facade';
+import type { PartyHostControlPort } from '../../../../../domains/game/party/host/ports/party-host-control.port';
+import type { PartyHostRuntimeControlsPort } from '../../../../../domains/game/party/host/ports/party-host-runtime-controls.port';
+import type { PartyManagementPort } from '../../../../../domains/game/party/host/ports/party-management.port';
+import type { PartyGuestSessionPort } from '../../../../../domains/game/party/player/ports/party-guest-session.port';
+import type { PartyPlayerPort } from '../../../../../domains/game/party/player/ports/party-player.port';
+import type { PartyId, PartyPin } from '../../../../../domains/game/party/shared/entities/party';
+import type { StageId } from '../../../../../domains/game/party/shared/entities/party-stage';
+import type { PartyObservationPort } from '../../../../../domains/game/party/shared/ports/party-observation.port';
+import { PresentationContextErrorCode } from '../../../../../domains/shared/errors/presentation-context-error-code';
+
+export interface PartyIdParser {
+  parse<TValue>(value: TValue): TValue extends '' | null | undefined ? null : PartyId | null;
+  parseOrNull(value: unknown): PartyId | null;
+}
+
+export interface PartyPinParser {
+  parse<TValue>(value: TValue): TValue extends '' | null | undefined ? null : PartyPin | null;
+  parseOrNull(value: unknown): PartyPin | null;
+}
+
+export interface StageIdParser {
+  parse<TValue>(value: TValue): TValue extends '' | null | undefined ? null : StageId | null;
+  parseOrNull(value: unknown): StageId | null;
+}
+
+export interface PartyDependencies {
+  readonly hostPartyRuntimeControlsResolver: PartyHostRuntimeControlsPort;
+  readonly partyIdentifier: PartyIdParser;
+  readonly partyLobbyFacade: PartyLobbyGateway;
+  readonly partyGuestSessionPort: PartyGuestSessionPort;
+  readonly partyHostControlPort: PartyHostControlPort;
+  readonly partyManagementPort: PartyManagementPort;
+  readonly partyPlayerPort: PartyPlayerPort;
+  readonly partyObservationPort: PartyObservationPort;
+  readonly partyPinIdentifier: PartyPinParser;
+  readonly stageIdentifier: StageIdParser;
+}
+
+const PartyDependenciesContext = createContext<PartyDependencies | null>(null);
+
+export function providePartyDependencies(
+  children: ReactNode,
+  value: PartyDependencies,
+): ReactElement {
+  return createElement(PartyDependenciesContext.Provider, { value }, children);
+}
+
+export function usePartyDependencies(): PartyDependencies {
+  const dependencies = useContext(PartyDependenciesContext);
+
+  if (!dependencies) {
+    throw new Error(PresentationContextErrorCode.PRESENTATION_RUNTIME_DEPENDENCY_PROVIDER_REQUIRED);
+  }
+
+  return dependencies;
+}

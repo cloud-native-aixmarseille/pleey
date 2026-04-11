@@ -1,20 +1,19 @@
 import { useAnimationFrame } from 'framer-motion';
-import { useEffect, useMemo, useState } from 'react';
-import { useRuntimeDependency } from '../../../../di/use-runtime-dependency';
+import { useEffect, useState } from 'react';
 import { usePrefersReducedMotion } from '../../hooks/use-prefers-reduced-motion';
 import { LemmingSprite } from './animations';
 import { type LemmingSnapshot, LemmingsPatienceEngine } from './lemmings-patience-engine';
-import { LemmingsPlatformService } from './lemmings-platform-service';
 
 const layerStyle = { position: 'absolute', inset: 0 } as const;
 
-export function LemmingsPatienceAnimation({ container }: { container: HTMLElement | null }) {
+export function LemmingsPatienceAnimation({
+  container,
+  engine,
+}: {
+  container: HTMLElement | null;
+  engine: LemmingsPatienceEngine;
+}) {
   const prefersReducedMotion = usePrefersReducedMotion();
-  const platformService = useRuntimeDependency(LemmingsPlatformService);
-  const engine = useMemo(
-    () => new LemmingsPatienceEngine(undefined, platformService),
-    [platformService],
-  );
   const [lemmings, setLemmings] = useState<Array<LemmingSnapshot>>([]);
 
   useEffect(() => {

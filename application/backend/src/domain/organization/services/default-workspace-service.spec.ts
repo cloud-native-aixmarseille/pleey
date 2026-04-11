@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
+import { ProjectIdentifier } from '../../../application/workspace/shared/services/identifiers/project-identifier';
 import {
   createOrganizationMemberRepositoryMock,
   createOrganizationRepositoryMock,
@@ -6,10 +8,13 @@ import {
 import { createProjectRepositoryMock } from '../../../test-utils/mock-factories/project-repository.mock-factory';
 import { DefaultWorkspaceService } from './default-workspace-service';
 
+const organizationIdentifier = new OrganizationIdentifier();
+const projectIdentifier = new ProjectIdentifier();
+
 describe('DefaultWorkspaceService', () => {
   it('creates default organization and project when user has no memberships', async () => {
     const organizationRepository = createOrganizationRepositoryMock({
-      create: { id: 42 } as never,
+      create: { id: organizationIdentifier.parse(42) } as never,
     });
     const memberRepository = createOrganizationMemberRepositoryMock({
       findByUser: [] as never,
@@ -26,13 +31,17 @@ describe('DefaultWorkspaceService', () => {
 
     expect(organizationRepository.create).toHaveBeenCalledWith('Default', null);
     expect(memberRepository.create).toHaveBeenCalled();
-    expect(projectRepository.create).toHaveBeenCalledWith(42, 'Default', null);
+    expect(projectRepository.create).toHaveBeenCalledWith(
+      organizationIdentifier.parse(42),
+      'Default',
+      null,
+    );
   });
 
   it('creates default project when membership exists but no project exists', async () => {
     const organizationRepository = createOrganizationRepositoryMock();
     const memberRepository = createOrganizationMemberRepositoryMock({
-      findByUser: [{ organizationId: 11 }] as never,
+      findByUser: [{ organizationId: organizationIdentifier.parse(11) }] as never,
     });
     const projectRepository = createProjectRepositoryMock({
       findByOrganization: [] as never,
@@ -46,17 +55,23 @@ describe('DefaultWorkspaceService', () => {
 
     await service.ensure(7);
 
-    expect(projectRepository.findByOrganization).toHaveBeenCalledWith(11);
-    expect(projectRepository.create).toHaveBeenCalledWith(11, 'Default', null);
+    expect(projectRepository.findByOrganization).toHaveBeenCalledWith(
+      organizationIdentifier.parse(11),
+    );
+    expect(projectRepository.create).toHaveBeenCalledWith(
+      organizationIdentifier.parse(11),
+      'Default',
+      null,
+    );
   });
 
   it('does nothing when membership and project already exist', async () => {
     const organizationRepository = createOrganizationRepositoryMock();
     const memberRepository = createOrganizationMemberRepositoryMock({
-      findByUser: [{ organizationId: 11 }] as never,
+      findByUser: [{ organizationId: organizationIdentifier.parse(11) }] as never,
     });
     const projectRepository = createProjectRepositoryMock({
-      findByOrganization: [{ id: 1 }] as never,
+      findByOrganization: [{ id: projectIdentifier.parse(1) }] as never,
     });
 
     const service = new DefaultWorkspaceService(

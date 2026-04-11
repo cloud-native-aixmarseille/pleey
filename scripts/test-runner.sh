@@ -84,7 +84,7 @@ run_e2e() {
 	log "Resetting database + seed data..."
 	# E2E runs must start from a clean schema so dashboard pagination and seeded
 	# fixtures remain deterministic across repeated local and CI executions.
-	(cd "$ROOT_DIR" && VITE_API_URL="$VITE_API_URL_E2E" docker compose --env-file /dev/null exec -T backend sh -lc 'npx prisma migrate reset --force && npm run db:generate && npm run seed')
+	(cd "$ROOT_DIR" && VITE_API_URL="$VITE_API_URL_E2E" docker compose --env-file /dev/null exec -T backend sh -lc 'npx prisma migrate reset --force && npm run db:generate && NODE_NO_WARNINGS=1 npm run seed')
 
 	wait_for_http "http://backend:3001${BACKEND_HEALTH_PATH}" "backend"
 
@@ -110,7 +110,7 @@ run_e2e() {
 		-e E2E_ADMIN_PASSWORD="${E2E_ADMIN_PASSWORD:-admin123}" \
 		-e E2E_PLAYER_EMAIL="${E2E_PLAYER_EMAIL:-player@pleey.com}" \
 		-e E2E_PLAYER_PASSWORD="${E2E_PLAYER_PASSWORD:-player123}" \
-		e2e-tests bash -lc "npm ci --no-audit --fund=false && npm run '$script_cmd'")
+		e2e-tests bash -lc "NPM_CONFIG_LOGLEVEL=error NPM_CONFIG_UPDATE_NOTIFIER=false npm ci --no-audit --fund=false && NPM_CONFIG_LOGLEVEL=error NPM_CONFIG_UPDATE_NOTIFIER=false npm run '$script_cmd'")
 }
 
 run_all() {

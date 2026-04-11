@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { AuthErrorCode } from '../../../../domain/auth/enums/auth-error-code.enum';
-import type { UserRepository } from '../../../../domain/auth/ports/user.repository';
-import { UserRepositoryProvider } from '../../../../domain/auth/ports/user.repository';
-import { PasswordService } from '../../../../domain/auth/services/password-service';
-import { UserAvatarService } from '../../../../domain/auth/services/user-avatar-service';
-import type { UserProfileSnapshot } from '../../../../domain/auth/types/user-profile-snapshot';
+import { IdentityErrorCode } from '../../../../domain/identity/enums/identity-error-code.enum';
+import type { UserRepository } from '../../../../domain/identity/ports/user.repository';
+import { UserRepositoryProvider } from '../../../../domain/identity/ports/user.repository';
+import { PasswordService } from '../../../../domain/identity/services/password-service';
+import { UserAvatarService } from '../../../../domain/identity/services/user-avatar-service';
+import type { UserProfileSnapshot } from '../../../../domain/identity/types/user-profile-snapshot';
 import type { RegisterUserDto } from '../dto/register-user-dto';
 
 /**
@@ -24,12 +24,12 @@ export class RegisterUserUseCase {
     // Check if user already exists
     const exists = await this.userRepository.exists(dto.email, dto.username);
     if (exists) {
-      throw new Error(AuthErrorCode.USER_ALREADY_EXISTS);
+      throw new Error(IdentityErrorCode.USER_ALREADY_EXISTS);
     }
 
     // Validate password strength
     if (!this.passwordService.isValidPassword(dto.password)) {
-      throw new Error(AuthErrorCode.PASSWORD_TOO_SHORT);
+      throw new Error(IdentityErrorCode.PASSWORD_TOO_SHORT);
     }
 
     // Hash password

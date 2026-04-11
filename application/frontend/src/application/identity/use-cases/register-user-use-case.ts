@@ -1,7 +1,9 @@
 import { inject, injectable } from 'inversify';
-import type { User } from '../../../domains/auth/entities/user';
-import type { AuthRepository } from '../../../domains/auth/ports/auth-repository';
-import { AUTH_SERVICE_ID } from '../contracts/auth-service-id';
+import type { User } from '../../../domains/identity/entities/user';
+import {
+  type AuthRepository,
+  AuthRepositoryToken,
+} from '../../../domains/identity/ports/auth-repository';
 
 export interface RegisterUserCommand {
   readonly username: string;
@@ -12,7 +14,7 @@ export interface RegisterUserCommand {
 @injectable()
 export class RegisterUserUseCase {
   constructor(
-    @inject(AUTH_SERVICE_ID.authRepository)
+    @inject(AuthRepositoryToken)
     private readonly authRepository: AuthRepository,
   ) {}
 

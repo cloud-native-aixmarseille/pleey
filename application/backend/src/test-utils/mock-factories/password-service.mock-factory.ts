@@ -1,6 +1,6 @@
 import type { Mocked } from 'vitest';
 
-import type { PasswordService } from '../../domain/auth/services/password-service';
+import type { PasswordService } from '../../domain/identity/services/password-service';
 
 import {
   applyMockFactoryConfig,

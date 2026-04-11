@@ -1,12 +1,33 @@
 export const dashboardFr = {
   dashboard: {
+    console: {
+      title: 'Console d espace',
+      subtitle:
+        'Choisissez un espace, puis passez de la preparation au lancement sans quitter le tableau de bord.',
+      commandPalette: {
+        title: 'Palette de commandes',
+        description:
+          'Passez d une organisation a un projet ou a une action de jeu depuis un seul point d entree.',
+        meta: 'Le chemin le plus rapide pour les operations repetitives',
+      },
+      fastFiltering: {
+        title: 'Filtrage rapide',
+        description: 'Reduisez les longues listes de jeux par type, nom et statut avant d agir.',
+        meta: 'Pense pour les espaces charges',
+      },
+      liveOps: {
+        title: 'Vue live ops',
+        description:
+          'Gardez les parties actives, la readiness des jeux et le lancement dans la meme surface.',
+        meta: 'Le contexte reste lie au projet selectionne',
+      },
+    },
     workspace: {
       sectionTitle: 'Choisissez votre espace',
       organizationLabel: 'Organisation',
       organizationPlaceholder: 'Choisir une organisation',
       projectLabel: 'Projet',
       projectPlaceholder: 'Choisir un projet',
-      ready: 'Prêt sur {{organization}} / {{project}}.',
       manageOrganizations: 'Gérer les organisations',
       manageProjects: 'Gérer les projets',
     },
@@ -16,33 +37,6 @@ export const dashboardFr = {
       totalGames: 'Jeux',
       totalProjects: 'Projets',
       totalMembers: 'Membres',
-      activeGameSessions: 'Sessions actives',
-      totalGameSessions: 'Sessions totales',
-    },
-    sessions: {
-      title: 'Session active',
-      fallbackTitle: 'Session {{pin}}',
-      pin: 'PIN {{pin}}',
-      actionFailed: 'Impossible de mettre à jour la session sélectionnée.',
-      createFailed: 'Impossible de créer une nouvelle session de jeu.',
-      status: {
-        waiting: 'Lobby ouvert',
-        active: 'En direct',
-        paused: 'En pause',
-      },
-      role: {
-        player: 'Joueur',
-      },
-      actions: {
-        openLobby: 'Ouvrir le lobby',
-        openLive: 'Ouvrir la vue live',
-        leave: 'Quitter',
-        pause: 'Mettre en pause',
-        resume: 'Reprendre',
-        leaving: 'Déconnexion...',
-        stopping: 'Mise en pause...',
-        resuming: 'Reprise...',
-      },
     },
     games: {
       title: 'Vos jeux',
@@ -50,12 +44,29 @@ export const dashboardFr = {
       empty: 'Aucun jeu trouvé dans ce projet pour le moment.',
       noDescription: 'Aucune description fournie.',
       createdAt: 'Créé le {{date}}',
+      readiness: {
+        ready: '{{count}} stages prets',
+        needsStages: 'Ajoutez des stages avant le lancement',
+      },
       actions: {
-        launch: 'Lancer',
-        launching: 'Lancement...',
-        launchDisabledActiveSession:
-          "Une session est déjà active. Terminez-la avant d'en lancer une nouvelle.",
+        createGame: 'Créer un jeu',
+        createParty: 'Créer une partie',
         manage: 'Gérer',
+      },
+      create: {
+        title: 'Créer un nouveau jeu',
+        typeLabel: 'Type de jeu',
+        titleLabel: 'Titre',
+        descriptionLabel: 'Description',
+        submit: 'Créer le jeu',
+        error: 'Impossible de créer le jeu.',
+      },
+      permissions: {
+        createParty: {
+          activePartyExists: 'Une partie active existe déjà pour ce jeu.',
+          hostHasActiveParty: 'Vous hébergez déjà une autre partie active.',
+          noStagesAvailable: 'Ajoutez au moins un stage avant de créer une partie pour ce jeu.',
+        },
       },
       filters: {
         label: 'Filtrer les jeux',
@@ -75,13 +86,25 @@ export const dashboardFr = {
         pageOf: '{{current}} / {{total}}',
       },
     },
+    activeParty: {
+      title: 'Votre partie active',
+      empty: 'Aucune partie active n’existe encore pour ce compte.',
+      pinTitle: 'PIN de partie {{pin}}',
+      role: {
+        host: 'Hôte',
+        player: 'Joueur',
+      },
+      actions: {
+        openLobby: 'Ouvrir le lobby',
+        openLive: 'Ouvrir la partie en direct',
+      },
+    },
     errors: {
       loadFailed: 'Impossible de charger les données demandées.',
     },
   },
   project: {
     errors: {
-      invalidResponse: 'Le serveur a renvoyé une réponse de projet invalide.',
       loadFailed: 'Impossible de charger les projets.',
     },
   },

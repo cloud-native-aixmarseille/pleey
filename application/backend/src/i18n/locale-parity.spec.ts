@@ -33,17 +33,24 @@ function listSourceFiles(directory: string): string[] {
   });
 }
 
-function collectStaticBackendTranslationKeys(directory: string): string[] {
+function collectStaticBackendTranslationKeys(
+  directory: string,
+  namespaces: readonly string[],
+): string[] {
   const keys = new Set<string>();
-  const translationPattern = /\.translate\(\s*['"]([^'"]+)['"]/g;
+  const stringLiteralPattern = /['"`]([^'"`\n]+)['"`]/g;
 
   for (const filePath of listSourceFiles(directory)) {
     const fileContent = readFileSync(filePath, 'utf8');
 
-    translationPattern.lastIndex = 0;
+    stringLiteralPattern.lastIndex = 0;
 
-    for (const match of fileContent.matchAll(translationPattern)) {
-      keys.add(match[1]);
+    for (const match of fileContent.matchAll(stringLiteralPattern)) {
+      const value = match[1];
+
+      if (namespaces.some((namespace) => value.startsWith(`${namespace}.`))) {
+        keys.add(value);
+      }
     }
   }
 
@@ -57,6 +64,7 @@ describe('backend locale parity', () => {
   const localeFiles = readdirSync(englishDirectory).filter((fileName) =>
     fileName.endsWith('.json'),
   );
+  const namespaces = localeFiles.map((localeFile) => localeFile.replace(/\.json$/, ''));
 
   for (const localeFile of localeFiles) {
     it(`keeps en and fr keys aligned for ${localeFile}`, () => {
@@ -98,7 +106,7 @@ describe('backend locale parity', () => {
     });
 
     // Act
-    const usedKeys = collectStaticBackendTranslationKeys(sourceDirectory);
+    const usedKeys = collectStaticBackendTranslationKeys(sourceDirectory, namespaces);
 
     // Assert
     expect(usedKeys.filter((key) => !englishKeys.includes(key))).toEqual([]);
@@ -118,7 +126,7 @@ describe('backend locale parity', () => {
     });
 
     // Act
-    const usedKeys = collectStaticBackendTranslationKeys(sourceDirectory);
+    const usedKeys = collectStaticBackendTranslationKeys(sourceDirectory, namespaces);
 
     // Assert
     expect(englishKeys.filter((key) => !usedKeys.includes(key))).toEqual([]);

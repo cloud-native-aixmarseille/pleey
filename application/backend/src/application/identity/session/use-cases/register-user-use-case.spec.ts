@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { AuthErrorCode } from '../../../../domain/auth/enums/auth-error-code.enum';
+import { IdentityErrorCode } from '../../../../domain/identity/enums/identity-error-code.enum';
 import { createUserFixture } from '../../../../test-utils/fixtures/unit/user.fixture';
 import { createPasswordServiceMock } from '../../../../test-utils/mock-factories/password-service.mock-factory';
 import { createUserAvatarServiceMock } from '../../../../test-utils/mock-factories/user-avatar-service.mock-factory';
@@ -20,7 +20,7 @@ describe('RegisterUserUseCase', () => {
 
     await expect(
       useCase.execute({ username: 'alice', email: 'alice@example.com', password: 'pw' }),
-    ).rejects.toThrow(AuthErrorCode.USER_ALREADY_EXISTS);
+    ).rejects.toThrow(IdentityErrorCode.USER_ALREADY_EXISTS);
   });
 
   it('throws PASSWORD_TOO_SHORT when password is invalid', async () => {
@@ -36,7 +36,7 @@ describe('RegisterUserUseCase', () => {
 
     await expect(
       useCase.execute({ username: 'alice', email: 'alice@example.com', password: 'pw' }),
-    ).rejects.toThrow(AuthErrorCode.PASSWORD_TOO_SHORT);
+    ).rejects.toThrow(IdentityErrorCode.PASSWORD_TOO_SHORT);
   });
 
   it('creates user with hashed password and generated avatar uri', async () => {

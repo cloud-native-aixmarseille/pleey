@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "organizationNotFound": "Organization not found",
+    "organizationNameAlreadyExists": "An organization with this name already exists",
+    "memberNotFound": "Organization member not found",
+    "memberAlreadyExists": "This user is already a member of the organization",
+    "insufficientPermissions": "You do not have permission to perform this action",
+    "cannotRemoveLastOwner": "You cannot remove the last organization owner",
+    "notAMember": "You are not a member of this organization"
+  }
+}

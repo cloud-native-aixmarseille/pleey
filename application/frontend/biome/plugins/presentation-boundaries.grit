@@ -1,0 +1,41 @@
+engine biome(1.0)
+language js(typescript, jsx)
+
+or {
+  JsImport() as $statement where {
+    $statement <: contains JsModuleSource() as $source,
+    $source <: or {
+      r"['\"](?:src/)?app(?:/.*)?['\"]",
+      r"['\"].*/app(?:/.*)?['\"]",
+      r"['\"](?:src/)?infrastructure(?:/.*)?['\"]",
+      r"['\"].*/infrastructure(?:/.*)?['\"]",
+      r"['\"](?:src/)?application/.*/services(?:/.*)?['\"]",
+      r"['\"].*/application/.*/services(?:/.*)?['\"]",
+      r"['\"](?:src/)?application/.*/use-cases(?:/.*)?['\"]",
+      r"['\"].*/application/.*/use-cases(?:/.*)?['\"]"
+    },
+    register_diagnostic(
+      span = $source,
+      message = "Frontend presentation code must not import app composition, infrastructure, application services, or application use-cases directly. Inject collaborators from route factories, providers, or presentation-owned adapters instead.",
+      severity = "error"
+    )
+  },
+  JsExportFromClause() as $statement where {
+    $statement <: contains JsModuleSource() as $source,
+    $source <: or {
+      r"['\"](?:src/)?app(?:/.*)?['\"]",
+      r"['\"].*/app(?:/.*)?['\"]",
+      r"['\"](?:src/)?infrastructure(?:/.*)?['\"]",
+      r"['\"].*/infrastructure(?:/.*)?['\"]",
+      r"['\"](?:src/)?application/.*/services(?:/.*)?['\"]",
+      r"['\"].*/application/.*/services(?:/.*)?['\"]",
+      r"['\"](?:src/)?application/.*/use-cases(?:/.*)?['\"]",
+      r"['\"].*/application/.*/use-cases(?:/.*)?['\"]"
+    },
+    register_diagnostic(
+      span = $source,
+      message = "Frontend presentation code must not re-export app composition, infrastructure, application services, or application use-cases directly. Inject collaborators from route factories, providers, or presentation-owned adapters instead.",
+      severity = "error"
+    )
+  }
+}

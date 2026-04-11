@@ -2,6 +2,7 @@
   "errors": {
     "predictionNotFound": "Prediction not found",
     "promptNotFound": "Prediction prompt not found",
+    "predictionHasActiveParty": "You can't delete this prediction while a party is active",
     "invalidCorrectOption": "Invalid correct option value",
     "optionTextEmpty": "Option text is required"
   }

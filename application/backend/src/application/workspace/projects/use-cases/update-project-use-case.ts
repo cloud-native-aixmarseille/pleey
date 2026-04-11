@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { UserId } from '../../../../domain/auth/entities/user';
+import type { UserId } from '../../../../domain/identity/entities/user';
 import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
 import type { OrganizationMemberRepository } from '../../../../domain/organization/ports/organization-member.repository';
 import { OrganizationMemberRepositoryProvider } from '../../../../domain/organization/ports/organization-member.repository';
-import type { Project } from '../../../../domain/project/entities/project';
+import type { Project, ProjectId } from '../../../../domain/project/entities/project';
 import { ProjectErrorCode } from '../../../../domain/project/enums/project-error-code.enum';
 import type { ProjectRepository } from '../../../../domain/project/ports/project.repository';
 import { ProjectRepositoryProvider } from '../../../../domain/project/ports/project.repository';
@@ -19,7 +19,7 @@ export class UpdateProjectUseCase {
   ) {}
 
   async execute(
-    projectId: number,
+    projectId: ProjectId,
     dto: UpdateProjectDto,
     requestingUserId: UserId,
   ): Promise<Project> {

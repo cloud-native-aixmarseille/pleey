@@ -2,7 +2,7 @@ import type { PrismaService } from '../../../infrastructure/database/prisma-serv
 import type { UserFixtureParams } from '../unit/user.fixture';
 import { createUserFixture } from '../unit/user.fixture';
 
-export type PersistedUserFixtureParams = UserFixtureParams;
+type PersistedUserFixtureParams = UserFixtureParams;
 
 function toPrismaBytes(content: Buffer): Uint8Array<ArrayBuffer> {
   const bytes = new Uint8Array(content.byteLength);

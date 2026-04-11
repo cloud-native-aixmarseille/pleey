@@ -30,23 +30,11 @@ test.describe("Authentication Flow - Nominal Use Case", () => {
     await page.fill('input[name="email"]', testUser.email);
     await page.fill('input[name="password"]', testUser.password);
 
-    const registerResponse = page.waitForResponse((response) => {
-      const postData = response.request().postData() ?? "";
-      return (
-        response.url().includes("/graphql") &&
-        response.request().method() === "POST" &&
-        postData.includes("register")
-      );
-    });
-
-    await Promise.all([
-      registerResponse,
-      page
-        .getByRole("button", {
-          name: /register|create|créer|account|compte/i,
-        })
-        .click(),
-    ]);
+    await page
+      .getByRole("button", {
+        name: /register|create|créer|account|compte/i,
+      })
+      .click();
 
     await expect(page.getByRole("heading", { name: /account created!/i })).toBeVisible();
 
@@ -65,8 +53,8 @@ test.describe("Authentication Flow - Nominal Use Case", () => {
     ).toBeVisible();
   });
 
-  test("should login with valid credentials", async ({ page, request }) => {
-    await loginViaApi(page, request, adminCredentials);
+  test("should login with valid credentials", async ({ page }) => {
+    await loginViaApi(page, adminCredentials);
 
     await page.goto("/workspace/dashboard");
     await expect(
@@ -106,6 +94,11 @@ test.describe("Authentication Flow - Nominal Use Case", () => {
     await expect(
       page.getByRole("heading", { name: /welcome back\./i }),
     ).toBeVisible();
-    await expect(page.locator("form").getByRole("button", { name: /^sign in$/i })).toBeVisible();
+    await expect(
+      page.getByRole("alert").filter({ hasText: /INVALID_CREDENTIALS/i }),
+    ).toBeVisible();
+    await expect(
+      page.locator("form").getByRole("button", { name: /^sign in$/i }),
+    ).toBeVisible();
   });
 });

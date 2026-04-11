@@ -1,0 +1,6 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": ["src/**/*.{spec,test}.{ts,tsx}", "scripts/**/*.{js,mjs,ts}"],
+  "project": ["src/**/*.{ts,tsx}", "scripts/**/*.{js,mjs,ts}"],
+  "ignore": ["src/infrastructure/graphql/generated/graphql.ts"]
+}

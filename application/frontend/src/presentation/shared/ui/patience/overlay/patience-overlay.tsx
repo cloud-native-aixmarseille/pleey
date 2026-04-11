@@ -2,8 +2,8 @@ import { useLayoutEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { usePresentationTranslation } from '../../../i18n/use-presentation-translation';
 import { usePatienceDelay } from '../hooks/use-patience-delay';
+import type { PatienceAnimationRegistry } from '../patience-animation-registry-context';
 import { usePatiencePlayground } from '../playground/patience-playground-context';
-import { PATIENCE_ANIMATIONS } from '../registry';
 import { PatienceAnimationId } from '../types';
 
 const overlayStyle = {
@@ -25,14 +25,16 @@ const srOnlyStyle = {
 
 interface PatienceOverlayProps {
   readonly active?: boolean;
+  readonly animations?: PatienceAnimationRegistry;
+  readonly currentAnimation?: PatienceAnimationId;
   readonly delayMs?: number;
-  readonly animation?: PatienceAnimationId;
 }
 
 export function PatienceOverlay({
   active = true,
+  animations,
+  currentAnimation = PatienceAnimationId.LEMMINGS,
   delayMs = 0,
-  animation = PatienceAnimationId.LEMMINGS,
 }: PatienceOverlayProps) {
   const { t } = usePresentationTranslation();
   const { container } = usePatiencePlayground();
@@ -85,7 +87,11 @@ export function PatienceOverlay({
     return null;
   }
 
-  const AnimationComponent = PATIENCE_ANIMATIONS[animation];
+  const AnimationComponent = animations?.[currentAnimation];
+
+  if (!AnimationComponent) {
+    return null;
+  }
 
   return createPortal(
     <div

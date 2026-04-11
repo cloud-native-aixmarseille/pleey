@@ -1,42 +1,81 @@
 import { inject, injectable } from 'inversify';
-import type { Organization } from '../../../../domains/organization/entities/organization';
+import type { GameId } from '../../../../domains/game/entities/game';
+import type { DashboardGameListPage } from '../../../../domains/game/management/entities/dashboard-game-list-page';
+import type { DashboardGameListQuery } from '../../../../domains/game/management/entities/dashboard-game-list-query';
+import type { Party } from '../../../../domains/game/party/shared/entities/party';
+import type {
+  Organization,
+  OrganizationId,
+} from '../../../../domains/organization/entities/organization';
 import type { OrganizationDashboard } from '../../../../domains/organization/entities/organization-dashboard';
-import type { Project } from '../../../../domains/project/entities/project';
+import type { Project, ProjectId } from '../../../../domains/project/entities/project';
+import { ListProjectGamesUseCase } from '../../../game/management/use-cases/list-project-games-use-case';
+import { CreatePartyUseCase } from '../../../game/party/host/use-cases/create-party-use-case';
+import { ListPartiesUseCase } from '../../../game/party/host/use-cases/list-parties-use-case';
 import {
   WORKSPACE_SELECTION_PORT,
   type WorkspaceSelectionPort,
 } from '../../contracts/workspace-selection.port';
-import { DashboardReadFacade } from './dashboard-read.facade';
+import { GetOrganizationDashboardUseCase } from '../../organizations/use-cases/get-organization-dashboard-use-case';
+import { ListMyOrganizationsUseCase } from '../../organizations/use-cases/list-my-organizations-use-case';
+import { ListOrganizationProjectsUseCase } from '../../projects/use-cases/list-organization-projects-use-case';
 
 interface DashboardOrganizationSelection {
   readonly organizations: Organization[];
-  readonly organizationId: number | null;
+  readonly organizationId: OrganizationId | null;
 }
 
 interface DashboardOrganizationWorkspace {
   readonly organizationDashboard: OrganizationDashboard | null;
   readonly projects: Project[];
-  readonly projectId: number | null;
+  readonly projectId: ProjectId | null;
 }
 
 export interface DashboardWorkspaceGateway {
-  loadOrganizationSelection(): Promise<DashboardOrganizationSelection>;
-  loadOrganizationWorkspace(organizationId: number | null): Promise<DashboardOrganizationWorkspace>;
-  setOrganizationSelection(organizationId: number | null): void;
-  setProjectSelection(projectId: number | null): void;
+  loadProjectGameCatalog(query: DashboardGameListQuery): Promise<DashboardGameListPage>;
+  loadUserParties(): Promise<readonly Party[]>;
+  createParty(gameId: GameId): Promise<Party>;
+  restoreOrganizationSelection(): Promise<DashboardOrganizationSelection>;
+  loadOrganizationWorkspaceState(
+    organizationId: OrganizationId | null,
+  ): Promise<DashboardOrganizationWorkspace>;
+  setOrganizationSelection(organizationId: OrganizationId | null): void;
+  setProjectSelection(projectId: ProjectId | null): void;
 }
 
 @injectable()
 export class DashboardWorkspaceFacade implements DashboardWorkspaceGateway {
   constructor(
-    @inject(DashboardReadFacade)
-    private readonly dashboardReadFacade: DashboardReadFacade,
+    @inject(ListProjectGamesUseCase)
+    private readonly listProjectGamesUseCase: ListProjectGamesUseCase,
+    @inject(ListPartiesUseCase)
+    private readonly listPartiesUseCase: ListPartiesUseCase,
+    @inject(CreatePartyUseCase)
+    private readonly createPartyUseCase: CreatePartyUseCase,
+    @inject(ListMyOrganizationsUseCase)
+    private readonly listMyOrganizationsUseCase: ListMyOrganizationsUseCase,
+    @inject(GetOrganizationDashboardUseCase)
+    private readonly getOrganizationDashboardUseCase: GetOrganizationDashboardUseCase,
+    @inject(ListOrganizationProjectsUseCase)
+    private readonly listOrganizationProjectsUseCase: ListOrganizationProjectsUseCase,
     @inject(WORKSPACE_SELECTION_PORT)
     private readonly workspaceSelection: WorkspaceSelectionPort,
   ) {}
 
-  async loadOrganizationSelection(): Promise<DashboardOrganizationSelection> {
-    const organizations = await this.dashboardReadFacade.loadOrganizations();
+  loadProjectGameCatalog(query: DashboardGameListQuery): Promise<DashboardGameListPage> {
+    return this.listProjectGamesUseCase.execute(query);
+  }
+
+  loadUserParties(): Promise<readonly Party[]> {
+    return this.listPartiesUseCase.execute();
+  }
+
+  createParty(gameId: GameId): Promise<Party> {
+    return this.createPartyUseCase.execute({ gameId });
+  }
+
+  async restoreOrganizationSelection(): Promise<DashboardOrganizationSelection> {
+    const organizations = await this.listMyOrganizationsUseCase.execute();
     const restoredSelection = this.workspaceSelection.restoreSelection();
     const restoredOrganization = organizations.find(
       (organization) => organization.id === restoredSelection.organizationId,
@@ -55,8 +94,8 @@ export class DashboardWorkspaceFacade implements DashboardWorkspaceGateway {
     };
   }
 
-  async loadOrganizationWorkspace(
-    organizationId: number | null,
+  async loadOrganizationWorkspaceState(
+    organizationId: OrganizationId | null,
   ): Promise<DashboardOrganizationWorkspace> {
     if (organizationId === null) {
       this.workspaceSelection.setProjectId(null);
@@ -69,8 +108,8 @@ export class DashboardWorkspaceFacade implements DashboardWorkspaceGateway {
     }
 
     const [organizationDashboard, projects] = await Promise.all([
-      this.dashboardReadFacade.loadOrganizationDashboard(organizationId),
-      this.dashboardReadFacade.loadProjectsByOrganization(organizationId),
+      this.getOrganizationDashboardUseCase.execute({ organizationId }),
+      this.listOrganizationProjectsUseCase.execute({ organizationId }),
     ]);
 
     const restoredSelection = this.workspaceSelection.restoreSelection();
@@ -86,12 +125,12 @@ export class DashboardWorkspaceFacade implements DashboardWorkspaceGateway {
     };
   }
 
-  setOrganizationSelection(organizationId: number | null): void {
+  setOrganizationSelection(organizationId: OrganizationId | null): void {
     this.workspaceSelection.setOrganizationId(organizationId);
     this.workspaceSelection.setProjectId(null);
   }
 
-  setProjectSelection(projectId: number | null): void {
+  setProjectSelection(projectId: ProjectId | null): void {
     this.workspaceSelection.setProjectId(projectId);
   }
 }

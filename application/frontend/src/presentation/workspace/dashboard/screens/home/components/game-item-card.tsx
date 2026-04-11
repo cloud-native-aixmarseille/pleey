@@ -1,19 +1,18 @@
-import type { DashboardGameListItem } from '../../../../../../domains/game-catalog/entities/dashboard-game-list-item';
-import type { GameTypeDescriptor } from '../../../../../../domains/game-catalog/entities/game-type-catalog';
+import type { DashboardGameListItem } from '../../../../../../domains/game/management/entities/dashboard-game-list-item';
+import type { GameTypeDescriptor } from '../../../../../../domains/game/types/shared/game-type-catalog';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../../shared/ui/actions/button';
 import { CatalogItemCard } from '../../../../../shared/ui/data/catalog-item-card';
 import { AppIcon, type AppIconName } from '../../../../../shared/ui/icons/app-icon';
-import { SummaryText } from '../../../../../shared/ui/layout/typography';
+import { SummaryText, SupportingText } from '../../../../../shared/ui/layout/typography';
 import { Tooltip } from '../../../../../shared/ui/overlay/tooltip';
-import { formatDate } from '../../../helpers/format-date';
+import { useGameItemCardViewModel } from './use-game-item-card-view-model';
 
 interface GameItemCardProps {
   readonly game: DashboardGameListItem;
   readonly descriptor?: GameTypeDescriptor;
-  readonly isLaunchDisabled?: boolean;
-  readonly launchDisabledReason?: string;
-  readonly onLaunchSession?: (game: DashboardGameListItem) => void;
+  readonly isCreatingParty?: boolean;
+  readonly onCreateParty?: (game: DashboardGameListItem) => void;
   readonly onManage?: (game: DashboardGameListItem) => void;
   readonly showTypeBadge?: boolean;
 }
@@ -21,44 +20,53 @@ interface GameItemCardProps {
 export function GameItemCard({
   game,
   descriptor,
-  isLaunchDisabled = false,
-  launchDisabledReason,
-  onLaunchSession,
+  isCreatingParty = false,
+  onCreateParty,
   onManage,
   showTypeBadge = false,
 }: GameItemCardProps) {
-  const { currentLanguage, t } = usePresentationTranslation();
-  const summaryText = game.summary ? t(game.summary.translationKey, game.summary.values) : null;
-
-  const launchButton = onLaunchSession ? (
-    <Tooltip
-      disabled={!isLaunchDisabled || !launchDisabledReason}
-      label={launchDisabledReason ?? ''}
-      withArrow
-    >
-      <span style={{ display: 'inline-block' }}>
-        <Button
-          disabled={isLaunchDisabled}
-          intent="primary"
-          leftSection={<AppIcon name="play" size={14} />}
-          onClick={() => onLaunchSession(game)}
-          size="sm"
-        >
-          {t('dashboard.games.actions.launch')}
-        </Button>
-      </span>
-    </Tooltip>
-  ) : null;
+  const { t } = usePresentationTranslation();
+  const {
+    badge,
+    canCreateParty,
+    createPartyDisabledLabel,
+    createdAtLabel,
+    readinessLabel,
+    summaryText,
+  } = useGameItemCardViewModel({
+    game,
+    descriptor,
+    showTypeBadge,
+  });
 
   const actions = (
     <>
-      {launchButton}
+      {onCreateParty ? (
+        <Tooltip
+          disabled={!createPartyDisabledLabel || isCreatingParty}
+          label={createPartyDisabledLabel ?? ''}
+          withArrow
+        >
+          <span>
+            <Button
+              intent="primary"
+              leftSection={<AppIcon name="game" size={14} />}
+              onClick={() => onCreateParty(game)}
+              size="sm"
+              disabled={isCreatingParty || !canCreateParty}
+            >
+              {isCreatingParty ? t('common.loading') : t('dashboard.games.actions.createParty')}
+            </Button>
+          </span>
+        </Tooltip>
+      ) : null}
       {onManage && descriptor?.managementRoutePath ? (
         <Button
           intent="outline"
           leftSection={<AppIcon name="settings" size={14} />}
           onClick={() => onManage(game)}
           size="sm"
+          disabled={isCreatingParty}
         >
           {t('dashboard.games.actions.manage')}
         </Button>
@@ -71,19 +79,16 @@ export function GameItemCard({
       title={game.title}
       description={game.description}
       descriptionFallback={t('dashboard.games.noDescription')}
-      badge={showTypeBadge ? (descriptor?.badge ?? game.type) : undefined}
+      badge={badge}
       badgeIcon={
         showTypeBadge && descriptor ? (
           <AppIcon name={descriptor.iconKey as AppIconName} size={14} />
         ) : undefined
       }
-      metadata={[
-        t('dashboard.games.createdAt', {
-          date: formatDate(game.createdAt, currentLanguage),
-        }),
-      ]}
+      metadata={[createdAtLabel]}
       actions={actions}
     >
+      <SupportingText>{readinessLabel}</SupportingText>
       {summaryText ? <SummaryText>{summaryText}</SummaryText> : null}
     </CatalogItemCard>
   );

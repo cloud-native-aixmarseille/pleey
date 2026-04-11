@@ -1,16 +1,19 @@
 import { inject, injectable } from 'inversify';
+import type { OrganizationId } from '../../../../domains/organization/entities/organization';
 import type { Project } from '../../../../domains/project/entities/project';
-import type { ProjectRepository } from '../../../../domains/project/ports/project-repository';
-import { PROJECT_SERVICE_ID } from '../contracts/project-service-id';
+import {
+  type ProjectRepository,
+  ProjectRepositoryToken,
+} from '../../../../domains/project/ports/project-repository';
 
 interface ListOrganizationProjectsCommand {
-  readonly organizationId: number;
+  readonly organizationId: OrganizationId;
 }
 
 @injectable()
 export class ListOrganizationProjectsUseCase {
   constructor(
-    @inject(PROJECT_SERVICE_ID.projectRepository)
+    @inject(ProjectRepositoryToken)
     private readonly projectRepository: ProjectRepository,
   ) {}
 

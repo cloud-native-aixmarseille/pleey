@@ -1,3 +1,3 @@
 export enum ProjectValidationErrorCode {
-  NAME_REQUIRED = 'organization.management.projectsValidationNameRequired',
+  NAME_REQUIRED = 'project.management.validation.nameRequired',
 }

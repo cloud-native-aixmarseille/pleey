@@ -1,10 +1,1 @@
-export { LemmingBanana } from './lemming-banana';
-export { LemmingEyes } from './lemming-eyes';
-export { LemmingHandHighFive } from './lemming-hand-high-five';
-export { LemmingHandWave } from './lemming-hand-wave';
-export { LemmingJetpack } from './lemming-jetpack';
-export { LemmingMouth } from './lemming-mouth';
-export { LemmingParachute } from './lemming-parachute';
-export { LemmingPortal } from './lemming-portal';
 export { LemmingSprite } from './lemming-sprite';
-export { LemmingTrumpet } from './lemming-trumpet';

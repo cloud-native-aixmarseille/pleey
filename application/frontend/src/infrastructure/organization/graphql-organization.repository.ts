@@ -1,4 +1,6 @@
 import { inject, injectable } from 'inversify';
+import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
+import type { OrganizationId } from '../../domains/organization/entities/organization';
 import {
   type Organization,
   OrganizationRole,
@@ -43,6 +45,8 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
   constructor(
     @inject(GraphqlClient)
     private readonly graphqlClient: GraphqlClient,
+    @inject(OrganizationIdentifier)
+    private readonly organizationIdentifier: OrganizationIdentifier,
   ) {}
 
   async getMyOrganizations(): Promise<Organization[]> {
@@ -52,7 +56,7 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
       );
 
       return (result.myOrganizations.organizations ?? []).map((organization) => ({
-        id: organization.id,
+        id: this.organizationIdentifier.parse(organization.id),
         name: organization.name,
         description: organization.description ?? null,
         createdAt: organization.createdAt,
@@ -64,7 +68,7 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
     }
   }
 
-  async getOrganizationDashboard(organizationId: number): Promise<OrganizationDashboard> {
+  async getOrganizationDashboard(organizationId: OrganizationId): Promise<OrganizationDashboard> {
     try {
       const result = await this.graphqlClient.request<
         WorkspaceOrganizationDashboardQuery,
@@ -73,14 +77,12 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
 
       return {
         organization: {
-          id: result.organizationDashboard.organization.id,
+          id: this.organizationIdentifier.parse(result.organizationDashboard.organization.id),
           name: result.organizationDashboard.organization.name,
           description: result.organizationDashboard.organization.description ?? null,
         },
         stats: {
           totalGames: result.organizationDashboard.stats.totalGames,
-          totalGameSessions: result.organizationDashboard.stats.totalGameSessions,
-          activeGameSessions: result.organizationDashboard.stats.activeGameSessions,
           totalMembers: result.organizationDashboard.stats.totalMembers,
           totalProjects: result.organizationDashboard.stats.totalProjects,
         },
@@ -103,7 +105,7 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
       });
 
       return {
-        id: result.createOrganization.id,
+        id: this.organizationIdentifier.parse(result.createOrganization.id),
         name: result.createOrganization.name,
         description: result.createOrganization.description ?? null,
         createdAt: result.createOrganization.createdAt,

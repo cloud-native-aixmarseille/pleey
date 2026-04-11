@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import type { OrganizationMember as PrismaOrganizationMember } from '@prisma/client';
-import type { UserId } from '../../../domain/auth/entities/user';
+import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
+import { OrganizationMemberIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-member-identifier';
+import type { UserId } from '../../../domain/identity/entities/user';
 import type { OrganizationId } from '../../../domain/organization/entities/organization';
 import {
   OrganizationMember,
@@ -12,7 +14,11 @@ import { PrismaService } from '../../database/prisma-service';
 
 @Injectable()
 export class PrismaOrganizationMemberRepository implements OrganizationMemberRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly organizationIdentifier: OrganizationIdentifier,
+    private readonly organizationMemberIdentifier: OrganizationMemberIdentifier,
+  ) {}
 
   async create(
     organizationId: OrganizationId,
@@ -124,9 +130,9 @@ export class PrismaOrganizationMemberRepository implements OrganizationMemberRep
 
   private toDomain(member: PrismaOrganizationMember): OrganizationMember {
     return new OrganizationMember(
-      member.id,
-      member.organizationId,
-      member.userId,
+      this.organizationMemberIdentifier.parse(member.id),
+      this.organizationIdentifier.parse(member.organizationId),
+      member.userId as UserId,
       member.role as OrganizationRole,
       member.joinedAt,
     );

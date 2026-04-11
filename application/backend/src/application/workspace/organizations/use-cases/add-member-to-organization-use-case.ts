@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { UserId } from '../../../../domain/auth/entities/user';
+import type { UserId } from '../../../../domain/identity/entities/user';
 import type { OrganizationId } from '../../../../domain/organization/entities/organization';
 import type { OrganizationMember } from '../../../../domain/organization/entities/organization-member';
 import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';

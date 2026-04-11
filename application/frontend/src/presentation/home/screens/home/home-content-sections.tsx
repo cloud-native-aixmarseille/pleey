@@ -4,38 +4,39 @@ import {
   homeFeatureIconNames,
   homeStepIconNames,
 } from '../../../shared/ui/icons/app-icon';
-import { IntroBlock } from '../../../shared/ui/layout/intro-block';
 import {
-  featureCardStyle,
-  featureDescStyle,
-  featureHeaderStyle,
-  featureLabelStyle,
-  featuresGridStyle,
-  type HomeFeatureItem,
-  type HomeStep,
-  sectionCenterStyle,
-  sectionEyebrowStyle,
-  sectionStyle,
-  stepCardStyle,
-  stepDescStyle,
-  stepNumberStyle,
-  stepsGridStyle,
-  stepTitleRowStyle,
-  stepTitleStyle,
-} from './home-screen-styles';
+  ContentStack,
+  ResponsiveGrid,
+  SectionContainer,
+  WrapRow,
+} from '../../../shared/ui/layout/containers';
+import { IntroBlock } from '../../../shared/ui/layout/intro-block';
+import { LandingStepBadge } from '../../../shared/ui/layout/landing-sections';
+import { ElevatedPanel, InsetPanel } from '../../../shared/ui/layout/panels';
+import { Eyebrow, Heading, SupportingText } from '../../../shared/ui/layout/typography';
+
+interface HomeStep {
+  readonly title: string;
+  readonly description: string;
+}
+
+interface HomeFeatureItem {
+  readonly label: string;
+  readonly description: string;
+}
 
 export function HomeValuePropositionSection() {
   const { t } = usePresentationTranslation();
 
   return (
-    <section style={sectionCenterStyle}>
+    <SectionContainer centered maxWidth="50rem">
       <IntroBlock
         align="center"
         subtitle={t('home.valueProposition.description')}
         subtitleMaxWidth="38rem"
         title={t('home.valueProposition.heading')}
       />
-    </section>
+    </SectionContainer>
   );
 }
 
@@ -47,26 +48,30 @@ export function HomeHowItWorksSection() {
   );
 
   return (
-    <section style={sectionStyle}>
-      <p style={sectionEyebrowStyle}>{t('home.howItWorks.eyebrow')}</p>
-      <div style={stepsGridStyle}>
+    <SectionContainer maxWidth="50rem">
+      <Eyebrow>{t('home.howItWorks.eyebrow')}</Eyebrow>
+      <ResponsiveGrid columns={{ base: 1, sm: 2, lg: 3 }} gap="md">
         {steps.map((step, index) => (
-          <article key={step.title} style={stepCardStyle}>
-            <div aria-hidden style={stepNumberStyle}>
-              {index + 1}
-            </div>
-            <div style={stepTitleRowStyle}>
-              <AppIcon
-                name={homeStepIconNames[index] ?? homeStepIconNames[homeStepIconNames.length - 1]}
-                size={18}
-              />
-              <h3 style={stepTitleStyle}>{step.title}</h3>
-            </div>
-            <p style={stepDescStyle}>{step.description}</p>
-          </article>
+          <ElevatedPanel key={step.title} padding="lg">
+            <article>
+              <ContentStack gap="sm">
+                <LandingStepBadge stepNumber={index + 1} />
+                <WrapRow gap="xs">
+                  <AppIcon
+                    name={
+                      homeStepIconNames[index] ?? homeStepIconNames[homeStepIconNames.length - 1]
+                    }
+                    size={18}
+                  />
+                  <Heading level={3}>{step.title}</Heading>
+                </WrapRow>
+                <SupportingText>{step.description}</SupportingText>
+              </ContentStack>
+            </article>
+          </ElevatedPanel>
         ))}
-      </div>
-    </section>
+      </ResponsiveGrid>
+    </SectionContainer>
   );
 }
 
@@ -77,25 +82,29 @@ export function HomeFeaturesSection() {
   )('home.features.items', { returnObjects: true });
 
   return (
-    <section style={sectionStyle}>
-      <p style={sectionEyebrowStyle}>{t('home.features.eyebrow')}</p>
-      <div style={featuresGridStyle}>
+    <SectionContainer maxWidth="50rem">
+      <Eyebrow>{t('home.features.eyebrow')}</Eyebrow>
+      <ResponsiveGrid columns={{ base: 1, sm: 2, lg: 3 }} gap="md">
         {items.map((item, index) => (
-          <article key={item.label} style={featureCardStyle}>
-            <div style={featureHeaderStyle}>
-              <AppIcon
-                name={
-                  homeFeatureIconNames[index] ??
-                  homeFeatureIconNames[homeFeatureIconNames.length - 1]
-                }
-                size={18}
-              />
-              <h3 style={featureLabelStyle}>{item.label}</h3>
-            </div>
-            <p style={featureDescStyle}>{item.description}</p>
-          </article>
+          <InsetPanel key={item.label} padding="lg">
+            <article>
+              <ContentStack gap="xs">
+                <WrapRow gap="xs">
+                  <AppIcon
+                    name={
+                      homeFeatureIconNames[index] ??
+                      homeFeatureIconNames[homeFeatureIconNames.length - 1]
+                    }
+                    size={18}
+                  />
+                  <Heading level={3}>{item.label}</Heading>
+                </WrapRow>
+                <SupportingText>{item.description}</SupportingText>
+              </ContentStack>
+            </article>
+          </InsetPanel>
         ))}
-      </div>
-    </section>
+      </ResponsiveGrid>
+    </SectionContainer>
   );
 }

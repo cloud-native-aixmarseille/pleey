@@ -8,8 +8,8 @@ import { LoginUserUseCase } from '../../../application/identity/session/use-case
 import { LogoutUserUseCase } from '../../../application/identity/session/use-cases/logout-user-use-case';
 import { RefreshAccessTokenUseCase } from '../../../application/identity/session/use-cases/refresh-access-token-use-case';
 import { RegisterUserUseCase } from '../../../application/identity/session/use-cases/register-user-use-case';
-import type { UserId } from '../../../domain/auth/entities/user';
-import { AuthErrorCode } from '../../../domain/auth/enums/auth-error-code.enum';
+import type { UserId } from '../../../domain/identity/entities/user';
+import { IdentityErrorCode } from '../../../domain/identity/enums/identity-error-code.enum';
 import { GqlJwtAuthGuard } from '../shared/guards/gql-jwt-auth-guard';
 import { AuthProfilePresenter } from '../shared/presenters/auth-profile-presenter';
 import { AuthResponseType } from './types/auth-response-type';
@@ -109,7 +109,7 @@ export class AuthResolver {
     const userId = context.req?.user?.id ?? context.user?.id;
 
     if (!userId) {
-      throw new UnauthorizedException(AuthErrorCode.UNAUTHORIZED);
+      throw new UnauthorizedException(IdentityErrorCode.UNAUTHORIZED);
     }
 
     return userId;

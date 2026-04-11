@@ -1,4 +1,4 @@
-import type { Project } from '../../../../../../domains/project/entities/project';
+import type { Project, ProjectId } from '../../../../../../domains/project/entities/project';
 import { Button } from '../../../../../shared/ui/actions/button';
 import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';
 import { ContentStack } from '../../../../../shared/ui/layout/containers';
@@ -14,7 +14,7 @@ interface OrganizationProjectsSectionProps {
   readonly onEditProject: (project: Project) => void;
   readonly onRemoveProject: (project: Project) => void;
   readonly projects: readonly Project[];
-  readonly selectedProjectId: number | null;
+  readonly selectedProjectId: ProjectId | null;
   readonly title: string;
 }
 

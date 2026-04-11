@@ -1,0 +1,78 @@
+query PredictionManagement($predictionId: Int!) {
+  prediction(predictionId: $predictionId) {
+    predictionId
+    gameId
+    title
+    description
+    createdAt
+    promptCount
+  }
+  predictionPrompts(predictionId: $predictionId) {
+    id
+    predictionId
+    position
+    promptText
+    timeLimit
+    points
+    options {
+      id
+      text
+      position
+      isCorrect
+    }
+  }
+}
+
+mutation UpdatePredictionManagement($predictionId: Int!, $input: UpdatePredictionInput!) {
+  updatePrediction(predictionId: $predictionId, input: $input) {
+    predictionId
+  }
+}
+
+mutation CreatePredictionManagement($input: CreatePredictionInput!) {
+  createPrediction(input: $input) {
+    predictionId
+  }
+}
+
+mutation DeletePredictionManagement($predictionId: Int!) {
+  deletePrediction(predictionId: $predictionId)
+}
+
+mutation CreatePredictionPromptManagement($input: CreatePredictionPromptInput!) {
+  createPredictionPrompt(input: $input) {
+    id
+    predictionId
+    position
+    promptText
+    timeLimit
+    points
+    options {
+      id
+      text
+      position
+      isCorrect
+    }
+  }
+}
+
+mutation UpdatePredictionPromptManagement($promptId: Int!, $input: UpdatePredictionPromptInput!) {
+  updatePredictionPrompt(promptId: $promptId, input: $input) {
+    id
+    predictionId
+    position
+    promptText
+    timeLimit
+    points
+    options {
+      id
+      text
+      position
+      isCorrect
+    }
+  }
+}
+
+mutation DeletePredictionPromptManagement($promptId: Int!) {
+  deletePredictionPrompt(promptId: $promptId)
+}

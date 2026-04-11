@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { PresentationFormApi } from '../../../../application/shared/contracts/form.port';
-import type { UpdateProfileInput } from '../../../../domains/auth/ports/auth-repository';
+import type { UpdateProfileInput } from '../../../../domains/identity/ports/auth-repository';
 import { usePresentationForm } from '../../../shared/forms/use-presentation-form';
 import { usePresentationTranslation } from '../../../shared/i18n/use-presentation-translation';
 import { useAuth } from '../../contexts/auth-context';
@@ -11,7 +11,6 @@ interface ProfileScreenState {
   readonly errorMessage: string | null;
   readonly form: PresentationFormApi<ProfileFormValues>;
   readonly handleRegenerateAvatar: () => Promise<void>;
-  readonly isAuthenticated: boolean;
   readonly isRegenerating: boolean;
   readonly signOut: () => Promise<void> | void;
   readonly successMessage: string | null;
@@ -19,7 +18,7 @@ interface ProfileScreenState {
 }
 
 export function useProfileScreenState(): ProfileScreenState {
-  const { user, isAuthenticated, regenerateAvatar, updateProfile, signOut } = useAuth();
+  const { user, regenerateAvatar, updateProfile, signOut } = useAuth();
   const { t } = usePresentationTranslation();
   const { errorMessage, clearError, handleError } = useAuthFormSubmit();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -64,7 +63,6 @@ export function useProfileScreenState(): ProfileScreenState {
     errorMessage,
     form,
     handleRegenerateAvatar,
-    isAuthenticated,
     isRegenerating,
     signOut,
     successMessage,

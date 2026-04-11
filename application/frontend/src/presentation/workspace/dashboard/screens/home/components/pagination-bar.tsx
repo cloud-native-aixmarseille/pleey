@@ -1,26 +1,13 @@
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../../shared/ui/actions/button';
-import { uiThemeTokens } from '../../../../../shared/ui/foundation/ui-theme';
+import { ActionRow } from '../../../../../shared/ui/layout/containers';
+import { SupportingText } from '../../../../../shared/ui/layout/typography';
 
 interface PaginationBarProps {
   readonly currentPage: number;
   readonly onPageChange: (page: number) => void;
   readonly totalPages: number;
 }
-
-const navStyle = {
-  alignItems: 'center' as const,
-  display: 'flex',
-  gap: uiThemeTokens.spacing.xs,
-  justifyContent: 'center',
-};
-
-const pageInfoStyle = {
-  color: uiThemeTokens.color.text.secondary,
-  fontSize: '0.85rem',
-  minWidth: '5rem',
-  textAlign: 'center' as const,
-};
 
 export function PaginationBar({ currentPage, onPageChange, totalPages }: PaginationBarProps) {
   const { t } = usePresentationTranslation();
@@ -30,33 +17,35 @@ export function PaginationBar({ currentPage, onPageChange, totalPages }: Paginat
   }
 
   return (
-    <nav aria-label={t('dashboard.games.pagination.label')} style={navStyle}>
-      <Button
-        aria-label={t('dashboard.games.pagination.previous')}
-        disabled={currentPage <= 1}
-        intent="ghost"
-        onClick={() => onPageChange(currentPage - 1)}
-        size="sm"
-      >
-        ‹
-      </Button>
+    <nav aria-label={t('dashboard.games.pagination.label')}>
+      <ActionRow justify="center">
+        <Button
+          aria-label={t('dashboard.games.pagination.previous')}
+          disabled={currentPage <= 1}
+          intent="ghost"
+          onClick={() => onPageChange(currentPage - 1)}
+          size="sm"
+        >
+          ‹
+        </Button>
 
-      <span style={pageInfoStyle}>
-        {t('dashboard.games.pagination.pageOf', {
-          current: String(currentPage),
-          total: String(totalPages),
-        })}
-      </span>
+        <SupportingText>
+          {t('dashboard.games.pagination.pageOf', {
+            current: String(currentPage),
+            total: String(totalPages),
+          })}
+        </SupportingText>
 
-      <Button
-        aria-label={t('dashboard.games.pagination.next')}
-        disabled={currentPage >= totalPages}
-        intent="ghost"
-        onClick={() => onPageChange(currentPage + 1)}
-        size="sm"
-      >
-        ›
-      </Button>
+        <Button
+          aria-label={t('dashboard.games.pagination.next')}
+          disabled={currentPage >= totalPages}
+          intent="ghost"
+          onClick={() => onPageChange(currentPage + 1)}
+          size="sm"
+        >
+          ›
+        </Button>
+      </ActionRow>
     </nav>
   );
 }

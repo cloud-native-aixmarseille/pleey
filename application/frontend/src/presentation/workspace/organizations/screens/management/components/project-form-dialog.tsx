@@ -1,7 +1,5 @@
-import { type FormEvent, useEffect, useState } from 'react';
-import { ProjectFormFacade } from '../../../../../../application/workspace/projects/facades/project-form.facade';
+import type { FormEvent } from 'react';
 import type { Project } from '../../../../../../domains/project/entities/project';
-import { useRuntimeDependency } from '../../../../../shared/di/use-runtime-dependency';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../../shared/ui/actions/button';
 import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';
@@ -9,6 +7,7 @@ import { FieldShell } from '../../../../../shared/ui/forms/field-shell';
 import { Input } from '../../../../../shared/ui/forms/input';
 import { Textarea } from '../../../../../shared/ui/forms/textarea';
 import { FormDialog } from '../../../../../shared/ui/overlay/form-dialog';
+import { useProjectFormDialogState } from './use-project-form-dialog-state';
 
 interface ProjectFormDialogProps {
   readonly isOpen: boolean;
@@ -30,67 +29,36 @@ export function ProjectFormDialog({
   onSubmitted,
 }: ProjectFormDialogProps) {
   const { t } = usePresentationTranslation();
-  const projectFormFacade = useRuntimeDependency(ProjectFormFacade);
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { description, errorMessage, handleSubmit, isSubmitting, name, setDescription, setName } =
+    useProjectFormDialogState({
+      isOpen,
+      mode,
+      onSubmit,
+      onSubmitted,
+      project,
+    });
 
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    setName(project?.name ?? '');
-    setDescription(project?.description ?? '');
-    setErrorMessage(null);
-  }, [isOpen, project]);
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setErrorMessage(null);
-
-    const validationError = projectFormFacade.validateName(name);
-    if (validationError) {
-      setErrorMessage(validationError);
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      const savedProject = await onSubmit(projectFormFacade.createInput(name, description));
-
-      onSubmitted(savedProject);
-    } catch (error) {
-      setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : mode === 'create'
-            ? 'project.errors.createFailed'
-            : 'project.errors.updateFailed',
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
+    await handleSubmit();
   }
 
   const titleKey =
     mode === 'create'
-      ? 'organization.management.projectsCreateTitle'
-      : 'organization.management.projectsEditTitle';
+      ? 'project.management.form.create.title'
+      : 'project.management.form.edit.title';
   const eyebrowKey =
     mode === 'create'
-      ? 'organization.management.projectsCreateEyebrow'
-      : 'organization.management.projectsEditEyebrow';
+      ? 'project.management.form.create.eyebrow'
+      : 'project.management.form.edit.eyebrow';
   const submitKey =
     mode === 'create'
-      ? 'organization.management.projectsCreateSubmit'
-      : 'organization.management.projectsEditSubmit';
+      ? 'project.management.form.create.submit'
+      : 'project.management.form.edit.submit';
   const submittingKey =
     mode === 'create'
-      ? 'organization.management.projectsCreateSubmitting'
-      : 'organization.management.projectsEditSubmitting';
+      ? 'project.management.form.create.submitting'
+      : 'project.management.form.edit.submitting';
 
   return (
     <FormDialog
@@ -108,16 +76,16 @@ export function ProjectFormDialog({
       }
       isOpen={isOpen}
       onClose={onClose}
-      onSubmit={handleSubmit}
+      onSubmit={handleFormSubmit}
       title={t(titleKey, {
-        organization: organizationName ?? t('organization.management.projectsFallbackOrg'),
+        organization: organizationName ?? t('project.management.form.fallbackOrganization'),
       })}
     >
-      <FieldShell id="project-name" label={t('organization.management.projectsNameLabel')} required>
+      <FieldShell id="project-name" label={t('project.management.form.fields.name.label')} required>
         <Input
           id="project-name"
           name="name"
-          placeholder={t('organization.management.projectsNamePlaceholder')}
+          placeholder={t('project.management.form.fields.name.placeholder')}
           value={name}
           onChange={(event) => setName(event.target.value)}
           disabled={isSubmitting}
@@ -126,12 +94,12 @@ export function ProjectFormDialog({
 
       <FieldShell
         id="project-description"
-        label={t('organization.management.projectsDescriptionLabel')}
+        label={t('project.management.form.fields.description.label')}
       >
         <Textarea
           id="project-description"
           name="description"
-          placeholder={t('organization.management.projectsDescriptionPlaceholder')}
+          placeholder={t('project.management.form.fields.description.placeholder')}
           rows={3}
           value={description}
           onChange={(event) => setDescription(event.target.value)}

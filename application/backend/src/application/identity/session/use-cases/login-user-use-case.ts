@@ -1,13 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { AuthErrorCode } from '../../../../domain/auth/enums/auth-error-code.enum';
+import { IdentityErrorCode } from '../../../../domain/identity/enums/identity-error-code.enum';
 import {
   type AuthTokenResponse,
   type AuthTokenService,
   AuthTokenServiceProvider,
-} from '../../../../domain/auth/ports/auth-token.service';
-import type { UserRepository } from '../../../../domain/auth/ports/user.repository';
-import { UserRepositoryProvider } from '../../../../domain/auth/ports/user.repository';
-import { PasswordService } from '../../../../domain/auth/services/password-service';
+} from '../../../../domain/identity/ports/auth-token.service';
+import type { UserRepository } from '../../../../domain/identity/ports/user.repository';
+import { UserRepositoryProvider } from '../../../../domain/identity/ports/user.repository';
+import { PasswordService } from '../../../../domain/identity/services/password-service';
 import type { LoginUserDto } from '../dto/login-user-dto';
 
 /**
@@ -28,13 +28,13 @@ export class LoginUserUseCase {
     // Find user by email
     const user = await this.userRepository.findByEmail(dto.email);
     if (!user) {
-      throw new Error(AuthErrorCode.INVALID_CREDENTIALS);
+      throw new Error(IdentityErrorCode.INVALID_CREDENTIALS);
     }
 
     // Verify password
     const isPasswordValid = await this.passwordService.compare(dto.password, user.password);
     if (!isPasswordValid) {
-      throw new Error(AuthErrorCode.INVALID_CREDENTIALS);
+      throw new Error(IdentityErrorCode.INVALID_CREDENTIALS);
     }
 
     // Generate JWT token

@@ -1,5 +1,7 @@
 import type { ComponentType, ReactNode } from 'react';
 
+export const ROUTE_FACTORY = Symbol.for('routeFactory');
+
 interface PresentationNavigateProps {
   readonly to: string;
   readonly replace?: boolean;

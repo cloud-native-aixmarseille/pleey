@@ -1,7 +1,9 @@
 import { inject, injectable } from 'inversify';
-import type { AuthSession } from '../../../domains/auth/entities/auth-session';
-import type { AuthRepository } from '../../../domains/auth/ports/auth-repository';
-import { AUTH_SERVICE_ID } from '../contracts/auth-service-id';
+import type { AuthSession } from '../../../domains/identity/entities/auth-session';
+import {
+  type AuthRepository,
+  AuthRepositoryToken,
+} from '../../../domains/identity/ports/auth-repository';
 
 export interface LoginUserCommand {
   readonly email: string;
@@ -11,7 +13,7 @@ export interface LoginUserCommand {
 @injectable()
 export class LoginUserUseCase {
   constructor(
-    @inject(AUTH_SERVICE_ID.authRepository)
+    @inject(AuthRepositoryToken)
     private readonly authRepository: AuthRepository,
   ) {}
 

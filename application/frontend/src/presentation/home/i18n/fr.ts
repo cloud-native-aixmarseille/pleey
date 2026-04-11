@@ -2,11 +2,10 @@ export const homeFr = {
   home: {
     hero: {
       eyebrow: 'Plateforme événementielle live',
-      title: 'Transformez chaque audience en participants actifs.',
+      title: 'Transformez chaque audience en joueurs actifs.',
       tagline:
-        'Lancez des quiz, des pronostics et des sessions interactives qui captent toute la salle — de dix personnes à dix mille.',
+        'Lancez des quiz, des pronostics et des jeux interactifs qui captent toute la salle de dix personnes à dix mille.',
       primaryCta: 'Créer votre premier jeu',
-      secondaryCta: 'Rejoindre une session live',
     },
     valueProposition: {
       heading: 'Une seule plateforme pour chaque moment interactif.',
@@ -17,19 +16,19 @@ export const homeFr = {
       eyebrow: 'Trois étapes pour passer en live',
       steps: [
         {
-          title: 'Concevez votre session',
+          title: 'Concevez votre jeu',
           description:
             'Choisissez un format — quiz, pronostic ou personnalisé — et construisez votre contenu dans le dashboard.',
         },
         {
           title: 'Partagez le code',
           description:
-            'Générez un code de session et envoyez-le à votre audience. Ils rejoignent instantanément depuis leur appareil.',
+            'Générez un code de participation et envoyez-le à votre audience. Ils rejoignent instantanément depuis leur appareil.',
         },
         {
           title: 'Passez en live',
           description:
-            'Lancez la session, regardez les réponses affluer et révélez les résultats sur grand écran.',
+            'Lancez le jeu, regardez les réponses affluer et révélez les résultats sur grand écran.',
         },
       ],
     },
@@ -48,21 +47,19 @@ export const homeFr = {
         },
         {
           label: 'Multilingue par défaut',
-          description:
-            "Animez en anglais ou en français — l'interface s'adapte à chaque participant.",
+          description: "Animez en anglais ou en français — l'interface s'adapte à chaque joueur.",
         },
         {
           label: 'Tout appareil, zéro installation',
           description:
-            'Les participants rejoignent depuis téléphone, tablette ou ordinateur sans rien télécharger.',
+            'Les joueurs rejoignent depuis téléphone, tablette ou ordinateur sans rien télécharger.',
         },
       ],
     },
     closingCta: {
       heading: 'Prêt à dynamiser votre prochain événement ?',
-      description: 'Créez un compte gratuit et lancez votre première session en quelques minutes.',
+      description: 'Créez un compte gratuit et lancez votre premier jeu en quelques minutes.',
       primaryCta: 'Commencer',
-      secondaryCta: 'Voir comment ça marche',
     },
   },
 };

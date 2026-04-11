@@ -1,0 +1,58 @@
+export const gamePartyEn = {
+  game: {
+    party: {
+      route: {
+        invalidPin: 'A party pin is required to open this page.',
+        loading: 'Loading lobby observation...',
+        statusBarLabel: 'Party lobby status bar',
+        statusTitle: 'Party {{pin}}',
+        playerCount: '{{count}} players',
+        runtimeStageProgress: 'Stage {{current}} of {{total}}',
+        pinAriaLabel: 'Party PIN: {{pin}}',
+        playerAvatarAlt: 'Avatar of {{username}}',
+        playersLabel: 'Players in the lobby',
+        playersTitle: 'Players',
+        emptyPlayers: 'No players are connected yet.',
+        finalLeaderboardEmpty: 'No scored players are available yet.',
+        finalLeaderboardScore: '{{points}} pts',
+        finalSummaryLabel: 'End of party summary',
+        finalSummaryEyebrow: 'Party complete',
+        finalSummaryTitle: 'Game over!',
+        finalSummarySubtitleWithWinner:
+          '{{username}} takes the crown. Take a bow — every player scored a moment to remember.',
+        finalSummarySubtitleNoWinner:
+          'No scores were recorded for this party. Replay it to crown a champion.',
+        finalSummaryPodiumTitle: 'Podium',
+        finalSummaryPodiumHint: 'The top three finishers of this party.',
+        finalSummaryStandingsTitle: 'Standings',
+        finalSummaryAvatarAlt: 'Avatar of {{username}}',
+        youBadge: 'You',
+        dashboardCta: 'Back to dashboard',
+      },
+      status: {
+        waiting: 'Waiting for players',
+        active: 'Live',
+        paused: 'Paused',
+        ended: 'Ended',
+      },
+      role: {
+        player: 'Player',
+      },
+      errors: {
+        playerAlreadyInActiveParty: 'You are already participating in another active party.',
+        createFailed: 'Unable to create a party right now.',
+        guestNameRequired: 'A guest nickname is required before joining.',
+        joinFailed: 'Unable to join this party right now.',
+        listFailed: 'Unable to load parties right now.',
+        leaveFailed: 'Unable to leave this party right now.',
+        hostPartyControlForbidden: 'Only the host can run this command.',
+        connectionLost: 'The live party connection was interrupted. Reconnecting now.',
+        observeFailed: 'Unable to observe this party right now.',
+        partyCommandNotAvailable: 'This host command is not available right now.',
+        partyNotFound: 'This party is no longer available.',
+        partyStagesNotAvailable: 'This party has no stages to start yet.',
+        validationFailed: 'The party request is invalid.',
+      },
+    },
+  },
+};

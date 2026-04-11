@@ -3,18 +3,10 @@ import { AccountMenuGuestButton } from './account-menu-guest-button';
 import { useAccountMenuState } from './use-account-menu-state';
 
 export function AccountMenu() {
-  const {
-    handleNavigateToProfile,
-    handleSignIn,
-    handleSignOut,
-    isAuthenticated,
-    opened,
-    toggle,
-    user,
-    wrapperRef,
-  } = useAccountMenuState();
+  const { handleNavigateToProfile, handleSignIn, handleSignOut, opened, toggle, user, wrapperRef } =
+    useAccountMenuState();
 
-  if (!isAuthenticated || !user) {
+  if (user === null) {
     return <AccountMenuGuestButton onSignIn={handleSignIn} />;
   }
 

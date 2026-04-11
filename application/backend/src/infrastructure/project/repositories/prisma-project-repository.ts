@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { Project as PrismaProject } from '@prisma/client';
+import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
+import { ProjectIdentifier } from '../../../application/workspace/shared/services/identifiers/project-identifier';
 import type { OrganizationId } from '../../../domain/organization/entities/organization';
 import { Project, type ProjectId } from '../../../domain/project/entities/project';
 import type { ProjectRepository } from '../../../domain/project/ports/project.repository';
@@ -7,7 +9,11 @@ import { PrismaService } from '../../database/prisma-service';
 
 @Injectable()
 export class PrismaProjectRepository implements ProjectRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly organizationIdentifier: OrganizationIdentifier,
+    private readonly projectIdentifier: ProjectIdentifier,
+  ) {}
 
   async create(
     organizationId: OrganizationId,
@@ -78,10 +84,10 @@ export class PrismaProjectRepository implements ProjectRepository {
 
   private toDomain(project: PrismaProject): Project {
     return new Project(
-      project.id,
+      this.projectIdentifier.parse(project.id),
       project.name,
       project.description,
-      project.organizationId,
+      this.organizationIdentifier.parse(project.organizationId),
       project.createdAt,
     );
   }

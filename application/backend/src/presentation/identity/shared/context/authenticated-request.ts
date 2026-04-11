@@ -1,5 +1,5 @@
 import type { Request } from 'express';
-import type { UserId } from '../../../../domain/auth/entities/user';
+import type { UserId } from '../../../../domain/identity/entities/user';
 import type { Media } from '../../../../domain/media/entities/media';
 
 export interface AuthenticatedRequest extends Request {

@@ -12,14 +12,13 @@ export function ProfileScreen() {
     errorMessage,
     form,
     handleRegenerateAvatar,
-    isAuthenticated,
     isRegenerating,
     signOut,
     successMessage,
     user,
   } = useProfileScreenState();
 
-  if (!isAuthenticated || !user) {
+  if (user === null) {
     return null;
   }
 

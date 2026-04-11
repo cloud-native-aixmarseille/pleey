@@ -2,6 +2,11 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type ActionPermissionType {
+  allowed: Boolean!
+  reason: CreatePartyDisabledReason
+}
+
 input AddOrganizationMemberInput {
   role: OrganizationRole!
   userId: Int!
@@ -22,43 +27,39 @@ type AuthUserProfileType {
   username: String!
 }
 
-input CreateGameSessionInput {
-  gameId: Int!
-}
-
 input CreateOrganizationInput {
   description: String
   name: String!
 }
 
-input CreatePredictionGameInput {
+enum CreatePartyDisabledReason {
+  ACTIVE_PARTY_EXISTS
+  HOST_HAS_ACTIVE_PARTY
+  NO_STAGES_AVAILABLE
+}
+
+input CreatePartyInput {
+  gameId: Int!
+}
+
+input CreatePredictionInput {
   description: String
   projectId: Int!
   title: String!
 }
 
 input CreatePredictionPromptInput {
-  options: [PredictionOptionInput!]!
-  points: Int
+  options: [SelectableOptionInput!]!
+  points: Int!
   position: Int
   predictionId: Int!
   promptText: String!
-  timeLimit: Int
+  timeLimit: Int!
 }
 
 input CreateProjectInput {
   description: String
   name: String!
-}
-
-input CreateQuestionInput {
-  answers: [QuestionAnswerInput!]!
-  points: Int
-  position: Int
-  questionText: String!
-  quizId: Int!
-  timeLimit: Int
-  type: QuestionType!
 }
 
 input CreateQuizInput {
@@ -67,15 +68,14 @@ input CreateQuizInput {
   title: String!
 }
 
-type DashboardGameListItemType {
-  createdAt: DateTime!
-  description: String
-  gameId: Int!
-  id: Int!
-  relatedGameId: Int
-  stageCount: Int!
-  title: String!
-  type: String!
+input CreateQuizQuestionInput {
+  answers: [SelectableOptionInput!]!
+  points: Int!
+  position: Int
+  questionText: String!
+  quizId: Int!
+  timeLimit: Int!
+  type: QuizQuestionType!
 }
 
 """
@@ -83,39 +83,22 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
-type GameSessionListType {
-  sessions: [GameSessionType!]!
-}
-
-enum GameSessionParticipantRole {
-  HOST
-  PLAYER
-}
-
-enum GameSessionStatus {
-  ACTIVE
-  ENDED
-  PAUSED
-  WAITING
-}
-
-type GameSessionType {
-  createdAt: DateTime!
-  currentStageId: Int
-  gameId: Int!
-  participantRole: GameSessionParticipantRole!
-  pin: String!
-  sessionId: Int!
-  status: GameSessionStatus!
-}
-
-enum GameType {
-  PREDICTION
-  QUIZ
+type GamePermissionsType {
+  createParty: ActionPermissionType!
+  launchReadiness: LaunchReadinessPermissionType!
 }
 
 type HealthStatus {
   status: String!
+}
+
+enum LaunchReadinessDisabledReason {
+  NO_STAGES_AVAILABLE
+}
+
+type LaunchReadinessPermissionType {
+  allowed: Boolean!
+  reason: LaunchReadinessDisabledReason
 }
 
 input LoginInput {
@@ -124,32 +107,34 @@ input LoginInput {
 }
 
 type Mutation {
-  addOrganizationMember(input: AddOrganizationMemberInput!, organizationId: Int!): OrganizationMemberType!
-  createGameSession(input: CreateGameSessionInput!): GameSessionType!
+  addOrganizationMember(
+    input: AddOrganizationMemberInput!
+    organizationId: Int!
+  ): OrganizationMemberType!
   createOrganization(input: CreateOrganizationInput!): OrganizationType!
-  createPredictionGame(input: CreatePredictionGameInput!): PredictionGameType!
+  createParty(input: CreatePartyInput!): PartyType!
+  createPrediction(input: CreatePredictionInput!): PredictionType!
   createPredictionPrompt(input: CreatePredictionPromptInput!): PredictionPromptType!
   createProject(input: CreateProjectInput!, organizationId: Int!): ProjectType!
-  createQuestion(input: CreateQuestionInput!): QuestionTypeGql!
   createQuiz(input: CreateQuizInput!): QuizType!
+  createQuizQuestion(input: CreateQuizQuestionInput!): QuizQuestionTypeObject!
+  deletePrediction(predictionId: Int!): Boolean!
   deletePredictionPrompt(promptId: Int!): Boolean!
   deleteProject(migrationProjectId: Int, projectId: Int!): Boolean!
-  deleteQuestion(questionId: Int!): Boolean!
   deleteQuiz(quizId: Int!): Boolean!
-  leaveCurrentPlayerSession: Boolean!
+  deleteQuizQuestion(questionId: Int!): Boolean!
   login(input: LoginInput!): AuthResponseType!
   logout: Boolean!
   refresh(input: RefreshTokenInput!): AuthResponseType!
   regenerateAvatar: AuthUserProfileType!
   register(input: RegisterInput!): AuthUserProfileType!
   removeOrganizationMember(memberId: Int!): Boolean!
-  resumeGameSession(sessionId: Int!): GameSessionType!
-  stopGameSession(sessionId: Int!): GameSessionType!
+  updatePrediction(input: UpdatePredictionInput!, predictionId: Int!): PredictionType!
   updatePredictionPrompt(input: UpdatePredictionPromptInput!, promptId: Int!): PredictionPromptType!
   updateProfile(input: UpdateProfileInput!): AuthUserProfileType!
   updateProject(input: UpdateProjectInput!, projectId: Int!): ProjectType!
-  updateQuestion(input: UpdateQuestionInput!, questionId: Int!): QuestionTypeGql!
   updateQuiz(input: UpdateQuizInput!, quizId: Int!): QuizType!
+  updateQuizQuestion(input: UpdateQuizQuestionInput!, questionId: Int!): QuizQuestionTypeObject!
 }
 
 type OrganizationDashboardEntityType {
@@ -159,10 +144,10 @@ type OrganizationDashboardEntityType {
 }
 
 type OrganizationDashboardStatsType {
-  activeGameSessions: Int!
-  totalGameSessions: Int!
+  activeParties: Int!
   totalGames: Int!
   totalMembers: Int!
+  totalParties: Int!
   totalProjects: Int!
 }
 
@@ -198,34 +183,30 @@ type OrganizationType {
   updatedAt: DateTime!
 }
 
-type PredictionGameType {
+enum PartyRole {
+  HOST
+  PLAYER
+}
+
+enum PartyStatus {
+  ACTIVE
+  ENDED
+  PAUSED
+  WAITING
+}
+
+type PartyType {
   createdAt: DateTime!
-  description: String
-  id: Int!
-  predictionId: Int!
-  projectId: Int!
-  promptCount: Int!
-  title: String!
-  type: GameType!
-}
-
-input PredictionOptionInput {
-  id: Int
-  isCorrect: Boolean
-  position: Int
-  text: String
-}
-
-type PredictionOptionType {
-  id: Int!
-  isCorrect: Boolean!
-  position: Int!
-  text: String
+  gameId: Int!
+  partyId: Int!
+  pin: String!
+  role: PartyRole!
+  status: PartyStatus!
 }
 
 type PredictionPromptType {
   id: Int!
-  options: [PredictionOptionType!]!
+  options: [SelectableOptionType!]!
   points: Int!
   position: Int!
   predictionId: Int!
@@ -233,7 +214,28 @@ type PredictionPromptType {
   timeLimit: Int!
 }
 
-input ProjectDashboardGamesInput {
+type PredictionType {
+  createdAt: DateTime!
+  description: String
+  gameId: Int!
+  predictionId: Int!
+  promptCount: Int!
+  title: String!
+  type: String!
+}
+
+type ProjectGameListItemType {
+  createdAt: DateTime!
+  description: String
+  gameId: Int!
+  gameTypeId: Int
+  permissions: GamePermissionsType!
+  stageCount: Int!
+  title: String!
+  type: String!
+}
+
+input ProjectGamesInput {
   page: Int! = 1
   pageSize: Int! = 9
   projectId: Int!
@@ -243,8 +245,8 @@ input ProjectDashboardGamesInput {
   types: [String!]
 }
 
-type ProjectDashboardGamesType {
-  items: [DashboardGameListItemType!]!
+type ProjectGamesType {
+  items: [ProjectGameListItemType!]!
   overallCount: Int!
   page: Int!
   pageSize: Int!
@@ -265,61 +267,45 @@ type ProjectType {
 }
 
 type Query {
-  activeSessionByPin(pin: String!): GameSessionType
-  activeSessions: GameSessionListType!
-  currentPlayerSession: GameSessionType
-  gameSessions(gameId: Int!): GameSessionListType!
   health: HealthStatus!
+  listParties: [PartyType!]!
   live: HealthStatus!
   me: AuthUserProfileType!
   myOrganizations: OrganizationListType!
   organizationDashboard(organizationId: Int!): OrganizationDashboardType!
   organizationProjects(organizationId: Int!): ProjectListType!
-  predictionGamesByProject(projectId: Int!): [PredictionGameType!]!
+  prediction(predictionId: Int!): PredictionType!
   predictionPrompts(predictionId: Int!): [PredictionPromptType!]!
-  projectDashboardGames(input: ProjectDashboardGamesInput!): ProjectDashboardGamesType!
-  quizQuestions(quizId: Int!): [QuestionTypeGql!]!
-  quizzes(projectId: Int): [QuizType!]!
+  projectGames(input: ProjectGamesInput!): ProjectGamesType!
+  quiz(quizId: Int!): QuizType!
+  quizQuestions(quizId: Int!): [QuizQuestionTypeObject!]!
   ready: HealthStatus!
 }
 
-input QuestionAnswerInput {
-  id: Int
-  isCorrect: Boolean
-  position: Int
-  text: String
+enum QuizQuestionType {
+  Multiple
+  TrueFalse
 }
 
-type QuestionAnswerType {
-  id: Int!
-  isCorrect: Boolean!
-  position: Int!
-  text: String
-}
-
-enum QuestionType {
-  MULTIPLE
-  TRUE_FALSE
-}
-
-type QuestionTypeGql {
-  answers: [QuestionAnswerType!]!
+type QuizQuestionTypeObject {
+  answers: [SelectableOptionType!]!
   id: Int!
   points: Int!
   position: Int!
   questionText: String!
   quizId: Int!
   timeLimit: Int!
-  type: QuestionType!
+  type: QuizQuestionType!
 }
 
 type QuizType {
   createdAt: DateTime!
   description: String
   gameId: Int!
-  id: Int!
   questionCount: Int!
+  quizId: Int!
   title: String!
+  type: String!
 }
 
 input RefreshTokenInput {
@@ -332,17 +318,35 @@ input RegisterInput {
   username: String!
 }
 
+input SelectableOptionInput {
+  id: Int
+  isCorrect: Boolean
+  position: Int
+  text: String
+}
+
+type SelectableOptionType {
+  id: Int
+  isCorrect: Boolean!
+  position: Int!
+  text: String
+}
+
 type Subscription {
   healthTick: HealthStatus!
 }
 
+input UpdatePredictionInput {
+  description: String
+  title: String!
+}
+
 input UpdatePredictionPromptInput {
-  options: [PredictionOptionInput!]
-  points: Int
+  options: [SelectableOptionInput!]!
+  points: Int!
   position: Int
-  predictionId: Int
-  promptText: String
-  timeLimit: Int
+  promptText: String!
+  timeLimit: Int!
 }
 
 input UpdateProfileInput {
@@ -355,17 +359,16 @@ input UpdateProjectInput {
   name: String!
 }
 
-input UpdateQuestionInput {
-  answers: [QuestionAnswerInput!]
-  points: Int
-  position: Int
-  questionText: String
-  quizId: Int
-  timeLimit: Int
-  type: QuestionType
-}
-
 input UpdateQuizInput {
   description: String
-  title: String
+  title: String!
+}
+
+input UpdateQuizQuestionInput {
+  answers: [SelectableOptionInput!]!
+  points: Int!
+  position: Int
+  questionText: String!
+  timeLimit: Int!
+  type: QuizQuestionType!
 }

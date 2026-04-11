@@ -48,7 +48,7 @@
             "ignoreRestSiblings": true
           }
         },
-        "noUnusedFunctionParameters": "off"
+        "noUnusedFunctionParameters": "error"
       }
     }
   },
@@ -85,6 +85,7 @@
     {
       "includes": [
         "src/app/config/**/*.ts",
+        "src/domain/**/services/*identifier.ts",
         "src/**/*.spec.ts",
         "src/**/*.int.spec.ts",
         "test/**/*.ts",
@@ -97,75 +98,24 @@
         "rules": {
           "style": {
             "noProcessEnv": "off"
+          },
+          "complexity": {
+            "noStaticOnlyClass": "off"
           }
         }
       }
     },
     {
       "includes": ["src/application/**/*.ts", "src/domain/**/*.ts"],
-      "linter": {
-        "rules": {
-          "style": {
-            "noRestrictedImports": {
-              "level": "error",
-              "options": {
-                "patterns": [
-                  {
-                    "group": [
-                      "**/infrastructure",
-                      "**/infrastructure/**",
-                      "**/presentation",
-                      "**/presentation/**",
-                      "**/app",
-                      "**/app/**",
-                      "src/infrastructure",
-                      "src/infrastructure/**",
-                      "src/presentation",
-                      "src/presentation/**",
-                      "src/app",
-                      "src/app/**"
-                    ],
-                    "message": "Application and domain layers must not import presentation, app composition, or infrastructure. Depend on domain/application contracts and bind adapters at the composition boundary."
-                  }
-                ]
-              }
-            }
-          }
-        }
-      }
+      "plugins": ["./biome/plugins/application-domain-boundaries.grit"]
+    },
+    {
+      "includes": ["src/application/**/*.ts", "src/domain/**/*.ts", "src/infrastructure/**/*.ts"],
+      "plugins": ["./biome/plugins/identifier-boundaries.grit"]
     },
     {
       "includes": ["src/presentation/**/*.ts"],
-      "linter": {
-        "rules": {
-          "style": {
-            "noRestrictedImports": {
-              "level": "error",
-              "options": {
-                "patterns": [
-                  {
-                    "group": ["**/app", "**/app/**", "src/app", "src/app/**"],
-                    "message": "Presentation adapters must not import app composition code. Inject their dependencies from app modules instead."
-                  },
-                  {
-                    "group": [
-                      "**/infrastructure/**/*resolver*",
-                      "**/infrastructure/**/*controller*",
-                      "**/infrastructure/**/*gateway*",
-                      "**/infrastructure/**/*module*",
-                      "src/infrastructure/**/*resolver*",
-                      "src/infrastructure/**/*controller*",
-                      "src/infrastructure/**/*gateway*",
-                      "src/infrastructure/**/*module*"
-                    ],
-                    "message": "Presentation adapters must not depend on infrastructure transport files. Keep transport ownership inside presentation slices."
-                  }
-                ]
-              }
-            }
-          }
-        }
-      }
+      "plugins": ["./biome/plugins/presentation-boundaries.grit"]
     },
     {
       "includes": ["src/domain/**/*.ts"],
@@ -210,77 +160,8 @@
       }
     },
     {
-      "includes": ["src/application/dashboard/**/*.ts"],
-      "linter": {
-        "rules": {
-          "style": {
-            "noRestrictedImports": {
-              "level": "error",
-              "options": {
-                "patterns": [
-                  {
-                    "group": [
-                      "**/application/project/use-cases/**",
-                      "src/application/project/use-cases/**"
-                    ],
-                    "message": "Dashboard application code must not depend on project use-cases. Promote shared behavior into dashboard-owned or shared application contracts instead of routing dashboard behavior through project."
-                  }
-                ]
-              }
-            }
-          }
-        }
-      }
-    },
-    {
-      "includes": ["src/application/game-session/live/host/**/*.ts"],
-      "linter": {
-        "rules": {
-          "style": {
-            "noRestrictedImports": {
-              "level": "error",
-              "options": {
-                "patterns": [
-                  {
-                    "group": [
-                      "**/application/game-session/live/player/**",
-                      "src/application/game-session/live/player/**",
-                      "**/application/game/use-cases/**",
-                      "src/application/game/use-cases/**"
-                    ],
-                    "message": "Live host application code must not depend on live player or legacy game use-case paths. Share behavior through live/shared services or domain services instead."
-                  }
-                ]
-              }
-            }
-          }
-        }
-      }
-    },
-    {
-      "includes": ["src/application/game-session/live/player/**/*.ts"],
-      "linter": {
-        "rules": {
-          "style": {
-            "noRestrictedImports": {
-              "level": "error",
-              "options": {
-                "patterns": [
-                  {
-                    "group": [
-                      "**/application/game-session/live/host/**",
-                      "src/application/game-session/live/host/**",
-                      "**/application/game/use-cases/**",
-                      "src/application/game/use-cases/**"
-                    ],
-                    "message": "Live player application code must not depend on live host or legacy game use-case paths. Share behavior through live/shared services or domain services instead."
-                  }
-                ]
-              }
-            }
-          }
-        }
-      }
+      "includes": ["src/application/workspace/dashboard/**/*.ts"],
+      "plugins": ["./biome/plugins/dashboard-application-boundaries.grit"]
     }
   ]
 }

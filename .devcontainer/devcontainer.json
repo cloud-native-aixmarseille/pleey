@@ -1,5 +1,5 @@
 {
-  "name": "Debian",
+  "name": "pleey",
   "image": "mcr.microsoft.com/devcontainers/base:debian",
   "features": {
     "ghcr.io/devcontainers/features/node:1": {},
@@ -15,8 +15,6 @@
     "vscode": {
       "extensions": [
         "eamodio.gitlens",
-        "github.copilot",
-        "github.copilot-chat",
         "github.vscode-github-actions",
         "ms-vscode.makefile-tools",
         "dbaeumer.vscode-eslint",

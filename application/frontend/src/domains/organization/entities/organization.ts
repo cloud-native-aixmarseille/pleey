@@ -1,3 +1,7 @@
+export type OrganizationId = number & {
+  readonly __identifierBrand: 'OrganizationId';
+};
+
 export enum OrganizationRole {
   OWNER = 'owner',
   MANAGER = 'manager',
@@ -5,7 +9,7 @@ export enum OrganizationRole {
 }
 
 export interface Organization {
-  readonly id: number;
+  readonly id: OrganizationId;
   readonly name: string;
   readonly description: string | null;
   readonly createdAt: string;

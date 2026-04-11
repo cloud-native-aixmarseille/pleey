@@ -1,20 +1,17 @@
 import { usePresentationTranslation } from '../../../shared/i18n/use-presentation-translation';
-import { useGameSessionRoutes } from '../../../shared/routing/game-session-route-context';
-import { PleeyLogo } from '../../../shared/ui/branding/pleey-logo';
 import { AppIcon } from '../../../shared/ui/icons/app-icon';
+import { ContentStack } from '../../../shared/ui/layout/containers';
 import { IntroBlock } from '../../../shared/ui/layout/intro-block';
-import { PrimaryActionLink, SecondaryActionLink } from '../../../shared/ui/navigation/links';
-import { heroActionsStyle, heroContentStyle, heroLogoStyle, heroStyle } from './home-screen-styles';
+import { LandingHeroLogo, LandingHeroSurface } from '../../../shared/ui/layout/landing-sections';
+import { PrimaryActionLink } from '../../../shared/ui/navigation/links';
 
 export function HomeHeroSection() {
   const { t } = usePresentationTranslation();
-  const { resolveJoinRoute } = useGameSessionRoutes();
-  const gameJoinRoute = resolveJoinRoute();
 
   return (
-    <section aria-label={t('home.hero.eyebrow')} style={heroStyle}>
-      <div style={heroContentStyle}>
-        <PleeyLogo size="xl" style={heroLogoStyle} />
+    <LandingHeroSurface ariaLabel={t('home.hero.eyebrow')}>
+      <ContentStack align="center" gap="md">
+        <LandingHeroLogo />
         <IntroBlock
           align="center"
           eyebrow={t('home.hero.eyebrow')}
@@ -25,18 +22,15 @@ export function HomeHeroSection() {
           subtitleSize="md"
           title={t('home.hero.title')}
         />
-        <div style={heroActionsStyle}>
+        <ContentStack align="center" gap="sm" marginTop="sm">
           <PrimaryActionLink
             leftSection={<AppIcon name="dashboard" size={16} />}
             to="/workspace/dashboard"
           >
             {t('home.hero.primaryCta')}
           </PrimaryActionLink>
-          <SecondaryActionLink leftSection={<AppIcon name="game" size={16} />} to={gameJoinRoute}>
-            {t('home.hero.secondaryCta')}
-          </SecondaryActionLink>
-        </div>
-      </div>
-    </section>
+        </ContentStack>
+      </ContentStack>
+    </LandingHeroSurface>
   );
 }

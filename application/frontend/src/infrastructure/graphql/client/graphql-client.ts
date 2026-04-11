@@ -14,14 +14,14 @@ import {
 import { SetContextLink } from '@apollo/client/link/context';
 import { ErrorLink } from '@apollo/client/link/error';
 import { inject, injectable } from 'inversify';
-import { GRAPHQL_URL } from '../../../app/config/api';
 import type {
   AuthSessionTransport,
   AuthSessionTransportHandlers,
 } from '../../../application/identity/contracts/auth-runtime.port';
-import type { AuthSession } from '../../../domains/auth/entities/auth-session';
-import { AuthErrorCode } from '../../../domains/auth/errors/auth-error-code';
-import { AuthPayloadInspector } from '../../../domains/auth/services/auth-payload-inspector';
+import type { AuthSession } from '../../../domains/identity/entities/auth-session';
+import { AuthErrorCode } from '../../../domains/identity/errors/auth-error-code';
+import { AuthPayloadInspector } from '../../../domains/identity/services/auth-payload-inspector';
+import { GRAPHQL_URL } from '../../config/api';
 import {
   RefreshDocument,
   type RefreshMutation,

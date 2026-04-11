@@ -1,15 +1,19 @@
-import { gameEn } from '../presentation/game-session/live/shared/i18n/en';
-import { gameFr } from '../presentation/game-session/live/shared/i18n/fr';
+import { gamePartyHostEn } from '../presentation/game/party/host/i18n/en';
+import { gamePartyHostFr } from '../presentation/game/party/host/i18n/fr';
+import { gamePartyPlayerEn } from '../presentation/game/party/player/i18n/en';
+import { gamePartyPlayerFr } from '../presentation/game/party/player/i18n/fr';
+import { gamePartyEn } from '../presentation/game/party/shared/i18n/en';
+import { gamePartyFr } from '../presentation/game/party/shared/i18n/fr';
+import { predictionEn } from '../presentation/game/types/prediction/i18n/en';
+import { predictionFr } from '../presentation/game/types/prediction/i18n/fr';
+import { quizEn } from '../presentation/game/types/quiz/i18n/en';
+import { quizFr } from '../presentation/game/types/quiz/i18n/fr';
 import { homeEn } from '../presentation/home/i18n/en';
 import { homeFr } from '../presentation/home/i18n/fr';
 import { authEn } from '../presentation/identity/i18n/en';
 import { authFr } from '../presentation/identity/i18n/fr';
 import { notFoundEn } from '../presentation/not-found/i18n/en';
 import { notFoundFr } from '../presentation/not-found/i18n/fr';
-import { predictionEn } from '../presentation/prediction/i18n/en';
-import { predictionFr } from '../presentation/prediction/i18n/fr';
-import { quizEn } from '../presentation/quiz/i18n/en';
-import { quizFr } from '../presentation/quiz/i18n/fr';
 import { sharedEn } from '../presentation/shared/i18n/en';
 import { sharedFr } from '../presentation/shared/i18n/fr';
 import { dashboardEn } from '../presentation/workspace/dashboard/i18n/en';
@@ -30,9 +34,11 @@ export class TranslationResourceComposer {
           authEn,
           dashboardEn,
           organizationEn,
+          gamePartyEn,
+          gamePartyHostEn,
+          gamePartyPlayerEn,
           quizEn,
           predictionEn,
-          gameEn,
         ),
       },
       fr: {
@@ -43,9 +49,11 @@ export class TranslationResourceComposer {
           authFr,
           dashboardFr,
           organizationFr,
+          gamePartyFr,
+          gamePartyHostFr,
+          gamePartyPlayerFr,
           quizFr,
           predictionFr,
-          gameFr,
         ),
       },
     };

@@ -4,12 +4,12 @@ import type {
   CreateOrganizationCommand,
   OrganizationRepository,
 } from '../../../../domains/organization/ports/organization-repository';
-import { ORGANIZATION_SERVICE_ID } from '../contracts/organization-service-id';
+import { OrganizationRepositoryToken } from '../../../../domains/organization/ports/organization-repository';
 
 @injectable()
 export class CreateOrganizationUseCase {
   constructor(
-    @inject(ORGANIZATION_SERVICE_ID.organizationRepository)
+    @inject(OrganizationRepositoryToken)
     private readonly organizationRepository: OrganizationRepository,
   ) {}
 

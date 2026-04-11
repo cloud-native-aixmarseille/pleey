@@ -2,7 +2,7 @@
   "errors": {
     "quizNotFound": "Quiz not found",
     "questionNotFound": "Question not found",
-    "quizHasActiveSession": "You can't delete this quiz while a game session is active",
+    "quizHasActiveParty": "You can't delete this quiz while a party is active",
     "invalidCorrectAnswer": "Invalid correct answer value",
     "correctAnswerOptionEmpty": "The selected correct answer option cannot be empty"
   }

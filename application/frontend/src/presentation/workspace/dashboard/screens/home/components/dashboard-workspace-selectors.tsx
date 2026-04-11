@@ -1,52 +1,23 @@
-import type { Organization } from '../../../../../../domains/organization/entities/organization';
-import type { Project } from '../../../../../../domains/project/entities/project';
+import type {
+  Organization,
+  OrganizationId,
+} from '../../../../../../domains/organization/entities/organization';
+import type { Project, ProjectId } from '../../../../../../domains/project/entities/project';
 import { Button } from '../../../../../shared/ui/actions/button';
 import { Select } from '../../../../../shared/ui/forms/select';
-import { uiThemeTokens } from '../../../../../shared/ui/foundation/ui-theme';
-import { uiTypeScale } from '../../../../../shared/ui/foundation/ui-typography';
 import { AppIcon } from '../../../../../shared/ui/icons/app-icon';
-
-const controlsStyle = {
-  alignItems: 'center',
-  display: 'flex',
-  flexWrap: 'wrap',
-  gap: uiThemeTokens.spacing.md,
-  padding: `${uiThemeTokens.spacing.md} ${uiThemeTokens.spacing.lg}`,
-} as const;
-
-const selectorGroupStyle = {
-  alignItems: 'center',
-  display: 'flex',
-  flex: '1 1 10rem',
-  gap: uiThemeTokens.spacing.sm,
-  minWidth: 0,
-} as const;
-
-const selectorIconStyle = {
-  alignItems: 'center',
-  color: uiThemeTokens.color.text.secondary,
-  display: 'inline-flex',
-  flexShrink: 0,
-} as const;
-
-const selectWrapStyle = {
-  flex: '1 1 0',
-  minWidth: 0,
-} as const;
-
-const pathSeparatorStyle = {
-  ...uiTypeScale.body,
-  color: uiThemeTokens.color.text.quiet,
-  flexShrink: 0,
-  opacity: 0.35,
-  userSelect: 'none',
-} as const;
+import {
+  ActionRow,
+  ContentStack,
+  ResponsiveGrid,
+} from '../../../../../shared/ui/layout/containers';
+import { InsetPanel } from '../../../../../shared/ui/layout/panels';
 
 interface DashboardWorkspaceSelectorsProps {
   readonly organizations: readonly Organization[];
   readonly projects: readonly Project[];
-  readonly organizationId: number | null;
-  readonly projectId: number | null;
+  readonly organizationId: OrganizationId | null;
+  readonly projectId: ProjectId | null;
   readonly isOrganizationsLoading: boolean;
   readonly isWorkspaceLoading: boolean;
   readonly organizationLabel: string;
@@ -80,12 +51,21 @@ export function DashboardWorkspaceSelectors({
   onManageProjects,
 }: DashboardWorkspaceSelectorsProps) {
   return (
-    <div style={controlsStyle}>
-      <div style={selectorGroupStyle}>
-        <span style={selectorIconStyle}>
-          <AppIcon name="organization" size={18} />
-        </span>
-        <div style={selectWrapStyle}>
+    <ResponsiveGrid columns={{ base: 1, md: 2 }} gap="md">
+      <InsetPanel>
+        <ContentStack gap="xs">
+          <ActionRow>
+            <AppIcon name="organization" size={18} />
+            <Button
+              aria-label={manageOrganizationsLabel}
+              intent="ghost"
+              onClick={onManageOrganizations}
+              size="sm"
+              title={manageOrganizationsLabel}
+            >
+              <AppIcon name="settings" size={14} />
+            </Button>
+          </ActionRow>
           <Select
             aria-label={organizationLabel}
             disabled={isOrganizationsLoading}
@@ -100,27 +80,23 @@ export function DashboardWorkspaceSelectors({
               </option>
             ))}
           </Select>
-        </div>
-        <Button
-          aria-label={manageOrganizationsLabel}
-          intent="ghost"
-          onClick={onManageOrganizations}
-          size="sm"
-          title={manageOrganizationsLabel}
-        >
-          <AppIcon name="settings" size={14} />
-        </Button>
-      </div>
+        </ContentStack>
+      </InsetPanel>
 
-      <span aria-hidden style={pathSeparatorStyle}>
-        /
-      </span>
-
-      <div style={selectorGroupStyle}>
-        <span style={selectorIconStyle}>
-          <AppIcon name="catalog" size={18} />
-        </span>
-        <div style={selectWrapStyle}>
+      <InsetPanel>
+        <ContentStack gap="xs">
+          <ActionRow>
+            <AppIcon name="catalog" size={18} />
+            <Button
+              aria-label={manageProjectsLabel}
+              intent="ghost"
+              onClick={onManageProjects}
+              size="sm"
+              title={manageProjectsLabel}
+            >
+              <AppIcon name="settings" size={14} />
+            </Button>
+          </ActionRow>
           <Select
             aria-label={projectLabel}
             disabled={organizationId === null || isWorkspaceLoading}
@@ -135,17 +111,8 @@ export function DashboardWorkspaceSelectors({
               </option>
             ))}
           </Select>
-        </div>
-        <Button
-          aria-label={manageProjectsLabel}
-          intent="ghost"
-          onClick={onManageProjects}
-          size="sm"
-          title={manageProjectsLabel}
-        >
-          <AppIcon name="settings" size={14} />
-        </Button>
-      </div>
-    </div>
+        </ContentStack>
+      </InsetPanel>
+    </ResponsiveGrid>
   );
 }

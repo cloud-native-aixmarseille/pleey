@@ -95,18 +95,12 @@ const drawerControlsStyle = {
 } as const;
 
 interface AppShellHeaderProps {
-  readonly gameJoinRoute: string;
   readonly isAuthenticated: boolean;
   readonly navOpened: boolean;
   readonly navHandlers: Pick<UseDisclosureHandlers, 'toggle' | 'close'>;
 }
 
-export function AppShellHeader({
-  gameJoinRoute,
-  isAuthenticated,
-  navOpened,
-  navHandlers,
-}: AppShellHeaderProps) {
+export function AppShellHeader({ isAuthenticated, navOpened, navHandlers }: AppShellHeaderProps) {
   const { t } = usePresentationTranslation();
 
   return (
@@ -132,9 +126,6 @@ export function AppShellHeader({
                   {t('shared.nav.dashboard')}
                 </NavPillLink>
               ) : null}
-              <NavPillLink leftSection={<AppIcon name="game" size={16} />} to={gameJoinRoute}>
-                {t('shared.nav.game')}
-              </NavPillLink>
             </nav>
 
             <div className="mantine-visible-from-sm" style={controlsGroupStyle}>
@@ -179,9 +170,6 @@ export function AppShellHeader({
                 {t('shared.nav.dashboard')}
               </NavPillLink>
             ) : null}
-            <NavPillLink leftSection={<AppIcon name="game" size={16} />} to={gameJoinRoute}>
-              {t('shared.nav.game')}
-            </NavPillLink>
           </div>
         </nav>
         <hr style={drawerDividerStyle} />

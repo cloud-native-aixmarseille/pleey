@@ -17,6 +17,8 @@ jobs:
       codeql-languages: "" # FIXME: Let default value when CodeQL will be available (paid feature)
       linter-env: |
         VALIDATE_TSX=false
+        VALIDATE_GRAPHQL_PRETTIER=false
+        VALIDATE_JSON_PRETTIER=false
         VALIDATE_JSX_PRETTIER=false
         VALIDATE_JAVASCRIPT_PRETTIER=false
         VALIDATE_TYPESCRIPT_PRETTIER=false
@@ -45,27 +47,11 @@ jobs:
             "platforms": ["linux/amd64"]
           },
           {
-            "name": "backend",
-            "context": ".",
-            "dockerfile": "./application/backend/Dockerfile",
-            "build-args": { "APP_PATH": "./application/backend/" },
-            "target": "prod",
-            "platforms": ["linux/amd64"]
-          },
-          {
             "name": "frontend-ci",
             "context": ".",
             "dockerfile": "./application/frontend/Dockerfile",
             "build-args": { "APP_PATH": "./application/frontend/" },
             "target": "ci",
-            "platforms": ["linux/amd64"]
-          },
-          {
-            "name": "frontend",
-            "context": ".",
-            "dockerfile": "./application/frontend/Dockerfile",
-            "build-args": { "APP_PATH": "./application/frontend/" },
-            "target": "prod",
             "platforms": ["linux/amd64"]
           }
         ]
@@ -101,9 +87,44 @@ jobs:
     secrets:
       container-password: ${{ secrets.GITHUB_TOKEN }}
 
+  build-prod:
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@a0bab9151cc074af9f6c8204ab42a48d2d570379 # v0.30.6
+    needs: continuous-integration
+    permissions:
+      contents: read
+      packages: write
+      issues: read
+      pull-requests: read
+      id-token: write
+    with:
+      oci-registry: ${{ vars.OCI_REGISTRY }}
+      oci-registry-username: ${{ github.repository_owner }}
+      sign: false
+      images: |
+        [
+          {
+            "name": "backend",
+            "context": ".",
+            "dockerfile": "./application/backend/Dockerfile",
+            "build-args": { "APP_PATH": "./application/backend/" },
+            "target": "prod",
+            "platforms": ["linux/amd64"]
+          },
+          {
+            "name": "frontend",
+            "context": ".",
+            "dockerfile": "./application/frontend/Dockerfile",
+            "build-args": { "APP_PATH": "./application/frontend/" },
+            "target": "prod",
+            "platforms": ["linux/amd64"]
+          }
+        ]
+    secrets:
+      oci-registry-password: ${{ secrets.GITHUB_TOKEN }}
+
   tests-charts:
     runs-on: ubuntu-latest
-    needs: build
+    needs: build-prod
     permissions:
       contents: read
       packages: read
@@ -114,14 +135,14 @@ jobs:
           helm-repositories: |
             bitnami https://charts.bitnami.com/bitnami
           helm-set: |
-            backend.image.registry=${{ fromJSON(needs.build.outputs.built-images).backend.registry }}
-            backend.image.repository=${{ fromJSON(needs.build.outputs.built-images).backend.repository }}
-            backend.image.tag=${{ fromJSON(needs.build.outputs.built-images).backend.tags[0] }}
-            backend.image.digest=${{ fromJSON(needs.build.outputs.built-images).backend.digest }}
-            frontend.image.registry=${{ fromJSON(needs.build.outputs.built-images).frontend.registry }}
-            frontend.image.repository=${{ fromJSON(needs.build.outputs.built-images).frontend.repository }}
-            frontend.image.tag=${{ fromJSON(needs.build.outputs.built-images).frontend.tags[0] }}
-            frontend.image.digest=${{ fromJSON(needs.build.outputs.built-images).frontend.digest }}
+            backend.image.registry=${{ fromJSON(needs.build-prod.outputs.built-images).backend.registry }}
+            backend.image.repository=${{ fromJSON(needs.build-prod.outputs.built-images).backend.repository }}
+            backend.image.tag=${{ fromJSON(needs.build-prod.outputs.built-images).backend.tags[0] }}
+            backend.image.digest=${{ fromJSON(needs.build-prod.outputs.built-images).backend.digest }}
+            frontend.image.registry=${{ fromJSON(needs.build-prod.outputs.built-images).frontend.registry }}
+            frontend.image.repository=${{ fromJSON(needs.build-prod.outputs.built-images).frontend.repository }}
+            frontend.image.tag=${{ fromJSON(needs.build-prod.outputs.built-images).frontend.tags[0] }}
+            frontend.image.digest=${{ fromJSON(needs.build-prod.outputs.built-images).frontend.digest }}
           oci-registry: ${{ vars.OCI_REGISTRY }}
           oci-registry-username: ${{ github.repository_owner }}
           oci-registry-password: ${{ github.token }}

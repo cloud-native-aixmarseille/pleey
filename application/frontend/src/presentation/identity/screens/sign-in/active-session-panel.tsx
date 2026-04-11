@@ -1,4 +1,4 @@
-import type { User } from '../../../../domains/auth/entities/user';
+import type { User } from '../../../../domains/identity/entities/user';
 import { usePresentationTranslation } from '../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../shared/ui/actions/button';
 import { ActionRow } from '../../../shared/ui/layout/containers';

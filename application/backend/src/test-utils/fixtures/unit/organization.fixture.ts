@@ -1,7 +1,10 @@
+import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import {
   Organization,
   type OrganizationId,
 } from '../../../domain/organization/entities/organization';
+
+const organizationIdentifier = new OrganizationIdentifier();
 
 export type OrganizationFixtureParams = {
   id?: OrganizationId;
@@ -13,7 +16,7 @@ export type OrganizationFixtureParams = {
 
 export const createOrganizationFixture = (params: OrganizationFixtureParams = {}): Organization => {
   return new Organization(
-    params.id ?? 1,
+    params.id ?? organizationIdentifier.parse(1),
     params.name ?? 'Arcade Org',
     params.description ?? null,
     params.createdAt ?? new Date(Date.UTC(2025, 0, 1)),

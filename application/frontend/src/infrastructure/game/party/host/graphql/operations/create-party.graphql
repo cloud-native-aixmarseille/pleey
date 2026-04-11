@@ -1,0 +1,10 @@
+mutation CreateParty($input: CreatePartyInput!) {
+  createParty(input: $input) {
+    partyId
+    gameId
+    pin
+    status
+    role
+    createdAt
+  }
+}

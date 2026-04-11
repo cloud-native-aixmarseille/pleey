@@ -1,4 +1,4 @@
-import { TokenPair } from '../../../../src/domain/auth/ports/auth-token.service';
+import { TokenPair } from '../../../../src/domain/identity/ports/auth-token.service';
 
 type TokenPairFixtureParams = {
   accessToken?: string;

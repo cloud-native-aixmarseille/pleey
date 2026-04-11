@@ -1,7 +1,6 @@
+import { inject, injectable, unmanaged } from 'inversify';
 import { IDLE_VARIANT_REGISTRY, type IdleVariant } from './lemmings-idle-variant-registry';
 import { type LemmingSegment, LemmingsPlatformService } from './lemmings-platform-service';
-
-export type { IdleVariant } from './lemmings-idle-variant-registry';
 
 type LemmingMode = 'walk' | 'fall' | 'idle';
 
@@ -64,12 +63,15 @@ interface LemmingsRuntime {
   segments: Array<LemmingSegment>;
 }
 
+@injectable()
 export class LemmingsPatienceEngine {
   private readonly lemmings: Array<LemmingInternalState>;
   private runtime: LemmingsRuntime | null = null;
 
   constructor(
-    private readonly count: number = DEFAULT_COUNT,
+    @unmanaged()
+    count: number = DEFAULT_COUNT,
+    @inject(LemmingsPlatformService)
     private readonly platformService: LemmingsPlatformService,
   ) {
     this.lemmings = Array.from({ length: count }, (_, index) => this.createLemming(index));

@@ -1,6 +1,5 @@
 import { useDisclosure } from '@mantine/hooks';
 import { useAuth } from '../../identity/contexts/auth-context';
-import { useGameSessionRoutes } from '../routing/game-session-route-context';
 import { Outlet } from '../routing/router';
 import { uiThemeTokens } from '../ui/foundation/ui-theme';
 import { AppShellHeader } from './app-shell-header';
@@ -31,7 +30,7 @@ const mainContentStyle = {
   flexDirection: 'column',
   gap: uiThemeTokens.spacing.xl,
   margin: '0 auto',
-  maxWidth: '104rem',
+  maxWidth: '110rem',
   minHeight: 0,
   padding: `${uiThemeTokens.spacing.xl} ${uiThemeTokens.spacing.md}`,
   width: '100%',
@@ -40,15 +39,13 @@ const mainContentStyle = {
 /* ── Shell layout ── */
 
 export function AppShellLayout() {
-  const { isAuthenticated } = useAuth();
-  const { resolveJoinRoute } = useGameSessionRoutes();
+  const { user } = useAuth();
+  const isAuthenticated = user !== null;
   const [navOpened, { toggle: toggleNav, close: closeNav }] = useDisclosure();
-  const gameJoinRoute = resolveJoinRoute();
 
   return (
     <div style={shellMainStyle}>
       <AppShellHeader
-        gameJoinRoute={gameJoinRoute}
         isAuthenticated={isAuthenticated}
         navHandlers={{ toggle: toggleNav, close: closeNav }}
         navOpened={navOpened}

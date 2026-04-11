@@ -6,7 +6,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import type { Response } from 'express';
-import { resolveHttpStatusFromErrorCode } from './error-code-http-status';
+import { ErrorCodeHttpStatusService } from './error-code-http-status.service';
 import { ErrorTranslationService } from './error-translation-service';
 
 /**
@@ -15,7 +15,10 @@ import { ErrorTranslationService } from './error-translation-service';
  */
 @Catch(HttpException, Error)
 export class I18nHttpExceptionFilter implements ExceptionFilter {
-  constructor(private readonly errorTranslationService: ErrorTranslationService) {}
+  constructor(
+    private readonly errorTranslationService: ErrorTranslationService,
+    private readonly errorCodeHttpStatusService: ErrorCodeHttpStatusService,
+  ) {}
 
   async catch(exception: HttpException | Error, host: ArgumentsHost) {
     const normalizedException = this.normalizeException(exception);
@@ -64,7 +67,7 @@ export class I18nHttpExceptionFilter implements ExceptionFilter {
       return exception;
     }
 
-    const status = resolveHttpStatusFromErrorCode(exception.message);
+    const status = this.errorCodeHttpStatusService.resolve(exception.message);
     if (status === 500) {
       return new InternalServerErrorException('UNKNOWN_ERROR');
     }

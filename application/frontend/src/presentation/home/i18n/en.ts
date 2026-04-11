@@ -2,11 +2,10 @@ export const homeEn = {
   home: {
     hero: {
       eyebrow: 'Live event platform',
-      title: 'Turn any audience into active participants.',
+      title: 'Turn any audience into active players.',
       tagline:
-        'Run quizzes, predictions, and interactive sessions that keep every room engaged — from ten people to ten thousand.',
+        'Run quizzes, predictions, and interactive games that keep every room engaged from ten people to ten thousand.',
       primaryCta: 'Create your first game',
-      secondaryCta: 'Join a live session',
     },
     valueProposition: {
       heading: 'One platform for every interactive moment.',
@@ -17,19 +16,19 @@ export const homeEn = {
       eyebrow: 'Three steps to live',
       steps: [
         {
-          title: 'Design your session',
+          title: 'Design your game',
           description:
             'Choose a format — quiz, prediction, or custom — and build your content in the dashboard.',
         },
         {
           title: 'Share the pin',
           description:
-            'Generate a session code and send it to your audience. They join instantly from any device.',
+            'Generate a join code and send it to your audience. They join instantly from any device.',
         },
         {
           title: 'Go live',
           description:
-            'Launch the session, watch responses stream in, and reveal results on the big screen.',
+            'Launch the game, watch responses stream in, and reveal results on the big screen.',
         },
       ],
     },
@@ -47,20 +46,18 @@ export const homeEn = {
         {
           label: 'Multilingual by default',
           description:
-            'Seamlessly host in English or French — the interface adapts to each participant.',
+            'Seamlessly host in English or French — the interface adapts to each player.',
         },
         {
           label: 'Any device, zero installs',
-          description:
-            'Participants join from phones, tablets, or laptops with nothing to download.',
+          description: 'Players join from phones, tablets, or laptops with nothing to download.',
         },
       ],
     },
     closingCta: {
       heading: 'Ready to energize your next event?',
-      description: 'Create a free account and launch your first session in minutes.',
+      description: 'Create a free account and launch your first game in minutes.',
       primaryCta: 'Get started',
-      secondaryCta: 'See how it works',
     },
   },
 };

@@ -1,4 +1,6 @@
-export type OrganizationId = number;
+export type OrganizationId = number & {
+  readonly __identifierBrand: 'OrganizationId';
+};
 
 /**
  * Organization Domain Entity

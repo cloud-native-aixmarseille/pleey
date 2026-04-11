@@ -3,6 +3,7 @@
  * and reports any that are never imported by another file.
  *
  * Usage: node scripts/find-unused-exports.mjs <rootDir>
+ * Exits with code 1 when unused exports are found.
  *
  * - Ignores barrel/index files as sources of exports (they re-export).
  * - Ignores test files as consumers (they are allowed to be the sole importer).
@@ -49,6 +50,7 @@ const isI18nFile = (f) => f.includes('/i18n/');
 const isMigrationFile = (f) => f.includes('/migrations/');
 const isSeedFile = (f) => path.basename(f) === 'seed.ts';
 const isConfigFile = (f) => /\.(config|setup)\.(ts|mts)$/.test(f) || path.basename(f) === 'codegen.ts' || path.basename(f) === 'prisma.config.ts';
+const isGeneratedFile = (f) => f.includes('/generated/');
 
 // Phase 1: Extract named exports from source files (not tests, not barrels)
 const exportsByFile = new Map(); // file -> [{ name, line }]
@@ -58,10 +60,11 @@ const exportPatterns = [
   /export\s+(?:abstract\s+)?class\s+(\w+)/g,
   // export function foo
   /export\s+function\s+(\w+)/g,
-  // export const/let/var foo
-  /export\s+(?:const|let|var)\s+(\w+)/g,
-  // export enum Foo
-  /export\s+enum\s+(\w+)/g,
+  // export const/let/var foo, but not export const enum Foo
+  /export\s+const\s+(?!enum\b)(\w+)/g,
+  /export\s+(?:let|var)\s+(\w+)/g,
+  // export enum Foo / export const enum Foo
+  /export\s+(?:const\s+)?enum\s+(\w+)/g,
   // export interface Foo
   /export\s+interface\s+(\w+)/g,
   // export type Foo
@@ -76,6 +79,7 @@ for (const file of allFiles) {
   if (isMigrationFile(file)) continue;
   if (isSeedFile(file)) continue;
   if (isConfigFile(file)) continue;
+  if (isGeneratedFile(file)) continue;
 
   const content = fs.readFileSync(file, 'utf-8');
   const exports = [];
@@ -189,4 +193,8 @@ console.log(`Potentially unused exports: ${unused.length}\n`);
 
 for (const { file, name, reason } of unused) {
   console.log(`  ${file} → ${name} (${reason})`);
+}
+
+if (unused.length > 0) {
+  process.exitCode = 1;
 }

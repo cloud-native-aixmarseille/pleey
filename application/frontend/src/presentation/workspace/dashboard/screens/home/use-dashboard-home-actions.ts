@@ -1,43 +1,27 @@
-import { useState } from 'react';
 import type { DashboardHomeActionsFacade } from '../../../../../application/workspace/dashboard/facades/dashboard-home-actions.facade';
-import type { DashboardGameListItem } from '../../../../../domains/game-catalog/entities/dashboard-game-list-item';
-import type { DashboardActiveSessionItem } from '../../../../../domains/game-session/entities/active-game-session';
+import type { DashboardGameListItem } from '../../../../../domains/game/management/entities/dashboard-game-list-item';
+import type { GameType } from '../../../../../domains/game/types/shared/game-type';
+import type { ProjectId } from '../../../../../domains/project/entities/project';
+import { usePresentationNavigate } from '../../../../shared/routing/router';
 
 interface UseDashboardHomeActionsParams {
   readonly actionsFacade: DashboardHomeActionsFacade;
-  readonly navigate: (to: string) => void;
 }
 
-export function useDashboardHomeActions({
-  actionsFacade,
-  navigate,
-}: UseDashboardHomeActionsParams) {
-  const [isLaunching, setIsLaunching] = useState(false);
-  const [launchErrorMessage, setLaunchErrorMessage] = useState<string | null>(null);
+interface CreateDashboardGameCommand {
+  readonly description: string | null;
+  readonly projectId: ProjectId;
+  readonly title: string;
+  readonly type: GameType;
+}
 
-  const handleOpenSession = (session: DashboardActiveSessionItem) => {
-    navigate(actionsFacade.resolveOpenSessionRoute(session));
-  };
+export function useDashboardHomeActions({ actionsFacade }: UseDashboardHomeActionsParams) {
+  const navigate = usePresentationNavigate();
 
   const handleManageGame = (game: DashboardGameListItem) => {
     const route = actionsFacade.resolveManageGameRoute(game);
     if (route) {
       navigate(route);
-    }
-  };
-
-  const handleLaunchSession = async (game: DashboardGameListItem) => {
-    setLaunchErrorMessage(null);
-    setIsLaunching(true);
-
-    try {
-      navigate(await actionsFacade.launchSessionRoute(game.gameId));
-    } catch (error) {
-      setLaunchErrorMessage(
-        error instanceof Error ? error.message : 'dashboard.sessions.createFailed',
-      );
-    } finally {
-      setIsLaunching(false);
     }
   };
 
@@ -49,12 +33,17 @@ export function useDashboardHomeActions({
     navigate(actionsFacade.resolveProjectsRoute());
   };
 
+  const handleCreateGame = async (command: CreateDashboardGameCommand) => {
+    const route = await actionsFacade.createGame(command);
+
+    if (route) {
+      navigate(route);
+    }
+  };
+
   return {
-    isLaunching,
-    launchErrorMessage,
-    handleOpenSession,
+    handleCreateGame,
     handleManageGame,
-    handleLaunchSession,
     handleManageOrganizations,
     handleManageProjects,
   };

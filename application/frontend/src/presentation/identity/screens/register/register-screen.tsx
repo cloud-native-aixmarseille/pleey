@@ -1,42 +1,19 @@
-import { useState } from 'react';
 import { FormSection } from '../../../shared/forms/form-section';
 import { PresentationForm } from '../../../shared/forms/presentation-form';
 import { SubmitButton } from '../../../shared/forms/submit-button';
 import { TextFormField } from '../../../shared/forms/text-form-field';
-import { usePresentationForm } from '../../../shared/forms/use-presentation-form';
 import { usePresentationTranslation } from '../../../shared/i18n/use-presentation-translation';
 import { StatusBanner } from '../../../shared/ui/feedback/status-banner';
 import { ContentStack } from '../../../shared/ui/layout/containers';
 import { SupportingText } from '../../../shared/ui/layout/typography';
 import { InlineTextLink } from '../../../shared/ui/navigation/links';
-import { useAuth } from '../../contexts/auth-context';
-import { useAuthFormSubmit } from '../../hooks/use-auth-form-submit';
 import { AuthFormCard } from '../shared/components/auth-form-card';
 import { AuthLayout } from '../shared/components/auth-layout';
+import { useRegisterScreenState } from './use-register-screen-state';
 
 export function RegisterScreen() {
-  const { register } = useAuth();
   const { t } = usePresentationTranslation();
-  const { errorMessage, clearError, handleError } = useAuthFormSubmit();
-  const [isRegistered, setIsRegistered] = useState(false);
-  const form = usePresentationForm({
-    defaultValues: {
-      username: '',
-      email: '',
-      password: '',
-    },
-    onSubmit: async ({ value }) => {
-      clearError();
-
-      try {
-        await register(value);
-        setIsRegistered(true);
-        form.reset();
-      } catch (error) {
-        handleError(error);
-      }
-    },
-  });
+  const { errorMessage, form, isRegistered } = useRegisterScreenState();
 
   return (
     <AuthLayout>

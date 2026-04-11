@@ -1,6 +1,6 @@
 import { createContext, type PropsWithChildren, useContext } from 'react';
-import type { User } from '../../../domains/auth/entities/user';
-import type { UpdateProfileInput } from '../../../domains/auth/ports/auth-repository';
+import type { User } from '../../../domains/identity/entities/user';
+import type { UpdateProfileInput } from '../../../domains/identity/ports/auth-repository';
 import { PresentationContextErrorCode } from '../../../domains/shared/errors/presentation-context-error-code';
 
 interface SignInFormState {
@@ -16,7 +16,6 @@ interface RegisterFormState {
 
 export interface AuthContextValue {
   readonly user: User | null;
-  readonly isAuthenticated: boolean;
   readonly hasRestoredSession: boolean;
   signIn(input: SignInFormState): Promise<void>;
   register(input: RegisterFormState): Promise<void>;
