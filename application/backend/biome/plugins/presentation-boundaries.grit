@@ -1,0 +1,33 @@
+engine biome(1.0)
+language js(typescript, jsx)
+
+or {
+  JsImport() as $statement where {
+    $statement <: contains JsModuleSource() as $source,
+    $source <: or {
+      r"['\"](?:src/)?app(?:/.*)?['\"]",
+      r"['\"].*/app(?:/.*)?['\"]",
+      r"['\"].*/infrastructure/.*(?:resolver|controller|gateway|module).*['\"]",
+      r"['\"]src/infrastructure/.*(?:resolver|controller|gateway|module).*['\"]"
+    },
+    register_diagnostic(
+      span = $source,
+      message = "Backend presentation adapters must not import app composition or infrastructure transport modules directly. Inject dependencies from app modules instead.",
+      severity = "error"
+    )
+  },
+  JsExportFromClause() as $statement where {
+    $statement <: contains JsModuleSource() as $source,
+    $source <: or {
+      r"['\"](?:src/)?app(?:/.*)?['\"]",
+      r"['\"].*/app(?:/.*)?['\"]",
+      r"['\"].*/infrastructure/.*(?:resolver|controller|gateway|module).*['\"]",
+      r"['\"]src/infrastructure/.*(?:resolver|controller|gateway|module).*['\"]"
+    },
+    register_diagnostic(
+      span = $source,
+      message = "Backend presentation adapters must not re-export app composition or infrastructure transport modules directly. Inject dependencies from app modules instead.",
+      severity = "error"
+    )
+  }
+}

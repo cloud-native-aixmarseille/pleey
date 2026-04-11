@@ -2,11 +2,12 @@ import { useCallback, useMemo, useState } from 'react';
 import type {
   DashboardGameSortDirection,
   DashboardGameSortField,
-} from '../../../../domains/game-catalog/entities/dashboard-game-list-query';
+} from '../../../../domains/game/management/entities/dashboard-game-list-query';
+import type { GameType } from '../../../../domains/game/types/shared/game-type';
 
 export interface GameListFiltersState {
   readonly search: string;
-  readonly typeFilter: readonly string[];
+  readonly typeFilter: readonly GameType[];
   readonly sortField: DashboardGameSortField;
   readonly sortDirection: DashboardGameSortDirection;
   readonly page: number;
@@ -16,7 +17,7 @@ export interface GameListFiltersState {
 interface UseGameListFiltersResult {
   readonly filters: GameListFiltersState;
   readonly setSearch: (value: string) => void;
-  readonly setTypeFilter: (value: string[]) => void;
+  readonly setTypeFilter: (value: GameType[]) => void;
   readonly setSortField: (value: DashboardGameSortField) => void;
   readonly setSortDirection: (value: DashboardGameSortDirection) => void;
   readonly setPage: (value: number) => void;
@@ -26,7 +27,7 @@ const DEFAULT_PAGE_SIZE = 9;
 
 export function useGameListFilters(pageSize = DEFAULT_PAGE_SIZE): UseGameListFiltersResult {
   const [search, setSearchRaw] = useState('');
-  const [typeFilter, setTypeFilterRaw] = useState<string[]>([]);
+  const [typeFilter, setTypeFilterRaw] = useState<GameType[]>([]);
   const [sortField, setSortFieldRaw] = useState<DashboardGameSortField>('createdAt');
   const [sortDirection, setSortDirectionRaw] = useState<DashboardGameSortDirection>('desc');
   const [page, setPage] = useState(1);
@@ -42,7 +43,7 @@ export function useGameListFilters(pageSize = DEFAULT_PAGE_SIZE): UseGameListFil
   );
 
   const setTypeFilter = useCallback(
-    (value: string[]) => {
+    (value: GameType[]) => {
       setTypeFilterRaw(value);
       resetPage();
     },

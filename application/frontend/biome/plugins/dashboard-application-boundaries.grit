@@ -1,0 +1,29 @@
+engine biome(1.0)
+language js(typescript, jsx)
+
+or {
+  JsImport() as $statement where {
+    $statement <: contains JsModuleSource() as $source,
+    $source <: or {
+      r"['\"](?:src/)?app(?:/.*)?['\"]",
+      r"['\"].*/app(?:/.*)?['\"]"
+    },
+    register_diagnostic(
+      span = $source,
+      message = "Dashboard application code must not import from app composition. Depend on dashboard-owned contracts and bind implementations in app/container modules instead.",
+      severity = "error"
+    )
+  },
+  JsExportFromClause() as $statement where {
+    $statement <: contains JsModuleSource() as $source,
+    $source <: or {
+      r"['\"](?:src/)?app(?:/.*)?['\"]",
+      r"['\"].*/app(?:/.*)?['\"]"
+    },
+    register_diagnostic(
+      span = $source,
+      message = "Dashboard application code must not re-export app composition imports. Depend on dashboard-owned contracts and bind implementations in app/container modules instead.",
+      severity = "error"
+    )
+  }
+}

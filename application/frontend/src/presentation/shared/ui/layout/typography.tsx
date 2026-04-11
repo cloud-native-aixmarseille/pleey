@@ -13,6 +13,7 @@ interface EyebrowProps extends PropsWithChildren {
 }
 
 interface HeadingProps extends PropsWithChildren {
+  readonly id?: string;
   readonly level?: 1 | 2 | 3;
   readonly hero?: boolean;
 }
@@ -36,11 +37,15 @@ export function Eyebrow({ children, tone = 'accent', compact = false }: EyebrowP
   );
 }
 
-export function Heading({ children, level = 2, hero = false }: HeadingProps) {
+export function Heading({ children, id, level = 2, hero = false }: HeadingProps) {
   const fontSize = hero ? 'clamp(2rem, 3vw, 2.75rem)' : level === 3 ? '1.25rem' : '2rem';
 
   return (
-    <Title order={level} style={createHeadingStyle({ fontSize, lineHeight: hero ? 1.1 : 1.15 })}>
+    <Title
+      id={id}
+      order={level}
+      style={createHeadingStyle({ fontSize, lineHeight: hero ? 1.1 : 1.15 })}
+    >
       {children}
     </Title>
   );

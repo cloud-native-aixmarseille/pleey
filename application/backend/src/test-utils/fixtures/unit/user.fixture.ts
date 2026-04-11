@@ -1,5 +1,8 @@
-import { User, type UserId } from '../../../domain/auth/entities/user';
+import { UserIdentifier } from '../../../application/identity/shared/services/identifiers/user-identifier';
+import { User, type UserId } from '../../../domain/identity/entities/user';
 import type { Media } from '../../../domain/media/entities/media';
+
+const userIdentifier = new UserIdentifier();
 
 export type UserFixtureParams = {
   id?: UserId;
@@ -14,7 +17,7 @@ export type UserFixtureParams = {
 
 export const createUserFixture = (params: UserFixtureParams = {}): User => {
   return new User(
-    params.id ?? 1,
+    params.id ?? userIdentifier.parse(1),
     params.username ?? 'alice',
     params.email ?? 'alice@example.com',
     params.password ?? 'hashed-password',

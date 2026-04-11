@@ -1,12 +1,22 @@
 import {
   IconAlertCircle,
+  IconArchive,
+  IconArrowDown,
+  IconArrowLeft,
   IconArrowRight,
+  IconArrowUp,
   IconBuilding,
   IconChartBar,
   IconChevronDown,
   IconCircleCheck,
   IconClockPause,
+  IconCommand,
+  IconCopy,
+  IconDeviceFloppy,
   IconDeviceGamepad2,
+  IconDots,
+  IconEye,
+  IconGripVertical,
   IconHelpCircle,
   IconInbox,
   IconInfoCircle,
@@ -22,12 +32,14 @@ import {
   IconPlayerTrackPrev,
   IconPower,
   type IconProps,
+  IconRocket,
   IconSearch,
   IconSettings,
   IconSortAscending,
   IconSortDescending,
   IconSparkles,
   IconSun,
+  IconTrash,
   IconTrendingUp,
   IconTrophy,
   IconUser,
@@ -38,15 +50,24 @@ import type { ComponentType } from 'react';
 
 export type AppIconName =
   | 'account'
+  | 'archive'
+  | 'arrow-down'
+  | 'arrow-left'
   | 'arrow-right'
+  | 'arrow-up'
   | 'catalog'
   | 'chevron-down'
+  | 'command'
+  | 'copy'
   | 'dashboard'
   | 'dark-mode'
+  | 'dots'
   | 'empty'
   | 'error'
+  | 'eye'
   | 'feature'
   | 'game'
+  | 'grip-vertical'
   | 'info'
   | 'language'
   | 'light-mode'
@@ -58,8 +79,12 @@ export type AppIconName =
   | 'power'
   | 'prediction'
   | 'profile'
+  | 'plus'
   | 'quiz'
   | 'register'
+  | 'rocket'
+  | 'save'
+  | 'search'
   | 'settings'
   | 'sign-in'
   | 'sign-out'
@@ -69,19 +94,29 @@ export type AppIconName =
   | 'sort-desc'
   | 'stats'
   | 'success'
+  | 'trash'
   | 'trophy';
 
 const iconRegistry: Record<AppIconName, ComponentType<IconProps>> = {
   account: IconUserCircle,
+  archive: IconArchive,
+  'arrow-down': IconArrowDown,
+  'arrow-left': IconArrowLeft,
   'arrow-right': IconArrowRight,
+  'arrow-up': IconArrowUp,
   catalog: IconLayoutGrid,
   'chevron-down': IconChevronDown,
+  command: IconCommand,
+  copy: IconCopy,
   dashboard: IconLayoutDashboard,
   'dark-mode': IconMoonStars,
+  dots: IconDots,
   empty: IconInbox,
   error: IconAlertCircle,
+  eye: IconEye,
   feature: IconSparkles,
   game: IconDeviceGamepad2,
+  'grip-vertical': IconGripVertical,
   info: IconInfoCircle,
   language: IconLanguage,
   'light-mode': IconSun,
@@ -93,8 +128,12 @@ const iconRegistry: Record<AppIconName, ComponentType<IconProps>> = {
   power: IconPower,
   prediction: IconTrendingUp,
   profile: IconUser,
+  plus: IconUserPlus,
   quiz: IconHelpCircle,
   register: IconUserPlus,
+  rocket: IconRocket,
+  save: IconDeviceFloppy,
+  search: IconSearch,
   settings: IconSettings,
   'sign-in': IconLogin2,
   'sign-out': IconLogout2,
@@ -104,6 +143,7 @@ const iconRegistry: Record<AppIconName, ComponentType<IconProps>> = {
   'sort-desc': IconSortDescending,
   stats: IconChartBar,
   success: IconCircleCheck,
+  trash: IconTrash,
   trophy: IconTrophy,
 };
 

@@ -1,4 +1,7 @@
 import { inject, injectable } from 'inversify';
+import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
+import { ProjectIdentifier } from '../../application/workspace/shared/services/identifiers/project-identifier';
+import type { OrganizationId } from '../../domains/organization/entities/organization';
 import type { Project } from '../../domains/project/entities/project';
 import { ProjectErrorCode } from '../../domains/project/errors/project-error-code';
 import type {
@@ -28,9 +31,13 @@ export class GraphqlProjectRepository implements ProjectRepository {
   constructor(
     @inject(GraphqlClient)
     private readonly graphqlClient: GraphqlClient,
+    @inject(ProjectIdentifier)
+    private readonly projectIdentifier: ProjectIdentifier,
+    @inject(OrganizationIdentifier)
+    private readonly organizationIdentifier: OrganizationIdentifier,
   ) {}
 
-  async getProjectsByOrganization(organizationId: number): Promise<Project[]> {
+  async getProjectsByOrganization(organizationId: OrganizationId): Promise<Project[]> {
     try {
       const result = await this.graphqlClient.request<
         WorkspaceProjectsByOrganizationQuery,
@@ -38,10 +45,10 @@ export class GraphqlProjectRepository implements ProjectRepository {
       >(WorkspaceProjectsByOrganizationDocument, { organizationId });
 
       return (result.organizationProjects.projects ?? []).map((project) => ({
-        id: project.id,
+        id: this.projectIdentifier.parse(project.id),
         name: project.name,
         description: project.description ?? null,
-        organizationId: project.organizationId,
+        organizationId: this.organizationIdentifier.parse(project.organizationId),
         createdAt: project.createdAt,
       }));
     } catch (error) {
@@ -109,10 +116,10 @@ export class GraphqlProjectRepository implements ProjectRepository {
     readonly createdAt: string;
   }): Project {
     return {
-      id: project.id,
+      id: this.projectIdentifier.parse(project.id),
       name: project.name,
       description: project.description ?? null,
-      organizationId: project.organizationId,
+      organizationId: this.organizationIdentifier.parse(project.organizationId),
       createdAt: project.createdAt,
     };
   }

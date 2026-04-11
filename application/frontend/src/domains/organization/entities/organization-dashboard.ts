@@ -6,8 +6,6 @@ export interface OrganizationDashboard {
   };
   readonly stats: {
     readonly totalGames: number;
-    readonly totalGameSessions: number;
-    readonly activeGameSessions: number;
     readonly totalMembers: number;
     readonly totalProjects: number;
   };

@@ -1,13 +1,16 @@
+import type { OrganizationId } from '../../../domains/organization/entities/organization';
+import type { ProjectId } from '../../../domains/project/entities/project';
+
 export interface WorkspaceSelection {
-  readonly organizationId: number | null;
-  readonly projectId: number | null;
+  readonly organizationId: OrganizationId | null;
+  readonly projectId: ProjectId | null;
 }
 
 export const WORKSPACE_SELECTION_PORT = Symbol.for('workspaceSelectionPort');
 
 export interface WorkspaceSelectionPort {
   restoreSelection(): WorkspaceSelection;
-  setOrganizationId(organizationId: number | null): void;
-  setProjectId(projectId: number | null): void;
+  setOrganizationId(organizationId: OrganizationId | null): void;
+  setProjectId(projectId: ProjectId | null): void;
   clear(): void;
 }

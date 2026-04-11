@@ -2,11 +2,11 @@ import { type Mock, vi } from 'vitest';
 
 type AnyFn = (...args: unknown[]) => unknown;
 
-export type AsyncMethodKeys<T> = {
+type AsyncMethodKeys<T> = {
   [K in keyof T]-?: T[K] extends (...args: unknown[]) => Promise<unknown> ? K : never;
 }[keyof T];
 
-export type SyncMethodKeys<T> = {
+type SyncMethodKeys<T> = {
   [K in keyof T]-?: T[K] extends (...args: unknown[]) => infer R
     ? R extends Promise<unknown>
       ? never
@@ -18,12 +18,12 @@ type ResolvedValueFor<T, K extends AsyncMethodKeys<T>> = Awaited<ReturnType<Extr
 
 type ReturnedValueFor<T, K extends SyncMethodKeys<T>> = ReturnType<Extract<T[K], AnyFn>>;
 
-export type MockFactoryOptions<T> = {
+type MockFactoryOptions<T> = {
   resolved?: Array<AsyncMethodKeys<T>>;
   returned?: Array<SyncMethodKeys<T>>;
 };
 
-export type MockFactoryValues<T> = Partial<
+type MockFactoryValues<T> = Partial<
   {
     [K in AsyncMethodKeys<T>]: ResolvedValueFor<T, K>;
   } & {

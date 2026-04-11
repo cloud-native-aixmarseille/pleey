@@ -1,6 +1,6 @@
 import type { Mocked } from 'vitest';
 
-import type { UserAvatarService } from '../../domain/auth/services/user-avatar-service';
+import type { UserAvatarService } from '../../domain/identity/services/user-avatar-service';
 
 import {
   applyMockFactoryConfig,

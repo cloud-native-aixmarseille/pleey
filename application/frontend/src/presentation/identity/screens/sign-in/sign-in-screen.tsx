@@ -2,63 +2,20 @@ import { FormSection } from '../../../shared/forms/form-section';
 import { PresentationForm } from '../../../shared/forms/presentation-form';
 import { SubmitButton } from '../../../shared/forms/submit-button';
 import { TextFormField } from '../../../shared/forms/text-form-field';
-import { usePresentationForm } from '../../../shared/forms/use-presentation-form';
 import { usePresentationTranslation } from '../../../shared/i18n/use-presentation-translation';
-import { usePresentationNavigate } from '../../../shared/routing/router';
 import { StatusBanner } from '../../../shared/ui/feedback/status-banner';
 import { ContentStack } from '../../../shared/ui/layout/containers';
 import { SupportingText } from '../../../shared/ui/layout/typography';
 import { InlineTextLink } from '../../../shared/ui/navigation/links';
-import { useAuth } from '../../contexts/auth-context';
-import { useAuthFormSubmit } from '../../hooks/use-auth-form-submit';
 import { AuthFormCard } from '../shared/components/auth-form-card';
 import { AuthLayout } from '../shared/components/auth-layout';
 import { ActiveSessionPanel } from './active-session-panel';
-
-const DEFAULT_SIGN_IN_REDIRECT = '/workspace/dashboard';
-
-function resolvePostSignInRoute(): string {
-  const searchParams = new URLSearchParams(window.location.search);
-  const redirectTo = searchParams.get('redirectTo');
-
-  if (!redirectTo || !redirectTo.startsWith('/') || redirectTo.startsWith('//')) {
-    return DEFAULT_SIGN_IN_REDIRECT;
-  }
-
-  const parsedRedirect = new URL(redirectTo, window.location.origin);
-
-  if (parsedRedirect.pathname === '/identity/sign-in') {
-    return DEFAULT_SIGN_IN_REDIRECT;
-  }
-
-  return `${parsedRedirect.pathname}${parsedRedirect.search}${parsedRedirect.hash}`;
-}
+import { useSignInScreenState } from './use-sign-in-screen-state';
 
 export function SignInScreen() {
-  const { hasRestoredSession, isAuthenticated, signIn, signOut, user } = useAuth();
   const { t } = usePresentationTranslation();
-  const navigate = usePresentationNavigate();
-  const { errorMessage, clearError, handleError } = useAuthFormSubmit();
-  const form = usePresentationForm({
-    defaultValues: {
-      email: '',
-      password: '',
-    },
-    onSubmit: async ({ value }) => {
-      clearError();
-
-      try {
-        await signIn(value);
-        navigate(resolvePostSignInRoute());
-      } catch (error) {
-        handleError(error);
-      }
-    },
-  });
-
-  async function handleSignOut() {
-    await signOut();
-  }
+  const { errorMessage, form, handleNavigateDashboard, handleSignOut, hasRestoredSession, user } =
+    useSignInScreenState();
 
   return (
     <AuthLayout>
@@ -67,10 +24,10 @@ export function SignInScreen() {
         title={t('auth.signIn.title')}
         subtitle={hasRestoredSession ? t('auth.signIn.subtitle') : t('auth.signIn.restoring')}
       >
-        {isAuthenticated && user ? (
+        {user ? (
           <ActiveSessionPanel
             user={user}
-            onNavigateDashboard={() => navigate('/workspace/dashboard')}
+            onNavigateDashboard={handleNavigateDashboard}
             onSignOut={handleSignOut}
           />
         ) : (

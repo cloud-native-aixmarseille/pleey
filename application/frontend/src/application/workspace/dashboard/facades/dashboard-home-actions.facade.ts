@@ -1,37 +1,25 @@
 import { inject, injectable } from 'inversify';
-import type { DashboardGameListItem } from '../../../../domains/game-catalog/entities/dashboard-game-list-item';
-import type { DashboardActiveSessionItem } from '../../../../domains/game-session/entities/active-game-session';
-import { GameTypeManagementRegistry } from '../../../game-catalog/services/game-type-management-registry';
-import {
-  GAME_SESSION_ROUTING_GATEWAY,
-  type GameSessionRoutingGateway,
-} from '../../../game-session/live/shared/gateways/game-session-routing.gateway';
-import { DashboardReadFacade } from './dashboard-read.facade';
+import type { DashboardGameListItem } from '../../../../domains/game/management/entities/dashboard-game-list-item';
+import { GameType, type GameTypeId } from '../../../../domains/game/types/shared/game-type';
+import type { ProjectId } from '../../../../domains/project/entities/project';
+import { GameTypeRegistry } from '../../../game/types/shared/services/game-type-registry';
+
+interface DashboardCreateGameCommand {
+  readonly description: string | null;
+  readonly projectId: ProjectId;
+  readonly title: string;
+  readonly type: GameType;
+}
 
 @injectable()
 export class DashboardHomeActionsFacade {
   constructor(
-    @inject(DashboardReadFacade)
-    private readonly dashboardReadFacade: DashboardReadFacade,
-    @inject(GameTypeManagementRegistry)
-    private readonly dashboardGameTypeRegistry: GameTypeManagementRegistry,
-    @inject(GAME_SESSION_ROUTING_GATEWAY)
-    private readonly gameSessionRoutingGateway: GameSessionRoutingGateway,
+    @inject(GameTypeRegistry)
+    private readonly gameTypeRegistry: GameTypeRegistry,
   ) {}
 
-  resolveOpenSessionRoute(session: DashboardActiveSessionItem): string {
-    return this.gameSessionRoutingGateway.resolveEntryRoute(session);
-  }
-
-  async launchSessionRoute(gameId: number): Promise<string> {
-    const session = await this.dashboardReadFacade.createGameSession(gameId);
-    return this.resolveOpenSessionRoute(session);
-  }
-
-  resolveManageGameRoute(
-    game: Pick<DashboardGameListItem, 'type' | 'relatedGameId'>,
-  ): string | null {
-    return this.dashboardGameTypeRegistry.resolveManagementRoute(game);
+  resolveManageGameRoute(game: Pick<DashboardGameListItem, 'type' | 'gameTypeId'>): string | null {
+    return this.gameTypeRegistry.resolveManagementRoute(game);
   }
 
   resolveOrganizationsRoute(): string {
@@ -40,5 +28,18 @@ export class DashboardHomeActionsFacade {
 
   resolveProjectsRoute(): string {
     return '/workspace/organizations#projects';
+  }
+
+  async createGame(command: DashboardCreateGameCommand): Promise<string | null> {
+    const gameTypeId: GameTypeId | null = await this.gameTypeRegistry.createGame(
+      command.type,
+      command.projectId,
+      {
+        title: command.title,
+        description: command.description,
+      },
+    );
+
+    return this.gameTypeRegistry.resolveManagementRouteByType(command.type, gameTypeId);
   }
 }

@@ -1,0 +1,10 @@
+query ListParties {
+  listParties {
+    partyId
+    gameId
+    pin
+    status
+    role
+    createdAt
+  }
+}

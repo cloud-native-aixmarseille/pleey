@@ -13,24 +13,32 @@ export class I18nWsExceptionFilter extends BaseWsExceptionFilter {
   }
 
   async catch(exception: WsException, host: ArgumentsHost) {
-    const error = exception.getError();
-    let message: string;
+    const translatedEx = new WsException(await this.translateExceptionMessage(exception));
+    const client = host.switchToWs().getClient();
 
-    if (typeof error === 'string') {
-      message = await this.errorTranslationService.translateErrorCode(error);
-    } else if (error && typeof error === 'object' && 'message' in error) {
-      const msgValue = (error as { message?: unknown }).message;
-      message =
-        typeof msgValue === 'string'
-          ? await this.errorTranslationService.translateErrorCode(msgValue)
-          : await this.errorTranslationService.translateErrorCode('VALIDATION_FAILED');
-    } else {
-      message = await this.errorTranslationService.translateErrorCode('VALIDATION_FAILED');
+    if (!client || typeof client.emit !== 'function') {
+      return translatedEx;
     }
 
-    // Create a new exception with the translated message
-    const translatedEx = new WsException(message);
     super.catch(translatedEx, host);
+  }
+
+  private async translateExceptionMessage(exception: WsException): Promise<string> {
+    const error = exception.getError();
+
+    if (typeof error === 'string') {
+      return this.errorTranslationService.translateErrorCode(error);
+    }
+
+    if (error && typeof error === 'object' && 'message' in error) {
+      const msgValue = (error as { message?: unknown }).message;
+
+      return typeof msgValue === 'string'
+        ? this.errorTranslationService.translateErrorCode(msgValue)
+        : this.errorTranslationService.translateErrorCode('VALIDATION_FAILED');
+    }
+
+    return this.errorTranslationService.translateErrorCode('VALIDATION_FAILED');
   }
 
   // Translation logic intentionally lives in ErrorTranslationService.

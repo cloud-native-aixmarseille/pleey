@@ -1,0 +1,27 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "src/app/main.ts",
+    "src/**/*.spec.ts",
+    "test/**/*.ts",
+    "prisma/seed.ts",
+    "scripts/**/*.mjs"
+  ],
+  "project": [
+    "src/**/*.ts",
+    "test/**/*.ts",
+    "prisma/**/*.ts",
+    "scripts/**/*.mjs"
+  ],
+  "ignoreDependencies": [
+    "@as-integrations/express5",
+    "@opentelemetry/instrumentation",
+    "graphql-ws",
+    "nestjs-otel",
+    "redis",
+    "swagger-ui-express",
+    "source-map-support",
+    "ts-loader",
+    "tsconfig-paths"
+  ]
+}

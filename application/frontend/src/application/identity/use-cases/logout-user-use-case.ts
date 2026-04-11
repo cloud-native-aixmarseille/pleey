@@ -1,11 +1,13 @@
 import { inject, injectable } from 'inversify';
-import type { AuthRepository } from '../../../domains/auth/ports/auth-repository';
-import { AUTH_SERVICE_ID } from '../contracts/auth-service-id';
+import {
+  type AuthRepository,
+  AuthRepositoryToken,
+} from '../../../domains/identity/ports/auth-repository';
 
 @injectable()
 export class LogoutUserUseCase {
   constructor(
-    @inject(AUTH_SERVICE_ID.authRepository)
+    @inject(AuthRepositoryToken)
     private readonly authRepository: AuthRepository,
   ) {}
 

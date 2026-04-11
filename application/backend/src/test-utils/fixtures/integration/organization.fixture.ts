@@ -2,7 +2,7 @@ import type { PrismaService } from '../../../infrastructure/database/prisma-serv
 import type { OrganizationFixtureParams } from '../unit/organization.fixture';
 import { createOrganizationFixture } from '../unit/organization.fixture';
 
-export type PersistedOrganizationFixtureParams = OrganizationFixtureParams;
+type PersistedOrganizationFixtureParams = OrganizationFixtureParams;
 
 export const createPersistedOrganizationFixture = async (
   prisma: PrismaService,

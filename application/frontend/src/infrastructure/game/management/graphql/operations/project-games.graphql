@@ -1,0 +1,28 @@
+query ProjectGames($input: ProjectGamesInput!) {
+  projectGames(input: $input) {
+    items {
+      gameId
+      type
+      title
+      description
+      createdAt
+      gameTypeId
+      stageCount
+      permissions {
+        createParty {
+          allowed
+          reason
+        }
+        launchReadiness {
+          allowed
+          reason
+        }
+      }
+    }
+    totalCount
+    overallCount
+    page
+    pageSize
+    totalPages
+  }
+}

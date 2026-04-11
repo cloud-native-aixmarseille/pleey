@@ -13,6 +13,8 @@
     "**/.docusaurus/**",
     "**/playwright-report/**",
     "**/test-results/**",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
     "**/charts/application/charts/**"
   ]
 }

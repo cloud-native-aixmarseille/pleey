@@ -2,7 +2,7 @@ import { Controller, Get, Param, ParseIntPipe, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { GetGuestAvatarUseCase } from '../../../application/identity/avatar/use-cases/get-guest-avatar-use-case';
 import { GetUserAvatarUseCase } from '../../../application/identity/avatar/use-cases/get-user-avatar-use-case';
-import type { UserId } from '../../../domain/auth/entities/user';
+import type { UserId } from '../../../domain/identity/entities/user';
 
 @Controller('api/avatars')
 export class AvatarController {

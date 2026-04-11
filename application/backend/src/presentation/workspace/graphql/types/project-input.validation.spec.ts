@@ -1,7 +1,9 @@
 import { type ArgumentMetadata, BadRequestException, ValidationPipe } from '@nestjs/common';
 import { describe, expect, it } from 'vitest';
-import { CreateProjectInput } from './create-project-input';
-import { UpdateProjectInput } from './update-project-input';
+import {
+  CreateProjectInput,
+  UpdateProjectInput,
+} from '../../../project/graphql/types/project.input';
 
 const argumentMetadata: ArgumentMetadata = {
   data: 'input',

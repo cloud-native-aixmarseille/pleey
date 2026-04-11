@@ -1,6 +1,8 @@
 import type { OrganizationId } from '../../organization/entities/organization';
 
-export type ProjectId = number;
+export type ProjectId = number & {
+  readonly __identifierBrand: 'ProjectId';
+};
 
 export class Project {
   constructor(

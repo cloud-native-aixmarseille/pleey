@@ -1,16 +1,19 @@
 import { inject, injectable } from 'inversify';
+import type { OrganizationId } from '../../../../domains/organization/entities/organization';
 import type { OrganizationDashboard } from '../../../../domains/organization/entities/organization-dashboard';
-import type { OrganizationRepository } from '../../../../domains/organization/ports/organization-repository';
-import { ORGANIZATION_SERVICE_ID } from '../contracts/organization-service-id';
+import {
+  type OrganizationRepository,
+  OrganizationRepositoryToken,
+} from '../../../../domains/organization/ports/organization-repository';
 
 interface GetOrganizationDashboardCommand {
-  readonly organizationId: number;
+  readonly organizationId: OrganizationId;
 }
 
 @injectable()
 export class GetOrganizationDashboardUseCase {
   constructor(
-    @inject(ORGANIZATION_SERVICE_ID.organizationRepository)
+    @inject(OrganizationRepositoryToken)
     private readonly organizationRepository: OrganizationRepository,
   ) {}
 

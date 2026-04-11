@@ -1,8 +1,10 @@
-import type { UserId } from '../../auth/entities/user';
+import type { UserId } from '../../identity/entities/user';
 import { OrganizationRole } from '../enums/organization-role.enum';
 import type { OrganizationId } from './organization';
 
-export type OrganizationMemberId = number;
+export type OrganizationMemberId = number & {
+  readonly __identifierBrand: 'OrganizationMemberId';
+};
 
 /**
  * OrganizationMember Domain Entity

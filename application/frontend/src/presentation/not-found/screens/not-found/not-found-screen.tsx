@@ -1,5 +1,4 @@
 import { usePresentationTranslation } from '../../../shared/i18n/use-presentation-translation';
-import { useGameSessionRoutes } from '../../../shared/routing/game-session-route-context';
 import { surfaceRecipes } from '../../../shared/ui/foundation/ui-recipes';
 import { uiThemeTokens } from '../../../shared/ui/foundation/ui-theme';
 import { uiTypeScale } from '../../../shared/ui/foundation/ui-typography';
@@ -62,8 +61,6 @@ const actionsStyle = {
 
 export function NotFoundScreen() {
   const { t } = usePresentationTranslation();
-  const { resolveJoinRoute } = useGameSessionRoutes();
-  const gameJoinRoute = resolveJoinRoute();
   return (
     <div style={rootStyle}>
       <div style={cardStyle}>
@@ -84,9 +81,6 @@ export function NotFoundScreen() {
             to="/workspace/dashboard"
           >
             {t('notFound.dashboardCta')}
-          </SecondaryActionLink>
-          <SecondaryActionLink leftSection={<AppIcon name="game" size={16} />} to={gameJoinRoute}>
-            {t('notFound.joinCta')}
           </SecondaryActionLink>
         </nav>
       </div>

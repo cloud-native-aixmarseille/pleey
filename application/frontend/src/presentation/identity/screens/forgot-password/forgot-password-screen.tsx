@@ -1,9 +1,7 @@
-import { useState } from 'react';
 import { FormSection } from '../../../shared/forms/form-section';
 import { PresentationForm } from '../../../shared/forms/presentation-form';
 import { SubmitButton } from '../../../shared/forms/submit-button';
 import { TextFormField } from '../../../shared/forms/text-form-field';
-import { usePresentationForm } from '../../../shared/forms/use-presentation-form';
 import { usePresentationTranslation } from '../../../shared/i18n/use-presentation-translation';
 import { StatusBanner } from '../../../shared/ui/feedback/status-banner';
 import { ContentStack } from '../../../shared/ui/layout/containers';
@@ -11,18 +9,11 @@ import { SupportingText } from '../../../shared/ui/layout/typography';
 import { InlineTextLink } from '../../../shared/ui/navigation/links';
 import { AuthFormCard } from '../shared/components/auth-form-card';
 import { AuthLayout } from '../shared/components/auth-layout';
+import { useForgotPasswordScreenState } from './use-forgot-password-screen-state';
 
 export function ForgotPasswordScreen() {
   const { t } = usePresentationTranslation();
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const form = usePresentationForm({
-    defaultValues: {
-      email: '',
-    },
-    onSubmit: async () => {
-      setIsSubmitted(true);
-    },
-  });
+  const { form, isSubmitted } = useForgotPasswordScreenState();
 
   return (
     <AuthLayout>

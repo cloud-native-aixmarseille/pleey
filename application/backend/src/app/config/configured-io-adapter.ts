@@ -2,12 +2,12 @@ import type { INestApplicationContext } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import type { ServerOptions, Socket } from 'socket.io';
-import { AUTH_JWT_SECRET } from '../../infrastructure/auth/auth-jwt-secret.token';
-import type { GameSocketCorsOptions } from '../../presentation/game-session/live/shared/realtime/game-socket-cors-options.token';
+import type { UserId } from '../../domain/identity/entities/user';
+import { AUTH_JWT_SECRET } from '../../infrastructure/identity/auth-jwt-secret.token';
+import type { GameSocketCorsOptions } from './game-socket-cors-options.token';
 
 interface SocketAuthenticatedUser {
-  readonly id: number;
-  readonly username: string;
+  readonly id: UserId;
 }
 
 export class ConfiguredIoAdapter extends IoAdapter {
@@ -41,10 +41,7 @@ export class ConfiguredIoAdapter extends IoAdapter {
           secret: this.jwtSecret,
         });
 
-        socket.data.user = {
-          id: payload.id,
-          username: payload.username,
-        } satisfies SocketAuthenticatedUser;
+        socket.data.authenticatedUserId = payload.id;
         next();
       } catch (error) {
         next(error instanceof Error ? error : new Error('Unauthorized'));

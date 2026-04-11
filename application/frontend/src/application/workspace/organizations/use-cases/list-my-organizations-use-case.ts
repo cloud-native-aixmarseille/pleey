@@ -1,12 +1,14 @@
 import { inject, injectable } from 'inversify';
 import type { Organization } from '../../../../domains/organization/entities/organization';
-import type { OrganizationRepository } from '../../../../domains/organization/ports/organization-repository';
-import { ORGANIZATION_SERVICE_ID } from '../contracts/organization-service-id';
+import {
+  type OrganizationRepository,
+  OrganizationRepositoryToken,
+} from '../../../../domains/organization/ports/organization-repository';
 
 @injectable()
 export class ListMyOrganizationsUseCase {
   constructor(
-    @inject(ORGANIZATION_SERVICE_ID.organizationRepository)
+    @inject(OrganizationRepositoryToken)
     private readonly organizationRepository: OrganizationRepository,
   ) {}
 

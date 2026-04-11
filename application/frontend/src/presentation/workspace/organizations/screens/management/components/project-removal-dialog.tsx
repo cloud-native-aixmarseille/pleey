@@ -1,7 +1,8 @@
-import type { Project } from '../../../../../../domains/project/entities/project';
+import type { Project, ProjectId } from '../../../../../../domains/project/entities/project';
 import { FieldShell } from '../../../../../shared/ui/forms/field-shell';
 import { Select } from '../../../../../shared/ui/forms/select';
 import { ConfirmDialog } from '../../../../../shared/ui/overlay/confirm-dialog';
+import { useWorkspaceDependencies } from '../../../../shared/contexts/workspace-dependencies-context';
 
 interface ProjectRemovalDialogProps {
   readonly availableMigrationProjects: readonly Project[];
@@ -13,10 +14,10 @@ interface ProjectRemovalDialogProps {
   readonly isOpen: boolean;
   readonly label: string;
   readonly message: string;
-  readonly migrationProjectId: number | null;
+  readonly migrationProjectId: ProjectId | null;
   readonly onCancel: () => void;
   readonly onConfirm: () => void;
-  readonly onMigrationProjectChange: (projectId: number | null) => void;
+  readonly onMigrationProjectChange: (projectId: ProjectId | null) => void;
   readonly placeholder: string;
   readonly title: string;
 }
@@ -37,6 +38,8 @@ export function ProjectRemovalDialog({
   placeholder,
   title,
 }: ProjectRemovalDialogProps) {
+  const { projectIdentifier } = useWorkspaceDependencies();
+
   return (
     <ConfirmDialog
       cancelLabel={cancelLabel}
@@ -53,8 +56,7 @@ export function ProjectRemovalDialog({
           <Select
             id="project-migration-target"
             onChange={(event) => {
-              const value = event.currentTarget.value;
-              onMigrationProjectChange(value ? Number(value) : null);
+              onMigrationProjectChange(projectIdentifier.parseOrNull(event.currentTarget.value));
             }}
             value={migrationProjectId === null ? '' : String(migrationProjectId)}
           >

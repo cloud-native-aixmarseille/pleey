@@ -2,8 +2,9 @@ import { Inject, Injectable, Optional } from '@nestjs/common';
 import type { Request } from 'express';
 import type { PublicUserProfile } from '../../../../application/identity/profile/dto/public-user-profile.dto';
 import type { AuthResponseDto } from '../../../../application/identity/session/dto/auth-response-dto';
-import type { AuthTokenResponse } from '../../../../domain/auth/ports/auth-token.service';
-import type { UserProfileSnapshot } from '../../../../domain/auth/types/user-profile-snapshot';
+import type { UserId } from '../../../../domain/identity/entities/user';
+import type { AuthTokenResponse } from '../../../../domain/identity/ports/auth-token.service';
+import type { UserProfileSnapshot } from '../../../../domain/identity/types/user-profile-snapshot';
 import { AUTH_PUBLIC_API_BASE_URL } from '../auth-public-api-base-url.token';
 
 type RequestLike = Pick<Request, 'headers' | 'protocol' | 'get'>;
@@ -39,7 +40,7 @@ export class AuthProfilePresenter {
     };
   }
 
-  private buildAvatarUrl(userId: number, avatarVersion: string, request?: RequestLike): string {
+  private buildAvatarUrl(userId: UserId, avatarVersion: string, request?: RequestLike): string {
     const baseUrl = this.readBaseUrl(request);
 
     return `${baseUrl}/api/avatars/users/${userId}?v=${avatarVersion}`;

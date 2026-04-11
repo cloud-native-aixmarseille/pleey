@@ -1,54 +1,33 @@
-import { Group, Skeleton, Stack, Text } from '@mantine/core';
+import { Group, Skeleton, Stack } from '@mantine/core';
 import type { PropsWithChildren } from 'react';
 import { uiThemeTokens } from '../foundation/ui-theme';
 import { AppIcon } from '../icons/app-icon';
+import { ContentStack } from '../layout/containers';
 import { SupportingText } from '../layout/typography';
 
-const emptyRootStyle = {
-  alignItems: 'center',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: uiThemeTokens.spacing.xs,
-  justifyContent: 'center',
-  padding: uiThemeTokens.spacing.lg,
-} as const;
-
-const stateIconStyle = {
-  color: uiThemeTokens.color.brand.primary,
-  display: 'inline-flex',
-} as const;
-
-export function EmptyState({ children }: PropsWithChildren) {
+function IconMessageState({
+  children,
+  iconName,
+}: PropsWithChildren<{ readonly iconName: 'empty' | 'pending' }>) {
   return (
-    <div style={emptyRootStyle}>
-      <span style={stateIconStyle}>
-        <AppIcon name="empty" size={20} />
+    <ContentStack align="center" gap="xs">
+      <span style={{ color: uiThemeTokens.color.brand.primary }}>
+        <AppIcon name={iconName} size={20} />
       </span>
       <SupportingText>{children}</SupportingText>
-    </div>
+    </ContentStack>
   );
 }
 
-const loadingRootStyle = {
-  display: 'grid',
-  gap: uiThemeTokens.spacing.md,
-  padding: uiThemeTokens.spacing.lg,
-} as const;
-
-const loadingMessageStyle = {
-  color: uiThemeTokens.color.text.secondary,
-} as const;
+export function EmptyState({ children }: PropsWithChildren) {
+  return <IconMessageState iconName="empty">{children}</IconMessageState>;
+}
 
 type LoadingStateVariant = 'list' | 'cards' | 'editor';
 
 interface LoadingStateProps extends PropsWithChildren {
   readonly variant?: LoadingStateVariant;
 }
-
-const cardSkeletonStyle = {
-  borderRadius: uiThemeTokens.radius.panel,
-  overflow: 'hidden',
-} as const;
 
 function renderListSkeleton() {
   return (
@@ -72,7 +51,7 @@ function renderCardsSkeleton() {
 
       <Group align="stretch" gap="md" grow wrap="wrap">
         {[0, 1, 2].map((index) => (
-          <Stack gap="sm" key={index} style={cardSkeletonStyle}>
+          <Stack gap="sm" key={index}>
             <Skeleton height={148} radius="xl" />
             <Skeleton height={18} radius="xl" width="68%" />
             <Skeleton height={14} radius="xl" width="92%" />
@@ -122,22 +101,13 @@ function renderLoadingSkeleton(variant: LoadingStateVariant) {
 
 export function LoadingState({ children, variant = 'list' }: LoadingStateProps) {
   return (
-    <output aria-busy="true" style={loadingRootStyle}>
-      <Text size="sm" style={loadingMessageStyle}>
-        {children}
-      </Text>
+    <Stack aria-busy="true" component="output" gap="md" p="lg">
+      <SupportingText>{children}</SupportingText>
       {renderLoadingSkeleton(variant)}
-    </output>
+    </Stack>
   );
 }
 
 export function PendingState({ children }: PropsWithChildren) {
-  return (
-    <div style={emptyRootStyle}>
-      <span style={stateIconStyle}>
-        <AppIcon name="pending" size={20} />
-      </span>
-      <SupportingText>{children}</SupportingText>
-    </div>
-  );
+  return <IconMessageState iconName="pending">{children}</IconMessageState>;
 }

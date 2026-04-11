@@ -1,37 +1,28 @@
-import { inject, injectable, multiInject } from 'inversify';
+import { injectable, multiInject } from 'inversify';
 import type { RouteObject } from 'react-router-dom';
-import type { RouteFactory } from '../../application/shared/contracts/routing.port';
-import { GameSessionRoutingService } from '../../domains/game-session/services/game-session-routing-service';
+import { ROUTE_FACTORY, type RouteFactory } from '../../application/shared/contracts/routing.port';
 import { HomeScreen } from '../../presentation/home/screens/home/home-screen';
 import { NotFoundScreen } from '../../presentation/not-found/screens/not-found/not-found-screen';
 import { AppShellLayout } from '../../presentation/shared/layouts/app-shell-layout';
-import { GameSessionRouteProvider } from '../../presentation/shared/routing/game-session-route-context';
-import { TOKENS } from '../composition/tokens';
-import { createAppGameSessionRouteBindings } from '../game-session/live/session-shell/app-game-session-routes-factory';
+
+export const ROUTE_REGISTRY = Symbol.for('routeRegistry');
 
 @injectable()
 export class RouteRegistry {
   constructor(
-    @multiInject(TOKENS.routeFactory)
+    @multiInject(ROUTE_FACTORY)
     private readonly routeFactories: RouteFactory[],
-    @inject(GameSessionRoutingService)
-    private readonly gameSessionRoutingService: GameSessionRoutingService,
   ) {}
 
   getRoutes(): RouteObject[] {
     const children = this.routeFactories.flatMap((routeFactory) =>
       routeFactory.create(),
     ) as RouteObject[];
-    const gameSessionRoutes = createAppGameSessionRouteBindings(this.gameSessionRoutingService);
 
     return [
       {
         path: '/',
-        element: (
-          <GameSessionRouteProvider value={gameSessionRoutes}>
-            <AppShellLayout />
-          </GameSessionRouteProvider>
-        ),
+        element: <AppShellLayout />,
         children: [
           {
             index: true,

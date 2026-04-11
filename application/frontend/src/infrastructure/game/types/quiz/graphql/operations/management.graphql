@@ -1,0 +1,81 @@
+query QuizManagement($quizId: Int!) {
+  quiz(quizId: $quizId) {
+    quizId
+    gameId
+    title
+    description
+    createdAt
+    questionCount
+  }
+  quizQuestions(quizId: $quizId) {
+    id
+    quizId
+    position
+    questionText
+    type
+    timeLimit
+    points
+    answers {
+      id
+      text
+      position
+      isCorrect
+    }
+  }
+}
+
+mutation UpdateQuizManagement($quizId: Int!, $input: UpdateQuizInput!) {
+  updateQuiz(quizId: $quizId, input: $input) {
+    quizId
+  }
+}
+
+mutation CreateQuizManagement($input: CreateQuizInput!) {
+  createQuiz(input: $input) {
+    quizId
+  }
+}
+
+mutation DeleteQuizManagement($quizId: Int!) {
+  deleteQuiz(quizId: $quizId)
+}
+
+mutation CreateQuizQuestionManagement($input: CreateQuizQuestionInput!) {
+  createQuizQuestion(input: $input) {
+    id
+    quizId
+    position
+    questionText
+    type
+    timeLimit
+    points
+    answers {
+      id
+      text
+      position
+      isCorrect
+    }
+  }
+}
+
+mutation UpdateQuizQuestionManagement($questionId: Int!, $input: UpdateQuizQuestionInput!) {
+  updateQuizQuestion(questionId: $questionId, input: $input) {
+    id
+    quizId
+    position
+    questionText
+    type
+    timeLimit
+    points
+    answers {
+      id
+      text
+      position
+      isCorrect
+    }
+  }
+}
+
+mutation DeleteQuizQuestionManagement($questionId: Int!) {
+  deleteQuizQuestion(questionId: $questionId)
+}

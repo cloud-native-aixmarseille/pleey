@@ -1,4 +1,4 @@
-import type { APIRequestContext, Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
 
 const TOKEN_STORAGE_KEY = "pleey_token";
 const REFRESH_TOKEN_STORAGE_KEY = "pleey_refresh_token";
@@ -28,23 +28,18 @@ const resolveGraphqlUrl = () => {
 
 export async function loginViaApi(
   page: Page,
-  request: APIRequestContext,
   credentials: Credentials,
 ): Promise<{ accessToken: string; refreshToken: string; user: unknown }> {
-  const escapedEmail = credentials.email.replace(/\\/g, "\\\\").replace(/\"/g, '\\\"');
-  const escapedPassword = credentials.password
-    .replace(/\\/g, "\\\\")
-    .replace(/\"/g, '\\\"');
-
-  const response = await request.post(resolveGraphqlUrl(), {
+  const response = await fetch(resolveGraphqlUrl(), {
+    method: "POST",
     headers: {
       "Content-Type": "application/json",
       "apollo-require-preflight": "true",
     },
-    data: {
+    body: JSON.stringify({
       query: `
-        mutation Login {
-          login(input: { email: "${escapedEmail}", password: "${escapedPassword}" }) {
+        mutation Login($input: LoginInput!) {
+          login(input: $input) {
             accessToken
             refreshToken
             expiresIn
@@ -57,13 +52,19 @@ export async function loginViaApi(
           }
         }
       `,
-    },
+      variables: {
+        input: {
+          email: credentials.email,
+          password: credentials.password,
+        },
+      },
+    }),
   });
 
-  if (!response.ok()) {
+  if (!response.ok) {
     const responseBody = await response.text();
     throw new Error(
-      `Failed to login via API: ${response.status()} ${response.statusText()} ${responseBody}`,
+      `Failed to login via API: ${response.status} ${response.statusText} ${responseBody}`,
     );
   }
 

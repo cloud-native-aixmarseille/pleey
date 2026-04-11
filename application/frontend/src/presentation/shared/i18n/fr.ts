@@ -10,9 +10,13 @@ export const sharedFr = {
     branding: {
       logoAlt: 'Logo Pleey',
     },
+    errors: {
+      identifier: {
+        invalidValue: 'Valeur invalide.',
+      },
+    },
     nav: {
       dashboard: 'Dashboard',
-      game: 'Jeu',
     },
     shell: {
       kicker: 'Pleey',

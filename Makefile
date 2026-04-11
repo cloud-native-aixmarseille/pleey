@@ -199,9 +199,7 @@ linter-fix: ## Execute linting and fix
 		-e FIX_YAML_PRETTIER=true \
 		-e FIX_CSS_PRETTIER=true \
 		-e FIX_HTML_PRETTIER=true \
-		-e FIX_JSON_PRETTIER=true \
 		-e FIX_MARKDOWN_PRETTIER=true \
-		-e FIX_GRAPHQL_PRETTIER=true \
 		-e FIX_NATURAL_LANGUAGE=true \
 		-e FIX_SHELL_SHFMT=true \
 	)
@@ -220,6 +218,8 @@ define run_linter
 		-e VALIDATE_JAVASCRIPT_PRETTIER=false \
 		-e VALIDATE_TYPESCRIPT_PRETTIER=false \
 		-e VALIDATE_TYPESCRIPT_ES=false \
+		-e VALIDATE_GRAPHQL_PRETTIER=false \
+		-e VALIDATE_JSON_PRETTIER=false \
 		$(1) \
 		-v $$VOLUME \
 		--rm \

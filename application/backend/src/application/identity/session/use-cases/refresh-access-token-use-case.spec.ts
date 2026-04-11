@@ -1,4 +1,4 @@
-import { AuthErrorCode } from '../../../../domain/auth/enums/auth-error-code.enum';
+import { IdentityErrorCode } from '../../../../domain/identity/enums/identity-error-code.enum';
 import { createTokenPairFixture } from '../../../../test-utils/fixtures/unit/token-pair.fixture';
 import { createUserFixture } from '../../../../test-utils/fixtures/unit/user.fixture';
 import { createAuthTokenServiceMock } from '../../../../test-utils/mock-factories/auth-token-service.mock-factory';
@@ -32,7 +32,9 @@ describe('RefreshAccessTokenUseCase', () => {
       authTokenService as never,
     );
 
-    await expect(useCase.execute('refresh')).rejects.toThrow(AuthErrorCode.REFRESH_TOKEN_EXPIRED);
+    await expect(useCase.execute('refresh')).rejects.toThrow(
+      IdentityErrorCode.REFRESH_TOKEN_EXPIRED,
+    );
     expect(userRepository.clearRefreshToken).toHaveBeenCalledWith(1);
   });
 

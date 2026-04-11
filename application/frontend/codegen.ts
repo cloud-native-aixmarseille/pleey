@@ -4,7 +4,7 @@ const schemaSource = process.env.CODEGEN_SCHEMA ?? '../backend/src/schema.gql';
 
 const config: CodegenConfig = {
   schema: schemaSource,
-  documents: ['src/infrastructure/*/graphql/operations/**/*.graphql'],
+  documents: ['src/infrastructure/**/graphql/operations/**/*.graphql'],
   generates: {
     'src/infrastructure/graphql/generated/graphql.ts': {
       plugins: ['typescript', 'typescript-operations', 'typed-document-node'],

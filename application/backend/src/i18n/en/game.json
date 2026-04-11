@@ -1,27 +1,16 @@
 {
   "errors": {
     "gameNotFound": "Game not found",
-    "gameSessionNotFound": "Game session not found",
-    "invalidPin": "Invalid PIN",
-    "noStagesAvailable": "No stages available for this game",
-    "noCurrentStageToResume": "No current stage to resume",
-    "invalidRevealDelay": "Reveal delay must be a finite number",
-    "playerIdentityRequired": "Player must have either userId or guestId",
-    "playerScoreIdentityInvalid": "Player score must have exactly one identity (userId or guestId)",
+    "partyNotFound": "Party not found",
+    "pinAlreadyInUse": "This PIN is already in use.",
     "validationFailed": "Validation failed",
     "unknownError": "An unexpected error occurred",
-    "gameCanOnlyBeStartedFromWaiting": "Game can only be started from waiting status",
-    "canOnlyMoveToNextStageInActive": "Can only move to next stage in active game",
-    "canOnlyPauseActiveGame": "Can only pause an active game",
-    "canOnlyResumePausedGame": "Can only resume a paused game",
-    "unauthorizedSessionControl": "You do not have permission to control this game",
-    "activeSessionExists": "You already have an active game session. Please stop or complete it before starting a new one.",
-    "gameAlreadyHasActiveSession": "This game already has a live session. Close it before starting another.",
-    "alreadyActed": "You have already submitted an action for this stage",
-    "gameSessionEnded": "This game session has ended.",
-    "gameTypeNotSupported": "This game type is not supported yet."
-  },
-  "labels": {
-    "guest": "Guest"
+    "playerAlreadyInActiveParty": "You are already participating in another active party.",
+    "activePartyExists": "You already have an active party. Please stop or complete it before starting a new one.",
+    "hostAlreadyHasActivePartyForGame": "You already have an active party for this game.",
+    "gameAlreadyHasActiveParty": "This game already has a live party. Close it before starting another.",
+    "hostPartyControlForbidden": "Only the hosting account can control this party.",
+    "partyCommandNotAvailable": "This host command is not available for the current party state.",
+    "partyStagesNotAvailable": "This party cannot start because no stages are configured for its game."
   }
 }

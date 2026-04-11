@@ -1,4 +1,4 @@
-import { AuthErrorCode } from '../../../../domain/auth/enums/auth-error-code.enum';
+import { IdentityErrorCode } from '../../../../domain/identity/enums/identity-error-code.enum';
 import { createUserFixture } from '../../../../test-utils/fixtures/unit/user.fixture';
 import { createUserRepositoryMock } from '../../../../test-utils/mock-factories/user-repository.mock-factory';
 import { UpdateUserProfileUseCase } from './update-user-profile-use-case';
@@ -9,7 +9,7 @@ describe('UpdateUserProfileUseCase', () => {
 
     const useCase = new UpdateUserProfileUseCase(userRepository);
     await expect(useCase.execute(1, { username: 'alice' })).rejects.toThrow(
-      AuthErrorCode.USER_NOT_FOUND,
+      IdentityErrorCode.USER_NOT_FOUND,
     );
   });
 
@@ -27,7 +27,7 @@ describe('UpdateUserProfileUseCase', () => {
 
     const useCase = new UpdateUserProfileUseCase(userRepository);
     await expect(useCase.execute(1, { email: 'taken@example.com' })).rejects.toThrow(
-      AuthErrorCode.USER_ALREADY_EXISTS,
+      IdentityErrorCode.USER_ALREADY_EXISTS,
     );
   });
 

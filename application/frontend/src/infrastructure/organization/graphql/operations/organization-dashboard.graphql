@@ -7,8 +7,6 @@ query WorkspaceOrganizationDashboard($organizationId: Int!) {
     }
     stats {
       totalGames
-      totalGameSessions
-      activeGameSessions
       totalMembers
       totalProjects
     }

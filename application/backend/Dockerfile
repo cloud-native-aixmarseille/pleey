@@ -10,11 +10,6 @@ RUN \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' >/etc/apt/apt.conf.d/keep-cache && \
     apt-get update && apt-get install -y --no-install-recommends curl ca-certificates dumb-init
 
-# hadolint ignore=DL3016
-RUN --mount=type=cache,target=/root/.npm \
-    set -eu; \
-    npm install -g npm;
-
 USER node
 WORKDIR /usr/src/app
 
@@ -74,6 +69,7 @@ USER node
 FROM tools AS ci
 
 COPY --chown=node:node --from=build /usr/src/app/ /usr/src/app/
+COPY --chown=node:node ./scripts /usr/src/shared-scripts
 
 CMD [ "tail", "-f", "/dev/null" ]
 

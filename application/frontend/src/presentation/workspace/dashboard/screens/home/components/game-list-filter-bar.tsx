@@ -1,10 +1,12 @@
-import type { DashboardGameSortField } from '../../../../../../domains/game-catalog/entities/dashboard-game-list-query';
-import type { GameTypeDescriptor } from '../../../../../../domains/game-catalog/entities/game-type-catalog';
+import type { DashboardGameSortField } from '../../../../../../domains/game/management/entities/dashboard-game-list-query';
+import { GameType } from '../../../../../../domains/game/types/shared/game-type';
+import type { GameTypeDescriptor } from '../../../../../../domains/game/types/shared/game-type-catalog';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
+import { Input } from '../../../../../shared/ui/forms/input';
 import { MultiSelect } from '../../../../../shared/ui/forms/multi-select';
-import { surfaceRecipes } from '../../../../../shared/ui/foundation/ui-recipes';
-import { uiThemeTokens } from '../../../../../shared/ui/foundation/ui-theme';
-import { AppIcon } from '../../../../../shared/ui/icons/app-icon';
+import { SplitWrapRow, WrapRow } from '../../../../../shared/ui/layout/containers';
+import { SupportingText } from '../../../../../shared/ui/layout/typography';
+import { useWorkspaceDependencies } from '../../../../shared/contexts/workspace-dependencies-context';
 import type { GameListFiltersState } from '../../../hooks/use-game-list-filters';
 import { GameListSortChips } from './game-list-sort-chips';
 import { useGameListFilterBar } from './use-game-list-filter-bar';
@@ -15,57 +17,24 @@ interface GameListFilterBarProps {
   readonly onSearchChange: (value: string) => void;
   readonly onSortDirectionChange: (value: 'asc' | 'desc') => void;
   readonly onSortFieldChange: (value: DashboardGameSortField) => void;
-  readonly onTypeFilterChange: (value: string[]) => void;
+  readonly onTypeFilterChange: (value: GameType[]) => void;
   readonly totalFiltered: number;
   readonly totalGames: number;
 }
 
-const barStyle = {
-  ...surfaceRecipes.inset,
-  alignItems: 'center' as const,
-  display: 'flex',
-  flexWrap: 'wrap' as const,
-  gap: uiThemeTokens.spacing.xs,
-  padding: `${uiThemeTokens.spacing.xs} ${uiThemeTokens.spacing.sm}`,
-};
+function toGameTypes(
+  values: readonly string[],
+  gameTypeParser: Pick<
+    ReturnType<typeof useWorkspaceDependencies>['gameTypeParser'],
+    'parseOrNull'
+  >,
+): GameType[] {
+  return values.flatMap((value) => {
+    const gameType = gameTypeParser.parseOrNull(value);
 
-const searchWrapperStyle = {
-  alignItems: 'center' as const,
-  background: uiThemeTokens.color.surface.field,
-  border: `1px solid ${uiThemeTokens.color.border.subtle}`,
-  borderRadius: uiThemeTokens.radius.pill,
-  color: uiThemeTokens.color.text.secondary,
-  display: 'flex',
-  flex: 1,
-  gap: uiThemeTokens.spacing.xs,
-  minWidth: '10rem',
-  padding: `${uiThemeTokens.spacing.xxs} ${uiThemeTokens.spacing.sm}`,
-  transition: `border-color ${uiThemeTokens.motion.quick}`,
-};
-
-const searchInputStyle = {
-  background: 'transparent',
-  border: 'none',
-  color: uiThemeTokens.color.text.primary,
-  flex: 1,
-  fontSize: '0.85rem',
-  outline: 'none',
-  padding: 0,
-  width: '100%',
-};
-
-const separatorStyle = {
-  background: uiThemeTokens.color.border.subtle,
-  height: '1.4rem',
-  width: '1px',
-};
-
-const countStyle = {
-  color: uiThemeTokens.color.text.quiet,
-  fontSize: '0.75rem',
-  marginLeft: 'auto',
-  whiteSpace: 'nowrap' as const,
-};
+    return gameType === null ? [] : [gameType];
+  });
+}
 
 export function GameListFilterBar({
   filters,
@@ -78,6 +47,7 @@ export function GameListFilterBar({
   totalGames,
 }: GameListFilterBarProps) {
   const { t } = usePresentationTranslation();
+  const { gameTypeParser } = useWorkspaceDependencies();
   const { handleSortToggle, sortDirectionIcon, sortFields, typeSelectData } = useGameListFilterBar({
     filters,
     gameTypes,
@@ -87,50 +57,46 @@ export function GameListFilterBar({
   });
 
   return (
-    <div aria-label={t('dashboard.games.filters.label')} role="search" style={barStyle}>
-      <div style={searchWrapperStyle}>
-        <AppIcon name="catalog" size={14} />
-        <input
-          aria-label={t('dashboard.games.filters.searchPlaceholder')}
-          onChange={(e) => onSearchChange(e.target.value)}
-          placeholder={t('dashboard.games.filters.searchPlaceholder')}
-          style={searchInputStyle}
-          type="search"
-          value={filters.search}
-        />
-      </div>
+    <div aria-label={t('dashboard.games.filters.label')} role="search">
+      <SplitWrapRow align="center" gap="sm">
+        <WrapRow gap="xs">
+          <Input
+            aria-label={t('dashboard.games.filters.searchPlaceholder')}
+            compact
+            onChange={(event) => onSearchChange(event.target.value)}
+            placeholder={t('dashboard.games.filters.searchPlaceholder')}
+            type="search"
+            value={filters.search}
+          />
+          <MultiSelect
+            aria-label={t('dashboard.games.filters.typeLabel')}
+            clearable
+            data={typeSelectData}
+            onChange={(value) => onTypeFilterChange(toGameTypes(value, gameTypeParser))}
+            placeholder={t('dashboard.games.filters.allTypes')}
+            size="xs"
+            value={[...filters.typeFilter]}
+          />
+        </WrapRow>
 
-      <div aria-hidden style={separatorStyle} />
-
-      <MultiSelect
-        aria-label={t('dashboard.games.filters.typeLabel')}
-        clearable
-        data={typeSelectData}
-        onChange={onTypeFilterChange}
-        placeholder={t('dashboard.games.filters.allTypes')}
-        size="xs"
-        style={{ minWidth: '10rem' }}
-        value={[...filters.typeFilter]}
-      />
-
-      <div aria-hidden style={separatorStyle} />
-
-      <GameListSortChips
-        currentDirection={filters.sortDirection}
-        currentField={filters.sortField}
-        label={t('dashboard.games.filters.sortLabel')}
-        onToggle={handleSortToggle}
-        sortDirectionIcon={sortDirectionIcon}
-        sortFields={sortFields}
-        translate={t}
-      />
-
-      <span style={countStyle}>
-        {t('dashboard.games.filters.showing', {
-          count: String(totalFiltered),
-          total: String(totalGames),
-        })}
-      </span>
+        <WrapRow gap="xs">
+          <GameListSortChips
+            currentDirection={filters.sortDirection}
+            currentField={filters.sortField}
+            label={t('dashboard.games.filters.sortLabel')}
+            onToggle={handleSortToggle}
+            sortDirectionIcon={sortDirectionIcon}
+            sortFields={sortFields}
+            translate={t}
+          />
+          <SupportingText tone="soft">
+            {t('dashboard.games.filters.showing', {
+              count: String(totalFiltered),
+              total: String(totalGames),
+            })}
+          </SupportingText>
+        </WrapRow>
+      </SplitWrapRow>
     </div>
   );
 }

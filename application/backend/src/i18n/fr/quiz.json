@@ -2,7 +2,7 @@
   "errors": {
     "quizNotFound": "Quiz introuvable",
     "questionNotFound": "Question introuvable",
-    "quizHasActiveSession": "Vous ne pouvez pas supprimer ce quiz tant qu'une session de jeu est active",
+    "quizHasActiveParty": "Vous ne pouvez pas supprimer ce quiz tant qu'une partie est active",
     "invalidCorrectAnswer": "Valeur de réponse correcte invalide",
     "correctAnswerOptionEmpty": "L'option sélectionnée comme réponse correcte ne peut pas être vide"
   }

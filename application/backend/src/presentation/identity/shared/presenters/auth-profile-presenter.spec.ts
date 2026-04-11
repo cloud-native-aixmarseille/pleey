@@ -1,6 +1,6 @@
 import type { Request } from 'express';
 import { describe, expect, it } from 'vitest';
-import type { UserProfileSnapshot } from '../../../../domain/auth/types/user-profile-snapshot';
+import type { UserProfileSnapshot } from '../../../../domain/identity/types/user-profile-snapshot';
 import { AuthProfilePresenter } from './auth-profile-presenter';
 
 describe('AuthProfilePresenter', () => {

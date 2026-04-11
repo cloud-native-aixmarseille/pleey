@@ -1,4 +1,3 @@
-import type { DashboardWorkspaceGateway } from '../../../../../application/workspace/dashboard/facades/dashboard-workspace.facade';
 import type { Organization } from '../../../../../domains/organization/entities/organization';
 import type { CreateOrganizationCommand } from '../../../../../domains/organization/ports/organization-repository';
 import type { Project } from '../../../../../domains/project/entities/project';
@@ -11,6 +10,7 @@ import { usePresentationTranslation } from '../../../../shared/i18n/use-presenta
 import { StatusBanner } from '../../../../shared/ui/feedback/status-banner';
 import { ContentStack } from '../../../../shared/ui/layout/containers';
 import { SubpageHeader } from '../../../../shared/ui/layout/subpage-header';
+import type { DashboardWorkspaceSelectionGateway } from '../../../dashboard/hooks/use-dashboard-workspace';
 import { CreateOrganizationForm } from './components/create-organization-form';
 import { OrganizationOverviewPanel } from './components/organization-overview-panel';
 import { OrganizationProjectsSection } from './components/organization-projects-section';
@@ -19,7 +19,7 @@ import { ProjectRemovalDialog } from './components/project-removal-dialog';
 import { useOrganizationScreenState } from './use-organization-screen-state';
 
 interface OrganizationScreenProps {
-  readonly dashboardWorkspace: DashboardWorkspaceGateway;
+  readonly dashboardWorkspace: DashboardWorkspaceSelectionGateway;
   readonly createOrganization: (command: CreateOrganizationCommand) => Promise<Organization>;
   readonly createProject: (command: CreateProjectCommand) => Promise<Project>;
   readonly updateProject: (command: UpdateProjectCommand) => Promise<Project>;
@@ -73,9 +73,9 @@ export function OrganizationScreen({
   return (
     <ContentStack gap="xl">
       <SubpageHeader
-        kicker={t('organization.management.eyebrow')}
-        title={t('organization.management.title')}
-        subtitle={t('organization.management.subtitle')}
+        kicker={t('organization.management.header.eyebrow')}
+        title={t('organization.management.header.title')}
+        subtitle={t('organization.management.header.subtitle')}
         actions={
           <CreateOrganizationForm
             onSubmit={createOrganization}
@@ -98,14 +98,14 @@ export function OrganizationScreen({
       <OrganizationProjectsSection
         actionErrorMessage={actionErrorMessage ? t(actionErrorMessage) : null}
         canCreateProject={selectedOrganization !== null}
-        createButtonLabel={t('organization.management.projectsCreateButton')}
-        eyebrow={t('organization.management.projectsEyebrow')}
+        createButtonLabel={t('project.management.section.createButton')}
+        eyebrow={t('project.management.section.eyebrow')}
         onCreateProject={openCreateProjectDialog}
         onEditProject={openEditProjectDialog}
         onRemoveProject={openRemoveProjectDialog}
         projects={projects}
         selectedProjectId={selectedProject?.id ?? null}
-        title={t('organization.management.projectsTitle')}
+        title={t('project.management.section.title')}
       />
 
       <ProjectFormDialog
@@ -134,22 +134,22 @@ export function OrganizationScreen({
         confirmDisabled={availableMigrationProjects.length > 0 && migrationProjectId === null}
         confirmLabel={
           isDeletingProject
-            ? t('organization.management.projectsRemoveSubmitting')
-            : t('organization.management.projectsRemoveConfirm')
+            ? t('project.management.removal.submitting')
+            : t('project.management.removal.confirm')
         }
-        description={t('organization.management.projectsRemoveMigrationDescription')}
+        description={t('project.management.removal.migrationDescription')}
         isDeletingProject={isDeletingProject}
         isOpen={projectPendingRemoval !== null}
-        label={t('organization.management.projectsRemoveMigrationLabel')}
-        message={t('organization.management.projectsRemoveDialogMessage', {
+        label={t('project.management.removal.migrationLabel')}
+        message={t('project.management.removal.dialogMessage', {
           project: projectPendingRemoval?.name ?? '',
         })}
         migrationProjectId={migrationProjectId}
         onCancel={cancelProjectRemoval}
         onConfirm={handleConfirmProjectRemoval}
         onMigrationProjectChange={setMigrationProjectId}
-        placeholder={t('organization.management.projectsRemoveMigrationPlaceholder')}
-        title={t('organization.management.projectsRemoveDialogTitle')}
+        placeholder={t('project.management.removal.migrationPlaceholder')}
+        title={t('project.management.removal.dialogTitle')}
       />
     </ContentStack>
   );

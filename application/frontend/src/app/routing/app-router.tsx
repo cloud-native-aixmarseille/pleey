@@ -1,11 +1,9 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { runtimeContainer } from '../composition/runtime-container';
-import { TOKENS } from '../composition/tokens';
-import { RouteRegistry } from './route-registry';
 
-const routeRegistry = runtimeContainer.get<RouteRegistry>(TOKENS.routeRegistry);
-const router = createBrowserRouter(routeRegistry.getRoutes());
+interface AppRouterProps {
+  readonly router: ReturnType<typeof createBrowserRouter>;
+}
 
-export function AppRouter() {
+export function AppRouter({ router }: AppRouterProps) {
   return <RouterProvider router={router} />;
 }

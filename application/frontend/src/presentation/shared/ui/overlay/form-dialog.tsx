@@ -1,8 +1,8 @@
-import { Modal, Stack } from '@mantine/core';
+import { Box, Modal, Stack } from '@mantine/core';
 import type { PropsWithChildren, ReactNode } from 'react';
 import { surfaceRecipes } from '../foundation/ui-recipes';
 import { uiThemeTokens } from '../foundation/ui-theme';
-import { uiTypeScale } from '../foundation/ui-typography';
+import { DialogActionsFooter, DialogTitleBlock } from './dialog-primitives';
 
 interface FormDialogProps extends PropsWithChildren {
   readonly banner?: ReactNode;
@@ -14,44 +14,10 @@ interface FormDialogProps extends PropsWithChildren {
   readonly title: string;
 }
 
-const dialogFormStyle = {
-  display: 'flex',
-  flex: 1,
-  flexDirection: 'column',
-  overflow: 'hidden',
-} as const;
-
 const accentStripStyle = {
   background: `linear-gradient(to right, ${uiThemeTokens.color.brand.primary}, ${uiThemeTokens.color.brand.accent}, transparent)`,
   flexShrink: 0,
   height: 2,
-} as const;
-
-const scrollAreaStyle = {
-  flex: 1,
-  overflowY: 'auto',
-  padding: `${uiThemeTokens.spacing.lg} ${uiThemeTokens.spacing.xl}`,
-} as const;
-
-const footerStyle = {
-  alignItems: 'center',
-  borderTop: `1px solid ${uiThemeTokens.color.border.subtle}`,
-  display: 'flex',
-  flexShrink: 0,
-  gap: uiThemeTokens.spacing.sm,
-  justifyContent: 'flex-end',
-  padding: `${uiThemeTokens.spacing.md} ${uiThemeTokens.spacing.xl}`,
-} as const;
-
-const eyebrowStyle = {
-  ...uiTypeScale.overline,
-  color: uiThemeTokens.color.brand.primary,
-  textTransform: 'uppercase',
-} as const;
-
-const titleTextStyle = {
-  ...uiTypeScale.sectionTitle,
-  color: uiThemeTokens.color.text.emphasis,
 } as const;
 
 export function FormDialog({
@@ -108,25 +74,27 @@ export function FormDialog({
           flex: 1,
         },
       }}
-      title={
-        <Stack gap={4}>
-          {eyebrow ? <span style={eyebrowStyle}>{eyebrow}</span> : null}
-          <span style={titleTextStyle}>{title}</span>
-        </Stack>
-      }
+      title={<DialogTitleBlock eyebrow={eyebrow} level={2} title={title} />}
     >
-      <form noValidate onSubmit={onSubmit} style={dialogFormStyle}>
+      <Box
+        component="form"
+        display="flex"
+        flex={1}
+        noValidate
+        onSubmit={onSubmit}
+        style={{ flexDirection: 'column', overflow: 'hidden' }}
+      >
         <div style={accentStripStyle} />
 
-        <div style={scrollAreaStyle}>
+        <Box flex={1} px="xl" py="lg" style={{ overflowY: 'auto' }}>
           <Stack gap="md">
             {banner}
             {children}
           </Stack>
-        </div>
+        </Box>
 
-        <div style={footerStyle}>{footer}</div>
-      </form>
+        <DialogActionsFooter bordered>{footer}</DialogActionsFooter>
+      </Box>
     </Modal>
   );
 }

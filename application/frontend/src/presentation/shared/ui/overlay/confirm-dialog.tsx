@@ -3,8 +3,8 @@ import type { ReactNode } from 'react';
 import { Button } from '../actions/button';
 import { surfaceRecipes } from '../foundation/ui-recipes';
 import { uiThemeTokens } from '../foundation/ui-theme';
-import { ActionRow } from '../layout/containers';
-import { Heading, SupportingText } from '../layout/typography';
+import { SupportingText } from '../layout/typography';
+import { DialogActionsFooter, DialogTitleBlock } from './dialog-primitives';
 
 interface ConfirmDialogProps {
   readonly isOpen: boolean;
@@ -52,17 +52,17 @@ export function ConfirmDialog({
       withCloseButton={false}
     >
       <Stack gap="md">
-        {title ? <Heading level={3}>{title}</Heading> : null}
+        {title ? <DialogTitleBlock level={3} title={title} /> : null}
         <SupportingText>{message}</SupportingText>
         {children}
-        <ActionRow gap="sm">
+        <DialogActionsFooter>
           <Button disabled={confirmDisabled} intent="primary" onClick={onConfirm}>
             {confirmLabel}
           </Button>
           <Button intent="ghost" onClick={onCancel}>
             {cancelLabel}
           </Button>
-        </ActionRow>
+        </DialogActionsFooter>
       </Stack>
     </Modal>
   );

@@ -1,12 +1,31 @@
 export const dashboardEn = {
   dashboard: {
+    console: {
+      title: 'Workspace console',
+      subtitle: 'Pick a workspace, then move from setup to launch without leaving the dashboard.',
+      commandPalette: {
+        title: 'Command palette',
+        description: 'Jump between organizations, projects, and game actions from one place.',
+        meta: 'Fastest path for repeat operators',
+      },
+      fastFiltering: {
+        title: 'Fast filtering',
+        description: 'Narrow large game lists by type, name, and status before taking action.',
+        meta: 'Built for dense workspaces',
+      },
+      liveOps: {
+        title: 'Live ops overview',
+        description:
+          'Keep active parties, game readiness, and launch control in the same working surface.',
+        meta: 'Context stays local to the selected project',
+      },
+    },
     workspace: {
       sectionTitle: 'Choose your workspace',
       organizationLabel: 'Organization',
       organizationPlaceholder: 'Choose an organization',
       projectLabel: 'Project',
       projectPlaceholder: 'Choose a project',
-      ready: 'Ready in {{organization}} / {{project}}.',
       manageOrganizations: 'Manage organizations',
       manageProjects: 'Manage projects',
     },
@@ -16,33 +35,6 @@ export const dashboardEn = {
       totalGames: 'Games',
       totalProjects: 'Projects',
       totalMembers: 'Members',
-      activeGameSessions: 'Active sessions',
-      totalGameSessions: 'Total sessions',
-    },
-    sessions: {
-      title: 'Active session',
-      fallbackTitle: 'Session {{pin}}',
-      pin: 'PIN {{pin}}',
-      actionFailed: 'Unable to update the selected session.',
-      createFailed: 'Unable to create a new game session.',
-      status: {
-        waiting: 'Lobby open',
-        active: 'Live',
-        paused: 'Paused',
-      },
-      role: {
-        player: 'Playing',
-      },
-      actions: {
-        openLobby: 'Open lobby',
-        openLive: 'Open live view',
-        leave: 'Leave',
-        pause: 'Pause',
-        resume: 'Resume',
-        leaving: 'Leaving...',
-        stopping: 'Pausing...',
-        resuming: 'Resuming...',
-      },
     },
     games: {
       title: 'Your games',
@@ -50,12 +42,29 @@ export const dashboardEn = {
       empty: 'No games found in this project yet.',
       noDescription: 'No description provided.',
       createdAt: 'Created {{date}}',
+      readiness: {
+        ready: '{{count}} stages ready',
+        needsStages: 'Add stages before launch',
+      },
       actions: {
-        launch: 'Launch',
-        launching: 'Launching...',
-        launchDisabledActiveSession:
-          'A session is already active. End it before launching a new one.',
+        createGame: 'Create game',
+        createParty: 'Create party',
         manage: 'Manage',
+      },
+      create: {
+        title: 'Create a new game',
+        typeLabel: 'Game type',
+        titleLabel: 'Title',
+        descriptionLabel: 'Description',
+        submit: 'Create game',
+        error: 'Unable to create the game.',
+      },
+      permissions: {
+        createParty: {
+          activePartyExists: 'An active party already exists for this game.',
+          hostHasActiveParty: 'You already host another active party.',
+          noStagesAvailable: 'Add at least one stage before creating a party for this game.',
+        },
       },
       filters: {
         label: 'Filter games',
@@ -75,13 +84,25 @@ export const dashboardEn = {
         pageOf: '{{current}} / {{total}}',
       },
     },
+    activeParty: {
+      title: 'Your active party',
+      empty: 'No active party exists for this account yet.',
+      pinTitle: 'Party PIN {{pin}}',
+      role: {
+        host: 'Host',
+        player: 'Player',
+      },
+      actions: {
+        openLobby: 'Open lobby',
+        openLive: 'Open live party',
+      },
+    },
     errors: {
       loadFailed: 'Unable to load the requested dashboard data.',
     },
   },
   project: {
     errors: {
-      invalidResponse: 'The server returned an invalid project payload.',
       loadFailed: 'Unable to load projects.',
     },
   },

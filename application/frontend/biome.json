@@ -28,7 +28,7 @@
             "ignoreRestSiblings": true
           }
         },
-        "noUnusedFunctionParameters": "off"
+        "noUnusedFunctionParameters": "error"
       },
       "style": {
         "useImportType": "off",
@@ -100,143 +100,27 @@
       }
     },
     {
+      "includes": ["src/application/**/*.{ts,tsx,js,jsx}", "src/domains/**/*.{ts,tsx,js,jsx}"],
+      "plugins": ["./biome/plugins/application-domain-boundaries.grit"]
+    },
+    {
       "includes": [
         "src/application/**/*.{ts,tsx,js,jsx}",
-        "src/domains/**/*.{ts,tsx,js,jsx}"
+        "src/domains/**/*.{ts,tsx,js,jsx}",
+        "src/infrastructure/**/*.{ts,tsx,js,jsx}"
       ],
-      "linter": {
-        "rules": {
-          "style": {
-            "noRestrictedImports": {
-              "level": "error",
-              "options": {
-                "patterns": [
-                  {
-                    "group": [
-                      "**/infrastructure",
-                      "**/infrastructure/**",
-                      "src/infrastructure",
-                      "src/infrastructure/**"
-                    ],
-                    "message": "Application and domain layers cannot import from infrastructure layer. Depend on contracts and bind concrete adapters at the composition boundary."
-                  },
-                  {
-                    "group": [
-                      "**/presentation",
-                      "**/presentation/**",
-                      "src/presentation",
-                      "src/presentation/**"
-                    ],
-                    "message": "Application and domain layers cannot import from presentation layer. Keep UI concerns outside these layers."
-                  }
-                ]
-              }
-            }
-          }
-        }
-      }
+      "plugins": ["./biome/plugins/identifier-boundaries.grit"]
     },
     {
       "includes": ["src/application/workspace/dashboard/**/*.{ts,tsx,js,jsx}"],
-      "linter": {
-        "rules": {
-          "style": {
-            "noRestrictedImports": {
-              "level": "error",
-              "options": {
-                "patterns": [
-                  {
-                    "group": ["**/app", "**/app/**", "src/app", "src/app/**"],
-                    "message": "Dashboard application code must not import from app composition. Depend on dashboard-owned contracts and bind implementations in app/container modules instead."
-                  }
-                ]
-              }
-            }
-          }
-        }
-      }
-    },
-    {
-      "includes": [
-        "src/application/game-session/live/host/**/*.{ts,tsx,js,jsx}"
-      ],
-      "linter": {
-        "rules": {
-          "style": {
-            "noRestrictedImports": {
-              "level": "error",
-              "options": {
-                "patterns": [
-                  {
-                    "group": [
-                      "**/application/game-session/live/player/**",
-                      "src/application/game-session/live/player/**",
-                      "**/application/game/use-cases/**",
-                      "src/application/game/use-cases/**"
-                    ],
-                    "message": "Live host application code must not depend on live player or legacy game use-case paths. Share behavior through game-session/live/shared services or domain/application contracts instead."
-                  }
-                ]
-              }
-            }
-          }
-        }
-      }
-    },
-    {
-      "includes": [
-        "src/application/game-session/live/player/**/*.{ts,tsx,js,jsx}"
-      ],
-      "linter": {
-        "rules": {
-          "style": {
-            "noRestrictedImports": {
-              "level": "error",
-              "options": {
-                "patterns": [
-                  {
-                    "group": [
-                      "**/application/game-session/live/host/**",
-                      "src/application/game-session/live/host/**",
-                      "**/application/game/use-cases/**",
-                      "src/application/game/use-cases/**"
-                    ],
-                    "message": "Live player application code must not depend on live host or legacy game use-case paths. Share behavior through game-session/live/shared services or domain/application contracts instead."
-                  }
-                ]
-              }
-            }
-          }
-        }
-      }
+      "plugins": ["./biome/plugins/dashboard-application-boundaries.grit"]
     },
     {
       "includes": [
         "src/presentation/**/*.{ts,tsx,js,jsx}",
         "!!src/presentation/**/routes/**/*.{ts,tsx,js,jsx}"
       ],
-      "linter": {
-        "rules": {
-          "style": {
-            "noRestrictedImports": {
-              "level": "error",
-              "options": {
-                "patterns": [
-                  {
-                    "group": [
-                      "**/application/**/services",
-                      "**/application/**/services/**",
-                      "src/application/**/services",
-                      "src/application/**/services/**"
-                    ],
-                    "message": "Presentation components, hooks, and screens must not import application services directly. Inject route/service collaborators from route factories or app providers instead of instantiating services in presentation code."
-                  }
-                ]
-              }
-            }
-          }
-        }
-      }
+      "plugins": ["./biome/plugins/presentation-boundaries.grit"]
     },
     {
       "includes": ["src/presentation/**/*.{ts,tsx,js,jsx}"],
@@ -257,38 +141,52 @@
                     "message": "Presentation code must not import Mantine directly. Use components from src/presentation/shared/ui instead."
                   },
                   {
-                    "group": [
-                      "**/infrastructure",
-                      "**/infrastructure/**",
-                      "src/infrastructure",
-                      "src/infrastructure/**"
-                    ],
-                    "message": "Presentation layer cannot import from infrastructure layer. Consume application/domain abstractions instead."
-                  },
-                  {
-                    "group": ["**/app", "**/app/**", "src/app", "src/app/**"],
-                    "message": "Presentation layer cannot import from app layer. App is the composition boundary and may depend on presentation, not the reverse."
-                  },
-                  {
-                    "group": [
-                      "**/domains/**/services",
-                      "**/domains/**/services/**",
-                      "src/domains/**/services",
-                      "src/domains/**/services/**",
-                      "**/application/**/use-cases",
-                      "**/application/**/use-cases/**",
-                      "src/application/**/use-cases",
-                      "src/application/**/use-cases/**"
-                    ],
-                    "message": "Presentation layer must not import domain services or application use-cases directly. Use dependency injection through service context providers instead."
-                  },
-                  {
-                    "group": [
-                      "react-router-dom",
-                      "react-i18next",
-                      "@tanstack/react-form"
-                    ],
+                    "group": ["react-router-dom", "react-i18next", "@tanstack/react-form"],
                     "message": "Presentation layer must consume routing and translation through presentation hooks/components backed by existing-layer adapters instead of importing framework packages directly."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "src/presentation/**/*.{ts,tsx,js,jsx}",
+        "!!src/presentation/shared/**/*.{ts,tsx,js,jsx}",
+        "!!src/presentation/**/routes/**/*.{ts,tsx,js,jsx}"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "@tanstack/react-form",
+                      "@radix-ui/react-label",
+                      "@radix-ui/react-slot",
+                      "class-variance-authority",
+                      "clsx",
+                      "tailwind-merge"
+                    ],
+                    "message": "Presentation feature code must consume shared wrappers from src/presentation/shared/** instead of importing framework or styling helper packages directly."
+                  },
+                  {
+                    "group": [
+                      "./**",
+                      "../**",
+                      "../../**",
+                      "../../../**",
+                      "../../../../**",
+                      "../../../../../**",
+                      "src/**"
+                    ],
+                    "importNamePattern": ".*Service",
+                    "message": "Presentation feature code must not import service classes directly outside routes. Inject service-like collaborators from route factories or app composition instead."
                   }
                 ]
               }
@@ -325,11 +223,7 @@
                     "message": "Presentation layer cannot import from app layer. App is the composition boundary and may depend on presentation, not the reverse."
                   },
                   {
-                    "group": [
-                      "react-router-dom",
-                      "react-i18next",
-                      "@tanstack/react-form"
-                    ],
+                    "group": ["react-router-dom", "react-i18next", "@tanstack/react-form"],
                     "message": "Presentation layer must consume routing and translation through presentation hooks/components backed by existing-layer adapters instead of importing framework packages directly."
                   }
                 ]
@@ -364,124 +258,11 @@
       }
     },
     {
-      "includes": [
-        "src/presentation/shared/ui/foundation/**/*.{ts,tsx,js,jsx}"
-      ],
+      "includes": ["src/presentation/shared/ui/foundation/**/*.{ts,tsx,js,jsx}"],
       "linter": {
         "rules": {
           "style": {
             "noRestrictedImports": "off"
-          }
-        }
-      }
-    },
-    {
-      "includes": ["src/domains/game/**/*.{ts,tsx,js,jsx}"],
-      "linter": {
-        "rules": {
-          "style": {
-            "noRestrictedImports": {
-              "level": "error",
-              "options": {
-                "patterns": [
-                  {
-                    "group": [
-                      "src/domains/quiz",
-                      "src/domains/quiz/**",
-                      "src/domains/prediction",
-                      "src/domains/prediction/**",
-                      "src/application/quiz-management",
-                      "src/application/quiz-management/**",
-                      "src/application/prediction-management",
-                      "src/application/prediction-management/**",
-                      "src/infrastructure/quiz",
-                      "src/infrastructure/quiz/**",
-                      "src/infrastructure/prediction",
-                      "src/infrastructure/prediction/**",
-                      "src/presentation/quiz",
-                      "src/presentation/quiz/**",
-                      "src/presentation/prediction",
-                      "src/presentation/prediction/**"
-                    ],
-                    "message": "Generic game domain code must stay agnostic from quiz and prediction modules. Depend on neutral game contracts only."
-                  }
-                ]
-              }
-            }
-          }
-        }
-      }
-    },
-    {
-      "includes": ["src/application/game/**/*.{ts,tsx,js,jsx}"],
-      "linter": {
-        "rules": {
-          "style": {
-            "noRestrictedImports": {
-              "level": "error",
-              "options": {
-                "patterns": [
-                  {
-                    "group": [
-                      "src/application/quiz-management",
-                      "src/application/quiz-management/**",
-                      "src/application/prediction-management",
-                      "src/application/prediction-management/**",
-                      "src/domains/quiz",
-                      "src/domains/quiz/**",
-                      "src/domains/prediction",
-                      "src/domains/prediction/**",
-                      "src/infrastructure/quiz",
-                      "src/infrastructure/quiz/**",
-                      "src/infrastructure/prediction",
-                      "src/infrastructure/prediction/**",
-                      "src/presentation/quiz",
-                      "src/presentation/quiz/**",
-                      "src/presentation/prediction",
-                      "src/presentation/prediction/**"
-                    ],
-                    "message": "Generic game application code must stay agnostic from concrete quiz and prediction modules."
-                  }
-                ]
-              }
-            }
-          }
-        }
-      }
-    },
-    {
-      "includes": ["src/presentation/game/**/*.{ts,tsx,js,jsx}"],
-      "linter": {
-        "rules": {
-          "style": {
-            "noRestrictedImports": {
-              "level": "error",
-              "options": {
-                "patterns": [
-                  {
-                    "group": [
-                      "src/domains/quiz",
-                      "src/domains/quiz/**",
-                      "src/domains/prediction",
-                      "src/domains/prediction/**",
-                      "src/application/quiz-management",
-                      "src/application/quiz-management/**",
-                      "src/application/prediction-management",
-                      "src/application/prediction-management/**",
-                      "src/infrastructure/quiz",
-                      "src/infrastructure/quiz/**",
-                      "src/infrastructure/prediction",
-                      "src/infrastructure/prediction/**",
-                      "src/presentation/quiz",
-                      "src/presentation/quiz/**",
-                      "src/presentation/prediction",
-                      "src/presentation/prediction/**"
-                    ],
-                    "message": "Generic game presentation code must not depend on concrete quiz or prediction modules."
-                  }
-                ]
-              }
-            }
           }
         }
       }

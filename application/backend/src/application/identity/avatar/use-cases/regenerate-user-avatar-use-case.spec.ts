@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { AuthErrorCode } from '../../../../domain/auth/enums/auth-error-code.enum';
+import { IdentityErrorCode } from '../../../../domain/identity/enums/identity-error-code.enum';
 import { Media } from '../../../../domain/media/entities/media';
 import { createUserFixture } from '../../../../test-utils/fixtures/unit/user.fixture';
 import { createUserAvatarServiceMock } from '../../../../test-utils/mock-factories/user-avatar-service.mock-factory';
@@ -13,7 +13,7 @@ describe('RegenerateUserAvatarUseCase', () => {
 
     const useCase = new RegenerateUserAvatarUseCase(userRepository, userAvatarService as never);
 
-    await expect(useCase.execute(1)).rejects.toThrow(AuthErrorCode.USER_NOT_FOUND);
+    await expect(useCase.execute(1)).rejects.toThrow(IdentityErrorCode.USER_NOT_FOUND);
   });
 
   it('updates avatar svg and returns public profile', async () => {

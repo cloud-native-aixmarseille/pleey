@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { UserId } from '../../../../domain/auth/entities/user';
-import { AuthErrorCode } from '../../../../domain/auth/enums/auth-error-code.enum';
-import type { UserRepository } from '../../../../domain/auth/ports/user.repository';
-import { UserRepositoryProvider } from '../../../../domain/auth/ports/user.repository';
-import { UserAvatarService } from '../../../../domain/auth/services/user-avatar-service';
-import type { UserProfileSnapshot } from '../../../../domain/auth/types/user-profile-snapshot';
+import type { UserId } from '../../../../domain/identity/entities/user';
+import { IdentityErrorCode } from '../../../../domain/identity/enums/identity-error-code.enum';
+import type { UserRepository } from '../../../../domain/identity/ports/user.repository';
+import { UserRepositoryProvider } from '../../../../domain/identity/ports/user.repository';
+import { UserAvatarService } from '../../../../domain/identity/services/user-avatar-service';
+import type { UserProfileSnapshot } from '../../../../domain/identity/types/user-profile-snapshot';
 
 @Injectable()
 export class RegenerateUserAvatarUseCase {
@@ -18,7 +18,7 @@ export class RegenerateUserAvatarUseCase {
     const user = await this.userRepository.findById(userId);
 
     if (!user) {
-      throw new Error(AuthErrorCode.USER_NOT_FOUND);
+      throw new Error(IdentityErrorCode.USER_NOT_FOUND);
     }
 
     const avatar = this.userAvatarService.generateAvatar();

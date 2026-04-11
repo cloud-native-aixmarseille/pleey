@@ -639,7 +639,7 @@ export const defaultUiThemeDefinition = findUiTheme(DEFAULT_UI_THEME_ID);
 
 export const uiTheme = defaultUiThemeDefinition.mantineThemes[DEFAULT_UI_COLOR_SCHEME];
 
-export function createFieldInputStyle(isInvalid: boolean): CSSProperties {
+export function createFieldInputStyle(isInvalid: boolean, compact = false): CSSProperties {
   return {
     background: uiThemeTokens.color.surface.field,
     border: `1px solid ${
@@ -648,7 +648,7 @@ export function createFieldInputStyle(isInvalid: boolean): CSSProperties {
     borderRadius: uiThemeTokens.radius.field,
     color: uiThemeTokens.color.text.primary,
     outline: 'none',
-    padding: '0.9rem 1rem',
+    padding: compact ? '0.35rem 0.6rem' : '0.9rem 1rem',
     width: '100%',
   };
 }
@@ -773,12 +773,9 @@ export const emphasizedSummaryTextStyle = {
   margin: 0,
 } satisfies CSSProperties;
 
-export const lobbyPlayerCardStyle = {
-  background: uiThemeTokens.color.surface.recessed,
-  border: `1px solid ${uiThemeTokens.color.border.subtle}`,
-} satisfies CSSProperties;
-
-export function createBadgeStyle(tone: 'accent' | 'success' | 'neutral' | 'info'): CSSProperties {
+export function createBadgeStyle(
+  tone: 'accent' | 'success' | 'neutral' | 'info' | 'warning' | 'error' | 'live',
+): CSSProperties {
   const toneMap = {
     accent: {
       background: uiThemeTokens.color.surface.accentPanel,
@@ -800,12 +797,30 @@ export function createBadgeStyle(tone: 'accent' | 'success' | 'neutral' | 'info'
       borderColor: uiThemeTokens.color.border.accent,
       color: uiThemeTokens.color.text.status,
     },
+    warning: {
+      background: uiThemeTokens.color.surface.warning,
+      borderColor: uiThemeTokens.color.border.warning,
+      color: uiThemeTokens.color.text.warning,
+    },
+    error: {
+      background: uiThemeTokens.color.surface.danger,
+      borderColor: uiThemeTokens.color.border.danger,
+      color: uiThemeTokens.color.text.danger,
+    },
+    live: {
+      background: uiThemeTokens.color.surface.live,
+      borderColor: uiThemeTokens.color.border.live,
+      color: uiThemeTokens.color.text.live,
+    },
   } as const;
 
+  const toneStyle = toneMap[tone];
+
   return {
-    ...toneMap[tone],
+    background: toneStyle.background,
     border: `1px solid ${toneMap[tone].borderColor}`,
     borderRadius: uiThemeTokens.radius.pill,
+    color: toneStyle.color,
     display: 'inline-flex',
     fontSize: '0.72rem',
     fontWeight: 700,

@@ -1,13 +1,11 @@
-import type { TokenConfig } from '../../domain/auth/ports/auth-token.service';
-import type { SessionStateConfig } from '../../infrastructure/game/repositories/session-state-config.token';
+import type { TokenConfig } from '../../domain/identity/ports/auth-token.service';
 import type { OpenTelemetryConfig } from '../../infrastructure/telemetry/otel.config';
-import type { GameSocketCorsOptions } from '../../presentation/game-session/live/shared/realtime/game-socket-cors-options.token';
 import { AppEnvironment } from './app-environment';
 import type { AppServerConfig } from './app-server-config.token';
+import type { GameSocketCorsOptions } from './game-socket-cors-options.token';
 
 const DEFAULT_ACCESS_TOKEN_EXPIRES_IN_SECONDS = 3600;
 const DEFAULT_REFRESH_TOKEN_EXPIRES_IN_SECONDS = 1209600;
-const DEFAULT_SESSION_STATE_TTL_SECONDS = 6 * 60 * 60;
 const DEFAULT_PORT = 3000;
 const DEFAULT_SOCKET_ORIGINS = ['http://localhost:5173'];
 
@@ -44,22 +42,6 @@ export class AppConfiguration {
 
   getAuthPublicApiBaseUrl(): string | undefined {
     return this.environment.getOptionalString('API_BASE_URL');
-  }
-
-  getSessionStateConfig(): SessionStateConfig {
-    const rawTtl = this.environment.getOptionalString('SESSION_STATE_TTL_SECONDS');
-    const parsedTtl = rawTtl ? Number(rawTtl) : Number.NaN;
-    const ttlSeconds =
-      Number.isFinite(parsedTtl) && parsedTtl > 0
-        ? Math.floor(parsedTtl)
-        : DEFAULT_SESSION_STATE_TTL_SECONDS;
-
-    return {
-      ttlSeconds,
-      valkeyUrl:
-        this.environment.getOptionalString('VALKEY_URL') ??
-        this.environment.getOptionalString('REDIS_URL'),
-    };
   }
 
   getGameSocketCorsOptions(): GameSocketCorsOptions {

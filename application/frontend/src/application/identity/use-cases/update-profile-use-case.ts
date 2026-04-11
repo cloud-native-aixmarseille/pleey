@@ -1,15 +1,15 @@
 import { inject, injectable } from 'inversify';
-import type { User } from '../../../domains/auth/entities/user';
+import type { User } from '../../../domains/identity/entities/user';
 import type {
   AuthRepository,
   UpdateProfileInput,
-} from '../../../domains/auth/ports/auth-repository';
-import { AUTH_SERVICE_ID } from '../contracts/auth-service-id';
+} from '../../../domains/identity/ports/auth-repository';
+import { AuthRepositoryToken } from '../../../domains/identity/ports/auth-repository';
 
 @injectable()
 export class UpdateProfileUseCase {
   constructor(
-    @inject(AUTH_SERVICE_ID.authRepository)
+    @inject(AuthRepositoryToken)
     private readonly authRepository: AuthRepository,
   ) {}
 

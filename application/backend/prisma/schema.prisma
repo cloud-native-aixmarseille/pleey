@@ -21,10 +21,10 @@ model User {
   updatedAt DateTime @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
-  avatar               Media? @relation("UserAvatar", fields: [avatarMediaId], references: [id], onDelete: SetNull)
-  scores               Score[]
-  hostedGameSessions   GameSession[] @relation("HostedSessions")
-  organizationMembers  OrganizationMember[]
+  avatar              Media? @relation("UserAvatar", fields: [avatarMediaId], references: [id], onDelete: SetNull)
+  scores              Score[]
+  hostedParties       Party[] @relation("HostedParties")
+  organizationMembers OrganizationMember[]
   
   @@map("users")
 }
@@ -52,15 +52,15 @@ model Game {
   updatedAt      DateTime @updatedAt @map("updated_at")
   deletedAt      DateTime? @map("deleted_at")
 
-  project      Project @relation(fields: [projectId], references: [id])
-  quiz          Quiz?
-  prediction    Prediction?
-  sessions      GameSession[]
+  project    Project @relation(fields: [projectId], references: [id])
+  quiz       Quiz?
+  prediction Prediction?
+  parties    Party[]
 
   @@map("games")
 }
 
-model GameSession {
+model Party {
   id              Int      @id @default(autoincrement())
   gameId          Int      @map("game_id")
   hostId          Int      @map("host_id")
@@ -72,31 +72,28 @@ model GameSession {
   deletedAt       DateTime? @map("deleted_at")
 
   game   Game  @relation(fields: [gameId], references: [id])
-  host   User  @relation("HostedSessions", fields: [hostId], references: [id])
-  guests Guest[]
+  host   User  @relation("HostedParties", fields: [hostId], references: [id])
   scores Score[]
 
-  @@map("game_sessions")
+  @@map("parties")
 }
 
 model Guest {
   id         String   @id @default(cuid())
-  sessionId  Int      @map("session_id")
   username   String
   avatarSeed String   @map("avatar_seed")
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
   deletedAt  DateTime? @map("deleted_at")
 
-  session GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  scores  Score[]
+  scores Score[]
 
   @@map("guests")
 }
 
 model Score {
   id         Int      @id @default(autoincrement())
-  sessionId  Int      @map("session_id")
+  partyId    Int      @map("party_id")
   userId     Int?     @map("user_id")
   guestId    String?  @map("guest_id")
   context    Json?    @map("context")
@@ -105,9 +102,9 @@ model Score {
   updatedAt  DateTime @updatedAt @map("updated_at")
   deletedAt  DateTime? @map("deleted_at")
 
-  session  GameSession @relation(fields: [sessionId], references: [id])
-  user     User?       @relation(fields: [userId], references: [id])
-  guest    Guest?      @relation(fields: [guestId], references: [id], onDelete: SetNull)
+  party    Party  @relation(fields: [partyId], references: [id])
+  user     User?  @relation(fields: [userId], references: [id])
+  guest    Guest? @relation(fields: [guestId], references: [id], onDelete: SetNull)
 
   @@map("scores")
 }

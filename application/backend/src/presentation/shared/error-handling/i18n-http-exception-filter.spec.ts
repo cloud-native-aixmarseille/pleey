@@ -1,6 +1,7 @@
 import { type ArgumentsHost, HttpException, UnauthorizedException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AuthErrorCode } from '../../../domain/auth/enums/auth-error-code.enum';
+import { IdentityErrorCode } from '../../../domain/identity/enums/identity-error-code.enum';
+import { ErrorCodeHttpStatusService } from './error-code-http-status.service';
 import { ErrorTranslationService } from './error-translation-service';
 import { I18nHttpExceptionFilter } from './i18n-http-exception-filter';
 
@@ -15,6 +16,7 @@ describe('I18nHttpExceptionFilter', () => {
     ErrorTranslationService,
     'translateErrorCode' | 'translateUnknownError'
   >;
+  let errorCodeHttpStatusService: Pick<ErrorCodeHttpStatusService, 'resolve'>;
   let filter: I18nHttpExceptionFilter;
 
   beforeEach(() => {
@@ -28,22 +30,29 @@ describe('I18nHttpExceptionFilter', () => {
       translateUnknownError: vi.fn(async () => 'translated:UNKNOWN_ERROR'),
     };
 
-    filter = new I18nHttpExceptionFilter(errorTranslationService as ErrorTranslationService);
+    errorCodeHttpStatusService = {
+      resolve: vi.fn((code: string) => (code === IdentityErrorCode.UNAUTHORIZED ? 401 : 500)),
+    };
+
+    filter = new I18nHttpExceptionFilter(
+      errorTranslationService as ErrorTranslationService,
+      errorCodeHttpStatusService as ErrorCodeHttpStatusService,
+    );
   });
 
   it('writes translated JSON responses for HTTP requests', async () => {
     const host = createArgumentsHost('http', response);
 
-    await filter.catch(new UnauthorizedException(AuthErrorCode.UNAUTHORIZED), host);
+    await filter.catch(new UnauthorizedException(IdentityErrorCode.UNAUTHORIZED), host);
 
     expect(errorTranslationService.translateErrorCode).toHaveBeenCalledWith(
-      AuthErrorCode.UNAUTHORIZED,
+      IdentityErrorCode.UNAUTHORIZED,
     );
     expect(response.status).toHaveBeenCalledWith(401);
     expect(response.json).toHaveBeenCalledWith(
       expect.objectContaining({
         statusCode: 401,
-        message: `translated:${AuthErrorCode.UNAUTHORIZED}`,
+        message: `translated:${IdentityErrorCode.UNAUTHORIZED}`,
       }),
     );
   });
@@ -51,11 +60,14 @@ describe('I18nHttpExceptionFilter', () => {
   it('returns a translated exception for GraphQL requests', async () => {
     const host = createArgumentsHost('graphql', {});
 
-    const result = await filter.catch(new UnauthorizedException(AuthErrorCode.UNAUTHORIZED), host);
+    const result = await filter.catch(
+      new UnauthorizedException(IdentityErrorCode.UNAUTHORIZED),
+      host,
+    );
 
     expect(result).toBeInstanceOf(HttpException);
     expect(result?.getStatus()).toBe(401);
-    expect(result?.message).toBe(`translated:${AuthErrorCode.UNAUTHORIZED}`);
+    expect(result?.message).toBe(`translated:${IdentityErrorCode.UNAUTHORIZED}`);
   });
 });
 

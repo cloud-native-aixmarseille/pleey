@@ -1,4 +1,4 @@
-import { AuthErrorCode } from '../../../../domain/auth/enums/auth-error-code.enum';
+import { IdentityErrorCode } from '../../../../domain/identity/enums/identity-error-code.enum';
 import { createTokenPairFixture } from '../../../../test-utils/fixtures/unit/token-pair.fixture';
 import { createUserFixture } from '../../../../test-utils/fixtures/unit/user.fixture';
 import { createAuthTokenServiceMock } from '../../../../test-utils/mock-factories/auth-token-service.mock-factory';
@@ -21,7 +21,7 @@ describe('LoginUserUseCase', () => {
     );
 
     await expect(useCase.execute({ email: 'x@y.z', password: 'pw' })).rejects.toThrow(
-      AuthErrorCode.INVALID_CREDENTIALS,
+      IdentityErrorCode.INVALID_CREDENTIALS,
     );
   });
 

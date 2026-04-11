@@ -1,0 +1,14 @@
+engine biome(1.0)
+language js(typescript, jsx)
+
+file($name, $body) where {
+  $name <: r"^src/(application|domain|domains|infrastructure)/.*\.(ts|tsx|js|jsx)$",
+  $name <: not r"(?:^|/)(generated|__generated__)/",
+  $name <: not r"\.(spec|test)\.(ts|tsx|js|jsx)$",
+  $body <: r"\b(?!encoded[A-Z])(?!fieldId\b)(?!descriptionId\b)(?!errorId\b)(?!displayPin\b)(?!rafId\b)[A-Za-z][A-Za-z0-9]*(Id|Pin)\??\s*:\s*(number|string)(\s*\|\s*null)?\b",
+  register_diagnostic(
+    span = $body,
+    message = "Internal application/domain/infrastructure code must not model business identifiers as raw number or string types. Use branded identifiers such as PartyId, GameId, UserId, ProjectId, OrganizationId, ParticipantId, GuestId, or PartyPin and convert raw transport values at the boundary.",
+    severity = "error"
+  )
+}

@@ -26,10 +26,22 @@ export class LanguagePreferenceResolver {
   }
 }
 
-if (!i18n.isInitialized) {
+interface InitializeI18nDependencies {
+  readonly languagePreferenceResolver: LanguagePreferenceResolver;
+  readonly translationResourceComposer: TranslationResourceComposer;
+}
+
+export function initializeI18n({
+  languagePreferenceResolver,
+  translationResourceComposer,
+}: InitializeI18nDependencies): void {
+  if (i18n.isInitialized) {
+    return;
+  }
+
   i18n.use(initReactI18next).init({
-    resources: new TranslationResourceComposer().compose(),
-    lng: new LanguagePreferenceResolver().resolve(),
+    resources: translationResourceComposer.compose(),
+    lng: languagePreferenceResolver.resolve(),
     fallbackLng: SupportedLanguage.EN,
     interpolation: {
       escapeValue: false,

@@ -2,8 +2,8 @@
  * Auth Response DTO
  * Response returned after successful authentication
  */
-import type { UserId } from '../../../../domain/auth/entities/user';
-import type { AuthToken } from '../../../../domain/auth/types/auth-token';
+import type { UserId } from '../../../../domain/identity/entities/user';
+import type { AuthToken } from '../../../../domain/identity/types/auth-token';
 
 export class AuthResponseDto {
   accessToken: AuthToken;

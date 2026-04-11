@@ -1,4 +1,4 @@
-import type { UserId } from '../../auth/entities/user';
+import type { UserId } from '../../identity/entities/user';
 import type { OrganizationId } from '../entities/organization';
 import type { OrganizationMember, OrganizationMemberId } from '../entities/organization-member';
 import type { OrganizationRole } from '../enums/organization-role.enum';

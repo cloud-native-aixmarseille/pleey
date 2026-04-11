@@ -1,0 +1,33 @@
+engine biome(1.0)
+language js(typescript, jsx)
+
+or {
+  JsImport() as $statement where {
+    $statement <: contains JsModuleSource() as $source,
+    $source <: or {
+      r"['\"](?:src/)?infrastructure(?:/.*)?['\"]",
+      r"['\"].*/infrastructure(?:/.*)?['\"]",
+      r"['\"](?:src/)?presentation(?:/.*)?['\"]",
+      r"['\"].*/presentation(?:/.*)?['\"]"
+    },
+    register_diagnostic(
+      span = $source,
+      message = "Frontend application/domain layers must not import infrastructure or presentation code. Depend on contracts and bind implementations at the composition boundary.",
+      severity = "error"
+    )
+  },
+  JsExportFromClause() as $statement where {
+    $statement <: contains JsModuleSource() as $source,
+    $source <: or {
+      r"['\"](?:src/)?infrastructure(?:/.*)?['\"]",
+      r"['\"].*/infrastructure(?:/.*)?['\"]",
+      r"['\"](?:src/)?presentation(?:/.*)?['\"]",
+      r"['\"].*/presentation(?:/.*)?['\"]"
+    },
+    register_diagnostic(
+      span = $source,
+      message = "Frontend application/domain layers must not re-export infrastructure or presentation code. Depend on contracts and bind implementations at the composition boundary.",
+      severity = "error"
+    )
+  }
+}

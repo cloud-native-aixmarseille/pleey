@@ -1,0 +1,15 @@
+export enum PartyManagementErrorCode {
+  PLAYER_ALREADY_IN_ACTIVE_PARTY = 'game.party.errors.playerAlreadyInActiveParty',
+  CREATE_FAILED = 'game.party.errors.createFailed',
+  GUEST_NAME_REQUIRED = 'game.party.errors.guestNameRequired',
+  HOST_PARTY_CONTROL_FORBIDDEN = 'game.party.errors.hostPartyControlForbidden',
+  JOIN_FAILED = 'game.party.errors.joinFailed',
+  LIST_FAILED = 'game.party.errors.listFailed',
+  LEAVE_FAILED = 'game.party.errors.leaveFailed',
+  CONNECTION_LOST = 'game.party.errors.connectionLost',
+  OBSERVE_FAILED = 'game.party.errors.observeFailed',
+  PARTY_COMMAND_NOT_AVAILABLE = 'game.party.errors.partyCommandNotAvailable',
+  PARTY_NOT_FOUND = 'game.party.errors.partyNotFound',
+  PARTY_STAGES_NOT_AVAILABLE = 'game.party.errors.partyStagesNotAvailable',
+  VALIDATION_FAILED = 'game.party.errors.validationFailed',
+}

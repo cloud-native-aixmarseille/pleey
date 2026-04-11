@@ -1,27 +1,16 @@
 {
   "errors": {
     "gameNotFound": "Jeu introuvable",
-    "gameSessionNotFound": "Session de jeu introuvable",
-    "invalidPin": "PIN invalide",
-    "noStagesAvailable": "Aucune étape disponible pour ce jeu",
-    "noCurrentStageToResume": "Aucune étape en cours à reprendre",
-    "invalidRevealDelay": "Le délai de révélation doit être un nombre fini",
-    "playerIdentityRequired": "Le joueur doit avoir un userId ou un guestId",
-    "playerScoreIdentityInvalid": "Le score du joueur doit avoir exactement une identité (userId ou guestId)",
+    "partyNotFound": "Partie introuvable",
+    "pinAlreadyInUse": "Ce PIN est déjà utilisé.",
     "validationFailed": "Échec de la validation",
     "unknownError": "Une erreur inattendue s'est produite",
-    "gameCanOnlyBeStartedFromWaiting": "Le jeu ne peut être démarré que depuis le statut d'attente",
-    "canOnlyMoveToNextStageInActive": "Ne peut passer à l'étape suivante que dans un jeu actif",
-    "canOnlyPauseActiveGame": "Ne peut mettre en pause qu'un jeu actif",
-    "canOnlyResumePausedGame": "Ne peut reprendre qu'un jeu en pause",
-    "unauthorizedSessionControl": "Vous n'avez pas la permission de contrôler ce jeu",
-    "activeSessionExists": "Vous avez déjà une session de jeu active. Veuillez l'arrêter ou la terminer avant d'en démarrer une nouvelle.",
-    "gameAlreadyHasActiveSession": "Ce jeu possède déjà une session en cours. Terminez-la avant d'en démarrer une autre.",
-    "alreadyActed": "Vous avez déjà soumis une action pour cette étape.",
-    "gameSessionEnded": "Cette session de jeu est terminée.",
-    "gameTypeNotSupported": "Ce type de jeu n'est pas encore pris en charge."
-  },
-  "labels": {
-    "guest": "Invité"
+    "playerAlreadyInActiveParty": "Vous participez déjà à une autre partie active.",
+    "activePartyExists": "Vous avez déjà une partie active. Veuillez l'arrêter ou la terminer avant d'en démarrer une nouvelle.",
+    "hostAlreadyHasActivePartyForGame": "Vous avez déjà une partie active pour ce jeu.",
+    "gameAlreadyHasActiveParty": "Ce jeu possède déjà une partie en cours. Terminez-la avant d'en démarrer une autre.",
+    "hostPartyControlForbidden": "Seul le compte hôte peut contrôler cette partie.",
+    "partyCommandNotAvailable": "Cette commande hôte n'est pas disponible pour l'état actuel de la partie.",
+    "partyStagesNotAvailable": "Cette partie ne peut pas démarrer car aucun stage n'est configuré pour ce jeu."
   }
 }

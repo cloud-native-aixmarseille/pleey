@@ -1,21 +1,35 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { DashboardWorkspaceGateway } from '../../../../application/workspace/dashboard/facades/dashboard-workspace.facade';
-import type { Organization } from '../../../../domains/organization/entities/organization';
+import type {
+  Organization,
+  OrganizationId,
+} from '../../../../domains/organization/entities/organization';
 import type { OrganizationDashboard } from '../../../../domains/organization/entities/organization-dashboard';
-import type { Project } from '../../../../domains/project/entities/project';
+import type { Project, ProjectId } from '../../../../domains/project/entities/project';
+import { useWorkspaceDependencies } from '../../shared/contexts/workspace-dependencies-context';
+
+export interface DashboardWorkspaceSelectionGateway
+  extends Pick<
+    DashboardWorkspaceGateway,
+    | 'restoreOrganizationSelection'
+    | 'loadOrganizationWorkspaceState'
+    | 'setOrganizationSelection'
+    | 'setProjectSelection'
+  > {}
 
 interface UseDashboardWorkspaceOptions {
-  readonly dashboardWorkspace: DashboardWorkspaceGateway;
+  readonly dashboardWorkspace: DashboardWorkspaceSelectionGateway;
 }
 
 export function useDashboardWorkspace({ dashboardWorkspace }: UseDashboardWorkspaceOptions) {
+  const { organizationIdentifier, projectIdentifier } = useWorkspaceDependencies();
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [organizationDashboard, setOrganizationDashboard] = useState<OrganizationDashboard | null>(
     null,
   );
-  const [organizationId, setOrganizationId] = useState<number | null>(null);
-  const [projectId, setProjectId] = useState<number | null>(null);
+  const [organizationId, setOrganizationId] = useState<OrganizationId | null>(null);
+  const [projectId, setProjectId] = useState<ProjectId | null>(null);
   const [isOrganizationsLoading, setIsOrganizationsLoading] = useState(false);
   const [isWorkspaceLoading, setIsWorkspaceLoading] = useState(false);
   const [hasLoadedOrganizations, setHasLoadedOrganizations] = useState(false);
@@ -40,7 +54,7 @@ export function useDashboardWorkspace({ dashboardWorkspace }: UseDashboardWorksp
       setHasLoadedOrganizations(false);
 
       try {
-        const selection = await dashboardWorkspace.loadOrganizationSelection();
+        const selection = await dashboardWorkspace.restoreOrganizationSelection();
 
         if (ignore) {
           return;
@@ -93,7 +107,7 @@ export function useDashboardWorkspace({ dashboardWorkspace }: UseDashboardWorksp
       setIsWorkspaceLoading(true);
 
       try {
-        const workspace = await dashboardWorkspace.loadOrganizationWorkspace(organizationId);
+        const workspace = await dashboardWorkspace.loadOrganizationWorkspaceState(organizationId);
 
         if (ignore) {
           return;
@@ -126,8 +140,7 @@ export function useDashboardWorkspace({ dashboardWorkspace }: UseDashboardWorksp
   }, [dashboardWorkspace, hasLoadedOrganizations, organizationId]);
 
   function handleOrganizationChange(nextValue: string) {
-    const nextOrganizationId = Number.parseInt(nextValue, 10);
-    const nextSelection = Number.isNaN(nextOrganizationId) ? null : nextOrganizationId;
+    const nextSelection = organizationIdentifier.parseOrNull(nextValue);
 
     setOrganizationId(nextSelection);
     setProjectId(null);
@@ -135,8 +148,7 @@ export function useDashboardWorkspace({ dashboardWorkspace }: UseDashboardWorksp
   }
 
   function handleProjectChange(nextValue: string) {
-    const nextProjectId = Number.parseInt(nextValue, 10);
-    const nextSelection = Number.isNaN(nextProjectId) ? null : nextProjectId;
+    const nextSelection = projectIdentifier.parseOrNull(nextValue);
 
     setProjectId(nextSelection);
     dashboardWorkspace.setProjectSelection(nextSelection);

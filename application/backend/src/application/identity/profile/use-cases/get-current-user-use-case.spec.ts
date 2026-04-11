@@ -1,4 +1,4 @@
-import { AuthErrorCode } from '../../../../domain/auth/enums/auth-error-code.enum';
+import { IdentityErrorCode } from '../../../../domain/identity/enums/identity-error-code.enum';
 import { createUserFixture } from '../../../../test-utils/fixtures/unit/user.fixture';
 import { createUserRepositoryMock } from '../../../../test-utils/mock-factories/user-repository.mock-factory';
 import { GetCurrentUserUseCase } from './get-current-user-use-case';
@@ -9,7 +9,7 @@ describe('GetCurrentUserUseCase', () => {
 
     const useCase = new GetCurrentUserUseCase(userRepository);
 
-    await expect(useCase.execute(123)).rejects.toThrow(AuthErrorCode.USER_NOT_FOUND);
+    await expect(useCase.execute(123)).rejects.toThrow(IdentityErrorCode.USER_NOT_FOUND);
   });
 
   it('returns a public profile for existing user', async () => {

@@ -1,5 +1,5 @@
-import type { DashboardGameSortField } from '../../../../../../domains/game-catalog/entities/dashboard-game-list-query';
-import type { GameTypeDescriptor } from '../../../../../../domains/game-catalog/entities/game-type-catalog';
+import type { DashboardGameSortField } from '../../../../../../domains/game/management/entities/dashboard-game-list-query';
+import type { GameTypeDescriptor } from '../../../../../../domains/game/types/shared/game-type-catalog';
 import type { AppIconName } from '../../../../../shared/ui/icons/app-icon';
 import type { GameListFiltersState } from '../../../hooks/use-game-list-filters';
 

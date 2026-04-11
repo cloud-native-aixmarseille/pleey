@@ -3,7 +3,7 @@ import { useAuth } from '../../../../identity/contexts/auth-context';
 import { usePresentationNavigate } from '../../../routing/router';
 
 export function useAccountMenuState() {
-  const { user, isAuthenticated, signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const navigate = usePresentationNavigate();
   const [opened, setOpened] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -55,7 +55,6 @@ export function useAccountMenuState() {
       signOut();
       close();
     },
-    isAuthenticated,
     opened,
     toggle,
     user,

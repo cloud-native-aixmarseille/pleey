@@ -2,14 +2,13 @@ import { Global, Module } from '@nestjs/common';
 import {
   ACCESS_TOKEN_CONFIG,
   REFRESH_TOKEN_CONFIG,
-} from '../../domain/auth/ports/auth-token.service';
-import { AUTH_JWT_SECRET } from '../../infrastructure/auth/auth-jwt-secret.token';
+} from '../../domain/identity/ports/auth-token.service';
 import { DATABASE_CONNECTION_STRING } from '../../infrastructure/database/database-connection-string.token';
-import { SESSION_STATE_CONFIG } from '../../infrastructure/game/repositories/session-state-config.token';
-import { GAME_SOCKET_CORS_OPTIONS } from '../../presentation/game-session/live/shared/realtime/game-socket-cors-options.token';
+import { AUTH_JWT_SECRET } from '../../infrastructure/identity/auth-jwt-secret.token';
 import { AUTH_PUBLIC_API_BASE_URL } from '../../presentation/identity/shared/auth-public-api-base-url.token';
 import { AppConfiguration } from './app-configuration';
 import { APP_SERVER_CONFIG } from './app-server-config.token';
+import { GAME_SOCKET_CORS_OPTIONS } from './game-socket-cors-options.token';
 
 const configuration = new AppConfiguration();
 
@@ -37,10 +36,6 @@ const configuration = new AppConfiguration();
       useValue: configuration.getDatabaseConnectionString(),
     },
     {
-      provide: SESSION_STATE_CONFIG,
-      useValue: configuration.getSessionStateConfig(),
-    },
-    {
       provide: AUTH_PUBLIC_API_BASE_URL,
       useValue: configuration.getAuthPublicApiBaseUrl(),
     },
@@ -55,7 +50,6 @@ const configuration = new AppConfiguration();
     ACCESS_TOKEN_CONFIG,
     REFRESH_TOKEN_CONFIG,
     DATABASE_CONNECTION_STRING,
-    SESSION_STATE_CONFIG,
     AUTH_PUBLIC_API_BASE_URL,
     GAME_SOCKET_CORS_OPTIONS,
   ],
