@@ -1,10 +1,18 @@
 # Makefile for Pleey
 # Using Docker Compose V2
 
-.PHONY: help setup setup build up down restart logs ps rebuild shell setup-traefik migrate seed graphql-types linter-fix test test-install
+.PHONY: help setup setup build up down restart logs ps rebuild shell setup-traefik migrate seed graphql-types linter-fix test test-install test-chart test-chart-ci
 
 # Docker Compose command (V2)
 COMPOSE := docker compose
+
+CHART_TEST_CT_CONFIG ?= ct.yaml
+CHART_TEST_NAMESPACE_PREFIX ?= test-chart
+CHART_TEST_KEEP_KIND ?= 0
+CHART_TEST_BACKEND_IMAGE_REPOSITORY ?= pleey-backend-chart-test
+CHART_TEST_BACKEND_IMAGE_TAG ?= chart-test
+CHART_TEST_FRONTEND_IMAGE_REPOSITORY ?= pleey-frontend-chart-test
+CHART_TEST_FRONTEND_IMAGE_TAG ?= chart-test
 
 # Colors for display
 GREEN=\033[0;32m
@@ -297,6 +305,56 @@ test-ui: ## Run Vitest UI (set SCOPE=backend|frontend|e2e)
 
 test-ci: ## Run backend and frontend tests like CI (alias for make test MODE=ci)
 	@$(MAKE) --no-print-directory test MODE=ci
+
+test-chart: ## Run Helm chart lint+install like CI, building app images locally first
+	@set -eu; \
+	for command in ct helm kind kubectl docker yamale; do \
+		if ! command -v "$$command" >/dev/null 2>&1; then \
+			echo "$(RED)Error: '$$command' is required for chart CI tests$(NC)"; \
+			exit 1; \
+		fi; \
+	done; \
+	CT_ARGS=""; \
+	TARGET_BRANCH="$(CHART_TARGET_BRANCH)"; \
+	if [ -z "$$TARGET_BRANCH" ]; then \
+		TARGET_BRANCH="$$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's@^origin/@@')"; \
+	fi; \
+	if [ -z "$$TARGET_BRANCH" ]; then \
+		TARGET_BRANCH="main"; \
+	fi; \
+	if [ -n "$$TARGET_BRANCH" ]; then \
+		CT_ARGS="$$CT_ARGS --target-branch $$TARGET_BRANCH"; \
+	fi; \
+	if [ -f "$(CHART_TEST_CT_CONFIG)" ]; then \
+		CT_ARGS="$$CT_ARGS --config $(CHART_TEST_CT_CONFIG)"; \
+	fi; \
+	if [ -z "$$CT_ARGS" ]; then \
+		CT_ARGS="$$CT_ARGS --all"; \
+	fi; \
+	KIND_CLUSTER="chart-testing-$$(date +%s)"; \
+	NAMESPACE="$(CHART_TEST_NAMESPACE_PREFIX)-$$(date +%s)"; \
+	BACKEND_IMAGE="$(CHART_TEST_BACKEND_IMAGE_REPOSITORY):$(CHART_TEST_BACKEND_IMAGE_TAG)"; \
+	FRONTEND_IMAGE="$(CHART_TEST_FRONTEND_IMAGE_REPOSITORY):$(CHART_TEST_FRONTEND_IMAGE_TAG)"; \
+	HELM_SET_ARGS="namespace=$$NAMESPACE,global.imagePullPolicy=IfNotPresent,global.postgresql.enabled=true,global.postgresql.auth.username=pleeyapp,global.postgresql.auth.password=pleeyapp_password,global.postgresql.auth.database=pleeydb,postgresql.enabled=true,backend.image.registry=,backend.image.repository=$(CHART_TEST_BACKEND_IMAGE_REPOSITORY),backend.image.tag=$(CHART_TEST_BACKEND_IMAGE_TAG),backend.image.digest=,backend.image.pullPolicy=IfNotPresent,frontend.image.registry=,frontend.image.repository=$(CHART_TEST_FRONTEND_IMAGE_REPOSITORY),frontend.image.tag=$(CHART_TEST_FRONTEND_IMAGE_TAG),frontend.image.digest=,frontend.image.pullPolicy=IfNotPresent,back.image.repository=$(CHART_TEST_BACKEND_IMAGE_REPOSITORY),back.image.tag=$(CHART_TEST_BACKEND_IMAGE_TAG),back.image.digest=,back.image.pullPolicy=IfNotPresent,front.image.repository=$(CHART_TEST_FRONTEND_IMAGE_REPOSITORY),front.image.tag=$(CHART_TEST_FRONTEND_IMAGE_TAG),front.image.digest=,front.image.pullPolicy=IfNotPresent"; \
+	trap 'exit_code=$$?; if [ "$(CHART_TEST_KEEP_KIND)" != "1" ]; then echo "$(YELLOW)Deleting Kind cluster $$KIND_CLUSTER...$(NC)"; kind delete cluster --name "$$KIND_CLUSTER" >/dev/null 2>&1 || true; else echo "$(YELLOW)Keeping Kind cluster $$KIND_CLUSTER for debugging$(NC)"; fi; exit $$exit_code' EXIT; \
+	echo "$(GREEN)Building backend image $$BACKEND_IMAGE...$(NC)"; \
+	DOCKER_BUILDKIT=1 docker build --target prod --file application/backend/Dockerfile --tag "$$BACKEND_IMAGE" .; \
+	echo "$(GREEN)Building frontend image $$FRONTEND_IMAGE...$(NC)"; \
+	DOCKER_BUILDKIT=1 docker build --target prod --file application/frontend/Dockerfile --tag "$$FRONTEND_IMAGE" .; \
+	echo "$(GREEN)Adding Helm repositories...$(NC)"; \
+	helm repo add bitnami https://charts.bitnami.com/bitnami --force-update >/dev/null; \
+	echo "$(GREEN)Running chart lint...$(NC)"; \
+	set -- $$CT_ARGS; \
+	ct lint "$$@"; \
+	echo "$(GREEN)Creating Kind cluster '$$KIND_CLUSTER'...$(NC)"; \
+	kind create cluster --name "$$KIND_CLUSTER" >/dev/null; \
+	kind load docker-image --name "$$KIND_CLUSTER" "$$BACKEND_IMAGE" "$$FRONTEND_IMAGE" >/dev/null; \
+	kubectl config use-context "kind-$$KIND_CLUSTER" >/dev/null; \
+	kubectl create namespace "$$NAMESPACE" >/dev/null; \
+	echo "$(GREEN)Running chart install test...$(NC)"; \
+	set -- $$CT_ARGS; \
+	HELM_EXPERIMENTAL_OCI=true ct install "$$@" --namespace "$$NAMESPACE" --helm-extra-set-args "--set=$$HELM_SET_ARGS"; \
+	echo "$(GREEN)✓ Chart CI test flow completed$(NC)"
 
 test-install: ## Install test dependencies for all projects
 	@echo "$(GREEN)Installing test dependencies...$(NC)"

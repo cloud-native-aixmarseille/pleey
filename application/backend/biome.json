@@ -13,6 +13,7 @@
   "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
     "enabled": true,
+    "includes": ["**", "!src/schema.gql"],
     "rules": {
       "recommended": true,
       "style": {
@@ -54,6 +55,7 @@
   },
   "formatter": {
     "enabled": true,
+    "includes": ["**", "!src/schema.gql"],
     "formatWithErrors": false,
     "indentStyle": "space",
     "indentWidth": 2,

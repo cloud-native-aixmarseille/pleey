@@ -1,25 +1,15 @@
-# pleey
+# pleey-app
 
-![Version: 0.0.0](https://img.shields.io/badge/Version-0.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.0](https://img.shields.io/badge/AppVersion-0.0.0-informational?style=flat-square)
+![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: main](https://img.shields.io/badge/AppVersion-main-informational?style=flat-square)
 
-Pleey - Interactive Quiz Application with real-time gameplay
-
-**Homepage:** <https://github.com/cloud-native-aixmarseille/pleey>
-
-## Maintainers
-
-| Name       | Email                 | URL |
-| ---------- | --------------------- | --- |
-| Pleey Team | <support@example.com> |     |
-
-## Source Code
-
-- <https://github.com/cloud-native-aixmarseille/pleey>
+A Helm chart for pleey-app
 
 ## Requirements
 
 | Repository                           | Name       | Version |
 | ------------------------------------ | ---------- | ------- |
+| file://charts/back                   | back       | 0.1.0   |
+| file://charts/front                  | front      | 0.1.0   |
 | <https://charts.bitnami.com/bitnami> | PostgreSQL | 15.x.x  |
 
 ## Values

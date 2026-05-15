@@ -1,6 +1,15 @@
 dependencies:
+- name: frontend
+  repository: file://charts/frontend
+  version: 0.1.0
+- name: backend
+  repository: file://charts/backend
+  version: 0.1.0
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
   version: 15.5.38
-digest: sha256:884f3ffaa28014e413b39706c18e9a5a5620b11edc481cd1d383ab46dc2d67ec
-generated: "2025-11-06T19:05:06.410176+01:00"
+- name: valkey
+  repository: https://valkey.io/valkey-helm/
+  version: 0.9.4
+digest: sha256:ae5b380e5a8a21faf94d964397b58e5e47398c7d02e5eb792a57b8342d7466f3
+generated: "2026-05-15T16:48:48.987706+02:00"
