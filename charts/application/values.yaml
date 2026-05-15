@@ -45,8 +45,7 @@ backend:
     repository: cloud-native-aixmarseille/pleey/backend
     tag: "0.0.0"
     pullPolicy: Always
-    # Replace with the real digest for your registry/image.
-    digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    digest: ""
 
   # Service configuration
   service:
@@ -151,8 +150,7 @@ frontend:
     repository: cloud-native-aixmarseille/pleey/frontend
     tag: "0.0.0"
     pullPolicy: Always
-    # Replace with the real digest for your registry/image.
-    digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    digest: ""
 
   # Service configuration
   service:
@@ -303,7 +301,7 @@ valkey:
     repository: valkey/valkey
     tag: "8-alpine"
     pullPolicy: Always
-    digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    digest: ""
 
   service:
     port: 6379

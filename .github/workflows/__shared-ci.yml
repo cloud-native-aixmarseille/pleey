@@ -135,6 +135,11 @@ jobs:
           helm-repositories: |
             bitnami https://charts.bitnami.com/bitnami
           helm-set: |
+            global.postgresql.enabled=true
+            global.postgresql.auth.username=pleeyapp
+            global.postgresql.auth.password=pleeyapp_password
+            global.postgresql.auth.database=pleeydb
+            postgresql.enabled=true
             backend.image.registry=${{ fromJSON(needs.build-prod.outputs.built-images).backend.registry }}
             backend.image.repository=${{ fromJSON(needs.build-prod.outputs.built-images).backend.repository }}
             backend.image.tag=${{ fromJSON(needs.build-prod.outputs.built-images).backend.tags[0] }}

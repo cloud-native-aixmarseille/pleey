@@ -29,7 +29,7 @@ A Helm chart for pleey-app
 | backend.env.port                                                     | int    | `3001`                                                                      |             |
 | backend.env.sessionStateTtlSeconds                                   | int    | `21600`                                                                     |             |
 | backend.env.valkeyUrl                                                | string | `""`                                                                        |             |
-| backend.image.digest                                                 | string | `"sha256:0000000000000000000000000000000000000000000000000000000000000000"` |             |
+| backend.image.digest                                                 | string | `""`                                                                        |             |
 | backend.image.pullPolicy                                             | string | `"Always"`                                                                  |             |
 | backend.image.registry                                               | string | `"ghcr.io"`                                                                 |             |
 | backend.image.repository                                             | string | `"cloud-native-aixmarseille/pleey/backend"`                                 |             |
@@ -75,7 +75,7 @@ A Helm chart for pleey-app
 | frontend.autoscaling.targetCPUUtilizationPercentage                  | int    | `80`                                                                        |             |
 | frontend.enabled                                                     | bool   | `true`                                                                      |             |
 | frontend.env.apiUrl                                                  | string | `"http://backend:3001"`                                                     |             |
-| frontend.image.digest                                                | string | `"sha256:0000000000000000000000000000000000000000000000000000000000000000"` |             |
+| frontend.image.digest                                                | string | `""`                                                                        |             |
 | frontend.image.pullPolicy                                            | string | `"Always"`                                                                  |             |
 | frontend.image.registry                                              | string | `"ghcr.io"`                                                                 |             |
 | frontend.image.repository                                            | string | `"cloud-native-aixmarseille/pleey/frontend"`                                |             |
@@ -199,7 +199,7 @@ A Helm chart for pleey-app
 | serviceAccount.create                                                | bool   | `true`                                                                      |             |
 | serviceAccount.name                                                  | string | `""`                                                                        |             |
 | valkey.enabled                                                       | bool   | `true`                                                                      |             |
-| valkey.image.digest                                                  | string | `"sha256:0000000000000000000000000000000000000000000000000000000000000000"` |             |
+| valkey.image.digest                                                  | string | `""`                                                                        |             |
 | valkey.image.pullPolicy                                              | string | `"Always"`                                                                  |             |
 | valkey.image.repository                                              | string | `"valkey/valkey"`                                                           |             |
 | valkey.image.tag                                                     | string | `"8-alpine"`                                                                |             |

@@ -1,5 +1,6 @@
 back:
   image:
+    digest: ""
     tag: main
   ingress:
     enabled: true
@@ -21,6 +22,7 @@ front:
   config:
     apiUrl: http://pleey.k8s.orb.local
   image:
+    digest: ""
     tag: main
   ingress:
     enabled: true

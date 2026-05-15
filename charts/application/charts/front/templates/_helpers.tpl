@@ -60,3 +60,65 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Resolve the namespace for namespaced resources.
+*/}}
+{{- define "default.namespace" -}}
+{{- .Release.Namespace -}}
+{{- end }}
+
+{{/*
+Build the immutable image reference when a digest is provided.
+*/}}
+{{- define "default.image" -}}
+{{- $repository := .Values.image.repository -}}
+{{- $registry := "" -}}
+{{- $tag := .Values.image.tag | default .Chart.AppVersion -}}
+{{- $digest := .Values.image.digest -}}
+{{- with .Values.frontend }}
+{{- with .image }}
+{{- $registry = .registry | default $registry -}}
+{{- $repository = .repository | default $repository -}}
+{{- $tag = .tag | default $tag -}}
+{{- $digest = .digest | default $digest -}}
+{{- end }}
+{{- end }}
+{{- with .Values.front }}
+{{- with .image }}
+{{- $registry = .registry | default $registry -}}
+{{- $repository = .repository | default $repository -}}
+{{- $tag = .tag | default $tag -}}
+{{- $digest = .digest | default $digest -}}
+{{- end }}
+{{- end }}
+{{- if $registry -}}
+{{- if $digest -}}
+{{- printf "%s/%s@%s" $registry $repository $digest -}}
+{{- else -}}
+{{- printf "%s/%s:%s" $registry $repository $tag -}}
+{{- end -}}
+{{- else -}}
+{{- if $digest -}}
+{{- printf "%s@%s" $repository $digest -}}
+{{- else -}}
+{{- printf "%s:%s" $repository $tag -}}
+{{- end -}}
+{{- end -}}
+{{- end }}
+
+{{/* Resolve image pull policy, allowing frontend/front image overrides. */}}
+{{- define "default.imagePullPolicy" -}}
+{{- $pullPolicy := .Values.image.pullPolicy -}}
+{{- with .Values.frontend }}
+{{- with .image }}
+{{- $pullPolicy = .pullPolicy | default $pullPolicy -}}
+{{- end }}
+{{- end }}
+{{- with .Values.front }}
+{{- with .image }}
+{{- $pullPolicy = .pullPolicy | default $pullPolicy -}}
+{{- end }}
+{{- end }}
+{{- $pullPolicy -}}
+{{- end }}
