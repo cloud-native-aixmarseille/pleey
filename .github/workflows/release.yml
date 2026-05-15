@@ -29,6 +29,6 @@ jobs:
       tag: ${{ steps.create-release.outputs.tag }}
     steps:
       - id: create-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/create@84e8ace407055e7a40ba6670a8c697e1ce2dfafa # v0.20.1
+        uses: hoverkraft-tech/ci-github-publish/actions/release/create@2c8e24b416226074aea1e240468f043edefc5760 # v0.23.2
         with:
           prerelease: false
