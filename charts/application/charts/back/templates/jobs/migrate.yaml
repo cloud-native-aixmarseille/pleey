@@ -62,8 +62,8 @@ spec:
         - name: db-migrate
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: {{ include "default.image" . | quote }}
-          imagePullPolicy: {{ include "default.imagePullPolicy" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           envFrom:
             - configMapRef:
                 name: {{ include "default.fullname" . }}

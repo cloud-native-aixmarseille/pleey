@@ -59,17 +59,8 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: {{ include "default.image" . | quote }}
-          imagePullPolicy: {{ include "default.imagePullPolicy" . }}
-          command:
-            - /usr/bin/dumb-init
-            - --
-            - sh
-            - -c
-            - |
-                export DATABASE_URL="$(cat /etc/pleey/secrets/DATABASE_URL)"
-                export JWT_SECRET="$(cat /etc/pleey/secrets/JWT_SECRET)"
-                exec node --max-old-space-size=200 /usr/src/app/dist/src/app/main.js
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           envFrom:
             - configMapRef:
                 name: {{ include "default.fullname" . }}

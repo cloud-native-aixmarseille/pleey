@@ -29,36 +29,6 @@ image:
   tag: ""
   digest: ""
 
-waitForDb:
-  image:
-    repository: busybox
-    tag: "1.36"
-    pullPolicy: Always
-    digest: "sha256:00baf5736376036ea4bc1a1c075784fc98a79186604d5d41305cd9b428b3b737"
-  resources:
-    limits:
-      cpu: 100m
-      memory: 128Mi
-    requests:
-      cpu: 25m
-      memory: 64Mi
-
-postgresql:
-  enabled: false
-  image:
-    repository: bitnamilegacy/postgresql
-    pullPolicy: Always
-    digest: "sha256:94c148526e3de5a414cc53f75701ed0d57ff3719466851723512fcbd1182522a"
-  auth:
-    username: pleeyapp
-    password: pleeyapp_password
-    database: pleeydb
-    existingSecret: ""
-    usePasswordFiles: true
-  primary:
-    persistence:
-      enabled: false
-
 # This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
 # This is to override the chart name.
