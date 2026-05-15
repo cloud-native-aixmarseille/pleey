@@ -1,6 +1,5 @@
-back:
+backend:
   image:
-    digest: ""
     tag: main
   ingress:
     enabled: true
@@ -18,11 +17,10 @@ back:
       #   hosts:
       #     - chart-example.local
 
-front:
+frontend:
   config:
     apiUrl: http://pleey.k8s.orb.local
   image:
-    digest: ""
     tag: main
   ingress:
     enabled: true

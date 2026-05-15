@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "default.fullname" . }}
-  namespace: {{ include "default.namespace" . | quote }}
   labels:
     {{- include "default.labels" . | nindent 4 }}
 spec:
@@ -28,23 +27,12 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      automountServiceAccountToken: {{ .Values.serviceAccount.automount }}
       serviceAccountName: {{ include "default.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
         - name: wait-for-db
-          image: {{ include "default.waitForDbImage" . | quote }}
-          imagePullPolicy: {{ .Values.waitForDb.image.pullPolicy }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          resources:
-            limits:
-              cpu: {{ .Values.waitForDb.resources.limits.cpu | quote }}
-              memory: {{ .Values.waitForDb.resources.limits.memory | quote }}
-            requests:
-              cpu: {{ .Values.waitForDb.resources.requests.cpu | quote }}
-              memory: {{ .Values.waitForDb.resources.requests.memory | quote }}
+          image: busybox
           command:
             - sh
             - -c
@@ -64,9 +52,11 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ include "default.fullname" . }}
+            - secretRef:
+                name: {{ include "default.fullname" . }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.containerPort }}
+              containerPort: {{ .Values.service.port }}
               protocol: TCP
           {{- if .Values.startupProbe.enabled }}
           startupProbe:
@@ -80,31 +70,19 @@ spec:
           readinessProbe:
             {{- toYaml (omit .Values.readinessProbe "enabled") | nindent 12 }}
           {{- end }}
-          resources:
-            limits:
-              cpu: {{ .Values.resources.limits.cpu | quote }}
-              memory: {{ .Values.resources.limits.memory | quote }}
-            requests:
-              cpu: {{ .Values.resources.requests.cpu | quote }}
-              memory: {{ .Values.resources.requests.memory | quote }}
+          {{- if .Values.resources }}
+          resources: {{- include "common.tplvalues.render" (dict "value" .Values.resources "context" $) | nindent 12 }}
+          {{- else if ne .Values.resourcesPreset "none" }}
+          resources: {{- include "common.resources.preset" (dict "type" .Values.resourcesPreset) | nindent 12 }}
+          {{- end }}
+          {{- with .Values.volumeMounts }}
           volumeMounts:
-            - name: app-secrets
-              mountPath: /etc/pleey/secrets
-              readOnly: true
-            - name: tmp
-              mountPath: /tmp
-            {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
-            {{- end }}
+          {{- end }}
+      {{- with .Values.volumes }}
       volumes:
-        - name: app-secrets
-          secret:
-            secretName: {{ include "default.fullname" . }}
-        - name: tmp
-          emptyDir: {}
-        {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
-        {{- end }}
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

@@ -56,9 +56,6 @@
         "image": {
             "type": "object",
             "properties": {
-                "digest": {
-                    "type": "string"
-                },
                 "pullPolicy": {
                     "type": "string"
                 },
@@ -67,55 +64,6 @@
                 },
                 "tag": {
                     "type": "string"
-                }
-            }
-        },
-        "waitForDb": {
-            "type": "object",
-            "properties": {
-                "image": {
-                    "type": "object",
-                    "properties": {
-                        "digest": {
-                            "type": "string"
-                        },
-                        "pullPolicy": {
-                            "type": "string"
-                        },
-                        "repository": {
-                            "type": "string"
-                        },
-                        "tag": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "resources": {
-                    "type": "object",
-                    "properties": {
-                        "limits": {
-                            "type": "object",
-                            "properties": {
-                                "cpu": {
-                                    "type": "string"
-                                },
-                                "memory": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "requests": {
-                            "type": "object",
-                            "properties": {
-                                "cpu": {
-                                    "type": "string"
-                                },
-                                "memory": {
-                                    "type": "string"
-                                }
-                            }
-                        }
-                    }
                 }
             }
         },
@@ -208,23 +156,6 @@
         "nodeSelector": {
             "type": "object"
         },
-        "networkPolicy": {
-            "type": "object",
-            "properties": {
-                "allowDnsEgress": {
-                    "type": "boolean"
-                },
-                "allowSameNamespace": {
-                    "type": "boolean"
-                },
-                "enabled": {
-                    "type": "boolean"
-                },
-                "ingressNamespaceSelector": {
-                    "type": "object"
-                }
-            }
-        },
         "podAnnotations": {
             "type": "object"
         },
@@ -257,31 +188,7 @@
             "type": "integer"
         },
         "resources": {
-            "type": "object",
-            "properties": {
-                "limits": {
-                    "type": "object",
-                    "properties": {
-                        "cpu": {
-                            "type": "string"
-                        },
-                        "memory": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "requests": {
-                    "type": "object",
-                    "properties": {
-                        "cpu": {
-                            "type": "string"
-                        },
-                        "memory": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
+            "type": "object"
         },
         "resourcesPreset": {
             "type": "string"

@@ -36,9 +36,6 @@
         "image": {
             "type": "object",
             "properties": {
-                "digest": {
-                    "type": "string"
-                },
                 "pullPolicy": {
                     "type": "string"
                 },
@@ -138,23 +135,6 @@
         },
         "nodeSelector": {
             "type": "object"
-        },
-        "networkPolicy": {
-            "type": "object",
-            "properties": {
-                "allowDnsEgress": {
-                    "type": "boolean"
-                },
-                "allowSameNamespace": {
-                    "type": "boolean"
-                },
-                "enabled": {
-                    "type": "boolean"
-                },
-                "ingressNamespaceSelector": {
-                    "type": "object"
-                }
-            }
         },
         "podAnnotations": {
             "type": "object"

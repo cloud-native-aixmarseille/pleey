@@ -24,10 +24,9 @@ replicaCount: 1
 image:
   repository: ghcr.io/cloud-native-aixmarseille/pleey/backend
   # This sets the pull policy for images.
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
-  digest: ""
 
 # This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
@@ -40,7 +39,7 @@ serviceAccount:
   # Specifies whether a service account should be created
   create: true
   # Automatically mount a ServiceAccount's API credentials?
-  automount: false
+  automount: true
   # Annotations to add to the service account
   annotations: {}
   # The name of the service account to use.
@@ -57,23 +56,16 @@ podAnnotations: {}
 # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 podLabels: {}
 
-podSecurityContext:
-  fsGroup: 10001
-  runAsGroup: 10001
-  runAsNonRoot: true
-  runAsUser: 10001
-  seccompProfile:
-    type: RuntimeDefault
+podSecurityContext: {}
+  # fsGroup: 2000
 
-securityContext:
-  allowPrivilegeEscalation: false
-  capabilities:
-    drop:
-      - ALL
-  readOnlyRootFilesystem: true
-  runAsGroup: 10001
-  runAsNonRoot: true
-  runAsUser: 10001
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
 
 # This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
 service:
@@ -86,13 +78,17 @@ service:
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
   enabled: false
-  className: nginx
+  className: ""
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
   hosts:
     - host: chart-example.local
       paths:
-        - path: /
+        - path: /api
+          pathType: ImplementationSpecific
+        - path: /graphql
+          pathType: ImplementationSpecific
+        - path: /socket.io
           pathType: ImplementationSpecific
   tls:
     - secretName: chart-example-tls
@@ -100,13 +96,17 @@ ingress:
         - chart-example.local
 
 resourcesPreset: "micro"
-resources:
-  limits:
-    cpu: 200m
-    memory: 256Mi
-  requests:
-    cpu: 50m
-    memory: 128Mi
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
 
 # This is to setup the startup, liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
 startupProbe:
@@ -151,11 +151,3 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
-
-networkPolicy:
-  enabled: true
-  allowSameNamespace: true
-  allowDnsEgress: true
-  ingressNamespaceSelector:
-    matchLabels:
-      kubernetes.io/metadata.name: ingress-nginx

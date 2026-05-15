@@ -51,10 +51,6 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 {{- end }}
 
-{{/* Resolve the namespace for namespaced resources. */}}
-{{- define "default.namespace" -}}
-{{- .Release.Namespace -}}
-{{- end }}
 
 {{/* Compute default annotations to be used */}}
 {{- define "default.annotations" -}}
@@ -72,5 +68,5 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{/* Compute the database url string */}}
 {{/* TODO: remove this dev only value */}}
 {{- define "default.databaseUrl" -}}
-postgresql://quizapp:quizapp_password@{{.Release.Name }}-postgresql/quizdb
+postgresql://pleeyapp:pleeyapp_password@{{.Release.Name }}-postgresql/pleeydb
 {{- end }}

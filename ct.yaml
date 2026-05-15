@@ -3,8 +3,8 @@ chart-dirs:
   - charts
 charts:
   - charts/application
-  - charts/application/charts/front
-  - charts/application/charts/back
+  - charts/application/charts/frontend
+  - charts/application/charts/backend
 chart-yaml-schema: charts/chart-schema.yaml
 lint-conf: charts/lintconf.yaml
 helm-dependency-extra-args:

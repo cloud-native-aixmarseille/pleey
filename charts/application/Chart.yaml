@@ -24,15 +24,19 @@ version: 0.1.0
 appVersion: "main"
 
 dependencies:
-  - name: front
-    repository: file://charts/front
+  - name: frontend
+    repository: file://charts/frontend
     version: 0.1.0
-    condition: front.enabled
-  - name: back
-    repository: file://charts/back
-    condition: back.enabled
+    condition: frontend.enabled
+  - name: backend
+    repository: file://charts/backend
+    condition: backend.enabled
     version: 0.1.0
   - name: postgresql
     version: "15.x.x"
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
+  - name: valkey
+    version: "0.9.x"
+    repository: https://valkey.io/valkey-helm/
+    condition: valkey.enabled

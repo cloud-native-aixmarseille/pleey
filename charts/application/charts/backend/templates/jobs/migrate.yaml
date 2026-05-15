@@ -2,7 +2,6 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ include "default.fullname" . }}-db-migrate
-  namespace: {{ include "default.namespace" . | quote }}
   annotations:
     {{- include "default.annotations" . | nindent 4 }}
     "helm.sh/hook": post-install,post-upgrade
@@ -30,24 +29,13 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      automountServiceAccountToken: {{ .Values.serviceAccount.automount }}
       serviceAccountName: {{ include "default.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       restartPolicy: Never
       initContainers:
         - name: wait-for-db
-          image: {{ include "default.waitForDbImage" . | quote }}
-          imagePullPolicy: {{ .Values.waitForDb.image.pullPolicy }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          resources:
-            limits:
-              cpu: {{ .Values.waitForDb.resources.limits.cpu | quote }}
-              memory: {{ .Values.waitForDb.resources.limits.memory | quote }}
-            requests:
-              cpu: {{ .Values.waitForDb.resources.requests.cpu | quote }}
-              memory: {{ .Values.waitForDb.resources.requests.memory | quote }}
+          image: busybox
           command:
             - sh
             - -c
@@ -67,30 +55,24 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ include "default.fullname" . }}
+            - secretRef:
+                name: {{ include "default.fullname" . }}
           command:
             - sh
             - -c
             - |
-                export DATABASE_URL="$(cat /etc/pleey/secrets/DATABASE_URL)"
-                export JWT_SECRET="$(cat /etc/pleey/secrets/JWT_SECRET)"
+                set -x
+                echo "DATABASE_URL=${DATABASE_URL}"
                 /usr/src/app/node_modules/.bin/prisma migrate deploy
-          resources:
-            limits:
-              cpu: {{ .Values.resources.limits.cpu | quote }}
-              memory: {{ .Values.resources.limits.memory | quote }}
-            requests:
-              cpu: {{ .Values.resources.requests.cpu | quote }}
-              memory: {{ .Values.resources.requests.memory | quote }}
+          {{- if .Values.resources }}
+          resources: {{- include "common.tplvalues.render" (dict "value" .Values.resources "context" $) | nindent 12 }}
+          {{- else if ne .Values.resourcesPreset "none" }}
+          resources: {{- include "common.resources.preset" (dict "type" .Values.resourcesPreset) | nindent 12 }}
+          {{- end }}
           volumeMounts:
-            - name: app-secrets
-              mountPath: /etc/pleey/secrets
-              readOnly: true
             - name: tmp
               mountPath: /tmp
       volumes:
-        - name: app-secrets
-          secret:
-            secretName: {{ include "default.fullname" . }}
         - name: tmp
           emptyDir: {}
       {{- with .Values.nodeSelector }}
