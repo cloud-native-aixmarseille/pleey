@@ -17,7 +17,7 @@ permissions: {}
 
 jobs:
   linter:
-    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@b17226e57c8ef31f860719766656ebb6df017218 # v0.31.6
+    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@ff815105ba418bd0203868c8b52e0e02fea3f1a4 # v0.35.2
     permissions:
       actions: read
       contents: read
@@ -35,7 +35,7 @@ jobs:
         VALIDATE_TYPESCRIPT_ES=false
 
   build:
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@a0bab9151cc074af9f6c8204ab42a48d2d570379 # v0.30.6
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@260358ba1fd405c57bc669823d89c625971a3431 # v0.34.2
     permissions:
       contents: read
       packages: write
@@ -72,7 +72,7 @@ jobs:
     strategy:
       matrix:
         service: ["backend", "frontend"]
-    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@c9d9d041ba4ef35695ee469c4782fa6a8bbebbcc # v0.21.2
+    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@6b74a8f070140f5c120f78026d58e4c00d1b1e37 # v0.24.2
     needs: build
     permissions:
       contents: read
@@ -98,7 +98,7 @@ jobs:
       container-password: ${{ secrets.GITHUB_TOKEN }}
 
   build-prod:
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@a0bab9151cc074af9f6c8204ab42a48d2d570379 # v0.30.6
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@260358ba1fd405c57bc669823d89c625971a3431 # v0.34.2
     needs: continuous-integration
     permissions:
       contents: read
@@ -140,162 +140,24 @@ jobs:
     permissions:
       contents: read
       packages: read
-    env:
-      KIND_CLUSTER_NAME: chart-testing
-      CNPG_OPERATOR_IMAGE: ghcr.io/cloudnative-pg/cloudnative-pg:1.29.1
-      CNPG_POSTGRES_IMAGE: ghcr.io/cloudnative-pg/postgresql:17.6
-      VALKEY_IMAGE: docker.io/valkey/valkey:9.0.2
     steps:
-      - name: Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - name: Test helm chart (umbrella)
+        uses: hoverkraft-tech/ci-github-container/actions/helm/test-chart@260358ba1fd405c57bc669823d89c625971a3431 # v0.34.2
         with:
-          fetch-depth: 0
-
-      - name: Set up Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: "3.x"
-
-      - name: Set up chart-testing
-        uses: helm/chart-testing-action@6ec842c01de15ebb84c8627d2744a0c2f2755c9f # v2.8.0
-
-      - name: Add Helm repositories
-        shell: bash
-        run: |
-          helm repo add cloudnative-pg https://cloudnative-pg.github.io/charts
-          helm repo add valkey https://valkey.io/valkey-helm/
-          helm repo update
-
-      - name: Build subchart dependencies
-        # The backend subchart's remote dependencies (cloudnative-pg, valkey)
-        # are *.tgz files excluded by .gitignore, so a fresh checkout has an
-        # empty backend/charts/ directory. `helm dep update` on the umbrella
-        # does NOT recursively fetch sub-deps, so we must build them ourselves
-        # before ct lint/install — otherwise helm install would silently
-        # render only the backend + frontend deployments and block forever
-        # waiting on the database secret produced by the missing CNPG operator.
-        shell: bash
-        run: |
-          helm dependency build charts/application/charts/backend
-
-      - name: Compute target branch and namespace
-        id: ct-vars
-        shell: bash
-        run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            TARGET_BRANCH="${{ github.event.pull_request.base.ref }}"
-          else
-            TARGET_BRANCH="${{ github.event.repository.default_branch }}"
-          fi
-          echo "target-branch=$TARGET_BRANCH" >> "$GITHUB_OUTPUT"
-          NAMESPACE="test-chart-${{ github.run_id }}-$(uuidgen)"
-          echo "namespace=$NAMESPACE" >> "$GITHUB_OUTPUT"
-
-      - name: Chart lint
-        shell: bash
-        run: |
-          ct lint --target-branch '${{ steps.ct-vars.outputs.target-branch }}' --config ct.yaml
-
-      - name: Pre-pull third-party images
-        shell: bash
-        run: |
-          docker pull "$CNPG_OPERATOR_IMAGE"
-          docker pull "$CNPG_POSTGRES_IMAGE"
-          docker pull "$VALKEY_IMAGE"
-
-      - name: Create Kind cluster
-        uses: helm/kind-action@92086f6be054225fa813e0a4b13787fc9088faab # v1.13.0
-        with:
-          cluster_name: ${{ env.KIND_CLUSTER_NAME }}
-
-      - name: Load third-party images into Kind
-        shell: bash
-        run: |
-          kind load docker-image --name "$KIND_CLUSTER_NAME" \
-            "$CNPG_OPERATOR_IMAGE" \
-            "$CNPG_POSTGRES_IMAGE" \
-            "$VALKEY_IMAGE"
-
-      - name: Create test namespace and registry secret
-        shell: bash
-        env:
-          NAMESPACE: ${{ steps.ct-vars.outputs.namespace }}
-          DOCKER_REGISTRY: ${{ vars.OCI_REGISTRY }}
-          DOCKER_USERNAME: ${{ github.repository_owner }}
-          DOCKER_PASSWORD: ${{ github.token }}
-        run: |
-          kubectl create namespace "$NAMESPACE"
-          kubectl create secret docker-registry regcred \
-            --namespace="$NAMESPACE" \
-            --docker-server="$DOCKER_REGISTRY" \
-            --docker-username="$DOCKER_USERNAME" \
-            --docker-password="$DOCKER_PASSWORD"
-
-      - name: Chart install (ct)
-        shell: bash
-        env:
-          HELM_EXPERIMENTAL_OCI: "true"
-          NAMESPACE: ${{ steps.ct-vars.outputs.namespace }}
-          BACKEND_REGISTRY: ${{ fromJSON(needs.build-prod.outputs.built-images).backend.registry }}
-          BACKEND_REPOSITORY: ${{ fromJSON(needs.build-prod.outputs.built-images).backend.repository }}
-          BACKEND_TAG: ${{ fromJSON(needs.build-prod.outputs.built-images).backend.tags[0] }}
-          BACKEND_DIGEST: ${{ fromJSON(needs.build-prod.outputs.built-images).backend.digest }}
-          FRONTEND_REGISTRY: ${{ fromJSON(needs.build-prod.outputs.built-images).frontend.registry }}
-          FRONTEND_REPOSITORY: ${{ fromJSON(needs.build-prod.outputs.built-images).frontend.repository }}
-          FRONTEND_TAG: ${{ fromJSON(needs.build-prod.outputs.built-images).frontend.tags[0] }}
-          FRONTEND_DIGEST: ${{ fromJSON(needs.build-prod.outputs.built-images).frontend.digest }}
-        run: |
-          HELM_SET_ARGS="namespace=$NAMESPACE"
-          HELM_SET_ARGS="$HELM_SET_ARGS,backend.image.registry=$BACKEND_REGISTRY"
-          HELM_SET_ARGS="$HELM_SET_ARGS,backend.image.repository=$BACKEND_REPOSITORY"
-          HELM_SET_ARGS="$HELM_SET_ARGS,backend.image.tag=$BACKEND_TAG"
-          HELM_SET_ARGS="$HELM_SET_ARGS,backend.image.digest=$BACKEND_DIGEST"
-          HELM_SET_ARGS="$HELM_SET_ARGS,backend.cloudnativepgOperator.enabled=true"
-          HELM_SET_ARGS="$HELM_SET_ARGS,backend.cloudnative-pg.image.pullPolicy=IfNotPresent"
-          HELM_SET_ARGS="$HELM_SET_ARGS,backend.valkey.image.pullPolicy=IfNotPresent"
-          HELM_SET_ARGS="$HELM_SET_ARGS,frontend.image.registry=$FRONTEND_REGISTRY"
-          HELM_SET_ARGS="$HELM_SET_ARGS,frontend.image.repository=$FRONTEND_REPOSITORY"
-          HELM_SET_ARGS="$HELM_SET_ARGS,frontend.image.tag=$FRONTEND_TAG"
-          HELM_SET_ARGS="$HELM_SET_ARGS,frontend.image.digest=$FRONTEND_DIGEST"
-          HELM_SET_ARGS="$HELM_SET_ARGS,global.imagePullSecrets[0].name=regcred"
-
-          ct install \
-            --target-branch '${{ steps.ct-vars.outputs.target-branch }}' \
-            --config ct.yaml \
-            --namespace "$NAMESPACE" \
-            --helm-extra-set-args "--set=$HELM_SET_ARGS"
-
-      - name: Dump cluster state on failure
-        if: failure()
-        shell: bash
-        env:
-          NAMESPACE: ${{ steps.ct-vars.outputs.namespace }}
-        run: |
-          set +e
-          echo "::group::helm list -A"
-          helm list -A
-          echo "::endgroup::"
-          echo "::group::kubectl get all -A"
-          kubectl get all -A -o wide
-          echo "::endgroup::"
-          echo "::group::kubectl get events -A (sorted)"
-          kubectl get events -A --sort-by=.lastTimestamp
-          echo "::endgroup::"
-          echo "::group::kubectl describe deployments -n $NAMESPACE"
-          kubectl describe deployments -n "$NAMESPACE"
-          echo "::endgroup::"
-          echo "::group::kubectl describe pods -n $NAMESPACE"
-          kubectl describe pods -n "$NAMESPACE"
-          echo "::endgroup::"
-          echo "::group::kubectl get clusters.postgresql.cnpg.io -A -o yaml"
-          kubectl get clusters.postgresql.cnpg.io -A -o yaml
-          echo "::endgroup::"
-          echo "::group::kubectl get secrets -n $NAMESPACE"
-          kubectl get secrets -n "$NAMESPACE"
-          echo "::endgroup::"
-          echo "::group::CNPG operator logs"
-          kubectl logs -n "$NAMESPACE" -l app.kubernetes.io/name=cloudnative-pg --tail=200 || true
-          echo "::endgroup::"
-          echo "::group::Backend pod logs"
-          kubectl logs -n "$NAMESPACE" -l app.kubernetes.io/name=backend --all-containers --tail=200 || true
-          echo "::endgroup::"
+          helm-repositories: |
+            cloudnative-pg https://cloudnative-pg.github.io/charts
+            valkey https://valkey.io/valkey-helm/
+          helm-set: |
+            backend.image.registry=${{ fromJSON(needs.build-prod.outputs.built-images).backend.registry }}
+            backend.image.repository=${{ fromJSON(needs.build-prod.outputs.built-images).backend.repository }}
+            backend.image.tag=${{ fromJSON(needs.build-prod.outputs.built-images).backend.tags[0] }}
+            backend.image.digest=${{ fromJSON(needs.build-prod.outputs.built-images).backend.digest }}
+            backend.cloudnativepgOperator.enabled=true
+            frontend.image.registry=${{ fromJSON(needs.build-prod.outputs.built-images).frontend.registry }}
+            frontend.image.repository=${{ fromJSON(needs.build-prod.outputs.built-images).frontend.repository }}
+            frontend.image.tag=${{ fromJSON(needs.build-prod.outputs.built-images).frontend.tags[0] }}
+            frontend.image.digest=${{ fromJSON(needs.build-prod.outputs.built-images).frontend.digest }}
+            global.imagePullSecrets[0].name=regcred
+          oci-registry: ${{ vars.OCI_REGISTRY }}
+          oci-registry-username: ${{ github.repository_owner }}
+          oci-registry-password: ${{ github.token }}
