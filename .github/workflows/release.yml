@@ -3,28 +3,33 @@ name: "• 🚀 Release"
 on:
   workflow_dispatch:
 
+concurrency:
+  group: release-${{ github.repository }}-${{ github.ref_name }}
+  cancel-in-progress: false
+
 permissions: {}
 
 jobs:
-  draft-release:
+  plan-release:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
       pull-requests: read
     outputs:
-      tag: ${{ steps.draft-release.outputs.tag }}
+      tag: ${{ steps.plan-release.outputs.tag }}
+      name: ${{ steps.plan-release.outputs.name }}
+      release-sha: ${{ steps.plan-release.outputs.release-sha }}
     steps:
-      - id: draft-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/create@2c8e24b416226074aea1e240468f043edefc5760 # 0.23.2
+      - id: plan-release
+        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@6a2562a3f4409f39c7fab100636a90430ee0a8cf # 0.24.0
         with:
-          prerelease: false
-          publish: false
+          github-token: ${{ github.token }}
 
   ci:
-    needs: [draft-release]
+    needs: [plan-release]
     uses: ./.github/workflows/__shared-ci.yml
     with:
-      production-image-tag: ${{ needs.draft-release.outputs.tag }}
+      production-image-tag: ${{ needs.plan-release.outputs.tag }}
     permissions:
       actions: read
       checks: write
@@ -37,66 +42,196 @@ jobs:
       statuses: write
     secrets: inherit
 
-  release-chart:
-    needs: [draft-release, ci]
+  prepare-release-files:
+    needs: [plan-release, ci]
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
+    outputs:
+      release-sha: ${{ steps.final-release-sha.outputs.release-sha }}
     steps:
+      - name: Checkout planned release source
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          ref: ${{ needs.plan-release.outputs.release-sha }}
+          fetch-depth: 0
+
       - name: Update chart image defaults
-        uses: hoverkraft-tech/ci-github-container/actions/helm/update-chart-values@644672e12212c7c5e94c187d2d74526edd09a970 # main
+        uses: hoverkraft-tech/ci-github-container/actions/helm/update-chart-values@260358ba1fd405c57bc669823d89c625971a3431 # 0.34.2
         with:
           path: charts/application
           values: >-
             [
               {
-                "file":"charts/application/charts/backend/values.yaml",
+                "file":"charts/backend/values.yaml",
                 "path":".image.tag",
                 "value":"${{ fromJSON(needs.ci.outputs.built-prod-images).backend.tags[0] }}"},
               {
-                "file":"charts/application/charts/backend/values.yaml",
+                "file":"charts/backend/values.yaml",
                 "path":".image.digest",
                 "value":"${{ fromJSON(needs.ci.outputs.built-prod-images).backend.digest }}"},
               {
-                "file":"charts/application/charts/frontend/values.yaml",
+                "file":"charts/frontend/values.yaml",
                 "path":".image.tag",
                 "value":"${{ fromJSON(needs.ci.outputs.built-prod-images).frontend.tags[0] }}"},
               {
-                "file":"charts/application/charts/frontend/values.yaml",
+                "file":"charts/frontend/values.yaml",
                 "path":".image.digest",
                 "value":"${{ fromJSON(needs.ci.outputs.built-prod-images).frontend.digest }}"}
             ]
 
+      - name: Update chart release versions
+        uses: hoverkraft-tech/ci-github-container/actions/helm/update-chart-values@260358ba1fd405c57bc669823d89c625971a3431 # 0.34.2
+        with:
+          path: charts/application
+          values: >-
+            [
+              {
+                "file":"Chart.yaml",
+                "path":".version",
+                "value":"${{ needs.plan-release.outputs.tag }}"},
+              {
+                "file":"Chart.yaml",
+                "path":".appVersion",
+                "value":"${{ needs.plan-release.outputs.tag }}"},
+              {
+                "file":"Chart.yaml",
+                "path":"(.dependencies[] | select(.repository == \"file://charts/frontend\").version)",
+                "value":"${{ needs.plan-release.outputs.tag }}"},
+              {
+                "file":"Chart.yaml",
+                "path":"(.dependencies[] | select(.repository == \"file://charts/backend\").version)",
+                "value":"${{ needs.plan-release.outputs.tag }}"},
+              {
+                "file":"charts/backend/Chart.yaml",
+                "path":".version",
+                "value":"${{ needs.plan-release.outputs.tag }}"},
+              {
+                "file":"charts/backend/Chart.yaml",
+                "path":".appVersion",
+                "value":"${{ needs.plan-release.outputs.tag }}"},
+              {
+                "file":"charts/frontend/Chart.yaml",
+                "path":".version",
+                "value":"${{ needs.plan-release.outputs.tag }}"},
+              {
+                "file":"charts/frontend/Chart.yaml",
+                "path":".appVersion",
+                "value":"${{ needs.plan-release.outputs.tag }}"}
+            ]
+
+      - name: Set up Helm
+        uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5.0.0
+
+      - name: Refresh umbrella Chart.lock
+        shell: bash
+        run: |
+          helm dependency update charts/application
+
       - name: Regenerate Helm chart documentation
-        uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@2b647ed6f11d50cb6beb6d56333e68ba2c804826 # 0.33.1
+        uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@260358ba1fd405c57bc669823d89c625971a3431 # 0.34.2
         with:
           working-directory: ./charts
 
+      - name: Detect prepared changes
+        id: detect-changes
+        shell: bash
+        run: |
+          if git diff --quiet --exit-code; then
+            echo "has-changes=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has-changes=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create and merge release PR
+        id: create-and-merge-pr
+        if: steps.detect-changes.outputs.has-changes == 'true'
+        uses: hoverkraft-tech/ci-github-common/actions/create-and-merge-pull-request@ff815105ba418bd0203868c8b52e0e02fea3f1a4 # 0.35.2
+        with:
+          github-token: ${{ github.token }}
+          branch: release/prepare-${{ needs.plan-release.outputs.tag }}
+          title: Prepare release files for ${{ needs.plan-release.outputs.tag }}
+          body: |
+            Automated release preparation for `${{ needs.plan-release.outputs.tag }}`.
+          commit-message: "chore(release): prepare ${{ needs.plan-release.outputs.tag }}"
+
+      - name: Select final release SHA
+        id: final-release-sha
+        shell: bash
+        run: |
+          if [[ "${{ steps.detect-changes.outputs.has-changes }}" == "true" ]]; then
+            echo "release-sha=${{ steps.create-and-merge-pr.outputs.merged-sha }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "release-sha=${{ needs.plan-release.outputs.release-sha }}" >> "$GITHUB_OUTPUT"
+          fi
+
+  create-git-tag:
+    needs: [plan-release, prepare-release-files]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      tag-sha: ${{ steps.create-tag.outputs.tag-sha }}
+    steps:
+      - id: create-tag
+        uses: hoverkraft-tech/ci-github-publish/actions/release/create-tag@6a2562a3f4409f39c7fab100636a90430ee0a8cf # 0.24.0
+        with:
+          release-sha: ${{ needs.prepare-release-files.outputs.release-sha }}
+          tag: ${{ needs.plan-release.outputs.tag }}
+          message: ${{ needs.plan-release.outputs.name }}
+          github-token: ${{ github.token }}
+
+  publish-release-artifacts:
+    needs: [plan-release, ci, prepare-release-files, create-git-tag]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
       - id: release-chart
-        uses: hoverkraft-tech/ci-github-container/actions/helm/release-chart@2b647ed6f11d50cb6beb6d56333e68ba2c804826 # 0.33.1
+        uses: hoverkraft-tech/ci-github-container/actions/helm/release-chart@260358ba1fd405c57bc669823d89c625971a3431 # 0.34.2
         with:
           oci-registry: ${{ vars.OCI_REGISTRY }}
           oci-registry-username: ${{ github.repository_owner }}
           oci-registry-password: ${{ github.token }}
           chart: application
           path: charts/application
+          values: >-
+            [
+              {
+                "file":"charts/backend/values.yaml",
+                "path": ".image.tag",
+                "value":"${{ fromJSON(needs.ci.outputs.built-prod-images).backend.tags[0] }}"},
+              {
+                "file":"charts/backend/values.yaml",
+                "path": ".image.digest",
+                "value":"${{ fromJSON(needs.ci.outputs.built-prod-images).backend.digest }}"},
+              {
+                "file":"charts/frontend/values.yaml",
+                "path": ".image.tag",
+                "value":"${{ fromJSON(needs.ci.outputs.built-prod-images).frontend.tags[0] }}"},
+              {
+                "file":"charts/frontend/values.yaml",
+                "path": ".image.digest",
+                "value":"${{ fromJSON(needs.ci.outputs.built-prod-images).frontend.digest }}"}
+            ]
           helm-repositories: |
             cloudnative-pg https://cloudnative-pg.github.io/charts
             valkey https://valkey.io/valkey-helm/
-          tag: ${{ needs.draft-release.outputs.tag }}
+          tag: ${{ needs.plan-release.outputs.tag }}
 
-      - name: Commit chart image update
-        uses: stefanzweifel/git-auto-commit-action@04702edda442b2e678b25b537cec683a1493fcb9 # v7.1.0
-        with:
-          commit_message: "chore(charts): publish ${RELEASE_TAG} images in chart defaults [skip ci]"
-          file_pattern: charts/application
-
-  release:
-    needs: [draft-release, release-chart]
+  create-release:
+    needs: [plan-release, prepare-release-files, publish-release-artifacts]
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: read
     steps:
-      - id: publish-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/create@2c8e24b416226074aea1e240468f043edefc5760 # 0.23.2
+      - id: create-release
+        uses: hoverkraft-tech/ci-github-publish/actions/release/create@6a2562a3f4409f39c7fab100636a90430ee0a8cf # 0.24.0
+        with:
+          tag: ${{ needs.plan-release.outputs.tag }}
+          name: ${{ needs.plan-release.outputs.name }}
+          target-sha: ${{ needs.prepare-release-files.outputs.release-sha }}
+          github-token: ${{ github.token }}
