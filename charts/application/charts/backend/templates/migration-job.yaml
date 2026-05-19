@@ -27,8 +27,7 @@ spec:
       {{- include "pleey.backend.imagePullSecrets" . | nindent 6 }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- $databaseWaitHost := include "pleey.backend.databaseWaitHost" . }}
-      {{- if and .Values.waitForDatabase.enabled $databaseWaitHost }}
+      {{- if .Values.waitForDatabase.enabled }}
       initContainers:
         - name: wait-for-database
           image: {{ include "pleey.backend.waitForDatabaseImage" . | quote }}
@@ -39,12 +38,16 @@ spec:
             - sh
             - -ec
             - |
-              until nc -z {{ $databaseWaitHost }} {{ include "pleey.backend.databaseWaitPort" . }}; do
-                echo "Waiting for PostgreSQL at {{ $databaseWaitHost }}..."
+              until [ -s {{ include "pleey.backend.databaseSecretFile" . | quote }} ]; do
+                echo "Waiting for database secret at {{ include "pleey.backend.databaseSecretFile" . }}..."
                 sleep 2
               done
           resources:
             {{- toYaml .Values.waitForDatabase.resources | nindent 12 }}
+          volumeMounts:
+            - name: database-secret
+              mountPath: {{ include "pleey.backend.databaseSecretMountPath" . }}
+              readOnly: true
       {{- end }}
       containers:
         - name: migrate
@@ -54,10 +57,6 @@ spec:
             - sh
             - -ec
             - |
-              until [ -f {{ include "pleey.backend.databaseSecretFile" . | quote }} ]; do
-                echo "Waiting for database secret at {{ include "pleey.backend.databaseSecretFile" . }}..."
-                sleep 2
-              done
               export DATABASE_URL="$(cat {{ include "pleey.backend.databaseSecretFile" . }})"
               exec /usr/src/app/node_modules/.bin/prisma migrate deploy
           resources:
