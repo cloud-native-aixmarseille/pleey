@@ -163,7 +163,20 @@ jobs:
         shell: bash
         run: |
           helm repo add cloudnative-pg https://cloudnative-pg.github.io/charts
+          helm repo add valkey https://valkey.io/valkey-helm/
           helm repo update
+
+      - name: Build subchart dependencies
+        # The backend subchart's remote dependencies (cloudnative-pg, valkey)
+        # are *.tgz files excluded by .gitignore, so a fresh checkout has an
+        # empty backend/charts/ directory. `helm dep update` on the umbrella
+        # does NOT recursively fetch sub-deps, so we must build them ourselves
+        # before ct lint/install — otherwise helm install would silently
+        # render only the backend + frontend deployments and block forever
+        # waiting on the database secret produced by the missing CNPG operator.
+        shell: bash
+        run: |
+          helm dependency build charts/application/charts/backend
 
       - name: Compute target branch and namespace
         id: ct-vars
