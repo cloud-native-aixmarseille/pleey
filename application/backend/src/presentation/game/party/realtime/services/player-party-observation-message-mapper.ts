@@ -56,37 +56,50 @@ export class PlayerPartyObservationMessageMapper {
       return observation.context;
     }
 
+    if (observation.context.lifecycle.phase === 'stage') {
+      return observation.context.stage?.actionSubmission
+        ? {
+            ...observation.context,
+            stage: {
+              ...observation.context.stage,
+              actionSubmission: {
+                ...observation.context.stage.actionSubmission,
+                currentPlayer: {
+                  selectedActionId: currentPlayerActionState.state.selectedActionId,
+                  status: currentPlayerActionState.state.status,
+                },
+              },
+            },
+          }
+        : observation.context;
+    }
+
+    if (
+      observation.context.lifecycle.phase !== 'result' &&
+      observation.context.lifecycle.phase !== 'ended'
+    ) {
+      return observation.context;
+    }
+
     const currentPlayerResultAction = observation.context.result?.current?.actions.find(
       (action) => action.id === currentPlayerActionState.state.selectedActionId,
     );
 
-    return {
-      ...observation.context,
-      result: observation.context.result
-        ? {
+    return observation.context.result
+      ? {
+          ...observation.context,
+          result: {
             ...observation.context.result,
             currentPlayer: currentPlayerResultAction
               ? {
-                  earnedPoints: currentPlayerResultAction.earnedPoints,
+                  earnedPoints: currentPlayerActionState.state.earnedPoints,
                   isCorrect: currentPlayerResultAction.isCorrect,
                   selectedActionId: currentPlayerActionState.state.selectedActionId,
                 }
               : null,
-          }
-        : observation.context.result,
-      stage: observation.context.stage?.actionSubmission
-        ? {
-            ...observation.context.stage,
-            actionSubmission: {
-              ...observation.context.stage.actionSubmission,
-              currentPlayer: {
-                selectedActionId: currentPlayerActionState.state.selectedActionId,
-                status: currentPlayerActionState.state.status,
-              },
-            },
-          }
-        : observation.context.stage,
-    };
+          },
+        }
+      : observation.context;
   }
 
   private areSamePlayerIdentity(left: PartyPlayerIdentity, right: PartyPlayerIdentity): boolean {

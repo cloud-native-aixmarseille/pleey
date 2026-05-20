@@ -15,12 +15,42 @@ const PARTY_RUNTIME_ACTION_SUBMISSION_STATUS = {
 type PartyRuntimeActionSubmissionStatus =
   (typeof PARTY_RUNTIME_ACTION_SUBMISSION_STATUS)[keyof typeof PARTY_RUNTIME_ACTION_SUBMISSION_STATUS];
 
-export interface PartyRuntimeLifecycleContext {
-  readonly phase: PartyRuntimePhase;
-  readonly stageId: PartyStageId | null;
-  readonly stagePosition: number | null;
+interface PartyRuntimeBaseLifecycleContext {
+  readonly stageEndsAtEpochMs: number | null;
+  readonly stageRemainingDurationMs: number | null;
+  readonly stageTimeLimitSeconds: number | null;
   readonly totalStages: number;
 }
+
+interface PartyRuntimeLobbyLifecycleContext extends PartyRuntimeBaseLifecycleContext {
+  readonly phase: PartyRuntimePhase.LOBBY;
+  readonly stageId: null;
+  readonly stagePosition: null;
+}
+
+interface PartyRuntimeStageLifecycleContext extends PartyRuntimeBaseLifecycleContext {
+  readonly phase: PartyRuntimePhase.STAGE;
+  readonly stageId: PartyStageId;
+  readonly stagePosition: number;
+}
+
+interface PartyRuntimeResultLifecycleContext extends PartyRuntimeBaseLifecycleContext {
+  readonly phase: PartyRuntimePhase.RESULT;
+  readonly stageId: PartyStageId;
+  readonly stagePosition: number;
+}
+
+interface PartyRuntimeEndedLifecycleContext extends PartyRuntimeBaseLifecycleContext {
+  readonly phase: PartyRuntimePhase.ENDED;
+  readonly stageId: PartyStageId | null;
+  readonly stagePosition: number | null;
+}
+
+export type PartyRuntimeLifecycleContext =
+  | PartyRuntimeLobbyLifecycleContext
+  | PartyRuntimeStageLifecycleContext
+  | PartyRuntimeResultLifecycleContext
+  | PartyRuntimeEndedLifecycleContext;
 
 interface PartyRuntimeStageActionContext {
   readonly id: PartyActionId;
@@ -36,8 +66,6 @@ interface PartyRuntimeResultActionContext extends PartyRuntimeStageActionContext
 
 interface PartyRuntimeCurrentStageContext {
   readonly actions: readonly PartyRuntimeStageActionContext[];
-  readonly stageId: PartyStageId;
-  readonly stagePosition: number;
   readonly text: string;
 }
 
@@ -65,8 +93,6 @@ interface PartyRuntimeStageContext {
 
 interface PartyRuntimeCurrentResultContext {
   readonly actions: readonly PartyRuntimeResultActionContext[];
-  readonly stageId: PartyStageId;
-  readonly stagePosition: number;
   readonly text: string;
 }
 
@@ -75,8 +101,32 @@ interface PartyRuntimeResultContext {
   readonly currentPlayer: PartyRuntimeCurrentPlayerResultContext | null;
 }
 
-export interface PartyRuntimeContext {
-  readonly lifecycle: PartyRuntimeLifecycleContext;
-  readonly stage?: PartyRuntimeStageContext;
-  readonly result?: PartyRuntimeResultContext;
+interface PartyRuntimeLobbyContext {
+  readonly lifecycle: PartyRuntimeLobbyLifecycleContext;
+  readonly result?: never;
+  readonly stage?: never;
 }
+
+interface PartyRuntimeStagePhaseContext {
+  readonly lifecycle: PartyRuntimeStageLifecycleContext;
+  readonly result?: never;
+  readonly stage?: PartyRuntimeStageContext;
+}
+
+interface PartyRuntimeResultPhaseContext {
+  readonly lifecycle: PartyRuntimeResultLifecycleContext;
+  readonly result?: PartyRuntimeResultContext;
+  readonly stage?: never;
+}
+
+interface PartyRuntimeEndedContext {
+  readonly lifecycle: PartyRuntimeEndedLifecycleContext;
+  readonly result?: PartyRuntimeResultContext;
+  readonly stage?: never;
+}
+
+export type PartyRuntimeContext =
+  | PartyRuntimeLobbyContext
+  | PartyRuntimeStagePhaseContext
+  | PartyRuntimeResultPhaseContext
+  | PartyRuntimeEndedContext;

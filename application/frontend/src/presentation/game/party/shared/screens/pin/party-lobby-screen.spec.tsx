@@ -1,5 +1,5 @@
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { PartyLobbyGateway } from '../../../../../../application/game/party/shared/facades/party-lobby.facade';
 import type { PartyHostControlPort } from '../../../../../../domains/game/party/host/ports/party-host-control.port';
 import { HostPartyRuntimeCommand } from '../../../../../../domains/game/party/host/ports/party-host-runtime-controls.port';
@@ -47,6 +47,29 @@ const toActionId = (value: number) => partyActionIdentifier.parse(value);
 const gameIdentifier = new GameIdentifierMockFactory().create();
 const authFixtureFactory = new AuthFixtureFactory();
 const partyFixtureFactory = new PartyFixtureFactory();
+
+type StagePartyRuntimeContext = Extract<
+  NonNullable<PartyObservation['context']>,
+  { lifecycle: { phase: 'stage' } }
+>;
+type ResultPartyRuntimeContext = Extract<
+  NonNullable<PartyObservation['context']>,
+  { lifecycle: { phase: 'result' } }
+>;
+type StagePartyRuntimeContextOverrides = {
+  readonly lifecycle?: Partial<StagePartyRuntimeContext['lifecycle']>;
+  readonly stage?: {
+    readonly actionSubmission?: Partial<StagePartyRuntimeContext['stage']['actionSubmission']>;
+    readonly current?: Partial<StagePartyRuntimeContext['stage']['current']>;
+  };
+};
+type ResultPartyRuntimeContextOverrides = {
+  readonly lifecycle?: Partial<ResultPartyRuntimeContext['lifecycle']>;
+  readonly result?: {
+    readonly current?: Partial<ResultPartyRuntimeContext['result']['current']>;
+    readonly currentPlayer?: ResultPartyRuntimeContext['result']['currentPlayer'];
+  };
+};
 
 type LegacyPartyIdentity =
   | {
@@ -582,12 +605,17 @@ function createManagedParty(overrides: Partial<Party> = {}): Party {
   });
 }
 
-function createActiveStageContext(overrides: Partial<PartyObservation['context']> = {}) {
-  return {
+function createActiveStageContext(
+  overrides: StagePartyRuntimeContextOverrides = {},
+): StagePartyRuntimeContext {
+  const baseContext: StagePartyRuntimeContext = {
     lifecycle: {
       phase: 'stage' as const,
+      stageEndsAtEpochMs: null,
       stageId: toStageId(1),
       stagePosition: 0,
+      stageRemainingDurationMs: null,
+      stageTimeLimitSeconds: null,
       totalStages: 4,
     },
     stage: {
@@ -601,21 +629,40 @@ function createActiveStageContext(overrides: Partial<PartyObservation['context']
           { id: toActionId(1), text: 'Option A' },
           { id: toActionId(2), text: 'Option B' },
         ],
-        stageId: toStageId(1),
-        stagePosition: 0,
         text: 'Which option wins?',
       },
     },
-    ...overrides,
+  };
+
+  return {
+    lifecycle: {
+      ...baseContext.lifecycle,
+      ...overrides.lifecycle,
+    },
+    stage: {
+      actionSubmission: {
+        ...baseContext.stage.actionSubmission,
+        ...overrides.stage?.actionSubmission,
+      },
+      current: {
+        ...baseContext.stage.current,
+        ...overrides.stage?.current,
+      },
+    },
   };
 }
 
-function createRuntimeResultContext(overrides: Partial<PartyObservation['context']> = {}) {
-  return {
+function createRuntimeResultContext(
+  overrides: ResultPartyRuntimeContextOverrides = {},
+): ResultPartyRuntimeContext {
+  const baseContext: ResultPartyRuntimeContext = {
     lifecycle: {
       phase: 'result' as const,
+      stageEndsAtEpochMs: null,
       stageId: toStageId(1),
       stagePosition: 0,
+      stageRemainingDurationMs: null,
+      stageTimeLimitSeconds: null,
       totalStages: 4,
     },
     result: {
@@ -638,8 +685,6 @@ function createRuntimeResultContext(overrides: Partial<PartyObservation['context
             text: 'Option B',
           },
         ],
-        stageId: toStageId(1),
-        stagePosition: 0,
         text: 'Which option wins?',
       },
       currentPlayer: {
@@ -648,7 +693,23 @@ function createRuntimeResultContext(overrides: Partial<PartyObservation['context
         selectedActionId: toActionId(2),
       },
     },
-    ...overrides,
+  };
+
+  return {
+    lifecycle: {
+      ...baseContext.lifecycle,
+      ...overrides.lifecycle,
+    },
+    result: {
+      current: {
+        ...baseContext.result.current,
+        ...overrides.result?.current,
+      },
+      currentPlayer:
+        overrides.result?.currentPlayer === undefined
+          ? baseContext.result.currentPlayer
+          : overrides.result.currentPlayer,
+    },
   };
 }
 
@@ -665,6 +726,10 @@ function renderScreen() {
 }
 
 describe('PartyLobbyScreen', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('renders the host lobby with the share panel, PIN tiles and QR code', async () => {
     mocks.params = { partyId: '9', pin: undefined };
     mocks.authState = {
@@ -1054,8 +1119,6 @@ describe('PartyLobbyScreen', () => {
               { id: toActionId(1), text: 'Option A' },
               { id: toActionId(2), text: 'Option B' },
             ],
-            stageId: toStageId(1),
-            stagePosition: 0,
             text: 'Which option wins?',
           },
         },
@@ -1247,8 +1310,11 @@ describe('PartyLobbyScreen', () => {
       context: createActiveStageContext({
         lifecycle: {
           phase: 'stage',
+          stageEndsAtEpochMs: null,
           stageId: toStageId(2),
           stagePosition: 1,
+          stageRemainingDurationMs: null,
+          stageTimeLimitSeconds: null,
           totalStages: 4,
         },
         stage: {
@@ -1262,8 +1328,6 @@ describe('PartyLobbyScreen', () => {
               { id: toActionId(1), text: 'Option A' },
               { id: toActionId(2), text: 'Option B' },
             ],
-            stageId: toStageId(2),
-            stagePosition: 1,
             text: 'Which option wins?',
           },
         },
@@ -1377,8 +1441,11 @@ describe('PartyLobbyScreen', () => {
         ...createRuntimeResultContext(),
         lifecycle: {
           phase: 'ended',
+          stageEndsAtEpochMs: null,
           stageId: toStageId(1),
           stagePosition: 0,
+          stageRemainingDurationMs: null,
+          stageTimeLimitSeconds: null,
           totalStages: 4,
         },
       },
@@ -1463,8 +1530,6 @@ describe('PartyLobbyScreen', () => {
               { id: toActionId(1), text: 'Option A' },
               { id: toActionId(2), text: 'Option B' },
             ],
-            stageId: toStageId(1),
-            stagePosition: 0,
             text: 'Which option wins?',
           },
         },
@@ -1487,6 +1552,67 @@ describe('PartyLobbyScreen', () => {
       expect(mocks.partyHostControlPort.revealStageResult).toHaveBeenCalledWith({
         partyId: partyIdentifier.parse(9),
       });
+    });
+  });
+
+  it('automatically reveals the stage result once the timer has elapsed', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(1_000);
+    const activeStageContext = createActiveStageContext();
+    const currentStage = activeStageContext.stage.current!;
+
+    mocks.params = { partyId: '9', pin: undefined, stageId: '1' };
+    mocks.authState = {
+      hasRestoredSession: true,
+      isAuthenticated: true,
+      user: authFixtureFactory.createUser({
+        id: 7,
+        username: 'Host',
+        email: 'host@pleey.io',
+        avatarUri: null,
+      }),
+    };
+    mocks.partyManagementState.parties = [createManagedParty()];
+    mocks.observationState.currentParty = createPartyObservation({
+      status: PartyStatus.ACTIVE,
+      context: createActiveStageContext({
+        lifecycle: {
+          ...activeStageContext.lifecycle,
+          stageEndsAtEpochMs: 4_000,
+          stageTimeLimitSeconds: 3,
+        },
+        stage: {
+          actionSubmission: {
+            currentPlayer: null,
+            submittedPlayerCount: 1,
+            totalEligiblePlayerCount: 2,
+          },
+          current: {
+            actions: currentStage.actions,
+            text: currentStage.text,
+          },
+        },
+      }),
+    });
+    mocks.observationState.currentErrorMessage = null;
+    mocks.observationState.currentErrorPartyId = null;
+    mocks.observationState.observePartyById = vi.fn(() => vi.fn());
+
+    renderWithProviders(
+      <PartyLobbyScreen
+        routeKind={PartyLobbyRouteKind.PARTY_ID}
+        screenSection={PartyScreenSection.STAGE}
+        normalizePartyId={(partyId) => (partyId ? partyIdentifier.parse(Number(partyId)) : null)}
+        resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
+      />,
+    );
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(3_000);
+    });
+
+    expect(mocks.partyHostControlPort.revealStageResult).toHaveBeenCalledWith({
+      partyId: partyIdentifier.parse(9),
     });
   });
 
@@ -1538,20 +1664,19 @@ describe('PartyLobbyScreen', () => {
     const finalResultContext = createRuntimeResultContext({
       lifecycle: {
         phase: 'result',
+        stageEndsAtEpochMs: null,
         stageId: toStageId(4),
         stagePosition: 3,
+        stageRemainingDurationMs: null,
+        stageTimeLimitSeconds: null,
         totalStages: 4,
       },
       result: {
         current: {
           ...(createRuntimeResultContext().result?.current ?? {
             actions: [],
-            stageId: toStageId(4),
-            stagePosition: 3,
             text: 'Which option wins?',
           }),
-          stageId: toStageId(4),
-          stagePosition: 3,
         },
         currentPlayer: null,
       },
@@ -1583,8 +1708,11 @@ describe('PartyLobbyScreen', () => {
           ...finalResultContext,
           lifecycle: {
             phase: 'ended',
+            stageEndsAtEpochMs: null,
             stageId: toStageId(4),
             stagePosition: 3,
+            stageRemainingDurationMs: null,
+            stageTimeLimitSeconds: null,
             totalStages: 4,
           },
         },
@@ -1634,8 +1762,11 @@ describe('PartyLobbyScreen', () => {
         ...createRuntimeResultContext(),
         lifecycle: {
           phase: 'ended',
+          stageEndsAtEpochMs: null,
           stageId: toStageId(1),
           stagePosition: 0,
+          stageRemainingDurationMs: null,
+          stageTimeLimitSeconds: null,
           totalStages: 4,
         },
       },
@@ -1697,8 +1828,11 @@ describe('PartyLobbyScreen', () => {
         ...createRuntimeResultContext(),
         lifecycle: {
           phase: 'ended',
+          stageEndsAtEpochMs: null,
           stageId: toStageId(1),
           stagePosition: 0,
+          stageRemainingDurationMs: null,
+          stageTimeLimitSeconds: null,
           totalStages: 4,
         },
       },
@@ -1743,8 +1877,11 @@ describe('PartyLobbyScreen', () => {
         ...createRuntimeResultContext(),
         lifecycle: {
           phase: 'ended',
+          stageEndsAtEpochMs: null,
           stageId: toStageId(1),
           stagePosition: 0,
+          stageRemainingDurationMs: null,
+          stageTimeLimitSeconds: null,
           totalStages: 4,
         },
       },

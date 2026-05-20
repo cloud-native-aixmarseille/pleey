@@ -1,5 +1,5 @@
 import { fireEvent, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { PartyObservation } from '../../../../../../../domains/game/party/shared/entities/party-observation';
 import { PARTY_RUNTIME_PHASE } from '../../../../../../../domains/game/party/shared/entities/party-runtime-context';
 import { PartyStatus } from '../../../../../../../domains/game/party/shared/entities/party-status';
@@ -57,8 +57,11 @@ function createStageParty(): PartyObservation {
   return createPredictionParty({
     lifecycle: {
       phase: PARTY_RUNTIME_PHASE.STAGE,
+      stageEndsAtEpochMs: 11_000,
       stageId,
       stagePosition: 0,
+      stageRemainingDurationMs: 10_000,
+      stageTimeLimitSeconds: 10,
       totalStages: 2,
     },
     stage: {
@@ -72,8 +75,6 @@ function createStageParty(): PartyObservation {
           { id: firstActionId, text: 'Home wins' },
           { id: secondActionId, text: 'Away wins' },
         ],
-        stageId,
-        stagePosition: 0,
         text: 'Who wins the final?',
       },
     },
@@ -84,8 +85,11 @@ function createResultParty(): PartyObservation {
   return createPredictionParty({
     lifecycle: {
       phase: PARTY_RUNTIME_PHASE.RESULT,
+      stageEndsAtEpochMs: null,
       stageId,
       stagePosition: 0,
+      stageRemainingDurationMs: null,
+      stageTimeLimitSeconds: null,
       totalStages: 2,
     },
     result: {
@@ -108,8 +112,6 @@ function createResultParty(): PartyObservation {
             text: 'Away wins',
           },
         ],
-        stageId,
-        stagePosition: 0,
         text: 'Who wins the final?',
       },
       currentPlayer: {
@@ -122,19 +124,30 @@ function createResultParty(): PartyObservation {
 }
 
 describe('prediction runtime panels', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('renders the host prediction stage from party state', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(1_000);
+
     renderWithUiProvider(<PredictionHostStagePanel party={createStageParty()} />);
 
     expect(screen.getByTestId('prediction-host-stage-panel')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Who wins the final?' })).toBeInTheDocument();
     expect(screen.getByText('Home wins')).toBeInTheDocument();
     expect(screen.getByText('Away wins')).toBeInTheDocument();
+    expect(screen.getByText('game.party.route.runtimeTimeLeft:time=00:10')).toBeInTheDocument();
     expect(
       screen.getByText('game.types.prediction.runtime.submissionProgress:submitted=1,total=3'),
     ).toBeInTheDocument();
   });
 
   it('submits the selected prediction action from the player stage', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(1_000);
+
     const onSubmitAction = vi.fn();
 
     renderWithUiProvider(
@@ -150,6 +163,32 @@ describe('prediction runtime panels', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Away wins' }));
 
     expect(onSubmitAction).toHaveBeenCalledWith(secondActionId);
+  });
+
+  it('disables prediction actions when the stage timer has expired', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(11_000);
+
+    const onSubmitAction = vi.fn();
+
+    renderWithUiProvider(
+      <PredictionPlayerStageSurface
+        onLeaveParty={vi.fn()}
+        onSubmitAction={onSubmitAction}
+        party={createStageParty()}
+        pendingActionId={null}
+        playerActionErrorMessage={null}
+      />,
+    );
+
+    const actionButton = screen.getByRole('button', { name: 'Away wins' });
+
+    expect(screen.getAllByText('game.party.route.runtimeTimeUp')).toHaveLength(2);
+    expect(actionButton).toBeDisabled();
+
+    fireEvent.click(actionButton);
+
+    expect(onSubmitAction).not.toHaveBeenCalled();
   });
 
   it('renders the player prediction result reveal from party state', () => {

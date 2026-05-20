@@ -302,8 +302,11 @@ export class PrismaPartyReadModelMapper {
     }
 
     const phase = Reflect.get(lifecycle, 'phase');
+    const stageEndsAtEpochMs = Reflect.get(lifecycle, 'stageEndsAtEpochMs');
+    const stageRemainingDurationMs = Reflect.get(lifecycle, 'stageRemainingDurationMs');
     const stageId = Reflect.get(lifecycle, 'stageId');
     const stagePosition = Reflect.get(lifecycle, 'stagePosition');
+    const stageTimeLimitSeconds = Reflect.get(lifecycle, 'stageTimeLimitSeconds');
     const totalStages = Reflect.get(lifecycle, 'totalStages');
 
     if (!Object.values(PartyRuntimePhase).includes(phase as never)) {
@@ -329,19 +332,96 @@ export class PrismaPartyReadModelMapper {
       return null;
     }
 
+    const normalizedStageEndsAtEpochMs = this.toNullableNonNegativeInteger(
+      stageEndsAtEpochMs ?? null,
+    );
+    const normalizedStageRemainingDurationMs = this.toNullableNonNegativeInteger(
+      stageRemainingDurationMs ?? null,
+    );
+    const normalizedStageTimeLimitSeconds = this.toNullableNonNegativeInteger(
+      stageTimeLimitSeconds ?? null,
+    );
+
+    if (
+      normalizedStageEndsAtEpochMs === undefined ||
+      normalizedStageRemainingDurationMs === undefined ||
+      normalizedStageTimeLimitSeconds === undefined
+    ) {
+      return null;
+    }
+
     const stage = this.toPartyRuntimeStageContext(Reflect.get(value, 'stage'));
     const result = this.toPartyRuntimeResultContext(Reflect.get(value, 'result'));
+    const normalizedTotalStages = Number(totalStages);
+    const normalizedStagePosition = stagePosition === null ? null : Number(stagePosition);
 
-    return {
-      lifecycle: {
-        phase,
-        stageId: normalizedStageId,
-        stagePosition: stagePosition === null ? null : Number(stagePosition),
-        totalStages: Number(totalStages),
-      },
-      ...(stage ? { stage } : {}),
-      ...(result ? { result } : {}),
-    };
+    switch (phase) {
+      case PartyRuntimePhase.LOBBY:
+        if (normalizedStageId !== null || normalizedStagePosition !== null) {
+          return null;
+        }
+
+        return {
+          lifecycle: {
+            phase: PartyRuntimePhase.LOBBY,
+            stageEndsAtEpochMs: normalizedStageEndsAtEpochMs,
+            stageRemainingDurationMs: normalizedStageRemainingDurationMs,
+            stageId: null,
+            stagePosition: null,
+            stageTimeLimitSeconds: normalizedStageTimeLimitSeconds,
+            totalStages: normalizedTotalStages,
+          },
+        };
+      case PartyRuntimePhase.STAGE:
+        if (normalizedStageId === null || normalizedStagePosition === null) {
+          return null;
+        }
+
+        return {
+          lifecycle: {
+            phase: PartyRuntimePhase.STAGE,
+            stageEndsAtEpochMs: normalizedStageEndsAtEpochMs,
+            stageRemainingDurationMs: normalizedStageRemainingDurationMs,
+            stageId: normalizedStageId,
+            stagePosition: normalizedStagePosition,
+            stageTimeLimitSeconds: normalizedStageTimeLimitSeconds,
+            totalStages: normalizedTotalStages,
+          },
+          ...(stage ? { stage } : {}),
+        };
+      case PartyRuntimePhase.RESULT:
+        if (normalizedStageId === null || normalizedStagePosition === null) {
+          return null;
+        }
+
+        return {
+          lifecycle: {
+            phase: PartyRuntimePhase.RESULT,
+            stageEndsAtEpochMs: normalizedStageEndsAtEpochMs,
+            stageRemainingDurationMs: normalizedStageRemainingDurationMs,
+            stageId: normalizedStageId,
+            stagePosition: normalizedStagePosition,
+            stageTimeLimitSeconds: normalizedStageTimeLimitSeconds,
+            totalStages: normalizedTotalStages,
+          },
+          ...(result ? { result } : {}),
+        };
+      case PartyRuntimePhase.ENDED:
+        return {
+          lifecycle: {
+            phase: PartyRuntimePhase.ENDED,
+            stageEndsAtEpochMs: normalizedStageEndsAtEpochMs,
+            stageRemainingDurationMs: normalizedStageRemainingDurationMs,
+            stageId: normalizedStageId,
+            stagePosition: normalizedStagePosition,
+            stageTimeLimitSeconds: normalizedStageTimeLimitSeconds,
+            totalStages: normalizedTotalStages,
+          },
+          ...(result ? { result } : {}),
+        };
+    }
+
+    return null;
   }
 
   toPartyPlayerActionState(value: unknown): PartyPlayerActionState | null {
@@ -352,6 +432,7 @@ export class PrismaPartyReadModelMapper {
     const selectedActionId = Reflect.get(value, 'selectedActionId');
     const stageId = Reflect.get(value, 'stageId');
     const stagePosition = Reflect.get(value, 'stagePosition');
+    const earnedPoints = Reflect.get(value, 'earnedPoints');
     const status = Reflect.get(value, 'status');
 
     const normalizedSelectedActionId = this.partyActionIdentifier.parseOrNull(selectedActionId);
@@ -370,11 +451,19 @@ export class PrismaPartyReadModelMapper {
       return null;
     }
 
+    const normalizedEarnedPoints =
+      this.toNullableNonNegativeInteger(earnedPoints) ?? this.resolveLatestEarnedPoints(value);
+
+    if (normalizedEarnedPoints === undefined || normalizedEarnedPoints === null) {
+      return null;
+    }
+
     if (!Object.values(PARTY_PLAYER_ACTION_STATE_STATUS).includes(status as never)) {
       return null;
     }
 
     return {
+      earnedPoints: normalizedEarnedPoints,
       selectedActionId: normalizedSelectedActionId,
       stageId: normalizedStageId,
       stagePosition: Number(stagePosition),
@@ -515,19 +604,10 @@ export class PrismaPartyReadModelMapper {
       return undefined;
     }
 
-    const stageId = Reflect.get(value, 'stageId');
-    const stagePosition = Reflect.get(value, 'stagePosition');
     const text = Reflect.get(value, 'text');
     const actions = Reflect.get(value, 'actions');
 
-    const normalizedStageId = this.partyStageIdentifier.parseOrNull(stageId);
-
-    if (
-      normalizedStageId === null ||
-      !Number.isInteger(stagePosition) ||
-      Number(stagePosition) < 0 ||
-      typeof text !== 'string'
-    ) {
+    if (typeof text !== 'string') {
       return undefined;
     }
 
@@ -545,10 +625,40 @@ export class PrismaPartyReadModelMapper {
 
     return {
       actions: normalizedActions,
-      stageId: normalizedStageId,
-      stagePosition: Number(stagePosition),
       text,
     };
+  }
+
+  private resolveLatestEarnedPoints(value: unknown): number | null | undefined {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+      return undefined;
+    }
+
+    const stageHistory = Reflect.get(value, 'stageHistory');
+
+    if (!Array.isArray(stageHistory) || stageHistory.length === 0) {
+      return 0;
+    }
+
+    const latestEntry = stageHistory[stageHistory.length - 1];
+
+    if (!latestEntry || typeof latestEntry !== 'object' || Array.isArray(latestEntry)) {
+      return undefined;
+    }
+
+    return this.toNullableNonNegativeInteger(Reflect.get(latestEntry, 'earnedPoints'));
+  }
+
+  private toNullableNonNegativeInteger(value: unknown): number | null | undefined {
+    if (value === null) {
+      return null;
+    }
+
+    if (!Number.isInteger(value) || Number(value) < 0) {
+      return undefined;
+    }
+
+    return Number(value);
   }
 
   private toPartyRuntimeStageActionContext(
@@ -586,19 +696,10 @@ export class PrismaPartyReadModelMapper {
       return undefined;
     }
 
-    const stageId = Reflect.get(value, 'stageId');
-    const stagePosition = Reflect.get(value, 'stagePosition');
     const text = Reflect.get(value, 'text');
     const actions = Reflect.get(value, 'actions');
 
-    const normalizedStageId = this.partyStageIdentifier.parseOrNull(stageId);
-
-    if (
-      normalizedStageId === null ||
-      !Number.isInteger(stagePosition) ||
-      Number(stagePosition) < 0 ||
-      typeof text !== 'string'
-    ) {
+    if (typeof text !== 'string') {
       return undefined;
     }
 
@@ -616,8 +717,6 @@ export class PrismaPartyReadModelMapper {
 
     return {
       actions: normalizedActions,
-      stageId: normalizedStageId,
-      stagePosition: Number(stagePosition),
       text,
     };
   }

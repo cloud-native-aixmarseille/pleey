@@ -199,6 +199,7 @@ export class PrismaPlayerPartyActionRuntimeAdapter extends PlayerPartyActionRunt
           latestHistoryEntry === null
             ? latestState
             : {
+                earnedPoints: latestHistoryEntry.earnedPoints,
                 selectedActionId: latestHistoryEntry.selectedActionId,
                 stageId: latestHistoryEntry.stageId,
                 stagePosition: latestHistoryEntry.stagePosition,
@@ -298,6 +299,7 @@ export class PrismaPlayerPartyActionRuntimeAdapter extends PlayerPartyActionRunt
     }
 
     return {
+      earnedPoints: latestStage.earnedPoints,
       selectedActionId: latestStage.selectedActionId,
       stageHistory: stageHistory.map((entry) => ({
         earnedPoints: entry.earnedPoints,
@@ -322,8 +324,11 @@ export class PrismaPlayerPartyActionRuntimeAdapter extends PlayerPartyActionRunt
     return {
       lifecycle: {
         phase: context.lifecycle.phase,
+        stageEndsAtEpochMs: context.lifecycle.stageEndsAtEpochMs,
+        stageRemainingDurationMs: context.lifecycle.stageRemainingDurationMs,
         stageId: context.lifecycle.stageId,
         stagePosition: context.lifecycle.stagePosition,
+        stageTimeLimitSeconds: context.lifecycle.stageTimeLimitSeconds,
         totalStages: context.lifecycle.totalStages,
       },
     } satisfies Prisma.InputJsonValue;

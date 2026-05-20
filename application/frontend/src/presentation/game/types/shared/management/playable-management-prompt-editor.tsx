@@ -1,4 +1,4 @@
-import { type DragEvent, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { usePresentationTranslation } from '../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../shared/ui/actions/button';
 import { Badge } from '../../../../shared/ui/feedback/badge';
@@ -25,10 +25,8 @@ import {
   type PlayableManagementValidationIssue,
   type PlayableManagementValidationIssueCode,
 } from './playable-item-editor-validator';
-import {
-  type PlayableManagementDropPreview,
-  playableManagementDragPlacement,
-} from './playable-management-drag-placement';
+import { type PlayableManagementDropPreview } from './playable-management-drag-placement';
+import { PlayableManagementOutcomesEditor } from './playable-management-outcomes-editor';
 import {
   MAX_PLAYABLE_OUTCOME_COUNT,
   playableOutcomeEditorPolicy,
@@ -42,29 +40,6 @@ interface PlayableManagementPromptEditorProps {
   readonly onSave: () => void;
   readonly setEditorState: (editorState: PlayableItemEditorState) => void;
 }
-
-const outcomeBlockStyle = (selected: boolean, canReorder: boolean) =>
-  ({
-    background: 'var(--mantine-color-dark-7)',
-    border: selected
-      ? '1px solid var(--mantine-color-brand-5)'
-      : '1px solid var(--mantine-color-dark-4)',
-    borderRadius: '1rem',
-    cursor: canReorder ? 'grab' : 'default',
-    padding: '1rem',
-  }) as const;
-
-const outcomeActionsRowStyle = {
-  alignItems: 'center',
-  display: 'flex',
-  flexWrap: 'wrap',
-  gap: '0.5rem',
-} as const;
-
-const outcomeDropZoneStyle = {
-  display: 'grid',
-  gap: '0.35rem',
-} as const;
 
 const advancedSettingsSummaryStyle = {
   cursor: 'pointer',
@@ -110,17 +85,6 @@ export function PlayableManagementPromptEditor({
     { length: fixedOptions?.length ?? visibleOutcomeCount },
     (_, index) => index,
   );
-
-  const getOutcomeAriaLabel = (label: string) =>
-    `${t(`${translationRoot}.correctOptionLabel`)}: ${label}`;
-
-  const dropIndicatorStyle = {
-    background: 'var(--mantine-color-brand-5)',
-    borderRadius: '999px',
-    boxShadow: '0 0 0 4px color-mix(in srgb, var(--mantine-color-brand-5) 18%, transparent)',
-    height: '0.25rem',
-    margin: '0.15rem 0',
-  } as const;
 
   return (
     <ElevatedPanel padding="lg">
@@ -210,197 +174,21 @@ export function PlayableManagementPromptEditor({
           </SplitWrapRow>
 
           <ContentStack gap="sm">
-            {visibleOutcomeIndexes.map((index) => {
-              const label = fixedOptions
-                ? t(fixedOptions[index]?.labelKey ?? `${translationRoot}.optionLabel`)
-                : t(`${translationRoot}.optionLabel`, { position: String(index + 1) });
-              const isCorrect = editorState.correctPositions.includes(String(index));
-              const isDragging = draggedOutcomeIndex === index;
-              const isDropTarget = dropPreview?.hoveredIndex === index;
-
-              const handleOutcomeDrop = (event: DragEvent<HTMLDivElement>) => {
-                if (!canReorderOutcomes) {
-                  return;
-                }
-
-                event.preventDefault();
-                const fromIndex = Number(event.dataTransfer.getData('text/plain'));
-                const edge = playableManagementDragPlacement.resolveDropEdge(event);
-                const slot = playableManagementDragPlacement.resolveDisplaySlot(index, edge);
-
-                setDraggedOutcomeIndex(null);
-                setDropPreview(null);
-
-                if (Number.isInteger(fromIndex) && fromIndex !== index) {
-                  const toIndex = playableManagementDragPlacement.resolveInsertionIndex(
-                    fromIndex,
-                    slot,
-                  );
-
-                  if (toIndex !== fromIndex) {
-                    setEditorState(
-                      playableOutcomeEditorPolicy.moveOutcome(editorState, fromIndex, toIndex),
-                    );
-                  }
-                }
-              };
-
-              return (
-                <div
-                  draggable={canReorderOutcomes}
-                  key={index}
-                  onDragEnd={() => {
-                    setDraggedOutcomeIndex(null);
-                    setDropPreview(null);
-                  }}
-                  onDragLeave={(event) => {
-                    const relatedTarget = event.relatedTarget;
-
-                    if (
-                      !(relatedTarget instanceof Node) ||
-                      !event.currentTarget.contains(relatedTarget)
-                    ) {
-                      setDropPreview((current) =>
-                        current?.hoveredIndex === index ? null : current,
-                      );
-                    }
-                  }}
-                  onDragOver={(event) => {
-                    if (canReorderOutcomes) {
-                      event.preventDefault();
-                      const edge = playableManagementDragPlacement.resolveDropEdge(event);
-                      setDropPreview({
-                        hoveredIndex: index,
-                        slot: playableManagementDragPlacement.resolveDisplaySlot(index, edge),
-                      });
-                    }
-                  }}
-                  onDragStart={(event) => {
-                    if (canReorderOutcomes) {
-                      setDraggedOutcomeIndex(index);
-                      event.dataTransfer.setData('text/plain', String(index));
-                      event.dataTransfer.effectAllowed = 'move';
-                    }
-                  }}
-                  onDrop={handleOutcomeDrop}
-                  style={outcomeDropZoneStyle}
-                >
-                  {dropPreview?.slot === index ? <div style={dropIndicatorStyle} /> : null}
-                  <div
-                    style={{
-                      ...outcomeBlockStyle(isCorrect, canReorderOutcomes),
-                      background: isDropTarget
-                        ? 'color-mix(in srgb, var(--mantine-color-brand-5) 6%, var(--mantine-color-dark-7))'
-                        : outcomeBlockStyle(isCorrect, canReorderOutcomes).background,
-                      border: isDropTarget
-                        ? '1px solid var(--mantine-color-brand-4)'
-                        : outcomeBlockStyle(isCorrect, canReorderOutcomes).border,
-                      opacity: isDragging ? 0.45 : 1,
-                      transition:
-                        'background 120ms ease, border-color 120ms ease, opacity 120ms ease',
-                    }}
-                  >
-                    <ContentStack gap="sm">
-                      <FieldShell id={`playable-item-option-${index}`} label={label}>
-                        <Input
-                          disabled={fixedOptions !== undefined}
-                          id={`playable-item-option-${index}`}
-                          onChange={(event) =>
-                            setEditorState({
-                              ...editorState,
-                              optionTexts: playableOutcomeEditorPolicy.replaceOption(
-                                editorState.optionTexts,
-                                index,
-                                event.target.value,
-                              ),
-                            })
-                          }
-                          value={fixedOptions ? label : (editorState.optionTexts[index] ?? '')}
-                        />
-                      </FieldShell>
-                      <div style={outcomeActionsRowStyle}>
-                        {canReorderOutcomes ? <AppIcon name="grip-vertical" size={16} /> : null}
-                        <Button
-                          aria-label={getOutcomeAriaLabel(label)}
-                          intent={isCorrect ? 'primary' : 'ghost'}
-                          onClick={() =>
-                            setEditorState(
-                              playableOutcomeEditorPolicy.toggleCorrectPosition(
-                                editorState,
-                                index,
-                                itemKindConfig,
-                              ),
-                            )
-                          }
-                          size="sm"
-                        >
-                          {t(`${translationRoot}.correctOptionLabel`)}
-                        </Button>
-                        {visibleOutcomeCount > 2 && fixedOptions === undefined ? (
-                          <Button
-                            disabled={index === 0}
-                            intent="ghost"
-                            leftSection={<AppIcon name="arrow-up" size={14} />}
-                            onClick={() =>
-                              setEditorState(
-                                playableOutcomeEditorPolicy.moveOutcome(
-                                  editorState,
-                                  index,
-                                  index - 1,
-                                ),
-                              )
-                            }
-                            size="sm"
-                          >
-                            {t(`${translationRoot}.moveItemUpShort`)}
-                          </Button>
-                        ) : null}
-                        {visibleOutcomeCount > 2 && fixedOptions === undefined ? (
-                          <Button
-                            disabled={index >= visibleOutcomeCount - 1}
-                            intent="ghost"
-                            leftSection={<AppIcon name="arrow-down" size={14} />}
-                            onClick={() =>
-                              setEditorState(
-                                playableOutcomeEditorPolicy.moveOutcome(
-                                  editorState,
-                                  index,
-                                  index + 1,
-                                ),
-                              )
-                            }
-                            size="sm"
-                          >
-                            {t(`${translationRoot}.moveItemDownShort`)}
-                          </Button>
-                        ) : null}
-                        {visibleOutcomeCount > 2 && fixedOptions === undefined ? (
-                          <Button
-                            intent="ghost"
-                            leftSection={<AppIcon name="trash" size={14} />}
-                            onClick={() => {
-                              const nextState = playableOutcomeEditorPolicy.removeOutcome(
-                                editorState,
-                                index,
-                                visibleOutcomeCount,
-                              );
-                              setEditorState(nextState.editorState);
-                              setVisibleOutcomeCount(nextState.visibleOutcomeCount);
-                            }}
-                            size="sm"
-                          >
-                            {t(`${translationRoot}.removeOutcomeShort`)}
-                          </Button>
-                        ) : null}
-                      </div>
-                    </ContentStack>
-                  </div>
-                </div>
-              );
-            })}
-            {dropPreview?.slot === visibleOutcomeIndexes.length ? (
-              <div aria-hidden="true" style={dropIndicatorStyle} />
-            ) : null}
+            <PlayableManagementOutcomesEditor
+              canReorderOutcomes={canReorderOutcomes}
+              draggedOutcomeIndex={draggedOutcomeIndex}
+              dropPreview={dropPreview}
+              editorState={editorState}
+              fixedOptions={fixedOptions}
+              itemKindConfig={itemKindConfig}
+              setDraggedOutcomeIndex={setDraggedOutcomeIndex}
+              setDropPreview={setDropPreview}
+              setEditorState={setEditorState}
+              setVisibleOutcomeCount={setVisibleOutcomeCount}
+              translationRoot={translationRoot}
+              visibleOutcomeCount={visibleOutcomeCount}
+              visibleOutcomeIndexes={visibleOutcomeIndexes}
+            />
           </ContentStack>
         </ContentStack>
 

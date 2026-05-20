@@ -8,6 +8,8 @@ export const gamePartyEn = {
         statusTitle: 'Party {{pin}}',
         playerCount: '{{count}} players',
         runtimeStageProgress: 'Stage {{current}} of {{total}}',
+        runtimeTimeLeft: '{{time}} left',
+        runtimeTimeUp: 'Time is up',
         pinAriaLabel: 'Party PIN: {{pin}}',
         playerAvatarAlt: 'Avatar of {{username}}',
         playersLabel: 'Players in the lobby',

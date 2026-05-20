@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { GameErrorCode } from '../../../enums/game-error-code.enum';
 import { PartyStatus } from '../../enums/party-status.enum';
 import {
@@ -13,8 +13,11 @@ function createRuntimeContext(
   return {
     lifecycle: {
       phase: PartyRuntimePhase.STAGE,
+      stageEndsAtEpochMs: 120_000,
+      stageRemainingDurationMs: 20_000,
       stageId: 101,
       stagePosition: 0,
+      stageTimeLimitSeconds: 20,
       totalStages: 3,
       ...overrides,
     },
@@ -24,7 +27,13 @@ function createRuntimeContext(
 describe('HostPartyLifecyclePolicy', () => {
   const policy = new HostPartyLifecyclePolicy();
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('starts a waiting party on the first stage', () => {
+    vi.spyOn(Date, 'now').mockReturnValue(100_000);
+
     const result = policy.start(
       {
         status: PartyStatus.WAITING,
@@ -34,6 +43,7 @@ describe('HostPartyLifecyclePolicy', () => {
         firstStage: {
           id: 101,
           stagePosition: 0,
+          timeLimitSeconds: 20,
         },
         totalStages: 4,
       },
@@ -44,8 +54,11 @@ describe('HostPartyLifecyclePolicy', () => {
       runtime: {
         lifecycle: {
           phase: PartyRuntimePhase.STAGE,
+          stageEndsAtEpochMs: 120_000,
+          stageRemainingDurationMs: 20_000,
           stageId: 101,
           stagePosition: 0,
+          stageTimeLimitSeconds: 20,
           totalStages: 4,
         },
       },
@@ -79,6 +92,8 @@ describe('HostPartyLifecyclePolicy', () => {
   });
 
   it('advances to the next stage after a result', () => {
+    vi.spyOn(Date, 'now').mockReturnValue(200_000);
+
     const result = policy.advanceStage(
       {
         status: PartyStatus.ACTIVE,
@@ -92,6 +107,7 @@ describe('HostPartyLifecyclePolicy', () => {
         nextStage: {
           id: 103,
           stagePosition: 2,
+          timeLimitSeconds: 15,
         },
       },
     );
@@ -101,8 +117,11 @@ describe('HostPartyLifecyclePolicy', () => {
       runtime: {
         lifecycle: {
           phase: PartyRuntimePhase.STAGE,
+          stageEndsAtEpochMs: 215_000,
+          stageRemainingDurationMs: 15_000,
           stageId: 103,
           stagePosition: 2,
+          stageTimeLimitSeconds: 15,
           totalStages: 3,
         },
       },
@@ -149,8 +168,11 @@ describe('HostPartyLifecyclePolicy', () => {
       runtime: {
         lifecycle: {
           phase: PartyRuntimePhase.ENDED,
+          stageEndsAtEpochMs: 120_000,
+          stageRemainingDurationMs: 20_000,
           stageId: 103,
           stagePosition: 2,
+          stageTimeLimitSeconds: 20,
           totalStages: 3,
         },
         result: {
@@ -186,8 +208,11 @@ describe('HostPartyLifecyclePolicy', () => {
       runtime: {
         lifecycle: {
           phase: PartyRuntimePhase.LOBBY,
+          stageEndsAtEpochMs: null,
+          stageRemainingDurationMs: null,
           stageId: null,
           stagePosition: null,
+          stageTimeLimitSeconds: null,
           totalStages: 3,
         },
       },
@@ -195,10 +220,14 @@ describe('HostPartyLifecyclePolicy', () => {
   });
 
   it('pauses and resumes an in-progress party', () => {
+    vi.spyOn(Date, 'now').mockReturnValueOnce(110_000).mockReturnValueOnce(130_000);
+
     const paused = policy.pause({
       status: PartyStatus.ACTIVE,
       runtime: createRuntimeContext({
-        phase: PartyRuntimePhase.RESULT,
+        phase: PartyRuntimePhase.STAGE,
+        stageEndsAtEpochMs: 120_000,
+        stageRemainingDurationMs: 20_000,
         stageId: 102,
         stagePosition: 1,
       }),
@@ -207,7 +236,10 @@ describe('HostPartyLifecyclePolicy', () => {
 
     expect(paused.status).toBe(PartyStatus.PAUSED);
     expect(resumed.status).toBe(PartyStatus.ACTIVE);
-    expect(resumed.runtime).toEqual(paused.runtime);
+    expect(paused.runtime?.lifecycle.stageEndsAtEpochMs).toBeNull();
+    expect(paused.runtime?.lifecycle.stageRemainingDurationMs).toBe(10_000);
+    expect(resumed.runtime?.lifecycle.stageEndsAtEpochMs).toBe(140_000);
+    expect(resumed.runtime?.lifecycle.stageRemainingDurationMs).toBe(10_000);
   });
 
   it('rejects rewinding before the first stage', () => {

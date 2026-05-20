@@ -76,6 +76,7 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
           const selectedActionId = Reflect.get(value, 'selectedActionId');
           const stageId = Reflect.get(value, 'stageId');
           const stagePosition = Reflect.get(value, 'stagePosition');
+          const earnedPoints = Reflect.get(value, 'earnedPoints');
           const status = Reflect.get(value, 'status');
           const normalizedSelectedActionId = partyActionIdentifier.parseOrNull(selectedActionId);
           const normalizedStageId = partyStageIdentifier.parseOrNull(stageId);
@@ -84,12 +85,14 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
             normalizedSelectedActionId === null ||
             normalizedStageId === null ||
             !Number.isInteger(stagePosition) ||
-            typeof status !== 'string'
+            typeof status !== 'string' ||
+            !Number.isInteger(earnedPoints)
           ) {
             return null;
           }
 
           return {
+            earnedPoints: Number(earnedPoints),
             selectedActionId: normalizedSelectedActionId,
             stageId: normalizedStageId,
             stagePosition: Number(stagePosition),
@@ -105,8 +108,11 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
       context: {
         lifecycle: {
           phase: 'stage',
+          stageEndsAtEpochMs: 30_000,
+          stageRemainingDurationMs: 20_000,
           stageId: 202,
           stagePosition: 1,
+          stageTimeLimitSeconds: 20,
           totalStages: 3,
         },
       },
@@ -124,6 +130,7 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
       },
       data: {
         context: {
+          earnedPoints: 1000,
           selectedActionId: 11,
           stageHistory: [
             {
@@ -198,8 +205,11 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
       context: {
         lifecycle: {
           phase: 'lobby',
+          stageEndsAtEpochMs: null,
+          stageRemainingDurationMs: null,
           stageId: null,
           stagePosition: null,
+          stageTimeLimitSeconds: null,
           totalStages: 3,
         },
       },

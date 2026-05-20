@@ -63,6 +63,7 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
                 position: true,
                 points: true,
                 questionText: true,
+                timeLimit: true,
                 answers: {
                   where: {
                     deletedAt: null,
@@ -99,6 +100,7 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
       id: this.partyStageIdentifier.parse(question.id),
       points: question.points,
       stagePosition: question.position,
+      timeLimitSeconds: question.timeLimit,
       text: question.questionText,
     };
   }

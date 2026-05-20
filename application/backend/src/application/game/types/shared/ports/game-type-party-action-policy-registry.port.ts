@@ -12,6 +12,7 @@ export interface EvaluatePartyActionSubmissionCommand {
   readonly gameId: GameId;
   readonly partyId: PartyId;
   readonly playerIdentity: PartyPlayerIdentity;
+  readonly status: PartyStatus;
 }
 
 export interface PartyActionSubmissionResolution {

@@ -33,6 +33,7 @@ Production-ready umbrella chart for the Pleey frontend, backend, PostgreSQL, and
 | gateway.ingress.apiPath                        | string | `"/api"`                                                                    |             |
 | gateway.ingress.className                      | string | `""`                                                                        |             |
 | gateway.ingress.frontendPath                   | string | `"/"`                                                                       |             |
+| gateway.ingress.graphqlPath                    | string | `"/graphql"`                                                                |             |
 | gateway.ingress.host                           | string | `"pleey.localhost"`                                                         |             |
 | gateway.ingress.pathType                       | string | `"Prefix"`                                                                  |             |
 | gateway.ingress.socketPath                     | string | `"/socket.io"`                                                              |             |

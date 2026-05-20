@@ -1,61 +1,31 @@
 import { inject, injectable, unmanaged } from 'inversify';
-import { IDLE_VARIANT_REGISTRY, type IdleVariant } from './lemmings-idle-variant-registry';
+import {
+  applyGreetingPair,
+  BASE_SIZE_PX,
+  canGreetPair,
+  createLemming,
+  DEFAULT_COUNT,
+  ensureIdleSchedulingWhileWalking,
+  FALL_AFTER_EDGE_OVERHANG_PX,
+  FALL_BELOW_VIEW_PADDING_PX,
+  finishGreetingIfNeeded,
+  finishIdleIfNeeded,
+  GRAVITY_PX_PER_S2,
+  isGreetingEligible,
+  type LemmingInternalState,
+  type LemmingSnapshot,
+  landOnSegment,
+  randomBetween,
+  respawnLemming,
+  SEGMENTS_REFRESH_INTERVAL_MS,
+  scheduleSpawn,
+  startEdgeFall,
+  TERMINAL_VELOCITY_PX_PER_S,
+  VIEW_EDGE_MARGIN_PX,
+} from './lemmings-patience-engine-state';
 import { type LemmingSegment, LemmingsPlatformService } from './lemmings-platform-service';
 
-type LemmingMode = 'walk' | 'fall' | 'idle';
-
-type GreetingVariant = 'wave' | 'highfive' | 'emote';
-
-export interface LemmingSnapshot {
-  readonly direction: 1 | -1;
-  readonly emote: string | null;
-  readonly greetUntilMs: number;
-  readonly greetingVariant: GreetingVariant | null;
-  readonly id: string;
-  readonly idleVariant: IdleVariant | null;
-  readonly mode: LemmingMode;
-  readonly rotation: number;
-  readonly x: number;
-  readonly y: number;
-}
-
-interface LemmingInternalState {
-  direction: 1 | -1;
-  emote: string | null;
-  hasSpawned: boolean;
-  id: string;
-  greetCooldownUntilMs: number;
-  greetUntilMs: number;
-  greetingVariant: GreetingVariant | null;
-  ignoredSegmentIndex: number | null;
-  ignoreUntilY: number;
-  idleStartedAtMs: number;
-  idleUntilMs: number;
-  idleVariant: IdleVariant | null;
-  mode: LemmingMode;
-  nextIdleAtMs: number;
-  nextSpawnAtMs: number;
-  rotation: number;
-  segmentIndex: number | null;
-  speedPxPerSecond: number;
-  vy: number;
-  x: number;
-  y: number;
-}
-
-const BASE_SIZE_PX = 18;
-const DEFAULT_COUNT = 8;
-const FALL_AFTER_EDGE_OVERHANG_PX = 6;
-const FALL_BELOW_VIEW_PADDING_PX = 40;
-const GREET_COOLDOWN_MS = 1_400;
-const GREET_DISTANCE_PX = 10;
-const GREET_DURATION_MS = 1_200;
-const GRAVITY_PX_PER_S2 = 520;
-const IDLE_AFTER_WALK_MS = 4_000;
-const SEGMENTS_REFRESH_INTERVAL_MS = 1_200;
-const SPAWN_INTERVAL_MS = 5_000;
-const TERMINAL_VELOCITY_PX_PER_S = 220;
-const VIEW_EDGE_MARGIN_PX = 8;
+export type { LemmingSnapshot } from './lemmings-patience-engine-state';
 
 interface LemmingsRuntime {
   containerRect: DOMRect;
@@ -74,7 +44,7 @@ export class LemmingsPatienceEngine {
     @inject(LemmingsPlatformService)
     private readonly platformService: LemmingsPlatformService,
   ) {
-    this.lemmings = Array.from({ length: count }, (_, index) => this.createLemming(index));
+    this.lemmings = Array.from({ length: count }, (_, index) => createLemming(index));
   }
 
   syncContainer(container: HTMLElement | null) {
@@ -118,12 +88,12 @@ export class LemmingsPatienceEngine {
           continue;
         }
 
-        this.respawnLemming(lemming, runtime.containerRect.width);
+        respawnLemming(lemming, runtime.containerRect.width);
         lemming.hasSpawned = true;
       }
 
       if (lemming.y > maxY) {
-        this.landOnSegment(lemming, groundSegment, 0, nowMs);
+        landOnSegment(lemming, groundSegment, 0, nowMs);
       }
 
       if (lemming.mode === 'fall') {
@@ -204,25 +174,25 @@ export class LemmingsPatienceEngine {
     if (landingIndex !== null) {
       const landingSegment = segments[landingIndex];
       if (landingSegment) {
-        this.landOnSegment(lemming, landingSegment, landingIndex, nowMs);
+        landOnSegment(lemming, landingSegment, landingIndex, nowMs);
 
         if (Math.random() < 0.5) {
           lemming.direction *= -1;
         }
 
-        lemming.nextIdleAtMs = nowMs + this.randomBetween(2_500, 4_500);
+        lemming.nextIdleAtMs = nowMs + randomBetween(2_500, 4_500);
         return;
       }
     }
 
     if (lemming.y >= groundSegment.y) {
-      this.landOnSegment(lemming, groundSegment, 0, nowMs);
+      landOnSegment(lemming, groundSegment, 0, nowMs);
 
       if (Math.random() < 0.5) {
         lemming.direction *= -1;
       }
 
-      lemming.nextIdleAtMs = nowMs + this.randomBetween(2_500, 4_500);
+      lemming.nextIdleAtMs = nowMs + randomBetween(2_500, 4_500);
     }
   }
 
@@ -233,20 +203,14 @@ export class LemmingsPatienceEngine {
     deltaSeconds: number,
     nowMs: number,
   ): boolean {
-    this.finishIdleIfNeeded(lemming, nowMs);
-    this.finishGreetingIfNeeded(lemming, nowMs);
+    finishIdleIfNeeded(lemming, nowMs);
+    finishGreetingIfNeeded(lemming, nowMs);
 
     if (lemming.mode === 'idle') {
-      if (nowMs >= lemming.idleUntilMs) {
-        lemming.mode = 'walk';
-        this.clearIdle(lemming);
-        this.scheduleNextIdleCheck(lemming, nowMs);
-      }
-
       return true;
     }
 
-    if (this.ensureIdleSchedulingWhileWalking(lemming, nowMs)) {
+    if (ensureIdleSchedulingWhileWalking(lemming, nowMs)) {
       return true;
     }
 
@@ -267,17 +231,17 @@ export class LemmingsPatienceEngine {
     lemming.x += lemming.direction * lemming.speedPxPerSecond * deltaSeconds;
 
     if (this.isAtViewEdge(lemming.x, containerRect.width)) {
-      this.scheduleSpawn(lemming, nowMs);
+      scheduleSpawn(lemming, nowMs);
       return false;
     }
 
     if (lemming.direction === 1 && lemming.x >= segment.x2 + FALL_AFTER_EDGE_OVERHANG_PX) {
-      this.startEdgeFall(lemming, currentSegmentIndex, segment);
+      startEdgeFall(lemming, currentSegmentIndex, segment);
       return true;
     }
 
     if (lemming.direction === -1 && lemming.x <= segment.x1 - FALL_AFTER_EDGE_OVERHANG_PX) {
-      this.startEdgeFall(lemming, currentSegmentIndex, segment);
+      startEdgeFall(lemming, currentSegmentIndex, segment);
       return true;
     }
 
@@ -322,291 +286,27 @@ export class LemmingsPatienceEngine {
     return null;
   }
 
-  private createLemming(index: number): LemmingInternalState {
-    return {
-      id: `lemming-${index}`,
-      x: 0,
-      y: 0,
-      vy: 0,
-      mode: 'fall',
-      segmentIndex: null,
-      speedPxPerSecond: 26 + (index % 3) * 6,
-      direction: index % 2 === 0 ? 1 : -1,
-      rotation: 0,
-      nextSpawnAtMs: index * SPAWN_INTERVAL_MS,
-      nextIdleAtMs: 0,
-      idleUntilMs: 0,
-      idleStartedAtMs: 0,
-      idleVariant: null,
-      emote: null,
-      hasSpawned: false,
-      ignoredSegmentIndex: null,
-      ignoreUntilY: 0,
-      greetUntilMs: 0,
-      greetCooldownUntilMs: 0,
-      greetingVariant: null,
-    };
-  }
-
-  private respawnLemming(lemming: LemmingInternalState, width: number) {
-    const usableWidth = Math.max(16, width - (16 + BASE_SIZE_PX));
-    lemming.x = 8 + Math.random() * usableWidth;
-    lemming.y = -BASE_SIZE_PX - Math.random() * 160;
-    lemming.vy = 0;
-    lemming.mode = 'fall';
-    lemming.segmentIndex = null;
-    lemming.nextIdleAtMs = 0;
-    lemming.idleUntilMs = 0;
-    lemming.idleStartedAtMs = 0;
-    lemming.idleVariant = null;
-    lemming.emote = null;
-    lemming.ignoredSegmentIndex = null;
-    lemming.ignoreUntilY = 0;
-    lemming.greetUntilMs = 0;
-    lemming.greetCooldownUntilMs = 0;
-    lemming.greetingVariant = null;
-  }
-
-  private scheduleSpawn(lemming: LemmingInternalState, spawnAtMs: number) {
-    lemming.nextSpawnAtMs = spawnAtMs;
-    lemming.hasSpawned = false;
-    lemming.y = Number.POSITIVE_INFINITY;
-    lemming.vy = 0;
-    lemming.segmentIndex = null;
-    lemming.mode = 'fall';
-    lemming.nextIdleAtMs = 0;
-    lemming.idleUntilMs = 0;
-    lemming.idleStartedAtMs = 0;
-    lemming.idleVariant = null;
-    lemming.emote = null;
-    lemming.ignoredSegmentIndex = null;
-    lemming.ignoreUntilY = 0;
-    lemming.greetUntilMs = 0;
-    lemming.greetCooldownUntilMs = 0;
-    lemming.greetingVariant = null;
-  }
-
-  private landOnSegment(
-    lemming: LemmingInternalState,
-    segment: LemmingSegment,
-    segmentIndex: number,
-    nowMs: number,
-  ) {
-    lemming.mode = 'walk';
-    lemming.segmentIndex = segmentIndex;
-    lemming.y = segment.y;
-    lemming.vy = 0;
-    lemming.rotation = 0;
-    lemming.x = this.clamp(lemming.x, segment.x1, segment.x2);
-    lemming.ignoredSegmentIndex = null;
-    lemming.ignoreUntilY = 0;
-    if (lemming.nextIdleAtMs === 0) {
-      this.scheduleNextIdleCheck(lemming, nowMs);
-    }
-  }
-
-  private startEdgeFall(
-    lemming: LemmingInternalState,
-    currentSegmentIndex: number,
-    segment: LemmingSegment,
-  ) {
-    lemming.mode = 'fall';
-    lemming.vy = 0;
-    lemming.segmentIndex = null;
-    lemming.ignoredSegmentIndex = currentSegmentIndex;
-    lemming.ignoreUntilY = segment.y + 1;
-    this.clearIdle(lemming);
-  }
-
-  private finishGreetingIfNeeded(lemming: LemmingInternalState, nowMs: number) {
-    if (lemming.greetUntilMs === 0 || lemming.greetUntilMs > nowMs) {
-      return;
-    }
-
-    lemming.greetUntilMs = 0;
-    lemming.greetingVariant = null;
-    lemming.emote = null;
-  }
-
-  private finishIdleIfNeeded(lemming: LemmingInternalState, nowMs: number) {
-    if (lemming.idleUntilMs === 0 || lemming.idleUntilMs > nowMs) {
-      return;
-    }
-
-    this.clearIdle(lemming);
-    if (lemming.mode === 'idle') {
-      lemming.mode = 'walk';
-      this.scheduleNextIdleCheck(lemming, nowMs);
-    }
-  }
-
-  private clearIdle(lemming: LemmingInternalState) {
-    lemming.idleUntilMs = 0;
-    lemming.idleStartedAtMs = 0;
-    lemming.idleVariant = null;
-    lemming.emote = lemming.greetUntilMs > 0 ? lemming.emote : null;
-  }
-
-  private scheduleNextIdleCheck(lemming: LemmingInternalState, nowMs: number) {
-    lemming.nextIdleAtMs = nowMs + IDLE_AFTER_WALK_MS;
-  }
-
-  private ensureIdleSchedulingWhileWalking(lemming: LemmingInternalState, nowMs: number): boolean {
-    if (lemming.greetUntilMs > nowMs) {
-      return false;
-    }
-
-    if (lemming.nextIdleAtMs === 0) {
-      this.scheduleNextIdleCheck(lemming, nowMs);
-      return false;
-    }
-
-    if (nowMs < lemming.nextIdleAtMs) {
-      return false;
-    }
-
-    return this.tryStartIdle(lemming, nowMs);
-  }
-
-  private tryStartIdle(lemming: LemmingInternalState, nowMs: number): boolean {
-    if (lemming.mode !== 'walk' || lemming.segmentIndex === null) {
-      return false;
-    }
-
-    if (lemming.idleUntilMs > nowMs || lemming.greetUntilMs > nowMs) {
-      return false;
-    }
-
-    const idleVariant = this.pickIdleVariant(Math.floor(lemming.x), nowMs);
-    lemming.idleVariant = idleVariant.variant;
-    lemming.idleStartedAtMs = nowMs;
-    lemming.mode = 'idle';
-    lemming.nextIdleAtMs = 0;
-    lemming.emote = idleVariant.emote;
-    lemming.idleUntilMs = nowMs + idleVariant.durationMs;
-
-    return true;
-  }
-
-  private pickIdleVariant(
-    seedIndex: number,
-    nowMs: number,
-  ): { durationMs: number; emote: string | null; variant: IdleVariant } {
-    const baseSeed = Math.floor(nowMs) + seedIndex * 271;
-    const configIndex = Math.floor(this.pseudoRandom01(baseSeed) * IDLE_VARIANT_REGISTRY.length);
-    const config = IDLE_VARIANT_REGISTRY[configIndex] ?? IDLE_VARIANT_REGISTRY[0];
-
-    const durationMs = config.durationMs + Math.random() * config.jitterMs;
-    const emote = config.emotes
-      ? (config.emotes[Math.floor(this.pseudoRandom01(baseSeed + 1_337) * config.emotes.length)] ??
-        '!')
-      : null;
-
-    return { variant: config.variant, emote, durationMs };
-  }
-
   private maybeStartGreetings(nowMs: number) {
     for (let firstIndex = 0; firstIndex < this.lemmings.length; firstIndex += 1) {
       const first = this.lemmings[firstIndex];
-      if (!this.isGreetingEligible(first, nowMs)) {
+      if (!isGreetingEligible(first, nowMs)) {
         continue;
       }
 
       for (let secondIndex = firstIndex + 1; secondIndex < this.lemmings.length; secondIndex += 1) {
         const second = this.lemmings[secondIndex];
-        if (!this.isGreetingEligible(second, nowMs)) {
+        if (!isGreetingEligible(second, nowMs)) {
           continue;
         }
 
-        if (!this.canGreetPair(first, second)) {
+        if (!canGreetPair(first, second)) {
           continue;
         }
 
-        this.applyGreetingPair(first, second, firstIndex, secondIndex, nowMs);
+        applyGreetingPair(first, second, firstIndex, secondIndex, nowMs);
         return;
       }
     }
-  }
-
-  private isGreetingEligible(lemming: LemmingInternalState, nowMs: number): boolean {
-    if (!lemming.hasSpawned) {
-      return false;
-    }
-
-    if (lemming.mode !== 'walk' || lemming.segmentIndex === null) {
-      return false;
-    }
-
-    if (lemming.greetUntilMs > nowMs || lemming.greetCooldownUntilMs > nowMs) {
-      return false;
-    }
-
-    return true;
-  }
-
-  private canGreetPair(a: LemmingInternalState, b: LemmingInternalState): boolean {
-    if (a.segmentIndex !== b.segmentIndex) {
-      return false;
-    }
-
-    const dx = b.x - a.x;
-    if (Math.abs(dx) > GREET_DISTANCE_PX) {
-      return false;
-    }
-
-    const aSeesBInFront = dx * a.direction > 0;
-    const bSeesAInFront = -dx * b.direction > 0;
-
-    return aSeesBInFront && bSeesAInFront;
-  }
-
-  private applyGreetingPair(
-    first: LemmingInternalState,
-    second: LemmingInternalState,
-    firstIndex: number,
-    secondIndex: number,
-    nowMs: number,
-  ) {
-    const greeting = this.pickGreetingVariant(firstIndex, secondIndex, nowMs);
-    const greetUntilMs = nowMs + GREET_DURATION_MS;
-    const greetCooldownUntilMs = nowMs + GREET_COOLDOWN_MS;
-
-    first.greetUntilMs = greetUntilMs;
-    second.greetUntilMs = greetUntilMs;
-    first.greetCooldownUntilMs = greetCooldownUntilMs;
-    second.greetCooldownUntilMs = greetCooldownUntilMs;
-    first.greetingVariant = greeting.variant;
-    second.greetingVariant = greeting.variant;
-    first.emote = greeting.emote;
-    second.emote = greeting.emote;
-    this.clearIdle(first);
-    this.clearIdle(second);
-  }
-
-  private pickGreetingVariant(
-    firstIndex: number,
-    secondIndex: number,
-    nowMs: number,
-  ): { emote: string | null; variant: GreetingVariant } {
-    const baseSeed = Math.floor(nowMs) + firstIndex * 97 + secondIndex * 193;
-    const ratio = this.pseudoRandom01(baseSeed);
-
-    if (ratio < 0.45) {
-      return { variant: 'wave', emote: null };
-    }
-
-    if (ratio < 0.8) {
-      return { variant: 'highfive', emote: null };
-    }
-
-    const emotes = ['👋', '🙂', '!'] as const;
-    const emoteIndex = Math.floor(this.pseudoRandom01(baseSeed + 1_337) * emotes.length);
-    return { variant: 'emote', emote: emotes[emoteIndex] ?? '🙂' };
-  }
-
-  private pseudoRandom01(seed: number): number {
-    const raw = Math.sin(seed * 12.9898 + 78.233) * 43758.5453;
-    return raw - Math.floor(raw);
   }
 
   private pickLandingSegmentCrossing(
@@ -649,13 +349,5 @@ export class LemmingsPatienceEngine {
 
   private isAtViewEdge(x: number, containerWidth: number): boolean {
     return x <= VIEW_EDGE_MARGIN_PX || x >= containerWidth - (BASE_SIZE_PX + VIEW_EDGE_MARGIN_PX);
-  }
-
-  private clamp(value: number, min: number, max: number): number {
-    return Math.min(Math.max(value, min), max);
-  }
-
-  private randomBetween(min: number, max: number): number {
-    return Math.random() * (max - min) + min;
   }
 }

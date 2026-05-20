@@ -9,6 +9,7 @@ type PartyPlayerActionStateStatus =
   (typeof PARTY_PLAYER_ACTION_STATE_STATUS)[keyof typeof PARTY_PLAYER_ACTION_STATE_STATUS];
 
 export interface PartyPlayerActionState {
+  readonly earnedPoints: number;
   readonly selectedActionId: PartyActionId;
   readonly stageId: PartyStageId;
   readonly stagePosition: number;

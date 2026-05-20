@@ -7,7 +7,10 @@ import {
 import { PartyStageConfigurationPort } from '../../../../game/types/shared/ports/party-stage-configuration.port';
 import type { HostControlledPartyRuntime } from '../ports/host-party-runtime-control.port';
 
-type HostPartyStageReference = Pick<PartyStageCatalogEntry, 'id' | 'stagePosition'>;
+type HostPartyStageReference = Pick<
+  PartyStageCatalogEntry,
+  'id' | 'stagePosition' | 'timeLimitSeconds'
+>;
 
 @Injectable()
 export class HostPartyRuntimeStageReferenceResolver {

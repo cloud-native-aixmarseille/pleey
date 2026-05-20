@@ -129,8 +129,11 @@ describe('PrismaPartyReadModelMapper', () => {
       mapper.toPartyRuntimeContext({
         lifecycle: {
           phase: 'ended',
+          stageEndsAtEpochMs: null,
+          stageRemainingDurationMs: null,
           stageId: 404,
           stagePosition: 3,
+          stageTimeLimitSeconds: null,
           totalStages: 4,
         },
         result: {
@@ -159,8 +162,11 @@ describe('PrismaPartyReadModelMapper', () => {
     ).toEqual({
       lifecycle: {
         phase: 'ended',
+        stageEndsAtEpochMs: null,
+        stageRemainingDurationMs: null,
         stageId: 404,
         stagePosition: 3,
+        stageTimeLimitSeconds: null,
         totalStages: 4,
       },
       result: {
@@ -175,8 +181,6 @@ describe('PrismaPartyReadModelMapper', () => {
               text: 'Option B',
             },
           ],
-          stageId: 404,
-          stagePosition: 3,
           text: 'Final question',
         },
         currentPlayer: {

@@ -35,9 +35,10 @@ export function PlayerStageSurfaceFrame({
   testId,
 }: PlayerStageSurfaceFrameProps) {
   const { t } = usePresentationTranslation();
+  const stagePosition = party.context?.lifecycle.stagePosition;
   const currentStage = party.context?.stage?.current;
 
-  if (!currentStage) {
+  if (!currentStage || stagePosition === null || stagePosition === undefined) {
     return null;
   }
 
@@ -56,10 +57,8 @@ export function PlayerStageSurfaceFrame({
 
             <SupportingText tone="soft">
               {t('game.party.route.runtimeStageProgress', {
-                current: String(currentStage.stagePosition + 1),
-                total: String(
-                  party.context?.lifecycle.totalStages ?? currentStage.stagePosition + 1,
-                ),
+                current: String(stagePosition + 1),
+                total: String(party.context?.lifecycle.totalStages ?? stagePosition + 1),
               })}
             </SupportingText>
 

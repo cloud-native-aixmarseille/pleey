@@ -26,6 +26,7 @@ gateway:
     tls: []
     pathType: Prefix
     frontendPath: /
+    graphqlPath: /graphql
     apiPath: /api
     socketPath: /socket.io
 

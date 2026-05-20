@@ -63,6 +63,7 @@ export class PredictionPartyStageCatalogEntryResolver implements GameTypePartySt
                 position: true,
                 points: true,
                 promptText: true,
+                timeLimit: true,
                 options: {
                   where: {
                     deletedAt: null,
@@ -99,6 +100,7 @@ export class PredictionPartyStageCatalogEntryResolver implements GameTypePartySt
       id: this.partyStageIdentifier.parse(prompt.id),
       points: prompt.points,
       stagePosition: prompt.position,
+      timeLimitSeconds: prompt.timeLimit,
       text: prompt.promptText,
     };
   }

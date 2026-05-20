@@ -16,11 +16,35 @@ export type PartyRuntimePhase = (typeof PARTY_RUNTIME_PHASE)[keyof typeof PARTY_
 type PartyRuntimeActionSubmissionStatus =
   (typeof PARTY_RUNTIME_ACTION_SUBMISSION_STATUS)[keyof typeof PARTY_RUNTIME_ACTION_SUBMISSION_STATUS];
 
-interface PartyRuntimeLifecycleContext {
-  readonly phase: PartyRuntimePhase;
+interface PartyRuntimeBaseLifecycleContext {
+  readonly stageEndsAtEpochMs: number | null;
+  readonly stageRemainingDurationMs: number | null;
+  readonly stageTimeLimitSeconds: number | null;
+  readonly totalStages: number;
+}
+
+interface PartyRuntimeLobbyLifecycleContext extends PartyRuntimeBaseLifecycleContext {
+  readonly phase: typeof PARTY_RUNTIME_PHASE.LOBBY;
+  readonly stageId: null;
+  readonly stagePosition: null;
+}
+
+interface PartyRuntimeStageLifecycleContext extends PartyRuntimeBaseLifecycleContext {
+  readonly phase: typeof PARTY_RUNTIME_PHASE.STAGE;
+  readonly stageId: StageId;
+  readonly stagePosition: number;
+}
+
+interface PartyRuntimeResultLifecycleContext extends PartyRuntimeBaseLifecycleContext {
+  readonly phase: typeof PARTY_RUNTIME_PHASE.RESULT;
+  readonly stageId: StageId;
+  readonly stagePosition: number;
+}
+
+interface PartyRuntimeEndedLifecycleContext extends PartyRuntimeBaseLifecycleContext {
+  readonly phase: typeof PARTY_RUNTIME_PHASE.ENDED;
   readonly stageId: StageId | null;
   readonly stagePosition: number | null;
-  readonly totalStages: number;
 }
 
 interface PartyRuntimeStageActionContext {
@@ -37,8 +61,6 @@ interface PartyRuntimeResultActionContext extends PartyRuntimeStageActionContext
 
 interface PartyRuntimeCurrentStageContext {
   readonly actions: readonly PartyRuntimeStageActionContext[];
-  readonly stageId: StageId;
-  readonly stagePosition: number;
   readonly text: string;
 }
 
@@ -60,24 +82,64 @@ interface PartyRuntimeActionSubmissionContext {
 }
 
 interface PartyRuntimeStageContext {
-  readonly actionSubmission: PartyRuntimeActionSubmissionContext | null;
-  readonly current: PartyRuntimeCurrentStageContext | null;
+  readonly actionSubmission: PartyRuntimeActionSubmissionContext;
+  readonly current: PartyRuntimeCurrentStageContext;
 }
 
 interface PartyRuntimeCurrentResultContext {
   readonly actions: readonly PartyRuntimeResultActionContext[];
-  readonly stageId: StageId;
-  readonly stagePosition: number;
   readonly text: string;
 }
 
 interface PartyRuntimeResultContext {
-  readonly current: PartyRuntimeCurrentResultContext | null;
+  readonly current: PartyRuntimeCurrentResultContext;
   readonly currentPlayer: PartyRuntimeCurrentPlayerResultContext | null;
 }
 
-export interface PartyRuntimeContext {
-  readonly lifecycle: PartyRuntimeLifecycleContext;
-  readonly stage?: PartyRuntimeStageContext;
+interface PartyRuntimeLobbyContext {
+  readonly lifecycle: PartyRuntimeLobbyLifecycleContext;
+  readonly result?: never;
+  readonly stage?: never;
+}
+
+interface PartyRuntimeStagePhaseContext {
+  readonly lifecycle: PartyRuntimeStageLifecycleContext;
+  readonly result?: never;
+  readonly stage: PartyRuntimeStageContext;
+}
+
+interface PartyRuntimeResultPhaseContext {
+  readonly lifecycle: PartyRuntimeResultLifecycleContext;
+  readonly result: PartyRuntimeResultContext;
+  readonly stage?: never;
+}
+
+interface PartyRuntimeEndedContext {
+  readonly lifecycle: PartyRuntimeEndedLifecycleContext;
   readonly result?: PartyRuntimeResultContext;
+  readonly stage?: never;
+}
+
+export type PartyRuntimeContext =
+  | PartyRuntimeLobbyContext
+  | PartyRuntimeStagePhaseContext
+  | PartyRuntimeResultPhaseContext
+  | PartyRuntimeEndedContext;
+
+export function isStagePartyRuntimeContext(
+  context: PartyRuntimeContext | null | undefined,
+): context is PartyRuntimeStagePhaseContext {
+  return context?.lifecycle.phase === PARTY_RUNTIME_PHASE.STAGE;
+}
+
+export function isResultPartyRuntimeContext(
+  context: PartyRuntimeContext | null | undefined,
+): context is PartyRuntimeResultPhaseContext {
+  return context?.lifecycle.phase === PARTY_RUNTIME_PHASE.RESULT;
+}
+
+export function isEndedPartyRuntimeContext(
+  context: PartyRuntimeContext | null | undefined,
+): context is PartyRuntimeEndedContext {
+  return context?.lifecycle.phase === PARTY_RUNTIME_PHASE.ENDED;
 }

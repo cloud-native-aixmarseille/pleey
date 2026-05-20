@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { PartyActionIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-action-identifier';
 import { PartyIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-identifier';
 import { PartyPinIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-pin-identifier';
@@ -116,6 +116,10 @@ function createSnapshot() {
 }
 
 describe('PartyObserverGateway', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('joins the party room by party id and emits the current snapshot', async () => {
     const loadPartyObservationSnapshotUseCase = {
       execute: vi.fn().mockResolvedValue(createSnapshot()),
@@ -445,6 +449,166 @@ describe('PartyObserverGateway', () => {
     await pendingLeave;
 
     expect(broadcastPartyObservationUseCase.execute).toHaveBeenCalledWith({ partyId: 44 });
+  });
+
+  it('prunes a disconnected waiting player after the grace period', async () => {
+    vi.useFakeTimers();
+
+    const leavePartyUseCase = {
+      execute: vi.fn().mockResolvedValue(true),
+    };
+    const loadPartyObservationSnapshotUseCase = {
+      execute: vi.fn().mockResolvedValue(createSnapshot()),
+    };
+    const gateway = new PartyObserverGateway(
+      { execute: vi.fn() } as never,
+      leavePartyUseCase as never,
+      { execute: vi.fn() } as never,
+      loadPartyObservationSnapshotUseCase as never,
+      { execute: vi.fn() } as never,
+      { attachServer: vi.fn(), emitSnapshot: vi.fn().mockResolvedValue(undefined) } as never,
+      guestIdentifier,
+      partyActionIdentifier,
+      partyIdentifier,
+      partyPinIdentifier,
+      userIdentifier,
+      ...createHostControlUseCases(),
+    );
+
+    gateway.afterInit({
+      in: vi.fn().mockReturnValue({ fetchSockets: vi.fn().mockResolvedValue([]) }),
+    } as never);
+
+    gateway.handleDisconnect({
+      data: {
+        joinedPartyPlayer: {
+          identity: { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) },
+          pin: '123456',
+        },
+        partyObservationRoom: 'party:44',
+      },
+      leave: vi.fn().mockResolvedValue(undefined),
+    } as never);
+
+    await vi.runAllTimersAsync();
+
+    expect(loadPartyObservationSnapshotUseCase.execute).toHaveBeenCalledWith({
+      partyId: partyIdentifier.parse(44),
+    });
+    expect(leavePartyUseCase.execute).toHaveBeenCalledWith({
+      pin: '123456',
+      playerIdentity: { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) },
+    });
+  });
+
+  it('does not prune a waiting player who is still connected through another party socket', async () => {
+    vi.useFakeTimers();
+
+    const leavePartyUseCase = {
+      execute: vi.fn().mockResolvedValue(true),
+    };
+    const loadPartyObservationSnapshotUseCase = {
+      execute: vi.fn().mockResolvedValue(createSnapshot()),
+    };
+    const gateway = new PartyObserverGateway(
+      { execute: vi.fn() } as never,
+      leavePartyUseCase as never,
+      { execute: vi.fn() } as never,
+      loadPartyObservationSnapshotUseCase as never,
+      { execute: vi.fn() } as never,
+      { attachServer: vi.fn(), emitSnapshot: vi.fn().mockResolvedValue(undefined) } as never,
+      guestIdentifier,
+      partyActionIdentifier,
+      partyIdentifier,
+      partyPinIdentifier,
+      userIdentifier,
+      ...createHostControlUseCases(),
+    );
+
+    gateway.afterInit({
+      in: vi.fn().mockReturnValue({
+        fetchSockets: vi.fn().mockResolvedValue([
+          {
+            data: {
+              joinedPartyPlayer: {
+                identity: { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) },
+                pin: '123456',
+              },
+            },
+          },
+        ]),
+      }),
+    } as never);
+
+    gateway.handleDisconnect({
+      data: {
+        joinedPartyPlayer: {
+          identity: { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) },
+          pin: '123456',
+        },
+        partyObservationRoom: 'party:44',
+      },
+      leave: vi.fn().mockResolvedValue(undefined),
+    } as never);
+
+    await vi.runAllTimersAsync();
+
+    expect(loadPartyObservationSnapshotUseCase.execute).not.toHaveBeenCalled();
+    expect(leavePartyUseCase.execute).not.toHaveBeenCalled();
+  });
+
+  it('prunes a waiting player who stops observing the party for too long', async () => {
+    vi.useFakeTimers();
+
+    const leavePartyUseCase = {
+      execute: vi.fn().mockResolvedValue(true),
+    };
+    const loadPartyObservationSnapshotUseCase = {
+      execute: vi.fn().mockResolvedValue(createSnapshot()),
+    };
+    const gateway = new PartyObserverGateway(
+      { execute: vi.fn() } as never,
+      leavePartyUseCase as never,
+      { execute: vi.fn() } as never,
+      loadPartyObservationSnapshotUseCase as never,
+      { execute: vi.fn() } as never,
+      { attachServer: vi.fn(), emitSnapshot: vi.fn().mockResolvedValue(undefined) } as never,
+      guestIdentifier,
+      partyActionIdentifier,
+      partyIdentifier,
+      partyPinIdentifier,
+      userIdentifier,
+      ...createHostControlUseCases(),
+    );
+
+    gateway.afterInit({
+      in: vi.fn().mockReturnValue({ fetchSockets: vi.fn().mockResolvedValue([]) }),
+    } as never);
+
+    const client = {
+      data: {
+        joinedPartyPlayer: {
+          identity: { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) },
+          pin: '123456',
+        },
+        partyObservationRoom: 'party:44',
+      },
+      leave: vi.fn().mockResolvedValue(undefined),
+    };
+
+    await gateway.stopObservingParty(client as never);
+    await vi.runAllTimersAsync();
+
+    expect(client.data).toEqual({
+      joinedPartyPlayer: {
+        identity: { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) },
+        pin: '123456',
+      },
+    });
+    expect(leavePartyUseCase.execute).toHaveBeenCalledWith({
+      pin: '123456',
+      playerIdentity: { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) },
+    });
   });
 
   it.each([

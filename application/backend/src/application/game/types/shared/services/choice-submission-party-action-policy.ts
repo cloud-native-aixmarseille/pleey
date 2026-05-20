@@ -23,7 +23,11 @@ export class ChoiceSubmissionPartyActionPolicy extends GameTypePartyActionPolicy
   ): Promise<PartyActionSubmissionResolution> {
     const stageId = command.context?.lifecycle.stageId;
 
-    if (command.context?.lifecycle.phase !== PartyRuntimePhase.STAGE || stageId == null) {
+    if (
+      command.status !== PartyStatus.ACTIVE ||
+      command.context?.lifecycle.phase !== PartyRuntimePhase.STAGE ||
+      stageId == null
+    ) {
       throw new Error(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
     }
 
@@ -41,8 +45,35 @@ export class ChoiceSubmissionPartyActionPolicy extends GameTypePartyActionPolicy
 
     return {
       context: command.context,
-      scoreDelta: selectedAction.isCorrect ? stage.points : 0,
+      scoreDelta: this.resolveScoreDelta(command, stage.points, selectedAction.isCorrect),
       status: PartyStatus.ACTIVE,
     };
+  }
+
+  private resolveScoreDelta(
+    command: EvaluatePartyActionSubmissionCommand,
+    stagePoints: number,
+    isCorrect: boolean,
+  ): number {
+    if (!isCorrect || stagePoints <= 0) {
+      return 0;
+    }
+
+    const totalDurationMs = (command.context?.lifecycle.stageTimeLimitSeconds ?? 0) * 1_000;
+    const stageEndsAtEpochMs = command.context?.lifecycle.stageEndsAtEpochMs ?? null;
+
+    if (totalDurationMs <= 0 || stageEndsAtEpochMs === null) {
+      return stagePoints;
+    }
+
+    const remainingDurationMs = stageEndsAtEpochMs - Date.now();
+
+    if (remainingDurationMs <= 0) {
+      throw new Error(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
+    }
+
+    const boundedRemainingDurationMs = Math.min(totalDurationMs, remainingDurationMs);
+
+    return Math.max(1, Math.ceil((stagePoints * boundedRemainingDurationMs) / totalDurationMs));
   }
 }
