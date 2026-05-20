@@ -29,7 +29,7 @@ export class RemoveMemberFromOrganizationUseCase {
       memberToRemove.organizationId,
       requestingUserId,
     );
-    if (!requestingMember || !requestingMember.hasManagementPrivileges()) {
+    if (!requestingMember?.hasManagementPrivileges()) {
       throw new Error(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
     }
 

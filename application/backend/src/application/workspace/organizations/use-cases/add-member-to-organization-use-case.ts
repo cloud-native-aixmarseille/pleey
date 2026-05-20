@@ -38,7 +38,7 @@ export class AddMemberToOrganizationUseCase {
       organizationId,
       requestingUserId,
     );
-    if (!requestingMember || !requestingMember.hasManagementPrivileges()) {
+    if (!requestingMember?.hasManagementPrivileges()) {
       throw new Error(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
     }
 
