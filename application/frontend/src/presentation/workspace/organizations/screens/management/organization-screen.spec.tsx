@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { OrganizationFixtureFactory } from '../../../../../test-utils/fixtures/organization-fixture-factory';
@@ -330,6 +330,44 @@ describe('OrganizationScreen', () => {
 
       expect(await screen.findByRole('dialog')).toBeInTheDocument();
       expect(screen.getByText(/project\.management\.form\.create\.title/)).toBeInTheDocument();
+    });
+
+    it('selects the newly created organization after a successful creation', async () => {
+      const user = userEvent.setup();
+      const setOrganizationSelection = vi.fn();
+      const createdOrganization = organizationFixtureFactory.createCreatedOrganization({
+        description: 'Fresh workspace',
+        id: organizationIdentifier.parse(9),
+        name: 'Fresh Org',
+      });
+      const view = renderOrganizationScreen(
+        {},
+        {
+          setOrganizationSelection,
+        },
+        { deferWorkspaceLoad: true },
+      );
+
+      view.createOrganization.mockResolvedValue(createdOrganization);
+
+      await user.click(
+        screen.getByRole('button', { name: 'organization.management.create.openButton' }),
+      );
+      await user.type(
+        await screen.findByLabelText(/organization\.management\.create\.fields\.name\.label/),
+        'Fresh Org',
+      );
+      await user.type(
+        screen.getByLabelText(/organization\.management\.create\.fields\.description\.label/),
+        'Fresh workspace',
+      );
+      await user.click(
+        screen.getByRole('button', { name: 'organization.management.create.submit' }),
+      );
+
+      await waitFor(() => {
+        expect(setOrganizationSelection).toHaveBeenCalledWith(organizationIdentifier.parse(9));
+      });
     });
 
     it('opens the edit project dialog for a listed project', async () => {

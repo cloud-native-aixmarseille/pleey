@@ -1,9 +1,13 @@
 import 'reflect-metadata';
 import '@testing-library/jest-dom';
+import { configure, cleanup } from '@testing-library/react';
 import { afterEach } from 'vitest';
-import { cleanup } from '@testing-library/react';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
+
+configure({
+  asyncUtilTimeout: 5000,
+});
 
 if (!i18n.isInitialized) {
   await i18n.use(initReactI18next).init({

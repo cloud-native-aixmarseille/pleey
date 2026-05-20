@@ -4,23 +4,6 @@ export const dashboardFr = {
       title: 'Console d espace',
       subtitle:
         'Choisissez un espace, puis passez de la preparation au lancement sans quitter le tableau de bord.',
-      commandPalette: {
-        title: 'Palette de commandes',
-        description:
-          'Passez d une organisation a un projet ou a une action de jeu depuis un seul point d entree.',
-        meta: 'Le chemin le plus rapide pour les operations repetitives',
-      },
-      fastFiltering: {
-        title: 'Filtrage rapide',
-        description: 'Reduisez les longues listes de jeux par type, nom et statut avant d agir.',
-        meta: 'Pense pour les espaces charges',
-      },
-      liveOps: {
-        title: 'Vue live ops',
-        description:
-          'Gardez les parties actives, la readiness des jeux et le lancement dans la meme surface.',
-        meta: 'Le contexte reste lie au projet selectionne',
-      },
     },
     workspace: {
       sectionTitle: 'Choisissez votre espace',

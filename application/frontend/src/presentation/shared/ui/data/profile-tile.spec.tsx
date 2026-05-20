@@ -20,4 +20,14 @@ describe('ProfileTile', () => {
     expect(screen.getByText('Player')).toBeInTheDocument();
     expect(screen.getByText('You')).toBeInTheDocument();
   });
+
+  it('keeps a dedicated highlight slot even when no highlight label is shown', () => {
+    renderWithUiProvider(
+      <ProfileTile avatarAlt="Morgan avatar" avatarSrc={null} badgeLabel="Player" title="Morgan" />,
+    );
+
+    expect(screen.getByTestId('profile-tile-highlight-slot')).toHaveStyle({
+      minHeight: '1.5rem',
+    });
+  });
 });

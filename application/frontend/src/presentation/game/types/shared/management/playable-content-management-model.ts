@@ -47,7 +47,7 @@ export interface PlayableItemEditorState {
   readonly optionTexts: readonly string[];
 }
 
-const defaultOptionTexts = ['', '', '', ''];
+const defaultOptionTexts = ['', '', '', '', '', '', '', ''];
 
 function resolveDefaultEditorKind(
   itemKindConfig: PlayableItemKindConfig | undefined,

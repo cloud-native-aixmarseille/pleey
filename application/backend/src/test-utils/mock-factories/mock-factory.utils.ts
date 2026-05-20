@@ -1,13 +1,13 @@
 import { type Mock, vi } from 'vitest';
 
-type AnyFn = (...args: unknown[]) => unknown;
+type AnyFn = (...args: never[]) => unknown;
 
 type AsyncMethodKeys<T> = {
-  [K in keyof T]-?: T[K] extends (...args: unknown[]) => Promise<unknown> ? K : never;
+  [K in keyof T]-?: T[K] extends (...args: never[]) => Promise<unknown> ? K : never;
 }[keyof T];
 
 type SyncMethodKeys<T> = {
-  [K in keyof T]-?: T[K] extends (...args: unknown[]) => infer R
+  [K in keyof T]-?: T[K] extends (...args: never[]) => infer R
     ? R extends Promise<unknown>
       ? never
       : K

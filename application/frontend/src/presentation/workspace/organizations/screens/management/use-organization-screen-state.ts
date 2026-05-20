@@ -85,8 +85,9 @@ export function useOrganizationScreenState({
     ? workspace.projects.filter((project) => project.id !== projectPendingRemoval.id)
     : [];
 
-  function handleOrganizationCreated(_organization: Organization) {
+  function handleOrganizationCreated(organization: Organization) {
     setActionErrorMessage(null);
+    dashboardWorkspace.setOrganizationSelection(organization.id);
     setReloadKey((key) => key + 1);
   }
 

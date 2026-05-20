@@ -62,6 +62,12 @@ describe('theme', () => {
     it('exposes the shared spacing, typography, and shadow defaults for the default scheme', () => {
       expect(uiTheme.spacing?.xl).toBe(defaultUiThemeDefinition.tokens.spacing.xl);
       expect(uiTheme.fontFamily).toBe(defaultUiThemeDefinition.tokens.typography.bodyFamily);
+      expect(defaultUiThemeDefinition.tokens.typography.bodyFamily).toBe(
+        '"Space Grotesk", system-ui, sans-serif',
+      );
+      expect(defaultUiThemeDefinition.tokens.typography.displayFamily).toBe(
+        '"Orbitron", system-ui, sans-serif',
+      );
       expect(uiTheme.shadows?.xl).toBe(defaultUiThemeDefinition.tokens.shadow.elevated);
     });
   });
