@@ -23,7 +23,7 @@ export class RefreshAccessTokenUseCase {
     const userId = await this.authTokenService.verifyRefreshToken(refreshToken);
 
     const user = await this.userRepository.findById(userId);
-    if (!user || !user.refreshTokenHash) {
+    if (!user?.refreshTokenHash) {
       throw new Error(IdentityErrorCode.INVALID_REFRESH_TOKEN);
     }
 

@@ -75,7 +75,7 @@ export class ListProjectGamesUseCase {
     gameId: number,
     permissions: GamePermissions | undefined,
   ): GamePermissions {
-    if (!permissions || !permissions.createParty || !permissions.launchReadiness) {
+    if (!permissions?.createParty || !permissions.launchReadiness) {
       void gameId;
 
       throw new Error(GameErrorCode.VALIDATION_FAILED);

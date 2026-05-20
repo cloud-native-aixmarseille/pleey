@@ -37,7 +37,7 @@ export class CreateProjectUseCase {
       requestingUserId,
     );
 
-    if (!membership || !membership.hasManagementPrivileges()) {
+    if (!membership?.hasManagementPrivileges()) {
       throw new Error(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
     }
 
