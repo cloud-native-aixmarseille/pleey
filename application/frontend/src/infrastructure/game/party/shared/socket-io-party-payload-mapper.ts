@@ -16,6 +16,12 @@ import {
   type PartyPlayerIdentity,
   PartyPlayerIdentityKind,
 } from '../../../../domains/game/party/shared/entities/party-player-identity';
+import {
+  isEndedPartyRuntimeContext,
+  isResultPartyRuntimeContext,
+  isStagePartyRuntimeContext,
+  PARTY_RUNTIME_PHASE,
+} from '../../../../domains/game/party/shared/entities/party-runtime-context';
 import { PartyManagementErrorCode } from '../../../../domains/game/party/shared/errors/party-management-error-code';
 import {
   type PartyRuntimeNotice,
@@ -119,60 +125,135 @@ export class SocketIoPartyPayloadMapper {
       return null;
     }
 
-    return {
-      lifecycle: context.lifecycle,
-      stage: context.stage
-        ? {
-            actionSubmission: context.stage.actionSubmission
+    if (context.lifecycle.phase === PARTY_RUNTIME_PHASE.LOBBY) {
+      return {
+        lifecycle: {
+          phase: context.lifecycle.phase,
+          stageEndsAtEpochMs: context.lifecycle.stageEndsAtEpochMs,
+          stageId: context.lifecycle.stageId,
+          stagePosition: context.lifecycle.stagePosition,
+          stageRemainingDurationMs: context.lifecycle.stageRemainingDurationMs,
+          stageTimeLimitSeconds: context.lifecycle.stageTimeLimitSeconds,
+          totalStages: context.lifecycle.totalStages,
+        },
+      };
+    }
+
+    if (isStagePartyRuntimeContext(context)) {
+      const stageContext = context;
+      const actionSubmission = stageContext.stage?.actionSubmission;
+      const currentStage = stageContext.stage?.current;
+
+      if (!actionSubmission || !currentStage) {
+        return null;
+      }
+
+      return {
+        lifecycle: {
+          phase: stageContext.lifecycle.phase,
+          stageEndsAtEpochMs: stageContext.lifecycle.stageEndsAtEpochMs,
+          stageId: stageContext.lifecycle.stageId,
+          stagePosition: stageContext.lifecycle.stagePosition,
+          stageRemainingDurationMs: stageContext.lifecycle.stageRemainingDurationMs,
+          stageTimeLimitSeconds: stageContext.lifecycle.stageTimeLimitSeconds,
+          totalStages: stageContext.lifecycle.totalStages,
+        },
+        stage: {
+          actionSubmission: {
+            currentPlayer: actionSubmission.currentPlayer
               ? {
-                  currentPlayer: context.stage.actionSubmission.currentPlayer
-                    ? {
-                        selectedActionId: this.partyActionIdentifier.parse(
-                          context.stage.actionSubmission.currentPlayer.selectedActionId,
-                        ),
-                        status: context.stage.actionSubmission.currentPlayer.status,
-                      }
-                    : null,
-                  submittedPlayerCount: context.stage.actionSubmission.submittedPlayerCount,
-                  totalEligiblePlayerCount: context.stage.actionSubmission.totalEligiblePlayerCount,
-                }
-              : null,
-            current: context.stage.current
-              ? {
-                  actions: context.stage.current.actions.map((action) =>
-                    this.toStageActionContext(action),
+                  selectedActionId: this.partyActionIdentifier.parse(
+                    actionSubmission.currentPlayer.selectedActionId,
                   ),
-                  stageId: context.stage.current.stageId,
-                  stagePosition: context.stage.current.stagePosition,
-                  text: context.stage.current.text,
+                  status: actionSubmission.currentPlayer.status,
                 }
               : null,
-          }
-        : undefined,
-      result: context.result
-        ? {
-            current: context.result.current
-              ? {
-                  actions: context.result.current.actions.map((action) =>
+            submittedPlayerCount: actionSubmission.submittedPlayerCount,
+            totalEligiblePlayerCount: actionSubmission.totalEligiblePlayerCount,
+          },
+          current: {
+            actions: currentStage.actions.map((action) => this.toStageActionContext(action)),
+            text: currentStage.text,
+          },
+        },
+      };
+    }
+
+    if (isResultPartyRuntimeContext(context)) {
+      const resultContext = context;
+      const currentResult = resultContext.result?.current;
+
+      if (!currentResult) {
+        return null;
+      }
+
+      return {
+        lifecycle: {
+          phase: resultContext.lifecycle.phase,
+          stageEndsAtEpochMs: resultContext.lifecycle.stageEndsAtEpochMs,
+          stageId: resultContext.lifecycle.stageId,
+          stagePosition: resultContext.lifecycle.stagePosition,
+          stageRemainingDurationMs: resultContext.lifecycle.stageRemainingDurationMs,
+          stageTimeLimitSeconds: resultContext.lifecycle.stageTimeLimitSeconds,
+          totalStages: resultContext.lifecycle.totalStages,
+        },
+        result: {
+          current: {
+            actions: currentResult.actions.map((action) => this.toResultActionContext(action)),
+            text: currentResult.text,
+          },
+          currentPlayer: resultContext.result.currentPlayer
+            ? {
+                earnedPoints: resultContext.result.currentPlayer.earnedPoints,
+                isCorrect: resultContext.result.currentPlayer.isCorrect,
+                selectedActionId: this.partyActionIdentifier.parse(
+                  resultContext.result.currentPlayer.selectedActionId,
+                ),
+              }
+            : null,
+        },
+      };
+    }
+
+    if (isEndedPartyRuntimeContext(context)) {
+      const endedContext = context;
+      const currentResult = endedContext.result?.current;
+
+      return {
+        lifecycle: {
+          phase: endedContext.lifecycle.phase,
+          stageEndsAtEpochMs: endedContext.lifecycle.stageEndsAtEpochMs,
+          stageId: endedContext.lifecycle.stageId,
+          stagePosition: endedContext.lifecycle.stagePosition,
+          stageRemainingDurationMs: endedContext.lifecycle.stageRemainingDurationMs,
+          stageTimeLimitSeconds: endedContext.lifecycle.stageTimeLimitSeconds,
+          totalStages: endedContext.lifecycle.totalStages,
+        },
+        ...(endedContext.result && currentResult
+          ? {
+              result: {
+                current: {
+                  actions: currentResult.actions.map((action) =>
                     this.toResultActionContext(action),
                   ),
-                  stageId: context.result.current.stageId,
-                  stagePosition: context.result.current.stagePosition,
-                  text: context.result.current.text,
-                }
-              : null,
-            currentPlayer: context.result.currentPlayer
-              ? {
-                  earnedPoints: context.result.currentPlayer.earnedPoints,
-                  isCorrect: context.result.currentPlayer.isCorrect,
-                  selectedActionId: this.partyActionIdentifier.parse(
-                    context.result.currentPlayer.selectedActionId,
-                  ),
-                }
-              : null,
-          }
-        : undefined,
-    };
+                  text: currentResult.text,
+                },
+                currentPlayer: endedContext.result.currentPlayer
+                  ? {
+                      earnedPoints: endedContext.result.currentPlayer.earnedPoints,
+                      isCorrect: endedContext.result.currentPlayer.isCorrect,
+                      selectedActionId: this.partyActionIdentifier.parse(
+                        endedContext.result.currentPlayer.selectedActionId,
+                      ),
+                    }
+                  : null,
+              },
+            }
+          : {}),
+      };
+    }
+
+    return null;
   }
 
   private toStageActionContext(action: PartyRuntimeStageActionValue): PartyRuntimeStageActionValue {

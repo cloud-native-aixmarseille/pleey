@@ -1,4 +1,4 @@
-import type { UiThemeSeed } from './ui-theme';
+import type { UiThemeSeed } from './ui-theme-contract';
 
 export const CYBER_ARCADE_THEME_NAME = 'Cyber Arcade';
 export const CYBER_ARCADE_THEME_ID = 'cyber-arcade';

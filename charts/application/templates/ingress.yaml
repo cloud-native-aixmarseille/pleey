@@ -22,6 +22,13 @@ spec:
       http:
         paths:
           {{- if .Values.backend.enabled }}
+          - path: {{ .Values.gateway.ingress.graphqlPath | quote }}
+            pathType: {{ .Values.gateway.ingress.pathType }}
+            backend:
+              service:
+                name: {{ include "pleey.backend.fullname" . }}
+                port:
+                  number: {{ include "pleey.backend.servicePort" . }}
           - path: {{ .Values.gateway.ingress.apiPath | quote }}
             pathType: {{ .Values.gateway.ingress.pathType }}
             backend:

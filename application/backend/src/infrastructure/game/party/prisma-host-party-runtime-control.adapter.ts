@@ -304,6 +304,7 @@ export class PrismaHostPartyRuntimeControlAdapter extends HostPartyRuntimeContro
     }
 
     return {
+      earnedPoints: latestStage.earnedPoints,
       selectedActionId: latestStage.selectedActionId,
       stageHistory: stageHistory.map((entry) => ({
         earnedPoints: entry.earnedPoints,
@@ -328,8 +329,11 @@ export class PrismaHostPartyRuntimeControlAdapter extends HostPartyRuntimeContro
     return {
       lifecycle: {
         phase: command.lifecycle.phase,
+        stageEndsAtEpochMs: command.lifecycle.stageEndsAtEpochMs,
+        stageRemainingDurationMs: command.lifecycle.stageRemainingDurationMs,
         stageId: command.lifecycle.stageId,
         stagePosition: command.lifecycle.stagePosition,
+        stageTimeLimitSeconds: command.lifecycle.stageTimeLimitSeconds,
         totalStages: command.lifecycle.totalStages,
       },
       ...(command.stage
@@ -355,8 +359,6 @@ export class PrismaHostPartyRuntimeControlAdapter extends HostPartyRuntimeContro
                       id: action.id,
                       text: action.text,
                     })),
-                    stageId: command.stage.current.stageId,
-                    stagePosition: command.stage.current.stagePosition,
                     text: command.stage.current.text,
                   }
                 : null,
@@ -376,8 +378,6 @@ export class PrismaHostPartyRuntimeControlAdapter extends HostPartyRuntimeContro
                       isCorrect: action.isCorrect,
                       text: action.text,
                     })),
-                    stageId: command.result.current.stageId,
-                    stagePosition: command.result.current.stagePosition,
                     text: command.result.current.text,
                   }
                 : null,

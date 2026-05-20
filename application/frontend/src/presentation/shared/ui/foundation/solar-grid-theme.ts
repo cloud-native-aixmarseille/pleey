@@ -1,4 +1,4 @@
-import type { UiThemeSeed } from './ui-theme';
+import type { UiThemeSeed } from './ui-theme-contract';
 
 export const SOLAR_GRID_THEME_ID = 'solar-grid';
 const SOLAR_GRID_THEME_NAME = 'Solar Grid';

@@ -14,12 +14,16 @@ describe('PartyRuntimeContextProjectionService', () => {
       baseContext: {
         lifecycle: {
           phase: PartyRuntimePhase.STAGE,
+          stageEndsAtEpochMs: 30_000,
+          stageRemainingDurationMs: 20_000,
           stageId: 202,
           stagePosition: 1,
+          stageTimeLimitSeconds: 20,
           totalStages: 4,
         },
       },
       currentPlayerActionState: {
+        earnedPoints: 1_000,
         selectedActionId: partyActionIdentifier.parse(7),
         stageId: 202,
         stagePosition: 1,
@@ -27,12 +31,14 @@ describe('PartyRuntimeContextProjectionService', () => {
       },
       playerActionStates: [
         {
+          earnedPoints: 0,
           selectedActionId: partyActionIdentifier.parse(5),
           stageId: 202,
           stagePosition: 1,
           status: PARTY_PLAYER_ACTION_STATE_STATUS.ACKNOWLEDGED,
         },
         {
+          earnedPoints: 1_000,
           selectedActionId: partyActionIdentifier.parse(7),
           stageId: 202,
           stagePosition: 1,
@@ -47,6 +53,7 @@ describe('PartyRuntimeContextProjectionService', () => {
         id: 202,
         points: 1000,
         stagePosition: 1,
+        timeLimitSeconds: 20,
         text: 'Question 2',
       },
       submittedPlayerCount: 2,
@@ -56,8 +63,11 @@ describe('PartyRuntimeContextProjectionService', () => {
     expect(result).toEqual({
       lifecycle: {
         phase: PartyRuntimePhase.STAGE,
+        stageEndsAtEpochMs: 30_000,
+        stageRemainingDurationMs: 20_000,
         stageId: 202,
         stagePosition: 1,
+        stageTimeLimitSeconds: 20,
         totalStages: 4,
       },
       stage: {
@@ -74,8 +84,6 @@ describe('PartyRuntimeContextProjectionService', () => {
             { id: partyActionIdentifier.parse(5), text: 'A' },
             { id: partyActionIdentifier.parse(7), text: 'B' },
           ],
-          stageId: 202,
-          stagePosition: 1,
           text: 'Question 2',
         },
       },
@@ -89,12 +97,16 @@ describe('PartyRuntimeContextProjectionService', () => {
       baseContext: {
         lifecycle: {
           phase: PartyRuntimePhase.RESULT,
+          stageEndsAtEpochMs: 30_000,
+          stageRemainingDurationMs: 20_000,
           stageId: 202,
           stagePosition: 1,
+          stageTimeLimitSeconds: 20,
           totalStages: 4,
         },
       },
       currentPlayerActionState: {
+        earnedPoints: 625,
         selectedActionId: partyActionIdentifier.parse(7),
         stageId: 202,
         stagePosition: 1,
@@ -102,18 +114,21 @@ describe('PartyRuntimeContextProjectionService', () => {
       },
       playerActionStates: [
         {
+          earnedPoints: 0,
           selectedActionId: partyActionIdentifier.parse(5),
           stageId: 202,
           stagePosition: 1,
           status: PARTY_PLAYER_ACTION_STATE_STATUS.ACKNOWLEDGED,
         },
         {
+          earnedPoints: 625,
           selectedActionId: partyActionIdentifier.parse(7),
           stageId: 202,
           stagePosition: 1,
           status: PARTY_PLAYER_ACTION_STATE_STATUS.ACKNOWLEDGED,
         },
         {
+          earnedPoints: 800,
           selectedActionId: partyActionIdentifier.parse(7),
           stageId: 202,
           stagePosition: 1,
@@ -128,6 +143,7 @@ describe('PartyRuntimeContextProjectionService', () => {
         id: 202,
         points: 1000,
         stagePosition: 1,
+        timeLimitSeconds: 20,
         text: 'Question 2',
       },
       submittedPlayerCount: 3,
@@ -137,8 +153,11 @@ describe('PartyRuntimeContextProjectionService', () => {
     expect(result).toEqual({
       lifecycle: {
         phase: PartyRuntimePhase.RESULT,
+        stageEndsAtEpochMs: 30_000,
+        stageRemainingDurationMs: 20_000,
         stageId: 202,
         stagePosition: 1,
+        stageTimeLimitSeconds: 20,
         totalStages: 4,
       },
       result: {
@@ -161,12 +180,10 @@ describe('PartyRuntimeContextProjectionService', () => {
               text: 'B',
             },
           ],
-          stageId: 202,
-          stagePosition: 1,
           text: 'Question 2',
         },
         currentPlayer: {
-          earnedPoints: 1000,
+          earnedPoints: 625,
           isCorrect: true,
           selectedActionId: partyActionIdentifier.parse(7),
         },

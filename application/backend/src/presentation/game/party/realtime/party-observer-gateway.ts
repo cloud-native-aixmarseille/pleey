@@ -32,6 +32,7 @@ import { GuestIdentifier } from '../../../../application/identity/shared/service
 import { UserIdentifier } from '../../../../application/identity/shared/services/identifiers/user-identifier';
 import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
 import { PartyPlayerKind } from '../../../../domain/game/party/enums/party-player-kind.enum';
+import { PartyStatus } from '../../../../domain/game/party/enums/party-status.enum';
 import type {
   AuthenticatedPartyPlayerIdentity,
   PartyPlayerIdentity,
@@ -51,6 +52,14 @@ import {
   resolvePartyObservationRoom,
 } from './party-socket-events';
 import { SocketPartyObservationBroadcaster } from './services/socket-party-observation-broadcaster';
+
+const lobbyPlayerAbsenceGracePeriodMs = 60_000;
+
+interface PendingLobbyPlayerAbsencePrune {
+  readonly identity: PartyPlayerIdentity;
+  readonly partyId: PartyId;
+  readonly pin: PartyPin;
+}
 
 enum PartyJoinAcknowledgementStatus {
   ACCEPTED = 'accepted',
@@ -86,6 +95,12 @@ type PartyHostControlUseCase = Pick<StartPartyUseCase, 'execute'>;
 )
 @WebSocketGateway({ cors: true })
 export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit {
+  private server: Pick<Server, 'in'> | null = null;
+  private readonly pendingLobbyPlayerAbsencePrunes = new Map<
+    string,
+    ReturnType<typeof setTimeout>
+  >();
+
   constructor(
     private readonly joinPartyUseCase: JoinPartyUseCase,
     private readonly leavePartyUseCase: LeavePartyUseCase,
@@ -110,12 +125,19 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
   ) {}
 
   afterInit(server: Server): void {
+    this.server = server;
     this.partyObservationBroadcaster.attachServer(server);
   }
 
   handleDisconnect(client: Socket): void {
+    const pendingPrune = this.resolvePendingLobbyPlayerAbsencePrune(client);
+
     void this.leavePartyObservationRoom(client);
     this.clearJoinedPlayer(client);
+
+    if (pendingPrune !== null) {
+      this.scheduleLobbyPlayerAbsencePrune(pendingPrune);
+    }
   }
 
   @SubscribeMessage(PARTY_SOCKET_INBOUND_EVENTS.JOIN_PARTY)
@@ -142,6 +164,16 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
 
       await client.join(room);
       (client.data as PartyObserverSocketData).partyObservationRoom = room;
+
+      const joinedPlayerIdentity = this.resolveJoinedPlayerIdentity(client);
+
+      if (joinedPlayerIdentity !== null) {
+        this.clearPendingLobbyPlayerAbsencePrune(
+          snapshot.hostObservation.partyId,
+          joinedPlayerIdentity,
+        );
+      }
+
       await this.partyObservationBroadcaster.emitSnapshot(client, snapshot);
     } catch (error) {
       throw this.toWsException(error);
@@ -248,6 +280,10 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     const pin = joinedPartyPlayer?.pin;
     const partyObservationId = this.parsePartyObservationId(socketData.partyObservationRoom);
 
+    if (joinedPartyPlayer && partyObservationId !== null) {
+      this.clearPendingLobbyPlayerAbsencePrune(partyObservationId, joinedPartyPlayer.identity);
+    }
+
     if (!pin) {
       await this.leavePartyObservationRoom(client);
       this.clearJoinedPlayer(client);
@@ -276,7 +312,13 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
 
   @SubscribeMessage(PARTY_SOCKET_INBOUND_EVENTS.STOP_OBSERVING_PARTY)
   async stopObservingParty(@ConnectedSocket() client: Socket): Promise<void> {
+    const pendingPrune = this.resolvePendingLobbyPlayerAbsencePrune(client);
+
     await this.leavePartyObservationRoom(client);
+
+    if (pendingPrune !== null) {
+      this.scheduleLobbyPlayerAbsencePrune(pendingPrune);
+    }
   }
 
   private async leavePartyObservationRoom(client: Socket): Promise<void> {
@@ -299,6 +341,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     try {
       const result = await joinPartyUseCase.execute(this.toJoinPartyDto(client, payload));
 
+      this.clearPendingLobbyPlayerAbsencePrune(result.partyId, result.player.identity);
       this.rememberJoinedPlayer(client, result.pin, result.player.identity);
       await this.joinPartyObservationRoom(client, result.partyId);
       await this.publishPartyObservationRoom(result.partyId);
@@ -459,6 +502,146 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     const socketData = client.data as PartyObserverSocketData;
 
     delete socketData.joinedPartyPlayer;
+  }
+
+  private resolvePendingLobbyPlayerAbsencePrune(
+    client: Pick<Socket, 'data'>,
+  ): PendingLobbyPlayerAbsencePrune | null {
+    const socketData = client.data as PartyObserverSocketData;
+    const joinedPartyPlayer = socketData.joinedPartyPlayer;
+    const partyId = this.parsePartyObservationId(socketData.partyObservationRoom);
+
+    if (joinedPartyPlayer === undefined || partyId === null) {
+      return null;
+    }
+
+    return {
+      identity: joinedPartyPlayer.identity,
+      partyId,
+      pin: joinedPartyPlayer.pin,
+    };
+  }
+
+  private resolveJoinedPlayerIdentity(client: Pick<Socket, 'data'>): PartyPlayerIdentity | null {
+    const socketData = client.data as PartyObserverSocketData;
+
+    return socketData.joinedPartyPlayer?.identity ?? null;
+  }
+
+  private scheduleLobbyPlayerAbsencePrune(command: PendingLobbyPlayerAbsencePrune): void {
+    const pruneKey = this.toLobbyPlayerAbsencePruneKey(command.partyId, command.identity);
+
+    this.clearPendingLobbyPlayerAbsencePruneByKey(pruneKey);
+
+    const timeoutId = setTimeout(() => {
+      void this.pruneAbsentLobbyPlayer(command);
+    }, lobbyPlayerAbsenceGracePeriodMs);
+
+    this.pendingLobbyPlayerAbsencePrunes.set(pruneKey, timeoutId);
+  }
+
+  private async pruneAbsentLobbyPlayer(command: PendingLobbyPlayerAbsencePrune): Promise<void> {
+    const pruneKey = this.toLobbyPlayerAbsencePruneKey(command.partyId, command.identity);
+
+    try {
+      if (await this.hasJoinedPlayerConnection(command.partyId, command.identity)) {
+        return;
+      }
+
+      if (!(await this.isLobbyParty(command.partyId))) {
+        return;
+      }
+
+      await this.leavePartyUseCase.execute({
+        pin: command.pin,
+        playerIdentity: command.identity,
+      });
+    } finally {
+      this.clearPendingLobbyPlayerAbsencePruneByKey(pruneKey);
+    }
+  }
+
+  private async hasJoinedPlayerConnection(
+    partyId: PartyId,
+    playerIdentity: PartyPlayerIdentity,
+  ): Promise<boolean> {
+    if (this.server === null) {
+      return true;
+    }
+
+    const sockets = await this.server.in(resolvePartyObservationRoom(partyId)).fetchSockets();
+
+    return sockets.some((socket) =>
+      this.isSamePlayerIdentity(
+        (socket.data as PartyObserverSocketData).joinedPartyPlayer?.identity ?? null,
+        playerIdentity,
+      ),
+    );
+  }
+
+  private async isLobbyParty(partyId: PartyId): Promise<boolean> {
+    try {
+      const snapshot = await this.loadPartyObservationSnapshotUseCase.execute({ partyId });
+
+      return snapshot.hostObservation.status === PartyStatus.WAITING;
+    } catch {
+      return false;
+    }
+  }
+
+  private clearPendingLobbyPlayerAbsencePrune(
+    partyId: PartyId,
+    playerIdentity: PartyPlayerIdentity,
+  ): void {
+    this.clearPendingLobbyPlayerAbsencePruneByKey(
+      this.toLobbyPlayerAbsencePruneKey(partyId, playerIdentity),
+    );
+  }
+
+  private clearPendingLobbyPlayerAbsencePruneByKey(pruneKey: string): void {
+    const timeoutId = this.pendingLobbyPlayerAbsencePrunes.get(pruneKey);
+
+    if (timeoutId === undefined) {
+      return;
+    }
+
+    clearTimeout(timeoutId);
+    this.pendingLobbyPlayerAbsencePrunes.delete(pruneKey);
+  }
+
+  private toLobbyPlayerAbsencePruneKey(
+    partyId: PartyId,
+    playerIdentity: PartyPlayerIdentity,
+  ): string {
+    return `${partyId}:${this.toPlayerIdentityKey(playerIdentity)}`;
+  }
+
+  private toPlayerIdentityKey(playerIdentity: PartyPlayerIdentity): string {
+    switch (playerIdentity.kind) {
+      case PartyPlayerKind.USER:
+        return `user:${playerIdentity.userId}`;
+      case PartyPlayerKind.GUEST:
+        return `guest:${playerIdentity.guestId}`;
+    }
+  }
+
+  private isSamePlayerIdentity(
+    left: PartyPlayerIdentity | null,
+    right: PartyPlayerIdentity,
+  ): boolean {
+    if (left === null || left.kind !== right.kind) {
+      return false;
+    }
+
+    if (left.kind === PartyPlayerKind.USER && right.kind === PartyPlayerKind.USER) {
+      return left.userId === right.userId;
+    }
+
+    if (left.kind === PartyPlayerKind.GUEST && right.kind === PartyPlayerKind.GUEST) {
+      return left.guestId === right.guestId;
+    }
+
+    return false;
   }
 
   private normalizePin(pin: string | undefined): PartyPin {

@@ -19,6 +19,7 @@ interface HostPartyLifecycleTransitionResult {
 interface HostPartyStageReference {
   readonly id: NonNullable<PartyRuntimeLifecycleContext['stageId']>;
   readonly stagePosition: number;
+  readonly timeLimitSeconds: number;
 }
 
 export class HostPartyLifecyclePolicy {
@@ -43,6 +44,7 @@ export class HostPartyLifecyclePolicy {
         input.firstStage.id,
         input.firstStage.stagePosition,
         input.totalStages,
+        input.firstStage.timeLimitSeconds,
       ),
     };
   }
@@ -77,6 +79,7 @@ export class HostPartyLifecyclePolicy {
         input.nextStage.id,
         input.nextStage.stagePosition,
         lifecycle.totalStages,
+        input.nextStage.timeLimitSeconds,
       ),
     };
   }
@@ -88,7 +91,11 @@ export class HostPartyLifecyclePolicy {
       PartyRuntimePhase.RESULT,
     );
 
-    if (lifecycle.stageId === null || lifecycle.stagePosition === null) {
+    if (
+      lifecycle.stageId === null ||
+      lifecycle.stagePosition === null ||
+      lifecycle.stageTimeLimitSeconds === null
+    ) {
       throw new Error(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
     }
 
@@ -98,6 +105,7 @@ export class HostPartyLifecyclePolicy {
         lifecycle.stageId,
         lifecycle.stagePosition,
         lifecycle.totalStages,
+        lifecycle.stageTimeLimitSeconds,
       ),
     };
   }
@@ -128,6 +136,7 @@ export class HostPartyLifecyclePolicy {
         input.previousStage.id,
         input.previousStage.stagePosition,
         lifecycle.totalStages,
+        input.previousStage.timeLimitSeconds,
       ),
     };
   }
@@ -144,8 +153,11 @@ export class HostPartyLifecyclePolicy {
       runtime: {
         lifecycle: {
           phase: PartyRuntimePhase.LOBBY,
+          stageEndsAtEpochMs: null,
+          stageRemainingDurationMs: null,
           stageId: null,
           stagePosition: null,
+          stageTimeLimitSeconds: null,
           totalStages: lifecycle.totalStages,
         },
       },
@@ -159,9 +171,21 @@ export class HostPartyLifecyclePolicy {
       throw new Error(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
     }
 
+    if (state.runtime === null || state.runtime.lifecycle.phase !== PartyRuntimePhase.STAGE) {
+      return {
+        status: PartyStatus.PAUSED,
+        runtime: state.runtime,
+      };
+    }
+
+    const pausedRuntime: PartyRuntimeContext = {
+      lifecycle: this.pauseLifecycleTimer(state.runtime.lifecycle),
+      ...(state.runtime.stage ? { stage: state.runtime.stage } : {}),
+    };
+
     return {
       status: PartyStatus.PAUSED,
-      runtime: state.runtime,
+      runtime: pausedRuntime,
     };
   }
 
@@ -172,25 +196,39 @@ export class HostPartyLifecyclePolicy {
       throw new Error(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
     }
 
+    if (state.runtime === null || state.runtime.lifecycle.phase !== PartyRuntimePhase.STAGE) {
+      return {
+        status: PartyStatus.ACTIVE,
+        runtime: state.runtime,
+      };
+    }
+
+    const resumedRuntime: PartyRuntimeContext = {
+      lifecycle: this.resumeLifecycleTimer(state.runtime.lifecycle),
+      ...(state.runtime.stage ? { stage: state.runtime.stage } : {}),
+    };
+
     return {
       status: PartyStatus.ACTIVE,
-      runtime: state.runtime,
+      runtime: resumedRuntime,
     };
   }
 
   revealStageResult(state: HostPartyLifecycleState): HostPartyLifecycleTransitionResult {
-    const lifecycle = this.requireLifecycle(state, PartyRuntimePhase.STAGE);
+    if (state.runtime === null || state.runtime.lifecycle.phase !== PartyRuntimePhase.STAGE) {
+      throw new Error(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
+    }
+
+    const resultRuntime: PartyRuntimeContext = {
+      lifecycle: {
+        ...state.runtime.lifecycle,
+        phase: PartyRuntimePhase.RESULT,
+      },
+    };
 
     return {
       status: state.status,
-      runtime: {
-        lifecycle: {
-          phase: PartyRuntimePhase.RESULT,
-          stageId: lifecycle.stageId,
-          stagePosition: lifecycle.stagePosition,
-          totalStages: lifecycle.totalStages,
-        },
-      },
+      runtime: resultRuntime,
     };
   }
 
@@ -216,12 +254,17 @@ export class HostPartyLifecyclePolicy {
     stagePosition: number | null,
     totalStages: number,
   ): PartyRuntimeContext {
+    const result = runtime?.result;
+
     return {
-      ...runtime,
+      ...(result ? { result } : {}),
       lifecycle: {
         phase: PartyRuntimePhase.ENDED,
+        stageEndsAtEpochMs: runtime?.lifecycle.stageEndsAtEpochMs ?? null,
+        stageRemainingDurationMs: runtime?.lifecycle.stageRemainingDurationMs ?? null,
         stageId,
         stagePosition,
+        stageTimeLimitSeconds: runtime?.lifecycle.stageTimeLimitSeconds ?? null,
         totalStages,
       },
     };
@@ -231,15 +274,63 @@ export class HostPartyLifecyclePolicy {
     stageId: NonNullable<PartyRuntimeLifecycleContext['stageId']>,
     stagePosition: number,
     totalStages: number,
+    timeLimitSeconds: number,
   ): PartyRuntimeContext {
+    const stageRemainingDurationMs = this.toStageDurationMs(timeLimitSeconds);
+
     return {
       lifecycle: {
         phase: PartyRuntimePhase.STAGE,
+        stageEndsAtEpochMs:
+          stageRemainingDurationMs === null ? null : Date.now() + stageRemainingDurationMs,
+        stageRemainingDurationMs,
         stageId,
         stagePosition,
+        stageTimeLimitSeconds: timeLimitSeconds,
         totalStages,
       },
     };
+  }
+
+  private pauseLifecycleTimer(
+    lifecycle: Extract<PartyRuntimeLifecycleContext, { phase: PartyRuntimePhase.STAGE }>,
+  ): Extract<PartyRuntimeLifecycleContext, { phase: PartyRuntimePhase.STAGE }> {
+    return {
+      ...lifecycle,
+      stageEndsAtEpochMs: null,
+      stageRemainingDurationMs: this.resolveRemainingDurationMs(lifecycle),
+    };
+  }
+
+  private resumeLifecycleTimer(
+    lifecycle: Extract<PartyRuntimeLifecycleContext, { phase: PartyRuntimePhase.STAGE }>,
+  ): Extract<PartyRuntimeLifecycleContext, { phase: PartyRuntimePhase.STAGE }> {
+    if (lifecycle.stageRemainingDurationMs === null) {
+      return lifecycle;
+    }
+
+    return {
+      ...lifecycle,
+      stageEndsAtEpochMs: Date.now() + lifecycle.stageRemainingDurationMs,
+    };
+  }
+
+  private resolveRemainingDurationMs(
+    lifecycle: PartyRuntimeLifecycleContext,
+  ): PartyRuntimeLifecycleContext['stageRemainingDurationMs'] {
+    if (lifecycle.stageEndsAtEpochMs === null) {
+      return lifecycle.stageRemainingDurationMs;
+    }
+
+    return Math.max(0, lifecycle.stageEndsAtEpochMs - Date.now());
+  }
+
+  private toStageDurationMs(timeLimitSeconds: number): number | null {
+    if (timeLimitSeconds <= 0) {
+      return null;
+    }
+
+    return timeLimitSeconds * 1_000;
   }
 
   private requireLifecycle(

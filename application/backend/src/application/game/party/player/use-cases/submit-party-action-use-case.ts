@@ -40,6 +40,7 @@ export class SubmitPartyActionUseCase {
       gameId: target.gameId,
       partyId: target.partyId,
       playerIdentity: target.playerIdentity,
+      status: target.status,
     });
 
     await this.playerPartyActionRuntime.saveSubmissionResult({

@@ -45,8 +45,11 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
       context: {
         lifecycle: {
           phase: 'stage',
+          stageEndsAtEpochMs: 30_000,
+          stageRemainingDurationMs: 20_000,
           stageId: 101,
           stagePosition: 0,
+          stageTimeLimitSeconds: 20,
           totalStages: 3,
         },
       },
@@ -65,6 +68,7 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
       },
       data: {
         context: {
+          earnedPoints: 500,
           selectedActionId: 22,
           stageHistory: [
             {
@@ -122,6 +126,7 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
           const selectedActionId = Reflect.get(value, 'selectedActionId');
           const stageId = Reflect.get(value, 'stageId');
           const stagePosition = Reflect.get(value, 'stagePosition');
+          const earnedPoints = Reflect.get(value, 'earnedPoints');
           const status = Reflect.get(value, 'status');
           const normalizedSelectedActionId = partyActionIdentifier.parseOrNull(selectedActionId);
           const normalizedStageId = partyStageIdentifier.parseOrNull(stageId);
@@ -136,6 +141,7 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
           }
 
           return {
+            earnedPoints: Number.isInteger(earnedPoints) ? Number(earnedPoints) : 0,
             selectedActionId: normalizedSelectedActionId,
             stageId: normalizedStageId,
             stagePosition: Number(stagePosition),
@@ -152,8 +158,11 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
       context: {
         lifecycle: {
           phase: 'stage',
+          stageEndsAtEpochMs: 30_000,
+          stageRemainingDurationMs: 20_000,
           stageId: 202,
           stagePosition: 1,
+          stageTimeLimitSeconds: 20,
           totalStages: 3,
         },
       },
@@ -172,6 +181,7 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
       },
       data: {
         context: {
+          earnedPoints: 500,
           selectedActionId: 22,
           stageHistory: [
             {

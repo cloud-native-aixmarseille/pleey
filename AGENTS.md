@@ -17,10 +17,18 @@ Read the docs **before** generating code. All architecture, coding standards, an
 
 ## 🎯 Copilot Instruction Files
 
-Scoped instruction files add framework-specific rules **not covered** by the docs above:
+Scoped instruction files are grouped by concern under `.github/instructions/` and add rules **not covered** by the docs above:
 
-- `.github/instructions/react.instructions.md` — React 19.2 patterns, performance optimization (applies to `application/frontend/**`)
-- `.github/instructions/nestjs.instructions.md` — NestJS-specific patterns, DTOs, WebSocket, rate limiting (applies to `application/backend/**`)
+- `.github/instructions/frontend/react.instructions.md` — frontend React and presentation-layer rules for `application/frontend/**`
+- `.github/instructions/frontend/accessibility.instructions.md` — frontend accessibility and WCAG-focused rules for `application/frontend/**`
+- `.github/instructions/backend/nestjs.instructions.md` — backend NestJS and transport-boundary rules for `application/backend/**`
+- `.github/instructions/testing/unit-tests.instructions.md` — Vitest unit and integration test conventions for `application/**/*.spec|test.*`
+
+Review and generation instruction files are configured from `.vscode/settings.json` and are used for Copilot features that still support settings-based custom instructions:
+
+- `.github/instructions/workflow/review.md` — referenced by `github.copilot.chat.reviewSelection.instructions`
+- `.github/instructions/workflow/commit-message.md` — referenced by `github.copilot.chat.commitMessageGeneration.instructions`
+- `.github/instructions/workflow/pr-description.md` — referenced by `github.copilot.chat.pullRequestDescriptionGeneration.instructions`
 
 ## ⚠️ Key Rules
 

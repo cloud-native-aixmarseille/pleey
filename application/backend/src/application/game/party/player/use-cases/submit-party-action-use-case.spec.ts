@@ -23,8 +23,11 @@ describe('SubmitPartyActionUseCase', () => {
     const nextContext = {
       lifecycle: {
         phase: 'stage',
+        stageEndsAtEpochMs: 30_000,
+        stageRemainingDurationMs: 20_000,
         stageId: 101,
         stagePosition: 0,
+        stageTimeLimitSeconds: 20,
         totalStages: 3,
       },
       stage: {
@@ -43,6 +46,7 @@ describe('SubmitPartyActionUseCase', () => {
             { id: partyActionIdentifier.parse(3), text: 'C' },
             { id: partyActionIdentifier.parse(4), text: 'D' },
           ],
+          endsAtEpochMs: 30_000,
           stageId: 101,
           stagePosition: 0,
           text: 'Question 1',
@@ -64,8 +68,11 @@ describe('SubmitPartyActionUseCase', () => {
         context: {
           lifecycle: {
             phase: 'stage',
+            stageEndsAtEpochMs: 30_000,
+            stageRemainingDurationMs: 20_000,
             stageId: 101,
             stagePosition: 0,
+            stageTimeLimitSeconds: 20,
             totalStages: 3,
           },
         },
@@ -98,14 +105,18 @@ describe('SubmitPartyActionUseCase', () => {
       context: {
         lifecycle: {
           phase: 'stage',
+          stageEndsAtEpochMs: 30_000,
+          stageRemainingDurationMs: 20_000,
           stageId: 101,
           stagePosition: 0,
+          stageTimeLimitSeconds: 20,
           totalStages: 3,
         },
       },
       gameId: gameIdentifier.parse(9),
       partyId: partyIdentifier.parse(44),
       playerIdentity,
+      status: PartyStatus.ACTIVE,
     });
     expect(playerPartyActionRuntime.saveSubmissionResult).toHaveBeenCalledWith({
       actionId: partyActionIdentifier.parse(2),

@@ -19,8 +19,11 @@ describe('PredictionPartyActionPolicy', () => {
     const context: PartyRuntimeContext = {
       lifecycle: {
         phase: PartyRuntimePhase.STAGE,
+        stageEndsAtEpochMs: 25_000,
+        stageRemainingDurationMs: 10_000,
         stageId,
         stagePosition: 0,
+        stageTimeLimitSeconds: 10,
         totalStages: 3,
       },
     };
@@ -33,10 +36,12 @@ describe('PredictionPartyActionPolicy', () => {
         id: stageId,
         points: 250,
         stagePosition: 0,
+        timeLimitSeconds: 10,
         text: 'Will it happen?',
       }),
     } as unknown as PartyStageCatalogPort;
     const policy = new PredictionPartyActionPolicy(partyStageCatalog);
+    vi.spyOn(Date, 'now').mockReturnValue(20_000);
 
     const resolution = await policy.evaluateSubmission({
       actionId: selectedActionId,
@@ -44,12 +49,13 @@ describe('PredictionPartyActionPolicy', () => {
       gameId,
       partyId: 99 as PartyId,
       playerIdentity: {} as never,
+      status: PartyStatus.ACTIVE,
     });
 
     expect(partyStageCatalog.findStageById).toHaveBeenCalledWith(gameId, stageId);
     expect(resolution).toEqual({
       context,
-      scoreDelta: 250,
+      scoreDelta: 125,
       status: PartyStatus.ACTIVE,
     });
   });

@@ -89,8 +89,10 @@ export function usePartyLobbyHostRuntime({
   });
 
   useEffect(() => {
-    const currentStageId = party?.context?.stage?.current?.stageId;
+    const currentStageId = party?.context?.lifecycle.stageId;
     const actionSubmission = party?.context?.stage?.actionSubmission;
+    const stageEndsAtEpochMs = party?.context?.lifecycle.stageEndsAtEpochMs;
+    const hasStageTimer = stageEndsAtEpochMs !== null && stageEndsAtEpochMs !== undefined;
     const isComplete =
       actionSubmission !== null &&
       actionSubmission !== undefined &&
@@ -105,7 +107,7 @@ export function usePartyLobbyHostRuntime({
       currentStageId === undefined ||
       !hostRuntimeControls?.canRevealStageResult ||
       pendingHostRuntimeCommand !== null ||
-      !isComplete
+      (!isComplete && !hasStageTimer)
     ) {
       if (party?.context?.lifecycle.phase !== 'stage') {
         autoRevealedStageKeyRef.current = null;
@@ -115,13 +117,34 @@ export function usePartyLobbyHostRuntime({
     }
 
     const stageKey = `${party.partyId}:${currentStageId}`;
+    const revealStageResult = () => {
+      if (autoRevealedStageKeyRef.current === stageKey) {
+        return;
+      }
 
-    if (autoRevealedStageKeyRef.current === stageKey) {
+      autoRevealedStageKeyRef.current = stageKey;
+      void runHostRuntimeCommand(HostPartyRuntimeCommand.RevealStageResult);
+    };
+
+    if (isComplete) {
+      revealStageResult();
       return;
     }
 
-    autoRevealedStageKeyRef.current = stageKey;
-    void runHostRuntimeCommand(HostPartyRuntimeCommand.RevealStageResult);
+    if (!hasStageTimer) {
+      return;
+    }
+
+    const remainingDurationMs = stageEndsAtEpochMs - Date.now();
+
+    if (remainingDurationMs <= 0) {
+      revealStageResult();
+      return;
+    }
+
+    const timeoutId = window.setTimeout(revealStageResult, remainingDurationMs);
+
+    return () => window.clearTimeout(timeoutId);
   }, [
     hostRuntimeControls?.canRevealStageResult,
     party,

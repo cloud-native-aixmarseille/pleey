@@ -28,6 +28,7 @@ export class PartyLobbyRuntimeRedirectResolver {
       return null;
     }
 
+    const lifecycle = party.context?.lifecycle ?? null;
     const currentResult = party.context?.result?.current ?? null;
 
     if (party.status === PartyStatus.ENDED && currentResult) {
@@ -37,7 +38,11 @@ export class PartyLobbyRuntimeRedirectResolver {
     }
 
     if (currentResult) {
-      const currentStageId = currentResult.stageId;
+      const currentStageId = lifecycle?.stageId;
+
+      if (currentStageId === null || currentStageId === undefined) {
+        return resolvePartyLobbyRoute(party.partyId);
+      }
 
       return screenSection === PartyScreenSection.RESULT && requestedStageId === currentStageId
         ? null
@@ -47,7 +52,11 @@ export class PartyLobbyRuntimeRedirectResolver {
     const currentStage = party.context?.stage?.current ?? null;
 
     if (currentStage) {
-      const currentStageId = currentStage.stageId;
+      const currentStageId = lifecycle?.stageId;
+
+      if (currentStageId === null || currentStageId === undefined) {
+        return resolvePartyLobbyRoute(party.partyId);
+      }
 
       return screenSection === PartyScreenSection.STAGE && requestedStageId === currentStageId
         ? null

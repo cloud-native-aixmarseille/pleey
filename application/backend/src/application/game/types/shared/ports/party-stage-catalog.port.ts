@@ -13,6 +13,7 @@ export interface PartyStageCatalogEntry {
   readonly id: PartyStageId;
   readonly points: number;
   readonly stagePosition: number;
+  readonly timeLimitSeconds: number;
   readonly text: string;
 }
 

@@ -27,7 +27,10 @@
     "javascript": "javascriptreact"
   },
   "tailwindCSS.experimental.classRegex": [
-    ["class(?:Name)?\\s*=\\s*['\"]([^'\"]*)['\"]", "([^\\s]*)"]
+    [
+      "class(?:Name)?\\s*=\\s*['\"]([^'\"]*)['\"]",
+      "([^\\s]*)"
+    ]
   ],
   "[javascript]": {
     "editor.defaultFormatter": "biomejs.biome"
@@ -48,8 +51,25 @@
     "editor.formatOnSave": false,
     "editor.wordWrap": "on"
   },
-  "javascript.suggest.autoImports": true,
-  "javascript.updateImportsOnFileMove.enabled": "always",
+  "js/ts.suggest.autoImports": true,
+  "js/ts.updateImportsOnFileMove.enabled": "always",
+  "chat.useAgentsMdFile": true,
+  "chat.includeApplyingInstructions": true,
+  "github.copilot.chat.reviewSelection.instructions": [
+    {
+      "file": ".github/instructions/workflow/review.md"
+    }
+  ],
+  "github.copilot.chat.commitMessageGeneration.instructions": [
+    {
+      "file": ".github/instructions/workflow/commit-message.md"
+    }
+  ],
+  "github.copilot.chat.pullRequestDescriptionGeneration.instructions": [
+    {
+      "file": ".github/instructions/workflow/pr-description.md"
+    }
+  ],
   "docker.dockerComposeBuild": true,
   "docker.dockerComposeDetached": true,
   "containers.composeBuild": true,

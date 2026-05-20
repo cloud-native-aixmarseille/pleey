@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
 import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
 import { HostPartyLifecyclePolicy } from '../../../../../domain/game/party/host/services/host-party-lifecycle-policy';
@@ -18,7 +18,13 @@ const partyIdentifier = new PartyIdentifier();
 const userIdentifier = new UserIdentifier();
 
 describe('Host party runtime use cases', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('starts a host-controlled party and broadcasts the updated observation', async () => {
+    vi.spyOn(Date, 'now').mockReturnValue(100_000);
+
     const hostPartyRuntimeControl = {
       findPartyRuntimeByPartyId: vi.fn().mockResolvedValue({
         context: null,
@@ -33,7 +39,9 @@ describe('Host party runtime use cases', () => {
       getStageCount: vi.fn().mockResolvedValue(3),
     };
     const partyStageCatalog = {
-      findFirstStage: vi.fn().mockResolvedValue({ id: 101, stagePosition: 0 }),
+      findFirstStage: vi
+        .fn()
+        .mockResolvedValue({ id: 101, stagePosition: 0, timeLimitSeconds: 20 }),
     };
     const broadcastPartyObservationUseCase = {
       execute: vi.fn().mockResolvedValue(undefined),
@@ -59,8 +67,11 @@ describe('Host party runtime use cases', () => {
       context: {
         lifecycle: {
           phase: 'stage',
+          stageEndsAtEpochMs: 120_000,
+          stageRemainingDurationMs: 20_000,
           stageId: 101,
           stagePosition: 0,
+          stageTimeLimitSeconds: 20,
           totalStages: 3,
         },
       },
@@ -113,8 +124,11 @@ describe('Host party runtime use cases', () => {
         context: {
           lifecycle: {
             phase: 'stage',
+            stageEndsAtEpochMs: 120_000,
+            stageRemainingDurationMs: 20_000,
             stageId: 202,
             stagePosition: 1,
+            stageTimeLimitSeconds: 20,
             totalStages: 4,
           },
         },
@@ -143,8 +157,11 @@ describe('Host party runtime use cases', () => {
       context: {
         lifecycle: {
           phase: 'result',
+          stageEndsAtEpochMs: 120_000,
+          stageRemainingDurationMs: 20_000,
           stageId: 202,
           stagePosition: 1,
+          stageTimeLimitSeconds: 20,
           totalStages: 4,
         },
       },
@@ -157,13 +174,18 @@ describe('Host party runtime use cases', () => {
   });
 
   it('advances to the next stage using stage position lookup', async () => {
+    vi.spyOn(Date, 'now').mockReturnValue(100_000);
+
     const hostPartyRuntimeControl = {
       findPartyRuntimeByPartyId: vi.fn().mockResolvedValue({
         context: {
           lifecycle: {
             phase: 'result',
+            stageEndsAtEpochMs: 120_000,
+            stageRemainingDurationMs: 20_000,
             stageId: 202,
             stagePosition: 1,
+            stageTimeLimitSeconds: 20,
             totalStages: 4,
           },
         },
@@ -175,7 +197,7 @@ describe('Host party runtime use cases', () => {
       savePartyRuntime: vi.fn().mockResolvedValue(undefined),
     };
     const partyStageCatalog = {
-      findNextStage: vi.fn().mockResolvedValue({ id: 303, stagePosition: 2 }),
+      findNextStage: vi.fn().mockResolvedValue({ id: 303, stagePosition: 2, timeLimitSeconds: 15 }),
     };
     const useCase = new AdvanceStageUseCase(
       hostPartyRuntimeControl as never,
@@ -201,8 +223,11 @@ describe('Host party runtime use cases', () => {
       context: {
         lifecycle: {
           phase: 'stage',
+          stageEndsAtEpochMs: 115_000,
+          stageRemainingDurationMs: 15_000,
           stageId: 303,
           stagePosition: 2,
+          stageTimeLimitSeconds: 15,
           totalStages: 4,
         },
       },
@@ -212,13 +237,18 @@ describe('Host party runtime use cases', () => {
   });
 
   it('restarts the current stage and marks that stage for player progress reset', async () => {
+    vi.spyOn(Date, 'now').mockReturnValue(150_000);
+
     const hostPartyRuntimeControl = {
       findPartyRuntimeByPartyId: vi.fn().mockResolvedValue({
         context: {
           lifecycle: {
             phase: 'result',
+            stageEndsAtEpochMs: 120_000,
+            stageRemainingDurationMs: 20_000,
             stageId: 202,
             stagePosition: 1,
+            stageTimeLimitSeconds: 20,
             totalStages: 4,
           },
         },
@@ -246,8 +276,11 @@ describe('Host party runtime use cases', () => {
       context: {
         lifecycle: {
           phase: 'stage',
+          stageEndsAtEpochMs: 170_000,
+          stageRemainingDurationMs: 20_000,
           stageId: 202,
           stagePosition: 1,
+          stageTimeLimitSeconds: 20,
           totalStages: 4,
         },
       },
@@ -261,13 +294,18 @@ describe('Host party runtime use cases', () => {
   });
 
   it('rewinds to the previous stage and marks the rewound range for player progress reset', async () => {
+    vi.spyOn(Date, 'now').mockReturnValue(180_000);
+
     const hostPartyRuntimeControl = {
       findPartyRuntimeByPartyId: vi.fn().mockResolvedValue({
         context: {
           lifecycle: {
             phase: 'stage',
+            stageEndsAtEpochMs: 120_000,
+            stageRemainingDurationMs: 20_000,
             stageId: 303,
             stagePosition: 2,
+            stageTimeLimitSeconds: 20,
             totalStages: 4,
           },
         },
@@ -285,7 +323,9 @@ describe('Host party runtime use cases', () => {
           getStageCount: vi.fn(),
         } as never,
         {
-          findPreviousStage: vi.fn().mockResolvedValue({ id: 202, stagePosition: 1 }),
+          findPreviousStage: vi
+            .fn()
+            .mockResolvedValue({ id: 202, stagePosition: 1, timeLimitSeconds: 25 }),
         } as never,
       ),
       {
@@ -303,8 +343,11 @@ describe('Host party runtime use cases', () => {
       context: {
         lifecycle: {
           phase: 'stage',
+          stageEndsAtEpochMs: 205_000,
+          stageRemainingDurationMs: 25_000,
           stageId: 202,
           stagePosition: 1,
+          stageTimeLimitSeconds: 25,
           totalStages: 4,
         },
       },
@@ -323,8 +366,11 @@ describe('Host party runtime use cases', () => {
         context: {
           lifecycle: {
             phase: 'result',
+            stageEndsAtEpochMs: 120_000,
+            stageRemainingDurationMs: 20_000,
             stageId: 303,
             stagePosition: 2,
+            stageTimeLimitSeconds: 20,
             totalStages: 4,
           },
         },
@@ -352,8 +398,11 @@ describe('Host party runtime use cases', () => {
       context: {
         lifecycle: {
           phase: 'lobby',
+          stageEndsAtEpochMs: null,
+          stageRemainingDurationMs: null,
           stageId: null,
           stagePosition: null,
+          stageTimeLimitSeconds: null,
           totalStages: 4,
         },
       },

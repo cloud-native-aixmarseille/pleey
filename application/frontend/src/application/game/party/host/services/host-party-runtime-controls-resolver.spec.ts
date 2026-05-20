@@ -83,9 +83,23 @@ describe('HostPartyRuntimeControlsResolver', () => {
           context: {
             lifecycle: {
               phase: 'stage',
+              stageEndsAtEpochMs: null,
               stageId: stageIdentifier.parse(2),
               stagePosition: 1,
+              stageRemainingDurationMs: null,
+              stageTimeLimitSeconds: null,
               totalStages: 4,
+            },
+            stage: {
+              actionSubmission: {
+                currentPlayer: null,
+                submittedPlayerCount: 0,
+                totalEligiblePlayerCount: 0,
+              },
+              current: {
+                actions: [],
+                text: 'Question 2',
+              },
             },
           },
         }),
@@ -114,9 +128,19 @@ describe('HostPartyRuntimeControlsResolver', () => {
           context: {
             lifecycle: {
               phase: 'result',
+              stageEndsAtEpochMs: null,
               stageId: stageIdentifier.parse(3),
               stagePosition: 2,
+              stageRemainingDurationMs: null,
+              stageTimeLimitSeconds: null,
               totalStages: 3,
+            },
+            result: {
+              current: {
+                actions: [],
+                text: 'Question 3',
+              },
+              currentPlayer: null,
             },
           },
         }),

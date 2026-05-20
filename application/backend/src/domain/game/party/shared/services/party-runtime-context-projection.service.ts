@@ -52,8 +52,6 @@ export class PartyRuntimeContextProjectionService {
             id: action.id,
             text: action.text,
           })),
-          stageId: input.stage.id,
-          stagePosition: input.stage.stagePosition,
           text: input.stage.text,
         },
       },
@@ -112,15 +110,13 @@ export class PartyRuntimeContextProjectionService {
               text: action.text,
             };
           }),
-          stageId: stage.id,
-          stagePosition: stage.stagePosition,
           text: stage.text,
         },
         currentPlayer:
           currentPlayerAction === null || selectedAction === null
             ? null
             : {
-                earnedPoints: selectedAction.isCorrect ? stage.points : 0,
+                earnedPoints: currentPlayerAction.earnedPoints,
                 isCorrect: selectedAction.isCorrect,
                 selectedActionId: currentPlayerAction.selectedActionId,
               },

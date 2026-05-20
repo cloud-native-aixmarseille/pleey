@@ -263,6 +263,118 @@ describe('SocketIoPartyObservationAdapter', () => {
     expect(observation.players[0]).not.toHaveProperty('playerKey');
   });
 
+  it('maps stage timer metadata from the snapshot payload', () => {
+    const onSnapshot = vi.fn();
+    const { adapter } = createObservationAdapter();
+
+    adapter.observeParty(partyIdentifier.parse(44), { onSnapshot });
+
+    const snapshotHandler = onMock.mock.calls.find(
+      ([eventName]) => eventName === 'party-snapshot',
+    )?.[1];
+
+    expect(snapshotHandler).toBeTypeOf('function');
+
+    snapshotHandler?.({
+      partyId: 44,
+      gameType: GameType.Quiz,
+      pin: 'AB12CD',
+      status: 'ACTIVE',
+      context: {
+        lifecycle: {
+          phase: 'stage',
+          stageEndsAtEpochMs: 15_000,
+          stageId: 12,
+          stagePosition: 0,
+          stageRemainingDurationMs: 10_000,
+          stageTimeLimitSeconds: 10,
+          totalStages: 2,
+        },
+        stage: {
+          actionSubmission: {
+            currentPlayer: null,
+            submittedPlayerCount: 0,
+            totalEligiblePlayerCount: 0,
+          },
+          current: {
+            actions: [{ id: 100, text: 'First answer' }],
+            text: 'Who answers first?',
+          },
+        },
+      },
+      isObserverHost: false,
+      host: {
+        avatarUri: '/avatars/host.png',
+        username: 'Host',
+      },
+      players: [],
+    });
+
+    expect(onSnapshot.mock.calls[0]?.[0]?.context).toMatchObject({
+      lifecycle: {
+        phase: 'stage',
+        stageEndsAtEpochMs: 15_000,
+        stageId: 12,
+        stagePosition: 0,
+        stageRemainingDurationMs: 10_000,
+        stageTimeLimitSeconds: 10,
+        totalStages: 2,
+      },
+      stage: {
+        actionSubmission: {
+          currentPlayer: null,
+          submittedPlayerCount: 0,
+          totalEligiblePlayerCount: 0,
+        },
+        current: {
+          actions: [{ id: 100, text: 'First answer' }],
+          text: 'Who answers first?',
+        },
+      },
+    });
+  });
+
+  it('drops malformed stage-phase context instead of throwing during snapshot mapping', () => {
+    const onSnapshot = vi.fn();
+    const { adapter } = createObservationAdapter();
+
+    adapter.observeParty(partyIdentifier.parse(44), { onSnapshot });
+
+    const snapshotHandler = onMock.mock.calls.find(
+      ([eventName]) => eventName === 'party-snapshot',
+    )?.[1];
+
+    expect(snapshotHandler).toBeTypeOf('function');
+
+    expect(() => {
+      snapshotHandler?.({
+        partyId: 44,
+        gameType: GameType.Quiz,
+        pin: 'AB12CD',
+        status: 'ACTIVE',
+        context: {
+          lifecycle: {
+            phase: 'stage',
+            stageEndsAtEpochMs: 15_000,
+            stageId: 12,
+            stagePosition: 0,
+            stageRemainingDurationMs: 10_000,
+            stageTimeLimitSeconds: 10,
+            totalStages: 2,
+          },
+        },
+        isObserverHost: false,
+        host: {
+          avatarUri: '/avatars/host.png',
+          username: 'Host',
+        },
+        players: [],
+      });
+    }).not.toThrow();
+
+    expect(onSnapshot.mock.calls[0]?.[0]?.context).toBeNull();
+  });
+
   it('maps accepted guest join acknowledgements to domain receipts', async () => {
     const acceptedGuestJoinReceipt = createAcceptedGuestJoinReceipt();
 

@@ -61,6 +61,7 @@ describe('PlayerPartyObservationMessageMapper', () => {
               userId: 42,
             },
             state: {
+              earnedPoints: 750,
               selectedActionId: partyActionIdentifier.parse(7),
               stageId: 202,
               stagePosition: 1,
@@ -94,7 +95,7 @@ describe('PlayerPartyObservationMessageMapper', () => {
     );
 
     expect(message.context?.result?.currentPlayer).toEqual({
-      earnedPoints: 1000,
+      earnedPoints: 750,
       isCorrect: true,
       selectedActionId: partyActionIdentifier.parse(7),
     });
