@@ -5,6 +5,7 @@ import { UserRepositoryProvider } from '../../../../domain/identity/ports/user.r
 import { PasswordService } from '../../../../domain/identity/services/password-service';
 import { UserAvatarService } from '../../../../domain/identity/services/user-avatar-service';
 import type { UserProfileSnapshot } from '../../../../domain/identity/types/user-profile-snapshot';
+import { DefaultWorkspaceService } from '../../../../domain/organization/services/default-workspace-service';
 import type { RegisterUserDto } from '../dto/register-user-dto';
 
 /**
@@ -18,6 +19,7 @@ export class RegisterUserUseCase {
     private readonly userRepository: UserRepository,
     private readonly passwordService: PasswordService,
     private readonly userAvatarService: UserAvatarService,
+    private readonly defaultWorkspaceService: DefaultWorkspaceService,
   ) {}
 
   async execute(dto: RegisterUserDto): Promise<UserProfileSnapshot> {
@@ -45,6 +47,8 @@ export class RegisterUserUseCase {
       hashedPassword,
       avatar,
     );
+
+    await this.defaultWorkspaceService.ensure(created.id);
 
     return created.toProfileSnapshot();
   }

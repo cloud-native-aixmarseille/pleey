@@ -25,6 +25,14 @@ const profileTitleStyle = {
   whiteSpace: 'nowrap',
 } as const;
 
+const highlightSlotStyle = {
+  alignItems: 'center',
+  display: 'flex',
+  justifyContent: 'center',
+  minHeight: '1.5rem',
+  width: '100%',
+} as const;
+
 export function ProfileTile({
   avatarAlt,
   avatarSrc,
@@ -36,11 +44,13 @@ export function ProfileTile({
   return (
     <InsetPanel padding="md" tone={highlighted ? 'accent' : 'default'}>
       <ContentStack align="center" gap="xs">
-        {highlightLabel ? (
-          <ActionRow justify="center">
-            <Badge tone="success">{highlightLabel}</Badge>
-          </ActionRow>
-        ) : null}
+        <div data-testid="profile-tile-highlight-slot" style={highlightSlotStyle}>
+          {highlightLabel ? (
+            <ActionRow justify="center">
+              <Badge tone="success">{highlightLabel}</Badge>
+            </ActionRow>
+          ) : null}
+        </div>
         <UserAvatar alt={avatarAlt} size={56} src={avatarSrc} />
         <Text component="p" style={profileTitleStyle} w="100%">
           {title}

@@ -206,8 +206,8 @@ export function usePlayableContentManagement({
           items: [...state.items, savedItem].sort((left, right) => left.position - right.position),
           game: { ...state.game, itemCount: state.game.itemCount + 1 },
         });
-        setSelectedItemId(savedItem.id);
-        setEditorState(createPlayableItemEditorStateFromItem(savedItem, itemKindConfig));
+        setSelectedItemId(null);
+        setEditorState(createEmptyPlayableItemEditorState(itemKindConfig));
       }
       pulseSaved();
     } catch (saveError) {

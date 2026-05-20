@@ -13,6 +13,9 @@ import { RefreshAccessTokenUseCase } from '../../../application/identity/session
 import { RegisterUserUseCase } from '../../../application/identity/session/use-cases/register-user-use-case';
 import { GuestIdentifier } from '../../../application/identity/shared/services/identifiers/guest-identifier';
 import { UserIdentifier } from '../../../application/identity/shared/services/identifiers/user-identifier';
+import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
+import { OrganizationMemberIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-member-identifier';
+import { ProjectIdentifier } from '../../../application/workspace/shared/services/identifiers/project-identifier';
 import {
   ACCESS_TOKEN_CONFIG,
   AuthTokenServiceProvider,
@@ -23,11 +26,18 @@ import { GuestRepositoryProvider } from '../../../domain/identity/ports/guest.re
 import { UserRepositoryProvider } from '../../../domain/identity/ports/user.repository';
 import { PasswordService } from '../../../domain/identity/services/password-service';
 import { UserAvatarService } from '../../../domain/identity/services/user-avatar-service';
+import { OrganizationRepositoryProvider } from '../../../domain/organization/ports/organization.repository';
+import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/ports/organization-member.repository';
+import { DefaultWorkspaceService } from '../../../domain/organization/services/default-workspace-service';
+import { ProjectRepositoryProvider } from '../../../domain/project/ports/project.repository';
 import { JwtStrategy } from '../../../infrastructure/identity/jwt-strategy';
 import { PrismaGuestRepository } from '../../../infrastructure/identity/repositories/prisma-guest-repository';
 import { PrismaUserRepository } from '../../../infrastructure/identity/repositories/prisma-user-repository';
 import { DicebearAvatarGeneratorAdapter } from '../../../infrastructure/identity/services/dicebear-avatar-generator-adapter';
 import { JwtAuthTokenService } from '../../../infrastructure/identity/services/jwt-auth-token-service';
+import { PrismaOrganizationMemberRepository } from '../../../infrastructure/organization/repositories/prisma-organization-member-repository';
+import { PrismaOrganizationRepository } from '../../../infrastructure/organization/repositories/prisma-organization-repository';
+import { PrismaProjectRepository } from '../../../infrastructure/project/repositories/prisma-project-repository';
 import { AuthResolver } from '../../../presentation/identity/graphql/auth-resolver';
 import { AvatarController } from '../../../presentation/identity/http/avatar-controller';
 import { GqlJwtAuthGuard } from '../../../presentation/identity/shared/guards/gql-jwt-auth-guard';
@@ -61,8 +71,12 @@ import { DatabaseModule } from '../database/database-module';
     GetUserAvatarUseCase,
     GetGuestAvatarUseCase,
     GuestIdentifier,
+    OrganizationIdentifier,
+    OrganizationMemberIdentifier,
     PasswordService,
     PartyIdentifier,
+    DefaultWorkspaceService,
+    ProjectIdentifier,
     DicebearAvatarGeneratorAdapter,
     AuthProfilePresenter,
     UserIdentifier,
@@ -70,6 +84,9 @@ import { DatabaseModule } from '../database/database-module';
     JwtAuthTokenService,
     PrismaUserRepository,
     PrismaGuestRepository,
+    PrismaOrganizationRepository,
+    PrismaOrganizationMemberRepository,
+    PrismaProjectRepository,
     {
       provide: UserRepositoryProvider,
       useExisting: PrismaUserRepository,
@@ -77,6 +94,18 @@ import { DatabaseModule } from '../database/database-module';
     {
       provide: GuestRepositoryProvider,
       useExisting: PrismaGuestRepository,
+    },
+    {
+      provide: OrganizationRepositoryProvider,
+      useExisting: PrismaOrganizationRepository,
+    },
+    {
+      provide: OrganizationMemberRepositoryProvider,
+      useExisting: PrismaOrganizationMemberRepository,
+    },
+    {
+      provide: ProjectRepositoryProvider,
+      useExisting: PrismaProjectRepository,
     },
     {
       provide: AuthTokenServiceProvider,

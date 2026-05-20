@@ -57,12 +57,11 @@ export const mobileHeroSubtitleStyle: CSSProperties = {
 
 export const podiumDesktopRackStyle: CSSProperties = {
   alignItems: 'flex-end',
-  display: 'flex',
-  flexWrap: 'wrap',
+  display: 'grid',
   gap: uiThemeTokens.spacing.md,
-  justifyContent: 'center',
   margin: '0 auto',
-  maxWidth: '28rem',
+  gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+  maxWidth: '40rem',
   width: '100%',
 };
 
@@ -82,7 +81,7 @@ export const podiumMobileSecondaryListStyle: CSSProperties = {
 
 export const podiumSectionStyle: CSSProperties = {
   margin: '0 auto',
-  maxWidth: '34rem',
+  maxWidth: '42rem',
   width: '100%',
 };
 
@@ -126,7 +125,6 @@ const podiumColumnBaseStyle: CSSProperties = {
   borderRadius: `${uiThemeTokens.radius.panel} ${uiThemeTokens.radius.panel} 0 0`,
   display: 'flex',
   flexDirection: 'column',
-  flex: '0 1 11rem',
   gap: uiThemeTokens.spacing.sm,
   justifyContent: 'flex-start',
   overflow: 'hidden',
@@ -144,6 +142,7 @@ export function buildPodiumColumnStyle(rank: PodiumRank): CSSProperties {
       border: uiThemeTokens.leaderboard.podium.first.columnBorder,
       boxShadow: uiThemeTokens.leaderboard.podium.first.columnShadow,
       minHeight: '17rem',
+      padding: `${uiThemeTokens.spacing.xxl} ${uiThemeTokens.spacing.sm} ${uiThemeTokens.spacing.xl}`,
     };
   }
 
@@ -154,6 +153,7 @@ export function buildPodiumColumnStyle(rank: PodiumRank): CSSProperties {
       border: uiThemeTokens.leaderboard.podium.second.columnBorder,
       boxShadow: uiThemeTokens.leaderboard.podium.second.columnShadow,
       minHeight: '13rem',
+      padding: `${uiThemeTokens.spacing.xl} ${uiThemeTokens.spacing.sm} ${uiThemeTokens.spacing.xl}`,
     };
   }
 
@@ -163,6 +163,7 @@ export function buildPodiumColumnStyle(rank: PodiumRank): CSSProperties {
     border: uiThemeTokens.leaderboard.podium.third.columnBorder,
     boxShadow: uiThemeTokens.leaderboard.podium.third.columnShadow,
     minHeight: '10rem',
+    padding: `${uiThemeTokens.spacing.lg} ${uiThemeTokens.spacing.sm} ${uiThemeTokens.spacing.md}`,
   };
 }
 
@@ -227,6 +228,13 @@ export const podiumPointsStyle: CSSProperties = {
   fontVariantNumeric: 'tabular-nums',
   margin: 0,
   textShadow: `0 0 16px ${uiThemeTokens.color.brand.accent}, ${uiThemeTokens.leaderboard.podium.pointsTextShadowTail}`,
+};
+
+export const podiumCurrentPlayerSlotStyle: CSSProperties = {
+  alignItems: 'center',
+  display: 'flex',
+  justifyContent: 'center',
+  minHeight: '1.75rem',
 };
 
 export const mobileWinnerScoreStyle: CSSProperties = {

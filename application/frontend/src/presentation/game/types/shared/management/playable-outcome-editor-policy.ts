@@ -4,7 +4,7 @@ import {
   resolvePlayableItemKindOption,
 } from './playable-content-management-model';
 
-export const MAX_PLAYABLE_OUTCOME_COUNT = 4;
+export const MAX_PLAYABLE_OUTCOME_COUNT = 8;
 
 interface RemovePlayableOutcomeResult {
   readonly editorState: PlayableItemEditorState;

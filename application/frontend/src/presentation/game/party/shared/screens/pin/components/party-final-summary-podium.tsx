@@ -21,6 +21,7 @@ import {
   mobileWinnerNameStyle,
   mobileWinnerScoreStyle,
   podiumCrownStyle,
+  podiumCurrentPlayerSlotStyle,
   podiumDesktopRackStyle,
   podiumHeaderStyle,
   podiumMobileCardHeaderStyle,
@@ -126,9 +127,14 @@ function renderDesktopPodiumEntry(
           points: String(player.totalScore),
         })}
       </p>
-      {player.isCurrentPlayer ? (
-        <Badge tone="success">{t('game.party.route.youBadge')}</Badge>
-      ) : null}
+      <div
+        data-testid={`party-final-podium-rank-${rank}-badge-slot`}
+        style={podiumCurrentPlayerSlotStyle}
+      >
+        {player.isCurrentPlayer ? (
+          <Badge tone="success">{t('game.party.route.youBadge')}</Badge>
+        ) : null}
+      </div>
     </div>
   );
 }

@@ -3,22 +3,6 @@ export const dashboardEn = {
     console: {
       title: 'Workspace console',
       subtitle: 'Pick a workspace, then move from setup to launch without leaving the dashboard.',
-      commandPalette: {
-        title: 'Command palette',
-        description: 'Jump between organizations, projects, and game actions from one place.',
-        meta: 'Fastest path for repeat operators',
-      },
-      fastFiltering: {
-        title: 'Fast filtering',
-        description: 'Narrow large game lists by type, name, and status before taking action.',
-        meta: 'Built for dense workspaces',
-      },
-      liveOps: {
-        title: 'Live ops overview',
-        description:
-          'Keep active parties, game readiness, and launch control in the same working surface.',
-        meta: 'Context stays local to the selected project',
-      },
     },
     workspace: {
       sectionTitle: 'Choose your workspace',

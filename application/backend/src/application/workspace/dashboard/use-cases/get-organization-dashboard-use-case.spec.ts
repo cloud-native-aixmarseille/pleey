@@ -1,4 +1,5 @@
 import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
+import { createDefaultWorkspaceServiceMock } from '../../../../test-utils/mock-factories/default-workspace-service.mock-factory';
 import {
   createOrganizationMemberRepositoryMock,
   createOrganizationRepositoryMock,
@@ -8,9 +9,7 @@ import { GetOrganizationDashboardUseCase } from './get-organization-dashboard-us
 
 describe('GetOrganizationDashboardUseCase', () => {
   it('throws when organization does not exist', async () => {
-    const defaultWorkspaceService = {
-      ensure: vi.fn().mockResolvedValue(undefined),
-    };
+    const defaultWorkspaceService = createDefaultWorkspaceServiceMock();
     const organizationRepository = createOrganizationRepositoryMock({ findById: null });
     const memberRepository = createOrganizationMemberRepositoryMock();
     const projectRepository = createProjectRepositoryMock();
@@ -33,9 +32,7 @@ describe('GetOrganizationDashboardUseCase', () => {
   });
 
   it('throws when user is not a member', async () => {
-    const defaultWorkspaceService = {
-      ensure: vi.fn().mockResolvedValue(undefined),
-    };
+    const defaultWorkspaceService = createDefaultWorkspaceServiceMock();
     const organizationRepository = createOrganizationRepositoryMock({
       findById: { id: 1, name: 'Org', description: null } as never,
     });
@@ -59,9 +56,7 @@ describe('GetOrganizationDashboardUseCase', () => {
   });
 
   it('returns aggregated stats', async () => {
-    const defaultWorkspaceService = {
-      ensure: vi.fn().mockResolvedValue(undefined),
-    };
+    const defaultWorkspaceService = createDefaultWorkspaceServiceMock();
     const organizationRepository = createOrganizationRepositoryMock({
       findById: { id: 1, name: 'Org', description: null } as never,
     });

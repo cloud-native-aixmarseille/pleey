@@ -7,7 +7,11 @@ import type { OrganizationRepository } from '../../../../domain/organization/por
 import { OrganizationRepositoryProvider } from '../../../../domain/organization/ports/organization.repository';
 import type { OrganizationMemberRepository } from '../../../../domain/organization/ports/organization-member.repository';
 import { OrganizationMemberRepositoryProvider } from '../../../../domain/organization/ports/organization-member.repository';
+import type { ProjectRepository } from '../../../../domain/project/ports/project.repository';
+import { ProjectRepositoryProvider } from '../../../../domain/project/ports/project.repository';
 import type { CreateOrganizationDto } from '../dto/create-organization-dto';
+
+const DEFAULT_PROJECT_NAME = 'Default';
 
 /**
  * Use case for creating a new organization
@@ -20,6 +24,8 @@ export class CreateOrganizationUseCase {
     private readonly organizationRepository: OrganizationRepository,
     @Inject(OrganizationMemberRepositoryProvider)
     private readonly memberRepository: OrganizationMemberRepository,
+    @Inject(ProjectRepositoryProvider)
+    private readonly projectRepository: ProjectRepository,
   ) {}
 
   async execute(dto: CreateOrganizationDto, creatorUserId: UserId): Promise<Organization> {
@@ -37,6 +43,8 @@ export class CreateOrganizationUseCase {
 
     // Add the creator as owner
     await this.memberRepository.create(organization.id, creatorUserId, OrganizationRole.OWNER);
+
+    await this.projectRepository.create(organization.id, DEFAULT_PROJECT_NAME, null);
 
     return organization;
   }

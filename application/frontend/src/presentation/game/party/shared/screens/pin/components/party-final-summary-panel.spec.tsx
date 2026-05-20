@@ -67,6 +67,10 @@ describe('PartyFinalSummaryPanel', () => {
 
     expect(screen.getByTestId('party-final-podium-desktop')).toBeInTheDocument();
     expect(screen.queryByTestId('party-final-podium-mobile')).not.toBeInTheDocument();
+    expect(screen.getByTestId('party-final-podium-desktop')).toHaveStyle({
+      display: 'grid',
+      gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+    });
 
     expect(
       within(screen.getByTestId('party-final-podium-rank-2')).getByText('Player Two'),
@@ -77,6 +81,20 @@ describe('PartyFinalSummaryPanel', () => {
     expect(
       within(screen.getByTestId('party-final-podium-rank-3')).getByText('Player Three'),
     ).toBeInTheDocument();
+    expect(screen.getByTestId('party-final-podium-rank-2-badge-slot')).toBeEmptyDOMElement();
+    expect(
+      within(screen.getByTestId('party-final-podium-rank-3-badge-slot')).getByText(
+        'game.party.route.youBadge',
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('party-final-podium-rank-2')).toHaveStyle({
+      minHeight: '13rem',
+      padding: 'var(--ui-spacing-xl) var(--ui-spacing-sm) var(--ui-spacing-xl)',
+    });
+    expect(screen.getByTestId('party-final-podium-rank-3')).toHaveStyle({
+      minHeight: '10rem',
+      padding: 'var(--ui-spacing-lg) var(--ui-spacing-sm) var(--ui-spacing-md)',
+    });
   });
 
   it('renders a dedicated mobile winner card and compact standings on narrow screens', () => {

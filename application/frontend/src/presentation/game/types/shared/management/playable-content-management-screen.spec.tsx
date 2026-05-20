@@ -166,6 +166,48 @@ describe('PlayableContentManagementScreen', () => {
     });
   });
 
+  it('resets the editor to a blank creation form after creating an item', async () => {
+    const user = userEvent.setup();
+    renderScreen();
+
+    await user.click(
+      await screen.findByRole('button', { name: 'game.types.quiz.management.createItem' }),
+    );
+    const textboxes = screen.getAllByRole('textbox');
+    fireEvent.change(textboxes[0], { target: { value: 'New question' } });
+    fireEvent.change(textboxes[1], { target: { value: 'Alpha' } });
+    fireEvent.change(textboxes[2], { target: { value: 'Beta' } });
+    const createButtons = screen.getAllByRole('button', {
+      name: 'game.types.quiz.management.createItem',
+    });
+    await user.click(createButtons[createButtons.length - 1]);
+
+    await waitFor(() => {
+      expect(gateway.createItem).toHaveBeenCalledTimes(1);
+    });
+
+    expect(
+      screen.getByRole('heading', { name: 'game.types.quiz.management.createItemTitle' }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByRole('textbox')[0]).toHaveValue('');
+    expect(screen.getByText('New question')).toBeInTheDocument();
+  });
+
+  it('allows adding a fifth answer option while creating an item', async () => {
+    const user = userEvent.setup();
+    renderScreen();
+
+    await user.click(
+      await screen.findByRole('button', { name: 'game.types.quiz.management.createItem' }),
+    );
+
+    await user.click(screen.getByRole('button', { name: 'game.types.quiz.management.addOutcome' }));
+    await user.click(screen.getByRole('button', { name: 'game.types.quiz.management.addOutcome' }));
+    await user.click(screen.getByRole('button', { name: 'game.types.quiz.management.addOutcome' }));
+
+    expect(screen.getAllByRole('textbox')).toHaveLength(6);
+  });
+
   it('reorders items from the compact stage rail', async () => {
     const user = userEvent.setup();
     renderScreen();

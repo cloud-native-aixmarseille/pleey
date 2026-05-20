@@ -258,7 +258,7 @@ export const solarGridThemeSeed: UiThemeSeed = {
     xxxl: '5rem',
   },
   typography: {
-    body: '"Orbitron", system-ui, sans-serif',
+    body: '"Space Grotesk", system-ui, sans-serif',
     display: '"Orbitron", system-ui, sans-serif',
     mono: '"VT323", monospace',
     overline: '"Press Start 2P", system-ui, sans-serif',

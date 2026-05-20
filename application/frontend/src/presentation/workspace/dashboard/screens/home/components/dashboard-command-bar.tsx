@@ -5,7 +5,6 @@ import type {
 import type { OrganizationDashboard } from '../../../../../../domains/organization/entities/organization-dashboard';
 import type { Project, ProjectId } from '../../../../../../domains/project/entities/project';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
-import { ManagementCommandDeck } from '../../../../../shared/ui/data/management-command-deck';
 import { ContentStack } from '../../../../../shared/ui/layout/containers';
 import { ElevatedPanel } from '../../../../../shared/ui/layout/panels';
 import { Heading, SupportingText } from '../../../../../shared/ui/layout/typography';
@@ -69,31 +68,6 @@ export function DashboardCommandBar({
           />
 
           {dashboard ? <DashboardMetricsStrip dashboard={dashboard} /> : null}
-          <ManagementCommandDeck
-            commands={[
-              {
-                id: 'command-palette',
-                icon: 'command',
-                title: t('dashboard.console.commandPalette.title'),
-                description: t('dashboard.console.commandPalette.description'),
-                meta: t('dashboard.console.commandPalette.meta'),
-              },
-              {
-                id: 'fast-filtering',
-                icon: 'search',
-                title: t('dashboard.console.fastFiltering.title'),
-                description: t('dashboard.console.fastFiltering.description'),
-                meta: t('dashboard.console.fastFiltering.meta'),
-              },
-              {
-                id: 'live-ops',
-                icon: 'stats',
-                title: t('dashboard.console.liveOps.title'),
-                description: t('dashboard.console.liveOps.description'),
-                meta: t('dashboard.console.liveOps.meta'),
-              },
-            ]}
-          />
         </ContentStack>
       </ElevatedPanel>
     </div>

@@ -130,9 +130,20 @@ export function PlayableManagementPromptEditor({
             <Heading level={2}>{t(`${translationRoot}.${titleKey}`)}</Heading>
             <SupportingText>{t(`${translationRoot}.editorSubtitle`)}</SupportingText>
           </ContentStack>
-          <Badge tone={isReadyToSave ? 'success' : 'warning'}>
-            {isReadyToSave ? t(`${translationRoot}.ready`) : t(`${translationRoot}.incomplete`)}
-          </Badge>
+          <ActionRow justify="end">
+            <Badge tone={isReadyToSave ? 'success' : 'warning'}>
+              {isReadyToSave ? t(`${translationRoot}.ready`) : t(`${translationRoot}.incomplete`)}
+            </Badge>
+            <Button
+              disabled={!isReadyToSave || isSaving}
+              leftSection={<AppIcon name="save" size={14} />}
+              onClick={onSave}
+            >
+              {editorState.id
+                ? t(`${translationRoot}.saveItem`)
+                : t(`${translationRoot}.createItem`)}
+            </Button>
+          </ActionRow>
         </SplitWrapRow>
 
         <FieldShell id="playable-item-text" label={t(`${translationRoot}.itemTextLabel`)} required>
@@ -447,16 +458,6 @@ export function PlayableManagementPromptEditor({
             </SupportingText>
           </InsetPanel>
         ) : null}
-
-        <ActionRow justify="end">
-          <Button
-            disabled={!isReadyToSave || isSaving}
-            leftSection={<AppIcon name="save" size={14} />}
-            onClick={onSave}
-          >
-            {editorState.id ? t(`${translationRoot}.saveItem`) : t(`${translationRoot}.createItem`)}
-          </Button>
-        </ActionRow>
       </ContentStack>
     </ElevatedPanel>
   );
