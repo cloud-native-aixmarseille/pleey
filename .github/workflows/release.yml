@@ -21,7 +21,7 @@ jobs:
       release-sha: ${{ steps.plan-release.outputs.release-sha }}
     steps:
       - id: plan-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@b27c38015a8265780329d229c841d057a18b8fae # 0.25.0
+        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@6ff088a560d219afcbc56e5fc0abe4f882958599 # 0.25.1
         with:
           github-token: ${{ github.token }}
 
@@ -175,7 +175,7 @@ jobs:
       tag-sha: ${{ steps.create-tag.outputs.tag-sha }}
     steps:
       - id: create-tag
-        uses: hoverkraft-tech/ci-github-publish/actions/release/create-tag@b27c38015a8265780329d229c841d057a18b8fae # 0.25.0
+        uses: hoverkraft-tech/ci-github-publish/actions/release/create-tag@6ff088a560d219afcbc56e5fc0abe4f882958599 # 0.25.1
         with:
           release-sha: ${{ needs.prepare-release-files.outputs.release-sha }}
           tag: ${{ needs.plan-release.outputs.tag }}
@@ -210,7 +210,7 @@ jobs:
       pull-requests: read
     steps:
       - id: create-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/create@b27c38015a8265780329d229c841d057a18b8fae # 0.25.0
+        uses: hoverkraft-tech/ci-github-publish/actions/release/create@6ff088a560d219afcbc56e5fc0abe4f882958599 # 0.25.1
         with:
           tag: ${{ needs.plan-release.outputs.tag }}
           name: ${{ needs.plan-release.outputs.name }}
