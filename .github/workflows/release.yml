@@ -197,25 +197,6 @@ jobs:
           oci-registry-password: ${{ github.token }}
           chart: application
           path: charts/application
-          values: >-
-            [
-              {
-                "file":"charts/backend/values.yaml",
-                "path": ".image.tag",
-                "value":"${{ fromJSON(needs.ci.outputs.built-prod-images).backend.tags[0] }}"},
-              {
-                "file":"charts/backend/values.yaml",
-                "path": ".image.digest",
-                "value":"${{ fromJSON(needs.ci.outputs.built-prod-images).backend.digest }}"},
-              {
-                "file":"charts/frontend/values.yaml",
-                "path": ".image.tag",
-                "value":"${{ fromJSON(needs.ci.outputs.built-prod-images).frontend.tags[0] }}"},
-              {
-                "file":"charts/frontend/values.yaml",
-                "path": ".image.digest",
-                "value":"${{ fromJSON(needs.ci.outputs.built-prod-images).frontend.digest }}"}
-            ]
           helm-repositories: |
             cloudnative-pg https://cloudnative-pg.github.io/charts
             valkey https://valkey.io/valkey-helm/
