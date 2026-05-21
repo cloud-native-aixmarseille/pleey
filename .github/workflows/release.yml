@@ -49,7 +49,7 @@ jobs:
       contents: write
       pull-requests: write
     outputs:
-      release-sha: ${{ steps.final-release-sha.outputs.release-sha }}
+      release-sha: ${{ steps.create-and-merge-pr.outputs.merged-sha }}
     steps:
       - name: Checkout planned release source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -66,27 +66,23 @@ jobs:
               {
                 "file":"charts/backend/values.yaml",
                 "path":".image.tag",
-                "value":"${{ fromJSON(needs.ci.outputs.built-prod-images).backend.tags[0] }}"},
+                "value":"${{ fromJSON(needs.ci.outputs.built-prod-images).backend.tags[0] }}"
+              },
               {
                 "file":"charts/backend/values.yaml",
                 "path":".image.digest",
-                "value":"${{ fromJSON(needs.ci.outputs.built-prod-images).backend.digest }}"},
+                "value":"${{ fromJSON(needs.ci.outputs.built-prod-images).backend.digest }}"
+              },
               {
                 "file":"charts/frontend/values.yaml",
                 "path":".image.tag",
-                "value":"${{ fromJSON(needs.ci.outputs.built-prod-images).frontend.tags[0] }}"},
+                "value":"${{ fromJSON(needs.ci.outputs.built-prod-images).frontend.tags[0] }}"
+              },
               {
                 "file":"charts/frontend/values.yaml",
                 "path":".image.digest",
-                "value":"${{ fromJSON(needs.ci.outputs.built-prod-images).frontend.digest }}"}
-            ]
-
-      - name: Update chart release versions
-        uses: hoverkraft-tech/ci-github-container/actions/helm/update-chart-values@ad23452fb16123853be9d67a8f41952778b7340c # 0.34.3
-        with:
-          path: charts/application
-          values: >-
-            [
+                "value":"${{ fromJSON(needs.ci.outputs.built-prod-images).frontend.digest }}"
+              },
               {
                 "file":"Chart.yaml",
                 "path":".version",
@@ -98,27 +94,33 @@ jobs:
               {
                 "file":"Chart.yaml",
                 "path":"(.dependencies[] | select(.repository == \"file://charts/frontend\").version)",
-                "value":"${{ needs.plan-release.outputs.tag }}"},
+                "value":"${{ needs.plan-release.outputs.tag }}"
+              },
               {
                 "file":"Chart.yaml",
                 "path":"(.dependencies[] | select(.repository == \"file://charts/backend\").version)",
-                "value":"${{ needs.plan-release.outputs.tag }}"},
+                "value":"${{ needs.plan-release.outputs.tag }}"
+              },
               {
                 "file":"charts/backend/Chart.yaml",
                 "path":".version",
-                "value":"${{ needs.plan-release.outputs.tag }}"},
+                "value":"${{ needs.plan-release.outputs.tag }}"
+                },
               {
                 "file":"charts/backend/Chart.yaml",
                 "path":".appVersion",
-                "value":"${{ needs.plan-release.outputs.tag }}"},
+                "value":"${{ needs.plan-release.outputs.tag }}"
+              },
               {
                 "file":"charts/frontend/Chart.yaml",
                 "path":".version",
-                "value":"${{ needs.plan-release.outputs.tag }}"},
+                "value":"${{ needs.plan-release.outputs.tag }}"
+              },
               {
                 "file":"charts/frontend/Chart.yaml",
                 "path":".appVersion",
-                "value":"${{ needs.plan-release.outputs.tag }}"}
+                "value":"${{ needs.plan-release.outputs.tag }}"
+              }
             ]
 
       - name: Set up Helm
@@ -126,27 +128,15 @@ jobs:
 
       - name: Refresh umbrella Chart.lock
         shell: bash
-        run: |
-          helm dependency update charts/application
+        run: helm dependency update charts/application
 
       - name: Regenerate Helm chart documentation
         uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@ad23452fb16123853be9d67a8f41952778b7340c # 0.34.3
         with:
           working-directory: ./charts
 
-      - name: Detect prepared changes
-        id: detect-changes
-        shell: bash
-        run: |
-          if git diff --quiet --exit-code; then
-            echo "has-changes=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "has-changes=true" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Create and merge release PR
         id: create-and-merge-pr
-        if: steps.detect-changes.outputs.has-changes == 'true'
         uses: hoverkraft-tech/ci-github-common/actions/create-and-merge-pull-request@cacc6123a32780d507db04733e5a8c167917581d # 0.35.3
         with:
           github-token: ${{ github.token }}
@@ -155,16 +145,6 @@ jobs:
           body: |
             Automated release preparation for `${{ needs.plan-release.outputs.tag }}`.
           commit-message: "chore(release): prepare ${{ needs.plan-release.outputs.tag }}"
-
-      - name: Select final release SHA
-        id: final-release-sha
-        shell: bash
-        run: |
-          if [[ "${{ steps.detect-changes.outputs.has-changes }}" == "true" ]]; then
-            echo "release-sha=${{ steps.create-and-merge-pr.outputs.merged-sha }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "release-sha=${{ needs.plan-release.outputs.release-sha }}" >> "$GITHUB_OUTPUT"
-          fi
 
   create-git-tag:
     needs: [plan-release, prepare-release-files]
