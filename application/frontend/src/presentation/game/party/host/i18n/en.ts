@@ -32,6 +32,32 @@ export const gamePartyHostEn = {
           runtimeResultHint: 'Advance when you are ready to move to the next stage.',
           runtimePausedHint: 'Resume the party to continue the current flow.',
           runtimeEndedHint: 'This party is finished. You can still inspect the final state.',
+          musicPanelTitle: 'Party music themes',
+          musicPanelDescription:
+            'Pick a soundtrack to energize the lobby while players join your party.',
+          musicPlayCta: 'Play theme',
+          musicPlayingCta: 'Playing',
+          musicPlayingBadge: 'Live',
+          musicNowPlaying: 'Now playing: {{theme}}',
+          musicIdleHint: 'Select a music theme and press play to start the party vibe.',
+          musicThemes: {
+            electroPulse: {
+              name: 'Electro Pulse',
+              description: 'Fast electronic beats for high-energy warmups.',
+            },
+            retroArcade: {
+              name: 'Retro Arcade',
+              description: '8-bit inspired grooves for a nostalgic game-show feel.',
+            },
+            tropicalGroove: {
+              name: 'Tropical Groove',
+              description: 'Sunny percussion and playful rhythms to keep things light.',
+            },
+            nightChill: {
+              name: 'Night Chill',
+              description: 'Smooth lo-fi layers for a relaxed and focused atmosphere.',
+            },
+          },
           startPartyCta: 'Start party',
           revealStageResultCta: 'Reveal result',
           advanceStageCta: 'Next stage',
