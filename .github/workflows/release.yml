@@ -128,10 +128,10 @@ jobs:
         shell: bash
         run: helm dependency update charts/application
 
-      - name: Regenerate Helm chart documentation
-        uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@ad23452fb16123853be9d67a8f41952778b7340c # 0.34.3
-        with:
-          working-directory: ./charts
+      # - name: Regenerate Helm chart documentation
+      #   uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@ad23452fb16123853be9d67a8f41952778b7340c # 0.34.3
+      #   with:
+      #     working-directory: ./charts
 
       - name: Create and merge release PR
         id: create-and-merge-pr
