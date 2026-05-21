@@ -1,6 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
+import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
+import type { PartyPlayerIdentity } from '../../../../../domain/game/party/player/entities/party-player-identity';
 import { BroadcastPartyObservationUseCase } from '../../shared/use-cases/broadcast-party-observation-use-case';
 import type { JoinPartyDto } from '../dto/join-party.dto';
 import type { JoinPartyResultDto } from '../dto/join-party-result.dto';
@@ -19,6 +21,18 @@ export class JoinPartyUseCase {
 
     if (!party) {
       throw new Error(GameErrorCode.PARTY_NOT_FOUND);
+    }
+
+    const persistedPlayerIdentity = this.resolvePersistedPlayerIdentity(input);
+    const existingPlayer = persistedPlayerIdentity
+      ? await this.playerPartyRuntime.findPartyPlayer({
+          partyId: party.partyId,
+          playerIdentity: persistedPlayerIdentity,
+        })
+      : null;
+
+    if (party.status !== PartyStatus.WAITING && !existingPlayer) {
+      throw new Error(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
     }
 
     if (input.playerIdentity.kind === PartyPlayerKind.USER) {
@@ -83,6 +97,21 @@ export class JoinPartyUseCase {
       player,
       partyId: party.partyId,
       pin: party.pin,
+    };
+  }
+
+  private resolvePersistedPlayerIdentity(input: JoinPartyDto): PartyPlayerIdentity | null {
+    if (input.playerIdentity.kind === PartyPlayerKind.USER) {
+      return input.playerIdentity;
+    }
+
+    if (input.playerIdentity.guestId === undefined) {
+      return null;
+    }
+
+    return {
+      kind: PartyPlayerKind.GUEST,
+      guestId: input.playerIdentity.guestId,
     };
   }
 }

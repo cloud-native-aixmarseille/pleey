@@ -6,7 +6,10 @@ import type { PartyObservation } from '../../../../../../domains/game/party/shar
 import type { StageId } from '../../../../../../domains/game/party/shared/entities/party-stage';
 import type { PartyRuntimeNoticeKind } from '../../../../../../domains/game/party/shared/ports/party-observation.port';
 import { useAuth } from '../../../../../identity/contexts/auth-context';
-import { usePresentationParams } from '../../../../../shared/routing/router';
+import {
+  usePresentationParams,
+  usePresentationPathname,
+} from '../../../../../shared/routing/router';
 import { useParty } from '../../contexts/party-context';
 import {
   type PartyIdParser,
@@ -48,7 +51,7 @@ export interface PartyLobbyScreenProps {
   readonly screenSection?: PartyScreenSection;
 }
 
-interface PartyLobbyScreenState {
+export interface PartyLobbyScreenState {
   readonly advanceStage: () => Promise<void>;
   readonly cancelHostRuntimeConfirmation: () => void;
   readonly clearJoinErrorMessage: () => void;
@@ -137,6 +140,19 @@ function defaultNormalizeStageId(
   return stageIdentifier.parseOrNull(stageId);
 }
 
+function resolveStageSegmentFromPathname(
+  pathname: string,
+  routeKind: PartyLobbyRouteKind,
+): string | undefined {
+  if (routeKind !== PartyLobbyRouteKind.PARTY_ID) {
+    return undefined;
+  }
+
+  const match = /^\/party\/[^/]+\/stage\/([^/]+)(?:\/result)?$/.exec(pathname);
+
+  return match?.[1];
+}
+
 export function usePartyLobbyScreenState({
   routeKind = PartyLobbyRouteKind.PIN,
   normalizePin,
@@ -153,6 +169,7 @@ export function usePartyLobbyScreenState({
   const { partyIdentifier, partyLobbyFacade, partyPinIdentifier, stageIdentifier } =
     usePartyDependencies();
   const { pin, partyId, stageId } = usePresentationParams<'pin' | 'partyId' | 'stageId'>();
+  const pathname = usePresentationPathname();
   const resolvedNormalizePin =
     normalizePin ?? ((value: string | undefined) => defaultNormalizePin(value, partyPinIdentifier));
   const resolvedNormalizePartyId =
@@ -162,7 +179,9 @@ export function usePartyLobbyScreenState({
     defaultNormalizeStageId(value, stageIdentifier);
   const normalizedPin = resolvedNormalizePin(pin);
   const normalizedPartyId = resolvedNormalizePartyId(partyId);
-  const requestedStageId = resolvedNormalizeStageId(stageId);
+  const requestedStageId = resolvedNormalizeStageId(
+    stageId ?? resolveStageSegmentFromPathname(pathname, routeKind),
+  );
   const { user } = useAuth();
   const isAuthenticated = user !== null;
   const [joinErrorMessage, setJoinErrorMessage] = useState<string | null>(null);

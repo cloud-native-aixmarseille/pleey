@@ -6,6 +6,10 @@ import { Button } from '../../../../../../shared/ui/actions/button';
 import { AppIcon } from '../../../../../../shared/ui/icons/app-icon';
 import { ActionRow } from '../../../../../../shared/ui/layout/containers';
 import { SupportingText } from '../../../../../../shared/ui/layout/typography';
+import {
+  MotionStagger,
+  MotionStaggerItem,
+} from '../../../../../../shared/ui/motion/motion-primitives';
 import { PlayerStageSurfaceFrame } from './player-stage-surface-frame';
 
 interface PlayerStageSurfaceProps {
@@ -60,23 +64,24 @@ export function PlayerStageSurface({
       submittingLabel={t('game.party.player.route.actionSubmitting')}
       testId="player-live-stage-surface"
     >
-      <div style={actionGridStyle}>
+      <MotionStagger style={actionGridStyle}>
         {currentStage.actions.map((action) => {
           const isSelected = selectedActionId === action.id;
 
           return (
-            <Button
-              key={action.id}
-              intent={isSelected ? 'success' : 'outline'}
-              onClick={() => onSubmitAction(action.id)}
-              disabled={areActionsDisabled}
-              width="wide"
-            >
-              {action.text}
-            </Button>
+            <MotionStaggerItem key={action.id}>
+              <Button
+                intent={isSelected ? 'success' : 'outline'}
+                onClick={() => onSubmitAction(action.id)}
+                disabled={areActionsDisabled}
+                width="wide"
+              >
+                {action.text}
+              </Button>
+            </MotionStaggerItem>
           );
         })}
-      </div>
+      </MotionStagger>
     </PlayerStageSurfaceFrame>
   );
 }

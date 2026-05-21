@@ -13,6 +13,79 @@ const guestIdentifier = new GuestIdentifier();
 const userIdentifier = new UserIdentifier();
 
 describe('JoinPartyUseCase', () => {
+  it('rejects a new authenticated join when the party has already started', async () => {
+    const runtime = createPlayerPartyRuntimeMock({
+      findActivePartyByUserId: {
+        partyId: 12,
+        gameId: 21,
+        pin: '123456',
+        status: 'ACTIVE',
+      },
+      findPartyByPin: {
+        partyId: 12,
+        gameId: 21,
+        hostUserId: 7,
+        pin: '123456',
+        status: 'ACTIVE',
+      },
+      findPartyPlayer: null,
+    });
+    const broadcastPartyObservationUseCase = {
+      execute: vi.fn(),
+    };
+    const useCase = new JoinPartyUseCase(
+      runtime as never,
+      broadcastPartyObservationUseCase as never,
+    );
+
+    await expect(
+      useCase.execute({
+        pin: partyPinIdentifier.parse('123456'),
+        playerIdentity: {
+          kind: PartyPlayerKind.USER,
+          userId: userIdentifier.parse(42),
+        },
+        username: '',
+      }),
+    ).rejects.toThrow(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
+
+    expect(runtime.ensureAuthenticatedPlayer).not.toHaveBeenCalled();
+    expect(broadcastPartyObservationUseCase.execute).not.toHaveBeenCalled();
+  });
+
+  it('rejects a new guest join when the party has already started', async () => {
+    const runtime = createPlayerPartyRuntimeMock({
+      findPartyByPin: {
+        partyId: 12,
+        gameId: 21,
+        hostUserId: 7,
+        pin: '123456',
+        status: 'ACTIVE',
+      },
+    });
+    const broadcastPartyObservationUseCase = {
+      execute: vi.fn(),
+    };
+    const useCase = new JoinPartyUseCase(
+      runtime as never,
+      broadcastPartyObservationUseCase as never,
+    );
+
+    await expect(
+      useCase.execute({
+        pin: partyPinIdentifier.parse('123456'),
+        playerIdentity: {
+          kind: PartyPlayerKind.GUEST,
+        },
+        username: 'Morgan Guest',
+      }),
+    ).rejects.toThrow(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
+
+    expect(runtime.findPartyPlayer).not.toHaveBeenCalled();
+    expect(runtime.ensureGuestPlayer).not.toHaveBeenCalled();
+    expect(broadcastPartyObservationUseCase.execute).not.toHaveBeenCalled();
+  });
+
   it('rejects authenticated joins when the user is active in another party', async () => {
     const runtime = createPlayerPartyRuntimeMock({
       findActivePartyByUserId: {
@@ -43,6 +116,54 @@ describe('JoinPartyUseCase', () => {
 
     expect(runtime.ensureAuthenticatedPlayer).not.toHaveBeenCalled();
     expect(broadcastPartyObservationUseCase.execute).not.toHaveBeenCalled();
+  });
+
+  it('allows an authenticated player to rejoin the same active party', async () => {
+    const player = {
+      identity: { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(42) },
+      username: 'Morgan',
+      avatarUri: '/api/avatars/users/42?v=1',
+      totalScore: 0,
+      joinedAt: new Date('2026-04-27T10:00:00.000Z'),
+    };
+    const runtime = createPlayerPartyRuntimeMock({
+      findActivePartyByUserId: {
+        partyId: 12,
+        gameId: 21,
+        pin: '123456',
+        status: 'ACTIVE',
+      },
+      findPartyByPin: {
+        partyId: 12,
+        gameId: 21,
+        hostUserId: 7,
+        pin: '123456',
+        status: 'ACTIVE',
+      },
+      findPartyPlayer: player,
+    });
+    const broadcastPartyObservationUseCase = {
+      execute: vi.fn().mockResolvedValue(undefined),
+    };
+    const useCase = new JoinPartyUseCase(
+      runtime as never,
+      broadcastPartyObservationUseCase as never,
+    );
+
+    const result = await useCase.execute({
+      pin: partyPinIdentifier.parse('123456'),
+      playerIdentity: {
+        kind: PartyPlayerKind.USER,
+        userId: userIdentifier.parse(42),
+      },
+      username: '',
+    });
+
+    expect(runtime.ensureAuthenticatedPlayer).toHaveBeenCalledWith({
+      partyId: 12,
+      userId: 42,
+    });
+    expect(result.player).toEqual(player);
   });
 
   it('joins an authenticated player into the requested party and resolves the published player', async () => {

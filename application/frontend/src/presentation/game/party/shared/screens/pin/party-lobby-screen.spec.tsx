@@ -317,9 +317,11 @@ const mocks = vi.hoisted(() => {
       observeParty: vi.fn(() => vi.fn()),
     },
     observationState,
+    navigate: vi.fn(),
     params: {
       pin: 'ab12cd',
     } as Record<string, string | undefined>,
+    pathname: '/',
   };
 });
 
@@ -364,10 +366,12 @@ vi.mock('../../../../../shared/routing/router', async (importOriginal) => {
   return {
     ...actual,
     ...routingMockFactory.createModule({
+      navigate: mocks.navigate,
       params: new Proxy({} as Record<string, string | undefined>, {
         get: (_, property) => mocks.params[property as string],
       }),
     }),
+    usePresentationPathname: () => mocks.pathname,
     PresentationRedirect: ({ to }: { to: string }) => (
       <div data-testid="party-lobby-redirect">{to}</div>
     ),
@@ -728,6 +732,8 @@ function renderScreen() {
 describe('PartyLobbyScreen', () => {
   afterEach(() => {
     vi.useRealTimers();
+    mocks.navigate.mockReset();
+    mocks.pathname = '/';
   });
 
   it('renders the host lobby with the share panel, PIN tiles and QR code', async () => {
@@ -1171,7 +1177,11 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
-    expect(await screen.findByTestId('party-lobby-redirect')).toHaveTextContent('/party/9/stage/1');
+    expect(await screen.findByText('game.party.host.route.shareHeading')).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(mocks.navigate).toHaveBeenCalledWith('/party/9/stage/1');
+    });
   });
 
   it('redirects the host to the dashboard after confirming end party', async () => {
@@ -1464,7 +1474,11 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
-    expect(await screen.findByTestId('party-lobby-redirect')).toHaveTextContent('/party/9/final');
+    expect(await screen.findByTestId('party-runtime-player-result-surface')).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(mocks.navigate).toHaveBeenCalledWith('/party/9/final');
+    });
   });
 
   it('renders the generic host stage panel on the dedicated stage screen', async () => {
@@ -1618,6 +1632,7 @@ describe('PartyLobbyScreen', () => {
 
   it('renders the generic host result panel on the dedicated result screen', async () => {
     mocks.params = { partyId: '9', pin: undefined, stageId: '1' };
+    mocks.pathname = '/party/9/stage/1/result';
     mocks.authState = {
       hasRestoredSession: true,
       isAuthenticated: true,
@@ -1645,7 +1660,6 @@ describe('PartyLobbyScreen', () => {
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
-        screenSection={PartyScreenSection.RESULT}
         normalizePartyId={(partyId) => (partyId ? partyIdentifier.parse(Number(partyId)) : null)}
         resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
       />,
@@ -1658,6 +1672,46 @@ describe('PartyLobbyScreen', () => {
     expect(
       screen.getByRole('button', { name: 'game.party.host.route.advanceStageCta' }),
     ).toBeEnabled();
+  });
+
+  it('renders the host result panel when the host journey route provides stageId only via pathname', async () => {
+    mocks.params = { partyId: '9', pin: undefined };
+    mocks.pathname = '/party/9/stage/1/result';
+    mocks.authState = {
+      hasRestoredSession: true,
+      isAuthenticated: true,
+      user: authFixtureFactory.createUser({
+        id: 7,
+        username: 'Host',
+        email: 'host@pleey.io',
+        avatarUri: null,
+      }),
+    };
+    mocks.partyManagementState.parties = [createManagedParty()];
+    mocks.observationState.currentParty = createPartyObservation({
+      status: PartyStatus.ACTIVE,
+      context: createRuntimeResultContext({
+        result: {
+          current: createRuntimeResultContext().result?.current ?? null,
+          currentPlayer: null,
+        },
+      }),
+    });
+    mocks.observationState.currentErrorMessage = null;
+    mocks.observationState.currentErrorPartyId = null;
+    mocks.observationState.observePartyById = vi.fn(() => vi.fn());
+
+    renderWithProviders(
+      <PartyLobbyScreen
+        routeKind={PartyLobbyRouteKind.PARTY_ID}
+        normalizePartyId={(partyId) => (partyId ? partyIdentifier.parse(Number(partyId)) : null)}
+        resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
+      />,
+    );
+
+    expect(await screen.findByTestId('host-runtime-surface')).toBeInTheDocument();
+    expect(screen.getByTestId('party-runtime-host-result-panel')).toBeInTheDocument();
+    expect(screen.queryByTestId('party-lobby-redirect')).not.toBeInTheDocument();
   });
 
   it('redirects the host to the final leaderboard after finishing the last result screen', async () => {
@@ -1738,7 +1792,9 @@ describe('PartyLobbyScreen', () => {
       });
     });
 
-    expect(await screen.findByTestId('party-lobby-redirect')).toHaveTextContent('/party/9/final');
+    await waitFor(() => {
+      expect(mocks.navigate).toHaveBeenCalledWith('/party/9/final');
+    });
   });
 
   it('renders the dedicated final leaderboard screen for ended player parties', async () => {
@@ -1931,6 +1987,7 @@ describe('PartyLobbyScreen', () => {
 
   it('renders the generic player result surface with score feedback', async () => {
     mocks.params = { partyId: '9', pin: undefined, stageId: '1' };
+    mocks.pathname = '/party/9/stage/1/result';
     mocks.authState = {
       hasRestoredSession: true,
       isAuthenticated: true,
@@ -1962,6 +2019,41 @@ describe('PartyLobbyScreen', () => {
     expect(await screen.findByTestId('party-runtime-player-result-surface')).toBeInTheDocument();
     expect(screen.getByText('runtime-result.current-player.correct')).toBeInTheDocument();
     expect(screen.getByText('runtime-result.current-player.points:200')).toBeInTheDocument();
+  });
+
+  it('renders the player result surface when the host journey route provides stageId only via pathname', async () => {
+    mocks.params = { partyId: '9', pin: undefined };
+    mocks.pathname = '/party/9/stage/1/result';
+    mocks.authState = {
+      hasRestoredSession: true,
+      isAuthenticated: true,
+      user: authFixtureFactory.createUser({
+        id: 11,
+        username: 'Neo',
+        email: 'neo@pleey.io',
+        avatarUri: null,
+      }),
+    };
+    mocks.partyManagementState.parties = [createManagedParty({ role: PartyRole.PLAYER })];
+    mocks.observationState.currentParty = createPartyObservation({
+      status: PartyStatus.ACTIVE,
+      context: createRuntimeResultContext(),
+    });
+    mocks.observationState.currentErrorMessage = null;
+    mocks.observationState.currentErrorPartyId = null;
+    mocks.observationState.observePartyById = vi.fn(() => vi.fn());
+
+    renderWithProviders(
+      <PartyLobbyScreen
+        routeKind={PartyLobbyRouteKind.PARTY_ID}
+        screenSection={PartyScreenSection.RESULT}
+        normalizePartyId={(partyId) => (partyId ? partyIdentifier.parse(Number(partyId)) : null)}
+        resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
+      />,
+    );
+
+    expect(await screen.findByTestId('party-runtime-player-result-surface')).toBeInTheDocument();
+    expect(screen.queryByTestId('party-lobby-redirect')).not.toBeInTheDocument();
   });
 
   it('shows a player action error when the submit command is rejected', async () => {

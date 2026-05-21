@@ -5,6 +5,10 @@ import { Badge } from '../../../../../../shared/ui/feedback/badge';
 import { ContentStack, SplitWrapRow } from '../../../../../../shared/ui/layout/containers';
 import { ElevatedPanel, InsetPanel } from '../../../../../../shared/ui/layout/panels';
 import { Heading } from '../../../../../../shared/ui/layout/typography';
+import {
+  MotionStagger,
+  MotionStaggerItem,
+} from '../../../../../../shared/ui/motion/motion-primitives';
 import { toPartyFinalSummaryPlayerKey } from './party-final-summary-panel.model';
 import {
   mobileStandingsIdentityStyle,
@@ -34,17 +38,19 @@ export function PartyFinalSummaryStandings({ isMobile, players }: PartyFinalSumm
           <Badge tone="accent">{players.length}</Badge>
         </SplitWrapRow>
 
-        <ol data-testid="party-final-standings" style={standingsListStyle}>
-          {players.map((player, index) => {
-            const rank = index + 1;
+        <MotionStagger initialDelay={0.05} staggerDelay={0.04}>
+          <ol data-testid="party-final-standings" style={standingsListStyle}>
+            {players.map((player, index) => {
+              const rank = index + 1;
 
-            return (
-              <li key={toPartyFinalSummaryPlayerKey(player)}>
-                {renderStandingsEntry(player, rank, t, isMobile)}
-              </li>
-            );
-          })}
-        </ol>
+              return (
+                <MotionStaggerItem as="li" key={toPartyFinalSummaryPlayerKey(player)}>
+                  {renderStandingsEntry(player, rank, t, isMobile)}
+                </MotionStaggerItem>
+              );
+            })}
+          </ol>
+        </MotionStagger>
       </ContentStack>
     </ElevatedPanel>
   );

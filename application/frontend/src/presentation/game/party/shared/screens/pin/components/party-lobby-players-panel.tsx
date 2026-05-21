@@ -10,6 +10,10 @@ import {
 } from '../../../../../../shared/ui/layout/containers';
 import { ElevatedPanel } from '../../../../../../shared/ui/layout/panels';
 import { Heading } from '../../../../../../shared/ui/layout/typography';
+import {
+  MotionListItem,
+  MotionListPresence,
+} from '../../../../../../shared/ui/motion/motion-primitives';
 
 interface PartyLobbyPlayersPanelProps {
   readonly ariaLabel: string;
@@ -87,16 +91,19 @@ export function PartyLobbyPlayersPanel({
             <StatusBanner tone="info">{emptyMessage}</StatusBanner>
           ) : (
             <AutoFillGrid minItemWidth="8.5rem">
-              {ordered.map((player) => (
-                <PlayerTile
-                  avatarAltLabel={avatarAltLabel}
-                  key={toPlayerKey(player)}
-                  isCurrent={player.isCurrentPlayer}
-                  player={player}
-                  tileBadgeLabel={tileBadgeLabel}
-                  youBadgeLabel={youBadgeLabel}
-                />
-              ))}
+              <MotionListPresence>
+                {ordered.map((player) => (
+                  <MotionListItem key={toPlayerKey(player)}>
+                    <PlayerTile
+                      avatarAltLabel={avatarAltLabel}
+                      isCurrent={player.isCurrentPlayer}
+                      player={player}
+                      tileBadgeLabel={tileBadgeLabel}
+                      youBadgeLabel={youBadgeLabel}
+                    />
+                  </MotionListItem>
+                ))}
+              </MotionListPresence>
             </AutoFillGrid>
           )}
         </ContentStack>

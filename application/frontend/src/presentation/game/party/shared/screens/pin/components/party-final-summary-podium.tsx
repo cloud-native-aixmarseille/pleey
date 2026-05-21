@@ -5,6 +5,7 @@ import { Badge } from '../../../../../../shared/ui/feedback/badge';
 import { ContentStack } from '../../../../../../shared/ui/layout/containers';
 import { ElevatedPanel } from '../../../../../../shared/ui/layout/panels';
 import { Heading, SupportingText } from '../../../../../../shared/ui/layout/typography';
+import { MotionPop } from '../../../../../../shared/ui/motion/motion-primitives';
 import {
   MOBILE_PODIUM_LAYOUT_ORDER,
   PODIUM_LAYOUT_ORDER,
@@ -100,42 +101,41 @@ function renderDesktopPodiumEntry(
   t: ReturnType<typeof usePresentationTranslation>['t'],
 ) {
   const avatarSize = rank === 1 ? 96 : 72;
+  const entryDelay = rank === 2 ? 0 : rank === 3 ? 0.15 : 0.3;
 
   return (
-    <div
-      key={toPartyFinalSummaryPlayerKey(player)}
-      data-testid={`party-final-podium-rank-${rank}`}
-      style={buildPodiumColumnStyle(rank)}
-    >
-      {rank === 1 ? (
-        <span aria-hidden="true" style={podiumCrownStyle}>
-          👑
-        </span>
-      ) : null}
-      <UserAvatar
-        alt={t('game.party.route.finalSummaryAvatarAlt', {
-          username: player.username,
-        })}
-        size={avatarSize}
-        src={player.avatarUri}
-        style={buildPodiumAvatarStyle(rank)}
-      />
-      <div style={buildPodiumBadgeStyle(rank)}>{rank}</div>
-      <p style={podiumUsernameStyle}>{player.username}</p>
-      <p style={podiumPointsStyle}>
-        {t('game.party.route.finalLeaderboardScore', {
-          points: String(player.totalScore),
-        })}
-      </p>
-      <div
-        data-testid={`party-final-podium-rank-${rank}-badge-slot`}
-        style={podiumCurrentPlayerSlotStyle}
-      >
-        {player.isCurrentPlayer ? (
-          <Badge tone="success">{t('game.party.route.youBadge')}</Badge>
+    <MotionPop delay={entryDelay} key={toPartyFinalSummaryPlayerKey(player)}>
+      <div data-testid={`party-final-podium-rank-${rank}`} style={buildPodiumColumnStyle(rank)}>
+        {rank === 1 ? (
+          <span aria-hidden="true" style={podiumCrownStyle}>
+            👑
+          </span>
         ) : null}
+        <UserAvatar
+          alt={t('game.party.route.finalSummaryAvatarAlt', {
+            username: player.username,
+          })}
+          size={avatarSize}
+          src={player.avatarUri}
+          style={buildPodiumAvatarStyle(rank)}
+        />
+        <div style={buildPodiumBadgeStyle(rank)}>{rank}</div>
+        <p style={podiumUsernameStyle}>{player.username}</p>
+        <p style={podiumPointsStyle}>
+          {t('game.party.route.finalLeaderboardScore', {
+            points: String(player.totalScore),
+          })}
+        </p>
+        <div
+          data-testid={`party-final-podium-rank-${rank}-badge-slot`}
+          style={podiumCurrentPlayerSlotStyle}
+        >
+          {player.isCurrentPlayer ? (
+            <Badge tone="success">{t('game.party.route.youBadge')}</Badge>
+          ) : null}
+        </div>
       </div>
-    </div>
+    </MotionPop>
   );
 }
 
@@ -144,39 +144,42 @@ function renderMobilePodiumEntry(
   rank: PodiumRank,
   t: ReturnType<typeof usePresentationTranslation>['t'],
 ) {
+  const entryDelay = rank === 2 ? 0 : 0.1;
+
   return (
-    <div
-      key={`mobile-${toPartyFinalSummaryPlayerKey(player)}`}
-      data-testid={`party-final-podium-mobile-rank-${rank}`}
-      style={buildPodiumMobileCardStyle(rank)}
-    >
-      <div style={podiumMobileCardHeaderStyle}>
-        <div style={podiumMobileRankGroupStyle}>
-          <div style={buildPodiumBadgeStyle(rank)}>{rank}</div>
+    <MotionPop delay={entryDelay} key={`mobile-${toPartyFinalSummaryPlayerKey(player)}`}>
+      <div
+        data-testid={`party-final-podium-mobile-rank-${rank}`}
+        style={buildPodiumMobileCardStyle(rank)}
+      >
+        <div style={podiumMobileCardHeaderStyle}>
+          <div style={podiumMobileRankGroupStyle}>
+            <div style={buildPodiumBadgeStyle(rank)}>{rank}</div>
+          </div>
+          <p style={podiumMobileScoreStyle}>
+            {t('game.party.route.finalLeaderboardScore', {
+              points: String(player.totalScore),
+            })}
+          </p>
         </div>
-        <p style={podiumMobileScoreStyle}>
-          {t('game.party.route.finalLeaderboardScore', {
-            points: String(player.totalScore),
-          })}
-        </p>
-      </div>
-      <div style={podiumMobileIdentityStyle}>
-        <UserAvatar
-          alt={t('game.party.route.finalSummaryAvatarAlt', {
-            username: player.username,
-          })}
-          size={56}
-          src={player.avatarUri}
-          style={buildPodiumAvatarStyle(rank)}
-        />
-        <div style={podiumMobileNameGroupStyle}>
-          <p style={podiumUsernameStyle}>{player.username}</p>
-          {player.isCurrentPlayer ? (
-            <Badge tone="success">{t('game.party.route.youBadge')}</Badge>
-          ) : null}
+        <div style={podiumMobileIdentityStyle}>
+          <UserAvatar
+            alt={t('game.party.route.finalSummaryAvatarAlt', {
+              username: player.username,
+            })}
+            size={56}
+            src={player.avatarUri}
+            style={buildPodiumAvatarStyle(rank)}
+          />
+          <div style={podiumMobileNameGroupStyle}>
+            <p style={podiumUsernameStyle}>{player.username}</p>
+            {player.isCurrentPlayer ? (
+              <Badge tone="success">{t('game.party.route.youBadge')}</Badge>
+            ) : null}
+          </div>
         </div>
       </div>
-    </div>
+    </MotionPop>
   );
 }
 
@@ -185,34 +188,32 @@ function renderMobileWinnerEntry(
   t: ReturnType<typeof usePresentationTranslation>['t'],
 ) {
   return (
-    <div
-      data-testid="party-final-mobile-winner"
-      key={`mobile-winner-${toPartyFinalSummaryPlayerKey(player)}`}
-      style={mobileWinnerCardStyle}
-    >
-      <div style={mobileWinnerHeaderStyle}>
-        <span aria-hidden="true" style={podiumCrownStyle}>
-          👑
-        </span>
-        <div style={buildPodiumBadgeStyle(1)}>1</div>
+    <MotionPop delay={0.25} key={`mobile-winner-${toPartyFinalSummaryPlayerKey(player)}`}>
+      <div data-testid="party-final-mobile-winner" style={mobileWinnerCardStyle}>
+        <div style={mobileWinnerHeaderStyle}>
+          <span aria-hidden="true" style={podiumCrownStyle}>
+            👑
+          </span>
+          <div style={buildPodiumBadgeStyle(1)}>1</div>
+        </div>
+        <UserAvatar
+          alt={t('game.party.route.finalSummaryAvatarAlt', {
+            username: player.username,
+          })}
+          size={88}
+          src={player.avatarUri}
+          style={buildPodiumAvatarStyle(1)}
+        />
+        <p style={mobileWinnerNameStyle}>{player.username}</p>
+        <p style={mobileWinnerScoreStyle}>
+          {t('game.party.route.finalLeaderboardScore', {
+            points: String(player.totalScore),
+          })}
+        </p>
+        {player.isCurrentPlayer ? (
+          <Badge tone="success">{t('game.party.route.youBadge')}</Badge>
+        ) : null}
       </div>
-      <UserAvatar
-        alt={t('game.party.route.finalSummaryAvatarAlt', {
-          username: player.username,
-        })}
-        size={88}
-        src={player.avatarUri}
-        style={buildPodiumAvatarStyle(1)}
-      />
-      <p style={mobileWinnerNameStyle}>{player.username}</p>
-      <p style={mobileWinnerScoreStyle}>
-        {t('game.party.route.finalLeaderboardScore', {
-          points: String(player.totalScore),
-        })}
-      </p>
-      {player.isCurrentPlayer ? (
-        <Badge tone="success">{t('game.party.route.youBadge')}</Badge>
-      ) : null}
-    </div>
+    </MotionPop>
   );
 }
