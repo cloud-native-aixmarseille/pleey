@@ -19,7 +19,7 @@ vi.mock('../../../../../../shared/i18n/use-presentation-translation', async (imp
   };
 });
 
-describe('stage countdown timer', () => {
+describe('StageCountdownTimer', () => {
   it('returns nothing when remaining duration is unknown', () => {
     renderWithUiProvider(
       <StageCountdownTimer

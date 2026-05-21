@@ -129,10 +129,6 @@ export class GraphqlClient implements AuthSessionTransport {
     return new ApolloClient({
       cache: new InMemoryCache(),
       link: ApolloLink.from([errorLink, authLink, httpLink]),
-      defaultOptions: {
-        query: { fetchPolicy: 'no-cache', errorPolicy: 'none' },
-        mutate: { errorPolicy: 'none' },
-      },
     });
   }
 
