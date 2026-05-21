@@ -142,6 +142,11 @@ describe('prediction runtime panels', () => {
     expect(
       screen.getByText('game.types.prediction.runtime.submissionProgress:submitted=1,total=3'),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'game.party.route.runtimeResponsesReceived:submitted=1,total=3. game.party.route.runtimeResponsesPending:remaining=2',
+      ),
+    ).toBeInTheDocument();
   });
 
   it('submits the selected prediction action from the player stage', () => {

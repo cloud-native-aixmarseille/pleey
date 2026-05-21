@@ -20,7 +20,7 @@ type ActivePlayerPartySessionInput = {
   readonly partyId: number;
   readonly gameId: number;
   readonly pin: string;
-  readonly status: 'WAITING';
+  readonly status: 'WAITING' | 'ACTIVE' | 'PAUSED' | 'ENDED';
 };
 
 type PartyJoinTargetInput = ActivePlayerPartySessionInput & {
@@ -95,19 +95,21 @@ export const createPlayerPartyRuntimeMock = (
     >,
   );
   mock.findActivePartyByUserId.mockResolvedValue(
-    (config.findActivePartyByUserId ?? null) as Awaited<
+    (config.findActivePartyByUserId === undefined
+      ? null
+      : config.findActivePartyByUserId) as Awaited<
       ReturnType<PlayerPartyRuntimeLike['findActivePartyByUserId']>
     >,
   );
   mock.findPartyByPin.mockResolvedValue(
-    (config.findPartyByPin ?? DEFAULT_PARTY_JOIN_TARGET) as Awaited<
-      ReturnType<PlayerPartyRuntimeLike['findPartyByPin']>
-    >,
+    (config.findPartyByPin === undefined
+      ? DEFAULT_PARTY_JOIN_TARGET
+      : config.findPartyByPin) as Awaited<ReturnType<PlayerPartyRuntimeLike['findPartyByPin']>>,
   );
   mock.findPartyPlayer.mockResolvedValue(
-    (config.findPartyPlayer ?? DEFAULT_PARTY_PLAYER) as Awaited<
-      ReturnType<PlayerPartyRuntimeLike['findPartyPlayer']>
-    >,
+    (config.findPartyPlayer === undefined
+      ? DEFAULT_PARTY_PLAYER
+      : config.findPartyPlayer) as Awaited<ReturnType<PlayerPartyRuntimeLike['findPartyPlayer']>>,
   );
   mock.removePlayer.mockResolvedValue(config.removePlayer ?? false);
 

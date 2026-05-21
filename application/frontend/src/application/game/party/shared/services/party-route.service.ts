@@ -12,6 +12,7 @@ import { StageIdentifier } from './identifiers/stage-identifier';
 
 @injectable()
 export class PartyRouteService {
+  private static readonly PARTY_JOURNEY_ROUTE_PATTERN = 'party/:partyId/*';
   private static readonly PARTY_LEADERBOARD_ROUTE_PATTERN = 'party/:partyId/final';
   private static readonly PARTY_LOBBY_ROUTE_BASE_PATH = '/party';
   private static readonly PARTY_LOBBY_ROUTE_PATTERN = 'party/:partyId/lobby';
@@ -97,6 +98,10 @@ export class PartyRouteService {
 
   resolvePartyLobbyRoutePattern(): string {
     return PartyRouteService.PARTY_LOBBY_ROUTE_PATTERN;
+  }
+
+  resolvePartyJourneyRoutePattern(): string {
+    return PartyRouteService.PARTY_JOURNEY_ROUTE_PATTERN;
   }
 
   resolvePartyLeaderboardRoutePattern(): string {

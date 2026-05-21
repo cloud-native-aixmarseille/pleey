@@ -5,6 +5,7 @@ import {
   Outlet as ReactRouterOutlet,
   useHref,
   useLinkClickHandler,
+  useLocation,
   useNavigate as useReactRouterNavigate,
   useParams as useReactRouterParams,
 } from 'react-router-dom';
@@ -37,12 +38,14 @@ export class ReactRouterRoutingAdapter {
   createPort(): RoutingPort {
     const useParams = <TKey extends string = string>(): PresentationParams<TKey> =>
       useReactRouterParams<TKey>() as PresentationParams<TKey>;
+    const usePathname = (): string => useLocation().pathname;
 
     return {
       createLink,
       Navigate: ReactRouterNavigate,
       Outlet: ReactRouterOutlet,
       useNavigate: useReactRouterNavigate,
+      usePathname,
       useParams,
     };
   }

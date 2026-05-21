@@ -22,6 +22,7 @@ export interface RoutingPort {
   readonly Navigate: ComponentType<PresentationNavigateProps>;
   readonly Outlet: ComponentType;
   readonly useNavigate: () => PresentationNavigate;
+  readonly usePathname: () => string;
   readonly useParams: <TKey extends string = string>() => PresentationParams<TKey>;
 }
 

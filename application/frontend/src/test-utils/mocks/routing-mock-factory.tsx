@@ -10,11 +10,13 @@ import type {
 interface RoutingPortOverrides {
   readonly navigate?: PresentationNavigate;
   readonly Outlet?: ComponentType;
+  readonly pathname?: string;
   readonly params?: PresentationParams;
 }
 
 interface RoutingModuleOverrides {
   readonly navigate?: PresentationNavigate;
+  readonly pathname?: string;
   readonly params?: PresentationParams;
 }
 
@@ -35,6 +37,7 @@ export class RoutingMockFactory {
   createRoutingPort(overrides: RoutingPortOverrides = {}): RoutingPort {
     const navigate = overrides.navigate ?? vi.fn();
     const Outlet = overrides.Outlet ?? (() => null);
+    const pathname = overrides.pathname ?? '/';
     const params = overrides.params ?? {};
 
     return {
@@ -43,17 +46,20 @@ export class RoutingMockFactory {
         createElement('div', { 'data-testid': `navigate-${to}` }),
       Outlet,
       useNavigate: () => navigate,
+      usePathname: () => pathname,
       useParams: () => params,
     };
   }
 
   createModule(overrides: RoutingModuleOverrides = {}) {
     const navigate = overrides.navigate ?? vi.fn();
+    const pathname = overrides.pathname ?? '/';
     const params = overrides.params ?? {};
 
     return {
       createLink: this.createLink(),
       usePresentationNavigate: () => navigate,
+      usePresentationPathname: () => pathname,
       usePresentationParams: () => params,
     };
   }

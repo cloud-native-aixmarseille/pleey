@@ -63,6 +63,21 @@ export function PlayableChoiceHostStagePanel({
   }
 
   const totalStages = party.context?.lifecycle.totalStages ?? stagePosition + 1;
+  const submittedPlayerCount = actionSubmission.submittedPlayerCount;
+  const totalEligiblePlayerCount = actionSubmission.totalEligiblePlayerCount;
+  const pendingResponseCount = Math.max(totalEligiblePlayerCount - submittedPlayerCount, 0);
+  const submissionStatusMessage =
+    pendingResponseCount === 0
+      ? `${t('game.party.route.runtimeResponsesReceived', {
+          submitted: String(submittedPlayerCount),
+          total: String(totalEligiblePlayerCount),
+        })}. ${t('game.party.route.runtimeResponsesComplete')}`
+      : `${t('game.party.route.runtimeResponsesReceived', {
+          submitted: String(submittedPlayerCount),
+          total: String(totalEligiblePlayerCount),
+        })}. ${t('game.party.route.runtimeResponsesPending', {
+          remaining: String(pendingResponseCount),
+        })}`;
 
   return (
     <div data-testid={`${testIdPrefix}-host-stage-panel`} style={stageShellStyle}>
@@ -84,11 +99,15 @@ export function PlayableChoiceHostStagePanel({
             />
             <SupportingText tone="soft">
               {t(copy.submissionProgress, {
-                submitted: String(actionSubmission.submittedPlayerCount),
-                total: String(actionSubmission.totalEligiblePlayerCount),
+                submitted: String(submittedPlayerCount),
+                total: String(totalEligiblePlayerCount),
               })}
             </SupportingText>
           </SplitWrapRow>
+
+          <StatusBanner tone={pendingResponseCount === 0 ? 'success' : 'warning'}>
+            {submissionStatusMessage}
+          </StatusBanner>
 
           {party.status === PartyStatus.PAUSED ? (
             <StatusBanner tone="warning">{t(copy.paused)}</StatusBanner>

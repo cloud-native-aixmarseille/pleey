@@ -33,6 +33,7 @@ describe('PartyRouteService', () => {
   });
 
   it('exposes the frontend host lobby and join route patterns for route factories', () => {
+    expect(service.resolvePartyJourneyRoutePattern()).toBe('party/:partyId/*');
     expect(service.resolvePartyLobbyRoutePattern()).toBe('party/:partyId/lobby');
     expect(service.resolvePartyLeaderboardRoutePattern()).toBe('party/:partyId/final');
     expect(service.resolvePartyStageRoutePattern()).toBe('party/:partyId/stage/:stageId');

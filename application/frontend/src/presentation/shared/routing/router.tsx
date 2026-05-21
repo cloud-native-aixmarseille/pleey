@@ -69,6 +69,12 @@ export function usePresentationNavigate(): PresentationNavigate {
   return useNavigate();
 }
 
+export function usePresentationPathname(): string {
+  const { usePathname } = usePresentationRouting();
+
+  return usePathname();
+}
+
 export function usePresentationParams<TKey extends string = string>(): PresentationParams<TKey> {
   const { useParams } = usePresentationRouting();
 

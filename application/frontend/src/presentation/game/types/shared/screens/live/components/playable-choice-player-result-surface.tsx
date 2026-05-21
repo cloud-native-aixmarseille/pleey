@@ -3,6 +3,10 @@ import { StatusBanner } from '../../../../../../shared/ui/feedback/status-banner
 import { ContentStack, ResponsiveGrid } from '../../../../../../shared/ui/layout/containers';
 import { InsetPanel } from '../../../../../../shared/ui/layout/panels';
 import { Heading, SupportingText } from '../../../../../../shared/ui/layout/typography';
+import {
+  MotionStagger,
+  MotionStaggerItem,
+} from '../../../../../../shared/ui/motion/motion-primitives';
 import { PlayerPartyStatusBar } from '../../../../../party/player/screens/pin/components/player-party-status-bar';
 import { PlayableChoiceResultActionTile } from './playable-choice-result-action-tile';
 import type { PlayableChoicePlayerResultSurfaceProps } from './playable-choice-runtime-panel.types';
@@ -62,25 +66,28 @@ export function PlayableChoicePlayerResultSurface({
 
             <SupportingText tone="soft">{t(copy.resultHeading)}</SupportingText>
 
-            <ResponsiveGrid columns={{ base: 1, md: 2 }} gap="md">
-              {currentResult.actions.map((action, index) => {
-                const isSelected = currentPlayerResult?.selectedActionId === action.id;
+            <MotionStagger>
+              <ResponsiveGrid columns={{ base: 1, md: 2 }} gap="md">
+                {currentResult.actions.map((action, index) => {
+                  const isSelected = currentPlayerResult?.selectedActionId === action.id;
 
-                return (
-                  <PlayableChoiceResultActionTile
-                    key={action.id}
-                    actionCount={action.actionCount}
-                    actionPercent={action.actionPercent}
-                    copy={copy}
-                    index={index}
-                    isCorrect={action.isCorrect}
-                    isSelected={isSelected}
-                    slotCount={currentResult.actions.length}
-                    text={action.text}
-                  />
-                );
-              })}
-            </ResponsiveGrid>
+                  return (
+                    <MotionStaggerItem key={action.id}>
+                      <PlayableChoiceResultActionTile
+                        actionCount={action.actionCount}
+                        actionPercent={action.actionPercent}
+                        copy={copy}
+                        index={index}
+                        isCorrect={action.isCorrect}
+                        isSelected={isSelected}
+                        slotCount={currentResult.actions.length}
+                        text={action.text}
+                      />
+                    </MotionStaggerItem>
+                  );
+                })}
+              </ResponsiveGrid>
+            </MotionStagger>
           </ContentStack>
         </InsetPanel>
       </ContentStack>

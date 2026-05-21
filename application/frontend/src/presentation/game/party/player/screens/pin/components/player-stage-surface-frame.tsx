@@ -5,6 +5,7 @@ import { StatusBanner } from '../../../../../../shared/ui/feedback/status-banner
 import { ContentStack } from '../../../../../../shared/ui/layout/containers';
 import { InsetPanel } from '../../../../../../shared/ui/layout/panels';
 import { Heading, SupportingText } from '../../../../../../shared/ui/layout/typography';
+import { MotionFadeIn, MotionPresence } from '../../../../../../shared/ui/motion/motion-primitives';
 import { PlayerPartyStatusBar } from './player-party-status-bar';
 
 interface PlayerStageSurfaceFrameProps {
@@ -47,9 +48,13 @@ export function PlayerStageSurfaceFrame({
       <ContentStack gap="lg">
         <PlayerPartyStatusBar onLeaveParty={onLeaveParty} party={party} variant="paused-only" />
 
-        {playerActionErrorMessage ? (
-          <StatusBanner tone="error">{t(playerActionErrorMessage)}</StatusBanner>
-        ) : null}
+        <MotionPresence>
+          {playerActionErrorMessage ? (
+            <MotionFadeIn key="player-action-error">
+              <StatusBanner tone="error">{t(playerActionErrorMessage)}</StatusBanner>
+            </MotionFadeIn>
+          ) : null}
+        </MotionPresence>
 
         <InsetPanel padding="md">
           <ContentStack gap={contentGap}>
@@ -66,9 +71,19 @@ export function PlayerStageSurfaceFrame({
 
             {children}
 
-            {isSubmitting ? <StatusBanner tone="success">{submittingLabel}</StatusBanner> : null}
+            <MotionPresence>
+              {isSubmitting ? (
+                <MotionFadeIn key="submitting-banner">
+                  <StatusBanner tone="success">{submittingLabel}</StatusBanner>
+                </MotionFadeIn>
+              ) : null}
 
-            {isLocked ? <StatusBanner tone="success">{lockedLabel}</StatusBanner> : null}
+              {isLocked ? (
+                <MotionFadeIn key="locked-banner">
+                  <StatusBanner tone="success">{lockedLabel}</StatusBanner>
+                </MotionFadeIn>
+              ) : null}
+            </MotionPresence>
           </ContentStack>
         </InsetPanel>
       </ContentStack>

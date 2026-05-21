@@ -112,12 +112,12 @@ describe('RouteRegistry', () => {
       expect(children.some((r) => r.path === 'workspace/dashboard')).toBe(true);
     });
 
-    it('includes the host lobby and join routes', () => {
+    it('includes the host party journey route and join route', () => {
       const registry = createRegistry();
 
       const children = registry.getRoutes()[0].children ?? [];
 
-      expect(children.some((r) => r.path === 'party/:partyId/lobby')).toBe(true);
+      expect(children.some((r) => r.path === 'party/:partyId/*')).toBe(true);
       expect(children.some((r) => r.path === 'join/:pin')).toBe(true);
     });
 
