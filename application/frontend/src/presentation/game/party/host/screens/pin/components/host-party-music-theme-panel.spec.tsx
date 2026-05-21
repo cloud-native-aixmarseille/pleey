@@ -1,4 +1,4 @@
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { renderWithUiProvider } from '../../../../../../../test-utils/render-with-ui-provider';
 import { HostPartyMusicThemePanel } from './host-party-music-theme-panel';
@@ -26,10 +26,12 @@ describe('HostPartyMusicThemePanel', () => {
     ).toBeInTheDocument();
     expect(screen.getByText('game.party.host.route.musicThemes.nightChill.name')).toBeInTheDocument();
 
+    const retroArcadeThemeContainer = screen.getByTestId('host-party-music-theme-retroArcade');
+
     fireEvent.click(
-      screen.getAllByRole('button', {
+      within(retroArcadeThemeContainer).getByRole('button', {
         name: 'game.party.host.route.musicPlayCta',
-      })[1],
+      }),
     );
 
     expect(screen.getByText('game.party.host.route.musicPlayingBadge')).toBeInTheDocument();

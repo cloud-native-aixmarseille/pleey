@@ -48,7 +48,7 @@ export function HostPartyMusicThemePanel() {
       footer={
         playingTheme
           ? t('game.party.host.route.musicNowPlaying', {
-              theme: String(t(playingTheme.nameKey)),
+              theme: t(playingTheme.nameKey),
             })
           : t('game.party.host.route.musicIdleHint')
       }
@@ -60,34 +60,36 @@ export function HostPartyMusicThemePanel() {
           const isPlaying = theme.id === playingThemeId;
 
           return (
-            <InsetPanel key={theme.id} tone={isPlaying ? 'accent' : 'default'}>
-              <ContentStack gap="sm">
-                <WrapRow gap="sm">
-                  <Heading level={3}>{t(theme.nameKey)}</Heading>
-                  {isPlaying ? (
-                    <Badge icon={<AppIcon name="success" size={12} />} tone="live">
-                      {t('game.party.host.route.musicPlayingBadge')}
-                    </Badge>
-                  ) : null}
-                </WrapRow>
+            <div data-testid={`host-party-music-theme-${theme.id}`} key={theme.id}>
+              <InsetPanel tone={isPlaying ? 'accent' : 'default'}>
+                <ContentStack gap="sm">
+                  <WrapRow gap="sm">
+                    <Heading level={3}>{t(theme.nameKey)}</Heading>
+                    {isPlaying ? (
+                      <Badge icon={<AppIcon name="success" size={12} />} tone="live">
+                        {t('game.party.host.route.musicPlayingBadge')}
+                      </Badge>
+                    ) : null}
+                  </WrapRow>
 
-                <SupportingText>{t(theme.descriptionKey)}</SupportingText>
+                  <SupportingText>{t(theme.descriptionKey)}</SupportingText>
 
-                <Button
-                  disabled={isPlaying}
-                  intent={isPlaying ? 'success' : 'outline'}
-                  leftSection={<AppIcon name={isPlaying ? 'success' : 'play'} size={16} />}
-                  onClick={() => {
-                    setPlayingThemeId(theme.id);
-                  }}
-                  width="wide"
-                >
-                  {isPlaying
-                    ? t('game.party.host.route.musicPlayingCta')
-                    : t('game.party.host.route.musicPlayCta')}
-                </Button>
-              </ContentStack>
-            </InsetPanel>
+                  <Button
+                    disabled={isPlaying}
+                    intent={isPlaying ? 'success' : 'outline'}
+                    leftSection={<AppIcon name={isPlaying ? 'success' : 'play'} size={16} />}
+                    onClick={() => {
+                      setPlayingThemeId(theme.id);
+                    }}
+                    width="wide"
+                  >
+                    {isPlaying
+                      ? t('game.party.host.route.musicPlayingCta')
+                      : t('game.party.host.route.musicPlayCta')}
+                  </Button>
+                </ContentStack>
+              </InsetPanel>
+            </div>
           );
         })}
       </AutoFillGrid>
