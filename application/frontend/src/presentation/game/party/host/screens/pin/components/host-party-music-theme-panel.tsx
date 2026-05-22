@@ -52,6 +52,7 @@ export function HostPartyMusicThemePanel() {
   const [playingThemeId, setPlayingThemeId] = useState<MusicTheme['id']>('none');
   const [playbackError, setPlaybackError] = useState(false);
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
+  const playbackRequestIdRef = useRef(0);
 
   const playTheme = (themeId: MusicTheme['id']) => {
     const audioElement = audioElementRef.current;
@@ -59,6 +60,9 @@ export function HostPartyMusicThemePanel() {
     if (!audioElement) {
       return;
     }
+
+    const playbackRequestId = playbackRequestIdRef.current + 1;
+    playbackRequestIdRef.current = playbackRequestId;
 
     if (themeId === 'none') {
       audioElement.pause();
@@ -76,9 +80,17 @@ export function HostPartyMusicThemePanel() {
     void audioElement
       .play()
       .then(() => {
+        if (playbackRequestId !== playbackRequestIdRef.current) {
+          return;
+        }
+
         setPlayingThemeId(themeId);
       })
       .catch((_playbackError) => {
+        if (playbackRequestId !== playbackRequestIdRef.current) {
+          return;
+        }
+
         audioElement.pause();
         audioElement.currentTime = 0;
         setPlayingThemeId('none');
@@ -95,10 +107,10 @@ export function HostPartyMusicThemePanel() {
         playbackError
           ? t('game.party.host.route.musicPlaybackError')
           : playingTheme && playingTheme.id !== 'none'
-          ? t('game.party.host.route.musicNowPlaying', {
-              theme: t(playingTheme.nameKey),
-            })
-          : t('game.party.host.route.musicIdleHint')
+            ? t('game.party.host.route.musicNowPlaying', {
+                theme: t(playingTheme.nameKey),
+              })
+            : t('game.party.host.route.musicIdleHint')
       }
       icon={<AppIcon name="play" size={18} />}
       title={t('game.party.host.route.musicPanelTitle')}
@@ -123,7 +135,7 @@ export function HostPartyMusicThemePanel() {
                   <SupportingText>{t(theme.descriptionKey)}</SupportingText>
 
                   <Button
-                    disabled={isPlaying}
+                    disabled={theme.id !== 'none' && isPlaying}
                     intent={isPlaying ? 'success' : 'outline'}
                     leftSection={<AppIcon name={isPlaying ? 'success' : 'play'} size={16} />}
                     onClick={() => {
@@ -142,7 +154,7 @@ export function HostPartyMusicThemePanel() {
         })}
       </AutoFillGrid>
 
-      <audio aria-label={t('game.party.host.route.musicPanelTitle')} data-testid="host-party-music-audio" ref={audioElementRef} />
+      <audio aria-hidden="true" data-testid="host-party-music-audio" ref={audioElementRef} />
     </SectionCard>
   );
 }

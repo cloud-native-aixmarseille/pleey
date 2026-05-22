@@ -12,8 +12,25 @@ vi.mock('../../../../../../shared/i18n/use-presentation-translation', async (imp
 });
 
 describe('HostPartyMusicThemePanel', () => {
+  const createDeferred = () => {
+    let resolve: () => void;
+    let reject: (reason?: unknown) => void;
+    const promise = new Promise<void>((promiseResolve, promiseReject) => {
+      resolve = promiseResolve;
+      reject = promiseReject;
+    });
+
+    return {
+      promise,
+      reject: reject!,
+      resolve: resolve!,
+    };
+  };
+
   it('plays selected theme in host browser and updates playing state', async () => {
-    const playSpy = vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockResolvedValue(undefined);
+    const playSpy = vi
+      .spyOn(window.HTMLMediaElement.prototype, 'play')
+      .mockResolvedValue(undefined);
 
     renderWithUiProvider(<HostPartyMusicThemePanel />);
 
@@ -100,6 +117,44 @@ describe('HostPartyMusicThemePanel', () => {
       expect(screen.getByText('game.party.host.route.musicPlaybackError')).toBeInTheDocument();
     });
 
+    const noneThemeContainer = screen.getByTestId('host-party-music-theme-none');
+    const noneThemeButton = within(noneThemeContainer).getByRole('button');
+    expect(noneThemeButton).toBeEnabled();
+
+    fireEvent.click(noneThemeButton);
+    expect(screen.queryByText('game.party.host.route.musicPlaybackError')).not.toBeInTheDocument();
     expect(screen.queryByText('game.party.host.route.musicPlayingBadge')).not.toBeInTheDocument();
+  });
+
+  it('keeps latest selected theme when previous playback resolves later', async () => {
+    const firstPlayback = createDeferred();
+    const secondPlayback = createDeferred();
+    vi.spyOn(window.HTMLMediaElement.prototype, 'play')
+      .mockImplementationOnce(async () => firstPlayback.promise)
+      .mockImplementationOnce(async () => secondPlayback.promise);
+
+    renderWithUiProvider(<HostPartyMusicThemePanel />);
+
+    fireEvent.click(
+      within(screen.getByTestId('host-party-music-theme-funky')).getByRole('button', {
+        name: 'game.party.host.route.musicPlayCta',
+      }),
+    );
+    fireEvent.click(
+      within(screen.getByTestId('host-party-music-theme-party')).getByRole('button', {
+        name: 'game.party.host.route.musicPlayCta',
+      }),
+    );
+
+    firstPlayback.resolve();
+    secondPlayback.resolve();
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          'game.party.host.route.musicNowPlaying (theme=game.party.host.route.musicThemes.party.name)',
+        ),
+      ).toBeInTheDocument();
+    });
   });
 });
