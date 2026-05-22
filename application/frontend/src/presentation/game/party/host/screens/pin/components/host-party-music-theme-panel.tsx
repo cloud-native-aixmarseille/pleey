@@ -50,6 +50,7 @@ const hostMusicThemes: readonly MusicTheme[] = [
 export function HostPartyMusicThemePanel() {
   const { t } = usePresentationTranslation();
   const [playingThemeId, setPlayingThemeId] = useState<MusicTheme['id']>('none');
+  const [playbackError, setPlaybackError] = useState(false);
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
 
   const playTheme = (themeId: MusicTheme['id']) => {
@@ -63,14 +64,32 @@ export function HostPartyMusicThemePanel() {
       audioElement.pause();
       audioElement.currentTime = 0;
       setPlayingThemeId('none');
+      setPlaybackError(false);
       return;
     }
 
     audioElement.src = `/audio/lobby/${themeId}-v1.mp3`;
     audioElement.loop = true;
     audioElement.currentTime = 0;
-    void audioElement.play();
-    setPlayingThemeId(themeId);
+    setPlaybackError(false);
+
+    const playbackPromise = audioElement.play();
+
+    if (playbackPromise === undefined) {
+      setPlayingThemeId(themeId);
+      return;
+    }
+
+    void playbackPromise
+      .then(() => {
+        setPlayingThemeId(themeId);
+      })
+      .catch(() => {
+        audioElement.pause();
+        audioElement.currentTime = 0;
+        setPlayingThemeId('none');
+        setPlaybackError(true);
+      });
   };
 
   const playingTheme = hostMusicThemes.find((theme) => theme.id === playingThemeId) ?? null;
@@ -79,7 +98,9 @@ export function HostPartyMusicThemePanel() {
     <SectionCard
       description={t('game.party.host.route.musicPanelDescription')}
       footer={
-        playingTheme && playingTheme.id !== 'none'
+        playbackError
+          ? t('game.party.host.route.musicPlaybackError')
+          : playingTheme && playingTheme.id !== 'none'
           ? t('game.party.host.route.musicNowPlaying', {
               theme: t(playingTheme.nameKey),
             })
