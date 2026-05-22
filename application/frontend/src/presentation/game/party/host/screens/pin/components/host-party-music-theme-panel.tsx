@@ -73,14 +73,8 @@ export function HostPartyMusicThemePanel() {
     audioElement.currentTime = 0;
     setPlaybackError(false);
 
-    const playbackPromise = audioElement.play();
-
-    if (playbackPromise === undefined) {
-      setPlayingThemeId(themeId);
-      return;
-    }
-
-    void playbackPromise
+    void audioElement
+      .play()
       .then(() => {
         setPlayingThemeId(themeId);
       })
