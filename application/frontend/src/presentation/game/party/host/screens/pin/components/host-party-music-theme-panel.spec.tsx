@@ -13,17 +13,21 @@ vi.mock('../../../../../../shared/i18n/use-presentation-translation', async (imp
 
 describe('HostPartyMusicThemePanel', () => {
   const createDeferred = () => {
-    let resolve: () => void;
-    let reject: (reason?: unknown) => void;
-    const promise = new Promise<void>((promiseResolve, promiseReject) => {
-      resolve = promiseResolve;
-      reject = promiseReject;
+    let resolvePromise: (() => void) | undefined;
+    let rejectPromise: ((reason?: unknown) => void) | undefined;
+    const promise = new Promise<void>((resolveFn, rejectFn) => {
+      resolvePromise = resolveFn;
+      rejectPromise = rejectFn;
     });
+
+    if (!resolvePromise || !rejectPromise) {
+      throw new Error('Unable to create deferred playback promise');
+    }
 
     return {
       promise,
-      reject: reject!,
-      resolve: resolve!,
+      reject: rejectPromise,
+      resolve: resolvePromise,
     };
   };
 
@@ -146,8 +150,8 @@ describe('HostPartyMusicThemePanel', () => {
       }),
     );
 
-    firstPlayback.resolve();
     secondPlayback.resolve();
+    firstPlayback.resolve();
 
     await waitFor(() => {
       expect(
