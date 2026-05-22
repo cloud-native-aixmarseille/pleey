@@ -33,6 +33,45 @@ export const gamePartyHostFr = {
           runtimePausedHint: 'Reprenez la partie pour continuer le déroulé en cours.',
           runtimeEndedHint:
             'Cette partie est terminée. Vous pouvez encore consulter son état final.',
+          musicPanelTitle: 'Ambiances musicales de la partie',
+          musicPanelDescription:
+            'Choisissez une ambiance sonore pour dynamiser le lobby pendant l’arrivée des joueurs.',
+          musicPlayCta: 'Lancer le thème',
+          musicPlayingCta: 'En lecture',
+          musicPlayingBadge: 'Live',
+          musicNowPlaying: 'Lecture en cours : {{theme}}',
+          musicIdleHint:
+            'Sélectionnez un thème musical puis lancez-le pour installer l’ambiance de la partie.',
+          musicThemes: {
+            none: {
+              name: 'Sans musique',
+              description:
+                'Coupez la musique du lobby pour un moment de préparation silencieux.',
+            },
+            chill: {
+              name: 'Chill',
+              description: 'Des nappes ambiantes douces pour un lobby apaisé.',
+            },
+            funky: {
+              name: 'Funky',
+              description:
+                'Une basse groovy et un rythme joueur pour garder une énergie positive.',
+            },
+            suspense: {
+              name: 'Suspense',
+              description:
+                'Des pulsations montantes pour créer une attente dramatique avant la partie.',
+            },
+            retro: {
+              name: 'Rétro',
+              description: 'Des sonorités arcade pour une ambiance de jeu nostalgique.',
+            },
+            party: {
+              name: 'Party',
+              description:
+                'Un rythme lumineux et entraînant pour lancer la session avec énergie.',
+            },
+          },
           startPartyCta: 'Démarrer la partie',
           revealStageResultCta: 'Révéler le résultat',
           advanceStageCta: 'Manche suivante',

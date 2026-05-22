@@ -3,6 +3,7 @@ import type { PartyObservation } from '../../../../../../../domains/game/party/s
 import { usePresentationTranslation } from '../../../../../../shared/i18n/use-presentation-translation';
 import { ContentStack, ResponsiveGrid } from '../../../../../../shared/ui/layout/containers';
 import { HostPartyPlayersPanel } from './host-party-players-panel';
+import { HostPartyMusicThemePanel } from './host-party-music-theme-panel';
 import { HostPartyStatusBar } from './host-party-status-bar';
 import { HostRuntimeConfirmationDialog } from './host-runtime-confirmation-dialog';
 import { HostStartPartyAction } from './host-start-party-action';
@@ -77,6 +78,8 @@ export function HostLobbySurface({
 
         <HostPartyPlayersPanel players={party.players} />
       </ResponsiveGrid>
+
+      <HostPartyMusicThemePanel />
 
       <HostStartPartyAction
         controls={hostRuntimeControls}

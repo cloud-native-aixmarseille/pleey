@@ -32,6 +32,40 @@ export const gamePartyHostEn = {
           runtimeResultHint: 'Advance when you are ready to move to the next stage.',
           runtimePausedHint: 'Resume the party to continue the current flow.',
           runtimeEndedHint: 'This party is finished. You can still inspect the final state.',
+          musicPanelTitle: 'Party music themes',
+          musicPanelDescription:
+            'Pick a soundtrack to energize the lobby while players join your party.',
+          musicPlayCta: 'Play theme',
+          musicPlayingCta: 'Playing',
+          musicPlayingBadge: 'Live',
+          musicNowPlaying: 'Now playing: {{theme}}',
+          musicIdleHint: 'Select a music theme and press play to start the party vibe.',
+          musicThemes: {
+            none: {
+              name: 'No music',
+              description: 'Mute lobby music for a quiet setup moment.',
+            },
+            chill: {
+              name: 'Chill',
+              description: 'Smooth ambient layers for a calm lobby atmosphere.',
+            },
+            funky: {
+              name: 'Funky',
+              description: 'Groovy bass and playful rhythm to keep players energized.',
+            },
+            suspense: {
+              name: 'Suspense',
+              description: 'Tension-building pulses for dramatic pre-game anticipation.',
+            },
+            retro: {
+              name: 'Retro',
+              description: 'Arcade-inspired tones for a nostalgic game-show vibe.',
+            },
+            party: {
+              name: 'Party',
+              description: 'Bright upbeat momentum to kick off the session with energy.',
+            },
+          },
           startPartyCta: 'Start party',
           revealStageResultCta: 'Reveal result',
           advanceStageCta: 'Next stage',
