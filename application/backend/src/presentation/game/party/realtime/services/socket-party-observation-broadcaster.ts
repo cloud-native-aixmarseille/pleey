@@ -61,7 +61,7 @@ export class SocketPartyObservationBroadcaster implements PartyObservationBroadc
     const room = resolvePartyObservationRoom(snapshot.hostObservation.partyId);
     const sockets = await this.server.in(room).fetchSockets();
 
-    for (const socket of sockets) {
+    for (const socket of this.orderAudienceSockets(sockets, snapshot.hostObservation.host.userId)) {
       socket.emit(
         PARTY_SOCKET_OUTBOUND_EVENTS.PARTY_UPDATED,
         this.toAudienceMessage(
@@ -73,17 +73,24 @@ export class SocketPartyObservationBroadcaster implements PartyObservationBroadc
     }
   }
 
-  async publishRuntimeNotice(partyId: PartyId, kind: PartyRuntimeNoticeKind): Promise<void> {
+  async publishRuntimeNotice(
+    partyId: PartyId,
+    hostUserId: number,
+    kind: PartyRuntimeNoticeKind,
+  ): Promise<void> {
     if (!this.server) {
       return;
     }
 
-    this.server
-      .to(resolvePartyObservationRoom(partyId))
-      .emit(PARTY_SOCKET_OUTBOUND_EVENTS.PARTY_RUNTIME_NOTICE, {
+    const room = resolvePartyObservationRoom(partyId);
+    const sockets = await this.server.in(room).fetchSockets();
+
+    for (const socket of this.orderAudienceSockets(sockets, hostUserId)) {
+      socket.emit(PARTY_SOCKET_OUTBOUND_EVENTS.PARTY_RUNTIME_NOTICE, {
         kind,
         partyId,
       });
+    }
   }
 
   private async resolveLivePlayerIdentities(
@@ -116,6 +123,33 @@ export class SocketPartyObservationBroadcaster implements PartyObservationBroadc
       case PartyPlayerKind.GUEST:
         return `guest:${identity.guestId}`;
     }
+  }
+
+  private orderAudienceSockets(
+    sockets: readonly Pick<Socket, 'data' | 'emit'>[],
+    hostUserId: number,
+  ): readonly Pick<Socket, 'data' | 'emit'>[] {
+    const hostSockets: Pick<Socket, 'data' | 'emit'>[] = [];
+    const playerSockets: Pick<Socket, 'data' | 'emit'>[] = [];
+    const observerSockets: Pick<Socket, 'data' | 'emit'>[] = [];
+
+    for (const socket of sockets) {
+      const socketData = socket.data as PartyObserverSocketData;
+
+      if (socketData.authenticatedUserId === hostUserId) {
+        hostSockets.push(socket);
+        continue;
+      }
+
+      if (socketData.joinedPartyPlayer !== undefined) {
+        playerSockets.push(socket);
+        continue;
+      }
+
+      observerSockets.push(socket);
+    }
+
+    return [...hostSockets, ...playerSockets, ...observerSockets];
   }
 
   private toAudienceMessage(

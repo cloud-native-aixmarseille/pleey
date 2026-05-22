@@ -372,15 +372,20 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     runtimeNoticeKind?: PartyRuntimeNoticeKind,
   ): Promise<void> {
     const partyId = this.normalizePartyId(payload?.partyId);
+    const hostUserId = this.resolveAuthenticatedHostUserId(client);
 
     try {
       await useCase.execute({
-        hostUserId: this.resolveAuthenticatedHostUserId(client),
+        hostUserId,
         partyId,
       });
 
       if (runtimeNoticeKind) {
-        await this.partyObservationBroadcaster.publishRuntimeNotice(partyId, runtimeNoticeKind);
+        await this.partyObservationBroadcaster.publishRuntimeNotice(
+          partyId,
+          hostUserId,
+          runtimeNoticeKind,
+        );
       }
     } catch (error) {
       throw this.toWsException(error);

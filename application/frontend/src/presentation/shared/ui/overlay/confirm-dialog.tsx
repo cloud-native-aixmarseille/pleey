@@ -4,6 +4,7 @@ import { Button } from '../actions/button';
 import { surfaceRecipes } from '../foundation/ui-recipes';
 import { uiThemeTokens } from '../foundation/ui-theme';
 import { SupportingText } from '../layout/typography';
+import { usePresentationMediaQuery } from '../layout/use-presentation-media-query';
 import { DialogActionsFooter, DialogTitleBlock } from './dialog-primitives';
 
 interface ConfirmDialogProps {
@@ -29,37 +30,61 @@ export function ConfirmDialog({
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
+  const isMobile = usePresentationMediaQuery('(max-width: 48em)');
+
   return (
     <Modal
-      centered
+      centered={!isMobile}
       onClose={onCancel}
       opened={isOpen}
       overlayProps={{
         backgroundOpacity: 0.28,
         blur: 6,
       }}
+      radius={isMobile ? 'xl' : 'md'}
       styles={{
-        body: { padding: uiThemeTokens.spacing.lg },
+        body: {
+          padding: isMobile ? uiThemeTokens.spacing.md : uiThemeTokens.spacing.lg,
+        },
         content: {
           ...surfaceRecipes.elevated,
-          maxWidth: '28rem',
+          maxWidth: isMobile ? '100%' : '28rem',
+          width: '100%',
+          margin: 0,
+          borderRadius: isMobile
+            ? `${uiThemeTokens.radius.panel} ${uiThemeTokens.radius.panel} 0 0`
+            : undefined,
         },
         header: { display: 'none' },
+        inner: isMobile
+          ? {
+              alignItems: 'flex-end',
+              justifyContent: 'flex-end',
+              padding: 0,
+            }
+          : undefined,
         overlay: {
           background: `color-mix(in srgb, ${uiThemeTokens.color.surface.canvas} 72%, transparent)`,
         },
       }}
       withCloseButton={false}
     >
-      <Stack gap="md">
-        {title ? <DialogTitleBlock level={3} title={title} /> : null}
-        <SupportingText>{message}</SupportingText>
-        {children}
-        <DialogActionsFooter>
-          <Button disabled={confirmDisabled} intent="primary" onClick={onConfirm}>
+      <Stack gap="md" w="100%">
+        <Stack gap="md">
+          {title ? <DialogTitleBlock level={3} title={title} /> : null}
+          <SupportingText>{message}</SupportingText>
+          {children}
+        </Stack>
+        <DialogActionsFooter stacked={isMobile}>
+          <Button
+            disabled={confirmDisabled}
+            intent="primary"
+            onClick={onConfirm}
+            width={isMobile ? 'full' : 'auto'}
+          >
             {confirmLabel}
           </Button>
-          <Button intent="ghost" onClick={onCancel}>
+          <Button intent="ghost" onClick={onCancel} width={isMobile ? 'full' : 'auto'}>
             {cancelLabel}
           </Button>
         </DialogActionsFooter>

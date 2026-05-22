@@ -3,7 +3,7 @@ export const gamePartyHostFr = {
     party: {
       host: {
         route: {
-          hostingBadge: 'Vous êtes l’hôte',
+          hostingBadge: "Vous êtes l'hôte",
           sharePanelLabel: 'Inviter des joueurs',
           shareHeading: 'Rejoindre le lobby',
           scanToJoin: 'Scanner pour rejoindre',
@@ -14,7 +14,7 @@ export const gamePartyHostFr = {
           runtimeMenuGroupFlow: 'Déroulé',
           runtimeMenuGroupPlayback: 'Lecture',
           runtimeMenuGroupDanger: 'Clore la partie',
-          runtimePending: 'Application de la dernière commande hôte…',
+          runtimePending: 'Application de la dernière commande hôte...',
           runtimeEndConfirmTitle: 'Clore la partie ?',
           runtimeEndConfirmMessage:
             'Les joueurs seront déconnectés de la session en direct. Cette action est irréversible.',
@@ -27,23 +27,8 @@ export const gamePartyHostFr = {
           runtimeRewindPartyConfirmTitle: 'Retourner au lobby ?',
           runtimeRewindPartyConfirmMessage:
             'Toutes les manches jouées seront réinitialisées. Les réponses des joueurs et les scores cumulés seront effacés avant le retour au lobby.',
-          runtimeLobbyHint: 'Lancez la première manche quand tout le monde est prêt.',
-          runtimeStageHint: 'Révélez le résultat quand la manche en cours est terminée.',
           runtimeResultHint: 'Avancez quand vous êtes prêt·e à passer à la manche suivante.',
-          runtimePausedHint: 'Reprenez la partie pour continuer le déroulé en cours.',
-          runtimeEndedHint:
-            'Cette partie est terminée. Vous pouvez encore consulter son état final.',
-          musicPanelTitle: 'Ambiances musicales de la partie',
-          musicPanelDescription:
-            'Choisissez une ambiance sonore pour dynamiser le lobby pendant l’arrivée des joueurs.',
-          musicPlayCta: 'Lancer le thème',
-          musicPlayingCta: 'En lecture',
-          musicPlayingBadge: 'Live',
-          musicNowPlaying: 'Lecture en cours : {{theme}}',
-          musicPlaybackError:
-            'Impossible de lire ce thème dans votre navigateur. Essayez un autre thème.',
-          musicIdleHint:
-            'Sélectionnez un thème musical puis lancez-le pour installer l’ambiance de la partie.',
+          musicPanelTitle: 'Animation de la partie',
           musicThemes: {
             none: {
               name: 'Sans musique',
@@ -81,7 +66,7 @@ export const gamePartyHostFr = {
           pausePartyCta: 'Mettre en pause',
           resumePartyCta: 'Reprendre la partie',
           endPartyCta: 'Clore la partie',
-          confirmEndPartyCta: 'Confirmer l’arrêt',
+          confirmEndPartyCta: "Confirmer l'arrêt",
           confirmRestartStageCta: 'Rejouer la manche',
           confirmRewindStageCta: 'Revenir à la manche précédente',
           confirmRewindPartyCta: 'Retour au lobby',

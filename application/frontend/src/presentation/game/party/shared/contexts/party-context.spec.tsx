@@ -283,4 +283,56 @@ describe('PartyProvider', () => {
       partyId: observedPartyId,
     });
   });
+
+  it('consumes a runtime notice after it has been handled', () => {
+    const observeParty = vi.fn((_: PartyId, handlers: PartyObservationHandlers) => {
+      observeParty.handlers = handlers;
+      return vi.fn();
+    }) as ((partyId: PartyId, handlers: PartyObservationHandlers) => () => void) & {
+      handlers?: PartyObservationHandlers;
+    };
+    const wrapper = ({ children }: PropsWithChildren) =>
+      providePartyDependencies(
+        <PartyProvider port={{ observeParty } satisfies PartyObservationPort}>
+          {children}
+        </PartyProvider>,
+        {
+          hostPartyRuntimeControlsResolver,
+          partyLobbyFacade,
+          partyGuestSessionPort,
+          partyIdentifier,
+          partyHostControlPort,
+          partyManagementPort,
+          partyObservationPort,
+          partyPinIdentifier,
+          partyPlayerPort,
+          stageIdentifier,
+        },
+      );
+    const rendered = renderHook(() => useParty(), { wrapper });
+    const observedPartyId = parsePartyId(44);
+
+    act(() => {
+      rendered.result.current.observePartyById(observedPartyId);
+      observeParty.handlers?.onRuntimeNotice?.({
+        kind: PartyRuntimeNoticeKind.RewindStage,
+        partyId: observedPartyId,
+      });
+    });
+
+    const runtimeNotice = rendered.result.current.getRuntimeNoticeByPartyId(observedPartyId);
+
+    expect(runtimeNotice).toEqual({
+      kind: PartyRuntimeNoticeKind.RewindStage,
+      partyId: observedPartyId,
+    });
+
+    act(() => {
+      if (runtimeNotice !== null) {
+        rendered.result.current.consumeRuntimeNotice(runtimeNotice);
+      }
+    });
+
+    expect(rendered.result.current.getRuntimeNoticeByPartyId(observedPartyId)).toBeNull();
+  });
 });

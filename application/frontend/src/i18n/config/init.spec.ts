@@ -33,18 +33,18 @@ describe('LanguagePreferenceResolver', () => {
     });
 
     it('ignores an invalid persisted value and falls back to browser detection', () => {
-      // Arrange — store an unsupported locale code
+      // Arrange - store an unsupported locale code
       localStorage.setItem(STORAGE_KEY, 'de');
 
       // Act
       const result = languagePreferenceResolver.resolve();
 
-      // Assert — jsdom defaults navigator.language to 'en-US' → resolves 'en'
+      // Assert - jsdom defaults navigator.language to 'en-US' → resolves 'en'
       expect([SupportedLanguage.EN, SupportedLanguage.FR]).toContain(result);
     });
 
     it('returns "en" when no preference is stored and browser language is not fr', () => {
-      // Arrange — jsdom provides navigator.language = 'en-US' by default
+      // Arrange - jsdom provides navigator.language = 'en-US' by default
       localStorage.removeItem(STORAGE_KEY);
 
       // Act

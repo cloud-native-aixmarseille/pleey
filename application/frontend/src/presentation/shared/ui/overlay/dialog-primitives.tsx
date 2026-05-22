@@ -12,6 +12,7 @@ interface DialogTitleBlockProps {
 
 interface DialogActionsFooterProps extends PropsWithChildren {
   readonly bordered?: boolean;
+  readonly stacked?: boolean;
 }
 
 export function DialogTitleBlock({ eyebrow, level = 2, title }: DialogTitleBlockProps) {
@@ -23,23 +24,38 @@ export function DialogTitleBlock({ eyebrow, level = 2, title }: DialogTitleBlock
   );
 }
 
-export function DialogActionsFooter({ children, bordered = false }: DialogActionsFooterProps) {
+export function DialogActionsFooter({
+  children,
+  bordered = false,
+  stacked = false,
+}: DialogActionsFooterProps) {
+  const baseStyle = bordered
+    ? {
+        borderTop: `1px solid ${uiThemeTokens.color.border.subtle}`,
+        width: '100%',
+      }
+    : { width: '100%' };
+
   return (
     <Box
-      px="xl"
-      py="md"
+      px={stacked ? 'md' : 'xl'}
+      py={stacked ? 'sm' : 'md'}
       style={
-        bordered
+        stacked
           ? {
-              borderTop: `1px solid ${uiThemeTokens.color.border.subtle}`,
-              width: '100%',
+              ...baseStyle,
+              paddingBottom: `calc(${uiThemeTokens.spacing.md} + env(safe-area-inset-bottom, 0px))`,
             }
-          : { width: '100%' }
+          : baseStyle
       }
     >
-      <ActionRow gap="sm" justify="end">
-        {children}
-      </ActionRow>
+      {stacked ? (
+        <ContentStack gap="sm">{children}</ContentStack>
+      ) : (
+        <ActionRow gap="sm" justify="end">
+          {children}
+        </ActionRow>
+      )}
     </Box>
   );
 }

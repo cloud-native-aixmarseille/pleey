@@ -119,6 +119,7 @@ const createDragHandleStyle = (isHovering: boolean, isDragging: boolean) =>
     display: 'flex',
     gap: '0.5rem',
     padding: '0.35rem 0.55rem',
+    touchAction: 'none',
     transition: 'background 120ms ease, border-color 120ms ease',
   }) as const;
 

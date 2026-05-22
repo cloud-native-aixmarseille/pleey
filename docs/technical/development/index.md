@@ -54,6 +54,7 @@ refactor(game): simplify score calculation logic
 ## Coding Standards
 
 - SOLID, ACID, DRY, KISS
+- Prefer factorization when the same structure or decision repeats; remove redundant abstractions, branches, wrappers, and parameters instead of keeping parallel code paths
 - Descriptive names, no magic numbers, early returns
 - All user-facing text via i18n translation keys (both `en` and `fr`)
 - Error messages from domain error code enums, translated at transport layer

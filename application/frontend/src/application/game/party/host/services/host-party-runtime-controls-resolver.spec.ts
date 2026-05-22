@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/shared/entities/party-player-identity';
+import { PartyRuntimePhase } from '../../../../../domains/game/party/shared/entities/party-runtime-context';
 import { PartyStatus } from '../../../../../domains/game/party/shared/entities/party-status';
 import { GameType } from '../../../../../domains/game/types/shared/game-type';
 import { UserIdentifier } from '../../../../identity/shared/services/identifiers/user-identifier';
@@ -57,7 +58,7 @@ describe('HostPartyRuntimeControlsResolver', () => {
       expect.objectContaining({
         canEndParty: true,
         canStartParty: true,
-        lifecyclePhase: 'lobby',
+        lifecyclePhase: PartyRuntimePhase.LOBBY,
       }),
     );
   });
@@ -68,7 +69,7 @@ describe('HostPartyRuntimeControlsResolver', () => {
     expect(resolver.resolveControls(createObservation())).toEqual(
       expect.objectContaining({
         canStartParty: false,
-        lifecyclePhase: 'lobby',
+        lifecyclePhase: PartyRuntimePhase.LOBBY,
       }),
     );
   });
@@ -82,7 +83,7 @@ describe('HostPartyRuntimeControlsResolver', () => {
           status: PartyStatus.ACTIVE,
           context: {
             lifecycle: {
-              phase: 'stage',
+              phase: PartyRuntimePhase.STAGE,
               stageEndsAtEpochMs: null,
               stageId: stageIdentifier.parse(2),
               stagePosition: 1,
@@ -113,7 +114,7 @@ describe('HostPartyRuntimeControlsResolver', () => {
         canRewindStage: true,
         currentStageNumber: 2,
         hasNextStage: true,
-        lifecyclePhase: 'stage',
+        lifecyclePhase: PartyRuntimePhase.STAGE,
       }),
     );
   });
@@ -127,7 +128,7 @@ describe('HostPartyRuntimeControlsResolver', () => {
           status: PartyStatus.PAUSED,
           context: {
             lifecycle: {
-              phase: 'result',
+              phase: PartyRuntimePhase.RESULT,
               stageEndsAtEpochMs: null,
               stageId: stageIdentifier.parse(3),
               stagePosition: 2,
@@ -153,7 +154,7 @@ describe('HostPartyRuntimeControlsResolver', () => {
         currentStageNumber: 3,
         hasNextStage: false,
         isPaused: true,
-        lifecyclePhase: 'result',
+        lifecyclePhase: PartyRuntimePhase.RESULT,
       }),
     );
   });

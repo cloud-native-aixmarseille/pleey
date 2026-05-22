@@ -64,6 +64,27 @@ interface PartyPlayerSummary {
   readonly username: string;
 }
 
+enum PersistedPartyStatus {
+  WAITING = 'waiting',
+  ACTIVE = 'active',
+  PAUSED = 'paused',
+  ENDED = 'ended',
+}
+
+const PERSISTED_PARTY_STATUS_BY_DOMAIN_STATUS = {
+  [PartyStatus.WAITING]: PersistedPartyStatus.WAITING,
+  [PartyStatus.ACTIVE]: PersistedPartyStatus.ACTIVE,
+  [PartyStatus.PAUSED]: PersistedPartyStatus.PAUSED,
+  [PartyStatus.ENDED]: PersistedPartyStatus.ENDED,
+} as const satisfies Record<PartyStatus, PersistedPartyStatus>;
+
+const DOMAIN_PARTY_STATUS_BY_PERSISTED_STATUS = {
+  [PersistedPartyStatus.WAITING]: PartyStatus.WAITING,
+  [PersistedPartyStatus.ACTIVE]: PartyStatus.ACTIVE,
+  [PersistedPartyStatus.PAUSED]: PartyStatus.PAUSED,
+  [PersistedPartyStatus.ENDED]: PartyStatus.ENDED,
+} as const satisfies Record<PersistedPartyStatus, PartyStatus>;
+
 @Injectable()
 export class PrismaPartyReadModelMapper {
   constructor(
@@ -259,35 +280,24 @@ export class PrismaPartyReadModelMapper {
       throw new Error('Unexpected party role value while reading party status.');
     }
 
-    switch (normalizedStatus) {
-      case PartyStatus.WAITING:
-        return PartyStatus.WAITING;
-      case PartyStatus.ACTIVE:
-        return PartyStatus.ACTIVE;
-      case PartyStatus.PAUSED:
-        return PartyStatus.PAUSED;
-      case PartyStatus.ENDED:
-        return PartyStatus.ENDED;
-      default:
-        if (options.unknownStatus === 'validation-error') {
-          throw new Error(GameErrorCode.VALIDATION_FAILED);
-        }
+    const mappedStatus =
+      DOMAIN_PARTY_STATUS_BY_PERSISTED_STATUS[
+        normalizedStatus.toLowerCase() as keyof typeof DOMAIN_PARTY_STATUS_BY_PERSISTED_STATUS
+      ];
 
-        return PartyStatus.WAITING;
+    if (mappedStatus) {
+      return mappedStatus;
     }
+
+    if (options.unknownStatus === 'validation-error') {
+      throw new Error(GameErrorCode.VALIDATION_FAILED);
+    }
+
+    return PartyStatus.WAITING;
   }
 
-  toPersistedPartyStatus(status: PartyStatus): 'waiting' | 'active' | 'paused' | 'ended' {
-    switch (status) {
-      case PartyStatus.WAITING:
-        return 'waiting';
-      case PartyStatus.ACTIVE:
-        return 'active';
-      case PartyStatus.PAUSED:
-        return 'paused';
-      case PartyStatus.ENDED:
-        return 'ended';
-    }
+  toPersistedPartyStatus(status: PartyStatus): PersistedPartyStatus {
+    return PERSISTED_PARTY_STATUS_BY_DOMAIN_STATUS[status];
   }
 
   toPartyRuntimeContext(value: unknown): PartyRuntimeContext | null {

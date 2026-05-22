@@ -7,7 +7,7 @@ interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'cla
   readonly leftSection?: ReactNode;
   readonly rightSection?: ReactNode;
   readonly size?: 'md' | 'sm';
-  readonly width?: 'auto' | 'wide';
+  readonly width?: 'auto' | 'wide' | 'full';
 }
 
 const buttonIntentProps = {
@@ -77,6 +77,7 @@ export function Button({
         root: {
           fontWeight: 700,
           minWidth: width === 'wide' ? '11rem' : undefined,
+          width: width === 'full' ? '100%' : undefined,
           ...intentProps.styles.root,
         },
         label: {

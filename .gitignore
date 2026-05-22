@@ -85,6 +85,7 @@ application/**/junit.xml
 e2e/test-results/
 e2e/playwright-report/
 e2e/playwright/.cache/
+.playwright-mcp/
 
 # Misc
 .cache/

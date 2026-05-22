@@ -83,6 +83,7 @@ export const SignInScreen = () => {
 - `presentation/<scope>/components/` is for shared components reused across multiple screens within that scope
 - Screen-local components go in `presentation/<scope>/screens/<feature>/components/`
 - Split large components following SOLID — a component should have one reason to change
+- Keep component props strictly necessary; if every usage passes the same value, factor that invariant into the component or split the component instead of keeping a redundant prop
 
 ### Styling
 

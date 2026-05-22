@@ -10,7 +10,7 @@ export const homeEn = {
     valueProposition: {
       heading: 'One platform for every interactive moment.',
       description:
-        'Pleey gives hosts a single control room to build, launch, and run live audience experiences. No downloads, no friction — just a pin code and a screen.',
+        'Pleey gives hosts a single control room to build, launch, and run live audience experiences. No downloads, no friction - just a pin code and a screen.',
     },
     howItWorks: {
       eyebrow: 'Three steps to live',
@@ -18,7 +18,7 @@ export const homeEn = {
         {
           title: 'Design your game',
           description:
-            'Choose a format — quiz, prediction, or custom — and build your content in the dashboard.',
+            'Choose a format - quiz, prediction, or custom - and build your content in the dashboard.',
         },
         {
           title: 'Share the pin',
@@ -46,7 +46,7 @@ export const homeEn = {
         {
           label: 'Multilingual by default',
           description:
-            'Seamlessly host in English or French — the interface adapts to each player.',
+            'Seamlessly host in English or French - the interface adapts to each player.',
         },
         {
           label: 'Any device, zero installs',

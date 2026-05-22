@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { renderRouteWithProviders } from '../../../../../test-utils/render-route-with-providers';
 import { PartyRoutesFactory } from './party-routes-factory';
 
-vi.mock('../screens/pin/party-lobby-screen', () => ({
+vi.mock('../screens/party-lobby-screen', () => ({
   PartyLobbyScreen: () => <div data-testid="party-lobby-screen-stub" />,
 }));
 

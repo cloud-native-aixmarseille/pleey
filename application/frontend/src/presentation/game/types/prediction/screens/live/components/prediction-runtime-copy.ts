@@ -10,7 +10,8 @@ export const predictionRuntimeCopy = {
   resultHeading: 'game.types.prediction.runtime.resultHeading',
   resultIncorrect: 'game.types.prediction.runtime.resultIncorrect',
   resultIncorrectHint: 'game.types.prediction.runtime.resultIncorrectHint',
-  submissionProgress: 'game.types.prediction.runtime.submissionProgress',
+  resultNoAnswer: 'game.types.prediction.runtime.resultNoAnswer',
+  resultNoAnswerHint: 'game.types.prediction.runtime.resultNoAnswerHint',
   voteCount: 'game.types.prediction.runtime.voteCount',
   yourPickBadge: 'game.types.prediction.runtime.yourPickBadge',
 } as const satisfies PlayableChoiceRuntimeCopy;

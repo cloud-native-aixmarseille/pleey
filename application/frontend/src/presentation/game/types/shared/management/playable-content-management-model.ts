@@ -105,13 +105,14 @@ export function createPlayableItemEditorStateFromItem(
 function toOptions(
   editorState: PlayableItemEditorState,
   itemKindConfig: PlayableItemKindConfig | undefined,
+  t?: (key: string) => string,
 ): PlayableChoiceOption[] {
   const selectedKindOption = resolvePlayableItemKindOption(itemKindConfig, editorState.kind);
 
   if (selectedKindOption?.fixedOptions) {
     return selectedKindOption.fixedOptions.map((option, position) => ({
       id: null,
-      text: option.text,
+      text: option.text ?? t?.(option.labelKey) ?? null,
       position,
       isCorrect: editorState.correctPositions.includes(String(position)),
     }));
@@ -131,12 +132,13 @@ function toOptions(
 export function createPlayableItemInput(
   editorState: PlayableItemEditorState,
   itemKindConfig?: PlayableItemKindConfig,
+  t?: (key: string) => string,
 ): PlayableManagementItemInput {
   return {
     text: editorState.text.trim(),
     kind: itemKindConfig ? (editorState.kind ?? itemKindConfig.defaultKind) : undefined,
     timeLimit: Number.parseInt(editorState.timeLimit, 10),
     points: Number.parseInt(editorState.points, 10),
-    options: toOptions(editorState, itemKindConfig),
+    options: toOptions(editorState, itemKindConfig, t),
   };
 }

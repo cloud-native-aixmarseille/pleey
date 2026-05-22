@@ -110,7 +110,6 @@ export const predictionEn = {
           actionSlotLabel: 'Prediction {{letter}}',
           paused: 'Paused',
           responseLocked: 'Prediction locked in - waiting for the result reveal.',
-          submissionProgress: '{{submitted}} / {{total}} predictions locked',
           resultHeading: 'Prediction distribution',
           pointsAwarded: '+{{points}}',
           correctBadge: 'Resolved outcome',
@@ -119,6 +118,9 @@ export const predictionEn = {
           resultCorrect: 'Your prediction landed.',
           resultIncorrect: 'The outcome went another way.',
           resultIncorrectHint: 'Check the distribution to see the resolved prediction.',
+          resultNoAnswer: 'No prediction submitted.',
+          resultNoAnswerHint:
+            'Time ran out before you locked in a prediction. Check the distribution to see the resolved outcome.',
         },
       },
     },

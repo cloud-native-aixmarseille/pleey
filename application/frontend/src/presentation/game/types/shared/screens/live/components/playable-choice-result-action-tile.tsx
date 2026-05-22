@@ -4,6 +4,7 @@ import { Badge } from '../../../../../../shared/ui/feedback/badge';
 import { findUiTheme, uiThemeTokens } from '../../../../../../shared/ui/foundation/ui-theme';
 import { ContentStack, SplitWrapRow } from '../../../../../../shared/ui/layout/containers';
 import { Heading, SupportingText } from '../../../../../../shared/ui/layout/typography';
+import { usePresentationMediaQuery } from '../../../../../../shared/ui/layout/use-presentation-media-query';
 import { usePresentationThemeState } from '../../../../../../shared/ui/provider';
 import {
   type PlayableChoiceActionSlotIdentity,
@@ -22,6 +23,12 @@ interface PlayableChoiceResultActionTileProps {
   readonly actionPercent?: number;
   readonly copy: PlayableChoiceResultActionTileCopy;
   readonly disabled?: boolean;
+  /**
+   * When true, the tile fills its parent (height + width) so it can stretch
+   * inside a CSS grid that distributes viewport height across rows. Used by
+   * the mobile player stage to avoid scrolling regardless of option count.
+   */
+  readonly fillParent?: boolean;
   readonly index: number;
   readonly isCorrect: boolean;
   readonly isSelected: boolean;
@@ -40,6 +47,20 @@ const baseTileStyle: CSSProperties = {
   width: '100%',
 };
 
+const compactTileStyle: CSSProperties = {
+  ...baseTileStyle,
+  minHeight: '4rem',
+  padding: uiThemeTokens.spacing.sm,
+};
+
+const fillParentTileStyle: CSSProperties = {
+  alignItems: 'center',
+  display: 'flex',
+  height: '100%',
+  justifyContent: 'center',
+  minHeight: 0,
+};
+
 const slotBadgeBaseStyle: CSSProperties = {
   alignItems: 'center',
   borderRadius: uiThemeTokens.radius.inset,
@@ -52,11 +73,36 @@ const slotBadgeBaseStyle: CSSProperties = {
   width: '2.75rem',
 };
 
+const compactSlotBadgeBaseStyle: CSSProperties = {
+  ...slotBadgeBaseStyle,
+  fontSize: '1rem',
+  height: '2.25rem',
+  width: '2.25rem',
+};
+
 const correctRibbonStyle: CSSProperties = {
   left: '50%',
   position: 'absolute',
   top: 0,
   transform: 'translate(-50%, -50%)',
+  zIndex: 1,
+};
+
+const yourPickRibbonStyle: CSSProperties = {
+  bottom: 0,
+  left: '50%',
+  position: 'absolute',
+  transform: 'translate(-50%, 50%)',
+  zIndex: 1,
+};
+
+const compactAnswerTextStyle: CSSProperties = {
+  display: 'block',
+  fontSize: '1rem',
+  fontWeight: 600,
+  lineHeight: 1.2,
+  margin: 0,
+  textAlign: 'center',
 };
 
 const slotHeaderStyle: CSSProperties = {
@@ -64,6 +110,15 @@ const slotHeaderStyle: CSSProperties = {
   display: 'flex',
   flexWrap: 'nowrap',
   gap: uiThemeTokens.spacing.md,
+};
+
+const compactCenteredHeaderStyle: CSSProperties = {
+  alignItems: 'center',
+  display: 'flex',
+  flexDirection: 'column',
+  flexWrap: 'nowrap',
+  gap: uiThemeTokens.spacing.sm,
+  textAlign: 'center',
 };
 
 const interactiveTileStyle: CSSProperties = {
@@ -77,14 +132,21 @@ function buildTileStyle(
   slot: PlayableChoiceActionSlotIdentity,
   options: {
     disabled: boolean;
+    fillParent: boolean;
+    isCompact: boolean;
     isCorrect: boolean;
     isResultTile: boolean;
     isSelected: boolean;
   },
 ): CSSProperties {
+  const base = {
+    ...(options.isCompact ? compactTileStyle : baseTileStyle),
+    ...(options.fillParent ? fillParentTileStyle : null),
+  };
+
   if (options.isCorrect) {
     return {
-      ...baseTileStyle,
+      ...base,
       background: slot.surfaceBackground,
       border: `3px solid ${slot.surfaceBorder}`,
       boxShadow: `0 0 0 2px ${slot.surfaceBorder}, ${uiThemeTokens.shadow.subtle}`,
@@ -96,7 +158,7 @@ function buildTileStyle(
 
   if (options.isSelected) {
     return {
-      ...baseTileStyle,
+      ...base,
       background: slot.surfaceBackground,
       border: `2px solid ${slot.badgeBackground}`,
       boxShadow: `0 0 0 3px ${slot.surfaceBorder}`,
@@ -106,7 +168,7 @@ function buildTileStyle(
   }
 
   return {
-    ...baseTileStyle,
+    ...base,
     background: slot.surfaceBackground,
     border: `2px solid ${slot.surfaceBorder}`,
     cursor: options.disabled ? 'not-allowed' : undefined,
@@ -114,15 +176,18 @@ function buildTileStyle(
   };
 }
 
-function buildSlotBadgeStyle(slot: PlayableChoiceActionSlotIdentity): CSSProperties {
+function buildSlotBadgeStyle(
+  slot: PlayableChoiceActionSlotIdentity,
+  isCompact: boolean,
+): CSSProperties {
   return {
-    ...slotBadgeBaseStyle,
+    ...(isCompact ? compactSlotBadgeBaseStyle : slotBadgeBaseStyle),
     background: slot.badgeBackground,
     color: slot.badgeText,
   };
 }
 
-function buildCorrectRibbonStyle(slot: PlayableChoiceActionSlotIdentity): CSSProperties {
+function buildCorrectMarkerStyle(slot: PlayableChoiceActionSlotIdentity): CSSProperties {
   return {
     ...correctRibbonStyle,
     background: slot.badgeBackground,
@@ -145,6 +210,7 @@ export function PlayableChoiceResultActionTile({
   actionPercent,
   copy,
   disabled = false,
+  fillParent = false,
   index,
   isCorrect,
   isSelected,
@@ -155,27 +221,43 @@ export function PlayableChoiceResultActionTile({
 }: PlayableChoiceResultActionTileProps) {
   const { activeColorScheme, activeThemeId } = usePresentationThemeState();
   const { t } = usePresentationTranslation();
+  const isMobile = usePresentationMediaQuery('(max-width: 48em)');
   const theme = findUiTheme(activeThemeId).mantineThemes[activeColorScheme];
   const slot = resolvePlayableChoiceActionSlotIdentity(index, slotCount, theme);
   const isResultTile = typeof actionCount === 'number' && typeof actionPercent === 'number';
+  const isCompact = isMobile && !isResultTile;
+  const isMobileResultTile = isMobile && isResultTile;
+  const useCompactBadge = isCompact || isMobileResultTile;
   const tileStyle = buildTileStyle(slot, {
     disabled,
+    fillParent,
+    isCompact,
     isCorrect,
     isResultTile,
     isSelected,
   });
   const tileContent = (
     <>
-      {isCorrect ? <div style={buildCorrectRibbonStyle(slot)}>{t(copy.correctBadge)}</div> : null}
+      {isCorrect ? <div style={buildCorrectMarkerStyle(slot)}>{t(copy.correctBadge)}</div> : null}
       <ContentStack gap="sm">
-        <div style={slotHeaderStyle}>
+        <div
+          style={
+            (isCompact && fillParent) || isMobileResultTile
+              ? compactCenteredHeaderStyle
+              : slotHeaderStyle
+          }
+        >
           <div
             aria-label={t(copy.actionSlotLabel, { letter: slot.letter })}
-            style={buildSlotBadgeStyle(slot)}
+            style={buildSlotBadgeStyle(slot, useCompactBadge)}
           >
             {slot.letter}
           </div>
-          <Heading level={3}>{text}</Heading>
+          {useCompactBadge ? (
+            <span style={compactAnswerTextStyle}>{text}</span>
+          ) : (
+            <Heading level={3}>{text}</Heading>
+          )}
         </div>
         {typeof actionCount === 'number' && typeof actionPercent === 'number' ? (
           <SplitWrapRow>
@@ -185,8 +267,12 @@ export function PlayableChoiceResultActionTile({
             <SupportingText tone="soft">{actionPercent}%</SupportingText>
           </SplitWrapRow>
         ) : null}
-        {isSelected ? <Badge tone="accent">{t(copy.yourPickBadge)}</Badge> : null}
       </ContentStack>
+      {isSelected && isResultTile ? (
+        <div style={yourPickRibbonStyle}>
+          <Badge tone="accent">{t(copy.yourPickBadge)}</Badge>
+        </div>
+      ) : null}
     </>
   );
 

@@ -21,6 +21,7 @@ Scoped instruction files are grouped by concern under `.github/instructions/` an
 
 - `.github/instructions/frontend/react.instructions.md` — frontend React and presentation-layer rules for `application/frontend/**`
 - `.github/instructions/frontend/accessibility.instructions.md` — frontend accessibility and WCAG-focused rules for `application/frontend/**`
+- `.github/instructions/frontend/player-mobile-ux.instructions.md` — player-facing mobile UX density and decluttering rules for player surfaces under `application/frontend/src/presentation/**`
 - `.github/instructions/backend/nestjs.instructions.md` — backend NestJS and transport-boundary rules for `application/backend/**`
 - `.github/instructions/testing/unit-tests.instructions.md` — Vitest unit and integration test conventions for `application/**/*.spec|test.*`
 

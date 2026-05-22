@@ -60,6 +60,7 @@ function createOutcomeBlockStyle(isCorrect: boolean, canReorder: boolean) {
     borderRadius: '1rem',
     cursor: canReorder ? 'grab' : 'default',
     padding: '1rem',
+    touchAction: canReorder ? 'none' : 'auto',
   } as const;
 }
 

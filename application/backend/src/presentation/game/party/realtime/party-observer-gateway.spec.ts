@@ -727,6 +727,7 @@ describe('PartyObserverGateway', () => {
 
     expect(partyObservationBroadcaster.publishRuntimeNotice).toHaveBeenCalledWith(
       partyIdentifier.parse(44),
+      7,
       runtimeNoticeKind,
     );
   });
