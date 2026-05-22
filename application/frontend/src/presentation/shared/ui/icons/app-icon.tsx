@@ -25,6 +25,7 @@ import {
   IconLayoutGrid,
   IconLogin2,
   IconLogout2,
+  IconMenu2,
   IconMoonStars,
   IconPlayerPause,
   IconPlayerPlay,
@@ -71,6 +72,7 @@ export type AppIconName =
   | 'info'
   | 'language'
   | 'light-mode'
+  | 'menu'
   | 'not-found'
   | 'organization'
   | 'pause'
@@ -120,6 +122,7 @@ const iconRegistry: Record<AppIconName, ComponentType<IconProps>> = {
   info: IconInfoCircle,
   language: IconLanguage,
   'light-mode': IconSun,
+  menu: IconMenu2,
   'not-found': IconSearch,
   organization: IconBuilding,
   pause: IconPlayerPause,

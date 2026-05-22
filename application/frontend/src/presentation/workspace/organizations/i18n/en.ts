@@ -22,7 +22,7 @@ export const organizationEn = {
         openButton: 'Create organization',
         title: 'Create organization',
         submit: 'Create organization',
-        submitting: 'Creating…',
+        submitting: 'Creating...',
         fields: {
           name: {
             label: 'Name',
@@ -62,13 +62,13 @@ export const organizationEn = {
           eyebrow: 'New project',
           title: 'Create a project for {{organization}}',
           submit: 'Create project',
-          submitting: 'Creating project…',
+          submitting: 'Creating project...',
         },
         edit: {
           eyebrow: 'Update project',
           title: 'Edit project for {{organization}}',
           submit: 'Save changes',
-          submitting: 'Saving changes…',
+          submitting: 'Saving changes...',
         },
         fields: {
           name: {
@@ -91,7 +91,7 @@ export const organizationEn = {
           "Select the destination project that will receive this project's existing games before removal.",
         migrationLabel: 'Migrate games to',
         migrationPlaceholder: 'Select a migration project',
-        submitting: 'Removing…',
+        submitting: 'Removing...',
       },
       validation: {
         nameRequired: 'Project name is required.',

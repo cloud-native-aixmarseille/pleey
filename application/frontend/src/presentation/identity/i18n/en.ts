@@ -27,7 +27,7 @@ export const authEn = {
       formLegend: 'Your credentials',
       formDescription: 'Enter the email and password associated with your Pleey account.',
       submitCta: 'Sign in',
-      submittingCta: 'Signing in…',
+      submittingCta: 'Signing in...',
       registerPrompt: "Don't have an account?",
       registerLink: 'Create one',
       forgotPasswordLink: 'Forgot password?',
@@ -38,7 +38,7 @@ export const authEn = {
         dashboardCta: 'Go to dashboard',
         signOutCta: 'Sign out',
       },
-      restoring: 'Checking for an existing session…',
+      restoring: 'Checking for an existing session...',
     },
     register: {
       eyebrow: 'Create account',
@@ -47,7 +47,7 @@ export const authEn = {
       formLegend: 'Account details',
       formDescription: 'Choose a username, enter your email, and pick a password.',
       submitCta: 'Create account',
-      submittingCta: 'Creating account…',
+      submittingCta: 'Creating account...',
       signInPrompt: 'Already have an account?',
       signInLink: 'Sign in',
       success: {
@@ -63,7 +63,7 @@ export const authEn = {
       emailLabel: 'Email address',
       emailPlaceholder: 'captain@pleey.io',
       submitCta: 'Send reset link',
-      submittingCta: 'Sending…',
+      submittingCta: 'Sending...',
       backToSignIn: 'Back to sign in',
       success: {
         title: 'Check your inbox.',
@@ -78,14 +78,14 @@ export const authEn = {
       subtitle: 'Update your profile information and personalize your account.',
       avatarSection: {
         regenerateCta: 'Generate new avatar',
-        regeneratingCta: 'Generating…',
+        regeneratingCta: 'Generating...',
       },
       detailsSection: {
         legend: 'Profile details',
         description: 'Update your username or email address.',
       },
       submitCta: 'Save changes',
-      submittingCta: 'Saving…',
+      submittingCta: 'Saving...',
       successMessage: 'Profile updated successfully.',
       signOutCta: 'Sign out',
       signOutDescription: 'End your current session.',

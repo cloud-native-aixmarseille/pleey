@@ -1,6 +1,6 @@
 export const sharedEn = {
   common: {
-    loading: 'Loading…',
+    loading: 'Loading...',
     cancel: 'Cancel',
     patience: {
       aria: 'Background animation is active while waiting.',

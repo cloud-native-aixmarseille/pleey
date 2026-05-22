@@ -16,6 +16,7 @@ Use `docs/technical/architecture/frontend.md` and `docs/technical/development/fr
 - Use `startTransition` or `useDeferredValue` only for non-urgent UI work that benefits from it because unnecessary concurrency primitives add noise.
 - Do not add `useMemo` or `useCallback` by default because blanket memoization usually hurts readability more than it helps performance.
 - Keep data ownership close to the consuming feature and avoid duplicate requests because split queries for one screen are a common regression source.
+- Keep component props strictly necessary because invariant props add API noise; if every call site passes the same value, factor that choice into the component or split the component.
 - Do not commit `console.*` in frontend code because runtime diagnostics should go through tests, UI feedback, or telemetry.
 
 Preferred pattern:

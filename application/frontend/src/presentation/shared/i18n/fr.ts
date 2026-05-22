@@ -1,6 +1,6 @@
 export const sharedFr = {
   common: {
-    loading: 'Chargement…',
+    loading: 'Chargement...',
     cancel: 'Annuler',
     patience: {
       aria: "L'animation d'attente en arrière-plan est active.",

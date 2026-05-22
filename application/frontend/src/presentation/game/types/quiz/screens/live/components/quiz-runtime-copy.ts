@@ -10,7 +10,8 @@ export const quizRuntimeCopy = {
   resultHeading: 'game.types.quiz.runtime.resultHeading',
   resultIncorrect: 'game.types.quiz.runtime.resultIncorrect',
   resultIncorrectHint: 'game.types.quiz.runtime.resultIncorrectHint',
-  submissionProgress: 'game.types.quiz.runtime.submissionProgress',
+  resultNoAnswer: 'game.types.quiz.runtime.resultNoAnswer',
+  resultNoAnswerHint: 'game.types.quiz.runtime.resultNoAnswerHint',
   voteCount: 'game.types.quiz.runtime.voteCount',
   yourPickBadge: 'game.types.quiz.runtime.yourPickBadge',
 } as const satisfies PlayableChoiceRuntimeCopy;

@@ -109,8 +109,7 @@ export const quizFr = {
         runtime: {
           actionSlotLabel: 'Réponse {{letter}}',
           paused: 'En pause',
-          responseLocked: 'Réponse verrouillée — en attente de la révélation du résultat.',
-          submissionProgress: '{{submitted}} / {{total}} réponses verrouillées',
+          responseLocked: 'Réponse verrouillée - en attente de la révélation du résultat.',
           resultHeading: 'Répartition des réponses',
           pointsAwarded: '+{{points}}',
           correctBadge: 'Bonne réponse',
@@ -119,6 +118,9 @@ export const quizFr = {
           resultCorrect: 'Correct ! Bien joué.',
           resultIncorrect: 'Pas cette fois.',
           resultIncorrectHint: 'Consultez la répartition pour voir la bonne réponse.',
+          resultNoAnswer: 'Aucune réponse envoyée.',
+          resultNoAnswerHint:
+            'Le temps est écoulé avant que vous ne validiez. Consultez la répartition pour voir la bonne réponse.',
         },
       },
     },

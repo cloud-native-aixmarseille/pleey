@@ -17,12 +17,10 @@ export const gamePartyPlayerEn = {
           joinPinPreviewLabel: 'You are joining party',
           joinPanelLabel: 'Confirm your identity',
           leavePartyCta: 'Leave party',
-          waitingForHost: 'Waiting for the host to start the game…',
+          stageMenuLabel: 'Open stage menu',
+          waitingForHost: 'Waiting for the host to start the game...',
           currentHost: 'Hosted by {{username}}',
-          lobbyAside: 'Stay on this page — the host will launch the game from their side.',
-          stageAside:
-            'Pick one answer and keep this page open. Your response locks as soon as the party confirms it.',
-          actionSubmitting: 'Submitting your answer…',
+          actionSubmitting: 'Submitting your answer...',
           actionLocked: 'Your answer is locked in.',
           actionPaused: 'The host paused the party. Answers are temporarily locked.',
           runtimeRestartStageToast:

@@ -10,7 +10,7 @@ export const homeFr = {
     valueProposition: {
       heading: 'Une seule plateforme pour chaque moment interactif.',
       description:
-        'Pleey offre aux animateurs un centre de contrôle unique pour créer, lancer et animer des expériences live. Aucun téléchargement, aucune friction — juste un code pin et un écran.',
+        'Pleey offre aux animateurs un centre de contrôle unique pour créer, lancer et animer des expériences live. Aucun téléchargement, aucune friction - juste un code pin et un écran.',
     },
     howItWorks: {
       eyebrow: 'Trois étapes pour passer en live',
@@ -18,7 +18,7 @@ export const homeFr = {
         {
           title: 'Concevez votre jeu',
           description:
-            'Choisissez un format — quiz, pronostic ou personnalisé — et construisez votre contenu dans le dashboard.',
+            'Choisissez un format - quiz, pronostic ou personnalisé - et construisez votre contenu dans le dashboard.',
         },
         {
           title: 'Partagez le code',
@@ -47,7 +47,7 @@ export const homeFr = {
         },
         {
           label: 'Multilingue par défaut',
-          description: "Animez en anglais ou en français — l'interface s'adapte à chaque joueur.",
+          description: "Animez en anglais ou en français - l'interface s'adapte à chaque joueur.",
         },
         {
           label: 'Tout appareil, zéro installation',

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { PartyObservation } from '../../../../../../../domains/game/party/shared/entities/party-observation';
-import { PARTY_RUNTIME_PHASE } from '../../../../../../../domains/game/party/shared/entities/party-runtime-context';
+import { PartyRuntimePhase } from '../../../../../../../domains/game/party/shared/entities/party-runtime-context';
 import { PartyStatus } from '../../../../../../../domains/game/party/shared/entities/party-status';
 
 const countdownTickIntervalMs = 250;
@@ -14,7 +14,7 @@ export function useStageRemainingDurationMs(party: PartyObservation): number | n
 
   useEffect(() => {
     if (
-      phase !== PARTY_RUNTIME_PHASE.STAGE ||
+      phase !== PartyRuntimePhase.STAGE ||
       party.status !== PartyStatus.ACTIVE ||
       stageEndsAtEpochMs === null
     ) {
@@ -30,7 +30,7 @@ export function useStageRemainingDurationMs(party: PartyObservation): number | n
     return () => window.clearInterval(intervalId);
   }, [phase, party.status, stageEndsAtEpochMs]);
 
-  if (phase !== PARTY_RUNTIME_PHASE.STAGE) {
+  if (phase !== PartyRuntimePhase.STAGE) {
     return null;
   }
 

@@ -33,6 +33,7 @@ interface SectionContainerProps extends PropsWithChildren {
 
 interface WrapRowProps extends PropsWithChildren {
   readonly gap?: 'xs' | 'sm' | 'md';
+  readonly wrap?: 'nowrap' | 'wrap';
 }
 
 interface SplitWrapRowProps extends PropsWithChildren {
@@ -111,9 +112,9 @@ export function SectionContainer({
   );
 }
 
-export function WrapRow({ children, gap = 'sm' }: WrapRowProps) {
+export function WrapRow({ children, gap = 'sm', wrap = 'wrap' }: WrapRowProps) {
   return (
-    <Group gap={gap} wrap="wrap">
+    <Group gap={gap} wrap={wrap}>
       {children}
     </Group>
   );

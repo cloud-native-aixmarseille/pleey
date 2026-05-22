@@ -1,8 +1,19 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderWithUiProvider } from '../../../../test-utils/render-with-ui-provider';
 import { ConfirmDialog } from './confirm-dialog';
+
+function stubMatchMedia(matches: boolean) {
+  vi.stubGlobal('matchMedia', (query: string) => ({
+    addEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+    matches,
+    media: query,
+    onchange: null,
+    removeEventListener: vi.fn(),
+  }));
+}
 
 describe('ConfirmDialog', () => {
   const defaults = {
@@ -13,6 +24,10 @@ describe('ConfirmDialog', () => {
     onConfirm: vi.fn(),
     onCancel: vi.fn(),
   };
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
 
   it('renders the message when open', () => {
     renderWithUiProvider(<ConfirmDialog {...defaults} />);
@@ -67,5 +82,15 @@ describe('ConfirmDialog', () => {
     renderWithUiProvider(<ConfirmDialog {...defaults} confirmDisabled />);
 
     expect(screen.getByRole('button', { name: 'Delete' })).toBeDisabled();
+  });
+
+  it('keeps both actions accessible on mobile layouts', () => {
+    stubMatchMedia(true);
+
+    renderWithUiProvider(<ConfirmDialog {...defaults} />);
+
+    expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
 });

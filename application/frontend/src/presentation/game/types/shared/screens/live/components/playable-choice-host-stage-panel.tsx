@@ -8,6 +8,11 @@ import {
 } from '../../../../../../shared/ui/layout/containers';
 import { HeroPanel } from '../../../../../../shared/ui/layout/panels';
 import { Heading, SupportingText } from '../../../../../../shared/ui/layout/typography';
+import {
+  MotionFadeIn,
+  MotionStagger,
+  MotionStaggerItem,
+} from '../../../../../../shared/ui/motion/motion-primitives';
 import { resolvePlayableChoiceActionSlotLabel } from './playable-choice-action-slot-identity';
 import { PlayableChoiceResultActionTile } from './playable-choice-result-action-tile';
 import type { PlayableChoiceHostRuntimePanelProps } from './playable-choice-runtime-panel.types';
@@ -16,6 +21,10 @@ import {
   resolveStageTotalDurationMs,
   useStageRemainingDurationMs,
 } from './use-stage-remaining-duration-ms';
+
+const STAGE_ANSWER_REVEAL_INITIAL_DELAY_SECONDS = 1.8;
+const STAGE_ANSWER_REVEAL_STAGGER_SECONDS = 0.22;
+const STAGE_QUESTION_REVEAL_DURATION_SECONDS = 1.0;
 
 const stageShellStyle = {
   display: 'flex',
@@ -53,6 +62,7 @@ export function PlayableChoiceHostStagePanel({
 }: PlayableChoiceHostRuntimePanelProps) {
   const { t } = usePresentationTranslation();
   const stagePosition = party.context?.lifecycle.stagePosition;
+  const stageId = party.context?.lifecycle.stageId ?? null;
   const currentStage = party.context?.stage?.current;
   const actionSubmission = party.context?.stage?.actionSubmission;
   const remainingDurationMs = useStageRemainingDurationMs(party);
@@ -97,46 +107,47 @@ export function PlayableChoiceHostStagePanel({
               testId={`${testIdPrefix}-host-stage-timer`}
               totalDurationMs={totalDurationMs}
             />
-            <SupportingText tone="soft">
-              {t(copy.submissionProgress, {
-                submitted: String(submittedPlayerCount),
-                total: String(totalEligiblePlayerCount),
-              })}
-            </SupportingText>
+            <StatusBanner tone={pendingResponseCount === 0 ? 'success' : 'warning'}>
+              {submissionStatusMessage}
+            </StatusBanner>
           </SplitWrapRow>
-
-          <StatusBanner tone={pendingResponseCount === 0 ? 'success' : 'warning'}>
-            {submissionStatusMessage}
-          </StatusBanner>
-
-          {party.status === PartyStatus.PAUSED ? (
-            <StatusBanner tone="warning">{t(copy.paused)}</StatusBanner>
-          ) : null}
 
           <div style={stagePromptRegionStyle}>
             <div style={stagePromptContentStyle}>
               <ContentStack align="center" gap="md">
-                <Heading hero level={1}>
-                  {currentStage.text}
-                </Heading>
+                <MotionFadeIn
+                  key={`question-${stageId}`}
+                  duration={STAGE_QUESTION_REVEAL_DURATION_SECONDS}
+                >
+                  <Heading hero level={1}>
+                    {currentStage.text}
+                  </Heading>
+                </MotionFadeIn>
               </ContentStack>
             </div>
           </div>
 
-          <ResponsiveGrid columns={{ base: 1, sm: 2 }} gap="lg">
-            {currentStage.actions.map((action, index) => (
-              <PlayableChoiceResultActionTile
-                key={action.id}
-                copy={copy}
-                index={index}
-                isCorrect={false}
-                isSelected={false}
-                slotCount={currentStage.actions.length}
-                testId={`${testIdPrefix}-host-stage-action-${resolvePlayableChoiceActionSlotLabel(index).toLowerCase()}`}
-                text={action.text}
-              />
-            ))}
-          </ResponsiveGrid>
+          <MotionStagger
+            key={`answers-${stageId}`}
+            initialDelay={STAGE_ANSWER_REVEAL_INITIAL_DELAY_SECONDS}
+            staggerDelay={STAGE_ANSWER_REVEAL_STAGGER_SECONDS}
+          >
+            <ResponsiveGrid columns={{ base: 1, sm: 2 }} gap="lg">
+              {currentStage.actions.map((action, index) => (
+                <MotionStaggerItem key={action.id}>
+                  <PlayableChoiceResultActionTile
+                    copy={copy}
+                    index={index}
+                    isCorrect={false}
+                    isSelected={false}
+                    slotCount={currentStage.actions.length}
+                    testId={`${testIdPrefix}-host-stage-action-${resolvePlayableChoiceActionSlotLabel(index).toLowerCase()}`}
+                    text={action.text}
+                  />
+                </MotionStaggerItem>
+              ))}
+            </ResponsiveGrid>
+          </MotionStagger>
         </div>
       </HeroPanel>
     </div>

@@ -71,7 +71,7 @@ export const dashboardFr = {
     },
     activeParty: {
       title: 'Votre partie active',
-      empty: 'Aucune partie active n’existe encore pour ce compte.',
+      empty: "Aucune partie active n'existe encore pour ce compte.",
       pinTitle: 'PIN de partie {{pin}}',
       role: {
         host: 'Hôte',

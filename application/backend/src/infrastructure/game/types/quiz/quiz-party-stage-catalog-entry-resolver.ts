@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import type { Prisma } from '@prisma/client';
 import { PartyActionIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-action-identifier';
 import { PartyStageIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-stage-identifier';
 import type { PartyStageCatalogEntry } from '../../../../application/game/types/shared/ports/party-stage-catalog.port';
@@ -16,11 +17,24 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
   ) {}
 
   findStageById(gameId: GameId, stageId: PartyStageId): Promise<PartyStageCatalogEntry | null> {
-    return this.findStage(gameId, { id: stageId });
+    return this.findStage(
+      gameId,
+      {
+        id: stageId,
+        deletedAt: null,
+      },
+      [{ position: 'asc' }],
+    );
   }
 
   findFirstStage(gameId: GameId): Promise<PartyStageCatalogEntry | null> {
-    return this.findStage(gameId, { position: 0 });
+    return this.findStage(
+      gameId,
+      {
+        deletedAt: null,
+      },
+      [{ position: 'asc' }],
+    );
   }
 
   findNextStage(
@@ -39,53 +53,43 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
 
   private async findStage(
     gameId: GameId,
-    selector: {
-      readonly id?: PartyStageId;
-      readonly position?: number;
-    },
+    questionWhere: Prisma.QuestionWhereInput,
+    questionOrderBy: Prisma.QuestionOrderByWithRelationInput[],
   ): Promise<PartyStageCatalogEntry | null> {
-    const game = await this.prisma.game.findFirst({
+    const question = await this.prisma.question.findFirst({
       where: {
-        id: gameId,
+        ...questionWhere,
         deletedAt: null,
-      },
-      select: {
         quiz: {
-          select: {
-            questions: {
-              where: {
-                deletedAt: null,
-                ...(selector.id !== undefined ? { id: selector.id } : {}),
-                ...(selector.position !== undefined ? { position: selector.position } : {}),
-              },
-              select: {
-                id: true,
-                position: true,
-                points: true,
-                questionText: true,
-                timeLimit: true,
-                answers: {
-                  where: {
-                    deletedAt: null,
-                  },
-                  orderBy: {
-                    position: 'asc',
-                  },
-                  select: {
-                    id: true,
-                    isCorrect: true,
-                    text: true,
-                  },
-                },
-              },
-              take: 1,
-            },
+          deletedAt: null,
+          game: {
+            id: gameId,
+            deletedAt: null,
           },
         },
       },
+      select: {
+        id: true,
+        position: true,
+        points: true,
+        questionText: true,
+        timeLimit: true,
+        answers: {
+          where: {
+            deletedAt: null,
+          },
+          orderBy: {
+            position: 'asc',
+          },
+          select: {
+            id: true,
+            isCorrect: true,
+            text: true,
+          },
+        },
+      },
+      orderBy: questionOrderBy,
     });
-
-    const question = game?.quiz?.questions[0];
 
     if (!question) {
       return null;
@@ -110,12 +114,29 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
     currentStageId: PartyStageId,
     offset: -1 | 1,
   ): Promise<PartyStageCatalogEntry | null> {
-    const currentStage = await this.findStage(gameId, { id: currentStageId });
+    const currentStage = await this.findStage(
+      gameId,
+      {
+        id: currentStageId,
+        deletedAt: null,
+      },
+      [{ position: 'asc' }],
+    );
 
     if (!currentStage) {
       return null;
     }
 
-    return this.findStage(gameId, { position: currentStage.stagePosition + offset });
+    const position = currentStage.stagePosition;
+
+    if (offset === 1) {
+      return this.findStage(gameId, { deletedAt: null, position: { gt: position } }, [
+        { position: 'asc' },
+      ]);
+    }
+
+    return this.findStage(gameId, { deletedAt: null, position: { lt: position } }, [
+      { position: 'desc' },
+    ]);
   }
 }

@@ -10,6 +10,37 @@ import { SocketPartyObservationBroadcaster } from './socket-party-observation-br
 
 const partyIdentifier = new PartyIdentifier();
 
+function createSnapshot() {
+  return {
+    gameType: GameType.Quiz,
+    hostObservation: {
+      partyId: 44,
+      gameId: 17,
+      pin: '123456',
+      status: 'WAITING',
+      context: { round: 2 },
+      host: {
+        userId: 7,
+        username: 'Host',
+        avatarUri: '/api/avatars/users/7?v=1',
+      },
+      players: [],
+      createdAt: new Date('2026-04-17T10:00:00.000Z'),
+      updatedAt: new Date('2026-04-17T10:00:00.000Z'),
+    },
+    playerObservation: {
+      partyId: 44,
+      pin: '123456',
+      status: 'WAITING',
+      host: {
+        avatarUri: '/api/avatars/users/7?v=1',
+        username: 'Host',
+      },
+      players: [],
+    },
+  } as const;
+}
+
 describe('SocketPartyObservationBroadcaster', () => {
   it('hides host-only context from non-host observers in the emitted snapshot', async () => {
     const broadcaster = new SocketPartyObservationBroadcaster(
@@ -42,37 +73,7 @@ describe('SocketPartyObservationBroadcaster', () => {
     const client = { emit: vi.fn() };
 
     broadcaster.attachServer(server as never);
-    await broadcaster.emitSnapshot(
-      client as never,
-      {
-        gameType: GameType.Quiz,
-        hostObservation: {
-          partyId: 44,
-          gameId: 17,
-          pin: '123456',
-          status: 'WAITING',
-          context: { round: 2 },
-          host: {
-            userId: 7,
-            username: 'Host',
-            avatarUri: '/api/avatars/users/7?v=1',
-          },
-          players: [],
-          createdAt: new Date('2026-04-17T10:00:00.000Z'),
-          updatedAt: new Date('2026-04-17T10:00:00.000Z'),
-        },
-        playerObservation: {
-          partyId: 44,
-          pin: '123456',
-          status: 'WAITING',
-          host: {
-            avatarUri: '/api/avatars/users/7?v=1',
-            username: 'Host',
-          },
-          players: [],
-        },
-      } as never,
-    );
+    await broadcaster.emitSnapshot(client as never, createSnapshot() as never);
 
     expect(server.in).toHaveBeenCalledWith('party:44');
 
@@ -110,37 +111,7 @@ describe('SocketPartyObservationBroadcaster', () => {
     };
 
     broadcaster.attachServer(server as never);
-    await broadcaster.emitSnapshot(
-      client as never,
-      {
-        gameType: GameType.Quiz,
-        hostObservation: {
-          partyId: 44,
-          gameId: 17,
-          pin: '123456',
-          status: 'WAITING',
-          context: { round: 2 },
-          host: {
-            userId: 7,
-            username: 'Host',
-            avatarUri: '/api/avatars/users/7?v=1',
-          },
-          players: [],
-          createdAt: new Date('2026-04-17T10:00:00.000Z'),
-          updatedAt: new Date('2026-04-17T10:00:00.000Z'),
-        },
-        playerObservation: {
-          partyId: 44,
-          pin: '123456',
-          status: 'WAITING',
-          host: {
-            avatarUri: '/api/avatars/users/7?v=1',
-            username: 'Host',
-          },
-          players: [],
-        },
-      } as never,
-    );
+    await broadcaster.emitSnapshot(client as never, createSnapshot() as never);
 
     const [, payload] = client.emit.mock.calls[0];
 
@@ -148,5 +119,94 @@ describe('SocketPartyObservationBroadcaster', () => {
       context: { round: 2 },
       isObserverHost: true,
     });
+  });
+
+  it('publishes party updates to host sockets before player sockets', async () => {
+    const broadcaster = new SocketPartyObservationBroadcaster(
+      new PartyObservationAudienceResolver(),
+      new HostPartyObservationMessageMapper(),
+      new PlayerPartyObservationMessageMapper(),
+      partyIdentifier,
+    );
+    const deliveryOrder: string[] = [];
+    const hostSocket = {
+      data: { authenticatedUserId: 7 },
+      emit: vi.fn(() => {
+        deliveryOrder.push('host');
+      }),
+    };
+    const playerSocket = {
+      data: {
+        authenticatedUserId: 11,
+        joinedPartyPlayer: {
+          identity: { kind: PartyPlayerKind.GUEST, guestId: 'guest-1' },
+          pin: '123456',
+        },
+      },
+      emit: vi.fn(() => {
+        deliveryOrder.push('player');
+      }),
+    };
+    const observerSocket = {
+      data: {},
+      emit: vi.fn(() => {
+        deliveryOrder.push('observer');
+      }),
+    };
+    const server = {
+      in: vi.fn().mockReturnValue({
+        fetchSockets: vi.fn().mockResolvedValue([observerSocket, playerSocket, hostSocket]),
+      }),
+    };
+
+    broadcaster.attachServer(server as never);
+
+    await broadcaster.publish(createSnapshot() as never);
+
+    expect(deliveryOrder).toEqual(['host', 'player', 'observer']);
+  });
+
+  it('publishes runtime notices to host sockets before player sockets', async () => {
+    const broadcaster = new SocketPartyObservationBroadcaster(
+      new PartyObservationAudienceResolver(),
+      new HostPartyObservationMessageMapper(),
+      new PlayerPartyObservationMessageMapper(),
+      partyIdentifier,
+    );
+    const deliveryOrder: string[] = [];
+    const hostSocket = {
+      data: { authenticatedUserId: 7 },
+      emit: vi.fn(() => {
+        deliveryOrder.push('host');
+      }),
+    };
+    const playerSocket = {
+      data: {
+        joinedPartyPlayer: {
+          identity: { kind: PartyPlayerKind.GUEST, guestId: 'guest-1' },
+          pin: '123456',
+        },
+      },
+      emit: vi.fn(() => {
+        deliveryOrder.push('player');
+      }),
+    };
+    const observerSocket = {
+      data: {},
+      emit: vi.fn(() => {
+        deliveryOrder.push('observer');
+      }),
+    };
+    const server = {
+      in: vi.fn().mockReturnValue({
+        fetchSockets: vi.fn().mockResolvedValue([observerSocket, playerSocket, hostSocket]),
+      }),
+    };
+
+    broadcaster.attachServer(server as never);
+
+    await broadcaster.publishRuntimeNotice(44, 7, 'rewindStage');
+
+    expect(deliveryOrder).toEqual(['host', 'player', 'observer']);
   });
 });

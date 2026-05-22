@@ -10,7 +10,8 @@ export interface PlayableChoiceRuntimeCopy extends PlayableChoiceResultActionTil
   readonly resultHeading: string;
   readonly resultIncorrect: string;
   readonly resultIncorrectHint: string;
-  readonly submissionProgress: string;
+  readonly resultNoAnswer: string;
+  readonly resultNoAnswerHint: string;
 }
 
 export interface PlayableChoiceHostRuntimePanelProps {

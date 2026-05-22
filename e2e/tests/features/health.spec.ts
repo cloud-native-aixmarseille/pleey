@@ -66,8 +66,7 @@ test.describe("Smoke Tests", () => {
   }) => {
     await page.goto("/");
 
-    // Wait for the page to be fully loaded
-    await page.waitForLoadState("networkidle");
+    await expect(page.getByRole("main")).toBeVisible();
 
     await expect(
       page.getByRole("link", { name: /create your first game/i }),

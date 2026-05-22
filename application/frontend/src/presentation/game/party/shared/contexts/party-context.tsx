@@ -23,6 +23,7 @@ interface PartyObservationStateValue {
 }
 
 interface PartyObservationActionsValue {
+  consumeRuntimeNotice(runtimeNotice: PartyRuntimeNotice): void;
   getErrorByPartyId(partyId?: PartyId | null): string | null;
   getPartyByPartyId(partyId?: PartyId | null): PartyObservation | null;
   getRuntimeNoticeByPartyId(partyId?: PartyId | null): PartyRuntimeNotice | null;
@@ -60,6 +61,13 @@ export function PartyProvider({ children, port }: PartyProviderProps) {
   currentRuntimeNoticeRef.current = currentRuntimeNotice;
 
   const actionsRef = useRef<PartyObservationActionsValue>({
+    consumeRuntimeNotice: (runtimeNotice) => {
+      startTransition(() => {
+        setCurrentRuntimeNotice((currentRuntimeNotice) =>
+          currentRuntimeNotice === runtimeNotice ? null : currentRuntimeNotice,
+        );
+      });
+    },
     getErrorByPartyId: (partyId?: PartyId | null) => {
       if (partyId === null || partyId === undefined) {
         return null;

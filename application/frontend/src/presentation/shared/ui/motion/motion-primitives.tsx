@@ -154,6 +154,7 @@ interface MotionScreenTransitionProps {
   readonly sectionKey: string;
   readonly mode?: AnimatePresenceProps['mode'];
   readonly style?: MotionProps['style'];
+  readonly duration?: number;
 }
 
 export function MotionScreenTransition({
@@ -161,6 +162,7 @@ export function MotionScreenTransition({
   sectionKey,
   mode = 'wait',
   style,
+  duration = DEFAULT_SCREEN_DURATION,
 }: MotionScreenTransitionProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
   const initial = prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 8 };
@@ -168,10 +170,10 @@ export function MotionScreenTransition({
   const exit = prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -8 };
   const transition: Transition = prefersReducedMotion
     ? REDUCED_TRANSITION
-    : { duration: DEFAULT_SCREEN_DURATION, ease: 'easeOut' };
+    : { duration, ease: 'easeOut' };
 
   return (
-    <AnimatePresence mode={mode} initial={false}>
+    <AnimatePresence mode={mode}>
       <motion.div
         animate={animate}
         exit={exit}
@@ -183,6 +185,50 @@ export function MotionScreenTransition({
         {children}
       </motion.div>
     </AnimatePresence>
+  );
+}
+
+interface MotionPodiumRiseProps {
+  readonly children: ReactNode;
+  readonly delay?: number;
+  readonly riseDistance?: number;
+  readonly style?: MotionProps['style'];
+  readonly testId?: string;
+}
+
+const PODIUM_RISE_SPRING: Transition = {
+  type: 'spring',
+  stiffness: 170,
+  damping: 14,
+  mass: 0.9,
+};
+
+export function MotionPodiumRise({
+  children,
+  delay = 0,
+  riseDistance = 96,
+  style,
+  testId,
+}: MotionPodiumRiseProps) {
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const initial = prefersReducedMotion
+    ? { opacity: 0 }
+    : { opacity: 0, y: riseDistance, scale: 0.55, rotate: -2 };
+  const animate = prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1, rotate: 0 };
+  const transition: Transition = prefersReducedMotion
+    ? REDUCED_TRANSITION
+    : { ...PODIUM_RISE_SPRING, delay };
+
+  return (
+    <motion.div
+      animate={animate}
+      data-testid={testId}
+      initial={initial}
+      style={style}
+      transition={transition}
+    >
+      {children}
+    </motion.div>
   );
 }
 
@@ -218,7 +264,9 @@ interface MotionListPresenceProps {
 export function MotionListPresence({ children }: MotionListPresenceProps) {
   return (
     <LayoutGroup>
-      <AnimatePresence initial={false}>{children}</AnimatePresence>
+      <AnimatePresence initial={false} mode="popLayout">
+        {children}
+      </AnimatePresence>
     </LayoutGroup>
   );
 }
@@ -230,25 +278,42 @@ interface MotionListItemProps {
 
 export function MotionListItem({ children, style }: MotionListItemProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
-  const initial = prefersReducedMotion
-    ? { opacity: 0 }
-    : { opacity: 0, scale: 0.85, y: DEFAULT_SLIDE_DISTANCE };
-  const animate = prefersReducedMotion ? { opacity: 1 } : { opacity: 1, scale: 1, y: 0 };
-  const exit = prefersReducedMotion
-    ? { opacity: 0 }
-    : { opacity: 0, scale: 0.85, y: -DEFAULT_SLIDE_DISTANCE };
-  const transition: Transition = prefersReducedMotion
-    ? REDUCED_TRANSITION
-    : { type: 'spring', stiffness: 360, damping: 26 };
+
+  if (prefersReducedMotion) {
+    return (
+      <motion.div
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        initial={{ opacity: 0 }}
+        style={style}
+        transition={REDUCED_TRANSITION}
+      >
+        {children}
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
-      animate={animate}
-      exit={exit}
-      initial={initial}
-      layout={!prefersReducedMotion}
+      animate={{ opacity: 1, scale: 1, y: 0, rotate: 0 }}
+      exit={{
+        opacity: 0,
+        scale: 0.3,
+        y: 24,
+        rotate: 10,
+        transition: {
+          duration: 0.35,
+          ease: 'easeIn',
+          opacity: { duration: 0.25, ease: 'easeIn' },
+        },
+      }}
+      initial={{ opacity: 0, scale: 0.3, y: -32, rotate: -10 }}
+      layout
       style={style}
-      transition={transition}
+      transition={{
+        default: { type: 'spring', stiffness: 220, damping: 14, mass: 0.9 },
+        opacity: { duration: 0.35, ease: 'easeOut' },
+      }}
     >
       {children}
     </motion.div>

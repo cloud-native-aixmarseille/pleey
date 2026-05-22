@@ -152,7 +152,7 @@ describe('TranslationResourceComposer', () => {
       // Act
       const { en } = translationResourceComposer.compose();
 
-      // Assert — shared.shell.* keys come from the shared i18n module
+      // Assert - shared.shell.* keys come from the shared i18n module
       expect(en.translation).toHaveProperty('shared');
     });
 
@@ -185,7 +185,7 @@ describe('TranslationResourceComposer', () => {
       const { en } = translationResourceComposer.compose();
       const translation = en.translation as Record<string, unknown>;
 
-      // Assert — both shared and auth top-level keys co-exist
+      // Assert - both shared and auth top-level keys co-exist
       expect(translation).toHaveProperty('shared');
       expect(translation).toHaveProperty('auth');
       expect(translation).toHaveProperty('dashboard');

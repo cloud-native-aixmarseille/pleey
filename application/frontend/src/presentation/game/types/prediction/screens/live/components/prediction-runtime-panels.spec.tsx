@@ -1,7 +1,7 @@
-import { fireEvent, screen } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { PartyObservation } from '../../../../../../../domains/game/party/shared/entities/party-observation';
-import { PARTY_RUNTIME_PHASE } from '../../../../../../../domains/game/party/shared/entities/party-runtime-context';
+import { PartyRuntimePhase } from '../../../../../../../domains/game/party/shared/entities/party-runtime-context';
 import { PartyStatus } from '../../../../../../../domains/game/party/shared/entities/party-status';
 import { GameType } from '../../../../../../../domains/game/types/shared/game-type';
 import { PartyActionIdentifierMockFactory } from '../../../../../../../test-utils/mocks/party-action-identifier-mock-factory';
@@ -37,6 +37,20 @@ const stageIdentifier = new StageIdentifierMockFactory().create();
 const firstActionId = partyActionIdentifier.parse(101);
 const secondActionId = partyActionIdentifier.parse(102);
 const stageId = stageIdentifier.parse(10);
+
+function stubMatchMedia(matches: boolean) {
+  vi.stubGlobal('matchMedia', (query: string) => ({
+    addEventListener: vi.fn(),
+    addListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+    matches,
+    media: query,
+    onchange: null,
+    removeEventListener: vi.fn(),
+    removeListener: vi.fn(),
+  }));
+}
+
 function createPredictionParty(context: PartyObservation['context']): PartyObservation {
   return {
     context,
@@ -56,7 +70,7 @@ function createPredictionParty(context: PartyObservation['context']): PartyObser
 function createStageParty(): PartyObservation {
   return createPredictionParty({
     lifecycle: {
-      phase: PARTY_RUNTIME_PHASE.STAGE,
+      phase: PartyRuntimePhase.STAGE,
       stageEndsAtEpochMs: 11_000,
       stageId,
       stagePosition: 0,
@@ -84,7 +98,7 @@ function createStageParty(): PartyObservation {
 function createResultParty(): PartyObservation {
   return createPredictionParty({
     lifecycle: {
-      phase: PARTY_RUNTIME_PHASE.RESULT,
+      phase: PartyRuntimePhase.RESULT,
       stageEndsAtEpochMs: null,
       stageId,
       stagePosition: 0,
@@ -126,6 +140,7 @@ function createResultParty(): PartyObservation {
 describe('prediction runtime panels', () => {
   afterEach(() => {
     vi.useRealTimers();
+    vi.unstubAllGlobals();
   });
 
   it('renders the host prediction stage from party state', () => {
@@ -140,9 +155,6 @@ describe('prediction runtime panels', () => {
     expect(screen.getByText('Away wins')).toBeInTheDocument();
     expect(screen.getByText('game.party.route.runtimeTimeLeft:time=00:10')).toBeInTheDocument();
     expect(
-      screen.getByText('game.types.prediction.runtime.submissionProgress:submitted=1,total=3'),
-    ).toBeInTheDocument();
-    expect(
       screen.getByText(
         'game.party.route.runtimeResponsesReceived:submitted=1,total=3. game.party.route.runtimeResponsesPending:remaining=2',
       ),
@@ -152,6 +164,32 @@ describe('prediction runtime panels', () => {
   it('submits the selected prediction action from the player stage', () => {
     vi.useFakeTimers();
     vi.setSystemTime(1_000);
+
+    const onSubmitAction = vi.fn();
+
+    renderWithUiProvider(
+      <PredictionPlayerStageSurface
+        onLeaveParty={vi.fn()}
+        onSubmitAction={onSubmitAction}
+        party={createStageParty()}
+        pendingActionId={null}
+        playerActionErrorMessage={null}
+      />,
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(3_000);
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Away wins' }));
+
+    expect(onSubmitAction).toHaveBeenCalledWith(secondActionId);
+  });
+
+  it('submits immediately on mobile without waiting for a reveal lock', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(1_000);
+    stubMatchMedia(true);
 
     const onSubmitAction = vi.fn();
 

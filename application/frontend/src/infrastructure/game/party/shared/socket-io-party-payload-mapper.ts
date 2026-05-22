@@ -20,7 +20,7 @@ import {
   isEndedPartyRuntimeContext,
   isResultPartyRuntimeContext,
   isStagePartyRuntimeContext,
-  PARTY_RUNTIME_PHASE,
+  PartyRuntimePhase,
 } from '../../../../domains/game/party/shared/entities/party-runtime-context';
 import { PartyManagementErrorCode } from '../../../../domains/game/party/shared/errors/party-management-error-code';
 import {
@@ -125,7 +125,7 @@ export class SocketIoPartyPayloadMapper {
       return null;
     }
 
-    if (context.lifecycle.phase === PARTY_RUNTIME_PHASE.LOBBY) {
+    if (context.lifecycle.phase === PartyRuntimePhase.LOBBY) {
       return {
         lifecycle: {
           phase: context.lifecycle.phase,

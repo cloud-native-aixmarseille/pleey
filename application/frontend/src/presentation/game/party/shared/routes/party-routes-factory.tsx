@@ -4,11 +4,8 @@ import type {
   PresentationRouteObject,
   RouteFactory,
 } from '../../../../../application/shared/contracts/routing.port';
-import { PartyLobbyScreen } from '../screens/pin/party-lobby-screen';
-import {
-  PartyLobbyRouteKind,
-  PartyScreenSection,
-} from '../screens/pin/use-party-lobby-screen-state';
+import { PartyLobbyScreen } from '../screens/party-lobby-screen';
+import { PartyLobbyRouteKind, PartyScreenSection } from '../screens/use-party-lobby-screen-state';
 
 @injectable()
 export class PartyRoutesFactory implements RouteFactory {

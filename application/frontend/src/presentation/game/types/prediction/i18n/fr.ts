@@ -110,7 +110,6 @@ export const predictionFr = {
           actionSlotLabel: 'Pronostic {{letter}}',
           paused: 'En pause',
           responseLocked: 'Pronostic verrouillé - en attente de la révélation du résultat.',
-          submissionProgress: '{{submitted}} / {{total}} pronostics verrouillés',
           resultHeading: 'Répartition des pronostics',
           pointsAwarded: '+{{points}}',
           correctBadge: 'Issue résolue',
@@ -119,6 +118,9 @@ export const predictionFr = {
           resultCorrect: 'Votre pronostic est juste.',
           resultIncorrect: 'Le résultat a pris une autre direction.',
           resultIncorrectHint: 'Consultez la répartition pour voir le pronostic résolu.',
+          resultNoAnswer: 'Aucun pronostic envoyé.',
+          resultNoAnswerHint:
+            "Le temps est écoulé avant que vous ne validiez. Consultez la répartition pour voir l'issue résolue.",
         },
       },
     },

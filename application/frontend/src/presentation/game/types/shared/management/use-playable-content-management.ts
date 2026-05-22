@@ -187,7 +187,7 @@ export function usePlayableContentManagement({
     setIsSaving(true);
     setError(null);
     try {
-      const itemInput = createPlayableItemInput(editorState, itemKindConfig);
+      const itemInput = createPlayableItemInput(editorState, itemKindConfig, t);
       if (editorState.id) {
         const savedItem = await gateway.updateItem(editorState.id, itemInput);
         setState({
@@ -225,7 +225,7 @@ export function usePlayableContentManagement({
     setError(null);
     try {
       const blank = createEmptyPlayableItemEditorState(itemKindConfig);
-      const baseInput = createPlayableItemInput({ ...blank, text: ' ' }, itemKindConfig);
+      const baseInput = createPlayableItemInput({ ...blank, text: ' ' }, itemKindConfig, t);
       const itemInput: PlayableManagementItemInput = {
         ...baseInput,
         text: '',
@@ -304,7 +304,7 @@ export function usePlayableContentManagement({
 
   const updateItemPosition = async (item: PlayableManagementItem, position: number) => {
     const itemEditorState = createPlayableItemEditorStateFromItem(item, itemKindConfig);
-    const itemInput = createPlayableItemInput(itemEditorState, itemKindConfig);
+    const itemInput = createPlayableItemInput(itemEditorState, itemKindConfig, t);
     await gateway.updateItem(item.id, { ...itemInput, position });
   };
 

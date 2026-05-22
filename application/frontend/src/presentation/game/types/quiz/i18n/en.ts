@@ -109,8 +109,7 @@ export const quizEn = {
         runtime: {
           actionSlotLabel: 'Answer {{letter}}',
           paused: 'Paused',
-          responseLocked: 'Response locked in — waiting for the result reveal.',
-          submissionProgress: '{{submitted}} / {{total}} answers locked',
+          responseLocked: 'Response locked in - waiting for the result reveal.',
           resultHeading: 'Answer distribution',
           pointsAwarded: '+{{points}}',
           correctBadge: 'Correct answer',
@@ -119,6 +118,9 @@ export const quizEn = {
           resultCorrect: 'Correct! Well played.',
           resultIncorrect: 'Not this time.',
           resultIncorrectHint: 'Check the distribution to see the right answer.',
+          resultNoAnswer: 'No answer submitted.',
+          resultNoAnswerHint:
+            'Time ran out before you locked in a pick. Check the distribution to see the right answer.',
         },
       },
     },
