@@ -39,6 +39,7 @@ export const gamePartyHostEn = {
           musicPlayingCta: 'Playing',
           musicPlayingBadge: 'Live',
           musicNowPlaying: 'Now playing: {{theme}}',
+          musicPlaybackError: 'Unable to play this theme in your browser. Try another theme.',
           musicIdleHint: 'Select a music theme and press play to start the party vibe.',
           musicThemes: {
             none: {

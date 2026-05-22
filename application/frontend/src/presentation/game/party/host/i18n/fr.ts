@@ -40,6 +40,8 @@ export const gamePartyHostFr = {
           musicPlayingCta: 'En lecture',
           musicPlayingBadge: 'Live',
           musicNowPlaying: 'Lecture en cours : {{theme}}',
+          musicPlaybackError:
+            'Impossible de lire ce thème dans votre navigateur. Essayez un autre thème.',
           musicIdleHint:
             'Sélectionnez un thème musical puis lancez-le pour installer l’ambiance de la partie.',
           musicThemes: {
