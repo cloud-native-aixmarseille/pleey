@@ -78,7 +78,7 @@ export function HostPartyMusicThemePanel() {
       .then(() => {
         setPlayingThemeId(themeId);
       })
-      .catch(() => {
+      .catch((_playbackError) => {
         audioElement.pause();
         audioElement.currentTime = 0;
         setPlayingThemeId('none');
@@ -142,7 +142,7 @@ export function HostPartyMusicThemePanel() {
         })}
       </AutoFillGrid>
 
-      <audio aria-hidden data-testid="host-party-music-audio" ref={audioElementRef} />
+      <audio aria-label={t('game.party.host.route.musicPanelTitle')} data-testid="host-party-music-audio" ref={audioElementRef} />
     </SectionCard>
   );
 }
