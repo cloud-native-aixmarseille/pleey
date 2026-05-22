@@ -13,9 +13,7 @@ vi.mock('../../../../../../shared/i18n/use-presentation-translation', async (imp
 
 describe('HostPartyMusicThemePanel', () => {
   it('plays selected theme in host browser and updates playing state', async () => {
-    const playSpy = vi
-      .spyOn(window.HTMLMediaElement.prototype, 'play')
-      .mockImplementation(async () => undefined);
+    const playSpy = vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockResolvedValue(undefined);
 
     renderWithUiProvider(<HostPartyMusicThemePanel />);
 
@@ -48,7 +46,7 @@ describe('HostPartyMusicThemePanel', () => {
   });
 
   it('stops playback when host selects no music', async () => {
-    vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(async () => undefined);
+    vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockResolvedValue(undefined);
     const pauseSpy = vi
       .spyOn(window.HTMLMediaElement.prototype, 'pause')
       .mockImplementation(() => undefined);
