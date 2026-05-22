@@ -47,8 +47,7 @@ export const gamePartyHostFr = {
           musicThemes: {
             none: {
               name: 'Sans musique',
-              description:
-                'Coupez la musique du lobby pour un moment de préparation silencieux.',
+              description: 'Coupez la musique du lobby pour un moment de préparation silencieux.',
             },
             chill: {
               name: 'Chill',
@@ -56,8 +55,7 @@ export const gamePartyHostFr = {
             },
             funky: {
               name: 'Funky',
-              description:
-                'Une basse groovy et un rythme joueur pour garder une énergie positive.',
+              description: 'Une basse groovy et un rythme joueur pour garder une énergie positive.',
             },
             suspense: {
               name: 'Suspense',
@@ -70,8 +68,7 @@ export const gamePartyHostFr = {
             },
             party: {
               name: 'Party',
-              description:
-                'Un rythme lumineux et entraînant pour lancer la session avec énergie.',
+              description: 'Un rythme lumineux et entraînant pour lancer la session avec énergie.',
             },
           },
           startPartyCta: 'Démarrer la partie',
