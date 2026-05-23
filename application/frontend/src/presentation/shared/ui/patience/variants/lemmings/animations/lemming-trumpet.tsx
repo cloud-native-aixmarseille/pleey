@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import type { IdleVariantConfig } from '../lemmings-idle-variant-registry';
 
 export const trumpetIdleConfig: IdleVariantConfig = {

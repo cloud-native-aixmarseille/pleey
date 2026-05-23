@@ -6,7 +6,7 @@ import {
   motion,
   type Transition,
   type Variants,
-} from 'framer-motion';
+} from 'motion/react';
 import type { ElementType, ReactNode } from 'react';
 import { usePrefersReducedMotion } from './use-prefers-reduced-motion';
 

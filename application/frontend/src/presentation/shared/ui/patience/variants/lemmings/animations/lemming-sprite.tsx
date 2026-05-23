@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'motion/react';
 import type { LemmingSnapshot } from '../lemmings-patience-engine';
 import { LemmingBanana } from './lemming-banana';
 import { LemmingEyes } from './lemming-eyes';
