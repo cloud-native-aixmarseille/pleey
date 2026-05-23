@@ -1,4 +1,4 @@
-import { useAnimationFrame } from 'framer-motion';
+import { useAnimationFrame } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { usePrefersReducedMotion } from '../../hooks/use-prefers-reduced-motion';
 import { LemmingSprite } from './animations';

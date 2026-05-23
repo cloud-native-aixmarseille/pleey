@@ -862,7 +862,7 @@ describe('DashboardHomeScreen', () => {
 
       await screen.findByText('Alpha quiz');
 
-      const typeInput = screen.getByRole('textbox', {
+      const typeInput = screen.getByRole('combobox', {
         name: 'dashboard.games.filters.typeLabel',
       });
       await user.click(typeInput);

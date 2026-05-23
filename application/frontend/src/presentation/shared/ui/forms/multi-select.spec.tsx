@@ -34,7 +34,7 @@ describe('MultiSelect', () => {
       />,
     );
 
-    expect(screen.getByRole('textbox', { name: 'Game types' })).toHaveAttribute(
+    expect(screen.getByRole('combobox', { name: 'Game types' })).toHaveAttribute(
       'aria-invalid',
       'true',
     );

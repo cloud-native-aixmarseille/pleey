@@ -133,11 +133,17 @@ jobs:
       #   with:
       #     working-directory: ./charts
 
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        id: generate-token
+        with:
+          client-id: ${{ vars.CI_BOT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.CI_BOT_APP_PRIVATE_KEY }}
+
       - name: Create and merge release PR
         id: create-and-merge-pr
         uses: hoverkraft-tech/ci-github-common/actions/create-and-merge-pull-request@b553a696531fbd36743ccbb0c76c717971b8acdb # 0.35.4
         with:
-          github-token: ${{ github.token }}
+          github-token: ${{ steps.generate-token.outputs.token }}
           branch: release/prepare-${{ needs.plan-release.outputs.tag }}
           title: Prepare release files for ${{ needs.plan-release.outputs.tag }}
           body: |
