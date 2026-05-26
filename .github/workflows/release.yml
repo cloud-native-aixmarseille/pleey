@@ -17,11 +17,9 @@ jobs:
       pull-requests: read
     outputs:
       tag: ${{ steps.plan-release.outputs.tag }}
-      name: ${{ steps.plan-release.outputs.name }}
-      release-sha: ${{ steps.plan-release.outputs.release-sha }}
     steps:
       - id: plan-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@b27c38015a8265780329d229c841d057a18b8fae # 0.25.0
+        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@ba941863a698984b6596e760f4e7727beea81167 # 0.26.0
         with:
           github-token: ${{ github.token }}
 
@@ -49,7 +47,7 @@ jobs:
       contents: write
       pull-requests: write
     outputs:
-      release-sha: ${{ steps.create-and-merge-pr.outputs.merged-sha || needs.plan-release.outputs.release-sha }}
+      release-sha: ${{ steps.create-and-merge-pr.outputs.merged-sha || github.sha }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -150,24 +148,25 @@ jobs:
             Automated release preparation for `${{ needs.plan-release.outputs.tag }}`.
           commit-message: "chore(release): prepare ${{ needs.plan-release.outputs.tag }}"
 
-  create-git-tag:
+  draft-release:
     needs: [plan-release, prepare-release-files]
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: read
     outputs:
-      tag-sha: ${{ steps.create-tag.outputs.tag-sha }}
+      tag: ${{ steps.create-release.outputs.tag }}
     steps:
-      - id: create-tag
-        uses: hoverkraft-tech/ci-github-publish/actions/release/create-tag@b27c38015a8265780329d229c841d057a18b8fae # 0.25.0
+      - id: create-release
+        uses: hoverkraft-tech/ci-github-publish/actions/release/create@ba941863a698984b6596e760f4e7727beea81167 # 0.26.0
         with:
-          release-sha: ${{ needs.prepare-release-files.outputs.release-sha }}
           tag: ${{ needs.plan-release.outputs.tag }}
-          message: ${{ needs.plan-release.outputs.name }}
+          target-sha: ${{ needs.prepare-release-files.outputs.release-sha }}
+          publish: "false"
           github-token: ${{ github.token }}
 
   publish-release-artifacts:
-    needs: [plan-release, ci, prepare-release-files, create-git-tag]
+    needs: [plan-release, ci, prepare-release-files, draft-release]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -185,19 +184,16 @@ jobs:
             cloudnative-pg https://cloudnative-pg.github.io/charts
             valkey https://valkey.io/valkey-helm/
           tag: ${{ needs.plan-release.outputs.tag }}
-          ref: ${{ needs.create-git-tag.outputs.tag-sha }}
+          ref: ${{ needs.prepare-release-files.outputs.release-sha }}
 
-  create-release:
-    needs: [plan-release, prepare-release-files, publish-release-artifacts]
+  publish-release:
+    needs: [draft-release, publish-release-artifacts]
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: read
     steps:
-      - id: create-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/create@b27c38015a8265780329d229c841d057a18b8fae # 0.25.0
+      - uses: hoverkraft-tech/ci-github-publish/actions/release/update@ba941863a698984b6596e760f4e7727beea81167 # 0.26.0
         with:
-          tag: ${{ needs.plan-release.outputs.tag }}
-          name: ${{ needs.plan-release.outputs.name }}
-          target-sha: ${{ needs.prepare-release-files.outputs.release-sha }}
+          tag: ${{ needs.draft-release.outputs.tag }}
+          publish: "true"
           github-token: ${{ github.token }}
