@@ -1,4 +1,4 @@
-FROM node:22-bookworm-slim AS base
+FROM node:26-bookworm-slim AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 # hadolint ignore=DL3008
@@ -51,7 +51,7 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
 
 CMD ["dumb-init", "node", "--max-old-space-size=200", "/usr/src/app/dist/src/app/main.js"]
 
-FROM base as tools
+FROM base AS tools
 
 # Install libs utils for ci
 USER root

@@ -1,7 +1,15 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 
 const API_BASE_URL = process.env.API_BASE_URL ?? "http://backend:3001/api";
 const HEALTH_ENDPOINT = `${API_BASE_URL}/health`;
+
+async function waitForHomePageReady(page: Page) {
+  await expect(page.getByRole("main")).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: /create your first game/i }),
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: /get started/i })).toBeVisible();
+}
 
 /**
  * Smoke tests - Basic health checks
@@ -66,19 +74,12 @@ test.describe("Smoke Tests", () => {
   }) => {
     await page.goto("/");
 
-    await expect(page.getByRole("main")).toBeVisible();
-
-    await expect(
-      page.getByRole("link", { name: /create your first game/i }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("link", { name: /get started/i }),
-    ).toBeVisible();
+    await waitForHomePageReady(page);
   });
 
   test("should have working navigation @smoke", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await waitForHomePageReady(page);
 
     // Verify page is interactive
     const interactiveElements = await page.locator("button, a, input").count();
@@ -105,7 +106,7 @@ test.describe("Smoke Tests", () => {
     });
 
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await waitForHomePageReady(page);
 
     const refusedRequests = failedRequests.filter((entry) =>
       entry.errorText.includes("net::ERR_CONNECTION_REFUSED"),

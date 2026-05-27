@@ -4,6 +4,8 @@ import { uiThemeTokens } from '../foundation/ui-theme';
 import { ContentStack } from '../layout/containers';
 import { SupportingText } from '../layout/typography';
 
+const ResolvedQrCode = resolveQrCodeComponent(QRCode) as typeof QRCode;
+
 interface QrShareCardProps {
   readonly href: string;
   readonly scanLabel: string;
@@ -29,6 +31,20 @@ function stripScheme(url: string): string {
   return url.replace(/^https?:\/\//, '');
 }
 
+function resolveQrCodeComponent(qrCodeModule: unknown): unknown {
+  if (typeof qrCodeModule === 'object' && qrCodeModule !== null) {
+    if ('default' in qrCodeModule && qrCodeModule.default) {
+      return qrCodeModule.default;
+    }
+
+    if ('QRCode' in qrCodeModule && qrCodeModule.QRCode) {
+      return qrCodeModule.QRCode;
+    }
+  }
+
+  return qrCodeModule;
+}
+
 export function QrShareCard({ href, scanLabel, visitLabel }: QrShareCardProps) {
   const displayUrl = stripScheme(href);
 
@@ -36,7 +52,7 @@ export function QrShareCard({ href, scanLabel, visitLabel }: QrShareCardProps) {
     <ContentStack align="center" gap="xl">
       <ContentStack align="center" gap="sm">
         <Paper style={qrFrameStyle}>
-          <QRCode level="M" size={160} value={href} />
+          <ResolvedQrCode level="M" size={160} value={href} />
         </Paper>
         <SupportingText tone="soft">{scanLabel}</SupportingText>
       </ContentStack>

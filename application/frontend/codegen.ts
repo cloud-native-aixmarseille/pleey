@@ -7,8 +7,9 @@ const config: CodegenConfig = {
   documents: ['src/infrastructure/**/graphql/operations/**/*.graphql'],
   generates: {
     'src/infrastructure/graphql/generated/graphql.ts': {
-      plugins: ['typescript', 'typescript-operations', 'typed-document-node'],
+      plugins: ['typescript-operations', 'typed-document-node'],
       config: {
+        enumType: 'native',
         scalars: {
           DateTime: 'string',
         },

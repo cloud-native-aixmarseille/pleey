@@ -21,6 +21,6 @@ const bootstrapContainerModules = [
 
 export function createAppContainer(): Container {
   const container = new Container({ defaultScope: 'Singleton' });
-  container.loadSync(...bootstrapContainerModules);
+  container.load(...bootstrapContainerModules);
   return container;
 }

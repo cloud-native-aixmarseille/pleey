@@ -47,7 +47,7 @@ services:
       dockerfile: application/backend/Dockerfile
       target: dev
     restart: unless-stopped
-    user: "${UID:-1000}:${GID:-1000}" # Run as host user to avoid permission issues
+    user: "${UID:-1000}:${GID:-1000}" # Keep host-mounted files writable by the local user
     volumes:
       - ./application/backend:/usr/src/app
       - ./scripts:/usr/src/shared-scripts:ro
@@ -100,7 +100,7 @@ services:
       dockerfile: ./application/frontend/Dockerfile
       target: dev
     restart: unless-stopped
-    user: "${UID:-1000}:${GID:-1000}" # Run as host user to avoid permission issues
+    user: "${UID:-1000}:${GID:-1000}" # Keep host-mounted files writable by the local user
     volumes:
       - ./application/frontend:/usr/src/app
       - ./application/backend:/usr/src/backend:ro
@@ -123,6 +123,12 @@ services:
       - "traefik.http.routers.frontend.priority=1"
       - "traefik.http.services.frontend.loadbalancer.server.port=5173"
       - "traefik.docker.network=traefik-proxy"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5173"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 15s
 
   e2e-tests:
     image: mcr.microsoft.com/playwright:v1.56.1-jammy
