@@ -1,10 +1,12 @@
 # Makefile for Pleey
 # Using Docker Compose V2
 
-.PHONY: help setup setup build up down restart logs ps rebuild shell setup-traefik migrate seed graphql-types linter-fix test test-install test-chart test-chart-ci
+.PHONY: help setup build up down restart logs ps rebuild shell setup-traefik traefik health migrate seed db-shell graphql-types ci lint lint-fix linter-fix test test-watch test-ui test-ci test-chart test-install e2e-report
 
 # Docker Compose command (V2)
 COMPOSE := docker compose
+APP_EXEC := $(COMPOSE) exec -T
+APP_START_WAIT_TIMEOUT ?= 180
 
 CHART_TEST_CT_CONFIG ?= ct.yaml
 CHART_TEST_NAMESPACE_PREFIX ?= test-chart
@@ -19,6 +21,64 @@ GREEN=\033[0;32m
 YELLOW=\033[1;33m
 RED=\033[0;31m
 NC=\033[0m # No Color
+
+define run_node_scope_mode
+	@case "$(MODE)" in \
+		default) \
+			echo "$(GREEN)Running $(1) tests...$(NC)"; \
+			$(MAKE) --no-print-directory _run-node DIR=$(2) SCRIPT=test SERVICE=$(3); \
+			echo "$(GREEN)✓ $(1) tests completed$(NC)"; \
+			;; \
+		watch) \
+			echo "$(GREEN)Starting $(1) tests in watch mode...$(NC)"; \
+			$(MAKE) --no-print-directory _run-node DIR=$(2) SCRIPT=test:watch SERVICE=$(3) TTY=1; \
+			;; \
+		ci) \
+			echo "$(GREEN)Running $(1) tests like CI...$(NC)"; \
+			$(MAKE) --no-print-directory _run-node DIR=$(2) SCRIPT=test:ci SERVICE=$(3); \
+			echo "$(GREEN)✓ $(1) CI test runs completed$(NC)"; \
+			;; \
+		ui) \
+			echo "$(GREEN)Opening $(1) test UI...$(NC)"; \
+			$(MAKE) --no-print-directory _run-node DIR=$(2) SCRIPT=test:ui SERVICE=$(3) TTY=1; \
+			;; \
+		smoke) \
+			echo "$(YELLOW)Smoke mode is not available for $(4) tests$(NC)"; \
+			exit 1; \
+			;; \
+		*) \
+			echo "$(RED)Unknown MODE '$(MODE)' for $(4)$(NC)"; \
+			exit 1; \
+			;; \
+	esac
+endef
+
+define run_e2e_scope_mode
+	@case "$(MODE)" in \
+		default) \
+			echo "$(GREEN)Running E2E tests...$(NC)"; \
+			$(MAKE) --no-print-directory _run-e2e SCRIPT=test; \
+			echo "$(GREEN)✓ E2E tests completed$(NC)"; \
+			;; \
+		ui) \
+			echo "$(GREEN)Opening Playwright UI...$(NC)"; \
+			$(MAKE) --no-print-directory _run-e2e SCRIPT=test:ui; \
+			;; \
+		smoke) \
+			echo "$(GREEN)Running smoke tests...$(NC)"; \
+			$(MAKE) --no-print-directory _run-e2e SCRIPT=test:smoke; \
+			echo "$(GREEN)✓ Smoke tests completed$(NC)"; \
+			;; \
+		watch|cov) \
+			echo "$(YELLOW)Mode '$(MODE)' is not supported for E2E tests$(NC)"; \
+			exit 1; \
+			;; \
+		*) \
+			echo "$(RED)Unknown MODE '$(MODE)' for e2e$(NC)"; \
+			exit 1; \
+			;; \
+	esac
+endef
 
 help: ## Display this help
 	@echo "$(GREEN)Pleey - Available commands:$(NC)"
@@ -53,12 +113,10 @@ build: ## Build Docker images
 	$(COMPOSE) build
 
 up: ## Start the application
-	@if [ "$(TTY)" = "1" ]; then \
-		TTY_FLAG=""; \
-	fi;
 	@echo "$(GREEN)Starting application...$(NC)"
-	$(COMPOSE) up -d
+	$(COMPOSE) up -d --force-recreate --wait --wait-timeout $(APP_START_WAIT_TIMEOUT)
 	@echo "$(GREEN)Backend API ready$(NC)"
+	@echo "$(GREEN)Frontend ready$(NC)"
 	@echo "$(GREEN)✓ Application started$(NC)"
 
 down: ## Stop the application
@@ -138,13 +196,13 @@ health: ## Check application health
 
 migrate: ## Apply database migrations
 	@echo "$(GREEN)Applying database migrations...$(NC)"
-	@$(COMPOSE) exec -T backend npm run db:migrate
-	@$(COMPOSE) exec -T backend npm run db:generate
+	@$(APP_EXEC) backend npm run db:migrate
+	@$(APP_EXEC) backend npm run db:generate
 	@echo "$(GREEN)✓ Migrations applied$(NC)"
 
 seed: ## Seed the database
 	@echo "$(GREEN)Seeding database...$(NC)"
-	@$(COMPOSE) exec -T backend npm run db:seed
+	@$(APP_EXEC) backend npm run db:seed
 	@echo "$(GREEN)✓ Database seeded$(NC)"
 
 db-shell: ## Access PostgreSQL database shell
@@ -155,20 +213,8 @@ db-shell: ## Access PostgreSQL database shell
 # ==========================================
 
 graphql-types: ## Generate GraphQL types
-	@echo "$(GREEN)Waiting for backend API...$(NC)"
-	@ATTEMPTS=0; \
-	sleep 1; \
-		until $(COMPOSE) exec -T frontend sh -c "curl -sf http://backend:3001/api/health/live >/dev/null"; do \
-		ATTEMPTS=$$((ATTEMPTS+1)); \
-		if [ $$ATTEMPTS -gt 30 ]; then \
-			echo "$(RED)Backend API did not become ready in time$(NC)"; \
-			exit 1; \
-		fi; \
-		echo "$(YELLOW)Waiting for backend API (attempt $$ATTEMPTS)...$(NC)"; \
-		sleep 2; \
-	done
 	@echo "$(GREEN)Generating GraphQL types...$(NC)"
-	@$(COMPOSE) exec -T frontend sh -c "CODEGEN_SCHEMA=http://backend:3001/graphql npm run graphql:codegen"
+	@$(APP_EXEC) frontend npm run graphql:codegen
 	@echo "$(GREEN)✓ GraphQL types generated$(NC)"
 
 # ==========================================
@@ -180,24 +226,14 @@ ci: ## Prepare for CI
 	$(MAKE) test
 
 lint: ## Execute linting
-	@$(COMPOSE) exec -T backend npm run lint
-	@$(COMPOSE) exec -T frontend npm run lint
-	@if command -v ct >/dev/null 2>&1; then \
-		if command -v yamale >/dev/null 2>&1; then ct lint; else echo "$(YELLOW)yamale not installed; skipping chart lint$(NC)"; fi; \
-	else \
-		echo "$(YELLOW)ct not installed; skipping chart lint$(NC)"; \
-	fi
+	@$(APP_EXEC) backend npm run lint
+	@$(APP_EXEC) frontend npm run lint
 	$(call run_linter, )
 
 lint-fix: ## Execute linting and fix (alias for linter-fix)
-	@$(COMPOSE) exec -T backend npm run lint:fix
-	@$(COMPOSE) exec -T frontend npm run lint:fix
+	@$(APP_EXEC) backend npm run lint:fix
+	@$(APP_EXEC) frontend npm run lint:fix
 	@if command -v helm-docs >/dev/null 2>&1; then helm-docs; else echo "$(YELLOW)helm-docs not installed; skipping helm docs generation$(NC)"; fi
-	@if command -v ct >/dev/null 2>&1; then \
-		if command -v yamale >/dev/null 2>&1; then ct lint; else echo "$(YELLOW)yamale not installed; skipping chart lint$(NC)"; fi; \
-	else \
-		echo "$(YELLOW)ct not installed; skipping chart lint$(NC)"; \
-	fi
 	@$(MAKE) linter-fix
 
 linter-fix: ## Execute linting and fix
@@ -409,93 +445,22 @@ _test-scope:
 	fi; \
 	case "$$TARGET_SCOPE" in \
 		backend) \
-			case "$$TARGET_MODE" in \
-				default) \
-					echo "$(GREEN)Running backend tests...$(NC)"; \
-					$(MAKE) --no-print-directory _run-node DIR=application/backend SCRIPT=test SERVICE=backend; \
-					echo "$(GREEN)✓ Backend tests completed$(NC)"; \
-					;; \
-				watch) \
-					echo "$(GREEN)Starting backend tests in watch mode...$(NC)"; \
-					$(MAKE) --no-print-directory _run-node DIR=application/backend SCRIPT=test:watch SERVICE=backend TTY=1; \
-					;; \
-				ci) \
-					echo "$(GREEN)Running backend tests like CI...$(NC)"; \
-					$(MAKE) --no-print-directory _run-node DIR=application/backend SCRIPT=test:ci SERVICE=backend; \
-					echo "$(GREEN)✓ Backend CI test runs completed$(NC)"; \
-					;; \
-				ui) \
-					echo "$(GREEN)Opening backend test UI...$(NC)"; \
-					$(MAKE) --no-print-directory _run-node DIR=application/backend SCRIPT=test:ui SERVICE=backend TTY=1; \
-					;; \
-				smoke) \
-					echo "$(YELLOW)Smoke mode is not available for backend tests$(NC)"; \
-					exit 1; \
-					;; \
-				*) \
-					echo "$(RED)Unknown MODE '$$TARGET_MODE' for backend$(NC)"; \
-					exit 1; \
-					;; \
-			esac; \
+			$(MAKE) --no-print-directory _run-node-scope LABEL=Backend DIR=application/backend SERVICE=backend MODE=$$TARGET_MODE SCOPE_NAME=backend; \
 			;; \
 		frontend) \
-			case "$$TARGET_MODE" in \
-				default) \
-					echo "$(GREEN)Running frontend tests...$(NC)"; \
-					$(MAKE) --no-print-directory _run-node DIR=application/frontend SCRIPT=test SERVICE=frontend; \
-					echo "$(GREEN)✓ Frontend tests completed$(NC)"; \
-					;; \
-				watch) \
-					echo "$(GREEN)Starting frontend tests in watch mode...$(NC)"; \
-					$(MAKE) --no-print-directory _run-node DIR=application/frontend SCRIPT=test:watch SERVICE=frontend TTY=1; \
-					;; \
-				ci) \
-					echo "$(GREEN)Running frontend tests like CI...$(NC)"; \
-					$(MAKE) --no-print-directory _run-node DIR=application/frontend SCRIPT=test:ci SERVICE=frontend; \
-					echo "$(GREEN)✓ Frontend CI test runs completed$(NC)"; \
-					;; \
-				ui) \
-					echo "$(GREEN)Opening frontend test UI...$(NC)"; \
-					$(MAKE) --no-print-directory _run-node DIR=application/frontend SCRIPT=test:ui SERVICE=frontend TTY=1; \
-					;; \
-				smoke) \
-					echo "$(YELLOW)Smoke mode is not available for frontend tests$(NC)"; \
-					exit 1; \
-					;; \
-				*) \
-					echo "$(RED)Unknown MODE '$$TARGET_MODE' for frontend$(NC)"; \
-					exit 1; \
-					;; \
-			esac; \
+			$(MAKE) --no-print-directory _run-node-scope LABEL=Frontend DIR=application/frontend SERVICE=frontend MODE=$$TARGET_MODE SCOPE_NAME=frontend; \
 			;; \
 		e2e) \
-			case "$$TARGET_MODE" in \
-				default) \
-					echo "$(GREEN)Running E2E tests...$(NC)"; \
-					$(MAKE) --no-print-directory _run-e2e SCRIPT=test; \
-					echo "$(GREEN)✓ E2E tests completed$(NC)"; \
-					;; \
-				ui) \
-					echo "$(GREEN)Opening Playwright UI...$(NC)"; \
-					$(MAKE) --no-print-directory _run-e2e SCRIPT=test:ui; \
-					;; \
-				smoke) \
-					echo "$(GREEN)Running smoke tests...$(NC)"; \
-					$(MAKE) --no-print-directory _run-e2e SCRIPT=test:smoke; \
-					echo "$(GREEN)✓ Smoke tests completed$(NC)"; \
-					;; \
-				watch|cov) \
-					echo "$(YELLOW)Mode '$$TARGET_MODE' is not supported for E2E tests$(NC)"; \
-					exit 1; \
-					;; \
-				*) \
-					echo "$(RED)Unknown MODE '$$TARGET_MODE' for e2e$(NC)"; \
-					exit 1; \
-					;; \
-			esac; \
+			$(MAKE) --no-print-directory _run-e2e-scope MODE=$$TARGET_MODE; \
 			;; \
 		*) \
 			echo "$(RED)Unknown SCOPE '$$TARGET_SCOPE'$(NC)"; \
 			exit 1; \
 			;; \
 	esac
+
+_run-node-scope:
+	$(call run_node_scope_mode,$(LABEL),$(DIR),$(SERVICE),$(SCOPE_NAME))
+
+_run-e2e-scope:
+	$(call run_e2e_scope_mode)

@@ -273,6 +273,13 @@ function requiresFrontendSideBySideTest(relativePath, filePath, symbol, content)
     return false;
   }
 
+  if (
+    /^src\/presentation\/.*\/screens\/components\//.test(relativePath) ||
+    /^src\/presentation\/.*\/screens\/[^/]+\/components\//.test(relativePath)
+  ) {
+    return false;
+  }
+
   const hasBehavioralRuntimeExport = /export\s+(?:abstract\s+)?class\s+|export\s+default\s+function\s+|export\s+function\s+|export\s+const\s+(?![A-Za-z_$][A-Za-z0-9_$]*Token\b)/.test(
     content,
   );
