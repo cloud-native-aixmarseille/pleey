@@ -127,10 +127,11 @@ jobs:
         shell: bash
         run: helm dependency update charts/application
 
-      # - name: Regenerate Helm chart documentation
-      #   uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@ad23452fb16123853be9d67a8f41952778b7340c # 0.34.3
-      #   with:
-      #     working-directory: ./charts
+      - name: Regenerate Helm chart documentation
+        uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@8e63086f032651bcd1d44c8f4fcd61b902ebb99f # 0.35.0
+        with:
+          working-directory: ./charts
+          checkout-ref: ""
 
       - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         id: generate-token
