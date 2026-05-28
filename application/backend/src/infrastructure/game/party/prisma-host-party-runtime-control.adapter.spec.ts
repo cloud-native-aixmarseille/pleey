@@ -4,6 +4,7 @@ import { PartyActionIdentifier } from '../../../application/game/party/shared/se
 import { PartyStageIdentifier } from '../../../application/game/party/shared/services/identifiers/party-stage-identifier';
 import { PartyStatus } from '../../../domain/game/party/enums/party-status.enum';
 import { PrismaHostPartyRuntimeControlAdapter } from './prisma-host-party-runtime-control.adapter';
+import { PrismaPartyPlayerRemovalService } from './services/prisma-party-player-removal.service';
 
 describe('PrismaHostPartyRuntimeControlAdapter', () => {
   const partyActionIdentifier = new PartyActionIdentifier();
@@ -66,6 +67,7 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
       {} as never,
       partyStageIdentifier,
       partyStageCatalog as never,
+      {} as PrismaPartyPlayerRemovalService,
       {
         toPersistedPartyStatus: vi.fn().mockReturnValue('active'),
         toPartyPlayerActionState: vi.fn((value: unknown) => {
@@ -193,6 +195,7 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
       {} as never,
       partyStageIdentifier,
       partyStageCatalog as never,
+      {} as PrismaPartyPlayerRemovalService,
       {
         toPersistedPartyStatus: vi.fn().mockReturnValue('waiting'),
         toPartyPlayerActionState: vi.fn().mockReturnValue(null),

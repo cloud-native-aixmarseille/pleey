@@ -1,5 +1,6 @@
 import type { HostPartyRuntimeCommand } from '../../../../../../domains/game/party/host/ports/party-host-runtime-controls.port';
 import type { PartyObservation } from '../../../../../../domains/game/party/shared/entities/party-observation';
+import type { PartyObservationPlayer } from '../../../../../../domains/game/party/shared/entities/party-observation-player';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { ContentStack, ResponsiveGrid } from '../../../../../shared/ui/layout/containers';
 import { HostPartyPlayersPanel } from './host-party-players-panel';
@@ -8,8 +9,10 @@ import { PartyLobbySharePanel } from './party-lobby-share-panel';
 import { useHostRuntimeControls } from './use-host-runtime-controls';
 
 interface HostLobbySurfaceProps {
+  readonly kickPlayer: (player: PartyObservationPlayer) => Promise<void>;
   readonly pendingHostRuntimeConfirmationCommand: HostPartyRuntimeCommand | null;
   readonly pendingHostRuntimeCommand: HostPartyRuntimeCommand | null;
+  readonly pendingKickedPlayerKey: string | null;
   readonly party: PartyObservation;
   readonly resolvePartyAbsoluteUrl: (pin: PartyObservation['pin']) => string;
   readonly onCancelHostRuntimeConfirmation: () => void;
@@ -17,8 +20,10 @@ interface HostLobbySurfaceProps {
 }
 
 export function HostLobbySurface({
+  kickPlayer,
   pendingHostRuntimeConfirmationCommand,
   pendingHostRuntimeCommand,
+  pendingKickedPlayerKey,
   party,
   resolvePartyAbsoluteUrl,
   onCancelHostRuntimeConfirmation,
@@ -42,7 +47,11 @@ export function HostLobbySurface({
           scanLabel={t('game.party.host.route.scanToJoin')}
         />
 
-        <HostPartyPlayersPanel players={party.players} />
+        <HostPartyPlayersPanel
+          onKickPlayer={(player) => void kickPlayer(player)}
+          pendingKickedPlayerKey={pendingKickedPlayerKey}
+          players={party.players}
+        />
       </ResponsiveGrid>
 
       <HostRuntimeConfirmationDialog

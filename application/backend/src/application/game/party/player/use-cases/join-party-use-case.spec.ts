@@ -242,6 +242,7 @@ describe('JoinPartyUseCase', () => {
     );
 
     const result = await useCase.execute({
+      avatarSeed: 'neon-seed',
       pin: partyPinIdentifier.parse('123456'),
       playerIdentity: {
         kind: PartyPlayerKind.GUEST,
@@ -251,6 +252,7 @@ describe('JoinPartyUseCase', () => {
     });
 
     expect(runtime.ensureGuestPlayer).toHaveBeenCalledWith({
+      avatarSeed: 'neon-seed',
       partyId: 12,
       guestId: 'guest-42',
       username: 'Morgan Guest',
@@ -285,6 +287,7 @@ describe('JoinPartyUseCase', () => {
     );
 
     const result = await useCase.execute({
+      avatarSeed: '  aurora-seed  ',
       pin: partyPinIdentifier.parse('123456'),
       playerIdentity: {
         kind: PartyPlayerKind.GUEST,
@@ -294,6 +297,7 @@ describe('JoinPartyUseCase', () => {
     });
 
     expect(runtime.ensureGuestPlayer).toHaveBeenCalledWith({
+      avatarSeed: 'aurora-seed',
       partyId: 12,
       guestId: 'guest-42',
       username: '',
@@ -306,6 +310,33 @@ describe('JoinPartyUseCase', () => {
       },
     });
     expect(result.player).toEqual(player);
+  });
+
+  it('rejects guest rejoin by guest id when the player is no longer in the party', async () => {
+    const runtime = createPlayerPartyRuntimeMock({
+      findPartyPlayer: null,
+    });
+    const broadcastPartyObservationUseCase = {
+      execute: vi.fn(),
+    };
+    const useCase = new JoinPartyUseCase(
+      runtime as never,
+      broadcastPartyObservationUseCase as never,
+    );
+
+    await expect(
+      useCase.execute({
+        pin: partyPinIdentifier.parse('123456'),
+        playerIdentity: {
+          kind: PartyPlayerKind.GUEST,
+          guestId: guestIdentifier.parse('guest-42'),
+        },
+        username: '   ',
+      }),
+    ).rejects.toThrow(GameErrorCode.VALIDATION_FAILED);
+
+    expect(runtime.ensureGuestPlayer).not.toHaveBeenCalled();
+    expect(broadcastPartyObservationUseCase.execute).not.toHaveBeenCalled();
   });
 
   it('rejects guest joins with an empty username', async () => {

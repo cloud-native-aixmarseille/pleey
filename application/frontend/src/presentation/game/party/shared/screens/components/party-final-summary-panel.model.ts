@@ -7,6 +7,8 @@ export const PODIUM_LAYOUT_ORDER = [2, 1, 3] as const satisfies readonly PodiumR
 export const MOBILE_PODIUM_LAYOUT_ORDER = [1, 2, 3] as const satisfies readonly PodiumRank[];
 
 interface PartyFinalSummaryModel {
+  readonly currentPlayer: PartyObservationPlayer | null;
+  readonly currentPlayerRank: number | null;
   readonly podiumByRank: ReadonlyMap<PodiumRank, PartyObservationPlayer>;
   readonly rankedPlayers: readonly PartyObservationPlayer[];
   readonly winner: PartyObservationPlayer | null;
@@ -17,12 +19,15 @@ export function createPartyFinalSummaryModel(
 ): PartyFinalSummaryModel {
   const rankedPlayers = sortPlayers(players);
   const podiumByRank = new Map<PodiumRank, PartyObservationPlayer>();
+  const currentPlayerIndex = rankedPlayers.findIndex((player) => player.isCurrentPlayer);
 
   rankedPlayers.slice(0, 3).forEach((player, index) => {
     podiumByRank.set((index + 1) as PodiumRank, player);
   });
 
   return {
+    currentPlayer: currentPlayerIndex === -1 ? null : rankedPlayers[currentPlayerIndex],
+    currentPlayerRank: currentPlayerIndex === -1 ? null : currentPlayerIndex + 1,
     podiumByRank,
     rankedPlayers,
     winner: podiumByRank.get(1) ?? null,

@@ -23,7 +23,8 @@ RED=\033[0;31m
 NC=\033[0m # No Color
 
 define run_node_scope_mode
-	@case "$(MODE)" in \
+	@set -e; \
+	case "$(MODE)" in \
 		default) \
 			echo "$(GREEN)Running $(1) tests...$(NC)"; \
 			$(MAKE) --no-print-directory _run-node DIR=$(2) SCRIPT=test SERVICE=$(3); \
@@ -54,7 +55,8 @@ define run_node_scope_mode
 endef
 
 define run_e2e_scope_mode
-	@case "$(MODE)" in \
+	@set -e; \
+	case "$(MODE)" in \
 		default) \
 			echo "$(GREEN)Running E2E tests...$(NC)"; \
 			$(MAKE) --no-print-directory _run-e2e SCRIPT=test; \

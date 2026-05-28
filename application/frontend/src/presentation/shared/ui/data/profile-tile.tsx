@@ -1,4 +1,5 @@
 import { Text } from '@mantine/core';
+import type { ReactNode } from 'react';
 import { Badge } from '../feedback/badge';
 import { uiThemeTokens } from '../foundation/ui-theme';
 import { ActionRow, ContentStack } from '../layout/containers';
@@ -9,6 +10,7 @@ interface ProfileTileProps {
   readonly avatarAlt: string;
   readonly avatarSrc?: string | null;
   readonly badgeLabel: string;
+  readonly footerAction?: ReactNode;
   readonly highlighted?: boolean;
   readonly highlightLabel?: string;
   readonly title: string;
@@ -37,6 +39,7 @@ export function ProfileTile({
   avatarAlt,
   avatarSrc,
   badgeLabel,
+  footerAction,
   highlighted = false,
   highlightLabel,
   title,
@@ -56,6 +59,7 @@ export function ProfileTile({
           {title}
         </Text>
         <Badge tone={highlighted ? 'accent' : 'neutral'}>{badgeLabel}</Badge>
+        {footerAction ? <ActionRow justify="center">{footerAction}</ActionRow> : null}
       </ContentStack>
     </InsetPanel>
   );

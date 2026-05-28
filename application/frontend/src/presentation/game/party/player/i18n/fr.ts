@@ -3,20 +3,19 @@ export const gamePartyPlayerFr = {
     party: {
       player: {
         route: {
-          entryHeading: 'Choisir comment entrer',
-          entrySubtitle:
-            'Les joueurs authentifiés conservent leur identité de compte. Les invités peuvent mémoriser un pseudo et retrouver la même identité après un rafraîchissement.',
+          generateGuestNameCta: 'Générer un pseudo',
+          guestAvatarAlt: "Aperçu de l'avatar invité pour {{username}}",
+          guestAvatarFallbackName: 'joueur invité',
           guestNameLabel: 'Pseudo invité',
           guestNamePlaceholder: 'Saisir un pseudo',
           joinAsGuestCta: 'Rejoindre comme invité',
           joinWithAccountCta: 'Rejoindre avec mon compte',
           joinHeroEyebrow: 'Rejoindre une partie',
           joinHeroTitle: 'Prêt·e à jouer ?',
-          joinHeroSubtitle:
-            "Confirmez votre identité pour entrer dans le lobby. L'hôte lancera la partie quand tout le monde sera là.",
           joinPinPreviewLabel: 'Vous rejoignez la partie',
           joinPanelLabel: 'Confirmer votre identité',
           leavePartyCta: 'Quitter la partie',
+          shuffleGuestAvatarCta: "Changer d'avatar",
           stageMenuLabel: 'Ouvrir le menu de la manche',
           waitingForHost: "En attente du démarrage par l'hôte...",
           currentHost: 'Hébergée par {{username}}',
@@ -34,6 +33,11 @@ export const gamePartyPlayerFr = {
           leavePartyConfirmTitle: 'Quitter cette partie ?',
           leavePartyConfirmMessage:
             "Vous cesserez d'observer cette partie en direct et devrez peut-être la rejoindre à nouveau pour revenir.",
+          finalResultTitle: 'Votre résultat',
+          saveScorePromptTitle: 'Enregistrer ce score sur un compte',
+          saveScorePromptMessage:
+            'Connectez-vous ou créez un compte pour conserver ce résultat et retrouver votre profil la prochaine fois.',
+          saveScorePromptCta: 'Se connecter pour enregistrer mon score',
           confirmLeavePartyCta: 'Quitter la partie',
           cancelLeavePartyCta: 'Rester ici',
         },

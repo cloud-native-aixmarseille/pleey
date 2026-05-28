@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { PartyObservationPlayer } from '../../../../../../domains/game/party/shared/entities/party-observation-player';
 import { PartyPlayerIdentityKind } from '../../../../../../domains/game/party/shared/entities/party-player-identity';
 import { ProfileTile } from '../../../../../shared/ui/data/profile-tile';
@@ -20,6 +21,7 @@ interface PartyLobbyPlayersPanelProps {
   readonly avatarAltLabel: (username: string) => string;
   readonly emptyMessage: string;
   readonly players: readonly PartyObservationPlayer[];
+  readonly renderPlayerAction?: (player: PartyObservationPlayer) => ReactNode;
   readonly tileBadgeLabel: string;
   readonly title: string;
   readonly youBadgeLabel: string;
@@ -29,6 +31,7 @@ interface PlayerTileProps {
   readonly avatarAltLabel: (username: string) => string;
   readonly isCurrent: boolean;
   readonly player: PartyObservationPlayer;
+  readonly renderPlayerAction?: (player: PartyObservationPlayer) => ReactNode;
   readonly tileBadgeLabel: string;
   readonly youBadgeLabel: string;
 }
@@ -37,6 +40,7 @@ function PlayerTile({
   avatarAltLabel,
   isCurrent,
   player,
+  renderPlayerAction,
   tileBadgeLabel,
   youBadgeLabel,
 }: PlayerTileProps) {
@@ -45,6 +49,7 @@ function PlayerTile({
       avatarAlt={avatarAltLabel(player.username)}
       avatarSrc={player.avatarUri}
       badgeLabel={tileBadgeLabel}
+      footerAction={renderPlayerAction?.(player)}
       highlighted={isCurrent}
       highlightLabel={isCurrent ? youBadgeLabel : undefined}
       title={player.username}
@@ -72,6 +77,7 @@ export function PartyLobbyPlayersPanel({
   avatarAltLabel,
   emptyMessage,
   players,
+  renderPlayerAction,
   tileBadgeLabel,
   title,
   youBadgeLabel,
@@ -96,6 +102,7 @@ export function PartyLobbyPlayersPanel({
                     avatarAltLabel={avatarAltLabel}
                     isCurrent={player.isCurrentPlayer}
                     player={player}
+                    renderPlayerAction={renderPlayerAction}
                     tileBadgeLabel={tileBadgeLabel}
                     youBadgeLabel={youBadgeLabel}
                   />

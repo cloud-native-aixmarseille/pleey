@@ -1,5 +1,6 @@
 import { Controller, Get, Param, ParseIntPipe, Res } from '@nestjs/common';
 import type { Response } from 'express';
+import { GetGuestAvatarPreviewUseCase } from '../../../application/identity/avatar/use-cases/get-guest-avatar-preview-use-case';
 import { GetGuestAvatarUseCase } from '../../../application/identity/avatar/use-cases/get-guest-avatar-use-case';
 import { GetUserAvatarUseCase } from '../../../application/identity/avatar/use-cases/get-user-avatar-use-case';
 import type { UserId } from '../../../domain/identity/entities/user';
@@ -8,6 +9,7 @@ import type { UserId } from '../../../domain/identity/entities/user';
 export class AvatarController {
   constructor(
     private readonly getUserAvatarUseCase: GetUserAvatarUseCase,
+    private readonly getGuestAvatarPreviewUseCase: GetGuestAvatarPreviewUseCase,
     private readonly getGuestAvatarUseCase: GetGuestAvatarUseCase,
   ) {}
 
@@ -31,6 +33,18 @@ export class AvatarController {
     @Res() res: Response,
   ): Promise<void> {
     const avatar = await this.getGuestAvatarUseCase.execute(encodedGuestId);
+
+    res.setHeader('Content-Type', avatar.mimeType);
+    res.setHeader('Cache-Control', 'public, max-age=60');
+    res.send(avatar.content);
+  }
+
+  @Get('guests/preview/:avatarSeed')
+  getGuestAvatarPreview(
+    @Param('avatarSeed') encodedAvatarSeed: string,
+    @Res() res: Response,
+  ): void {
+    const avatar = this.getGuestAvatarPreviewUseCase.execute(encodedAvatarSeed);
 
     res.setHeader('Content-Type', avatar.mimeType);
     res.setHeader('Cache-Control', 'public, max-age=60');

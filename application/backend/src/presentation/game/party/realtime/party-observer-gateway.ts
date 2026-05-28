@@ -11,6 +11,7 @@ import {
 import type { Server, Socket } from 'socket.io';
 import { AdvanceStageUseCase } from '../../../../application/game/party/host/use-cases/advance-stage-use-case';
 import { EndPartyUseCase } from '../../../../application/game/party/host/use-cases/end-party-use-case';
+import { KickPartyPlayerUseCase } from '../../../../application/game/party/host/use-cases/kick-party-player-use-case';
 import { PausePartyUseCase } from '../../../../application/game/party/host/use-cases/pause-party-use-case';
 import { RestartStageUseCase } from '../../../../application/game/party/host/use-cases/restart-stage-use-case';
 import { ResumePartyUseCase } from '../../../../application/game/party/host/use-cases/resume-party-use-case';
@@ -42,6 +43,7 @@ import type { UserId } from '../../../../domain/identity/entities/user';
 import { I18nWsExceptionFilter } from '../../../shared/error-handling/i18n-ws-exception-filter';
 import {
   PartyEntryMessageDto,
+  PartyHostPlayerMessageDto,
   PartyObservationMessageDto,
   SubmitPartyActionMessageDto,
 } from './party-observer-message.dto';
@@ -122,6 +124,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     private readonly resumePartyUseCase: ResumePartyUseCase,
     private readonly revealStageResultUseCase: RevealStageResultUseCase,
     private readonly endPartyUseCase: EndPartyUseCase,
+    private readonly kickPartyPlayerUseCase: KickPartyPlayerUseCase,
   ) {}
 
   afterInit(server: Server): void {
@@ -273,6 +276,27 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     await this.handleHostPartyCommand(client, payload, this.endPartyUseCase);
   }
 
+  @SubscribeMessage(PARTY_SOCKET_INBOUND_EVENTS.KICK_PLAYER)
+  async kickPlayer(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: PartyHostPlayerMessageDto | undefined,
+  ): Promise<void> {
+    const partyId = this.normalizePartyId(payload?.partyId);
+    const playerIdentity = this.toTargetPlayerIdentity(payload);
+
+    try {
+      await this.kickPartyPlayerUseCase.execute({
+        hostUserId: this.resolveAuthenticatedHostUserId(client),
+        partyId,
+        playerIdentity,
+      });
+
+      await this.clearJoinedPlayerSockets(partyId, playerIdentity);
+    } catch (error) {
+      throw this.toWsException(error);
+    }
+  }
+
   @SubscribeMessage(PARTY_SOCKET_INBOUND_EVENTS.LEAVE_PARTY)
   async leaveParty(@ConnectedSocket() client: Socket): Promise<{ readonly left: boolean }> {
     const socketData = client.data as PartyObserverSocketData;
@@ -407,6 +431,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     const guestId = this.guestIdentifier.parseOrNull(payload?.guestId);
 
     return {
+      avatarSeed: payload?.avatarSeed?.trim() || undefined,
       pin: normalizedPin,
       playerIdentity:
         guestId === null
@@ -482,6 +507,26 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     await this.broadcastPartyObservationUseCase.execute({ partyId });
   }
 
+  private async clearJoinedPlayerSockets(
+    partyId: PartyId,
+    playerIdentity: PartyPlayerIdentity,
+  ): Promise<void> {
+    if (this.server === null) {
+      return;
+    }
+
+    const sockets = await this.server.in(resolvePartyObservationRoom(partyId)).fetchSockets();
+
+    for (const socket of sockets) {
+      const joinedPlayerIdentity = (socket.data as PartyObserverSocketData).joinedPartyPlayer
+        ?.identity;
+
+      if (this.isSamePlayerIdentity(joinedPlayerIdentity ?? null, playerIdentity)) {
+        this.clearJoinedPlayer(socket);
+      }
+    }
+  }
+
   private parsePartyObservationId(room: string | undefined): PartyId | null {
     if (!room?.startsWith('party:')) {
       return null;
@@ -503,7 +548,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     };
   }
 
-  private clearJoinedPlayer(client: Socket): void {
+  private clearJoinedPlayer(client: Pick<Socket, 'data'>): void {
     const socketData = client.data as PartyObserverSocketData;
 
     delete socketData.joinedPartyPlayer;
@@ -667,6 +712,33 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     }
 
     return normalizedPartyId;
+  }
+
+  private toTargetPlayerIdentity(
+    payload: PartyHostPlayerMessageDto | undefined,
+  ): PartyPlayerIdentity {
+    const guestId = this.guestIdentifier.parseOrNull(payload?.guestId);
+    const userId = this.userIdentifier.parseOrNull(payload?.userId);
+
+    if ((guestId === null && userId === null) || (guestId !== null && userId !== null)) {
+      throw new Error(GameErrorCode.VALIDATION_FAILED);
+    }
+
+    if (userId !== null) {
+      return {
+        kind: PartyPlayerKind.USER,
+        userId,
+      };
+    }
+
+    if (guestId === null) {
+      throw new Error(GameErrorCode.VALIDATION_FAILED);
+    }
+
+    return {
+      kind: PartyPlayerKind.GUEST,
+      guestId,
+    };
   }
 
   private toWsException(error: unknown): WsException {

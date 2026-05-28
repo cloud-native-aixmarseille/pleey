@@ -26,6 +26,7 @@ function createHostControlUseCases() {
     { execute: vi.fn() } as never,
     { execute: vi.fn() } as never,
     { execute: vi.fn() } as never,
+    { execute: vi.fn() } as never,
   ] as const;
 }
 
@@ -44,6 +45,7 @@ function createHostControlGateway() {
   const resumePartyUseCase = { execute: vi.fn().mockResolvedValue(undefined) };
   const revealStageResultUseCase = { execute: vi.fn().mockResolvedValue(undefined) };
   const endPartyUseCase = { execute: vi.fn().mockResolvedValue(undefined) };
+  const kickPartyPlayerUseCase = { execute: vi.fn().mockResolvedValue(undefined) };
 
   return {
     gateway: new PartyObserverGateway(
@@ -67,10 +69,12 @@ function createHostControlGateway() {
       resumePartyUseCase as never,
       revealStageResultUseCase as never,
       endPartyUseCase as never,
+      kickPartyPlayerUseCase as never,
     ),
     useCases: {
       advanceStageUseCase,
       endPartyUseCase,
+      kickPartyPlayerUseCase,
       pausePartyUseCase,
       restartStageUseCase,
       resumePartyUseCase,
@@ -283,6 +287,7 @@ describe('PartyObserverGateway', () => {
     const result = await gateway.joinParty(client as never, { pin: '123456' });
 
     expect(joinPartyUseCase.execute).toHaveBeenCalledWith({
+      avatarSeed: undefined,
       pin: partyPinIdentifier.parse('123456'),
       playerIdentity: { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) },
       username: '',
@@ -342,6 +347,60 @@ describe('PartyObserverGateway', () => {
     ).resolves.toEqual({
       errorCode: GameErrorCode.PLAYER_ALREADY_IN_ACTIVE_PARTY,
       status: 'rejected',
+    });
+  });
+
+  it('forwards trimmed guest avatar seeds on guest joins', async () => {
+    const joinPartyUseCase = {
+      execute: vi.fn().mockResolvedValue({
+        partyId: 44,
+        gameId: 17,
+        pin: '123456',
+        player: {
+          identity: { kind: PartyPlayerKind.GUEST, guestId: guestIdentifier.parse('guest-7') },
+          username: 'Nova Otter 418',
+          avatarUri: '/api/avatars/guests/guest-7',
+          totalScore: 0,
+          joinedAt: new Date('2026-04-17T10:00:00.000Z'),
+        },
+      }),
+    };
+    const gateway = new PartyObserverGateway(
+      joinPartyUseCase as never,
+      { execute: vi.fn() } as never,
+      { execute: vi.fn() } as never,
+      { execute: vi.fn().mockResolvedValue(createSnapshot()) } as never,
+      { execute: vi.fn().mockResolvedValue(undefined) } as never,
+      {
+        attachServer: vi.fn(),
+        emitSnapshot: vi.fn().mockResolvedValue(undefined),
+      } as never,
+      guestIdentifier,
+      partyActionIdentifier,
+      partyIdentifier,
+      partyPinIdentifier,
+      userIdentifier,
+      ...createHostControlUseCases(),
+    );
+
+    await gateway.joinParty(
+      {
+        data: {},
+        join: vi.fn().mockResolvedValue(undefined),
+        leave: vi.fn().mockResolvedValue(undefined),
+      } as never,
+      {
+        avatarSeed: '  neon-seed  ',
+        pin: '123456',
+        username: 'Nova Otter 418',
+      },
+    );
+
+    expect(joinPartyUseCase.execute).toHaveBeenCalledWith({
+      avatarSeed: 'neon-seed',
+      pin: partyPinIdentifier.parse('123456'),
+      playerIdentity: { kind: PartyPlayerKind.GUEST },
+      username: 'Nova Otter 418',
     });
   });
 
@@ -449,6 +508,46 @@ describe('PartyObserverGateway', () => {
     await pendingLeave;
 
     expect(broadcastPartyObservationUseCase.execute).toHaveBeenCalledWith({ partyId: 44 });
+  });
+
+  it('kicks a targeted player and clears the matched joined-player socket metadata', async () => {
+    const { gateway, useCases } = createHostControlGateway();
+    const removedPlayerSocket = {
+      data: {
+        joinedPartyPlayer: {
+          identity: { kind: PartyPlayerKind.GUEST, guestId: 'guest-7' },
+          pin: '123456',
+        },
+      },
+    };
+
+    gateway.afterInit({
+      in: vi.fn().mockReturnValue({
+        fetchSockets: vi.fn().mockResolvedValue([removedPlayerSocket]),
+      }),
+    } as never);
+
+    await gateway.kickPlayer(
+      {
+        data: {
+          authenticatedUserId: 7,
+        },
+      } as never,
+      {
+        guestId: 'guest-7',
+        partyId: 44,
+      },
+    );
+
+    expect(useCases.kickPartyPlayerUseCase.execute).toHaveBeenCalledWith({
+      hostUserId: 7,
+      partyId: 44,
+      playerIdentity: {
+        kind: PartyPlayerKind.GUEST,
+        guestId: 'guest-7',
+      },
+    });
+    expect(removedPlayerSocket.data.joinedPartyPlayer).toBeUndefined();
   });
 
   it('prunes a disconnected waiting player after the grace period', async () => {

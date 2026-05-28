@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import type { PartyLobbyGateway } from '../../../../../application/game/party/shared/facades/party-lobby.facade';
 import { PartyJoinReceiptStatus } from '../../../../../domains/game/party/player/ports/party-player.port';
 import type { PartyActionId } from '../../../../../domains/game/party/shared/entities/party-action';
@@ -41,6 +41,8 @@ export function usePartyLobbyPlayerSession({
   const [playerActionErrorMessage, setPlayerActionErrorMessage] = useState<string | null>(null);
   const currentPartyPin = party?.pin ?? null;
   const currentPlayer = party?.players.find((player) => player.isCurrentPlayer) ?? null;
+  const previousCurrentPlayerRef = useRef(currentPlayer);
+  const hasLostCurrentPlayer = previousCurrentPlayerRef.current !== null && currentPlayer === null;
 
   const leaveParty = useEffectEvent(async () => {
     if (currentPlayer === null) {
@@ -107,7 +109,27 @@ export function usePartyLobbyPlayerSession({
   });
 
   useEffect(() => {
-    if (!party || currentPartyPin === null || observedGuestRejoinGuestId === null) {
+    const previousCurrentPlayer = previousCurrentPlayerRef.current;
+
+    if (
+      previousCurrentPlayer !== null &&
+      currentPlayer === null &&
+      currentGuestId !== null &&
+      currentPartyPin !== null
+    ) {
+      partyLobbyFacade.clearGuestId(currentPartyPin);
+    }
+
+    previousCurrentPlayerRef.current = currentPlayer;
+  }, [currentGuestId, currentPartyPin, currentPlayer, partyLobbyFacade]);
+
+  useEffect(() => {
+    if (
+      hasLostCurrentPlayer ||
+      !party ||
+      currentPartyPin === null ||
+      observedGuestRejoinGuestId === null
+    ) {
       return;
     }
 
@@ -149,6 +171,7 @@ export function usePartyLobbyPlayerSession({
   }, [
     clearGuestSessionOnObservedGuestRejoinFailure,
     currentPartyPin,
+    hasLostCurrentPlayer,
     observedGuestRejoinGuestId,
     observedGuestRejoinUsername,
     party,

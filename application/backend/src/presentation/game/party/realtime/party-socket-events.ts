@@ -13,6 +13,7 @@ export const PARTY_SOCKET_INBOUND_EVENTS = {
   RESUME_PARTY: 'resume-party',
   REVEAL_STAGE_RESULT: 'reveal-stage-result',
   END_PARTY: 'end-party',
+  KICK_PLAYER: 'kick-player',
   STOP_OBSERVING_PARTY: 'stop-observing-party',
 } as const;
 

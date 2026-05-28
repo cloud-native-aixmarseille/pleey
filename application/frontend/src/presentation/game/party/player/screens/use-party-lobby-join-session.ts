@@ -7,6 +7,7 @@ import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/share
 import { PartyManagementErrorCode } from '../../../../../domains/game/party/shared/errors/party-management-error-code';
 import type { GuestId } from '../../../../../domains/identity/entities/guest';
 import type { User } from '../../../../../domains/identity/entities/user';
+import { GuestPartyEntryDraftFactory } from './guest-party-entry-draft-factory';
 
 interface UsePartyLobbyJoinSessionParams {
   readonly currentGuestId: GuestId | null;
@@ -20,8 +21,11 @@ interface UsePartyLobbyJoinSessionParams {
 }
 
 interface UsePartyLobbyJoinSessionResult {
+  readonly guestAvatarPreviewUri: string | null;
   readonly guestName: string;
   readonly joinParty: () => Promise<void>;
+  readonly regenerateGuestAvatar: () => void;
+  readonly regenerateGuestName: () => void;
   readonly setGuestName: (value: string) => void;
 }
 
@@ -35,7 +39,13 @@ export function usePartyLobbyJoinSession({
   setJoinErrorMessage,
   user,
 }: UsePartyLobbyJoinSessionParams): UsePartyLobbyJoinSessionResult {
-  const [guestName, setGuestName] = useState('');
+  const [guestDraft] = useState(() =>
+    currentGuestId === null ? GuestPartyEntryDraftFactory.create() : null,
+  );
+  const [guestAvatarSeed, setGuestAvatarSeed] = useState<string | null>(
+    guestDraft?.avatarSeed ?? null,
+  );
+  const [guestName, setGuestName] = useState(guestDraft?.guestName ?? '');
 
   const joinParty = useEffectEvent(async () => {
     if (normalizedPin === null) {
@@ -52,6 +62,7 @@ export function usePartyLobbyJoinSession({
 
     try {
       const receipt = await partyLobbyFacade.joinParty({
+        ...(user || guestAvatarSeed === null ? {} : { avatarSeed: guestAvatarSeed }),
         pin: normalizedPin,
         playerIdentity: user
           ? { kind: PartyPlayerIdentityKind.User, userId: user.id }
@@ -127,8 +138,14 @@ export function usePartyLobbyJoinSession({
   ]);
 
   return {
+    guestAvatarPreviewUri:
+      guestAvatarSeed === null
+        ? null
+        : GuestPartyEntryDraftFactory.createPreviewUrl(guestAvatarSeed),
     guestName,
     joinParty,
+    regenerateGuestAvatar: () => setGuestAvatarSeed(GuestPartyEntryDraftFactory.createAvatarSeed()),
+    regenerateGuestName: () => setGuestName(GuestPartyEntryDraftFactory.createGuestName()),
     setGuestName,
   };
 }

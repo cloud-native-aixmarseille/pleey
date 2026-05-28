@@ -261,6 +261,7 @@ const mocks = vi.hoisted(() => {
     partyHostControlPort: {
       advanceStage: vi.fn(async () => undefined),
       endParty: vi.fn(async () => undefined),
+      kickPlayer: vi.fn(async () => undefined),
       pauseParty: vi.fn(async () => undefined),
       restartStage: vi.fn(async () => undefined),
       resumeParty: vi.fn(async () => undefined),
@@ -317,6 +318,7 @@ const mocks = vi.hoisted(() => {
       },
       getGuestId: (pin) => mocks.partyGuestSessionPort.getGuestId(pin),
       joinParty: (command) => mocks.partyPlayerPort.joinParty(command),
+      kickPlayer: (command) => mocks.partyHostControlPort.kickPlayer(command),
       leaveParty: () => mocks.partyPlayerPort.leaveParty(),
       listParties: () => mocks.partyManagementPort.listParties(),
       rejoinParty: (command) => mocks.partyPlayerPort.rejoinParty(command),
@@ -854,6 +856,123 @@ describe('PartyLobbyScreen', () => {
         partyId: partyIdentifier.parse(9),
       });
     });
+  });
+
+  it('dispatches host kick-player commands from the host lobby', async () => {
+    mocks.params = { partyId: '9', pin: undefined };
+    mocks.authState = {
+      hasRestoredSession: true,
+      isAuthenticated: true,
+      user: authFixtureFactory.createUser({
+        id: 7,
+        username: 'Host',
+        email: 'host@pleey.io',
+        avatarUri: null,
+      }),
+    };
+    mocks.partyManagementState.parties = [createManagedParty()];
+    mocks.partyHostControlPort.kickPlayer = vi.fn(async () => undefined);
+    mocks.observationState.currentParty = createPartyObservation({
+      status: PartyStatus.WAITING,
+      context: null,
+    });
+    mocks.observationState.currentErrorMessage = null;
+    mocks.observationState.currentErrorPartyId = null;
+    mocks.observationState.observePartyById = vi.fn(() => vi.fn());
+
+    renderWithProviders(
+      <PartyLobbyScreen
+        routeKind={PartyLobbyRouteKind.PARTY_ID}
+        normalizePartyId={(partyId) => (partyId ? partyIdentifier.parse(Number(partyId)) : null)}
+        resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
+      />,
+    );
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'game.party.host.route.kickPlayerAriaLabel (username=Neo)',
+      }),
+    );
+
+    await waitFor(() => {
+      expect(mocks.partyHostControlPort.kickPlayer).toHaveBeenCalledWith({
+        partyId: partyIdentifier.parse(9),
+        playerIdentity: {
+          kind: PartyPlayerIdentityKind.User,
+          userId: userIdentifier.parse(11),
+        },
+      });
+    });
+  });
+
+  it('clears the persisted guest session when the current guest disappears from observation', async () => {
+    const guestId = guestIdentifier.parse('guest-current');
+
+    mocks.params = { partyId: '9', pin: undefined };
+    mocks.authState = {
+      hasRestoredSession: true,
+      isAuthenticated: false,
+      user: null,
+    };
+    mocks.partyGuestSessionPort.clearGuestId = vi.fn();
+    mocks.partyGuestSessionPort.getGuestId = vi.fn(() => guestId);
+    mocks.partyPlayerPort.rejoinParty = vi.fn(async () => createRejectedJoinReceipt());
+    mocks.observationState.currentParty = createPartyObservation({
+      liveObserverIdentities: [{ kind: PartyPlayerIdentityKind.Guest, guestId }],
+      entries: [
+        createUserEntry(userIdentifier.parse(7), 'Host', PartyRole.HOST, {
+          avatarUri: '/avatars/host.png',
+          totalScore: 0,
+          joinedAt: '2026-04-21T08:00:00.000Z',
+        }),
+        createGuestEntry(guestId, 'Nova', {
+          avatarUri: '/avatars/guest.png',
+          totalScore: 4,
+          joinedAt: '2026-04-21T08:02:00.000Z',
+        }),
+      ],
+      status: PartyStatus.WAITING,
+    });
+    mocks.observationState.currentErrorMessage = null;
+    mocks.observationState.currentErrorPartyId = null;
+    mocks.observationState.observePartyById = vi.fn(() => vi.fn());
+
+    const view = renderWithProviders(
+      <PartyLobbyScreen
+        routeKind={PartyLobbyRouteKind.PARTY_ID}
+        normalizePartyId={(partyId) => (partyId ? partyIdentifier.parse(Number(partyId)) : null)}
+        resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
+      />,
+    );
+
+    await screen.findByText('Nova');
+
+    mocks.observationState.currentParty = createPartyObservation({
+      entries: [
+        createUserEntry(userIdentifier.parse(7), 'Host', PartyRole.HOST, {
+          avatarUri: '/avatars/host.png',
+          totalScore: 0,
+          joinedAt: '2026-04-21T08:00:00.000Z',
+        }),
+      ],
+      status: PartyStatus.WAITING,
+    });
+
+    view.rerender(
+      <PartyLobbyScreen
+        routeKind={PartyLobbyRouteKind.PARTY_ID}
+        normalizePartyId={(partyId) => (partyId ? partyIdentifier.parse(Number(partyId)) : null)}
+        resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(mocks.partyGuestSessionPort.clearGuestId).toHaveBeenCalledWith(
+        partyPinIdentifier.parse('AB12CD'),
+      );
+    });
+
+    expect(mocks.partyPlayerPort.rejoinParty).not.toHaveBeenCalled();
   });
 
   it('keeps the start CTA disabled when the host is alone in the lobby', async () => {
@@ -2377,11 +2496,85 @@ describe('PartyLobbyScreen', () => {
     );
 
     expect(await screen.findByTestId('player-final-surface')).toBeInTheDocument();
+    expect(screen.getByTestId('player-final-result-card')).toBeInTheDocument();
+    expect(
+      within(screen.getByTestId('player-final-result-card')).getByText('Neo'),
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByTestId('player-final-result-card')).getByText('#2'),
+    ).toBeInTheDocument();
     expect(screen.getByTestId('party-final-summary-panel')).toBeInTheDocument();
     expect(screen.getByText('game.party.route.finalSummaryTitle')).toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: 'game.party.host.route.advanceStageCta' }),
     ).not.toBeInTheDocument();
+  });
+
+  it('prompts guest players to sign in from the final leaderboard to save their score', async () => {
+    const currentGuestId = guestIdentifier.parse('guest-current');
+
+    mocks.params = { partyId: '9', pin: undefined };
+    mocks.authState = {
+      hasRestoredSession: true,
+      isAuthenticated: false,
+      user: null,
+    };
+    mocks.partyManagementState.parties = [
+      createManagedParty({ role: PartyRole.PLAYER, status: PartyStatus.ENDED }),
+    ];
+    mocks.partyGuestSessionPort.getGuestId = vi.fn(() => currentGuestId);
+    mocks.observationState.currentParty = createPartyObservation({
+      status: PartyStatus.ENDED,
+      context: {
+        ...createRuntimeResultContext(),
+        lifecycle: {
+          phase: PartyRuntimePhase.ENDED,
+          stageEndsAtEpochMs: null,
+          stageId: toStageId(1),
+          stagePosition: 0,
+          stageRemainingDurationMs: null,
+          stageTimeLimitSeconds: null,
+          totalStages: 4,
+        },
+      },
+      entries: [
+        createUserEntry(userIdentifier.parse(7), 'Host', PartyRole.HOST, {
+          avatarUri: '/avatars/host.png',
+          joinedAt: '2026-04-21T08:00:00.000Z',
+          totalScore: 0,
+        }),
+        createGuestEntry(currentGuestId, 'Nova', {
+          avatarUri: '/avatars/guest.png',
+          joinedAt: '2026-04-21T08:01:00.000Z',
+          totalScore: 1200,
+        }),
+        createUserEntry(userIdentifier.parse(11), 'Neo', PartyRole.PLAYER, {
+          avatarUri: '/avatars/neo.png',
+          joinedAt: '2026-04-21T08:02:00.000Z',
+          totalScore: 800,
+        }),
+      ],
+    });
+    mocks.observationState.currentErrorMessage = null;
+    mocks.observationState.currentErrorPartyId = null;
+    mocks.observationState.observePartyById = vi.fn(() => vi.fn());
+
+    renderWithProviders(
+      <PartyLobbyScreen
+        routeKind={PartyLobbyRouteKind.PARTY_ID}
+        screenSection={PartyScreenSection.LEADERBOARD}
+        normalizePartyId={(partyId) => (partyId ? partyIdentifier.parse(Number(partyId)) : null)}
+        resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
+      />,
+    );
+
+    expect(await screen.findByTestId('player-final-surface')).toBeInTheDocument();
+    expect(screen.getByText('game.party.player.route.saveScorePromptTitle')).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', {
+        name: 'game.party.player.route.saveScorePromptCta',
+      }),
+    ).toHaveAttribute('href', '/identity/sign-in');
   });
 
   it('renders the dedicated final leaderboard screen for ended host parties', async () => {
@@ -2746,6 +2939,7 @@ describe('PartyLobbyScreen', () => {
       user: null,
     };
     mocks.partyManagementState.parties = [];
+    mocks.partyGuestSessionPort.getGuestId = vi.fn(() => null);
     mocks.observationState.currentParty = null;
     mocks.observationState.currentErrorMessage = null;
     mocks.observationState.currentErrorPartyId = null;
@@ -2758,20 +2952,30 @@ describe('PartyLobbyScreen', () => {
       await screen.findByLabelText('game.party.player.route.guestNameLabel'),
     ).toBeInTheDocument();
     expect(
+      (screen.getByLabelText('game.party.player.route.guestNameLabel') as HTMLInputElement).value,
+    ).toMatch(/\S/);
+    expect(
       screen.getByRole('button', { name: 'game.party.player.route.joinAsGuestCta' }),
-    ).toBeDisabled();
+    ).toBeEnabled();
+    expect(
+      screen.getByRole('button', { name: 'game.party.player.route.shuffleGuestAvatarCta' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'game.party.player.route.generateGuestNameCta' }),
+    ).toBeInTheDocument();
     expect(
       screen.queryByText((content) => content.includes('errors.listFailed')),
     ).not.toBeInTheDocument();
   });
 
-  it('enables guest join once the guest name is not empty', async () => {
+  it('regenerates the guest name on demand', async () => {
     mocks.authState = {
       hasRestoredSession: true,
       isAuthenticated: false,
       user: null,
     };
     mocks.partyManagementState.parties = [];
+    mocks.partyGuestSessionPort.getGuestId = vi.fn(() => null);
     mocks.observationState.currentParty = null;
     mocks.observationState.currentErrorMessage = null;
     mocks.observationState.currentErrorPartyId = null;
@@ -2779,15 +2983,17 @@ describe('PartyLobbyScreen', () => {
 
     renderScreen();
 
-    const joinButton = await screen.findByRole('button', {
-      name: 'game.party.player.route.joinAsGuestCta',
-    });
+    const guestNameInput = (await screen.findByLabelText(
+      'game.party.player.route.guestNameLabel',
+    )) as HTMLInputElement;
+    const initialGuestName = guestNameInput.value;
 
-    fireEvent.change(await screen.findByLabelText('game.party.player.route.guestNameLabel'), {
-      target: { value: '  Neo  ' },
-    });
+    fireEvent.click(
+      screen.getByRole('button', { name: 'game.party.player.route.generateGuestNameCta' }),
+    );
 
-    expect(joinButton).toBeEnabled();
+    expect(guestNameInput.value).toMatch(/\S/);
+    expect(guestNameInput.value).not.toBe(initialGuestName);
   });
 
   it('shows join errors in a toast notification', async () => {
@@ -2797,6 +3003,7 @@ describe('PartyLobbyScreen', () => {
       user: null,
     };
     mocks.partyManagementState.parties = [];
+    mocks.partyGuestSessionPort.getGuestId = vi.fn(() => null);
     mocks.observationState.currentParty = null;
     mocks.observationState.currentErrorMessage = null;
     mocks.observationState.currentErrorPartyId = null;
@@ -2821,6 +3028,13 @@ describe('PartyLobbyScreen', () => {
     await waitFor(() => {
       expect(mocks.partyPlayerPort.joinParty).toHaveBeenCalledTimes(1);
     });
+
+    expect(mocks.partyPlayerPort.joinParty).toHaveBeenCalledWith(
+      expect.objectContaining({
+        avatarSeed: expect.any(String),
+        username: 'Neo',
+      }),
+    );
 
     expect(await screen.findByTestId('join-party-error-toast')).toHaveTextContent(
       'game.party.errors.joinFailed',

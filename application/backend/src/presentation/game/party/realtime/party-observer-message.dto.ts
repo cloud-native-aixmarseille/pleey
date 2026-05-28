@@ -4,6 +4,11 @@ export class PartyEntryMessageDto {
   @IsOptional()
   @IsString()
   @IsNotEmpty()
+  avatarSeed?: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
   guestId?: string;
 
   @IsOptional()
@@ -21,6 +26,18 @@ export class PartyObservationMessageDto {
   @IsInt()
   @Min(1)
   partyId?: number;
+}
+
+export class PartyHostPlayerMessageDto extends PartyObservationMessageDto {
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  guestId?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  userId?: number;
 }
 
 export class SubmitPartyActionMessageDto extends PartyObservationMessageDto {

@@ -5,6 +5,8 @@ import {
   type HostPartyRuntimeControlsState,
 } from '../../../../../domains/game/party/host/ports/party-host-runtime-controls.port';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
+import type { PartyObservationPlayer } from '../../../../../domains/game/party/shared/entities/party-observation-player';
+import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/shared/entities/party-player-identity';
 import { PartyManagementErrorCode } from '../../../../../domains/game/party/shared/errors/party-management-error-code';
 import { usePartyDependencies } from '../../shared/contexts/party-dependencies-context';
 
@@ -18,10 +20,18 @@ interface UsePartyLobbyHostRuntimeResult {
   readonly cancelHostRuntimeConfirmation: () => void;
   readonly confirmHostRuntimeConfirmation: () => Promise<void>;
   readonly hostRuntimeErrorMessage: string | null;
+  readonly kickPlayer: (player: PartyObservationPlayer) => Promise<void>;
+  readonly pendingKickedPlayerKey: string | null;
   readonly pendingHostRuntimeCommand: HostPartyRuntimeCommand | null;
   readonly pendingHostRuntimeConfirmationCommand: HostPartyRuntimeCommand | null;
   readonly requestHostRuntimeConfirmation: (command: HostPartyRuntimeCommand) => void;
   readonly runHostRuntimeCommand: (command: HostPartyRuntimeCommand) => Promise<void>;
+}
+
+function toPlayerKey(player: PartyObservationPlayer): string {
+  return player.identity.kind === PartyPlayerIdentityKind.User
+    ? `user:${player.identity.userId}`
+    : `guest:${player.identity.guestId}`;
 }
 
 function resolveHostRuntimeObservationKey(party: PartyObservation | undefined): string {
@@ -48,6 +58,7 @@ export function usePartyLobbyHostRuntime({
 }: UsePartyLobbyHostRuntimeParams): UsePartyLobbyHostRuntimeResult {
   const { hostPartyRuntimeControlsResolver } = usePartyDependencies();
   const [hostRuntimeErrorMessage, setHostRuntimeErrorMessage] = useState<string | null>(null);
+  const [pendingKickedPlayerKey, setPendingKickedPlayerKey] = useState<string | null>(null);
   const [pendingHostRuntimeCommand, setPendingHostRuntimeCommand] =
     useState<HostPartyRuntimeCommand | null>(null);
   const [pendingHostRuntimeObservationKey, setPendingHostRuntimeObservationKey] = useState<
@@ -117,6 +128,28 @@ export function usePartyLobbyHostRuntime({
   const requestHostRuntimeConfirmation = useEffectEvent((command: HostPartyRuntimeCommand) => {
     setHostRuntimeErrorMessage(null);
     setPendingHostRuntimeConfirmationCommand(command);
+  });
+
+  const kickPlayer = useEffectEvent(async (player: PartyObservationPlayer) => {
+    if (!party) {
+      return;
+    }
+
+    setPendingKickedPlayerKey(toPlayerKey(player));
+    setHostRuntimeErrorMessage(null);
+
+    try {
+      await partyLobbyFacade.kickPlayer({
+        partyId: party.partyId,
+        playerIdentity: player.identity,
+      });
+    } catch (error) {
+      setHostRuntimeErrorMessage(
+        error instanceof Error ? error.message : PartyManagementErrorCode.OBSERVE_FAILED,
+      );
+    } finally {
+      setPendingKickedPlayerKey(null);
+    }
   });
 
   const confirmHostRuntimeConfirmation = useEffectEvent(async () => {
@@ -195,6 +228,8 @@ export function usePartyLobbyHostRuntime({
     cancelHostRuntimeConfirmation: () => setPendingHostRuntimeConfirmationCommand(null),
     confirmHostRuntimeConfirmation,
     hostRuntimeErrorMessage,
+    kickPlayer,
+    pendingKickedPlayerKey,
     pendingHostRuntimeCommand: effectivePendingHostRuntimeCommand,
     pendingHostRuntimeConfirmationCommand,
     requestHostRuntimeConfirmation,

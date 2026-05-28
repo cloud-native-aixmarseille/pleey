@@ -18,6 +18,7 @@ export class JoinPartyUseCase {
 
   async execute(input: JoinPartyDto): Promise<JoinPartyResultDto> {
     const party = await this.playerPartyRuntime.findPartyByPin(input.pin);
+    const avatarSeed = input.avatarSeed?.trim() || undefined;
 
     if (!party) {
       throw new Error(GameErrorCode.PARTY_NOT_FOUND);
@@ -56,12 +57,18 @@ export class JoinPartyUseCase {
     }
 
     const username = input.username.trim();
+    const isPersistedGuestRejoin = input.playerIdentity.guestId !== undefined;
 
-    if (input.playerIdentity.guestId === undefined && username.length === 0) {
+    if (isPersistedGuestRejoin && !existingPlayer) {
+      throw new Error(GameErrorCode.VALIDATION_FAILED);
+    }
+
+    if (!isPersistedGuestRejoin && username.length === 0) {
       throw new Error(GameErrorCode.VALIDATION_FAILED);
     }
 
     const guestPlayer = await this.playerPartyRuntime.ensureGuestPlayer({
+      ...(avatarSeed ? { avatarSeed } : {}),
       partyId: party.partyId,
       guestId: input.playerIdentity.guestId ?? null,
       username,

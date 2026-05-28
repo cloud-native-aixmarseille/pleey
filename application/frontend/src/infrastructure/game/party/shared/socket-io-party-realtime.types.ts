@@ -38,7 +38,18 @@ export interface ObservePartyPayload {
   readonly partyId?: PartyId;
 }
 
+export type SocketPartyHostPlayerPayload =
+  | {
+      readonly partyId: PartyId;
+      readonly userId: number;
+    }
+  | {
+      readonly partyId: PartyId;
+      readonly guestId: GuestId;
+    };
+
 export interface SocketPartyEntryPayload {
+  readonly avatarSeed?: string;
   readonly guestId?: GuestId;
   readonly pin: PartyPin;
   readonly username?: string;
@@ -74,6 +85,7 @@ export enum SocketIoPartyJoinEventName {
 export enum SocketIoPartyHostCommandEventName {
   AdvanceStage = 'advance-stage',
   EndParty = 'end-party',
+  KickPlayer = 'kick-player',
   PauseParty = 'pause-party',
   RestartStage = 'restart-stage',
   ResumeParty = 'resume-party',

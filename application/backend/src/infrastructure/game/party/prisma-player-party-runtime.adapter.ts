@@ -20,6 +20,7 @@ import type { PartyPin } from '../../../domain/game/party/shared/entities/party'
 import type { GuestRepository } from '../../../domain/identity/ports/guest.repository';
 import { GuestRepositoryProvider } from '../../../domain/identity/ports/guest.repository';
 import { PrismaService } from '../../database/prisma-service';
+import { PrismaPartyPlayerRemovalService } from './services/prisma-party-player-removal.service';
 import { PrismaPartyReadModelMapper } from './services/prisma-party-read-model-mapper';
 
 const ACTIVE_PARTY_STATUSES = ['waiting', 'active', 'paused'] as const;
@@ -33,6 +34,7 @@ export class PrismaPlayerPartyRuntimeAdapter extends PlayerPartyRuntimePort {
     private readonly gameIdentifier: GameIdentifier,
     private readonly guestIdentifier: GuestIdentifier,
     private readonly partyReadModelMapper: PrismaPartyReadModelMapper,
+    private readonly partyPlayerRemovalService: PrismaPartyPlayerRemovalService,
     private readonly partyIdentifier: PartyIdentifier,
     private readonly partyPinIdentifier: PartyPinIdentifier,
     private readonly userIdentifier: UserIdentifier,
@@ -230,13 +232,26 @@ export class PrismaPlayerPartyRuntimeAdapter extends PlayerPartyRuntimePort {
   async ensureGuestPlayer(command: EnsureGuestPlayerCommand): Promise<GuestPartyPlayerIdentity> {
     const guestId = command.guestId ?? this.guestIdentifier.parse(randomUUID());
     const existingGuest = await this.guestRepository.findById(guestId);
+    const username = command.username.trim();
+    const avatarSeed = command.avatarSeed?.trim() || undefined;
 
     if (!existingGuest) {
       await this.guestRepository.create({
         id: guestId,
-        username: command.username,
-        avatarSeed: guestId,
+        username,
+        avatarSeed: avatarSeed ?? guestId,
       });
+    } else {
+      const nextUsername = username.length > 0 ? username : existingGuest.username;
+      const nextAvatarSeed = avatarSeed ?? existingGuest.avatarSeed;
+
+      if (nextUsername !== existingGuest.username || nextAvatarSeed !== existingGuest.avatarSeed) {
+        await this.guestRepository.upsert({
+          id: guestId,
+          username: nextUsername,
+          avatarSeed: nextAvatarSeed,
+        });
+      }
     }
 
     const existingScore = await this.prisma.score.findFirst({
@@ -266,47 +281,7 @@ export class PrismaPlayerPartyRuntimeAdapter extends PlayerPartyRuntimePort {
   }
 
   async removePlayer(command: RemovePartyPlayerCommand): Promise<boolean> {
-    if (command.playerIdentity.kind === PartyPlayerKind.USER) {
-      const result = await this.prisma.score.deleteMany({
-        where: {
-          partyId: command.partyId,
-          userId: command.playerIdentity.userId,
-        },
-      });
-
-      return result.count > 0;
-    }
-
-    const guestIdentity = command.playerIdentity;
-
-    return this.prisma.$transaction(async (transaction) => {
-      const deletedScores = await transaction.score.deleteMany({
-        where: {
-          partyId: command.partyId,
-          guestId: guestIdentity.guestId,
-        },
-      });
-
-      let deletedGuestsCount = 0;
-
-      const remainingGuestScores = await transaction.score.count({
-        where: {
-          guestId: guestIdentity.guestId,
-        },
-      });
-
-      if (remainingGuestScores === 0) {
-        const deletedGuests = await transaction.guest.deleteMany({
-          where: {
-            id: guestIdentity.guestId,
-          },
-        });
-
-        deletedGuestsCount = deletedGuests.count;
-      }
-
-      return deletedScores.count > 0 || deletedGuestsCount > 0;
-    });
+    return this.partyPlayerRemovalService.removePlayer(command);
   }
 
   private normalizePlayerScores<

@@ -12,6 +12,7 @@ import type {
   SocketIoPartyObservationTransportHandlers,
   SocketIoPartyPlayerCommand,
   SocketPartyEntryPayload,
+  SocketPartyHostPlayerPayload,
 } from './socket-io-party-realtime.types';
 import {
   SocketIoPartyInboundEventName,
@@ -130,10 +131,10 @@ export class SocketIoPartyRealtimeTransport {
 
   dispatchHostCommand(
     eventName: SocketIoPartyHostCommandEventName,
-    partyId: PartyId,
+    payload: { readonly partyId: PartyId } | SocketPartyHostPlayerPayload,
   ): Promise<void> {
     this.ensureConnected();
-    this.lastRequestedPartyId = partyId;
+    this.lastRequestedPartyId = payload.partyId;
 
     return new Promise((resolve, reject) => {
       const pendingHostCommand: PendingHostCommand = {
@@ -141,9 +142,9 @@ export class SocketIoPartyRealtimeTransport {
       };
 
       this.pendingHostCommands.add(pendingHostCommand);
-      this.socket?.emit(eventName, this.toObservePartyPayload(partyId), () => {
+      this.socket?.emit(eventName, payload, () => {
         this.pendingHostCommands.delete(pendingHostCommand);
-        this.requestObservation(partyId, { force: true });
+        this.requestObservation(payload.partyId, { force: true });
         resolve();
       });
     });

@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import {
   type HostControlledPartyRuntime,
   HostPartyRuntimeControlPort,
+  type RemoveHostPartyPlayerCommand,
   type SaveHostPartyRuntimeCommand,
 } from '../../../application/game/party/host/ports/host-party-runtime-control.port';
 import { PartyActionIdentifier } from '../../../application/game/party/shared/services/identifiers/party-action-identifier';
@@ -17,6 +18,7 @@ import type { PartyActionId } from '../../../domain/game/party/shared/entities/p
 import type { PartyStageId } from '../../../domain/game/party/shared/entities/party-stage';
 import { PartyRuntimeContextProjectionService } from '../../../domain/game/party/shared/services/party-runtime-context-projection.service';
 import { PrismaService } from '../../database/prisma-service';
+import { PrismaPartyPlayerRemovalService } from './services/prisma-party-player-removal.service';
 import { PrismaPartyReadModelMapper } from './services/prisma-party-read-model-mapper';
 
 interface PersistedPartyPlayerStageProgressEntry {
@@ -36,6 +38,7 @@ export class PrismaHostPartyRuntimeControlAdapter extends HostPartyRuntimeContro
     private readonly partyIdentifier: PartyIdentifier,
     private readonly partyStageIdentifier: PartyStageIdentifier,
     private readonly partyStageCatalog: PartyStageCatalogPort,
+    private readonly partyPlayerRemovalService: PrismaPartyPlayerRemovalService,
     private readonly partyReadModelMapper: PrismaPartyReadModelMapper,
     private readonly runtimeContextProjection: PartyRuntimeContextProjectionService,
     private readonly userIdentifier: UserIdentifier,
@@ -150,6 +153,10 @@ export class PrismaHostPartyRuntimeControlAdapter extends HostPartyRuntimeContro
 
       await this.resetPlayerProgress(transaction, command.partyId, command.resetPlayerProgress);
     });
+  }
+
+  removePartyPlayer(command: RemoveHostPartyPlayerCommand): Promise<boolean> {
+    return this.partyPlayerRemovalService.removePlayer(command);
   }
 
   private async resetPlayerProgress(
