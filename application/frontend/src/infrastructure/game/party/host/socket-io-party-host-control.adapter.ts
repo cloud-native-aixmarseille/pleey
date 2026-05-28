@@ -1,8 +1,10 @@
 import { inject, injectable } from 'inversify';
 import type {
   HostPartyControlCommand,
+  HostPartyPlayerControlCommand,
   PartyHostControlPort,
 } from '../../../../domains/game/party/host/ports/party-host-control.port';
+import { PartyPlayerIdentityKind } from '../../../../domains/game/party/shared/entities/party-player-identity';
 import { SocketIoPartyHostCommandEventName } from '../shared/socket-io-party-realtime.types';
 import { SocketIoPartyRealtimeTransport } from '../shared/socket-io-party-realtime-transport';
 
@@ -16,63 +18,77 @@ export class SocketIoPartyHostControlAdapter implements PartyHostControlPort {
   advanceStage(command: HostPartyControlCommand): Promise<void> {
     return this.realtimeTransport.dispatchHostCommand(
       SocketIoPartyHostCommandEventName.AdvanceStage,
-      command.partyId,
+      { partyId: command.partyId },
     );
   }
 
   endParty(command: HostPartyControlCommand): Promise<void> {
+    return this.realtimeTransport.dispatchHostCommand(SocketIoPartyHostCommandEventName.EndParty, {
+      partyId: command.partyId,
+    });
+  }
+
+  kickPlayer(command: HostPartyPlayerControlCommand): Promise<void> {
     return this.realtimeTransport.dispatchHostCommand(
-      SocketIoPartyHostCommandEventName.EndParty,
-      command.partyId,
+      SocketIoPartyHostCommandEventName.KickPlayer,
+      command.playerIdentity.kind === PartyPlayerIdentityKind.User
+        ? {
+            partyId: command.partyId,
+            userId: command.playerIdentity.userId,
+          }
+        : {
+            guestId: command.playerIdentity.guestId,
+            partyId: command.partyId,
+          },
     );
   }
 
   pauseParty(command: HostPartyControlCommand): Promise<void> {
     return this.realtimeTransport.dispatchHostCommand(
       SocketIoPartyHostCommandEventName.PauseParty,
-      command.partyId,
+      { partyId: command.partyId },
     );
   }
 
   restartStage(command: HostPartyControlCommand): Promise<void> {
     return this.realtimeTransport.dispatchHostCommand(
       SocketIoPartyHostCommandEventName.RestartStage,
-      command.partyId,
+      { partyId: command.partyId },
     );
   }
 
   resumeParty(command: HostPartyControlCommand): Promise<void> {
     return this.realtimeTransport.dispatchHostCommand(
       SocketIoPartyHostCommandEventName.ResumeParty,
-      command.partyId,
+      { partyId: command.partyId },
     );
   }
 
   revealStageResult(command: HostPartyControlCommand): Promise<void> {
     return this.realtimeTransport.dispatchHostCommand(
       SocketIoPartyHostCommandEventName.RevealStageResult,
-      command.partyId,
+      { partyId: command.partyId },
     );
   }
 
   rewindParty(command: HostPartyControlCommand): Promise<void> {
     return this.realtimeTransport.dispatchHostCommand(
       SocketIoPartyHostCommandEventName.RewindParty,
-      command.partyId,
+      { partyId: command.partyId },
     );
   }
 
   rewindStage(command: HostPartyControlCommand): Promise<void> {
     return this.realtimeTransport.dispatchHostCommand(
       SocketIoPartyHostCommandEventName.RewindStage,
-      command.partyId,
+      { partyId: command.partyId },
     );
   }
 
   startParty(command: HostPartyControlCommand): Promise<void> {
     return this.realtimeTransport.dispatchHostCommand(
       SocketIoPartyHostCommandEventName.StartParty,
-      command.partyId,
+      { partyId: command.partyId },
     );
   }
 }

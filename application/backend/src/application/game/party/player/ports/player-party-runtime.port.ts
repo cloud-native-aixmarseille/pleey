@@ -30,6 +30,7 @@ export interface EnsureAuthenticatedPlayerCommand {
 }
 
 export interface EnsureGuestPlayerCommand {
+  readonly avatarSeed?: string;
   readonly partyId: PartyId;
   readonly guestId: GuestId | null;
   readonly username: string;

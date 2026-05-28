@@ -31,6 +31,7 @@ describe('partyDependenciesContext', () => {
           executeHostRuntimeCommand: vi.fn(),
           getGuestId: vi.fn(() => null),
           joinParty: vi.fn(),
+          kickPlayer: vi.fn(),
           leaveParty: vi.fn(),
           listParties: vi.fn(),
           rejoinParty: vi.fn(),

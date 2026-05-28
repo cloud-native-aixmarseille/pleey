@@ -3,20 +3,19 @@ export const gamePartyPlayerEn = {
     party: {
       player: {
         route: {
-          entryHeading: 'Choose how to enter',
-          entrySubtitle:
-            'Authenticated players keep account continuity. Guests can save a nickname and restore the same party identity after a refresh.',
+          generateGuestNameCta: 'Generate name',
+          guestAvatarAlt: 'Guest avatar preview for {{username}}',
+          guestAvatarFallbackName: 'guest player',
           guestNameLabel: 'Guest nickname',
           guestNamePlaceholder: 'Enter a nickname',
           joinAsGuestCta: 'Join as guest',
           joinWithAccountCta: 'Join with my account',
           joinHeroEyebrow: 'Join a party',
           joinHeroTitle: 'Ready to play?',
-          joinHeroSubtitle:
-            'Confirm your identity to enter the lobby. The host will start the game once everyone is in.',
           joinPinPreviewLabel: 'You are joining party',
           joinPanelLabel: 'Confirm your identity',
           leavePartyCta: 'Leave party',
+          shuffleGuestAvatarCta: 'Shuffle avatar',
           stageMenuLabel: 'Open stage menu',
           waitingForHost: 'Waiting for the host to start the game...',
           currentHost: 'Hosted by {{username}}',
@@ -33,6 +32,11 @@ export const gamePartyPlayerEn = {
           leavePartyConfirmTitle: 'Leave this party?',
           leavePartyConfirmMessage:
             'You will stop observing this live party and may need to rejoin to come back.',
+          finalResultTitle: 'Your finish',
+          saveScorePromptTitle: 'Save this score to an account',
+          saveScorePromptMessage:
+            'Sign in or create an account to keep this result and reuse your profile next time.',
+          saveScorePromptCta: 'Sign in to save my score',
           confirmLeavePartyCta: 'Leave party',
           cancelLeavePartyCta: 'Stay here',
         },

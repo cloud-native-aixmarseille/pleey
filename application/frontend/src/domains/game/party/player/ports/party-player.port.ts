@@ -7,6 +7,7 @@ import type {
 } from '../../shared/entities/party-player-identity';
 
 export interface PartyJoinCommand {
+  readonly avatarSeed?: string;
   readonly pin: PartyPin;
   readonly playerIdentity: PartyJoiningPlayerIdentity;
   readonly username?: string;

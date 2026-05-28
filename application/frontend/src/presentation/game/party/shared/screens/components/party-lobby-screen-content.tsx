@@ -71,6 +71,7 @@ export function PartyLobbyScreenContent({
     clearJoinErrorMessage,
     confirmHostRuntimeConfirmation,
     errorMessage,
+    guestAvatarPreviewUri,
     guestName,
     hostRuntimeErrorMessage,
     isAuthenticated,
@@ -78,13 +79,17 @@ export function PartyLobbyScreenContent({
     joinPin,
     joinErrorMessage,
     joinParty,
+    kickPlayer,
     leaveParty,
     pendingHostRuntimeConfirmationCommand,
+    pendingKickedPlayerKey,
     pendingPlayerActionId,
     pauseParty,
     pendingHostRuntimeCommand,
     party,
     playerActionErrorMessage,
+    regenerateGuestAvatar,
+    regenerateGuestName,
     requestEndParty,
     restartStage,
     routeKind,
@@ -103,12 +108,15 @@ export function PartyLobbyScreenContent({
   const joinSurface = (
     <JoinPartySurface
       errorMessage={joinErrorMessage}
+      guestAvatarPreviewUri={guestAvatarPreviewUri}
       guestName={guestName}
       isAuthenticated={isAuthenticated}
       isJoinSubmitting={isJoinSubmitting}
       onDismissError={clearJoinErrorMessage}
+      onGenerateGuestName={regenerateGuestName}
       onGuestNameChange={setGuestName}
       onJoinParty={() => void joinParty()}
+      onRegenerateGuestAvatar={regenerateGuestAvatar}
       pin={joinPin}
     />
   );
@@ -164,9 +172,11 @@ export function PartyLobbyScreenContent({
     surface =
       screenSection !== PartyScreenSection.LOBBY ? (
         <HostRuntimeSurface
+          kickPlayer={kickPlayer}
           onCancelHostRuntimeConfirmation={cancelHostRuntimeConfirmation}
           onConfirmHostRuntimeConfirmation={() => void confirmHostRuntimeConfirmation()}
           pendingHostRuntimeConfirmationCommand={pendingHostRuntimeConfirmationCommand}
+          pendingKickedPlayerKey={pendingKickedPlayerKey}
           pendingHostRuntimeCommand={pendingHostRuntimeCommand}
           party={party}
           runtimePanel={runtimePanel ?? runtimeLoadingState}
@@ -174,10 +184,12 @@ export function PartyLobbyScreenContent({
         />
       ) : (
         <HostLobbySurface
+          kickPlayer={kickPlayer}
           onCancelHostRuntimeConfirmation={cancelHostRuntimeConfirmation}
           onConfirmHostRuntimeConfirmation={() => void confirmHostRuntimeConfirmation()}
           resolvePartyAbsoluteUrl={resolvePartyAbsoluteUrl}
           pendingHostRuntimeConfirmationCommand={pendingHostRuntimeConfirmationCommand}
+          pendingKickedPlayerKey={pendingKickedPlayerKey}
           pendingHostRuntimeCommand={pendingHostRuntimeCommand}
           party={party}
         />

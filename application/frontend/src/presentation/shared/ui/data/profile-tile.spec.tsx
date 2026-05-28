@@ -1,6 +1,7 @@
 import { screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { renderWithUiProvider } from '../../../../test-utils/render-with-ui-provider';
+import { Button } from '../actions/button';
 import { ProfileTile } from './profile-tile';
 
 describe('ProfileTile', () => {
@@ -29,5 +30,19 @@ describe('ProfileTile', () => {
     expect(screen.getByTestId('profile-tile-highlight-slot')).toHaveStyle({
       minHeight: '1.5rem',
     });
+  });
+
+  it('renders an optional footer action', () => {
+    renderWithUiProvider(
+      <ProfileTile
+        avatarAlt="Morgan avatar"
+        avatarSrc={null}
+        badgeLabel="Player"
+        footerAction={<Button size="sm">Remove</Button>}
+        title="Morgan"
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: 'Remove' })).toBeInTheDocument();
   });
 });

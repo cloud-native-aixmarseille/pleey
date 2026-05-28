@@ -1,5 +1,6 @@
 import { inject, injectable } from 'inversify';
 import {
+  type HostPartyPlayerControlCommand,
   type PartyHostControlPort,
   PartyHostControlPortToken,
 } from '../../../../../domains/game/party/host/ports/party-host-control.port';
@@ -31,6 +32,7 @@ export interface PartyLobbyGateway {
   executeHostRuntimeCommand(command: HostPartyRuntimeCommand, partyId: PartyId): Promise<void>;
   getGuestId(pin: PartyPin): GuestId | null;
   joinParty(command: PartyJoinCommand): Promise<PartyJoinReceipt>;
+  kickPlayer(command: HostPartyPlayerControlCommand): Promise<void>;
   leaveParty(): Promise<boolean>;
   listParties(): Promise<readonly Party[]>;
   rejoinParty(command: PartyJoinCommand): Promise<PartyJoinReceipt>;
@@ -98,6 +100,10 @@ export class PartyLobbyFacade implements PartyLobbyGateway {
 
   joinParty(command: PartyJoinCommand): Promise<PartyJoinReceipt> {
     return this.partyPlayerPort.joinParty(command);
+  }
+
+  kickPlayer(command: HostPartyPlayerControlCommand): Promise<void> {
+    return this.partyHostControlPort.kickPlayer(command);
   }
 
   leaveParty(): Promise<boolean> {

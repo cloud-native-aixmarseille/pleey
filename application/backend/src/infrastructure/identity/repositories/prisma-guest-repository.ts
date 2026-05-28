@@ -29,6 +29,23 @@ export class PrismaGuestRepository implements GuestRepository {
     return guest ? this.toDomain(guest) : null;
   }
 
+  async upsert(data: { id: GuestId; username: string; avatarSeed: string }): Promise<Guest> {
+    const guest = await this.prisma.guest.upsert({
+      where: { id: data.id },
+      create: {
+        id: data.id,
+        username: data.username,
+        avatarSeed: data.avatarSeed,
+      },
+      update: {
+        username: data.username,
+        avatarSeed: data.avatarSeed,
+      },
+    });
+
+    return this.toDomain(guest);
+  }
+
   private toDomain(guest: PrismaGuest): Guest {
     return Guest.create({
       id: this.guestIdentifier.parse(guest.id),

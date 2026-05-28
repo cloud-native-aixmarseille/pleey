@@ -115,6 +115,7 @@ services:
     environment:
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=1
+      - VITE_CACHE_DIR=/tmp/pleey-frontend-vite
       - VITE_DEV_PROXY_TARGET=http://backend:3001
     labels:
       - "traefik.enable=true"

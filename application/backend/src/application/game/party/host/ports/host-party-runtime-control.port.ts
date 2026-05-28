@@ -4,6 +4,7 @@ import type { PartyId } from '../../../../../domain/game/party/shared/entities/p
 import type { PartyRuntimeContext } from '../../../../../domain/game/party/shared/entities/party-runtime-context';
 import type { PartyStageId } from '../../../../../domain/game/party/shared/entities/party-stage';
 import type { UserId } from '../../../../../domain/identity/entities/user';
+import type { HostPartyPlayerIdentity } from '../dto/host-party-player-control.dto';
 
 export interface HostControlledPartyRuntime {
   readonly context: PartyRuntimeContext | null;
@@ -23,8 +24,15 @@ export interface SaveHostPartyRuntimeCommand {
   readonly status: PartyStatus;
 }
 
+export interface RemoveHostPartyPlayerCommand {
+  readonly partyId: PartyId;
+  readonly playerIdentity: HostPartyPlayerIdentity;
+}
+
 export abstract class HostPartyRuntimeControlPort {
   abstract findPartyRuntimeByPartyId(partyId: PartyId): Promise<HostControlledPartyRuntime | null>;
+
+  abstract removePartyPlayer(command: RemoveHostPartyPlayerCommand): Promise<boolean>;
 
   abstract savePartyRuntime(command: SaveHostPartyRuntimeCommand): Promise<void>;
 }

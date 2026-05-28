@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
+import { type FormEvent, useEffect } from 'react';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../../shared/ui/actions/button';
+import { UserAvatar } from '../../../../../shared/ui/data/user-avatar';
 import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';
 import { FieldShell } from '../../../../../shared/ui/forms/field-shell';
 import { Input } from '../../../../../shared/ui/forms/input';
@@ -8,20 +9,25 @@ import { AccentIconBadge } from '../../../../../shared/ui/icons/accent-icon-badg
 import { AppIcon } from '../../../../../shared/ui/icons/app-icon';
 import { ActionRow, ContentStack } from '../../../../../shared/ui/layout/containers';
 import { ElevatedPanel, HeroPanel } from '../../../../../shared/ui/layout/panels';
-import { Eyebrow, Heading, SupportingText } from '../../../../../shared/ui/layout/typography';
+import { Eyebrow, Heading } from '../../../../../shared/ui/layout/typography';
 import { usePresentationMediaQuery } from '../../../../../shared/ui/layout/use-presentation-media-query';
 import { PartyPinPreview } from '../../../shared/screens/components/party-pin-preview';
 
 interface JoinPartySurfaceProps {
   readonly errorMessage: string | null;
+  readonly guestAvatarPreviewUri: string | null;
   readonly guestName: string;
   readonly isAuthenticated: boolean;
   readonly isJoinSubmitting: boolean;
   readonly onDismissError: () => void;
+  readonly onGenerateGuestName: () => void;
   readonly onGuestNameChange: (value: string) => void;
   readonly onJoinParty: () => void;
+  readonly onRegenerateGuestAvatar: () => void;
   readonly pin: string;
 }
+
+const GUEST_NAME_MAX_LENGTH = 30;
 
 const errorToastStyle = {
   maxWidth: '24rem',
@@ -34,17 +40,27 @@ const errorToastStyle = {
 
 export function JoinPartySurface({
   errorMessage,
+  guestAvatarPreviewUri,
   guestName,
   isAuthenticated,
   isJoinSubmitting,
   onDismissError,
+  onGenerateGuestName,
   onGuestNameChange,
   onJoinParty,
+  onRegenerateGuestAvatar,
   pin,
 }: JoinPartySurfaceProps) {
   const { t } = usePresentationTranslation();
   const isMobile = usePresentationMediaQuery('(max-width: 48em)');
-  const isJoinDisabled = isJoinSubmitting || (!isAuthenticated && guestName.trim().length === 0);
+  const trimmedGuestName = guestName.trim();
+  const isJoinDisabled = isJoinSubmitting || (!isAuthenticated && trimmedGuestName.length === 0);
+  const guestAvatarAltLabel = t('game.party.player.route.guestAvatarAlt', {
+    username:
+      trimmedGuestName.length > 0
+        ? trimmedGuestName
+        : t('game.party.player.route.guestAvatarFallbackName'),
+  });
 
   useEffect(() => {
     if (!errorMessage) {
@@ -59,6 +75,14 @@ export function JoinPartySurface({
       window.clearTimeout(timeoutId);
     };
   }, [errorMessage, onDismissError]);
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (isJoinDisabled) {
+      return;
+    }
+    onJoinParty();
+  };
 
   return (
     <>
@@ -81,11 +105,6 @@ export function JoinPartySurface({
               <Heading hero={!isMobile} level={isMobile ? 2 : 1}>
                 {t('game.party.player.route.joinHeroTitle')}
               </Heading>
-              {isMobile ? null : (
-                <SupportingText maxWidth={512} size="md" tone="soft">
-                  {t('game.party.player.route.joinHeroSubtitle')}
-                </SupportingText>
-              )}
               {pin ? (
                 <PartyPinPreview
                   ariaLabel={t('game.party.route.pinAriaLabel', { pin })}
@@ -99,40 +118,72 @@ export function JoinPartySurface({
 
         <section aria-label={t('game.party.player.route.joinPanelLabel')}>
           <ElevatedPanel padding={isMobile ? 'md' : 'lg'}>
-            <ContentStack gap={isMobile ? 'md' : 'lg'}>
-              <Heading level={3}>{t('game.party.player.route.entryHeading')}</Heading>
+            <form noValidate onSubmit={handleSubmit}>
+              <ContentStack gap={isMobile ? 'md' : 'lg'}>
+                {isAuthenticated ? null : (
+                  <ContentStack align="center" gap={isMobile ? 'sm' : 'md'}>
+                    <UserAvatar
+                      alt={guestAvatarAltLabel}
+                      size={isMobile ? 96 : 112}
+                      src={guestAvatarPreviewUri}
+                    />
 
-              {isAuthenticated ? null : (
-                <FieldShell
-                  description={t('game.party.player.route.entrySubtitle')}
-                  id="party-join-guest-name"
-                  label={t('game.party.player.route.guestNameLabel')}
-                  required
-                >
-                  <Input
-                    aria-label={t('game.party.player.route.guestNameLabel')}
-                    disabled={isJoinSubmitting}
-                    id="party-join-guest-name"
-                    onChange={(event) => onGuestNameChange(event.currentTarget.value)}
-                    placeholder={t('game.party.player.route.guestNamePlaceholder')}
-                    value={guestName}
-                  />
-                </FieldShell>
-              )}
+                    <ActionRow justify="center">
+                      <Button
+                        disabled={isJoinSubmitting}
+                        intent="ghost"
+                        leftSection={<AppIcon name="feature" size={16} />}
+                        onClick={onRegenerateGuestAvatar}
+                        size="sm"
+                      >
+                        {t('game.party.player.route.shuffleGuestAvatarCta')}
+                      </Button>
+                      <Button
+                        disabled={isJoinSubmitting}
+                        intent="ghost"
+                        leftSection={<AppIcon name="profile" size={16} />}
+                        onClick={onGenerateGuestName}
+                        size="sm"
+                      >
+                        {t('game.party.player.route.generateGuestNameCta')}
+                      </Button>
+                    </ActionRow>
 
-              <ActionRow justify={isMobile ? 'center' : 'end'}>
+                    <FieldShell
+                      id="party-join-guest-name"
+                      label={t('game.party.player.route.guestNameLabel')}
+                      required
+                    >
+                      <Input
+                        aria-label={t('game.party.player.route.guestNameLabel')}
+                        autoComplete="nickname"
+                        autoFocus
+                        disabled={isJoinSubmitting}
+                        enterKeyHint="go"
+                        id="party-join-guest-name"
+                        inputMode="text"
+                        maxLength={GUEST_NAME_MAX_LENGTH}
+                        onChange={(event) => onGuestNameChange(event.currentTarget.value)}
+                        placeholder={t('game.party.player.route.guestNamePlaceholder')}
+                        value={guestName}
+                      />
+                    </FieldShell>
+                  </ContentStack>
+                )}
+
                 <Button
                   disabled={isJoinDisabled}
-                  intent={isAuthenticated ? 'outline' : 'primary'}
-                  onClick={onJoinParty}
-                  width="wide"
+                  intent="primary"
+                  rightSection={<AppIcon name="arrow-right" size={18} />}
+                  type="submit"
+                  width="full"
                 >
                   {isAuthenticated
                     ? t('game.party.player.route.joinWithAccountCta')
                     : t('game.party.player.route.joinAsGuestCta')}
                 </Button>
-              </ActionRow>
-            </ContentStack>
+              </ContentStack>
+            </form>
           </ElevatedPanel>
         </section>
       </ContentStack>

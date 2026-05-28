@@ -9,6 +9,7 @@ import { AdvanceStageUseCase } from '../../../application/game/party/host/use-ca
 import { CreatePartyUseCase } from '../../../application/game/party/host/use-cases/create-party-use-case';
 import { EndPartyUseCase } from '../../../application/game/party/host/use-cases/end-party-use-case';
 import { GetHostPartyObservationUseCase } from '../../../application/game/party/host/use-cases/get-host-party-observation-use-case';
+import { KickPartyPlayerUseCase } from '../../../application/game/party/host/use-cases/kick-party-player-use-case';
 import { PausePartyUseCase } from '../../../application/game/party/host/use-cases/pause-party-use-case';
 import { RestartStageUseCase } from '../../../application/game/party/host/use-cases/restart-stage-use-case';
 import { ResumePartyUseCase } from '../../../application/game/party/host/use-cases/resume-party-use-case';
@@ -60,6 +61,7 @@ import { PrismaPartyManagementAdapter } from '../../../infrastructure/game/party
 import { PrismaPlayerPartyActionRuntimeAdapter } from '../../../infrastructure/game/party/prisma-player-party-action-runtime.adapter';
 import { PrismaPlayerPartyObservationReader } from '../../../infrastructure/game/party/prisma-player-party-observation-reader';
 import { PrismaPlayerPartyRuntimeAdapter } from '../../../infrastructure/game/party/prisma-player-party-runtime.adapter';
+import { PrismaPartyPlayerRemovalService } from '../../../infrastructure/game/party/services/prisma-party-player-removal.service';
 import { PrismaPartyReadModelMapper } from '../../../infrastructure/game/party/services/prisma-party-read-model-mapper';
 import { PredictionPartyStageCatalogEntryResolver } from '../../../infrastructure/game/types/prediction/prediction-party-stage-catalog-entry-resolver';
 import { PredictionPartyStageConfigurationResolver } from '../../../infrastructure/game/types/prediction/prediction-party-stage-configuration-resolver';
@@ -101,6 +103,7 @@ import { IdentityModule } from '../identity/identity-module';
     PrismaGameCatalogAdapter,
     PrismaPlayerPartyActionRuntimeAdapter,
     PrismaPlayerPartyRuntimeAdapter,
+    PrismaPartyPlayerRemovalService,
     PrismaPartyManagementAdapter,
     PrismaPartyReadModelMapper,
     PrismaHostPartyObservationReader,
@@ -184,6 +187,7 @@ import { IdentityModule } from '../identity/identity-module';
     ResumePartyUseCase,
     RevealStageResultUseCase,
     EndPartyUseCase,
+    KickPartyPlayerUseCase,
     JoinPartyUseCase,
     LeavePartyUseCase,
     SubmitPartyActionUseCase,

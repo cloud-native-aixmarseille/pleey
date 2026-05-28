@@ -54,6 +54,7 @@ export interface PartyLobbyScreenState {
   readonly clearJoinErrorMessage: () => void;
   readonly confirmHostRuntimeConfirmation: () => Promise<void>;
   readonly errorMessage: string | null;
+  readonly guestAvatarPreviewUri: string | null;
   readonly guestName: string;
   readonly hostRuntimeErrorMessage: string | null;
   readonly hasInvalidPinRoute: boolean;
@@ -62,9 +63,11 @@ export interface PartyLobbyScreenState {
   readonly joinPin: string;
   readonly joinErrorMessage: string | null;
   readonly joinParty: () => Promise<void>;
+  readonly kickPlayer: (player: NonNullable<PartyObservation['players']>[number]) => Promise<void>;
   readonly leaveParty: () => Promise<void>;
   readonly normalizedPartyId: PartyId | null;
   readonly pendingHostRuntimeConfirmationCommand: HostPartyRuntimeCommand | null;
+  readonly pendingKickedPlayerKey: string | null;
   readonly pendingPlayerActionId: PartyActionId | null;
   readonly pauseParty: () => Promise<void>;
   readonly pendingHostRuntimeCommand: HostPartyRuntimeCommand | null;
@@ -73,6 +76,8 @@ export interface PartyLobbyScreenState {
   readonly runtimeNoticeKind: PartyRuntimeNoticeKind | null;
   readonly requestEndParty: () => void;
   readonly redirectTo: string | null;
+  readonly regenerateGuestAvatar: () => void;
+  readonly regenerateGuestName: () => void;
   readonly restartStage: () => Promise<void>;
   readonly routeKind: PartyLobbyRouteKind;
   readonly resumeParty: () => Promise<void>;
@@ -236,7 +241,14 @@ export function usePartyLobbyScreenState({
   });
   const currentPlayer = party?.players.find((player) => player.isCurrentPlayer) ?? null;
   const isCurrentUserHost = party?.isObserverHost ?? false;
-  const { guestName, joinParty, setGuestName } = usePartyLobbyJoinSession({
+  const {
+    guestName,
+    guestAvatarPreviewUri,
+    joinParty,
+    regenerateGuestAvatar,
+    regenerateGuestName,
+    setGuestName,
+  } = usePartyLobbyJoinSession({
     currentGuestId,
     normalizedPin,
     onPartyJoined: setJoinedPartyId,
@@ -259,19 +271,12 @@ export function usePartyLobbyScreenState({
       setIsLeaveSubmitting,
       setJoinErrorMessage,
     });
-  const runtimeRedirectTo = PartyLobbyRuntimeRedirectResolver.resolve({
-    party,
-    requestedStageId,
-    resolvePartyLeaderboardRoute,
-    resolvePartyLobbyRoute,
-    resolvePartyResultRoute,
-    resolvePartyStageRoute,
-    screenSection,
-  });
   const {
     cancelHostRuntimeConfirmation,
     confirmHostRuntimeConfirmation,
     hostRuntimeErrorMessage,
+    kickPlayer,
+    pendingKickedPlayerKey,
     pendingHostRuntimeCommand,
     pendingHostRuntimeConfirmationCommand,
     requestHostRuntimeConfirmation,
@@ -280,6 +285,15 @@ export function usePartyLobbyScreenState({
     onEndPartyCompleted: () => setLeaveRedirectTo(resolveDashboardRoute()),
     party,
     partyLobbyFacade,
+  });
+  const runtimeRedirectTo = PartyLobbyRuntimeRedirectResolver.resolve({
+    party,
+    requestedStageId,
+    resolvePartyLeaderboardRoute,
+    resolvePartyLobbyRoute,
+    resolvePartyResultRoute,
+    resolvePartyStageRoute,
+    screenSection,
   });
 
   useEffect(() => {
@@ -311,6 +325,7 @@ export function usePartyLobbyScreenState({
     clearJoinErrorMessage: () => setJoinErrorMessage(null),
     confirmHostRuntimeConfirmation,
     errorMessage: viewModel.errorMessage,
+    guestAvatarPreviewUri,
     guestName,
     hostRuntimeErrorMessage,
     hasInvalidPinRoute: routeKind === PartyLobbyRouteKind.PIN && normalizedPin === null,
@@ -319,9 +334,11 @@ export function usePartyLobbyScreenState({
     joinPin: viewModel.joinPin,
     joinErrorMessage,
     joinParty,
+    kickPlayer,
     leaveParty,
     normalizedPartyId,
     pendingHostRuntimeConfirmationCommand,
+    pendingKickedPlayerKey,
     pendingPlayerActionId,
     pauseParty: () => runHostRuntimeCommand(HostPartyRuntimeCommand.PauseParty),
     pendingHostRuntimeCommand,
@@ -332,6 +349,8 @@ export function usePartyLobbyScreenState({
       requestHostRuntimeConfirmation(HostPartyRuntimeCommand.EndParty);
     },
     redirectTo: viewModel.redirectTo ?? runtimeRedirectTo,
+    regenerateGuestAvatar,
+    regenerateGuestName,
     restartStage: async () => {
       requestHostRuntimeConfirmation(HostPartyRuntimeCommand.RestartStage);
     },

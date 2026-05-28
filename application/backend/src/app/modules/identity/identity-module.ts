@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { PartyIdentifier } from '../../../application/game/party/shared/services/identifiers/party-identifier';
+import { GetGuestAvatarPreviewUseCase } from '../../../application/identity/avatar/use-cases/get-guest-avatar-preview-use-case';
 import { GetGuestAvatarUseCase } from '../../../application/identity/avatar/use-cases/get-guest-avatar-use-case';
 import { GetUserAvatarUseCase } from '../../../application/identity/avatar/use-cases/get-user-avatar-use-case';
 import { RegenerateUserAvatarUseCase } from '../../../application/identity/avatar/use-cases/regenerate-user-avatar-use-case';
@@ -69,6 +70,7 @@ import { DatabaseModule } from '../database/database-module';
     UpdateUserProfileUseCase,
     RegenerateUserAvatarUseCase,
     GetUserAvatarUseCase,
+    GetGuestAvatarPreviewUseCase,
     GetGuestAvatarUseCase,
     GuestIdentifier,
     OrganizationIdentifier,
