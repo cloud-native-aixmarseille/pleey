@@ -1,11 +1,12 @@
 import { Buffer } from 'node:buffer';
-import { bottts } from '@dicebear/collection';
-import { createAvatar } from '@dicebear/core';
+import { Avatar, Style } from '@dicebear/core';
+import botttsDefinition from '@dicebear/styles/bottts.json';
 import { Injectable } from '@nestjs/common';
 import type { AvatarGeneratorAdapter } from '../../../domain/identity/ports/avatar-generator.adapter';
 import { Media } from '../../../domain/media/entities/media';
 
 const SVG_MIME_TYPE = 'image/svg+xml';
+const botttsStyle = new Style(botttsDefinition);
 
 /**
  * Avatar Generator Service
@@ -17,7 +18,7 @@ export class DicebearAvatarGeneratorAdapter implements AvatarGeneratorAdapter {
    * Generates avatar media for the provided seed.
    */
   generateAvatar(seed: string): Media {
-    const avatar = createAvatar(bottts, {
+    const avatar = new Avatar(botttsStyle, {
       seed,
       size: 128,
     });
