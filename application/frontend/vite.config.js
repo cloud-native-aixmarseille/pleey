@@ -4,8 +4,10 @@ import { defineConfig } from 'vite';
 
 export default defineConfig(() => {
   const proxyTarget = process.env.VITE_DEV_PROXY_TARGET || 'http://localhost:3001';
+  const cacheDir = process.env.VITE_CACHE_DIR;
 
   return {
+    cacheDir,
     plugins: [
       react({
         babel: {
