@@ -1,6 +1,8 @@
 import type { ProjectId } from '../../../../project/entities/project';
 import type { GameTypeId } from '../../shared/game-type';
 import type {
+  PlayableContentImportInput,
+  PlayableContentImportResult,
   PlayableGameMetadataInput,
   PlayableManagementItem,
   PlayableManagementItemInput,
@@ -17,6 +19,10 @@ export interface PredictionManagementRepository {
     predictionId: GameTypeId,
     input: PlayableManagementItemInput,
   ): Promise<PlayableManagementItem<PredictionPromptId>>;
+  importPrompts(
+    predictionId: GameTypeId,
+    input: PlayableContentImportInput,
+  ): Promise<PlayableContentImportResult>;
   updatePrompt(
     promptId: PredictionPromptId,
     input: PlayableManagementItemInput,

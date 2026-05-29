@@ -1,5 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { PredictionManagementFacade } from '../../../../../application/game/types/prediction/facades/prediction-management.facade';
+import { PredictionContentImportExampleFactory } from '../../../../../application/game/types/prediction/services/prediction-content-import-example-factory';
 import type {
   PresentationRouteObject,
   RouteFactory,
@@ -15,6 +16,8 @@ export class PredictionManagementRoutesFactory implements RouteFactory {
     private readonly gameTypeIdentifier: ManagementGameTypeIdParser,
     @inject(PredictionManagementFacade)
     private readonly predictionManagementFacade: PredictionManagementFacade,
+    @inject(PredictionContentImportExampleFactory)
+    private readonly predictionContentImportExampleFactory: PredictionContentImportExampleFactory,
   ) {}
 
   create(): PresentationRouteObject[] {
@@ -24,8 +27,10 @@ export class PredictionManagementRoutesFactory implements RouteFactory {
         element: (
           <ProtectedRoute>
             <PredictionManagementScreen
+              exampleFactory={this.predictionContentImportExampleFactory}
               gameTypeIdentifier={this.gameTypeIdentifier}
               gateway={this.predictionManagementFacade}
+              importGateway={this.predictionManagementFacade}
             />
           </ProtectedRoute>
         ),

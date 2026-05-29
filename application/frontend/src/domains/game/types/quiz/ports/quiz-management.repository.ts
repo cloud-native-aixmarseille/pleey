@@ -1,6 +1,8 @@
 import type { ProjectId } from '../../../../project/entities/project';
 import type { GameTypeId } from '../../shared/game-type';
 import type {
+  PlayableContentImportInput,
+  PlayableContentImportResult,
   PlayableGameMetadataInput,
   PlayableManagementItem,
   PlayableManagementItemInput,
@@ -17,6 +19,10 @@ export interface QuizManagementRepository {
     quizId: GameTypeId,
     input: PlayableManagementItemInput,
   ): Promise<PlayableManagementItem<QuizQuestionId>>;
+  importQuestions(
+    quizId: GameTypeId,
+    input: PlayableContentImportInput,
+  ): Promise<PlayableContentImportResult>;
   updateQuestion(
     questionId: QuizQuestionId,
     input: PlayableManagementItemInput,

@@ -4,6 +4,9 @@
     "promptNotFound": "Prediction prompt not found",
     "predictionHasActiveParty": "You can't delete this prediction while a party is active",
     "invalidCorrectOption": "Invalid correct option value",
-    "optionTextEmpty": "Option text is required"
+    "optionTextEmpty": "Option text is required",
+    "importInvalidFile": "This prediction import file could not be parsed",
+    "importUnsupportedFormat": "This prediction import format is not supported",
+    "importEmptyFile": "No prediction prompts were found in this import file"
   }
 }

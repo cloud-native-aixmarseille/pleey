@@ -10,6 +10,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
+import { ImportPlayableContentInputBase } from '../../../shared/graphql/import-playable-content-inputs';
 import { SelectableOptionInput } from '../../../shared/graphql/selectable-option-types';
 
 @InputType()
@@ -110,4 +111,12 @@ export class UpdatePredictionPromptInput {
   @ValidateNested({ each: true })
   @Type(() => SelectableOptionInput)
   options!: SelectableOptionInput[];
+}
+
+@InputType()
+export class ImportPredictionPromptsInput extends ImportPlayableContentInputBase {
+  @Field(() => Int)
+  @IsInt()
+  @Min(1)
+  predictionId!: number;
 }

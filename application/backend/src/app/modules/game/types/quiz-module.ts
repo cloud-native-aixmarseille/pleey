@@ -7,11 +7,13 @@ import { CreateQuizUseCase } from '../../../../application/game/types/quiz/use-c
 import { DeleteQuizQuestionUseCase } from '../../../../application/game/types/quiz/use-cases/delete-quiz-question-use-case';
 import { DeleteQuizUseCase } from '../../../../application/game/types/quiz/use-cases/delete-quiz-use-case';
 import { GetQuizUseCase } from '../../../../application/game/types/quiz/use-cases/get-quiz-use-case';
+import { ImportQuizQuestionsUseCase } from '../../../../application/game/types/quiz/use-cases/import-quiz-questions-use-case';
 import { ListQuizQuestionsUseCase } from '../../../../application/game/types/quiz/use-cases/list-quiz-questions-use-case';
 import { UpdateQuizQuestionUseCase } from '../../../../application/game/types/quiz/use-cases/update-quiz-question-use-case';
 import { UpdateQuizUseCase } from '../../../../application/game/types/quiz/use-cases/update-quiz-use-case';
 import { GameTypeIdentifier } from '../../../../application/game/types/shared/services/game-type-identifier';
 import { GameTypeManagementAccessGuard } from '../../../../application/game/types/shared/services/game-type-management-access-guard';
+import { PlayableContentImportParser } from '../../../../application/game/types/shared/services/playable-content-import-parser';
 import { OrganizationIdentifier } from '../../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../../../application/workspace/shared/services/identifiers/organization-member-identifier';
 import { ProjectIdentifier } from '../../../../application/workspace/shared/services/identifiers/project-identifier';
@@ -38,6 +40,7 @@ import { IdentityModule } from '../../identity/identity-module';
     DeleteQuizUseCase,
     GetQuizUseCase,
     CreateQuizQuestionUseCase,
+    ImportQuizQuestionsUseCase,
     ListQuizQuestionsUseCase,
     QuizQuestionIdentifier,
     QuizSelectableOptionIdentifier,
@@ -45,6 +48,7 @@ import { IdentityModule } from '../../identity/identity-module';
     DeleteQuizQuestionUseCase,
     GameIdentifier,
     GameTypeIdentifier,
+    PlayableContentImportParser,
     GameTypeManagementAccessGuard,
     OrganizationIdentifier,
     OrganizationMemberIdentifier,

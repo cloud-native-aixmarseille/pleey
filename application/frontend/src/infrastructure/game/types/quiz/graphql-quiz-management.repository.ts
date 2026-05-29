@@ -7,6 +7,8 @@ import type { QuizQuestionKind } from '../../../../domains/game/types/quiz/entit
 import type { QuizManagementRepository } from '../../../../domains/game/types/quiz/ports/quiz-management.repository';
 import type { GameTypeId } from '../../../../domains/game/types/shared/game-type';
 import type {
+  PlayableContentImportInput,
+  PlayableContentImportResult,
   PlayableGameMetadataInput,
   PlayableManagementItem,
   PlayableManagementItemInput,
@@ -20,6 +22,8 @@ import {
   type CreateQuizQuestionManagementMutation,
   DeleteQuizManagementDocument,
   DeleteQuizQuestionManagementDocument,
+  ImportQuizQuestionsManagementDocument,
+  type ImportQuizQuestionsManagementMutation,
   QuizManagementDocument,
   type QuizManagementQuery,
   QuizQuestionType,
@@ -117,6 +121,21 @@ export class GraphqlQuizManagementRepository implements QuizManagementRepository
     return this.mapMutationQuestion(result.createQuizQuestion);
   }
 
+  async importQuestions(
+    quizId: GameTypeId,
+    input: PlayableContentImportInput,
+  ): Promise<PlayableContentImportResult> {
+    const result = await this.graphqlClient.request(ImportQuizQuestionsManagementDocument, {
+      input: {
+        content: input.content,
+        fileName: input.fileName,
+        quizId,
+      },
+    });
+
+    return this.mapImportResult(result.importQuizQuestions);
+  }
+
   async updateQuestion(
     questionId: QuizQuestionId,
     input: PlayableManagementItemInput,
@@ -158,6 +177,18 @@ export class GraphqlQuizManagementRepository implements QuizManagementRepository
       points: question.points,
       options: question.answers,
     });
+  }
+
+  private mapImportResult(
+    result: ImportQuizQuestionsManagementMutation['importQuizQuestions'] | null | undefined,
+  ): PlayableContentImportResult {
+    if (!result) {
+      throw new Error('Quiz question import did not return a result');
+    }
+
+    return {
+      importedCount: result.importedCount,
+    };
   }
 
   private toGraphqlQuestionKind(kind: string | undefined): QuizQuestionType {

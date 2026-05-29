@@ -38,6 +38,34 @@ export const predictionFr = {
           titleLabel: 'Titre',
           descriptionLabel: 'Description',
           saveMetadata: 'Enregistrer les details',
+          importTitle: 'Importer des pronostics',
+          importDescription:
+            'Importez des fichiers Markdown, CSV, JSON ou texte brut et laissez le backend les transformer en prompts de pronostic.',
+          importFieldLabel: 'Fichier de pronostics',
+          importFieldHelp:
+            'Formats acceptes : .md, .markdown, .csv, .json, .txt. Les fichiers sont analyses cote serveur pour garantir un import coherent dans tous les editeurs.',
+          importChooseFile: 'Choisir un fichier',
+          importReplaceFile: 'Remplacer le fichier',
+          importClearFile: 'Effacer',
+          importIdleNotice:
+            'Selectionnez un fichier pour preparer l import puis l envoyer au backend.',
+          importReadyNotice:
+            'Ce fichier est pret a etre envoye au backend pour analyse et creation des prompts.',
+          importSelectedFile: 'Fichier selectionne : {{name}}',
+          importButton: 'Importer le fichier',
+          importPending: 'Import en cours...',
+          importSuccess: '{{count}} pronostics importes.',
+          importExamplesLabel: 'Fichiers exemples',
+          importExampleJson: 'Exemple JSON',
+          importExampleCsv: 'Exemple CSV',
+          importExampleMarkdown: 'Exemple Markdown',
+          importExamplePlaintext: 'Exemple texte brut',
+          importEmptyError: 'Aucun prompt exploitable n a ete trouve dans ce fichier.',
+          importUnsupportedFormat:
+            'Utilisez un fichier Markdown, CSV, JSON ou texte brut pour importer des pronostics.',
+          importInvalidFormat:
+            'Ce fichier n a pas pu etre analyse. Verifiez le format exemple puis recommencez.',
+          importFailed: 'Impossible d importer les pronostics.',
           itemsTitle: 'Pronostics',
           empty: 'Aucun pronostic pour le moment.',
           itemUntitled: 'Pronostic sans titre',

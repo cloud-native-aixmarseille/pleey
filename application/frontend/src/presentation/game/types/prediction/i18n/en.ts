@@ -38,6 +38,33 @@ export const predictionEn = {
           titleLabel: 'Title',
           descriptionLabel: 'Description',
           saveMetadata: 'Save details',
+          importTitle: 'Import prompts',
+          importDescription:
+            'Upload Markdown, CSV, JSON, or plaintext files and let the backend turn them into prediction prompts.',
+          importFieldLabel: 'Prompt file',
+          importFieldHelp:
+            'Supported formats: .md, .markdown, .csv, .json, .txt. Files are parsed on the server so imports stay consistent for every editor session.',
+          importChooseFile: 'Choose file',
+          importReplaceFile: 'Replace file',
+          importClearFile: 'Clear',
+          importIdleNotice: 'Select a file to prepare the import and send it to the backend.',
+          importReadyNotice:
+            'This file is ready to be sent to the backend for parsing and prompt creation.',
+          importSelectedFile: 'Selected file: {{name}}',
+          importButton: 'Import file',
+          importPending: 'Importing...',
+          importSuccess: '{{count}} prompts imported.',
+          importExamplesLabel: 'Example files',
+          importExampleJson: 'JSON example',
+          importExampleCsv: 'CSV example',
+          importExampleMarkdown: 'Markdown example',
+          importExamplePlaintext: 'Plain text example',
+          importEmptyError: 'No importable prompts were found in this file.',
+          importUnsupportedFormat:
+            'Use a Markdown, CSV, JSON, or plaintext file for prediction import.',
+          importInvalidFormat:
+            'This file could not be parsed. Check the example format and try again.',
+          importFailed: 'Unable to import prediction prompts.',
           itemsTitle: 'Prompts',
           empty: 'No prompts yet.',
           itemUntitled: 'Untitled prompt',

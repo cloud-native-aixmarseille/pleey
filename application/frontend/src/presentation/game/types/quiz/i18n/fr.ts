@@ -38,6 +38,33 @@ export const quizFr = {
           titleLabel: 'Titre',
           descriptionLabel: 'Description',
           saveMetadata: 'Enregistrer les details',
+          importTitle: 'Importer des questions',
+          importDescription:
+            'Importez un fichier Markdown, CSV, JSON ou texte brut pour creer automatiquement des questions de quiz.',
+          importFieldLabel: 'Fichier de questions',
+          importFieldHelp:
+            'Formats acceptes : .md, .markdown, .csv, .json, .txt. Les fichiers sont analyses cote serveur pour garantir un import coherent dans tous les editeurs.',
+          importChooseFile: 'Choisir un fichier',
+          importReplaceFile: 'Remplacer le fichier',
+          importClearFile: 'Effacer',
+          importIdleNotice:
+            'Selectionnez un fichier pour preparer l import puis l envoyer au backend.',
+          importReadyNotice: 'Ce fichier est pret a etre envoye au backend pour analyse et import.',
+          importSelectedFile: 'Fichier selectionne : {{name}}',
+          importButton: 'Importer le fichier',
+          importPending: 'Import en cours...',
+          importSuccess: '{{count}} questions importees.',
+          importExamplesLabel: 'Fichiers exemples',
+          importExampleJson: 'Exemple JSON',
+          importExampleCsv: 'Exemple CSV',
+          importExampleMarkdown: 'Exemple Markdown',
+          importExamplePlaintext: 'Exemple texte brut',
+          importEmptyError: 'Aucune question exploitable n a ete trouvee dans ce fichier.',
+          importUnsupportedFormat:
+            'Utilisez un fichier Markdown, CSV, JSON ou texte brut pour importer des questions.',
+          importInvalidFormat:
+            'Ce fichier n a pas pu etre analyse. Verifiez le format exemple puis recommencez.',
+          importFailed: 'Impossible d importer les questions du quiz.',
           itemsTitle: 'Questions',
           empty: 'Aucune question pour le moment.',
           itemUntitled: 'Question sans titre',

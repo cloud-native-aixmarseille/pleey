@@ -102,6 +102,7 @@ export function PlayableContentManagementScreen(props: PlayableContentManagement
           state={state}
           translationRoot={props.translationRoot}
         />
+        {props.headerSupplement ?? null}
         <div aria-label={t(`${props.translationRoot}.tabsLabel`)} role="tablist" style={tabsStyle}>
           <button
             aria-selected={activeTab === 'setup'}

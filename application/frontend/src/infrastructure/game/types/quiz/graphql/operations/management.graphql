@@ -79,3 +79,9 @@ mutation UpdateQuizQuestionManagement($questionId: Int!, $input: UpdateQuizQuest
 mutation DeleteQuizQuestionManagement($questionId: Int!) {
   deleteQuizQuestion(questionId: $questionId)
 }
+
+mutation ImportQuizQuestionsManagement($input: ImportQuizQuestionsInput!) {
+  importQuizQuestions(input: $input) {
+    importedCount
+  }
+}
