@@ -5,14 +5,13 @@ global:
   imageRegistry: ""
   imagePullPolicy: Always
   imagePullSecrets: []
-
 imagePullSecrets: []
 replicaCount: 1
 image:
   registry: ""
   repository: ghcr.io/cloud-native-aixmarseille/pleey/frontend
-  tag: latest
-  digest: sha256:81361f6d6b745b6aafd6955197894af773c0ea328f95145a4bd1029f6da12849
+  tag: 0.2.0
+  digest: sha256:a027dcb1d24a524203a919cb6808123dfadc47d5ff1e7d3f97083b079254f825
   pullPolicy: ""
 service:
   type: ClusterIP
@@ -81,4 +80,3 @@ autoscaling:
   minReplicas: 2
   maxReplicas: 5
   targetCPUUtilizationPercentage: 80
-

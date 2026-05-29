@@ -1,9 +1,9 @@
 dependencies:
 - name: frontend
   repository: file://charts/frontend
-  version: 0.1.0
+  version: 0.2.0
 - name: backend
   repository: file://charts/backend
-  version: 0.1.0
-digest: sha256:294e7fba52be5c69335fe7fc24f7b3876c9fefe91767fcb45708c72422fe67b2
-generated: "2026-05-18T13:20:49.988805571+02:00"
+  version: 0.2.0
+digest: sha256:8e8576c6b3b3783162864f20cb8b1bf3c1383cd18cd34f90f1eba45de5db437a
+generated: "2026-05-29T20:00:01.535933806Z"
