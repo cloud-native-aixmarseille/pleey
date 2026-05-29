@@ -45,7 +45,10 @@ describe('GraphqlClient', () => {
       expect(result).toEqual({ me: currentUser });
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(fetchMock.mock.calls[0]?.[1]).toMatchObject({
-        headers: expect.objectContaining({ authorization: 'Bearer access-token' }),
+        headers: expect.objectContaining({
+          'apollo-require-preflight': 'true',
+          authorization: 'Bearer access-token',
+        }),
       });
     });
 

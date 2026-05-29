@@ -1,3 +1,4 @@
+import type { PlayableContentImportExampleProvider } from '../../../../../../application/game/types/shared/contracts/playable-content-import.gateway';
 import type { GameId } from '../../../../../../domains/game/entities/game';
 import type { DashboardGameListItem } from '../../../../../../domains/game/management/entities/dashboard-game-list-item';
 import type { DashboardGameSortField } from '../../../../../../domains/game/management/entities/dashboard-game-list-query';
@@ -16,11 +17,12 @@ import { Input } from '../../../../../shared/ui/forms/input';
 import { Select } from '../../../../../shared/ui/forms/select';
 import { Textarea } from '../../../../../shared/ui/forms/textarea';
 import { AppIcon } from '../../../../../shared/ui/icons/app-icon';
-import { ContentStack, ResponsiveGrid } from '../../../../../shared/ui/layout/containers';
+import { ContentStack, ResponsiveGrid, WrapRow } from '../../../../../shared/ui/layout/containers';
 import { SectionCard } from '../../../../../shared/ui/layout/section-card';
 import { SupportingText } from '../../../../../shared/ui/layout/typography';
 import { FormDialog } from '../../../../../shared/ui/overlay/form-dialog';
 import type { GameListFiltersState } from '../../../hooks/use-game-list-filters';
+import { DashboardImportGameDialog } from './dashboard-import-game-dialog';
 import { GameItemCard } from './game-item-card';
 import { GameListFilterBar } from './game-list-filter-bar';
 import { PaginationBar } from './pagination-bar';
@@ -40,8 +42,15 @@ interface DashboardGamesSectionProps {
   readonly gameTypes: readonly GameTypeDescriptor[];
   readonly gameTypesByKey: ReadonlyMap<GameType, GameTypeDescriptor>;
   readonly filters: GameListFiltersState;
+  readonly importGameForm: DashboardCreateGameForm;
+  readonly importGameFile: File | null;
+  readonly importGameErrorMessage: string | null;
+  readonly importExampleProvider: PlayableContentImportExampleProvider | null;
+  readonly importAcceptedFileTypes: string;
   readonly isCreateGameDialogOpen: boolean;
   readonly isCreatingGame: boolean;
+  readonly isImportGameDialogOpen: boolean;
+  readonly isImportingGame: boolean;
   readonly partyActionErrorMessage: string | null;
   readonly isGamesLoading: boolean;
   readonly gamesErrorMessage: string | null;
@@ -52,6 +61,11 @@ interface DashboardGamesSectionProps {
   readonly onCreateGame: () => void;
   readonly onCreateGameFormChange: (value: Partial<DashboardCreateGameForm>) => void;
   readonly onOpenCreateGameDialog: () => void;
+  readonly onCloseImportGameDialog: () => void;
+  readonly onImportGame: () => void;
+  readonly onImportGameFormChange: (value: Partial<DashboardCreateGameForm>) => void;
+  readonly onImportGameFileChange: (file: File | null) => void;
+  readonly onOpenImportGameDialog: () => void;
   readonly onSearchChange: (value: string) => void;
   readonly onTypeFilterChange: (value: GameType[]) => void;
   readonly onSortFieldChange: (value: DashboardGameSortField) => void;
@@ -70,8 +84,15 @@ export function DashboardGamesSection({
   gameTypes,
   gameTypesByKey,
   filters,
+  importGameForm,
+  importGameFile,
+  importGameErrorMessage,
+  importExampleProvider,
+  importAcceptedFileTypes,
   isCreateGameDialogOpen,
   isCreatingGame,
+  isImportGameDialogOpen,
+  isImportingGame,
   partyActionErrorMessage,
   isGamesLoading,
   gamesErrorMessage,
@@ -82,6 +103,11 @@ export function DashboardGamesSection({
   onCreateGame,
   onCreateGameFormChange,
   onOpenCreateGameDialog,
+  onCloseImportGameDialog,
+  onImportGame,
+  onImportGameFormChange,
+  onImportGameFileChange,
+  onOpenImportGameDialog,
   onSearchChange,
   onTypeFilterChange,
   onSortFieldChange,
@@ -98,15 +124,26 @@ export function DashboardGamesSection({
   return (
     <SectionCard
       actions={
-        <Button
-          disabled={!hasSelectedProject || isCreatingGame}
-          intent="primary"
-          leftSection={<AppIcon name="game" size={14} />}
-          onClick={onOpenCreateGameDialog}
-          size="sm"
-        >
-          {t('dashboard.games.actions.createGame')}
-        </Button>
+        <WrapRow gap="sm">
+          <Button
+            disabled={!hasSelectedProject || isImportingGame}
+            intent="ghost"
+            leftSection={<AppIcon name="arrow-up" size={14} />}
+            onClick={onOpenImportGameDialog}
+            size="sm"
+          >
+            {t('dashboard.games.actions.importGame')}
+          </Button>
+          <Button
+            disabled={!hasSelectedProject || isCreatingGame}
+            intent="primary"
+            leftSection={<AppIcon name="game" size={14} />}
+            onClick={onOpenCreateGameDialog}
+            size="sm"
+          >
+            {t('dashboard.games.actions.createGame')}
+          </Button>
+        </WrapRow>
       }
       title={t('dashboard.games.title')}
     >
@@ -228,6 +265,21 @@ export function DashboardGamesSection({
           />
         </FieldShell>
       </FormDialog>
+
+      <DashboardImportGameDialog
+        errorMessage={importGameErrorMessage}
+        exampleProvider={importExampleProvider}
+        acceptedFileTypes={importAcceptedFileTypes}
+        file={importGameFile}
+        form={importGameForm}
+        gameTypes={gameTypes}
+        isImporting={isImportingGame}
+        isOpen={isImportGameDialogOpen}
+        onClose={onCloseImportGameDialog}
+        onFileChange={onImportGameFileChange}
+        onFormChange={onImportGameFormChange}
+        onSubmit={onImportGame}
+      />
     </SectionCard>
   );
 }

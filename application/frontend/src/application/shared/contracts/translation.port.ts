@@ -7,3 +7,5 @@ export interface TranslationPort {
   changeLanguage(language: string): void;
   t(key: string, variables?: TranslationVariables): string;
 }
+
+export const TranslationPortToken = Symbol.for('TranslationPort');

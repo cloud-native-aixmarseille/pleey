@@ -6,6 +6,7 @@ import { PartyStatus } from '../../../../domain/game/party/enums/party-status.en
 import { Quiz } from '../../../../domain/game/types/quiz/entities/quiz';
 import type {
   CreateQuizData,
+  CreateQuizWithQuestionsData,
   QuizManagementRepository,
   UpdateQuizData,
 } from '../../../../domain/game/types/quiz/ports/quiz-management.repository';
@@ -13,6 +14,11 @@ import { GameType } from '../../../../domain/game/types/shared/entities/game-typ
 import { PrismaService } from '../../../database/prisma-service';
 
 const ACTIVE_PARTY_STATUSES = [PartyStatus.WAITING, PartyStatus.ACTIVE, PartyStatus.PAUSED];
+
+enum QuizManagementRepositoryErrorCode {
+  QUIZ_NOT_CREATED = 'QUIZ_NOT_CREATED',
+  QUIZ_NOT_UPDATED = 'QUIZ_NOT_UPDATED',
+}
 
 interface QuizRecord {
   readonly id: number;
@@ -62,7 +68,54 @@ export class PrismaQuizManagementRepository implements QuizManagementRepository 
     });
 
     if (!game.quiz) {
-      throw new Error('QUIZ_NOT_CREATED');
+      throw new Error(QuizManagementRepositoryErrorCode.QUIZ_NOT_CREATED);
+    }
+
+    return this.toDomain(game.quiz);
+  }
+
+  async createWithQuestions(data: CreateQuizWithQuestionsData): Promise<Quiz> {
+    const game = await this.prisma.game.create({
+      data: {
+        type: GameType.Quiz,
+        title: data.title,
+        description: data.description,
+        projectId: data.projectId,
+        quiz: {
+          create: {
+            questions: {
+              create: data.questions.map((question, index) => ({
+                position: index,
+                questionText: question.questionText,
+                type: question.type,
+                timeLimit: question.timeLimit,
+                points: question.points,
+                answers: {
+                  create: question.answers.map((answer) => ({
+                    text: answer.text,
+                    position: answer.position,
+                    isCorrect: answer.isCorrect,
+                  })),
+                },
+              })),
+            },
+          },
+        },
+      },
+      include: {
+        quiz: {
+          include: {
+            _count: {
+              select: { questions: true },
+            },
+            game: true,
+          },
+        },
+      },
+    });
+
+    if (!game.quiz) {
+      throw new Error(QuizManagementRepositoryErrorCode.QUIZ_NOT_CREATED);
     }
 
     return this.toDomain(game.quiz);
@@ -100,7 +153,7 @@ export class PrismaQuizManagementRepository implements QuizManagementRepository 
 
     const updated = await this.findById(id);
     if (!updated) {
-      throw new Error('QUIZ_NOT_UPDATED');
+      throw new Error(QuizManagementRepositoryErrorCode.QUIZ_NOT_UPDATED);
     }
 
     return updated;

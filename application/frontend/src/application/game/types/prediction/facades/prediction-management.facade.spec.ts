@@ -30,6 +30,10 @@ describe('PredictionManagementFacade', () => {
     });
     const repository: PredictionManagementRepository = {
       createPrediction: vi.fn().mockResolvedValue(gameTypeIdentifier.parse(12)),
+      createPredictionFromImport: vi.fn().mockResolvedValue({
+        gameTypeId: gameTypeIdentifier.parse(12),
+        importedCount: 3,
+      }),
       load: vi.fn().mockResolvedValue({ game: {}, items: [] }),
       updateMetadata: vi.fn().mockResolvedValue(undefined),
       deletePrediction: vi.fn().mockResolvedValue(undefined),
@@ -42,6 +46,12 @@ describe('PredictionManagementFacade', () => {
     const createdGameId = await facade.createGame(projectIdentifier.parse(12), {
       title: 'Prediction',
       description: null,
+    });
+    const importFile = new File(['[]'], 'prediction-import.json', { type: 'application/json' });
+    const createdFromImport = await facade.createGameFromImport(projectIdentifier.parse(12), {
+      title: 'Imported prediction',
+      description: null,
+      file: importFile,
     });
     await facade.updateMetadata(gameTypeIdentifier.parse(12), {
       title: 'Updated',
@@ -57,6 +67,14 @@ describe('PredictionManagementFacade', () => {
       title: 'Prediction',
       description: null,
     });
+    expect(repository.createPredictionFromImport).toHaveBeenCalledWith(
+      projectIdentifier.parse(12),
+      {
+        title: 'Imported prediction',
+        description: null,
+        file: importFile,
+      },
+    );
     expect(repository.updateMetadata).toHaveBeenCalledWith(gameTypeIdentifier.parse(12), {
       title: 'Updated',
       description: null,
@@ -66,6 +84,10 @@ describe('PredictionManagementFacade', () => {
     expect(repository.updatePrompt).toHaveBeenCalledWith(promptId, itemInput);
     expect(repository.deletePrompt).toHaveBeenCalledWith(promptId);
     expect(createdGameId).toBe(12);
+    expect(createdFromImport).toEqual({
+      gameTypeId: gameTypeIdentifier.parse(12),
+      importedCount: 3,
+    });
     expect(createdItem).toBe(savedItem);
     expect(updatedItem).toBe(savedItem);
   });

@@ -4,12 +4,15 @@ import { PredictionPrompt, type PredictionPromptId } from '../entities/predictio
 
 export const PredictionPromptRepositoryProvider = Symbol('PredictionPromptRepository');
 
-export interface PredictionPromptMutationData {
-  readonly position?: number;
+export interface PredictionPromptCreationData {
   readonly promptText: string;
   readonly timeLimit: number;
   readonly points: number;
   readonly options: readonly SelectableOption[];
+}
+
+export interface PredictionPromptMutationData extends PredictionPromptCreationData {
+  readonly position?: number;
 }
 
 export interface PredictionPromptRepository {

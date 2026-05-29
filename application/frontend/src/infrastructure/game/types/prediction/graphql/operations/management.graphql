@@ -35,6 +35,13 @@ mutation CreatePredictionManagement($input: CreatePredictionInput!) {
   }
 }
 
+mutation CreatePredictionFromImportManagement($input: CreatePredictionFromImportInput!) {
+  createPredictionFromImport(input: $input) {
+    predictionId
+    promptCount
+  }
+}
+
 mutation DeletePredictionManagement($predictionId: Int!) {
   deletePrediction(predictionId: $predictionId)
 }

@@ -90,6 +90,11 @@ describe('DashboardGamesSection', () => {
     const onManageGame = vi.fn();
     const onOpenCreateGameDialog = vi.fn();
     const onCreateParty = vi.fn();
+    const onCloseImportGameDialog = vi.fn();
+    const onImportGame = vi.fn();
+    const onImportGameFormChange = vi.fn();
+    const onImportGameFileChange = vi.fn();
+    const onOpenImportGameDialog = vi.fn();
     const game = gameFixtureFactory.createDashboardGame({
       gameId: 1,
       title: 'Arcade Quiz',
@@ -124,12 +129,28 @@ describe('DashboardGamesSection', () => {
         isCreateGameDialogOpen={false}
         isCreatingGame={false}
         isGamesLoading={false}
+        importGameForm={{
+          description: '',
+          title: '',
+          type: 'quiz',
+        }}
+        importGameFile={null}
+        importGameErrorMessage={null}
+        importExampleProvider={null}
+        importAcceptedFileTypes=".json,application/json,.csv,text/csv"
+        isImportGameDialogOpen={false}
+        isImportingGame={false}
         onCloseCreateGameDialog={onCloseCreateGameDialog}
         onCreateGame={onCreateGame}
         onCreateGameFormChange={onCreateGameFormChange}
         onCreateParty={onCreateParty}
         onManageGame={onManageGame}
         onOpenCreateGameDialog={onOpenCreateGameDialog}
+        onCloseImportGameDialog={onCloseImportGameDialog}
+        onImportGame={onImportGame}
+        onImportGameFormChange={onImportGameFormChange}
+        onImportGameFileChange={onImportGameFileChange}
+        onOpenImportGameDialog={onOpenImportGameDialog}
         onPageChange={vi.fn()}
         onSearchChange={vi.fn()}
         onSortDirectionChange={vi.fn()}
@@ -150,6 +171,11 @@ describe('DashboardGamesSection', () => {
       onCreateParty,
       onManageGame,
       onOpenCreateGameDialog,
+      onCloseImportGameDialog,
+      onImportGame,
+      onImportGameFormChange,
+      onImportGameFileChange,
+      onOpenImportGameDialog,
     };
   }
 
@@ -255,5 +281,27 @@ describe('DashboardGamesSection', () => {
     await user.click(screen.getByRole('button', { name: 'dashboard.games.create.submit' }));
 
     expect(onCreateGame).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens the import-game dialog from the import action', async () => {
+    const user = userEvent.setup();
+    const { onOpenImportGameDialog } = renderDashboardGamesSection();
+
+    await user.click(screen.getByRole('button', { name: 'dashboard.games.actions.importGame' }));
+
+    expect(onOpenImportGameDialog).toHaveBeenCalledTimes(1);
+  });
+
+  it('submits the import-game dialog once a file is selected', async () => {
+    const user = userEvent.setup();
+    const { onImportGame } = renderDashboardGamesSection({
+      isImportGameDialogOpen: true,
+      importGameForm: { description: '', title: 'Imported Quiz', type: 'quiz' },
+      importGameFile: new File(['content'], 'questions.csv', { type: 'text/csv' }),
+    });
+
+    await user.click(screen.getByRole('button', { name: 'dashboard.games.import.submit' }));
+
+    expect(onImportGame).toHaveBeenCalledTimes(1);
   });
 });

@@ -5,7 +5,6 @@ import {
   type DocumentNode,
   type FetchResult,
   gql,
-  HttpLink,
   InMemoryCache,
   type OperationVariables,
   ServerError,
@@ -13,6 +12,7 @@ import {
 } from '@apollo/client';
 import { SetContextLink } from '@apollo/client/link/context';
 import { ErrorLink } from '@apollo/client/link/error';
+import UploadHttpLink from 'apollo-upload-client/UploadHttpLink.mjs';
 import { inject, injectable } from 'inversify';
 import type {
   AuthSessionTransport,
@@ -48,6 +48,10 @@ type GraphqlOperationDocument<TData, TVariables extends OperationVariables> =
   | string
   | DocumentNode
   | TypedDocumentNode<TData, TVariables>;
+
+const GRAPHQL_UPLOAD_PREFLIGHT_HEADERS = {
+  'apollo-require-preflight': 'true',
+} as const;
 
 @injectable()
 export class GraphqlClient implements AuthSessionTransport {
@@ -96,6 +100,7 @@ export class GraphqlClient implements AuthSessionTransport {
 
       return {
         headers: {
+          ...GRAPHQL_UPLOAD_PREFLIGHT_HEADERS,
           ...context.headers,
           ...(resolvedAuthToken ? { Authorization: `Bearer ${resolvedAuthToken}` } : {}),
         },
@@ -124,7 +129,7 @@ export class GraphqlClient implements AuthSessionTransport {
       }
     });
 
-    const httpLink = new HttpLink({ uri: GRAPHQL_URL });
+    const httpLink = new UploadHttpLink({ uri: GRAPHQL_URL });
 
     return new ApolloClient({
       cache: new InMemoryCache(),

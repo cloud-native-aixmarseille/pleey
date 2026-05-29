@@ -4,6 +4,9 @@
     "questionNotFound": "Question not found",
     "quizHasActiveParty": "You can't delete this quiz while a party is active",
     "invalidCorrectAnswer": "Invalid correct answer value",
-    "correctAnswerOptionEmpty": "The selected correct answer option cannot be empty"
+    "correctAnswerOptionEmpty": "The selected correct answer option cannot be empty",
+    "importInvalidFile": "This quiz import file could not be parsed",
+    "importUnsupportedFormat": "This quiz import format is not supported",
+    "importEmptyFile": "No quiz questions were found in this import file"
   }
 }

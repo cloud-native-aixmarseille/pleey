@@ -11,6 +11,9 @@ const QUIZ_ERROR_TRANSLATION_KEYS: Record<QuizErrorCode, string> = {
   [QuizErrorCode.QUIZ_HAS_ACTIVE_PARTY]: 'quiz.errors.quizHasActiveParty',
   [QuizErrorCode.INVALID_CORRECT_ANSWER]: 'quiz.errors.invalidCorrectAnswer',
   [QuizErrorCode.CORRECT_ANSWER_OPTION_EMPTY]: 'quiz.errors.correctAnswerOptionEmpty',
+  [QuizErrorCode.QUIZ_IMPORT_INVALID_FILE]: 'quiz.errors.importInvalidFile',
+  [QuizErrorCode.QUIZ_IMPORT_UNSUPPORTED_FORMAT]: 'quiz.errors.importUnsupportedFormat',
+  [QuizErrorCode.QUIZ_IMPORT_EMPTY_FILE]: 'quiz.errors.importEmptyFile',
 };
 
 @Injectable()

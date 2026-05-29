@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
 import { GameIdentifier } from '../../../../application/game/shared/services/identifiers/game-identifier';
+import { QuizImportQuestionMapper } from '../../../../application/game/types/quiz/services/quiz-import-question-mapper';
 import { QuizQuestionIdentifier } from '../../../../application/game/types/quiz/services/quiz-question-identifier';
 import { QuizSelectableOptionIdentifier } from '../../../../application/game/types/quiz/services/quiz-selectable-option-identifier';
+import { CreateQuizFromImportUseCase } from '../../../../application/game/types/quiz/use-cases/create-quiz-from-import-use-case';
 import { CreateQuizQuestionUseCase } from '../../../../application/game/types/quiz/use-cases/create-quiz-question-use-case';
 import { CreateQuizUseCase } from '../../../../application/game/types/quiz/use-cases/create-quiz-use-case';
 import { DeleteQuizQuestionUseCase } from '../../../../application/game/types/quiz/use-cases/delete-quiz-question-use-case';
@@ -12,6 +14,7 @@ import { UpdateQuizQuestionUseCase } from '../../../../application/game/types/qu
 import { UpdateQuizUseCase } from '../../../../application/game/types/quiz/use-cases/update-quiz-use-case';
 import { GameTypeIdentifier } from '../../../../application/game/types/shared/services/game-type-identifier';
 import { GameTypeManagementAccessGuard } from '../../../../application/game/types/shared/services/game-type-management-access-guard';
+import { playableContentImportProviders } from '../../../../application/game/types/shared/services/playable-content-import/import.providers';
 import { OrganizationIdentifier } from '../../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../../../application/workspace/shared/services/identifiers/organization-member-identifier';
 import { ProjectIdentifier } from '../../../../application/workspace/shared/services/identifiers/project-identifier';
@@ -26,6 +29,7 @@ import { PrismaSelectableOptionMapper } from '../../../../infrastructure/game/ty
 import { PrismaOrganizationMemberRepository } from '../../../../infrastructure/organization/repositories/prisma-organization-member-repository';
 import { PrismaProjectRepository } from '../../../../infrastructure/project/repositories/prisma-project-repository';
 import { QuizManagementResolver } from '../../../../presentation/game/types/quiz/graphql/quiz-management-resolver';
+import { PlayableContentUploadReader } from '../../../../presentation/game/types/shared/graphql/playable-content-upload-reader';
 import { SelectableOptionInputMapper } from '../../../../presentation/game/types/shared/graphql/selectable-option-input-mapper';
 import { DatabaseModule } from '../../database/database-module';
 import { IdentityModule } from '../../identity/identity-module';
@@ -34,17 +38,20 @@ import { IdentityModule } from '../../identity/identity-module';
   imports: [DatabaseModule, IdentityModule],
   providers: [
     CreateQuizUseCase,
+    CreateQuizFromImportUseCase,
     UpdateQuizUseCase,
     DeleteQuizUseCase,
     GetQuizUseCase,
     CreateQuizQuestionUseCase,
     ListQuizQuestionsUseCase,
+    QuizImportQuestionMapper,
     QuizQuestionIdentifier,
     QuizSelectableOptionIdentifier,
     UpdateQuizQuestionUseCase,
     DeleteQuizQuestionUseCase,
     GameIdentifier,
     GameTypeIdentifier,
+    ...playableContentImportProviders,
     GameTypeManagementAccessGuard,
     OrganizationIdentifier,
     OrganizationMemberIdentifier,
@@ -55,6 +62,7 @@ import { IdentityModule } from '../../identity/identity-module';
     PrismaSelectableOptionMapper,
     ProjectIdentifier,
     QuizManagementResolver,
+    PlayableContentUploadReader,
     SelectableOptionInputMapper,
     SelectableOptionPolicy,
     {

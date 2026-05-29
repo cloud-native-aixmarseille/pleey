@@ -6,6 +6,7 @@ import { PartyStatus } from '../../../../domain/game/party/enums/party-status.en
 import { Prediction } from '../../../../domain/game/types/prediction/entities/prediction';
 import type {
   CreatePredictionData,
+  CreatePredictionWithPromptsData,
   PredictionManagementRepository,
   UpdatePredictionData,
 } from '../../../../domain/game/types/prediction/ports/prediction-management.repository';
@@ -13,6 +14,11 @@ import { GameType } from '../../../../domain/game/types/shared/entities/game-typ
 import { PrismaService } from '../../../database/prisma-service';
 
 const ACTIVE_PARTY_STATUSES = [PartyStatus.WAITING, PartyStatus.ACTIVE, PartyStatus.PAUSED];
+
+enum PredictionManagementRepositoryErrorCode {
+  PREDICTION_NOT_CREATED = 'PREDICTION_NOT_CREATED',
+  PREDICTION_NOT_UPDATED = 'PREDICTION_NOT_UPDATED',
+}
 
 interface PredictionRecord {
   readonly id: number;
@@ -62,7 +68,53 @@ export class PrismaPredictionManagementRepository implements PredictionManagemen
     });
 
     if (!game.prediction) {
-      throw new Error('PREDICTION_NOT_CREATED');
+      throw new Error(PredictionManagementRepositoryErrorCode.PREDICTION_NOT_CREATED);
+    }
+
+    return this.toDomain(game.prediction);
+  }
+
+  async createWithPrompts(data: CreatePredictionWithPromptsData): Promise<Prediction> {
+    const game = await this.prisma.game.create({
+      data: {
+        type: GameType.Prediction,
+        title: data.title,
+        description: data.description,
+        projectId: data.projectId,
+        prediction: {
+          create: {
+            prompts: {
+              create: data.prompts.map((prompt, index) => ({
+                position: index,
+                promptText: prompt.promptText,
+                timeLimit: prompt.timeLimit,
+                points: prompt.points,
+                options: {
+                  create: prompt.options.map((option) => ({
+                    text: option.text,
+                    position: option.position,
+                    isCorrect: option.isCorrect,
+                  })),
+                },
+              })),
+            },
+          },
+        },
+      },
+      include: {
+        prediction: {
+          include: {
+            _count: {
+              select: { prompts: true },
+            },
+            game: true,
+          },
+        },
+      },
+    });
+
+    if (!game.prediction) {
+      throw new Error(PredictionManagementRepositoryErrorCode.PREDICTION_NOT_CREATED);
     }
 
     return this.toDomain(game.prediction);
@@ -100,7 +152,7 @@ export class PrismaPredictionManagementRepository implements PredictionManagemen
 
     const updated = await this.findById(id);
     if (!updated) {
-      throw new Error('PREDICTION_NOT_UPDATED');
+      throw new Error(PredictionManagementRepositoryErrorCode.PREDICTION_NOT_UPDATED);
     }
 
     return updated;

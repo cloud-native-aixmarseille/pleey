@@ -2,6 +2,7 @@ import { UnauthorizedException, UseGuards } from '@nestjs/common';
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { PredictionPromptIdentifier } from '../../../../../application/game/types/prediction/services/prediction-prompt-identifier';
 import { PredictionSelectableOptionIdentifier } from '../../../../../application/game/types/prediction/services/prediction-selectable-option-identifier';
+import { CreatePredictionFromImportUseCase } from '../../../../../application/game/types/prediction/use-cases/create-prediction-from-import-use-case';
 import { CreatePredictionPromptUseCase } from '../../../../../application/game/types/prediction/use-cases/create-prediction-prompt-use-case';
 import { CreatePredictionUseCase } from '../../../../../application/game/types/prediction/use-cases/create-prediction-use-case';
 import { DeletePredictionPromptUseCase } from '../../../../../application/game/types/prediction/use-cases/delete-prediction-prompt-use-case';
@@ -18,8 +19,10 @@ import { GameType } from '../../../../../domain/game/types/shared/entities/game-
 import type { UserId } from '../../../../../domain/identity/entities/user';
 import { IdentityErrorCode } from '../../../../../domain/identity/enums/identity-error-code.enum';
 import { GqlJwtAuthGuard } from '../../../../identity/shared/guards/gql-jwt-auth-guard';
+import { PlayableContentUploadReader } from '../../shared/graphql/playable-content-upload-reader';
 import { SelectableOptionInputMapper } from '../../shared/graphql/selectable-option-input-mapper';
 import {
+  CreatePredictionFromImportInput,
   CreatePredictionInput,
   CreatePredictionPromptInput,
   UpdatePredictionInput,
@@ -36,6 +39,7 @@ type GraphqlAuthContext = {
 export class PredictionManagementResolver {
   constructor(
     private readonly createPredictionUseCase: CreatePredictionUseCase,
+    private readonly createPredictionFromImportUseCase: CreatePredictionFromImportUseCase,
     private readonly updatePredictionUseCase: UpdatePredictionUseCase,
     private readonly deletePredictionUseCase: DeletePredictionUseCase,
     private readonly getPredictionUseCase: GetPredictionUseCase,
@@ -46,6 +50,7 @@ export class PredictionManagementResolver {
     private readonly gameTypeIdentifier: GameTypeIdentifier,
     private readonly predictionPromptIdentifier: PredictionPromptIdentifier,
     private readonly predictionSelectableOptionIdentifier: PredictionSelectableOptionIdentifier,
+    private readonly playableContentUploadReader: PlayableContentUploadReader,
     private readonly selectableOptionInputMapper: SelectableOptionInputMapper,
     private readonly projectIdentifier: ProjectIdentifier,
   ) {}
@@ -75,6 +80,26 @@ export class PredictionManagementResolver {
         projectId: this.projectIdentifier.parse(input.projectId),
         title: input.title,
         description: input.description ?? null,
+      },
+      this.resolveUserId(context),
+    );
+
+    return this.mapPrediction(prediction);
+  }
+
+  @Mutation(() => PredictionType)
+  @UseGuards(GqlJwtAuthGuard)
+  async createPredictionFromImport(
+    @Args('input') input: CreatePredictionFromImportInput,
+    @Context() context: GraphqlAuthContext,
+  ): Promise<PredictionType> {
+    const source = await this.playableContentUploadReader.read(input.file);
+    const prediction = await this.createPredictionFromImportUseCase.execute(
+      {
+        projectId: this.projectIdentifier.parse(input.projectId),
+        title: input.title,
+        description: input.description ?? null,
+        source,
       },
       this.resolveUserId(context),
     );

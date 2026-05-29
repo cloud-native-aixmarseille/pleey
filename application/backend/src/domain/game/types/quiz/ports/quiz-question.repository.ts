@@ -8,13 +8,16 @@ import {
 
 export const QuizQuestionRepositoryProvider = Symbol('QuizQuestionRepository');
 
-export interface QuizQuestionMutationData {
-  readonly position?: number;
+export interface QuizQuestionCreationData {
   readonly questionText: string;
   readonly type: QuizQuestionType;
   readonly timeLimit: number;
   readonly points: number;
   readonly answers: readonly SelectableOption[];
+}
+
+export interface QuizQuestionMutationData extends QuizQuestionCreationData {
+  readonly position?: number;
 }
 
 export interface QuizQuestionRepository {

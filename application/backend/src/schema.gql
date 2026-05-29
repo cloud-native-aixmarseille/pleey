@@ -42,6 +42,13 @@ input CreatePartyInput {
   gameId: Int!
 }
 
+input CreatePredictionFromImportInput {
+  description: String
+  file: Upload!
+  projectId: Int!
+  title: String!
+}
+
 input CreatePredictionInput {
   description: String
   projectId: Int!
@@ -60,6 +67,13 @@ input CreatePredictionPromptInput {
 input CreateProjectInput {
   description: String
   name: String!
+}
+
+input CreateQuizFromImportInput {
+  description: String
+  file: Upload!
+  projectId: Int!
+  title: String!
 }
 
 input CreateQuizInput {
@@ -111,9 +125,11 @@ type Mutation {
   createOrganization(input: CreateOrganizationInput!): OrganizationType!
   createParty(input: CreatePartyInput!): PartyType!
   createPrediction(input: CreatePredictionInput!): PredictionType!
+  createPredictionFromImport(input: CreatePredictionFromImportInput!): PredictionType!
   createPredictionPrompt(input: CreatePredictionPromptInput!): PredictionPromptType!
   createProject(input: CreateProjectInput!, organizationId: Int!): ProjectType!
   createQuiz(input: CreateQuizInput!): QuizType!
+  createQuizFromImport(input: CreateQuizFromImportInput!): QuizType!
   createQuizQuestion(input: CreateQuizQuestionInput!): QuizQuestionTypeObject!
   deletePrediction(predictionId: Int!): Boolean!
   deletePredictionPrompt(promptId: Int!): Boolean!
@@ -369,3 +385,6 @@ input UpdateQuizQuestionInput {
   timeLimit: Int!
   type: QuizQuestionType!
 }
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload

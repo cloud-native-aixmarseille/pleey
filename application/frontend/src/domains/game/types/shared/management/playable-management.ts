@@ -44,6 +44,15 @@ export interface PlayableGameMetadataInput {
   readonly description: string | null;
 }
 
+export interface PlayableContentImportCreationInput extends PlayableGameMetadataInput {
+  readonly file: File;
+}
+
+export interface PlayableContentImportCreationResult {
+  readonly gameTypeId: GameTypeId;
+  readonly importedCount: number;
+}
+
 export interface PlayableManagementItemInput<TKind extends string = string> {
   readonly position?: number;
   readonly text: string;

@@ -5,6 +5,7 @@ import type { AppServerConfig } from './app-server-config.token';
 import type { GameSocketCorsOptions } from './game-socket-cors-options.token';
 
 const DEFAULT_ACCESS_TOKEN_EXPIRES_IN_SECONDS = 3600;
+const DEFAULT_PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 const DEFAULT_REFRESH_TOKEN_EXPIRES_IN_SECONDS = 1209600;
 const DEFAULT_PORT = 3000;
 const DEFAULT_SOCKET_ORIGINS = ['http://localhost:5173'];
@@ -81,6 +82,13 @@ export class AppConfiguration {
       environment: this.environment.getNodeEnvironment(),
       headersJson: this.environment.getOptionalString('OTEL_EXPORTER_OTLP_HEADERS'),
     };
+  }
+
+  getPlayableContentImportMaxFileSizeBytes(): number {
+    return this.readPositiveInteger(
+      'PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES',
+      DEFAULT_PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES,
+    );
   }
 
   private readBoolean(name: string, defaultValue: boolean): boolean {

@@ -2,7 +2,11 @@ import { inject, injectable, multiInject } from 'inversify';
 import type { DashboardGameListItem } from '../../../../../domains/game/management/entities/dashboard-game-list-item';
 import type { GameType, GameTypeId } from '../../../../../domains/game/types/shared/game-type';
 import type { GameTypeCatalog } from '../../../../../domains/game/types/shared/game-type-catalog';
-import type { PlayableGameMetadataInput } from '../../../../../domains/game/types/shared/management/playable-management';
+import type {
+  PlayableContentImportCreationInput,
+  PlayableContentImportCreationResult,
+  PlayableGameMetadataInput,
+} from '../../../../../domains/game/types/shared/management/playable-management';
 import type { ProjectId } from '../../../../../domains/project/entities/project';
 import {
   type GameTypeCatalogFactory,
@@ -12,7 +16,9 @@ import {
   type GameTypeContributor,
   GameTypeContributorToken,
 } from '../contracts/game-type-contributor';
+import type { PlayableContentImportExampleProvider } from '../contracts/playable-content-import.gateway';
 import type { GameTypeCatalogGateway } from '../gateways/game-type-catalog.gateway';
+import { GameTypeRegistryErrorCode } from './game-type-registry.error';
 
 @injectable()
 export class GameTypeRegistry implements GameTypeCatalogGateway {
@@ -35,8 +41,8 @@ export class GameTypeRegistry implements GameTypeCatalogGateway {
     return items.map((item) => {
       const contributor = contributorsByType.get(item.type);
 
-      if (!contributor?.buildGameSummary) {
-        return item;
+      if (!contributor) {
+        throw new Error(GameTypeRegistryErrorCode.MISSING_GAME_TYPE_CONTRIBUTOR);
       }
 
       return {
@@ -54,14 +60,20 @@ export class GameTypeRegistry implements GameTypeCatalogGateway {
     type: GameType,
     projectId: ProjectId,
     input: PlayableGameMetadataInput,
-  ): Promise<GameTypeId | null> {
-    const contributor = this.createContributorsByType().get(type);
+  ): Promise<GameTypeId> {
+    return this.getContributor(type).createGame(projectId, input);
+  }
 
-    if (!contributor?.createGame) {
-      return null;
-    }
+  async createGameFromImport(
+    type: GameType,
+    projectId: ProjectId,
+    input: PlayableContentImportCreationInput,
+  ): Promise<PlayableContentImportCreationResult> {
+    return this.getContributor(type).createGameFromImport(projectId, input);
+  }
 
-    return contributor.createGame(projectId, input);
+  getImportExampleProvider(type: GameType): PlayableContentImportExampleProvider {
+    return this.getContributor(type).importExampleProvider;
   }
 
   resolveManagementRouteByType(type: GameType, gameTypeId: GameTypeId | null): string | null {
@@ -69,9 +81,9 @@ export class GameTypeRegistry implements GameTypeCatalogGateway {
       return null;
     }
 
-    const descriptor = this.createContributorsByType().get(type)?.descriptor;
+    const descriptor = this.getContributor(type).descriptor;
 
-    if (!descriptor?.managementRoutePath) {
+    if (!descriptor.managementRoutePath) {
       return null;
     }
 
@@ -86,5 +98,15 @@ export class GameTypeRegistry implements GameTypeCatalogGateway {
     return new Map(
       this.contributors.map((contributor) => [contributor.descriptor.key, contributor]),
     );
+  }
+
+  private getContributor(type: GameType): GameTypeContributor {
+    const contributor = this.createContributorsByType().get(type);
+
+    if (!contributor) {
+      throw new Error(GameTypeRegistryErrorCode.MISSING_GAME_TYPE_CONTRIBUTOR);
+    }
+
+    return contributor;
   }
 }

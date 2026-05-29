@@ -6,17 +6,20 @@ import {
 import { ListProjectGamesUseCase } from '../../../../application/game/management/use-cases/list-project-games-use-case';
 import { GameIdentifier } from '../../../../application/game/shared/services/identifiers/game-identifier';
 import { PredictionManagementFacade } from '../../../../application/game/types/prediction/facades/prediction-management.facade';
+import { PredictionContentImportExampleFactory } from '../../../../application/game/types/prediction/services/prediction-content-import-example-factory';
 import { PredictionGameTypeContributor } from '../../../../application/game/types/prediction/services/prediction-game-type-contributor';
 import { PredictionPromptIdentifier } from '../../../../application/game/types/prediction/services/prediction-prompt-identifier';
 import { QuizManagementFacade } from '../../../../application/game/types/quiz/facades/quiz-management.facade';
 import { QuizGameTypeContributor } from '../../../../application/game/types/quiz/services/quiz-game-type-contributor';
 import { QuizQuestionIdentifier } from '../../../../application/game/types/quiz/services/quiz-question-identifier';
+import { QuizQuestionImportExampleFactory } from '../../../../application/game/types/quiz/services/quiz-question-import-example-factory';
 import type { GameTypeCatalogFactory } from '../../../../application/game/types/shared/contracts/game-type-catalog-factory';
 import { GameTypeCatalogFactoryToken } from '../../../../application/game/types/shared/contracts/game-type-catalog-factory';
 import {
   type GameTypeContributor,
   GameTypeContributorToken,
 } from '../../../../application/game/types/shared/contracts/game-type-contributor';
+import { PlayableContentImportAcceptedTypesResolver } from '../../../../application/game/types/shared/contracts/playable-content-import.gateway';
 import { GAME_TYPE_CATALOG_GATEWAY } from '../../../../application/game/types/shared/gateways/game-type-catalog.gateway';
 import { GameTypeIdentifier } from '../../../../application/game/types/shared/services/game-type-identifier';
 import { GameTypeRegistry } from '../../../../application/game/types/shared/services/game-type-registry';
@@ -95,6 +98,9 @@ export const workspaceContainerModule = new ContainerModule(({ bind }) => {
   bind(QuizQuestionIdentifier)
     .toDynamicValue(() => new QuizQuestionIdentifier())
     .inSingletonScope();
+  bind(PredictionContentImportExampleFactory).toSelf().inSingletonScope();
+  bind(QuizQuestionImportExampleFactory).toSelf().inSingletonScope();
+  bind(PlayableContentImportAcceptedTypesResolver).toSelf().inSingletonScope();
   bind(GraphqlGameCatalogAdapter).toSelf().inSingletonScope();
   bind(GraphqlPredictionManagementRepository).toSelf().inSingletonScope();
   bind(GraphqlQuizManagementRepository).toSelf().inSingletonScope();

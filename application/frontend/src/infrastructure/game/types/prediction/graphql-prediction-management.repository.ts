@@ -6,6 +6,8 @@ import type { PredictionPromptId } from '../../../../domains/game/types/predicti
 import type { PredictionManagementRepository } from '../../../../domains/game/types/prediction/ports/prediction-management.repository';
 import type { GameTypeId } from '../../../../domains/game/types/shared/game-type';
 import type {
+  PlayableContentImportCreationInput,
+  PlayableContentImportCreationResult,
   PlayableGameMetadataInput,
   PlayableManagementItem,
   PlayableManagementItemInput,
@@ -14,6 +16,8 @@ import type {
 import type { ProjectId } from '../../../../domains/project/entities/project';
 import { GraphqlClient } from '../../../graphql/client/graphql-client';
 import {
+  CreatePredictionFromImportManagementDocument,
+  type CreatePredictionFromImportManagementMutation,
   CreatePredictionManagementDocument,
   CreatePredictionPromptManagementDocument,
   type CreatePredictionPromptManagementMutation,
@@ -60,6 +64,17 @@ export class GraphqlPredictionManagementRepository implements PredictionManageme
     }
 
     return this.gameTypeIdentifier.parse(result.createPrediction.predictionId);
+  }
+
+  async createPredictionFromImport(
+    projectId: ProjectId,
+    input: PlayableContentImportCreationInput,
+  ): Promise<PlayableContentImportCreationResult> {
+    const result = await this.graphqlClient.request(CreatePredictionFromImportManagementDocument, {
+      input: { ...input, projectId },
+    });
+
+    return this.mapImportCreationResult(result.createPredictionFromImport);
   }
 
   async load(predictionId: GameTypeId): Promise<PlayableManagementState<PredictionPromptId>> {
@@ -152,5 +167,21 @@ export class GraphqlPredictionManagementRepository implements PredictionManageme
       points: prompt.points,
       options: prompt.options,
     });
+  }
+
+  private mapImportCreationResult(
+    result:
+      | CreatePredictionFromImportManagementMutation['createPredictionFromImport']
+      | null
+      | undefined,
+  ): PlayableContentImportCreationResult {
+    if (!result) {
+      throw new Error('Prediction import creation did not return a prediction');
+    }
+
+    return {
+      gameTypeId: this.gameTypeIdentifier.parse(result.predictionId),
+      importedCount: result.promptCount,
+    };
   }
 }

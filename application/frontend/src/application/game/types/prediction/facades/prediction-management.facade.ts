@@ -6,6 +6,8 @@ import {
 } from '../../../../../domains/game/types/prediction/ports/prediction-management.repository';
 import type { GameTypeId } from '../../../../../domains/game/types/shared/game-type';
 import type {
+  PlayableContentImportCreationInput,
+  PlayableContentImportCreationResult,
   PlayableGameMetadataInput,
   PlayableManagementItem,
   PlayableManagementItemInput,
@@ -23,6 +25,13 @@ export class PredictionManagementFacade implements PlayableManagementGateway<Pre
 
   createGame(projectId: ProjectId, input: PlayableGameMetadataInput): Promise<GameTypeId> {
     return this.repository.createPrediction(projectId, input);
+  }
+
+  createGameFromImport(
+    projectId: ProjectId,
+    input: PlayableContentImportCreationInput,
+  ): Promise<PlayableContentImportCreationResult> {
+    return this.repository.createPredictionFromImport(projectId, input);
   }
 
   load(predictionId: GameTypeId): Promise<PlayableManagementState<PredictionPromptId>> {
