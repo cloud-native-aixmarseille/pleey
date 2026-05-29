@@ -121,6 +121,53 @@ export class PrismaQuizManagementRepository implements QuizManagementRepository 
     return this.toDomain(game.quiz);
   }
 
+  async createWithQuestions(data: CreateQuizWithQuestionsData): Promise<Quiz> {
+    const game = await this.prisma.game.create({
+      data: {
+        type: GameType.Quiz,
+        title: data.title,
+        description: data.description,
+        projectId: data.projectId,
+        quiz: {
+          create: {
+            questions: {
+              create: data.questions.map((question, index) => ({
+                position: index,
+                questionText: question.questionText,
+                type: question.type,
+                timeLimit: question.timeLimit,
+                points: question.points,
+                answers: {
+                  create: question.answers.map((answer) => ({
+                    text: answer.text,
+                    position: answer.position,
+                    isCorrect: answer.isCorrect,
+                  })),
+                },
+              })),
+            },
+          },
+        },
+      },
+      include: {
+        quiz: {
+          include: {
+            _count: {
+              select: { questions: true },
+            },
+            game: true,
+          },
+        },
+      },
+    });
+
+    if (!game.quiz) {
+      throw new Error('QUIZ_NOT_CREATED');
+    }
+
+    return this.toDomain(game.quiz);
+  }
+
   async findById(id: number): Promise<Quiz | null> {
     const quiz = await this.prisma.quiz.findFirst({
       where: {
