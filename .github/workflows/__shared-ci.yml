@@ -35,7 +35,7 @@ jobs:
         VALIDATE_TYPESCRIPT_ES=false
 
   build:
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@260358ba1fd405c57bc669823d89c625971a3431 # v0.34.2
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@8e63086f032651bcd1d44c8f4fcd61b902ebb99f # v0.35.0
     permissions:
       contents: read
       packages: write
@@ -98,7 +98,7 @@ jobs:
       container-password: ${{ secrets.GITHUB_TOKEN }}
 
   build-prod:
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@260358ba1fd405c57bc669823d89c625971a3431 # v0.34.2
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@8e63086f032651bcd1d44c8f4fcd61b902ebb99f # v0.35.0
     needs: continuous-integration
     permissions:
       contents: read
@@ -142,7 +142,7 @@ jobs:
       packages: read
     steps:
       - name: Test helm chart (umbrella)
-        uses: hoverkraft-tech/ci-github-container/actions/helm/test-chart@260358ba1fd405c57bc669823d89c625971a3431 # v0.34.2
+        uses: hoverkraft-tech/ci-github-container/actions/helm/test-chart@8e63086f032651bcd1d44c8f4fcd61b902ebb99f # v0.35.0
         with:
           helm-repositories: |
             cloudnative-pg https://cloudnative-pg.github.io/charts
