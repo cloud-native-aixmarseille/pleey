@@ -37,13 +37,13 @@ describe('PrismaQuizQuestionRepository', () => {
       new PrismaSelectableOptionMapper(),
     );
 
-    const question = await repository.create(5, {
+    const question = await repository.create(new GameTypeIdentifier().parse(5), {
       position: 1,
       questionText: 'Question',
       type: QuizQuestionType.Multiple,
       timeLimit: 20,
       points: 100,
-      answers: [{ id: 1, position: 0, text: 'A', isCorrect: true }],
+      answers: [{ id: null, position: 0, text: 'A', isCorrect: true }],
     });
 
     expect(transaction.question.update).toHaveBeenCalledWith({
@@ -89,13 +89,13 @@ describe('PrismaQuizQuestionRepository', () => {
       new PrismaSelectableOptionMapper(),
     );
 
-    const question = await repository.create(5, {
+    const question = await repository.create(new GameTypeIdentifier().parse(5), {
       position: -1,
       questionText: 'Question',
       type: QuizQuestionType.Multiple,
       timeLimit: 20,
       points: 100,
-      answers: [{ id: 1, position: 0, text: 'A', isCorrect: true }],
+      answers: [{ id: null, position: 0, text: 'A', isCorrect: true }],
     });
 
     expect(transaction.question.create).toHaveBeenCalledWith(
@@ -145,13 +145,13 @@ describe('PrismaQuizQuestionRepository', () => {
       new PrismaSelectableOptionMapper(),
     );
 
-    const question = await repository.update(10, {
+    const question = await repository.update(new QuizQuestionIdentifier().parse(10), {
       position: 2,
       questionText: 'Question',
       type: QuizQuestionType.Multiple,
       timeLimit: 20,
       points: 100,
-      answers: [{ id: 1, position: 0, text: 'A', isCorrect: true }],
+      answers: [{ id: null, position: 0, text: 'A', isCorrect: true }],
     });
 
     expect(transaction.question.update).toHaveBeenCalledTimes(3);
@@ -214,13 +214,13 @@ describe('PrismaQuizQuestionRepository', () => {
       new PrismaSelectableOptionMapper(),
     );
 
-    const question = await repository.update(10, {
+    const question = await repository.update(new QuizQuestionIdentifier().parse(10), {
       position: -1,
       questionText: 'Question',
       type: QuizQuestionType.Multiple,
       timeLimit: 20,
       points: 100,
-      answers: [{ id: 1, position: 0, text: 'A', isCorrect: true }],
+      answers: [{ id: null, position: 0, text: 'A', isCorrect: true }],
     });
 
     expect(transaction.question.update).toHaveBeenCalledWith({

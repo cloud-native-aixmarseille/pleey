@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
 import { GameIdentifier } from '../../../../application/game/shared/services/identifiers/game-identifier';
+import { PredictionImportPromptMapper } from '../../../../application/game/types/prediction/services/prediction-import-prompt-mapper';
 import { PredictionPromptIdentifier } from '../../../../application/game/types/prediction/services/prediction-prompt-identifier';
 import { PredictionSelectableOptionIdentifier } from '../../../../application/game/types/prediction/services/prediction-selectable-option-identifier';
+import { CreatePredictionFromImportUseCase } from '../../../../application/game/types/prediction/use-cases/create-prediction-from-import-use-case';
 import { CreatePredictionPromptUseCase } from '../../../../application/game/types/prediction/use-cases/create-prediction-prompt-use-case';
 import { CreatePredictionUseCase } from '../../../../application/game/types/prediction/use-cases/create-prediction-use-case';
 import { DeletePredictionPromptUseCase } from '../../../../application/game/types/prediction/use-cases/delete-prediction-prompt-use-case';
@@ -12,6 +14,7 @@ import { UpdatePredictionPromptUseCase } from '../../../../application/game/type
 import { UpdatePredictionUseCase } from '../../../../application/game/types/prediction/use-cases/update-prediction-use-case';
 import { GameTypeIdentifier } from '../../../../application/game/types/shared/services/game-type-identifier';
 import { GameTypeManagementAccessGuard } from '../../../../application/game/types/shared/services/game-type-management-access-guard';
+import { playableContentImportProviders } from '../../../../application/game/types/shared/services/playable-content-import/import.providers';
 import { OrganizationIdentifier } from '../../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../../../application/workspace/shared/services/identifiers/organization-member-identifier';
 import { ProjectIdentifier } from '../../../../application/workspace/shared/services/identifiers/project-identifier';
@@ -26,6 +29,7 @@ import { PrismaSelectableOptionMapper } from '../../../../infrastructure/game/ty
 import { PrismaOrganizationMemberRepository } from '../../../../infrastructure/organization/repositories/prisma-organization-member-repository';
 import { PrismaProjectRepository } from '../../../../infrastructure/project/repositories/prisma-project-repository';
 import { PredictionManagementResolver } from '../../../../presentation/game/types/prediction/graphql/prediction-management-resolver';
+import { PlayableContentUploadReader } from '../../../../presentation/game/types/shared/graphql/playable-content-upload-reader';
 import { SelectableOptionInputMapper } from '../../../../presentation/game/types/shared/graphql/selectable-option-input-mapper';
 import { DatabaseModule } from '../../database/database-module';
 import { IdentityModule } from '../../identity/identity-module';
@@ -34,17 +38,20 @@ import { IdentityModule } from '../../identity/identity-module';
   imports: [DatabaseModule, IdentityModule],
   providers: [
     CreatePredictionUseCase,
+    CreatePredictionFromImportUseCase,
     UpdatePredictionUseCase,
     DeletePredictionUseCase,
     GetPredictionUseCase,
     CreatePredictionPromptUseCase,
     ListPredictionPromptsUseCase,
+    PredictionImportPromptMapper,
     PredictionPromptIdentifier,
     PredictionSelectableOptionIdentifier,
     UpdatePredictionPromptUseCase,
     DeletePredictionPromptUseCase,
     GameIdentifier,
     GameTypeIdentifier,
+    ...playableContentImportProviders,
     GameTypeManagementAccessGuard,
     OrganizationIdentifier,
     OrganizationMemberIdentifier,
@@ -57,6 +64,7 @@ import { IdentityModule } from '../../identity/identity-module';
     ProjectIdentifier,
     SelectableOptionPolicy,
     SelectableOptionInputMapper,
+    PlayableContentUploadReader,
     {
       provide: PredictionManagementRepositoryProvider,
       useExisting: PrismaPredictionManagementRepository,

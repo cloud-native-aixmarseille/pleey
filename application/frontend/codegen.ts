@@ -12,6 +12,7 @@ const config: CodegenConfig = {
         enumType: 'native',
         scalars: {
           DateTime: 'string',
+          Upload: 'File',
         },
         useTypeImports: true,
       },

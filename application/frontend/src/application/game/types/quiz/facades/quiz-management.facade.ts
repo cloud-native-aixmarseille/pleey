@@ -6,6 +6,8 @@ import {
 } from '../../../../../domains/game/types/quiz/ports/quiz-management.repository';
 import type { GameTypeId } from '../../../../../domains/game/types/shared/game-type';
 import type {
+  PlayableContentImportCreationInput,
+  PlayableContentImportCreationResult,
   PlayableGameMetadataInput,
   PlayableManagementItem,
   PlayableManagementItemInput,
@@ -23,6 +25,13 @@ export class QuizManagementFacade implements PlayableManagementGateway<QuizQuest
 
   createGame(projectId: ProjectId, input: PlayableGameMetadataInput): Promise<GameTypeId> {
     return this.repository.createQuiz(projectId, input);
+  }
+
+  createGameFromImport(
+    projectId: ProjectId,
+    input: PlayableContentImportCreationInput,
+  ): Promise<PlayableContentImportCreationResult> {
+    return this.repository.createQuizFromImport(projectId, input);
   }
 
   load(quizId: GameTypeId): Promise<PlayableManagementState<QuizQuestionId>> {

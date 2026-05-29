@@ -36,6 +36,13 @@ mutation CreateQuizManagement($input: CreateQuizInput!) {
   }
 }
 
+mutation CreateQuizFromImportManagement($input: CreateQuizFromImportInput!) {
+  createQuizFromImport(input: $input) {
+    quizId
+    questionCount
+  }
+}
+
 mutation DeleteQuizManagement($quizId: Int!) {
   deleteQuiz(quizId: $quizId)
 }

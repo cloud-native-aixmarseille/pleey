@@ -10,6 +10,9 @@ const PREDICTION_ERROR_HTTP_STATUSES: Record<PredictionErrorCode, number> = {
   [PredictionErrorCode.PREDICTION_HAS_ACTIVE_PARTY]: 409,
   [PredictionErrorCode.INVALID_CORRECT_OPTION]: 400,
   [PredictionErrorCode.OPTION_TEXT_EMPTY]: 400,
+  [PredictionErrorCode.PREDICTION_IMPORT_INVALID_FILE]: 400,
+  [PredictionErrorCode.PREDICTION_IMPORT_UNSUPPORTED_FORMAT]: 400,
+  [PredictionErrorCode.PREDICTION_IMPORT_EMPTY_FILE]: 400,
 };
 
 @Injectable()

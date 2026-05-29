@@ -2,6 +2,7 @@ import { UnauthorizedException, UseGuards } from '@nestjs/common';
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { QuizQuestionIdentifier } from '../../../../../application/game/types/quiz/services/quiz-question-identifier';
 import { QuizSelectableOptionIdentifier } from '../../../../../application/game/types/quiz/services/quiz-selectable-option-identifier';
+import { CreateQuizFromImportUseCase } from '../../../../../application/game/types/quiz/use-cases/create-quiz-from-import-use-case';
 import { CreateQuizQuestionUseCase } from '../../../../../application/game/types/quiz/use-cases/create-quiz-question-use-case';
 import { CreateQuizUseCase } from '../../../../../application/game/types/quiz/use-cases/create-quiz-use-case';
 import { DeleteQuizQuestionUseCase } from '../../../../../application/game/types/quiz/use-cases/delete-quiz-question-use-case';
@@ -18,8 +19,10 @@ import { GameType } from '../../../../../domain/game/types/shared/entities/game-
 import type { UserId } from '../../../../../domain/identity/entities/user';
 import { IdentityErrorCode } from '../../../../../domain/identity/enums/identity-error-code.enum';
 import { GqlJwtAuthGuard } from '../../../../identity/shared/guards/gql-jwt-auth-guard';
+import { PlayableContentUploadReader } from '../../shared/graphql/playable-content-upload-reader';
 import { SelectableOptionInputMapper } from '../../shared/graphql/selectable-option-input-mapper';
 import {
+  CreateQuizFromImportInput,
   CreateQuizInput,
   CreateQuizQuestionInput,
   UpdateQuizInput,
@@ -36,6 +39,7 @@ type GraphqlAuthContext = {
 export class QuizManagementResolver {
   constructor(
     private readonly createQuizUseCase: CreateQuizUseCase,
+    private readonly createQuizFromImportUseCase: CreateQuizFromImportUseCase,
     private readonly updateQuizUseCase: UpdateQuizUseCase,
     private readonly deleteQuizUseCase: DeleteQuizUseCase,
     private readonly getQuizUseCase: GetQuizUseCase,
@@ -46,6 +50,7 @@ export class QuizManagementResolver {
     private readonly gameTypeIdentifier: GameTypeIdentifier,
     private readonly quizQuestionIdentifier: QuizQuestionIdentifier,
     private readonly quizSelectableOptionIdentifier: QuizSelectableOptionIdentifier,
+    private readonly playableContentUploadReader: PlayableContentUploadReader,
     private readonly selectableOptionInputMapper: SelectableOptionInputMapper,
     private readonly projectIdentifier: ProjectIdentifier,
   ) {}
@@ -75,6 +80,26 @@ export class QuizManagementResolver {
         projectId: this.projectIdentifier.parse(input.projectId),
         title: input.title,
         description: input.description ?? null,
+      },
+      this.resolveUserId(context),
+    );
+
+    return this.mapQuiz(quiz);
+  }
+
+  @Mutation(() => QuizType)
+  @UseGuards(GqlJwtAuthGuard)
+  async createQuizFromImport(
+    @Args('input') input: CreateQuizFromImportInput,
+    @Context() context: GraphqlAuthContext,
+  ): Promise<QuizType> {
+    const source = await this.playableContentUploadReader.read(input.file);
+    const quiz = await this.createQuizFromImportUseCase.execute(
+      {
+        projectId: this.projectIdentifier.parse(input.projectId),
+        title: input.title,
+        description: input.description ?? null,
+        source,
       },
       this.resolveUserId(context),
     );

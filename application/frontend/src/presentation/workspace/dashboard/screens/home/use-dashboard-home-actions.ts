@@ -15,6 +15,14 @@ interface CreateDashboardGameCommand {
   readonly type: GameType;
 }
 
+interface ImportDashboardGameCommand {
+  readonly description: string | null;
+  readonly file: File;
+  readonly projectId: ProjectId;
+  readonly title: string;
+  readonly type: GameType;
+}
+
 export function useDashboardHomeActions({ actionsFacade }: UseDashboardHomeActionsParams) {
   const navigate = usePresentationNavigate();
 
@@ -41,8 +49,21 @@ export function useDashboardHomeActions({ actionsFacade }: UseDashboardHomeActio
     }
   };
 
+  const handleCreateGameFromImport = async (
+    command: ImportDashboardGameCommand,
+  ): Promise<number> => {
+    const result = await actionsFacade.createGameFromImport(command);
+
+    if (result.route) {
+      navigate(result.route);
+    }
+
+    return result.importedCount;
+  };
+
   return {
     handleCreateGame,
+    handleCreateGameFromImport,
     handleManageGame,
     handleManageOrganizations,
     handleManageProjects,

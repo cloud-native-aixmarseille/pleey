@@ -7,6 +7,8 @@ import type { QuizQuestionKind } from '../../../../domains/game/types/quiz/entit
 import type { QuizManagementRepository } from '../../../../domains/game/types/quiz/ports/quiz-management.repository';
 import type { GameTypeId } from '../../../../domains/game/types/shared/game-type';
 import type {
+  PlayableContentImportCreationInput,
+  PlayableContentImportCreationResult,
   PlayableGameMetadataInput,
   PlayableManagementItem,
   PlayableManagementItemInput,
@@ -15,6 +17,8 @@ import type {
 import type { ProjectId } from '../../../../domains/project/entities/project';
 import { GraphqlClient } from '../../../graphql/client/graphql-client';
 import {
+  CreateQuizFromImportManagementDocument,
+  type CreateQuizFromImportManagementMutation,
   CreateQuizManagementDocument,
   CreateQuizQuestionManagementDocument,
   type CreateQuizQuestionManagementMutation,
@@ -33,6 +37,17 @@ type GraphqlQuizQuestion =
   | QuizManagementQuery['quizQuestions'][number]
   | NonNullable<CreateQuizQuestionManagementMutation['createQuizQuestion']>
   | NonNullable<UpdateQuizQuestionManagementMutation['updateQuizQuestion']>;
+
+enum QuizManagementRepositoryErrorCode {
+  QUIZ_CREATION_RESULT_MISSING = 'QUIZ_CREATION_RESULT_MISSING',
+  QUIZ_IMPORT_CREATION_RESULT_MISSING = 'QUIZ_IMPORT_CREATION_RESULT_MISSING',
+  QUIZ_QUESTION_MUTATION_RESULT_MISSING = 'QUIZ_QUESTION_MUTATION_RESULT_MISSING',
+}
+
+enum QuizQuestionKindCode {
+  MULTIPLE = 'multiple',
+  TRUE_FALSE = 'truefalse',
+}
 
 @injectable()
 export class GraphqlQuizManagementRepository implements QuizManagementRepository {
@@ -55,10 +70,21 @@ export class GraphqlQuizManagementRepository implements QuizManagementRepository
     });
 
     if (!result.createQuiz) {
-      throw new Error('Quiz creation did not return a quiz');
+      throw new Error(QuizManagementRepositoryErrorCode.QUIZ_CREATION_RESULT_MISSING);
     }
 
     return this.gameTypeIdentifier.parse(result.createQuiz.quizId);
+  }
+
+  async createQuizFromImport(
+    projectId: ProjectId,
+    input: PlayableContentImportCreationInput,
+  ): Promise<PlayableContentImportCreationResult> {
+    const result = await this.graphqlClient.request(CreateQuizFromImportManagementDocument, {
+      input: { ...input, projectId },
+    });
+
+    return this.mapImportCreationResult(result.createQuizFromImport);
   }
 
   async load(quizId: GameTypeId): Promise<PlayableManagementState<QuizQuestionId>> {
@@ -145,7 +171,7 @@ export class GraphqlQuizManagementRepository implements QuizManagementRepository
     question: GraphqlQuizQuestion | null | undefined,
   ): PlayableManagementItem<QuizQuestionId> {
     if (!question) {
-      throw new Error('Quiz question mutation did not return a question');
+      throw new Error(QuizManagementRepositoryErrorCode.QUIZ_QUESTION_MUTATION_RESULT_MISSING);
     }
 
     return this.mapper.mapItem({
@@ -160,11 +186,28 @@ export class GraphqlQuizManagementRepository implements QuizManagementRepository
     });
   }
 
+  private mapImportCreationResult(
+    result: CreateQuizFromImportManagementMutation['createQuizFromImport'] | null | undefined,
+  ): PlayableContentImportCreationResult {
+    if (!result) {
+      throw new Error(QuizManagementRepositoryErrorCode.QUIZ_IMPORT_CREATION_RESULT_MISSING);
+    }
+
+    return {
+      gameTypeId: this.gameTypeIdentifier.parse(result.quizId),
+      importedCount: result.questionCount,
+    };
+  }
+
   private toGraphqlQuestionKind(kind: string | undefined): QuizQuestionType {
-    return kind === 'truefalse' ? QuizQuestionType.TrueFalse : QuizQuestionType.Multiple;
+    return kind === QuizQuestionKindCode.TRUE_FALSE
+      ? QuizQuestionType.TrueFalse
+      : QuizQuestionType.Multiple;
   }
 
   private fromGraphqlQuestionKind(kind: QuizQuestionType): QuizQuestionKind {
-    return kind === QuizQuestionType.TrueFalse ? 'truefalse' : 'multiple';
+    return kind === QuizQuestionType.TrueFalse
+      ? QuizQuestionKindCode.TRUE_FALSE
+      : QuizQuestionKindCode.MULTIPLE;
   }
 }

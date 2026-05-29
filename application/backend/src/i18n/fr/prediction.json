@@ -4,6 +4,9 @@
     "promptNotFound": "Question de prédiction introuvable",
     "predictionHasActiveParty": "Vous ne pouvez pas supprimer cette prédiction tant qu'une partie est active",
     "invalidCorrectOption": "Valeur de réponse correcte invalide",
-    "optionTextEmpty": "Le texte de l'option est requis"
+    "optionTextEmpty": "Le texte de l'option est requis",
+    "importInvalidFile": "Ce fichier d'import de pronostic n'a pas pu être analysé",
+    "importUnsupportedFormat": "Ce format d'import de pronostic n'est pas pris en charge",
+    "importEmptyFile": "Aucun prompt de pronostic n'a été trouvé dans ce fichier d'import"
   }
 }

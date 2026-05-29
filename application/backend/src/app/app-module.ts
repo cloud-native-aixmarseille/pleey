@@ -1,8 +1,9 @@
 import * as path from 'node:path';
 import { ApolloDriver, type ApolloDriverConfig } from '@nestjs/apollo';
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, type NestModule } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { JwtService } from '@nestjs/jwt';
+import { GraphQLUpload, graphqlUploadExpress } from 'graphql-upload-minimal';
 import { AcceptLanguageResolver, I18nJsonLoader, I18nModule, QueryResolver } from 'nestjs-i18n';
 import type { UserId } from '../domain/identity/entities/user';
 import { GameErrorHttpStatusService } from '../presentation/game/shared/error-handling/game-error-http-status.service';
@@ -67,6 +68,9 @@ function parseAuthorizationHeader(connectionParams?: Record<string, unknown>): s
       autoSchemaFile: isProdBuild ? true : path.join(process.cwd(), 'src/schema.gql'),
       sortSchema: true,
       playground: !isProdBuild,
+      resolvers: {
+        Upload: GraphQLUpload,
+      },
       subscriptions: {
         'graphql-ws': {
           onConnect: (context) => {
@@ -188,4 +192,15 @@ function parseAuthorizationHeader(connectionParams?: Record<string, unknown>): s
     ErrorTranslationService,
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(
+        graphqlUploadExpress({
+          maxFileSize: appConfiguration.getPlayableContentImportMaxFileSizeBytes(),
+          maxFiles: 1,
+        }),
+      )
+      .forRoutes('graphql');
+  }
+}

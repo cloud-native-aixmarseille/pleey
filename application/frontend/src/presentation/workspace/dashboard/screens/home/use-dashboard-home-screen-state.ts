@@ -44,6 +44,28 @@ function createEmptyGameForm(gameTypes: readonly GameTypeDescriptor[]): Dashboar
   };
 }
 
+function resolveImportErrorMessage(error: unknown): string {
+  const code = error instanceof Error ? error.message : '';
+
+  if (code.endsWith('_IMPORT_EMPTY_FILE')) {
+    return 'dashboard.games.import.emptyError';
+  }
+
+  if (code.endsWith('_IMPORT_UNSUPPORTED_FORMAT')) {
+    return 'dashboard.games.import.unsupportedFormat';
+  }
+
+  if (code.endsWith('_IMPORT_INVALID_FILE')) {
+    return 'dashboard.games.import.invalidFormat';
+  }
+
+  if (code === 'dashboard.games.import.error') {
+    return code;
+  }
+
+  return 'dashboard.games.import.failed';
+}
+
 export function useDashboardHomeScreenState({
   dashboardHomeActions,
   dashboardWorkspace,
@@ -117,6 +139,26 @@ export function useDashboardHomeScreenState({
   const [isCreateGameDialogOpen, setIsCreateGameDialogOpen] = useState(false);
   const [isCreatingGame, setIsCreatingGame] = useState(false);
 
+  const [importGameForm, setImportGameForm] = useState<DashboardCreateGameForm>(() =>
+    createEmptyGameForm(gameTypes),
+  );
+  const [importGameFile, setImportGameFile] = useState<File | null>(null);
+  const [importGameErrorMessage, setImportGameErrorMessage] = useState<string | null>(null);
+  const [isImportGameDialogOpen, setIsImportGameDialogOpen] = useState(false);
+  const [isImportingGame, setIsImportingGame] = useState(false);
+
+  const importExampleProvider = useMemo(
+    () =>
+      importGameForm.type === null
+        ? null
+        : dashboardHomeActions.getImportExampleProvider(importGameForm.type),
+    [dashboardHomeActions, importGameForm.type],
+  );
+  const importAcceptedFileTypes = useMemo(
+    () => dashboardHomeActions.resolveImportAcceptedFileTypes(importGameForm.type),
+    [dashboardHomeActions, importGameForm.type],
+  );
+
   const partyCreation = useDashboardHomePartyCreation({
     createParty: (gameId) => dashboardWorkspace.createParty(gameId),
     onPartyCreated: currentParty.upsertParty,
@@ -126,6 +168,13 @@ export function useDashboardHomeScreenState({
 
   useEffect(() => {
     setCreateGameForm((current) => {
+      if (gameTypes.some((gameType) => gameType.key === current.type)) {
+        return current;
+      }
+
+      return createEmptyGameForm(gameTypes);
+    });
+    setImportGameForm((current) => {
       if (gameTypes.some((gameType) => gameType.key === current.type)) {
         return current;
       }
@@ -178,6 +227,56 @@ export function useDashboardHomeScreenState({
     }
   };
 
+  const handleOpenImportGameDialog = () => {
+    setImportGameForm(createEmptyGameForm(gameTypes));
+    setImportGameFile(null);
+    setImportGameErrorMessage(null);
+    setIsImportGameDialogOpen(true);
+  };
+
+  const handleCloseImportGameDialog = () => {
+    setImportGameErrorMessage(null);
+    setIsImportGameDialogOpen(false);
+  };
+
+  const handleImportGameFormChange = (patch: Partial<DashboardCreateGameForm>) => {
+    setImportGameForm((current) => ({ ...current, ...patch }));
+  };
+
+  const handleImportGameFileChange = (file: File | null) => {
+    setImportGameFile(file);
+    setImportGameErrorMessage(null);
+  };
+
+  const handleImportGame = async () => {
+    if (
+      workspace.projectId === null ||
+      importGameForm.type === null ||
+      importGameForm.title.trim().length === 0 ||
+      importGameFile === null
+    ) {
+      return;
+    }
+
+    setImportGameErrorMessage(null);
+    setIsImportingGame(true);
+
+    try {
+      await actions.handleCreateGameFromImport({
+        description: importGameForm.description.trim() || null,
+        file: importGameFile,
+        projectId: workspace.projectId,
+        title: importGameForm.title.trim(),
+        type: importGameForm.type,
+      });
+      setIsImportGameDialogOpen(false);
+    } catch (importGameError) {
+      setImportGameErrorMessage(resolveImportErrorMessage(importGameError));
+    } finally {
+      setIsImportingGame(false);
+    }
+  };
+
   return {
     createGameForm,
     createGameErrorMessage,
@@ -186,6 +285,18 @@ export function useDashboardHomeScreenState({
     handleCloseCreateGameDialog,
     handleCreateGame,
     handleCreateGameFormChange,
+    handleOpenImportGameDialog,
+    handleCloseImportGameDialog,
+    handleImportGame,
+    handleImportGameFormChange,
+    handleImportGameFileChange,
+    importGameForm,
+    importGameFile,
+    importGameErrorMessage,
+    importExampleProvider,
+    importAcceptedFileTypes,
+    isImportGameDialogOpen,
+    isImportingGame,
     games: games.games,
     gamesErrorMessage: games.errorMessage,
     handleCreateParty: partyCreation.handleCreateParty,

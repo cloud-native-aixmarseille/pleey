@@ -10,10 +10,30 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
+import { ImportPlayableContentInputBase } from '../../../shared/graphql/import-playable-content-inputs';
 import { SelectableOptionInput } from '../../../shared/graphql/selectable-option-types';
 
 @InputType()
 export class CreatePredictionInput {
+  @Field(() => Int)
+  @IsInt()
+  @Min(1)
+  projectId!: number;
+
+  @Field()
+  @IsString()
+  @MaxLength(160)
+  title!: string;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  description?: string | null;
+}
+
+@InputType()
+export class CreatePredictionFromImportInput extends ImportPlayableContentInputBase {
   @Field(() => Int)
   @IsInt()
   @Min(1)

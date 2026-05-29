@@ -60,6 +60,18 @@ export function DashboardHomeScreen({
     handleCloseCreateGameDialog,
     handleCreateGame,
     handleCreateGameFormChange,
+    handleOpenImportGameDialog,
+    handleCloseImportGameDialog,
+    handleImportGame,
+    handleImportGameFormChange,
+    handleImportGameFileChange,
+    importGameForm,
+    importGameFile,
+    importGameErrorMessage,
+    importExampleProvider,
+    importAcceptedFileTypes,
+    isImportGameDialogOpen,
+    isImportingGame,
     handleManageGame,
     handleManageOrganizations,
     handleManageProjects,
@@ -113,6 +125,13 @@ export function DashboardHomeScreen({
         filters={filters}
         isCreateGameDialogOpen={isCreateGameDialogOpen}
         isCreatingGame={isCreatingGame}
+        importGameForm={importGameForm}
+        importGameFile={importGameFile}
+        importGameErrorMessage={importGameErrorMessage}
+        importExampleProvider={importExampleProvider}
+        importAcceptedFileTypes={importAcceptedFileTypes}
+        isImportGameDialogOpen={isImportGameDialogOpen}
+        isImportingGame={isImportingGame}
         isGamesLoading={isGamesLoading}
         gamesErrorMessage={gamesErrorMessage}
         partyActionErrorMessage={partyActionErrorMessage}
@@ -123,6 +142,11 @@ export function DashboardHomeScreen({
         onCreateGame={handleCreateGame}
         onCreateGameFormChange={handleCreateGameFormChange}
         onOpenCreateGameDialog={handleOpenCreateGameDialog}
+        onCloseImportGameDialog={handleCloseImportGameDialog}
+        onImportGame={handleImportGame}
+        onImportGameFormChange={handleImportGameFormChange}
+        onImportGameFileChange={handleImportGameFileChange}
+        onOpenImportGameDialog={handleOpenImportGameDialog}
         onCreateParty={handleCreateParty}
         onSearchChange={setSearch}
         onTypeFilterChange={setTypeFilter}

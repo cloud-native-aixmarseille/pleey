@@ -25,6 +25,10 @@ describe('QuizManagementFacade', () => {
     });
     const repository: QuizManagementRepository = {
       createQuiz: vi.fn().mockResolvedValue(gameTypeIdentifier.parse(9)),
+      createQuizFromImport: vi.fn().mockResolvedValue({
+        gameTypeId: gameTypeIdentifier.parse(9),
+        importedCount: 2,
+      }),
       load: vi.fn().mockResolvedValue({ game: {}, items: [] }),
       updateMetadata: vi.fn().mockResolvedValue(undefined),
       deleteQuiz: vi.fn().mockResolvedValue(undefined),
@@ -37,6 +41,12 @@ describe('QuizManagementFacade', () => {
     const createdGameId = await facade.createGame(projectIdentifier.parse(9), {
       title: 'Quiz',
       description: null,
+    });
+    const importFile = new File(['[]'], 'quiz-import.json', { type: 'application/json' });
+    const createdFromImport = await facade.createGameFromImport(projectIdentifier.parse(9), {
+      title: 'Imported quiz',
+      description: null,
+      file: importFile,
     });
     await facade.updateMetadata(gameTypeIdentifier.parse(9), {
       title: 'Updated',
@@ -52,6 +62,11 @@ describe('QuizManagementFacade', () => {
       title: 'Quiz',
       description: null,
     });
+    expect(repository.createQuizFromImport).toHaveBeenCalledWith(projectIdentifier.parse(9), {
+      title: 'Imported quiz',
+      description: null,
+      file: importFile,
+    });
     expect(repository.updateMetadata).toHaveBeenCalledWith(gameTypeIdentifier.parse(9), {
       title: 'Updated',
       description: null,
@@ -61,6 +76,10 @@ describe('QuizManagementFacade', () => {
     expect(repository.updateQuestion).toHaveBeenCalledWith(questionId, itemInput);
     expect(repository.deleteQuestion).toHaveBeenCalledWith(questionId);
     expect(createdGameId).toBe(9);
+    expect(createdFromImport).toEqual({
+      gameTypeId: gameTypeIdentifier.parse(9),
+      importedCount: 2,
+    });
     expect(createdItem).toBe(savedItem);
     expect(updatedItem).toBe(savedItem);
   });
