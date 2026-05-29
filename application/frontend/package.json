@@ -23,7 +23,7 @@
     "@mantine/core": "^9.2.2",
     "@mantine/hooks": "^9.2.1",
     "@tabler/icons-react": "^3.44.0",
-    "@tanstack/react-form": "^1.32.1",
+    "@tanstack/react-form": "^1.33.0",
     "graphql": "^16.14.0",
     "i18next": "^26.3.0",
     "inversify": "^8.1.0",
