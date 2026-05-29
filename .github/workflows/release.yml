@@ -55,7 +55,7 @@ jobs:
           persist-credentials: false
 
       - name: Update chart image defaults
-        uses: hoverkraft-tech/ci-github-container/actions/helm/update-chart-values@ad23452fb16123853be9d67a8f41952778b7340c # 0.34.3
+        uses: hoverkraft-tech/ci-github-container/actions/helm/update-chart-values@8e63086f032651bcd1d44c8f4fcd61b902ebb99f # 0.35.0
         with:
           path: charts/application
           values: >-
@@ -175,7 +175,7 @@ jobs:
       packages: write
     steps:
       - id: release-chart
-        uses: hoverkraft-tech/ci-github-container/actions/helm/release-chart@ad23452fb16123853be9d67a8f41952778b7340c # 0.34.3
+        uses: hoverkraft-tech/ci-github-container/actions/helm/release-chart@8e63086f032651bcd1d44c8f4fcd61b902ebb99f # 0.35.0
         with:
           oci-registry: ${{ vars.OCI_REGISTRY }}
           oci-registry-username: ${{ github.repository_owner }}
