@@ -225,6 +225,7 @@ export class CsvPlayableContentImportFormatParser
       ? PlayableImportItemKind.TRUE_FALSE
       : PlayableImportItemKind.MULTIPLE;
   }
+
   private parseBooleanish(value: string): 'false' | 'true' | null {
     const normalized = value.trim().toLowerCase();
 
