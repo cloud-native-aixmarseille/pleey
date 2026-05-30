@@ -10,6 +10,9 @@ const QUIZ_ERROR_HTTP_STATUSES: Record<QuizErrorCode, number> = {
   [QuizErrorCode.QUIZ_HAS_ACTIVE_PARTY]: 409,
   [QuizErrorCode.INVALID_CORRECT_ANSWER]: 400,
   [QuizErrorCode.CORRECT_ANSWER_OPTION_EMPTY]: 400,
+  [QuizErrorCode.QUIZ_IMPORT_INVALID_FILE]: 400,
+  [QuizErrorCode.QUIZ_IMPORT_UNSUPPORTED_FORMAT]: 400,
+  [QuizErrorCode.QUIZ_IMPORT_EMPTY_FILE]: 400,
 };
 
 @Injectable()

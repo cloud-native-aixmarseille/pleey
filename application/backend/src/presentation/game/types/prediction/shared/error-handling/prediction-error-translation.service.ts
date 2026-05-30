@@ -11,6 +11,10 @@ const PREDICTION_ERROR_TRANSLATION_KEYS: Record<PredictionErrorCode, string> = {
   [PredictionErrorCode.PREDICTION_HAS_ACTIVE_PARTY]: 'prediction.errors.predictionHasActiveParty',
   [PredictionErrorCode.INVALID_CORRECT_OPTION]: 'prediction.errors.invalidCorrectOption',
   [PredictionErrorCode.OPTION_TEXT_EMPTY]: 'prediction.errors.optionTextEmpty',
+  [PredictionErrorCode.PREDICTION_IMPORT_INVALID_FILE]: 'prediction.errors.importInvalidFile',
+  [PredictionErrorCode.PREDICTION_IMPORT_UNSUPPORTED_FORMAT]:
+    'prediction.errors.importUnsupportedFormat',
+  [PredictionErrorCode.PREDICTION_IMPORT_EMPTY_FILE]: 'prediction.errors.importEmptyFile',
 };
 
 @Injectable()

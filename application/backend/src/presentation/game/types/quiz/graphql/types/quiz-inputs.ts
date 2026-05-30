@@ -12,6 +12,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { QuizQuestionType } from '../../../../../../domain/game/types/quiz/entities/quiz-question';
+import { ImportPlayableContentInputBase } from '../../../shared/graphql/import-playable-content-inputs';
 import { SelectableOptionInput } from '../../../shared/graphql/selectable-option-types';
 
 @InputType()
@@ -120,4 +121,12 @@ export class UpdateQuizQuestionInput {
   @ValidateNested({ each: true })
   @Type(() => SelectableOptionInput)
   answers!: SelectableOptionInput[];
+}
+
+@InputType()
+export class ImportQuizQuestionsInput extends ImportPlayableContentInputBase {
+  @Field(() => Int)
+  @IsInt()
+  @Min(1)
+  quizId!: number;
 }

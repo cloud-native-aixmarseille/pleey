@@ -7,6 +7,7 @@ import { CreateQuizUseCase } from '../../../../../application/game/types/quiz/us
 import { DeleteQuizQuestionUseCase } from '../../../../../application/game/types/quiz/use-cases/delete-quiz-question-use-case';
 import { DeleteQuizUseCase } from '../../../../../application/game/types/quiz/use-cases/delete-quiz-use-case';
 import { GetQuizUseCase } from '../../../../../application/game/types/quiz/use-cases/get-quiz-use-case';
+import { ImportQuizQuestionsUseCase } from '../../../../../application/game/types/quiz/use-cases/import-quiz-questions-use-case';
 import { ListQuizQuestionsUseCase } from '../../../../../application/game/types/quiz/use-cases/list-quiz-questions-use-case';
 import { UpdateQuizQuestionUseCase } from '../../../../../application/game/types/quiz/use-cases/update-quiz-question-use-case';
 import { UpdateQuizUseCase } from '../../../../../application/game/types/quiz/use-cases/update-quiz-use-case';
@@ -18,10 +19,12 @@ import { GameType } from '../../../../../domain/game/types/shared/entities/game-
 import type { UserId } from '../../../../../domain/identity/entities/user';
 import { IdentityErrorCode } from '../../../../../domain/identity/enums/identity-error-code.enum';
 import { GqlJwtAuthGuard } from '../../../../identity/shared/guards/gql-jwt-auth-guard';
+import { PlayableContentImportResultType } from '../../shared/graphql/playable-content-import-result.type';
 import { SelectableOptionInputMapper } from '../../shared/graphql/selectable-option-input-mapper';
 import {
   CreateQuizInput,
   CreateQuizQuestionInput,
+  ImportQuizQuestionsInput,
   UpdateQuizInput,
   UpdateQuizQuestionInput,
 } from './types/quiz-inputs';
@@ -40,6 +43,7 @@ export class QuizManagementResolver {
     private readonly deleteQuizUseCase: DeleteQuizUseCase,
     private readonly getQuizUseCase: GetQuizUseCase,
     private readonly createQuizQuestionUseCase: CreateQuizQuestionUseCase,
+    private readonly importQuizQuestionsUseCase: ImportQuizQuestionsUseCase,
     private readonly listQuizQuestionsUseCase: ListQuizQuestionsUseCase,
     private readonly updateQuizQuestionUseCase: UpdateQuizQuestionUseCase,
     private readonly deleteQuizQuestionUseCase: DeleteQuizQuestionUseCase,
@@ -150,6 +154,24 @@ export class QuizManagementResolver {
     );
 
     return this.mapQuestion(question);
+  }
+
+  @Mutation(() => PlayableContentImportResultType)
+  @UseGuards(GqlJwtAuthGuard)
+  async importQuizQuestions(
+    @Args('input') input: ImportQuizQuestionsInput,
+    @Context() context: GraphqlAuthContext,
+  ): Promise<PlayableContentImportResultType> {
+    const importedCount = await this.importQuizQuestionsUseCase.execute(
+      {
+        content: input.content,
+        fileName: input.fileName,
+        quizId: this.gameTypeIdentifier.parse(input.quizId),
+      },
+      this.resolveUserId(context),
+    );
+
+    return { importedCount };
   }
 
   @Mutation(() => QuizQuestionTypeObject)

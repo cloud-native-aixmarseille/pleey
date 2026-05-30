@@ -92,6 +92,18 @@ type HealthStatus {
   status: String!
 }
 
+input ImportPredictionPromptsInput {
+  content: String!
+  fileName: String!
+  predictionId: Int!
+}
+
+input ImportQuizQuestionsInput {
+  content: String!
+  fileName: String!
+  quizId: Int!
+}
+
 enum LaunchReadinessDisabledReason {
   NO_STAGES_AVAILABLE
 }
@@ -120,6 +132,8 @@ type Mutation {
   deleteProject(migrationProjectId: Int, projectId: Int!): Boolean!
   deleteQuiz(quizId: Int!): Boolean!
   deleteQuizQuestion(questionId: Int!): Boolean!
+  importPredictionPrompts(input: ImportPredictionPromptsInput!): PlayableContentImportResultType!
+  importQuizQuestions(input: ImportQuizQuestionsInput!): PlayableContentImportResultType!
   login(input: LoginInput!): AuthResponseType!
   logout: Boolean!
   refresh(input: RefreshTokenInput!): AuthResponseType!
@@ -199,6 +213,10 @@ type PartyType {
   pin: String!
   role: PartyRole!
   status: PartyStatus!
+}
+
+type PlayableContentImportResultType {
+  importedCount: Int!
 }
 
 type PredictionPromptType {

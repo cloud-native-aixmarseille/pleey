@@ -7,11 +7,13 @@ import { CreatePredictionUseCase } from '../../../../application/game/types/pred
 import { DeletePredictionPromptUseCase } from '../../../../application/game/types/prediction/use-cases/delete-prediction-prompt-use-case';
 import { DeletePredictionUseCase } from '../../../../application/game/types/prediction/use-cases/delete-prediction-use-case';
 import { GetPredictionUseCase } from '../../../../application/game/types/prediction/use-cases/get-prediction-use-case';
+import { ImportPredictionPromptsUseCase } from '../../../../application/game/types/prediction/use-cases/import-prediction-prompts-use-case';
 import { ListPredictionPromptsUseCase } from '../../../../application/game/types/prediction/use-cases/list-prediction-prompts-use-case';
 import { UpdatePredictionPromptUseCase } from '../../../../application/game/types/prediction/use-cases/update-prediction-prompt-use-case';
 import { UpdatePredictionUseCase } from '../../../../application/game/types/prediction/use-cases/update-prediction-use-case';
 import { GameTypeIdentifier } from '../../../../application/game/types/shared/services/game-type-identifier';
 import { GameTypeManagementAccessGuard } from '../../../../application/game/types/shared/services/game-type-management-access-guard';
+import { PlayableContentImportParser } from '../../../../application/game/types/shared/services/playable-content-import-parser';
 import { OrganizationIdentifier } from '../../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../../../application/workspace/shared/services/identifiers/organization-member-identifier';
 import { ProjectIdentifier } from '../../../../application/workspace/shared/services/identifiers/project-identifier';
@@ -38,6 +40,7 @@ import { IdentityModule } from '../../identity/identity-module';
     DeletePredictionUseCase,
     GetPredictionUseCase,
     CreatePredictionPromptUseCase,
+    ImportPredictionPromptsUseCase,
     ListPredictionPromptsUseCase,
     PredictionPromptIdentifier,
     PredictionSelectableOptionIdentifier,
@@ -45,6 +48,7 @@ import { IdentityModule } from '../../identity/identity-module';
     DeletePredictionPromptUseCase,
     GameIdentifier,
     GameTypeIdentifier,
+    PlayableContentImportParser,
     GameTypeManagementAccessGuard,
     OrganizationIdentifier,
     OrganizationMemberIdentifier,

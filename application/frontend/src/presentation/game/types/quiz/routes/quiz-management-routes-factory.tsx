@@ -1,5 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { QuizManagementFacade } from '../../../../../application/game/types/quiz/facades/quiz-management.facade';
+import { QuizQuestionImportExampleFactory } from '../../../../../application/game/types/quiz/services/quiz-question-import-example-factory';
 import type {
   PresentationRouteObject,
   RouteFactory,
@@ -15,6 +16,8 @@ export class QuizManagementRoutesFactory implements RouteFactory {
     private readonly gameTypeIdentifier: ManagementGameTypeIdParser,
     @inject(QuizManagementFacade)
     private readonly quizManagementFacade: QuizManagementFacade,
+    @inject(QuizQuestionImportExampleFactory)
+    private readonly quizQuestionImportExampleFactory: QuizQuestionImportExampleFactory,
   ) {}
 
   create(): PresentationRouteObject[] {
@@ -24,8 +27,10 @@ export class QuizManagementRoutesFactory implements RouteFactory {
         element: (
           <ProtectedRoute>
             <QuizManagementScreen
+              exampleFactory={this.quizQuestionImportExampleFactory}
               gameTypeIdentifier={this.gameTypeIdentifier}
               gateway={this.quizManagementFacade}
+              importGateway={this.quizManagementFacade}
             />
           </ProtectedRoute>
         ),

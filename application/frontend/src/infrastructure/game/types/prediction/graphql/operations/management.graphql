@@ -76,3 +76,9 @@ mutation UpdatePredictionPromptManagement($promptId: Int!, $input: UpdatePredict
 mutation DeletePredictionPromptManagement($promptId: Int!) {
   deletePredictionPrompt(promptId: $promptId)
 }
+
+mutation ImportPredictionPromptsManagement($input: ImportPredictionPromptsInput!) {
+  importPredictionPrompts(input: $input) {
+    importedCount
+  }
+}

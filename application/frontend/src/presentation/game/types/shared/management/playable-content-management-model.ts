@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { PlayableContentManagementGateway } from '../../../../../application/game/types/shared/contracts/playable-management.gateway';
 import type { GameTypeId } from '../../../../../domains/game/types/shared/game-type';
 import type {
@@ -29,6 +30,7 @@ export interface PlayableItemKindConfig<TKind extends string = string> {
 export interface PlayableContentManagementScreenProps {
   readonly gameTypeId: GameTypeId;
   readonly gateway: PlayableContentManagementGateway;
+  readonly headerSupplement?: ReactNode;
   readonly itemKindConfig?: PlayableItemKindConfig;
   readonly translationRoot: string;
 }

@@ -34,6 +34,7 @@ describe('PredictionManagementFacade', () => {
       updateMetadata: vi.fn().mockResolvedValue(undefined),
       deletePrediction: vi.fn().mockResolvedValue(undefined),
       createPrompt: vi.fn().mockResolvedValue(savedItem),
+      importPrompts: vi.fn().mockResolvedValue({ importedCount: 3 }),
       updatePrompt: vi.fn().mockResolvedValue(savedItem),
       deletePrompt: vi.fn().mockResolvedValue(undefined),
     } as never;
@@ -52,6 +53,10 @@ describe('PredictionManagementFacade', () => {
     const promptId = predictionPromptIdentifier.parse(44);
     const updatedItem = await facade.updateItem(promptId, itemInput);
     await facade.deleteItem(promptId);
+    const importResult = await facade.importContent(gameTypeIdentifier.parse(12), {
+      content: '[]',
+      fileName: 'prediction-import.json',
+    });
 
     expect(repository.createPrediction).toHaveBeenCalledWith(projectIdentifier.parse(12), {
       title: 'Prediction',
@@ -63,10 +68,15 @@ describe('PredictionManagementFacade', () => {
     });
     expect(repository.deletePrediction).toHaveBeenCalledWith(gameTypeIdentifier.parse(12));
     expect(repository.createPrompt).toHaveBeenCalledWith(gameTypeIdentifier.parse(12), itemInput);
+    expect(repository.importPrompts).toHaveBeenCalledWith(gameTypeIdentifier.parse(12), {
+      content: '[]',
+      fileName: 'prediction-import.json',
+    });
     expect(repository.updatePrompt).toHaveBeenCalledWith(promptId, itemInput);
     expect(repository.deletePrompt).toHaveBeenCalledWith(promptId);
     expect(createdGameId).toBe(12);
     expect(createdItem).toBe(savedItem);
+    expect(importResult).toEqual({ importedCount: 3 });
     expect(updatedItem).toBe(savedItem);
   });
 });

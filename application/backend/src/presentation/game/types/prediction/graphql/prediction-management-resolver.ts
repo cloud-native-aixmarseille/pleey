@@ -7,6 +7,7 @@ import { CreatePredictionUseCase } from '../../../../../application/game/types/p
 import { DeletePredictionPromptUseCase } from '../../../../../application/game/types/prediction/use-cases/delete-prediction-prompt-use-case';
 import { DeletePredictionUseCase } from '../../../../../application/game/types/prediction/use-cases/delete-prediction-use-case';
 import { GetPredictionUseCase } from '../../../../../application/game/types/prediction/use-cases/get-prediction-use-case';
+import { ImportPredictionPromptsUseCase } from '../../../../../application/game/types/prediction/use-cases/import-prediction-prompts-use-case';
 import { ListPredictionPromptsUseCase } from '../../../../../application/game/types/prediction/use-cases/list-prediction-prompts-use-case';
 import { UpdatePredictionPromptUseCase } from '../../../../../application/game/types/prediction/use-cases/update-prediction-prompt-use-case';
 import { UpdatePredictionUseCase } from '../../../../../application/game/types/prediction/use-cases/update-prediction-use-case';
@@ -18,10 +19,12 @@ import { GameType } from '../../../../../domain/game/types/shared/entities/game-
 import type { UserId } from '../../../../../domain/identity/entities/user';
 import { IdentityErrorCode } from '../../../../../domain/identity/enums/identity-error-code.enum';
 import { GqlJwtAuthGuard } from '../../../../identity/shared/guards/gql-jwt-auth-guard';
+import { PlayableContentImportResultType } from '../../shared/graphql/playable-content-import-result.type';
 import { SelectableOptionInputMapper } from '../../shared/graphql/selectable-option-input-mapper';
 import {
   CreatePredictionInput,
   CreatePredictionPromptInput,
+  ImportPredictionPromptsInput,
   UpdatePredictionInput,
   UpdatePredictionPromptInput,
 } from './types/prediction-inputs';
@@ -40,6 +43,7 @@ export class PredictionManagementResolver {
     private readonly deletePredictionUseCase: DeletePredictionUseCase,
     private readonly getPredictionUseCase: GetPredictionUseCase,
     private readonly createPredictionPromptUseCase: CreatePredictionPromptUseCase,
+    private readonly importPredictionPromptsUseCase: ImportPredictionPromptsUseCase,
     private readonly listPredictionPromptsUseCase: ListPredictionPromptsUseCase,
     private readonly updatePredictionPromptUseCase: UpdatePredictionPromptUseCase,
     private readonly deletePredictionPromptUseCase: DeletePredictionPromptUseCase,
@@ -149,6 +153,24 @@ export class PredictionManagementResolver {
     );
 
     return this.mapPrompt(prompt);
+  }
+
+  @Mutation(() => PlayableContentImportResultType)
+  @UseGuards(GqlJwtAuthGuard)
+  async importPredictionPrompts(
+    @Args('input') input: ImportPredictionPromptsInput,
+    @Context() context: GraphqlAuthContext,
+  ): Promise<PlayableContentImportResultType> {
+    const importedCount = await this.importPredictionPromptsUseCase.execute(
+      {
+        content: input.content,
+        fileName: input.fileName,
+        predictionId: this.gameTypeIdentifier.parse(input.predictionId),
+      },
+      this.resolveUserId(context),
+    );
+
+    return { importedCount };
   }
 
   @Mutation(() => PredictionPromptType)

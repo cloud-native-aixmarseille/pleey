@@ -6,6 +6,8 @@ import type { PredictionPromptId } from '../../../../domains/game/types/predicti
 import type { PredictionManagementRepository } from '../../../../domains/game/types/prediction/ports/prediction-management.repository';
 import type { GameTypeId } from '../../../../domains/game/types/shared/game-type';
 import type {
+  PlayableContentImportInput,
+  PlayableContentImportResult,
   PlayableGameMetadataInput,
   PlayableManagementItem,
   PlayableManagementItemInput,
@@ -19,6 +21,8 @@ import {
   type CreatePredictionPromptManagementMutation,
   DeletePredictionManagementDocument,
   DeletePredictionPromptManagementDocument,
+  ImportPredictionPromptsManagementDocument,
+  type ImportPredictionPromptsManagementMutation,
   PredictionManagementDocument,
   type PredictionManagementQuery,
   UpdatePredictionManagementDocument,
@@ -117,6 +121,21 @@ export class GraphqlPredictionManagementRepository implements PredictionManageme
     return this.mapMutationPrompt(result.createPredictionPrompt);
   }
 
+  async importPrompts(
+    predictionId: GameTypeId,
+    input: PlayableContentImportInput,
+  ): Promise<PlayableContentImportResult> {
+    const result = await this.graphqlClient.request(ImportPredictionPromptsManagementDocument, {
+      input: {
+        content: input.content,
+        fileName: input.fileName,
+        predictionId,
+      },
+    });
+
+    return this.mapImportResult(result.importPredictionPrompts);
+  }
+
   async updatePrompt(
     promptId: PredictionPromptId,
     input: PlayableManagementItemInput,
@@ -152,5 +171,17 @@ export class GraphqlPredictionManagementRepository implements PredictionManageme
       points: prompt.points,
       options: prompt.options,
     });
+  }
+
+  private mapImportResult(
+    result: ImportPredictionPromptsManagementMutation['importPredictionPrompts'] | null | undefined,
+  ): PlayableContentImportResult {
+    if (!result) {
+      throw new Error('Prediction prompt import did not return a result');
+    }
+
+    return {
+      importedCount: result.importedCount,
+    };
   }
 }

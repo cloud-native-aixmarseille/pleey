@@ -29,6 +29,7 @@ describe('QuizManagementFacade', () => {
       updateMetadata: vi.fn().mockResolvedValue(undefined),
       deleteQuiz: vi.fn().mockResolvedValue(undefined),
       createQuestion: vi.fn().mockResolvedValue(savedItem),
+      importQuestions: vi.fn().mockResolvedValue({ importedCount: 2 }),
       updateQuestion: vi.fn().mockResolvedValue(savedItem),
       deleteQuestion: vi.fn().mockResolvedValue(undefined),
     } as never;
@@ -47,6 +48,10 @@ describe('QuizManagementFacade', () => {
     const questionId = quizQuestionIdentifier.parse(33);
     const updatedItem = await facade.updateItem(questionId, itemInput);
     await facade.deleteItem(questionId);
+    const importResult = await facade.importContent(gameTypeIdentifier.parse(9), {
+      content: '[]',
+      fileName: 'quiz-import.json',
+    });
 
     expect(repository.createQuiz).toHaveBeenCalledWith(projectIdentifier.parse(9), {
       title: 'Quiz',
@@ -58,10 +63,15 @@ describe('QuizManagementFacade', () => {
     });
     expect(repository.deleteQuiz).toHaveBeenCalledWith(gameTypeIdentifier.parse(9));
     expect(repository.createQuestion).toHaveBeenCalledWith(gameTypeIdentifier.parse(9), itemInput);
+    expect(repository.importQuestions).toHaveBeenCalledWith(gameTypeIdentifier.parse(9), {
+      content: '[]',
+      fileName: 'quiz-import.json',
+    });
     expect(repository.updateQuestion).toHaveBeenCalledWith(questionId, itemInput);
     expect(repository.deleteQuestion).toHaveBeenCalledWith(questionId);
     expect(createdGameId).toBe(9);
     expect(createdItem).toBe(savedItem);
+    expect(importResult).toEqual({ importedCount: 2 });
     expect(updatedItem).toBe(savedItem);
   });
 });
