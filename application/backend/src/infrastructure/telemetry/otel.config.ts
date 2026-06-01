@@ -18,6 +18,7 @@ import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic
 
 export type OpenTelemetryConfig = {
   consoleDiagnosticsEnabled: boolean;
+  consoleExportersEnabled: boolean;
   consoleLogsEnabled: boolean;
   endpoint?: string;
   environment: string;
@@ -25,8 +26,9 @@ export type OpenTelemetryConfig = {
 };
 
 const DEFAULT_TELEMETRY_CONFIG: OpenTelemetryConfig = {
-  consoleDiagnosticsEnabled: true,
-  consoleLogsEnabled: true,
+  consoleDiagnosticsEnabled: false,
+  consoleExportersEnabled: false,
+  consoleLogsEnabled: false,
   environment: 'development',
 };
 
@@ -112,6 +114,10 @@ async function isEndpointReachable(endpoint: string): Promise<boolean> {
 }
 
 function buildExporters(useConsoleExporters: boolean, endpoint?: string, headersJson?: string) {
+  if (!useConsoleExporters && !endpoint) {
+    return {};
+  }
+
   const headers = endpoint ? parseHeaders(headersJson) : undefined;
 
   const traceExporter =
@@ -128,7 +134,9 @@ function buildExporters(useConsoleExporters: boolean, endpoint?: string, headers
           url: `${endpoint}/v1/metrics`,
           headers,
         })
-      : new ConsoleMetricExporter();
+      : useConsoleExporters
+        ? new ConsoleMetricExporter()
+        : undefined;
 
   const logExporter =
     !useConsoleExporters && endpoint
@@ -136,7 +144,9 @@ function buildExporters(useConsoleExporters: boolean, endpoint?: string, headers
           url: `${endpoint}/v1/logs`,
           headers,
         })
-      : new ConsoleLogRecordExporter();
+      : useConsoleExporters
+        ? new ConsoleLogRecordExporter()
+        : undefined;
 
   return { traceExporter, metricExporter, logExporter };
 }
@@ -157,13 +167,19 @@ export async function initializeOpenTelemetry(config: OpenTelemetryConfig): Prom
   }
 
   const endpoint = config.endpoint?.trim();
-  let useConsoleExporters = !endpoint;
+  let useConsoleExporters = !endpoint && config.consoleExportersEnabled;
 
   if (endpoint && !(await isEndpointReachable(endpoint))) {
-    console.warn(
-      `[Telemetry] Unable to reach OTLP endpoint ${endpoint}. Falling back to console exporters.`,
-    );
-    useConsoleExporters = true;
+    if (config.consoleExportersEnabled) {
+      console.warn(
+        `[Telemetry] Unable to reach OTLP endpoint ${endpoint}. Falling back to console exporters.`,
+      );
+      useConsoleExporters = true;
+    } else {
+      console.warn(
+        `[Telemetry] Unable to reach OTLP endpoint ${endpoint}. Telemetry exporters are disabled.`,
+      );
+    }
   }
 
   const activeEndpoint = useConsoleExporters ? undefined : endpoint;
@@ -174,7 +190,7 @@ export async function initializeOpenTelemetry(config: OpenTelemetryConfig): Prom
     config.headersJson,
   );
 
-  if (!logProcessorRegistered) {
+  if (!logProcessorRegistered && logExporter) {
     const provider = loggerProvider as unknown as {
       addLogRecordProcessor?: unknown;
     };
@@ -192,12 +208,14 @@ export async function initializeOpenTelemetry(config: OpenTelemetryConfig): Prom
   otelSDK = new NodeSDK({
     resource,
     traceExporter,
-    metricReaders: [
-      new PeriodicExportingMetricReader({
-        exporter: metricExporter,
-        exportIntervalMillis: 60000,
-      }),
-    ],
+    metricReaders: metricExporter
+      ? [
+          new PeriodicExportingMetricReader({
+            exporter: metricExporter,
+            exportIntervalMillis: 60000,
+          }),
+        ]
+      : [],
     instrumentations: [
       getNodeAutoInstrumentations({
         '@opentelemetry/instrumentation-fs': {
@@ -214,7 +232,6 @@ export async function initializeOpenTelemetry(config: OpenTelemetryConfig): Prom
       if (!otelSDK) return;
       otelSDK
         .shutdown()
-        .then(() => console.log('OpenTelemetry SDK shut down successfully'))
         .catch((error: unknown) => console.error('Error shutting down OpenTelemetry SDK', error))
         .finally(() => process.exit(0));
     });
