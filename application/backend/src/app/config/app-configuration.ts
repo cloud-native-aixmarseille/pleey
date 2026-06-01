@@ -74,12 +74,30 @@ export class AppConfiguration {
 
   getTelemetryConfig(): OpenTelemetryConfig {
     return {
-      consoleDiagnosticsEnabled: !this.environment.isProduction(),
-      consoleLogsEnabled: !this.environment.isProduction(),
+      consoleDiagnosticsEnabled: this.readBoolean('OTEL_CONSOLE_DIAGNOSTICS_ENABLED', false),
+      consoleExportersEnabled: this.readBoolean('OTEL_CONSOLE_EXPORTERS_ENABLED', false),
+      consoleLogsEnabled: this.readBoolean('OTEL_CONSOLE_LOGS_ENABLED', false),
       endpoint: this.environment.getOptionalString('OTEL_EXPORTER_OTLP_ENDPOINT'),
       environment: this.environment.getNodeEnvironment(),
       headersJson: this.environment.getOptionalString('OTEL_EXPORTER_OTLP_HEADERS'),
     };
+  }
+
+  private readBoolean(name: string, defaultValue: boolean): boolean {
+    const raw = this.environment.getOptionalString(name);
+    if (!raw) {
+      return defaultValue;
+    }
+
+    if (raw === 'true') {
+      return true;
+    }
+
+    if (raw === 'false') {
+      return false;
+    }
+
+    throw new Error(`${name} must be 'true' or 'false'`);
   }
 
   private readPositiveInteger(name: string, defaultValue: number): number {
