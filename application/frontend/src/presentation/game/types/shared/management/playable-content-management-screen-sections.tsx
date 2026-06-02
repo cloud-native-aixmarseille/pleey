@@ -7,6 +7,7 @@ import { Badge } from '../../../../shared/ui/feedback/badge';
 import { FieldShell } from '../../../../shared/ui/forms/field-shell';
 import { Input } from '../../../../shared/ui/forms/input';
 import { Textarea } from '../../../../shared/ui/forms/textarea';
+import { uiThemeTokens } from '../../../../shared/ui/foundation/ui-theme';
 import {
   ActionRow,
   ContentStack,
@@ -27,11 +28,11 @@ import {
 export type PlayableManagementTab = 'setup' | 'prompts' | 'review';
 
 const managementThemeVars = {
-  activeTabBackground: 'color-mix(in srgb, var(--mantine-color-brand-5) 12%, transparent)',
-  activeTabBorder: 'var(--mantine-color-brand-5)',
-  activeTabText: 'var(--mantine-color-brand-2)',
-  panelBackground: 'var(--mantine-color-dark-7)',
-  panelBorder: 'var(--mantine-color-dark-4)',
+  activeTabBackground: `color-mix(in srgb, ${uiThemeTokens.color.brand.primary} 14%, transparent)`,
+  activeTabBorder: uiThemeTokens.color.brand.primary,
+  activeTabText: uiThemeTokens.color.text.link,
+  panelBackground: uiThemeTokens.color.surface.recessed,
+  panelBorder: uiThemeTokens.color.border.subtle,
   sectionGap: 'var(--mantine-spacing-lg)',
 } as const;
 

@@ -1,11 +1,12 @@
 {
   "errors": {
     "organizationNotFound": "Organisation introuvable",
-    "organizationNameAlreadyExists": "Une organisation avec ce nom existe deja",
-    "memberNotFound": "Membre de l'organisation introuvable",
-    "memberAlreadyExists": "Cet utilisateur est deja membre de l'organisation",
-    "insufficientPermissions": "Vous n'avez pas les permissions necessaires pour effectuer cette action",
-    "cannotRemoveLastOwner": "Vous ne pouvez pas supprimer le dernier proprietaire de l'organisation",
-    "notAMember": "Vous n'etes pas membre de cette organisation"
+    "organizationNameAlreadyExists": "Une organisation portant ce nom existe déjà",
+    "memberNotFound": "Ce membre de l'organisation est introuvable",
+    "memberAlreadyExists": "Cet utilisateur est déjà membre de l'organisation",
+    "memberUserNotFound": "Aucun utilisateur ne correspond à ce nom d'utilisateur ou à cet email",
+    "insufficientPermissions": "Vous n'avez pas les autorisations nécessaires pour effectuer cette action",
+    "cannotRemoveLastOwner": "Vous ne pouvez pas retirer le dernier propriétaire de l'organisation",
+    "notAMember": "Vous n'êtes pas membre de cette organisation"
   }
 }

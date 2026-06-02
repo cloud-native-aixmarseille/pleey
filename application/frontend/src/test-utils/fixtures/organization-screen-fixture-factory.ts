@@ -4,11 +4,16 @@ import { ProjectIdentifier } from '../../application/workspace/shared/services/i
 import {
   type Organization,
   type OrganizationId,
+  OrganizationRole,
 } from '../../domains/organization/entities/organization';
 import type { OrganizationDashboard } from '../../domains/organization/entities/organization-dashboard';
+import type { OrganizationMember } from '../../domains/organization/entities/organization-member';
 import type {
+  AddOrganizationMemberCommand,
   CreateOrganizationCommand,
   OrganizationRepository,
+  RemoveOrganizationMemberCommand,
+  UpdateOrganizationMemberRoleCommand,
 } from '../../domains/organization/ports/organization-repository';
 import type { Project, ProjectId } from '../../domains/project/entities/project';
 import type {
@@ -40,6 +45,18 @@ type OrganizationDashboardReadGateway = {
 interface OrganizationScreenActions {
   readonly createOrganization: ReturnType<
     typeof vi.fn<OrganizationRepository['createOrganization']>
+  >;
+  readonly listOrganizationMembers: ReturnType<
+    typeof vi.fn<OrganizationRepository['getOrganizationMembers']>
+  >;
+  readonly addOrganizationMember: ReturnType<
+    typeof vi.fn<OrganizationRepository['addOrganizationMember']>
+  >;
+  readonly removeOrganizationMember: ReturnType<
+    typeof vi.fn<OrganizationRepository['removeOrganizationMember']>
+  >;
+  readonly updateOrganizationMemberRole: ReturnType<
+    typeof vi.fn<OrganizationRepository['updateOrganizationMemberRole']>
   >;
   readonly createProject: ReturnType<typeof vi.fn<ProjectRepository['createProject']>>;
   readonly updateProject: ReturnType<typeof vi.fn<ProjectRepository['updateProject']>>;
@@ -109,6 +126,32 @@ export class OrganizationScreenFixtureFactory {
           organizationId: organizationIdentifier.parse(1),
         }),
       ),
+      listOrganizationMembers: vi
+        .fn<(_: OrganizationId) => Promise<OrganizationMember[]>>()
+        .mockResolvedValue([]),
+      addOrganizationMember: vi
+        .fn<(_: AddOrganizationMemberCommand) => Promise<OrganizationMember>>()
+        .mockResolvedValue({
+          id: 1 as OrganizationMember['id'],
+          joinedAt: DEFAULT_TIMESTAMP,
+          organizationId: organizationIdentifier.parse(1),
+          role: OrganizationRole.MEMBER,
+          userId: 1,
+          username: 'captain',
+        }),
+      removeOrganizationMember: vi
+        .fn<(_: RemoveOrganizationMemberCommand) => Promise<void>>()
+        .mockResolvedValue(undefined),
+      updateOrganizationMemberRole: vi
+        .fn<(_: UpdateOrganizationMemberRoleCommand) => Promise<OrganizationMember>>()
+        .mockResolvedValue({
+          id: 1 as OrganizationMember['id'],
+          joinedAt: DEFAULT_TIMESTAMP,
+          organizationId: organizationIdentifier.parse(1),
+          role: OrganizationRole.MANAGER,
+          userId: 1,
+          username: 'captain',
+        }),
       updateProject: vi.fn<(_: UpdateProjectCommand) => Promise<Project>>().mockResolvedValue(
         this.createProject({
           id: projectIdentifier.parse(11),

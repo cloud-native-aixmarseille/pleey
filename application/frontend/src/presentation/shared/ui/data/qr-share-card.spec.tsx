@@ -1,7 +1,15 @@
-import { screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { act, screen, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderWithUiProvider } from '../../../../test-utils/render-with-ui-provider';
 import { QrShareCard } from './qr-share-card';
+
+async function waitForStatusReset() {
+  await act(async () => {
+    await new Promise((resolve) => {
+      window.setTimeout(resolve, 2_100);
+    });
+  });
+}
 
 vi.mock('react-qr-code', async () => {
   const { ReactQrCodeMockFactory } = await import(
@@ -12,6 +20,10 @@ vi.mock('react-qr-code', async () => {
 });
 
 describe('QrShareCard', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('renders a qr code and share link details', () => {
     renderWithUiProvider(
       <QrShareCard
@@ -30,5 +42,67 @@ describe('QrShareCard', () => {
       'href',
       'https://pleey.example.com/join/AB12CD',
     );
+  });
+
+  it('copies the share link when a copy action is provided', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    });
+
+    renderWithUiProvider(
+      <QrShareCard
+        copiedLabel="Copied"
+        copyFailedLabel="Copy failed"
+        copyLabel="Copy link"
+        href="https://pleey.example.com/join/AB12CD"
+        scanLabel="Scan to join"
+        visitLabel="Or visit"
+      />,
+    );
+
+    screen.getByRole('button', { name: 'Copy link' }).click();
+
+    await waitFor(() => {
+      expect(writeText).toHaveBeenCalledWith('https://pleey.example.com/join/AB12CD');
+      expect(screen.getByText('Copied')).toBeInTheDocument();
+    });
+
+    await waitForStatusReset();
+
+    await waitFor(() => {
+      expect(screen.queryByText('Copied')).not.toBeInTheDocument();
+    });
+  });
+
+  it('shows a failure message when copying fails', async () => {
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText: vi.fn().mockRejectedValue(new Error('denied')) },
+    });
+
+    renderWithUiProvider(
+      <QrShareCard
+        copiedLabel="Copied"
+        copyFailedLabel="Copy failed"
+        copyLabel="Copy link"
+        href="https://pleey.example.com/join/AB12CD"
+        scanLabel="Scan to join"
+        visitLabel="Or visit"
+      />,
+    );
+
+    screen.getByRole('button', { name: 'Copy link' }).click();
+
+    await waitFor(() => {
+      expect(screen.getByText('Copy failed')).toBeInTheDocument();
+    });
+
+    await waitForStatusReset();
+
+    await waitFor(() => {
+      expect(screen.queryByText('Copy failed')).not.toBeInTheDocument();
+    });
   });
 });

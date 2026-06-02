@@ -102,7 +102,9 @@ const compactAnswerTextStyle: CSSProperties = {
   fontWeight: 600,
   lineHeight: 1.2,
   margin: 0,
+  overflowWrap: 'anywhere',
   textAlign: 'center',
+  width: '100%',
 };
 
 const slotHeaderStyle: CSSProperties = {
@@ -118,7 +120,9 @@ const compactCenteredHeaderStyle: CSSProperties = {
   flexDirection: 'column',
   flexWrap: 'nowrap',
   gap: uiThemeTokens.spacing.sm,
+  justifyContent: 'center',
   textAlign: 'center',
+  width: '100%',
 };
 
 const interactiveTileStyle: CSSProperties = {

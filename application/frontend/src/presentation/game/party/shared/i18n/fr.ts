@@ -2,7 +2,7 @@ export const gamePartyFr = {
   game: {
     party: {
       route: {
-        invalidPin: 'Un pin de partie est requis pour ouvrir cette page.',
+        invalidPin: 'Un code PIN de partie est requis pour ouvrir cette page.',
         loading: "Chargement de l'observation du lobby...",
         statusBarLabel: 'Barre de statut du lobby de partie',
         statusTitle: 'Partie {{pin}}',
@@ -11,9 +11,9 @@ export const gamePartyFr = {
         runtimeTotalScore: 'Total : {{score}} pts',
         runtimeTimeLeft: 'Temps restant : {{time}}',
         runtimeTimeUp: 'Temps écoulé',
-        runtimeResponsesReceived: 'Reponses recues : {{submitted}} / {{total}}',
-        runtimeResponsesPending: 'Reponses en attente : {{remaining}}',
-        runtimeResponsesComplete: 'Toutes les reponses sont recues',
+        runtimeResponsesReceived: 'Réponses reçues : {{submitted}} / {{total}}',
+        runtimeResponsesPending: 'Réponses en attente : {{remaining}}',
+        runtimeResponsesComplete: 'Toutes les réponses sont reçues',
         pinAriaLabel: 'PIN de partie : {{pin}}',
         playerAvatarAlt: 'Avatar de {{username}}',
         playersLabel: 'Joueurs dans le lobby',
@@ -50,7 +50,7 @@ export const gamePartyFr = {
         player: 'Joueur',
       },
       errors: {
-        playerAlreadyInActiveParty: 'Vous participez déjà à une autre partie active.',
+        playerAlreadyInActiveParty: 'Vous participez déjà à une autre partie en cours.',
         createFailed: 'Impossible de créer une partie pour le moment.',
         guestNameRequired: 'Un pseudo invité est requis avant de rejoindre.',
         joinFailed: 'Impossible de rejoindre cette partie pour le moment.',
@@ -62,7 +62,7 @@ export const gamePartyFr = {
         observeFailed: "Impossible d'observer cette partie pour le moment.",
         partyCommandNotAvailable: "Cette commande hôte n'est pas disponible actuellement.",
         partyNotFound: "Cette partie n'est plus disponible.",
-        partyStagesNotAvailable: 'Cette partie ne contient encore aucune manche à démarrer.',
+        partyStagesNotAvailable: 'Cette partie ne contient encore aucune manche à lancer.',
         validationFailed: 'La requête de partie est invalide.',
       },
     },

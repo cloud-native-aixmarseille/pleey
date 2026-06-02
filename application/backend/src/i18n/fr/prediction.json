@@ -1,12 +1,12 @@
 {
   "errors": {
-    "predictionNotFound": "Prédiction introuvable",
-    "promptNotFound": "Question de prédiction introuvable",
-    "predictionHasActiveParty": "Vous ne pouvez pas supprimer cette prédiction tant qu'une partie est active",
-    "invalidCorrectOption": "Valeur de réponse correcte invalide",
-    "optionTextEmpty": "Le texte de l'option est requis",
+    "predictionNotFound": "Pronostic introuvable",
+    "promptNotFound": "Question de pronostic introuvable",
+    "predictionHasActiveParty": "Impossible de supprimer ce pronostic tant qu'une partie est en cours",
+    "invalidCorrectOption": "L'issue résolue sélectionnée est invalide",
+    "optionTextEmpty": "Le texte de l'option ne peut pas être vide",
     "importInvalidFile": "Ce fichier d'import de pronostic n'a pas pu être analysé",
-    "importUnsupportedFormat": "Ce format d'import de pronostic n'est pas pris en charge",
-    "importEmptyFile": "Aucun prompt de pronostic n'a été trouvé dans ce fichier d'import"
+    "importUnsupportedFormat": "Ce format de fichier de pronostic n'est pas pris en charge",
+    "importEmptyFile": "Aucun pronostic n'a été trouvé dans ce fichier d'import"
   }
 }

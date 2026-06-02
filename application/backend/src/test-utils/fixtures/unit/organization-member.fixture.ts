@@ -17,6 +17,7 @@ type OrganizationMemberFixtureParams = {
   id?: OrganizationMemberId;
   organizationId?: OrganizationId;
   userId?: UserId;
+  username?: string;
   role?: OrganizationRole;
   joinedAt?: Date;
 };
@@ -28,6 +29,7 @@ export const createOrganizationMemberFixture = (
     params.id ?? organizationMemberIdentifier.parse(1),
     params.organizationId ?? organizationIdentifier.parse(1),
     params.userId ?? userIdentifier.parse(1),
+    params.username ?? 'player1',
     params.role ?? OrganizationRole.MEMBER,
     params.joinedAt ?? new Date(Date.UTC(2025, 0, 1)),
   );

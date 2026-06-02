@@ -3,6 +3,7 @@ import { usePresentationTranslation } from '../../../../shared/i18n/use-presenta
 import { Button } from '../../../../shared/ui/actions/button';
 import { FieldShell } from '../../../../shared/ui/forms/field-shell';
 import { Input } from '../../../../shared/ui/forms/input';
+import { uiThemeTokens } from '../../../../shared/ui/foundation/ui-theme';
 import { AppIcon } from '../../../../shared/ui/icons/app-icon';
 import { ContentStack } from '../../../../shared/ui/layout/containers';
 import type {
@@ -44,19 +45,19 @@ const outcomeDropZoneStyle = {
 } as const;
 
 const dropIndicatorStyle = {
-  background: 'var(--mantine-color-brand-5)',
+  background: uiThemeTokens.color.brand.primary,
   borderRadius: '999px',
-  boxShadow: '0 0 0 4px color-mix(in srgb, var(--mantine-color-brand-5) 18%, transparent)',
+  boxShadow: `0 0 0 4px color-mix(in srgb, ${uiThemeTokens.color.brand.primary} 18%, transparent)`,
   height: '0.25rem',
   margin: '0.15rem 0',
 } as const;
 
 function createOutcomeBlockStyle(isCorrect: boolean, canReorder: boolean) {
   return {
-    background: 'var(--mantine-color-dark-7)',
+    background: uiThemeTokens.color.surface.recessed,
     border: isCorrect
-      ? '1px solid var(--mantine-color-brand-5)'
-      : '1px solid var(--mantine-color-dark-4)',
+      ? `1px solid ${uiThemeTokens.color.brand.primary}`
+      : `1px solid ${uiThemeTokens.color.border.subtle}`,
     borderRadius: '1rem',
     cursor: canReorder ? 'grab' : 'default',
     padding: '1rem',
@@ -162,10 +163,10 @@ export function PlayableManagementOutcomesEditor({
               style={{
                 ...baseOutcomeStyle,
                 background: isDropTarget
-                  ? 'color-mix(in srgb, var(--mantine-color-brand-5) 6%, var(--mantine-color-dark-7))'
+                  ? `color-mix(in srgb, ${uiThemeTokens.color.brand.primary} 6%, ${uiThemeTokens.color.surface.recessed})`
                   : baseOutcomeStyle.background,
                 border: isDropTarget
-                  ? '1px solid var(--mantine-color-brand-4)'
+                  ? `1px solid ${uiThemeTokens.color.border.accent}`
                   : baseOutcomeStyle.border,
                 opacity: isDragging ? 0.45 : 1,
                 transition: 'background 120ms ease, border-color 120ms ease, opacity 120ms ease',

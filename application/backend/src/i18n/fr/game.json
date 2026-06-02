@@ -3,14 +3,14 @@
     "gameNotFound": "Jeu introuvable",
     "partyNotFound": "Partie introuvable",
     "pinAlreadyInUse": "Ce PIN est déjà utilisé.",
-    "validationFailed": "Échec de la validation",
+    "validationFailed": "La validation a échoué",
     "unknownError": "Une erreur inattendue s'est produite",
-    "playerAlreadyInActiveParty": "Vous participez déjà à une autre partie active.",
-    "activePartyExists": "Vous avez déjà une partie active. Veuillez l'arrêter ou la terminer avant d'en démarrer une nouvelle.",
-    "hostAlreadyHasActivePartyForGame": "Vous avez déjà une partie active pour ce jeu.",
-    "gameAlreadyHasActiveParty": "Ce jeu possède déjà une partie en cours. Terminez-la avant d'en démarrer une autre.",
-    "hostPartyControlForbidden": "Seul le compte hôte peut contrôler cette partie.",
-    "partyCommandNotAvailable": "Cette commande hôte n'est pas disponible pour l'état actuel de la partie.",
-    "partyStagesNotAvailable": "Cette partie ne peut pas démarrer car aucun stage n'est configuré pour ce jeu."
+    "playerAlreadyInActiveParty": "Vous participez déjà à une autre partie en cours.",
+    "activePartyExists": "Vous avez déjà une partie en cours. Mettez-la en pause ou terminez-la avant d'en lancer une nouvelle.",
+    "hostAlreadyHasActivePartyForGame": "Vous animez déjà une partie en cours pour ce jeu.",
+    "gameAlreadyHasActiveParty": "Une partie est déjà en cours pour ce jeu. Terminez-la avant d'en lancer une autre.",
+    "hostPartyControlForbidden": "Seul l'hôte peut contrôler cette partie.",
+    "partyCommandNotAvailable": "Cette commande n'est pas disponible dans l'état actuel de la partie.",
+    "partyStagesNotAvailable": "Impossible de lancer cette partie : aucune manche n'est configurée pour ce jeu."
   }
 }

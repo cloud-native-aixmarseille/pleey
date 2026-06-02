@@ -5,7 +5,7 @@ export const organizationFr = {
         eyebrow: 'Organisation',
         title: 'Gérer les organisations',
         subtitle:
-          'Consultez les détails, statistiques et gérez les organisations et projets depuis un seul écran.',
+          'Consultez les détails et les statistiques, et gérez vos organisations et projets depuis un seul écran.',
       },
       details: {
         created: 'Créé le {{date}}',
@@ -17,6 +17,28 @@ export const organizationFr = {
         totalGames: 'Jeux',
         totalProjects: 'Projets',
         totalMembers: 'Membres',
+      },
+      members: {
+        title: 'Gestion des membres',
+        empty: "Aucun membre n'est encore rattaché à cette organisation.",
+        addButton: 'Ajouter un membre',
+        removeButton: 'Retirer',
+        usernameOrEmailLabel: "Nom d'utilisateur ou email",
+        usernameOrEmailPlaceholder: "Saisissez un nom d'utilisateur ou un email",
+        roleLabel: 'Rôle',
+        roles: {
+          owner: 'Propriétaire',
+          manager: 'Gestionnaire',
+          member: 'Membre',
+        },
+        removal: {
+          confirm: 'Retirer le membre',
+          dialogTitle: 'Retirer le membre',
+          dialogMessage: 'Retirer le membre #{{member}} de {{organization}} ?',
+        },
+        validation: {
+          usernameOrEmailRequired: "Saisissez un nom d'utilisateur ou un email.",
+        },
       },
       create: {
         eyebrow: 'Nouvelle organisation',
@@ -42,6 +64,9 @@ export const organizationFr = {
     errors: {
       createFailed: "Impossible de créer l'organisation.",
       loadFailed: 'Impossible de charger les organisations.',
+      memberAddFailed: "Impossible d'ajouter le membre.",
+      memberRemoveFailed: 'Impossible de retirer le membre.',
+      memberRoleUpdateFailed: 'Impossible de mettre à jour le rôle du membre.',
     },
   },
   project: {

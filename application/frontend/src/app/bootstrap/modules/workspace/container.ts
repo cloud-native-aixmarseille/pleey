@@ -35,15 +35,20 @@ import { DashboardHomeActionsFacade } from '../../../../application/workspace/da
 import { DashboardWorkspaceFacade } from '../../../../application/workspace/dashboard/facades/dashboard-workspace.facade';
 import { OrganizationFormFacade } from '../../../../application/workspace/organizations/facades/organization-form.facade';
 import { OrganizationManagementFacade } from '../../../../application/workspace/organizations/facades/organization-management.facade';
+import { AddOrganizationMemberUseCase } from '../../../../application/workspace/organizations/use-cases/add-organization-member-use-case';
 import { CreateOrganizationUseCase } from '../../../../application/workspace/organizations/use-cases/create-organization-use-case';
 import { GetOrganizationDashboardUseCase } from '../../../../application/workspace/organizations/use-cases/get-organization-dashboard-use-case';
 import { ListMyOrganizationsUseCase } from '../../../../application/workspace/organizations/use-cases/list-my-organizations-use-case';
+import { ListOrganizationMembersUseCase } from '../../../../application/workspace/organizations/use-cases/list-organization-members-use-case';
+import { RemoveOrganizationMemberUseCase } from '../../../../application/workspace/organizations/use-cases/remove-organization-member-use-case';
+import { UpdateOrganizationMemberRoleUseCase } from '../../../../application/workspace/organizations/use-cases/update-organization-member-role-use-case';
 import { ProjectFormFacade } from '../../../../application/workspace/projects/facades/project-form.facade';
 import { CreateProjectUseCase } from '../../../../application/workspace/projects/use-cases/create-project-use-case';
 import { DeleteProjectUseCase } from '../../../../application/workspace/projects/use-cases/delete-project-use-case';
 import { ListOrganizationProjectsUseCase } from '../../../../application/workspace/projects/use-cases/list-organization-projects-use-case';
 import { UpdateProjectUseCase } from '../../../../application/workspace/projects/use-cases/update-project-use-case';
 import { OrganizationIdentifier } from '../../../../application/workspace/shared/services/identifiers/organization-identifier';
+import { OrganizationMemberIdentifier } from '../../../../application/workspace/shared/services/identifiers/organization-member-identifier';
 import { ProjectIdentifier } from '../../../../application/workspace/shared/services/identifiers/project-identifier';
 import { PredictionManagementRepositoryToken } from '../../../../domains/game/types/prediction/ports/prediction-management.repository';
 import { QuizManagementRepositoryToken } from '../../../../domains/game/types/quiz/ports/quiz-management.repository';
@@ -81,6 +86,9 @@ export const workspaceContainerModule = new ContainerModule(({ bind }) => {
   bind(AppWorkspaceProviderFactory).toSelf().inSingletonScope();
   bind(OrganizationIdentifier)
     .toDynamicValue(() => new OrganizationIdentifier())
+    .inSingletonScope();
+  bind(OrganizationMemberIdentifier)
+    .toDynamicValue(() => new OrganizationMemberIdentifier())
     .inSingletonScope();
   bind(ProjectIdentifier)
     .toDynamicValue(() => new ProjectIdentifier())
@@ -120,6 +128,10 @@ export const workspaceContainerModule = new ContainerModule(({ bind }) => {
   bind(CreateOrganizationUseCase).toSelf().inSingletonScope();
   bind(GetOrganizationDashboardUseCase).toSelf().inSingletonScope();
   bind(ListMyOrganizationsUseCase).toSelf().inSingletonScope();
+  bind(ListOrganizationMembersUseCase).toSelf().inSingletonScope();
+  bind(AddOrganizationMemberUseCase).toSelf().inSingletonScope();
+  bind(RemoveOrganizationMemberUseCase).toSelf().inSingletonScope();
+  bind(UpdateOrganizationMemberRoleUseCase).toSelf().inSingletonScope();
   bind(OrganizationFormService).toSelf().inSingletonScope();
   bind(OrganizationFormFacade).toSelf().inSingletonScope();
   bind(OrganizationManagementFacade).toSelf().inSingletonScope();

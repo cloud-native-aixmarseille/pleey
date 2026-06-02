@@ -1,9 +1,9 @@
 export const dashboardFr = {
   dashboard: {
     console: {
-      title: 'Console d espace',
+      title: "Console de l'espace de travail",
       subtitle:
-        'Choisissez un espace, puis passez de la preparation au lancement sans quitter le tableau de bord.',
+        'Choisissez un espace, puis passez de la préparation au lancement sans quitter le tableau de bord.',
     },
     workspace: {
       sectionTitle: 'Choisissez votre espace',
@@ -24,12 +24,12 @@ export const dashboardFr = {
     games: {
       title: 'Vos jeux',
       pending: 'Sélectionnez un projet pour voir ses jeux.',
-      empty: 'Aucun jeu trouvé dans ce projet pour le moment.',
+      empty: 'Aucun jeu dans ce projet pour le moment.',
       noDescription: 'Aucune description fournie.',
       createdAt: 'Créé le {{date}}',
       readiness: {
-        ready: '{{count}} stages prets',
-        needsStages: 'Ajoutez des stages avant le lancement',
+        ready: '{{count}} manches prêtes',
+        needsStages: 'Ajoutez des manches avant le lancement',
       },
       actions: {
         createGame: 'Créer un jeu',
@@ -47,7 +47,7 @@ export const dashboardFr = {
       },
       import: {
         title: 'Importer un jeu depuis un fichier',
-        description: "Créez un nouveau jeu et remplissez-le avec le contenu d'un fichier.",
+        description: "Créez un jeu et remplissez-le avec le contenu d'un fichier.",
         typeLabel: 'Type de jeu',
         titleLabel: 'Titre',
         descriptionLabel: 'Description',
@@ -97,7 +97,7 @@ export const dashboardFr = {
         createParty: {
           activePartyExists: 'Une partie active existe déjà pour ce jeu.',
           hostHasActiveParty: 'Vous hébergez déjà une autre partie active.',
-          noStagesAvailable: 'Ajoutez au moins un stage avant de créer une partie pour ce jeu.',
+          noStagesAvailable: 'Ajoutez au moins une manche à ce jeu avant de créer une partie.',
         },
       },
       filters: {

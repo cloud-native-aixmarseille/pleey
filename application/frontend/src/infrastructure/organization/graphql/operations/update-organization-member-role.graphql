@@ -1,0 +1,10 @@
+mutation UpdateOrganizationMemberRole($memberId: Int!, $input: UpdateOrganizationMemberRoleInput!) {
+  updateOrganizationMemberRole(memberId: $memberId, input: $input) {
+    id
+    organizationId
+    userId
+    username
+    role
+    joinedAt
+  }
+}

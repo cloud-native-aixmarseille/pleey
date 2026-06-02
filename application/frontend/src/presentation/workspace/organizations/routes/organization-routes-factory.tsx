@@ -28,6 +28,18 @@ export class OrganizationRoutesFactory implements RouteFactory {
               createOrganization={(command) =>
                 this.organizationManagementFacade.createOrganization(command)
               }
+              listOrganizationMembers={(organizationId) =>
+                this.organizationManagementFacade.listOrganizationMembers(organizationId)
+              }
+              addOrganizationMember={(command) =>
+                this.organizationManagementFacade.addOrganizationMember(command)
+              }
+              removeOrganizationMember={(member) =>
+                this.organizationManagementFacade.removeOrganizationMember({ memberId: member.id })
+              }
+              updateOrganizationMemberRole={(command) =>
+                this.organizationManagementFacade.updateOrganizationMemberRole(command)
+              }
               createProject={(command) => this.organizationManagementFacade.createProject(command)}
               updateProject={(command) => this.organizationManagementFacade.updateProject(command)}
               deleteProject={(command) => this.organizationManagementFacade.deleteProject(command)}

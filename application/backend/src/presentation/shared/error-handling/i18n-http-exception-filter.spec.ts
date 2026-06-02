@@ -1,6 +1,8 @@
-import { type ArgumentsHost, HttpException, UnauthorizedException } from '@nestjs/common';
+import { type ArgumentsHost, UnauthorizedException } from '@nestjs/common';
+import { GraphQLError } from 'graphql';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { IdentityErrorCode } from '../../../domain/identity/enums/identity-error-code.enum';
+import { OrganizationErrorCode } from '../../../domain/organization/enums/organization-error-code.enum';
 import { ErrorCodeHttpStatusService } from './error-code-http-status.service';
 import { ErrorTranslationService } from './error-translation-service';
 import { I18nHttpExceptionFilter } from './i18n-http-exception-filter';
@@ -31,7 +33,17 @@ describe('I18nHttpExceptionFilter', () => {
     };
 
     errorCodeHttpStatusService = {
-      resolve: vi.fn((code: string) => (code === IdentityErrorCode.UNAUTHORIZED ? 401 : 500)),
+      resolve: vi.fn((code: string) => {
+        if (code === IdentityErrorCode.UNAUTHORIZED) {
+          return 401;
+        }
+
+        if (code === OrganizationErrorCode.MEMBER_USER_NOT_FOUND) {
+          return 404;
+        }
+
+        return 500;
+      }),
     };
 
     filter = new I18nHttpExceptionFilter(
@@ -65,9 +77,69 @@ describe('I18nHttpExceptionFilter', () => {
       host,
     );
 
-    expect(result).toBeInstanceOf(HttpException);
-    expect(result?.getStatus()).toBe(401);
+    expect(result).toBeInstanceOf(GraphQLError);
     expect(result?.message).toBe(`translated:${IdentityErrorCode.UNAUTHORIZED}`);
+    expect(result?.extensions).toMatchObject({
+      code: IdentityErrorCode.UNAUTHORIZED,
+      http: { status: 401 },
+    });
+  });
+
+  it('translates plain domain errors for GraphQL requests', async () => {
+    const host = createArgumentsHost('graphql', {});
+
+    const result = await filter.catch(new Error(OrganizationErrorCode.MEMBER_USER_NOT_FOUND), host);
+
+    expect(errorCodeHttpStatusService.resolve).toHaveBeenCalledWith(
+      OrganizationErrorCode.MEMBER_USER_NOT_FOUND,
+    );
+    expect(errorTranslationService.translateErrorCode).toHaveBeenCalledWith(
+      OrganizationErrorCode.MEMBER_USER_NOT_FOUND,
+    );
+    expect(result).toBeInstanceOf(GraphQLError);
+    expect(result?.message).toBe(`translated:${OrganizationErrorCode.MEMBER_USER_NOT_FOUND}`);
+    expect(result?.extensions).toMatchObject({
+      code: OrganizationErrorCode.MEMBER_USER_NOT_FOUND,
+      http: { status: 404 },
+    });
+  });
+
+  it('unwraps wrapped GraphQL resolver domain errors before translating them', async () => {
+    const host = createArgumentsHost('graphql', {});
+    const wrappedError = new GraphQLError('Unexpected error value', {
+      originalError: new Error(OrganizationErrorCode.MEMBER_USER_NOT_FOUND),
+      path: ['addOrganizationMember'],
+    });
+
+    const result = await filter.catch(wrappedError, host);
+
+    expect(errorCodeHttpStatusService.resolve).toHaveBeenCalledWith(
+      OrganizationErrorCode.MEMBER_USER_NOT_FOUND,
+    );
+    expect(errorTranslationService.translateErrorCode).toHaveBeenCalledWith(
+      OrganizationErrorCode.MEMBER_USER_NOT_FOUND,
+    );
+    expect(result).toBeInstanceOf(GraphQLError);
+    expect(result?.message).toBe(`translated:${OrganizationErrorCode.MEMBER_USER_NOT_FOUND}`);
+    expect(result?.extensions).toMatchObject({
+      code: OrganizationErrorCode.MEMBER_USER_NOT_FOUND,
+      http: { status: 404 },
+    });
+  });
+
+  it('normalizes unexpected plain errors to UNKNOWN_ERROR for GraphQL requests', async () => {
+    const host = createArgumentsHost('graphql', {});
+
+    const result = await filter.catch(new Error('boom'), host);
+
+    expect(errorCodeHttpStatusService.resolve).toHaveBeenCalledWith('boom');
+    expect(errorTranslationService.translateErrorCode).toHaveBeenCalledWith('UNKNOWN_ERROR');
+    expect(result).toBeInstanceOf(GraphQLError);
+    expect(result?.message).toBe('translated:UNKNOWN_ERROR');
+    expect(result?.extensions).toMatchObject({
+      code: 'INTERNAL_SERVER_ERROR',
+      http: { status: 500 },
+    });
   });
 });
 

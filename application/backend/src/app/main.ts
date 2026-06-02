@@ -30,6 +30,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: new OtelLoggerService(),
   });
+  const appModuleContext = app.select(AppModule);
 
   const serverConfig = app.get<AppServerConfig>(APP_SERVER_CONFIG);
   const socketCorsOptions = app.get(GAME_SOCKET_CORS_OPTIONS);
@@ -37,8 +38,12 @@ async function bootstrap() {
   app.enableCors();
   app.useWebSocketAdapter(new ConfiguredIoAdapter(app, socketCorsOptions));
 
-  const errorCodeHttpStatusService = app.get(ErrorCodeHttpStatusService);
-  const errorTranslationService = app.get(ErrorTranslationService);
+  const errorCodeHttpStatusService = appModuleContext.get(ErrorCodeHttpStatusService, {
+    strict: true,
+  });
+  const errorTranslationService = appModuleContext.get(ErrorTranslationService, {
+    strict: true,
+  });
   app.useGlobalFilters(
     new I18nHttpExceptionFilter(errorTranslationService, errorCodeHttpStatusService),
   );

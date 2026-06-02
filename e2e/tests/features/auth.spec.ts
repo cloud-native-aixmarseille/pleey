@@ -95,7 +95,7 @@ test.describe("Authentication Flow - Nominal Use Case", () => {
       page.getByRole("heading", { name: /welcome back\./i }),
     ).toBeVisible();
     await expect(
-      page.getByRole("alert").filter({ hasText: /INVALID_CREDENTIALS/i }),
+      page.getByRole("alert").filter({ hasText: /invalid email or password/i }),
     ).toBeVisible();
     await expect(
       page.locator("form").getByRole("button", { name: /^sign in$/i }),

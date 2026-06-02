@@ -6,6 +6,9 @@ import { PartyPinPreview } from '../../../shared/screens/components/party-pin-pr
 
 interface PartyLobbySharePanelProps {
   readonly ariaLabel: string;
+  readonly copiedLabel: string;
+  readonly copyFailedLabel: string;
+  readonly copyLabel: string;
   readonly enterCodeLabel: string;
   readonly heading: string;
   readonly joinUrl: string;
@@ -17,6 +20,9 @@ interface PartyLobbySharePanelProps {
 
 export function PartyLobbySharePanel({
   ariaLabel,
+  copiedLabel,
+  copyFailedLabel,
+  copyLabel,
   enterCodeLabel,
   heading,
   joinUrl,
@@ -31,7 +37,14 @@ export function PartyLobbySharePanel({
         <ContentStack align="center" gap="xl">
           <Heading hero>{heading}</Heading>
 
-          <QrShareCard href={joinUrl} scanLabel={scanLabel} visitLabel={orVisitLabel} />
+          <QrShareCard
+            copiedLabel={copiedLabel}
+            copyFailedLabel={copyFailedLabel}
+            copyLabel={copyLabel}
+            href={joinUrl}
+            scanLabel={scanLabel}
+            visitLabel={orVisitLabel}
+          />
 
           <PartyPinPreview ariaLabel={pinAriaLabel} label={enterCodeLabel} pin={pin} />
         </ContentStack>

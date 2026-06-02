@@ -17,6 +17,28 @@ export const organizationEn = {
         totalProjects: 'Projects',
         totalMembers: 'Members',
       },
+      members: {
+        title: 'Member management',
+        empty: 'No members are attached to this organization yet.',
+        addButton: 'Add member',
+        removeButton: 'Remove',
+        usernameOrEmailLabel: 'Username or email',
+        usernameOrEmailPlaceholder: 'Enter a username or email',
+        roleLabel: 'Role',
+        roles: {
+          owner: 'Owner',
+          manager: 'Manager',
+          member: 'Member',
+        },
+        removal: {
+          confirm: 'Remove member',
+          dialogTitle: 'Remove member',
+          dialogMessage: 'Remove member #{{member}} from {{organization}}?',
+        },
+        validation: {
+          usernameOrEmailRequired: 'Enter a username or email.',
+        },
+      },
       create: {
         eyebrow: 'New organization',
         openButton: 'Create organization',
@@ -41,6 +63,9 @@ export const organizationEn = {
     errors: {
       createFailed: 'Unable to create the organization.',
       loadFailed: 'Unable to load organizations.',
+      memberAddFailed: 'Unable to add the organization member.',
+      memberRemoveFailed: 'Unable to remove the organization member.',
+      memberRoleUpdateFailed: 'Unable to update the organization member role.',
     },
   },
   project: {

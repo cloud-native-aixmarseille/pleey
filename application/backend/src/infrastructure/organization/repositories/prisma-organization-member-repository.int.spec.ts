@@ -69,4 +69,47 @@ describeIfDatabase('PrismaOrganizationMemberRepository', () => {
     const list = await harness.repository.findByOrganization(organization.id);
     expect(list.some((m) => m.id === member.id)).toBe(true);
   });
+
+  it('restores a soft-deleted member when the same user is added again', async () => {
+    const unique = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+    const user = await createPersistedUserFixture(harness.prisma, {
+      username: `restored_member_${unique}`,
+      email: `restored_member_${unique}@example.com`,
+      password: 'hashed',
+    });
+    createdUserIds.push(user.id);
+
+    const organization = await createPersistedOrganizationFixture(harness.prisma, {
+      name: `Restored Org ${unique}`,
+      description: null,
+    });
+    createdOrganizationIds.push(organization.id);
+
+    const createdMember = await harness.repository.create(
+      organization.id,
+      user.id,
+      OrganizationRole.MEMBER,
+    );
+    createdMemberIds.push(createdMember.id);
+
+    await harness.repository.delete(createdMember.id);
+    expect(await harness.repository.findByOrganizationAndUser(organization.id, user.id)).toBeNull();
+
+    const restoredMember = await harness.repository.create(
+      organization.id,
+      user.id,
+      OrganizationRole.MANAGER,
+    );
+
+    expect(restoredMember.id).toBe(createdMember.id);
+    expect(restoredMember.role).toBe(OrganizationRole.MANAGER);
+
+    const activeMember = await harness.repository.findByOrganizationAndUser(
+      organization.id,
+      user.id,
+    );
+    expect(activeMember?.id).toBe(createdMember.id);
+    expect(activeMember?.role).toBe(OrganizationRole.MANAGER);
+  });
 });

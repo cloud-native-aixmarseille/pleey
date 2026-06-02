@@ -57,18 +57,23 @@ const mobileTimerInlineStyle: CSSProperties = {
 };
 
 const mobileQuestionStyle: CSSProperties = {
-  flexShrink: 0,
-  maxHeight: '26dvh',
+  alignItems: 'center',
+  display: 'flex',
+  flex: '0 1 auto',
+  justifyContent: 'center',
+  maxHeight: '46dvh',
+  minHeight: 0,
   overflowY: 'auto',
   paddingRight: '2.75rem',
 };
 
 const mobileQuestionTextStyle: CSSProperties = {
   display: 'block',
-  fontSize: '1.2rem',
+  fontSize: '1.375rem',
   fontWeight: 700,
   lineHeight: 1.3,
   margin: 0,
+  textAlign: 'center',
 };
 
 const mobileActionsAreaStyle: CSSProperties = {
