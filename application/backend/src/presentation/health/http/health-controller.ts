@@ -1,23 +1,38 @@
 import { Controller, Get } from '@nestjs/common';
+import { HealthCheck, type HealthCheckResult, HealthCheckService } from '@nestjs/terminus';
+import { ApplicationHealthIndicator } from '../../../infrastructure/health/application-health-indicator';
+import { PrismaHealthIndicator } from '../../../infrastructure/health/prisma-health-indicator';
 
-type HealthPayload = {
-  status: string;
-};
-
-@Controller('api/health')
+@Controller()
 export class HealthController {
-  @Get()
-  health(): HealthPayload {
-    return { status: 'ok' };
+  constructor(
+    private readonly healthCheckService: HealthCheckService,
+    private readonly applicationHealthIndicator: ApplicationHealthIndicator,
+    private readonly prismaHealthIndicator: PrismaHealthIndicator,
+  ) {}
+
+  @Get('healthz')
+  @HealthCheck()
+  live(): Promise<HealthCheckResult> {
+    return this.runLivenessCheck();
   }
 
   @Get('ready')
-  ready(): HealthPayload {
-    return { status: 'ready' };
+  @HealthCheck()
+  ready(): Promise<HealthCheckResult> {
+    return this.runReadinessCheck();
   }
 
-  @Get('live')
-  live(): HealthPayload {
-    return { status: 'up' };
+  private runLivenessCheck(): Promise<HealthCheckResult> {
+    return this.healthCheckService.check([
+      () => this.applicationHealthIndicator.isLive('application'),
+    ]);
+  }
+
+  private runReadinessCheck(): Promise<HealthCheckResult> {
+    return this.healthCheckService.check([
+      () => this.applicationHealthIndicator.isReady('application'),
+      () => this.prismaHealthIndicator.isHealthy('database'),
+    ]);
   }
 }

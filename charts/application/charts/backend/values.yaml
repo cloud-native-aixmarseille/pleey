@@ -177,14 +177,14 @@ resources:
 startupProbe:
   enabled: true
   httpGet:
-    path: /api/health/live
+    path: /healthz
     port: http
   failureThreshold: 30
   periodSeconds: 5
 livenessProbe:
   enabled: true
   httpGet:
-    path: /api/health/live
+    path: /healthz
     port: http
   initialDelaySeconds: 20
   periodSeconds: 30
@@ -193,7 +193,7 @@ livenessProbe:
 readinessProbe:
   enabled: true
   httpGet:
-    path: /api/health/ready
+    path: /ready
     port: http
   initialDelaySeconds: 10
   periodSeconds: 10

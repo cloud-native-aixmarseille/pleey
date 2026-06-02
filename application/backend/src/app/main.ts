@@ -31,6 +31,8 @@ async function bootstrap() {
   });
   const appModuleContext = app.select(AppModule);
 
+  app.enableShutdownHooks();
+
   const serverConfig = app.get<AppServerConfig>(APP_SERVER_CONFIG);
   const socketCorsOptions = app.get(GAME_SOCKET_CORS_OPTIONS);
 

@@ -3,7 +3,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-BACKEND_HEALTH_PATH="${BACKEND_HEALTH_PATH:-/api/health}"
+BACKEND_HEALTH_PATH="${BACKEND_HEALTH_PATH:-/ready}"
 MAX_WAIT_TIME="${MAX_WAIT_TIME:-60}"
 POLL_INTERVAL="${POLL_INTERVAL:-2}"
 VITE_API_URL_E2E="${VITE_API_URL_E2E:-http://backend:3001}"
