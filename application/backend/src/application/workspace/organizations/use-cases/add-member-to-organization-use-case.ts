@@ -1,13 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { UserId } from '../../../../domain/identity/entities/user';
+import type { UserRepository } from '../../../../domain/identity/ports/user.repository';
+import { UserRepositoryProvider } from '../../../../domain/identity/ports/user.repository';
 import type { OrganizationId } from '../../../../domain/organization/entities/organization';
 import type { OrganizationMember } from '../../../../domain/organization/entities/organization-member';
 import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
-import type { OrganizationRepository } from '../../../../domain/organization/ports/organization.repository';
-import { OrganizationRepositoryProvider } from '../../../../domain/organization/ports/organization.repository';
 import type { OrganizationMemberRepository } from '../../../../domain/organization/ports/organization-member.repository';
 import { OrganizationMemberRepositoryProvider } from '../../../../domain/organization/ports/organization-member.repository';
 import type { AddMemberDto } from '../dto/add-member-dto';
+import { OrganizationMembershipAccessService } from '../services/organization-membership-access.service';
 
 /**
  * Use case for adding a member to an organization
@@ -16,10 +17,11 @@ import type { AddMemberDto } from '../dto/add-member-dto';
 @Injectable()
 export class AddMemberToOrganizationUseCase {
   constructor(
-    @Inject(OrganizationRepositoryProvider)
-    private readonly organizationRepository: OrganizationRepository,
+    private readonly organizationMembershipAccess: OrganizationMembershipAccessService,
     @Inject(OrganizationMemberRepositoryProvider)
     private readonly memberRepository: OrganizationMemberRepository,
+    @Inject(UserRepositoryProvider)
+    private readonly userRepository: UserRepository,
   ) {}
 
   async execute(
@@ -27,31 +29,37 @@ export class AddMemberToOrganizationUseCase {
     dto: AddMemberDto,
     requestingUserId: UserId,
   ): Promise<OrganizationMember> {
-    // Verify organization exists
-    const organization = await this.organizationRepository.findById(organizationId);
-    if (!organization) {
-      throw new Error(OrganizationErrorCode.ORGANIZATION_NOT_FOUND);
-    }
-
-    // Verify requesting user has permission
-    const requestingMember = await this.memberRepository.findByOrganizationAndUser(
+    await this.organizationMembershipAccess.assertOrganizationExists(organizationId);
+    const requestingMember = await this.organizationMembershipAccess.requireManager(
       organizationId,
       requestingUserId,
     );
-    if (!requestingMember?.hasManagementPrivileges()) {
-      throw new Error(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
-    }
+    this.organizationMembershipAccess.assertCanAssignRole(requestingMember, dto.role);
 
-    // Check if user is already a member
+    const memberUserId = await this.resolveMemberUserId(dto.usernameOrEmail);
+
     const existingMember = await this.memberRepository.findByOrganizationAndUser(
       organizationId,
-      dto.userId,
+      memberUserId,
     );
     if (existingMember) {
       throw new Error(OrganizationErrorCode.MEMBER_ALREADY_EXISTS);
     }
 
-    // Add the member
-    return await this.memberRepository.create(organizationId, dto.userId, dto.role);
+    return this.memberRepository.create(organizationId, memberUserId, dto.role);
+  }
+
+  private async resolveMemberUserId(usernameOrEmail: string): Promise<UserId> {
+    const normalizedUsernameOrEmail = usernameOrEmail.trim();
+    const user = normalizedUsernameOrEmail.includes('@')
+      ? ((await this.userRepository.findByEmail(normalizedUsernameOrEmail)) ??
+        (await this.userRepository.findByUsername(normalizedUsernameOrEmail)))
+      : await this.userRepository.findByUsername(normalizedUsernameOrEmail);
+
+    if (!user) {
+      throw new Error(OrganizationErrorCode.MEMBER_USER_NOT_FOUND);
+    }
+
+    return user.id;
   }
 }

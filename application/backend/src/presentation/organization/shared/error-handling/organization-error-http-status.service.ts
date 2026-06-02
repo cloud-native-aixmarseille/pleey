@@ -9,6 +9,7 @@ const ORGANIZATION_ERROR_HTTP_STATUSES: Record<OrganizationErrorCode, number> = 
   [OrganizationErrorCode.ORGANIZATION_NAME_ALREADY_EXISTS]: 409,
   [OrganizationErrorCode.MEMBER_NOT_FOUND]: 404,
   [OrganizationErrorCode.MEMBER_ALREADY_EXISTS]: 409,
+  [OrganizationErrorCode.MEMBER_USER_NOT_FOUND]: 404,
   [OrganizationErrorCode.INSUFFICIENT_PERMISSIONS]: 403,
   [OrganizationErrorCode.CANNOT_REMOVE_LAST_OWNER]: 400,
   [OrganizationErrorCode.NOT_A_MEMBER]: 403,

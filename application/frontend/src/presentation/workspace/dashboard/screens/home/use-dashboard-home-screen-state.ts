@@ -35,7 +35,8 @@ interface DashboardCreateGameForm {
 }
 
 function createEmptyGameForm(gameTypes: readonly GameTypeDescriptor[]): DashboardCreateGameForm {
-  const firstSupportedGameType = gameTypes[0]?.key ?? null;
+  const firstSupportedGameType =
+    gameTypes.find((gameType) => gameType.key === GameType.Quiz)?.key ?? gameTypes[0]?.key ?? null;
 
   return {
     description: '',

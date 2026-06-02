@@ -40,7 +40,7 @@ export function CreateOrganizationForm({ onSubmit, onCreated }: CreateOrganizati
 
   return (
     <>
-      <Button intent="success" onClick={handleOpen} width="wide">
+      <Button intent="primary" onClick={handleOpen} width="wide">
         {t('organization.management.create.openButton')}
       </Button>
 
@@ -52,7 +52,7 @@ export function CreateOrganizationForm({ onSubmit, onCreated }: CreateOrganizati
             <Button disabled={isSubmitting} intent="ghost" onClick={handleClose}>
               {t('common.cancel')}
             </Button>
-            <Button disabled={isSubmitting} intent="success" type="submit">
+            <Button disabled={isSubmitting} intent="primary" type="submit">
               {isSubmitting
                 ? t('organization.management.create.submitting')
                 : t('organization.management.create.submit')}

@@ -1,0 +1,10 @@
+mutation AddOrganizationMember($organizationId: Int!, $input: AddOrganizationMemberInput!) {
+  addOrganizationMember(organizationId: $organizationId, input: $input) {
+    id
+    organizationId
+    userId
+    username
+    role
+    joinedAt
+  }
+}

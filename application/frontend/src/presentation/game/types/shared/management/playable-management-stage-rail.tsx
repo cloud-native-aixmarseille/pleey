@@ -3,6 +3,7 @@ import type { PlayableManagementItem } from '../../../../../domains/game/types/s
 import { usePresentationTranslation } from '../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../shared/ui/actions/button';
 import { Badge } from '../../../../shared/ui/feedback/badge';
+import { uiThemeTokens } from '../../../../shared/ui/foundation/ui-theme';
 import { AppIcon } from '../../../../shared/ui/icons/app-icon';
 import { ActionRow, ContentStack, SplitWrapRow } from '../../../../shared/ui/layout/containers';
 import { DashedNoticePanel, ElevatedPanel } from '../../../../shared/ui/layout/panels';
@@ -38,9 +39,9 @@ const listStyle = {
 } as const;
 
 const dropIndicatorStyle = {
-  background: 'var(--mantine-color-brand-5)',
+  background: uiThemeTokens.color.brand.primary,
   borderRadius: '999px',
-  boxShadow: '0 0 0 4px color-mix(in srgb, var(--mantine-color-brand-5) 18%, transparent)',
+  boxShadow: `0 0 0 4px color-mix(in srgb, ${uiThemeTokens.color.brand.primary} 18%, transparent)`,
   height: '0.25rem',
   margin: '0.2rem 0',
 } as const;
@@ -48,15 +49,15 @@ const dropIndicatorStyle = {
 const createItemCardStyle = (selected: boolean, isDragging: boolean, isDropTarget: boolean) =>
   ({
     background: isDropTarget
-      ? 'color-mix(in srgb, var(--mantine-color-brand-5) 10%, var(--mantine-color-dark-7))'
+      ? `color-mix(in srgb, ${uiThemeTokens.color.brand.primary} 10%, ${uiThemeTokens.color.surface.recessed})`
       : selected
-        ? 'var(--mantine-color-dark-6)'
+        ? uiThemeTokens.color.surface.accentMuted
         : 'transparent',
     border: isDropTarget
-      ? '1px solid var(--mantine-color-brand-4)'
+      ? `1px solid ${uiThemeTokens.color.border.accent}`
       : selected
-        ? '1px solid var(--mantine-color-brand-5)'
-        : '1px solid var(--mantine-color-dark-4)',
+        ? `1px solid ${uiThemeTokens.color.brand.primary}`
+        : `1px solid ${uiThemeTokens.color.border.subtle}`,
     borderRadius: '1rem',
     color: 'inherit',
     cursor: isDragging ? 'grabbing' : 'pointer',
@@ -91,7 +92,7 @@ const itemMetaRowStyle = {
 
 const itemMetaStatStyle = {
   alignItems: 'center',
-  border: '1px solid var(--mantine-color-dark-4)',
+  border: `1px solid ${uiThemeTokens.color.border.subtle}`,
   borderRadius: '999px',
   display: 'flex',
   gap: '0.35rem',
@@ -109,10 +110,10 @@ const createDragHandleStyle = (isHovering: boolean, isDragging: boolean) =>
   ({
     alignItems: 'center',
     background: isHovering
-      ? 'color-mix(in srgb, var(--mantine-color-brand-5) 10%, transparent)'
+      ? `color-mix(in srgb, ${uiThemeTokens.color.brand.primary} 10%, transparent)`
       : 'transparent',
     border: isHovering
-      ? '1px solid color-mix(in srgb, var(--mantine-color-brand-5) 55%, transparent)'
+      ? `1px solid color-mix(in srgb, ${uiThemeTokens.color.brand.primary} 55%, transparent)`
       : '1px solid transparent',
     borderRadius: '0.85rem',
     cursor: isDragging ? 'grabbing' : 'grab',

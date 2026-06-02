@@ -97,7 +97,7 @@ export function RegisterScreen() {
               <StatusBanner tone="error">{errorMessage}</StatusBanner>
 
               <SubmitButton
-                intent="success"
+                intent="primary"
                 label={t('auth.register.submitCta')}
                 submittingLabel={t('auth.register.submittingCta')}
                 width="wide"

@@ -6,6 +6,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import type { Response } from 'express';
+import { GraphQLError } from 'graphql';
 import { ErrorCodeHttpStatusService } from './error-code-http-status.service';
 import { ErrorTranslationService } from './error-translation-service';
 
@@ -21,10 +22,11 @@ export class I18nHttpExceptionFilter implements ExceptionFilter {
   ) {}
 
   async catch(exception: HttpException | Error, host: ArgumentsHost) {
-    const normalizedException = this.normalizeException(exception);
+    const normalizedException = this.normalizeException(this.unwrapException(exception));
     const status = normalizedException.getStatus();
     const exceptionResponse = normalizedException.getResponse();
     const hostType = host.getType<'http' | 'graphql'>();
+    const errorCode = this.extractErrorCode(exceptionResponse);
 
     let message: string | undefined;
 
@@ -49,7 +51,14 @@ export class I18nHttpExceptionFilter implements ExceptionFilter {
     }
 
     if (hostType === 'graphql') {
-      return new HttpException(message, status);
+      return new GraphQLError(message, {
+        extensions: {
+          code: this.resolveGraphqlErrorCode(status, errorCode),
+          http: {
+            status,
+          },
+        },
+      });
     }
 
     const ctx = host.switchToHttp();
@@ -73,5 +82,45 @@ export class I18nHttpExceptionFilter implements ExceptionFilter {
     }
 
     return new HttpException(exception.message, status);
+  }
+
+  private extractErrorCode(exceptionResponse: string | object): string | null {
+    if (typeof exceptionResponse === 'string') {
+      return exceptionResponse;
+    }
+
+    if ('message' in exceptionResponse && typeof exceptionResponse.message === 'string') {
+      return exceptionResponse.message;
+    }
+
+    return null;
+  }
+
+  private resolveGraphqlErrorCode(status: number, errorCode: string | null): string {
+    if (errorCode && errorCode !== 'UNKNOWN_ERROR') {
+      return errorCode;
+    }
+
+    if (status === 400) {
+      return 'BAD_REQUEST';
+    }
+
+    if (status === 401) {
+      return 'UNAUTHENTICATED';
+    }
+
+    if (status === 403) {
+      return 'FORBIDDEN';
+    }
+
+    return 'INTERNAL_SERVER_ERROR';
+  }
+
+  private unwrapException(exception: HttpException | Error): HttpException | Error {
+    if (exception instanceof GraphQLError && exception.path && exception.originalError) {
+      return exception.originalError as Error;
+    }
+
+    return exception;
   }
 }

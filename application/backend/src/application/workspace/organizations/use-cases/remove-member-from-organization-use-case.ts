@@ -2,9 +2,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import type { UserId } from '../../../../domain/identity/entities/user';
 import type { OrganizationMemberId } from '../../../../domain/organization/entities/organization-member';
 import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
-import { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
 import type { OrganizationMemberRepository } from '../../../../domain/organization/ports/organization-member.repository';
 import { OrganizationMemberRepositoryProvider } from '../../../../domain/organization/ports/organization-member.repository';
+import { OrganizationMembershipAccessService } from '../services/organization-membership-access.service';
 
 /**
  * Use case for removing a member from an organization
@@ -13,38 +13,29 @@ import { OrganizationMemberRepositoryProvider } from '../../../../domain/organiz
 @Injectable()
 export class RemoveMemberFromOrganizationUseCase {
   constructor(
+    private readonly organizationMembershipAccess: OrganizationMembershipAccessService,
     @Inject(OrganizationMemberRepositoryProvider)
     private readonly memberRepository: OrganizationMemberRepository,
   ) {}
 
   async execute(memberId: OrganizationMemberId, requestingUserId: UserId): Promise<void> {
-    // Get the member to remove
     const memberToRemove = await this.memberRepository.findById(memberId);
     if (!memberToRemove) {
       throw new Error(OrganizationErrorCode.MEMBER_NOT_FOUND);
     }
 
-    // Get requesting user's membership
-    const requestingMember = await this.memberRepository.findByOrganizationAndUser(
+    const requestingMember = await this.organizationMembershipAccess.requireManager(
       memberToRemove.organizationId,
       requestingUserId,
     );
-    if (!requestingMember?.hasManagementPrivileges()) {
-      throw new Error(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
-    }
+    this.organizationMembershipAccess.assertCanManageMember(requestingMember, memberToRemove);
 
-    // If removing an owner, check it's not the last one
-    if (memberToRemove.role === OrganizationRole.OWNER) {
-      const allMembers = await this.memberRepository.findByOrganization(
+    if (memberToRemove.isOwner()) {
+      await this.organizationMembershipAccess.assertOwnerCountCanShrink(
         memberToRemove.organizationId,
       );
-      const ownerCount = allMembers.filter((m) => m.isOwner()).length;
-      if (ownerCount <= 1) {
-        throw new Error(OrganizationErrorCode.CANNOT_REMOVE_LAST_OWNER);
-      }
     }
 
-    // Remove the member
     await this.memberRepository.delete(memberId);
   }
 }

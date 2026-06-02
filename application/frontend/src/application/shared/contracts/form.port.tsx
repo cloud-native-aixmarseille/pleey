@@ -95,7 +95,7 @@ export interface SelectFormFieldProps {
 
 export interface SubmitButtonProps {
   readonly disabled?: boolean;
-  readonly intent?: 'primary' | 'success' | 'outline' | 'ghost';
+  readonly intent?: 'primary' | 'outline' | 'ghost';
   readonly size?: 'md' | 'sm';
   readonly width?: 'auto' | 'wide';
   readonly label: string;

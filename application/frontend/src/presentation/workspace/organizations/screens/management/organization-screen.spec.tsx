@@ -1,6 +1,8 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
+import { OrganizationRole } from '../../../../../domains/organization/entities/organization';
+import type { OrganizationMember } from '../../../../../domains/organization/entities/organization-member';
 import { OrganizationFixtureFactory } from '../../../../../test-utils/fixtures/organization-fixture-factory';
 import { OrganizationScreenFixtureFactory } from '../../../../../test-utils/fixtures/organization-screen-fixture-factory';
 import { OrganizationIdentifierMockFactory } from '../../../../../test-utils/mocks/organization-identifier-mock-factory';
@@ -14,6 +16,18 @@ const projectIdentifier = new ProjectIdentifierMockFactory().create();
 
 const organizationScreenFixtureFactory = new OrganizationScreenFixtureFactory();
 const organizationFixtureFactory = new OrganizationFixtureFactory();
+
+function createOrganizationMember(overrides: Partial<OrganizationMember> = {}): OrganizationMember {
+  return {
+    id: 21 as OrganizationMember['id'],
+    joinedAt: '2026-03-20T10:00:00.000Z',
+    organizationId: organizationIdentifier.parse(3),
+    role: OrganizationRole.MEMBER,
+    userId: 42,
+    username: 'captain',
+    ...overrides,
+  };
+}
 
 vi.mock('../../../../shared/i18n/use-presentation-translation', async (importOriginal) => {
   const { PresentationTranslationMockFactory } = await import(
@@ -37,8 +51,9 @@ function renderOrganizationScreen(
   > = {},
   dashboardWorkspaceOverrides: Partial<DashboardWorkspaceSelectionGateway> = {},
   options: RenderOrganizationScreenOptions = {},
+  actionOverrides: Partial<ReturnType<OrganizationScreenFixtureFactory['createActions']>> = {},
 ) {
-  const actions = organizationScreenFixtureFactory.createActions();
+  const actions = organizationScreenFixtureFactory.createActions(actionOverrides);
   const shouldDeferWorkspaceLoad = options.deferWorkspaceLoad ?? false;
   const dashboardWorkspace: DashboardWorkspaceSelectionGateway = {
     restoreOrganizationSelection: shouldDeferWorkspaceLoad
@@ -70,6 +85,12 @@ function renderOrganizationScreen(
       <OrganizationScreen
         dashboardWorkspace={dashboardWorkspace}
         createOrganization={actions.createOrganization}
+        listOrganizationMembers={actions.listOrganizationMembers}
+        addOrganizationMember={actions.addOrganizationMember}
+        removeOrganizationMember={(member) =>
+          actions.removeOrganizationMember({ memberId: member.id })
+        }
+        updateOrganizationMemberRole={actions.updateOrganizationMemberRole}
         createProject={actions.createProject}
         updateProject={actions.updateProject}
         deleteProject={actions.deleteProject}
@@ -423,6 +444,12 @@ describe('OrganizationScreen', () => {
             setProjectSelection: vi.fn(),
           }}
           createOrganization={actions.createOrganization}
+          listOrganizationMembers={actions.listOrganizationMembers}
+          addOrganizationMember={actions.addOrganizationMember}
+          removeOrganizationMember={(member) =>
+            actions.removeOrganizationMember({ memberId: member.id })
+          }
+          updateOrganizationMemberRole={actions.updateOrganizationMemberRole}
           createProject={actions.createProject}
           updateProject={actions.updateProject}
           deleteProject={actions.deleteProject}
@@ -460,6 +487,151 @@ describe('OrganizationScreen', () => {
       expect(deleteProject).toHaveBeenCalledWith({
         projectId: projectIdentifier.parse(11),
         migrationProjectId: projectIdentifier.parse(12),
+      });
+    });
+
+    it('renders organization members for the selected organization', async () => {
+      const member = createOrganizationMember({ role: OrganizationRole.MANAGER });
+
+      renderOrganizationScreen(
+        {},
+        {},
+        { deferWorkspaceLoad: false },
+        {
+          listOrganizationMembers: vi.fn().mockResolvedValue([member]),
+        },
+      );
+
+      expect(await screen.findByText('captain')).toBeInTheDocument();
+      expect(
+        screen.getAllByText('organization.management.members.roles.manager').length,
+      ).toBeGreaterThan(0);
+    });
+
+    it('updates an organization member role from the member list', async () => {
+      const user = userEvent.setup();
+      const member = createOrganizationMember();
+      const updateOrganizationMemberRole = vi.fn().mockResolvedValue({
+        ...member,
+        role: OrganizationRole.MANAGER,
+      });
+
+      renderOrganizationScreen(
+        {},
+        {},
+        { deferWorkspaceLoad: false },
+        {
+          listOrganizationMembers: vi.fn().mockResolvedValue([member]),
+          updateOrganizationMemberRole,
+        },
+      );
+
+      await user.selectOptions(
+        await screen.findByLabelText('organization.management.members.roleLabel'),
+        OrganizationRole.MANAGER,
+      );
+
+      await waitFor(() => {
+        expect(updateOrganizationMemberRole).toHaveBeenCalledWith({
+          memberId: member.id,
+          role: OrganizationRole.MANAGER,
+        });
+      });
+    });
+
+    it('hides owner-only member actions for managers', async () => {
+      const ownerMember = createOrganizationMember({ role: OrganizationRole.OWNER });
+
+      renderOrganizationScreen(
+        {},
+        {
+          restoreOrganizationSelection: vi.fn().mockResolvedValue({
+            organizations: [
+              organizationFixtureFactory.createOrganization({ role: OrganizationRole.MANAGER }),
+            ],
+            organizationId: organizationIdentifier.parse(3),
+          }),
+        },
+        { deferWorkspaceLoad: false },
+        {
+          listOrganizationMembers: vi.fn().mockResolvedValue([ownerMember]),
+        },
+      );
+
+      await screen.findByText('captain');
+
+      expect(
+        screen.queryAllByRole('option', {
+          name: 'organization.management.members.roles.owner',
+        }),
+      ).toHaveLength(0);
+      expect(
+        screen.queryByRole('button', { name: 'organization.management.members.removeButton' }),
+      ).toBeNull();
+      expect(
+        screen.getAllByText('organization.management.members.roles.owner').length,
+      ).toBeGreaterThan(0);
+    });
+
+    it('adds an organization member from the member form', async () => {
+      const user = userEvent.setup();
+      const addOrganizationMember = vi.fn().mockResolvedValue(createOrganizationMember());
+
+      renderOrganizationScreen({}, {}, { deferWorkspaceLoad: false }, { addOrganizationMember });
+
+      await user.type(
+        await screen.findByLabelText(/organization\.management\.members\.usernameOrEmailLabel/),
+        'captain@pleey.io',
+      );
+      await user.click(
+        screen.getByRole('button', { name: 'organization.management.members.addButton' }),
+      );
+
+      await waitFor(() => {
+        expect(addOrganizationMember).toHaveBeenCalledWith({
+          organizationId: organizationIdentifier.parse(3),
+          role: OrganizationRole.MEMBER,
+          usernameOrEmail: 'captain@pleey.io',
+        });
+      });
+    });
+
+    it('removes an organization member from the member list', async () => {
+      const user = userEvent.setup();
+      const member = createOrganizationMember();
+      const removeOrganizationMember = vi.fn().mockResolvedValue(undefined);
+
+      renderOrganizationScreen(
+        {},
+        {},
+        { deferWorkspaceLoad: false },
+        {
+          listOrganizationMembers: vi.fn().mockResolvedValue([member]),
+          removeOrganizationMember,
+        },
+      );
+
+      await user.click(
+        await screen.findByRole('button', {
+          name: 'organization.management.members.removeButton',
+        }),
+      );
+
+      expect(await screen.findByRole('dialog')).toBeInTheDocument();
+      expect(
+        screen.getByText('organization.management.members.removal.dialogTitle'),
+      ).toBeInTheDocument();
+
+      expect(removeOrganizationMember).not.toHaveBeenCalled();
+
+      await user.click(
+        screen.getByRole('button', {
+          name: 'organization.management.members.removal.confirm',
+        }),
+      );
+
+      await waitFor(() => {
+        expect(removeOrganizationMember).toHaveBeenCalledWith({ memberId: member.id });
       });
     });
   });

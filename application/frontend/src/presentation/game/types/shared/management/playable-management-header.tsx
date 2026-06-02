@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { PlayableManagementState } from '../../../../../domains/game/types/shared/management/playable-management';
 import { usePresentationTranslation } from '../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../shared/ui/actions/button';
+import { uiThemeTokens } from '../../../../shared/ui/foundation/ui-theme';
 import { AppIcon } from '../../../../shared/ui/icons/app-icon';
 import { ActionRow, ContentStack, SplitWrapRow } from '../../../../shared/ui/layout/containers';
 import { Eyebrow, Heading, SupportingText } from '../../../../shared/ui/layout/typography';
@@ -20,9 +21,10 @@ const menuWrapperStyle = {
 } as const;
 
 const menuStyle = {
-  background: 'var(--mantine-color-dark-7)',
-  border: '1px solid var(--mantine-color-dark-4)',
+  background: uiThemeTokens.color.surface.canvas,
+  border: `1px solid ${uiThemeTokens.color.border.subtle}`,
   borderRadius: '1rem',
+  boxShadow: uiThemeTokens.shadow.elevated,
   display: 'grid',
   gap: '0.25rem',
   minWidth: '13rem',

@@ -2,11 +2,11 @@
   "errors": {
     "quizNotFound": "Quiz introuvable",
     "questionNotFound": "Question introuvable",
-    "quizHasActiveParty": "Vous ne pouvez pas supprimer ce quiz tant qu'une partie est active",
-    "invalidCorrectAnswer": "Valeur de réponse correcte invalide",
-    "correctAnswerOptionEmpty": "L'option sélectionnée comme réponse correcte ne peut pas être vide",
+    "quizHasActiveParty": "Impossible de supprimer ce quiz tant qu'une partie est en cours",
+    "invalidCorrectAnswer": "La bonne réponse sélectionnée est invalide",
+    "correctAnswerOptionEmpty": "L'option choisie comme bonne réponse ne peut pas être vide",
     "importInvalidFile": "Ce fichier d'import de quiz n'a pas pu être analysé",
-    "importUnsupportedFormat": "Ce format d'import de quiz n'est pas pris en charge",
-    "importEmptyFile": "Aucune question de quiz n'a été trouvée dans ce fichier d'import"
+    "importUnsupportedFormat": "Ce format de fichier de quiz n'est pas pris en charge",
+    "importEmptyFile": "Aucune question n'a été trouvée dans ce fichier d'import"
   }
 }

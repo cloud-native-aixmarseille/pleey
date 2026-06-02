@@ -120,52 +120,6 @@ export class PrismaPredictionManagementRepository implements PredictionManagemen
     return this.toDomain(game.prediction);
   }
 
-  async createWithPrompts(data: CreatePredictionWithPromptsData): Promise<Prediction> {
-    const game = await this.prisma.game.create({
-      data: {
-        type: GameType.Prediction,
-        title: data.title,
-        description: data.description,
-        projectId: data.projectId,
-        prediction: {
-          create: {
-            prompts: {
-              create: data.prompts.map((prompt, index) => ({
-                position: index,
-                promptText: prompt.promptText,
-                timeLimit: prompt.timeLimit,
-                points: prompt.points,
-                options: {
-                  create: prompt.options.map((option) => ({
-                    text: option.text,
-                    position: option.position,
-                    isCorrect: option.isCorrect,
-                  })),
-                },
-              })),
-            },
-          },
-        },
-      },
-      include: {
-        prediction: {
-          include: {
-            _count: {
-              select: { prompts: true },
-            },
-            game: true,
-          },
-        },
-      },
-    });
-
-    if (!game.prediction) {
-      throw new Error('PREDICTION_NOT_CREATED');
-    }
-
-    return this.toDomain(game.prediction);
-  }
-
   async findById(id: number): Promise<Prediction | null> {
     const prediction = await this.prisma.prediction.findFirst({
       where: {

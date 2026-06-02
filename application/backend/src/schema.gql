@@ -9,7 +9,7 @@ type ActionPermissionType {
 
 input AddOrganizationMemberInput {
   role: OrganizationRole!
-  userId: Int!
+  usernameOrEmail: String!
 }
 
 type AuthResponseType {
@@ -142,6 +142,7 @@ type Mutation {
   regenerateAvatar: AuthUserProfileType!
   register(input: RegisterInput!): AuthUserProfileType!
   removeOrganizationMember(memberId: Int!): Boolean!
+  updateOrganizationMemberRole(input: UpdateOrganizationMemberRoleInput!, memberId: Int!): OrganizationMemberType!
   updatePrediction(input: UpdatePredictionInput!, predictionId: Int!): PredictionType!
   updatePredictionPrompt(input: UpdatePredictionPromptInput!, promptId: Int!): PredictionPromptType!
   updateProfile(input: UpdateProfileInput!): AuthUserProfileType!
@@ -173,12 +174,17 @@ type OrganizationListType {
   organizations: [OrganizationType!]!
 }
 
+type OrganizationMemberListType {
+  members: [OrganizationMemberType!]!
+}
+
 type OrganizationMemberType {
   id: Int!
   joinedAt: DateTime!
   organizationId: Int!
   role: OrganizationRole!
   userId: Int!
+  username: String!
 }
 
 enum OrganizationRole {
@@ -286,6 +292,7 @@ type Query {
   me: AuthUserProfileType!
   myOrganizations: OrganizationListType!
   organizationDashboard(organizationId: Int!): OrganizationDashboardType!
+  organizationMembers(organizationId: Int!): OrganizationMemberListType!
   organizationProjects(organizationId: Int!): ProjectListType!
   prediction(predictionId: Int!): PredictionType!
   predictionPrompts(predictionId: Int!): [PredictionPromptType!]!
@@ -347,6 +354,10 @@ type SelectableOptionType {
 
 type Subscription {
   healthTick: HealthStatus!
+}
+
+input UpdateOrganizationMemberRoleInput {
+  role: OrganizationRole!
 }
 
 input UpdatePredictionInput {

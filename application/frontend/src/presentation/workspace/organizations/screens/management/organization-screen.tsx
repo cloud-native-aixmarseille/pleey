@@ -1,5 +1,11 @@
 import type { Organization } from '../../../../../domains/organization/entities/organization';
-import type { CreateOrganizationCommand } from '../../../../../domains/organization/ports/organization-repository';
+import { OrganizationRole } from '../../../../../domains/organization/entities/organization';
+import type { OrganizationMember } from '../../../../../domains/organization/entities/organization-member';
+import type {
+  AddOrganizationMemberCommand,
+  CreateOrganizationCommand,
+  UpdateOrganizationMemberRoleCommand,
+} from '../../../../../domains/organization/ports/organization-repository';
 import type { Project } from '../../../../../domains/project/entities/project';
 import type {
   CreateProjectCommand,
@@ -12,6 +18,8 @@ import { ContentStack } from '../../../../shared/ui/layout/containers';
 import { SubpageHeader } from '../../../../shared/ui/layout/subpage-header';
 import type { DashboardWorkspaceSelectionGateway } from '../../../dashboard/hooks/use-dashboard-workspace';
 import { CreateOrganizationForm } from './components/create-organization-form';
+import { OrganizationMemberRemovalDialog } from './components/organization-member-removal-dialog';
+import { OrganizationMembersSection } from './components/organization-members-section';
 import { OrganizationOverviewPanel } from './components/organization-overview-panel';
 import { OrganizationProjectsSection } from './components/organization-projects-section';
 import { ProjectFormDialog } from './components/project-form-dialog';
@@ -21,6 +29,16 @@ import { useOrganizationScreenState } from './use-organization-screen-state';
 interface OrganizationScreenProps {
   readonly dashboardWorkspace: DashboardWorkspaceSelectionGateway;
   readonly createOrganization: (command: CreateOrganizationCommand) => Promise<Organization>;
+  readonly listOrganizationMembers: (
+    organizationId: Organization['id'],
+  ) => Promise<OrganizationMember[]>;
+  readonly addOrganizationMember: (
+    command: AddOrganizationMemberCommand,
+  ) => Promise<OrganizationMember>;
+  readonly removeOrganizationMember: (member: OrganizationMember) => Promise<void>;
+  readonly updateOrganizationMemberRole: (
+    command: UpdateOrganizationMemberRoleCommand,
+  ) => Promise<OrganizationMember>;
   readonly createProject: (command: CreateProjectCommand) => Promise<Project>;
   readonly updateProject: (command: UpdateProjectCommand) => Promise<Project>;
   readonly deleteProject: (command: DeleteProjectCommand) => Promise<void>;
@@ -29,6 +47,10 @@ interface OrganizationScreenProps {
 export function OrganizationScreen({
   dashboardWorkspace,
   createOrganization,
+  listOrganizationMembers,
+  addOrganizationMember,
+  removeOrganizationMember,
+  updateOrganizationMemberRole,
   createProject,
   updateProject,
   deleteProject,
@@ -37,26 +59,41 @@ export function OrganizationScreen({
   const {
     actionErrorMessage,
     availableMigrationProjects,
+    cancelOrganizationMemberRemoval,
     cancelProjectRemoval,
+    canManageMembers,
     closeCreateProjectDialog,
     closeEditProjectDialog,
     editingProject,
+    handleConfirmOrganizationMemberRemoval,
     handleConfirmProjectRemoval,
+    handleAddOrganizationMember,
     handleCreateProject,
+    handleMemberFormChange,
     handleOrganizationChange,
     handleOrganizationCreated,
     handleProjectMutationCompleted,
+    handleUpdateOrganizationMemberRole,
     handleUpdateProject,
+    isAddingMember,
     isCreateProjectOpen,
     isDeletingProject,
+    isMembersLoading,
     isOrganizationsLoading,
+    memberErrorMessage,
+    memberForm,
+    memberPendingRemoval,
     migrationProjectId,
     openCreateProjectDialog,
     openEditProjectDialog,
+    openRemoveOrganizationMemberDialog,
     openRemoveProjectDialog,
     organizationDashboard,
     organizationId,
+    organizationMembers,
     organizations,
+    pendingRoleUpdateMemberId,
+    pendingRemovalMemberId,
     errorMessage,
     projectPendingRemoval,
     projects,
@@ -67,6 +104,10 @@ export function OrganizationScreen({
     createProject,
     deleteProject,
     dashboardWorkspace,
+    listOrganizationMembers,
+    addOrganizationMember,
+    removeOrganizationMember,
+    updateOrganizationMemberRole,
     updateProject,
   });
 
@@ -106,6 +147,54 @@ export function OrganizationScreen({
         projects={projects}
         selectedProjectId={selectedProject?.id ?? null}
         title={t('project.management.section.title')}
+      />
+
+      <OrganizationMembersSection
+        addButtonLabel={t('organization.management.members.addButton')}
+        addDisabled={selectedOrganization === null}
+        addForm={memberForm}
+        canManageMembers={canManageMembers}
+        emptyLabel={t('organization.management.members.empty')}
+        errorMessage={memberErrorMessage ? t(memberErrorMessage) : null}
+        isAddingMember={isAddingMember}
+        isLoading={isMembersLoading}
+        members={organizationMembers}
+        onAddFormChange={handleMemberFormChange}
+        onAddMember={handleAddOrganizationMember}
+        onRemoveMember={openRemoveOrganizationMemberDialog}
+        onUpdateMemberRole={handleUpdateOrganizationMemberRole}
+        pendingRoleUpdateMemberId={pendingRoleUpdateMemberId}
+        pendingRemovalMemberId={pendingRemovalMemberId}
+        removeButtonLabel={t('organization.management.members.removeButton')}
+        roleLabel={t('organization.management.members.roleLabel')}
+        roleLabels={{
+          [OrganizationRole.OWNER]: t('organization.management.members.roles.owner'),
+          [OrganizationRole.MANAGER]: t('organization.management.members.roles.manager'),
+          [OrganizationRole.MEMBER]: t('organization.management.members.roles.member'),
+        }}
+        selectedOrganizationRole={selectedOrganization?.role ?? null}
+        selectedOrganizationName={selectedOrganization?.name ?? null}
+        title={t('organization.management.members.title')}
+        usernameOrEmailLabel={t('organization.management.members.usernameOrEmailLabel')}
+        usernameOrEmailPlaceholder={t('organization.management.members.usernameOrEmailPlaceholder')}
+      />
+
+      <OrganizationMemberRemovalDialog
+        cancelLabel={t('common.cancel')}
+        confirmDisabled={pendingRemovalMemberId !== null}
+        confirmLabel={t('organization.management.members.removal.confirm')}
+        isOpen={memberPendingRemoval !== null}
+        message={
+          memberPendingRemoval
+            ? t('organization.management.members.removal.dialogMessage', {
+                member: String(memberPendingRemoval.userId),
+                organization: selectedOrganization?.name ?? '',
+              })
+            : ''
+        }
+        onCancel={cancelOrganizationMemberRemoval}
+        onConfirm={handleConfirmOrganizationMemberRemoval}
+        title={t('organization.management.members.removal.dialogTitle')}
       />
 
       <ProjectFormDialog

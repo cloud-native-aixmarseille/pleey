@@ -2,15 +2,15 @@ export const homeFr = {
   home: {
     hero: {
       eyebrow: 'Plateforme événementielle live',
-      title: 'Transformez chaque audience en joueurs actifs.',
+      title: 'Transformez chaque public en joueurs actifs.',
       tagline:
-        'Lancez des quiz, des pronostics et des jeux interactifs qui captent toute la salle de dix personnes à dix mille.',
+        'Lancez des quiz, des pronostics et des jeux interactifs qui captivent toute la salle, de dix à dix mille personnes.',
       primaryCta: 'Créer votre premier jeu',
     },
     valueProposition: {
       heading: 'Une seule plateforme pour chaque moment interactif.',
       description:
-        'Pleey offre aux animateurs un centre de contrôle unique pour créer, lancer et animer des expériences live. Aucun téléchargement, aucune friction - juste un code pin et un écran.',
+        'Pleey offre aux animateurs un centre de contrôle unique pour créer, lancer et animer des expériences en direct. Aucun téléchargement, aucune friction : juste un code PIN et un écran.',
     },
     howItWorks: {
       eyebrow: 'Trois étapes pour passer en live',
@@ -23,7 +23,7 @@ export const homeFr = {
         {
           title: 'Partagez le code',
           description:
-            'Générez un code de participation et envoyez-le à votre audience. Ils rejoignent instantanément depuis leur appareil.',
+            'Générez un code de participation et partagez-le avec votre public. Chacun rejoint instantanément depuis son appareil.',
         },
         {
           title: 'Passez en live',
@@ -47,7 +47,7 @@ export const homeFr = {
         },
         {
           label: 'Multilingue par défaut',
-          description: "Animez en anglais ou en français - l'interface s'adapte à chaque joueur.",
+          description: "Animez en anglais ou en français : l'interface s'adapte à chaque joueur.",
         },
         {
           label: 'Tout appareil, zéro installation',

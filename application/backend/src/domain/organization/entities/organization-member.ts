@@ -15,6 +15,7 @@ export class OrganizationMember {
     public readonly id: OrganizationMemberId,
     public readonly organizationId: OrganizationId,
     public readonly userId: UserId,
+    public readonly username: string,
     public role: OrganizationRole,
     public readonly joinedAt: Date,
   ) {}

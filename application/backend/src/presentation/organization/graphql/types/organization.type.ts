@@ -43,11 +43,20 @@ export class OrganizationMemberType {
   @Field(() => Int)
   userId!: number;
 
+  @Field()
+  username!: string;
+
   @Field(() => OrganizationRole)
   role!: OrganizationRole;
 
   @Field()
   joinedAt!: Date;
+}
+
+@ObjectType()
+export class OrganizationMemberListType {
+  @Field(() => [OrganizationMemberType])
+  members!: OrganizationMemberType[];
 }
 
 @ObjectType()

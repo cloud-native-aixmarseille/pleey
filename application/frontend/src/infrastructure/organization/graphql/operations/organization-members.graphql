@@ -1,0 +1,12 @@
+query OrganizationMembers($organizationId: Int!) {
+  organizationMembers(organizationId: $organizationId) {
+    members {
+      id
+      organizationId
+      userId
+      username
+      role
+      joinedAt
+    }
+  }
+}

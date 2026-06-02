@@ -11,6 +11,7 @@ const ORGANIZATION_ERROR_TRANSLATION_KEYS: Record<OrganizationErrorCode, string>
     'organization.errors.organizationNameAlreadyExists',
   [OrganizationErrorCode.MEMBER_NOT_FOUND]: 'organization.errors.memberNotFound',
   [OrganizationErrorCode.MEMBER_ALREADY_EXISTS]: 'organization.errors.memberAlreadyExists',
+  [OrganizationErrorCode.MEMBER_USER_NOT_FOUND]: 'organization.errors.memberUserNotFound',
   [OrganizationErrorCode.INSUFFICIENT_PERMISSIONS]: 'organization.errors.insufficientPermissions',
   [OrganizationErrorCode.CANNOT_REMOVE_LAST_OWNER]: 'organization.errors.cannotRemoveLastOwner',
   [OrganizationErrorCode.NOT_A_MEMBER]: 'organization.errors.notAMember',

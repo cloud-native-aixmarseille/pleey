@@ -2,7 +2,7 @@ export const authFr = {
   auth: {
     branding: {
       eyebrow: 'Pleey',
-      title: 'Dynamisez vos événements avec des jeux live.',
+      title: 'Dynamisez vos événements avec des jeux en direct.',
       feature1: 'Quiz et pronostics en direct',
       feature2: 'Engagement du public en temps réel',
       feature3: 'Résultats et analyses instantanés',
@@ -23,7 +23,7 @@ export const authFr = {
     },
     signIn: {
       eyebrow: 'Connexion',
-      title: 'Bon retour.',
+      title: 'Ravi de vous revoir.',
       subtitle: 'Connectez-vous \u00e0 votre compte Pleey pour continuer.',
       formLegend: 'Vos identifiants',
       formDescription:
@@ -35,7 +35,7 @@ export const authFr = {
       forgotPasswordLink: 'Mot de passe oubli\u00e9\u00a0?',
       activeSession: {
         eyebrow: 'Session active',
-        title: 'Bon retour, {{username}}.',
+        title: 'Ravi de vous revoir, {{username}}.',
         description:
           'Vous \u00eates d\u00e9j\u00e0 connect\u00e9. Acc\u00e9dez au dashboard ou changez de compte.',
         dashboardCta: 'Aller au dashboard',
@@ -96,7 +96,7 @@ export const authFr = {
     },
     errors: {
       invalidResponse: 'Une erreur est survenue. Veuillez r\u00e9essayer.',
-      invalidCredentials: 'Email ou mot de passe invalide.',
+      invalidCredentials: 'Email ou mot de passe incorrect.',
       registrationFailed:
         'Impossible de cr\u00e9er le compte pour le moment. Veuillez r\u00e9essayer.',
       unauthorized: 'Votre session a expir\u00e9. Veuillez vous reconnecter.',

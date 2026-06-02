@@ -121,6 +121,13 @@ import { DatabaseModule } from '../database/database-module';
     GqlJwtAuthGuard,
     AuthResolver,
   ],
-  exports: [JwtModule, PassportModule, JwtStrategy, GqlJwtAuthGuard, GuestRepositoryProvider],
+  exports: [
+    JwtModule,
+    PassportModule,
+    JwtStrategy,
+    GqlJwtAuthGuard,
+    GuestRepositoryProvider,
+    UserRepositoryProvider,
+  ],
 })
 export class IdentityModule {}
