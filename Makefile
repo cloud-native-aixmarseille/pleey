@@ -189,7 +189,7 @@ traefik: ## Open Traefik dashboard
 
 health: ## Check application health
 	@echo "$(GREEN)Checking status...$(NC)"
-	@curl -s http://pleey.localhost/api/health/live | jq '.' || echo "$(YELLOW)Backend unavailable$(NC)"
+	@curl -s http://pleey.localhost/ready | jq '.' || echo "$(YELLOW)Backend unavailable$(NC)"
 	@curl -s -o /dev/null -w "Frontend: %{http_code}\n" http://pleey.localhost/
 
 # ==========================================

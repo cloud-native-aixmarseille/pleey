@@ -71,7 +71,7 @@ spec:
       command:
         - sh
         - -ec
-        - wget -qO- http://{{ include "pleey.backend.fullname" . }}:{{ include "pleey.backend.servicePort" . }}/api/health/live >/dev/null
+        - wget -qO- http://{{ include "pleey.backend.fullname" . }}:{{ include "pleey.backend.servicePort" . }}/healthz >/dev/null
   restartPolicy: Never
 {{- end }}
 {{- end }}

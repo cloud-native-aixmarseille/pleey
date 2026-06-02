@@ -1,7 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 
-const API_BASE_URL = process.env.API_BASE_URL ?? "http://backend:3001/api";
-const HEALTH_ENDPOINT = `${API_BASE_URL}/health`;
+const LIVENESS_ENDPOINT = process.env.LIVENESS_ENDPOINT ?? "http://backend:3001/healthz";
+const READINESS_ENDPOINT = process.env.READINESS_ENDPOINT ?? "http://backend:3001/ready";
 
 async function waitForHomePageReady(page: Page) {
   await expect(page.getByRole("main")).toBeVisible();
@@ -33,27 +33,11 @@ test.describe("Smoke Tests", () => {
     await expect(page.locator("body")).toBeVisible();
   });
 
-  test("should have backend health endpoint responding @smoke", async ({
-    request,
-  }) => {
-    // Check backend health endpoint
-    const response = await request.get(HEALTH_ENDPOINT);
-
-    // Verify response
-    expect(response.ok()).toBeTruthy();
-    expect(response.status()).toBe(200);
-
-    // Verify response structure
-    const body = await response.json();
-    expect(body).toHaveProperty("status");
-    expect(body.status).toBe("ok");
-  });
-
   test("should have backend liveness probe responding @smoke", async ({
     request,
   }) => {
     // Check liveness probe
-    const response = await request.get(`${HEALTH_ENDPOINT}/live`);
+    const response = await request.get(LIVENESS_ENDPOINT);
 
     expect(response.ok()).toBeTruthy();
     expect(response.status()).toBe(200);
@@ -63,7 +47,7 @@ test.describe("Smoke Tests", () => {
     request,
   }) => {
     // Check readiness probe
-    const response = await request.get(`${HEALTH_ENDPOINT}/ready`);
+    const response = await request.get(READINESS_ENDPOINT);
 
     expect(response.ok()).toBeTruthy();
     expect(response.status()).toBe(200);

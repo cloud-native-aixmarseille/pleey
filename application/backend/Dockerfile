@@ -47,7 +47,7 @@ COPY --chown=node:node --from=build-prod /usr/src/app/prisma.config.ts /usr/src/
 COPY --chown=node:node --from=build-prod /usr/src/app/dist /usr/src/app/dist
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-    CMD curl -fsS http://localhost:3001/api/health/ready || exit 1
+    CMD curl -fsS http://localhost:3001/ready || exit 1
 
 CMD ["dumb-init", "node", "--max-old-space-size=200", "/usr/src/app/dist/src/app/main.js"]
 

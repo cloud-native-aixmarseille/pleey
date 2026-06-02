@@ -60,9 +60,8 @@ For complete API documentation including REST endpoints and WebSocket events, se
 
 ### Health Check Endpoints
 
-- `GET /health` - Complete health check (database, disk, memory)
-- `GET /health/ready` - Readiness probe (database connection)
-- `GET /health/live` - Liveness probe (memory check)
+- `GET /healthz` - Kubernetes liveness probe. Lightweight Terminus check with no downstream dependency checks.
+- `GET /ready` - Kubernetes readiness probe. Terminus check for application readiness and database connectivity.
 
 ## 📜 License
 
