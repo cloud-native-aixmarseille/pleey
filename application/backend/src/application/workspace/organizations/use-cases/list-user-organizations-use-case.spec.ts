@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
+import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import {
   createOrganizationMemberRepositoryMock,
   createOrganizationRepositoryMock,
@@ -20,7 +21,7 @@ describe('ListUserOrganizationsUseCase', () => {
       memberRepository as never,
     );
 
-    const result = await useCase.execute(1);
+    const result = await useCase.execute(backendTestIdentifiers.user(1));
     expect(result).toEqual([]);
     expect(organizationRepository.findByIds).not.toHaveBeenCalled();
   });
@@ -43,7 +44,7 @@ describe('ListUserOrganizationsUseCase', () => {
       memberRepository as never,
     );
 
-    const result = await useCase.execute(10);
+    const result = await useCase.execute(backendTestIdentifiers.user(10));
     expect(organizationRepository.findByIds).toHaveBeenCalledWith([
       organizationIdentifier.parse(1),
     ]);

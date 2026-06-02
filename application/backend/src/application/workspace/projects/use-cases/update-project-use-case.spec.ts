@@ -1,5 +1,6 @@
 import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
 import { ProjectErrorCode } from '../../../../domain/project/enums/project-error-code.enum';
+import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { createOrganizationMemberRepositoryMock } from '../../../../test-utils/mock-factories/organization.mock-factory';
 import { createProjectRepositoryMock } from '../../../../test-utils/mock-factories/project-repository.mock-factory';
 import { OrganizationIdentifier } from '../../shared/services/identifiers/organization-identifier';
@@ -21,7 +22,7 @@ describe('UpdateProjectUseCase', () => {
       useCase.execute(
         projectIdentifier.parse(5),
         { name: 'Updated project' } satisfies UpdateProjectDto,
-        22,
+        backendTestIdentifiers.user(22),
       ),
     ).rejects.toThrow(ProjectErrorCode.PROJECT_NOT_FOUND);
   });
@@ -43,7 +44,7 @@ describe('UpdateProjectUseCase', () => {
       useCase.execute(
         projectIdentifier.parse(5),
         { name: 'Updated project' } satisfies UpdateProjectDto,
-        22,
+        backendTestIdentifiers.user(22),
       ),
     ).rejects.toThrow(OrganizationErrorCode.NOT_A_MEMBER);
   });
@@ -67,7 +68,7 @@ describe('UpdateProjectUseCase', () => {
       useCase.execute(
         projectIdentifier.parse(5),
         { name: 'Updated project' } satisfies UpdateProjectDto,
-        22,
+        backendTestIdentifiers.user(22),
       ),
     ).rejects.toThrow(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
   });
@@ -97,7 +98,7 @@ describe('UpdateProjectUseCase', () => {
     const result = await useCase.execute(
       projectIdentifier.parse(5),
       { name: 'Updated project', description: 'Refined scope' } satisfies UpdateProjectDto,
-      22,
+      backendTestIdentifiers.user(22),
     );
 
     expect(projectRepository.update).toHaveBeenCalledWith(

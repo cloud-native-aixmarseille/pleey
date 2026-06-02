@@ -1,15 +1,14 @@
 import 'reflect-metadata';
 import { initializeOpenTelemetry, OtelLoggerService } from '../infrastructure/telemetry';
-import { AppConfiguration } from './config/app-configuration';
-import { AppEnvironment } from './config/app-environment';
 import { APP_SERVER_CONFIG, type AppServerConfig } from './config/app-server-config.token';
 import { ConfiguredIoAdapter } from './config/configured-io-adapter';
 import { GAME_SOCKET_CORS_OPTIONS } from './config/game-socket-cors-options.token';
-
-const appConfiguration = new AppConfiguration(new AppEnvironment());
+import { loadAppRuntimeConfiguration } from './config/load-app-runtime-configuration';
 
 async function bootstrap() {
-  await initializeOpenTelemetry(appConfiguration.getTelemetryConfig());
+  const runtimeConfiguration = loadAppRuntimeConfiguration();
+
+  await initializeOpenTelemetry(runtimeConfiguration.telemetry);
 
   const [
     { ValidationPipe },

@@ -1,5 +1,6 @@
 import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
 import { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
+import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import {
   createOrganizationMemberRepositoryMock,
   createOrganizationRepositoryMock,
@@ -22,7 +23,10 @@ describe('CreateOrganizationUseCase', () => {
     );
 
     await expect(
-      useCase.execute({ name: 'Org', description: '' } satisfies CreateOrganizationDto, 1),
+      useCase.execute(
+        { name: 'Org', description: '' } satisfies CreateOrganizationDto,
+        backendTestIdentifiers.user(1),
+      ),
     ).rejects.toThrow(OrganizationErrorCode.ORGANIZATION_NAME_ALREADY_EXISTS);
   });
 
@@ -40,8 +44,12 @@ describe('CreateOrganizationUseCase', () => {
     );
 
     const dto: CreateOrganizationDto = { name: 'Org' };
-    const org = await useCase.execute(dto, 1);
-    expect(memberRepository.create).toHaveBeenCalledWith(10, 1, OrganizationRole.OWNER);
+    const org = await useCase.execute(dto, backendTestIdentifiers.user(1));
+    expect(memberRepository.create).toHaveBeenCalledWith(
+      10,
+      backendTestIdentifiers.user(1),
+      OrganizationRole.OWNER,
+    );
     expect(projectRepository.create).toHaveBeenCalledWith(10, 'Default', null);
     expect(org).toMatchObject({ id: 10, name: 'Org' });
   });

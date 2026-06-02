@@ -7,6 +7,7 @@ import { UserIdentifier } from '../../../../application/identity/shared/services
 import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
 import { PartyPlayerKind } from '../../../../domain/game/party/enums/party-player-kind.enum';
 import { PartyStatus } from '../../../../domain/game/party/enums/party-status.enum';
+import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { PrismaPartyReadModelMapper } from './prisma-party-read-model-mapper';
 
 describe('PrismaPartyReadModelMapper', () => {
@@ -26,12 +27,10 @@ describe('PrismaPartyReadModelMapper', () => {
     const players = mapper.collectPlayers(
       [
         {
-          userId: 7,
-          guestId: null,
           createdAt: new Date('2026-05-01T10:00:00.000Z'),
           points: 10,
           user: {
-            id: 7,
+            id: backendTestIdentifiers.user(7),
             username: 'Host',
             avatar: {
               updatedAt: new Date('2026-05-01T09:00:00.000Z'),
@@ -40,24 +39,20 @@ describe('PrismaPartyReadModelMapper', () => {
           guest: null,
         },
         {
-          userId: null,
-          guestId: 'guest-42',
           createdAt: new Date('2026-05-01T12:00:00.000Z'),
           points: 1,
           user: null,
           guest: {
-            id: 'guest-42',
+            id: backendTestIdentifiers.guest('guest-42'),
             username: 'Guest',
             createdAt: new Date('2026-05-01T08:00:00.000Z'),
           },
         },
         {
-          userId: 42,
-          guestId: null,
           createdAt: new Date('2026-05-01T11:00:00.000Z'),
           points: 3,
           user: {
-            id: 42,
+            id: backendTestIdentifiers.user(42),
             username: 'Player',
             avatar: {
               updatedAt: playerAvatarUpdatedAt,
@@ -66,12 +61,10 @@ describe('PrismaPartyReadModelMapper', () => {
           guest: null,
         },
         {
-          userId: 42,
-          guestId: null,
           createdAt: new Date('2026-05-01T12:30:00.000Z'),
           points: 4,
           user: {
-            id: 42,
+            id: backendTestIdentifiers.user(42),
             username: 'Player',
             avatar: {
               updatedAt: playerAvatarUpdatedAt,
@@ -91,7 +84,7 @@ describe('PrismaPartyReadModelMapper', () => {
         avatarUri: '/api/avatars/guests/guest-42',
         identity: {
           kind: PartyPlayerKind.GUEST,
-          guestId: 'guest-42',
+          guestId: backendTestIdentifiers.guest('guest-42'),
         },
         joinedAt: new Date('2026-05-01T08:00:00.000Z'),
         totalScore: 1,
@@ -101,7 +94,7 @@ describe('PrismaPartyReadModelMapper', () => {
         avatarUri: `/api/avatars/users/42?v=${playerAvatarUpdatedAt.getTime()}`,
         identity: {
           kind: PartyPlayerKind.USER,
-          userId: 42,
+          userId: backendTestIdentifiers.user(42),
         },
         joinedAt: new Date('2026-05-01T11:00:00.000Z'),
         totalScore: 7,
@@ -111,13 +104,16 @@ describe('PrismaPartyReadModelMapper', () => {
     expect(players.map((player) => mapper.toPlayerObservationPlayer(player))).toEqual([
       {
         avatarUri: '/api/avatars/guests/guest-42',
-        identity: { kind: PartyPlayerKind.GUEST, guestId: 'guest-42' },
+        identity: {
+          kind: PartyPlayerKind.GUEST,
+          guestId: backendTestIdentifiers.guest('guest-42'),
+        },
         totalScore: 1,
         username: 'Guest',
       },
       {
         avatarUri: `/api/avatars/users/42?v=${playerAvatarUpdatedAt.getTime()}`,
-        identity: { kind: PartyPlayerKind.USER, userId: 42 },
+        identity: { kind: PartyPlayerKind.USER, userId: backendTestIdentifiers.user(42) },
         totalScore: 7,
         username: 'Player',
       },

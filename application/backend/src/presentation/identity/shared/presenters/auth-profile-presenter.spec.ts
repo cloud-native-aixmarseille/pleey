@@ -1,6 +1,7 @@
 import type { Request } from 'express';
 import { describe, expect, it } from 'vitest';
 import type { UserProfileSnapshot } from '../../../../domain/identity/types/user-profile-snapshot';
+import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { AuthProfilePresenter } from './auth-profile-presenter';
 
 describe('AuthProfilePresenter', () => {
@@ -64,7 +65,7 @@ describe('AuthProfilePresenter', () => {
         refreshToken: 'refresh-token',
         expiresIn: 3600,
         user: {
-          id: 7,
+          id: backendTestIdentifiers.user(7),
           username: 'captain',
           email: 'captain@pleey.io',
           avatarVersion: TEST_AVATAR_VERSION,
@@ -92,7 +93,7 @@ function readHostHeader(host: string): Request['get'] {
 
 function createProfile(overrides: Partial<UserProfileSnapshot> = {}): UserProfileSnapshot {
   return {
-    id: 7,
+    id: backendTestIdentifiers.user(7),
     username: 'captain',
     email: 'captain@pleey.io',
     avatarVersion: TEST_AVATAR_VERSION,

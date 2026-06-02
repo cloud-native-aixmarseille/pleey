@@ -1,4 +1,5 @@
 import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
+import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { createDefaultWorkspaceServiceMock } from '../../../../test-utils/mock-factories/default-workspace-service.mock-factory';
 import {
   createOrganizationMemberRepositoryMock,
@@ -25,16 +26,20 @@ describe('GetOrganizationDashboardUseCase', () => {
       workspaceGameManagement as never,
     );
 
-    await expect(useCase.execute(1, 10)).rejects.toThrow(
-      OrganizationErrorCode.ORGANIZATION_NOT_FOUND,
-    );
-    expect(defaultWorkspaceService.ensure).toHaveBeenCalledWith(10);
+    await expect(
+      useCase.execute(backendTestIdentifiers.organization(1), backendTestIdentifiers.user(10)),
+    ).rejects.toThrow(OrganizationErrorCode.ORGANIZATION_NOT_FOUND);
+    expect(defaultWorkspaceService.ensure).toHaveBeenCalledWith(backendTestIdentifiers.user(10));
   });
 
   it('throws when user is not a member', async () => {
     const defaultWorkspaceService = createDefaultWorkspaceServiceMock();
     const organizationRepository = createOrganizationRepositoryMock({
-      findById: { id: 1, name: 'Org', description: null } as never,
+      findById: {
+        id: backendTestIdentifiers.organization(1),
+        name: 'Org',
+        description: null,
+      } as never,
     });
     const memberRepository = createOrganizationMemberRepositoryMock({
       findByOrganizationAndUser: null,
@@ -52,21 +57,33 @@ describe('GetOrganizationDashboardUseCase', () => {
       workspaceGameManagement as never,
     );
 
-    await expect(useCase.execute(1, 10)).rejects.toThrow(OrganizationErrorCode.NOT_A_MEMBER);
+    await expect(
+      useCase.execute(backendTestIdentifiers.organization(1), backendTestIdentifiers.user(10)),
+    ).rejects.toThrow(OrganizationErrorCode.NOT_A_MEMBER);
   });
 
   it('returns aggregated stats', async () => {
     const defaultWorkspaceService = createDefaultWorkspaceServiceMock();
     const organizationRepository = createOrganizationRepositoryMock({
-      findById: { id: 1, name: 'Org', description: null } as never,
+      findById: {
+        id: backendTestIdentifiers.organization(1),
+        name: 'Org',
+        description: null,
+      } as never,
     });
     const memberRepository = createOrganizationMemberRepositoryMock({
       findByOrganizationAndUser: {} as never,
-      findByOrganization: [{ id: 1 }, { id: 2 }] as never,
+      findByOrganization: [
+        { id: backendTestIdentifiers.organizationMember(1) },
+        { id: backendTestIdentifiers.organizationMember(2) },
+      ] as never,
     });
 
     const projectRepository = createProjectRepositoryMock({
-      findByOrganization: [{ id: 1 }, { id: 2 }] as never,
+      findByOrganization: [
+        { id: backendTestIdentifiers.project(1) },
+        { id: backendTestIdentifiers.project(2) },
+      ] as never,
     });
 
     const workspaceGameManagement = {
@@ -85,7 +102,10 @@ describe('GetOrganizationDashboardUseCase', () => {
       workspaceGameManagement as never,
     );
 
-    const result = await useCase.execute(1, 10);
+    const result = await useCase.execute(
+      backendTestIdentifiers.organization(1),
+      backendTestIdentifiers.user(10),
+    );
     expect(result.stats).toEqual({
       totalGames: 4,
       totalParties: 8,

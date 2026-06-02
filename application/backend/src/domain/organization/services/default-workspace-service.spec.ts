@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { ProjectIdentifier } from '../../../application/workspace/shared/services/identifiers/project-identifier';
+import { backendTestIdentifiers } from '../../../test-utils/branded-identifiers';
 import {
   createOrganizationMemberRepositoryMock,
   createOrganizationRepositoryMock,
@@ -27,7 +28,7 @@ describe('DefaultWorkspaceService', () => {
       projectRepository as never,
     );
 
-    await service.ensure(7);
+    await service.ensure(backendTestIdentifiers.user(7));
 
     expect(organizationRepository.create).toHaveBeenCalledWith('Default', null);
     expect(memberRepository.create).toHaveBeenCalled();
@@ -53,7 +54,7 @@ describe('DefaultWorkspaceService', () => {
       projectRepository as never,
     );
 
-    await service.ensure(7);
+    await service.ensure(backendTestIdentifiers.user(7));
 
     expect(projectRepository.findByOrganization).toHaveBeenCalledWith(
       organizationIdentifier.parse(11),
@@ -80,7 +81,7 @@ describe('DefaultWorkspaceService', () => {
       projectRepository as never,
     );
 
-    await service.ensure(7);
+    await service.ensure(backendTestIdentifiers.user(7));
 
     expect(organizationRepository.create).not.toHaveBeenCalled();
     expect(memberRepository.create).not.toHaveBeenCalled();

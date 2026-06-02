@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { describe, expect, it, vi } from 'vitest';
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
+import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { createPlayerPartyRuntimeMock } from '../../../../../test-utils/mock-factories/player-party-runtime.mock-factory';
 import { LeavePartyUseCase } from './leave-party-use-case';
 
@@ -19,8 +20,8 @@ describe('LeavePartyUseCase', () => {
 
     await expect(
       useCase.execute({
-        pin: '123456',
-        playerIdentity: { kind: PartyPlayerKind.USER, userId: 7 },
+        pin: backendTestIdentifiers.partyPin('123456'),
+        playerIdentity: { kind: PartyPlayerKind.USER, userId: backendTestIdentifiers.user(7) },
       }),
     ).resolves.toBe(false);
     expect(broadcastPartyObservationUseCase.broadcastIfPresent).not.toHaveBeenCalled();
@@ -40,14 +41,14 @@ describe('LeavePartyUseCase', () => {
 
     await expect(
       useCase.execute({
-        pin: '123456',
-        playerIdentity: { kind: PartyPlayerKind.USER, userId: 7 },
+        pin: backendTestIdentifiers.partyPin('123456'),
+        playerIdentity: { kind: PartyPlayerKind.USER, userId: backendTestIdentifiers.user(7) },
       }),
     ).resolves.toBe(true);
 
     expect(runtime.removePlayer).toHaveBeenCalledWith({
       partyId: 12,
-      playerIdentity: { kind: PartyPlayerKind.USER, userId: 7 },
+      playerIdentity: { kind: PartyPlayerKind.USER, userId: backendTestIdentifiers.user(7) },
     });
     expect(broadcastPartyObservationUseCase.broadcastIfPresent).toHaveBeenCalledWith({
       partyId: 12,
@@ -68,14 +69,20 @@ describe('LeavePartyUseCase', () => {
 
     await expect(
       useCase.execute({
-        pin: '123456',
-        playerIdentity: { kind: PartyPlayerKind.GUEST, guestId: 'guest-7' },
+        pin: backendTestIdentifiers.partyPin('123456'),
+        playerIdentity: {
+          kind: PartyPlayerKind.GUEST,
+          guestId: backendTestIdentifiers.guest('guest-7'),
+        },
       }),
     ).resolves.toBe(true);
 
     expect(runtime.removePlayer).toHaveBeenCalledWith({
       partyId: 12,
-      playerIdentity: { kind: PartyPlayerKind.GUEST, guestId: 'guest-7' },
+      playerIdentity: {
+        kind: PartyPlayerKind.GUEST,
+        guestId: backendTestIdentifiers.guest('guest-7'),
+      },
     });
   });
 });

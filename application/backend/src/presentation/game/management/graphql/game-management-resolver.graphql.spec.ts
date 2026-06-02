@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ListProjectGamesUseCase } from '../../../../application/game/management/use-cases/list-project-games-use-case';
 import { ProjectIdentifier } from '../../../../application/workspace/shared/services/identifiers/project-identifier';
+import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { GameManagementResolver } from './game-management-resolver';
 import { ProjectGamesInput } from './types/project-games-input';
 
@@ -62,7 +63,7 @@ describe('GameManagementResolver', () => {
     const result = await resolver.projectGames(input, {
       req: {
         user: {
-          id: 42,
+          id: backendTestIdentifiers.user(42),
         },
       },
     });
@@ -77,7 +78,7 @@ describe('GameManagementResolver', () => {
         page: 1,
         pageSize: 9,
       },
-      42,
+      backendTestIdentifiers.user(42),
     );
     expect(result).toEqual({
       items: [

@@ -3,9 +3,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
 import { PinAlreadyInUseError } from '../../../../../domain/game/party/errors/pin-already-in-use.error';
 import { OrganizationErrorCode } from '../../../../../domain/organization/enums/organization-error-code.enum';
+import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { createOrganizationMemberRepositoryMock } from '../../../../../test-utils/mock-factories/organization.mock-factory';
 import { OrganizationIdentifier } from '../../../../workspace/shared/services/identifiers/organization-identifier';
 import { ProjectIdentifier } from '../../../../workspace/shared/services/identifiers/project-identifier';
+import { GamePermissionResolver } from '../../../management/services/game-permission-resolver';
 import { PartyPinIdentifier } from '../../shared/services/identifiers/party-pin-identifier';
 import { CreatePartyUseCase } from './create-party-use-case';
 
@@ -46,7 +48,7 @@ describe('CreatePartyUseCase', () => {
     memberRepository.findByOrganizationAndUser.mockReset();
 
     partyManagement.findManagedGame.mockResolvedValue({
-      gameId: 17,
+      gameId: backendTestIdentifiers.game(17),
       type: 'quiz',
       projectId: projectIdentifier.parse(6),
       organizationId: organizationIdentifier.parse(3),
@@ -66,29 +68,38 @@ describe('CreatePartyUseCase', () => {
     useCase = new CreatePartyUseCase(
       partyManagement as never,
       memberRepository,
-      gamePermissionResolver,
+      gamePermissionResolver as unknown as GamePermissionResolver,
       broadcastPartyObservationUseCase as never,
       partyPinIdentifier,
     );
   });
 
   it('creates a host-owned party for an authorized member', async () => {
-    const result = await useCase.execute({ gameId: 17, hostUserId: 42 });
+    const result = await useCase.execute({
+      gameId: backendTestIdentifiers.game(17),
+      hostUserId: backendTestIdentifiers.user(42),
+    });
 
-    expect(memberRepository.findByOrganizationAndUser).toHaveBeenCalledWith(3, 42);
+    expect(memberRepository.findByOrganizationAndUser).toHaveBeenCalledWith(
+      3,
+      backendTestIdentifiers.user(42),
+    );
     expect(gamePermissionResolver.assertCanCreateParty).toHaveBeenCalledWith({
-      gameId: 17,
-      hostUserId: 42,
+      gameId: backendTestIdentifiers.game(17),
+      hostUserId: backendTestIdentifiers.user(42),
     });
     expect(partyManagement.createParty).toHaveBeenCalledWith(
-      expect.objectContaining({ gameId: 17, hostUserId: 42 }),
+      expect.objectContaining({
+        gameId: backendTestIdentifiers.game(17),
+        hostUserId: backendTestIdentifiers.user(42),
+      }),
     );
     expect(broadcastPartyObservationUseCase.broadcastIfPresent).toHaveBeenCalledWith({
       partyId: 21,
     });
     expect(result).toEqual({
       partyId: 21,
-      gameId: 17,
+      gameId: backendTestIdentifiers.game(17),
       pin: '123456',
       status: 'WAITING',
       role: 'HOST',
@@ -99,17 +110,23 @@ describe('CreatePartyUseCase', () => {
   it('rejects missing games before creating a party', async () => {
     partyManagement.findManagedGame.mockResolvedValue(null);
 
-    await expect(useCase.execute({ gameId: 17, hostUserId: 42 })).rejects.toThrow(
-      GameErrorCode.GAME_NOT_FOUND,
-    );
+    await expect(
+      useCase.execute({
+        gameId: backendTestIdentifiers.game(17),
+        hostUserId: backendTestIdentifiers.user(42),
+      }),
+    ).rejects.toThrow(GameErrorCode.GAME_NOT_FOUND);
   });
 
   it('rejects hosts that are not members of the owning organization', async () => {
     memberRepository.findByOrganizationAndUser.mockResolvedValue(null);
 
-    await expect(useCase.execute({ gameId: 17, hostUserId: 42 })).rejects.toThrow(
-      OrganizationErrorCode.NOT_A_MEMBER,
-    );
+    await expect(
+      useCase.execute({
+        gameId: backendTestIdentifiers.game(17),
+        hostUserId: backendTestIdentifiers.user(42),
+      }),
+    ).rejects.toThrow(OrganizationErrorCode.NOT_A_MEMBER);
   });
 
   it('rejects when another host already owns an active party for the game', async () => {
@@ -117,9 +134,12 @@ describe('CreatePartyUseCase', () => {
       new Error(GameErrorCode.GAME_ALREADY_HAS_ACTIVE_PARTY),
     );
 
-    await expect(useCase.execute({ gameId: 17, hostUserId: 42 })).rejects.toThrow(
-      GameErrorCode.GAME_ALREADY_HAS_ACTIVE_PARTY,
-    );
+    await expect(
+      useCase.execute({
+        gameId: backendTestIdentifiers.game(17),
+        hostUserId: backendTestIdentifiers.user(42),
+      }),
+    ).rejects.toThrow(GameErrorCode.GAME_ALREADY_HAS_ACTIVE_PARTY);
   });
 
   it('rejects when the same host already owns an active party for the game', async () => {
@@ -127,9 +147,12 @@ describe('CreatePartyUseCase', () => {
       new Error(GameErrorCode.HOST_ALREADY_HAS_ACTIVE_PARTY_FOR_GAME),
     );
 
-    await expect(useCase.execute({ gameId: 17, hostUserId: 42 })).rejects.toThrow(
-      GameErrorCode.HOST_ALREADY_HAS_ACTIVE_PARTY_FOR_GAME,
-    );
+    await expect(
+      useCase.execute({
+        gameId: backendTestIdentifiers.game(17),
+        hostUserId: backendTestIdentifiers.user(42),
+      }),
+    ).rejects.toThrow(GameErrorCode.HOST_ALREADY_HAS_ACTIVE_PARTY_FOR_GAME);
   });
 
   it('rejects when the host already owns another active party', async () => {
@@ -137,9 +160,12 @@ describe('CreatePartyUseCase', () => {
       new Error(GameErrorCode.ACTIVE_PARTY_EXISTS),
     );
 
-    await expect(useCase.execute({ gameId: 17, hostUserId: 42 })).rejects.toThrow(
-      GameErrorCode.ACTIVE_PARTY_EXISTS,
-    );
+    await expect(
+      useCase.execute({
+        gameId: backendTestIdentifiers.game(17),
+        hostUserId: backendTestIdentifiers.user(42),
+      }),
+    ).rejects.toThrow(GameErrorCode.ACTIVE_PARTY_EXISTS);
   });
 
   it('rejects when the game has no configured stages', async () => {
@@ -147,9 +173,12 @@ describe('CreatePartyUseCase', () => {
       new Error(GameErrorCode.PARTY_STAGES_NOT_AVAILABLE),
     );
 
-    await expect(useCase.execute({ gameId: 17, hostUserId: 42 })).rejects.toThrow(
-      GameErrorCode.PARTY_STAGES_NOT_AVAILABLE,
-    );
+    await expect(
+      useCase.execute({
+        gameId: backendTestIdentifiers.game(17),
+        hostUserId: backendTestIdentifiers.user(42),
+      }),
+    ).rejects.toThrow(GameErrorCode.PARTY_STAGES_NOT_AVAILABLE);
   });
 
   it('retries pin generation when a generated pin is already in use', async () => {
@@ -157,14 +186,17 @@ describe('CreatePartyUseCase', () => {
       .mockRejectedValueOnce(new PinAlreadyInUseError())
       .mockResolvedValueOnce({
         partyId: 88,
-        gameId: 17,
+        gameId: backendTestIdentifiers.game(17),
         pin: '654321',
         status: 'WAITING',
         role: 'HOST',
         createdAt: new Date('2026-04-13T12:30:00.000Z'),
       });
 
-    const result = await useCase.execute({ gameId: 17, hostUserId: 42 });
+    const result = await useCase.execute({
+      gameId: backendTestIdentifiers.game(17),
+      hostUserId: backendTestIdentifiers.user(42),
+    });
 
     expect(partyManagement.createParty).toHaveBeenCalledTimes(2);
     expect(result.pin).toBe('654321');

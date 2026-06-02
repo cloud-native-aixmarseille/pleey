@@ -4,6 +4,7 @@ import { GetGuestAvatarPreviewUseCase } from '../../../application/identity/avat
 import { GetGuestAvatarUseCase } from '../../../application/identity/avatar/use-cases/get-guest-avatar-use-case';
 import { GetUserAvatarUseCase } from '../../../application/identity/avatar/use-cases/get-user-avatar-use-case';
 import { Media } from '../../../domain/media/entities/media';
+import { backendTestIdentifiers } from '../../../test-utils/branded-identifiers';
 import { AvatarController } from './avatar-controller';
 
 type MockResponse = {
@@ -34,9 +35,9 @@ describe('AvatarController', () => {
       send: vi.fn(),
     };
 
-    await controller.getUserAvatar(7, response as never);
+    await controller.getUserAvatar(backendTestIdentifiers.user(7), response as never);
 
-    expect(getUserAvatarUseCase.execute).toHaveBeenCalledWith(7);
+    expect(getUserAvatarUseCase.execute).toHaveBeenCalledWith(backendTestIdentifiers.user(7));
     expect(response.setHeader).toHaveBeenCalledWith('Content-Type', 'image/svg+xml');
     expect(response.setHeader).toHaveBeenCalledWith(
       'Cache-Control',

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { IdentityErrorCode } from '../../../../domain/identity/enums/identity-error-code.enum';
 import { Media } from '../../../../domain/media/entities/media';
+import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { createUserFixture } from '../../../../test-utils/fixtures/unit/user.fixture';
 import { createUserRepositoryMock } from '../../../../test-utils/mock-factories/user-repository.mock-factory';
 import { GetUserAvatarUseCase } from './get-user-avatar-use-case';
@@ -10,7 +11,9 @@ describe('GetUserAvatarUseCase', () => {
     const userRepository = createUserRepositoryMock({ findById: null });
     const useCase = new GetUserAvatarUseCase(userRepository);
 
-    await expect(useCase.execute(1)).rejects.toThrow(IdentityErrorCode.USER_NOT_FOUND);
+    await expect(useCase.execute(backendTestIdentifiers.user(1))).rejects.toThrow(
+      IdentityErrorCode.USER_NOT_FOUND,
+    );
   });
 
   it('throws AVATAR_NOT_FOUND when avatar url is missing', async () => {
@@ -18,7 +21,9 @@ describe('GetUserAvatarUseCase', () => {
     const userRepository = createUserRepositoryMock({ findById: user });
     const useCase = new GetUserAvatarUseCase(userRepository);
 
-    await expect(useCase.execute(1)).rejects.toThrow(IdentityErrorCode.AVATAR_NOT_FOUND);
+    await expect(useCase.execute(backendTestIdentifiers.user(1))).rejects.toThrow(
+      IdentityErrorCode.AVATAR_NOT_FOUND,
+    );
   });
 
   it('returns stored svg buffer when avatar is available', async () => {
@@ -27,7 +32,7 @@ describe('GetUserAvatarUseCase', () => {
     const user = createUserFixture({ avatar });
     const userRepository = createUserRepositoryMock({ findById: user });
     const useCase = new GetUserAvatarUseCase(userRepository);
-    const result = await useCase.execute(1);
+    const result = await useCase.execute(backendTestIdentifiers.user(1));
 
     expect(result).toBe(avatar);
   });

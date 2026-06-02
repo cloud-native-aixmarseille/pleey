@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { ListPartiesUseCase } from './list-parties-use-case';
 
 describe('ListPartiesUseCase', () => {
@@ -25,9 +26,11 @@ describe('ListPartiesUseCase', () => {
   });
 
   it('lists all host-owned and player-related parties for the authenticated user', async () => {
-    const result = await useCase.execute({ userId: 42 });
+    const result = await useCase.execute({ userId: backendTestIdentifiers.user(42) });
 
-    expect(partyManagement.listUserParties).toHaveBeenCalledWith({ userId: 42 });
+    expect(partyManagement.listUserParties).toHaveBeenCalledWith({
+      userId: backendTestIdentifiers.user(42),
+    });
     expect(result).toHaveLength(1);
   });
 });

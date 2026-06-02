@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { CsvPlayableContentImportFormatParser } from './csv-import-parser';
-import { PlayableContentImportParser } from './import-parser';
+import { CsvPlayableContentImportFormatParser } from './csv-playable-content-import-format-parser';
 import { PlayableContentImportParserErrorCode } from './import-parser.error';
 import { PlayableContentImportSource } from './import-source';
-import { JsonPlayableContentImportFormatParser } from './json-import-parser';
-import { MarkdownPlayableContentImportFormatParser } from './markdown-import-parser';
-import { PlaintextPlayableContentImportFormatParser } from './plaintext-import-parser';
+import { JsonPlayableContentImportFormatParser } from './json-playable-content-import-format-parser';
+import { MarkdownPlayableContentImportFormatParser } from './markdown-playable-content-import-format-parser';
+import { PlaintextPlayableContentImportFormatParser } from './plaintext-playable-content-import-format-parser';
+import { PlayableContentImportParser } from './playable-content-import-parser';
 import { PlayableContentImportParserContainer } from './playable-content-import-parser-container';
 
 class TestPlayableContentImportSource extends PlayableContentImportSource {

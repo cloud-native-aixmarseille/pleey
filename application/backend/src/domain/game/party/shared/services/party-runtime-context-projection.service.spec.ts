@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { PartyActionIdentifier } from '../../../../../application/game/party/shared/services/identifiers/party-action-identifier';
+import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { PARTY_PLAYER_ACTION_STATE_STATUS } from '../../player/entities/party-player-action-state';
-import { PartyRuntimePhase } from '../entities/party-runtime-context';
+import { type PartyRuntimeContext, PartyRuntimePhase } from '../entities/party-runtime-context';
 import { PartyRuntimeContextProjectionService } from './party-runtime-context-projection.service';
 
 describe('PartyRuntimeContextProjectionService', () => {
-  const partyActionIdentifier = new PartyActionIdentifier();
+  const stageId = backendTestIdentifiers.partyStage(202);
 
   it('projects stage details and acknowledgement counts for the active stage', () => {
     const service = new PartyRuntimeContextProjectionService();
@@ -16,41 +16,41 @@ describe('PartyRuntimeContextProjectionService', () => {
           phase: PartyRuntimePhase.STAGE,
           stageEndsAtEpochMs: 30_000,
           stageRemainingDurationMs: 20_000,
-          stageId: 202,
+          stageId,
           stagePosition: 1,
           stageTimeLimitSeconds: 20,
           totalStages: 4,
         },
-      },
+      } satisfies PartyRuntimeContext,
       currentPlayerActionState: {
         earnedPoints: 1_000,
-        selectedActionId: partyActionIdentifier.parse(7),
-        stageId: 202,
+        selectedActionId: backendTestIdentifiers.partyAction(7),
+        stageId,
         stagePosition: 1,
         status: PARTY_PLAYER_ACTION_STATE_STATUS.ACKNOWLEDGED,
       },
       playerActionStates: [
         {
           earnedPoints: 0,
-          selectedActionId: partyActionIdentifier.parse(5),
-          stageId: 202,
+          selectedActionId: backendTestIdentifiers.partyAction(5),
+          stageId,
           stagePosition: 1,
           status: PARTY_PLAYER_ACTION_STATE_STATUS.ACKNOWLEDGED,
         },
         {
           earnedPoints: 1_000,
-          selectedActionId: partyActionIdentifier.parse(7),
-          stageId: 202,
+          selectedActionId: backendTestIdentifiers.partyAction(7),
+          stageId,
           stagePosition: 1,
           status: PARTY_PLAYER_ACTION_STATE_STATUS.ACKNOWLEDGED,
         },
       ],
       stage: {
         actions: [
-          { id: partyActionIdentifier.parse(5), isCorrect: false, text: 'A' },
-          { id: partyActionIdentifier.parse(7), isCorrect: true, text: 'B' },
+          { id: backendTestIdentifiers.partyAction(5), isCorrect: false, text: 'A' },
+          { id: backendTestIdentifiers.partyAction(7), isCorrect: true, text: 'B' },
         ],
-        id: 202,
+        id: stageId,
         points: 1000,
         stagePosition: 1,
         timeLimitSeconds: 20,
@@ -65,7 +65,7 @@ describe('PartyRuntimeContextProjectionService', () => {
         phase: PartyRuntimePhase.STAGE,
         stageEndsAtEpochMs: 30_000,
         stageRemainingDurationMs: 20_000,
-        stageId: 202,
+        stageId,
         stagePosition: 1,
         stageTimeLimitSeconds: 20,
         totalStages: 4,
@@ -73,7 +73,7 @@ describe('PartyRuntimeContextProjectionService', () => {
       stage: {
         actionSubmission: {
           currentPlayer: {
-            selectedActionId: partyActionIdentifier.parse(7),
+            selectedActionId: backendTestIdentifiers.partyAction(7),
             status: PARTY_PLAYER_ACTION_STATE_STATUS.ACKNOWLEDGED,
           },
           submittedPlayerCount: 2,
@@ -81,8 +81,8 @@ describe('PartyRuntimeContextProjectionService', () => {
         },
         current: {
           actions: [
-            { id: partyActionIdentifier.parse(5), text: 'A' },
-            { id: partyActionIdentifier.parse(7), text: 'B' },
+            { id: backendTestIdentifiers.partyAction(5), text: 'A' },
+            { id: backendTestIdentifiers.partyAction(7), text: 'B' },
           ],
           text: 'Question 2',
         },
@@ -99,48 +99,48 @@ describe('PartyRuntimeContextProjectionService', () => {
           phase: PartyRuntimePhase.RESULT,
           stageEndsAtEpochMs: 30_000,
           stageRemainingDurationMs: 20_000,
-          stageId: 202,
+          stageId,
           stagePosition: 1,
           stageTimeLimitSeconds: 20,
           totalStages: 4,
         },
-      },
+      } satisfies PartyRuntimeContext,
       currentPlayerActionState: {
         earnedPoints: 625,
-        selectedActionId: partyActionIdentifier.parse(7),
-        stageId: 202,
+        selectedActionId: backendTestIdentifiers.partyAction(7),
+        stageId,
         stagePosition: 1,
         status: PARTY_PLAYER_ACTION_STATE_STATUS.ACKNOWLEDGED,
       },
       playerActionStates: [
         {
           earnedPoints: 0,
-          selectedActionId: partyActionIdentifier.parse(5),
-          stageId: 202,
+          selectedActionId: backendTestIdentifiers.partyAction(5),
+          stageId,
           stagePosition: 1,
           status: PARTY_PLAYER_ACTION_STATE_STATUS.ACKNOWLEDGED,
         },
         {
           earnedPoints: 625,
-          selectedActionId: partyActionIdentifier.parse(7),
-          stageId: 202,
+          selectedActionId: backendTestIdentifiers.partyAction(7),
+          stageId,
           stagePosition: 1,
           status: PARTY_PLAYER_ACTION_STATE_STATUS.ACKNOWLEDGED,
         },
         {
           earnedPoints: 800,
-          selectedActionId: partyActionIdentifier.parse(7),
-          stageId: 202,
+          selectedActionId: backendTestIdentifiers.partyAction(7),
+          stageId,
           stagePosition: 1,
           status: PARTY_PLAYER_ACTION_STATE_STATUS.ACKNOWLEDGED,
         },
       ],
       stage: {
         actions: [
-          { id: partyActionIdentifier.parse(5), isCorrect: false, text: 'A' },
-          { id: partyActionIdentifier.parse(7), isCorrect: true, text: 'B' },
+          { id: backendTestIdentifiers.partyAction(5), isCorrect: false, text: 'A' },
+          { id: backendTestIdentifiers.partyAction(7), isCorrect: true, text: 'B' },
         ],
-        id: 202,
+        id: stageId,
         points: 1000,
         stagePosition: 1,
         timeLimitSeconds: 20,
@@ -155,7 +155,7 @@ describe('PartyRuntimeContextProjectionService', () => {
         phase: PartyRuntimePhase.RESULT,
         stageEndsAtEpochMs: 30_000,
         stageRemainingDurationMs: 20_000,
-        stageId: 202,
+        stageId,
         stagePosition: 1,
         stageTimeLimitSeconds: 20,
         totalStages: 4,
@@ -167,7 +167,7 @@ describe('PartyRuntimeContextProjectionService', () => {
               actionCount: 1,
               actionPercent: 33,
               earnedPoints: 0,
-              id: partyActionIdentifier.parse(5),
+              id: backendTestIdentifiers.partyAction(5),
               isCorrect: false,
               text: 'A',
             },
@@ -175,7 +175,7 @@ describe('PartyRuntimeContextProjectionService', () => {
               actionCount: 2,
               actionPercent: 67,
               earnedPoints: 1000,
-              id: partyActionIdentifier.parse(7),
+              id: backendTestIdentifiers.partyAction(7),
               isCorrect: true,
               text: 'B',
             },
@@ -185,7 +185,7 @@ describe('PartyRuntimeContextProjectionService', () => {
         currentPlayer: {
           earnedPoints: 625,
           isCorrect: true,
-          selectedActionId: partyActionIdentifier.parse(7),
+          selectedActionId: backendTestIdentifiers.partyAction(7),
         },
       },
     });

@@ -2,8 +2,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { QuizQuestionType } from '../../../../../domain/game/types/quiz/entities/quiz-question';
 import { QuizErrorCode } from '../../../../../domain/game/types/quiz/enums/quiz-error-code.enum';
 import { SelectableOptionPolicy } from '../../../../../domain/game/types/shared/services/selectable-option-policy';
-import { PlayableContentImportParser } from '../../shared/services/playable-content-import/import-parser';
 import { PlayableContentImportSource } from '../../shared/services/playable-content-import/import-source';
+import { PlayableContentImportParser } from '../../shared/services/playable-content-import/playable-content-import-parser';
 import { QuizImportQuestionMapper } from './quiz-import-question-mapper';
 
 class TestPlayableContentImportSource extends PlayableContentImportSource {

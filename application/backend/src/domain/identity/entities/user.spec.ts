@@ -1,5 +1,6 @@
 import { Buffer } from 'node:buffer';
 import { describe, expect, it } from 'vitest';
+import { backendTestIdentifiers } from '../../../test-utils/branded-identifiers';
 import { createUserFixture } from '../../../test-utils/fixtures/unit/user.fixture';
 import { Media } from '../../media/entities/media';
 
@@ -8,7 +9,7 @@ describe('User', () => {
     it('should create a user instance with all properties', () => {
       const now = new Date();
       const user = createUserFixture({
-        id: 1,
+        id: backendTestIdentifiers.user(1),
         username: 'testuser',
         email: 'test@example.com',
         password: 'hashedpassword',
@@ -16,7 +17,7 @@ describe('User', () => {
         createdAt: now,
       });
 
-      expect(user.id).toBe(1);
+      expect(user.id).toBe(backendTestIdentifiers.user(1));
       expect(user.username).toBe('testuser');
       expect(user.email).toBe('test@example.com');
       expect(user.password).toBe('hashedpassword');
@@ -29,7 +30,7 @@ describe('User', () => {
       const now = new Date();
       const avatarBuffer = Buffer.from('https://cdn/avatar.png', 'utf8');
       const user = createUserFixture({
-        id: 1,
+        id: backendTestIdentifiers.user(1),
         username: 'testuser',
         email: 'test@example.com',
         password: 'hashedpassword',
@@ -39,7 +40,7 @@ describe('User', () => {
 
       const safeUser = user.toSafeObject();
 
-      expect(safeUser).toHaveProperty('id', 1);
+      expect(safeUser).toHaveProperty('id', backendTestIdentifiers.user(1));
       expect(safeUser).toHaveProperty('username', 'testuser');
       expect(safeUser).toHaveProperty('email', 'test@example.com');
       expect(safeUser).toHaveProperty('avatar');
@@ -50,7 +51,7 @@ describe('User', () => {
 
     it('should not expose password in safe object', () => {
       const user = createUserFixture({
-        id: 1,
+        id: backendTestIdentifiers.user(1),
         username: 'testuser',
         email: 'test@example.com',
         password: 'secretpassword',

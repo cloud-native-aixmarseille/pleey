@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { IdentityErrorCode } from '../../../../domain/identity/enums/identity-error-code.enum';
 import { Media } from '../../../../domain/media/entities/media';
+import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { createUserFixture } from '../../../../test-utils/fixtures/unit/user.fixture';
 import { createUserAvatarServiceMock } from '../../../../test-utils/mock-factories/user-avatar-service.mock-factory';
 import { createUserRepositoryMock } from '../../../../test-utils/mock-factories/user-repository.mock-factory';
@@ -13,13 +14,15 @@ describe('RegenerateUserAvatarUseCase', () => {
 
     const useCase = new RegenerateUserAvatarUseCase(userRepository, userAvatarService as never);
 
-    await expect(useCase.execute(1)).rejects.toThrow(IdentityErrorCode.USER_NOT_FOUND);
+    await expect(useCase.execute(backendTestIdentifiers.user(1))).rejects.toThrow(
+      IdentityErrorCode.USER_NOT_FOUND,
+    );
   });
 
   it('updates avatar svg and returns public profile', async () => {
     const createdAt = new Date();
     const user = createUserFixture({
-      id: 1,
+      id: backendTestIdentifiers.user(1),
       username: 'alice',
       email: 'alice@example.com',
       password: 'hashed-password',
@@ -28,7 +31,7 @@ describe('RegenerateUserAvatarUseCase', () => {
     });
 
     const updated = createUserFixture({
-      id: 1,
+      id: backendTestIdentifiers.user(1),
       username: 'alice',
       email: 'alice@example.com',
       password: 'hashed-password',
@@ -47,12 +50,12 @@ describe('RegenerateUserAvatarUseCase', () => {
     });
 
     const useCase = new RegenerateUserAvatarUseCase(userRepository, userAvatarService as never);
-    const result = await useCase.execute(1);
+    const result = await useCase.execute(backendTestIdentifiers.user(1));
 
     expect(userAvatarService.generateAvatar).toHaveBeenCalledTimes(1);
-    expect(userRepository.updateProfile).toHaveBeenCalledWith(1, {
+    expect(userRepository.updateProfile).toHaveBeenCalledWith(backendTestIdentifiers.user(1), {
       avatar,
     });
-    expect(result).toMatchObject({ id: 1, username: 'alice' });
+    expect(result).toMatchObject({ id: backendTestIdentifiers.user(1), username: 'alice' });
   });
 });

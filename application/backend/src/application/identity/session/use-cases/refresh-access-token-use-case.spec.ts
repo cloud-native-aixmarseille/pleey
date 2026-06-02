@@ -1,4 +1,5 @@
 import { IdentityErrorCode } from '../../../../domain/identity/enums/identity-error-code.enum';
+import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { createTokenPairFixture } from '../../../../test-utils/fixtures/unit/token-pair.fixture';
 import { createUserFixture } from '../../../../test-utils/fixtures/unit/user.fixture';
 import { createAuthTokenServiceMock } from '../../../../test-utils/mock-factories/auth-token-service.mock-factory';
@@ -9,7 +10,7 @@ import { RefreshAccessTokenUseCase } from './refresh-access-token-use-case';
 describe('RefreshAccessTokenUseCase', () => {
   it('clears refresh token and throws when refresh token is expired', async () => {
     const user = createUserFixture({
-      id: 1,
+      id: backendTestIdentifiers.user(1),
       username: 'alice',
       email: 'alice@example.com',
       avatar: null,
@@ -24,7 +25,9 @@ describe('RefreshAccessTokenUseCase', () => {
 
     const passwordService = createPasswordServiceMock();
 
-    const authTokenService = createAuthTokenServiceMock({ verifyRefreshToken: 1 });
+    const authTokenService = createAuthTokenServiceMock({
+      verifyRefreshToken: backendTestIdentifiers.user(1),
+    });
 
     const useCase = new RefreshAccessTokenUseCase(
       userRepository,
@@ -35,12 +38,12 @@ describe('RefreshAccessTokenUseCase', () => {
     await expect(useCase.execute('refresh')).rejects.toThrow(
       IdentityErrorCode.REFRESH_TOKEN_EXPIRED,
     );
-    expect(userRepository.clearRefreshToken).toHaveBeenCalledWith(1);
+    expect(userRepository.clearRefreshToken).toHaveBeenCalledWith(backendTestIdentifiers.user(1));
   });
 
   it('returns new tokens when refresh token is valid', async () => {
     const user = createUserFixture({
-      id: 1,
+      id: backendTestIdentifiers.user(1),
       username: 'alice',
       email: 'alice@example.com',
       avatar: null,
@@ -66,7 +69,7 @@ describe('RefreshAccessTokenUseCase', () => {
     });
 
     const authTokenService = createAuthTokenServiceMock({
-      verifyRefreshToken: 1,
+      verifyRefreshToken: backendTestIdentifiers.user(1),
       createTokenPair: tokenPair as never,
       mapTokensToResponse: {
         accessToken: 'access',
@@ -84,7 +87,7 @@ describe('RefreshAccessTokenUseCase', () => {
 
     expect(passwordService.compare).toHaveBeenCalledWith('refresh', 'hash');
     expect(userRepository.updateRefreshToken).toHaveBeenCalledWith(
-      1,
+      backendTestIdentifiers.user(1),
       'new-hash',
       tokenPair.refreshTokenExpiresAt,
     );

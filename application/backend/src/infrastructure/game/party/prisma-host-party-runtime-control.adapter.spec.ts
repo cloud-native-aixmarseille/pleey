@@ -3,6 +3,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { PartyActionIdentifier } from '../../../application/game/party/shared/services/identifiers/party-action-identifier';
 import { PartyStageIdentifier } from '../../../application/game/party/shared/services/identifiers/party-stage-identifier';
 import { PartyStatus } from '../../../domain/game/party/enums/party-status.enum';
+import { PartyRuntimePhase } from '../../../domain/game/party/shared/entities/party-runtime-context';
+import { backendTestIdentifiers } from '../../../test-utils/branded-identifiers';
 import { PrismaHostPartyRuntimeControlAdapter } from './prisma-host-party-runtime-control.adapter';
 import { PrismaPartyPlayerRemovalService } from './services/prisma-party-player-removal.service';
 
@@ -109,10 +111,10 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
     await adapter.savePartyRuntime({
       context: {
         lifecycle: {
-          phase: 'stage',
+          phase: PartyRuntimePhase.STAGE,
           stageEndsAtEpochMs: 30_000,
           stageRemainingDurationMs: 20_000,
-          stageId: 202,
+          stageId: backendTestIdentifiers.partyStage(202),
           stagePosition: 1,
           stageTimeLimitSeconds: 20,
           totalStages: 3,
@@ -120,7 +122,7 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
       },
       partyId: 7 as never,
       resetPlayerProgress: {
-        fromStageId: 202,
+        fromStageId: backendTestIdentifiers.partyStage(202),
         gameId: 9 as never,
       },
       status: PartyStatus.ACTIVE,
@@ -207,7 +209,7 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
     await adapter.savePartyRuntime({
       context: {
         lifecycle: {
-          phase: 'lobby',
+          phase: PartyRuntimePhase.LOBBY,
           stageEndsAtEpochMs: null,
           stageRemainingDurationMs: null,
           stageId: null,

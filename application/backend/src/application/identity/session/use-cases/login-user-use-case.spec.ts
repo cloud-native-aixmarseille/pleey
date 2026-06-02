@@ -1,4 +1,5 @@
 import { IdentityErrorCode } from '../../../../domain/identity/enums/identity-error-code.enum';
+import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { createTokenPairFixture } from '../../../../test-utils/fixtures/unit/token-pair.fixture';
 import { createUserFixture } from '../../../../test-utils/fixtures/unit/user.fixture';
 import { createAuthTokenServiceMock } from '../../../../test-utils/mock-factories/auth-token-service.mock-factory';
@@ -27,7 +28,7 @@ describe('LoginUserUseCase', () => {
 
   it('generates tokens and updates refresh token on success', async () => {
     const user = createUserFixture({
-      id: 1,
+      id: backendTestIdentifiers.user(1),
       username: 'alice',
       email: 'alice@example.com',
       password: 'hashed',
@@ -68,7 +69,7 @@ describe('LoginUserUseCase', () => {
     expect(authTokenService.createTokenPair).toHaveBeenCalledTimes(1);
     expect(passwordService.hash).toHaveBeenCalledWith('refresh');
     expect(userRepository.updateRefreshToken).toHaveBeenCalledWith(
-      1,
+      backendTestIdentifiers.user(1),
       'refresh-hash',
       tokenPair.refreshTokenExpiresAt,
     );

@@ -17,7 +17,7 @@ spec:
         - podSelector:
             matchLabels:
               app.kubernetes.io/instance: {{ .Release.Name }}
-    {{- if or .Values.frontend.enabled .Values.backend.enabled (eq (include "pleey.backend.cloudnativepgOperatorEnabled" .) "true") }}
+    {{- if or .Values.frontend.enabled .Values.backend.enabled (eq (include "pleey.root.backendCloudnativepgOperatorEnabled" .) "true") }}
     - ports:
         {{- if .Values.frontend.enabled }}
         - port: {{ include "pleey.frontend.targetPort" . }}
@@ -27,7 +27,7 @@ spec:
         - port: {{ include "pleey.backend.targetPort" . }}
           protocol: TCP
         {{- end }}
-        {{- if eq (include "pleey.backend.cloudnativepgOperatorEnabled" .) "true" }}
+        {{- if eq (include "pleey.root.backendCloudnativepgOperatorEnabled" .) "true" }}
         - port: 9443
           protocol: TCP
         {{- end }}

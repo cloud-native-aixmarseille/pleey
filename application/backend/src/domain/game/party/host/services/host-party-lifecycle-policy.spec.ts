@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { GameErrorCode } from '../../../enums/game-error-code.enum';
 import { PartyStatus } from '../../enums/party-status.enum';
 import {
@@ -8,14 +9,35 @@ import {
 import { HostPartyLifecyclePolicy } from './host-party-lifecycle-policy';
 
 function createRuntimeContext(
-  overrides: Partial<PartyRuntimeContext['lifecycle']> = {},
-): PartyRuntimeContext {
+  overrides: Partial<
+    Extract<PartyRuntimeContext, { lifecycle: { phase: PartyRuntimePhase.STAGE } }>['lifecycle']
+  > = {},
+): Extract<PartyRuntimeContext, { lifecycle: { phase: PartyRuntimePhase.STAGE } }> {
   return {
     lifecycle: {
       phase: PartyRuntimePhase.STAGE,
       stageEndsAtEpochMs: 120_000,
       stageRemainingDurationMs: 20_000,
-      stageId: 101,
+      stageId: backendTestIdentifiers.partyStage(101),
+      stagePosition: 0,
+      stageTimeLimitSeconds: 20,
+      totalStages: 3,
+      ...overrides,
+    },
+  };
+}
+
+function createResultRuntimeContext(
+  overrides: Partial<
+    Extract<PartyRuntimeContext, { lifecycle: { phase: PartyRuntimePhase.RESULT } }>['lifecycle']
+  > = {},
+): Extract<PartyRuntimeContext, { lifecycle: { phase: PartyRuntimePhase.RESULT } }> {
+  return {
+    lifecycle: {
+      phase: PartyRuntimePhase.RESULT,
+      stageEndsAtEpochMs: 120_000,
+      stageRemainingDurationMs: 20_000,
+      stageId: backendTestIdentifiers.partyStage(101),
       stagePosition: 0,
       stageTimeLimitSeconds: 20,
       totalStages: 3,
@@ -41,7 +63,7 @@ describe('HostPartyLifecyclePolicy', () => {
       },
       {
         firstStage: {
-          id: 101,
+          id: backendTestIdentifiers.partyStage(101),
           stagePosition: 0,
           timeLimitSeconds: 20,
         },
@@ -87,7 +109,7 @@ describe('HostPartyLifecyclePolicy', () => {
     });
 
     expect(result.runtime?.lifecycle.phase).toBe(PartyRuntimePhase.RESULT);
-    expect(result.runtime?.lifecycle.stageId).toBe(101);
+    expect(result.runtime?.lifecycle.stageId).toBe(backendTestIdentifiers.partyStage(101));
     expect(result.runtime?.lifecycle.stagePosition).toBe(0);
   });
 
@@ -97,15 +119,14 @@ describe('HostPartyLifecyclePolicy', () => {
     const result = policy.advanceStage(
       {
         status: PartyStatus.ACTIVE,
-        runtime: createRuntimeContext({
-          phase: PartyRuntimePhase.RESULT,
-          stageId: 102,
+        runtime: createResultRuntimeContext({
+          stageId: backendTestIdentifiers.partyStage(102),
           stagePosition: 1,
         }),
       },
       {
         nextStage: {
-          id: 103,
+          id: backendTestIdentifiers.partyStage(103),
           stagePosition: 2,
           timeLimitSeconds: 15,
         },
@@ -133,9 +154,8 @@ describe('HostPartyLifecyclePolicy', () => {
       {
         status: PartyStatus.ACTIVE,
         runtime: {
-          ...createRuntimeContext({
-            phase: PartyRuntimePhase.RESULT,
-            stageId: 103,
+          ...createResultRuntimeContext({
+            stageId: backendTestIdentifiers.partyStage(103),
             stagePosition: 2,
           }),
           result: {
@@ -145,13 +165,11 @@ describe('HostPartyLifecyclePolicy', () => {
                   actionCount: 1,
                   actionPercent: 100,
                   earnedPoints: 1000,
-                  id: 1,
+                  id: backendTestIdentifiers.partyAction(1),
                   isCorrect: true,
                   text: 'A',
                 },
               ],
-              stageId: 103,
-              stagePosition: 2,
               text: 'Question 3',
             },
             currentPlayer: null,
@@ -170,7 +188,7 @@ describe('HostPartyLifecyclePolicy', () => {
           phase: PartyRuntimePhase.ENDED,
           stageEndsAtEpochMs: 120_000,
           stageRemainingDurationMs: 20_000,
-          stageId: 103,
+          stageId: backendTestIdentifiers.partyStage(103),
           stagePosition: 2,
           stageTimeLimitSeconds: 20,
           totalStages: 3,
@@ -182,13 +200,11 @@ describe('HostPartyLifecyclePolicy', () => {
                 actionCount: 1,
                 actionPercent: 100,
                 earnedPoints: 1000,
-                id: 1,
+                id: backendTestIdentifiers.partyAction(1),
                 isCorrect: true,
                 text: 'A',
               },
             ],
-            stageId: 103,
-            stagePosition: 2,
             text: 'Question 3',
           },
           currentPlayer: null,
@@ -200,7 +216,10 @@ describe('HostPartyLifecyclePolicy', () => {
   it('rewinds to the lobby while preserving configured stage count', () => {
     const result = policy.rewindParty({
       status: PartyStatus.ACTIVE,
-      runtime: createRuntimeContext({ stageId: 102, stagePosition: 1 }),
+      runtime: createRuntimeContext({
+        stageId: backendTestIdentifiers.partyStage(102),
+        stagePosition: 1,
+      }),
     });
 
     expect(result).toEqual({
@@ -228,7 +247,7 @@ describe('HostPartyLifecyclePolicy', () => {
         phase: PartyRuntimePhase.STAGE,
         stageEndsAtEpochMs: 120_000,
         stageRemainingDurationMs: 20_000,
-        stageId: 102,
+        stageId: backendTestIdentifiers.partyStage(102),
         stagePosition: 1,
       }),
     });
@@ -247,7 +266,10 @@ describe('HostPartyLifecyclePolicy', () => {
       policy.rewindStage(
         {
           status: PartyStatus.ACTIVE,
-          runtime: createRuntimeContext({ stageId: 101, stagePosition: 0 }),
+          runtime: createRuntimeContext({
+            stageId: backendTestIdentifiers.partyStage(101),
+            stagePosition: 0,
+          }),
         },
         {
           previousStage: null,

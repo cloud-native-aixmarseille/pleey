@@ -1,5 +1,6 @@
 import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
 import { ProjectErrorCode } from '../../../../domain/project/enums/project-error-code.enum';
+import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { createOrganizationMemberRepositoryMock } from '../../../../test-utils/mock-factories/organization.mock-factory';
 import { createProjectRepositoryMock } from '../../../../test-utils/mock-factories/project-repository.mock-factory';
 import { OrganizationIdentifier } from '../../shared/services/identifiers/organization-identifier';
@@ -24,9 +25,9 @@ describe('DeleteProjectUseCase', () => {
       memberRepository as never,
     );
 
-    await expect(useCase.execute(projectIdentifier.parse(8), 22)).rejects.toThrow(
-      ProjectErrorCode.PROJECT_NOT_FOUND,
-    );
+    await expect(
+      useCase.execute(projectIdentifier.parse(8), backendTestIdentifiers.user(22)),
+    ).rejects.toThrow(ProjectErrorCode.PROJECT_NOT_FOUND);
   });
 
   it('throws NOT_A_MEMBER when the user is outside the organization', async () => {
@@ -50,9 +51,9 @@ describe('DeleteProjectUseCase', () => {
       memberRepository as never,
     );
 
-    await expect(useCase.execute(projectIdentifier.parse(8), 22)).rejects.toThrow(
-      OrganizationErrorCode.NOT_A_MEMBER,
-    );
+    await expect(
+      useCase.execute(projectIdentifier.parse(8), backendTestIdentifiers.user(22)),
+    ).rejects.toThrow(OrganizationErrorCode.NOT_A_MEMBER);
   });
 
   it('throws INSUFFICIENT_PERMISSIONS when the user cannot manage projects', async () => {
@@ -78,9 +79,9 @@ describe('DeleteProjectUseCase', () => {
       memberRepository as never,
     );
 
-    await expect(useCase.execute(8, 22)).rejects.toThrow(
-      OrganizationErrorCode.INSUFFICIENT_PERMISSIONS,
-    );
+    await expect(
+      useCase.execute(projectIdentifier.parse(8), backendTestIdentifiers.user(22)),
+    ).rejects.toThrow(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
   });
 
   it('throws when deleting the last project of an organization', async () => {
@@ -112,9 +113,9 @@ describe('DeleteProjectUseCase', () => {
       memberRepository as never,
     );
 
-    await expect(useCase.execute(projectIdentifier.parse(8), 22)).rejects.toThrow(
-      ProjectErrorCode.CANNOT_DELETE_LAST_PROJECT,
-    );
+    await expect(
+      useCase.execute(projectIdentifier.parse(8), backendTestIdentifiers.user(22)),
+    ).rejects.toThrow(ProjectErrorCode.CANNOT_DELETE_LAST_PROJECT);
 
     expect(projectRepository.delete).not.toHaveBeenCalled();
   });
@@ -152,9 +153,9 @@ describe('DeleteProjectUseCase', () => {
       memberRepository as never,
     );
 
-    await expect(useCase.execute(projectIdentifier.parse(8), 22)).rejects.toThrow(
-      ProjectErrorCode.PROJECT_MIGRATION_TARGET_REQUIRED,
-    );
+    await expect(
+      useCase.execute(projectIdentifier.parse(8), backendTestIdentifiers.user(22)),
+    ).rejects.toThrow(ProjectErrorCode.PROJECT_MIGRATION_TARGET_REQUIRED);
 
     expect(workspaceGameManagement.reassignProjectGames).not.toHaveBeenCalled();
     expect(projectRepository.delete).not.toHaveBeenCalled();
@@ -196,7 +197,11 @@ describe('DeleteProjectUseCase', () => {
     );
 
     await expect(
-      useCase.execute(projectIdentifier.parse(8), 22, projectIdentifier.parse(99)),
+      useCase.execute(
+        projectIdentifier.parse(8),
+        backendTestIdentifiers.user(22),
+        projectIdentifier.parse(99),
+      ),
     ).rejects.toThrow(ProjectErrorCode.PROJECT_MIGRATION_TARGET_NOT_FOUND);
   });
 
@@ -238,7 +243,11 @@ describe('DeleteProjectUseCase', () => {
       memberRepository as never,
     );
 
-    await useCase.execute(projectIdentifier.parse(8), 22, projectIdentifier.parse(9));
+    await useCase.execute(
+      projectIdentifier.parse(8),
+      backendTestIdentifiers.user(22),
+      projectIdentifier.parse(9),
+    );
 
     expect(workspaceGameManagement.reassignProjectGames).toHaveBeenCalledWith(
       projectIdentifier.parse(8),
@@ -280,7 +289,7 @@ describe('DeleteProjectUseCase', () => {
       memberRepository as never,
     );
 
-    await useCase.execute(projectIdentifier.parse(8), 22);
+    await useCase.execute(projectIdentifier.parse(8), backendTestIdentifiers.user(22));
 
     expect(projectRepository.delete).toHaveBeenCalledWith(projectIdentifier.parse(8));
     expect(workspaceGameManagement.reassignProjectGames).not.toHaveBeenCalled();

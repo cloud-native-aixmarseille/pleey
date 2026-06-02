@@ -1,8 +1,8 @@
 import type { Readable } from 'node:stream';
 import { TextDecoder } from 'node:util';
 import { Inject, Injectable } from '@nestjs/common';
-import { PlayableContentImportParserErrorCode } from '../../../../../application/game/types/shared/services/playable-content-import/import-parser';
 import { PlayableContentImportSource } from '../../../../../application/game/types/shared/services/playable-content-import/import-source';
+import { PlayableContentImportParserErrorCode } from '../../../../../application/game/types/shared/services/playable-content-import/playable-content-import-parser';
 import {
   DEFAULT_PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES,
   PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES_TOKEN,

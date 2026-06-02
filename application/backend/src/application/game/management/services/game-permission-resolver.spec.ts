@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
+import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { PartyStageConfigurationPort } from '../../types/shared/ports/party-stage-configuration.port';
 import {
   CreatePartyDisabledReason,
@@ -20,13 +21,13 @@ describe('GamePermissionResolver', () => {
   it('allows party creation with no conflicts', async () => {
     await expect(
       resolver.resolveGamePermissions({
-        items: [{ gameId: 17, stageCount: 4 }],
-        hostUserId: 42,
+        items: [{ gameId: backendTestIdentifiers.game(17), stageCount: 4 }],
+        hostUserId: backendTestIdentifiers.user(42),
       }),
     ).resolves.toEqual(
       new Map([
         [
-          17,
+          backendTestIdentifiers.game(17),
           {
             createParty: {
               allowed: true,
@@ -46,8 +47,20 @@ describe('GamePermissionResolver', () => {
     const resolver = new GamePermissionResolver(
       {
         findActivePartyByGameId: async (gameId: number) =>
-          gameId === 17 ? { partyId: 8, gameId: 17, hostUserId: 42 } : null,
-        findActivePartiesByHostId: async () => [{ partyId: 8, gameId: 17, hostUserId: 42 }],
+          gameId === backendTestIdentifiers.game(17)
+            ? {
+                partyId: 8,
+                gameId: backendTestIdentifiers.game(17),
+                hostUserId: backendTestIdentifiers.user(42),
+              }
+            : null,
+        findActivePartiesByHostId: async () => [
+          {
+            partyId: 8,
+            gameId: backendTestIdentifiers.game(17),
+            hostUserId: backendTestIdentifiers.user(42),
+          },
+        ],
       } as never,
       partyStageConfiguration,
     );
@@ -55,15 +68,15 @@ describe('GamePermissionResolver', () => {
     await expect(
       resolver.resolveGamePermissions({
         items: [
-          { gameId: 17, stageCount: 3 },
-          { gameId: 18, stageCount: 2 },
+          { gameId: backendTestIdentifiers.game(17), stageCount: 3 },
+          { gameId: backendTestIdentifiers.game(18), stageCount: 2 },
         ],
-        hostUserId: 42,
+        hostUserId: backendTestIdentifiers.user(42),
       }),
     ).resolves.toEqual(
       new Map([
         [
-          17,
+          backendTestIdentifiers.game(17),
           {
             createParty: {
               allowed: false,
@@ -76,7 +89,7 @@ describe('GamePermissionResolver', () => {
           },
         ],
         [
-          18,
+          backendTestIdentifiers.game(18),
           {
             createParty: {
               allowed: false,
@@ -95,13 +108,13 @@ describe('GamePermissionResolver', () => {
   it('disables party creation when the game has no configured stages', async () => {
     await expect(
       resolver.resolveGamePermissions({
-        items: [{ gameId: 17, stageCount: 0 }],
-        hostUserId: 42,
+        items: [{ gameId: backendTestIdentifiers.game(17), stageCount: 0 }],
+        hostUserId: backendTestIdentifiers.user(42),
       }),
     ).resolves.toEqual(
       new Map([
         [
-          17,
+          backendTestIdentifiers.game(17),
           {
             createParty: {
               allowed: false,
@@ -120,7 +133,10 @@ describe('GamePermissionResolver', () => {
   it('assertCanCreateParty throws when another active party already exists for the game', async () => {
     const resolver = new GamePermissionResolver(
       {
-        findActivePartyByGameId: async () => ({ partyId: 8, hostUserId: 7 }),
+        findActivePartyByGameId: async () => ({
+          partyId: 8,
+          hostUserId: backendTestIdentifiers.user(7),
+        }),
         findActivePartiesByHostId: async () => [],
       } as never,
       partyStageConfiguration,
@@ -128,8 +144,8 @@ describe('GamePermissionResolver', () => {
 
     await expect(
       resolver.assertCanCreateParty({
-        gameId: 17,
-        hostUserId: 42,
+        gameId: backendTestIdentifiers.game(17),
+        hostUserId: backendTestIdentifiers.user(42),
       }),
     ).rejects.toThrow(GameErrorCode.GAME_ALREADY_HAS_ACTIVE_PARTY);
   });
@@ -137,7 +153,10 @@ describe('GamePermissionResolver', () => {
   it('assertCanCreateParty throws when the same host already owns an active party for the game', async () => {
     const resolver = new GamePermissionResolver(
       {
-        findActivePartyByGameId: async () => ({ partyId: 8, hostUserId: 42 }),
+        findActivePartyByGameId: async () => ({
+          partyId: 8,
+          hostUserId: backendTestIdentifiers.user(42),
+        }),
         findActivePartiesByHostId: async () => [],
       } as never,
       partyStageConfiguration,
@@ -145,8 +164,8 @@ describe('GamePermissionResolver', () => {
 
     await expect(
       resolver.assertCanCreateParty({
-        gameId: 17,
-        hostUserId: 42,
+        gameId: backendTestIdentifiers.game(17),
+        hostUserId: backendTestIdentifiers.user(42),
       }),
     ).rejects.toThrow(GameErrorCode.HOST_ALREADY_HAS_ACTIVE_PARTY_FOR_GAME);
   });
@@ -155,15 +174,17 @@ describe('GamePermissionResolver', () => {
     const resolver = new GamePermissionResolver(
       {
         findActivePartyByGameId: async () => null,
-        findActivePartiesByHostId: async () => [{ partyId: 12, gameId: 99 }],
+        findActivePartiesByHostId: async () => [
+          { partyId: 12, gameId: backendTestIdentifiers.game(99) },
+        ],
       } as never,
       partyStageConfiguration,
     );
 
     await expect(
       resolver.assertCanCreateParty({
-        gameId: 17,
-        hostUserId: 42,
+        gameId: backendTestIdentifiers.game(17),
+        hostUserId: backendTestIdentifiers.user(42),
       }),
     ).rejects.toThrow(GameErrorCode.ACTIVE_PARTY_EXISTS);
   });
@@ -175,8 +196,8 @@ describe('GamePermissionResolver', () => {
 
     await expect(
       resolver.assertCanCreateParty({
-        gameId: 17,
-        hostUserId: 42,
+        gameId: backendTestIdentifiers.game(17),
+        hostUserId: backendTestIdentifiers.user(42),
       }),
     ).rejects.toThrow(GameErrorCode.PARTY_STAGES_NOT_AVAILABLE);
   });

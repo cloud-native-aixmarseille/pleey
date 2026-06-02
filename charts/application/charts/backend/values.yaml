@@ -39,7 +39,8 @@ serviceAccount:
 database:
   # -- Database backend. `cloudnativepg` creates a Cluster custom resource for
   # an already-available CloudNativePG operator, while `external` uses an
-  # existing PostgreSQL connection string or secret.
+  # existing PostgreSQL connection string or secret. Setting
+  # `database.external.url` forces external mode.
   provider: cloudnativepg
   auth:
     database: pleeydb
@@ -67,6 +68,8 @@ database:
     backup: {}
     annotations: {}
   external:
+    # -- Setting this URL forces external database mode even when
+    # `database.provider` is left at `cloudnativepg`.
     url: ""
     host: ""
     port: 5432

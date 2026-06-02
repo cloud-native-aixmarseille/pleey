@@ -1,4 +1,4 @@
-{{- if eq .Values.database.provider "cloudnativepg" }}
+{{- if eq (include "pleey.backend.databaseProvider" .) "cloudnativepg" }}
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:

@@ -1,9 +1,11 @@
 import type { Mocked } from 'vitest';
 import type { PlayerPartyRuntimePort } from '../../application/game/party/player/ports/player-party-runtime.port';
+import { GuestIdentifier } from '../../application/identity/shared/services/identifiers/guest-identifier';
 import { UserIdentifier } from '../../application/identity/shared/services/identifiers/user-identifier';
 import { PartyPlayerKind } from '../../domain/game/party/enums/party-player-kind.enum';
 import { mockFn } from './mock-factory.utils';
 
+const guestIdentifier = new GuestIdentifier();
 const userIdentifier = new UserIdentifier();
 
 type PlayerPartyRuntimeLike = Pick<
@@ -29,26 +31,10 @@ type PartyJoinTargetInput = ActivePlayerPartySessionInput & {
 
 type CreatePlayerPartyRuntimeMockConfig = {
   readonly ensureAuthenticatedPlayer?: undefined;
-  readonly ensureGuestPlayer?: {
-    readonly guestId: string;
-  };
+  readonly ensureGuestPlayer?: Awaited<ReturnType<PlayerPartyRuntimeLike['ensureGuestPlayer']>>;
   readonly findActivePartyByUserId?: ActivePlayerPartySessionInput | null;
   readonly findPartyByPin?: PartyJoinTargetInput | null;
-  readonly findPartyPlayer?: {
-    readonly avatarUri: string | null;
-    readonly identity:
-      | {
-          readonly kind: PartyPlayerKind.USER;
-          readonly userId: number;
-        }
-      | {
-          readonly kind: PartyPlayerKind.GUEST;
-          readonly guestId: string;
-        };
-    readonly joinedAt: Date;
-    readonly totalScore: number;
-    readonly username: string;
-  } | null;
+  readonly findPartyPlayer?: Awaited<ReturnType<PlayerPartyRuntimeLike['findPartyPlayer']>>;
   readonly removePlayer?: boolean;
 };
 
@@ -62,7 +48,7 @@ const DEFAULT_PARTY_JOIN_TARGET: PartyJoinTargetInput = {
 
 const DEFAULT_GUEST_PLAYER_IDENTITY = {
   kind: PartyPlayerKind.GUEST,
-  guestId: 'guest-42',
+  guestId: guestIdentifier.parse('guest-42'),
 };
 
 const DEFAULT_PARTY_PLAYER = {
@@ -74,7 +60,7 @@ const DEFAULT_PARTY_PLAYER = {
   joinedAt: new Date('2026-04-27T10:00:00.000Z'),
   totalScore: 0,
   username: 'Morgan',
-};
+} satisfies NonNullable<CreatePlayerPartyRuntimeMockConfig['findPartyPlayer']>;
 
 export const createPlayerPartyRuntimeMock = (
   config: CreatePlayerPartyRuntimeMockConfig = {},

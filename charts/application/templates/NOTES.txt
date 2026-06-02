@@ -2,7 +2,7 @@ Pleey has been installed.
 
 Frontend service: {{ include "pleey.frontend.fullname" . }}.{{ include "pleey.namespace" . }}.svc.cluster.local
 Backend service: {{ include "pleey.backend.fullname" . }}.{{ include "pleey.namespace" . }}.svc.cluster.local
-{{- if eq (include "pleey.backend.databaseProvider" .) "cloudnativepg" }}
+{{- if eq (include "pleey.root.backendDatabaseProvider" .) "cloudnativepg" }}
 PostgreSQL cluster: {{ include "pleey.database.fullname" . }}
 {{- end }}
 {{- if and (eq (include "pleey.backend.valkeyEnabled" .) "true") (eq (include "pleey.backend.valkeyProvider" .) "builtin") }}

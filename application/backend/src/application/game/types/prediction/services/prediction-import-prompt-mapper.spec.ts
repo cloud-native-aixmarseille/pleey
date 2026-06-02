@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { PredictionErrorCode } from '../../../../../domain/game/types/prediction/enums/prediction-error-code.enum';
 import { SelectableOptionPolicy } from '../../../../../domain/game/types/shared/services/selectable-option-policy';
-import { PlayableContentImportParser } from '../../shared/services/playable-content-import/import-parser';
 import { PlayableContentImportSource } from '../../shared/services/playable-content-import/import-source';
+import { PlayableContentImportParser } from '../../shared/services/playable-content-import/playable-content-import-parser';
 import { PredictionImportPromptMapper } from './prediction-import-prompt-mapper';
 
 class TestPlayableContentImportSource extends PlayableContentImportSource {

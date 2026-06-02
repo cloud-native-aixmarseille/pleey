@@ -1,6 +1,6 @@
 import { Readable } from 'node:stream';
 import { describe, expect, it } from 'vitest';
-import { PlayableContentImportParserErrorCode } from '../../../../../application/game/types/shared/services/playable-content-import/import-parser';
+import { PlayableContentImportParserErrorCode } from '../../../../../application/game/types/shared/services/playable-content-import/playable-content-import-parser';
 import { DEFAULT_PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES } from './playable-content-upload.constants';
 import { PlayableContentUploadReader } from './playable-content-upload-reader';
 

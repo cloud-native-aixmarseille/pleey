@@ -123,7 +123,7 @@ spec:
         - name: database-secret
           secret:
             secretName: {{ include "pleey.backend.databaseSecretName" . }}
-            optional: {{ eq .Values.database.provider "cloudnativepg" }}
+            optional: {{ eq (include "pleey.backend.databaseProvider" .) "cloudnativepg" }}
             items:
               - key: {{ include "pleey.backend.databaseSecretKey" . }}
                 path: {{ include "pleey.backend.databaseSecretKey" . }}

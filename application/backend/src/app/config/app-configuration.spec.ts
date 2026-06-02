@@ -3,10 +3,18 @@ import { describe, expect, it } from 'vitest';
 import { AppConfiguration } from './app-configuration';
 import { AppEnvironment } from './app-environment';
 
+const REQUIRED_RUNTIME_ENVIRONMENT = {
+  DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/pleey_test',
+  JWT_SECRET: 'test_jwt_secret_only_for_tests',
+} as const;
+
 describe('AppConfiguration', () => {
   it('disables otel console output by default', () => {
     const configuration = new AppConfiguration(
-      new AppEnvironment({ NODE_ENV: 'development' } as NodeJS.ProcessEnv),
+      new AppEnvironment({
+        ...REQUIRED_RUNTIME_ENVIRONMENT,
+        NODE_ENV: 'development',
+      } as NodeJS.ProcessEnv),
     );
 
     const telemetryConfig = configuration.getTelemetryConfig();
@@ -24,6 +32,7 @@ describe('AppConfiguration', () => {
   it('allows explicit opt-in for otel console output', () => {
     const configuration = new AppConfiguration(
       new AppEnvironment({
+        ...REQUIRED_RUNTIME_ENVIRONMENT,
         NODE_ENV: 'development',
         OTEL_CONSOLE_DIAGNOSTICS_ENABLED: 'true',
         OTEL_CONSOLE_EXPORTERS_ENABLED: 'true',
@@ -46,14 +55,14 @@ describe('AppConfiguration', () => {
   });
 
   it('rejects invalid otel console boolean values', () => {
-    const configuration = new AppConfiguration(
-      new AppEnvironment({
-        OTEL_CONSOLE_EXPORTERS_ENABLED: 'sometimes',
-      } as NodeJS.ProcessEnv),
-    );
-
-    expect(() => configuration.getTelemetryConfig()).toThrow(
-      "OTEL_CONSOLE_EXPORTERS_ENABLED must be 'true' or 'false'",
-    );
+    expect(
+      () =>
+        new AppConfiguration(
+          new AppEnvironment({
+            ...REQUIRED_RUNTIME_ENVIRONMENT,
+            OTEL_CONSOLE_EXPORTERS_ENABLED: 'sometimes',
+          } as NodeJS.ProcessEnv),
+        ),
+    ).toThrow("OTEL_CONSOLE_EXPORTERS_ENABLED must be 'true' or 'false'");
   });
 });

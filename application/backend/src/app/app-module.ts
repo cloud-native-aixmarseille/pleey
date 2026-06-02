@@ -1,17 +1,19 @@
 import * as path from 'node:path';
 import { ApolloDriver, type ApolloDriverConfig } from '@nestjs/apollo';
-import { MiddlewareConsumer, Module, type NestModule } from '@nestjs/common';
+import { Inject, MiddlewareConsumer, Module, type NestModule } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { JwtService } from '@nestjs/jwt';
 import { GraphQLUpload, graphqlUploadExpress } from 'graphql-upload-minimal';
 import { AcceptLanguageResolver, I18nJsonLoader, I18nModule, QueryResolver } from 'nestjs-i18n';
 import type { UserId } from '../domain/identity/entities/user';
+import { AUTH_JWT_SECRET } from '../infrastructure/identity/auth-jwt-secret.token';
 import { GameErrorHttpStatusService } from '../presentation/game/shared/error-handling/game-error-http-status.service';
 import { GameErrorTranslationService } from '../presentation/game/shared/error-handling/game-error-translation.service';
 import { PredictionErrorHttpStatusService } from '../presentation/game/types/prediction/shared/error-handling/prediction-error-http-status.service';
 import { PredictionErrorTranslationService } from '../presentation/game/types/prediction/shared/error-handling/prediction-error-translation.service';
 import { QuizErrorHttpStatusService } from '../presentation/game/types/quiz/shared/error-handling/quiz-error-http-status.service';
 import { QuizErrorTranslationService } from '../presentation/game/types/quiz/shared/error-handling/quiz-error-translation.service';
+import { PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES_TOKEN } from '../presentation/game/types/shared/graphql/playable-content-upload.constants';
 import { IdentityErrorHttpStatusService } from '../presentation/identity/shared/error-handling/identity-error-http-status.service';
 import { IdentityErrorTranslationService } from '../presentation/identity/shared/error-handling/identity-error-translation.service';
 import { OrganizationErrorHttpStatusService } from '../presentation/organization/shared/error-handling/organization-error-http-status.service';
@@ -23,22 +25,13 @@ import { ERROR_CODE_HTTP_STATUS_RESOLVERS } from '../presentation/shared/error-h
 import { ERROR_CODE_TRANSLATORS } from '../presentation/shared/error-handling/error-code-translators.token';
 import { ErrorTranslationService } from '../presentation/shared/error-handling/error-translation-service';
 import { AppConfigModule } from './config/app-config.module';
-import { AppConfiguration } from './config/app-configuration';
-import { AppEnvironment } from './config/app-environment';
+import { APP_SERVER_CONFIG, type AppServerConfig } from './config/app-server-config.token';
 import { GameModule } from './modules/game/game-module';
 import { PredictionModule } from './modules/game/types/prediction-module';
 import { QuizModule } from './modules/game/types/quiz-module';
 import { HealthModule } from './modules/health/health-module';
 import { IdentityModule } from './modules/identity/identity-module';
 import { OrganizationModule } from './modules/organization/organization-module';
-
-const appConfiguration = new AppConfiguration(new AppEnvironment());
-const isProdBuild = appConfiguration.getServerConfig().isProduction;
-const i18nDirectory = isProdBuild
-  ? path.join(__dirname, '../../i18n/')
-  : path.join(process.cwd(), 'src/i18n/');
-const jwtSecret = appConfiguration.getJwtSecret();
-const jwtService = new JwtService();
 
 type GraphqlWsUser = {
   id: UserId;
@@ -60,60 +53,80 @@ function parseAuthorizationHeader(connectionParams?: Record<string, unknown>): s
   return token;
 }
 
+function createI18nDirectory(serverConfig: AppServerConfig): string {
+  return serverConfig.isProduction
+    ? path.join(__dirname, '../../i18n/')
+    : path.join(process.cwd(), 'src/i18n/');
+}
+
 @Module({
   imports: [
     AppConfigModule,
-    GraphQLModule.forRoot<ApolloDriverConfig>({
+    GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
-      autoSchemaFile: isProdBuild ? true : path.join(process.cwd(), 'src/schema.gql'),
-      sortSchema: true,
-      playground: !isProdBuild,
-      resolvers: {
-        Upload: GraphQLUpload,
-      },
-      subscriptions: {
-        'graphql-ws': {
-          onConnect: (context) => {
-            const connectionParams =
-              context.connectionParams && typeof context.connectionParams === 'object'
-                ? (context.connectionParams as Record<string, unknown>)
-                : undefined;
+      imports: [AppConfigModule],
+      useFactory: (serverConfig: AppServerConfig, jwtSecret: string) => {
+        const jwtService = new JwtService();
 
-            const token = parseAuthorizationHeader(connectionParams);
-
-            if (!token) {
-              return true;
-            }
-
-            const payload = jwtService.verify<GraphqlWsUser>(token, {
-              secret: jwtSecret,
-            });
-
-            const extra = context.extra;
-            if (extra && typeof extra === 'object') {
-              (extra as Record<string, unknown>).user = {
-                id: payload.id,
-                username: payload.username,
-              };
-            }
-
-            return true;
+        return {
+          autoSchemaFile: serverConfig.isProduction
+            ? true
+            : path.join(process.cwd(), 'src/schema.gql'),
+          sortSchema: true,
+          playground: !serverConfig.isProduction,
+          resolvers: {
+            Upload: GraphQLUpload,
           },
-        },
+          subscriptions: {
+            'graphql-ws': {
+              onConnect: (context) => {
+                const connectionParams =
+                  context.connectionParams && typeof context.connectionParams === 'object'
+                    ? (context.connectionParams as Record<string, unknown>)
+                    : undefined;
+
+                const token = parseAuthorizationHeader(connectionParams);
+
+                if (!token) {
+                  return true;
+                }
+
+                const payload = jwtService.verify<GraphqlWsUser>(token, {
+                  secret: jwtSecret,
+                });
+
+                const extra = context.extra;
+                if (extra && typeof extra === 'object') {
+                  (extra as Record<string, unknown>).user = {
+                    id: payload.id,
+                    username: payload.username,
+                  };
+                }
+
+                return true;
+              },
+            },
+          },
+          context: ({ req, extra }: { req?: unknown; extra?: Record<string, unknown> }) => ({
+            req,
+            user: extra?.user ?? null,
+          }),
+        };
       },
-      context: ({ req, extra }: { req?: unknown; extra?: Record<string, unknown> }) => ({
-        req,
-        user: extra?.user ?? null,
-      }),
+      inject: [APP_SERVER_CONFIG, AUTH_JWT_SECRET],
     }),
-    I18nModule.forRoot({
-      fallbackLanguage: 'en',
-      loader: I18nJsonLoader,
-      loaderOptions: {
-        path: i18nDirectory,
-        watch: !isProdBuild,
-      },
-      resolvers: [{ use: QueryResolver, options: ['lang'] }, AcceptLanguageResolver],
+    I18nModule.forRootAsync({
+      imports: [AppConfigModule],
+      useFactory: (serverConfig: AppServerConfig) => ({
+        fallbackLanguage: 'en',
+        loader: I18nJsonLoader,
+        loaderOptions: {
+          path: createI18nDirectory(serverConfig),
+          watch: !serverConfig.isProduction,
+        },
+        resolvers: [{ use: QueryResolver, options: ['lang'] }, AcceptLanguageResolver],
+      }),
+      inject: [APP_SERVER_CONFIG],
     }),
     HealthModule,
     IdentityModule,
@@ -193,11 +206,16 @@ function parseAuthorizationHeader(connectionParams?: Record<string, unknown>): s
   ],
 })
 export class AppModule implements NestModule {
+  constructor(
+    @Inject(PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES_TOKEN)
+    private readonly playableContentImportMaxFileSizeBytes: number,
+  ) {}
+
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(
         graphqlUploadExpress({
-          maxFileSize: appConfiguration.getPlayableContentImportMaxFileSizeBytes(),
+          maxFileSize: this.playableContentImportMaxFileSizeBytes,
           maxFiles: 1,
         }),
       )

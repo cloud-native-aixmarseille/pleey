@@ -129,9 +129,10 @@ app.kubernetes.io/component: frontend
 {{- dig "service" "targetPort" 8080 (default (dict) .Values._frontend) -}}
 {{- end }}
 
-{{- define "pleey.backend.databaseProvider" -}}
-{{- dig "database" "provider" "cloudnativepg" (default (dict) .Values._backend) -}}
-{{- end }}
+{{- define "pleey.root.backendDatabaseProvider" -}}
+{{- $backend := default (dict) .Values._backend -}}
+{{- if dig "database" "external" "url" "" $backend -}}external{{- else -}}{{- dig "database" "provider" "cloudnativepg" $backend -}}{{- end -}}
+{{- end -}}
 
 {{- define "pleey.backend.valkeyProvider" -}}
 {{- dig "valkey" "provider" "builtin" (default (dict) .Values._backend) -}}
@@ -141,6 +142,6 @@ app.kubernetes.io/component: frontend
 {{- dig "valkey" "enabled" true (default (dict) .Values._backend) -}}
 {{- end }}
 
-{{- define "pleey.backend.cloudnativepgOperatorEnabled" -}}
-{{- dig "cloudnativepgOperator" "enabled" false (default (dict) .Values._backend) -}}
-{{- end }}
+{{- define "pleey.root.backendCloudnativepgOperatorEnabled" -}}
+{{- if eq (include "pleey.root.backendDatabaseProvider" .) "external" -}}false{{- else -}}{{- dig "cloudnativepgOperator" "enabled" false (default (dict) .Values._backend) -}}{{- end -}}
+{{- end -}}

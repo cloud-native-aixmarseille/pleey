@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { CsvPlayableContentImportFormatParser } from './csv-import-parser';
+import { CsvPlayableContentImportFormatParser } from './csv-playable-content-import-format-parser';
 import type { PlayableContentImportFormatParser } from './import-format-parser';
 import { PlayableContentImportParserErrorCode } from './import-parser.error';
 import type { RawImportItem } from './import-parser.types';
 import { PlayableContentImportSource } from './import-source';
-import { JsonPlayableContentImportFormatParser } from './json-import-parser';
-import { MarkdownPlayableContentImportFormatParser } from './markdown-import-parser';
-import { PlaintextPlayableContentImportFormatParser } from './plaintext-import-parser';
+import { JsonPlayableContentImportFormatParser } from './json-playable-content-import-format-parser';
+import { MarkdownPlayableContentImportFormatParser } from './markdown-playable-content-import-format-parser';
+import { PlaintextPlayableContentImportFormatParser } from './plaintext-playable-content-import-format-parser';
 
 function createBufferedPlayableContentImportSource(
   fileName: string,

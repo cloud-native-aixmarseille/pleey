@@ -120,8 +120,12 @@ imagePullSecrets:
 {{- end -}}
 {{- end }}
 
+{{- define "pleey.backend.databaseProvider" -}}
+{{- if .Values.database.external.url -}}external{{- else -}}{{- default "cloudnativepg" .Values.database.provider -}}{{- end -}}
+{{- end -}}
+
 {{- define "pleey.backend.databaseSecretName" -}}
-{{- if eq .Values.database.provider "cloudnativepg" -}}
+{{- if eq (include "pleey.backend.databaseProvider" .) "cloudnativepg" -}}
 {{- include "pleey.backend.databaseApplicationSecretName" . -}}
 {{- else if .Values.database.external.existingSecret.name -}}
 {{- .Values.database.external.existingSecret.name -}}
@@ -131,7 +135,7 @@ imagePullSecrets:
 {{- end }}
 
 {{- define "pleey.backend.databaseSecretKey" -}}
-{{- if eq .Values.database.provider "cloudnativepg" -}}
+{{- if eq (include "pleey.backend.databaseProvider" .) "cloudnativepg" -}}
 uri
 {{- else if .Values.database.external.existingSecret.name -}}
 {{- .Values.database.external.existingSecret.key -}}
@@ -141,15 +145,15 @@ DATABASE_URL
 {{- end }}
 
 {{- define "pleey.backend.databaseUrl" -}}
-{{- if eq .Values.database.provider "external" -}}
-{{- required "database.external.url is required when database.provider=external and no existing secret is provided" .Values.database.external.url -}}
+{{- if eq (include "pleey.backend.databaseProvider" .) "external" -}}
+{{- required "database.external.url is required when database.provider=external or database.external.url is set and no existing secret is provided" .Values.database.external.url -}}
 {{- else -}}
 {{- "" -}}
 {{- end -}}
 {{- end }}
 
 {{- define "pleey.backend.databaseWaitHost" -}}
-{{- if eq .Values.database.provider "cloudnativepg" -}}
+{{- if eq (include "pleey.backend.databaseProvider" .) "cloudnativepg" -}}
 {{- printf "%s-rw" (include "pleey.backend.databaseFullname" .) -}}
 {{- else -}}
 {{- .Values.database.external.host -}}

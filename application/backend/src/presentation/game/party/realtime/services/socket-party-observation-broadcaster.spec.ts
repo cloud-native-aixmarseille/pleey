@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { PartyIdentifier } from '../../../../../application/game/party/shared/services/identifiers/party-identifier';
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
 import { GameType } from '../../../../../domain/game/types/shared/entities/game-type';
+import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { HostPartyObservationMessageMapper } from './host-party-observation-message-mapper';
 import { PartyObservationAudienceResolver } from './party-observation-audience-resolver';
 import { PlayerPartyObservationMessageMapper } from './player-party-observation-message-mapper';
@@ -14,7 +15,7 @@ function createSnapshot() {
   return {
     gameType: GameType.Quiz,
     hostObservation: {
-      partyId: 44,
+      partyId: backendTestIdentifiers.party(44),
       gameId: 17,
       pin: '123456',
       status: 'WAITING',
@@ -29,7 +30,7 @@ function createSnapshot() {
       updatedAt: new Date('2026-04-17T10:00:00.000Z'),
     },
     playerObservation: {
-      partyId: 44,
+      partyId: backendTestIdentifiers.party(44),
       pin: '123456',
       status: 'WAITING',
       host: {
@@ -205,7 +206,11 @@ describe('SocketPartyObservationBroadcaster', () => {
 
     broadcaster.attachServer(server as never);
 
-    await broadcaster.publishRuntimeNotice(44, 7, 'rewindStage');
+    await broadcaster.publishRuntimeNotice(
+      backendTestIdentifiers.party(44),
+      backendTestIdentifiers.user(7),
+      'rewindStage',
+    );
 
     expect(deliveryOrder).toEqual(['host', 'player', 'observer']);
   });

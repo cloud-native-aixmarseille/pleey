@@ -1,4 +1,5 @@
 import { IdentityErrorCode } from '../../../../domain/identity/enums/identity-error-code.enum';
+import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { createUserFixture } from '../../../../test-utils/fixtures/unit/user.fixture';
 import { createUserRepositoryMock } from '../../../../test-utils/mock-factories/user-repository.mock-factory';
 import { GetCurrentUserUseCase } from './get-current-user-use-case';
@@ -9,7 +10,9 @@ describe('GetCurrentUserUseCase', () => {
 
     const useCase = new GetCurrentUserUseCase(userRepository);
 
-    await expect(useCase.execute(123)).rejects.toThrow(IdentityErrorCode.USER_NOT_FOUND);
+    await expect(useCase.execute(backendTestIdentifiers.user(123))).rejects.toThrow(
+      IdentityErrorCode.USER_NOT_FOUND,
+    );
   });
 
   it('returns a public profile for existing user', async () => {
@@ -18,8 +21,12 @@ describe('GetCurrentUserUseCase', () => {
     const userRepository = createUserRepositoryMock({ findById: user });
 
     const useCase = new GetCurrentUserUseCase(userRepository);
-    const result = await useCase.execute(1);
+    const result = await useCase.execute(backendTestIdentifiers.user(1));
 
-    expect(result).toMatchObject({ id: 1, username: 'alice', email: 'alice@example.com' });
+    expect(result).toMatchObject({
+      id: backendTestIdentifiers.user(1),
+      username: 'alice',
+      email: 'alice@example.com',
+    });
   });
 });

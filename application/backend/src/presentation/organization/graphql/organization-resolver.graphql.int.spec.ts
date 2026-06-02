@@ -141,7 +141,7 @@ const organizationMemberIdentifier = {
 })
 class TestOrganizationGraphqlModule {}
 
-describe('OrganizationResolver GraphQL integration', () => {
+describe('OrganizationResolver', () => {
   let app: INestApplication;
 
   beforeAll(async () => {

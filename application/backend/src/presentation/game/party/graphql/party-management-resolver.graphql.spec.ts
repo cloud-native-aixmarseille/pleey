@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CreatePartyUseCase } from '../../../../application/game/party/host/use-cases/create-party-use-case';
 import { ListPartiesUseCase } from '../../../../application/game/party/shared/use-cases/list-parties-use-case';
 import { GameIdentifier } from '../../../../application/game/shared/services/identifiers/game-identifier';
+import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { PartyManagementResolver } from './party-management-resolver';
 import { CreatePartyInput } from './types/create-party-input';
 
@@ -50,14 +51,14 @@ describe('PartyManagementResolver', () => {
     const result = await resolver.createParty(input, {
       req: {
         user: {
-          id: 42,
+          id: backendTestIdentifiers.user(42),
         },
       },
     });
 
     expect(createPartyUseCase.execute).toHaveBeenCalledWith({
       gameId: 11,
-      hostUserId: 42,
+      hostUserId: backendTestIdentifiers.user(42),
     });
     expect(result.partyId).toBe(14);
   });
@@ -66,12 +67,14 @@ describe('PartyManagementResolver', () => {
     const result = await resolver.listParties({
       req: {
         user: {
-          id: 42,
+          id: backendTestIdentifiers.user(42),
         },
       },
     });
 
-    expect(listPartiesUseCase.execute).toHaveBeenCalledWith({ userId: 42 });
+    expect(listPartiesUseCase.execute).toHaveBeenCalledWith({
+      userId: backendTestIdentifiers.user(42),
+    });
     expect(result).toEqual([
       {
         partyId: 14,

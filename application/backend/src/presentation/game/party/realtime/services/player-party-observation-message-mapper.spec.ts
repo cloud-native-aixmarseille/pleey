@@ -3,6 +3,9 @@ import { PartyActionIdentifier } from '../../../../../application/game/party/sha
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
 import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
 import { PARTY_PLAYER_ACTION_STATE_STATUS } from '../../../../../domain/game/party/player/entities/party-player-action-state';
+import { PartyRuntimePhase } from '../../../../../domain/game/party/shared/entities/party-runtime-context';
+import { GameType } from '../../../../../domain/game/types/shared/entities/game-type';
+import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { PlayerPartyObservationMessageMapper } from './player-party-observation-message-mapper';
 
 describe('PlayerPartyObservationMessageMapper', () => {
@@ -13,15 +16,18 @@ describe('PlayerPartyObservationMessageMapper', () => {
 
     const message = mapper.toMessage(
       {
-        partyId: 44,
-        pin: 'AB12CD',
+        partyId: backendTestIdentifiers.party(44),
+        pin: backendTestIdentifiers.partyPin('AB12CD'),
         status: PartyStatus.ACTIVE,
         context: {
           lifecycle: {
-            phase: 'result',
-            stageId: 202,
+            phase: PartyRuntimePhase.RESULT,
+            stageId: backendTestIdentifiers.partyStage(202),
             stagePosition: 1,
             totalStages: 4,
+            stageEndsAtEpochMs: null,
+            stageRemainingDurationMs: null,
+            stageTimeLimitSeconds: null,
           },
           result: {
             current: {
@@ -43,8 +49,6 @@ describe('PlayerPartyObservationMessageMapper', () => {
                   text: 'B',
                 },
               ],
-              stageId: 202,
-              stagePosition: 1,
               text: 'Question 2',
             },
             currentPlayer: null,
@@ -58,12 +62,12 @@ describe('PlayerPartyObservationMessageMapper', () => {
           {
             identity: {
               kind: PartyPlayerKind.USER,
-              userId: 42,
+              userId: backendTestIdentifiers.user(42),
             },
             state: {
               earnedPoints: 750,
               selectedActionId: partyActionIdentifier.parse(7),
-              stageId: 202,
+              stageId: backendTestIdentifiers.partyStage(202),
               stagePosition: 1,
               status: PARTY_PLAYER_ACTION_STATE_STATUS.ACKNOWLEDGED,
             },
@@ -74,23 +78,23 @@ describe('PlayerPartyObservationMessageMapper', () => {
             avatarUri: null,
             identity: {
               kind: PartyPlayerKind.USER,
-              userId: 42,
+              userId: backendTestIdentifiers.user(42),
             },
             totalScore: 1200,
             username: 'Neo',
           },
         ],
       },
-      'quiz',
+      GameType.Quiz,
       [
         {
           kind: PartyPlayerKind.USER,
-          userId: 42,
+          userId: backendTestIdentifiers.user(42),
         },
       ],
       {
         kind: PartyPlayerKind.USER,
-        userId: 42,
+        userId: backendTestIdentifiers.user(42),
       },
     );
 
@@ -103,7 +107,7 @@ describe('PlayerPartyObservationMessageMapper', () => {
     expect(message.players[0]).toMatchObject({
       identity: {
         kind: PartyPlayerKind.USER,
-        userId: 42,
+        userId: backendTestIdentifiers.user(42),
       },
       isCurrentPlayer: true,
       isLive: true,

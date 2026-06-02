@@ -23,8 +23,8 @@ import { GraphQLUpload, graphqlUploadExpress } from 'graphql-upload-minimal';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { playableContentImportProviders } from '../../../../../application/game/types/shared/services/playable-content-import/import.providers';
-import { PlayableContentImportParser } from '../../../../../application/game/types/shared/services/playable-content-import/import-parser';
 import { PlayableContentImportSource } from '../../../../../application/game/types/shared/services/playable-content-import/import-source';
+import { PlayableContentImportParser } from '../../../../../application/game/types/shared/services/playable-content-import/playable-content-import-parser';
 import { ImportPlayableContentInputBase } from './import-playable-content-inputs';
 import {
   DEFAULT_PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES,

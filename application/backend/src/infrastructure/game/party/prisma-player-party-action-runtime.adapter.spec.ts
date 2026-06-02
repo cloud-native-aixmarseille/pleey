@@ -3,6 +3,8 @@ import { PartyActionIdentifier } from '../../../application/game/party/shared/se
 import { PartyStageIdentifier } from '../../../application/game/party/shared/services/identifiers/party-stage-identifier';
 import { PartyPlayerKind } from '../../../domain/game/party/enums/party-player-kind.enum';
 import { PartyStatus } from '../../../domain/game/party/enums/party-status.enum';
+import { PartyRuntimePhase } from '../../../domain/game/party/shared/entities/party-runtime-context';
+import { backendTestIdentifiers } from '../../../test-utils/branded-identifiers';
 import { PrismaPlayerPartyActionRuntimeAdapter } from './prisma-player-party-action-runtime.adapter';
 
 describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
@@ -44,10 +46,10 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
       actionId: partyActionIdentifier.parse(22),
       context: {
         lifecycle: {
-          phase: 'stage',
+          phase: PartyRuntimePhase.STAGE,
           stageEndsAtEpochMs: 30_000,
           stageRemainingDurationMs: 20_000,
-          stageId: 101,
+          stageId: backendTestIdentifiers.partyStage(101),
           stagePosition: 0,
           stageTimeLimitSeconds: 20,
           totalStages: 3,
@@ -157,10 +159,10 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
       actionId: partyActionIdentifier.parse(22),
       context: {
         lifecycle: {
-          phase: 'stage',
+          phase: PartyRuntimePhase.STAGE,
           stageEndsAtEpochMs: 30_000,
           stageRemainingDurationMs: 20_000,
-          stageId: 202,
+          stageId: backendTestIdentifiers.partyStage(202),
           stagePosition: 1,
           stageTimeLimitSeconds: 20,
           totalStages: 3,

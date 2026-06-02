@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { PredictionErrorCode } from '../../../../../domain/game/types/prediction/enums/prediction-error-code.enum';
 import type { PredictionPromptCreationData } from '../../../../../domain/game/types/prediction/ports/prediction-prompt.repository';
 import { SelectableOptionPolicy } from '../../../../../domain/game/types/shared/services/selectable-option-policy';
+import type { PlayableContentImportSource } from '../../shared/services/playable-content-import/import-source';
 import {
   PlayableContentImportParser,
   PlayableContentImportParserErrorCode,
-} from '../../shared/services/playable-content-import/import-parser';
-import type { PlayableContentImportSource } from '../../shared/services/playable-content-import/import-source';
+} from '../../shared/services/playable-content-import/playable-content-import-parser';
 
 @Injectable()
 export class PredictionImportPromptMapper {

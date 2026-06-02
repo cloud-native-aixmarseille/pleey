@@ -6,11 +6,11 @@ import {
 import { QuizErrorCode } from '../../../../../domain/game/types/quiz/enums/quiz-error-code.enum';
 import type { QuizQuestionCreationData } from '../../../../../domain/game/types/quiz/ports/quiz-question.repository';
 import { SelectableOptionPolicy } from '../../../../../domain/game/types/shared/services/selectable-option-policy';
+import type { PlayableContentImportSource } from '../../shared/services/playable-content-import/import-source';
 import {
   PlayableContentImportParser,
   PlayableContentImportParserErrorCode,
-} from '../../shared/services/playable-content-import/import-parser';
-import type { PlayableContentImportSource } from '../../shared/services/playable-content-import/import-source';
+} from '../../shared/services/playable-content-import/playable-content-import-parser';
 
 @Injectable()
 export class QuizImportQuestionMapper {

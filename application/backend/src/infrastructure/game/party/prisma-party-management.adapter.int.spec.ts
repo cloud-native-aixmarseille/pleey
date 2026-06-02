@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { describe, expect, it } from 'vitest';
+import { backendTestIdentifiers } from '../../../test-utils/branded-identifiers';
 import { PrismaIntegrationTestHarness } from '../../../test-utils/fixtures/integration/prisma-integration-test-harness';
 import { PrismaPartyManagementAdapter } from './prisma-party-management.adapter';
 
@@ -99,9 +100,9 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
     gameIds.push(game.id);
 
     const created = await harness.repository.createParty({
-      gameId: game.id,
-      hostUserId: host.id,
-      pin: '123456',
+      gameId: backendTestIdentifiers.game(game.id),
+      hostUserId: backendTestIdentifiers.user(host.id),
+      pin: backendTestIdentifiers.partyPin('123456'),
     });
     partyIds.push(created.partyId);
 
@@ -113,12 +114,14 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
     });
     scoreIds.push(score.id);
 
-    const managedGame = await harness.repository.findManagedGame(game.id);
+    const managedGame = await harness.repository.findManagedGame(
+      backendTestIdentifiers.game(game.id),
+    );
     const hostParties = await harness.repository.listUserParties({
-      userId: host.id,
+      userId: backendTestIdentifiers.user(host.id),
     });
     const playerParties = await harness.repository.listUserParties({
-      userId: player.id,
+      userId: backendTestIdentifiers.user(player.id),
     });
 
     expect(managedGame).toEqual({
@@ -214,9 +217,9 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
     gameIds.push(secondGame.id);
 
     const firstParty = await harness.repository.createParty({
-      gameId: firstGame.id,
-      hostUserId: host.id,
-      pin: '111111',
+      gameId: backendTestIdentifiers.game(firstGame.id),
+      hostUserId: backendTestIdentifiers.user(host.id),
+      pin: backendTestIdentifiers.partyPin('111111'),
     });
     partyIds.push(firstParty.partyId);
 
@@ -230,7 +233,9 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
     });
     partyIds.push(secondParty.id);
 
-    const parties = await harness.repository.listUserParties({ userId: host.id });
+    const parties = await harness.repository.listUserParties({
+      userId: backendTestIdentifiers.user(host.id),
+    });
 
     expect(parties).toEqual([
       expect.objectContaining({ partyId: secondParty.id, gameId: secondGame.id }),

@@ -5,6 +5,7 @@ import { GuestIdentifier } from '../../../../../application/identity/shared/serv
 import { UserIdentifier } from '../../../../../application/identity/shared/services/identifiers/user-identifier';
 import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
+import type { PartyPlayer } from '../../../../../domain/game/party/player/entities/party-player';
 import { createPlayerPartyRuntimeMock } from '../../../../../test-utils/mock-factories/player-party-runtime.mock-factory';
 import { JoinPartyUseCase } from './join-party-use-case';
 
@@ -125,7 +126,7 @@ describe('JoinPartyUseCase', () => {
       avatarUri: '/api/avatars/users/42?v=1',
       totalScore: 0,
       joinedAt: new Date('2026-04-27T10:00:00.000Z'),
-    };
+    } satisfies PartyPlayer;
     const runtime = createPlayerPartyRuntimeMock({
       findActivePartyByUserId: {
         partyId: 12,
@@ -173,7 +174,7 @@ describe('JoinPartyUseCase', () => {
       avatarUri: '/api/avatars/users/42?v=1',
       totalScore: 0,
       joinedAt: new Date('2026-04-27T10:00:00.000Z'),
-    };
+    } satisfies PartyPlayer;
     const runtime = createPlayerPartyRuntimeMock({
       findActivePartyByUserId: {
         partyId: 12,
@@ -229,7 +230,7 @@ describe('JoinPartyUseCase', () => {
       avatarUri: '/api/avatars/guests/guest-42',
       totalScore: 0,
       joinedAt: new Date('2026-04-27T10:00:00.000Z'),
-    };
+    } satisfies PartyPlayer;
     const runtime = createPlayerPartyRuntimeMock({
       findPartyPlayer: player,
     });
@@ -274,7 +275,7 @@ describe('JoinPartyUseCase', () => {
       avatarUri: '/api/avatars/guests/guest-42',
       totalScore: 0,
       joinedAt: new Date('2026-04-27T10:00:00.000Z'),
-    };
+    } satisfies PartyPlayer;
     const runtime = createPlayerPartyRuntimeMock({
       findPartyPlayer: player,
     });

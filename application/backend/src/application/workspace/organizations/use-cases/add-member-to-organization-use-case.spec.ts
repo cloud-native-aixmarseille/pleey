@@ -1,6 +1,7 @@
 import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
 import { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
 import { OrganizationMembershipPolicy } from '../../../../domain/organization/services/organization-membership-policy';
+import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { createUserFixture } from '../../../../test-utils/fixtures/unit/user.fixture';
 import {
   createOrganizationMemberRepositoryMock,
@@ -41,9 +42,9 @@ describe('AddMemberToOrganizationUseCase', () => {
       usernameOrEmail: 'captain',
     };
 
-    await expect(useCase.execute(1, dto, 10)).rejects.toThrow(
-      OrganizationErrorCode.ORGANIZATION_NOT_FOUND,
-    );
+    await expect(
+      useCase.execute(backendTestIdentifiers.organization(1), dto, backendTestIdentifiers.user(10)),
+    ).rejects.toThrow(OrganizationErrorCode.ORGANIZATION_NOT_FOUND);
 
     expect(userRepository.findByUsername).not.toHaveBeenCalled();
   });
@@ -80,9 +81,9 @@ describe('AddMemberToOrganizationUseCase', () => {
       usernameOrEmail: 'captain',
     };
 
-    await expect(useCase.execute(1, dto, 10)).rejects.toThrow(
-      OrganizationErrorCode.INSUFFICIENT_PERMISSIONS,
-    );
+    await expect(
+      useCase.execute(backendTestIdentifiers.organization(1), dto, backendTestIdentifiers.user(10)),
+    ).rejects.toThrow(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
 
     expect(userRepository.findByUsername).not.toHaveBeenCalled();
   });
@@ -112,12 +113,12 @@ describe('AddMemberToOrganizationUseCase', () => {
 
     await expect(
       useCase.execute(
-        1,
+        backendTestIdentifiers.organization(1),
         {
           role: OrganizationRole.OWNER,
           usernameOrEmail: 'captain',
         },
-        10,
+        backendTestIdentifiers.user(10),
       ),
     ).rejects.toThrow(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
 
@@ -158,8 +159,16 @@ describe('AddMemberToOrganizationUseCase', () => {
       usernameOrEmail: 'captain',
     };
 
-    const result = await useCase.execute(1, dto, 10);
-    expect(memberRepository.create).toHaveBeenCalledWith(1, 2, OrganizationRole.MEMBER);
+    const result = await useCase.execute(
+      backendTestIdentifiers.organization(1),
+      dto,
+      backendTestIdentifiers.user(10),
+    );
+    expect(memberRepository.create).toHaveBeenCalledWith(
+      backendTestIdentifiers.organization(1),
+      2,
+      OrganizationRole.MEMBER,
+    );
     expect(result).toMatchObject({ id: 123 });
   });
 
@@ -197,10 +206,18 @@ describe('AddMemberToOrganizationUseCase', () => {
       usernameOrEmail: 'captain@pleey.io',
     };
 
-    await useCase.execute(1, dto, 10);
+    await useCase.execute(
+      backendTestIdentifiers.organization(1),
+      dto,
+      backendTestIdentifiers.user(10),
+    );
 
     expect(userRepository.findByEmail).toHaveBeenCalledWith('captain@pleey.io');
-    expect(memberRepository.create).toHaveBeenCalledWith(1, 4, OrganizationRole.MEMBER);
+    expect(memberRepository.create).toHaveBeenCalledWith(
+      backendTestIdentifiers.organization(1),
+      4,
+      OrganizationRole.MEMBER,
+    );
   });
 
   it('falls back to username lookup when the identifier contains @ but no email matches', async () => {
@@ -234,17 +251,21 @@ describe('AddMemberToOrganizationUseCase', () => {
     );
 
     await useCase.execute(
-      1,
+      backendTestIdentifiers.organization(1),
       {
         role: OrganizationRole.MEMBER,
         usernameOrEmail: 'captain@team',
       },
-      10,
+      backendTestIdentifiers.user(10),
     );
 
     expect(userRepository.findByEmail).toHaveBeenCalledWith('captain@team');
     expect(userRepository.findByUsername).toHaveBeenCalledWith('captain@team');
-    expect(memberRepository.create).toHaveBeenCalledWith(1, 6, OrganizationRole.MEMBER);
+    expect(memberRepository.create).toHaveBeenCalledWith(
+      backendTestIdentifiers.organization(1),
+      6,
+      OrganizationRole.MEMBER,
+    );
   });
 
   it('throws when the username or email does not match a user', async () => {
@@ -277,8 +298,8 @@ describe('AddMemberToOrganizationUseCase', () => {
       usernameOrEmail: 'unknown-user',
     };
 
-    await expect(useCase.execute(1, dto, 10)).rejects.toThrow(
-      OrganizationErrorCode.MEMBER_USER_NOT_FOUND,
-    );
+    await expect(
+      useCase.execute(backendTestIdentifiers.organization(1), dto, backendTestIdentifiers.user(10)),
+    ).rejects.toThrow(OrganizationErrorCode.MEMBER_USER_NOT_FOUND);
   });
 });
