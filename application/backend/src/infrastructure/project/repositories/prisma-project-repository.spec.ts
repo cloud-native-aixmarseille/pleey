@@ -11,10 +11,10 @@ describe('PrismaProjectRepository', () => {
     const count = vi.fn().mockResolvedValueOnce(3).mockResolvedValueOnce(1);
     const findMany = vi.fn().mockResolvedValue([
       {
-        id: 21,
+        id: backendTestIdentifiers.project(21),
         name: 'Launch plan',
         description: null,
-        organizationId: 7,
+        organizationId: backendTestIdentifiers.organization(7),
         createdAt: new Date('2026-06-01T09:00:00.000Z'),
       } as never,
     ]);
@@ -41,7 +41,7 @@ describe('PrismaProjectRepository', () => {
 
     expect(count).toHaveBeenNthCalledWith(1, {
       where: {
-        organizationId: 7,
+        organizationId: backendTestIdentifiers.organization(7),
         deletedAt: null,
         organization: {
           deletedAt: null,
@@ -50,7 +50,7 @@ describe('PrismaProjectRepository', () => {
     });
     expect(count).toHaveBeenNthCalledWith(2, {
       where: {
-        organizationId: 7,
+        organizationId: backendTestIdentifiers.organization(7),
         name: {
           contains: 'launch',
           mode: 'insensitive',
@@ -63,7 +63,7 @@ describe('PrismaProjectRepository', () => {
     });
     expect(findMany).toHaveBeenCalledWith({
       where: {
-        organizationId: 7,
+        organizationId: backendTestIdentifiers.organization(7),
         name: {
           contains: 'launch',
           mode: 'insensitive',

@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
-import { ProjectIdentifier } from '../../application/workspace/shared/services/identifiers/project-identifier';
 import { StorageKey } from '../../domains/shared/value-objects/storage-key';
+import { OrganizationIdentifierMockFactory } from '../../test-utils/mocks/organization-identifier-mock-factory';
+import { ProjectIdentifierMockFactory } from '../../test-utils/mocks/project-identifier-mock-factory';
 import { StoragePortMockFactory } from '../../test-utils/mocks/storage-port-mock-factory';
 import { PersistedWorkspaceSelectionAdapter } from './persisted-workspace-selection.adapter';
 
-const organizationIdentifier = new OrganizationIdentifier();
-const projectIdentifier = new ProjectIdentifier();
+const organizationIdentifier = new OrganizationIdentifierMockFactory().create();
+const projectIdentifier = new ProjectIdentifierMockFactory().create();
 
 const storagePortMockFactory = new StoragePortMockFactory();
 
@@ -62,7 +62,10 @@ describe('PersistedWorkspaceSelectionAdapter', () => {
 
     service.setOrganizationId(organizationIdentifier.parse(6));
 
-    expect(storage.setItem).toHaveBeenCalledWith(StorageKey.WORKSPACE_ORGANIZATION_ID, '6');
+    expect(storage.setItem).toHaveBeenCalledWith(
+      StorageKey.WORKSPACE_ORGANIZATION_ID,
+      organizationIdentifier.parse(6),
+    );
     expect(storage.removeItem).toHaveBeenCalledWith(StorageKey.WORKSPACE_PROJECT_ID);
   });
 

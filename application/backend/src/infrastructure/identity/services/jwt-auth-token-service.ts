@@ -63,7 +63,11 @@ export class JwtAuthTokenService implements AuthTokenService {
         secret: this.refreshTokenConfig.secret,
       });
 
-      if (payload.tokenType !== 'refresh' || typeof payload.sub !== 'number') {
+      if (
+        payload.tokenType !== 'refresh' ||
+        typeof payload.sub !== 'string' ||
+        payload.sub.trim().length === 0
+      ) {
         throw new UnauthorizedException(IdentityErrorCode.INVALID_REFRESH_TOKEN);
       }
 

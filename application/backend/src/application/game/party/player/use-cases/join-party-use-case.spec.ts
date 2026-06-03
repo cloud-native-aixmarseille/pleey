@@ -1,32 +1,35 @@
 import 'reflect-metadata';
 import { describe, expect, it, vi } from 'vitest';
-import { PartyPinIdentifier } from '../../../../../application/game/party/shared/services/identifiers/party-pin-identifier';
-import { GuestIdentifier } from '../../../../../application/identity/shared/services/identifiers/guest-identifier';
-import { UserIdentifier } from '../../../../../application/identity/shared/services/identifiers/user-identifier';
 import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
 import type { PartyPlayer } from '../../../../../domain/game/party/player/entities/party-player';
+import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { createPlayerPartyRuntimeMock } from '../../../../../test-utils/mock-factories/player-party-runtime.mock-factory';
 import { JoinPartyUseCase } from './join-party-use-case';
 
-const partyPinIdentifier = new PartyPinIdentifier();
-const guestIdentifier = new GuestIdentifier();
-const userIdentifier = new UserIdentifier();
+const partyPin = backendTestIdentifiers.partyPin('123456');
+const activePartyPin = backendTestIdentifiers.partyPin('654321');
+const partyId = backendTestIdentifiers.party(12);
+const otherPartyId = backendTestIdentifiers.party(99);
+const gameId = backendTestIdentifiers.game(21);
+const hostUserId = backendTestIdentifiers.user(7);
+const playerUserId = backendTestIdentifiers.user(42);
+const guestId = backendTestIdentifiers.guest('guest-42');
 
 describe('JoinPartyUseCase', () => {
   it('rejects a new authenticated join when the party has already started', async () => {
     const runtime = createPlayerPartyRuntimeMock({
       findActivePartyByUserId: {
-        partyId: 12,
-        gameId: 21,
-        pin: '123456',
+        partyId,
+        gameId,
+        pin: partyPin,
         status: 'ACTIVE',
       },
       findPartyByPin: {
-        partyId: 12,
-        gameId: 21,
-        hostUserId: 7,
-        pin: '123456',
+        partyId,
+        gameId,
+        hostUserId,
+        pin: partyPin,
         status: 'ACTIVE',
       },
       findPartyPlayer: null,
@@ -41,10 +44,10 @@ describe('JoinPartyUseCase', () => {
 
     await expect(
       useCase.execute({
-        pin: partyPinIdentifier.parse('123456'),
+        pin: partyPin,
         playerIdentity: {
           kind: PartyPlayerKind.USER,
-          userId: userIdentifier.parse(42),
+          userId: playerUserId,
         },
         username: '',
       }),
@@ -57,10 +60,10 @@ describe('JoinPartyUseCase', () => {
   it('rejects a new guest join when the party has already started', async () => {
     const runtime = createPlayerPartyRuntimeMock({
       findPartyByPin: {
-        partyId: 12,
-        gameId: 21,
-        hostUserId: 7,
-        pin: '123456',
+        partyId,
+        gameId,
+        hostUserId,
+        pin: partyPin,
         status: 'ACTIVE',
       },
     });
@@ -74,7 +77,7 @@ describe('JoinPartyUseCase', () => {
 
     await expect(
       useCase.execute({
-        pin: partyPinIdentifier.parse('123456'),
+        pin: partyPin,
         playerIdentity: {
           kind: PartyPlayerKind.GUEST,
         },
@@ -90,9 +93,9 @@ describe('JoinPartyUseCase', () => {
   it('rejects authenticated joins when the user is active in another party', async () => {
     const runtime = createPlayerPartyRuntimeMock({
       findActivePartyByUserId: {
-        partyId: 99,
-        gameId: 21,
-        pin: '654321',
+        partyId: otherPartyId,
+        gameId,
+        pin: activePartyPin,
         status: 'WAITING',
       },
     });
@@ -106,10 +109,10 @@ describe('JoinPartyUseCase', () => {
 
     await expect(
       useCase.execute({
-        pin: partyPinIdentifier.parse('123456'),
+        pin: partyPin,
         playerIdentity: {
           kind: PartyPlayerKind.USER,
-          userId: userIdentifier.parse(42),
+          userId: playerUserId,
         },
         username: '',
       }),
@@ -121,7 +124,7 @@ describe('JoinPartyUseCase', () => {
 
   it('allows an authenticated player to rejoin the same active party', async () => {
     const player = {
-      identity: { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(42) },
+      identity: { kind: PartyPlayerKind.USER, userId: playerUserId },
       username: 'Morgan',
       avatarUri: '/api/avatars/users/42?v=1',
       totalScore: 0,
@@ -129,16 +132,16 @@ describe('JoinPartyUseCase', () => {
     } satisfies PartyPlayer;
     const runtime = createPlayerPartyRuntimeMock({
       findActivePartyByUserId: {
-        partyId: 12,
-        gameId: 21,
-        pin: '123456',
+        partyId,
+        gameId,
+        pin: partyPin,
         status: 'ACTIVE',
       },
       findPartyByPin: {
-        partyId: 12,
-        gameId: 21,
-        hostUserId: 7,
-        pin: '123456',
+        partyId,
+        gameId,
+        hostUserId,
+        pin: partyPin,
         status: 'ACTIVE',
       },
       findPartyPlayer: player,
@@ -152,24 +155,24 @@ describe('JoinPartyUseCase', () => {
     );
 
     const result = await useCase.execute({
-      pin: partyPinIdentifier.parse('123456'),
+      pin: partyPin,
       playerIdentity: {
         kind: PartyPlayerKind.USER,
-        userId: userIdentifier.parse(42),
+        userId: playerUserId,
       },
       username: '',
     });
 
     expect(runtime.ensureAuthenticatedPlayer).toHaveBeenCalledWith({
-      partyId: 12,
-      userId: 42,
+      partyId,
+      userId: playerUserId,
     });
     expect(result.player).toEqual(player);
   });
 
   it('joins an authenticated player into the requested party and resolves the published player', async () => {
     const player = {
-      identity: { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(42) },
+      identity: { kind: PartyPlayerKind.USER, userId: playerUserId },
       username: 'Morgan',
       avatarUri: '/api/avatars/users/42?v=1',
       totalScore: 0,
@@ -177,9 +180,9 @@ describe('JoinPartyUseCase', () => {
     } satisfies PartyPlayer;
     const runtime = createPlayerPartyRuntimeMock({
       findActivePartyByUserId: {
-        partyId: 12,
-        gameId: 21,
-        pin: '123456',
+        partyId,
+        gameId,
+        pin: partyPin,
         status: 'WAITING',
       },
       findPartyPlayer: player,
@@ -193,39 +196,39 @@ describe('JoinPartyUseCase', () => {
     );
 
     const result = await useCase.execute({
-      pin: partyPinIdentifier.parse('123456'),
+      pin: partyPin,
       playerIdentity: {
         kind: PartyPlayerKind.USER,
-        userId: userIdentifier.parse(42),
+        userId: playerUserId,
       },
       username: '',
     });
 
     expect(runtime.ensureAuthenticatedPlayer).toHaveBeenCalledWith({
-      partyId: 12,
-      userId: 42,
+      partyId,
+      userId: playerUserId,
     });
     expect(runtime.findPartyPlayer).toHaveBeenCalledWith({
-      partyId: 12,
+      partyId,
       playerIdentity: {
         kind: PartyPlayerKind.USER,
-        userId: 42,
+        userId: playerUserId,
       },
     });
     expect(broadcastPartyObservationUseCase.execute).toHaveBeenCalledWith({
-      partyId: 12,
+      partyId,
     });
     expect(result).toEqual({
-      partyId: 12,
-      gameId: 21,
-      pin: '123456',
+      partyId,
+      gameId,
+      pin: partyPin,
       player,
     });
   });
 
   it('normalizes guest usernames and resolves a rejoined guest player by guest id', async () => {
     const player = {
-      identity: { kind: PartyPlayerKind.GUEST, guestId: guestIdentifier.parse('guest-42') },
+      identity: { kind: PartyPlayerKind.GUEST, guestId },
       username: 'Morgan Guest',
       avatarUri: '/api/avatars/guests/guest-42',
       totalScore: 0,
@@ -244,25 +247,25 @@ describe('JoinPartyUseCase', () => {
 
     const result = await useCase.execute({
       avatarSeed: 'neon-seed',
-      pin: partyPinIdentifier.parse('123456'),
+      pin: partyPin,
       playerIdentity: {
         kind: PartyPlayerKind.GUEST,
-        guestId: guestIdentifier.parse('guest-42'),
+        guestId,
       },
       username: '  Morgan Guest  ',
     });
 
     expect(runtime.ensureGuestPlayer).toHaveBeenCalledWith({
       avatarSeed: 'neon-seed',
-      partyId: 12,
-      guestId: 'guest-42',
+      partyId,
+      guestId,
       username: 'Morgan Guest',
     });
     expect(runtime.findPartyPlayer).toHaveBeenCalledWith({
-      partyId: 12,
+      partyId,
       playerIdentity: {
         kind: PartyPlayerKind.GUEST,
-        guestId: 'guest-42',
+        guestId,
       },
     });
     expect(result.player).toEqual(player);
@@ -270,7 +273,7 @@ describe('JoinPartyUseCase', () => {
 
   it('allows guest rejoin by guest id when the browser no longer has the username', async () => {
     const player = {
-      identity: { kind: PartyPlayerKind.GUEST, guestId: guestIdentifier.parse('guest-42') },
+      identity: { kind: PartyPlayerKind.GUEST, guestId },
       username: 'Morgan Guest',
       avatarUri: '/api/avatars/guests/guest-42',
       totalScore: 0,
@@ -289,25 +292,25 @@ describe('JoinPartyUseCase', () => {
 
     const result = await useCase.execute({
       avatarSeed: '  aurora-seed  ',
-      pin: partyPinIdentifier.parse('123456'),
+      pin: partyPin,
       playerIdentity: {
         kind: PartyPlayerKind.GUEST,
-        guestId: guestIdentifier.parse('guest-42'),
+        guestId,
       },
       username: '   ',
     });
 
     expect(runtime.ensureGuestPlayer).toHaveBeenCalledWith({
       avatarSeed: 'aurora-seed',
-      partyId: 12,
-      guestId: 'guest-42',
+      partyId,
+      guestId,
       username: '',
     });
     expect(runtime.findPartyPlayer).toHaveBeenCalledWith({
-      partyId: 12,
+      partyId,
       playerIdentity: {
         kind: PartyPlayerKind.GUEST,
-        guestId: 'guest-42',
+        guestId,
       },
     });
     expect(result.player).toEqual(player);
@@ -327,10 +330,10 @@ describe('JoinPartyUseCase', () => {
 
     await expect(
       useCase.execute({
-        pin: partyPinIdentifier.parse('123456'),
+        pin: partyPin,
         playerIdentity: {
           kind: PartyPlayerKind.GUEST,
-          guestId: guestIdentifier.parse('guest-42'),
+          guestId,
         },
         username: '   ',
       }),
@@ -352,7 +355,7 @@ describe('JoinPartyUseCase', () => {
 
     await expect(
       useCase.execute({
-        pin: partyPinIdentifier.parse('123456'),
+        pin: partyPin,
         playerIdentity: {
           kind: PartyPlayerKind.GUEST,
         },

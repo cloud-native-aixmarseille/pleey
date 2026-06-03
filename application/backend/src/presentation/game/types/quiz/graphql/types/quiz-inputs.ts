@@ -1,10 +1,11 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
+import { Field, ID, InputType, Int } from '@nestjs/graphql';
 import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
   IsEnum,
   IsInt,
+  IsNotEmpty,
   IsOptional,
   IsString,
   MaxLength,
@@ -17,10 +18,10 @@ import { SelectableOptionInput } from '../../../shared/graphql/selectable-option
 
 @InputType()
 export class CreateQuizInput {
-  @Field(() => Int)
-  @IsInt()
-  @Min(1)
-  projectId!: number;
+  @Field(() => ID)
+  @IsString()
+  @IsNotEmpty()
+  projectId!: string;
 
   @Field()
   @IsString()
@@ -36,10 +37,10 @@ export class CreateQuizInput {
 
 @InputType()
 export class CreateQuizFromImportInput extends ImportPlayableContentInputBase {
-  @Field(() => Int)
-  @IsInt()
-  @Min(1)
-  projectId!: number;
+  @Field(() => ID)
+  @IsString()
+  @IsNotEmpty()
+  projectId!: string;
 
   @Field()
   @IsString()
@@ -69,10 +70,10 @@ export class UpdateQuizInput {
 
 @InputType()
 export class CreateQuizQuestionInput {
-  @Field(() => Int)
-  @IsInt()
-  @Min(1)
-  quizId!: number;
+  @Field(() => ID)
+  @IsString()
+  @IsNotEmpty()
+  quizId!: string;
 
   @Field(() => Int, { nullable: true })
   @IsOptional()

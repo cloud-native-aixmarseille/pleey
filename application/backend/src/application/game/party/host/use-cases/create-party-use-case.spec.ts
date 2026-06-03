@@ -5,14 +5,10 @@ import { PinAlreadyInUseError } from '../../../../../domain/game/party/errors/pi
 import { OrganizationErrorCode } from '../../../../../domain/organization/enums/organization-error-code.enum';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { createOrganizationMemberRepositoryMock } from '../../../../../test-utils/mock-factories/organization.mock-factory';
-import { OrganizationIdentifier } from '../../../../workspace/shared/services/identifiers/organization-identifier';
-import { ProjectIdentifier } from '../../../../workspace/shared/services/identifiers/project-identifier';
 import { GamePermissionResolver } from '../../../management/services/game-permission-resolver';
 import { PartyPinIdentifier } from '../../shared/services/identifiers/party-pin-identifier';
 import { CreatePartyUseCase } from './create-party-use-case';
 
-const organizationIdentifier = new OrganizationIdentifier();
-const projectIdentifier = new ProjectIdentifier();
 const partyPinIdentifier = new PartyPinIdentifier();
 
 describe('CreatePartyUseCase', () => {
@@ -50,14 +46,14 @@ describe('CreatePartyUseCase', () => {
     partyManagement.findManagedGame.mockResolvedValue({
       gameId: backendTestIdentifiers.game(17),
       type: 'quiz',
-      projectId: projectIdentifier.parse(6),
-      organizationId: organizationIdentifier.parse(3),
+      projectId: backendTestIdentifiers.project(6),
+      organizationId: backendTestIdentifiers.organization(3),
     });
     partyManagement.findActivePartyByGameId.mockResolvedValue(null);
     partyManagement.findActivePartiesByHostId.mockResolvedValue([]);
     partyManagement.createParty.mockResolvedValue({
-      partyId: 21,
-      gameId: 17,
+      partyId: backendTestIdentifiers.party(21),
+      gameId: backendTestIdentifiers.game(17),
       pin: '123456',
       status: 'WAITING',
       role: 'HOST',
@@ -81,7 +77,7 @@ describe('CreatePartyUseCase', () => {
     });
 
     expect(memberRepository.findByOrganizationAndUser).toHaveBeenCalledWith(
-      3,
+      backendTestIdentifiers.organization(3),
       backendTestIdentifiers.user(42),
     );
     expect(gamePermissionResolver.assertCanCreateParty).toHaveBeenCalledWith({
@@ -95,10 +91,10 @@ describe('CreatePartyUseCase', () => {
       }),
     );
     expect(broadcastPartyObservationUseCase.broadcastIfPresent).toHaveBeenCalledWith({
-      partyId: 21,
+      partyId: backendTestIdentifiers.party(21),
     });
     expect(result).toEqual({
-      partyId: 21,
+      partyId: backendTestIdentifiers.party(21),
       gameId: backendTestIdentifiers.game(17),
       pin: '123456',
       status: 'WAITING',
@@ -185,7 +181,7 @@ describe('CreatePartyUseCase', () => {
     partyManagement.createParty
       .mockRejectedValueOnce(new PinAlreadyInUseError())
       .mockResolvedValueOnce({
-        partyId: 88,
+        partyId: backendTestIdentifiers.party(88),
         gameId: backendTestIdentifiers.game(17),
         pin: '654321',
         status: 'WAITING',

@@ -4,19 +4,19 @@ import { StaticGameTypeCatalogFactory } from '../../../../../app/bootstrap/modul
 import type { GameId } from '../../../../../domains/game/entities/game';
 import type { DashboardGameListItem } from '../../../../../domains/game/management/entities/dashboard-game-list-item';
 import { GameType, type GameTypeId } from '../../../../../domains/game/types/shared/game-type';
-import { ProjectIdentifier } from '../../../../workspace/shared/services/identifiers/project-identifier';
-import { GameIdentifier } from '../../../shared/services/identifiers/game-identifier';
+import { GameIdentifierMockFactory } from '../../../../../test-utils/mocks/game-identifier-mock-factory';
+import { GameTypeIdentifierMockFactory } from '../../../../../test-utils/mocks/game-type-identifier-mock-factory';
+import { ProjectIdentifierMockFactory } from '../../../../../test-utils/mocks/project-identifier-mock-factory';
 import type { GameTypeContributor } from '../contracts/game-type-contributor';
 import {
   PlayableContentImportExampleFormat,
   type PlayableContentImportExampleProvider,
 } from '../contracts/playable-content-import.gateway';
-import { GameTypeIdentifier } from './game-type-identifier';
 import { GameTypeRegistry } from './game-type-registry';
 
-const gameIdentifier = new GameIdentifier();
-const gameTypeIdentifier = new GameTypeIdentifier();
-const projectIdentifier = new ProjectIdentifier();
+const gameIdentifier = new GameIdentifierMockFactory().create();
+const gameTypeIdentifier = new GameTypeIdentifierMockFactory().create();
+const projectIdentifier = new ProjectIdentifierMockFactory().create();
 const gameTypeCatalogFactory = new StaticGameTypeCatalogFactory();
 
 describe('GameTypeRegistry', () => {
@@ -88,10 +88,10 @@ describe('GameTypeRegistry', () => {
         type: 'quiz',
         gameTypeId: gameTypeIdentifier.parse(24),
       }),
-    ).toBe('/quizzes/24');
+    ).toBe(`/quizzes/${gameTypeIdentifier.parse(24)}`);
     expect(registry.resolveManagementRoute({ type: 'quiz', gameTypeId: null })).toBeNull();
     expect(registry.resolveManagementRouteByType('quiz', gameTypeIdentifier.parse(31))).toBe(
-      '/quizzes/31',
+      `/quizzes/${gameTypeIdentifier.parse(31)}`,
     );
     expect(
       registry.resolveManagementRoute({

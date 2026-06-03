@@ -129,10 +129,10 @@ export class GraphqlProjectRepository implements ProjectRepository {
   }
 
   private toDomainProject(project: {
-    readonly id: number;
+    readonly id: string;
     readonly name: string;
     readonly description?: string | null;
-    readonly organizationId: number;
+    readonly organizationId: string;
     readonly createdAt: string;
   }): Project {
     return {

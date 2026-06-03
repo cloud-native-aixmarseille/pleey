@@ -1,4 +1,4 @@
-query PredictionManagement($predictionId: Int!) {
+query PredictionManagement($predictionId: ID!) {
   prediction(predictionId: $predictionId) {
     predictionId
     gameId
@@ -23,7 +23,7 @@ query PredictionManagement($predictionId: Int!) {
   }
 }
 
-mutation UpdatePredictionManagement($predictionId: Int!, $input: UpdatePredictionInput!) {
+mutation UpdatePredictionManagement($predictionId: ID!, $input: UpdatePredictionInput!) {
   updatePrediction(predictionId: $predictionId, input: $input) {
     predictionId
   }
@@ -42,7 +42,7 @@ mutation CreatePredictionFromImportManagement($input: CreatePredictionFromImport
   }
 }
 
-mutation DeletePredictionManagement($predictionId: Int!) {
+mutation DeletePredictionManagement($predictionId: ID!) {
   deletePrediction(predictionId: $predictionId)
 }
 
@@ -63,7 +63,7 @@ mutation CreatePredictionPromptManagement($input: CreatePredictionPromptInput!) 
   }
 }
 
-mutation UpdatePredictionPromptManagement($promptId: Int!, $input: UpdatePredictionPromptInput!) {
+mutation UpdatePredictionPromptManagement($promptId: ID!, $input: UpdatePredictionPromptInput!) {
   updatePredictionPrompt(promptId: $promptId, input: $input) {
     id
     predictionId
@@ -80,6 +80,6 @@ mutation UpdatePredictionPromptManagement($promptId: Int!, $input: UpdatePredict
   }
 }
 
-mutation DeletePredictionPromptManagement($promptId: Int!) {
+mutation DeletePredictionPromptManagement($promptId: ID!) {
   deletePredictionPrompt(promptId: $promptId)
 }

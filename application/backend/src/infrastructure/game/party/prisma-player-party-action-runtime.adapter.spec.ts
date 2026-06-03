@@ -10,6 +10,12 @@ import { PrismaPlayerPartyActionRuntimeAdapter } from './prisma-player-party-act
 describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
   const partyActionIdentifier = new PartyActionIdentifier();
   const partyStageIdentifier = new PartyStageIdentifier();
+  const PARTY_ID = backendTestIdentifiers.party(7);
+  const PLAYER_USER_ID = backendTestIdentifiers.user(5);
+  const ACTION_11 = backendTestIdentifiers.partyAction(11);
+  const ACTION_22 = backendTestIdentifiers.partyAction(22);
+  const STAGE_101 = backendTestIdentifiers.partyStage(101);
+  const STAGE_202 = backendTestIdentifiers.partyStage(202);
 
   it('stores first submission progress when the existing score context is null', async () => {
     const transaction = {
@@ -43,7 +49,7 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
     );
 
     await adapter.saveSubmissionResult({
-      actionId: partyActionIdentifier.parse(22),
+      actionId: ACTION_22,
       context: {
         lifecycle: {
           phase: PartyRuntimePhase.STAGE,
@@ -55,10 +61,10 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
           totalStages: 3,
         },
       },
-      partyId: 7 as never,
+      partyId: PARTY_ID,
       playerIdentity: {
         kind: PartyPlayerKind.USER,
-        userId: 5 as never,
+        userId: PLAYER_USER_ID,
       },
       scoreDelta: 500,
       status: PartyStatus.ACTIVE,
@@ -71,17 +77,17 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
       data: {
         context: {
           earnedPoints: 500,
-          selectedActionId: 22,
+          selectedActionId: ACTION_22,
           stageHistory: [
             {
               earnedPoints: 500,
-              selectedActionId: 22,
-              stageId: 101,
+              selectedActionId: ACTION_22,
+              stageId: STAGE_101,
               stagePosition: 0,
               status: 'acknowledged',
             },
           ],
-          stageId: 101,
+          stageId: STAGE_101,
           stagePosition: 0,
           status: 'acknowledged',
         },
@@ -98,8 +104,8 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
       score: {
         findFirst: vi.fn().mockResolvedValue({
           context: {
-            selectedActionId: 11,
-            stageId: 101,
+            selectedActionId: ACTION_11,
+            stageId: STAGE_101,
             stagePosition: 0,
             status: 'acknowledged',
           },
@@ -156,7 +162,7 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
     );
 
     await adapter.saveSubmissionResult({
-      actionId: partyActionIdentifier.parse(22),
+      actionId: ACTION_22,
       context: {
         lifecycle: {
           phase: PartyRuntimePhase.STAGE,
@@ -168,10 +174,10 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
           totalStages: 3,
         },
       },
-      partyId: 7 as never,
+      partyId: PARTY_ID,
       playerIdentity: {
         kind: PartyPlayerKind.USER,
-        userId: 5 as never,
+        userId: PLAYER_USER_ID,
       },
       scoreDelta: 500,
       status: PartyStatus.ACTIVE,
@@ -184,24 +190,24 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
       data: {
         context: {
           earnedPoints: 500,
-          selectedActionId: 22,
+          selectedActionId: ACTION_22,
           stageHistory: [
             {
               earnedPoints: 1000,
-              selectedActionId: 11,
-              stageId: 101,
+              selectedActionId: ACTION_11,
+              stageId: STAGE_101,
               stagePosition: 0,
               status: 'acknowledged',
             },
             {
               earnedPoints: 500,
-              selectedActionId: 22,
-              stageId: 202,
+              selectedActionId: ACTION_22,
+              stageId: STAGE_202,
               stagePosition: 1,
               status: 'acknowledged',
             },
           ],
-          stageId: 202,
+          stageId: STAGE_202,
           stagePosition: 1,
           status: 'acknowledged',
         },

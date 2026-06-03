@@ -6,6 +6,7 @@ import { QuizManagementScreen } from './quiz-management-screen';
 
 const routeParams = vi.hoisted(() => ({ current: { quizId: '9' } }));
 const gameTypeIdentifier = new GameTypeIdentifierMockFactory().create();
+const quizId = gameTypeIdentifier.parse(9);
 
 vi.mock('../../../../../shared/routing/router', () => ({
   PresentationRedirect: ({ to }: { readonly to: string }) => (
@@ -41,7 +42,7 @@ describe('QuizManagementScreen', () => {
 
     render(<QuizManagementScreen gameTypeIdentifier={gameTypeIdentifier} gateway={{} as never} />);
 
-    expect(screen.getByTestId('editor')).toHaveAttribute('data-game-type-id', '9');
+    expect(screen.getByTestId('editor')).toHaveAttribute('data-game-type-id', quizId);
     expect(screen.getByTestId('editor')).toHaveAttribute('data-has-kind-config', 'true');
     expect(screen.getByTestId('editor')).toHaveAttribute('data-item-kind-default', 'multiple');
     expect(screen.getByText('game.types.quiz.management')).toBeInTheDocument();

@@ -1,13 +1,13 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
-import { ArrayUnique, IsArray, IsIn, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { Field, ID, InputType } from '@nestjs/graphql';
+import { ArrayUnique, IsArray, IsIn, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { PaginationInput } from '../../../../shared/graphql/types/pagination-input';
 
 @InputType()
 export class ProjectGamesInput extends PaginationInput {
-  @Field(() => Int)
-  @IsInt()
-  @Min(1)
-  projectId!: number;
+  @Field(() => ID)
+  @IsString()
+  @IsNotEmpty()
+  projectId!: string;
 
   @Field(() => String, { nullable: true })
   @IsOptional()

@@ -82,8 +82,8 @@ describe('DashboardWorkspaceSelectors', () => {
     await user.click(screen.getByRole('button', { name: 'Manage organizations' }));
     await user.click(screen.getByRole('button', { name: 'Manage projects' }));
 
-    expect(onOrganizationChange).toHaveBeenCalledWith('1');
-    expect(onProjectChange).toHaveBeenCalledWith('11');
+    expect(onOrganizationChange).toHaveBeenCalledWith(organization.id);
+    expect(onProjectChange).toHaveBeenCalledWith(project.id);
     expect(onOrganizationSearchChange).toHaveBeenCalledWith('Pleey');
     expect(onProjectSearchChange).toHaveBeenCalledWith('Main');
     expect(onManageOrganizations).toHaveBeenCalledTimes(1);

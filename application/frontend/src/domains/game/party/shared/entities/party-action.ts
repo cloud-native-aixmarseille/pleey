@@ -1,3 +1,3 @@
-export type PartyActionId = number & {
+export type PartyActionId = string & {
   readonly __identifierBrand: 'PartyActionId';
 };

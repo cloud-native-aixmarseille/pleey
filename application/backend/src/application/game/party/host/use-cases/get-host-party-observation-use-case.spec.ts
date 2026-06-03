@@ -1,10 +1,8 @@
 import 'reflect-metadata';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
-import { PartyIdentifier } from '../../shared/services/identifiers/party-identifier';
+import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { GetHostPartyObservationUseCase } from './get-host-party-observation-use-case';
-
-const partyIdentifier = new PartyIdentifier();
 
 describe('GetHostPartyObservationUseCase', () => {
   const hostPartyObservationReader = {
@@ -16,14 +14,14 @@ describe('GetHostPartyObservationUseCase', () => {
   beforeEach(() => {
     hostPartyObservationReader.findHostObservationByPartyId.mockReset();
     hostPartyObservationReader.findHostObservationByPartyId.mockResolvedValue({
-      partyId: 11,
-      gameId: 9,
+      partyId: backendTestIdentifiers.party(11),
+      gameId: backendTestIdentifiers.game(9),
       pin: '123456',
       status: 'WAITING',
       context: null,
       host: {
         avatarUri: null,
-        userId: 7,
+        userId: backendTestIdentifiers.user(7),
         username: 'Host',
       },
       players: [],
@@ -35,16 +33,18 @@ describe('GetHostPartyObservationUseCase', () => {
   });
 
   it('loads the observation by party id', async () => {
-    const result = await useCase.execute({ partyId: partyIdentifier.parse(11) });
+    const result = await useCase.execute({ partyId: backendTestIdentifiers.party(11) });
 
-    expect(hostPartyObservationReader.findHostObservationByPartyId).toHaveBeenCalledWith(11);
-    expect(result.partyId).toBe(11);
+    expect(hostPartyObservationReader.findHostObservationByPartyId).toHaveBeenCalledWith(
+      backendTestIdentifiers.party(11),
+    );
+    expect(result.partyId).toBe(backendTestIdentifiers.party(11));
   });
 
   it('raises a game-domain error when the party is missing', async () => {
     hostPartyObservationReader.findHostObservationByPartyId.mockResolvedValue(null);
 
-    await expect(useCase.execute({ partyId: partyIdentifier.parse(11) })).rejects.toThrow(
+    await expect(useCase.execute({ partyId: backendTestIdentifiers.party(11) })).rejects.toThrow(
       GameErrorCode.PARTY_NOT_FOUND,
     );
   });

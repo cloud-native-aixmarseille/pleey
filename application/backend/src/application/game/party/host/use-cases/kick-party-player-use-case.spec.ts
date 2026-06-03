@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
 import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
+import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { KickPartyPlayerUseCase } from './kick-party-player-use-case';
 
 describe('KickPartyPlayerUseCase', () => {
@@ -9,9 +10,9 @@ describe('KickPartyPlayerUseCase', () => {
     const hostPartyRuntimeControl = {
       findPartyRuntimeByPartyId: vi.fn().mockResolvedValue({
         context: null,
-        gameId: 17,
-        hostUserId: 7,
-        partyId: 44,
+        gameId: backendTestIdentifiers.game(17),
+        hostUserId: backendTestIdentifiers.user(7),
+        partyId: backendTestIdentifiers.party(44),
         status: PartyStatus.WAITING,
       }),
       removePartyPlayer: vi.fn().mockResolvedValue(true),
@@ -25,22 +26,24 @@ describe('KickPartyPlayerUseCase', () => {
     );
 
     await useCase.execute({
-      hostUserId: 7 as never,
-      partyId: 44 as never,
+      hostUserId: backendTestIdentifiers.user(7),
+      partyId: backendTestIdentifiers.party(44),
       playerIdentity: {
         kind: PartyPlayerKind.GUEST,
-        guestId: 'guest-7' as never,
+        guestId: backendTestIdentifiers.guest('guest-7'),
       },
     });
 
     expect(hostPartyRuntimeControl.removePartyPlayer).toHaveBeenCalledWith({
-      partyId: 44,
+      partyId: backendTestIdentifiers.party(44),
       playerIdentity: {
         kind: PartyPlayerKind.GUEST,
-        guestId: 'guest-7',
+        guestId: backendTestIdentifiers.guest('guest-7'),
       },
     });
-    expect(broadcastPartyObservationUseCase.execute).toHaveBeenCalledWith({ partyId: 44 });
+    expect(broadcastPartyObservationUseCase.execute).toHaveBeenCalledWith({
+      partyId: backendTestIdentifiers.party(44),
+    });
   });
 
   it('rejects non-host callers', async () => {
@@ -48,9 +51,9 @@ describe('KickPartyPlayerUseCase', () => {
       {
         findPartyRuntimeByPartyId: vi.fn().mockResolvedValue({
           context: null,
-          gameId: 17,
-          hostUserId: 3,
-          partyId: 44,
+          gameId: backendTestIdentifiers.game(17),
+          hostUserId: backendTestIdentifiers.user(3),
+          partyId: backendTestIdentifiers.party(44),
           status: PartyStatus.WAITING,
         }),
         removePartyPlayer: vi.fn(),
@@ -60,11 +63,11 @@ describe('KickPartyPlayerUseCase', () => {
 
     await expect(
       useCase.execute({
-        hostUserId: 7 as never,
-        partyId: 44 as never,
+        hostUserId: backendTestIdentifiers.user(7),
+        partyId: backendTestIdentifiers.party(44),
         playerIdentity: {
           kind: PartyPlayerKind.USER,
-          userId: 9 as never,
+          userId: backendTestIdentifiers.user(9),
         },
       }),
     ).rejects.toThrow(GameErrorCode.HOST_PARTY_CONTROL_FORBIDDEN);

@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { backendTestIdentifiers } from '../../../test-utils/branded-identifiers';
 import {
   createOrganizationMemberRepositoryMock,
@@ -8,12 +7,13 @@ import {
 import { createProjectRepositoryMock } from '../../../test-utils/mock-factories/project-repository.mock-factory';
 import { DefaultWorkspaceService } from './default-workspace-service';
 
-const organizationIdentifier = new OrganizationIdentifier();
+const defaultOrganizationId = backendTestIdentifiers.organization(42);
+const latestOrganizationId = backendTestIdentifiers.organization(11);
 
 describe('DefaultWorkspaceService', () => {
   it('creates default organization and project when user has no memberships', async () => {
     const organizationRepository = createOrganizationRepositoryMock({
-      create: { id: organizationIdentifier.parse(42) } as never,
+      create: { id: defaultOrganizationId } as never,
     });
     const memberRepository = createOrganizationMemberRepositoryMock({
       findLatestByUser: null,
@@ -30,17 +30,13 @@ describe('DefaultWorkspaceService', () => {
 
     expect(organizationRepository.create).toHaveBeenCalledWith('Default', null);
     expect(memberRepository.create).toHaveBeenCalled();
-    expect(projectRepository.create).toHaveBeenCalledWith(
-      organizationIdentifier.parse(42),
-      'Default',
-      null,
-    );
+    expect(projectRepository.create).toHaveBeenCalledWith(defaultOrganizationId, 'Default', null);
   });
 
   it('creates default project when membership exists but no project exists', async () => {
     const organizationRepository = createOrganizationRepositoryMock();
     const memberRepository = createOrganizationMemberRepositoryMock({
-      findLatestByUser: { organizationId: organizationIdentifier.parse(11) } as never,
+      findLatestByUser: { organizationId: latestOrganizationId } as never,
     });
     const projectRepository = createProjectRepositoryMock({
       countByOrganization: 0,
@@ -54,20 +50,14 @@ describe('DefaultWorkspaceService', () => {
 
     await service.ensure(backendTestIdentifiers.user(7));
 
-    expect(projectRepository.countByOrganization).toHaveBeenCalledWith(
-      organizationIdentifier.parse(11),
-    );
-    expect(projectRepository.create).toHaveBeenCalledWith(
-      organizationIdentifier.parse(11),
-      'Default',
-      null,
-    );
+    expect(projectRepository.countByOrganization).toHaveBeenCalledWith(latestOrganizationId);
+    expect(projectRepository.create).toHaveBeenCalledWith(latestOrganizationId, 'Default', null);
   });
 
   it('does nothing when membership and project already exist', async () => {
     const organizationRepository = createOrganizationRepositoryMock();
     const memberRepository = createOrganizationMemberRepositoryMock({
-      findLatestByUser: { organizationId: organizationIdentifier.parse(11) } as never,
+      findLatestByUser: { organizationId: latestOrganizationId } as never,
     });
     const projectRepository = createProjectRepositoryMock({
       countByOrganization: 1,
@@ -83,9 +73,7 @@ describe('DefaultWorkspaceService', () => {
 
     expect(organizationRepository.create).not.toHaveBeenCalled();
     expect(memberRepository.create).not.toHaveBeenCalled();
-    expect(projectRepository.countByOrganization).toHaveBeenCalledWith(
-      organizationIdentifier.parse(11),
-    );
+    expect(projectRepository.countByOrganization).toHaveBeenCalledWith(latestOrganizationId);
     expect(projectRepository.create).not.toHaveBeenCalled();
   });
 });

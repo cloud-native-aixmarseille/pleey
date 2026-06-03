@@ -14,8 +14,8 @@ describe('ListPartiesUseCase', () => {
     partyManagement.listUserParties.mockResolvedValue({
       items: [
         {
-          partyId: 10,
-          gameId: 17,
+          partyId: backendTestIdentifiers.party(10),
+          gameId: backendTestIdentifiers.game(17),
           pin: '123456',
           status: 'WAITING',
           role: 'HOST',

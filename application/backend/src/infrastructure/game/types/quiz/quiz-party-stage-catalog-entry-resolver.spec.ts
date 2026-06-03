@@ -1,8 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { PartyActionIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-action-identifier';
 import { PartyStageIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-stage-identifier';
-import type { GameId } from '../../../../domain/game/entities/game';
-import type { PartyStageId } from '../../../../domain/game/party/shared/entities/party-stage';
+import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import type { PrismaService } from '../../../database/prisma-service';
 import { QuizPartyStageCatalogEntryResolver } from './quiz-party-stage-catalog-entry-resolver';
 
@@ -17,7 +16,7 @@ function createResolverWithFindFirst(findFirst: ReturnType<typeof vi.fn>) {
 describe('QuizPartyStageCatalogEntryResolver', () => {
   it('findFirstStage queries the first stage by ascending position order', async () => {
     const findFirst = vi.fn().mockResolvedValue({
-      id: 10,
+      id: backendTestIdentifiers.partyStage(10),
       position: 0,
       points: 100,
       questionText: 'Question',
@@ -26,10 +25,10 @@ describe('QuizPartyStageCatalogEntryResolver', () => {
     });
     const resolver = createResolverWithFindFirst(findFirst);
 
-    const stage = await resolver.findFirstStage(77 as GameId);
+    const stage = await resolver.findFirstStage(backendTestIdentifiers.game(77));
 
     expect(stage).toMatchObject({
-      id: 10,
+      id: backendTestIdentifiers.partyStage(10),
       stagePosition: 0,
       points: 100,
       text: 'Question',
@@ -54,7 +53,7 @@ describe('QuizPartyStageCatalogEntryResolver', () => {
     const findFirst = vi
       .fn()
       .mockResolvedValueOnce({
-        id: 10,
+        id: backendTestIdentifiers.partyStage(10),
         position: 2,
         points: 100,
         questionText: 'Current',
@@ -62,7 +61,7 @@ describe('QuizPartyStageCatalogEntryResolver', () => {
         answers: [],
       })
       .mockResolvedValueOnce({
-        id: 11,
+        id: backendTestIdentifiers.partyStage(11),
         position: 5,
         points: 200,
         questionText: 'Next',
@@ -71,10 +70,13 @@ describe('QuizPartyStageCatalogEntryResolver', () => {
       });
     const resolver = createResolverWithFindFirst(findFirst);
 
-    const stage = await resolver.findNextStage(77 as GameId, 10 as PartyStageId);
+    const stage = await resolver.findNextStage(
+      backendTestIdentifiers.game(77),
+      backendTestIdentifiers.partyStage(10),
+    );
 
     expect(stage).toMatchObject({
-      id: 11,
+      id: backendTestIdentifiers.partyStage(11),
       stagePosition: 5,
       points: 200,
       text: 'Next',

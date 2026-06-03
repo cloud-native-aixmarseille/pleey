@@ -2,8 +2,6 @@ import { describe, expect, it, vi } from 'vitest';
 import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
 import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
-import { OrganizationIdentifier } from '../../../workspace/shared/services/identifiers/organization-identifier';
-import { ProjectIdentifier } from '../../../workspace/shared/services/identifiers/project-identifier';
 import { GameTypeParser } from '../../types/shared/services/game-type-parser';
 import {
   CreatePartyDisabledReason,
@@ -12,9 +10,12 @@ import {
 import { GamePermissionResolver } from '../services/game-permission-resolver';
 import { ListProjectGamesUseCase } from './list-project-games-use-case';
 
-const organizationIdentifier = new OrganizationIdentifier();
 const gameTypeParser = new GameTypeParser();
-const projectIdentifier = new ProjectIdentifier();
+const projectId = backendTestIdentifiers.project(8);
+const organizationId = backendTestIdentifiers.organization(3);
+const hostUserId = backendTestIdentifiers.user(22);
+const gameId = backendTestIdentifiers.game(11);
+const gameTypeId = backendTestIdentifiers.game(101);
 
 describe('ListProjectGamesUseCase', () => {
   it('throws NOT_A_MEMBER when the project does not exist', async () => {
@@ -26,9 +27,9 @@ describe('ListProjectGamesUseCase', () => {
       gameTypeParser,
     );
 
-    await expect(
-      useCase.execute({ projectId: projectIdentifier.parse(8) }, backendTestIdentifiers.user(22)),
-    ).rejects.toThrow(OrganizationErrorCode.NOT_A_MEMBER);
+    await expect(useCase.execute({ projectId }, hostUserId)).rejects.toThrow(
+      OrganizationErrorCode.NOT_A_MEMBER,
+    );
   });
 
   it('throws NOT_A_MEMBER when the user is outside the organization', async () => {
@@ -36,8 +37,8 @@ describe('ListProjectGamesUseCase', () => {
       { listProjectGames: vi.fn() } as never,
       {
         findById: vi.fn().mockResolvedValue({
-          id: projectIdentifier.parse(8),
-          organizationId: organizationIdentifier.parse(3),
+          id: projectId,
+          organizationId,
         }),
       } as never,
       { findByOrganizationAndUser: vi.fn().mockResolvedValue(null) } as never,
@@ -45,9 +46,9 @@ describe('ListProjectGamesUseCase', () => {
       gameTypeParser,
     );
 
-    await expect(
-      useCase.execute({ projectId: projectIdentifier.parse(8) }, backendTestIdentifiers.user(22)),
-    ).rejects.toThrow(OrganizationErrorCode.NOT_A_MEMBER);
+    await expect(useCase.execute({ projectId }, hostUserId)).rejects.toThrow(
+      OrganizationErrorCode.NOT_A_MEMBER,
+    );
   });
 
   it('normalizes the request before delegating to the management catalog', async () => {
@@ -55,12 +56,12 @@ describe('ListProjectGamesUseCase', () => {
       listProjectGames: vi.fn().mockResolvedValue({
         items: [
           {
-            gameId: backendTestIdentifiers.game(11),
+            gameId,
             type: 'quiz',
             title: 'Quiz A',
             description: null,
             createdAt: new Date('2026-03-12T00:00:00.000Z'),
-            gameTypeId: backendTestIdentifiers.game(101),
+            gameTypeId,
             stageCount: 6,
           },
         ],
@@ -75,7 +76,7 @@ describe('ListProjectGamesUseCase', () => {
       resolveGamePermissions: vi.fn().mockResolvedValue(
         new Map([
           [
-            backendTestIdentifiers.game(11),
+            gameId,
             {
               createParty: {
                 allowed: true,
@@ -95,8 +96,8 @@ describe('ListProjectGamesUseCase', () => {
       gameManagementCatalog as never,
       {
         findById: vi.fn().mockResolvedValue({
-          id: projectIdentifier.parse(8),
-          organizationId: organizationIdentifier.parse(3),
+          id: projectId,
+          organizationId,
         }),
       } as never,
       { findByOrganizationAndUser: vi.fn().mockResolvedValue({}) } as never,
@@ -106,7 +107,7 @@ describe('ListProjectGamesUseCase', () => {
 
     const result = await useCase.execute(
       {
-        projectId: projectIdentifier.parse(8),
+        projectId,
         search: 'quiz',
         types: ['QUIZ', 'prediction', 'invalid'],
         sortField: 'title',
@@ -114,11 +115,11 @@ describe('ListProjectGamesUseCase', () => {
         page: 2,
         pageSize: 9,
       },
-      backendTestIdentifiers.user(22),
+      hostUserId,
     );
 
     expect(gameManagementCatalog.listProjectGames).toHaveBeenCalledWith({
-      projectId: projectIdentifier.parse(8),
+      projectId,
       search: 'quiz',
       types: ['quiz', 'prediction'],
       sortField: 'title',
@@ -129,12 +130,12 @@ describe('ListProjectGamesUseCase', () => {
     expect(result).toEqual({
       items: [
         {
-          gameId: backendTestIdentifiers.game(11),
+          gameId,
           type: 'quiz',
           title: 'Quiz A',
           description: null,
           createdAt: new Date('2026-03-12T00:00:00.000Z'),
-          gameTypeId: 101,
+          gameTypeId,
           stageCount: 6,
           permissions: {
             createParty: {
@@ -157,16 +158,16 @@ describe('ListProjectGamesUseCase', () => {
     expect(gamePermissionResolver.resolveGamePermissions).toHaveBeenCalledWith({
       items: [
         {
-          gameId: 11,
+          gameId,
           type: 'quiz',
           title: 'Quiz A',
           description: null,
           createdAt: new Date('2026-03-12T00:00:00.000Z'),
-          gameTypeId: backendTestIdentifiers.game(101),
+          gameTypeId,
           stageCount: 6,
         },
       ],
-      hostUserId: backendTestIdentifiers.user(22),
+      hostUserId,
     });
   });
 
@@ -176,12 +177,12 @@ describe('ListProjectGamesUseCase', () => {
         listProjectGames: vi.fn().mockResolvedValue({
           items: [
             {
-              gameId: backendTestIdentifiers.game(11),
+              gameId,
               type: 'quiz',
               title: 'Quiz A',
               description: null,
               createdAt: new Date('2026-03-12T00:00:00.000Z'),
-              gameTypeId: backendTestIdentifiers.game(101),
+              gameTypeId,
               stageCount: 6,
             },
           ],
@@ -194,8 +195,8 @@ describe('ListProjectGamesUseCase', () => {
       } as never,
       {
         findById: vi.fn().mockResolvedValue({
-          id: projectIdentifier.parse(8),
-          organizationId: organizationIdentifier.parse(3),
+          id: projectId,
+          organizationId,
         }),
       } as never,
       { findByOrganizationAndUser: vi.fn().mockResolvedValue({}) } as never,
@@ -203,7 +204,7 @@ describe('ListProjectGamesUseCase', () => {
         resolveGamePermissions: vi.fn().mockResolvedValue(
           new Map([
             [
-              backendTestIdentifiers.game(11),
+              gameId,
               {
                 createParty: {
                   allowed: false,
@@ -222,10 +223,7 @@ describe('ListProjectGamesUseCase', () => {
       gameTypeParser,
     );
 
-    const result = await useCase.execute(
-      { projectId: projectIdentifier.parse(8) },
-      backendTestIdentifiers.user(22),
-    );
+    const result = await useCase.execute({ projectId }, hostUserId);
 
     expect(result.items[0]?.permissions.createParty).toEqual({
       allowed: false,
@@ -243,12 +241,12 @@ describe('ListProjectGamesUseCase', () => {
         listProjectGames: vi.fn().mockResolvedValue({
           items: [
             {
-              gameId: backendTestIdentifiers.game(11),
+              gameId,
               type: 'quiz',
               title: 'Quiz A',
               description: null,
               createdAt: new Date('2026-03-12T00:00:00.000Z'),
-              gameTypeId: backendTestIdentifiers.game(101),
+              gameTypeId,
               stageCount: 6,
             },
           ],
@@ -261,8 +259,8 @@ describe('ListProjectGamesUseCase', () => {
       } as never,
       {
         findById: vi.fn().mockResolvedValue({
-          id: projectIdentifier.parse(8),
-          organizationId: organizationIdentifier.parse(3),
+          id: projectId,
+          organizationId,
         }),
       } as never,
       { findByOrganizationAndUser: vi.fn().mockResolvedValue({}) } as never,
@@ -270,7 +268,7 @@ describe('ListProjectGamesUseCase', () => {
         resolveGamePermissions: vi.fn().mockResolvedValue(
           new Map([
             [
-              backendTestIdentifiers.game(11),
+              gameId,
               {
                 createParty: {
                   allowed: false,
@@ -289,10 +287,7 @@ describe('ListProjectGamesUseCase', () => {
       gameTypeParser,
     );
 
-    const result = await useCase.execute(
-      { projectId: projectIdentifier.parse(8) },
-      backendTestIdentifiers.user(22),
-    );
+    const result = await useCase.execute({ projectId }, hostUserId);
 
     expect(result.items[0]?.permissions.createParty).toEqual({
       allowed: false,
@@ -310,12 +305,12 @@ describe('ListProjectGamesUseCase', () => {
         listProjectGames: vi.fn().mockResolvedValue({
           items: [
             {
-              gameId: backendTestIdentifiers.game(11),
+              gameId,
               type: 'quiz',
               title: 'Quiz A',
               description: null,
               createdAt: new Date('2026-03-12T00:00:00.000Z'),
-              gameTypeId: backendTestIdentifiers.game(101),
+              gameTypeId,
               stageCount: 0,
             },
           ],
@@ -328,8 +323,8 @@ describe('ListProjectGamesUseCase', () => {
       } as never,
       {
         findById: vi.fn().mockResolvedValue({
-          id: projectIdentifier.parse(8),
-          organizationId: organizationIdentifier.parse(3),
+          id: projectId,
+          organizationId,
         }),
       } as never,
       { findByOrganizationAndUser: vi.fn().mockResolvedValue({}) } as never,
@@ -337,7 +332,7 @@ describe('ListProjectGamesUseCase', () => {
         resolveGamePermissions: vi.fn().mockResolvedValue(
           new Map([
             [
-              backendTestIdentifiers.game(11),
+              gameId,
               {
                 createParty: {
                   allowed: false,
@@ -356,10 +351,7 @@ describe('ListProjectGamesUseCase', () => {
       gameTypeParser,
     );
 
-    const result = await useCase.execute(
-      { projectId: projectIdentifier.parse(8) },
-      backendTestIdentifiers.user(22),
-    );
+    const result = await useCase.execute({ projectId }, hostUserId);
 
     expect(result.items[0]?.permissions.createParty).toEqual({
       allowed: false,
@@ -377,12 +369,12 @@ describe('ListProjectGamesUseCase', () => {
         listProjectGames: vi.fn().mockResolvedValue({
           items: [
             {
-              gameId: backendTestIdentifiers.game(11),
+              gameId,
               type: 'quiz',
               title: 'Quiz A',
               description: null,
               createdAt: new Date('2026-03-12T00:00:00.000Z'),
-              gameTypeId: backendTestIdentifiers.game(101),
+              gameTypeId,
               stageCount: 6,
             },
           ],
@@ -395,8 +387,8 @@ describe('ListProjectGamesUseCase', () => {
       } as never,
       {
         findById: vi.fn().mockResolvedValue({
-          id: projectIdentifier.parse(8),
-          organizationId: organizationIdentifier.parse(3),
+          id: projectId,
+          organizationId,
         }),
       } as never,
       { findByOrganizationAndUser: vi.fn().mockResolvedValue({}) } as never,
@@ -407,8 +399,8 @@ describe('ListProjectGamesUseCase', () => {
       gameTypeParser,
     );
 
-    await expect(
-      useCase.execute({ projectId: projectIdentifier.parse(8) }, backendTestIdentifiers.user(22)),
-    ).rejects.toThrow(GameErrorCode.VALIDATION_FAILED);
+    await expect(useCase.execute({ projectId }, hostUserId)).rejects.toThrow(
+      GameErrorCode.VALIDATION_FAILED,
+    );
   });
 });

@@ -1,13 +1,13 @@
 import 'reflect-metadata';
 import { describe, expect, it } from 'vitest';
-import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
-import { ProjectIdentifier } from '../../application/workspace/shared/services/identifiers/project-identifier';
 import { ProjectErrorCode } from '../../domains/project/errors/project-error-code';
 import { GraphqlClientMockFactory } from '../../test-utils/mocks/graphql-client-mock-factory';
+import { OrganizationIdentifierMockFactory } from '../../test-utils/mocks/organization-identifier-mock-factory';
+import { ProjectIdentifierMockFactory } from '../../test-utils/mocks/project-identifier-mock-factory';
 import { GraphqlProjectRepository } from './graphql-project.repository';
 
-const organizationIdentifier = new OrganizationIdentifier();
-const projectIdentifier = new ProjectIdentifier();
+const organizationIdentifier = new OrganizationIdentifierMockFactory().create();
+const projectIdentifier = new ProjectIdentifierMockFactory().create();
 
 describe('GraphqlProjectRepository', () => {
   describe('getProjectsByOrganization()', () => {

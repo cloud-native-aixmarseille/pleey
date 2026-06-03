@@ -11,7 +11,7 @@ const describeIfDatabase = hasDatabase ? describe.sequential : describe.skip;
 describeIfDatabase('PrismaUserRepository', () => {
   const harness = new PrismaIntegrationTestHarness(PrismaUserRepository);
 
-  const createdUserIds: number[] = [];
+  const createdUserIds: string[] = [];
   harness.addCleanupStep(async (prisma) => {
     if (createdUserIds.length) {
       await prisma.user.deleteMany({ where: { id: { in: createdUserIds } } });

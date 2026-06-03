@@ -5,6 +5,7 @@ import type {
   PlayableManagementItem,
   PlayableManagementItemInput,
 } from '../../domains/game/types/shared/management/playable-management';
+import { coerceUuidV7TestValue } from './uuid-v7-test-value';
 
 const gameTypeIdentifier = new GameTypeIdentifier();
 
@@ -16,7 +17,7 @@ interface PlayableManagementItemInputOverrides<TKind extends string = string>
 }
 
 interface PlayableManagementItemOverrides<
-  TItemId extends number = number,
+  TItemId extends string = string,
   TKind extends string = string,
 > extends Partial<Omit<PlayableManagementItem<TItemId, TKind>, 'gameTypeId'>> {
   readonly gameTypeId?: GameTypeId | number;
@@ -46,7 +47,7 @@ export class PlayableManagementFixtureFactory {
     };
   }
 
-  createItem<TItemId extends number = number, TKind extends string = string>(
+  createItem<TItemId extends string = string, TKind extends string = string>(
     overrides: PlayableManagementItemOverrides<TItemId, TKind> = {},
   ): PlayableManagementItem<TItemId, TKind> {
     const { gameTypeId, ...restOverrides } = overrides;
@@ -54,11 +55,11 @@ export class PlayableManagementFixtureFactory {
     return {
       gameTypeId:
         gameTypeId === undefined
-          ? gameTypeIdentifier.parse(1)
+          ? gameTypeIdentifier.parse(coerceUuidV7TestValue(1))
           : typeof gameTypeId === 'number'
-            ? gameTypeIdentifier.parse(gameTypeId)
+            ? gameTypeIdentifier.parse(coerceUuidV7TestValue(gameTypeId))
             : gameTypeId,
-      id: 1 as TItemId,
+      id: coerceUuidV7TestValue(1) as TItemId,
       options: [this.createOption()],
       points: 500,
       position: 0,

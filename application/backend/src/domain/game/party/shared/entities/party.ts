@@ -1,4 +1,4 @@
-export type PartyId = number & {
+export type PartyId = string & {
   readonly __identifierBrand: 'PartyId';
 };
 

@@ -17,6 +17,7 @@ import { PartyStatus } from '../../domains/game/party/shared/entities/party-stat
 import { GameType } from '../../domains/game/types/shared/game-type';
 import type { GuestId } from '../../domains/identity/entities/guest';
 import type { UserId } from '../../domains/identity/entities/user';
+import { coerceUuidV7TestValue } from './uuid-v7-test-value';
 
 const gameIdentifier = new GameIdentifier();
 const partyIdentifier = new PartyIdentifier();
@@ -68,9 +69,17 @@ export class PartyFixtureFactory {
 
     return {
       partyId:
-        partyId === undefined ? partyIdentifier.parse(1) : partyIdentifier.parse(Number(partyId)),
+        partyId === undefined
+          ? partyIdentifier.parse(coerceUuidV7TestValue(1))
+          : typeof partyId === 'number'
+            ? partyIdentifier.parse(coerceUuidV7TestValue(partyId))
+            : partyId,
       gameId:
-        gameId === undefined ? gameIdentifier.parse(17) : gameIdentifier.parse(Number(gameId)),
+        gameId === undefined
+          ? gameIdentifier.parse(coerceUuidV7TestValue(17))
+          : typeof gameId === 'number'
+            ? gameIdentifier.parse(coerceUuidV7TestValue(gameId))
+            : gameId,
       pin: pin === undefined ? partyPinIdentifier.parse('AB12CD') : partyPinIdentifier.parse(pin),
       status: PartyStatus.WAITING,
       role: PartyRole.HOST,
@@ -90,7 +99,7 @@ export class PartyFixtureFactory {
     const normalizedIdentity = this.normalizeIdentity(
       overrides.identity ?? {
         kind: PartyPlayerIdentityKind.User,
-        userId: userIdentifier.parse(11),
+        userId: userIdentifier.parse(coerceUuidV7TestValue(11)),
       },
     );
 
@@ -109,7 +118,11 @@ export class PartyFixtureFactory {
 
     return {
       partyId:
-        partyId === undefined ? partyIdentifier.parse(9) : partyIdentifier.parse(Number(partyId)),
+        partyId === undefined
+          ? partyIdentifier.parse(coerceUuidV7TestValue(9))
+          : typeof partyId === 'number'
+            ? partyIdentifier.parse(coerceUuidV7TestValue(partyId))
+            : partyId,
       gameType: GameType.Quiz,
       pin: pin === undefined ? partyPinIdentifier.parse('AB12CD') : partyPinIdentifier.parse(pin),
       status: PartyStatus.WAITING,
@@ -120,7 +133,7 @@ export class PartyFixtureFactory {
         this.createObservationPlayer({
           identity: {
             kind: PartyPlayerIdentityKind.User,
-            userId: userIdentifier.parse(11),
+            userId: userIdentifier.parse(coerceUuidV7TestValue(11)),
           },
           isCurrentPlayer: true,
           isLive: true,
@@ -135,11 +148,14 @@ export class PartyFixtureFactory {
     return identity.kind === PartyPlayerIdentityKind.User
       ? {
           kind: PartyPlayerIdentityKind.User,
-          userId: userIdentifier.parse(Number(identity.userId)),
+          userId:
+            typeof identity.userId === 'number'
+              ? userIdentifier.parse(coerceUuidV7TestValue(identity.userId))
+              : identity.userId,
         }
       : {
           kind: PartyPlayerIdentityKind.Guest,
-          guestId: guestIdentifier.parse(identity.guestId),
+          guestId: guestIdentifier.parse(coerceUuidV7TestValue(identity.guestId)),
         };
   }
 }

@@ -1,5 +1,5 @@
-import { randomUUID } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
+import { v7 as uuidv7 } from 'uuid';
 import {
   type ActivePlayerPartySession,
   type EnsureAuthenticatedPlayerCommand,
@@ -17,6 +17,7 @@ import { UserIdentifier } from '../../../application/identity/shared/services/id
 import { PartyPlayerKind } from '../../../domain/game/party/enums/party-player-kind.enum';
 import type { GuestPartyPlayerIdentity } from '../../../domain/game/party/player/entities/party-player-identity';
 import type { PartyPin } from '../../../domain/game/party/shared/entities/party';
+import type { UserId } from '../../../domain/identity/entities/user';
 import type { GuestRepository } from '../../../domain/identity/ports/guest.repository';
 import { GuestRepositoryProvider } from '../../../domain/identity/ports/guest.repository';
 import { PrismaService } from '../../database/prisma-service';
@@ -70,7 +71,7 @@ export class PrismaPlayerPartyRuntimeAdapter extends PlayerPartyRuntimePort {
     };
   }
 
-  async findActivePartyByUserId(userId: number): Promise<ActivePlayerPartySession | null> {
+  async findActivePartyByUserId(userId: UserId): Promise<ActivePlayerPartySession | null> {
     const party = await this.prisma.party.findFirst({
       where: {
         deletedAt: null,
@@ -230,7 +231,7 @@ export class PrismaPlayerPartyRuntimeAdapter extends PlayerPartyRuntimePort {
   }
 
   async ensureGuestPlayer(command: EnsureGuestPlayerCommand): Promise<GuestPartyPlayerIdentity> {
-    const guestId = command.guestId ?? this.guestIdentifier.parse(randomUUID());
+    const guestId = command.guestId ?? this.guestIdentifier.parse(uuidv7());
     const existingGuest = await this.guestRepository.findById(guestId);
     const username = command.username.trim();
     const avatarSeed = command.avatarSeed?.trim() || undefined;
@@ -289,7 +290,7 @@ export class PrismaPlayerPartyRuntimeAdapter extends PlayerPartyRuntimePort {
       readonly createdAt: Date;
       readonly points?: number;
       readonly user: {
-        readonly id: number;
+        readonly id: string;
         readonly username: string;
         readonly avatar: {
           readonly updatedAt: Date;

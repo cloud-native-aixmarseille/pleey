@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Field, ID, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
 import type {
   GamePermissions,
   LaunchReadinessDisabledReason,
@@ -39,8 +39,8 @@ class GamePermissionsType implements GamePermissions {
 
 @ObjectType()
 export class ProjectGameListItemType {
-  @Field(() => Int)
-  gameId!: number;
+  @Field(() => ID)
+  gameId!: string;
 
   @Field()
   type!: string;
@@ -54,8 +54,8 @@ export class ProjectGameListItemType {
   @Field()
   createdAt!: Date;
 
-  @Field(() => Int, { nullable: true })
-  gameTypeId!: number | null;
+  @Field(() => ID, { nullable: true })
+  gameTypeId!: string | null;
 
   @Field(() => Int)
   stageCount!: number;

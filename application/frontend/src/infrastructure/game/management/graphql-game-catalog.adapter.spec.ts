@@ -1,21 +1,21 @@
 import 'reflect-metadata';
 import { describe, expect, it } from 'vitest';
-import { GameIdentifier } from '../../../application/game/shared/services/identifiers/game-identifier';
-import { GameTypeIdentifier } from '../../../application/game/types/shared/services/game-type-identifier';
 import { GameTypeParser } from '../../../application/game/types/shared/services/game-type-parser';
-import { ProjectIdentifier } from '../../../application/workspace/shared/services/identifiers/project-identifier';
 import {
   CreatePartyDisabledReason,
   LaunchReadinessDisabledReason,
 } from '../../../domains/game/management/entities/dashboard-game-list-item';
+import { GameIdentifierMockFactory } from '../../../test-utils/mocks/game-identifier-mock-factory';
+import { GameTypeIdentifierMockFactory } from '../../../test-utils/mocks/game-type-identifier-mock-factory';
 import { GraphqlClientMockFactory } from '../../../test-utils/mocks/graphql-client-mock-factory';
+import { ProjectIdentifierMockFactory } from '../../../test-utils/mocks/project-identifier-mock-factory';
 import { ProjectGamesDocument } from '../../graphql/generated/graphql';
 import { GraphqlGameCatalogAdapter } from './graphql-game-catalog.adapter';
 
-const gameIdentifier = new GameIdentifier();
-const gameTypeIdentifier = new GameTypeIdentifier();
+const gameIdentifier = new GameIdentifierMockFactory().create();
+const gameTypeIdentifier = new GameTypeIdentifierMockFactory().create();
 const gameTypeParser = new GameTypeParser();
-const projectIdentifier = new ProjectIdentifier();
+const projectIdentifier = new ProjectIdentifierMockFactory().create();
 
 describe('GraphqlGameCatalogAdapter', () => {
   it('maps the project dashboard games query into the shared management catalog page', async () => {
@@ -73,7 +73,7 @@ describe('GraphqlGameCatalogAdapter', () => {
       ProjectGamesDocument,
       {
         input: {
-          projectId: 9,
+          projectId: projectIdentifier.parse(9),
           search: 'sprint',
           types: ['quiz'],
           sortField: 'createdAt',

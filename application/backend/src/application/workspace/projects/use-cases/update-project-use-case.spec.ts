@@ -3,13 +3,12 @@ import { ProjectErrorCode } from '../../../../domain/project/enums/project-error
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { createOrganizationMemberRepositoryMock } from '../../../../test-utils/mock-factories/organization.mock-factory';
 import { createProjectRepositoryMock } from '../../../../test-utils/mock-factories/project-repository.mock-factory';
-import { OrganizationIdentifier } from '../../shared/services/identifiers/organization-identifier';
-import { ProjectIdentifier } from '../../shared/services/identifiers/project-identifier';
 import type { UpdateProjectDto } from '../dto/update-project-dto';
 import { UpdateProjectUseCase } from './update-project-use-case';
 
-const organizationIdentifier = new OrganizationIdentifier();
-const projectIdentifier = new ProjectIdentifier();
+const organizationId = backendTestIdentifiers.organization(3);
+const projectId = backendTestIdentifiers.project(5);
+const actorUserId = backendTestIdentifiers.user(22);
 
 describe('UpdateProjectUseCase', () => {
   it('throws PROJECT_NOT_FOUND when the project does not exist', async () => {
@@ -20,9 +19,9 @@ describe('UpdateProjectUseCase', () => {
 
     await expect(
       useCase.execute(
-        projectIdentifier.parse(5),
+        projectId,
         { name: 'Updated project' } satisfies UpdateProjectDto,
-        backendTestIdentifiers.user(22),
+        actorUserId,
       ),
     ).rejects.toThrow(ProjectErrorCode.PROJECT_NOT_FOUND);
   });
@@ -30,8 +29,8 @@ describe('UpdateProjectUseCase', () => {
   it('throws NOT_A_MEMBER when the user is outside the organization', async () => {
     const projectRepository = createProjectRepositoryMock({
       findById: {
-        id: projectIdentifier.parse(5),
-        organizationId: organizationIdentifier.parse(3),
+        id: projectId,
+        organizationId,
       } as never,
     });
     const memberRepository = createOrganizationMemberRepositoryMock({
@@ -42,9 +41,9 @@ describe('UpdateProjectUseCase', () => {
 
     await expect(
       useCase.execute(
-        projectIdentifier.parse(5),
+        projectId,
         { name: 'Updated project' } satisfies UpdateProjectDto,
-        backendTestIdentifiers.user(22),
+        actorUserId,
       ),
     ).rejects.toThrow(OrganizationErrorCode.NOT_A_MEMBER);
   });
@@ -52,8 +51,8 @@ describe('UpdateProjectUseCase', () => {
   it('throws INSUFFICIENT_PERMISSIONS when the user cannot manage projects', async () => {
     const projectRepository = createProjectRepositoryMock({
       findById: {
-        id: projectIdentifier.parse(5),
-        organizationId: organizationIdentifier.parse(3),
+        id: projectId,
+        organizationId,
       } as never,
     });
     const memberRepository = createOrganizationMemberRepositoryMock({
@@ -66,24 +65,24 @@ describe('UpdateProjectUseCase', () => {
 
     await expect(
       useCase.execute(
-        projectIdentifier.parse(5),
+        projectId,
         { name: 'Updated project' } satisfies UpdateProjectDto,
-        backendTestIdentifiers.user(22),
+        actorUserId,
       ),
     ).rejects.toThrow(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
   });
 
   it('updates the project when the user has management rights', async () => {
     const updatedProject = {
-      id: projectIdentifier.parse(5),
+      id: projectId,
       name: 'Updated project',
       description: 'Refined scope',
-      organizationId: organizationIdentifier.parse(3),
+      organizationId,
     };
     const projectRepository = createProjectRepositoryMock({
       findById: {
-        id: projectIdentifier.parse(5),
-        organizationId: organizationIdentifier.parse(3),
+        id: projectId,
+        organizationId,
       } as never,
       update: updatedProject as never,
     });
@@ -96,13 +95,13 @@ describe('UpdateProjectUseCase', () => {
     const useCase = new UpdateProjectUseCase(projectRepository as never, memberRepository as never);
 
     const result = await useCase.execute(
-      projectIdentifier.parse(5),
+      projectId,
       { name: 'Updated project', description: 'Refined scope' } satisfies UpdateProjectDto,
-      backendTestIdentifiers.user(22),
+      actorUserId,
     );
 
     expect(projectRepository.update).toHaveBeenCalledWith(
-      projectIdentifier.parse(5),
+      projectId,
       'Updated project',
       'Refined scope',
     );

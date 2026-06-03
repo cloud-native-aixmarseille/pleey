@@ -38,7 +38,8 @@
     "react-qr-code": "^2.0.21",
     "react-router-dom": "^7.17.0",
     "reflect-metadata": "^0.2.2",
-    "socket.io-client": "^4.8.3"
+    "socket.io-client": "^4.8.3",
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",

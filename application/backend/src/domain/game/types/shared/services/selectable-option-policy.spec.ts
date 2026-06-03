@@ -9,7 +9,8 @@ const errorCodes = {
 
 describe('SelectableOptionPolicy', () => {
   const policy = new SelectableOptionPolicy();
-  const existingOptionId = 9 as SelectableOptionId<'TestSelectableOptionId'>;
+  const existingOptionId =
+    '00000000-0000-7000-8000-000000000009' as SelectableOptionId<'TestSelectableOptionId'>;
 
   it('normalizes option text, ids and fallback positions', () => {
     const result = policy.normalize([

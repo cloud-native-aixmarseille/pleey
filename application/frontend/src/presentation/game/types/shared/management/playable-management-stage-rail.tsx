@@ -23,7 +23,7 @@ import {
 interface PlayableManagementStageRailProps {
   readonly itemKindConfig?: PlayableItemKindConfig;
   readonly items: readonly PlayableManagementItem[];
-  readonly selectedItemId: number | null;
+  readonly selectedItemId: string | null;
   readonly translationRoot: string;
   readonly onAddItem: () => void;
   readonly onDeleteItem: (item: PlayableManagementItem) => void;

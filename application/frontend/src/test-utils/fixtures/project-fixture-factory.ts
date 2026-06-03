@@ -2,6 +2,7 @@ import { OrganizationIdentifier } from '../../application/workspace/shared/servi
 import { ProjectIdentifier } from '../../application/workspace/shared/services/identifiers/project-identifier';
 import type { OrganizationId } from '../../domains/organization/entities/organization';
 import type { Project, ProjectId } from '../../domains/project/entities/project';
+import { coerceUuidV7TestValue } from './uuid-v7-test-value';
 
 const organizationIdentifier = new OrganizationIdentifier();
 const projectIdentifier = new ProjectIdentifier();
@@ -18,13 +19,20 @@ export class ProjectFixtureFactory {
     const { id, organizationId, ...restOverrides } = overrides;
 
     return {
-      id: id === undefined ? projectIdentifier.parse(11) : projectIdentifier.parse(Number(id)),
+      id:
+        id === undefined
+          ? projectIdentifier.parse(coerceUuidV7TestValue(11))
+          : projectIdentifier.parse(typeof id === 'number' ? coerceUuidV7TestValue(id) : id),
       name: 'Flagship Project',
       description: 'Core project',
       organizationId:
         organizationId === undefined
-          ? organizationIdentifier.parse(3)
-          : organizationIdentifier.parse(Number(organizationId)),
+          ? organizationIdentifier.parse(coerceUuidV7TestValue(3))
+          : organizationIdentifier.parse(
+              typeof organizationId === 'number'
+                ? coerceUuidV7TestValue(organizationId)
+                : organizationId,
+            ),
       createdAt: DEFAULT_TIMESTAMP,
       ...restOverrides,
     };

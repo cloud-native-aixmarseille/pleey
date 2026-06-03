@@ -3,15 +3,15 @@ import { describe, expect, it, vi } from 'vitest';
 import { GameType } from '../../../../domains/game/types/shared/game-type';
 import { DashboardHomeScreenFixtureFactory } from '../../../../test-utils/fixtures/dashboard-home-screen-fixture-factory';
 import { GameCatalogPortMockFactory } from '../../../../test-utils/mocks/game-catalog-port-mock-factory';
+import { GameIdentifierMockFactory } from '../../../../test-utils/mocks/game-identifier-mock-factory';
+import { GameTypeIdentifierMockFactory } from '../../../../test-utils/mocks/game-type-identifier-mock-factory';
 import { GameTypeRegistryMockFactory } from '../../../../test-utils/mocks/game-type-registry-mock-factory';
-import { ProjectIdentifier } from '../../../workspace/shared/services/identifiers/project-identifier';
-import { GameIdentifier } from '../../shared/services/identifiers/game-identifier';
-import { GameTypeIdentifier } from '../../types/shared/services/game-type-identifier';
+import { ProjectIdentifierMockFactory } from '../../../../test-utils/mocks/project-identifier-mock-factory';
 import { ListProjectGamesUseCase } from './list-project-games-use-case';
 
-const gameIdentifier = new GameIdentifier();
-const gameTypeIdentifier = new GameTypeIdentifier();
-const projectIdentifier = new ProjectIdentifier();
+const gameIdentifier = new GameIdentifierMockFactory().create();
+const gameTypeIdentifier = new GameTypeIdentifierMockFactory().create();
+const projectIdentifier = new ProjectIdentifierMockFactory().create();
 
 describe('ListProjectGamesUseCase', () => {
   const dashboardHomeScreenFixtureFactory = new DashboardHomeScreenFixtureFactory();

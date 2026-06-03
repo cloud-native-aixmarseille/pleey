@@ -2,15 +2,21 @@ import { Injectable } from '@nestjs/common';
 import { GameIdentifier } from '../../../../application/game/shared/services/identifiers/game-identifier';
 import { GameTypeIdentifier } from '../../../../application/game/types/shared/services/game-type-identifier';
 import { ProjectIdentifier } from '../../../../application/workspace/shared/services/identifiers/project-identifier';
+import type { GameId } from '../../../../domain/game/entities/game';
 import { PartyStatus } from '../../../../domain/game/party/enums/party-status.enum';
-import { Prediction } from '../../../../domain/game/types/prediction/entities/prediction';
+import {
+  Prediction,
+  type PredictionId,
+} from '../../../../domain/game/types/prediction/entities/prediction';
 import type {
   CreatePredictionData,
   CreatePredictionWithPromptsData,
   PredictionManagementRepository,
   UpdatePredictionData,
 } from '../../../../domain/game/types/prediction/ports/prediction-management.repository';
+import type { GameTypeId } from '../../../../domain/game/types/shared/entities/game-type';
 import { GameType } from '../../../../domain/game/types/shared/entities/game-type';
+import type { ProjectId } from '../../../../domain/project/entities/project';
 import { PrismaService } from '../../../database/prisma-service';
 
 const ACTIVE_PARTY_STATUSES = [PartyStatus.WAITING, PartyStatus.ACTIVE, PartyStatus.PAUSED];
@@ -20,19 +26,24 @@ enum PredictionManagementRepositoryErrorCode {
   PREDICTION_NOT_UPDATED = 'PREDICTION_NOT_UPDATED',
 }
 
+interface PrismaPredictionRecord {
+  readonly id: string;
+  readonly gameId: string;
+  readonly projectId: string;
+  readonly title: string;
+  readonly description: string | null;
+  readonly createdAt: Date;
+  readonly promptCount: number;
+}
+
 interface PredictionRecord {
-  readonly id: number;
-  readonly gameId: number;
-  readonly game: {
-    readonly id: number;
-    readonly projectId: number;
-    readonly title: string;
-    readonly description: string | null;
-    readonly createdAt: Date;
-  };
-  readonly _count: {
-    readonly prompts: number;
-  };
+  readonly id: PredictionId;
+  readonly gameId: GameId;
+  readonly projectId: ProjectId;
+  readonly title: string;
+  readonly description: string | null;
+  readonly createdAt: Date;
+  readonly promptCount: number;
 }
 
 @Injectable()
@@ -120,7 +131,7 @@ export class PrismaPredictionManagementRepository implements PredictionManagemen
     return this.toDomain(game.prediction);
   }
 
-  async findById(id: number): Promise<Prediction | null> {
+  async findById(id: GameTypeId): Promise<Prediction | null> {
     const prediction = await this.prisma.prediction.findFirst({
       where: {
         id,
@@ -140,7 +151,7 @@ export class PrismaPredictionManagementRepository implements PredictionManagemen
     return prediction ? this.toDomain(prediction) : null;
   }
 
-  async update(id: number, data: UpdatePredictionData): Promise<Prediction> {
+  async update(id: GameTypeId, data: UpdatePredictionData): Promise<Prediction> {
     const prediction = await this.prisma.prediction.findUniqueOrThrow({ where: { id } });
     await this.prisma.game.update({
       where: { id: prediction.gameId },
@@ -158,7 +169,7 @@ export class PrismaPredictionManagementRepository implements PredictionManagemen
     return updated;
   }
 
-  async delete(id: number): Promise<void> {
+  async delete(id: GameTypeId): Promise<void> {
     const deletedAt = new Date();
     const prediction = await this.prisma.prediction.findUniqueOrThrow({ where: { id } });
 
@@ -168,7 +179,7 @@ export class PrismaPredictionManagementRepository implements PredictionManagemen
     ]);
   }
 
-  async hasActiveParty(gameId: number): Promise<boolean> {
+  async hasActiveParty(gameId: GameId): Promise<boolean> {
     const activePartyCount = await this.prisma.party.count({
       where: {
         gameId,
@@ -180,15 +191,66 @@ export class PrismaPredictionManagementRepository implements PredictionManagemen
     return activePartyCount > 0;
   }
 
-  private toDomain(prediction: PredictionRecord): Prediction {
+  private toDomain(prediction: {
+    readonly id: string;
+    readonly gameId: string;
+    readonly game: {
+      readonly projectId: string;
+      readonly title: string;
+      readonly description: string | null;
+      readonly createdAt: Date;
+    };
+    readonly _count: {
+      readonly prompts: number;
+    };
+  }): Prediction {
+    const prismaRecord = this.toPrismaPredictionRecord(prediction);
+    const record = this.toPredictionRecord(prismaRecord);
+
     return new Prediction(
-      this.gameTypeIdentifier.parse(prediction.id),
-      this.gameIdentifier.parse(prediction.gameId),
-      this.projectIdentifier.parse(prediction.game.projectId),
-      prediction.game.title,
-      prediction.game.description,
-      prediction.game.createdAt,
-      prediction._count.prompts,
+      record.id,
+      record.gameId,
+      record.projectId,
+      record.title,
+      record.description,
+      record.createdAt,
+      record.promptCount,
     );
+  }
+
+  private toPrismaPredictionRecord(prediction: {
+    readonly id: string;
+    readonly gameId: string;
+    readonly game: {
+      readonly projectId: string;
+      readonly title: string;
+      readonly description: string | null;
+      readonly createdAt: Date;
+    };
+    readonly _count: {
+      readonly prompts: number;
+    };
+  }): PrismaPredictionRecord {
+    return {
+      id: prediction.id,
+      gameId: prediction.gameId,
+      projectId: prediction.game.projectId,
+      title: prediction.game.title,
+      description: prediction.game.description,
+      createdAt: prediction.game.createdAt,
+      promptCount: prediction._count.prompts,
+    };
+  }
+
+  private toPredictionRecord(prediction: PrismaPredictionRecord): PredictionRecord {
+    return {
+      id: this.gameTypeIdentifier.parse(prediction.id),
+      gameId: this.gameIdentifier.parse(prediction.gameId),
+      projectId: this.projectIdentifier.parse(prediction.projectId),
+      title: prediction.title,
+      description: prediction.description,
+      createdAt: prediction.createdAt,
+      promptCount: prediction.promptCount,
+    };
   }
 }

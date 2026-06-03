@@ -23,7 +23,7 @@ type AuthUserProfileType {
   avatarUri: String
   createdAt: DateTime
   email: String!
-  id: Int!
+  id: ID!
   username: String!
 }
 
@@ -39,19 +39,19 @@ enum CreatePartyDisabledReason {
 }
 
 input CreatePartyInput {
-  gameId: Int!
+  gameId: ID!
 }
 
 input CreatePredictionFromImportInput {
   description: String
   file: Upload!
-  projectId: Int!
+  projectId: ID!
   title: String!
 }
 
 input CreatePredictionInput {
   description: String
-  projectId: Int!
+  projectId: ID!
   title: String!
 }
 
@@ -59,7 +59,7 @@ input CreatePredictionPromptInput {
   options: [SelectableOptionInput!]!
   points: Int!
   position: Int
-  predictionId: Int!
+  predictionId: ID!
   promptText: String!
   timeLimit: Int!
 }
@@ -72,13 +72,13 @@ input CreateProjectInput {
 input CreateQuizFromImportInput {
   description: String
   file: Upload!
-  projectId: Int!
+  projectId: ID!
   title: String!
 }
 
 input CreateQuizInput {
   description: String
-  projectId: Int!
+  projectId: ID!
   title: String!
 }
 
@@ -87,7 +87,7 @@ input CreateQuizQuestionInput {
   points: Int!
   position: Int
   questionText: String!
-  quizId: Int!
+  quizId: ID!
   timeLimit: Int!
   type: QuizQuestionType!
 }
@@ -112,7 +112,7 @@ type LaunchReadinessPermissionType {
 }
 
 input ListOrganizationProjectsInput {
-  organizationId: Int!
+  organizationId: ID!
   page: Int! = 1
   pageSize: Int! = 9
   search: String
@@ -135,39 +135,39 @@ input LoginInput {
 }
 
 type Mutation {
-  addOrganizationMember(input: AddOrganizationMemberInput!, organizationId: Int!): OrganizationMemberType!
+  addOrganizationMember(input: AddOrganizationMemberInput!, organizationId: ID!): OrganizationMemberType!
   createOrganization(input: CreateOrganizationInput!): OrganizationType!
   createParty(input: CreatePartyInput!): PartyType!
   createPrediction(input: CreatePredictionInput!): PredictionType!
   createPredictionFromImport(input: CreatePredictionFromImportInput!): PredictionType!
   createPredictionPrompt(input: CreatePredictionPromptInput!): PredictionPromptType!
-  createProject(input: CreateProjectInput!, organizationId: Int!): ProjectType!
+  createProject(input: CreateProjectInput!, organizationId: ID!): ProjectType!
   createQuiz(input: CreateQuizInput!): QuizType!
   createQuizFromImport(input: CreateQuizFromImportInput!): QuizType!
   createQuizQuestion(input: CreateQuizQuestionInput!): QuizQuestionTypeObject!
-  deletePrediction(predictionId: Int!): Boolean!
-  deletePredictionPrompt(promptId: Int!): Boolean!
-  deleteProject(migrationProjectId: Int, projectId: Int!): Boolean!
-  deleteQuiz(quizId: Int!): Boolean!
-  deleteQuizQuestion(questionId: Int!): Boolean!
+  deletePrediction(predictionId: ID!): Boolean!
+  deletePredictionPrompt(promptId: ID!): Boolean!
+  deleteProject(migrationProjectId: ID, projectId: ID!): Boolean!
+  deleteQuiz(quizId: ID!): Boolean!
+  deleteQuizQuestion(questionId: ID!): Boolean!
   login(input: LoginInput!): AuthResponseType!
   logout: Boolean!
   refresh(input: RefreshTokenInput!): AuthResponseType!
   regenerateAvatar: AuthUserProfileType!
   register(input: RegisterInput!): AuthUserProfileType!
-  removeOrganizationMember(memberId: Int!): Boolean!
-  updateOrganizationMemberRole(input: UpdateOrganizationMemberRoleInput!, memberId: Int!): OrganizationMemberType!
-  updatePrediction(input: UpdatePredictionInput!, predictionId: Int!): PredictionType!
-  updatePredictionPrompt(input: UpdatePredictionPromptInput!, promptId: Int!): PredictionPromptType!
+  removeOrganizationMember(memberId: ID!): Boolean!
+  updateOrganizationMemberRole(input: UpdateOrganizationMemberRoleInput!, memberId: ID!): OrganizationMemberType!
+  updatePrediction(input: UpdatePredictionInput!, predictionId: ID!): PredictionType!
+  updatePredictionPrompt(input: UpdatePredictionPromptInput!, promptId: ID!): PredictionPromptType!
   updateProfile(input: UpdateProfileInput!): AuthUserProfileType!
-  updateProject(input: UpdateProjectInput!, projectId: Int!): ProjectType!
-  updateQuiz(input: UpdateQuizInput!, quizId: Int!): QuizType!
-  updateQuizQuestion(input: UpdateQuizQuestionInput!, questionId: Int!): QuizQuestionTypeObject!
+  updateProject(input: UpdateProjectInput!, projectId: ID!): ProjectType!
+  updateQuiz(input: UpdateQuizInput!, quizId: ID!): QuizType!
+  updateQuizQuestion(input: UpdateQuizQuestionInput!, questionId: ID!): QuizQuestionTypeObject!
 }
 
 type OrganizationDashboardEntityType {
   description: String
-  id: Int!
+  id: ID!
   name: String!
 }
 
@@ -203,16 +203,16 @@ type OrganizationMemberListType {
 }
 
 type OrganizationMemberType {
-  id: Int!
+  id: ID!
   joinedAt: DateTime!
-  organizationId: Int!
+  organizationId: ID!
   role: OrganizationRole!
-  userId: Int!
+  userId: ID!
   username: String!
 }
 
 input OrganizationMembersInput {
-  organizationId: Int!
+  organizationId: ID!
   page: Int! = 1
   pageSize: Int! = 9
   search: String
@@ -227,7 +227,7 @@ enum OrganizationRole {
 type OrganizationType {
   createdAt: DateTime!
   description: String
-  id: Int!
+  id: ID!
   name: String!
   role: OrganizationRole
   updatedAt: DateTime!
@@ -256,19 +256,19 @@ enum PartyStatus {
 
 type PartyType {
   createdAt: DateTime!
-  gameId: Int!
-  partyId: Int!
+  gameId: ID!
+  partyId: ID!
   pin: String!
   role: PartyRole!
   status: PartyStatus!
 }
 
 type PredictionPromptType {
-  id: Int!
+  id: ID!
   options: [SelectableOptionType!]!
   points: Int!
   position: Int!
-  predictionId: Int!
+  predictionId: ID!
   promptText: String!
   timeLimit: Int!
 }
@@ -276,8 +276,8 @@ type PredictionPromptType {
 type PredictionType {
   createdAt: DateTime!
   description: String
-  gameId: Int!
-  predictionId: Int!
+  gameId: ID!
+  predictionId: ID!
   promptCount: Int!
   title: String!
   type: String!
@@ -286,8 +286,8 @@ type PredictionType {
 type ProjectGameListItemType {
   createdAt: DateTime!
   description: String
-  gameId: Int!
-  gameTypeId: Int
+  gameId: ID!
+  gameTypeId: ID
   permissions: GamePermissionsType!
   stageCount: Int!
   title: String!
@@ -297,7 +297,7 @@ type ProjectGameListItemType {
 input ProjectGamesInput {
   page: Int! = 1
   pageSize: Int! = 9
-  projectId: Int!
+  projectId: ID!
   search: String
   sortDirection: String! = "desc"
   sortField: String! = "createdAt"
@@ -325,23 +325,23 @@ type ProjectListType {
 type ProjectType {
   createdAt: DateTime!
   description: String
-  id: Int!
+  id: ID!
   name: String!
-  organizationId: Int!
+  organizationId: ID!
 }
 
 type Query {
   listParties(input: ListPartiesInput): PartyListType!
   me: AuthUserProfileType!
   myOrganizations(input: ListOrganizationsInput): OrganizationListType!
-  organizationDashboard(organizationId: Int!): OrganizationDashboardType!
+  organizationDashboard(organizationId: ID!): OrganizationDashboardType!
   organizationMembers(input: OrganizationMembersInput!): OrganizationMemberListType!
   organizationProjects(input: ListOrganizationProjectsInput!): ProjectListType!
-  prediction(predictionId: Int!): PredictionType!
-  predictionPrompts(predictionId: Int!): [PredictionPromptType!]!
+  prediction(predictionId: ID!): PredictionType!
+  predictionPrompts(predictionId: ID!): [PredictionPromptType!]!
   projectGames(input: ProjectGamesInput!): ProjectGamesType!
-  quiz(quizId: Int!): QuizType!
-  quizQuestions(quizId: Int!): [QuizQuestionTypeObject!]!
+  quiz(quizId: ID!): QuizType!
+  quizQuestions(quizId: ID!): [QuizQuestionTypeObject!]!
 }
 
 enum QuizQuestionType {
@@ -351,11 +351,11 @@ enum QuizQuestionType {
 
 type QuizQuestionTypeObject {
   answers: [SelectableOptionType!]!
-  id: Int!
+  id: ID!
   points: Int!
   position: Int!
   questionText: String!
-  quizId: Int!
+  quizId: ID!
   timeLimit: Int!
   type: QuizQuestionType!
 }
@@ -363,9 +363,9 @@ type QuizQuestionTypeObject {
 type QuizType {
   createdAt: DateTime!
   description: String
-  gameId: Int!
+  gameId: ID!
   questionCount: Int!
-  quizId: Int!
+  quizId: ID!
   title: String!
   type: String!
 }
@@ -381,14 +381,14 @@ input RegisterInput {
 }
 
 input SelectableOptionInput {
-  id: Int
+  id: ID
   isCorrect: Boolean
   position: Int
   text: String
 }
 
 type SelectableOptionType {
-  id: Int
+  id: ID
   isCorrect: Boolean!
   position: Int!
   text: String

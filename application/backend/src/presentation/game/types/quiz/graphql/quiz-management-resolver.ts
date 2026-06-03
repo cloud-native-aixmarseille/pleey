@@ -1,5 +1,5 @@
 import { UnauthorizedException, UseGuards } from '@nestjs/common';
-import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Context, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { QuizQuestionIdentifier } from '../../../../../application/game/types/quiz/services/quiz-question-identifier';
 import { QuizSelectableOptionIdentifier } from '../../../../../application/game/types/quiz/services/quiz-selectable-option-identifier';
 import { CreateQuizFromImportUseCase } from '../../../../../application/game/types/quiz/use-cases/create-quiz-from-import-use-case';
@@ -58,7 +58,7 @@ export class QuizManagementResolver {
   @Query(() => QuizType)
   @UseGuards(GqlJwtAuthGuard)
   async quiz(
-    @Args('quizId', { type: () => Int }) quizId: number,
+    @Args('quizId', { type: () => ID }) quizId: string,
     @Context() context: GraphqlAuthContext,
   ): Promise<QuizType> {
     const quiz = await this.getQuizUseCase.execute(
@@ -110,7 +110,7 @@ export class QuizManagementResolver {
   @Mutation(() => QuizType)
   @UseGuards(GqlJwtAuthGuard)
   async updateQuiz(
-    @Args('quizId', { type: () => Int }) quizId: number,
+    @Args('quizId', { type: () => ID }) quizId: string,
     @Args('input') input: UpdateQuizInput,
     @Context() context: GraphqlAuthContext,
   ): Promise<QuizType> {
@@ -129,7 +129,7 @@ export class QuizManagementResolver {
   @Mutation(() => Boolean)
   @UseGuards(GqlJwtAuthGuard)
   async deleteQuiz(
-    @Args('quizId', { type: () => Int }) quizId: number,
+    @Args('quizId', { type: () => ID }) quizId: string,
     @Context() context: GraphqlAuthContext,
   ): Promise<boolean> {
     return this.deleteQuizUseCase.execute(
@@ -141,7 +141,7 @@ export class QuizManagementResolver {
   @Query(() => [QuizQuestionTypeObject])
   @UseGuards(GqlJwtAuthGuard)
   async quizQuestions(
-    @Args('quizId', { type: () => Int }) quizId: number,
+    @Args('quizId', { type: () => ID }) quizId: string,
     @Context() context: GraphqlAuthContext,
   ): Promise<QuizQuestionTypeObject[]> {
     const questions = await this.listQuizQuestionsUseCase.execute(
@@ -180,7 +180,7 @@ export class QuizManagementResolver {
   @Mutation(() => QuizQuestionTypeObject)
   @UseGuards(GqlJwtAuthGuard)
   async updateQuizQuestion(
-    @Args('questionId', { type: () => Int }) questionId: number,
+    @Args('questionId', { type: () => ID }) questionId: string,
     @Args('input') input: UpdateQuizQuestionInput,
     @Context() context: GraphqlAuthContext,
   ): Promise<QuizQuestionTypeObject> {
@@ -206,7 +206,7 @@ export class QuizManagementResolver {
   @Mutation(() => Boolean)
   @UseGuards(GqlJwtAuthGuard)
   async deleteQuizQuestion(
-    @Args('questionId', { type: () => Int }) questionId: number,
+    @Args('questionId', { type: () => ID }) questionId: string,
     @Context() context: GraphqlAuthContext,
   ): Promise<boolean> {
     return this.deleteQuizQuestionUseCase.execute(

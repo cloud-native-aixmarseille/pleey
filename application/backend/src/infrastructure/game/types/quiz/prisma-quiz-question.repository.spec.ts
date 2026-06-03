@@ -3,6 +3,7 @@ import { QuizQuestionIdentifier } from '../../../../application/game/types/quiz/
 import { QuizSelectableOptionIdentifier } from '../../../../application/game/types/quiz/services/quiz-selectable-option-identifier';
 import { GameTypeIdentifier } from '../../../../application/game/types/shared/services/game-type-identifier';
 import { QuizQuestionType } from '../../../../domain/game/types/quiz/entities/quiz-question';
+import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { createQuizQuestionRecordFixture } from '../../../../test-utils/fixtures/unit/quiz-question.fixture';
 import type { PrismaService } from '../../../database/prisma-service';
 import { PrismaSelectableOptionMapper } from '../shared/prisma-selectable-option-mapper';
@@ -17,10 +18,10 @@ describe('PrismaQuizQuestionRepository', () => {
         findMany: vi
           .fn()
           .mockResolvedValueOnce([
-            { id: 1, position: 0 },
-            { id: 2, position: 1 },
+            { id: backendTestIdentifiers.partyStage(1), position: 0 },
+            { id: backendTestIdentifiers.partyStage(2), position: 1 },
           ])
-          .mockResolvedValueOnce([{ id: 2, position: 1 }]),
+          .mockResolvedValueOnce([{ id: backendTestIdentifiers.partyStage(2), position: 1 }]),
         update: vi.fn().mockResolvedValue(undefined),
       },
     };
@@ -37,7 +38,7 @@ describe('PrismaQuizQuestionRepository', () => {
       new PrismaSelectableOptionMapper(),
     );
 
-    const question = await repository.create(new GameTypeIdentifier().parse(5), {
+    const question = await repository.create(backendTestIdentifiers.game(5), {
       position: 1,
       questionText: 'Question',
       type: QuizQuestionType.Multiple,
@@ -47,7 +48,7 @@ describe('PrismaQuizQuestionRepository', () => {
     });
 
     expect(transaction.question.update).toHaveBeenCalledWith({
-      where: { id: 2 },
+      where: { id: backendTestIdentifiers.partyStage(2) },
       data: { position: 2 },
     });
     expect(transaction.question.create).toHaveBeenCalledWith(
@@ -66,12 +67,12 @@ describe('PrismaQuizQuestionRepository', () => {
         findMany: vi
           .fn()
           .mockResolvedValueOnce([
-            { id: 1, position: 0 },
-            { id: 2, position: 1 },
+            { id: backendTestIdentifiers.partyStage(1), position: 0 },
+            { id: backendTestIdentifiers.partyStage(2), position: 1 },
           ])
           .mockResolvedValueOnce([
-            { id: 2, position: 1 },
-            { id: 1, position: 0 },
+            { id: backendTestIdentifiers.partyStage(2), position: 1 },
+            { id: backendTestIdentifiers.partyStage(1), position: 0 },
           ]),
         update: vi.fn().mockResolvedValue(undefined),
       },
@@ -89,7 +90,7 @@ describe('PrismaQuizQuestionRepository', () => {
       new PrismaSelectableOptionMapper(),
     );
 
-    const question = await repository.create(new GameTypeIdentifier().parse(5), {
+    const question = await repository.create(backendTestIdentifiers.game(5), {
       position: -1,
       questionText: 'Question',
       type: QuizQuestionType.Multiple,
@@ -112,16 +113,16 @@ describe('PrismaQuizQuestionRepository', () => {
         count: vi.fn().mockResolvedValue(3),
         findFirst: vi
           .fn()
-          .mockResolvedValueOnce({ quizId: 5 })
+          .mockResolvedValueOnce({ quizId: backendTestIdentifiers.game(5) })
           .mockResolvedValueOnce({ position: 1 }),
         findMany: vi
           .fn()
           .mockResolvedValueOnce([
-            { id: 1, position: 0 },
-            { id: 2, position: 1 },
-            { id: 3, position: 2 },
+            { id: backendTestIdentifiers.partyStage(1), position: 0 },
+            { id: backendTestIdentifiers.partyStage(2), position: 1 },
+            { id: backendTestIdentifiers.partyStage(3), position: 2 },
           ])
-          .mockResolvedValueOnce([{ id: 3, position: 2 }]),
+          .mockResolvedValueOnce([{ id: backendTestIdentifiers.partyStage(3), position: 2 }]),
         update: vi
           .fn()
           .mockResolvedValueOnce(undefined)
@@ -145,7 +146,7 @@ describe('PrismaQuizQuestionRepository', () => {
       new PrismaSelectableOptionMapper(),
     );
 
-    const question = await repository.update(new QuizQuestionIdentifier().parse(10), {
+    const question = await repository.update(backendTestIdentifiers.partyStage(10), {
       position: 2,
       questionText: 'Question',
       type: QuizQuestionType.Multiple,
@@ -156,19 +157,19 @@ describe('PrismaQuizQuestionRepository', () => {
 
     expect(transaction.question.update).toHaveBeenCalledTimes(3);
     expect(transaction.question.update).toHaveBeenCalledWith({
-      where: { id: 10 },
+      where: { id: backendTestIdentifiers.partyStage(10) },
       data: { position: 3 },
     });
     expect(transaction.question.update).toHaveBeenCalledWith({
-      where: { id: 3 },
+      where: { id: backendTestIdentifiers.partyStage(3) },
       data: { position: 1 },
     });
     expect(transaction.questionAnswer.deleteMany).toHaveBeenCalledWith({
-      where: { questionId: 10 },
+      where: { questionId: backendTestIdentifiers.partyStage(10) },
     });
     expect(transaction.question.update).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { id: 10 },
+        where: { id: backendTestIdentifiers.partyStage(10) },
         data: expect.objectContaining({ position: 2 }),
       }),
     );
@@ -181,16 +182,16 @@ describe('PrismaQuizQuestionRepository', () => {
         count: vi.fn().mockResolvedValue(3),
         findFirst: vi
           .fn()
-          .mockResolvedValueOnce({ quizId: 5 })
+          .mockResolvedValueOnce({ quizId: backendTestIdentifiers.game(5) })
           .mockResolvedValueOnce({ position: 1 }),
         findMany: vi
           .fn()
           .mockResolvedValueOnce([
-            { id: 1, position: 0 },
-            { id: 2, position: 1 },
-            { id: 3, position: 2 },
+            { id: backendTestIdentifiers.partyStage(1), position: 0 },
+            { id: backendTestIdentifiers.partyStage(2), position: 1 },
+            { id: backendTestIdentifiers.partyStage(3), position: 2 },
           ])
-          .mockResolvedValueOnce([{ id: 1, position: 0 }]),
+          .mockResolvedValueOnce([{ id: backendTestIdentifiers.partyStage(1), position: 0 }]),
         update: vi
           .fn()
           .mockResolvedValueOnce(undefined)
@@ -214,7 +215,7 @@ describe('PrismaQuizQuestionRepository', () => {
       new PrismaSelectableOptionMapper(),
     );
 
-    const question = await repository.update(new QuizQuestionIdentifier().parse(10), {
+    const question = await repository.update(backendTestIdentifiers.partyStage(10), {
       position: -1,
       questionText: 'Question',
       type: QuizQuestionType.Multiple,
@@ -224,16 +225,16 @@ describe('PrismaQuizQuestionRepository', () => {
     });
 
     expect(transaction.question.update).toHaveBeenCalledWith({
-      where: { id: 10 },
+      where: { id: backendTestIdentifiers.partyStage(10) },
       data: { position: 3 },
     });
     expect(transaction.question.update).toHaveBeenCalledWith({
-      where: { id: 1 },
+      where: { id: backendTestIdentifiers.partyStage(1) },
       data: { position: 1 },
     });
     expect(transaction.question.update).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { id: 10 },
+        where: { id: backendTestIdentifiers.partyStage(10) },
         data: expect.objectContaining({ position: 0 }),
       }),
     );

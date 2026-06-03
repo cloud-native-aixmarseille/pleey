@@ -25,8 +25,8 @@ type PrismaQuestionAnswerRecord = PrismaSelectableOptionRecord;
 type QuestionAnswerRecord = PrismaSelectableOptionRecord<QuizSelectableOptionId>;
 
 interface PrismaQuestionRecord {
-  readonly id: number;
-  readonly quizId: number;
+  readonly id: string;
+  readonly quizId: string;
   readonly position: number;
   readonly questionText: string;
   readonly type: string;

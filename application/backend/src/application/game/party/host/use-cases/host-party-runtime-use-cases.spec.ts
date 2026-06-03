@@ -2,9 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
 import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
 import { HostPartyLifecyclePolicy } from '../../../../../domain/game/party/host/services/host-party-lifecycle-policy';
-import { GameIdentifier } from '../../../../game/shared/services/identifiers/game-identifier';
-import { UserIdentifier } from '../../../../identity/shared/services/identifiers/user-identifier';
-import { PartyIdentifier } from '../../shared/services/identifiers/party-identifier';
+import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { HostPartyRuntimeStageReferenceResolver } from '../services/host-party-runtime-stage-reference-resolver';
 import { AdvanceStageUseCase } from './advance-stage-use-case';
 import { RestartStageUseCase } from './restart-stage-use-case';
@@ -13,9 +11,13 @@ import { RewindPartyUseCase } from './rewind-party-use-case';
 import { RewindStageUseCase } from './rewind-stage-use-case';
 import { StartPartyUseCase } from './start-party-use-case';
 
-const gameIdentifier = new GameIdentifier();
-const partyIdentifier = new PartyIdentifier();
-const userIdentifier = new UserIdentifier();
+const GAME_ID = backendTestIdentifiers.game(9);
+const PARTY_ID = backendTestIdentifiers.party(44);
+const HOST_USER_ID = backendTestIdentifiers.user(7);
+const OTHER_USER_ID = backendTestIdentifiers.user(99);
+const STAGE_101 = backendTestIdentifiers.partyStage(101);
+const STAGE_202 = backendTestIdentifiers.partyStage(202);
+const STAGE_303 = backendTestIdentifiers.partyStage(303);
 
 describe('Host party runtime use cases', () => {
   afterEach(() => {
@@ -28,9 +30,9 @@ describe('Host party runtime use cases', () => {
     const hostPartyRuntimeControl = {
       findPartyRuntimeByPartyId: vi.fn().mockResolvedValue({
         context: null,
-        gameId: gameIdentifier.parse(9),
-        hostUserId: userIdentifier.parse(7),
-        partyId: partyIdentifier.parse(44),
+        gameId: GAME_ID,
+        hostUserId: HOST_USER_ID,
+        partyId: PARTY_ID,
         status: PartyStatus.WAITING,
       }),
       savePartyRuntime: vi.fn().mockResolvedValue(undefined),
@@ -41,7 +43,7 @@ describe('Host party runtime use cases', () => {
     const partyStageCatalog = {
       findFirstStage: vi
         .fn()
-        .mockResolvedValue({ id: 101, stagePosition: 0, timeLimitSeconds: 20 }),
+        .mockResolvedValue({ id: STAGE_101, stagePosition: 0, timeLimitSeconds: 20 }),
     };
     const broadcastPartyObservationUseCase = {
       execute: vi.fn().mockResolvedValue(undefined),
@@ -57,29 +59,29 @@ describe('Host party runtime use cases', () => {
     );
 
     await useCase.execute({
-      hostUserId: userIdentifier.parse(7),
-      partyId: partyIdentifier.parse(44),
+      hostUserId: HOST_USER_ID,
+      partyId: PARTY_ID,
     });
 
-    expect(partyStageConfiguration.getStageCount).toHaveBeenCalledWith(gameIdentifier.parse(9));
-    expect(partyStageCatalog.findFirstStage).toHaveBeenCalledWith(gameIdentifier.parse(9));
+    expect(partyStageConfiguration.getStageCount).toHaveBeenCalledWith(GAME_ID);
+    expect(partyStageCatalog.findFirstStage).toHaveBeenCalledWith(GAME_ID);
     expect(hostPartyRuntimeControl.savePartyRuntime).toHaveBeenCalledWith({
       context: {
         lifecycle: {
           phase: 'stage',
           stageEndsAtEpochMs: 120_000,
           stageRemainingDurationMs: 20_000,
-          stageId: 101,
+          stageId: STAGE_101,
           stagePosition: 0,
           stageTimeLimitSeconds: 20,
           totalStages: 3,
         },
       },
-      partyId: partyIdentifier.parse(44),
+      partyId: PARTY_ID,
       status: PartyStatus.ACTIVE,
     });
     expect(broadcastPartyObservationUseCase.execute).toHaveBeenCalledWith({
-      partyId: partyIdentifier.parse(44),
+      partyId: PARTY_ID,
     });
   });
 
@@ -87,9 +89,9 @@ describe('Host party runtime use cases', () => {
     const hostPartyRuntimeControl = {
       findPartyRuntimeByPartyId: vi.fn().mockResolvedValue({
         context: null,
-        gameId: gameIdentifier.parse(9),
-        hostUserId: userIdentifier.parse(7),
-        partyId: partyIdentifier.parse(44),
+        gameId: GAME_ID,
+        hostUserId: HOST_USER_ID,
+        partyId: PARTY_ID,
         status: PartyStatus.WAITING,
       }),
       savePartyRuntime: vi.fn(),
@@ -112,8 +114,8 @@ describe('Host party runtime use cases', () => {
 
     await expect(
       useCase.execute({
-        hostUserId: userIdentifier.parse(99),
-        partyId: partyIdentifier.parse(44),
+        hostUserId: OTHER_USER_ID,
+        partyId: PARTY_ID,
       }),
     ).rejects.toThrow(GameErrorCode.HOST_PARTY_CONTROL_FORBIDDEN);
   });
@@ -126,15 +128,15 @@ describe('Host party runtime use cases', () => {
             phase: 'stage',
             stageEndsAtEpochMs: 120_000,
             stageRemainingDurationMs: 20_000,
-            stageId: 202,
+            stageId: STAGE_202,
             stagePosition: 1,
             stageTimeLimitSeconds: 20,
             totalStages: 4,
           },
         },
-        gameId: gameIdentifier.parse(9),
-        hostUserId: userIdentifier.parse(7),
-        partyId: partyIdentifier.parse(44),
+        gameId: GAME_ID,
+        hostUserId: HOST_USER_ID,
+        partyId: PARTY_ID,
         status: PartyStatus.ACTIVE,
       }),
       savePartyRuntime: vi.fn().mockResolvedValue(undefined),
@@ -149,8 +151,8 @@ describe('Host party runtime use cases', () => {
     );
 
     await useCase.execute({
-      hostUserId: userIdentifier.parse(7),
-      partyId: partyIdentifier.parse(44),
+      hostUserId: HOST_USER_ID,
+      partyId: PARTY_ID,
     });
 
     expect(hostPartyRuntimeControl.savePartyRuntime).toHaveBeenCalledWith({
@@ -159,17 +161,17 @@ describe('Host party runtime use cases', () => {
           phase: 'result',
           stageEndsAtEpochMs: 120_000,
           stageRemainingDurationMs: 20_000,
-          stageId: 202,
+          stageId: STAGE_202,
           stagePosition: 1,
           stageTimeLimitSeconds: 20,
           totalStages: 4,
         },
       },
-      partyId: partyIdentifier.parse(44),
+      partyId: PARTY_ID,
       status: PartyStatus.ACTIVE,
     });
     expect(broadcastPartyObservationUseCase.execute).toHaveBeenCalledWith({
-      partyId: partyIdentifier.parse(44),
+      partyId: PARTY_ID,
     });
   });
 
@@ -183,21 +185,23 @@ describe('Host party runtime use cases', () => {
             phase: 'result',
             stageEndsAtEpochMs: 120_000,
             stageRemainingDurationMs: 20_000,
-            stageId: 202,
+            stageId: STAGE_202,
             stagePosition: 1,
             stageTimeLimitSeconds: 20,
             totalStages: 4,
           },
         },
-        gameId: gameIdentifier.parse(9),
-        hostUserId: userIdentifier.parse(7),
-        partyId: partyIdentifier.parse(44),
+        gameId: GAME_ID,
+        hostUserId: HOST_USER_ID,
+        partyId: PARTY_ID,
         status: PartyStatus.ACTIVE,
       }),
       savePartyRuntime: vi.fn().mockResolvedValue(undefined),
     };
     const partyStageCatalog = {
-      findNextStage: vi.fn().mockResolvedValue({ id: 303, stagePosition: 2, timeLimitSeconds: 15 }),
+      findNextStage: vi
+        .fn()
+        .mockResolvedValue({ id: STAGE_303, stagePosition: 2, timeLimitSeconds: 15 }),
     };
     const useCase = new AdvanceStageUseCase(
       hostPartyRuntimeControl as never,
@@ -214,24 +218,24 @@ describe('Host party runtime use cases', () => {
     );
 
     await useCase.execute({
-      hostUserId: userIdentifier.parse(7),
-      partyId: partyIdentifier.parse(44),
+      hostUserId: HOST_USER_ID,
+      partyId: PARTY_ID,
     });
 
-    expect(partyStageCatalog.findNextStage).toHaveBeenCalledWith(gameIdentifier.parse(9), 202);
+    expect(partyStageCatalog.findNextStage).toHaveBeenCalledWith(GAME_ID, STAGE_202);
     expect(hostPartyRuntimeControl.savePartyRuntime).toHaveBeenCalledWith({
       context: {
         lifecycle: {
           phase: 'stage',
           stageEndsAtEpochMs: 115_000,
           stageRemainingDurationMs: 15_000,
-          stageId: 303,
+          stageId: STAGE_303,
           stagePosition: 2,
           stageTimeLimitSeconds: 15,
           totalStages: 4,
         },
       },
-      partyId: partyIdentifier.parse(44),
+      partyId: PARTY_ID,
       status: PartyStatus.ACTIVE,
     });
   });
@@ -246,15 +250,15 @@ describe('Host party runtime use cases', () => {
             phase: 'result',
             stageEndsAtEpochMs: 120_000,
             stageRemainingDurationMs: 20_000,
-            stageId: 202,
+            stageId: STAGE_202,
             stagePosition: 1,
             stageTimeLimitSeconds: 20,
             totalStages: 4,
           },
         },
-        gameId: gameIdentifier.parse(9),
-        hostUserId: userIdentifier.parse(7),
-        partyId: partyIdentifier.parse(44),
+        gameId: GAME_ID,
+        hostUserId: HOST_USER_ID,
+        partyId: PARTY_ID,
         status: PartyStatus.ACTIVE,
       }),
       savePartyRuntime: vi.fn().mockResolvedValue(undefined),
@@ -268,8 +272,8 @@ describe('Host party runtime use cases', () => {
     );
 
     await useCase.execute({
-      hostUserId: userIdentifier.parse(7),
-      partyId: partyIdentifier.parse(44),
+      hostUserId: HOST_USER_ID,
+      partyId: PARTY_ID,
     });
 
     expect(hostPartyRuntimeControl.savePartyRuntime).toHaveBeenCalledWith({
@@ -278,16 +282,16 @@ describe('Host party runtime use cases', () => {
           phase: 'stage',
           stageEndsAtEpochMs: 170_000,
           stageRemainingDurationMs: 20_000,
-          stageId: 202,
+          stageId: STAGE_202,
           stagePosition: 1,
           stageTimeLimitSeconds: 20,
           totalStages: 4,
         },
       },
-      partyId: partyIdentifier.parse(44),
+      partyId: PARTY_ID,
       resetPlayerProgress: {
-        fromStageId: 202,
-        gameId: gameIdentifier.parse(9),
+        fromStageId: STAGE_202,
+        gameId: GAME_ID,
       },
       status: PartyStatus.ACTIVE,
     });
@@ -303,15 +307,15 @@ describe('Host party runtime use cases', () => {
             phase: 'stage',
             stageEndsAtEpochMs: 120_000,
             stageRemainingDurationMs: 20_000,
-            stageId: 303,
+            stageId: STAGE_303,
             stagePosition: 2,
             stageTimeLimitSeconds: 20,
             totalStages: 4,
           },
         },
-        gameId: gameIdentifier.parse(9),
-        hostUserId: userIdentifier.parse(7),
-        partyId: partyIdentifier.parse(44),
+        gameId: GAME_ID,
+        hostUserId: HOST_USER_ID,
+        partyId: PARTY_ID,
         status: PartyStatus.ACTIVE,
       }),
       savePartyRuntime: vi.fn().mockResolvedValue(undefined),
@@ -325,7 +329,7 @@ describe('Host party runtime use cases', () => {
         {
           findPreviousStage: vi
             .fn()
-            .mockResolvedValue({ id: 202, stagePosition: 1, timeLimitSeconds: 25 }),
+            .mockResolvedValue({ id: STAGE_202, stagePosition: 1, timeLimitSeconds: 25 }),
         } as never,
       ),
       {
@@ -335,8 +339,8 @@ describe('Host party runtime use cases', () => {
     );
 
     await useCase.execute({
-      hostUserId: userIdentifier.parse(7),
-      partyId: partyIdentifier.parse(44),
+      hostUserId: HOST_USER_ID,
+      partyId: PARTY_ID,
     });
 
     expect(hostPartyRuntimeControl.savePartyRuntime).toHaveBeenCalledWith({
@@ -345,16 +349,16 @@ describe('Host party runtime use cases', () => {
           phase: 'stage',
           stageEndsAtEpochMs: 205_000,
           stageRemainingDurationMs: 25_000,
-          stageId: 202,
+          stageId: STAGE_202,
           stagePosition: 1,
           stageTimeLimitSeconds: 25,
           totalStages: 4,
         },
       },
-      partyId: partyIdentifier.parse(44),
+      partyId: PARTY_ID,
       resetPlayerProgress: {
-        fromStageId: 202,
-        gameId: gameIdentifier.parse(9),
+        fromStageId: STAGE_202,
+        gameId: GAME_ID,
       },
       status: PartyStatus.ACTIVE,
     });
@@ -368,15 +372,15 @@ describe('Host party runtime use cases', () => {
             phase: 'result',
             stageEndsAtEpochMs: 120_000,
             stageRemainingDurationMs: 20_000,
-            stageId: 303,
+            stageId: STAGE_303,
             stagePosition: 2,
             stageTimeLimitSeconds: 20,
             totalStages: 4,
           },
         },
-        gameId: gameIdentifier.parse(9),
-        hostUserId: userIdentifier.parse(7),
-        partyId: partyIdentifier.parse(44),
+        gameId: GAME_ID,
+        hostUserId: HOST_USER_ID,
+        partyId: PARTY_ID,
         status: PartyStatus.ACTIVE,
       }),
       savePartyRuntime: vi.fn().mockResolvedValue(undefined),
@@ -390,8 +394,8 @@ describe('Host party runtime use cases', () => {
     );
 
     await useCase.execute({
-      hostUserId: userIdentifier.parse(7),
-      partyId: partyIdentifier.parse(44),
+      hostUserId: HOST_USER_ID,
+      partyId: PARTY_ID,
     });
 
     expect(hostPartyRuntimeControl.savePartyRuntime).toHaveBeenCalledWith({
@@ -406,10 +410,10 @@ describe('Host party runtime use cases', () => {
           totalStages: 4,
         },
       },
-      partyId: partyIdentifier.parse(44),
+      partyId: PARTY_ID,
       resetPlayerProgress: {
         fromStageId: null,
-        gameId: gameIdentifier.parse(9),
+        gameId: GAME_ID,
       },
       status: PartyStatus.WAITING,
     });

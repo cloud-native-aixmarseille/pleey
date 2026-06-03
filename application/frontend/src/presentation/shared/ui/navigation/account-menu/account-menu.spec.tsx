@@ -1,6 +1,7 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
+import { coerceUuidV7TestValue } from '../../../../../test-utils/fixtures/uuid-v7-test-value';
 import { renderWithUiProvider } from '../../../../../test-utils/render-with-ui-provider';
 import { AccountMenu } from './account-menu';
 
@@ -50,7 +51,7 @@ describe('AccountMenu', () => {
 
       expect(screen.getByRole('img', { name: 'captain' })).toHaveAttribute(
         'src',
-        'https://api.example.com/api/avatars/users/1?v=fingerprint',
+        `https://api.example.com/api/avatars/users/${coerceUuidV7TestValue(1)}?v=fingerprint`,
       );
     });
 

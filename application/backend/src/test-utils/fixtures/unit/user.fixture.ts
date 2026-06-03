@@ -1,8 +1,6 @@
-import { UserIdentifier } from '../../../application/identity/shared/services/identifiers/user-identifier';
 import { User, type UserId } from '../../../domain/identity/entities/user';
 import type { Media } from '../../../domain/media/entities/media';
-
-const userIdentifier = new UserIdentifier();
+import { backendTestIdentifiers } from '../../branded-identifiers';
 
 export type UserFixtureParams = {
   id?: UserId;
@@ -17,7 +15,7 @@ export type UserFixtureParams = {
 
 export const createUserFixture = (params: UserFixtureParams = {}): User => {
   return new User(
-    params.id ?? userIdentifier.parse(1),
+    params.id ?? backendTestIdentifiers.user(1),
     params.username ?? 'alice',
     params.email ?? 'alice@example.com',
     params.password ?? 'hashed-password',

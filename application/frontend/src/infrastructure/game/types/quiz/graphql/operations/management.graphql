@@ -1,4 +1,4 @@
-query QuizManagement($quizId: Int!) {
+query QuizManagement($quizId: ID!) {
   quiz(quizId: $quizId) {
     quizId
     gameId
@@ -24,7 +24,7 @@ query QuizManagement($quizId: Int!) {
   }
 }
 
-mutation UpdateQuizManagement($quizId: Int!, $input: UpdateQuizInput!) {
+mutation UpdateQuizManagement($quizId: ID!, $input: UpdateQuizInput!) {
   updateQuiz(quizId: $quizId, input: $input) {
     quizId
   }
@@ -43,7 +43,7 @@ mutation CreateQuizFromImportManagement($input: CreateQuizFromImportInput!) {
   }
 }
 
-mutation DeleteQuizManagement($quizId: Int!) {
+mutation DeleteQuizManagement($quizId: ID!) {
   deleteQuiz(quizId: $quizId)
 }
 
@@ -65,7 +65,7 @@ mutation CreateQuizQuestionManagement($input: CreateQuizQuestionInput!) {
   }
 }
 
-mutation UpdateQuizQuestionManagement($questionId: Int!, $input: UpdateQuizQuestionInput!) {
+mutation UpdateQuizQuestionManagement($questionId: ID!, $input: UpdateQuizQuestionInput!) {
   updateQuizQuestion(questionId: $questionId, input: $input) {
     id
     quizId
@@ -83,6 +83,6 @@ mutation UpdateQuizQuestionManagement($questionId: Int!, $input: UpdateQuizQuest
   }
 }
 
-mutation DeleteQuizQuestionManagement($questionId: Int!) {
+mutation DeleteQuizQuestionManagement($questionId: ID!) {
   deleteQuizQuestion(questionId: $questionId)
 }

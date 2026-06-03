@@ -1,22 +1,31 @@
 import 'reflect-metadata';
 import { describe, expect, it } from 'vitest';
+import { UserIdentifier } from '../../application/identity/shared/services/identifiers/user-identifier';
 import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../application/workspace/shared/services/identifiers/organization-member-identifier';
 import { OrganizationRole } from '../../domains/organization/entities/organization';
 import { OrganizationErrorCode } from '../../domains/organization/errors/organization-error-code';
 import { OrganizationFixtureFactory } from '../../test-utils/fixtures/organization-fixture-factory';
+import { coerceUuidV7TestValue } from '../../test-utils/fixtures/uuid-v7-test-value';
 import { GraphqlClientMockFactory } from '../../test-utils/mocks/graphql-client-mock-factory';
 import { GraphqlOrganizationRepository } from './graphql-organization.repository';
 
 const organizationIdentifier = new OrganizationIdentifier();
 const organizationMemberIdentifier = new OrganizationMemberIdentifier();
+const userIdentifier = new UserIdentifier();
 const organizationFixtureFactory = new OrganizationFixtureFactory();
+const parseOrganizationId = (value: number) =>
+  organizationIdentifier.parse(coerceUuidV7TestValue(value));
+const parseOrganizationMemberId = (value: number) =>
+  organizationMemberIdentifier.parse(coerceUuidV7TestValue(value));
+const parseUserId = (value: number) => userIdentifier.parse(coerceUuidV7TestValue(value));
 
 function createRepository(client: ConstructorParameters<typeof GraphqlOrganizationRepository>[0]) {
   return new GraphqlOrganizationRepository(
     client,
     organizationIdentifier,
     organizationMemberIdentifier,
+    userIdentifier,
   );
 }
 
@@ -29,7 +38,7 @@ describe('GraphqlOrganizationRepository', () => {
           myOrganizations: {
             items: [
               {
-                id: 9,
+                id: parseOrganizationId(9),
                 name: 'Pleey Org',
                 description: 'Main workspace',
                 createdAt: '2026-03-10T12:00:00.000Z',
@@ -58,7 +67,7 @@ describe('GraphqlOrganizationRepository', () => {
       expect(organizations).toEqual({
         items: [
           organizationFixtureFactory.createOrganization({
-            id: organizationIdentifier.parse(9),
+            id: parseOrganizationId(9),
             name: 'Pleey Org',
             description: 'Main workspace',
             createdAt: '2026-03-10T12:00:00.000Z',
@@ -105,7 +114,7 @@ describe('GraphqlOrganizationRepository', () => {
         requestResult: {
           organizationDashboard: {
             organization: {
-              id: 9,
+              id: parseOrganizationId(9),
               name: 'Pleey Org',
               description: 'Main workspace',
             },
@@ -120,13 +129,13 @@ describe('GraphqlOrganizationRepository', () => {
       const repository = createRepository(client);
 
       // Act
-      const dashboard = await repository.getOrganizationDashboard(organizationIdentifier.parse(9));
+      const dashboard = await repository.getOrganizationDashboard(parseOrganizationId(9));
 
       // Assert
       expect(dashboard).toEqual(
         organizationFixtureFactory.createOrganizationDashboard({
           organization: {
-            id: 9,
+            id: parseOrganizationId(9),
             name: 'Pleey Org',
             description: 'Main workspace',
           },
@@ -146,7 +155,7 @@ describe('GraphqlOrganizationRepository', () => {
       const { client } = new GraphqlClientMockFactory().create({
         requestResult: {
           createOrganization: {
-            id: 12,
+            id: parseOrganizationId(12),
             name: 'New Org',
             description: 'A brand new org',
             createdAt: '2026-03-15T10:00:00.000Z',
@@ -164,12 +173,14 @@ describe('GraphqlOrganizationRepository', () => {
       });
 
       // Assert
-      expect(organization).toEqual(
-        organizationFixtureFactory.createCreatedOrganization({
-          id: organizationIdentifier.parse(12),
-          description: 'A brand new org',
-        }),
-      );
+      expect(organization).toEqual({
+        id: parseOrganizationId(12),
+        name: 'New Org',
+        description: 'A brand new org',
+        createdAt: '2026-03-15T10:00:00.000Z',
+        updatedAt: '2026-03-15T10:00:00.000Z',
+        role: OrganizationRole.OWNER,
+      });
     });
 
     it('maps transport failures to translated create error keys', async () => {
@@ -194,9 +205,9 @@ describe('GraphqlOrganizationRepository', () => {
           organizationMembers: {
             items: [
               {
-                id: 18,
-                organizationId: 9,
-                userId: 42,
+                id: parseOrganizationMemberId(18),
+                organizationId: parseOrganizationId(9),
+                userId: parseUserId(42),
                 username: 'captain',
                 role: 'MANAGER',
                 joinedAt: '2026-03-20T10:00:00.000Z',
@@ -214,7 +225,7 @@ describe('GraphqlOrganizationRepository', () => {
 
       // Act
       const members = await repository.getOrganizationMembers({
-        organizationId: organizationIdentifier.parse(9),
+        organizationId: parseOrganizationId(9),
         page: 2,
         pageSize: 25,
       });
@@ -223,11 +234,11 @@ describe('GraphqlOrganizationRepository', () => {
       expect(members).toEqual({
         items: [
           {
-            id: organizationMemberIdentifier.parse(18),
+            id: parseOrganizationMemberId(18),
             joinedAt: '2026-03-20T10:00:00.000Z',
-            organizationId: organizationIdentifier.parse(9),
+            organizationId: parseOrganizationId(9),
             role: OrganizationRole.MANAGER,
-            userId: 42,
+            userId: parseUserId(42),
             username: 'captain',
           },
         ],
@@ -241,7 +252,7 @@ describe('GraphqlOrganizationRepository', () => {
         expect.anything(),
         {
           input: {
-            organizationId: organizationIdentifier.parse(9),
+            organizationId: parseOrganizationId(9),
             page: 2,
             pageSize: 25,
           },
@@ -266,7 +277,7 @@ describe('GraphqlOrganizationRepository', () => {
       const repository = createRepository(client);
 
       await repository.getOrganizationMembers({
-        organizationId: organizationIdentifier.parse(9),
+        organizationId: parseOrganizationId(9),
         page: 1,
         pageSize: 25,
         search: 'captain',
@@ -276,7 +287,7 @@ describe('GraphqlOrganizationRepository', () => {
         expect.anything(),
         {
           input: {
-            organizationId: organizationIdentifier.parse(9),
+            organizationId: parseOrganizationId(9),
             page: 1,
             pageSize: 25,
             search: 'captain',
@@ -293,9 +304,9 @@ describe('GraphqlOrganizationRepository', () => {
       const { client, requestMock } = new GraphqlClientMockFactory().create({
         requestResult: {
           addOrganizationMember: {
-            id: 21,
-            organizationId: 9,
-            userId: 43,
+            id: parseOrganizationMemberId(21),
+            organizationId: parseOrganizationId(9),
+            userId: parseUserId(43),
             username: 'captain',
             role: 'MEMBER',
             joinedAt: '2026-03-21T10:00:00.000Z',
@@ -306,18 +317,18 @@ describe('GraphqlOrganizationRepository', () => {
 
       // Act
       const member = await repository.addOrganizationMember({
-        organizationId: organizationIdentifier.parse(9),
+        organizationId: parseOrganizationId(9),
         role: OrganizationRole.MEMBER,
         usernameOrEmail: 'captain@pleey.io',
       });
 
       // Assert
       expect(member).toEqual({
-        id: organizationMemberIdentifier.parse(21),
+        id: parseOrganizationMemberId(21),
         joinedAt: '2026-03-21T10:00:00.000Z',
-        organizationId: organizationIdentifier.parse(9),
+        organizationId: parseOrganizationId(9),
         role: OrganizationRole.MEMBER,
-        userId: 43,
+        userId: parseUserId(43),
         username: 'captain',
       });
       expect(requestMock).toHaveBeenCalledWith(
@@ -327,7 +338,7 @@ describe('GraphqlOrganizationRepository', () => {
             role: 'MEMBER',
             usernameOrEmail: 'captain@pleey.io',
           },
-          organizationId: organizationIdentifier.parse(9),
+          organizationId: parseOrganizationId(9),
         },
         undefined,
       );
@@ -343,7 +354,7 @@ describe('GraphqlOrganizationRepository', () => {
       // Act + Assert
       await expect(
         repository.addOrganizationMember({
-          organizationId: organizationIdentifier.parse(9),
+          organizationId: parseOrganizationId(9),
           role: OrganizationRole.MEMBER,
           usernameOrEmail: 'captain@pleey.io',
         }),
@@ -361,14 +372,14 @@ describe('GraphqlOrganizationRepository', () => {
 
       // Act
       await repository.removeOrganizationMember({
-        memberId: organizationMemberIdentifier.parse(21),
+        memberId: parseOrganizationMemberId(21),
       });
 
       // Assert
       expect(requestMock).toHaveBeenCalledWith(
         expect.anything(),
         {
-          memberId: organizationMemberIdentifier.parse(21),
+          memberId: parseOrganizationMemberId(21),
         },
         undefined,
       );
@@ -383,7 +394,7 @@ describe('GraphqlOrganizationRepository', () => {
 
       // Act + Assert
       await expect(
-        repository.removeOrganizationMember({ memberId: organizationMemberIdentifier.parse(21) }),
+        repository.removeOrganizationMember({ memberId: parseOrganizationMemberId(21) }),
       ).rejects.toThrow(OrganizationErrorCode.MEMBER_REMOVE_FAILED);
     });
   });
@@ -394,9 +405,9 @@ describe('GraphqlOrganizationRepository', () => {
       const { client, requestMock } = new GraphqlClientMockFactory().create({
         requestResult: {
           updateOrganizationMemberRole: {
-            id: 21,
-            organizationId: 9,
-            userId: 43,
+            id: parseOrganizationMemberId(21),
+            organizationId: parseOrganizationId(9),
+            userId: parseUserId(43),
             username: 'captain',
             role: 'MANAGER',
             joinedAt: '2026-03-21T10:00:00.000Z',
@@ -407,17 +418,17 @@ describe('GraphqlOrganizationRepository', () => {
 
       // Act
       const member = await repository.updateOrganizationMemberRole({
-        memberId: organizationMemberIdentifier.parse(21),
+        memberId: parseOrganizationMemberId(21),
         role: OrganizationRole.MANAGER,
       });
 
       // Assert
       expect(member).toEqual({
-        id: organizationMemberIdentifier.parse(21),
+        id: parseOrganizationMemberId(21),
         joinedAt: '2026-03-21T10:00:00.000Z',
-        organizationId: organizationIdentifier.parse(9),
+        organizationId: parseOrganizationId(9),
         role: OrganizationRole.MANAGER,
-        userId: 43,
+        userId: parseUserId(43),
         username: 'captain',
       });
       expect(requestMock).toHaveBeenCalledWith(
@@ -426,7 +437,7 @@ describe('GraphqlOrganizationRepository', () => {
           input: {
             role: 'MANAGER',
           },
-          memberId: organizationMemberIdentifier.parse(21),
+          memberId: parseOrganizationMemberId(21),
         },
         undefined,
       );
@@ -442,7 +453,7 @@ describe('GraphqlOrganizationRepository', () => {
       // Act + Assert
       await expect(
         repository.updateOrganizationMemberRole({
-          memberId: organizationMemberIdentifier.parse(21),
+          memberId: parseOrganizationMemberId(21),
           role: OrganizationRole.MANAGER,
         }),
       ).rejects.toThrow(OrganizationErrorCode.MEMBER_ROLE_UPDATE_FAILED);

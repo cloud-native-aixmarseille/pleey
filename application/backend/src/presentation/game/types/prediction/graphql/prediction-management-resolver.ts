@@ -1,5 +1,5 @@
 import { UnauthorizedException, UseGuards } from '@nestjs/common';
-import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Context, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { PredictionPromptIdentifier } from '../../../../../application/game/types/prediction/services/prediction-prompt-identifier';
 import { PredictionSelectableOptionIdentifier } from '../../../../../application/game/types/prediction/services/prediction-selectable-option-identifier';
 import { CreatePredictionFromImportUseCase } from '../../../../../application/game/types/prediction/use-cases/create-prediction-from-import-use-case';
@@ -58,7 +58,7 @@ export class PredictionManagementResolver {
   @Query(() => PredictionType)
   @UseGuards(GqlJwtAuthGuard)
   async prediction(
-    @Args('predictionId', { type: () => Int }) predictionId: number,
+    @Args('predictionId', { type: () => ID }) predictionId: string,
     @Context() context: GraphqlAuthContext,
   ): Promise<PredictionType> {
     const prediction = await this.getPredictionUseCase.execute(
@@ -110,7 +110,7 @@ export class PredictionManagementResolver {
   @Mutation(() => PredictionType)
   @UseGuards(GqlJwtAuthGuard)
   async updatePrediction(
-    @Args('predictionId', { type: () => Int }) predictionId: number,
+    @Args('predictionId', { type: () => ID }) predictionId: string,
     @Args('input') input: UpdatePredictionInput,
     @Context() context: GraphqlAuthContext,
   ): Promise<PredictionType> {
@@ -129,7 +129,7 @@ export class PredictionManagementResolver {
   @Mutation(() => Boolean)
   @UseGuards(GqlJwtAuthGuard)
   async deletePrediction(
-    @Args('predictionId', { type: () => Int }) predictionId: number,
+    @Args('predictionId', { type: () => ID }) predictionId: string,
     @Context() context: GraphqlAuthContext,
   ): Promise<boolean> {
     return this.deletePredictionUseCase.execute(
@@ -141,7 +141,7 @@ export class PredictionManagementResolver {
   @Query(() => [PredictionPromptType])
   @UseGuards(GqlJwtAuthGuard)
   async predictionPrompts(
-    @Args('predictionId', { type: () => Int }) predictionId: number,
+    @Args('predictionId', { type: () => ID }) predictionId: string,
     @Context() context: GraphqlAuthContext,
   ): Promise<PredictionPromptType[]> {
     const prompts = await this.listPredictionPromptsUseCase.execute(
@@ -179,7 +179,7 @@ export class PredictionManagementResolver {
   @Mutation(() => PredictionPromptType)
   @UseGuards(GqlJwtAuthGuard)
   async updatePredictionPrompt(
-    @Args('promptId', { type: () => Int }) promptId: number,
+    @Args('promptId', { type: () => ID }) promptId: string,
     @Args('input') input: UpdatePredictionPromptInput,
     @Context() context: GraphqlAuthContext,
   ): Promise<PredictionPromptType> {
@@ -204,7 +204,7 @@ export class PredictionManagementResolver {
   @Mutation(() => Boolean)
   @UseGuards(GqlJwtAuthGuard)
   async deletePredictionPrompt(
-    @Args('promptId', { type: () => Int }) promptId: number,
+    @Args('promptId', { type: () => ID }) promptId: string,
     @Context() context: GraphqlAuthContext,
   ): Promise<boolean> {
     return this.deletePredictionPromptUseCase.execute(

@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { PartyRole } from '../../../../../domains/game/party/shared/entities/party-role';
-import { PartyIdentifier } from './identifiers/party-identifier';
+import { PartyIdentifierMockFactory } from '../../../../../test-utils/mocks/party-identifier-mock-factory';
+import { StageIdentifierMockFactory } from '../../../../../test-utils/mocks/stage-identifier-mock-factory';
 import { PartyPinIdentifier } from './identifiers/party-pin-identifier';
-import { StageIdentifier } from './identifiers/stage-identifier';
 import { PartyRouteService } from './party-route.service';
 
-const partyIdentifier = new PartyIdentifier();
+const partyIdentifier = new PartyIdentifierMockFactory().create();
 const partyPinIdentifier = new PartyPinIdentifier();
-const stageIdentifier = new StageIdentifier();
+const stageIdentifier = new StageIdentifierMockFactory().create();
 
 describe('PartyRouteService', () => {
   const service = new PartyRouteService(partyIdentifier, partyPinIdentifier, stageIdentifier);
@@ -19,7 +19,7 @@ describe('PartyRouteService', () => {
         role: PartyRole.HOST,
         pin: partyPinIdentifier.parse('AB12CD'),
       }),
-    ).toBe('/party/44/lobby');
+    ).toBe(`/party/${partyIdentifier.parse(44)}/lobby`);
   });
 
   it('builds the join route under /join/:pin for players', () => {
@@ -42,13 +42,15 @@ describe('PartyRouteService', () => {
   });
 
   it('builds dedicated host runtime routes for leaderboard, stage, and result screens', () => {
-    expect(service.resolvePartyLeaderboardRoute(partyIdentifier.parse(44))).toBe('/party/44/final');
+    expect(service.resolvePartyLeaderboardRoute(partyIdentifier.parse(44))).toBe(
+      `/party/${partyIdentifier.parse(44)}/final`,
+    );
     expect(
       service.resolvePartyStageRoute(partyIdentifier.parse(44), stageIdentifier.parse(2)),
-    ).toBe('/party/44/stage/2');
+    ).toBe(`/party/${partyIdentifier.parse(44)}/stage/${stageIdentifier.parse(2)}`);
     expect(
       service.resolvePartyResultRoute(partyIdentifier.parse(44), stageIdentifier.parse(2)),
-    ).toBe('/party/44/stage/2/result');
+    ).toBe(`/party/${partyIdentifier.parse(44)}/stage/${stageIdentifier.parse(2)}/result`);
   });
 
   it('builds an absolute canonical join url for sharing', () => {

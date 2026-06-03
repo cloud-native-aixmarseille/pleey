@@ -3,9 +3,7 @@ import { Quiz } from '../../../../../domain/game/types/quiz/entities/quiz';
 import { QuizQuestionType } from '../../../../../domain/game/types/quiz/entities/quiz-question';
 import { QuizErrorCode } from '../../../../../domain/game/types/quiz/enums/quiz-error-code.enum';
 import type { QuizManagementRepository } from '../../../../../domain/game/types/quiz/ports/quiz-management.repository';
-import { ProjectIdentifier } from '../../../../workspace/shared/services/identifiers/project-identifier';
-import { GameIdentifier } from '../../../shared/services/identifiers/game-identifier';
-import { GameTypeIdentifier } from '../../shared/services/game-type-identifier';
+import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { PlayableContentImportSource } from '../../shared/services/playable-content-import/import-source';
 import type { QuizImportQuestionMapper } from '../services/quiz-import-question-mapper';
 import { CreateQuizFromImportUseCase } from './create-quiz-from-import-use-case';
@@ -24,16 +22,12 @@ class TestPlayableContentImportSource extends PlayableContentImportSource {
   }
 }
 
-const gameIdentifier = new GameIdentifier();
-const gameTypeIdentifier = new GameTypeIdentifier();
-const projectIdentifier = new ProjectIdentifier();
-
 describe('CreateQuizFromImportUseCase', () => {
   it('creates a quiz and imported questions through one repository command', async () => {
     const createdQuiz = new Quiz(
-      gameTypeIdentifier.parse(9),
-      gameIdentifier.parse(21),
-      projectIdentifier.parse(4),
+      backendTestIdentifiers.game(9),
+      backendTestIdentifiers.game(21),
+      backendTestIdentifiers.project(4),
       'Sprint quiz',
       null,
       new Date('2026-06-01T10:00:00.000Z'),
@@ -68,18 +62,21 @@ describe('CreateQuizFromImportUseCase', () => {
 
     const quiz = await useCase.execute(
       {
-        projectId: projectIdentifier.parse(4),
+        projectId: backendTestIdentifiers.project(4),
         title: 'Sprint quiz',
         description: null,
         source,
       },
-      12 as never,
+      backendTestIdentifiers.user(12),
     );
 
-    expect(accessGuard.assertCanManageProject).toHaveBeenCalledWith(projectIdentifier.parse(4), 12);
+    expect(accessGuard.assertCanManageProject).toHaveBeenCalledWith(
+      backendTestIdentifiers.project(4),
+      backendTestIdentifiers.user(12),
+    );
     expect(importQuestionMapper.map).toHaveBeenCalledWith(source);
     expect(quizRepository.createWithQuestions).toHaveBeenCalledWith({
-      projectId: projectIdentifier.parse(4),
+      projectId: backendTestIdentifiers.project(4),
       title: 'Sprint quiz',
       description: null,
       questions: [
@@ -115,12 +112,12 @@ describe('CreateQuizFromImportUseCase', () => {
     await expect(
       useCase.execute(
         {
-          projectId: projectIdentifier.parse(4),
+          projectId: backendTestIdentifiers.project(4),
           title: 'Sprint quiz',
           description: null,
           source: new TestPlayableContentImportSource('quiz-import.json'),
         },
-        12 as never,
+        backendTestIdentifiers.user(12),
       ),
     ).rejects.toThrow(QuizErrorCode.QUIZ_IMPORT_INVALID_FILE);
     expect(quizRepository.createWithQuestions).not.toHaveBeenCalled();

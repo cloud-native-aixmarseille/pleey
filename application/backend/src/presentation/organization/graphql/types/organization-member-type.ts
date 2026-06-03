@@ -1,17 +1,17 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
 import './organization-role-enum-type';
 
 @ObjectType()
 export class OrganizationMemberType {
-  @Field(() => Int)
-  id!: number;
+  @Field(() => ID)
+  id!: string;
 
-  @Field(() => Int)
-  organizationId!: number;
+  @Field(() => ID)
+  organizationId!: string;
 
-  @Field(() => Int)
-  userId!: number;
+  @Field(() => ID)
+  userId!: string;
 
   @Field()
   username!: string;

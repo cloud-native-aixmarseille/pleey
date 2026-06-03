@@ -69,7 +69,7 @@ describe('User', () => {
   describe('toProfileSnapshot', () => {
     it('maps avatar media to a profile snapshot version token', () => {
       const avatar = new Media(
-        42,
+        backendTestIdentifiers.media(42),
         'image/svg+xml',
         Buffer.from('<svg />', 'utf8'),
         new Date('2025-01-01T00:00:00.000Z'),

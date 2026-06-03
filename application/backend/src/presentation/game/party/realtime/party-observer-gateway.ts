@@ -31,6 +31,7 @@ import { BroadcastPartyObservationUseCase } from '../../../../application/game/p
 import { LoadPartyObservationSnapshotUseCase } from '../../../../application/game/party/shared/use-cases/load-party-observation-snapshot-use-case';
 import { GuestIdentifier } from '../../../../application/identity/shared/services/identifiers/guest-identifier';
 import { UserIdentifier } from '../../../../application/identity/shared/services/identifiers/user-identifier';
+import type { GameId } from '../../../../domain/game/entities/game';
 import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
 import { PartyPlayerKind } from '../../../../domain/game/party/enums/party-player-kind.enum';
 import { PartyStatus } from '../../../../domain/game/party/enums/party-status.enum';
@@ -71,13 +72,13 @@ enum PartyJoinAcknowledgementStatus {
 type PartyJoinAcknowledgement =
   | {
       readonly status: PartyJoinAcknowledgementStatus.ACCEPTED;
-      readonly gameId: number;
+      readonly gameId: GameId;
       readonly player: {
         readonly avatarUri: string | null;
         readonly identity: PartyPlayerIdentity;
         readonly username: string;
       };
-      readonly partyId: number;
+      readonly partyId: PartyId;
       readonly pin: PartyPin;
     }
   | {
@@ -703,7 +704,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     return normalizedPin;
   }
 
-  private normalizePartyId(partyId: number | undefined): PartyId {
+  private normalizePartyId(partyId: string | undefined): PartyId {
     const normalizedPartyId = this.partyIdentifier.parseOrNull(partyId);
 
     if (normalizedPartyId === null) {

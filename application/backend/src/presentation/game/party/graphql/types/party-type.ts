@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { PartyRole } from '../../../../../domain/game/party/enums/party-role.enum';
 import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
 
@@ -12,11 +12,11 @@ registerEnumType(PartyRole, {
 
 @ObjectType()
 export class PartyType {
-  @Field(() => Int)
-  partyId!: number;
+  @Field(() => ID)
+  partyId!: string;
 
-  @Field(() => Int)
-  gameId!: number;
+  @Field(() => ID)
+  gameId!: string;
 
   @Field()
   pin!: string;

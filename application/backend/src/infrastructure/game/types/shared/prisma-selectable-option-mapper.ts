@@ -4,7 +4,7 @@ import {
   type SelectableOptionId,
 } from '../../../../domain/game/types/shared/entities/selectable-option';
 
-export interface PrismaSelectableOptionRecord<TId = number> {
+export interface PrismaSelectableOptionRecord<TId = string> {
   readonly id: TId;
   readonly text: string | null;
   readonly position: number;

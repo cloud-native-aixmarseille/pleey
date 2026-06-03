@@ -1,9 +1,10 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
+import { Field, ID, InputType, Int } from '@nestjs/graphql';
 import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
   IsInt,
+  IsNotEmpty,
   IsOptional,
   IsString,
   MaxLength,
@@ -15,10 +16,10 @@ import { SelectableOptionInput } from '../../../shared/graphql/selectable-option
 
 @InputType()
 export class CreatePredictionInput {
-  @Field(() => Int)
-  @IsInt()
-  @Min(1)
-  projectId!: number;
+  @Field(() => ID)
+  @IsString()
+  @IsNotEmpty()
+  projectId!: string;
 
   @Field()
   @IsString()
@@ -34,10 +35,10 @@ export class CreatePredictionInput {
 
 @InputType()
 export class CreatePredictionFromImportInput extends ImportPlayableContentInputBase {
-  @Field(() => Int)
-  @IsInt()
-  @Min(1)
-  projectId!: number;
+  @Field(() => ID)
+  @IsString()
+  @IsNotEmpty()
+  projectId!: string;
 
   @Field()
   @IsString()
@@ -67,10 +68,10 @@ export class UpdatePredictionInput {
 
 @InputType()
 export class CreatePredictionPromptInput {
-  @Field(() => Int)
-  @IsInt()
-  @Min(1)
-  predictionId!: number;
+  @Field(() => ID)
+  @IsString()
+  @IsNotEmpty()
+  predictionId!: string;
 
   @Field(() => Int, { nullable: true })
   @IsOptional()

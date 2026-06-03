@@ -1,7 +1,7 @@
 import type { GuestId } from '../../../../../domains/identity/entities/guest';
-import { StringIdentifierParser } from '../../../../shared/services/identifier-parser';
+import { UuidV7IdentifierParser } from '../../../../shared/services/identifier-parser';
 
-export class GuestIdentifier extends StringIdentifierParser<GuestId> {
+export class GuestIdentifier extends UuidV7IdentifierParser<GuestId> {
   constructor() {
     super('GuestId');
   }

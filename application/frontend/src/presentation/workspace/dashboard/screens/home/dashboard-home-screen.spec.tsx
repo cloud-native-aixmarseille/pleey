@@ -553,7 +553,7 @@ describe('DashboardHomeScreen', () => {
 
       await user.click(screen.getByRole('button', { name: 'dashboard.games.actions.manage' }));
 
-      expect(navigateMock).toHaveBeenCalledWith('/quizzes/12');
+      expect(navigateMock).toHaveBeenCalledWith(`/quizzes/${gameTypeIdentifier.parse(12)}`);
     });
 
     it('creates a party directly from a dashboard game card and surfaces it in the parties section', async () => {
@@ -623,7 +623,9 @@ describe('DashboardHomeScreen', () => {
       await user.click(screen.getByRole('button', { name: 'dashboard.games.actions.createParty' }));
 
       expect(createParty).toHaveBeenCalledWith(gameIdentifier.parse(13));
-      expect(navigateMock).toHaveBeenCalledWith('/party/98/lobby');
+      expect(navigateMock).toHaveBeenCalledWith(
+        `/party/${partyFixtureFactory.createParty({ partyId: 98 }).partyId}/lobby`,
+      );
       expect(
         await screen.findByRole('heading', {
           name: 'dashboard.activeParty.pinTitle (pin=654321)',

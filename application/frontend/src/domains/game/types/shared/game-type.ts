@@ -5,6 +5,6 @@ export const GameType = {
 
 export type GameType = (typeof GameType)[keyof typeof GameType];
 
-export type GameTypeId = number & {
+export type GameTypeId = string & {
   readonly __identifierBrand: 'GameTypeId';
 };

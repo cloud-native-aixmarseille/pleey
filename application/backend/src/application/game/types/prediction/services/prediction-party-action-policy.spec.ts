@@ -1,21 +1,18 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { GameId } from '../../../../../domain/game/entities/game';
 import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
-import type { PartyId } from '../../../../../domain/game/party/shared/entities/party';
-import type { PartyActionId } from '../../../../../domain/game/party/shared/entities/party-action';
 import {
   type PartyRuntimeContext,
   PartyRuntimePhase,
 } from '../../../../../domain/game/party/shared/entities/party-runtime-context';
-import type { PartyStageId } from '../../../../../domain/game/party/shared/entities/party-stage';
+import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { PartyStageCatalogPort } from '../../shared/ports/party-stage-catalog.port';
 import { PredictionPartyActionPolicy } from './prediction-party-action-policy';
 
 describe('PredictionPartyActionPolicy', () => {
   it('evaluates prediction submissions through the shared structured choice behavior', async () => {
-    const gameId = 12 as GameId;
-    const stageId = 42 as PartyStageId;
-    const selectedActionId = 2 as PartyActionId;
+    const gameId = backendTestIdentifiers.game(12);
+    const stageId = backendTestIdentifiers.partyStage(42);
+    const selectedActionId = backendTestIdentifiers.partyAction(2);
     const context: PartyRuntimeContext = {
       lifecycle: {
         phase: PartyRuntimePhase.STAGE,
@@ -30,7 +27,7 @@ describe('PredictionPartyActionPolicy', () => {
     const partyStageCatalog = {
       findStageById: vi.fn().mockResolvedValue({
         actions: [
-          { id: 1 as PartyActionId, isCorrect: false, text: 'No' },
+          { id: backendTestIdentifiers.partyAction(1), isCorrect: false, text: 'No' },
           { id: selectedActionId, isCorrect: true, text: 'Yes' },
         ],
         id: stageId,
@@ -47,7 +44,7 @@ describe('PredictionPartyActionPolicy', () => {
       actionId: selectedActionId,
       context,
       gameId,
-      partyId: 99 as PartyId,
+      partyId: backendTestIdentifiers.party(99),
       playerIdentity: {} as never,
       status: PartyStatus.ACTIVE,
     });

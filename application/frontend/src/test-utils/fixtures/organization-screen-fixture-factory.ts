@@ -1,5 +1,7 @@
 import { vi } from 'vitest';
+import { UserIdentifier } from '../../application/identity/shared/services/identifiers/user-identifier';
 import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
+import { OrganizationMemberIdentifier } from '../../application/workspace/shared/services/identifiers/organization-member-identifier';
 import { ProjectIdentifier } from '../../application/workspace/shared/services/identifiers/project-identifier';
 import {
   type Organization,
@@ -27,9 +29,19 @@ import type { PaginatedResult } from '../../domains/shared/value-objects/paginat
 import { DashboardReadGatewayMockFactory } from '../mocks/dashboard-read-gateway-mock-factory';
 import { OrganizationFixtureFactory } from './organization-fixture-factory';
 import { ProjectFixtureFactory } from './project-fixture-factory';
+import { coerceUuidV7TestValue } from './uuid-v7-test-value';
 
 const organizationIdentifier = new OrganizationIdentifier();
+const organizationMemberIdentifier = new OrganizationMemberIdentifier();
 const projectIdentifier = new ProjectIdentifier();
+const userIdentifier = new UserIdentifier();
+const defaultOrganizationId = organizationIdentifier.parse(coerceUuidV7TestValue(3));
+const fallbackOrganizationId = organizationIdentifier.parse(coerceUuidV7TestValue(1));
+const defaultProjectId = projectIdentifier.parse(coerceUuidV7TestValue(11));
+const createdProjectId = projectIdentifier.parse(coerceUuidV7TestValue(101));
+const createdOrganizationId = organizationIdentifier.parse(coerceUuidV7TestValue(99));
+const defaultMemberId = organizationMemberIdentifier.parse(coerceUuidV7TestValue(1));
+const defaultUserId = userIdentifier.parse(coerceUuidV7TestValue(1));
 
 const DEFAULT_TIMESTAMP = '2026-03-12T00:00:00.000Z';
 
@@ -88,7 +100,7 @@ export class OrganizationScreenFixtureFactory {
   ): OrganizationDashboard {
     return this.organizationFixtureFactory.createOrganizationDashboard({
       organization: {
-        id: 3,
+        id: defaultOrganizationId,
         name: 'Active Org',
         description: null,
         ...overrides.organization,
@@ -114,18 +126,20 @@ export class OrganizationScreenFixtureFactory {
     return {
       createOrganization: vi
         .fn<(_: CreateOrganizationCommand) => Promise<Organization>>()
-        .mockResolvedValue(
-          this.organizationFixtureFactory.createCreatedOrganization({
-            id: organizationIdentifier.parse(99),
-            description: null,
-          }),
-        ),
+        .mockResolvedValue({
+          id: createdOrganizationId,
+          name: 'New Org',
+          description: null,
+          createdAt: DEFAULT_TIMESTAMP,
+          updatedAt: DEFAULT_TIMESTAMP,
+          role: OrganizationRole.OWNER,
+        }),
       createProject: vi.fn<(_: CreateProjectCommand) => Promise<Project>>().mockResolvedValue(
         this.createProject({
-          id: projectIdentifier.parse(101),
+          id: createdProjectId,
           name: 'New Project',
           description: null,
-          organizationId: organizationIdentifier.parse(1),
+          organizationId: fallbackOrganizationId,
         }),
       ),
       listOrganizationMembers: vi
@@ -141,11 +155,11 @@ export class OrganizationScreenFixtureFactory {
       addOrganizationMember: vi
         .fn<(_: AddOrganizationMemberCommand) => Promise<OrganizationMember>>()
         .mockResolvedValue({
-          id: 1 as OrganizationMember['id'],
+          id: defaultMemberId,
           joinedAt: DEFAULT_TIMESTAMP,
-          organizationId: organizationIdentifier.parse(1),
+          organizationId: fallbackOrganizationId,
           role: OrganizationRole.MEMBER,
-          userId: 1,
+          userId: defaultUserId,
           username: 'captain',
         }),
       removeOrganizationMember: vi
@@ -154,19 +168,19 @@ export class OrganizationScreenFixtureFactory {
       updateOrganizationMemberRole: vi
         .fn<(_: UpdateOrganizationMemberRoleCommand) => Promise<OrganizationMember>>()
         .mockResolvedValue({
-          id: 1 as OrganizationMember['id'],
+          id: defaultMemberId,
           joinedAt: DEFAULT_TIMESTAMP,
-          organizationId: organizationIdentifier.parse(1),
+          organizationId: fallbackOrganizationId,
           role: OrganizationRole.MANAGER,
-          userId: 1,
+          userId: defaultUserId,
           username: 'captain',
         }),
       updateProject: vi.fn<(_: UpdateProjectCommand) => Promise<Project>>().mockResolvedValue(
         this.createProject({
-          id: projectIdentifier.parse(11),
+          id: defaultProjectId,
           name: 'Updated Project',
           description: 'Updated',
-          organizationId: organizationIdentifier.parse(1),
+          organizationId: fallbackOrganizationId,
         }),
       ),
       deleteProject: vi

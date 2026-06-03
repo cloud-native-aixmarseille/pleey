@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { GameId } from '../../../../domain/game/entities/game';
 import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
 import type { UserId } from '../../../../domain/identity/entities/user';
 import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
@@ -72,7 +73,7 @@ export class ListProjectGamesUseCase {
   }
 
   private requireResolvedPermissions(
-    gameId: number,
+    gameId: GameId,
     permissions: GamePermissions | undefined,
   ): GamePermissions {
     if (!permissions?.createParty || !permissions.launchReadiness) {

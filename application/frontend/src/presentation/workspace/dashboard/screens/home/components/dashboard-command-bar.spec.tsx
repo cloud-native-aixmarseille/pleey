@@ -98,12 +98,15 @@ describe('DashboardCommandBar', () => {
     );
 
     return {
+      arcadeOrganization,
       onOrganizationChange,
       onOrganizationSearchChange,
       onProjectChange,
       onProjectSearchChange,
       onManageOrganizations,
       onManageProjects,
+      secondaryOrganization,
+      sideQuestProject,
     };
   }
 
@@ -125,10 +128,12 @@ describe('DashboardCommandBar', () => {
   it('forwards selector changes', async () => {
     const user = userEvent.setup();
     const {
+      secondaryOrganization,
       onOrganizationChange,
       onOrganizationSearchChange,
       onProjectChange,
       onProjectSearchChange,
+      sideQuestProject,
     } = renderDashboardCommandBar();
 
     await user.click(screen.getByLabelText('dashboard.workspace.organizationLabel'));
@@ -140,9 +145,9 @@ describe('DashboardCommandBar', () => {
     await user.keyboard('{ArrowDown}');
     await user.keyboard('{Enter}');
 
-    expect(onOrganizationChange).toHaveBeenCalledWith('8');
+    expect(onOrganizationChange).toHaveBeenCalledWith(secondaryOrganization.id);
     expect(onOrganizationSearchChange).toHaveBeenCalledWith('Quiz');
-    expect(onProjectChange).toHaveBeenCalledWith('13');
+    expect(onProjectChange).toHaveBeenCalledWith(sideQuestProject.id);
     expect(onProjectSearchChange).toHaveBeenCalledWith('Side');
   });
 

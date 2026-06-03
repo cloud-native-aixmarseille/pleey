@@ -1,7 +1,7 @@
 import type { SelectableOption, SelectableOptionId } from '../../shared/entities/selectable-option';
 import type { PredictionId } from './prediction';
 
-export type PredictionPromptId = number & {
+export type PredictionPromptId = string & {
   readonly __identifierBrand: 'PredictionPromptId';
 };
 

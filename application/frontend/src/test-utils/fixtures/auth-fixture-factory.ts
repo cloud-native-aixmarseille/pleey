@@ -1,9 +1,10 @@
 import { UserIdentifier } from '../../application/identity/shared/services/identifiers/user-identifier';
 import type { AuthSession } from '../../domains/identity/entities/auth-session';
 import type { User, UserId } from '../../domains/identity/entities/user';
+import { coerceUuidV7TestValue } from './uuid-v7-test-value';
 
 interface UserPayload {
-  readonly id: number;
+  readonly id: string;
   readonly username: string;
   readonly email: string;
   readonly avatarUri?: string | null;
@@ -18,7 +19,7 @@ interface AuthSessionPayload {
 }
 
 interface UserPayloadOverrides extends Omit<Partial<UserPayload>, 'id'> {
-  readonly id?: number | UserId;
+  readonly id?: number | string | UserId;
 }
 
 interface AuthSessionOverrides extends Omit<Partial<AuthSession>, 'user'> {
@@ -49,7 +50,7 @@ export class AuthFixtureFactory {
   }
 
   createUserPayload(overrides: UserPayloadOverrides = {}): UserPayload {
-    const id = Number(overrides.id ?? 1);
+    const id = coerceUuidV7TestValue(overrides.id ?? 1);
     const avatarUri = hasOwn(overrides, 'avatarUri')
       ? overrides.avatarUri
       : `https://api.example.com/api/avatars/users/${id}?v=fingerprint`;

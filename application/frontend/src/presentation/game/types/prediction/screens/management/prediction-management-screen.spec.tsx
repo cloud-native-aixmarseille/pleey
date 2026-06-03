@@ -6,6 +6,7 @@ import { PredictionManagementScreen } from './prediction-management-screen';
 
 const routeParams = vi.hoisted(() => ({ current: { predictionId: '12' } }));
 const gameTypeIdentifier = new GameTypeIdentifierMockFactory().create();
+const predictionId = gameTypeIdentifier.parse(12);
 
 vi.mock('../../../../../shared/routing/router', () => ({
   PresentationRedirect: ({ to }: { readonly to: string }) => (
@@ -42,7 +43,7 @@ describe('PredictionManagementScreen', () => {
       <PredictionManagementScreen gameTypeIdentifier={gameTypeIdentifier} gateway={{} as never} />,
     );
 
-    expect(screen.getByTestId('editor')).toHaveAttribute('data-game-type-id', '12');
+    expect(screen.getByTestId('editor')).toHaveAttribute('data-game-type-id', predictionId);
     expect(screen.getByTestId('editor')).toHaveAttribute('data-has-kind-config', 'false');
     expect(screen.getByText('game.types.prediction.management')).toBeInTheDocument();
   });

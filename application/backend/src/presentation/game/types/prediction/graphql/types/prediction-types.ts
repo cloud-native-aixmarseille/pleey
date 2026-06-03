@@ -1,13 +1,13 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
 import { SelectableOptionType } from '../../../shared/graphql/selectable-option-types';
 
 @ObjectType()
 export class PredictionType {
-  @Field(() => Int)
-  predictionId!: number;
+  @Field(() => ID)
+  predictionId!: string;
 
-  @Field(() => Int)
-  gameId!: number;
+  @Field(() => ID)
+  gameId!: string;
 
   @Field()
   type!: string;
@@ -27,11 +27,11 @@ export class PredictionType {
 
 @ObjectType()
 export class PredictionPromptType {
-  @Field(() => Int)
-  id!: number;
+  @Field(() => ID)
+  id!: string;
 
-  @Field(() => Int)
-  predictionId!: number;
+  @Field(() => ID)
+  predictionId!: string;
 
   @Field(() => Int)
   position!: number;

@@ -99,7 +99,7 @@ describe('PersistedAuthSessionAdapter', () => {
         [StorageKey.AUTH_ACCESS_TOKEN]: 'access-token',
         [StorageKey.AUTH_REFRESH_TOKEN]: 'refresh-token',
         [StorageKey.AUTH_USER]: JSON.stringify({
-          id: '4',
+          id: 4,
           username: 'arcade',
           email: 'arcade@pleey.io',
         }),

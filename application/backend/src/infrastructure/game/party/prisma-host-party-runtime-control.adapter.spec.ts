@@ -11,6 +11,14 @@ import { PrismaPartyPlayerRemovalService } from './services/prisma-party-player-
 describe('PrismaHostPartyRuntimeControlAdapter', () => {
   const partyActionIdentifier = new PartyActionIdentifier();
   const partyStageIdentifier = new PartyStageIdentifier();
+  const PARTY_ID = backendTestIdentifiers.party(7);
+  const GAME_ID = backendTestIdentifiers.game(9);
+  const ACTION_11 = backendTestIdentifiers.partyAction(11);
+  const ACTION_22 = backendTestIdentifiers.partyAction(22);
+  const ACTION_33 = backendTestIdentifiers.partyAction(33);
+  const STAGE_101 = backendTestIdentifiers.partyStage(101);
+  const STAGE_202 = backendTestIdentifiers.partyStage(202);
+  const STAGE_303 = backendTestIdentifiers.partyStage(303);
 
   it('trims player progress from the requested stage and recalculates totals', async () => {
     const transaction = {
@@ -21,31 +29,31 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
         findMany: vi.fn().mockResolvedValue([
           {
             context: {
-              selectedActionId: 33,
+              selectedActionId: ACTION_33,
               stageHistory: [
                 {
                   earnedPoints: 1000,
-                  selectedActionId: 11,
-                  stageId: 101,
+                  selectedActionId: ACTION_11,
+                  stageId: STAGE_101,
                   stagePosition: 0,
                   status: 'acknowledged',
                 },
                 {
                   earnedPoints: 500,
-                  selectedActionId: 22,
-                  stageId: 202,
+                  selectedActionId: ACTION_22,
+                  stageId: STAGE_202,
                   stagePosition: 1,
                   status: 'acknowledged',
                 },
                 {
                   earnedPoints: 0,
-                  selectedActionId: 33,
-                  stageId: 303,
+                  selectedActionId: ACTION_33,
+                  stageId: STAGE_303,
                   stagePosition: 2,
                   status: 'acknowledged',
                 },
               ],
-              stageId: 303,
+              stageId: STAGE_303,
               stagePosition: 2,
               status: 'acknowledged',
             },
@@ -60,7 +68,7 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
       $transaction: vi.fn().mockImplementation(async (callback) => callback(transaction)),
     };
     const partyStageCatalog = {
-      findStageById: vi.fn().mockResolvedValue({ id: 202, stagePosition: 1 }),
+      findStageById: vi.fn().mockResolvedValue({ id: STAGE_202, stagePosition: 1 }),
     };
     const adapter = new PrismaHostPartyRuntimeControlAdapter(
       prisma as never,
@@ -120,10 +128,10 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
           totalStages: 3,
         },
       },
-      partyId: 7 as never,
+      partyId: PARTY_ID,
       resetPlayerProgress: {
         fromStageId: backendTestIdentifiers.partyStage(202),
-        gameId: 9 as never,
+        gameId: GAME_ID,
       },
       status: PartyStatus.ACTIVE,
     });
@@ -135,17 +143,17 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
       data: {
         context: {
           earnedPoints: 1000,
-          selectedActionId: 11,
+          selectedActionId: ACTION_11,
           stageHistory: [
             {
               earnedPoints: 1000,
-              selectedActionId: 11,
-              stageId: 101,
+              selectedActionId: ACTION_11,
+              stageId: STAGE_101,
               stagePosition: 0,
               status: 'acknowledged',
             },
           ],
-          stageId: 101,
+          stageId: STAGE_101,
           stagePosition: 0,
           status: 'acknowledged',
         },
@@ -163,17 +171,17 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
         findMany: vi.fn().mockResolvedValue([
           {
             context: {
-              selectedActionId: 22,
+              selectedActionId: ACTION_22,
               stageHistory: [
                 {
                   earnedPoints: 500,
-                  selectedActionId: 22,
-                  stageId: 202,
+                  selectedActionId: ACTION_22,
+                  stageId: STAGE_202,
                   stagePosition: 1,
                   status: 'acknowledged',
                 },
               ],
-              stageId: 202,
+              stageId: STAGE_202,
               stagePosition: 1,
               status: 'acknowledged',
             },
@@ -218,10 +226,10 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
           totalStages: 3,
         },
       },
-      partyId: 7 as never,
+      partyId: PARTY_ID,
       resetPlayerProgress: {
         fromStageId: null,
-        gameId: 9 as never,
+        gameId: GAME_ID,
       },
       status: PartyStatus.WAITING,
     });

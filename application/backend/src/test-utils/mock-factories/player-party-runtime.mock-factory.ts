@@ -1,12 +1,8 @@
 import type { Mocked } from 'vitest';
 import type { PlayerPartyRuntimePort } from '../../application/game/party/player/ports/player-party-runtime.port';
-import { GuestIdentifier } from '../../application/identity/shared/services/identifiers/guest-identifier';
-import { UserIdentifier } from '../../application/identity/shared/services/identifiers/user-identifier';
 import { PartyPlayerKind } from '../../domain/game/party/enums/party-player-kind.enum';
+import { backendTestIdentifiers } from '../branded-identifiers';
 import { mockFn } from './mock-factory.utils';
-
-const guestIdentifier = new GuestIdentifier();
-const userIdentifier = new UserIdentifier();
 
 type PlayerPartyRuntimeLike = Pick<
   PlayerPartyRuntimePort,
@@ -19,14 +15,14 @@ type PlayerPartyRuntimeLike = Pick<
 >;
 
 type ActivePlayerPartySessionInput = {
-  readonly partyId: number;
-  readonly gameId: number;
+  readonly partyId: ReturnType<typeof backendTestIdentifiers.party>;
+  readonly gameId: ReturnType<typeof backendTestIdentifiers.game>;
   readonly pin: string;
   readonly status: 'WAITING' | 'ACTIVE' | 'PAUSED' | 'ENDED';
 };
 
 type PartyJoinTargetInput = ActivePlayerPartySessionInput & {
-  readonly hostUserId: number;
+  readonly hostUserId: ReturnType<typeof backendTestIdentifiers.user>;
 };
 
 type CreatePlayerPartyRuntimeMockConfig = {
@@ -39,23 +35,23 @@ type CreatePlayerPartyRuntimeMockConfig = {
 };
 
 const DEFAULT_PARTY_JOIN_TARGET: PartyJoinTargetInput = {
-  partyId: 12,
-  gameId: 21,
-  hostUserId: 7,
+  partyId: backendTestIdentifiers.party(12),
+  gameId: backendTestIdentifiers.game(21),
+  hostUserId: backendTestIdentifiers.user(7),
   pin: '123456',
   status: 'WAITING',
 };
 
 const DEFAULT_GUEST_PLAYER_IDENTITY = {
   kind: PartyPlayerKind.GUEST,
-  guestId: guestIdentifier.parse('guest-42'),
+  guestId: backendTestIdentifiers.guest('guest-42'),
 };
 
 const DEFAULT_PARTY_PLAYER = {
   avatarUri: '/api/avatars/users/42?v=1',
   identity: {
     kind: PartyPlayerKind.USER,
-    userId: userIdentifier.parse(42),
+    userId: backendTestIdentifiers.user(42),
   },
   joinedAt: new Date('2026-04-27T10:00:00.000Z'),
   totalScore: 0,

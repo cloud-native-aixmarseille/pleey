@@ -3,29 +3,27 @@ import { describe, expect, it, vi } from 'vitest';
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
 import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
 import { GameType } from '../../../../../domain/game/types/shared/entities/game-type';
-import { UserIdentifier } from '../../../../identity/shared/services/identifiers/user-identifier';
-import { GameIdentifier } from '../../../shared/services/identifiers/game-identifier';
-import { PartyActionIdentifier } from '../../shared/services/identifiers/party-action-identifier';
-import { PartyIdentifier } from '../../shared/services/identifiers/party-identifier';
+import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { SubmitPartyActionUseCase } from './submit-party-action-use-case';
 
-const gameIdentifier = new GameIdentifier();
-const partyActionIdentifier = new PartyActionIdentifier();
-const partyIdentifier = new PartyIdentifier();
-const userIdentifier = new UserIdentifier();
+const gameId = backendTestIdentifiers.game(9);
+const partyId = backendTestIdentifiers.party(44);
+const playerUserId = backendTestIdentifiers.user(42);
+const selectedActionId = backendTestIdentifiers.partyAction(2);
+const stageId = backendTestIdentifiers.partyStage(101);
 
 describe('SubmitPartyActionUseCase', () => {
   it('delegates action evaluation through the resolved game-type policy and broadcasts the updated observation', async () => {
     const playerIdentity = {
       kind: PartyPlayerKind.USER,
-      userId: userIdentifier.parse(42),
+      userId: playerUserId,
     } as const;
     const nextContext = {
       lifecycle: {
         phase: 'stage',
         stageEndsAtEpochMs: 30_000,
         stageRemainingDurationMs: 20_000,
-        stageId: 101,
+        stageId,
         stagePosition: 0,
         stageTimeLimitSeconds: 20,
         totalStages: 3,
@@ -33,7 +31,7 @@ describe('SubmitPartyActionUseCase', () => {
       stage: {
         actionSubmission: {
           currentPlayer: {
-            selectedActionId: partyActionIdentifier.parse(2),
+            selectedActionId,
             status: 'acknowledged',
           },
           submittedPlayerCount: 1,
@@ -41,13 +39,13 @@ describe('SubmitPartyActionUseCase', () => {
         },
         current: {
           actions: [
-            { id: partyActionIdentifier.parse(1), text: 'A' },
-            { id: partyActionIdentifier.parse(2), text: 'B' },
-            { id: partyActionIdentifier.parse(3), text: 'C' },
-            { id: partyActionIdentifier.parse(4), text: 'D' },
+            { id: backendTestIdentifiers.partyAction(1), text: 'A' },
+            { id: selectedActionId, text: 'B' },
+            { id: backendTestIdentifiers.partyAction(3), text: 'C' },
+            { id: backendTestIdentifiers.partyAction(4), text: 'D' },
           ],
           endsAtEpochMs: 30_000,
-          stageId: 101,
+          stageId,
           stagePosition: 0,
           text: 'Question 1',
         },
@@ -70,15 +68,15 @@ describe('SubmitPartyActionUseCase', () => {
             phase: 'stage',
             stageEndsAtEpochMs: 30_000,
             stageRemainingDurationMs: 20_000,
-            stageId: 101,
+            stageId,
             stagePosition: 0,
             stageTimeLimitSeconds: 20,
             totalStages: 3,
           },
         },
-        gameId: gameIdentifier.parse(9),
+        gameId,
         gameType: GameType.Quiz,
-        partyId: partyIdentifier.parse(44),
+        partyId,
         playerIdentity,
         status: PartyStatus.ACTIVE,
       }),
@@ -94,40 +92,40 @@ describe('SubmitPartyActionUseCase', () => {
     );
 
     await useCase.execute({
-      actionId: partyActionIdentifier.parse(2),
-      partyId: partyIdentifier.parse(44),
+      actionId: selectedActionId,
+      partyId,
       playerIdentity,
     });
 
     expect(policyRegistry.resolveByGameType).toHaveBeenCalledWith(GameType.Quiz);
     expect(policy.evaluateSubmission).toHaveBeenCalledWith({
-      actionId: partyActionIdentifier.parse(2),
+      actionId: selectedActionId,
       context: {
         lifecycle: {
           phase: 'stage',
           stageEndsAtEpochMs: 30_000,
           stageRemainingDurationMs: 20_000,
-          stageId: 101,
+          stageId,
           stagePosition: 0,
           stageTimeLimitSeconds: 20,
           totalStages: 3,
         },
       },
-      gameId: gameIdentifier.parse(9),
-      partyId: partyIdentifier.parse(44),
+      gameId,
+      partyId,
       playerIdentity,
       status: PartyStatus.ACTIVE,
     });
     expect(playerPartyActionRuntime.saveSubmissionResult).toHaveBeenCalledWith({
-      actionId: partyActionIdentifier.parse(2),
+      actionId: selectedActionId,
       context: nextContext,
-      partyId: partyIdentifier.parse(44),
+      partyId,
       playerIdentity,
       scoreDelta: 750,
       status: PartyStatus.ACTIVE,
     });
     expect(broadcastPartyObservationUseCase.execute).toHaveBeenCalledWith({
-      partyId: partyIdentifier.parse(44),
+      partyId,
     });
   });
 });

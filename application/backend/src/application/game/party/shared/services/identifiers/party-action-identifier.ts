@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import type { PartyActionId } from '../../../../../../domain/game/party/shared/entities/party-action';
-import { NumericIdentifierParser } from '../../../../../shared/services/identifier-parser';
+import { UuidV7IdentifierParser } from '../../../../../shared/services/identifier-parser';
 
 @Injectable()
-export class PartyActionIdentifier extends NumericIdentifierParser<PartyActionId> {
+export class PartyActionIdentifier extends UuidV7IdentifierParser<PartyActionId> {
   constructor() {
     super('PartyActionId');
   }

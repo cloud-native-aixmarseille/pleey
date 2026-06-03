@@ -1,7 +1,7 @@
 import type { ProjectId } from '../../../../../domains/project/entities/project';
-import { NumericIdentifierParser } from '../../../../shared/services/identifier-parser';
+import { UuidV7IdentifierParser } from '../../../../shared/services/identifier-parser';
 
-export class ProjectIdentifier extends NumericIdentifierParser<ProjectId> {
+export class ProjectIdentifier extends UuidV7IdentifierParser<ProjectId> {
   constructor() {
     super('ProjectId');
   }

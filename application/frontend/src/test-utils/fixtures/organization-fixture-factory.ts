@@ -5,6 +5,7 @@ import {
   OrganizationRole,
 } from '../../domains/organization/entities/organization';
 import type { OrganizationDashboard } from '../../domains/organization/entities/organization-dashboard';
+import { coerceUuidV7TestValue } from './uuid-v7-test-value';
 
 const organizationIdentifier = new OrganizationIdentifier();
 
@@ -17,7 +18,7 @@ interface OrganizationOverrides extends Omit<Partial<Organization>, 'id'> {
 
 interface OrganizationSummaryOverrides {
   readonly description?: string | null;
-  readonly id?: number;
+  readonly id?: number | OrganizationId;
   readonly name?: string;
 }
 
@@ -33,8 +34,8 @@ export class OrganizationFixtureFactory {
     return {
       id:
         id === undefined
-          ? organizationIdentifier.parse(3)
-          : organizationIdentifier.parse(Number(id)),
+          ? organizationIdentifier.parse(coerceUuidV7TestValue(3))
+          : organizationIdentifier.parse(typeof id === 'number' ? coerceUuidV7TestValue(id) : id),
       name: 'Active Org',
       description: null,
       createdAt: DEFAULT_TIMESTAMP,
@@ -46,7 +47,7 @@ export class OrganizationFixtureFactory {
 
   createCreatedOrganization(overrides: OrganizationOverrides = {}): Organization {
     return this.createOrganization({
-      id: organizationIdentifier.parse(42),
+      id: organizationIdentifier.parse(coerceUuidV7TestValue(42)),
       name: 'New Org',
       description: 'A test org',
       createdAt: DEFAULT_CREATED_ORGANIZATION_TIMESTAMP,
@@ -64,14 +65,17 @@ export class OrganizationFixtureFactory {
             name: overrides.name,
           }
         : {
-            id: organizationIdentifier.parse(overrides.id),
+            id:
+              typeof overrides.id === 'number'
+                ? organizationIdentifier.parse(coerceUuidV7TestValue(overrides.id))
+                : overrides.id,
             description: overrides.description,
             name: overrides.name,
           },
     );
 
     return {
-      id: Number(organization.id),
+      id: organization.id,
       name: organization.name,
       description: organization.description,
     };

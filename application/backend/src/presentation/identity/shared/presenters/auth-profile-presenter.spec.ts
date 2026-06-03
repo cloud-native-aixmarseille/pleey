@@ -19,7 +19,7 @@ describe('AuthProfilePresenter', () => {
     });
 
     expect(result.avatarUri).toBe(
-      `https://api.pleey.example/api/avatars/users/7?v=${TEST_AVATAR_VERSION}`,
+      `https://api.pleey.example/api/avatars/users/${backendTestIdentifiers.user(7)}?v=${TEST_AVATAR_VERSION}`,
     );
   });
 
@@ -43,7 +43,7 @@ describe('AuthProfilePresenter', () => {
     const result = presenter.presentUserProfile(profile);
 
     expect(result.avatarUri).toBe(
-      `https://api.pleey.example/api/avatars/users/7?v=${TEST_AVATAR_VERSION}`,
+      `https://api.pleey.example/api/avatars/users/${backendTestIdentifiers.user(7)}?v=${TEST_AVATAR_VERSION}`,
     );
   });
 
@@ -53,7 +53,9 @@ describe('AuthProfilePresenter', () => {
 
     const result = presenter.presentUserProfile(profile);
 
-    expect(result.avatarUri).toBe(`/api/avatars/users/7?v=${TEST_AVATAR_VERSION}`);
+    expect(result.avatarUri).toBe(
+      `/api/avatars/users/${backendTestIdentifiers.user(7)}?v=${TEST_AVATAR_VERSION}`,
+    );
   });
 
   it('applies the same transformation to auth responses', () => {
@@ -79,7 +81,7 @@ describe('AuthProfilePresenter', () => {
     );
 
     expect(result.user.avatarUri).toBe(
-      `http://localhost:3000/api/avatars/users/7?v=${TEST_AVATAR_VERSION}`,
+      `http://localhost:3000/api/avatars/users/${backendTestIdentifiers.user(7)}?v=${TEST_AVATAR_VERSION}`,
     );
   });
 });

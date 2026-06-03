@@ -1,4 +1,4 @@
-mutation UpdateOrganizationMemberRole($memberId: Int!, $input: UpdateOrganizationMemberRoleInput!) {
+mutation UpdateOrganizationMemberRole($memberId: ID!, $input: UpdateOrganizationMemberRoleInput!) {
   updateOrganizationMemberRole(memberId: $memberId, input: $input) {
     id
     organizationId

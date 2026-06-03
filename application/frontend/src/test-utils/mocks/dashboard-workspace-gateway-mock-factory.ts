@@ -6,6 +6,7 @@ import type { DashboardWorkspaceGateway } from '../../application/workspace/dash
 import { PartyRole } from '../../domains/game/party/shared/entities/party-role';
 import { PartyStatus } from '../../domains/game/party/shared/entities/party-status';
 import type { PaginatedResult } from '../../domains/shared/value-objects/paginated-result';
+import { coerceUuidV7TestValue } from '../fixtures/uuid-v7-test-value';
 
 const partyIdentifier = new PartyIdentifier();
 const partyPinIdentifier = new PartyPinIdentifier();
@@ -34,8 +35,8 @@ export class DashboardWorkspaceGatewayMockFactory {
         totalPages: 1,
       }),
       createParty: vi.fn().mockResolvedValue({
-        partyId: partyIdentifier.parse(1),
-        gameId: gameIdentifier.parse(1),
+        partyId: partyIdentifier.parse(coerceUuidV7TestValue(1)),
+        gameId: gameIdentifier.parse(coerceUuidV7TestValue(1)),
         pin: partyPinIdentifier.parse('123456'),
         status: PartyStatus.WAITING,
         role: PartyRole.HOST,

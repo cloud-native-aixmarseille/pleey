@@ -18,7 +18,7 @@ describe('GameManagementResolver', () => {
     listProjectGamesUseCase.execute.mockResolvedValue({
       items: [
         {
-          gameId: 11,
+          gameId: backendTestIdentifiers.game(11),
           type: 'quiz',
           title: 'Quiz A',
           description: null,
@@ -52,7 +52,7 @@ describe('GameManagementResolver', () => {
 
   it('maps the project games result into the GraphQL transport shape', async () => {
     const input = new ProjectGamesInput();
-    input.projectId = 8;
+    input.projectId = backendTestIdentifiers.project(8);
     input.search = 'quiz';
     input.types = ['quiz'];
     input.sortField = 'title';
@@ -70,7 +70,7 @@ describe('GameManagementResolver', () => {
 
     expect(listProjectGamesUseCase.execute).toHaveBeenCalledWith(
       {
-        projectId: 8,
+        projectId: backendTestIdentifiers.project(8),
         search: 'quiz',
         types: ['quiz'],
         sortField: 'title',
@@ -83,7 +83,7 @@ describe('GameManagementResolver', () => {
     expect(result).toEqual({
       items: [
         {
-          gameId: 11,
+          gameId: backendTestIdentifiers.game(11),
           type: 'quiz',
           title: 'Quiz A',
           description: null,

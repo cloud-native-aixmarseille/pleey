@@ -2,7 +2,7 @@ import type { GameId } from '../../../../game/entities/game';
 import type { GameTypeId } from '../game-type';
 
 export interface PlayableChoiceOption {
-  readonly id: number | null;
+  readonly id: string | null;
   readonly text: string | null;
   readonly position: number;
   readonly isCorrect: boolean;
@@ -18,7 +18,7 @@ export interface PlayableManagementGame {
 }
 
 export interface PlayableManagementItem<
-  TItemId extends number = number,
+  TItemId extends string = string,
   TKind extends string = string,
 > {
   readonly id: TItemId;
@@ -32,7 +32,7 @@ export interface PlayableManagementItem<
 }
 
 export interface PlayableManagementState<
-  TItemId extends number = number,
+  TItemId extends string = string,
   TKind extends string = string,
 > {
   readonly game: PlayableManagementGame;

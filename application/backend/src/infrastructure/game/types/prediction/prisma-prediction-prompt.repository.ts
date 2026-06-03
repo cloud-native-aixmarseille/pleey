@@ -23,8 +23,8 @@ type PrismaPredictionOptionRecord = PrismaSelectableOptionRecord;
 type PredictionOptionRecord = PrismaSelectableOptionRecord<PredictionSelectableOptionId>;
 
 interface PrismaPredictionPromptRecord {
-  readonly id: number;
-  readonly predictionId: number;
+  readonly id: string;
+  readonly predictionId: string;
   readonly position: number;
   readonly promptText: string;
   readonly timeLimit: number;

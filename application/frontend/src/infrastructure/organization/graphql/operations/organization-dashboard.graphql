@@ -1,4 +1,4 @@
-query WorkspaceOrganizationDashboard($organizationId: Int!) {
+query WorkspaceOrganizationDashboard($organizationId: ID!) {
   organizationDashboard(organizationId: $organizationId) {
     organization {
       id
