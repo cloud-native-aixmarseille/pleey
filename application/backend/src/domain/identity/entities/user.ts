@@ -1,7 +1,7 @@
 import type { Media } from '../../media/entities/media';
 import type { UserProfileSnapshot } from '../types/user-profile-snapshot';
 
-export type UserId = number & {
+export type UserId = string & {
   readonly __identifierBrand: 'UserId';
 };
 

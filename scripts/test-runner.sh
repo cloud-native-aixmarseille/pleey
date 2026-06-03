@@ -82,9 +82,10 @@ run_e2e() {
 	(cd "$ROOT_DIR" && VITE_API_URL="$VITE_API_URL_E2E" docker compose --env-file /dev/null exec -T valkey valkey-cli FLUSHALL >/dev/null)
 
 	log "Resetting database + seed data..."
-	# E2E runs must start from a clean schema so dashboard pagination and seeded
-	# fixtures remain deterministic across repeated local and CI executions.
-	(cd "$ROOT_DIR" && VITE_API_URL="$VITE_API_URL_E2E" docker compose --env-file /dev/null exec -T backend sh -lc 'npx prisma migrate reset --force && npm run db:generate && NODE_NO_WARNINGS=1 npm run seed')
+	# E2E runs must start from the current Prisma schema so seeded fixtures stay
+	# deterministic even when the checked-in migration history lags schema-level
+	# refactors like UUID-backed identifiers.
+	(cd "$ROOT_DIR" && VITE_API_URL="$VITE_API_URL_E2E" docker compose --env-file /dev/null exec -T backend sh -lc 'npx prisma db push --force-reset && npm run db:generate && NODE_NO_WARNINGS=1 npm run seed')
 
 	wait_for_http "http://backend:3001${BACKEND_HEALTH_PATH}" "backend"
 

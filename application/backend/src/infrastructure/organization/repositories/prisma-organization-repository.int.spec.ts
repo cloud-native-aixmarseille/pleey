@@ -9,7 +9,7 @@ const describeIfDatabase = hasDatabase ? describe.sequential : describe.skip;
 describeIfDatabase('PrismaOrganizationRepository', () => {
   const harness = new PrismaIntegrationTestHarness(PrismaOrganizationRepository);
 
-  const createdOrganizationIds: number[] = [];
+  const createdOrganizationIds: string[] = [];
   harness.addCleanupStep(async (prisma) => {
     if (createdOrganizationIds.length) {
       await prisma.organization.deleteMany({ where: { id: { in: createdOrganizationIds } } });

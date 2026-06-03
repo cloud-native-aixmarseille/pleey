@@ -7,11 +7,10 @@ import {
   createOrganizationRepositoryMock,
 } from '../../../../test-utils/mock-factories/organization.mock-factory';
 import { PaginationQueryNormalizer } from '../../../shared/services/pagination-query-normalizer';
-import { OrganizationIdentifier } from '../../shared/services/identifiers/organization-identifier';
 import { ListUserOrganizationsUseCase } from './list-user-organizations-use-case';
 
-const organizationIdentifier = new OrganizationIdentifier();
 const paginationQueryNormalizer = new PaginationQueryNormalizer();
+const organizationId = backendTestIdentifiers.organization(1);
 
 describe('ListUserOrganizationsUseCase', () => {
   it('returns an empty page when user has no memberships', async () => {
@@ -53,13 +52,13 @@ describe('ListUserOrganizationsUseCase', () => {
 
   it('fetches organizations by membership ids', async () => {
     const organizationRepository = createOrganizationRepositoryMock({
-      findByIds: [{ id: organizationIdentifier.parse(1) }] as never,
+      findByIds: [{ id: organizationId }] as never,
     });
     const memberRepository = createOrganizationMemberRepositoryMock({
       findPageByUser: {
         items: [
           {
-            organizationId: organizationIdentifier.parse(1),
+            organizationId,
             role: OrganizationRole.MEMBER,
           },
         ],
@@ -84,11 +83,9 @@ describe('ListUserOrganizationsUseCase', () => {
       25,
       undefined,
     );
-    expect(organizationRepository.findByIds).toHaveBeenCalledWith([
-      organizationIdentifier.parse(1),
-    ]);
+    expect(organizationRepository.findByIds).toHaveBeenCalledWith([organizationId]);
     expect(result).toEqual({
-      items: [{ id: organizationIdentifier.parse(1), role: OrganizationRole.MEMBER }],
+      items: [{ id: organizationId, role: OrganizationRole.MEMBER }],
       totalCount: 1,
       overallCount: 1,
       page: 1,

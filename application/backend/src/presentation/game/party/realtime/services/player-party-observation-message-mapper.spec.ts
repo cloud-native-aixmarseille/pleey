@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { PartyActionIdentifier } from '../../../../../application/game/party/shared/services/identifiers/party-action-identifier';
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
 import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
 import { PARTY_PLAYER_ACTION_STATE_STATUS } from '../../../../../domain/game/party/player/entities/party-player-action-state';
@@ -9,8 +8,6 @@ import { backendTestIdentifiers } from '../../../../../test-utils/branded-identi
 import { PlayerPartyObservationMessageMapper } from './player-party-observation-message-mapper';
 
 describe('PlayerPartyObservationMessageMapper', () => {
-  const partyActionIdentifier = new PartyActionIdentifier();
-
   it('injects the current-player result outcome into the observer-specific payload', () => {
     const mapper = new PlayerPartyObservationMessageMapper();
 
@@ -36,7 +33,7 @@ describe('PlayerPartyObservationMessageMapper', () => {
                   actionCount: 1,
                   actionPercent: 33,
                   earnedPoints: 0,
-                  id: partyActionIdentifier.parse(5),
+                  id: backendTestIdentifiers.partyAction(5),
                   isCorrect: false,
                   text: 'A',
                 },
@@ -44,7 +41,7 @@ describe('PlayerPartyObservationMessageMapper', () => {
                   actionCount: 2,
                   actionPercent: 67,
                   earnedPoints: 1000,
-                  id: partyActionIdentifier.parse(7),
+                  id: backendTestIdentifiers.partyAction(7),
                   isCorrect: true,
                   text: 'B',
                 },
@@ -66,7 +63,7 @@ describe('PlayerPartyObservationMessageMapper', () => {
             },
             state: {
               earnedPoints: 750,
-              selectedActionId: partyActionIdentifier.parse(7),
+              selectedActionId: backendTestIdentifiers.partyAction(7),
               stageId: backendTestIdentifiers.partyStage(202),
               stagePosition: 1,
               status: PARTY_PLAYER_ACTION_STATE_STATUS.ACKNOWLEDGED,
@@ -101,7 +98,7 @@ describe('PlayerPartyObservationMessageMapper', () => {
     expect(message.context?.result?.currentPlayer).toEqual({
       earnedPoints: 750,
       isCorrect: true,
-      selectedActionId: partyActionIdentifier.parse(7),
+      selectedActionId: backendTestIdentifiers.partyAction(7),
     });
     expect(message.gameType).toBe('quiz');
     expect(message.players[0]).toMatchObject({

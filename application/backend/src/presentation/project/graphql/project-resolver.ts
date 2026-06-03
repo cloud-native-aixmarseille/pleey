@@ -1,5 +1,5 @@
 import { UnauthorizedException, UseGuards } from '@nestjs/common';
-import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Context, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CreateProjectUseCase } from '../../../application/workspace/projects/use-cases/create-project-use-case';
 import { DeleteProjectUseCase } from '../../../application/workspace/projects/use-cases/delete-project-use-case';
 import { ListOrganizationProjectsUseCase } from '../../../application/workspace/projects/use-cases/list-organization-projects-use-case';
@@ -57,7 +57,7 @@ export class ProjectResolver {
   @Mutation(() => ProjectType)
   @UseGuards(GqlJwtAuthGuard)
   async createProject(
-    @Args('organizationId', { type: () => Int }) organizationId: number,
+    @Args('organizationId', { type: () => ID }) organizationId: string,
     @Args('input') input: CreateProjectInput,
     @Context() context: GraphqlAuthContext,
   ): Promise<ProjectType> {
@@ -72,7 +72,7 @@ export class ProjectResolver {
   @Mutation(() => ProjectType)
   @UseGuards(GqlJwtAuthGuard)
   async updateProject(
-    @Args('projectId', { type: () => Int }) projectId: number,
+    @Args('projectId', { type: () => ID }) projectId: string,
     @Args('input') input: UpdateProjectInput,
     @Context() context: GraphqlAuthContext,
   ): Promise<ProjectType> {
@@ -87,9 +87,9 @@ export class ProjectResolver {
   @Mutation(() => Boolean)
   @UseGuards(GqlJwtAuthGuard)
   async deleteProject(
-    @Args('projectId', { type: () => Int }) projectId: number,
+    @Args('projectId', { type: () => ID }) projectId: string,
     @Context() context: GraphqlAuthContext,
-    @Args('migrationProjectId', { type: () => Int, nullable: true }) migrationProjectId?: number,
+    @Args('migrationProjectId', { type: () => ID, nullable: true }) migrationProjectId?: string,
   ): Promise<boolean> {
     const userId = this.resolveUserId(context);
     await this.deleteProjectUseCase.execute(

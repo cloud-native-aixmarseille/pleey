@@ -20,8 +20,8 @@ describe('PartyManagementResolver', () => {
     listPartiesUseCase.execute.mockReset();
 
     createPartyUseCase.execute.mockResolvedValue({
-      partyId: 14,
-      gameId: 11,
+      partyId: backendTestIdentifiers.party(14),
+      gameId: backendTestIdentifiers.game(11),
       pin: '123456',
       status: 'WAITING',
       role: 'HOST',
@@ -30,8 +30,8 @@ describe('PartyManagementResolver', () => {
     listPartiesUseCase.execute.mockResolvedValue({
       items: [
         {
-          partyId: 14,
-          gameId: 11,
+          partyId: backendTestIdentifiers.party(14),
+          gameId: backendTestIdentifiers.game(11),
           pin: '123456',
           status: 'WAITING',
           role: 'HOST',
@@ -54,7 +54,7 @@ describe('PartyManagementResolver', () => {
 
   it('maps createParty to the host-authenticated use case input', async () => {
     const input = new CreatePartyInput();
-    input.gameId = 11;
+    input.gameId = backendTestIdentifiers.game(11);
 
     const result = await resolver.createParty(input, {
       req: {
@@ -65,10 +65,10 @@ describe('PartyManagementResolver', () => {
     });
 
     expect(createPartyUseCase.execute).toHaveBeenCalledWith({
-      gameId: 11,
+      gameId: backendTestIdentifiers.game(11),
       hostUserId: backendTestIdentifiers.user(42),
     });
-    expect(result.partyId).toBe(14);
+    expect(result.partyId).toBe(backendTestIdentifiers.party(14));
   });
 
   it('maps listParties to the authenticated user input', async () => {
@@ -92,8 +92,8 @@ describe('PartyManagementResolver', () => {
     expect(result).toEqual({
       items: [
         {
-          partyId: 14,
-          gameId: 11,
+          partyId: backendTestIdentifiers.party(14),
+          gameId: backendTestIdentifiers.game(11),
           pin: '123456',
           status: 'WAITING',
           role: 'HOST',

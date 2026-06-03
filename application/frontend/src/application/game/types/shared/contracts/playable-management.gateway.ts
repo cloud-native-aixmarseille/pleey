@@ -7,7 +7,7 @@ import type {
 } from '../../../../../domains/game/types/shared/management/playable-management';
 import type { ProjectId } from '../../../../../domains/project/entities/project';
 
-export interface PlayableManagementGateway<TItemId extends number = number> {
+export interface PlayableManagementGateway<TItemId extends string = string> {
   createGame(projectId: ProjectId, input: PlayableGameMetadataInput): Promise<GameTypeId>;
   load(gameTypeId: GameTypeId): Promise<PlayableManagementState<TItemId>>;
   updateMetadata(gameTypeId: GameTypeId, input: PlayableGameMetadataInput): Promise<void>;
@@ -23,7 +23,7 @@ export interface PlayableManagementGateway<TItemId extends number = number> {
   deleteItem(itemId: TItemId): Promise<void>;
 }
 
-export type PlayableContentManagementGateway<TItemId extends number = number> = Pick<
+export type PlayableContentManagementGateway<TItemId extends string = string> = Pick<
   PlayableManagementGateway<TItemId>,
   'load' | 'updateMetadata' | 'deleteGame' | 'createItem' | 'updateItem' | 'deleteItem'
 >;

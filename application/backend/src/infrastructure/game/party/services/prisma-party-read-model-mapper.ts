@@ -20,7 +20,7 @@ import {
 import type { GuestId } from '../../../../domain/identity/entities/guest';
 import type { UserId } from '../../../../domain/identity/entities/user';
 
-interface PersistedPartyPlayerScoreRow {
+interface PartyPlayerScoreRecord {
   readonly context?: unknown;
   readonly createdAt: Date;
   readonly points?: number;
@@ -38,12 +38,12 @@ interface PersistedPartyPlayerScoreRow {
   } | null;
 }
 
-interface PersistedPartyPlayerScoreSourceRow {
+interface PrismaPartyPlayerScoreRecord {
   readonly context?: unknown;
   readonly createdAt: Date;
   readonly points?: number;
   readonly user: {
-    readonly id: number;
+    readonly id: string;
     readonly username: string;
     readonly avatar: {
       readonly updatedAt: Date;
@@ -95,10 +95,10 @@ export class PrismaPartyReadModelMapper {
   ) {}
 
   collectPlayers(
-    scores: readonly PersistedPartyPlayerScoreRow[],
+    scores: readonly PartyPlayerScoreRecord[],
     options: {
       readonly excludedUserId?: UserId;
-      readonly resolveGuestJoinedAt?: (score: PersistedPartyPlayerScoreRow) => Date;
+      readonly resolveGuestJoinedAt?: (score: PartyPlayerScoreRecord) => Date;
     } = {},
   ): readonly PartyPlayerSummary[] {
     const players = new Map<string, PartyPlayerSummary>();
@@ -160,8 +160,8 @@ export class PrismaPartyReadModelMapper {
   }
 
   normalizePlayerScores(
-    scores: readonly PersistedPartyPlayerScoreSourceRow[],
-  ): readonly PersistedPartyPlayerScoreRow[] {
+    scores: readonly PrismaPartyPlayerScoreRecord[],
+  ): readonly PartyPlayerScoreRecord[] {
     return scores.map((score) => ({
       ...score,
       user: score.user
@@ -180,7 +180,7 @@ export class PrismaPartyReadModelMapper {
   }
 
   collectPlayerActionStates(
-    scores: readonly PersistedPartyPlayerScoreRow[],
+    scores: readonly PartyPlayerScoreRecord[],
     options: {
       readonly excludedUserId?: UserId;
     } = {},

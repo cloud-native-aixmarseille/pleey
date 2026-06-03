@@ -3,6 +3,7 @@ import { GameIdentifier } from '../../../../application/game/shared/services/ide
 import { GameTypeIdentifier } from '../../../../application/game/types/shared/services/game-type-identifier';
 import { ProjectIdentifier } from '../../../../application/workspace/shared/services/identifiers/project-identifier';
 import { SelectableOption } from '../../../../domain/game/types/shared/entities/selectable-option';
+import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import type { PrismaService } from '../../../database/prisma-service';
 import { PrismaPredictionManagementRepository } from './prisma-prediction-management.repository';
 
@@ -13,11 +14,11 @@ describe('PrismaPredictionManagementRepository', () => {
       game: {
         create: vi.fn().mockResolvedValue({
           prediction: {
-            id: 14,
-            gameId: 44,
+            id: backendTestIdentifiers.game(14),
+            gameId: backendTestIdentifiers.game(44),
             game: {
-              id: 44,
-              projectId: 9,
+              id: backendTestIdentifiers.game(44),
+              projectId: backendTestIdentifiers.project(9),
               title: 'Sprint prediction',
               description: null,
               createdAt,
@@ -36,7 +37,7 @@ describe('PrismaPredictionManagementRepository', () => {
     );
 
     const prediction = await repository.createWithPrompts({
-      projectId: projectIdentifier.parse(9),
+      projectId: backendTestIdentifiers.project(9),
       title: 'Sprint prediction',
       description: null,
       prompts: [

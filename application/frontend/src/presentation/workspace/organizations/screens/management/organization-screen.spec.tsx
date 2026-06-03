@@ -12,6 +12,7 @@ import type { Project, ProjectId } from '../../../../../domains/project/entities
 import type { PaginatedResult } from '../../../../../domains/shared/value-objects/paginated-result';
 import { OrganizationFixtureFactory } from '../../../../../test-utils/fixtures/organization-fixture-factory';
 import { OrganizationScreenFixtureFactory } from '../../../../../test-utils/fixtures/organization-screen-fixture-factory';
+import { coerceUuidV7TestValue } from '../../../../../test-utils/fixtures/uuid-v7-test-value';
 import { OrganizationIdentifierMockFactory } from '../../../../../test-utils/mocks/organization-identifier-mock-factory';
 import { ProjectIdentifierMockFactory } from '../../../../../test-utils/mocks/project-identifier-mock-factory';
 import { renderWithProviders } from '../../../../../test-utils/render-with-providers';
@@ -20,17 +21,23 @@ import { OrganizationScreen } from './organization-screen';
 
 const organizationIdentifier = new OrganizationIdentifierMockFactory().create();
 const projectIdentifier = new ProjectIdentifierMockFactory().create();
+const parseOrganizationId = (value: number) =>
+  organizationIdentifier.parse(coerceUuidV7TestValue(value));
+const parseOrganizationMemberId = (value: number) =>
+  coerceUuidV7TestValue(value) as OrganizationMember['id'];
+const parseProjectId = (value: number) => projectIdentifier.parse(coerceUuidV7TestValue(value));
+const parseUserId = (value: number) => coerceUuidV7TestValue(value) as OrganizationMember['userId'];
 
 const organizationScreenFixtureFactory = new OrganizationScreenFixtureFactory();
 const organizationFixtureFactory = new OrganizationFixtureFactory();
 
 function createOrganizationMember(overrides: Partial<OrganizationMember> = {}): OrganizationMember {
   return {
-    id: 21 as OrganizationMember['id'],
+    id: parseOrganizationMemberId(21),
     joinedAt: '2026-03-20T10:00:00.000Z',
-    organizationId: organizationIdentifier.parse(3),
+    organizationId: parseOrganizationId(3),
     role: OrganizationRole.MEMBER,
-    userId: 42,
+    userId: parseUserId(42),
     username: 'captain',
     ...overrides,
   };
@@ -141,7 +148,7 @@ function renderOrganizationScreen(
         .mockImplementation(() => createPendingPromise())
     : vi.fn().mockResolvedValue({
         organizationsPage: createPaginatedResult([organizationFixtureFactory.createOrganization()]),
-        organizationId: organizationIdentifier.parse(3),
+        organizationId: parseOrganizationId(3),
       });
   const loadOrganizationWorkspaceState = shouldDeferWorkspaceLoad
     ? vi
@@ -299,7 +306,7 @@ describe('OrganizationScreen', () => {
               },
             }),
             projects: [organizationScreenFixtureFactory.createProject()],
-            projectId: projectIdentifier.parse(11),
+            projectId: parseProjectId(11),
           }),
         },
       ).deleteProject.mockImplementation(deleteProject);
@@ -331,12 +338,12 @@ describe('OrganizationScreen', () => {
             organizations: [
               organizationFixtureFactory.createOrganization({ description: 'The best org' }),
             ],
-            organizationId: organizationIdentifier.parse(3),
+            organizationId: parseOrganizationId(3),
           }),
           loadOrganizationWorkspaceState: vi.fn().mockResolvedValue({
             organizationDashboard: organizationScreenFixtureFactory.createOrganizationDashboard({
               organization: {
-                id: organizationIdentifier.parse(3),
+                id: parseOrganizationId(3),
                 name: 'Active Org',
                 description: 'The best org',
               },
@@ -399,7 +406,7 @@ describe('OrganizationScreen', () => {
         projectsPage: createPaginatedResult([
           organizationScreenFixtureFactory.createProject({ name: 'Flagship Project' }),
         ]),
-        projectId: projectIdentifier.parse(11),
+        projectId: parseProjectId(11),
       });
 
       renderOrganizationScreen({}, { loadOrganizationWorkspaceState });
@@ -411,7 +418,7 @@ describe('OrganizationScreen', () => {
 
       await waitFor(() => {
         expect(loadOrganizationWorkspaceState).toHaveBeenLastCalledWith({
-          organizationId: organizationIdentifier.parse(3),
+          organizationId: parseOrganizationId(3),
           page: 1,
           pageSize: 25,
           search: 'Flag',
@@ -433,7 +440,7 @@ describe('OrganizationScreen', () => {
 
       await waitFor(() => {
         expect(view.listOrganizationMembers).toHaveBeenLastCalledWith({
-          organizationId: organizationIdentifier.parse(3),
+          organizationId: parseOrganizationId(3),
           page: 1,
           pageSize: 25,
           search: 'captain',
@@ -453,21 +460,21 @@ describe('OrganizationScreen', () => {
             ]),
             totalPages: 2,
           },
-          projectId: projectIdentifier.parse(11),
+          projectId: parseProjectId(11),
         })
         .mockResolvedValueOnce({
           organizationDashboard: organizationScreenFixtureFactory.createOrganizationDashboard(),
           projectsPage: {
             ...createPaginatedResult([
               organizationScreenFixtureFactory.createProject({
-                id: projectIdentifier.parse(12),
+                id: parseProjectId(12),
                 name: 'Page Two Project',
               }),
             ]),
             page: 2,
             totalPages: 2,
           },
-          projectId: projectIdentifier.parse(12),
+          projectId: parseProjectId(12),
         });
 
       renderOrganizationScreen({}, { loadOrganizationWorkspaceState });
@@ -478,7 +485,7 @@ describe('OrganizationScreen', () => {
 
       await waitFor(() => {
         expect(loadOrganizationWorkspaceState).toHaveBeenLastCalledWith({
-          organizationId: organizationIdentifier.parse(3),
+          organizationId: parseOrganizationId(3),
           page: 2,
           pageSize: 25,
           search: undefined,
@@ -504,7 +511,11 @@ describe('OrganizationScreen', () => {
               totalPages: 2,
             })
             .mockResolvedValueOnce({
-              items: [createOrganizationMember({ id: 22 as OrganizationMember['id'] })],
+              items: [
+                createOrganizationMember({
+                  id: parseOrganizationMemberId(22),
+                }),
+              ],
               totalCount: 1,
               overallCount: 2,
               page: 2,
@@ -522,7 +533,7 @@ describe('OrganizationScreen', () => {
 
       await waitFor(() => {
         expect(view.listOrganizationMembers).toHaveBeenLastCalledWith({
-          organizationId: organizationIdentifier.parse(3),
+          organizationId: parseOrganizationId(3),
           page: 2,
           pageSize: 25,
           search: undefined,
@@ -578,12 +589,12 @@ describe('OrganizationScreen', () => {
             projects: [
               organizationScreenFixtureFactory.createProject(),
               organizationScreenFixtureFactory.createProject({
-                id: projectIdentifier.parse(12),
+                id: parseProjectId(12),
                 name: 'Side Project',
                 description: null,
               }),
             ],
-            projectId: projectIdentifier.parse(11),
+            projectId: parseProjectId(11),
           }),
         },
       );
@@ -634,7 +645,7 @@ describe('OrganizationScreen', () => {
       const setOrganizationSelection = vi.fn();
       const createdOrganization = organizationFixtureFactory.createCreatedOrganization({
         description: 'Fresh workspace',
-        id: organizationIdentifier.parse(9),
+        id: parseOrganizationId(9),
         name: 'Fresh Org',
       });
       const view = renderOrganizationScreen(
@@ -663,7 +674,7 @@ describe('OrganizationScreen', () => {
       );
 
       await waitFor(() => {
-        expect(setOrganizationSelection).toHaveBeenCalledWith(organizationIdentifier.parse(9));
+        expect(setOrganizationSelection).toHaveBeenCalledWith(parseOrganizationId(9));
       });
     });
 
@@ -675,7 +686,7 @@ describe('OrganizationScreen', () => {
           loadOrganizationWorkspaceState: vi.fn().mockResolvedValue({
             organizationDashboard: organizationScreenFixtureFactory.createOrganizationDashboard(),
             projects: [organizationScreenFixtureFactory.createProject()],
-            projectId: projectIdentifier.parse(11),
+            projectId: parseProjectId(11),
           }),
         },
       );
@@ -710,19 +721,19 @@ describe('OrganizationScreen', () => {
               organizationsPage: createPaginatedResult([
                 organizationFixtureFactory.createOrganization(),
               ]),
-              organizationId: organizationIdentifier.parse(3),
+              organizationId: parseOrganizationId(3),
             }),
             loadOrganizationWorkspaceState: vi.fn().mockResolvedValue({
               organizationDashboard: organizationScreenFixtureFactory.createOrganizationDashboard(),
               projectsPage: createPaginatedResult([
                 organizationScreenFixtureFactory.createProject(),
                 organizationScreenFixtureFactory.createProject({
-                  id: projectIdentifier.parse(12),
+                  id: parseProjectId(12),
                   name: 'Side Project',
                   description: null,
                 }),
               ]),
-              projectId: projectIdentifier.parse(11),
+              projectId: parseProjectId(11),
             }),
             setOrganizationSelection: vi.fn(),
             setProjectSelection: vi.fn(),
@@ -770,8 +781,8 @@ describe('OrganizationScreen', () => {
       await user.click(confirmButton);
 
       expect(deleteProject).toHaveBeenCalledWith({
-        projectId: projectIdentifier.parse(11),
-        migrationProjectId: projectIdentifier.parse(12),
+        projectId: parseProjectId(11),
+        migrationProjectId: parseProjectId(12),
       });
     });
 
@@ -834,7 +845,7 @@ describe('OrganizationScreen', () => {
             organizations: [
               organizationFixtureFactory.createOrganization({ role: OrganizationRole.MANAGER }),
             ],
-            organizationId: organizationIdentifier.parse(3),
+            organizationId: parseOrganizationId(3),
           }),
         },
         { deferWorkspaceLoad: false },
@@ -874,7 +885,7 @@ describe('OrganizationScreen', () => {
 
       await waitFor(() => {
         expect(addOrganizationMember).toHaveBeenCalledWith({
-          organizationId: organizationIdentifier.parse(3),
+          organizationId: parseOrganizationId(3),
           role: OrganizationRole.MEMBER,
           usernameOrEmail: 'captain@pleey.io',
         });

@@ -1,7 +1,7 @@
 import type { OrganizationId } from '../../../../../domains/organization/entities/organization';
-import { NumericIdentifierParser } from '../../../../shared/services/identifier-parser';
+import { UuidV7IdentifierParser } from '../../../../shared/services/identifier-parser';
 
-export class OrganizationIdentifier extends NumericIdentifierParser<OrganizationId> {
+export class OrganizationIdentifier extends UuidV7IdentifierParser<OrganizationId> {
   constructor() {
     super('OrganizationId');
   }

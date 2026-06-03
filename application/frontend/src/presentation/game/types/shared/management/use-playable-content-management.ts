@@ -32,7 +32,7 @@ export function usePlayableContentManagement({
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [editorState, setEditorState] = useState<PlayableItemEditorState>(() =>
     createEmptyPlayableItemEditorState(itemKindConfig),
   );

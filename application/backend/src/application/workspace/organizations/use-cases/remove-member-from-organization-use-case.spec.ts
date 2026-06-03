@@ -6,12 +6,13 @@ import {
   createOrganizationMemberRepositoryMock,
   createOrganizationRepositoryMock,
 } from '../../../../test-utils/mock-factories/organization.mock-factory';
-import { OrganizationIdentifier } from '../../shared/services/identifiers/organization-identifier';
 import { OrganizationMembershipAccessService } from '../services/organization-membership-access.service';
 import { RemoveMemberFromOrganizationUseCase } from './remove-member-from-organization-use-case';
 
-const organizationIdentifier = new OrganizationIdentifier();
 const membershipPolicy = new OrganizationMembershipPolicy();
+const organizationId = backendTestIdentifiers.organization(1);
+const memberId = backendTestIdentifiers.organizationMember(1);
+const requesterUserId = backendTestIdentifiers.user(10);
 
 describe('RemoveMemberFromOrganizationUseCase', () => {
   it('throws MEMBER_NOT_FOUND when member does not exist', async () => {
@@ -25,19 +26,16 @@ describe('RemoveMemberFromOrganizationUseCase', () => {
       organizationMembershipAccess,
       memberRepository as never,
     );
-    await expect(
-      useCase.execute(
-        backendTestIdentifiers.organizationMember(1),
-        backendTestIdentifiers.user(10),
-      ),
-    ).rejects.toThrow(OrganizationErrorCode.MEMBER_NOT_FOUND);
+    await expect(useCase.execute(memberId, requesterUserId)).rejects.toThrow(
+      OrganizationErrorCode.MEMBER_NOT_FOUND,
+    );
   });
 
   it('throws when requesting user lacks management privileges', async () => {
     const memberRepository = createOrganizationMemberRepositoryMock({
       findById: {
-        id: backendTestIdentifiers.organizationMember(1),
-        organizationId: organizationIdentifier.parse(1),
+        id: memberId,
+        organizationId,
         role: OrganizationRole.MEMBER,
         isOwner: () => false,
       } as never,
@@ -52,18 +50,15 @@ describe('RemoveMemberFromOrganizationUseCase', () => {
       organizationMembershipAccess,
       memberRepository as never,
     );
-    await expect(
-      useCase.execute(
-        backendTestIdentifiers.organizationMember(1),
-        backendTestIdentifiers.user(10),
-      ),
-    ).rejects.toThrow(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
+    await expect(useCase.execute(memberId, requesterUserId)).rejects.toThrow(
+      OrganizationErrorCode.INSUFFICIENT_PERMISSIONS,
+    );
   });
 
   it('throws when trying to remove the last owner', async () => {
     const ownerMember = {
-      id: backendTestIdentifiers.organizationMember(1),
-      organizationId: organizationIdentifier.parse(1),
+      id: memberId,
+      organizationId,
       role: OrganizationRole.OWNER,
       isOwner: () => true,
     };
@@ -84,18 +79,15 @@ describe('RemoveMemberFromOrganizationUseCase', () => {
       organizationMembershipAccess,
       memberRepository as never,
     );
-    await expect(
-      useCase.execute(
-        backendTestIdentifiers.organizationMember(1),
-        backendTestIdentifiers.user(10),
-      ),
-    ).rejects.toThrow(OrganizationErrorCode.CANNOT_REMOVE_LAST_OWNER);
+    await expect(useCase.execute(memberId, requesterUserId)).rejects.toThrow(
+      OrganizationErrorCode.CANNOT_REMOVE_LAST_OWNER,
+    );
   });
 
   it('throws when a manager tries to remove an owner', async () => {
     const ownerMember = {
-      id: backendTestIdentifiers.organizationMember(1),
-      organizationId: organizationIdentifier.parse(1),
+      id: memberId,
+      organizationId,
       role: OrganizationRole.OWNER,
       isOwner: () => true,
     };
@@ -116,18 +108,15 @@ describe('RemoveMemberFromOrganizationUseCase', () => {
       memberRepository as never,
     );
 
-    await expect(
-      useCase.execute(
-        backendTestIdentifiers.organizationMember(1),
-        backendTestIdentifiers.user(10),
-      ),
-    ).rejects.toThrow(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
+    await expect(useCase.execute(memberId, requesterUserId)).rejects.toThrow(
+      OrganizationErrorCode.INSUFFICIENT_PERMISSIONS,
+    );
   });
 
   it('deletes member when allowed', async () => {
     const memberToRemove = {
-      id: backendTestIdentifiers.organizationMember(1),
-      organizationId: organizationIdentifier.parse(1),
+      id: memberId,
+      organizationId,
       role: OrganizationRole.MEMBER,
       isOwner: () => false,
     };
@@ -148,12 +137,7 @@ describe('RemoveMemberFromOrganizationUseCase', () => {
       organizationMembershipAccess,
       memberRepository as never,
     );
-    await useCase.execute(
-      backendTestIdentifiers.organizationMember(1),
-      backendTestIdentifiers.user(10),
-    );
-    expect(memberRepository.delete).toHaveBeenCalledWith(
-      backendTestIdentifiers.organizationMember(1),
-    );
+    await useCase.execute(memberId, requesterUserId);
+    expect(memberRepository.delete).toHaveBeenCalledWith(memberId);
   });
 });

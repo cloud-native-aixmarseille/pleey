@@ -69,7 +69,7 @@ describe('PartyLobbyRuntimeRedirectResolver', () => {
       screenSection: PartyScreenSection.RESULT,
     });
 
-    expect(redirectTo).toBe('/party/9/stage/2');
+    expect(redirectTo).toBe(`/party/${party.partyId}/stage/${toStageId(2)}`);
   });
 
   it('redirects waiting hosts back to the lobby when stale result data survives a party rewind', () => {
@@ -98,7 +98,7 @@ describe('PartyLobbyRuntimeRedirectResolver', () => {
       screenSection: PartyScreenSection.RESULT,
     });
 
-    expect(redirectTo).toBe('/party/9/lobby');
+    expect(redirectTo).toBe(`/party/${party.partyId}/lobby`);
   });
 
   it('keeps valid result routes stable when the lifecycle is still in the result phase', () => {

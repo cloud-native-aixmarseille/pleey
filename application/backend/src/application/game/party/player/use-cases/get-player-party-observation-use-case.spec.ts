@@ -1,10 +1,10 @@
 import 'reflect-metadata';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
-import { PartyIdentifier } from '../../shared/services/identifiers/party-identifier';
+import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { GetPlayerPartyObservationUseCase } from './get-player-party-observation-use-case';
 
-const partyIdentifier = new PartyIdentifier();
+const partyId = backendTestIdentifiers.party(11);
 
 describe('GetPlayerPartyObservationUseCase', () => {
   const playerPartyObservationReader = {
@@ -16,7 +16,7 @@ describe('GetPlayerPartyObservationUseCase', () => {
   beforeEach(() => {
     playerPartyObservationReader.findPlayerObservationByPartyId.mockReset();
     playerPartyObservationReader.findPlayerObservationByPartyId.mockResolvedValue({
-      partyId: 11,
+      partyId,
       pin: '123456',
       status: 'WAITING',
       host: {
@@ -30,17 +30,17 @@ describe('GetPlayerPartyObservationUseCase', () => {
   });
 
   it('loads the player observation by party id', async () => {
-    const result = await useCase.execute({ partyId: partyIdentifier.parse(11) });
+    const result = await useCase.execute({ partyId });
 
-    expect(playerPartyObservationReader.findPlayerObservationByPartyId).toHaveBeenCalledWith(11);
-    expect(result.partyId).toBe(11);
+    expect(playerPartyObservationReader.findPlayerObservationByPartyId).toHaveBeenCalledWith(
+      partyId,
+    );
+    expect(result.partyId).toBe(partyId);
   });
 
   it('raises a game-domain error when the party is missing', async () => {
     playerPartyObservationReader.findPlayerObservationByPartyId.mockResolvedValue(null);
 
-    await expect(useCase.execute({ partyId: partyIdentifier.parse(11) })).rejects.toThrow(
-      GameErrorCode.PARTY_NOT_FOUND,
-    );
+    await expect(useCase.execute({ partyId })).rejects.toThrow(GameErrorCode.PARTY_NOT_FOUND);
   });
 });

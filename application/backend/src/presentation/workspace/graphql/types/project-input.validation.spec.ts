@@ -1,5 +1,6 @@
 import { type ArgumentMetadata, BadRequestException, ValidationPipe } from '@nestjs/common';
 import { describe, expect, it } from 'vitest';
+import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { CreateProjectInput } from '../../../project/graphql/types/create-project-input';
 import { ListOrganizationProjectsInput } from '../../../project/graphql/types/list-organization-projects-input';
 import { UpdateProjectInput } from '../../../project/graphql/types/update-project-input';
@@ -85,7 +86,7 @@ describe('Project GraphQL inputs validation', () => {
 
     const result = await pipe.transform(
       {
-        organizationId: 7,
+        organizationId: backendTestIdentifiers.organization(7),
         page: 2,
         pageSize: 25,
         search: 'launch',
@@ -98,7 +99,7 @@ describe('Project GraphQL inputs validation', () => {
 
     expect(result).toBeInstanceOf(ListOrganizationProjectsInput);
     expect(result).toMatchObject({
-      organizationId: 7,
+      organizationId: backendTestIdentifiers.organization(7),
       page: 2,
       pageSize: 25,
       search: 'launch',

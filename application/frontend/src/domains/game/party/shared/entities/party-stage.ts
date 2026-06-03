@@ -1,3 +1,3 @@
-export type StageId = number & {
+export type StageId = string & {
   readonly __identifierBrand: 'StageId';
 };

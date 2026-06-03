@@ -4,16 +4,16 @@ import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/share
 import { PartyRuntimePhase } from '../../../../../domains/game/party/shared/entities/party-runtime-context';
 import { PartyStatus } from '../../../../../domains/game/party/shared/entities/party-status';
 import { GameType } from '../../../../../domains/game/types/shared/game-type';
-import { UserIdentifier } from '../../../../identity/shared/services/identifiers/user-identifier';
-import { PartyIdentifier } from '../../shared/services/identifiers/party-identifier';
+import { PartyIdentifierMockFactory } from '../../../../../test-utils/mocks/party-identifier-mock-factory';
+import { StageIdentifierMockFactory } from '../../../../../test-utils/mocks/stage-identifier-mock-factory';
+import { UserIdentifierMockFactory } from '../../../../../test-utils/mocks/user-identifier-mock-factory';
 import { PartyPinIdentifier } from '../../shared/services/identifiers/party-pin-identifier';
-import { StageIdentifier } from '../../shared/services/identifiers/stage-identifier';
 import { HostPartyRuntimeControlsResolver } from './host-party-runtime-controls-resolver';
 
-const partyIdentifier = new PartyIdentifier();
+const partyIdentifier = new PartyIdentifierMockFactory().create();
 const partyPinIdentifier = new PartyPinIdentifier();
-const stageIdentifier = new StageIdentifier();
-const userIdentifier = new UserIdentifier();
+const stageIdentifier = new StageIdentifierMockFactory().create();
+const userIdentifier = new UserIdentifierMockFactory().create();
 
 function createObservation(overrides: Partial<PartyObservation> = {}): PartyObservation {
   return {

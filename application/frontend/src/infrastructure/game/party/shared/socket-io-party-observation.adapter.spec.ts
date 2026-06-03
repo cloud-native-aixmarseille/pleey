@@ -1,27 +1,31 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { PartyActionIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-action-identifier';
-import { PartyIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-identifier';
 import { PartyPinIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-pin-identifier';
-import { GameIdentifier } from '../../../../application/game/shared/services/identifiers/game-identifier';
 import { GameTypeParser } from '../../../../application/game/types/shared/services/game-type-parser';
-import { GuestIdentifier } from '../../../../application/identity/shared/services/identifiers/guest-identifier';
-import { UserIdentifier } from '../../../../application/identity/shared/services/identifiers/user-identifier';
 import { PartyJoinReceiptStatus } from '../../../../domains/game/party/player/ports/party-player.port';
 import { PartyPlayerIdentityKind } from '../../../../domains/game/party/shared/entities/party-player-identity';
 import { GameType } from '../../../../domains/game/types/shared/game-type';
+import { GameIdentifierMockFactory } from '../../../../test-utils/mocks/game-identifier-mock-factory';
+import { GuestIdentifierMockFactory } from '../../../../test-utils/mocks/guest-identifier-mock-factory';
+import { PartyActionIdentifierMockFactory } from '../../../../test-utils/mocks/party-action-identifier-mock-factory';
+import { PartyIdentifierMockFactory } from '../../../../test-utils/mocks/party-identifier-mock-factory';
+import { UserIdentifierMockFactory } from '../../../../test-utils/mocks/user-identifier-mock-factory';
 import { SocketIoPartyHostControlAdapter } from '../host/socket-io-party-host-control.adapter';
 import { SocketIoPartyPlayerAdapter } from '../player/socket-io-party-player.adapter';
 import { SocketIoPartyObservationAdapter } from './socket-io-party-observation.adapter';
 import { SocketIoPartyPayloadMapper } from './socket-io-party-payload-mapper';
 import { SocketIoPartyRealtimeTransport } from './socket-io-party-realtime-transport';
 
-const guestIdentifier = new GuestIdentifier();
-const userIdentifier = new UserIdentifier();
-const partyIdentifier = new PartyIdentifier();
+const guestIdentifier = new GuestIdentifierMockFactory().create();
+const userIdentifier = new UserIdentifierMockFactory().create();
+const partyIdentifier = new PartyIdentifierMockFactory().create();
 const partyPinIdentifier = new PartyPinIdentifier();
-const partyActionIdentifier = new PartyActionIdentifier();
-const gameIdentifier = new GameIdentifier();
+const partyActionIdentifier = new PartyActionIdentifierMockFactory().create();
+const gameIdentifier = new GameIdentifierMockFactory().create();
 const gameTypeParser = new GameTypeParser();
+const PARTY_ID = partyIdentifier.parse(44);
+const GAME_ID = gameIdentifier.parse(17);
+const GUEST_ID = guestIdentifier.parse('guest-9');
+const ACTION_ID = partyActionIdentifier.parse(100);
 
 function createPayloadMapper() {
   return new SocketIoPartyPayloadMapper(
@@ -62,13 +66,13 @@ function createHostControlAdapter() {
 
 function createAcceptedGuestJoinReceipt() {
   return {
-    gameId: 17,
+    gameId: GAME_ID,
     player: {
       avatarUri: '/avatars/guest-9.png',
-      identity: { kind: PartyPlayerIdentityKind.Guest, guestId: 'guest-9' },
+      identity: { kind: PartyPlayerIdentityKind.Guest, guestId: GUEST_ID },
       username: 'Neo',
     },
-    partyId: 44,
+    partyId: PARTY_ID,
     pin: 'AB12CD',
     status: PartyJoinReceiptStatus.ACCEPTED,
   };
@@ -128,13 +132,13 @@ describe('SocketIoPartyObservationAdapter', () => {
   it('connects and requests observation by party id', () => {
     const { adapter } = createObservationAdapter();
 
-    const release = adapter.observeParty(partyIdentifier.parse(44), {
+    const release = adapter.observeParty(PARTY_ID, {
       onSnapshot: vi.fn(),
     });
 
     expect(ioMock).toHaveBeenCalledTimes(1);
     expect(connectMock).toHaveBeenCalledTimes(1);
-    expect(emitMock).toHaveBeenCalledWith('observe-party', { partyId: 44 });
+    expect(emitMock).toHaveBeenCalledWith('observe-party', { partyId: PARTY_ID });
 
     release();
 
@@ -145,7 +149,7 @@ describe('SocketIoPartyObservationAdapter', () => {
   it('refreshes the socket auth payload when auth tokens change', () => {
     const { adapter, transport } = createObservationAdapter();
 
-    adapter.observeParty(partyIdentifier.parse(44), {
+    adapter.observeParty(PARTY_ID, {
       onSnapshot: vi.fn(),
     });
     transport.setAuthSessionTokens({ accessToken: 'token-1', refreshToken: 'refresh-1' });
@@ -160,32 +164,32 @@ describe('SocketIoPartyObservationAdapter', () => {
 
     const { adapter } = createObservationAdapter();
 
-    adapter.observeParty(partyIdentifier.parse(44), {
+    adapter.observeParty(PARTY_ID, {
       onSnapshot: vi.fn(),
     });
-    adapter.observeParty(partyIdentifier.parse(44), {
+    adapter.observeParty(PARTY_ID, {
       onSnapshot: vi.fn(),
     });
 
     expect(emitMock).toHaveBeenCalledTimes(1);
-    expect(emitMock).toHaveBeenCalledWith('observe-party', { partyId: 44 });
+    expect(emitMock).toHaveBeenCalledWith('observe-party', { partyId: PARTY_ID });
   });
 
   it('observes host lobby routes by party id', () => {
     const { adapter } = createObservationAdapter();
 
-    adapter.observeParty(partyIdentifier.parse(44), {
+    adapter.observeParty(PARTY_ID, {
       onSnapshot: vi.fn(),
     });
 
-    expect(emitMock).toHaveBeenCalledWith('observe-party', { partyId: 44 });
+    expect(emitMock).toHaveBeenCalledWith('observe-party', { partyId: PARTY_ID });
   });
 
   it('dispatches rollback runtime notices to observers of the matching party', () => {
     const onRuntimeNotice = vi.fn();
     const { adapter } = createObservationAdapter();
 
-    adapter.observeParty(partyIdentifier.parse(44), {
+    adapter.observeParty(PARTY_ID, {
       onRuntimeNotice,
       onSnapshot: vi.fn(),
     });
@@ -198,14 +202,14 @@ describe('SocketIoPartyObservationAdapter', () => {
 
     runtimeNoticeHandler?.({ kind: 'rewindParty', partyId: 44 });
 
-    expect(onRuntimeNotice).toHaveBeenCalledWith({ kind: 'rewindParty', partyId: 44 });
+    expect(onRuntimeNotice).toHaveBeenCalledWith({ kind: 'rewindParty', partyId: PARTY_ID });
   });
 
   it('maps observation snapshots without leaking player identity fields', () => {
     const onSnapshot = vi.fn();
     const { adapter } = createObservationAdapter();
 
-    adapter.observeParty(partyIdentifier.parse(44), { onSnapshot });
+    adapter.observeParty(PARTY_ID, { onSnapshot });
 
     const snapshotHandler = onMock.mock.calls.find(
       ([eventName]) => eventName === 'party-snapshot',
@@ -247,7 +251,7 @@ describe('SocketIoPartyObservationAdapter', () => {
       players: [
         {
           avatarUri: '/avatars/guest-9.png',
-          identity: { kind: PartyPlayerIdentityKind.Guest, guestId: 'guest-9' },
+          identity: { kind: PartyPlayerIdentityKind.Guest, guestId: GUEST_ID },
           isCurrentPlayer: false,
           isLive: true,
           totalScore: 650,
@@ -255,7 +259,7 @@ describe('SocketIoPartyObservationAdapter', () => {
         },
       ],
       gameType: GameType.Quiz,
-      partyId: 44,
+      partyId: PARTY_ID,
       pin: 'AB12CD',
       status: 'WAITING',
     });
@@ -267,7 +271,7 @@ describe('SocketIoPartyObservationAdapter', () => {
     const onSnapshot = vi.fn();
     const { adapter } = createObservationAdapter();
 
-    adapter.observeParty(partyIdentifier.parse(44), { onSnapshot });
+    adapter.observeParty(PARTY_ID, { onSnapshot });
 
     const snapshotHandler = onMock.mock.calls.find(
       ([eventName]) => eventName === 'party-snapshot',
@@ -327,7 +331,7 @@ describe('SocketIoPartyObservationAdapter', () => {
           totalEligiblePlayerCount: 0,
         },
         current: {
-          actions: [{ id: 100, text: 'First answer' }],
+          actions: [{ id: ACTION_ID, text: 'First answer' }],
           text: 'Who answers first?',
         },
       },
@@ -338,7 +342,7 @@ describe('SocketIoPartyObservationAdapter', () => {
     const onSnapshot = vi.fn();
     const { adapter } = createObservationAdapter();
 
-    adapter.observeParty(partyIdentifier.parse(44), { onSnapshot });
+    adapter.observeParty(PARTY_ID, { onSnapshot });
 
     const snapshotHandler = onMock.mock.calls.find(
       ([eventName]) => eventName === 'party-snapshot',
@@ -380,7 +384,7 @@ describe('SocketIoPartyObservationAdapter', () => {
 
     emitMock.mockImplementationOnce((eventName, payload, callback) => {
       expect(eventName).toBe('join-party');
-      expect(payload).toEqual({ guestId: 'guest-9', pin: 'AB12CD', username: 'Neo' });
+      expect(payload).toEqual({ guestId: GUEST_ID, pin: 'AB12CD', username: 'Neo' });
       callback(acceptedGuestJoinReceipt);
     });
 
@@ -391,7 +395,7 @@ describe('SocketIoPartyObservationAdapter', () => {
         pin: partyPinIdentifier.parse('AB12CD'),
         playerIdentity: {
           kind: PartyPlayerIdentityKind.Guest,
-          guestId: guestIdentifier.parse('guest-9'),
+          guestId: GUEST_ID,
         },
         username: 'Neo',
       }),
@@ -399,7 +403,14 @@ describe('SocketIoPartyObservationAdapter', () => {
   });
 
   it('maps rejected join acknowledgements to translation keys', async () => {
-    emitMock.mockImplementationOnce((_, __, callback) => {
+    emitMock.mockImplementationOnce((eventName, payload, callback) => {
+      expect(eventName).toBe('join-party');
+      expect(payload).toEqual({
+        avatarSeed: undefined,
+        guestId: undefined,
+        pin: 'AB12CD',
+        username: undefined,
+      });
       callback({
         errorCode: 'PLAYER_ALREADY_IN_ACTIVE_PARTY',
         status: PartyJoinReceiptStatus.REJECTED,
@@ -422,6 +433,9 @@ describe('SocketIoPartyObservationAdapter', () => {
   it('returns the leave acknowledgement result', async () => {
     emitMock.mockImplementationOnce((eventName, callback) => {
       expect(eventName).toBe('leave-party');
+      if (typeof callback !== 'function') {
+        throw new Error('Expected leave-party acknowledgement callback');
+      }
       callback({ left: true });
     });
 
@@ -433,15 +447,16 @@ describe('SocketIoPartyObservationAdapter', () => {
   it('dispatches host runtime commands through the existing socket connection', async () => {
     emitMock.mockImplementationOnce((eventName, payload, callback) => {
       expect(eventName).toBe('start-party');
-      expect(payload).toEqual({ partyId: 44 });
+      expect(payload).toEqual({ partyId: PARTY_ID });
+      if (typeof callback !== 'function') {
+        throw new Error('Expected host command acknowledgement callback');
+      }
       callback();
     });
 
     const { adapter } = createHostControlAdapter();
 
-    await expect(
-      adapter.startParty({ partyId: partyIdentifier.parse(44) }),
-    ).resolves.toBeUndefined();
+    await expect(adapter.startParty({ partyId: PARTY_ID })).resolves.toBeUndefined();
   });
 
   it('re-requests the active party observation after a host runtime command completes', async () => {
@@ -455,18 +470,16 @@ describe('SocketIoPartyObservationAdapter', () => {
 
     const { adapter, transport } = createHostControlAdapter();
 
-    transport.observeParty(partyIdentifier.parse(44), {
+    transport.observeParty(PARTY_ID, {
       onSnapshot: vi.fn(),
     });
     emitMock.mockClear();
 
-    await expect(
-      adapter.startParty({ partyId: partyIdentifier.parse(44) }),
-    ).resolves.toBeUndefined();
+    await expect(adapter.startParty({ partyId: PARTY_ID })).resolves.toBeUndefined();
 
     expect(emitMock.mock.calls).toEqual([
-      ['start-party', { partyId: 44 }, expect.any(Function)],
-      ['observe-party', { partyId: 44 }],
+      ['start-party', { partyId: PARTY_ID }, expect.any(Function)],
+      ['observe-party', { partyId: PARTY_ID }],
     ]);
   });
 
@@ -474,7 +487,7 @@ describe('SocketIoPartyObservationAdapter', () => {
     emitMock.mockImplementationOnce(() => undefined);
 
     const { adapter } = createHostControlAdapter();
-    const pendingCommand = adapter.pauseParty({ partyId: partyIdentifier.parse(44) });
+    const pendingCommand = adapter.pauseParty({ partyId: PARTY_ID });
     const exceptionHandler = onMock.mock.calls.find((call) => call[0] === 'exception')?.[1] as
       | ((payload?: { message?: string }) => void)
       | undefined;

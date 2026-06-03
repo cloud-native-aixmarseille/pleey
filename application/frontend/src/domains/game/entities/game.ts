@@ -1,3 +1,3 @@
-export type GameId = number & {
+export type GameId = string & {
   readonly __identifierBrand: 'GameId';
 };

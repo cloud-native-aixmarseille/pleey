@@ -2,7 +2,7 @@ import type { GameId } from '../../../entities/game';
 import type { PartyRole } from './party-role';
 import type { PartyStatus } from './party-status';
 
-export type PartyId = number & {
+export type PartyId = string & {
   readonly __identifierBrand: 'PartyId';
 };
 

@@ -9,6 +9,7 @@ import { PlayableContentManagementScreen } from './playable-content-management-s
 import { PlayableItemEditorValidator } from './playable-item-editor-validator';
 
 const gameTypeIdentifier = new GameTypeIdentifierMockFactory().create();
+const gameTypeId = gameTypeIdentifier.parse(12);
 
 const { navigateMock } = vi.hoisted(() => ({ navigateMock: vi.fn() }));
 
@@ -111,7 +112,7 @@ describe('PlayableContentManagementScreen', () => {
       provideWorkspaceDependencies(
         <MemoryRouter>
           <PlayableContentManagementScreen
-            gameTypeId={gameTypeIdentifier.parse(12)}
+            gameTypeId={gameTypeId}
             gateway={gateway}
             itemKindConfig={{
               defaultKind: 'multiple',
@@ -170,7 +171,7 @@ describe('PlayableContentManagementScreen', () => {
     await user.click(createButtons[createButtons.length - 1]);
 
     await waitFor(() => {
-      expect(gateway.createItem).toHaveBeenCalledWith(12, {
+      expect(gateway.createItem).toHaveBeenCalledWith(gameTypeId, {
         kind: 'multiple',
         options: [
           { id: null, isCorrect: true, position: 0, text: 'Alpha' },
@@ -265,7 +266,7 @@ describe('PlayableContentManagementScreen', () => {
     );
 
     await waitFor(() => {
-      expect(gateway.updateMetadata).toHaveBeenCalledWith(12, {
+      expect(gateway.updateMetadata).toHaveBeenCalledWith(gameTypeId, {
         title: 'Arcade Quiz Updated',
         description: 'Live rounds',
       });

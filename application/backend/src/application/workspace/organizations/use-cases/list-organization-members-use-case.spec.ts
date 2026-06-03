@@ -7,13 +7,13 @@ import {
   createOrganizationRepositoryMock,
 } from '../../../../test-utils/mock-factories/organization.mock-factory';
 import { PaginationQueryNormalizer } from '../../../shared/services/pagination-query-normalizer';
-import { OrganizationIdentifier } from '../../shared/services/identifiers/organization-identifier';
 import { OrganizationMembershipAccessService } from '../services/organization-membership-access.service';
 import { ListOrganizationMembersUseCase } from './list-organization-members-use-case';
 
-const organizationIdentifier = new OrganizationIdentifier();
 const membershipPolicy = new OrganizationMembershipPolicy();
 const paginationQueryNormalizer = new PaginationQueryNormalizer();
+const organizationId = backendTestIdentifiers.organization(1);
+const requesterUserId = backendTestIdentifiers.user(10);
 
 describe('ListOrganizationMembersUseCase', () => {
   it('throws when organization does not exist', async () => {
@@ -30,17 +30,14 @@ describe('ListOrganizationMembersUseCase', () => {
       paginationQueryNormalizer,
     );
 
-    await expect(
-      useCase.execute(
-        { organizationId: organizationIdentifier.parse(1) },
-        backendTestIdentifiers.user(10),
-      ),
-    ).rejects.toThrow(OrganizationErrorCode.ORGANIZATION_NOT_FOUND);
+    await expect(useCase.execute({ organizationId }, requesterUserId)).rejects.toThrow(
+      OrganizationErrorCode.ORGANIZATION_NOT_FOUND,
+    );
   });
 
   it('throws when requesting user is not a member', async () => {
     const organizationRepository = createOrganizationRepositoryMock({
-      findById: { id: organizationIdentifier.parse(1) } as never,
+      findById: { id: organizationId } as never,
     });
     const memberRepository = createOrganizationMemberRepositoryMock({
       findByOrganizationAndUser: null,
@@ -56,28 +53,24 @@ describe('ListOrganizationMembersUseCase', () => {
       paginationQueryNormalizer,
     );
 
-    await expect(
-      useCase.execute(
-        { organizationId: organizationIdentifier.parse(1) },
-        backendTestIdentifiers.user(10),
-      ),
-    ).rejects.toThrow(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
+    await expect(useCase.execute({ organizationId }, requesterUserId)).rejects.toThrow(
+      OrganizationErrorCode.INSUFFICIENT_PERMISSIONS,
+    );
   });
 
   it('returns organization members when requester belongs to the organization', async () => {
-    const organizationId = organizationIdentifier.parse(1);
     const organizationRepository = createOrganizationRepositoryMock({
       findById: { id: organizationId } as never,
     });
     const members = [
       {
-        id: 4,
+        id: backendTestIdentifiers.organizationMember(4),
         organizationId,
         role: OrganizationRole.OWNER,
-        userId: backendTestIdentifiers.user(10),
+        userId: requesterUserId,
       },
       {
-        id: 5,
+        id: backendTestIdentifiers.organizationMember(5),
         organizationId,
         role: OrganizationRole.MEMBER,
         userId: backendTestIdentifiers.user(11),
@@ -92,7 +85,7 @@ describe('ListOrganizationMembersUseCase', () => {
       totalPages: 1,
     } as const;
     const memberRepository = createOrganizationMemberRepositoryMock({
-      findByOrganizationAndUser: { id: 4 } as never,
+      findByOrganizationAndUser: { id: backendTestIdentifiers.organizationMember(4) } as never,
       findPageByOrganization: page as never,
     });
     const organizationMembershipAccess = new OrganizationMembershipAccessService(
@@ -106,7 +99,7 @@ describe('ListOrganizationMembersUseCase', () => {
       paginationQueryNormalizer,
     );
 
-    const result = await useCase.execute({ organizationId }, backendTestIdentifiers.user(10));
+    const result = await useCase.execute({ organizationId }, requesterUserId);
 
     expect(memberRepository.findPageByOrganization).toHaveBeenCalledWith(
       organizationId,
@@ -118,12 +111,11 @@ describe('ListOrganizationMembersUseCase', () => {
   });
 
   it('trims and forwards member search to the repository', async () => {
-    const organizationId = organizationIdentifier.parse(1);
     const organizationRepository = createOrganizationRepositoryMock({
       findById: { id: organizationId } as never,
     });
     const memberRepository = createOrganizationMemberRepositoryMock({
-      findByOrganizationAndUser: { id: 4 } as never,
+      findByOrganizationAndUser: { id: backendTestIdentifiers.organizationMember(4) } as never,
       findPageByOrganization: {
         items: [],
         totalCount: 0,
@@ -149,7 +141,7 @@ describe('ListOrganizationMembersUseCase', () => {
         organizationId,
         search: '  captain  ',
       },
-      backendTestIdentifiers.user(10),
+      requesterUserId,
     );
 
     expect(memberRepository.findPageByOrganization).toHaveBeenCalledWith(

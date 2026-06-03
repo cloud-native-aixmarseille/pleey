@@ -10,18 +10,22 @@ import { PlayerPartyObservationMessageMapper } from './player-party-observation-
 import { SocketPartyObservationBroadcaster } from './socket-party-observation-broadcaster';
 
 const partyIdentifier = new PartyIdentifier();
+const PARTY_ID = backendTestIdentifiers.party(44);
+const GAME_ID = backendTestIdentifiers.game(17);
+const HOST_USER_ID = backendTestIdentifiers.user(7);
+const PARTY_ROOM = `party:${PARTY_ID}`;
 
 function createSnapshot() {
   return {
     gameType: GameType.Quiz,
     hostObservation: {
-      partyId: backendTestIdentifiers.party(44),
-      gameId: 17,
+      partyId: PARTY_ID,
+      gameId: GAME_ID,
       pin: '123456',
       status: 'WAITING',
       context: { round: 2 },
       host: {
-        userId: 7,
+        userId: HOST_USER_ID,
         username: 'Host',
         avatarUri: '/api/avatars/users/7?v=1',
       },
@@ -55,7 +59,7 @@ describe('SocketPartyObservationBroadcaster', () => {
         fetchSockets: vi.fn().mockResolvedValue([
           {
             data: {
-              authenticatedUserId: 7,
+              authenticatedUserId: HOST_USER_ID,
             },
           },
           {
@@ -76,7 +80,7 @@ describe('SocketPartyObservationBroadcaster', () => {
     broadcaster.attachServer(server as never);
     await broadcaster.emitSnapshot(client as never, createSnapshot() as never);
 
-    expect(server.in).toHaveBeenCalledWith('party:44');
+    expect(server.in).toHaveBeenCalledWith(PARTY_ROOM);
 
     const [, payload] = client.emit.mock.calls[0];
 
@@ -106,7 +110,7 @@ describe('SocketPartyObservationBroadcaster', () => {
     };
     const client = {
       data: {
-        authenticatedUserId: 7,
+        authenticatedUserId: HOST_USER_ID,
       },
       emit: vi.fn(),
     };
@@ -131,7 +135,7 @@ describe('SocketPartyObservationBroadcaster', () => {
     );
     const deliveryOrder: string[] = [];
     const hostSocket = {
-      data: { authenticatedUserId: 7 },
+      data: { authenticatedUserId: HOST_USER_ID },
       emit: vi.fn(() => {
         deliveryOrder.push('host');
       }),
@@ -176,7 +180,7 @@ describe('SocketPartyObservationBroadcaster', () => {
     );
     const deliveryOrder: string[] = [];
     const hostSocket = {
-      data: { authenticatedUserId: 7 },
+      data: { authenticatedUserId: HOST_USER_ID },
       emit: vi.fn(() => {
         deliveryOrder.push('host');
       }),

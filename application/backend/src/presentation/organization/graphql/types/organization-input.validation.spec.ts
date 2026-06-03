@@ -1,5 +1,6 @@
 import { type ArgumentMetadata, BadRequestException, ValidationPipe } from '@nestjs/common';
 import { describe, expect, it } from 'vitest';
+import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { ListOrganizationsInput } from './list-organizations-input';
 import { OrganizationMembersInput } from './organization-members-input';
 
@@ -19,7 +20,7 @@ describe('Organization GraphQL inputs validation', () => {
 
     const result = await pipe.transform(
       {
-        organizationId: 3,
+        organizationId: backendTestIdentifiers.organization(3),
         page: 1,
         pageSize: 25,
       },
@@ -28,7 +29,7 @@ describe('Organization GraphQL inputs validation', () => {
 
     expect(result).toBeInstanceOf(OrganizationMembersInput);
     expect(result).toMatchObject({
-      organizationId: 3,
+      organizationId: backendTestIdentifiers.organization(3),
       page: 1,
       pageSize: 25,
     });
@@ -71,7 +72,7 @@ describe('Organization GraphQL inputs validation', () => {
     await expect(
       pipe.transform(
         {
-          organizationId: 3,
+          organizationId: backendTestIdentifiers.organization(3),
           slug: 'should-not-exist',
         },
         argumentMetadata,

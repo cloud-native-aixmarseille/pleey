@@ -7,6 +7,7 @@ import { GuestIdentifier } from '../../../../application/identity/shared/service
 import { UserIdentifier } from '../../../../application/identity/shared/services/identifiers/user-identifier';
 import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
 import { PartyPlayerKind } from '../../../../domain/game/party/enums/party-player-kind.enum';
+import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { PartyObserverGateway } from './party-observer-gateway';
 
 const guestIdentifier = new GuestIdentifier();
@@ -14,6 +15,13 @@ const partyActionIdentifier = new PartyActionIdentifier();
 const partyIdentifier = new PartyIdentifier();
 const partyPinIdentifier = new PartyPinIdentifier();
 const userIdentifier = new UserIdentifier();
+const PARTY_ID = backendTestIdentifiers.party(44);
+const GAME_ID = backendTestIdentifiers.game(17);
+const HOST_USER_ID = backendTestIdentifiers.user(7);
+const PLAYER_USER_ID = backendTestIdentifiers.user(11);
+const GUEST_ID = backendTestIdentifiers.guest('guest-7');
+const PARTY_PIN = partyPinIdentifier.parse('123456');
+const PARTY_ROOM = `party:${PARTY_ID}`;
 
 function createHostControlUseCases() {
   return [
@@ -90,14 +98,14 @@ function createHostControlGateway() {
 function createSnapshot() {
   return {
     hostObservation: {
-      partyId: 44,
-      gameId: 17,
-      pin: '123456',
+      partyId: PARTY_ID,
+      gameId: GAME_ID,
+      pin: PARTY_PIN,
       status: 'WAITING',
       context: null,
       host: {
         avatarUri: null,
-        userId: 7,
+        userId: HOST_USER_ID,
         username: 'Host',
       },
       players: [],
@@ -105,8 +113,8 @@ function createSnapshot() {
       updatedAt: new Date('2026-04-17T10:00:00.000Z'),
     },
     playerObservation: {
-      partyId: 44,
-      pin: '123456',
+      partyId: PARTY_ID,
+      pin: PARTY_PIN,
       status: 'WAITING',
       context: null,
       host: {
@@ -156,12 +164,12 @@ describe('PartyObserverGateway', () => {
       leave: vi.fn().mockResolvedValue(undefined),
     };
 
-    await gateway.observeParty(client as never, { partyId: partyIdentifier.parse(44) });
+    await gateway.observeParty(client as never, { partyId: PARTY_ID });
 
     expect(loadPartyObservationSnapshotUseCase.execute).toHaveBeenCalledWith({
-      partyId: partyIdentifier.parse(44),
+      partyId: PARTY_ID,
     });
-    expect(client.join).toHaveBeenCalledWith('party:44');
+    expect(client.join).toHaveBeenCalledWith(PARTY_ROOM);
     expect(partyObservationBroadcaster.emitSnapshot).toHaveBeenCalled();
   });
 
@@ -198,11 +206,11 @@ describe('PartyObserverGateway', () => {
         join: vi.fn().mockResolvedValue(undefined),
         leave: vi.fn().mockResolvedValue(undefined),
       } as never,
-      { partyId: partyIdentifier.parse(44) },
+      { partyId: PARTY_ID },
     );
 
     expect(loadPartyObservationSnapshotUseCase.execute).toHaveBeenCalledWith({
-      partyId: partyIdentifier.parse(44),
+      partyId: PARTY_ID,
     });
   });
 
@@ -239,11 +247,11 @@ describe('PartyObserverGateway', () => {
   it('returns an accepted acknowledgement for authenticated joins and stores socket player metadata', async () => {
     const joinPartyUseCase = {
       execute: vi.fn().mockResolvedValue({
-        partyId: 44,
-        gameId: 17,
-        pin: '123456',
+        partyId: PARTY_ID,
+        gameId: GAME_ID,
+        pin: PARTY_PIN,
         player: {
-          identity: { kind: PartyPlayerKind.USER, userId: 7 },
+          identity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
           username: 'Neo',
           avatarUri: '/api/avatars/users/7?v=1',
           totalScore: 0,
@@ -277,7 +285,7 @@ describe('PartyObserverGateway', () => {
     );
     const client = {
       data: {
-        authenticatedUserId: 7,
+        authenticatedUserId: HOST_USER_ID,
       },
       emit: vi.fn(),
       join: vi.fn().mockResolvedValue(undefined),
@@ -288,25 +296,25 @@ describe('PartyObserverGateway', () => {
 
     expect(joinPartyUseCase.execute).toHaveBeenCalledWith({
       avatarSeed: undefined,
-      pin: partyPinIdentifier.parse('123456'),
-      playerIdentity: { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) },
+      pin: PARTY_PIN,
+      playerIdentity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
       username: '',
     });
     expect(result).toEqual(
       expect.objectContaining({
         status: 'accepted',
         player: expect.objectContaining({
-          identity: { kind: PartyPlayerKind.USER, userId: 7 },
+          identity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
         }),
       }),
     );
-    expect(broadcastPartyObservationUseCase.execute).toHaveBeenCalledWith({ partyId: 44 });
+    expect(broadcastPartyObservationUseCase.execute).toHaveBeenCalledWith({ partyId: PARTY_ID });
     expect(client.data).toMatchObject({
       joinedPartyPlayer: {
-        identity: { kind: PartyPlayerKind.USER, userId: 7 },
-        pin: '123456',
+        identity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
+        pin: PARTY_PIN,
       },
-      partyObservationRoom: 'party:44',
+      partyObservationRoom: PARTY_ROOM,
     });
   });
 
@@ -338,7 +346,7 @@ describe('PartyObserverGateway', () => {
     await expect(
       gateway.joinParty(
         {
-          data: { authenticatedUserId: 7 },
+          data: { authenticatedUserId: HOST_USER_ID },
           join: vi.fn(),
           leave: vi.fn(),
         } as never,
@@ -353,11 +361,11 @@ describe('PartyObserverGateway', () => {
   it('forwards trimmed guest avatar seeds on guest joins', async () => {
     const joinPartyUseCase = {
       execute: vi.fn().mockResolvedValue({
-        partyId: 44,
-        gameId: 17,
-        pin: '123456',
+        partyId: PARTY_ID,
+        gameId: GAME_ID,
+        pin: PARTY_PIN,
         player: {
-          identity: { kind: PartyPlayerKind.GUEST, guestId: guestIdentifier.parse('guest-7') },
+          identity: { kind: PartyPlayerKind.GUEST, guestId: GUEST_ID },
           username: 'Nova Otter 418',
           avatarUri: '/api/avatars/guests/guest-7',
           totalScore: 0,
@@ -398,7 +406,7 @@ describe('PartyObserverGateway', () => {
 
     expect(joinPartyUseCase.execute).toHaveBeenCalledWith({
       avatarSeed: 'neon-seed',
-      pin: partyPinIdentifier.parse('123456'),
+      pin: PARTY_PIN,
       playerIdentity: { kind: PartyPlayerKind.GUEST },
       username: 'Nova Otter 418',
     });
@@ -435,11 +443,11 @@ describe('PartyObserverGateway', () => {
     const client = {
       data: {
         joinedPartyPlayer: {
-          identity: { kind: PartyPlayerKind.USER, userId: 7 },
-          pin: '123456',
+          identity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
+          pin: PARTY_PIN,
         },
-        partyObservationRoom: 'party:44',
-        authenticatedUserId: 7,
+        partyObservationRoom: PARTY_ROOM,
+        authenticatedUserId: HOST_USER_ID,
       },
       leave: vi.fn().mockResolvedValue(undefined),
     };
@@ -447,12 +455,12 @@ describe('PartyObserverGateway', () => {
     await expect(gateway.leaveParty(client as never)).resolves.toEqual({ left: true });
 
     expect(leavePartyUseCase.execute).toHaveBeenCalledWith({
-      pin: '123456',
-      playerIdentity: { kind: PartyPlayerKind.USER, userId: 7 },
+      pin: PARTY_PIN,
+      playerIdentity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
     });
-    expect(client.leave).toHaveBeenCalledWith('party:44');
-    expect(client.data).toEqual({ authenticatedUserId: 7 });
-    expect(broadcastPartyObservationUseCase.execute).toHaveBeenCalledWith({ partyId: 44 });
+    expect(client.leave).toHaveBeenCalledWith(PARTY_ROOM);
+    expect(client.data).toEqual({ authenticatedUserId: HOST_USER_ID });
+    expect(broadcastPartyObservationUseCase.execute).toHaveBeenCalledWith({ partyId: PARTY_ID });
   });
 
   it('waits for the socket to leave the room before republishing after leave', async () => {
@@ -491,11 +499,11 @@ describe('PartyObserverGateway', () => {
     const client = {
       data: {
         joinedPartyPlayer: {
-          identity: { kind: PartyPlayerKind.USER, userId: 7 },
-          pin: '123456',
+          identity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
+          pin: PARTY_PIN,
         },
-        partyObservationRoom: 'party:44',
-        authenticatedUserId: 7,
+        partyObservationRoom: PARTY_ROOM,
+        authenticatedUserId: HOST_USER_ID,
       },
       leave: vi.fn().mockReturnValue(leavePromise),
     };
@@ -507,7 +515,7 @@ describe('PartyObserverGateway', () => {
     resolveLeave();
     await pendingLeave;
 
-    expect(broadcastPartyObservationUseCase.execute).toHaveBeenCalledWith({ partyId: 44 });
+    expect(broadcastPartyObservationUseCase.execute).toHaveBeenCalledWith({ partyId: PARTY_ID });
   });
 
   it('kicks a targeted player and clears the matched joined-player socket metadata', async () => {
@@ -515,8 +523,8 @@ describe('PartyObserverGateway', () => {
     const removedPlayerSocket = {
       data: {
         joinedPartyPlayer: {
-          identity: { kind: PartyPlayerKind.GUEST, guestId: 'guest-7' },
-          pin: '123456',
+          identity: { kind: PartyPlayerKind.GUEST, guestId: GUEST_ID },
+          pin: PARTY_PIN,
         },
       },
     };
@@ -530,21 +538,21 @@ describe('PartyObserverGateway', () => {
     await gateway.kickPlayer(
       {
         data: {
-          authenticatedUserId: 7,
+          authenticatedUserId: backendTestIdentifiers.user(7),
         },
       } as never,
       {
-        guestId: 'guest-7',
-        partyId: 44,
+        guestId: backendTestIdentifiers.guest('guest-7'),
+        partyId: backendTestIdentifiers.party(44),
       },
     );
 
     expect(useCases.kickPartyPlayerUseCase.execute).toHaveBeenCalledWith({
-      hostUserId: 7,
-      partyId: 44,
+      hostUserId: backendTestIdentifiers.user(7),
+      partyId: backendTestIdentifiers.party(44),
       playerIdentity: {
         kind: PartyPlayerKind.GUEST,
-        guestId: 'guest-7',
+        guestId: backendTestIdentifiers.guest('guest-7'),
       },
     });
     expect(removedPlayerSocket.data.joinedPartyPlayer).toBeUndefined();
@@ -581,10 +589,10 @@ describe('PartyObserverGateway', () => {
     gateway.handleDisconnect({
       data: {
         joinedPartyPlayer: {
-          identity: { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) },
-          pin: '123456',
+          identity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
+          pin: PARTY_PIN,
         },
-        partyObservationRoom: 'party:44',
+        partyObservationRoom: PARTY_ROOM,
       },
       leave: vi.fn().mockResolvedValue(undefined),
     } as never);
@@ -592,11 +600,11 @@ describe('PartyObserverGateway', () => {
     await vi.runAllTimersAsync();
 
     expect(loadPartyObservationSnapshotUseCase.execute).toHaveBeenCalledWith({
-      partyId: partyIdentifier.parse(44),
+      partyId: PARTY_ID,
     });
     expect(leavePartyUseCase.execute).toHaveBeenCalledWith({
-      pin: '123456',
-      playerIdentity: { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) },
+      pin: PARTY_PIN,
+      playerIdentity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
     });
   });
 
@@ -630,8 +638,8 @@ describe('PartyObserverGateway', () => {
           {
             data: {
               joinedPartyPlayer: {
-                identity: { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) },
-                pin: '123456',
+                identity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
+                pin: PARTY_PIN,
               },
             },
           },
@@ -642,10 +650,10 @@ describe('PartyObserverGateway', () => {
     gateway.handleDisconnect({
       data: {
         joinedPartyPlayer: {
-          identity: { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) },
-          pin: '123456',
+          identity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
+          pin: PARTY_PIN,
         },
-        partyObservationRoom: 'party:44',
+        partyObservationRoom: PARTY_ROOM,
       },
       leave: vi.fn().mockResolvedValue(undefined),
     } as never);
@@ -687,10 +695,10 @@ describe('PartyObserverGateway', () => {
     const client = {
       data: {
         joinedPartyPlayer: {
-          identity: { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) },
-          pin: '123456',
+          identity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
+          pin: PARTY_PIN,
         },
-        partyObservationRoom: 'party:44',
+        partyObservationRoom: PARTY_ROOM,
       },
       leave: vi.fn().mockResolvedValue(undefined),
     };
@@ -700,13 +708,13 @@ describe('PartyObserverGateway', () => {
 
     expect(client.data).toEqual({
       joinedPartyPlayer: {
-        identity: { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) },
-        pin: '123456',
+        identity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
+        pin: PARTY_PIN,
       },
     });
     expect(leavePartyUseCase.execute).toHaveBeenCalledWith({
-      pin: '123456',
-      playerIdentity: { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) },
+      pin: PARTY_PIN,
+      playerIdentity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
     });
   });
 
@@ -714,72 +722,72 @@ describe('PartyObserverGateway', () => {
     [
       'start-party',
       (gateway: PartyObserverGateway) =>
-        gateway.startParty({ data: { authenticatedUserId: 7 } } as never, {
-          partyId: partyIdentifier.parse(44),
+        gateway.startParty({ data: { authenticatedUserId: HOST_USER_ID } } as never, {
+          partyId: PARTY_ID,
         }),
       'startPartyUseCase',
     ],
     [
       'advance-stage',
       (gateway: PartyObserverGateway) =>
-        gateway.advanceStage({ data: { authenticatedUserId: 7 } } as never, {
-          partyId: partyIdentifier.parse(44),
+        gateway.advanceStage({ data: { authenticatedUserId: HOST_USER_ID } } as never, {
+          partyId: PARTY_ID,
         }),
       'advanceStageUseCase',
     ],
     [
       'restart-stage',
       (gateway: PartyObserverGateway) =>
-        gateway.restartStage({ data: { authenticatedUserId: 7 } } as never, {
-          partyId: partyIdentifier.parse(44),
+        gateway.restartStage({ data: { authenticatedUserId: HOST_USER_ID } } as never, {
+          partyId: PARTY_ID,
         }),
       'restartStageUseCase',
     ],
     [
       'rewind-stage',
       (gateway: PartyObserverGateway) =>
-        gateway.rewindStage({ data: { authenticatedUserId: 7 } } as never, {
-          partyId: partyIdentifier.parse(44),
+        gateway.rewindStage({ data: { authenticatedUserId: HOST_USER_ID } } as never, {
+          partyId: PARTY_ID,
         }),
       'rewindStageUseCase',
     ],
     [
       'rewind-party',
       (gateway: PartyObserverGateway) =>
-        gateway.rewindParty({ data: { authenticatedUserId: 7 } } as never, {
-          partyId: partyIdentifier.parse(44),
+        gateway.rewindParty({ data: { authenticatedUserId: HOST_USER_ID } } as never, {
+          partyId: PARTY_ID,
         }),
       'rewindPartyUseCase',
     ],
     [
       'pause-party',
       (gateway: PartyObserverGateway) =>
-        gateway.pauseParty({ data: { authenticatedUserId: 7 } } as never, {
-          partyId: partyIdentifier.parse(44),
+        gateway.pauseParty({ data: { authenticatedUserId: HOST_USER_ID } } as never, {
+          partyId: PARTY_ID,
         }),
       'pausePartyUseCase',
     ],
     [
       'resume-party',
       (gateway: PartyObserverGateway) =>
-        gateway.resumeParty({ data: { authenticatedUserId: 7 } } as never, {
-          partyId: partyIdentifier.parse(44),
+        gateway.resumeParty({ data: { authenticatedUserId: HOST_USER_ID } } as never, {
+          partyId: PARTY_ID,
         }),
       'resumePartyUseCase',
     ],
     [
       'reveal-stage-result',
       (gateway: PartyObserverGateway) =>
-        gateway.revealStageResult({ data: { authenticatedUserId: 7 } } as never, {
-          partyId: partyIdentifier.parse(44),
+        gateway.revealStageResult({ data: { authenticatedUserId: HOST_USER_ID } } as never, {
+          partyId: PARTY_ID,
         }),
       'revealStageResultUseCase',
     ],
     [
       'end-party',
       (gateway: PartyObserverGateway) =>
-        gateway.endParty({ data: { authenticatedUserId: 7 } } as never, {
-          partyId: partyIdentifier.parse(44),
+        gateway.endParty({ data: { authenticatedUserId: HOST_USER_ID } } as never, {
+          partyId: PARTY_ID,
         }),
       'endPartyUseCase',
     ],
@@ -789,8 +797,8 @@ describe('PartyObserverGateway', () => {
     await invoke(gateway);
 
     expect(useCases[useCaseName].execute).toHaveBeenCalledWith({
-      hostUserId: userIdentifier.parse(7),
-      partyId: partyIdentifier.parse(44),
+      hostUserId: HOST_USER_ID,
+      partyId: PARTY_ID,
     });
   });
 
@@ -798,24 +806,24 @@ describe('PartyObserverGateway', () => {
     [
       'restart-stage',
       (gateway: PartyObserverGateway) =>
-        gateway.restartStage({ data: { authenticatedUserId: 7 } } as never, {
-          partyId: partyIdentifier.parse(44),
+        gateway.restartStage({ data: { authenticatedUserId: HOST_USER_ID } } as never, {
+          partyId: PARTY_ID,
         }),
       'restartStage',
     ],
     [
       'rewind-stage',
       (gateway: PartyObserverGateway) =>
-        gateway.rewindStage({ data: { authenticatedUserId: 7 } } as never, {
-          partyId: partyIdentifier.parse(44),
+        gateway.rewindStage({ data: { authenticatedUserId: HOST_USER_ID } } as never, {
+          partyId: PARTY_ID,
         }),
       'rewindStage',
     ],
     [
       'rewind-party',
       (gateway: PartyObserverGateway) =>
-        gateway.rewindParty({ data: { authenticatedUserId: 7 } } as never, {
-          partyId: partyIdentifier.parse(44),
+        gateway.rewindParty({ data: { authenticatedUserId: HOST_USER_ID } } as never, {
+          partyId: PARTY_ID,
         }),
       'rewindParty',
     ],
@@ -825,8 +833,8 @@ describe('PartyObserverGateway', () => {
     await invoke(gateway);
 
     expect(partyObservationBroadcaster.publishRuntimeNotice).toHaveBeenCalledWith(
-      partyIdentifier.parse(44),
-      7,
+      PARTY_ID,
+      HOST_USER_ID,
       runtimeNoticeKind,
     );
   });
@@ -839,7 +847,7 @@ describe('PartyObserverGateway', () => {
         {
           data: {},
         } as never,
-        { partyId: partyIdentifier.parse(44) },
+        { partyId: PARTY_ID },
       ),
     ).rejects.toMatchObject({
       message: GameErrorCode.HOST_PARTY_CONTROL_FORBIDDEN,
@@ -870,19 +878,22 @@ describe('PartyObserverGateway', () => {
       {
         data: {
           joinedPartyPlayer: {
-            identity: { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(11) },
-            pin: '123456',
+            identity: { kind: PartyPlayerKind.USER, userId: PLAYER_USER_ID },
+            pin: PARTY_PIN,
           },
-          partyObservationRoom: 'party:44',
+          partyObservationRoom: PARTY_ROOM,
         },
       } as never,
-      { actionId: 2, partyId: partyIdentifier.parse(44) },
+      {
+        actionId: backendTestIdentifiers.partyAction(2),
+        partyId: backendTestIdentifiers.party(44),
+      },
     );
 
     expect(submitPartyActionUseCase.execute).toHaveBeenCalledWith({
-      actionId: 2,
-      partyId: partyIdentifier.parse(44),
-      playerIdentity: { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(11) },
+      actionId: backendTestIdentifiers.partyAction(2),
+      partyId: backendTestIdentifiers.party(44),
+      playerIdentity: { kind: PartyPlayerKind.USER, userId: PLAYER_USER_ID },
     });
   });
 });

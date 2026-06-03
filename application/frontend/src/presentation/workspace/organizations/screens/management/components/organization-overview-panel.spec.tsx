@@ -4,11 +4,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { OrganizationRole } from '../../../../../../domains/organization/entities/organization';
 import { OrganizationFixtureFactory } from '../../../../../../test-utils/fixtures/organization-fixture-factory';
 import { OrganizationScreenFixtureFactory } from '../../../../../../test-utils/fixtures/organization-screen-fixture-factory';
+import { coerceUuidV7TestValue } from '../../../../../../test-utils/fixtures/uuid-v7-test-value';
 import { OrganizationIdentifierMockFactory } from '../../../../../../test-utils/mocks/organization-identifier-mock-factory';
 import { renderWithProviders } from '../../../../../../test-utils/render-with-providers';
 import { OrganizationOverviewPanel } from './organization-overview-panel';
 
 const organizationIdentifier = new OrganizationIdentifierMockFactory().create();
+const parseOrganizationId = (value: number) =>
+  organizationIdentifier.parse(coerceUuidV7TestValue(value));
 
 vi.mock('../../../../../shared/i18n/use-presentation-translation', async (importOriginal) => {
   const { PresentationTranslationMockFactory } = await import(
@@ -40,14 +43,14 @@ describe('OrganizationOverviewPanel', () => {
   it('renders selected organization details and forwards selector changes', async () => {
     const user = userEvent.setup();
     const firstOrganization = organizationFixtureFactory.createOrganization({
-      id: organizationIdentifier.parse(3),
+      id: parseOrganizationId(3),
       name: 'Arcade Org',
       description: 'Main community hub',
       role: OrganizationRole.MANAGER,
       createdAt: '2026-03-12T00:00:00.000Z',
     });
     const secondOrganization = organizationFixtureFactory.createOrganization({
-      id: organizationIdentifier.parse(5),
+      id: parseOrganizationId(5),
       name: 'Side Org',
       description: null,
     });

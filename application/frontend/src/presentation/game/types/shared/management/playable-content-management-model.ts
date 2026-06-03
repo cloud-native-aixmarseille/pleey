@@ -38,7 +38,7 @@ export interface ManagementGameTypeIdParser {
 }
 
 export interface PlayableItemEditorState {
-  readonly id: number | null;
+  readonly id: string | null;
   readonly text: string;
   readonly kind: PlayableItemEditorKind;
   readonly timeLimit: string;

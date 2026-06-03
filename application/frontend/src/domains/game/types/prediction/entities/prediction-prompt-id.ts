@@ -1,3 +1,3 @@
-export type PredictionPromptId = number & {
+export type PredictionPromptId = string & {
   readonly __identifierBrand: 'PredictionPromptId';
 };

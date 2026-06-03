@@ -2,7 +2,7 @@ import type { UserId } from '../../identity/entities/user';
 import { OrganizationRole } from '../enums/organization-role.enum';
 import type { OrganizationId } from './organization';
 
-export type OrganizationMemberId = number & {
+export type OrganizationMemberId = string & {
   readonly __identifierBrand: 'OrganizationMemberId';
 };
 

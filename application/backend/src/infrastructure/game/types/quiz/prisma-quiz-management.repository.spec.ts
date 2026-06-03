@@ -4,6 +4,7 @@ import { GameTypeIdentifier } from '../../../../application/game/types/shared/se
 import { ProjectIdentifier } from '../../../../application/workspace/shared/services/identifiers/project-identifier';
 import { QuizQuestionType } from '../../../../domain/game/types/quiz/entities/quiz-question';
 import { SelectableOption } from '../../../../domain/game/types/shared/entities/selectable-option';
+import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import type { PrismaService } from '../../../database/prisma-service';
 import { PrismaQuizManagementRepository } from './prisma-quiz-management.repository';
 
@@ -14,11 +15,11 @@ describe('PrismaQuizManagementRepository', () => {
       game: {
         create: vi.fn().mockResolvedValue({
           quiz: {
-            id: 12,
-            gameId: 42,
+            id: backendTestIdentifiers.game(12),
+            gameId: backendTestIdentifiers.game(42),
             game: {
-              id: 42,
-              projectId: 7,
+              id: backendTestIdentifiers.game(42),
+              projectId: backendTestIdentifiers.project(7),
               title: 'Sprint quiz',
               description: null,
               createdAt,
@@ -37,7 +38,7 @@ describe('PrismaQuizManagementRepository', () => {
     );
 
     const quiz = await repository.createWithQuestions({
-      projectId: projectIdentifier.parse(7),
+      projectId: backendTestIdentifiers.project(7),
       title: 'Sprint quiz',
       description: null,
       questions: [

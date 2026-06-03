@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import type { UserId } from '../../../../../domain/identity/entities/user';
-import { NumericIdentifierParser } from '../../../../shared/services/identifier-parser';
+import { UuidV7IdentifierParser } from '../../../../shared/services/identifier-parser';
 
 @Injectable()
-export class UserIdentifier extends NumericIdentifierParser<UserId> {
+export class UserIdentifier extends UuidV7IdentifierParser<UserId> {
   constructor() {
     super('UserId');
   }

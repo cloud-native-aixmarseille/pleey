@@ -49,7 +49,7 @@ export class GraphqlPartyManagementAdapter implements PartyManagementPort {
         },
       });
 
-      return this.toParty(result.createParty);
+      return this.toDomainParty(result.createParty);
     } catch (error) {
       throw new Error(
         this.graphqlClient.extractMessage(error, PartyManagementErrorCode.CREATE_FAILED),
@@ -69,7 +69,7 @@ export class GraphqlPartyManagementAdapter implements PartyManagementPort {
         },
       });
 
-      return result.listParties.items.map((party) => this.toParty(party));
+      return result.listParties.items.map((party) => this.toDomainParty(party));
     } catch (error) {
       throw new Error(
         this.graphqlClient.extractMessage(error, PartyManagementErrorCode.LIST_FAILED),
@@ -77,9 +77,9 @@ export class GraphqlPartyManagementAdapter implements PartyManagementPort {
     }
   }
 
-  private toParty(party: {
-    readonly partyId: number;
-    readonly gameId: number;
+  private toDomainParty(party: {
+    readonly partyId: string;
+    readonly gameId: string;
     readonly pin: string;
     readonly status: GraphqlPartyStatus;
     readonly role: GraphqlPartyRole;
@@ -89,13 +89,13 @@ export class GraphqlPartyManagementAdapter implements PartyManagementPort {
       partyId: this.partyIdentifier.parse(party.partyId),
       gameId: this.gameIdentifier.parse(party.gameId),
       pin: this.partyPinIdentifier.parse(party.pin),
-      status: this.toPartyStatus(party.status),
-      role: this.toPartyRole(party.role),
+      status: this.toDomainPartyStatus(party.status),
+      role: this.toDomainPartyRole(party.role),
       createdAt: party.createdAt,
     };
   }
 
-  private toPartyStatus(status: GraphqlPartyStatus): PartyStatus {
+  private toDomainPartyStatus(status: GraphqlPartyStatus): PartyStatus {
     switch (status) {
       case GraphqlPartyStatus.Active:
         return PartyStatus.ACTIVE;
@@ -109,7 +109,7 @@ export class GraphqlPartyManagementAdapter implements PartyManagementPort {
     }
   }
 
-  private toPartyRole(role: GraphqlPartyRole): PartyRole {
+  private toDomainPartyRole(role: GraphqlPartyRole): PartyRole {
     switch (role) {
       case GraphqlPartyRole.Player:
         return PartyRole.PLAYER;

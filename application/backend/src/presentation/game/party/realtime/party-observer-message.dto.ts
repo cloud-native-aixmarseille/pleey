@@ -1,4 +1,4 @@
-import { IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class PartyEntryMessageDto {
   @IsOptional()
@@ -23,9 +23,9 @@ export class PartyEntryMessageDto {
 
 export class PartyObservationMessageDto {
   @IsOptional()
-  @IsInt()
-  @Min(1)
-  partyId?: number;
+  @IsString()
+  @IsNotEmpty()
+  partyId?: string;
 }
 
 export class PartyHostPlayerMessageDto extends PartyObservationMessageDto {
@@ -35,14 +35,14 @@ export class PartyHostPlayerMessageDto extends PartyObservationMessageDto {
   guestId?: string;
 
   @IsOptional()
-  @IsInt()
-  @Min(1)
-  userId?: number;
+  @IsString()
+  @IsNotEmpty()
+  userId?: string;
 }
 
 export class SubmitPartyActionMessageDto extends PartyObservationMessageDto {
   @IsOptional()
-  @IsInt()
-  @Min(1)
-  actionId?: number;
+  @IsString()
+  @IsNotEmpty()
+  actionId?: string;
 }

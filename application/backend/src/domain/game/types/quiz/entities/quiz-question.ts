@@ -1,7 +1,7 @@
 import type { SelectableOption, SelectableOptionId } from '../../shared/entities/selectable-option';
 import type { QuizId } from './quiz';
 
-export type QuizQuestionId = number & {
+export type QuizQuestionId = string & {
   readonly __identifierBrand: 'QuizQuestionId';
 };
 

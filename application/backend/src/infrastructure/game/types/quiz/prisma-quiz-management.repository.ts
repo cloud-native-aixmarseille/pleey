@@ -2,15 +2,18 @@ import { Injectable } from '@nestjs/common';
 import { GameIdentifier } from '../../../../application/game/shared/services/identifiers/game-identifier';
 import { GameTypeIdentifier } from '../../../../application/game/types/shared/services/game-type-identifier';
 import { ProjectIdentifier } from '../../../../application/workspace/shared/services/identifiers/project-identifier';
+import type { GameId } from '../../../../domain/game/entities/game';
 import { PartyStatus } from '../../../../domain/game/party/enums/party-status.enum';
-import { Quiz } from '../../../../domain/game/types/quiz/entities/quiz';
+import { Quiz, type QuizId } from '../../../../domain/game/types/quiz/entities/quiz';
 import type {
   CreateQuizData,
   CreateQuizWithQuestionsData,
   QuizManagementRepository,
   UpdateQuizData,
 } from '../../../../domain/game/types/quiz/ports/quiz-management.repository';
+import type { GameTypeId } from '../../../../domain/game/types/shared/entities/game-type';
 import { GameType } from '../../../../domain/game/types/shared/entities/game-type';
+import type { ProjectId } from '../../../../domain/project/entities/project';
 import { PrismaService } from '../../../database/prisma-service';
 
 const ACTIVE_PARTY_STATUSES = [PartyStatus.WAITING, PartyStatus.ACTIVE, PartyStatus.PAUSED];
@@ -20,19 +23,24 @@ enum QuizManagementRepositoryErrorCode {
   QUIZ_NOT_UPDATED = 'QUIZ_NOT_UPDATED',
 }
 
+interface PrismaQuizRecord {
+  readonly id: string;
+  readonly gameId: string;
+  readonly projectId: string;
+  readonly title: string;
+  readonly description: string | null;
+  readonly createdAt: Date;
+  readonly questionCount: number;
+}
+
 interface QuizRecord {
-  readonly id: number;
-  readonly gameId: number;
-  readonly game: {
-    readonly id: number;
-    readonly projectId: number;
-    readonly title: string;
-    readonly description: string | null;
-    readonly createdAt: Date;
-  };
-  readonly _count: {
-    readonly questions: number;
-  };
+  readonly id: QuizId;
+  readonly gameId: GameId;
+  readonly projectId: ProjectId;
+  readonly title: string;
+  readonly description: string | null;
+  readonly createdAt: Date;
+  readonly questionCount: number;
 }
 
 @Injectable()
@@ -121,7 +129,7 @@ export class PrismaQuizManagementRepository implements QuizManagementRepository 
     return this.toDomain(game.quiz);
   }
 
-  async findById(id: number): Promise<Quiz | null> {
+  async findById(id: GameTypeId): Promise<Quiz | null> {
     const quiz = await this.prisma.quiz.findFirst({
       where: {
         id,
@@ -141,7 +149,7 @@ export class PrismaQuizManagementRepository implements QuizManagementRepository 
     return quiz ? this.toDomain(quiz) : null;
   }
 
-  async update(id: number, data: UpdateQuizData): Promise<Quiz> {
+  async update(id: GameTypeId, data: UpdateQuizData): Promise<Quiz> {
     const quiz = await this.prisma.quiz.findUniqueOrThrow({ where: { id } });
     await this.prisma.game.update({
       where: { id: quiz.gameId },
@@ -159,7 +167,7 @@ export class PrismaQuizManagementRepository implements QuizManagementRepository 
     return updated;
   }
 
-  async delete(id: number): Promise<void> {
+  async delete(id: GameTypeId): Promise<void> {
     const deletedAt = new Date();
     const quiz = await this.prisma.quiz.findUniqueOrThrow({ where: { id } });
 
@@ -169,7 +177,7 @@ export class PrismaQuizManagementRepository implements QuizManagementRepository 
     ]);
   }
 
-  async hasActiveParty(gameId: number): Promise<boolean> {
+  async hasActiveParty(gameId: GameId): Promise<boolean> {
     const activePartyCount = await this.prisma.party.count({
       where: {
         gameId,
@@ -181,15 +189,66 @@ export class PrismaQuizManagementRepository implements QuizManagementRepository 
     return activePartyCount > 0;
   }
 
-  private toDomain(quiz: QuizRecord): Quiz {
+  private toDomain(quiz: {
+    readonly id: string;
+    readonly gameId: string;
+    readonly game: {
+      readonly projectId: string;
+      readonly title: string;
+      readonly description: string | null;
+      readonly createdAt: Date;
+    };
+    readonly _count: {
+      readonly questions: number;
+    };
+  }): Quiz {
+    const prismaRecord = this.toPrismaQuizRecord(quiz);
+    const record = this.toQuizRecord(prismaRecord);
+
     return new Quiz(
-      this.gameTypeIdentifier.parse(quiz.id),
-      this.gameIdentifier.parse(quiz.gameId),
-      this.projectIdentifier.parse(quiz.game.projectId),
-      quiz.game.title,
-      quiz.game.description,
-      quiz.game.createdAt,
-      quiz._count.questions,
+      record.id,
+      record.gameId,
+      record.projectId,
+      record.title,
+      record.description,
+      record.createdAt,
+      record.questionCount,
     );
+  }
+
+  private toPrismaQuizRecord(quiz: {
+    readonly id: string;
+    readonly gameId: string;
+    readonly game: {
+      readonly projectId: string;
+      readonly title: string;
+      readonly description: string | null;
+      readonly createdAt: Date;
+    };
+    readonly _count: {
+      readonly questions: number;
+    };
+  }): PrismaQuizRecord {
+    return {
+      id: quiz.id,
+      gameId: quiz.gameId,
+      projectId: quiz.game.projectId,
+      title: quiz.game.title,
+      description: quiz.game.description,
+      createdAt: quiz.game.createdAt,
+      questionCount: quiz._count.questions,
+    };
+  }
+
+  private toQuizRecord(quiz: PrismaQuizRecord): QuizRecord {
+    return {
+      id: this.gameTypeIdentifier.parse(quiz.id),
+      gameId: this.gameIdentifier.parse(quiz.gameId),
+      projectId: this.projectIdentifier.parse(quiz.projectId),
+      title: quiz.title,
+      description: quiz.description,
+      createdAt: quiz.createdAt,
+      questionCount: quiz.questionCount,
+    };
   }
 }

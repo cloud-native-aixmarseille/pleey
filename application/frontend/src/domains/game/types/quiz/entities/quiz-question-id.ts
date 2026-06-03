@@ -1,3 +1,3 @@
-export type QuizQuestionId = number & {
+export type QuizQuestionId = string & {
   readonly __identifierBrand: 'QuizQuestionId';
 };

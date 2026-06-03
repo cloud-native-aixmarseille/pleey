@@ -25,6 +25,6 @@ export const PARTY_SOCKET_OUTBOUND_EVENTS = {
 
 export type PartyRuntimeNoticeKind = 'restartStage' | 'rewindParty' | 'rewindStage';
 
-export function resolvePartyObservationRoom(partyId: number): string {
+export function resolvePartyObservationRoom(partyId: string): string {
   return `party:${partyId}`;
 }

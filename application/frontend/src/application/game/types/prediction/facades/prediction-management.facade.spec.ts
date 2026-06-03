@@ -2,15 +2,18 @@ import 'reflect-metadata';
 import { describe, expect, it, vi } from 'vitest';
 import type { PredictionManagementRepository } from '../../../../../domains/game/types/prediction/ports/prediction-management.repository';
 import { PlayableManagementFixtureFactory } from '../../../../../test-utils/fixtures/playable-management-fixture-factory';
-import { ProjectIdentifier } from '../../../../workspace/shared/services/identifiers/project-identifier';
-import { GameTypeIdentifier } from '../../shared/services/game-type-identifier';
+import { coerceUuidV7TestValue } from '../../../../../test-utils/fixtures/uuid-v7-test-value';
+import { GameTypeIdentifierMockFactory } from '../../../../../test-utils/mocks/game-type-identifier-mock-factory';
+import { ProjectIdentifierMockFactory } from '../../../../../test-utils/mocks/project-identifier-mock-factory';
 import { PredictionPromptIdentifier } from '../services/prediction-prompt-identifier';
 import { PredictionManagementFacade } from './prediction-management.facade';
 
-const gameTypeIdentifier = new GameTypeIdentifier();
+const gameTypeIdentifier = new GameTypeIdentifierMockFactory().create();
 const playableManagementFixtureFactory = new PlayableManagementFixtureFactory();
-const projectIdentifier = new ProjectIdentifier();
+const projectIdentifier = new ProjectIdentifierMockFactory().create();
 const predictionPromptIdentifier = new PredictionPromptIdentifier();
+const parsePromptId = (value: number) =>
+  predictionPromptIdentifier.parse(coerceUuidV7TestValue(value));
 
 describe('PredictionManagementFacade', () => {
   it('adapts shared management gateway calls to prediction repository methods', async () => {
@@ -20,18 +23,21 @@ describe('PredictionManagementFacade', () => {
       text: 'Who wins?',
       timeLimit: 30,
     });
+    const gameTypeId = gameTypeIdentifier.parse(12);
+    const projectId = projectIdentifier.parse(12);
+    const promptId = parsePromptId(44);
     const savedItem = playableManagementFixtureFactory.createItem({
-      id: predictionPromptIdentifier.parse(44),
-      gameTypeId: gameTypeIdentifier.parse(12),
+      id: promptId,
+      gameTypeId,
       options: itemInput.options,
       points: 250,
       text: 'Who wins?',
       timeLimit: 30,
     });
     const repository: PredictionManagementRepository = {
-      createPrediction: vi.fn().mockResolvedValue(gameTypeIdentifier.parse(12)),
+      createPrediction: vi.fn().mockResolvedValue(gameTypeId),
       createPredictionFromImport: vi.fn().mockResolvedValue({
-        gameTypeId: gameTypeIdentifier.parse(12),
+        gameTypeId,
         importedCount: 3,
       }),
       load: vi.fn().mockResolvedValue({ game: {}, items: [] }),
@@ -43,49 +49,45 @@ describe('PredictionManagementFacade', () => {
     } as never;
     const facade = new PredictionManagementFacade(repository);
 
-    const createdGameId = await facade.createGame(projectIdentifier.parse(12), {
+    const createdGameId = await facade.createGame(projectId, {
       title: 'Prediction',
       description: null,
     });
     const importFile = new File(['[]'], 'prediction-import.json', { type: 'application/json' });
-    const createdFromImport = await facade.createGameFromImport(projectIdentifier.parse(12), {
+    const createdFromImport = await facade.createGameFromImport(projectId, {
       title: 'Imported prediction',
       description: null,
       file: importFile,
     });
-    await facade.updateMetadata(gameTypeIdentifier.parse(12), {
+    await facade.updateMetadata(gameTypeId, {
       title: 'Updated',
       description: null,
     });
-    await facade.deleteGame(gameTypeIdentifier.parse(12));
-    const createdItem = await facade.createItem(gameTypeIdentifier.parse(12), itemInput);
-    const promptId = predictionPromptIdentifier.parse(44);
+    await facade.deleteGame(gameTypeId);
+    const createdItem = await facade.createItem(gameTypeId, itemInput);
     const updatedItem = await facade.updateItem(promptId, itemInput);
     await facade.deleteItem(promptId);
 
-    expect(repository.createPrediction).toHaveBeenCalledWith(projectIdentifier.parse(12), {
+    expect(repository.createPrediction).toHaveBeenCalledWith(projectId, {
       title: 'Prediction',
       description: null,
     });
-    expect(repository.createPredictionFromImport).toHaveBeenCalledWith(
-      projectIdentifier.parse(12),
-      {
-        title: 'Imported prediction',
-        description: null,
-        file: importFile,
-      },
-    );
-    expect(repository.updateMetadata).toHaveBeenCalledWith(gameTypeIdentifier.parse(12), {
+    expect(repository.createPredictionFromImport).toHaveBeenCalledWith(projectId, {
+      title: 'Imported prediction',
+      description: null,
+      file: importFile,
+    });
+    expect(repository.updateMetadata).toHaveBeenCalledWith(gameTypeId, {
       title: 'Updated',
       description: null,
     });
-    expect(repository.deletePrediction).toHaveBeenCalledWith(gameTypeIdentifier.parse(12));
-    expect(repository.createPrompt).toHaveBeenCalledWith(gameTypeIdentifier.parse(12), itemInput);
+    expect(repository.deletePrediction).toHaveBeenCalledWith(gameTypeId);
+    expect(repository.createPrompt).toHaveBeenCalledWith(gameTypeId, itemInput);
     expect(repository.updatePrompt).toHaveBeenCalledWith(promptId, itemInput);
     expect(repository.deletePrompt).toHaveBeenCalledWith(promptId);
-    expect(createdGameId).toBe(12);
+    expect(createdGameId).toBe(gameTypeId);
     expect(createdFromImport).toEqual({
-      gameTypeId: gameTypeIdentifier.parse(12),
+      gameTypeId,
       importedCount: 3,
     });
     expect(createdItem).toBe(savedItem);

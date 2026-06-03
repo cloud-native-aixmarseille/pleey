@@ -6,6 +6,7 @@ import { PartyIdentifier } from '../../../../../application/game/party/shared/se
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
 import type { PartyPlayerIdentity } from '../../../../../domain/game/party/player/entities/party-player-identity';
 import type { PartyId } from '../../../../../domain/game/party/shared/entities/party';
+import type { UserId } from '../../../../../domain/identity/entities/user';
 import type { PartyObserverSocketData } from '../party-observer-socket-data';
 import {
   PARTY_SOCKET_OUTBOUND_EVENTS,
@@ -75,7 +76,7 @@ export class SocketPartyObservationBroadcaster implements PartyObservationBroadc
 
   async publishRuntimeNotice(
     partyId: PartyId,
-    hostUserId: number,
+    hostUserId: UserId,
     kind: PartyRuntimeNoticeKind,
   ): Promise<void> {
     if (!this.server) {
@@ -127,7 +128,7 @@ export class SocketPartyObservationBroadcaster implements PartyObservationBroadc
 
   private orderAudienceSockets(
     sockets: readonly Pick<Socket, 'data' | 'emit'>[],
-    hostUserId: number,
+    hostUserId: UserId,
   ): readonly Pick<Socket, 'data' | 'emit'>[] {
     const hostSockets: Pick<Socket, 'data' | 'emit'>[] = [];
     const playerSockets: Pick<Socket, 'data' | 'emit'>[] = [];

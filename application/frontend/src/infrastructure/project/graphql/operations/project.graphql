@@ -15,7 +15,7 @@ query WorkspaceProjectsByOrganization($input: ListOrganizationProjectsInput!) {
   }
 }
 
-mutation CreateProject($organizationId: Int!, $input: CreateProjectInput!) {
+mutation CreateProject($organizationId: ID!, $input: CreateProjectInput!) {
   createProject(organizationId: $organizationId, input: $input) {
     id
     name
@@ -25,7 +25,7 @@ mutation CreateProject($organizationId: Int!, $input: CreateProjectInput!) {
   }
 }
 
-mutation UpdateProject($projectId: Int!, $input: UpdateProjectInput!) {
+mutation UpdateProject($projectId: ID!, $input: UpdateProjectInput!) {
   updateProject(projectId: $projectId, input: $input) {
     id
     name
@@ -35,6 +35,6 @@ mutation UpdateProject($projectId: Int!, $input: UpdateProjectInput!) {
   }
 }
 
-mutation DeleteProject($projectId: Int!, $migrationProjectId: Int) {
+mutation DeleteProject($projectId: ID!, $migrationProjectId: ID) {
   deleteProject(projectId: $projectId, migrationProjectId: $migrationProjectId)
 }

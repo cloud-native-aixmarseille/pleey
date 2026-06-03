@@ -1,4 +1,4 @@
-export type SelectableOptionId<TScope extends string = string> = number & {
+export type SelectableOptionId<TScope extends string = string> = string & {
   readonly __identifierType: 'SelectableOptionId';
   readonly __identifierBrand: TScope;
 };

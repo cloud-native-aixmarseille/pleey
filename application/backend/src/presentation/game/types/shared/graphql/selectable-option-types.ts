@@ -1,10 +1,18 @@
-import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
-import { IsBoolean, IsInt, IsOptional, IsString, MaxLength, Min } from 'class-validator';
+import { Field, ID, InputType, Int, ObjectType } from '@nestjs/graphql';
+import {
+  IsBoolean,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+  Min,
+} from 'class-validator';
 
 @ObjectType()
 export class SelectableOptionType {
-  @Field(() => Int, { nullable: true })
-  id!: number | null;
+  @Field(() => ID, { nullable: true })
+  id!: string | null;
 
   @Field(() => String, { nullable: true })
   text!: string | null;
@@ -18,11 +26,11 @@ export class SelectableOptionType {
 
 @InputType()
 export class SelectableOptionInput {
-  @Field(() => Int, { nullable: true })
+  @Field(() => ID, { nullable: true })
   @IsOptional()
-  @IsInt()
-  @Min(1)
-  id?: number;
+  @IsString()
+  @IsNotEmpty()
+  id?: string;
 
   @Field(() => String, { nullable: true })
   @IsOptional()

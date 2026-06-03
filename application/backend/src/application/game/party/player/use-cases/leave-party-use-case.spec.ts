@@ -5,6 +5,8 @@ import { backendTestIdentifiers } from '../../../../../test-utils/branded-identi
 import { createPlayerPartyRuntimeMock } from '../../../../../test-utils/mock-factories/player-party-runtime.mock-factory';
 import { LeavePartyUseCase } from './leave-party-use-case';
 
+const partyId = backendTestIdentifiers.party(12);
+
 describe('LeavePartyUseCase', () => {
   it('returns false when the party no longer exists', async () => {
     const runtime = createPlayerPartyRuntimeMock({
@@ -47,11 +49,11 @@ describe('LeavePartyUseCase', () => {
     ).resolves.toBe(true);
 
     expect(runtime.removePlayer).toHaveBeenCalledWith({
-      partyId: 12,
+      partyId,
       playerIdentity: { kind: PartyPlayerKind.USER, userId: backendTestIdentifiers.user(7) },
     });
     expect(broadcastPartyObservationUseCase.broadcastIfPresent).toHaveBeenCalledWith({
-      partyId: 12,
+      partyId,
     });
   });
 
@@ -78,7 +80,7 @@ describe('LeavePartyUseCase', () => {
     ).resolves.toBe(true);
 
     expect(runtime.removePlayer).toHaveBeenCalledWith({
-      partyId: 12,
+      partyId,
       playerIdentity: {
         kind: PartyPlayerKind.GUEST,
         guestId: backendTestIdentifiers.guest('guest-7'),

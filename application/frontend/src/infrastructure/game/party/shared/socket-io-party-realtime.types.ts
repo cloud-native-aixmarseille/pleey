@@ -8,6 +8,7 @@ import type { PartyObservation } from '../../../../domains/game/party/shared/ent
 import type { PartyRuntimeNoticeKind } from '../../../../domains/game/party/shared/ports/party-observation.port';
 import type { GameType } from '../../../../domains/game/types/shared/game-type';
 import type { GuestId } from '../../../../domains/identity/entities/guest';
+import type { UserId } from '../../../../domains/identity/entities/user';
 
 export type PartyObservationPayload = Omit<PartyObservation, 'gameType'> & {
   readonly gameType: GameType;
@@ -41,7 +42,7 @@ export interface ObservePartyPayload {
 export type SocketPartyHostPlayerPayload =
   | {
       readonly partyId: PartyId;
-      readonly userId: number;
+      readonly userId: UserId;
     }
   | {
       readonly partyId: PartyId;

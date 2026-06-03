@@ -1,6 +1,6 @@
 import type { OrganizationId } from '../../organization/entities/organization';
 
-export type ProjectId = number & {
+export type ProjectId = string & {
   readonly __identifierBrand: 'ProjectId';
 };
 

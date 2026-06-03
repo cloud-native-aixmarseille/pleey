@@ -13,9 +13,9 @@ const describeIfDatabase = hasDatabase ? describe.sequential : describe.skip;
 describeIfDatabase('PrismaOrganizationMemberRepository', () => {
   const harness = new PrismaIntegrationTestHarness(PrismaOrganizationMemberRepository);
 
-  const createdUserIds: number[] = [];
-  const createdOrganizationIds: number[] = [];
-  const createdMemberIds: number[] = [];
+  const createdUserIds: string[] = [];
+  const createdOrganizationIds: string[] = [];
+  const createdMemberIds: string[] = [];
   harness.addCleanupStep(async (prisma) => {
     if (createdMemberIds.length) {
       await prisma.organizationMember.deleteMany({ where: { id: { in: createdMemberIds } } });

@@ -2,6 +2,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { ProjectFixtureFactory } from '../../../../../../test-utils/fixtures/project-fixture-factory';
+import { coerceUuidV7TestValue } from '../../../../../../test-utils/fixtures/uuid-v7-test-value';
 import { OrganizationIdentifierMockFactory } from '../../../../../../test-utils/mocks/organization-identifier-mock-factory';
 import { ProjectIdentifierMockFactory } from '../../../../../../test-utils/mocks/project-identifier-mock-factory';
 import { renderWithUiProvider } from '../../../../../../test-utils/render-with-ui-provider';
@@ -30,10 +31,10 @@ describe('ProjectRemovalDialog', () => {
         <ProjectRemovalDialog
           availableMigrationProjects={[
             projectFixtureFactory.createProject({
-              id: 21,
+              id: projectIdentifier.parse(coerceUuidV7TestValue(21)),
               name: 'Target project',
               description: null,
-              organizationId: 5,
+              organizationId: organizationIdentifier.parse(coerceUuidV7TestValue(5)),
               createdAt: '2026-04-02T10:00:00.000Z',
             }),
           ]}
@@ -80,7 +81,9 @@ describe('ProjectRemovalDialog', () => {
     await user.keyboard('{Enter}');
     await user.click(screen.getByRole('button', { name: 'Remove project' }));
 
-    expect(onMigrationProjectChange).toHaveBeenCalledWith(projectIdentifier.parse(21));
+    expect(onMigrationProjectChange).toHaveBeenCalledWith(
+      projectIdentifier.parse(coerceUuidV7TestValue(21)),
+    );
     expect(onConfirm).toHaveBeenCalledTimes(1);
   });
 

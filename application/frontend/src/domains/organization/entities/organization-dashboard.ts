@@ -1,6 +1,8 @@
+import type { OrganizationId } from './organization';
+
 export interface OrganizationDashboard {
   readonly organization: {
-    readonly id: number;
+    readonly id: OrganizationId;
     readonly name: string;
     readonly description: string | null;
   };

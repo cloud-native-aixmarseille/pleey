@@ -1,10 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
-import { PartyStageIdentifier } from '../../../application/game/party/shared/services/identifiers/party-stage-identifier';
 import { GameType } from '../../../domain/game/types/shared/entities/game-type';
+import { backendTestIdentifiers } from '../../../test-utils/branded-identifiers';
 import { PrismaPartyStageCatalogAdapter } from './prisma-party-stage-catalog.adapter';
 
 describe('PrismaPartyStageCatalogAdapter', () => {
-  const partyStageIdentifier = new PartyStageIdentifier();
+  const gameId = backendTestIdentifiers.game(44);
+  const firstStageId = backendTestIdentifiers.partyStage(11);
+  const nextStageId = backendTestIdentifiers.partyStage(22);
 
   it('returns null when the game cannot be found', async () => {
     const prisma = {
@@ -24,17 +26,15 @@ describe('PrismaPartyStageCatalogAdapter', () => {
       registry as never,
     );
 
-    await expect(adapter.findFirstStage(44 as never)).resolves.toBeNull();
-    await expect(
-      adapter.findStageById(44 as never, partyStageIdentifier.parse(11)),
-    ).resolves.toBeNull();
+    await expect(adapter.findFirstStage(gameId)).resolves.toBeNull();
+    await expect(adapter.findStageById(gameId, firstStageId)).resolves.toBeNull();
     expect(gameTypeParser.parse).not.toHaveBeenCalled();
     expect(registry.resolveByGameType).not.toHaveBeenCalled();
   });
 
   it('resolves the provider from the game type and delegates catalog lookups', async () => {
-    const firstStage = { id: partyStageIdentifier.parse(11), stagePosition: 0 };
-    const nextStage = { id: partyStageIdentifier.parse(22), stagePosition: 1 };
+    const firstStage = { id: firstStageId, stagePosition: 0 };
+    const nextStage = { id: nextStageId, stagePosition: 1 };
     const provider = {
       findFirstStage: vi.fn().mockResolvedValue(firstStage),
       findNextStage: vi.fn().mockResolvedValue(nextStage),
@@ -57,8 +57,7 @@ describe('PrismaPartyStageCatalogAdapter', () => {
       gameTypeParser as never,
       registry as never,
     );
-    const gameId = 44 as never;
-    const currentStageId = partyStageIdentifier.parse(11);
+    const currentStageId = firstStageId;
 
     await expect(adapter.findFirstStage(gameId)).resolves.toEqual(firstStage);
     await expect(adapter.findStageById(gameId, currentStageId)).resolves.toEqual(firstStage);

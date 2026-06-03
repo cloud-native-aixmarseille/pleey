@@ -1,4 +1,4 @@
-mutation AddOrganizationMember($organizationId: Int!, $input: AddOrganizationMemberInput!) {
+mutation AddOrganizationMember($organizationId: ID!, $input: AddOrganizationMemberInput!) {
   addOrganizationMember(organizationId: $organizationId, input: $input) {
     id
     organizationId

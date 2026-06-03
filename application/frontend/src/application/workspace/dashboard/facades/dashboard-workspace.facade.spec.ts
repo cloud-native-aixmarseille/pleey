@@ -1,18 +1,18 @@
 import { describe, expect, it, vi } from 'vitest';
 import { DashboardHomeScreenFixtureFactory } from '../../../../test-utils/fixtures/dashboard-home-screen-fixture-factory';
+import { GameIdentifierMockFactory } from '../../../../test-utils/mocks/game-identifier-mock-factory';
+import { OrganizationIdentifierMockFactory } from '../../../../test-utils/mocks/organization-identifier-mock-factory';
+import { PartyIdentifierMockFactory } from '../../../../test-utils/mocks/party-identifier-mock-factory';
+import { ProjectIdentifierMockFactory } from '../../../../test-utils/mocks/project-identifier-mock-factory';
 import { WorkspaceSelectionPortMockFactory } from '../../../../test-utils/mocks/workspace-selection-port-mock-factory';
-import { PartyIdentifier } from '../../../game/party/shared/services/identifiers/party-identifier';
 import { PartyPinIdentifier } from '../../../game/party/shared/services/identifiers/party-pin-identifier';
-import { GameIdentifier } from '../../../game/shared/services/identifiers/game-identifier';
-import { OrganizationIdentifier } from '../../shared/services/identifiers/organization-identifier';
-import { ProjectIdentifier } from '../../shared/services/identifiers/project-identifier';
 import { DashboardWorkspaceFacade } from './dashboard-workspace.facade';
 
-const partyIdentifier = new PartyIdentifier();
+const partyIdentifier = new PartyIdentifierMockFactory().create();
 const partyPinIdentifier = new PartyPinIdentifier();
-const gameIdentifier = new GameIdentifier();
-const organizationIdentifier = new OrganizationIdentifier();
-const projectIdentifier = new ProjectIdentifier();
+const gameIdentifier = new GameIdentifierMockFactory().create();
+const organizationIdentifier = new OrganizationIdentifierMockFactory().create();
+const projectIdentifier = new ProjectIdentifierMockFactory().create();
 
 function createPaginatedResult<TItem>(items: readonly TItem[]) {
   return {

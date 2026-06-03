@@ -1,5 +1,6 @@
 import { type ArgumentMetadata, BadRequestException, ValidationPipe } from '@nestjs/common';
 import { describe, expect, it } from 'vitest';
+import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { CreatePredictionFromImportInput } from '../../prediction/graphql/types/prediction-inputs';
 import { CreateQuizFromImportInput } from '../../quiz/graphql/types/quiz-inputs';
 
@@ -31,7 +32,7 @@ describe('Import playable content GraphQL inputs validation', () => {
       {
         description: 'Imported quiz',
         file: upload,
-        projectId: 3,
+        projectId: backendTestIdentifiers.project(3),
         title: 'Quiz from file',
       },
       createMetadata(CreateQuizFromImportInput),
@@ -40,7 +41,7 @@ describe('Import playable content GraphQL inputs validation', () => {
     expect(result).toBeInstanceOf(CreateQuizFromImportInput);
     expect(result).toMatchObject({
       description: 'Imported quiz',
-      projectId: 3,
+      projectId: backendTestIdentifiers.project(3),
       title: 'Quiz from file',
     });
     await expect(result.file).resolves.toMatchObject({
@@ -54,7 +55,7 @@ describe('Import playable content GraphQL inputs validation', () => {
       {
         description: 'Imported prediction',
         file: upload,
-        projectId: 5,
+        projectId: backendTestIdentifiers.project(5),
         title: 'Prediction from file',
       },
       createMetadata(CreatePredictionFromImportInput),
@@ -63,7 +64,7 @@ describe('Import playable content GraphQL inputs validation', () => {
     expect(result).toBeInstanceOf(CreatePredictionFromImportInput);
     expect(result).toMatchObject({
       description: 'Imported prediction',
-      projectId: 5,
+      projectId: backendTestIdentifiers.project(5),
       title: 'Prediction from file',
     });
     await expect(result.file).resolves.toMatchObject({
@@ -77,7 +78,7 @@ describe('Import playable content GraphQL inputs validation', () => {
       validationPipe.transform(
         {
           file: upload,
-          projectId: 3,
+          projectId: backendTestIdentifiers.project(3),
           title: 'Quiz from file',
           unexpected: true,
         },

@@ -8,6 +8,7 @@ import {
   type DashboardGameSummary,
 } from '../../domains/game/management/entities/dashboard-game-list-item';
 import { GameType, type GameTypeId } from '../../domains/game/types/shared/game-type';
+import { coerceUuidV7TestValue } from './uuid-v7-test-value';
 
 const gameIdentifier = new GameIdentifier();
 const gameTypeIdentifier = new GameTypeIdentifier();
@@ -46,7 +47,11 @@ export class GameFixtureFactory {
 
     return {
       gameId:
-        gameId === undefined ? gameIdentifier.parse(18) : gameIdentifier.parse(Number(gameId)),
+        gameId === undefined
+          ? gameIdentifier.parse(coerceUuidV7TestValue(18))
+          : typeof gameId === 'number'
+            ? gameIdentifier.parse(coerceUuidV7TestValue(gameId))
+            : gameId,
       type:
         type === undefined
           ? GameType.Quiz
@@ -56,10 +61,12 @@ export class GameFixtureFactory {
       createdAt: '2026-03-19T08:30:00.000Z',
       gameTypeId:
         gameTypeId === undefined
-          ? gameTypeIdentifier.parse(1)
+          ? gameTypeIdentifier.parse(coerceUuidV7TestValue(1))
           : gameTypeId === null
             ? null
-            : gameTypeIdentifier.parse(Number(gameTypeId)),
+            : typeof gameTypeId === 'number'
+              ? gameTypeIdentifier.parse(coerceUuidV7TestValue(gameTypeId))
+              : gameTypeId,
       stageCount: 14,
       permissions: {
         createParty: {

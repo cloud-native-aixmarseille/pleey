@@ -74,14 +74,14 @@ describe('PrismaPartyReadModelMapper', () => {
         },
       ],
       {
-        excludedUserId: userIdentifier.parse(7),
+        excludedUserId: backendTestIdentifiers.user(7),
         resolveGuestJoinedAt: (score) => score.guest?.createdAt ?? score.createdAt,
       },
     );
 
     expect(players.map((player) => mapper.toPartyPlayer(player))).toEqual([
       {
-        avatarUri: '/api/avatars/guests/guest-42',
+        avatarUri: `/api/avatars/guests/${backendTestIdentifiers.guest('guest-42')}`,
         identity: {
           kind: PartyPlayerKind.GUEST,
           guestId: backendTestIdentifiers.guest('guest-42'),
@@ -91,7 +91,7 @@ describe('PrismaPartyReadModelMapper', () => {
         username: 'Guest',
       },
       {
-        avatarUri: `/api/avatars/users/42?v=${playerAvatarUpdatedAt.getTime()}`,
+        avatarUri: `/api/avatars/users/${backendTestIdentifiers.user(42)}?v=${playerAvatarUpdatedAt.getTime()}`,
         identity: {
           kind: PartyPlayerKind.USER,
           userId: backendTestIdentifiers.user(42),
@@ -103,7 +103,7 @@ describe('PrismaPartyReadModelMapper', () => {
     ]);
     expect(players.map((player) => mapper.toPlayerObservationPlayer(player))).toEqual([
       {
-        avatarUri: '/api/avatars/guests/guest-42',
+        avatarUri: `/api/avatars/guests/${backendTestIdentifiers.guest('guest-42')}`,
         identity: {
           kind: PartyPlayerKind.GUEST,
           guestId: backendTestIdentifiers.guest('guest-42'),
@@ -112,7 +112,7 @@ describe('PrismaPartyReadModelMapper', () => {
         username: 'Guest',
       },
       {
-        avatarUri: `/api/avatars/users/42?v=${playerAvatarUpdatedAt.getTime()}`,
+        avatarUri: `/api/avatars/users/${backendTestIdentifiers.user(42)}?v=${playerAvatarUpdatedAt.getTime()}`,
         identity: { kind: PartyPlayerKind.USER, userId: backendTestIdentifiers.user(42) },
         totalScore: 7,
         username: 'Player',
@@ -127,7 +127,7 @@ describe('PrismaPartyReadModelMapper', () => {
           phase: 'ended',
           stageEndsAtEpochMs: null,
           stageRemainingDurationMs: null,
-          stageId: 404,
+          stageId: backendTestIdentifiers.partyStage(404),
           stagePosition: 3,
           stageTimeLimitSeconds: null,
           totalStages: 4,
@@ -139,19 +139,19 @@ describe('PrismaPartyReadModelMapper', () => {
                 actionCount: 2,
                 actionPercent: 100,
                 earnedPoints: 200,
-                id: 2,
+                id: backendTestIdentifiers.partyAction(2),
                 isCorrect: true,
                 text: 'Option B',
               },
             ],
-            stageId: 404,
+            stageId: backendTestIdentifiers.partyStage(404),
             stagePosition: 3,
             text: 'Final question',
           },
           currentPlayer: {
             earnedPoints: 200,
             isCorrect: true,
-            selectedActionId: 2,
+            selectedActionId: backendTestIdentifiers.partyAction(2),
           },
         },
       }),
@@ -160,7 +160,7 @@ describe('PrismaPartyReadModelMapper', () => {
         phase: 'ended',
         stageEndsAtEpochMs: null,
         stageRemainingDurationMs: null,
-        stageId: 404,
+        stageId: backendTestIdentifiers.partyStage(404),
         stagePosition: 3,
         stageTimeLimitSeconds: null,
         totalStages: 4,
@@ -172,7 +172,7 @@ describe('PrismaPartyReadModelMapper', () => {
               actionCount: 2,
               actionPercent: 100,
               earnedPoints: 200,
-              id: partyActionIdentifier.parse(2),
+              id: backendTestIdentifiers.partyAction(2),
               isCorrect: true,
               text: 'Option B',
             },
@@ -182,7 +182,7 @@ describe('PrismaPartyReadModelMapper', () => {
         currentPlayer: {
           earnedPoints: 200,
           isCorrect: true,
-          selectedActionId: partyActionIdentifier.parse(2),
+          selectedActionId: backendTestIdentifiers.partyAction(2),
         },
       },
     });

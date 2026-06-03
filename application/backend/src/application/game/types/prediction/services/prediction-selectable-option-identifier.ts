@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import type { PredictionSelectableOptionId } from '../../../../../domain/game/types/prediction/entities/prediction-prompt';
-import { NumericIdentifierParser } from '../../../../shared/services/identifier-parser';
+import { UuidV7IdentifierParser } from '../../../../shared/services/identifier-parser';
 
 @Injectable()
-export class PredictionSelectableOptionIdentifier extends NumericIdentifierParser<PredictionSelectableOptionId> {
+export class PredictionSelectableOptionIdentifier extends UuidV7IdentifierParser<PredictionSelectableOptionId> {
   constructor() {
     super('PredictionSelectableOptionId');
   }

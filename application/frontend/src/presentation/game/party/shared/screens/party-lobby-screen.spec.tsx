@@ -188,15 +188,13 @@ const mocks = vi.hoisted(() => {
       }
     }),
     normalizePartyId: (partyId?: string | null) => {
-      if (typeof partyId !== 'string' || partyId.trim().length === 0) {
+      const normalizedPartyId = partyId?.trim() ?? '';
+
+      if (normalizedPartyId.length === 0) {
         return null;
       }
 
-      const parsedPartyId = Number(partyId);
-
-      return Number.isInteger(parsedPartyId) && parsedPartyId > 0
-        ? partyIdentifier.parse(parsedPartyId)
-        : null;
+      return partyIdentifier.parseOrNull(normalizedPartyId);
     },
     normalizePin: (pin?: string | null) => {
       const normalizedPin = pin?.trim().toUpperCase() ?? '';
@@ -613,7 +611,7 @@ function toPlayerKey(identity: LegacyPartyIdentity): string {
 function createManagedParty(overrides: Partial<Party> = {}): Party {
   return partyFixtureFactory.createParty({
     createdAt: '2026-04-21T08:00:00.000Z',
-    gameId: Number(gameIdentifier.parse(17)),
+    gameId: 17,
     partyId: 9,
     pin: 'AB12CD',
     role: PartyRole.HOST,
@@ -1290,7 +1288,7 @@ describe('PartyLobbyScreen', () => {
 
     await waitFor(() => {
       expect(mocks.partyPlayerPort.submitAction).toHaveBeenCalledWith({
-        actionId: 2,
+        actionId: toActionId(2),
         partyId: partyIdentifier.parse(9),
       });
     });
@@ -1383,7 +1381,9 @@ describe('PartyLobbyScreen', () => {
     expect(await screen.findByText('game.party.host.route.shareHeading')).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(mocks.navigate).toHaveBeenCalledWith('/party/9/stage/1');
+      expect(mocks.navigate).toHaveBeenCalledWith(
+        `/party/${partyIdentifier.parse(9)}/stage/${toStageId(1)}`,
+      );
     });
   });
 
@@ -1899,7 +1899,7 @@ describe('PartyLobbyScreen', () => {
     expect(await screen.findByTestId('party-runtime-player-result-surface')).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(mocks.navigate).toHaveBeenCalledWith('/party/9/final');
+      expect(mocks.navigate).toHaveBeenCalledWith(`/party/${partyIdentifier.parse(9)}/final`);
     });
   });
 
@@ -2225,7 +2225,9 @@ describe('PartyLobbyScreen', () => {
     );
 
     await waitFor(() => {
-      expect(mocks.navigate).toHaveBeenCalledWith('/party/9/stage/1');
+      expect(mocks.navigate).toHaveBeenCalledWith(
+        `/party/${partyIdentifier.parse(9)}/stage/${toStageId(1)}`,
+      );
     });
   });
 
@@ -2316,7 +2318,7 @@ describe('PartyLobbyScreen', () => {
     );
 
     await waitFor(() => {
-      expect(mocks.navigate).toHaveBeenCalledWith('/party/9/lobby');
+      expect(mocks.navigate).toHaveBeenCalledWith(`/party/${partyIdentifier.parse(9)}/lobby`);
     });
   });
 
@@ -2434,7 +2436,7 @@ describe('PartyLobbyScreen', () => {
     });
 
     await waitFor(() => {
-      expect(mocks.navigate).toHaveBeenCalledWith('/party/9/final');
+      expect(mocks.navigate).toHaveBeenCalledWith(`/party/${partyIdentifier.parse(9)}/final`);
     });
   });
 
@@ -3327,7 +3329,9 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
-    expect(await screen.findByTestId('party-lobby-redirect')).toHaveTextContent('/party/9/lobby');
+    expect(await screen.findByTestId('party-lobby-redirect')).toHaveTextContent(
+      `/party/${partyIdentifier.parse(9)}/lobby`,
+    );
     expect(mocks.observationState.observePartyById).not.toHaveBeenCalled();
   });
 
@@ -3367,7 +3371,9 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
-    expect(await screen.findByTestId('party-lobby-redirect')).toHaveTextContent('/party/12/lobby');
+    expect(await screen.findByTestId('party-lobby-redirect')).toHaveTextContent(
+      `/party/${partyIdentifier.parse(12)}/lobby`,
+    );
     expect(mocks.observationState.observePartyById).not.toHaveBeenCalled();
   });
 
@@ -3456,7 +3462,9 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
-    expect(await screen.findByTestId('party-lobby-redirect')).toHaveTextContent('/party/9/lobby');
+    expect(await screen.findByTestId('party-lobby-redirect')).toHaveTextContent(
+      `/party/${partyIdentifier.parse(9)}/lobby`,
+    );
   });
 
   it('redirects persisted guests from the join route to their current party lobby', async () => {
@@ -3528,7 +3536,9 @@ describe('PartyLobbyScreen', () => {
       });
     });
 
-    expect(await screen.findByTestId('party-lobby-redirect')).toHaveTextContent('/party/9/lobby');
+    expect(await screen.findByTestId('party-lobby-redirect')).toHaveTextContent(
+      `/party/${partyIdentifier.parse(9)}/lobby`,
+    );
   });
 
   it('bootstraps host lobby routes by pin when the party id observation is still empty', async () => {

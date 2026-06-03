@@ -18,6 +18,7 @@ import { OrganizationIdentifier } from '../../../application/workspace/shared/se
 import { OrganizationMemberIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-member-identifier';
 import { OrganizationErrorCode } from '../../../domain/organization/enums/organization-error-code.enum';
 import { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
+import { backendTestIdentifiers } from '../../../test-utils/branded-identifiers';
 import { GqlJwtAuthGuard } from '../../identity/shared/guards/gql-jwt-auth-guard';
 import { ErrorCodeHttpStatusService } from '../../shared/error-handling/error-code-http-status.service';
 import { ERROR_CODE_HTTP_STATUS_RESOLVERS } from '../../shared/error-handling/error-code-http-status-resolvers.token';
@@ -57,11 +58,11 @@ const getOrganizationDashboardUseCase = {
 };
 
 const organizationIdentifier = {
-  parse: vi.fn((value: number) => value),
+  parse: vi.fn((value: string) => value),
 };
 
 const organizationMemberIdentifier = {
-  parse: vi.fn((value: number) => value),
+  parse: vi.fn((value: string) => value),
 };
 
 @Module({
@@ -185,7 +186,7 @@ describe('OrganizationResolver', () => {
     const response = await request(app.getHttpServer())
       .post('/graphql')
       .send({
-        query: `mutation AddOrganizationMember($organizationId: Int!, $input: AddOrganizationMemberInput!) {
+        query: `mutation AddOrganizationMember($organizationId: ID!, $input: AddOrganizationMemberInput!) {
           addOrganizationMember(organizationId: $organizationId, input: $input) {
             id
             organizationId
@@ -196,7 +197,7 @@ describe('OrganizationResolver', () => {
           }
         }`,
         variables: {
-          organizationId: 7,
+          organizationId: backendTestIdentifiers.organization(7),
           input: {
             usernameOrEmail: 'missing-user',
             role: 'MEMBER',
@@ -218,14 +219,67 @@ describe('OrganizationResolver', () => {
       ]),
     );
     expect(addMemberToOrganizationUseCase.execute).toHaveBeenCalledWith(
-      7,
+      backendTestIdentifiers.organization(7),
       {
         role: OrganizationRole.MEMBER,
         usernameOrEmail: 'missing-user',
       },
       10,
     );
-    expect(organizationIdentifier.parse).toHaveBeenCalledWith(7);
+    expect(organizationIdentifier.parse).toHaveBeenCalledWith(
+      backendTestIdentifiers.organization(7),
+    );
+  });
+
+  it('passes member search input through the GraphQL query', async () => {
+    listOrganizationMembersUseCase.execute.mockResolvedValueOnce({
+      items: [],
+      totalCount: 0,
+      overallCount: 0,
+      page: 1,
+      pageSize: 25,
+      totalPages: 1,
+    });
+
+    const response = await request(app.getHttpServer())
+      .post('/graphql')
+      .send({
+        query: `query OrganizationMembers($input: OrganizationMembersInput!) {
+          organizationMembers(input: $input) {
+            items {
+              id
+            }
+            totalCount
+            overallCount
+            page
+            pageSize
+            totalPages
+          }
+        }`,
+        variables: {
+          input: {
+            organizationId: backendTestIdentifiers.organization(7),
+            page: 1,
+            pageSize: 25,
+            search: 'captain',
+          },
+        },
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body.errors).toBeUndefined();
+    expect(listOrganizationMembersUseCase.execute).toHaveBeenCalledWith(
+      {
+        organizationId: backendTestIdentifiers.organization(7),
+        page: 1,
+        pageSize: 25,
+        search: 'captain',
+      },
+      10,
+    );
+    expect(organizationIdentifier.parse).toHaveBeenCalledWith(
+      backendTestIdentifiers.organization(7),
+    );
   });
 
   it('passes member search input through the GraphQL query', async () => {
@@ -267,20 +321,22 @@ describe('OrganizationResolver', () => {
     expect(response.body.errors).toBeUndefined();
     expect(listOrganizationMembersUseCase.execute).toHaveBeenCalledWith(
       {
-        organizationId: 7,
+        organizationId: backendTestIdentifiers.organization(7),
         page: 1,
         pageSize: 25,
         search: 'captain',
       },
       10,
     );
-    expect(organizationIdentifier.parse).toHaveBeenCalledWith(7);
+    expect(organizationIdentifier.parse).toHaveBeenCalledWith(
+      backendTestIdentifiers.organization(7),
+    );
   });
 
   it('updates an organization member role', async () => {
     updateOrganizationMemberRoleUseCase.execute.mockResolvedValueOnce({
-      id: 18,
-      organizationId: 7,
+      id: backendTestIdentifiers.organizationMember(18),
+      organizationId: backendTestIdentifiers.organization(7),
       userId: 42,
       username: 'captain',
       role: OrganizationRole.MANAGER,
@@ -290,7 +346,7 @@ describe('OrganizationResolver', () => {
     const response = await request(app.getHttpServer())
       .post('/graphql')
       .send({
-        query: `mutation UpdateOrganizationMemberRole($memberId: Int!, $input: UpdateOrganizationMemberRoleInput!) {
+        query: `mutation UpdateOrganizationMemberRole($memberId: ID!, $input: UpdateOrganizationMemberRoleInput!) {
           updateOrganizationMemberRole(memberId: $memberId, input: $input) {
             id
             organizationId
@@ -301,7 +357,7 @@ describe('OrganizationResolver', () => {
           }
         }`,
         variables: {
-          memberId: 18,
+          memberId: backendTestIdentifiers.organizationMember(18),
           input: {
             role: 'MANAGER',
           },
@@ -312,15 +368,15 @@ describe('OrganizationResolver', () => {
     expect(response.body.errors).toBeUndefined();
     expect(response.body.data.updateOrganizationMemberRole).toEqual(
       expect.objectContaining({
-        id: 18,
-        organizationId: 7,
-        userId: 42,
+        id: backendTestIdentifiers.organizationMember(18),
+        organizationId: backendTestIdentifiers.organization(7),
+        userId: '42',
         username: 'captain',
         role: 'MANAGER',
       }),
     );
     expect(updateOrganizationMemberRoleUseCase.execute).toHaveBeenCalledWith(
-      18,
+      backendTestIdentifiers.organizationMember(18),
       OrganizationRole.MANAGER,
       10,
     );

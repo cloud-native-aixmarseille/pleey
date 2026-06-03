@@ -1,10 +1,10 @@
 import 'reflect-metadata';
 import { describe, expect, it, vi } from 'vitest';
 import { OrganizationFixtureFactory } from '../../../../test-utils/fixtures/organization-fixture-factory';
-import { OrganizationIdentifier } from '../../shared/services/identifiers/organization-identifier';
+import { OrganizationIdentifierMockFactory } from '../../../../test-utils/mocks/organization-identifier-mock-factory';
 import { GetOrganizationDashboardUseCase } from './get-organization-dashboard-use-case';
 
-const organizationIdentifier = new OrganizationIdentifier();
+const organizationIdentifier = new OrganizationIdentifierMockFactory().create();
 const organizationFixtureFactory = new OrganizationFixtureFactory();
 
 describe('GetOrganizationDashboardUseCase', () => {

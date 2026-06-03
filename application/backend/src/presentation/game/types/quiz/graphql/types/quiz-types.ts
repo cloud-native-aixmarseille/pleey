@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Field, ID, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { QuizQuestionType } from '../../../../../../domain/game/types/quiz/entities/quiz-question';
 import { SelectableOptionType } from '../../../shared/graphql/selectable-option-types';
 
@@ -8,11 +8,11 @@ registerEnumType(QuizQuestionType, {
 
 @ObjectType()
 export class QuizType {
-  @Field(() => Int)
-  quizId!: number;
+  @Field(() => ID)
+  quizId!: string;
 
-  @Field(() => Int)
-  gameId!: number;
+  @Field(() => ID)
+  gameId!: string;
 
   @Field()
   type!: string;
@@ -32,11 +32,11 @@ export class QuizType {
 
 @ObjectType()
 export class QuizQuestionTypeObject {
-  @Field(() => Int)
-  id!: number;
+  @Field(() => ID)
+  id!: string;
 
-  @Field(() => Int)
-  quizId!: number;
+  @Field(() => ID)
+  quizId!: string;
 
   @Field(() => Int)
   position!: number;

@@ -101,7 +101,7 @@ export class PersistedAuthSessionAdapter {
     }
 
     return (
-      typeof value.id === 'number' &&
+      typeof value.id === 'string' &&
       typeof value.username === 'string' &&
       typeof value.email === 'string' &&
       (value.avatarUri === undefined ||

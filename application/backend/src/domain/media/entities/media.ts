@@ -1,6 +1,8 @@
 import { Buffer } from 'node:buffer';
 
-export type MediaId = number;
+export type MediaId = string & {
+  readonly __identifierBrand: 'MediaId';
+};
 
 export class Media {
   constructor(

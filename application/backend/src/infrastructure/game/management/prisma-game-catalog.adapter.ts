@@ -90,7 +90,7 @@ export class PrismaGameCatalogAdapter implements GameCatalogPort {
 
     const predictionIds = games
       .map((game) => game.prediction?.id ?? null)
-      .filter((id): id is number => id !== null);
+      .filter((id): id is string => id !== null);
     const promptCounts = predictionIds.length
       ? await this.prisma.predictionPrompt.groupBy({
           by: ['predictionId'],
@@ -101,13 +101,16 @@ export class PrismaGameCatalogAdapter implements GameCatalogPort {
           _count: { _all: true },
         })
       : [];
-    const promptCountByPredictionId = new Map<number, number>(
-      promptCounts.map((entry) => [entry.predictionId, entry._count._all]),
+    const promptCountByPredictionId = new Map<string, number>(
+      promptCounts.map((entry) => [
+        entry.predictionId,
+        typeof entry._count === 'object' ? (entry._count._all ?? 0) : 0,
+      ]),
     );
 
     const quizIds = games
       .map((game) => game.quiz?.id ?? null)
-      .filter((id): id is number => id !== null);
+      .filter((id): id is string => id !== null);
     const questionCounts = quizIds.length
       ? await this.prisma.question.groupBy({
           by: ['quizId'],
@@ -118,8 +121,11 @@ export class PrismaGameCatalogAdapter implements GameCatalogPort {
           _count: { _all: true },
         })
       : [];
-    const questionCountByQuizId = new Map<number, number>(
-      questionCounts.map((entry) => [entry.quizId, entry._count._all]),
+    const questionCountByQuizId = new Map<string, number>(
+      questionCounts.map((entry) => [
+        entry.quizId,
+        typeof entry._count === 'object' ? (entry._count._all ?? 0) : 0,
+      ]),
     );
 
     return this.paginationQueryNormalizer.toPaginatedResult(

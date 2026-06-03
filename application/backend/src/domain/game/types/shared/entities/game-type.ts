@@ -3,6 +3,6 @@ export enum GameType {
   Quiz = 'quiz',
 }
 
-export type GameTypeId = number & {
+export type GameTypeId = string & {
   readonly __identifierBrand: 'GameTypeId';
 };

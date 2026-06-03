@@ -1,4 +1,5 @@
 import { vi } from 'vitest';
+import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
 import type { DashboardGameListPage } from '../../domains/game/management/entities/dashboard-game-list-page';
 import {
   type Organization,
@@ -10,6 +11,7 @@ import { OrganizationFixtureFactory } from './organization-fixture-factory';
 import { ProjectFixtureFactory } from './project-fixture-factory';
 
 const DEFAULT_TIMESTAMP = '2026-03-12T00:00:00.000Z';
+const organizationIdentifier = new OrganizationIdentifier();
 
 interface OrganizationOverrides extends Omit<Partial<Organization>, 'id'> {
   readonly id?: OrganizationId;
@@ -59,7 +61,7 @@ export class DashboardHomeScreenFixtureFactory {
   ): OrganizationDashboard {
     return this.organizationFixtureFactory.createOrganizationDashboard({
       organization: {
-        id: 2,
+        id: organizationIdentifier.parse('00000000-0000-7000-8000-000000000002'),
         name: 'Org 2',
         description: null,
         ...overrides.organization,

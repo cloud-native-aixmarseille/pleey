@@ -8,7 +8,7 @@ import type {
 } from '../../../../domains/game/types/shared/management/playable-management';
 
 interface GraphqlPlayableOption {
-  readonly id?: number | null;
+  readonly id?: string | null;
   readonly text?: string | null;
   readonly position: number;
   readonly isCorrect: boolean;
@@ -56,7 +56,7 @@ export class PlayableManagementGraphqlMapper {
     };
   }
 
-  mapItem<TItemId extends number, TKind extends string = string>(input: {
+  mapItem<TItemId extends string, TKind extends string = string>(input: {
     readonly id: TItemId;
     readonly gameTypeId: GameTypeId;
     readonly position: number;

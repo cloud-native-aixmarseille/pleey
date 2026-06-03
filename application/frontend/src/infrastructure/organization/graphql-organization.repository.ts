@@ -1,6 +1,8 @@
 import { inject, injectable } from 'inversify';
+import { UserIdentifier } from '../../application/identity/shared/services/identifiers/user-identifier';
 import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../application/workspace/shared/services/identifiers/organization-member-identifier';
+import type { UserId } from '../../domains/identity/entities/user';
 import type { OrganizationId } from '../../domains/organization/entities/organization';
 import {
   type Organization,
@@ -48,34 +50,6 @@ import {
 const DEFAULT_LIST_PAGE = 1;
 const DEFAULT_LIST_PAGE_SIZE = 25;
 
-function toDomainRole(role: GraphqlOrganizationRole | null | undefined): OrganizationRole | null {
-  if (role === GraphqlOrganizationRole.Owner) {
-    return OrganizationRole.OWNER;
-  }
-
-  if (role === GraphqlOrganizationRole.Manager) {
-    return OrganizationRole.MANAGER;
-  }
-
-  if (role === GraphqlOrganizationRole.Member) {
-    return OrganizationRole.MEMBER;
-  }
-
-  return null;
-}
-
-function toGraphqlRole(role: OrganizationRole): GraphqlOrganizationRole {
-  if (role === OrganizationRole.OWNER) {
-    return GraphqlOrganizationRole.Owner;
-  }
-
-  if (role === OrganizationRole.MANAGER) {
-    return GraphqlOrganizationRole.Manager;
-  }
-
-  return GraphqlOrganizationRole.Member;
-}
-
 @injectable()
 export class GraphqlOrganizationRepository implements OrganizationRepository {
   constructor(
@@ -85,6 +59,8 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
     private readonly organizationIdentifier: OrganizationIdentifier,
     @inject(OrganizationMemberIdentifier)
     private readonly organizationMemberIdentifier: OrganizationMemberIdentifier,
+    @inject(UserIdentifier)
+    private readonly userIdentifier: UserIdentifier,
   ) {}
 
   async getMyOrganizations(
@@ -109,7 +85,7 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
           description: organization.description ?? null,
           createdAt: organization.createdAt,
           updatedAt: organization.updatedAt,
-          role: toDomainRole(organization.role),
+          role: this.toDomainRole(organization.role),
         })),
         totalCount: result.myOrganizations.totalCount,
         overallCount: result.myOrganizations.overallCount,
@@ -164,7 +140,7 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
         description: result.createOrganization.description ?? null,
         createdAt: result.createOrganization.createdAt,
         updatedAt: result.createOrganization.updatedAt,
-        role: toDomainRole(result.createOrganization.role),
+        role: this.toDomainRole(result.createOrganization.role),
       };
     } catch (error) {
       throw new Error(
@@ -210,7 +186,7 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
       >(AddOrganizationMemberDocument, {
         organizationId: command.organizationId,
         input: {
-          role: toGraphqlRole(command.role),
+          role: this.toGraphqlRole(command.role),
           usernameOrEmail: command.usernameOrEmail,
         },
       });
@@ -246,7 +222,7 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
       >(UpdateOrganizationMemberRoleDocument, {
         memberId: command.memberId,
         input: {
-          role: toGraphqlRole(command.role),
+          role: this.toGraphqlRole(command.role),
         },
       });
 
@@ -259,20 +235,48 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
   }
 
   private toDomainMember(member: {
-    readonly id: number;
+    readonly id: string;
     readonly joinedAt: string;
-    readonly organizationId: number;
+    readonly organizationId: string;
     readonly role: GraphqlOrganizationRole;
     readonly username: string;
-    readonly userId: number;
+    readonly userId: string;
   }): OrganizationMember {
     return {
       id: this.organizationMemberIdentifier.parse(member.id),
       joinedAt: member.joinedAt,
       organizationId: this.organizationIdentifier.parse(member.organizationId),
-      role: toDomainRole(member.role) ?? OrganizationRole.MEMBER,
+      role: this.toDomainRole(member.role) ?? OrganizationRole.MEMBER,
       username: member.username,
-      userId: member.userId,
+      userId: this.userIdentifier.parse(member.userId) as UserId,
     };
+  }
+
+  private toDomainRole(role: GraphqlOrganizationRole | null | undefined): OrganizationRole | null {
+    if (role === GraphqlOrganizationRole.Owner) {
+      return OrganizationRole.OWNER;
+    }
+
+    if (role === GraphqlOrganizationRole.Manager) {
+      return OrganizationRole.MANAGER;
+    }
+
+    if (role === GraphqlOrganizationRole.Member) {
+      return OrganizationRole.MEMBER;
+    }
+
+    return null;
+  }
+
+  private toGraphqlRole(role: OrganizationRole): GraphqlOrganizationRole {
+    if (role === OrganizationRole.OWNER) {
+      return GraphqlOrganizationRole.Owner;
+    }
+
+    if (role === OrganizationRole.MANAGER) {
+      return GraphqlOrganizationRole.Manager;
+    }
+
+    return GraphqlOrganizationRole.Member;
   }
 }

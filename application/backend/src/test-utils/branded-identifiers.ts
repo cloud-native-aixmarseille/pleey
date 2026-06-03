@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { PartyActionIdentifier } from '../application/game/party/shared/services/identifiers/party-action-identifier';
 import { PartyIdentifier } from '../application/game/party/shared/services/identifiers/party-identifier';
 import { PartyPinIdentifier } from '../application/game/party/shared/services/identifiers/party-pin-identifier';
@@ -8,8 +9,15 @@ import { UserIdentifier } from '../application/identity/shared/services/identifi
 import { OrganizationIdentifier } from '../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../application/workspace/shared/services/identifiers/organization-member-identifier';
 import { ProjectIdentifier } from '../application/workspace/shared/services/identifiers/project-identifier';
+import type { MediaId } from '../domain/media/entities/media';
 
 class BackendTestIdentifiers {
+  private toUuidV7(value: number | string): string {
+    const seed = createHash('sha256').update(String(value)).digest('hex').slice(0, 32);
+
+    return `${seed.slice(0, 8)}-${seed.slice(8, 12)}-7${seed.slice(13, 16)}-8${seed.slice(17, 20)}-${seed.slice(20, 32)}`;
+  }
+
   private readonly gameIdentifier = new GameIdentifier();
 
   private readonly guestIdentifier = new GuestIdentifier();
@@ -30,44 +38,48 @@ class BackendTestIdentifiers {
 
   private readonly userIdentifier = new UserIdentifier();
 
-  game(value: number) {
-    return this.gameIdentifier.parse(value);
+  game(value: number | string) {
+    return this.gameIdentifier.parse(this.toUuidV7(value));
   }
 
-  guest(value: string) {
-    return this.guestIdentifier.parse(value);
+  guest(value: number | string) {
+    return this.guestIdentifier.parse(this.toUuidV7(value));
   }
 
-  organization(value: number) {
-    return this.organizationIdentifier.parse(value);
+  media(value: number | string): MediaId {
+    return this.toUuidV7(value) as MediaId;
   }
 
-  organizationMember(value: number) {
-    return this.organizationMemberIdentifier.parse(value);
+  organization(value: number | string) {
+    return this.organizationIdentifier.parse(this.toUuidV7(value));
   }
 
-  partyAction(value: number) {
-    return this.partyActionIdentifier.parse(value);
+  organizationMember(value: number | string) {
+    return this.organizationMemberIdentifier.parse(this.toUuidV7(value));
   }
 
-  party(value: number) {
-    return this.partyIdentifier.parse(value);
+  partyAction(value: number | string) {
+    return this.partyActionIdentifier.parse(this.toUuidV7(value));
+  }
+
+  party(value: number | string) {
+    return this.partyIdentifier.parse(this.toUuidV7(value));
   }
 
   partyPin(value: string) {
     return this.partyPinIdentifier.parse(value);
   }
 
-  partyStage(value: number) {
-    return this.partyStageIdentifier.parse(value);
+  partyStage(value: number | string) {
+    return this.partyStageIdentifier.parse(this.toUuidV7(value));
   }
 
-  project(value: number) {
-    return this.projectIdentifier.parse(value);
+  project(value: number | string) {
+    return this.projectIdentifier.parse(this.toUuidV7(value));
   }
 
-  user(value: number) {
-    return this.userIdentifier.parse(value);
+  user(value: number | string) {
+    return this.userIdentifier.parse(this.toUuidV7(value));
   }
 }
 

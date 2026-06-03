@@ -1,7 +1,7 @@
 import { JwtService } from '@nestjs/jwt';
 import { describe, expect, it } from 'vitest';
-import type { UserId } from '../../../domain/identity/entities/user';
 import type { AuthToken } from '../../../domain/identity/types/auth-token';
+import { backendTestIdentifiers } from '../../../test-utils/branded-identifiers';
 import { JwtAuthTokenService } from './jwt-auth-token-service';
 
 describe('JwtAuthTokenService', () => {
@@ -16,7 +16,7 @@ describe('JwtAuthTokenService', () => {
   };
 
   const payload = {
-    id: 42 as UserId,
+    id: backendTestIdentifiers.user(42),
     username: 'neo',
   };
 

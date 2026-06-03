@@ -1,5 +1,5 @@
 import { UnauthorizedException, UseGuards } from '@nestjs/common';
-import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Context, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { GetOrganizationDashboardUseCase } from '../../../application/workspace/dashboard/use-cases/get-organization-dashboard-use-case';
 import { AddMemberToOrganizationUseCase } from '../../../application/workspace/organizations/use-cases/add-member-to-organization-use-case';
 import { CreateOrganizationUseCase } from '../../../application/workspace/organizations/use-cases/create-organization-use-case';
@@ -75,7 +75,7 @@ export class OrganizationResolver {
   @Query(() => OrganizationDashboardType)
   @UseGuards(GqlJwtAuthGuard)
   async organizationDashboard(
-    @Args('organizationId', { type: () => Int }) organizationId: number,
+    @Args('organizationId', { type: () => ID }) organizationId: string,
     @Context() context: GraphqlAuthContext,
   ): Promise<OrganizationDashboardType> {
     const userId = this.resolveUserId(context);
@@ -105,7 +105,7 @@ export class OrganizationResolver {
   @Mutation(() => OrganizationMemberType)
   @UseGuards(GqlJwtAuthGuard)
   async addOrganizationMember(
-    @Args('organizationId', { type: () => Int }) organizationId: number,
+    @Args('organizationId', { type: () => ID }) organizationId: string,
     @Args('input') input: AddOrganizationMemberInput,
     @Context() context: GraphqlAuthContext,
   ): Promise<OrganizationMemberType> {
@@ -120,7 +120,7 @@ export class OrganizationResolver {
   @Mutation(() => Boolean)
   @UseGuards(GqlJwtAuthGuard)
   async removeOrganizationMember(
-    @Args('memberId', { type: () => Int }) memberId: number,
+    @Args('memberId', { type: () => ID }) memberId: string,
     @Context() context: GraphqlAuthContext,
   ): Promise<boolean> {
     const userId = this.resolveUserId(context);
@@ -134,7 +134,7 @@ export class OrganizationResolver {
   @Mutation(() => OrganizationMemberType)
   @UseGuards(GqlJwtAuthGuard)
   async updateOrganizationMemberRole(
-    @Args('memberId', { type: () => Int }) memberId: number,
+    @Args('memberId', { type: () => ID }) memberId: string,
     @Args('input') input: UpdateOrganizationMemberRoleInput,
     @Context() context: GraphqlAuthContext,
   ): Promise<OrganizationMemberType> {

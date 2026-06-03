@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import type { GameId } from '../../../../domain/game/entities/game';
 import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { PartyStageConfigurationPort } from '../../types/shared/ports/party-stage-configuration.port';
@@ -46,17 +47,17 @@ describe('GamePermissionResolver', () => {
   it('disables other listed games when the host already owns an active party for one listed game', async () => {
     const resolver = new GamePermissionResolver(
       {
-        findActivePartyByGameId: async (gameId: number) =>
+        findActivePartyByGameId: async (gameId: GameId) =>
           gameId === backendTestIdentifiers.game(17)
             ? {
-                partyId: 8,
+                partyId: backendTestIdentifiers.party(8),
                 gameId: backendTestIdentifiers.game(17),
                 hostUserId: backendTestIdentifiers.user(42),
               }
             : null,
         findActivePartiesByHostId: async () => [
           {
-            partyId: 8,
+            partyId: backendTestIdentifiers.party(8),
             gameId: backendTestIdentifiers.game(17),
             hostUserId: backendTestIdentifiers.user(42),
           },
@@ -134,7 +135,7 @@ describe('GamePermissionResolver', () => {
     const resolver = new GamePermissionResolver(
       {
         findActivePartyByGameId: async () => ({
-          partyId: 8,
+          partyId: backendTestIdentifiers.party(8),
           hostUserId: backendTestIdentifiers.user(7),
         }),
         findActivePartiesByHostId: async () => [],

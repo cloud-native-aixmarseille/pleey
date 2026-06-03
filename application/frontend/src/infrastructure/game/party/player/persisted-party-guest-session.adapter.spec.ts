@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { PartyPinIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-pin-identifier';
-import { GuestIdentifier } from '../../../../application/identity/shared/services/identifiers/guest-identifier';
+import { GuestIdentifierMockFactory } from '../../../../test-utils/mocks/guest-identifier-mock-factory';
 import { StoragePortMockFactory } from '../../../../test-utils/mocks/storage-port-mock-factory';
 import { PersistedPartyGuestSessionAdapter } from './persisted-party-guest-session.adapter';
 
 const storagePortMockFactory = new StoragePortMockFactory();
 const partyPinIdentifier = new PartyPinIdentifier();
-const guestIdentifier = new GuestIdentifier();
+const guestIdentifier = new GuestIdentifierMockFactory().create();
 
 describe('PersistedPartyGuestSessionAdapter', () => {
   it('stores and restores a guest id per party pin', () => {

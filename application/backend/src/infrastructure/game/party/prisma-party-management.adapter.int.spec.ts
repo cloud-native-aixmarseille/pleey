@@ -10,12 +10,12 @@ const describeIfDatabase = hasDatabase ? describe.sequential : describe.skip;
 describeIfDatabase('PrismaPartyManagementAdapter', () => {
   const harness = new PrismaIntegrationTestHarness(PrismaPartyManagementAdapter);
 
-  const userIds: number[] = [];
-  const organizationIds: number[] = [];
-  const projectIds: number[] = [];
-  const gameIds: number[] = [];
-  const partyIds: number[] = [];
-  const scoreIds: number[] = [];
+  const userIds: string[] = [];
+  const organizationIds: string[] = [];
+  const projectIds: string[] = [];
+  const gameIds: string[] = [];
+  const partyIds: string[] = [];
+  const scoreIds: string[] = [];
   harness.addCleanupStep(async (prisma) => {
     if (scoreIds.length) {
       await prisma.score.deleteMany({ where: { id: { in: scoreIds } } });

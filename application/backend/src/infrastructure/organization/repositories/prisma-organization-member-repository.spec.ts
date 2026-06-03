@@ -12,9 +12,9 @@ describe('PrismaOrganizationMemberRepository', () => {
     const count = vi.fn().mockResolvedValueOnce(4).mockResolvedValueOnce(1);
     const findMany = vi.fn().mockResolvedValue([
       {
-        id: 31,
-        organizationId: 9,
-        userId: 12,
+        id: backendTestIdentifiers.organizationMember(31),
+        organizationId: backendTestIdentifiers.organization(9),
+        userId: backendTestIdentifiers.user(12),
         role: OrganizationRole.MEMBER,
         joinedAt: new Date('2026-06-01T09:00:00.000Z'),
         user: {
@@ -45,7 +45,7 @@ describe('PrismaOrganizationMemberRepository', () => {
 
     expect(count).toHaveBeenNthCalledWith(1, {
       where: {
-        organizationId: 9,
+        organizationId: backendTestIdentifiers.organization(9),
         deletedAt: null,
         organization: {
           deletedAt: null,
@@ -54,7 +54,7 @@ describe('PrismaOrganizationMemberRepository', () => {
     });
     expect(count).toHaveBeenNthCalledWith(2, {
       where: {
-        organizationId: 9,
+        organizationId: backendTestIdentifiers.organization(9),
         deletedAt: null,
         user: {
           username: {
@@ -76,7 +76,7 @@ describe('PrismaOrganizationMemberRepository', () => {
         },
       },
       where: {
-        organizationId: 9,
+        organizationId: backendTestIdentifiers.organization(9),
         deletedAt: null,
         user: {
           username: {
@@ -103,9 +103,9 @@ describe('PrismaOrganizationMemberRepository', () => {
     const count = vi.fn().mockResolvedValueOnce(5).mockResolvedValueOnce(1);
     const findMany = vi.fn().mockResolvedValue([
       {
-        id: 32,
-        organizationId: 10,
-        userId: 18,
+        id: backendTestIdentifiers.organizationMember(32),
+        organizationId: backendTestIdentifiers.organization(10),
+        userId: backendTestIdentifiers.user(18),
         role: OrganizationRole.OWNER,
         joinedAt: new Date('2026-06-02T09:00:00.000Z'),
         user: {
@@ -136,7 +136,7 @@ describe('PrismaOrganizationMemberRepository', () => {
 
     expect(count).toHaveBeenNthCalledWith(1, {
       where: {
-        userId: 18,
+        userId: backendTestIdentifiers.user(18),
         deletedAt: null,
         organization: {
           deletedAt: null,
@@ -145,7 +145,7 @@ describe('PrismaOrganizationMemberRepository', () => {
     });
     expect(count).toHaveBeenNthCalledWith(2, {
       where: {
-        userId: 18,
+        userId: backendTestIdentifiers.user(18),
         deletedAt: null,
         organization: {
           deletedAt: null,
@@ -165,7 +165,7 @@ describe('PrismaOrganizationMemberRepository', () => {
         },
       },
       where: {
-        userId: 18,
+        userId: backendTestIdentifiers.user(18),
         deletedAt: null,
         organization: {
           deletedAt: null,

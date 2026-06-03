@@ -1,4 +1,4 @@
-export type OrganizationId = number & {
+export type OrganizationId = string & {
   readonly __identifierBrand: 'OrganizationId';
 };
 

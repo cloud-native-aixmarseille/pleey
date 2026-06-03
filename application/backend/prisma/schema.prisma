@@ -10,11 +10,11 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid(7)) @db.Uuid
   username  String   @unique
   email     String   @unique
   password  String
-  avatarMediaId Int? @unique @map("avatar_media_id")
+  avatarMediaId String? @unique @map("avatar_media_id") @db.Uuid
   refreshTokenHash String? @map("refresh_token_hash")
   refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at")
   createdAt DateTime @default(now()) @map("created_at")
@@ -30,7 +30,7 @@ model User {
 }
 
 model Media {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid(7)) @db.Uuid
   mimeType  String   @map("mime_type")
   content   Bytes
   createdAt DateTime @default(now()) @map("created_at")
@@ -43,11 +43,11 @@ model Media {
 }
 
 model Game {
-  id             Int      @id @default(autoincrement())
+  id             String   @id @default(uuid(7)) @db.Uuid
   type           String
   title          String
   description    String?
-  projectId      Int      @map("project_id")
+  projectId      String   @map("project_id") @db.Uuid
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
   deletedAt      DateTime? @map("deleted_at")
@@ -61,9 +61,9 @@ model Game {
 }
 
 model Party {
-  id              Int      @id @default(autoincrement())
-  gameId          Int      @map("game_id")
-  hostId          Int      @map("host_id")
+  id              String   @id @default(uuid(7)) @db.Uuid
+  gameId          String   @map("game_id") @db.Uuid
+  hostId          String   @map("host_id") @db.Uuid
   pin             String   @unique
   status          String   @default("waiting")
   context         Json?    @map("context")
@@ -79,7 +79,7 @@ model Party {
 }
 
 model Guest {
-  id         String   @id @default(cuid())
+  id         String   @id @default(uuid(7)) @db.Uuid
   username   String
   avatarSeed String   @map("avatar_seed")
   createdAt  DateTime @default(now()) @map("created_at")
@@ -92,10 +92,10 @@ model Guest {
 }
 
 model Score {
-  id         Int      @id @default(autoincrement())
-  partyId    Int      @map("party_id")
-  userId     Int?     @map("user_id")
-  guestId    String?  @map("guest_id")
+  id         String   @id @default(uuid(7)) @db.Uuid
+  partyId    String   @map("party_id") @db.Uuid
+  userId     String?  @map("user_id") @db.Uuid
+  guestId    String?  @map("guest_id") @db.Uuid
   context    Json?    @map("context")
   points     Int      @default(0)
   createdAt  DateTime @default(now()) @map("created_at")
@@ -110,7 +110,7 @@ model Score {
 }
 
 model Organization {
-  id          Int      @id @default(autoincrement())
+  id          String   @id @default(uuid(7)) @db.Uuid
   name        String
   description String?
   createdAt   DateTime @default(now()) @map("created_at")
@@ -124,9 +124,9 @@ model Organization {
 }
 
 model OrganizationMember {
-  id             Int      @id @default(autoincrement())
-  organizationId Int      @map("organization_id")
-  userId         Int      @map("user_id")
+  id             String   @id @default(uuid(7)) @db.Uuid
+  organizationId String   @map("organization_id") @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
   role           String   @default("member") // owner, manager, member
   createdAt      DateTime @default(now()) @map("created_at")
   joinedAt       DateTime @default(now()) @map("joined_at")
@@ -141,10 +141,10 @@ model OrganizationMember {
 }
 
 model Project {
-  id             Int      @id @default(autoincrement())
+  id             String   @id @default(uuid(7)) @db.Uuid
   name           String
   description    String?
-  organizationId Int      @map("organization_id")
+  organizationId String   @map("organization_id") @db.Uuid
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
   deletedAt      DateTime? @map("deleted_at")
@@ -156,13 +156,13 @@ model Project {
 }
 
 model Quiz {
-  id             Int      @id @default(autoincrement())
+  id             String   @id @default(uuid(7)) @db.Uuid
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
   deletedAt      DateTime? @map("deleted_at")
 
   game          Game     @relation(fields: [gameId], references: [id])
-  gameId        Int      @unique @map("game_id")
+  gameId        String   @unique @map("game_id") @db.Uuid
 
   questions    Question[]
 
@@ -170,8 +170,8 @@ model Quiz {
 }
 
 model Question {
-  id           Int      @id @default(autoincrement())
-  quizId       Int      @map("quiz_id")
+  id           String   @id @default(uuid(7)) @db.Uuid
+  quizId       String   @map("quiz_id") @db.Uuid
   position     Int      @map("position")
   questionText String   @map("question_text")
   type         String   // 'multiple' or 'truefalse'
@@ -189,8 +189,8 @@ model Question {
 }
 
 model QuestionAnswer {
-  id         Int     @id @default(autoincrement())
-  questionId Int     @map("question_id")
+  id         String   @id @default(uuid(7)) @db.Uuid
+  questionId String   @map("question_id") @db.Uuid
   text       String? @map("answer_text")
   position   Int     @default(0) @map("position")
   isCorrect  Boolean @default(false) @map("is_correct")
@@ -205,13 +205,13 @@ model QuestionAnswer {
 }
 
 model Prediction {
-  id             Int      @id @default(autoincrement())
+  id             String   @id @default(uuid(7)) @db.Uuid
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
   deletedAt      DateTime? @map("deleted_at")
 
   game          Game     @relation(fields: [gameId], references: [id])
-  gameId        Int      @unique @map("game_id")
+  gameId        String   @unique @map("game_id") @db.Uuid
 
   prompts       PredictionPrompt[]
 
@@ -219,8 +219,8 @@ model Prediction {
 }
 
 model PredictionPrompt {
-  id            Int      @id @default(autoincrement())
-  predictionId  Int      @map("prediction_id")
+  id            String   @id @default(uuid(7)) @db.Uuid
+  predictionId  String   @map("prediction_id") @db.Uuid
   position      Int      @map("position")
   promptText    String   @map("prompt_text")
   timeLimit     Int      @default(20) @map("time_limit")
@@ -237,8 +237,8 @@ model PredictionPrompt {
 }
 
 model PredictionOption {
-  id           Int     @id @default(autoincrement())
-  promptId     Int     @map("prompt_id")
+  id           String   @id @default(uuid(7)) @db.Uuid
+  promptId     String   @map("prompt_id") @db.Uuid
   text         String? @map("option_text")
   position     Int     @default(0) @map("position")
   isCorrect    Boolean @default(false) @map("is_correct")
