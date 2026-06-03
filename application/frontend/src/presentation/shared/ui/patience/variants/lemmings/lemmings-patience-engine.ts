@@ -180,7 +180,7 @@ export class LemmingsPatienceEngine {
           lemming.direction *= -1;
         }
 
-        lemming.nextIdleAtMs = nowMs + randomBetween(2_500, 4_500);
+        lemming.nextIdleAtMs = nowMs + randomBetween();
         return;
       }
     }
@@ -192,7 +192,7 @@ export class LemmingsPatienceEngine {
         lemming.direction *= -1;
       }
 
-      lemming.nextIdleAtMs = nowMs + randomBetween(2_500, 4_500);
+      lemming.nextIdleAtMs = nowMs + randomBetween();
     }
   }
 

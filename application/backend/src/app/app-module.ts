@@ -122,7 +122,7 @@ function createI18nDirectory(serverConfig: AppServerConfig): string {
         loader: I18nJsonLoader,
         loaderOptions: {
           path: createI18nDirectory(serverConfig),
-          watch: !serverConfig.isProduction,
+          watch: serverConfig.isDevelopment,
         },
         resolvers: [{ use: QueryResolver, options: ['lang'] }, AcceptLanguageResolver],
       }),

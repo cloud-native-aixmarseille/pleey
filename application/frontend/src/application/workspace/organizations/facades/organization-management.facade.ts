@@ -3,6 +3,7 @@ import type { Organization } from '../../../../domains/organization/entities/org
 import type { OrganizationMember } from '../../../../domains/organization/entities/organization-member';
 import type {
   AddOrganizationMemberCommand,
+  ListOrganizationMembersQuery,
   RemoveOrganizationMemberCommand,
   UpdateOrganizationMemberRoleCommand,
 } from '../../../../domains/organization/ports/organization-repository';
@@ -12,6 +13,7 @@ import type {
   DeleteProjectCommand,
   UpdateProjectCommand,
 } from '../../../../domains/project/ports/project-repository';
+import type { PaginatedResult } from '../../../../domains/shared/value-objects/paginated-result';
 import { CreateProjectUseCase } from '../../projects/use-cases/create-project-use-case';
 import { DeleteProjectUseCase } from '../../projects/use-cases/delete-project-use-case';
 import { UpdateProjectUseCase } from '../../projects/use-cases/update-project-use-case';
@@ -47,8 +49,10 @@ export class OrganizationManagementFacade {
     return this.createOrganizationUseCase.execute(command);
   }
 
-  listOrganizationMembers(organizationId: Organization['id']): Promise<OrganizationMember[]> {
-    return this.listOrganizationMembersUseCase.execute(organizationId);
+  listOrganizationMembers(
+    query: ListOrganizationMembersQuery,
+  ): Promise<PaginatedResult<OrganizationMember>> {
+    return this.listOrganizationMembersUseCase.execute(query);
   }
 
   addOrganizationMember(command: AddOrganizationMemberCommand): Promise<OrganizationMember> {

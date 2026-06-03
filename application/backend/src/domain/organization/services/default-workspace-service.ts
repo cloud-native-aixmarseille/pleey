@@ -23,9 +23,9 @@ export class DefaultWorkspaceService {
   ) {}
 
   async ensure(userId: UserId): Promise<void> {
-    const memberships = await this.memberRepository.findByUser(userId);
+    const membership = await this.memberRepository.findLatestByUser(userId);
 
-    if (memberships.length === 0) {
+    if (!membership) {
       const organization = await this.organizationRepository.create(
         DEFAULT_ORGANIZATION_NAME,
         null,
@@ -38,10 +38,10 @@ export class DefaultWorkspaceService {
       return;
     }
 
-    const primaryOrganizationId = memberships[0].organizationId;
-    const projects = await this.projectRepository.findByOrganization(primaryOrganizationId);
+    const primaryOrganizationId = membership.organizationId;
+    const projectCount = await this.projectRepository.countByOrganization(primaryOrganizationId);
 
-    if (projects.length === 0) {
+    if (projectCount === 0) {
       await this.projectRepository.create(primaryOrganizationId, DEFAULT_PROJECT_NAME, null);
     }
   }

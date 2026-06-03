@@ -1,12 +1,20 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { DashboardWorkspaceGateway } from '../../../../../application/workspace/dashboard/facades/dashboard-workspace.facade';
 import { CreatePartyDisabledReason } from '../../../../../domains/game/management/entities/dashboard-game-list-item';
 import type { PartyId, PartyPin } from '../../../../../domains/game/party/shared/entities/party';
 import { PartyRole } from '../../../../../domains/game/party/shared/entities/party-role';
 import { PartyStatus } from '../../../../../domains/game/party/shared/entities/party-status';
 import type { GameTypeId } from '../../../../../domains/game/types/shared/game-type';
 import type { GameTypeDescriptor } from '../../../../../domains/game/types/shared/game-type-catalog';
+import type {
+  Organization,
+  OrganizationId,
+} from '../../../../../domains/organization/entities/organization';
+import type { OrganizationDashboard } from '../../../../../domains/organization/entities/organization-dashboard';
+import type { Project, ProjectId } from '../../../../../domains/project/entities/project';
+import type { PaginatedResult } from '../../../../../domains/shared/value-objects/paginated-result';
 import { DashboardHomeScreenFixtureFactory } from '../../../../../test-utils/fixtures/dashboard-home-screen-fixture-factory';
 import { GameFixtureFactory } from '../../../../../test-utils/fixtures/game-fixture-factory';
 import {
@@ -47,10 +55,72 @@ function createDefaultDashboardHomeActions() {
   });
 }
 
+function createPaginatedResult<TItem>(items: readonly TItem[]): PaginatedResult<TItem> {
+  return {
+    items,
+    totalCount: items.length,
+    overallCount: items.length,
+    page: 1,
+    pageSize: 25,
+    totalPages: 1,
+  };
+}
+
+type DashboardOrganizationSelection = Awaited<
+  ReturnType<DashboardWorkspaceGateway['restoreOrganizationSelection']>
+>;
+
+type LegacyDashboardOrganizationSelection = {
+  readonly organizations: readonly Organization[];
+  readonly organizationId: OrganizationId | null;
+};
+
+type DashboardOrganizationWorkspace = Awaited<
+  ReturnType<DashboardWorkspaceGateway['loadOrganizationWorkspaceState']>
+>;
+
+type LegacyDashboardOrganizationWorkspace = {
+  readonly organizationDashboard: OrganizationDashboard | null;
+  readonly projects: readonly Project[];
+  readonly projectId: ProjectId | null;
+};
+
+function normalizeOrganizationSelection(
+  result: DashboardOrganizationSelection | LegacyDashboardOrganizationSelection,
+): DashboardOrganizationSelection {
+  if ('organizationsPage' in result) {
+    return result;
+  }
+
+  return {
+    organizationsPage: createPaginatedResult(result.organizations),
+    organizationId: result.organizationId,
+  };
+}
+
+function normalizeOrganizationWorkspace(
+  result: DashboardOrganizationWorkspace | LegacyDashboardOrganizationWorkspace,
+): DashboardOrganizationWorkspace {
+  if ('projectsPage' in result) {
+    return result;
+  }
+
+  return {
+    organizationDashboard: result.organizationDashboard,
+    projectsPage: createPaginatedResult(result.projects),
+    projectId: result.projectId,
+  };
+}
+
 function createDefaultDashboardWorkspace(
   overrides: Parameters<DashboardWorkspaceGatewayMockFactory['create']>[0] = {},
 ) {
   const organization = dashboardHomeScreenFixtureFactory.createOrganization();
+  const {
+    restoreOrganizationSelection: restoreOrganizationSelectionOverride,
+    loadOrganizationWorkspaceState: loadOrganizationWorkspaceStateOverride,
+    ...remainingOverrides
+  } = overrides;
 
   return dashboardWorkspaceGatewayMockFactory.create({
     loadProjectGameCatalog: vi
@@ -65,16 +135,36 @@ function createDefaultDashboardWorkspace(
       }),
     ),
     loadUserParties: vi.fn().mockResolvedValue([]),
-    restoreOrganizationSelection: vi.fn().mockResolvedValue({
-      organizations: [organization],
-      organizationId: organization.id,
+    restoreOrganizationSelection: vi.fn(async (query) => {
+      if (restoreOrganizationSelectionOverride) {
+        const result = (await restoreOrganizationSelectionOverride(query)) as
+          | DashboardOrganizationSelection
+          | LegacyDashboardOrganizationSelection;
+
+        return normalizeOrganizationSelection(result);
+      }
+
+      return {
+        organizationsPage: createPaginatedResult([organization]),
+        organizationId: organization.id,
+      } satisfies DashboardOrganizationSelection;
     }),
-    loadOrganizationWorkspaceState: vi.fn().mockResolvedValue({
-      organizationDashboard: null,
-      projects: [dashboardHomeScreenFixtureFactory.createProject()],
-      projectId: projectIdentifier.parse(8),
+    loadOrganizationWorkspaceState: vi.fn(async (query) => {
+      if (loadOrganizationWorkspaceStateOverride) {
+        const result = (await loadOrganizationWorkspaceStateOverride(query)) as
+          | DashboardOrganizationWorkspace
+          | LegacyDashboardOrganizationWorkspace;
+
+        return normalizeOrganizationWorkspace(result);
+      }
+
+      return {
+        organizationDashboard: null,
+        projectsPage: createPaginatedResult([dashboardHomeScreenFixtureFactory.createProject()]),
+        projectId: projectIdentifier.parse(8),
+      } satisfies DashboardOrganizationWorkspace;
     }),
-    ...overrides,
+    ...remainingOverrides,
   });
 }
 
@@ -91,10 +181,10 @@ async function renderDashboardHomeScreen(gameTypes: readonly GameTypeDescriptor[
   );
 
   await waitFor(() => {
-    expect(dashboardWorkspace.restoreOrganizationSelection).toHaveBeenCalledTimes(1);
-    expect(dashboardWorkspace.loadOrganizationWorkspaceState).toHaveBeenCalledTimes(1);
-    expect(dashboardWorkspace.loadUserParties).toHaveBeenCalledTimes(1);
-    expect(dashboardWorkspace.loadProjectGameCatalog).toHaveBeenCalledTimes(1);
+    expect(dashboardWorkspace.restoreOrganizationSelection).toHaveBeenCalled();
+    expect(dashboardWorkspace.loadOrganizationWorkspaceState).toHaveBeenCalled();
+    expect(dashboardWorkspace.loadUserParties).toHaveBeenCalled();
+    expect(dashboardWorkspace.loadProjectGameCatalog).toHaveBeenCalled();
   });
 
   return renderResult;
@@ -303,6 +393,29 @@ describe('DashboardHomeScreen', () => {
       expect(
         screen.getByText('game.types.quiz.management.questionSummary (count=6)'),
       ).toBeInTheDocument();
+    });
+
+    it('loads the selected organization workspace only once on initialization', async () => {
+      const loadOrganizationWorkspaceState = vi.fn().mockResolvedValue({
+        organizationDashboard: null,
+        projectsPage: createPaginatedResult([dashboardHomeScreenFixtureFactory.createProject()]),
+        projectId: projectIdentifier.parse(8),
+      });
+
+      renderWithProviders(
+        <DashboardHomeScreen
+          dashboardHomeActions={createDefaultDashboardHomeActions()}
+          gameTypes={[createGameTypeDescriptorFixture({ key: 'quiz' })]}
+          dashboardWorkspace={createDefaultDashboardWorkspace({
+            loadOrganizationWorkspaceState,
+          })}
+          resolvePartyRoute={resolvePartyRoute}
+        />,
+      );
+
+      await waitFor(() => {
+        expect(loadOrganizationWorkspaceState).toHaveBeenCalledTimes(1);
+      });
     });
 
     it('renders project-scoped parties after the project loads', async () => {

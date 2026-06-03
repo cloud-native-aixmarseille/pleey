@@ -33,7 +33,7 @@ const prismaHealthIndicator = {
 })
 class TestHealthHttpModule {}
 
-describe('HealthController HTTP probes', () => {
+describe('HealthController', () => {
   let app: INestApplication;
 
   beforeAll(async () => {

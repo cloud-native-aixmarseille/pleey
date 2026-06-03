@@ -21,7 +21,7 @@ export function PlayerPartyStatusBar({
   variant,
 }: PlayerPartyStatusBarProps) {
   const { t } = usePresentationTranslation();
-  const isMobile = usePresentationMediaQuery('(max-width: 48em)');
+  const isMobile = usePresentationMediaQuery();
   const supportingText = resolveSupportingText(variant, party, pausedText, t);
   const isCompact = isMobile && variant === 'paused-only';
 

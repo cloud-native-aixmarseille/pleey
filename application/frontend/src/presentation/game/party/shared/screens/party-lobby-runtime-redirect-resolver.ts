@@ -1,3 +1,4 @@
+import { injectable } from 'inversify';
 import type { PartyId } from '../../../../../domains/game/party/shared/entities/party';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import { PartyRuntimePhase } from '../../../../../domains/game/party/shared/entities/party-runtime-context';
@@ -15,8 +16,9 @@ interface ResolveRuntimeRedirectParams {
   readonly screenSection: PartyScreenSection;
 }
 
+@injectable()
 export class PartyLobbyRuntimeRedirectResolver {
-  static resolve({
+  resolve({
     party,
     requestedStageId,
     resolvePartyLeaderboardRoute,

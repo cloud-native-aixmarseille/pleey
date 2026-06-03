@@ -20,7 +20,7 @@ const APP_MODULE_COMPILE_TIMEOUT_MS = 15_000;
 const appModuleCase: ModuleCase = {
   moduleName: 'AppModule',
   loadModule: async () => {
-    const { AppModule } = await import('../app-module');
+    const { AppModule } = await import('../app-module.js');
     return AppModule;
   },
 };
@@ -29,7 +29,7 @@ const moduleCases: ModuleCase[] = [
   {
     moduleName: 'DatabaseModule',
     loadModule: async () => {
-      const { DatabaseModule } = await import('./database/database-module');
+      const { DatabaseModule } = await import('./database/database-module.js');
       return DatabaseModule;
     },
   },
@@ -37,21 +37,21 @@ const moduleCases: ModuleCase[] = [
     moduleName: 'GameModule',
     requiresRootI18n: true,
     loadModule: async () => {
-      const { GameModule } = await import('./game/game-module');
+      const { GameModule } = await import('./game/game-module.js');
       return GameModule;
     },
   },
   {
     moduleName: 'HealthModule',
     loadModule: async () => {
-      const { HealthModule } = await import('./health/health-module');
+      const { HealthModule } = await import('./health/health-module.js');
       return HealthModule;
     },
   },
   {
     moduleName: 'IdentityModule',
     loadModule: async () => {
-      const { IdentityModule } = await import('./identity/identity-module');
+      const { IdentityModule } = await import('./identity/identity-module.js');
       return IdentityModule;
     },
   },
@@ -59,7 +59,7 @@ const moduleCases: ModuleCase[] = [
     moduleName: 'OrganizationModule',
     requiresRootI18n: true,
     loadModule: async () => {
-      const { OrganizationModule } = await import('./organization/organization-module');
+      const { OrganizationModule } = await import('./organization/organization-module.js');
       return OrganizationModule;
     },
   },

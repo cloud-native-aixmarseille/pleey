@@ -182,7 +182,7 @@ export function PlayerStageSurfaceFrame({
   const stageRevealCycleKey =
     stageId === null ? 'none' : `${stageId}-${stageEndsAtEpochMs ?? 'no-deadline'}`;
   const currentStage = party.context?.stage?.current;
-  const isMobile = usePresentationMediaQuery('(max-width: 48em)');
+  const isMobile = usePresentationMediaQuery();
 
   if (!currentStage || stagePosition === null || stagePosition === undefined) {
     return null;

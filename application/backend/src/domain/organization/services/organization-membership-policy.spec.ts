@@ -43,19 +43,12 @@ describe('OrganizationMembershipPolicy', () => {
   });
 
   it('rejects shrinking ownership to zero', () => {
-    expect(() =>
-      policy.assertOwnerCountCanShrink([
-        createMember({ isOwner: () => true, role: OrganizationRole.OWNER }),
-      ]),
-    ).toThrow(OrganizationErrorCode.CANNOT_REMOVE_LAST_OWNER);
+    expect(() => policy.assertOwnerCountCanShrink(1)).toThrow(
+      OrganizationErrorCode.CANNOT_REMOVE_LAST_OWNER,
+    );
   });
 
   it('allows shrinking ownership when another owner remains', () => {
-    expect(() =>
-      policy.assertOwnerCountCanShrink([
-        createMember({ isOwner: () => true, role: OrganizationRole.OWNER }),
-        createMember({ isOwner: () => true, role: OrganizationRole.OWNER }),
-      ]),
-    ).not.toThrow();
+    expect(() => policy.assertOwnerCountCanShrink(2)).not.toThrow();
   });
 });

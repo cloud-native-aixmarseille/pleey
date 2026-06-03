@@ -17,7 +17,6 @@ import {
   type StageIdParser,
   usePartyDependencies,
 } from '../contexts/party-dependencies-context';
-import { PartyLobbyRuntimeRedirectResolver } from './party-lobby-runtime-redirect-resolver';
 import { resolvePartyLobbyScreenViewModel } from './party-lobby-screen-view-model';
 import { usePartyLobbyRouteContext } from './use-party-lobby-route-context';
 
@@ -168,8 +167,13 @@ export function usePartyLobbyScreenState({
   resolveJoinPartyRoute = defaultResolveJoinPartyRoute,
   screenSection = PartyScreenSection.LOBBY,
 }: PartyLobbyScreenProps): PartyLobbyScreenState {
-  const { partyIdentifier, partyLobbyFacade, partyPinIdentifier, stageIdentifier } =
-    usePartyDependencies();
+  const {
+    partyIdentifier,
+    partyLobbyFacade,
+    partyLobbyRuntimeRedirectResolver,
+    partyPinIdentifier,
+    stageIdentifier,
+  } = usePartyDependencies();
   const { pin, partyId, stageId } = usePresentationParams<'pin' | 'partyId' | 'stageId'>();
   const pathname = usePresentationPathname();
   const resolvedNormalizePin =
@@ -286,7 +290,7 @@ export function usePartyLobbyScreenState({
     party,
     partyLobbyFacade,
   });
-  const runtimeRedirectTo = PartyLobbyRuntimeRedirectResolver.resolve({
+  const runtimeRedirectTo = partyLobbyRuntimeRedirectResolver.resolve({
     party,
     requestedStageId,
     resolvePartyLeaderboardRoute,

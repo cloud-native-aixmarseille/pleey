@@ -22,6 +22,8 @@ export const organizationEn = {
         empty: 'No members are attached to this organization yet.',
         addButton: 'Add member',
         removeButton: 'Remove',
+        searchLabel: 'Search members',
+        searchPlaceholder: 'Search by username',
         usernameOrEmailLabel: 'Username or email',
         usernameOrEmailPlaceholder: 'Enter a username or email',
         roleLabel: 'Role',
@@ -37,6 +39,12 @@ export const organizationEn = {
         },
         validation: {
           usernameOrEmailRequired: 'Enter a username or email.',
+        },
+        pagination: {
+          label: 'Member pages',
+          previous: 'Previous member page',
+          next: 'Next member page',
+          pageOf: '{{current}} / {{total}}',
         },
       },
       create: {
@@ -70,10 +78,18 @@ export const organizationEn = {
   },
   project: {
     management: {
+      searchLabel: 'Search projects',
+      searchPlaceholder: 'Search projects',
       section: {
         eyebrow: 'Projects',
         title: 'Project management',
         createButton: 'Create project',
+      },
+      pagination: {
+        label: 'Project pages',
+        previous: 'Previous project page',
+        next: 'Next project page',
+        pageOf: '{{current}} / {{total}}',
       },
       list: {
         empty: 'No projects are attached to this organization yet.',

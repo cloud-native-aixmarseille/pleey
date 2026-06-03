@@ -1,5 +1,6 @@
 import { Test, type TestingModule } from '@nestjs/testing';
 import { afterAll, beforeAll } from 'vitest';
+import { PaginationQueryNormalizer } from '../../../application/shared/services/pagination-query-normalizer';
 import { PrismaService } from '../../../infrastructure/database/prisma-service';
 
 type CleanupStep = (prisma: PrismaService) => Promise<void>;
@@ -14,7 +15,7 @@ export class PrismaIntegrationTestHarness<TRepository> {
   constructor(private readonly repositoryType: ProviderClass<TRepository>) {
     beforeAll(async () => {
       const testingModule = await Test.createTestingModule({
-        providers: [PrismaService, this.repositoryType],
+        providers: [PrismaService, PaginationQueryNormalizer, this.repositoryType],
       }).compile();
 
       const prismaService = testingModule.get(PrismaService);

@@ -14,6 +14,17 @@ const gameIdentifier = new GameIdentifier();
 const organizationIdentifier = new OrganizationIdentifier();
 const projectIdentifier = new ProjectIdentifier();
 
+function createPaginatedResult<TItem>(items: readonly TItem[]) {
+  return {
+    items,
+    totalCount: items.length,
+    overallCount: items.length,
+    page: 1,
+    pageSize: 25,
+    totalPages: 1,
+  };
+}
+
 describe('DashboardWorkspaceFacade', () => {
   const dashboardHomeScreenFixtureFactory = new DashboardHomeScreenFixtureFactory();
   const workspaceSelectionPortMockFactory = new WorkspaceSelectionPortMockFactory();
@@ -107,7 +118,7 @@ describe('DashboardWorkspaceFacade', () => {
       id: organizationIdentifier.parse(7),
     });
     const listMyOrganizationsUseCase = {
-      execute: vi.fn().mockResolvedValue([organization]),
+      execute: vi.fn().mockResolvedValue(createPaginatedResult([organization])),
     };
     const workspaceSelection = workspaceSelectionPortMockFactory.create(undefined, {
       organizationId: organizationIdentifier.parse(7),
@@ -124,7 +135,7 @@ describe('DashboardWorkspaceFacade', () => {
     );
 
     await expect(facade.restoreOrganizationSelection()).resolves.toEqual({
-      organizations: [organization],
+      organizationsPage: createPaginatedResult([organization]),
       organizationId: organizationIdentifier.parse(7),
     });
     expect(workspaceSelection.setOrganizationId).toHaveBeenCalledWith(
@@ -140,7 +151,9 @@ describe('DashboardWorkspaceFacade', () => {
       id: organizationIdentifier.parse(7),
     });
     const listMyOrganizationsUseCase = {
-      execute: vi.fn().mockResolvedValue([firstOrganization, secondOrganization]),
+      execute: vi
+        .fn()
+        .mockResolvedValue(createPaginatedResult([firstOrganization, secondOrganization])),
     };
     const workspaceSelection = workspaceSelectionPortMockFactory.create(undefined, {
       organizationId: organizationIdentifier.parse(99),
@@ -157,7 +170,7 @@ describe('DashboardWorkspaceFacade', () => {
     );
 
     await expect(facade.restoreOrganizationSelection()).resolves.toEqual({
-      organizations: [firstOrganization, secondOrganization],
+      organizationsPage: createPaginatedResult([firstOrganization, secondOrganization]),
       organizationId: organizationIdentifier.parse(3),
     });
     expect(workspaceSelection.setOrganizationId).toHaveBeenCalledWith(
@@ -177,7 +190,7 @@ describe('DashboardWorkspaceFacade', () => {
       execute: vi.fn().mockResolvedValue(organizationDashboard),
     };
     const listOrganizationProjectsUseCase = {
-      execute: vi.fn().mockResolvedValue([firstProject, secondProject]),
+      execute: vi.fn().mockResolvedValue(createPaginatedResult([firstProject, secondProject])),
     };
     const workspaceSelection = workspaceSelectionPortMockFactory.create(undefined, {
       organizationId: organizationIdentifier.parse(2),
@@ -194,10 +207,10 @@ describe('DashboardWorkspaceFacade', () => {
     );
 
     await expect(
-      facade.loadOrganizationWorkspaceState(organizationIdentifier.parse(2)),
+      facade.loadOrganizationWorkspaceState({ organizationId: organizationIdentifier.parse(2) }),
     ).resolves.toEqual({
       organizationDashboard,
-      projects: [firstProject, secondProject],
+      projectsPage: createPaginatedResult([firstProject, secondProject]),
       projectId: projectIdentifier.parse(13),
     });
     expect(workspaceSelection.setProjectId).toHaveBeenCalledWith(projectIdentifier.parse(13));
@@ -215,9 +228,16 @@ describe('DashboardWorkspaceFacade', () => {
       workspaceSelection,
     );
 
-    await expect(facade.loadOrganizationWorkspaceState(null)).resolves.toEqual({
+    await expect(facade.loadOrganizationWorkspaceState({ organizationId: null })).resolves.toEqual({
       organizationDashboard: null,
-      projects: [],
+      projectsPage: {
+        items: [],
+        totalCount: 0,
+        overallCount: 0,
+        page: 1,
+        pageSize: 25,
+        totalPages: 1,
+      },
       projectId: null,
     });
     expect(workspaceSelection.setProjectId).toHaveBeenCalledWith(null);

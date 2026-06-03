@@ -43,7 +43,6 @@ export function ProfileDetailsForm({
                   autoComplete="username"
                   label={t('auth.form.usernameLabel')}
                   placeholder={t('auth.form.usernamePlaceholder')}
-                  required
                 />
               )}
             </form.AppField>
@@ -59,7 +58,6 @@ export function ProfileDetailsForm({
                   autoComplete="email"
                   label={t('auth.form.emailLabel')}
                   placeholder={t('auth.form.emailPlaceholder')}
-                  required
                   type="email"
                 />
               )}
@@ -71,10 +69,8 @@ export function ProfileDetailsForm({
         <StatusBanner tone="success">{successMessage}</StatusBanner>
 
         <SubmitButton
-          intent="primary"
           label={t('auth.profile.submitCta')}
           submittingLabel={t('auth.profile.submittingCta')}
-          width="wide"
         />
       </PresentationForm>
     </form.AppForm>

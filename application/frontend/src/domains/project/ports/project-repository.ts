@@ -1,5 +1,11 @@
 import type { OrganizationId } from '../../organization/entities/organization';
+import type { PaginatedResult } from '../../shared/value-objects/paginated-result';
+import type { PaginationQuery } from '../../shared/value-objects/pagination-query';
 import type { Project, ProjectId } from '../entities/project';
+
+export interface ListOrganizationProjectsQuery extends PaginationQuery {
+  readonly organizationId: OrganizationId;
+}
 
 export interface CreateProjectCommand {
   readonly organizationId: OrganizationId;
@@ -21,7 +27,9 @@ export interface DeleteProjectCommand {
 export interface ProjectRepository {
   createProject(command: CreateProjectCommand): Promise<Project>;
   deleteProject(command: DeleteProjectCommand): Promise<void>;
-  getProjectsByOrganization(organizationId: OrganizationId): Promise<Project[]>;
+  getProjectsByOrganization(
+    query: ListOrganizationProjectsQuery,
+  ): Promise<PaginatedResult<Project>>;
   updateProject(command: UpdateProjectCommand): Promise<Project>;
 }
 

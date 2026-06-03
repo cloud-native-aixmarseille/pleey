@@ -46,6 +46,12 @@ interface AutoFillGridProps extends PropsWithChildren {
   readonly minItemWidth: string;
 }
 
+interface StretchRowProps extends PropsWithChildren {
+  readonly gap?: 'sm' | 'md' | 'lg';
+}
+
+interface FlexGrowItemProps extends PropsWithChildren {}
+
 const autoFillGridStyle = {
   display: 'grid',
   width: '100%',
@@ -139,6 +145,22 @@ export function AutoFillGrid({ children, gap = 'md', minItemWidth }: AutoFillGri
         gridTemplateColumns: `repeat(auto-fill, minmax(${minItemWidth}, 1fr))`,
       }}
     >
+      {children}
+    </Box>
+  );
+}
+
+export function StretchRow({ children, gap = 'sm' }: StretchRowProps) {
+  return (
+    <Group align="center" gap={gap} wrap="nowrap">
+      {children}
+    </Group>
+  );
+}
+
+export function FlexGrowItem({ children }: FlexGrowItemProps) {
+  return (
+    <Box flex={1} miw={0}>
       {children}
     </Box>
   );

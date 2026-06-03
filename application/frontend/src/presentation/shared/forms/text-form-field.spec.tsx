@@ -22,7 +22,7 @@ function TextFormFieldHarness() {
             onBlur: ({ value }) => (value.trim().length === 0 ? 'Email is required.' : undefined),
           }}
         >
-          {() => <TextFormField label="Email" placeholder="captain@pleey.io" required />}
+          {() => <TextFormField label="Email" placeholder="captain@pleey.io" />}
         </form.AppField>
       </PresentationForm>
     </form.AppForm>

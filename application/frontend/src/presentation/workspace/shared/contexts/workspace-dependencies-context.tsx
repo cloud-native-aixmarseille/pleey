@@ -5,6 +5,7 @@ import type { GameType } from '../../../../domains/game/types/shared/game-type';
 import type { OrganizationId } from '../../../../domains/organization/entities/organization';
 import type { ProjectId } from '../../../../domains/project/entities/project';
 import { PresentationContextErrorCode } from '../../../../domains/shared/errors/presentation-context-error-code';
+import { PlayableItemEditorValidator } from '../../../game/types/shared/management/playable-item-editor-validator';
 
 interface OrganizationIdentifierParser {
   parseOrNull(value: unknown): OrganizationId | null;
@@ -22,6 +23,7 @@ export interface WorkspaceDependencies {
   readonly gameTypeParser: GameTypeParser;
   readonly organizationFormFacade: OrganizationFormFacade;
   readonly organizationIdentifier: OrganizationIdentifierParser;
+  readonly playableItemEditorValidator: PlayableItemEditorValidator;
   readonly projectFormFacade: ProjectFormFacade;
   readonly projectIdentifier: ProjectIdentifierParser;
 }

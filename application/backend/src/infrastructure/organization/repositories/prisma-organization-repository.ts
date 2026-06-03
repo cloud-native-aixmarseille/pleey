@@ -69,44 +69,6 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
     return organizations.map((organization: PrismaOrganization) => this.toDomain(organization));
   }
 
-  async findAll(): Promise<Organization[]> {
-    const organizations = await this.prisma.organization.findMany({
-      where: {
-        deletedAt: null,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
-
-    return organizations.map((organization: PrismaOrganization) => this.toDomain(organization));
-  }
-
-  async update(
-    id: OrganizationId,
-    name: string,
-    description: string | null,
-  ): Promise<Organization> {
-    const organization = await this.prisma.organization.update({
-      where: { id },
-      data: {
-        name,
-        description,
-      },
-    });
-
-    return this.toDomain(organization);
-  }
-
-  async delete(id: OrganizationId): Promise<void> {
-    await this.prisma.organization.update({
-      where: { id },
-      data: {
-        deletedAt: new Date(),
-      },
-    });
-  }
-
   private toDomain(organization: PrismaOrganization): Organization {
     return new Organization(
       this.organizationIdentifier.parse(organization.id),

@@ -228,6 +228,55 @@ describe('OrganizationResolver', () => {
     expect(organizationIdentifier.parse).toHaveBeenCalledWith(7);
   });
 
+  it('passes member search input through the GraphQL query', async () => {
+    listOrganizationMembersUseCase.execute.mockResolvedValueOnce({
+      items: [],
+      totalCount: 0,
+      overallCount: 0,
+      page: 1,
+      pageSize: 25,
+      totalPages: 1,
+    });
+
+    const response = await request(app.getHttpServer())
+      .post('/graphql')
+      .send({
+        query: `query OrganizationMembers($input: OrganizationMembersInput!) {
+          organizationMembers(input: $input) {
+            items {
+              id
+            }
+            totalCount
+            overallCount
+            page
+            pageSize
+            totalPages
+          }
+        }`,
+        variables: {
+          input: {
+            organizationId: 7,
+            page: 1,
+            pageSize: 25,
+            search: 'captain',
+          },
+        },
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body.errors).toBeUndefined();
+    expect(listOrganizationMembersUseCase.execute).toHaveBeenCalledWith(
+      {
+        organizationId: 7,
+        page: 1,
+        pageSize: 25,
+        search: 'captain',
+      },
+      10,
+    );
+    expect(organizationIdentifier.parse).toHaveBeenCalledWith(7);
+  });
+
   it('updates an organization member role', async () => {
     updateOrganizationMemberRoleUseCase.execute.mockResolvedValueOnce({
       id: 18,

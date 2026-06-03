@@ -12,6 +12,10 @@ import { AppIcon } from '../../../../../shared/ui/icons/app-icon';
 import { ContentStack, SplitWrapRow, WrapRow } from '../../../../../shared/ui/layout/containers';
 import { SectionCard } from '../../../../../shared/ui/layout/section-card';
 import { SupportingText } from '../../../../../shared/ui/layout/typography';
+import {
+  PaginationBar,
+  type PaginationViewModel,
+} from '../../../../shared/components/pagination-bar';
 
 interface OrganizationMemberFormState {
   readonly role: OrganizationRole;
@@ -30,12 +34,18 @@ interface OrganizationMembersSectionProps {
   readonly members: readonly OrganizationMember[];
   readonly onAddFormChange: (patch: Partial<OrganizationMemberFormState>) => void;
   readonly onAddMember: () => void;
+  readonly onMemberSearchChange: (value: string) => void;
   readonly onRemoveMember: (member: OrganizationMember) => void;
   readonly onUpdateMemberRole: (member: OrganizationMember, role: OrganizationRole) => void;
   readonly pendingRoleUpdateMemberId: OrganizationMember['id'] | null;
   readonly pendingRemovalMemberId: OrganizationMember['id'] | null;
+  readonly pagination: PaginationViewModel;
   readonly roleLabel: string;
   readonly roleLabels: Record<OrganizationRole, string>;
+  readonly searchDisabled: boolean;
+  readonly searchLabel: string;
+  readonly searchPlaceholder: string;
+  readonly searchValue: string;
   readonly selectedOrganizationRole: OrganizationRole | null;
   readonly selectedOrganizationName: string | null;
   readonly title: string;
@@ -66,12 +76,18 @@ export function OrganizationMembersSection({
   members,
   onAddFormChange,
   onAddMember,
+  onMemberSearchChange,
   onRemoveMember,
   onUpdateMemberRole,
   pendingRoleUpdateMemberId,
   pendingRemovalMemberId,
+  pagination,
   roleLabel,
   roleLabels,
+  searchDisabled,
+  searchLabel,
+  searchPlaceholder,
+  searchValue,
   selectedOrganizationRole,
   selectedOrganizationName,
   title,
@@ -139,6 +155,18 @@ export function OrganizationMembersSection({
           </form>
         ) : null}
 
+        <div aria-label={searchLabel} role="search">
+          <Input
+            aria-label={searchLabel}
+            compact
+            disabled={searchDisabled}
+            onChange={(event) => onMemberSearchChange(event.target.value)}
+            placeholder={searchPlaceholder}
+            type="search"
+            value={searchValue}
+          />
+        </div>
+
         {isLoading ? (
           <LoadingState>{title}</LoadingState>
         ) : members.length === 0 ? (
@@ -194,6 +222,8 @@ export function OrganizationMembersSection({
                 ) : null}
               </SplitWrapRow>
             ))}
+
+            <PaginationBar {...pagination} />
           </ContentStack>
         )}
       </ContentStack>

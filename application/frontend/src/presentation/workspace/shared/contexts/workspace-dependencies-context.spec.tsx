@@ -2,6 +2,7 @@ import { renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { describe, expect, it } from 'vitest';
 import { PresentationContextErrorCode } from '../../../../domains/shared/errors/presentation-context-error-code';
+import { PlayableItemEditorValidator } from '../../../game/types/shared/management/playable-item-editor-validator';
 import {
   provideWorkspaceDependencies,
   useWorkspaceDependencies,
@@ -20,6 +21,7 @@ describe('workspaceDependenciesContext', () => {
         organizationIdentifier: {
           parseOrNull: () => 7 as never,
         },
+        playableItemEditorValidator: new PlayableItemEditorValidator(),
         projectFormFacade: {} as never,
         projectIdentifier: {
           parseOrNull: () => 11 as never,

@@ -7,7 +7,7 @@ import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/share
 import { PartyManagementErrorCode } from '../../../../../domains/game/party/shared/errors/party-management-error-code';
 import type { GuestId } from '../../../../../domains/identity/entities/guest';
 import type { User } from '../../../../../domains/identity/entities/user';
-import { GuestPartyEntryDraftFactory } from './guest-party-entry-draft-factory';
+import { usePartyDependencies } from '../../shared/contexts/party-dependencies-context';
 
 interface UsePartyLobbyJoinSessionParams {
   readonly currentGuestId: GuestId | null;
@@ -39,8 +39,9 @@ export function usePartyLobbyJoinSession({
   setJoinErrorMessage,
   user,
 }: UsePartyLobbyJoinSessionParams): UsePartyLobbyJoinSessionResult {
+  const { guestPartyEntryDraftFactory } = usePartyDependencies();
   const [guestDraft] = useState(() =>
-    currentGuestId === null ? GuestPartyEntryDraftFactory.create() : null,
+    currentGuestId === null ? guestPartyEntryDraftFactory.create() : null,
   );
   const [guestAvatarSeed, setGuestAvatarSeed] = useState<string | null>(
     guestDraft?.avatarSeed ?? null,
@@ -141,11 +142,11 @@ export function usePartyLobbyJoinSession({
     guestAvatarPreviewUri:
       guestAvatarSeed === null
         ? null
-        : GuestPartyEntryDraftFactory.createPreviewUrl(guestAvatarSeed),
+        : guestPartyEntryDraftFactory.createPreviewUrl(guestAvatarSeed),
     guestName,
     joinParty,
-    regenerateGuestAvatar: () => setGuestAvatarSeed(GuestPartyEntryDraftFactory.createAvatarSeed()),
-    regenerateGuestName: () => setGuestName(GuestPartyEntryDraftFactory.createGuestName()),
+    regenerateGuestAvatar: () => setGuestAvatarSeed(guestPartyEntryDraftFactory.createAvatarSeed()),
+    regenerateGuestName: () => setGuestName(guestPartyEntryDraftFactory.createGuestName()),
     setGuestName,
   };
 }

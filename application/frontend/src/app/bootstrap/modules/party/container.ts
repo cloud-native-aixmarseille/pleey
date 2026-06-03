@@ -44,7 +44,10 @@ import { SocketIoPartyPlayerAdapter } from '../../../../infrastructure/game/part
 import { SocketIoPartyObservationAdapter } from '../../../../infrastructure/game/party/shared/socket-io-party-observation.adapter';
 import { SocketIoPartyPayloadMapper } from '../../../../infrastructure/game/party/shared/socket-io-party-payload-mapper';
 import { SocketIoPartyRealtimeTransport } from '../../../../infrastructure/game/party/shared/socket-io-party-realtime-transport';
+import { PlayerRuntimeNoticeMessageResolver } from '../../../../presentation/game/party/player/screens/components/player-runtime-notice-message-resolver';
+import { GuestPartyEntryDraftFactory } from '../../../../presentation/game/party/player/screens/guest-party-entry-draft-factory';
 import { PartyRoutesFactory } from '../../../../presentation/game/party/shared/routes/party-routes-factory';
+import { PartyLobbyRuntimeRedirectResolver } from '../../../../presentation/game/party/shared/screens/party-lobby-runtime-redirect-resolver';
 import { AppProviderFactoryToken } from '../../app-provider-factory';
 import { AppPartyProviderFactory } from './app-party-provider-factory';
 import { PartyGameTypeRuntimeViewContributorToken } from './contracts/party-game-type-runtime-view-contributor';
@@ -79,10 +82,13 @@ export const partyContainerModule = new ContainerModule(({ bind }) => {
   bind(SocketIoPartyPayloadMapper).toSelf().inSingletonScope();
   bind(SocketIoPartyPlayerAdapter).toSelf().inSingletonScope();
   bind(SocketIoPartyRealtimeTransport).toSelf().inSingletonScope();
+  bind(GuestPartyEntryDraftFactory).toSelf().inSingletonScope();
+  bind(PlayerRuntimeNoticeMessageResolver).toSelf().inSingletonScope();
   bind(PredictionPartyGameTypeRuntimeView).toSelf().inSingletonScope();
   bind(QuizPartyGameTypeRuntimeView).toSelf().inSingletonScope();
   bind(HostPartyRuntimeControlsResolver).toSelf().inSingletonScope();
   bind(PartyLobbyFacade).toSelf().inSingletonScope();
+  bind(PartyLobbyRuntimeRedirectResolver).toSelf().inSingletonScope();
   bind(ListPartiesUseCase).toSelf().inSingletonScope();
   bind(CreatePartyUseCase).toSelf().inSingletonScope();
   bind(PartyGameTypeRuntimeViewContributorToken).toService(PredictionPartyGameTypeRuntimeView);

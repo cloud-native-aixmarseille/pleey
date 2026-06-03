@@ -20,7 +20,7 @@ interface PlayerFinalSurfaceProps {
 
 export function PlayerFinalSurface({ onLeaveParty, party }: PlayerFinalSurfaceProps) {
   const { t } = usePresentationTranslation();
-  const isMobile = usePresentationMediaQuery('(max-width: 48em)');
+  const isMobile = usePresentationMediaQuery();
   const { currentPlayer, currentPlayerRank } = createPartyFinalSummaryModel(party.players);
   const shouldPromptGuestSignIn = currentPlayer?.identity.kind === PartyPlayerIdentityKind.Guest;
 

@@ -53,10 +53,9 @@ Domain/application layers throw plain `Error(errorCode)` using enum error codes.
 
 ### Boundary Enforcement
 
-Biome `noRestrictedImports` overrides, app-local GritQL plugins under `application/backend/biome/plugins/` and `application/frontend/biome/plugins/`, plus custom scripts:
+Biome `noRestrictedImports` overrides, app-local GritQL plugins under `application/backend/biome/plugins/` and `application/frontend/biome/plugins/`, plus targeted custom scripts:
 
 - `scripts/check-naming.mjs` — enforces naming conventions for exports
-- `scripts/check-game-refactor-boundaries.mjs` — blocks milestone-0 code from importing frozen backup sources or legacy pre-refactor game paths
 
 ### Tech Stack Summary
 

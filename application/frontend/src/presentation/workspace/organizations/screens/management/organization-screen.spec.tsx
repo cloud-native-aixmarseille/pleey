@@ -1,8 +1,15 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
+import type {
+  Organization,
+  OrganizationId,
+} from '../../../../../domains/organization/entities/organization';
 import { OrganizationRole } from '../../../../../domains/organization/entities/organization';
+import type { OrganizationDashboard } from '../../../../../domains/organization/entities/organization-dashboard';
 import type { OrganizationMember } from '../../../../../domains/organization/entities/organization-member';
+import type { Project, ProjectId } from '../../../../../domains/project/entities/project';
+import type { PaginatedResult } from '../../../../../domains/shared/value-objects/paginated-result';
 import { OrganizationFixtureFactory } from '../../../../../test-utils/fixtures/organization-fixture-factory';
 import { OrganizationScreenFixtureFactory } from '../../../../../test-utils/fixtures/organization-screen-fixture-factory';
 import { OrganizationIdentifierMockFactory } from '../../../../../test-utils/mocks/organization-identifier-mock-factory';
@@ -45,6 +52,63 @@ interface RenderOrganizationScreenOptions {
   readonly deferWorkspaceLoad?: boolean;
 }
 
+function createPaginatedResult<TItem>(items: readonly TItem[]): PaginatedResult<TItem> {
+  return {
+    items,
+    totalCount: items.length,
+    overallCount: items.length,
+    page: 1,
+    pageSize: 25,
+    totalPages: 1,
+  };
+}
+
+type LegacyOrganizationSelection = {
+  readonly organizations: readonly Organization[];
+  readonly organizationId: OrganizationId | null;
+};
+
+type NormalizedOrganizationSelection = Awaited<
+  ReturnType<DashboardWorkspaceSelectionGateway['restoreOrganizationSelection']>
+>;
+
+type LegacyOrganizationWorkspace = {
+  readonly organizationDashboard: OrganizationDashboard | null;
+  readonly projects: readonly Project[];
+  readonly projectId: ProjectId | null;
+};
+
+type NormalizedOrganizationWorkspace = Awaited<
+  ReturnType<DashboardWorkspaceSelectionGateway['loadOrganizationWorkspaceState']>
+>;
+
+function normalizeOrganizationSelectionResult(
+  result: LegacyOrganizationSelection | NormalizedOrganizationSelection,
+): NormalizedOrganizationSelection {
+  if ('organizationsPage' in result) {
+    return result;
+  }
+
+  return {
+    organizationsPage: createPaginatedResult(result.organizations),
+    organizationId: result.organizationId,
+  };
+}
+
+function normalizeOrganizationWorkspaceResult(
+  result: LegacyOrganizationWorkspace | NormalizedOrganizationWorkspace,
+): NormalizedOrganizationWorkspace {
+  if ('projectsPage' in result) {
+    return result;
+  }
+
+  return {
+    organizationDashboard: result.organizationDashboard,
+    projectsPage: createPaginatedResult(result.projects),
+    projectId: result.projectId,
+  };
+}
+
 function renderOrganizationScreen(
   overrides: Partial<
     ReturnType<OrganizationScreenFixtureFactory['createDashboardReadGateway']>
@@ -54,38 +118,77 @@ function renderOrganizationScreen(
   actionOverrides: Partial<ReturnType<OrganizationScreenFixtureFactory['createActions']>> = {},
 ) {
   const actions = organizationScreenFixtureFactory.createActions(actionOverrides);
+  const listOrganizationMembers = vi.fn<
+    (
+      query: Parameters<typeof actions.listOrganizationMembers>[0],
+    ) => Promise<PaginatedResult<OrganizationMember>>
+  >(async (query) => {
+    const result = (await actions.listOrganizationMembers(query)) as
+      | PaginatedResult<OrganizationMember>
+      | readonly OrganizationMember[];
+
+    if ('items' in result) {
+      return result;
+    }
+
+    return createPaginatedResult<OrganizationMember>(result);
+  });
+
   const shouldDeferWorkspaceLoad = options.deferWorkspaceLoad ?? false;
+  const restoreOrganizationSelection = shouldDeferWorkspaceLoad
+    ? vi
+        .fn<DashboardWorkspaceSelectionGateway['restoreOrganizationSelection']>()
+        .mockImplementation(() => createPendingPromise())
+    : vi.fn().mockResolvedValue({
+        organizationsPage: createPaginatedResult([organizationFixtureFactory.createOrganization()]),
+        organizationId: organizationIdentifier.parse(3),
+      });
+  const loadOrganizationWorkspaceState = shouldDeferWorkspaceLoad
+    ? vi
+        .fn<DashboardWorkspaceSelectionGateway['loadOrganizationWorkspaceState']>()
+        .mockImplementation(() => createPendingPromise())
+    : vi.fn().mockResolvedValue({
+        organizationDashboard: organizationScreenFixtureFactory.createOrganizationDashboard(),
+        projectsPage: createPaginatedResult([]),
+        projectId: null,
+      });
+  const loadOrganizationsPage = vi
+    .fn()
+    .mockResolvedValue(createPaginatedResult([organizationFixtureFactory.createOrganization()]));
+  const loadOrganizationProjectsPage = vi.fn().mockResolvedValue(createPaginatedResult([]));
   const dashboardWorkspace: DashboardWorkspaceSelectionGateway = {
-    restoreOrganizationSelection: shouldDeferWorkspaceLoad
-      ? vi
-          .fn<DashboardWorkspaceSelectionGateway['restoreOrganizationSelection']>()
-          .mockImplementation(() => createPendingPromise())
-      : vi.fn().mockResolvedValue({
-          organizations: [organizationFixtureFactory.createOrganization()],
-          organizationId: organizationIdentifier.parse(3),
-        }),
-    loadOrganizationWorkspaceState: shouldDeferWorkspaceLoad
-      ? vi
-          .fn<DashboardWorkspaceSelectionGateway['loadOrganizationWorkspaceState']>()
-          .mockImplementation(() => createPendingPromise())
-      : vi.fn().mockResolvedValue({
-          organizationDashboard: organizationScreenFixtureFactory.createOrganizationDashboard(),
-          projects: [],
-          projectId: null,
-        }),
+    loadOrganizationsPage,
+    loadOrganizationProjectsPage,
+    restoreOrganizationSelection,
+    loadOrganizationWorkspaceState,
     setOrganizationSelection: vi.fn(),
     setProjectSelection: vi.fn(),
     ...overrides,
     ...dashboardWorkspaceOverrides,
   };
 
+  if (dashboardWorkspace.restoreOrganizationSelection !== restoreOrganizationSelection) {
+    const originalRestore = dashboardWorkspace.restoreOrganizationSelection;
+    dashboardWorkspace.restoreOrganizationSelection = vi.fn(async (query) =>
+      normalizeOrganizationSelectionResult((await originalRestore(query as never)) as never),
+    );
+  }
+
+  if (dashboardWorkspace.loadOrganizationWorkspaceState !== loadOrganizationWorkspaceState) {
+    const originalLoad = dashboardWorkspace.loadOrganizationWorkspaceState;
+    dashboardWorkspace.loadOrganizationWorkspaceState = vi.fn(async (query) =>
+      normalizeOrganizationWorkspaceResult((await originalLoad(query as never)) as never),
+    );
+  }
+
   return {
     ...actions,
+    listOrganizationMembers,
     ...renderWithProviders(
       <OrganizationScreen
         dashboardWorkspace={dashboardWorkspace}
         createOrganization={actions.createOrganization}
-        listOrganizationMembers={actions.listOrganizationMembers}
+        listOrganizationMembers={listOrganizationMembers}
         addOrganizationMember={actions.addOrganizationMember}
         removeOrganizationMember={(member) =>
           actions.removeOrganizationMember({ memberId: member.id })
@@ -124,8 +227,12 @@ describe('OrganizationScreen', () => {
       renderOrganizationScreen({}, {}, { deferWorkspaceLoad: true });
 
       // Assert
-      expect(screen.getByRole('toolbar')).toBeInTheDocument();
-      expect(screen.getByLabelText(/dashboard\.workspace\.organizationLabel/)).toBeInTheDocument();
+      const toolbar = screen.getByRole('toolbar', {
+        name: 'organization.management.header.title',
+      });
+
+      expect(toolbar).toBeInTheDocument();
+      expect(within(toolbar).getAllByRole('button')[0]).toBeInTheDocument();
     });
 
     it('renders the overview empty state when no organization is selected', () => {
@@ -246,12 +353,181 @@ describe('OrganizationScreen', () => {
       );
 
       // Assert
-      expect(await screen.findByLabelText(/dashboard\.workspace\.organizationLabel/)).toHaveValue(
-        '3',
-      );
+      const toolbar = await screen.findByRole('toolbar', {
+        name: 'organization.management.header.title',
+      });
+
+      expect(within(toolbar).getAllByRole('button')[0]).toHaveTextContent('Active Org');
       expect(screen.queryByRole('heading', { name: 'Active Org' })).not.toBeInTheDocument();
       expect(screen.getByText('The best org')).toBeInTheDocument();
       expect(screen.getByText('owner')).toBeInTheDocument();
+    });
+
+    it('loads organizations through the async selector search', async () => {
+      const user = userEvent.setup();
+      const loadOrganizationsPage = vi
+        .fn()
+        .mockResolvedValue(
+          createPaginatedResult([organizationFixtureFactory.createOrganization()]),
+        );
+
+      renderOrganizationScreen({}, { loadOrganizationsPage });
+
+      const toolbar = await screen.findByRole('toolbar', {
+        name: 'organization.management.header.title',
+      });
+
+      await user.click(within(toolbar).getAllByRole('button')[0]);
+      await user.type(
+        screen.getByLabelText('dashboard.workspace.organizationSearchLabel'),
+        'Arcade',
+      );
+
+      await waitFor(() => {
+        expect(loadOrganizationsPage).toHaveBeenCalledWith({
+          page: 1,
+          pageSize: 25,
+          search: 'Arcade',
+        });
+      });
+    });
+
+    it('loads projects through the project search input', async () => {
+      const user = userEvent.setup();
+      const loadOrganizationWorkspaceState = vi.fn().mockResolvedValue({
+        organizationDashboard: organizationScreenFixtureFactory.createOrganizationDashboard(),
+        projectsPage: createPaginatedResult([
+          organizationScreenFixtureFactory.createProject({ name: 'Flagship Project' }),
+        ]),
+        projectId: projectIdentifier.parse(11),
+      });
+
+      renderOrganizationScreen({}, { loadOrganizationWorkspaceState });
+
+      await user.type(
+        await screen.findByRole('searchbox', { name: 'project.management.searchLabel' }),
+        'Flag',
+      );
+
+      await waitFor(() => {
+        expect(loadOrganizationWorkspaceState).toHaveBeenLastCalledWith({
+          organizationId: organizationIdentifier.parse(3),
+          page: 1,
+          pageSize: 25,
+          search: 'Flag',
+        });
+      });
+    });
+
+    it('loads members through the member search input', async () => {
+      const user = userEvent.setup();
+
+      const view = renderOrganizationScreen();
+
+      await user.type(
+        await screen.findByRole('searchbox', {
+          name: 'organization.management.members.searchLabel',
+        }),
+        'captain',
+      );
+
+      await waitFor(() => {
+        expect(view.listOrganizationMembers).toHaveBeenLastCalledWith({
+          organizationId: organizationIdentifier.parse(3),
+          page: 1,
+          pageSize: 25,
+          search: 'captain',
+        });
+      });
+    });
+
+    it('loads the next project page from pagination controls', async () => {
+      const user = userEvent.setup();
+      const loadOrganizationWorkspaceState = vi
+        .fn()
+        .mockResolvedValueOnce({
+          organizationDashboard: organizationScreenFixtureFactory.createOrganizationDashboard(),
+          projectsPage: {
+            ...createPaginatedResult([
+              organizationScreenFixtureFactory.createProject({ name: 'Page One Project' }),
+            ]),
+            totalPages: 2,
+          },
+          projectId: projectIdentifier.parse(11),
+        })
+        .mockResolvedValueOnce({
+          organizationDashboard: organizationScreenFixtureFactory.createOrganizationDashboard(),
+          projectsPage: {
+            ...createPaginatedResult([
+              organizationScreenFixtureFactory.createProject({
+                id: projectIdentifier.parse(12),
+                name: 'Page Two Project',
+              }),
+            ]),
+            page: 2,
+            totalPages: 2,
+          },
+          projectId: projectIdentifier.parse(12),
+        });
+
+      renderOrganizationScreen({}, { loadOrganizationWorkspaceState });
+
+      await user.click(
+        await screen.findByRole('button', { name: 'project.management.pagination.next' }),
+      );
+
+      await waitFor(() => {
+        expect(loadOrganizationWorkspaceState).toHaveBeenLastCalledWith({
+          organizationId: organizationIdentifier.parse(3),
+          page: 2,
+          pageSize: 25,
+          search: undefined,
+        });
+      });
+    });
+
+    it('loads the next member page from pagination controls', async () => {
+      const user = userEvent.setup();
+      const view = renderOrganizationScreen(
+        {},
+        {},
+        {},
+        {
+          listOrganizationMembers: vi
+            .fn()
+            .mockResolvedValueOnce({
+              items: [createOrganizationMember()],
+              totalCount: 1,
+              overallCount: 2,
+              page: 1,
+              pageSize: 25,
+              totalPages: 2,
+            })
+            .mockResolvedValueOnce({
+              items: [createOrganizationMember({ id: 22 as OrganizationMember['id'] })],
+              totalCount: 1,
+              overallCount: 2,
+              page: 2,
+              pageSize: 25,
+              totalPages: 2,
+            }),
+        },
+      );
+
+      await user.click(
+        await screen.findByRole('button', {
+          name: 'organization.management.members.pagination.next',
+        }),
+      );
+
+      await waitFor(() => {
+        expect(view.listOrganizationMembers).toHaveBeenLastCalledWith({
+          organizationId: organizationIdentifier.parse(3),
+          page: 2,
+          pageSize: 25,
+          search: undefined,
+        });
+      });
     });
 
     it('renders metrics when an organization dashboard loads', async () => {
@@ -424,20 +700,28 @@ describe('OrganizationScreen', () => {
       renderWithProviders(
         <OrganizationScreen
           dashboardWorkspace={{
+            loadOrganizationsPage: vi
+              .fn()
+              .mockResolvedValue(
+                createPaginatedResult([organizationFixtureFactory.createOrganization()]),
+              ),
+            loadOrganizationProjectsPage: vi.fn().mockResolvedValue(createPaginatedResult([])),
             restoreOrganizationSelection: vi.fn().mockResolvedValue({
-              organizations: [organizationFixtureFactory.createOrganization()],
+              organizationsPage: createPaginatedResult([
+                organizationFixtureFactory.createOrganization(),
+              ]),
               organizationId: organizationIdentifier.parse(3),
             }),
             loadOrganizationWorkspaceState: vi.fn().mockResolvedValue({
               organizationDashboard: organizationScreenFixtureFactory.createOrganizationDashboard(),
-              projects: [
+              projectsPage: createPaginatedResult([
                 organizationScreenFixtureFactory.createProject(),
                 organizationScreenFixtureFactory.createProject({
                   id: projectIdentifier.parse(12),
                   name: 'Side Project',
                   description: null,
                 }),
-              ],
+              ]),
               projectId: projectIdentifier.parse(11),
             }),
             setOrganizationSelection: vi.fn(),
@@ -464,7 +748,9 @@ describe('OrganizationScreen', () => {
 
       await user.click(removeButtons[0]);
 
-      expect(await screen.findByRole('dialog')).toBeInTheDocument();
+      const dialog = await screen.findByRole('dialog');
+
+      expect(dialog).toBeInTheDocument();
       expect(screen.getByText('project.management.removal.dialogTitle')).toBeInTheDocument();
       expect(
         screen.getByLabelText('project.management.removal.migrationLabel'),
@@ -475,10 +761,9 @@ describe('OrganizationScreen', () => {
       });
       expect(confirmButton).toBeDisabled();
 
-      await user.selectOptions(
-        screen.getByLabelText('project.management.removal.migrationLabel'),
-        '12',
-      );
+      await user.click(screen.getByLabelText('project.management.removal.migrationLabel'));
+      await user.type(within(dialog).getByLabelText('project.management.searchLabel'), 'Side');
+      await user.keyboard('{Enter}');
 
       expect(confirmButton).toBeEnabled();
 

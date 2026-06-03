@@ -4,6 +4,7 @@ import { EmptyState, LoadingState } from '../../../../shared/ui/feedback/state-b
 import { ContentStack, PageContainer } from '../../../../shared/ui/layout/containers';
 import { InsetPanel } from '../../../../shared/ui/layout/panels';
 import { ConfirmDialog } from '../../../../shared/ui/overlay/confirm-dialog';
+import { useWorkspaceDependencies } from '../../../../workspace/shared/contexts/workspace-dependencies-context';
 import {
   createPlayableItemEditorStateFromItem,
   type PlayableContentManagementScreenProps,
@@ -17,7 +18,6 @@ import {
   tabPanelShellStyle,
   tabsStyle,
 } from './playable-content-management-screen-sections';
-import { PlayableItemEditorValidator } from './playable-item-editor-validator';
 import { PlayableManagementHeader } from './playable-management-header';
 import { PlayableManagementPromptEditor } from './playable-management-prompt-editor';
 import { PlayableManagementStageRail } from './playable-management-stage-rail';
@@ -25,6 +25,7 @@ import { usePlayableContentManagement } from './use-playable-content-management'
 
 export function PlayableContentManagementScreen(props: PlayableContentManagementScreenProps) {
   const { t } = usePresentationTranslation();
+  const { playableItemEditorValidator } = useWorkspaceDependencies();
   const viewModel = usePlayableContentManagement(props);
   const [activeTab, setActiveTab] = useState<PlayableManagementTab>('prompts');
 
@@ -72,7 +73,7 @@ export function PlayableContentManagementScreen(props: PlayableContentManagement
 
     const firstIncompleteItem = state.items.find(
       (item) =>
-        !PlayableItemEditorValidator.isReady(
+        !playableItemEditorValidator.isReady(
           createPlayableItemEditorStateFromItem(item, props.itemKindConfig),
           props.itemKindConfig,
         ),

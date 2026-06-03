@@ -23,7 +23,9 @@ describe('DashboardCommandBar', () => {
     overrides: Partial<React.ComponentProps<typeof DashboardCommandBar>> = {},
   ) {
     const onOrganizationChange = vi.fn();
+    const onOrganizationSearchChange = vi.fn();
     const onProjectChange = vi.fn();
+    const onProjectSearchChange = vi.fn();
     const onManageOrganizations = vi.fn();
     const onManageProjects = vi.fn();
     const arcadeOrganization = organizationFixtureFactory.createOrganization({
@@ -71,23 +73,35 @@ describe('DashboardCommandBar', () => {
             totalProjects: 4,
           },
         }}
+        hasMoreOrganizations={false}
+        hasMoreProjects={false}
         isOrganizationsLoading={false}
+        isLoadingMoreOrganizations={false}
+        isLoadingMoreProjects={false}
         isWorkspaceLoading={false}
         onManageOrganizations={onManageOrganizations}
         onManageProjects={onManageProjects}
         onOrganizationChange={onOrganizationChange}
+        onOrganizationSearchChange={onOrganizationSearchChange}
+        onLoadMoreOrganizations={vi.fn()}
         onProjectChange={onProjectChange}
+        onProjectSearchChange={onProjectSearchChange}
+        onLoadMoreProjects={vi.fn()}
         organizationId={arcadeOrganization.id}
         organizations={[arcadeOrganization, secondaryOrganization]}
+        selectedOrganizationLabel={arcadeOrganization.name}
         projectId={flagshipProject.id}
         projects={[flagshipProject, sideQuestProject]}
+        selectedProjectLabel={flagshipProject.name}
         {...overrides}
       />,
     );
 
     return {
       onOrganizationChange,
+      onOrganizationSearchChange,
       onProjectChange,
+      onProjectSearchChange,
       onManageOrganizations,
       onManageProjects,
     };
@@ -99,8 +113,10 @@ describe('DashboardCommandBar', () => {
     expect(
       screen.getByRole('toolbar', { name: 'dashboard.workspace.sectionTitle' }),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText('dashboard.workspace.organizationLabel')).toHaveValue('7');
-    expect(screen.getByLabelText('dashboard.workspace.projectLabel')).toHaveValue('12');
+    expect(screen.getByLabelText('dashboard.workspace.organizationLabel')).toHaveTextContent(
+      'Arcade Org',
+    );
+    expect(screen.getByLabelText('dashboard.workspace.projectLabel')).toHaveTextContent('Flagship');
     expect(screen.getByRole('region', { name: 'dashboard.stats.title' })).toBeInTheDocument();
     expect(screen.getByText('18')).toBeInTheDocument();
     expect(screen.getByText('12')).toBeInTheDocument();
@@ -108,13 +124,26 @@ describe('DashboardCommandBar', () => {
 
   it('forwards selector changes', async () => {
     const user = userEvent.setup();
-    const { onOrganizationChange, onProjectChange } = renderDashboardCommandBar();
+    const {
+      onOrganizationChange,
+      onOrganizationSearchChange,
+      onProjectChange,
+      onProjectSearchChange,
+    } = renderDashboardCommandBar();
 
-    await user.selectOptions(screen.getByLabelText('dashboard.workspace.organizationLabel'), '8');
-    await user.selectOptions(screen.getByLabelText('dashboard.workspace.projectLabel'), '13');
+    await user.click(screen.getByLabelText('dashboard.workspace.organizationLabel'));
+    await user.type(screen.getByLabelText('dashboard.workspace.organizationSearchLabel'), 'Quiz');
+    await user.keyboard('{ArrowDown}');
+    await user.keyboard('{Enter}');
+    await user.click(screen.getByLabelText('dashboard.workspace.projectLabel'));
+    await user.type(screen.getByLabelText('dashboard.workspace.projectSearchLabel'), 'Side');
+    await user.keyboard('{ArrowDown}');
+    await user.keyboard('{Enter}');
 
     expect(onOrganizationChange).toHaveBeenCalledWith('8');
+    expect(onOrganizationSearchChange).toHaveBeenCalledWith('Quiz');
     expect(onProjectChange).toHaveBeenCalledWith('13');
+    expect(onProjectSearchChange).toHaveBeenCalledWith('Side');
   });
 
   it('forwards manage button clicks', async () => {

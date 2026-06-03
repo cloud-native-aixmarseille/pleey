@@ -1,6 +1,14 @@
+import type { PaginatedResult } from '../../shared/value-objects/paginated-result';
+import type { PaginationQuery } from '../../shared/value-objects/pagination-query';
 import type { Organization, OrganizationId, OrganizationRole } from '../entities/organization';
 import type { OrganizationDashboard } from '../entities/organization-dashboard';
 import type { OrganizationMember, OrganizationMemberId } from '../entities/organization-member';
+
+export interface ListOrganizationsQuery extends PaginationQuery {}
+
+export interface ListOrganizationMembersQuery extends PaginationQuery {
+  readonly organizationId: OrganizationId;
+}
 
 export interface CreateOrganizationCommand {
   readonly name: string;
@@ -23,9 +31,11 @@ export interface UpdateOrganizationMemberRoleCommand {
 }
 
 export interface OrganizationRepository {
-  getMyOrganizations(): Promise<Organization[]>;
+  getMyOrganizations(query?: ListOrganizationsQuery): Promise<PaginatedResult<Organization>>;
   getOrganizationDashboard(organizationId: OrganizationId): Promise<OrganizationDashboard>;
-  getOrganizationMembers(organizationId: OrganizationId): Promise<OrganizationMember[]>;
+  getOrganizationMembers(
+    query: ListOrganizationMembersQuery,
+  ): Promise<PaginatedResult<OrganizationMember>>;
   createOrganization(command: CreateOrganizationCommand): Promise<Organization>;
   addOrganizationMember(command: AddOrganizationMemberCommand): Promise<OrganizationMember>;
   removeOrganizationMember(command: RemoveOrganizationMemberCommand): Promise<void>;

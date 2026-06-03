@@ -22,12 +22,12 @@ function createRepository(client: ConstructorParameters<typeof GraphqlOrganizati
 
 describe('GraphqlOrganizationRepository', () => {
   describe('getMyOrganizations()', () => {
-    it('returns normalized organizations', async () => {
+    it('returns a paginated organization result', async () => {
       // Arrange
-      const { client } = new GraphqlClientMockFactory().create({
+      const { client, requestMock } = new GraphqlClientMockFactory().create({
         requestResult: {
           myOrganizations: {
-            organizations: [
+            items: [
               {
                 id: 9,
                 name: 'Pleey Org',
@@ -37,24 +37,51 @@ describe('GraphqlOrganizationRepository', () => {
                 role: 'OWNER',
               },
             ],
+            totalCount: 1,
+            overallCount: 5,
+            page: 2,
+            pageSize: 25,
+            totalPages: 5,
           },
         },
       });
       const repository = createRepository(client);
 
       // Act
-      const organizations = await repository.getMyOrganizations();
+      const organizations = await repository.getMyOrganizations({
+        page: 2,
+        pageSize: 25,
+        search: 'Pleey',
+      });
 
       // Assert
-      expect(organizations).toEqual([
-        organizationFixtureFactory.createOrganization({
-          id: organizationIdentifier.parse(9),
-          name: 'Pleey Org',
-          description: 'Main workspace',
-          createdAt: '2026-03-10T12:00:00.000Z',
-          updatedAt: '2026-03-10T12:00:00.000Z',
-        }),
-      ]);
+      expect(organizations).toEqual({
+        items: [
+          organizationFixtureFactory.createOrganization({
+            id: organizationIdentifier.parse(9),
+            name: 'Pleey Org',
+            description: 'Main workspace',
+            createdAt: '2026-03-10T12:00:00.000Z',
+            updatedAt: '2026-03-10T12:00:00.000Z',
+          }),
+        ],
+        totalCount: 1,
+        overallCount: 5,
+        page: 2,
+        pageSize: 25,
+        totalPages: 5,
+      });
+      expect(requestMock).toHaveBeenCalledWith(
+        expect.anything(),
+        {
+          input: {
+            page: 2,
+            pageSize: 25,
+            search: 'Pleey',
+          },
+        },
+        undefined,
+      );
     });
 
     it('maps transport failures to translated organization error keys', async () => {
@@ -160,12 +187,12 @@ describe('GraphqlOrganizationRepository', () => {
   });
 
   describe('getOrganizationMembers()', () => {
-    it('returns normalized organization members', async () => {
+    it('returns a paginated organization member result', async () => {
       // Arrange
-      const { client } = new GraphqlClientMockFactory().create({
+      const { client, requestMock } = new GraphqlClientMockFactory().create({
         requestResult: {
           organizationMembers: {
-            members: [
+            items: [
               {
                 id: 18,
                 organizationId: 9,
@@ -175,25 +202,88 @@ describe('GraphqlOrganizationRepository', () => {
                 joinedAt: '2026-03-20T10:00:00.000Z',
               },
             ],
+            totalCount: 1,
+            overallCount: 4,
+            page: 2,
+            pageSize: 25,
+            totalPages: 4,
           },
         },
       });
       const repository = createRepository(client);
 
       // Act
-      const members = await repository.getOrganizationMembers(organizationIdentifier.parse(9));
+      const members = await repository.getOrganizationMembers({
+        organizationId: organizationIdentifier.parse(9),
+        page: 2,
+        pageSize: 25,
+      });
 
       // Assert
-      expect(members).toEqual([
+      expect(members).toEqual({
+        items: [
+          {
+            id: organizationMemberIdentifier.parse(18),
+            joinedAt: '2026-03-20T10:00:00.000Z',
+            organizationId: organizationIdentifier.parse(9),
+            role: OrganizationRole.MANAGER,
+            userId: 42,
+            username: 'captain',
+          },
+        ],
+        totalCount: 1,
+        overallCount: 4,
+        page: 2,
+        pageSize: 25,
+        totalPages: 4,
+      });
+      expect(requestMock).toHaveBeenCalledWith(
+        expect.anything(),
         {
-          id: organizationMemberIdentifier.parse(18),
-          joinedAt: '2026-03-20T10:00:00.000Z',
-          organizationId: organizationIdentifier.parse(9),
-          role: OrganizationRole.MANAGER,
-          userId: 42,
-          username: 'captain',
+          input: {
+            organizationId: organizationIdentifier.parse(9),
+            page: 2,
+            pageSize: 25,
+          },
         },
-      ]);
+        undefined,
+      );
+    });
+
+    it('forwards optional member search to the GraphQL query', async () => {
+      const { client, requestMock } = new GraphqlClientMockFactory().create({
+        requestResult: {
+          organizationMembers: {
+            items: [],
+            totalCount: 0,
+            overallCount: 0,
+            page: 1,
+            pageSize: 25,
+            totalPages: 1,
+          },
+        },
+      });
+      const repository = createRepository(client);
+
+      await repository.getOrganizationMembers({
+        organizationId: organizationIdentifier.parse(9),
+        page: 1,
+        pageSize: 25,
+        search: 'captain',
+      });
+
+      expect(requestMock).toHaveBeenCalledWith(
+        expect.anything(),
+        {
+          input: {
+            organizationId: organizationIdentifier.parse(9),
+            page: 1,
+            pageSize: 25,
+            search: 'captain',
+          },
+        },
+        undefined,
+      );
     });
   });
 

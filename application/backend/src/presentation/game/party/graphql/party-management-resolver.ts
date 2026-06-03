@@ -7,6 +7,8 @@ import type { UserId } from '../../../../domain/identity/entities/user';
 import { IdentityErrorCode } from '../../../../domain/identity/enums/identity-error-code.enum';
 import { GqlJwtAuthGuard } from '../../../identity/shared/guards/gql-jwt-auth-guard';
 import { CreatePartyInput } from './types/create-party-input';
+import { ListPartiesInput } from './types/list-parties-input';
+import { PartyListType } from './types/party-list-type';
 import { PartyType } from './types/party-type';
 
 type GraphqlAuthContext = {
@@ -42,12 +44,17 @@ export class PartyManagementResolver {
     });
   }
 
-  @Query(() => [PartyType])
+  @Query(() => PartyListType)
   @UseGuards(GqlJwtAuthGuard)
-  async listParties(@Context() context: GraphqlAuthContext): Promise<readonly PartyType[]> {
+  async listParties(
+    @Args('input', { nullable: true, type: () => ListPartiesInput })
+    input: ListPartiesInput | undefined,
+    @Context() context: GraphqlAuthContext,
+  ): Promise<PartyListType> {
     const userId = this.resolveUserId(context);
 
     return this.listPartiesUseCase.execute({
+      ...(input ?? {}),
       userId,
     });
   }

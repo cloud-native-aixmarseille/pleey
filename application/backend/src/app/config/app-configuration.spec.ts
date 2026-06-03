@@ -9,6 +9,31 @@ const REQUIRED_RUNTIME_ENVIRONMENT = {
 } as const;
 
 describe('AppConfiguration', () => {
+  it('limits development-only server features to development environments', () => {
+    const developmentConfiguration = new AppConfiguration(
+      new AppEnvironment({
+        ...REQUIRED_RUNTIME_ENVIRONMENT,
+        NODE_ENV: 'development',
+      } as NodeJS.ProcessEnv),
+    );
+
+    const testConfiguration = new AppConfiguration(
+      new AppEnvironment({
+        ...REQUIRED_RUNTIME_ENVIRONMENT,
+        NODE_ENV: 'test',
+      } as NodeJS.ProcessEnv),
+    );
+
+    expect(developmentConfiguration.getServerConfig()).toMatchObject({
+      isDevelopment: true,
+      isProduction: false,
+    });
+    expect(testConfiguration.getServerConfig()).toMatchObject({
+      isDevelopment: false,
+      isProduction: false,
+    });
+  });
+
   it('disables otel console output by default', () => {
     const configuration = new AppConfiguration(
       new AppEnvironment({

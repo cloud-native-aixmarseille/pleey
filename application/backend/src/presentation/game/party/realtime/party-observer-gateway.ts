@@ -149,7 +149,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     @MessageBody()
     payload: PartyEntryMessageDto | undefined,
   ): Promise<PartyJoinAcknowledgement> {
-    return this.handlePartyEntry(client, payload, this.joinPartyUseCase);
+    return this.handlePartyEntry(client, payload);
   }
 
   @SubscribeMessage(PARTY_SOCKET_INBOUND_EVENTS.OBSERVE_PARTY)
@@ -189,7 +189,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     @MessageBody()
     payload: PartyEntryMessageDto | undefined,
   ): Promise<PartyJoinAcknowledgement> {
-    return this.handlePartyEntry(client, payload, this.joinPartyUseCase);
+    return this.handlePartyEntry(client, payload);
   }
 
   @SubscribeMessage(PARTY_SOCKET_INBOUND_EVENTS.SUBMIT_ACTION)
@@ -360,10 +360,9 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
   private async handlePartyEntry(
     client: Socket,
     payload: PartyEntryMessageDto | undefined,
-    joinPartyUseCase: Pick<JoinPartyUseCase, 'execute'>,
   ): Promise<PartyJoinAcknowledgement> {
     try {
-      const result = await joinPartyUseCase.execute(this.toJoinPartyDto(client, payload));
+      const result = await this.joinPartyUseCase.execute(this.toJoinPartyDto(client, payload));
 
       this.clearPendingLobbyPlayerAbsencePrune(result.partyId, result.player.identity);
       this.rememberJoinedPlayer(client, result.pin, result.player.identity);

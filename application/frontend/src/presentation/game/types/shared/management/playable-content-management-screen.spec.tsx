@@ -4,7 +4,9 @@ import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { GameTypeIdentifierMockFactory } from '../../../../../test-utils/mocks/game-type-identifier-mock-factory';
 import { renderWithUiProvider } from '../../../../../test-utils/render-with-ui-provider';
+import { provideWorkspaceDependencies } from '../../../../workspace/shared/contexts/workspace-dependencies-context';
 import { PlayableContentManagementScreen } from './playable-content-management-screen';
+import { PlayableItemEditorValidator } from './playable-item-editor-validator';
 
 const gameTypeIdentifier = new GameTypeIdentifierMockFactory().create();
 
@@ -106,32 +108,48 @@ describe('PlayableContentManagementScreen', () => {
 
   function renderScreen() {
     return renderWithUiProvider(
-      <MemoryRouter>
-        <PlayableContentManagementScreen
-          gameTypeId={gameTypeIdentifier.parse(12)}
-          gateway={gateway}
-          itemKindConfig={{
-            defaultKind: 'multiple',
-            options: [
-              {
-                correctSelectionMode: 'multiple',
-                labelKey: 'game.types.quiz.management.kindMultiple',
-                value: 'multiple',
-              },
-              {
-                correctSelectionMode: 'single',
-                fixedOptions: [
-                  { labelKey: 'game.types.quiz.management.true', text: null },
-                  { labelKey: 'game.types.quiz.management.false', text: null },
-                ],
-                labelKey: 'game.types.quiz.management.kindTrueFalse',
-                value: 'truefalse',
-              },
-            ],
-          }}
-          translationRoot="game.types.quiz.management"
-        />
-      </MemoryRouter>,
+      provideWorkspaceDependencies(
+        <MemoryRouter>
+          <PlayableContentManagementScreen
+            gameTypeId={gameTypeIdentifier.parse(12)}
+            gateway={gateway}
+            itemKindConfig={{
+              defaultKind: 'multiple',
+              options: [
+                {
+                  correctSelectionMode: 'multiple',
+                  labelKey: 'game.types.quiz.management.kindMultiple',
+                  value: 'multiple',
+                },
+                {
+                  correctSelectionMode: 'single',
+                  fixedOptions: [
+                    { labelKey: 'game.types.quiz.management.true', text: null },
+                    { labelKey: 'game.types.quiz.management.false', text: null },
+                  ],
+                  labelKey: 'game.types.quiz.management.kindTrueFalse',
+                  value: 'truefalse',
+                },
+              ],
+            }}
+            translationRoot="game.types.quiz.management"
+          />
+        </MemoryRouter>,
+        {
+          gameTypeParser: {
+            parseOrNull: () => null,
+          },
+          organizationFormFacade: {} as never,
+          organizationIdentifier: {
+            parseOrNull: () => null,
+          },
+          playableItemEditorValidator: new PlayableItemEditorValidator(),
+          projectFormFacade: {} as never,
+          projectIdentifier: {
+            parseOrNull: () => null,
+          },
+        },
+      ),
     );
   }
 

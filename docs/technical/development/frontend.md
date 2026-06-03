@@ -13,11 +13,11 @@ Schema source: `../backend/src/schema.gql`. Operations: `.graphql` files in `src
 ### Lint Pipeline
 
 Custom scripts run before Biome: `check-naming.mjs`, `check-presentation-screens.mjs`,
-`check-di-instantiation.mjs`, `check-game-refactor-boundaries.mjs`.
+`check-di-instantiation.mjs`, and `check-invariant-arguments.mjs`.
 Architectural boundaries are enforced primarily via `biome.json`
 `noRestrictedImports` overrides and shared Biome plugins;
-`check-game-refactor-boundaries.mjs` remains as a milestone-0 legacy-path guard,
-`check-di-instantiation.mjs` is limited to direct `new` instantiation checks,
+the milestone-0 legacy-path guard now lives in app-local GritQL plugins,
+`check-di-instantiation.mjs` is limited to direct `new` and selected static-call checks,
 and shared-wrapper plus direct `*Service` presentation imports are enforced in Biome.
 
 ## Testing Conventions

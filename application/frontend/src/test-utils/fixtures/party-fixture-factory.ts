@@ -8,7 +8,6 @@ import type { Party, PartyId, PartyPin } from '../../domains/game/party/shared/e
 import type { PartyHost } from '../../domains/game/party/shared/entities/party-host';
 import type { PartyObservation } from '../../domains/game/party/shared/entities/party-observation';
 import type { PartyObservationPlayer } from '../../domains/game/party/shared/entities/party-observation-player';
-import type { PartyPlayer } from '../../domains/game/party/shared/entities/party-player';
 import {
   type PartyPlayerIdentity,
   PartyPlayerIdentityKind,
@@ -40,14 +39,6 @@ type IdentityOverride =
       readonly kind: PartyPlayerIdentityKind.Guest;
       readonly guestId: string | GuestId;
     };
-
-type PartyPlayerOverrides = {
-  readonly avatarUri?: string | null;
-  readonly identity?: IdentityOverride;
-  readonly joinedAt?: string;
-  readonly totalScore?: number;
-  readonly username?: string;
-};
 
 type PartyHostOverrides = {
   readonly avatarUri?: string | null;
@@ -92,37 +83,6 @@ export class PartyFixtureFactory {
     return {
       avatarUri: overrides.avatarUri ?? '/avatars/host.png',
       username: overrides.username ?? 'Host',
-    };
-  }
-
-  createPlayer(overrides: PartyPlayerOverrides = {}): PartyPlayer {
-    const normalizedIdentity = this.normalizeIdentity(
-      overrides.identity ?? {
-        kind: PartyPlayerIdentityKind.User,
-        userId: userIdentifier.parse(11),
-      },
-    );
-    const avatarUri = overrides.avatarUri ?? '/avatars/player.png';
-    const joinedAt = overrides.joinedAt ?? '2026-04-21T08:00:00.000Z';
-    const totalScore = overrides.totalScore ?? 0;
-    const username = overrides.username ?? 'Neo';
-
-    if (normalizedIdentity.kind === PartyPlayerIdentityKind.Guest) {
-      return {
-        avatarUri,
-        identity: normalizedIdentity,
-        joinedAt,
-        totalScore,
-        username,
-      };
-    }
-
-    return {
-      avatarUri,
-      identity: normalizedIdentity,
-      joinedAt,
-      totalScore,
-      username,
     };
   }
 

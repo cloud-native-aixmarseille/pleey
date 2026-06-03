@@ -15,8 +15,10 @@ const ORGANIZATION_MEMBER_REPOSITORY_METHOD_KINDS: MockFactoryMethodKinds<Organi
       'create',
       'findById',
       'findByOrganizationAndUser',
-      'findByOrganization',
-      'findByUser',
+      'countOwnersByOrganization',
+      'findPageByOrganization',
+      'findLatestByUser',
+      'findPageByUser',
       'updateRole',
       'delete',
     ],
@@ -24,7 +26,7 @@ const ORGANIZATION_MEMBER_REPOSITORY_METHOD_KINDS: MockFactoryMethodKinds<Organi
   };
 
 const ORGANIZATION_REPOSITORY_METHOD_KINDS: MockFactoryMethodKinds<OrganizationRepository> = {
-  resolved: ['create', 'findById', 'findByIds', 'findByName', 'findAll', 'update', 'delete'],
+  resolved: ['create', 'findById', 'findByIds', 'findByName'],
   returned: [],
 };
 
@@ -35,8 +37,10 @@ export const createOrganizationMemberRepositoryMock = (
     create: mockFn<OrganizationMemberRepository['create']>(),
     findById: mockFn<OrganizationMemberRepository['findById']>(),
     findByOrganizationAndUser: mockFn<OrganizationMemberRepository['findByOrganizationAndUser']>(),
-    findByOrganization: mockFn<OrganizationMemberRepository['findByOrganization']>(),
-    findByUser: mockFn<OrganizationMemberRepository['findByUser']>(),
+    countOwnersByOrganization: mockFn<OrganizationMemberRepository['countOwnersByOrganization']>(),
+    findPageByOrganization: mockFn<OrganizationMemberRepository['findPageByOrganization']>(),
+    findLatestByUser: mockFn<OrganizationMemberRepository['findLatestByUser']>(),
+    findPageByUser: mockFn<OrganizationMemberRepository['findPageByUser']>(),
     updateRole: mockFn<OrganizationMemberRepository['updateRole']>(),
     delete: mockFn<OrganizationMemberRepository['delete']>(),
   };
@@ -53,9 +57,6 @@ export const createOrganizationRepositoryMock = (
     findById: mockFn<OrganizationRepository['findById']>(),
     findByIds: mockFn<OrganizationRepository['findByIds']>(),
     findByName: mockFn<OrganizationRepository['findByName']>(),
-    findAll: mockFn<OrganizationRepository['findAll']>(),
-    update: mockFn<OrganizationRepository['update']>(),
-    delete: mockFn<OrganizationRepository['delete']>(),
   };
 
   applyMockFactoryConfig(mock, config, ORGANIZATION_REPOSITORY_METHOD_KINDS);

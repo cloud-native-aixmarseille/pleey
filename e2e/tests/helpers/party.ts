@@ -74,24 +74,26 @@ async function listParties(
   request: APIRequestContext,
   accessToken: string,
 ): Promise<readonly PartySummary[]> {
-  const data = await executeGraphql<{ listParties: PartySummary[] }>(
+  const data = await executeGraphql<{ listParties: { items: PartySummary[] } }>(
     request,
     accessToken,
     `
       query ListParties {
         listParties {
-          partyId
-          gameId
-          pin
-          status
-          role
-          createdAt
+          items {
+            partyId
+            gameId
+            pin
+            status
+            role
+            createdAt
+          }
         }
       }
     `,
   );
 
-  return data.listParties;
+  return data.listParties.items;
 }
 
 async function createParty(

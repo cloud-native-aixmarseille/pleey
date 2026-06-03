@@ -6,7 +6,7 @@
 
 See `package.json` scripts and `make help` for available commands.
 
-Lint pipeline runs custom scripts before Biome: `check-naming.mjs` (export naming), `check-game-refactor-boundaries.mjs` (milestone-0 legacy-path guard). Architectural boundaries are enforced primarily via `biome.json` `noRestrictedImports` overrides and shared Biome plugins.
+Lint pipeline runs targeted custom scripts before Biome, including naming, DI-instantiation, and invariant-argument checks. Milestone-0 legacy-path boundaries are enforced in `biome.json` via app-local GritQL plugins alongside `noRestrictedImports` overrides.
 
 ## Testing Conventions
 

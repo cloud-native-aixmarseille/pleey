@@ -7,6 +7,7 @@ import type {
 } from '../../../application/game/management/ports/game-catalog.port';
 import { GameIdentifier } from '../../../application/game/shared/services/identifiers/game-identifier';
 import { GameTypeIdentifier } from '../../../application/game/types/shared/services/game-type-identifier';
+import { PaginationQueryNormalizer } from '../../../application/shared/services/pagination-query-normalizer';
 import { PrismaService } from '../../database/prisma-service';
 
 @Injectable()
@@ -15,12 +16,12 @@ export class PrismaGameCatalogAdapter implements GameCatalogPort {
     private readonly prisma: PrismaService,
     private readonly gameIdentifier: GameIdentifier,
     private readonly gameTypeIdentifier: GameTypeIdentifier,
+    private readonly paginationQueryNormalizer: PaginationQueryNormalizer,
   ) {}
 
   async listProjectGames(query: ListProjectGamesQuery): Promise<ProjectGameCatalogPage> {
-    const search = query.search?.trim() ?? '';
-    const page = Math.max(1, query.page ?? 1);
-    const pageSize = Math.max(1, query.pageSize ?? 9);
+    const pagination = this.paginationQueryNormalizer.normalizeQuery(query, 9);
+    const search = pagination.search ?? '';
     const baseWhere: Prisma.GameWhereInput = {
       projectId: query.projectId,
       deletedAt: null,
@@ -63,7 +64,6 @@ export class PrismaGameCatalogAdapter implements GameCatalogPort {
       query.sortField === 'title'
         ? [{ title: query.sortDirection ?? 'asc' }, { createdAt: Prisma.SortOrder.desc }]
         : [{ createdAt: query.sortDirection ?? 'desc' }, { title: Prisma.SortOrder.asc }];
-    const skip = (page - 1) * pageSize;
 
     const [overallCount, totalCount, games] = await this.prisma.$transaction([
       this.prisma.game.count({ where: baseWhere }),
@@ -83,8 +83,8 @@ export class PrismaGameCatalogAdapter implements GameCatalogPort {
           },
         },
         orderBy,
-        skip,
-        take: pageSize,
+        skip: pagination.skip,
+        take: pagination.pageSize,
       }),
     ]);
 
@@ -122,8 +122,9 @@ export class PrismaGameCatalogAdapter implements GameCatalogPort {
       questionCounts.map((entry) => [entry.quizId, entry._count._all]),
     );
 
-    return {
-      items: games.map((game) => {
+    return this.paginationQueryNormalizer.toPaginatedResult(
+      pagination,
+      games.map((game) => {
         const gameTypeId = game.quiz?.id ?? game.prediction?.id ?? null;
 
         return {
@@ -142,9 +143,6 @@ export class PrismaGameCatalogAdapter implements GameCatalogPort {
       }),
       totalCount,
       overallCount,
-      page,
-      pageSize,
-      totalPages: Math.max(1, Math.ceil(totalCount / pageSize)),
-    };
+    );
   }
 }

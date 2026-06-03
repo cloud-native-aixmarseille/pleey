@@ -4,6 +4,7 @@ import type { OrganizationMember } from '../../../../../domains/organization/ent
 import type {
   AddOrganizationMemberCommand,
   CreateOrganizationCommand,
+  ListOrganizationMembersQuery,
   UpdateOrganizationMemberRoleCommand,
 } from '../../../../../domains/organization/ports/organization-repository';
 import type { Project } from '../../../../../domains/project/entities/project';
@@ -12,26 +13,28 @@ import type {
   DeleteProjectCommand,
   UpdateProjectCommand,
 } from '../../../../../domains/project/ports/project-repository';
+import type { PaginatedResult } from '../../../../../domains/shared/value-objects/paginated-result';
 import { usePresentationTranslation } from '../../../../shared/i18n/use-presentation-translation';
 import { StatusBanner } from '../../../../shared/ui/feedback/status-banner';
 import { ContentStack } from '../../../../shared/ui/layout/containers';
 import { SubpageHeader } from '../../../../shared/ui/layout/subpage-header';
 import type { DashboardWorkspaceSelectionGateway } from '../../../dashboard/hooks/use-dashboard-workspace';
+import type { PaginationViewModel } from '../../../shared/components/pagination-bar';
 import { CreateOrganizationForm } from './components/create-organization-form';
 import { OrganizationMemberRemovalDialog } from './components/organization-member-removal-dialog';
 import { OrganizationMembersSection } from './components/organization-members-section';
 import { OrganizationOverviewPanel } from './components/organization-overview-panel';
+import { OrganizationProjectDialogs } from './components/organization-project-dialogs';
 import { OrganizationProjectsSection } from './components/organization-projects-section';
-import { ProjectFormDialog } from './components/project-form-dialog';
-import { ProjectRemovalDialog } from './components/project-removal-dialog';
+import { createPaginationViewModel } from './organization-screen-pagination';
 import { useOrganizationScreenState } from './use-organization-screen-state';
 
 interface OrganizationScreenProps {
   readonly dashboardWorkspace: DashboardWorkspaceSelectionGateway;
   readonly createOrganization: (command: CreateOrganizationCommand) => Promise<Organization>;
   readonly listOrganizationMembers: (
-    organizationId: Organization['id'],
-  ) => Promise<OrganizationMember[]>;
+    query: ListOrganizationMembersQuery,
+  ) => Promise<PaginatedResult<OrganizationMember>>;
   readonly addOrganizationMember: (
     command: AddOrganizationMemberCommand,
   ) => Promise<OrganizationMember>;
@@ -70,19 +73,33 @@ export function OrganizationScreen({
     handleAddOrganizationMember,
     handleCreateProject,
     handleMemberFormChange,
+    handleMemberPageChange,
+    handleMemberSearchChange,
     handleOrganizationChange,
+    handleOrganizationSearchChange,
     handleOrganizationCreated,
+    handleLoadMoreOrganizations,
+    handleProjectSearchChange,
+    handleProjectPageChange,
     handleProjectMutationCompleted,
     handleUpdateOrganizationMemberRole,
     handleUpdateProject,
+    hasMoreOrganizations,
     isAddingMember,
     isCreateProjectOpen,
     isDeletingProject,
     isMembersLoading,
+    isLoadingMoreProjects,
+    isLoadingMoreOrganizations,
     isOrganizationsLoading,
+    isWorkspaceLoading,
     memberErrorMessage,
     memberForm,
+    memberPage,
+    memberSearch,
+    memberTotalPages,
     memberPendingRemoval,
+    migrationProjectLabel,
     migrationProjectId,
     openCreateProjectDialog,
     openEditProjectDialog,
@@ -95,11 +112,17 @@ export function OrganizationScreen({
     pendingRoleUpdateMemberId,
     pendingRemovalMemberId,
     errorMessage,
+    hasMoreProjects,
+    projectPage,
     projectPendingRemoval,
+    projectSearch,
+    projectTotalCount,
+    projectTotalPages,
     projects,
     selectedOrganization,
     selectedProject,
-    setMigrationProjectId,
+    handleLoadMoreProjects,
+    handleMigrationProjectChange,
   } = useOrganizationScreenState({
     createProject,
     deleteProject,
@@ -109,6 +132,32 @@ export function OrganizationScreen({
     removeOrganizationMember,
     updateOrganizationMemberRole,
     updateProject,
+  });
+
+  const projectPagination: PaginationViewModel = createPaginationViewModel({
+    currentPage: projectPage,
+    label: t('project.management.pagination.label'),
+    nextLabel: t('project.management.pagination.next'),
+    onPageChange: handleProjectPageChange,
+    pageOfLabel: t('project.management.pagination.pageOf', {
+      current: String(projectPage),
+      total: String(projectTotalPages),
+    }),
+    previousLabel: t('project.management.pagination.previous'),
+    totalPages: projectTotalPages,
+  });
+
+  const memberPagination: PaginationViewModel = createPaginationViewModel({
+    currentPage: memberPage,
+    label: t('organization.management.members.pagination.label'),
+    nextLabel: t('organization.management.members.pagination.next'),
+    onPageChange: handleMemberPageChange,
+    pageOfLabel: t('organization.management.members.pagination.pageOf', {
+      current: String(memberPage),
+      total: String(memberTotalPages),
+    }),
+    previousLabel: t('organization.management.members.pagination.previous'),
+    totalPages: memberTotalPages,
   });
 
   return (
@@ -129,22 +178,38 @@ export function OrganizationScreen({
 
       <OrganizationOverviewPanel
         organizations={organizations}
+        hasMoreOrganizations={hasMoreOrganizations}
         organizationId={organizationId}
+        organizationEmptyLabel={t('dashboard.workspace.organizationEmpty')}
+        organizationLoadingLabel={t('dashboard.workspace.organizationLoading')}
+        organizationNoResultsLabel={t('dashboard.workspace.organizationNoResults')}
+        organizationSearchLabel={t('dashboard.workspace.organizationSearchLabel')}
+        organizationSearchPlaceholder={t('dashboard.workspace.organizationSearchPlaceholder')}
         selectedOrganization={selectedOrganization}
         dashboard={organizationDashboard}
         isOrganizationsLoading={isOrganizationsLoading}
+        isLoadingMoreOrganizations={isLoadingMoreOrganizations}
         onOrganizationChange={handleOrganizationChange}
+        onOrganizationSearchChange={handleOrganizationSearchChange}
+        onLoadMoreOrganizations={handleLoadMoreOrganizations}
       />
 
       <OrganizationProjectsSection
         actionErrorMessage={actionErrorMessage ? t(actionErrorMessage) : null}
         canCreateProject={selectedOrganization !== null}
+        canRemoveProjects={projectTotalCount > 1}
         createButtonLabel={t('project.management.section.createButton')}
         eyebrow={t('project.management.section.eyebrow')}
         onCreateProject={openCreateProjectDialog}
         onEditProject={openEditProjectDialog}
+        onProjectSearchChange={handleProjectSearchChange}
         onRemoveProject={openRemoveProjectDialog}
+        pagination={projectPagination}
         projects={projects}
+        projectSearchLabel={t('project.management.searchLabel')}
+        projectSearchPlaceholder={t('project.management.searchPlaceholder')}
+        projectSearchValue={projectSearch}
+        searchDisabled={selectedOrganization === null}
         selectedProjectId={selectedProject?.id ?? null}
         title={t('project.management.section.title')}
       />
@@ -161,10 +226,12 @@ export function OrganizationScreen({
         members={organizationMembers}
         onAddFormChange={handleMemberFormChange}
         onAddMember={handleAddOrganizationMember}
+        onMemberSearchChange={handleMemberSearchChange}
         onRemoveMember={openRemoveOrganizationMemberDialog}
         onUpdateMemberRole={handleUpdateOrganizationMemberRole}
         pendingRoleUpdateMemberId={pendingRoleUpdateMemberId}
         pendingRemovalMemberId={pendingRemovalMemberId}
+        pagination={memberPagination}
         removeButtonLabel={t('organization.management.members.removeButton')}
         roleLabel={t('organization.management.members.roleLabel')}
         roleLabels={{
@@ -172,6 +239,10 @@ export function OrganizationScreen({
           [OrganizationRole.MANAGER]: t('organization.management.members.roles.manager'),
           [OrganizationRole.MEMBER]: t('organization.management.members.roles.member'),
         }}
+        searchDisabled={selectedOrganization === null}
+        searchLabel={t('organization.management.members.searchLabel')}
+        searchPlaceholder={t('organization.management.members.searchPlaceholder')}
+        searchValue={memberSearch}
         selectedOrganizationRole={selectedOrganization?.role ?? null}
         selectedOrganizationName={selectedOrganization?.name ?? null}
         title={t('organization.management.members.title')}
@@ -197,48 +268,29 @@ export function OrganizationScreen({
         title={t('organization.management.members.removal.dialogTitle')}
       />
 
-      <ProjectFormDialog
-        isOpen={isCreateProjectOpen}
-        mode="create"
-        onClose={closeCreateProjectDialog}
-        onSubmit={handleCreateProject}
-        onSubmitted={handleProjectMutationCompleted}
-        organizationName={selectedOrganization?.name ?? null}
-        project={null}
-      />
-
-      <ProjectFormDialog
-        isOpen={editingProject !== null}
-        mode="edit"
-        onClose={closeEditProjectDialog}
-        onSubmit={handleUpdateProject}
-        onSubmitted={handleProjectMutationCompleted}
-        organizationName={selectedOrganization?.name ?? null}
-        project={editingProject}
-      />
-
-      <ProjectRemovalDialog
+      <OrganizationProjectDialogs
         availableMigrationProjects={availableMigrationProjects}
-        cancelLabel={t('common.cancel')}
-        confirmDisabled={availableMigrationProjects.length > 0 && migrationProjectId === null}
-        confirmLabel={
-          isDeletingProject
-            ? t('project.management.removal.submitting')
-            : t('project.management.removal.confirm')
-        }
-        description={t('project.management.removal.migrationDescription')}
+        cancelProjectRemoval={cancelProjectRemoval}
+        closeCreateProjectDialog={closeCreateProjectDialog}
+        closeEditProjectDialog={closeEditProjectDialog}
+        editingProject={editingProject}
+        handleConfirmProjectRemoval={handleConfirmProjectRemoval}
+        handleCreateProject={handleCreateProject}
+        handleLoadMoreProjects={handleLoadMoreProjects}
+        handleMigrationProjectChange={handleMigrationProjectChange}
+        handleProjectMutationCompleted={handleProjectMutationCompleted}
+        handleProjectSearchChange={handleProjectSearchChange}
+        handleUpdateProject={handleUpdateProject}
+        hasMoreProjects={hasMoreProjects}
+        isCreateProjectOpen={isCreateProjectOpen}
         isDeletingProject={isDeletingProject}
-        isOpen={projectPendingRemoval !== null}
-        label={t('project.management.removal.migrationLabel')}
-        message={t('project.management.removal.dialogMessage', {
-          project: projectPendingRemoval?.name ?? '',
-        })}
+        isLoadingMoreProjects={isLoadingMoreProjects}
+        isWorkspaceLoading={isWorkspaceLoading}
         migrationProjectId={migrationProjectId}
-        onCancel={cancelProjectRemoval}
-        onConfirm={handleConfirmProjectRemoval}
-        onMigrationProjectChange={setMigrationProjectId}
-        placeholder={t('project.management.removal.migrationPlaceholder')}
-        title={t('project.management.removal.dialogTitle')}
+        migrationProjectLabel={migrationProjectLabel}
+        projectPendingRemoval={projectPendingRemoval}
+        projectTotalCount={projectTotalCount}
+        selectedOrganizationName={selectedOrganization?.name ?? null}
       />
     </ContentStack>
   );

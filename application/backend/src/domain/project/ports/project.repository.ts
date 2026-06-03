@@ -1,4 +1,5 @@
 import type { OrganizationId } from '../../organization/entities/organization';
+import type { PaginatedResult } from '../../shared/value-objects/paginated-result';
 import type { Project, ProjectId } from '../entities/project';
 
 export const ProjectRepositoryProvider = Symbol('ProjectRepository');
@@ -12,7 +13,14 @@ export interface ProjectRepository {
 
   findById(id: ProjectId): Promise<Project | null>;
 
-  findByOrganization(organizationId: OrganizationId): Promise<Project[]>;
+  countByOrganization(organizationId: OrganizationId): Promise<number>;
+
+  findPageByOrganization(
+    organizationId: OrganizationId,
+    page: number,
+    pageSize: number,
+    search?: string,
+  ): Promise<PaginatedResult<Project>>;
 
   delete(id: ProjectId): Promise<void>;
 

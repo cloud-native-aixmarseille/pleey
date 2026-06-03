@@ -96,9 +96,10 @@ import { ErrorTranslationService } from '../../../presentation/shared/error-hand
 import { I18nWsExceptionFilter } from '../../../presentation/shared/error-handling/i18n-ws-exception-filter';
 import { DatabaseModule } from '../database/database-module';
 import { IdentityModule } from '../identity/identity-module';
+import { SharedServicesModule } from '../shared/shared-services.module';
 
 @Module({
-  imports: [DatabaseModule, IdentityModule],
+  imports: [DatabaseModule, IdentityModule, SharedServicesModule],
   providers: [
     PrismaGameCatalogAdapter,
     PrismaPlayerPartyActionRuntimeAdapter,

@@ -1,4 +1,3 @@
-import type { CSSProperties } from 'react';
 import { uiThemeTokens } from './ui-theme';
 
 interface UiTypeStyle {
@@ -128,16 +127,3 @@ export const uiTypeScale = {
     lineHeight: 1.1,
   },
 } as const satisfies Record<string, UiTypeStyle>;
-
-type UiTypeScaleKey = keyof typeof uiTypeScale;
-
-/**
- * Resolves a type-scale entry to a full CSSProperties object with semantic color.
- *
- * ```ts
- * <p style={resolveTypeStyle('body', uiThemeTokens.color.text.primary)}>…</p>
- * ```
- */
-export function resolveTypeStyle(entry: UiTypeScaleKey, color: string): CSSProperties {
-  return { ...uiTypeScale[entry], color };
-}

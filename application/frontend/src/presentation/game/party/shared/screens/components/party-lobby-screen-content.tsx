@@ -15,7 +15,6 @@ import { HostRuntimeSurface } from '../../../host/screens/components/host-runtim
 import { JoinPartySurface } from '../../../player/screens/components/join-party-surface';
 import { PlayerFinalSurface } from '../../../player/screens/components/player-final-surface';
 import { PlayerLobbySurface } from '../../../player/screens/components/player-lobby-surface';
-import { PlayerRuntimeNoticeMessageResolver } from '../../../player/screens/components/player-runtime-notice-message-resolver';
 import { PlayerStageSurface } from '../../../player/screens/components/player-stage-surface';
 import { usePartyDependencies } from '../../contexts/party-dependencies-context';
 import {
@@ -62,9 +61,10 @@ export function PartyLobbyScreenContent({
   state,
 }: PartyLobbyScreenContentProps) {
   const { t } = usePresentationTranslation();
-  const { hostPartyRuntimeControlsResolver } = usePartyDependencies();
+  const { hostPartyRuntimeControlsResolver, playerRuntimeNoticeMessageResolver } =
+    usePartyDependencies();
   const partyGameTypeRuntimeRegistry = usePartyGameTypeRuntimeRegistry();
-  const isMobile = usePresentationMediaQuery('(max-width: 48em)');
+  const isMobile = usePresentationMediaQuery();
   const {
     advanceStage,
     cancelHostRuntimeConfirmation,
@@ -149,7 +149,10 @@ export function PartyLobbyScreenContent({
   const isHostSurface = !!party && party.isObserverHost;
   const isPlayerSurface = !!party && !isHostSurface && hasCurrentPlayer;
   const pageErrorMessage = errorMessage === joinErrorMessage ? null : errorMessage;
-  const playerRuntimeNoticeMessage = resolvePlayerRuntimeNoticeMessage(runtimeNoticeKind);
+  const playerRuntimeNoticeMessage = resolvePlayerRuntimeNoticeMessage(
+    runtimeNoticeKind,
+    playerRuntimeNoticeMessageResolver,
+  );
   const partyGameTypeRuntimeView = party
     ? partyGameTypeRuntimeRegistry.resolve(party.gameType)
     : null;
@@ -306,10 +309,13 @@ function renderHostRuntimePanel(
 
 function resolvePlayerRuntimeNoticeMessage(
   runtimeNoticeKind: PartyRuntimeNoticeKind | null,
+  playerRuntimeNoticeMessageResolver: ReturnType<
+    typeof usePartyDependencies
+  >['playerRuntimeNoticeMessageResolver'],
 ): string | null {
   if (runtimeNoticeKind === null) {
     return null;
   }
 
-  return PlayerRuntimeNoticeMessageResolver.resolve(runtimeNoticeKind);
+  return playerRuntimeNoticeMessageResolver.resolve(runtimeNoticeKind);
 }

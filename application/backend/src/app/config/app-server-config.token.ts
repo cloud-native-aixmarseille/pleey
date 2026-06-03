@@ -1,4 +1,5 @@
 export type AppServerConfig = {
+  isDevelopment: boolean;
   isProduction: boolean;
   port: number;
 };

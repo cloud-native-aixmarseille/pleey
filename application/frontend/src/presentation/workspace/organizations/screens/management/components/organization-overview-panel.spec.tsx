@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { OrganizationRole } from '../../../../../../domains/organization/entities/organization';
@@ -30,9 +30,11 @@ describe('OrganizationOverviewPanel', () => {
   const fixtureFactory = new OrganizationScreenFixtureFactory();
   const organizationFixtureFactory = new OrganizationFixtureFactory();
   const onOrganizationChange = vi.fn();
+  const onOrganizationSearchChange = vi.fn();
 
   beforeEach(() => {
     onOrganizationChange.mockReset();
+    onOrganizationSearchChange.mockReset();
   });
 
   it('renders selected organization details and forwards selector changes', async () => {
@@ -60,47 +62,71 @@ describe('OrganizationOverviewPanel', () => {
     renderWithProviders(
       <OrganizationOverviewPanel
         organizations={[firstOrganization, secondOrganization]}
+        hasMoreOrganizations={false}
         organizationId={firstOrganization.id}
+        organizationEmptyLabel="dashboard.workspace.organizationEmpty"
+        organizationLoadingLabel="dashboard.workspace.organizationLoading"
+        organizationNoResultsLabel="dashboard.workspace.organizationNoResults"
+        organizationSearchLabel="dashboard.workspace.organizationSearchLabel"
+        organizationSearchPlaceholder="dashboard.workspace.organizationSearchPlaceholder"
         selectedOrganization={firstOrganization}
         dashboard={dashboard}
         isOrganizationsLoading={false}
+        isLoadingMoreOrganizations={false}
         onOrganizationChange={onOrganizationChange}
+        onOrganizationSearchChange={onOrganizationSearchChange}
+        onLoadMoreOrganizations={vi.fn()}
       />,
     );
 
-    const select = screen.getByRole('combobox', {
-      name: 'dashboard.workspace.organizationLabel',
+    const toolbar = screen.getByRole('toolbar', {
+      name: 'organization.management.header.title',
     });
+    const [combobox] = within(toolbar).getAllByRole('button');
 
-    expect(select).toHaveValue(String(firstOrganization.id));
+    expect(combobox).toHaveTextContent('Arcade Org');
     expect(screen.getByText('Main community hub')).toBeInTheDocument();
     expect(screen.getByText('manager')).toBeInTheDocument();
     expect(screen.getByText(/organization\.management\.details\.created/)).toBeInTheDocument();
     expect(screen.getByTestId('organization-metrics-strip')).toHaveTextContent('metrics:4');
 
-    await user.selectOptions(select, String(secondOrganization.id));
+    await user.click(combobox);
+    await user.type(screen.getByLabelText('dashboard.workspace.organizationSearchLabel'), 'Side');
+    await user.keyboard('{ArrowDown}');
+    await user.keyboard('{Enter}');
 
     expect(onOrganizationChange).toHaveBeenCalledWith(String(secondOrganization.id));
+    expect(onOrganizationSearchChange).toHaveBeenCalledWith('Side');
   });
 
   it('shows the empty state when no organization is selected', () => {
     renderWithProviders(
       <OrganizationOverviewPanel
         organizations={[]}
+        hasMoreOrganizations={false}
         organizationId={null}
+        organizationEmptyLabel="dashboard.workspace.organizationEmpty"
+        organizationLoadingLabel="dashboard.workspace.organizationLoading"
+        organizationNoResultsLabel="dashboard.workspace.organizationNoResults"
+        organizationSearchLabel="dashboard.workspace.organizationSearchLabel"
+        organizationSearchPlaceholder="dashboard.workspace.organizationSearchPlaceholder"
         selectedOrganization={null}
         dashboard={null}
         isOrganizationsLoading={true}
+        isLoadingMoreOrganizations={false}
         onOrganizationChange={onOrganizationChange}
+        onOrganizationSearchChange={onOrganizationSearchChange}
+        onLoadMoreOrganizations={vi.fn()}
       />,
     );
 
-    expect(
-      screen.getByRole('combobox', { name: 'dashboard.workspace.organizationLabel' }),
-    ).toHaveValue('');
-    expect(
-      screen.getByRole('combobox', { name: 'dashboard.workspace.organizationLabel' }),
-    ).toBeDisabled();
+    const toolbar = screen.getByRole('toolbar', {
+      name: 'organization.management.header.title',
+    });
+    const [combobox] = within(toolbar).getAllByRole('button');
+
+    expect(combobox).toHaveTextContent('dashboard.workspace.organizationPlaceholder');
+    expect(combobox).toBeDisabled();
     expect(screen.getByText('organization.management.details.empty')).toBeInTheDocument();
     expect(screen.queryByTestId('organization-metrics-strip')).not.toBeInTheDocument();
   });

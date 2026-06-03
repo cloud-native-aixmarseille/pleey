@@ -44,11 +44,11 @@ export class DeleteProjectUseCase {
       throw new Error(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
     }
 
-    const organizationProjects = await this.projectRepository.findByOrganization(
+    const organizationProjectCount = await this.projectRepository.countByOrganization(
       project.organizationId,
     );
 
-    if (organizationProjects.length <= 1) {
+    if (organizationProjectCount <= 1) {
       throw new Error(ProjectErrorCode.CANNOT_DELETE_LAST_PROJECT);
     }
 

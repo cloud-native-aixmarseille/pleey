@@ -6,12 +6,14 @@ import {
   createOrganizationMemberRepositoryMock,
   createOrganizationRepositoryMock,
 } from '../../../../test-utils/mock-factories/organization.mock-factory';
+import { PaginationQueryNormalizer } from '../../../shared/services/pagination-query-normalizer';
 import { OrganizationIdentifier } from '../../shared/services/identifiers/organization-identifier';
 import { OrganizationMembershipAccessService } from '../services/organization-membership-access.service';
 import { ListOrganizationMembersUseCase } from './list-organization-members-use-case';
 
 const organizationIdentifier = new OrganizationIdentifier();
 const membershipPolicy = new OrganizationMembershipPolicy();
+const paginationQueryNormalizer = new PaginationQueryNormalizer();
 
 describe('ListOrganizationMembersUseCase', () => {
   it('throws when organization does not exist', async () => {
@@ -25,10 +27,14 @@ describe('ListOrganizationMembersUseCase', () => {
     const useCase = new ListOrganizationMembersUseCase(
       organizationMembershipAccess,
       memberRepository as never,
+      paginationQueryNormalizer,
     );
 
     await expect(
-      useCase.execute(organizationIdentifier.parse(1), backendTestIdentifiers.user(10)),
+      useCase.execute(
+        { organizationId: organizationIdentifier.parse(1) },
+        backendTestIdentifiers.user(10),
+      ),
     ).rejects.toThrow(OrganizationErrorCode.ORGANIZATION_NOT_FOUND);
   });
 
@@ -47,10 +53,14 @@ describe('ListOrganizationMembersUseCase', () => {
     const useCase = new ListOrganizationMembersUseCase(
       organizationMembershipAccess,
       memberRepository as never,
+      paginationQueryNormalizer,
     );
 
     await expect(
-      useCase.execute(organizationIdentifier.parse(1), backendTestIdentifiers.user(10)),
+      useCase.execute(
+        { organizationId: organizationIdentifier.parse(1) },
+        backendTestIdentifiers.user(10),
+      ),
     ).rejects.toThrow(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
   });
 
@@ -73,9 +83,17 @@ describe('ListOrganizationMembersUseCase', () => {
         userId: backendTestIdentifiers.user(11),
       },
     ] as never;
+    const page = {
+      items: members,
+      totalCount: 2,
+      overallCount: 2,
+      page: 1,
+      pageSize: 25,
+      totalPages: 1,
+    } as const;
     const memberRepository = createOrganizationMemberRepositoryMock({
       findByOrganizationAndUser: { id: 4 } as never,
-      findByOrganization: members,
+      findPageByOrganization: page as never,
     });
     const organizationMembershipAccess = new OrganizationMembershipAccessService(
       organizationRepository as never,
@@ -85,11 +103,60 @@ describe('ListOrganizationMembersUseCase', () => {
     const useCase = new ListOrganizationMembersUseCase(
       organizationMembershipAccess,
       memberRepository as never,
+      paginationQueryNormalizer,
     );
 
-    const result = await useCase.execute(organizationId, backendTestIdentifiers.user(10));
+    const result = await useCase.execute({ organizationId }, backendTestIdentifiers.user(10));
 
-    expect(memberRepository.findByOrganization).toHaveBeenCalledWith(organizationId);
-    expect(result).toEqual(members);
+    expect(memberRepository.findPageByOrganization).toHaveBeenCalledWith(
+      organizationId,
+      1,
+      25,
+      undefined,
+    );
+    expect(result).toEqual(page);
+  });
+
+  it('trims and forwards member search to the repository', async () => {
+    const organizationId = organizationIdentifier.parse(1);
+    const organizationRepository = createOrganizationRepositoryMock({
+      findById: { id: organizationId } as never,
+    });
+    const memberRepository = createOrganizationMemberRepositoryMock({
+      findByOrganizationAndUser: { id: 4 } as never,
+      findPageByOrganization: {
+        items: [],
+        totalCount: 0,
+        overallCount: 0,
+        page: 1,
+        pageSize: 25,
+        totalPages: 1,
+      } as never,
+    });
+    const organizationMembershipAccess = new OrganizationMembershipAccessService(
+      organizationRepository as never,
+      memberRepository as never,
+      membershipPolicy,
+    );
+    const useCase = new ListOrganizationMembersUseCase(
+      organizationMembershipAccess,
+      memberRepository as never,
+      paginationQueryNormalizer,
+    );
+
+    await useCase.execute(
+      {
+        organizationId,
+        search: '  captain  ',
+      },
+      backendTestIdentifiers.user(10),
+    );
+
+    expect(memberRepository.findPageByOrganization).toHaveBeenCalledWith(
+      organizationId,
+      1,
+      25,
+      'captain',
+    );
   });
 });

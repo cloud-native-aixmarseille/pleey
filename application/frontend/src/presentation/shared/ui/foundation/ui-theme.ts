@@ -35,7 +35,6 @@ export {
   emphasizedSummaryTextStyle,
   inlineLinkStyle,
   navPillLinkStyle,
-  statusBannerToneStyles,
 } from './ui-theme-styles';
 export {
   createUiThemeCssVariables,

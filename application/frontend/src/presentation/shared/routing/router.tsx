@@ -53,7 +53,7 @@ export function createLink<TProps extends object>(
 
 export function PresentationRedirect({
   to,
-  replace,
+  replace = true,
 }: {
   readonly to: string;
   readonly replace?: boolean;

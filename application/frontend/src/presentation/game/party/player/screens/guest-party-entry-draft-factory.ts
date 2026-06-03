@@ -1,3 +1,5 @@
+import { injectable } from 'inversify';
+
 const guestNameAdjectives = [
   'Bright',
   'Cosmic',
@@ -25,15 +27,16 @@ interface GuestPartyEntryDraft {
   readonly guestName: string;
 }
 
+@injectable()
 export class GuestPartyEntryDraftFactory {
-  static create(): GuestPartyEntryDraft {
+  create(): GuestPartyEntryDraft {
     return {
-      avatarSeed: GuestPartyEntryDraftFactory.createAvatarSeed(),
-      guestName: GuestPartyEntryDraftFactory.createGuestName(),
+      avatarSeed: this.createAvatarSeed(),
+      guestName: this.createGuestName(),
     };
   }
 
-  static createAvatarSeed(): string {
+  createAvatarSeed(): string {
     if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
       return crypto.randomUUID();
     }
@@ -41,19 +44,19 @@ export class GuestPartyEntryDraftFactory {
     return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
   }
 
-  static createGuestName(): string {
-    const adjective = GuestPartyEntryDraftFactory.pick(guestNameAdjectives);
-    const creature = GuestPartyEntryDraftFactory.pick(guestNameCreatures);
+  createGuestName(): string {
+    const adjective = this.pick(guestNameAdjectives);
+    const creature = this.pick(guestNameCreatures);
     const suffix = Math.floor(Math.random() * 900) + 100;
 
     return `${adjective} ${creature} ${suffix}`;
   }
 
-  static createPreviewUrl(avatarSeed: string): string {
+  createPreviewUrl(avatarSeed: string): string {
     return `/api/avatars/guests/preview/${encodeURIComponent(avatarSeed)}`;
   }
 
-  private static pick<T>(items: readonly T[]): T {
+  private pick<T>(items: readonly T[]): T {
     const index = Math.floor(Math.random() * items.length);
 
     return items[index] ?? items[0];

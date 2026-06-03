@@ -1,7 +1,9 @@
+import { injectable } from 'inversify';
 import { PartyRuntimeNoticeKind } from '../../../../../../domains/game/party/shared/ports/party-observation.port';
 
+@injectable()
 export class PlayerRuntimeNoticeMessageResolver {
-  static resolve(kind: PartyRuntimeNoticeKind): string {
+  resolve(kind: PartyRuntimeNoticeKind): string {
     switch (kind) {
       case PartyRuntimeNoticeKind.RestartStage:
         return 'game.party.player.route.runtimeRestartStageToast';

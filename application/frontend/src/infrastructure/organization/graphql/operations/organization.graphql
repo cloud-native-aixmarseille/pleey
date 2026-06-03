@@ -1,6 +1,6 @@
-query WorkspaceOrganizations {
-  myOrganizations {
-    organizations {
+query WorkspaceOrganizations($input: ListOrganizationsInput) {
+  myOrganizations(input: $input) {
+    items {
       id
       name
       description
@@ -8,5 +8,10 @@ query WorkspaceOrganizations {
       updatedAt
       role
     }
+    totalCount
+    overallCount
+    page
+    pageSize
+    totalPages
   }
 }

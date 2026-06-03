@@ -1,9 +1,8 @@
 import { type ArgumentMetadata, BadRequestException, ValidationPipe } from '@nestjs/common';
 import { describe, expect, it } from 'vitest';
-import {
-  CreateProjectInput,
-  UpdateProjectInput,
-} from '../../../project/graphql/types/project.input';
+import { CreateProjectInput } from '../../../project/graphql/types/create-project-input';
+import { ListOrganizationProjectsInput } from '../../../project/graphql/types/list-organization-projects-input';
+import { UpdateProjectInput } from '../../../project/graphql/types/update-project-input';
 
 const argumentMetadata: ArgumentMetadata = {
   data: 'input',
@@ -74,6 +73,35 @@ describe('Project GraphQL inputs validation', () => {
     expect(result).toMatchObject({
       description: 'Expanded scope',
       name: 'Launchpad 2',
+    });
+  });
+
+  it('accepts list organization projects input with whitelisted properties', async () => {
+    const pipe = new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    });
+
+    const result = await pipe.transform(
+      {
+        organizationId: 7,
+        page: 2,
+        pageSize: 25,
+        search: 'launch',
+      },
+      {
+        ...argumentMetadata,
+        metatype: ListOrganizationProjectsInput,
+      },
+    );
+
+    expect(result).toBeInstanceOf(ListOrganizationProjectsInput);
+    expect(result).toMatchObject({
+      organizationId: 7,
+      page: 2,
+      pageSize: 25,
+      search: 'launch',
     });
   });
 });

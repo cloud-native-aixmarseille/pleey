@@ -1,6 +1,6 @@
-query OrganizationMembers($organizationId: Int!) {
-  organizationMembers(organizationId: $organizationId) {
-    members {
+query OrganizationMembers($input: OrganizationMembersInput!) {
+  organizationMembers(input: $input) {
+    items {
       id
       organizationId
       userId
@@ -8,5 +8,10 @@ query OrganizationMembers($organizationId: Int!) {
       role
       joinedAt
     }
+    totalCount
+    overallCount
+    page
+    pageSize
+    totalPages
   }
 }

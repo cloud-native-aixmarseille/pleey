@@ -14,12 +14,6 @@ export function readAppEnv(): AppEnv {
   };
 }
 
-export class AppEnvReader {
-  read(): AppEnv {
-    return readAppEnv();
-  }
-}
-
 function normalizeApiUrl(candidate: unknown): string {
   if (typeof candidate === 'string' && candidate.trim().length > 0) {
     return candidate.trim().replace(/\/$/, '');

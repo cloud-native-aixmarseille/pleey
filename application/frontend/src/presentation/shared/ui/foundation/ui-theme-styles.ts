@@ -23,24 +23,6 @@ const overlineTextStyle = {
   textTransform: 'uppercase',
 } satisfies CSSProperties;
 
-export const statusBannerToneStyles = {
-  error: {
-    background: uiThemeTokens.color.surface.danger,
-    borderColor: uiThemeTokens.color.border.danger,
-    color: uiThemeTokens.color.text.danger,
-  },
-  info: {
-    background: uiThemeTokens.color.surface.accentMuted,
-    borderColor: uiThemeTokens.color.border.accent,
-    color: uiThemeTokens.color.text.status,
-  },
-  success: {
-    background: uiThemeTokens.color.surface.recessed,
-    borderColor: uiThemeTokens.color.border.success,
-    color: uiThemeTokens.color.text.statusSoft,
-  },
-} as const;
-
 export function createTextareaInputStyle(isInvalid: boolean): CSSProperties {
   return {
     ...createFieldInputStyle(isInvalid),

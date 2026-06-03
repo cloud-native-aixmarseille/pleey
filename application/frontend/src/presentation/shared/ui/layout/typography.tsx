@@ -1,4 +1,4 @@
-import { List, Text, Title } from '@mantine/core';
+import { Text, Title } from '@mantine/core';
 import type { PropsWithChildren } from 'react';
 import {
   createEyebrowTextStyle,
@@ -23,10 +23,6 @@ interface SupportingTextProps extends PropsWithChildren {
   readonly size?: 'sm' | 'md';
   readonly marginTop?: 'none' | 'xs' | 'sm' | 'md';
   readonly maxWidth?: number;
-}
-
-interface BulletListProps {
-  readonly items: readonly string[];
 }
 
 export function Eyebrow({ children, tone = 'accent', compact = false }: EyebrowProps) {
@@ -74,15 +70,5 @@ export function SummaryText({ children }: PropsWithChildren) {
     <Text component="p" style={emphasizedSummaryTextStyle}>
       {children}
     </Text>
-  );
-}
-
-export function BulletList({ items }: BulletListProps) {
-  return (
-    <List c={uiThemeTokens.color.text.secondary} size="sm" spacing="sm" withPadding>
-      {items.map((item) => (
-        <List.Item key={item}>{item}</List.Item>
-      ))}
-    </List>
   );
 }

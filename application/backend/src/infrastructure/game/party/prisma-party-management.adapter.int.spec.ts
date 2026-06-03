@@ -135,13 +135,13 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
       status: 'WAITING',
       role: 'HOST',
     });
-    expect(hostParties).toEqual([
+    expect(hostParties.items).toEqual([
       expect.objectContaining({
         partyId: created.partyId,
         role: 'HOST',
       }),
     ]);
-    expect(playerParties).toEqual([
+    expect(playerParties.items).toEqual([
       expect.objectContaining({
         partyId: created.partyId,
         role: 'PLAYER',
@@ -237,7 +237,7 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
       userId: backendTestIdentifiers.user(host.id),
     });
 
-    expect(parties).toEqual([
+    expect(parties.items).toEqual([
       expect.objectContaining({ partyId: secondParty.id, gameId: secondGame.id }),
       expect.objectContaining({ partyId: firstParty.partyId, gameId: firstGame.id }),
     ]);
