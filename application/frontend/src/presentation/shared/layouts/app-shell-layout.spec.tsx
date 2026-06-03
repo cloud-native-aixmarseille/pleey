@@ -4,14 +4,7 @@ import {
   createOutletRoute,
   renderRouteWithProviders,
 } from '../../../test-utils/render-route-with-providers';
-import { renderWithUiProvider } from '../../../test-utils/render-with-ui-provider';
-import {
-  AppShellLayout,
-  GlobalEmptyState,
-  GlobalErrorState,
-  PageIntro,
-  StickyActionBar,
-} from './app-shell-layout';
+import { AppShellLayout } from './app-shell-layout';
 
 vi.mock('../i18n/use-presentation-translation', async (importOriginal) => {
   const { PresentationTranslationMockFactory } = await import(
@@ -60,71 +53,5 @@ describe('AppShellLayout', () => {
       renderLayout();
       expect(screen.getByRole('navigation', { name: 'shared.shell.navLabel' })).toBeInTheDocument();
     });
-  });
-});
-
-describe('PageIntro', () => {
-  it('renders title as h1 by default', () => {
-    renderWithUiProvider(<PageIntro title="Dashboard" />);
-    expect(screen.getByRole('heading', { level: 1, name: 'Dashboard' })).toBeInTheDocument();
-  });
-
-  it('renders title as h2 when level=2', () => {
-    renderWithUiProvider(<PageIntro level={2} title="Quizzes" />);
-    expect(screen.getByRole('heading', { level: 2, name: 'Quizzes' })).toBeInTheDocument();
-  });
-
-  it('renders eyebrow, subtitle, and actions when provided', () => {
-    renderWithUiProvider(
-      <PageIntro
-        actions={<button type="button">Create</button>}
-        eyebrow="Admin"
-        subtitle="Manage your quizzes"
-        title="Quiz Library"
-      />,
-    );
-    expect(screen.getByText('Admin')).toBeInTheDocument();
-    expect(screen.getByText('Manage your quizzes')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
-  });
-});
-
-describe('StickyActionBar', () => {
-  it('renders children inside a toolbar', () => {
-    renderWithUiProvider(
-      <StickyActionBar>
-        <button type="button">Save</button>
-      </StickyActionBar>,
-    );
-    expect(screen.getByRole('toolbar')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
-  });
-});
-
-describe('GlobalEmptyState', () => {
-  it('renders title and optional message', () => {
-    renderWithUiProvider(
-      <GlobalEmptyState message="Create one to get started." title="No quizzes yet" />,
-    );
-    expect(screen.getByText('No quizzes yet')).toBeInTheDocument();
-    expect(screen.getByText('Create one to get started.')).toBeInTheDocument();
-  });
-
-  it('renders optional actions', () => {
-    renderWithUiProvider(
-      <GlobalEmptyState actions={<button type="button">Add</button>} title="Empty" />,
-    );
-    expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument();
-  });
-});
-
-describe('GlobalErrorState', () => {
-  it('renders as an alert with title and message', () => {
-    renderWithUiProvider(
-      <GlobalErrorState message="Please try again." title="Something went wrong" />,
-    );
-    expect(screen.getByRole('alert')).toBeInTheDocument();
-    expect(screen.getByText('Something went wrong')).toBeInTheDocument();
-    expect(screen.getByText('Please try again.')).toBeInTheDocument();
   });
 });

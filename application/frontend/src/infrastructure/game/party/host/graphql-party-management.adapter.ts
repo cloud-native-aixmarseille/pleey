@@ -22,6 +22,9 @@ import {
   type ListPartiesQueryVariables,
 } from '../../../graphql/generated/graphql';
 
+const DEFAULT_LIST_PAGE = 1;
+const DEFAULT_LIST_PAGE_SIZE = 100;
+
 @injectable()
 export class GraphqlPartyManagementAdapter implements PartyManagementPort {
   constructor(
@@ -59,9 +62,14 @@ export class GraphqlPartyManagementAdapter implements PartyManagementPort {
       const result = await this.graphqlClient.request<
         ListPartiesGraphqlQuery,
         ListPartiesQueryVariables
-      >(ListPartiesDocument);
+      >(ListPartiesDocument, {
+        input: {
+          page: DEFAULT_LIST_PAGE,
+          pageSize: DEFAULT_LIST_PAGE_SIZE,
+        },
+      });
 
-      return result.listParties.map((party) => this.toParty(party));
+      return result.listParties.items.map((party) => this.toParty(party));
     } catch (error) {
       throw new Error(
         this.graphqlClient.extractMessage(error, PartyManagementErrorCode.LIST_FAILED),

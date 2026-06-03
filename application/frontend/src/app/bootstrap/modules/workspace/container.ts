@@ -70,6 +70,7 @@ import { GraphqlProjectRepository } from '../../../../infrastructure/project/gra
 import { PersistedWorkspaceSelectionAdapter } from '../../../../infrastructure/workspace/persisted-workspace-selection.adapter';
 import { PredictionManagementRoutesFactory } from '../../../../presentation/game/types/prediction/routes/prediction-management-routes-factory';
 import { QuizManagementRoutesFactory } from '../../../../presentation/game/types/quiz/routes/quiz-management-routes-factory';
+import { PlayableItemEditorValidator } from '../../../../presentation/game/types/shared/management/playable-item-editor-validator';
 import { DashboardRoutesFactory } from '../../../../presentation/workspace/dashboard/routes/dashboard-routes-factory';
 import { OrganizationRoutesFactory } from '../../../../presentation/workspace/organizations/routes/organization-routes-factory';
 import { AppProviderFactoryToken } from '../../app-provider-factory';
@@ -113,6 +114,7 @@ export const workspaceContainerModule = new ContainerModule(({ bind }) => {
   bind(GraphqlPredictionManagementRepository).toSelf().inSingletonScope();
   bind(GraphqlQuizManagementRepository).toSelf().inSingletonScope();
   bind(PlayableManagementGraphqlMapper).toSelf().inSingletonScope();
+  bind(PlayableItemEditorValidator).toSelf().inSingletonScope();
   bind(StaticGameTypeCatalogFactory).toSelf().inSingletonScope();
   bind(GameTypeRegistry).toSelf().inSingletonScope();
   bind(PredictionGameTypeContributor).toSelf().inSingletonScope();

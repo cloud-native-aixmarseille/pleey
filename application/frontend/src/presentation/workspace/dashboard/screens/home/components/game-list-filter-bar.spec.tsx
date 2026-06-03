@@ -3,8 +3,11 @@ import { describe, expect, it, vi } from 'vitest';
 import { GameType } from '../../../../../../domains/game/types/shared/game-type';
 import { createGameTypeDescriptorFixture } from '../../../../../../test-utils/fixtures/game-type-descriptor-fixture-factory';
 import { renderWithUiProvider } from '../../../../../../test-utils/render-with-ui-provider';
+import { PlayableItemEditorValidator } from '../../../../../game/types/shared/management/playable-item-editor-validator';
 import { provideWorkspaceDependencies } from '../../../../shared/contexts/workspace-dependencies-context';
 import { GameListFilterBar } from './game-list-filter-bar';
+
+const playableItemEditorValidator = new PlayableItemEditorValidator();
 
 vi.mock('../../../../../shared/i18n/use-presentation-translation', async () => {
   const { PresentationTranslationMockFactory } = await import(
@@ -84,6 +87,7 @@ describe('GameListFilterBar', () => {
           organizationIdentifier: {
             parseOrNull: () => null,
           },
+          playableItemEditorValidator,
           projectFormFacade: {} as never,
           projectIdentifier: {
             parseOrNull: () => null,

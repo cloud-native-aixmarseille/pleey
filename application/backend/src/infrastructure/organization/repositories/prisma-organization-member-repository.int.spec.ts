@@ -69,11 +69,6 @@ describeIfDatabase('PrismaOrganizationMemberRepository', () => {
 
     const updated = await harness.repository.updateRole(member.id, OrganizationRole.MANAGER);
     expect(updated.role).toBe(OrganizationRole.MANAGER);
-
-    const list = await harness.repository.findByOrganization(
-      backendTestIdentifiers.organization(organization.id),
-    );
-    expect(list.some((m) => m.id === member.id)).toBe(true);
   });
 
   it('restores a soft-deleted member when the same user is added again', async () => {
@@ -122,5 +117,61 @@ describeIfDatabase('PrismaOrganizationMemberRepository', () => {
     );
     expect(activeMember?.id).toBe(createdMember.id);
     expect(activeMember?.role).toBe(OrganizationRole.MANAGER);
+  });
+
+  it('returns the latest membership for a user and counts active owners', async () => {
+    const unique = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+    const user = await createPersistedUserFixture(harness.prisma, {
+      username: `latest_member_${unique}`,
+      email: `latest_member_${unique}@example.com`,
+      password: 'hashed',
+    });
+    createdUserIds.push(user.id);
+
+    const firstOrganization = await createPersistedOrganizationFixture(harness.prisma, {
+      name: `First Org ${unique}`,
+      description: null,
+    });
+    createdOrganizationIds.push(firstOrganization.id);
+
+    const secondOrganization = await createPersistedOrganizationFixture(harness.prisma, {
+      name: `Second Org ${unique}`,
+      description: null,
+    });
+    createdOrganizationIds.push(secondOrganization.id);
+
+    const firstMembership = await harness.repository.create(
+      backendTestIdentifiers.organization(firstOrganization.id),
+      backendTestIdentifiers.user(user.id),
+      OrganizationRole.MEMBER,
+    );
+    createdMemberIds.push(firstMembership.id);
+
+    const secondMembership = await harness.repository.create(
+      backendTestIdentifiers.organization(secondOrganization.id),
+      backendTestIdentifiers.user(user.id),
+      OrganizationRole.OWNER,
+    );
+    createdMemberIds.push(secondMembership.id);
+
+    const latestMembership = await harness.repository.findLatestByUser(
+      backendTestIdentifiers.user(user.id),
+    );
+    expect(latestMembership?.id).toBe(secondMembership.id);
+
+    expect(
+      await harness.repository.countOwnersByOrganization(
+        backendTestIdentifiers.organization(secondOrganization.id),
+      ),
+    ).toBe(1);
+
+    await harness.repository.delete(secondMembership.id);
+
+    expect(
+      await harness.repository.countOwnersByOrganization(
+        backendTestIdentifiers.organization(secondOrganization.id),
+      ),
+    ).toBe(0);
   });
 });

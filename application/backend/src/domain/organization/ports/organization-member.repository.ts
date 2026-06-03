@@ -1,4 +1,5 @@
 import type { UserId } from '../../identity/entities/user';
+import type { PaginatedResult } from '../../shared/value-objects/paginated-result';
 import type { OrganizationId } from '../entities/organization';
 import type { OrganizationMember, OrganizationMemberId } from '../entities/organization-member';
 import type { OrganizationRole } from '../enums/organization-role.enum';
@@ -18,8 +19,20 @@ export interface OrganizationMemberRepository {
     organizationId: OrganizationId,
     userId: UserId,
   ): Promise<OrganizationMember | null>;
-  findByOrganization(organizationId: OrganizationId): Promise<OrganizationMember[]>;
-  findByUser(userId: UserId): Promise<OrganizationMember[]>;
+  countOwnersByOrganization(organizationId: OrganizationId): Promise<number>;
+  findPageByOrganization(
+    organizationId: OrganizationId,
+    page: number,
+    pageSize: number,
+    search?: string,
+  ): Promise<PaginatedResult<OrganizationMember>>;
+  findLatestByUser(userId: UserId): Promise<OrganizationMember | null>;
+  findPageByUser(
+    userId: UserId,
+    page: number,
+    pageSize: number,
+    search?: string,
+  ): Promise<PaginatedResult<OrganizationMember>>;
   updateRole(id: OrganizationMemberId, role: OrganizationRole): Promise<OrganizationMember>;
   delete(id: OrganizationMemberId): Promise<void>;
 }

@@ -49,7 +49,6 @@ export function RegisterScreen() {
                         autoComplete="username"
                         label={t('auth.form.usernameLabel')}
                         placeholder={t('auth.form.usernamePlaceholder')}
-                        required
                       />
                     )}
                   </form.AppField>
@@ -67,7 +66,6 @@ export function RegisterScreen() {
                         autoComplete="email"
                         label={t('auth.form.emailLabel')}
                         placeholder={t('auth.form.emailPlaceholder')}
-                        required
                         type="email"
                       />
                     )}
@@ -86,7 +84,6 @@ export function RegisterScreen() {
                         autoComplete="new-password"
                         label={t('auth.form.passwordLabel')}
                         placeholder={t('auth.form.passwordPlaceholder')}
-                        required
                         type="password"
                       />
                     )}
@@ -97,10 +94,8 @@ export function RegisterScreen() {
               <StatusBanner tone="error">{errorMessage}</StatusBanner>
 
               <SubmitButton
-                intent="primary"
                 label={t('auth.register.submitCta')}
                 submittingLabel={t('auth.register.submittingCta')}
-                width="wide"
               />
 
               <SupportingText>

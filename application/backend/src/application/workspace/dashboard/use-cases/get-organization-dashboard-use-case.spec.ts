@@ -5,7 +5,6 @@ import {
   createOrganizationMemberRepositoryMock,
   createOrganizationRepositoryMock,
 } from '../../../../test-utils/mock-factories/organization.mock-factory';
-import { createProjectRepositoryMock } from '../../../../test-utils/mock-factories/project-repository.mock-factory';
 import { GetOrganizationDashboardUseCase } from './get-organization-dashboard-use-case';
 
 describe('GetOrganizationDashboardUseCase', () => {
@@ -13,7 +12,6 @@ describe('GetOrganizationDashboardUseCase', () => {
     const defaultWorkspaceService = createDefaultWorkspaceServiceMock();
     const organizationRepository = createOrganizationRepositoryMock({ findById: null });
     const memberRepository = createOrganizationMemberRepositoryMock();
-    const projectRepository = createProjectRepositoryMock();
     const workspaceGameManagement = {
       getOrganizationDashboardStats: vi.fn(),
     };
@@ -22,7 +20,6 @@ describe('GetOrganizationDashboardUseCase', () => {
       defaultWorkspaceService as never,
       organizationRepository as never,
       memberRepository as never,
-      projectRepository as never,
       workspaceGameManagement as never,
     );
 
@@ -44,7 +41,6 @@ describe('GetOrganizationDashboardUseCase', () => {
     const memberRepository = createOrganizationMemberRepositoryMock({
       findByOrganizationAndUser: null,
     });
-    const projectRepository = createProjectRepositoryMock();
     const workspaceGameManagement = {
       getOrganizationDashboardStats: vi.fn(),
     };
@@ -53,7 +49,6 @@ describe('GetOrganizationDashboardUseCase', () => {
       defaultWorkspaceService as never,
       organizationRepository as never,
       memberRepository as never,
-      projectRepository as never,
       workspaceGameManagement as never,
     );
 
@@ -73,17 +68,6 @@ describe('GetOrganizationDashboardUseCase', () => {
     });
     const memberRepository = createOrganizationMemberRepositoryMock({
       findByOrganizationAndUser: {} as never,
-      findByOrganization: [
-        { id: backendTestIdentifiers.organizationMember(1) },
-        { id: backendTestIdentifiers.organizationMember(2) },
-      ] as never,
-    });
-
-    const projectRepository = createProjectRepositoryMock({
-      findByOrganization: [
-        { id: backendTestIdentifiers.project(1) },
-        { id: backendTestIdentifiers.project(2) },
-      ] as never,
     });
 
     const workspaceGameManagement = {
@@ -91,6 +75,8 @@ describe('GetOrganizationDashboardUseCase', () => {
         totalGames: 4,
         totalParties: 8,
         activeParties: 4,
+        totalMembers: 2,
+        totalProjects: 2,
       }),
     };
 
@@ -98,7 +84,6 @@ describe('GetOrganizationDashboardUseCase', () => {
       defaultWorkspaceService as never,
       organizationRepository as never,
       memberRepository as never,
-      projectRepository as never,
       workspaceGameManagement as never,
     );
 
@@ -113,5 +98,8 @@ describe('GetOrganizationDashboardUseCase', () => {
       totalMembers: 2,
       totalProjects: 2,
     });
+    expect(workspaceGameManagement.getOrganizationDashboardStats).toHaveBeenCalledWith(
+      backendTestIdentifiers.organization(1),
+    );
   });
 });

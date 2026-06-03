@@ -45,11 +45,13 @@ import { GqlJwtAuthGuard } from '../../../presentation/identity/shared/guards/gq
 import { AuthProfilePresenter } from '../../../presentation/identity/shared/presenters/auth-profile-presenter';
 import { AppConfigModule } from '../../config/app-config.module';
 import { DatabaseModule } from '../database/database-module';
+import { SharedServicesModule } from '../shared/shared-services.module';
 
 @Module({
   imports: [
     AppConfigModule,
     DatabaseModule,
+    SharedServicesModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [AppConfigModule],

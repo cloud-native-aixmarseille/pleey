@@ -12,10 +12,13 @@ import { OrganizationErrorCode } from '../../domains/organization/errors/organiz
 import type {
   AddOrganizationMemberCommand,
   CreateOrganizationCommand,
+  ListOrganizationMembersQuery,
+  ListOrganizationsQuery,
   OrganizationRepository,
   RemoveOrganizationMemberCommand,
   UpdateOrganizationMemberRoleCommand,
 } from '../../domains/organization/ports/organization-repository';
+import type { PaginatedResult } from '../../domains/shared/value-objects/paginated-result';
 import { GraphqlClient } from '../graphql/client/graphql-client';
 import {
   AddOrganizationMemberDocument,
@@ -39,7 +42,11 @@ import {
   type WorkspaceOrganizationDashboardQueryVariables,
   WorkspaceOrganizationsDocument,
   type WorkspaceOrganizationsQuery,
+  type WorkspaceOrganizationsQueryVariables,
 } from '../graphql/generated/graphql';
+
+const DEFAULT_LIST_PAGE = 1;
+const DEFAULT_LIST_PAGE_SIZE = 25;
 
 function toDomainRole(role: GraphqlOrganizationRole | null | undefined): OrganizationRole | null {
   if (role === GraphqlOrganizationRole.Owner) {
@@ -80,20 +87,36 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
     private readonly organizationMemberIdentifier: OrganizationMemberIdentifier,
   ) {}
 
-  async getMyOrganizations(): Promise<Organization[]> {
+  async getMyOrganizations(
+    query: ListOrganizationsQuery = {},
+  ): Promise<PaginatedResult<Organization>> {
     try {
-      const result = await this.graphqlClient.request<WorkspaceOrganizationsQuery>(
-        WorkspaceOrganizationsDocument,
-      );
+      const result = await this.graphqlClient.request<
+        WorkspaceOrganizationsQuery,
+        WorkspaceOrganizationsQueryVariables
+      >(WorkspaceOrganizationsDocument, {
+        input: {
+          page: query.page ?? DEFAULT_LIST_PAGE,
+          pageSize: query.pageSize ?? DEFAULT_LIST_PAGE_SIZE,
+          search: query.search,
+        },
+      });
 
-      return (result.myOrganizations.organizations ?? []).map((organization) => ({
-        id: this.organizationIdentifier.parse(organization.id),
-        name: organization.name,
-        description: organization.description ?? null,
-        createdAt: organization.createdAt,
-        updatedAt: organization.updatedAt,
-        role: toDomainRole(organization.role),
-      }));
+      return {
+        items: (result.myOrganizations.items ?? []).map((organization) => ({
+          id: this.organizationIdentifier.parse(organization.id),
+          name: organization.name,
+          description: organization.description ?? null,
+          createdAt: organization.createdAt,
+          updatedAt: organization.updatedAt,
+          role: toDomainRole(organization.role),
+        })),
+        totalCount: result.myOrganizations.totalCount,
+        overallCount: result.myOrganizations.overallCount,
+        page: result.myOrganizations.page,
+        pageSize: result.myOrganizations.pageSize,
+        totalPages: result.myOrganizations.totalPages,
+      };
     } catch (error) {
       throw new Error(this.graphqlClient.extractMessage(error, OrganizationErrorCode.LOAD_FAILED));
     }
@@ -150,14 +173,30 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
     }
   }
 
-  async getOrganizationMembers(organizationId: OrganizationId): Promise<OrganizationMember[]> {
+  async getOrganizationMembers(
+    query: ListOrganizationMembersQuery,
+  ): Promise<PaginatedResult<OrganizationMember>> {
     try {
       const result = await this.graphqlClient.request<
         OrganizationMembersQuery,
         OrganizationMembersQueryVariables
-      >(OrganizationMembersDocument, { organizationId });
+      >(OrganizationMembersDocument, {
+        input: {
+          organizationId: query.organizationId,
+          page: query.page ?? DEFAULT_LIST_PAGE,
+          pageSize: query.pageSize ?? DEFAULT_LIST_PAGE_SIZE,
+          search: query.search,
+        },
+      });
 
-      return result.organizationMembers.members.map((member) => this.toDomainMember(member));
+      return {
+        items: result.organizationMembers.items.map((member) => this.toDomainMember(member)),
+        totalCount: result.organizationMembers.totalCount,
+        overallCount: result.organizationMembers.overallCount,
+        page: result.organizationMembers.page,
+        pageSize: result.organizationMembers.pageSize,
+        totalPages: result.organizationMembers.totalPages,
+      };
     } catch (error) {
       throw new Error(this.graphqlClient.extractMessage(error, OrganizationErrorCode.LOAD_FAILED));
     }

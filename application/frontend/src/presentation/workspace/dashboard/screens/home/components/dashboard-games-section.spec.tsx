@@ -28,6 +28,7 @@ type MockGameListFilterBarProps = {
 
 type MockPaginationBarProps = {
   readonly currentPage: number;
+  readonly pageOfLabel: string;
   readonly totalPages: number;
 };
 
@@ -68,9 +69,9 @@ vi.mock('./game-list-filter-bar', () => ({
   ),
 }));
 
-vi.mock('./pagination-bar', () => ({
-  PaginationBar: ({ currentPage, totalPages }: MockPaginationBarProps) => (
-    <div data-testid="pagination-bar">{`${String(currentPage)}/${String(totalPages)}`}</div>
+vi.mock('../../../../shared/components/pagination-bar', () => ({
+  PaginationBar: ({ currentPage, pageOfLabel, totalPages }: MockPaginationBarProps) => (
+    <div data-testid="pagination-bar">{`${String(currentPage)}/${String(totalPages)}:${pageOfLabel}`}</div>
   ),
 }));
 
@@ -196,7 +197,9 @@ describe('DashboardGamesSection', () => {
     const { onManageGame } = renderDashboardGamesSection();
 
     expect(screen.getByTestId('game-list-filter-bar')).toHaveTextContent('1/1');
-    expect(screen.getByTestId('pagination-bar')).toHaveTextContent('1/2');
+    expect(screen.getByTestId('pagination-bar')).toHaveTextContent(
+      '1/2:dashboard.games.pagination.pageOf',
+    );
 
     await user.click(screen.getByRole('button', { name: 'Arcade Quiz:game.types.quiz.title' }));
 

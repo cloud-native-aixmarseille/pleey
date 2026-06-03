@@ -90,12 +90,7 @@ describe('DeleteProjectUseCase', () => {
         id: projectIdentifier.parse(8),
         organizationId: organizationIdentifier.parse(3),
       } as never,
-      findByOrganization: [
-        {
-          id: projectIdentifier.parse(8),
-          organizationId: organizationIdentifier.parse(3),
-        } as never,
-      ],
+      countByOrganization: 1,
     });
     const workspaceGameManagement = {
       countProjectGames: vi.fn(),
@@ -117,6 +112,9 @@ describe('DeleteProjectUseCase', () => {
       useCase.execute(projectIdentifier.parse(8), backendTestIdentifiers.user(22)),
     ).rejects.toThrow(ProjectErrorCode.CANNOT_DELETE_LAST_PROJECT);
 
+    expect(projectRepository.countByOrganization).toHaveBeenCalledWith(
+      organizationIdentifier.parse(3),
+    );
     expect(projectRepository.delete).not.toHaveBeenCalled();
   });
 
@@ -126,16 +124,7 @@ describe('DeleteProjectUseCase', () => {
         id: projectIdentifier.parse(8),
         organizationId: organizationIdentifier.parse(3),
       } as never,
-      findByOrganization: [
-        {
-          id: projectIdentifier.parse(8),
-          organizationId: organizationIdentifier.parse(3),
-        } as never,
-        {
-          id: projectIdentifier.parse(9),
-          organizationId: organizationIdentifier.parse(3),
-        } as never,
-      ],
+      countByOrganization: 2,
     });
     const workspaceGameManagement = {
       countProjectGames: vi.fn().mockResolvedValue(1),
@@ -163,16 +152,7 @@ describe('DeleteProjectUseCase', () => {
 
   it('rejects an invalid migration target', async () => {
     const projectRepository = createProjectRepositoryMock({
-      findByOrganization: [
-        {
-          id: projectIdentifier.parse(8),
-          organizationId: organizationIdentifier.parse(3),
-        } as never,
-        {
-          id: projectIdentifier.parse(9),
-          organizationId: organizationIdentifier.parse(3),
-        } as never,
-      ],
+      countByOrganization: 2,
     });
     projectRepository.findById
       .mockResolvedValueOnce({
@@ -207,16 +187,7 @@ describe('DeleteProjectUseCase', () => {
 
   it('migrates games before deleting the project when a target is provided', async () => {
     const projectRepository = createProjectRepositoryMock({
-      findByOrganization: [
-        {
-          id: projectIdentifier.parse(8),
-          organizationId: organizationIdentifier.parse(3),
-        } as never,
-        {
-          id: projectIdentifier.parse(9),
-          organizationId: organizationIdentifier.parse(3),
-        } as never,
-      ],
+      countByOrganization: 2,
     });
     projectRepository.findById
       .mockResolvedValueOnce({
@@ -262,16 +233,7 @@ describe('DeleteProjectUseCase', () => {
         id: projectIdentifier.parse(8),
         organizationId: organizationIdentifier.parse(3),
       } as never,
-      findByOrganization: [
-        {
-          id: projectIdentifier.parse(8),
-          organizationId: organizationIdentifier.parse(3),
-        } as never,
-        {
-          id: projectIdentifier.parse(9),
-          organizationId: organizationIdentifier.parse(3),
-        } as never,
-      ],
+      countByOrganization: 2,
     });
     const workspaceGameManagement = {
       countProjectGames: vi.fn().mockResolvedValue(0),
@@ -291,6 +253,9 @@ describe('DeleteProjectUseCase', () => {
 
     await useCase.execute(projectIdentifier.parse(8), backendTestIdentifiers.user(22));
 
+    expect(projectRepository.countByOrganization).toHaveBeenCalledWith(
+      organizationIdentifier.parse(3),
+    );
     expect(projectRepository.delete).toHaveBeenCalledWith(projectIdentifier.parse(8));
     expect(workspaceGameManagement.reassignProjectGames).not.toHaveBeenCalled();
   });

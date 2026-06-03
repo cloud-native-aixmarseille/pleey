@@ -8,7 +8,7 @@ export function TextFormField({
   description,
   label,
   placeholder,
-  required = false,
+  required = true,
   type = 'text',
 }: TextFormFieldProps) {
   const { field, fieldId, error } = useFieldState<string>();

@@ -9,9 +9,6 @@ export interface OrganizationRepository {
   findById(id: OrganizationId): Promise<Organization | null>;
   findByIds(ids: OrganizationId[]): Promise<Organization[]>;
   findByName(name: string): Promise<Organization | null>;
-  findAll(): Promise<Organization[]>;
-  update(id: OrganizationId, name: string, description: string | null): Promise<Organization>;
-  delete(id: OrganizationId): Promise<void>;
 }
 
 /**

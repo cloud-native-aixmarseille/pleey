@@ -13,18 +13,16 @@ import type { UserId } from '../../../domain/identity/entities/user';
 import { IdentityErrorCode } from '../../../domain/identity/enums/identity-error-code.enum';
 import { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
 import { GqlJwtAuthGuard } from '../../identity/shared/guards/gql-jwt-auth-guard';
-import {
-  AddOrganizationMemberInput,
-  CreateOrganizationInput,
-  UpdateOrganizationMemberRoleInput,
-} from './types/organization.input';
-import {
-  OrganizationDashboardType,
-  OrganizationListType,
-  OrganizationMemberListType,
-  OrganizationMemberType,
-  OrganizationType,
-} from './types/organization.type';
+import { AddOrganizationMemberInput } from './types/add-organization-member-input';
+import { CreateOrganizationInput } from './types/create-organization-input';
+import { ListOrganizationsInput } from './types/list-organizations-input';
+import { OrganizationDashboardType } from './types/organization-dashboard-type';
+import { OrganizationListType } from './types/organization-list-type';
+import { OrganizationMemberListType } from './types/organization-member-list-type';
+import { OrganizationMemberType } from './types/organization-member-type';
+import { OrganizationMembersInput } from './types/organization-members-input';
+import { OrganizationType } from './types/organization-type';
+import { UpdateOrganizationMemberRoleInput } from './types/update-organization-member-role-input';
 
 type GraphqlAuthContext = {
   req?: {
@@ -64,10 +62,14 @@ export class OrganizationResolver {
 
   @Query(() => OrganizationListType)
   @UseGuards(GqlJwtAuthGuard)
-  async myOrganizations(@Context() context: GraphqlAuthContext): Promise<OrganizationListType> {
+  async myOrganizations(
+    @Args('input', { nullable: true, type: () => ListOrganizationsInput })
+    input: ListOrganizationsInput | undefined,
+    @Context() context: GraphqlAuthContext,
+  ): Promise<OrganizationListType> {
     const userId = this.resolveUserId(context);
-    const organizations = await this.listUserOrganizationsUseCase.execute(userId);
-    return { organizations };
+
+    return this.listUserOrganizationsUseCase.execute(input ?? {}, userId);
   }
 
   @Query(() => OrganizationDashboardType)
@@ -86,15 +88,18 @@ export class OrganizationResolver {
   @Query(() => OrganizationMemberListType)
   @UseGuards(GqlJwtAuthGuard)
   async organizationMembers(
-    @Args('organizationId', { type: () => Int }) organizationId: number,
+    @Args('input') input: OrganizationMembersInput,
     @Context() context: GraphqlAuthContext,
   ): Promise<OrganizationMemberListType> {
     const userId = this.resolveUserId(context);
-    const members = await this.listOrganizationMembersUseCase.execute(
-      this.organizationIdentifier.parse(organizationId),
+
+    return this.listOrganizationMembersUseCase.execute(
+      {
+        ...input,
+        organizationId: this.organizationIdentifier.parse(input.organizationId),
+      },
       userId,
     );
-    return { members };
   }
 
   @Mutation(() => OrganizationMemberType)

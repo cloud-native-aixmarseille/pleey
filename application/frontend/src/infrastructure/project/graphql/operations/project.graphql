@@ -1,12 +1,17 @@
-query WorkspaceProjectsByOrganization($organizationId: Int!) {
-  organizationProjects(organizationId: $organizationId) {
-    projects {
+query WorkspaceProjectsByOrganization($input: ListOrganizationProjectsInput!) {
+  organizationProjects(input: $input) {
+    items {
       id
       name
       description
       organizationId
       createdAt
     }
+    totalCount
+    overallCount
+    page
+    pageSize
+    totalPages
   }
 }
 

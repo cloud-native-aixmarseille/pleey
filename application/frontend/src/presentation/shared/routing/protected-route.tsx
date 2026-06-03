@@ -10,7 +10,7 @@ export function ProtectedRoute({ children }: PropsWithChildren) {
   }
 
   if (user === null) {
-    return <PresentationRedirect replace to="/identity/sign-in" />;
+    return <PresentationRedirect to="/identity/sign-in" />;
   }
 
   return children;

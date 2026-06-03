@@ -41,7 +41,7 @@ export function PartyLobbyScreen(props: PartyLobbyScreenProps) {
   }, [navigate, shouldAnimateJourneyRedirect, state.redirectTo]);
 
   if (state.redirectTo && !shouldAnimateJourneyRedirect) {
-    return <PresentationRedirect replace to={state.redirectTo} />;
+    return <PresentationRedirect to={state.redirectTo} />;
   }
 
   return (

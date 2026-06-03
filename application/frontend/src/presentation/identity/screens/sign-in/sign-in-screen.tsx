@@ -52,7 +52,6 @@ export function SignInScreen() {
                         autoComplete="email"
                         label={t('auth.form.emailLabel')}
                         placeholder={t('auth.form.emailPlaceholder')}
-                        required
                         type="email"
                       />
                     )}
@@ -71,7 +70,6 @@ export function SignInScreen() {
                         autoComplete="current-password"
                         label={t('auth.form.passwordLabel')}
                         placeholder={t('auth.form.passwordPlaceholder')}
-                        required
                         type="password"
                       />
                     )}
@@ -88,10 +86,8 @@ export function SignInScreen() {
 
               <SubmitButton
                 disabled={!hasRestoredSession}
-                intent="primary"
                 label={t('auth.signIn.submitCta')}
                 submittingLabel={t('auth.signIn.submittingCta')}
-                width="wide"
               />
 
               <SupportingText>

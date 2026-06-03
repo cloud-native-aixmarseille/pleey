@@ -1,10 +1,12 @@
 import type { OrganizationId } from '../../../domain/organization/entities/organization';
 import type { ProjectId } from '../../../domain/project/entities/project';
 
-export interface OrganizationDashboardGameStats {
+export interface OrganizationDashboardStats {
   readonly totalGames: number;
   readonly totalParties: number;
   readonly activeParties: number;
+  readonly totalMembers: number;
+  readonly totalProjects: number;
 }
 
 export abstract class WorkspaceGameManagementPort {
@@ -17,5 +19,5 @@ export abstract class WorkspaceGameManagementPort {
 
   abstract getOrganizationDashboardStats(
     organizationId: OrganizationId,
-  ): Promise<OrganizationDashboardGameStats>;
+  ): Promise<OrganizationDashboardStats>;
 }

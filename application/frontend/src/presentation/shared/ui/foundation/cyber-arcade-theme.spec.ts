@@ -1,14 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { CYBER_ARCADE_THEME_NAME, cyberArcadeThemeSeed } from './cyber-arcade-theme';
 import { SOLAR_GRID_THEME_ID, solarGridThemeSeed } from './solar-grid-theme';
-import {
-  borderRecipes,
-  focusRecipes,
-  motionRecipes,
-  resolveMotionStyle,
-  statusToneRecipes,
-  surfaceRecipes,
-} from './ui-recipes';
+import { statusToneRecipes, surfaceRecipes } from './ui-recipes';
 import {
   createFieldInputStyle,
   createUiThemeCssVariables,
@@ -17,12 +10,11 @@ import {
   DEFAULT_UI_THEME_ID,
   defaultUiThemeDefinition,
   findUiTheme,
-  statusBannerToneStyles,
   uiTheme,
   uiThemes,
   uiThemeTokens,
 } from './ui-theme';
-import { resolveTypeStyle, uiTypeScale } from './ui-typography';
+import { uiTypeScale } from './ui-typography';
 
 describe('theme', () => {
   describe('CYBER_ARCADE_THEME_NAME', () => {
@@ -108,14 +100,6 @@ describe('theme', () => {
       expect(createFieldInputStyle(false).border).toBe(
         `1px solid ${uiThemeTokens.color.border.subtle}`,
       );
-    });
-  });
-
-  describe('statusBannerToneStyles', () => {
-    it('keeps status tones mapped to semantic surfaces and borders', () => {
-      expect(statusBannerToneStyles.info.background).toBe(uiThemeTokens.color.surface.accentMuted);
-      expect(statusBannerToneStyles.success.borderColor).toBe(uiThemeTokens.color.border.success);
-      expect(statusBannerToneStyles.error.color).toBe(uiThemeTokens.color.text.danger);
     });
   });
 
@@ -221,12 +205,6 @@ describe('theme', () => {
         expect(entry).toHaveProperty('letterSpacing');
       }
     });
-
-    it('resolveTypeStyle merges a scale entry with a color', () => {
-      const style = resolveTypeStyle('body', '#fff');
-      expect(style.fontFamily).toBe(uiTypeScale.body.fontFamily);
-      expect(style.color).toBe('#fff');
-    });
   });
 
   describe('surfaceRecipes', () => {
@@ -238,53 +216,6 @@ describe('theme', () => {
       expect(surfaceRecipes.overlay.backdropFilter).toContain('blur');
       expect(surfaceRecipes.live.boxShadow).toBeDefined();
       expect(surfaceRecipes.interactive.boxShadow).toBeDefined();
-    });
-  });
-
-  describe('focusRecipes', () => {
-    it('provides a focus ring style', () => {
-      expect(focusRecipes.ring.boxShadow).toBeDefined();
-      expect(focusRecipes.ring.outline).toBe('none');
-    });
-  });
-
-  describe('borderRecipes', () => {
-    it('provides border styles for all semantic tones', () => {
-      for (const key of [
-        'subtle',
-        'accent',
-        'strong',
-        'success',
-        'danger',
-        'info',
-        'warning',
-        'live',
-      ] as const) {
-        expect(borderRecipes[key].border).toContain('1px solid');
-      }
-    });
-  });
-
-  describe('motionRecipes', () => {
-    it('creates transition styles for each timing', () => {
-      expect(motionRecipes.quick('opacity').transition).toContain('opacity');
-      expect(motionRecipes.standard('transform').transition).toContain('transform');
-      expect(motionRecipes.reveal('opacity').transition).toContain('opacity');
-    });
-  });
-
-  describe('resolveMotionStyle()', () => {
-    it('returns standard styles when reduced motion is off', () => {
-      const standard = { transition: 'opacity 300ms ease' };
-      expect(resolveMotionStyle(false, standard)).toEqual(standard);
-    });
-
-    it('strips animation and transition when reduced motion is on', () => {
-      const standard = { transition: 'opacity 300ms ease', opacity: 1 };
-      const result = resolveMotionStyle(true, standard);
-      expect(result.animation).toBe('none');
-      expect(result.transition).toBe('none');
-      expect(result.opacity).toBe(1);
     });
   });
 

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import {
-  type OrganizationDashboardGameStats,
+  type OrganizationDashboardStats,
   WorkspaceGameManagementPort,
 } from '../../../application/workspace/ports/workspace-game-management.port';
 import { PartyStatus } from '../../../domain/game/party/enums/party-status.enum';
@@ -42,59 +42,80 @@ export class PrismaWorkspaceGameManagementAdapter extends WorkspaceGameManagemen
 
   async getOrganizationDashboardStats(
     organizationId: OrganizationId,
-  ): Promise<OrganizationDashboardGameStats> {
-    const [totalGames, totalParties, activeParties] = await Promise.all([
-      this.prisma.game.count({
-        where: {
-          deletedAt: null,
-          project: {
+  ): Promise<OrganizationDashboardStats> {
+    const [totalGames, totalParties, activeParties, totalMembers, totalProjects] =
+      await Promise.all([
+        this.prisma.game.count({
+          where: {
+            deletedAt: null,
+            project: {
+              organizationId,
+              deletedAt: null,
+              organization: {
+                deletedAt: null,
+              },
+            },
+          },
+        }),
+        this.prisma.party.count({
+          where: {
+            deletedAt: null,
+            game: {
+              deletedAt: null,
+              project: {
+                organizationId,
+                deletedAt: null,
+                organization: {
+                  deletedAt: null,
+                },
+              },
+            },
+          },
+        }),
+        this.prisma.party.count({
+          where: {
+            deletedAt: null,
+            status: {
+              in: ACTIVE_PARTY_STATUSES,
+            },
+            game: {
+              deletedAt: null,
+              project: {
+                organizationId,
+                deletedAt: null,
+                organization: {
+                  deletedAt: null,
+                },
+              },
+            },
+          },
+        }),
+        this.prisma.organizationMember.count({
+          where: {
             organizationId,
             deletedAt: null,
             organization: {
               deletedAt: null,
             },
           },
-        },
-      }),
-      this.prisma.party.count({
-        where: {
-          deletedAt: null,
-          game: {
+        }),
+        this.prisma.project.count({
+          where: {
+            organizationId,
             deletedAt: null,
-            project: {
-              organizationId,
+            organization: {
               deletedAt: null,
-              organization: {
-                deletedAt: null,
-              },
             },
           },
-        },
-      }),
-      this.prisma.party.count({
-        where: {
-          deletedAt: null,
-          status: {
-            in: ACTIVE_PARTY_STATUSES,
-          },
-          game: {
-            deletedAt: null,
-            project: {
-              organizationId,
-              deletedAt: null,
-              organization: {
-                deletedAt: null,
-              },
-            },
-          },
-        },
-      }),
-    ]);
+        }),
+      ]);
 
     return {
       totalGames,
       totalParties,
       activeParties,
+      totalMembers,
+      totalProjects,
     };
   }
 }

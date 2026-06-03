@@ -4,6 +4,8 @@ import type { PartySummary } from '../../../../../domain/game/party/shared/entit
 import type { UserId } from '../../../../../domain/identity/entities/user';
 import type { OrganizationId } from '../../../../../domain/organization/entities/organization';
 import type { ProjectId } from '../../../../../domain/project/entities/project';
+import type { PaginatedResult } from '../../../../../domain/shared/value-objects/paginated-result';
+import type { PaginationQuery } from '../../../../../domain/shared/value-objects/pagination-query';
 
 export interface ManagedGameContext {
   readonly gameId: GameId;
@@ -27,7 +29,7 @@ export interface CreatePartyCommand {
   readonly pin: PartyPin;
 }
 
-export interface ListPartiesQuery {
+export interface ListPartiesQuery extends PaginationQuery {
   readonly userId: UserId;
 }
 
@@ -42,5 +44,5 @@ export abstract class PartyManagementPort {
 
   abstract createParty(command: CreatePartyCommand): Promise<PartySummary>;
 
-  abstract listUserParties(query: ListPartiesQuery): Promise<readonly PartySummary[]>;
+  abstract listUserParties(query: ListPartiesQuery): Promise<PaginatedResult<PartySummary>>;
 }

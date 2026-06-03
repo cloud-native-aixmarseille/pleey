@@ -77,7 +77,7 @@ describe('UpdateOrganizationMemberRoleUseCase', () => {
         hasManagementPrivileges: () => true,
         isOwner: () => true,
       } as never,
-      findByOrganization: [ownerMember] as never,
+      countOwnersByOrganization: 1,
     });
     const organizationMembershipAccess = new OrganizationMembershipAccessService(
       createOrganizationRepositoryMock() as never,

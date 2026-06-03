@@ -1,66 +1,33 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { createRequire } from 'node:module';
+import {
+  createTypeScriptCompilerOptions,
+  loadTypeScriptFromDirectory,
+  resolveAppProject,
+  shouldAnalyzeAppFile,
+  toProjectRelative,
+  walkProjectSourceFiles,
+} from './shared/ts-analysis-harness.mjs';
 
-const workspaceRoot = path.resolve(import.meta.dirname, '..');
-const sourceExtensions = new Set(['.ts', '.tsx', '.js', '.jsx']);
 const localImportPattern = /^(?:\.|src\/)/;
-const compilerOptions = {
-  allowJs: true,
-  jsx: null,
-  moduleResolution: null,
-  target: null,
-};
-
-const PROJECTS = {
+const frontendStaticCallCheckRelativePaths = [
+  'src/presentation/game/party/player/screens/',
+  'src/presentation/game/party/shared/screens/',
+  'src/presentation/game/types/shared/management/',
+];
+const PROJECT_OVERRIDES = {
   frontend: {
-    rootCandidates: [
-      path.join(workspaceRoot, 'application/frontend'),
-      '/usr/src/app',
-    ],
-    sourceRootRelativePath: 'src',
-    label: 'Frontend',
-    shouldCheckFile(relativePath) {
-      if (relativePath.startsWith('src/app/')) {
-        return false;
-      }
-
-      if (relativePath.startsWith('src/test-utils/')) {
-        return false;
-      }
-
-      if (relativePath.includes('/generated/')) {
-        return false;
-      }
-
-      return !/\.(test|spec)\.[jt]sx?$/.test(relativePath);
-    },
     isForbiddenInstantiation() {
       return true;
     },
+    shouldCheckStaticCalls(currentRelativePath, targetRelativePath) {
+      return frontendStaticCallCheckRelativePaths.some(
+        (relativePath) =>
+          currentRelativePath.startsWith(relativePath) && targetRelativePath.startsWith(relativePath),
+      );
+    },
   },
   backend: {
-    rootCandidates: [
-      path.join(workspaceRoot, 'application/backend'),
-      '/usr/src/app',
-    ],
-    sourceRootRelativePath: 'src',
-    label: 'Backend',
-    shouldCheckFile(relativePath) {
-      if (relativePath.startsWith('src/app/')) {
-        return false;
-      }
-
-      if (relativePath.startsWith('src/test-utils/')) {
-        return false;
-      }
-
-      if (relativePath.includes('/generated/')) {
-        return false;
-      }
-
-      return !/\.(test|spec)\.[jt]sx?$/.test(relativePath);
-    },
     isForbiddenInstantiation(_currentRelativePath, targetRelativePath) {
       if (targetRelativePath.includes('/entities/')) {
         return false;
@@ -72,61 +39,16 @@ const PROJECTS = {
 
       return true;
     },
+    shouldCheckStaticCalls() {
+      return true;
+    },
   },
 };
 
 const sourceFileCache = new Map();
 const exportedClassCache = new Map();
 let ts;
-
-function resolveProjectRoot(project) {
-  const root = project.rootCandidates.find((candidate) =>
-    fs.existsSync(path.join(candidate, project.sourceRootRelativePath)),
-  );
-
-  if (!root) {
-    throw new Error(`Unable to locate ${project.label} source root.`);
-  }
-
-  return root;
-}
-
-function ensureTypeScript(project) {
-  if (ts) {
-    return;
-  }
-
-  const require = createRequire(path.join(project.root, 'package.json'));
-  ts = require('typescript');
-  compilerOptions.jsx = ts.JsxEmit.ReactJSX;
-  compilerOptions.moduleResolution = ts.ModuleResolutionKind.Bundler;
-  compilerOptions.target = ts.ScriptTarget.Latest;
-}
-
-function toPosix(filePath) {
-  return filePath.split(path.sep).join('/');
-}
-
-function toProjectRelative(project, filePath) {
-  return toPosix(path.relative(project.root, filePath));
-}
-
-function walk(directory, files = []) {
-  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-    const absolutePath = path.join(directory, entry.name);
-
-    if (entry.isDirectory()) {
-      walk(absolutePath, files);
-      continue;
-    }
-
-    if (sourceExtensions.has(path.extname(entry.name))) {
-      files.push(absolutePath);
-    }
-  }
-
-  return files;
-}
+let compilerOptions;
 
 function getScriptKind(filePath) {
   switch (path.extname(filePath)) {
@@ -299,20 +221,53 @@ function collectViolations(project, filePath) {
   const projectClassReferences = collectProjectClassReferences(project, sourceFile, filePath);
   const violations = [];
 
+  function shouldReportDirectClassUsage(className, usageKind = 'instantiation') {
+    const targetPaths = projectClassReferences.get(className);
+
+    if (!targetPaths) {
+      return false;
+    }
+
+    for (const targetRelativePath of targetPaths) {
+      if (
+        usageKind === 'static-call' &&
+        !project.shouldCheckStaticCalls(currentRelativePath, targetRelativePath, className)
+      ) {
+        return false;
+      }
+
+      if (!project.isForbiddenInstantiation(currentRelativePath, targetRelativePath, className)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   function visit(node) {
     if (ts.isNewExpression(node) && ts.isIdentifier(node.expression)) {
       const className = node.expression.text;
-      const targetPaths = projectClassReferences.get(className);
-
-      if (targetPaths) {
-        for (const targetRelativePath of targetPaths) {
-          if (!project.isForbiddenInstantiation(currentRelativePath, targetRelativePath, className)) {
-            return;
-          }
-        }
-
+      if (shouldReportDirectClassUsage(className)) {
         const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
         violations.push({ kind: 'instantiation', className, line: line + 1 });
+      }
+    }
+
+    if (
+      ts.isCallExpression(node) &&
+      ts.isPropertyAccessExpression(node.expression) &&
+      ts.isIdentifier(node.expression.expression)
+    ) {
+      const className = node.expression.expression.text;
+
+      if (shouldReportDirectClassUsage(className, 'static-call')) {
+        const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
+        violations.push({
+          kind: 'static-call',
+          className,
+          memberName: node.expression.name.text,
+          line: line + 1,
+        });
       }
     }
 
@@ -325,26 +280,13 @@ function collectViolations(project, filePath) {
 }
 
 export function runProject(projectName) {
-  const projectDefinition = PROJECTS[projectName];
-
-  if (!projectDefinition) {
-    throw new Error(`Unsupported project "${projectName}".`);
-  }
-
-  const project = {
-    ...projectDefinition,
-    root: resolveProjectRoot(projectDefinition),
-  };
-
-  ensureTypeScript(project);
-
-  const sourceRoot = path.join(project.root, project.sourceRootRelativePath);
+  const project = resolveAppProject(projectName, PROJECT_OVERRIDES[projectName]);
+  ts = loadTypeScriptFromDirectory(project.root);
+  compilerOptions = createTypeScriptCompilerOptions(ts, { allowJs: true });
   const violations = [];
 
-  for (const filePath of walk(sourceRoot)) {
-    const relativePath = toProjectRelative(project, filePath);
-
-    if (!project.shouldCheckFile(relativePath)) {
+  for (const filePath of walkProjectSourceFiles(project)) {
+    if (!shouldAnalyzeAppFile(project, filePath)) {
       continue;
     }
 
@@ -364,8 +306,13 @@ export function runProject(projectName) {
   console.error(`${project.label} DI instantiation guard failed:`);
 
   for (const violation of violations) {
+    const directUsageDescription =
+      violation.kind === 'static-call'
+        ? `calls static ${violation.className}.${violation.memberName}(...) directly`
+        : `instantiates ${violation.className} directly`;
+
     console.error(
-      `- ${toProjectRelative(project, violation.filePath)}:${violation.line} instantiates ${violation.className} directly. Resolve project-local classes through dependency injection or static helpers instead of calling new outside src/app/**.`,
+      `- ${toProjectRelative(project, violation.filePath)}:${violation.line} ${directUsageDescription}. Resolve project-local classes through dependency injection outside src/app/**.`,
     );
   }
 

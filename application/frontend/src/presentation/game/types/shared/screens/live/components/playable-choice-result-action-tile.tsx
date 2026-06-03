@@ -225,7 +225,7 @@ export function PlayableChoiceResultActionTile({
 }: PlayableChoiceResultActionTileProps) {
   const { activeColorScheme, activeThemeId } = usePresentationThemeState();
   const { t } = usePresentationTranslation();
-  const isMobile = usePresentationMediaQuery('(max-width: 48em)');
+  const isMobile = usePresentationMediaQuery();
   const theme = findUiTheme(activeThemeId).mantineThemes[activeColorScheme];
   const slot = resolvePlayableChoiceActionSlotIdentity(index, slotCount, theme);
   const isResultTile = typeof actionCount === 'number' && typeof actionPercent === 'number';

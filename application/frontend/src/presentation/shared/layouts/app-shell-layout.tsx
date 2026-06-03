@@ -4,13 +4,6 @@ import { Outlet } from '../routing/router';
 import { uiThemeTokens } from '../ui/foundation/ui-theme';
 import { AppShellHeader } from './app-shell-header';
 
-export {
-  GlobalEmptyState,
-  GlobalErrorState,
-  PageIntro,
-  StickyActionBar,
-} from './app-shell-primitives';
-
 const shellMainStyle = {
   background: uiThemeTokens.color.surface.canvas,
   display: 'flex',

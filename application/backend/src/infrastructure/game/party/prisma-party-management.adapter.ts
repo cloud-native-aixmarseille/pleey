@@ -12,6 +12,7 @@ import { PartyIdentifier } from '../../../application/game/party/shared/services
 import { PartyPinIdentifier } from '../../../application/game/party/shared/services/identifiers/party-pin-identifier';
 import { GameIdentifier } from '../../../application/game/shared/services/identifiers/game-identifier';
 import { UserIdentifier } from '../../../application/identity/shared/services/identifiers/user-identifier';
+import { PaginationQueryNormalizer } from '../../../application/shared/services/pagination-query-normalizer';
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { ProjectIdentifier } from '../../../application/workspace/shared/services/identifiers/project-identifier';
 import type { GameId } from '../../../domain/game/entities/game';
@@ -19,6 +20,7 @@ import { PartyRole } from '../../../domain/game/party/enums/party-role.enum';
 import { PinAlreadyInUseError } from '../../../domain/game/party/errors/pin-already-in-use.error';
 import type { PartySummary } from '../../../domain/game/party/shared/entities/party-summary';
 import type { UserId } from '../../../domain/identity/entities/user';
+import type { PaginatedResult } from '../../../domain/shared/value-objects/paginated-result';
 import { PrismaService } from '../../database/prisma-service';
 import { PrismaPartyReadModelMapper } from './services/prisma-party-read-model-mapper';
 
@@ -35,6 +37,7 @@ export class PrismaPartyManagementAdapter extends PartyManagementPort {
     private readonly userIdentifier: UserIdentifier,
     private readonly organizationIdentifier: OrganizationIdentifier,
     private readonly projectIdentifier: ProjectIdentifier,
+    private readonly paginationQueryNormalizer: PaginationQueryNormalizer,
   ) {
     super();
   }
@@ -166,62 +169,74 @@ export class PrismaPartyManagementAdapter extends PartyManagementPort {
     }
   }
 
-  async listUserParties(query: ListPartiesQuery): Promise<readonly PartySummary[]> {
-    const parties = await this.prisma.party.findMany({
-      where: {
+  async listUserParties(query: ListPartiesQuery): Promise<PaginatedResult<PartySummary>> {
+    const pagination = this.paginationQueryNormalizer.normalizeQuery(query, 25);
+    const where = {
+      deletedAt: null,
+      game: {
         deletedAt: null,
-        game: {
+        project: {
           deletedAt: null,
-          project: {
+          organization: {
             deletedAt: null,
-            organization: {
+          },
+        },
+      },
+      OR: [
+        {
+          hostId: query.userId,
+        },
+        {
+          scores: {
+            some: {
+              userId: query.userId,
               deletedAt: null,
             },
           },
         },
-        OR: [
-          {
-            hostId: query.userId,
-          },
-          {
-            scores: {
-              some: {
-                userId: query.userId,
-                deletedAt: null,
-              },
-            },
-          },
-        ],
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-      include: {
-        scores: {
-          where: {
-            userId: query.userId,
-            deletedAt: null,
-          },
-          select: {
-            id: true,
-          },
-          take: 1,
-        },
-      },
-    });
+      ],
+    } satisfies Prisma.PartyWhereInput;
 
-    return parties.map((party) => ({
-      partyId: this.partyIdentifier.parse(party.id),
-      gameId: this.gameIdentifier.parse(party.gameId),
-      pin: this.partyPinIdentifier.parse(party.pin),
-      status: this.partyReadModelMapper.toPartyStatus(party.status, {
-        unknownStatus: 'validation-error',
+    const [totalCount, parties] = await this.prisma.$transaction([
+      this.prisma.party.count({ where }),
+      this.prisma.party.findMany({
+        where,
+        orderBy: {
+          createdAt: 'desc',
+        },
+        include: {
+          scores: {
+            where: {
+              userId: query.userId,
+              deletedAt: null,
+            },
+            select: {
+              id: true,
+            },
+            take: 1,
+          },
+        },
+        skip: pagination.skip,
+        take: pagination.pageSize,
       }),
-      role:
-        party.hostId === query.userId || party.scores.length === 0
-          ? PartyRole.HOST
-          : PartyRole.PLAYER,
-      createdAt: party.createdAt,
-    }));
+    ]);
+
+    return this.paginationQueryNormalizer.toPaginatedResult(
+      pagination,
+      parties.map((party) => ({
+        partyId: this.partyIdentifier.parse(party.id),
+        gameId: this.gameIdentifier.parse(party.gameId),
+        pin: this.partyPinIdentifier.parse(party.pin),
+        status: this.partyReadModelMapper.toPartyStatus(party.status, {
+          unknownStatus: 'validation-error',
+        }),
+        role:
+          party.hostId === query.userId || party.scores.length === 0
+            ? PartyRole.HOST
+            : PartyRole.PLAYER,
+        createdAt: party.createdAt,
+      })),
+      totalCount,
+    );
   }
 }

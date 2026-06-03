@@ -260,7 +260,7 @@ export function applyGreetingPair(
   clearIdle(second);
 }
 
-export function randomBetween(min: number, max: number): number {
+export function randomBetween(min = 2_500, max = 4_500): number {
   return Math.random() * (max - min) + min;
 }
 

@@ -71,28 +71,6 @@ export interface TextFormFieldProps {
   readonly required?: boolean;
 }
 
-export interface TextareaFormFieldProps {
-  readonly label: string;
-  readonly placeholder: string;
-  readonly description?: string;
-  readonly required?: boolean;
-  readonly rows?: number;
-}
-
-interface SelectFormFieldOption {
-  readonly label: string;
-  readonly value: string;
-  readonly disabled?: boolean;
-}
-
-export interface SelectFormFieldProps {
-  readonly label: string;
-  readonly options: readonly SelectFormFieldOption[];
-  readonly description?: string;
-  readonly placeholder?: string;
-  readonly required?: boolean;
-}
-
 export interface SubmitButtonProps {
   readonly disabled?: boolean;
   readonly intent?: 'primary' | 'outline' | 'ghost';

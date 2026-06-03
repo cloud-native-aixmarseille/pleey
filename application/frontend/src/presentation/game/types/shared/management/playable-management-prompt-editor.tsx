@@ -15,13 +15,13 @@ import {
 } from '../../../../shared/ui/layout/containers';
 import { ElevatedPanel, InsetPanel } from '../../../../shared/ui/layout/panels';
 import { Heading, SupportingText } from '../../../../shared/ui/layout/typography';
+import { useWorkspaceDependencies } from '../../../../workspace/shared/contexts/workspace-dependencies-context';
 import {
   type PlayableItemEditorState,
   type PlayableItemKindConfig,
   resolvePlayableItemKindOption,
 } from './playable-content-management-model';
 import {
-  PlayableItemEditorValidator,
   type PlayableManagementValidationIssue,
   type PlayableManagementValidationIssueCode,
 } from './playable-item-editor-validator';
@@ -60,6 +60,7 @@ export function PlayableManagementPromptEditor({
   translationRoot,
 }: PlayableManagementPromptEditorProps) {
   const { t } = usePresentationTranslation();
+  const { playableItemEditorValidator } = useWorkspaceDependencies();
   const [visibleOutcomeCount, setVisibleOutcomeCount] = useState(() =>
     playableOutcomeEditorPolicy.resolveInitialOutcomeCount(editorState, itemKindConfig),
   );
@@ -68,8 +69,8 @@ export function PlayableManagementPromptEditor({
   const selectedKindOption = resolvePlayableItemKindOption(itemKindConfig, editorState.kind);
   const fixedOptions = selectedKindOption?.fixedOptions;
   const validationIssues: readonly PlayableManagementValidationIssue[] = useMemo(
-    () => PlayableItemEditorValidator.validate(editorState, itemKindConfig),
-    [editorState, itemKindConfig],
+    () => playableItemEditorValidator.validate(editorState, itemKindConfig),
+    [editorState, itemKindConfig, playableItemEditorValidator],
   );
   const isReadyToSave = validationIssues.length === 0;
   const titleKey = editorState.id ? 'editItemTitle' : 'createItemTitle';

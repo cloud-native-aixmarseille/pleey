@@ -26,13 +26,18 @@ export function DashboardHomeScreen({
   const { t } = usePresentationTranslation();
   const {
     organizations,
+    hasMoreOrganizations,
     projects,
     organizationDashboard,
     organizationId,
+    selectedOrganization,
     projectId,
+    hasMoreProjects,
     selectedProject,
     isOrganizationsLoading,
+    isLoadingMoreOrganizations,
     isWorkspaceLoading,
+    isLoadingMoreProjects,
     workspaceErrorMessage,
     games,
     totalCount,
@@ -78,7 +83,11 @@ export function DashboardHomeScreen({
     handleOpenCreateGameDialog,
     handleCreateParty,
     handleOrganizationChange,
+    handleOrganizationSearchChange,
+    handleLoadMoreOrganizations,
     handleProjectChange,
+    handleProjectSearchChange,
+    handleLoadMoreProjects,
   } = useDashboardHomeScreenState({
     dashboardHomeActions,
     gameTypes,
@@ -90,13 +99,23 @@ export function DashboardHomeScreen({
     <ContentStack gap="lg">
       <DashboardCommandBar
         organizations={organizations}
+        hasMoreOrganizations={hasMoreOrganizations}
         projects={projects}
         organizationId={organizationId}
+        selectedOrganizationLabel={selectedOrganization?.name ?? null}
         projectId={projectId}
+        selectedProjectLabel={selectedProject?.name ?? null}
+        hasMoreProjects={hasMoreProjects}
         isOrganizationsLoading={isOrganizationsLoading}
+        isLoadingMoreOrganizations={isLoadingMoreOrganizations}
         isWorkspaceLoading={isWorkspaceLoading}
+        isLoadingMoreProjects={isLoadingMoreProjects}
         onOrganizationChange={handleOrganizationChange}
+        onOrganizationSearchChange={handleOrganizationSearchChange}
+        onLoadMoreOrganizations={handleLoadMoreOrganizations}
         onProjectChange={handleProjectChange}
+        onProjectSearchChange={handleProjectSearchChange}
+        onLoadMoreProjects={handleLoadMoreProjects}
         onManageOrganizations={handleManageOrganizations}
         onManageProjects={handleManageProjects}
         dashboard={organizationDashboard}

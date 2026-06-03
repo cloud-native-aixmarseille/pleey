@@ -33,9 +33,10 @@ import { PlayableContentUploadReader } from '../../../../presentation/game/types
 import { SelectableOptionInputMapper } from '../../../../presentation/game/types/shared/graphql/selectable-option-input-mapper';
 import { DatabaseModule } from '../../database/database-module';
 import { IdentityModule } from '../../identity/identity-module';
+import { SharedServicesModule } from '../../shared/shared-services.module';
 
 @Module({
-  imports: [DatabaseModule, IdentityModule],
+  imports: [DatabaseModule, IdentityModule, SharedServicesModule],
   providers: [
     CreateQuizUseCase,
     CreateQuizFromImportUseCase,

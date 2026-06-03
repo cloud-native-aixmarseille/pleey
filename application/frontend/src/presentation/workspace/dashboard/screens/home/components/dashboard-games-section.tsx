@@ -21,11 +21,11 @@ import { ContentStack, ResponsiveGrid, WrapRow } from '../../../../../shared/ui/
 import { SectionCard } from '../../../../../shared/ui/layout/section-card';
 import { SupportingText } from '../../../../../shared/ui/layout/typography';
 import { FormDialog } from '../../../../../shared/ui/overlay/form-dialog';
+import { PaginationBar } from '../../../../shared/components/pagination-bar';
 import type { GameListFiltersState } from '../../../hooks/use-game-list-filters';
 import { DashboardImportGameDialog } from './dashboard-import-game-dialog';
 import { GameItemCard } from './game-item-card';
 import { GameListFilterBar } from './game-list-filter-bar';
-import { PaginationBar } from './pagination-bar';
 
 interface DashboardCreateGameForm {
   readonly description: string;
@@ -191,7 +191,14 @@ export function DashboardGamesSection({
 
           <PaginationBar
             currentPage={filters.page}
+            label={t('dashboard.games.pagination.label')}
+            nextLabel={t('dashboard.games.pagination.next')}
             onPageChange={onPageChange}
+            pageOfLabel={t('dashboard.games.pagination.pageOf', {
+              current: String(filters.page),
+              total: String(totalPages),
+            })}
+            previousLabel={t('dashboard.games.pagination.previous')}
             totalPages={totalPages}
           />
         </ContentStack>

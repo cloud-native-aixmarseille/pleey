@@ -9,11 +9,12 @@ import { ActionRow, ContentStack, SplitWrapRow } from '../../../../shared/ui/lay
 import { DashedNoticePanel, ElevatedPanel } from '../../../../shared/ui/layout/panels';
 import { Heading, SupportingText } from '../../../../shared/ui/layout/typography';
 import { Tooltip } from '../../../../shared/ui/overlay/tooltip';
+import { useWorkspaceDependencies } from '../../../../workspace/shared/contexts/workspace-dependencies-context';
 import {
   createPlayableItemEditorStateFromItem,
   type PlayableItemKindConfig,
 } from './playable-content-management-model';
-import { PlayableItemEditorValidator } from './playable-item-editor-validator';
+import type { PlayableItemEditorValidator } from './playable-item-editor-validator';
 import {
   type PlayableManagementDropPreview,
   playableManagementDragPlacement,
@@ -136,9 +137,10 @@ function resolveStageTitle(item: PlayableManagementItem, fallback: string): stri
 
 function isStageReady(
   item: PlayableManagementItem,
+  playableItemEditorValidator: PlayableItemEditorValidator,
   itemKindConfig?: PlayableItemKindConfig,
 ): boolean {
-  return PlayableItemEditorValidator.isReady(
+  return playableItemEditorValidator.isReady(
     createPlayableItemEditorStateFromItem(item, itemKindConfig),
     itemKindConfig,
   );
@@ -155,6 +157,7 @@ export function PlayableManagementStageRail({
   translationRoot,
 }: PlayableManagementStageRailProps) {
   const { t } = usePresentationTranslation();
+  const { playableItemEditorValidator } = useWorkspaceDependencies();
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dropPreview, setDropPreview] = useState<PlayableManagementDropPreview | null>(null);
   const [hoveredHandleIndex, setHoveredHandleIndex] = useState<number | null>(null);
@@ -175,7 +178,7 @@ export function PlayableManagementStageRail({
           <ol aria-label={t(`${translationRoot}.itemsTitle`)} style={listStyle}>
             {items.map((item, index) => {
               const selected = item.id === selectedItemId;
-              const ready = isStageReady(item, itemKindConfig);
+              const ready = isStageReady(item, playableItemEditorValidator, itemKindConfig);
               const isDragging = draggedIndex === index;
               const isDropTarget = dropPreview?.hoveredIndex === index;
 

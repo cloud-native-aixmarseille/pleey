@@ -9,8 +9,11 @@ import { ProjectIdentifier } from '../../../application/workspace/shared/service
 import type { UserId } from '../../../domain/identity/entities/user';
 import { IdentityErrorCode } from '../../../domain/identity/enums/identity-error-code.enum';
 import { GqlJwtAuthGuard } from '../../identity/shared/guards/gql-jwt-auth-guard';
-import { CreateProjectInput, UpdateProjectInput } from './types/project.input';
-import { ProjectListType, ProjectType } from './types/project.type';
+import { CreateProjectInput } from './types/create-project-input';
+import { ListOrganizationProjectsInput } from './types/list-organization-projects-input';
+import { ProjectListType } from './types/project-list-type';
+import { ProjectType } from './types/project-type';
+import { UpdateProjectInput } from './types/update-project-input';
 
 type GraphqlAuthContext = {
   req?: {
@@ -37,16 +40,18 @@ export class ProjectResolver {
   @Query(() => ProjectListType)
   @UseGuards(GqlJwtAuthGuard)
   async organizationProjects(
-    @Args('organizationId', { type: () => Int }) organizationId: number,
+    @Args('input') input: ListOrganizationProjectsInput,
     @Context() context: GraphqlAuthContext,
   ): Promise<ProjectListType> {
     const userId = this.resolveUserId(context);
-    const projects = await this.listOrganizationProjectsUseCase.execute(
-      this.organizationIdentifier.parse(organizationId),
+
+    return this.listOrganizationProjectsUseCase.execute(
+      {
+        ...input,
+        organizationId: this.organizationIdentifier.parse(input.organizationId),
+      },
       userId,
     );
-
-    return { projects };
   }
 
   @Mutation(() => ProjectType)

@@ -32,9 +32,10 @@ import { ProjectResolver } from '../../../presentation/project/graphql/project-r
 import { DatabaseModule } from '../database/database-module';
 import { GameModule } from '../game/game-module';
 import { IdentityModule } from '../identity/identity-module';
+import { SharedServicesModule } from '../shared/shared-services.module';
 
 @Module({
-  imports: [IdentityModule, DatabaseModule, GameModule],
+  imports: [IdentityModule, DatabaseModule, GameModule, SharedServicesModule],
   providers: [
     // Repository implementations
     PrismaOrganizationRepository,

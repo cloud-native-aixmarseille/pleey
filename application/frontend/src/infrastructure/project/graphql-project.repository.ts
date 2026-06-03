@@ -1,15 +1,16 @@
 import { inject, injectable } from 'inversify';
 import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
 import { ProjectIdentifier } from '../../application/workspace/shared/services/identifiers/project-identifier';
-import type { OrganizationId } from '../../domains/organization/entities/organization';
 import type { Project } from '../../domains/project/entities/project';
 import { ProjectErrorCode } from '../../domains/project/errors/project-error-code';
 import type {
   CreateProjectCommand,
   DeleteProjectCommand,
+  ListOrganizationProjectsQuery,
   ProjectRepository,
   UpdateProjectCommand,
 } from '../../domains/project/ports/project-repository';
+import type { PaginatedResult } from '../../domains/shared/value-objects/paginated-result';
 import { GraphqlClient } from '../graphql/client/graphql-client';
 import {
   CreateProjectDocument,
@@ -26,6 +27,9 @@ import {
   type WorkspaceProjectsByOrganizationQueryVariables,
 } from '../graphql/generated/graphql';
 
+const DEFAULT_LIST_PAGE = 1;
+const DEFAULT_LIST_PAGE_SIZE = 25;
+
 @injectable()
 export class GraphqlProjectRepository implements ProjectRepository {
   constructor(
@@ -37,20 +41,36 @@ export class GraphqlProjectRepository implements ProjectRepository {
     private readonly organizationIdentifier: OrganizationIdentifier,
   ) {}
 
-  async getProjectsByOrganization(organizationId: OrganizationId): Promise<Project[]> {
+  async getProjectsByOrganization(
+    query: ListOrganizationProjectsQuery,
+  ): Promise<PaginatedResult<Project>> {
     try {
       const result = await this.graphqlClient.request<
         WorkspaceProjectsByOrganizationQuery,
         WorkspaceProjectsByOrganizationQueryVariables
-      >(WorkspaceProjectsByOrganizationDocument, { organizationId });
+      >(WorkspaceProjectsByOrganizationDocument, {
+        input: {
+          organizationId: query.organizationId,
+          page: query.page ?? DEFAULT_LIST_PAGE,
+          pageSize: query.pageSize ?? DEFAULT_LIST_PAGE_SIZE,
+          search: query.search,
+        },
+      });
 
-      return (result.organizationProjects.projects ?? []).map((project) => ({
-        id: this.projectIdentifier.parse(project.id),
-        name: project.name,
-        description: project.description ?? null,
-        organizationId: this.organizationIdentifier.parse(project.organizationId),
-        createdAt: project.createdAt,
-      }));
+      return {
+        items: (result.organizationProjects.items ?? []).map((project) => ({
+          id: this.projectIdentifier.parse(project.id),
+          name: project.name,
+          description: project.description ?? null,
+          organizationId: this.organizationIdentifier.parse(project.organizationId),
+          createdAt: project.createdAt,
+        })),
+        totalCount: result.organizationProjects.totalCount,
+        overallCount: result.organizationProjects.overallCount,
+        page: result.organizationProjects.page,
+        pageSize: result.organizationProjects.pageSize,
+        totalPages: result.organizationProjects.totalPages,
+      };
     } catch (error) {
       throw new Error(this.graphqlClient.extractMessage(error, ProjectErrorCode.LOAD_FAILED));
     }

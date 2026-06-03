@@ -59,7 +59,7 @@ export function PlayableChoicePlayerStageSurface({
   testIdPrefix,
 }: PlayableChoicePlayerStageSurfaceProps) {
   const { t } = usePresentationTranslation();
-  const isMobile = usePresentationMediaQuery('(max-width: 48em)');
+  const isMobile = usePresentationMediaQuery();
   const currentStage = party.context?.stage?.current;
   const stageId = party.context?.lifecycle.stageId ?? null;
   const stageEndsAtEpochMs = party.context?.lifecycle.stageEndsAtEpochMs ?? null;

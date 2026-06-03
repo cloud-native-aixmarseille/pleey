@@ -28,9 +28,7 @@ export class OrganizationMembershipPolicy {
     }
   }
 
-  assertOwnerCountCanShrink(members: readonly OrganizationMember[]): void {
-    const ownerCount = members.filter((member) => member.isOwner()).length;
-
+  assertOwnerCountCanShrink(ownerCount: number): void {
     if (ownerCount <= 1) {
       throw new Error(OrganizationErrorCode.CANNOT_REMOVE_LAST_OWNER);
     }

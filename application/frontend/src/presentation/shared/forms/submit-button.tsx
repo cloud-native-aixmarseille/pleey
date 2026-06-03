@@ -4,11 +4,11 @@ import { useFormContext } from './form-context';
 
 export function SubmitButton({
   disabled = false,
-  intent,
+  intent = 'primary',
   label,
   size,
   submittingLabel,
-  width,
+  width = 'wide',
 }: SubmitButtonProps) {
   const form = useFormContext();
 

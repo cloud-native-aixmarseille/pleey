@@ -15,6 +15,7 @@ export class AppConfiguration {
   private readonly runtimeConfiguration: AppRuntimeConfiguration;
 
   constructor(private readonly environment: AppEnvironment) {
+    const nodeEnvironment = this.environment.getNodeEnvironment();
     const jwtSecret = this.environment.getRequiredString('JWT_SECRET');
 
     this.runtimeConfiguration = Object.freeze({
@@ -37,7 +38,8 @@ export class AppConfiguration {
       authPublicApiBaseUrl: this.environment.getOptionalString('API_BASE_URL'),
       gameSocketCorsOptions: this.createGameSocketCorsOptions(),
       server: {
-        isProduction: this.environment.isProduction(),
+        isDevelopment: nodeEnvironment === 'development',
+        isProduction: nodeEnvironment === 'production',
         port: this.readPositiveInteger('PORT', DEFAULT_PORT),
       },
       telemetry: {
@@ -45,7 +47,7 @@ export class AppConfiguration {
         consoleExportersEnabled: this.readBoolean('OTEL_CONSOLE_EXPORTERS_ENABLED', false),
         consoleLogsEnabled: this.readBoolean('OTEL_CONSOLE_LOGS_ENABLED', false),
         endpoint: this.environment.getOptionalString('OTEL_EXPORTER_OTLP_ENDPOINT'),
-        environment: this.environment.getNodeEnvironment(),
+        environment: nodeEnvironment,
         headersJson: this.environment.getOptionalString('OTEL_EXPORTER_OTLP_HEADERS'),
       },
       playableContentImportMaxFileSizeBytes: this.readPositiveInteger(

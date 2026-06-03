@@ -5,6 +5,9 @@ import { PresentationContextErrorCode } from '../../../../../domains/shared/erro
 import { PartyIdentifierMockFactory } from '../../../../../test-utils/mocks/party-identifier-mock-factory';
 import { PartyPinIdentifierMockFactory } from '../../../../../test-utils/mocks/party-pin-identifier-mock-factory';
 import { StageIdentifierMockFactory } from '../../../../../test-utils/mocks/stage-identifier-mock-factory';
+import { PlayerRuntimeNoticeMessageResolver } from '../../player/screens/components/player-runtime-notice-message-resolver';
+import { GuestPartyEntryDraftFactory } from '../../player/screens/guest-party-entry-draft-factory';
+import { PartyLobbyRuntimeRedirectResolver } from '../screens/party-lobby-runtime-redirect-resolver';
 import {
   type PartyDependencies,
   providePartyDependencies,
@@ -22,6 +25,7 @@ describe('partyDependenciesContext', () => {
     it('returns the dependencies from context', () => {
       // Arrange
       const dependencies: PartyDependencies = {
+        guestPartyEntryDraftFactory: new GuestPartyEntryDraftFactory(),
         hostPartyRuntimeControlsResolver: {
           resolveControls: vi.fn(),
         } as never,
@@ -38,6 +42,7 @@ describe('partyDependenciesContext', () => {
           setGuestId: vi.fn(),
           submitAction: vi.fn(),
         },
+        partyLobbyRuntimeRedirectResolver: new PartyLobbyRuntimeRedirectResolver(),
         partyGuestSessionPort: {
           clearGuestId: vi.fn(),
           getGuestId: vi.fn(() => null),
@@ -68,6 +73,7 @@ describe('partyDependenciesContext', () => {
           observeParty: vi.fn(),
         },
         partyPinIdentifier,
+        playerRuntimeNoticeMessageResolver: new PlayerRuntimeNoticeMessageResolver(),
         stageIdentifier,
       };
       const wrapper = ({ children }: { children: ReactNode }) =>

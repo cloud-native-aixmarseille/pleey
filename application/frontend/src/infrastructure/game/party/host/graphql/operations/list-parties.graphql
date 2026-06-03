@@ -1,10 +1,17 @@
-query ListParties {
-  listParties {
-    partyId
-    gameId
-    pin
-    status
-    role
-    createdAt
+query ListParties($input: ListPartiesInput) {
+  listParties(input: $input) {
+    items {
+      partyId
+      gameId
+      pin
+      status
+      role
+      createdAt
+    }
+    totalCount
+    overallCount
+    page
+    pageSize
+    totalPages
   }
 }

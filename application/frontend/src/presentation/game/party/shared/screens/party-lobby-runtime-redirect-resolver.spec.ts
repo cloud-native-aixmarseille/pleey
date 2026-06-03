@@ -8,6 +8,7 @@ import { PartyLobbyRuntimeRedirectResolver } from './party-lobby-runtime-redirec
 import { PartyScreenSection } from './use-party-lobby-screen-state';
 
 const partyFixtureFactory = new PartyFixtureFactory();
+const resolver = new PartyLobbyRuntimeRedirectResolver();
 const stageIdentifier = new StageIdentifierMockFactory().create();
 const toStageId = (value: number) => stageIdentifier.parse(value);
 
@@ -58,7 +59,7 @@ describe('PartyLobbyRuntimeRedirectResolver', () => {
       status: PartyStatus.PAUSED,
     });
 
-    const redirectTo = PartyLobbyRuntimeRedirectResolver.resolve({
+    const redirectTo = resolver.resolve({
       party,
       requestedStageId: toStageId(2),
       resolvePartyLeaderboardRoute: (partyId) => `/party/${partyId}/final`,
@@ -87,7 +88,7 @@ describe('PartyLobbyRuntimeRedirectResolver', () => {
       status: PartyStatus.WAITING,
     });
 
-    const redirectTo = PartyLobbyRuntimeRedirectResolver.resolve({
+    const redirectTo = resolver.resolve({
       party,
       requestedStageId: toStageId(2),
       resolvePartyLeaderboardRoute: (partyId) => `/party/${partyId}/final`,
@@ -123,7 +124,7 @@ describe('PartyLobbyRuntimeRedirectResolver', () => {
       status: PartyStatus.PAUSED,
     });
 
-    const redirectTo = PartyLobbyRuntimeRedirectResolver.resolve({
+    const redirectTo = resolver.resolve({
       party,
       requestedStageId: toStageId(2),
       resolvePartyLeaderboardRoute: (partyId) => `/party/${partyId}/final`,

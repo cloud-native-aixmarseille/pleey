@@ -17,12 +17,15 @@ import type { PartyPlayerPort } from '../../../../domains/game/party/player/port
 import { PartyPlayerPortToken } from '../../../../domains/game/party/player/ports/party-player.port';
 import type { PartyObservationPort } from '../../../../domains/game/party/shared/ports/party-observation.port';
 import { PartyObservationPortToken } from '../../../../domains/game/party/shared/ports/party-observation.port';
+import { PlayerRuntimeNoticeMessageResolver } from '../../../../presentation/game/party/player/screens/components/player-runtime-notice-message-resolver';
+import { GuestPartyEntryDraftFactory } from '../../../../presentation/game/party/player/screens/guest-party-entry-draft-factory';
 import { PartyProvider } from '../../../../presentation/game/party/shared/contexts/party-context';
 import {
   type PartyDependencies,
   providePartyDependencies,
 } from '../../../../presentation/game/party/shared/contexts/party-dependencies-context';
 import { PartyGameTypeRuntimeRegistryProvider } from '../../../../presentation/game/party/shared/contexts/party-game-type-runtime-registry-context';
+import { PartyLobbyRuntimeRedirectResolver } from '../../../../presentation/game/party/shared/screens/party-lobby-runtime-redirect-resolver';
 import { AppProviderOrder, BaseAppProviderFactory } from '../../app-provider-factory';
 import { AppPartyGameTypeRuntimeRegistry } from './services/app-party-game-type-runtime-registry';
 
@@ -47,6 +50,8 @@ export class AppPartyProviderFactory extends BaseAppProviderFactory {
   readonly order = AppProviderOrder.PARTY;
 
   constructor(
+    @inject(GuestPartyEntryDraftFactory)
+    private readonly guestPartyEntryDraftFactory: GuestPartyEntryDraftFactory,
     @inject(PartyIdentifier)
     private readonly partyIdentifier: PartyIdentifier,
     @inject(PartyGuestSessionPortToken)
@@ -63,8 +68,12 @@ export class AppPartyProviderFactory extends BaseAppProviderFactory {
     private readonly partyObservationPort: PartyObservationPort,
     @inject(PartyLobbyFacade)
     private readonly partyLobbyFacade: PartyLobbyGateway,
+    @inject(PartyLobbyRuntimeRedirectResolver)
+    private readonly partyLobbyRuntimeRedirectResolver: PartyLobbyRuntimeRedirectResolver,
     @inject(PartyPinIdentifier)
     private readonly partyPinIdentifier: PartyPinIdentifier,
+    @inject(PlayerRuntimeNoticeMessageResolver)
+    private readonly playerRuntimeNoticeMessageResolver: PlayerRuntimeNoticeMessageResolver,
     @inject(StageIdentifier)
     private readonly stageIdentifier: StageIdentifier,
     @inject(AppPartyGameTypeRuntimeRegistry)
@@ -75,15 +84,18 @@ export class AppPartyProviderFactory extends BaseAppProviderFactory {
 
   protected create(children: ReactNode): ReactNode {
     const dependencies: PartyDependencies = {
+      guestPartyEntryDraftFactory: this.guestPartyEntryDraftFactory,
       hostPartyRuntimeControlsResolver: this.hostPartyRuntimeControlsResolver,
       partyIdentifier: this.partyIdentifier,
       partyLobbyFacade: this.partyLobbyFacade,
+      partyLobbyRuntimeRedirectResolver: this.partyLobbyRuntimeRedirectResolver,
       partyGuestSessionPort: this.partyGuestSessionPort,
       partyHostControlPort: this.partyHostControlPort,
       partyManagementPort: this.partyManagementPort,
       partyPlayerPort: this.partyPlayerPort,
       partyObservationPort: this.partyObservationPort,
       partyPinIdentifier: this.partyPinIdentifier,
+      playerRuntimeNoticeMessageResolver: this.playerRuntimeNoticeMessageResolver,
       stageIdentifier: this.stageIdentifier,
     };
 

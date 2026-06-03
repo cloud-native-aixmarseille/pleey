@@ -1,8 +1,9 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { ArrayUnique, IsArray, IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { ArrayUnique, IsArray, IsIn, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { PaginationInput } from '../../../../shared/graphql/types/pagination-input';
 
 @InputType()
-export class ProjectGamesInput {
+export class ProjectGamesInput extends PaginationInput {
   @Field(() => Int)
   @IsInt()
   @Min(1)
@@ -26,15 +27,4 @@ export class ProjectGamesInput {
   @Field(() => String, { defaultValue: 'desc' })
   @IsIn(['asc', 'desc'])
   sortDirection: 'asc' | 'desc' = 'desc';
-
-  @Field(() => Int, { defaultValue: 1 })
-  @IsInt()
-  @Min(1)
-  page = 1;
-
-  @Field(() => Int, { defaultValue: 9 })
-  @IsInt()
-  @Min(1)
-  @Max(100)
-  pageSize = 9;
 }

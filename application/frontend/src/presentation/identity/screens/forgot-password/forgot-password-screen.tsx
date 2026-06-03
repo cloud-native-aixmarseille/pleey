@@ -49,7 +49,6 @@ export function ForgotPasswordScreen() {
                       autoComplete="email"
                       label={t('auth.forgotPassword.emailLabel')}
                       placeholder={t('auth.forgotPassword.emailPlaceholder')}
-                      required
                       type="email"
                     />
                   )}
@@ -57,10 +56,8 @@ export function ForgotPasswordScreen() {
               </FormSection>
 
               <SubmitButton
-                intent="primary"
                 label={t('auth.forgotPassword.submitCta')}
                 submittingLabel={t('auth.forgotPassword.submittingCta')}
-                width="wide"
               />
 
               <SupportingText>

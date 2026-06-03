@@ -71,8 +71,8 @@ export class OrganizationMembershipAccessService {
   }
 
   async assertOwnerCountCanShrink(organizationId: OrganizationId): Promise<void> {
-    const members = await this.memberRepository.findByOrganization(organizationId);
+    const ownerCount = await this.memberRepository.countOwnersByOrganization(organizationId);
 
-    this.membershipPolicy.assertOwnerCountCanShrink(members);
+    this.membershipPolicy.assertOwnerCountCanShrink(ownerCount);
   }
 }

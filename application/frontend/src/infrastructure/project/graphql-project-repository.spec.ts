@@ -11,12 +11,12 @@ const projectIdentifier = new ProjectIdentifier();
 
 describe('GraphqlProjectRepository', () => {
   describe('getProjectsByOrganization()', () => {
-    it('returns normalized projects for the workspace organization', async () => {
+    it('returns a paginated project result for the workspace organization', async () => {
       // Arrange
-      const { client } = new GraphqlClientMockFactory().create({
+      const { client, requestMock } = new GraphqlClientMockFactory().create({
         requestResult: {
           organizationProjects: {
-            projects: [
+            items: [
               {
                 id: 17,
                 name: 'Spring Event',
@@ -25,6 +25,11 @@ describe('GraphqlProjectRepository', () => {
                 createdAt: '2026-03-10T16:00:00.000Z',
               },
             ],
+            totalCount: 1,
+            overallCount: 3,
+            page: 2,
+            pageSize: 25,
+            totalPages: 3,
           },
         },
       });
@@ -35,18 +40,42 @@ describe('GraphqlProjectRepository', () => {
       );
 
       // Act
-      const projects = await repository.getProjectsByOrganization(organizationIdentifier.parse(3));
+      const projects = await repository.getProjectsByOrganization({
+        organizationId: organizationIdentifier.parse(3),
+        page: 2,
+        pageSize: 25,
+        search: 'Spring',
+      });
 
       // Assert
-      expect(projects).toEqual([
+      expect(projects).toEqual({
+        items: [
+          {
+            id: projectIdentifier.parse(17),
+            name: 'Spring Event',
+            description: null,
+            organizationId: organizationIdentifier.parse(3),
+            createdAt: '2026-03-10T16:00:00.000Z',
+          },
+        ],
+        totalCount: 1,
+        overallCount: 3,
+        page: 2,
+        pageSize: 25,
+        totalPages: 3,
+      });
+      expect(requestMock).toHaveBeenCalledWith(
+        expect.anything(),
         {
-          id: projectIdentifier.parse(17),
-          name: 'Spring Event',
-          description: null,
-          organizationId: organizationIdentifier.parse(3),
-          createdAt: '2026-03-10T16:00:00.000Z',
+          input: {
+            organizationId: organizationIdentifier.parse(3),
+            page: 2,
+            pageSize: 25,
+            search: 'Spring',
+          },
         },
-      ]);
+        undefined,
+      );
     });
 
     it('maps transport failures to translated project error keys', async () => {
@@ -62,7 +91,7 @@ describe('GraphqlProjectRepository', () => {
 
       // Act + Assert
       await expect(
-        repository.getProjectsByOrganization(organizationIdentifier.parse(99)),
+        repository.getProjectsByOrganization({ organizationId: organizationIdentifier.parse(99) }),
       ).rejects.toThrow(ProjectErrorCode.LOAD_FAILED);
     });
   });

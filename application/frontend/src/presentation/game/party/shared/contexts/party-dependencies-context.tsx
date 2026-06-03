@@ -9,32 +9,35 @@ import type { PartyId, PartyPin } from '../../../../../domains/game/party/shared
 import type { StageId } from '../../../../../domains/game/party/shared/entities/party-stage';
 import type { PartyObservationPort } from '../../../../../domains/game/party/shared/ports/party-observation.port';
 import { PresentationContextErrorCode } from '../../../../../domains/shared/errors/presentation-context-error-code';
+import { PlayerRuntimeNoticeMessageResolver } from '../../player/screens/components/player-runtime-notice-message-resolver';
+import { GuestPartyEntryDraftFactory } from '../../player/screens/guest-party-entry-draft-factory';
+import { PartyLobbyRuntimeRedirectResolver } from '../screens/party-lobby-runtime-redirect-resolver';
 
 export interface PartyIdParser {
-  parse<TValue>(value: TValue): TValue extends '' | null | undefined ? null : PartyId | null;
   parseOrNull(value: unknown): PartyId | null;
 }
 
 export interface PartyPinParser {
-  parse<TValue>(value: TValue): TValue extends '' | null | undefined ? null : PartyPin | null;
   parseOrNull(value: unknown): PartyPin | null;
 }
 
 export interface StageIdParser {
-  parse<TValue>(value: TValue): TValue extends '' | null | undefined ? null : StageId | null;
   parseOrNull(value: unknown): StageId | null;
 }
 
 export interface PartyDependencies {
+  readonly guestPartyEntryDraftFactory: GuestPartyEntryDraftFactory;
   readonly hostPartyRuntimeControlsResolver: PartyHostRuntimeControlsPort;
   readonly partyIdentifier: PartyIdParser;
   readonly partyLobbyFacade: PartyLobbyGateway;
+  readonly partyLobbyRuntimeRedirectResolver: PartyLobbyRuntimeRedirectResolver;
   readonly partyGuestSessionPort: PartyGuestSessionPort;
   readonly partyHostControlPort: PartyHostControlPort;
   readonly partyManagementPort: PartyManagementPort;
   readonly partyPlayerPort: PartyPlayerPort;
   readonly partyObservationPort: PartyObservationPort;
   readonly partyPinIdentifier: PartyPinParser;
+  readonly playerRuntimeNoticeMessageResolver: PlayerRuntimeNoticeMessageResolver;
   readonly stageIdentifier: StageIdParser;
 }
 

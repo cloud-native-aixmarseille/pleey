@@ -1,3 +1,4 @@
+import { useDebouncedValue } from '@mantine/hooks';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type {
   Organization,
@@ -7,6 +8,7 @@ import { OrganizationRole } from '../../../../../domains/organization/entities/o
 import type { OrganizationMember } from '../../../../../domains/organization/entities/organization-member';
 import type {
   AddOrganizationMemberCommand,
+  ListOrganizationMembersQuery,
   UpdateOrganizationMemberRoleCommand,
 } from '../../../../../domains/organization/ports/organization-repository';
 import type { Project, ProjectId } from '../../../../../domains/project/entities/project';
@@ -15,10 +17,14 @@ import type {
   DeleteProjectCommand,
   UpdateProjectCommand,
 } from '../../../../../domains/project/ports/project-repository';
+import type { PaginatedResult } from '../../../../../domains/shared/value-objects/paginated-result';
 import {
   type DashboardWorkspaceSelectionGateway,
   useDashboardWorkspace,
 } from '../../../dashboard/hooks/use-dashboard-workspace';
+
+const DEFAULT_PAGE = 1;
+const DEFAULT_PAGE_SIZE = 25;
 
 interface OrganizationScreenStateParams {
   readonly dashboardWorkspace: DashboardWorkspaceSelectionGateway;
@@ -26,8 +32,8 @@ interface OrganizationScreenStateParams {
   readonly updateProject: (command: UpdateProjectCommand) => Promise<Project>;
   readonly deleteProject: (command: DeleteProjectCommand) => Promise<void>;
   readonly listOrganizationMembers: (
-    organizationId: OrganizationId,
-  ) => Promise<OrganizationMember[]>;
+    query: ListOrganizationMembersQuery,
+  ) => Promise<PaginatedResult<OrganizationMember>>;
   readonly addOrganizationMember: (
     command: AddOrganizationMemberCommand,
   ) => Promise<OrganizationMember>;
@@ -52,6 +58,12 @@ const defaultMemberForm: MemberFormValues = {
   usernameOrEmail: '',
 };
 
+function normalizeSearchTerm(search: string): string | undefined {
+  const normalizedSearch = search.trim();
+
+  return normalizedSearch.length > 0 ? normalizedSearch : undefined;
+}
+
 function canManageMembers(organization: Organization | null): boolean {
   return (
     organization?.role === OrganizationRole.OWNER || organization?.role === OrganizationRole.MANAGER
@@ -73,9 +85,13 @@ export function useOrganizationScreenState({
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [projectPendingRemoval, setProjectPendingRemoval] = useState<Project | null>(null);
   const [migrationProjectId, setMigrationProjectId] = useState<ProjectId | null>(null);
+  const [migrationProjectLabel, setMigrationProjectLabel] = useState<string | null>(null);
   const [actionErrorMessage, setActionErrorMessage] = useState<string | null>(null);
   const [isDeletingProject, setIsDeletingProject] = useState(false);
   const [organizationMembers, setOrganizationMembers] = useState<OrganizationMember[]>([]);
+  const [memberPage, setMemberPage] = useState(DEFAULT_PAGE);
+  const [memberTotalPages, setMemberTotalPages] = useState(1);
+  const [memberSearch, setMemberSearch] = useState('');
   const [memberForm, setMemberForm] = useState(defaultMemberForm);
   const [memberErrorMessage, setMemberErrorMessage] = useState<string | null>(null);
   const [isMembersLoading, setIsMembersLoading] = useState(false);
@@ -87,15 +103,32 @@ export function useOrganizationScreenState({
   const [pendingRemovalMemberId, setPendingRemovalMemberId] = useState<
     OrganizationMember['id'] | null
   >(null);
+  const [debouncedMemberSearch] = useDebouncedValue(memberSearch, 200);
+  const isMemberSearchPending =
+    normalizeSearchTerm(memberSearch) !== normalizeSearchTerm(debouncedMemberSearch);
 
-  const stableDashboardWorkspace = useCallback(
-    () => dashboardWorkspace.restoreOrganizationSelection(),
+  const stableDashboardWorkspace = useCallback<
+    DashboardWorkspaceSelectionGateway['restoreOrganizationSelection']
+  >(
+    (query) => dashboardWorkspace.restoreOrganizationSelection(query),
     [dashboardWorkspace, reloadKey],
   );
 
-  const stableOrganizationWorkspace = useCallback(
-    (organizationId: OrganizationId | null) =>
-      dashboardWorkspace.loadOrganizationWorkspaceState(organizationId),
+  const stableOrganizationWorkspace = useCallback<
+    DashboardWorkspaceSelectionGateway['loadOrganizationWorkspaceState']
+  >(
+    (query) => dashboardWorkspace.loadOrganizationWorkspaceState(query),
+    [dashboardWorkspace, reloadKey],
+  );
+
+  const stableOrganizationsPage = useCallback<
+    DashboardWorkspaceSelectionGateway['loadOrganizationsPage']
+  >((query) => dashboardWorkspace.loadOrganizationsPage(query), [dashboardWorkspace, reloadKey]);
+
+  const stableOrganizationProjectsPage = useCallback<
+    DashboardWorkspaceSelectionGateway['loadOrganizationProjectsPage']
+  >(
+    (query) => dashboardWorkspace.loadOrganizationProjectsPage(query),
     [dashboardWorkspace, reloadKey],
   );
 
@@ -112,12 +145,16 @@ export function useOrganizationScreenState({
 
   const stableDashboardWorkspaceProxy = useMemo(
     () => ({
+      loadOrganizationsPage: stableOrganizationsPage,
+      loadOrganizationProjectsPage: stableOrganizationProjectsPage,
       restoreOrganizationSelection: stableDashboardWorkspace,
       loadOrganizationWorkspaceState: stableOrganizationWorkspace,
       setOrganizationSelection: stableSetOrganizationSelection,
       setProjectSelection: stableSetProjectSelection,
     }),
     [
+      stableOrganizationsPage,
+      stableOrganizationProjectsPage,
       stableDashboardWorkspace,
       stableOrganizationWorkspace,
       stableSetOrganizationSelection,
@@ -134,7 +171,12 @@ export function useOrganizationScreenState({
 
     if (!selectedOrganization) {
       setOrganizationMembers([]);
+      setMemberTotalPages(1);
       setMemberErrorMessage(null);
+      return;
+    }
+
+    if (isMemberSearchPending) {
       return;
     }
 
@@ -145,14 +187,21 @@ export function useOrganizationScreenState({
       setMemberErrorMessage(null);
 
       try {
-        const members = await listOrganizationMembers(selectedOrganization.id);
+        const members = await listOrganizationMembers({
+          organizationId: selectedOrganization.id,
+          page: memberPage,
+          pageSize: DEFAULT_PAGE_SIZE,
+          search: normalizeSearchTerm(debouncedMemberSearch),
+        });
 
         if (!ignore) {
-          setOrganizationMembers(members);
+          setOrganizationMembers([...members.items]);
+          setMemberTotalPages(members.totalPages);
         }
       } catch (error) {
         if (!ignore) {
           setOrganizationMembers([]);
+          setMemberTotalPages(1);
           setMemberErrorMessage(
             error instanceof Error ? error.message : 'organization.errors.loadFailed',
           );
@@ -169,7 +218,19 @@ export function useOrganizationScreenState({
     return () => {
       ignore = true;
     };
-  }, [listOrganizationMembers, workspace.selectedOrganization]);
+  }, [
+    debouncedMemberSearch,
+    isMemberSearchPending,
+    listOrganizationMembers,
+    memberPage,
+    reloadKey,
+    workspace.selectedOrganization,
+  ]);
+
+  useEffect(() => {
+    setMemberPage(DEFAULT_PAGE);
+    setMemberSearch('');
+  }, [workspace.selectedOrganization?.id]);
 
   const availableMigrationProjects = projectPendingRemoval
     ? workspace.projects.filter((project) => project.id !== projectPendingRemoval.id)
@@ -227,6 +288,7 @@ export function useOrganizationScreenState({
       });
       setProjectPendingRemoval(null);
       setMigrationProjectId(null);
+      setMigrationProjectLabel(null);
       setReloadKey((key) => key + 1);
     } catch (error) {
       setActionErrorMessage(error instanceof Error ? error.message : 'project.errors.deleteFailed');
@@ -250,12 +312,11 @@ export function useOrganizationScreenState({
     setMemberErrorMessage(null);
 
     try {
-      const member = await addOrganizationMember({
+      await addOrganizationMember({
         organizationId: workspace.selectedOrganization.id,
         role: memberForm.role,
         usernameOrEmail,
       });
-      setOrganizationMembers((members) => [...members, member]);
       setMemberForm(defaultMemberForm);
       setReloadKey((key) => key + 1);
     } catch (error) {
@@ -281,9 +342,6 @@ export function useOrganizationScreenState({
 
     try {
       await removeOrganizationMember(memberPendingRemoval);
-      setOrganizationMembers((members) =>
-        members.filter((current) => current.id !== memberPendingRemoval.id),
-      );
       setMemberPendingRemoval(null);
       setReloadKey((key) => key + 1);
     } catch (error) {
@@ -364,13 +422,14 @@ export function useOrganizationScreenState({
   }
 
   function openRemoveProjectDialog(project: Project) {
-    if (workspace.projects.length <= 1) {
+    if (workspace.projectTotalCount <= 1) {
       return;
     }
 
     setActionErrorMessage(null);
     setProjectPendingRemoval(project);
     setMigrationProjectId(null);
+    setMigrationProjectLabel(null);
   }
 
   function cancelProjectRemoval() {
@@ -380,6 +439,25 @@ export function useOrganizationScreenState({
 
     setProjectPendingRemoval(null);
     setMigrationProjectId(null);
+    setMigrationProjectLabel(null);
+  }
+
+  function handleMigrationProjectChange(projectId: ProjectId | null) {
+    setMigrationProjectId(projectId);
+    setMigrationProjectLabel(
+      projectId === null
+        ? null
+        : (availableMigrationProjects.find((project) => project.id === projectId)?.name ?? null),
+    );
+  }
+
+  function handleMemberPageChange(page: number) {
+    setMemberPage(page);
+  }
+
+  function handleMemberSearchChange(value: string) {
+    setMemberSearch(value);
+    setMemberPage(DEFAULT_PAGE);
   }
 
   return {
@@ -404,14 +482,20 @@ export function useOrganizationScreenState({
     isMembersLoading,
     memberErrorMessage,
     memberForm,
+    memberPage,
+    memberSearch,
+    memberTotalPages,
     memberPendingRemoval,
+    migrationProjectLabel,
     migrationProjectId,
     organizationMembers,
+    handleMemberPageChange,
+    handleMemberSearchChange,
+    handleMigrationProjectChange,
     openRemoveOrganizationMemberDialog,
     pendingRoleUpdateMemberId,
     pendingRemovalMemberId,
     projectPendingRemoval,
-    setMigrationProjectId,
     cancelProjectRemoval,
     closeCreateProjectDialog,
     closeEditProjectDialog,

@@ -1,9 +1,11 @@
 import { inject, injectable } from 'inversify';
 import type { Organization } from '../../../../domains/organization/entities/organization';
 import {
+  type ListOrganizationsQuery,
   type OrganizationRepository,
   OrganizationRepositoryToken,
 } from '../../../../domains/organization/ports/organization-repository';
+import type { PaginatedResult } from '../../../../domains/shared/value-objects/paginated-result';
 
 @injectable()
 export class ListMyOrganizationsUseCase {
@@ -12,7 +14,7 @@ export class ListMyOrganizationsUseCase {
     private readonly organizationRepository: OrganizationRepository,
   ) {}
 
-  execute(): Promise<Organization[]> {
-    return this.organizationRepository.getMyOrganizations();
+  execute(query: ListOrganizationsQuery = {}): Promise<PaginatedResult<Organization>> {
+    return this.organizationRepository.getMyOrganizations(query);
   }
 }

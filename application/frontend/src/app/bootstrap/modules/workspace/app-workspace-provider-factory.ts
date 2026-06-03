@@ -5,6 +5,7 @@ import { OrganizationFormFacade } from '../../../../application/workspace/organi
 import { ProjectFormFacade } from '../../../../application/workspace/projects/facades/project-form.facade';
 import { OrganizationIdentifier } from '../../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { ProjectIdentifier } from '../../../../application/workspace/shared/services/identifiers/project-identifier';
+import { PlayableItemEditorValidator } from '../../../../presentation/game/types/shared/management/playable-item-editor-validator';
 import {
   provideWorkspaceDependencies,
   type WorkspaceDependencies,
@@ -30,6 +31,8 @@ export class AppWorkspaceProviderFactory extends BaseAppProviderFactory {
     private readonly organizationFormFacade: OrganizationFormFacade,
     @inject(OrganizationIdentifier)
     private readonly organizationIdentifier: OrganizationIdentifier,
+    @inject(PlayableItemEditorValidator)
+    private readonly playableItemEditorValidator: PlayableItemEditorValidator,
     @inject(ProjectFormFacade)
     private readonly projectFormFacade: ProjectFormFacade,
     @inject(ProjectIdentifier)
@@ -43,6 +46,7 @@ export class AppWorkspaceProviderFactory extends BaseAppProviderFactory {
       gameTypeParser: this.gameTypeParser,
       organizationFormFacade: this.organizationFormFacade,
       organizationIdentifier: this.organizationIdentifier,
+      playableItemEditorValidator: this.playableItemEditorValidator,
       projectFormFacade: this.projectFormFacade,
       projectIdentifier: this.projectIdentifier,
     };

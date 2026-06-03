@@ -15,7 +15,7 @@ interface PartyFinalSummaryPanelProps {
 
 export function PartyFinalSummaryPanel({ players }: PartyFinalSummaryPanelProps) {
   const { t } = usePresentationTranslation();
-  const isMobile = usePresentationMediaQuery('(max-width: 48em)');
+  const isMobile = usePresentationMediaQuery();
   const { podiumByRank, rankedPlayers, winner } = createPartyFinalSummaryModel(players);
 
   return (

@@ -11,17 +11,6 @@ interface FormSectionFrameProps extends PropsWithChildren {
   readonly descriptionId?: string;
 }
 
-interface FormFieldFrameProps {
-  readonly id: string;
-  readonly label: string;
-  readonly required?: boolean;
-  readonly description?: string;
-  readonly descriptionId?: string;
-  readonly error?: string | null;
-  readonly errorId?: string;
-  readonly children: ReactNode;
-}
-
 export function FormRoot({ children, ...props }: FormRootProps) {
   return (
     <form style={formRecipes.root} {...props}>
@@ -46,36 +35,5 @@ export function FormSectionFrame({
       ) : null}
       {children}
     </fieldset>
-  );
-}
-
-export function FormFieldFrame({
-  children,
-  description,
-  descriptionId,
-  error,
-  errorId,
-  id,
-  label,
-  required = false,
-}: FormFieldFrameProps) {
-  return (
-    <div style={formRecipes.fieldShell}>
-      <label htmlFor={id} style={formRecipes.fieldLabel}>
-        {label}
-        {required ? <span aria-hidden="true"> *</span> : null}
-      </label>
-      {children}
-      {description ? (
-        <p id={descriptionId} style={formRecipes.fieldDescription}>
-          {description}
-        </p>
-      ) : null}
-      {error ? (
-        <p aria-live="assertive" id={errorId} role="alert" style={formRecipes.fieldError}>
-          {error}
-        </p>
-      ) : null}
-    </div>
   );
 }

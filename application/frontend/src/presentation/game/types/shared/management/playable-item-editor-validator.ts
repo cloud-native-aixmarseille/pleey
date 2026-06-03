@@ -1,3 +1,4 @@
+import { injectable } from 'inversify';
 import {
   type PlayableItemEditorState,
   type PlayableItemKindConfig,
@@ -19,8 +20,9 @@ const MINIMUM_OUTCOME_COUNT = 2;
 const MINIMUM_TIME_LIMIT_SECONDS = 5;
 const MINIMUM_POINTS = 0;
 
+@injectable()
 export class PlayableItemEditorValidator {
-  static validate(
+  validate(
     editorState: PlayableItemEditorState,
     itemKindConfig?: PlayableItemKindConfig,
   ): readonly PlayableManagementValidationIssue[] {
@@ -66,10 +68,7 @@ export class PlayableItemEditorValidator {
     return issues;
   }
 
-  static isReady(
-    editorState: PlayableItemEditorState,
-    itemKindConfig?: PlayableItemKindConfig,
-  ): boolean {
-    return PlayableItemEditorValidator.validate(editorState, itemKindConfig).length === 0;
+  isReady(editorState: PlayableItemEditorState, itemKindConfig?: PlayableItemKindConfig): boolean {
+    return this.validate(editorState, itemKindConfig).length === 0;
   }
 }

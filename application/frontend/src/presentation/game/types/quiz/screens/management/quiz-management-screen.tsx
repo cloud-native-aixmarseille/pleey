@@ -38,7 +38,7 @@ export function QuizManagementScreen({ gameTypeIdentifier, gateway }: QuizManage
   const quizId = gameTypeIdentifier.parseOrNull(params.quizId);
 
   if (quizId === null) {
-    return <PresentationRedirect replace to="/workspace/dashboard" />;
+    return <PresentationRedirect to="/workspace/dashboard" />;
   }
 
   return (

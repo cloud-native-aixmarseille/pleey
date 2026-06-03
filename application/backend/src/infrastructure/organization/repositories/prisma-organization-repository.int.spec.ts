@@ -16,7 +16,7 @@ describeIfDatabase('PrismaOrganizationRepository', () => {
     }
   });
 
-  it('creates, finds, updates and soft-deletes organizations', async () => {
+  it('creates and finds organizations', async () => {
     const unique = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
     const organizationFixture = createOrganizationFixture({
       name: `Org ${unique}`,
@@ -34,12 +34,5 @@ describeIfDatabase('PrismaOrganizationRepository', () => {
 
     const byName = await harness.repository.findByName(organizationFixture.name);
     expect(byName?.id).toBe(created.id);
-
-    const updatedName = `${organizationFixture.name} v2`;
-    const updated = await harness.repository.update(created.id, updatedName, null);
-    expect(updated.name).toBe(updatedName);
-
-    await harness.repository.delete(created.id);
-    await expect(harness.repository.findById(created.id)).resolves.toBeNull();
   });
 });

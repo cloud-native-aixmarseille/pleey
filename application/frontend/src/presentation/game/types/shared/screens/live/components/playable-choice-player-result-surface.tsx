@@ -149,7 +149,7 @@ export function PlayableChoicePlayerResultSurface({
   testIdPrefix,
 }: PlayableChoicePlayerResultSurfaceProps) {
   const { t } = usePresentationTranslation();
-  const isMobile = usePresentationMediaQuery('(max-width: 48em)');
+  const isMobile = usePresentationMediaQuery();
   const stagePosition = party.context?.lifecycle.stagePosition;
   const result = party.context?.result;
   const currentResult = result?.current;

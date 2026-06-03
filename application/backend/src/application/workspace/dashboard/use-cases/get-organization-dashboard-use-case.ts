@@ -7,10 +7,8 @@ import { OrganizationRepositoryProvider } from '../../../../domain/organization/
 import type { OrganizationMemberRepository } from '../../../../domain/organization/ports/organization-member.repository';
 import { OrganizationMemberRepositoryProvider } from '../../../../domain/organization/ports/organization-member.repository';
 import { DefaultWorkspaceService } from '../../../../domain/organization/services/default-workspace-service';
-import type { ProjectRepository } from '../../../../domain/project/ports/project.repository';
-import { ProjectRepositoryProvider } from '../../../../domain/project/ports/project.repository';
 import {
-  type OrganizationDashboardGameStats,
+  type OrganizationDashboardStats,
   WorkspaceGameManagementPort,
 } from '../../ports/workspace-game-management.port';
 
@@ -20,13 +18,7 @@ interface OrganizationDashboard {
     name: string;
     description: string | null;
   };
-  stats: {
-    totalGames: number;
-    totalParties: number;
-    activeParties: number;
-    totalMembers: number;
-    totalProjects: number;
-  };
+  stats: OrganizationDashboardStats;
 }
 
 /**
@@ -40,8 +32,6 @@ export class GetOrganizationDashboardUseCase {
     private readonly organizationRepository: OrganizationRepository,
     @Inject(OrganizationMemberRepositoryProvider)
     private readonly memberRepository: OrganizationMemberRepository,
-    @Inject(ProjectRepositoryProvider)
-    private readonly projectRepository: ProjectRepository,
     @Inject(WorkspaceGameManagementPort)
     private readonly workspaceGameManagement: WorkspaceGameManagementPort,
   ) {}
@@ -68,10 +58,7 @@ export class GetOrganizationDashboardUseCase {
     }
 
     // Get stats
-    const projects = await this.projectRepository.findByOrganization(organizationId);
-    const members = await this.memberRepository.findByOrganization(organizationId);
-    const gameStats =
-      await this.workspaceGameManagement.getOrganizationDashboardStats(organizationId);
+    const stats = await this.workspaceGameManagement.getOrganizationDashboardStats(organizationId);
 
     return {
       organization: {
@@ -79,21 +66,7 @@ export class GetOrganizationDashboardUseCase {
         name: organization.name,
         description: organization.description,
       },
-      stats: this.buildStats(gameStats, members.length, projects.length),
-    };
-  }
-
-  private buildStats(
-    gameStats: OrganizationDashboardGameStats,
-    totalMembers: number,
-    totalProjects: number,
-  ): OrganizationDashboard['stats'] {
-    return {
-      totalGames: gameStats.totalGames,
-      totalParties: gameStats.totalParties,
-      activeParties: gameStats.activeParties,
-      totalMembers,
-      totalProjects,
+      stats,
     };
   }
 }

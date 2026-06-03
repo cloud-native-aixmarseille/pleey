@@ -102,10 +102,6 @@ type GamePermissionsType {
   launchReadiness: LaunchReadinessPermissionType!
 }
 
-type HealthStatus {
-  status: String!
-}
-
 enum LaunchReadinessDisabledReason {
   NO_STAGES_AVAILABLE
 }
@@ -113,6 +109,24 @@ enum LaunchReadinessDisabledReason {
 type LaunchReadinessPermissionType {
   allowed: Boolean!
   reason: LaunchReadinessDisabledReason
+}
+
+input ListOrganizationProjectsInput {
+  organizationId: Int!
+  page: Int! = 1
+  pageSize: Int! = 9
+  search: String
+}
+
+input ListOrganizationsInput {
+  page: Int! = 1
+  pageSize: Int! = 9
+  search: String
+}
+
+input ListPartiesInput {
+  page: Int! = 1
+  pageSize: Int! = 9
 }
 
 input LoginInput {
@@ -171,11 +185,21 @@ type OrganizationDashboardType {
 }
 
 type OrganizationListType {
-  organizations: [OrganizationType!]!
+  items: [OrganizationType!]!
+  overallCount: Int!
+  page: Int!
+  pageSize: Int!
+  totalCount: Int!
+  totalPages: Int!
 }
 
 type OrganizationMemberListType {
-  members: [OrganizationMemberType!]!
+  items: [OrganizationMemberType!]!
+  overallCount: Int!
+  page: Int!
+  pageSize: Int!
+  totalCount: Int!
+  totalPages: Int!
 }
 
 type OrganizationMemberType {
@@ -185,6 +209,13 @@ type OrganizationMemberType {
   role: OrganizationRole!
   userId: Int!
   username: String!
+}
+
+input OrganizationMembersInput {
+  organizationId: Int!
+  page: Int! = 1
+  pageSize: Int! = 9
+  search: String
 }
 
 enum OrganizationRole {
@@ -200,6 +231,15 @@ type OrganizationType {
   name: String!
   role: OrganizationRole
   updatedAt: DateTime!
+}
+
+type PartyListType {
+  items: [PartyType!]!
+  overallCount: Int!
+  page: Int!
+  pageSize: Int!
+  totalCount: Int!
+  totalPages: Int!
 }
 
 enum PartyRole {
@@ -274,7 +314,12 @@ type ProjectGamesType {
 }
 
 type ProjectListType {
-  projects: [ProjectType!]!
+  items: [ProjectType!]!
+  overallCount: Int!
+  page: Int!
+  pageSize: Int!
+  totalCount: Int!
+  totalPages: Int!
 }
 
 type ProjectType {
@@ -286,20 +331,17 @@ type ProjectType {
 }
 
 type Query {
-  health: HealthStatus!
-  listParties: [PartyType!]!
-  live: HealthStatus!
+  listParties(input: ListPartiesInput): PartyListType!
   me: AuthUserProfileType!
-  myOrganizations: OrganizationListType!
+  myOrganizations(input: ListOrganizationsInput): OrganizationListType!
   organizationDashboard(organizationId: Int!): OrganizationDashboardType!
-  organizationMembers(organizationId: Int!): OrganizationMemberListType!
-  organizationProjects(organizationId: Int!): ProjectListType!
+  organizationMembers(input: OrganizationMembersInput!): OrganizationMemberListType!
+  organizationProjects(input: ListOrganizationProjectsInput!): ProjectListType!
   prediction(predictionId: Int!): PredictionType!
   predictionPrompts(predictionId: Int!): [PredictionPromptType!]!
   projectGames(input: ProjectGamesInput!): ProjectGamesType!
   quiz(quizId: Int!): QuizType!
   quizQuestions(quizId: Int!): [QuizQuestionTypeObject!]!
-  ready: HealthStatus!
 }
 
 enum QuizQuestionType {
@@ -350,10 +392,6 @@ type SelectableOptionType {
   isCorrect: Boolean!
   position: Int!
   text: String
-}
-
-type Subscription {
-  healthTick: HealthStatus!
 }
 
 input UpdateOrganizationMemberRoleInput {

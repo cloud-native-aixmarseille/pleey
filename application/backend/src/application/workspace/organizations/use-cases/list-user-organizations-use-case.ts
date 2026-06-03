@@ -6,10 +6,17 @@ import type { OrganizationRepository } from '../../../../domain/organization/por
 import { OrganizationRepositoryProvider } from '../../../../domain/organization/ports/organization.repository';
 import type { OrganizationMemberRepository } from '../../../../domain/organization/ports/organization-member.repository';
 import { OrganizationMemberRepositoryProvider } from '../../../../domain/organization/ports/organization-member.repository';
+import type { PaginatedResult } from '../../../../domain/shared/value-objects/paginated-result';
+import type { PaginationQuery } from '../../../../domain/shared/value-objects/pagination-query';
+import { PaginationQueryNormalizer } from '../../../shared/services/pagination-query-normalizer';
 
 type OrganizationWithRole = Organization & {
   role: OrganizationRole | null;
 };
+
+const DEFAULT_PAGE_SIZE = 25;
+
+interface ListUserOrganizationsQuery extends PaginationQuery {}
 
 /**
  * Use case for getting all organizations a user belongs to
@@ -21,27 +28,52 @@ export class ListUserOrganizationsUseCase {
     private readonly organizationRepository: OrganizationRepository,
     @Inject(OrganizationMemberRepositoryProvider)
     private readonly memberRepository: OrganizationMemberRepository,
+    private readonly paginationQueryNormalizer: PaginationQueryNormalizer,
   ) {}
 
-  async execute(userId: UserId): Promise<OrganizationWithRole[]> {
-    // Get all memberships for the user
-    const memberships = await this.memberRepository.findByUser(userId);
+  async execute(
+    input: ListUserOrganizationsQuery,
+    userId: UserId,
+  ): Promise<PaginatedResult<OrganizationWithRole>> {
+    const pagination = this.paginationQueryNormalizer.normalizeQuery(input, DEFAULT_PAGE_SIZE);
+    const memberships = await this.memberRepository.findPageByUser(
+      userId,
+      pagination.page,
+      pagination.pageSize,
+      pagination.search,
+    );
 
-    if (memberships.length === 0) {
-      return [];
+    if (memberships.items.length === 0) {
+      return {
+        ...memberships,
+        items: [],
+      };
     }
 
-    // Get organization details in a single query
-    const organizationIds = memberships.map((m) => m.organizationId);
+    const organizationIds = memberships.items.map((membership) => membership.organizationId);
     const organizations = await this.organizationRepository.findByIds(organizationIds);
+    const organizationsById = new Map(
+      organizations.map((organization) => [organization.id, organization]),
+    );
     const rolesByOrganizationId = new Map(
-      memberships.map((membership) => [membership.organizationId, membership.role]),
+      memberships.items.map((membership) => [membership.organizationId, membership.role]),
     );
 
-    return organizations.map((organization) =>
-      Object.assign(organization, {
-        role: rolesByOrganizationId.get(organization.id) ?? null,
+    return {
+      ...memberships,
+      items: memberships.items.flatMap((membership) => {
+        const organization = organizationsById.get(membership.organizationId);
+
+        if (!organization) {
+          return [];
+        }
+
+        return [
+          Object.assign(organization, {
+            role: rolesByOrganizationId.get(organization.id) ?? null,
+          }),
+        ];
       }),
-    );
+    };
   }
 }

@@ -23,6 +23,8 @@ export const organizationFr = {
         empty: "Aucun membre n'est encore rattaché à cette organisation.",
         addButton: 'Ajouter un membre',
         removeButton: 'Retirer',
+        searchLabel: 'Rechercher des membres',
+        searchPlaceholder: "Rechercher par nom d'utilisateur",
         usernameOrEmailLabel: "Nom d'utilisateur ou email",
         usernameOrEmailPlaceholder: "Saisissez un nom d'utilisateur ou un email",
         roleLabel: 'Rôle',
@@ -38,6 +40,12 @@ export const organizationFr = {
         },
         validation: {
           usernameOrEmailRequired: "Saisissez un nom d'utilisateur ou un email.",
+        },
+        pagination: {
+          label: 'Pages des membres',
+          previous: 'Page de membres précédente',
+          next: 'Page de membres suivante',
+          pageOf: '{{current}} / {{total}}',
         },
       },
       create: {
@@ -71,10 +79,18 @@ export const organizationFr = {
   },
   project: {
     management: {
+      searchLabel: 'Rechercher des projets',
+      searchPlaceholder: 'Rechercher des projets',
       section: {
         eyebrow: 'Projets',
         title: 'Gestion des projets',
         createButton: 'Créer un projet',
+      },
+      pagination: {
+        label: 'Pages des projets',
+        previous: 'Page de projet précédente',
+        next: 'Page de projet suivante',
+        pageOf: '{{current}} / {{total}}',
       },
       list: {
         empty: "Aucun projet n'est encore rattaché à cette organisation.",

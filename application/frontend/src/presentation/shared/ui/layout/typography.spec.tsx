@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { renderWithUiProvider } from '../../../../test-utils/render-with-ui-provider';
-import { BulletList, Eyebrow, Heading, SummaryText, SupportingText } from './typography';
+import { Eyebrow, Heading, SummaryText, SupportingText } from './typography';
 
 describe('typography', () => {
   describe('Eyebrow()', () => {
@@ -39,15 +39,6 @@ describe('typography', () => {
       renderWithUiProvider(<SummaryText>Summary value</SummaryText>);
 
       expect(screen.getByText('Summary value')).toBeInTheDocument();
-    });
-  });
-
-  describe('BulletList()', () => {
-    it('renders all list items', () => {
-      renderWithUiProvider(<BulletList items={['Alpha', 'Beta']} />);
-
-      expect(screen.getByText('Alpha')).toBeInTheDocument();
-      expect(screen.getByText('Beta')).toBeInTheDocument();
     });
   });
 });

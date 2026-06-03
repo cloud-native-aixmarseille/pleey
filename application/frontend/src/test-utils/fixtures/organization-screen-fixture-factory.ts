@@ -11,6 +11,7 @@ import type { OrganizationMember } from '../../domains/organization/entities/org
 import type {
   AddOrganizationMemberCommand,
   CreateOrganizationCommand,
+  ListOrganizationMembersQuery,
   OrganizationRepository,
   RemoveOrganizationMemberCommand,
   UpdateOrganizationMemberRoleCommand,
@@ -22,6 +23,7 @@ import type {
   ProjectRepository,
   UpdateProjectCommand,
 } from '../../domains/project/ports/project-repository';
+import type { PaginatedResult } from '../../domains/shared/value-objects/paginated-result';
 import { DashboardReadGatewayMockFactory } from '../mocks/dashboard-read-gateway-mock-factory';
 import { OrganizationFixtureFactory } from './organization-fixture-factory';
 import { ProjectFixtureFactory } from './project-fixture-factory';
@@ -127,8 +129,15 @@ export class OrganizationScreenFixtureFactory {
         }),
       ),
       listOrganizationMembers: vi
-        .fn<(_: OrganizationId) => Promise<OrganizationMember[]>>()
-        .mockResolvedValue([]),
+        .fn<(_: ListOrganizationMembersQuery) => Promise<PaginatedResult<OrganizationMember>>>()
+        .mockResolvedValue({
+          items: [],
+          totalCount: 0,
+          overallCount: 0,
+          page: 1,
+          pageSize: 25,
+          totalPages: 1,
+        }),
       addOrganizationMember: vi
         .fn<(_: AddOrganizationMemberCommand) => Promise<OrganizationMember>>()
         .mockResolvedValue({

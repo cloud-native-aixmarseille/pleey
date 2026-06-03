@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { Prisma, OrganizationMember as PrismaOrganizationMember } from '@prisma/client';
+import { PaginationQueryNormalizer } from '../../../application/shared/services/pagination-query-normalizer';
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-member-identifier';
 import type { UserId } from '../../../domain/identity/entities/user';
@@ -8,8 +9,9 @@ import {
   OrganizationMember,
   type OrganizationMemberId,
 } from '../../../domain/organization/entities/organization-member';
-import type { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
+import { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
 import type { OrganizationMemberRepository } from '../../../domain/organization/ports/organization-member.repository';
+import type { PaginatedResult } from '../../../domain/shared/value-objects/paginated-result';
 import { PrismaService } from '../../database/prisma-service';
 
 type PrismaOrganizationMemberRecord = PrismaOrganizationMember & {
@@ -32,6 +34,7 @@ export class PrismaOrganizationMemberRepository implements OrganizationMemberRep
     private readonly prisma: PrismaService,
     private readonly organizationIdentifier: OrganizationIdentifier,
     private readonly organizationMemberIdentifier: OrganizationMemberIdentifier,
+    private readonly paginationQueryNormalizer: PaginationQueryNormalizer,
   ) {}
 
   async create(
@@ -93,6 +96,41 @@ export class PrismaOrganizationMemberRepository implements OrganizationMemberRep
     return this.toDomain(member);
   }
 
+  async countOwnersByOrganization(organizationId: OrganizationId): Promise<number> {
+    return this.prisma.organizationMember.count({
+      where: {
+        organizationId,
+        role: OrganizationRole.OWNER,
+        deletedAt: null,
+        organization: {
+          deletedAt: null,
+        },
+      },
+    });
+  }
+
+  async findLatestByUser(userId: UserId): Promise<OrganizationMember | null> {
+    const member = await this.prisma.organizationMember.findFirst({
+      include: ORGANIZATION_MEMBER_USER_INCLUDE,
+      where: {
+        userId,
+        deletedAt: null,
+        organization: {
+          deletedAt: null,
+        },
+      },
+      orderBy: {
+        joinedAt: 'desc',
+      },
+    });
+
+    if (!member) {
+      return null;
+    }
+
+    return this.toDomain(member);
+  }
+
   async findByOrganizationAndUser(
     organizationId: OrganizationId,
     userId: UserId,
@@ -116,40 +154,110 @@ export class PrismaOrganizationMemberRepository implements OrganizationMemberRep
     return this.toDomain(member);
   }
 
-  async findByOrganization(organizationId: OrganizationId): Promise<OrganizationMember[]> {
-    const members = await this.prisma.organizationMember.findMany({
-      include: ORGANIZATION_MEMBER_USER_INCLUDE,
-      where: {
-        organizationId,
+  async findPageByOrganization(
+    organizationId: OrganizationId,
+    page: number,
+    pageSize: number,
+    search?: string,
+  ): Promise<PaginatedResult<OrganizationMember>> {
+    const pagination = this.paginationQueryNormalizer.normalizePage(page, pageSize, search);
+    const baseWhere = {
+      organizationId,
+      deletedAt: null,
+      organization: {
         deletedAt: null,
-        organization: {
-          deletedAt: null,
-        },
       },
-      orderBy: {
-        joinedAt: 'asc',
+    } satisfies Prisma.OrganizationMemberWhereInput;
+    const filteredWhere = {
+      organizationId,
+      deletedAt: null,
+      ...(pagination.search
+        ? {
+            user: {
+              username: {
+                contains: pagination.search,
+                mode: 'insensitive' as const,
+              },
+            },
+          }
+        : {}),
+      organization: {
+        deletedAt: null,
       },
-    });
+    } satisfies Prisma.OrganizationMemberWhereInput;
 
-    return members.map((member: PrismaOrganizationMemberRecord) => this.toDomain(member));
+    const [overallCount, totalCount, members] = await this.prisma.$transaction([
+      this.prisma.organizationMember.count({ where: baseWhere }),
+      this.prisma.organizationMember.count({ where: filteredWhere }),
+      this.prisma.organizationMember.findMany({
+        include: ORGANIZATION_MEMBER_USER_INCLUDE,
+        where: filteredWhere,
+        orderBy: {
+          joinedAt: 'asc',
+        },
+        skip: pagination.skip,
+        take: pagination.pageSize,
+      }),
+    ]);
+
+    return this.paginationQueryNormalizer.toPaginatedResult(
+      pagination,
+      members.map((member: PrismaOrganizationMemberRecord) => this.toDomain(member)),
+      totalCount,
+      overallCount,
+    );
   }
 
-  async findByUser(userId: UserId): Promise<OrganizationMember[]> {
-    const members = await this.prisma.organizationMember.findMany({
-      include: ORGANIZATION_MEMBER_USER_INCLUDE,
-      where: {
-        userId,
+  async findPageByUser(
+    userId: UserId,
+    page: number,
+    pageSize: number,
+    search?: string,
+  ): Promise<PaginatedResult<OrganizationMember>> {
+    const pagination = this.paginationQueryNormalizer.normalizePage(page, pageSize, search);
+    const baseWhere = {
+      userId,
+      deletedAt: null,
+      organization: {
         deletedAt: null,
-        organization: {
-          deletedAt: null,
-        },
       },
-      orderBy: {
-        joinedAt: 'desc',
+    } satisfies Prisma.OrganizationMemberWhereInput;
+    const filteredWhere = {
+      userId,
+      deletedAt: null,
+      organization: {
+        deletedAt: null,
+        ...(pagination.search
+          ? {
+              name: {
+                contains: pagination.search,
+                mode: 'insensitive' as const,
+              },
+            }
+          : {}),
       },
-    });
+    } satisfies Prisma.OrganizationMemberWhereInput;
 
-    return members.map((member: PrismaOrganizationMemberRecord) => this.toDomain(member));
+    const [overallCount, totalCount, members] = await this.prisma.$transaction([
+      this.prisma.organizationMember.count({ where: baseWhere }),
+      this.prisma.organizationMember.count({ where: filteredWhere }),
+      this.prisma.organizationMember.findMany({
+        include: ORGANIZATION_MEMBER_USER_INCLUDE,
+        where: filteredWhere,
+        orderBy: {
+          joinedAt: 'desc',
+        },
+        skip: pagination.skip,
+        take: pagination.pageSize,
+      }),
+    ]);
+
+    return this.paginationQueryNormalizer.toPaginatedResult(
+      pagination,
+      members.map((member: PrismaOrganizationMemberRecord) => this.toDomain(member)),
+      totalCount,
+      overallCount,
+    );
   }
 
   async updateRole(id: OrganizationMemberId, role: OrganizationRole): Promise<OrganizationMember> {

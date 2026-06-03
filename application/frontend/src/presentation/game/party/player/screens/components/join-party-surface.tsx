@@ -52,7 +52,7 @@ export function JoinPartySurface({
   pin,
 }: JoinPartySurfaceProps) {
   const { t } = usePresentationTranslation();
-  const isMobile = usePresentationMediaQuery('(max-width: 48em)');
+  const isMobile = usePresentationMediaQuery();
   const trimmedGuestName = guestName.trim();
   const isJoinDisabled = isJoinSubmitting || (!isAuthenticated && trimmedGuestName.length === 0);
   const guestAvatarAltLabel = t('game.party.player.route.guestAvatarAlt', {

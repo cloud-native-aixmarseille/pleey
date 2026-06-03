@@ -16,12 +16,13 @@ import {
 } from '../../../../shared/ui/layout/containers';
 import { ElevatedPanel, InsetPanel } from '../../../../shared/ui/layout/panels';
 import { Heading, SupportingText } from '../../../../shared/ui/layout/typography';
+import { useWorkspaceDependencies } from '../../../../workspace/shared/contexts/workspace-dependencies-context';
 import {
   createPlayableItemEditorStateFromItem,
   type PlayableItemKindConfig,
 } from './playable-content-management-model';
 import {
-  PlayableItemEditorValidator,
+  type PlayableItemEditorValidator,
   type PlayableManagementValidationIssueCode,
 } from './playable-item-editor-validator';
 
@@ -79,12 +80,12 @@ interface ReviewItemSummary {
 
 function createReviewItemSummary(
   item: PlayableManagementItem,
+  playableItemEditorValidator: PlayableItemEditorValidator,
   itemKindConfig?: PlayableItemKindConfig,
 ): ReviewItemSummary {
-  const issues = PlayableItemEditorValidator.validate(
-    createPlayableItemEditorStateFromItem(item, itemKindConfig),
-    itemKindConfig,
-  ).map((issue) => issue.code);
+  const issues = playableItemEditorValidator
+    .validate(createPlayableItemEditorStateFromItem(item, itemKindConfig), itemKindConfig)
+    .map((issue) => issue.code);
 
   return {
     isReady: issues.length === 0,
@@ -216,7 +217,10 @@ export function ReviewPanel({
   readonly translationRoot: string;
 }) {
   const { t } = usePresentationTranslation();
-  const itemSummaries = items.map((item) => createReviewItemSummary(item, itemKindConfig));
+  const { playableItemEditorValidator } = useWorkspaceDependencies();
+  const itemSummaries = items.map((item) =>
+    createReviewItemSummary(item, playableItemEditorValidator, itemKindConfig),
+  );
   const readyCount = itemSummaries.filter((item) => item.isReady).length;
   const issueCount = itemSummaries.length - readyCount;
   const hasItems = items.length > 0;

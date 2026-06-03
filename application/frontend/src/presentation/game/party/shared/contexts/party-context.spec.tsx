@@ -15,6 +15,9 @@ import { PartyFixtureFactory } from '../../../../../test-utils/fixtures/party-fi
 import { PartyIdentifierMockFactory } from '../../../../../test-utils/mocks/party-identifier-mock-factory';
 import { PartyPinIdentifierMockFactory } from '../../../../../test-utils/mocks/party-pin-identifier-mock-factory';
 import { StageIdentifierMockFactory } from '../../../../../test-utils/mocks/stage-identifier-mock-factory';
+import { PlayerRuntimeNoticeMessageResolver } from '../../player/screens/components/player-runtime-notice-message-resolver';
+import { GuestPartyEntryDraftFactory } from '../../player/screens/guest-party-entry-draft-factory';
+import { PartyLobbyRuntimeRedirectResolver } from '../screens/party-lobby-runtime-redirect-resolver';
 import { PartyProvider, useParty } from './party-context';
 import { type PartyDependencies, providePartyDependencies } from './party-dependencies-context';
 
@@ -25,9 +28,12 @@ const partyPinIdentifier: PartyDependencies['partyPinIdentifier'] =
 const stageIdentifier: PartyDependencies['stageIdentifier'] =
   new StageIdentifierMockFactory().create();
 const partyFixtureFactory = new PartyFixtureFactory();
+const guestPartyEntryDraftFactory = new GuestPartyEntryDraftFactory();
+const partyLobbyRuntimeRedirectResolver = new PartyLobbyRuntimeRedirectResolver();
+const playerRuntimeNoticeMessageResolver = new PlayerRuntimeNoticeMessageResolver();
 
 function parsePartyId(value: number): PartyId {
-  const partyId = partyIdentifier.parse(value);
+  const partyId = partyIdentifier.parseOrNull(value);
 
   if (partyId === null) {
     throw new Error(`Expected a party id for ${value}`);
@@ -95,8 +101,10 @@ describe('PartyProvider', () => {
           {children}
         </PartyProvider>,
         {
+          guestPartyEntryDraftFactory,
           hostPartyRuntimeControlsResolver,
           partyLobbyFacade,
+          partyLobbyRuntimeRedirectResolver,
           partyGuestSessionPort,
           partyIdentifier,
           partyHostControlPort,
@@ -104,6 +112,7 @@ describe('PartyProvider', () => {
           partyObservationPort,
           partyPinIdentifier,
           partyPlayerPort,
+          playerRuntimeNoticeMessageResolver,
           stageIdentifier,
         },
       );
@@ -168,8 +177,10 @@ describe('PartyProvider', () => {
           {children}
         </PartyProvider>,
         {
+          guestPartyEntryDraftFactory,
           hostPartyRuntimeControlsResolver,
           partyLobbyFacade,
+          partyLobbyRuntimeRedirectResolver,
           partyGuestSessionPort,
           partyIdentifier,
           partyHostControlPort,
@@ -177,6 +188,7 @@ describe('PartyProvider', () => {
           partyObservationPort,
           partyPinIdentifier,
           partyPlayerPort,
+          playerRuntimeNoticeMessageResolver,
           stageIdentifier,
         },
       );
@@ -217,8 +229,10 @@ describe('PartyProvider', () => {
           {children}
         </PartyProvider>,
         {
+          guestPartyEntryDraftFactory,
           hostPartyRuntimeControlsResolver,
           partyLobbyFacade,
+          partyLobbyRuntimeRedirectResolver,
           partyGuestSessionPort,
           partyIdentifier,
           partyHostControlPort,
@@ -226,6 +240,7 @@ describe('PartyProvider', () => {
           partyObservationPort,
           partyPinIdentifier,
           partyPlayerPort,
+          playerRuntimeNoticeMessageResolver,
           stageIdentifier,
         },
       );
@@ -255,8 +270,10 @@ describe('PartyProvider', () => {
           {children}
         </PartyProvider>,
         {
+          guestPartyEntryDraftFactory,
           hostPartyRuntimeControlsResolver,
           partyLobbyFacade,
+          partyLobbyRuntimeRedirectResolver,
           partyGuestSessionPort,
           partyIdentifier,
           partyHostControlPort,
@@ -264,6 +281,7 @@ describe('PartyProvider', () => {
           partyObservationPort,
           partyPinIdentifier,
           partyPlayerPort,
+          playerRuntimeNoticeMessageResolver,
           stageIdentifier,
         },
       );
@@ -297,8 +315,10 @@ describe('PartyProvider', () => {
           {children}
         </PartyProvider>,
         {
+          guestPartyEntryDraftFactory,
           hostPartyRuntimeControlsResolver,
           partyLobbyFacade,
+          partyLobbyRuntimeRedirectResolver,
           partyGuestSessionPort,
           partyIdentifier,
           partyHostControlPort,
@@ -306,6 +326,7 @@ describe('PartyProvider', () => {
           partyObservationPort,
           partyPinIdentifier,
           partyPlayerPort,
+          playerRuntimeNoticeMessageResolver,
           stageIdentifier,
         },
       );

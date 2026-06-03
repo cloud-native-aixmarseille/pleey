@@ -32,6 +32,9 @@ import { StageIdentifierMockFactory } from '../../../../../test-utils/mocks/stag
 import { UserIdentifierMockFactory } from '../../../../../test-utils/mocks/user-identifier-mock-factory';
 import { renderWithProviders } from '../../../../../test-utils/render-with-providers';
 import { uiThemeTokens } from '../../../../shared/ui/foundation/ui-theme';
+import { PlayerRuntimeNoticeMessageResolver } from '../../player/screens/components/player-runtime-notice-message-resolver';
+import { GuestPartyEntryDraftFactory } from '../../player/screens/guest-party-entry-draft-factory';
+import { PartyLobbyRuntimeRedirectResolver } from './party-lobby-runtime-redirect-resolver';
 import { PartyLobbyScreen } from './party-lobby-screen';
 import { PartyLobbyRouteKind, PartyScreenSection } from './use-party-lobby-screen-state';
 
@@ -48,6 +51,9 @@ const toActionId = (value: number) => partyActionIdentifier.parse(value);
 const gameIdentifier = new GameIdentifierMockFactory().create();
 const authFixtureFactory = new AuthFixtureFactory();
 const partyFixtureFactory = new PartyFixtureFactory();
+const guestPartyEntryDraftFactory = new GuestPartyEntryDraftFactory();
+const playerRuntimeNoticeMessageResolver = new PlayerRuntimeNoticeMessageResolver();
+const partyLobbyRuntimeRedirectResolver = new PartyLobbyRuntimeRedirectResolver();
 
 type StagePartyRuntimeContext = Extract<
   NonNullable<PartyObservation['context']>,
@@ -118,14 +124,11 @@ function createUserEntry(
   },
 ): LegacyObservedPartyEntry {
   return {
-    ...partyFixtureFactory.createPlayer({
-      avatarUri: options.avatarUri,
-      identity: { kind: PartyPlayerIdentityKind.User, userId },
-      joinedAt: options.joinedAt,
-      totalScore: options.totalScore,
-      username,
-    }),
+    avatarUri: options.avatarUri,
+    identity: { kind: PartyPlayerIdentityKind.User, userId },
     joinedAt: options.joinedAt,
+    totalScore: options.totalScore,
+    username,
     role,
   };
 }
@@ -140,14 +143,11 @@ function createGuestEntry(
   },
 ): LegacyObservedPartyEntry {
   return {
-    ...partyFixtureFactory.createPlayer({
-      avatarUri: options.avatarUri,
-      identity: { kind: PartyPlayerIdentityKind.Guest, guestId },
-      joinedAt: options.joinedAt,
-      totalScore: options.totalScore,
-      username,
-    }),
+    avatarUri: options.avatarUri,
+    identity: { kind: PartyPlayerIdentityKind.Guest, guestId },
     joinedAt: options.joinedAt,
+    totalScore: options.totalScore,
+    username,
     role: PartyRole.PLAYER,
   };
 }
@@ -406,15 +406,18 @@ vi.mock('../contexts/party-dependencies-context', async (importOriginal) => {
   return {
     ...actual,
     usePartyDependencies: () => ({
+      guestPartyEntryDraftFactory,
       hostPartyRuntimeControlsResolver: mocks.hostPartyRuntimeControlsResolver,
       partyIdentifier,
       partyLobbyFacade: mocks.partyLobbyFacade,
+      partyLobbyRuntimeRedirectResolver,
       partyGuestSessionPort: mocks.partyGuestSessionPort,
       partyHostControlPort: mocks.partyHostControlPort,
       partyManagementPort: mocks.partyManagementPort,
       partyPlayerPort: mocks.partyPlayerPort,
       partyObservationPort: mocks.partyObservationPort,
       partyPinIdentifier,
+      playerRuntimeNoticeMessageResolver,
       stageIdentifier,
     }),
   };
