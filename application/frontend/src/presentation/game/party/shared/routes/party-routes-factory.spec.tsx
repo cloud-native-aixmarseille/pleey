@@ -1,6 +1,8 @@
 import { screen } from '@testing-library/react';
+import type { ReactElement } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { renderRouteWithProviders } from '../../../../../test-utils/render-route-with-providers';
+import { PatienceRouteProvider } from '../../../../shared/ui/patience';
 import { PartyRoutesFactory } from './party-routes-factory';
 
 vi.mock('../screens/party-lobby-screen', () => ({
@@ -18,6 +20,20 @@ const partyRouteService = {
   resolvePartyResultRoutePattern: () => 'party/:partyId/stage/:stageId/result',
   resolvePartyStageRoutePattern: () => 'party/:partyId/stage/:stageId',
 };
+
+function getWrappedRouteElement(path: string): ReactElement<{ routeKind: string }> {
+  const route = new PartyRoutesFactory(partyRouteService as never)
+    .create()
+    .find((candidate) => candidate.path === path);
+
+  expect(route?.element).toBeTruthy();
+
+  const patienceProvider = route?.element as ReactElement<{ children: ReactElement }>;
+
+  expect(patienceProvider.type).toBe(PatienceRouteProvider);
+
+  return patienceProvider.props.children as ReactElement<{ routeKind: string }>;
+}
 
 describe('PartyRoutesFactory', () => {
   it('registers the host party journey as one persistent wildcard route plus the join route', () => {
@@ -39,5 +55,17 @@ describe('PartyRoutesFactory', () => {
     });
 
     expect(screen.getByTestId('party-lobby-screen-stub')).toBeInTheDocument();
+  });
+
+  it('wraps the party journey route in a patience route provider', () => {
+    const wrappedRoute = getWrappedRouteElement('party/:partyId/*');
+
+    expect(wrappedRoute.props.routeKind).toBe('partyId');
+  });
+
+  it('wraps the join route in a patience route provider', () => {
+    const wrappedRoute = getWrappedRouteElement('join/:pin');
+
+    expect(wrappedRoute.props.routeKind).toBe('pin');
   });
 });
