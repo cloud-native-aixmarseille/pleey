@@ -2,8 +2,8 @@ apiVersion: v2
 name: pleey
 description: Production-ready umbrella chart for the Pleey frontend, backend, PostgreSQL, and Valkey runtime.
 type: application
-version: 0.2.0
-appVersion: "0.2.0"
+version: 0.3.0
+appVersion: "0.3.0"
 home: https://github.com/cloud-native-aixmarseille/pleey
 sources:
   - https://github.com/cloud-native-aixmarseille/pleey
@@ -20,14 +20,14 @@ maintainers:
 icon: https://raw.githubusercontent.com/cloud-native-aixmarseille/pleey/main/application/frontend/public/favicon/favicon.svg
 dependencies:
   - name: frontend
-    version: 0.2.0
+    version: 0.3.0
     repository: file://charts/frontend
     condition: frontend.enabled
     import-values:
       - child: service
         parent: _frontend.service
   - name: backend
-    version: 0.2.0
+    version: 0.3.0
     repository: file://charts/backend
     condition: backend.enabled
     import-values:
