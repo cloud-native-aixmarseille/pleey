@@ -21,6 +21,8 @@ export const gamePartyPlayerEn = {
           currentHost: 'Hosted by {{username}}',
           actionSubmitting: 'Submitting your answer...',
           actionLocked: 'Your answer is locked in.',
+          answerShortcuts: 'Answer choices',
+          answerShortcut: 'Select answer {{number}}',
           actionPaused: 'The host paused the party. Answers are temporarily locked.',
           runtimeRestartStageToast:
             'The host restarted this stage. Any answers already submitted for it were cleared.',

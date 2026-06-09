@@ -9,6 +9,7 @@ import { PartyIdentifierMockFactory } from '../../../../../../../test-utils/mock
 import { PartyPinIdentifierMockFactory } from '../../../../../../../test-utils/mocks/party-pin-identifier-mock-factory';
 import { StageIdentifierMockFactory } from '../../../../../../../test-utils/mocks/stage-identifier-mock-factory';
 import { renderWithUiProvider } from '../../../../../../../test-utils/render-with-ui-provider';
+import { KeyboardShortcutsProvider } from '../../../../../../shared/keyboard';
 import { PredictionHostStagePanel } from './prediction-host-stage-panel';
 import { PredictionPlayerResultSurface } from './prediction-player-result-surface';
 import { PredictionPlayerStageSurface } from './prediction-player-stage-surface';
@@ -137,6 +138,23 @@ function createResultParty(): PartyObservation {
   });
 }
 
+function renderPredictionPlayerStageSurface(
+  overrides: Partial<React.ComponentProps<typeof PredictionPlayerStageSurface>> = {},
+) {
+  return renderWithUiProvider(
+    <KeyboardShortcutsProvider>
+      <PredictionPlayerStageSurface
+        onLeaveParty={vi.fn()}
+        onSubmitAction={vi.fn()}
+        party={createStageParty()}
+        pendingActionId={null}
+        playerActionErrorMessage={null}
+        {...overrides}
+      />
+    </KeyboardShortcutsProvider>,
+  );
+}
+
 describe('prediction runtime panels', () => {
   afterEach(() => {
     vi.useRealTimers();
@@ -167,15 +185,7 @@ describe('prediction runtime panels', () => {
 
     const onSubmitAction = vi.fn();
 
-    renderWithUiProvider(
-      <PredictionPlayerStageSurface
-        onLeaveParty={vi.fn()}
-        onSubmitAction={onSubmitAction}
-        party={createStageParty()}
-        pendingActionId={null}
-        playerActionErrorMessage={null}
-      />,
-    );
+    renderPredictionPlayerStageSurface({ onSubmitAction });
 
     act(() => {
       vi.advanceTimersByTime(3_000);
@@ -193,19 +203,32 @@ describe('prediction runtime panels', () => {
 
     const onSubmitAction = vi.fn();
 
-    renderWithUiProvider(
-      <PredictionPlayerStageSurface
-        onLeaveParty={vi.fn()}
-        onSubmitAction={onSubmitAction}
-        party={createStageParty()}
-        pendingActionId={null}
-        playerActionErrorMessage={null}
-      />,
-    );
+    renderPredictionPlayerStageSurface({ onSubmitAction });
 
     fireEvent.click(screen.getByRole('button', { name: 'Away wins' }));
 
     expect(onSubmitAction).toHaveBeenCalledWith(secondActionId);
+  });
+
+  it('submits the selected prediction action from the keyboard shortcut', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(1_000);
+
+    const onSubmitAction = vi.fn();
+
+    renderPredictionPlayerStageSurface({ onSubmitAction });
+
+    act(() => {
+      vi.advanceTimersByTime(3_000);
+    });
+
+    fireEvent.keyDown(document, { key: '2' });
+
+    expect(onSubmitAction).toHaveBeenCalledWith(secondActionId);
+    expect(screen.getByRole('button', { name: 'Away wins' })).toHaveAttribute(
+      'aria-keyshortcuts',
+      '2',
+    );
   });
 
   it('disables prediction actions when the stage timer has expired', () => {
@@ -214,15 +237,7 @@ describe('prediction runtime panels', () => {
 
     const onSubmitAction = vi.fn();
 
-    renderWithUiProvider(
-      <PredictionPlayerStageSurface
-        onLeaveParty={vi.fn()}
-        onSubmitAction={onSubmitAction}
-        party={createStageParty()}
-        pendingActionId={null}
-        playerActionErrorMessage={null}
-      />,
-    );
+    renderPredictionPlayerStageSurface({ onSubmitAction });
 
     const actionButton = screen.getByRole('button', { name: 'Away wins' });
 

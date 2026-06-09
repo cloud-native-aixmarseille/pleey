@@ -21,6 +21,7 @@ export interface PlayableChoiceResultActionTileCopy {
 interface PlayableChoiceResultActionTileProps {
   readonly actionCount?: number;
   readonly actionPercent?: number;
+  readonly ariaKeyShortcuts?: string;
   readonly copy: PlayableChoiceResultActionTileCopy;
   readonly disabled?: boolean;
   /**
@@ -212,6 +213,7 @@ function buildCorrectMarkerStyle(slot: PlayableChoiceActionSlotIdentity): CSSPro
 export function PlayableChoiceResultActionTile({
   actionCount,
   actionPercent,
+  ariaKeyShortcuts,
   copy,
   disabled = false,
   fillParent = false,
@@ -284,6 +286,7 @@ export function PlayableChoiceResultActionTile({
     return (
       <button
         aria-label={text}
+        aria-keyshortcuts={ariaKeyShortcuts}
         aria-pressed={isSelected}
         data-testid={testId}
         disabled={disabled}

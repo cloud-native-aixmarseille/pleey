@@ -2,6 +2,10 @@
 
 `application/frontend/` — React 19, Vite 7, Inversify, Vitest.
 
+## Detailed Specifications
+
+- [Frontend Keyboard Controls Specification](./frontend-keyboard-controls.md)
+
 ## Commands
 
 See `package.json` scripts and `make help` for available commands.

@@ -349,6 +349,7 @@ vi.mock('../../../../../test-utils/render-with-providers', async (importOriginal
   const { render } = await import('@testing-library/react');
   const { MantineProvider } = await import('@mantine/core');
   const { MemoryRouter } = await import('react-router-dom');
+  const { KeyboardShortcutsProvider } = await import('../../../../shared/keyboard');
 
   return {
     ...actual,
@@ -359,7 +360,9 @@ vi.mock('../../../../../test-utils/render-with-providers', async (importOriginal
       return render(ui, {
         wrapper: ({ children }) => (
           <MantineProvider>
-            <MemoryRouter initialEntries={[initialPath]}>{children}</MemoryRouter>
+            <KeyboardShortcutsProvider>
+              <MemoryRouter initialEntries={[initialPath]}>{children}</MemoryRouter>
+            </KeyboardShortcutsProvider>
           </MantineProvider>
         ),
         ...options,

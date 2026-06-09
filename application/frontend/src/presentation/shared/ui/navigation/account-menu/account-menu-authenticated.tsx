@@ -2,6 +2,7 @@ import type { User } from '../../../../../domains/identity/entities/user';
 import { usePresentationTranslation } from '../../../i18n/use-presentation-translation';
 import { UserAvatar } from '../../data/user-avatar';
 import { AppIcon } from '../../icons/app-icon';
+import { AccountMenuPreferencesPanel } from './account-menu-preferences-panel';
 import {
   AccountMenuActionButton,
   AccountMenuActionRow,
@@ -37,6 +38,7 @@ export function AccountMenuAuthenticated({
         aria-expanded={opened}
         aria-haspopup="menu"
         aria-label={t('shared.shell.accountMenu')}
+        aria-keyshortcuts="u"
         onClick={onToggle}
       >
         <UserAvatar alt={user.username} size={28} src={user.avatarUri} />
@@ -52,13 +54,14 @@ export function AccountMenuAuthenticated({
               <span>{t('shared.shell.profileLink')}</span>
             </AccountMenuActionRow>
           </AccountMenuActionButton>
-          <AccountMenuDivider />
           <AccountMenuActionButton danger onClick={onSignOut} role="menuitem">
             <AccountMenuActionRow>
               <AppIcon name="sign-out" size={16} />
               <span>{t('shared.shell.signOutAction')}</span>
             </AccountMenuActionRow>
           </AccountMenuActionButton>
+          <AccountMenuDivider />
+          <AccountMenuPreferencesPanel />
         </AccountMenuDropdown>
       ) : null}
     </AccountMenuWrapper>

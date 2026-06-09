@@ -1,6 +1,8 @@
 import type { CSSProperties } from 'react';
+import type { PartyActionId } from '../../../../../../../domains/game/party/shared/entities/party-action';
 import { PartyStatus } from '../../../../../../../domains/game/party/shared/entities/party-status';
 import { usePresentationTranslation } from '../../../../../../shared/i18n/use-presentation-translation';
+import { useKeyboardShortcut, useShortcutScope } from '../../../../../../shared/keyboard';
 import { ResponsiveGrid } from '../../../../../../shared/ui/layout/containers';
 import { usePresentationMediaQuery } from '../../../../../../shared/ui/layout/use-presentation-media-query';
 import {
@@ -24,6 +26,7 @@ const STAGE_REVEAL_LOCK_MS_DESKTOP = 2_800;
 const STAGE_ANSWER_REVEAL_INITIAL_DELAY_SECONDS_MOBILE = 1.4;
 const STAGE_ANSWER_REVEAL_STAGGER_SECONDS_MOBILE = 0.18;
 const STAGE_REVEAL_LOCK_MS_MOBILE = 0;
+const MAX_SHORTCUT_ACTION_COUNT = 9;
 
 const mobileGridBaseStyle: CSSProperties = {
   display: 'grid',
@@ -47,6 +50,34 @@ function resolveMobileGridStyle(actionCount: number): CSSProperties {
     ...mobileGridBaseStyle,
     gridTemplateRows: `repeat(${rowCount}, minmax(0, 1fr))`,
   };
+}
+
+function PlayableChoiceActionShortcutRegistration({
+  actionId,
+  enabled,
+  onSubmitAction,
+  scope,
+  shortcutNumber,
+}: {
+  readonly actionId: PartyActionId;
+  readonly enabled: boolean;
+  readonly onSubmitAction: PlayableChoicePlayerStageSurfaceProps['onSubmitAction'];
+  readonly scope: string;
+  readonly shortcutNumber: number;
+}) {
+  useKeyboardShortcut({
+    ariaKeyShortcuts: String(shortcutNumber),
+    combo: { key: String(shortcutNumber) },
+    descriptionKey: 'game.party.player.route.answerShortcut',
+    descriptionVariables: { number: String(shortcutNumber) },
+    disabled: !enabled,
+    execute: () => onSubmitAction(actionId),
+    id: `select-answer-${shortcutNumber}`,
+    scope,
+    scopeLabelKey: 'game.party.player.route.answerShortcuts',
+  });
+
+  return null;
 }
 
 export function PlayableChoicePlayerStageSurface({
@@ -85,13 +116,19 @@ export function PlayableChoicePlayerStageSurface({
     isLocked ||
     isStageTimerExpired ||
     isStageRevealing;
+  const shortcutScope = `${testIdPrefix}-player-stage-shortcuts`;
+
+  useShortcutScope(shortcutScope, { active: true, priority: 100 });
 
   const actionItems = currentStage.actions.map((action, index) => {
     const isSelected = selectedActionId === action.id;
+    const shortcutNumber = index < MAX_SHORTCUT_ACTION_COUNT ? index + 1 : null;
+
     return {
       actionId: action.id,
       index,
       isSelected,
+      shortcutNumber,
       testId: `${testIdPrefix}-player-stage-action-${resolvePlayableChoiceActionSlotLabel(index).toLowerCase()}`,
       text: action.text,
     };
@@ -104,6 +141,7 @@ export function PlayableChoicePlayerStageSurface({
       fillParent={isMobile}
       index={item.index}
       isCorrect={false}
+      ariaKeyShortcuts={item.shortcutNumber ? String(item.shortcutNumber) : undefined}
       isSelected={item.isSelected}
       onClick={() => onSubmitAction(item.actionId)}
       slotCount={currentStage.actions.length}
@@ -138,6 +176,18 @@ export function PlayableChoicePlayerStageSurface({
       submittingLabel={t('game.party.player.route.actionSubmitting')}
       testId={`${testIdPrefix}-player-stage-surface`}
     >
+      {actionItems.map((item) =>
+        item.shortcutNumber ? (
+          <PlayableChoiceActionShortcutRegistration
+            actionId={item.actionId}
+            enabled={!areActionsDisabled}
+            key={`shortcut-${item.actionId}`}
+            onSubmitAction={onSubmitAction}
+            scope={shortcutScope}
+            shortcutNumber={item.shortcutNumber}
+          />
+        ) : null,
+      )}
       {isMobile ? (
         <MotionStagger
           key={`answers-${stageRevealCycleKey ?? 'none'}`}

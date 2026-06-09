@@ -2,6 +2,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { renderWithUiProvider } from '../../../../../test-utils/render-with-ui-provider';
+import { KeyboardShortcutsProvider } from '../../../keyboard';
 import { AccountMenu } from './account-menu';
 
 const mocks = vi.hoisted(() => ({
@@ -39,13 +40,21 @@ vi.mock('../../../../identity/contexts/auth-context', async (importOriginal) => 
 });
 
 describe('AccountMenu (unauthenticated)', () => {
+  function renderAccountMenu() {
+    renderWithUiProvider(
+      <KeyboardShortcutsProvider>
+        <AccountMenu />
+      </KeyboardShortcutsProvider>,
+    );
+  }
+
   it('renders a sign-in button when user is not authenticated', () => {
-    renderWithUiProvider(<AccountMenu />);
+    renderAccountMenu();
     expect(screen.getByRole('button', { name: 'shared.shell.signInLink' })).toBeInTheDocument();
   });
 
   it('navigates to sign-in on click', async () => {
-    renderWithUiProvider(<AccountMenu />);
+    renderAccountMenu();
     await userEvent.click(screen.getByRole('button', { name: 'shared.shell.signInLink' }));
     expect(mocks.navigate).toHaveBeenCalledWith('/identity/sign-in');
   });
