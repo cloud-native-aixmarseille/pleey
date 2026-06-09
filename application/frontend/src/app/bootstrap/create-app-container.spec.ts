@@ -45,7 +45,7 @@ describe('createAppContainer', () => {
       const providerFactories = createAppProviderFactories(container);
 
       expect(container.isBound(AppProviderFactoryToken)).toBe(true);
-      expect(providerFactories).toHaveLength(8);
+      expect(providerFactories).toHaveLength(9);
     });
   });
 });

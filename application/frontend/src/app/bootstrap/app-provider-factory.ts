@@ -24,6 +24,7 @@ export const enum AppProviderOrder {
   TRANSLATION = 200,
   ROUTING = 300,
   FORM = 400,
+  KEYBOARD = 450,
   AUTH = 500,
   PATIENCE = 600,
   WORKSPACE = 700,

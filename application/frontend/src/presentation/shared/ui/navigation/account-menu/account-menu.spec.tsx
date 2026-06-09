@@ -1,8 +1,9 @@
-import { screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { coerceUuidV7TestValue } from '../../../../../test-utils/fixtures/uuid-v7-test-value';
 import { renderWithUiProvider } from '../../../../../test-utils/render-with-ui-provider';
+import { KeyboardShortcutsProvider } from '../../../keyboard';
 import { AccountMenu } from './account-menu';
 
 const mocks = vi.hoisted(() => ({
@@ -41,13 +42,21 @@ vi.mock('../../../../identity/contexts/auth-context', async (importOriginal) => 
 
 describe('AccountMenu', () => {
   describe('when authenticated', () => {
+    function renderAccountMenu() {
+      renderWithUiProvider(
+        <KeyboardShortcutsProvider>
+          <AccountMenu />
+        </KeyboardShortcutsProvider>,
+      );
+    }
+
     it('renders the account menu trigger with the username', () => {
-      renderWithUiProvider(<AccountMenu />);
+      renderAccountMenu();
       expect(screen.getByText('captain')).toBeInTheDocument();
     });
 
     it('renders the authenticated user avatar in the trigger', () => {
-      renderWithUiProvider(<AccountMenu />);
+      renderAccountMenu();
 
       expect(screen.getByRole('img', { name: 'captain' })).toHaveAttribute(
         'src',
@@ -56,12 +65,12 @@ describe('AccountMenu', () => {
     });
 
     it('renders the account menu button with an accessible label', () => {
-      renderWithUiProvider(<AccountMenu />);
+      renderAccountMenu();
       expect(screen.getByRole('button', { name: 'shared.shell.accountMenu' })).toBeInTheDocument();
     });
 
     it('opens a menu with profile and sign out options on click', async () => {
-      renderWithUiProvider(<AccountMenu />);
+      renderAccountMenu();
       await userEvent.click(screen.getByRole('button', { name: 'shared.shell.accountMenu' }));
       expect(
         screen.getByRole('menuitem', { name: 'shared.shell.profileLink' }),
@@ -72,17 +81,40 @@ describe('AccountMenu', () => {
     });
 
     it('navigates to profile when profile menu item is clicked', async () => {
-      renderWithUiProvider(<AccountMenu />);
+      renderAccountMenu();
       await userEvent.click(screen.getByRole('button', { name: 'shared.shell.accountMenu' }));
       await userEvent.click(screen.getByRole('menuitem', { name: 'shared.shell.profileLink' }));
       expect(mocks.navigate).toHaveBeenCalledWith('/identity/profile');
     });
 
     it('calls signOut when sign out menu item is clicked', async () => {
-      renderWithUiProvider(<AccountMenu />);
+      renderAccountMenu();
       await userEvent.click(screen.getByRole('button', { name: 'shared.shell.accountMenu' }));
       await userEvent.click(screen.getByRole('menuitem', { name: 'shared.shell.signOutAction' }));
       expect(mocks.signOut).toHaveBeenCalled();
+    });
+
+    it('closes the opened menu when Escape is pressed', async () => {
+      renderAccountMenu();
+
+      await userEvent.click(screen.getByRole('button', { name: 'shared.shell.accountMenu' }));
+      expect(screen.getByRole('menu')).toBeInTheDocument();
+
+      fireEvent.keyDown(document, { key: 'Escape' });
+
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    });
+
+    it('toggles the account menu when pressing the U shortcut', () => {
+      renderAccountMenu();
+
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+
+      fireEvent.keyDown(document, { key: 'u' });
+      expect(screen.getByRole('menu')).toBeInTheDocument();
+
+      fireEvent.keyDown(document, { key: 'u' });
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument();
     });
   });
 });

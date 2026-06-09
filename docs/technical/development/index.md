@@ -33,6 +33,10 @@ Per-app npm scripts are in each `package.json`. Key entrypoints:
 - `make ci` — lint-fix + test (pre-push check)
 - `make test` — all tests (supports `SCOPE` and `MODE` args)
 
+## Frontend Implementation Specs
+
+- [Frontend Keyboard Controls Specification](./frontend-keyboard-controls.md)
+
 Test frameworks: **Vitest** (backend + frontend), **Playwright** (end-to-end).
 
 ## Commits

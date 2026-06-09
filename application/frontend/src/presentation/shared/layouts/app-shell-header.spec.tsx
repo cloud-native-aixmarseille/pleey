@@ -8,12 +8,8 @@ vi.mock('../ui/navigation/account-menu/account-menu', () => ({
   AccountMenu: () => <div>account-menu</div>,
 }));
 
-vi.mock('../ui/actions/language-toggle', () => ({
-  LanguageToggle: () => <button type="button">language-toggle</button>,
-}));
-
-vi.mock('../ui/actions/color-scheme-toggle', () => ({
-  ColorSchemeToggle: () => <button type="button">theme-toggle</button>,
+vi.mock('../ui/navigation/account-menu/guest-preferences-menu', () => ({
+  GuestPreferencesMenu: () => <div>guest-preferences-menu</div>,
 }));
 
 vi.mock('../ui/branding/pleey-logo', () => ({
@@ -43,6 +39,7 @@ describe('AppShellHeader', () => {
       '/workspace/dashboard',
     );
     expect(screen.getByText('account-menu')).toBeInTheDocument();
+    expect(screen.queryByText('guest-preferences-menu')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'shared.shell.navToggle' })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'shared.shell.navToggle' }));
@@ -60,5 +57,6 @@ describe('AppShellHeader', () => {
     );
 
     expect(screen.queryByRole('link', { name: /shared.nav.dashboard/i })).not.toBeInTheDocument();
+    expect(screen.getByText('guest-preferences-menu')).toBeInTheDocument();
   });
 });

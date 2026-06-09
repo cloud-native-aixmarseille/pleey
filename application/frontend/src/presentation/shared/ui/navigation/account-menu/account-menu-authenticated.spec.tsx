@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { createRef } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { AuthFixtureFactory } from '../../../../../test-utils/fixtures/auth-fixture-factory';
-import { renderWithUiProvider } from '../../../../../test-utils/render-with-ui-provider';
+import { renderWithProviders } from '../../../../../test-utils/render-with-providers';
 import { AccountMenuAuthenticated } from './account-menu-authenticated';
 
 const authFixtureFactory = new AuthFixtureFactory();
@@ -28,7 +28,7 @@ describe('AccountMenuAuthenticated', () => {
     const user = userEvent.setup();
     const onToggle = vi.fn();
 
-    renderWithUiProvider(
+    renderWithProviders(
       <AccountMenuAuthenticated
         onNavigateToProfile={vi.fn()}
         onSignOut={vi.fn()}
@@ -51,7 +51,7 @@ describe('AccountMenuAuthenticated', () => {
     const onNavigateToProfile = vi.fn();
     const onSignOut = vi.fn();
 
-    renderWithUiProvider(
+    renderWithProviders(
       <AccountMenuAuthenticated
         onNavigateToProfile={onNavigateToProfile}
         onSignOut={onSignOut}

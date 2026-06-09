@@ -1,14 +1,13 @@
 import { Burger, Drawer } from '@mantine/core';
 import type { UseDisclosureHandlers } from '@mantine/hooks';
 import { usePresentationTranslation } from '../i18n/use-presentation-translation';
-import { ColorSchemeToggle } from '../ui/actions/color-scheme-toggle';
-import { LanguageToggle } from '../ui/actions/language-toggle';
 import { PleeyLogo } from '../ui/branding/pleey-logo';
 import { surfaceRecipes } from '../ui/foundation/ui-recipes';
 import { uiThemeTokens } from '../ui/foundation/ui-theme';
 import { uiTypeScale } from '../ui/foundation/ui-typography';
 import { AppIcon } from '../ui/icons/app-icon';
 import { AccountMenu } from '../ui/navigation/account-menu/account-menu';
+import { GuestPreferencesMenu } from '../ui/navigation/account-menu/guest-preferences-menu';
 import { BrandLink, NavPillLink } from '../ui/navigation/links';
 
 const shellHeaderStyle = {
@@ -58,12 +57,6 @@ const desktopNavStyle = {
   gap: uiThemeTokens.spacing.xs,
 } as const;
 
-const controlsGroupStyle = {
-  alignItems: 'center',
-  display: 'flex',
-  gap: uiThemeTokens.spacing.xs,
-} as const;
-
 const drawerHeaderStyle = {
   ...uiTypeScale.cardTitle,
   color: uiThemeTokens.color.text.emphasis,
@@ -91,7 +84,7 @@ const drawerControlsStyle = {
   alignItems: 'center',
   display: 'flex',
   gap: uiThemeTokens.spacing.sm,
-  justifyContent: 'center',
+  justifyContent: 'flex-end',
 } as const;
 
 interface AppShellHeaderProps {
@@ -128,12 +121,8 @@ export function AppShellHeader({ isAuthenticated, navOpened, navHandlers }: AppS
               ) : null}
             </nav>
 
-            <div className="mantine-visible-from-sm" style={controlsGroupStyle}>
-              <LanguageToggle />
-              <ColorSchemeToggle />
-            </div>
-
             <AccountMenu />
+            {!isAuthenticated ? <GuestPreferencesMenu /> : null}
 
             <Burger
               aria-label={t('shared.shell.navToggle')}
@@ -172,11 +161,14 @@ export function AppShellHeader({ isAuthenticated, navOpened, navHandlers }: AppS
             ) : null}
           </div>
         </nav>
-        <hr style={drawerDividerStyle} />
-        <div style={drawerControlsStyle}>
-          <LanguageToggle />
-          <ColorSchemeToggle />
-        </div>
+        {!isAuthenticated ? (
+          <>
+            <hr style={drawerDividerStyle} />
+            <div style={drawerControlsStyle}>
+              <GuestPreferencesMenu />
+            </div>
+          </>
+        ) : null}
       </Drawer>
     </>
   );

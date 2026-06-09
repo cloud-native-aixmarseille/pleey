@@ -21,6 +21,8 @@ export const gamePartyPlayerFr = {
           currentHost: 'Hébergée par {{username}}',
           actionSubmitting: 'Envoi de votre réponse...',
           actionLocked: 'Votre réponse est verrouillée.',
+          answerShortcuts: 'Choix de reponse',
+          answerShortcut: 'Selectionner la reponse {{number}}',
           actionPaused:
             "L'hôte a mis la partie en pause. Les réponses sont temporairement verrouillées.",
           runtimeRestartStageToast:
