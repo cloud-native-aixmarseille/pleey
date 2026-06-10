@@ -4,6 +4,7 @@ import { QuizQuestionType } from '../../../../../domain/game/types/quiz/entities
 import { QuizErrorCode } from '../../../../../domain/game/types/quiz/enums/quiz-error-code.enum';
 import type { QuizManagementRepository } from '../../../../../domain/game/types/quiz/ports/quiz-management.repository';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
+import { GameTypeIdentifier } from '../../shared/services/game-type-identifier';
 import { PlayableContentImportSource } from '../../shared/services/playable-content-import/import-source';
 import type { QuizImportQuestionMapper } from '../services/quiz-import-question-mapper';
 import { CreateQuizFromImportUseCase } from './create-quiz-from-import-use-case';
@@ -24,9 +25,13 @@ class TestPlayableContentImportSource extends PlayableContentImportSource {
 
 describe('CreateQuizFromImportUseCase', () => {
   it('creates a quiz and imported questions through one repository command', async () => {
+    const gameTypeIdentifier = new GameTypeIdentifier();
+    const quizId = gameTypeIdentifier.parse(backendTestIdentifiers.game(9));
+    const gameId = backendTestIdentifiers.game(21);
+
     const createdQuiz = new Quiz(
-      backendTestIdentifiers.game(9),
-      backendTestIdentifiers.game(21),
+      quizId,
+      gameId,
       backendTestIdentifiers.project(4),
       'Sprint quiz',
       null,

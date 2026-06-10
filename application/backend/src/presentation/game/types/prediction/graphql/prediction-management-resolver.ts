@@ -119,6 +119,9 @@ export class PredictionManagementResolver {
         predictionId: this.gameTypeIdentifier.parse(predictionId),
         title: input.title,
         description: input.description ?? null,
+        allowOptionChangeAfterVoting: input.allowOptionChangeAfterVoting,
+        randomizeStageOrder: input.randomizeStageOrder,
+        randomizeOptionOrder: input.randomizeOptionOrder,
       },
       this.resolveUserId(context),
     );
@@ -222,6 +225,9 @@ export class PredictionManagementResolver {
       description: prediction.description,
       createdAt: prediction.createdAt,
       promptCount: prediction.promptCount,
+      allowOptionChangeAfterVoting: prediction.allowOptionChangeAfterVoting,
+      randomizeStageOrder: prediction.randomizeStageOrder,
+      randomizeOptionOrder: prediction.randomizeOptionOrder,
     };
   }
 

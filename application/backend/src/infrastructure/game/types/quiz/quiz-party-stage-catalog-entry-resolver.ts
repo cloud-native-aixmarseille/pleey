@@ -51,6 +51,55 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
     return this.findAdjacentStage(gameId, currentStageId, -1);
   }
 
+  async listStages(gameId: GameId): Promise<readonly PartyStageCatalogEntry[]> {
+    const questions = await this.prisma.question.findMany({
+      where: {
+        deletedAt: null,
+        quiz: {
+          deletedAt: null,
+          game: {
+            id: gameId,
+            deletedAt: null,
+          },
+        },
+      },
+      select: {
+        id: true,
+        position: true,
+        points: true,
+        questionText: true,
+        timeLimit: true,
+        answers: {
+          where: {
+            deletedAt: null,
+          },
+          orderBy: {
+            position: 'asc',
+          },
+          select: {
+            id: true,
+            isCorrect: true,
+            text: true,
+          },
+        },
+      },
+      orderBy: [{ position: 'asc' }, { id: 'asc' }],
+    });
+
+    return questions.map((question) => ({
+      actions: question.answers.map((answer) => ({
+        id: this.partyActionIdentifier.parse(answer.id),
+        isCorrect: answer.isCorrect,
+        text: answer.text ?? '',
+      })),
+      id: this.partyStageIdentifier.parse(question.id),
+      points: question.points,
+      stagePosition: question.position,
+      text: question.questionText,
+      timeLimitSeconds: question.timeLimit,
+    }));
+  }
+
   private async findStage(
     gameId: GameId,
     questionWhere: Prisma.QuestionWhereInput,

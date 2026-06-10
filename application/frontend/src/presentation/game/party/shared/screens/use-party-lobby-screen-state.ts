@@ -60,6 +60,8 @@ export interface PartyLobbyScreenState {
   readonly isAuthenticated: boolean;
   readonly isJoinSubmitting: boolean;
   readonly joinPin: string;
+  readonly joinPartyRequiresPassword: boolean;
+  readonly joinPartyPassword: string;
   readonly joinErrorMessage: string | null;
   readonly joinParty: () => Promise<void>;
   readonly kickPlayer: (player: NonNullable<PartyObservation['players']>[number]) => Promise<void>;
@@ -84,6 +86,7 @@ export interface PartyLobbyScreenState {
   readonly rewindParty: () => Promise<void>;
   readonly rewindStage: () => Promise<void>;
   readonly setGuestName: (value: string) => void;
+  readonly setJoinPartyPassword: (value: string) => void;
   readonly startParty: () => Promise<void>;
   readonly submitAction: (actionId: PartyActionId) => Promise<void>;
 }
@@ -247,11 +250,14 @@ export function usePartyLobbyScreenState({
   const isCurrentUserHost = party?.isObserverHost ?? false;
   const {
     guestName,
+    isPasswordRequired,
+    partyPassword,
     guestAvatarPreviewUri,
     joinParty,
     regenerateGuestAvatar,
     regenerateGuestName,
     setGuestName,
+    setPartyPassword,
   } = usePartyLobbyJoinSession({
     currentGuestId,
     normalizedPin,
@@ -336,6 +342,8 @@ export function usePartyLobbyScreenState({
     isAuthenticated,
     isJoinSubmitting,
     joinPin: viewModel.joinPin,
+    joinPartyRequiresPassword: isPasswordRequired,
+    joinPartyPassword: partyPassword,
     joinErrorMessage,
     joinParty,
     kickPlayer,
@@ -368,6 +376,7 @@ export function usePartyLobbyScreenState({
       requestHostRuntimeConfirmation(HostPartyRuntimeCommand.RewindStage);
     },
     setGuestName,
+    setJoinPartyPassword: setPartyPassword,
     startParty: () => runHostRuntimeCommand(HostPartyRuntimeCommand.StartParty),
     submitAction,
   };

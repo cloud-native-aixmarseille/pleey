@@ -621,8 +621,14 @@ describe('DashboardHomeScreen', () => {
       await screen.findByText('Project quiz');
 
       await user.click(screen.getByRole('button', { name: 'dashboard.games.actions.createParty' }));
+      const dialog = await screen.findByRole('dialog');
+      await user.click(
+        within(dialog).getByRole('button', { name: 'dashboard.games.actions.createParty' }),
+      );
 
-      expect(createParty).toHaveBeenCalledWith(gameIdentifier.parse(13));
+      expect(createParty).toHaveBeenCalledWith(gameIdentifier.parse(13), {
+        privatePartyPassword: undefined,
+      });
       expect(navigateMock).toHaveBeenCalledWith(
         `/party/${partyFixtureFactory.createParty({ partyId: 98 }).partyId}/lobby`,
       );

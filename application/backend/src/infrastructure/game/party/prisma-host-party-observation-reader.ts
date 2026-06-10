@@ -10,6 +10,7 @@ import type { PartyHost } from '../../../domain/game/party/host/entities/party-h
 import type { PartyId } from '../../../domain/game/party/shared/entities/party';
 import { PartyRuntimeContextProjectionService } from '../../../domain/game/party/shared/services/party-runtime-context-projection.service';
 import { PrismaService } from '../../database/prisma-service';
+import { PrismaGameSettingsMapper } from '../shared/prisma-game-settings.mapper';
 import { PrismaPartyReadModelMapper } from './services/prisma-party-read-model-mapper';
 
 @Injectable()
@@ -23,6 +24,7 @@ export class PrismaHostPartyObservationReader implements HostPartyObservationRea
     private readonly partyReadModelMapper: PrismaPartyReadModelMapper,
     private readonly runtimeContextProjection: PartyRuntimeContextProjectionService,
     private readonly userIdentifier: UserIdentifier,
+    private readonly gameSettingsMapper: PrismaGameSettingsMapper,
   ) {}
 
   async findHostObservationByPartyId(partyId: PartyId): Promise<HostPartyObservation | null> {
@@ -40,6 +42,7 @@ export class PrismaHostPartyObservationReader implements HostPartyObservationRea
       include: {
         game: {
           select: {
+            ...this.gameSettingsMapper.select,
             type: true,
           },
         },
@@ -121,6 +124,10 @@ export class PrismaHostPartyObservationReader implements HostPartyObservationRea
         : await this.partyStageCatalog.findStageById(
             this.gameIdentifier.parse(party.gameId),
             stageId,
+            {
+              partyId: this.partyIdentifier.parse(party.id),
+              settings: this.gameSettingsMapper.toGameSettings(party.game),
+            },
           );
     const submittedPlayerCount = playerActionStates.filter(
       (entry) => entry.state.stageId === stageId,

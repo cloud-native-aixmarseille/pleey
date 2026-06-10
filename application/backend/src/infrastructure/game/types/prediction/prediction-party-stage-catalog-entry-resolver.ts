@@ -37,6 +37,55 @@ export class PredictionPartyStageCatalogEntryResolver implements GameTypePartySt
     return this.findAdjacentStage(gameId, currentStageId, -1);
   }
 
+  async listStages(gameId: GameId): Promise<readonly PartyStageCatalogEntry[]> {
+    const prompts = await this.prisma.predictionPrompt.findMany({
+      where: {
+        deletedAt: null,
+        prediction: {
+          deletedAt: null,
+          game: {
+            id: gameId,
+            deletedAt: null,
+          },
+        },
+      },
+      select: {
+        id: true,
+        position: true,
+        points: true,
+        promptText: true,
+        timeLimit: true,
+        options: {
+          where: {
+            deletedAt: null,
+          },
+          orderBy: {
+            position: 'asc',
+          },
+          select: {
+            id: true,
+            isCorrect: true,
+            text: true,
+          },
+        },
+      },
+      orderBy: [{ position: 'asc' }, { id: 'asc' }],
+    });
+
+    return prompts.map((prompt) => ({
+      actions: prompt.options.map((option) => ({
+        id: this.partyActionIdentifier.parse(option.id),
+        isCorrect: option.isCorrect,
+        text: option.text ?? '',
+      })),
+      id: this.partyStageIdentifier.parse(prompt.id),
+      points: prompt.points,
+      stagePosition: prompt.position,
+      text: prompt.promptText,
+      timeLimitSeconds: prompt.timeLimit,
+    }));
+  }
+
   private async findStage(
     gameId: GameId,
     selector: {

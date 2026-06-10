@@ -9,7 +9,7 @@ import { AccentIconBadge } from '../../../../../shared/ui/icons/accent-icon-badg
 import { AppIcon } from '../../../../../shared/ui/icons/app-icon';
 import { ActionRow, ContentStack } from '../../../../../shared/ui/layout/containers';
 import { ElevatedPanel, HeroPanel } from '../../../../../shared/ui/layout/panels';
-import { Eyebrow, Heading } from '../../../../../shared/ui/layout/typography';
+import { Eyebrow, Heading, SupportingText } from '../../../../../shared/ui/layout/typography';
 import { usePresentationMediaQuery } from '../../../../../shared/ui/layout/use-presentation-media-query';
 import { PartyPinPreview } from '../../../shared/screens/components/party-pin-preview';
 
@@ -23,8 +23,11 @@ interface JoinPartySurfaceProps {
   readonly onGenerateGuestName: () => void;
   readonly onGuestNameChange: (value: string) => void;
   readonly onJoinParty: () => void;
+  readonly onJoinPasswordChange: (value: string) => void;
   readonly onRegenerateGuestAvatar: () => void;
+  readonly password: string;
   readonly pin: string;
+  readonly showPasswordInput: boolean;
 }
 
 const GUEST_NAME_MAX_LENGTH = 30;
@@ -48,8 +51,11 @@ export function JoinPartySurface({
   onGenerateGuestName,
   onGuestNameChange,
   onJoinParty,
+  onJoinPasswordChange,
   onRegenerateGuestAvatar,
+  password,
   pin,
+  showPasswordInput,
 }: JoinPartySurfaceProps) {
   const { t } = usePresentationTranslation();
   const isMobile = usePresentationMediaQuery();
@@ -170,6 +176,27 @@ export function JoinPartySurface({
                     </FieldShell>
                   </ContentStack>
                 )}
+
+                {showPasswordInput ? (
+                  <>
+                    <FieldShell
+                      id="party-join-password"
+                      label={t('game.party.player.route.passwordLabel')}
+                    >
+                      <Input
+                        aria-label={t('game.party.player.route.passwordLabel')}
+                        autoComplete="current-password"
+                        disabled={isJoinSubmitting}
+                        id="party-join-password"
+                        onChange={(event) => onJoinPasswordChange(event.currentTarget.value)}
+                        placeholder={t('game.party.player.route.passwordPlaceholder')}
+                        type="password"
+                        value={password}
+                      />
+                    </FieldShell>
+                    <SupportingText>{t('game.party.player.route.passwordHint')}</SupportingText>
+                  </>
+                ) : null}
 
                 <Button
                   disabled={isJoinDisabled}

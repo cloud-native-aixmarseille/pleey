@@ -27,6 +27,7 @@ export interface CreatePartyCommand {
   readonly gameId: GameId;
   readonly hostUserId: UserId;
   readonly pin: PartyPin;
+  readonly privatePartyPasswordHash?: string;
 }
 
 export interface ListPartiesQuery extends PaginationQuery {

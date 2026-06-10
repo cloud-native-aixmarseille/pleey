@@ -3,6 +3,7 @@ import type { Party } from '../../shared/entities/party';
 
 export interface CreatePartyCommand {
   readonly gameId: GameId;
+  readonly privatePartyPassword?: string;
 }
 
 export interface PartyManagementPort {

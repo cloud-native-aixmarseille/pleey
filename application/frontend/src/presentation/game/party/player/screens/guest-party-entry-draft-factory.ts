@@ -1,26 +1,8 @@
-import { injectable } from 'inversify';
-
-const guestNameAdjectives = [
-  'Bright',
-  'Cosmic',
-  'Lucky',
-  'Neon',
-  'Rapid',
-  'Solar',
-  'Swift',
-  'Ultra',
-] as const;
-
-const guestNameCreatures = [
-  'Comet',
-  'Falcon',
-  'Lynx',
-  'Otter',
-  'Panda',
-  'Raven',
-  'Tiger',
-  'Whale',
-] as const;
+import { inject, injectable } from 'inversify';
+import {
+  type GuestUsernameGeneratorPort,
+  GuestUsernameGeneratorPortToken,
+} from '../../../../../domains/game/party/player/ports/guest-username-generator.port';
 
 interface GuestPartyEntryDraft {
   readonly avatarSeed: string;
@@ -29,6 +11,11 @@ interface GuestPartyEntryDraft {
 
 @injectable()
 export class GuestPartyEntryDraftFactory {
+  constructor(
+    @inject(GuestUsernameGeneratorPortToken)
+    private readonly guestUsernameGenerator: GuestUsernameGeneratorPort,
+  ) {}
+
   create(): GuestPartyEntryDraft {
     return {
       avatarSeed: this.createAvatarSeed(),
@@ -45,20 +32,10 @@ export class GuestPartyEntryDraftFactory {
   }
 
   createGuestName(): string {
-    const adjective = this.pick(guestNameAdjectives);
-    const creature = this.pick(guestNameCreatures);
-    const suffix = Math.floor(Math.random() * 900) + 100;
-
-    return `${adjective} ${creature} ${suffix}`;
+    return this.guestUsernameGenerator.generateGuestUsername();
   }
 
   createPreviewUrl(avatarSeed: string): string {
     return `/api/avatars/guests/preview/${encodeURIComponent(avatarSeed)}`;
-  }
-
-  private pick<T>(items: readonly T[]): T {
-    const index = Math.floor(Math.random() * items.length);
-
-    return items[index] ?? items[0];
   }
 }

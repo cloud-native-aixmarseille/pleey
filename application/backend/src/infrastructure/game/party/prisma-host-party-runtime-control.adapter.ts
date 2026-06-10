@@ -18,6 +18,7 @@ import type { PartyActionId } from '../../../domain/game/party/shared/entities/p
 import type { PartyStageId } from '../../../domain/game/party/shared/entities/party-stage';
 import { PartyRuntimeContextProjectionService } from '../../../domain/game/party/shared/services/party-runtime-context-projection.service';
 import { PrismaService } from '../../database/prisma-service';
+import { PrismaGameSettingsMapper } from '../shared/prisma-game-settings.mapper';
 import { PrismaPartyPlayerRemovalService } from './services/prisma-party-player-removal.service';
 import { PrismaPartyReadModelMapper } from './services/prisma-party-read-model-mapper';
 
@@ -42,6 +43,7 @@ export class PrismaHostPartyRuntimeControlAdapter extends HostPartyRuntimeContro
     private readonly partyReadModelMapper: PrismaPartyReadModelMapper,
     private readonly runtimeContextProjection: PartyRuntimeContextProjectionService,
     private readonly userIdentifier: UserIdentifier,
+    private readonly gameSettingsMapper: PrismaGameSettingsMapper,
   ) {
     super();
   }
@@ -56,6 +58,9 @@ export class PrismaHostPartyRuntimeControlAdapter extends HostPartyRuntimeContro
         id: true,
         gameId: true,
         hostId: true,
+        game: {
+          select: this.gameSettingsMapper.select,
+        },
         status: true,
         context: true,
         scores: {
@@ -113,6 +118,10 @@ export class PrismaHostPartyRuntimeControlAdapter extends HostPartyRuntimeContro
         : await this.partyStageCatalog.findStageById(
             this.gameIdentifier.parse(party.gameId),
             stageId,
+            {
+              partyId: this.partyIdentifier.parse(party.id),
+              settings: this.gameSettingsMapper.toGameSettings(party.game),
+            },
           );
     const submittedPlayerCount = playerActionStates.filter(
       (entry) => entry.state.stageId === stageId,
@@ -129,6 +138,7 @@ export class PrismaHostPartyRuntimeControlAdapter extends HostPartyRuntimeContro
       gameId: this.gameIdentifier.parse(party.gameId),
       hostUserId: this.userIdentifier.parse(party.hostId),
       partyId: this.partyIdentifier.parse(party.id),
+      settings: this.gameSettingsMapper.toGameSettings(party.game),
       status: this.partyReadModelMapper.toPartyStatus(party.status, {
         unknownStatus: 'validation-error',
       }),
@@ -208,6 +218,10 @@ export class PrismaHostPartyRuntimeControlAdapter extends HostPartyRuntimeContro
     const stage = await this.partyStageCatalog.findStageById(
       resetPlayerProgress.gameId,
       resetPlayerProgress.fromStageId,
+      {
+        partyId: resetPlayerProgress.partyId,
+        settings: resetPlayerProgress.settings,
+      },
     );
 
     if (!stage) {

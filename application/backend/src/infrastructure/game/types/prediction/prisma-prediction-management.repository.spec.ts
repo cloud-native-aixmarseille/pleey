@@ -5,6 +5,7 @@ import { ProjectIdentifier } from '../../../../application/workspace/shared/serv
 import { SelectableOption } from '../../../../domain/game/types/shared/entities/selectable-option';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import type { PrismaService } from '../../../database/prisma-service';
+import { PrismaGameSettingsMapper } from '../../shared/prisma-game-settings.mapper';
 import { PrismaPredictionManagementRepository } from './prisma-prediction-management.repository';
 
 describe('PrismaPredictionManagementRepository', () => {
@@ -34,6 +35,7 @@ describe('PrismaPredictionManagementRepository', () => {
       new GameIdentifier(),
       new GameTypeIdentifier(),
       projectIdentifier,
+      new PrismaGameSettingsMapper(),
     );
 
     const prediction = await repository.createWithPrompts({

@@ -53,6 +53,7 @@ describe('PlayableContentManagementScreen', () => {
         id: 12,
         title: 'Arcade Quiz',
         description: 'Live rounds',
+        allowOptionChangeAfterVoting: false,
         itemCount: 2,
       },
       items: [
@@ -269,6 +270,9 @@ describe('PlayableContentManagementScreen', () => {
       expect(gateway.updateMetadata).toHaveBeenCalledWith(gameTypeId, {
         title: 'Arcade Quiz Updated',
         description: 'Live rounds',
+        allowOptionChangeAfterVoting: false,
+        randomizeStageOrder: false,
+        randomizeOptionOrder: false,
       });
     });
   });

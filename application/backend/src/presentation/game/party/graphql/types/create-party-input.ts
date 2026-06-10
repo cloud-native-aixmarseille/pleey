@@ -1,5 +1,5 @@
 import { Field, ID, InputType } from '@nestjs/graphql';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
 
 @InputType()
 export class CreatePartyInput {
@@ -7,4 +7,10 @@ export class CreatePartyInput {
   @IsString()
   @IsNotEmpty()
   gameId!: string;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  @IsString()
+  @MinLength(6)
+  privatePartyPassword?: string;
 }

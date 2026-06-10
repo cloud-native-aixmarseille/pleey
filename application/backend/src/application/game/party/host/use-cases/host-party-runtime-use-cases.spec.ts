@@ -18,6 +18,11 @@ const OTHER_USER_ID = backendTestIdentifiers.user(99);
 const STAGE_101 = backendTestIdentifiers.partyStage(101);
 const STAGE_202 = backendTestIdentifiers.partyStage(202);
 const STAGE_303 = backendTestIdentifiers.partyStage(303);
+const DEFAULT_PARTY_SETTINGS = {
+  allowOptionChangeAfterVoting: false,
+  randomizeOptionOrder: false,
+  randomizeStageOrder: false,
+} as const;
 
 describe('Host party runtime use cases', () => {
   afterEach(() => {
@@ -33,6 +38,7 @@ describe('Host party runtime use cases', () => {
         gameId: GAME_ID,
         hostUserId: HOST_USER_ID,
         partyId: PARTY_ID,
+        settings: DEFAULT_PARTY_SETTINGS,
         status: PartyStatus.WAITING,
       }),
       savePartyRuntime: vi.fn().mockResolvedValue(undefined),
@@ -64,7 +70,10 @@ describe('Host party runtime use cases', () => {
     });
 
     expect(partyStageConfiguration.getStageCount).toHaveBeenCalledWith(GAME_ID);
-    expect(partyStageCatalog.findFirstStage).toHaveBeenCalledWith(GAME_ID);
+    expect(partyStageCatalog.findFirstStage).toHaveBeenCalledWith(GAME_ID, {
+      partyId: PARTY_ID,
+      settings: DEFAULT_PARTY_SETTINGS,
+    });
     expect(hostPartyRuntimeControl.savePartyRuntime).toHaveBeenCalledWith({
       context: {
         lifecycle: {
@@ -92,6 +101,7 @@ describe('Host party runtime use cases', () => {
         gameId: GAME_ID,
         hostUserId: HOST_USER_ID,
         partyId: PARTY_ID,
+        settings: DEFAULT_PARTY_SETTINGS,
         status: PartyStatus.WAITING,
       }),
       savePartyRuntime: vi.fn(),
@@ -137,6 +147,7 @@ describe('Host party runtime use cases', () => {
         gameId: GAME_ID,
         hostUserId: HOST_USER_ID,
         partyId: PARTY_ID,
+        settings: DEFAULT_PARTY_SETTINGS,
         status: PartyStatus.ACTIVE,
       }),
       savePartyRuntime: vi.fn().mockResolvedValue(undefined),
@@ -194,6 +205,7 @@ describe('Host party runtime use cases', () => {
         gameId: GAME_ID,
         hostUserId: HOST_USER_ID,
         partyId: PARTY_ID,
+        settings: DEFAULT_PARTY_SETTINGS,
         status: PartyStatus.ACTIVE,
       }),
       savePartyRuntime: vi.fn().mockResolvedValue(undefined),
@@ -222,7 +234,10 @@ describe('Host party runtime use cases', () => {
       partyId: PARTY_ID,
     });
 
-    expect(partyStageCatalog.findNextStage).toHaveBeenCalledWith(GAME_ID, STAGE_202);
+    expect(partyStageCatalog.findNextStage).toHaveBeenCalledWith(GAME_ID, STAGE_202, {
+      partyId: PARTY_ID,
+      settings: DEFAULT_PARTY_SETTINGS,
+    });
     expect(hostPartyRuntimeControl.savePartyRuntime).toHaveBeenCalledWith({
       context: {
         lifecycle: {
@@ -259,6 +274,7 @@ describe('Host party runtime use cases', () => {
         gameId: GAME_ID,
         hostUserId: HOST_USER_ID,
         partyId: PARTY_ID,
+        settings: DEFAULT_PARTY_SETTINGS,
         status: PartyStatus.ACTIVE,
       }),
       savePartyRuntime: vi.fn().mockResolvedValue(undefined),
@@ -292,6 +308,8 @@ describe('Host party runtime use cases', () => {
       resetPlayerProgress: {
         fromStageId: STAGE_202,
         gameId: GAME_ID,
+        partyId: PARTY_ID,
+        settings: DEFAULT_PARTY_SETTINGS,
       },
       status: PartyStatus.ACTIVE,
     });
@@ -316,6 +334,7 @@ describe('Host party runtime use cases', () => {
         gameId: GAME_ID,
         hostUserId: HOST_USER_ID,
         partyId: PARTY_ID,
+        settings: DEFAULT_PARTY_SETTINGS,
         status: PartyStatus.ACTIVE,
       }),
       savePartyRuntime: vi.fn().mockResolvedValue(undefined),
@@ -359,6 +378,8 @@ describe('Host party runtime use cases', () => {
       resetPlayerProgress: {
         fromStageId: STAGE_202,
         gameId: GAME_ID,
+        partyId: PARTY_ID,
+        settings: DEFAULT_PARTY_SETTINGS,
       },
       status: PartyStatus.ACTIVE,
     });
@@ -381,6 +402,7 @@ describe('Host party runtime use cases', () => {
         gameId: GAME_ID,
         hostUserId: HOST_USER_ID,
         partyId: PARTY_ID,
+        settings: DEFAULT_PARTY_SETTINGS,
         status: PartyStatus.ACTIVE,
       }),
       savePartyRuntime: vi.fn().mockResolvedValue(undefined),
@@ -414,6 +436,8 @@ describe('Host party runtime use cases', () => {
       resetPlayerProgress: {
         fromStageId: null,
         gameId: GAME_ID,
+        partyId: PARTY_ID,
+        settings: DEFAULT_PARTY_SETTINGS,
       },
       status: PartyStatus.WAITING,
     });

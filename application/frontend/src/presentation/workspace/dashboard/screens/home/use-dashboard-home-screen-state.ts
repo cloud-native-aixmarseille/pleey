@@ -161,7 +161,7 @@ export function useDashboardHomeScreenState({
   );
 
   const partyCreation = useDashboardHomePartyCreation({
-    createParty: (gameId) => dashboardWorkspace.createParty(gameId),
+    createParty: (gameId, options) => dashboardWorkspace.createParty(gameId, options),
     onPartyCreated: currentParty.upsertParty,
     resolvePartyRoute,
     reloadGames: games.reload,

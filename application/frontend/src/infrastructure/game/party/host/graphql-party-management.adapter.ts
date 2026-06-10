@@ -46,6 +46,7 @@ export class GraphqlPartyManagementAdapter implements PartyManagementPort {
       >(CreatePartyDocument, {
         input: {
           gameId: command.gameId,
+          privatePartyPassword: command.privatePartyPassword,
         },
       });
 

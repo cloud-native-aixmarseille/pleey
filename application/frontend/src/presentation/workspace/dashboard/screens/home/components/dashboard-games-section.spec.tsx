@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import {
@@ -39,6 +39,14 @@ vi.mock('../../../../../shared/i18n/use-presentation-translation', async () => {
 
   return new PresentationTranslationMockFactory().createModule();
 });
+
+vi.mock('src/presentation/game/party/shared/contexts/party-dependencies-context', () => ({
+  usePartyDependencies: () => ({
+    privatePartyPasswordGeneratorPort: {
+      generatePrivatePartyPassword: () => 'secret42',
+    },
+  }),
+}));
 
 vi.mock('./game-item-card', () => ({
   GameItemCard: ({
@@ -220,6 +228,19 @@ describe('DashboardGamesSection', () => {
     const { onCreateParty } = renderDashboardGamesSection();
 
     await user.click(screen.getByRole('button', { name: 'create:Arcade Quiz:false' }));
+    const dialog = await screen.findByRole('dialog');
+    await user.click(
+      within(dialog).getByRole('checkbox', {
+        name: 'dashboard.games.createParty.privateToggleLabel',
+      }),
+    );
+    await user.type(
+      within(dialog).getByLabelText('dashboard.games.createParty.privatePasswordLabel'),
+      'secret42',
+    );
+    await user.click(
+      within(dialog).getByRole('button', { name: 'dashboard.games.actions.createParty' }),
+    );
 
     expect(onCreateParty).toHaveBeenCalledWith(
       gameFixtureFactory.createDashboardGame({
@@ -230,7 +251,58 @@ describe('DashboardGamesSection', () => {
         gameTypeId: 1,
         stageCount: 0,
       }),
+      {
+        privatePartyPassword: 'secret42',
+      },
     );
+  });
+
+  it('generates and copies a private party password from the create-party dialog', async () => {
+    const user = userEvent.setup();
+    const clipboardWriteText = vi.fn().mockResolvedValue(undefined);
+
+    Object.defineProperty(globalThis.navigator, 'clipboard', {
+      configurable: true,
+      value: {
+        writeText: clipboardWriteText,
+      },
+    });
+
+    renderDashboardGamesSection();
+
+    await user.click(screen.getByRole('button', { name: 'create:Arcade Quiz:false' }));
+    const dialog = await screen.findByRole('dialog');
+
+    await user.click(
+      within(dialog).getByRole('checkbox', {
+        name: 'dashboard.games.createParty.privateToggleLabel',
+      }),
+    );
+
+    const generateButton = within(dialog).getByRole('button', {
+      name: 'dashboard.games.createParty.generatePasswordCta',
+    });
+    await user.click(generateButton);
+
+    const passwordInput = within(dialog).getByLabelText(
+      'dashboard.games.createParty.privatePasswordLabel',
+    ) as HTMLInputElement;
+    expect(passwordInput.value.length).toBeGreaterThanOrEqual(6);
+
+    await user.click(
+      within(dialog).getByRole('button', {
+        name: 'dashboard.games.createParty.copyPasswordCta',
+      }),
+    );
+
+    expect(clipboardWriteText).toHaveBeenCalledWith(passwordInput.value);
+    await waitFor(() => {
+      expect(
+        within(dialog).getByRole('button', {
+          name: '✓',
+        }),
+      ).toBeInTheDocument();
+    });
   });
 
   it('disables create-party actions when the game is not eligible', () => {

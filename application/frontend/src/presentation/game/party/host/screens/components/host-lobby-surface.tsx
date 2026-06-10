@@ -38,8 +38,6 @@ export function HostLobbySurface({
       <ResponsiveGrid columns={{ base: 1, lg: 2 }}>
         <PartyLobbySharePanel
           ariaLabel={t('game.party.host.route.sharePanelLabel')}
-          copiedLabel={t('game.party.host.route.copyJoinLinkSuccess')}
-          copyFailedLabel={t('game.party.host.route.copyJoinLinkFailed')}
           copyLabel={t('game.party.host.route.copyJoinLink')}
           enterCodeLabel={t('game.party.host.route.enterCode')}
           heading={t('game.party.host.route.shareHeading')}

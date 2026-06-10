@@ -1,5 +1,6 @@
 import type { GameId } from '../../../../../domain/game/entities/game';
 import { type PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
+import type { GameSettings } from '../../../../../domain/game/party/shared/entities/game-settings';
 import type { PartyId } from '../../../../../domain/game/party/shared/entities/party';
 import type { PartyRuntimeContext } from '../../../../../domain/game/party/shared/entities/party-runtime-context';
 import type { PartyStageId } from '../../../../../domain/game/party/shared/entities/party-stage';
@@ -11,6 +12,7 @@ export interface HostControlledPartyRuntime {
   readonly gameId: GameId;
   readonly hostUserId: UserId;
   readonly partyId: PartyId;
+  readonly settings: GameSettings;
   readonly status: PartyStatus;
 }
 
@@ -20,6 +22,8 @@ export interface SaveHostPartyRuntimeCommand {
   readonly resetPlayerProgress?: {
     readonly fromStageId: PartyStageId | null;
     readonly gameId: GameId;
+    readonly partyId: PartyId;
+    readonly settings: GameSettings;
   };
   readonly status: PartyStatus;
 }

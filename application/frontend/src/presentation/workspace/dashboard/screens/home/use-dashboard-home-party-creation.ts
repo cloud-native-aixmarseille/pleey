@@ -5,8 +5,12 @@ import type { Party } from '../../../../../domains/game/party/shared/entities/pa
 import { PartyManagementErrorCode } from '../../../../../domains/game/party/shared/errors/party-management-error-code';
 import { usePresentationNavigate } from '../../../../shared/routing/router';
 
+interface CreatePartyOptions {
+  readonly privatePartyPassword?: string;
+}
+
 interface UseDashboardHomePartyCreationOptions {
-  readonly createParty: (gameId: GameId) => Promise<Party>;
+  readonly createParty: (gameId: GameId, options?: CreatePartyOptions) => Promise<Party>;
   readonly onPartyCreated: (party: Party) => void;
   readonly resolvePartyRoute: (party: Party) => string;
   readonly reloadGames: () => void;
@@ -15,7 +19,10 @@ interface UseDashboardHomePartyCreationOptions {
 interface UseDashboardHomePartyCreationResult {
   readonly creatingPartyGameId: GameId | null;
   readonly partyActionErrorMessage: string | null;
-  readonly handleCreateParty: (game: DashboardGameListItem) => Promise<void>;
+  readonly handleCreateParty: (
+    game: DashboardGameListItem,
+    options?: CreatePartyOptions,
+  ) => Promise<void>;
 }
 
 export function useDashboardHomePartyCreation({
@@ -28,12 +35,12 @@ export function useDashboardHomePartyCreation({
   const [creatingPartyGameId, setCreatingPartyGameId] = useState<GameId | null>(null);
   const [partyActionErrorMessage, setPartyActionErrorMessage] = useState<string | null>(null);
 
-  const handleCreateParty = async (game: DashboardGameListItem) => {
+  const handleCreateParty = async (game: DashboardGameListItem, options?: CreatePartyOptions) => {
     setCreatingPartyGameId(game.gameId);
     setPartyActionErrorMessage(null);
 
     try {
-      const party = await createParty(game.gameId);
+      const party = await createParty(game.gameId, options);
       onPartyCreated(party);
       reloadGames();
       navigate(resolvePartyRoute(party));

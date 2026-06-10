@@ -4,6 +4,7 @@ import type { PartyLobbyGateway } from '../../../../../application/game/party/sh
 import type { PartyHostControlPort } from '../../../../../domains/game/party/host/ports/party-host-control.port';
 import { HostPartyRuntimeCommand } from '../../../../../domains/game/party/host/ports/party-host-runtime-controls.port';
 import { type PartyManagementPort } from '../../../../../domains/game/party/host/ports/party-management.port';
+import type { GuestUsernameGeneratorPort } from '../../../../../domains/game/party/player/ports/guest-username-generator.port';
 import type { PartyGuestSessionPort } from '../../../../../domains/game/party/player/ports/party-guest-session.port';
 import type {
   PartyJoinReceipt,
@@ -18,6 +19,7 @@ import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/share
 import { PartyRole } from '../../../../../domains/game/party/shared/entities/party-role';
 import { PartyRuntimePhase } from '../../../../../domains/game/party/shared/entities/party-runtime-context';
 import { PartyStatus } from '../../../../../domains/game/party/shared/entities/party-status';
+import { PartyManagementErrorCode } from '../../../../../domains/game/party/shared/errors/party-management-error-code';
 import { GameType } from '../../../../../domains/game/types/shared/game-type';
 import type { GuestId } from '../../../../../domains/identity/entities/guest';
 import type { User, UserId } from '../../../../../domains/identity/entities/user';
@@ -51,7 +53,15 @@ const toActionId = (value: number) => partyActionIdentifier.parse(value);
 const gameIdentifier = new GameIdentifierMockFactory().create();
 const authFixtureFactory = new AuthFixtureFactory();
 const partyFixtureFactory = new PartyFixtureFactory();
-const guestPartyEntryDraftFactory = new GuestPartyEntryDraftFactory();
+let guestUsernameSequence = 0;
+const guestUsernameGenerator: GuestUsernameGeneratorPort = {
+  generateGuestUsername: () => {
+    guestUsernameSequence += 1;
+
+    return `Bright Otter ${String(guestUsernameSequence).padStart(4, '0')}`;
+  },
+};
+const guestPartyEntryDraftFactory = new GuestPartyEntryDraftFactory(guestUsernameGenerator);
 const playerRuntimeNoticeMessageResolver = new PlayerRuntimeNoticeMessageResolver();
 const partyLobbyRuntimeRedirectResolver = new PartyLobbyRuntimeRedirectResolver();
 
@@ -3048,6 +3058,67 @@ describe('PartyLobbyScreen', () => {
       'game.party.errors.joinFailed',
     );
     expect(screen.queryAllByRole('alert')).toHaveLength(1);
+  });
+
+  it('hides the password field by default on join screen', async () => {
+    mocks.authState = {
+      hasRestoredSession: true,
+      isAuthenticated: false,
+      user: null,
+    };
+    mocks.partyManagementState.parties = [];
+    mocks.partyGuestSessionPort.getGuestId = vi.fn(() => null);
+    mocks.observationState.currentParty = null;
+    mocks.observationState.currentErrorMessage = null;
+    mocks.observationState.currentErrorPartyId = null;
+    mocks.observationState.observePartyById = vi.fn(() => vi.fn());
+
+    renderScreen();
+
+    expect(
+      screen.queryByLabelText('game.party.player.route.passwordLabel'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows the password field when join fails with validation error', async () => {
+    mocks.authState = {
+      hasRestoredSession: true,
+      isAuthenticated: false,
+      user: null,
+    };
+    mocks.partyManagementState.parties = [];
+    mocks.partyGuestSessionPort.getGuestId = vi.fn(() => null);
+    mocks.partyPlayerPort.joinParty = vi.fn(async () =>
+      createRejectedJoinReceipt(PartyManagementErrorCode.VALIDATION_FAILED),
+    );
+    mocks.observationState.currentParty = null;
+    mocks.observationState.currentErrorMessage = null;
+    mocks.observationState.currentErrorPartyId = null;
+    mocks.observationState.observePartyById = vi.fn(() => vi.fn());
+
+    renderScreen();
+
+    fireEvent.change(await screen.findByLabelText('game.party.player.route.guestNameLabel'), {
+      target: { value: 'Neo' },
+    });
+
+    const joinButton = screen.getByRole('button', {
+      name: 'game.party.player.route.joinAsGuestCta',
+    });
+
+    await waitFor(() => {
+      expect(joinButton).toBeEnabled();
+    });
+
+    fireEvent.click(joinButton);
+
+    await waitFor(() => {
+      expect(mocks.partyPlayerPort.joinParty).toHaveBeenCalledTimes(1);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('game.party.player.route.passwordLabel')).toBeInTheDocument();
+    });
   });
 
   it('shows a rollback toast to players when the host sends the party back to the lobby', async () => {

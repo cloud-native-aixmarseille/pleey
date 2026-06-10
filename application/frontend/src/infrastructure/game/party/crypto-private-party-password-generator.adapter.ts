@@ -6,7 +6,9 @@ const PRIVATE_PARTY_PASSWORD_ALPHABET =
   'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%*';
 
 @injectable()
-export class CryptoPrivatePartyPasswordGeneratorAdapter implements PrivatePartyPasswordGeneratorPort {
+export class CryptoPrivatePartyPasswordGeneratorAdapter
+  implements PrivatePartyPasswordGeneratorPort
+{
   generatePrivatePartyPassword(): string {
     if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
       const randomValues = crypto.getRandomValues(new Uint32Array(PRIVATE_PARTY_PASSWORD_LENGTH));

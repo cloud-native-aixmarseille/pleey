@@ -78,6 +78,11 @@ describe('SubmitPartyActionUseCase', () => {
         gameType: GameType.Quiz,
         partyId,
         playerIdentity,
+        settings: {
+          allowOptionChangeAfterVoting: false,
+          randomizeOptionOrder: false,
+          randomizeStageOrder: false,
+        },
         status: PartyStatus.ACTIVE,
       }),
       saveSubmissionResult: vi.fn().mockResolvedValue(undefined),
@@ -127,5 +132,82 @@ describe('SubmitPartyActionUseCase', () => {
     expect(broadcastPartyObservationUseCase.execute).toHaveBeenCalledWith({
       partyId,
     });
+  });
+
+  it('accepts answer changes within the same stage when the party setting allows it', async () => {
+    const playerIdentity = {
+      kind: PartyPlayerKind.USER,
+      userId: playerUserId,
+    } as const;
+    const policy = {
+      evaluateSubmission: vi.fn().mockResolvedValue({
+        context: {
+          lifecycle: {
+            phase: 'stage',
+            stageEndsAtEpochMs: 40_000,
+            stageRemainingDurationMs: 10_000,
+            stageId,
+            stagePosition: 0,
+            stageTimeLimitSeconds: 20,
+            totalStages: 3,
+          },
+        },
+        scoreDelta: 0,
+        status: PartyStatus.ACTIVE,
+      }),
+    };
+    const policyRegistry = {
+      resolveByGameType: vi.fn().mockReturnValue(policy),
+    };
+    const playerPartyActionRuntime = {
+      findSubmissionTarget: vi.fn().mockResolvedValue({
+        context: {
+          lifecycle: {
+            phase: 'stage',
+            stageEndsAtEpochMs: 30_000,
+            stageRemainingDurationMs: 20_000,
+            stageId,
+            stagePosition: 0,
+            stageTimeLimitSeconds: 20,
+            totalStages: 3,
+          },
+        },
+        gameId,
+        gameType: GameType.Quiz,
+        partyId,
+        playerActionState: {
+          earnedPoints: 500,
+          selectedActionId,
+          stageId,
+          stagePosition: 0,
+          status: 'acknowledged',
+        },
+        playerIdentity,
+        settings: {
+          allowOptionChangeAfterVoting: true,
+          randomizeOptionOrder: false,
+          randomizeStageOrder: false,
+        },
+        status: PartyStatus.ACTIVE,
+      }),
+      saveSubmissionResult: vi.fn().mockResolvedValue(undefined),
+    };
+    const broadcastPartyObservationUseCase = {
+      execute: vi.fn().mockResolvedValue(undefined),
+    };
+    const useCase = new SubmitPartyActionUseCase(
+      playerPartyActionRuntime as never,
+      policyRegistry as never,
+      broadcastPartyObservationUseCase as never,
+    );
+
+    await useCase.execute({
+      actionId: selectedActionId,
+      partyId,
+      playerIdentity,
+    });
+
+    expect(policy.evaluateSubmission).toHaveBeenCalledTimes(1);
+    expect(playerPartyActionRuntime.saveSubmissionResult).toHaveBeenCalledTimes(1);
   });
 });

@@ -28,6 +28,15 @@ export class QuizType {
 
   @Field(() => Int)
   questionCount!: number;
+
+  @Field(() => Boolean)
+  allowOptionChangeAfterVoting!: boolean;
+
+  @Field(() => Boolean)
+  randomizeStageOrder!: boolean;
+
+  @Field(() => Boolean)
+  randomizeOptionOrder!: boolean;
 }
 
 @ObjectType()

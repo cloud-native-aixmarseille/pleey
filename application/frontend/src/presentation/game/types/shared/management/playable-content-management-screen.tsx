@@ -136,9 +136,16 @@ export function PlayableContentManagementScreen(props: PlayableContentManagement
         {activeTab === 'setup' ? (
           <div style={tabPanelShellStyle}>
             <MetadataPanel
+              allowOptionChangeAfterVoting={state.game.allowOptionChangeAfterVoting ?? false}
               description={state.game.description}
               isSaving={viewModel.isSaving}
-              onSave={(input) => void viewModel.saveMetadata(input)}
+              onSave={(input) =>
+                void viewModel.saveMetadata({
+                  ...input,
+                  randomizeOptionOrder: state.game.randomizeOptionOrder ?? false,
+                })
+              }
+              randomizeStageOrder={state.game.randomizeStageOrder ?? false}
               title={state.game.title}
               translationRoot={props.translationRoot}
             />
@@ -161,7 +168,17 @@ export function PlayableContentManagementScreen(props: PlayableContentManagement
                 editorState={viewModel.editorState}
                 isSaving={viewModel.isSaving}
                 itemKindConfig={props.itemKindConfig}
+                onSaveRandomizeOptionOrder={(value) =>
+                  void viewModel.saveMetadata({
+                    title: state.game.title,
+                    description: state.game.description ?? '',
+                    allowOptionChangeAfterVoting: state.game.allowOptionChangeAfterVoting ?? false,
+                    randomizeStageOrder: state.game.randomizeStageOrder ?? false,
+                    randomizeOptionOrder: value,
+                  })
+                }
                 onSave={() => void viewModel.saveItem()}
+                randomizeOptionOrder={state.game.randomizeOptionOrder ?? false}
                 setEditorState={viewModel.setEditorState}
                 translationRoot={props.translationRoot}
               />

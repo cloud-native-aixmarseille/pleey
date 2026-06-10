@@ -37,6 +37,13 @@ export const predictionEn = {
           metadataTitle: 'Prediction details',
           titleLabel: 'Title',
           descriptionLabel: 'Description',
+          allowOptionChangeAfterVotingLabel: 'Allow players to change answer after voting',
+          allowOptionChangeAfterVotingDescription:
+            'Participants can update their choice until the stage ends.',
+          randomizeStageOrderLabel: 'Randomize stage order',
+          randomizeStageOrderDescription: 'Shuffle stage order each time a party starts.',
+          randomizeOptionOrderLabel: 'Randomize option order',
+          randomizeOptionOrderDescription: 'Shuffle options when participants answer.',
           saveMetadata: 'Save details',
           itemsTitle: 'Prompts',
           empty: 'No prompts yet.',

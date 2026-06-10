@@ -19,6 +19,9 @@ export interface CreateQuizWithQuestionsData extends CreateQuizData {
 export interface UpdateQuizData {
   readonly title: string;
   readonly description: string | null;
+  readonly allowOptionChangeAfterVoting?: boolean;
+  readonly randomizeStageOrder?: boolean;
+  readonly randomizeOptionOrder?: boolean;
 }
 
 export interface QuizManagementRepository {

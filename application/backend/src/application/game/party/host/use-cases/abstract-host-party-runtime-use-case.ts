@@ -33,6 +33,8 @@ export abstract class AbstractHostPartyRuntimeUseCase {
     ) => {
       readonly fromStageId: PartyStageId | null;
       readonly gameId: HostControlledPartyRuntime['gameId'];
+      readonly partyId: HostControlledPartyRuntime['partyId'];
+      readonly settings: HostControlledPartyRuntime['settings'];
     },
   ): Promise<void> {
     const party = await this.loadControlledParty(input);
@@ -79,6 +81,8 @@ export abstract class AbstractHostPartyRuntimeUseCase {
     resetPlayerProgress?: {
       readonly fromStageId: PartyStageId | null;
       readonly gameId: HostControlledPartyRuntime['gameId'];
+      readonly partyId: HostControlledPartyRuntime['partyId'];
+      readonly settings: HostControlledPartyRuntime['settings'];
     },
   ): Promise<void> {
     await this.hostPartyRuntimeControl.savePartyRuntime({

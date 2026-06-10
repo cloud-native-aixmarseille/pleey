@@ -23,6 +23,7 @@ import { QuizQuestionRepositoryProvider } from '../../../../domain/game/types/qu
 import { SelectableOptionPolicy } from '../../../../domain/game/types/shared/services/selectable-option-policy';
 import { OrganizationMemberRepositoryProvider } from '../../../../domain/organization/ports/organization-member.repository';
 import { ProjectRepositoryProvider } from '../../../../domain/project/ports/project.repository';
+import { PrismaGameSettingsMapper } from '../../../../infrastructure/game/shared/prisma-game-settings.mapper';
 import { PrismaQuizManagementRepository } from '../../../../infrastructure/game/types/quiz/prisma-quiz-management.repository';
 import { PrismaQuizQuestionRepository } from '../../../../infrastructure/game/types/quiz/prisma-quiz-question.repository';
 import { PrismaSelectableOptionMapper } from '../../../../infrastructure/game/types/shared/prisma-selectable-option-mapper';
@@ -58,6 +59,7 @@ import { SharedServicesModule } from '../../shared/shared-services.module';
     OrganizationMemberIdentifier,
     PrismaOrganizationMemberRepository,
     PrismaProjectRepository,
+    PrismaGameSettingsMapper,
     PrismaQuizManagementRepository,
     PrismaQuizQuestionRepository,
     PrismaSelectableOptionMapper,

@@ -43,6 +43,9 @@ export class PlayableManagementGraphqlMapper {
     readonly gameId: GameId;
     readonly title: string;
     readonly description?: string | null;
+    readonly allowOptionChangeAfterVoting?: boolean;
+    readonly randomizeStageOrder?: boolean;
+    readonly randomizeOptionOrder?: boolean;
     readonly createdAt: string;
     readonly itemCount: number;
   }): PlayableManagementGame {
@@ -51,6 +54,9 @@ export class PlayableManagementGraphqlMapper {
       gameId: input.gameId,
       title: input.title,
       description: input.description ?? null,
+      allowOptionChangeAfterVoting: input.allowOptionChangeAfterVoting ?? false,
+      randomizeStageOrder: input.randomizeStageOrder ?? false,
+      randomizeOptionOrder: input.randomizeOptionOrder ?? false,
       createdAt: input.createdAt,
       itemCount: input.itemCount,
     };

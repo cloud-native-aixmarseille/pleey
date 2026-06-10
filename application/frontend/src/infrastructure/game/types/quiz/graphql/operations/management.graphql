@@ -4,6 +4,9 @@ query QuizManagement($quizId: ID!) {
     gameId
     title
     description
+    allowOptionChangeAfterVoting
+    randomizeStageOrder
+    randomizeOptionOrder
     createdAt
     questionCount
   }
@@ -27,6 +30,9 @@ query QuizManagement($quizId: ID!) {
 mutation UpdateQuizManagement($quizId: ID!, $input: UpdateQuizInput!) {
   updateQuiz(quizId: $quizId, input: $input) {
     quizId
+    allowOptionChangeAfterVoting
+    randomizeStageOrder
+    randomizeOptionOrder
   }
 }
 

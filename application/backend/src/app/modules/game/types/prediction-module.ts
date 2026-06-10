@@ -23,6 +23,7 @@ import { PredictionPromptRepositoryProvider } from '../../../../domain/game/type
 import { SelectableOptionPolicy } from '../../../../domain/game/types/shared/services/selectable-option-policy';
 import { OrganizationMemberRepositoryProvider } from '../../../../domain/organization/ports/organization-member.repository';
 import { ProjectRepositoryProvider } from '../../../../domain/project/ports/project.repository';
+import { PrismaGameSettingsMapper } from '../../../../infrastructure/game/shared/prisma-game-settings.mapper';
 import { PrismaPredictionManagementRepository } from '../../../../infrastructure/game/types/prediction/prisma-prediction-management.repository';
 import { PrismaPredictionPromptRepository } from '../../../../infrastructure/game/types/prediction/prisma-prediction-prompt.repository';
 import { PrismaSelectableOptionMapper } from '../../../../infrastructure/game/types/shared/prisma-selectable-option-mapper';
@@ -58,6 +59,7 @@ import { SharedServicesModule } from '../../shared/shared-services.module';
     OrganizationMemberIdentifier,
     PredictionManagementResolver,
     PrismaOrganizationMemberRepository,
+    PrismaGameSettingsMapper,
     PrismaPredictionManagementRepository,
     PrismaPredictionPromptRepository,
     PrismaProjectRepository,

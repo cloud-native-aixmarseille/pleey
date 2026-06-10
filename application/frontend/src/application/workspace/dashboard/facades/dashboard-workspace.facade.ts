@@ -61,7 +61,7 @@ function createEmptyPage<TItem>(
 export interface DashboardWorkspaceGateway {
   loadProjectGameCatalog(query: DashboardGameListQuery): Promise<DashboardGameListPage>;
   loadUserParties(): Promise<readonly Party[]>;
-  createParty(gameId: GameId): Promise<Party>;
+  createParty(gameId: GameId, options?: { privatePartyPassword?: string }): Promise<Party>;
   loadOrganizationsPage(query?: PaginationQuery): Promise<PaginatedResult<Organization>>;
   restoreOrganizationSelection(query?: PaginationQuery): Promise<DashboardOrganizationSelection>;
   loadOrganizationProjectsPage(
@@ -101,8 +101,11 @@ export class DashboardWorkspaceFacade implements DashboardWorkspaceGateway {
     return this.listPartiesUseCase.execute();
   }
 
-  createParty(gameId: GameId): Promise<Party> {
-    return this.createPartyUseCase.execute({ gameId });
+  createParty(gameId: GameId, options?: { privatePartyPassword?: string }): Promise<Party> {
+    return this.createPartyUseCase.execute({
+      gameId,
+      privatePartyPassword: options?.privatePartyPassword,
+    });
   }
 
   loadOrganizationsPage(query: PaginationQuery = {}): Promise<PaginatedResult<Organization>> {

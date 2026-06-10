@@ -15,6 +15,7 @@ export interface GameTypePartyStageCatalogProvider {
     currentStageId: PartyStageId,
   ): Promise<PartyStageCatalogEntry | null>;
   findStageById(gameId: GameId, stageId: PartyStageId): Promise<PartyStageCatalogEntry | null>;
+  listStages(gameId: GameId): Promise<readonly PartyStageCatalogEntry[]>;
 }
 
 export const GAME_TYPE_PARTY_STAGE_CATALOG_PROVIDERS = Symbol(

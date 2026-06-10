@@ -4,6 +4,9 @@ query PredictionManagement($predictionId: ID!) {
     gameId
     title
     description
+    allowOptionChangeAfterVoting
+    randomizeStageOrder
+    randomizeOptionOrder
     createdAt
     promptCount
   }
@@ -26,6 +29,9 @@ query PredictionManagement($predictionId: ID!) {
 mutation UpdatePredictionManagement($predictionId: ID!, $input: UpdatePredictionInput!) {
   updatePrediction(predictionId: $predictionId, input: $input) {
     predictionId
+    allowOptionChangeAfterVoting
+    randomizeStageOrder
+    randomizeOptionOrder
   }
 }
 

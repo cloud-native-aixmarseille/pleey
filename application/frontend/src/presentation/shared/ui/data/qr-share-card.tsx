@@ -1,26 +1,18 @@
 import { Anchor, Paper } from '@mantine/core';
-import { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
-import { Button } from '../actions/button';
+import { CopyButton } from '../actions/copy-button';
 import { uiThemeTokens } from '../foundation/ui-theme';
-import { AppIcon } from '../icons/app-icon';
 import { ContentStack } from '../layout/containers';
 import { SupportingText } from '../layout/typography';
 
 const ResolvedQrCode = resolveQrCodeComponent(QRCode) as typeof QRCode;
 
 interface QrShareCardProps {
-  readonly copiedLabel?: string;
-  readonly copyFailedLabel?: string;
-  readonly copyLabel?: string;
   readonly href: string;
   readonly scanLabel: string;
   readonly visitLabel: string;
+  readonly copyLabel?: string;
 }
-
-type CopyState = 'idle' | 'copied' | 'failed';
-
-const COPY_STATUS_RESET_DELAY_MS = 2_000;
 
 const qrFrameStyle = {
   background: '#ffffff',
@@ -55,42 +47,8 @@ function resolveQrCodeComponent(qrCodeModule: unknown): unknown {
   return qrCodeModule;
 }
 
-export function QrShareCard({
-  copiedLabel,
-  copyFailedLabel,
-  copyLabel,
-  href,
-  scanLabel,
-  visitLabel,
-}: QrShareCardProps) {
+export function QrShareCard({ href, scanLabel, visitLabel, copyLabel }: QrShareCardProps) {
   const displayUrl = stripScheme(href);
-  const [copyState, setCopyState] = useState<CopyState>('idle');
-
-  useEffect(() => {
-    if (copyState === 'idle') {
-      return undefined;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setCopyState('idle');
-    }, COPY_STATUS_RESET_DELAY_MS);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [copyState]);
-
-  const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(href);
-      setCopyState('copied');
-    } catch {
-      setCopyState('failed');
-    }
-  };
-
-  const copyStatusLabel =
-    copyState === 'copied' ? copiedLabel : copyState === 'failed' ? copyFailedLabel : null;
 
   return (
     <ContentStack align="center" gap="xl">
@@ -107,17 +65,10 @@ export function QrShareCard({
           {displayUrl}
         </Anchor>
         {copyLabel ? (
-          <Button
-            intent="ghost"
-            leftSection={<AppIcon name="copy" size={14} />}
-            onClick={() => void handleCopyLink()}
-            size="sm"
-            type="button"
-          >
+          <CopyButton size="sm" textToCopy={href}>
             {copyLabel}
-          </Button>
+          </CopyButton>
         ) : null}
-        {copyStatusLabel ? <SupportingText tone="soft">{copyStatusLabel}</SupportingText> : null}
       </ContentStack>
     </ContentStack>
   );

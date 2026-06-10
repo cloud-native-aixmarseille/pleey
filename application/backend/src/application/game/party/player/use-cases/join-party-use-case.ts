@@ -3,6 +3,7 @@ import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
 import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
 import type { PartyPlayerIdentity } from '../../../../../domain/game/party/player/entities/party-player-identity';
+import { PasswordService } from '../../../../../domain/identity/services/password-service';
 import { BroadcastPartyObservationUseCase } from '../../shared/use-cases/broadcast-party-observation-use-case';
 import type { JoinPartyDto } from '../dto/join-party.dto';
 import type { JoinPartyResultDto } from '../dto/join-party-result.dto';
@@ -14,6 +15,8 @@ export class JoinPartyUseCase {
     @Inject(PlayerPartyRuntimePort)
     private readonly playerPartyRuntime: PlayerPartyRuntimePort,
     private readonly broadcastPartyObservationUseCase: BroadcastPartyObservationUseCase,
+    @Inject(PasswordService)
+    private readonly passwordService: Pick<PasswordService, 'compare'>,
   ) {}
 
   async execute(input: JoinPartyDto): Promise<JoinPartyResultDto> {
@@ -22,6 +25,23 @@ export class JoinPartyUseCase {
 
     if (!party) {
       throw new Error(GameErrorCode.PARTY_NOT_FOUND);
+    }
+
+    if (party.privatePartyPasswordHash) {
+      const password = input.partyPassword?.trim() ?? '';
+
+      if (password.length === 0) {
+        throw new Error(GameErrorCode.VALIDATION_FAILED);
+      }
+
+      const isPasswordValid = await this.passwordService.compare(
+        password,
+        party.privatePartyPasswordHash,
+      );
+
+      if (!isPasswordValid) {
+        throw new Error(GameErrorCode.VALIDATION_FAILED);
+      }
     }
 
     const persistedPlayerIdentity = this.resolvePersistedPlayerIdentity(input);

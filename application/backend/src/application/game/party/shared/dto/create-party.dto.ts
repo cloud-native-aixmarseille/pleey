@@ -4,4 +4,5 @@ import type { UserId } from '../../../../../domain/identity/entities/user';
 export interface CreatePartyDto {
   readonly gameId: GameId;
   readonly hostUserId: UserId;
+  readonly privatePartyPassword?: string;
 }

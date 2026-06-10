@@ -28,6 +28,8 @@ export class RewindStageUseCase extends AbstractHostPartyRuntimeUseCase {
       (party, transition) => ({
         fromStageId: transition.runtime?.lifecycle.stageId ?? null,
         gameId: party.gameId,
+        partyId: party.partyId,
+        settings: party.settings,
       }),
     );
   }
