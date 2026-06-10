@@ -11,6 +11,9 @@ interface UpdatePredictionCommand {
   readonly predictionId: GameTypeId;
   readonly title: string;
   readonly description: string | null;
+  readonly allowOptionChangeAfterVoting?: boolean;
+  readonly randomizeStageOrder?: boolean;
+  readonly randomizeOptionOrder?: boolean;
 }
 
 @Injectable()
@@ -32,6 +35,9 @@ export class UpdatePredictionUseCase {
     return this.predictionRepository.update(prediction.id, {
       title: command.title,
       description: command.description,
+      allowOptionChangeAfterVoting: command.allowOptionChangeAfterVoting,
+      randomizeStageOrder: command.randomizeStageOrder,
+      randomizeOptionOrder: command.randomizeOptionOrder,
     });
   }
 }

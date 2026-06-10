@@ -37,6 +37,15 @@ export const quizFr = {
           metadataTitle: 'Détails du quiz',
           titleLabel: 'Titre',
           descriptionLabel: 'Description',
+          allowOptionChangeAfterVotingLabel:
+            'Autoriser les joueurs à changer de réponse après avoir voté',
+          allowOptionChangeAfterVotingDescription:
+            "Les participants peuvent modifier leur choix jusqu'à la fin de la manche.",
+          randomizeStageOrderLabel: "Mélanger l'ordre des manches",
+          randomizeStageOrderDescription: 'Mélangez les manches à chaque démarrage de partie.',
+          randomizeOptionOrderLabel: "Mélanger l'ordre des options",
+          randomizeOptionOrderDescription:
+            'Mélangez les options au moment de la réponse des participants.',
           saveMetadata: 'Enregistrer les détails',
           itemsTitle: 'Questions',
           empty: 'Aucune question pour le moment.',

@@ -132,6 +132,12 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
       resetPlayerProgress: {
         fromStageId: backendTestIdentifiers.partyStage(202),
         gameId: GAME_ID,
+        partyId: PARTY_ID,
+        settings: {
+          allowOptionChangeAfterVoting: false,
+          randomizeOptionOrder: false,
+          randomizeStageOrder: false,
+        },
       },
       status: PartyStatus.ACTIVE,
     });
@@ -230,6 +236,12 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
       resetPlayerProgress: {
         fromStageId: null,
         gameId: GAME_ID,
+        partyId: PARTY_ID,
+        settings: {
+          allowOptionChangeAfterVoting: false,
+          randomizeOptionOrder: false,
+          randomizeStageOrder: false,
+        },
       },
       status: PartyStatus.WAITING,
     });

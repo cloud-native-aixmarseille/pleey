@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { UniqueUsernameGuestUsernameGeneratorAdapter } from './unique-username-guest-username-generator.adapter';
 
 describe('UniqueUsernameGuestUsernameGeneratorAdapter', () => {

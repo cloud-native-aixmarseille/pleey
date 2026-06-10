@@ -14,6 +14,11 @@ export class PartyEntryMessageDto {
   @IsOptional()
   @IsString()
   @IsNotEmpty()
+  partyPassword?: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
   pin?: string;
 
   @IsOptional()

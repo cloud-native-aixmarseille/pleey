@@ -23,6 +23,8 @@ export class RewindPartyUseCase extends AbstractHostPartyRuntimeUseCase {
       (party) => ({
         fromStageId: null,
         gameId: party.gameId,
+        partyId: party.partyId,
+        settings: party.settings,
       }),
     );
   }

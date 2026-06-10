@@ -21,6 +21,7 @@ import type { UserId } from '../../../domain/identity/entities/user';
 import type { GuestRepository } from '../../../domain/identity/ports/guest.repository';
 import { GuestRepositoryProvider } from '../../../domain/identity/ports/guest.repository';
 import { PrismaService } from '../../database/prisma-service';
+import { PrismaGameSettingsMapper } from '../shared/prisma-game-settings.mapper';
 import { PrismaPartyPlayerRemovalService } from './services/prisma-party-player-removal.service';
 import { PrismaPartyReadModelMapper } from './services/prisma-party-read-model-mapper';
 
@@ -39,6 +40,7 @@ export class PrismaPlayerPartyRuntimeAdapter extends PlayerPartyRuntimePort {
     private readonly partyIdentifier: PartyIdentifier,
     private readonly partyPinIdentifier: PartyPinIdentifier,
     private readonly userIdentifier: UserIdentifier,
+    private readonly gameSettingsMapper: PrismaGameSettingsMapper,
   ) {
     super();
   }
@@ -53,7 +55,11 @@ export class PrismaPlayerPartyRuntimeAdapter extends PlayerPartyRuntimePort {
         id: true,
         gameId: true,
         hostId: true,
+        passwordHash: true,
         pin: true,
+        game: {
+          select: this.gameSettingsMapper.select,
+        },
         status: true,
       },
     });
@@ -66,7 +72,9 @@ export class PrismaPlayerPartyRuntimeAdapter extends PlayerPartyRuntimePort {
       partyId: this.partyIdentifier.parse(party.id),
       gameId: this.gameIdentifier.parse(party.gameId),
       hostUserId: this.userIdentifier.parse(party.hostId),
+      privatePartyPasswordHash: party.passwordHash,
       pin: this.partyPinIdentifier.parse(party.pin),
+      settings: this.gameSettingsMapper.toGameSettings(party.game),
       status: this.partyReadModelMapper.toPartyStatus(party.status),
     };
   }

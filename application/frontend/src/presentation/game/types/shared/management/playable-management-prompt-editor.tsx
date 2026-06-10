@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { usePresentationTranslation } from '../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../shared/ui/actions/button';
 import { Badge } from '../../../../shared/ui/feedback/badge';
+import { Checkbox } from '../../../../shared/ui/forms/checkbox';
 import { FieldShell } from '../../../../shared/ui/forms/field-shell';
 import { Input } from '../../../../shared/ui/forms/input';
 import { Select } from '../../../../shared/ui/forms/select';
@@ -36,7 +37,9 @@ interface PlayableManagementPromptEditorProps {
   readonly editorState: PlayableItemEditorState;
   readonly isSaving: boolean;
   readonly itemKindConfig?: PlayableItemKindConfig;
+  readonly randomizeOptionOrder: boolean;
   readonly translationRoot: string;
+  readonly onSaveRandomizeOptionOrder: (randomizeOptionOrder: boolean) => void;
   readonly onSave: () => void;
   readonly setEditorState: (editorState: PlayableItemEditorState) => void;
 }
@@ -55,6 +58,8 @@ export function PlayableManagementPromptEditor({
   editorState,
   isSaving,
   itemKindConfig,
+  randomizeOptionOrder,
+  onSaveRandomizeOptionOrder,
   onSave,
   setEditorState,
   translationRoot,
@@ -230,6 +235,13 @@ export function PlayableManagementPromptEditor({
                 />
               </FieldShell>
             </ResponsiveGrid>
+            <Checkbox
+              id="playable-game-randomize-option-order"
+              label={t(`${translationRoot}.randomizeOptionOrderLabel`)}
+              description={t(`${translationRoot}.randomizeOptionOrderDescription`)}
+              checked={randomizeOptionOrder}
+              onChange={(event) => onSaveRandomizeOptionOrder(event.currentTarget.checked)}
+            />
           </ContentStack>
         </details>
 

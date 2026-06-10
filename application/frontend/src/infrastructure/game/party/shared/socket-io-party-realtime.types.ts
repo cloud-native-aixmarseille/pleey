@@ -52,6 +52,7 @@ export type SocketPartyHostPlayerPayload =
 export interface SocketPartyEntryPayload {
   readonly avatarSeed?: string;
   readonly guestId?: GuestId;
+  readonly partyPassword?: string;
   readonly pin: PartyPin;
   readonly username?: string;
 }

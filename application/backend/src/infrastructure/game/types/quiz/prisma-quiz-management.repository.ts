@@ -4,6 +4,7 @@ import { GameTypeIdentifier } from '../../../../application/game/types/shared/se
 import { ProjectIdentifier } from '../../../../application/workspace/shared/services/identifiers/project-identifier';
 import type { GameId } from '../../../../domain/game/entities/game';
 import { PartyStatus } from '../../../../domain/game/party/enums/party-status.enum';
+import type { GameSettings } from '../../../../domain/game/party/shared/entities/game-settings';
 import { Quiz, type QuizId } from '../../../../domain/game/types/quiz/entities/quiz';
 import type {
   CreateQuizData,
@@ -15,6 +16,7 @@ import type { GameTypeId } from '../../../../domain/game/types/shared/entities/g
 import { GameType } from '../../../../domain/game/types/shared/entities/game-type';
 import type { ProjectId } from '../../../../domain/project/entities/project';
 import { PrismaService } from '../../../database/prisma-service';
+import { PrismaGameSettingsMapper } from '../../shared/prisma-game-settings.mapper';
 
 const ACTIVE_PARTY_STATUSES = [PartyStatus.WAITING, PartyStatus.ACTIVE, PartyStatus.PAUSED];
 
@@ -23,7 +25,7 @@ enum QuizManagementRepositoryErrorCode {
   QUIZ_NOT_UPDATED = 'QUIZ_NOT_UPDATED',
 }
 
-interface PrismaQuizRecord {
+interface PrismaQuizRecord extends GameSettings {
   readonly id: string;
   readonly gameId: string;
   readonly projectId: string;
@@ -33,7 +35,7 @@ interface PrismaQuizRecord {
   readonly questionCount: number;
 }
 
-interface QuizRecord {
+interface QuizRecord extends GameSettings {
   readonly id: QuizId;
   readonly gameId: GameId;
   readonly projectId: ProjectId;
@@ -43,6 +45,20 @@ interface QuizRecord {
   readonly questionCount: number;
 }
 
+interface PrismaQuizSourceRecord {
+  readonly id: string;
+  readonly gameId: string;
+  readonly game: {
+    readonly projectId: string;
+    readonly title: string;
+    readonly description: string | null;
+    readonly createdAt: Date;
+  } & GameSettings;
+  readonly _count: {
+    readonly questions: number;
+  };
+}
+
 @Injectable()
 export class PrismaQuizManagementRepository implements QuizManagementRepository {
   constructor(
@@ -50,6 +66,7 @@ export class PrismaQuizManagementRepository implements QuizManagementRepository 
     private readonly gameIdentifier: GameIdentifier,
     private readonly gameTypeIdentifier: GameTypeIdentifier,
     private readonly projectIdentifier: ProjectIdentifier,
+    private readonly gameSettingsMapper: PrismaGameSettingsMapper,
   ) {}
 
   async create(data: CreateQuizData): Promise<Quiz> {
@@ -156,6 +173,7 @@ export class PrismaQuizManagementRepository implements QuizManagementRepository 
       data: {
         title: data.title,
         description: data.description,
+        ...this.gameSettingsMapper.toPrismaGameSettingsUpdate(data),
       },
     });
 
@@ -189,19 +207,7 @@ export class PrismaQuizManagementRepository implements QuizManagementRepository 
     return activePartyCount > 0;
   }
 
-  private toDomain(quiz: {
-    readonly id: string;
-    readonly gameId: string;
-    readonly game: {
-      readonly projectId: string;
-      readonly title: string;
-      readonly description: string | null;
-      readonly createdAt: Date;
-    };
-    readonly _count: {
-      readonly questions: number;
-    };
-  }): Quiz {
+  private toDomain(quiz: PrismaQuizSourceRecord): Quiz {
     const prismaRecord = this.toPrismaQuizRecord(quiz);
     const record = this.toQuizRecord(prismaRecord);
 
@@ -213,28 +219,20 @@ export class PrismaQuizManagementRepository implements QuizManagementRepository 
       record.description,
       record.createdAt,
       record.questionCount,
+      record.allowOptionChangeAfterVoting,
+      record.randomizeStageOrder,
+      record.randomizeOptionOrder,
     );
   }
 
-  private toPrismaQuizRecord(quiz: {
-    readonly id: string;
-    readonly gameId: string;
-    readonly game: {
-      readonly projectId: string;
-      readonly title: string;
-      readonly description: string | null;
-      readonly createdAt: Date;
-    };
-    readonly _count: {
-      readonly questions: number;
-    };
-  }): PrismaQuizRecord {
+  private toPrismaQuizRecord(quiz: PrismaQuizSourceRecord): PrismaQuizRecord {
     return {
       id: quiz.id,
       gameId: quiz.gameId,
       projectId: quiz.game.projectId,
       title: quiz.game.title,
       description: quiz.game.description,
+      ...this.gameSettingsMapper.toGameSettings(quiz.game),
       createdAt: quiz.game.createdAt,
       questionCount: quiz._count.questions,
     };
@@ -247,6 +245,7 @@ export class PrismaQuizManagementRepository implements QuizManagementRepository 
       projectId: this.projectIdentifier.parse(quiz.projectId),
       title: quiz.title,
       description: quiz.description,
+      ...this.gameSettingsMapper.toGameSettings(quiz),
       createdAt: quiz.createdAt,
       questionCount: quiz.questionCount,
     };

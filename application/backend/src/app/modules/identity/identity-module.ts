@@ -128,6 +128,7 @@ import { SharedServicesModule } from '../shared/shared-services.module';
     PassportModule,
     JwtStrategy,
     GqlJwtAuthGuard,
+    PasswordService,
     GuestRepositoryProvider,
     UserRepositoryProvider,
   ],

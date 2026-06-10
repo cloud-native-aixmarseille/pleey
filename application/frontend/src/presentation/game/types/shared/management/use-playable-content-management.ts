@@ -81,9 +81,15 @@ export function usePlayableContentManagement({
   const saveMetadata = async ({
     title,
     description,
+    allowOptionChangeAfterVoting,
+    randomizeStageOrder,
+    randomizeOptionOrder,
   }: {
     readonly title: string;
     readonly description: string;
+    readonly allowOptionChangeAfterVoting?: boolean;
+    readonly randomizeStageOrder?: boolean;
+    readonly randomizeOptionOrder?: boolean;
   }) => {
     if (!state) {
       return;
@@ -98,7 +104,13 @@ export function usePlayableContentManagement({
 
     if (
       normalizedTitle === state.game.title &&
-      normalizedDescription === lastDescriptionRef.current
+      normalizedDescription === lastDescriptionRef.current &&
+      (allowOptionChangeAfterVoting ?? state.game.allowOptionChangeAfterVoting ?? false) ===
+        (state.game.allowOptionChangeAfterVoting ?? false) &&
+      (randomizeStageOrder ?? state.game.randomizeStageOrder ?? false) ===
+        (state.game.randomizeStageOrder ?? false) &&
+      (randomizeOptionOrder ?? state.game.randomizeOptionOrder ?? false) ===
+        (state.game.randomizeOptionOrder ?? false)
     ) {
       return;
     }
@@ -109,6 +121,9 @@ export function usePlayableContentManagement({
       await gateway.updateMetadata(gameTypeId, {
         title: normalizedTitle,
         description: normalizedDescription,
+        allowOptionChangeAfterVoting,
+        randomizeStageOrder,
+        randomizeOptionOrder,
       });
       lastDescriptionRef.current = normalizedDescription;
       setState({
@@ -117,6 +132,10 @@ export function usePlayableContentManagement({
           ...state.game,
           title: normalizedTitle,
           description: normalizedDescription,
+          allowOptionChangeAfterVoting:
+            allowOptionChangeAfterVoting ?? state.game.allowOptionChangeAfterVoting ?? false,
+          randomizeStageOrder: randomizeStageOrder ?? state.game.randomizeStageOrder ?? false,
+          randomizeOptionOrder: randomizeOptionOrder ?? state.game.randomizeOptionOrder ?? false,
         },
       });
       pulseSaved();
@@ -135,6 +154,9 @@ export function usePlayableContentManagement({
     await saveMetadata({
       title: nextTitle,
       description: lastDescriptionRef.current ?? '',
+      allowOptionChangeAfterVoting: state.game.allowOptionChangeAfterVoting ?? false,
+      randomizeStageOrder: state.game.randomizeStageOrder ?? false,
+      randomizeOptionOrder: state.game.randomizeOptionOrder ?? false,
     });
   };
 
@@ -146,6 +168,9 @@ export function usePlayableContentManagement({
     await saveMetadata({
       title: state.game.title,
       description: nextDescription,
+      allowOptionChangeAfterVoting: state.game.allowOptionChangeAfterVoting ?? false,
+      randomizeStageOrder: state.game.randomizeStageOrder ?? false,
+      randomizeOptionOrder: state.game.randomizeOptionOrder ?? false,
     });
   };
 

@@ -53,8 +53,6 @@ describe('QrShareCard', () => {
 
     renderWithUiProvider(
       <QrShareCard
-        copiedLabel="Copied"
-        copyFailedLabel="Copy failed"
         copyLabel="Copy link"
         href="https://pleey.example.com/join/AB12CD"
         scanLabel="Scan to join"
@@ -66,13 +64,13 @@ describe('QrShareCard', () => {
 
     await waitFor(() => {
       expect(writeText).toHaveBeenCalledWith('https://pleey.example.com/join/AB12CD');
-      expect(screen.getByText('Copied')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: '✓' })).toBeInTheDocument();
     });
 
     await waitForStatusReset();
 
     await waitFor(() => {
-      expect(screen.queryByText('Copied')).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Copy link' })).toBeInTheDocument();
     });
   });
 
@@ -84,8 +82,6 @@ describe('QrShareCard', () => {
 
     renderWithUiProvider(
       <QrShareCard
-        copiedLabel="Copied"
-        copyFailedLabel="Copy failed"
         copyLabel="Copy link"
         href="https://pleey.example.com/join/AB12CD"
         scanLabel="Scan to join"
@@ -96,13 +92,13 @@ describe('QrShareCard', () => {
     screen.getByRole('button', { name: 'Copy link' }).click();
 
     await waitFor(() => {
-      expect(screen.getByText('Copy failed')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: '✕' })).toBeInTheDocument();
     });
 
     await waitForStatusReset();
 
     await waitFor(() => {
-      expect(screen.queryByText('Copy failed')).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Copy link' })).toBeInTheDocument();
     });
   });
 });

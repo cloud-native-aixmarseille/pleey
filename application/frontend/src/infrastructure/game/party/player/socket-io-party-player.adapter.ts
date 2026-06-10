@@ -59,6 +59,7 @@ export class SocketIoPartyPlayerAdapter implements PartyPlayerPort {
         command.playerIdentity.kind === PartyPlayerIdentityKind.Guest
           ? command.playerIdentity.guestId
           : undefined,
+      partyPassword: command.partyPassword,
       pin: command.pin,
       username: command.username,
     };

@@ -19,6 +19,9 @@ export interface CreatePredictionWithPromptsData extends CreatePredictionData {
 export interface UpdatePredictionData {
   readonly title: string;
   readonly description: string | null;
+  readonly allowOptionChangeAfterVoting?: boolean;
+  readonly randomizeStageOrder?: boolean;
+  readonly randomizeOptionOrder?: boolean;
 }
 
 export interface PredictionManagementRepository {

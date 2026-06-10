@@ -4,6 +4,7 @@ import type { PlayableManagementItem } from '../../../../../domains/game/types/s
 import { usePresentationTranslation } from '../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../shared/ui/actions/button';
 import { Badge } from '../../../../shared/ui/feedback/badge';
+import { Checkbox } from '../../../../shared/ui/forms/checkbox';
 import { FieldShell } from '../../../../shared/ui/forms/field-shell';
 import { Input } from '../../../../shared/ui/forms/input';
 import { Textarea } from '../../../../shared/ui/forms/textarea';
@@ -139,28 +140,47 @@ function ReviewChecklistRow({
 }
 
 export function MetadataPanel({
+  allowOptionChangeAfterVoting,
   description,
   isSaving,
   onSave,
+  randomizeStageOrder,
   title,
   translationRoot,
 }: {
+  readonly allowOptionChangeAfterVoting: boolean;
   readonly description: string | null;
   readonly isSaving: boolean;
-  readonly onSave: (input: { readonly title: string; readonly description: string }) => void;
+  readonly onSave: (input: {
+    readonly title: string;
+    readonly description: string;
+    readonly allowOptionChangeAfterVoting: boolean;
+    readonly randomizeStageOrder: boolean;
+  }) => void;
+  readonly randomizeStageOrder: boolean;
   readonly title: string;
   readonly translationRoot: string;
 }) {
   const { t } = usePresentationTranslation();
   const [titleValue, setTitleValue] = useState(title);
   const [descriptionValue, setDescriptionValue] = useState(description ?? '');
+  const [allowOptionChangeAfterVotingValue, setAllowOptionChangeAfterVotingValue] = useState(
+    allowOptionChangeAfterVoting,
+  );
+  const [randomizeStageOrderValue, setRandomizeStageOrderValue] = useState(randomizeStageOrder);
 
   useEffect(() => {
     setTitleValue(title);
     setDescriptionValue(description ?? '');
-  }, [description, title]);
+    setAllowOptionChangeAfterVotingValue(allowOptionChangeAfterVoting);
+    setRandomizeStageOrderValue(randomizeStageOrder);
+  }, [allowOptionChangeAfterVoting, description, randomizeStageOrder, title]);
 
-  const isDirty = titleValue !== title || descriptionValue !== (description ?? '');
+  const isDirty =
+    titleValue !== title ||
+    descriptionValue !== (description ?? '') ||
+    allowOptionChangeAfterVotingValue !== allowOptionChangeAfterVoting ||
+    randomizeStageOrderValue !== randomizeStageOrder;
 
   return (
     <ElevatedPanel padding="lg">
@@ -184,10 +204,31 @@ export function MetadataPanel({
             value={descriptionValue}
           />
         </FieldShell>
+        <Checkbox
+          id="playable-game-allow-option-change-after-voting"
+          label={t(`${translationRoot}.allowOptionChangeAfterVotingLabel`)}
+          description={t(`${translationRoot}.allowOptionChangeAfterVotingDescription`)}
+          checked={allowOptionChangeAfterVotingValue}
+          onChange={(event) => setAllowOptionChangeAfterVotingValue(event.currentTarget.checked)}
+        />
+        <Checkbox
+          id="playable-game-randomize-stage-order"
+          label={t(`${translationRoot}.randomizeStageOrderLabel`)}
+          description={t(`${translationRoot}.randomizeStageOrderDescription`)}
+          checked={randomizeStageOrderValue}
+          onChange={(event) => setRandomizeStageOrderValue(event.currentTarget.checked)}
+        />
         <div>
           <Button
             disabled={isSaving || !isDirty || titleValue.trim().length === 0}
-            onClick={() => onSave({ title: titleValue, description: descriptionValue })}
+            onClick={() =>
+              onSave({
+                title: titleValue,
+                description: descriptionValue,
+                allowOptionChangeAfterVoting: allowOptionChangeAfterVotingValue,
+                randomizeStageOrder: randomizeStageOrderValue,
+              })
+            }
           >
             {t(`${translationRoot}.saveMetadata`)}
           </Button>

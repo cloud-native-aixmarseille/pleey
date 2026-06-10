@@ -23,10 +23,13 @@ interface UsePartyLobbyJoinSessionParams {
 interface UsePartyLobbyJoinSessionResult {
   readonly guestAvatarPreviewUri: string | null;
   readonly guestName: string;
+  readonly isPasswordRequired: boolean;
+  readonly partyPassword: string;
   readonly joinParty: () => Promise<void>;
   readonly regenerateGuestAvatar: () => void;
   readonly regenerateGuestName: () => void;
   readonly setGuestName: (value: string) => void;
+  readonly setPartyPassword: (value: string) => void;
 }
 
 export function usePartyLobbyJoinSession({
@@ -47,6 +50,8 @@ export function usePartyLobbyJoinSession({
     guestDraft?.avatarSeed ?? null,
   );
   const [guestName, setGuestName] = useState(guestDraft?.guestName ?? '');
+  const [isPasswordRequired, setIsPasswordRequired] = useState(false);
+  const [partyPassword, setPartyPassword] = useState('');
 
   const joinParty = useEffectEvent(async () => {
     if (normalizedPin === null) {
@@ -62,8 +67,10 @@ export function usePartyLobbyJoinSession({
     setIsJoinSubmitting(true);
 
     try {
+      const normalizedPassword = partyPassword.trim();
       const receipt = await partyLobbyFacade.joinParty({
         ...(user || guestAvatarSeed === null ? {} : { avatarSeed: guestAvatarSeed }),
+        partyPassword: normalizedPassword || undefined,
         pin: normalizedPin,
         playerIdentity: user
           ? { kind: PartyPlayerIdentityKind.User, userId: user.id }
@@ -74,6 +81,9 @@ export function usePartyLobbyJoinSession({
       });
 
       if (receipt.status === PartyJoinReceiptStatus.REJECTED) {
+        if (receipt.errorMessage === PartyManagementErrorCode.VALIDATION_FAILED) {
+          setIsPasswordRequired(true);
+        }
         setJoinErrorMessage(receipt.errorMessage);
         return;
       }
@@ -86,12 +96,19 @@ export function usePartyLobbyJoinSession({
         partyLobbyFacade.clearGuestId(normalizedPin);
       }
 
+      setIsPasswordRequired(false);
+      setPartyPassword('');
       onPartyJoined(receipt.partyId);
       setJoinErrorMessage(null);
     } finally {
       setIsJoinSubmitting(false);
     }
   });
+
+  useEffect(() => {
+    setIsPasswordRequired(false);
+    setPartyPassword('');
+  }, [normalizedPin]);
 
   useEffect(() => {
     if (normalizedPin === null || persistedGuestJoinGuestId === null) {
@@ -144,9 +161,12 @@ export function usePartyLobbyJoinSession({
         ? null
         : guestPartyEntryDraftFactory.createPreviewUrl(guestAvatarSeed),
     guestName,
+    isPasswordRequired,
+    partyPassword,
     joinParty,
     regenerateGuestAvatar: () => setGuestAvatarSeed(guestPartyEntryDraftFactory.createAvatarSeed()),
     regenerateGuestName: () => setGuestName(guestPartyEntryDraftFactory.createGuestName()),
     setGuestName,
+    setPartyPassword,
   };
 }

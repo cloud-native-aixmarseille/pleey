@@ -55,6 +55,7 @@ describe('PartyManagementResolver', () => {
   it('maps createParty to the host-authenticated use case input', async () => {
     const input = new CreatePartyInput();
     input.gameId = backendTestIdentifiers.game(11);
+    input.privatePartyPassword = 'secret42';
 
     const result = await resolver.createParty(input, {
       req: {
@@ -67,6 +68,7 @@ describe('PartyManagementResolver', () => {
     expect(createPartyUseCase.execute).toHaveBeenCalledWith({
       gameId: backendTestIdentifiers.game(11),
       hostUserId: backendTestIdentifiers.user(42),
+      privatePartyPassword: 'secret42',
     });
     expect(result.partyId).toBe(backendTestIdentifiers.party(14));
   });

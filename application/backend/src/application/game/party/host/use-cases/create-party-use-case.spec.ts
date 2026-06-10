@@ -5,6 +5,7 @@ import { PinAlreadyInUseError } from '../../../../../domain/game/party/errors/pi
 import { OrganizationErrorCode } from '../../../../../domain/organization/enums/organization-error-code.enum';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { createOrganizationMemberRepositoryMock } from '../../../../../test-utils/mock-factories/organization.mock-factory';
+import { createPasswordServiceMock } from '../../../../../test-utils/mock-factories/password-service.mock-factory';
 import { GamePermissionResolver } from '../../../management/services/game-permission-resolver';
 import { PartyPinIdentifier } from '../../shared/services/identifiers/party-pin-identifier';
 import { CreatePartyUseCase } from './create-party-use-case';
@@ -24,6 +25,7 @@ describe('CreatePartyUseCase', () => {
   };
 
   const memberRepository = createOrganizationMemberRepositoryMock();
+  const passwordService = createPasswordServiceMock();
   const gamePermissionResolver = {
     assertCanCreateParty: vi.fn().mockResolvedValue(undefined),
     resolveGamePermissions: vi.fn(),
@@ -40,6 +42,10 @@ describe('CreatePartyUseCase', () => {
     gamePermissionResolver.assertCanCreateParty.mockResolvedValue(undefined);
     broadcastPartyObservationUseCase.broadcastIfPresent.mockReset();
     broadcastPartyObservationUseCase.broadcastIfPresent.mockResolvedValue(undefined);
+    passwordService.hash.mockReset();
+    passwordService.hash.mockResolvedValue('hashed-private-party-password');
+    passwordService.isValidPassword.mockReset();
+    passwordService.isValidPassword.mockReturnValue(true);
 
     memberRepository.findByOrganizationAndUser.mockReset();
 
@@ -67,6 +73,7 @@ describe('CreatePartyUseCase', () => {
       gamePermissionResolver as unknown as GamePermissionResolver,
       broadcastPartyObservationUseCase as never,
       partyPinIdentifier,
+      passwordService,
     );
   });
 
@@ -196,5 +203,35 @@ describe('CreatePartyUseCase', () => {
 
     expect(partyManagement.createParty).toHaveBeenCalledTimes(2);
     expect(result.pin).toBe('654321');
+  });
+
+  it('hashes private party passwords before persisting a party', async () => {
+    await useCase.execute({
+      gameId: backendTestIdentifiers.game(17),
+      hostUserId: backendTestIdentifiers.user(42),
+      privatePartyPassword: 'secret42',
+    });
+
+    expect(passwordService.hash).toHaveBeenCalledWith('secret42');
+    expect(partyManagement.createParty).toHaveBeenCalledWith(
+      expect.objectContaining({
+        privatePartyPasswordHash: 'hashed-private-party-password',
+      }),
+    );
+  });
+
+  it('rejects invalid private party passwords', async () => {
+    passwordService.isValidPassword.mockReturnValue(false);
+
+    await expect(
+      useCase.execute({
+        gameId: backendTestIdentifiers.game(17),
+        hostUserId: backendTestIdentifiers.user(42),
+        privatePartyPassword: '123',
+      }),
+    ).rejects.toThrow(GameErrorCode.VALIDATION_FAILED);
+
+    expect(passwordService.hash).not.toHaveBeenCalled();
+    expect(partyManagement.createParty).not.toHaveBeenCalled();
   });
 });

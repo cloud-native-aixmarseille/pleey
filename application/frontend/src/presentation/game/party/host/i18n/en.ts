@@ -9,8 +9,6 @@ export const gamePartyHostEn = {
           scanToJoin: 'Scan to join',
           orVisit: 'Or visit',
           copyJoinLink: 'Copy join link',
-          copyJoinLinkSuccess: 'Join link copied.',
-          copyJoinLinkFailed: 'Unable to copy the link.',
           enterCode: 'Enter this code',
           runtimeMenuTrigger: 'Host commands',
           runtimeMenuLabel: 'Host runtime commands',

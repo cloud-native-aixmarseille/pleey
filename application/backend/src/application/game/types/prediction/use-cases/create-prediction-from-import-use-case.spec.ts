@@ -3,6 +3,7 @@ import { Prediction } from '../../../../../domain/game/types/prediction/entities
 import { PredictionErrorCode } from '../../../../../domain/game/types/prediction/enums/prediction-error-code.enum';
 import type { PredictionManagementRepository } from '../../../../../domain/game/types/prediction/ports/prediction-management.repository';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
+import { GameTypeIdentifier } from '../../shared/services/game-type-identifier';
 import { PlayableContentImportSource } from '../../shared/services/playable-content-import/import-source';
 import type { PredictionImportPromptMapper } from '../services/prediction-import-prompt-mapper';
 import { CreatePredictionFromImportUseCase } from './create-prediction-from-import-use-case';
@@ -23,9 +24,13 @@ class TestPlayableContentImportSource extends PlayableContentImportSource {
 
 describe('CreatePredictionFromImportUseCase', () => {
   it('creates a prediction and imported prompts through one repository command', async () => {
+    const gameTypeIdentifier = new GameTypeIdentifier();
+    const predictionId = gameTypeIdentifier.parse(backendTestIdentifiers.game(13));
+    const gameId = backendTestIdentifiers.game(31);
+
     const createdPrediction = new Prediction(
-      backendTestIdentifiers.game(13),
-      backendTestIdentifiers.game(31),
+      predictionId,
+      gameId,
       backendTestIdentifiers.project(7),
       'Sprint prediction',
       null,

@@ -41,6 +41,7 @@ export class PartyManagementResolver {
     return this.createPartyUseCase.execute({
       gameId: this.gameIdentifier.parse(input.gameId),
       hostUserId: userId,
+      privatePartyPassword: input.privatePartyPassword,
     });
   }
 

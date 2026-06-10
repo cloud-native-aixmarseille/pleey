@@ -5,10 +5,10 @@ import type { PartyHostRuntimeControlsPort } from '../../../../../domains/game/p
 import type { PartyManagementPort } from '../../../../../domains/game/party/host/ports/party-management.port';
 import type { PartyGuestSessionPort } from '../../../../../domains/game/party/player/ports/party-guest-session.port';
 import type { PartyPlayerPort } from '../../../../../domains/game/party/player/ports/party-player.port';
-import type { PrivatePartyPasswordGeneratorPort } from '../../../../../domains/game/party/shared/ports/private-party-password-generator.port';
 import type { PartyId, PartyPin } from '../../../../../domains/game/party/shared/entities/party';
 import type { StageId } from '../../../../../domains/game/party/shared/entities/party-stage';
 import type { PartyObservationPort } from '../../../../../domains/game/party/shared/ports/party-observation.port';
+import type { PrivatePartyPasswordGeneratorPort } from '../../../../../domains/game/party/shared/ports/private-party-password-generator.port';
 import { PresentationContextErrorCode } from '../../../../../domains/shared/errors/presentation-context-error-code';
 import { PlayerRuntimeNoticeMessageResolver } from '../../player/screens/components/player-runtime-notice-message-resolver';
 import { GuestPartyEntryDraftFactory } from '../../player/screens/guest-party-entry-draft-factory';

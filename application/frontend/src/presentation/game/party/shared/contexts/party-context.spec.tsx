@@ -117,7 +117,9 @@ describe('PartyProvider', () => {
           partyPinIdentifier,
           partyPlayerPort,
           playerRuntimeNoticeMessageResolver,
-          privatePartyPasswordGeneratorPort: { generatePrivatePartyPassword: vi.fn(() => 'TestPassword1234') },
+          privatePartyPasswordGeneratorPort: {
+            generatePrivatePartyPassword: vi.fn(() => 'TestPassword1234'),
+          },
           stageIdentifier,
         },
       );
@@ -194,7 +196,9 @@ describe('PartyProvider', () => {
           partyPinIdentifier,
           partyPlayerPort,
           playerRuntimeNoticeMessageResolver,
-          privatePartyPasswordGeneratorPort: { generatePrivatePartyPassword: vi.fn(() => 'TestPassword1234') },
+          privatePartyPasswordGeneratorPort: {
+            generatePrivatePartyPassword: vi.fn(() => 'TestPassword1234'),
+          },
           stageIdentifier,
         },
       );
@@ -247,7 +251,9 @@ describe('PartyProvider', () => {
           partyPinIdentifier,
           partyPlayerPort,
           playerRuntimeNoticeMessageResolver,
-          privatePartyPasswordGeneratorPort: { generatePrivatePartyPassword: vi.fn(() => 'TestPassword1234') },
+          privatePartyPasswordGeneratorPort: {
+            generatePrivatePartyPassword: vi.fn(() => 'TestPassword1234'),
+          },
           stageIdentifier,
         },
       );
@@ -289,7 +295,9 @@ describe('PartyProvider', () => {
           partyPinIdentifier,
           partyPlayerPort,
           playerRuntimeNoticeMessageResolver,
-          privatePartyPasswordGeneratorPort: { generatePrivatePartyPassword: vi.fn(() => 'TestPassword1234') },
+          privatePartyPasswordGeneratorPort: {
+            generatePrivatePartyPassword: vi.fn(() => 'TestPassword1234'),
+          },
           stageIdentifier,
         },
       );
@@ -335,7 +343,9 @@ describe('PartyProvider', () => {
           partyPinIdentifier,
           partyPlayerPort,
           playerRuntimeNoticeMessageResolver,
-          privatePartyPasswordGeneratorPort: { generatePrivatePartyPassword: vi.fn(() => 'TestPassword1234') },
+          privatePartyPasswordGeneratorPort: {
+            generatePrivatePartyPassword: vi.fn(() => 'TestPassword1234'),
+          },
           stageIdentifier,
         },
       );

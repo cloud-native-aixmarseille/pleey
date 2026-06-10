@@ -34,10 +34,6 @@ import {
   PartyGuestSessionPortToken,
 } from '../../../../domains/game/party/player/ports/party-guest-session.port';
 import {
-  type PrivatePartyPasswordGeneratorPort,
-  PrivatePartyPasswordGeneratorPortToken,
-} from '../../../../domains/game/party/shared/ports/private-party-password-generator.port';
-import {
   type PartyPlayerPort,
   PartyPlayerPortToken,
 } from '../../../../domains/game/party/player/ports/party-player.port';
@@ -45,12 +41,16 @@ import {
   type PartyObservationPort,
   PartyObservationPortToken,
 } from '../../../../domains/game/party/shared/ports/party-observation.port';
+import {
+  type PrivatePartyPasswordGeneratorPort,
+  PrivatePartyPasswordGeneratorPortToken,
+} from '../../../../domains/game/party/shared/ports/private-party-password-generator.port';
+import { CryptoPrivatePartyPasswordGeneratorAdapter } from '../../../../infrastructure/game/party/crypto-private-party-password-generator.adapter';
 import { GraphqlPartyManagementAdapter } from '../../../../infrastructure/game/party/host/graphql-party-management.adapter';
 import { SocketIoPartyHostControlAdapter } from '../../../../infrastructure/game/party/host/socket-io-party-host-control.adapter';
 import { PersistedPartyGuestSessionAdapter } from '../../../../infrastructure/game/party/player/persisted-party-guest-session.adapter';
 import { SocketIoPartyPlayerAdapter } from '../../../../infrastructure/game/party/player/socket-io-party-player.adapter';
 import { UniqueUsernameGuestUsernameGeneratorAdapter } from '../../../../infrastructure/game/party/player/unique-username-guest-username-generator.adapter';
-import { CryptoPrivatePartyPasswordGeneratorAdapter } from '../../../../infrastructure/game/party/crypto-private-party-password-generator.adapter';
 import { SocketIoPartyObservationAdapter } from '../../../../infrastructure/game/party/shared/socket-io-party-observation.adapter';
 import { SocketIoPartyPayloadMapper } from '../../../../infrastructure/game/party/shared/socket-io-party-payload-mapper';
 import { SocketIoPartyRealtimeTransport } from '../../../../infrastructure/game/party/shared/socket-io-party-realtime-transport';

@@ -8,6 +8,9 @@ export const gamePartyPlayerFr = {
           guestAvatarFallbackName: 'joueur invité',
           guestNameLabel: 'Pseudo invité',
           guestNamePlaceholder: 'Saisir un pseudo',
+          passwordLabel: 'Mot de passe de partie privée',
+          passwordPlaceholder: 'Saisir le mot de passe si nécessaire',
+          passwordHint: "Remplissez ce champ uniquement si l'hôte a créé une partie privée.",
           joinAsGuestCta: 'Rejoindre comme invité',
           joinWithAccountCta: 'Rejoindre avec mon compte',
           joinHeroEyebrow: 'Rejoindre une partie',
@@ -21,8 +24,8 @@ export const gamePartyPlayerFr = {
           currentHost: 'Hébergée par {{username}}',
           actionSubmitting: 'Envoi de votre réponse...',
           actionLocked: 'Votre réponse est verrouillée.',
-          answerShortcuts: 'Choix de reponse',
-          answerShortcut: 'Selectionner la reponse {{number}}',
+          answerShortcuts: 'Choix de réponse',
+          answerShortcut: 'Sélectionner la réponse {{number}}',
           actionPaused:
             "L'hôte a mis la partie en pause. Les réponses sont temporairement verrouillées.",
           runtimeRestartStageToast:

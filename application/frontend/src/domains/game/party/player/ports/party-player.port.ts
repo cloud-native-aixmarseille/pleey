@@ -8,6 +8,7 @@ import type {
 
 export interface PartyJoinCommand {
   readonly avatarSeed?: string;
+  readonly partyPassword?: string;
   readonly pin: PartyPin;
   readonly playerIdentity: PartyJoiningPlayerIdentity;
   readonly username?: string;

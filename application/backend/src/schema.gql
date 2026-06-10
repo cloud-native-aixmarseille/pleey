@@ -40,6 +40,7 @@ enum CreatePartyDisabledReason {
 
 input CreatePartyInput {
   gameId: ID!
+  privatePartyPassword: String
 }
 
 input CreatePredictionFromImportInput {
@@ -274,11 +275,14 @@ type PredictionPromptType {
 }
 
 type PredictionType {
+  allowOptionChangeAfterVoting: Boolean!
   createdAt: DateTime!
   description: String
   gameId: ID!
   predictionId: ID!
   promptCount: Int!
+  randomizeOptionOrder: Boolean!
+  randomizeStageOrder: Boolean!
   title: String!
   type: String!
 }
@@ -361,11 +365,14 @@ type QuizQuestionTypeObject {
 }
 
 type QuizType {
+  allowOptionChangeAfterVoting: Boolean!
   createdAt: DateTime!
   description: String
   gameId: ID!
   questionCount: Int!
   quizId: ID!
+  randomizeOptionOrder: Boolean!
+  randomizeStageOrder: Boolean!
   title: String!
   type: String!
 }
@@ -399,7 +406,10 @@ input UpdateOrganizationMemberRoleInput {
 }
 
 input UpdatePredictionInput {
+  allowOptionChangeAfterVoting: Boolean
   description: String
+  randomizeOptionOrder: Boolean
+  randomizeStageOrder: Boolean
   title: String!
 }
 
@@ -422,7 +432,10 @@ input UpdateProjectInput {
 }
 
 input UpdateQuizInput {
+  allowOptionChangeAfterVoting: Boolean
   description: String
+  randomizeOptionOrder: Boolean
+  randomizeStageOrder: Boolean
   title: String!
 }
 

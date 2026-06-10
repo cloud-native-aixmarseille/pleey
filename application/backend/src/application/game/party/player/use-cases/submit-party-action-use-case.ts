@@ -26,6 +26,7 @@ export class SubmitPartyActionUseCase {
     }
 
     if (
+      !target.settings.allowOptionChangeAfterVoting &&
       target.context?.lifecycle.stageId !== null &&
       target.context?.lifecycle.stageId !== undefined &&
       target.playerActionState?.stageId === target.context.lifecycle.stageId

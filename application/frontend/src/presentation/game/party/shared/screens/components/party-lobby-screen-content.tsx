@@ -77,6 +77,8 @@ export function PartyLobbyScreenContent({
     isAuthenticated,
     isJoinSubmitting,
     joinPin,
+    joinPartyRequiresPassword,
+    joinPartyPassword,
     joinErrorMessage,
     joinParty,
     kickPlayer,
@@ -99,6 +101,7 @@ export function PartyLobbyScreenContent({
     rewindStage,
     runtimeNoticeKind,
     setGuestName,
+    setJoinPartyPassword,
     startParty,
     submitAction,
   } = state;
@@ -116,8 +119,11 @@ export function PartyLobbyScreenContent({
       onGenerateGuestName={regenerateGuestName}
       onGuestNameChange={setGuestName}
       onJoinParty={() => void joinParty()}
+      onJoinPasswordChange={setJoinPartyPassword}
       onRegenerateGuestAvatar={regenerateGuestAvatar}
+      password={joinPartyPassword}
       pin={joinPin}
+      showPasswordInput={joinPartyRequiresPassword}
     />
   );
   const dashboardLink = (

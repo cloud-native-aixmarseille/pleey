@@ -35,8 +35,6 @@ Per-app npm scripts are in each `package.json`. Key entrypoints:
 
 ## Frontend Implementation Specs
 
-- [Frontend Keyboard Controls Specification](./frontend-keyboard-controls.md)
-
 Test frameworks: **Vitest** (backend + frontend), **Playwright** (end-to-end).
 
 ## Commits

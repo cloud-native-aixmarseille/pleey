@@ -141,6 +141,7 @@ export class PrismaPartyManagementAdapter extends PartyManagementPort {
           gameId: command.gameId,
           hostId: command.hostUserId,
           pin: command.pin,
+          passwordHash: command.privatePartyPasswordHash,
           status: 'waiting',
         },
       });

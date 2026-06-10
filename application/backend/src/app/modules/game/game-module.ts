@@ -63,6 +63,7 @@ import { PrismaPlayerPartyObservationReader } from '../../../infrastructure/game
 import { PrismaPlayerPartyRuntimeAdapter } from '../../../infrastructure/game/party/prisma-player-party-runtime.adapter';
 import { PrismaPartyPlayerRemovalService } from '../../../infrastructure/game/party/services/prisma-party-player-removal.service';
 import { PrismaPartyReadModelMapper } from '../../../infrastructure/game/party/services/prisma-party-read-model-mapper';
+import { PrismaGameSettingsMapper } from '../../../infrastructure/game/shared/prisma-game-settings.mapper';
 import { PredictionPartyStageCatalogEntryResolver } from '../../../infrastructure/game/types/prediction/prediction-party-stage-catalog-entry-resolver';
 import { PredictionPartyStageConfigurationResolver } from '../../../infrastructure/game/types/prediction/prediction-party-stage-configuration-resolver';
 import { PrismaPartyStageCatalogAdapter } from '../../../infrastructure/game/types/prisma-party-stage-catalog.adapter';
@@ -107,6 +108,7 @@ import { SharedServicesModule } from '../shared/shared-services.module';
     PrismaPartyPlayerRemovalService,
     PrismaPartyManagementAdapter,
     PrismaPartyReadModelMapper,
+    PrismaGameSettingsMapper,
     PrismaHostPartyObservationReader,
     PrismaPartyGameTypeReader,
     PrismaHostPartyRuntimeControlAdapter,

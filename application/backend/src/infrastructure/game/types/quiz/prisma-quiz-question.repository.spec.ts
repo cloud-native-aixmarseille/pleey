@@ -11,6 +11,8 @@ import { PrismaQuizQuestionRepository } from './prisma-quiz-question.repository'
 
 describe('PrismaQuizQuestionRepository', () => {
   it('inserts a question at a target position by shifting following questions', async () => {
+    const gameTypeId = new GameTypeIdentifier().parse(backendTestIdentifiers.game(5));
+
     const transaction = {
       question: {
         count: vi.fn().mockResolvedValue(2),
@@ -38,7 +40,7 @@ describe('PrismaQuizQuestionRepository', () => {
       new PrismaSelectableOptionMapper(),
     );
 
-    const question = await repository.create(backendTestIdentifiers.game(5), {
+    const question = await repository.create(gameTypeId, {
       position: 1,
       questionText: 'Question',
       type: QuizQuestionType.Multiple,
@@ -60,6 +62,8 @@ describe('PrismaQuizQuestionRepository', () => {
   });
 
   it('clamps negative insertion positions to the first question slot', async () => {
+    const gameTypeId = new GameTypeIdentifier().parse(backendTestIdentifiers.game(5));
+
     const transaction = {
       question: {
         count: vi.fn().mockResolvedValue(2),
@@ -90,7 +94,7 @@ describe('PrismaQuizQuestionRepository', () => {
       new PrismaSelectableOptionMapper(),
     );
 
-    const question = await repository.create(backendTestIdentifiers.game(5), {
+    const question = await repository.create(gameTypeId, {
       position: -1,
       questionText: 'Question',
       type: QuizQuestionType.Multiple,
@@ -108,6 +112,9 @@ describe('PrismaQuizQuestionRepository', () => {
   });
 
   it('reorders neighbouring questions when updating a question position', async () => {
+    const quizQuestionIdentifier = new QuizQuestionIdentifier();
+    const questionId = quizQuestionIdentifier.parse(backendTestIdentifiers.partyStage(10));
+
     const transaction = {
       question: {
         count: vi.fn().mockResolvedValue(3),
@@ -146,7 +153,7 @@ describe('PrismaQuizQuestionRepository', () => {
       new PrismaSelectableOptionMapper(),
     );
 
-    const question = await repository.update(backendTestIdentifiers.partyStage(10), {
+    const question = await repository.update(questionId, {
       position: 2,
       questionText: 'Question',
       type: QuizQuestionType.Multiple,
@@ -157,7 +164,7 @@ describe('PrismaQuizQuestionRepository', () => {
 
     expect(transaction.question.update).toHaveBeenCalledTimes(3);
     expect(transaction.question.update).toHaveBeenCalledWith({
-      where: { id: backendTestIdentifiers.partyStage(10) },
+      where: { id: questionId },
       data: { position: 3 },
     });
     expect(transaction.question.update).toHaveBeenCalledWith({
@@ -165,11 +172,11 @@ describe('PrismaQuizQuestionRepository', () => {
       data: { position: 1 },
     });
     expect(transaction.questionAnswer.deleteMany).toHaveBeenCalledWith({
-      where: { questionId: backendTestIdentifiers.partyStage(10) },
+      where: { questionId },
     });
     expect(transaction.question.update).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { id: backendTestIdentifiers.partyStage(10) },
+        where: { id: questionId },
         data: expect.objectContaining({ position: 2 }),
       }),
     );
@@ -177,6 +184,9 @@ describe('PrismaQuizQuestionRepository', () => {
   });
 
   it('clamps negative update positions to the first question slot', async () => {
+    const quizQuestionIdentifier = new QuizQuestionIdentifier();
+    const questionId = quizQuestionIdentifier.parse(backendTestIdentifiers.partyStage(10));
+
     const transaction = {
       question: {
         count: vi.fn().mockResolvedValue(3),
@@ -215,7 +225,7 @@ describe('PrismaQuizQuestionRepository', () => {
       new PrismaSelectableOptionMapper(),
     );
 
-    const question = await repository.update(backendTestIdentifiers.partyStage(10), {
+    const question = await repository.update(questionId, {
       position: -1,
       questionText: 'Question',
       type: QuizQuestionType.Multiple,
@@ -225,7 +235,7 @@ describe('PrismaQuizQuestionRepository', () => {
     });
 
     expect(transaction.question.update).toHaveBeenCalledWith({
-      where: { id: backendTestIdentifiers.partyStage(10) },
+      where: { id: questionId },
       data: { position: 3 },
     });
     expect(transaction.question.update).toHaveBeenCalledWith({

@@ -23,6 +23,12 @@ type ActivePlayerPartySessionInput = {
 
 type PartyJoinTargetInput = ActivePlayerPartySessionInput & {
   readonly hostUserId: ReturnType<typeof backendTestIdentifiers.user>;
+  readonly privatePartyPasswordHash: string | null;
+  readonly settings: {
+    readonly allowOptionChangeAfterVoting: boolean;
+    readonly randomizeOptionOrder: boolean;
+    readonly randomizeStageOrder: boolean;
+  };
 };
 
 type CreatePlayerPartyRuntimeMockConfig = {
@@ -38,7 +44,13 @@ const DEFAULT_PARTY_JOIN_TARGET: PartyJoinTargetInput = {
   partyId: backendTestIdentifiers.party(12),
   gameId: backendTestIdentifiers.game(21),
   hostUserId: backendTestIdentifiers.user(7),
+  privatePartyPasswordHash: null,
   pin: '123456',
+  settings: {
+    allowOptionChangeAfterVoting: false,
+    randomizeOptionOrder: false,
+    randomizeStageOrder: false,
+  },
   status: 'WAITING',
 };
 

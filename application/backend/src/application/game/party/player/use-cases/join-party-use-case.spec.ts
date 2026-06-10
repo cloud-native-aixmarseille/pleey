@@ -4,6 +4,7 @@ import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
 import type { PartyPlayer } from '../../../../../domain/game/party/player/entities/party-player';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
+import { createPasswordServiceMock } from '../../../../../test-utils/mock-factories/password-service.mock-factory';
 import { createPlayerPartyRuntimeMock } from '../../../../../test-utils/mock-factories/player-party-runtime.mock-factory';
 import { JoinPartyUseCase } from './join-party-use-case';
 
@@ -29,6 +30,12 @@ describe('JoinPartyUseCase', () => {
         partyId,
         gameId,
         hostUserId,
+        privatePartyPasswordHash: null,
+        settings: {
+          allowOptionChangeAfterVoting: false,
+          randomizeOptionOrder: false,
+          randomizeStageOrder: false,
+        },
         pin: partyPin,
         status: 'ACTIVE',
       },
@@ -40,6 +47,7 @@ describe('JoinPartyUseCase', () => {
     const useCase = new JoinPartyUseCase(
       runtime as never,
       broadcastPartyObservationUseCase as never,
+      createPasswordServiceMock({ compare: true }) as never,
     );
 
     await expect(
@@ -63,6 +71,12 @@ describe('JoinPartyUseCase', () => {
         partyId,
         gameId,
         hostUserId,
+        privatePartyPasswordHash: null,
+        settings: {
+          allowOptionChangeAfterVoting: false,
+          randomizeOptionOrder: false,
+          randomizeStageOrder: false,
+        },
         pin: partyPin,
         status: 'ACTIVE',
       },
@@ -73,6 +87,7 @@ describe('JoinPartyUseCase', () => {
     const useCase = new JoinPartyUseCase(
       runtime as never,
       broadcastPartyObservationUseCase as never,
+      createPasswordServiceMock({ compare: true }) as never,
     );
 
     await expect(
@@ -105,6 +120,7 @@ describe('JoinPartyUseCase', () => {
     const useCase = new JoinPartyUseCase(
       runtime as never,
       broadcastPartyObservationUseCase as never,
+      createPasswordServiceMock({ compare: true }) as never,
     );
 
     await expect(
@@ -141,6 +157,12 @@ describe('JoinPartyUseCase', () => {
         partyId,
         gameId,
         hostUserId,
+        privatePartyPasswordHash: null,
+        settings: {
+          allowOptionChangeAfterVoting: false,
+          randomizeOptionOrder: false,
+          randomizeStageOrder: false,
+        },
         pin: partyPin,
         status: 'ACTIVE',
       },
@@ -152,6 +174,7 @@ describe('JoinPartyUseCase', () => {
     const useCase = new JoinPartyUseCase(
       runtime as never,
       broadcastPartyObservationUseCase as never,
+      createPasswordServiceMock({ compare: true }) as never,
     );
 
     const result = await useCase.execute({
@@ -193,6 +216,7 @@ describe('JoinPartyUseCase', () => {
     const useCase = new JoinPartyUseCase(
       runtime as never,
       broadcastPartyObservationUseCase as never,
+      createPasswordServiceMock({ compare: true }) as never,
     );
 
     const result = await useCase.execute({
@@ -243,6 +267,7 @@ describe('JoinPartyUseCase', () => {
     const useCase = new JoinPartyUseCase(
       runtime as never,
       broadcastPartyObservationUseCase as never,
+      createPasswordServiceMock({ compare: true }) as never,
     );
 
     const result = await useCase.execute({
@@ -288,6 +313,7 @@ describe('JoinPartyUseCase', () => {
     const useCase = new JoinPartyUseCase(
       runtime as never,
       broadcastPartyObservationUseCase as never,
+      createPasswordServiceMock({ compare: true }) as never,
     );
 
     const result = await useCase.execute({
@@ -326,6 +352,7 @@ describe('JoinPartyUseCase', () => {
     const useCase = new JoinPartyUseCase(
       runtime as never,
       broadcastPartyObservationUseCase as never,
+      createPasswordServiceMock({ compare: true }) as never,
     );
 
     await expect(
@@ -351,6 +378,7 @@ describe('JoinPartyUseCase', () => {
     const useCase = new JoinPartyUseCase(
       runtime as never,
       broadcastPartyObservationUseCase as never,
+      createPasswordServiceMock({ compare: true }) as never,
     );
 
     await expect(
@@ -364,5 +392,84 @@ describe('JoinPartyUseCase', () => {
     ).rejects.toThrow(GameErrorCode.VALIDATION_FAILED);
 
     expect(runtime.ensureGuestPlayer).not.toHaveBeenCalled();
+  });
+
+  it('rejects private-party joins with missing password', async () => {
+    const runtime = createPlayerPartyRuntimeMock({
+      findPartyByPin: {
+        partyId,
+        gameId,
+        hostUserId,
+        privatePartyPasswordHash: 'hashed-private-password',
+        pin: partyPin,
+        settings: {
+          allowOptionChangeAfterVoting: false,
+          randomizeOptionOrder: false,
+          randomizeStageOrder: false,
+        },
+        status: 'WAITING',
+      },
+    });
+    const broadcastPartyObservationUseCase = {
+      execute: vi.fn(),
+    };
+    const passwordService = createPasswordServiceMock({ compare: true });
+    const useCase = new JoinPartyUseCase(
+      runtime as never,
+      broadcastPartyObservationUseCase as never,
+      passwordService,
+    );
+
+    await expect(
+      useCase.execute({
+        pin: partyPin,
+        playerIdentity: {
+          kind: PartyPlayerKind.GUEST,
+        },
+        username: 'Morgan Guest',
+      }),
+    ).rejects.toThrow(GameErrorCode.VALIDATION_FAILED);
+
+    expect(passwordService.compare).not.toHaveBeenCalled();
+  });
+
+  it('rejects private-party joins with invalid password', async () => {
+    const runtime = createPlayerPartyRuntimeMock({
+      findPartyByPin: {
+        partyId,
+        gameId,
+        hostUserId,
+        privatePartyPasswordHash: 'hashed-private-password',
+        pin: partyPin,
+        settings: {
+          allowOptionChangeAfterVoting: false,
+          randomizeOptionOrder: false,
+          randomizeStageOrder: false,
+        },
+        status: 'WAITING',
+      },
+    });
+    const broadcastPartyObservationUseCase = {
+      execute: vi.fn(),
+    };
+    const passwordService = createPasswordServiceMock({ compare: false });
+    const useCase = new JoinPartyUseCase(
+      runtime as never,
+      broadcastPartyObservationUseCase as never,
+      passwordService,
+    );
+
+    await expect(
+      useCase.execute({
+        partyPassword: 'wrong-secret',
+        pin: partyPin,
+        playerIdentity: {
+          kind: PartyPlayerKind.GUEST,
+        },
+        username: 'Morgan Guest',
+      }),
+    ).rejects.toThrow(GameErrorCode.VALIDATION_FAILED);
+
+    expect(passwordService.compare).toHaveBeenCalledWith('wrong-secret', 'hashed-private-password');
   });
 });

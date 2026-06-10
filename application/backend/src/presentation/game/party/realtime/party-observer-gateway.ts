@@ -422,6 +422,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
 
     if (user) {
       return {
+        partyPassword: payload?.partyPassword?.trim() || undefined,
         pin: normalizedPin,
         playerIdentity: user,
         username: '',
@@ -432,6 +433,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
 
     return {
       avatarSeed: payload?.avatarSeed?.trim() || undefined,
+      partyPassword: payload?.partyPassword?.trim() || undefined,
       pin: normalizedPin,
       playerIdentity:
         guestId === null

@@ -25,9 +25,31 @@ export class HostPartyRuntimeStageReferenceResolver {
     readonly firstStage: HostPartyStageReference | null;
     readonly totalStages: number;
   }> {
+    return this.resolveStartStateForGame({
+      gameId,
+      partyId: null,
+      settings: {
+        allowOptionChangeAfterVoting: false,
+        randomizeOptionOrder: false,
+        randomizeStageOrder: false,
+      },
+    });
+  }
+
+  async resolveStartStateForGame(party: {
+    readonly gameId: GameId;
+    readonly partyId: HostControlledPartyRuntime['partyId'] | null;
+    readonly settings: HostControlledPartyRuntime['settings'];
+  }): Promise<{
+    readonly firstStage: HostPartyStageReference | null;
+    readonly totalStages: number;
+  }> {
     const [totalStages, firstStage] = await Promise.all([
-      this.partyStageConfiguration.getStageCount(gameId),
-      this.partyStageCatalog.findFirstStage(gameId),
+      this.partyStageConfiguration.getStageCount(party.gameId),
+      this.partyStageCatalog.findFirstStage(party.gameId, {
+        ...(party.partyId ? { partyId: party.partyId } : {}),
+        settings: party.settings,
+      }),
     ]);
 
     return {
@@ -43,7 +65,10 @@ export class HostPartyRuntimeStageReferenceResolver {
       return null;
     }
 
-    return this.partyStageCatalog.findNextStage(party.gameId, currentStageId);
+    return this.partyStageCatalog.findNextStage(party.gameId, currentStageId, {
+      partyId: party.partyId,
+      settings: party.settings,
+    });
   }
 
   async findPreviousStage(
@@ -55,6 +80,9 @@ export class HostPartyRuntimeStageReferenceResolver {
       return null;
     }
 
-    return this.partyStageCatalog.findPreviousStage(party.gameId, currentStageId);
+    return this.partyStageCatalog.findPreviousStage(party.gameId, currentStageId, {
+      partyId: party.partyId,
+      settings: party.settings,
+    });
   }
 }
