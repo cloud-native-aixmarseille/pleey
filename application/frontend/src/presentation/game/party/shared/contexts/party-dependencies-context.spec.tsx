@@ -1,6 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
+import type { GuestUsernameGeneratorPort } from '../../../../../domains/game/party/player/ports/guest-username-generator.port';
 import { PresentationContextErrorCode } from '../../../../../domains/shared/errors/presentation-context-error-code';
 import { PartyIdentifierMockFactory } from '../../../../../test-utils/mocks/party-identifier-mock-factory';
 import { PartyPinIdentifierMockFactory } from '../../../../../test-utils/mocks/party-pin-identifier-mock-factory';
@@ -20,12 +21,17 @@ const partyPinIdentifier: PartyDependencies['partyPinIdentifier'] =
   new PartyPinIdentifierMockFactory().create();
 const stageIdentifier: PartyDependencies['stageIdentifier'] =
   new StageIdentifierMockFactory().create();
+
+const guestUsernameGenerator: GuestUsernameGeneratorPort = {
+  generateGuestUsername: () => 'Bright Otter 0001',
+};
+
 describe('partyDependenciesContext', () => {
   describe('usePartyDependencies()', () => {
     it('returns the dependencies from context', () => {
       // Arrange
       const dependencies: PartyDependencies = {
-        guestPartyEntryDraftFactory: new GuestPartyEntryDraftFactory(),
+        guestPartyEntryDraftFactory: new GuestPartyEntryDraftFactory(guestUsernameGenerator),
         hostPartyRuntimeControlsResolver: {
           resolveControls: vi.fn(),
         } as never,
@@ -74,6 +80,7 @@ describe('partyDependenciesContext', () => {
         },
         partyPinIdentifier,
         playerRuntimeNoticeMessageResolver: new PlayerRuntimeNoticeMessageResolver(),
+        privatePartyPasswordGeneratorPort: { generatePrivatePartyPassword: vi.fn(() => 'TestPassword1234') },
         stageIdentifier,
       };
       const wrapper = ({ children }: { children: ReactNode }) =>

@@ -2,6 +2,7 @@ import { act, renderHook } from '@testing-library/react';
 import type { PropsWithChildren } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import type { PartyManagementPort } from '../../../../../domains/game/party/host/ports/party-management.port';
+import type { GuestUsernameGeneratorPort } from '../../../../../domains/game/party/player/ports/guest-username-generator.port';
 import type { PartyGuestSessionPort } from '../../../../../domains/game/party/player/ports/party-guest-session.port';
 import type { PartyPlayerPort } from '../../../../../domains/game/party/player/ports/party-player.port';
 import type { PartyId } from '../../../../../domains/game/party/shared/entities/party';
@@ -28,7 +29,10 @@ const partyPinIdentifier: PartyDependencies['partyPinIdentifier'] =
 const stageIdentifier: PartyDependencies['stageIdentifier'] =
   new StageIdentifierMockFactory().create();
 const partyFixtureFactory = new PartyFixtureFactory();
-const guestPartyEntryDraftFactory = new GuestPartyEntryDraftFactory();
+const guestUsernameGenerator: GuestUsernameGeneratorPort = {
+  generateGuestUsername: () => 'Bright Otter 0001',
+};
+const guestPartyEntryDraftFactory = new GuestPartyEntryDraftFactory(guestUsernameGenerator);
 const partyLobbyRuntimeRedirectResolver = new PartyLobbyRuntimeRedirectResolver();
 const playerRuntimeNoticeMessageResolver = new PlayerRuntimeNoticeMessageResolver();
 
@@ -113,6 +117,7 @@ describe('PartyProvider', () => {
           partyPinIdentifier,
           partyPlayerPort,
           playerRuntimeNoticeMessageResolver,
+          privatePartyPasswordGeneratorPort: { generatePrivatePartyPassword: vi.fn(() => 'TestPassword1234') },
           stageIdentifier,
         },
       );
@@ -189,6 +194,7 @@ describe('PartyProvider', () => {
           partyPinIdentifier,
           partyPlayerPort,
           playerRuntimeNoticeMessageResolver,
+          privatePartyPasswordGeneratorPort: { generatePrivatePartyPassword: vi.fn(() => 'TestPassword1234') },
           stageIdentifier,
         },
       );
@@ -241,6 +247,7 @@ describe('PartyProvider', () => {
           partyPinIdentifier,
           partyPlayerPort,
           playerRuntimeNoticeMessageResolver,
+          privatePartyPasswordGeneratorPort: { generatePrivatePartyPassword: vi.fn(() => 'TestPassword1234') },
           stageIdentifier,
         },
       );
@@ -282,6 +289,7 @@ describe('PartyProvider', () => {
           partyPinIdentifier,
           partyPlayerPort,
           playerRuntimeNoticeMessageResolver,
+          privatePartyPasswordGeneratorPort: { generatePrivatePartyPassword: vi.fn(() => 'TestPassword1234') },
           stageIdentifier,
         },
       );
@@ -327,6 +335,7 @@ describe('PartyProvider', () => {
           partyPinIdentifier,
           partyPlayerPort,
           playerRuntimeNoticeMessageResolver,
+          privatePartyPasswordGeneratorPort: { generatePrivatePartyPassword: vi.fn(() => 'TestPassword1234') },
           stageIdentifier,
         },
       );
