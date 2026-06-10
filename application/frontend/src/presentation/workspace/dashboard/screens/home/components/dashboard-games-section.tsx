@@ -1,17 +1,21 @@
+import { useState } from 'react';
 import type { PlayableContentImportExampleProvider } from '../../../../../../application/game/types/shared/contracts/playable-content-import.gateway';
 import type { GameId } from '../../../../../../domains/game/entities/game';
 import type { DashboardGameListItem } from '../../../../../../domains/game/management/entities/dashboard-game-list-item';
 import type { DashboardGameSortField } from '../../../../../../domains/game/management/entities/dashboard-game-list-query';
 import { GameType } from '../../../../../../domains/game/types/shared/game-type';
 import type { GameTypeDescriptor } from '../../../../../../domains/game/types/shared/game-type-catalog';
+import { usePartyDependencies } from '../../../../../../presentation/game/party/shared/contexts/party-dependencies-context';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../../shared/ui/actions/button';
+import { CopyButton } from '../../../../../shared/ui/actions/copy-button';
 import {
   EmptyState,
   LoadingState,
   PendingState,
 } from '../../../../../shared/ui/feedback/state-blocks';
 import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';
+import { Checkbox } from '../../../../../shared/ui/forms/checkbox';
 import { FieldShell } from '../../../../../shared/ui/forms/field-shell';
 import { Input } from '../../../../../shared/ui/forms/input';
 import { Select } from '../../../../../shared/ui/forms/select';
@@ -32,6 +36,16 @@ interface DashboardCreateGameForm {
   readonly title: string;
   readonly type: GameType | null;
 }
+
+interface DashboardCreatePartyForm {
+  readonly isPrivateParty: boolean;
+  readonly privatePartyPassword: string;
+}
+
+const DEFAULT_CREATE_PARTY_FORM: DashboardCreatePartyForm = {
+  isPrivateParty: false,
+  privatePartyPassword: '',
+};
 
 interface DashboardGamesSectionProps {
   readonly hasSelectedProject: boolean;
@@ -71,7 +85,10 @@ interface DashboardGamesSectionProps {
   readonly onSortFieldChange: (value: DashboardGameSortField) => void;
   readonly onSortDirectionChange: (value: 'asc' | 'desc') => void;
   readonly onPageChange: (value: number) => void;
-  readonly onCreateParty: (game: DashboardGameListItem) => void;
+  readonly onCreateParty: (
+    game: DashboardGameListItem,
+    options?: { privatePartyPassword?: string },
+  ) => void;
   readonly onManageGame: (game: DashboardGameListItem) => void;
 }
 
@@ -117,9 +134,55 @@ export function DashboardGamesSection({
   onManageGame,
 }: DashboardGamesSectionProps) {
   const { t } = usePresentationTranslation();
+  const { privatePartyPasswordGeneratorPort } = usePartyDependencies();
   const isInitialLoading = isGamesLoading && totalGames === 0 && games.length === 0;
   const selectedGameType = gameTypes.find((gameType) => gameType.key === createGameForm.type);
   const createGameTypeValue = createGameForm.type ?? '';
+  const [createPartyGame, setCreatePartyGame] = useState<DashboardGameListItem | null>(null);
+  const [createPartyForm, setCreatePartyForm] =
+    useState<DashboardCreatePartyForm>(DEFAULT_CREATE_PARTY_FORM);
+  const [showPrivatePartyPassword, setShowPrivatePartyPassword] = useState(false);
+
+  const openCreatePartyDialog = (game: DashboardGameListItem) => {
+    setCreatePartyGame(game);
+    setCreatePartyForm(DEFAULT_CREATE_PARTY_FORM);
+    setShowPrivatePartyPassword(false);
+  };
+
+  const closeCreatePartyDialog = () => {
+    setCreatePartyGame(null);
+    setCreatePartyForm(DEFAULT_CREATE_PARTY_FORM);
+    setShowPrivatePartyPassword(false);
+  };
+
+  const generatePrivatePartyPassword = () => {
+    const generatedPassword = privatePartyPasswordGeneratorPort.generatePrivatePartyPassword();
+
+    setCreatePartyForm((current) => ({
+      ...current,
+      isPrivateParty: true,
+      privatePartyPassword: generatedPassword,
+    }));
+    setShowPrivatePartyPassword(true);
+  };
+
+  const submitCreateParty = () => {
+    if (!createPartyGame) {
+      return;
+    }
+
+    const normalizedPassword = createPartyForm.privatePartyPassword.trim();
+    const privatePartyPassword = createPartyForm.isPrivateParty
+      ? normalizedPassword.length > 0
+        ? normalizedPassword
+        : undefined
+      : undefined;
+
+    onCreateParty(createPartyGame, {
+      privatePartyPassword,
+    });
+    closeCreatePartyDialog();
+  };
 
   return (
     <SectionCard
@@ -181,7 +244,7 @@ export function DashboardGamesSection({
                   game={game}
                   descriptor={gameTypesByKey.get(game.type)}
                   isCreatingParty={creatingPartyGameId === game.gameId}
-                  onCreateParty={onCreateParty}
+                  onCreateParty={openCreatePartyDialog}
                   onManage={onManageGame}
                   showTypeBadge
                 />
@@ -287,6 +350,106 @@ export function DashboardGamesSection({
         onFormChange={onImportGameFormChange}
         onSubmit={onImportGame}
       />
+
+      <FormDialog
+        isOpen={createPartyGame !== null}
+        onClose={closeCreatePartyDialog}
+        onSubmit={(event) => {
+          event.preventDefault();
+          submitCreateParty();
+        }}
+        title={t('dashboard.games.createParty.title')}
+        footer={
+          <>
+            <Button
+              disabled={createPartyGame === null || creatingPartyGameId !== null}
+              intent="primary"
+              type="submit"
+            >
+              {t('dashboard.games.actions.createParty')}
+            </Button>
+            <Button intent="ghost" onClick={closeCreatePartyDialog} type="button">
+              {t('common.cancel')}
+            </Button>
+          </>
+        }
+      >
+        <SupportingText>
+          {t('dashboard.games.createParty.subtitle', {
+            game: createPartyGame?.title ?? '',
+          })}
+        </SupportingText>
+
+        <Checkbox
+          id="create-party-private"
+          label={t('dashboard.games.createParty.privateToggleLabel')}
+          description={t('dashboard.games.createParty.privateToggleDescription')}
+          checked={createPartyForm.isPrivateParty}
+          onChange={(event) => {
+            const isPrivateParty = event.currentTarget.checked;
+
+            setCreatePartyForm((current) => ({
+              ...current,
+              isPrivateParty,
+              privatePartyPassword: isPrivateParty ? current.privatePartyPassword : '',
+            }));
+          }}
+        />
+
+        {createPartyForm.isPrivateParty ? (
+          <ContentStack gap="xs">
+            <FieldShell
+              description={t('dashboard.games.createParty.privatePasswordHint')}
+              id="create-party-password"
+              label={t('dashboard.games.createParty.privatePasswordLabel')}
+            >
+              <Input
+                id="create-party-password"
+                onChange={(event) => {
+                  setCreatePartyForm((current) => ({
+                    ...current,
+                    privatePartyPassword: event.target.value,
+                  }));
+                }}
+                placeholder={t('dashboard.games.createParty.privatePasswordPlaceholder')}
+                type={showPrivatePartyPassword ? 'text' : 'password'}
+                value={createPartyForm.privatePartyPassword}
+              />
+            </FieldShell>
+
+            <WrapRow gap="xs">
+              <Button
+                intent="outline"
+                leftSection={<AppIcon name="feature" size={14} />}
+                onClick={generatePrivatePartyPassword}
+                size="sm"
+                type="button"
+              >
+                {t('dashboard.games.createParty.generatePasswordCta')}
+              </Button>
+              <CopyButton
+                disabled={createPartyForm.privatePartyPassword.trim().length === 0}
+                size="sm"
+                textToCopy={createPartyForm.privatePartyPassword}
+              >
+                {t('dashboard.games.createParty.copyPasswordCta')}
+              </CopyButton>
+              <Button
+                disabled={createPartyForm.privatePartyPassword.trim().length === 0}
+                intent="ghost"
+                leftSection={<AppIcon name="eye" size={14} />}
+                onClick={() => setShowPrivatePartyPassword((current) => !current)}
+                size="sm"
+                type="button"
+              >
+                {showPrivatePartyPassword
+                  ? t('dashboard.games.createParty.hidePasswordCta')
+                  : t('dashboard.games.createParty.showPasswordCta')}
+              </Button>
+            </WrapRow>
+          </ContentStack>
+        ) : null}
+      </FormDialog>
     </SectionCard>
   );
 }

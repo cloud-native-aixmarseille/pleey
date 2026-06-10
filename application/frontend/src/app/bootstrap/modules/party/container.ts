@@ -26,9 +26,17 @@ import {
   PartyManagementPortToken,
 } from '../../../../domains/game/party/host/ports/party-management.port';
 import {
+  type GuestUsernameGeneratorPort,
+  GuestUsernameGeneratorPortToken,
+} from '../../../../domains/game/party/player/ports/guest-username-generator.port';
+import {
   type PartyGuestSessionPort,
   PartyGuestSessionPortToken,
 } from '../../../../domains/game/party/player/ports/party-guest-session.port';
+import {
+  type PrivatePartyPasswordGeneratorPort,
+  PrivatePartyPasswordGeneratorPortToken,
+} from '../../../../domains/game/party/shared/ports/private-party-password-generator.port';
 import {
   type PartyPlayerPort,
   PartyPlayerPortToken,
@@ -41,6 +49,8 @@ import { GraphqlPartyManagementAdapter } from '../../../../infrastructure/game/p
 import { SocketIoPartyHostControlAdapter } from '../../../../infrastructure/game/party/host/socket-io-party-host-control.adapter';
 import { PersistedPartyGuestSessionAdapter } from '../../../../infrastructure/game/party/player/persisted-party-guest-session.adapter';
 import { SocketIoPartyPlayerAdapter } from '../../../../infrastructure/game/party/player/socket-io-party-player.adapter';
+import { UniqueUsernameGuestUsernameGeneratorAdapter } from '../../../../infrastructure/game/party/player/unique-username-guest-username-generator.adapter';
+import { CryptoPrivatePartyPasswordGeneratorAdapter } from '../../../../infrastructure/game/party/crypto-private-party-password-generator.adapter';
 import { SocketIoPartyObservationAdapter } from '../../../../infrastructure/game/party/shared/socket-io-party-observation.adapter';
 import { SocketIoPartyPayloadMapper } from '../../../../infrastructure/game/party/shared/socket-io-party-payload-mapper';
 import { SocketIoPartyRealtimeTransport } from '../../../../infrastructure/game/party/shared/socket-io-party-realtime-transport';
@@ -81,6 +91,8 @@ export const partyContainerModule = new ContainerModule(({ bind }) => {
   bind(SocketIoPartyObservationAdapter).toSelf().inSingletonScope();
   bind(SocketIoPartyPayloadMapper).toSelf().inSingletonScope();
   bind(SocketIoPartyPlayerAdapter).toSelf().inSingletonScope();
+  bind(UniqueUsernameGuestUsernameGeneratorAdapter).toSelf().inSingletonScope();
+  bind(CryptoPrivatePartyPasswordGeneratorAdapter).toSelf().inSingletonScope();
   bind(SocketIoPartyRealtimeTransport).toSelf().inSingletonScope();
   bind(GuestPartyEntryDraftFactory).toSelf().inSingletonScope();
   bind(PlayerRuntimeNoticeMessageResolver).toSelf().inSingletonScope();
@@ -100,6 +112,12 @@ export const partyContainerModule = new ContainerModule(({ bind }) => {
   );
   bind<PartyGuestSessionPort>(PartyGuestSessionPortToken).toService(
     PersistedPartyGuestSessionAdapter,
+  );
+  bind<GuestUsernameGeneratorPort>(GuestUsernameGeneratorPortToken).toService(
+    UniqueUsernameGuestUsernameGeneratorAdapter,
+  );
+  bind<PrivatePartyPasswordGeneratorPort>(PrivatePartyPasswordGeneratorPortToken).toService(
+    CryptoPrivatePartyPasswordGeneratorAdapter,
   );
   bind<PartyManagementPort>(PartyManagementPortToken).toService(GraphqlPartyManagementAdapter);
   bind<PartyPlayerPort>(PartyPlayerPortToken).toService(SocketIoPartyPlayerAdapter);

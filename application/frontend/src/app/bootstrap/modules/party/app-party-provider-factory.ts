@@ -15,6 +15,8 @@ import type { PartyGuestSessionPort } from '../../../../domains/game/party/playe
 import { PartyGuestSessionPortToken } from '../../../../domains/game/party/player/ports/party-guest-session.port';
 import type { PartyPlayerPort } from '../../../../domains/game/party/player/ports/party-player.port';
 import { PartyPlayerPortToken } from '../../../../domains/game/party/player/ports/party-player.port';
+import type { PrivatePartyPasswordGeneratorPort } from '../../../../domains/game/party/shared/ports/private-party-password-generator.port';
+import { PrivatePartyPasswordGeneratorPortToken } from '../../../../domains/game/party/shared/ports/private-party-password-generator.port';
 import type { PartyObservationPort } from '../../../../domains/game/party/shared/ports/party-observation.port';
 import { PartyObservationPortToken } from '../../../../domains/game/party/shared/ports/party-observation.port';
 import { PlayerRuntimeNoticeMessageResolver } from '../../../../presentation/game/party/player/screens/components/player-runtime-notice-message-resolver';
@@ -74,6 +76,8 @@ export class AppPartyProviderFactory extends BaseAppProviderFactory {
     private readonly partyPinIdentifier: PartyPinIdentifier,
     @inject(PlayerRuntimeNoticeMessageResolver)
     private readonly playerRuntimeNoticeMessageResolver: PlayerRuntimeNoticeMessageResolver,
+    @inject(PrivatePartyPasswordGeneratorPortToken)
+    private readonly privatePartyPasswordGeneratorPort: PrivatePartyPasswordGeneratorPort,
     @inject(StageIdentifier)
     private readonly stageIdentifier: StageIdentifier,
     @inject(AppPartyGameTypeRuntimeRegistry)
@@ -96,6 +100,7 @@ export class AppPartyProviderFactory extends BaseAppProviderFactory {
       partyObservationPort: this.partyObservationPort,
       partyPinIdentifier: this.partyPinIdentifier,
       playerRuntimeNoticeMessageResolver: this.playerRuntimeNoticeMessageResolver,
+      privatePartyPasswordGeneratorPort: this.privatePartyPasswordGeneratorPort,
       stageIdentifier: this.stageIdentifier,
     };
 
