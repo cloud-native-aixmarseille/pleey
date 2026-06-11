@@ -3,6 +3,7 @@ import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-pl
 import type { HostPartyObservation } from '../../../../../domain/game/party/host/entities/host-party-observation';
 import type { PartyPlayer } from '../../../../../domain/game/party/player/entities/party-player';
 import type { PartyPlayerIdentity } from '../../../../../domain/game/party/player/entities/party-player-identity';
+import type { PlayerPartyObservationPlayer } from '../../../../../domain/game/party/player/entities/player-party-observation';
 import type { GameType } from '../../../../../domain/game/types/shared/entities/game-type';
 import type {
   HostPartyObservationMessage,
@@ -15,7 +16,11 @@ export class HostPartyObservationMessageMapper {
     observation: HostPartyObservation,
     gameType: GameType,
     livePlayerIdentities: readonly PartyPlayerIdentity[],
+    playerObservationPlayers: readonly PlayerPartyObservationPlayer[] = [],
   ): HostPartyObservationMessage {
+    const stagesStatsByIdentity = this.createStagesStatsMap(playerObservationPlayers);
+    const livePlayerIdentityKeys = this.createIdentityKeySet(livePlayerIdentities);
+
     return {
       partyId: observation.partyId,
       gameType,
@@ -27,38 +32,51 @@ export class HostPartyObservationMessageMapper {
         avatarUri: observation.host.avatarUri,
         username: observation.host.username,
       },
-      players: this.toPlayerMessages(observation.players, livePlayerIdentities, null),
+      players: this.toPlayerMessages(
+        observation.players,
+        livePlayerIdentityKeys,
+        stagesStatsByIdentity,
+      ),
     };
+  }
+
+  private createStagesStatsMap(
+    players: readonly PlayerPartyObservationPlayer[],
+  ): ReadonlyMap<string, number> {
+    return new Map(
+      players.map((player) => [this.toPlayerIdentityKey(player.identity), player.correctStages]),
+    );
+  }
+
+  private createIdentityKeySet(identities: readonly PartyPlayerIdentity[]): ReadonlySet<string> {
+    return new Set(identities.map((identity) => this.toPlayerIdentityKey(identity)));
   }
 
   private toPlayerMessages(
     players: readonly PartyPlayer[],
-    livePlayerIdentities: readonly PartyPlayerIdentity[],
-    currentPlayerIdentity: PartyPlayerIdentity | null,
+    livePlayerIdentityKeys: ReadonlySet<string>,
+    stagesStatsByIdentity: ReadonlyMap<string, number>,
   ): readonly PartyObservationPlayerMessage[] {
-    return players.map((player) => ({
-      avatarUri: player.avatarUri,
-      identity: player.identity,
-      isCurrentPlayer:
-        currentPlayerIdentity !== null &&
-        this.areSamePlayerIdentity(player.identity, currentPlayerIdentity),
-      isLive: livePlayerIdentities.some((identity) =>
-        this.areSamePlayerIdentity(player.identity, identity),
-      ),
-      totalScore: player.totalScore,
-      username: player.username,
-    }));
+    return players.map((player) => {
+      const playerIdentityKey = this.toPlayerIdentityKey(player.identity);
+
+      return {
+        avatarUri: player.avatarUri,
+        correctStages: stagesStatsByIdentity.get(playerIdentityKey) ?? 0,
+        identity: player.identity,
+        isCurrentPlayer: false,
+        isLive: livePlayerIdentityKeys.has(playerIdentityKey),
+        totalScore: player.totalScore,
+        username: player.username,
+      };
+    });
   }
 
-  private areSamePlayerIdentity(left: PartyPlayerIdentity, right: PartyPlayerIdentity): boolean {
-    if (left.kind === PartyPlayerKind.USER && right.kind === PartyPlayerKind.USER) {
-      return left.userId === right.userId;
+  private toPlayerIdentityKey(identity: PartyPlayerIdentity): string {
+    if (identity.kind === PartyPlayerKind.USER) {
+      return `user:${identity.userId}`;
     }
 
-    if (left.kind === PartyPlayerKind.GUEST && right.kind === PartyPlayerKind.GUEST) {
-      return left.guestId === right.guestId;
-    }
-
-    return false;
+    return `guest:${identity.guestId}`;
   }
 }

@@ -355,6 +355,15 @@ export const standingsBodyStyle: CSSProperties = {
   minWidth: 0,
 };
 
+export const standingsResponseStatsStyle: CSSProperties = {
+  alignItems: 'center',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: uiThemeTokens.spacing.xs,
+  marginLeft: 'auto',
+  minWidth: '6.5rem',
+};
+
 export const standingsUsernameStyle: CSSProperties = {
   ...uiTypeScale.body,
   color: uiThemeTokens.color.text.emphasis,

@@ -45,12 +45,14 @@ describe('PartyFinalSummaryPanel', () => {
           partyFixtureFactory.createObservationPlayer({
             avatarUri: null,
             identity: { kind: PartyPlayerIdentityKind.User, userId: 7 },
+            correctStages: 3,
             totalScore: 800,
             username: 'Player Two',
           }),
           partyFixtureFactory.createObservationPlayer({
             avatarUri: null,
             identity: { kind: PartyPlayerIdentityKind.Guest, guestId: 'guest-1' },
+            correctStages: 6,
             totalScore: 1200,
             username: 'Winner',
           }),
@@ -58,10 +60,12 @@ describe('PartyFinalSummaryPanel', () => {
             avatarUri: null,
             identity: { kind: PartyPlayerIdentityKind.User, userId: 9 },
             isCurrentPlayer: true,
+            correctStages: 1,
             totalScore: 400,
             username: 'Player Three',
           }),
         ]}
+        totalStages={6}
       />,
     );
 
@@ -81,6 +85,9 @@ describe('PartyFinalSummaryPanel', () => {
     expect(
       within(screen.getByTestId('party-final-podium-rank-3')).getByText('Player Three'),
     ).toBeInTheDocument();
+    expect(
+      screen.getAllByText('game.party.route.finalLeaderboardResponseSuccessRatio'),
+    ).toHaveLength(6);
     expect(screen.getByTestId('party-final-podium-rank-2-badge-slot')).toBeEmptyDOMElement();
     expect(
       within(screen.getByTestId('party-final-podium-rank-3-badge-slot')).getByText(
@@ -114,12 +121,14 @@ describe('PartyFinalSummaryPanel', () => {
           partyFixtureFactory.createObservationPlayer({
             avatarUri: null,
             identity: { kind: PartyPlayerIdentityKind.User, userId: 7 },
+            correctStages: 3,
             totalScore: 800,
             username: 'Player Two',
           }),
           partyFixtureFactory.createObservationPlayer({
             avatarUri: null,
             identity: { kind: PartyPlayerIdentityKind.Guest, guestId: 'guest-1' },
+            correctStages: 6,
             totalScore: 1200,
             username: 'Winner',
           }),
@@ -127,10 +136,12 @@ describe('PartyFinalSummaryPanel', () => {
             avatarUri: null,
             identity: { kind: PartyPlayerIdentityKind.User, userId: 9 },
             isCurrentPlayer: true,
+            correctStages: 1,
             totalScore: 400,
             username: 'Player Three',
           }),
         ]}
+        totalStages={6}
       />,
     );
 
@@ -155,5 +166,8 @@ describe('PartyFinalSummaryPanel', () => {
         'game.party.route.youBadge',
       ),
     ).toBeInTheDocument();
+    expect(
+      screen.getAllByText('game.party.route.finalLeaderboardResponseSuccessRatio'),
+    ).toHaveLength(6);
   });
 });

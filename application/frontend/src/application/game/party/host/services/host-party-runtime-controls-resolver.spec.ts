@@ -46,6 +46,7 @@ describe('HostPartyRuntimeControlsResolver', () => {
                 kind: PartyPlayerIdentityKind.User,
                 userId: userIdentifier.parse(11),
               },
+              correctStages: 0,
               isCurrentPlayer: false,
               isLive: true,
               totalScore: 0,

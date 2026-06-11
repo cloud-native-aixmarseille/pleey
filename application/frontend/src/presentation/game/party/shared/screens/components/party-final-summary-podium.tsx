@@ -40,12 +40,33 @@ import {
 interface PartyFinalSummaryPodiumProps {
   readonly isMobile: boolean;
   readonly podiumByRank: ReadonlyMap<PodiumRank, PartyObservationPlayer>;
+  readonly totalStages: number;
   readonly winner: PartyObservationPlayer | null;
+}
+
+function ResponseSuccessRatio({
+  player,
+  t,
+  totalStages,
+}: {
+  readonly player: PartyObservationPlayer;
+  readonly t: ReturnType<typeof usePresentationTranslation>['t'];
+  readonly totalStages: number;
+}) {
+  return (
+    <SupportingText tone="soft" size="sm">
+      {t('game.party.route.finalLeaderboardResponseSuccessRatio', {
+        correct: String(player.correctStages),
+        total: String(totalStages),
+      })}
+    </SupportingText>
+  );
 }
 
 export function PartyFinalSummaryPodium({
   isMobile,
   podiumByRank,
+  totalStages,
   winner,
 }: PartyFinalSummaryPodiumProps) {
   const { t } = usePresentationTranslation();
@@ -63,7 +84,7 @@ export function PartyFinalSummaryPodium({
 
           {isMobile ? (
             <div data-testid="party-final-podium-mobile" style={podiumMobileListStyle}>
-              {winner ? renderMobileWinnerEntry(winner, t) : null}
+              {winner ? renderMobileWinnerEntry(winner, totalStages, t) : null}
               <div style={podiumMobileSecondaryListStyle}>
                 {MOBILE_PODIUM_LAYOUT_ORDER.filter((rank) => rank !== 1).map((rank) => {
                   const player = podiumByRank.get(rank);
@@ -72,7 +93,7 @@ export function PartyFinalSummaryPodium({
                     return null;
                   }
 
-                  return renderMobilePodiumEntry(player, rank, t);
+                  return renderMobilePodiumEntry(player, rank, totalStages, t);
                 })}
               </div>
             </div>
@@ -85,7 +106,7 @@ export function PartyFinalSummaryPodium({
                   return null;
                 }
 
-                return renderDesktopPodiumEntry(player, rank, t);
+                return renderDesktopPodiumEntry(player, rank, totalStages, t);
               })}
             </div>
           )}
@@ -98,6 +119,7 @@ export function PartyFinalSummaryPodium({
 function renderDesktopPodiumEntry(
   player: PartyObservationPlayer,
   rank: PodiumRank,
+  totalStages: number,
   t: ReturnType<typeof usePresentationTranslation>['t'],
 ) {
   const avatarSize = rank === 1 ? 96 : 72;
@@ -126,6 +148,7 @@ function renderDesktopPodiumEntry(
             points: String(player.totalScore),
           })}
         </p>
+        <ResponseSuccessRatio player={player} t={t} totalStages={totalStages} />
         <div
           data-testid={`party-final-podium-rank-${rank}-badge-slot`}
           style={podiumCurrentPlayerSlotStyle}
@@ -142,6 +165,7 @@ function renderDesktopPodiumEntry(
 function renderMobilePodiumEntry(
   player: PartyObservationPlayer,
   rank: PodiumRank,
+  totalStages: number,
   t: ReturnType<typeof usePresentationTranslation>['t'],
 ) {
   const entryDelay = rank === 2 ? 2.5 : 3.0;
@@ -162,6 +186,7 @@ function renderMobilePodiumEntry(
             })}
           </p>
         </div>
+        <ResponseSuccessRatio player={player} t={t} totalStages={totalStages} />
         <div style={podiumMobileIdentityStyle}>
           <UserAvatar
             alt={t('game.party.route.finalSummaryAvatarAlt', {
@@ -185,6 +210,7 @@ function renderMobilePodiumEntry(
 
 function renderMobileWinnerEntry(
   player: PartyObservationPlayer,
+  totalStages: number,
   t: ReturnType<typeof usePresentationTranslation>['t'],
 ) {
   return (
@@ -210,6 +236,7 @@ function renderMobileWinnerEntry(
             points: String(player.totalScore),
           })}
         </p>
+        <ResponseSuccessRatio player={player} t={t} totalStages={totalStages} />
         {player.isCurrentPlayer ? (
           <Badge tone="success">{t('game.party.route.youBadge')}</Badge>
         ) : null}
