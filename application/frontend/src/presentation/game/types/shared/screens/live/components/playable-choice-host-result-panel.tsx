@@ -66,6 +66,7 @@ export function PlayableChoiceHostResultPanel({
           players={party.players}
           previousScores={previousScores}
           testIdPrefix={`${testIdPrefix}-stage-result-rankings`}
+          totalStages={party.context?.lifecycle.totalStages ?? stagePosition + 1}
           title={t('game.party.route.stageResultsStandingsTitle')}
         />
       </ContentStack>

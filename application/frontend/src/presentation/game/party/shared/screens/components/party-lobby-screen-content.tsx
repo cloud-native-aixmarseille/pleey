@@ -299,7 +299,12 @@ function renderHostRuntimePanel(
   partyGameTypeRuntimeView: PartyGameTypeRuntimeView | null,
 ) {
   if (screenSection === PartyScreenSection.LEADERBOARD) {
-    return <PartyFinalSummaryPanel players={party.players} />;
+    return (
+      <PartyFinalSummaryPanel
+        players={party.players}
+        totalStages={party.context?.lifecycle.totalStages ?? 0}
+      />
+    );
   }
 
   if (screenSection === PartyScreenSection.RESULT && party.context?.result?.current) {

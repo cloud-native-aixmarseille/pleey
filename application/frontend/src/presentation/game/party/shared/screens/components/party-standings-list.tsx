@@ -7,7 +7,7 @@ import { UserAvatar } from '../../../../../shared/ui/data/user-avatar';
 import { Badge } from '../../../../../shared/ui/feedback/badge';
 import { ContentStack, SplitWrapRow } from '../../../../../shared/ui/layout/containers';
 import { ElevatedPanel, InsetPanel } from '../../../../../shared/ui/layout/panels';
-import { Heading } from '../../../../../shared/ui/layout/typography';
+import { Heading, SupportingText } from '../../../../../shared/ui/layout/typography';
 import {
   MotionStagger,
   MotionStaggerItem,
@@ -22,6 +22,7 @@ import {
   standingsBodyStyle,
   standingsListStyle,
   standingsRankStyle,
+  standingsResponseStatsStyle,
   standingsRowStyle,
   standingsUsernameStyle,
 } from './party-final-summary-panel.styles';
@@ -37,6 +38,7 @@ interface PartyStandingsListProps {
   readonly previousScores?: ReadonlyMap<string, number>;
   readonly staggerDelay?: number;
   readonly testIdPrefix: string;
+  readonly totalStages: number;
   readonly title?: string;
 }
 
@@ -56,6 +58,7 @@ export function PartyStandingsList({
   previousScores,
   staggerDelay = 0.05,
   testIdPrefix,
+  totalStages,
   title: titleProp,
 }: PartyStandingsListProps) {
   const { t } = usePresentationTranslation();
@@ -88,6 +91,7 @@ export function PartyStandingsList({
             staggerDelay={staggerDelay}
             t={t}
             testIdPrefix={testIdPrefix}
+            totalStages={totalStages}
             title={title}
           />
         ) : (
@@ -98,6 +102,7 @@ export function PartyStandingsList({
             staggerDelay={staggerDelay}
             t={t}
             testIdPrefix={testIdPrefix}
+            totalStages={totalStages}
             title={title}
           />
         )}
@@ -113,6 +118,7 @@ interface StandingsListInternalProps {
   readonly staggerDelay: number;
   readonly t: ReturnType<typeof usePresentationTranslation>['t'];
   readonly testIdPrefix: string;
+  readonly totalStages: number;
   readonly title: string;
 }
 
@@ -123,6 +129,7 @@ function StandingsStaticList({
   staggerDelay,
   t,
   testIdPrefix,
+  totalStages,
   title,
 }: StandingsListInternalProps) {
   return (
@@ -137,6 +144,7 @@ function StandingsStaticList({
               showDelta={false}
               t={t}
               testIdPrefix={testIdPrefix}
+              totalStages={totalStages}
             />
           </MotionStaggerItem>
         ))}
@@ -152,6 +160,7 @@ function StandingsRevealList({
   staggerDelay,
   t,
   testIdPrefix,
+  totalStages,
   title,
 }: StandingsListInternalProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -204,6 +213,7 @@ function StandingsRevealList({
                   showDelta
                   t={t}
                   testIdPrefix={testIdPrefix}
+                  totalStages={totalStages}
                 />
               </MotionStaggerItem>
             </motion.li>
@@ -221,6 +231,7 @@ interface StandingsRowProps {
   readonly showDelta: boolean;
   readonly t: ReturnType<typeof usePresentationTranslation>['t'];
   readonly testIdPrefix: string;
+  readonly totalStages: number;
 }
 
 function StandingsRow({
@@ -230,6 +241,7 @@ function StandingsRow({
   showDelta,
   t,
   testIdPrefix,
+  totalStages,
 }: StandingsRowProps) {
   const displayRank = revealed ? entry.currentRank : (entry.previousRank ?? entry.currentRank);
 
@@ -242,6 +254,7 @@ function StandingsRow({
         showDelta={showDelta}
         t={t}
         testIdPrefix={testIdPrefix}
+        totalStages={totalStages}
       />
     );
   }
@@ -254,6 +267,7 @@ function StandingsRow({
       showDelta={showDelta}
       t={t}
       testIdPrefix={testIdPrefix}
+      totalStages={totalStages}
     />
   );
 }
@@ -265,6 +279,31 @@ interface StandingsRowVariantProps {
   readonly showDelta: boolean;
   readonly t: ReturnType<typeof usePresentationTranslation>['t'];
   readonly testIdPrefix: string;
+  readonly totalStages: number;
+}
+
+interface ResponseStatsProps {
+  readonly correctStages: number;
+  readonly fromScore: number;
+  readonly t: ReturnType<typeof usePresentationTranslation>['t'];
+  readonly toScore: number;
+  readonly totalStages: number;
+}
+
+function ResponseStats({ correctStages, fromScore, t, toScore, totalStages }: ResponseStatsProps) {
+  return (
+    <div style={standingsResponseStatsStyle}>
+      <Badge tone="accent">
+        <AnimatedScore from={fromScore} t={t} to={toScore} />
+      </Badge>
+      <SupportingText tone="soft" size="sm">
+        {t('game.party.route.finalLeaderboardResponseSuccessRatio', {
+          correct: String(correctStages),
+          total: String(totalStages),
+        })}
+      </SupportingText>
+    </div>
+  );
 }
 
 function DesktopStandingsRow({
@@ -274,6 +313,7 @@ function DesktopStandingsRow({
   showDelta,
   t,
   testIdPrefix,
+  totalStages,
 }: StandingsRowVariantProps) {
   const { player, previousScore } = entry;
   const fromScore = revealed ? (previousScore ?? 0) : (previousScore ?? player.totalScore);
@@ -295,9 +335,13 @@ function DesktopStandingsRow({
           ) : null}
           {showDelta ? <RankChangeBadge entry={entry} revealed={revealed} t={t} /> : null}
         </div>
-        <Badge tone="accent">
-          <AnimatedScore from={fromScore} t={t} to={toScore} />
-        </Badge>
+        <ResponseStats
+          correctStages={player.correctStages}
+          fromScore={fromScore}
+          t={t}
+          toScore={toScore}
+          totalStages={totalStages}
+        />
       </div>
     </InsetPanel>
   );
@@ -310,6 +354,7 @@ function MobileStandingsRow({
   showDelta,
   t,
   testIdPrefix,
+  totalStages,
 }: StandingsRowVariantProps) {
   const { player, previousScore } = entry;
   const fromScore = revealed ? (previousScore ?? 0) : (previousScore ?? player.totalScore);
@@ -323,9 +368,13 @@ function MobileStandingsRow({
             <Badge tone="neutral">#{displayRank}</Badge>
             {showDelta ? <RankChangeBadge entry={entry} revealed={revealed} t={t} /> : null}
           </div>
-          <Badge tone="accent">
-            <AnimatedScore from={fromScore} t={t} to={toScore} />
-          </Badge>
+          <ResponseStats
+            correctStages={player.correctStages}
+            fromScore={fromScore}
+            t={t}
+            toScore={toScore}
+            totalStages={totalStages}
+          />
         </div>
         <div style={mobileStandingsIdentityStyle}>
           <UserAvatar

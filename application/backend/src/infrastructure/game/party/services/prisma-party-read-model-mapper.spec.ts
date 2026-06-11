@@ -104,6 +104,7 @@ describe('PrismaPartyReadModelMapper', () => {
     expect(players.map((player) => mapper.toPlayerObservationPlayer(player))).toEqual([
       {
         avatarUri: `/api/avatars/guests/${backendTestIdentifiers.guest('guest-42')}`,
+        correctStages: 1,
         identity: {
           kind: PartyPlayerKind.GUEST,
           guestId: backendTestIdentifiers.guest('guest-42'),
@@ -113,8 +114,69 @@ describe('PrismaPartyReadModelMapper', () => {
       },
       {
         avatarUri: `/api/avatars/users/${backendTestIdentifiers.user(42)}?v=${playerAvatarUpdatedAt.getTime()}`,
+        correctStages: 2,
         identity: { kind: PartyPlayerKind.USER, userId: backendTestIdentifiers.user(42) },
         totalScore: 7,
+        username: 'Player',
+      },
+    ]);
+  });
+
+  it('derives response success ratio from persisted stage history when a player has one cumulative score row', () => {
+    const players = mapper.collectPlayers([
+      {
+        context: {
+          earnedPoints: 0,
+          selectedActionId: backendTestIdentifiers.partyAction(3),
+          stageHistory: [
+            {
+              earnedPoints: 1000,
+              selectedActionId: backendTestIdentifiers.partyAction(1),
+              stageId: backendTestIdentifiers.partyStage(1),
+              stagePosition: 1,
+              status: 'acknowledged',
+            },
+            {
+              earnedPoints: 0,
+              selectedActionId: backendTestIdentifiers.partyAction(2),
+              stageId: backendTestIdentifiers.partyStage(2),
+              stagePosition: 2,
+              status: 'acknowledged',
+            },
+            {
+              earnedPoints: 500,
+              selectedActionId: backendTestIdentifiers.partyAction(3),
+              stageId: backendTestIdentifiers.partyStage(3),
+              stagePosition: 3,
+              status: 'acknowledged',
+            },
+          ],
+          stageId: backendTestIdentifiers.partyStage(3),
+          stagePosition: 3,
+          status: 'acknowledged',
+        },
+        createdAt: new Date('2026-05-01T11:00:00.000Z'),
+        points: 1500,
+        user: {
+          id: backendTestIdentifiers.user(42),
+          username: 'Player',
+          avatar: {
+            updatedAt: playerAvatarUpdatedAt,
+          },
+        },
+        guest: null,
+      },
+    ]);
+
+    expect(players.map((player) => mapper.toPlayerObservationPlayer(player))).toEqual([
+      {
+        avatarUri: `/api/avatars/users/${backendTestIdentifiers.user(42)}?v=${playerAvatarUpdatedAt.getTime()}`,
+        correctStages: 2,
+        identity: {
+          kind: PartyPlayerKind.USER,
+          userId: backendTestIdentifiers.user(42),
+        },
+        totalScore: 1500,
         username: 'Player',
       },
     ]);

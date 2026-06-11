@@ -58,6 +58,7 @@ interface PrismaPartyPlayerScoreRecord {
 
 interface PartyPlayerSummary {
   readonly avatarUri: string | null;
+  correctStages: number;
   readonly identity: PartyPlayerIdentity;
   readonly joinedAt: Date;
   totalScore: number;
@@ -104,51 +105,43 @@ export class PrismaPartyReadModelMapper {
     const players = new Map<string, PartyPlayerSummary>();
 
     for (const score of scores) {
+      const correctStages = this.toPartyPlayerCorrectStages(score);
+      const points = score.points ?? 0;
+
       if (score.user) {
         if (score.user.id === options.excludedUserId) {
           continue;
         }
 
-        const identity: PartyPlayerIdentity = {
+        const identity = {
           kind: PartyPlayerKind.USER,
           userId: this.userIdentifier.parse(score.user.id),
-        };
-        const playerKey = this.toPlayerKey(identity);
-        const existing = players.get(playerKey);
+        } as const satisfies PartyPlayerIdentity;
 
-        if (existing) {
-          existing.totalScore += score.points ?? 0;
-          continue;
-        }
-
-        players.set(playerKey, {
-          avatarUri: this.toUserAvatarUri(score.user.id, score.user.avatar?.updatedAt ?? null),
+        this.upsertPlayerSummary(players, {
+          correctStages,
           identity,
+          points,
+          avatarUri: this.toUserAvatarUri(score.user.id, score.user.avatar?.updatedAt ?? null),
           joinedAt: score.createdAt,
-          totalScore: score.points ?? 0,
           username: score.user.username,
         });
+
         continue;
       }
 
       if (score.guest) {
-        const identity: PartyPlayerIdentity = {
+        const identity = {
           kind: PartyPlayerKind.GUEST,
           guestId: this.guestIdentifier.parse(score.guest.id),
-        };
-        const playerKey = this.toPlayerKey(identity);
-        const existing = players.get(playerKey);
+        } as const satisfies PartyPlayerIdentity;
 
-        if (existing) {
-          existing.totalScore += score.points ?? 0;
-          continue;
-        }
-
-        players.set(playerKey, {
-          avatarUri: this.toGuestAvatarUri(score.guest.id),
+        this.upsertPlayerSummary(players, {
+          correctStages,
           identity,
+          points,
+          avatarUri: this.toGuestAvatarUri(score.guest.id),
           joinedAt: options.resolveGuestJoinedAt?.(score) ?? score.createdAt,
-          totalScore: score.points ?? 0,
           username: score.guest.username,
         });
       }
@@ -157,6 +150,36 @@ export class PrismaPartyReadModelMapper {
     return [...players.values()].sort(
       (left, right) => left.joinedAt.getTime() - right.joinedAt.getTime(),
     );
+  }
+
+  private upsertPlayerSummary(
+    players: Map<string, PartyPlayerSummary>,
+    payload: {
+      readonly avatarUri: string | null;
+      readonly correctStages: number;
+      readonly identity: PartyPlayerIdentity;
+      readonly joinedAt: Date;
+      readonly points: number;
+      readonly username: string;
+    },
+  ): void {
+    const playerKey = this.toPlayerKey(payload.identity);
+    const existing = players.get(playerKey);
+
+    if (existing) {
+      existing.totalScore += payload.points;
+      existing.correctStages += payload.correctStages;
+      return;
+    }
+
+    players.set(playerKey, {
+      avatarUri: payload.avatarUri,
+      correctStages: payload.correctStages,
+      identity: payload.identity,
+      joinedAt: payload.joinedAt,
+      totalScore: payload.points,
+      username: payload.username,
+    });
   }
 
   normalizePlayerScores(
@@ -258,6 +281,7 @@ export class PrismaPartyReadModelMapper {
   toPlayerObservationPlayer(player: PartyPlayerSummary): PlayerPartyObservationPlayer {
     return {
       avatarUri: player.avatarUri,
+      correctStages: player.correctStages,
       identity: player.identity,
       totalScore: player.totalScore,
       username: player.username,
@@ -497,6 +521,35 @@ export class PrismaPartyReadModelMapper {
     return identity.kind === PartyPlayerKind.USER
       ? `user:${identity.userId}`
       : `guest:${identity.guestId}`;
+  }
+
+  private toPartyPlayerCorrectStages(score: PartyPlayerScoreRecord): number {
+    if (!score.context || typeof score.context !== 'object' || Array.isArray(score.context)) {
+      return (score.points ?? 0) > 0 ? 1 : 0;
+    }
+
+    const stageHistory = Reflect.get(score.context, 'stageHistory');
+
+    if (!Array.isArray(stageHistory) || stageHistory.length === 0) {
+      return (score.points ?? 0) > 0 ? 1 : 0;
+    }
+
+    const stages = stageHistory.filter(
+      (entry): entry is { earnedPoints: unknown } =>
+        typeof entry === 'object' && entry !== null && !Array.isArray(entry),
+    );
+
+    if (stages.length === 0) {
+      return 0;
+    }
+
+    const correctStages = stages.reduce((total, stage) => {
+      const earnedPoints = Reflect.get(stage, 'earnedPoints');
+
+      return Number.isInteger(earnedPoints) && Number(earnedPoints) > 0 ? total + 1 : total;
+    }, 0);
+
+    return correctStages;
   }
 
   private toPartyRuntimeStageContext(value: unknown): PartyRuntimeContext['stage'] | undefined {

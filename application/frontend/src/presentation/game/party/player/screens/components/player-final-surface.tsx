@@ -66,7 +66,10 @@ export function PlayerFinalSurface({ onLeaveParty, party }: PlayerFinalSurfacePr
           </section>
         ) : null}
 
-        <PartyFinalSummaryPanel players={party.players} />
+        <PartyFinalSummaryPanel
+          players={party.players}
+          totalStages={party.context?.lifecycle.totalStages ?? 0}
+        />
 
         {shouldPromptGuestSignIn ? (
           <InsetPanel padding={isMobile ? 'md' : 'lg'} tone="accent">

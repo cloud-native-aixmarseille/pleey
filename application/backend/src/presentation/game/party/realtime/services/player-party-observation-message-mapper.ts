@@ -24,6 +24,7 @@ export class PlayerPartyObservationMessageMapper {
       host: observation.host,
       players: observation.players.map((player) => ({
         avatarUri: player.avatarUri,
+        correctStages: player.correctStages,
         identity: player.identity,
         isCurrentPlayer:
           currentPlayerIdentity !== null &&

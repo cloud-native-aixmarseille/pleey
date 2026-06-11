@@ -56,6 +56,7 @@ interface PartyObservationOverrides
 
 type PartyObservationPlayerOverrides = {
   readonly avatarUri?: string | null;
+  readonly correctStages?: number;
   readonly identity?: IdentityOverride;
   readonly isCurrentPlayer?: boolean;
   readonly isLive?: boolean;
@@ -105,6 +106,7 @@ export class PartyFixtureFactory {
 
     return {
       avatarUri: overrides.avatarUri ?? '/avatars/player.png',
+      correctStages: overrides.correctStages ?? 0,
       identity: normalizedIdentity,
       isCurrentPlayer: overrides.isCurrentPlayer ?? false,
       isLive: overrides.isLive ?? true,

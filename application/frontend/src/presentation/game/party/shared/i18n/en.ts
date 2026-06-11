@@ -21,6 +21,7 @@ export const gamePartyEn = {
         emptyPlayers: 'No players are connected yet.',
         finalLeaderboardEmpty: 'No scored players are available yet.',
         finalLeaderboardScore: '{{points}} pts',
+        finalLeaderboardResponseSuccessRatio: '{{correct}} / {{total}} correct',
         finalSummaryLabel: 'End of party summary',
         finalSummaryEyebrow: 'Party complete',
         finalSummaryTitle: 'Game over!',

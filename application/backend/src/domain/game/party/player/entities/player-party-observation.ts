@@ -11,6 +11,7 @@ interface PlayerPartyObservationHost {
 
 export interface PlayerPartyObservationPlayer {
   readonly avatarUri: string | null;
+  readonly correctStages: number;
   readonly identity: PartyPlayerIdentity;
   readonly totalScore: number;
   readonly username: string;

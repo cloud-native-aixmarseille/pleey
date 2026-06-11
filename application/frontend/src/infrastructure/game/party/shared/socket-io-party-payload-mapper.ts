@@ -293,6 +293,7 @@ export class SocketIoPartyPayloadMapper {
   private toObservationPlayer(player: PartyObservationPlayer): PartyObservationPlayer {
     return {
       avatarUri: player.avatarUri,
+      correctStages: player.correctStages,
       identity: this.toPlayerIdentity(player.identity),
       isCurrentPlayer: player.isCurrentPlayer,
       isLive: player.isLive,

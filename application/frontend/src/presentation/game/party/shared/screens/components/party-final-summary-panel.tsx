@@ -11,9 +11,10 @@ import { PartyStandingsList } from './party-standings-list';
 
 interface PartyFinalSummaryPanelProps {
   readonly players: readonly PartyObservationPlayer[];
+  readonly totalStages: number;
 }
 
-export function PartyFinalSummaryPanel({ players }: PartyFinalSummaryPanelProps) {
+export function PartyFinalSummaryPanel({ players, totalStages }: PartyFinalSummaryPanelProps) {
   const { t } = usePresentationTranslation();
   const isMobile = usePresentationMediaQuery();
   const { podiumByRank, rankedPlayers, winner } = createPartyFinalSummaryModel(players);
@@ -35,6 +36,7 @@ export function PartyFinalSummaryPanel({ players }: PartyFinalSummaryPanelProps)
             <PartyFinalSummaryPodium
               isMobile={isMobile}
               podiumByRank={podiumByRank}
+              totalStages={totalStages}
               winner={winner}
             />
             <PartyStandingsList
@@ -44,6 +46,7 @@ export function PartyFinalSummaryPanel({ players }: PartyFinalSummaryPanelProps)
               players={rankedPlayers}
               staggerDelay={0.08}
               testIdPrefix="party-final-standings"
+              totalStages={totalStages}
             />
           </>
         )}

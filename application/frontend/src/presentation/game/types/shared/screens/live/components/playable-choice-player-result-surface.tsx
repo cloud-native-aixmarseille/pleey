@@ -151,6 +151,9 @@ export function PlayableChoicePlayerResultSurface({
   const { t } = usePresentationTranslation();
   const isMobile = usePresentationMediaQuery();
   const stagePosition = party.context?.lifecycle.stagePosition;
+  const totalStages =
+    party.context?.lifecycle.totalStages ??
+    (stagePosition === null || stagePosition === undefined ? 0 : stagePosition + 1);
   const result = party.context?.result;
   const currentResult = result?.current;
   const currentPlayerResult = result?.currentPlayer;
@@ -165,7 +168,7 @@ export function PlayableChoicePlayerResultSurface({
 
   const progressText = t('game.party.route.runtimeStageProgress', {
     current: String(stagePosition + 1),
-    total: String(party.context?.lifecycle.totalStages ?? stagePosition + 1),
+    total: String(totalStages),
   });
 
   const totalScoreText =
@@ -271,6 +274,7 @@ export function PlayableChoicePlayerResultSurface({
             players={party.players}
             previousScores={previousScores}
             testIdPrefix={`${testIdPrefix}-stage-result-rankings`}
+            totalStages={totalStages}
             title={t('game.party.route.stageResultsStandingsTitle')}
           />
         </ContentStack>
@@ -302,6 +306,7 @@ export function PlayableChoicePlayerResultSurface({
           players={party.players}
           previousScores={previousScores}
           testIdPrefix={`${testIdPrefix}-stage-result-rankings`}
+          totalStages={totalStages}
           title={t('game.party.route.stageResultsStandingsTitle')}
         />
       </ContentStack>

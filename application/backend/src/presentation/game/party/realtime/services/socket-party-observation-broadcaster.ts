@@ -163,6 +163,7 @@ export class SocketPartyObservationBroadcaster implements PartyObservationBroadc
           snapshot.hostObservation,
           snapshot.gameType,
           livePlayerIdentities,
+          snapshot.playerObservation.players,
         )
       : this.playerMessageMapper.toMessage(
           snapshot.playerObservation,

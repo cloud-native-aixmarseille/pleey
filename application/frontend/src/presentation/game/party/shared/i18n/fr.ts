@@ -21,6 +21,7 @@ export const gamePartyFr = {
         emptyPlayers: "Aucun joueur n'est encore connecté.",
         finalLeaderboardEmpty: "Aucun score final n'est encore disponible.",
         finalLeaderboardScore: '{{points}} pts',
+        finalLeaderboardResponseSuccessRatio: '{{correct}} / {{total}} reponses correctes',
         finalSummaryLabel: 'Récapitulatif de fin de partie',
         finalSummaryEyebrow: 'Partie terminée',
         finalSummaryTitle: 'Partie terminée !',
