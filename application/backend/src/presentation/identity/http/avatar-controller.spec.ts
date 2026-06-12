@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { GetGuestAvatarPreviewUseCase } from '../../../application/identity/avatar/use-cases/get-guest-avatar-preview-use-case';
 import { GetGuestAvatarUseCase } from '../../../application/identity/avatar/use-cases/get-guest-avatar-use-case';
 import { GetUserAvatarUseCase } from '../../../application/identity/avatar/use-cases/get-user-avatar-use-case';
+import { UserIdentifier } from '../../../application/identity/shared/services/identifiers/user-identifier';
 import { Media } from '../../../domain/media/entities/media';
 import { backendTestIdentifiers } from '../../../test-utils/branded-identifiers';
 import { AvatarController } from './avatar-controller';
@@ -25,10 +26,14 @@ describe('AvatarController', () => {
     const getGuestAvatarUseCase = {
       execute: vi.fn(),
     } as unknown as GetGuestAvatarUseCase;
+    const userIdentifier = {
+      parse: vi.fn().mockReturnValue(backendTestIdentifiers.user(7)),
+    } as unknown as UserIdentifier;
     const controller = new AvatarController(
       getUserAvatarUseCase,
       getGuestAvatarPreviewUseCase,
       getGuestAvatarUseCase,
+      userIdentifier,
     );
     const response: MockResponse = {
       setHeader: vi.fn(),
@@ -38,6 +43,7 @@ describe('AvatarController', () => {
     await controller.getUserAvatar(backendTestIdentifiers.user(7), response as never);
 
     expect(getUserAvatarUseCase.execute).toHaveBeenCalledWith(backendTestIdentifiers.user(7));
+    expect(userIdentifier.parse).toHaveBeenCalledWith(backendTestIdentifiers.user(7));
     expect(response.setHeader).toHaveBeenCalledWith('Content-Type', 'image/svg+xml');
     expect(response.setHeader).toHaveBeenCalledWith(
       'Cache-Control',
@@ -60,10 +66,14 @@ describe('AvatarController', () => {
     const getGuestAvatarUseCase = {
       execute: vi.fn().mockResolvedValue(avatar),
     } as unknown as GetGuestAvatarUseCase;
+    const userIdentifier = {
+      parse: vi.fn(),
+    } as unknown as UserIdentifier;
     const controller = new AvatarController(
       getUserAvatarUseCase,
       getGuestAvatarPreviewUseCase,
       getGuestAvatarUseCase,
+      userIdentifier,
     );
     const response: MockResponse = {
       setHeader: vi.fn(),
@@ -90,10 +100,14 @@ describe('AvatarController', () => {
     const getGuestAvatarUseCase = {
       execute: vi.fn(),
     } as unknown as GetGuestAvatarUseCase;
+    const userIdentifier = {
+      parse: vi.fn(),
+    } as unknown as UserIdentifier;
     const controller = new AvatarController(
       getUserAvatarUseCase,
       getGuestAvatarPreviewUseCase,
       getGuestAvatarUseCase,
+      userIdentifier,
     );
     const response: MockResponse = {
       setHeader: vi.fn(),
