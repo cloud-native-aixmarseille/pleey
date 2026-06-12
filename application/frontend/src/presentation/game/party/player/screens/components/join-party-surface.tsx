@@ -99,7 +99,7 @@ export function JoinPartySurface({
       ) : null}
 
       <ContentStack gap={isMobile ? 'md' : 'lg'}>
-        <header role="banner">
+        <header>
           <HeroPanel padding={isMobile ? 'lg' : 'xl'}>
             <ContentStack align="center" gap={isMobile ? 'sm' : 'md'}>
               {isMobile ? null : (

@@ -5,7 +5,7 @@ import { ContentStack, SplitWrapRow, WrapRow } from '../../../../../shared/ui/la
 import { ElevatedPanel } from '../../../../../shared/ui/layout/panels';
 import { Heading, SupportingText } from '../../../../../shared/ui/layout/typography';
 
-interface PartyLobbyStatusBarProps {
+interface PlayerLobbyStatusBarProps {
   readonly ariaLabel: string;
   readonly compact?: boolean;
   readonly metadataBadges?: readonly string[];
@@ -16,7 +16,7 @@ interface PartyLobbyStatusBarProps {
   readonly supportingText: string | null;
 }
 
-export function PartyLobbyStatusBar({
+export function PlayerLobbyStatusBar({
   ariaLabel,
   compact = false,
   metadataBadges = [],
@@ -25,9 +25,9 @@ export function PartyLobbyStatusBar({
   title,
   trailing,
   supportingText,
-}: PartyLobbyStatusBarProps) {
+}: PlayerLobbyStatusBarProps) {
   return (
-    <header aria-label={ariaLabel} role="banner">
+    <header aria-label={ariaLabel}>
       <ElevatedPanel padding="md">
         <SplitWrapRow align="start" gap="md">
           <ContentStack gap="xs">

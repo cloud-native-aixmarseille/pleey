@@ -6,7 +6,7 @@ import {
   DropdownMenuDivider,
   DropdownMenuLabel,
 } from '../../../../../shared/ui/overlay/dropdown-menu';
-import { ProtectedLeavePartyAction } from './protected-leave-party-action';
+import { ProtectedLeavePartyAction } from '../../../shared/screens/components/protected-leave-party-action';
 
 const MENU_TRIGGER_SIZE_REM = '2.25rem';
 

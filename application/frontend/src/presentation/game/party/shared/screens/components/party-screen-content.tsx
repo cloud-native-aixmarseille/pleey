@@ -26,6 +26,7 @@ import {
   type PartyLobbyScreenState,
   PartyScreenSection,
 } from '../use-party-lobby-screen-state';
+import { usePartyScreenWakeLock } from '../use-party-screen-wake-lock';
 import { PartyFinalSummaryPanel } from './party-final-summary-panel';
 
 const runtimeNoticeToastStyle = {
@@ -49,17 +50,17 @@ const mobilePlayerSurfaceBackdropStyle = {
   zIndex: 199,
 } as const;
 
-interface PartyLobbyScreenContentProps {
+interface PartyScreenContentProps {
   readonly resolvePartyAbsoluteUrl: (pin: PartyPin) => string;
   readonly screenSection: PartyScreenSection;
   readonly state: PartyLobbyScreenState;
 }
 
-export function PartyLobbyScreenContent({
+export function PartyScreenContent({
   resolvePartyAbsoluteUrl,
   screenSection,
   state,
-}: PartyLobbyScreenContentProps) {
+}: PartyScreenContentProps) {
   const { t } = usePresentationTranslation();
   const { hostPartyRuntimeControlsResolver, playerRuntimeNoticeMessageResolver } =
     usePartyDependencies();
@@ -105,6 +106,7 @@ export function PartyLobbyScreenContent({
     startParty,
     submitAction,
   } = state;
+  usePartyScreenWakeLock(isMobile && !!party);
   const hostRuntimeControls = party
     ? hostPartyRuntimeControlsResolver.resolveControls(party)
     : null;
@@ -169,12 +171,11 @@ export function PartyLobbyScreenContent({
   let surface = null;
 
   if (!party) {
-    surface = pageErrorMessage ? null : routeKind === PartyLobbyRouteKind.PIN &&
-      !isAuthenticated ? (
-      joinSurface
-    ) : (
-      <LoadingState variant="list">{t('game.party.route.loading')}</LoadingState>
-    );
+    surface = pageErrorMessage
+      ? null
+      : routeKind === PartyLobbyRouteKind.PIN && !isAuthenticated
+        ? joinSurface
+        : runtimeLoadingState;
   } else if (isHostSurface && hostRuntimeControls) {
     const runtimePanel = renderHostRuntimePanel(party, screenSection, partyGameTypeRuntimeView);
 

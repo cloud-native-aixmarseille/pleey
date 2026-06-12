@@ -108,7 +108,6 @@ export class LemmingsPatienceEngine {
         );
 
         if (!shouldRender) {
-          continue;
         }
       }
     }

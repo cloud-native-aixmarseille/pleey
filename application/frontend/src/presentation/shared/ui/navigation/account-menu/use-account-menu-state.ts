@@ -62,7 +62,7 @@ export function useAccountMenuState() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [opened]);
+  }, [opened, close]);
 
   return {
     close,

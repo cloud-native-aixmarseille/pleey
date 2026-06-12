@@ -23,7 +23,7 @@ export function useProjectGames({
   loadGames,
 }: UseProjectGamesOptions): UseProjectGamesResult {
   const [games, setGames] = useState<DashboardGameListItem[]>([]);
-  const [reloadVersion, setReloadVersion] = useState(0);
+  const [_reloadVersion, setReloadVersion] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   const [overallCount, setOverallCount] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -76,7 +76,7 @@ export function useProjectGames({
     return () => {
       ignore = true;
     };
-  }, [query, reloadVersion]);
+  }, [query]);
 
   const reload = () => {
     setReloadVersion((current) => current + 1);

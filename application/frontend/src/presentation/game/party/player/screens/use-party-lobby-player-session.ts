@@ -80,7 +80,6 @@ export function usePartyLobbyPlayerSession({
     }
   }, [
     party?.context?.lifecycle.phase,
-    party?.context?.lifecycle.stageId,
     party?.context?.stage?.actionSubmission?.currentPlayer?.selectedActionId,
   ]);
 
@@ -176,6 +175,7 @@ export function usePartyLobbyPlayerSession({
     observedGuestRejoinUsername,
     party,
     partyLobbyFacade,
+    setJoinErrorMessage,
   ]);
 
   return {

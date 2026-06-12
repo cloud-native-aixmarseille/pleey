@@ -9,7 +9,7 @@ function resolvePostSignInRoute(): string {
   const searchParams = new URLSearchParams(window.location.search);
   const redirectTo = searchParams.get('redirectTo');
 
-  if (!redirectTo || !redirectTo.startsWith('/') || redirectTo.startsWith('//')) {
+  if (!redirectTo?.startsWith('/') || redirectTo.startsWith('//')) {
     return DEFAULT_SIGN_IN_REDIRECT;
   }
 

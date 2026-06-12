@@ -1,5 +1,6 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.4.16/schema.json",
+  "extends": ["./biome.shared-party-rules.json", "./biome.shared-style-rules.json"],
   "files": {
     "includes": [
       "src/**",
@@ -16,6 +17,20 @@
     "includes": ["**", "!src/schema.gql"],
     "rules": {
       "recommended": true,
+      "suspicious": {
+        "noConsole": "error",
+        "noExplicitAny": "error"
+      },
+      "correctness": {
+        "noUnusedImports": "error",
+        "noUnusedVariables": {
+          "level": "error",
+          "options": {
+            "ignoreRestSiblings": true
+          }
+        },
+        "noUnusedFunctionParameters": "error"
+      },
       "style": {
         "noProcessEnv": "error",
         "noRestrictedImports": {
@@ -34,22 +49,7 @@
             ]
           }
         },
-        "useImportType": "off",
-        "useConst": "error",
-        "noNonNullAssertion": "warn"
-      },
-      "suspicious": {
-        "noExplicitAny": "error"
-      },
-      "correctness": {
-        "noUnusedImports": "error",
-        "noUnusedVariables": {
-          "level": "error",
-          "options": {
-            "ignoreRestSiblings": true
-          }
-        },
-        "noUnusedFunctionParameters": "error"
+        "useImportType": "off"
       }
     }
   },
@@ -98,6 +98,9 @@
       ],
       "linter": {
         "rules": {
+          "suspicious": {
+            "noConsole": "off"
+          },
           "style": {
             "noProcessEnv": "off"
           },
@@ -112,12 +115,27 @@
       "plugins": ["./biome/plugins/application-domain-boundaries.grit"]
     },
     {
-      "includes": ["src/application/**/*.ts", "src/domain/**/*.ts", "src/infrastructure/**/*.ts"],
+      "includes": [
+        "src/application/**/*.ts",
+        "src/domain/**/*.ts",
+        "src/infrastructure/**/*.ts",
+        "src/presentation/**/*.ts"
+      ],
       "plugins": ["./biome/plugins/identifier-boundaries.grit"]
     },
     {
       "includes": ["src/presentation/**/*.ts"],
       "plugins": ["./biome/plugins/presentation-boundaries.grit"]
+    },
+    {
+      "includes": ["src/infrastructure/telemetry/**/*.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
     },
     {
       "includes": ["src/domain/**/*.ts"],

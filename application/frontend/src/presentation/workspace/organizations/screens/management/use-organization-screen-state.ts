@@ -80,7 +80,7 @@ export function useOrganizationScreenState({
   removeOrganizationMember,
   updateOrganizationMemberRole,
 }: OrganizationScreenStateParams) {
-  const [reloadKey, setReloadKey] = useState(0);
+  const [_reloadKey, setReloadKey] = useState(0);
   const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [projectPendingRemoval, setProjectPendingRemoval] = useState<Project | null>(null);
@@ -109,28 +109,19 @@ export function useOrganizationScreenState({
 
   const stableDashboardWorkspace = useCallback<
     DashboardWorkspaceSelectionGateway['restoreOrganizationSelection']
-  >(
-    (query) => dashboardWorkspace.restoreOrganizationSelection(query),
-    [dashboardWorkspace, reloadKey],
-  );
+  >((query) => dashboardWorkspace.restoreOrganizationSelection(query), [dashboardWorkspace]);
 
   const stableOrganizationWorkspace = useCallback<
     DashboardWorkspaceSelectionGateway['loadOrganizationWorkspaceState']
-  >(
-    (query) => dashboardWorkspace.loadOrganizationWorkspaceState(query),
-    [dashboardWorkspace, reloadKey],
-  );
+  >((query) => dashboardWorkspace.loadOrganizationWorkspaceState(query), [dashboardWorkspace]);
 
   const stableOrganizationsPage = useCallback<
     DashboardWorkspaceSelectionGateway['loadOrganizationsPage']
-  >((query) => dashboardWorkspace.loadOrganizationsPage(query), [dashboardWorkspace, reloadKey]);
+  >((query) => dashboardWorkspace.loadOrganizationsPage(query), [dashboardWorkspace]);
 
   const stableOrganizationProjectsPage = useCallback<
     DashboardWorkspaceSelectionGateway['loadOrganizationProjectsPage']
-  >(
-    (query) => dashboardWorkspace.loadOrganizationProjectsPage(query),
-    [dashboardWorkspace, reloadKey],
-  );
+  >((query) => dashboardWorkspace.loadOrganizationProjectsPage(query), [dashboardWorkspace]);
 
   const stableSetOrganizationSelection = useCallback(
     (organizationId: OrganizationId | null) =>
@@ -223,14 +214,13 @@ export function useOrganizationScreenState({
     isMemberSearchPending,
     listOrganizationMembers,
     memberPage,
-    reloadKey,
     workspace.selectedOrganization,
   ]);
 
   useEffect(() => {
     setMemberPage(DEFAULT_PAGE);
     setMemberSearch('');
-  }, [workspace.selectedOrganization?.id]);
+  }, []);
 
   const availableMigrationProjects = projectPendingRemoval
     ? workspace.projects.filter((project) => project.id !== projectPendingRemoval.id)

@@ -60,7 +60,7 @@ export function usePlayableContentManagement({
     } finally {
       setIsLoading(false);
     }
-  }, [gameTypeId, gateway, t, translationRoot]);
+  }, [gameTypeId, gateway, t, translationRoot, itemKindConfig]);
 
   useEffect(() => {
     void load();

@@ -82,14 +82,7 @@ export function usePartyLobbyHostRuntime({
   useEffect(() => {
     setHostRuntimeErrorMessage(null);
     setPendingHostRuntimeConfirmationCommand(null);
-  }, [
-    party?.context?.lifecycle.phase,
-    party?.context?.lifecycle.stageEndsAtEpochMs,
-    party?.context?.lifecycle.stageId,
-    party?.context?.lifecycle.stageRemainingDurationMs,
-    party?.context?.lifecycle.totalStages,
-    party?.status,
-  ]);
+  }, []);
 
   useEffect(() => {
     if (!hasObservedPendingCommandCompletion) {
@@ -172,8 +165,7 @@ export function usePartyLobbyHostRuntime({
       actionSubmission.submittedPlayerCount >= actionSubmission.totalEligiblePlayerCount;
 
     if (
-      !party ||
-      !party.isObserverHost ||
+      !party?.isObserverHost ||
       party.context?.lifecycle.phase !== 'stage' ||
       currentStageId === null ||
       currentStageId === undefined ||
@@ -217,12 +209,7 @@ export function usePartyLobbyHostRuntime({
     const timeoutId = window.setTimeout(revealStageResult, remainingDurationMs);
 
     return () => window.clearTimeout(timeoutId);
-  }, [
-    hostRuntimeControls?.canRevealStageResult,
-    effectivePendingHostRuntimeCommand,
-    party,
-    runHostRuntimeCommand,
-  ]);
+  }, [hostRuntimeControls?.canRevealStageResult, effectivePendingHostRuntimeCommand, party]);
 
   return {
     cancelHostRuntimeConfirmation: () => setPendingHostRuntimeConfirmationCommand(null),

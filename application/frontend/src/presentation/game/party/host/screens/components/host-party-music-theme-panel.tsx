@@ -130,7 +130,7 @@ export function HostPartyMusicThemePanel() {
         ))}
       </Select>
 
-      <audio aria-hidden="true" data-testid="host-party-music-audio" ref={audioElementRef} />
+      <audio data-testid="host-party-music-audio" ref={audioElementRef} />
     </ContentStack>
   );
 }
