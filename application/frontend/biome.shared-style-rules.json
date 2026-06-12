@@ -1,0 +1,12 @@
+{
+  "linter": {
+    "rules": {
+      "style": {
+        "useThrowNewError": "error",
+        "useThrowOnlyError": "error",
+        "useConst": "error",
+        "noNonNullAssertion": "error"
+      }
+    }
+  }
+}

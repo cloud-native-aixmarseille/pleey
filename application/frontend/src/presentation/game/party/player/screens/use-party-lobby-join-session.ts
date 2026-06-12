@@ -108,7 +108,7 @@ export function usePartyLobbyJoinSession({
   useEffect(() => {
     setIsPasswordRequired(false);
     setPartyPassword('');
-  }, [normalizedPin]);
+  }, []);
 
   useEffect(() => {
     if (normalizedPin === null || persistedGuestJoinGuestId === null) {

@@ -312,7 +312,7 @@ export function KeyboardShortcutsProvider({ children }: PropsWithChildren) {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [handleKeyDown]);
+  }, []);
 
   const registerShortcut = useEffectEvent((shortcut: KeyboardShortcutDefinition) => {
     const sequence = sequenceRef.current++;
@@ -403,7 +403,7 @@ export function KeyboardShortcutsProvider({ children }: PropsWithChildren) {
     }
 
     return [...groups.values()];
-  }, [isHelpOpen, t]);
+  }, [t]);
 
   const contextValue = useMemo<KeyboardShortcutsContextValue>(
     () => ({
@@ -413,7 +413,7 @@ export function KeyboardShortcutsProvider({ children }: PropsWithChildren) {
       registerScope,
       registerShortcut,
     }),
-    [closeHelp, isHelpOpen, openHelp, registerScope, registerShortcut],
+    [isHelpOpen],
   );
 
   return (

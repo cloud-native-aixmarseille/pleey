@@ -52,7 +52,7 @@ export function GuestPreferencesMenu() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [opened]);
+  }, [opened, close]);
 
   return (
     <AccountMenuWrapper wrapperRef={wrapperRef}>

@@ -85,7 +85,7 @@ export function PlayableManagementPromptEditor({
     setVisibleOutcomeCount(
       playableOutcomeEditorPolicy.resolveInitialOutcomeCount(editorState, itemKindConfig),
     );
-  }, [editorState.id, editorState.kind, itemKindConfig]);
+  }, [editorState.id, editorState.kind, itemKindConfig, editorState]);
 
   const visibleOutcomeIndexes = Array.from(
     { length: fixedOptions?.length ?? visibleOutcomeCount },

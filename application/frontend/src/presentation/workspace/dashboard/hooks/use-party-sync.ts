@@ -9,7 +9,7 @@ interface UsePartySyncOptions {
 }
 
 export function usePartySync({ currentParty, upsertParty }: UsePartySyncOptions) {
-  const { currentParty: partyObservation, getPartyByPartyId, observePartyById } = useParty();
+  const { getPartyByPartyId, observePartyById } = useParty();
   const upsertPartyEffect = useEffectEvent(upsertParty);
 
   useEffect(() => {
@@ -40,7 +40,7 @@ export function usePartySync({ currentParty, upsertParty }: UsePartySyncOptions)
     if (!isSameParty(projectedParty, currentParty)) {
       upsertPartyEffect(projectedParty);
     }
-  }, [currentParty, partyObservation, getPartyByPartyId, upsertPartyEffect]);
+  }, [currentParty, getPartyByPartyId]);
 }
 
 function projectPartySummary(observation: PartyObservation, currentParty: Party): Party {

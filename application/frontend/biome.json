@@ -1,5 +1,6 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.4.16/schema.json",
+  "extends": ["./biome.shared-party-rules.json", "./biome.shared-style-rules.json"],
   "files": {
     "includes": [
       "src/**",
@@ -15,25 +16,37 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": false,
+      "recommended": true,
       "suspicious": {
         "noConsole": "error",
-        "noExplicitAny": "warn"
+        "noExplicitAny": "error",
+        "noArrayIndexKey": "off"
       },
       "correctness": {
         "noUnusedImports": "error",
         "noUnusedVariables": {
-          "level": "warn",
+          "level": "error",
           "options": {
             "ignoreRestSiblings": true
           }
         },
-        "noUnusedFunctionParameters": "error"
+        "noUnusedFunctionParameters": "error",
+        "useExhaustiveDependencies": "off",
+        "useHookAtTopLevel": "off"
+      },
+      "complexity": {
+        "noUselessSwitchCase": "off",
+        "useOptionalChain": "off"
       },
       "style": {
         "useImportType": "off",
-        "useThrowNewError": "error",
-        "useThrowOnlyError": "error"
+        "noNonNullAssertion": "off"
+      },
+      "a11y": {
+        "noStaticElementInteractions": "off",
+        "useAriaPropsSupportedByRole": "off",
+        "useMediaCaption": "off",
+        "useSemanticElements": "off"
       }
     }
   },
@@ -107,7 +120,8 @@
       "includes": [
         "src/application/**/*.{ts,tsx,js,jsx}",
         "src/domains/**/*.{ts,tsx,js,jsx}",
-        "src/infrastructure/**/*.{ts,tsx,js,jsx}"
+        "src/infrastructure/**/*.{ts,tsx,js,jsx}",
+        "src/presentation/**/*.{ts,tsx,js,jsx}"
       ],
       "plugins": ["./biome/plugins/identifier-boundaries.grit"]
     },
@@ -122,6 +136,7 @@
       ],
       "plugins": ["./biome/plugins/presentation-boundaries.grit"]
     },
+
     {
       "includes": ["src/presentation/**/*.{ts,tsx,js,jsx}"],
       "linter": {
@@ -243,16 +258,6 @@
             "useSemanticElements": "error",
             "useValidAriaProps": "error",
             "useValidAriaRole": "error"
-          }
-        }
-      }
-    },
-    {
-      "includes": ["src/presentation/game-session/**/*.{ts,tsx,js,jsx}"],
-      "linter": {
-        "rules": {
-          "style": {
-            "noRestrictedImports": "off"
           }
         }
       }

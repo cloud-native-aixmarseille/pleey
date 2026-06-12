@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { renderWithUiProvider } from '../../../../test-utils/render-with-ui-provider';
@@ -78,7 +78,7 @@ describe('AsyncCombobox', () => {
     Object.defineProperty(viewport, 'clientHeight', { configurable: true, value: 120 });
     Object.defineProperty(viewport, 'scrollHeight', { configurable: true, value: 320 });
     viewport.scrollTop = 210;
-    viewport.dispatchEvent(new Event('scroll', { bubbles: true }));
+    fireEvent.scroll(viewport);
 
     await waitFor(() => {
       expect(onLoadMore).toHaveBeenCalledTimes(1);

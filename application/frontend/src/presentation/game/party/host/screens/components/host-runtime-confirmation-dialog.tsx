@@ -68,7 +68,6 @@ function resolveHostRuntimeConfirmationDialogCopy(
         messageKey: 'game.party.host.route.runtimeRewindStageConfirmMessage',
         titleKey: 'game.party.host.route.runtimeRewindStageConfirmTitle',
       };
-    case HostPartyRuntimeCommand.EndParty:
     default:
       return {
         confirmDisabled: !controls.canEndParty,

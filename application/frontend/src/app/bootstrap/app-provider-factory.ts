@@ -19,7 +19,7 @@ export abstract class BaseAppProviderFactory implements AppProviderFactory {
   protected abstract create(children: ReactNode): ReactNode;
 }
 
-export const enum AppProviderOrder {
+export enum AppProviderOrder {
   UI = 100,
   TRANSLATION = 200,
   ROUTING = 300,

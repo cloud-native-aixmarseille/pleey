@@ -93,7 +93,6 @@ function renderLoadingSkeleton(variant: LoadingStateVariant) {
       return renderCardsSkeleton();
     case 'editor':
       return renderEditorSkeleton();
-    case 'list':
     default:
       return renderListSkeleton();
   }

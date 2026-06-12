@@ -47,7 +47,7 @@ export function HostPartyStatusBar({
   });
 
   return (
-    <header aria-label={t('game.party.route.statusBarLabel')} role="banner">
+    <header aria-label={t('game.party.route.statusBarLabel')}>
       <ElevatedPanel padding="md">
         <WrapRow gap="sm" wrap="nowrap">
           <AppIcon name="game" size={20} />

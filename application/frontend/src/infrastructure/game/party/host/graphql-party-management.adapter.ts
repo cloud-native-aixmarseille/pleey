@@ -104,7 +104,6 @@ export class GraphqlPartyManagementAdapter implements PartyManagementPort {
         return PartyStatus.PAUSED;
       case GraphqlPartyStatus.Ended:
         return PartyStatus.ENDED;
-      case GraphqlPartyStatus.Waiting:
       default:
         return PartyStatus.WAITING;
     }
@@ -114,7 +113,6 @@ export class GraphqlPartyManagementAdapter implements PartyManagementPort {
     switch (role) {
       case GraphqlPartyRole.Player:
         return PartyRole.PLAYER;
-      case GraphqlPartyRole.Host:
       default:
         return PartyRole.HOST;
     }

@@ -19,7 +19,7 @@ test.describe("Party Routes - Nominal Use Case", () => {
     await page.goto(`/party/${party.partyId}/lobby`);
 
     await expect(page).toHaveURL(new RegExp(`/party/${party.partyId}/lobby$`));
-    await expect(page.locator('header[role="banner"]')).toBeVisible();
+    await expect(page.getByLabel("Party lobby status bar")).toBeVisible();
     await expect(page.locator(`a[href$="/join/${party.pin}"]`)).toBeVisible();
 
     const guestPage = await browser.newPage();
@@ -27,7 +27,9 @@ test.describe("Party Routes - Nominal Use Case", () => {
     await guestPage.goto(`/join/${party.pin}`);
 
     await expect(guestPage).toHaveURL(new RegExp(`/join/${party.pin}$`));
-    await expect(guestPage.locator('header[role="banner"]')).toBeVisible();
+    await expect(
+      guestPage.getByRole("heading", { name: "Ready to play?" }),
+    ).toBeVisible();
     await expect(guestPage.locator(`a[href$="/join/${party.pin}"]`)).toHaveCount(0);
 
     await guestPage.close();

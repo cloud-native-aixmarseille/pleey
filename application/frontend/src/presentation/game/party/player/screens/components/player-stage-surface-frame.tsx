@@ -8,8 +8,8 @@ import { InsetPanel } from '../../../../../shared/ui/layout/panels';
 import { Heading, SupportingText } from '../../../../../shared/ui/layout/typography';
 import { usePresentationMediaQuery } from '../../../../../shared/ui/layout/use-presentation-media-query';
 import { MotionFadeIn, MotionPresence } from '../../../../../shared/ui/motion/motion-primitives';
-import { PlayerRuntimeMobileMenu } from '../../../shared/screens/components/player-runtime-mobile-menu';
 import { PlayerPartyStatusBar } from './player-party-status-bar';
+import { PlayerRuntimeMobileMenu } from './player-runtime-mobile-menu';
 
 const MOBILE_TIMER_BAR_HEIGHT_PX = 4;
 const MOBILE_TIMER_BAR_WARNING_THRESHOLD_RATIO = 0.5;

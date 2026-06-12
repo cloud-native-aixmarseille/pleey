@@ -12,8 +12,8 @@ import {
   MotionStaggerItem,
 } from '../../../../../../shared/ui/motion/motion-primitives';
 import { PlayerPartyStatusBar } from '../../../../../party/player/screens/components/player-party-status-bar';
+import { PlayerRuntimeMobileMenu } from '../../../../../party/player/screens/components/player-runtime-mobile-menu';
 import { PartyStandingsList } from '../../../../../party/shared/screens/components/party-standings-list';
-import { PlayerRuntimeMobileMenu } from '../../../../../party/shared/screens/components/player-runtime-mobile-menu';
 import { usePartyStageScoreboardSnapshot } from '../../../../../party/shared/screens/use-party-stage-scoreboard-snapshot';
 import { PlayableChoiceResultActionTile } from './playable-choice-result-action-tile';
 import type { PlayableChoicePlayerResultSurfaceProps } from './playable-choice-runtime-panel.types';

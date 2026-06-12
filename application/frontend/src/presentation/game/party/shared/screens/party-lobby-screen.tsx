@@ -4,7 +4,7 @@ import {
   usePresentationNavigate,
   usePresentationPathname,
 } from '../../../../shared/routing/router';
-import { PartyLobbyScreenContent } from './components/party-lobby-screen-content';
+import { PartyScreenContent } from './components/party-screen-content';
 import {
   PartyLobbyRouteKind,
   type PartyLobbyScreenProps,
@@ -45,7 +45,7 @@ export function PartyLobbyScreen(props: PartyLobbyScreenProps) {
   }
 
   return (
-    <PartyLobbyScreenContent
+    <PartyScreenContent
       resolvePartyAbsoluteUrl={resolvePartyAbsoluteUrl}
       screenSection={screenSection}
       state={state}

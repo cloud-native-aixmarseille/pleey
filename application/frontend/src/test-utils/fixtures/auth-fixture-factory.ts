@@ -33,7 +33,7 @@ interface AuthSessionPayloadOverrides extends Omit<Partial<AuthSessionPayload>, 
 const userIdentifier = new UserIdentifier();
 
 function hasOwn<TObject extends object>(target: TObject, key: PropertyKey): boolean {
-  return Object.prototype.hasOwnProperty.call(target, key);
+  return Object.hasOwn(target, key);
 }
 
 export class AuthFixtureFactory {

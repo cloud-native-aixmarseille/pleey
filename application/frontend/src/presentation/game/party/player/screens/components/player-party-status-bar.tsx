@@ -2,8 +2,8 @@ import type { PartyObservation } from '../../../../../../domains/game/party/shar
 import { PartyStatus } from '../../../../../../domains/game/party/shared/entities/party-status';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { usePresentationMediaQuery } from '../../../../../shared/ui/layout/use-presentation-media-query';
-import { PartyLobbyStatusBar } from '../../../shared/screens/components/party-lobby-status-bar';
 import { ProtectedLeavePartyAction } from '../../../shared/screens/components/protected-leave-party-action';
+import { PlayerLobbyStatusBar } from './player-lobby-status-bar';
 
 type PlayerPartyStatusBarVariant = 'final' | 'lobby' | 'paused-only';
 
@@ -26,7 +26,7 @@ export function PlayerPartyStatusBar({
   const isCompact = isMobile && variant === 'paused-only';
 
   return (
-    <PartyLobbyStatusBar
+    <PlayerLobbyStatusBar
       ariaLabel={t('game.party.route.statusBarLabel')}
       compact={isCompact}
       metadataBadges={
