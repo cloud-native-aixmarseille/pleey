@@ -2,6 +2,7 @@ import { useEffect, useEffectEvent, useState } from 'react';
 import type { DashboardGameListItem } from '../../../../domains/game/management/entities/dashboard-game-list-item';
 import type { DashboardGameListPage } from '../../../../domains/game/management/entities/dashboard-game-list-page';
 import type { DashboardGameListQuery } from '../../../../domains/game/management/entities/dashboard-game-list-query';
+import { usePresentationFeedbackChannel } from '../../../shared/ui/feedback/use-presentation-feedback-channel';
 
 interface UseProjectGamesOptions {
   readonly query: DashboardGameListQuery | null;
@@ -22,13 +23,13 @@ export function useProjectGames({
   query,
   loadGames,
 }: UseProjectGamesOptions): UseProjectGamesResult {
+  const feedback = usePresentationFeedbackChannel();
   const [games, setGames] = useState<DashboardGameListItem[]>([]);
   const [_reloadVersion, setReloadVersion] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   const [overallCount, setOverallCount] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const loadGamesEffect = useEffectEvent(loadGames);
 
   useEffect(() => {
@@ -37,14 +38,14 @@ export function useProjectGames({
       setTotalCount(0);
       setOverallCount(0);
       setTotalPages(1);
-      setErrorMessage(null);
+      feedback.clearError();
       return;
     }
 
     let ignore = false;
 
     const load = async () => {
-      setErrorMessage(null);
+      feedback.clearError();
       setIsLoading(true);
 
       try {
@@ -62,7 +63,9 @@ export function useProjectGames({
           setTotalCount(0);
           setOverallCount(0);
           setTotalPages(1);
-          setErrorMessage(error instanceof Error ? error.message : 'dashboard.errors.loadFailed');
+          feedback.handleError(error, {
+            fallbackMessage: 'dashboard.errors.loadFailed',
+          });
         }
       } finally {
         if (!ignore) {
@@ -82,5 +85,13 @@ export function useProjectGames({
     setReloadVersion((current) => current + 1);
   };
 
-  return { games, totalCount, overallCount, totalPages, isLoading, errorMessage, reload };
+  return {
+    games,
+    totalCount,
+    overallCount,
+    totalPages,
+    isLoading,
+    errorMessage: feedback.errorMessage,
+    reload,
+  };
 }

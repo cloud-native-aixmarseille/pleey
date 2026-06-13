@@ -24,23 +24,35 @@ export function createStatusBannerStyles(tone: StatusBannerTone) {
   const recipe = statusBannerToneRecipes[tone];
 
   return {
-    body: { margin: 0 },
+    body: {
+      margin: 0,
+    },
     icon: {
       alignSelf: 'flex-start',
-      border: `1px solid ${recipe.borderColor}`,
+      background: `linear-gradient(135deg, color-mix(in srgb, ${recipe.borderColor} 28%, ${uiThemeTokens.color.surface.canvas}) 0%, ${uiThemeTokens.color.surface.canvas} 100%)`,
+      border: `1px solid color-mix(in srgb, ${recipe.borderColor} 40%, ${uiThemeTokens.color.border.subtle})`,
       borderRadius: uiThemeTokens.radius.pill,
       color: recipe.color,
-      padding: '0.35rem',
+      boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.24), 0 10px 20px rgba(0, 0, 0, 0.08)`,
+      padding: '0.45rem',
     },
-    message: { color: recipe.color },
+    message: {
+      color: recipe.color,
+      fontSize: '0.96rem',
+      fontWeight: 600,
+      letterSpacing: '-0.01em',
+      lineHeight: 1.45,
+    },
     root: {
-      background: recipe.background,
-      border: `1px solid ${recipe.borderColor}`,
-      borderRadius: uiThemeTokens.radius.field,
-      boxShadow: uiThemeTokens.shadow.subtle,
+      background: `linear-gradient(135deg, color-mix(in srgb, ${recipe.background} 72%, ${uiThemeTokens.color.surface.canvas}) 0%, ${uiThemeTokens.color.surface.canvas} 74%)`,
+      border: `1px solid color-mix(in srgb, ${recipe.borderColor} 36%, ${uiThemeTokens.color.border.subtle})`,
+      borderLeft: `4px solid ${recipe.borderColor}`,
+      borderRadius: `calc(${uiThemeTokens.radius.field} + 4px)`,
+      boxShadow: `0 16px 34px rgba(0, 0, 0, 0.10), ${uiThemeTokens.shadow.subtle}`,
       color: recipe.color,
       fontSize: '0.95rem',
-      padding: `${uiThemeTokens.spacing.sm} ${uiThemeTokens.spacing.md}`,
+      overflow: 'hidden',
+      padding: `${uiThemeTokens.spacing.md} ${uiThemeTokens.spacing.lg}`,
     },
   } as const;
 }

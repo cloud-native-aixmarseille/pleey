@@ -4,6 +4,7 @@ import type { PartyActionId } from '../../../../../domains/game/party/shared/ent
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import { PartyManagementErrorCode } from '../../../../../domains/game/party/shared/errors/party-management-error-code';
 import type { GuestId } from '../../../../../domains/identity/entities/guest';
+import { usePresentationFeedbackChannel } from '../../../../shared/ui/feedback/use-presentation-feedback-channel';
 
 interface UsePartyLobbyPlayerSessionParams {
   readonly currentGuestId: GuestId | null;
@@ -29,8 +30,9 @@ export function usePartyLobbyPlayerSession({
   setIsLeaveSubmitting,
   setJoinErrorMessage,
 }: UsePartyLobbyPlayerSessionParams): UsePartyLobbyPlayerSessionResult {
+  const feedback = usePresentationFeedbackChannel();
+  const clearError = feedback.clearError;
   const [pendingPlayerActionId, setPendingPlayerActionId] = useState<PartyActionId | null>(null);
-  const [playerActionErrorMessage, setPlayerActionErrorMessage] = useState<string | null>(null);
   const currentPartyPin = party?.pin ?? null;
   const currentPlayer = party?.players.find((player) => player.isCurrentPlayer) ?? null;
   const previousCurrentPlayerRef = useRef(currentPlayer);
@@ -61,15 +63,16 @@ export function usePartyLobbyPlayerSession({
   useEffect(() => {
     if (party?.context?.lifecycle.phase !== 'stage') {
       setPendingPlayerActionId(null);
-      setPlayerActionErrorMessage(null);
+      clearError();
       return;
     }
 
     if (party.context?.stage?.actionSubmission?.currentPlayer) {
       setPendingPlayerActionId(null);
-      setPlayerActionErrorMessage(null);
+      clearError();
     }
   }, [
+    clearError,
     party?.context?.lifecycle.phase,
     party?.context?.stage?.actionSubmission?.currentPlayer?.selectedActionId,
   ]);
@@ -86,15 +89,17 @@ export function usePartyLobbyPlayerSession({
     }
 
     setPendingPlayerActionId(actionId);
-    setPlayerActionErrorMessage(null);
+    clearError();
 
     try {
       await partyLobbyFacade.submitAction({ actionId, partyId: party.partyId });
     } catch (error) {
       setPendingPlayerActionId(null);
-      setPlayerActionErrorMessage(
-        error instanceof Error ? error.message : PartyManagementErrorCode.OBSERVE_FAILED,
-      );
+      feedback.handleError(error, {
+        fallbackMessage: PartyManagementErrorCode.OBSERVE_FAILED,
+        id: 'party-player-submit-action-error-toast',
+        notify: true,
+      });
     }
   });
 
@@ -116,7 +121,7 @@ export function usePartyLobbyPlayerSession({
   return {
     leaveParty,
     pendingPlayerActionId,
-    playerActionErrorMessage,
+    playerActionErrorMessage: feedback.errorMessage,
     submitAction,
   };
 }

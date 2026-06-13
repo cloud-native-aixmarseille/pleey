@@ -640,6 +640,61 @@ describe('OrganizationScreen', () => {
       expect(screen.getByText(/project\.management\.form\.create\.title/)).toBeInTheDocument();
     });
 
+    it('shows a success toast and refreshes the project list after creating a project', async () => {
+      const user = userEvent.setup();
+      const createdProject = organizationScreenFixtureFactory.createProject({
+        id: parseProjectId(15),
+        name: 'Fresh Project',
+        description: 'Newly created',
+      });
+      const loadOrganizationWorkspaceState = vi
+        .fn()
+        .mockResolvedValueOnce({
+          organizationDashboard: organizationScreenFixtureFactory.createOrganizationDashboard(),
+          projectsPage: createPaginatedResult([]),
+          projectId: null,
+        })
+        .mockResolvedValueOnce({
+          organizationDashboard: organizationScreenFixtureFactory.createOrganizationDashboard(),
+          projectsPage: createPaginatedResult([createdProject]),
+          projectId: createdProject.id,
+        });
+
+      const view = renderOrganizationScreen(
+        {
+          loadOrganizations: vi
+            .fn()
+            .mockResolvedValue([organizationFixtureFactory.createOrganization()]),
+        },
+        { loadOrganizationWorkspaceState },
+      );
+
+      view.createProject.mockResolvedValue(createdProject);
+
+      await user.click(
+        await screen.findByRole('button', {
+          name: 'project.management.section.createButton',
+        }),
+      );
+      await user.type(
+        await screen.findByPlaceholderText('project.management.form.fields.name.placeholder'),
+        'Fresh Project',
+      );
+      await user.type(
+        screen.getByPlaceholderText('project.management.form.fields.description.placeholder'),
+        'Newly created',
+      );
+      await user.click(
+        screen.getByRole('button', { name: 'project.management.form.create.submit' }),
+      );
+
+      expect(await screen.findByRole('status')).toHaveTextContent(
+        'project.management.form.create.success',
+      );
+      expect(await screen.findByText('Fresh Project')).toBeInTheDocument();
+      expect(loadOrganizationWorkspaceState).toHaveBeenCalledTimes(2);
+    });
+
     it('selects the newly created organization after a successful creation', async () => {
       const user = userEvent.setup();
       const setOrganizationSelection = vi.fn();

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import type { CreateOrganizationCommand } from '../../../../../../application/workspace/organizations/contracts/create-organization-command';
 import type { Organization } from '../../../../../../domains/organization/entities/organization';
+import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
+import { usePresentationFeedbackChannel } from '../../../../../shared/ui/feedback/use-presentation-feedback-channel';
 import { useWorkspaceDependencies } from '../../../../shared/contexts/workspace-dependencies-context';
 
 interface UseCreateOrganizationFormStateParams {
@@ -12,17 +14,18 @@ export function useCreateOrganizationFormState({
   onSubmit,
   onCreated,
 }: UseCreateOrganizationFormStateParams) {
+  const { t } = usePresentationTranslation();
   const { organizationFormFacade } = useWorkspaceDependencies();
+  const feedback = usePresentationFeedbackChannel();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   function resetForm() {
     setName('');
     setDescription('');
-    setErrorMessage(null);
+    feedback.clearError();
   }
 
   function handleClose() {
@@ -35,16 +38,16 @@ export function useCreateOrganizationFormState({
   }
 
   function handleOpen() {
-    setErrorMessage(null);
+    feedback.clearError();
     setIsOpen(true);
   }
 
   async function handleSubmit() {
-    setErrorMessage(null);
+    feedback.clearError();
 
     const validationError = organizationFormFacade.validateName(name);
     if (validationError) {
-      setErrorMessage(validationError);
+      feedback.setErrorMessage(validationError);
       return;
     }
 
@@ -58,8 +61,13 @@ export function useCreateOrganizationFormState({
       resetForm();
       setIsOpen(false);
       onCreated(organization);
+      feedback.notify('success', t('organization.management.create.success'), {
+        id: 'organization-create-success-toast',
+      });
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'organization.errors.createFailed');
+      feedback.handleError(error, {
+        fallbackMessage: 'organization.errors.createFailed',
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -67,7 +75,7 @@ export function useCreateOrganizationFormState({
 
   return {
     description,
-    errorMessage,
+    errorMessage: feedback.errorMessage,
     handleClose,
     handleOpen,
     handleSubmit,

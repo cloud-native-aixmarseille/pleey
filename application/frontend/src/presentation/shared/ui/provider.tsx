@@ -4,6 +4,10 @@ import type {
   UiPort,
 } from '../../../application/shared/contracts/ui.port';
 import { PresentationContextErrorCode } from '../../../domains/shared/errors/presentation-context-error-code';
+import {
+  PresentationToastProvider,
+  PresentationToastViewport,
+} from './feedback/presentation-toast';
 
 const UiContext = createContext<UiPort | null>(null);
 
@@ -32,5 +36,12 @@ export function usePresentationThemeState(): PresentationUiThemeState {
 export function PresentationUiRoot({ children }: PropsWithChildren) {
   const { Provider } = usePresentationUiPort();
 
-  return <Provider>{children}</Provider>;
+  return (
+    <Provider>
+      <PresentationToastProvider>
+        {children}
+        <PresentationToastViewport />
+      </PresentationToastProvider>
+    </Provider>
+  );
 }

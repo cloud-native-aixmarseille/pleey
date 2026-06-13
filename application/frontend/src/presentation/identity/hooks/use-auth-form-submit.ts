@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import { usePresentationTranslation } from '../../shared/i18n/use-presentation-translation';
+import { usePresentationFeedbackChannel } from '../../shared/ui/feedback/use-presentation-feedback-channel';
 
 interface AuthFormSubmitState {
   readonly errorMessage: string | null;
@@ -9,15 +9,17 @@ interface AuthFormSubmitState {
 
 export function useAuthFormSubmit(): AuthFormSubmitState {
   const { t } = usePresentationTranslation();
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  function clearError() {
-    setErrorMessage(null);
-  }
+  const feedback = usePresentationFeedbackChannel();
 
   function handleError(error: unknown) {
-    setErrorMessage(error instanceof Error ? error.message : t('auth.errors.generic'));
+    feedback.handleError(error, {
+      fallbackMessage: t('auth.errors.generic'),
+    });
   }
 
-  return { errorMessage, clearError, handleError };
+  return {
+    clearError: feedback.clearError,
+    errorMessage: feedback.errorMessage,
+    handleError,
+  };
 }

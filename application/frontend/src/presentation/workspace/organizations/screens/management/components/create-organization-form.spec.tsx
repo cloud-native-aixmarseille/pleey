@@ -95,6 +95,9 @@ describe('CreateOrganizationForm', () => {
       });
     });
     expect(onCreated).toHaveBeenCalledWith(CREATED_ORG);
+    expect(await screen.findByRole('status')).toHaveTextContent(
+      'organization.management.create.success',
+    );
   });
 
   it('shows an error message when submission fails', async () => {

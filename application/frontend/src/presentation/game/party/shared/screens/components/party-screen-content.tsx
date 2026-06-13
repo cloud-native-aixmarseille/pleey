@@ -1,8 +1,13 @@
+import { useEffect } from 'react';
 import type { PartyPin } from '../../../../../../domains/game/party/shared/entities/party';
 import type { PartyObservation } from '../../../../../../domains/game/party/shared/entities/party-observation';
 import { type PartyRuntimeNoticeKind } from '../../../../../../domains/game/party/shared/ports/party-observation.port';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
-import { LoadingState } from '../../../../../shared/ui/feedback/state-blocks';
+import {
+  FeedbackState,
+  FeedbackStateGate,
+} from '../../../../../shared/ui/feedback/feedback-state-gate';
+import { usePresentationToast } from '../../../../../shared/ui/feedback/presentation-toast';
 import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';
 import { uiThemeTokens } from '../../../../../shared/ui/foundation/ui-theme';
 import { ContentStack, SectionContainer } from '../../../../../shared/ui/layout/containers';
@@ -29,20 +34,6 @@ import {
 import { usePartyScreenWakeLock } from '../use-party-screen-wake-lock';
 import { PartyFinalSummaryPanel } from './party-final-summary-panel';
 
-const runtimeNoticeToastStyle = {
-  background: `color-mix(in srgb, ${uiThemeTokens.color.surface.overlay} 82%, ${uiThemeTokens.color.surface.warning})`,
-  borderRadius: uiThemeTokens.radius.field,
-  boxShadow: uiThemeTokens.shadow.elevated,
-  overflow: 'hidden',
-  maxWidth: '24rem',
-  position: 'fixed',
-  right: 'var(--mantine-spacing-lg)',
-  backdropFilter: 'blur(10px)',
-  top: 'var(--mantine-spacing-lg)',
-  width: 'calc(100vw - (2 * var(--mantine-spacing-lg)))',
-  zIndex: 400,
-} as const;
-
 const mobilePlayerSurfaceBackdropStyle = {
   background: uiThemeTokens.color.surface.canvas,
   inset: 0,
@@ -62,6 +53,7 @@ export function PartyScreenContent({
   state,
 }: PartyScreenContentProps) {
   const { t } = usePresentationTranslation();
+  const toast = usePresentationToast();
   const { hostPartyRuntimeControlsResolver, playerRuntimeNoticeMessageResolver } =
     usePartyDependencies();
   const partyGameTypeRuntimeRegistry = usePartyGameTypeRuntimeRegistry();
@@ -165,8 +157,24 @@ export function PartyScreenContent({
     ? partyGameTypeRuntimeRegistry.resolve(party.gameType)
     : null;
   const runtimeLoadingState = (
-    <LoadingState variant="list">{t('game.party.route.loading')}</LoadingState>
+    <FeedbackStateGate
+      loadingLabel={t('game.party.route.loading')}
+      loadingVariant="list"
+      state={FeedbackState.LOADING}
+    />
   );
+
+  useEffect(() => {
+    if (!isPlayerSurface || !playerRuntimeNoticeMessage) {
+      return;
+    }
+
+    toast.warning({
+      durationMs: 4000,
+      id: 'party-runtime-notice-toast',
+      message: t(playerRuntimeNoticeMessage),
+    });
+  }, [isPlayerSurface, playerRuntimeNoticeMessage, t, toast]);
 
   let surface = null;
 
@@ -278,12 +286,6 @@ export function PartyScreenContent({
             onRewindStage={() => void rewindStage()}
             onStartParty={() => void startParty()}
           />
-        ) : null}
-
-        {playerRuntimeNoticeMessage && isPlayerSurface ? (
-          <div data-testid="party-runtime-notice-toast" style={runtimeNoticeToastStyle}>
-            <StatusBanner tone="warning">{t(playerRuntimeNoticeMessage)}</StatusBanner>
-          </div>
         ) : null}
 
         <MotionScreenTransition duration={0.8} sectionKey={surfaceTransitionKey}>

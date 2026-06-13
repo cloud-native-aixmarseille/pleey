@@ -54,6 +54,7 @@ export const organizationFr = {
         title: 'Créer une organisation',
         submit: "Créer l'organisation",
         submitting: 'Création en cours...',
+        success: "L'organisation a été créée.",
         fields: {
           name: {
             label: 'Nom',
@@ -105,6 +106,7 @@ export const organizationFr = {
           title: 'Créer un projet pour {{organization}}',
           submit: 'Créer le projet',
           submitting: 'Création du projet...',
+          success: 'Le projet a été créé.',
         },
         edit: {
           eyebrow: 'Mettre à jour le projet',

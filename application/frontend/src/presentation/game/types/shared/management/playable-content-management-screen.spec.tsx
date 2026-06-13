@@ -275,6 +275,9 @@ describe('PlayableContentManagementScreen', () => {
         randomizeOptionOrder: false,
       });
     });
+    expect(await screen.findByRole('status')).toHaveTextContent(
+      'game.types.quiz.management.savedJustNow',
+    );
   });
 
   it('shows only available more-menu actions', async () => {

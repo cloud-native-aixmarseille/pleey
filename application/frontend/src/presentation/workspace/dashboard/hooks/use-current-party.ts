@@ -1,6 +1,7 @@
 import { useEffect, useEffectEvent, useState } from 'react';
 import type { Party } from '../../../../domains/game/party/shared/entities/party';
 import { PartyStatus } from '../../../../domains/game/party/shared/entities/party-status';
+import { usePresentationFeedbackChannel } from '../../../shared/ui/feedback/use-presentation-feedback-channel';
 
 const CURRENT_PARTY_STATUS_PRIORITY = [
   PartyStatus.ACTIVE,
@@ -32,16 +33,16 @@ interface UseCurrentPartyResult {
 }
 
 export function useCurrentParty({ loadParties }: UseCurrentPartyOptions): UseCurrentPartyResult {
+  const feedback = usePresentationFeedbackChannel();
   const [currentParty, setCurrentParty] = useState<Party | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const loadPartiesEffect = useEffectEvent(loadParties);
 
   useEffect(() => {
     let ignore = false;
 
     const load = async () => {
-      setErrorMessage(null);
+      feedback.clearError();
       setIsLoading(true);
 
       try {
@@ -53,7 +54,9 @@ export function useCurrentParty({ loadParties }: UseCurrentPartyOptions): UseCur
       } catch (error) {
         if (!ignore) {
           setCurrentParty(null);
-          setErrorMessage(error instanceof Error ? error.message : 'dashboard.errors.loadFailed');
+          feedback.handleError(error, {
+            fallbackMessage: 'dashboard.errors.loadFailed',
+          });
         }
       } finally {
         if (!ignore) {
@@ -73,5 +76,5 @@ export function useCurrentParty({ loadParties }: UseCurrentPartyOptions): UseCur
     setCurrentParty(party);
   };
 
-  return { currentParty, isLoading, errorMessage, upsertParty };
+  return { currentParty, isLoading, errorMessage: feedback.errorMessage, upsertParty };
 }

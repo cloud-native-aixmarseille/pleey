@@ -8,6 +8,7 @@ import type { PartyObservation } from '../../../../../domains/game/party/shared/
 import type { PartyObservationPlayer } from '../../../../../domains/game/party/shared/entities/party-observation-player';
 import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/shared/entities/party-player-identity';
 import { PartyManagementErrorCode } from '../../../../../domains/game/party/shared/errors/party-management-error-code';
+import { usePresentationFeedbackChannel } from '../../../../shared/ui/feedback/use-presentation-feedback-channel';
 import { usePartyDependencies } from '../../shared/contexts/party-dependencies-context';
 
 interface UsePartyLobbyHostRuntimeParams {
@@ -57,7 +58,8 @@ export function usePartyLobbyHostRuntime({
   partyLobbyFacade,
 }: UsePartyLobbyHostRuntimeParams): UsePartyLobbyHostRuntimeResult {
   const { hostPartyRuntimeControlsResolver } = usePartyDependencies();
-  const [hostRuntimeErrorMessage, setHostRuntimeErrorMessage] = useState<string | null>(null);
+  const feedback = usePresentationFeedbackChannel();
+  const clearError = feedback.clearError;
   const [pendingKickedPlayerKey, setPendingKickedPlayerKey] = useState<string | null>(null);
   const [pendingHostRuntimeCommand, setPendingHostRuntimeCommand] =
     useState<HostPartyRuntimeCommand | null>(null);
@@ -80,8 +82,10 @@ export function usePartyLobbyHostRuntime({
     : pendingHostRuntimeCommand;
 
   useEffect(() => {
-    setHostRuntimeErrorMessage(null);
+    clearError();
     setPendingHostRuntimeConfirmationCommand(null);
+    // Reset host runtime feedback once on mount. Keeping this mount-only avoids
+    // clearing confirmation intent during regular re-renders.
   }, []);
 
   useEffect(() => {
@@ -101,7 +105,7 @@ export function usePartyLobbyHostRuntime({
     setPendingHostRuntimeObservationKey(resolveHostRuntimeObservationKey(party));
     setPendingHostRuntimeCommand(command);
     setPendingHostRuntimeConfirmationCommand(null);
-    setHostRuntimeErrorMessage(null);
+    clearError();
 
     try {
       await partyLobbyFacade.executeHostRuntimeCommand(command, party.partyId);
@@ -112,14 +116,16 @@ export function usePartyLobbyHostRuntime({
     } catch (error) {
       setPendingHostRuntimeCommand(null);
       setPendingHostRuntimeObservationKey(null);
-      setHostRuntimeErrorMessage(
-        error instanceof Error ? error.message : PartyManagementErrorCode.OBSERVE_FAILED,
-      );
+      feedback.handleError(error, {
+        fallbackMessage: PartyManagementErrorCode.OBSERVE_FAILED,
+        id: 'party-host-runtime-command-error-toast',
+        notify: true,
+      });
     }
   });
 
   const requestHostRuntimeConfirmation = useEffectEvent((command: HostPartyRuntimeCommand) => {
-    setHostRuntimeErrorMessage(null);
+    clearError();
     setPendingHostRuntimeConfirmationCommand(command);
   });
 
@@ -129,7 +135,7 @@ export function usePartyLobbyHostRuntime({
     }
 
     setPendingKickedPlayerKey(toPlayerKey(player));
-    setHostRuntimeErrorMessage(null);
+    clearError();
 
     try {
       await partyLobbyFacade.kickPlayer({
@@ -137,9 +143,11 @@ export function usePartyLobbyHostRuntime({
         playerIdentity: player.identity,
       });
     } catch (error) {
-      setHostRuntimeErrorMessage(
-        error instanceof Error ? error.message : PartyManagementErrorCode.OBSERVE_FAILED,
-      );
+      feedback.handleError(error, {
+        fallbackMessage: PartyManagementErrorCode.OBSERVE_FAILED,
+        id: 'party-host-runtime-kick-error-toast',
+        notify: true,
+      });
     } finally {
       setPendingKickedPlayerKey(null);
     }
@@ -214,7 +222,7 @@ export function usePartyLobbyHostRuntime({
   return {
     cancelHostRuntimeConfirmation: () => setPendingHostRuntimeConfirmationCommand(null),
     confirmHostRuntimeConfirmation,
-    hostRuntimeErrorMessage,
+    hostRuntimeErrorMessage: feedback.errorMessage,
     kickPlayer,
     pendingKickedPlayerKey,
     pendingHostRuntimeCommand: effectivePendingHostRuntimeCommand,

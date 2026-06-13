@@ -10,10 +10,10 @@ import { usePresentationTranslation } from '../../../../../shared/i18n/use-prese
 import { Button } from '../../../../../shared/ui/actions/button';
 import { CopyButton } from '../../../../../shared/ui/actions/copy-button';
 import {
-  EmptyState,
-  LoadingState,
-  PendingState,
-} from '../../../../../shared/ui/feedback/state-blocks';
+  FeedbackState,
+  FeedbackStateGate,
+} from '../../../../../shared/ui/feedback/feedback-state-gate';
+import { EmptyState } from '../../../../../shared/ui/feedback/state-blocks';
 import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';
 import { Checkbox } from '../../../../../shared/ui/forms/checkbox';
 import { FieldShell } from '../../../../../shared/ui/forms/field-shell';
@@ -135,7 +135,13 @@ export function DashboardGamesSection({
 }: DashboardGamesSectionProps) {
   const { t } = usePresentationTranslation();
   const { privatePartyPasswordGeneratorPort } = usePartyDependencies();
-  const isInitialLoading = isGamesLoading && totalGames === 0 && games.length === 0;
+  const gateState = !hasSelectedProject
+    ? FeedbackState.PENDING
+    : isGamesLoading && totalGames === 0 && games.length === 0
+      ? FeedbackState.LOADING
+      : totalGames === 0
+        ? FeedbackState.EMPTY
+        : FeedbackState.READY;
   const selectedGameType = gameTypes.find((gameType) => gameType.key === createGameForm.type);
   const createGameTypeValue = createGameForm.type ?? '';
   const [createPartyGame, setCreatePartyGame] = useState<DashboardGameListItem | null>(null);
@@ -210,18 +216,18 @@ export function DashboardGamesSection({
       }
       title={t('dashboard.games.title')}
     >
-      <StatusBanner tone="error">{gamesErrorMessage ? t(gamesErrorMessage) : null}</StatusBanner>
       <StatusBanner tone="error">
         {partyActionErrorMessage ? t(partyActionErrorMessage) : null}
       </StatusBanner>
 
-      {!hasSelectedProject ? (
-        <PendingState>{t('dashboard.games.pending')}</PendingState>
-      ) : isInitialLoading ? (
-        <LoadingState variant="cards">{t('common.loading')}</LoadingState>
-      ) : totalGames === 0 ? (
-        <EmptyState>{t('dashboard.games.empty')}</EmptyState>
-      ) : (
+      <FeedbackStateGate
+        emptyLabel={t('dashboard.games.empty')}
+        errorMessage={gamesErrorMessage ? t(gamesErrorMessage) : null}
+        loadingLabel={t('common.loading')}
+        loadingVariant="cards"
+        pendingLabel={t('dashboard.games.pending')}
+        state={gateState}
+      >
         <ContentStack gap="md">
           <GameListFilterBar
             filters={filters}
@@ -265,7 +271,7 @@ export function DashboardGamesSection({
             totalPages={totalPages}
           />
         </ContentStack>
-      )}
+      </FeedbackStateGate>
 
       <FormDialog
         banner={

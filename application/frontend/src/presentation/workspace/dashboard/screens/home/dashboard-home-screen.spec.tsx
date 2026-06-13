@@ -641,6 +641,9 @@ describe('DashboardHomeScreen', () => {
 
     it('creates a game from the dashboard dialog and navigates to its management route', async () => {
       const user = userEvent.setup();
+      const loadProjectGameCatalog = vi
+        .fn()
+        .mockResolvedValue(dashboardHomeScreenFixtureFactory.createDashboardGamesPage());
       const dashboardHomeActions = dashboardHomeActionsFacadeMockFactory.create({
         createGame: vi.fn().mockResolvedValue('/quizzes/12'),
       });
@@ -666,6 +669,7 @@ describe('DashboardHomeScreen', () => {
               projects: [dashboardHomeScreenFixtureFactory.createProject()],
               projectId: projectIdentifier.parse(8),
             }),
+            loadProjectGameCatalog,
           })}
           resolvePartyRoute={resolvePartyRoute}
         />,
@@ -688,6 +692,7 @@ describe('DashboardHomeScreen', () => {
           type: 'quiz',
         });
       });
+      expect(await screen.findByRole('status')).toHaveTextContent('dashboard.games.create.success');
       expect(navigateMock).toHaveBeenCalledWith('/quizzes/12');
     });
 

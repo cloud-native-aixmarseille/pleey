@@ -52,6 +52,7 @@ export const dashboardEn = {
         titleLabel: 'Title',
         descriptionLabel: 'Description',
         submit: 'Create game',
+        success: 'Game created successfully.',
         error: 'Unable to create the game.',
       },
       createParty: {
@@ -87,6 +88,7 @@ export const dashboardEn = {
         templatePlaintext: 'Plain text template',
         submit: 'Create and import',
         pending: 'Importing...',
+        success: 'Game imported successfully.',
         emptyError: 'The selected file is empty.',
         unsupportedFormat: 'This file format is not supported.',
         invalidFormat: 'The file content could not be parsed.',

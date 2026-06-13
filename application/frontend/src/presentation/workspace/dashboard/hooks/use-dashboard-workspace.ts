@@ -8,6 +8,7 @@ import type {
 import type { OrganizationDashboard } from '../../../../domains/organization/entities/organization-dashboard';
 import type { Project, ProjectId } from '../../../../domains/project/entities/project';
 import type { PaginatedResult } from '../../../../domains/shared/value-objects/paginated-result';
+import { usePresentationFeedbackChannel } from '../../../shared/ui/feedback/use-presentation-feedback-channel';
 import { useWorkspaceDependencies } from '../../shared/contexts/workspace-dependencies-context';
 
 const DEFAULT_PAGE = 1;
@@ -64,6 +65,8 @@ function normalizeSearchTerm(search: string): string | undefined {
 
 export function useDashboardWorkspace({ dashboardWorkspace }: UseDashboardWorkspaceOptions) {
   const { organizationIdentifier, projectIdentifier } = useWorkspaceDependencies();
+  const feedback = usePresentationFeedbackChannel();
+  const [workspaceReloadVersion, setWorkspaceReloadVersion] = useState(0);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [organizationNextPage, setOrganizationNextPage] = useState(DEFAULT_PAGE + 1);
@@ -86,7 +89,6 @@ export function useDashboardWorkspace({ dashboardWorkspace }: UseDashboardWorksp
   const [isWorkspaceLoading, setIsWorkspaceLoading] = useState(false);
   const [isLoadingMoreProjects, setIsLoadingMoreProjects] = useState(false);
   const [hasLoadedOrganizations, setHasLoadedOrganizations] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const organizationIdRef = useRef<OrganizationId | null>(organizationId);
   const organizationSearchInitializedRef = useRef(false);
   const [debouncedOrganizationSearch] = useDebouncedValue(organizationSearch, 200);
@@ -102,7 +104,7 @@ export function useDashboardWorkspace({ dashboardWorkspace }: UseDashboardWorksp
     let ignore = false;
 
     const initializeWorkspace = async () => {
-      setErrorMessage(null);
+      feedback.clearError();
       setIsOrganizationsLoading(true);
       setHasLoadedOrganizations(false);
 
@@ -147,7 +149,9 @@ export function useDashboardWorkspace({ dashboardWorkspace }: UseDashboardWorksp
         setProjectNextPage(DEFAULT_PAGE + 1);
         setProjectPage(DEFAULT_PAGE);
         setOrganizationDashboard(null);
-        setErrorMessage(error instanceof Error ? error.message : 'organization.errors.loadFailed');
+        feedback.handleError(error, {
+          fallbackMessage: 'organization.errors.loadFailed',
+        });
       } finally {
         if (!ignore) {
           setIsOrganizationsLoading(false);
@@ -176,7 +180,7 @@ export function useDashboardWorkspace({ dashboardWorkspace }: UseDashboardWorksp
     let ignore = false;
 
     const loadOrganizations = async () => {
-      setErrorMessage(null);
+      feedback.clearError();
       setIsOrganizationsLoading(true);
 
       try {
@@ -212,7 +216,9 @@ export function useDashboardWorkspace({ dashboardWorkspace }: UseDashboardWorksp
         setOrganizations([]);
         setOrganizationTotalPages(1);
         setOrganizationNextPage(DEFAULT_PAGE + 1);
-        setErrorMessage(error instanceof Error ? error.message : 'organization.errors.loadFailed');
+        feedback.handleError(error, {
+          fallbackMessage: 'organization.errors.loadFailed',
+        });
       } finally {
         if (!ignore) {
           setIsOrganizationsLoading(false);
@@ -253,7 +259,7 @@ export function useDashboardWorkspace({ dashboardWorkspace }: UseDashboardWorksp
     let ignore = false;
 
     const loadWorkspaceData = async () => {
-      setErrorMessage(null);
+      feedback.clearError();
       setIsWorkspaceLoading(true);
 
       try {
@@ -291,7 +297,9 @@ export function useDashboardWorkspace({ dashboardWorkspace }: UseDashboardWorksp
         setProjectTotalCount(0);
         setProjectTotalPages(1);
         setProjectNextPage(DEFAULT_PAGE + 1);
-        setErrorMessage(error instanceof Error ? error.message : 'dashboard.errors.loadFailed');
+        feedback.handleError(error, {
+          fallbackMessage: 'dashboard.errors.loadFailed',
+        });
       } finally {
         if (!ignore) {
           setIsWorkspaceLoading(false);
@@ -311,6 +319,7 @@ export function useDashboardWorkspace({ dashboardWorkspace }: UseDashboardWorksp
     isProjectSearchPending,
     organizationId,
     projectPage,
+    workspaceReloadVersion,
   ]);
 
   function handleOrganizationChange(nextValue: string) {
@@ -353,6 +362,10 @@ export function useDashboardWorkspace({ dashboardWorkspace }: UseDashboardWorksp
     setProjectPage(page);
   }
 
+  function reloadWorkspace() {
+    setWorkspaceReloadVersion((current) => current + 1);
+  }
+
   async function handleLoadMoreOrganizations() {
     if (
       isOrganizationsLoading ||
@@ -377,7 +390,9 @@ export function useDashboardWorkspace({ dashboardWorkspace }: UseDashboardWorksp
       setOrganizationTotalPages(nextPage.totalPages);
       setOrganizationNextPage(nextPage.page + 1);
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'organization.errors.loadFailed');
+      feedback.handleError(error, {
+        fallbackMessage: 'organization.errors.loadFailed',
+      });
     } finally {
       setIsLoadingMoreOrganizations(false);
     }
@@ -418,7 +433,9 @@ export function useDashboardWorkspace({ dashboardWorkspace }: UseDashboardWorksp
         return;
       }
 
-      setErrorMessage(error instanceof Error ? error.message : 'project.errors.loadFailed');
+      feedback.handleError(error, {
+        fallbackMessage: 'project.errors.loadFailed',
+      });
     } finally {
       if (organizationIdRef.current === requestedOrganizationId) {
         setIsLoadingMoreProjects(false);
@@ -444,7 +461,7 @@ export function useDashboardWorkspace({ dashboardWorkspace }: UseDashboardWorksp
     isLoadingMoreOrganizations,
     isWorkspaceLoading,
     isLoadingMoreProjects,
-    errorMessage,
+    errorMessage: feedback.errorMessage,
     handleOrganizationChange,
     handleOrganizationSearchChange,
     handleLoadMoreOrganizations,
@@ -452,5 +469,6 @@ export function useDashboardWorkspace({ dashboardWorkspace }: UseDashboardWorksp
     handleProjectSearchChange,
     handleProjectPageChange,
     handleLoadMoreProjects,
+    reloadWorkspace,
   };
 }
