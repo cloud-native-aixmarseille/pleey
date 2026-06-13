@@ -3,8 +3,10 @@ import { OrganizationRole } from '../../../../../../domains/organization/entitie
 import type { OrganizationMember } from '../../../../../../domains/organization/entities/organization-member';
 import { Button } from '../../../../../shared/ui/actions/button';
 import { Badge } from '../../../../../shared/ui/feedback/badge';
-import { EmptyState, LoadingState } from '../../../../../shared/ui/feedback/state-blocks';
-import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';
+import {
+  FeedbackState,
+  FeedbackStateGate,
+} from '../../../../../shared/ui/feedback/feedback-state-gate';
 import { FieldShell } from '../../../../../shared/ui/forms/field-shell';
 import { Input } from '../../../../../shared/ui/forms/input';
 import { Select } from '../../../../../shared/ui/forms/select';
@@ -108,8 +110,6 @@ export function OrganizationMembersSection({
   return (
     <SectionCard title={title}>
       <ContentStack gap="md">
-        <StatusBanner tone="error">{errorMessage}</StatusBanner>
-
         {canManageMembers && selectedOrganizationName ? (
           <form onSubmit={handleSubmit}>
             <SplitWrapRow align="center" gap="sm">
@@ -167,11 +167,18 @@ export function OrganizationMembersSection({
           />
         </div>
 
-        {isLoading ? (
-          <LoadingState>{title}</LoadingState>
-        ) : members.length === 0 ? (
-          <EmptyState>{emptyLabel}</EmptyState>
-        ) : (
+        <FeedbackStateGate
+          emptyLabel={emptyLabel}
+          errorMessage={errorMessage}
+          loadingLabel={title}
+          state={
+            isLoading
+              ? FeedbackState.LOADING
+              : members.length === 0
+                ? FeedbackState.EMPTY
+                : FeedbackState.READY
+          }
+        >
           <ContentStack gap="sm">
             {members.map((member) => (
               <SplitWrapRow align="center" gap="sm" key={member.id}>
@@ -225,7 +232,7 @@ export function OrganizationMembersSection({
 
             <PaginationBar {...pagination} />
           </ContentStack>
-        )}
+        </FeedbackStateGate>
       </ContentStack>
     </SectionCard>
   );

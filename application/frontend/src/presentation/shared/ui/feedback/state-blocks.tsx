@@ -23,7 +23,7 @@ export function EmptyState({ children }: PropsWithChildren) {
   return <IconMessageState iconName="empty">{children}</IconMessageState>;
 }
 
-type LoadingStateVariant = 'list' | 'cards' | 'editor';
+export type LoadingStateVariant = 'list' | 'cards' | 'editor';
 
 interface LoadingStateProps extends PropsWithChildren {
   readonly variant?: LoadingStateVariant;

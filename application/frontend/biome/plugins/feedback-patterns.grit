@@ -1,0 +1,71 @@
+engine biome(1.0)
+language js(typescript, jsx)
+
+or {
+  file($name, $body) where {
+    $name <: r"^src/presentation/.*\.(ts|tsx|js|jsx)$",
+    $name <: not r"\.(spec|test)\.(ts|tsx|js|jsx)$",
+    $body <: r"error\s+instanceof\s+Error\s*\?\s*error\.message\s*:",
+    register_diagnostic(
+      span = $body,
+      message = "Do not map unknown errors with \"error instanceof Error ? error.message : ...\". Use usePresentationFeedbackChannel().handleError() to centralize error resolution.",
+      severity = "error"
+    )
+  },
+
+  file($name, $body) where {
+    $name <: r"^src/presentation/.*\.(ts|tsx|js|jsx)$",
+    $name <: not r"\.(spec|test)\.(ts|tsx|js|jsx)$",
+    $body <: r"data-testid\s*=\s*['\"](?:join-party-error-toast|party-runtime-notice-toast)['\"]",
+    register_diagnostic(
+      span = $body,
+      message = "Do not render ad-hoc toast containers with local data-testid values. Use usePresentationToast() and the global PresentationToastViewport.",
+      severity = "error"
+    )
+  },
+
+  JsImport() as $statement where {
+    $statement <: contains JsModuleSource() as $source,
+    $source <: r"['\"][^'\"]*/state-blocks['\"]",
+    $statement <: r"\{[^}]*\bLoadingState\b[^}]*\}",
+    register_diagnostic(
+      span = $statement,
+      message = "Do not import LoadingState directly in feature code. Use FeedbackStateGate from src/presentation/shared/ui/feedback/feedback-state-gate.tsx.",
+      severity = "error"
+    )
+  },
+
+  JsImport() as $statement where {
+    $statement <: contains JsModuleSource() as $source,
+    $source <: r"['\"][^'\"]*resolve-presentation-error-message['\"]",
+    $statement <: r"\{\s*resolvePresentationErrorMessage\s*\}",
+    register_diagnostic(
+      span = $statement,
+      message = "Do not import resolvePresentationErrorMessage directly in feature code. Use usePresentationFeedbackChannel from src/presentation/shared/ui/feedback/use-presentation-feedback-channel.ts.",
+      severity = "error"
+    )
+  },
+
+  JsCallExpression() as $call where {
+    $call <: r"handleError\s*\(",
+    $call <: r"notify\s*:\s*true",
+    $call <: not r"id\s*:\s*['\"][a-z0-9]+(?:-[a-z0-9]+)+-error-toast['\"]",
+    register_diagnostic(
+      span = $call,
+      message = "When notify is enabled, handleError must use a stable kebab-case toast id ending with '-error-toast' (for example 'party-host-runtime-command-error-toast').",
+      severity = "error"
+    )
+  },
+
+  file($name, $body) where {
+    $name <: r"^src/presentation/.*/use-[^/]+\.(ts|tsx|js|jsx)$",
+    $name <: not r"\.(spec|test)\.(ts|tsx|js|jsx)$",
+    $body <: r"useEffectEvent\s*\(\s*async[\s\S]*?await[\s\S]*?catch\s*\(\s*error\s*\)",
+    $body <: not r"useEffectEvent\s*\(\s*async[\s\S]*?catch\s*\(\s*error\s*\)\s*\{[\s\S]*?handleError\s*\(\s*error\s*,\s*\{[\s\S]*?notify\s*:\s*true",
+    register_diagnostic(
+      span = $body,
+      message = "Async command hook failures must call shared feedback handleError with notify: true. Use usePresentationFeedbackChannel().handleError(error, { fallbackMessage, notify: true, id: '<surface>-<action>-error-toast' }).",
+      severity = "error"
+    )
+  }
+}

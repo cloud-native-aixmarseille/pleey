@@ -53,6 +53,7 @@ export const dashboardFr = {
         titleLabel: 'Titre',
         descriptionLabel: 'Description',
         submit: 'Créer le jeu',
+        success: 'Le jeu a été créé.',
         error: 'Impossible de créer le jeu.',
       },
       createParty: {
@@ -88,6 +89,7 @@ export const dashboardFr = {
         templatePlaintext: 'Modèle texte brut',
         submit: 'Créer et importer',
         pending: 'Importation...',
+        success: 'Le jeu a été importé.',
         emptyError: 'Le fichier sélectionné est vide.',
         unsupportedFormat: "Ce format de fichier n'est pas pris en charge.",
         invalidFormat: "Le contenu du fichier n'a pas pu être analysé.",

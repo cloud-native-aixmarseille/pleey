@@ -18,6 +18,8 @@ import type {
   UpdateProjectCommand,
 } from '../../../../../domains/project/ports/project-repository';
 import type { PaginatedResult } from '../../../../../domains/shared/value-objects/paginated-result';
+import { usePresentationTranslation } from '../../../../shared/i18n/use-presentation-translation';
+import { usePresentationFeedbackChannel } from '../../../../shared/ui/feedback/use-presentation-feedback-channel';
 import {
   type DashboardWorkspaceSelectionGateway,
   useDashboardWorkspace,
@@ -80,20 +82,20 @@ export function useOrganizationScreenState({
   removeOrganizationMember,
   updateOrganizationMemberRole,
 }: OrganizationScreenStateParams) {
-  const [_reloadKey, setReloadKey] = useState(0);
+  const { t } = usePresentationTranslation();
+  const actionFeedback = usePresentationFeedbackChannel();
+  const memberFeedback = usePresentationFeedbackChannel();
   const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [projectPendingRemoval, setProjectPendingRemoval] = useState<Project | null>(null);
   const [migrationProjectId, setMigrationProjectId] = useState<ProjectId | null>(null);
   const [migrationProjectLabel, setMigrationProjectLabel] = useState<string | null>(null);
-  const [actionErrorMessage, setActionErrorMessage] = useState<string | null>(null);
   const [isDeletingProject, setIsDeletingProject] = useState(false);
   const [organizationMembers, setOrganizationMembers] = useState<OrganizationMember[]>([]);
   const [memberPage, setMemberPage] = useState(DEFAULT_PAGE);
   const [memberTotalPages, setMemberTotalPages] = useState(1);
   const [memberSearch, setMemberSearch] = useState('');
   const [memberForm, setMemberForm] = useState(defaultMemberForm);
-  const [memberErrorMessage, setMemberErrorMessage] = useState<string | null>(null);
   const [isMembersLoading, setIsMembersLoading] = useState(false);
   const [isAddingMember, setIsAddingMember] = useState(false);
   const [memberPendingRemoval, setMemberPendingRemoval] = useState<OrganizationMember | null>(null);
@@ -163,7 +165,7 @@ export function useOrganizationScreenState({
     if (!selectedOrganization) {
       setOrganizationMembers([]);
       setMemberTotalPages(1);
-      setMemberErrorMessage(null);
+      memberFeedback.clearError();
       return;
     }
 
@@ -175,7 +177,7 @@ export function useOrganizationScreenState({
 
     const loadMembers = async () => {
       setIsMembersLoading(true);
-      setMemberErrorMessage(null);
+      memberFeedback.clearError();
 
       try {
         const members = await listOrganizationMembers({
@@ -193,9 +195,9 @@ export function useOrganizationScreenState({
         if (!ignore) {
           setOrganizationMembers([]);
           setMemberTotalPages(1);
-          setMemberErrorMessage(
-            error instanceof Error ? error.message : 'organization.errors.loadFailed',
-          );
+          memberFeedback.handleError(error, {
+            fallbackMessage: 'organization.errors.loadFailed',
+          });
         }
       } finally {
         if (!ignore) {
@@ -227,16 +229,31 @@ export function useOrganizationScreenState({
     : [];
 
   function handleOrganizationCreated(organization: Organization) {
-    setActionErrorMessage(null);
+    actionFeedback.clearError();
     dashboardWorkspace.setOrganizationSelection(organization.id);
-    setReloadKey((key) => key + 1);
+    workspace.reloadWorkspace();
   }
 
   function handleProjectMutationCompleted(_project: Project) {
-    setActionErrorMessage(null);
+    const isCreateMutation = editingProject === null;
+
+    actionFeedback.clearError();
     setIsCreateProjectOpen(false);
     setEditingProject(null);
-    setReloadKey((key) => key + 1);
+
+    if (isCreateMutation) {
+      if (workspace.projectPage === 1) {
+        workspace.reloadWorkspace();
+      } else {
+        workspace.handleProjectPageChange(1);
+      }
+
+      actionFeedback.notify('success', t('project.management.form.create.success'), {
+        id: 'project-create-success-toast',
+      });
+    } else {
+      workspace.reloadWorkspace();
+    }
   }
 
   async function handleCreateProject(values: ProjectFormValues): Promise<Project> {
@@ -269,7 +286,7 @@ export function useOrganizationScreenState({
     }
 
     setIsDeletingProject(true);
-    setActionErrorMessage(null);
+    actionFeedback.clearError();
 
     try {
       await deleteProject({
@@ -279,9 +296,11 @@ export function useOrganizationScreenState({
       setProjectPendingRemoval(null);
       setMigrationProjectId(null);
       setMigrationProjectLabel(null);
-      setReloadKey((key) => key + 1);
+      workspace.reloadWorkspace();
     } catch (error) {
-      setActionErrorMessage(error instanceof Error ? error.message : 'project.errors.deleteFailed');
+      actionFeedback.handleError(error, {
+        fallbackMessage: 'project.errors.deleteFailed',
+      });
     } finally {
       setIsDeletingProject(false);
     }
@@ -294,12 +313,14 @@ export function useOrganizationScreenState({
 
     const usernameOrEmail = memberForm.usernameOrEmail.trim();
     if (usernameOrEmail.length === 0) {
-      setMemberErrorMessage('organization.management.members.validation.usernameOrEmailRequired');
+      memberFeedback.setErrorMessage(
+        'organization.management.members.validation.usernameOrEmailRequired',
+      );
       return;
     }
 
     setIsAddingMember(true);
-    setMemberErrorMessage(null);
+    memberFeedback.clearError();
 
     try {
       await addOrganizationMember({
@@ -308,11 +329,11 @@ export function useOrganizationScreenState({
         usernameOrEmail,
       });
       setMemberForm(defaultMemberForm);
-      setReloadKey((key) => key + 1);
+      workspace.reloadWorkspace();
     } catch (error) {
-      setMemberErrorMessage(
-        error instanceof Error ? error.message : 'organization.errors.memberAddFailed',
-      );
+      memberFeedback.handleError(error, {
+        fallbackMessage: 'organization.errors.memberAddFailed',
+      });
     } finally {
       setIsAddingMember(false);
     }
@@ -328,16 +349,16 @@ export function useOrganizationScreenState({
     }
 
     setPendingRemovalMemberId(memberPendingRemoval.id);
-    setMemberErrorMessage(null);
+    memberFeedback.clearError();
 
     try {
       await removeOrganizationMember(memberPendingRemoval);
       setMemberPendingRemoval(null);
-      setReloadKey((key) => key + 1);
+      workspace.reloadWorkspace();
     } catch (error) {
-      setMemberErrorMessage(
-        error instanceof Error ? error.message : 'organization.errors.memberRemoveFailed',
-      );
+      memberFeedback.handleError(error, {
+        fallbackMessage: 'organization.errors.memberRemoveFailed',
+      });
     } finally {
       setPendingRemovalMemberId(null);
     }
@@ -348,7 +369,7 @@ export function useOrganizationScreenState({
       return;
     }
 
-    setMemberErrorMessage(null);
+    memberFeedback.clearError();
     setMemberPendingRemoval(member);
   }
 
@@ -369,7 +390,7 @@ export function useOrganizationScreenState({
     }
 
     setPendingRoleUpdateMemberId(member.id);
-    setMemberErrorMessage(null);
+    memberFeedback.clearError();
 
     try {
       const updatedMember = await updateOrganizationMemberRole({
@@ -379,11 +400,11 @@ export function useOrganizationScreenState({
       setOrganizationMembers((members) =>
         members.map((current) => (current.id === updatedMember.id ? updatedMember : current)),
       );
-      setReloadKey((key) => key + 1);
+      workspace.reloadWorkspace();
     } catch (error) {
-      setMemberErrorMessage(
-        error instanceof Error ? error.message : 'organization.errors.memberRoleUpdateFailed',
-      );
+      memberFeedback.handleError(error, {
+        fallbackMessage: 'organization.errors.memberRoleUpdateFailed',
+      });
     } finally {
       setPendingRoleUpdateMemberId(null);
     }
@@ -394,7 +415,7 @@ export function useOrganizationScreenState({
   }
 
   function openCreateProjectDialog() {
-    setActionErrorMessage(null);
+    actionFeedback.clearError();
     setIsCreateProjectOpen(true);
   }
 
@@ -403,7 +424,7 @@ export function useOrganizationScreenState({
   }
 
   function openEditProjectDialog(project: Project) {
-    setActionErrorMessage(null);
+    actionFeedback.clearError();
     setEditingProject(project);
   }
 
@@ -416,7 +437,7 @@ export function useOrganizationScreenState({
       return;
     }
 
-    setActionErrorMessage(null);
+    actionFeedback.clearError();
     setProjectPendingRemoval(project);
     setMigrationProjectId(null);
     setMigrationProjectLabel(null);
@@ -452,7 +473,7 @@ export function useOrganizationScreenState({
 
   return {
     ...workspace,
-    actionErrorMessage,
+    actionErrorMessage: actionFeedback.errorMessage,
     availableMigrationProjects,
     cancelOrganizationMemberRemoval,
     editingProject,
@@ -470,7 +491,7 @@ export function useOrganizationScreenState({
     isAddingMember,
     isDeletingProject,
     isMembersLoading,
-    memberErrorMessage,
+    memberErrorMessage: memberFeedback.errorMessage,
     memberForm,
     memberPage,
     memberSearch,

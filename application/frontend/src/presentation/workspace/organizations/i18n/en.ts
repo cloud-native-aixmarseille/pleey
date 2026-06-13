@@ -53,6 +53,7 @@ export const organizationEn = {
         title: 'Create organization',
         submit: 'Create organization',
         submitting: 'Creating...',
+        success: 'Organization created successfully.',
         fields: {
           name: {
             label: 'Name',
@@ -104,6 +105,7 @@ export const organizationEn = {
           title: 'Create a project for {{organization}}',
           submit: 'Create project',
           submitting: 'Creating project...',
+          success: 'Project created successfully.',
         },
         edit: {
           eyebrow: 'Update project',

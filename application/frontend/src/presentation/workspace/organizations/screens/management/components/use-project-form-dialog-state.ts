@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { Project } from '../../../../../../domains/project/entities/project';
+import { usePresentationFeedbackChannel } from '../../../../../shared/ui/feedback/use-presentation-feedback-channel';
 import { useWorkspaceDependencies } from '../../../../shared/contexts/workspace-dependencies-context';
 
 interface UseProjectFormDialogStateParams {
@@ -18,10 +19,10 @@ export function useProjectFormDialogState({
   onSubmitted,
 }: UseProjectFormDialogStateParams) {
   const { projectFormFacade } = useWorkspaceDependencies();
+  const feedback = usePresentationFeedbackChannel();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen) {
@@ -30,15 +31,15 @@ export function useProjectFormDialogState({
 
     setName(project?.name ?? '');
     setDescription(project?.description ?? '');
-    setErrorMessage(null);
-  }, [isOpen, project]);
+    feedback.clearError();
+  }, [isOpen, mode, project?.id]);
 
   async function handleSubmit() {
-    setErrorMessage(null);
+    feedback.clearError();
 
     const validationError = projectFormFacade.validateName(name);
     if (validationError) {
-      setErrorMessage(validationError);
+      feedback.setErrorMessage(validationError);
       return;
     }
 
@@ -48,13 +49,10 @@ export function useProjectFormDialogState({
       const savedProject = await onSubmit(projectFormFacade.createInput(name, description));
       onSubmitted(savedProject);
     } catch (error) {
-      setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : mode === 'create'
-            ? 'project.errors.createFailed'
-            : 'project.errors.updateFailed',
-      );
+      feedback.handleError(error, {
+        fallbackMessage:
+          mode === 'create' ? 'project.errors.createFailed' : 'project.errors.updateFailed',
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -62,7 +60,7 @@ export function useProjectFormDialogState({
 
   return {
     description,
-    errorMessage,
+    errorMessage: feedback.errorMessage,
     handleSubmit,
     isSubmitting,
     name,

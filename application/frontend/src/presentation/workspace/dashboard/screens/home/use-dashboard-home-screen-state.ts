@@ -6,7 +6,9 @@ import type { DashboardGameListQuery } from '../../../../../domains/game/managem
 import type { Party } from '../../../../../domains/game/party/shared/entities/party';
 import { GameType } from '../../../../../domains/game/types/shared/game-type';
 import type { GameTypeDescriptor } from '../../../../../domains/game/types/shared/game-type-catalog';
+import { resolvePresentationErrorCode } from '../../../../shared/errors/resolve-presentation-error-message';
 import { usePresentationTranslation } from '../../../../shared/i18n/use-presentation-translation';
+import { usePresentationFeedbackChannel } from '../../../../shared/ui/feedback/use-presentation-feedback-channel';
 import type { AppIconName } from '../../../../shared/ui/icons/app-icon';
 import { useCurrentParty } from '../../hooks/use-current-party';
 import { useDashboardWorkspace } from '../../hooks/use-dashboard-workspace';
@@ -46,7 +48,7 @@ function createEmptyGameForm(gameTypes: readonly GameTypeDescriptor[]): Dashboar
 }
 
 function resolveImportErrorMessage(error: unknown): string {
-  const code = error instanceof Error ? error.message : '';
+  const code = resolvePresentationErrorCode(error) ?? '';
 
   if (code.endsWith('_IMPORT_EMPTY_FILE')) {
     return 'dashboard.games.import.emptyError';
@@ -74,6 +76,7 @@ export function useDashboardHomeScreenState({
   resolvePartyRoute,
 }: UseDashboardHomeScreenStateParams) {
   const { t } = usePresentationTranslation();
+  const feedback = usePresentationFeedbackChannel();
   const workspace = useDashboardWorkspace({
     dashboardWorkspace,
   });
@@ -218,6 +221,10 @@ export function useDashboardHomeScreenState({
         title: createGameForm.title.trim(),
         type: createGameForm.type,
       });
+      games.reload();
+      feedback.notify('success', t('dashboard.games.create.success'), {
+        id: 'dashboard-game-create-success-toast',
+      });
       setIsCreateGameDialogOpen(false);
     } catch (createGameError) {
       setCreateGameErrorMessage(
@@ -269,6 +276,10 @@ export function useDashboardHomeScreenState({
         projectId: workspace.projectId,
         title: importGameForm.title.trim(),
         type: importGameForm.type,
+      });
+      games.reload();
+      feedback.notify('success', t('dashboard.games.import.success'), {
+        id: 'dashboard-game-import-success-toast',
       });
       setIsImportGameDialogOpen(false);
     } catch (importGameError) {

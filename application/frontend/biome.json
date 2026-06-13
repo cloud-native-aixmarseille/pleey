@@ -134,7 +134,10 @@
         "src/presentation/**/*.{ts,tsx,js,jsx}",
         "!!src/presentation/**/routes/**/*.{ts,tsx,js,jsx}"
       ],
-      "plugins": ["./biome/plugins/presentation-boundaries.grit"]
+      "plugins": [
+        "./biome/plugins/presentation-boundaries.grit",
+        "./biome/plugins/feedback-patterns.grit"
+      ]
     },
 
     {

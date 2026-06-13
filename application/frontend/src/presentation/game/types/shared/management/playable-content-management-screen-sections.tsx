@@ -27,7 +27,11 @@ import {
   type PlayableManagementValidationIssueCode,
 } from './playable-item-editor-validator';
 
-export type PlayableManagementTab = 'setup' | 'prompts' | 'review';
+export enum PlayableManagementTab {
+  SETUP = 'setup',
+  PROMPTS = 'prompts',
+  REVIEW = 'review',
+}
 
 const managementThemeVars = {
   activeTabBackground: `color-mix(in srgb, ${uiThemeTokens.color.brand.primary} 14%, transparent)`,

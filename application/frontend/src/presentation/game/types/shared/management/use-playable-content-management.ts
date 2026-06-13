@@ -6,6 +6,7 @@ import type {
 } from '../../../../../domains/game/types/shared/management/playable-management';
 import { usePresentationTranslation } from '../../../../shared/i18n/use-presentation-translation';
 import { usePresentationNavigate } from '../../../../shared/routing/router';
+import { usePresentationFeedbackChannel } from '../../../../shared/ui/feedback/use-presentation-feedback-channel';
 import { useConfirmDialog } from '../../../../shared/ui/overlay/use-confirm-dialog';
 import {
   createEmptyPlayableItemEditorState,
@@ -26,6 +27,7 @@ export function usePlayableContentManagement({
   translationRoot,
 }: PlayableContentManagementScreenProps) {
   const { t } = usePresentationTranslation();
+  const feedback = usePresentationFeedbackChannel();
   const navigate = usePresentationNavigate();
   const confirmDialog = useConfirmDialog();
   const [state, setState] = useState<PlayableManagementState | null>(null);
@@ -139,6 +141,9 @@ export function usePlayableContentManagement({
         },
       });
       pulseSaved();
+      feedback.notify('success', t(`${translationRoot}.savedJustNow`), {
+        id: 'game-management-save-success-toast',
+      });
     } catch (saveError) {
       setError(saveError instanceof Error ? saveError.message : t(`${translationRoot}.saveError`));
     } finally {
@@ -235,6 +240,9 @@ export function usePlayableContentManagement({
         setEditorState(createEmptyPlayableItemEditorState(itemKindConfig));
       }
       pulseSaved();
+      feedback.notify('success', t(`${translationRoot}.savedJustNow`), {
+        id: 'game-management-save-success-toast',
+      });
     } catch (saveError) {
       setError(saveError instanceof Error ? saveError.message : t(`${translationRoot}.saveError`));
     } finally {
@@ -269,6 +277,9 @@ export function usePlayableContentManagement({
       setSelectedItemId(insertedFresh.id);
       setEditorState(createPlayableItemEditorStateFromItem(insertedFresh, itemKindConfig));
       pulseSaved();
+      feedback.notify('success', t(`${translationRoot}.savedJustNow`), {
+        id: 'game-management-save-success-toast',
+      });
     } catch (saveError) {
       setError(saveError instanceof Error ? saveError.message : t(`${translationRoot}.saveError`));
     } finally {

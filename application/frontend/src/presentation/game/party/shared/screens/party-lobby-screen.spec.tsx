@@ -33,7 +33,6 @@ import { PartyPinIdentifierMockFactory } from '../../../../../test-utils/mocks/p
 import { StageIdentifierMockFactory } from '../../../../../test-utils/mocks/stage-identifier-mock-factory';
 import { UserIdentifierMockFactory } from '../../../../../test-utils/mocks/user-identifier-mock-factory';
 import { renderWithProviders } from '../../../../../test-utils/render-with-providers';
-import { uiThemeTokens } from '../../../../shared/ui/foundation/ui-theme';
 import { PlayerRuntimeNoticeMessageResolver } from '../../player/screens/components/player-runtime-notice-message-resolver';
 import { GuestPartyEntryDraftFactory } from '../../player/screens/guest-party-entry-draft-factory';
 import { PartyLobbyRuntimeRedirectResolver } from './party-lobby-runtime-redirect-resolver';
@@ -360,6 +359,9 @@ vi.mock('../../../../../test-utils/render-with-providers', async (importOriginal
   const { MantineProvider } = await import('@mantine/core');
   const { MemoryRouter } = await import('react-router-dom');
   const { KeyboardShortcutsProvider } = await import('../../../../shared/keyboard');
+  const { PresentationToastProvider, PresentationToastViewport } = await import(
+    '../../../../shared/ui/feedback/presentation-toast'
+  );
 
   return {
     ...actual,
@@ -370,9 +372,12 @@ vi.mock('../../../../../test-utils/render-with-providers', async (importOriginal
       return render(ui, {
         wrapper: ({ children }) => (
           <MantineProvider>
-            <KeyboardShortcutsProvider>
-              <MemoryRouter initialEntries={[initialPath]}>{children}</MemoryRouter>
-            </KeyboardShortcutsProvider>
+            <PresentationToastProvider>
+              <KeyboardShortcutsProvider>
+                <MemoryRouter initialEntries={[initialPath]}>{children}</MemoryRouter>
+              </KeyboardShortcutsProvider>
+              <PresentationToastViewport />
+            </PresentationToastProvider>
           </MantineProvider>
         ),
         ...options,
@@ -3157,12 +3162,7 @@ describe('PartyLobbyScreen', () => {
     const runtimeNoticeToast = await screen.findByTestId('party-runtime-notice-toast');
 
     expect(runtimeNoticeToast).toHaveTextContent('game.party.player.route.runtimeRewindPartyToast');
-    expect(runtimeNoticeToast).toHaveAttribute(
-      'style',
-      expect.stringContaining(
-        `background: color-mix(in srgb, ${uiThemeTokens.color.surface.overlay} 82%, ${uiThemeTokens.color.surface.warning})`,
-      ),
-    );
+    expect(runtimeNoticeToast.querySelector('[role="status"]')).not.toBeNull();
   });
 
   it('shows a stage restart toast only once across player screen remounts', async () => {
