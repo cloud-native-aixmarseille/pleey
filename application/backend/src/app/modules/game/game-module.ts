@@ -49,6 +49,10 @@ import { OrganizationIdentifier } from '../../../application/workspace/shared/se
 import { OrganizationMemberIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-member-identifier';
 import { ProjectIdentifier } from '../../../application/workspace/shared/services/identifiers/project-identifier';
 import { HostPartyLifecyclePolicy } from '../../../domain/game/party/host/services/host-party-lifecycle-policy';
+import {
+  PartyPlayerSessionRegistry,
+  PartyPlayerSessionRegistryProvider,
+} from '../../../domain/game/party/player/services/party-player-session-registry';
 import { PartyRuntimeContextProjectionService } from '../../../domain/game/party/shared/services/party-runtime-context-projection.service';
 import { GameType } from '../../../domain/game/types/shared/entities/game-type';
 import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/ports/organization-member.repository';
@@ -130,6 +134,10 @@ import { SharedServicesModule } from '../shared/shared-services.module';
     ChoiceSubmissionPartyActionPolicy,
     QuizPartyActionPolicy,
     PredictionPartyActionPolicy,
+    {
+      provide: PartyPlayerSessionRegistryProvider,
+      useFactory: () => new PartyPlayerSessionRegistry(),
+    },
     {
       provide: GAME_TYPE_PARTY_ACTION_POLICIES,
       useFactory: (

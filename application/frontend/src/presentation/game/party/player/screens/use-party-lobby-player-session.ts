@@ -1,17 +1,12 @@
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import type { PartyLobbyGateway } from '../../../../../application/game/party/shared/facades/party-lobby.facade';
-import { PartyJoinReceiptStatus } from '../../../../../domains/game/party/player/ports/party-player.port';
 import type { PartyActionId } from '../../../../../domains/game/party/shared/entities/party-action';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
-import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/shared/entities/party-player-identity';
 import { PartyManagementErrorCode } from '../../../../../domains/game/party/shared/errors/party-management-error-code';
 import type { GuestId } from '../../../../../domains/identity/entities/guest';
 
 interface UsePartyLobbyPlayerSessionParams {
-  readonly clearGuestSessionOnObservedGuestRejoinFailure: boolean;
   readonly currentGuestId: GuestId | null;
-  readonly observedGuestRejoinGuestId: GuestId | null;
-  readonly observedGuestRejoinUsername: string | undefined;
   readonly onPartyLeft: () => void;
   readonly party: PartyObservation | undefined;
   readonly partyLobbyFacade: PartyLobbyGateway;
@@ -27,10 +22,7 @@ interface UsePartyLobbyPlayerSessionResult {
 }
 
 export function usePartyLobbyPlayerSession({
-  clearGuestSessionOnObservedGuestRejoinFailure,
   currentGuestId,
-  observedGuestRejoinGuestId,
-  observedGuestRejoinUsername,
   onPartyLeft,
   party,
   partyLobbyFacade,
@@ -42,7 +34,6 @@ export function usePartyLobbyPlayerSession({
   const currentPartyPin = party?.pin ?? null;
   const currentPlayer = party?.players.find((player) => player.isCurrentPlayer) ?? null;
   const previousCurrentPlayerRef = useRef(currentPlayer);
-  const hasLostCurrentPlayer = previousCurrentPlayerRef.current !== null && currentPlayer === null;
 
   const leaveParty = useEffectEvent(async () => {
     if (currentPlayer === null) {
@@ -121,62 +112,6 @@ export function usePartyLobbyPlayerSession({
 
     previousCurrentPlayerRef.current = currentPlayer;
   }, [currentGuestId, currentPartyPin, currentPlayer, partyLobbyFacade]);
-
-  useEffect(() => {
-    if (
-      hasLostCurrentPlayer ||
-      !party ||
-      currentPartyPin === null ||
-      observedGuestRejoinGuestId === null
-    ) {
-      return;
-    }
-
-    let isCancelled = false;
-
-    void partyLobbyFacade
-      .rejoinParty({
-        pin: currentPartyPin,
-        playerIdentity: {
-          kind: PartyPlayerIdentityKind.Guest,
-          guestId: observedGuestRejoinGuestId,
-        },
-        username: observedGuestRejoinUsername,
-      })
-      .then((receipt) => {
-        if (isCancelled) {
-          return;
-        }
-
-        if (receipt.status === PartyJoinReceiptStatus.ACCEPTED) {
-          if (receipt.player.identity.kind === PartyPlayerIdentityKind.Guest) {
-            partyLobbyFacade.setGuestId(currentPartyPin, receipt.player.identity.guestId);
-          }
-
-          setJoinErrorMessage(null);
-          return;
-        }
-
-        if (clearGuestSessionOnObservedGuestRejoinFailure) {
-          partyLobbyFacade.clearGuestId(currentPartyPin);
-        }
-
-        setJoinErrorMessage(receipt.errorMessage);
-      });
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [
-    clearGuestSessionOnObservedGuestRejoinFailure,
-    currentPartyPin,
-    hasLostCurrentPlayer,
-    observedGuestRejoinGuestId,
-    observedGuestRejoinUsername,
-    party,
-    partyLobbyFacade,
-    setJoinErrorMessage,
-  ]);
 
   return {
     leaveParty,

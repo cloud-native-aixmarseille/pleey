@@ -1,7 +1,7 @@
 # Makefile for Pleey
 # Using Docker Compose V2
 
-.PHONY: help setup build up down restart logs ps rebuild shell setup-traefik traefik health migrate seed db-shell graphql-types ci lint lint-fix linter-fix test test-watch test-ui test-ci test-chart test-install e2e-report
+.PHONY: help setup build up down restart logs ps rebuild shell setup-traefik traefik health migrate migrate-dev-recover seed db-shell graphql-types ci lint lint-fix linter-fix test test-watch test-ui test-ci test-chart test-install e2e-report
 
 # Docker Compose command (V2)
 COMPOSE := docker compose
@@ -90,7 +90,7 @@ help: ## Display this help
 # Manage stack
 # ==========================================
 
-setup: setup-traefik build up migrate seed graphql-types ## Prepare stack to run
+setup: setup-traefik build up migrate-dev-recover seed graphql-types ## Prepare stack to run
 	@echo "$(GREEN)═══════════════════════════════════════$(NC)"
 	@echo "$(GREEN)✓ Installation completed successfully!$(NC)"
 	@echo "$(GREEN)═══════════════════════════════════════$(NC)"
@@ -199,6 +199,54 @@ health: ## Check application health
 migrate: ## Apply database migrations
 	@echo "$(GREEN)Applying database migrations...$(NC)"
 	@$(APP_EXEC) backend npm run db:migrate
+	@$(APP_EXEC) backend npm run db:generate
+	@echo "$(GREEN)✓ Migrations applied$(NC)"
+
+migrate-dev-recover: ## Apply database migrations with dev recovery for existing databases
+	@echo "$(GREEN)Applying database migrations...$(NC)"
+	@set -e; \
+	attempt=0; \
+	max_attempts=5; \
+	while true; do \
+		attempt=$$((attempt + 1)); \
+		if migrate_output="$$( $(APP_EXEC) backend npm run db:migrate 2>&1 )"; then \
+			printf "%s\n" "$$migrate_output"; \
+			break; \
+		fi; \
+		printf "%s\n" "$$migrate_output"; \
+		if printf "%s" "$$migrate_output" | grep -q "Error: P3005"; then \
+			echo "$(YELLOW)Detected Prisma P3005 (non-empty schema). Applying dev baseline for initial migration...$(NC)"; \
+			initial_migration="$$( $(APP_EXEC) backend sh -lc 'ls -1 prisma/migrations | grep -v "^migration_lock.toml$$" | sort | head -n 1' )"; \
+			if [ -z "$$initial_migration" ]; then \
+				echo "$(RED)Could not determine initial migration for baseline$(NC)"; \
+				exit 1; \
+			fi; \
+			$(APP_EXEC) backend npx prisma migrate resolve --applied "$$initial_migration"; \
+		elif printf "%s" "$$migrate_output" | grep -q "Error: P3018" \
+			&& printf "%s" "$$migrate_output" | grep -Eq "Database error code: (42701|42P07)"; then \
+			failed_migration="$$(printf "%s\n" "$$migrate_output" | sed -n 's/^Migration name: //p' | head -n 1)"; \
+			if [ -z "$$failed_migration" ]; then \
+				echo "$(RED)Could not determine failed migration name from Prisma output$(NC)"; \
+				exit 1; \
+			fi; \
+			echo "$(YELLOW)Detected already-applied schema change for migration '$$failed_migration'. Marking as applied for dev...$(NC)"; \
+			$(APP_EXEC) backend npx prisma migrate resolve --applied "$$failed_migration"; \
+		elif printf "%s" "$$migrate_output" | grep -q "Error: P3009"; then \
+			failed_migration="$$(printf "%s\n" "$$migrate_output" | sed -n 's/^The `\([^`]*\)` migration.*$$/\1/p' | head -n 1)"; \
+			if [ -z "$$failed_migration" ]; then \
+				echo "$(RED)Could not determine failed migration from P3009 output$(NC)"; \
+				exit 1; \
+			fi; \
+			echo "$(YELLOW)Detected failed migration '$$failed_migration' in dev history. Marking as applied and retrying...$(NC)"; \
+			$(APP_EXEC) backend npx prisma migrate resolve --applied "$$failed_migration"; \
+		else \
+			exit 1; \
+		fi; \
+		if [ "$$attempt" -ge "$$max_attempts" ]; then \
+			echo "$(RED)Exceeded migration recovery attempts$(NC)"; \
+			exit 1; \
+		fi; \
+	done
 	@$(APP_EXEC) backend npm run db:generate
 	@echo "$(GREEN)✓ Migrations applied$(NC)"
 

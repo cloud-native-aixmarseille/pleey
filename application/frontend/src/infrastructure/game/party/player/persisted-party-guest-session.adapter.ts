@@ -8,6 +8,14 @@ import { type StoragePort, StoragePortToken } from '../../../../domains/shared/p
 
 const STORAGE_KEY = 'party.guest-session.v1';
 
+/**
+ * Persisted Party Guest Session Adapter
+ *
+ * Implements browser storage for guest session recovery.
+ * Stores guest IDs per party pin to allow automatic rejoin after page reload.
+ *
+ * Storage format: { [partyPin]: guestId, ... }
+ */
 @injectable()
 export class PersistedPartyGuestSessionAdapter implements PartyGuestSessionPort {
   constructor(
@@ -19,6 +27,10 @@ export class PersistedPartyGuestSessionAdapter implements PartyGuestSessionPort 
     private readonly storage: StoragePort,
   ) {}
 
+  /**
+   * Clear stored guest ID for a party.
+   * Called when guest explicitly leaves or recovery fails.
+   */
   clearGuestId(pin: PartyPin): void {
     const sessions = this.readSessions();
 
@@ -26,12 +38,20 @@ export class PersistedPartyGuestSessionAdapter implements PartyGuestSessionPort 
     this.writeSessions(sessions);
   }
 
+  /**
+   * Retrieve stored guest ID for a party.
+   * Used during page load to attempt automatic recovery.
+   */
   getGuestId(pin: PartyPin): GuestId | null {
     const guestId = this.readSessions()[this.normalizePin(pin)];
 
     return guestId ? this.guestIdentifier.parseOrNull(guestId) : null;
   }
 
+  /**
+   * Store a guest ID for a party for recovery purposes.
+   * Called after successful join or rejoin.
+   */
   setGuestId(pin: PartyPin, guestId: GuestId): void {
     const sessions = this.readSessions();
 

@@ -195,7 +195,7 @@ export function usePartyLobbyScreenState({
   const isAuthenticated = user !== null;
   const [joinErrorMessage, setJoinErrorMessage] = useState<string | null>(null);
   const [isJoinSubmitting, setIsJoinSubmitting] = useState(false);
-  const [isLeaveSubmitting, setIsLeaveSubmitting] = useState(false);
+  const [, setIsLeaveSubmitting] = useState(false);
   const [runtimeNoticeKind, setRuntimeNoticeKind] = useState<PartyRuntimeNoticeKind | null>(null);
   const [joinedPartyId, setJoinedPartyId] = useState<PartyId | null>(null);
   const [leaveRedirectTo, setLeaveRedirectTo] = useState<string | null>(null);
@@ -233,7 +233,6 @@ export function usePartyLobbyScreenState({
     bootstrapPartyByPin,
     currentGuestId,
     isJoinSubmitting,
-    isLeaveSubmitting,
     joinErrorMessage,
     joinedPartyId,
     leaveRedirectTo,
@@ -260,9 +259,11 @@ export function usePartyLobbyScreenState({
     setPartyPassword,
   } = usePartyLobbyJoinSession({
     currentGuestId,
+    currentPlayer,
     normalizedPin,
     onPartyJoined: setJoinedPartyId,
     partyLobbyFacade,
+    partyObservation: party,
     persistedGuestJoinGuestId: viewModel.persistedGuestJoinGuestId,
     setIsJoinSubmitting,
     setJoinErrorMessage,
@@ -270,11 +271,7 @@ export function usePartyLobbyScreenState({
   });
   const { leaveParty, pendingPlayerActionId, playerActionErrorMessage, submitAction } =
     usePartyLobbyPlayerSession({
-      clearGuestSessionOnObservedGuestRejoinFailure:
-        viewModel.clearGuestSessionOnObservedGuestRejoinFailure,
       currentGuestId,
-      observedGuestRejoinGuestId: viewModel.observedGuestRejoinGuestId,
-      observedGuestRejoinUsername: viewModel.observedGuestRejoinUsername,
       onPartyLeft: () => setLeaveRedirectTo(resolveHomeRoute()),
       party,
       partyLobbyFacade,

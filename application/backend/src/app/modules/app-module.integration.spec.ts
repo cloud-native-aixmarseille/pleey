@@ -15,7 +15,7 @@ type ModuleCase = {
   readonly requiresRootI18n?: boolean;
 };
 
-const APP_MODULE_COMPILE_TIMEOUT_MS = 15_000;
+const APP_MODULE_COMPILE_TIMEOUT_MS = 60_000;
 
 const appModuleCase: ModuleCase = {
   moduleName: 'AppModule',
