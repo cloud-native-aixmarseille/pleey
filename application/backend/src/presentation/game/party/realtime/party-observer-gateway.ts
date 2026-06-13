@@ -1,4 +1,4 @@
-import { UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Inject, UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -39,6 +39,10 @@ import type {
   AuthenticatedPartyPlayerIdentity,
   PartyPlayerIdentity,
 } from '../../../../domain/game/party/player/entities/party-player-identity';
+import {
+  PartyPlayerSessionRegistry,
+  PartyPlayerSessionRegistryProvider,
+} from '../../../../domain/game/party/player/services/party-player-session-registry';
 import type { PartyId, PartyPin } from '../../../../domain/game/party/shared/entities/party';
 import type { UserId } from '../../../../domain/identity/entities/user';
 import { I18nWsExceptionFilter } from '../../../shared/error-handling/i18n-ws-exception-filter';
@@ -126,6 +130,8 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     private readonly revealStageResultUseCase: RevealStageResultUseCase,
     private readonly endPartyUseCase: EndPartyUseCase,
     private readonly kickPartyPlayerUseCase: KickPartyPlayerUseCase,
+    @Inject(PartyPlayerSessionRegistryProvider)
+    private readonly sessionRegistry: PartyPlayerSessionRegistry,
   ) {}
 
   afterInit(server: Server): void {
@@ -274,7 +280,19 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: PartyObservationMessageDto | undefined,
   ): Promise<void> {
-    await this.handleHostPartyCommand(client, payload, this.endPartyUseCase);
+    const partyId = this.normalizePartyId(payload?.partyId);
+    const hostUserId = this.resolveAuthenticatedHostUserId(client);
+
+    try {
+      await this.endPartyUseCase.execute({
+        hostUserId,
+        partyId,
+      });
+
+      this.sessionRegistry.invalidateAllSessions(partyId);
+    } catch (error) {
+      throw this.toWsException(error);
+    }
   }
 
   @SubscribeMessage(PARTY_SOCKET_INBOUND_EVENTS.KICK_PLAYER)
@@ -291,6 +309,9 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
         partyId,
         playerIdentity,
       });
+
+      // Invalidate the session when the player is kicked
+      this.sessionRegistry.invalidateSession(partyId, playerIdentity);
 
       await this.clearJoinedPlayerSockets(partyId, playerIdentity);
     } catch (error) {
@@ -325,6 +346,11 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
           })
         : false;
 
+    if (left && partyObservationId !== null) {
+      // Invalidate the session when the player explicitly leaves
+      this.sessionRegistry.invalidateSession(partyObservationId, joinedPartyPlayer.identity);
+    }
+
     await this.leavePartyObservationRoom(client);
     this.clearJoinedPlayer(client);
 
@@ -337,13 +363,9 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
 
   @SubscribeMessage(PARTY_SOCKET_INBOUND_EVENTS.STOP_OBSERVING_PARTY)
   async stopObservingParty(@ConnectedSocket() client: Socket): Promise<void> {
-    const pendingPrune = this.resolvePendingLobbyPlayerAbsencePrune(client);
-
+    // Observation is a separate concern from membership
+    // Leaving observation does not affect the player's session or membership
     await this.leavePartyObservationRoom(client);
-
-    if (pendingPrune !== null) {
-      this.scheduleLobbyPlayerAbsencePrune(pendingPrune);
-    }
   }
 
   private async leavePartyObservationRoom(client: Socket): Promise<void> {
@@ -367,6 +389,17 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
 
       this.clearPendingLobbyPlayerAbsencePrune(result.partyId, result.player.identity);
       this.rememberJoinedPlayer(client, result.pin, result.player.identity);
+
+      // Register the new session for this player identity
+      const { sessionId } = this.sessionRegistry.registerSession(
+        result.partyId,
+        result.player.identity,
+        client.id,
+      );
+
+      const socketData = client.data as PartyObserverSocketData;
+      socketData.playerSessionId = sessionId;
+
       await this.joinPartyObservationRoom(client, result.partyId);
       await this.publishPartyObservationRoom(result.partyId);
 
@@ -608,6 +641,9 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
         pin: command.pin,
         playerIdentity: command.identity,
       });
+
+      // Invalidate the session after successful prune
+      this.sessionRegistry.invalidateSession(command.partyId, command.identity);
     } finally {
       this.clearPendingLobbyPlayerAbsencePruneByKey(pruneKey);
     }

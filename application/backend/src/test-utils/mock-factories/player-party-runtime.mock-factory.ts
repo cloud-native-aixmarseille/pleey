@@ -9,6 +9,7 @@ type PlayerPartyRuntimeLike = Pick<
   | 'ensureAuthenticatedPlayer'
   | 'ensureGuestPlayer'
   | 'findActivePartyByUserId'
+  | 'findActivePartyByGuestId'
   | 'findPartyByPin'
   | 'findPartyPlayer'
   | 'removePlayer'
@@ -35,6 +36,7 @@ type CreatePlayerPartyRuntimeMockConfig = {
   readonly ensureAuthenticatedPlayer?: undefined;
   readonly ensureGuestPlayer?: Awaited<ReturnType<PlayerPartyRuntimeLike['ensureGuestPlayer']>>;
   readonly findActivePartyByUserId?: ActivePlayerPartySessionInput | null;
+  readonly findActivePartyByGuestId?: ActivePlayerPartySessionInput | null;
   readonly findPartyByPin?: PartyJoinTargetInput | null;
   readonly findPartyPlayer?: Awaited<ReturnType<PlayerPartyRuntimeLike['findPartyPlayer']>>;
   readonly removePlayer?: boolean;
@@ -77,6 +79,7 @@ export const createPlayerPartyRuntimeMock = (
     ensureAuthenticatedPlayer: mockFn<PlayerPartyRuntimeLike['ensureAuthenticatedPlayer']>(),
     ensureGuestPlayer: mockFn<PlayerPartyRuntimeLike['ensureGuestPlayer']>(),
     findActivePartyByUserId: mockFn<PlayerPartyRuntimeLike['findActivePartyByUserId']>(),
+    findActivePartyByGuestId: mockFn<PlayerPartyRuntimeLike['findActivePartyByGuestId']>(),
     findPartyByPin: mockFn<PlayerPartyRuntimeLike['findPartyByPin']>(),
     findPartyPlayer: mockFn<PlayerPartyRuntimeLike['findPartyPlayer']>(),
     removePlayer: mockFn<PlayerPartyRuntimeLike['removePlayer']>(),
@@ -93,6 +96,13 @@ export const createPlayerPartyRuntimeMock = (
       ? null
       : config.findActivePartyByUserId) as Awaited<
       ReturnType<PlayerPartyRuntimeLike['findActivePartyByUserId']>
+    >,
+  );
+  mock.findActivePartyByGuestId.mockResolvedValue(
+    (config.findActivePartyByGuestId === undefined
+      ? null
+      : config.findActivePartyByGuestId) as Awaited<
+      ReturnType<PlayerPartyRuntimeLike['findActivePartyByGuestId']>
     >,
   );
   mock.findPartyByPin.mockResolvedValue(

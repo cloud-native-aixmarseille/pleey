@@ -11,4 +11,5 @@ export interface PartyObserverSocketData {
   authenticatedUserId?: UserId;
   joinedPartyPlayer?: JoinedPartyPlayerSocketData;
   partyObservationRoom?: string;
+  playerSessionId?: string;
 }

@@ -119,6 +119,46 @@ export class PrismaPlayerPartyRuntimeAdapter extends PlayerPartyRuntimePort {
     };
   }
 
+  async findActivePartyByGuestId(guestId: string): Promise<ActivePlayerPartySession | null> {
+    const party = await this.prisma.party.findFirst({
+      where: {
+        deletedAt: null,
+        game: {
+          deletedAt: null,
+        },
+        scores: {
+          some: {
+            guestId,
+            deletedAt: null,
+          },
+        },
+        status: {
+          in: [...ACTIVE_PARTY_STATUSES],
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      select: {
+        id: true,
+        gameId: true,
+        pin: true,
+        status: true,
+      },
+    });
+
+    if (!party) {
+      return null;
+    }
+
+    return {
+      partyId: this.partyIdentifier.parse(party.id),
+      gameId: this.gameIdentifier.parse(party.gameId),
+      pin: this.partyPinIdentifier.parse(party.pin),
+      status: this.partyReadModelMapper.toPartyStatus(party.status),
+    };
+  }
+
   async findPartyPlayer(command: FindPartyPlayerCommand) {
     if (command.playerIdentity.kind === PartyPlayerKind.USER) {
       const scores = await this.prisma.score.findMany({

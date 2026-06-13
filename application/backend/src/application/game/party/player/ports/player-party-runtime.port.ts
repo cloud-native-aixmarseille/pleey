@@ -54,6 +54,8 @@ export abstract class PlayerPartyRuntimePort {
 
   abstract findActivePartyByUserId(userId: UserId): Promise<ActivePlayerPartySession | null>;
 
+  abstract findActivePartyByGuestId(guestId: GuestId): Promise<ActivePlayerPartySession | null>;
+
   abstract findPartyPlayer(command: FindPartyPlayerCommand): Promise<PartyPlayer | null>;
 
   abstract ensureAuthenticatedPlayer(command: EnsureAuthenticatedPlayerCommand): Promise<void>;

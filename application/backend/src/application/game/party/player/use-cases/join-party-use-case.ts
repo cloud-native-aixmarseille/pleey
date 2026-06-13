@@ -87,6 +87,17 @@ export class JoinPartyUseCase {
       throw new Error(GameErrorCode.VALIDATION_FAILED);
     }
 
+    // Enforce single-session rule: check if this guest is already in a different active party
+    if (isPersistedGuestRejoin) {
+      const activeParty = await this.playerPartyRuntime.findActivePartyByGuestId(
+        input.playerIdentity.guestId,
+      );
+
+      if (activeParty && activeParty.partyId !== party.partyId) {
+        throw new Error(GameErrorCode.PLAYER_ALREADY_IN_ACTIVE_PARTY);
+      }
+    }
+
     const guestPlayer = await this.playerPartyRuntime.ensureGuestPlayer({
       ...(avatarSeed ? { avatarSeed } : {}),
       partyId: party.partyId,

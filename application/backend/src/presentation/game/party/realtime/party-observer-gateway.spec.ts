@@ -23,6 +23,19 @@ const GUEST_ID = backendTestIdentifiers.guest('guest-7');
 const PARTY_PIN = partyPinIdentifier.parse('123456');
 const PARTY_ROOM = `party:${PARTY_ID}`;
 
+function createPartyPlayerSessionRegistryMock() {
+  return {
+    registerSession: vi.fn((_: unknown, __: unknown, sessionId: string) => ({
+      sessionId,
+      previousSessionId: null,
+    })),
+    hasActiveSession: vi.fn().mockReturnValue(false),
+    getActiveSession: vi.fn().mockReturnValue(null),
+    invalidateSession: vi.fn().mockReturnValue(false),
+    invalidateAllSessions: vi.fn(),
+  };
+}
+
 function createHostControlUseCases() {
   return [
     { execute: vi.fn() } as never,
@@ -44,6 +57,7 @@ function createHostControlGateway() {
     emitSnapshot: vi.fn(),
     publishRuntimeNotice: vi.fn().mockResolvedValue(undefined),
   };
+  const sessionRegistry = createPartyPlayerSessionRegistryMock();
   const startPartyUseCase = { execute: vi.fn().mockResolvedValue(undefined) };
   const advanceStageUseCase = { execute: vi.fn().mockResolvedValue(undefined) };
   const restartStageUseCase = { execute: vi.fn().mockResolvedValue(undefined) };
@@ -78,6 +92,7 @@ function createHostControlGateway() {
       revealStageResultUseCase as never,
       endPartyUseCase as never,
       kickPartyPlayerUseCase as never,
+      sessionRegistry as never,
     ),
     useCases: {
       advanceStageUseCase,
@@ -92,6 +107,7 @@ function createHostControlGateway() {
       startPartyUseCase,
     },
     partyObservationBroadcaster,
+    sessionRegistry,
   };
 }
 
@@ -156,6 +172,7 @@ describe('PartyObserverGateway', () => {
       partyPinIdentifier,
       userIdentifier,
       ...createHostControlUseCases(),
+      createPartyPlayerSessionRegistryMock() as never,
     );
     const client = {
       data: {},
@@ -197,6 +214,7 @@ describe('PartyObserverGateway', () => {
       partyPinIdentifier,
       userIdentifier,
       ...createHostControlUseCases(),
+      createPartyPlayerSessionRegistryMock() as never,
     );
 
     await gateway.observeParty(
@@ -235,6 +253,7 @@ describe('PartyObserverGateway', () => {
       partyPinIdentifier,
       userIdentifier,
       ...createHostControlUseCases(),
+      createPartyPlayerSessionRegistryMock() as never,
     );
 
     await expect(
@@ -282,6 +301,7 @@ describe('PartyObserverGateway', () => {
       partyPinIdentifier,
       userIdentifier,
       ...createHostControlUseCases(),
+      createPartyPlayerSessionRegistryMock() as never,
     );
     const client = {
       data: {
@@ -341,6 +361,7 @@ describe('PartyObserverGateway', () => {
       partyPinIdentifier,
       userIdentifier,
       ...createHostControlUseCases(),
+      createPartyPlayerSessionRegistryMock() as never,
     );
 
     await expect(
@@ -389,6 +410,7 @@ describe('PartyObserverGateway', () => {
       partyPinIdentifier,
       userIdentifier,
       ...createHostControlUseCases(),
+      createPartyPlayerSessionRegistryMock() as never,
     );
 
     await gateway.joinParty(
@@ -439,6 +461,7 @@ describe('PartyObserverGateway', () => {
       partyPinIdentifier,
       userIdentifier,
       ...createHostControlUseCases(),
+      createPartyPlayerSessionRegistryMock() as never,
     );
     const client = {
       data: {
@@ -490,6 +513,7 @@ describe('PartyObserverGateway', () => {
       partyPinIdentifier,
       userIdentifier,
       ...createHostControlUseCases(),
+      createPartyPlayerSessionRegistryMock() as never,
     );
 
     let resolveLeave!: () => void;
@@ -580,6 +604,7 @@ describe('PartyObserverGateway', () => {
       partyPinIdentifier,
       userIdentifier,
       ...createHostControlUseCases(),
+      createPartyPlayerSessionRegistryMock() as never,
     );
 
     gateway.afterInit({
@@ -630,6 +655,7 @@ describe('PartyObserverGateway', () => {
       partyPinIdentifier,
       userIdentifier,
       ...createHostControlUseCases(),
+      createPartyPlayerSessionRegistryMock() as never,
     );
 
     gateway.afterInit({
@@ -686,6 +712,7 @@ describe('PartyObserverGateway', () => {
       partyPinIdentifier,
       userIdentifier,
       ...createHostControlUseCases(),
+      createPartyPlayerSessionRegistryMock() as never,
     );
 
     gateway.afterInit({
@@ -706,16 +733,14 @@ describe('PartyObserverGateway', () => {
     await gateway.stopObservingParty(client as never);
     await vi.runAllTimersAsync();
 
+    // stopObservingParty should NOT trigger a prune; observation is separate from membership
     expect(client.data).toEqual({
       joinedPartyPlayer: {
         identity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
         pin: PARTY_PIN,
       },
     });
-    expect(leavePartyUseCase.execute).toHaveBeenCalledWith({
-      pin: PARTY_PIN,
-      playerIdentity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
-    });
+    expect(leavePartyUseCase.execute).not.toHaveBeenCalled();
   });
 
   it.each([
@@ -802,6 +827,16 @@ describe('PartyObserverGateway', () => {
     });
   });
 
+  it('clears all live sessions after ending the party', async () => {
+    const { gateway, sessionRegistry } = createHostControlGateway();
+
+    await gateway.endParty({ data: { authenticatedUserId: HOST_USER_ID } } as never, {
+      partyId: PARTY_ID,
+    });
+
+    expect(sessionRegistry.invalidateAllSessions).toHaveBeenCalledWith(PARTY_ID);
+  });
+
   it.each([
     [
       'restart-stage',
@@ -872,6 +907,7 @@ describe('PartyObserverGateway', () => {
       partyPinIdentifier,
       userIdentifier,
       ...createHostControlUseCases(),
+      createPartyPlayerSessionRegistryMock() as never,
     );
 
     await gateway.submitAction(

@@ -5,7 +5,6 @@ import type {
 } from '../../../../../domains/game/party/shared/entities/party';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import type { PartyObservationPlayer } from '../../../../../domains/game/party/shared/entities/party-observation-player';
-import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/shared/entities/party-player-identity';
 import type { GuestId } from '../../../../../domains/identity/entities/guest';
 import type { UserId } from '../../../../../domains/identity/entities/user';
 
@@ -17,11 +16,8 @@ interface PartyLobbyRouteState {
 }
 
 interface PartyLobbyScreenViewModel {
-  readonly clearGuestSessionOnObservedGuestRejoinFailure: boolean;
   readonly errorMessage: string | null;
   readonly joinPin: string;
-  readonly observedGuestRejoinGuestId: GuestId | null;
-  readonly observedGuestRejoinUsername: string | undefined;
   readonly persistedGuestJoinGuestId: GuestId | null;
   readonly redirectTo: string | null;
 }
@@ -62,7 +58,6 @@ export function resolvePartyLobbyScreenViewModel({
   bootstrapPartyByPin,
   currentGuestId,
   isJoinSubmitting,
-  isLeaveSubmitting,
   joinErrorMessage,
   joinedPartyId,
   leaveRedirectTo,
@@ -79,7 +74,6 @@ export function resolvePartyLobbyScreenViewModel({
   readonly bootstrapPartyByPin: Party | null;
   readonly currentGuestId: GuestId | null;
   readonly isJoinSubmitting: boolean;
-  readonly isLeaveSubmitting: boolean;
   readonly joinErrorMessage: string | null;
   readonly joinedPartyId: PartyId | null;
   readonly leaveRedirectTo: string | null;
@@ -95,7 +89,6 @@ export function resolvePartyLobbyScreenViewModel({
   const currentPartyPin = normalizedPin ?? party?.pin ?? null;
   const currentPlayer = party ? findCurrentPlayer(party.players) : null;
   const isCurrentUserHost = party?.isObserverHost ?? false;
-  const isCurrentPlayerLive = currentPlayer?.isLive ?? false;
   const isRecoveringPersistedGuestSession =
     routeKind === 'partyId' &&
     party !== undefined &&
@@ -114,35 +107,20 @@ export function resolvePartyLobbyScreenViewModel({
     !isRecoveringPersistedGuestSession
       ? resolveJoinPartyRoute(party.pin)
       : null;
-  const observedGuestRejoinPlayer =
-    currentPlayer?.identity.kind === PartyPlayerIdentityKind.Guest && !isCurrentPlayerLive
-      ? currentPlayer
-      : null;
-  const observedGuestRejoinGuestId =
-    !party || currentPartyPin === null || isLeaveSubmitting || leaveRedirectTo !== null
-      ? null
-      : isRecoveringPersistedGuestSession
-        ? currentGuestId
-        : observedGuestRejoinPlayer
-          ? currentGuestId
-          : null;
+  const canReusePersistedGuestIdentity =
+    userId === null &&
+    currentPartyPin !== null &&
+    currentGuestId !== null &&
+    joinedPartyId === null &&
+    leaveRedirectTo === null &&
+    !isJoinSubmitting &&
+    ((routeKind === 'pin' && normalizedPin !== null) ||
+      (routeKind === 'partyId' && party !== undefined && currentPlayer === null));
 
   return {
-    clearGuestSessionOnObservedGuestRejoinFailure: isRecoveringPersistedGuestSession,
     errorMessage: joinErrorMessage ?? partyIdErrorMessage ?? bootstrapErrorMessage,
     joinPin: bootstrapPartyByPin?.pin ?? normalizedPin ?? '',
-    observedGuestRejoinGuestId,
-    observedGuestRejoinUsername: observedGuestRejoinPlayer?.username,
-    persistedGuestJoinGuestId:
-      routeKind === 'pin' &&
-      userId === null &&
-      normalizedPin !== null &&
-      currentGuestId !== null &&
-      joinedPartyId === null &&
-      leaveRedirectTo === null &&
-      !isJoinSubmitting
-        ? currentGuestId
-        : null,
+    persistedGuestJoinGuestId: canReusePersistedGuestIdentity ? currentGuestId : null,
     redirectTo:
       leaveRedirectTo ??
       routeState.bootstrapRedirectTo ??

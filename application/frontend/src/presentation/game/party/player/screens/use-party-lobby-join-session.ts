@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import type { PartyLobbyGateway } from '../../../../../application/game/party/shared/facades/party-lobby.facade';
 import { PartyJoinReceiptStatus } from '../../../../../domains/game/party/player/ports/party-player.port';
 import type { PartyPin } from '../../../../../domains/game/party/shared/entities/party';
@@ -11,9 +11,13 @@ import { usePartyDependencies } from '../../shared/contexts/party-dependencies-c
 
 interface UsePartyLobbyJoinSessionParams {
   readonly currentGuestId: GuestId | null;
+  readonly currentPlayer: PartyObservation['players'] extends readonly unknown[]
+    ? PartyObservation['players'][number] | null
+    : null;
   readonly normalizedPin: PartyPin | null;
   readonly onPartyJoined: (partyId: PartyObservation['partyId']) => void;
   readonly partyLobbyFacade: PartyLobbyGateway;
+  readonly partyObservation: PartyObservation | undefined;
   readonly persistedGuestJoinGuestId: GuestId | null;
   readonly setIsJoinSubmitting: (value: boolean) => void;
   readonly setJoinErrorMessage: (value: string | null) => void;
@@ -34,9 +38,11 @@ interface UsePartyLobbyJoinSessionResult {
 
 export function usePartyLobbyJoinSession({
   currentGuestId,
+  currentPlayer,
   normalizedPin,
   onPartyJoined,
   partyLobbyFacade,
+  partyObservation,
   persistedGuestJoinGuestId,
   setIsJoinSubmitting,
   setJoinErrorMessage,
@@ -52,6 +58,7 @@ export function usePartyLobbyJoinSession({
   const [guestName, setGuestName] = useState(guestDraft?.guestName ?? '');
   const [isPasswordRequired, setIsPasswordRequired] = useState(false);
   const [partyPassword, setPartyPassword] = useState('');
+  const hasObservedCurrentPlayer = useRef(false);
 
   const joinParty = useEffectEvent(async () => {
     if (normalizedPin === null) {
@@ -111,6 +118,12 @@ export function usePartyLobbyJoinSession({
   }, []);
 
   useEffect(() => {
+    if (currentPlayer !== null) {
+      hasObservedCurrentPlayer.current = true;
+    }
+  }, [currentPlayer]);
+
+  useEffect(() => {
     if (normalizedPin === null || persistedGuestJoinGuestId === null) {
       return;
     }
@@ -152,6 +165,60 @@ export function usePartyLobbyJoinSession({
     onPartyJoined,
     partyLobbyFacade,
     persistedGuestJoinGuestId,
+    setJoinErrorMessage,
+  ]);
+
+  // Auto-rejoin for canonical lobby routes (partyId in URL, PIN from party observation)
+  useEffect(() => {
+    if (
+      partyObservation === undefined ||
+      normalizedPin !== null ||
+      persistedGuestJoinGuestId === null ||
+      currentPlayer !== null ||
+      hasObservedCurrentPlayer.current
+    ) {
+      return;
+    }
+
+    let isCancelled = false;
+
+    void partyLobbyFacade
+      .rejoinParty({
+        pin: partyObservation.pin,
+        playerIdentity: {
+          kind: PartyPlayerIdentityKind.Guest,
+          guestId: persistedGuestJoinGuestId,
+        },
+        username: undefined,
+      })
+      .then((receipt) => {
+        if (isCancelled) {
+          return;
+        }
+
+        if (receipt.status === PartyJoinReceiptStatus.ACCEPTED) {
+          if (receipt.player.identity.kind === PartyPlayerIdentityKind.Guest) {
+            partyLobbyFacade.setGuestId(partyObservation.pin, receipt.player.identity.guestId);
+          }
+
+          onPartyJoined(receipt.partyId);
+          setJoinErrorMessage(null);
+          return;
+        }
+
+        partyLobbyFacade.clearGuestId(partyObservation.pin);
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [
+    partyObservation,
+    normalizedPin,
+    currentPlayer,
+    persistedGuestJoinGuestId,
+    onPartyJoined,
+    partyLobbyFacade,
     setJoinErrorMessage,
   ]);
 
