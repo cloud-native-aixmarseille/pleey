@@ -214,6 +214,26 @@
       }
     },
     {
+      "includes": [
+        "src/presentation/**/*.{ts,tsx,js,jsx}",
+        "!!src/presentation/**/*.{spec,test}.{ts,tsx,js,jsx}"
+      ],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noRestrictedElements": {
+              "level": "error",
+              "options": {
+                "elements": {
+                  "button": "Do not use native <button> in presentation code. Use src/presentation/shared/ui/actions/button.tsx to keep interaction states and variants centralized."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       "includes": ["src/presentation/shared/**/*.{ts,tsx,js,jsx}"],
       "linter": {
         "rules": {

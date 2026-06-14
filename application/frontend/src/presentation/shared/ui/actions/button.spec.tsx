@@ -32,5 +32,17 @@ describe('Button', () => {
 
       expect(screen.getByRole('button', { name: 'Open dashboard' })).toBeInTheDocument();
     });
+
+    it('exposes busy state when loading feedback is active', () => {
+      renderWithUiProvider(<Button loading>Submit</Button>);
+
+      expect(screen.getByRole('button', { name: 'Submit' })).toHaveAttribute('aria-busy', 'true');
+    });
+
+    it('supports secondary intent for outlined actions', () => {
+      renderWithUiProvider(<Button intent="secondary">Manage</Button>);
+
+      expect(screen.getByRole('button', { name: 'Manage' })).toBeInTheDocument();
+    });
   });
 });

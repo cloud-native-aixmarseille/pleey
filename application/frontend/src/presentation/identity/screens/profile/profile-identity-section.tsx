@@ -24,7 +24,11 @@ export function ProfileIdentitySection({
     <AuthProfileIdentityPanel>
       <AuthFramedAvatar alt={user.username} src={user.avatarUri} />
       <Heading level={3}>{user.username}</Heading>
-      <Button intent="outline" onClick={() => void onRegenerateAvatar()} disabled={isRegenerating}>
+      <Button
+        disabled={isRegenerating}
+        intent="secondary"
+        onClick={() => void onRegenerateAvatar()}
+      >
         {isRegenerating
           ? t('auth.profile.avatarSection.regeneratingCta')
           : t('auth.profile.avatarSection.regenerateCta')}

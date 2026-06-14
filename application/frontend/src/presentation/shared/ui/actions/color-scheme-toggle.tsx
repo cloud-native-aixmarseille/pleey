@@ -1,22 +1,7 @@
 import { usePresentationTranslation } from '../../i18n/use-presentation-translation';
-import { uiThemeTokens } from '../foundation/ui-theme';
-import { uiTypeScale } from '../foundation/ui-typography';
 import { AppIcon } from '../icons/app-icon';
 import { usePresentationThemeState } from '../provider';
-
-const buttonStyle = {
-  ...uiTypeScale.caption,
-  alignItems: 'center',
-  background: uiThemeTokens.color.surface.recessed,
-  border: `1px solid ${uiThemeTokens.color.border.subtle}`,
-  borderRadius: uiThemeTokens.radius.pill,
-  color: uiThemeTokens.color.text.secondary,
-  cursor: 'pointer',
-  display: 'inline-flex',
-  gap: uiThemeTokens.spacing.xxs,
-  justifyContent: 'center',
-  padding: `${uiThemeTokens.spacing.xs} ${uiThemeTokens.spacing.sm}`,
-} as const;
+import { Button } from './button';
 
 export function ColorSchemeToggle() {
   const { t } = usePresentationTranslation();
@@ -33,14 +18,15 @@ export function ColorSchemeToggle() {
   const iconName = activeColorScheme === 'dark' ? 'light-mode' : 'dark-mode';
 
   return (
-    <button
+    <Button
       aria-label={t('shared.shell.colorSchemeToggle')}
+      intent="ghost"
+      leftSection={<AppIcon name={iconName} size={16} />}
       onClick={handleToggle}
-      style={buttonStyle}
+      size="sm"
       type="button"
     >
-      <AppIcon name={iconName} size={16} />
       {label}
-    </button>
+    </Button>
   );
 }

@@ -1,24 +1,8 @@
 import { usePresentationTranslation } from '../../i18n/use-presentation-translation';
-import { uiThemeTokens } from '../foundation/ui-theme';
-import { uiTypeScale } from '../foundation/ui-typography';
 import { AppIcon } from '../icons/app-icon';
+import { Button } from './button';
 
 const SUPPORTED_LANGUAGES = ['en', 'fr'] as const;
-
-const buttonStyle = {
-  ...uiTypeScale.label,
-  alignItems: 'center',
-  background: uiThemeTokens.color.surface.recessed,
-  border: `1px solid ${uiThemeTokens.color.border.subtle}`,
-  borderRadius: uiThemeTokens.radius.pill,
-  color: uiThemeTokens.color.text.secondary,
-  cursor: 'pointer',
-  display: 'inline-flex',
-  gap: uiThemeTokens.spacing.xxs,
-  justifyContent: 'center',
-  minWidth: '2.6rem',
-  padding: `${uiThemeTokens.spacing.xs} ${uiThemeTokens.spacing.sm}`,
-} as const;
 
 export function LanguageToggle() {
   const { currentLanguage, changeLanguage, t } = usePresentationTranslation();
@@ -32,14 +16,15 @@ export function LanguageToggle() {
   }
 
   return (
-    <button
+    <Button
       aria-label={t('shared.shell.languageToggle')}
+      intent="ghost"
+      leftSection={<AppIcon name="language" size={16} />}
       onClick={handleToggle}
-      style={buttonStyle}
+      size="sm"
       type="button"
     >
-      <AppIcon name="language" size={16} />
       {currentLanguage.toUpperCase()}
-    </button>
+    </Button>
   );
 }

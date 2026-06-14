@@ -73,7 +73,7 @@ export interface TextFormFieldProps {
 
 export interface SubmitButtonProps {
   readonly disabled?: boolean;
-  readonly intent?: 'primary' | 'outline' | 'ghost';
+  readonly intent?: 'primary' | 'secondary' | 'ghost';
   readonly size?: 'md' | 'sm';
   readonly width?: 'auto' | 'wide';
   readonly label: string;

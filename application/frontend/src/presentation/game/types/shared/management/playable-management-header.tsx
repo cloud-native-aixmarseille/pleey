@@ -36,18 +36,19 @@ const menuStyle = {
 } as const;
 
 const menuItemStyle = {
-  background: 'transparent',
-  border: 0,
+  '--button-bd': '1px solid transparent',
+  '--button-bg': 'transparent',
+  '--button-color': 'inherit',
+  '--button-hover': uiThemeTokens.color.surface.recessed,
+  '--button-hover-color': uiThemeTokens.color.text.primary,
   borderRadius: '0.75rem',
-  color: 'inherit',
-  cursor: 'pointer',
+  justifyContent: 'flex-start',
   padding: '0.6rem 0.75rem',
-  textAlign: 'left',
 } as const;
 
 const dangerMenuItemStyle = {
   ...menuItemStyle,
-  color: 'var(--mantine-color-red-3)',
+  '--button-color': 'var(--mantine-color-red-3)',
 } as const;
 
 export function PlayableManagementHeader({
@@ -90,28 +91,36 @@ export function PlayableManagementHeader({
           </Button>
           {isMenuOpen ? (
             <div role="menu" style={menuStyle}>
-              <button
+              <Button
+                fullWidth
+                intent="ghost"
+                labelStyle={{ textAlign: 'left', width: '100%' }}
                 onClick={() => {
                   setIsMenuOpen(false);
                   onEditGame();
                 }}
                 role="menuitem"
-                style={menuItemStyle}
+                rootStyle={menuItemStyle}
+                size="sm"
                 type="button"
               >
                 {t(`${translationRoot}.editGame`)}
-              </button>
-              <button
+              </Button>
+              <Button
+                fullWidth
+                intent="ghost"
+                labelStyle={{ textAlign: 'left', width: '100%' }}
                 onClick={() => {
                   setIsMenuOpen(false);
                   onDeleteGame();
                 }}
                 role="menuitem"
-                style={dangerMenuItemStyle}
+                rootStyle={dangerMenuItemStyle}
+                size="sm"
                 type="button"
               >
                 {t(`${translationRoot}.deleteGame`)}
-              </button>
+              </Button>
             </div>
           ) : null}
         </div>

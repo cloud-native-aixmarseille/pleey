@@ -30,7 +30,7 @@ export function ActiveSessionPanel({
         <SupportingText marginTop="xs">{t('auth.signIn.activeSession.description')}</SupportingText>
       </div>
       <ActionRow>
-        <Button intent="outline" onClick={onNavigateDashboard}>
+        <Button intent="secondary" onClick={onNavigateDashboard}>
           {t('auth.signIn.activeSession.dashboardCta')}
         </Button>
         <Button intent="ghost" onClick={onSignOut}>

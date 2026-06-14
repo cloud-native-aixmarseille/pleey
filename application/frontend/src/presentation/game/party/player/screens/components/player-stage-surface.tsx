@@ -62,7 +62,7 @@ export function PlayerStageSurface({
           return (
             <MotionStaggerItem key={action.id}>
               <Button
-                intent={isSelected ? 'primary' : 'outline'}
+                intent={isSelected ? 'primary' : 'secondary'}
                 onClick={() => onSubmitAction(action.id)}
                 disabled={areActionsDisabled}
                 width="wide"
