@@ -10,7 +10,7 @@ interface CopyButtonProps {
   readonly onCopyFailed?: () => void;
   readonly disabled?: boolean;
   readonly size?: 'md' | 'sm';
-  readonly intent?: 'primary' | 'outline' | 'ghost';
+  readonly intent?: 'primary' | 'secondary' | 'ghost';
   readonly width?: 'auto' | 'wide' | 'full';
 }
 

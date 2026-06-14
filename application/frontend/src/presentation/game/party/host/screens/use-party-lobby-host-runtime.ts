@@ -48,8 +48,79 @@ function resolveHostRuntimeObservationKey(party: PartyObservation | undefined): 
     lifecycle?.stageId ?? 'stage:missing',
     lifecycle?.totalStages ?? 'totalStages:missing',
     lifecycle?.stageEndsAtEpochMs ?? 'stageEndsAt:missing',
-    lifecycle?.stageRemainingDurationMs ?? 'stageRemaining:missing',
   ].join('|');
+}
+
+function hasTimedStage(
+  stageEndsAtEpochMs: number | null | undefined,
+): stageEndsAtEpochMs is number {
+  return stageEndsAtEpochMs !== null && stageEndsAtEpochMs !== undefined;
+}
+
+function isStageActionSubmissionComplete(party: PartyObservation | undefined): boolean {
+  const actionSubmission = party?.context?.stage?.actionSubmission;
+
+  if (!actionSubmission) {
+    return false;
+  }
+
+  return (
+    actionSubmission.totalEligiblePlayerCount > 0 &&
+    actionSubmission.submittedPlayerCount >= actionSubmission.totalEligiblePlayerCount
+  );
+}
+
+function shouldResetAutoRevealedStageKey(party: PartyObservation | undefined): boolean {
+  return party?.context?.lifecycle.phase !== 'stage';
+}
+
+interface AutoRevealGuardParams {
+  readonly canRevealStageResult: boolean;
+  readonly hasPendingHostRuntimeCommand: boolean;
+  readonly hasStageTimer: boolean;
+  readonly isObserverHost: boolean;
+  readonly isStageActionSubmissionComplete: boolean;
+  readonly phase: string | undefined;
+  readonly stageId: unknown;
+}
+
+function shouldSkipAutoReveal({
+  canRevealStageResult,
+  hasPendingHostRuntimeCommand,
+  hasStageTimer,
+  isObserverHost,
+  isStageActionSubmissionComplete,
+  phase,
+  stageId,
+}: AutoRevealGuardParams): boolean {
+  if (!isObserverHost) {
+    return true;
+  }
+
+  if (phase !== 'stage') {
+    return true;
+  }
+
+  if (stageId === null || stageId === undefined) {
+    return true;
+  }
+
+  if (!canRevealStageResult) {
+    return true;
+  }
+
+  if (hasPendingHostRuntimeCommand) {
+    return true;
+  }
+
+  return !isStageActionSubmissionComplete && !hasStageTimer;
+}
+
+function resolveAutoRevealRemainingDurationMs(
+  stageEndsAtEpochMs: number,
+  nowEpochMs: number = Date.now(),
+): number {
+  return stageEndsAtEpochMs - nowEpochMs;
 }
 
 export function usePartyLobbyHostRuntime({
@@ -81,6 +152,19 @@ export function usePartyLobbyHostRuntime({
     ? null
     : pendingHostRuntimeCommand;
 
+  const resetPendingHostRuntimeCommandState = () => {
+    setPendingHostRuntimeCommand(null);
+    setPendingHostRuntimeObservationKey(null);
+  };
+
+  const handleHostRuntimeError = useEffectEvent((error: unknown, id: string) => {
+    feedback.handleError(error, {
+      fallbackMessage: PartyManagementErrorCode.OBSERVE_FAILED,
+      id,
+      notify: true,
+    });
+  });
+
   useEffect(() => {
     clearError();
     setPendingHostRuntimeConfirmationCommand(null);
@@ -93,8 +177,7 @@ export function usePartyLobbyHostRuntime({
       return;
     }
 
-    setPendingHostRuntimeCommand(null);
-    setPendingHostRuntimeObservationKey(null);
+    resetPendingHostRuntimeCommandState();
   }, [hasObservedPendingCommandCompletion]);
 
   const runHostRuntimeCommand = useEffectEvent(async (command: HostPartyRuntimeCommand) => {
@@ -114,13 +197,8 @@ export function usePartyLobbyHostRuntime({
         onEndPartyCompleted();
       }
     } catch (error) {
-      setPendingHostRuntimeCommand(null);
-      setPendingHostRuntimeObservationKey(null);
-      feedback.handleError(error, {
-        fallbackMessage: PartyManagementErrorCode.OBSERVE_FAILED,
-        id: 'party-host-runtime-command-error-toast',
-        notify: true,
-      });
+      resetPendingHostRuntimeCommandState();
+      handleHostRuntimeError(error, 'party-host-runtime-command-error-toast');
     }
   });
 
@@ -143,11 +221,7 @@ export function usePartyLobbyHostRuntime({
         playerIdentity: player.identity,
       });
     } catch (error) {
-      feedback.handleError(error, {
-        fallbackMessage: PartyManagementErrorCode.OBSERVE_FAILED,
-        id: 'party-host-runtime-kick-error-toast',
-        notify: true,
-      });
+      handleHostRuntimeError(error, 'party-host-runtime-kick-error-toast');
     } finally {
       setPendingKickedPlayerKey(null);
     }
@@ -163,28 +237,29 @@ export function usePartyLobbyHostRuntime({
 
   useEffect(() => {
     const currentStageId = party?.context?.lifecycle.stageId;
-    const actionSubmission = party?.context?.stage?.actionSubmission;
     const stageEndsAtEpochMs = party?.context?.lifecycle.stageEndsAtEpochMs;
-    const hasStageTimer = stageEndsAtEpochMs !== null && stageEndsAtEpochMs !== undefined;
-    const isComplete =
-      actionSubmission !== null &&
-      actionSubmission !== undefined &&
-      actionSubmission.totalEligiblePlayerCount > 0 &&
-      actionSubmission.submittedPlayerCount >= actionSubmission.totalEligiblePlayerCount;
+    const hasStageTimer = hasTimedStage(stageEndsAtEpochMs);
+    const isComplete = isStageActionSubmissionComplete(party);
 
     if (
-      !party?.isObserverHost ||
-      party.context?.lifecycle.phase !== 'stage' ||
-      currentStageId === null ||
-      currentStageId === undefined ||
-      !hostRuntimeControls?.canRevealStageResult ||
-      effectivePendingHostRuntimeCommand !== null ||
-      (!isComplete && !hasStageTimer)
+      shouldSkipAutoReveal({
+        canRevealStageResult: hostRuntimeControls?.canRevealStageResult ?? false,
+        hasPendingHostRuntimeCommand: effectivePendingHostRuntimeCommand !== null,
+        hasStageTimer,
+        isObserverHost: party?.isObserverHost ?? false,
+        isStageActionSubmissionComplete: isComplete,
+        phase: party?.context?.lifecycle.phase,
+        stageId: currentStageId,
+      })
     ) {
-      if (party?.context?.lifecycle.phase !== 'stage') {
+      if (shouldResetAutoRevealedStageKey(party)) {
         autoRevealedStageKeyRef.current = null;
       }
 
+      return;
+    }
+
+    if (!party) {
       return;
     }
 
@@ -207,7 +282,7 @@ export function usePartyLobbyHostRuntime({
       return;
     }
 
-    const remainingDurationMs = stageEndsAtEpochMs - Date.now();
+    const remainingDurationMs = resolveAutoRevealRemainingDurationMs(stageEndsAtEpochMs);
 
     if (remainingDurationMs <= 0) {
       revealStageResult();

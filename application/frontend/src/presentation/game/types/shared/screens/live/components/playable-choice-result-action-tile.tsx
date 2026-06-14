@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import { usePresentationTranslation } from '../../../../../../shared/i18n/use-presentation-translation';
+import { Button } from '../../../../../../shared/ui/actions/button';
 import { Badge } from '../../../../../../shared/ui/feedback/badge';
 import { findUiTheme, uiThemeTokens } from '../../../../../../shared/ui/foundation/ui-theme';
 import { ContentStack, SplitWrapRow } from '../../../../../../shared/ui/layout/containers';
@@ -38,6 +39,14 @@ interface PlayableChoiceResultActionTileProps {
   readonly testId?: string;
   readonly text: string;
 }
+
+type ButtonRootStyle = CSSProperties &
+  Partial<
+    Record<
+      '--button-bd' | '--button-bg' | '--button-color' | '--button-hover' | '--button-hover-color',
+      string
+    >
+  >;
 
 const baseTileStyle: CSSProperties = {
   borderRadius: uiThemeTokens.radius.panel,
@@ -126,10 +135,15 @@ const compactCenteredHeaderStyle: CSSProperties = {
   width: '100%',
 };
 
-const interactiveTileStyle: CSSProperties = {
+const interactiveTileStyle: ButtonRootStyle = {
+  '--button-bd': '1px solid transparent',
+  '--button-bg': 'transparent',
+  '--button-color': 'inherit',
+  '--button-hover': 'transparent',
+  '--button-hover-color': 'inherit',
   appearance: 'none',
-  color: 'inherit',
-  font: 'inherit',
+  justifyContent: 'flex-start',
+  lineHeight: 'inherit',
   textAlign: 'left',
 };
 
@@ -284,21 +298,24 @@ export function PlayableChoiceResultActionTile({
 
   if (onClick) {
     return (
-      <button
+      <Button
         aria-label={text}
         aria-keyshortcuts={ariaKeyShortcuts}
         aria-pressed={isSelected}
         data-testid={testId}
         disabled={disabled}
+        intent="ghost"
+        labelStyle={{ textAlign: 'left', width: '100%' }}
         onClick={onClick}
-        style={{
+        rootStyle={{
           ...interactiveTileStyle,
           ...tileStyle,
         }}
+        size="sm"
         type="button"
       >
         {tileContent}
-      </button>
+      </Button>
     );
   }
 

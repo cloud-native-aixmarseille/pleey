@@ -1,5 +1,6 @@
 import { Box, Divider, Text } from '@mantine/core';
-import type { ButtonHTMLAttributes, PropsWithChildren, ReactNode, RefObject } from 'react';
+import type { ComponentProps, PropsWithChildren, ReactNode, RefObject } from 'react';
+import { Button } from '../../actions/button';
 import { surfaceRecipes } from '../../foundation/ui-recipes';
 import { uiThemeTokens } from '../../foundation/ui-theme';
 import { ActionRow } from '../../layout/containers';
@@ -8,25 +9,21 @@ interface AccountMenuWrapperProps extends PropsWithChildren {
   readonly wrapperRef?: RefObject<HTMLDivElement | null>;
 }
 
-interface AccountMenuTriggerButtonProps
-  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
+interface AccountMenuTriggerButtonProps extends Omit<ComponentProps<typeof Button>, 'children'> {
   readonly children: ReactNode;
 }
 
-interface AccountMenuActionButtonProps
-  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
+interface AccountMenuActionButtonProps extends Omit<ComponentProps<typeof Button>, 'children'> {
   readonly children: ReactNode;
   readonly danger?: boolean;
 }
 
 const triggerStyle = {
-  alignItems: 'center',
   background: uiThemeTokens.color.surface.recessed,
-  border: `1px solid ${uiThemeTokens.color.border.subtle}`,
-  borderRadius: uiThemeTokens.radius.pill,
-  color: uiThemeTokens.color.text.secondary,
-  cursor: 'pointer',
-  display: 'inline-flex',
+  '--button-bd': `1px solid ${uiThemeTokens.color.border.subtle}`,
+  '--button-color': uiThemeTokens.color.text.secondary,
+  '--button-hover': uiThemeTokens.color.surface.neutralMuted,
+  '--button-hover-color': uiThemeTokens.color.text.primary,
   gap: uiThemeTokens.spacing.xs,
   padding: `${uiThemeTokens.spacing.xxs} ${uiThemeTokens.spacing.sm} ${uiThemeTokens.spacing.xxs} ${uiThemeTokens.spacing.xxs}`,
 } as const;
@@ -46,14 +43,14 @@ const dropdownStyle = {
 } as const;
 
 const menuItemStyle = {
-  background: 'none',
-  border: 'none',
+  '--button-bd': '1px solid transparent',
+  '--button-bg': 'transparent',
+  '--button-color': uiThemeTokens.color.text.primary,
+  '--button-hover': uiThemeTokens.color.surface.recessed,
+  '--button-hover-color': uiThemeTokens.color.text.primary,
   borderRadius: uiThemeTokens.radius.field,
-  color: uiThemeTokens.color.text.primary,
-  cursor: 'pointer',
+  justifyContent: 'flex-start',
   padding: `${uiThemeTokens.spacing.xs} ${uiThemeTokens.spacing.sm}`,
-  textAlign: 'left',
-  width: '100%',
 } as const;
 
 const menuDividerStyle = {
@@ -74,9 +71,9 @@ export function AccountMenuTriggerButton({
   ...props
 }: AccountMenuTriggerButtonProps) {
   return (
-    <button style={triggerStyle} type={type} {...props}>
+    <Button intent="ghost" rootStyle={triggerStyle} size="sm" type={type} {...props}>
       {children}
-    </button>
+    </Button>
   );
 }
 
@@ -103,16 +100,22 @@ export function AccountMenuActionButton({
   ...props
 }: AccountMenuActionButtonProps) {
   return (
-    <button
-      style={{
+    <Button
+      fullWidth
+      intent="ghost"
+      labelStyle={{ textAlign: 'left', width: '100%' }}
+      rootStyle={{
         ...menuItemStyle,
-        color: danger ? uiThemeTokens.color.text.danger : menuItemStyle.color,
+        '--button-color': danger
+          ? uiThemeTokens.color.text.danger
+          : uiThemeTokens.color.text.primary,
       }}
+      size="sm"
       type={type}
       {...props}
     >
       {children}
-    </button>
+    </Button>
   );
 }
 

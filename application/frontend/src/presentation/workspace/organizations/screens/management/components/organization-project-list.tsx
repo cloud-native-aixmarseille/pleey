@@ -51,7 +51,7 @@ export function OrganizationProjectList({
                 {isSelected ? (
                   <Badge tone="accent">{t('project.management.list.selectedBadge')}</Badge>
                 ) : null}
-                <Button intent="outline" size="sm" onClick={() => onEditProject(project)}>
+                <Button intent="secondary" size="sm" onClick={() => onEditProject(project)}>
                   {t('project.management.list.editButton')}
                 </Button>
                 <Button

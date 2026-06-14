@@ -87,6 +87,12 @@ describe('Host party runtime use cases', () => {
         },
       },
       partyId: PARTY_ID,
+      resetPlayerProgress: {
+        fromStageId: null,
+        gameId: GAME_ID,
+        partyId: PARTY_ID,
+        settings: DEFAULT_PARTY_SETTINGS,
+      },
       status: PartyStatus.ACTIVE,
     });
     expect(broadcastPartyObservationUseCase.execute).toHaveBeenCalledWith({

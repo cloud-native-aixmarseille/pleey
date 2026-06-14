@@ -425,7 +425,7 @@ export function DashboardGamesSection({
 
             <WrapRow gap="xs">
               <Button
-                intent="outline"
+                intent="secondary"
                 leftSection={<AppIcon name="feature" size={14} />}
                 onClick={generatePrivatePartyPassword}
                 size="sm"

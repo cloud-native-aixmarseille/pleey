@@ -36,7 +36,7 @@ export function GameListSortChips({
           return (
             <Button
               aria-pressed={isActive}
-              intent={isActive ? 'outline' : 'ghost'}
+              intent={isActive ? 'secondary' : 'ghost'}
               key={field}
               onClick={() => onToggle(field, defaultDirection)}
               type="button"

@@ -62,7 +62,7 @@ export function GameItemCard({
       ) : null}
       {onManage && descriptor?.managementRoutePath ? (
         <Button
-          intent="outline"
+          intent="secondary"
           leftSection={<AppIcon name="settings" size={14} />}
           onClick={() => onManage(game)}
           size="sm"

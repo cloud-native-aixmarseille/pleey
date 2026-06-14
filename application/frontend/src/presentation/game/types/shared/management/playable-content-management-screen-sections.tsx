@@ -29,7 +29,7 @@ import {
 
 export enum PlayableManagementTab {
   SETUP = 'setup',
-  PROMPTS = 'prompts',
+  STAGES = 'stages',
   REVIEW = 'review',
 }
 
@@ -42,13 +42,21 @@ const managementThemeVars = {
   sectionGap: 'var(--mantine-spacing-lg)',
 } as const;
 
-export const tabsStyle = {
+const tabsStyle = {
   background: managementThemeVars.panelBackground,
   border: `1px solid ${managementThemeVars.panelBorder}`,
   borderRadius: '1rem',
   display: 'grid',
   gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-  overflow: 'hidden',
+  overflow: 'visible',
+} as const;
+
+const tabLabelStyle = {
+  overflow: 'visible',
+  textAlign: 'center',
+  textOverflow: 'clip',
+  whiteSpace: 'normal',
+  wordBreak: 'break-word',
 } as const;
 
 export const editorLayoutStyle = {
@@ -63,7 +71,7 @@ export const tabPanelShellStyle = {
   width: '100%',
 } as const;
 
-export function createTabStyle(active: boolean) {
+function createTabStyle(active: boolean) {
   return {
     background: active ? managementThemeVars.activeTabBackground : 'transparent',
     border: 0,
@@ -73,8 +81,66 @@ export function createTabStyle(active: boolean) {
     color: active ? managementThemeVars.activeTabText : 'inherit',
     cursor: 'pointer',
     fontWeight: 700,
+    minHeight: '3rem',
     padding: '0.95rem',
   } as const;
+}
+
+export function PlayableManagementTabs({
+  activeTab,
+  onOpenStages,
+  onOpenReview,
+  onOpenSetup,
+  translationRoot,
+}: {
+  readonly activeTab: PlayableManagementTab;
+  readonly onOpenStages: () => void;
+  readonly onOpenReview: () => void;
+  readonly onOpenSetup: () => void;
+  readonly translationRoot: string;
+}) {
+  const { t } = usePresentationTranslation();
+
+  return (
+    <div aria-label={t(`${translationRoot}.tabsLabel`)} role="tablist" style={tabsStyle}>
+      <Button
+        aria-selected={activeTab === PlayableManagementTab.SETUP}
+        intent={activeTab === PlayableManagementTab.SETUP ? 'secondary' : 'ghost'}
+        onClick={onOpenSetup}
+        role="tab"
+        labelStyle={tabLabelStyle}
+        rootStyle={createTabStyle(activeTab === PlayableManagementTab.SETUP)}
+        size="sm"
+        type="button"
+      >
+        {t(`${translationRoot}.tabSetup`)}
+      </Button>
+      <Button
+        aria-selected={activeTab === PlayableManagementTab.STAGES}
+        intent={activeTab === PlayableManagementTab.STAGES ? 'secondary' : 'ghost'}
+        onClick={onOpenStages}
+        role="tab"
+        labelStyle={tabLabelStyle}
+        rootStyle={createTabStyle(activeTab === PlayableManagementTab.STAGES)}
+        size="sm"
+        type="button"
+      >
+        {t(`${translationRoot}.tabStages`)}
+      </Button>
+      <Button
+        aria-selected={activeTab === PlayableManagementTab.REVIEW}
+        intent={activeTab === PlayableManagementTab.REVIEW ? 'secondary' : 'ghost'}
+        onClick={onOpenReview}
+        role="tab"
+        labelStyle={tabLabelStyle}
+        rootStyle={createTabStyle(activeTab === PlayableManagementTab.REVIEW)}
+        size="sm"
+        type="button"
+      >
+        {t(`${translationRoot}.tabReview`)}
+      </Button>
+    </div>
+  );
 }
 
 interface ReviewItemSummary {
@@ -148,6 +214,7 @@ export function MetadataPanel({
   description,
   isSaving,
   onSave,
+  randomizeOptionOrder,
   randomizeStageOrder,
   title,
   translationRoot,
@@ -159,8 +226,10 @@ export function MetadataPanel({
     readonly title: string;
     readonly description: string;
     readonly allowOptionChangeAfterVoting: boolean;
+    readonly randomizeOptionOrder: boolean;
     readonly randomizeStageOrder: boolean;
   }) => void;
+  readonly randomizeOptionOrder: boolean;
   readonly randomizeStageOrder: boolean;
   readonly title: string;
   readonly translationRoot: string;
@@ -171,19 +240,22 @@ export function MetadataPanel({
   const [allowOptionChangeAfterVotingValue, setAllowOptionChangeAfterVotingValue] = useState(
     allowOptionChangeAfterVoting,
   );
+  const [randomizeOptionOrderValue, setRandomizeOptionOrderValue] = useState(randomizeOptionOrder);
   const [randomizeStageOrderValue, setRandomizeStageOrderValue] = useState(randomizeStageOrder);
 
   useEffect(() => {
     setTitleValue(title);
     setDescriptionValue(description ?? '');
     setAllowOptionChangeAfterVotingValue(allowOptionChangeAfterVoting);
+    setRandomizeOptionOrderValue(randomizeOptionOrder);
     setRandomizeStageOrderValue(randomizeStageOrder);
-  }, [allowOptionChangeAfterVoting, description, randomizeStageOrder, title]);
+  }, [allowOptionChangeAfterVoting, description, randomizeOptionOrder, randomizeStageOrder, title]);
 
   const isDirty =
     titleValue !== title ||
     descriptionValue !== (description ?? '') ||
     allowOptionChangeAfterVotingValue !== allowOptionChangeAfterVoting ||
+    randomizeOptionOrderValue !== randomizeOptionOrder ||
     randomizeStageOrderValue !== randomizeStageOrder;
 
   return (
@@ -222,6 +294,13 @@ export function MetadataPanel({
           checked={randomizeStageOrderValue}
           onChange={(event) => setRandomizeStageOrderValue(event.currentTarget.checked)}
         />
+        <Checkbox
+          id="playable-game-randomize-option-order"
+          label={t(`${translationRoot}.randomizeOptionOrderLabel`)}
+          description={t(`${translationRoot}.randomizeOptionOrderDescription`)}
+          checked={randomizeOptionOrderValue}
+          onChange={(event) => setRandomizeOptionOrderValue(event.currentTarget.checked)}
+        />
         <div>
           <Button
             disabled={isSaving || !isDirty || titleValue.trim().length === 0}
@@ -230,6 +309,7 @@ export function MetadataPanel({
                 title: titleValue,
                 description: descriptionValue,
                 allowOptionChangeAfterVoting: allowOptionChangeAfterVotingValue,
+                randomizeOptionOrder: randomizeOptionOrderValue,
                 randomizeStageOrder: randomizeStageOrderValue,
               })
             }
@@ -248,7 +328,7 @@ export function ReviewPanel({
   items,
   onEditItem,
   onGoToFirstIssue,
-  onOpenPrompts,
+  onOpenStages,
   onOpenSetup,
   translationRoot,
 }: {
@@ -257,7 +337,7 @@ export function ReviewPanel({
   readonly items: readonly PlayableManagementItem[];
   readonly onEditItem: (item: PlayableManagementItem) => void;
   readonly onGoToFirstIssue: () => void;
-  readonly onOpenPrompts: () => void;
+  readonly onOpenStages: () => void;
   readonly onOpenSetup: () => void;
   readonly translationRoot: string;
 }) {
@@ -335,8 +415,8 @@ export function ReviewPanel({
               />
               <ReviewChecklistRow
                 action={
-                  <Button intent="ghost" onClick={onOpenPrompts} size="sm">
-                    {t(`${translationRoot}.tabPrompts`)}
+                  <Button intent="ghost" onClick={onOpenStages} size="sm">
+                    {t(`${translationRoot}.tabStages`)}
                   </Button>
                 }
                 isComplete={hasItems}

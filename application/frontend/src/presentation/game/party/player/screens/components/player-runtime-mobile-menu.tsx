@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
+import { Button } from '../../../../../shared/ui/actions/button';
 import { uiThemeTokens } from '../../../../../shared/ui/foundation/ui-theme';
 import { AppIcon } from '../../../../../shared/ui/icons/app-icon';
 import {
@@ -10,17 +11,24 @@ import { ProtectedLeavePartyAction } from '../../../shared/screens/components/pr
 
 const MENU_TRIGGER_SIZE_REM = '2.25rem';
 
-const menuTriggerBaseStyle: CSSProperties = {
-  alignItems: 'center',
+type ButtonRootStyle = CSSProperties &
+  Partial<
+    Record<
+      '--button-bd' | '--button-bg' | '--button-color' | '--button-hover' | '--button-hover-color',
+      string
+    >
+  >;
+
+const menuTriggerBaseStyle: ButtonRootStyle = {
+  '--button-bd': `1px solid ${uiThemeTokens.color.border.subtle}`,
+  '--button-bg': uiThemeTokens.color.surface.panel,
+  '--button-color': uiThemeTokens.color.text.primary,
+  '--button-hover': uiThemeTokens.color.surface.recessed,
+  '--button-hover-color': uiThemeTokens.color.text.primary,
   background: uiThemeTokens.color.surface.panel,
-  border: `1px solid ${uiThemeTokens.color.border.subtle}`,
-  borderRadius: '999px',
+  borderRadius: uiThemeTokens.radius.pill,
   boxShadow: uiThemeTokens.shadow.subtle,
-  color: uiThemeTokens.color.text.primary,
-  cursor: 'pointer',
-  display: 'inline-flex',
   height: MENU_TRIGGER_SIZE_REM,
-  justifyContent: 'center',
   position: 'absolute',
   right: 'max(0.5rem, env(safe-area-inset-right))',
   zIndex: 5,
@@ -57,7 +65,7 @@ function resolveMenuTriggerStyle({
 }: {
   readonly hasInlineStatus: boolean;
   readonly timerBarHeightPx?: number;
-}): CSSProperties {
+}): ButtonRootStyle {
   return {
     ...menuTriggerBaseStyle,
     gap: hasInlineStatus ? '0.25rem' : undefined,
@@ -87,17 +95,19 @@ export function PlayerRuntimeMobileMenu({
   return (
     <DropdownMenu
       trigger={
-        <button
+        <Button
           aria-label={ariaLabel}
-          style={resolveMenuTriggerStyle({
+          intent="ghost"
+          rootStyle={resolveMenuTriggerStyle({
             hasInlineStatus: inlineStatus !== undefined,
             timerBarHeightPx,
           })}
+          size="sm"
           type="button"
         >
           {inlineStatus}
           <AppIcon name="menu" size={20} />
-        </button>
+        </Button>
       }
     >
       <DropdownMenuLabel>{menuLabel}</DropdownMenuLabel>

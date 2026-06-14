@@ -27,7 +27,7 @@
         }
       }
     },
-    {
+    { 
       "includes": ["src/presentation/game/types/shared/**/*.{ts,tsx,js,jsx}"],
       "linter": {
         "rules": {

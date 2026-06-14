@@ -19,16 +19,23 @@ export class StartPartyUseCase extends AbstractHostPartyRuntimeUseCase {
   }
 
   async execute(input: HostPartyControlDto): Promise<void> {
-    const party = await this.loadControlledParty(input);
-    const transition = this.hostPartyLifecyclePolicy.start(
-      this.toLifecycleState(party),
-      await this.hostPartyRuntimeStageReferenceResolver.resolveStartStateForGame({
+    return this.executeTransition(
+      input,
+      async (party) =>
+        this.hostPartyLifecyclePolicy.start(
+          this.toLifecycleState(party),
+          await this.hostPartyRuntimeStageReferenceResolver.resolveStartStateForGame({
+            gameId: party.gameId,
+            partyId: party.partyId,
+            settings: party.settings,
+          }),
+        ),
+      (party) => ({
+        fromStageId: null,
         gameId: party.gameId,
         partyId: party.partyId,
         settings: party.settings,
       }),
     );
-
-    await this.persistTransition(input.partyId, transition.status, transition.runtime);
   }
 }
