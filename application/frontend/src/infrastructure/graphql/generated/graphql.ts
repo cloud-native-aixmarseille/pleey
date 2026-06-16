@@ -80,20 +80,20 @@ export enum LaunchReadinessDisabledReason {
 
 export type ListOrganizationProjectsInput = {
   organizationId: string | number;
-  page?: number;
-  pageSize?: number;
+  page: number;
+  pageSize: number;
   search?: string | null | undefined;
 };
 
 export type ListOrganizationsInput = {
-  page?: number;
-  pageSize?: number;
+  page: number;
+  pageSize: number;
   search?: string | null | undefined;
 };
 
 export type ListPartiesInput = {
-  page?: number;
-  pageSize?: number;
+  page: number;
+  pageSize: number;
 };
 
 export type LoginInput = {
@@ -103,8 +103,8 @@ export type LoginInput = {
 
 export type OrganizationMembersInput = {
   organizationId: string | number;
-  page?: number;
-  pageSize?: number;
+  page: number;
+  pageSize: number;
   search?: string | null | undefined;
 };
 
@@ -127,12 +127,12 @@ export enum PartyStatus {
 }
 
 export type ProjectGamesInput = {
-  page?: number;
-  pageSize?: number;
+  page: number;
+  pageSize: number;
   projectId: string | number;
   search?: string | null | undefined;
-  sortDirection?: string;
-  sortField?: string;
+  sortDirection: string;
+  sortField: string;
   types?: Array<string> | null | undefined;
 };
 
