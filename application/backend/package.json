@@ -32,7 +32,7 @@
   "dependencies": {
     "@apollo/server": "^5.5.1",
     "@as-integrations/express5": "^1.1.2",
-    "@dicebear/core": "^10.2.0",
+    "@dicebear/core": "^10.3.0",
     "@dicebear/styles": "^10.2.0",
     "@nestjs/apollo": "^13.4.2",
     "@nestjs/common": "^11.1.27",
@@ -87,7 +87,7 @@
     "@types/passport-jwt": "^4.0.1",
     "@types/supertest": "^7.2.0",
     "@vitest/coverage-v8": "^4.1.9",
-    "@vitest/ui": "^4.1.7",
+    "@vitest/ui": "^4.1.9",
     "knip": "^6.17.1",
     "source-map-support": "^0.5.21",
     "supertest": "^7.2.2",
@@ -95,7 +95,7 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.7"
+    "vitest": "^4.1.9"
   },
   "_comment": "The 'prisma' section is required for Prisma 6.x seed functionality. While deprecated, it's the only supported method until Prisma 7. See: https://pris.ly/prisma-config",
   "prisma": {
