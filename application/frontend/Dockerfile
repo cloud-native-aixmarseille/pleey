@@ -25,7 +25,7 @@ RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc \
 COPY --chown=node:node ./application/frontend/ /usr/src/app/
 RUN npm run build
 
-FROM nginx:1.31-alpine AS prod
+FROM nginx:1.31.2-alpine AS prod
 
 # Install security updates
 # hadolint ignore=DL3018
