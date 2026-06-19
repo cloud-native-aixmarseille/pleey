@@ -61,7 +61,7 @@
     "bcryptjs": "^3.0.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
-    "graphql": "^16.14.2",
+    "graphql": "^17.0.1",
     "graphql-upload-minimal": "^1.6.4",
     "graphql-ws": "^6.0.8",
     "nestjs-i18n": "^10.8.4",
