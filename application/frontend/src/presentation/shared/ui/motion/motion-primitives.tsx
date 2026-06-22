@@ -17,6 +17,10 @@ const DEFAULT_SLIDE_DISTANCE = 12;
 const POP_SPRING: Transition = { type: 'spring', stiffness: 320, damping: 22 };
 const REDUCED_TRANSITION: Transition = { duration: 0 };
 
+function resolveMotionComponent(as?: ElementType) {
+  return (as ? (motion.create(as) as typeof motion.div) : motion.div) as typeof motion.div;
+}
+
 interface MotionFadeInProps {
   readonly as?: ElementType;
   readonly children: ReactNode;
@@ -39,9 +43,7 @@ export function MotionFadeIn({
   testId,
 }: MotionFadeInProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
-  const Component = (
-    as ? (motion.create(as) as typeof motion.div) : motion.div
-  ) as typeof motion.div;
+  const Component = resolveMotionComponent(as);
   const initial = prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y, x };
   const animate = prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0, x: 0 };
   const transition: Transition = prefersReducedMotion
@@ -79,9 +81,7 @@ export function MotionStagger({
   testId,
 }: MotionStaggerProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
-  const Component = (
-    as ? (motion.create(as) as typeof motion.div) : motion.div
-  ) as typeof motion.div;
+  const Component = resolveMotionComponent(as);
   const variants: Variants = prefersReducedMotion
     ? {
         hidden: { opacity: 1 },
@@ -129,9 +129,7 @@ export function MotionStaggerItem({
   testId,
 }: MotionStaggerItemProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
-  const Component = (
-    as ? (motion.create(as) as typeof motion.div) : motion.div
-  ) as typeof motion.div;
+  const Component = resolveMotionComponent(as);
   const variants: Variants = prefersReducedMotion
     ? {
         hidden: { opacity: 1 },
@@ -241,9 +239,7 @@ interface MotionPopProps {
 
 export function MotionPop({ as, children, delay = 0, style }: MotionPopProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
-  const Component = (
-    as ? (motion.create(as) as typeof motion.div) : motion.div
-  ) as typeof motion.div;
+  const Component = resolveMotionComponent(as);
   const initial = prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.6 };
   const animate = prefersReducedMotion ? { opacity: 1 } : { opacity: 1, scale: 1 };
   const transition: Transition = prefersReducedMotion

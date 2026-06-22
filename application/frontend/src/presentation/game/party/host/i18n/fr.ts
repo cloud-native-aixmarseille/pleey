@@ -41,6 +41,9 @@ export const gamePartyHostFr = {
           kickPlayerCta: 'Exclure',
           kickPlayerPending: 'Retrait...',
           kickPlayerAriaLabel: 'Retirer {{username}} de la partie',
+          kickPlayerConfirmTitle: 'Retirer le joueur ?',
+          kickPlayerConfirmMessage: 'Retirer {{username}} de la partie ?',
+          kickPlayerConfirmAction: 'Retirer le joueur',
           musicThemes: {
             none: {
               name: 'Sans musique',

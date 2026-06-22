@@ -6,10 +6,8 @@ export {
   type UiThemeId,
 } from './ui-theme-contract';
 export {
-  defaultUiThemeDefinition,
   findUiTheme,
   type UiThemeDefinition,
-  uiTheme,
   uiThemes,
 } from './ui-theme-definition';
 export {
@@ -28,13 +26,11 @@ export {
   authLayoutTaglineStyle,
   authProfileIdentityStyle,
   createBadgeStyle,
-  createEyebrowTextStyle,
-  createFieldInputStyle,
-  createHeadingStyle,
-  createTextareaInputStyle,
-  emphasizedSummaryTextStyle,
+  externalMonoLinkStyle,
   inlineLinkStyle,
   navPillLinkStyle,
+  pinCodeCharacterGlowStyle,
+  pinCodeTileStyle,
 } from './ui-theme-styles';
 export {
   createUiThemeCssVariables,

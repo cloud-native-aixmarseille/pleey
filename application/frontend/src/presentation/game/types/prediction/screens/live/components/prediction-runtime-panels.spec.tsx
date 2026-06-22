@@ -173,9 +173,10 @@ describe('prediction runtime panels', () => {
     expect(screen.getByText('Away wins')).toBeInTheDocument();
     expect(screen.getByText('game.party.route.runtimeTimeLeft:time=00:10')).toBeInTheDocument();
     expect(
-      screen.getByText(
-        'game.party.route.runtimeResponsesReceived:submitted=1,total=3. game.party.route.runtimeResponsesPending:remaining=2',
-      ),
+      screen.getAllByText('game.party.route.runtimeResponsesReceived:submitted=1,total=3')[0],
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('game.party.route.runtimeResponsesPending:remaining=2'),
     ).toBeInTheDocument();
   });
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { HostPartyRuntimeCommand } from '../../../../../domains/game/party/host/ports/party-host-runtime-controls.port';
 import type { PartyId, PartyPin } from '../../../../../domains/game/party/shared/entities/party';
 import type { PartyActionId } from '../../../../../domains/game/party/shared/entities/party-action';
@@ -246,6 +246,7 @@ export function usePartyLobbyScreenState({
     userId: user?.id ?? null,
   });
   const currentPlayer = party?.players.find((player) => player.isCurrentPlayer) ?? null;
+  const hasObservedCurrentPlayerRef = useRef(currentPlayer !== null);
   const isCurrentUserHost = party?.isObserverHost ?? false;
   const {
     guestName,
@@ -325,6 +326,20 @@ export function usePartyLobbyScreenState({
       window.clearTimeout(timeoutId);
     };
   }, [runtimeNoticeKind]);
+
+  useEffect(() => {
+    if (currentPlayer !== null) {
+      hasObservedCurrentPlayerRef.current = true;
+      return;
+    }
+
+    if (!hasObservedCurrentPlayerRef.current) {
+      return;
+    }
+
+    hasObservedCurrentPlayerRef.current = false;
+    setJoinedPartyId(null);
+  }, [currentPlayer]);
 
   return {
     advanceStage: () => runHostRuntimeCommand(HostPartyRuntimeCommand.AdvanceStage),

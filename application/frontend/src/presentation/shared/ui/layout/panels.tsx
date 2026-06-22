@@ -12,12 +12,22 @@ interface HeroPanelProps extends PropsWithChildren {
   readonly padding?: 'lg' | 'xl';
 }
 
+interface InteractivePanelProps extends PropsWithChildren {
+  readonly padding?: 'lg' | 'xl';
+}
+
 const elevatedStyle = surfaceRecipes.elevated;
-const heroStyle = surfaceRecipes.hero;
 
 export function ElevatedPanel({ children, padding = 'md' }: ElevatedPanelProps) {
   return (
-    <Paper p={padding} style={elevatedStyle}>
+    <Paper
+      bg={elevatedStyle.background}
+      bd={elevatedStyle.border}
+      p={padding}
+      radius={uiThemeTokens.radius.panel}
+      shadow="xl"
+      style={{ backdropFilter: 'blur(16px)' }}
+    >
       {children}
     </Paper>
   );
@@ -25,7 +35,27 @@ export function ElevatedPanel({ children, padding = 'md' }: ElevatedPanelProps) 
 
 export function HeroPanel({ children, padding = 'lg' }: HeroPanelProps) {
   return (
-    <Paper p={padding} style={heroStyle}>
+    <Paper
+      bg={surfaceRecipes.hero.background}
+      bd={surfaceRecipes.hero.border}
+      p={padding}
+      radius={uiThemeTokens.radius.panel}
+      shadow="md"
+    >
+      {children}
+    </Paper>
+  );
+}
+
+export function InteractivePanel({ children, padding = 'lg' }: InteractivePanelProps) {
+  return (
+    <Paper
+      bg={surfaceRecipes.interactive.background}
+      bd={surfaceRecipes.interactive.border}
+      p={padding}
+      radius={uiThemeTokens.radius.panel}
+      shadow="sm"
+    >
       {children}
     </Paper>
   );
@@ -36,44 +66,38 @@ interface InsetPanelProps extends PropsWithChildren {
   readonly tone?: 'accent' | 'default' | 'success';
 }
 
-const insetDefaultStyle = surfaceRecipes.inset;
-
-const insetSuccessStyle = {
-  ...surfaceRecipes.inset,
-  border: `1px solid ${uiThemeTokens.color.border.success}`,
-} as const;
-
-const insetAccentStyle = {
-  ...surfaceRecipes.inset,
-  background: uiThemeTokens.color.surface.accentMuted,
-  border: `1px solid ${uiThemeTokens.color.border.accent}`,
-  boxShadow: uiThemeTokens.shadow.accentGlow,
-} as const;
-
 export function InsetPanel({ children, padding = 'md', tone = 'default' }: InsetPanelProps) {
-  const panelStyle =
+  const background =
+    tone === 'accent' ? uiThemeTokens.color.surface.accentMuted : surfaceRecipes.inset.background;
+  const border =
     tone === 'accent'
-      ? insetAccentStyle
+      ? `1px solid ${uiThemeTokens.color.border.accent}`
       : tone === 'success'
-        ? insetSuccessStyle
-        : insetDefaultStyle;
+        ? `1px solid ${uiThemeTokens.color.border.success}`
+        : surfaceRecipes.inset.border;
+  const shadow = tone === 'accent' ? 'md' : undefined;
 
   return (
-    <Paper p={padding} style={panelStyle}>
+    <Paper
+      bg={background}
+      bd={border}
+      p={padding}
+      radius={uiThemeTokens.radius.inset}
+      shadow={shadow}
+    >
       {children}
     </Paper>
   );
 }
 
-const dashedNoticeStyle = {
-  background: uiThemeTokens.color.surface.accentMuted,
-  border: `1px dashed ${uiThemeTokens.color.border.accent}`,
-  borderRadius: uiThemeTokens.radius.inset,
-} as const;
-
 export function DashedNoticePanel({ children }: PropsWithChildren) {
   return (
-    <Paper p="lg" style={dashedNoticeStyle}>
+    <Paper
+      bg={uiThemeTokens.color.surface.accentMuted}
+      bd={`1px dashed ${uiThemeTokens.color.border.accent}`}
+      p="lg"
+      radius={uiThemeTokens.radius.inset}
+    >
       <SupportingText>{children}</SupportingText>
     </Paper>
   );

@@ -13,7 +13,7 @@ export function Badge({ children, icon, tone = 'accent' }: BadgeProps) {
   }
 
   return (
-    <MantineBadge style={createBadgeStyle(tone)} variant="light">
+    <MantineBadge styles={{ root: createBadgeStyle(tone) }} variant="light">
       {icon ? (
         <Group gap={4} wrap="nowrap">
           {icon}

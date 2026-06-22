@@ -15,7 +15,7 @@ interface ResponsiveGridProps extends PropsWithChildren {
 }
 
 interface ActionRowProps extends PropsWithChildren {
-  readonly gap?: 'sm' | 'md' | 'lg';
+  readonly gap?: 'xs' | 'sm' | 'md' | 'lg';
   readonly justify?: 'start' | 'center' | 'end';
 }
 
@@ -51,11 +51,6 @@ interface StretchRowProps extends PropsWithChildren {
 }
 
 interface FlexGrowItemProps extends PropsWithChildren {}
-
-const autoFillGridStyle = {
-  display: 'grid',
-  width: '100%',
-} as const;
 
 export function PageContainer({ children, maxWidth = 'xl' }: PageContainerProps) {
   return (
@@ -138,15 +133,9 @@ export function SplitWrapRow({ children, align = 'center', gap = 'md' }: SplitWr
 
 export function AutoFillGrid({ children, gap = 'md', minItemWidth }: AutoFillGridProps) {
   return (
-    <Box
-      style={{
-        ...autoFillGridStyle,
-        gap: `var(--mantine-spacing-${gap})`,
-        gridTemplateColumns: `repeat(auto-fill, minmax(${minItemWidth}, 1fr))`,
-      }}
-    >
+    <SimpleGrid autoFlow="auto-fill" minColWidth={minItemWidth} spacing={gap} w="100%">
       {children}
-    </Box>
+    </SimpleGrid>
   );
 }
 

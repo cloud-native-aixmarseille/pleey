@@ -1,5 +1,7 @@
+import { Stack, Text } from '@mantine/core';
 import type { PropsWithChildren } from 'react';
-import { formRecipes } from '../foundation/ui-recipes';
+import { uiThemeTokens } from '../foundation/ui-theme';
+import { uiTypeScale } from '../foundation/ui-typography';
 
 interface FieldShellProps extends PropsWithChildren {
   readonly description?: string;
@@ -22,22 +24,52 @@ export function FieldShell({
   required = false,
 }: FieldShellProps) {
   return (
-    <div style={formRecipes.fieldShell}>
-      <label htmlFor={id} style={formRecipes.fieldLabel}>
+    <Stack gap="xs">
+      <Text
+        c={uiThemeTokens.color.text.secondary}
+        component="label"
+        ff={uiTypeScale.label.fontFamily}
+        fz={uiTypeScale.label.fontSize}
+        fw={uiTypeScale.label.fontWeight}
+        htmlFor={id}
+        lh={uiTypeScale.label.lineHeight}
+        lts={uiTypeScale.label.letterSpacing}
+        tt="uppercase"
+      >
         {label}
         {required ? <span aria-hidden="true"> *</span> : null}
-      </label>
+      </Text>
       {children}
       {description ? (
-        <p id={descriptionId} style={formRecipes.fieldDescription}>
+        <Text
+          c={uiThemeTokens.color.text.quiet}
+          component="p"
+          fz={uiTypeScale.caption.fontSize}
+          fw={uiTypeScale.caption.fontWeight}
+          id={descriptionId}
+          lh={uiTypeScale.caption.lineHeight}
+          lts={uiTypeScale.caption.letterSpacing}
+          m={0}
+        >
           {description}
-        </p>
+        </Text>
       ) : null}
       {error ? (
-        <p aria-live="assertive" id={errorId} role="alert" style={formRecipes.fieldError}>
+        <Text
+          aria-live="assertive"
+          c={uiThemeTokens.color.text.danger}
+          component="p"
+          fz={uiTypeScale.caption.fontSize}
+          fw={uiTypeScale.caption.fontWeight}
+          id={errorId}
+          lh={uiTypeScale.caption.lineHeight}
+          lts={uiTypeScale.caption.letterSpacing}
+          m={0}
+          role="alert"
+        >
           {error}
-        </p>
+        </Text>
       ) : null}
-    </div>
+    </Stack>
   );
 }

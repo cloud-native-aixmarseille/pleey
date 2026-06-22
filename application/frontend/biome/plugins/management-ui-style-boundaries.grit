@@ -1,0 +1,18 @@
+engine biome(1.0)
+language js(typescript, jsx)
+
+file($name, $body) where {
+  $name <: r"^src/presentation/game/types/shared/management/.*\.(ts|tsx|js|jsx)$",
+  $name <: not r"\.(spec|test|styles)\.(ts|tsx|js|jsx)$",
+  $body <: or {
+    r"from\s+['\"][^'\"]*/shared/ui/foundation/ui-theme['\"]",
+    r"from\s+['\"][^'\"]*/shared/ui/foundation/ui-theme-styles['\"]",
+    r"from\s+['\"](?:src/)?presentation/shared/ui/foundation/ui-theme['\"]",
+    r"from\s+['\"](?:src/)?presentation/shared/ui/foundation/ui-theme-styles['\"]"
+  },
+  register_diagnostic(
+    span = $body,
+    message = "Playable-management feature files must not import shared theme tokens directly outside *.styles.ts modules. Move token-driven style definitions into a sibling *.styles.ts file or shared UI primitive, then import the style helper from there.",
+    severity = "error"
+  )
+}

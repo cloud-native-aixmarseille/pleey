@@ -29,25 +29,19 @@ export function DialogActionsFooter({
   bordered = false,
   stacked = false,
 }: DialogActionsFooterProps) {
-  const baseStyle = bordered
-    ? {
-        borderTop: `1px solid ${uiThemeTokens.color.border.subtle}`,
-        width: '100%',
-      }
-    : { width: '100%' };
+  const paddingBottom = stacked
+    ? `calc(${uiThemeTokens.spacing.md} + env(safe-area-inset-bottom, 0px))`
+    : undefined;
 
   return (
     <Box
+      bd={bordered ? `1px solid ${uiThemeTokens.color.border.subtle}` : undefined}
+      bdrs={0}
       px={stacked ? 'md' : 'xl'}
       py={stacked ? 'sm' : 'md'}
-      style={
-        stacked
-          ? {
-              ...baseStyle,
-              paddingBottom: `calc(${uiThemeTokens.spacing.md} + env(safe-area-inset-bottom, 0px))`,
-            }
-          : baseStyle
-      }
+      pb={paddingBottom}
+      style={bordered ? { borderTop: `1px solid ${uiThemeTokens.color.border.subtle}` } : undefined}
+      w="100%"
     >
       {stacked ? (
         <ContentStack gap="sm">{children}</ContentStack>

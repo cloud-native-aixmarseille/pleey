@@ -78,15 +78,13 @@ export function FormDialog({
     >
       <Box
         component="form"
-        display="flex"
-        flex={1}
         noValidate
         onSubmit={onSubmit}
-        style={{ flexDirection: 'column', overflow: 'hidden' }}
+        style={{ display: 'flex', flex: 1, flexDirection: 'column', overflow: 'hidden' }}
       >
-        <div style={accentStripStyle} />
+        <Box bg={accentStripStyle.background} h={2} style={{ flexShrink: 0 }} />
 
-        <Box flex={1} px="xl" py="lg" style={{ overflowY: 'auto' }}>
+        <Box px="xl" py="lg" style={{ flex: 1, overflowY: 'auto' }}>
           <Stack gap="md">
             {banner}
             {children}

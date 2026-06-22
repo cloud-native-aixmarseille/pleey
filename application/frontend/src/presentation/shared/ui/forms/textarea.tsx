@@ -1,8 +1,9 @@
-import type { TextareaHTMLAttributes } from 'react';
-import { createTextareaInputStyle } from '../foundation/ui-theme';
+import {
+  Textarea as MantineTextarea,
+  type TextareaProps as MantineTextareaProps,
+} from '@mantine/core';
 
-interface TextareaProps
-  extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'className' | 'style'> {
+interface TextareaProps extends Omit<MantineTextareaProps, 'className' | 'styles' | 'variant'> {
   readonly invalid?: boolean;
 }
 
@@ -11,10 +12,11 @@ export function Textarea({ invalid = false, rows = 4, ...props }: TextareaProps)
     invalid || props['aria-invalid'] === true || props['aria-invalid'] === 'true';
 
   return (
-    <textarea
+    <MantineTextarea
       aria-invalid={isAriaInvalid || undefined}
+      error={isAriaInvalid}
       rows={rows}
-      style={createTextareaInputStyle(isAriaInvalid)}
+      variant="default"
       {...props}
     />
   );

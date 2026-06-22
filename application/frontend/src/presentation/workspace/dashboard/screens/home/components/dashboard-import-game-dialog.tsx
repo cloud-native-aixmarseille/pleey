@@ -1,20 +1,17 @@
-import { Box, Group, UnstyledButton } from '@mantine/core';
-import { type CSSProperties, type DragEvent, useRef, useState } from 'react';
 import type { PlayableContentImportExampleProvider } from '../../../../../../application/game/types/shared/contracts/playable-content-import.gateway';
 import { PlayableContentImportExampleFormat as ImportExampleFormat } from '../../../../../../application/game/types/shared/contracts/playable-content-import.gateway';
 import { GameType } from '../../../../../../domains/game/types/shared/game-type';
 import type { GameTypeDescriptor } from '../../../../../../domains/game/types/shared/game-type-catalog';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../../shared/ui/actions/button';
-import { Badge } from '../../../../../shared/ui/feedback/badge';
 import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';
 import { FieldShell } from '../../../../../shared/ui/forms/field-shell';
+import { FileUploadDropzone } from '../../../../../shared/ui/forms/file-upload-dropzone';
 import { Input } from '../../../../../shared/ui/forms/input';
 import { Select } from '../../../../../shared/ui/forms/select';
 import { Textarea } from '../../../../../shared/ui/forms/textarea';
-import { uiThemeTokens } from '../../../../../shared/ui/foundation/ui-theme';
 import { AppIcon } from '../../../../../shared/ui/icons/app-icon';
-import { ContentStack, SplitWrapRow, WrapRow } from '../../../../../shared/ui/layout/containers';
+import { ContentStack, WrapRow } from '../../../../../shared/ui/layout/containers';
 import { SupportingText } from '../../../../../shared/ui/layout/typography';
 import { FormDialog } from '../../../../../shared/ui/overlay/form-dialog';
 
@@ -46,68 +43,6 @@ const exampleTemplateLabelKeys: Record<ImportExampleFormat, string> = {
   [ImportExampleFormat.PLAINTEXT]: 'dashboard.games.import.templatePlaintext',
 };
 
-const hiddenInputStyle: CSSProperties = { display: 'none' };
-
-const dropzoneTransition = `border-color ${uiThemeTokens.motion.standard}, background ${uiThemeTokens.motion.standard}, box-shadow ${uiThemeTokens.motion.standard}`;
-
-const dropzoneBaseStyle: CSSProperties = {
-  background: uiThemeTokens.color.surface.recessed,
-  border: `1.5px dashed ${uiThemeTokens.color.border.subtle}`,
-  borderRadius: uiThemeTokens.radius.panel,
-  transition: dropzoneTransition,
-};
-
-const dropzoneActiveStyle: CSSProperties = {
-  background: uiThemeTokens.color.surface.accentMuted,
-  border: `1.5px dashed ${uiThemeTokens.color.border.accent}`,
-  boxShadow: uiThemeTokens.shadow.accentGlow,
-};
-
-const dropzoneButtonStyle: CSSProperties = {
-  alignItems: 'center',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: uiThemeTokens.spacing.sm,
-  padding: `${uiThemeTokens.spacing.xl} ${uiThemeTokens.spacing.lg}`,
-  textAlign: 'center',
-  width: '100%',
-};
-
-const dropzoneSelectedStyle: CSSProperties = { padding: uiThemeTokens.spacing.md };
-
-const promptIconRingStyle: CSSProperties = {
-  alignItems: 'center',
-  background: uiThemeTokens.color.surface.accentMuted,
-  border: `1px solid ${uiThemeTokens.color.border.accent}`,
-  borderRadius: uiThemeTokens.radius.pill,
-  color: uiThemeTokens.color.text.primary,
-  display: 'flex',
-  height: '3.25rem',
-  justifyContent: 'center',
-  width: '3.25rem',
-};
-
-const fileIconTileStyle: CSSProperties = {
-  alignItems: 'center',
-  background: uiThemeTokens.color.surface.field,
-  border: `1px solid ${uiThemeTokens.color.border.success}`,
-  borderRadius: uiThemeTokens.radius.field,
-  color: uiThemeTokens.color.text.primary,
-  display: 'flex',
-  flexShrink: 0,
-  height: '2.75rem',
-  justifyContent: 'center',
-  width: '2.75rem',
-};
-
-const fileNameStyle: CSSProperties = {
-  color: uiThemeTokens.color.text.primary,
-  fontWeight: 700,
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-};
-
 export function DashboardImportGameDialog({
   errorMessage,
   exampleProvider,
@@ -123,49 +58,9 @@ export function DashboardImportGameDialog({
   onSubmit,
 }: DashboardImportGameDialogProps) {
   const { t } = usePresentationTranslation();
-  const [isDragActive, setIsDragActive] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const dragDepthRef = useRef(0);
   const selectedGameType = gameTypes.find((gameType) => gameType.key === form.type);
   const gameTypeValue = form.type ?? '';
   const canSubmit = form.title.trim().length > 0 && file !== null;
-  const openFilePicker = () => {
-    fileInputRef.current?.click();
-  };
-
-  const selectFile = (nextFile: File | null) => {
-    onFileChange(nextFile);
-
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
-  const handleDragEnter = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    dragDepthRef.current += 1;
-    setIsDragActive(true);
-  };
-
-  const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-  };
-
-  const handleDragLeave = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
-
-    if (dragDepthRef.current === 0) {
-      setIsDragActive(false);
-    }
-  };
-
-  const handleDrop = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    dragDepthRef.current = 0;
-    setIsDragActive(false);
-    selectFile(event.dataTransfer.files?.[0] ?? null);
-  };
 
   const handleDownloadExample = (format: ImportExampleFormat) => {
     if (!exampleProvider) {
@@ -186,11 +81,6 @@ export function DashboardImportGameDialog({
       anchor.remove();
       URL.revokeObjectURL(objectUrl);
     }, 0);
-  };
-
-  const dropzoneStyle: CSSProperties = {
-    ...dropzoneBaseStyle,
-    ...(isDragActive ? dropzoneActiveStyle : null),
   };
 
   return (
@@ -259,70 +149,19 @@ export function DashboardImportGameDialog({
         />
       </FieldShell>
 
-      <input
-        accept={acceptedFileTypes}
-        aria-label={t('dashboard.games.import.fileLabel')}
-        onChange={(event) => selectFile(event.target.files?.[0] ?? null)}
-        ref={fileInputRef}
-        style={hiddenInputStyle}
-        type="file"
+      <FileUploadDropzone
+        acceptedFileTypes={acceptedFileTypes}
+        activePrompt={t('dashboard.games.import.dropzoneActive')}
+        clearFileLabel={t('dashboard.games.import.clearFile')}
+        file={file}
+        fieldHelpText={t('dashboard.games.import.fieldHelp')}
+        inputAriaLabel={t('dashboard.games.import.chooseFile')}
+        inputId="import-game-file"
+        label={t('dashboard.games.import.fileLabel')}
+        onFileSelect={onFileChange}
+        prompt={t('dashboard.games.import.dropzonePrompt')}
+        replaceFileLabel={t('dashboard.games.import.replaceFile')}
       />
-
-      <Box
-        onDragEnter={handleDragEnter}
-        onDragLeave={handleDragLeave}
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
-        style={dropzoneStyle}
-      >
-        {file ? (
-          <Box style={dropzoneSelectedStyle}>
-            <SplitWrapRow align="center" gap="sm">
-              <Group gap="sm" wrap="nowrap">
-                <Box style={fileIconTileStyle}>
-                  <AppIcon name="success" size={22} />
-                </Box>
-                <ContentStack gap="xs">
-                  <Box component="span" style={fileNameStyle}>
-                    {file.name}
-                  </Box>
-                  <Group gap="xs">
-                    <Badge tone="success">{formatFileFormat(file.name)}</Badge>
-                    <Badge tone="neutral">{formatFileSize(file.size)}</Badge>
-                  </Group>
-                </ContentStack>
-              </Group>
-              <Group gap="xs" wrap="nowrap">
-                <Button intent="ghost" onClick={openFilePicker} size="sm" type="button">
-                  {t('dashboard.games.import.replaceFile')}
-                </Button>
-                <Button intent="ghost" onClick={() => selectFile(null)} size="sm" type="button">
-                  {t('dashboard.games.import.clearFile')}
-                </Button>
-              </Group>
-            </SplitWrapRow>
-          </Box>
-        ) : (
-          <UnstyledButton
-            aria-label={t('dashboard.games.import.chooseFile')}
-            onClick={openFilePicker}
-            style={dropzoneButtonStyle}
-            type="button"
-          >
-            <Box style={promptIconRingStyle}>
-              <AppIcon name="arrow-up" size={26} />
-            </Box>
-            <SupportingText size="md">
-              {t(
-                isDragActive
-                  ? 'dashboard.games.import.dropzoneActive'
-                  : 'dashboard.games.import.dropzonePrompt',
-              )}
-            </SupportingText>
-            <SupportingText tone="soft">{t('dashboard.games.import.fieldHelp')}</SupportingText>
-          </UnstyledButton>
-        )}
-      </Box>
 
       {exampleProvider ? (
         <ContentStack gap="xs">
@@ -345,27 +184,4 @@ export function DashboardImportGameDialog({
       ) : null}
     </FormDialog>
   );
-}
-
-function formatFileFormat(fileName: string): string {
-  const dotIndex = fileName.lastIndexOf('.');
-  const extension = dotIndex >= 0 ? fileName.slice(dotIndex + 1) : '';
-
-  return extension ? extension.toUpperCase() : 'FILE';
-}
-
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) {
-    return `${bytes} B`;
-  }
-
-  const kilobytes = bytes / 1024;
-
-  if (kilobytes < 1024) {
-    return `${kilobytes.toFixed(kilobytes < 10 ? 1 : 0)} KB`;
-  }
-
-  const megabytes = kilobytes / 1024;
-
-  return `${megabytes.toFixed(megabytes < 10 ? 1 : 0)} MB`;
 }

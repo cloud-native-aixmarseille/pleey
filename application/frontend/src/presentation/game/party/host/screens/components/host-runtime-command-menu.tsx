@@ -1,4 +1,3 @@
-import { Menu } from '@mantine/core';
 import type { ReactNode } from 'react';
 import type {
   HostPartyRuntimeCommand,
@@ -7,8 +6,13 @@ import type {
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { useKeyboardShortcut, useShortcutScope } from '../../../../../shared/keyboard';
 import { Button } from '../../../../../shared/ui/actions/button';
-import { uiThemeTokens } from '../../../../../shared/ui/foundation/ui-theme';
 import { AppIcon, type AppIconName } from '../../../../../shared/ui/icons/app-icon';
+import {
+  DropdownMenu,
+  DropdownMenuDivider,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+} from '../../../../../shared/ui/overlay/dropdown-menu';
 import { HostPartyMusicThemePanel } from './host-party-music-theme-panel';
 
 const HOST_RUNTIME_SHORTCUT_SCOPE = 'host-runtime-controls';
@@ -227,15 +231,13 @@ export function HostRuntimeCommandMenu({
   const menuInstanceKey = pendingCommand ?? HostRuntimeCommandMenuInstanceKey.Idle;
 
   return (
-    <Menu
+    <DropdownMenu
+      ariaLabel={t('game.party.host.route.runtimeMenuLabel')}
       key={menuInstanceKey}
       keepMounted
       position="bottom-end"
       shadow="md"
-      width={300}
-      withinPortal
-    >
-      <Menu.Target>
+      trigger={
         <Button
           intent="ghost"
           leftSection={<AppIcon name="settings" size={16} />}
@@ -244,26 +246,18 @@ export function HostRuntimeCommandMenu({
         >
           {t('game.party.host.route.runtimeMenuTrigger')}
         </Button>
-      </Menu.Target>
-
-      <Menu.Dropdown
-        aria-label={t('game.party.host.route.runtimeMenuLabel')}
-        style={{
-          background: `color-mix(in srgb, ${uiThemeTokens.color.surface.overlay} 76%, ${uiThemeTokens.color.surface.panel})`,
-          backdropFilter: 'blur(12px)',
-          border: `1px solid ${uiThemeTokens.color.border.subtle}`,
-          boxShadow: uiThemeTokens.shadow.elevated,
-        }}
-      >
-        {groups.map((group, groupIndex) => (
-          <RuntimeMenuGroup
-            key={group.label}
-            group={group}
-            withDivider={groupIndex < groups.length - 1}
-          />
-        ))}
-      </Menu.Dropdown>
-    </Menu>
+      }
+      width={300}
+      withinPortal
+    >
+      {groups.map((group, groupIndex) => (
+        <RuntimeMenuGroup
+          key={group.label}
+          group={group}
+          withDivider={groupIndex < groups.length - 1}
+        />
+      ))}
+    </DropdownMenu>
   );
 }
 
@@ -276,20 +270,20 @@ function RuntimeMenuGroup({
 }) {
   return (
     <>
-      <Menu.Label>{group.label}</Menu.Label>
+      <DropdownMenuLabel>{group.label}</DropdownMenuLabel>
       {group.entries?.map((entry) => (
-        <Menu.Item
+        <DropdownMenuItem
           aria-keyshortcuts={entry.ariaKeyShortcuts}
-          key={entry.label}
           disabled={entry.disabled}
+          key={entry.label}
           leftSection={<AppIcon name={entry.icon} size={16} />}
           onClick={entry.onSelect}
         >
           {entry.label}
-        </Menu.Item>
+        </DropdownMenuItem>
       ))}
       {group.content}
-      {withDivider ? <Menu.Divider /> : null}
+      {withDivider ? <DropdownMenuDivider /> : null}
     </>
   );
 }

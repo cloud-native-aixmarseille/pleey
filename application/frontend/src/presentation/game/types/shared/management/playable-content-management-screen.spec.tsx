@@ -228,6 +228,40 @@ describe('PlayableContentManagementScreen', () => {
     expect(screen.getAllByRole('textbox')).toHaveLength(6);
   });
 
+  it('asks for confirmation before removing an outcome while creating an item', async () => {
+    const user = userEvent.setup();
+    renderScreen();
+
+    await user.click(
+      await screen.findByRole('button', { name: 'game.types.quiz.management.createItem' }),
+    );
+
+    await user.click(screen.getByRole('button', { name: 'game.types.quiz.management.addOutcome' }));
+
+    expect(screen.getAllByRole('textbox')).toHaveLength(4);
+
+    await user.click(
+      screen.getAllByRole('button', { name: 'game.types.quiz.management.removeOutcomeShort' })[0],
+    );
+
+    expect(
+      await screen.findByRole('button', {
+        name: 'game.types.quiz.management.removeOutcomeConfirmAction',
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByRole('textbox')).toHaveLength(4);
+
+    await user.click(
+      await screen.findByRole('button', {
+        name: 'game.types.quiz.management.removeOutcomeConfirmAction',
+      }),
+    );
+
+    await waitFor(() => {
+      expect(screen.getAllByRole('textbox')).toHaveLength(3);
+    });
+  });
+
   it('reorders items from the compact stage rail', async () => {
     const user = userEvent.setup();
     renderScreen();

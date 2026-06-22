@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { PlayableManagementItem } from '../../../../../../domains/game/types/shared/management/playable-management';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../../shared/ui/actions/button';
+import { ReorderDropIndicator } from '../../../../../shared/ui/actions/reorder-drop-indicator';
 import { AppIcon } from '../../../../../shared/ui/icons/app-icon';
 import { ContentStack, SplitWrapRow } from '../../../../../shared/ui/layout/containers';
 import { DashedNoticePanel, ElevatedPanel } from '../../../../../shared/ui/layout/panels';
@@ -10,7 +11,7 @@ import { useWorkspaceDependencies } from '../../../../../workspace/shared/contex
 import type { PlayableItemKindConfig } from '../playable-content-management-model';
 import type { PlayableManagementDropPreview } from '../playable-management-drag-placement';
 import { PlayableManagementStageRailItem } from './playable-management-stage-rail-item';
-import { dropIndicatorStyle, listStyle } from './stage-rail-styles';
+import { listStyle } from './stage-rail-styles';
 
 interface PlayableManagementStageRailProps {
   readonly itemKindConfig?: PlayableItemKindConfig;
@@ -76,7 +77,7 @@ export function PlayableManagementStageRail({
             ))}
             {dropPreview?.slot === items.length ? (
               <li aria-hidden="true">
-                <div style={dropIndicatorStyle} />
+                <ReorderDropIndicator />
               </li>
             ) : null}
           </ol>

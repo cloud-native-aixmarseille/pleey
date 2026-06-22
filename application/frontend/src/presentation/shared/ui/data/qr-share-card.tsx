@@ -1,9 +1,10 @@
-import { Anchor, Paper } from '@mantine/core';
+import { Paper } from '@mantine/core';
 import QRCode from 'react-qr-code';
 import { CopyButton } from '../actions/copy-button';
 import { uiThemeTokens } from '../foundation/ui-theme';
 import { ContentStack } from '../layout/containers';
 import { SupportingText } from '../layout/typography';
+import { ExternalTextLink } from '../navigation/links';
 
 const ResolvedQrCode = resolveQrCodeComponent(QRCode) as typeof QRCode;
 
@@ -13,21 +14,6 @@ interface QrShareCardProps {
   readonly visitLabel: string;
   readonly copyLabel?: string;
 }
-
-const qrFrameStyle = {
-  background: '#ffffff',
-  borderRadius: uiThemeTokens.radius.inset,
-  display: 'inline-flex',
-  padding: uiThemeTokens.spacing.md,
-} as const;
-
-const shareLinkStyle = {
-  color: uiThemeTokens.color.brand.accent,
-  fontFamily: uiThemeTokens.typography.monoFamily,
-  letterSpacing: '0.04em',
-  textDecoration: 'none',
-  wordBreak: 'break-all',
-} as const;
 
 function stripScheme(url: string): string {
   return url.replace(/^https?:\/\//, '');
@@ -53,7 +39,7 @@ export function QrShareCard({ href, scanLabel, visitLabel, copyLabel }: QrShareC
   return (
     <ContentStack align="center" gap="xl">
       <ContentStack align="center" gap="sm">
-        <Paper style={qrFrameStyle}>
+        <Paper bg="#ffffff" display="inline-flex" p="md" radius={uiThemeTokens.radius.inset}>
           <ResolvedQrCode level="M" size={160} value={href} />
         </Paper>
         <SupportingText tone="soft">{scanLabel}</SupportingText>
@@ -61,9 +47,7 @@ export function QrShareCard({ href, scanLabel, visitLabel, copyLabel }: QrShareC
 
       <ContentStack align="center" gap="sm">
         <SupportingText>{visitLabel}</SupportingText>
-        <Anchor href={href} style={shareLinkStyle} target="_blank">
-          {displayUrl}
-        </Anchor>
+        <ExternalTextLink href={href}>{displayUrl}</ExternalTextLink>
         {copyLabel ? (
           <CopyButton size="sm" textToCopy={href}>
             {copyLabel}

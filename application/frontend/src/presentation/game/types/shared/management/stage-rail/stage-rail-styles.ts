@@ -8,14 +8,6 @@ export const listStyle = {
   padding: 0,
 } as const;
 
-export const dropIndicatorStyle = {
-  background: uiThemeTokens.color.brand.primary,
-  borderRadius: '999px',
-  boxShadow: `0 0 0 4px color-mix(in srgb, ${uiThemeTokens.color.brand.primary} 18%, transparent)`,
-  height: '0.25rem',
-  margin: '0.2rem 0',
-} as const;
-
 export const createItemCardStyle = (
   selected: boolean,
   isDragging: boolean,
@@ -63,54 +55,14 @@ export const itemSelectButtonStyle = {
   width: '100%',
 } as const;
 
-export const itemMetaRowStyle = {
-  alignItems: 'center',
-  display: 'flex',
-  flexWrap: 'wrap',
+export const itemButtonContentStyle = {
+  display: 'grid',
   gap: '0.5rem',
-  width: '100%',
-} as const;
-
-export const itemTitleStyle = {
-  display: 'block',
-  fontWeight: 700,
+  gridTemplateColumns: 'minmax(0, 1fr)',
+  lineHeight: 1.35,
   overflow: 'visible',
   textAlign: 'left',
   whiteSpace: 'normal',
   width: '100%',
   wordBreak: 'break-word',
 } as const;
-
-export const itemMetaStatStyle = {
-  alignItems: 'center',
-  border: `1px solid ${uiThemeTokens.color.border.subtle}`,
-  borderRadius: '999px',
-  display: 'flex',
-  gap: '0.35rem',
-  padding: '0.2rem 0.55rem',
-} as const;
-
-export const itemActionRowStyle = {
-  alignItems: 'center',
-  display: 'flex',
-  gap: '0.75rem',
-  justifyContent: 'space-between',
-} as const;
-
-export const createDragHandleStyle = (isHovering: boolean, isDragging: boolean) =>
-  ({
-    alignItems: 'center',
-    background: isHovering
-      ? `color-mix(in srgb, ${uiThemeTokens.color.brand.primary} 10%, transparent)`
-      : 'transparent',
-    border: isHovering
-      ? `1px solid color-mix(in srgb, ${uiThemeTokens.color.brand.primary} 55%, transparent)`
-      : '1px solid transparent',
-    borderRadius: '0.85rem',
-    cursor: isDragging ? 'grabbing' : 'grab',
-    display: 'flex',
-    gap: '0.5rem',
-    padding: '0.35rem 0.55rem',
-    touchAction: 'none',
-    transition: 'background 120ms ease, border-color 120ms ease',
-  }) as const;

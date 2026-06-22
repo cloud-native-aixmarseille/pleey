@@ -1,6 +1,6 @@
 import { Group, Skeleton, Stack } from '@mantine/core';
 import type { PropsWithChildren } from 'react';
-import { uiThemeTokens } from '../foundation/ui-theme';
+import { AccentIconBadge } from '../icons/accent-icon-badge';
 import { AppIcon } from '../icons/app-icon';
 import { ContentStack } from '../layout/containers';
 import { SupportingText } from '../layout/typography';
@@ -11,9 +11,9 @@ function IconMessageState({
 }: PropsWithChildren<{ readonly iconName: 'empty' | 'pending' }>) {
   return (
     <ContentStack align="center" gap="xs">
-      <span style={{ color: uiThemeTokens.color.brand.primary }}>
+      <AccentIconBadge size={32}>
         <AppIcon name={iconName} size={20} />
-      </span>
+      </AccentIconBadge>
       <SupportingText>{children}</SupportingText>
     </ContentStack>
   );

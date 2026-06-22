@@ -133,14 +133,15 @@ function renderDesktopPodiumEntry(
             👑
           </span>
         ) : null}
-        <UserAvatar
-          alt={t('game.party.route.finalSummaryAvatarAlt', {
-            username: player.username,
-          })}
-          size={avatarSize}
-          src={player.avatarUri}
-          style={buildPodiumAvatarStyle(rank)}
-        />
+        <div style={buildPodiumAvatarStyle(rank)}>
+          <UserAvatar
+            alt={t('game.party.route.finalSummaryAvatarAlt', {
+              username: player.username,
+            })}
+            size={avatarSize}
+            src={player.avatarUri}
+          />
+        </div>
         <div style={buildPodiumBadgeStyle(rank)}>{rank}</div>
         <p style={podiumUsernameStyle}>{player.username}</p>
         <p style={podiumPointsStyle}>
@@ -188,14 +189,15 @@ function renderMobilePodiumEntry(
         </div>
         <ResponseSuccessRatio player={player} t={t} totalStages={totalStages} />
         <div style={podiumMobileIdentityStyle}>
-          <UserAvatar
-            alt={t('game.party.route.finalSummaryAvatarAlt', {
-              username: player.username,
-            })}
-            size={56}
-            src={player.avatarUri}
-            style={buildPodiumAvatarStyle(rank)}
-          />
+          <div style={buildPodiumAvatarStyle(rank)}>
+            <UserAvatar
+              alt={t('game.party.route.finalSummaryAvatarAlt', {
+                username: player.username,
+              })}
+              size={56}
+              src={player.avatarUri}
+            />
+          </div>
           <div style={podiumMobileNameGroupStyle}>
             <p style={podiumUsernameStyle}>{player.username}</p>
             {player.isCurrentPlayer ? (
@@ -222,14 +224,15 @@ function renderMobileWinnerEntry(
           </span>
           <div style={buildPodiumBadgeStyle(1)}>1</div>
         </div>
-        <UserAvatar
-          alt={t('game.party.route.finalSummaryAvatarAlt', {
-            username: player.username,
-          })}
-          size={88}
-          src={player.avatarUri}
-          style={buildPodiumAvatarStyle(1)}
-        />
+        <div style={buildPodiumAvatarStyle(1)}>
+          <UserAvatar
+            alt={t('game.party.route.finalSummaryAvatarAlt', {
+              username: player.username,
+            })}
+            size={88}
+            src={player.avatarUri}
+          />
+        </div>
         <p style={mobileWinnerNameStyle}>{player.username}</p>
         <p style={mobileWinnerScoreStyle}>
           {t('game.party.route.finalLeaderboardScore', {

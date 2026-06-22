@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { renderWithUiProvider } from '../../../../test-utils/render-with-ui-provider';
-import { DashedNoticePanel, ElevatedPanel, InsetPanel } from './panels';
+import { DashedNoticePanel, ElevatedPanel, InsetPanel, InteractivePanel } from './panels';
 
 describe('panels', () => {
   describe('InsetPanel()', () => {
@@ -33,6 +33,18 @@ describe('panels', () => {
       );
 
       expect(screen.getByText('Elevated content')).toBeInTheDocument();
+    });
+  });
+
+  describe('InteractivePanel()', () => {
+    it('renders children inside an interactive surface', () => {
+      renderWithUiProvider(
+        <InteractivePanel>
+          <span>Interactive content</span>
+        </InteractivePanel>,
+      );
+
+      expect(screen.getByText('Interactive content')).toBeInTheDocument();
     });
   });
 });

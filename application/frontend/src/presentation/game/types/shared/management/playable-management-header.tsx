@@ -2,10 +2,11 @@ import { useState } from 'react';
 import type { PlayableManagementState } from '../../../../../domains/game/types/shared/management/playable-management';
 import { usePresentationTranslation } from '../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../shared/ui/actions/button';
-import { uiThemeTokens } from '../../../../shared/ui/foundation/ui-theme';
+import { MenuActionButton } from '../../../../shared/ui/actions/menu-action-button';
 import { AppIcon } from '../../../../shared/ui/icons/app-icon';
 import { ActionRow, ContentStack, SplitWrapRow } from '../../../../shared/ui/layout/containers';
 import { Eyebrow, Heading, SupportingText } from '../../../../shared/ui/layout/typography';
+import { ManualMenuPanel, ManualMenuWrapper } from '../../../../shared/ui/overlay/manual-menu';
 
 interface PlayableManagementHeaderProps {
   readonly state: PlayableManagementState;
@@ -15,41 +16,6 @@ interface PlayableManagementHeaderProps {
   readonly onDeleteGame: () => void;
   readonly onEditGame: () => void;
 }
-
-const menuWrapperStyle = {
-  position: 'relative',
-} as const;
-
-const menuStyle = {
-  background: uiThemeTokens.color.surface.canvas,
-  border: `1px solid ${uiThemeTokens.color.border.subtle}`,
-  borderRadius: '1rem',
-  boxShadow: uiThemeTokens.shadow.elevated,
-  display: 'grid',
-  gap: '0.25rem',
-  minWidth: '13rem',
-  padding: '0.5rem',
-  position: 'absolute',
-  right: 0,
-  top: 'calc(100% + 0.5rem)',
-  zIndex: 10,
-} as const;
-
-const menuItemStyle = {
-  '--button-bd': '1px solid transparent',
-  '--button-bg': 'transparent',
-  '--button-color': 'inherit',
-  '--button-hover': uiThemeTokens.color.surface.recessed,
-  '--button-hover-color': uiThemeTokens.color.text.primary,
-  borderRadius: '0.75rem',
-  justifyContent: 'flex-start',
-  padding: '0.6rem 0.75rem',
-} as const;
-
-const dangerMenuItemStyle = {
-  ...menuItemStyle,
-  '--button-color': 'var(--mantine-color-red-3)',
-} as const;
 
 export function PlayableManagementHeader({
   onBack,
@@ -79,7 +45,7 @@ export function PlayableManagementHeader({
         >
           {t(`${translationRoot}.back`)}
         </Button>
-        <div style={menuWrapperStyle}>
+        <ManualMenuWrapper>
           <Button
             aria-expanded={isMenuOpen}
             aria-haspopup="menu"
@@ -90,40 +56,29 @@ export function PlayableManagementHeader({
             {t(`${translationRoot}.moreActions`)}
           </Button>
           {isMenuOpen ? (
-            <div role="menu" style={menuStyle}>
-              <Button
-                fullWidth
-                intent="ghost"
-                labelStyle={{ textAlign: 'left', width: '100%' }}
+            <ManualMenuPanel>
+              <MenuActionButton
                 onClick={() => {
                   setIsMenuOpen(false);
                   onEditGame();
                 }}
                 role="menuitem"
-                rootStyle={menuItemStyle}
-                size="sm"
-                type="button"
               >
                 {t(`${translationRoot}.editGame`)}
-              </Button>
-              <Button
-                fullWidth
-                intent="ghost"
-                labelStyle={{ textAlign: 'left', width: '100%' }}
+              </MenuActionButton>
+              <MenuActionButton
                 onClick={() => {
                   setIsMenuOpen(false);
                   onDeleteGame();
                 }}
                 role="menuitem"
-                rootStyle={dangerMenuItemStyle}
-                size="sm"
-                type="button"
+                tone="danger"
               >
                 {t(`${translationRoot}.deleteGame`)}
-              </Button>
-            </div>
+              </MenuActionButton>
+            </ManualMenuPanel>
           ) : null}
-        </div>
+        </ManualMenuWrapper>
       </ActionRow>
     </SplitWrapRow>
   );

@@ -1,10 +1,5 @@
-import { Alert } from '@mantine/core';
 import type { PropsWithChildren } from 'react';
-import {
-  createStatusBannerStyles,
-  StatusBannerIcon,
-  type StatusBannerTone,
-} from './status-banner-primitives';
+import { StatusBannerFrame, type StatusBannerTone } from './status-banner-primitives';
 
 interface StatusBannerProps extends PropsWithChildren {
   readonly tone?: StatusBannerTone;
@@ -18,14 +13,12 @@ export function StatusBanner({ children, tone = 'info' }: StatusBannerProps) {
   const isError = tone === 'error';
 
   return (
-    <Alert
-      aria-live={isError ? 'assertive' : 'polite'}
-      icon={<StatusBannerIcon tone={tone} />}
+    <StatusBannerFrame
+      ariaLive={isError ? 'assertive' : 'polite'}
       role={isError ? 'alert' : 'status'}
-      styles={createStatusBannerStyles(tone)}
-      variant="light"
+      tone={tone}
     >
       {children}
-    </Alert>
+    </StatusBannerFrame>
   );
 }

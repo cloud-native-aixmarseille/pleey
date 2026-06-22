@@ -17,6 +17,7 @@ describe('Select', () => {
       );
 
       expect(screen.getByLabelText('Game type')).toHaveValue('quiz');
+      expect(screen.getByLabelText('Game type')).toHaveDisplayValue('Quiz');
     });
 
     it('exposes aria-invalid when invalid', () => {

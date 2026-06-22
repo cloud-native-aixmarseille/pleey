@@ -18,4 +18,13 @@ describe('UserAvatar', () => {
 
     expect(screen.getByText('A')).toBeInTheDocument();
   });
+
+  it('supports the framed appearance preset', () => {
+    const { container } = renderWithUiProvider(<UserAvatar alt="Jane Doe" appearance="framed" />);
+
+    expect(container.querySelector('.mantine-Avatar-root')).toHaveAttribute(
+      'style',
+      expect.stringContaining('border: 2px solid var(--ui-color-border-accent);'),
+    );
+  });
 });

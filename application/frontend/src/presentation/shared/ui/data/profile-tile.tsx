@@ -1,4 +1,4 @@
-import { Text } from '@mantine/core';
+import { Center, Text } from '@mantine/core';
 import type { ReactNode } from 'react';
 import { Badge } from '../feedback/badge';
 import { uiThemeTokens } from '../foundation/ui-theme';
@@ -16,25 +16,6 @@ interface ProfileTileProps {
   readonly title: string;
 }
 
-const profileTitleStyle = {
-  color: uiThemeTokens.color.text.primary,
-  fontWeight: 600,
-  margin: 0,
-  maxWidth: '100%',
-  overflow: 'hidden',
-  textAlign: 'center',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-} as const;
-
-const highlightSlotStyle = {
-  alignItems: 'center',
-  display: 'flex',
-  justifyContent: 'center',
-  minHeight: '1.5rem',
-  width: '100%',
-} as const;
-
 export function ProfileTile({
   avatarAlt,
   avatarSrc,
@@ -47,15 +28,24 @@ export function ProfileTile({
   return (
     <InsetPanel padding="md" tone={highlighted ? 'accent' : 'default'}>
       <ContentStack align="center" gap="xs">
-        <div data-testid="profile-tile-highlight-slot" style={highlightSlotStyle}>
+        <Center data-testid="profile-tile-highlight-slot" mih="1.5rem" w="100%">
           {highlightLabel ? (
             <ActionRow justify="center">
               <Badge tone="success">{highlightLabel}</Badge>
             </ActionRow>
           ) : null}
-        </div>
+        </Center>
         <UserAvatar alt={avatarAlt} size={56} src={avatarSrc} />
-        <Text component="p" style={profileTitleStyle} w="100%">
+        <Text
+          c={uiThemeTokens.color.text.primary}
+          component="p"
+          fw={600}
+          m={0}
+          maw="100%"
+          ta="center"
+          truncate="end"
+          w="100%"
+        >
           {title}
         </Text>
         <Badge tone={highlighted ? 'accent' : 'neutral'}>{badgeLabel}</Badge>

@@ -126,6 +126,46 @@ describe('PlayableContentImportParser', () => {
     expect(source.readLinesCalls).toBe(0);
   });
 
+  it('parses markdown quiz imports that use headings, metadata, and checklist answers', async () => {
+    const source = new TestPlayableContentImportSource(
+      'pleey-quiz-import.md',
+      [
+        '# BuildKit Powers - Quiz Pleey',
+        '',
+        "## BuildKit, c'est quoi vraiment ?",
+        '',
+        'Time: 20',
+        'Points: 1000',
+        '',
+        '- [ ] Un flag pour accelerer `docker build`',
+        '- [x] Le moteur de build moderne derriere Docker et Buildx',
+        '- [ ] Un remplaçant de Dockerfile',
+        '- [ ] Uniquement un outil de multi-arch',
+        '',
+        '## Mon cache ne sert a rien en CI',
+        '',
+        'Time: 20',
+        'Points: 1000',
+        '',
+        '- [ ] Il suffit de mettre `--cache-from` et prier',
+        '- [ ] Le cache de layers + `--cache-from` suffit pour `npm`, `pip`, `go`, `cargo`',
+        '- [x] Il faut traiter differemment le cache de build et le cache des dependances',
+        "- [ ] En runner ephemere, il n'y a de toute facon rien a faire",
+      ].join('\n'),
+    );
+
+    const result = await parser.parse(source);
+
+    expect(result).toHaveLength(2);
+    expect(result[0]).toMatchObject({
+      points: 1000,
+      text: "BuildKit, c'est quoi vraiment ?",
+      timeLimit: 20,
+    });
+    expect(result[0]?.options).toHaveLength(4);
+    expect(result[0]?.options.filter((option) => option.isCorrect)).toHaveLength(1);
+  });
+
   it('rejects unsupported file extensions', async () => {
     await expect(
       parser.parse(new TestPlayableContentImportSource('quiz-import.docx', 'Question: Example')),
