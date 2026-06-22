@@ -1,11 +1,10 @@
 import type { PartyObservationPlayer } from '../../../../../../domains/game/party/shared/entities/party-observation-player';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
-import { uiThemeTokens } from '../../../../../shared/ui/foundation/ui-theme';
-import { uiTypeScale } from '../../../../../shared/ui/foundation/ui-typography';
 import { ContentStack } from '../../../../../shared/ui/layout/containers';
 import { HeroPanel } from '../../../../../shared/ui/layout/panels';
 import { MotionFadeIn, MotionPop } from '../../../../../shared/ui/motion/motion-primitives';
 import {
+  finalSummaryEyebrowStyle,
   heroContentStyle,
   heroIconStyle,
   heroSubtitleStyle,
@@ -34,7 +33,7 @@ export function PartyFinalSummaryHero({ isMobile, winner }: PartyFinalSummaryHer
             </span>
           </MotionPop>
           <MotionFadeIn delay={1.1}>
-            <span style={{ ...uiTypeScale.overline, color: uiThemeTokens.color.text.soft }}>
+            <span style={finalSummaryEyebrowStyle}>
               {t('game.party.route.finalSummaryEyebrow')}
             </span>
           </MotionFadeIn>

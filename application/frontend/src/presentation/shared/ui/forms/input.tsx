@@ -1,8 +1,10 @@
-import type { InputHTMLAttributes } from 'react';
-import { createFieldInputStyle } from '../foundation/ui-theme';
+import {
+  TextInput as MantineTextInput,
+  type TextInputProps as MantineTextInputProps,
+} from '@mantine/core';
 
 interface InputProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'className' | 'size' | 'style'> {
+  extends Omit<MantineTextInputProps, 'className' | 'size' | 'styles' | 'variant'> {
   readonly invalid?: boolean;
   readonly compact?: boolean;
 }
@@ -12,9 +14,11 @@ export function Input({ invalid = false, compact = false, ...props }: InputProps
     invalid || props['aria-invalid'] === true || props['aria-invalid'] === 'true';
 
   return (
-    <input
+    <MantineTextInput
       aria-invalid={isAriaInvalid || undefined}
-      style={createFieldInputStyle(isAriaInvalid, compact)}
+      error={isAriaInvalid}
+      size={compact ? 'sm' : 'md'}
+      variant="default"
       {...props}
     />
   );

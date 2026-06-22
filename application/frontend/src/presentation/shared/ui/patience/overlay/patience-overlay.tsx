@@ -1,3 +1,4 @@
+import { Box, VisuallyHidden } from '@mantine/core';
 import { useLayoutEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { usePresentationTranslation } from '../../../i18n/use-presentation-translation';
@@ -5,23 +6,6 @@ import { usePatienceDelay } from '../hooks/use-patience-delay';
 import type { PatienceAnimationRegistry } from '../patience-animation-registry-context';
 import { usePatiencePlayground } from '../playground/patience-playground-context';
 import { PatienceAnimationId } from '../types';
-
-const overlayStyle = {
-  overflow: 'hidden',
-  pointerEvents: 'none',
-  position: 'fixed',
-  zIndex: 60,
-} as const;
-
-const srOnlyStyle = {
-  clip: 'rect(0 0 0 0)',
-  clipPath: 'inset(50%)',
-  height: 1,
-  overflow: 'hidden',
-  position: 'absolute',
-  whiteSpace: 'nowrap',
-  width: 1,
-} as const;
 
 interface PatienceOverlayProps {
   readonly active?: boolean;
@@ -94,22 +78,21 @@ export function PatienceOverlay({
   }
 
   return createPortal(
-    <div
+    <Box
       aria-hidden={!active}
-      style={{
-        ...overlayStyle,
-        top: containerRect?.top ?? 0,
-        left: containerRect?.left ?? 0,
-        width: containerRect?.width ?? 0,
-        height: containerRect?.height ?? 0,
-      }}
+      h={containerRect?.height ?? 0}
+      left={containerRect?.left ?? 0}
+      pos="fixed"
+      style={{ overflow: 'hidden', pointerEvents: 'none', zIndex: 60 }}
+      top={containerRect?.top ?? 0}
+      w={containerRect?.width ?? 0}
     >
-      <output aria-live="polite" style={srOnlyStyle}>
+      <VisuallyHidden aria-live="polite" component="output">
         {ariaLabel}
-      </output>
+      </VisuallyHidden>
 
       <AnimationComponent container={container} />
-    </div>,
+    </Box>,
     document.body,
   );
 }

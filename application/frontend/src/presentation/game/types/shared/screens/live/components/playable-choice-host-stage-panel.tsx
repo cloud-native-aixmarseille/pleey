@@ -1,19 +1,27 @@
 import { PartyStatus } from '../../../../../../../domains/game/party/shared/entities/party-status';
 import { usePresentationTranslation } from '../../../../../../shared/i18n/use-presentation-translation';
-import { StatusBanner } from '../../../../../../shared/ui/feedback/status-banner';
-import {
-  ContentStack,
-  ResponsiveGrid,
-  SplitWrapRow,
-} from '../../../../../../shared/ui/layout/containers';
-import { HeroPanel } from '../../../../../../shared/ui/layout/panels';
-import { Heading, SupportingText } from '../../../../../../shared/ui/layout/typography';
+import { Badge } from '../../../../../../shared/ui/feedback/badge';
+import { AppIcon } from '../../../../../../shared/ui/icons/app-icon';
+import { ContentStack, ResponsiveGrid } from '../../../../../../shared/ui/layout/containers';
+import { HeroPanel, InsetPanel } from '../../../../../../shared/ui/layout/panels';
+import { Heading, SummaryText } from '../../../../../../shared/ui/layout/typography';
 import {
   MotionFadeIn,
   MotionStagger,
   MotionStaggerItem,
 } from '../../../../../../shared/ui/motion/motion-primitives';
 import { resolvePlayableChoiceActionSlotLabel } from './playable-choice-action-slot-identity';
+import {
+  stageContentStyle,
+  stageMetaPrimarySlotStyle,
+  stageMetaRowStyle,
+  stageMetaStatusStyle,
+  stageMetaStyle,
+  stageMetaTimerSlotStyle,
+  stagePromptContentStyle,
+  stagePromptRegionStyle,
+  stageShellStyle,
+} from './playable-choice-host-stage-panel.styles';
 import { PlayableChoiceResultActionTile } from './playable-choice-result-action-tile';
 import type { PlayableChoiceHostRuntimePanelProps } from './playable-choice-runtime-panel.types';
 import { StageCountdownTimer } from './stage-countdown-timer';
@@ -25,35 +33,6 @@ import {
 const STAGE_ANSWER_REVEAL_INITIAL_DELAY_SECONDS = 1.8;
 const STAGE_ANSWER_REVEAL_STAGGER_SECONDS = 0.22;
 const STAGE_QUESTION_REVEAL_DURATION_SECONDS = 1.0;
-
-const stageShellStyle = {
-  display: 'flex',
-  flexDirection: 'column',
-  minHeight: 'calc(100vh - 240px)',
-  width: '100%',
-} as const;
-
-const stageContentStyle = {
-  display: 'flex',
-  flex: 1,
-  flexDirection: 'column',
-  gap: 'var(--mantine-spacing-xl)',
-} as const;
-
-const stagePromptRegionStyle = {
-  alignItems: 'center',
-  display: 'flex',
-  flex: 1,
-  justifyContent: 'center',
-  textAlign: 'center',
-  width: '100%',
-} as const;
-
-const stagePromptContentStyle = {
-  margin: '0 auto',
-  maxWidth: '60rem',
-  width: '100%',
-} as const;
 
 export function PlayableChoiceHostStagePanel({
   copy,
@@ -76,41 +55,60 @@ export function PlayableChoiceHostStagePanel({
   const submittedPlayerCount = actionSubmission.submittedPlayerCount;
   const totalEligiblePlayerCount = actionSubmission.totalEligiblePlayerCount;
   const pendingResponseCount = Math.max(totalEligiblePlayerCount - submittedPlayerCount, 0);
-  const submissionStatusMessage =
+  const submissionProgressLabel = t('game.party.route.runtimeResponsesReceived', {
+    submitted: String(submittedPlayerCount),
+    total: String(totalEligiblePlayerCount),
+  });
+  const submissionStateLabel =
     pendingResponseCount === 0
-      ? `${t('game.party.route.runtimeResponsesReceived', {
-          submitted: String(submittedPlayerCount),
-          total: String(totalEligiblePlayerCount),
-        })}. ${t('game.party.route.runtimeResponsesComplete')}`
-      : `${t('game.party.route.runtimeResponsesReceived', {
-          submitted: String(submittedPlayerCount),
-          total: String(totalEligiblePlayerCount),
-        })}. ${t('game.party.route.runtimeResponsesPending', {
+      ? t('game.party.route.runtimeResponsesComplete')
+      : t('game.party.route.runtimeResponsesPending', {
           remaining: String(pendingResponseCount),
-        })}`;
+        });
 
   return (
     <div data-testid={`${testIdPrefix}-host-stage-panel`} style={stageShellStyle}>
       <HeroPanel padding="xl">
         <div style={stageContentStyle}>
-          <SplitWrapRow>
-            <SupportingText tone="soft">
-              {t('game.party.route.runtimeStageProgress', {
-                current: String(stagePosition + 1),
-                total: String(totalStages),
-              })}
-            </SupportingText>
-            <StageCountdownTimer
-              isPaused={party.status === PartyStatus.PAUSED}
-              remainingDurationMs={remainingDurationMs}
-              size="md"
-              testId={`${testIdPrefix}-host-stage-timer`}
-              totalDurationMs={totalDurationMs}
-            />
-            <StatusBanner tone={pendingResponseCount === 0 ? 'success' : 'warning'}>
-              {submissionStatusMessage}
-            </StatusBanner>
-          </SplitWrapRow>
+          <div style={stageMetaStyle}>
+            <InsetPanel padding="md" tone={pendingResponseCount === 0 ? 'success' : 'default'}>
+              <div style={stageMetaRowStyle}>
+                <div style={stageMetaPrimarySlotStyle}>
+                  <Badge icon={<AppIcon name="skip-forward" size={14} />} tone="info">
+                    {t('game.party.route.runtimeStageProgress', {
+                      current: String(stagePosition + 1),
+                      total: String(totalStages),
+                    })}
+                  </Badge>
+                </div>
+                <div style={stageMetaTimerSlotStyle}>
+                  <StageCountdownTimer
+                    isPaused={party.status === PartyStatus.PAUSED}
+                    remainingDurationMs={remainingDurationMs}
+                    size="md"
+                    testId={`${testIdPrefix}-host-stage-timer`}
+                    totalDurationMs={totalDurationMs}
+                  />
+                </div>
+                <div style={stageMetaStatusStyle}>
+                  <ContentStack align="center" gap="xs">
+                    <Badge
+                      icon={
+                        <AppIcon
+                          name={pendingResponseCount === 0 ? 'success' : 'pending'}
+                          size={12}
+                        />
+                      }
+                      tone={pendingResponseCount === 0 ? 'success' : 'warning'}
+                    >
+                      {submissionStateLabel}
+                    </Badge>
+                    <SummaryText>{submissionProgressLabel}</SummaryText>
+                  </ContentStack>
+                </div>
+              </div>
+            </InsetPanel>
+          </div>
 
           <div style={stagePromptRegionStyle}>
             <div style={stagePromptContentStyle}>

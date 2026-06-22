@@ -7,8 +7,8 @@ import {
   useState,
 } from 'react';
 import { PresentationContextErrorCode } from '../../../../domains/shared/errors/presentation-context-error-code';
-import { uiThemeTokens } from '../foundation/ui-theme';
 import { StatusBanner } from './status-banner';
+import { ToastItemShell, ToastViewportShell } from './toast-primitives';
 
 type PresentationToastTone = 'error' | 'info' | 'success' | 'warning';
 
@@ -31,27 +31,6 @@ interface PresentationToastApi {
 }
 
 const DEFAULT_TOAST_DURATION_MS = 4000;
-
-const toastViewportStyle = {
-  display: 'grid',
-  gap: 'var(--mantine-spacing-sm)',
-  maxWidth: '24rem',
-  pointerEvents: 'none',
-  position: 'fixed',
-  right: 'var(--mantine-spacing-lg)',
-  top: 'var(--mantine-spacing-lg)',
-  width: 'calc(100vw - (2 * var(--mantine-spacing-lg)))',
-  zIndex: 400,
-} as const;
-
-const toastItemStyle = {
-  background: uiThemeTokens.color.surface.canvas,
-  border: `1px solid ${uiThemeTokens.color.border.subtle}`,
-  borderRadius: uiThemeTokens.radius.panel,
-  boxShadow: uiThemeTokens.shadow.elevated,
-  overflow: 'hidden',
-  pointerEvents: 'auto',
-} as const;
 
 const PresentationToastContext = createContext<{
   readonly api: PresentationToastApi;
@@ -134,11 +113,11 @@ export function PresentationToastViewport() {
   }
 
   return (
-    <div style={toastViewportStyle}>
+    <ToastViewportShell>
       {context.entries.map((entry) => (
         <PresentationToastItem entry={entry} key={entry.id} onDismiss={context.api.dismiss} />
       ))}
-    </div>
+    </ToastViewportShell>
   );
 }
 
@@ -164,8 +143,8 @@ function PresentationToastItem({
   }, [entry.durationMs, entry.id, onDismiss]);
 
   return (
-    <div data-testid={entry.id} style={toastItemStyle}>
+    <ToastItemShell testId={entry.id}>
       <StatusBanner tone={entry.tone}>{entry.message}</StatusBanner>
-    </div>
+    </ToastItemShell>
   );
 }

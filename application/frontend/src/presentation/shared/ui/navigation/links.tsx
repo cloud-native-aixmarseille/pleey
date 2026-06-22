@@ -1,8 +1,9 @@
-import { Anchor } from '@mantine/core';
+import { Anchor, Box, Group, type AnchorProps as MantineAnchorProps } from '@mantine/core';
 import type { ComponentPropsWithoutRef, ComponentType, ReactNode } from 'react';
 import { createLink } from '../../routing/router';
 import {
   actionLinkStyles,
+  externalMonoLinkStyle,
   inlineLinkStyle,
   navPillLinkStyle,
   uiThemeTokens,
@@ -22,20 +23,29 @@ interface LinkContentProps {
   readonly rightSection?: ReactNode;
 }
 
+type AnchorStyles = NonNullable<MantineAnchorProps['styles']>;
+
 interface RoutedContentLinkProps extends LinkContentProps {
-  readonly style?: React.CSSProperties;
+  readonly styles?: AnchorStyles;
   readonly to: string;
 }
 
-type RoutedAnchorBaseProps = Pick<ComponentPropsWithoutRef<'a'>, 'children' | 'href' | 'style'>;
+type RoutedAnchorBaseProps = Pick<ComponentPropsWithoutRef<'a'>, 'children' | 'href'> & {
+  readonly styles?: AnchorStyles;
+};
 
 const RoutedAnchor = createLink(Anchor as ComponentType<RoutedAnchorBaseProps>);
 
-const linkContentStyle = {
-  alignItems: 'center',
-  display: 'inline-flex',
-  gap: uiThemeTokens.spacing.xs,
-} as const;
+const brandLinkStyles = {
+  root: {
+    alignItems: 'center',
+    color: uiThemeTokens.color.text.emphasis,
+    display: 'inline-flex',
+    gap: uiThemeTokens.spacing.xs,
+    textDecoration: 'none',
+    userSelect: 'none',
+  },
+} as const satisfies AnchorStyles;
 
 function LinkContent({ children, leftSection, rightSection }: LinkContentProps) {
   if (!leftSection && !rightSection) {
@@ -43,11 +53,11 @@ function LinkContent({ children, leftSection, rightSection }: LinkContentProps) 
   }
 
   return (
-    <span style={linkContentStyle}>
+    <Group align="center" component="span" gap="xs" wrap="nowrap">
       {leftSection}
-      <span>{children}</span>
+      <Box component="span">{children}</Box>
       {rightSection}
-    </span>
+    </Group>
   );
 }
 
@@ -55,11 +65,11 @@ function RoutedContentLink({
   children,
   leftSection,
   rightSection,
-  style,
+  styles,
   to,
 }: RoutedContentLinkProps) {
   return (
-    <RoutedAnchor style={style} to={to}>
+    <RoutedAnchor styles={styles} to={to}>
       <LinkContent leftSection={leftSection} rightSection={rightSection}>
         {children}
       </LinkContent>
@@ -72,7 +82,7 @@ export function NavPillLink({ children, leftSection, rightSection, to }: BaseLin
     <RoutedContentLink
       leftSection={leftSection}
       rightSection={rightSection}
-      style={navPillLinkStyle}
+      styles={{ root: navPillLinkStyle }}
       to={to}
     >
       {children}
@@ -85,7 +95,7 @@ export function PrimaryActionLink({ children, leftSection, rightSection, to }: B
     <RoutedContentLink
       leftSection={leftSection}
       rightSection={rightSection ?? <AppIcon name="arrow-right" size={16} />}
-      style={actionLinkStyles.primary}
+      styles={{ root: actionLinkStyles.primary }}
       to={to}
     >
       {children}
@@ -98,7 +108,7 @@ export function SecondaryActionLink({ children, leftSection, rightSection, to }:
     <RoutedContentLink
       leftSection={leftSection}
       rightSection={rightSection ?? <AppIcon name="arrow-right" size={16} />}
-      style={actionLinkStyles.secondary}
+      styles={{ root: actionLinkStyles.secondary }}
       to={to}
     >
       {children}
@@ -111,7 +121,7 @@ export function InlineTextLink({ children, leftSection, rightSection, to }: Base
     <RoutedContentLink
       leftSection={leftSection}
       rightSection={rightSection}
-      style={inlineLinkStyle}
+      styles={{ root: inlineLinkStyle }}
       to={to}
     >
       {children}
@@ -119,14 +129,31 @@ export function InlineTextLink({ children, leftSection, rightSection, to }: Base
   );
 }
 
-interface BrandLinkProps extends BaseLinkProps {
-  readonly style?: React.CSSProperties;
+type BrandLinkProps = BaseLinkProps;
+
+interface ExternalTextLinkProps {
+  readonly children?: ReactNode;
+  readonly href: string;
+  readonly target?: '_blank' | '_self';
 }
 
-export function BrandLink({ children, style, to }: BrandLinkProps) {
+export function BrandLink({ children, to }: BrandLinkProps) {
   return (
-    <RoutedAnchor style={style} to={to}>
+    <RoutedAnchor styles={brandLinkStyles} to={to}>
       {children}
     </RoutedAnchor>
+  );
+}
+
+export function ExternalTextLink({ children, href, target = '_blank' }: ExternalTextLinkProps) {
+  return (
+    <Anchor
+      href={href}
+      rel={target === '_blank' ? 'noreferrer' : undefined}
+      styles={{ root: externalMonoLinkStyle }}
+      target={target}
+    >
+      {children}
+    </Anchor>
   );
 }

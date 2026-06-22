@@ -46,7 +46,7 @@ export abstract class AbstractTextPlayableContentImportFormatParser
     return items;
   }
 
-  private pushBlock(blockLines: readonly string[], items: RawImportItem[]): void {
+  protected pushBlock(blockLines: readonly string[], items: RawImportItem[]): void {
     const item = this.parseBlock(blockLines);
 
     if (item !== null) {
@@ -54,7 +54,7 @@ export abstract class AbstractTextPlayableContentImportFormatParser
     }
   }
 
-  private parseBlock(blockLines: readonly string[]): RawImportItem | null {
+  protected parseBlock(blockLines: readonly string[]): RawImportItem | null {
     const lines = blockLines.map((line) => line.trim()).filter((line) => line.length > 0);
 
     if (lines.length === 0) {

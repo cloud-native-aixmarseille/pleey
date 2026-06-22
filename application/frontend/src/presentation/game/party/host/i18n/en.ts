@@ -41,6 +41,9 @@ export const gamePartyHostEn = {
           kickPlayerCta: 'Kick player',
           kickPlayerPending: 'Removing...',
           kickPlayerAriaLabel: 'Remove {{username}} from the party',
+          kickPlayerConfirmTitle: 'Remove player?',
+          kickPlayerConfirmMessage: 'Remove {{username}} from the party?',
+          kickPlayerConfirmAction: 'Remove player',
           musicThemes: {
             none: {
               name: 'No music',

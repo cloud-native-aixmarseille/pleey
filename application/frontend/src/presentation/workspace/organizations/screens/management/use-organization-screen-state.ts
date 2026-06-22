@@ -1,4 +1,3 @@
-import { useDebouncedValue } from '@mantine/hooks';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type {
   Organization,
@@ -18,6 +17,7 @@ import type {
   UpdateProjectCommand,
 } from '../../../../../domains/project/ports/project-repository';
 import type { PaginatedResult } from '../../../../../domains/shared/value-objects/paginated-result';
+import { usePresentationDebouncedValue } from '../../../../shared/hooks/use-presentation-debounced-value';
 import { usePresentationTranslation } from '../../../../shared/i18n/use-presentation-translation';
 import { usePresentationFeedbackChannel } from '../../../../shared/ui/feedback/use-presentation-feedback-channel';
 import {
@@ -105,7 +105,7 @@ export function useOrganizationScreenState({
   const [pendingRemovalMemberId, setPendingRemovalMemberId] = useState<
     OrganizationMember['id'] | null
   >(null);
-  const [debouncedMemberSearch] = useDebouncedValue(memberSearch, 200);
+  const [debouncedMemberSearch] = usePresentationDebouncedValue(memberSearch);
   const isMemberSearchPending =
     normalizeSearchTerm(memberSearch) !== normalizeSearchTerm(debouncedMemberSearch);
 

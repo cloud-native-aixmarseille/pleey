@@ -1,6 +1,5 @@
 import type { CSSProperties } from 'react';
 import { uiThemeTokens } from './ui-theme';
-import { uiTypeScale } from './ui-typography';
 
 /* ────────────────────────────────────────────────────────────
  * Surface Recipes
@@ -95,62 +94,4 @@ export const statusToneRecipes = {
     borderColor: uiThemeTokens.color.border.live,
     color: uiThemeTokens.color.text.live,
   },
-} as const;
-
-/* ────────────────────────────────────────────────────────────
- * Form Recipes
- *
- * Pre-composed form element styles that combine type scale,
- * color tokens, and spacing into reusable CSSProperties.
- * ──────────────────────────────────────────────────────────── */
-
-export const formRecipes = {
-  /** Form root container — vertical grid with consistent gap */
-  root: {
-    display: 'grid',
-    gap: uiThemeTokens.spacing.lg,
-  } satisfies CSSProperties,
-
-  /** Fieldset grouping — borderless grid */
-  fieldset: {
-    border: 0,
-    display: 'grid',
-    gap: uiThemeTokens.spacing.md,
-    margin: 0,
-    padding: 0,
-  } satisfies CSSProperties,
-
-  /** Fieldset legend — section-level heading for form groups */
-  legend: {
-    ...uiTypeScale.cardTitle,
-    color: uiThemeTokens.color.text.emphasis,
-    padding: 0,
-  } satisfies CSSProperties,
-
-  /** Field label — small uppercase label above inputs */
-  fieldLabel: {
-    ...uiTypeScale.label,
-    color: uiThemeTokens.color.text.secondary,
-    textTransform: 'uppercase',
-  } satisfies CSSProperties,
-
-  /** Field description / help text below the input */
-  fieldDescription: {
-    ...uiTypeScale.caption,
-    color: uiThemeTokens.color.text.quiet,
-    margin: 0,
-  } satisfies CSSProperties,
-
-  /** Field validation error */
-  fieldError: {
-    ...uiTypeScale.caption,
-    color: uiThemeTokens.color.text.danger,
-    margin: 0,
-  } satisfies CSSProperties,
-
-  /** Field shell layout — vertical grid wrapping label, input, description, error */
-  fieldShell: {
-    display: 'grid',
-    gap: uiThemeTokens.spacing.xs,
-  } satisfies CSSProperties,
 } as const;

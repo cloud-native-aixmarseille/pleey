@@ -1,3 +1,4 @@
+import { Box } from '@mantine/core';
 import type { PropsWithChildren } from 'react';
 import { ContentStack } from './containers';
 import { Eyebrow, Heading, SupportingText } from './typography';
@@ -16,10 +17,6 @@ interface IntroBlockProps extends PropsWithChildren {
   readonly title: string;
 }
 
-const centeredIntroStyle = {
-  textAlign: 'center',
-} as const;
-
 export function IntroBlock({
   align = 'start',
   children,
@@ -35,10 +32,9 @@ export function IntroBlock({
   title,
 }: IntroBlockProps) {
   const alignItems = align === 'center' ? 'center' : 'stretch';
-  const subtitleContainerStyle = subtitleMaxWidth ? { maxWidth: subtitleMaxWidth } : undefined;
 
   return (
-    <div style={align === 'center' ? centeredIntroStyle : undefined}>
+    <Box ta={align === 'center' ? 'center' : undefined}>
       <ContentStack align={alignItems} gap="xs">
         {eyebrow ? (
           <Eyebrow compact={eyebrowCompact} tone={eyebrowTone}>
@@ -49,14 +45,14 @@ export function IntroBlock({
           {title}
         </Heading>
         {subtitle ? (
-          <div style={subtitleContainerStyle}>
+          <Box maw={subtitleMaxWidth}>
             <SupportingText marginTop={subtitleMarginTop} size={subtitleSize}>
               {subtitle}
             </SupportingText>
-          </div>
+          </Box>
         ) : null}
         {children}
       </ContentStack>
-    </div>
+    </Box>
   );
 }

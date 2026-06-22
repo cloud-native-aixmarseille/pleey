@@ -75,8 +75,8 @@ export const dashboardFr = {
         typeLabel: 'Type de jeu',
         titleLabel: 'Titre',
         descriptionLabel: 'Description',
-        fileLabel: 'Fichier de contenu',
-        dropzonePrompt: 'Déposez un fichier ici ou cliquez pour parcourir',
+        fileLabel: 'Déposez un fichier ici ou cliquez pour parcourir',
+        dropzonePrompt: 'Déposez un fichier ici',
         dropzoneActive: 'Relâchez pour ajouter le fichier',
         fieldHelp: 'Les formats pris en charge dépendent du type de jeu sélectionné.',
         chooseFile: 'Choisir un fichier',
@@ -92,8 +92,10 @@ export const dashboardFr = {
         success: 'Le jeu a été importé.',
         emptyError: 'Le fichier sélectionné est vide.',
         unsupportedFormat: "Ce format de fichier n'est pas pris en charge.",
-        invalidFormat: "Le contenu du fichier n'a pas pu être analysé.",
-        failed: "Impossible d'importer le fichier.",
+        invalidFormat:
+          "Le contenu du fichier n'a pas pu être analysé. Gardez une question ou un prompt par section et au moins deux options avec une bonne reponse, ou utilisez l'un des modeles fournis.",
+        failed:
+          "Impossible d'importer le fichier. Verifiez le type de jeu selectionne, la structure du fichier, ou essayez l'un des modeles fournis.",
         error: 'Impossible de créer le jeu.',
         examples: {
           options: {

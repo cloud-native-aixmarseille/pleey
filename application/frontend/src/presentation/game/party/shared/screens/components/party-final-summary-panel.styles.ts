@@ -55,6 +55,11 @@ export const mobileHeroSubtitleStyle: CSSProperties = {
   maxWidth: '20rem',
 };
 
+export const finalSummaryEyebrowStyle: CSSProperties = {
+  ...uiTypeScale.overline,
+  color: uiThemeTokens.color.text.soft,
+};
+
 export const podiumDesktopRackStyle: CSSProperties = {
   alignItems: 'flex-end',
   display: 'grid',
@@ -112,6 +117,12 @@ export const mobileWinnerHeaderStyle: CSSProperties = {
   display: 'flex',
   gap: uiThemeTokens.spacing.xs,
   justifyContent: 'center',
+};
+
+export const mobileRankGroupStyle: CSSProperties = {
+  alignItems: 'center',
+  display: 'flex',
+  gap: '0.4rem',
 };
 
 export const mobileWinnerNameStyle: CSSProperties = {

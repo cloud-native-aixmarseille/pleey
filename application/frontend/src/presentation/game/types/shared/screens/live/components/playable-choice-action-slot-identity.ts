@@ -1,4 +1,4 @@
-import { uiTheme, uiThemeTokens } from '../../../../../../shared/ui/foundation/ui-theme';
+import type { MantineThemeOverride } from '@mantine/core';
 
 export interface PlayableChoiceActionSlotIdentity {
   readonly letter: string;
@@ -14,7 +14,7 @@ interface HslColor {
   readonly saturation: number;
 }
 
-type PlayableChoiceActionSlotTheme = typeof uiTheme;
+type PlayableChoiceActionSlotTheme = MantineThemeOverride;
 
 const DEFAULT_ACTION_SLOT_COUNT = 1;
 const DEFAULT_HSL_THEME_PROFILE: HslColor = {
@@ -180,10 +180,10 @@ export function resolvePlayableChoiceActionSlotIdentity(
   const slotColor = createThemeHue(index, slotCount, theme);
 
   return {
-    badgeBackground: `color-mix(in srgb, ${createHslColorString(slotColor, -2, 10)} 78%, ${uiThemeTokens.color.brand.primary})`,
-    badgeText: uiThemeTokens.color.text.onAction,
+    badgeBackground: `color-mix(in srgb, ${createHslColorString(slotColor, -2, 10)} 78%, var(--ui-color-brand-primary))`,
+    badgeText: 'var(--ui-color-text-on-action)',
     letter: resolvePlayableChoiceActionSlotLabel(index),
-    surfaceBackground: `color-mix(in srgb, ${createHslColorString(slotColor, 16, 4)} 22%, ${uiThemeTokens.color.surface.panel})`,
-    surfaceBorder: `color-mix(in srgb, ${createHslColorString(slotColor, 8, 8)} 62%, ${uiThemeTokens.color.border.strong})`,
+    surfaceBackground: `color-mix(in srgb, ${createHslColorString(slotColor, 16, 4)} 22%, var(--ui-color-surface-panel))`,
+    surfaceBorder: `color-mix(in srgb, ${createHslColorString(slotColor, 8, 8)} 62%, var(--ui-color-border-strong))`,
   };
 }

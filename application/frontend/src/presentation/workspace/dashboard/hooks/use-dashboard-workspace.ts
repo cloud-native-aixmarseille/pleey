@@ -1,4 +1,3 @@
-import { useDebouncedValue } from '@mantine/hooks';
 import { useEffect, useRef, useState } from 'react';
 import type { DashboardWorkspaceGateway } from '../../../../application/workspace/dashboard/facades/dashboard-workspace.facade';
 import type {
@@ -8,6 +7,7 @@ import type {
 import type { OrganizationDashboard } from '../../../../domains/organization/entities/organization-dashboard';
 import type { Project, ProjectId } from '../../../../domains/project/entities/project';
 import type { PaginatedResult } from '../../../../domains/shared/value-objects/paginated-result';
+import { usePresentationDebouncedValue } from '../../../shared/hooks/use-presentation-debounced-value';
 import { usePresentationFeedbackChannel } from '../../../shared/ui/feedback/use-presentation-feedback-channel';
 import { useWorkspaceDependencies } from '../../shared/contexts/workspace-dependencies-context';
 
@@ -91,8 +91,8 @@ export function useDashboardWorkspace({ dashboardWorkspace }: UseDashboardWorksp
   const [hasLoadedOrganizations, setHasLoadedOrganizations] = useState(false);
   const organizationIdRef = useRef<OrganizationId | null>(organizationId);
   const organizationSearchInitializedRef = useRef(false);
-  const [debouncedOrganizationSearch] = useDebouncedValue(organizationSearch, 200);
-  const [debouncedProjectSearch] = useDebouncedValue(projectSearch, 200);
+  const [debouncedOrganizationSearch] = usePresentationDebouncedValue(organizationSearch);
+  const [debouncedProjectSearch] = usePresentationDebouncedValue(projectSearch);
   const isProjectSearchPending =
     normalizeSearchTerm(projectSearch) !== normalizeSearchTerm(debouncedProjectSearch);
 

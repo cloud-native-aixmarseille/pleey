@@ -1,5 +1,7 @@
+import { Box, Stack, Text } from '@mantine/core';
 import type { ComponentPropsWithoutRef, PropsWithChildren, ReactNode } from 'react';
-import { formRecipes } from '../foundation/ui-recipes';
+import { uiThemeTokens } from '../foundation/ui-theme';
+import { uiTypeScale } from '../foundation/ui-typography';
 
 interface FormRootProps extends Omit<ComponentPropsWithoutRef<'form'>, 'className' | 'style'> {
   readonly children: ReactNode;
@@ -13,9 +15,9 @@ interface FormSectionFrameProps extends PropsWithChildren {
 
 export function FormRoot({ children, ...props }: FormRootProps) {
   return (
-    <form style={formRecipes.root} {...props}>
-      {children}
-    </form>
+    <Box component="form" {...props}>
+      <Stack gap="lg">{children}</Stack>
+    </Box>
   );
 }
 
@@ -26,14 +28,36 @@ export function FormSectionFrame({
   legend,
 }: FormSectionFrameProps) {
   return (
-    <fieldset aria-describedby={descriptionId} style={formRecipes.fieldset}>
-      <legend style={formRecipes.legend}>{legend}</legend>
-      {description ? (
-        <p id={descriptionId} style={formRecipes.fieldDescription}>
-          {description}
-        </p>
-      ) : null}
-      {children}
-    </fieldset>
+    <Box aria-describedby={descriptionId} component="fieldset" m={0} p={0} style={{ border: 0 }}>
+      <Text
+        c={uiThemeTokens.color.text.emphasis}
+        component="legend"
+        ff={uiTypeScale.cardTitle.fontFamily}
+        fz={uiTypeScale.cardTitle.fontSize}
+        fw={uiTypeScale.cardTitle.fontWeight}
+        lh={uiTypeScale.cardTitle.lineHeight}
+        lts={uiTypeScale.cardTitle.letterSpacing}
+        p={0}
+      >
+        {legend}
+      </Text>
+      <Stack gap="md">
+        {description ? (
+          <Text
+            c={uiThemeTokens.color.text.quiet}
+            component="p"
+            fz={uiTypeScale.caption.fontSize}
+            fw={uiTypeScale.caption.fontWeight}
+            id={descriptionId}
+            lh={uiTypeScale.caption.lineHeight}
+            lts={uiTypeScale.caption.letterSpacing}
+            m={0}
+          >
+            {description}
+          </Text>
+        ) : null}
+        {children}
+      </Stack>
+    </Box>
   );
 }

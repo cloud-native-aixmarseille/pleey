@@ -9,7 +9,6 @@ import {
 } from '../../../../../shared/ui/feedback/feedback-state-gate';
 import { usePresentationToast } from '../../../../../shared/ui/feedback/presentation-toast';
 import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';
-import { uiThemeTokens } from '../../../../../shared/ui/foundation/ui-theme';
 import { ContentStack, SectionContainer } from '../../../../../shared/ui/layout/containers';
 import { usePresentationMediaQuery } from '../../../../../shared/ui/layout/use-presentation-media-query';
 import { MotionScreenTransition } from '../../../../../shared/ui/motion/motion-primitives';
@@ -33,13 +32,7 @@ import {
 } from '../use-party-lobby-screen-state';
 import { usePartyScreenWakeLock } from '../use-party-screen-wake-lock';
 import { PartyFinalSummaryPanel } from './party-final-summary-panel';
-
-const mobilePlayerSurfaceBackdropStyle = {
-  background: uiThemeTokens.color.surface.canvas,
-  inset: 0,
-  position: 'fixed',
-  zIndex: 199,
-} as const;
+import { mobilePlayerSurfaceBackdropStyle } from './party-screen-content.styles';
 
 interface PartyScreenContentProps {
   readonly resolvePartyAbsoluteUrl: (pin: PartyPin) => string;

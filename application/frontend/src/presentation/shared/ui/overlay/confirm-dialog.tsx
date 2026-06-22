@@ -49,7 +49,6 @@ export function ConfirmDialog({
         content: {
           ...surfaceRecipes.elevated,
           maxWidth: isMobile ? '100%' : '28rem',
-          width: '100%',
           margin: 0,
           borderRadius: isMobile
             ? `${uiThemeTokens.radius.panel} ${uiThemeTokens.radius.panel} 0 0`
@@ -67,6 +66,7 @@ export function ConfirmDialog({
           background: `color-mix(in srgb, ${uiThemeTokens.color.surface.canvas} 72%, transparent)`,
         },
       }}
+      w="100%"
       withCloseButton={false}
     >
       <Stack gap="md" w="100%">

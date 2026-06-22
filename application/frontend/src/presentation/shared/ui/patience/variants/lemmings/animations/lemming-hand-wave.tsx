@@ -1,5 +1,23 @@
 import { motion } from 'motion/react';
 
+interface WavingFingerSegment {
+  readonly height: string;
+  readonly x: string;
+  readonly y: string;
+}
+
+const wavingFingerSegments = [
+  { height: '2.8', x: '19', y: '-3' },
+  { height: '3.2', x: '20.5', y: '-3.4' },
+  { height: '2.8', x: '22', y: '-3' },
+] as const satisfies readonly WavingFingerSegment[];
+
+function WavingFinger({ height, x, y }: WavingFingerSegment) {
+  return (
+    <rect fill="var(--ui-color-surface-panel)" height={height} rx="0.4" width="0.9" x={x} y={y} />
+  );
+}
+
 export function LemmingHandWave() {
   return (
     <>
@@ -16,30 +34,14 @@ export function LemmingHandWave() {
         {/* Hand (large open palm) */}
         <circle cx="21" cy="0" fill="var(--ui-color-surface-panel)" r="2.8" />
         {/* Fingers spread for visibility */}
-        <rect
-          fill="var(--ui-color-surface-panel)"
-          height="2.8"
-          rx="0.4"
-          width="0.9"
-          x="19"
-          y="-3"
-        />
-        <rect
-          fill="var(--ui-color-surface-panel)"
-          height="3.2"
-          rx="0.4"
-          width="0.9"
-          x="20.5"
-          y="-3.4"
-        />
-        <rect
-          fill="var(--ui-color-surface-panel)"
-          height="2.8"
-          rx="0.4"
-          width="0.9"
-          x="22"
-          y="-3"
-        />
+        {wavingFingerSegments.map((segment) => (
+          <WavingFinger
+            height={segment.height}
+            key={`${segment.x}-${segment.y}`}
+            x={segment.x}
+            y={segment.y}
+          />
+        ))}
       </motion.g>
     </>
   );

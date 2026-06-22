@@ -1,16 +1,24 @@
 import { Avatar } from '@mantine/core';
-import type React from 'react';
+import { authAvatarFrameStyle } from '../foundation/ui-theme';
+
+type UserAvatarAppearance = 'default' | 'framed';
 
 interface UserAvatarProps {
   readonly alt: string;
+  readonly appearance?: UserAvatarAppearance;
   readonly size?: number;
   readonly src?: string | null;
-  readonly style?: React.CSSProperties;
 }
 
-export function UserAvatar({ alt, size = 80, src, style }: UserAvatarProps) {
+export function UserAvatar({ alt, appearance = 'default', size = 80, src }: UserAvatarProps) {
   return (
-    <Avatar alt={alt} radius="50%" size={size} src={src} style={style}>
+    <Avatar
+      alt={alt}
+      radius="50%"
+      size={size}
+      src={src}
+      styles={appearance === 'framed' ? { root: authAvatarFrameStyle } : undefined}
+    >
       {toInitials(alt)}
     </Avatar>
   );

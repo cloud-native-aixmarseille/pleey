@@ -1,65 +1,6 @@
 import type { CSSProperties } from 'react';
 import { uiThemeTokens } from './ui-theme-tokens';
 
-export function createFieldInputStyle(isInvalid: boolean, compact = false): CSSProperties {
-  return {
-    background: uiThemeTokens.color.surface.field,
-    border: `1px solid ${
-      isInvalid ? uiThemeTokens.color.border.danger : uiThemeTokens.color.border.subtle
-    }`,
-    borderRadius: uiThemeTokens.radius.field,
-    color: uiThemeTokens.color.text.primary,
-    outline: 'none',
-    padding: compact ? '0.35rem 0.6rem' : '0.9rem 1rem',
-    width: '100%',
-  };
-}
-
-const overlineTextStyle = {
-  color: uiThemeTokens.color.brand.primary,
-  fontFamily: uiThemeTokens.typography.overlineFamily,
-  fontSize: '0.55rem',
-  letterSpacing: '0.35rem',
-  textTransform: 'uppercase',
-} satisfies CSSProperties;
-
-export function createTextareaInputStyle(isInvalid: boolean): CSSProperties {
-  return {
-    ...createFieldInputStyle(isInvalid),
-    minHeight: '7.5rem',
-    resize: 'vertical',
-  };
-}
-
-export function createEyebrowTextStyle({
-  compact = false,
-  tone = 'accent',
-}: {
-  readonly compact?: boolean;
-  readonly tone?: 'accent' | 'success';
-} = {}): CSSProperties {
-  return {
-    ...overlineTextStyle,
-    color:
-      tone === 'success' ? uiThemeTokens.color.brand.success : uiThemeTokens.color.brand.primary,
-    letterSpacing: compact ? '0.32rem' : overlineTextStyle.letterSpacing,
-  };
-}
-
-export function createHeadingStyle({
-  fontSize,
-  lineHeight,
-}: {
-  readonly fontSize: string;
-  readonly lineHeight: number;
-}): CSSProperties {
-  return {
-    color: uiThemeTokens.color.text.emphasis,
-    fontSize,
-    lineHeight,
-  };
-}
-
 const basePillLinkStyle = {
   alignItems: 'center',
   border: `1px solid ${uiThemeTokens.color.border.subtle}`,
@@ -110,11 +51,12 @@ export const inlineLinkStyle = {
   textDecoration: 'none',
 } satisfies CSSProperties;
 
-export const emphasizedSummaryTextStyle = {
-  color: uiThemeTokens.color.text.emphasis,
-  fontSize: '0.875rem',
-  fontWeight: 600,
-  margin: 0,
+export const externalMonoLinkStyle = {
+  color: uiThemeTokens.color.brand.accent,
+  fontFamily: uiThemeTokens.typography.monoFamily,
+  letterSpacing: '0.04em',
+  textDecoration: 'none',
+  wordBreak: 'break-all',
 } satisfies CSSProperties;
 
 export function createBadgeStyle(
@@ -285,6 +227,16 @@ export const authAvatarFrameStyle = {
   height: '5rem',
   objectFit: 'cover',
   width: '5rem',
+} satisfies CSSProperties;
+
+export const pinCodeTileStyle = {
+  aspectRatio: '3 / 4',
+  background: `linear-gradient(180deg, ${uiThemeTokens.color.surface.accentPanel} 0%, ${uiThemeTokens.color.surface.panel} 100%)`,
+  boxShadow: `${uiThemeTokens.shadow.accentGlow}, inset 0 1px 0 rgba(255,255,255,0.06)`,
+} satisfies CSSProperties;
+
+export const pinCodeCharacterGlowStyle = {
+  textShadow: `0 0 12px ${uiThemeTokens.color.brand.accent}`,
 } satisfies CSSProperties;
 
 export const authProfileIdentityStyle = {

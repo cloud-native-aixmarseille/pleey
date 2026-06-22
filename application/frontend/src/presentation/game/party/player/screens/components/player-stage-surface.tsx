@@ -7,6 +7,7 @@ import {
   MotionStagger,
   MotionStaggerItem,
 } from '../../../../../shared/ui/motion/motion-primitives';
+import { actionGridStyle } from './player-stage-surface.styles';
 import { PlayerStageSurfaceFrame } from './player-stage-surface-frame';
 
 interface PlayerStageSurfaceProps {
@@ -16,12 +17,6 @@ interface PlayerStageSurfaceProps {
   readonly pendingActionId: PartyActionId | null;
   readonly playerActionErrorMessage: string | null;
 }
-
-const actionGridStyle = {
-  display: 'grid',
-  gap: '0.75rem',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(12rem, 1fr))',
-};
 
 export function PlayerStageSurface({
   onLeaveParty,

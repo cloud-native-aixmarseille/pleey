@@ -74,8 +74,8 @@ export const dashboardEn = {
         typeLabel: 'Game type',
         titleLabel: 'Title',
         descriptionLabel: 'Description',
-        fileLabel: 'Content file',
-        dropzonePrompt: 'Drop a file here or click to browse',
+        fileLabel: 'Drop a file here or click to browse',
+        dropzonePrompt: 'Drop a file here',
         dropzoneActive: 'Release to add the file',
         fieldHelp: 'Supported formats depend on the selected game type.',
         chooseFile: 'Choose a file',
@@ -91,8 +91,10 @@ export const dashboardEn = {
         success: 'Game imported successfully.',
         emptyError: 'The selected file is empty.',
         unsupportedFormat: 'This file format is not supported.',
-        invalidFormat: 'The file content could not be parsed.',
-        failed: 'Unable to import the file.',
+        invalidFormat:
+          'The file content could not be parsed. Keep one question or prompt per section and include at least two options with one correct answer, or use one of the provided templates.',
+        failed:
+          'The file could not be imported. Check the selected game type, verify the file structure, or try one of the provided templates.',
         error: 'Unable to create the game.',
         examples: {
           options: {

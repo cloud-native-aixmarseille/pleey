@@ -1,3 +1,5 @@
+import { Group, Paper, Text } from '@mantine/core';
+import type { PropsWithChildren } from 'react';
 import { statusToneRecipes } from '../foundation/ui-recipes';
 import { uiThemeTokens } from '../foundation/ui-theme';
 import type { AppIconName } from '../icons/app-icon';
@@ -20,43 +22,55 @@ const statusBannerToneRecipes: Record<StatusBannerTone, StatusToneRecipe> = {
   live: { ...statusToneRecipes.live, iconName: 'game' },
 };
 
-export function createStatusBannerStyles(tone: StatusBannerTone) {
-  const recipe = statusBannerToneRecipes[tone];
-
-  return {
-    body: {
-      margin: 0,
-    },
-    icon: {
-      alignSelf: 'flex-start',
-      background: `linear-gradient(135deg, color-mix(in srgb, ${recipe.borderColor} 28%, ${uiThemeTokens.color.surface.canvas}) 0%, ${uiThemeTokens.color.surface.canvas} 100%)`,
-      border: `1px solid color-mix(in srgb, ${recipe.borderColor} 40%, ${uiThemeTokens.color.border.subtle})`,
-      borderRadius: uiThemeTokens.radius.pill,
-      color: recipe.color,
-      boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.24), 0 10px 20px rgba(0, 0, 0, 0.08)`,
-      padding: '0.45rem',
-    },
-    message: {
-      color: recipe.color,
-      fontSize: '0.96rem',
-      fontWeight: 600,
-      letterSpacing: '-0.01em',
-      lineHeight: 1.45,
-    },
-    root: {
-      background: `linear-gradient(135deg, color-mix(in srgb, ${recipe.background} 72%, ${uiThemeTokens.color.surface.canvas}) 0%, ${uiThemeTokens.color.surface.canvas} 74%)`,
-      border: `1px solid color-mix(in srgb, ${recipe.borderColor} 36%, ${uiThemeTokens.color.border.subtle})`,
-      borderLeft: `4px solid ${recipe.borderColor}`,
-      borderRadius: `calc(${uiThemeTokens.radius.field} + 4px)`,
-      boxShadow: `0 16px 34px rgba(0, 0, 0, 0.10), ${uiThemeTokens.shadow.subtle}`,
-      color: recipe.color,
-      fontSize: '0.95rem',
-      overflow: 'hidden',
-      padding: `${uiThemeTokens.spacing.md} ${uiThemeTokens.spacing.lg}`,
-    },
-  } as const;
+function getStatusBannerToneRecipe(tone: StatusBannerTone) {
+  return statusBannerToneRecipes[tone];
 }
 
-export function StatusBannerIcon({ tone }: { readonly tone: StatusBannerTone }) {
-  return <AppIcon name={statusBannerToneRecipes[tone].iconName} size={18} />;
+interface StatusBannerFrameProps extends PropsWithChildren {
+  readonly ariaLive: 'assertive' | 'polite';
+  readonly role: 'alert' | 'status';
+  readonly tone: StatusBannerTone;
+}
+
+export function StatusBannerFrame({ ariaLive, children, role, tone }: StatusBannerFrameProps) {
+  const recipe = getStatusBannerToneRecipe(tone);
+
+  return (
+    <Paper
+      aria-live={ariaLive}
+      bg={`linear-gradient(135deg, color-mix(in srgb, ${recipe.background} 72%, ${uiThemeTokens.color.surface.canvas}) 0%, ${uiThemeTokens.color.surface.canvas} 74%)`}
+      bd={`1px solid color-mix(in srgb, ${recipe.borderColor} 36%, ${uiThemeTokens.color.border.subtle})`}
+      c={recipe.color}
+      px="lg"
+      py="md"
+      radius={`calc(${uiThemeTokens.radius.field} + 4px)`}
+      role={role}
+      shadow="xl"
+      style={{
+        borderLeft: `4px solid ${recipe.borderColor}`,
+        overflow: 'hidden',
+      }}
+    >
+      <Group align="flex-start" gap="sm" wrap="nowrap">
+        <Paper
+          bg={`linear-gradient(135deg, color-mix(in srgb, ${recipe.borderColor} 28%, ${uiThemeTokens.color.surface.canvas}) 0%, ${uiThemeTokens.color.surface.canvas} 100%)`}
+          bd={`1px solid color-mix(in srgb, ${recipe.borderColor} 40%, ${uiThemeTokens.color.border.subtle})`}
+          c={recipe.color}
+          p="0.45rem"
+          radius={uiThemeTokens.radius.pill}
+          shadow="sm"
+          style={{ alignSelf: 'flex-start' }}
+        >
+          <StatusBannerIcon tone={tone} />
+        </Paper>
+        <Text c={recipe.color} fz="0.96rem" fw={600} lh={1.45} lts="-0.01em" m={0}>
+          {children}
+        </Text>
+      </Group>
+    </Paper>
+  );
+}
+
+function StatusBannerIcon({ tone }: { readonly tone: StatusBannerTone }) {
+  return <AppIcon name={getStatusBannerToneRecipe(tone).iconName} size={18} />;
 }

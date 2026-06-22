@@ -13,12 +13,12 @@ import {
   type PlayableContentManagementScreenProps,
 } from './playable-content-management-model';
 import {
-  editorLayoutStyle,
   MetadataPanel,
+  PlayableManagementEditorLayout,
   PlayableManagementTab,
+  PlayableManagementTabPanel,
   PlayableManagementTabs,
   ReviewPanel,
-  tabPanelShellStyle,
 } from './playable-content-management-screen-sections';
 import { PlayableManagementHeader } from './playable-management-header';
 import { PlayableManagementPromptEditor } from './playable-management-prompt-editor';
@@ -112,7 +112,7 @@ export function PlayableContentManagementScreen(props: PlayableContentManagement
             />
             {viewModel.error ? <InsetPanel tone="accent">{viewModel.error}</InsetPanel> : null}
             {activeTab === PlayableManagementTab.SETUP ? (
-              <div style={tabPanelShellStyle}>
+              <PlayableManagementTabPanel>
                 <MetadataPanel
                   allowOptionChangeAfterVoting={state.game.allowOptionChangeAfterVoting ?? false}
                   description={state.game.description}
@@ -123,11 +123,11 @@ export function PlayableContentManagementScreen(props: PlayableContentManagement
                   title={state.game.title}
                   translationRoot={props.translationRoot}
                 />
-              </div>
+              </PlayableManagementTabPanel>
             ) : null}
             {activeTab === PlayableManagementTab.STAGES ? (
-              <div style={tabPanelShellStyle}>
-                <div style={editorLayoutStyle}>
+              <PlayableManagementTabPanel>
+                <PlayableManagementEditorLayout>
                   <PlayableManagementStageRail
                     itemKindConfig={props.itemKindConfig}
                     items={state.items}
@@ -148,11 +148,11 @@ export function PlayableContentManagementScreen(props: PlayableContentManagement
                     setEditorState={viewModel.setEditorState}
                     translationRoot={props.translationRoot}
                   />
-                </div>
-              </div>
+                </PlayableManagementEditorLayout>
+              </PlayableManagementTabPanel>
             ) : null}
             {activeTab === PlayableManagementTab.REVIEW ? (
-              <div style={tabPanelShellStyle}>
+              <PlayableManagementTabPanel>
                 <ReviewPanel
                   gameTitle={state.game.title}
                   itemKindConfig={props.itemKindConfig}
@@ -166,7 +166,7 @@ export function PlayableContentManagementScreen(props: PlayableContentManagement
                   onOpenSetup={openSetupTab}
                   translationRoot={props.translationRoot}
                 />
-              </div>
+              </PlayableManagementTabPanel>
             ) : null}
             <ConfirmDialog {...viewModel.confirmDialog} />
           </ContentStack>

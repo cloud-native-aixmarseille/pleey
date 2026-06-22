@@ -1,11 +1,6 @@
 import { Text, Title } from '@mantine/core';
 import type { PropsWithChildren } from 'react';
-import {
-  createEyebrowTextStyle,
-  createHeadingStyle,
-  emphasizedSummaryTextStyle,
-  uiThemeTokens,
-} from '../foundation/ui-theme';
+import { uiThemeTokens } from '../foundation/ui-theme';
 
 interface EyebrowProps extends PropsWithChildren {
   readonly tone?: 'accent' | 'success';
@@ -27,7 +22,18 @@ interface SupportingTextProps extends PropsWithChildren {
 
 export function Eyebrow({ children, tone = 'accent', compact = false }: EyebrowProps) {
   return (
-    <Text component="p" style={createEyebrowTextStyle({ compact, tone })}>
+    <Text
+      c={tone === 'success' ? uiThemeTokens.color.brand.success : uiThemeTokens.color.brand.primary}
+      component="p"
+      ff={uiThemeTokens.typography.overlineFamily}
+      fs="normal"
+      fz="0.55rem"
+      fw={400}
+      lh={1.4}
+      lts={compact ? '0.32rem' : '0.35rem'}
+      m={0}
+      tt="uppercase"
+    >
       {children}
     </Text>
   );
@@ -38,9 +44,11 @@ export function Heading({ children, id, level = 2, hero = false }: HeadingProps)
 
   return (
     <Title
+      c={uiThemeTokens.color.text.emphasis}
+      fz={fontSize}
       id={id}
+      lh={hero ? 1.1 : 1.15}
       order={level}
-      style={createHeadingStyle({ fontSize, lineHeight: hero ? 1.1 : 1.15 })}
     >
       {children}
     </Title>
@@ -67,7 +75,7 @@ export function SupportingText({
 
 export function SummaryText({ children }: PropsWithChildren) {
   return (
-    <Text component="p" style={emphasizedSummaryTextStyle}>
+    <Text c={uiThemeTokens.color.text.emphasis} component="p" fz="0.875rem" fw={600} m={0}>
       {children}
     </Text>
   );

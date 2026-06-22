@@ -93,9 +93,9 @@ export function CopyButton({
       return (
         <AppIcon
           className="copy-button-icon-check"
+          color={uiThemeTokens.color.brand.success}
           name="success"
           size={14}
-          style={{ color: uiThemeTokens.color.brand.success }}
         />
       );
     }
@@ -104,9 +104,9 @@ export function CopyButton({
       return (
         <AppIcon
           className="copy-button-icon-error"
+          color={uiThemeTokens.color.text.danger}
           name="error"
           size={14}
-          style={{ color: uiThemeTokens.color.text.danger }}
         />
       );
     }

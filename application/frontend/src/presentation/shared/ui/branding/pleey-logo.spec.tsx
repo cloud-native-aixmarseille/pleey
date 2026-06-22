@@ -31,4 +31,12 @@ describe('PleeyLogo', () => {
     expect(image).toHaveAttribute('alt', '');
     expect(image).toHaveAttribute('aria-hidden', 'true');
   });
+
+  it('supports the accent glow preset', () => {
+    render(<PleeyLogo glow="accent" />);
+
+    expect(screen.getByRole('img', { name: 'shared.branding.logoAlt' })).toHaveStyle({
+      filter: 'drop-shadow(0 0 24px var(--ui-color-brand-accent))',
+    });
+  });
 });

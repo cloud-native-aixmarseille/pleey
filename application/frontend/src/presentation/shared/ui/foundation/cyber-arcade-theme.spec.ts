@@ -3,20 +3,18 @@ import { CYBER_ARCADE_THEME_NAME, cyberArcadeThemeSeed } from './cyber-arcade-th
 import { SOLAR_GRID_THEME_ID, solarGridThemeSeed } from './solar-grid-theme';
 import { statusToneRecipes, surfaceRecipes } from './ui-recipes';
 import {
-  createFieldInputStyle,
   createUiThemeCssVariables,
   createUiThemeTokens,
   DEFAULT_UI_COLOR_SCHEME,
   DEFAULT_UI_THEME_ID,
-  defaultUiThemeDefinition,
   findUiTheme,
-  uiTheme,
   uiThemes,
-  uiThemeTokens,
 } from './ui-theme';
 import { uiTypeScale } from './ui-typography';
 
 describe('theme', () => {
+  const defaultUiThemeDefinition = findUiTheme(DEFAULT_UI_THEME_ID);
+
   describe('CYBER_ARCADE_THEME_NAME', () => {
     it('names the current shared UI theme', () => {
       expect(CYBER_ARCADE_THEME_NAME).toBe('Cyber Arcade');
@@ -50,17 +48,23 @@ describe('theme', () => {
     });
   });
 
-  describe('uiTheme', () => {
+  describe('defaultUiThemeDefinition.mantineTheme', () => {
     it('exposes the shared spacing, typography, and shadow defaults for the default scheme', () => {
-      expect(uiTheme.spacing?.xl).toBe(defaultUiThemeDefinition.tokens.spacing.xl);
-      expect(uiTheme.fontFamily).toBe(defaultUiThemeDefinition.tokens.typography.bodyFamily);
+      expect(defaultUiThemeDefinition.mantineTheme.spacing?.xl).toBe(
+        defaultUiThemeDefinition.tokens.spacing.xl,
+      );
+      expect(defaultUiThemeDefinition.mantineTheme.fontFamily).toBe(
+        defaultUiThemeDefinition.tokens.typography.bodyFamily,
+      );
       expect(defaultUiThemeDefinition.tokens.typography.bodyFamily).toBe(
         '"Space Grotesk", system-ui, sans-serif',
       );
       expect(defaultUiThemeDefinition.tokens.typography.displayFamily).toBe(
         '"Orbitron", system-ui, sans-serif',
       );
-      expect(uiTheme.shadows?.xl).toBe(defaultUiThemeDefinition.tokens.shadow.elevated);
+      expect(defaultUiThemeDefinition.mantineTheme.shadows?.xl).toBe(
+        defaultUiThemeDefinition.tokens.shadow.elevated,
+      );
     });
   });
 
@@ -88,18 +92,6 @@ describe('theme', () => {
         defaultUiThemeDefinition.tokens.color.brand.primary,
       );
       expect(cssVariables['--ui-radius-panel']).toBe(defaultUiThemeDefinition.tokens.radius.panel);
-    });
-  });
-
-  describe('createFieldInputStyle()', () => {
-    it('switches to the semantic danger border when invalid', () => {
-      expect(createFieldInputStyle(true).border).toBe(
-        `1px solid ${uiThemeTokens.color.border.danger}`,
-      );
-
-      expect(createFieldInputStyle(false).border).toBe(
-        `1px solid ${uiThemeTokens.color.border.subtle}`,
-      );
     });
   });
 

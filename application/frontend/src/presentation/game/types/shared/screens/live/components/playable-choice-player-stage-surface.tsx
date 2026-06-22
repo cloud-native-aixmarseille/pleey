@@ -1,4 +1,3 @@
-import type { CSSProperties } from 'react';
 import type { PartyActionId } from '../../../../../../../domains/game/party/shared/entities/party-action';
 import { PartyStatus } from '../../../../../../../domains/game/party/shared/entities/party-status';
 import { usePresentationTranslation } from '../../../../../../shared/i18n/use-presentation-translation';
@@ -11,6 +10,10 @@ import {
 } from '../../../../../../shared/ui/motion/motion-primitives';
 import { PlayerStageSurfaceFrame } from '../../../../../party/player/screens/components/player-stage-surface-frame';
 import { resolvePlayableChoiceActionSlotLabel } from './playable-choice-action-slot-identity';
+import {
+  mobileTileWrapperStyle,
+  resolveMobileGridStyle,
+} from './playable-choice-player-stage-surface.styles';
 import { PlayableChoiceResultActionTile } from './playable-choice-result-action-tile';
 import type { PlayableChoicePlayerStageSurfaceProps } from './playable-choice-runtime-panel.types';
 import { StageCountdownTimer } from './stage-countdown-timer';
@@ -27,30 +30,6 @@ const STAGE_ANSWER_REVEAL_INITIAL_DELAY_SECONDS_MOBILE = 1.4;
 const STAGE_ANSWER_REVEAL_STAGGER_SECONDS_MOBILE = 0.18;
 const STAGE_REVEAL_LOCK_MS_MOBILE = 0;
 const MAX_SHORTCUT_ACTION_COUNT = 9;
-
-const mobileGridBaseStyle: CSSProperties = {
-  display: 'grid',
-  flex: '1 1 auto',
-  gap: '0.5rem',
-  gridTemplateColumns: '1fr 1fr',
-  minHeight: 0,
-  width: '100%',
-};
-
-const mobileTileWrapperStyle: CSSProperties = {
-  display: 'flex',
-  minHeight: 0,
-};
-
-function resolveMobileGridStyle(actionCount: number): CSSProperties {
-  // 2 columns; rows auto-distribute remaining height into equal fractions so
-  // 4, 5, 6, 7, or 8 options all share the viewport with no scroll.
-  const rowCount = Math.max(1, Math.ceil(actionCount / 2));
-  return {
-    ...mobileGridBaseStyle,
-    gridTemplateRows: `repeat(${rowCount}, minmax(0, 1fr))`,
-  };
-}
 
 function PlayableChoiceActionShortcutRegistration({
   actionId,

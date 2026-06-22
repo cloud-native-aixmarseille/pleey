@@ -41,10 +41,6 @@ interface PlayableManagementPromptEditorProps {
   readonly setEditorState: (editorState: PlayableItemEditorState) => void;
 }
 
-const advancedSettingsSummaryStyle = {
-  cursor: 'pointer',
-} as const;
-
 function resolveValidationTranslationKey(
   code: PlayableManagementValidationIssueCode,
 ): `validation.${PlayableManagementValidationIssueCode}` {
@@ -194,9 +190,7 @@ export function PlayableManagementPromptEditor({
         </ContentStack>
 
         <details>
-          <summary style={advancedSettingsSummaryStyle}>
-            {t(`${translationRoot}.advancedSettings`)}
-          </summary>
+          <summary>{t(`${translationRoot}.advancedSettings`)}</summary>
           <ContentStack gap="sm" marginTop="sm">
             <ResponsiveGrid columns={{ base: 1, sm: 2 }} gap="md">
               <FieldShell

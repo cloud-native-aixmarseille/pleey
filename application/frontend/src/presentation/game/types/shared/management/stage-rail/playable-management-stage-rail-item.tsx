@@ -1,29 +1,36 @@
-import { type Dispatch, type DragEvent, type SetStateAction } from 'react';
+import { type ComponentProps, type Dispatch, type ReactNode, type SetStateAction } from 'react';
 import type { PlayableManagementItem } from '../../../../../../domains/game/types/shared/management/playable-management';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
-import { Button } from '../../../../../shared/ui/actions/button';
+import { InteractiveSurfaceButton } from '../../../../../shared/ui/actions/interactive-surface-button';
+import { ReorderDropIndicator } from '../../../../../shared/ui/actions/reorder-drop-indicator';
+import { ReorderHandle } from '../../../../../shared/ui/actions/reorder-handle';
+import { InlineStatPill } from '../../../../../shared/ui/data/inline-stat-pill';
 import { Badge } from '../../../../../shared/ui/feedback/badge';
 import { AppIcon } from '../../../../../shared/ui/icons/app-icon';
-import { ActionRow } from '../../../../../shared/ui/layout/containers';
-import { SupportingText } from '../../../../../shared/ui/layout/typography';
-import { Tooltip } from '../../../../../shared/ui/overlay/tooltip';
+import { ActionRow, SplitWrapRow, WrapRow } from '../../../../../shared/ui/layout/containers';
+import { SummaryText } from '../../../../../shared/ui/layout/typography';
 import type { PlayableItemKindConfig } from '../playable-content-management-model';
 import type { PlayableItemEditorValidator } from '../playable-item-editor-validator';
-import {
-  type PlayableManagementDropPreview,
-  playableManagementDragPlacement,
-} from '../playable-management-drag-placement';
+import { type PlayableManagementDropPreview } from '../playable-management-drag-placement';
+import { PlayableManagementIconActionButton } from '../playable-management-icon-action-button';
+import { createPlayableManagementReorderBindings } from '../playable-management-reorder-bindings';
 import { isStageReady, resolveStageTitle } from './stage-rail-helpers';
 import {
-  createDragHandleStyle,
   createItemCardStyle,
-  dropIndicatorStyle,
-  itemActionRowStyle,
-  itemMetaRowStyle,
-  itemMetaStatStyle,
+  itemButtonContentStyle,
   itemSelectButtonStyle,
-  itemTitleStyle,
 } from './stage-rail-styles';
+
+type StageRailIconName = ComponentProps<typeof AppIcon>['name'];
+
+interface StageRailMetaStatProps {
+  readonly iconName: StageRailIconName;
+  readonly children: ReactNode;
+}
+
+function StageRailMetaStat({ children, iconName }: StageRailMetaStatProps) {
+  return <InlineStatPill icon={<AppIcon name={iconName} size={14} />}>{children}</InlineStatPill>;
+}
 
 interface PlayableManagementStageRailItemProps {
   readonly draggedIndex: number | null;
@@ -65,160 +72,90 @@ export function PlayableManagementStageRailItem({
   const { t } = usePresentationTranslation();
   const selected = item.id === selectedItemId;
   const ready = isStageReady(item, playableItemEditorValidator, itemKindConfig);
-  const isDragging = draggedIndex === index;
-  const isDropTarget = dropPreview?.hoveredIndex === index;
+  const reorderBindings = createPlayableManagementReorderBindings<HTMLLIElement>({
+    draggedIndex,
+    dropPreview,
+    index,
+    moveItem: onMoveItem,
+    setDraggedIndex,
+    setDropPreview,
+  });
 
   return (
     <li
-      draggable
-      onDragEnd={() => {
-        setDraggedIndex(null);
-        setDropPreview(null);
-      }}
-      onDragLeave={(event: DragEvent<HTMLLIElement>) => {
-        const relatedTarget = event.relatedTarget;
-
-        if (!(relatedTarget instanceof Node) || !event.currentTarget.contains(relatedTarget)) {
-          setDropPreview((current) => (current?.hoveredIndex === index ? null : current));
-        }
-      }}
-      onDragOver={(event: DragEvent<HTMLLIElement>) => {
-        event.preventDefault();
-        const edge = playableManagementDragPlacement.resolveDropEdge(event);
-        setDropPreview({
-          hoveredIndex: index,
-          slot: playableManagementDragPlacement.resolveDisplaySlot(index, edge),
-        });
-      }}
-      onDragStart={(event: DragEvent<HTMLLIElement>) => {
-        setDraggedIndex(index);
-        event.dataTransfer.setData('text/plain', String(index));
-        event.dataTransfer.effectAllowed = 'move';
-      }}
-      onDrop={(event: DragEvent<HTMLLIElement>) => {
-        event.preventDefault();
-        const fromIndex = Number(event.dataTransfer.getData('text/plain'));
-        const edge = playableManagementDragPlacement.resolveDropEdge(event);
-        const slot = playableManagementDragPlacement.resolveDisplaySlot(index, edge);
-
-        setDraggedIndex(null);
-        setDropPreview(null);
-
-        if (Number.isInteger(fromIndex)) {
-          const toIndex = playableManagementDragPlacement.resolveInsertionIndex(fromIndex, slot);
-
-          if (toIndex !== fromIndex) {
-            onMoveItem(fromIndex, toIndex);
-          }
-        }
-      }}
+      draggable={reorderBindings.draggable}
+      onDragEnd={reorderBindings.onDragEnd}
+      onDragLeave={reorderBindings.onDragLeave}
+      onDragOver={reorderBindings.onDragOver}
+      onDragStart={reorderBindings.onDragStart}
+      onDrop={reorderBindings.onDrop}
     >
-      {dropPreview?.slot === index ? <div style={dropIndicatorStyle} /> : null}
-      <div style={createItemCardStyle(selected, isDragging, isDropTarget)}>
-        <Button
+      {dropPreview?.slot === index ? <ReorderDropIndicator /> : null}
+      <div
+        style={createItemCardStyle(
+          selected,
+          reorderBindings.isDragging,
+          reorderBindings.isDropTarget,
+        )}
+      >
+        <InteractiveSurfaceButton
           aria-current={selected ? 'true' : undefined}
-          intent="ghost"
-          labelStyle={{
-            display: 'grid',
-            gap: '0.5rem',
-            gridTemplateColumns: 'minmax(0, 1fr)',
-            lineHeight: 1.35,
-            overflow: 'visible',
-            textAlign: 'left',
-            whiteSpace: 'normal',
-            width: '100%',
-            wordBreak: 'break-word',
-          }}
           onClick={() => onSelectItem(item)}
-          rootStyle={itemSelectButtonStyle}
-          size="sm"
-          type="button"
+          surfaceStyle={itemSelectButtonStyle}
         >
-          <span style={itemTitleStyle}>
-            {resolveStageTitle(item, t(`${translationRoot}.itemUntitled`))}
-          </span>
-          <div style={itemMetaRowStyle}>
-            <Badge tone={ready ? 'success' : 'warning'}>
-              {ready ? t(`${translationRoot}.ready`) : t(`${translationRoot}.incomplete`)}
-            </Badge>
-            <div style={itemMetaStatStyle}>
-              <AppIcon name="trophy" size={14} />
-              <SupportingText>{String(item.points)}</SupportingText>
-            </div>
-            <div style={itemMetaStatStyle}>
-              <AppIcon name="pending" size={14} />
-              <SupportingText>
+          <div style={itemButtonContentStyle}>
+            <SummaryText>
+              {resolveStageTitle(item, t(`${translationRoot}.itemUntitled`))}
+            </SummaryText>
+            <WrapRow gap="sm">
+              <Badge tone={ready ? 'success' : 'warning'}>
+                {ready ? t(`${translationRoot}.ready`) : t(`${translationRoot}.incomplete`)}
+              </Badge>
+              <StageRailMetaStat iconName="trophy">{String(item.points)}</StageRailMetaStat>
+              <StageRailMetaStat iconName="pending">
                 {t(`${translationRoot}.itemTimeLimitShort`, {
                   seconds: String(item.timeLimit),
                 })}
-              </SupportingText>
-            </div>
-            <div style={itemMetaStatStyle}>
-              <AppIcon name="quiz" size={14} />
-              <SupportingText>{String(item.options.length)}</SupportingText>
-            </div>
+              </StageRailMetaStat>
+              <StageRailMetaStat iconName="quiz">{String(item.options.length)}</StageRailMetaStat>
+            </WrapRow>
           </div>
-        </Button>
-        <div style={itemActionRowStyle}>
-          <div
+        </InteractiveSurfaceButton>
+        <SplitWrapRow gap="md">
+          <ReorderHandle
+            active={hoveredHandleIndex === index}
+            dragging={reorderBindings.isDragging}
             onMouseEnter={() => setHoveredHandleIndex(index)}
             onMouseLeave={() =>
               setHoveredHandleIndex((current) => (current === index ? null : current))
             }
-            style={createDragHandleStyle(hoveredHandleIndex === index, isDragging)}
-          >
-            <AppIcon name="grip-vertical" size={16} />
-          </div>
+          />
           <ActionRow justify="end">
-            <Tooltip label={t(`${translationRoot}.moveItemUp`)}>
-              <span>
-                <Button
-                  disabled={index === 0}
-                  intent="ghost"
-                  leftSection={<AppIcon name="arrow-up" size={14} />}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    onMoveItem(index, index - 1);
-                  }}
-                  size="sm"
-                >
-                  {t(`${translationRoot}.moveItemUpShort`)}
-                </Button>
-              </span>
-            </Tooltip>
-            <Tooltip label={t(`${translationRoot}.moveItemDown`)}>
-              <span>
-                <Button
-                  disabled={index >= itemsLength - 1}
-                  intent="ghost"
-                  leftSection={<AppIcon name="arrow-down" size={14} />}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    onMoveItem(index, index + 1);
-                  }}
-                  size="sm"
-                >
-                  {t(`${translationRoot}.moveItemDownShort`)}
-                </Button>
-              </span>
-            </Tooltip>
-            <Tooltip label={t(`${translationRoot}.deleteItem`)}>
-              <span>
-                <Button
-                  intent="ghost"
-                  leftSection={<AppIcon name="trash" size={14} />}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    onDeleteItem(item);
-                  }}
-                  size="sm"
-                >
-                  {t(`${translationRoot}.deleteItemShort`)}
-                </Button>
-              </span>
-            </Tooltip>
+            <PlayableManagementIconActionButton
+              disabled={index === 0}
+              iconName="arrow-up"
+              label={t(`${translationRoot}.moveItemUpShort`)}
+              onClick={() => onMoveItem(index, index - 1)}
+              stopPropagation
+              tooltipLabel={t(`${translationRoot}.moveItemUp`)}
+            />
+            <PlayableManagementIconActionButton
+              disabled={index >= itemsLength - 1}
+              iconName="arrow-down"
+              label={t(`${translationRoot}.moveItemDownShort`)}
+              onClick={() => onMoveItem(index, index + 1)}
+              stopPropagation
+              tooltipLabel={t(`${translationRoot}.moveItemDown`)}
+            />
+            <PlayableManagementIconActionButton
+              iconName="trash"
+              label={t(`${translationRoot}.deleteItemShort`)}
+              onClick={() => onDeleteItem(item)}
+              stopPropagation
+              tooltipLabel={t(`${translationRoot}.deleteItem`)}
+            />
           </ActionRow>
-        </div>
+        </SplitWrapRow>
       </div>
     </li>
   );

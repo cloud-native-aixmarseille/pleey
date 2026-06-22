@@ -136,12 +136,19 @@
       ],
       "plugins": [
         "./biome/plugins/presentation-boundaries.grit",
-        "./biome/plugins/feedback-patterns.grit"
+        "./biome/plugins/feedback-patterns.grit",
+        "./biome/plugins/frontend-ui-style-boundaries.grit",
+        "./biome/plugins/frontend-local-style-definitions.grit"
       ]
     },
 
     {
-      "includes": ["src/presentation/**/*.{ts,tsx,js,jsx}"],
+      "includes": [
+        "src/presentation/**/*.{ts,tsx,js,jsx}",
+        "!!src/presentation/shared/ui/**/*.{ts,tsx,js,jsx}",
+        "!!src/presentation/**/*.{spec,test}.{ts,tsx,js,jsx}",
+        "!!src/presentation/**/routes/**/*.{ts,tsx,js,jsx}"
+      ],
       "linter": {
         "rules": {
           "style": {
@@ -216,6 +223,7 @@
     {
       "includes": [
         "src/presentation/**/*.{ts,tsx,js,jsx}",
+        "!!src/presentation/shared/ui/**/*.{ts,tsx,js,jsx}",
         "!!src/presentation/**/*.{spec,test}.{ts,tsx,js,jsx}"
       ],
       "linter": {
@@ -225,7 +233,11 @@
               "level": "error",
               "options": {
                 "elements": {
-                  "button": "Do not use native <button> in presentation code. Use src/presentation/shared/ui/actions/button.tsx to keep interaction states and variants centralized."
+                  "a": "Do not use native <a> in presentation code. Use src/presentation/shared/ui/navigation/links.tsx so navigation styling and routing behavior stay centralized.",
+                  "button": "Do not use native <button> in presentation code. Use src/presentation/shared/ui/actions/button.tsx to keep interaction states and variants centralized.",
+                  "input": "Do not use native <input> in presentation code. Use shared wrappers from src/presentation/shared/ui/forms to keep field behavior, accessibility, and theme styling centralized.",
+                  "select": "Do not use native <select> in presentation code. Use shared wrappers from src/presentation/shared/ui/forms to keep field behavior, accessibility, and theme styling centralized.",
+                  "textarea": "Do not use native <textarea> in presentation code. Use shared wrappers from src/presentation/shared/ui/forms to keep field behavior, accessibility, and theme styling centralized."
                 }
               }
             }

@@ -1,5 +1,5 @@
 import { AnimatePresence, animate, LayoutGroup, motion, useMotionValue } from 'motion/react';
-import { type CSSProperties, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import type { PartyObservationPlayer } from '../../../../../../domains/game/party/shared/entities/party-observation-player';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
@@ -15,6 +15,7 @@ import {
 import { usePrefersReducedMotion } from '../../../../../shared/ui/motion/use-prefers-reduced-motion';
 import { toPartyFinalSummaryPlayerKey } from './party-final-summary-panel.model';
 import {
+  mobileRankGroupStyle,
   mobileStandingsIdentityStyle,
   mobileStandingsNameGroupStyle,
   mobileStandingsRowStyle,
@@ -571,9 +572,3 @@ function sortByPreviousScore(
     return a.username.localeCompare(b.username);
   });
 }
-
-const mobileRankGroupStyle: CSSProperties = {
-  alignItems: 'center',
-  display: 'flex',
-  gap: '0.4rem',
-};

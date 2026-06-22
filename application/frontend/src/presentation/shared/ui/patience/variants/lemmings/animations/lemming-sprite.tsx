@@ -1,3 +1,4 @@
+import type { MotionProps, Transition } from 'motion/react';
 import { AnimatePresence, motion } from 'motion/react';
 import type { LemmingSnapshot } from '../lemmings-patience-engine';
 import { LemmingBanana } from './lemming-banana';
@@ -130,6 +131,113 @@ const bananaLegTransition = {
 
 const bananaOriginStyle = { transformOrigin: 'center bottom' } as const;
 
+interface LemmingLegProps {
+  readonly animate: MotionProps['animate'];
+  readonly footCenterX: number;
+  readonly rectX: number;
+  readonly transition: Transition;
+}
+
+function LemmingLeg({ animate, footCenterX, rectX, transition }: LemmingLegProps) {
+  return (
+    <motion.g animate={animate} transition={transition}>
+      <rect fill="var(--ui-color-brand-primary)" height="5" rx="1.5" width="3.5" x={rectX} y="13" />
+      <ellipse cx={footCenterX} cy="18" fill="var(--ui-color-brand-primary)" rx="2.4" ry="1.3" />
+    </motion.g>
+  );
+}
+
+interface LemmingEmoteBubbleProps {
+  readonly children: string;
+  readonly style: MotionProps['style'];
+}
+
+function LemmingEmoteBubble({ children, style }: LemmingEmoteBubbleProps) {
+  return (
+    <motion.div
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.5, y: 4 }}
+      initial={{ opacity: 0, scale: 0.3, y: 8 }}
+      style={style}
+      transition={{ type: 'spring', stiffness: 500, damping: 18 }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+interface LemmingEmoteTokenProps {
+  readonly children: string;
+  readonly style: MotionProps['style'];
+}
+
+function LemmingEmoteToken({ children, style }: LemmingEmoteTokenProps) {
+  return (
+    <motion.span
+      animate={{ opacity: 1, y: -4 }}
+      exit={{ opacity: 0, y: -10 }}
+      initial={{ opacity: 0, y: 0 }}
+      style={style}
+    >
+      {children}
+    </motion.span>
+  );
+}
+
+function resolveBodyMotion({
+  isBanana,
+  isHighFive,
+  isJetpack,
+  isWalking,
+  isWaving,
+}: {
+  readonly isBanana: boolean;
+  readonly isHighFive: boolean;
+  readonly isJetpack: boolean;
+  readonly isWalking: boolean;
+  readonly isWaving: boolean;
+}) {
+  if (isJetpack) {
+    return JETPACK_BODY;
+  }
+
+  if (isBanana) {
+    return BANANA_BODY;
+  }
+
+  if (isHighFive) {
+    return HIGHFIVE_BODY;
+  }
+
+  if (isWaving) {
+    return WAVE_BODY;
+  }
+
+  if (isWalking) {
+    return WALK_BODY;
+  }
+
+  return IDLE_BODY;
+}
+
+function resolvePortalMotion(isPortal: boolean) {
+  return isPortal ? PORTAL_WRAP : NO_PORTAL;
+}
+
+function resolveLegMotion({
+  isBanana,
+  isWalking,
+}: {
+  readonly isBanana: boolean;
+  readonly isWalking: boolean;
+}) {
+  return {
+    leftLeg: isWalking ? leftLegWalk : isBanana ? bananaLeftLeg : legStill,
+    rightLeg: isWalking ? rightLegWalk : isBanana ? bananaRightLeg : legStill,
+    transition: isBanana ? bananaLegTransition : legLoop,
+  };
+}
+
 export function LemmingSprite({ lemming }: { lemming: LemmingSnapshot }) {
   const isWalking = lemming.mode === 'walk' && !lemming.idleVariant && !lemming.greetingVariant;
   const isFalling = lemming.mode === 'fall';
@@ -142,23 +250,15 @@ export function LemmingSprite({ lemming }: { lemming: LemmingSnapshot }) {
   const isWaving = lemming.greetingVariant === 'wave';
   const isHighFive = lemming.greetingVariant === 'highfive';
 
-  const body = isJetpack
-    ? JETPACK_BODY
-    : isBanana
-      ? BANANA_BODY
-      : isHighFive
-        ? HIGHFIVE_BODY
-        : isWaving
-          ? WAVE_BODY
-          : isWalking
-            ? WALK_BODY
-            : IDLE_BODY;
-
-  const portal = isPortal ? PORTAL_WRAP : NO_PORTAL;
-
-  const leftLeg = isWalking ? leftLegWalk : isBanana ? bananaLeftLeg : legStill;
-  const rightLeg = isWalking ? rightLegWalk : isBanana ? bananaRightLeg : legStill;
-  const legTrans = isBanana ? bananaLegTransition : legLoop;
+  const body = resolveBodyMotion({
+    isBanana,
+    isHighFive,
+    isJetpack,
+    isWalking,
+    isWaving,
+  });
+  const portal = resolvePortalMotion(isPortal);
+  const legMotion = resolveLegMotion({ isBanana, isWalking });
 
   return (
     <motion.div
@@ -188,30 +288,20 @@ export function LemmingSprite({ lemming }: { lemming: LemmingSnapshot }) {
             <AnimatePresence>{isFalling ? <LemmingParachute /> : null}</AnimatePresence>
 
             {/* Left leg + foot */}
-            <motion.g animate={leftLeg} transition={legTrans}>
-              <rect
-                fill="var(--ui-color-brand-primary)"
-                height="5"
-                rx="1.5"
-                width="3.5"
-                x="4"
-                y="13"
-              />
-              <ellipse cx="5.75" cy="18" fill="var(--ui-color-brand-primary)" rx="2.4" ry="1.3" />
-            </motion.g>
+            <LemmingLeg
+              animate={legMotion.leftLeg}
+              footCenterX={5.75}
+              rectX={4}
+              transition={legMotion.transition}
+            />
 
             {/* Right leg + foot */}
-            <motion.g animate={rightLeg} transition={legTrans}>
-              <rect
-                fill="var(--ui-color-brand-primary)"
-                height="5"
-                rx="1.5"
-                width="3.5"
-                x="10.5"
-                y="13"
-              />
-              <ellipse cx="12.25" cy="18" fill="var(--ui-color-brand-primary)" rx="2.4" ry="1.3" />
-            </motion.g>
+            <LemmingLeg
+              animate={legMotion.rightLeg}
+              footCenterX={12.25}
+              rectX={10.5}
+              transition={legMotion.transition}
+            />
 
             {/* Body capsule */}
             <rect fill="var(--ui-color-brand-accent)" height="13" rx="5" width="14" x="2" y="1" />
@@ -241,26 +331,13 @@ export function LemmingSprite({ lemming }: { lemming: LemmingSnapshot }) {
 
       <AnimatePresence>
         {lemming.emote && isTalking ? (
-          <motion.div
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.5, y: 4 }}
-            initial={{ opacity: 0, scale: 0.3, y: 8 }}
-            key={`${lemming.id}-bubble`}
-            style={speechBubbleStyle}
-            transition={{ type: 'spring', stiffness: 500, damping: 18 }}
-          >
+          <LemmingEmoteBubble key={`${lemming.id}-bubble`} style={speechBubbleStyle}>
             {lemming.emote}
-          </motion.div>
+          </LemmingEmoteBubble>
         ) : lemming.emote ? (
-          <motion.span
-            animate={{ opacity: 1, y: -4 }}
-            exit={{ opacity: 0, y: -10 }}
-            initial={{ opacity: 0, y: 0 }}
-            key={`${lemming.id}-emote`}
-            style={emoteStyle}
-          >
+          <LemmingEmoteToken key={`${lemming.id}-emote`} style={emoteStyle}>
             {lemming.emote}
-          </motion.span>
+          </LemmingEmoteToken>
         ) : null}
       </AnimatePresence>
     </motion.div>

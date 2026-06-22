@@ -81,18 +81,126 @@ export function JoinPartySurface({
     onJoinParty();
   };
 
+  const guestIdentitySection = isAuthenticated ? null : (
+    <ContentStack align="center" gap={isMobile ? 'sm' : 'md'}>
+      <UserAvatar
+        alt={guestAvatarAltLabel}
+        size={isMobile ? 96 : 112}
+        src={guestAvatarPreviewUri}
+      />
+
+      <ActionRow justify="center">
+        <Button
+          disabled={isJoinSubmitting}
+          intent="ghost"
+          leftSection={<AppIcon name="feature" size={16} />}
+          onClick={onRegenerateGuestAvatar}
+          size="sm"
+        >
+          {t('game.party.player.route.shuffleGuestAvatarCta')}
+        </Button>
+        <Button
+          disabled={isJoinSubmitting}
+          intent="ghost"
+          leftSection={<AppIcon name="profile" size={16} />}
+          onClick={onGenerateGuestName}
+          size="sm"
+        >
+          {t('game.party.player.route.generateGuestNameCta')}
+        </Button>
+      </ActionRow>
+
+      <FieldShell
+        id="party-join-guest-name"
+        label={t('game.party.player.route.guestNameLabel')}
+        required
+      >
+        <Input
+          aria-label={t('game.party.player.route.guestNameLabel')}
+          autoComplete="nickname"
+          autoFocus
+          disabled={isJoinSubmitting}
+          enterKeyHint="go"
+          id="party-join-guest-name"
+          inputMode="text"
+          maxLength={GUEST_NAME_MAX_LENGTH}
+          onChange={(event) => onGuestNameChange(event.currentTarget.value)}
+          placeholder={t('game.party.player.route.guestNamePlaceholder')}
+          value={guestName}
+        />
+      </FieldShell>
+    </ContentStack>
+  );
+
+  const passwordSection = showPasswordInput ? (
+    <>
+      <FieldShell id="party-join-password" label={t('game.party.player.route.passwordLabel')}>
+        <Input
+          aria-label={t('game.party.player.route.passwordLabel')}
+          autoComplete="current-password"
+          disabled={isJoinSubmitting}
+          id="party-join-password"
+          onChange={(event) => onJoinPasswordChange(event.currentTarget.value)}
+          placeholder={t('game.party.player.route.passwordPlaceholder')}
+          type="password"
+          value={password}
+        />
+      </FieldShell>
+      <SupportingText>{t('game.party.player.route.passwordHint')}</SupportingText>
+    </>
+  ) : null;
+
+  const submitButton = (
+    <Button
+      disabled={isJoinDisabled}
+      intent="primary"
+      rightSection={<AppIcon name="arrow-right" size={18} />}
+      type="submit"
+      width="full"
+    >
+      {isAuthenticated
+        ? t('game.party.player.route.joinWithAccountCta')
+        : t('game.party.player.route.joinAsGuestCta')}
+    </Button>
+  );
+
+  if (isMobile) {
+    return (
+      <section aria-label={t('game.party.player.route.joinPanelLabel')}>
+        <ElevatedPanel padding="md">
+          <form noValidate onSubmit={handleSubmit}>
+            <ContentStack gap="md">
+              <ContentStack align="center" gap="sm">
+                <Heading level={2}>{t('game.party.player.route.joinHeroTitle')}</Heading>
+                {pin ? (
+                  <PartyPinPreview
+                    ariaLabel={t('game.party.route.pinAriaLabel', { pin })}
+                    label={t('game.party.player.route.joinPinPreviewLabel')}
+                    pin={pin}
+                  />
+                ) : null}
+              </ContentStack>
+
+              {guestIdentitySection}
+              {passwordSection}
+              {submitButton}
+            </ContentStack>
+          </form>
+        </ElevatedPanel>
+      </section>
+    );
+  }
+
   return (
-    <ContentStack gap={isMobile ? 'md' : 'lg'}>
+    <ContentStack gap="lg">
       <header>
-        <HeroPanel padding={isMobile ? 'lg' : 'xl'}>
-          <ContentStack align="center" gap={isMobile ? 'sm' : 'md'}>
-            {isMobile ? null : (
-              <AccentIconBadge>
-                <AppIcon name="game" size={28} />
-              </AccentIconBadge>
-            )}
-            {isMobile ? null : <Eyebrow>{t('game.party.player.route.joinHeroEyebrow')}</Eyebrow>}
-            <Heading hero={!isMobile} level={isMobile ? 2 : 1}>
+        <HeroPanel padding="xl">
+          <ContentStack align="center" gap="md">
+            <AccentIconBadge>
+              <AppIcon name="game" size={28} />
+            </AccentIconBadge>
+            <Eyebrow>{t('game.party.player.route.joinHeroEyebrow')}</Eyebrow>
+            <Heading hero level={1}>
               {t('game.party.player.route.joinHeroTitle')}
             </Heading>
             {pin ? (
@@ -107,92 +215,12 @@ export function JoinPartySurface({
       </header>
 
       <section aria-label={t('game.party.player.route.joinPanelLabel')}>
-        <ElevatedPanel padding={isMobile ? 'md' : 'lg'}>
+        <ElevatedPanel padding="lg">
           <form noValidate onSubmit={handleSubmit}>
-            <ContentStack gap={isMobile ? 'md' : 'lg'}>
-              {isAuthenticated ? null : (
-                <ContentStack align="center" gap={isMobile ? 'sm' : 'md'}>
-                  <UserAvatar
-                    alt={guestAvatarAltLabel}
-                    size={isMobile ? 96 : 112}
-                    src={guestAvatarPreviewUri}
-                  />
-
-                  <ActionRow justify="center">
-                    <Button
-                      disabled={isJoinSubmitting}
-                      intent="ghost"
-                      leftSection={<AppIcon name="feature" size={16} />}
-                      onClick={onRegenerateGuestAvatar}
-                      size="sm"
-                    >
-                      {t('game.party.player.route.shuffleGuestAvatarCta')}
-                    </Button>
-                    <Button
-                      disabled={isJoinSubmitting}
-                      intent="ghost"
-                      leftSection={<AppIcon name="profile" size={16} />}
-                      onClick={onGenerateGuestName}
-                      size="sm"
-                    >
-                      {t('game.party.player.route.generateGuestNameCta')}
-                    </Button>
-                  </ActionRow>
-
-                  <FieldShell
-                    id="party-join-guest-name"
-                    label={t('game.party.player.route.guestNameLabel')}
-                    required
-                  >
-                    <Input
-                      aria-label={t('game.party.player.route.guestNameLabel')}
-                      autoComplete="nickname"
-                      autoFocus
-                      disabled={isJoinSubmitting}
-                      enterKeyHint="go"
-                      id="party-join-guest-name"
-                      inputMode="text"
-                      maxLength={GUEST_NAME_MAX_LENGTH}
-                      onChange={(event) => onGuestNameChange(event.currentTarget.value)}
-                      placeholder={t('game.party.player.route.guestNamePlaceholder')}
-                      value={guestName}
-                    />
-                  </FieldShell>
-                </ContentStack>
-              )}
-
-              {showPasswordInput ? (
-                <>
-                  <FieldShell
-                    id="party-join-password"
-                    label={t('game.party.player.route.passwordLabel')}
-                  >
-                    <Input
-                      aria-label={t('game.party.player.route.passwordLabel')}
-                      autoComplete="current-password"
-                      disabled={isJoinSubmitting}
-                      id="party-join-password"
-                      onChange={(event) => onJoinPasswordChange(event.currentTarget.value)}
-                      placeholder={t('game.party.player.route.passwordPlaceholder')}
-                      type="password"
-                      value={password}
-                    />
-                  </FieldShell>
-                  <SupportingText>{t('game.party.player.route.passwordHint')}</SupportingText>
-                </>
-              ) : null}
-
-              <Button
-                disabled={isJoinDisabled}
-                intent="primary"
-                rightSection={<AppIcon name="arrow-right" size={18} />}
-                type="submit"
-                width="full"
-              >
-                {isAuthenticated
-                  ? t('game.party.player.route.joinWithAccountCta')
-                  : t('game.party.player.route.joinAsGuestCta')}
-              </Button>
+            <ContentStack gap="lg">
+              {guestIdentitySection}
+              {passwordSection}
+              {submitButton}
             </ContentStack>
           </form>
         </ElevatedPanel>

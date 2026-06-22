@@ -122,6 +122,37 @@ function createRejectedJoinReceipt(
   };
 }
 
+function createAcceptedJoinReceipt(
+  overrides: Partial<Extract<PartyJoinReceipt, { status: PartyJoinReceiptStatus.ACCEPTED }>> & {
+    readonly player: Extract<
+      PartyJoinReceipt,
+      { status: PartyJoinReceiptStatus.ACCEPTED }
+    >['player'];
+  },
+): Extract<PartyJoinReceipt, { status: PartyJoinReceiptStatus.ACCEPTED }> {
+  return {
+    gameId: overrides.gameId ?? gameIdentifier.parse(17),
+    partyId: overrides.partyId ?? partyIdentifier.parse(9),
+    pin: overrides.pin ?? partyPinIdentifier.parse('AB12CD'),
+    player: overrides.player,
+    status: PartyJoinReceiptStatus.ACCEPTED,
+  };
+}
+
+function createGuestJoinPlayer(
+  username: string,
+  guestId: GuestId = guestIdentifier.parse('guest-rejoined'),
+): Extract<PartyJoinReceipt, { status: PartyJoinReceiptStatus.ACCEPTED }>['player'] {
+  return {
+    avatarUri: null,
+    identity: {
+      kind: PartyPlayerIdentityKind.Guest,
+      guestId,
+    },
+    username,
+  };
+}
+
 function createUserEntry(
   userId: UserId,
   username: string,
@@ -913,6 +944,12 @@ describe('PartyLobbyScreen', () => {
       }),
     );
 
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'game.party.host.route.kickPlayerConfirmAction',
+      }),
+    );
+
     await waitFor(() => {
       expect(mocks.partyHostControlPort.kickPlayer).toHaveBeenCalledWith({
         partyId: partyIdentifier.parse(9),
@@ -922,6 +959,114 @@ describe('PartyLobbyScreen', () => {
         },
       });
     });
+  });
+
+  it('lets the host kick the same player again after they rejoin without refreshing', async () => {
+    let resolveKick: (() => void) | undefined;
+    const firstKickPromise = new Promise<void>((resolve) => {
+      resolveKick = () => resolve();
+    });
+
+    mocks.params = { partyId: '9', pin: undefined };
+    mocks.authState = {
+      hasRestoredSession: true,
+      isAuthenticated: true,
+      user: authFixtureFactory.createUser({
+        id: 7,
+        username: 'Host',
+        email: 'host@pleey.io',
+        avatarUri: null,
+      }),
+    };
+    mocks.partyManagementState.parties = [createManagedParty()];
+    mocks.partyHostControlPort.kickPlayer = vi
+      .fn<PartyHostControlPort['kickPlayer']>()
+      .mockImplementationOnce(async () => firstKickPromise)
+      .mockImplementationOnce(async () => undefined);
+    mocks.observationState.currentParty = createPartyObservation({
+      status: PartyStatus.WAITING,
+      context: null,
+    });
+    mocks.observationState.currentErrorMessage = null;
+    mocks.observationState.currentErrorPartyId = null;
+    mocks.observationState.observePartyById = vi.fn(() => vi.fn());
+
+    const view = renderWithProviders(
+      <PartyLobbyScreen
+        routeKind={PartyLobbyRouteKind.PARTY_ID}
+        normalizePartyId={(partyId) => (partyId ? partyIdentifier.parse(Number(partyId)) : null)}
+        resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
+      />,
+    );
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'game.party.host.route.kickPlayerAriaLabel (username=Neo)',
+      }),
+    );
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'game.party.host.route.kickPlayerConfirmAction',
+      }),
+    );
+
+    await waitFor(() => {
+      expect(mocks.partyHostControlPort.kickPlayer).toHaveBeenCalledTimes(1);
+    });
+
+    mocks.observationState.currentParty = createPartyObservation({
+      status: PartyStatus.WAITING,
+      context: null,
+      entries: [
+        createUserEntry(userIdentifier.parse(7), 'Host', PartyRole.HOST, {
+          avatarUri: '/avatars/host.png',
+          totalScore: 0,
+          joinedAt: '2026-04-21T08:00:00.000Z',
+        }),
+      ],
+    });
+
+    view.rerender(
+      <PartyLobbyScreen
+        routeKind={PartyLobbyRouteKind.PARTY_ID}
+        normalizePartyId={(partyId) => (partyId ? partyIdentifier.parse(Number(partyId)) : null)}
+        resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
+      />,
+    );
+
+    mocks.observationState.currentParty = createPartyObservation({
+      status: PartyStatus.WAITING,
+      context: null,
+    });
+
+    view.rerender(
+      <PartyLobbyScreen
+        routeKind={PartyLobbyRouteKind.PARTY_ID}
+        normalizePartyId={(partyId) => (partyId ? partyIdentifier.parse(Number(partyId)) : null)}
+        resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
+      />,
+    );
+
+    const kickButton = await screen.findByRole('button', {
+      name: 'game.party.host.route.kickPlayerAriaLabel (username=Neo)',
+    });
+
+    await waitFor(() => {
+      expect(kickButton).toBeEnabled();
+    });
+
+    fireEvent.click(kickButton);
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'game.party.host.route.kickPlayerConfirmAction',
+      }),
+    );
+
+    await waitFor(() => {
+      expect(mocks.partyHostControlPort.kickPlayer).toHaveBeenCalledTimes(2);
+    });
+
+    resolveKick?.();
   });
 
   it('clears the persisted guest session when the current guest disappears from observation', async () => {
@@ -3613,6 +3758,129 @@ describe('PartyLobbyScreen', () => {
     expect(await screen.findByTestId('party-lobby-redirect')).toHaveTextContent(
       `/party/${partyIdentifier.parse(9)}/lobby`,
     );
+  });
+
+  it('lets a kicked guest join again from the join route without a browser refresh', async () => {
+    const guestId = guestIdentifier.parse('guest-current');
+    let persistedGuestId: GuestId | null = guestId;
+
+    mocks.params = { partyId: '9', pin: undefined };
+    mocks.authState = {
+      hasRestoredSession: true,
+      isAuthenticated: false,
+      user: null,
+    };
+    mocks.partyManagementState.parties = [];
+    mocks.partyGuestSessionPort.getGuestId = vi.fn(() => persistedGuestId);
+    mocks.partyGuestSessionPort.clearGuestId = vi.fn(() => {
+      persistedGuestId = null;
+    });
+    mocks.partyPlayerPort.rejoinParty = vi.fn(async () => createRejectedJoinReceipt());
+    mocks.partyPlayerPort.joinParty = vi.fn(async () =>
+      createAcceptedJoinReceipt({
+        player: createGuestJoinPlayer('New Guest'),
+      }),
+    );
+    mocks.observationState.currentParty = createPartyObservation({
+      liveObserverIdentities: [{ kind: PartyPlayerIdentityKind.Guest, guestId }],
+      entries: [
+        createUserEntry(userIdentifier.parse(7), 'Host', PartyRole.HOST, {
+          avatarUri: '/avatars/host.png',
+          totalScore: 0,
+          joinedAt: '2026-04-21T08:00:00.000Z',
+        }),
+        createGuestEntry(guestId, 'Nova', {
+          avatarUri: '/avatars/guest.png',
+          totalScore: 4,
+          joinedAt: '2026-04-21T08:02:00.000Z',
+        }),
+      ],
+      status: PartyStatus.WAITING,
+    });
+    mocks.observationState.currentErrorMessage = null;
+    mocks.observationState.currentErrorPartyId = null;
+    mocks.observationState.observePartyById = vi.fn(() => vi.fn());
+
+    const view = renderWithProviders(
+      <PartyLobbyScreen
+        routeKind={PartyLobbyRouteKind.PARTY_ID}
+        normalizePartyId={(partyId) => (partyId ? partyIdentifier.parse(Number(partyId)) : null)}
+        resolveJoinPartyRoute={(pin) => `/join/${pin}`}
+        resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
+      />,
+    );
+
+    await screen.findByText('Nova');
+
+    mocks.observationState.currentParty = createPartyObservation({
+      entries: [
+        createUserEntry(userIdentifier.parse(7), 'Host', PartyRole.HOST, {
+          avatarUri: '/avatars/host.png',
+          totalScore: 0,
+          joinedAt: '2026-04-21T08:00:00.000Z',
+        }),
+      ],
+      status: PartyStatus.WAITING,
+    });
+
+    view.rerender(
+      <PartyLobbyScreen
+        routeKind={PartyLobbyRouteKind.PARTY_ID}
+        normalizePartyId={(partyId) => (partyId ? partyIdentifier.parse(Number(partyId)) : null)}
+        resolveJoinPartyRoute={(pin) => `/join/${pin}`}
+        resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(mocks.partyGuestSessionPort.clearGuestId).toHaveBeenCalledWith(
+        partyPinIdentifier.parse('AB12CD'),
+      );
+    });
+
+    mocks.params = { pin: 'ab12cd', partyId: undefined };
+    mocks.observationState.currentParty = null;
+
+    view.rerender(
+      <PartyLobbyScreen
+        routeKind={PartyLobbyRouteKind.PIN}
+        normalizePin={(pin) =>
+          pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null
+        }
+        resolveJoinPartyRoute={(pin) => `/join/${pin}`}
+        resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
+      />,
+    );
+
+    await screen.findByRole('button', {
+      name: 'game.party.player.route.joinAsGuestCta',
+    });
+
+    fireEvent.change(await screen.findByLabelText('game.party.player.route.guestNameLabel'), {
+      target: { value: 'New Guest' },
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', {
+          name: 'game.party.player.route.joinAsGuestCta',
+        }),
+      ).toBeEnabled();
+    });
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'game.party.player.route.joinAsGuestCta',
+      }),
+    );
+
+    await waitFor(() => {
+      expect(mocks.partyPlayerPort.joinParty).toHaveBeenCalledWith(
+        expect.objectContaining({
+          playerIdentity: { kind: PartyPlayerIdentityKind.Guest },
+        }),
+      );
+    });
   });
 
   it('bootstraps host lobby routes by pin when the party id observation is still empty', async () => {

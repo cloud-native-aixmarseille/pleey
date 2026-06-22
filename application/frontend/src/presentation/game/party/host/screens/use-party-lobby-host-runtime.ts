@@ -180,6 +180,16 @@ export function usePartyLobbyHostRuntime({
     resetPendingHostRuntimeCommandState();
   }, [hasObservedPendingCommandCompletion]);
 
+  useEffect(() => {
+    if (pendingKickedPlayerKey === null) {
+      return;
+    }
+
+    if (!party?.players.some((player) => toPlayerKey(player) === pendingKickedPlayerKey)) {
+      setPendingKickedPlayerKey(null);
+    }
+  }, [party, pendingKickedPlayerKey]);
+
   const runHostRuntimeCommand = useEffectEvent(async (command: HostPartyRuntimeCommand) => {
     if (!party) {
       return;

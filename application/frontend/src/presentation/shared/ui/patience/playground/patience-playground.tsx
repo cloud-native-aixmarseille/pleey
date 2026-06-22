@@ -1,30 +1,28 @@
+import { Box } from '@mantine/core';
 import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { PatiencePlaygroundContext } from './patience-playground-context';
 
-const defaultPlaygroundStyle = { position: 'relative' } as const;
-
 interface PatiencePlaygroundProps {
   readonly children: ReactNode;
-  readonly style?: Record<string, string | number>;
 }
 
-export function PatiencePlayground({ children, style }: PatiencePlaygroundProps) {
+export function PatiencePlayground({ children }: PatiencePlaygroundProps) {
   const [container, setContainer] = useState<HTMLElement | null>(null);
 
   const contextValue = useMemo(() => ({ container }), [container]);
 
   return (
     <PatiencePlaygroundContext.Provider value={contextValue}>
-      <div
+      <Box
         data-patience-playground="true"
+        pos="relative"
         ref={(node) => {
           setContainer((current) => (current === node ? current : node));
         }}
-        style={style ?? defaultPlaygroundStyle}
       >
         {children}
-      </div>
+      </Box>
     </PatiencePlaygroundContext.Provider>
   );
 }

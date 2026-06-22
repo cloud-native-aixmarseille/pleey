@@ -1,9 +1,16 @@
-import { createTheme, type MantineThemeOverride, Tooltip } from '@mantine/core';
+import {
+  Checkbox,
+  createTheme,
+  type MantineThemeOverride,
+  NativeSelect,
+  Textarea,
+  TextInput,
+  Tooltip,
+} from '@mantine/core';
 import { cyberArcadeThemeSeed } from './cyber-arcade-theme';
 import { solarGridThemeSeed } from './solar-grid-theme';
 import {
   DEFAULT_UI_COLOR_SCHEME,
-  DEFAULT_UI_THEME_ID,
   type UiColorScheme,
   type UiThemeId,
   type UiThemeSeed,
@@ -18,6 +25,115 @@ export interface UiThemeDefinition {
   readonly seed: UiThemeSeed;
   readonly tokens: ResolvedUiThemeTokens;
   readonly tokensByColorScheme: Record<UiColorScheme, ResolvedUiThemeTokens>;
+}
+
+function createFieldInputComponentStyle(
+  tokens: ResolvedUiThemeTokens,
+  options?: {
+    readonly minHeight?: string;
+    readonly resize?: 'none' | 'vertical';
+  },
+) {
+  return (_theme: MantineThemeOverride, props: { readonly size?: string }) => ({
+    input: {
+      background: tokens.color.surface.field,
+      border: `1px solid ${tokens.color.border.subtle}`,
+      borderRadius: tokens.radius.field,
+      color: tokens.color.text.primary,
+      padding: props.size === 'sm' ? '0.35rem 0.6rem' : '0.9rem 1rem',
+      transition: [
+        `border-color ${tokens.motion.quick}`,
+        `box-shadow ${tokens.motion.quick}`,
+        `background-color ${tokens.motion.quick}`,
+      ].join(', '),
+      width: '100%',
+      ...(options?.minHeight ? { minHeight: options.minHeight } : null),
+      ...(options?.resize ? { resize: options.resize } : null),
+
+      '&[aria-invalid="true"]': {
+        borderColor: tokens.color.border.danger,
+      },
+
+      '&:focus, &:focus-within': {
+        borderColor: tokens.color.border.accent,
+        boxShadow: tokens.shadow.focusRing,
+        outline: 'none',
+      },
+
+      '&::placeholder': {
+        color: tokens.color.text.quiet,
+      },
+
+      '&:disabled': {
+        background: tokens.color.surface.neutralMuted,
+        color: tokens.color.text.quiet,
+        cursor: 'not-allowed',
+      },
+    },
+    root: {
+      width: '100%',
+    },
+  });
+}
+
+function createCheckboxComponentStyles(tokens: ResolvedUiThemeTokens) {
+  return {
+    description: {
+      color: tokens.color.text.soft,
+      cursor: 'pointer',
+      fontSize: '0.8rem',
+      fontWeight: 400,
+      lineHeight: 1.4,
+      marginLeft: 0,
+      marginTop: '0.25rem',
+    },
+    input: {
+      accentColor: tokens.color.brand.primary,
+      background: tokens.color.surface.field,
+      borderColor: tokens.color.border.subtle,
+      borderRadius: tokens.radius.field,
+      cursor: 'pointer',
+      height: '1.25rem',
+      marginTop: '0.25rem',
+      minWidth: '1.25rem',
+      transition: [
+        `border-color ${tokens.motion.quick}`,
+        `box-shadow ${tokens.motion.quick}`,
+        `background-color ${tokens.motion.quick}`,
+      ].join(', '),
+      width: '1.25rem',
+
+      '&:checked': {
+        background: tokens.color.brand.primary,
+        borderColor: tokens.color.brand.primary,
+        boxShadow: `0 0 0 4px ${tokens.color.surface.accentMuted}`,
+      },
+
+      '&:focus, &:focus-within': {
+        boxShadow: tokens.shadow.focusRing,
+        outline: 'none',
+      },
+
+      '&:disabled': {
+        background: tokens.color.surface.neutralMuted,
+        borderColor: tokens.color.border.subtle,
+        cursor: 'not-allowed',
+        opacity: 0.5,
+      },
+    },
+    label: {
+      color: tokens.color.text.primary,
+      cursor: 'pointer',
+      fontSize: '0.95rem',
+      fontWeight: 500,
+      lineHeight: 1.4,
+    },
+    root: {
+      alignItems: 'flex-start',
+      display: 'flex',
+      gap: tokens.spacing.sm,
+    },
+  };
 }
 
 function createMantineUiTheme(
@@ -44,29 +160,44 @@ function createMantineUiTheme(
           radius: 'xl',
         },
       },
-      NativeSelect: {
+      Checkbox: Checkbox.extend({
         defaultProps: {
-          radius: 'xl',
+          radius: 'md',
           size: 'md',
         },
+        styles: createCheckboxComponentStyles(tokens),
+      }),
+      NativeSelect: {
+        ...NativeSelect.extend({
+          defaultProps: {
+            radius: 'xl',
+            size: 'md',
+          },
+          styles: createFieldInputComponentStyle(tokens),
+        }),
       },
       Paper: {
         defaultProps: {
           radius: 'xl',
         },
       },
-      TextInput: {
+      TextInput: TextInput.extend({
         defaultProps: {
           radius: 'xl',
           size: 'md',
         },
-      },
-      Textarea: {
+        styles: createFieldInputComponentStyle(tokens),
+      }),
+      Textarea: Textarea.extend({
         defaultProps: {
           radius: 'xl',
           size: 'md',
         },
-      },
+        styles: createFieldInputComponentStyle(tokens, {
+          minHeight: '7.5rem',
+          resize: 'vertical',
+        }),
+      }),
       Tooltip: Tooltip.extend({
         defaultProps: {
           radius: 'md',
@@ -96,6 +227,7 @@ function createMantineUiTheme(
     primaryShade: colorScheme === 'light' ? 6 : 5,
     respectReducedMotion: true,
     shadows: {
+      sm: tokens.shadow.subtle,
       md: tokens.shadow.accentGlow,
       xl: tokens.shadow.elevated,
     },
@@ -133,7 +265,3 @@ export const uiThemes = [
 export function findUiTheme(themeId: UiThemeId): UiThemeDefinition {
   return uiThemes.find((theme) => theme.id === themeId) ?? uiThemes[0];
 }
-
-export const defaultUiThemeDefinition = findUiTheme(DEFAULT_UI_THEME_ID);
-
-export const uiTheme = defaultUiThemeDefinition.mantineThemes[DEFAULT_UI_COLOR_SCHEME];

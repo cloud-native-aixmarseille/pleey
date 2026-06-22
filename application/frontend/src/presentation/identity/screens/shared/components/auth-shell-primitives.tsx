@@ -4,7 +4,6 @@ import { UserAvatar } from '../../../../shared/ui/data/user-avatar';
 import {
   AUTH_LAYOUT_RESPONSIVE_CSS,
   authAccountActionsStyle,
-  authAvatarFrameStyle,
   authBrandingFeatureItemStyle,
   authBrandingFeatureListStyle,
   authFormCardStyle,
@@ -15,8 +14,7 @@ import {
   authLayoutShellStyle,
   authLayoutTaglineStyle,
   authProfileIdentityStyle,
-  uiThemeTokens,
-} from '../../../../shared/ui/foundation/ui-theme';
+} from './auth-shell-primitives.styles';
 
 interface AuthBrandingPanelProps {
   readonly brandingEyebrow: string;
@@ -29,7 +27,7 @@ interface AuthFramedAvatarProps {
   readonly src?: string | null;
 }
 
-const featureCheckColor = uiThemeTokens.color.brand.success;
+const featureCheckColor = 'var(--ui-color-brand-success)';
 const checkPath =
   'M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z';
 
@@ -101,7 +99,7 @@ export function AuthProfileIdentityPanel({ children }: PropsWithChildren) {
 }
 
 export function AuthFramedAvatar({ alt, src }: AuthFramedAvatarProps) {
-  return <UserAvatar alt={alt} src={src} style={authAvatarFrameStyle} />;
+  return <UserAvatar alt={alt} appearance="framed" src={src} />;
 }
 
 export function AuthActionPanel({ children }: PropsWithChildren) {

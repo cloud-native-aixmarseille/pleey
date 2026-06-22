@@ -1,0 +1,20 @@
+engine biome(1.0)
+language js(typescript, jsx)
+
+file($name, $body) where {
+  $name <: r"^src/presentation/.*\.(ts|tsx|js|jsx)$",
+  $name <: not r"^src/presentation/shared/ui/.*\.(ts|tsx|js|jsx)$",
+  $name <: not r"^src/presentation/.*/routes/.*\.(ts|tsx|js|jsx)$",
+  $name <: not r"\.(spec|test|styles)\.(ts|tsx|js|jsx)$",
+  $body <: or {
+    r"const\s+[A-Za-z0-9]+Style\s*(?::\s*CSSProperties)?\s*=\s*\{",
+    r"function\s+[A-Za-z0-9]+Style\s*\(",
+    r"function\s+build[A-Za-z0-9]+Style\s*\(",
+    r"function\s+resolve[A-Za-z0-9]+Style\s*\("
+  },
+  register_diagnostic(
+    span = $body,
+    message = "Frontend presentation files must not define local style objects or style-builder helpers outside shared UI, routes, tests, or *.styles.ts modules. Move those definitions into a sibling *.styles.ts file or shared UI primitive.",
+    severity = "error"
+  )
+}

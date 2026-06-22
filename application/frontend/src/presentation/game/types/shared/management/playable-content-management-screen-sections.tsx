@@ -1,14 +1,14 @@
-import type { ReactNode } from 'react';
+import type { PropsWithChildren, ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 import type { PlayableManagementItem } from '../../../../../domains/game/types/shared/management/playable-management';
 import { usePresentationTranslation } from '../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../shared/ui/actions/button';
+import { UnderlineTabButton } from '../../../../shared/ui/actions/underline-tab-button';
 import { Badge } from '../../../../shared/ui/feedback/badge';
 import { Checkbox } from '../../../../shared/ui/forms/checkbox';
 import { FieldShell } from '../../../../shared/ui/forms/field-shell';
 import { Input } from '../../../../shared/ui/forms/input';
 import { Textarea } from '../../../../shared/ui/forms/textarea';
-import { uiThemeTokens } from '../../../../shared/ui/foundation/ui-theme';
 import {
   ActionRow,
   ContentStack,
@@ -16,12 +16,13 @@ import {
   SplitWrapRow,
 } from '../../../../shared/ui/layout/containers';
 import { ElevatedPanel, InsetPanel } from '../../../../shared/ui/layout/panels';
-import { Heading, SupportingText } from '../../../../shared/ui/layout/typography';
+import { Heading, SummaryText, SupportingText } from '../../../../shared/ui/layout/typography';
 import { useWorkspaceDependencies } from '../../../../workspace/shared/contexts/workspace-dependencies-context';
 import {
   createPlayableItemEditorStateFromItem,
   type PlayableItemKindConfig,
 } from './playable-content-management-model';
+import { editorLayoutStyle, tabsStyle } from './playable-content-management-screen-sections.styles';
 import {
   type PlayableItemEditorValidator,
   type PlayableManagementValidationIssueCode,
@@ -33,57 +34,39 @@ export enum PlayableManagementTab {
   REVIEW = 'review',
 }
 
-const managementThemeVars = {
-  activeTabBackground: `color-mix(in srgb, ${uiThemeTokens.color.brand.primary} 14%, transparent)`,
-  activeTabBorder: uiThemeTokens.color.brand.primary,
-  activeTabText: uiThemeTokens.color.text.link,
-  panelBackground: uiThemeTokens.color.surface.recessed,
-  panelBorder: uiThemeTokens.color.border.subtle,
-  sectionGap: 'var(--mantine-spacing-lg)',
-} as const;
+export function PlayableManagementTabPanel({ children }: PropsWithChildren) {
+  return <>{children}</>;
+}
 
-const tabsStyle = {
-  background: managementThemeVars.panelBackground,
-  border: `1px solid ${managementThemeVars.panelBorder}`,
-  borderRadius: '1rem',
-  display: 'grid',
-  gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-  overflow: 'visible',
-} as const;
+export function PlayableManagementEditorLayout({ children }: PropsWithChildren) {
+  return <div style={editorLayoutStyle}>{children}</div>;
+}
 
-const tabLabelStyle = {
-  overflow: 'visible',
-  textAlign: 'center',
-  textOverflow: 'clip',
-  whiteSpace: 'normal',
-  wordBreak: 'break-word',
-} as const;
+function PlayableManagementTabList({
+  children,
+  label,
+}: PropsWithChildren<{ readonly label: string }>) {
+  return (
+    <div aria-label={label} role="tablist" style={tabsStyle}>
+      {children}
+    </div>
+  );
+}
 
-export const editorLayoutStyle = {
-  display: 'grid',
-  gap: managementThemeVars.sectionGap,
-  gridTemplateColumns: 'minmax(18rem, 1fr) minmax(32rem, 2fr)',
-  width: '100%',
-} as const;
-
-export const tabPanelShellStyle = {
-  maxWidth: '100%',
-  width: '100%',
-} as const;
-
-function createTabStyle(active: boolean) {
-  return {
-    background: active ? managementThemeVars.activeTabBackground : 'transparent',
-    border: 0,
-    borderBottom: active
-      ? `2px solid ${managementThemeVars.activeTabBorder}`
-      : '2px solid transparent',
-    color: active ? managementThemeVars.activeTabText : 'inherit',
-    cursor: 'pointer',
-    fontWeight: 700,
-    minHeight: '3rem',
-    padding: '0.95rem',
-  } as const;
+function PlayableManagementTabTrigger({
+  active,
+  children,
+  onClick,
+}: {
+  readonly active: boolean;
+  readonly children: ReactNode;
+  readonly onClick: () => void;
+}) {
+  return (
+    <UnderlineTabButton active={active} aria-selected={active} onClick={onClick} role="tab">
+      {children}
+    </UnderlineTabButton>
+  );
 }
 
 export function PlayableManagementTabs({
@@ -100,46 +83,35 @@ export function PlayableManagementTabs({
   readonly translationRoot: string;
 }) {
   const { t } = usePresentationTranslation();
+  const tabs = [
+    {
+      active: activeTab === PlayableManagementTab.SETUP,
+      key: PlayableManagementTab.SETUP,
+      label: t(`${translationRoot}.tabSetup`),
+      onClick: onOpenSetup,
+    },
+    {
+      active: activeTab === PlayableManagementTab.STAGES,
+      key: PlayableManagementTab.STAGES,
+      label: t(`${translationRoot}.tabStages`),
+      onClick: onOpenStages,
+    },
+    {
+      active: activeTab === PlayableManagementTab.REVIEW,
+      key: PlayableManagementTab.REVIEW,
+      label: t(`${translationRoot}.tabReview`),
+      onClick: onOpenReview,
+    },
+  ] as const;
 
   return (
-    <div aria-label={t(`${translationRoot}.tabsLabel`)} role="tablist" style={tabsStyle}>
-      <Button
-        aria-selected={activeTab === PlayableManagementTab.SETUP}
-        intent={activeTab === PlayableManagementTab.SETUP ? 'secondary' : 'ghost'}
-        onClick={onOpenSetup}
-        role="tab"
-        labelStyle={tabLabelStyle}
-        rootStyle={createTabStyle(activeTab === PlayableManagementTab.SETUP)}
-        size="sm"
-        type="button"
-      >
-        {t(`${translationRoot}.tabSetup`)}
-      </Button>
-      <Button
-        aria-selected={activeTab === PlayableManagementTab.STAGES}
-        intent={activeTab === PlayableManagementTab.STAGES ? 'secondary' : 'ghost'}
-        onClick={onOpenStages}
-        role="tab"
-        labelStyle={tabLabelStyle}
-        rootStyle={createTabStyle(activeTab === PlayableManagementTab.STAGES)}
-        size="sm"
-        type="button"
-      >
-        {t(`${translationRoot}.tabStages`)}
-      </Button>
-      <Button
-        aria-selected={activeTab === PlayableManagementTab.REVIEW}
-        intent={activeTab === PlayableManagementTab.REVIEW ? 'secondary' : 'ghost'}
-        onClick={onOpenReview}
-        role="tab"
-        labelStyle={tabLabelStyle}
-        rootStyle={createTabStyle(activeTab === PlayableManagementTab.REVIEW)}
-        size="sm"
-        type="button"
-      >
-        {t(`${translationRoot}.tabReview`)}
-      </Button>
-    </div>
+    <PlayableManagementTabList label={t(`${translationRoot}.tabsLabel`)}>
+      {tabs.map((tab) => (
+        <PlayableManagementTabTrigger active={tab.active} key={tab.key} onClick={tab.onClick}>
+          {tab.label}
+        </PlayableManagementTabTrigger>
+      ))}
+    </PlayableManagementTabList>
   );
 }
 
@@ -206,6 +178,75 @@ function ReviewChecklistRow({
       </SplitWrapRow>
       {action ?? null}
     </SplitWrapRow>
+  );
+}
+
+function ReviewMetricCard({ label, value }: { readonly label: string; readonly value: string }) {
+  return (
+    <InsetPanel padding="md">
+      <ContentStack gap="xs">
+        <SupportingText>{label}</SupportingText>
+        <Heading level={3}>{value}</Heading>
+      </ContentStack>
+    </InsetPanel>
+  );
+}
+
+function ReviewItemSummaryCard({
+  isReady,
+  item,
+  issues,
+  onEditItem,
+  translationRoot,
+}: {
+  readonly isReady: boolean;
+  readonly item: PlayableManagementItem;
+  readonly issues: readonly PlayableManagementValidationIssueCode[];
+  readonly onEditItem: (item: PlayableManagementItem) => void;
+  readonly translationRoot: string;
+}) {
+  const { t } = usePresentationTranslation();
+
+  return (
+    <InsetPanel padding="md">
+      <ContentStack gap="sm">
+        <SplitWrapRow gap="sm">
+          <ContentStack gap="xs">
+            <SupportingText>
+              {t(`${translationRoot}.itemPosition`, {
+                position: String(item.position + 1),
+              })}
+            </SupportingText>
+            <SummaryText>
+              {resolveReviewItemTitle(item, t(`${translationRoot}.itemUntitled`))}
+            </SummaryText>
+          </ContentStack>
+          <Badge tone={isReady ? 'success' : 'warning'}>
+            {isReady ? t(`${translationRoot}.ready`) : t(`${translationRoot}.incomplete`)}
+          </Badge>
+        </SplitWrapRow>
+        <SupportingText>
+          {t(`${translationRoot}.itemStats`, {
+            points: String(item.points),
+            seconds: String(item.timeLimit),
+          })}
+        </SupportingText>
+        {issues.length > 0 ? (
+          <InsetPanel tone="accent">
+            <SupportingText>
+              {issues
+                .map((issue) => t(`${translationRoot}.${resolveValidationTranslationKey(issue)}`))
+                .join(' ')}
+            </SupportingText>
+          </InsetPanel>
+        ) : null}
+        <ActionRow justify="end">
+          <Button intent="ghost" onClick={() => onEditItem(item)} size="sm">
+            {t(`${translationRoot}.editItem`)}
+          </Button>
+        </ActionRow>
+      </ContentStack>
+    </InsetPanel>
   );
 }
 
@@ -301,7 +342,7 @@ export function MetadataPanel({
           checked={randomizeOptionOrderValue}
           onChange={(event) => setRandomizeOptionOrderValue(event.currentTarget.checked)}
         />
-        <div>
+        <ActionRow>
           <Button
             disabled={isSaving || !isDirty || titleValue.trim().length === 0}
             onClick={() =>
@@ -316,7 +357,7 @@ export function MetadataPanel({
           >
             {t(`${translationRoot}.saveMetadata`)}
           </Button>
-        </div>
+        </ActionRow>
       </ContentStack>
     </ElevatedPanel>
   );
@@ -370,34 +411,18 @@ export function ReviewPanel({
           </SupportingText>
         </ContentStack>
         <ResponsiveGrid columns={{ base: 1, sm: 2, lg: 4 }} gap="md">
-          <InsetPanel padding="md">
-            <ContentStack gap="xs">
-              <SupportingText>{t(`${translationRoot}.itemsTitle`)}</SupportingText>
-              <Heading level={3}>{String(items.length)}</Heading>
-            </ContentStack>
-          </InsetPanel>
-          <InsetPanel padding="md">
-            <ContentStack gap="xs">
-              <SupportingText>{t(`${translationRoot}.ready`)}</SupportingText>
-              <Heading level={3}>{String(readyCount)}</Heading>
-            </ContentStack>
-          </InsetPanel>
-          <InsetPanel padding="md">
-            <ContentStack gap="xs">
-              <SupportingText>{t(`${translationRoot}.incomplete`)}</SupportingText>
-              <Heading level={3}>{String(issueCount)}</Heading>
-            </ContentStack>
-          </InsetPanel>
-          <InsetPanel padding="md">
-            <ContentStack gap="xs">
-              <SupportingText>{t(`${translationRoot}.reviewTotalDurationLabel`)}</SupportingText>
-              <Heading level={3}>
-                {t(`${translationRoot}.reviewTotalDurationValue`, {
-                  seconds: String(totalDuration),
-                })}
-              </Heading>
-            </ContentStack>
-          </InsetPanel>
+          <ReviewMetricCard
+            label={t(`${translationRoot}.itemsTitle`)}
+            value={String(items.length)}
+          />
+          <ReviewMetricCard label={t(`${translationRoot}.ready`)} value={String(readyCount)} />
+          <ReviewMetricCard label={t(`${translationRoot}.incomplete`)} value={String(issueCount)} />
+          <ReviewMetricCard
+            label={t(`${translationRoot}.reviewTotalDurationLabel`)}
+            value={t(`${translationRoot}.reviewTotalDurationValue`, {
+              seconds: String(totalDuration),
+            })}
+          />
         </ResponsiveGrid>
         <ResponsiveGrid columns={{ base: 1, lg: 2 }} gap="lg">
           <InsetPanel padding="md">
@@ -452,49 +477,14 @@ export function ReviewPanel({
               ) : (
                 <ContentStack gap="sm">
                   {itemSummaries.map(({ isReady, item, issues }) => (
-                    <InsetPanel key={item.id} padding="md">
-                      <ContentStack gap="sm">
-                        <SplitWrapRow gap="sm">
-                          <ContentStack gap="xs">
-                            <SupportingText>
-                              {t(`${translationRoot}.itemPosition`, {
-                                position: String(item.position + 1),
-                              })}
-                            </SupportingText>
-                            <strong>
-                              {resolveReviewItemTitle(item, t(`${translationRoot}.itemUntitled`))}
-                            </strong>
-                          </ContentStack>
-                          <Badge tone={isReady ? 'success' : 'warning'}>
-                            {isReady
-                              ? t(`${translationRoot}.ready`)
-                              : t(`${translationRoot}.incomplete`)}
-                          </Badge>
-                        </SplitWrapRow>
-                        <SupportingText>
-                          {t(`${translationRoot}.itemStats`, {
-                            points: String(item.points),
-                            seconds: String(item.timeLimit),
-                          })}
-                        </SupportingText>
-                        {issues.length > 0 ? (
-                          <InsetPanel tone="accent">
-                            <SupportingText>
-                              {issues
-                                .map((issue) =>
-                                  t(`${translationRoot}.${resolveValidationTranslationKey(issue)}`),
-                                )
-                                .join(' ')}
-                            </SupportingText>
-                          </InsetPanel>
-                        ) : null}
-                        <ActionRow justify="end">
-                          <Button intent="ghost" onClick={() => onEditItem(item)} size="sm">
-                            {t(`${translationRoot}.editItem`)}
-                          </Button>
-                        </ActionRow>
-                      </ContentStack>
-                    </InsetPanel>
+                    <ReviewItemSummaryCard
+                      isReady={isReady}
+                      item={item}
+                      issues={issues}
+                      key={item.id}
+                      onEditItem={onEditItem}
+                      translationRoot={translationRoot}
+                    />
                   ))}
                 </ContentStack>
               )}
