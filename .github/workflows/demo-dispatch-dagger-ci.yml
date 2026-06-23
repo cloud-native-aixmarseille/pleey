@@ -1,0 +1,42 @@
+name: Demo Dispatch CI - Dagger
+
+on:
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: demo-dispatch-dagger-ci-${{ github.repository }}-${{ github.ref_name }}
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  demo-dispatch:
+    name: Demo dispatch with Dagger
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Run standalone demo pipeline with Dagger
+        uses: dagger/dagger-for-github@27b130bf0f79a7f6fbbbe0fbca6760dc9bb40a77 # v8.4.1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          call: |
+            demo-dispatch \
+            --source=. \
+            --oci-registry='${{ vars.OCI_REGISTRY }}' \
+            --registry-username='${{ github.repository_owner }}' \
+            --registry-password=env://GITHUB_TOKEN \
+            --repository='${{ github.repository }}' \
+            --run-number='${{ github.run_number }}' \
+            --run-attempt='${{ github.run_attempt }}' \
+            --git-sha='${{ github.sha }}'
+          enable-github-summary: "true"

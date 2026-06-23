@@ -1,0 +1,199 @@
+name: Demo Dispatch CI
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: demo-dispatch-ci-${{ github.repository }}-${{ github.ref_name }}
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  prepare-temp-metadata:
+    name: Prepare temp metadata
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      registry: ${{ steps.prepare.outputs.registry }}
+      backend-image-repository: ${{ steps.prepare.outputs.backend_image_repository }}
+      frontend-image-repository: ${{ steps.prepare.outputs.frontend_image_repository }}
+      chart-repository: ${{ steps.prepare.outputs.chart_repository }}
+      image-tag: ${{ steps.prepare.outputs.image_tag }}
+      chart-version: ${{ steps.prepare.outputs.chart_version }}
+    steps:
+      - name: Prepare temp artifact coordinates
+        id: prepare
+        shell: bash
+        env:
+          OCI_REGISTRY: ${{ vars.OCI_REGISTRY }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${OCI_REGISTRY}" ]]; then
+            echo "::error::Repository variable OCI_REGISTRY is required."
+            exit 1
+          fi
+
+          repository_slug="$(printf '%s' "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')"
+          image_tag="demo-${GITHUB_RUN_NUMBER}-${GITHUB_RUN_ATTEMPT}-${GITHUB_SHA::7}"
+          chart_version="0.0.0-demo.${GITHUB_RUN_NUMBER}.${GITHUB_RUN_ATTEMPT}"
+
+          {
+            echo "registry=${OCI_REGISTRY}"
+            echo "backend_image_repository=${OCI_REGISTRY}/${repository_slug}/tmp/backend"
+            echo "frontend_image_repository=${OCI_REGISTRY}/${repository_slug}/tmp/frontend"
+            echo "chart_repository=oci://${OCI_REGISTRY}/${repository_slug}/tmp/charts"
+            echo "image_tag=${image_tag}"
+            echo "chart_version=${chart_version}"
+          } >> "$GITHUB_OUTPUT"
+
+  lint-and-test:
+    name: Lint and test ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [backend, frontend]
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: application/${{ matrix.service }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 26
+          cache: npm
+          cache-dependency-path: application/${{ matrix.service }}/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint
+        run: npm run lint:ci
+
+      - name: Run tests
+        run: npm run test:ci
+
+  build-temp-images:
+    name: Build temp images
+    runs-on: ubuntu-latest
+    needs: [prepare-temp-metadata, lint-and-test]
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      registry: ${{ needs.prepare-temp-metadata.outputs.registry }}
+      backend-image-repository: ${{ needs.prepare-temp-metadata.outputs.backend-image-repository }}
+      frontend-image-repository: ${{ needs.prepare-temp-metadata.outputs.frontend-image-repository }}
+      image-tag: ${{ needs.prepare-temp-metadata.outputs.image-tag }}
+      chart-version: ${{ needs.prepare-temp-metadata.outputs.chart-version }}
+      chart-repository: ${{ needs.prepare-temp-metadata.outputs.chart-repository }}
+      backend-digest: ${{ steps.build_backend.outputs.digest }}
+      frontend-digest: ${{ steps.build_frontend.outputs.digest }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
+
+      - name: Log in to OCI registry
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        with:
+          registry: ${{ needs.prepare-temp-metadata.outputs.registry }}
+          username: ${{ github.repository_owner }}
+          password: ${{ github.token }}
+
+      - name: Build and push backend temp image
+        id: build_backend
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
+        with:
+          context: .
+          file: ./application/backend/Dockerfile
+          target: prod
+          platforms: linux/amd64
+          provenance: false
+          push: true
+          tags: ${{ needs.prepare-temp-metadata.outputs.backend-image-repository }}:${{ needs.prepare-temp-metadata.outputs.image-tag }}
+
+      - name: Build and push frontend temp image
+        id: build_frontend
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
+        with:
+          context: .
+          file: ./application/frontend/Dockerfile
+          target: prod
+          platforms: linux/amd64
+          provenance: false
+          push: true
+          tags: ${{ needs.prepare-temp-metadata.outputs.frontend-image-repository }}:${{ needs.prepare-temp-metadata.outputs.image-tag }}
+
+  release-temp-chart:
+    name: Release temp chart
+    runs-on: ubuntu-latest
+    needs: [build-temp-images]
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5.0.0
+
+      - name: Log in to OCI registry for Helm
+        shell: bash
+        env:
+          OCI_REGISTRY: ${{ needs.build-temp-images.outputs.registry }}
+        run: |
+          set -euo pipefail
+          echo "${{ github.token }}" | helm registry login "$OCI_REGISTRY" -u "${{ github.repository_owner }}" --password-stdin
+
+      - name: Package temp chart
+        id: package_chart
+        shell: bash
+        env:
+          BACKEND_IMAGE_REPOSITORY: ${{ needs.build-temp-images.outputs.backend-image-repository }}
+          BACKEND_IMAGE_TAG: ${{ needs.build-temp-images.outputs.image-tag }}
+          BACKEND_IMAGE_DIGEST: ${{ needs.build-temp-images.outputs.backend-digest }}
+          FRONTEND_IMAGE_REPOSITORY: ${{ needs.build-temp-images.outputs.frontend-image-repository }}
+          FRONTEND_IMAGE_TAG: ${{ needs.build-temp-images.outputs.image-tag }}
+          FRONTEND_IMAGE_DIGEST: ${{ needs.build-temp-images.outputs.frontend-digest }}
+          TEMP_CHART_VERSION: ${{ needs.build-temp-images.outputs.chart-version }}
+          TEMP_APP_VERSION: ${{ needs.build-temp-images.outputs.image-tag }}
+        run: bash scripts/package-temp-chart.sh
+
+      - name: Push temp chart to OCI registry
+        shell: bash
+        env:
+          CHART_ARCHIVE: ${{ steps.package_chart.outputs.chart_archive }}
+          CHART_REPOSITORY: ${{ needs.build-temp-images.outputs.chart-repository }}
+        run: |
+          set -euo pipefail
+          helm push "$CHART_ARCHIVE" "$CHART_REPOSITORY"
+
+      - name: Summarize temp artifacts
+        shell: bash
+        env:
+          BACKEND_IMAGE_REPOSITORY: ${{ needs.build-temp-images.outputs.backend-image-repository }}
+          FRONTEND_IMAGE_REPOSITORY: ${{ needs.build-temp-images.outputs.frontend-image-repository }}
+          IMAGE_TAG: ${{ needs.build-temp-images.outputs.image-tag }}
+          CHART_REPOSITORY: ${{ needs.build-temp-images.outputs.chart-repository }}
+          CHART_VERSION: ${{ needs.build-temp-images.outputs.chart-version }}
+        run: |
+          set -euo pipefail
+          {
+            echo "## Temp demo artifacts"
+            echo
+            echo "- Backend image: ${BACKEND_IMAGE_REPOSITORY}:${IMAGE_TAG}"
+            echo "- Frontend image: ${FRONTEND_IMAGE_REPOSITORY}:${IMAGE_TAG}"
+            echo "- Helm chart: ${CHART_REPOSITORY}/pleey:${CHART_VERSION}"
+          } >> "$GITHUB_STEP_SUMMARY"
