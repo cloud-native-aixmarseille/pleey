@@ -20,7 +20,7 @@ jobs:
       name: ${{ steps.plan-release.outputs.name }}
     steps:
       - id: plan-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@ba941863a698984b6596e760f4e7727beea81167 # 0.26.0
+        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@607069025f6c1312680ed0864c4d9f4338b82dfe # 0.26.5
         with:
           github-token: ${{ github.token }}
 
@@ -50,12 +50,12 @@ jobs:
     outputs:
       release-sha: ${{ steps.generate-docs.outputs.merged-sha || github.sha }}
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Update chart image defaults
-        uses: hoverkraft-tech/ci-github-container/actions/helm/update-chart-values@6931f4886bf8af8570acbace09db06a639cbae6f # 0.36.0
+        uses: hoverkraft-tech/ci-github-container/actions/helm/update-chart-values@c9088e8447c5a8be45157e17701023fc50ccb1c0 # 0.37.2
         with:
           path: charts/application
           values: >-
@@ -121,7 +121,7 @@ jobs:
             ]
 
       - name: Set up Helm
-        uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5.0.0
+        uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
 
       - name: Refresh umbrella Chart.lock
         shell: bash
@@ -129,7 +129,7 @@ jobs:
 
       - name: Regenerate Helm chart documentation
         id: generate-docs
-        uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@6931f4886bf8af8570acbace09db06a639cbae6f # 0.36.0
+        uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@c9088e8447c5a8be45157e17701023fc50ccb1c0 # 0.37.2
         with:
           working-directory: ./charts
           checkout-ref: ""
@@ -146,7 +146,7 @@ jobs:
       tag: ${{ steps.create-release.outputs.tag }}
     steps:
       - id: create-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/create@ba941863a698984b6596e760f4e7727beea81167 # 0.26.0
+        uses: hoverkraft-tech/ci-github-publish/actions/release/create@607069025f6c1312680ed0864c4d9f4338b82dfe # 0.26.5
         with:
           tag: ${{ needs.plan-release.outputs.tag }}
           target-sha: ${{ needs.prepare-release-files.outputs.release-sha }}
@@ -161,7 +161,7 @@ jobs:
       packages: write
     steps:
       - id: release-chart
-        uses: hoverkraft-tech/ci-github-container/actions/helm/release-chart@6931f4886bf8af8570acbace09db06a639cbae6f # 0.36.0
+        uses: hoverkraft-tech/ci-github-container/actions/helm/release-chart@c9088e8447c5a8be45157e17701023fc50ccb1c0 # 0.37.2
         with:
           oci-registry: ${{ vars.OCI_REGISTRY }}
           oci-registry-username: ${{ github.repository_owner }}
@@ -180,7 +180,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: hoverkraft-tech/ci-github-publish/actions/release/update@ba941863a698984b6596e760f4e7727beea81167 # 0.26.0
+      - uses: hoverkraft-tech/ci-github-publish/actions/release/update@607069025f6c1312680ed0864c4d9f4338b82dfe # 0.26.5
         with:
           tag: ${{ needs.draft-release.outputs.tag }}
           publish: "true"

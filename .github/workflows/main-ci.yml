@@ -12,7 +12,7 @@ permissions: {}
 
 jobs:
   clean:
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/prune-pull-requests-images-tags.yml@6931f4886bf8af8570acbace09db06a639cbae6f # 0.36.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/prune-pull-requests-images-tags.yml@c9088e8447c5a8be45157e17701023fc50ccb1c0 # 0.37.2
     permissions:
       contents: read
       id-token: write
@@ -42,11 +42,11 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
-      - uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@6931f4886bf8af8570acbace09db06a639cbae6f # 0.36.0
+      - uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@c9088e8447c5a8be45157e17701023fc50ccb1c0 # 0.37.2
         with:
           working-directory: ./charts
           github-app-client-id: ${{ vars.CI_BOT_APP_ID }}
