@@ -2,6 +2,7 @@
   "threshold": 7,
   "gitignore": true,
   "ignore": [
+    "**/.dagger/**",
     "**/.venv/**",
     ".venv/**",
     "**/.venv-ct/**",
