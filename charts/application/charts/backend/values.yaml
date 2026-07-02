@@ -11,8 +11,8 @@ replicaCount: 1
 image:
   registry: ""
   repository: ghcr.io/cloud-native-aixmarseille/pleey/backend
-  tag: 0.4.0
-  digest: sha256:32ba9a8f65fb97eab6b1cd2d24e7a885ca495a0b0ebd5fd766578bb33cd60ad7
+  tag: 0.4.1
+  digest: sha256:34159b02eeb3583ce841a6ef99e6a9c8dd4dd68291a5b5b2c430aa6dc9ba3d3c
   pullPolicy: ""
 service:
   type: ClusterIP
