@@ -3077,7 +3077,7 @@ describe('PartyLobbyScreen', () => {
     mocks.params.pin = 'ab12cd';
   });
 
-  it('renders observation errors while the lobby reconnects', async () => {
+  it('renders authenticated join controls while the lobby bootstrap is unresolved', async () => {
     mocks.authState = {
       hasRestoredSession: true,
       isAuthenticated: true,
@@ -3096,7 +3096,11 @@ describe('PartyLobbyScreen', () => {
 
     renderScreen();
 
-    expect(await screen.findByText('game.party.errors.partyNotFound')).toBeInTheDocument();
+    expect(
+      await screen.findByRole('button', {
+        name: 'game.party.player.route.joinWithAccountCta',
+      }),
+    ).toBeEnabled();
     expect(mocks.observationState.observePartyById).not.toHaveBeenCalled();
   });
 
@@ -3594,6 +3598,92 @@ describe('PartyLobbyScreen', () => {
       `/party/${partyIdentifier.parse(12)}/lobby`,
     );
     expect(mocks.observationState.observePartyById).not.toHaveBeenCalled();
+  });
+
+  it('shows the join surface for authenticated users on the join route before they have joined', async () => {
+    mocks.params = { pin: 'ab12cd' };
+    mocks.authState = {
+      hasRestoredSession: true,
+      isAuthenticated: true,
+      user: authFixtureFactory.createUser({
+        id: 11,
+        username: 'Neo',
+        email: 'neo@pleey.io',
+        avatarUri: null,
+      }),
+    };
+    mocks.partyManagementState.parties = [];
+    mocks.observationState.currentParty = null;
+    mocks.observationState.currentErrorMessage = null;
+    mocks.observationState.currentErrorPartyId = null;
+    mocks.observationState.observePartyById = vi.fn(() => vi.fn());
+
+    renderWithProviders(
+      <PartyLobbyScreen
+        routeKind={PartyLobbyRouteKind.PIN}
+        normalizePin={(pin) =>
+          pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null
+        }
+        resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
+      />,
+    );
+
+    expect(
+      await screen.findByRole('button', {
+        name: 'game.party.player.route.joinWithAccountCta',
+      }),
+    ).toBeEnabled();
+    expect(screen.queryByTestId('join-party-error-toast')).not.toBeInTheDocument();
+  });
+
+  it('does not redirect a refreshed authenticated player away from the canonical lobby route while their observed player identity is reconnecting', async () => {
+    mocks.params = { partyId: '9', pin: undefined };
+    mocks.authState = {
+      hasRestoredSession: true,
+      isAuthenticated: true,
+      user: authFixtureFactory.createUser({
+        id: 11,
+        username: 'Neo',
+        email: 'neo@pleey.io',
+        avatarUri: null,
+      }),
+    };
+    mocks.partyManagementState.parties = [];
+    mocks.observationState.currentParty = createPartyObservation({
+      players: [
+        partyFixtureFactory.createObservationPlayer({
+          avatarUri: '/avatars/neo.png',
+          identity: { kind: PartyPlayerIdentityKind.User, userId: 11 },
+          isCurrentPlayer: false,
+          isLive: true,
+          totalScore: 4,
+          username: 'Neo',
+        }),
+      ],
+    });
+    mocks.observationState.currentErrorMessage = null;
+    mocks.observationState.currentErrorPartyId = null;
+    mocks.observationState.observePartyById = vi.fn(() => vi.fn());
+
+    renderWithProviders(
+      <PartyLobbyScreen
+        routeKind={PartyLobbyRouteKind.PARTY_ID}
+        normalizePin={(pin) =>
+          pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null
+        }
+        normalizePartyId={(partyId) => (partyId ? partyIdentifier.parse(Number(partyId)) : null)}
+        resolveJoinPartyRoute={(pin) => `/join/${pin}`}
+        resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(mocks.observationState.observePartyById).toHaveBeenCalledWith(
+        partyIdentifier.parse(9),
+      );
+    });
+
+    expect(screen.queryByTestId('party-lobby-redirect')).not.toBeInTheDocument();
   });
 
   it('redirects non-players from the host lobby route to the join page', async () => {

@@ -4,7 +4,6 @@ const mobileGridBaseStyle: CSSProperties = {
   display: 'grid',
   flex: '1 1 auto',
   gap: '0.5rem',
-  gridTemplateColumns: '1fr 1fr',
   minHeight: 0,
   width: '100%',
 };
@@ -15,10 +14,27 @@ export const mobileTileWrapperStyle: CSSProperties = {
 };
 
 export function resolveMobileGridStyle(actionCount: number): CSSProperties {
-  const rowCount = Math.max(1, Math.ceil(actionCount / 2));
+  const resolvedActionCount = Math.max(1, actionCount);
+
+  if (resolvedActionCount === 1) {
+    return {
+      ...mobileGridBaseStyle,
+      gridTemplateColumns: '1fr',
+      gridTemplateRows: 'minmax(0, 1fr)',
+    };
+  }
+
+  if (resolvedActionCount === 2) {
+    return {
+      ...mobileGridBaseStyle,
+      gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+      gridTemplateRows: 'minmax(0, 1fr)',
+    };
+  }
 
   return {
     ...mobileGridBaseStyle,
-    gridTemplateRows: `repeat(${rowCount}, minmax(0, 1fr))`,
+    gridTemplateColumns: '1fr',
+    gridTemplateRows: `repeat(${resolvedActionCount}, minmax(0, 1fr))`,
   };
 }

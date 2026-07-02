@@ -7,7 +7,6 @@ import type {
 } from '../../../../../domains/game/party/shared/entities/party';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import { PartyStatus } from '../../../../../domains/game/party/shared/entities/party-status';
-import { PartyManagementErrorCode } from '../../../../../domains/game/party/shared/errors/party-management-error-code';
 import type { PartyRuntimeNotice } from '../../../../../domains/game/party/shared/ports/party-observation.port';
 import {
   type PartyLobbyRouteKind,
@@ -186,17 +185,13 @@ function useBootstrapPartyByPin({
 
         setBootstrapCurrentParty(currentParty);
         setBootstrapPartyByPin(matchingParty);
-        setBootstrapErrorMessage(
-          matchingParty === null && currentParty === null
-            ? PartyManagementErrorCode.PARTY_NOT_FOUND
-            : null,
-        );
+        setBootstrapErrorMessage(null);
       })
       .catch(() => {
         if (!isCancelled) {
           setBootstrapCurrentParty(null);
           setBootstrapPartyByPin(null);
-          setBootstrapErrorMessage(PartyManagementErrorCode.LIST_FAILED);
+          setBootstrapErrorMessage(null);
         }
       });
 

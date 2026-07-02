@@ -5,6 +5,7 @@ import type {
 } from '../../../../../domains/game/party/shared/entities/party';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import type { PartyObservationPlayer } from '../../../../../domains/game/party/shared/entities/party-observation-player';
+import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/shared/entities/party-player-identity';
 import type { GuestId } from '../../../../../domains/identity/entities/guest';
 import type { UserId } from '../../../../../domains/identity/entities/user';
 
@@ -89,6 +90,13 @@ export function resolvePartyLobbyScreenViewModel({
   const currentPartyPin = normalizedPin ?? party?.pin ?? null;
   const currentPlayer = party ? findCurrentPlayer(party.players) : null;
   const isCurrentUserHost = party?.isObserverHost ?? false;
+  const isAuthenticatedUserObservedInParty =
+    userId !== null &&
+    (party?.players.some(
+      (player) =>
+        player.identity.kind === PartyPlayerIdentityKind.User && player.identity.userId === userId,
+    ) ??
+      false);
   const isRecoveringPersistedGuestSession =
     routeKind === 'partyId' &&
     party !== undefined &&
@@ -104,7 +112,8 @@ export function resolvePartyLobbyScreenViewModel({
     party &&
     !isCurrentUserHost &&
     currentPlayer === null &&
-    !isRecoveringPersistedGuestSession
+    !isRecoveringPersistedGuestSession &&
+    !isAuthenticatedUserObservedInParty
       ? resolveJoinPartyRoute(party.pin)
       : null;
   const canReusePersistedGuestIdentity =

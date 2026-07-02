@@ -79,13 +79,18 @@ export function buildYourPickBadgeStyle(slot: PlayableChoiceActionSlotIdentity):
 }
 
 export const compactAnswerTextStyle: CSSProperties = {
-  display: 'block',
+  display: '-webkit-box',
   fontSize: '1rem',
   fontWeight: 600,
   lineHeight: 1.2,
   margin: 0,
+  minWidth: 0,
+  overflow: 'hidden',
   overflowWrap: 'anywhere',
   textAlign: 'center',
+  textOverflow: 'ellipsis',
+  WebkitBoxOrient: 'vertical',
+  WebkitLineClamp: 2,
   width: '100%',
 };
 
@@ -103,6 +108,7 @@ export const compactCenteredHeaderStyle: CSSProperties = {
   flexWrap: 'nowrap',
   gap: uiThemeTokens.spacing.sm,
   justifyContent: 'center',
+  minWidth: 0,
   textAlign: 'center',
   width: '100%',
 };

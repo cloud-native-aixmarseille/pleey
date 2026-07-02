@@ -26,6 +26,13 @@ export function InteractiveSurfaceButton({
       fullWidth
       intent="ghost"
       justify="flex-start"
+      labelStyle={{
+        alignItems: 'stretch',
+        display: 'flex',
+        minWidth: 0,
+        whiteSpace: 'normal',
+        width: '100%',
+      }}
       rootStyle={surfaceStyle}
       size={size}
       type={type}
