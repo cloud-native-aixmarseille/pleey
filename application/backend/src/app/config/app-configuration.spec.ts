@@ -90,4 +90,15 @@ describe('AppConfiguration', () => {
         ),
     ).toThrow("OTEL_CONSOLE_EXPORTERS_ENABLED must be 'true' or 'false'");
   });
+
+  it('reads the application version from APP_VERSION', () => {
+    const configuration = new AppConfiguration(
+      new AppEnvironment({
+        ...REQUIRED_RUNTIME_ENVIRONMENT,
+        APP_VERSION: '  1.2.3  ',
+      } as NodeJS.ProcessEnv),
+    );
+
+    expect(configuration.getApplicationVersion()).toBe('1.2.3');
+  });
 });

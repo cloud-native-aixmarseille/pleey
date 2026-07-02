@@ -6,6 +6,7 @@ import {
 import { DATABASE_CONNECTION_STRING } from '../../infrastructure/database/database-connection-string.token';
 import { AUTH_JWT_SECRET } from '../../infrastructure/identity/auth-jwt-secret.token';
 import { PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES_TOKEN } from '../../presentation/game/types/shared/graphql/playable-content-upload.constants';
+import { APP_VERSION } from '../../presentation/health/http/app-version.token';
 import { AUTH_PUBLIC_API_BASE_URL } from '../../presentation/identity/shared/auth-public-api-base-url.token';
 import {
   APP_RUNTIME_CONFIGURATION,
@@ -25,6 +26,11 @@ import { loadAppRuntimeConfiguration } from './load-app-runtime-configuration';
     {
       provide: APP_SERVER_CONFIG,
       useFactory: (configuration: AppRuntimeConfiguration) => configuration.server,
+      inject: [APP_RUNTIME_CONFIGURATION],
+    },
+    {
+      provide: APP_VERSION,
+      useFactory: (configuration: AppRuntimeConfiguration) => configuration.applicationVersion,
       inject: [APP_RUNTIME_CONFIGURATION],
     },
     {
@@ -68,6 +74,7 @@ import { loadAppRuntimeConfiguration } from './load-app-runtime-configuration';
   exports: [
     APP_RUNTIME_CONFIGURATION,
     APP_SERVER_CONFIG,
+    APP_VERSION,
     AUTH_JWT_SECRET,
     ACCESS_TOKEN_CONFIG,
     REFRESH_TOKEN_CONFIG,

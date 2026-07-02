@@ -55,6 +55,7 @@ services:
       - "3001"
     environment:
       - NODE_ENV=development
+      - APP_VERSION=${APP_VERSION:-dev}
       - PORT=3001
       - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_change_me}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-pleeyapp}:${POSTGRES_PASSWORD:-pleeyapp_password}@postgres:5432/${POSTGRES_DB:-pleeydb}?schema=public

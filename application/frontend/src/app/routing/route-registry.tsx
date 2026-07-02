@@ -1,5 +1,9 @@
-import { injectable, multiInject } from 'inversify';
+import { inject, injectable, multiInject } from 'inversify';
 import type { RouteObject } from 'react-router-dom';
+import {
+  APPLICATION_VERSION_PORT,
+  type ApplicationVersionPort,
+} from '../../application/shared/contracts/application-version.port';
 import { ROUTE_FACTORY, type RouteFactory } from '../../application/shared/contracts/routing.port';
 import { HomeScreen } from '../../presentation/home/screens/home/home-screen';
 import { NotFoundScreen } from '../../presentation/not-found/screens/not-found/not-found-screen';
@@ -12,6 +16,8 @@ export class RouteRegistry {
   constructor(
     @multiInject(ROUTE_FACTORY)
     private readonly routeFactories: RouteFactory[],
+    @inject(APPLICATION_VERSION_PORT)
+    private readonly applicationVersionPort: ApplicationVersionPort,
   ) {}
 
   getRoutes(): RouteObject[] {
@@ -22,7 +28,11 @@ export class RouteRegistry {
     return [
       {
         path: '/',
-        element: <AppShellLayout />,
+        element: (
+          <AppShellLayout
+            loadAppVersion={() => this.applicationVersionPort.loadApplicationVersion()}
+          />
+        ),
         children: [
           {
             index: true,

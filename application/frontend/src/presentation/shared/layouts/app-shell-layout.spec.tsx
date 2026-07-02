@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import {
   createOutletRoute,
@@ -14,9 +14,12 @@ vi.mock('../i18n/use-presentation-translation', async (importOriginal) => {
   return new PresentationTranslationMockFactory().createPartialModule(importOriginal);
 });
 
-function renderLayout() {
+function renderLayout(loadAppVersion?: () => Promise<string>) {
   return renderRouteWithProviders({
-    routes: createOutletRoute(<AppShellLayout />, <div data-testid="outlet-content" />),
+    routes: createOutletRoute(
+      <AppShellLayout loadAppVersion={loadAppVersion} />,
+      <div data-testid="outlet-content" />,
+    ),
   });
 }
 
@@ -52,6 +55,52 @@ describe('AppShellLayout', () => {
     it('labels the navigation landmark for accessibility', () => {
       renderLayout();
       expect(screen.getByRole('navigation', { name: 'shared.shell.navLabel' })).toBeInTheDocument();
+    });
+
+    it('loads the deployed version from the backend', async () => {
+      const loadAppVersion = vi.fn().mockResolvedValue('1.2.3');
+
+      renderLayout(loadAppVersion);
+
+      await waitFor(() => {
+        expect(loadAppVersion).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('does not render the deployed version in the page body when the backend returns a value', async () => {
+      const loadAppVersion = vi.fn().mockResolvedValue('1.2.3');
+
+      renderLayout(loadAppVersion);
+
+      await waitFor(() => {
+        expect(loadAppVersion).toHaveBeenCalledTimes(1);
+      });
+
+      expect(screen.queryByText('shared.shell.version (version=1.2.3)')).not.toBeInTheDocument();
+    });
+
+    it('does not render the deployed version when the backend returns an empty value', async () => {
+      const loadAppVersion = vi.fn().mockResolvedValue('  ');
+
+      renderLayout(loadAppVersion);
+
+      await waitFor(() => {
+        expect(loadAppVersion).toHaveBeenCalledTimes(1);
+      });
+
+      expect(screen.queryByText(/shared\.shell\.version/i)).not.toBeInTheDocument();
+    });
+
+    it('does not render the deployed version when loading fails', async () => {
+      const loadAppVersion = vi.fn().mockRejectedValue(new Error('boom'));
+
+      renderLayout(loadAppVersion);
+
+      await waitFor(() => {
+        expect(loadAppVersion).toHaveBeenCalledTimes(1);
+      });
+
+      expect(screen.queryByText(/shared\.shell\.version/i)).not.toBeInTheDocument();
     });
   });
 });

@@ -33,6 +33,7 @@ export const sharedEn = {
       kicker: 'Pleey',
       navLabel: 'Main navigation',
       navToggle: 'Toggle navigation',
+      version: 'Version {{version}}',
       preferencesMenu: 'Open preferences menu',
       languageToggle: 'Switch language',
       colorSchemeToggle: 'Toggle color scheme',

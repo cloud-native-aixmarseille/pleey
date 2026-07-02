@@ -20,6 +20,7 @@ export class AppConfiguration {
 
     this.runtimeConfiguration = Object.freeze({
       jwtSecret,
+      applicationVersion: this.environment.getOptionalString('APP_VERSION') ?? '',
       accessToken: {
         secret: jwtSecret,
         expiresInSeconds: this.readPositiveInteger(
@@ -63,6 +64,10 @@ export class AppConfiguration {
 
   getJwtSecret(): string {
     return this.runtimeConfiguration.jwtSecret;
+  }
+
+  getApplicationVersion(): string {
+    return this.runtimeConfiguration.applicationVersion;
   }
 
   getAccessTokenConfig(): TokenConfig {

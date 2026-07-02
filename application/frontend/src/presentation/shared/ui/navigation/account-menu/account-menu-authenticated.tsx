@@ -8,12 +8,14 @@ import {
   AccountMenuActionRow,
   AccountMenuDivider,
   AccountMenuDropdown,
+  AccountMenuMetaText,
   AccountMenuTriggerButton,
   AccountMenuUsername,
   AccountMenuWrapper,
 } from './account-menu-primitives';
 
 interface AccountMenuAuthenticatedProps {
+  readonly appVersion?: string;
   readonly onNavigateToProfile: () => void;
   readonly onSignOut: () => void;
   readonly onToggle: () => void;
@@ -23,6 +25,7 @@ interface AccountMenuAuthenticatedProps {
 }
 
 export function AccountMenuAuthenticated({
+  appVersion = '',
   onNavigateToProfile,
   onSignOut,
   onToggle,
@@ -31,6 +34,7 @@ export function AccountMenuAuthenticated({
   wrapperRef,
 }: AccountMenuAuthenticatedProps) {
   const { t } = usePresentationTranslation();
+  const normalizedAppVersion = appVersion.trim();
 
   return (
     <AccountMenuWrapper wrapperRef={wrapperRef}>
@@ -62,6 +66,14 @@ export function AccountMenuAuthenticated({
           </AccountMenuActionButton>
           <AccountMenuDivider />
           <AccountMenuPreferencesPanel />
+          {normalizedAppVersion.length > 0 ? (
+            <>
+              <AccountMenuDivider />
+              <AccountMenuMetaText>
+                {t('shared.shell.version', { version: normalizedAppVersion })}
+              </AccountMenuMetaText>
+            </>
+          ) : null}
         </AccountMenuDropdown>
       ) : null}
     </AccountMenuWrapper>

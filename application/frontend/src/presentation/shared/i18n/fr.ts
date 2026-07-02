@@ -34,6 +34,7 @@ export const sharedFr = {
       kicker: 'Pleey',
       navLabel: 'Navigation principale',
       navToggle: 'Afficher la navigation',
+      version: 'Version {{version}}',
       preferencesMenu: 'Ouvrir le menu des preferences',
       languageToggle: 'Changer de langue',
       colorSchemeToggle: 'Changer le thème',

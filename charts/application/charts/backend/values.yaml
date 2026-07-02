@@ -23,6 +23,7 @@ config:
   nodeEnv: production
   port: "3001"
   corsOrigin: "*"
+  appVersion: ""
   apiBaseUrl: ""
   otelExporterOtlpEndpoint: ""
   otelExporterOtlpHeaders: ""

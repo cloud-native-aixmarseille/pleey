@@ -6,6 +6,7 @@ import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApplicationHealthIndicator } from '../../../infrastructure/health/application-health-indicator';
 import { PrismaHealthIndicator } from '../../../infrastructure/health/prisma-health-indicator';
+import { APP_VERSION } from './app-version.token';
 import { HealthController } from './health-controller';
 
 const applicationHealthIndicator = {
@@ -16,6 +17,8 @@ const applicationHealthIndicator = {
 const prismaHealthIndicator = {
   isHealthy: vi.fn(),
 };
+
+const applicationVersion = '1.2.3';
 
 @Module({
   imports: [TerminusModule],
@@ -28,6 +31,10 @@ const prismaHealthIndicator = {
     {
       provide: PrismaHealthIndicator,
       useValue: prismaHealthIndicator,
+    },
+    {
+      provide: APP_VERSION,
+      useValue: applicationVersion,
     },
   ],
 })
@@ -67,6 +74,13 @@ describe('HealthController', () => {
         status: 'up',
       },
     });
+  });
+
+  it('returns the configured application version on the public api path', async () => {
+    const response = await request(app.getHttpServer()).get('/api/version');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ version: '1.2.3' });
   });
 
   it('returns a successful liveness response without checking dependencies', async () => {
