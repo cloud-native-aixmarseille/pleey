@@ -174,7 +174,7 @@ export function PartyScreenContent({
   if (!party) {
     surface = pageErrorMessage
       ? null
-      : routeKind === PartyLobbyRouteKind.PIN && !isAuthenticated
+      : routeKind === PartyLobbyRouteKind.PIN
         ? joinSurface
         : runtimeLoadingState;
   } else if (isHostSurface && hostRuntimeControls) {

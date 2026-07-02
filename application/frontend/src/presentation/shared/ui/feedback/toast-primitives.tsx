@@ -2,6 +2,7 @@ import { Box, Paper } from '@mantine/core';
 import type { PropsWithChildren } from 'react';
 import { uiThemeTokens } from '../foundation/ui-theme';
 import { ContentStack } from '../layout/containers';
+import { usePresentationMediaQuery } from '../layout/use-presentation-media-query';
 
 const toastViewportBehaviorStyle = {
   pointerEvents: 'none',
@@ -17,13 +18,28 @@ interface ToastItemShellProps extends PropsWithChildren {
 }
 
 export function ToastViewportShell({ children }: PropsWithChildren) {
+  const isMobile = usePresentationMediaQuery('(max-width: 48em)');
+
   return (
     <Box
+      data-testid="presentation-toast-viewport"
       maw="24rem"
       pos="fixed"
-      right="var(--mantine-spacing-lg)"
-      style={toastViewportBehaviorStyle}
-      top="var(--mantine-spacing-lg)"
+      style={{
+        ...toastViewportBehaviorStyle,
+        ...(isMobile
+          ? {
+              bottom: 'max(var(--mantine-spacing-lg), env(safe-area-inset-bottom))',
+              left: '50%',
+              right: 'auto',
+              top: 'auto',
+              transform: 'translateX(-50%)',
+            }
+          : {
+              right: 'var(--mantine-spacing-lg)',
+              top: 'var(--mantine-spacing-lg)',
+            }),
+      }}
       w="calc(100vw - (2 * var(--mantine-spacing-lg)))"
     >
       <ContentStack gap="sm">{children}</ContentStack>
