@@ -5,11 +5,15 @@ import { renderWithProviders } from '../../../test-utils/render-with-providers';
 import { AppShellHeader } from './app-shell-header';
 
 vi.mock('../ui/navigation/account-menu/account-menu', () => ({
-  AccountMenu: () => <div>account-menu</div>,
+  AccountMenu: ({ appVersion }: { appVersion?: string }) => (
+    <div>account-menu:{appVersion ?? ''}</div>
+  ),
 }));
 
 vi.mock('../ui/navigation/account-menu/guest-preferences-menu', () => ({
-  GuestPreferencesMenu: () => <div>guest-preferences-menu</div>,
+  GuestPreferencesMenu: ({ appVersion }: { appVersion?: string }) => (
+    <div>guest-preferences-menu:{appVersion ?? ''}</div>
+  ),
 }));
 
 vi.mock('../ui/branding/pleey-logo', () => ({
@@ -30,7 +34,12 @@ describe('AppShellHeader', () => {
     const navHandlers = { toggle: vi.fn(), close: vi.fn() };
 
     renderWithProviders(
-      <AppShellHeader isAuthenticated navHandlers={navHandlers} navOpened={false} />,
+      <AppShellHeader
+        appVersion="1.2.3"
+        isAuthenticated
+        navHandlers={navHandlers}
+        navOpened={false}
+      />,
     );
 
     expect(screen.getByText('shared.shell.kicker')).toBeInTheDocument();
@@ -38,8 +47,8 @@ describe('AppShellHeader', () => {
       'href',
       '/workspace/dashboard',
     );
-    expect(screen.getByText('account-menu')).toBeInTheDocument();
-    expect(screen.queryByText('guest-preferences-menu')).not.toBeInTheDocument();
+    expect(screen.getByText('account-menu:1.2.3')).toBeInTheDocument();
+    expect(screen.queryByText(/guest-preferences-menu:/)).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'shared.shell.navToggle' })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'shared.shell.navToggle' }));
@@ -50,6 +59,7 @@ describe('AppShellHeader', () => {
   it('hides the dashboard link for guests', () => {
     renderWithProviders(
       <AppShellHeader
+        appVersion="1.2.3"
         isAuthenticated={false}
         navHandlers={{ toggle: vi.fn(), close: vi.fn() }}
         navOpened={false}
@@ -57,6 +67,6 @@ describe('AppShellHeader', () => {
     );
 
     expect(screen.queryByRole('link', { name: /shared.nav.dashboard/i })).not.toBeInTheDocument();
-    expect(screen.getByText('guest-preferences-menu')).toBeInTheDocument();
+    expect(screen.getByText('guest-preferences-menu:1.2.3')).toBeInTheDocument();
   });
 });

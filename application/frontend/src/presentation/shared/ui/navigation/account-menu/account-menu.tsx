@@ -2,7 +2,11 @@ import { AccountMenuAuthenticated } from './account-menu-authenticated';
 import { AccountMenuGuestButton } from './account-menu-guest-button';
 import { useAccountMenuState } from './use-account-menu-state';
 
-export function AccountMenu() {
+interface AccountMenuProps {
+  readonly appVersion?: string;
+}
+
+export function AccountMenu({ appVersion = '' }: AccountMenuProps) {
   const { handleNavigateToProfile, handleSignIn, handleSignOut, opened, toggle, user, wrapperRef } =
     useAccountMenuState();
 
@@ -12,6 +16,7 @@ export function AccountMenu() {
 
   return (
     <AccountMenuAuthenticated
+      appVersion={appVersion}
       onNavigateToProfile={handleNavigateToProfile}
       onSignOut={handleSignOut}
       onToggle={toggle}

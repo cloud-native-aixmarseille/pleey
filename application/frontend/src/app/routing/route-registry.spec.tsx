@@ -4,6 +4,7 @@ import { PartyIdentifier } from '../../application/game/party/shared/services/id
 import { PartyPinIdentifier } from '../../application/game/party/shared/services/identifiers/party-pin-identifier';
 import { StageIdentifier } from '../../application/game/party/shared/services/identifiers/stage-identifier';
 import { PartyRouteService } from '../../application/game/party/shared/services/party-route.service';
+import type { ApplicationVersionPort } from '../../application/shared/contracts/application-version.port';
 import { DashboardWorkspaceFacade } from '../../application/workspace/dashboard/facades/dashboard-workspace.facade';
 import { OrganizationManagementFacade } from '../../application/workspace/organizations/facades/organization-management.facade';
 import { PartyRoutesFactory } from '../../presentation/game/party/shared/routes/party-routes-factory';
@@ -33,33 +34,40 @@ vi.mock('react-i18next', async () => {
 describe('RouteRegistry', () => {
   const gameTypeCatalogGatewayMockFactory = new GameTypeCatalogGatewayMockFactory();
 
-  function createRegistry(): RouteRegistry {
-    return new RouteRegistry([
-      new AuthRoutesFactory(),
-      new PartyRoutesFactory(createPartyRouteService()),
-      new DashboardRoutesFactory(
-        gameTypeCatalogGatewayMockFactory.create(),
-        { resolveManageGameRoute: vi.fn() } as never,
-        {
-          loadProjectGameCatalog: vi.fn(),
-          restoreOrganizationSelection: vi.fn(),
-          loadOrganizationWorkspaceState: vi.fn(),
-        } as never,
-        createPartyRouteService(),
-      ),
-      new OrganizationRoutesFactory(
-        {
-          restoreOrganizationSelection: vi.fn(),
-          loadOrganizationWorkspaceState: vi.fn(),
-        } as unknown as DashboardWorkspaceFacade,
-        {
-          createOrganization: vi.fn(),
-          createProject: vi.fn(),
-          updateProject: vi.fn(),
-          deleteProject: vi.fn(),
-        } as unknown as OrganizationManagementFacade,
-      ),
-    ]);
+  function createRegistry(
+    applicationVersionPort: ApplicationVersionPort = {
+      loadApplicationVersion: vi.fn().mockResolvedValue(''),
+    },
+  ): RouteRegistry {
+    return new RouteRegistry(
+      [
+        new AuthRoutesFactory(),
+        new PartyRoutesFactory(createPartyRouteService()),
+        new DashboardRoutesFactory(
+          gameTypeCatalogGatewayMockFactory.create(),
+          { resolveManageGameRoute: vi.fn() } as never,
+          {
+            loadProjectGameCatalog: vi.fn(),
+            restoreOrganizationSelection: vi.fn(),
+            loadOrganizationWorkspaceState: vi.fn(),
+          } as never,
+          createPartyRouteService(),
+        ),
+        new OrganizationRoutesFactory(
+          {
+            restoreOrganizationSelection: vi.fn(),
+            loadOrganizationWorkspaceState: vi.fn(),
+          } as unknown as DashboardWorkspaceFacade,
+          {
+            createOrganization: vi.fn(),
+            createProject: vi.fn(),
+            updateProject: vi.fn(),
+            deleteProject: vi.fn(),
+          } as unknown as OrganizationManagementFacade,
+        ),
+      ],
+      applicationVersionPort,
+    );
   }
 
   beforeEach(() => {
@@ -152,6 +160,26 @@ describe('RouteRegistry', () => {
 
       // Assert
       expect(children.some((r) => r.path === '*')).toBe(true);
+    });
+
+    it('passes a backend version loader to the shell layout', async () => {
+      // Arrange
+      const applicationVersionPort: ApplicationVersionPort = {
+        loadApplicationVersion: vi.fn().mockResolvedValue('1.2.3'),
+      };
+      const registry = createRegistry(applicationVersionPort);
+
+      // Act
+      const rootElement = registry.getRoutes()[0].element as {
+        props: {
+          loadAppVersion?: () => Promise<string>;
+        };
+      };
+
+      // Assert
+      expect(applicationVersionPort.loadApplicationVersion).not.toHaveBeenCalled();
+      await expect(rootElement.props.loadAppVersion?.()).resolves.toBe('1.2.3');
+      expect(applicationVersionPort.loadApplicationVersion).toHaveBeenCalledTimes(1);
     });
   });
 });

@@ -30,6 +30,7 @@ describe('AccountMenuAuthenticated', () => {
 
     renderWithProviders(
       <AccountMenuAuthenticated
+        appVersion=""
         onNavigateToProfile={vi.fn()}
         onSignOut={vi.fn()}
         onToggle={onToggle}
@@ -53,6 +54,7 @@ describe('AccountMenuAuthenticated', () => {
 
     renderWithProviders(
       <AccountMenuAuthenticated
+        appVersion="1.2.3"
         onNavigateToProfile={onNavigateToProfile}
         onSignOut={onSignOut}
         onToggle={vi.fn()}
@@ -63,10 +65,27 @@ describe('AccountMenuAuthenticated', () => {
     );
 
     expect(screen.getByRole('menu')).toBeInTheDocument();
+    expect(screen.getByText('shared.shell.version (version=1.2.3)')).toBeInTheDocument();
     await user.click(screen.getByRole('menuitem', { name: 'shared.shell.profileLink' }));
     await user.click(screen.getByRole('menuitem', { name: 'shared.shell.signOutAction' }));
 
     expect(onNavigateToProfile).toHaveBeenCalledTimes(1);
     expect(onSignOut).toHaveBeenCalledTimes(1);
+  });
+
+  it('omits the version label when no version is available', () => {
+    renderWithProviders(
+      <AccountMenuAuthenticated
+        appVersion="  "
+        onNavigateToProfile={vi.fn()}
+        onSignOut={vi.fn()}
+        onToggle={vi.fn()}
+        opened
+        user={authenticatedUser}
+        wrapperRef={createRef()}
+      />,
+    );
+
+    expect(screen.queryByText(/shared\.shell\.version/i)).not.toBeInTheDocument();
   });
 });

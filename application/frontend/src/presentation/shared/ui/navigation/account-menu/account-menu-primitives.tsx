@@ -93,3 +93,11 @@ export function AccountMenuActionRow({ children }: PropsWithChildren) {
 export function AccountMenuDivider() {
   return <Divider my="xxs" />;
 }
+
+export function AccountMenuMetaText({ children }: PropsWithChildren) {
+  return (
+    <Text c={uiThemeTokens.color.text.secondary} px="xs" size="xs" ta="center">
+      {children}
+    </Text>
+  );
+}

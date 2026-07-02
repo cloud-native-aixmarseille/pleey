@@ -20,7 +20,7 @@ describe('GuestPreferencesMenu', () => {
   it('opens and closes the dedicated preferences dropdown', async () => {
     const user = userEvent.setup();
 
-    renderWithProviders(<GuestPreferencesMenu />);
+    renderWithProviders(<GuestPreferencesMenu appVersion="1.2.3" />);
 
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
 
@@ -28,6 +28,7 @@ describe('GuestPreferencesMenu', () => {
 
     expect(screen.getByRole('menu')).toBeInTheDocument();
     expect(screen.getByText('preferences-controls')).toBeInTheDocument();
+    expect(screen.getByText('shared.shell.version (version=1.2.3)')).toBeInTheDocument();
 
     fireEvent.keyDown(document, { key: 'Escape' });
 
@@ -39,7 +40,7 @@ describe('GuestPreferencesMenu', () => {
 
     renderWithProviders(
       <>
-        <GuestPreferencesMenu />
+        <GuestPreferencesMenu appVersion="" />
         <button type="button">outside</button>
       </>,
     );
@@ -50,5 +51,15 @@ describe('GuestPreferencesMenu', () => {
     await user.click(screen.getByRole('button', { name: 'outside' }));
 
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  });
+
+  it('omits the version label when no version is available', async () => {
+    const user = userEvent.setup();
+
+    renderWithProviders(<GuestPreferencesMenu appVersion="  " />);
+
+    await user.click(screen.getByRole('button', { name: 'shared.shell.preferencesMenu' }));
+
+    expect(screen.queryByText(/shared\.shell\.version/i)).not.toBeInTheDocument();
   });
 });

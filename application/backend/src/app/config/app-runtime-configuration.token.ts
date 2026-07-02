@@ -5,6 +5,7 @@ import type { GameSocketCorsOptions } from './game-socket-cors-options.token';
 
 export type AppRuntimeConfiguration = {
   readonly accessToken: TokenConfig;
+  readonly applicationVersion: string;
   readonly authPublicApiBaseUrl?: string;
   readonly databaseConnectionString: string;
   readonly gameSocketCorsOptions: GameSocketCorsOptions;

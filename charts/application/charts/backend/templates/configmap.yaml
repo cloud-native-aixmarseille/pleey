@@ -8,6 +8,7 @@ data:
   NODE_ENV: {{ .Values.config.nodeEnv | quote }}
   PORT: {{ .Values.config.port | quote }}
   CORS_ORIGIN: {{ .Values.config.corsOrigin | quote }}
+  APP_VERSION: {{ default .Chart.AppVersion .Values.config.appVersion | quote }}
   {{- if .Values.config.apiBaseUrl }}
   API_BASE_URL: {{ .Values.config.apiBaseUrl | quote }}
   {{- end }}

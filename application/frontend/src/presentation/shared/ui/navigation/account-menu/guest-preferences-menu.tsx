@@ -4,17 +4,24 @@ import { useKeyboardShortcut, useShortcutScope } from '../../../keyboard';
 import { AppIcon } from '../../icons/app-icon';
 import { AccountMenuPreferencesPanel } from './account-menu-preferences-panel';
 import {
+  AccountMenuDivider,
   AccountMenuDropdown,
+  AccountMenuMetaText,
   AccountMenuTriggerButton,
   AccountMenuWrapper,
 } from './account-menu-primitives';
 
 const GUEST_PREFERENCES_SCOPE = 'guest-preferences-menu';
 
-export function GuestPreferencesMenu() {
+interface GuestPreferencesMenuProps {
+  readonly appVersion?: string;
+}
+
+export function GuestPreferencesMenu({ appVersion = '' }: GuestPreferencesMenuProps) {
   const { t } = usePresentationTranslation();
   const [opened, setOpened] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const normalizedAppVersion = appVersion.trim();
 
   const toggle = () => {
     setOpened((current) => !current);
@@ -68,6 +75,14 @@ export function GuestPreferencesMenu() {
       {opened ? (
         <AccountMenuDropdown>
           <AccountMenuPreferencesPanel />
+          {normalizedAppVersion.length > 0 ? (
+            <>
+              <AccountMenuDivider />
+              <AccountMenuMetaText>
+                {t('shared.shell.version', { version: normalizedAppVersion })}
+              </AccountMenuMetaText>
+            </>
+          ) : null}
         </AccountMenuDropdown>
       ) : null}
     </AccountMenuWrapper>
