@@ -42,6 +42,21 @@ function createResource(config: OpenTelemetryConfig) {
   });
 }
 
+function createLoggerProvider(
+  logExporter?: OTLPLogExporter | ConsoleLogRecordExporter,
+): LoggerProvider {
+  return new LoggerProvider({
+    resource,
+    processors: logExporter
+      ? [
+          new BatchLogRecordProcessor({
+            exporter: logExporter,
+          }),
+        ]
+      : [],
+  });
+}
+
 /**
  * OpenTelemetry Configuration
  * Sets up tracing, metrics, and logging for the application
@@ -49,12 +64,9 @@ function createResource(config: OpenTelemetryConfig) {
 let resource = createResource(telemetryConfig);
 
 // Configure Logger Provider
-let loggerProvider = new LoggerProvider({
-  resource,
-});
+let loggerProvider = createLoggerProvider();
 let otelSDK: NodeSDK | null = null;
 
-let logProcessorRegistered = false;
 let shutdownHookRegistered = false;
 
 export function getLoggerProvider(): LoggerProvider {
@@ -68,8 +80,7 @@ export function isTelemetryConsoleLoggingEnabled(): boolean {
 function applyTelemetryConfig(config: OpenTelemetryConfig): void {
   telemetryConfig = config;
   resource = createResource(config);
-  loggerProvider = new LoggerProvider({ resource });
-  logProcessorRegistered = false;
+  loggerProvider = createLoggerProvider();
 }
 
 function parseHeaders(headersJson?: string): Record<string, string> | undefined {
@@ -190,20 +201,7 @@ export async function initializeOpenTelemetry(config: OpenTelemetryConfig): Prom
     config.headersJson,
   );
 
-  if (!logProcessorRegistered && logExporter) {
-    const provider = loggerProvider as unknown as {
-      addLogRecordProcessor?: unknown;
-    };
-    const maybeAddLogRecordProcessor = provider.addLogRecordProcessor;
-
-    if (typeof maybeAddLogRecordProcessor === 'function') {
-      (maybeAddLogRecordProcessor as (processor: BatchLogRecordProcessor) => void).call(
-        loggerProvider,
-        new BatchLogRecordProcessor(logExporter),
-      );
-      logProcessorRegistered = true;
-    }
-  }
+  loggerProvider = createLoggerProvider(logExporter);
 
   otelSDK = new NodeSDK({
     resource,
