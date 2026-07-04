@@ -304,6 +304,9 @@ define run_linter
 	VOLUME="$$DEFAULT_WORKSPACE:$$DEFAULT_WORKSPACE"; \
 	docker build --platform linux/amd64 --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --tag $$LINTER_IMAGE .; \
 	docker run \
+		--platform linux/amd64 \
+		-v "$VOLUME" \
+		--rm \
 		-e DEFAULT_WORKSPACE="$$DEFAULT_WORKSPACE" \
 		-e FILTER_REGEX_INCLUDE="$(filter-out $@,$(MAKECMDGOALS))" \
 		-e IGNORE_GITIGNORED_FILES=true \
@@ -315,8 +318,6 @@ define run_linter
 		-e VALIDATE_GRAPHQL_PRETTIER=false \
 		-e VALIDATE_JSON_PRETTIER=false \
 		$(1) \
-		-v $$VOLUME \
-		--rm \
 		$$LINTER_IMAGE
 endef
 
