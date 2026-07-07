@@ -47,6 +47,16 @@ jobs:
 
           echo "registry=${resolved_registry}" >> "$GITHUB_OUTPUT"
 
+      - name: Allow Docker socket access for act
+        run: |
+          if [[ "${ACT:-}" != "true" ]]; then
+            exit 0
+          fi
+
+          if [ -f /var/run/docker.sock ]; then
+            sudo chmod 666 /var/run/docker.sock || chmod 666 /var/run/docker.sock
+          fi
+
       - name: Prepare artifacts
         id: prepare_artifacts
         uses: https://github.com/dagger/dagger-for-github@27b130bf0f79a7f6fbbbe0fbca6760dc9bb40a77 # v8.4.1
@@ -88,7 +98,17 @@ jobs:
       GITHUB_TOKEN: ${{ github.token }}
     steps:
       - name: Check out repository
-        uses: https://github.com/actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Allow Docker socket access for act
+        run: |
+          if [[ "${ACT:-}" != "true" ]]; then
+            exit 0
+          fi
+
+          if [ -f /var/run/docker.sock ]; then
+            sudo chmod 666 /var/run/docker.sock || chmod 666 /var/run/docker.sock
+          fi
 
       - name: Lint and test ${{ matrix.service }}
         uses: https://github.com/dagger/dagger-for-github@27b130bf0f79a7f6fbbbe0fbca6760dc9bb40a77 # v8.4.1
@@ -154,6 +174,16 @@ jobs:
             echo "image_tag=${image_tag}"
             echo "chart_version=${chart_version}"
           } >> "$GITHUB_OUTPUT"
+
+      - name: Allow Docker socket access for act
+        run: |
+          if [[ "${ACT:-}" != "true" ]]; then
+            exit 0
+          fi
+
+          if [ -f /var/run/docker.sock ]; then
+            sudo chmod 666 /var/run/docker.sock || chmod 666 /var/run/docker.sock
+          fi
 
       - name: Publish backend image
         id: publish_backend_image
@@ -236,6 +266,16 @@ jobs:
           fi
 
           echo "registry=${resolved_registry}" >> "$GITHUB_OUTPUT"
+
+      - name: Allow Docker socket access for act
+        run: |
+          if [[ "${ACT:-}" != "true" ]]; then
+            exit 0
+          fi
+
+          if [ -f /var/run/docker.sock ]; then
+            sudo chmod 666 /var/run/docker.sock || chmod 666 /var/run/docker.sock
+          fi
 
       - name: Release chart
         id: release_chart

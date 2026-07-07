@@ -53,7 +53,9 @@ jobs:
             exit 0
           fi
 
-          sudo chmod 666 /var/run/docker.sock || chmod 666 /var/run/docker.sock
+          if [ -f /var/run/docker.sock ]; then
+            sudo chmod 666 /var/run/docker.sock || chmod 666 /var/run/docker.sock
+          fi
 
       - name: Prepare artifacts
         id: prepare_artifacts
@@ -104,7 +106,9 @@ jobs:
             exit 0
           fi
 
-          sudo chmod 666 /var/run/docker.sock || chmod 666 /var/run/docker.sock
+          if [ -f /var/run/docker.sock ]; then
+            sudo chmod 666 /var/run/docker.sock || chmod 666 /var/run/docker.sock
+          fi
 
       - name: Lint and test ${{ matrix.service }}
         uses: dagger/dagger-for-github@27b130bf0f79a7f6fbbbe0fbca6760dc9bb40a77 # v8.4.1
@@ -177,7 +181,9 @@ jobs:
             exit 0
           fi
 
-          sudo chmod 666 /var/run/docker.sock || chmod 666 /var/run/docker.sock
+          if [ -f /var/run/docker.sock ]; then
+            sudo chmod 666 /var/run/docker.sock || chmod 666 /var/run/docker.sock
+          fi
 
       - name: Publish backend image
         id: publish_backend_image
@@ -267,7 +273,9 @@ jobs:
             exit 0
           fi
 
-          sudo chmod 666 /var/run/docker.sock || chmod 666 /var/run/docker.sock
+          if [ -f /var/run/docker.sock ]; then
+            sudo chmod 666 /var/run/docker.sock || chmod 666 /var/run/docker.sock
+          fi
 
       - name: Release chart
         id: release_chart
