@@ -1,5 +1,5 @@
 import type { PropsWithChildren } from 'react';
-import { StatusBannerFrame, type StatusBannerTone } from './status-banner-primitives';
+import { StatusBannerFrame, type StatusBannerTone } from './status-banner-frame';
 
 interface StatusBannerProps extends PropsWithChildren {
   readonly tone?: StatusBannerTone;

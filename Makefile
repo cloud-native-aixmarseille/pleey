@@ -305,7 +305,7 @@ define run_linter
 	docker build --platform linux/amd64 --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --tag $$LINTER_IMAGE .; \
 	docker run \
 		--platform linux/amd64 \
-		-v "$VOLUME" \
+		-v $$VOLUME \
 		--rm \
 		-e DEFAULT_WORKSPACE="$$DEFAULT_WORKSPACE" \
 		-e FILTER_REGEX_INCLUDE="$(filter-out $@,$(MAKECMDGOALS))" \
