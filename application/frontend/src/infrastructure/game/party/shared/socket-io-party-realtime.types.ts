@@ -57,7 +57,13 @@ export interface SocketPartyEntryPayload {
   readonly username?: string;
 }
 
+export interface SocketIoPartyObservationConnectionState {
+  readonly recovered: boolean;
+  readonly reconnected: boolean;
+}
+
 export interface SocketIoPartyObservationTransportHandlers {
+  readonly onConnected?: (state: SocketIoPartyObservationConnectionState) => void;
   readonly onError?: (message: string) => void;
   readonly onRuntimeNotice?: (payload: SocketPartyRuntimeNoticePayload) => void;
   readonly onSnapshot: (payload: PartyObservationPayload) => void;

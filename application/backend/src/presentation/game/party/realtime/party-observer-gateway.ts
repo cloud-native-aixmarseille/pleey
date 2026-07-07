@@ -24,6 +24,7 @@ import type { SubmitPartyActionDto } from '../../../../application/game/party/pl
 import { JoinPartyUseCase } from '../../../../application/game/party/player/use-cases/join-party-use-case';
 import { LeavePartyUseCase } from '../../../../application/game/party/player/use-cases/leave-party-use-case';
 import { SubmitPartyActionUseCase } from '../../../../application/game/party/player/use-cases/submit-party-action-use-case';
+import { PARTY_SESSION_RECOVERY_WINDOW_MS } from '../../../../application/game/party/shared/contracts/party-session-recovery-window-ms.token';
 import { PartyActionIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-action-identifier';
 import { PartyIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-identifier';
 import { PartyPinIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-pin-identifier';
@@ -59,8 +60,6 @@ import {
   resolvePartyObservationRoom,
 } from './party-socket-events';
 import { SocketPartyObservationBroadcaster } from './services/socket-party-observation-broadcaster';
-
-const lobbyPlayerAbsenceGracePeriodMs = 60_000;
 
 interface PendingLobbyPlayerAbsencePrune {
   readonly identity: PartyPlayerIdentity;
@@ -132,6 +131,8 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     private readonly kickPartyPlayerUseCase: KickPartyPlayerUseCase,
     @Inject(PartyPlayerSessionRegistryProvider)
     private readonly sessionRegistry: PartyPlayerSessionRegistry,
+    @Inject(PARTY_SESSION_RECOVERY_WINDOW_MS)
+    private readonly partySessionRecoveryWindowMs = 5 * 60 * 1000,
   ) {}
 
   afterInit(server: Server): void {
@@ -620,7 +621,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
 
     const timeoutId = setTimeout(() => {
       void this.pruneAbsentLobbyPlayer(command);
-    }, lobbyPlayerAbsenceGracePeriodMs);
+    }, this.partySessionRecoveryWindowMs);
 
     this.pendingLobbyPlayerAbsencePrunes.set(pruneKey, timeoutId);
   }

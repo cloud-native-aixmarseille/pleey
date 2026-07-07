@@ -9,6 +9,7 @@ import type {
   PartyJoinMessage,
   SocketExceptionPayload,
   SocketIoPartyHostCommandEventName,
+  SocketIoPartyObservationConnectionState,
   SocketIoPartyObservationTransportHandlers,
   SocketIoPartyPlayerCommand,
   SocketPartyEntryPayload,
@@ -45,6 +46,7 @@ export class SocketIoPartyRealtimeTransport {
   private lastRequestedPartyId: PartyId | null = null;
   private readonly pendingHostCommands = new Set<PendingHostCommand>();
   private readonly pendingPlayerCommands = new Set<PendingPlayerCommand>();
+  private hasConnectedOnce = false;
   private readonly subscriptions = new Map<
     PartyId,
     Set<SocketIoPartyObservationTransportHandlers>
@@ -169,10 +171,17 @@ export class SocketIoPartyRealtimeTransport {
     });
 
     socket.on(SocketIoPartyInboundEventName.Connect, () => {
+      const connectionState: SocketIoPartyObservationConnectionState = {
+        recovered: socket.recovered === true,
+        reconnected: this.hasConnectedOnce,
+      };
+
+      this.hasConnectedOnce = true;
       this.activePartyObservationIds.clear();
 
       for (const partyId of this.subscriptions.keys()) {
         this.requestObservation(partyId);
+        this.dispatchConnected(partyId, connectionState);
       }
     });
 
@@ -251,6 +260,21 @@ export class SocketIoPartyRealtimeTransport {
     this.forEachPartyListener(payload, (listener) => {
       listener.onSnapshot(payload as never);
     });
+  }
+
+  private dispatchConnected(
+    partyId: PartyId,
+    state: SocketIoPartyObservationConnectionState,
+  ): void {
+    const listeners = this.subscriptions.get(partyId);
+
+    if (!listeners || listeners.size === 0) {
+      return;
+    }
+
+    for (const listener of listeners) {
+      listener.onConnected?.(state);
+    }
   }
 
   private dispatchError(message: string, partyId?: PartyId | null): void {
