@@ -1,0 +1,125 @@
+name: Demo Dispatch CI - Dagger - Forgejo
+
+on:
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: demo-dispatch-dagger-ci-forgejo-${{ github.repository }}-${{ github.ref_name }}
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  demo-dispatch:
+    name: Demo dispatch with Dagger and Forgejo
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - name: Install nodejs
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          sudo apt update
+          sudo apt install -y nodejs --no-install-recommends --no-install-suggests
+
+      - name: Check out repository
+        uses: https://github.com/actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Prepare temp artifacts
+        id: prepare_temp_artifacts
+        uses: https://github.com/dagger/dagger-for-github@27b130bf0f79a7f6fbbbe0fbca6760dc9bb40a77 # v8.4.1
+        with:
+          call: |
+            prepare-temp-artifacts \
+            --oci-registry='${{ vars.OCI_REGISTRY }}' \
+            --repository='${{ github.repository }}' \
+            --run-number='${{ github.run_number }}' \
+            --run-attempt='${{ github.run_attempt }}' \
+            --git-sha='${{ github.sha }}'
+
+      - name: Lint and test backend
+        uses: https://github.com/dagger/dagger-for-github@27b130bf0f79a7f6fbbbe0fbca6760dc9bb40a77 # v8.4.1
+        with:
+          call: |
+            lint-and-test-backend \
+            --source=.
+
+      - name: Lint and test frontend
+        uses: https://github.com/dagger/dagger-for-github@27b130bf0f79a7f6fbbbe0fbca6760dc9bb40a77 # v8.4.1
+        with:
+          call: |
+            lint-and-test-frontend \
+            --source=.
+
+      - name: Publish backend image
+        id: publish_backend_image
+        uses: https://github.com/dagger/dagger-for-github@27b130bf0f79a7f6fbbbe0fbca6760dc9bb40a77 # v8.4.1
+        with:
+          call: |
+            publish-backend-image \
+            --source=. \
+            --oci-registry='${{ vars.OCI_REGISTRY }}' \
+            --registry-username='${{ github.actor }}' \
+            --registry-password=env://GITHUB_TOKEN \
+            --repository='2ac2d841-e9df-4ed8-a414-bcab48a490d9' \
+            --run-number='${{ github.run_number }}' \
+            --run-attempt='${{ github.run_attempt }}' \
+            --git-sha='${{ github.sha }}'
+
+      - name: Publish frontend image
+        id: publish_frontend_image
+        uses: https://github.com/dagger/dagger-for-github@27b130bf0f79a7f6fbbbe0fbca6760dc9bb40a77 # v8.4.1
+        with:
+          call: |
+            publish-frontend-image \
+            --source=. \
+            --oci-registry='${{ vars.OCI_REGISTRY }}' \
+            --registry-username='${{ github.actor }}' \
+            --registry-password=env://GITHUB_TOKEN \
+            --repository='${{ github.repository }}' \
+            --run-number='${{ github.run_number }}' \
+            --run-attempt='${{ github.run_attempt }}' \
+            --git-sha='${{ github.sha }}'
+
+      - name: Release temp chart
+        id: release_temp_chart
+        uses: https://github.com/dagger/dagger-for-github@27b130bf0f79a7f6fbbbe0fbca6760dc9bb40a77 # v8.4.1
+        with:
+          call: |
+            release-temp-chart \
+            --source=. \
+            --oci-registry='${{ vars.OCI_REGISTRY }}' \
+            --registry-username='${{ github.actor }}' \
+            --registry-password=env://GITHUB_TOKEN \
+            --repository='${{ github.repository }}' \
+            --run-number='${{ github.run_number }}' \
+            --run-attempt='${{ github.run_attempt }}' \
+            --git-sha='${{ github.sha }}' \
+            --backend-digest='${{ fromJSON(steps.publish_backend_image.outputs.stdout).digest }}' \
+            --frontend-digest='${{ fromJSON(steps.publish_frontend_image.outputs.stdout).digest }}' \
+            --json
+          enable-github-summary: "true"
+
+      - name: Summarize temp artifacts
+        shell: bash
+        env:
+          BACKEND_IMAGE_REFERENCE: ${{ fromJSON(steps.publish_backend_image.outputs.stdout).reference }}
+          FRONTEND_IMAGE_REFERENCE: ${{ fromJSON(steps.publish_frontend_image.outputs.stdout).reference }}
+          CHART_REPOSITORY: ${{ fromJSON(steps.prepare_temp_artifacts.outputs.stdout).chartRepository }}
+          CHART_VERSION: ${{ fromJSON(steps.prepare_temp_artifacts.outputs.stdout).chartVersion }}
+        run: |
+          set -euo pipefail
+          {
+            echo "## Temp demo artifacts"
+            echo
+            echo "- Backend image: ${BACKEND_IMAGE_REFERENCE}"
+            echo "- Frontend image: ${FRONTEND_IMAGE_REFERENCE}"
+            echo "- Helm chart: ${CHART_REPOSITORY}/pleey:${CHART_VERSION}"
+          } >> "$GITHUB_STEP_SUMMARY"
