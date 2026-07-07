@@ -17,6 +17,7 @@ export class ConfiguredIoAdapter extends IoAdapter {
   constructor(
     app: INestApplicationContext,
     private readonly corsOptions: GameSocketCorsOptions,
+    private readonly partySessionRecoveryWindowMs: number,
   ) {
     super(app);
     this.jwtSecret = app.get<string>(AUTH_JWT_SECRET);
@@ -25,6 +26,10 @@ export class ConfiguredIoAdapter extends IoAdapter {
   override createIOServer(port: number, options?: ServerOptions) {
     const server = super.createIOServer(port, {
       ...options,
+      connectionStateRecovery: {
+        maxDisconnectionDuration: this.partySessionRecoveryWindowMs,
+        skipMiddlewares: false,
+      },
       cors: this.corsOptions,
     });
 

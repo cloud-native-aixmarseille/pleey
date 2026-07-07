@@ -9,6 +9,7 @@ import {
 import type { PartyId } from '../../../../../domains/game/party/shared/entities/party';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import type {
+  PartyObservationConnectionState,
   PartyObservationPort,
   PartyRuntimeNotice,
 } from '../../../../../domains/game/party/shared/ports/party-observation.port';
@@ -24,6 +25,7 @@ interface PartyObservationStateValue {
 
 interface PartyObservationActionsValue {
   consumeRuntimeNotice(runtimeNotice: PartyRuntimeNotice): void;
+  getConnectionStateByPartyId(partyId?: PartyId | null): PartyObservationConnectionState | null;
   getErrorByPartyId(partyId?: PartyId | null): string | null;
   getPartyByPartyId(partyId?: PartyId | null): PartyObservation | null;
   getRuntimeNoticeByPartyId(partyId?: PartyId | null): PartyRuntimeNotice | null;
@@ -49,7 +51,9 @@ export function PartyProvider({ children, port }: PartyProviderProps) {
   const [currentErrorMessage, setCurrentErrorMessage] = useState<string | null>(null);
   const [currentErrorPartyId, setCurrentErrorPartyId] = useState<PartyId | null>(null);
   const [currentRuntimeNotice, setCurrentRuntimeNotice] = useState<PartyRuntimeNotice | null>(null);
+  const [, setConnectionStateVersion] = useState(0);
   const registrationsRef = useRef(new Map<PartyId, PartyRegistration>());
+  const connectionStatesRef = useRef(new Map<PartyId, PartyObservationConnectionState>());
   const currentPartyRef = useRef<PartyObservation | null>(null);
   const currentErrorMessageRef = useRef<string | null>(null);
   const currentErrorPartyIdRef = useRef<PartyId | null>(null);
@@ -67,6 +71,13 @@ export function PartyProvider({ children, port }: PartyProviderProps) {
           currentRuntimeNotice === runtimeNotice ? null : currentRuntimeNotice,
         );
       });
+    },
+    getConnectionStateByPartyId: (partyId?: PartyId | null) => {
+      if (partyId === null || partyId === undefined) {
+        return null;
+      }
+
+      return connectionStatesRef.current.get(partyId) ?? null;
     },
     getErrorByPartyId: (partyId?: PartyId | null) => {
       if (partyId === null || partyId === undefined) {
@@ -104,6 +115,12 @@ export function PartyProvider({ children, port }: PartyProviderProps) {
     }
 
     const release = port.observeParty(partyId, {
+      onConnected: (connectionState) => {
+        connectionStatesRef.current.set(partyId, connectionState);
+        startTransition(() => {
+          setConnectionStateVersion((currentVersion) => currentVersion + 1);
+        });
+      },
       onSnapshot: (party) => {
         startTransition(() => {
           setCurrentParty(party);

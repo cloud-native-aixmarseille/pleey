@@ -1,6 +1,7 @@
 import { inject, injectable } from 'inversify';
 import type { PartyId } from '../../../../domains/game/party/shared/entities/party';
 import {
+  type PartyObservationConnectionState,
   type PartyObservationHandlers,
   type PartyObservationPort,
 } from '../../../../domains/game/party/shared/ports/party-observation.port';
@@ -18,6 +19,9 @@ export class SocketIoPartyObservationAdapter implements PartyObservationPort {
 
   observeParty(partyId: PartyId, handlers: PartyObservationHandlers): () => void {
     return this.realtimeTransport.observeParty(partyId, {
+      onConnected: (state) => {
+        handlers.onConnected?.(this.toConnectionState(state));
+      },
       onError: handlers.onError,
       onRuntimeNotice: (payload) => {
         const runtimeNotice = this.payloadMapper.toRuntimeNotice(payload);
@@ -30,5 +34,16 @@ export class SocketIoPartyObservationAdapter implements PartyObservationPort {
         handlers.onSnapshot(this.payloadMapper.toObservation(payload));
       },
     });
+  }
+
+  private toConnectionState(state: {
+    readonly recovered: boolean;
+    readonly reconnected: boolean;
+  }): PartyObservationConnectionState {
+    return {
+      epoch: Date.now(),
+      recovered: state.recovered,
+      reconnected: state.reconnected,
+    };
   }
 }

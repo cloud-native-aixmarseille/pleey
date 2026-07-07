@@ -5,32 +5,29 @@ import type { PartyActionId } from '../../../../../domains/game/party/shared/ent
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import type { StageId } from '../../../../../domains/game/party/shared/entities/party-stage';
 import type { PartyRuntimeNoticeKind } from '../../../../../domains/game/party/shared/ports/party-observation.port';
-import { useAuth } from '../../../../identity/contexts/auth-context';
-import { usePresentationParams, usePresentationPathname } from '../../../../shared/routing/router';
 import { usePartyLobbyHostRuntime } from '../../host/screens/use-party-lobby-host-runtime';
 import { usePartyLobbyJoinSession } from '../../player/screens/use-party-lobby-join-session';
 import { usePartyLobbyPlayerSession } from '../../player/screens/use-party-lobby-player-session';
-import { useParty } from '../contexts/party-context';
+import { usePartyDependencies } from '../contexts/party-dependencies-context';
 import {
-  type PartyIdParser,
-  type PartyPinParser,
-  type StageIdParser,
-  usePartyDependencies,
-} from '../contexts/party-dependencies-context';
-import { resolvePartyLobbyScreenViewModel } from './party-lobby-screen-view-model';
-import { usePartyLobbyRouteContext } from './use-party-lobby-route-context';
+  defaultResolveDashboardRoute,
+  defaultResolveHomeRoute,
+  defaultResolveHostedPartyRoute,
+  defaultResolveJoinPartyRoute,
+  defaultResolvePartyLeaderboardRoute,
+  defaultResolvePartyResultRoute,
+  defaultResolvePartyStageRoute,
+  PartyLobbyRouteKind,
+  PartyScreenSection,
+} from './party-lobby-screen-route-utils';
+import { usePartyLobbyScreenViewState } from './use-party-lobby-screen-view-state';
+import { usePartySessionRecovery } from './use-party-session-recovery';
 
-export enum PartyLobbyRouteKind {
-  PARTY_ID = 'partyId',
-  PIN = 'pin',
-}
-
-export enum PartyScreenSection {
-  LEADERBOARD = 'leaderboard',
-  LOBBY = 'lobby',
-  RESULT = 'result',
-  STAGE = 'stage',
-}
+export {
+  PartyLobbyRouteKind,
+  PartyScreenSection,
+  resolveDefaultPartyAbsoluteUrl,
+} from './party-lobby-screen-route-utils';
 
 export interface PartyLobbyScreenProps {
   readonly routeKind?: PartyLobbyRouteKind;
@@ -91,72 +88,6 @@ export interface PartyLobbyScreenState {
   readonly submitAction: (actionId: PartyActionId) => Promise<void>;
 }
 
-function defaultNormalizePin(
-  pin: string | undefined,
-  partyPinIdentifier: PartyPinParser,
-): PartyPin | null {
-  return partyPinIdentifier.parseOrNull(pin);
-}
-
-export function resolveDefaultPartyAbsoluteUrl(pin: PartyPin): string {
-  return `${window.location.origin}/join/${pin}`;
-}
-
-function defaultResolveHostedPartyRoute(partyId: PartyId): string {
-  return `/party/${partyId}/lobby`;
-}
-
-function defaultResolvePartyLeaderboardRoute(partyId: PartyId): string {
-  return `/party/${partyId}/final`;
-}
-
-function defaultResolvePartyResultRoute(partyId: PartyId, stageId: StageId): string {
-  return `/party/${partyId}/stage/${stageId}/result`;
-}
-
-function defaultResolvePartyStageRoute(partyId: PartyId, stageId: StageId): string {
-  return `/party/${partyId}/stage/${stageId}`;
-}
-
-function defaultResolveHomeRoute(): string {
-  return '/';
-}
-
-function defaultResolveDashboardRoute(): string {
-  return '/workspace/dashboard';
-}
-
-function defaultResolveJoinPartyRoute(pin: PartyPin): string {
-  return `/join/${encodeURIComponent(pin)}`;
-}
-
-function defaultNormalizePartyId(
-  partyId: string | undefined,
-  partyIdentifier: PartyIdParser,
-): PartyId | null {
-  return partyIdentifier.parseOrNull(partyId);
-}
-
-function defaultNormalizeStageId(
-  stageId: string | undefined,
-  stageIdentifier: StageIdParser,
-): StageId | null {
-  return stageIdentifier.parseOrNull(stageId);
-}
-
-function resolveStageSegmentFromPathname(
-  pathname: string,
-  routeKind: PartyLobbyRouteKind,
-): string | undefined {
-  if (routeKind !== PartyLobbyRouteKind.PARTY_ID) {
-    return undefined;
-  }
-
-  const match = /^\/party\/[^/]+\/stage\/([^/]+)(?:\/result)?$/.exec(pathname);
-
-  return match?.[1];
-}
-
 export function usePartyLobbyScreenState({
   routeKind = PartyLobbyRouteKind.PIN,
   normalizePin,
@@ -177,22 +108,6 @@ export function usePartyLobbyScreenState({
     partyPinIdentifier,
     stageIdentifier,
   } = usePartyDependencies();
-  const { pin, partyId, stageId } = usePresentationParams<'pin' | 'partyId' | 'stageId'>();
-  const pathname = usePresentationPathname();
-  const resolvedNormalizePin =
-    normalizePin ?? ((value: string | undefined) => defaultNormalizePin(value, partyPinIdentifier));
-  const resolvedNormalizePartyId =
-    normalizePartyId ??
-    ((value: string | undefined) => defaultNormalizePartyId(value, partyIdentifier));
-  const resolvedNormalizeStageId = (value: string | undefined) =>
-    defaultNormalizeStageId(value, stageIdentifier);
-  const normalizedPin = resolvedNormalizePin(pin);
-  const normalizedPartyId = resolvedNormalizePartyId(partyId);
-  const requestedStageId = resolvedNormalizeStageId(
-    stageId ?? resolveStageSegmentFromPathname(pathname, routeKind),
-  );
-  const { user } = useAuth();
-  const isAuthenticated = user !== null;
   const [joinErrorMessage, setJoinErrorMessage] = useState<string | null>(null);
   const [isJoinSubmitting, setIsJoinSubmitting] = useState(false);
   const [, setIsLeaveSubmitting] = useState(false);
@@ -201,53 +116,49 @@ export function usePartyLobbyScreenState({
   const [leaveRedirectTo, setLeaveRedirectTo] = useState<string | null>(null);
   const {
     consumeRuntimeNotice,
-    getErrorByPartyId,
-    getPartyByPartyId,
-    getRuntimeNoticeByPartyId,
-    observePartyById,
-  } = useParty();
-  const {
-    bootstrapErrorMessage,
-    bootstrapPartyByPin,
-    party,
-    partyIdErrorMessage,
-    routeState,
-    runtimeNotice,
-  } = usePartyLobbyRouteContext({
-    getErrorByPartyId,
-    getPartyByPartyId,
-    getRuntimeNoticeByPartyId,
+    connectionState,
+    currentGuestId,
+    currentPartyPin,
+    currentPlayer,
     isAuthenticated,
-    joinedPartyId,
+    isCurrentUserHost,
     normalizedPartyId,
     normalizedPin,
-    observePartyById,
-    partyLobbyFacade,
-    resolvePartyLobbyRoute,
-    routeKind,
-  });
-  const currentPartyPin = normalizedPin ?? party?.pin ?? null;
-  const currentGuestId = currentPartyPin ? partyLobbyFacade.getGuestId(currentPartyPin) : null;
-  const viewModel = resolvePartyLobbyScreenViewModel({
-    bootstrapErrorMessage,
-    bootstrapPartyByPin,
-    currentGuestId,
+    party,
+    requestedStageId,
+    runtimeNotice,
+    user,
+    viewModel,
+  } = usePartyLobbyScreenViewState({
     isJoinSubmitting,
     joinErrorMessage,
     joinedPartyId,
     leaveRedirectTo,
-    normalizedPin,
-    party,
-    partyIdErrorMessage,
-    resolveHostedPartyRoute: resolvePartyLobbyRoute,
+    normalizePartyId,
+    normalizePin,
+    partyIdentifier,
+    partyLobbyFacade,
+    partyPinIdentifier,
     resolveJoinPartyRoute,
+    resolvePartyLobbyRoute,
     routeKind,
-    routeState,
+    stageIdentifier,
+  });
+  const hasObservedCurrentPlayerRef = useRef(currentPlayer !== null);
+  const { shouldPreserveJoinedPartyId } = usePartySessionRecovery({
+    connectionState,
+    currentGuestId,
+    currentPartyPin,
+    currentPlayer,
+    hasObservedCurrentPlayer: hasObservedCurrentPlayerRef.current,
+    isCurrentUserHost,
+    joinedPartyId,
+    party,
+    partyLobbyFacade,
+    setJoinErrorMessage,
+    setJoinedPartyId,
     userId: user?.id ?? null,
   });
-  const currentPlayer = party?.players.find((player) => player.isCurrentPlayer) ?? null;
-  const hasObservedCurrentPlayerRef = useRef(currentPlayer !== null);
-  const isCurrentUserHost = party?.isObserverHost ?? false;
   const {
     guestName,
     isPasswordRequired,
@@ -337,9 +248,13 @@ export function usePartyLobbyScreenState({
       return;
     }
 
+    if (shouldPreserveJoinedPartyId) {
+      return;
+    }
+
     hasObservedCurrentPlayerRef.current = false;
     setJoinedPartyId(null);
-  }, [currentPlayer]);
+  }, [currentPlayer, shouldPreserveJoinedPartyId]);
 
   return {
     advanceStage: () => runHostRuntimeCommand(HostPartyRuntimeCommand.AdvanceStage),

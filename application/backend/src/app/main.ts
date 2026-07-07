@@ -37,7 +37,13 @@ async function bootstrap() {
   const socketCorsOptions = app.get(GAME_SOCKET_CORS_OPTIONS);
 
   app.enableCors();
-  app.useWebSocketAdapter(new ConfiguredIoAdapter(app, socketCorsOptions));
+  app.useWebSocketAdapter(
+    new ConfiguredIoAdapter(
+      app,
+      socketCorsOptions,
+      runtimeConfiguration.partySessionRecoveryWindowMs,
+    ),
+  );
 
   const errorCodeHttpStatusService = appModuleContext.get(ErrorCodeHttpStatusService, {
     strict: true,

@@ -7,8 +7,10 @@ import {
 import { PartyScreenContent } from './components/party-screen-content';
 import {
   PartyLobbyRouteKind,
+  resolvePartyScreenSectionFromPathname,
+} from './party-lobby-screen-route-utils';
+import {
   type PartyLobbyScreenProps,
-  PartyScreenSection,
   resolveDefaultPartyAbsoluteUrl,
   usePartyLobbyScreenState,
 } from './use-party-lobby-screen-state';
@@ -51,27 +53,4 @@ export function PartyLobbyScreen(props: PartyLobbyScreenProps) {
       state={state}
     />
   );
-}
-
-function resolvePartyScreenSectionFromPathname(
-  pathname: string,
-  routeKind: PartyLobbyRouteKind,
-): PartyScreenSection {
-  if (routeKind === PartyLobbyRouteKind.PIN) {
-    return PartyScreenSection.LOBBY;
-  }
-
-  if (pathname.endsWith('/final')) {
-    return PartyScreenSection.LEADERBOARD;
-  }
-
-  if (pathname.endsWith('/result')) {
-    return PartyScreenSection.RESULT;
-  }
-
-  if (/\/stage\/[^/]+$/.test(pathname)) {
-    return PartyScreenSection.STAGE;
-  }
-
-  return PartyScreenSection.LOBBY;
 }

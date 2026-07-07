@@ -9,6 +9,7 @@ const DEFAULT_ACCESS_TOKEN_EXPIRES_IN_SECONDS = 3600;
 const DEFAULT_PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 const DEFAULT_REFRESH_TOKEN_EXPIRES_IN_SECONDS = 1209600;
 const DEFAULT_PORT = 3000;
+const DEFAULT_PARTY_SESSION_RECOVERY_WINDOW_MS = 5 * 60 * 1000;
 const DEFAULT_SOCKET_ORIGINS = ['http://localhost:5173'];
 
 export class AppConfiguration {
@@ -38,6 +39,10 @@ export class AppConfiguration {
       databaseConnectionString: this.environment.getRequiredString('DATABASE_URL'),
       authPublicApiBaseUrl: this.environment.getOptionalString('API_BASE_URL'),
       gameSocketCorsOptions: this.createGameSocketCorsOptions(),
+      partySessionRecoveryWindowMs: this.readPositiveInteger(
+        'PARTY_SESSION_RECOVERY_WINDOW_MS',
+        DEFAULT_PARTY_SESSION_RECOVERY_WINDOW_MS,
+      ),
       server: {
         isDevelopment: nodeEnvironment === 'development',
         isProduction: nodeEnvironment === 'production',

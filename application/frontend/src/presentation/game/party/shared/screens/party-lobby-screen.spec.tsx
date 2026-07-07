@@ -215,6 +215,7 @@ const mocks = vi.hoisted(() => {
         ? observationState.currentParty
         : null;
     },
+    getConnectionStateByPartyId: () => null,
     getRuntimeNoticeByPartyId: (partyId?: PartyId | null) => {
       return partyId !== null &&
         partyId !== undefined &&

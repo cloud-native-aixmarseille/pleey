@@ -8,6 +8,7 @@ import type { PartyPlayerPort } from '../../../../../domains/game/party/player/p
 import type { PartyId } from '../../../../../domains/game/party/shared/entities/party';
 import { PartyStatus } from '../../../../../domains/game/party/shared/entities/party-status';
 import type {
+  PartyObservationConnectionState,
   PartyObservationHandlers,
   PartyObservationPort,
 } from '../../../../../domains/game/party/shared/ports/party-observation.port';
@@ -316,6 +317,55 @@ describe('PartyProvider', () => {
       kind: PartyRuntimeNoticeKind.RewindStage,
       partyId: observedPartyId,
     });
+  });
+
+  it('exposes transport connection state by party id', () => {
+    const observeParty = vi.fn((_: PartyId, handlers: PartyObservationHandlers) => {
+      observeParty.handlers = handlers;
+      return vi.fn();
+    }) as ((partyId: PartyId, handlers: PartyObservationHandlers) => () => void) & {
+      handlers?: PartyObservationHandlers;
+    };
+    const wrapper = ({ children }: PropsWithChildren) =>
+      providePartyDependencies(
+        <PartyProvider port={{ observeParty } satisfies PartyObservationPort}>
+          {children}
+        </PartyProvider>,
+        {
+          guestPartyEntryDraftFactory,
+          hostPartyRuntimeControlsResolver,
+          partyLobbyFacade,
+          partyLobbyRuntimeRedirectResolver,
+          partyGuestSessionPort,
+          partyIdentifier,
+          partyHostControlPort,
+          partyManagementPort,
+          partyObservationPort,
+          partyPinIdentifier,
+          partyPlayerPort,
+          playerRuntimeNoticeMessageResolver,
+          privatePartyPasswordGeneratorPort: {
+            generatePrivatePartyPassword: vi.fn(() => 'TestPassword1234'),
+          },
+          stageIdentifier,
+        },
+      );
+    const rendered = renderHook(() => useParty(), { wrapper });
+    const observedPartyId = parsePartyId(44);
+    const connectionState: PartyObservationConnectionState = {
+      epoch: 7,
+      recovered: false,
+      reconnected: true,
+    };
+
+    act(() => {
+      rendered.result.current.observePartyById(observedPartyId);
+      observeParty.handlers?.onConnected?.(connectionState);
+    });
+
+    expect(rendered.result.current.getConnectionStateByPartyId(observedPartyId)).toEqual(
+      connectionState,
+    );
   });
 
   it('consumes a runtime notice after it has been handled', () => {

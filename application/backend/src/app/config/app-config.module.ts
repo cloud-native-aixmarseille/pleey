@@ -1,4 +1,5 @@
 import { Global, Module } from '@nestjs/common';
+import { PARTY_SESSION_RECOVERY_WINDOW_MS } from '../../application/game/party/shared/contracts/party-session-recovery-window-ms.token';
 import {
   ACCESS_TOKEN_CONFIG,
   REFRESH_TOKEN_CONFIG,
@@ -65,6 +66,12 @@ import { loadAppRuntimeConfiguration } from './load-app-runtime-configuration';
       inject: [APP_RUNTIME_CONFIGURATION],
     },
     {
+      provide: PARTY_SESSION_RECOVERY_WINDOW_MS,
+      useFactory: (configuration: AppRuntimeConfiguration) =>
+        configuration.partySessionRecoveryWindowMs,
+      inject: [APP_RUNTIME_CONFIGURATION],
+    },
+    {
       provide: PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES_TOKEN,
       useFactory: (configuration: AppRuntimeConfiguration) =>
         configuration.playableContentImportMaxFileSizeBytes,
@@ -81,6 +88,7 @@ import { loadAppRuntimeConfiguration } from './load-app-runtime-configuration';
     DATABASE_CONNECTION_STRING,
     AUTH_PUBLIC_API_BASE_URL,
     GAME_SOCKET_CORS_OPTIONS,
+    PARTY_SESSION_RECOVERY_WINDOW_MS,
     PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES_TOKEN,
   ],
 })

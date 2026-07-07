@@ -10,6 +10,7 @@ export type AppRuntimeConfiguration = {
   readonly databaseConnectionString: string;
   readonly gameSocketCorsOptions: GameSocketCorsOptions;
   readonly jwtSecret: string;
+  readonly partySessionRecoveryWindowMs: number;
   readonly playableContentImportMaxFileSizeBytes: number;
   readonly refreshToken: TokenConfig;
   readonly server: AppServerConfig;

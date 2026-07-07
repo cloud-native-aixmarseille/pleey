@@ -8,8 +8,7 @@ import type { PartyObservationPlayer } from '../../../../../domains/game/party/s
 import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/shared/entities/party-player-identity';
 import type { GuestId } from '../../../../../domains/identity/entities/guest';
 import type { UserId } from '../../../../../domains/identity/entities/user';
-
-export type PartyLobbyRouteKind = 'partyId' | 'pin';
+import { PartyLobbyRouteKind } from './party-lobby-screen-route-utils';
 
 interface PartyLobbyRouteState {
   readonly bootstrapRedirectTo: string | null;
@@ -39,14 +38,14 @@ export function resolvePartyLobbyRouteState({
   readonly routeKind: PartyLobbyRouteKind;
 }): PartyLobbyRouteState {
   const bootstrapRedirectTo =
-    routeKind === 'pin' && bootstrapCurrentParty
+    routeKind === PartyLobbyRouteKind.PIN && bootstrapCurrentParty
       ? resolveHostedPartyRoute(bootstrapCurrentParty.partyId)
       : null;
 
   return {
     bootstrapRedirectTo,
     resolvedPartyId:
-      routeKind === 'partyId'
+      routeKind === PartyLobbyRouteKind.PARTY_ID
         ? normalizedPartyId
         : bootstrapRedirectTo === null
           ? (bootstrapPartyByPin?.partyId ?? joinedPartyId)
@@ -98,17 +97,17 @@ export function resolvePartyLobbyScreenViewModel({
     ) ??
       false);
   const isRecoveringPersistedGuestSession =
-    routeKind === 'partyId' &&
+    routeKind === PartyLobbyRouteKind.PARTY_ID &&
     party !== undefined &&
     currentPartyPin !== null &&
     currentGuestId !== null &&
     currentPlayer === null;
   const pinRouteRedirectTo =
-    routeKind === 'pin' && party && (isCurrentUserHost || currentPlayer !== null)
+    routeKind === PartyLobbyRouteKind.PIN && party && (isCurrentUserHost || currentPlayer !== null)
       ? resolveHostedPartyRoute(party.partyId)
       : null;
   const partyIdRouteRedirectTo =
-    routeKind === 'partyId' &&
+    routeKind === PartyLobbyRouteKind.PARTY_ID &&
     party &&
     !isCurrentUserHost &&
     currentPlayer === null &&
@@ -123,8 +122,10 @@ export function resolvePartyLobbyScreenViewModel({
     joinedPartyId === null &&
     leaveRedirectTo === null &&
     !isJoinSubmitting &&
-    ((routeKind === 'pin' && normalizedPin !== null) ||
-      (routeKind === 'partyId' && party !== undefined && currentPlayer === null));
+    ((routeKind === PartyLobbyRouteKind.PIN && normalizedPin !== null) ||
+      (routeKind === PartyLobbyRouteKind.PARTY_ID &&
+        party !== undefined &&
+        currentPlayer === null));
 
   return {
     errorMessage: joinErrorMessage ?? partyIdErrorMessage ?? bootstrapErrorMessage,

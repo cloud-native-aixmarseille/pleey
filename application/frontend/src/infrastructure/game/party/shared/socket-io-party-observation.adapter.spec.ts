@@ -99,6 +99,7 @@ const { connectMock, disconnectMock, emitMock, ioMock, offMock, onMock, socket }
       emit: emitMock,
       off: offMock,
       on: onMock,
+      recovered: false,
     };
 
     return {
@@ -127,6 +128,7 @@ describe('SocketIoPartyObservationAdapter', () => {
     offMock.mockClear();
     socket.connected = false;
     socket.auth = {};
+    socket.recovered = false;
   });
 
   it('connects and requests observation by party id', () => {
@@ -173,6 +175,36 @@ describe('SocketIoPartyObservationAdapter', () => {
 
     expect(emitMock).toHaveBeenCalledTimes(1);
     expect(emitMock).toHaveBeenCalledWith('observe-party', { partyId: PARTY_ID });
+  });
+
+  it('notifies observation listeners when the socket reconnects', () => {
+    const onConnected = vi.fn();
+    const { adapter } = createObservationAdapter();
+
+    adapter.observeParty(PARTY_ID, {
+      onConnected,
+      onSnapshot: vi.fn(),
+    });
+
+    const connectHandler = onMock.mock.calls.find(([eventName]) => eventName === 'connect')?.[1];
+
+    expect(connectHandler).toBeTypeOf('function');
+
+    socket.recovered = false;
+    connectHandler?.();
+    socket.recovered = true;
+    connectHandler?.();
+
+    expect(onConnected).toHaveBeenNthCalledWith(1, {
+      epoch: expect.any(Number),
+      recovered: false,
+      reconnected: false,
+    });
+    expect(onConnected).toHaveBeenNthCalledWith(2, {
+      epoch: expect.any(Number),
+      recovered: true,
+      reconnected: true,
+    });
   });
 
   it('observes host lobby routes by party id', () => {

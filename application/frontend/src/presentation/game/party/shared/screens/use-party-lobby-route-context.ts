@@ -8,10 +8,8 @@ import type {
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import { PartyStatus } from '../../../../../domains/game/party/shared/entities/party-status';
 import type { PartyRuntimeNotice } from '../../../../../domains/game/party/shared/ports/party-observation.port';
-import {
-  type PartyLobbyRouteKind,
-  resolvePartyLobbyRouteState,
-} from './party-lobby-screen-view-model';
+import type { PartyLobbyRouteKind } from './party-lobby-screen-route-utils';
+import { resolvePartyLobbyRouteState } from './party-lobby-screen-view-model';
 
 interface UsePartyLobbyRouteContextParams {
   readonly getErrorByPartyId: (partyId?: PartyId | null) => string | null;
