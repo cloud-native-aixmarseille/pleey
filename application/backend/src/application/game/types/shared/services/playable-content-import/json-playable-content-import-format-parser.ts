@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { PlayableContentImportInvalidFileError } from '../../../../../../domain/game/types/shared/errors/import-parser.error';
 import { AbstractPlayableContentImportFormatParser } from './abstract-playable-content-import-format-parser';
 import type { PlayableContentImportFormatParser } from './import-format-parser';
-import { PlayableContentImportParserErrorCode } from './import-parser.error';
 import type {
   JsonItemRecord,
   JsonOptionRecord,
@@ -42,7 +42,10 @@ export class JsonPlayableContentImportFormatParser
     try {
       parsed = JSON.parse(content) as unknown;
     } catch {
-      throw new Error(PlayableContentImportParserErrorCode.INVALID_FILE);
+      throw new PlayableContentImportInvalidFileError({
+        fileName: source.fileName,
+        reason: 'invalidJsonSyntax',
+      });
     }
 
     const itemRecords = Array.isArray(parsed)
@@ -58,34 +61,54 @@ export class JsonPlayableContentImportFormatParser
         : null;
 
     if (!itemRecords) {
-      throw new Error(PlayableContentImportParserErrorCode.INVALID_FILE);
+      throw new PlayableContentImportInvalidFileError({
+        fileName: source.fileName,
+        reason: 'missingItemsArray',
+      });
     }
 
-    return itemRecords.map((record) => this.parseItem(record));
+    return itemRecords.map((record, itemIndex) =>
+      this.parseItem(record, source.fileName, itemIndex),
+    );
   }
 
-  private parseItem(record: unknown): RawImportItem {
+  private parseItem(record: unknown, fileName: string, itemIndex: number): RawImportItem {
     if (!this.isRecord(record)) {
-      throw new Error(PlayableContentImportParserErrorCode.INVALID_FILE);
+      throw new PlayableContentImportInvalidFileError({
+        fileName,
+        itemIndex,
+        reason: 'itemIsNotObject',
+      });
     }
 
     const item = record as JsonItemRecord;
     const options = item.answers ?? item.options;
 
     if (!Array.isArray(options)) {
-      throw new Error(PlayableContentImportParserErrorCode.INVALID_FILE);
+      throw new PlayableContentImportInvalidFileError({
+        fileName,
+        itemIndex,
+        reason: 'missingOptionsArray',
+      });
     }
 
     return {
       kind: this.normalizeKind(item.type),
-      options: options.map((option) => this.parseOption(option)),
+      options: options.map((option, optionIndex) =>
+        this.parseOption(option, fileName, itemIndex, optionIndex),
+      ),
       points: this.parseOptionalNumber(item.points),
-      text: this.resolveItemText(item),
+      text: this.resolveItemText(item, fileName, itemIndex),
       timeLimit: this.parseOptionalNumber(item.timeLimit),
     };
   }
 
-  private parseOption(option: JsonOptionRecord): RawImportOption {
+  private parseOption(
+    option: JsonOptionRecord,
+    fileName: string,
+    itemIndex: number,
+    optionIndex: number,
+  ): RawImportOption {
     if (typeof option === 'string') {
       return {
         isCorrect: false,
@@ -94,13 +117,23 @@ export class JsonPlayableContentImportFormatParser
     }
 
     if (!this.isRecord(option)) {
-      throw new Error(PlayableContentImportParserErrorCode.INVALID_FILE);
+      throw new PlayableContentImportInvalidFileError({
+        fileName,
+        itemIndex,
+        optionIndex,
+        reason: 'optionIsNotObject',
+      });
     }
 
     const text = option.text ?? option.label ?? option.answer;
 
     if (typeof text !== 'string') {
-      throw new Error(PlayableContentImportParserErrorCode.INVALID_FILE);
+      throw new PlayableContentImportInvalidFileError({
+        fileName,
+        itemIndex,
+        optionIndex,
+        reason: 'optionTextMissing',
+      });
     }
 
     return {
@@ -109,11 +142,15 @@ export class JsonPlayableContentImportFormatParser
     };
   }
 
-  private resolveItemText(item: JsonItemRecord): string {
+  private resolveItemText(item: JsonItemRecord, fileName: string, itemIndex: number): string {
     const text = item.questionText ?? item.question ?? item.promptText ?? item.prompt ?? item.text;
 
     if (typeof text !== 'string') {
-      throw new Error(PlayableContentImportParserErrorCode.INVALID_FILE);
+      throw new PlayableContentImportInvalidFileError({
+        fileName,
+        itemIndex,
+        reason: 'itemTextMissing',
+      });
     }
 
     return text;

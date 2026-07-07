@@ -5,6 +5,7 @@ import type { UserId } from '../../../domain/identity/entities/user';
 import { User } from '../../../domain/identity/entities/user';
 import type { UserRepository } from '../../../domain/identity/ports/user.repository';
 import { Media, type MediaId } from '../../../domain/media/entities/media';
+import { createDomainError } from '../../../domain/shared/errors/domain-error';
 import { PrismaService } from '../../database/prisma-service';
 
 type PrismaMediaRecord = {
@@ -29,6 +30,11 @@ type PrismaUserRecord = {
 const USER_MEDIA_INCLUDE = {
   avatar: true,
 } satisfies Prisma.UserInclude;
+
+const USER_PROFILE_UPDATE_USER_NOT_FOUND_ERROR = {
+  code: 'USER_PROFILE_UPDATE_USER_NOT_FOUND',
+  messageKey: 'USER_PROFILE_UPDATE_USER_NOT_FOUND',
+} as const;
 
 function toPrismaBytes(content: Buffer): Uint8Array<ArrayBuffer> {
   const bytes = new Uint8Array(content.byteLength);
@@ -156,7 +162,7 @@ export class PrismaUserRepository implements UserRepository {
   ): Promise<User> {
     const existingUser = await this.findRawById(id);
     if (!existingUser) {
-      throw new Error(`User ${id} not found`);
+      throw createDomainError(USER_PROFILE_UPDATE_USER_NOT_FOUND_ERROR, { userId: id });
     }
 
     const data: Prisma.UserUpdateInput = {};

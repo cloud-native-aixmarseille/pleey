@@ -1,5 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
+import {
+  PartyCommandNotAvailableError,
+  PartyNotFoundError,
+} from '../../../../../domain/game/errors';
 import { GameTypePartyActionPolicyRegistryPort } from '../../../../game/types/shared/ports/game-type-party-action-policy-registry.port';
 import { BroadcastPartyObservationUseCase } from '../../shared/use-cases/broadcast-party-observation-use-case';
 import type { SubmitPartyActionDto } from '../dto/submit-party-action.dto';
@@ -22,7 +25,10 @@ export class SubmitPartyActionUseCase {
     });
 
     if (!target) {
-      throw new Error(GameErrorCode.PARTY_NOT_FOUND);
+      throw new PartyNotFoundError({
+        partyId: input.partyId,
+        playerIdentity: input.playerIdentity,
+      });
     }
 
     if (
@@ -31,7 +37,14 @@ export class SubmitPartyActionUseCase {
       target.context?.lifecycle.stageId !== undefined &&
       target.playerActionState?.stageId === target.context.lifecycle.stageId
     ) {
-      throw new Error(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
+      throw new PartyCommandNotAvailableError({
+        actionId: input.actionId,
+        allowOptionChangeAfterVoting: target.settings.allowOptionChangeAfterVoting,
+        currentStageId: target.context?.lifecycle.stageId,
+        partyId: target.partyId,
+        playerActionStageId: target.playerActionState?.stageId,
+        playerIdentity: target.playerIdentity,
+      });
     }
 
     const policy = this.gameTypePartyActionPolicyRegistry.resolveByGameType(target.gameType);

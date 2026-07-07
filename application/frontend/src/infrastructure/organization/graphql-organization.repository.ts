@@ -10,7 +10,10 @@ import {
 } from '../../domains/organization/entities/organization';
 import type { OrganizationDashboard } from '../../domains/organization/entities/organization-dashboard';
 import type { OrganizationMember } from '../../domains/organization/entities/organization-member';
-import { OrganizationErrorCode } from '../../domains/organization/errors/organization-error-code';
+import {
+  ORGANIZATION_ERROR_DEFINITIONS,
+  OrganizationErrorCode,
+} from '../../domains/organization/errors/organization-error-code';
 import type {
   AddOrganizationMemberCommand,
   CreateOrganizationCommand,
@@ -94,7 +97,10 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
         totalPages: result.myOrganizations.totalPages,
       };
     } catch (error) {
-      throw new Error(this.graphqlClient.extractMessage(error, OrganizationErrorCode.LOAD_FAILED));
+      throw this.graphqlClient.resolveDomainError(
+        error,
+        ORGANIZATION_ERROR_DEFINITIONS[OrganizationErrorCode.LOAD_FAILED],
+      );
     }
   }
 
@@ -118,7 +124,10 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
         },
       };
     } catch (error) {
-      throw new Error(this.graphqlClient.extractMessage(error, OrganizationErrorCode.LOAD_FAILED));
+      throw this.graphqlClient.resolveDomainError(
+        error,
+        ORGANIZATION_ERROR_DEFINITIONS[OrganizationErrorCode.LOAD_FAILED],
+      );
     }
   }
 
@@ -143,8 +152,9 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
         role: this.toDomainRole(result.createOrganization.role),
       };
     } catch (error) {
-      throw new Error(
-        this.graphqlClient.extractMessage(error, OrganizationErrorCode.CREATE_FAILED),
+      throw this.graphqlClient.resolveDomainError(
+        error,
+        ORGANIZATION_ERROR_DEFINITIONS[OrganizationErrorCode.CREATE_FAILED],
       );
     }
   }
@@ -174,7 +184,10 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
         totalPages: result.organizationMembers.totalPages,
       };
     } catch (error) {
-      throw new Error(this.graphqlClient.extractMessage(error, OrganizationErrorCode.LOAD_FAILED));
+      throw this.graphqlClient.resolveDomainError(
+        error,
+        ORGANIZATION_ERROR_DEFINITIONS[OrganizationErrorCode.LOAD_FAILED],
+      );
     }
   }
 
@@ -193,8 +206,9 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
 
       return this.toDomainMember(result.addOrganizationMember);
     } catch (error) {
-      throw new Error(
-        this.graphqlClient.extractMessage(error, OrganizationErrorCode.MEMBER_ADD_FAILED),
+      throw this.graphqlClient.resolveDomainError(
+        error,
+        ORGANIZATION_ERROR_DEFINITIONS[OrganizationErrorCode.MEMBER_ADD_FAILED],
       );
     }
   }
@@ -206,8 +220,9 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
         RemoveOrganizationMemberMutationVariables
       >(RemoveOrganizationMemberDocument, { memberId: command.memberId });
     } catch (error) {
-      throw new Error(
-        this.graphqlClient.extractMessage(error, OrganizationErrorCode.MEMBER_REMOVE_FAILED),
+      throw this.graphqlClient.resolveDomainError(
+        error,
+        ORGANIZATION_ERROR_DEFINITIONS[OrganizationErrorCode.MEMBER_REMOVE_FAILED],
       );
     }
   }
@@ -228,8 +243,9 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
 
       return this.toDomainMember(result.updateOrganizationMemberRole);
     } catch (error) {
-      throw new Error(
-        this.graphqlClient.extractMessage(error, OrganizationErrorCode.MEMBER_ROLE_UPDATE_FAILED),
+      throw this.graphqlClient.resolveDomainError(
+        error,
+        ORGANIZATION_ERROR_DEFINITIONS[OrganizationErrorCode.MEMBER_ROLE_UPDATE_FAILED],
       );
     }
   }

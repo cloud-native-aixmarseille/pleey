@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
 import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
+import { ProjectErrorCode } from '../../../../domain/project/enums/project-error-code.enum';
+import { ProjectNotFoundError } from '../../../../domain/project/errors/project-not-found.error';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { GameTypeParser } from '../../types/shared/services/game-type-parser';
 import {
@@ -18,7 +20,7 @@ const gameId = backendTestIdentifiers.game(11);
 const gameTypeId = backendTestIdentifiers.game(101);
 
 describe('ListProjectGamesUseCase', () => {
-  it('throws NOT_A_MEMBER when the project does not exist', async () => {
+  it('throws PROJECT_NOT_FOUND when the project does not exist', async () => {
     const useCase = new ListProjectGamesUseCase(
       { listProjectGames: vi.fn() } as never,
       { findById: vi.fn().mockResolvedValue(null) } as never,
@@ -27,9 +29,15 @@ describe('ListProjectGamesUseCase', () => {
       gameTypeParser,
     );
 
-    await expect(useCase.execute({ projectId }, hostUserId)).rejects.toThrow(
-      OrganizationErrorCode.NOT_A_MEMBER,
-    );
+    const execution = useCase.execute({ projectId }, hostUserId);
+
+    await expect(execution).rejects.toBeInstanceOf(ProjectNotFoundError);
+    await expect(execution).rejects.toMatchObject({
+      code: ProjectErrorCode.PROJECT_NOT_FOUND,
+      context: {
+        projectId,
+      },
+    });
   });
 
   it('throws NOT_A_MEMBER when the user is outside the organization', async () => {
@@ -46,9 +54,14 @@ describe('ListProjectGamesUseCase', () => {
       gameTypeParser,
     );
 
-    await expect(useCase.execute({ projectId }, hostUserId)).rejects.toThrow(
-      OrganizationErrorCode.NOT_A_MEMBER,
-    );
+    await expect(useCase.execute({ projectId }, hostUserId)).rejects.toMatchObject({
+      code: OrganizationErrorCode.NOT_A_MEMBER,
+      context: {
+        organizationId,
+        projectId,
+        userId: hostUserId,
+      },
+    });
   });
 
   it('normalizes the request before delegating to the management catalog', async () => {

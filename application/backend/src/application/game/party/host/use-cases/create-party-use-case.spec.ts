@@ -229,9 +229,34 @@ describe('CreatePartyUseCase', () => {
         hostUserId: backendTestIdentifiers.user(42),
         privatePartyPassword: '123',
       }),
-    ).rejects.toThrow(GameErrorCode.VALIDATION_FAILED);
+    ).rejects.toMatchObject({
+      context: {
+        gameId: backendTestIdentifiers.game(17),
+        hostUserId: backendTestIdentifiers.user(42),
+        privatePartyPasswordLength: 3,
+      },
+    });
 
     expect(passwordService.hash).not.toHaveBeenCalled();
     expect(partyManagement.createParty).not.toHaveBeenCalled();
+  });
+
+  it('rejects when pin generation keeps colliding', async () => {
+    partyManagement.createParty.mockRejectedValue(new PinAlreadyInUseError());
+
+    await expect(
+      useCase.execute({
+        gameId: backendTestIdentifiers.game(17),
+        hostUserId: backendTestIdentifiers.user(42),
+      }),
+    ).rejects.toMatchObject({
+      context: {
+        attempts: 10,
+        gameId: backendTestIdentifiers.game(17),
+        hostUserId: backendTestIdentifiers.user(42),
+      },
+    });
+
+    expect(partyManagement.createParty).toHaveBeenCalledTimes(10);
   });
 });

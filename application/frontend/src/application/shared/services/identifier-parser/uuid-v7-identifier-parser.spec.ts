@@ -1,6 +1,6 @@
 import { v4 as uuidv4, v7 as uuidv7 } from 'uuid';
 import { describe, expect, it } from 'vitest';
-import { IdentifierParserErrorCode } from '../../errors/identifier-parser-error-code';
+import { IdentifierParserErrorCode } from '../../../../domains/shared/errors/identifier-parser-error-code';
 import { UuidV7IdentifierParser } from './uuid-v7-identifier-parser';
 
 type TestIdentifier = string & {

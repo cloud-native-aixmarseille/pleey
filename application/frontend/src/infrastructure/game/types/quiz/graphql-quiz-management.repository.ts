@@ -15,6 +15,7 @@ import type {
   PlayableManagementState,
 } from '../../../../domains/game/types/shared/management/playable-management';
 import type { ProjectId } from '../../../../domains/project/entities/project';
+import { createDomainError } from '../../../../domains/shared/errors/domain-error';
 import { GraphqlClient } from '../../../graphql/client/graphql-client';
 import {
   CreateQuizFromImportManagementDocument,
@@ -70,7 +71,17 @@ export class GraphqlQuizManagementRepository implements QuizManagementRepository
     });
 
     if (!result.createQuiz) {
-      throw new Error(QuizManagementRepositoryErrorCode.QUIZ_CREATION_RESULT_MISSING);
+      throw createDomainError(
+        {
+          code: QuizManagementRepositoryErrorCode.QUIZ_CREATION_RESULT_MISSING,
+          message: QuizManagementRepositoryErrorCode.QUIZ_CREATION_RESULT_MISSING,
+          messageKey: QuizManagementRepositoryErrorCode.QUIZ_CREATION_RESULT_MISSING,
+        },
+        {
+          projectId,
+          title: input.title,
+        },
+      );
     }
 
     return this.gameTypeIdentifier.parse(result.createQuiz.quizId);
@@ -84,7 +95,10 @@ export class GraphqlQuizManagementRepository implements QuizManagementRepository
       input: { ...input, projectId },
     });
 
-    return this.mapImportCreationResult(result.createQuizFromImport);
+    return this.mapImportCreationResult(result.createQuizFromImport, {
+      fileName: input.file.name,
+      projectId,
+    });
   }
 
   async load(quizId: GameTypeId): Promise<PlayableManagementState<QuizQuestionId>> {
@@ -152,7 +166,7 @@ export class GraphqlQuizManagementRepository implements QuizManagementRepository
       },
     });
 
-    return this.mapMutationQuestion(result.createQuizQuestion);
+    return this.mapMutationQuestion(result.createQuizQuestion, { quizId });
   }
 
   async updateQuestion(
@@ -172,7 +186,7 @@ export class GraphqlQuizManagementRepository implements QuizManagementRepository
       },
     });
 
-    return this.mapMutationQuestion(result.updateQuizQuestion);
+    return this.mapMutationQuestion(result.updateQuizQuestion, { questionId });
   }
 
   async deleteQuestion(questionId: QuizQuestionId): Promise<void> {
@@ -181,9 +195,17 @@ export class GraphqlQuizManagementRepository implements QuizManagementRepository
 
   private mapMutationQuestion(
     question: GraphqlQuizQuestion | null | undefined,
+    context: Record<string, unknown>,
   ): PlayableManagementItem<QuizQuestionId> {
     if (!question) {
-      throw new Error(QuizManagementRepositoryErrorCode.QUIZ_QUESTION_MUTATION_RESULT_MISSING);
+      throw createDomainError(
+        {
+          code: QuizManagementRepositoryErrorCode.QUIZ_QUESTION_MUTATION_RESULT_MISSING,
+          message: QuizManagementRepositoryErrorCode.QUIZ_QUESTION_MUTATION_RESULT_MISSING,
+          messageKey: QuizManagementRepositoryErrorCode.QUIZ_QUESTION_MUTATION_RESULT_MISSING,
+        },
+        context,
+      );
     }
 
     return this.mapper.mapItem({
@@ -200,9 +222,17 @@ export class GraphqlQuizManagementRepository implements QuizManagementRepository
 
   private mapImportCreationResult(
     result: CreateQuizFromImportManagementMutation['createQuizFromImport'] | null | undefined,
+    context: Record<string, unknown>,
   ): PlayableContentImportCreationResult {
     if (!result) {
-      throw new Error(QuizManagementRepositoryErrorCode.QUIZ_IMPORT_CREATION_RESULT_MISSING);
+      throw createDomainError(
+        {
+          code: QuizManagementRepositoryErrorCode.QUIZ_IMPORT_CREATION_RESULT_MISSING,
+          message: QuizManagementRepositoryErrorCode.QUIZ_IMPORT_CREATION_RESULT_MISSING,
+          messageKey: QuizManagementRepositoryErrorCode.QUIZ_IMPORT_CREATION_RESULT_MISSING,
+        },
+        context,
+      );
     }
 
     return {

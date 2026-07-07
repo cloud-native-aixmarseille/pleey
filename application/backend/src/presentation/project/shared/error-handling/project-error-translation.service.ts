@@ -1,17 +1,16 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { I18nService } from 'nestjs-i18n';
-import { ProjectErrorCode } from '../../../../domain/project/enums/project-error-code.enum';
+import {
+  PROJECT_ERROR_DEFINITIONS,
+  ProjectErrorCode,
+} from '../../../../domain/project/enums/project-error-code.enum';
 import { AbstractErrorTranslationService } from '../../../shared/error-handling/abstract-error-translation.service';
 
 const PROJECT_ERROR_CODES = Object.values(ProjectErrorCode) as ProjectErrorCode[];
 
-const PROJECT_ERROR_TRANSLATION_KEYS: Record<ProjectErrorCode, string> = {
-  [ProjectErrorCode.CANNOT_DELETE_LAST_PROJECT]: 'project.errors.cannotDeleteLastProject',
-  [ProjectErrorCode.PROJECT_MIGRATION_TARGET_INVALID]: 'project.errors.migrationTargetInvalid',
-  [ProjectErrorCode.PROJECT_MIGRATION_TARGET_NOT_FOUND]: 'project.errors.migrationTargetNotFound',
-  [ProjectErrorCode.PROJECT_MIGRATION_TARGET_REQUIRED]: 'project.errors.migrationTargetRequired',
-  [ProjectErrorCode.PROJECT_NOT_FOUND]: 'project.errors.projectNotFound',
-};
+const PROJECT_ERROR_TRANSLATION_KEYS: Record<ProjectErrorCode, string> = Object.fromEntries(
+  PROJECT_ERROR_CODES.map((code) => [code, PROJECT_ERROR_DEFINITIONS[code].messageKey]),
+) as Record<ProjectErrorCode, string>;
 
 @Injectable()
 export class ProjectErrorTranslationService extends AbstractErrorTranslationService<ProjectErrorCode> {

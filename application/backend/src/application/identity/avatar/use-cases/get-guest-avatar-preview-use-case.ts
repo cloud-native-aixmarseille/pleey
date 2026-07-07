@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { IdentityErrorCode } from '../../../../domain/identity/enums/identity-error-code.enum';
+import { AvatarNotFoundError } from '../../../../domain/identity/errors';
 import { UserAvatarService } from '../../../../domain/identity/services/user-avatar-service';
 import type { Media } from '../../../../domain/media/entities/media';
 
@@ -19,13 +19,19 @@ export class GetGuestAvatarPreviewUseCase {
     try {
       decodedAvatarSeed = decodeURIComponent(encodedAvatarSeed);
     } catch {
-      throw new Error(IdentityErrorCode.AVATAR_NOT_FOUND);
+      throw new AvatarNotFoundError({
+        encodedAvatarSeed,
+        reason: 'invalidUrlEncoding',
+      });
     }
 
     const avatarSeed = decodedAvatarSeed.trim();
 
     if (avatarSeed.length === 0) {
-      throw new Error(IdentityErrorCode.AVATAR_NOT_FOUND);
+      throw new AvatarNotFoundError({
+        encodedAvatarSeed,
+        reason: 'emptyAvatarSeed',
+      });
     }
 
     return avatarSeed;

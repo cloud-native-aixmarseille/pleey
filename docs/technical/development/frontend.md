@@ -12,13 +12,14 @@ Schema source: `../backend/src/schema.gql`. Operations: `.graphql` files in `src
 
 ### Lint Pipeline
 
-Custom scripts run before Biome: `check-naming.mjs`, `check-presentation-screens.mjs`,
-`check-di-instantiation.mjs`, and `check-invariant-arguments.mjs`.
+Custom scripts run before and after Biome: `check-naming.mjs`, `check-presentation-screens.mjs`,
+`check-di-instantiation.mjs`, `check-domain-errors.mjs`, and `check-invariant-arguments.mjs`.
 Architectural boundaries are enforced primarily via `biome.json`
 `noRestrictedImports` overrides and shared Biome plugins;
 the milestone-0 legacy-path guard now lives in app-local GritQL plugins,
 `check-di-instantiation.mjs` is limited to direct `new` and selected static-call checks,
-and shared-wrapper plus direct `*Service` presentation imports are enforced in Biome.
+shared-wrapper plus direct `*Service` presentation imports are enforced in Biome,
+and domain-error throw shape is enforced through a shared Biome GritQL plugin while the script remains for alias-based empty-context checks.
 
 ## Testing Conventions
 
@@ -102,6 +103,13 @@ const loginUseCase = useRuntimeDependency<LoginUserUseCase>(
 ```
 
 Never instantiate services with `new` in presentation code.
+
+## Error Handling
+
+- Throw domain errors or `createDomainError(definition, context)` from frontend runtime code instead of bare `Error`.
+- Always include a non-empty context object with relevant local facts, such as `operationName`, `projectId`, `fileName`, `consumer`, or `contextName`.
+- Domain error classes and error modules must live under `src/domains/**`, not under application, infrastructure, or presentation folders.
+- Provider and runtime-guard errors should identify the missing boundary explicitly, for example `{ consumer: 'useAuth', contextName: 'AuthContext' }`.
 
 ## Routing
 

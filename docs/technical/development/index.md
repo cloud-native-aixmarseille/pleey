@@ -79,7 +79,14 @@ const API_URL = "http://localhost"; // constants: UPPER_SNAKE_CASE
 
 ### Error Handling
 
-Domain/application layers throw `Error(ErrorCode.ENUM_VALUE)`. Framework exceptions (`HttpException`, etc.) only in presentation layer.
+Runtime application code must throw domain errors, not bare `Error`.
+
+- Prefer a domain-specific error class such as `new GameNotFoundError({ gameId })`.
+- When a dedicated class does not exist, use `createDomainError(definition, context)`.
+- Always pass a non-empty, relevant `context` object with the best local identifiers or failure facts available, such as `projectId`, `userId`, `fileName`, or a short `reason`.
+- Framework exceptions (`HttpException`, etc.) stay in presentation or framework-boundary code only.
+
+Process-startup, config, and tooling code outside the runtime application layers may still use plain `Error` when no domain boundary exists.
 
 ### i18n
 

@@ -13,7 +13,7 @@ import type {
   PartyObservationPort,
   PartyRuntimeNotice,
 } from '../../../../../domains/game/party/shared/ports/party-observation.port';
-import { PresentationContextErrorCode } from '../../../../../domains/shared/errors/presentation-context-error-code';
+import { PartyProviderRequiredError } from '../../../../../domains/shared/errors/presentation-context-error-code';
 import { usePartyDependencies } from './party-dependencies-context';
 
 interface PartyObservationStateValue {
@@ -173,7 +173,10 @@ export function useParty(): PartyContextValue {
   const context = useContext(PartyContext);
 
   if (!context) {
-    throw new Error(PresentationContextErrorCode.PARTY_PROVIDER_REQUIRED);
+    throw new PartyProviderRequiredError({
+      consumer: 'useParty',
+      contextName: 'PartyContext',
+    });
   }
 
   return context;

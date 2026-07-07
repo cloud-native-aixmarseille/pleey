@@ -19,8 +19,18 @@ import type {
   AuthSessionTransportHandlers,
 } from '../../../application/identity/contracts/auth-runtime.port';
 import type { AuthSession } from '../../../domains/identity/entities/auth-session';
-import { AuthErrorCode } from '../../../domains/identity/errors/auth-error-code';
+import {
+  AUTH_ERROR_DEFINITIONS,
+  AuthErrorCode,
+} from '../../../domains/identity/errors/auth-error-code';
+import { GenericAuthError } from '../../../domains/identity/errors/generic-auth-error';
 import { AuthPayloadInspector } from '../../../domains/identity/services/auth-payload-inspector';
+import {
+  createDomainError,
+  type DomainError,
+  type DomainErrorDefinition,
+  isDomainError,
+} from '../../../domains/shared/errors/domain-error';
 import { GRAPHQL_URL } from '../../config/api';
 import {
   RefreshDocument,
@@ -85,10 +95,31 @@ export class GraphqlClient implements AuthSessionTransport {
     this.handlers = { ...handlers };
   }
 
-  extractMessage(error: unknown, fallback: string): string {
-    const message = this.normalizeApolloError(error).message.trim();
+  resolveDomainError<TCode extends string>(
+    error: unknown,
+    fallback: DomainErrorDefinition<TCode>,
+    context?: Record<string, unknown>,
+  ): DomainError<TCode | string> {
+    if (isDomainError(error)) {
+      return error;
+    }
 
-    return message.length > 0 ? message : fallback;
+    if (error instanceof Error && error.message.trim().length > 0) {
+      return createDomainError(
+        {
+          code: fallback.code,
+          message: error.message,
+          messageKey: fallback.messageKey,
+        },
+        {
+          ...context,
+          errorName: error.name,
+          originalMessage: error.message,
+        },
+      );
+    }
+
+    return createDomainError(fallback, context);
   }
 
   private createClient(): ApolloClient {
@@ -142,9 +173,13 @@ export class GraphqlClient implements AuthSessionTransport {
     variables?: TVariables,
     options?: GraphqlRequestOptions,
   ): Promise<TData> {
+    const parsedOperation = typeof operation === 'string' ? gql(operation) : operation;
+    const operationName = this.resolveOperationName(parsedOperation);
+    const operationType = this.resolveOperationType(parsedOperation);
+
     try {
       return await this.executeOperation<TData, TVariables>(
-        operation,
+        parsedOperation,
         variables,
         options?.authToken,
       );
@@ -169,18 +204,27 @@ export class GraphqlClient implements AuthSessionTransport {
         this.invalidateSession();
       }
 
-      throw new Error(normalizedError.message);
+      throw createDomainError(
+        {
+          code: normalizedError.code ?? normalizedError.message,
+          message: normalizedError.message,
+          messageKey: normalizedError.code ?? normalizedError.message,
+        },
+        {
+          graphQLErrorCode: normalizedError.code ?? null,
+          operationName,
+          operationType,
+        },
+      );
     }
   }
 
   private async executeOperation<TData, TVariables extends OperationVariables>(
-    operation: GraphqlOperationDocument<TData, TVariables>,
+    operation: DocumentNode | TypedDocumentNode<TData, TVariables>,
     variables?: TVariables,
     authToken?: string,
   ): Promise<TData> {
-    const parsedDocument = typeof operation === 'string' ? gql(operation) : operation;
-
-    const operationDefinition = parsedDocument.definitions.find(
+    const operationDefinition = operation.definitions.find(
       (definition) => definition.kind === 'OperationDefinition',
     );
 
@@ -188,19 +232,20 @@ export class GraphqlClient implements AuthSessionTransport {
       operationDefinition?.kind === 'OperationDefinition' &&
       operationDefinition.operation === 'mutation';
     const resolvedVariables = (variables ?? {}) as TVariables;
+    const operationName = this.resolveOperationName(operation);
 
     let result: FetchResult<TData>;
 
     if (isMutation) {
       result = await this.client.mutate<TData, TVariables>({
-        mutation: parsedDocument,
+        mutation: operation,
         variables: resolvedVariables,
         context: { authToken },
         fetchPolicy: 'no-cache',
       });
     } else {
       result = await this.client.query<TData, TVariables>({
-        query: parsedDocument,
+        query: operation,
         variables: resolvedVariables,
         context: { authToken },
         fetchPolicy: 'no-cache',
@@ -208,10 +253,33 @@ export class GraphqlClient implements AuthSessionTransport {
     }
 
     if (!result.data) {
-      throw new Error(AuthErrorCode.GENERIC);
+      throw new GenericAuthError({
+        operationName,
+        operationType: isMutation ? 'mutation' : 'query',
+      });
     }
 
     return result.data;
+  }
+
+  private resolveOperationName(document: DocumentNode): string | null {
+    const operationDefinition = document.definitions.find(
+      (definition) => definition.kind === 'OperationDefinition',
+    );
+
+    return operationDefinition?.name?.value ?? null;
+  }
+
+  private resolveOperationType(
+    document: DocumentNode,
+  ): 'mutation' | 'query' | 'subscription' | null {
+    const operationDefinition = document.definitions.find(
+      (definition) => definition.kind === 'OperationDefinition',
+    );
+
+    return operationDefinition?.kind === 'OperationDefinition'
+      ? operationDefinition.operation
+      : null;
   }
 
   private async refreshSession(): Promise<AuthSession | null> {
@@ -301,7 +369,7 @@ export class GraphqlClient implements AuthSessionTransport {
       return error.message;
     }
 
-    return AuthErrorCode.GENERIC;
+    return AUTH_ERROR_DEFINITIONS[AuthErrorCode.GENERIC].message;
   }
 
   private normalizeApolloError(error: unknown): {
@@ -334,15 +402,22 @@ export class GraphqlClient implements AuthSessionTransport {
 
     if (ServerError.is(error)) {
       return {
-        message: error.statusCode === 401 ? AuthErrorCode.UNAUTHORIZED : AuthErrorCode.GENERIC,
+        message:
+          error.statusCode === 401
+            ? AUTH_ERROR_DEFINITIONS[AuthErrorCode.UNAUTHORIZED].message
+            : AUTH_ERROR_DEFINITIONS[AuthErrorCode.GENERIC].message,
         code: String(error.statusCode),
       };
+    }
+
+    if (isDomainError(error)) {
+      return { code: error.code, message: error.message };
     }
 
     if (error instanceof Error && error.message.length > 0) {
       return { message: error.message };
     }
 
-    return { message: AuthErrorCode.GENERIC };
+    return { message: AUTH_ERROR_DEFINITIONS[AuthErrorCode.GENERIC].message };
   }
 }

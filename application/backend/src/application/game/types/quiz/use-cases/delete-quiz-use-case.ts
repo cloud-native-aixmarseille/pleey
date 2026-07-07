@@ -1,5 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { QuizErrorCode } from '../../../../../domain/game/types/quiz/enums/quiz-error-code.enum';
+import {
+  QuizHasActivePartyError,
+  QuizNotFoundError,
+} from '../../../../../domain/game/types/quiz/errors';
 import type { QuizManagementRepository } from '../../../../../domain/game/types/quiz/ports/quiz-management.repository';
 import { QuizManagementRepositoryProvider } from '../../../../../domain/game/types/quiz/ports/quiz-management.repository';
 import type { GameTypeId } from '../../../../../domain/game/types/shared/entities/game-type';
@@ -17,13 +20,16 @@ export class DeleteQuizUseCase {
   async execute(quizId: GameTypeId, userId: UserId): Promise<boolean> {
     const quiz = await this.quizRepository.findById(quizId);
     if (!quiz) {
-      throw new Error(QuizErrorCode.QUIZ_NOT_FOUND);
+      throw new QuizNotFoundError({ quizId });
     }
 
     await this.accessGuard.assertCanManageProject(quiz.projectId, userId);
 
     if (await this.quizRepository.hasActiveParty(quiz.gameId)) {
-      throw new Error(QuizErrorCode.QUIZ_HAS_ACTIVE_PARTY);
+      throw new QuizHasActivePartyError({
+        gameId: quiz.gameId,
+        quizId: quiz.id,
+      });
     }
 
     await this.quizRepository.delete(quiz.id);

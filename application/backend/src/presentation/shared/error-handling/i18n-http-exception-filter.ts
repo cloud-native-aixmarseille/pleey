@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { GraphQLError } from 'graphql';
+import { isDomainError } from '../../../domain/shared/errors/domain-error';
 import { ErrorCodeHttpStatusService } from './error-code-http-status.service';
 import { ErrorTranslationService } from './error-translation-service';
 
@@ -22,16 +23,18 @@ export class I18nHttpExceptionFilter implements ExceptionFilter {
   ) {}
 
   async catch(exception: HttpException | Error, host: ArgumentsHost) {
-    const normalizedException = this.normalizeException(this.unwrapException(exception));
+    const unwrappedException = this.unwrapException(exception);
+    const normalizedException = this.normalizeException(unwrappedException);
     const status = normalizedException.getStatus();
     const exceptionResponse = normalizedException.getResponse();
     const hostType = host.getType<'http' | 'graphql'>();
-    const errorCode = this.extractErrorCode(exceptionResponse);
+    const errorCode = this.extractErrorCode(exceptionResponse, unwrappedException);
 
     let message: string | undefined;
 
-    // Check if the message is an error code enum
-    if (typeof exceptionResponse === 'string') {
+    if (isDomainError(unwrappedException)) {
+      message = await this.errorTranslationService.translateErrorCode(unwrappedException.code);
+    } else if (typeof exceptionResponse === 'string') {
       message = await this.errorTranslationService.translateErrorCode(exceptionResponse);
     } else if (
       exceptionResponse &&
@@ -76,15 +79,23 @@ export class I18nHttpExceptionFilter implements ExceptionFilter {
       return exception;
     }
 
-    const status = this.errorCodeHttpStatusService.resolve(exception.message);
+    const errorCode = isDomainError(exception) ? exception.code : exception.message;
+    const status = this.errorCodeHttpStatusService.resolve(errorCode);
     if (status === 500) {
       return new InternalServerErrorException('UNKNOWN_ERROR');
     }
 
-    return new HttpException(exception.message, status);
+    return new HttpException(errorCode, status);
   }
 
-  private extractErrorCode(exceptionResponse: string | object): string | null {
+  private extractErrorCode(
+    exceptionResponse: string | object,
+    exception: HttpException | Error,
+  ): string | null {
+    if (isDomainError(exception)) {
+      return exception.code;
+    }
+
     if (typeof exceptionResponse === 'string') {
       return exceptionResponse;
     }

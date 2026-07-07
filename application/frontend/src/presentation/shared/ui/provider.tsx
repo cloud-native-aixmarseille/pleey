@@ -3,7 +3,7 @@ import type {
   PresentationUiThemeState,
   UiPort,
 } from '../../../application/shared/contracts/ui.port';
-import { PresentationContextErrorCode } from '../../../domains/shared/errors/presentation-context-error-code';
+import { PresentationUiProviderRequiredError } from '../../../domains/shared/errors/presentation-context-error-code';
 import {
   PresentationToastProvider,
   PresentationToastViewport,
@@ -23,7 +23,10 @@ function usePresentationUiPort(): UiPort {
   const port = useContext(UiContext);
 
   if (!port) {
-    throw new Error(PresentationContextErrorCode.PRESENTATION_UI_PROVIDER_REQUIRED);
+    throw new PresentationUiProviderRequiredError({
+      consumer: 'usePresentationUiPort',
+      contextName: 'UiContext',
+    });
   }
 
   return port;

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { PlayableContentImportUnsupportedFormatError } from '../../../../../../domain/game/types/shared/errors/import-parser.error';
 import { CsvPlayableContentImportFormatParser } from './csv-playable-content-import-format-parser';
 import type { PlayableContentImportFormatParser } from './import-format-parser';
-import { PlayableContentImportParserErrorCode } from './import-parser.error';
 import type { RawImportItem } from './import-parser.types';
 import { PlayableContentImportSource } from './import-source';
 import { JsonPlayableContentImportFormatParser } from './json-playable-content-import-format-parser';
@@ -47,7 +47,9 @@ export class PlayableContentImportParserContainer {
     const parser = await this.resolveParser(parseSource);
 
     if (!parser) {
-      throw new Error(PlayableContentImportParserErrorCode.UNSUPPORTED_FORMAT);
+      throw new PlayableContentImportUnsupportedFormatError({
+        fileName: source.fileName,
+      });
     }
 
     return parser.parse(parseSource);

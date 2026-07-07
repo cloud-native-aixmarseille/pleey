@@ -4,7 +4,7 @@ import { ProjectFormFacade } from '../../../../application/workspace/projects/fa
 import type { GameType } from '../../../../domains/game/types/shared/game-type';
 import type { OrganizationId } from '../../../../domains/organization/entities/organization';
 import type { ProjectId } from '../../../../domains/project/entities/project';
-import { PresentationContextErrorCode } from '../../../../domains/shared/errors/presentation-context-error-code';
+import { PresentationRuntimeDependencyProviderRequiredError } from '../../../../domains/shared/errors/presentation-context-error-code';
 import { PlayableItemEditorValidator } from '../../../game/types/shared/management/playable-item-editor-validator';
 
 interface OrganizationIdentifierParser {
@@ -41,7 +41,10 @@ export function useWorkspaceDependencies(): WorkspaceDependencies {
   const dependencies = useContext(WorkspaceDependenciesContext);
 
   if (!dependencies) {
-    throw new Error(PresentationContextErrorCode.PRESENTATION_RUNTIME_DEPENDENCY_PROVIDER_REQUIRED);
+    throw new PresentationRuntimeDependencyProviderRequiredError({
+      consumer: 'useWorkspaceDependencies',
+      contextName: 'WorkspaceDependenciesContext',
+    });
   }
 
   return dependencies;

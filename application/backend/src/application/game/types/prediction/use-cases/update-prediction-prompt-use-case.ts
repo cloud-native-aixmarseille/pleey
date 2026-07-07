@@ -4,6 +4,10 @@ import type {
   PredictionPromptId,
 } from '../../../../../domain/game/types/prediction/entities/prediction-prompt';
 import { PredictionErrorCode } from '../../../../../domain/game/types/prediction/enums/prediction-error-code.enum';
+import {
+  PredictionNotFoundError,
+  PredictionPromptNotFoundError,
+} from '../../../../../domain/game/types/prediction/errors';
 import type { PredictionManagementRepository } from '../../../../../domain/game/types/prediction/ports/prediction-management.repository';
 import { PredictionManagementRepositoryProvider } from '../../../../../domain/game/types/prediction/ports/prediction-management.repository';
 import type { PredictionPromptRepository } from '../../../../../domain/game/types/prediction/ports/prediction-prompt.repository';
@@ -36,12 +40,15 @@ export class UpdatePredictionPromptUseCase {
   async execute(command: UpdatePredictionPromptCommand, userId: UserId): Promise<PredictionPrompt> {
     const prompt = await this.promptRepository.findById(command.promptId);
     if (!prompt) {
-      throw new Error(PredictionErrorCode.PROMPT_NOT_FOUND);
+      throw new PredictionPromptNotFoundError({ promptId: command.promptId });
     }
 
     const prediction = await this.predictionRepository.findById(prompt.predictionId);
     if (!prediction) {
-      throw new Error(PredictionErrorCode.PREDICTION_NOT_FOUND);
+      throw new PredictionNotFoundError({
+        predictionId: prompt.predictionId,
+        promptId: command.promptId,
+      });
     }
 
     await this.accessGuard.assertCanManageProject(prediction.projectId, userId);

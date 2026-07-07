@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { IdentityErrorCode } from '../../../../domain/identity/enums/identity-error-code.enum';
+import { PasswordTooShortError, UserAlreadyExistsError } from '../../../../domain/identity/errors';
 import type { UserRepository } from '../../../../domain/identity/ports/user.repository';
 import { UserRepositoryProvider } from '../../../../domain/identity/ports/user.repository';
 import { PasswordService } from '../../../../domain/identity/services/password-service';
@@ -26,12 +26,15 @@ export class RegisterUserUseCase {
     // Check if user already exists
     const exists = await this.userRepository.exists(dto.email, dto.username);
     if (exists) {
-      throw new Error(IdentityErrorCode.USER_ALREADY_EXISTS);
+      throw new UserAlreadyExistsError({
+        email: dto.email,
+        username: dto.username,
+      });
     }
 
     // Validate password strength
     if (!this.passwordService.isValidPassword(dto.password)) {
-      throw new Error(IdentityErrorCode.PASSWORD_TOO_SHORT);
+      throw new PasswordTooShortError({ passwordLength: dto.password.length });
     }
 
     // Hash password

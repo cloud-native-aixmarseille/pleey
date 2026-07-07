@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { describe, expect, it } from 'vitest';
+import { InvalidLoginResponseError } from '../../domains/identity/errors/graphql-auth-repository.error';
 import { AuthPayloadInspector } from '../../domains/identity/services/auth-payload-inspector';
 import type { GraphqlClient } from '../../infrastructure/graphql/client/graphql-client';
 import { AuthFixtureFactory } from '../../test-utils/fixtures/auth-fixture-factory';
@@ -41,6 +42,21 @@ describe('GraphqlAuthRepository', () => {
       // Act + Assert
       await expect(repository.login('captain@pleey.io', 'wrong')).rejects.toThrow(
         'Email ou mot de passe invalide.',
+      );
+    });
+
+    it('rejects invalid login payloads with the dedicated login response error', async () => {
+      // Arrange
+      const { client } = new GraphqlClientMockFactory().create({
+        requestResult: {
+          login: null,
+        },
+      });
+      const repository = createGraphqlAuthRepository(client);
+
+      // Act + Assert
+      await expect(repository.login('captain@pleey.io', 'secret')).rejects.toBeInstanceOf(
+        InvalidLoginResponseError,
       );
     });
   });

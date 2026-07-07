@@ -9,7 +9,10 @@ import type {
 import type { Party } from '../../../../domains/game/party/shared/entities/party';
 import { PartyRole } from '../../../../domains/game/party/shared/entities/party-role';
 import { PartyStatus } from '../../../../domains/game/party/shared/entities/party-status';
-import { PartyManagementErrorCode } from '../../../../domains/game/party/shared/errors/party-management-error-code';
+import {
+  PARTY_MANAGEMENT_ERROR_DEFINITIONS,
+  PartyManagementErrorCode,
+} from '../../../../domains/game/party/shared/errors/party-management-error-code';
 import { GraphqlClient } from '../../../graphql/client/graphql-client';
 import {
   CreatePartyDocument,
@@ -52,8 +55,9 @@ export class GraphqlPartyManagementAdapter implements PartyManagementPort {
 
       return this.toDomainParty(result.createParty);
     } catch (error) {
-      throw new Error(
-        this.graphqlClient.extractMessage(error, PartyManagementErrorCode.CREATE_FAILED),
+      throw this.graphqlClient.resolveDomainError(
+        error,
+        PARTY_MANAGEMENT_ERROR_DEFINITIONS[PartyManagementErrorCode.CREATE_FAILED],
       );
     }
   }
@@ -72,8 +76,9 @@ export class GraphqlPartyManagementAdapter implements PartyManagementPort {
 
       return result.listParties.items.map((party) => this.toDomainParty(party));
     } catch (error) {
-      throw new Error(
-        this.graphqlClient.extractMessage(error, PartyManagementErrorCode.LIST_FAILED),
+      throw this.graphqlClient.resolveDomainError(
+        error,
+        PARTY_MANAGEMENT_ERROR_DEFINITIONS[PartyManagementErrorCode.LIST_FAILED],
       );
     }
   }

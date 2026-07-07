@@ -12,6 +12,7 @@ import type {
   PredictionPromptMutationData,
   PredictionPromptRepository,
 } from '../../../../domain/game/types/prediction/ports/prediction-prompt.repository';
+import { createDomainError } from '../../../../domain/shared/errors/domain-error';
 import { PrismaService } from '../../../database/prisma-service';
 import {
   PrismaSelectableOptionMapper,
@@ -21,6 +22,11 @@ import {
 type PrismaPredictionOptionRecord = PrismaSelectableOptionRecord;
 
 type PredictionOptionRecord = PrismaSelectableOptionRecord<PredictionSelectableOptionId>;
+
+const PREDICTION_PROMPT_NOT_UPDATED_ERROR = {
+  code: 'PREDICTION_PROMPT_NOT_UPDATED',
+  messageKey: 'PREDICTION_PROMPT_NOT_UPDATED',
+} as const;
 
 interface PrismaPredictionPromptRecord {
   readonly id: string;
@@ -127,7 +133,7 @@ export class PrismaPredictionPromptRepository implements PredictionPromptReposit
 
     const prompt = await this.findById(id);
     if (!prompt) {
-      throw new Error('PREDICTION_PROMPT_NOT_UPDATED');
+      throw createDomainError(PREDICTION_PROMPT_NOT_UPDATED_ERROR, { promptId: id });
     }
 
     return prompt;

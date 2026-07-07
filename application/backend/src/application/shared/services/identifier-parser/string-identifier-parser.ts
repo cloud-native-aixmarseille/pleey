@@ -5,8 +5,8 @@ export abstract class StringIdentifierParser<TIdentifier>
   extends IdentifierParser<string, TIdentifier>
   implements IdentifierParserPort<TIdentifier>
 {
-  protected constructor(_label: string) {
-    super();
+  protected constructor(label: string) {
+    super(label);
   }
 
   parse<TValue>(value: TValue): IdentifierParseResult<TValue, TIdentifier> {
@@ -20,7 +20,7 @@ export abstract class StringIdentifierParser<TIdentifier>
       return null as IdentifierParseResult<TValue, TIdentifier>;
     }
 
-    this.invalidValue();
+    this.invalidValue(value);
   }
 
   parseOrNull(value: unknown): TIdentifier | null {

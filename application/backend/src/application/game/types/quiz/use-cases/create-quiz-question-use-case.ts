@@ -4,6 +4,7 @@ import {
   QuizQuestionType,
 } from '../../../../../domain/game/types/quiz/entities/quiz-question';
 import { QuizErrorCode } from '../../../../../domain/game/types/quiz/enums/quiz-error-code.enum';
+import { QuizNotFoundError } from '../../../../../domain/game/types/quiz/errors';
 import type { QuizManagementRepository } from '../../../../../domain/game/types/quiz/ports/quiz-management.repository';
 import { QuizManagementRepositoryProvider } from '../../../../../domain/game/types/quiz/ports/quiz-management.repository';
 import type { QuizQuestionRepository } from '../../../../../domain/game/types/quiz/ports/quiz-question.repository';
@@ -38,7 +39,7 @@ export class CreateQuizQuestionUseCase {
   async execute(command: CreateQuizQuestionCommand, userId: UserId): Promise<QuizQuestion> {
     const quiz = await this.quizRepository.findById(command.quizId);
     if (!quiz) {
-      throw new Error(QuizErrorCode.QUIZ_NOT_FOUND);
+      throw new QuizNotFoundError({ quizId: command.quizId });
     }
 
     await this.accessGuard.assertCanManageProject(quiz.projectId, userId);

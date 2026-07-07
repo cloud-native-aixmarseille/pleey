@@ -2,7 +2,10 @@ import type { Readable } from 'node:stream';
 import { TextDecoder } from 'node:util';
 import { Inject, Injectable } from '@nestjs/common';
 import { PlayableContentImportSource } from '../../../../../application/game/types/shared/services/playable-content-import/import-source';
-import { PlayableContentImportParserErrorCode } from '../../../../../application/game/types/shared/services/playable-content-import/playable-content-import-parser';
+import {
+  PlayableContentImportInvalidFileError,
+  PlayableContentImportParserErrorCode,
+} from '../../../../../application/game/types/shared/services/playable-content-import/playable-content-import-parser';
 import {
   DEFAULT_PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES,
   PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES_TOKEN,
@@ -29,7 +32,9 @@ export class PlayableContentUploadReader {
     try {
       upload = await uploadPromise;
     } catch {
-      throw new Error(PlayableContentImportParserErrorCode.INVALID_FILE);
+      throw new PlayableContentImportInvalidFileError({
+        reason: 'uploadPromiseRejected',
+      });
     }
 
     return this.createImportSource(upload.createReadStream, upload.filename);
@@ -45,7 +50,10 @@ export class PlayableContentUploadReader {
 
     const openStream = (): Readable => {
       if (hasOpenedStream) {
-        throw new Error(PlayableContentImportParserErrorCode.INVALID_FILE);
+        throw new PlayableContentImportInvalidFileError({
+          fileName,
+          reason: 'streamAlreadyOpened',
+        });
       }
 
       hasOpenedStream = true;
@@ -65,7 +73,12 @@ export class PlayableContentUploadReader {
           totalBytes += resolvedChunk.byteLength;
 
           if (totalBytes > maxFileSizeBytes) {
-            throw new Error(PlayableContentImportParserErrorCode.INVALID_FILE);
+            throw new PlayableContentImportInvalidFileError({
+              fileName,
+              maxFileSizeBytes,
+              reason: 'fileTooLarge',
+              totalBytes,
+            });
           }
 
           const decodedChunk = decoder.decode(resolvedChunk, { stream: true });

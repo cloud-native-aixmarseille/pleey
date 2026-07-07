@@ -1,7 +1,7 @@
 import { createContext, type PropsWithChildren, useContext } from 'react';
 import type { User } from '../../../domains/identity/entities/user';
 import type { UpdateProfileInput } from '../../../domains/identity/ports/auth-repository';
-import { PresentationContextErrorCode } from '../../../domains/shared/errors/presentation-context-error-code';
+import { AuthProviderRequiredError } from '../../../domains/shared/errors/presentation-context-error-code';
 
 interface SignInFormState {
   readonly email: string;
@@ -38,7 +38,10 @@ export function useAuth(): AuthContextValue {
   const value = useContext(AuthContext);
 
   if (!value) {
-    throw new Error(PresentationContextErrorCode.AUTH_PROVIDER_REQUIRED);
+    throw new AuthProviderRequiredError({
+      consumer: 'useAuth',
+      contextName: 'AuthContext',
+    });
   }
 
   return value;

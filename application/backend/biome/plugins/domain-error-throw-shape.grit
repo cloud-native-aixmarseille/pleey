@@ -1,0 +1,48 @@
+engine biome(1.0)
+language js(typescript, jsx)
+
+or {
+  JsThrowStatement() as $throw where {
+    $throw <: `throw new Error($args)`,
+    register_diagnostic(
+      span = $throw,
+      message = "Throw a domain error instead of Error.",
+      severity = "error"
+    )
+  },
+
+  JsThrowStatement() as $throw where {
+    $throw <: `throw Error($args)`,
+    register_diagnostic(
+      span = $throw,
+      message = "Throw a domain error instead of Error.",
+      severity = "error"
+    )
+  },
+
+  JsThrowStatement() as $throw where {
+    $throw <: `throw new $error()`,
+    $error <: r"[A-Za-z0-9_]+Error",
+    $error <: not `Error`,
+    register_diagnostic(
+      span = $throw,
+      message = "Domain errors must include a non-empty context argument.",
+      severity = "error"
+    )
+  },
+
+  JsThrowStatement() as $throw where {
+    $throw <: or {
+      `throw new $error(undefined)`,
+      `throw new $error(null)`,
+      `throw new $error({})`
+    },
+    $error <: r"[A-Za-z0-9_]+Error",
+    $error <: not `Error`,
+    register_diagnostic(
+      span = $throw,
+      message = "Domain errors must include a non-empty context argument.",
+      severity = "error"
+    )
+  }
+}

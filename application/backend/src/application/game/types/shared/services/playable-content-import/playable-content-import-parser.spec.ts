@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { PlayableContentImportParserErrorCode } from '../../../../../../domain/game/types/shared/errors/import-parser.error';
 import { CsvPlayableContentImportFormatParser } from './csv-playable-content-import-format-parser';
-import { PlayableContentImportParserErrorCode } from './import-parser.error';
 import { PlayableContentImportSource } from './import-source';
 import { JsonPlayableContentImportFormatParser } from './json-playable-content-import-format-parser';
 import { MarkdownPlayableContentImportFormatParser } from './markdown-playable-content-import-format-parser';

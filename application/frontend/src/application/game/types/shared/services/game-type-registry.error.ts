@@ -1,3 +1,0 @@
-export enum GameTypeRegistryErrorCode {
-  MISSING_GAME_TYPE_CONTRIBUTOR = 'MISSING_GAME_TYPE_CONTRIBUTOR',
-}

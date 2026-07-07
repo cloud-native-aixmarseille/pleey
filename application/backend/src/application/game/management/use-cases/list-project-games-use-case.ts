@@ -1,10 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { GameId } from '../../../../domain/game/entities/game';
-import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
+import { GameValidationFailedError } from '../../../../domain/game/errors';
 import type { UserId } from '../../../../domain/identity/entities/user';
-import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
+import { NotAMemberError } from '../../../../domain/organization/errors';
 import type { OrganizationMemberRepository } from '../../../../domain/organization/ports/organization-member.repository';
 import { OrganizationMemberRepositoryProvider } from '../../../../domain/organization/ports/organization-member.repository';
+import { ProjectNotFoundError } from '../../../../domain/project/errors';
 import type { ProjectRepository } from '../../../../domain/project/ports/project.repository';
 import { ProjectRepositoryProvider } from '../../../../domain/project/ports/project.repository';
 import { GameTypeParser } from '../../types/shared/services/game-type-parser';
@@ -35,7 +36,7 @@ export class ListProjectGamesUseCase {
   async execute(input: ListProjectGamesQuery, userId: UserId): Promise<ProjectGameListPage> {
     const project = await this.projectRepository.findById(input.projectId);
     if (!project) {
-      throw new Error(OrganizationErrorCode.NOT_A_MEMBER);
+      throw new ProjectNotFoundError({ projectId: input.projectId });
     }
 
     const membership = await this.memberRepository.findByOrganizationAndUser(
@@ -43,7 +44,11 @@ export class ListProjectGamesUseCase {
       userId,
     );
     if (!membership) {
-      throw new Error(OrganizationErrorCode.NOT_A_MEMBER);
+      throw new NotAMemberError({
+        organizationId: project.organizationId,
+        projectId: input.projectId,
+        userId,
+      });
     }
 
     const page = await this.gameManagementCatalog.listProjectGames({
@@ -77,9 +82,20 @@ export class ListProjectGamesUseCase {
     permissions: GamePermissions | undefined,
   ): GamePermissions {
     if (!permissions?.createParty || !permissions.launchReadiness) {
-      void gameId;
+      const missingRequirements: string[] = [];
 
-      throw new Error(GameErrorCode.VALIDATION_FAILED);
+      if (!permissions?.createParty) {
+        missingRequirements.push('createParty');
+      }
+
+      if (!permissions?.launchReadiness) {
+        missingRequirements.push('launchReadiness');
+      }
+
+      throw new GameValidationFailedError({
+        gameId,
+        missingRequirements,
+      });
     }
 
     return permissions;

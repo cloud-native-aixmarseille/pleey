@@ -21,7 +21,7 @@ export abstract class UuidV7IdentifierParser<TIdentifier>
       return null as IdentifierParseResult<TValue, TIdentifier>;
     }
 
-    this.invalidValue();
+    this.invalidValue(value);
   }
 
   override parseOrNull(value: unknown): TIdentifier | null {

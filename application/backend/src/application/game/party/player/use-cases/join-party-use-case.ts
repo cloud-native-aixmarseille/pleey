@@ -1,7 +1,18 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
+import {
+  PartyCommandNotAvailableError,
+  PartyNotFoundError,
+  PlayerAlreadyInActivePartyError,
+} from '../../../../../domain/game/errors';
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
 import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
+import {
+  GuestPlayerRejoinNotFoundError,
+  GuestUsernameRequiredError,
+  InvalidPartyPasswordError,
+  JoinedPartyPlayerNotFoundError,
+  MissingPartyPasswordError,
+} from '../../../../../domain/game/party/errors/join-party.error';
 import type { PartyPlayerIdentity } from '../../../../../domain/game/party/player/entities/party-player-identity';
 import { PasswordService } from '../../../../../domain/identity/services/password-service';
 import { BroadcastPartyObservationUseCase } from '../../shared/use-cases/broadcast-party-observation-use-case';
@@ -24,14 +35,14 @@ export class JoinPartyUseCase {
     const avatarSeed = input.avatarSeed?.trim() || undefined;
 
     if (!party) {
-      throw new Error(GameErrorCode.PARTY_NOT_FOUND);
+      throw new PartyNotFoundError({ requestedPin: input.pin });
     }
 
     if (party.privatePartyPasswordHash) {
       const password = input.partyPassword?.trim() ?? '';
 
       if (password.length === 0) {
-        throw new Error(GameErrorCode.VALIDATION_FAILED);
+        throw new MissingPartyPasswordError({ partyId: party.partyId });
       }
 
       const isPasswordValid = await this.passwordService.compare(
@@ -40,7 +51,7 @@ export class JoinPartyUseCase {
       );
 
       if (!isPasswordValid) {
-        throw new Error(GameErrorCode.VALIDATION_FAILED);
+        throw new InvalidPartyPasswordError({ partyId: party.partyId });
       }
     }
 
@@ -53,7 +64,11 @@ export class JoinPartyUseCase {
       : null;
 
     if (party.status !== PartyStatus.WAITING && !existingPlayer) {
-      throw new Error(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
+      throw new PartyCommandNotAvailableError({
+        isRejoin: existingPlayer !== null,
+        partyId: party.partyId,
+        partyStatus: party.status,
+      });
     }
 
     if (input.playerIdentity.kind === PartyPlayerKind.USER) {
@@ -62,7 +77,11 @@ export class JoinPartyUseCase {
       );
 
       if (activeParty && activeParty.partyId !== party.partyId) {
-        throw new Error(GameErrorCode.PLAYER_ALREADY_IN_ACTIVE_PARTY);
+        throw new PlayerAlreadyInActivePartyError({
+          activePartyId: activeParty.partyId,
+          requestedPartyId: party.partyId,
+          userId: input.playerIdentity.userId,
+        });
       }
 
       await this.playerPartyRuntime.ensureAuthenticatedPlayer({
@@ -80,11 +99,14 @@ export class JoinPartyUseCase {
     const isPersistedGuestRejoin = input.playerIdentity.guestId !== undefined;
 
     if (isPersistedGuestRejoin && !existingPlayer) {
-      throw new Error(GameErrorCode.VALIDATION_FAILED);
+      throw new GuestPlayerRejoinNotFoundError({
+        guestId: input.playerIdentity.guestId,
+        partyId: party.partyId,
+      });
     }
 
     if (!isPersistedGuestRejoin && username.length === 0) {
-      throw new Error(GameErrorCode.VALIDATION_FAILED);
+      throw new GuestUsernameRequiredError({ partyId: party.partyId });
     }
 
     // Enforce single-session rule: check if this guest is already in a different active party
@@ -94,7 +116,11 @@ export class JoinPartyUseCase {
       );
 
       if (activeParty && activeParty.partyId !== party.partyId) {
-        throw new Error(GameErrorCode.PLAYER_ALREADY_IN_ACTIVE_PARTY);
+        throw new PlayerAlreadyInActivePartyError({
+          activePartyId: activeParty.partyId,
+          guestId: input.playerIdentity.guestId,
+          requestedPartyId: party.partyId,
+        });
       }
     }
 
@@ -119,13 +145,16 @@ export class JoinPartyUseCase {
     readonly playerCommand: Parameters<PlayerPartyRuntimePort['findPartyPlayer']>[0];
   }): Promise<JoinPartyResultDto> {
     if (!party) {
-      throw new Error(GameErrorCode.PARTY_NOT_FOUND);
+      throw new PartyNotFoundError({ requestedPartyId: playerCommand.partyId });
     }
 
     const player = await this.playerPartyRuntime.findPartyPlayer(playerCommand);
 
     if (!player) {
-      throw new Error(GameErrorCode.VALIDATION_FAILED);
+      throw new JoinedPartyPlayerNotFoundError({
+        partyId: playerCommand.partyId,
+        playerIdentity: playerCommand.playerIdentity,
+      });
     }
 
     await this.broadcastPartyObservationUseCase.execute({ partyId: party.partyId });

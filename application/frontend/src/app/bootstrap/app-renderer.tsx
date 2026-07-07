@@ -1,5 +1,5 @@
 import { createRoot } from 'react-dom/client';
-import { AppBootstrapErrorCode } from '../../domains/shared/errors/app-bootstrap-error-code';
+import { RootElementNotFoundError } from '../../domains/shared/errors/app-bootstrap-error-code';
 import { AppRouter } from '../routing/app-router';
 import { createAppProviderFactories } from './app-provider-factory';
 import { AppProviders } from './app-providers';
@@ -11,7 +11,7 @@ export class AppRenderer {
     const element = document.getElementById('root');
 
     if (!element) {
-      throw new Error(AppBootstrapErrorCode.ROOT_ELEMENT_NOT_FOUND);
+      throw new RootElementNotFoundError({ elementId: 'root' });
     }
 
     const container = createAppContainer();

@@ -1,6 +1,6 @@
 import { v7 as uuidv7 } from 'uuid';
 import { describe, expect, it } from 'vitest';
-import { IdentifierParserErrorCode } from '../../../../shared/errors/identifier-parser-error-code';
+import { IdentifierParserErrorCode } from '../../../../../domains/shared/errors/identifier-parser-error-code';
 import { ProjectIdentifier } from './project-identifier';
 
 const projectIdentifier = new ProjectIdentifier();

@@ -1,5 +1,6 @@
 import { injectable, multiInject } from 'inversify';
 import type { GameType } from '../../../../../domains/game/types/shared/game-type';
+import { createDomainError } from '../../../../../domains/shared/errors/domain-error';
 import type {
   PartyGameTypeRuntimeRegistry,
   PartyGameTypeRuntimeView,
@@ -8,6 +9,11 @@ import {
   type PartyGameTypeRuntimeViewContributor,
   PartyGameTypeRuntimeViewContributorToken,
 } from '../contracts/party-game-type-runtime-view-contributor';
+
+const PARTY_RUNTIME_VIEW_DUPLICATE_REGISTRATION_ERROR = {
+  code: 'PARTY_RUNTIME_VIEW_DUPLICATE_REGISTRATION',
+  messageKey: 'PARTY_RUNTIME_VIEW_DUPLICATE_REGISTRATION',
+} as const;
 
 @injectable()
 export class AppPartyGameTypeRuntimeRegistry implements PartyGameTypeRuntimeRegistry {
@@ -31,8 +37,14 @@ export class AppPartyGameTypeRuntimeRegistry implements PartyGameTypeRuntimeRegi
 
     for (const contributor of contributors) {
       if (runtimeViewsByType.has(contributor.gameType)) {
-        throw new Error(
-          `Duplicate party runtime view registration for game type: ${contributor.gameType}`,
+        throw createDomainError(
+          {
+            ...PARTY_RUNTIME_VIEW_DUPLICATE_REGISTRATION_ERROR,
+            message: `Duplicate party runtime view registration for game type: ${contributor.gameType}`,
+          },
+          {
+            gameType: contributor.gameType,
+          },
         );
       }
 

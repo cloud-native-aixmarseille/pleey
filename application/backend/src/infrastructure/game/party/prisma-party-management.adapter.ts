@@ -162,7 +162,11 @@ export class PrismaPartyManagementAdapter extends PartyManagementPort {
         const targets = Array.isArray(target) ? target : [target].filter(Boolean);
 
         if (targets.some((value) => String(value).includes('pin'))) {
-          throw new PinAlreadyInUseError();
+          throw new PinAlreadyInUseError({
+            gameId: command.gameId,
+            hostUserId: command.hostUserId,
+            pin: command.pin,
+          });
         }
       }
 

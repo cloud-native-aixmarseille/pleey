@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { UserId } from '../../../../domain/identity/entities/user';
 import type { OrganizationMemberId } from '../../../../domain/organization/entities/organization-member';
-import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
+import { MemberNotFoundError } from '../../../../domain/organization/errors';
 import type { OrganizationMemberRepository } from '../../../../domain/organization/ports/organization-member.repository';
 import { OrganizationMemberRepositoryProvider } from '../../../../domain/organization/ports/organization-member.repository';
 import { OrganizationMembershipAccessService } from '../services/organization-membership-access.service';
@@ -21,7 +21,7 @@ export class RemoveMemberFromOrganizationUseCase {
   async execute(memberId: OrganizationMemberId, requestingUserId: UserId): Promise<void> {
     const memberToRemove = await this.memberRepository.findById(memberId);
     if (!memberToRemove) {
-      throw new Error(OrganizationErrorCode.MEMBER_NOT_FOUND);
+      throw new MemberNotFoundError({ memberId });
     }
 
     const requestingMember = await this.organizationMembershipAccess.requireManager(

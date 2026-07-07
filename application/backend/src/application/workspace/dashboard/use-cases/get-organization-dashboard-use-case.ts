@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { UserId } from '../../../../domain/identity/entities/user';
 import type { OrganizationId } from '../../../../domain/organization/entities/organization';
-import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
+import { NotAMemberError, OrganizationNotFoundError } from '../../../../domain/organization/errors';
 import type { OrganizationRepository } from '../../../../domain/organization/ports/organization.repository';
 import { OrganizationRepositoryProvider } from '../../../../domain/organization/ports/organization.repository';
 import type { OrganizationMemberRepository } from '../../../../domain/organization/ports/organization-member.repository';
@@ -45,7 +45,7 @@ export class GetOrganizationDashboardUseCase {
     // Verify organization exists
     const organization = await this.organizationRepository.findById(organizationId);
     if (!organization) {
-      throw new Error(OrganizationErrorCode.ORGANIZATION_NOT_FOUND);
+      throw new OrganizationNotFoundError({ organizationId });
     }
 
     // Verify user is a member
@@ -54,7 +54,10 @@ export class GetOrganizationDashboardUseCase {
       requestingUserId,
     );
     if (!membership) {
-      throw new Error(OrganizationErrorCode.NOT_A_MEMBER);
+      throw new NotAMemberError({
+        organizationId,
+        userId: requestingUserId,
+      });
     }
 
     // Get stats

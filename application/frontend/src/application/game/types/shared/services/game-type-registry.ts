@@ -1,5 +1,6 @@
 import { inject, injectable, multiInject } from 'inversify';
 import type { DashboardGameListItem } from '../../../../../domains/game/management/entities/dashboard-game-list-item';
+import { MissingGameTypeContributorError } from '../../../../../domains/game/types/shared/errors/game-type-registry.error';
 import type { GameType, GameTypeId } from '../../../../../domains/game/types/shared/game-type';
 import type { GameTypeCatalog } from '../../../../../domains/game/types/shared/game-type-catalog';
 import type {
@@ -18,7 +19,6 @@ import {
 } from '../contracts/game-type-contributor';
 import type { PlayableContentImportExampleProvider } from '../contracts/playable-content-import.gateway';
 import type { GameTypeCatalogGateway } from '../gateways/game-type-catalog.gateway';
-import { GameTypeRegistryErrorCode } from './game-type-registry.error';
 
 @injectable()
 export class GameTypeRegistry implements GameTypeCatalogGateway {
@@ -42,7 +42,11 @@ export class GameTypeRegistry implements GameTypeCatalogGateway {
       const contributor = contributorsByType.get(item.type);
 
       if (!contributor) {
-        throw new Error(GameTypeRegistryErrorCode.MISSING_GAME_TYPE_CONTRIBUTOR);
+        throw new MissingGameTypeContributorError({
+          gameId: item.gameId,
+          gameTypeId: item.gameTypeId,
+          type: item.type,
+        });
       }
 
       return {
@@ -104,7 +108,7 @@ export class GameTypeRegistry implements GameTypeCatalogGateway {
     const contributor = this.createContributorsByType().get(type);
 
     if (!contributor) {
-      throw new Error(GameTypeRegistryErrorCode.MISSING_GAME_TYPE_CONTRIBUTOR);
+      throw new MissingGameTypeContributorError({ type });
     }
 
     return contributor;

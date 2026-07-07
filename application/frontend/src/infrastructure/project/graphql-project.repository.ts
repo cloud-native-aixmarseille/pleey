@@ -2,7 +2,10 @@ import { inject, injectable } from 'inversify';
 import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
 import { ProjectIdentifier } from '../../application/workspace/shared/services/identifiers/project-identifier';
 import type { Project } from '../../domains/project/entities/project';
-import { ProjectErrorCode } from '../../domains/project/errors/project-error-code';
+import {
+  PROJECT_ERROR_DEFINITIONS,
+  ProjectErrorCode,
+} from '../../domains/project/errors/project-error-code';
 import type {
   CreateProjectCommand,
   DeleteProjectCommand,
@@ -72,7 +75,10 @@ export class GraphqlProjectRepository implements ProjectRepository {
         totalPages: result.organizationProjects.totalPages,
       };
     } catch (error) {
-      throw new Error(this.graphqlClient.extractMessage(error, ProjectErrorCode.LOAD_FAILED));
+      throw this.graphqlClient.resolveDomainError(
+        error,
+        PROJECT_ERROR_DEFINITIONS[ProjectErrorCode.LOAD_FAILED],
+      );
     }
   }
 
@@ -91,7 +97,10 @@ export class GraphqlProjectRepository implements ProjectRepository {
 
       return this.toDomainProject(result.createProject);
     } catch (error) {
-      throw new Error(this.graphqlClient.extractMessage(error, ProjectErrorCode.CREATE_FAILED));
+      throw this.graphqlClient.resolveDomainError(
+        error,
+        PROJECT_ERROR_DEFINITIONS[ProjectErrorCode.CREATE_FAILED],
+      );
     }
   }
 
@@ -110,7 +119,10 @@ export class GraphqlProjectRepository implements ProjectRepository {
 
       return this.toDomainProject(result.updateProject);
     } catch (error) {
-      throw new Error(this.graphqlClient.extractMessage(error, ProjectErrorCode.UPDATE_FAILED));
+      throw this.graphqlClient.resolveDomainError(
+        error,
+        PROJECT_ERROR_DEFINITIONS[ProjectErrorCode.UPDATE_FAILED],
+      );
     }
   }
 
@@ -124,7 +136,10 @@ export class GraphqlProjectRepository implements ProjectRepository {
         },
       );
     } catch (error) {
-      throw new Error(this.graphqlClient.extractMessage(error, ProjectErrorCode.DELETE_FAILED));
+      throw this.graphqlClient.resolveDomainError(
+        error,
+        PROJECT_ERROR_DEFINITIONS[ProjectErrorCode.DELETE_FAILED],
+      );
     }
   }
 

@@ -6,7 +6,7 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { PresentationContextErrorCode } from '../../../../domains/shared/errors/presentation-context-error-code';
+import { PresentationToastProviderRequiredError } from '../../../../domains/shared/errors/presentation-context-error-code';
 import { StatusBanner } from './status-banner';
 import { ToastItemShell, ToastViewportShell } from './toast-primitives';
 
@@ -90,7 +90,10 @@ export function usePresentationToast(): PresentationToastApi {
   const context = useContext(PresentationToastContext);
 
   if (!context) {
-    throw new Error(PresentationContextErrorCode.PRESENTATION_TOAST_PROVIDER_REQUIRED);
+    throw new PresentationToastProviderRequiredError({
+      consumer: 'usePresentationToast',
+      contextName: 'PresentationToastContext',
+    });
   }
 
   return context.api;
@@ -105,7 +108,10 @@ export function PresentationToastViewport() {
   const context = useContext(PresentationToastContext);
 
   if (!context) {
-    throw new Error(PresentationContextErrorCode.PRESENTATION_TOAST_PROVIDER_REQUIRED);
+    throw new PresentationToastProviderRequiredError({
+      consumer: 'PresentationToastViewport',
+      contextName: 'PresentationToastContext',
+    });
   }
 
   if (context.entries.length === 0) {

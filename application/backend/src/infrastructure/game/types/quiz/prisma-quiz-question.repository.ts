@@ -14,6 +14,7 @@ import type {
   QuizQuestionMutationData,
   QuizQuestionRepository,
 } from '../../../../domain/game/types/quiz/ports/quiz-question.repository';
+import { createDomainError } from '../../../../domain/shared/errors/domain-error';
 import { PrismaService } from '../../../database/prisma-service';
 import {
   PrismaSelectableOptionMapper,
@@ -23,6 +24,11 @@ import {
 type PrismaQuestionAnswerRecord = PrismaSelectableOptionRecord;
 
 type QuestionAnswerRecord = PrismaSelectableOptionRecord<QuizSelectableOptionId>;
+
+const QUESTION_NOT_UPDATED_ERROR = {
+  code: 'QUESTION_NOT_UPDATED',
+  messageKey: 'QUESTION_NOT_UPDATED',
+} as const;
 
 interface PrismaQuestionRecord {
   readonly id: string;
@@ -121,7 +127,7 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
         select: { quizId: true },
       });
       if (!existingQuestion) {
-        throw new Error('QUESTION_NOT_UPDATED');
+        throw createDomainError(QUESTION_NOT_UPDATED_ERROR, { questionId: id });
       }
       const quizId = this.gameTypeIdentifier.parse(existingQuestion.quizId);
 
@@ -132,7 +138,7 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
         select: { position: true },
       });
       if (!currentQuestion) {
-        throw new Error('QUESTION_NOT_UPDATED');
+        throw createDomainError(QUESTION_NOT_UPDATED_ERROR, { questionId: id });
       }
 
       const questionCount = await transaction.question.count({

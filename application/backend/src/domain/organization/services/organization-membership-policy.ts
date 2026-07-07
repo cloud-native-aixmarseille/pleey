@@ -1,6 +1,6 @@
 import type { OrganizationMember } from '../entities/organization-member';
-import { OrganizationErrorCode } from '../enums/organization-error-code.enum';
 import { OrganizationRole } from '../enums/organization-role.enum';
+import { CannotRemoveLastOwnerError, InsufficientPermissionsError } from '../errors';
 
 export const OrganizationMembershipPolicyProvider = Symbol('OrganizationMembershipPolicy');
 
@@ -9,13 +9,19 @@ export class OrganizationMembershipPolicy {
     requestingMember: OrganizationMember | null,
   ): asserts requestingMember is OrganizationMember {
     if (!requestingMember?.hasManagementPrivileges()) {
-      throw new Error(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
+      throw new InsufficientPermissionsError({
+        reason: 'memberManagementRequiresPrivileges',
+        requestingMemberRole: requestingMember?.role ?? null,
+      });
     }
   }
 
   assertCanAssignRole(requestingMember: OrganizationMember, role: OrganizationRole): void {
     if (role === OrganizationRole.OWNER && !requestingMember.isOwner()) {
-      throw new Error(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
+      throw new InsufficientPermissionsError({
+        requestedRole: role,
+        requestingMemberRole: requestingMember.role,
+      });
     }
   }
 
@@ -24,13 +30,16 @@ export class OrganizationMembershipPolicy {
     targetMember: OrganizationMember,
   ): void {
     if (targetMember.isOwner() && !requestingMember.isOwner()) {
-      throw new Error(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
+      throw new InsufficientPermissionsError({
+        requestingMemberRole: requestingMember.role,
+        targetMemberRole: targetMember.role,
+      });
     }
   }
 
   assertOwnerCountCanShrink(ownerCount: number): void {
     if (ownerCount <= 1) {
-      throw new Error(OrganizationErrorCode.CANNOT_REMOVE_LAST_OWNER);
+      throw new CannotRemoveLastOwnerError({ ownerCount });
     }
   }
 }

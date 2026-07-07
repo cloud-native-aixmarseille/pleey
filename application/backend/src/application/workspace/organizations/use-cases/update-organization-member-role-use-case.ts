@@ -4,8 +4,8 @@ import type {
   OrganizationMember,
   OrganizationMemberId,
 } from '../../../../domain/organization/entities/organization-member';
-import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
 import type { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
+import { MemberNotFoundError } from '../../../../domain/organization/errors';
 import type { OrganizationMemberRepository } from '../../../../domain/organization/ports/organization-member.repository';
 import { OrganizationMemberRepositoryProvider } from '../../../../domain/organization/ports/organization-member.repository';
 import { OrganizationMembershipAccessService } from '../services/organization-membership-access.service';
@@ -25,7 +25,7 @@ export class UpdateOrganizationMemberRoleUseCase {
   ): Promise<OrganizationMember> {
     const memberToUpdate = await this.memberRepository.findById(memberId);
     if (!memberToUpdate) {
-      throw new Error(OrganizationErrorCode.MEMBER_NOT_FOUND);
+      throw new MemberNotFoundError({ memberId });
     }
 
     const requestingMember = await this.organizationMembershipAccess.requireManager(

@@ -255,9 +255,7 @@ describe('PrismaPartyReadModelMapper', () => {
     expect(mapper.toPartyStatus('paused')).toBe(PartyStatus.PAUSED);
     expect(mapper.toPartyStatus('ended')).toBe(PartyStatus.ENDED);
     expect(mapper.toPartyStatus('waiting')).toBe(PartyStatus.WAITING);
-    expect(() => mapper.toPartyStatus('HOST')).toThrow(
-      'Unexpected party role value while reading party status.',
-    );
+    expect(() => mapper.toPartyStatus('HOST')).toThrow('UNEXPECTED_PARTY_ROLE_VALUE');
   });
 
   it('can reject unknown statuses for stricter callers', () => {

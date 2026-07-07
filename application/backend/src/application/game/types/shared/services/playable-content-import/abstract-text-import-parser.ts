@@ -1,6 +1,6 @@
+import { PlayableContentImportInvalidFileError } from '../../../../../../domain/game/types/shared/errors/import-parser.error';
 import { AbstractPlayableContentImportFormatParser } from './abstract-playable-content-import-format-parser';
 import type { PlayableContentImportFormatParser } from './import-format-parser';
-import { PlayableContentImportParserErrorCode } from './import-parser.error';
 import type { RawImportItem, RawImportOption } from './import-parser.types';
 import { PlayableImportFormat, PlayableImportItemKind } from './import-parser.types';
 import type { PlayableContentImportSource } from './import-source';
@@ -166,6 +166,8 @@ export abstract class AbstractTextPlayableContentImportFormatParser
     };
   }
   protected invalidFile(): never {
-    throw new Error(PlayableContentImportParserErrorCode.INVALID_FILE);
+    throw new PlayableContentImportInvalidFileError({
+      reason: 'invalidTextImportStructure',
+    });
   }
 }

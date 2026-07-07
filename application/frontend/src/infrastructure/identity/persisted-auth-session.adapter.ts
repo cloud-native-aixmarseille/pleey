@@ -5,6 +5,7 @@ import type {
 } from '../../application/identity/contracts/auth-runtime.port';
 import { AuthSessionTransportToken } from '../../application/identity/contracts/auth-runtime.port';
 import type { AuthSession } from '../../domains/identity/entities/auth-session';
+import { createDomainError } from '../../domains/shared/errors/domain-error';
 import { type StoragePort, StoragePortToken } from '../../domains/shared/ports/storage.port';
 import { StorageKey } from '../../domains/shared/value-objects/storage-key';
 
@@ -89,7 +90,16 @@ export class PersistedAuthSessionAdapter {
     const parsedUser = JSON.parse(rawUser) as unknown;
 
     if (!this.isStoredUser(parsedUser)) {
-      throw new Error('Invalid stored auth user payload');
+      throw createDomainError(
+        {
+          code: 'INVALID_STORED_AUTH_USER_PAYLOAD',
+          message: 'Invalid stored auth user payload',
+          messageKey: 'INVALID_STORED_AUTH_USER_PAYLOAD',
+        },
+        {
+          rawUser,
+        },
+      );
     }
 
     return parsedUser;

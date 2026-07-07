@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { UserId } from '../../../../domain/identity/entities/user';
 import type { Organization } from '../../../../domain/organization/entities/organization';
-import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
 import { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
+import { OrganizationNameAlreadyExistsError } from '../../../../domain/organization/errors';
 import type { OrganizationRepository } from '../../../../domain/organization/ports/organization.repository';
 import { OrganizationRepositoryProvider } from '../../../../domain/organization/ports/organization.repository';
 import type { OrganizationMemberRepository } from '../../../../domain/organization/ports/organization-member.repository';
@@ -32,7 +32,7 @@ export class CreateOrganizationUseCase {
     // Check if organization name already exists
     const existing = await this.organizationRepository.findByName(dto.name);
     if (existing) {
-      throw new Error(OrganizationErrorCode.ORGANIZATION_NAME_ALREADY_EXISTS);
+      throw new OrganizationNameAlreadyExistsError({ name: dto.name });
     }
 
     // Create the organization

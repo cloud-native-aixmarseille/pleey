@@ -1,6 +1,6 @@
 import { createContext, type PropsWithChildren, useContext } from 'react';
 import type { FormPort } from '../../../application/shared/contracts/form.port';
-import { PresentationContextErrorCode } from '../../../domains/shared/errors/presentation-context-error-code';
+import { PresentationFormProviderRequiredError } from '../../../domains/shared/errors/presentation-context-error-code';
 
 const FormContext = createContext<FormPort | null>(null);
 
@@ -16,7 +16,10 @@ export function usePresentationFormPort(): FormPort {
   const port = useContext(FormContext);
 
   if (!port) {
-    throw new Error(PresentationContextErrorCode.PRESENTATION_FORM_PROVIDER_REQUIRED);
+    throw new PresentationFormProviderRequiredError({
+      consumer: 'usePresentationFormPort',
+      contextName: 'FormContext',
+    });
   }
 
   return port;

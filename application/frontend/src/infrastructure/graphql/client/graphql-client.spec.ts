@@ -1,6 +1,10 @@
 import 'reflect-metadata';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AuthErrorCode } from '../../../domains/identity/errors/auth-error-code';
+import {
+  AUTH_ERROR_DEFINITIONS,
+  AuthErrorCode,
+} from '../../../domains/identity/errors/auth-error-code';
+import { InvalidLoginResponseError } from '../../../domains/identity/errors/graphql-auth-repository.error';
 import { AuthPayloadInspector } from '../../../domains/identity/services/auth-payload-inspector';
 import { AuthFixtureFactory } from '../../../test-utils/fixtures/auth-fixture-factory';
 import { MeDocument, type MeQuery } from '../generated/graphql';
@@ -123,44 +127,63 @@ describe('GraphqlClient', () => {
     });
   });
 
-  describe('extractMessage()', () => {
-    it('returns the error message when one is available', () => {
+  describe('resolveDomainError()', () => {
+    it('preserves the error message when one is available', () => {
       // Arrange
       const client = createGraphqlClient();
+      const fallback = AUTH_ERROR_DEFINITIONS[AuthErrorCode.GENERIC];
 
       // Act
-      const result = client.extractMessage(
+      const result = client.resolveDomainError(
         new Error('Email ou mot de passe invalide.'),
-        'Fallback',
+        fallback,
       );
 
       // Assert
-      expect(result).toBe('Email ou mot de passe invalide.');
+      expect(result.message).toBe('Email ou mot de passe invalide.');
+      expect(result.code).toBe(fallback.code);
     });
 
     it('returns the fallback when the error does not expose a message', () => {
       // Arrange
       const client = createGraphqlClient();
+      const fallback = AUTH_ERROR_DEFINITIONS[AuthErrorCode.GENERIC];
 
       // Act
-      const result = client.extractMessage(null, 'auth.errors.generic');
+      const result = client.resolveDomainError(null, fallback);
 
       // Assert
-      expect(result).toBe('auth.errors.generic');
+      expect(result.message).toBe('auth.errors.generic');
+      expect(result.code).toBe(fallback.code);
     });
 
-    it('maps wrapped unauthorized GraphQL errors to the translated auth error', () => {
+    it('keeps translated transport errors while preserving the fallback message key', () => {
       // Arrange
       const client = createGraphqlClient();
+      const fallback = AUTH_ERROR_DEFINITIONS[AuthErrorCode.INVALID_CREDENTIALS];
 
       // Act
-      const result = client.extractMessage(
+      const result = client.resolveDomainError(
         new Error('An unexpected error occurred (code: Unauthorized)'),
-        AuthErrorCode.GENERIC,
+        fallback,
       );
 
       // Assert
-      expect(result).toBe('An unexpected error occurred (code: Unauthorized)');
+      expect(result.message).toBe('An unexpected error occurred (code: Unauthorized)');
+      expect(result.messageKey).toBe(fallback.messageKey);
+    });
+
+    it('preserves dedicated domain error subclasses', () => {
+      // Arrange
+      const client = createGraphqlClient();
+      const fallback = AUTH_ERROR_DEFINITIONS[AuthErrorCode.GENERIC];
+      const error = new InvalidLoginResponseError();
+
+      // Act
+      const result = client.resolveDomainError(error, fallback);
+
+      // Assert
+      expect(result).toBe(error);
     });
   });
 });

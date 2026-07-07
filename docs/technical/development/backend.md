@@ -6,7 +6,12 @@
 
 See `package.json` scripts and `make help` for available commands.
 
-Lint pipeline runs targeted custom scripts before Biome, including naming, DI-instantiation, and invariant-argument checks. Milestone-0 legacy-path boundaries are enforced in `biome.json` via app-local GritQL plugins alongside `noRestrictedImports` overrides.
+Lint pipeline runs targeted custom scripts before and after Biome, including
+naming, DI-instantiation, domain-error-context, and invariant-argument checks.
+Domain-error throw shape is enforced in Biome via a shared GritQL plugin, while
+the custom checker is kept for alias-based empty-context cases that the plugin
+cannot resolve. Milestone-0 legacy-path boundaries are enforced in `biome.json`
+via app-local GritQL plugins alongside `noRestrictedImports` overrides.
 
 ## Testing Conventions
 
@@ -27,7 +32,7 @@ export class CreatePartyUseCase {
   ) {}
 
   async execute(command: CreatePartyCommand): Promise<PartyDto> {
-    // throw Error(GameErrorCode.GAME_NOT_FOUND) on failure — never HttpException
+    // throw new GameNotFoundError({ gameId: command.gameId }) on failure — never HttpException
   }
 }
 ```
@@ -64,7 +69,13 @@ export class GameManagementResolver {
 }
 ```
 
-Error handling is automatic — use-cases throw `Error(errorCode)`, `I18nHttpExceptionFilter` translates to HTTP status + i18n message.
+Error handling is automatic — use-cases and runtime services throw domain errors, and `I18nHttpExceptionFilter` translates them to HTTP status + i18n message.
+
+- Prefer dedicated domain error classes such as `new PredictionNotFoundError({ predictionId })`.
+- Use `createDomainError(definition, context)` only when a dedicated class would add no value.
+- Always include a non-empty context payload with the best local identifiers or validation facts available.
+- Domain error classes and error modules must live under `src/domain/**`, not under application, infrastructure, or presentation folders.
+- Do not throw bare `Error` from backend runtime layers under `src/application/`, `src/domain/`, `src/infrastructure/`, or `src/presentation/`.
 
 ## Config
 
