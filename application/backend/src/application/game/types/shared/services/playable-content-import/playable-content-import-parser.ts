@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import type { SelectableOptionInput } from '../../../../../../domain/game/types/shared/entities/selectable-option';
-import { PlayableContentImportParserErrorCode } from './import-parser.error';
+import {
+  PlayableContentImportEmptyFileError,
+  PlayableContentImportInvalidFileError,
+} from '../../../../../../domain/game/types/shared/errors/import-parser.error';
 import {
   DEFAULT_POINTS,
   DEFAULT_TIME_LIMIT,
@@ -13,7 +16,10 @@ import {
 import type { PlayableContentImportSource } from './import-source';
 import { PlayableContentImportParserContainer } from './playable-content-import-parser-container';
 
-export { PlayableContentImportParserErrorCode } from './import-parser.error';
+export {
+  PlayableContentImportInvalidFileError,
+  PlayableContentImportParserErrorCode,
+} from '../../../../../../domain/game/types/shared/errors/import-parser.error';
 
 @Injectable()
 export class PlayableContentImportParser {
@@ -23,17 +29,25 @@ export class PlayableContentImportParser {
     const items = await this.parserContainer.parse(source);
 
     if (items.length === 0) {
-      throw new Error(PlayableContentImportParserErrorCode.EMPTY_FILE);
+      throw new PlayableContentImportEmptyFileError({ fileName: source.fileName });
     }
 
-    return items.map((item) => this.toItemDefinition(item));
+    return items.map((item, itemIndex) => this.toItemDefinition(item, source.fileName, itemIndex));
   }
 
-  private toItemDefinition(item: RawImportItem): PlayableImportItemDefinition {
+  private toItemDefinition(
+    item: RawImportItem,
+    fileName: string,
+    itemIndex: number,
+  ): PlayableImportItemDefinition {
     const text = item.text.trim();
 
     if (text.length === 0) {
-      throw new Error(PlayableContentImportParserErrorCode.INVALID_FILE);
+      throw new PlayableContentImportInvalidFileError({
+        fileName,
+        itemIndex,
+        reason: 'itemTextEmpty',
+      });
     }
 
     const normalizedOptions = item.options
@@ -44,12 +58,17 @@ export class PlayableContentImportParser {
       item.kind ?? this.inferKindFromOptionTexts(normalizedOptions.map((option) => option.text));
 
     if (normalizedOptions.length < 2) {
-      throw new Error(PlayableContentImportParserErrorCode.INVALID_FILE);
+      throw new PlayableContentImportInvalidFileError({
+        fileName,
+        itemIndex,
+        optionCount: normalizedOptions.length,
+        reason: 'insufficientOptions',
+      });
     }
 
     const options =
       kind === PlayableImportItemKind.TRUE_FALSE
-        ? this.normalizeTrueFalseOptions(normalizedOptions)
+        ? this.normalizeTrueFalseOptions(normalizedOptions, fileName, itemIndex)
         : normalizedOptions.map((option, index) => ({
             isCorrect: option.isCorrect,
             position: index,
@@ -57,7 +76,11 @@ export class PlayableContentImportParser {
           }));
 
     if (!options.some((option) => option.isCorrect)) {
-      throw new Error(PlayableContentImportParserErrorCode.INVALID_FILE);
+      throw new PlayableContentImportInvalidFileError({
+        fileName,
+        itemIndex,
+        reason: 'missingCorrectOption',
+      });
     }
 
     return {
@@ -71,13 +94,20 @@ export class PlayableContentImportParser {
 
   private normalizeTrueFalseOptions(
     options: readonly RawImportOption[],
+    fileName: string,
+    itemIndex: number,
   ): readonly SelectableOptionInput[] {
     const normalizedTexts = options.map((option) => option.text.toLowerCase());
     const trueIndex = normalizedTexts.indexOf('true');
     const falseIndex = normalizedTexts.indexOf('false');
 
     if (options.length !== 2 || trueIndex === -1 || falseIndex === -1) {
-      throw new Error(PlayableContentImportParserErrorCode.INVALID_FILE);
+      throw new PlayableContentImportInvalidFileError({
+        fileName,
+        itemIndex,
+        optionTexts: options.map((option) => option.text),
+        reason: 'invalidTrueFalseOptions',
+      });
     }
 
     return TRUE_FALSE_OPTION_TEXTS.map((text, position) => ({

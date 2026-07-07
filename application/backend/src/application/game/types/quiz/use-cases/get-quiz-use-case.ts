@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { Quiz } from '../../../../../domain/game/types/quiz/entities/quiz';
-import { QuizErrorCode } from '../../../../../domain/game/types/quiz/enums/quiz-error-code.enum';
+import { QuizNotFoundError } from '../../../../../domain/game/types/quiz/errors';
 import type { QuizManagementRepository } from '../../../../../domain/game/types/quiz/ports/quiz-management.repository';
 import { QuizManagementRepositoryProvider } from '../../../../../domain/game/types/quiz/ports/quiz-management.repository';
 import type { GameTypeId } from '../../../../../domain/game/types/shared/entities/game-type';
@@ -18,7 +18,7 @@ export class GetQuizUseCase {
   async execute(quizId: GameTypeId, userId: UserId): Promise<Quiz> {
     const quiz = await this.quizRepository.findById(quizId);
     if (!quiz) {
-      throw new Error(QuizErrorCode.QUIZ_NOT_FOUND);
+      throw new QuizNotFoundError({ quizId });
     }
 
     await this.accessGuard.assertCanManageProject(quiz.projectId, userId);

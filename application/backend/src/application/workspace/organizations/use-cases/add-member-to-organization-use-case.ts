@@ -4,7 +4,10 @@ import type { UserRepository } from '../../../../domain/identity/ports/user.repo
 import { UserRepositoryProvider } from '../../../../domain/identity/ports/user.repository';
 import type { OrganizationId } from '../../../../domain/organization/entities/organization';
 import type { OrganizationMember } from '../../../../domain/organization/entities/organization-member';
-import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
+import {
+  MemberAlreadyExistsError,
+  MemberUserNotFoundError,
+} from '../../../../domain/organization/errors';
 import type { OrganizationMemberRepository } from '../../../../domain/organization/ports/organization-member.repository';
 import { OrganizationMemberRepositoryProvider } from '../../../../domain/organization/ports/organization-member.repository';
 import type { AddMemberDto } from '../dto/add-member-dto';
@@ -43,7 +46,7 @@ export class AddMemberToOrganizationUseCase {
       memberUserId,
     );
     if (existingMember) {
-      throw new Error(OrganizationErrorCode.MEMBER_ALREADY_EXISTS);
+      throw new MemberAlreadyExistsError({ memberUserId, organizationId });
     }
 
     return this.memberRepository.create(organizationId, memberUserId, dto.role);
@@ -57,7 +60,7 @@ export class AddMemberToOrganizationUseCase {
       : await this.userRepository.findByUsername(normalizedUsernameOrEmail);
 
     if (!user) {
-      throw new Error(OrganizationErrorCode.MEMBER_USER_NOT_FOUND);
+      throw new MemberUserNotFoundError({ usernameOrEmail: normalizedUsernameOrEmail });
     }
 
     return user.id;

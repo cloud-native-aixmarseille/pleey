@@ -2,7 +2,10 @@ import { describe, expect, it, vi } from 'vitest';
 import { PredictionErrorCode } from '../../../../../domain/game/types/prediction/enums/prediction-error-code.enum';
 import { SelectableOptionPolicy } from '../../../../../domain/game/types/shared/services/selectable-option-policy';
 import { PlayableContentImportSource } from '../../shared/services/playable-content-import/import-source';
-import { PlayableContentImportParser } from '../../shared/services/playable-content-import/playable-content-import-parser';
+import {
+  PlayableContentImportParser,
+  PlayableContentImportParserErrorCode,
+} from '../../shared/services/playable-content-import/playable-content-import-parser';
 import { PredictionImportPromptMapper } from './prediction-import-prompt-mapper';
 
 class TestPlayableContentImportSource extends PlayableContentImportSource {
@@ -55,13 +58,20 @@ describe('PredictionImportPromptMapper', () => {
   it('maps parser failures to prediction import error codes', async () => {
     const parser = {
       parse: vi.fn().mockImplementation(async () => {
-        throw new Error('PLAYABLE_CONTENT_IMPORT_UNSUPPORTED_FORMAT');
+        throw new Error(PlayableContentImportParserErrorCode.UNSUPPORTED_FORMAT);
       }),
     } as unknown as PlayableContentImportParser;
     const mapper = new PredictionImportPromptMapper(parser, new SelectableOptionPolicy());
 
     await expect(
       mapper.map(new TestPlayableContentImportSource('prediction-import.docx')),
-    ).rejects.toThrow(PredictionErrorCode.PREDICTION_IMPORT_UNSUPPORTED_FORMAT);
+    ).rejects.toMatchObject({
+      code: PredictionErrorCode.PREDICTION_IMPORT_UNSUPPORTED_FORMAT,
+      context: {
+        fileName: 'prediction-import.docx',
+        parserErrorCode: PlayableContentImportParserErrorCode.UNSUPPORTED_FORMAT,
+      },
+      message: PredictionErrorCode.PREDICTION_IMPORT_UNSUPPORTED_FORMAT,
+    });
   });
 });

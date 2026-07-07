@@ -11,6 +11,10 @@ import type {
   UpdateOrganizationMemberRoleCommand,
 } from '../../../../../domains/organization/ports/organization-repository';
 import type { Project, ProjectId } from '../../../../../domains/project/entities/project';
+import {
+  ProjectCreateFailedError,
+  ProjectUpdateFailedError,
+} from '../../../../../domains/project/errors/project-error-code';
 import type {
   CreateProjectCommand,
   DeleteProjectCommand,
@@ -258,7 +262,9 @@ export function useOrganizationScreenState({
 
   async function handleCreateProject(values: ProjectFormValues): Promise<Project> {
     if (!workspace.selectedOrganization) {
-      throw new Error('project.errors.createFailed');
+      throw new ProjectCreateFailedError({
+        reason: 'missingSelectedOrganization',
+      });
     }
 
     return createProject({
@@ -270,7 +276,9 @@ export function useOrganizationScreenState({
 
   async function handleUpdateProject(values: ProjectFormValues): Promise<Project> {
     if (!editingProject) {
-      throw new Error('project.errors.updateFailed');
+      throw new ProjectUpdateFailedError({
+        reason: 'missingEditingProject',
+      });
     }
 
     return updateProject({

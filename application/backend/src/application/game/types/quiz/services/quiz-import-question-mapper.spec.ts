@@ -3,7 +3,10 @@ import { QuizQuestionType } from '../../../../../domain/game/types/quiz/entities
 import { QuizErrorCode } from '../../../../../domain/game/types/quiz/enums/quiz-error-code.enum';
 import { SelectableOptionPolicy } from '../../../../../domain/game/types/shared/services/selectable-option-policy';
 import { PlayableContentImportSource } from '../../shared/services/playable-content-import/import-source';
-import { PlayableContentImportParser } from '../../shared/services/playable-content-import/playable-content-import-parser';
+import {
+  PlayableContentImportParser,
+  PlayableContentImportParserErrorCode,
+} from '../../shared/services/playable-content-import/playable-content-import-parser';
 import { QuizImportQuestionMapper } from './quiz-import-question-mapper';
 
 class TestPlayableContentImportSource extends PlayableContentImportSource {
@@ -57,13 +60,20 @@ describe('QuizImportQuestionMapper', () => {
   it('maps parser failures to quiz import error codes', async () => {
     const parser = {
       parse: vi.fn().mockImplementation(async () => {
-        throw new Error('PLAYABLE_CONTENT_IMPORT_INVALID_FILE');
+        throw new Error(PlayableContentImportParserErrorCode.INVALID_FILE);
       }),
     } as unknown as PlayableContentImportParser;
     const mapper = new QuizImportQuestionMapper(parser, new SelectableOptionPolicy());
 
     await expect(
       mapper.map(new TestPlayableContentImportSource('quiz-import.json')),
-    ).rejects.toThrow(QuizErrorCode.QUIZ_IMPORT_INVALID_FILE);
+    ).rejects.toMatchObject({
+      code: QuizErrorCode.QUIZ_IMPORT_INVALID_FILE,
+      context: {
+        fileName: 'quiz-import.json',
+        parserErrorCode: PlayableContentImportParserErrorCode.INVALID_FILE,
+      },
+      message: QuizErrorCode.QUIZ_IMPORT_INVALID_FILE,
+    });
   });
 });

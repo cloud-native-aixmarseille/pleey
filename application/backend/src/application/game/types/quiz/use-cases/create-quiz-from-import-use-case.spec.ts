@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { Quiz } from '../../../../../domain/game/types/quiz/entities/quiz';
 import { QuizQuestionType } from '../../../../../domain/game/types/quiz/entities/quiz-question';
 import { QuizErrorCode } from '../../../../../domain/game/types/quiz/enums/quiz-error-code.enum';
+import { QuizImportInvalidFileError } from '../../../../../domain/game/types/quiz/errors';
 import type { QuizManagementRepository } from '../../../../../domain/game/types/quiz/ports/quiz-management.repository';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { GameTypeIdentifier } from '../../shared/services/game-type-identifier';
@@ -105,7 +106,7 @@ describe('CreateQuizFromImportUseCase', () => {
     };
     const importQuestionMapper = {
       map: vi.fn().mockImplementation(async () => {
-        throw new Error(QuizErrorCode.QUIZ_IMPORT_INVALID_FILE);
+        throw new QuizImportInvalidFileError();
       }),
     } as unknown as QuizImportQuestionMapper;
     const useCase = new CreateQuizFromImportUseCase(

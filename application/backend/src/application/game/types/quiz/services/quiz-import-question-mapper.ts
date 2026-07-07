@@ -4,6 +4,11 @@ import {
   QuizQuestionType as QuizQuestionTypeEnum,
 } from '../../../../../domain/game/types/quiz/entities/quiz-question';
 import { QuizErrorCode } from '../../../../../domain/game/types/quiz/enums/quiz-error-code.enum';
+import {
+  QuizImportEmptyFileError,
+  QuizImportInvalidFileError,
+  QuizImportUnsupportedFormatError,
+} from '../../../../../domain/game/types/quiz/errors';
 import type { QuizQuestionCreationData } from '../../../../../domain/game/types/quiz/ports/quiz-question.repository';
 import { SelectableOptionPolicy } from '../../../../../domain/game/types/shared/services/selectable-option-policy';
 import type { PlayableContentImportSource } from '../../shared/services/playable-content-import/import-source';
@@ -56,16 +61,21 @@ export class QuizImportQuestionMapper {
         throw error;
       }
 
+      const context = {
+        fileName: source.fileName,
+        parserErrorCode: error.message,
+      };
+
       if (error.message === PlayableContentImportParserErrorCode.EMPTY_FILE) {
-        throw new Error(QuizErrorCode.QUIZ_IMPORT_EMPTY_FILE);
+        throw new QuizImportEmptyFileError(context);
       }
 
       if (error.message === PlayableContentImportParserErrorCode.UNSUPPORTED_FORMAT) {
-        throw new Error(QuizErrorCode.QUIZ_IMPORT_UNSUPPORTED_FORMAT);
+        throw new QuizImportUnsupportedFormatError(context);
       }
 
       if (error.message === PlayableContentImportParserErrorCode.INVALID_FILE) {
-        throw new Error(QuizErrorCode.QUIZ_IMPORT_INVALID_FILE);
+        throw new QuizImportInvalidFileError(context);
       }
 
       throw error;

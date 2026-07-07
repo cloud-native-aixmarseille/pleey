@@ -1,6 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { PredictionPromptId } from '../../../../../domain/game/types/prediction/entities/prediction-prompt';
-import { PredictionErrorCode } from '../../../../../domain/game/types/prediction/enums/prediction-error-code.enum';
+import {
+  PredictionNotFoundError,
+  PredictionPromptNotFoundError,
+} from '../../../../../domain/game/types/prediction/errors';
 import type { PredictionManagementRepository } from '../../../../../domain/game/types/prediction/ports/prediction-management.repository';
 import { PredictionManagementRepositoryProvider } from '../../../../../domain/game/types/prediction/ports/prediction-management.repository';
 import type { PredictionPromptRepository } from '../../../../../domain/game/types/prediction/ports/prediction-prompt.repository';
@@ -21,12 +24,12 @@ export class DeletePredictionPromptUseCase {
   async execute(promptId: PredictionPromptId, userId: UserId): Promise<boolean> {
     const prompt = await this.promptRepository.findById(promptId);
     if (!prompt) {
-      throw new Error(PredictionErrorCode.PROMPT_NOT_FOUND);
+      throw new PredictionPromptNotFoundError({ promptId });
     }
 
     const prediction = await this.predictionRepository.findById(prompt.predictionId);
     if (!prediction) {
-      throw new Error(PredictionErrorCode.PREDICTION_NOT_FOUND);
+      throw new PredictionNotFoundError({ predictionId: prompt.predictionId, promptId });
     }
 
     await this.accessGuard.assertCanManageProject(prediction.projectId, userId);

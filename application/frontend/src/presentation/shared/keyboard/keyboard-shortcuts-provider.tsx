@@ -9,7 +9,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { PresentationContextErrorCode } from '../../../domains/shared/errors/presentation-context-error-code';
+import { PresentationUiProviderRequiredError } from '../../../domains/shared/errors/presentation-context-error-code';
 import { usePresentationTranslation } from '../i18n/use-presentation-translation';
 import { Button } from '../ui/actions/button';
 import { ContentStack, SplitWrapRow } from '../ui/layout/containers';
@@ -428,7 +428,10 @@ function useKeyboardShortcutsContext(): KeyboardShortcutsContextValue {
   const context = useContext(KeyboardShortcutsContext);
 
   if (!context) {
-    throw new Error(PresentationContextErrorCode.PRESENTATION_UI_PROVIDER_REQUIRED);
+    throw new PresentationUiProviderRequiredError({
+      consumer: 'useKeyboardShortcutsContext',
+      contextName: 'KeyboardShortcutsContext',
+    });
   }
 
   return context;

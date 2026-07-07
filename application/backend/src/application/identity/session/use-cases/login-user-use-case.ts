@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { IdentityErrorCode } from '../../../../domain/identity/enums/identity-error-code.enum';
+import { InvalidCredentialsError } from '../../../../domain/identity/errors';
 import {
   type AuthTokenResponse,
   type AuthTokenService,
@@ -28,13 +28,19 @@ export class LoginUserUseCase {
     // Find user by email
     const user = await this.userRepository.findByEmail(dto.email);
     if (!user) {
-      throw new Error(IdentityErrorCode.INVALID_CREDENTIALS);
+      throw new InvalidCredentialsError({
+        email: dto.email,
+        reason: 'userNotFound',
+      });
     }
 
     // Verify password
     const isPasswordValid = await this.passwordService.compare(dto.password, user.password);
     if (!isPasswordValid) {
-      throw new Error(IdentityErrorCode.INVALID_CREDENTIALS);
+      throw new InvalidCredentialsError({
+        email: dto.email,
+        reason: 'passwordMismatch',
+      });
     }
 
     // Generate JWT token

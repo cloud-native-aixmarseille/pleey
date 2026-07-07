@@ -1,5 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { IdentityErrorCode } from '../../../../domain/identity/enums/identity-error-code.enum';
+import {
+  InvalidRefreshTokenError,
+  RefreshTokenExpiredError,
+} from '../../../../domain/identity/errors';
 import {
   type AuthTokenResponse,
   type AuthTokenService,
@@ -24,18 +27,27 @@ export class RefreshAccessTokenUseCase {
 
     const user = await this.userRepository.findById(userId);
     if (!user?.refreshTokenHash) {
-      throw new Error(IdentityErrorCode.INVALID_REFRESH_TOKEN);
+      throw new InvalidRefreshTokenError({
+        reason: 'missingStoredRefreshToken',
+        userId,
+      });
     }
 
     if (!user.refreshTokenExpiresAt || user.refreshTokenExpiresAt.getTime() <= Date.now()) {
       await this.userRepository.clearRefreshToken(userId);
-      throw new Error(IdentityErrorCode.REFRESH_TOKEN_EXPIRED);
+      throw new RefreshTokenExpiredError({
+        reason: 'expiredStoredRefreshToken',
+        userId,
+      });
     }
 
     const isTokenValid = await this.passwordService.compare(refreshToken, user.refreshTokenHash);
     if (!isTokenValid) {
       await this.userRepository.clearRefreshToken(userId);
-      throw new Error(IdentityErrorCode.INVALID_REFRESH_TOKEN);
+      throw new InvalidRefreshTokenError({
+        reason: 'refreshTokenMismatch',
+        userId,
+      });
     }
 
     const tokenPair = this.authTokenService.createTokenPair({

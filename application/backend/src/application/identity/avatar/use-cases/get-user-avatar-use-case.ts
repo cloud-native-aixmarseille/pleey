@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { UserId } from '../../../../domain/identity/entities/user';
-import { IdentityErrorCode } from '../../../../domain/identity/enums/identity-error-code.enum';
+import { AvatarNotFoundError, UserNotFoundError } from '../../../../domain/identity/errors';
 import type { UserRepository } from '../../../../domain/identity/ports/user.repository';
 import { UserRepositoryProvider } from '../../../../domain/identity/ports/user.repository';
 import type { Media } from '../../../../domain/media/entities/media';
@@ -16,11 +16,11 @@ export class GetUserAvatarUseCase {
     const user = await this.userRepository.findById(userId);
 
     if (!user) {
-      throw new Error(IdentityErrorCode.USER_NOT_FOUND);
+      throw new UserNotFoundError({ userId });
     }
 
     if (!user.avatar) {
-      throw new Error(IdentityErrorCode.AVATAR_NOT_FOUND);
+      throw new AvatarNotFoundError({ userId });
     }
 
     return user.avatar;

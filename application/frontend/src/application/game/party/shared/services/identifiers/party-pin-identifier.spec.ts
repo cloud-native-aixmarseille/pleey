@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { IdentifierParserErrorCode } from '../../../../../shared/errors/identifier-parser-error-code';
+import { IdentifierParserErrorCode } from '../../../../../../domains/shared/errors/identifier-parser-error-code';
 import { PartyPinIdentifier } from './party-pin-identifier';
 
 const partyPinIdentifier = new PartyPinIdentifier();

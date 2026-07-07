@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { UserId } from '../../../../domain/identity/entities/user';
-import { IdentityErrorCode } from '../../../../domain/identity/enums/identity-error-code.enum';
+import { UserAlreadyExistsError, UserNotFoundError } from '../../../../domain/identity/errors';
 import type { UserRepository } from '../../../../domain/identity/ports/user.repository';
 import { UserRepositoryProvider } from '../../../../domain/identity/ports/user.repository';
 import type { UserProfileSnapshot } from '../../../../domain/identity/types/user-profile-snapshot';
@@ -17,20 +17,28 @@ export class UpdateUserProfileUseCase {
     const user = await this.userRepository.findById(userId);
 
     if (!user) {
-      throw new Error(IdentityErrorCode.USER_NOT_FOUND);
+      throw new UserNotFoundError({ userId });
     }
 
     if (dto.email) {
       const existingByEmail = await this.userRepository.findByEmail(dto.email);
       if (existingByEmail && existingByEmail.id !== userId) {
-        throw new Error(IdentityErrorCode.USER_ALREADY_EXISTS);
+        throw new UserAlreadyExistsError({
+          conflictingUserId: existingByEmail.id,
+          email: dto.email,
+          userId,
+        });
       }
     }
 
     if (dto.username) {
       const existingByUsername = await this.userRepository.findByUsername(dto.username);
       if (existingByUsername && existingByUsername.id !== userId) {
-        throw new Error(IdentityErrorCode.USER_ALREADY_EXISTS);
+        throw new UserAlreadyExistsError({
+          conflictingUserId: existingByUsername.id,
+          userId,
+          username: dto.username,
+        });
       }
     }
 

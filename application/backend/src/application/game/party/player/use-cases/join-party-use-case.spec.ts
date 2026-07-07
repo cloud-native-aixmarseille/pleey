@@ -2,6 +2,12 @@ import 'reflect-metadata';
 import { describe, expect, it, vi } from 'vitest';
 import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
+import {
+  GuestPlayerRejoinNotFoundError,
+  GuestUsernameRequiredError,
+  InvalidPartyPasswordError,
+  MissingPartyPasswordError,
+} from '../../../../../domain/game/party/errors/join-party.error';
 import type { PartyPlayer } from '../../../../../domain/game/party/player/entities/party-player';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { createPasswordServiceMock } from '../../../../../test-utils/mock-factories/password-service.mock-factory';
@@ -132,7 +138,14 @@ describe('JoinPartyUseCase', () => {
         },
         username: '',
       }),
-    ).rejects.toThrow(GameErrorCode.PLAYER_ALREADY_IN_ACTIVE_PARTY);
+    ).rejects.toMatchObject({
+      code: GameErrorCode.PLAYER_ALREADY_IN_ACTIVE_PARTY,
+      context: {
+        activePartyId: otherPartyId,
+        requestedPartyId: partyId,
+        userId: playerUserId,
+      },
+    });
 
     expect(runtime.ensureAuthenticatedPlayer).not.toHaveBeenCalled();
     expect(broadcastPartyObservationUseCase.execute).not.toHaveBeenCalled();
@@ -364,7 +377,7 @@ describe('JoinPartyUseCase', () => {
         },
         username: '   ',
       }),
-    ).rejects.toThrow(GameErrorCode.VALIDATION_FAILED);
+    ).rejects.toBeInstanceOf(GuestPlayerRejoinNotFoundError);
 
     expect(runtime.ensureGuestPlayer).not.toHaveBeenCalled();
     expect(broadcastPartyObservationUseCase.execute).not.toHaveBeenCalled();
@@ -389,7 +402,7 @@ describe('JoinPartyUseCase', () => {
         },
         username: '   ',
       }),
-    ).rejects.toThrow(GameErrorCode.VALIDATION_FAILED);
+    ).rejects.toBeInstanceOf(GuestUsernameRequiredError);
 
     expect(runtime.ensureGuestPlayer).not.toHaveBeenCalled();
   });
@@ -428,7 +441,7 @@ describe('JoinPartyUseCase', () => {
         },
         username: 'Morgan Guest',
       }),
-    ).rejects.toThrow(GameErrorCode.VALIDATION_FAILED);
+    ).rejects.toBeInstanceOf(MissingPartyPasswordError);
 
     expect(passwordService.compare).not.toHaveBeenCalled();
   });
@@ -468,7 +481,7 @@ describe('JoinPartyUseCase', () => {
         },
         username: 'Morgan Guest',
       }),
-    ).rejects.toThrow(GameErrorCode.VALIDATION_FAILED);
+    ).rejects.toBeInstanceOf(InvalidPartyPasswordError);
 
     expect(passwordService.compare).toHaveBeenCalledWith('wrong-secret', 'hashed-private-password');
   });

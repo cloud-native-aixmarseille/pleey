@@ -8,9 +8,15 @@ import { UserIdentifier } from '../../../application/identity/shared/services/id
 import type { PlayerPartyObservation } from '../../../domain/game/party/player/entities/player-party-observation';
 import type { PartyId } from '../../../domain/game/party/shared/entities/party';
 import { PartyRuntimeContextProjectionService } from '../../../domain/game/party/shared/services/party-runtime-context-projection.service';
+import { createDomainError } from '../../../domain/shared/errors/domain-error';
 import { PrismaService } from '../../database/prisma-service';
 import { PrismaGameSettingsMapper } from '../shared/prisma-game-settings.mapper';
 import { PrismaPartyReadModelMapper } from './services/prisma-party-read-model-mapper';
+
+const PLAYER_PARTY_OBSERVATION_PARTY_REQUIRED_ERROR = {
+  code: 'PLAYER_PARTY_OBSERVATION_PARTY_REQUIRED',
+  messageKey: 'PLAYER_PARTY_OBSERVATION_PARTY_REQUIRED',
+} as const;
 
 @Injectable()
 export class PrismaPlayerPartyObservationReader implements PlayerPartyObservationReaderPort {
@@ -29,7 +35,7 @@ export class PrismaPlayerPartyObservationReader implements PlayerPartyObservatio
   async findPlayerObservationByPartyId(partyId: PartyId): Promise<PlayerPartyObservation | null> {
     const party = await this.loadPlayerObservationSource(partyId);
 
-    return party ? this.toPlayerObservation(party) : null;
+    return party ? this.toPlayerObservation(party, partyId) : null;
   }
 
   private loadPlayerObservationSource(partyId: PartyId) {
@@ -95,9 +101,10 @@ export class PrismaPlayerPartyObservationReader implements PlayerPartyObservatio
 
   private async toPlayerObservation(
     party: Awaited<ReturnType<PrismaPlayerPartyObservationReader['loadPlayerObservationSource']>>,
+    partyId: PartyId,
   ): Promise<PlayerPartyObservation> {
     if (!party) {
-      throw new Error('Player party observation requires a party');
+      throw createDomainError(PLAYER_PARTY_OBSERVATION_PARTY_REQUIRED_ERROR, { partyId });
     }
 
     const excludedUserId = this.userIdentifier.parse(party.host.id);

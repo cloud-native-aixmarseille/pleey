@@ -1,5 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
+import {
+  GameValidationFailedError,
+  PartyCommandNotAvailableError,
+  PartyStagesNotAvailableError,
+} from '../../../../../domain/game/errors';
 import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
 import { PartyRuntimePhase } from '../../../../../domain/game/party/shared/entities/party-runtime-context';
 import {
@@ -28,19 +32,33 @@ export class ChoiceSubmissionPartyActionPolicy extends GameTypePartyActionPolicy
       command.context?.lifecycle.phase !== PartyRuntimePhase.STAGE ||
       stageId == null
     ) {
-      throw new Error(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
+      throw new PartyCommandNotAvailableError({
+        actionId: command.actionId,
+        gameId: command.gameId,
+        phase: command.context?.lifecycle.phase,
+        stageId,
+        status: command.status,
+      });
     }
 
     const stage = await this.partyStageCatalog.findStageById(command.gameId, stageId);
 
     if (!stage) {
-      throw new Error(GameErrorCode.PARTY_STAGES_NOT_AVAILABLE);
+      throw new PartyStagesNotAvailableError({
+        gameId: command.gameId,
+        stageId,
+      });
     }
 
     const selectedAction = stage.actions.find((action) => action.id === command.actionId);
 
     if (!selectedAction) {
-      throw new Error(GameErrorCode.VALIDATION_FAILED);
+      throw new GameValidationFailedError({
+        actionId: command.actionId,
+        gameId: command.gameId,
+        reason: 'actionNotFoundInStage',
+        stageId,
+      });
     }
 
     return {
@@ -69,7 +87,14 @@ export class ChoiceSubmissionPartyActionPolicy extends GameTypePartyActionPolicy
     const remainingDurationMs = stageEndsAtEpochMs - Date.now();
 
     if (remainingDurationMs <= 0) {
-      throw new Error(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
+      throw new PartyCommandNotAvailableError({
+        actionId: command.actionId,
+        gameId: command.gameId,
+        reason: 'stageExpired',
+        remainingDurationMs,
+        stageEndsAtEpochMs,
+        stageId: command.context?.lifecycle.stageId,
+      });
     }
 
     const boundedRemainingDurationMs = Math.min(totalDurationMs, remainingDurationMs);

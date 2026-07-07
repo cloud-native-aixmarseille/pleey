@@ -9,6 +9,10 @@ import {
   Prediction,
   type PredictionId,
 } from '../../../../domain/game/types/prediction/entities/prediction';
+import {
+  PredictionNotCreatedError,
+  PredictionNotUpdatedError,
+} from '../../../../domain/game/types/prediction/errors/prediction-management-repository.error';
 import type {
   CreatePredictionData,
   CreatePredictionWithPromptsData,
@@ -22,11 +26,6 @@ import { PrismaService } from '../../../database/prisma-service';
 import { PrismaGameSettingsMapper } from '../../shared/prisma-game-settings.mapper';
 
 const ACTIVE_PARTY_STATUSES = [PartyStatus.WAITING, PartyStatus.ACTIVE, PartyStatus.PAUSED];
-
-enum PredictionManagementRepositoryErrorCode {
-  PREDICTION_NOT_CREATED = 'PREDICTION_NOT_CREATED',
-  PREDICTION_NOT_UPDATED = 'PREDICTION_NOT_UPDATED',
-}
 
 interface PrismaPredictionRecord extends GameSettings {
   readonly id: string;
@@ -96,7 +95,10 @@ export class PrismaPredictionManagementRepository implements PredictionManagemen
     });
 
     if (!game.prediction) {
-      throw new Error(PredictionManagementRepositoryErrorCode.PREDICTION_NOT_CREATED);
+      throw new PredictionNotCreatedError({
+        projectId: data.projectId,
+        title: data.title,
+      });
     }
 
     return this.toDomain(game.prediction);
@@ -142,7 +144,11 @@ export class PrismaPredictionManagementRepository implements PredictionManagemen
     });
 
     if (!game.prediction) {
-      throw new Error(PredictionManagementRepositoryErrorCode.PREDICTION_NOT_CREATED);
+      throw new PredictionNotCreatedError({
+        projectId: data.projectId,
+        promptCount: data.prompts.length,
+        title: data.title,
+      });
     }
 
     return this.toDomain(game.prediction);
@@ -181,7 +187,10 @@ export class PrismaPredictionManagementRepository implements PredictionManagemen
 
     const updated = await this.findById(id);
     if (!updated) {
-      throw new Error(PredictionManagementRepositoryErrorCode.PREDICTION_NOT_UPDATED);
+      throw new PredictionNotUpdatedError({
+        gameId: prediction.gameId,
+        predictionId: id,
+      });
     }
 
     return updated;

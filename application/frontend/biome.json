@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.4.16/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.5.2/schema.json",
   "extends": ["./biome.shared-party-rules.json", "./biome.shared-style-rules.json"],
   "files": {
     "includes": [
@@ -16,7 +16,7 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
+      "preset": "recommended",
       "suspicious": {
         "noConsole": "error",
         "noExplicitAny": "error",
@@ -115,6 +115,16 @@
     {
       "includes": ["src/application/**/*.{ts,tsx,js,jsx}", "src/domains/**/*.{ts,tsx,js,jsx}"],
       "plugins": ["./biome/plugins/application-domain-boundaries.grit"]
+    },
+    {
+      "includes": [
+        "src/application/**/*.{ts,tsx,js,jsx}",
+        "src/domains/**/*.{ts,tsx,js,jsx}",
+        "src/infrastructure/**/*.{ts,tsx,js,jsx}",
+        "src/presentation/**/*.{ts,tsx,js,jsx}",
+        "!!src/**/*.{spec,test}.{ts,tsx,js,jsx}"
+      ],
+      "plugins": ["./biome/plugins/domain-error-throw-shape.grit"]
     },
     {
       "includes": [

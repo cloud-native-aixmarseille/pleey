@@ -1,5 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
+import {
+  HostPartyControlForbiddenError,
+  PartyCommandNotAvailableError,
+  PartyNotFoundError,
+} from '../../../../../domain/game/errors';
 import { BroadcastPartyObservationUseCase } from '../../shared/use-cases/broadcast-party-observation-use-case';
 import type { HostPartyPlayerControlDto } from '../dto/host-party-player-control.dto';
 import { HostPartyRuntimeControlPort } from '../ports/host-party-runtime-control.port';
@@ -16,11 +20,20 @@ export class KickPartyPlayerUseCase {
     const party = await this.hostPartyRuntimeControl.findPartyRuntimeByPartyId(input.partyId);
 
     if (!party) {
-      throw new Error(GameErrorCode.PARTY_NOT_FOUND);
+      throw new PartyNotFoundError({
+        hostUserId: input.hostUserId,
+        partyId: input.partyId,
+        playerIdentity: input.playerIdentity,
+      });
     }
 
     if (party.hostUserId !== input.hostUserId) {
-      throw new Error(GameErrorCode.HOST_PARTY_CONTROL_FORBIDDEN);
+      throw new HostPartyControlForbiddenError({
+        actualHostUserId: party.hostUserId,
+        hostUserId: input.hostUserId,
+        partyId: input.partyId,
+        playerIdentity: input.playerIdentity,
+      });
     }
 
     const hasRemovedPlayer = await this.hostPartyRuntimeControl.removePartyPlayer({
@@ -29,7 +42,12 @@ export class KickPartyPlayerUseCase {
     });
 
     if (!hasRemovedPlayer) {
-      throw new Error(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
+      throw new PartyCommandNotAvailableError({
+        hostUserId: input.hostUserId,
+        partyId: input.partyId,
+        playerIdentity: input.playerIdentity,
+        reason: 'playerNotPresent',
+      });
     }
 
     await this.broadcastPartyObservationUseCase.execute({ partyId: input.partyId });

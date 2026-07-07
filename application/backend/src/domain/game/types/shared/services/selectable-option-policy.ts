@@ -1,3 +1,4 @@
+import { createDomainError } from '../../../../shared/errors/domain-error';
 import {
   SelectableOption,
   type SelectableOptionId,
@@ -34,20 +35,56 @@ export class SelectableOptionPolicy {
     this.assertBaseOptions(options, errorCodes.invalidCorrectOption);
 
     if (options.filter((option) => option.isCorrect).length < 1) {
-      throw new Error(errorCodes.invalidCorrectOption);
+      throw createDomainError(
+        {
+          code: errorCodes.invalidCorrectOption,
+          messageKey: errorCodes.invalidCorrectOption,
+        },
+        {
+          correctOptionCount: options.filter((option) => option.isCorrect).length,
+          optionCount: options.length,
+        },
+      );
     }
 
     if (options.length > MAX_SELECTABLE_OPTIONS) {
-      throw new Error(errorCodes.invalidCorrectOption);
+      throw createDomainError(
+        {
+          code: errorCodes.invalidCorrectOption,
+          messageKey: errorCodes.invalidCorrectOption,
+        },
+        {
+          maxSelectableOptions: MAX_SELECTABLE_OPTIONS,
+          optionCount: options.length,
+        },
+      );
     }
 
     for (const option of options) {
       if (option.position < FIRST_CHOICE_POSITION || option.position >= MAX_SELECTABLE_OPTIONS) {
-        throw new Error(errorCodes.invalidCorrectOption);
+        throw createDomainError(
+          {
+            code: errorCodes.invalidCorrectOption,
+            messageKey: errorCodes.invalidCorrectOption,
+          },
+          {
+            maxSelectableOptions: MAX_SELECTABLE_OPTIONS,
+            optionCount: options.length,
+            optionPosition: option.position,
+          },
+        );
       }
 
       if (!option.text) {
-        throw new Error(errorCodes.emptyOptionText);
+        throw createDomainError(
+          {
+            code: errorCodes.emptyOptionText,
+            messageKey: errorCodes.emptyOptionText,
+          },
+          {
+            optionPosition: option.position,
+          },
+        );
       }
     }
   }
@@ -59,25 +96,59 @@ export class SelectableOptionPolicy {
     this.assertBaseOptions(options, errorCodes.invalidCorrectOption);
 
     if (options.length !== 2 || options.filter((option) => option.isCorrect).length !== 1) {
-      throw new Error(errorCodes.invalidCorrectOption);
+      throw createDomainError(
+        {
+          code: errorCodes.invalidCorrectOption,
+          messageKey: errorCodes.invalidCorrectOption,
+        },
+        {
+          correctOptionCount: options.filter((option) => option.isCorrect).length,
+          optionCount: options.length,
+        },
+      );
     }
 
     const allowedPositions = new Set([0, 1]);
     for (const option of options) {
       if (!allowedPositions.has(option.position)) {
-        throw new Error(errorCodes.invalidCorrectOption);
+        throw createDomainError(
+          {
+            code: errorCodes.invalidCorrectOption,
+            messageKey: errorCodes.invalidCorrectOption,
+          },
+          {
+            allowedPositions: [0, 1],
+            optionPosition: option.position,
+          },
+        );
       }
     }
   }
 
   private assertBaseOptions(options: readonly SelectableOption[], errorCode: string): void {
     if (options.length < 2) {
-      throw new Error(errorCode);
+      throw createDomainError(
+        {
+          code: errorCode,
+          messageKey: errorCode,
+        },
+        {
+          optionCount: options.length,
+        },
+      );
     }
 
     const positions = options.map((option) => option.position);
     if (new Set(positions).size !== positions.length) {
-      throw new Error(errorCode);
+      throw createDomainError(
+        {
+          code: errorCode,
+          messageKey: errorCode,
+        },
+        {
+          positions,
+        },
+      );
     }
   }
 }

@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
+import { PartyNotFoundError } from '../../../../../domain/game/errors';
 import type { PlayerPartyObservation } from '../../../../../domain/game/party/player/entities/player-party-observation';
 import type { PartyId } from '../../../../../domain/game/party/shared/entities/party';
 import { PlayerPartyObservationReaderPort } from '../ports/player-party-observation-reader.port';
@@ -17,7 +17,7 @@ export class GetPlayerPartyObservationUseCase {
     );
 
     if (!observation) {
-      throw new Error(GameErrorCode.PARTY_NOT_FOUND);
+      throw new PartyNotFoundError({ partyId: input.partyId });
     }
 
     return observation;

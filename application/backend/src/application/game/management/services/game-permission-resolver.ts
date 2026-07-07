@@ -1,9 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import type { GameId } from '../../../../domain/game/entities/game';
-import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
+import {
+  ActivePartyExistsError,
+  GameAlreadyHasActivePartyError,
+  GameValidationFailedError,
+  HostAlreadyHasActivePartyForGameError,
+  PartyStagesNotAvailableError,
+} from '../../../../domain/game/errors';
 import type { UserId } from '../../../../domain/identity/entities/user';
+import type { DomainError } from '../../../../domain/shared/errors/domain-error';
 import type { ActionPermission } from '../../../../domain/shared/value-objects/action-permission';
-import type { ActivePartyGameConflict } from '../../../game/party/shared/ports/party-management.port';
+import type {
+  ActivePartyGameConflict,
+  ActivePartyHostConflict,
+} from '../../../game/party/shared/ports/party-management.port';
 import { PartyManagementPort } from '../../../game/party/shared/ports/party-management.port';
 import { PartyStageConfigurationPort } from '../../types/shared/ports/party-stage-configuration.port';
 import {
@@ -77,7 +87,14 @@ export class GamePermissionResolver {
     }).createParty;
 
     if (!permission.allowed) {
-      throw new Error(this.toCreatePartyErrorCode(permission.reason, gameConflict, hostUserId));
+      throw this.toCreatePartyError({
+        gameConflict,
+        gameId,
+        hostConflicts,
+        hostUserId,
+        reason: permission.reason,
+        stageCount,
+      });
     }
   }
 
@@ -162,22 +179,56 @@ export class GamePermissionResolver {
     };
   }
 
-  private toCreatePartyErrorCode(
-    reason: CreatePartyDisabledReason | null,
-    gameConflict: ActivePartyGameConflict | null,
-    hostUserId: UserId,
-  ): GameErrorCode {
+  private toCreatePartyError({
+    reason,
+    gameConflict,
+    hostConflicts,
+    hostUserId,
+    gameId,
+    stageCount,
+  }: {
+    readonly reason: CreatePartyDisabledReason | null;
+    readonly gameConflict: ActivePartyGameConflict | null;
+    readonly hostConflicts: readonly ActivePartyHostConflict[];
+    readonly hostUserId: UserId;
+    readonly gameId: GameId;
+    readonly stageCount: number;
+  }): DomainError<string> {
+    const activePartyId = gameConflict?.partyId ?? null;
+
     switch (reason) {
       case CreatePartyDisabledReason.NO_STAGES_AVAILABLE:
-        return GameErrorCode.PARTY_STAGES_NOT_AVAILABLE;
+        return new PartyStagesNotAvailableError({
+          gameId,
+          hostUserId,
+          stageCount,
+        });
       case CreatePartyDisabledReason.ACTIVE_PARTY_EXISTS:
         return gameConflict?.hostUserId === hostUserId
-          ? GameErrorCode.HOST_ALREADY_HAS_ACTIVE_PARTY_FOR_GAME
-          : GameErrorCode.GAME_ALREADY_HAS_ACTIVE_PARTY;
+          ? new HostAlreadyHasActivePartyForGameError({
+              activePartyId,
+              gameId,
+              hostUserId,
+            })
+          : new GameAlreadyHasActivePartyError({
+              activePartyId,
+              gameId,
+              hostUserId,
+            });
       case CreatePartyDisabledReason.HOST_HAS_ACTIVE_PARTY:
-        return GameErrorCode.ACTIVE_PARTY_EXISTS;
+        return new ActivePartyExistsError({
+          conflictingPartyIds: hostConflicts.map((party) => party.partyId),
+          gameId,
+          hostUserId,
+        });
       default:
-        return GameErrorCode.VALIDATION_FAILED;
+        return new GameValidationFailedError({
+          gameConflict,
+          gameId,
+          hostUserId,
+          reason,
+          stageCount,
+        });
     }
   }
 }

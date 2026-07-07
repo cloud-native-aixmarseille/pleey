@@ -14,6 +14,7 @@ import type {
   PlayableManagementState,
 } from '../../../../domains/game/types/shared/management/playable-management';
 import type { ProjectId } from '../../../../domains/project/entities/project';
+import { createDomainError } from '../../../../domains/shared/errors/domain-error';
 import { GraphqlClient } from '../../../graphql/client/graphql-client';
 import {
   CreatePredictionFromImportManagementDocument,
@@ -60,7 +61,17 @@ export class GraphqlPredictionManagementRepository implements PredictionManageme
     });
 
     if (!result.createPrediction) {
-      throw new Error('Prediction creation did not return a prediction');
+      throw createDomainError(
+        {
+          code: 'PREDICTION_CREATION_RESULT_MISSING',
+          message: 'Prediction creation did not return a prediction',
+          messageKey: 'PREDICTION_CREATION_RESULT_MISSING',
+        },
+        {
+          projectId,
+          title: input.title,
+        },
+      );
     }
 
     return this.gameTypeIdentifier.parse(result.createPrediction.predictionId);
@@ -74,7 +85,10 @@ export class GraphqlPredictionManagementRepository implements PredictionManageme
       input: { ...input, projectId },
     });
 
-    return this.mapImportCreationResult(result.createPredictionFromImport);
+    return this.mapImportCreationResult(result.createPredictionFromImport, {
+      fileName: input.file.name,
+      projectId,
+    });
   }
 
   async load(predictionId: GameTypeId): Promise<PlayableManagementState<PredictionPromptId>> {
@@ -138,7 +152,7 @@ export class GraphqlPredictionManagementRepository implements PredictionManageme
       },
     });
 
-    return this.mapMutationPrompt(result.createPredictionPrompt);
+    return this.mapMutationPrompt(result.createPredictionPrompt, { predictionId });
   }
 
   async updatePrompt(
@@ -153,7 +167,7 @@ export class GraphqlPredictionManagementRepository implements PredictionManageme
       },
     });
 
-    return this.mapMutationPrompt(result.updatePredictionPrompt);
+    return this.mapMutationPrompt(result.updatePredictionPrompt, { promptId });
   }
 
   async deletePrompt(promptId: PredictionPromptId): Promise<void> {
@@ -162,9 +176,17 @@ export class GraphqlPredictionManagementRepository implements PredictionManageme
 
   private mapMutationPrompt(
     prompt: GraphqlPredictionPrompt | null | undefined,
+    context: Record<string, unknown>,
   ): PlayableManagementItem<PredictionPromptId> {
     if (!prompt) {
-      throw new Error('Prediction prompt mutation did not return a prompt');
+      throw createDomainError(
+        {
+          code: 'PREDICTION_PROMPT_MUTATION_RESULT_MISSING',
+          message: 'Prediction prompt mutation did not return a prompt',
+          messageKey: 'PREDICTION_PROMPT_MUTATION_RESULT_MISSING',
+        },
+        context,
+      );
     }
 
     return this.mapper.mapItem({
@@ -183,9 +205,17 @@ export class GraphqlPredictionManagementRepository implements PredictionManageme
       | CreatePredictionFromImportManagementMutation['createPredictionFromImport']
       | null
       | undefined,
+    context: Record<string, unknown>,
   ): PlayableContentImportCreationResult {
     if (!result) {
-      throw new Error('Prediction import creation did not return a prediction');
+      throw createDomainError(
+        {
+          code: 'PREDICTION_IMPORT_CREATION_RESULT_MISSING',
+          message: 'Prediction import creation did not return a prediction',
+          messageKey: 'PREDICTION_IMPORT_CREATION_RESULT_MISSING',
+        },
+        context,
+      );
     }
 
     return {

@@ -1,4 +1,4 @@
-import { GameErrorCode } from '../../../enums/game-error-code.enum';
+import { PartyCommandNotAvailableError, PartyStagesNotAvailableError } from '../../../errors';
 import { PartyStatus } from '../../enums/party-status.enum';
 import {
   type PartyRuntimeContext,
@@ -31,11 +31,19 @@ export class HostPartyLifecyclePolicy {
     },
   ): HostPartyLifecycleTransitionResult {
     if (state.status !== PartyStatus.WAITING) {
-      throw new Error(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
+      throw new PartyCommandNotAvailableError(
+        this.createLifecycleErrorContext(state, {
+          reason: 'partyMustBeWaitingToStart',
+        }),
+      );
     }
 
     if (input.totalStages <= 0 || input.firstStage === null) {
-      throw new Error(GameErrorCode.PARTY_STAGES_NOT_AVAILABLE);
+      throw new PartyStagesNotAvailableError({
+        hasFirstStage: input.firstStage !== null,
+        status: state.status,
+        totalStages: input.totalStages,
+      });
     }
 
     return {
@@ -58,7 +66,11 @@ export class HostPartyLifecyclePolicy {
     const lifecycle = this.requireLifecycle(state, PartyRuntimePhase.RESULT);
 
     if (lifecycle.stageId === null || lifecycle.stagePosition === null) {
-      throw new Error(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
+      throw new PartyCommandNotAvailableError(
+        this.createLifecycleErrorContext(state, {
+          reason: 'currentStageReferenceMissing',
+        }),
+      );
     }
 
     if (input.nextStage === null) {
@@ -96,7 +108,11 @@ export class HostPartyLifecyclePolicy {
       lifecycle.stagePosition === null ||
       lifecycle.stageTimeLimitSeconds === null
     ) {
-      throw new Error(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
+      throw new PartyCommandNotAvailableError(
+        this.createLifecycleErrorContext(state, {
+          reason: 'stageTimerReferenceMissing',
+        }),
+      );
     }
 
     return {
@@ -127,7 +143,12 @@ export class HostPartyLifecyclePolicy {
       lifecycle.stagePosition === null ||
       input.previousStage === null
     ) {
-      throw new Error(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
+      throw new PartyCommandNotAvailableError(
+        this.createLifecycleErrorContext(state, {
+          hasPreviousStage: input.previousStage !== null,
+          reason: 'previousStageUnavailable',
+        }),
+      );
     }
 
     return {
@@ -168,7 +189,11 @@ export class HostPartyLifecyclePolicy {
     this.requireLifecycle(state, PartyRuntimePhase.STAGE, PartyRuntimePhase.RESULT);
 
     if (state.status !== PartyStatus.ACTIVE) {
-      throw new Error(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
+      throw new PartyCommandNotAvailableError(
+        this.createLifecycleErrorContext(state, {
+          reason: 'partyMustBeActiveToPause',
+        }),
+      );
     }
 
     if (state.runtime === null || state.runtime.lifecycle.phase !== PartyRuntimePhase.STAGE) {
@@ -193,7 +218,11 @@ export class HostPartyLifecyclePolicy {
     this.requireLifecycle(state, PartyRuntimePhase.STAGE, PartyRuntimePhase.RESULT);
 
     if (state.status !== PartyStatus.PAUSED) {
-      throw new Error(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
+      throw new PartyCommandNotAvailableError(
+        this.createLifecycleErrorContext(state, {
+          reason: 'partyMustBePausedToResume',
+        }),
+      );
     }
 
     if (state.runtime === null || state.runtime.lifecycle.phase !== PartyRuntimePhase.STAGE) {
@@ -216,7 +245,11 @@ export class HostPartyLifecyclePolicy {
 
   revealStageResult(state: HostPartyLifecycleState): HostPartyLifecycleTransitionResult {
     if (state.runtime === null || state.runtime.lifecycle.phase !== PartyRuntimePhase.STAGE) {
-      throw new Error(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
+      throw new PartyCommandNotAvailableError(
+        this.createLifecycleErrorContext(state, {
+          reason: 'stageRuntimeRequiredForResultReveal',
+        }),
+      );
     }
 
     const resultRuntime: PartyRuntimeContext = {
@@ -234,7 +267,11 @@ export class HostPartyLifecyclePolicy {
 
   endParty(state: HostPartyLifecycleState): HostPartyLifecycleTransitionResult {
     if (state.status === PartyStatus.ENDED) {
-      throw new Error(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
+      throw new PartyCommandNotAvailableError(
+        this.createLifecycleErrorContext(state, {
+          reason: 'partyAlreadyEnded',
+        }),
+      );
     }
 
     return {
@@ -340,13 +377,37 @@ export class HostPartyLifecyclePolicy {
     const lifecycle = state.runtime?.lifecycle;
 
     if (!lifecycle || !allowedPhases.includes(lifecycle.phase)) {
-      throw new Error(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
+      throw new PartyCommandNotAvailableError(
+        this.createLifecycleErrorContext(state, {
+          allowedPhases,
+          reason: 'lifecyclePhaseUnavailable',
+        }),
+      );
     }
 
     if (state.status !== PartyStatus.ACTIVE && state.status !== PartyStatus.PAUSED) {
-      throw new Error(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
+      throw new PartyCommandNotAvailableError(
+        this.createLifecycleErrorContext(state, {
+          allowedPhases,
+          reason: 'partyStatusUnavailable',
+        }),
+      );
     }
 
     return lifecycle;
+  }
+
+  private createLifecycleErrorContext(
+    state: HostPartyLifecycleState,
+    context?: Record<string, unknown>,
+  ): Record<string, unknown> {
+    return {
+      currentPhase: state.runtime?.lifecycle.phase ?? null,
+      currentStageId: state.runtime?.lifecycle.stageId ?? null,
+      currentStagePosition: state.runtime?.lifecycle.stagePosition ?? null,
+      status: state.status,
+      totalStages: state.runtime?.lifecycle.totalStages ?? null,
+      ...context,
+    };
   }
 }

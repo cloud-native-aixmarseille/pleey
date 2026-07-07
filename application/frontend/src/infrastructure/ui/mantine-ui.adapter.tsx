@@ -8,6 +8,7 @@ import {
   useState,
 } from 'react';
 import type { PresentationUiThemeState, UiPort } from '../../application/shared/contracts/ui.port';
+import { createDomainError } from '../../domains/shared/errors/domain-error';
 import {
   createUiThemeCssVariables,
   DEFAULT_UI_COLOR_SCHEME,
@@ -54,7 +55,17 @@ export class MantineUiAdapter {
       const state = useContext(MantineThemeStateContext);
 
       if (!state) {
-        throw new Error('Mantine theme state provider is required.');
+        throw createDomainError(
+          {
+            code: 'MANTINE_THEME_STATE_PROVIDER_REQUIRED',
+            message: 'Mantine theme state provider is required.',
+            messageKey: 'MANTINE_THEME_STATE_PROVIDER_REQUIRED',
+          },
+          {
+            consumer: 'useThemeState',
+            contextName: 'MantineThemeStateContext',
+          },
+        );
       }
 
       return state;

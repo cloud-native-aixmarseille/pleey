@@ -6,6 +6,10 @@ import type { GameId } from '../../../../domain/game/entities/game';
 import { PartyStatus } from '../../../../domain/game/party/enums/party-status.enum';
 import type { GameSettings } from '../../../../domain/game/party/shared/entities/game-settings';
 import { Quiz, type QuizId } from '../../../../domain/game/types/quiz/entities/quiz';
+import {
+  QuizNotCreatedError,
+  QuizNotUpdatedError,
+} from '../../../../domain/game/types/quiz/errors/quiz-management-repository.error';
 import type {
   CreateQuizData,
   CreateQuizWithQuestionsData,
@@ -19,11 +23,6 @@ import { PrismaService } from '../../../database/prisma-service';
 import { PrismaGameSettingsMapper } from '../../shared/prisma-game-settings.mapper';
 
 const ACTIVE_PARTY_STATUSES = [PartyStatus.WAITING, PartyStatus.ACTIVE, PartyStatus.PAUSED];
-
-enum QuizManagementRepositoryErrorCode {
-  QUIZ_NOT_CREATED = 'QUIZ_NOT_CREATED',
-  QUIZ_NOT_UPDATED = 'QUIZ_NOT_UPDATED',
-}
 
 interface PrismaQuizRecord extends GameSettings {
   readonly id: string;
@@ -93,7 +92,10 @@ export class PrismaQuizManagementRepository implements QuizManagementRepository 
     });
 
     if (!game.quiz) {
-      throw new Error(QuizManagementRepositoryErrorCode.QUIZ_NOT_CREATED);
+      throw new QuizNotCreatedError({
+        projectId: data.projectId,
+        title: data.title,
+      });
     }
 
     return this.toDomain(game.quiz);
@@ -140,7 +142,11 @@ export class PrismaQuizManagementRepository implements QuizManagementRepository 
     });
 
     if (!game.quiz) {
-      throw new Error(QuizManagementRepositoryErrorCode.QUIZ_NOT_CREATED);
+      throw new QuizNotCreatedError({
+        projectId: data.projectId,
+        questionCount: data.questions.length,
+        title: data.title,
+      });
     }
 
     return this.toDomain(game.quiz);
@@ -179,7 +185,10 @@ export class PrismaQuizManagementRepository implements QuizManagementRepository 
 
     const updated = await this.findById(id);
     if (!updated) {
-      throw new Error(QuizManagementRepositoryErrorCode.QUIZ_NOT_UPDATED);
+      throw new QuizNotUpdatedError({
+        gameId: quiz.gameId,
+        quizId: id,
+      });
     }
 
     return updated;

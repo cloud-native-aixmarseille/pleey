@@ -22,7 +22,10 @@ import {
   isStagePartyRuntimeContext,
   PartyRuntimePhase,
 } from '../../../../domains/game/party/shared/entities/party-runtime-context';
-import { PartyManagementErrorCode } from '../../../../domains/game/party/shared/errors/party-management-error-code';
+import {
+  PartyManagementErrorCode,
+  PartyObservationFailedError,
+} from '../../../../domains/game/party/shared/errors/party-management-error-code';
 import {
   type PartyRuntimeNotice,
   PartyRuntimeNoticeKind,
@@ -283,7 +286,10 @@ export class SocketIoPartyPayloadMapper {
       return normalizedGameType;
     }
 
-    throw new Error(PartyManagementErrorCode.OBSERVE_FAILED);
+    throw new PartyObservationFailedError({
+      gameType,
+      reason: 'unknownGameType',
+    });
   }
 
   private normalizePin(pin: string): PartyObservation['pin'] {

@@ -1,4 +1,4 @@
-import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
+import { GameValidationFailedError } from '../../../../domain/game/errors';
 import type { GameType } from '../../../../domain/game/types/shared/entities/game-type';
 
 export interface GameTypeBinding<T> {
@@ -17,7 +17,10 @@ export abstract class AbstractGameTypeRegistry<T> {
     const provider = this.registry.get(gameType);
 
     if (!provider) {
-      throw new Error(GameErrorCode.VALIDATION_FAILED);
+      throw new GameValidationFailedError({
+        gameType,
+        reason: 'unregisteredGameTypeProvider',
+      });
     }
 
     return provider;
@@ -28,11 +31,16 @@ export abstract class AbstractGameTypeRegistry<T> {
 
     for (const binding of bindings) {
       if (!binding) {
-        throw new Error(GameErrorCode.VALIDATION_FAILED);
+        throw new GameValidationFailedError({
+          reason: 'missingGameTypeBinding',
+        });
       }
 
       if (registry.has(binding.gameType)) {
-        throw new Error(GameErrorCode.VALIDATION_FAILED);
+        throw new GameValidationFailedError({
+          gameType: binding.gameType,
+          reason: 'duplicateGameTypeBinding',
+        });
       }
 
       registry.set(binding.gameType, binding.provider);

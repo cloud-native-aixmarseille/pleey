@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { Prediction } from '../../../../../domain/game/types/prediction/entities/prediction';
 import { PredictionErrorCode } from '../../../../../domain/game/types/prediction/enums/prediction-error-code.enum';
+import { PredictionImportUnsupportedFormatError } from '../../../../../domain/game/types/prediction/errors';
 import type { PredictionManagementRepository } from '../../../../../domain/game/types/prediction/ports/prediction-management.repository';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { GameTypeIdentifier } from '../../shared/services/game-type-identifier';
@@ -102,7 +103,7 @@ describe('CreatePredictionFromImportUseCase', () => {
     };
     const importPromptMapper = {
       map: vi.fn().mockImplementation(async () => {
-        throw new Error(PredictionErrorCode.PREDICTION_IMPORT_UNSUPPORTED_FORMAT);
+        throw new PredictionImportUnsupportedFormatError();
       }),
     } as unknown as PredictionImportPromptMapper;
     const useCase = new CreatePredictionFromImportUseCase(

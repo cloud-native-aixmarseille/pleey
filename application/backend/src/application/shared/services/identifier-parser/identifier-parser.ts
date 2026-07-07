@@ -1,7 +1,9 @@
-import { IdentifierParserErrorCode } from '../../errors/identifier-parser-error-code';
+import { InvalidIdentifierValueError } from '../../../../domain/shared/errors/identifier-parser-error-code';
 import type { EmptyIdentifierValue, IdentifierParseResult } from './contracts';
 
 export abstract class IdentifierParser<TPrimitive extends string | number, TIdentifier> {
+  protected constructor(private readonly label: string) {}
+
   abstract parse<TValue>(value: TValue): IdentifierParseResult<TValue, TIdentifier>;
   abstract parseOrNull(value: unknown): TIdentifier | null;
 
@@ -15,7 +17,11 @@ export abstract class IdentifierParser<TPrimitive extends string | number, TIden
     return value as unknown as TIdentifier;
   }
 
-  protected invalidValue(): never {
-    throw new Error(IdentifierParserErrorCode.INVALID_VALUE);
+  protected invalidValue(value: unknown): never {
+    throw new InvalidIdentifierValueError({
+      parserLabel: this.label,
+      receivedValueLength: typeof value === 'string' ? value.length : undefined,
+      receivedValueType: Array.isArray(value) ? 'array' : typeof value,
+    });
   }
 }

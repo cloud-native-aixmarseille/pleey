@@ -1,4 +1,7 @@
-import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
+import {
+  HostPartyControlForbiddenError,
+  PartyNotFoundError,
+} from '../../../../../domain/game/errors';
 import type { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
 import { HostPartyLifecyclePolicy } from '../../../../../domain/game/party/host/services/host-party-lifecycle-policy';
 import type { PartyRuntimeContext } from '../../../../../domain/game/party/shared/entities/party-runtime-context';
@@ -64,11 +67,18 @@ export abstract class AbstractHostPartyRuntimeUseCase {
     const party = await this.hostPartyRuntimeControl.findPartyRuntimeByPartyId(input.partyId);
 
     if (!party) {
-      throw new Error(GameErrorCode.PARTY_NOT_FOUND);
+      throw new PartyNotFoundError({
+        hostUserId: input.hostUserId,
+        partyId: input.partyId,
+      });
     }
 
     if (party.hostUserId !== input.hostUserId) {
-      throw new Error(GameErrorCode.HOST_PARTY_CONTROL_FORBIDDEN);
+      throw new HostPartyControlForbiddenError({
+        actualHostUserId: party.hostUserId,
+        hostUserId: input.hostUserId,
+        partyId: input.partyId,
+      });
     }
 
     return party;

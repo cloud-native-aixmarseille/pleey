@@ -11,7 +11,7 @@ import type {
   PresentationParams,
   RoutingPort,
 } from '../../../application/shared/contracts/routing.port';
-import { PresentationContextErrorCode } from '../../../domains/shared/errors/presentation-context-error-code';
+import { PresentationRoutingProviderRequiredError } from '../../../domains/shared/errors/presentation-context-error-code';
 
 const RoutingContext = createContext<RoutingPort | null>(null);
 
@@ -27,7 +27,10 @@ function usePresentationRouting(): RoutingPort {
   const port = useContext(RoutingContext);
 
   if (!port) {
-    throw new Error(PresentationContextErrorCode.PRESENTATION_ROUTING_PROVIDER_REQUIRED);
+    throw new PresentationRoutingProviderRequiredError({
+      consumer: 'usePresentationRouting',
+      contextName: 'RoutingContext',
+    });
   }
 
   return port;

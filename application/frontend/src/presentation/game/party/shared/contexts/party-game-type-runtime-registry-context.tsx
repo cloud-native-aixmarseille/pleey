@@ -8,7 +8,7 @@ import {
 import type { PartyActionId } from '../../../../../domains/game/party/shared/entities/party-action';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import { type GameType } from '../../../../../domains/game/types/shared/game-type';
-import { PresentationContextErrorCode } from '../../../../../domains/shared/errors/presentation-context-error-code';
+import { PresentationRuntimeDependencyProviderRequiredError } from '../../../../../domains/shared/errors/presentation-context-error-code';
 
 interface PartyGameTypeHostRuntimePanelProps {
   readonly party: PartyObservation;
@@ -55,7 +55,10 @@ export function usePartyGameTypeRuntimeRegistry(): PartyGameTypeRuntimeRegistry 
   const value = useContext(PartyGameTypeRuntimeRegistryContext);
 
   if (!value) {
-    throw new Error(PresentationContextErrorCode.PRESENTATION_RUNTIME_DEPENDENCY_PROVIDER_REQUIRED);
+    throw new PresentationRuntimeDependencyProviderRequiredError({
+      consumer: 'usePartyGameTypeRuntimeRegistry',
+      contextName: 'PartyGameTypeRuntimeRegistryContext',
+    });
   }
 
   return value;

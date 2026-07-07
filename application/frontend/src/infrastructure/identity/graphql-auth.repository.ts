@@ -1,7 +1,16 @@
 import { inject, injectable } from 'inversify';
 import type { AuthSession } from '../../domains/identity/entities/auth-session';
 import type { User } from '../../domains/identity/entities/user';
-import { AuthErrorCode } from '../../domains/identity/errors/auth-error-code';
+import {
+  AUTH_ERROR_DEFINITIONS,
+  AuthErrorCode,
+} from '../../domains/identity/errors/auth-error-code';
+import {
+  InvalidLoginResponseError,
+  InvalidRegenerateAvatarResponseError,
+  InvalidRegistrationResponseError,
+  InvalidUpdateProfileResponseError,
+} from '../../domains/identity/errors/graphql-auth-repository.error';
 import type {
   AuthRepository,
   UpdateProfileInput,
@@ -42,12 +51,16 @@ export class GraphqlAuthRepository implements AuthRepository {
       const session = this.payloadInspector.toAuthSession(result.login);
 
       if (!session) {
-        throw new Error(AuthErrorCode.INVALID_RESPONSE);
+        throw new InvalidLoginResponseError({ operationName: 'login' });
       }
 
       return session;
     } catch (error) {
-      throw new Error(this.graphqlClient.extractMessage(error, AuthErrorCode.INVALID_CREDENTIALS));
+      throw this.graphqlClient.resolveDomainError(
+        error,
+        AUTH_ERROR_DEFINITIONS[AuthErrorCode.INVALID_CREDENTIALS],
+        { operationName: 'login' },
+      );
     }
   }
 
@@ -60,12 +73,16 @@ export class GraphqlAuthRepository implements AuthRepository {
       const user = this.payloadInspector.toUser(result.register);
 
       if (!user) {
-        throw new Error(AuthErrorCode.INVALID_RESPONSE);
+        throw new InvalidRegistrationResponseError({ operationName: 'register' });
       }
 
       return user;
     } catch (error) {
-      throw new Error(this.graphqlClient.extractMessage(error, AuthErrorCode.REGISTRATION_FAILED));
+      throw this.graphqlClient.resolveDomainError(
+        error,
+        AUTH_ERROR_DEFINITIONS[AuthErrorCode.REGISTRATION_FAILED],
+        { operationName: 'register' },
+      );
     }
   }
 
@@ -78,12 +95,16 @@ export class GraphqlAuthRepository implements AuthRepository {
       const user = this.payloadInspector.toUser(result.updateProfile);
 
       if (!user) {
-        throw new Error(AuthErrorCode.INVALID_RESPONSE);
+        throw new InvalidUpdateProfileResponseError({ operationName: 'updateProfile' });
       }
 
       return user;
     } catch (error) {
-      throw new Error(this.graphqlClient.extractMessage(error, AuthErrorCode.GENERIC));
+      throw this.graphqlClient.resolveDomainError(
+        error,
+        AUTH_ERROR_DEFINITIONS[AuthErrorCode.GENERIC],
+        { operationName: 'updateProfile' },
+      );
     }
   }
 
@@ -94,12 +115,18 @@ export class GraphqlAuthRepository implements AuthRepository {
       const user = this.payloadInspector.toUser(result.regenerateAvatar);
 
       if (!user) {
-        throw new Error(AuthErrorCode.INVALID_RESPONSE);
+        throw new InvalidRegenerateAvatarResponseError({
+          operationName: 'regenerateAvatar',
+        });
       }
 
       return user;
     } catch (error) {
-      throw new Error(this.graphqlClient.extractMessage(error, AuthErrorCode.GENERIC));
+      throw this.graphqlClient.resolveDomainError(
+        error,
+        AUTH_ERROR_DEFINITIONS[AuthErrorCode.GENERIC],
+        { operationName: 'regenerateAvatar' },
+      );
     }
   }
 

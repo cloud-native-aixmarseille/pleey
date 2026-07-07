@@ -9,9 +9,15 @@ import type { HostPartyObservation } from '../../../domain/game/party/host/entit
 import type { PartyHost } from '../../../domain/game/party/host/entities/party-host';
 import type { PartyId } from '../../../domain/game/party/shared/entities/party';
 import { PartyRuntimeContextProjectionService } from '../../../domain/game/party/shared/services/party-runtime-context-projection.service';
+import { createDomainError } from '../../../domain/shared/errors/domain-error';
 import { PrismaService } from '../../database/prisma-service';
 import { PrismaGameSettingsMapper } from '../shared/prisma-game-settings.mapper';
 import { PrismaPartyReadModelMapper } from './services/prisma-party-read-model-mapper';
+
+const HOST_PARTY_OBSERVATION_PARTY_REQUIRED_ERROR = {
+  code: 'HOST_PARTY_OBSERVATION_PARTY_REQUIRED',
+  messageKey: 'HOST_PARTY_OBSERVATION_PARTY_REQUIRED',
+} as const;
 
 @Injectable()
 export class PrismaHostPartyObservationReader implements HostPartyObservationReaderPort {
@@ -30,7 +36,7 @@ export class PrismaHostPartyObservationReader implements HostPartyObservationRea
   async findHostObservationByPartyId(partyId: PartyId): Promise<HostPartyObservation | null> {
     const party = await this.loadHostObservationSource(partyId);
 
-    return party ? this.toHostObservation(party) : null;
+    return party ? this.toHostObservation(party, partyId) : null;
   }
 
   private loadHostObservationSource(partyId: PartyId) {
@@ -91,9 +97,10 @@ export class PrismaHostPartyObservationReader implements HostPartyObservationRea
 
   private async toHostObservation(
     party: Awaited<ReturnType<PrismaHostPartyObservationReader['loadHostObservationSource']>>,
+    partyId: PartyId,
   ): Promise<HostPartyObservation> {
     if (!party) {
-      throw new Error('Party observation requires a party');
+      throw createDomainError(HOST_PARTY_OBSERVATION_PARTY_REQUIRED_ERROR, { partyId });
     }
 
     const host: PartyHost = {

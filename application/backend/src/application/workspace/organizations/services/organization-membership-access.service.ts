@@ -2,8 +2,11 @@ import { Inject, Injectable } from '@nestjs/common';
 import type { UserId } from '../../../../domain/identity/entities/user';
 import type { OrganizationId } from '../../../../domain/organization/entities/organization';
 import type { OrganizationMember } from '../../../../domain/organization/entities/organization-member';
-import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
 import { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
+import {
+  InsufficientPermissionsError,
+  OrganizationNotFoundError,
+} from '../../../../domain/organization/errors';
 import type { OrganizationRepository } from '../../../../domain/organization/ports/organization.repository';
 import { OrganizationRepositoryProvider } from '../../../../domain/organization/ports/organization.repository';
 import type { OrganizationMemberRepository } from '../../../../domain/organization/ports/organization-member.repository';
@@ -28,7 +31,7 @@ export class OrganizationMembershipAccessService {
     const organization = await this.organizationRepository.findById(organizationId);
 
     if (!organization) {
-      throw new Error(OrganizationErrorCode.ORGANIZATION_NOT_FOUND);
+      throw new OrganizationNotFoundError({ organizationId });
     }
   }
 
@@ -42,7 +45,11 @@ export class OrganizationMembershipAccessService {
     );
 
     if (!requestingMember) {
-      throw new Error(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
+      throw new InsufficientPermissionsError({
+        organizationId,
+        reason: 'membershipRequired',
+        requestingUserId,
+      });
     }
 
     return requestingMember;

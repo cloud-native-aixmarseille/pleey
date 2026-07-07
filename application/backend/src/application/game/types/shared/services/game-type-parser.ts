@@ -20,7 +20,7 @@ export class GameTypeParser extends StringIdentifierParser<GameType> {
       return null as IdentifierParseResult<TValue, GameType>;
     }
 
-    this.invalidValue();
+    this.invalidValue(value);
   }
 
   override parseOrNull(value: unknown): GameType | null {

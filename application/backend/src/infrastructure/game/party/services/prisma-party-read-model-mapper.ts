@@ -3,7 +3,7 @@ import { PartyActionIdentifier } from '../../../../application/game/party/shared
 import { PartyStageIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-stage-identifier';
 import { GuestIdentifier } from '../../../../application/identity/shared/services/identifiers/guest-identifier';
 import { UserIdentifier } from '../../../../application/identity/shared/services/identifiers/user-identifier';
-import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
+import { GameValidationFailedError } from '../../../../domain/game/errors';
 import { PartyPlayerKind } from '../../../../domain/game/party/enums/party-player-kind.enum';
 import { PartyStatus } from '../../../../domain/game/party/enums/party-status.enum';
 import type { PartyPlayer } from '../../../../domain/game/party/player/entities/party-player';
@@ -19,6 +19,12 @@ import {
 } from '../../../../domain/game/party/shared/entities/party-runtime-context';
 import type { GuestId } from '../../../../domain/identity/entities/guest';
 import type { UserId } from '../../../../domain/identity/entities/user';
+import { createDomainError } from '../../../../domain/shared/errors/domain-error';
+
+const UNEXPECTED_PARTY_ROLE_VALUE_ERROR = {
+  code: 'UNEXPECTED_PARTY_ROLE_VALUE',
+  messageKey: 'UNEXPECTED_PARTY_ROLE_VALUE',
+} as const;
 
 interface PartyPlayerScoreRecord {
   readonly context?: unknown;
@@ -298,10 +304,15 @@ export class PrismaPartyReadModelMapper {
 
     if (normalizedStatus === 'HOST') {
       if (options.unknownStatus === 'validation-error') {
-        throw new Error(GameErrorCode.VALIDATION_FAILED);
+        throw new GameValidationFailedError({
+          persistedStatus: status,
+          reason: 'unexpectedHostStatusValue',
+        });
       }
 
-      throw new Error('Unexpected party role value while reading party status.');
+      throw createDomainError(UNEXPECTED_PARTY_ROLE_VALUE_ERROR, {
+        persistedStatus: status,
+      });
     }
 
     const mappedStatus =
@@ -314,7 +325,10 @@ export class PrismaPartyReadModelMapper {
     }
 
     if (options.unknownStatus === 'validation-error') {
-      throw new Error(GameErrorCode.VALIDATION_FAILED);
+      throw new GameValidationFailedError({
+        persistedStatus: status,
+        reason: 'unknownPersistedPartyStatus',
+      });
     }
 
     return PartyStatus.WAITING;

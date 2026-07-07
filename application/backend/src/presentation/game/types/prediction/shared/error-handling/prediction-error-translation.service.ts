@@ -1,21 +1,16 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { I18nService } from 'nestjs-i18n';
-import { PredictionErrorCode } from '../../../../../../domain/game/types/prediction/enums/prediction-error-code.enum';
+import {
+  PREDICTION_ERROR_DEFINITIONS,
+  PredictionErrorCode,
+} from '../../../../../../domain/game/types/prediction/enums/prediction-error-code.enum';
 import { AbstractErrorTranslationService } from '../../../../../shared/error-handling/abstract-error-translation.service';
 
 const PREDICTION_ERROR_CODES = Object.values(PredictionErrorCode) as PredictionErrorCode[];
 
-const PREDICTION_ERROR_TRANSLATION_KEYS: Record<PredictionErrorCode, string> = {
-  [PredictionErrorCode.PREDICTION_NOT_FOUND]: 'prediction.errors.predictionNotFound',
-  [PredictionErrorCode.PROMPT_NOT_FOUND]: 'prediction.errors.promptNotFound',
-  [PredictionErrorCode.PREDICTION_HAS_ACTIVE_PARTY]: 'prediction.errors.predictionHasActiveParty',
-  [PredictionErrorCode.INVALID_CORRECT_OPTION]: 'prediction.errors.invalidCorrectOption',
-  [PredictionErrorCode.OPTION_TEXT_EMPTY]: 'prediction.errors.optionTextEmpty',
-  [PredictionErrorCode.PREDICTION_IMPORT_INVALID_FILE]: 'prediction.errors.importInvalidFile',
-  [PredictionErrorCode.PREDICTION_IMPORT_UNSUPPORTED_FORMAT]:
-    'prediction.errors.importUnsupportedFormat',
-  [PredictionErrorCode.PREDICTION_IMPORT_EMPTY_FILE]: 'prediction.errors.importEmptyFile',
-};
+const PREDICTION_ERROR_TRANSLATION_KEYS: Record<PredictionErrorCode, string> = Object.fromEntries(
+  PREDICTION_ERROR_CODES.map((code) => [code, PREDICTION_ERROR_DEFINITIONS[code].messageKey]),
+) as Record<PredictionErrorCode, string>;
 
 @Injectable()
 export class PredictionErrorTranslationService extends AbstractErrorTranslationService<PredictionErrorCode> {

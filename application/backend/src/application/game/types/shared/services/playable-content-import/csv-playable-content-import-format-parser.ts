@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { PlayableContentImportInvalidFileError } from '../../../../../../domain/game/types/shared/errors/import-parser.error';
 import { AbstractPlayableContentImportFormatParser } from './abstract-playable-content-import-format-parser';
 import type { PlayableContentImportFormatParser } from './import-format-parser';
-import { PlayableContentImportParserErrorCode } from './import-parser.error';
 import type { RawImportItem, RawImportOption } from './import-parser.types';
 import {
   PlayableImportFormat,
@@ -49,8 +49,10 @@ export class CsvPlayableContentImportFormatParser
   async parse(source: PlayableContentImportSource): Promise<readonly RawImportItem[]> {
     let headerContext: CsvHeaderContext | null = null;
     const items: RawImportItem[] = [];
+    let rowIndex = 0;
 
     for await (const line of source.readLines()) {
+      rowIndex += 1;
       const normalizedLine = line.trim();
 
       if (normalizedLine.length === 0) {
@@ -60,11 +62,11 @@ export class CsvPlayableContentImportFormatParser
       const row = this.parseCsvLine(normalizedLine);
 
       if (headerContext === null) {
-        headerContext = this.createHeaderContext(row);
+        headerContext = this.createHeaderContext(row, source.fileName);
         continue;
       }
 
-      items.push(this.parseRow(row, headerContext));
+      items.push(this.parseRow(row, headerContext, source.fileName, rowIndex));
     }
 
     if (headerContext === null) {
@@ -72,13 +74,16 @@ export class CsvPlayableContentImportFormatParser
     }
 
     if (items.length === 0) {
-      throw new Error(PlayableContentImportParserErrorCode.INVALID_FILE);
+      throw new PlayableContentImportInvalidFileError({
+        fileName: source.fileName,
+        reason: 'missingDataRows',
+      });
     }
 
     return items;
   }
 
-  private createHeaderContext(headerRow: readonly string[]): CsvHeaderContext {
+  private createHeaderContext(headerRow: readonly string[], fileName: string): CsvHeaderContext {
     const headers = headerRow.map((value) => value.trim().toLowerCase());
     const textIndex = this.findHeaderIndex(headers, [
       'prompt',
@@ -102,7 +107,11 @@ export class CsvPlayableContentImportFormatParser
       .map(({ index }) => index);
 
     if (textIndex === null) {
-      throw new Error(PlayableContentImportParserErrorCode.INVALID_FILE);
+      throw new PlayableContentImportInvalidFileError({
+        fileName,
+        headers,
+        reason: 'missingPromptTextColumn',
+      });
     }
 
     return {
@@ -115,7 +124,12 @@ export class CsvPlayableContentImportFormatParser
     };
   }
 
-  private parseRow(row: readonly string[], headerContext: CsvHeaderContext): RawImportItem {
+  private parseRow(
+    row: readonly string[],
+    headerContext: CsvHeaderContext,
+    fileName: string,
+    rowIndex: number,
+  ): RawImportItem {
     const declaredKind = this.normalizeKind(
       headerContext.kindIndex === null ? undefined : row[headerContext.kindIndex],
     );
@@ -132,7 +146,13 @@ export class CsvPlayableContentImportFormatParser
 
     return {
       kind: inferredKind,
-      options: this.createOptions(resolvedOptionTexts, correctValue, inferredKind),
+      options: this.createOptions(
+        resolvedOptionTexts,
+        correctValue,
+        inferredKind,
+        fileName,
+        rowIndex,
+      ),
       points: this.parseOptionalNumber(
         headerContext.pointsIndex === null ? undefined : row[headerContext.pointsIndex],
       ),
@@ -181,18 +201,29 @@ export class CsvPlayableContentImportFormatParser
     optionTexts: readonly string[],
     correctValue: string,
     kind: PlayableImportItemKind,
+    fileName: string,
+    rowIndex: number,
   ): readonly RawImportOption[] {
     const normalizedOptions = optionTexts.map((option) => option.trim()).filter(Boolean);
 
     if (normalizedOptions.length === 0) {
-      throw new Error(PlayableContentImportParserErrorCode.INVALID_FILE);
+      throw new PlayableContentImportInvalidFileError({
+        fileName,
+        reason: 'missingOptions',
+        rowIndex,
+      });
     }
 
     if (kind === PlayableImportItemKind.TRUE_FALSE) {
       const booleanAnswer = this.parseBooleanish(correctValue);
 
       if (booleanAnswer === null) {
-        throw new Error(PlayableContentImportParserErrorCode.INVALID_FILE);
+        throw new PlayableContentImportInvalidFileError({
+          correctValue,
+          fileName,
+          reason: 'invalidTrueFalseCorrectValue',
+          rowIndex,
+        });
       }
 
       return TRUE_FALSE_OPTION_TEXTS.map((optionText) => ({
@@ -207,7 +238,12 @@ export class CsvPlayableContentImportFormatParser
       .filter(Boolean);
 
     if (correctTokens.length === 0) {
-      throw new Error(PlayableContentImportParserErrorCode.INVALID_FILE);
+      throw new PlayableContentImportInvalidFileError({
+        correctValue,
+        fileName,
+        reason: 'missingCorrectOption',
+        rowIndex,
+      });
     }
 
     return normalizedOptions.map((optionText, index) => ({

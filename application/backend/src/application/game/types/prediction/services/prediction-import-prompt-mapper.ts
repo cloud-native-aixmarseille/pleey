@@ -1,5 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PredictionErrorCode } from '../../../../../domain/game/types/prediction/enums/prediction-error-code.enum';
+import {
+  PredictionImportEmptyFileError,
+  PredictionImportInvalidFileError,
+  PredictionImportUnsupportedFormatError,
+} from '../../../../../domain/game/types/prediction/errors';
 import type { PredictionPromptCreationData } from '../../../../../domain/game/types/prediction/ports/prediction-prompt.repository';
 import { SelectableOptionPolicy } from '../../../../../domain/game/types/shared/services/selectable-option-policy';
 import type { PlayableContentImportSource } from '../../shared/services/playable-content-import/import-source';
@@ -43,16 +48,21 @@ export class PredictionImportPromptMapper {
         throw error;
       }
 
+      const context = {
+        fileName: source.fileName,
+        parserErrorCode: error.message,
+      };
+
       if (error.message === PlayableContentImportParserErrorCode.EMPTY_FILE) {
-        throw new Error(PredictionErrorCode.PREDICTION_IMPORT_EMPTY_FILE);
+        throw new PredictionImportEmptyFileError(context);
       }
 
       if (error.message === PlayableContentImportParserErrorCode.UNSUPPORTED_FORMAT) {
-        throw new Error(PredictionErrorCode.PREDICTION_IMPORT_UNSUPPORTED_FORMAT);
+        throw new PredictionImportUnsupportedFormatError(context);
       }
 
       if (error.message === PlayableContentImportParserErrorCode.INVALID_FILE) {
-        throw new Error(PredictionErrorCode.PREDICTION_IMPORT_INVALID_FILE);
+        throw new PredictionImportInvalidFileError(context);
       }
 
       throw error;

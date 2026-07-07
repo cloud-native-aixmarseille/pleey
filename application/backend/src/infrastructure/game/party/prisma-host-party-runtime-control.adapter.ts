@@ -12,7 +12,7 @@ import { PartyStageIdentifier } from '../../../application/game/party/shared/ser
 import { GameIdentifier } from '../../../application/game/shared/services/identifiers/game-identifier';
 import { PartyStageCatalogPort } from '../../../application/game/types/shared/ports/party-stage-catalog.port';
 import { UserIdentifier } from '../../../application/identity/shared/services/identifiers/user-identifier';
-import { GameErrorCode } from '../../../domain/game/enums/game-error-code.enum';
+import { PartyStagesNotAvailableError } from '../../../domain/game/errors';
 import type { PartyId } from '../../../domain/game/party/shared/entities/party';
 import type { PartyActionId } from '../../../domain/game/party/shared/entities/party-action';
 import type { PartyStageId } from '../../../domain/game/party/shared/entities/party-stage';
@@ -225,7 +225,11 @@ export class PrismaHostPartyRuntimeControlAdapter extends HostPartyRuntimeContro
     );
 
     if (!stage) {
-      throw new Error(GameErrorCode.PARTY_STAGES_NOT_AVAILABLE);
+      throw new PartyStagesNotAvailableError({
+        fromStageId: resetPlayerProgress.fromStageId,
+        gameId: resetPlayerProgress.gameId,
+        partyId: resetPlayerProgress.partyId,
+      });
     }
 
     return stage.stagePosition;

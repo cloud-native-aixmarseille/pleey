@@ -9,7 +9,7 @@ import type { PartyId, PartyPin } from '../../../../../domains/game/party/shared
 import type { StageId } from '../../../../../domains/game/party/shared/entities/party-stage';
 import type { PartyObservationPort } from '../../../../../domains/game/party/shared/ports/party-observation.port';
 import type { PrivatePartyPasswordGeneratorPort } from '../../../../../domains/game/party/shared/ports/private-party-password-generator.port';
-import { PresentationContextErrorCode } from '../../../../../domains/shared/errors/presentation-context-error-code';
+import { PresentationRuntimeDependencyProviderRequiredError } from '../../../../../domains/shared/errors/presentation-context-error-code';
 import { PlayerRuntimeNoticeMessageResolver } from '../../player/screens/components/player-runtime-notice-message-resolver';
 import { GuestPartyEntryDraftFactory } from '../../player/screens/guest-party-entry-draft-factory';
 import { PartyLobbyRuntimeRedirectResolver } from '../screens/party-lobby-runtime-redirect-resolver';
@@ -56,7 +56,10 @@ export function usePartyDependencies(): PartyDependencies {
   const dependencies = useContext(PartyDependenciesContext);
 
   if (!dependencies) {
-    throw new Error(PresentationContextErrorCode.PRESENTATION_RUNTIME_DEPENDENCY_PROVIDER_REQUIRED);
+    throw new PresentationRuntimeDependencyProviderRequiredError({
+      consumer: 'usePartyDependencies',
+      contextName: 'PartyDependenciesContext',
+    });
   }
 
   return dependencies;

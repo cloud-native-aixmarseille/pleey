@@ -1,10 +1,19 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { UserId } from '../../../../domain/identity/entities/user';
-import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
+import {
+  InsufficientPermissionsError,
+  NotAMemberError,
+} from '../../../../domain/organization/errors';
 import type { OrganizationMemberRepository } from '../../../../domain/organization/ports/organization-member.repository';
 import { OrganizationMemberRepositoryProvider } from '../../../../domain/organization/ports/organization-member.repository';
 import type { ProjectId } from '../../../../domain/project/entities/project';
-import { ProjectErrorCode } from '../../../../domain/project/enums/project-error-code.enum';
+import {
+  CannotDeleteLastProjectError,
+  ProjectMigrationTargetInvalidError,
+  ProjectMigrationTargetNotFoundError,
+  ProjectMigrationTargetRequiredError,
+  ProjectNotFoundError,
+} from '../../../../domain/project/errors';
 import type { ProjectRepository } from '../../../../domain/project/ports/project.repository';
 import { ProjectRepositoryProvider } from '../../../../domain/project/ports/project.repository';
 import { WorkspaceGameManagementPort } from '../../ports/workspace-game-management.port';
@@ -28,7 +37,7 @@ export class DeleteProjectUseCase {
     const project = await this.projectRepository.findById(projectId);
 
     if (!project) {
-      throw new Error(ProjectErrorCode.PROJECT_NOT_FOUND);
+      throw new ProjectNotFoundError({ projectId });
     }
 
     const membership = await this.memberRepository.findByOrganizationAndUser(
@@ -37,11 +46,19 @@ export class DeleteProjectUseCase {
     );
 
     if (!membership) {
-      throw new Error(OrganizationErrorCode.NOT_A_MEMBER);
+      throw new NotAMemberError({
+        organizationId: project.organizationId,
+        projectId,
+        userId: requestingUserId,
+      });
     }
 
     if (!membership.hasManagementPrivileges()) {
-      throw new Error(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
+      throw new InsufficientPermissionsError({
+        organizationId: project.organizationId,
+        projectId,
+        userId: requestingUserId,
+      });
     }
 
     const organizationProjectCount = await this.projectRepository.countByOrganization(
@@ -49,24 +66,38 @@ export class DeleteProjectUseCase {
     );
 
     if (organizationProjectCount <= 1) {
-      throw new Error(ProjectErrorCode.CANNOT_DELETE_LAST_PROJECT);
+      throw new CannotDeleteLastProjectError({
+        organizationId: project.organizationId,
+        organizationProjectCount,
+        projectId,
+      });
     }
 
     const projectGameCount = await this.workspaceGameManagement.countProjectGames(projectId);
 
     if (projectGameCount > 0) {
       if (migrationProjectId === undefined || migrationProjectId === null) {
-        throw new Error(ProjectErrorCode.PROJECT_MIGRATION_TARGET_REQUIRED);
+        throw new ProjectMigrationTargetRequiredError({
+          projectGameCount,
+          projectId,
+        });
       }
 
       if (migrationProjectId === projectId) {
-        throw new Error(ProjectErrorCode.PROJECT_MIGRATION_TARGET_INVALID);
+        throw new ProjectMigrationTargetInvalidError({
+          migrationProjectId,
+          projectId,
+        });
       }
 
       const migrationProject = await this.projectRepository.findById(migrationProjectId);
 
       if (!migrationProject || migrationProject.organizationId !== project.organizationId) {
-        throw new Error(ProjectErrorCode.PROJECT_MIGRATION_TARGET_NOT_FOUND);
+        throw new ProjectMigrationTargetNotFoundError({
+          migrationProjectId,
+          organizationId: project.organizationId,
+          projectId,
+        });
       }
 
       await this.workspaceGameManagement.reassignProjectGames(projectId, migrationProjectId);

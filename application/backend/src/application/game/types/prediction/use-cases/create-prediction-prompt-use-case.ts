@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { PredictionPrompt } from '../../../../../domain/game/types/prediction/entities/prediction-prompt';
 import { PredictionErrorCode } from '../../../../../domain/game/types/prediction/enums/prediction-error-code.enum';
+import { PredictionNotFoundError } from '../../../../../domain/game/types/prediction/errors';
 import type { PredictionManagementRepository } from '../../../../../domain/game/types/prediction/ports/prediction-management.repository';
 import { PredictionManagementRepositoryProvider } from '../../../../../domain/game/types/prediction/ports/prediction-management.repository';
 import type { PredictionPromptRepository } from '../../../../../domain/game/types/prediction/ports/prediction-prompt.repository';
@@ -34,7 +35,7 @@ export class CreatePredictionPromptUseCase {
   async execute(command: CreatePredictionPromptCommand, userId: UserId): Promise<PredictionPrompt> {
     const prediction = await this.predictionRepository.findById(command.predictionId);
     if (!prediction) {
-      throw new Error(PredictionErrorCode.PREDICTION_NOT_FOUND);
+      throw new PredictionNotFoundError({ predictionId: command.predictionId });
     }
 
     await this.accessGuard.assertCanManageProject(prediction.projectId, userId);

@@ -34,6 +34,11 @@ import { GuestIdentifier } from '../../../../application/identity/shared/service
 import { UserIdentifier } from '../../../../application/identity/shared/services/identifiers/user-identifier';
 import type { GameId } from '../../../../domain/game/entities/game';
 import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
+import {
+  GameValidationFailedError,
+  HostPartyControlForbiddenError,
+  PartyCommandNotAvailableError,
+} from '../../../../domain/game/errors';
 import { PartyPlayerKind } from '../../../../domain/game/party/enums/party-player-kind.enum';
 import { PartyStatus } from '../../../../domain/game/party/enums/party-status.enum';
 import type {
@@ -487,13 +492,21 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     const partyId = this.normalizePartyId(payload?.partyId);
 
     if (joinedPlayerIdentity === undefined || observedPartyId !== partyId) {
-      throw new Error(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
+      throw new PartyCommandNotAvailableError({
+        hasJoinedPlayerIdentity: joinedPlayerIdentity !== undefined,
+        observedPartyId,
+        partyId,
+      });
     }
 
     const actionId = this.partyActionIdentifier.parseOrNull(payload?.actionId);
 
     if (actionId === null) {
-      throw new Error(GameErrorCode.VALIDATION_FAILED);
+      throw new GameValidationFailedError({
+        partyId,
+        rawActionId: payload?.actionId,
+        reason: 'invalidActionId',
+      });
     }
 
     if (joinedPlayerIdentity.kind === PartyPlayerKind.USER) {
@@ -522,7 +535,10 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     const user = this.resolveAuthenticatedUser(client);
 
     if (!user) {
-      throw new Error(GameErrorCode.HOST_PARTY_CONTROL_FORBIDDEN);
+      throw new HostPartyControlForbiddenError({
+        authenticatedUserId: (client.data as PartyObserverSocketData).authenticatedUserId ?? null,
+        reason: 'missingAuthenticatedHostUser',
+      });
     }
 
     return user.userId;
@@ -737,7 +753,10 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     const normalizedPin = this.partyPinIdentifier.parseOrNull(pin);
 
     if (normalizedPin === null) {
-      throw new Error(GameErrorCode.VALIDATION_FAILED);
+      throw new GameValidationFailedError({
+        rawPin: pin,
+        reason: 'invalidPin',
+      });
     }
 
     return normalizedPin;
@@ -747,7 +766,10 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     const normalizedPartyId = this.partyIdentifier.parseOrNull(partyId);
 
     if (normalizedPartyId === null) {
-      throw new Error(GameErrorCode.VALIDATION_FAILED);
+      throw new GameValidationFailedError({
+        rawPartyId: partyId,
+        reason: 'invalidPartyId',
+      });
     }
 
     return normalizedPartyId;
@@ -760,7 +782,11 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     const userId = this.userIdentifier.parseOrNull(payload?.userId);
 
     if ((guestId === null && userId === null) || (guestId !== null && userId !== null)) {
-      throw new Error(GameErrorCode.VALIDATION_FAILED);
+      throw new GameValidationFailedError({
+        guestId: payload?.guestId ?? null,
+        reason: 'ambiguousPlayerIdentity',
+        userId: payload?.userId ?? null,
+      });
     }
 
     if (userId !== null) {
@@ -771,7 +797,10 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     }
 
     if (guestId === null) {
-      throw new Error(GameErrorCode.VALIDATION_FAILED);
+      throw new GameValidationFailedError({
+        guestId: payload?.guestId ?? null,
+        reason: 'missingGuestIdentityAfterValidation',
+      });
     }
 
     return {

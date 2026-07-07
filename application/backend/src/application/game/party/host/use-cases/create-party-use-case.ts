@@ -1,11 +1,15 @@
 import { randomInt } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
-import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
+import { GameNotFoundError } from '../../../../../domain/game/errors';
+import {
+  InvalidPrivatePartyPasswordError,
+  PartyPinGenerationFailedError,
+} from '../../../../../domain/game/party/errors/create-party.error';
 import { PinAlreadyInUseError } from '../../../../../domain/game/party/errors/pin-already-in-use.error';
 import type { PartyPin } from '../../../../../domain/game/party/shared/entities/party';
 import type { PartySummary } from '../../../../../domain/game/party/shared/entities/party-summary';
 import { PasswordService } from '../../../../../domain/identity/services/password-service';
-import { OrganizationErrorCode } from '../../../../../domain/organization/enums/organization-error-code.enum';
+import { NotAMemberError } from '../../../../../domain/organization/errors';
 import type { OrganizationMemberRepository } from '../../../../../domain/organization/ports/organization-member.repository';
 import { OrganizationMemberRepositoryProvider } from '../../../../../domain/organization/ports/organization-member.repository';
 import { GamePermissionResolver } from '../../../../game/management/services/game-permission-resolver';
@@ -33,7 +37,7 @@ export class CreatePartyUseCase {
   async execute(input: CreatePartyDto): Promise<PartySummary> {
     const managedGame = await this.partyManagement.findManagedGame(input.gameId);
     if (!managedGame) {
-      throw new Error(GameErrorCode.GAME_NOT_FOUND);
+      throw new GameNotFoundError({ gameId: input.gameId });
     }
 
     const membership = await this.memberRepository.findByOrganizationAndUser(
@@ -41,7 +45,11 @@ export class CreatePartyUseCase {
       input.hostUserId,
     );
     if (!membership) {
-      throw new Error(OrganizationErrorCode.NOT_A_MEMBER);
+      throw new NotAMemberError({
+        gameId: input.gameId,
+        organizationId: managedGame.organizationId,
+        userId: input.hostUserId,
+      });
     }
 
     await this.gamePermissionResolver.assertCanCreateParty({
@@ -56,7 +64,11 @@ export class CreatePartyUseCase {
       privatePartyPassword.length > 0 &&
       !this.passwordService.isValidPassword(privatePartyPassword)
     ) {
-      throw new Error(GameErrorCode.VALIDATION_FAILED);
+      throw new InvalidPrivatePartyPasswordError({
+        gameId: input.gameId,
+        hostUserId: input.hostUserId,
+        privatePartyPasswordLength: privatePartyPassword.length,
+      });
     }
 
     const privatePartyPasswordHash =
@@ -87,7 +99,11 @@ export class CreatePartyUseCase {
       }
     }
 
-    throw new Error(GameErrorCode.VALIDATION_FAILED);
+    throw new PartyPinGenerationFailedError({
+      attempts: CreatePartyUseCase.MAX_PIN_GENERATION_ATTEMPTS,
+      gameId: input.gameId,
+      hostUserId: input.hostUserId,
+    });
   }
 
   private generatePin(): PartyPin {

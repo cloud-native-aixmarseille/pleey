@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { GuestId } from '../../../../domain/identity/entities/guest';
-import { IdentityErrorCode } from '../../../../domain/identity/enums/identity-error-code.enum';
+import { AvatarNotFoundError } from '../../../../domain/identity/errors';
 import {
   type GuestRepository,
   GuestRepositoryProvider,
@@ -24,7 +24,7 @@ export class GetGuestAvatarUseCase {
     const guest = await this.guestRepository.findById(guestId);
 
     if (!guest) {
-      throw new Error(IdentityErrorCode.AVATAR_NOT_FOUND);
+      throw new AvatarNotFoundError({ guestId });
     }
 
     return this.userAvatarService.generateAvatar(guest.avatarSeed);
@@ -36,13 +36,20 @@ export class GetGuestAvatarUseCase {
     try {
       decodedGuestId = decodeURIComponent(encodedGuestId);
     } catch {
-      throw new Error(IdentityErrorCode.AVATAR_NOT_FOUND);
+      throw new AvatarNotFoundError({
+        encodedGuestId,
+        reason: 'invalidUrlEncoding',
+      });
     }
 
     const guestId = this.guestIdentifier.parseOrNull(decodedGuestId);
 
     if (guestId === null) {
-      throw new Error(IdentityErrorCode.AVATAR_NOT_FOUND);
+      throw new AvatarNotFoundError({
+        decodedGuestId,
+        encodedGuestId,
+        reason: 'invalidGuestId',
+      });
     }
 
     return guestId;

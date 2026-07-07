@@ -17,7 +17,11 @@ const frontendStaticCallCheckRelativePaths = [
 ];
 const PROJECT_OVERRIDES = {
   frontend: {
-    isForbiddenInstantiation() {
+    isForbiddenInstantiation(_currentRelativePath, _targetRelativePath, className) {
+      if (className?.endsWith('Error')) {
+        return false;
+      }
+
       return true;
     },
     shouldCheckStaticCalls(currentRelativePath, targetRelativePath) {
@@ -28,7 +32,11 @@ const PROJECT_OVERRIDES = {
     },
   },
   backend: {
-    isForbiddenInstantiation(_currentRelativePath, targetRelativePath) {
+    isForbiddenInstantiation(_currentRelativePath, targetRelativePath, className) {
+      if (className?.endsWith('Error')) {
+        return false;
+      }
+
       if (targetRelativePath.includes('/entities/')) {
         return false;
       }

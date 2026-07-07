@@ -8,9 +8,9 @@
   "scripts": {
     "build": "nest build",
     "format": "biome format --write .",
-    "lint": "node ./scripts/check-naming.mjs && node ./scripts/check-di-instantiation.mjs && node ./scripts/check-invariant-arguments.mjs && npm run lint:unused-exports && npm run lint:test-only && npm run lint:knip && biome lint --error-on-warnings .",
-    "lint:fix": "node ./scripts/check-naming.mjs && node ./scripts/check-di-instantiation.mjs && node ./scripts/check-invariant-arguments.mjs && npm run lint:unused-exports && npm run lint:test-only && npm run lint:knip && biome check --error-on-warnings --write .",
-    "lint:ci": "node ./scripts/check-naming.mjs && node ./scripts/check-di-instantiation.mjs && node ./scripts/check-invariant-arguments.mjs && npm run lint:unused-exports && npm run lint:test-only && npm run lint:knip && biome ci --error-on-warnings .",
+    "lint": "node ./scripts/check-naming.mjs && node ./scripts/check-di-instantiation.mjs && node ./scripts/check-invariant-arguments.mjs && npm run lint:unused-exports && npm run lint:test-only && npm run lint:knip && biome lint --error-on-warnings . && node ./scripts/check-domain-errors.mjs",
+    "lint:fix": "node ./scripts/check-naming.mjs && node ./scripts/check-di-instantiation.mjs && node ./scripts/check-invariant-arguments.mjs && npm run lint:unused-exports && npm run lint:test-only && npm run lint:knip && biome check --error-on-warnings --write . && node ./scripts/check-domain-errors.mjs",
+    "lint:ci": "node ./scripts/check-naming.mjs && node ./scripts/check-di-instantiation.mjs && node ./scripts/check-invariant-arguments.mjs && npm run lint:unused-exports && npm run lint:test-only && npm run lint:knip && biome ci --error-on-warnings . && node ./scripts/check-domain-errors.mjs",
     "lint:knip": "knip --config knip.json",
     "lint:test-only": "node ./scripts/check-test-only-exports.mjs ./src",
     "lint:unused-exports": "node ./scripts/find-unused-exports.mjs ./src",

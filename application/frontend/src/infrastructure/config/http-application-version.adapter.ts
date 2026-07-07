@@ -1,5 +1,6 @@
 import { injectable } from 'inversify';
 import type { ApplicationVersionPort } from '../../application/shared/contracts/application-version.port';
+import { createDomainError } from '../../domains/shared/errors/domain-error';
 import { API_URL } from './api';
 
 interface ApplicationVersionResponse {
@@ -12,7 +13,16 @@ export class HttpApplicationVersionAdapter implements ApplicationVersionPort {
     const response = await fetch(new URL('/api/version', `${API_URL}/`));
 
     if (!response.ok) {
-      throw new Error(`Failed to load application version (${response.status})`);
+      throw createDomainError(
+        {
+          code: 'APPLICATION_VERSION_LOAD_FAILED',
+          message: `Failed to load application version (${response.status})`,
+          messageKey: 'APPLICATION_VERSION_LOAD_FAILED',
+        },
+        {
+          status: response.status,
+        },
+      );
     }
 
     const payload = (await response.json()) as ApplicationVersionResponse;
