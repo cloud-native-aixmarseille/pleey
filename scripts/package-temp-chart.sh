@@ -11,21 +11,30 @@ require_env() {
 	fi
 }
 
+warn_if_empty() {
+	local variable_name="$1"
+
+	if [[ -z "${!variable_name:-}" ]]; then
+		printf 'Warning: %s is empty; chart packaging will fall back to tag-based image references.\n' "$variable_name" >&2
+	fi
+}
+
 require_env "BACKEND_IMAGE_REPOSITORY"
 require_env "BACKEND_IMAGE_TAG"
-require_env "BACKEND_IMAGE_DIGEST"
 require_env "FRONTEND_IMAGE_REPOSITORY"
 require_env "FRONTEND_IMAGE_TAG"
-require_env "FRONTEND_IMAGE_DIGEST"
 require_env "TEMP_CHART_VERSION"
 require_env "TEMP_APP_VERSION"
+
+warn_if_empty "BACKEND_IMAGE_DIGEST"
+warn_if_empty "FRONTEND_IMAGE_DIGEST"
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "${script_dir}/.." && pwd)"
 source_chart_dir="${CHART_SOURCE_DIR:-${repo_root}/charts/application}"
-chart_temp_root="${CHART_TEMP_ROOT:-$(mktemp -d "${RUNNER_TEMP:-/tmp}/pleey-demo-chart.XXXXXX")}"
-chart_output_dir="${CHART_OUTPUT_DIR:-${chart_temp_root}/packages}"
-chart_copy_dir="${chart_temp_root}/application"
+chart_root="${CHART_TEMP_ROOT:-$(mktemp -d "${RUNNER_TEMP:-/tmp}/pleey-demo-chart.XXXXXX")}"
+chart_output_dir="${CHART_OUTPUT_DIR:-${chart_root}/packages}"
+chart_copy_dir="${chart_root}/application"
 
 mkdir -p "$chart_output_dir"
 rm -rf "$chart_copy_dir"
@@ -52,10 +61,10 @@ temp_chart_version = ENV.fetch("TEMP_CHART_VERSION")
 temp_app_version = ENV.fetch("TEMP_APP_VERSION")
 backend_repository = ENV.fetch("BACKEND_IMAGE_REPOSITORY")
 backend_tag = ENV.fetch("BACKEND_IMAGE_TAG")
-backend_digest = ENV.fetch("BACKEND_IMAGE_DIGEST")
+backend_digest = ENV.fetch("BACKEND_IMAGE_DIGEST", "")
 frontend_repository = ENV.fetch("FRONTEND_IMAGE_REPOSITORY")
 frontend_tag = ENV.fetch("FRONTEND_IMAGE_TAG")
-frontend_digest = ENV.fetch("FRONTEND_IMAGE_DIGEST")
+frontend_digest = ENV.fetch("FRONTEND_IMAGE_DIGEST", "")
 
 root_chart_path = File.join(chart_dir, "Chart.yaml")
 backend_chart_path = File.join(chart_dir, "charts", "backend", "Chart.yaml")

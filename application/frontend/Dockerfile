@@ -27,6 +27,8 @@ RUN npm run build
 
 FROM nginx:1.31-alpine AS prod
 
+LABEL org.opencontainers.image.source="https://github.com/cloud-native-aixmarseille/pleey"
+
 # Install security updates
 # hadolint ignore=DL3018
 RUN apk update && \

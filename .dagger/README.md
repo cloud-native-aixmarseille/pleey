@@ -1,10 +1,16 @@
 # Dagger Module Usage
 
-This folder contains the local TypeScript Dagger module used by the demo CI pipeline.
+This folder contains the local TypeScript Dagger module used by the CI pipeline.
 
-The current module name is `pleey-demo-ci` and it exposes one callable function:
+The current module name is `pleey-demo-ci` and it exposes these callable functions:
 
-- `demo-dispatch`: runs backend/frontend lint and tests, publishes temporary backend/frontend images, then packages and publishes a temporary Helm chart.
+- `prepare-temp-artifacts`: computes the backend/frontend image repositories, chart repository, image tag, and chart version.
+- `lint-and-test-backend`: builds the backend `ci` target and runs `npm run lint:ci` then `npm run test:ci`.
+- `lint-and-test-frontend`: builds the frontend `ci` target and runs `npm run lint:ci` then `npm run test:ci`.
+- `publish-backend-image`: builds and publishes the backend `prod` image, returning its published reference and digest.
+- `publish-frontend-image`: builds and publishes the frontend `prod` image, returning its published reference and digest.
+- `release-temp-chart`: packages and publishes the Helm chart using the published backend/frontend image digests.
+- `demo-dispatch`: convenience entrypoint that runs the full sequence above.
 
 ## Source vs generated files
 
@@ -41,7 +47,7 @@ From the repository root:
 dagger functions
 ```
 
-You should see `demo-dispatch` in the function list.
+You should see the functions above in the function list.
 
 ## Local usage
 
@@ -87,9 +93,9 @@ gh auth status -t
 
 The function returns a short Markdown summary containing:
 
-- the published temporary backend image reference
-- the published temporary frontend image reference
-- the published temporary Helm chart reference
+- the published backend image tag
+- the published frontend image tag
+- the published Helm chart version
 
 ## What the function does
 
@@ -97,29 +103,44 @@ The function returns a short Markdown summary containing:
 
 1. Build the backend `ci` target and run `npm run lint:ci` and `npm run test:ci`.
 2. Build the frontend `ci` target and run `npm run lint:ci` and `npm run test:ci`.
-3. Build and publish temporary `prod` backend and frontend images for `linux/amd64`.
+3. Build and publish `prod` backend and frontend images for `linux/amd64`.
 4. Run `scripts/package-temp-chart.sh` inside a Helm tooling container.
-5. Push the temporary chart to the OCI chart repository.
+5. Push the chart to the OCI chart repository.
 
-Temporary artifacts are isolated under `tmp/` registry paths and use demo-only tags and chart versions.
+Demo artifacts are isolated under `demo/` registry paths and use demo-only tags and chart versions.
 
 ## GitHub Actions usage
 
 The dedicated workflow that calls this module is [.github/workflows/demo-dispatch-dagger-ci.yml](../.github/workflows/demo-dispatch-dagger-ci.yml).
 
-That workflow passes GitHub runtime values into `demo-dispatch` like this:
+That workflow now mirrors the job layout of [.github/workflows/demo-dispatch-ci.yml](../.github/workflows/demo-dispatch-ci.yml) with separate `prepare-temp-metadata`, `lint-and-test`, `build-temp-images`, and `release-temp-chart` jobs. Inside those jobs it invokes the exported Dagger stages. For example:
 
 ```bash
-dagger call demo-dispatch \
+dagger call prepare-temp-artifacts \
+  --oci-registry='${{ vars.OCI_REGISTRY }}' \
+  --repository='${{ github.repository }}' \
+  --run-number='${{ github.run_number }}' \
+  --run-attempt='${{ github.run_attempt }}' \
+  --git-sha='${{ github.sha }}'
+
+dagger call publish-backend-image \
   --source=. \
   --oci-registry='${{ vars.OCI_REGISTRY }}' \
-  --registry-username='${{ github.repository_owner }}' \
+  --registry-username='${{ github.actor }}' \
   --registry-password=env://GITHUB_TOKEN \
   --repository='${{ github.repository }}' \
   --run-number='${{ github.run_number }}' \
   --run-attempt='${{ github.run_attempt }}' \
   --git-sha='${{ github.sha }}'
 ```
+
+`prepare-temp-artifacts`, `publish-backend-image`, and `publish-frontend-image` return raw JSON strings. The workflow extracts their fields in shell steps with `jq` and then promotes those plain scalar values to job outputs.
+
+## Performance and caching
+
+- Each public Dagger function now filters its `source` directory down to only the files needed by that stage. That keeps unrelated repository changes from invalidating backend, frontend, or chart caches.
+- The split-job GitHub Actions workflow still benefits from Dagger layer reuse within each invocation, but it does not depend on any Dagger Cloud feature.
+- For local runs, repeated calls benefit most when the relevant backend, frontend, or chart inputs stay unchanged because the filtered `source` arguments avoid invalidating unrelated files.
 
 ## Notes
 

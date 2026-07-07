@@ -11,7 +11,7 @@ permissions: {}
 
 jobs:
   prepare-temp-metadata:
-    name: Prepare temp metadata
+    name: Prepare metadata
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -23,7 +23,7 @@ jobs:
       image-tag: ${{ steps.prepare.outputs.image_tag }}
       chart-version: ${{ steps.prepare.outputs.chart_version }}
     steps:
-      - name: Prepare temp artifact coordinates
+      - name: Prepare artifact coordinates
         id: prepare
         shell: bash
         env:
@@ -42,9 +42,9 @@ jobs:
 
           {
             echo "registry=${OCI_REGISTRY}"
-            echo "backend_image_repository=${OCI_REGISTRY}/${repository_slug}/tmp/backend"
-            echo "frontend_image_repository=${OCI_REGISTRY}/${repository_slug}/tmp/frontend"
-            echo "chart_repository=oci://${OCI_REGISTRY}/${repository_slug}/tmp/charts"
+            echo "backend_image_repository=${OCI_REGISTRY}/${repository_slug}/demo/backend"
+            echo "frontend_image_repository=${OCI_REGISTRY}/${repository_slug}/demo/frontend"
+            echo "chart_repository=oci://${OCI_REGISTRY}/${repository_slug}/demo/charts"
             echo "image_tag=${image_tag}"
             echo "chart_version=${chart_version}"
           } >> "$GITHUB_OUTPUT"
@@ -86,7 +86,7 @@ jobs:
         run: npm run test:ci
 
   build-temp-images:
-    name: Build temp images
+    name: Build images
     runs-on: ubuntu-latest
     needs: [prepare-temp-metadata, lint-and-test]
     permissions:
@@ -112,10 +112,10 @@ jobs:
         uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           registry: ${{ needs.prepare-temp-metadata.outputs.registry }}
-          username: ${{ github.repository_owner }}
+          username: ${{ github.actor }}
           password: ${{ github.token }}
 
-      - name: Build and push backend temp image
+      - name: Build and push backend image
         id: build_backend
         uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
         with:
@@ -126,8 +126,11 @@ jobs:
           provenance: false
           push: true
           tags: ${{ needs.prepare-temp-metadata.outputs.backend-image-repository }}:${{ needs.prepare-temp-metadata.outputs.image-tag }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
 
-      - name: Build and push frontend temp image
+      - name: Build and push frontend image
         id: build_frontend
         uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
         with:
@@ -138,9 +141,12 @@ jobs:
           provenance: false
           push: true
           tags: ${{ needs.prepare-temp-metadata.outputs.frontend-image-repository }}:${{ needs.prepare-temp-metadata.outputs.image-tag }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
 
   release-temp-chart:
-    name: Release temp chart
+    name: Release chart
     runs-on: ubuntu-latest
     needs: [build-temp-images]
     permissions:
@@ -159,9 +165,9 @@ jobs:
           OCI_REGISTRY: ${{ needs.build-temp-images.outputs.registry }}
         run: |
           set -euo pipefail
-          echo "${{ github.token }}" | helm registry login "$OCI_REGISTRY" -u "${{ github.repository_owner }}" --password-stdin
+          echo "${{ github.token }}" | helm registry login "$OCI_REGISTRY" -u "${{ github.actor }}" --password-stdin
 
-      - name: Package temp chart
+      - name: Package chart
         id: package_chart
         shell: bash
         env:
@@ -175,7 +181,7 @@ jobs:
           TEMP_APP_VERSION: ${{ needs.build-temp-images.outputs.image-tag }}
         run: bash scripts/package-temp-chart.sh
 
-      - name: Push temp chart to OCI registry
+      - name: Push chart to OCI registry
         shell: bash
         env:
           CHART_ARCHIVE: ${{ steps.package_chart.outputs.chart_archive }}
@@ -184,7 +190,7 @@ jobs:
           set -euo pipefail
           helm push "$CHART_ARCHIVE" "$CHART_REPOSITORY"
 
-      - name: Summarize temp artifacts
+      - name: Summarize artifacts
         shell: bash
         env:
           BACKEND_IMAGE_REPOSITORY: ${{ needs.build-temp-images.outputs.backend-image-repository }}
@@ -195,9 +201,9 @@ jobs:
         run: |
           set -euo pipefail
           {
-            echo "## Temp demo artifacts"
+            echo "## Demo artifacts"
             echo
-            echo "- Backend image: ${BACKEND_IMAGE_REPOSITORY}:${IMAGE_TAG}"
-            echo "- Frontend image: ${FRONTEND_IMAGE_REPOSITORY}:${IMAGE_TAG}"
-            echo "- Helm chart: ${CHART_REPOSITORY}/pleey:${CHART_VERSION}"
+            echo "- Backend image tag: ${IMAGE_TAG}"
+            echo "- Frontend image tag: ${IMAGE_TAG}"
+            echo "- Helm chart version: ${CHART_VERSION}"
           } >> "$GITHUB_STEP_SUMMARY"

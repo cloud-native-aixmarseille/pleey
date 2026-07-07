@@ -1,30 +1,137 @@
-import { dag, Directory, object, func, Secret } from "@dagger.io/dagger"
+import { argument, dag, Directory, object, func, Secret } from "@dagger.io/dagger"
 
 const REPOSITORY_ROOT_PATH = "/src"
 const CHART_TEMP_ROOT_PATH = "/tmp/pleey-demo-chart"
 const LINUX_AMD64 = "linux/amd64"
 
-type TempArtifacts = {
+const BACKEND_SOURCE_IGNORE = [
+  "*",
+  "!application",
+  "!application/backend",
+  "!application/backend/**",
+  "!scripts",
+  "!scripts/**",
+]
+
+const FRONTEND_SOURCE_IGNORE = [
+  "*",
+  "!application",
+  "!application/frontend",
+  "!application/frontend/**",
+  "!application/backend",
+  "!application/backend/src",
+  "!application/backend/src/schema.gql",
+  "!scripts",
+  "!scripts/**",
+]
+
+const CHART_SOURCE_IGNORE = [
+  "*",
+  "!charts",
+  "!charts/application",
+  "!charts/application/**",
+  "!scripts",
+  "!scripts/package-temp-chart.sh",
+]
+
+const DEMO_DISPATCH_SOURCE_IGNORE = [
+  "*",
+  "!application",
+  "!application/backend",
+  "!application/backend/**",
+  "!application/frontend",
+  "!application/frontend/**",
+  "!charts",
+  "!charts/application",
+  "!charts/application/**",
+  "!scripts",
+  "!scripts/**",
+]
+
+@object()
+export class TempArtifacts {
+  @func()
   backendImageRepository: string
+
+  @func()
   frontendImageRepository: string
+
+  @func()
   chartRepository: string
+
+  @func()
   imageTag: string
+
+  @func()
   chartVersion: string
+
+  constructor(
+    backendImageRepository: string,
+    frontendImageRepository: string,
+    chartRepository: string,
+    imageTag: string,
+    chartVersion: string,
+  ) {
+    this.backendImageRepository = backendImageRepository
+    this.frontendImageRepository = frontendImageRepository
+    this.chartRepository = chartRepository
+    this.imageTag = imageTag
+    this.chartVersion = chartVersion
+  }
 }
 
-type PublishedImage = {
+@object()
+export class PublishedImage {
+  @func()
   reference: string
+
+  @func()
   digest: string
+
+  constructor(reference: string, digest: string) {
+    this.reference = reference
+    this.digest = digest
+  }
 }
 
 @object()
 export class PleeyDemoCi {
-  /**
-   * Runs standalone demo CI with lint, tests, temp image publication, and temp chart publication.
-   */
   @func()
-  async demoDispatch(
-    source: Directory,
+  prepareTempArtifacts(
+    ociRegistry: string,
+    repository: string,
+    runNumber: string,
+    runAttempt: string,
+    gitSha: string,
+  ): string {
+    const artifacts = this.newTempArtifacts(
+      ociRegistry,
+      repository,
+      runNumber,
+      runAttempt,
+      gitSha,
+    )
+
+    return this.serializeTempArtifacts(ociRegistry, artifacts)
+  }
+
+  @func()
+  async lintAndTestBackend(
+    @argument({ ignore: BACKEND_SOURCE_IGNORE }) source: Directory,
+  ): Promise<void> {
+    await this.lintAndTestService(source, "backend")
+  }
+
+  @func()
+  async lintAndTestFrontend(
+    @argument({ ignore: FRONTEND_SOURCE_IGNORE }) source: Directory,
+  ): Promise<void> {
+    await this.lintAndTestService(source, "frontend")
+  }
+
+  @func()
+  async publishBackendImage(
+    @argument({ ignore: BACKEND_SOURCE_IGNORE }) source: Directory,
     ociRegistry: string,
     registryUsername: string,
     registryPassword: Secret,
@@ -41,8 +148,107 @@ export class PleeyDemoCi {
       gitSha,
     )
 
-    await this.lintAndTestService(source, "backend")
-    await this.lintAndTestService(source, "frontend")
+    const publishedImage = await this.publishImage(
+      source,
+      ociRegistry,
+      registryUsername,
+      registryPassword,
+      "application/backend/Dockerfile",
+      artifacts.backendImageRepository,
+      artifacts.imageTag,
+    )
+
+    return this.serializePublishedImage(publishedImage)
+  }
+
+  @func()
+  async publishFrontendImage(
+    @argument({ ignore: FRONTEND_SOURCE_IGNORE }) source: Directory,
+    ociRegistry: string,
+    registryUsername: string,
+    registryPassword: Secret,
+    repository: string,
+    runNumber: string,
+    runAttempt: string,
+    gitSha: string,
+  ): Promise<string> {
+    const artifacts = this.newTempArtifacts(
+      ociRegistry,
+      repository,
+      runNumber,
+      runAttempt,
+      gitSha,
+    )
+
+    const publishedImage = await this.publishImage(
+      source,
+      ociRegistry,
+      registryUsername,
+      registryPassword,
+      "application/frontend/Dockerfile",
+      artifacts.frontendImageRepository,
+      artifacts.imageTag,
+    )
+
+    return this.serializePublishedImage(publishedImage)
+  }
+
+  @func()
+  async releaseTempChart(
+    @argument({ ignore: CHART_SOURCE_IGNORE }) source: Directory,
+    ociRegistry: string,
+    registryUsername: string,
+    registryPassword: Secret,
+    repository: string,
+    runNumber: string,
+    runAttempt: string,
+    gitSha: string,
+    backendDigest: string,
+    frontendDigest: string,
+  ): Promise<string> {
+    const artifacts = this.newTempArtifacts(
+      ociRegistry,
+      repository,
+      runNumber,
+      runAttempt,
+      gitSha,
+    )
+
+    return this.publishTempChart(
+      source,
+      artifacts,
+      ociRegistry,
+      registryUsername,
+      registryPassword,
+      backendDigest,
+      frontendDigest,
+    )
+  }
+
+  /**
+   * Runs standalone CI with lint, tests, image publication, and chart publication.
+   */
+  @func()
+  async demoDispatch(
+    @argument({ ignore: DEMO_DISPATCH_SOURCE_IGNORE }) source: Directory,
+    ociRegistry: string,
+    registryUsername: string,
+    registryPassword: Secret,
+    repository: string,
+    runNumber: string,
+    runAttempt: string,
+    gitSha: string,
+  ): Promise<string> {
+    const artifacts = this.newTempArtifacts(
+      ociRegistry,
+      repository,
+      runNumber,
+      runAttempt,
+      gitSha,
+    )
+
+    await this.lintAndTestBackend(source)
+    await this.lintAndTestFrontend(source)
 
     const backendImage = await this.publishImage(
       source,
@@ -64,7 +270,7 @@ export class PleeyDemoCi {
       artifacts.imageTag,
     )
 
-    const chartReference = await this.releaseTempChart(
+    const chartReference = await this.publishTempChart(
       source,
       artifacts,
       ociRegistry,
@@ -75,11 +281,11 @@ export class PleeyDemoCi {
     )
 
     return [
-      "## Temp demo artifacts",
+      "## Demo artifacts",
       "",
-      `- Backend image: ${backendImage.reference}`,
-      `- Frontend image: ${frontendImage.reference}`,
-      `- Helm chart: ${chartReference}`,
+      `- Backend image tag: ${artifacts.imageTag}`,
+      `- Frontend image tag: ${artifacts.imageTag}`,
+      `- Helm chart version: ${artifacts.chartVersion}`,
     ].join("\n")
   }
 
@@ -122,7 +328,7 @@ export class PleeyDemoCi {
     }
   }
 
-  private async releaseTempChart(
+  private async publishTempChart(
     source: Directory,
     artifacts: TempArtifacts,
     ociRegistry: string,
@@ -187,13 +393,13 @@ export class PleeyDemoCi {
     const imageTag = `demo-${runNumber}-${runAttempt}-${this.shortSha(gitSha)}`
     const chartVersion = `0.0.0-demo.${runNumber}.${runAttempt}`
 
-    return {
-      backendImageRepository: `${ociRegistry}/${repositorySlug}/tmp/backend`,
-      frontendImageRepository: `${ociRegistry}/${repositorySlug}/tmp/frontend`,
-      chartRepository: `oci://${ociRegistry}/${repositorySlug}/tmp/charts`,
+    return new TempArtifacts(
+      `${ociRegistry}/${repositorySlug}/demo/backend`,
+      `${ociRegistry}/${repositorySlug}/demo/frontend`,
+      `oci://${ociRegistry}/${repositorySlug}/demo/charts`,
       imageTag,
       chartVersion,
-    }
+    )
   }
 
   private digestFromPublishedReference(publishedReference: string): string {
@@ -210,5 +416,26 @@ export class PleeyDemoCi {
 
   private shortSha(gitSha: string): string {
     return gitSha.length <= 7 ? gitSha : gitSha.slice(0, 7)
+  }
+
+  private serializeTempArtifacts(
+    ociRegistry: string,
+    artifacts: TempArtifacts,
+  ): string {
+    return JSON.stringify({
+      registry: ociRegistry,
+      backendImageRepository: artifacts.backendImageRepository,
+      frontendImageRepository: artifacts.frontendImageRepository,
+      chartRepository: artifacts.chartRepository,
+      imageTag: artifacts.imageTag,
+      chartVersion: artifacts.chartVersion,
+    })
+  }
+
+  private serializePublishedImage(publishedImage: PublishedImage): string {
+    return JSON.stringify({
+      reference: publishedImage.reference,
+      digest: publishedImage.digest,
+    })
   }
 }

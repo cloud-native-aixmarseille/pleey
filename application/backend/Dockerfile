@@ -38,6 +38,7 @@ RUN set -eu; \
 FROM base AS prod
 
 ENV NODE_ENV production
+LABEL org.opencontainers.image.source="https://github.com/cloud-native-aixmarseille/pleey"
 
 COPY --from=build-prod /usr/bin/dumb-init /usr/bin/dumb-init
 
