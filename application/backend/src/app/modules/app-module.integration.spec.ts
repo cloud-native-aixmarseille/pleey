@@ -102,25 +102,24 @@ describe('Nest module integration smoke tests', () => {
     APP_MODULE_COMPILE_TIMEOUT_MS,
   );
 
-  it.each(moduleCases)('compiles $moduleName without unresolved providers', async ({
-    loadModule,
-    moduleName,
-    requiresRootI18n = false,
-  }) => {
-    ensureModuleTestEnvironment();
-    const moduleType = await loadModule();
+  it.each(moduleCases)(
+    'compiles $moduleName without unresolved providers',
+    async ({ loadModule, moduleName, requiresRootI18n = false }) => {
+      ensureModuleTestEnvironment();
+      const moduleType = await loadModule();
 
-    const testingModule = await Test.createTestingModule({
-      imports: [...(requiresRootI18n ? [createRootI18nTestModule()] : []), moduleType as never],
-    }).compile();
+      const testingModule = await Test.createTestingModule({
+        imports: [...(requiresRootI18n ? [createRootI18nTestModule()] : []), moduleType as never],
+      }).compile();
 
-    try {
-      expect(testingModule).toBeDefined();
-      expect(testingModule.select(moduleType as never)).toBeDefined();
-    } finally {
-      await testingModule.close();
-    }
+      try {
+        expect(testingModule).toBeDefined();
+        expect(testingModule.select(moduleType as never)).toBeDefined();
+      } finally {
+        await testingModule.close();
+      }
 
-    expect(moduleName).toBeTruthy();
-  });
+      expect(moduleName).toBeTruthy();
+    },
+  );
 });
