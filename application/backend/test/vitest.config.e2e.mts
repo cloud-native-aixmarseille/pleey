@@ -1,11 +1,14 @@
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
+
+const currentDir = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    setupFiles: [resolve(__dirname, './vitest.e2e.setup.ts')],
+    setupFiles: [resolve(currentDir, './vitest.e2e.setup.ts')],
     include: ['**/*.e2e-spec.ts'],
     coverage: {
       provider: 'v8',
@@ -14,7 +17,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': resolve(__dirname, '../src'),
+      '@': resolve(currentDir, '../src'),
     },
   },
 });

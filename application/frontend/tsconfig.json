@@ -2,6 +2,8 @@
   "compilerOptions": {
     "target": "ES2022",
     "useDefineForClassFields": true,
+    "allowJs": true,
+    "maxNodeModuleJsDepth": 10,
     "lib": [
       "ES2022",
       "DOM"
