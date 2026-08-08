@@ -26,7 +26,7 @@
     "test:watch": "vitest --watch",
     "test:cov": "vitest --coverage",
     "test:ui": "vitest --ui",
-    "test:e2e": "vitest --config ./test/vitest.config.e2e.ts",
+    "test:e2e": "vitest --config ./test/vitest.config.e2e.mts",
     "test:ci": "vitest run --reporter=default --reporter=junit --outputFile=junit.xml --coverage.enabled --coverage.reporter=lcov --coverage.reporter=text"
   },
   "dependencies": {
@@ -83,7 +83,7 @@
     "@nestjs/testing": "^11.1.28",
     "@prisma/config": "^7.9.1",
     "@types/express": "^5.0.6",
-    "@types/node": "^26.1.2",
+    "@types/node": "^26.2.0",
     "@types/passport-jwt": "^4.0.1",
     "@types/supertest": "^7.2.1",
     "@vitest/coverage-v8": "^4.1.10",
