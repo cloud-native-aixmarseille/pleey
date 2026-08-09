@@ -17,7 +17,7 @@ describe('PleeyLogo', () => {
     const image = screen.getByRole('img', { name: 'shared.branding.logoAlt' });
 
     expect(image).toHaveAttribute('src', '/brand/custom-logo.png');
-    expect(image).toHaveStyle({ height: '3.5rem', width: '3.5rem' });
+    expect(image).toHaveStyle({ height: '56px', width: '56px' });
   });
 
   it('marks decorative logos as hidden from assistive technology', () => {

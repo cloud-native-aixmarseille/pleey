@@ -98,14 +98,14 @@ describe('PartyFinalSummaryPanel', () => {
     const rankThreePodium = screen.getByTestId('party-final-podium-rank-3');
 
     expect(rankTwoPodium).toHaveStyle({
-      minHeight: '13rem',
+      minHeight: '208px',
     });
     expect(rankTwoPodium.getAttribute('style')).toContain(
       'padding: var(--ui-spacing-xl) var(--ui-spacing-sm) var(--ui-spacing-xl)',
     );
 
     expect(rankThreePodium).toHaveStyle({
-      minHeight: '10rem',
+      minHeight: '160px',
     });
     expect(rankThreePodium.getAttribute('style')).toContain(
       'padding: var(--ui-spacing-lg) var(--ui-spacing-sm) var(--ui-spacing-md)',

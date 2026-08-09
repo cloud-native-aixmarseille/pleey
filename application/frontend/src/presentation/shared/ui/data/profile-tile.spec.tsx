@@ -28,7 +28,7 @@ describe('ProfileTile', () => {
     );
 
     expect(screen.getByTestId('profile-tile-highlight-slot')).toHaveStyle({
-      minHeight: '1.5rem',
+      minHeight: '24px',
     });
   });
 
