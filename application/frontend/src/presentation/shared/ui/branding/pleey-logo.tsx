@@ -36,7 +36,6 @@ export function PleeyLogo({
       alt={decorative ? '' : t('shared.branding.logoAlt')}
       aria-hidden={decorative}
       decoding="async"
-      height={dimension}
       loading="eager"
       src={src}
       style={{
@@ -46,7 +45,6 @@ export function PleeyLogo({
         objectFit: 'contain',
         width: dimension,
       }}
-      width={dimension}
     />
   );
 }
