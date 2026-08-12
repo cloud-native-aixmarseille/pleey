@@ -1,10 +1,7 @@
 import type { CSSProperties } from 'react';
 import { DEFAULT_UI_COLOR_SCHEME, type UiColorScheme, type UiThemeSeed } from './ui-theme-contract';
 
-export function createUiThemeTokens(
-  seed: UiThemeSeed,
-  colorScheme: UiColorScheme = DEFAULT_UI_COLOR_SCHEME,
-) {
+export function createUiThemeTokens(seed: UiThemeSeed, colorScheme: UiColorScheme = DEFAULT_UI_COLOR_SCHEME) {
   const semanticTokens = seed.semantic[colorScheme];
 
   return {
@@ -124,9 +121,7 @@ export const uiThemeTokens = {
         badgeBackground: createUiThemeCssVarToken('--ui-leaderboard-podium-first-badge-background'),
         badgeShadow: createUiThemeCssVarToken('--ui-leaderboard-podium-first-badge-shadow'),
         badgeText: createUiThemeCssVarToken('--ui-leaderboard-podium-first-badge-text'),
-        columnBackground: createUiThemeCssVarToken(
-          '--ui-leaderboard-podium-first-column-background',
-        ),
+        columnBackground: createUiThemeCssVarToken('--ui-leaderboard-podium-first-column-background'),
         columnBorder: createUiThemeCssVarToken('--ui-leaderboard-podium-first-column-border'),
         columnShadow: createUiThemeCssVarToken('--ui-leaderboard-podium-first-column-shadow'),
         crownFilter: createUiThemeCssVarToken('--ui-leaderboard-podium-first-crown-filter'),
@@ -135,14 +130,10 @@ export const uiThemeTokens = {
       second: {
         avatarBorder: createUiThemeCssVarToken('--ui-leaderboard-podium-second-avatar-border'),
         avatarShadow: createUiThemeCssVarToken('--ui-leaderboard-podium-second-avatar-shadow'),
-        badgeBackground: createUiThemeCssVarToken(
-          '--ui-leaderboard-podium-second-badge-background',
-        ),
+        badgeBackground: createUiThemeCssVarToken('--ui-leaderboard-podium-second-badge-background'),
         badgeShadow: createUiThemeCssVarToken('--ui-leaderboard-podium-second-badge-shadow'),
         badgeText: createUiThemeCssVarToken('--ui-leaderboard-podium-second-badge-text'),
-        columnBackground: createUiThemeCssVarToken(
-          '--ui-leaderboard-podium-second-column-background',
-        ),
+        columnBackground: createUiThemeCssVarToken('--ui-leaderboard-podium-second-column-background'),
         columnBorder: createUiThemeCssVarToken('--ui-leaderboard-podium-second-column-border'),
         columnShadow: createUiThemeCssVarToken('--ui-leaderboard-podium-second-column-shadow'),
       },
@@ -152,15 +143,11 @@ export const uiThemeTokens = {
         badgeBackground: createUiThemeCssVarToken('--ui-leaderboard-podium-third-badge-background'),
         badgeShadow: createUiThemeCssVarToken('--ui-leaderboard-podium-third-badge-shadow'),
         badgeText: createUiThemeCssVarToken('--ui-leaderboard-podium-third-badge-text'),
-        columnBackground: createUiThemeCssVarToken(
-          '--ui-leaderboard-podium-third-column-background',
-        ),
+        columnBackground: createUiThemeCssVarToken('--ui-leaderboard-podium-third-column-background'),
         columnBorder: createUiThemeCssVarToken('--ui-leaderboard-podium-third-column-border'),
         columnShadow: createUiThemeCssVarToken('--ui-leaderboard-podium-third-column-shadow'),
       },
-      pointsTextShadowTail: createUiThemeCssVarToken(
-        '--ui-leaderboard-podium-points-text-shadow-tail',
-      ),
+      pointsTextShadowTail: createUiThemeCssVarToken('--ui-leaderboard-podium-points-text-shadow-tail'),
     },
     podiumGlow: {
       first: createUiThemeCssVarToken('--ui-leaderboard-podium-glow-first'),
@@ -257,38 +244,31 @@ export function createUiThemeCssVariables(tokens: ResolvedUiThemeTokens): CSSPro
   return {
     '--ui-leaderboard-podium-first-avatar-border': tokens.leaderboard.podium.first.avatarBorder,
     '--ui-leaderboard-podium-first-avatar-shadow': tokens.leaderboard.podium.first.avatarShadow,
-    '--ui-leaderboard-podium-first-badge-background':
-      tokens.leaderboard.podium.first.badgeBackground,
+    '--ui-leaderboard-podium-first-badge-background': tokens.leaderboard.podium.first.badgeBackground,
     '--ui-leaderboard-podium-first-badge-shadow': tokens.leaderboard.podium.first.badgeShadow,
     '--ui-leaderboard-podium-first-badge-text': tokens.leaderboard.podium.first.badgeText,
-    '--ui-leaderboard-podium-first-column-background':
-      tokens.leaderboard.podium.first.columnBackground,
+    '--ui-leaderboard-podium-first-column-background': tokens.leaderboard.podium.first.columnBackground,
     '--ui-leaderboard-podium-first-column-border': tokens.leaderboard.podium.first.columnBorder,
     '--ui-leaderboard-podium-first-column-shadow': tokens.leaderboard.podium.first.columnShadow,
     '--ui-leaderboard-podium-first-crown-filter': tokens.leaderboard.podium.first.crownFilter,
     '--ui-leaderboard-podium-first-username-shadow': tokens.leaderboard.podium.first.usernameShadow,
     '--ui-leaderboard-podium-second-avatar-border': tokens.leaderboard.podium.second.avatarBorder,
     '--ui-leaderboard-podium-second-avatar-shadow': tokens.leaderboard.podium.second.avatarShadow,
-    '--ui-leaderboard-podium-second-badge-background':
-      tokens.leaderboard.podium.second.badgeBackground,
+    '--ui-leaderboard-podium-second-badge-background': tokens.leaderboard.podium.second.badgeBackground,
     '--ui-leaderboard-podium-second-badge-shadow': tokens.leaderboard.podium.second.badgeShadow,
     '--ui-leaderboard-podium-second-badge-text': tokens.leaderboard.podium.second.badgeText,
-    '--ui-leaderboard-podium-second-column-background':
-      tokens.leaderboard.podium.second.columnBackground,
+    '--ui-leaderboard-podium-second-column-background': tokens.leaderboard.podium.second.columnBackground,
     '--ui-leaderboard-podium-second-column-border': tokens.leaderboard.podium.second.columnBorder,
     '--ui-leaderboard-podium-second-column-shadow': tokens.leaderboard.podium.second.columnShadow,
     '--ui-leaderboard-podium-third-avatar-border': tokens.leaderboard.podium.third.avatarBorder,
     '--ui-leaderboard-podium-third-avatar-shadow': tokens.leaderboard.podium.third.avatarShadow,
-    '--ui-leaderboard-podium-third-badge-background':
-      tokens.leaderboard.podium.third.badgeBackground,
+    '--ui-leaderboard-podium-third-badge-background': tokens.leaderboard.podium.third.badgeBackground,
     '--ui-leaderboard-podium-third-badge-shadow': tokens.leaderboard.podium.third.badgeShadow,
     '--ui-leaderboard-podium-third-badge-text': tokens.leaderboard.podium.third.badgeText,
-    '--ui-leaderboard-podium-third-column-background':
-      tokens.leaderboard.podium.third.columnBackground,
+    '--ui-leaderboard-podium-third-column-background': tokens.leaderboard.podium.third.columnBackground,
     '--ui-leaderboard-podium-third-column-border': tokens.leaderboard.podium.third.columnBorder,
     '--ui-leaderboard-podium-third-column-shadow': tokens.leaderboard.podium.third.columnShadow,
-    '--ui-leaderboard-podium-points-text-shadow-tail':
-      tokens.leaderboard.podium.pointsTextShadowTail,
+    '--ui-leaderboard-podium-points-text-shadow-tail': tokens.leaderboard.podium.pointsTextShadowTail,
     '--ui-leaderboard-podium-glow-first': tokens.leaderboard.podiumGlow.first,
     '--ui-leaderboard-podium-glow-second': tokens.leaderboard.podiumGlow.second,
     '--ui-leaderboard-podium-glow-third': tokens.leaderboard.podiumGlow.third,

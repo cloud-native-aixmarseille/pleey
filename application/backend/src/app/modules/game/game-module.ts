@@ -234,9 +234,7 @@ import { SharedServicesModule } from '../shared/shared-services.module';
     I18nWsExceptionFilter,
     {
       provide: ERROR_CODE_TRANSLATORS,
-      useFactory: (gameErrorTranslationService: GameErrorTranslationService) => [
-        gameErrorTranslationService,
-      ],
+      useFactory: (gameErrorTranslationService: GameErrorTranslationService) => [gameErrorTranslationService],
       inject: [GameErrorTranslationService],
     },
     {

@@ -1,8 +1,6 @@
 import type { ErrorCodeHttpStatusPort } from './error-code-http-status.port';
 
-export abstract class AbstractErrorCodeHttpStatusService<TErrorCode extends string>
-  implements ErrorCodeHttpStatusPort
-{
+export abstract class AbstractErrorCodeHttpStatusService<TErrorCode extends string> implements ErrorCodeHttpStatusPort {
   private readonly errorCodes: ReadonlySet<TErrorCode>;
 
   protected constructor(

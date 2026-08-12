@@ -1,16 +1,9 @@
-import type {
-  Organization,
-  OrganizationId,
-} from '../../../../../../domains/organization/entities/organization';
+import type { Organization, OrganizationId } from '../../../../../../domains/organization/entities/organization';
 import type { Project, ProjectId } from '../../../../../../domains/project/entities/project';
 import { Button } from '../../../../../shared/ui/actions/button';
 import { AsyncCombobox } from '../../../../../shared/ui/forms/async-combobox';
 import { AppIcon } from '../../../../../shared/ui/icons/app-icon';
-import {
-  FlexGrowItem,
-  ResponsiveGrid,
-  StretchRow,
-} from '../../../../../shared/ui/layout/containers';
+import { FlexGrowItem, ResponsiveGrid, StretchRow } from '../../../../../shared/ui/layout/containers';
 import { InsetPanel } from '../../../../../shared/ui/layout/panels';
 
 interface DashboardWorkspaceSelectorsProps {

@@ -52,10 +52,7 @@ export class GraphqlPredictionManagementRepository implements PredictionManageme
     private readonly mapper: PlayableManagementGraphqlMapper,
   ) {}
 
-  async createPrediction(
-    projectId: ProjectId,
-    input: PlayableGameMetadataInput,
-  ): Promise<GameTypeId> {
+  async createPrediction(projectId: ProjectId, input: PlayableGameMetadataInput): Promise<GameTypeId> {
     const result = await this.graphqlClient.request(CreatePredictionManagementDocument, {
       input: { ...input, projectId },
     });
@@ -201,10 +198,7 @@ export class GraphqlPredictionManagementRepository implements PredictionManageme
   }
 
   private mapImportCreationResult(
-    result:
-      | CreatePredictionFromImportManagementMutation['createPredictionFromImport']
-      | null
-      | undefined,
+    result: CreatePredictionFromImportManagementMutation['createPredictionFromImport'] | null | undefined,
     context: Record<string, unknown>,
   ): PlayableContentImportCreationResult {
     if (!result) {

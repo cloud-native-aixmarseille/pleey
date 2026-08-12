@@ -4,17 +4,10 @@ import { PartyPlayerIdentityKind } from '../../../../../../domains/game/party/sh
 import { ProfileTile } from '../../../../../shared/ui/data/profile-tile';
 import { Badge } from '../../../../../shared/ui/feedback/badge';
 import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';
-import {
-  AutoFillGrid,
-  ContentStack,
-  SplitWrapRow,
-} from '../../../../../shared/ui/layout/containers';
+import { AutoFillGrid, ContentStack, SplitWrapRow } from '../../../../../shared/ui/layout/containers';
 import { ElevatedPanel } from '../../../../../shared/ui/layout/panels';
 import { Heading } from '../../../../../shared/ui/layout/typography';
-import {
-  MotionListItem,
-  MotionListPresence,
-} from '../../../../../shared/ui/motion/motion-primitives';
+import { MotionListItem, MotionListPresence } from '../../../../../shared/ui/motion/motion-primitives';
 
 interface PartyLobbyPlayersPanelProps {
   readonly ariaLabel: string;

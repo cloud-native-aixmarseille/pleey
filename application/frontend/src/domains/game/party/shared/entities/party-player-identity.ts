@@ -23,6 +23,4 @@ interface GuestPartyJoiningIdentity {
 
 export type PartyPlayerIdentity = AuthenticatedPartyPlayerIdentity | GuestPartyPlayerIdentity;
 
-export type PartyJoiningPlayerIdentity =
-  | AuthenticatedPartyPlayerIdentity
-  | GuestPartyJoiningIdentity;
+export type PartyJoiningPlayerIdentity = AuthenticatedPartyPlayerIdentity | GuestPartyJoiningIdentity;

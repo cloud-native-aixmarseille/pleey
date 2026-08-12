@@ -70,9 +70,7 @@ describe('ProfileScreen', () => {
     it('renders the avatar regeneration button', () => {
       renderScreen();
 
-      expect(
-        screen.getByRole('button', { name: 'auth.profile.avatarSection.regenerateCta' }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'auth.profile.avatarSection.regenerateCta' })).toBeInTheDocument();
     });
 
     it('renders the sign out button', () => {
@@ -106,9 +104,7 @@ describe('ProfileScreen', () => {
       mocks.regenerateAvatar.mockResolvedValue(undefined);
       renderScreen();
 
-      await userEvent.click(
-        screen.getByRole('button', { name: 'auth.profile.avatarSection.regenerateCta' }),
-      );
+      await userEvent.click(screen.getByRole('button', { name: 'auth.profile.avatarSection.regenerateCta' }));
 
       expect(mocks.regenerateAvatar).toHaveBeenCalledOnce();
     });

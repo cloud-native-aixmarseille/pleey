@@ -14,11 +14,7 @@ const musicalNoteTransition: Transition = { duration: 0.9, ease: 'easeOut', repe
 
 function TrumpetHorn() {
   return (
-    <motion.g
-      animate={trumpetOscillation}
-      style={trumpetOriginStyle}
-      transition={trumpetOscillationTransition}
-    >
+    <motion.g animate={trumpetOscillation} style={trumpetOriginStyle} transition={trumpetOscillationTransition}>
       <rect fill="var(--ui-color-text-quiet)" height="2.5" rx="0.5" width="6" x="14" y="7" />
       <path d="M20 6 L22 4.5 L22 11.5 L20 10 Z" fill="var(--ui-color-text-quiet)" />
     </motion.g>

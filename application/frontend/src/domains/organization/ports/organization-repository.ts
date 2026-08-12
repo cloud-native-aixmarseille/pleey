@@ -33,15 +33,11 @@ export interface UpdateOrganizationMemberRoleCommand {
 export interface OrganizationRepository {
   getMyOrganizations(query?: ListOrganizationsQuery): Promise<PaginatedResult<Organization>>;
   getOrganizationDashboard(organizationId: OrganizationId): Promise<OrganizationDashboard>;
-  getOrganizationMembers(
-    query: ListOrganizationMembersQuery,
-  ): Promise<PaginatedResult<OrganizationMember>>;
+  getOrganizationMembers(query: ListOrganizationMembersQuery): Promise<PaginatedResult<OrganizationMember>>;
   createOrganization(command: CreateOrganizationCommand): Promise<Organization>;
   addOrganizationMember(command: AddOrganizationMemberCommand): Promise<OrganizationMember>;
   removeOrganizationMember(command: RemoveOrganizationMemberCommand): Promise<void>;
-  updateOrganizationMemberRole(
-    command: UpdateOrganizationMemberRoleCommand,
-  ): Promise<OrganizationMember>;
+  updateOrganizationMemberRole(command: UpdateOrganizationMemberRoleCommand): Promise<OrganizationMember>;
 }
 
 export const OrganizationRepositoryToken = Symbol('OrganizationRepository');

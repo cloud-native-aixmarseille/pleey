@@ -63,9 +63,7 @@ describe('PredictionImportPromptMapper', () => {
     } as unknown as PlayableContentImportParser;
     const mapper = new PredictionImportPromptMapper(parser, new SelectableOptionPolicy());
 
-    await expect(
-      mapper.map(new TestPlayableContentImportSource('prediction-import.docx')),
-    ).rejects.toMatchObject({
+    await expect(mapper.map(new TestPlayableContentImportSource('prediction-import.docx'))).rejects.toMatchObject({
       code: PredictionErrorCode.PREDICTION_IMPORT_UNSUPPORTED_FORMAT,
       context: {
         fileName: 'prediction-import.docx',

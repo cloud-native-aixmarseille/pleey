@@ -12,11 +12,7 @@ export function ReorderHandle({ active = false, dragging = false, ...props }: Re
   return (
     <Paper
       aria-hidden="true"
-      bg={
-        active
-          ? `color-mix(in srgb, ${uiThemeTokens.color.brand.primary} 10%, transparent)`
-          : 'transparent'
-      }
+      bg={active ? `color-mix(in srgb, ${uiThemeTokens.color.brand.primary} 10%, transparent)` : 'transparent'}
       bd={
         active
           ? `1px solid color-mix(in srgb, ${uiThemeTokens.color.brand.primary} 55%, transparent)`

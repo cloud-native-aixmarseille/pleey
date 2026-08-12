@@ -1,10 +1,7 @@
 import { vi } from 'vitest';
 import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
 import type { DashboardGameListPage } from '../../domains/game/management/entities/dashboard-game-list-page';
-import {
-  type Organization,
-  type OrganizationId,
-} from '../../domains/organization/entities/organization';
+import { type Organization, type OrganizationId } from '../../domains/organization/entities/organization';
 import type { OrganizationDashboard } from '../../domains/organization/entities/organization-dashboard';
 import type { Project, ProjectId } from '../../domains/project/entities/project';
 import { OrganizationFixtureFactory } from './organization-fixture-factory';
@@ -56,9 +53,7 @@ export class DashboardHomeScreenFixtureFactory {
     });
   }
 
-  createOrganizationDashboard(
-    overrides: Partial<OrganizationDashboard> = {},
-  ): OrganizationDashboard {
+  createOrganizationDashboard(overrides: Partial<OrganizationDashboard> = {}): OrganizationDashboard {
     return this.organizationFixtureFactory.createOrganizationDashboard({
       organization: {
         id: organizationIdentifier.parse('00000000-0000-7000-8000-000000000002'),
@@ -82,9 +77,7 @@ export class DashboardHomeScreenFixtureFactory {
     };
   }
 
-  createProjectGamesGateway(
-    overrides: Partial<DashboardProjectGamesGateway> = {},
-  ): DashboardProjectGamesGateway {
+  createProjectGamesGateway(overrides: Partial<DashboardProjectGamesGateway> = {}): DashboardProjectGamesGateway {
     return {
       loadProjectGameCatalog: vi.fn().mockResolvedValue(this.createDashboardGamesPage()),
       ...overrides,

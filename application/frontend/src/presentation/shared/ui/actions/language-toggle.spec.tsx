@@ -30,9 +30,7 @@ vi.mock('../../i18n/use-presentation-translation', async (importOriginal) => {
 describe('LanguageToggle', () => {
   it('renders the current language code in uppercase', () => {
     renderWithUiProvider(<LanguageToggle />);
-    expect(screen.getByRole('button', { name: 'shared.shell.languageToggle' })).toHaveTextContent(
-      'EN',
-    );
+    expect(screen.getByRole('button', { name: 'shared.shell.languageToggle' })).toHaveTextContent('EN');
   });
 
   it('calls changeLanguage with next language on click', async () => {

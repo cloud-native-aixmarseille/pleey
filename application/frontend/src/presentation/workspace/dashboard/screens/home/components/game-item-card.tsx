@@ -26,18 +26,12 @@ export function GameItemCard({
   showTypeBadge = false,
 }: GameItemCardProps) {
   const { t } = usePresentationTranslation();
-  const {
-    badge,
-    canCreateParty,
-    createPartyDisabledLabel,
-    createdAtLabel,
-    readinessLabel,
-    summaryText,
-  } = useGameItemCardViewModel({
-    game,
-    descriptor,
-    showTypeBadge,
-  });
+  const { badge, canCreateParty, createPartyDisabledLabel, createdAtLabel, readinessLabel, summaryText } =
+    useGameItemCardViewModel({
+      game,
+      descriptor,
+      showTypeBadge,
+    });
 
   const actions = (
     <>
@@ -81,9 +75,7 @@ export function GameItemCard({
       descriptionFallback={t('dashboard.games.noDescription')}
       badge={badge}
       badgeIcon={
-        showTypeBadge && descriptor ? (
-          <AppIcon name={descriptor.iconKey as AppIconName} size={14} />
-        ) : undefined
+        showTypeBadge && descriptor ? <AppIcon name={descriptor.iconKey as AppIconName} size={14} /> : undefined
       }
       metadata={[createdAtLabel]}
       actions={actions}

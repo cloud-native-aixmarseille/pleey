@@ -8,11 +8,5 @@ interface PredictionPlayerResultSurfaceProps {
 }
 
 export function PredictionPlayerResultSurface(props: PredictionPlayerResultSurfaceProps) {
-  return (
-    <PlayableChoicePlayerResultSurface
-      {...props}
-      copy={predictionRuntimeCopy}
-      testIdPrefix="prediction"
-    />
-  );
+  return <PlayableChoicePlayerResultSurface {...props} copy={predictionRuntimeCopy} testIdPrefix="prediction" />;
 }

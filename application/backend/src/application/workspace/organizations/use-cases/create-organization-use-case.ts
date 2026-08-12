@@ -36,10 +36,7 @@ export class CreateOrganizationUseCase {
     }
 
     // Create the organization
-    const organization = await this.organizationRepository.create(
-      dto.name,
-      dto.description || null,
-    );
+    const organization = await this.organizationRepository.create(dto.name, dto.description || null);
 
     // Add the creator as owner
     await this.memberRepository.create(organization.id, creatorUserId, OrganizationRole.OWNER);

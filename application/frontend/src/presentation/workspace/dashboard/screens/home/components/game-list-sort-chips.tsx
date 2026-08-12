@@ -40,9 +40,7 @@ export function GameListSortChips({
               key={field}
               onClick={() => onToggle(field, defaultDirection)}
               type="button"
-              rightSection={
-                isActive ? <AppIcon name={sortDirectionIcon(currentDirection)} size={12} /> : null
-              }
+              rightSection={isActive ? <AppIcon name={sortDirectionIcon(currentDirection)} size={12} /> : null}
               size="sm"
             >
               {translate(labelKey)}

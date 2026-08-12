@@ -11,8 +11,7 @@ type AuthContextOverrides = Partial<AuthContextValue> & {
 export class AuthContextMockFactory {
   createValue(overrides: AuthContextOverrides = {}): AuthContextValue {
     const { isAuthenticated, user, ...restOverrides } = overrides;
-    const resolvedUser =
-      user !== undefined ? user : isAuthenticated ? authFixtureFactory.createUser() : null;
+    const resolvedUser = user !== undefined ? user : isAuthenticated ? authFixtureFactory.createUser() : null;
 
     return {
       user: resolvedUser,

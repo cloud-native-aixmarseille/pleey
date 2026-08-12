@@ -11,11 +11,7 @@ interface ActiveSessionPanelProps {
   readonly onSignOut: () => void;
 }
 
-export function ActiveSessionPanel({
-  user,
-  onNavigateDashboard,
-  onSignOut,
-}: ActiveSessionPanelProps) {
+export function ActiveSessionPanel({ user, onNavigateDashboard, onSignOut }: ActiveSessionPanelProps) {
   const { t } = usePresentationTranslation();
 
   return (
@@ -24,9 +20,7 @@ export function ActiveSessionPanel({
         <Eyebrow compact tone="success">
           {t('auth.signIn.activeSession.eyebrow')}
         </Eyebrow>
-        <Heading level={3}>
-          {t('auth.signIn.activeSession.title', { username: user.username })}
-        </Heading>
+        <Heading level={3}>{t('auth.signIn.activeSession.title', { username: user.username })}</Heading>
         <SupportingText marginTop="xs">{t('auth.signIn.activeSession.description')}</SupportingText>
       </div>
       <ActionRow>

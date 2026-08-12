@@ -11,9 +11,7 @@ export enum QuizErrorCode {
   QUIZ_IMPORT_EMPTY_FILE = 'QUIZ_IMPORT_EMPTY_FILE',
 }
 
-export const QUIZ_ERROR_DEFINITIONS: Readonly<
-  Record<QuizErrorCode, DomainErrorDefinition<QuizErrorCode>>
-> = {
+export const QUIZ_ERROR_DEFINITIONS: Readonly<Record<QuizErrorCode, DomainErrorDefinition<QuizErrorCode>>> = {
   [QuizErrorCode.QUIZ_NOT_FOUND]: {
     code: QuizErrorCode.QUIZ_NOT_FOUND,
     messageKey: 'quiz.errors.quizNotFound',

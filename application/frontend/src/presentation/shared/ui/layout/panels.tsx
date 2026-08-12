@@ -67,8 +67,7 @@ interface InsetPanelProps extends PropsWithChildren {
 }
 
 export function InsetPanel({ children, padding = 'md', tone = 'default' }: InsetPanelProps) {
-  const background =
-    tone === 'accent' ? uiThemeTokens.color.surface.accentMuted : surfaceRecipes.inset.background;
+  const background = tone === 'accent' ? uiThemeTokens.color.surface.accentMuted : surfaceRecipes.inset.background;
   const border =
     tone === 'accent'
       ? `1px solid ${uiThemeTokens.color.border.accent}`
@@ -78,13 +77,7 @@ export function InsetPanel({ children, padding = 'md', tone = 'default' }: Inset
   const shadow = tone === 'accent' ? 'md' : undefined;
 
   return (
-    <Paper
-      bg={background}
-      bd={border}
-      p={padding}
-      radius={uiThemeTokens.radius.inset}
-      shadow={shadow}
-    >
+    <Paper bg={background} bd={border} p={padding} radius={uiThemeTokens.radius.inset} shadow={shadow}>
       {children}
     </Paper>
   );

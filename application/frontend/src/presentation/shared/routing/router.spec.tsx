@@ -6,13 +6,7 @@ import {
   renderHookWithRoutingProvider,
   renderWithRoutingProvider,
 } from '../../../test-utils/render-with-routing-provider';
-import {
-  createLink,
-  Outlet,
-  usePresentationNavigate,
-  usePresentationParams,
-  usePresentationPathname,
-} from './router';
+import { createLink, Outlet, usePresentationNavigate, usePresentationParams, usePresentationPathname } from './router';
 
 describe('router', () => {
   const navigate = vi.fn();
@@ -26,22 +20,14 @@ describe('router', () => {
   describe('createLink()', () => {
     it('creates a component that renders using the routing port createLink factory', () => {
       // Arrange
-      const AnchorComp = ({ href, children }: { href?: string; children?: ReactNode }) => (
-        <a href={href}>{children}</a>
-      );
+      const AnchorComp = ({ href, children }: { href?: string; children?: ReactNode }) => <a href={href}>{children}</a>;
       const RoutedAnchor = createLink(AnchorComp);
 
       // Act
-      renderWithRoutingProvider(
-        <RoutedAnchor to="/workspace/dashboard">Dashboard</RoutedAnchor>,
-        routingPort,
-      );
+      renderWithRoutingProvider(<RoutedAnchor to="/workspace/dashboard">Dashboard</RoutedAnchor>, routingPort);
 
       // Assert
-      expect(screen.getByRole('link', { name: 'Dashboard' })).toHaveAttribute(
-        'href',
-        '/workspace/dashboard',
-      );
+      expect(screen.getByRole('link', { name: 'Dashboard' })).toHaveAttribute('href', '/workspace/dashboard');
     });
   });
 
@@ -58,10 +44,7 @@ describe('router', () => {
   describe('usePresentationNavigate()', () => {
     it('returns the configured navigation hook result', () => {
       // Act
-      const { result } = renderHookWithRoutingProvider(
-        () => usePresentationNavigate(),
-        routingPort,
-      );
+      const { result } = renderHookWithRoutingProvider(() => usePresentationNavigate(), routingPort);
       result.current('/workspace/dashboard');
 
       // Assert
@@ -71,10 +54,7 @@ describe('router', () => {
 
   describe('usePresentationParams()', () => {
     it('returns the configured route params result', () => {
-      const { result } = renderHookWithRoutingProvider(
-        () => usePresentationParams<'projectId'>(),
-        routingPort,
-      );
+      const { result } = renderHookWithRoutingProvider(() => usePresentationParams<'projectId'>(), routingPort);
 
       expect(result.current.projectId).toBe('12');
     });
@@ -82,10 +62,7 @@ describe('router', () => {
 
   describe('usePresentationPathname()', () => {
     it('returns the configured pathname result', () => {
-      const { result } = renderHookWithRoutingProvider(
-        () => usePresentationPathname(),
-        routingPort,
-      );
+      const { result } = renderHookWithRoutingProvider(() => usePresentationPathname(), routingPort);
 
       expect(result.current).toBe('/party/12/lobby');
     });

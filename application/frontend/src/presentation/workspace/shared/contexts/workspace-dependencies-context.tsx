@@ -30,10 +30,7 @@ export interface WorkspaceDependencies {
 
 const WorkspaceDependenciesContext = createContext<WorkspaceDependencies | null>(null);
 
-export function provideWorkspaceDependencies(
-  children: ReactNode,
-  value: WorkspaceDependencies,
-): ReactElement {
+export function provideWorkspaceDependencies(children: ReactNode, value: WorkspaceDependencies): ReactElement {
   return createElement(WorkspaceDependenciesContext.Provider, { value }, children);
 }
 

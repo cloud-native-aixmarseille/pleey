@@ -19,11 +19,9 @@ const { useAppForm } = createFormHook({
 export class TanstackFormAdapter {
   createPort(): FormPort {
     return {
-      useForm: <TValues extends Record<string, unknown>>(
-        options: PresentationUseFormOptions<TValues>,
-      ) => useAppForm(options) as PresentationFormApi<TValues>,
-      useFieldContext: <TValue = string>() =>
-        useFieldContext<TValue>() as PresentationFieldApi<TValue>,
+      useForm: <TValues extends Record<string, unknown>>(options: PresentationUseFormOptions<TValues>) =>
+        useAppForm(options) as PresentationFormApi<TValues>,
+      useFieldContext: <TValue = string>() => useFieldContext<TValue>() as PresentationFieldApi<TValue>,
       useFormContext: () => useFormContext() as PresentationFormContextApi,
     };
   }

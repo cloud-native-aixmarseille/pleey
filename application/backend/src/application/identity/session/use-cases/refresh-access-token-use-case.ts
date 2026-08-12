@@ -1,8 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  InvalidRefreshTokenError,
-  RefreshTokenExpiredError,
-} from '../../../../domain/identity/errors';
+import { InvalidRefreshTokenError, RefreshTokenExpiredError } from '../../../../domain/identity/errors';
 import {
   type AuthTokenResponse,
   type AuthTokenService,
@@ -56,11 +53,7 @@ export class RefreshAccessTokenUseCase {
     });
 
     const hashedRefreshToken = await this.passwordService.hash(tokenPair.refreshToken);
-    await this.userRepository.updateRefreshToken(
-      user.id,
-      hashedRefreshToken,
-      tokenPair.refreshTokenExpiresAt,
-    );
+    await this.userRepository.updateRefreshToken(user.id, hashedRefreshToken, tokenPair.refreshTokenExpiresAt);
 
     return this.authTokenService.mapTokensToResponse(tokenPair, user.toProfileSnapshot());
   }

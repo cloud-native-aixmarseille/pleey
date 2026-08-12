@@ -82,12 +82,7 @@ export function resolveMobileTimerBarStyle(timer: MobileStageTimer | undefined):
   readonly fill: CSSProperties;
   readonly secondsLeft: number | null;
 } {
-  if (
-    !timer ||
-    timer.remainingDurationMs === null ||
-    timer.totalDurationMs === null ||
-    timer.totalDurationMs <= 0
-  ) {
+  if (!timer || timer.remainingDurationMs === null || timer.totalDurationMs === null || timer.totalDurationMs <= 0) {
     return { fill: { ...mobileTimerBarFillBaseStyle, width: '0%' }, secondsLeft: null };
   }
 

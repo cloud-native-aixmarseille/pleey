@@ -5,9 +5,7 @@ import { PlayableManagementIconActionButton } from './playable-management-icon-a
 
 describe('PlayableManagementIconActionButton', () => {
   it('renders the action label as a button', () => {
-    renderWithUiProvider(
-      <PlayableManagementIconActionButton iconName="arrow-up" label="Move up" onClick={() => {}} />,
-    );
+    renderWithUiProvider(<PlayableManagementIconActionButton iconName="arrow-up" label="Move up" onClick={() => {}} />);
 
     expect(screen.getByRole('button', { name: 'Move up' })).toBeInTheDocument();
   });
@@ -18,12 +16,7 @@ describe('PlayableManagementIconActionButton', () => {
 
     renderWithUiProvider(
       <div onClick={onParentClick} onKeyDown={() => {}}>
-        <PlayableManagementIconActionButton
-          iconName="trash"
-          label="Delete"
-          onClick={onClick}
-          stopPropagation
-        />
+        <PlayableManagementIconActionButton iconName="trash" label="Delete" onClick={onClick} stopPropagation />
       </div>,
     );
 
@@ -39,11 +32,7 @@ describe('PlayableManagementIconActionButton', () => {
 
     renderWithUiProvider(
       <div onClick={onParentClick} onKeyDown={() => {}}>
-        <PlayableManagementIconActionButton
-          iconName="arrow-down"
-          label="Move down"
-          onClick={onClick}
-        />
+        <PlayableManagementIconActionButton iconName="arrow-down" label="Move down" onClick={onClick} />
       </div>,
     );
 

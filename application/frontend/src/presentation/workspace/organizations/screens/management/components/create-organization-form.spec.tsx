@@ -24,17 +24,11 @@ describe('CreateOrganizationForm', () => {
 
     renderWithProviders(<CreateOrganizationForm onSubmit={vi.fn()} onCreated={vi.fn()} />);
 
-    await user.click(
-      screen.getByRole('button', { name: 'organization.management.create.openButton' }),
-    );
+    await user.click(screen.getByRole('button', { name: 'organization.management.create.openButton' }));
 
     // Assert
-    expect(
-      await screen.findByLabelText(/organization\.management\.create\.fields\.name\.label/),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByLabelText(/organization\.management\.create\.fields\.description\.label/),
-    ).toBeInTheDocument();
+    expect(await screen.findByLabelText(/organization\.management\.create\.fields\.name\.label/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/organization\.management\.create\.fields\.description\.label/)).toBeInTheDocument();
   });
 
   it('renders the submit button', () => {
@@ -42,9 +36,7 @@ describe('CreateOrganizationForm', () => {
     renderWithProviders(<CreateOrganizationForm onSubmit={vi.fn()} onCreated={vi.fn()} />);
 
     // Assert
-    expect(
-      screen.getByRole('button', { name: 'organization.management.create.openButton' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'organization.management.create.openButton' })).toBeInTheDocument();
   });
 
   it('shows a validation error when submitting with an empty name', async () => {
@@ -54,9 +46,7 @@ describe('CreateOrganizationForm', () => {
     renderWithProviders(<CreateOrganizationForm onSubmit={vi.fn()} onCreated={vi.fn()} />);
 
     // Act
-    await user.click(
-      screen.getByRole('button', { name: 'organization.management.create.openButton' }),
-    );
+    await user.click(screen.getByRole('button', { name: 'organization.management.create.openButton' }));
     await screen.findByLabelText(/organization\.management\.create\.fields\.name\.label/);
     await user.click(screen.getByRole('button', { name: 'organization.management.create.submit' }));
 
@@ -73,14 +63,9 @@ describe('CreateOrganizationForm', () => {
     renderWithProviders(<CreateOrganizationForm onSubmit={onSubmit} onCreated={onCreated} />);
 
     // Act
-    await user.click(
-      screen.getByRole('button', { name: 'organization.management.create.openButton' }),
-    );
+    await user.click(screen.getByRole('button', { name: 'organization.management.create.openButton' }));
     await screen.findByLabelText(/organization\.management\.create\.fields\.name\.label/);
-    await user.type(
-      screen.getByLabelText(/organization\.management\.create\.fields\.name\.label/),
-      'New Org',
-    );
+    await user.type(screen.getByLabelText(/organization\.management\.create\.fields\.name\.label/), 'New Org');
     await user.type(
       screen.getByLabelText(/organization\.management\.create\.fields\.description\.label/),
       'A test org',
@@ -95,9 +80,7 @@ describe('CreateOrganizationForm', () => {
       });
     });
     expect(onCreated).toHaveBeenCalledWith(CREATED_ORG);
-    expect(await screen.findByRole('status')).toHaveTextContent(
-      'organization.management.create.success',
-    );
+    expect(await screen.findByRole('status')).toHaveTextContent('organization.management.create.success');
   });
 
   it('shows an error message when submission fails', async () => {
@@ -108,14 +91,9 @@ describe('CreateOrganizationForm', () => {
     renderWithProviders(<CreateOrganizationForm onSubmit={onSubmit} onCreated={vi.fn()} />);
 
     // Act
-    await user.click(
-      screen.getByRole('button', { name: 'organization.management.create.openButton' }),
-    );
+    await user.click(screen.getByRole('button', { name: 'organization.management.create.openButton' }));
     await screen.findByLabelText(/organization\.management\.create\.fields\.name\.label/);
-    await user.type(
-      screen.getByLabelText(/organization\.management\.create\.fields\.name\.label/),
-      'Fail Org',
-    );
+    await user.type(screen.getByLabelText(/organization\.management\.create\.fields\.name\.label/), 'Fail Org');
     await user.click(screen.getByRole('button', { name: 'organization.management.create.submit' }));
 
     // Assert

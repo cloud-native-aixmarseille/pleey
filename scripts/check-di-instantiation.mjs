@@ -1,5 +1,5 @@
-import fs from 'node:fs';
-import path from 'node:path';
+import fs from "node:fs";
+import path from "node:path";
 import {
   createTypeScriptCompilerOptions,
   loadTypeScriptFromDirectory,
@@ -7,18 +7,18 @@ import {
   shouldAnalyzeAppFile,
   toProjectRelative,
   walkProjectSourceFiles,
-} from './shared/ts-analysis-harness.mjs';
+} from "./shared/ts-analysis-harness.mjs";
 
 const localImportPattern = /^(?:\.|src\/)/;
 const frontendStaticCallCheckRelativePaths = [
-  'src/presentation/game/party/player/screens/',
-  'src/presentation/game/party/shared/screens/',
-  'src/presentation/game/types/shared/management/',
+  "src/presentation/game/party/player/screens/",
+  "src/presentation/game/party/shared/screens/",
+  "src/presentation/game/types/shared/management/",
 ];
 const PROJECT_OVERRIDES = {
   frontend: {
     isForbiddenInstantiation(_currentRelativePath, _targetRelativePath, className) {
-      if (className?.endsWith('Error')) {
+      if (className?.endsWith("Error")) {
         return false;
       }
 
@@ -26,22 +26,21 @@ const PROJECT_OVERRIDES = {
     },
     shouldCheckStaticCalls(currentRelativePath, targetRelativePath) {
       return frontendStaticCallCheckRelativePaths.some(
-        (relativePath) =>
-          currentRelativePath.startsWith(relativePath) && targetRelativePath.startsWith(relativePath),
+        (relativePath) => currentRelativePath.startsWith(relativePath) && targetRelativePath.startsWith(relativePath),
       );
     },
   },
   backend: {
     isForbiddenInstantiation(_currentRelativePath, targetRelativePath, className) {
-      if (className?.endsWith('Error')) {
+      if (className?.endsWith("Error")) {
         return false;
       }
 
-      if (targetRelativePath.includes('/entities/')) {
+      if (targetRelativePath.includes("/entities/")) {
         return false;
       }
 
-      if (targetRelativePath.includes('/errors/')) {
+      if (targetRelativePath.includes("/errors/")) {
         return false;
       }
 
@@ -60,11 +59,11 @@ let compilerOptions;
 
 function getScriptKind(filePath) {
   switch (path.extname(filePath)) {
-    case '.tsx':
+    case ".tsx":
       return ts.ScriptKind.TSX;
-    case '.jsx':
+    case ".jsx":
       return ts.ScriptKind.JSX;
-    case '.js':
+    case ".js":
       return ts.ScriptKind.JS;
     default:
       return ts.ScriptKind.TS;
@@ -80,7 +79,7 @@ function readSourceFile(filePath) {
 
   const sourceFile = ts.createSourceFile(
     filePath,
-    fs.readFileSync(filePath, 'utf8'),
+    fs.readFileSync(filePath, "utf8"),
     ts.ScriptTarget.Latest,
     true,
     getScriptKind(filePath),
@@ -92,8 +91,7 @@ function readSourceFile(filePath) {
 }
 
 function resolveLocalModule(project, fromFilePath, importPath) {
-  const resolved = ts.resolveModuleName(importPath, fromFilePath, compilerOptions, ts.sys)
-    .resolvedModule;
+  const resolved = ts.resolveModuleName(importPath, fromFilePath, compilerOptions, ts.sys).resolvedModule;
 
   if (!resolved) {
     return null;
@@ -229,7 +227,7 @@ function collectViolations(project, filePath) {
   const projectClassReferences = collectProjectClassReferences(project, sourceFile, filePath);
   const violations = [];
 
-  function shouldReportDirectClassUsage(className, usageKind = 'instantiation') {
+  function shouldReportDirectClassUsage(className, usageKind = "instantiation") {
     const targetPaths = projectClassReferences.get(className);
 
     if (!targetPaths) {
@@ -238,7 +236,7 @@ function collectViolations(project, filePath) {
 
     for (const targetRelativePath of targetPaths) {
       if (
-        usageKind === 'static-call' &&
+        usageKind === "static-call" &&
         !project.shouldCheckStaticCalls(currentRelativePath, targetRelativePath, className)
       ) {
         return false;
@@ -257,7 +255,7 @@ function collectViolations(project, filePath) {
       const className = node.expression.text;
       if (shouldReportDirectClassUsage(className)) {
         const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
-        violations.push({ kind: 'instantiation', className, line: line + 1 });
+        violations.push({ kind: "instantiation", className, line: line + 1 });
       }
     }
 
@@ -268,10 +266,10 @@ function collectViolations(project, filePath) {
     ) {
       const className = node.expression.expression.text;
 
-      if (shouldReportDirectClassUsage(className, 'static-call')) {
+      if (shouldReportDirectClassUsage(className, "static-call")) {
         const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
         violations.push({
-          kind: 'static-call',
+          kind: "static-call",
           className,
           memberName: node.expression.name.text,
           line: line + 1,
@@ -315,7 +313,7 @@ export function runProject(projectName) {
 
   for (const violation of violations) {
     const directUsageDescription =
-      violation.kind === 'static-call'
+      violation.kind === "static-call"
         ? `calls static ${violation.className}.${violation.memberName}(...) directly`
         : `instantiates ${violation.className} directly`;
 

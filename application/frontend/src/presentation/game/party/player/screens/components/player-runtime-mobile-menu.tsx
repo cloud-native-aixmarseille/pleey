@@ -1,11 +1,7 @@
 import type { ReactNode } from 'react';
 import { IconTriggerButton } from '../../../../../shared/ui/actions/icon-trigger-button';
 import { AppIcon } from '../../../../../shared/ui/icons/app-icon';
-import {
-  DropdownMenu,
-  DropdownMenuDivider,
-  DropdownMenuLabel,
-} from '../../../../../shared/ui/overlay/dropdown-menu';
+import { DropdownMenu, DropdownMenuDivider, DropdownMenuLabel } from '../../../../../shared/ui/overlay/dropdown-menu';
 import { ProtectedLeavePartyAction } from '../../../shared/screens/components/protected-leave-party-action';
 import {
   menuLeaveActionSlotStyle,

@@ -1,7 +1,4 @@
-import type {
-  Organization,
-  OrganizationId,
-} from '../../../../../../domains/organization/entities/organization';
+import type { Organization, OrganizationId } from '../../../../../../domains/organization/entities/organization';
 import type { OrganizationDashboard } from '../../../../../../domains/organization/entities/organization-dashboard';
 import type { Project, ProjectId } from '../../../../../../domains/project/entities/project';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';

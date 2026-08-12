@@ -21,9 +21,7 @@ describe('LoadingState', () => {
   });
 
   it('renders skeleton placeholders for card loading states', () => {
-    const { container } = renderWithUiProvider(
-      <LoadingState variant="cards">Loading cards…</LoadingState>,
-    );
+    const { container } = renderWithUiProvider(<LoadingState variant="cards">Loading cards…</LoadingState>);
 
     expect(statusFrom(container)).toHaveTextContent('Loading cards…');
     expect(container.querySelectorAll('.mantine-Skeleton-root').length).toBeGreaterThan(0);

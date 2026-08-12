@@ -1,10 +1,6 @@
 import type { PartyId, PartyPin } from '../../../../../domains/game/party/shared/entities/party';
 import type { StageId } from '../../../../../domains/game/party/shared/entities/party-stage';
-import type {
-  PartyIdParser,
-  PartyPinParser,
-  StageIdParser,
-} from '../contexts/party-dependencies-context';
+import type { PartyIdParser, PartyPinParser, StageIdParser } from '../contexts/party-dependencies-context';
 
 export enum PartyLobbyRouteKind {
   PARTY_ID = 'partyId',
@@ -18,10 +14,7 @@ export enum PartyScreenSection {
   STAGE = 'stage',
 }
 
-export function defaultNormalizePin(
-  pin: string | undefined,
-  partyPinIdentifier: PartyPinParser,
-): PartyPin | null {
+export function defaultNormalizePin(pin: string | undefined, partyPinIdentifier: PartyPinParser): PartyPin | null {
   return partyPinIdentifier.parseOrNull(pin);
 }
 
@@ -57,24 +50,15 @@ export function defaultResolveJoinPartyRoute(pin: PartyPin): string {
   return `/join/${encodeURIComponent(pin)}`;
 }
 
-export function defaultNormalizePartyId(
-  partyId: string | undefined,
-  partyIdentifier: PartyIdParser,
-): PartyId | null {
+export function defaultNormalizePartyId(partyId: string | undefined, partyIdentifier: PartyIdParser): PartyId | null {
   return partyIdentifier.parseOrNull(partyId);
 }
 
-export function defaultNormalizeStageId(
-  stageId: string | undefined,
-  stageIdentifier: StageIdParser,
-): StageId | null {
+export function defaultNormalizeStageId(stageId: string | undefined, stageIdentifier: StageIdParser): StageId | null {
   return stageIdentifier.parseOrNull(stageId);
 }
 
-export function resolveStageSegmentFromPathname(
-  pathname: string,
-  routeKind: PartyLobbyRouteKind,
-): string | undefined {
+export function resolveStageSegmentFromPathname(pathname: string, routeKind: PartyLobbyRouteKind): string | undefined {
   if (routeKind !== PartyLobbyRouteKind.PARTY_ID) {
     return undefined;
   }

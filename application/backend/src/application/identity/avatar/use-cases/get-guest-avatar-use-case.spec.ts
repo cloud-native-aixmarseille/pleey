@@ -15,11 +15,7 @@ describe('GetGuestAvatarUseCase', () => {
     };
     const userAvatarService = createUserAvatarServiceMock();
 
-    const useCase = new GetGuestAvatarUseCase(
-      guestRepository as never,
-      userAvatarService as never,
-      guestIdentifier,
-    );
+    const useCase = new GetGuestAvatarUseCase(guestRepository as never, userAvatarService as never, guestIdentifier);
 
     await expect(useCase.execute('%')).rejects.toThrow(IdentityErrorCode.AVATAR_NOT_FOUND);
   });
@@ -31,11 +27,7 @@ describe('GetGuestAvatarUseCase', () => {
     };
     const userAvatarService = createUserAvatarServiceMock();
 
-    const useCase = new GetGuestAvatarUseCase(
-      guestRepository as never,
-      userAvatarService as never,
-      guestIdentifier,
-    );
+    const useCase = new GetGuestAvatarUseCase(guestRepository as never, userAvatarService as never, guestIdentifier);
 
     await expect(useCase.execute(guestId)).rejects.toThrow(IdentityErrorCode.AVATAR_NOT_FOUND);
     expect(guestRepository.findById).toHaveBeenCalledWith(guestId);
@@ -51,11 +43,7 @@ describe('GetGuestAvatarUseCase', () => {
     const userAvatarService = createUserAvatarServiceMock();
     userAvatarService.generateAvatar.mockReturnValue(avatar);
 
-    const useCase = new GetGuestAvatarUseCase(
-      guestRepository as never,
-      userAvatarService as never,
-      guestIdentifier,
-    );
+    const useCase = new GetGuestAvatarUseCase(guestRepository as never, userAvatarService as never, guestIdentifier);
     const result = await useCase.execute(encodeURIComponent(guestId));
 
     expect(guestRepository.findById).toHaveBeenCalledWith(guestId);

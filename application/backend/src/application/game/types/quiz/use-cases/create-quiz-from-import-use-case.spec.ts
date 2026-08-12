@@ -59,11 +59,7 @@ describe('CreateQuizFromImportUseCase', () => {
         },
       ]),
     } as unknown as QuizImportQuestionMapper;
-    const useCase = new CreateQuizFromImportUseCase(
-      quizRepository,
-      accessGuard as never,
-      importQuestionMapper,
-    );
+    const useCase = new CreateQuizFromImportUseCase(quizRepository, accessGuard as never, importQuestionMapper);
     const source = new TestPlayableContentImportSource('quiz-import.json');
 
     const quiz = await useCase.execute(
@@ -109,11 +105,7 @@ describe('CreateQuizFromImportUseCase', () => {
         throw new QuizImportInvalidFileError();
       }),
     } as unknown as QuizImportQuestionMapper;
-    const useCase = new CreateQuizFromImportUseCase(
-      quizRepository,
-      accessGuard as never,
-      importQuestionMapper,
-    );
+    const useCase = new CreateQuizFromImportUseCase(quizRepository, accessGuard as never, importQuestionMapper);
 
     await expect(
       useCase.execute(

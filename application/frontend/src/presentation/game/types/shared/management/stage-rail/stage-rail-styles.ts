@@ -8,11 +8,7 @@ export const listStyle = {
   padding: 0,
 } as const;
 
-export const createItemCardStyle = (
-  selected: boolean,
-  isDragging: boolean,
-  isDropTarget: boolean,
-) =>
+export const createItemCardStyle = (selected: boolean, isDragging: boolean, isDropTarget: boolean) =>
   ({
     background: isDropTarget
       ? `color-mix(in srgb, ${uiThemeTokens.color.brand.primary} 10%, ${uiThemeTokens.color.surface.recessed})`
@@ -32,8 +28,7 @@ export const createItemCardStyle = (
     opacity: isDragging ? 0.55 : 1,
     padding: '0.9rem',
     transform: isDropTarget ? 'scale(1.01)' : 'scale(1)',
-    transition:
-      'background 120ms ease, border-color 120ms ease, opacity 120ms ease, transform 120ms ease',
+    transition: 'background 120ms ease, border-color 120ms ease, opacity 120ms ease, transform 120ms ease',
     width: '100%',
   }) as const;
 

@@ -35,9 +35,7 @@ const defaultPatienceRouteContextValue: PatienceRouteContextValue = {
   updateRouteActivity: () => undefined,
 };
 
-const PatienceRouteStateContext = createContext<PatienceRouteContextValue>(
-  defaultPatienceRouteContextValue,
-);
+const PatienceRouteStateContext = createContext<PatienceRouteContextValue>(defaultPatienceRouteContextValue);
 
 export function PatienceRouteStateProvider({ children }: PropsWithChildren) {
   const [routes, setRoutes] = useState<readonly [symbol, boolean][]>([]);
@@ -59,9 +57,7 @@ export function PatienceRouteStateProvider({ children }: PropsWithChildren) {
   }, []);
 
   const unregisterRoute = useCallback((routeId: symbol) => {
-    setRoutes((currentRoutes) =>
-      currentRoutes.filter(([currentRouteId]) => currentRouteId !== routeId),
-    );
+    setRoutes((currentRoutes) => currentRoutes.filter(([currentRouteId]) => currentRouteId !== routeId));
   }, []);
 
   const currentRoute = routes.at(-1);
@@ -77,11 +73,7 @@ export function PatienceRouteStateProvider({ children }: PropsWithChildren) {
     [currentRoute, registerRoute, unregisterRoute, updateRouteActivity],
   );
 
-  return (
-    <PatienceRouteStateContext.Provider value={contextValue}>
-      {children}
-    </PatienceRouteStateContext.Provider>
-  );
+  return <PatienceRouteStateContext.Provider value={contextValue}>{children}</PatienceRouteStateContext.Provider>;
 }
 
 export function usePatienceRouteState(): PatienceRouteContextValue {

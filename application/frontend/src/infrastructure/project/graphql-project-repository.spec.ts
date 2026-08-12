@@ -33,11 +33,7 @@ describe('GraphqlProjectRepository', () => {
           },
         },
       });
-      const repository = new GraphqlProjectRepository(
-        client,
-        projectIdentifier,
-        organizationIdentifier,
-      );
+      const repository = new GraphqlProjectRepository(client, projectIdentifier, organizationIdentifier);
 
       // Act
       const projects = await repository.getProjectsByOrganization({
@@ -83,11 +79,7 @@ describe('GraphqlProjectRepository', () => {
       const { client } = new GraphqlClientMockFactory().create({
         requestError: new Error('project.errors.loadFailed'),
       });
-      const repository = new GraphqlProjectRepository(
-        client,
-        projectIdentifier,
-        organizationIdentifier,
-      );
+      const repository = new GraphqlProjectRepository(client, projectIdentifier, organizationIdentifier);
 
       // Act + Assert
       await expect(
@@ -109,11 +101,7 @@ describe('GraphqlProjectRepository', () => {
           },
         },
       });
-      const repository = new GraphqlProjectRepository(
-        client,
-        projectIdentifier,
-        organizationIdentifier,
-      );
+      const repository = new GraphqlProjectRepository(client, projectIdentifier, organizationIdentifier);
 
       const project = await repository.createProject({
         organizationId: organizationIdentifier.parse(3),
@@ -134,11 +122,7 @@ describe('GraphqlProjectRepository', () => {
       const { client } = new GraphqlClientMockFactory().create({
         requestError: new Error('project.errors.createFailed'),
       });
-      const repository = new GraphqlProjectRepository(
-        client,
-        projectIdentifier,
-        organizationIdentifier,
-      );
+      const repository = new GraphqlProjectRepository(client, projectIdentifier, organizationIdentifier);
 
       await expect(
         repository.createProject({
@@ -163,11 +147,7 @@ describe('GraphqlProjectRepository', () => {
           },
         },
       });
-      const repository = new GraphqlProjectRepository(
-        client,
-        projectIdentifier,
-        organizationIdentifier,
-      );
+      const repository = new GraphqlProjectRepository(client, projectIdentifier, organizationIdentifier);
 
       const project = await repository.updateProject({
         projectId: projectIdentifier.parse(22),
@@ -188,11 +168,7 @@ describe('GraphqlProjectRepository', () => {
       const { client } = new GraphqlClientMockFactory().create({
         requestError: new Error('project.errors.updateFailed'),
       });
-      const repository = new GraphqlProjectRepository(
-        client,
-        projectIdentifier,
-        organizationIdentifier,
-      );
+      const repository = new GraphqlProjectRepository(client, projectIdentifier, organizationIdentifier);
 
       await expect(
         repository.updateProject({
@@ -211,11 +187,7 @@ describe('GraphqlProjectRepository', () => {
           deleteProject: true,
         },
       });
-      const repository = new GraphqlProjectRepository(
-        client,
-        projectIdentifier,
-        organizationIdentifier,
-      );
+      const repository = new GraphqlProjectRepository(client, projectIdentifier, organizationIdentifier);
 
       await expect(
         repository.deleteProject({
@@ -229,11 +201,7 @@ describe('GraphqlProjectRepository', () => {
       const { client } = new GraphqlClientMockFactory().create({
         requestError: new Error('project.errors.deleteFailed'),
       });
-      const repository = new GraphqlProjectRepository(
-        client,
-        projectIdentifier,
-        organizationIdentifier,
-      );
+      const repository = new GraphqlProjectRepository(client, projectIdentifier, organizationIdentifier);
 
       await expect(
         repository.deleteProject({

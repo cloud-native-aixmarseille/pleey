@@ -19,18 +19,10 @@ type ButtonAppearanceTextTone = 'danger' | 'inherit' | 'primary' | 'secondary' |
 type InlineStyle = NonNullable<ComponentPropsWithoutRef<'button'>['style']>;
 
 type ButtonStyleVars = InlineStyle &
-  Partial<
-    Record<
-      '--button-bg' | '--button-hover' | '--button-color' | '--button-hover-color' | '--button-bd',
-      string
-    >
-  >;
+  Partial<Record<'--button-bg' | '--button-hover' | '--button-color' | '--button-hover-color' | '--button-bd', string>>;
 
 interface ButtonProps
-  extends Omit<
-      MantineButtonProps,
-      'className' | 'color' | 'radius' | 'style' | 'styles' | 'variant'
-    >,
+  extends Omit<MantineButtonProps, 'className' | 'color' | 'radius' | 'style' | 'styles' | 'variant'>,
     Omit<ComponentPropsWithoutRef<'button'>, 'children' | 'className' | 'style' | 'type'> {
   readonly appearance?: ButtonAppearance;
   readonly appearanceShadow?: ButtonAppearanceShadow;
@@ -231,9 +223,7 @@ function resolveAppearanceRootStyle({
         ? `color-mix(in srgb, ${uiThemeTokens.color.brand.primary} 14%, transparent)`
         : 'transparent',
       border: 0,
-      borderBottom: appearanceActive
-        ? `2px solid ${uiThemeTokens.color.brand.primary}`
-        : '2px solid transparent',
+      borderBottom: appearanceActive ? `2px solid ${uiThemeTokens.color.brand.primary}` : '2px solid transparent',
       color: appearanceActive ? uiThemeTokens.color.text.link : 'inherit',
       cursor: 'pointer',
       fontWeight: 700,

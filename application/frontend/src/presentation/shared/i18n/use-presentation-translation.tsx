@@ -8,10 +8,7 @@ interface PresentationTranslationProviderProps extends PropsWithChildren {
   readonly value: TranslationPort;
 }
 
-export function PresentationTranslationProvider({
-  children,
-  value,
-}: PresentationTranslationProviderProps) {
+export function PresentationTranslationProvider({ children, value }: PresentationTranslationProviderProps) {
   return <TranslationContext.Provider value={value}>{children}</TranslationContext.Provider>;
 }
 

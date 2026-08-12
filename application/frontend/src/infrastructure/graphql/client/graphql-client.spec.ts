@@ -1,9 +1,6 @@
 import 'reflect-metadata';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  AUTH_ERROR_DEFINITIONS,
-  AuthErrorCode,
-} from '../../../domains/identity/errors/auth-error-code';
+import { AUTH_ERROR_DEFINITIONS, AuthErrorCode } from '../../../domains/identity/errors/auth-error-code';
 import { InvalidLoginResponseError } from '../../../domains/identity/errors/graphql-auth-repository.error';
 import { AuthPayloadInspector } from '../../../domains/identity/services/auth-payload-inspector';
 import { AuthFixtureFactory } from '../../../test-utils/fixtures/auth-fixture-factory';
@@ -134,13 +131,10 @@ describe('GraphqlClient', () => {
       const fallback = AUTH_ERROR_DEFINITIONS[AuthErrorCode.GENERIC];
 
       // Act
-      const result = client.resolveDomainError(
-        new Error('Email ou mot de passe invalide.'),
-        fallback,
-      );
+      const result = client.resolveDomainError(new Error('Invalid email or password.'), fallback);
 
       // Assert
-      expect(result.message).toBe('Email ou mot de passe invalide.');
+      expect(result.message).toBe('Invalid email or password.');
       expect(result.code).toBe(fallback.code);
     });
 

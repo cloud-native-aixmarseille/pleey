@@ -1,7 +1,4 @@
-import type {
-  PresentationFieldApi,
-  PresentationFormContextApi,
-} from '../../../application/shared/contracts/form.port';
+import type { PresentationFieldApi, PresentationFormContextApi } from '../../../application/shared/contracts/form.port';
 import { usePresentationFormPort } from './form-provider';
 
 export function useFieldContext<TValue = string>(): PresentationFieldApi<TValue> {

@@ -9,11 +9,7 @@ import {
   useNavigate as useReactRouterNavigate,
   useParams as useReactRouterParams,
 } from 'react-router-dom';
-import type {
-  CreateLinkFn,
-  PresentationParams,
-  RoutingPort,
-} from '../../application/shared/contracts/routing.port';
+import type { CreateLinkFn, PresentationParams, RoutingPort } from '../../application/shared/contracts/routing.port';
 
 const createLink: CreateLinkFn = <TProps extends object>(
   component: ComponentType<TProps>,

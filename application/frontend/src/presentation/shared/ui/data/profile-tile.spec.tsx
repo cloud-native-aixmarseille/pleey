@@ -23,9 +23,7 @@ describe('ProfileTile', () => {
   });
 
   it('keeps a dedicated highlight slot even when no highlight label is shown', () => {
-    renderWithUiProvider(
-      <ProfileTile avatarAlt="Morgan avatar" avatarSrc={null} badgeLabel="Player" title="Morgan" />,
-    );
+    renderWithUiProvider(<ProfileTile avatarAlt="Morgan avatar" avatarSrc={null} badgeLabel="Player" title="Morgan" />);
 
     expect(screen.getByTestId('profile-tile-highlight-slot')).toHaveStyle({
       minHeight: '24px',

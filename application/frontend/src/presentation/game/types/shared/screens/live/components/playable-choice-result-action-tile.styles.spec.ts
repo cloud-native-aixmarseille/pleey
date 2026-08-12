@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  compactAnswerTextStyle,
-  compactCenteredHeaderStyle,
-} from './playable-choice-result-action-tile.styles';
+import { compactAnswerTextStyle, compactCenteredHeaderStyle } from './playable-choice-result-action-tile.styles';
 
 describe('playable choice result action tile mobile styles', () => {
   it('clamps compact mobile answer text to two lines with ellipsis', () => {

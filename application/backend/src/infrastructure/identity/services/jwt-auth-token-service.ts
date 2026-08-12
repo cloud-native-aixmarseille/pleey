@@ -45,9 +45,7 @@ export class JwtAuthTokenService implements AuthTokenService {
       expiresIn: this.refreshTokenConfig.expiresInSeconds,
     });
 
-    const refreshTokenExpiresAt = new Date(
-      Date.now() + this.refreshTokenConfig.expiresInSeconds * 1000,
-    );
+    const refreshTokenExpiresAt = new Date(Date.now() + this.refreshTokenConfig.expiresInSeconds * 1000);
 
     return {
       accessToken,
@@ -63,11 +61,7 @@ export class JwtAuthTokenService implements AuthTokenService {
         secret: this.refreshTokenConfig.secret,
       });
 
-      if (
-        payload.tokenType !== 'refresh' ||
-        typeof payload.sub !== 'string' ||
-        payload.sub.trim().length === 0
-      ) {
+      if (payload.tokenType !== 'refresh' || typeof payload.sub !== 'string' || payload.sub.trim().length === 0) {
         throw new UnauthorizedException(IdentityErrorCode.INVALID_REFRESH_TOKEN);
       }
 

@@ -5,10 +5,7 @@ import {
   QuizQuestionType,
 } from '../../../../../domain/game/types/quiz/entities/quiz-question';
 import { QuizErrorCode } from '../../../../../domain/game/types/quiz/enums/quiz-error-code.enum';
-import {
-  QuestionNotFoundError,
-  QuizNotFoundError,
-} from '../../../../../domain/game/types/quiz/errors';
+import { QuestionNotFoundError, QuizNotFoundError } from '../../../../../domain/game/types/quiz/errors';
 import type { QuizManagementRepository } from '../../../../../domain/game/types/quiz/ports/quiz-management.repository';
 import { QuizManagementRepositoryProvider } from '../../../../../domain/game/types/quiz/ports/quiz-management.repository';
 import type { QuizQuestionRepository } from '../../../../../domain/game/types/quiz/ports/quiz-question.repository';
@@ -67,10 +64,7 @@ export class UpdateQuizQuestionUseCase {
     });
   }
 
-  private assertAnswers(
-    type: QuizQuestionType,
-    answers: ReturnType<SelectableOptionPolicy['normalize']>,
-  ): void {
+  private assertAnswers(type: QuizQuestionType, answers: ReturnType<SelectableOptionPolicy['normalize']>): void {
     const errorCodes = {
       invalidCorrectOption: QuizErrorCode.INVALID_CORRECT_ANSWER,
       emptyOptionText: QuizErrorCode.CORRECT_ANSWER_OPTION_EMPTY,

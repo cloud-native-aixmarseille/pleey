@@ -52,12 +52,7 @@ describe('GraphqlGameCatalogAdapter', () => {
         },
       },
     });
-    const adapter = new GraphqlGameCatalogAdapter(
-      client,
-      gameIdentifier,
-      gameTypeIdentifier,
-      gameTypeParser,
-    );
+    const adapter = new GraphqlGameCatalogAdapter(client, gameIdentifier, gameTypeIdentifier, gameTypeParser);
 
     const result = await adapter.listProjectGames({
       projectId: projectIdentifier.parse(9),
@@ -148,12 +143,7 @@ describe('GraphqlGameCatalogAdapter', () => {
         },
       },
     });
-    const adapter = new GraphqlGameCatalogAdapter(
-      client,
-      gameIdentifier,
-      gameTypeIdentifier,
-      gameTypeParser,
-    );
+    const adapter = new GraphqlGameCatalogAdapter(client, gameIdentifier, gameTypeIdentifier, gameTypeParser);
 
     const result = await adapter.listProjectGames({
       projectId: projectIdentifier.parse(9),

@@ -49,10 +49,7 @@ function createObservationAdapter() {
 }
 
 function createPlayerAdapter() {
-  return new SocketIoPartyPlayerAdapter(
-    createPayloadMapper(),
-    new SocketIoPartyRealtimeTransport(partyIdentifier),
-  );
+  return new SocketIoPartyPlayerAdapter(createPayloadMapper(), new SocketIoPartyRealtimeTransport(partyIdentifier));
 }
 
 function createHostControlAdapter() {
@@ -78,41 +75,39 @@ function createAcceptedGuestJoinReceipt() {
   };
 }
 
-const { connectMock, disconnectMock, emitMock, ioMock, offMock, onMock, socket } = vi.hoisted(
-  () => {
-    const handlers = new Map<string, Array<(payload?: unknown) => void>>();
-    const connectMock = vi.fn();
-    const disconnectMock = vi.fn();
-    const emitMock = vi.fn();
-    const onMock = vi.fn((event: string, handler: (payload?: unknown) => void) => {
-      const currentHandlers = handlers.get(event) ?? [];
-      currentHandlers.push(handler);
-      handlers.set(event, currentHandlers);
-      return socket;
-    });
-    const offMock = vi.fn();
-    const socket = {
-      auth: {},
-      connected: false,
-      connect: connectMock,
-      disconnect: disconnectMock,
-      emit: emitMock,
-      off: offMock,
-      on: onMock,
-      recovered: false,
-    };
+const { connectMock, disconnectMock, emitMock, ioMock, offMock, onMock, socket } = vi.hoisted(() => {
+  const handlers = new Map<string, Array<(payload?: unknown) => void>>();
+  const connectMock = vi.fn();
+  const disconnectMock = vi.fn();
+  const emitMock = vi.fn();
+  const onMock = vi.fn((event: string, handler: (payload?: unknown) => void) => {
+    const currentHandlers = handlers.get(event) ?? [];
+    currentHandlers.push(handler);
+    handlers.set(event, currentHandlers);
+    return socket;
+  });
+  const offMock = vi.fn();
+  const socket = {
+    auth: {},
+    connected: false,
+    connect: connectMock,
+    disconnect: disconnectMock,
+    emit: emitMock,
+    off: offMock,
+    on: onMock,
+    recovered: false,
+  };
 
-    return {
-      connectMock,
-      disconnectMock,
-      emitMock,
-      ioMock: vi.fn(() => socket),
-      offMock,
-      onMock,
-      socket,
-    };
-  },
-);
+  return {
+    connectMock,
+    disconnectMock,
+    emitMock,
+    ioMock: vi.fn(() => socket),
+    offMock,
+    onMock,
+    socket,
+  };
+});
 
 vi.mock('socket.io-client', () => ({
   io: ioMock,
@@ -226,9 +221,7 @@ describe('SocketIoPartyObservationAdapter', () => {
       onSnapshot: vi.fn(),
     });
 
-    const runtimeNoticeHandler = onMock.mock.calls.find(
-      ([eventName]) => eventName === 'party-runtime-notice',
-    )?.[1];
+    const runtimeNoticeHandler = onMock.mock.calls.find(([eventName]) => eventName === 'party-runtime-notice')?.[1];
 
     expect(runtimeNoticeHandler).toBeTypeOf('function');
 
@@ -243,9 +236,7 @@ describe('SocketIoPartyObservationAdapter', () => {
 
     adapter.observeParty(PARTY_ID, { onSnapshot });
 
-    const snapshotHandler = onMock.mock.calls.find(
-      ([eventName]) => eventName === 'party-snapshot',
-    )?.[1];
+    const snapshotHandler = onMock.mock.calls.find(([eventName]) => eventName === 'party-snapshot')?.[1];
 
     expect(snapshotHandler).toBeTypeOf('function');
 
@@ -305,9 +296,7 @@ describe('SocketIoPartyObservationAdapter', () => {
 
     adapter.observeParty(PARTY_ID, { onSnapshot });
 
-    const snapshotHandler = onMock.mock.calls.find(
-      ([eventName]) => eventName === 'party-snapshot',
-    )?.[1];
+    const snapshotHandler = onMock.mock.calls.find(([eventName]) => eventName === 'party-snapshot')?.[1];
 
     expect(snapshotHandler).toBeTypeOf('function');
 
@@ -376,9 +365,7 @@ describe('SocketIoPartyObservationAdapter', () => {
 
     adapter.observeParty(PARTY_ID, { onSnapshot });
 
-    const snapshotHandler = onMock.mock.calls.find(
-      ([eventName]) => eventName === 'party-snapshot',
-    )?.[1];
+    const snapshotHandler = onMock.mock.calls.find(([eventName]) => eventName === 'party-snapshot')?.[1];
 
     expect(snapshotHandler).toBeTypeOf('function');
 

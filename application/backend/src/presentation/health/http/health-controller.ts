@@ -34,9 +34,7 @@ export class HealthController {
   }
 
   private runLivenessCheck(): Promise<HealthCheckResult> {
-    return this.healthCheckService.check([
-      () => this.applicationHealthIndicator.isLive('application'),
-    ]);
+    return this.healthCheckService.check([() => this.applicationHealthIndicator.isLive('application')]);
   }
 
   private runReadinessCheck(): Promise<HealthCheckResult> {

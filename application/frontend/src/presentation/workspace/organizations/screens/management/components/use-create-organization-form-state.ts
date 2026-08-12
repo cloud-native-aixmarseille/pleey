@@ -10,10 +10,7 @@ interface UseCreateOrganizationFormStateParams {
   readonly onCreated: (organization: Organization) => void;
 }
 
-export function useCreateOrganizationFormState({
-  onSubmit,
-  onCreated,
-}: UseCreateOrganizationFormStateParams) {
+export function useCreateOrganizationFormState({ onSubmit, onCreated }: UseCreateOrganizationFormStateParams) {
   const { t } = usePresentationTranslation();
   const { organizationFormFacade } = useWorkspaceDependencies();
   const feedback = usePresentationFeedbackChannel();

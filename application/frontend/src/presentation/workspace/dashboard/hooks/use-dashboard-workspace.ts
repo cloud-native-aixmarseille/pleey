@@ -1,9 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { DashboardWorkspaceGateway } from '../../../../application/workspace/dashboard/facades/dashboard-workspace.facade';
-import type {
-  Organization,
-  OrganizationId,
-} from '../../../../domains/organization/entities/organization';
+import type { Organization, OrganizationId } from '../../../../domains/organization/entities/organization';
 import type { OrganizationDashboard } from '../../../../domains/organization/entities/organization-dashboard';
 import type { Project, ProjectId } from '../../../../domains/project/entities/project';
 import type { PaginatedResult } from '../../../../domains/shared/value-objects/paginated-result';
@@ -75,9 +72,7 @@ export function useDashboardWorkspace({ dashboardWorkspace }: UseDashboardWorksp
   const [projectTotalCount, setProjectTotalCount] = useState(0);
   const [projectTotalPages, setProjectTotalPages] = useState(1);
   const [projectPage, setProjectPage] = useState(DEFAULT_PAGE);
-  const [organizationDashboard, setOrganizationDashboard] = useState<OrganizationDashboard | null>(
-    null,
-  );
+  const [organizationDashboard, setOrganizationDashboard] = useState<OrganizationDashboard | null>(null);
   const [selectedOrganization, setSelectedOrganization] = useState<Organization | null>(null);
   const [organizationId, setOrganizationId] = useState<OrganizationId | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -93,8 +88,7 @@ export function useDashboardWorkspace({ dashboardWorkspace }: UseDashboardWorksp
   const organizationSearchInitializedRef = useRef(false);
   const [debouncedOrganizationSearch] = usePresentationDebouncedValue(organizationSearch);
   const [debouncedProjectSearch] = usePresentationDebouncedValue(projectSearch);
-  const isProjectSearchPending =
-    normalizeSearchTerm(projectSearch) !== normalizeSearchTerm(debouncedProjectSearch);
+  const isProjectSearchPending = normalizeSearchTerm(projectSearch) !== normalizeSearchTerm(debouncedProjectSearch);
 
   useEffect(() => {
     organizationIdRef.current = organizationId;
@@ -120,9 +114,8 @@ export function useDashboardWorkspace({ dashboardWorkspace }: UseDashboardWorksp
 
         setOrganizations([...selection.organizationsPage.items]);
         setSelectedOrganization(
-          selection.organizationsPage.items.find(
-            (organization) => organization.id === selection.organizationId,
-          ) ?? null,
+          selection.organizationsPage.items.find((organization) => organization.id === selection.organizationId) ??
+            null,
         );
         setOrganizationTotalPages(selection.organizationsPage.totalPages);
         setOrganizationNextPage(selection.organizationsPage.page + 1);
@@ -203,9 +196,8 @@ export function useDashboardWorkspace({ dashboardWorkspace }: UseDashboardWorksp
           }
 
           return (
-            organizationsPage.items.find(
-              (organization) => organization.id === organizationIdRef.current,
-            ) ?? currentSelection
+            organizationsPage.items.find((organization) => organization.id === organizationIdRef.current) ??
+            currentSelection
           );
         });
       } catch (error) {
@@ -324,8 +316,7 @@ export function useDashboardWorkspace({ dashboardWorkspace }: UseDashboardWorksp
 
   function handleOrganizationChange(nextValue: string) {
     const nextSelection = organizationIdentifier.parseOrNull(nextValue);
-    const nextOrganization =
-      organizations.find((organization) => organization.id === nextSelection) ?? null;
+    const nextOrganization = organizations.find((organization) => organization.id === nextSelection) ?? null;
 
     setSelectedOrganization(nextOrganization);
     setOrganizationId(nextSelection);
@@ -367,11 +358,7 @@ export function useDashboardWorkspace({ dashboardWorkspace }: UseDashboardWorksp
   }
 
   async function handleLoadMoreOrganizations() {
-    if (
-      isOrganizationsLoading ||
-      isLoadingMoreOrganizations ||
-      organizationNextPage > organizationTotalPages
-    ) {
+    if (isOrganizationsLoading || isLoadingMoreOrganizations || organizationNextPage > organizationTotalPages) {
       return;
     }
 
@@ -384,9 +371,7 @@ export function useDashboardWorkspace({ dashboardWorkspace }: UseDashboardWorksp
         search: normalizeSearchTerm(debouncedOrganizationSearch),
       });
 
-      setOrganizations((currentOrganizations) =>
-        appendUniqueItems(currentOrganizations, nextPage.items),
-      );
+      setOrganizations((currentOrganizations) => appendUniqueItems(currentOrganizations, nextPage.items));
       setOrganizationTotalPages(nextPage.totalPages);
       setOrganizationNextPage(nextPage.page + 1);
     } catch (error) {
@@ -399,12 +384,7 @@ export function useDashboardWorkspace({ dashboardWorkspace }: UseDashboardWorksp
   }
 
   async function handleLoadMoreProjects() {
-    if (
-      organizationId === null ||
-      isWorkspaceLoading ||
-      isLoadingMoreProjects ||
-      projectNextPage > projectTotalPages
-    ) {
+    if (organizationId === null || isWorkspaceLoading || isLoadingMoreProjects || projectNextPage > projectTotalPages) {
       return;
     }
 

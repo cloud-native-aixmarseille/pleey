@@ -49,12 +49,8 @@ export function usePartyLobbyJoinSession({
   user,
 }: UsePartyLobbyJoinSessionParams): UsePartyLobbyJoinSessionResult {
   const { guestPartyEntryDraftFactory } = usePartyDependencies();
-  const [guestDraft] = useState(() =>
-    currentGuestId === null ? guestPartyEntryDraftFactory.create() : null,
-  );
-  const [guestAvatarSeed, setGuestAvatarSeed] = useState<string | null>(
-    guestDraft?.avatarSeed ?? null,
-  );
+  const [guestDraft] = useState(() => (currentGuestId === null ? guestPartyEntryDraftFactory.create() : null));
+  const [guestAvatarSeed, setGuestAvatarSeed] = useState<string | null>(guestDraft?.avatarSeed ?? null);
   const [guestName, setGuestName] = useState(guestDraft?.guestName ?? '');
   const [isPasswordRequired, setIsPasswordRequired] = useState(false);
   const [partyPassword, setPartyPassword] = useState('');
@@ -160,13 +156,7 @@ export function usePartyLobbyJoinSession({
     return () => {
       isCancelled = true;
     };
-  }, [
-    normalizedPin,
-    onPartyJoined,
-    partyLobbyFacade,
-    persistedGuestJoinGuestId,
-    setJoinErrorMessage,
-  ]);
+  }, [normalizedPin, onPartyJoined, partyLobbyFacade, persistedGuestJoinGuestId, setJoinErrorMessage]);
 
   // Auto-rejoin for canonical lobby routes (partyId in URL, PIN from party observation)
   useEffect(() => {
@@ -224,9 +214,7 @@ export function usePartyLobbyJoinSession({
 
   return {
     guestAvatarPreviewUri:
-      guestAvatarSeed === null
-        ? null
-        : guestPartyEntryDraftFactory.createPreviewUrl(guestAvatarSeed),
+      guestAvatarSeed === null ? null : guestPartyEntryDraftFactory.createPreviewUrl(guestAvatarSeed),
     guestName,
     isPasswordRequired,
     partyPassword,

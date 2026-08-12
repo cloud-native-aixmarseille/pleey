@@ -21,9 +21,6 @@ describe('HomeHeroSection', () => {
 
     expect(screen.getByRole('heading', { name: 'home.hero.title' })).toBeInTheDocument();
     expect(screen.getByText('home.hero.tagline')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /home.hero.primaryCta/i })).toHaveAttribute(
-      'href',
-      '/workspace/dashboard',
-    );
+    expect(screen.getByRole('link', { name: /home.hero.primaryCta/i })).toHaveAttribute('href', '/workspace/dashboard');
   });
 });

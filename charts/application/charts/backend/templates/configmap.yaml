@@ -6,7 +6,6 @@ metadata:
     {{- include "pleey.backend.labels" . | nindent 4 }}
 data:
   NODE_ENV: {{ .Values.config.nodeEnv | quote }}
-  PORT: {{ .Values.config.port | quote }}
   CORS_ORIGIN: {{ .Values.config.corsOrigin | quote }}
   APP_VERSION: {{ default .Chart.AppVersion .Values.config.appVersion | quote }}
   {{- if .Values.config.apiBaseUrl }}

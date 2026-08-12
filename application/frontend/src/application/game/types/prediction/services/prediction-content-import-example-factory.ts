@@ -1,8 +1,5 @@
 import { inject, injectable } from 'inversify';
-import {
-  type TranslationPort,
-  TranslationPortToken,
-} from '../../../../shared/contracts/translation.port';
+import { type TranslationPort, TranslationPortToken } from '../../../../shared/contracts/translation.port';
 import type {
   PlayableContentImportExampleFile,
   PlayableContentImportExampleFormat,
@@ -33,9 +30,7 @@ export class PredictionContentImportExampleFactory {
             {
               prompts: [
                 {
-                  promptText: this.translationPort.t(
-                    'dashboard.games.import.examples.prediction.promptFirstScore',
-                  ),
+                  promptText: this.translationPort.t('dashboard.games.import.examples.prediction.promptFirstScore'),
                   timeLimit: 25,
                   points: 500,
                   options: [
@@ -48,17 +43,13 @@ export class PredictionContentImportExampleFactory {
                       isCorrect: false,
                     },
                     {
-                      text: this.translationPort.t(
-                        'dashboard.games.import.examples.options.noGoal',
-                      ),
+                      text: this.translationPort.t('dashboard.games.import.examples.options.noGoal'),
                       isCorrect: false,
                     },
                   ],
                 },
                 {
-                  promptText: this.translationPort.t(
-                    'dashboard.games.import.examples.prediction.promptLaunchOnTime',
-                  ),
+                  promptText: this.translationPort.t('dashboard.games.import.examples.prediction.promptLaunchOnTime'),
                   type: 'truefalse',
                   timeLimit: 15,
                   points: 300,

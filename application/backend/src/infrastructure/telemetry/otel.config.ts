@@ -7,11 +7,7 @@ import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-http';
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { resourceFromAttributes } from '@opentelemetry/resources';
-import {
-  BatchLogRecordProcessor,
-  ConsoleLogRecordExporter,
-  LoggerProvider,
-} from '@opentelemetry/sdk-logs';
+import { BatchLogRecordProcessor, ConsoleLogRecordExporter, LoggerProvider } from '@opentelemetry/sdk-logs';
 import { ConsoleMetricExporter, PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
@@ -42,9 +38,7 @@ function createResource(config: OpenTelemetryConfig) {
   });
 }
 
-function createLoggerProvider(
-  logExporter?: OTLPLogExporter | ConsoleLogRecordExporter,
-): LoggerProvider {
+function createLoggerProvider(logExporter?: OTLPLogExporter | ConsoleLogRecordExporter): LoggerProvider {
   return new LoggerProvider({
     resource,
     processors: logExporter
@@ -116,10 +110,7 @@ async function isEndpointReachable(endpoint: string): Promise<boolean> {
       });
     });
   } catch (error) {
-    console.warn(
-      '[Telemetry] Invalid OTLP endpoint provided, using console exporters instead.',
-      error,
-    );
+    console.warn('[Telemetry] Invalid OTLP endpoint provided, using console exporters instead.', error);
     return false;
   }
 }
@@ -182,14 +173,10 @@ export async function initializeOpenTelemetry(config: OpenTelemetryConfig): Prom
 
   if (endpoint && !(await isEndpointReachable(endpoint))) {
     if (config.consoleExportersEnabled) {
-      console.warn(
-        `[Telemetry] Unable to reach OTLP endpoint ${endpoint}. Falling back to console exporters.`,
-      );
+      console.warn(`[Telemetry] Unable to reach OTLP endpoint ${endpoint}. Falling back to console exporters.`);
       useConsoleExporters = true;
     } else {
-      console.warn(
-        `[Telemetry] Unable to reach OTLP endpoint ${endpoint}. Telemetry exporters are disabled.`,
-      );
+      console.warn(`[Telemetry] Unable to reach OTLP endpoint ${endpoint}. Telemetry exporters are disabled.`);
     }
   }
 

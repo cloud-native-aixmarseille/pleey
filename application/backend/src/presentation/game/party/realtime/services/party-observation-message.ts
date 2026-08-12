@@ -9,10 +9,7 @@ export interface PartyObservationPlayerMessage extends PlayerPartyObservationPla
   readonly isLive: boolean;
 }
 
-type PartyObservationMessageBase = Pick<
-  PlayerPartyObservation,
-  'partyId' | 'pin' | 'status' | 'context' | 'host'
-> & {
+type PartyObservationMessageBase = Pick<PlayerPartyObservation, 'partyId' | 'pin' | 'status' | 'context' | 'host'> & {
   readonly gameType: GameType;
   readonly players: readonly PartyObservationPlayerMessage[];
 };

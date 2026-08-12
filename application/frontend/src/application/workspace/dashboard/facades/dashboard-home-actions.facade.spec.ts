@@ -20,9 +20,7 @@ describe('DashboardHomeActionsFacade', () => {
     } as unknown as GameTypeRegistry;
     const facade = new DashboardHomeActionsFacade(gameTypeRegistry, acceptedTypesResolver);
 
-    expect(facade.resolveManageGameRoute({ type: 'quiz', gameTypeId: 12 } as never)).toBe(
-      '/quizzes/12',
-    );
+    expect(facade.resolveManageGameRoute({ type: 'quiz', gameTypeId: 12 } as never)).toBe('/quizzes/12');
     expect(gameTypeRegistry.resolveManagementRoute).toHaveBeenCalledWith({
       type: 'quiz',
       gameTypeId: 12,
@@ -82,10 +80,7 @@ describe('DashboardHomeActionsFacade', () => {
       title: 'Sprint quiz',
       description: null,
     });
-    expect(gameTypeRegistry.resolveManagementRouteByType).toHaveBeenCalledWith(
-      GameType.Quiz,
-      gameTypeId,
-    );
+    expect(gameTypeRegistry.resolveManagementRouteByType).toHaveBeenCalledWith(GameType.Quiz, gameTypeId);
     expect(result).toBe(`/quizzes/${gameTypeId}`);
   });
 
@@ -116,10 +111,7 @@ describe('DashboardHomeActionsFacade', () => {
       file: importFile,
     });
     expect(gameTypeRegistry.createGame).not.toHaveBeenCalled();
-    expect(gameTypeRegistry.resolveManagementRouteByType).toHaveBeenCalledWith(
-      GameType.Quiz,
-      gameTypeId,
-    );
+    expect(gameTypeRegistry.resolveManagementRouteByType).toHaveBeenCalledWith(GameType.Quiz, gameTypeId);
     expect(result).toEqual({ importedCount: 6, route: `/quizzes/${gameTypeId}` });
   });
 

@@ -3,10 +3,7 @@ import type { GameId } from '../../../../domains/game/entities/game';
 import type { DashboardGameListPage } from '../../../../domains/game/management/entities/dashboard-game-list-page';
 import type { DashboardGameListQuery } from '../../../../domains/game/management/entities/dashboard-game-list-query';
 import type { Party } from '../../../../domains/game/party/shared/entities/party';
-import type {
-  Organization,
-  OrganizationId,
-} from '../../../../domains/organization/entities/organization';
+import type { Organization, OrganizationId } from '../../../../domains/organization/entities/organization';
 import type { OrganizationDashboard } from '../../../../domains/organization/entities/organization-dashboard';
 import type { Project, ProjectId } from '../../../../domains/project/entities/project';
 import type { PaginatedResult } from '../../../../domains/shared/value-objects/paginated-result';
@@ -14,10 +11,7 @@ import type { PaginationQuery } from '../../../../domains/shared/value-objects/p
 import { ListProjectGamesUseCase } from '../../../game/management/use-cases/list-project-games-use-case';
 import { CreatePartyUseCase } from '../../../game/party/host/use-cases/create-party-use-case';
 import { ListPartiesUseCase } from '../../../game/party/host/use-cases/list-parties-use-case';
-import {
-  WORKSPACE_SELECTION_PORT,
-  type WorkspaceSelectionPort,
-} from '../../contracts/workspace-selection.port';
+import { WORKSPACE_SELECTION_PORT, type WorkspaceSelectionPort } from '../../contracts/workspace-selection.port';
 import { GetOrganizationDashboardUseCase } from '../../organizations/use-cases/get-organization-dashboard-use-case';
 import { ListMyOrganizationsUseCase } from '../../organizations/use-cases/list-my-organizations-use-case';
 import { ListOrganizationProjectsUseCase } from '../../projects/use-cases/list-organization-projects-use-case';
@@ -64,12 +58,8 @@ export interface DashboardWorkspaceGateway {
   createParty(gameId: GameId, options?: { privatePartyPassword?: string }): Promise<Party>;
   loadOrganizationsPage(query?: PaginationQuery): Promise<PaginatedResult<Organization>>;
   restoreOrganizationSelection(query?: PaginationQuery): Promise<DashboardOrganizationSelection>;
-  loadOrganizationProjectsPage(
-    query: DashboardOrganizationProjectsPageQuery,
-  ): Promise<PaginatedResult<Project>>;
-  loadOrganizationWorkspaceState(
-    query: DashboardOrganizationWorkspaceQuery,
-  ): Promise<DashboardOrganizationWorkspace>;
+  loadOrganizationProjectsPage(query: DashboardOrganizationProjectsPageQuery): Promise<PaginatedResult<Project>>;
+  loadOrganizationWorkspaceState(query: DashboardOrganizationWorkspaceQuery): Promise<DashboardOrganizationWorkspace>;
   setOrganizationSelection(organizationId: OrganizationId | null): void;
   setProjectSelection(projectId: ProjectId | null): void;
 }
@@ -116,9 +106,7 @@ export class DashboardWorkspaceFacade implements DashboardWorkspaceGateway {
     });
   }
 
-  async restoreOrganizationSelection(
-    query: PaginationQuery = {},
-  ): Promise<DashboardOrganizationSelection> {
+  async restoreOrganizationSelection(query: PaginationQuery = {}): Promise<DashboardOrganizationSelection> {
     const organizationsPage = await this.listMyOrganizationsUseCase.execute({
       page: query.page ?? DEFAULT_PAGE,
       pageSize: query.pageSize ?? DEFAULT_PAGE_SIZE,
@@ -143,9 +131,7 @@ export class DashboardWorkspaceFacade implements DashboardWorkspaceGateway {
     };
   }
 
-  loadOrganizationProjectsPage(
-    query: DashboardOrganizationProjectsPageQuery,
-  ): Promise<PaginatedResult<Project>> {
+  loadOrganizationProjectsPage(query: DashboardOrganizationProjectsPageQuery): Promise<PaginatedResult<Project>> {
     return this.listOrganizationProjectsUseCase.execute({
       organizationId: query.organizationId,
       page: query.page ?? DEFAULT_PAGE,
@@ -186,10 +172,7 @@ export class DashboardWorkspaceFacade implements DashboardWorkspaceGateway {
     const restoredSelection = this.workspaceSelection.restoreSelection();
     const restoredProject = projects.find((project) => project.id === restoredSelection.projectId);
     const nextProjectId =
-      restoredProject?.id ??
-      (query.search ? restoredSelection.projectId : null) ??
-      projects[0]?.id ??
-      null;
+      restoredProject?.id ?? (query.search ? restoredSelection.projectId : null) ?? projects[0]?.id ?? null;
 
     this.workspaceSelection.setProjectId(nextProjectId);
 

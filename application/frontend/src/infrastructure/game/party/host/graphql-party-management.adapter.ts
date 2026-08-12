@@ -43,15 +43,15 @@ export class GraphqlPartyManagementAdapter implements PartyManagementPort {
 
   async createParty(command: CreatePartyCommand): Promise<Party> {
     try {
-      const result = await this.graphqlClient.request<
-        CreatePartyMutation,
-        CreatePartyMutationVariables
-      >(CreatePartyDocument, {
-        input: {
-          gameId: command.gameId,
-          privatePartyPassword: command.privatePartyPassword,
+      const result = await this.graphqlClient.request<CreatePartyMutation, CreatePartyMutationVariables>(
+        CreatePartyDocument,
+        {
+          input: {
+            gameId: command.gameId,
+            privatePartyPassword: command.privatePartyPassword,
+          },
         },
-      });
+      );
 
       return this.toDomainParty(result.createParty);
     } catch (error) {
@@ -64,15 +64,15 @@ export class GraphqlPartyManagementAdapter implements PartyManagementPort {
 
   async listParties(): Promise<readonly Party[]> {
     try {
-      const result = await this.graphqlClient.request<
-        ListPartiesGraphqlQuery,
-        ListPartiesQueryVariables
-      >(ListPartiesDocument, {
-        input: {
-          page: DEFAULT_LIST_PAGE,
-          pageSize: DEFAULT_LIST_PAGE_SIZE,
+      const result = await this.graphqlClient.request<ListPartiesGraphqlQuery, ListPartiesQueryVariables>(
+        ListPartiesDocument,
+        {
+          input: {
+            page: DEFAULT_LIST_PAGE,
+            pageSize: DEFAULT_LIST_PAGE_SIZE,
+          },
         },
-      });
+      );
 
       return result.listParties.items.map((party) => this.toDomainParty(party));
     } catch (error) {

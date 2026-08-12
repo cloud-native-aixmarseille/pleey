@@ -65,9 +65,7 @@ export class PrismaPartyStageCatalogAdapter extends PartyStageCatalogPort {
         return null;
       }
 
-      return this.shouldRandomizeAnswerOrder(options)
-        ? this.randomizeStageActions(stage, options)
-        : stage;
+      return this.shouldRandomizeAnswerOrder(options) ? this.randomizeStageActions(stage, options) : stage;
     }
 
     const orderedStages = await this.resolveOrderedStages(provider, gameId, options);
@@ -93,9 +91,7 @@ export class PrismaPartyStageCatalogAdapter extends PartyStageCatalogPort {
         return null;
       }
 
-      return this.shouldRandomizeAnswerOrder(options)
-        ? this.randomizeStageActions(stage, options)
-        : stage;
+      return this.shouldRandomizeAnswerOrder(options) ? this.randomizeStageActions(stage, options) : stage;
     }
 
     const orderedStages = await this.resolveOrderedStages(provider, gameId, options);
@@ -122,9 +118,7 @@ export class PrismaPartyStageCatalogAdapter extends PartyStageCatalogPort {
         return null;
       }
 
-      return this.shouldRandomizeAnswerOrder(options)
-        ? this.randomizeStageActions(stage, options)
-        : stage;
+      return this.shouldRandomizeAnswerOrder(options) ? this.randomizeStageActions(stage, options) : stage;
     }
 
     const orderedStages = await this.resolveOrderedStages(provider, gameId, options);
@@ -186,10 +180,7 @@ export class PrismaPartyStageCatalogAdapter extends PartyStageCatalogPort {
             rank: this.toDeterministicRank(`${partySeed}:stage-order`, String(stage.id)),
             stage,
           }))
-          .sort(
-            (left, right) =>
-              left.rank - right.rank || left.stage.stagePosition - right.stage.stagePosition,
-          )
+          .sort((left, right) => left.rank - right.rank || left.stage.stagePosition - right.stage.stagePosition)
           .map((entry) => entry.stage)
       : stages;
 
@@ -199,9 +190,7 @@ export class PrismaPartyStageCatalogAdapter extends PartyStageCatalogPort {
         stagePosition: questionRandomized ? index : stage.stagePosition,
       };
 
-      return answerRandomized
-        ? this.randomizeStageActions(normalizedStage, options)
-        : normalizedStage;
+      return answerRandomized ? this.randomizeStageActions(normalizedStage, options) : normalizedStage;
     });
   }
 

@@ -2,10 +2,7 @@ import { inject, injectable } from 'inversify';
 import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
 import { ProjectIdentifier } from '../../application/workspace/shared/services/identifiers/project-identifier';
 import type { Project } from '../../domains/project/entities/project';
-import {
-  PROJECT_ERROR_DEFINITIONS,
-  ProjectErrorCode,
-} from '../../domains/project/errors/project-error-code';
+import { PROJECT_ERROR_DEFINITIONS, ProjectErrorCode } from '../../domains/project/errors/project-error-code';
 import type {
   CreateProjectCommand,
   DeleteProjectCommand,
@@ -44,9 +41,7 @@ export class GraphqlProjectRepository implements ProjectRepository {
     private readonly organizationIdentifier: OrganizationIdentifier,
   ) {}
 
-  async getProjectsByOrganization(
-    query: ListOrganizationProjectsQuery,
-  ): Promise<PaginatedResult<Project>> {
+  async getProjectsByOrganization(query: ListOrganizationProjectsQuery): Promise<PaginatedResult<Project>> {
     try {
       const result = await this.graphqlClient.request<
         WorkspaceProjectsByOrganizationQuery,
@@ -75,71 +70,56 @@ export class GraphqlProjectRepository implements ProjectRepository {
         totalPages: result.organizationProjects.totalPages,
       };
     } catch (error) {
-      throw this.graphqlClient.resolveDomainError(
-        error,
-        PROJECT_ERROR_DEFINITIONS[ProjectErrorCode.LOAD_FAILED],
-      );
+      throw this.graphqlClient.resolveDomainError(error, PROJECT_ERROR_DEFINITIONS[ProjectErrorCode.LOAD_FAILED]);
     }
   }
 
   async createProject(command: CreateProjectCommand): Promise<Project> {
     try {
-      const result = await this.graphqlClient.request<
-        CreateProjectMutation,
-        CreateProjectMutationVariables
-      >(CreateProjectDocument, {
-        organizationId: command.organizationId,
-        input: {
-          name: command.name,
-          description: command.description,
+      const result = await this.graphqlClient.request<CreateProjectMutation, CreateProjectMutationVariables>(
+        CreateProjectDocument,
+        {
+          organizationId: command.organizationId,
+          input: {
+            name: command.name,
+            description: command.description,
+          },
         },
-      });
+      );
 
       return this.toDomainProject(result.createProject);
     } catch (error) {
-      throw this.graphqlClient.resolveDomainError(
-        error,
-        PROJECT_ERROR_DEFINITIONS[ProjectErrorCode.CREATE_FAILED],
-      );
+      throw this.graphqlClient.resolveDomainError(error, PROJECT_ERROR_DEFINITIONS[ProjectErrorCode.CREATE_FAILED]);
     }
   }
 
   async updateProject(command: UpdateProjectCommand): Promise<Project> {
     try {
-      const result = await this.graphqlClient.request<
-        UpdateProjectMutation,
-        UpdateProjectMutationVariables
-      >(UpdateProjectDocument, {
-        projectId: command.projectId,
-        input: {
-          name: command.name,
-          description: command.description,
+      const result = await this.graphqlClient.request<UpdateProjectMutation, UpdateProjectMutationVariables>(
+        UpdateProjectDocument,
+        {
+          projectId: command.projectId,
+          input: {
+            name: command.name,
+            description: command.description,
+          },
         },
-      });
+      );
 
       return this.toDomainProject(result.updateProject);
     } catch (error) {
-      throw this.graphqlClient.resolveDomainError(
-        error,
-        PROJECT_ERROR_DEFINITIONS[ProjectErrorCode.UPDATE_FAILED],
-      );
+      throw this.graphqlClient.resolveDomainError(error, PROJECT_ERROR_DEFINITIONS[ProjectErrorCode.UPDATE_FAILED]);
     }
   }
 
   async deleteProject(command: DeleteProjectCommand): Promise<void> {
     try {
-      await this.graphqlClient.request<DeleteProjectMutation, DeleteProjectMutationVariables>(
-        DeleteProjectDocument,
-        {
-          projectId: command.projectId,
-          migrationProjectId: command.migrationProjectId,
-        },
-      );
+      await this.graphqlClient.request<DeleteProjectMutation, DeleteProjectMutationVariables>(DeleteProjectDocument, {
+        projectId: command.projectId,
+        migrationProjectId: command.migrationProjectId,
+      });
     } catch (error) {
-      throw this.graphqlClient.resolveDomainError(
-        error,
-        PROJECT_ERROR_DEFINITIONS[ProjectErrorCode.DELETE_FAILED],
-      );
+      throw this.graphqlClient.resolveDomainError(error, PROJECT_ERROR_DEFINITIONS[ProjectErrorCode.DELETE_FAILED]);
     }
   }
 

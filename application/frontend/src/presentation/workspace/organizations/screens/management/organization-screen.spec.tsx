@@ -1,10 +1,7 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import type {
-  Organization,
-  OrganizationId,
-} from '../../../../../domains/organization/entities/organization';
+import type { Organization, OrganizationId } from '../../../../../domains/organization/entities/organization';
 import { OrganizationRole } from '../../../../../domains/organization/entities/organization';
 import type { OrganizationDashboard } from '../../../../../domains/organization/entities/organization-dashboard';
 import type { OrganizationMember } from '../../../../../domains/organization/entities/organization-member';
@@ -21,10 +18,8 @@ import { OrganizationScreen } from './organization-screen';
 
 const organizationIdentifier = new OrganizationIdentifierMockFactory().create();
 const projectIdentifier = new ProjectIdentifierMockFactory().create();
-const parseOrganizationId = (value: number) =>
-  organizationIdentifier.parse(coerceUuidV7TestValue(value));
-const parseOrganizationMemberId = (value: number) =>
-  coerceUuidV7TestValue(value) as OrganizationMember['id'];
+const parseOrganizationId = (value: number) => organizationIdentifier.parse(coerceUuidV7TestValue(value));
+const parseOrganizationMemberId = (value: number) => coerceUuidV7TestValue(value) as OrganizationMember['id'];
 const parseProjectId = (value: number) => projectIdentifier.parse(coerceUuidV7TestValue(value));
 const parseUserId = (value: number) => coerceUuidV7TestValue(value) as OrganizationMember['userId'];
 
@@ -117,18 +112,14 @@ function normalizeOrganizationWorkspaceResult(
 }
 
 function renderOrganizationScreen(
-  overrides: Partial<
-    ReturnType<OrganizationScreenFixtureFactory['createDashboardReadGateway']>
-  > = {},
+  overrides: Partial<ReturnType<OrganizationScreenFixtureFactory['createDashboardReadGateway']>> = {},
   dashboardWorkspaceOverrides: Partial<DashboardWorkspaceSelectionGateway> = {},
   options: RenderOrganizationScreenOptions = {},
   actionOverrides: Partial<ReturnType<OrganizationScreenFixtureFactory['createActions']>> = {},
 ) {
   const actions = organizationScreenFixtureFactory.createActions(actionOverrides);
   const listOrganizationMembers = vi.fn<
-    (
-      query: Parameters<typeof actions.listOrganizationMembers>[0],
-    ) => Promise<PaginatedResult<OrganizationMember>>
+    (query: Parameters<typeof actions.listOrganizationMembers>[0]) => Promise<PaginatedResult<OrganizationMember>>
   >(async (query) => {
     const result = (await actions.listOrganizationMembers(query)) as
       | PaginatedResult<OrganizationMember>
@@ -197,9 +188,7 @@ function renderOrganizationScreen(
         createOrganization={actions.createOrganization}
         listOrganizationMembers={listOrganizationMembers}
         addOrganizationMember={actions.addOrganizationMember}
-        removeOrganizationMember={(member) =>
-          actions.removeOrganizationMember({ memberId: member.id })
-        }
+        removeOrganizationMember={(member) => actions.removeOrganizationMember({ memberId: member.id })}
         updateOrganizationMemberRole={actions.updateOrganizationMemberRole}
         createProject={actions.createProject}
         updateProject={actions.updateProject}
@@ -216,9 +205,7 @@ describe('OrganizationScreen', () => {
       renderOrganizationScreen({}, {}, { deferWorkspaceLoad: true });
 
       // Assert
-      expect(
-        screen.getByRole('heading', { name: 'organization.management.header.title' }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'organization.management.header.title' })).toBeInTheDocument();
     });
 
     it('renders the page header kicker', () => {
@@ -255,9 +242,7 @@ describe('OrganizationScreen', () => {
       renderOrganizationScreen({}, {}, { deferWorkspaceLoad: true });
 
       // Assert
-      expect(
-        screen.getByRole('button', { name: 'organization.management.create.openButton' }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'organization.management.create.openButton' })).toBeInTheDocument();
     });
 
     it('renders the project management section', () => {
@@ -265,12 +250,8 @@ describe('OrganizationScreen', () => {
       renderOrganizationScreen({}, {}, { deferWorkspaceLoad: true });
 
       // Assert
-      expect(
-        screen.getByRole('heading', { name: 'project.management.section.title' }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: 'project.management.section.createButton' }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'project.management.section.title' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'project.management.section.createButton' })).toBeInTheDocument();
       expect(screen.getByText('project.management.list.empty')).toBeInTheDocument();
     });
 
@@ -280,9 +261,7 @@ describe('OrganizationScreen', () => {
 
       renderOrganizationScreen(
         {
-          loadOrganizations: vi
-            .fn()
-            .mockResolvedValue([organizationFixtureFactory.createOrganization()]),
+          loadOrganizations: vi.fn().mockResolvedValue([organizationFixtureFactory.createOrganization()]),
           loadOrganizationDashboard: vi.fn().mockResolvedValue(
             organizationScreenFixtureFactory.createOrganizationDashboard({
               stats: {
@@ -292,9 +271,7 @@ describe('OrganizationScreen', () => {
               },
             }),
           ),
-          loadProjectsByOrganization: vi
-            .fn()
-            .mockResolvedValue([organizationScreenFixtureFactory.createProject()]),
+          loadProjectsByOrganization: vi.fn().mockResolvedValue([organizationScreenFixtureFactory.createProject()]),
         },
         {
           loadOrganizationWorkspaceState: vi.fn().mockResolvedValue({
@@ -329,15 +306,11 @@ describe('OrganizationScreen', () => {
         {
           loadOrganizations: vi
             .fn()
-            .mockResolvedValue([
-              organizationFixtureFactory.createOrganization({ description: 'The best org' }),
-            ]),
+            .mockResolvedValue([organizationFixtureFactory.createOrganization({ description: 'The best org' })]),
         },
         {
           restoreOrganizationSelection: vi.fn().mockResolvedValue({
-            organizations: [
-              organizationFixtureFactory.createOrganization({ description: 'The best org' }),
-            ],
+            organizations: [organizationFixtureFactory.createOrganization({ description: 'The best org' })],
             organizationId: parseOrganizationId(3),
           }),
           loadOrganizationWorkspaceState: vi.fn().mockResolvedValue({
@@ -374,9 +347,7 @@ describe('OrganizationScreen', () => {
       const user = userEvent.setup();
       const loadOrganizationsPage = vi
         .fn()
-        .mockResolvedValue(
-          createPaginatedResult([organizationFixtureFactory.createOrganization()]),
-        );
+        .mockResolvedValue(createPaginatedResult([organizationFixtureFactory.createOrganization()]));
 
       renderOrganizationScreen({}, { loadOrganizationsPage });
 
@@ -385,10 +356,7 @@ describe('OrganizationScreen', () => {
       });
 
       await user.click(within(toolbar).getAllByRole('button')[0]);
-      await user.type(
-        screen.getByLabelText('dashboard.workspace.organizationSearchLabel'),
-        'Arcade',
-      );
+      await user.type(screen.getByLabelText('dashboard.workspace.organizationSearchLabel'), 'Arcade');
 
       await waitFor(() => {
         expect(loadOrganizationsPage).toHaveBeenCalledWith({
@@ -411,10 +379,7 @@ describe('OrganizationScreen', () => {
 
       renderOrganizationScreen({}, { loadOrganizationWorkspaceState });
 
-      await user.type(
-        await screen.findByRole('searchbox', { name: 'project.management.searchLabel' }),
-        'Flag',
-      );
+      await user.type(await screen.findByRole('searchbox', { name: 'project.management.searchLabel' }), 'Flag');
 
       await waitFor(() => {
         expect(loadOrganizationWorkspaceState).toHaveBeenLastCalledWith({
@@ -455,9 +420,7 @@ describe('OrganizationScreen', () => {
         .mockResolvedValueOnce({
           organizationDashboard: organizationScreenFixtureFactory.createOrganizationDashboard(),
           projectsPage: {
-            ...createPaginatedResult([
-              organizationScreenFixtureFactory.createProject({ name: 'Page One Project' }),
-            ]),
+            ...createPaginatedResult([organizationScreenFixtureFactory.createProject({ name: 'Page One Project' })]),
             totalPages: 2,
           },
           projectId: parseProjectId(11),
@@ -479,9 +442,7 @@ describe('OrganizationScreen', () => {
 
       renderOrganizationScreen({}, { loadOrganizationWorkspaceState });
 
-      await user.click(
-        await screen.findByRole('button', { name: 'project.management.pagination.next' }),
-      );
+      await user.click(await screen.findByRole('button', { name: 'project.management.pagination.next' }));
 
       await waitFor(() => {
         expect(loadOrganizationWorkspaceState).toHaveBeenLastCalledWith({
@@ -545,9 +506,7 @@ describe('OrganizationScreen', () => {
       // Arrange
       renderOrganizationScreen(
         {
-          loadOrganizations: vi
-            .fn()
-            .mockResolvedValue([organizationFixtureFactory.createOrganization()]),
+          loadOrganizations: vi.fn().mockResolvedValue([organizationFixtureFactory.createOrganization()]),
         },
         {
           loadOrganizationWorkspaceState: vi.fn().mockResolvedValue({
@@ -565,9 +524,7 @@ describe('OrganizationScreen', () => {
       );
 
       // Assert
-      expect(
-        await screen.findByRole('region', { name: 'organization.management.stats.title' }),
-      ).toBeInTheDocument();
+      expect(await screen.findByRole('region', { name: 'organization.management.stats.title' })).toBeInTheDocument();
       expect(screen.getByText('5')).toBeInTheDocument();
       expect(screen.getByText('8')).toBeInTheDocument();
       expect(screen.getByText('3')).toBeInTheDocument();
@@ -604,12 +561,8 @@ describe('OrganizationScreen', () => {
       expect(screen.getByText('Side Project')).toBeInTheDocument();
       expect(screen.getByText('project.management.list.selectedBadge')).toBeInTheDocument();
       expect(screen.getByText('project.management.list.descriptionFallback')).toBeInTheDocument();
-      expect(
-        screen.getAllByRole('button', { name: 'project.management.list.editButton' }),
-      ).toHaveLength(2);
-      expect(
-        screen.getAllByRole('button', { name: 'project.management.list.removeButton' }),
-      ).toHaveLength(2);
+      expect(screen.getAllByRole('button', { name: 'project.management.list.editButton' })).toHaveLength(2);
+      expect(screen.getAllByRole('button', { name: 'project.management.list.removeButton' })).toHaveLength(2);
     });
 
     it('opens the create project dialog from the projects section', async () => {
@@ -617,9 +570,7 @@ describe('OrganizationScreen', () => {
 
       renderOrganizationScreen(
         {
-          loadOrganizations: vi
-            .fn()
-            .mockResolvedValue([organizationFixtureFactory.createOrganization()]),
+          loadOrganizations: vi.fn().mockResolvedValue([organizationFixtureFactory.createOrganization()]),
         },
         {
           loadOrganizationWorkspaceState: vi.fn().mockResolvedValue({
@@ -662,9 +613,7 @@ describe('OrganizationScreen', () => {
 
       const view = renderOrganizationScreen(
         {
-          loadOrganizations: vi
-            .fn()
-            .mockResolvedValue([organizationFixtureFactory.createOrganization()]),
+          loadOrganizations: vi.fn().mockResolvedValue([organizationFixtureFactory.createOrganization()]),
         },
         { loadOrganizationWorkspaceState },
       );
@@ -684,13 +633,9 @@ describe('OrganizationScreen', () => {
         screen.getByPlaceholderText('project.management.form.fields.description.placeholder'),
         'Newly created',
       );
-      await user.click(
-        screen.getByRole('button', { name: 'project.management.form.create.submit' }),
-      );
+      await user.click(screen.getByRole('button', { name: 'project.management.form.create.submit' }));
 
-      expect(await screen.findByRole('status')).toHaveTextContent(
-        'project.management.form.create.success',
-      );
+      expect(await screen.findByRole('status')).toHaveTextContent('project.management.form.create.success');
       expect(await screen.findByText('Fresh Project')).toBeInTheDocument();
       expect(loadOrganizationWorkspaceState).toHaveBeenCalledTimes(2);
     });
@@ -713,9 +658,7 @@ describe('OrganizationScreen', () => {
 
       view.createOrganization.mockResolvedValue(createdOrganization);
 
-      await user.click(
-        screen.getByRole('button', { name: 'organization.management.create.openButton' }),
-      );
+      await user.click(screen.getByRole('button', { name: 'organization.management.create.openButton' }));
       await user.type(
         await screen.findByLabelText(/organization\.management\.create\.fields\.name\.label/),
         'Fresh Org',
@@ -724,9 +667,7 @@ describe('OrganizationScreen', () => {
         screen.getByLabelText(/organization\.management\.create\.fields\.description\.label/),
         'Fresh workspace',
       );
-      await user.click(
-        screen.getByRole('button', { name: 'organization.management.create.submit' }),
-      );
+      await user.click(screen.getByRole('button', { name: 'organization.management.create.submit' }));
 
       await waitFor(() => {
         expect(setOrganizationSelection).toHaveBeenCalledWith(parseOrganizationId(9));
@@ -768,14 +709,10 @@ describe('OrganizationScreen', () => {
           dashboardWorkspace={{
             loadOrganizationsPage: vi
               .fn()
-              .mockResolvedValue(
-                createPaginatedResult([organizationFixtureFactory.createOrganization()]),
-              ),
+              .mockResolvedValue(createPaginatedResult([organizationFixtureFactory.createOrganization()])),
             loadOrganizationProjectsPage: vi.fn().mockResolvedValue(createPaginatedResult([])),
             restoreOrganizationSelection: vi.fn().mockResolvedValue({
-              organizationsPage: createPaginatedResult([
-                organizationFixtureFactory.createOrganization(),
-              ]),
+              organizationsPage: createPaginatedResult([organizationFixtureFactory.createOrganization()]),
               organizationId: parseOrganizationId(3),
             }),
             loadOrganizationWorkspaceState: vi.fn().mockResolvedValue({
@@ -796,9 +733,7 @@ describe('OrganizationScreen', () => {
           createOrganization={actions.createOrganization}
           listOrganizationMembers={actions.listOrganizationMembers}
           addOrganizationMember={actions.addOrganizationMember}
-          removeOrganizationMember={(member) =>
-            actions.removeOrganizationMember({ memberId: member.id })
-          }
+          removeOrganizationMember={(member) => actions.removeOrganizationMember({ memberId: member.id })}
           updateOrganizationMemberRole={actions.updateOrganizationMemberRole}
           createProject={actions.createProject}
           updateProject={actions.updateProject}
@@ -818,9 +753,7 @@ describe('OrganizationScreen', () => {
 
       expect(dialog).toBeInTheDocument();
       expect(screen.getByText('project.management.removal.dialogTitle')).toBeInTheDocument();
-      expect(
-        screen.getByLabelText('project.management.removal.migrationLabel'),
-      ).toBeInTheDocument();
+      expect(screen.getByLabelText('project.management.removal.migrationLabel')).toBeInTheDocument();
 
       const confirmButton = screen.getByRole('button', {
         name: 'project.management.removal.confirm',
@@ -854,9 +787,7 @@ describe('OrganizationScreen', () => {
       );
 
       expect(await screen.findByText('captain')).toBeInTheDocument();
-      expect(
-        screen.getAllByText('organization.management.members.roles.manager').length,
-      ).toBeGreaterThan(0);
+      expect(screen.getAllByText('organization.management.members.roles.manager').length).toBeGreaterThan(0);
     });
 
     it('updates an organization member role from the member list', async () => {
@@ -897,9 +828,7 @@ describe('OrganizationScreen', () => {
         {},
         {
           restoreOrganizationSelection: vi.fn().mockResolvedValue({
-            organizations: [
-              organizationFixtureFactory.createOrganization({ role: OrganizationRole.MANAGER }),
-            ],
+            organizations: [organizationFixtureFactory.createOrganization({ role: OrganizationRole.MANAGER })],
             organizationId: parseOrganizationId(3),
           }),
         },
@@ -916,12 +845,8 @@ describe('OrganizationScreen', () => {
           name: 'organization.management.members.roles.owner',
         }),
       ).toHaveLength(0);
-      expect(
-        screen.queryByRole('button', { name: 'organization.management.members.removeButton' }),
-      ).toBeNull();
-      expect(
-        screen.getAllByText('organization.management.members.roles.owner').length,
-      ).toBeGreaterThan(0);
+      expect(screen.queryByRole('button', { name: 'organization.management.members.removeButton' })).toBeNull();
+      expect(screen.getAllByText('organization.management.members.roles.owner').length).toBeGreaterThan(0);
     });
 
     it('adds an organization member from the member form', async () => {
@@ -934,9 +859,7 @@ describe('OrganizationScreen', () => {
         await screen.findByLabelText(/organization\.management\.members\.usernameOrEmailLabel/),
         'captain@pleey.io',
       );
-      await user.click(
-        screen.getByRole('button', { name: 'organization.management.members.addButton' }),
-      );
+      await user.click(screen.getByRole('button', { name: 'organization.management.members.addButton' }));
 
       await waitFor(() => {
         expect(addOrganizationMember).toHaveBeenCalledWith({
@@ -969,9 +892,7 @@ describe('OrganizationScreen', () => {
       );
 
       expect(await screen.findByRole('dialog')).toBeInTheDocument();
-      expect(
-        screen.getByText('organization.management.members.removal.dialogTitle'),
-      ).toBeInTheDocument();
+      expect(screen.getByText('organization.management.members.removal.dialogTitle')).toBeInTheDocument();
 
       expect(removeOrganizationMember).not.toHaveBeenCalled();
 

@@ -114,12 +114,8 @@ export class PersistedAuthSessionAdapter {
       typeof value.id === 'string' &&
       typeof value.username === 'string' &&
       typeof value.email === 'string' &&
-      (value.avatarUri === undefined ||
-        value.avatarUri === null ||
-        typeof value.avatarUri === 'string') &&
-      (value.createdAt === undefined ||
-        value.createdAt === null ||
-        typeof value.createdAt === 'string')
+      (value.avatarUri === undefined || value.avatarUri === null || typeof value.avatarUri === 'string') &&
+      (value.createdAt === undefined || value.createdAt === null || typeof value.createdAt === 'string')
     );
   }
 

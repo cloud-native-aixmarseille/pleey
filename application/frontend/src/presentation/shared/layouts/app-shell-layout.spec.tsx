@@ -1,9 +1,6 @@
 import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import {
-  createOutletRoute,
-  renderRouteWithProviders,
-} from '../../../test-utils/render-route-with-providers';
+import { createOutletRoute, renderRouteWithProviders } from '../../../test-utils/render-route-with-providers';
 import { AppShellLayout } from './app-shell-layout';
 
 vi.mock('../i18n/use-presentation-translation', async (importOriginal) => {
@@ -16,10 +13,7 @@ vi.mock('../i18n/use-presentation-translation', async (importOriginal) => {
 
 function renderLayout(loadAppVersion?: () => Promise<string>) {
   return renderRouteWithProviders({
-    routes: createOutletRoute(
-      <AppShellLayout loadAppVersion={loadAppVersion} />,
-      <div data-testid="outlet-content" />,
-    ),
+    routes: createOutletRoute(<AppShellLayout loadAppVersion={loadAppVersion} />, <div data-testid="outlet-content" />),
   });
 }
 

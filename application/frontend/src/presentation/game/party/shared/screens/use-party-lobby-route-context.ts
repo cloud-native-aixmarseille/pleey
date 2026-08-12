@@ -1,10 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { PartyLobbyGateway } from '../../../../../application/game/party/shared/facades/party-lobby.facade';
-import type {
-  Party,
-  PartyId,
-  PartyPin,
-} from '../../../../../domains/game/party/shared/entities/party';
+import type { Party, PartyId, PartyPin } from '../../../../../domains/game/party/shared/entities/party';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import { PartyStatus } from '../../../../../domains/game/party/shared/entities/party-status';
 import type { PartyRuntimeNotice } from '../../../../../domains/game/party/shared/ports/party-observation.port';
@@ -57,12 +53,11 @@ export function usePartyLobbyRouteContext({
     normalizedPartyId,
     partyLobbyFacade,
   });
-  const { bootstrapCurrentParty, bootstrapErrorMessage, bootstrapPartyByPin } =
-    useBootstrapPartyByPin({
-      enabled: routeKind === 'pin' && isAuthenticated,
-      normalizedPin,
-      partyLobbyFacade,
-    });
+  const { bootstrapCurrentParty, bootstrapErrorMessage, bootstrapPartyByPin } = useBootstrapPartyByPin({
+    enabled: routeKind === 'pin' && isAuthenticated,
+    normalizedPin,
+    partyLobbyFacade,
+  });
   const routeState = resolvePartyLobbyRouteState({
     bootstrapCurrentParty,
     bootstrapPartyByPin,

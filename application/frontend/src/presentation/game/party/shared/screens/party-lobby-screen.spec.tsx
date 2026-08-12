@@ -113,9 +113,7 @@ type LegacyObservedUserPartyEntry = LegacyObservedPartyEntry & {
   };
 };
 
-function createRejectedJoinReceipt(
-  errorMessage = 'game.party.errors.joinFailed',
-): PartyJoinReceipt {
+function createRejectedJoinReceipt(errorMessage = 'game.party.errors.joinFailed'): PartyJoinReceipt {
   return {
     errorMessage,
     status: PartyJoinReceiptStatus.REJECTED,
@@ -124,10 +122,7 @@ function createRejectedJoinReceipt(
 
 function createAcceptedJoinReceipt(
   overrides: Partial<Extract<PartyJoinReceipt, { status: PartyJoinReceiptStatus.ACCEPTED }>> & {
-    readonly player: Extract<
-      PartyJoinReceipt,
-      { status: PartyJoinReceiptStatus.ACCEPTED }
-    >['player'];
+    readonly player: Extract<PartyJoinReceipt, { status: PartyJoinReceiptStatus.ACCEPTED }>['player'];
   },
 ): Extract<PartyJoinReceipt, { status: PartyJoinReceiptStatus.ACCEPTED }> {
   return {
@@ -202,24 +197,18 @@ const mocks = vi.hoisted(() => {
       partyId: PartyId;
     } | null,
     getErrorByPartyId: (partyId?: PartyId | null) => {
-      return partyId !== null &&
-        partyId !== undefined &&
-        observationState.currentErrorPartyId === partyId
+      return partyId !== null && partyId !== undefined && observationState.currentErrorPartyId === partyId
         ? observationState.currentErrorMessage
         : null;
     },
     getPartyByPartyId: (partyId?: PartyId | null) => {
-      return partyId !== null &&
-        partyId !== undefined &&
-        observationState.currentParty?.partyId === partyId
+      return partyId !== null && partyId !== undefined && observationState.currentParty?.partyId === partyId
         ? observationState.currentParty
         : null;
     },
     getConnectionStateByPartyId: () => null,
     getRuntimeNoticeByPartyId: (partyId?: PartyId | null) => {
-      return partyId !== null &&
-        partyId !== undefined &&
-        observationState.currentRuntimeNotice?.partyId === partyId
+      return partyId !== null && partyId !== undefined && observationState.currentRuntimeNotice?.partyId === partyId
         ? observationState.currentRuntimeNotice
         : null;
     },
@@ -255,8 +244,7 @@ const mocks = vi.hoisted(() => {
       resolveControls: vi.fn((party) => {
         const lifecycle = party.context?.lifecycle ?? null;
         const lifecyclePhase =
-          lifecycle?.phase ??
-          (party.status === PartyStatus.ENDED ? PartyRuntimePhase.ENDED : PartyRuntimePhase.LOBBY);
+          lifecycle?.phase ?? (party.status === PartyStatus.ENDED ? PartyRuntimePhase.ENDED : PartyRuntimePhase.LOBBY);
         const currentStageNumber =
           lifecycle?.stagePosition === null || lifecycle?.stagePosition === undefined
             ? null
@@ -264,8 +252,7 @@ const mocks = vi.hoisted(() => {
         const totalStages = lifecycle?.totalStages ?? null;
         const canControlActiveRuntime =
           (party.status === 'ACTIVE' || party.status === 'PAUSED') &&
-          (lifecyclePhase === PartyRuntimePhase.STAGE ||
-            lifecyclePhase === PartyRuntimePhase.RESULT);
+          (lifecyclePhase === PartyRuntimePhase.STAGE || lifecyclePhase === PartyRuntimePhase.RESULT);
 
         return {
           canAdvanceStage: party.status === 'ACTIVE' && lifecyclePhase === PartyRuntimePhase.RESULT,
@@ -273,11 +260,9 @@ const mocks = vi.hoisted(() => {
           canPauseParty: party.status === 'ACTIVE' && canControlActiveRuntime,
           canRestartStage: canControlActiveRuntime && currentStageNumber !== null,
           canResumeParty: party.status === 'PAUSED' && canControlActiveRuntime,
-          canRevealStageResult:
-            party.status === 'ACTIVE' && lifecyclePhase === PartyRuntimePhase.STAGE,
+          canRevealStageResult: party.status === 'ACTIVE' && lifecyclePhase === PartyRuntimePhase.STAGE,
           canRewindParty: canControlActiveRuntime,
-          canRewindStage:
-            canControlActiveRuntime && currentStageNumber !== null && currentStageNumber > 1,
+          canRewindStage: canControlActiveRuntime && currentStageNumber !== null && currentStageNumber > 1,
           canStartParty: party.status === 'WAITING' && party.players.length > 0,
           currentStageNumber,
           hasNextStage:
@@ -385,8 +370,7 @@ vi.mock('../../../../shared/i18n/use-presentation-translation', async (importOri
 });
 
 vi.mock('../../../../../test-utils/render-with-providers', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('../../../../../test-utils/render-with-providers')>();
+  const actual = await importOriginal<typeof import('../../../../../test-utils/render-with-providers')>();
   const { render } = await import('@testing-library/react');
   const { MantineProvider } = await import('@mantine/core');
   const { MemoryRouter } = await import('react-router-dom');
@@ -397,10 +381,7 @@ vi.mock('../../../../../test-utils/render-with-providers', async (importOriginal
 
   return {
     ...actual,
-    renderWithProviders: (
-      ui: React.ReactElement,
-      { initialPath = '/', ...options }: { initialPath?: string } = {},
-    ) => {
+    renderWithProviders: (ui: React.ReactElement, { initialPath = '/', ...options }: { initialPath?: string } = {}) => {
       return render(ui, {
         wrapper: ({ children }) => (
           <MantineProvider>
@@ -432,9 +413,7 @@ vi.mock('../../../../shared/routing/router', async (importOriginal) => {
       }),
     }),
     usePresentationPathname: () => mocks.pathname,
-    PresentationRedirect: ({ to }: { to: string }) => (
-      <div data-testid="party-lobby-redirect">{to}</div>
-    ),
+    PresentationRedirect: ({ to }: { to: string }) => <div data-testid="party-lobby-redirect">{to}</div>,
   };
 });
 
@@ -481,8 +460,7 @@ vi.mock('../contexts/party-context', async (importOriginal) => {
 });
 
 vi.mock('../contexts/party-game-type-runtime-registry-context', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('../contexts/party-game-type-runtime-registry-context')>();
+  const actual = await importOriginal<typeof import('../contexts/party-game-type-runtime-registry-context')>();
 
   return {
     ...actual,
@@ -562,9 +540,7 @@ vi.mock('../contexts/party-game-type-runtime-registry-context', async (importOri
 });
 
 vi.mock('react-qr-code', async () => {
-  const { ReactQrCodeMockFactory } = await import(
-    'src/test-utils/mocks/react-qr-code-mock-factory'
-  );
+  const { ReactQrCodeMockFactory } = await import('src/test-utils/mocks/react-qr-code-mock-factory');
 
   return new ReactQrCodeMockFactory().createModule();
 });
@@ -611,9 +587,7 @@ function createPartyObservation(
     ) ?? defaultHostEntry;
   const livePlayerIdentities = legacyLiveObserverIdentities
     ?.filter(
-      (identity) =>
-        identity.kind !== PartyPlayerIdentityKind.User ||
-        identity.userId !== hostEntry.identity.userId,
+      (identity) => identity.kind !== PartyPlayerIdentityKind.User || identity.userId !== hostEntry.identity.userId,
     )
     .map((identity) => toPlayerKey(identity)) ?? [toPlayerKey(playerIdentity)];
   const players = resolvedEntries
@@ -627,8 +601,7 @@ function createPartyObservation(
       avatarUri: hostEntry.avatarUri,
       username: hostEntry.username,
     }),
-    isObserverHost:
-      mocks.authState.user !== null && mocks.authState.user.id === hostEntry.identity.userId,
+    isObserverHost: mocks.authState.user !== null && mocks.authState.user.id === hostEntry.identity.userId,
     partyId: 9,
     pin: 'AB12CD',
     players,
@@ -653,9 +626,7 @@ function toObservationPlayer(
 }
 
 function toPlayerKey(identity: LegacyPartyIdentity): string {
-  return identity.kind === PartyPlayerIdentityKind.User
-    ? `user:${identity.userId}`
-    : `guest:${identity.guestId}`;
+  return identity.kind === PartyPlayerIdentityKind.User ? `user:${identity.userId}` : `guest:${identity.guestId}`;
 }
 
 function createManagedParty(overrides: Partial<Party> = {}): Party {
@@ -670,9 +641,7 @@ function createManagedParty(overrides: Partial<Party> = {}): Party {
   });
 }
 
-function createActiveStageContext(
-  overrides: StagePartyRuntimeContextOverrides = {},
-): StagePartyRuntimeContext {
+function createActiveStageContext(overrides: StagePartyRuntimeContextOverrides = {}): StagePartyRuntimeContext {
   const baseContext: StagePartyRuntimeContext = {
     lifecycle: {
       phase: PartyRuntimePhase.STAGE,
@@ -717,9 +686,7 @@ function createActiveStageContext(
   };
 }
 
-function createRuntimeResultContext(
-  overrides: ResultPartyRuntimeContextOverrides = {},
-): ResultPartyRuntimeContext {
+function createRuntimeResultContext(overrides: ResultPartyRuntimeContextOverrides = {}): ResultPartyRuntimeContext {
   const baseContext: ResultPartyRuntimeContext = {
     lifecycle: {
       phase: PartyRuntimePhase.RESULT,
@@ -797,9 +764,7 @@ function createTransitionalRuntimeContext(
 function renderScreen() {
   return renderWithProviders(
     <PartyLobbyScreen
-      normalizePin={(pin) =>
-        pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null
-      }
+      normalizePin={(pin) => (pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null)}
       normalizePartyId={(partyId) => (partyId ? partyIdentifier.parse(Number(partyId)) : null)}
       resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
     />,
@@ -835,18 +800,14 @@ describe('PartyLobbyScreen', () => {
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
-        normalizePin={(pin) =>
-          pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null
-        }
+        normalizePin={(pin) => (pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null)}
         normalizePartyId={(partyId) => (partyId ? partyIdentifier.parse(Number(partyId)) : null)}
         resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
       />,
     );
 
     await waitFor(() => {
-      expect(mocks.observationState.observePartyById).toHaveBeenCalledWith(
-        partyIdentifier.parse(9),
-      );
+      expect(mocks.observationState.observePartyById).toHaveBeenCalledWith(partyIdentifier.parse(9));
     });
 
     expect(await screen.findByText('game.party.host.route.shareHeading')).toBeInTheDocument();
@@ -855,9 +816,7 @@ describe('PartyLobbyScreen', () => {
     expect(screen.getByText('game.party.route.playerCount (count=1)')).toBeInTheDocument();
     expect(screen.getByTestId('qr-code')).toHaveTextContent('https://pleey.localhost/join/AB12CD');
     expect(screen.queryByAltText('Host avatar')).not.toBeInTheDocument();
-    expect(
-      screen.getByAltText('game.party.route.playerAvatarAlt (username=Neo)'),
-    ).toBeInTheDocument();
+    expect(screen.getByAltText('game.party.route.playerAvatarAlt (username=Neo)')).toBeInTheDocument();
 
     const pinDisplay = screen.getByRole('img', {
       name: /game\.party\.route\.pinAriaLabel.*pin=AB12CD/,
@@ -898,9 +857,7 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'game.party.host.route.startPartyCta' }),
-    );
+    fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.startPartyCta' }));
 
     await waitFor(() => {
       expect(mocks.partyHostControlPort.startParty).toHaveBeenCalledWith({
@@ -1132,9 +1089,7 @@ describe('PartyLobbyScreen', () => {
     );
 
     await waitFor(() => {
-      expect(mocks.partyGuestSessionPort.clearGuestId).toHaveBeenCalledWith(
-        partyPinIdentifier.parse('AB12CD'),
-      );
+      expect(mocks.partyGuestSessionPort.clearGuestId).toHaveBeenCalledWith(partyPinIdentifier.parse('AB12CD'));
     });
 
     expect(mocks.partyPlayerPort.rejoinParty).not.toHaveBeenCalled();
@@ -1216,9 +1171,7 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'game.party.host.route.startPartyCta' }),
-    );
+    fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.startPartyCta' }));
 
     await waitFor(() => {
       expect(mocks.partyHostControlPort.startParty).toHaveBeenCalledWith({
@@ -1243,9 +1196,7 @@ describe('PartyLobbyScreen', () => {
 
     await screen.findByTestId('host-runtime-surface');
 
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'game.party.host.route.runtimeMenuTrigger' }),
-    );
+    fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.runtimeMenuTrigger' }));
 
     await waitFor(async () => {
       expect(
@@ -1283,9 +1234,7 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'game.party.host.route.runtimeMenuTrigger' }),
-    );
+    fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.runtimeMenuTrigger' }));
 
     const audioElement = await screen.findByTestId('host-party-music-audio');
     const themeSelect = screen.getByTestId('host-party-music-theme-select');
@@ -1368,9 +1317,7 @@ describe('PartyLobbyScreen', () => {
     expect(screen.getByText('game.party.route.playerCount (count=2)')).toBeInTheDocument();
     expect(screen.getByText('game.party.route.youBadge')).toBeInTheDocument();
     expect(screen.getByText('game.party.player.route.waitingForHost')).toBeInTheDocument();
-    expect(
-      screen.getByText('game.party.player.route.currentHost (username=Host)'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('game.party.player.route.currentHost (username=Host)')).toBeInTheDocument();
     expect(screen.queryByAltText('Host avatar')).not.toBeInTheDocument();
   });
 
@@ -1400,15 +1347,11 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'game.party.player.route.leavePartyCta' }),
-    );
+    fireEvent.click(await screen.findByRole('button', { name: 'game.party.player.route.leavePartyCta' }));
 
     expect(mocks.partyPlayerPort.leaveParty).not.toHaveBeenCalled();
 
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'game.party.player.route.confirmLeavePartyCta' }),
-    );
+    fireEvent.click(await screen.findByRole('button', { name: 'game.party.player.route.confirmLeavePartyCta' }));
 
     await waitFor(() => {
       expect(mocks.partyPlayerPort.leaveParty).toHaveBeenCalledTimes(1);
@@ -1545,9 +1488,7 @@ describe('PartyLobbyScreen', () => {
     expect(await screen.findByText('game.party.host.route.shareHeading')).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(mocks.navigate).toHaveBeenCalledWith(
-        `/party/${partyIdentifier.parse(9)}/stage/${toStageId(1)}`,
-      );
+      expect(mocks.navigate).toHaveBeenCalledWith(`/party/${partyIdentifier.parse(9)}/stage/${toStageId(1)}`);
     });
   });
 
@@ -1568,9 +1509,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorMessage = null;
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.currentParty = createPartyObservation({
-      liveObserverIdentities: [
-        { kind: PartyPlayerIdentityKind.User, userId: userIdentifier.parse(7) },
-      ],
+      liveObserverIdentities: [{ kind: PartyPlayerIdentityKind.User, userId: userIdentifier.parse(7) }],
       entries: [
         createUserEntry(userIdentifier.parse(7), 'Host', PartyRole.HOST, {
           avatarUri: '/avatars/host.png',
@@ -1593,15 +1532,9 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'game.party.host.route.runtimeMenuTrigger' }),
-    );
-    fireEvent.click(
-      await screen.findByRole('menuitem', { name: 'game.party.host.route.endPartyCta' }),
-    );
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'game.party.host.route.confirmEndPartyCta' }),
-    );
+    fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.runtimeMenuTrigger' }));
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'game.party.host.route.endPartyCta' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.confirmEndPartyCta' }));
 
     await waitFor(() => {
       expect(mocks.partyHostControlPort.endParty).toHaveBeenCalledWith({
@@ -1609,9 +1542,7 @@ describe('PartyLobbyScreen', () => {
       });
     });
 
-    expect(await screen.findByTestId('party-lobby-redirect')).toHaveTextContent(
-      '/workspace/dashboard',
-    );
+    expect(await screen.findByTestId('party-lobby-redirect')).toHaveTextContent('/workspace/dashboard');
   });
 
   it('confirms before restarting the current stage', async () => {
@@ -1632,9 +1563,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.currentParty = createPartyObservation({
       context: createActiveStageContext(),
-      liveObserverIdentities: [
-        { kind: PartyPlayerIdentityKind.User, userId: userIdentifier.parse(7) },
-      ],
+      liveObserverIdentities: [{ kind: PartyPlayerIdentityKind.User, userId: userIdentifier.parse(7) }],
       status: PartyStatus.ACTIVE,
     });
 
@@ -1647,18 +1576,12 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'game.party.host.route.runtimeMenuTrigger' }),
-    );
-    fireEvent.click(
-      await screen.findByRole('menuitem', { name: 'game.party.host.route.restartStageCta' }),
-    );
+    fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.runtimeMenuTrigger' }));
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'game.party.host.route.restartStageCta' }));
 
     expect(mocks.partyHostControlPort.restartStage).not.toHaveBeenCalled();
 
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'game.party.host.route.confirmRestartStageCta' }),
-    );
+    fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.confirmRestartStageCta' }));
 
     await waitFor(() => {
       expect(mocks.partyHostControlPort.restartStage).toHaveBeenCalledWith({
@@ -1727,15 +1650,9 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'game.party.host.route.runtimeMenuTrigger' }),
-    );
-    fireEvent.click(
-      await screen.findByRole('menuitem', { name: 'game.party.host.route.restartStageCta' }),
-    );
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'game.party.host.route.confirmRestartStageCta' }),
-    );
+    fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.runtimeMenuTrigger' }));
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'game.party.host.route.restartStageCta' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.confirmRestartStageCta' }));
 
     await waitFor(() => {
       expect(mocks.partyHostControlPort.restartStage).toHaveBeenCalledWith({
@@ -1816,15 +1733,9 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'game.party.host.route.runtimeMenuTrigger' }),
-    );
-    fireEvent.click(
-      await screen.findByRole('menuitem', { name: 'game.party.host.route.restartStageCta' }),
-    );
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'game.party.host.route.confirmRestartStageCta' }),
-    );
+    fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.runtimeMenuTrigger' }));
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'game.party.host.route.restartStageCta' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.confirmRestartStageCta' }));
 
     await waitFor(() => {
       expect(mocks.partyHostControlPort.restartStage).toHaveBeenCalledWith({
@@ -1928,9 +1839,7 @@ describe('PartyLobbyScreen', () => {
           },
         },
       }),
-      liveObserverIdentities: [
-        { kind: PartyPlayerIdentityKind.User, userId: userIdentifier.parse(7) },
-      ],
+      liveObserverIdentities: [{ kind: PartyPlayerIdentityKind.User, userId: userIdentifier.parse(7) }],
       status: PartyStatus.ACTIVE,
     });
 
@@ -1943,18 +1852,12 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'game.party.host.route.runtimeMenuTrigger' }),
-    );
-    fireEvent.click(
-      await screen.findByRole('menuitem', { name: 'game.party.host.route.rewindStageCta' }),
-    );
+    fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.runtimeMenuTrigger' }));
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'game.party.host.route.rewindStageCta' }));
 
     expect(mocks.partyHostControlPort.rewindStage).not.toHaveBeenCalled();
 
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'game.party.host.route.confirmRewindStageCta' }),
-    );
+    fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.confirmRewindStageCta' }));
 
     await waitFor(() => {
       expect(mocks.partyHostControlPort.rewindStage).toHaveBeenCalledWith({
@@ -1981,9 +1884,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.currentParty = createPartyObservation({
       context: createActiveStageContext(),
-      liveObserverIdentities: [
-        { kind: PartyPlayerIdentityKind.User, userId: userIdentifier.parse(7) },
-      ],
+      liveObserverIdentities: [{ kind: PartyPlayerIdentityKind.User, userId: userIdentifier.parse(7) }],
       status: PartyStatus.ACTIVE,
     });
 
@@ -1996,18 +1897,12 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'game.party.host.route.runtimeMenuTrigger' }),
-    );
-    fireEvent.click(
-      await screen.findByRole('menuitem', { name: 'game.party.host.route.rewindPartyCta' }),
-    );
+    fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.runtimeMenuTrigger' }));
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'game.party.host.route.rewindPartyCta' }));
 
     expect(mocks.partyHostControlPort.rewindParty).not.toHaveBeenCalled();
 
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'game.party.host.route.confirmRewindPartyCta' }),
-    );
+    fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.confirmRewindPartyCta' }));
 
     await waitFor(() => {
       expect(mocks.partyHostControlPort.rewindParty).toHaveBeenCalledWith({
@@ -2028,9 +1923,7 @@ describe('PartyLobbyScreen', () => {
         avatarUri: null,
       }),
     };
-    mocks.partyManagementState.parties = [
-      createManagedParty({ role: PartyRole.PLAYER, status: PartyStatus.ENDED }),
-    ];
+    mocks.partyManagementState.parties = [createManagedParty({ role: PartyRole.PLAYER, status: PartyStatus.ENDED })];
     mocks.observationState.currentParty = createPartyObservation({
       status: PartyStatus.ENDED,
       context: {
@@ -2255,9 +2148,7 @@ describe('PartyLobbyScreen', () => {
     expect(screen.getByTestId('party-runtime-host-result-panel')).toBeInTheDocument();
     expect(screen.getByText('runtime-result.correct-count:1')).toBeInTheDocument();
     expect(screen.getByText('runtime-result.vote-count:3')).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'game.party.host.route.advanceStageCta' }),
-    ).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'game.party.host.route.advanceStageCta' })).toBeEnabled();
   });
 
   it('renders the host result panel when the host journey route provides stageId only via pathname', async () => {
@@ -2363,15 +2254,9 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'game.party.host.route.runtimeMenuTrigger' }),
-    );
-    fireEvent.click(
-      await screen.findByRole('menuitem', { name: 'game.party.host.route.rewindStageCta' }),
-    );
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'game.party.host.route.confirmRewindStageCta' }),
-    );
+    fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.runtimeMenuTrigger' }));
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'game.party.host.route.rewindStageCta' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.confirmRewindStageCta' }));
 
     await waitFor(() => {
       expect(mocks.partyHostControlPort.rewindStage).toHaveBeenCalledWith({
@@ -2389,9 +2274,7 @@ describe('PartyLobbyScreen', () => {
     );
 
     await waitFor(() => {
-      expect(mocks.navigate).toHaveBeenCalledWith(
-        `/party/${partyIdentifier.parse(9)}/stage/${toStageId(1)}`,
-      );
+      expect(mocks.navigate).toHaveBeenCalledWith(`/party/${partyIdentifier.parse(9)}/stage/${toStageId(1)}`);
     });
   });
 
@@ -2456,15 +2339,9 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'game.party.host.route.runtimeMenuTrigger' }),
-    );
-    fireEvent.click(
-      await screen.findByRole('menuitem', { name: 'game.party.host.route.rewindPartyCta' }),
-    );
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'game.party.host.route.confirmRewindPartyCta' }),
-    );
+    fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.runtimeMenuTrigger' }));
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'game.party.host.route.rewindPartyCta' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.confirmRewindPartyCta' }));
 
     await waitFor(() => {
       expect(mocks.partyHostControlPort.rewindParty).toHaveBeenCalledWith({
@@ -2589,9 +2466,7 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'game.party.host.route.showFinalLeaderboardCta' }),
-    );
+    fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.showFinalLeaderboardCta' }));
 
     await waitFor(() => {
       expect(mocks.partyHostControlPort.advanceStage).toHaveBeenCalledWith({
@@ -2616,9 +2491,7 @@ describe('PartyLobbyScreen', () => {
         avatarUri: null,
       }),
     };
-    mocks.partyManagementState.parties = [
-      createManagedParty({ role: PartyRole.PLAYER, status: PartyStatus.ENDED }),
-    ];
+    mocks.partyManagementState.parties = [createManagedParty({ role: PartyRole.PLAYER, status: PartyStatus.ENDED })];
     mocks.observationState.currentParty = createPartyObservation({
       status: PartyStatus.ENDED,
       context: {
@@ -2666,17 +2539,11 @@ describe('PartyLobbyScreen', () => {
 
     expect(await screen.findByTestId('player-final-surface')).toBeInTheDocument();
     expect(screen.getByTestId('player-final-result-card')).toBeInTheDocument();
-    expect(
-      within(screen.getByTestId('player-final-result-card')).getByText('Neo'),
-    ).toBeInTheDocument();
-    expect(
-      within(screen.getByTestId('player-final-result-card')).getByText('#2'),
-    ).toBeInTheDocument();
+    expect(within(screen.getByTestId('player-final-result-card')).getByText('Neo')).toBeInTheDocument();
+    expect(within(screen.getByTestId('player-final-result-card')).getByText('#2')).toBeInTheDocument();
     expect(screen.getByTestId('party-final-summary-panel')).toBeInTheDocument();
     expect(screen.getByText('game.party.route.finalSummaryTitle')).toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'game.party.host.route.advanceStageCta' }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'game.party.host.route.advanceStageCta' })).not.toBeInTheDocument();
   });
 
   it('prompts guest players to sign in from the final leaderboard to save their score', async () => {
@@ -2688,9 +2555,7 @@ describe('PartyLobbyScreen', () => {
       isAuthenticated: false,
       user: null,
     };
-    mocks.partyManagementState.parties = [
-      createManagedParty({ role: PartyRole.PLAYER, status: PartyStatus.ENDED }),
-    ];
+    mocks.partyManagementState.parties = [createManagedParty({ role: PartyRole.PLAYER, status: PartyStatus.ENDED })];
     mocks.partyGuestSessionPort.getGuestId = vi.fn(() => currentGuestId);
     mocks.observationState.currentParty = createPartyObservation({
       status: PartyStatus.ENDED,
@@ -2790,9 +2655,7 @@ describe('PartyLobbyScreen', () => {
     expect(await screen.findByTestId('host-runtime-surface')).toBeInTheDocument();
     expect(screen.getByTestId('party-final-summary-panel')).toBeInTheDocument();
     expect(screen.getByText('game.party.route.finalSummaryTitle')).toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'game.party.host.route.advanceStageCta' }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'game.party.host.route.advanceStageCta' })).not.toBeInTheDocument();
   });
 
   it('keeps the final host player count aligned with standings when ranked players are no longer live', async () => {
@@ -2972,9 +2835,7 @@ describe('PartyLobbyScreen', () => {
 
     fireEvent.click(await screen.findByRole('button', { name: 'Option A' }));
 
-    expect(
-      await screen.findByText('game.party.errors.partyCommandNotAvailable'),
-    ).toBeInTheDocument();
+    expect(await screen.findByText('game.party.errors.partyCommandNotAvailable')).toBeInTheDocument();
   });
 
   it('does not rejoin a guest after leaving the lobby', async () => {
@@ -3018,24 +2879,18 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'game.party.player.route.leavePartyCta' }),
-    );
+    fireEvent.click(await screen.findByRole('button', { name: 'game.party.player.route.leavePartyCta' }));
 
     expect(mocks.partyPlayerPort.leaveParty).not.toHaveBeenCalled();
 
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'game.party.player.route.confirmLeavePartyCta' }),
-    );
+    fireEvent.click(await screen.findByRole('button', { name: 'game.party.player.route.confirmLeavePartyCta' }));
 
     await waitFor(() => {
       expect(mocks.partyPlayerPort.leaveParty).toHaveBeenCalledTimes(1);
     });
 
     mocks.observationState.currentParty = createPartyObservation({
-      liveObserverIdentities: [
-        { kind: PartyPlayerIdentityKind.User, userId: userIdentifier.parse(7) },
-      ],
+      liveObserverIdentities: [{ kind: PartyPlayerIdentityKind.User, userId: userIdentifier.parse(7) }],
       entries: [
         createUserEntry(userIdentifier.parse(7), 'Host', PartyRole.HOST, {
           avatarUri: '/avatars/host.png',
@@ -3121,24 +2976,12 @@ describe('PartyLobbyScreen', () => {
     renderScreen();
 
     expect(await screen.findByRole('banner')).toBeInTheDocument();
-    expect(
-      await screen.findByLabelText('game.party.player.route.guestNameLabel'),
-    ).toBeInTheDocument();
-    expect(
-      (screen.getByLabelText('game.party.player.route.guestNameLabel') as HTMLInputElement).value,
-    ).toMatch(/\S/);
-    expect(
-      screen.getByRole('button', { name: 'game.party.player.route.joinAsGuestCta' }),
-    ).toBeEnabled();
-    expect(
-      screen.getByRole('button', { name: 'game.party.player.route.shuffleGuestAvatarCta' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'game.party.player.route.generateGuestNameCta' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText((content) => content.includes('errors.listFailed')),
-    ).not.toBeInTheDocument();
+    expect(await screen.findByLabelText('game.party.player.route.guestNameLabel')).toBeInTheDocument();
+    expect((screen.getByLabelText('game.party.player.route.guestNameLabel') as HTMLInputElement).value).toMatch(/\S/);
+    expect(screen.getByRole('button', { name: 'game.party.player.route.joinAsGuestCta' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'game.party.player.route.shuffleGuestAvatarCta' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'game.party.player.route.generateGuestNameCta' })).toBeInTheDocument();
+    expect(screen.queryByText((content) => content.includes('errors.listFailed'))).not.toBeInTheDocument();
   });
 
   it('regenerates the guest name on demand', async () => {
@@ -3156,14 +2999,10 @@ describe('PartyLobbyScreen', () => {
 
     renderScreen();
 
-    const guestNameInput = (await screen.findByLabelText(
-      'game.party.player.route.guestNameLabel',
-    )) as HTMLInputElement;
+    const guestNameInput = (await screen.findByLabelText('game.party.player.route.guestNameLabel')) as HTMLInputElement;
     const initialGuestName = guestNameInput.value;
 
-    fireEvent.click(
-      screen.getByRole('button', { name: 'game.party.player.route.generateGuestNameCta' }),
-    );
+    fireEvent.click(screen.getByRole('button', { name: 'game.party.player.route.generateGuestNameCta' }));
 
     expect(guestNameInput.value).toMatch(/\S/);
     expect(guestNameInput.value).not.toBe(initialGuestName);
@@ -3209,9 +3048,7 @@ describe('PartyLobbyScreen', () => {
       }),
     );
 
-    expect(await screen.findByTestId('join-party-error-toast')).toHaveTextContent(
-      'game.party.errors.joinFailed',
-    );
+    expect(await screen.findByTestId('join-party-error-toast')).toHaveTextContent('game.party.errors.joinFailed');
     expect(screen.queryAllByRole('alert')).toHaveLength(1);
   });
 
@@ -3230,9 +3067,7 @@ describe('PartyLobbyScreen', () => {
 
     renderScreen();
 
-    expect(
-      screen.queryByLabelText('game.party.player.route.passwordLabel'),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('game.party.player.route.passwordLabel')).not.toBeInTheDocument();
   });
 
   it('shows the password field when join fails with validation error', async () => {
@@ -3397,9 +3232,7 @@ describe('PartyLobbyScreen', () => {
       }),
     );
     mocks.observationState.currentParty = createPartyObservation({
-      liveObserverIdentities: [
-        { kind: PartyPlayerIdentityKind.User, userId: userIdentifier.parse(7) },
-      ],
+      liveObserverIdentities: [{ kind: PartyPlayerIdentityKind.User, userId: userIdentifier.parse(7) }],
       entries: [
         createUserEntry(userIdentifier.parse(7), 'Host', PartyRole.HOST, {
           avatarUri: '/avatars/host.png',
@@ -3456,9 +3289,7 @@ describe('PartyLobbyScreen', () => {
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
-        normalizePin={(pin) =>
-          pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null
-        }
+        normalizePin={(pin) => (pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null)}
         normalizePartyId={(partyId) => (partyId ? partyIdentifier.parse(Number(partyId)) : null)}
         resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
       />,
@@ -3492,9 +3323,7 @@ describe('PartyLobbyScreen', () => {
     const view = renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
-        normalizePin={(pin) =>
-          pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null
-        }
+        normalizePin={(pin) => (pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null)}
         normalizePartyId={(partyId) => (partyId ? partyIdentifier.parse(Number(partyId)) : null)}
         resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
       />,
@@ -3509,9 +3338,7 @@ describe('PartyLobbyScreen', () => {
       view.rerender(
         <PartyLobbyScreen
           routeKind={PartyLobbyRouteKind.PARTY_ID}
-          normalizePin={(pin) =>
-            pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null
-          }
+          normalizePin={(pin) => (pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null)}
           normalizePartyId={(partyId) => (partyId ? partyIdentifier.parse(Number(partyId)) : null)}
           resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
         />,
@@ -3545,9 +3372,7 @@ describe('PartyLobbyScreen', () => {
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PIN}
-        normalizePin={(pin) =>
-          pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null
-        }
+        normalizePin={(pin) => (pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null)}
         resolvePartyLobbyRoute={(partyId) => `/party/${partyId}/lobby`}
         resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
       />,
@@ -3587,9 +3412,7 @@ describe('PartyLobbyScreen', () => {
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PIN}
-        normalizePin={(pin) =>
-          pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null
-        }
+        normalizePin={(pin) => (pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null)}
         resolvePartyLobbyRoute={(partyId) => `/party/${partyId}/lobby`}
         resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
       />,
@@ -3622,9 +3445,7 @@ describe('PartyLobbyScreen', () => {
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PIN}
-        normalizePin={(pin) =>
-          pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null
-        }
+        normalizePin={(pin) => (pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null)}
         resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
       />,
     );
@@ -3669,9 +3490,7 @@ describe('PartyLobbyScreen', () => {
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
-        normalizePin={(pin) =>
-          pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null
-        }
+        normalizePin={(pin) => (pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null)}
         normalizePartyId={(partyId) => (partyId ? partyIdentifier.parse(Number(partyId)) : null)}
         resolveJoinPartyRoute={(pin) => `/join/${pin}`}
         resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
@@ -3679,9 +3498,7 @@ describe('PartyLobbyScreen', () => {
     );
 
     await waitFor(() => {
-      expect(mocks.observationState.observePartyById).toHaveBeenCalledWith(
-        partyIdentifier.parse(9),
-      );
+      expect(mocks.observationState.observePartyById).toHaveBeenCalledWith(partyIdentifier.parse(9));
     });
 
     expect(screen.queryByTestId('party-lobby-redirect')).not.toBeInTheDocument();
@@ -3720,9 +3537,7 @@ describe('PartyLobbyScreen', () => {
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
-        normalizePin={(pin) =>
-          pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null
-        }
+        normalizePin={(pin) => (pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null)}
         normalizePartyId={(partyId) => (partyId ? partyIdentifier.parse(Number(partyId)) : null)}
         resolveJoinPartyRoute={(pin) => `/join/${pin}`}
         resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
@@ -3764,9 +3579,7 @@ describe('PartyLobbyScreen', () => {
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PIN}
-        normalizePin={(pin) =>
-          pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null
-        }
+        normalizePin={(pin) => (pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null)}
         resolvePartyLobbyRoute={(partyId) => `/party/${partyId}/lobby`}
         resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
       />,
@@ -3827,9 +3640,7 @@ describe('PartyLobbyScreen', () => {
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PIN}
-        normalizePin={(pin) =>
-          pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null
-        }
+        normalizePin={(pin) => (pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null)}
         resolvePartyLobbyRoute={(partyId) => `/party/${partyId}/lobby`}
         resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
       />,
@@ -3924,9 +3735,7 @@ describe('PartyLobbyScreen', () => {
     );
 
     await waitFor(() => {
-      expect(mocks.partyGuestSessionPort.clearGuestId).toHaveBeenCalledWith(
-        partyPinIdentifier.parse('AB12CD'),
-      );
+      expect(mocks.partyGuestSessionPort.clearGuestId).toHaveBeenCalledWith(partyPinIdentifier.parse('AB12CD'));
     });
 
     mocks.params = { pin: 'ab12cd', partyId: undefined };
@@ -3935,9 +3744,7 @@ describe('PartyLobbyScreen', () => {
     view.rerender(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PIN}
-        normalizePin={(pin) =>
-          pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null
-        }
+        normalizePin={(pin) => (pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null)}
         resolveJoinPartyRoute={(pin) => `/join/${pin}`}
         resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
       />,
@@ -3995,9 +3802,7 @@ describe('PartyLobbyScreen', () => {
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
-        normalizePin={(pin) =>
-          pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null
-        }
+        normalizePin={(pin) => (pin?.trim() ? partyPinIdentifier.parse(pin.trim().toUpperCase()) : null)}
         normalizePartyId={(partyId) => (partyId ? partyIdentifier.parse(Number(partyId)) : null)}
         resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
       />,

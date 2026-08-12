@@ -21,12 +21,7 @@ export function FormRoot({ children, ...props }: FormRootProps) {
   );
 }
 
-export function FormSectionFrame({
-  children,
-  description,
-  descriptionId,
-  legend,
-}: FormSectionFrameProps) {
+export function FormSectionFrame({ children, description, descriptionId, legend }: FormSectionFrameProps) {
   return (
     <Box aria-describedby={descriptionId} component="fieldset" m={0} p={0} style={{ border: 0 }}>
       <Text

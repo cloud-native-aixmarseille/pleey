@@ -26,9 +26,7 @@ describe('partyGameTypeRuntimeRegistryContext', () => {
             : null,
       };
       const wrapper = ({ children }: { children: ReactNode }) => (
-        <PartyGameTypeRuntimeRegistryProvider value={registry}>
-          {children}
-        </PartyGameTypeRuntimeRegistryProvider>
+        <PartyGameTypeRuntimeRegistryProvider value={registry}>{children}</PartyGameTypeRuntimeRegistryProvider>
       );
 
       const { result } = renderHook(() => usePartyGameTypeRuntimeRegistry(), { wrapper });

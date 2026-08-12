@@ -27,9 +27,7 @@ export interface DeleteProjectCommand {
 export interface ProjectRepository {
   createProject(command: CreateProjectCommand): Promise<Project>;
   deleteProject(command: DeleteProjectCommand): Promise<void>;
-  getProjectsByOrganization(
-    query: ListOrganizationProjectsQuery,
-  ): Promise<PaginatedResult<Project>>;
+  getProjectsByOrganization(query: ListOrganizationProjectsQuery): Promise<PaginatedResult<Project>>;
   updateProject(command: UpdateProjectCommand): Promise<Project>;
 }
 

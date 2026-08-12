@@ -51,35 +51,22 @@ export class DashboardHomeActionsFacade {
   }
 
   async createGame(command: DashboardCreateGameCommand): Promise<string | null> {
-    const gameTypeId: GameTypeId = await this.gameTypeRegistry.createGame(
-      command.type,
-      command.projectId,
-      {
-        title: command.title,
-        description: command.description,
-      },
-    );
+    const gameTypeId: GameTypeId = await this.gameTypeRegistry.createGame(command.type, command.projectId, {
+      title: command.title,
+      description: command.description,
+    });
 
     return this.gameTypeRegistry.resolveManagementRouteByType(command.type, gameTypeId);
   }
 
-  async createGameFromImport(
-    command: DashboardImportGameCommand,
-  ): Promise<DashboardImportGameResult> {
-    const result = await this.gameTypeRegistry.createGameFromImport(
-      command.type,
-      command.projectId,
-      {
-        title: command.title,
-        description: command.description,
-        file: command.file,
-      },
-    );
+  async createGameFromImport(command: DashboardImportGameCommand): Promise<DashboardImportGameResult> {
+    const result = await this.gameTypeRegistry.createGameFromImport(command.type, command.projectId, {
+      title: command.title,
+      description: command.description,
+      file: command.file,
+    });
 
-    const route = this.gameTypeRegistry.resolveManagementRouteByType(
-      command.type,
-      result.gameTypeId,
-    );
+    const route = this.gameTypeRegistry.resolveManagementRouteByType(command.type, result.gameTypeId);
 
     return {
       importedCount: result.importedCount,

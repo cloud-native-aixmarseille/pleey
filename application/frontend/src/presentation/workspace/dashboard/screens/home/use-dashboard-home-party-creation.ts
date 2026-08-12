@@ -19,10 +19,7 @@ interface UseDashboardHomePartyCreationOptions {
 interface UseDashboardHomePartyCreationResult {
   readonly creatingPartyGameId: GameId | null;
   readonly partyActionErrorMessage: string | null;
-  readonly handleCreateParty: (
-    game: DashboardGameListItem,
-    options?: CreatePartyOptions,
-  ) => Promise<void>;
+  readonly handleCreateParty: (game: DashboardGameListItem, options?: CreatePartyOptions) => Promise<void>;
 }
 
 export function useDashboardHomePartyCreation({

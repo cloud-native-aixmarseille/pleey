@@ -22,10 +22,7 @@ describe('Button', () => {
 
     it('renders optional icon sections without affecting the label', () => {
       renderWithUiProvider(
-        <Button
-          leftSection={<span aria-hidden="true">L</span>}
-          rightSection={<span aria-hidden="true">R</span>}
-        >
+        <Button leftSection={<span aria-hidden="true">L</span>} rightSection={<span aria-hidden="true">R</span>}>
           Open dashboard
         </Button>,
       );

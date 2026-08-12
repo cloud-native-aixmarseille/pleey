@@ -224,13 +224,7 @@ function resolvePortalMotion(isPortal: boolean) {
   return isPortal ? PORTAL_WRAP : NO_PORTAL;
 }
 
-function resolveLegMotion({
-  isBanana,
-  isWalking,
-}: {
-  readonly isBanana: boolean;
-  readonly isWalking: boolean;
-}) {
+function resolveLegMotion({ isBanana, isWalking }: { readonly isBanana: boolean; readonly isWalking: boolean }) {
   return {
     leftLeg: isWalking ? leftLegWalk : isBanana ? bananaLeftLeg : legStill,
     rightLeg: isWalking ? rightLegWalk : isBanana ? bananaRightLeg : legStill,
@@ -272,28 +266,13 @@ export function LemmingSprite({ lemming }: { lemming: LemmingSnapshot }) {
       style={lemmingStyle}
       transition={{ duration: 0.14, ease: 'linear' }}
     >
-      <motion.div
-        animate={body.animate}
-        style={isBanana ? bananaOriginStyle : undefined}
-        transition={body.transition}
-      >
+      <motion.div animate={body.animate} style={isBanana ? bananaOriginStyle : undefined} transition={body.transition}>
         <motion.div animate={portal.animate} transition={portal.transition}>
-          <svg
-            aria-hidden="true"
-            height={LEMMING_PX}
-            style={svgStyle}
-            viewBox="0 0 18 22"
-            width={LEMMING_PX}
-          >
+          <svg aria-hidden="true" height={LEMMING_PX} style={svgStyle} viewBox="0 0 18 22" width={LEMMING_PX}>
             <AnimatePresence>{isFalling ? <LemmingParachute /> : null}</AnimatePresence>
 
             {/* Left leg + foot */}
-            <LemmingLeg
-              animate={legMotion.leftLeg}
-              footCenterX={5.75}
-              rectX={4}
-              transition={legMotion.transition}
-            />
+            <LemmingLeg animate={legMotion.leftLeg} footCenterX={5.75} rectX={4} transition={legMotion.transition} />
 
             {/* Right leg + foot */}
             <LemmingLeg

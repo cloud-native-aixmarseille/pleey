@@ -30,18 +30,13 @@ export function RegisterScreen() {
         ) : (
           <form.AppForm>
             <PresentationForm form={form}>
-              <FormSection
-                description={t('auth.register.formDescription')}
-                legend={t('auth.register.formLegend')}
-              >
+              <FormSection description={t('auth.register.formDescription')} legend={t('auth.register.formLegend')}>
                 <ContentStack gap="sm">
                   <form.AppField
                     name="username"
                     validators={{
                       onBlur: ({ value }) =>
-                        value.trim().length === 0
-                          ? t('auth.form.validation.usernameRequired')
-                          : undefined,
+                        value.trim().length === 0 ? t('auth.form.validation.usernameRequired') : undefined,
                     }}
                   >
                     {() => (
@@ -56,9 +51,7 @@ export function RegisterScreen() {
                     name="email"
                     validators={{
                       onBlur: ({ value }) =>
-                        value.trim().length === 0
-                          ? t('auth.form.validation.emailRequired')
-                          : undefined,
+                        value.trim().length === 0 ? t('auth.form.validation.emailRequired') : undefined,
                     }}
                   >
                     {() => (
@@ -74,9 +67,7 @@ export function RegisterScreen() {
                     name="password"
                     validators={{
                       onBlur: ({ value }) =>
-                        value.trim().length === 0
-                          ? t('auth.form.validation.passwordRequired')
-                          : undefined,
+                        value.trim().length === 0 ? t('auth.form.validation.passwordRequired') : undefined,
                     }}
                   >
                     {() => (
@@ -93,16 +84,11 @@ export function RegisterScreen() {
 
               <StatusBanner tone="error">{errorMessage}</StatusBanner>
 
-              <SubmitButton
-                label={t('auth.register.submitCta')}
-                submittingLabel={t('auth.register.submittingCta')}
-              />
+              <SubmitButton label={t('auth.register.submitCta')} submittingLabel={t('auth.register.submittingCta')} />
 
               <SupportingText>
                 {t('auth.register.signInPrompt')}{' '}
-                <InlineTextLink to="/identity/sign-in">
-                  {t('auth.register.signInLink')}
-                </InlineTextLink>
+                <InlineTextLink to="/identity/sign-in">{t('auth.register.signInLink')}</InlineTextLink>
               </SupportingText>
             </PresentationForm>
           </form.AppForm>

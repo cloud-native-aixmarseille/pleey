@@ -12,10 +12,7 @@ interface RemovePlayableOutcomeResult {
 }
 
 interface PlayableOutcomeEditorPolicy {
-  resolveInitialOutcomeCount(
-    editorState: PlayableItemEditorState,
-    itemKindConfig?: PlayableItemKindConfig,
-  ): number;
+  resolveInitialOutcomeCount(editorState: PlayableItemEditorState, itemKindConfig?: PlayableItemKindConfig): number;
   replaceOption(options: readonly string[], index: number, value: string): readonly string[];
   normalizeCorrectPositions(correctPositions: readonly string[]): readonly string[];
   toggleCorrectPosition(
@@ -23,11 +20,7 @@ interface PlayableOutcomeEditorPolicy {
     index: number,
     itemKindConfig?: PlayableItemKindConfig,
   ): PlayableItemEditorState;
-  moveOutcome(
-    editorState: PlayableItemEditorState,
-    fromIndex: number,
-    toIndex: number,
-  ): PlayableItemEditorState;
+  moveOutcome(editorState: PlayableItemEditorState, fromIndex: number, toIndex: number): PlayableItemEditorState;
   removeOutcome(
     editorState: PlayableItemEditorState,
     index: number,
@@ -35,11 +28,7 @@ interface PlayableOutcomeEditorPolicy {
   ): RemovePlayableOutcomeResult;
 }
 
-function moveOption(
-  options: readonly string[],
-  fromIndex: number,
-  toIndex: number,
-): readonly string[] {
+function moveOption(options: readonly string[], fromIndex: number, toIndex: number): readonly string[] {
   const next = [...options];
   const moved = next[fromIndex];
 
@@ -76,10 +65,7 @@ function remapCorrectPosition(correctPosition: string, fromIndex: number, toInde
 }
 
 export const playableOutcomeEditorPolicy: PlayableOutcomeEditorPolicy = {
-  resolveInitialOutcomeCount(
-    editorState: PlayableItemEditorState,
-    itemKindConfig?: PlayableItemKindConfig,
-  ): number {
+  resolveInitialOutcomeCount(editorState: PlayableItemEditorState, itemKindConfig?: PlayableItemKindConfig): number {
     const selectedKindOption = resolvePlayableItemKindOption(itemKindConfig, editorState.kind);
 
     if (selectedKindOption?.fixedOptions) {
@@ -125,19 +111,13 @@ export const playableOutcomeEditorPolicy: PlayableOutcomeEditorPolicy = {
       ...editorState,
       correctPositions: playableOutcomeEditorPolicy.normalizeCorrectPositions(
         editorState.correctPositions.includes(nextPosition)
-          ? editorState.correctPositions.filter(
-              (correctPosition) => correctPosition !== nextPosition,
-            )
+          ? editorState.correctPositions.filter((correctPosition) => correctPosition !== nextPosition)
           : [...editorState.correctPositions, nextPosition],
       ),
     };
   },
 
-  moveOutcome(
-    editorState: PlayableItemEditorState,
-    fromIndex: number,
-    toIndex: number,
-  ): PlayableItemEditorState {
+  moveOutcome(editorState: PlayableItemEditorState, fromIndex: number, toIndex: number): PlayableItemEditorState {
     return {
       ...editorState,
       correctPositions: playableOutcomeEditorPolicy.normalizeCorrectPositions(
@@ -155,16 +135,12 @@ export const playableOutcomeEditorPolicy: PlayableOutcomeEditorPolicy = {
     visibleOutcomeCount: number,
   ): RemovePlayableOutcomeResult {
     const nextVisibleOutcomeCount =
-      index === visibleOutcomeCount - 1
-        ? Math.max(2, visibleOutcomeCount - 1)
-        : visibleOutcomeCount;
+      index === visibleOutcomeCount - 1 ? Math.max(2, visibleOutcomeCount - 1) : visibleOutcomeCount;
 
     return {
       editorState: {
         ...editorState,
-        correctPositions: editorState.correctPositions.filter(
-          (correctPosition) => correctPosition !== String(index),
-        ),
+        correctPositions: editorState.correctPositions.filter((correctPosition) => correctPosition !== String(index)),
         optionTexts: playableOutcomeEditorPolicy.replaceOption(editorState.optionTexts, index, ''),
       },
       visibleOutcomeCount: nextVisibleOutcomeCount,

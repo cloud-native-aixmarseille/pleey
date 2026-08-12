@@ -9,9 +9,7 @@ import { PredictionPlayerStageSurface } from '../../../../../presentation/game/t
 import type { PartyGameTypeRuntimeViewContributor } from '../contracts/party-game-type-runtime-view-contributor';
 
 type HostRuntimePanelProps = Parameters<PartyGameTypeRuntimeView['renderHostResultPanel']>[0];
-type PlayerResultSurfaceProps = Parameters<
-  PartyGameTypeRuntimeView['renderPlayerResultSurface']
->[0];
+type PlayerResultSurfaceProps = Parameters<PartyGameTypeRuntimeView['renderPlayerResultSurface']>[0];
 type PlayerStageSurfaceProps = Parameters<PartyGameTypeRuntimeView['renderPlayerStageSurface']>[0];
 
 @injectable()

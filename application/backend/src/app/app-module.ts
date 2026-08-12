@@ -54,9 +54,7 @@ function parseAuthorizationHeader(connectionParams?: Record<string, unknown>): s
 }
 
 function createI18nDirectory(serverConfig: AppServerConfig): string {
-  return serverConfig.isProduction
-    ? path.join(__dirname, '../../i18n/')
-    : path.join(process.cwd(), 'src/i18n/');
+  return serverConfig.isProduction ? path.join(__dirname, '../../i18n/') : path.join(process.cwd(), 'src/i18n/');
 }
 
 @Module({
@@ -69,9 +67,7 @@ function createI18nDirectory(serverConfig: AppServerConfig): string {
         const jwtService = new JwtService();
 
         return {
-          autoSchemaFile: serverConfig.isProduction
-            ? true
-            : path.join(process.cwd(), 'src/schema.gql'),
+          autoSchemaFile: serverConfig.isProduction ? true : path.join(process.cwd(), 'src/schema.gql'),
           sortSchema: true,
           playground: !serverConfig.isProduction,
           resolvers: {

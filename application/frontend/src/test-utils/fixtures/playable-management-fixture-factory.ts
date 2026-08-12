@@ -16,10 +16,8 @@ interface PlayableManagementItemInputOverrides<TKind extends string = string>
   readonly kind?: TKind;
 }
 
-interface PlayableManagementItemOverrides<
-  TItemId extends string = string,
-  TKind extends string = string,
-> extends Partial<Omit<PlayableManagementItem<TItemId, TKind>, 'gameTypeId'>> {
+interface PlayableManagementItemOverrides<TItemId extends string = string, TKind extends string = string>
+  extends Partial<Omit<PlayableManagementItem<TItemId, TKind>, 'gameTypeId'>> {
   readonly gameTypeId?: GameTypeId | number;
   readonly kind?: TKind;
 }

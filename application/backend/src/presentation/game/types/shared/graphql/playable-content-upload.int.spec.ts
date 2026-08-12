@@ -1,23 +1,7 @@
 import 'reflect-metadata';
 import { ApolloDriver, type ApolloDriverConfig } from '@nestjs/apollo';
-import {
-  type INestApplication,
-  Injectable,
-  MiddlewareConsumer,
-  Module,
-  type NestModule,
-} from '@nestjs/common';
-import {
-  Args,
-  Field,
-  GraphQLModule,
-  InputType,
-  Int,
-  Mutation,
-  ObjectType,
-  Query,
-  Resolver,
-} from '@nestjs/graphql';
+import { type INestApplication, Injectable, MiddlewareConsumer, Module, type NestModule } from '@nestjs/common';
+import { Args, Field, GraphQLModule, InputType, Int, Mutation, ObjectType, Query, Resolver } from '@nestjs/graphql';
 import { Test } from '@nestjs/testing';
 import { GraphQLUpload, graphqlUploadExpress } from 'graphql-upload-minimal';
 import request from 'supertest';

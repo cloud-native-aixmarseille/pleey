@@ -1,9 +1,6 @@
 import { inject, injectable } from 'inversify';
 import type { User } from '../../../domains/identity/entities/user';
-import {
-  type AuthRepository,
-  AuthRepositoryToken,
-} from '../../../domains/identity/ports/auth-repository';
+import { type AuthRepository, AuthRepositoryToken } from '../../../domains/identity/ports/auth-repository';
 
 export interface RegisterUserCommand {
   readonly username: string;

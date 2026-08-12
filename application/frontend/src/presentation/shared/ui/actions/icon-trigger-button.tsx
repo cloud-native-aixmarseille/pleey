@@ -1,8 +1,7 @@
 import type { ComponentProps, ReactNode } from 'react';
 import { PillTriggerButton } from './pill-trigger-button';
 
-interface IconTriggerButtonProps
-  extends Omit<ComponentProps<typeof PillTriggerButton>, 'children'> {
+interface IconTriggerButtonProps extends Omit<ComponentProps<typeof PillTriggerButton>, 'children'> {
   readonly children: ReactNode;
   readonly paddingX?: string;
 }

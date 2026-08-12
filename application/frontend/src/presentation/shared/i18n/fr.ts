@@ -24,8 +24,7 @@ export const sharedFr = {
       empty: "Aucun raccourci clavier n'est actif pour cet ecran.",
       helpButton: 'Raccourcis',
       globalGroup: 'Global',
-      helpDescription:
-        'Utilisez ces raccourcis pour executer les actions courantes plus rapidement.',
+      helpDescription: 'Utilisez ces raccourcis pour executer les actions courantes plus rapidement.',
       helpTitle: 'Raccourcis clavier',
       shortcutsHelp: "Ouvrir l'aide des raccourcis clavier",
       toggleAccountMenu: 'Afficher ou masquer le menu du compte',

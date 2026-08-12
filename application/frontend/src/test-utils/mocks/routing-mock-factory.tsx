@@ -42,8 +42,7 @@ export class RoutingMockFactory {
 
     return {
       createLink: this.createLink(),
-      Navigate: ({ to }: { to: string }) =>
-        createElement('div', { 'data-testid': `navigate-${to}` }),
+      Navigate: ({ to }: { to: string }) => createElement('div', { 'data-testid': `navigate-${to}` }),
       Outlet,
       useNavigate: () => navigate,
       usePathname: () => pathname,

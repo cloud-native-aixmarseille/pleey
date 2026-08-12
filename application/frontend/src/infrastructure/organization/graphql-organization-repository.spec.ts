@@ -14,10 +14,8 @@ const organizationIdentifier = new OrganizationIdentifier();
 const organizationMemberIdentifier = new OrganizationMemberIdentifier();
 const userIdentifier = new UserIdentifier();
 const organizationFixtureFactory = new OrganizationFixtureFactory();
-const parseOrganizationId = (value: number) =>
-  organizationIdentifier.parse(coerceUuidV7TestValue(value));
-const parseOrganizationMemberId = (value: number) =>
-  organizationMemberIdentifier.parse(coerceUuidV7TestValue(value));
+const parseOrganizationId = (value: number) => organizationIdentifier.parse(coerceUuidV7TestValue(value));
+const parseOrganizationMemberId = (value: number) => organizationMemberIdentifier.parse(coerceUuidV7TestValue(value));
 const parseUserId = (value: number) => userIdentifier.parse(coerceUuidV7TestValue(value));
 
 function createRepository(client: ConstructorParameters<typeof GraphqlOrganizationRepository>[0]) {
@@ -101,9 +99,7 @@ describe('GraphqlOrganizationRepository', () => {
       const repository = createRepository(client);
 
       // Act + Assert
-      await expect(repository.getMyOrganizations()).rejects.toThrow(
-        OrganizationErrorCode.LOAD_FAILED,
-      );
+      await expect(repository.getMyOrganizations()).rejects.toThrow(OrganizationErrorCode.LOAD_FAILED);
     });
   });
 
@@ -191,9 +187,9 @@ describe('GraphqlOrganizationRepository', () => {
       const repository = createRepository(client);
 
       // Act + Assert
-      await expect(
-        repository.createOrganization({ name: 'Fail', description: null }),
-      ).rejects.toThrow(OrganizationErrorCode.CREATE_FAILED);
+      await expect(repository.createOrganization({ name: 'Fail', description: null })).rejects.toThrow(
+        OrganizationErrorCode.CREATE_FAILED,
+      );
     });
   });
 
@@ -393,9 +389,9 @@ describe('GraphqlOrganizationRepository', () => {
       const repository = createRepository(client);
 
       // Act + Assert
-      await expect(
-        repository.removeOrganizationMember({ memberId: parseOrganizationMemberId(21) }),
-      ).rejects.toThrow(OrganizationErrorCode.MEMBER_REMOVE_FAILED);
+      await expect(repository.removeOrganizationMember({ memberId: parseOrganizationMemberId(21) })).rejects.toThrow(
+        OrganizationErrorCode.MEMBER_REMOVE_FAILED,
+      );
     });
   });
 

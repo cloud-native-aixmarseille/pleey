@@ -102,12 +102,7 @@ export function CopyButton({
 
     if (copyState === 'failed') {
       return (
-        <AppIcon
-          className="copy-button-icon-error"
-          color={uiThemeTokens.color.text.danger}
-          name="error"
-          size={14}
-        />
+        <AppIcon className="copy-button-icon-error" color={uiThemeTokens.color.text.danger} name="error" size={14} />
       );
     }
 

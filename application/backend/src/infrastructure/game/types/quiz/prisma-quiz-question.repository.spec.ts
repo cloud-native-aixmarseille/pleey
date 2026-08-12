@@ -28,9 +28,7 @@ describe('PrismaQuizQuestionRepository', () => {
       },
     };
     const prisma = {
-      $transaction: vi.fn(async (callback: (tx: typeof transaction) => Promise<unknown>) =>
-        callback(transaction),
-      ),
+      $transaction: vi.fn(async (callback: (tx: typeof transaction) => Promise<unknown>) => callback(transaction)),
     } as unknown as PrismaService;
     const repository = new PrismaQuizQuestionRepository(
       prisma,
@@ -82,9 +80,7 @@ describe('PrismaQuizQuestionRepository', () => {
       },
     };
     const prisma = {
-      $transaction: vi.fn(async (callback: (tx: typeof transaction) => Promise<unknown>) =>
-        callback(transaction),
-      ),
+      $transaction: vi.fn(async (callback: (tx: typeof transaction) => Promise<unknown>) => callback(transaction)),
     } as unknown as PrismaService;
     const repository = new PrismaQuizQuestionRepository(
       prisma,
@@ -141,9 +137,7 @@ describe('PrismaQuizQuestionRepository', () => {
       },
     };
     const prisma = {
-      $transaction: vi.fn(async (callback: (tx: typeof transaction) => Promise<unknown>) =>
-        callback(transaction),
-      ),
+      $transaction: vi.fn(async (callback: (tx: typeof transaction) => Promise<unknown>) => callback(transaction)),
     } as unknown as PrismaService;
     const repository = new PrismaQuizQuestionRepository(
       prisma,
@@ -213,9 +207,7 @@ describe('PrismaQuizQuestionRepository', () => {
       },
     };
     const prisma = {
-      $transaction: vi.fn(async (callback: (tx: typeof transaction) => Promise<unknown>) =>
-        callback(transaction),
-      ),
+      $transaction: vi.fn(async (callback: (tx: typeof transaction) => Promise<unknown>) => callback(transaction)),
     } as unknown as PrismaService;
     const repository = new PrismaQuizQuestionRepository(
       prisma,

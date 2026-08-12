@@ -20,59 +20,39 @@ describe('ActiveSessionPanel', () => {
 
   describe('render()', () => {
     it('renders the active session eyebrow', () => {
-      renderWithProviders(
-        <ActiveSessionPanel user={user} onNavigateDashboard={vi.fn()} onSignOut={vi.fn()} />,
-      );
+      renderWithProviders(<ActiveSessionPanel user={user} onNavigateDashboard={vi.fn()} onSignOut={vi.fn()} />);
 
       expect(screen.getByText('auth.signIn.activeSession.eyebrow')).toBeInTheDocument();
     });
 
     it('renders the welcome heading with the username', () => {
-      renderWithProviders(
-        <ActiveSessionPanel user={user} onNavigateDashboard={vi.fn()} onSignOut={vi.fn()} />,
-      );
+      renderWithProviders(<ActiveSessionPanel user={user} onNavigateDashboard={vi.fn()} onSignOut={vi.fn()} />);
 
-      expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(
-        'auth.signIn.activeSession.title',
-      );
+      expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('auth.signIn.activeSession.title');
     });
 
     it('renders the dashboard button', () => {
-      renderWithProviders(
-        <ActiveSessionPanel user={user} onNavigateDashboard={vi.fn()} onSignOut={vi.fn()} />,
-      );
+      renderWithProviders(<ActiveSessionPanel user={user} onNavigateDashboard={vi.fn()} onSignOut={vi.fn()} />);
 
-      expect(
-        screen.getByRole('button', { name: 'auth.signIn.activeSession.dashboardCta' }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'auth.signIn.activeSession.dashboardCta' })).toBeInTheDocument();
     });
 
     it('calls onNavigateDashboard when the dashboard button is clicked', async () => {
       const onNavigateDashboard = vi.fn();
       renderWithProviders(
-        <ActiveSessionPanel
-          user={user}
-          onNavigateDashboard={onNavigateDashboard}
-          onSignOut={vi.fn()}
-        />,
+        <ActiveSessionPanel user={user} onNavigateDashboard={onNavigateDashboard} onSignOut={vi.fn()} />,
       );
 
-      await userEvent.click(
-        screen.getByRole('button', { name: 'auth.signIn.activeSession.dashboardCta' }),
-      );
+      await userEvent.click(screen.getByRole('button', { name: 'auth.signIn.activeSession.dashboardCta' }));
 
       expect(onNavigateDashboard).toHaveBeenCalledOnce();
     });
 
     it('calls onSignOut when the sign-out button is clicked', async () => {
       const onSignOut = vi.fn();
-      renderWithProviders(
-        <ActiveSessionPanel user={user} onNavigateDashboard={vi.fn()} onSignOut={onSignOut} />,
-      );
+      renderWithProviders(<ActiveSessionPanel user={user} onNavigateDashboard={vi.fn()} onSignOut={onSignOut} />);
 
-      await userEvent.click(
-        screen.getByRole('button', { name: 'auth.signIn.activeSession.signOutCta' }),
-      );
+      await userEvent.click(screen.getByRole('button', { name: 'auth.signIn.activeSession.signOutCta' }));
 
       expect(onSignOut).toHaveBeenCalledOnce();
     });

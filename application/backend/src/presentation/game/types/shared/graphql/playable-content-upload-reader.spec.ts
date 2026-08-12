@@ -33,8 +33,7 @@ describe('PlayableContentUploadReader', () => {
     const reader = new PlayableContentUploadReader();
     const source = await reader.read(
       Promise.resolve({
-        createReadStream: () =>
-          Readable.from(['Prompt: Which team scores first?\n', '- [x] Home\n', '- [ ] Away']),
+        createReadStream: () => Readable.from(['Prompt: Which team scores first?\n', '- [x] Home\n', '- [ ] Away']),
         filename: 'import.txt',
         mimetype: 'text/plain',
       }),
@@ -51,15 +50,12 @@ describe('PlayableContentUploadReader', () => {
     const reader = new PlayableContentUploadReader();
     const source = await reader.read(
       Promise.resolve({
-        createReadStream: () =>
-          Readable.from([Buffer.alloc(DEFAULT_PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES + 1)]),
+        createReadStream: () => Readable.from([Buffer.alloc(DEFAULT_PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES + 1)]),
         filename: 'too-large.json',
         mimetype: 'application/json',
       }),
     );
 
-    await expect(source.readAll()).rejects.toThrow(
-      PlayableContentImportParserErrorCode.INVALID_FILE,
-    );
+    await expect(source.readAll()).rejects.toThrow(PlayableContentImportParserErrorCode.INVALID_FILE);
   });
 });

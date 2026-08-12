@@ -17,8 +17,6 @@ export class ResumePartyUseCase extends AbstractHostPartyRuntimeUseCase {
   }
 
   execute(input: HostPartyControlDto): Promise<void> {
-    return this.executeTransition(input, (party) =>
-      this.hostPartyLifecyclePolicy.resume(this.toLifecycleState(party)),
-    );
+    return this.executeTransition(input, (party) => this.hostPartyLifecyclePolicy.resume(this.toLifecycleState(party)));
   }
 }

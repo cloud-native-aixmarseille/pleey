@@ -47,11 +47,7 @@ describe('PrismaPartyStageCatalogAdapter', () => {
     const registry = {
       resolveByGameType: vi.fn(),
     };
-    const adapter = new PrismaPartyStageCatalogAdapter(
-      prisma as never,
-      gameTypeParser as never,
-      registry as never,
-    );
+    const adapter = new PrismaPartyStageCatalogAdapter(prisma as never, gameTypeParser as never, registry as never);
 
     await expect(adapter.findFirstStage(gameId)).resolves.toBeNull();
     await expect(adapter.findStageById(gameId, firstStageId)).resolves.toBeNull();
@@ -80,11 +76,7 @@ describe('PrismaPartyStageCatalogAdapter', () => {
     const registry = {
       resolveByGameType: vi.fn().mockReturnValue(provider),
     };
-    const adapter = new PrismaPartyStageCatalogAdapter(
-      prisma as never,
-      gameTypeParser as never,
-      registry as never,
-    );
+    const adapter = new PrismaPartyStageCatalogAdapter(prisma as never, gameTypeParser as never, registry as never);
     const currentStageId = firstStageId;
 
     await expect(adapter.findFirstStage(gameId)).resolves.toEqual(firstStage);
@@ -122,11 +114,7 @@ describe('PrismaPartyStageCatalogAdapter', () => {
     const registry = {
       resolveByGameType: vi.fn().mockReturnValue(provider),
     };
-    const adapter = new PrismaPartyStageCatalogAdapter(
-      prisma as never,
-      gameTypeParser as never,
-      registry as never,
-    );
+    const adapter = new PrismaPartyStageCatalogAdapter(prisma as never, gameTypeParser as never, registry as never);
     const options = {
       partyId: 'party-A' as never,
       settings: {
@@ -165,11 +153,7 @@ describe('PrismaPartyStageCatalogAdapter', () => {
     const registry = {
       resolveByGameType: vi.fn().mockReturnValue(provider),
     };
-    const adapter = new PrismaPartyStageCatalogAdapter(
-      prisma as never,
-      gameTypeParser as never,
-      registry as never,
-    );
+    const adapter = new PrismaPartyStageCatalogAdapter(prisma as never, gameTypeParser as never, registry as never);
 
     const settings = {
       allowOptionChangeAfterVoting: false,
@@ -210,11 +194,7 @@ describe('PrismaPartyStageCatalogAdapter', () => {
     const registry = {
       resolveByGameType: vi.fn().mockReturnValue(provider),
     };
-    const adapter = new PrismaPartyStageCatalogAdapter(
-      prisma as never,
-      gameTypeParser as never,
-      registry as never,
-    );
+    const adapter = new PrismaPartyStageCatalogAdapter(prisma as never, gameTypeParser as never, registry as never);
     const options = {
       partyId: 'party-A' as never,
       settings: {
@@ -254,11 +234,7 @@ describe('PrismaPartyStageCatalogAdapter', () => {
     const registry = {
       resolveByGameType: vi.fn().mockReturnValue(provider),
     };
-    const adapter = new PrismaPartyStageCatalogAdapter(
-      prisma as never,
-      gameTypeParser as never,
-      registry as never,
-    );
+    const adapter = new PrismaPartyStageCatalogAdapter(prisma as never, gameTypeParser as never, registry as never);
     const options = {
       partyId: 'party-A' as never,
       settings: {
@@ -271,9 +247,7 @@ describe('PrismaPartyStageCatalogAdapter', () => {
     const first = await adapter.findStageById(gameId, stages[0].id, options);
     const second = await adapter.findStageById(gameId, stages[0].id, options);
 
-    expect(first?.actions.map((action) => action.id) ?? []).toEqual(
-      second?.actions.map((action) => action.id) ?? [],
-    );
+    expect(first?.actions.map((action) => action.id) ?? []).toEqual(second?.actions.map((action) => action.id) ?? []);
     expect(first?.actions.map((action) => action.id).sort() ?? []).toEqual(
       stages[0].actions.map((action) => action.id).sort(),
     );

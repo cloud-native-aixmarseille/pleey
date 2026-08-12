@@ -6,10 +6,7 @@ interface PresentationFormRuntime {
 }
 
 interface PresentationFormProps
-  extends Omit<
-    FormHTMLAttributes<HTMLFormElement>,
-    'children' | 'className' | 'onSubmit' | 'style'
-  > {
+  extends Omit<FormHTMLAttributes<HTMLFormElement>, 'children' | 'className' | 'onSubmit' | 'style'> {
   readonly children: ReactNode;
   readonly form: PresentationFormRuntime;
 }

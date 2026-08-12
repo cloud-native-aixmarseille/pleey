@@ -44,10 +44,7 @@ export class AuthResolver {
   ) {}
 
   @Mutation(() => AuthResponseType)
-  async login(
-    @Args('input') input: LoginInput,
-    @Context() context: GraphqlAuthContext,
-  ): Promise<AuthResponseType> {
+  async login(@Args('input') input: LoginInput, @Context() context: GraphqlAuthContext): Promise<AuthResponseType> {
     const response = await this.loginUserUseCase.execute(input);
     return this.authProfilePresenter.presentAuthResponse(response, context.req);
   }

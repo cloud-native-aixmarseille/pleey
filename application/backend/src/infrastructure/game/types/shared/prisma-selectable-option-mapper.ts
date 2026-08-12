@@ -24,9 +24,7 @@ export class PrismaSelectableOptionMapper {
     };
   }
 
-  toDomain<TId extends SelectableOptionId>(
-    record: PrismaSelectableOptionRecord<TId>,
-  ): SelectableOption<TId> {
+  toDomain<TId extends SelectableOptionId>(record: PrismaSelectableOptionRecord<TId>): SelectableOption<TId> {
     return new SelectableOption(record.id, record.text, record.position, record.isCorrect);
   }
 }

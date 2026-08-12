@@ -18,11 +18,7 @@ interface PresentationFeedbackChannel {
   readonly clearError: () => void;
   readonly errorMessage: string | null;
   readonly handleError: (error: unknown, options: PresentationHandleErrorOptions) => string;
-  readonly notify: (
-    tone: PresentationToastTone,
-    message: string,
-    options?: PresentationNotificationOptions,
-  ) => void;
+  readonly notify: (tone: PresentationToastTone, message: string, options?: PresentationNotificationOptions) => void;
   readonly setErrorMessage: (message: string | null) => void;
 }
 
@@ -39,11 +35,7 @@ export function usePresentationFeedbackChannel(): PresentationFeedbackChannel {
   });
 
   const notify = useEffectEvent(
-    (
-      tone: PresentationToastTone,
-      message: string,
-      options: PresentationNotificationOptions = {},
-    ) => {
+    (tone: PresentationToastTone, message: string, options: PresentationNotificationOptions = {}) => {
       if (!toast) {
         return;
       }
@@ -56,22 +48,20 @@ export function usePresentationFeedbackChannel(): PresentationFeedbackChannel {
     },
   );
 
-  const handleError = useEffectEvent(
-    (error: unknown, options: PresentationHandleErrorOptions): string => {
-      const message = resolvePresentationErrorMessage(error, options.fallbackMessage);
+  const handleError = useEffectEvent((error: unknown, options: PresentationHandleErrorOptions): string => {
+    const message = resolvePresentationErrorMessage(error, options.fallbackMessage);
 
-      setErrorMessage(message);
+    setErrorMessage(message);
 
-      if (options.notify) {
-        notify('error', message, {
-          durationMs: options.durationMs,
-          id: options.id,
-        });
-      }
+    if (options.notify) {
+      notify('error', message, {
+        durationMs: options.durationMs,
+        id: options.id,
+      });
+    }
 
-      return message;
-    },
-  );
+    return message;
+  });
 
   return {
     clearError,

@@ -23,9 +23,9 @@ describe('RegisterUserUseCase', () => {
       defaultWorkspaceService as never,
     );
 
-    await expect(
-      useCase.execute({ username: 'alice', email: 'alice@example.com', password: 'pw' }),
-    ).rejects.toThrow(IdentityErrorCode.USER_ALREADY_EXISTS);
+    await expect(useCase.execute({ username: 'alice', email: 'alice@example.com', password: 'pw' })).rejects.toThrow(
+      IdentityErrorCode.USER_ALREADY_EXISTS,
+    );
   });
 
   it('throws PASSWORD_TOO_SHORT when password is invalid', async () => {
@@ -43,9 +43,9 @@ describe('RegisterUserUseCase', () => {
       defaultWorkspaceService as never,
     );
 
-    await expect(
-      useCase.execute({ username: 'alice', email: 'alice@example.com', password: 'pw' }),
-    ).rejects.toThrow(IdentityErrorCode.PASSWORD_TOO_SHORT);
+    await expect(useCase.execute({ username: 'alice', email: 'alice@example.com', password: 'pw' })).rejects.toThrow(
+      IdentityErrorCode.PASSWORD_TOO_SHORT,
+    );
   });
 
   it('creates user with hashed password and generated avatar uri', async () => {
@@ -81,12 +81,7 @@ describe('RegisterUserUseCase', () => {
 
     expect(passwordService.hash).toHaveBeenCalledWith('strong-password');
     expect(userAvatarService.generateAvatar).toHaveBeenCalledWith();
-    expect(userRepository.create).toHaveBeenCalledWith(
-      'alice',
-      'alice@example.com',
-      'hashed',
-      avatar,
-    );
+    expect(userRepository.create).toHaveBeenCalledWith('alice', 'alice@example.com', 'hashed', avatar);
     expect(defaultWorkspaceService.ensure).toHaveBeenCalledWith(created.id);
   });
 });

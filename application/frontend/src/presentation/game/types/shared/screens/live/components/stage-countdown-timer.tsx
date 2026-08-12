@@ -84,11 +84,7 @@ function formatRemainingDuration(remainingDurationMs: number): string {
   return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
 
-function resolveTone(
-  remainingDurationMs: number,
-  totalDurationMs: number,
-  isPaused: boolean,
-): StageCountdownTone {
+function resolveTone(remainingDurationMs: number, totalDurationMs: number, isPaused: boolean): StageCountdownTone {
   if (remainingDurationMs <= 0) {
     return 'expired';
   }

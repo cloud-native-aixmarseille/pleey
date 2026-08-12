@@ -4,9 +4,7 @@ import type { StoragePort } from '../../domains/shared/ports/storage.port';
 import { useReactI18nextTranslationAdapter } from './react-i18next-translation.adapter';
 
 vi.mock('react-i18next', async () => {
-  const { ReactI18nextMockFactory } = await import(
-    'src/test-utils/mocks/react-i18next-mock-factory'
-  );
+  const { ReactI18nextMockFactory } = await import('src/test-utils/mocks/react-i18next-mock-factory');
 
   return new ReactI18nextMockFactory().createModule();
 });

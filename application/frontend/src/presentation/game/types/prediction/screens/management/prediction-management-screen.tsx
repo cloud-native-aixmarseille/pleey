@@ -9,10 +9,7 @@ interface PredictionManagementScreenProps {
   readonly gameTypeIdentifier: ManagementGameTypeIdParser;
 }
 
-export function PredictionManagementScreen({
-  gameTypeIdentifier,
-  gateway,
-}: PredictionManagementScreenProps) {
+export function PredictionManagementScreen({ gameTypeIdentifier, gateway }: PredictionManagementScreenProps) {
   const params = usePresentationParams<'predictionId'>();
   const predictionId = gameTypeIdentifier.parseOrNull(params.predictionId);
 

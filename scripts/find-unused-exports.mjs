@@ -10,12 +10,12 @@
  * - Skips main entry points (main.ts, index.ts at root).
  */
 
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
 const rootDir = process.argv[2];
 if (!rootDir) {
-  console.error('Usage: node find-unused-exports.mjs <rootDir>');
+  console.error("Usage: node find-unused-exports.mjs <rootDir>");
   process.exit(1);
 }
 
@@ -27,9 +27,9 @@ function walk(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
-      if (entry.name === 'node_modules' || entry.name === 'dist' || entry.name === 'coverage') continue;
+      if (entry.name === "node_modules" || entry.name === "dist" || entry.name === "coverage") continue;
       results.push(...walk(full));
-    } else if (/\.(ts|tsx)$/.test(entry.name) && !entry.name.endsWith('.d.ts')) {
+    } else if (/\.(ts|tsx)$/.test(entry.name) && !entry.name.endsWith(".d.ts")) {
       results.push(full);
     }
   }
@@ -40,17 +40,18 @@ const allFiles = walk(absRoot);
 
 const isTestFile = (f) =>
   /\.(test|spec|e2e-spec)\.(ts|tsx)$/.test(f) ||
-  f.includes('/test-utils/') ||
-  f.includes('/test/') ||
-  f.includes('__test');
+  f.includes("/test-utils/") ||
+  f.includes("/test/") ||
+  f.includes("__test");
 
-const isBarrelFile = (f) => path.basename(f) === 'index.ts' || path.basename(f) === 'index.tsx';
-const isEntryFile = (f) => path.basename(f) === 'main.ts' || path.basename(f) === 'app-module.ts';
-const isI18nFile = (f) => f.includes('/i18n/');
-const isMigrationFile = (f) => f.includes('/migrations/');
-const isSeedFile = (f) => path.basename(f) === 'seed.ts';
-const isConfigFile = (f) => /\.(config|setup)\.(ts|mts)$/.test(f) || path.basename(f) === 'codegen.ts' || path.basename(f) === 'prisma.config.ts';
-const isGeneratedFile = (f) => f.includes('/generated/');
+const isBarrelFile = (f) => path.basename(f) === "index.ts" || path.basename(f) === "index.tsx";
+const isEntryFile = (f) => path.basename(f) === "main.ts" || path.basename(f) === "app-module.ts";
+const isI18nFile = (f) => f.includes("/i18n/");
+const isMigrationFile = (f) => f.includes("/migrations/");
+const isSeedFile = (f) => path.basename(f) === "seed.ts";
+const isConfigFile = (f) =>
+  /\.(config|setup)\.(ts|mts)$/.test(f) || path.basename(f) === "codegen.ts" || path.basename(f) === "prisma.config.ts";
+const isGeneratedFile = (f) => f.includes("/generated/");
 
 // Phase 1: Extract named exports from source files (not tests, not barrels)
 const exportsByFile = new Map(); // file -> [{ name, line }]
@@ -81,7 +82,7 @@ for (const file of allFiles) {
   if (isConfigFile(file)) continue;
   if (isGeneratedFile(file)) continue;
 
-  const content = fs.readFileSync(file, 'utf-8');
+  const content = fs.readFileSync(file, "utf-8");
   const exports = [];
 
   for (const pattern of exportPatterns) {
@@ -90,14 +91,18 @@ for (const file of allFiles) {
     while ((match = pattern.exec(content)) !== null) {
       const name = match[1];
       // Skip common NestJS lifecycle/decorator symbols that are always used implicitly
-      if (['Module', 'Controller', 'Gateway'].some(s => name.endsWith(s)) && /\@(Module|Controller|WebSocketGateway)/.test(content)) continue;
+      if (
+        ["Module", "Controller", "Gateway"].some((s) => name.endsWith(s)) &&
+        /\@(Module|Controller|WebSocketGateway)/.test(content)
+      )
+        continue;
       exports.push({ name, pos: match.index });
     }
   }
 
   // Also detect: export default
   if (/export\s+default\s/.test(content)) {
-    exports.push({ name: '__default__', pos: 0 });
+    exports.push({ name: "__default__", pos: 0 });
   }
 
   if (exports.length > 0) {
@@ -118,7 +123,7 @@ const importedByFile = new Map(); // name -> Set<file>
 // Build content cache for all files
 const contentCache = new Map();
 for (const file of allFiles) {
-  contentCache.set(file, fs.readFileSync(file, 'utf-8'));
+  contentCache.set(file, fs.readFileSync(file, "utf-8"));
 }
 
 // Extract all import names
@@ -127,10 +132,13 @@ for (const [file, content] of contentCache) {
   const namedImportRe = /import\s+(?:type\s+)?{([^}]+)}\s+from\s+/g;
   let m;
   while ((m = namedImportRe.exec(content)) !== null) {
-    const names = m[1].split(',').map(n => {
-      const parts = n.trim().split(/\s+as\s+/);
-      return parts[0].trim().replace(/^type\s+/, '');
-    }).filter(Boolean);
+    const names = m[1]
+      .split(",")
+      .map((n) => {
+        const parts = n.trim().split(/\s+as\s+/);
+        return parts[0].trim().replace(/^type\s+/, "");
+      })
+      .filter(Boolean);
     for (const name of names) {
       importedNames.add(name);
       if (!importedByFile.has(name)) importedByFile.set(name, new Set());
@@ -142,7 +150,7 @@ for (const [file, content] of contentCache) {
   const defaultImportRe = /import\s+(\w+)\s+from\s+/g;
   while ((m = defaultImportRe.exec(content)) !== null) {
     const name = m[1];
-    if (name === 'type') continue;
+    if (name === "type") continue;
     importedNames.add(name);
     if (!importedByFile.has(name)) importedByFile.set(name, new Set());
     importedByFile.get(name).add(file);
@@ -154,20 +162,20 @@ const unused = [];
 
 for (const [file, exports] of exportsByFile) {
   for (const exp of exports) {
-    if (exp.name === '__default__') continue; // skip default exports for now
+    if (exp.name === "__default__") continue; // skip default exports for now
 
     const importers = importedByFile.get(exp.name);
     if (!importers) {
       // Not imported anywhere at all
-      unused.push({ file: path.relative(absRoot, file), name: exp.name, reason: 'never imported' });
+      unused.push({ file: path.relative(absRoot, file), name: exp.name, reason: "never imported" });
       continue;
     }
 
     // Check if imported only by the file itself or only by test files
-    const otherNonTestImporters = [...importers].filter(f => f !== file && !isTestFile(f));
+    const otherNonTestImporters = [...importers].filter((f) => f !== file && !isTestFile(f));
     if (otherNonTestImporters.length === 0) {
       // Could be imported only by tests or self
-      const testImporters = [...importers].filter(f => f !== file && isTestFile(f));
+      const testImporters = [...importers].filter((f) => f !== file && isTestFile(f));
       const selfImport = importers.has(file);
       if (testImporters.length > 0 && !selfImport) {
         // Only tests import it - that's fine for many things, skip
@@ -178,7 +186,7 @@ for (const [file, exports] of exportsByFile) {
         continue;
       }
       if (testImporters.length === 0 && !selfImport) {
-        unused.push({ file: path.relative(absRoot, file), name: exp.name, reason: 'never imported' });
+        unused.push({ file: path.relative(absRoot, file), name: exp.name, reason: "never imported" });
       }
     }
     // else: has non-test consumers, it's used

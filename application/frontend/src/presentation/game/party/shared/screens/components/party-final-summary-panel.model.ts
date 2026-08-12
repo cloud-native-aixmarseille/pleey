@@ -14,9 +14,7 @@ interface PartyFinalSummaryModel {
   readonly winner: PartyObservationPlayer | null;
 }
 
-export function createPartyFinalSummaryModel(
-  players: readonly PartyObservationPlayer[],
-): PartyFinalSummaryModel {
+export function createPartyFinalSummaryModel(players: readonly PartyObservationPlayer[]): PartyFinalSummaryModel {
   const rankedPlayers = sortPlayers(players);
   const podiumByRank = new Map<PodiumRank, PartyObservationPlayer>();
   const currentPlayerIndex = rankedPlayers.findIndex((player) => player.isCurrentPlayer);
@@ -40,9 +38,7 @@ export function toPartyFinalSummaryPlayerKey(player: PartyObservationPlayer): st
     : `guest:${player.identity.guestId}`;
 }
 
-function sortPlayers(
-  players: readonly PartyObservationPlayer[],
-): readonly PartyObservationPlayer[] {
+function sortPlayers(players: readonly PartyObservationPlayer[]): readonly PartyObservationPlayer[] {
   return [...players].sort((left, right) => {
     if (right.totalScore !== left.totalScore) {
       return right.totalScore - left.totalScore;

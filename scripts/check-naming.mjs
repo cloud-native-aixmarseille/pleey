@@ -1,9 +1,9 @@
-import fs from 'node:fs';
-import path from 'node:path';
+import fs from "node:fs";
+import path from "node:path";
 
-const workspaceRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const workspaceRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
 
-const SHARED_SOURCE_EXTENSIONS = ['.ts', '.tsx'];
+const SHARED_SOURCE_EXTENSIONS = [".ts", ".tsx"];
 
 function parseTestFileName(filePath) {
   const match = path
@@ -15,7 +15,7 @@ function parseTestFileName(filePath) {
 
   return {
     sourceStem: match.groups.sourceStem,
-    testMarker: `${match.groups.integration ?? ''}.${match.groups.kind}`,
+    testMarker: `${match.groups.integration ?? ""}.${match.groups.kind}`,
     extension: `.${match.groups.extension}`,
   };
 }
@@ -27,10 +27,7 @@ function extractSourceSymbol(content) {
     /export\s+function\s+([A-Z][A-Za-z0-9]*)\b/g,
     /export\s+const\s+([A-Z][A-Za-z0-9]*)\s*(?::[^=]+)?=/g,
   ];
-  const contractPatterns = [
-    /export\s+interface\s+([A-Z][A-Za-z0-9]*)\b/g,
-    /export\s+type\s+([A-Z][A-Za-z0-9]*)\b/g,
-  ];
+  const contractPatterns = [/export\s+interface\s+([A-Z][A-Za-z0-9]*)\b/g, /export\s+type\s+([A-Z][A-Za-z0-9]*)\b/g];
   const runtimeExportPatterns = [
     /export\s+class\s+([A-Za-z_$][A-Za-z0-9_$]*)\b/g,
     /export\s+default\s+function\s+([A-Za-z_$][A-Za-z0-9_$]*)\b/g,
@@ -68,10 +65,10 @@ function extractSourceSymbol(content) {
 
   const uniqueProviderTargets = [...new Set(providerTargets)];
   const uniqueDeclarationSymbols = [...new Set(declarationSymbols)].filter(
-    (symbol) => /[a-z]/.test(symbol) && !symbol.endsWith('Provider'),
+    (symbol) => /[a-z]/.test(symbol) && !symbol.endsWith("Provider"),
   );
   const uniqueContractSymbols = [...new Set(contractSymbols)].filter((symbol) => /[a-z]/.test(symbol));
-  const uniqueTokenRuntimeExports = uniqueRuntimeExports.filter((symbol) => symbol.endsWith('Token'));
+  const uniqueTokenRuntimeExports = uniqueRuntimeExports.filter((symbol) => symbol.endsWith("Token"));
 
   if (
     uniqueTokenRuntimeExports.length === 1 &&
@@ -86,9 +83,9 @@ function extractSourceSymbol(content) {
     (symbol) =>
       /^[A-Z][A-Za-z0-9]*$/.test(symbol) &&
       /[a-z]/.test(symbol) &&
-      !symbol.endsWith('Provider') &&
-      !symbol.endsWith('Token') &&
-      !symbol.startsWith('Abstract'),
+      !symbol.endsWith("Provider") &&
+      !symbol.endsWith("Token") &&
+      !symbol.startsWith("Abstract"),
   );
   if (directCanonicalRuntimeSymbols.length === 1) {
     return directCanonicalRuntimeSymbols[0];
@@ -128,14 +125,14 @@ const SHARED_PROJECT_CONFIG = {
 
 const PROJECT_DEFINITIONS = {
   frontend: {
-    directory: 'application/frontend',
-    roots: ['src', 'test'],
-    label: 'Frontend',
+    directory: "application/frontend",
+    roots: ["src", "test"],
+    label: "Frontend",
   },
   backend: {
-    directory: 'application/backend',
-    roots: ['src', 'test'],
-    label: 'Backend',
+    directory: "application/backend",
+    roots: ["src", "test"],
+    label: "Backend",
   },
 };
 
@@ -170,7 +167,7 @@ function walk(directory, files = []) {
 }
 
 function toPosix(filePath) {
-  return filePath.replace(/\\/g, '/');
+  return filePath.replace(/\\/g, "/");
 }
 
 function toWorkspaceRelative(projectRoot, filePath) {
@@ -178,11 +175,11 @@ function toWorkspaceRelative(projectRoot, filePath) {
 }
 
 function toKebabCase(symbol) {
-  return symbol.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+  return symbol.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 }
 
 function removeTypeScriptExtension(filePath) {
-  return filePath.replace(/\.(ts|tsx)$/, '');
+  return filePath.replace(/\.(ts|tsx)$/, "");
 }
 
 function getBaseNameWithoutExtension(filePath) {
@@ -198,7 +195,7 @@ function violatesFrontendAppAdapterNaming(relativePath) {
 }
 
 function normalizeBaseName(baseName) {
-  return baseName.replace(/\./g, '-');
+  return baseName.replace(/\./g, "-");
 }
 
 function buildSourceStemCandidates(sourceStem) {
@@ -208,7 +205,7 @@ function buildSourceStemCandidates(sourceStem) {
   while (true) {
     candidates.push(currentStem);
 
-    const lastSeparatorIndex = currentStem.lastIndexOf('.');
+    const lastSeparatorIndex = currentStem.lastIndexOf(".");
     if (lastSeparatorIndex === -1) {
       break;
     }
@@ -248,10 +245,7 @@ function isValidTestBaseName(actualBaseName, expectedSourceBaseName, parsedTestF
 
   const testNamePrefix = actualBaseName.slice(0, -parsedTestFileName.testMarker.length);
   const normalizedPrefix = normalizeBaseName(testNamePrefix);
-  return (
-    normalizedPrefix === expectedSourceBaseName ||
-    normalizedPrefix.startsWith(`${expectedSourceBaseName}-`)
-  );
+  return normalizedPrefix === expectedSourceBaseName || normalizedPrefix.startsWith(`${expectedSourceBaseName}-`);
 }
 
 function hasSideBySideTest(sourceFilePath) {
@@ -280,9 +274,10 @@ function requiresFrontendSideBySideTest(relativePath, filePath, symbol, content)
     return false;
   }
 
-  const hasBehavioralRuntimeExport = /export\s+(?:abstract\s+)?class\s+|export\s+default\s+function\s+|export\s+function\s+|export\s+const\s+(?![A-Za-z_$][A-Za-z0-9_$]*Token\b)/.test(
-    content,
-  );
+  const hasBehavioralRuntimeExport =
+    /export\s+(?:abstract\s+)?class\s+|export\s+default\s+function\s+|export\s+function\s+|export\s+const\s+(?![A-Za-z_$][A-Za-z0-9_$]*Token\b)/.test(
+      content,
+    );
 
   if (/^src\/presentation\/.*\/contexts\/.*\.tsx$/.test(relativePath)) {
     return true;
@@ -305,7 +300,7 @@ function requiresFrontendSideBySideTest(relativePath, filePath, symbol, content)
 export function runProject(projectName) {
   const project = PROJECTS[projectName];
   if (!project) {
-    console.error(`Unknown project '${projectName}'. Expected one of: ${Object.keys(PROJECTS).join(', ')}`);
+    console.error(`Unknown project '${projectName}'. Expected one of: ${Object.keys(PROJECTS).join(", ")}`);
     process.exitCode = 1;
     return;
   }
@@ -319,13 +314,13 @@ export function runProject(projectName) {
   for (const filePath of files) {
     const relativePath = toWorkspaceRelative(project.root, filePath);
 
-    if (projectName === 'frontend' && violatesFrontendAppServiceNaming(relativePath)) {
+    if (projectName === "frontend" && violatesFrontendAppServiceNaming(relativePath)) {
       failures.push(
         `${relativePath}: src/app must not define *.service modules; use runtime, binding, or composition module names instead.`,
       );
     }
 
-    if (projectName === 'frontend' && violatesFrontendAppAdapterNaming(relativePath)) {
+    if (projectName === "frontend" && violatesFrontendAppAdapterNaming(relativePath)) {
       failures.push(
         `${relativePath}: src/app must not define adapter modules or adapters folders; use runtime, binding, or composition module names instead.`,
       );
@@ -339,13 +334,13 @@ export function runProject(projectName) {
         continue;
       }
 
-      const sourceContent = fs.readFileSync(sourceFilePath, 'utf8');
+      const sourceContent = fs.readFileSync(sourceFilePath, "utf8");
       const sourceSymbol = project.extractSourceSymbol(sourceContent);
       if (!sourceSymbol) {
         continue;
       }
 
-      const actualBaseName = path.basename(filePath).replace(/\.(ts|tsx)$/, '');
+      const actualBaseName = path.basename(filePath).replace(/\.(ts|tsx)$/, "");
       const expectedSourceBaseName = toKebabCase(sourceSymbol);
       if (!isValidTestBaseName(actualBaseName, expectedSourceBaseName, parsedTestFileName)) {
         failures.push(
@@ -353,7 +348,7 @@ export function runProject(projectName) {
         );
       }
 
-      const topLevelDescribe = project.extractTopLevelDescribe(fs.readFileSync(filePath, 'utf8'));
+      const topLevelDescribe = project.extractTopLevelDescribe(fs.readFileSync(filePath, "utf8"));
       if (project.shouldEnforceDescribe(topLevelDescribe, sourceSymbol) && topLevelDescribe !== sourceSymbol) {
         failures.push(`${relativePath}: expected top-level describe to be ${sourceSymbol}`);
       }
@@ -361,10 +356,10 @@ export function runProject(projectName) {
       continue;
     }
 
-    const content = fs.readFileSync(filePath, 'utf8');
+    const content = fs.readFileSync(filePath, "utf8");
     const symbol = project.extractSourceSymbol(content);
     if (
-      projectName === 'frontend' &&
+      projectName === "frontend" &&
       requiresFrontendSideBySideTest(relativePath, filePath, symbol, content) &&
       !hasSideBySideTest(filePath)
     ) {
@@ -380,9 +375,7 @@ export function runProject(projectName) {
     const expectedBaseName = toKebabCase(symbol);
     const actualBaseName = normalizeBaseName(getBaseNameWithoutExtension(filePath));
     if (actualBaseName !== expectedBaseName) {
-      failures.push(
-        `${relativePath}: expected file name ${expectedBaseName}${path.extname(filePath)} for ${symbol}`,
-      );
+      failures.push(`${relativePath}: expected file name ${expectedBaseName}${path.extname(filePath)} for ${symbol}`);
     }
   }
 
@@ -398,6 +391,6 @@ export function runProject(projectName) {
   process.exitCode = 1;
 }
 
-if (import.meta.url === new URL(process.argv[1], 'file://').href) {
+if (import.meta.url === new URL(process.argv[1], "file://").href) {
   runProject(process.argv[2]);
 }

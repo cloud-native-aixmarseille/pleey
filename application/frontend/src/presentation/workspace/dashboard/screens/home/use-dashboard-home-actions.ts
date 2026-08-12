@@ -49,9 +49,7 @@ export function useDashboardHomeActions({ actionsFacade }: UseDashboardHomeActio
     }
   };
 
-  const handleCreateGameFromImport = async (
-    command: ImportDashboardGameCommand,
-  ): Promise<number> => {
+  const handleCreateGameFromImport = async (command: ImportDashboardGameCommand): Promise<number> => {
     const result = await actionsFacade.createGameFromImport(command);
 
     if (result.route) {

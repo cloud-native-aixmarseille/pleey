@@ -11,11 +11,10 @@ import {
 
 type DefaultWorkspaceServiceLike = Pick<DefaultWorkspaceService, 'ensure'>;
 
-const DEFAULT_WORKSPACE_SERVICE_METHOD_KINDS: MockFactoryMethodKinds<DefaultWorkspaceServiceLike> =
-  {
-    resolved: ['ensure'],
-    returned: [],
-  };
+const DEFAULT_WORKSPACE_SERVICE_METHOD_KINDS: MockFactoryMethodKinds<DefaultWorkspaceServiceLike> = {
+  resolved: ['ensure'],
+  returned: [],
+};
 
 export const createDefaultWorkspaceServiceMock = (
   config: MockFactoryConfig<DefaultWorkspaceServiceLike> = {},

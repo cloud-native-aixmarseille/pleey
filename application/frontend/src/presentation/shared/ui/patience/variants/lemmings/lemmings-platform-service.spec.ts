@@ -38,8 +38,7 @@ describe('LemmingsPlatformService', () => {
     container.append(card, divider);
     document.body.append(container);
 
-    container.getBoundingClientRect = () =>
-      createRect({ top: 0, left: 0, width: 320, height: 360 });
+    container.getBoundingClientRect = () => createRect({ top: 0, left: 0, width: 320, height: 360 });
     card.getBoundingClientRect = () => createRect({ top: 64, left: 40, width: 220, height: 140 });
     divider.getBoundingClientRect = () => createRect({ top: 250, left: 52, width: 216, height: 2 });
 

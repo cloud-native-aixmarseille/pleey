@@ -23,9 +23,7 @@ export class PersistedWorkspaceSelectionAdapter implements WorkspaceSelectionPor
       organizationId: this.organizationIdentifier.parseOrNull(
         this.storage.getItem(StorageKey.WORKSPACE_ORGANIZATION_ID),
       ),
-      projectId: this.projectIdentifier.parseOrNull(
-        this.storage.getItem(StorageKey.WORKSPACE_PROJECT_ID),
-      ),
+      projectId: this.projectIdentifier.parseOrNull(this.storage.getItem(StorageKey.WORKSPACE_PROJECT_ID)),
     };
   }
 

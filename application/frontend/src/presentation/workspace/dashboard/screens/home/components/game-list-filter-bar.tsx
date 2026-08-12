@@ -24,10 +24,7 @@ interface GameListFilterBarProps {
 
 function toGameTypes(
   values: readonly string[],
-  gameTypeParser: Pick<
-    ReturnType<typeof useWorkspaceDependencies>['gameTypeParser'],
-    'parseOrNull'
-  >,
+  gameTypeParser: Pick<ReturnType<typeof useWorkspaceDependencies>['gameTypeParser'], 'parseOrNull'>,
 ): GameType[] {
   return values.flatMap((value) => {
     const gameType = gameTypeParser.parseOrNull(value);

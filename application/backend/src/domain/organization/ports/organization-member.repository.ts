@@ -9,16 +9,9 @@ import type { OrganizationRole } from '../enums/organization-role.enum';
  * Defines the contract for organization member data access
  */
 export interface OrganizationMemberRepository {
-  create(
-    organizationId: OrganizationId,
-    userId: UserId,
-    role: OrganizationRole,
-  ): Promise<OrganizationMember>;
+  create(organizationId: OrganizationId, userId: UserId, role: OrganizationRole): Promise<OrganizationMember>;
   findById(id: OrganizationMemberId): Promise<OrganizationMember | null>;
-  findByOrganizationAndUser(
-    organizationId: OrganizationId,
-    userId: UserId,
-  ): Promise<OrganizationMember | null>;
+  findByOrganizationAndUser(organizationId: OrganizationId, userId: UserId): Promise<OrganizationMember | null>;
   countOwnersByOrganization(organizationId: OrganizationId): Promise<number>;
   findPageByOrganization(
     organizationId: OrganizationId,

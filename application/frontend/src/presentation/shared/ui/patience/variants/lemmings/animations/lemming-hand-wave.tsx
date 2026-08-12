@@ -13,9 +13,7 @@ const wavingFingerSegments = [
 ] as const satisfies readonly WavingFingerSegment[];
 
 function WavingFinger({ height, x, y }: WavingFingerSegment) {
-  return (
-    <rect fill="var(--ui-color-surface-panel)" height={height} rx="0.4" width="0.9" x={x} y={y} />
-  );
+  return <rect fill="var(--ui-color-surface-panel)" height={height} rx="0.4" width="0.9" x={x} y={y} />;
 }
 
 export function LemmingHandWave() {
@@ -35,12 +33,7 @@ export function LemmingHandWave() {
         <circle cx="21" cy="0" fill="var(--ui-color-surface-panel)" r="2.8" />
         {/* Fingers spread for visibility */}
         {wavingFingerSegments.map((segment) => (
-          <WavingFinger
-            height={segment.height}
-            key={`${segment.x}-${segment.y}`}
-            x={segment.x}
-            y={segment.y}
-          />
+          <WavingFinger height={segment.height} key={`${segment.x}-${segment.y}`} x={segment.x} y={segment.y} />
         ))}
       </motion.g>
     </>

@@ -8,15 +8,8 @@ import { useProfileScreenState } from './use-profile-screen-state';
 
 export function ProfileScreen() {
   const { t } = usePresentationTranslation();
-  const {
-    errorMessage,
-    form,
-    handleRegenerateAvatar,
-    isRegenerating,
-    signOut,
-    successMessage,
-    user,
-  } = useProfileScreenState();
+  const { errorMessage, form, handleRegenerateAvatar, isRegenerating, signOut, successMessage, user } =
+    useProfileScreenState();
 
   if (user === null) {
     return null;
@@ -34,11 +27,7 @@ export function ProfileScreen() {
           onRegenerateAvatar={handleRegenerateAvatar}
           user={user}
         />
-        <ProfileDetailsForm
-          errorMessage={errorMessage}
-          form={form}
-          successMessage={successMessage}
-        />
+        <ProfileDetailsForm errorMessage={errorMessage} form={form} successMessage={successMessage} />
         <ProfileSignOutSection onSignOut={signOut} />
       </AuthFormCard>
     </AuthLayout>

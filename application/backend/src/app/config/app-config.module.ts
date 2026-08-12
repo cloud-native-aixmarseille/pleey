@@ -1,18 +1,12 @@
 import { Global, Module } from '@nestjs/common';
 import { PARTY_SESSION_RECOVERY_WINDOW_MS } from '../../application/game/party/shared/contracts/party-session-recovery-window-ms.token';
-import {
-  ACCESS_TOKEN_CONFIG,
-  REFRESH_TOKEN_CONFIG,
-} from '../../domain/identity/ports/auth-token.service';
+import { ACCESS_TOKEN_CONFIG, REFRESH_TOKEN_CONFIG } from '../../domain/identity/ports/auth-token.service';
 import { DATABASE_CONNECTION_STRING } from '../../infrastructure/database/database-connection-string.token';
 import { AUTH_JWT_SECRET } from '../../infrastructure/identity/auth-jwt-secret.token';
 import { PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES_TOKEN } from '../../presentation/game/types/shared/graphql/playable-content-upload.constants';
 import { APP_VERSION } from '../../presentation/health/http/app-version.token';
 import { AUTH_PUBLIC_API_BASE_URL } from '../../presentation/identity/shared/auth-public-api-base-url.token';
-import {
-  APP_RUNTIME_CONFIGURATION,
-  type AppRuntimeConfiguration,
-} from './app-runtime-configuration.token';
+import { APP_RUNTIME_CONFIGURATION, type AppRuntimeConfiguration } from './app-runtime-configuration.token';
 import { APP_SERVER_CONFIG } from './app-server-config.token';
 import { GAME_SOCKET_CORS_OPTIONS } from './game-socket-cors-options.token';
 import { loadAppRuntimeConfiguration } from './load-app-runtime-configuration';
@@ -51,8 +45,7 @@ import { loadAppRuntimeConfiguration } from './load-app-runtime-configuration';
     },
     {
       provide: DATABASE_CONNECTION_STRING,
-      useFactory: (configuration: AppRuntimeConfiguration) =>
-        configuration.databaseConnectionString,
+      useFactory: (configuration: AppRuntimeConfiguration) => configuration.databaseConnectionString,
       inject: [APP_RUNTIME_CONFIGURATION],
     },
     {
@@ -67,14 +60,12 @@ import { loadAppRuntimeConfiguration } from './load-app-runtime-configuration';
     },
     {
       provide: PARTY_SESSION_RECOVERY_WINDOW_MS,
-      useFactory: (configuration: AppRuntimeConfiguration) =>
-        configuration.partySessionRecoveryWindowMs,
+      useFactory: (configuration: AppRuntimeConfiguration) => configuration.partySessionRecoveryWindowMs,
       inject: [APP_RUNTIME_CONFIGURATION],
     },
     {
       provide: PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES_TOKEN,
-      useFactory: (configuration: AppRuntimeConfiguration) =>
-        configuration.playableContentImportMaxFileSizeBytes,
+      useFactory: (configuration: AppRuntimeConfiguration) => configuration.playableContentImportMaxFileSizeBytes,
       inject: [APP_RUNTIME_CONFIGURATION],
     },
   ],

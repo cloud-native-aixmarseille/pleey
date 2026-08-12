@@ -152,12 +152,7 @@ export class PrismaPlayerPartyActionRuntimeAdapter extends PlayerPartyActionRunt
       const stageId = command.context?.lifecycle.stageId;
       const stagePosition = command.context?.lifecycle.stagePosition;
 
-      if (
-        stageId === null ||
-        stageId === undefined ||
-        stagePosition === null ||
-        stagePosition === undefined
-      ) {
+      if (stageId === null || stageId === undefined || stagePosition === null || stagePosition === undefined) {
         return;
       }
 
@@ -185,10 +180,7 @@ export class PrismaPlayerPartyActionRuntimeAdapter extends PlayerPartyActionRunt
     });
   }
 
-  private toPersistedPartyPlayerProgress(
-    value: unknown,
-    totalPoints: number,
-  ): PersistedPartyPlayerProgress {
+  private toPersistedPartyPlayerProgress(value: unknown, totalPoints: number): PersistedPartyPlayerProgress {
     const latestState = this.partyReadModelMapper.toPartyPlayerActionState(value);
     const persistedHistory =
       value && typeof value === 'object' && !Array.isArray(value)
@@ -234,9 +226,7 @@ export class PrismaPlayerPartyActionRuntimeAdapter extends PlayerPartyActionRunt
     };
   }
 
-  private toPersistedStageHistory(
-    value: unknown,
-  ): readonly PersistedPartyPlayerStageProgressEntry[] {
+  private toPersistedStageHistory(value: unknown): readonly PersistedPartyPlayerStageProgressEntry[] {
     if (!Array.isArray(value)) {
       return [];
     }
@@ -247,9 +237,7 @@ export class PrismaPlayerPartyActionRuntimeAdapter extends PlayerPartyActionRunt
       .sort((left, right) => left.stagePosition - right.stagePosition);
   }
 
-  private toPersistedStageHistoryEntry(
-    value: unknown,
-  ): PersistedPartyPlayerStageProgressEntry | null {
+  private toPersistedStageHistoryEntry(value: unknown): PersistedPartyPlayerStageProgressEntry | null {
     if (!value || typeof value !== 'object' || Array.isArray(value)) {
       return null;
     }
@@ -318,9 +306,7 @@ export class PrismaPlayerPartyActionRuntimeAdapter extends PlayerPartyActionRunt
     } satisfies Prisma.InputJsonValue;
   }
 
-  private toPersistedContext(
-    context: PartyRuntimeContext | null,
-  ): Prisma.InputJsonValue | typeof Prisma.JsonNull {
+  private toPersistedContext(context: PartyRuntimeContext | null): Prisma.InputJsonValue | typeof Prisma.JsonNull {
     if (context === null) {
       return Prisma.JsonNull;
     }

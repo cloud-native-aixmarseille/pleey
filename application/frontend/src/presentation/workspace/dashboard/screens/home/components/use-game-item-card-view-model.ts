@@ -40,9 +40,7 @@ export function useGameItemCardViewModel({
     summaryText: game.summary ? t(game.summary.translationKey, game.summary.values) : null,
   };
 
-  function resolveCreatePartyDisabledLabel(
-    reason: CreatePartyDisabledReason | null,
-  ): string | null {
+  function resolveCreatePartyDisabledLabel(reason: CreatePartyDisabledReason | null): string | null {
     switch (reason) {
       case CreatePartyDisabledReason.ACTIVE_PARTY_EXISTS:
         return t('dashboard.games.permissions.createParty.activePartyExists');

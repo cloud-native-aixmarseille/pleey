@@ -15,9 +15,7 @@ const projectIdentifier = new ProjectIdentifierMockFactory().create();
 
 describe('ListProjectGamesUseCase', () => {
   const dashboardHomeScreenFixtureFactory = new DashboardHomeScreenFixtureFactory();
-  const gameCatalogPortMockFactory = new GameCatalogPortMockFactory(
-    dashboardHomeScreenFixtureFactory,
-  );
+  const gameCatalogPortMockFactory = new GameCatalogPortMockFactory(dashboardHomeScreenFixtureFactory);
   const gameTypeRegistryMockFactory = new GameTypeRegistryMockFactory();
 
   it('enriches paginated dashboard games with facade-owned summaries', async () => {

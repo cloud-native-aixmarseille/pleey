@@ -6,13 +6,7 @@ import { Badge } from '../feedback/badge';
 import { uiThemeTokens } from '../foundation/ui-theme';
 import { AccentIconBadge } from '../icons/accent-icon-badge';
 import { AppIcon } from '../icons/app-icon';
-import {
-  ContentStack,
-  FlexGrowItem,
-  SplitWrapRow,
-  StretchRow,
-  WrapRow,
-} from '../layout/containers';
+import { ContentStack, FlexGrowItem, SplitWrapRow, StretchRow, WrapRow } from '../layout/containers';
 import { SupportingText } from '../layout/typography';
 import { FilePickerButton } from './file-picker-button';
 
@@ -197,11 +191,7 @@ export function FileUploadDropzone({
           onSelect={onFileSelect}
         >
           {({ onClick }) => (
-            <PromptSurfaceButton
-              aria-label={inputAriaLabel}
-              onClick={onClick}
-              rootStyle={{ paddingTop: '4.5rem' }}
-            >
+            <PromptSurfaceButton aria-label={inputAriaLabel} onClick={onClick} rootStyle={{ paddingTop: '4.5rem' }}>
               <ContentStack align="center" gap="sm">
                 <AccentIconBadge size={52}>
                   <AppIcon name="arrow-up" size={26} />

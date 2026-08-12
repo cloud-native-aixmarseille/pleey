@@ -1,11 +1,7 @@
 import { screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { renderWithUiProvider } from '../../../../test-utils/render-with-ui-provider';
-import {
-  PatienceAnimationRegistryProvider,
-  PatienceRouteProvider,
-  usePatienceRouteState,
-} from './index';
+import { PatienceAnimationRegistryProvider, PatienceRouteProvider, usePatienceRouteState } from './index';
 import { PatienceHost } from './patience-host';
 import { PatienceAnimationId } from './types';
 

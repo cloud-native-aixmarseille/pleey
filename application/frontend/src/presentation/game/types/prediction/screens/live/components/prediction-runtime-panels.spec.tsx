@@ -172,12 +172,8 @@ describe('prediction runtime panels', () => {
     expect(screen.getByText('Home wins')).toBeInTheDocument();
     expect(screen.getByText('Away wins')).toBeInTheDocument();
     expect(screen.getByText('game.party.route.runtimeTimeLeft:time=00:10')).toBeInTheDocument();
-    expect(
-      screen.getAllByText('game.party.route.runtimeResponsesReceived:submitted=1,total=3')[0],
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText('game.party.route.runtimeResponsesPending:remaining=2'),
-    ).toBeInTheDocument();
+    expect(screen.getAllByText('game.party.route.runtimeResponsesReceived:submitted=1,total=3')[0]).toBeInTheDocument();
+    expect(screen.getByText('game.party.route.runtimeResponsesPending:remaining=2')).toBeInTheDocument();
   });
 
   it('submits the selected prediction action from the player stage', () => {
@@ -226,10 +222,7 @@ describe('prediction runtime panels', () => {
     fireEvent.keyDown(document, { key: '2' });
 
     expect(onSubmitAction).toHaveBeenCalledWith(secondActionId);
-    expect(screen.getByRole('button', { name: 'Away wins' })).toHaveAttribute(
-      'aria-keyshortcuts',
-      '2',
-    );
+    expect(screen.getByRole('button', { name: 'Away wins' })).toHaveAttribute('aria-keyshortcuts', '2');
   });
 
   it('disables prediction actions when the stage timer has expired', () => {
@@ -251,15 +244,11 @@ describe('prediction runtime panels', () => {
   });
 
   it('renders the player prediction result reveal from party state', () => {
-    renderWithUiProvider(
-      <PredictionPlayerResultSurface onLeaveParty={vi.fn()} party={createResultParty()} />,
-    );
+    renderWithUiProvider(<PredictionPlayerResultSurface onLeaveParty={vi.fn()} party={createResultParty()} />);
 
     expect(screen.getByTestId('prediction-player-result-surface')).toBeInTheDocument();
     expect(screen.getByText('game.types.prediction.runtime.resultCorrect')).toBeInTheDocument();
-    expect(
-      screen.getByText('game.types.prediction.runtime.pointsAwarded:points=250'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('game.types.prediction.runtime.pointsAwarded:points=250')).toBeInTheDocument();
     expect(screen.getByText('game.types.prediction.runtime.correctBadge')).toBeInTheDocument();
     expect(screen.getByText('game.types.prediction.runtime.yourPickBadge')).toBeInTheDocument();
   });

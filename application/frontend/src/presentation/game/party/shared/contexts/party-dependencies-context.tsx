@@ -45,10 +45,7 @@ export interface PartyDependencies {
 
 const PartyDependenciesContext = createContext<PartyDependencies | null>(null);
 
-export function providePartyDependencies(
-  children: ReactNode,
-  value: PartyDependencies,
-): ReactElement {
+export function providePartyDependencies(children: ReactNode, value: PartyDependencies): ReactElement {
   return createElement(PartyDependenciesContext.Provider, { value }, children);
 }
 

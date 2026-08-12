@@ -22,13 +22,8 @@ describe('RemoveMemberFromOrganizationUseCase', () => {
       memberRepository as never,
       membershipPolicy,
     );
-    const useCase = new RemoveMemberFromOrganizationUseCase(
-      organizationMembershipAccess,
-      memberRepository as never,
-    );
-    await expect(useCase.execute(memberId, requesterUserId)).rejects.toThrow(
-      OrganizationErrorCode.MEMBER_NOT_FOUND,
-    );
+    const useCase = new RemoveMemberFromOrganizationUseCase(organizationMembershipAccess, memberRepository as never);
+    await expect(useCase.execute(memberId, requesterUserId)).rejects.toThrow(OrganizationErrorCode.MEMBER_NOT_FOUND);
   });
 
   it('throws when requesting user lacks management privileges', async () => {
@@ -46,10 +41,7 @@ describe('RemoveMemberFromOrganizationUseCase', () => {
       memberRepository as never,
       membershipPolicy,
     );
-    const useCase = new RemoveMemberFromOrganizationUseCase(
-      organizationMembershipAccess,
-      memberRepository as never,
-    );
+    const useCase = new RemoveMemberFromOrganizationUseCase(organizationMembershipAccess, memberRepository as never);
     await expect(useCase.execute(memberId, requesterUserId)).rejects.toThrow(
       OrganizationErrorCode.INSUFFICIENT_PERMISSIONS,
     );
@@ -75,10 +67,7 @@ describe('RemoveMemberFromOrganizationUseCase', () => {
       memberRepository as never,
       membershipPolicy,
     );
-    const useCase = new RemoveMemberFromOrganizationUseCase(
-      organizationMembershipAccess,
-      memberRepository as never,
-    );
+    const useCase = new RemoveMemberFromOrganizationUseCase(organizationMembershipAccess, memberRepository as never);
     await expect(useCase.execute(memberId, requesterUserId)).rejects.toThrow(
       OrganizationErrorCode.CANNOT_REMOVE_LAST_OWNER,
     );
@@ -103,10 +92,7 @@ describe('RemoveMemberFromOrganizationUseCase', () => {
       memberRepository as never,
       membershipPolicy,
     );
-    const useCase = new RemoveMemberFromOrganizationUseCase(
-      organizationMembershipAccess,
-      memberRepository as never,
-    );
+    const useCase = new RemoveMemberFromOrganizationUseCase(organizationMembershipAccess, memberRepository as never);
 
     await expect(useCase.execute(memberId, requesterUserId)).rejects.toThrow(
       OrganizationErrorCode.INSUFFICIENT_PERMISSIONS,
@@ -133,10 +119,7 @@ describe('RemoveMemberFromOrganizationUseCase', () => {
       memberRepository as never,
       membershipPolicy,
     );
-    const useCase = new RemoveMemberFromOrganizationUseCase(
-      organizationMembershipAccess,
-      memberRepository as never,
-    );
+    const useCase = new RemoveMemberFromOrganizationUseCase(organizationMembershipAccess, memberRepository as never);
     await useCase.execute(memberId, requesterUserId);
     expect(memberRepository.delete).toHaveBeenCalledWith(memberId);
   });

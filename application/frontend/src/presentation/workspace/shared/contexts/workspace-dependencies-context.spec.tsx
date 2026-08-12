@@ -27,8 +27,7 @@ describe('workspaceDependenciesContext', () => {
           parseOrNull: () => 11 as never,
         },
       };
-      const wrapper = ({ children }: { children: ReactNode }) =>
-        provideWorkspaceDependencies(children, dependencies);
+      const wrapper = ({ children }: { children: ReactNode }) => provideWorkspaceDependencies(children, dependencies);
 
       // Act
       const { result } = renderHook(() => useWorkspaceDependencies(), { wrapper });

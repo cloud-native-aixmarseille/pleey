@@ -54,10 +54,7 @@ export function JoinPartySurface({
   const trimmedGuestName = guestName.trim();
   const isJoinDisabled = isJoinSubmitting || (!isAuthenticated && trimmedGuestName.length === 0);
   const guestAvatarAltLabel = t('game.party.player.route.guestAvatarAlt', {
-    username:
-      trimmedGuestName.length > 0
-        ? trimmedGuestName
-        : t('game.party.player.route.guestAvatarFallbackName'),
+    username: trimmedGuestName.length > 0 ? trimmedGuestName : t('game.party.player.route.guestAvatarFallbackName'),
   });
 
   useEffect(() => {
@@ -83,11 +80,7 @@ export function JoinPartySurface({
 
   const guestIdentitySection = isAuthenticated ? null : (
     <ContentStack align="center" gap={isMobile ? 'sm' : 'md'}>
-      <UserAvatar
-        alt={guestAvatarAltLabel}
-        size={isMobile ? 96 : 112}
-        src={guestAvatarPreviewUri}
-      />
+      <UserAvatar alt={guestAvatarAltLabel} size={isMobile ? 96 : 112} src={guestAvatarPreviewUri} />
 
       <ActionRow justify="center">
         <Button
@@ -110,11 +103,7 @@ export function JoinPartySurface({
         </Button>
       </ActionRow>
 
-      <FieldShell
-        id="party-join-guest-name"
-        label={t('game.party.player.route.guestNameLabel')}
-        required
-      >
+      <FieldShell id="party-join-guest-name" label={t('game.party.player.route.guestNameLabel')} required>
         <Input
           aria-label={t('game.party.player.route.guestNameLabel')}
           autoComplete="nickname"
@@ -158,9 +147,7 @@ export function JoinPartySurface({
       type="submit"
       width="full"
     >
-      {isAuthenticated
-        ? t('game.party.player.route.joinWithAccountCta')
-        : t('game.party.player.route.joinAsGuestCta')}
+      {isAuthenticated ? t('game.party.player.route.joinWithAccountCta') : t('game.party.player.route.joinAsGuestCta')}
     </Button>
   );
 

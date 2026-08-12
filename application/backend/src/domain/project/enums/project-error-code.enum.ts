@@ -8,9 +8,7 @@ export enum ProjectErrorCode {
   PROJECT_NOT_FOUND = 'PROJECT_NOT_FOUND',
 }
 
-export const PROJECT_ERROR_DEFINITIONS: Readonly<
-  Record<ProjectErrorCode, DomainErrorDefinition<ProjectErrorCode>>
-> = {
+export const PROJECT_ERROR_DEFINITIONS: Readonly<Record<ProjectErrorCode, DomainErrorDefinition<ProjectErrorCode>>> = {
   [ProjectErrorCode.CANNOT_DELETE_LAST_PROJECT]: {
     code: ProjectErrorCode.CANNOT_DELETE_LAST_PROJECT,
     messageKey: 'project.errors.cannotDeleteLastProject',

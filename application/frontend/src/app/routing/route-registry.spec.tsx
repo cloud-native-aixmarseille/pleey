@@ -24,9 +24,7 @@ function createPartyRouteService(): PartyRouteService {
 }
 
 vi.mock('react-i18next', async () => {
-  const { ReactI18nextMockFactory } = await import(
-    'src/test-utils/mocks/react-i18next-mock-factory'
-  );
+  const { ReactI18nextMockFactory } = await import('src/test-utils/mocks/react-i18next-mock-factory');
 
   return new ReactI18nextMockFactory().createModule();
 });

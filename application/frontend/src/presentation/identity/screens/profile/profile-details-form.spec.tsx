@@ -24,18 +24,13 @@ function ProfileDetailsFormHarness({
     onSubmit: async () => undefined,
   });
 
-  return (
-    <ProfileDetailsForm errorMessage={errorMessage} form={form} successMessage={successMessage} />
-  );
+  return <ProfileDetailsForm errorMessage={errorMessage} form={form} successMessage={successMessage} />;
 }
 
 describe('ProfileDetailsForm', () => {
   it('renders the profile fields and status banners', () => {
     renderWithFormProvider(
-      <ProfileDetailsFormHarness
-        errorMessage="Unable to save profile"
-        successMessage="Profile updated"
-      />,
+      <ProfileDetailsFormHarness errorMessage="Unable to save profile" successMessage="Profile updated" />,
     );
 
     expect(screen.getByText('auth.profile.detailsSection.legend')).toBeInTheDocument();

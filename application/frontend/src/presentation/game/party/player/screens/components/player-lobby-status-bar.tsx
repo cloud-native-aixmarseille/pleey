@@ -48,11 +48,7 @@ export function PlayerLobbyStatusBar({
               {compact
                 ? null
                 : metadataBadges.map((badgeLabel) => (
-                    <Badge
-                      icon={<AppIcon name="profile" size={12} />}
-                      key={badgeLabel}
-                      tone="neutral"
-                    >
+                    <Badge icon={<AppIcon name="profile" size={12} />} key={badgeLabel} tone="neutral">
                       {badgeLabel}
                     </Badge>
                   ))}

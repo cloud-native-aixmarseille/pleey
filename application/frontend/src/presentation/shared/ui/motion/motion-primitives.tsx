@@ -46,18 +46,10 @@ export function MotionFadeIn({
   const Component = resolveMotionComponent(as);
   const initial = prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y, x };
   const animate = prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0, x: 0 };
-  const transition: Transition = prefersReducedMotion
-    ? REDUCED_TRANSITION
-    : { duration, delay, ease: 'easeOut' };
+  const transition: Transition = prefersReducedMotion ? REDUCED_TRANSITION : { duration, delay, ease: 'easeOut' };
 
   return (
-    <Component
-      animate={animate}
-      data-testid={testId}
-      initial={initial}
-      style={style}
-      transition={transition}
-    >
+    <Component animate={animate} data-testid={testId} initial={initial} style={style} transition={transition}>
       {children}
     </Component>
   );
@@ -99,13 +91,7 @@ export function MotionStagger({
       };
 
   return (
-    <Component
-      animate="visible"
-      data-testid={testId}
-      initial="hidden"
-      style={style}
-      variants={variants}
-    >
+    <Component animate="visible" data-testid={testId} initial="hidden" style={style} variants={variants}>
       {children}
     </Component>
   );
@@ -166,9 +152,7 @@ export function MotionScreenTransition({
   const initial = prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 8 };
   const animate = prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 };
   const exit = prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -8 };
-  const transition: Transition = prefersReducedMotion
-    ? REDUCED_TRANSITION
-    : { duration, ease: 'easeOut' };
+  const transition: Transition = prefersReducedMotion ? REDUCED_TRANSITION : { duration, ease: 'easeOut' };
 
   return (
     <AnimatePresence mode={mode}>
@@ -201,30 +185,14 @@ const PODIUM_RISE_SPRING: Transition = {
   mass: 0.9,
 };
 
-export function MotionPodiumRise({
-  children,
-  delay = 0,
-  riseDistance = 96,
-  style,
-  testId,
-}: MotionPodiumRiseProps) {
+export function MotionPodiumRise({ children, delay = 0, riseDistance = 96, style, testId }: MotionPodiumRiseProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
-  const initial = prefersReducedMotion
-    ? { opacity: 0 }
-    : { opacity: 0, y: riseDistance, scale: 0.55, rotate: -2 };
+  const initial = prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: riseDistance, scale: 0.55, rotate: -2 };
   const animate = prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1, rotate: 0 };
-  const transition: Transition = prefersReducedMotion
-    ? REDUCED_TRANSITION
-    : { ...PODIUM_RISE_SPRING, delay };
+  const transition: Transition = prefersReducedMotion ? REDUCED_TRANSITION : { ...PODIUM_RISE_SPRING, delay };
 
   return (
-    <motion.div
-      animate={animate}
-      data-testid={testId}
-      initial={initial}
-      style={style}
-      transition={transition}
-    >
+    <motion.div animate={animate} data-testid={testId} initial={initial} style={style} transition={transition}>
       {children}
     </motion.div>
   );
@@ -242,9 +210,7 @@ export function MotionPop({ as, children, delay = 0, style }: MotionPopProps) {
   const Component = resolveMotionComponent(as);
   const initial = prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.6 };
   const animate = prefersReducedMotion ? { opacity: 1 } : { opacity: 1, scale: 1 };
-  const transition: Transition = prefersReducedMotion
-    ? REDUCED_TRANSITION
-    : { ...POP_SPRING, delay };
+  const transition: Transition = prefersReducedMotion ? REDUCED_TRANSITION : { ...POP_SPRING, delay };
 
   return (
     <Component animate={animate} initial={initial} style={style} transition={transition}>

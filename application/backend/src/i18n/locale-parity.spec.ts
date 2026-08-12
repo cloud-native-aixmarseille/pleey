@@ -33,10 +33,7 @@ function listSourceFiles(directory: string): string[] {
   });
 }
 
-function collectStaticBackendTranslationKeys(
-  directory: string,
-  namespaces: readonly string[],
-): string[] {
+function collectStaticBackendTranslationKeys(directory: string, namespaces: readonly string[]): string[] {
   const keys = new Set<string>();
   const stringLiteralPattern = /['"`]([^'"`\n]+)['"`]/g;
 
@@ -61,20 +58,14 @@ describe('backend locale parity', () => {
   const localeDirectory = join(process.cwd(), 'src', 'i18n');
   const englishDirectory = join(localeDirectory, 'en');
   const frenchDirectory = join(localeDirectory, 'fr');
-  const localeFiles = readdirSync(englishDirectory).filter((fileName) =>
-    fileName.endsWith('.json'),
-  );
+  const localeFiles = readdirSync(englishDirectory).filter((fileName) => fileName.endsWith('.json'));
   const namespaces = localeFiles.map((localeFile) => localeFile.replace(/\.json$/, ''));
 
   for (const localeFile of localeFiles) {
     it(`keeps en and fr keys aligned for ${localeFile}`, () => {
       // Arrange
-      const englishTranslations = JSON.parse(
-        readFileSync(join(englishDirectory, localeFile), 'utf8'),
-      ) as unknown;
-      const frenchTranslations = JSON.parse(
-        readFileSync(join(frenchDirectory, localeFile), 'utf8'),
-      ) as unknown;
+      const englishTranslations = JSON.parse(readFileSync(join(englishDirectory, localeFile), 'utf8')) as unknown;
+      const frenchTranslations = JSON.parse(readFileSync(join(frenchDirectory, localeFile), 'utf8')) as unknown;
 
       // Act
       const englishKeys = flattenTranslationKeys(englishTranslations).sort();
@@ -90,17 +81,13 @@ describe('backend locale parity', () => {
     const sourceDirectory = join(process.cwd(), 'src');
     const englishKeys = localeFiles.flatMap((localeFile) => {
       const namespace = localeFile.replace(/\.json$/, '');
-      const translations = JSON.parse(
-        readFileSync(join(englishDirectory, localeFile), 'utf8'),
-      ) as unknown;
+      const translations = JSON.parse(readFileSync(join(englishDirectory, localeFile), 'utf8')) as unknown;
 
       return flattenTranslationKeys(translations).map((key) => `${namespace}.${key}`);
     });
     const frenchKeys = localeFiles.flatMap((localeFile) => {
       const namespace = localeFile.replace(/\.json$/, '');
-      const translations = JSON.parse(
-        readFileSync(join(frenchDirectory, localeFile), 'utf8'),
-      ) as unknown;
+      const translations = JSON.parse(readFileSync(join(frenchDirectory, localeFile), 'utf8')) as unknown;
 
       return flattenTranslationKeys(translations).map((key) => `${namespace}.${key}`);
     });
@@ -118,9 +105,7 @@ describe('backend locale parity', () => {
     const sourceDirectory = join(process.cwd(), 'src');
     const englishKeys = localeFiles.flatMap((localeFile) => {
       const namespace = localeFile.replace(/\.json$/, '');
-      const translations = JSON.parse(
-        readFileSync(join(englishDirectory, localeFile), 'utf8'),
-      ) as unknown;
+      const translations = JSON.parse(readFileSync(join(englishDirectory, localeFile), 'utf8')) as unknown;
 
       return flattenTranslationKeys(translations).map((key) => `${namespace}.${key}`);
     });

@@ -1,22 +1,22 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import { createRequire } from 'node:module';
+import fs from "node:fs";
+import path from "node:path";
+import { createRequire } from "node:module";
 
-const workspaceRoot = path.resolve(import.meta.dirname, '..', '..');
-const DEFAULT_SOURCE_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx'];
-const DEFAULT_IGNORED_DIRECTORIES = new Set(['node_modules', 'dist', 'coverage']);
+const workspaceRoot = path.resolve(import.meta.dirname, "..", "..");
+const DEFAULT_SOURCE_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx"];
+const DEFAULT_IGNORED_DIRECTORIES = new Set(["node_modules", "dist", "coverage"]);
 const typeScriptCache = new Map();
 
 function defaultShouldCheckAppFile(relativePath) {
-  if (relativePath.startsWith('src/app/')) {
+  if (relativePath.startsWith("src/app/")) {
     return false;
   }
 
-  if (relativePath.startsWith('src/test-utils/')) {
+  if (relativePath.startsWith("src/test-utils/")) {
     return false;
   }
 
-  if (relativePath.includes('/generated/')) {
+  if (relativePath.includes("/generated/")) {
     return false;
   }
 
@@ -25,15 +25,15 @@ function defaultShouldCheckAppFile(relativePath) {
 
 const DEFAULT_APP_PROJECT_DEFINITIONS = {
   frontend: {
-    rootCandidates: [path.join(workspaceRoot, 'application/frontend'), '/usr/src/app'],
-    sourceRootRelativePath: 'src',
-    label: 'Frontend',
+    rootCandidates: [path.join(workspaceRoot, "application/frontend"), "/usr/src/app"],
+    sourceRootRelativePath: "src",
+    label: "Frontend",
     shouldCheckFile: defaultShouldCheckAppFile,
   },
   backend: {
-    rootCandidates: [path.join(workspaceRoot, 'application/backend'), '/usr/src/app'],
-    sourceRootRelativePath: 'src',
-    label: 'Backend',
+    rootCandidates: [path.join(workspaceRoot, "application/backend"), "/usr/src/app"],
+    sourceRootRelativePath: "src",
+    label: "Backend",
     shouldCheckFile: defaultShouldCheckAppFile,
   },
 };
@@ -76,8 +76,8 @@ function loadTypeScriptFromDirectory(directory) {
     return cached;
   }
 
-  const requireFromDirectory = createRequire(path.join(resolvedDirectory, 'package.json'));
-  const ts = requireFromDirectory('typescript');
+  const requireFromDirectory = createRequire(path.join(resolvedDirectory, "package.json"));
+  const ts = requireFromDirectory("typescript");
   typeScriptCache.set(resolvedDirectory, ts);
 
   return ts;
@@ -93,7 +93,7 @@ function createTypeScriptCompilerOptions(ts, { allowJs = true } = {}) {
 }
 
 function toPosix(filePath) {
-  return filePath.split(path.sep).join('/');
+  return filePath.split(path.sep).join("/");
 }
 
 function toProjectRelative(project, filePath) {
@@ -103,9 +103,7 @@ function toProjectRelative(project, filePath) {
 function shouldAnalyzeAppFile(project, filePath) {
   const relativePath = toProjectRelative(project, filePath);
 
-  return (
-    relativePath.startsWith(`${project.sourceRootRelativePath}/`) && project.shouldCheckFile(relativePath)
-  );
+  return relativePath.startsWith(`${project.sourceRootRelativePath}/`) && project.shouldCheckFile(relativePath);
 }
 
 function walkFiles(directory, options = {}) {
@@ -115,8 +113,7 @@ function walkFiles(directory, options = {}) {
     ignoredDirectories = DEFAULT_IGNORED_DIRECTORIES,
   } = options;
   const extensionSet = new Set(extensions);
-  const ignoredDirectorySet =
-    ignoredDirectories instanceof Set ? ignoredDirectories : new Set(ignoredDirectories);
+  const ignoredDirectorySet = ignoredDirectories instanceof Set ? ignoredDirectories : new Set(ignoredDirectories);
 
   for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
     const absolutePath = path.join(directory, entry.name);
@@ -147,12 +144,12 @@ function walkProjectSourceFiles(project, options = {}) {
 }
 
 function loadTsConfigProgram(ts, projectRoot, options = {}) {
-  const { configFileName = 'tsconfig.json', compilerOptions = { noEmit: true } } = options;
+  const { configFileName = "tsconfig.json", compilerOptions = { noEmit: true } } = options;
   const configPath = path.join(projectRoot, configFileName);
   const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
 
   if (configFile.error) {
-    throw new Error(ts.flattenDiagnosticMessageText(configFile.error.messageText, '\n'));
+    throw new Error(ts.flattenDiagnosticMessageText(configFile.error.messageText, "\n"));
   }
 
   const parsedConfig = ts.parseJsonConfigFileContent(
@@ -165,9 +162,7 @@ function loadTsConfigProgram(ts, projectRoot, options = {}) {
 
   if (parsedConfig.errors.length > 0) {
     throw new Error(
-      parsedConfig.errors
-        .map((error) => ts.flattenDiagnosticMessageText(error.messageText, '\n'))
-        .join('\n'),
+      parsedConfig.errors.map((error) => ts.flattenDiagnosticMessageText(error.messageText, "\n")).join("\n"),
     );
   }
 
@@ -179,7 +174,7 @@ function loadTsConfigProgram(ts, projectRoot, options = {}) {
 
 function loadTypeScriptProjectConfiguration(ts, options) {
   const { currentDirectory, fallbackFileNames, fallbackCompilerOptions } = options;
-  const configPath = ts.findConfigFile(currentDirectory, ts.sys.fileExists, 'tsconfig.json');
+  const configPath = ts.findConfigFile(currentDirectory, ts.sys.fileExists, "tsconfig.json");
   const fallback = {
     compilerOptions: fallbackCompilerOptions,
     fileNames: fallbackFileNames,
@@ -203,7 +198,7 @@ function loadTypeScriptProjectConfiguration(ts, options) {
 
 function createTypeScriptLanguageService(ts, options) {
   const { currentDirectory, fileNames, compilerOptions } = options;
-  const scriptVersions = new Map(fileNames.map((file) => [file, '0']));
+  const scriptVersions = new Map(fileNames.map((file) => [file, "0"]));
 
   const host = {
     directoryExists: ts.sys.directoryExists?.bind(ts.sys),
@@ -218,9 +213,9 @@ function createTypeScriptLanguageService(ts, options) {
         return undefined;
       }
 
-      return ts.ScriptSnapshot.fromString(fs.readFileSync(fileName, 'utf8'));
+      return ts.ScriptSnapshot.fromString(fs.readFileSync(fileName, "utf8"));
     },
-    getScriptVersion: (fileName) => scriptVersions.get(fileName) ?? '0',
+    getScriptVersion: (fileName) => scriptVersions.get(fileName) ?? "0",
     readDirectory: ts.sys.readDirectory.bind(ts.sys),
     readFile: ts.sys.readFile.bind(ts.sys),
   };

@@ -15,9 +15,7 @@ export enum GameErrorCode {
   PARTY_STAGES_NOT_AVAILABLE = 'PARTY_STAGES_NOT_AVAILABLE',
 }
 
-export const GAME_ERROR_DEFINITIONS: Readonly<
-  Record<GameErrorCode, DomainErrorDefinition<GameErrorCode>>
-> = {
+export const GAME_ERROR_DEFINITIONS: Readonly<Record<GameErrorCode, DomainErrorDefinition<GameErrorCode>>> = {
   [GameErrorCode.GAME_NOT_FOUND]: {
     code: GameErrorCode.GAME_NOT_FOUND,
     messageKey: 'game.errors.gameNotFound',

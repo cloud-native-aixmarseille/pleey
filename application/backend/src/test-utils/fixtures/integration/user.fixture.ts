@@ -10,10 +10,7 @@ function toPrismaBytes(content: Buffer): Uint8Array<ArrayBuffer> {
   return bytes as Uint8Array<ArrayBuffer>;
 }
 
-export const createPersistedUserFixture = async (
-  prisma: PrismaService,
-  params: PersistedUserFixtureParams = {},
-) => {
+export const createPersistedUserFixture = async (prisma: PrismaService, params: PersistedUserFixtureParams = {}) => {
   const fixture = createUserFixture(params);
 
   return prisma.user.create({

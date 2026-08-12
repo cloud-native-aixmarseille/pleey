@@ -24,14 +24,8 @@ describe('GameListSortChips', () => {
       />,
     );
 
-    expect(screen.getByRole('button', { name: /sort.createdAt/i })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
-    expect(screen.getByRole('button', { name: /sort.title/i })).toHaveAttribute(
-      'aria-pressed',
-      'false',
-    );
+    expect(screen.getByRole('button', { name: /sort.createdAt/i })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: /sort.title/i })).toHaveAttribute('aria-pressed', 'false');
 
     await user.click(screen.getByRole('button', { name: /sort.title/i }));
 

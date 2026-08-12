@@ -22,8 +22,7 @@ interface OrganizationSummaryOverrides {
   readonly name?: string;
 }
 
-interface OrganizationDashboardOverrides
-  extends Omit<Partial<OrganizationDashboard>, 'organization'> {
+interface OrganizationDashboardOverrides extends Omit<Partial<OrganizationDashboard>, 'organization'> {
   readonly organization?: OrganizationSummaryOverrides;
 }
 
@@ -81,9 +80,7 @@ export class OrganizationFixtureFactory {
     };
   }
 
-  createOrganizationDashboard(
-    overrides: OrganizationDashboardOverrides = {},
-  ): OrganizationDashboard {
+  createOrganizationDashboard(overrides: OrganizationDashboardOverrides = {}): OrganizationDashboard {
     return {
       organization: this.createOrganizationSummary(overrides.organization),
       stats: {

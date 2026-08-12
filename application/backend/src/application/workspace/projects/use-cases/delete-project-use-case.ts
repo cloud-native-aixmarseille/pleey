@@ -1,9 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { UserId } from '../../../../domain/identity/entities/user';
-import {
-  InsufficientPermissionsError,
-  NotAMemberError,
-} from '../../../../domain/organization/errors';
+import { InsufficientPermissionsError, NotAMemberError } from '../../../../domain/organization/errors';
 import type { OrganizationMemberRepository } from '../../../../domain/organization/ports/organization-member.repository';
 import { OrganizationMemberRepositoryProvider } from '../../../../domain/organization/ports/organization-member.repository';
 import type { ProjectId } from '../../../../domain/project/entities/project';
@@ -29,21 +26,14 @@ export class DeleteProjectUseCase {
     private readonly memberRepository: OrganizationMemberRepository,
   ) {}
 
-  async execute(
-    projectId: ProjectId,
-    requestingUserId: UserId,
-    migrationProjectId?: ProjectId,
-  ): Promise<void> {
+  async execute(projectId: ProjectId, requestingUserId: UserId, migrationProjectId?: ProjectId): Promise<void> {
     const project = await this.projectRepository.findById(projectId);
 
     if (!project) {
       throw new ProjectNotFoundError({ projectId });
     }
 
-    const membership = await this.memberRepository.findByOrganizationAndUser(
-      project.organizationId,
-      requestingUserId,
-    );
+    const membership = await this.memberRepository.findByOrganizationAndUser(project.organizationId, requestingUserId);
 
     if (!membership) {
       throw new NotAMemberError({
@@ -61,9 +51,7 @@ export class DeleteProjectUseCase {
       });
     }
 
-    const organizationProjectCount = await this.projectRepository.countByOrganization(
-      project.organizationId,
-    );
+    const organizationProjectCount = await this.projectRepository.countByOrganization(project.organizationId);
 
     if (organizationProjectCount <= 1) {
       throw new CannotDeleteLastProjectError({

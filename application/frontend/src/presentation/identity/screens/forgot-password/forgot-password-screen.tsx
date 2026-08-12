@@ -19,17 +19,13 @@ export function ForgotPasswordScreen() {
     <AuthLayout>
       <AuthFormCard
         eyebrow={t('auth.forgotPassword.eyebrow')}
-        title={
-          isSubmitted ? t('auth.forgotPassword.success.title') : t('auth.forgotPassword.title')
-        }
+        title={isSubmitted ? t('auth.forgotPassword.success.title') : t('auth.forgotPassword.title')}
         subtitle={isSubmitted ? undefined : t('auth.forgotPassword.subtitle')}
       >
         {isSubmitted ? (
           <ContentStack>
             <StatusBanner tone="success">{t('auth.forgotPassword.success.message')}</StatusBanner>
-            <InlineTextLink to="/identity/sign-in">
-              {t('auth.forgotPassword.success.cta')}
-            </InlineTextLink>
+            <InlineTextLink to="/identity/sign-in">{t('auth.forgotPassword.success.cta')}</InlineTextLink>
           </ContentStack>
         ) : (
           <form.AppForm>
@@ -39,9 +35,7 @@ export function ForgotPasswordScreen() {
                   name="email"
                   validators={{
                     onBlur: ({ value }) =>
-                      value.trim().length === 0
-                        ? t('auth.form.validation.emailRequired')
-                        : undefined,
+                      value.trim().length === 0 ? t('auth.form.validation.emailRequired') : undefined,
                   }}
                 >
                   {() => (
@@ -61,9 +55,7 @@ export function ForgotPasswordScreen() {
               />
 
               <SupportingText>
-                <InlineTextLink to="/identity/sign-in">
-                  {t('auth.forgotPassword.backToSignIn')}
-                </InlineTextLink>
+                <InlineTextLink to="/identity/sign-in">{t('auth.forgotPassword.backToSignIn')}</InlineTextLink>
               </SupportingText>
             </PresentationForm>
           </form.AppForm>

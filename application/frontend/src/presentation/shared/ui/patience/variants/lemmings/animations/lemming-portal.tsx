@@ -103,15 +103,7 @@ function PortalRing({ animate, fill, initial, stroke, strokeWidth, transition }:
 }
 
 function PortalParticle({ animate, fill, transition }: PortalParticleProps) {
-  return (
-    <motion.circle
-      animate={animate}
-      fill={fill}
-      initial={{ opacity: 0 }}
-      r="1.2"
-      transition={transition}
-    />
-  );
+  return <motion.circle animate={animate} fill={fill} initial={{ opacity: 0 }} r="1.2" transition={transition} />;
 }
 
 export const portalIdleConfig: IdleVariantConfig = {

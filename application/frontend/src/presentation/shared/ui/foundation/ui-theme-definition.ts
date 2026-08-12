@@ -9,12 +9,7 @@ import {
 } from '@mantine/core';
 import { cyberArcadeThemeSeed } from './cyber-arcade-theme';
 import { solarGridThemeSeed } from './solar-grid-theme';
-import {
-  DEFAULT_UI_COLOR_SCHEME,
-  type UiColorScheme,
-  type UiThemeId,
-  type UiThemeSeed,
-} from './ui-theme-contract';
+import { DEFAULT_UI_COLOR_SCHEME, type UiColorScheme, type UiThemeId, type UiThemeSeed } from './ui-theme-contract';
 import { createUiThemeTokens, type ResolvedUiThemeTokens } from './ui-theme-tokens';
 
 export interface UiThemeDefinition {
@@ -136,11 +131,7 @@ function createCheckboxComponentStyles(tokens: ResolvedUiThemeTokens) {
   };
 }
 
-function createMantineUiTheme(
-  tokens: ResolvedUiThemeTokens,
-  seed: UiThemeSeed,
-  colorScheme: UiColorScheme,
-) {
+function createMantineUiTheme(tokens: ResolvedUiThemeTokens, seed: UiThemeSeed, colorScheme: UiColorScheme) {
   return createTheme({
     autoContrast: true,
     black: tokens.color.text.emphasis,
@@ -205,8 +196,7 @@ function createMantineUiTheme(
         styles: {
           tooltip: {
             backdropFilter: 'blur(12px)',
-            backgroundColor:
-              colorScheme === 'dark' ? 'rgba(30, 20, 50, 0.92)' : 'rgba(255, 255, 255, 0.95)',
+            backgroundColor: colorScheme === 'dark' ? 'rgba(30, 20, 50, 0.92)' : 'rgba(255, 255, 255, 0.95)',
             border: `1px solid ${tokens.color.border.subtle}`,
             boxShadow: tokens.shadow.subtle,
             color: tokens.color.text.primary,

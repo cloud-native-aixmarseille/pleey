@@ -9,18 +9,11 @@ import { StageIdentifierMockFactory } from '../../../../../test-utils/mocks/stag
 import { PlayerRuntimeNoticeMessageResolver } from '../../player/screens/components/player-runtime-notice-message-resolver';
 import { GuestPartyEntryDraftFactory } from '../../player/screens/guest-party-entry-draft-factory';
 import { PartyLobbyRuntimeRedirectResolver } from '../screens/party-lobby-runtime-redirect-resolver';
-import {
-  type PartyDependencies,
-  providePartyDependencies,
-  usePartyDependencies,
-} from './party-dependencies-context';
+import { type PartyDependencies, providePartyDependencies, usePartyDependencies } from './party-dependencies-context';
 
-const partyIdentifier: PartyDependencies['partyIdentifier'] =
-  new PartyIdentifierMockFactory().create();
-const partyPinIdentifier: PartyDependencies['partyPinIdentifier'] =
-  new PartyPinIdentifierMockFactory().create();
-const stageIdentifier: PartyDependencies['stageIdentifier'] =
-  new StageIdentifierMockFactory().create();
+const partyIdentifier: PartyDependencies['partyIdentifier'] = new PartyIdentifierMockFactory().create();
+const partyPinIdentifier: PartyDependencies['partyPinIdentifier'] = new PartyPinIdentifierMockFactory().create();
+const stageIdentifier: PartyDependencies['stageIdentifier'] = new StageIdentifierMockFactory().create();
 
 const guestUsernameGenerator: GuestUsernameGeneratorPort = {
   generateGuestUsername: () => 'Bright Otter 0001',
@@ -85,8 +78,7 @@ describe('partyDependenciesContext', () => {
         },
         stageIdentifier,
       };
-      const wrapper = ({ children }: { children: ReactNode }) =>
-        providePartyDependencies(children, dependencies);
+      const wrapper = ({ children }: { children: ReactNode }) => providePartyDependencies(children, dependencies);
 
       // Act
       const { result } = renderHook(() => usePartyDependencies(), { wrapper });

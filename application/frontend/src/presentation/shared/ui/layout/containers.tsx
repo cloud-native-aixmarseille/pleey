@@ -78,12 +78,7 @@ export function ActionRow({ children, gap = 'sm', justify }: ActionRowProps) {
   );
 }
 
-export function ContentStack({
-  align,
-  children,
-  gap = 'md',
-  marginTop = 'none',
-}: ContentStackProps) {
+export function ContentStack({ align, children, gap = 'md', marginTop = 'none' }: ContentStackProps) {
   const mt = marginTop === 'none' ? undefined : marginTop;
 
   return (
@@ -100,14 +95,7 @@ export function SectionContainer({
   maxWidth = '50rem',
 }: SectionContainerProps) {
   return (
-    <Stack
-      align={centered ? 'center' : undefined}
-      gap={gap}
-      maw={maxWidth}
-      mx="auto"
-      px="sm"
-      w="100%"
-    >
+    <Stack align={centered ? 'center' : undefined} gap={gap} maw={maxWidth} mx="auto" px="sm" w="100%">
       {children}
     </Stack>
   );

@@ -1,8 +1,7 @@
 import type { ComponentProps, ReactNode } from 'react';
 import { Button } from './button';
 
-interface PillTriggerButtonProps
-  extends Omit<ComponentProps<typeof Button>, 'children' | 'intent' | 'rootStyle'> {
+interface PillTriggerButtonProps extends Omit<ComponentProps<typeof Button>, 'children' | 'intent' | 'rootStyle'> {
   readonly children: ReactNode;
   readonly floating?: {
     readonly right: string;

@@ -101,12 +101,7 @@ describe('ListOrganizationMembersUseCase', () => {
 
     const result = await useCase.execute({ organizationId }, requesterUserId);
 
-    expect(memberRepository.findPageByOrganization).toHaveBeenCalledWith(
-      organizationId,
-      1,
-      25,
-      undefined,
-    );
+    expect(memberRepository.findPageByOrganization).toHaveBeenCalledWith(organizationId, 1, 25, undefined);
     expect(result).toEqual(page);
   });
 
@@ -144,11 +139,6 @@ describe('ListOrganizationMembersUseCase', () => {
       requesterUserId,
     );
 
-    expect(memberRepository.findPageByOrganization).toHaveBeenCalledWith(
-      organizationId,
-      1,
-      25,
-      'captain',
-    );
+    expect(memberRepository.findPageByOrganization).toHaveBeenCalledWith(organizationId, 1, 25, 'captain');
   });
 });

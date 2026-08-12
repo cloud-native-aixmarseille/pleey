@@ -49,9 +49,7 @@ export class OrganizationManagementFacade {
     return this.createOrganizationUseCase.execute(command);
   }
 
-  listOrganizationMembers(
-    query: ListOrganizationMembersQuery,
-  ): Promise<PaginatedResult<OrganizationMember>> {
+  listOrganizationMembers(query: ListOrganizationMembersQuery): Promise<PaginatedResult<OrganizationMember>> {
     return this.listOrganizationMembersUseCase.execute(query);
   }
 
@@ -63,9 +61,7 @@ export class OrganizationManagementFacade {
     return this.removeOrganizationMemberUseCase.execute(command);
   }
 
-  updateOrganizationMemberRole(
-    command: UpdateOrganizationMemberRoleCommand,
-  ): Promise<OrganizationMember> {
+  updateOrganizationMemberRole(command: UpdateOrganizationMemberRoleCommand): Promise<OrganizationMember> {
     return this.updateOrganizationMemberRoleUseCase.execute(command);
   }
 

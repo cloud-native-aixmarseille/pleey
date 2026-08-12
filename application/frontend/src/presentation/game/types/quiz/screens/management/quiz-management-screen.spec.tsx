@@ -9,9 +9,7 @@ const gameTypeIdentifier = new GameTypeIdentifierMockFactory().create();
 const quizId = gameTypeIdentifier.parse(9);
 
 vi.mock('../../../../../shared/routing/router', () => ({
-  PresentationRedirect: ({ to }: { readonly to: string }) => (
-    <span data-testid="redirect">{to}</span>
-  ),
+  PresentationRedirect: ({ to }: { readonly to: string }) => <span data-testid="redirect">{to}</span>,
   usePresentationParams: () => routeParams.current,
 }));
 

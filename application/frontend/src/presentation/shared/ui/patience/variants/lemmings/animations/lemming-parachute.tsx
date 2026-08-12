@@ -27,16 +27,7 @@ function ParachuteStripe({ d }: ParachuteStripe) {
 }
 
 function ParachuteLine({ x1, x2, y1, y2 }: ParachuteLine) {
-  return (
-    <line
-      stroke="var(--ui-color-text-secondary)"
-      strokeWidth="0.4"
-      x1={x1}
-      x2={x2}
-      y1={y1}
-      y2={y2}
-    />
-  );
+  return <line stroke="var(--ui-color-text-secondary)" strokeWidth="0.4" x1={x1} x2={x2} y1={y1} y2={y2} />;
 }
 
 export function LemmingParachute() {

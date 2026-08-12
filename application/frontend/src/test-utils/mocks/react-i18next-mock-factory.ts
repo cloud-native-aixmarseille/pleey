@@ -5,8 +5,7 @@ export class ReactI18nextMockFactory {
     return {
       initReactI18next: { type: '3rdParty', init: () => {} },
       useTranslation: () => ({
-        t: (key: string, variables?: TranslationVariables) =>
-          this.createTranslation(key, variables),
+        t: (key: string, variables?: TranslationVariables) => this.createTranslation(key, variables),
         i18n: {
           language: 'en',
           changeLanguage: () => Promise.resolve(),

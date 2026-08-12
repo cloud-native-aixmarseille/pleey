@@ -49,9 +49,7 @@ export class LemmingsPlatformService {
       const rect = element.getBoundingClientRect();
 
       if (this.isTextPlatformCandidate(element, rect)) {
-        segments.push(
-          ...this.segmentsFromTextRects(this.getTextClientRects(element), containerRect),
-        );
+        segments.push(...this.segmentsFromTextRects(this.getTextClientRects(element), containerRect));
         continue;
       }
 
@@ -63,18 +61,10 @@ export class LemmingsPlatformService {
       const left = rect.left - containerRect.left;
       const right = rect.right - containerRect.left;
 
-      const y = Math.round(
-        this.clamp(top - LEMMING_SIZE_PX, 8, containerRect.height - LEMMING_SIZE_PX),
-      );
-      const x1 = Math.round(
-        this.clamp(left + PLATFORM_EDGE_PADDING_PX, 6, containerRect.width - 12),
-      );
+      const y = Math.round(this.clamp(top - LEMMING_SIZE_PX, 8, containerRect.height - LEMMING_SIZE_PX));
+      const x1 = Math.round(this.clamp(left + PLATFORM_EDGE_PADDING_PX, 6, containerRect.width - 12));
       const x2 = Math.round(
-        this.clamp(
-          right - (LEMMING_SIZE_PX + PLATFORM_EDGE_PADDING_PX),
-          12,
-          containerRect.width - 6,
-        ),
+        this.clamp(right - (LEMMING_SIZE_PX + PLATFORM_EDGE_PADDING_PX), 12, containerRect.width - 6),
       );
 
       if (x2 - x1 < 48) {
@@ -132,8 +122,7 @@ export class LemmingsPlatformService {
       style.borderLeftStyle !== 'none';
 
     const outlineWidth = Number.parseFloat(style.outlineWidth || '0');
-    const hasOutline =
-      Number.isFinite(outlineWidth) && outlineWidth > 0 && style.outlineStyle !== 'none';
+    const hasOutline = Number.isFinite(outlineWidth) && outlineWidth > 0 && style.outlineStyle !== 'none';
 
     return (hasBorderWidth && hasBorderStyle) || hasOutline;
   }
@@ -143,17 +132,11 @@ export class LemmingsPlatformService {
   }
 
   private isInteractiveElement(element: HTMLElement): boolean {
-    return element.matches(
-      'button, [role="button"], a, input, select, textarea, [data-interactive]',
-    );
+    return element.matches('button, [role="button"], a, input, select, textarea, [data-interactive]');
   }
 
   private hasInteractiveDescendant(element: HTMLElement): boolean {
-    return Boolean(
-      element.querySelector(
-        'button, [role="button"], a, input, select, textarea, [data-interactive]',
-      ),
-    );
+    return Boolean(element.querySelector('button, [role="button"], a, input, select, textarea, [data-interactive]'));
   }
 
   private isTextPlatformCandidate(element: HTMLElement, rect: DOMRect): boolean {
@@ -258,10 +241,7 @@ export class LemmingsPlatformService {
     return rects;
   }
 
-  private segmentsFromTextRects(
-    textRects: Array<DOMRect>,
-    containerRect: DOMRect,
-  ): Array<LemmingSegment> {
+  private segmentsFromTextRects(textRects: Array<DOMRect>, containerRect: DOMRect): Array<LemmingSegment> {
     const segments: Array<LemmingSegment> = [];
 
     for (const textRect of textRects) {
@@ -269,13 +249,9 @@ export class LemmingsPlatformService {
       const left = textRect.left - containerRect.left;
       const right = textRect.right - containerRect.left;
 
-      const y = Math.round(
-        this.clamp(top - LEMMING_SIZE_PX, 8, containerRect.height - LEMMING_SIZE_PX),
-      );
+      const y = Math.round(this.clamp(top - LEMMING_SIZE_PX, 8, containerRect.height - LEMMING_SIZE_PX));
       const x1 = Math.round(this.clamp(left, 6, containerRect.width - (LEMMING_SIZE_PX + 6)));
-      const x2 = Math.round(
-        this.clamp(right - LEMMING_SIZE_PX, 12, containerRect.width - (LEMMING_SIZE_PX + 6)),
-      );
+      const x2 = Math.round(this.clamp(right - LEMMING_SIZE_PX, 12, containerRect.width - (LEMMING_SIZE_PX + 6)));
 
       if (x2 - x1 < 16) {
         continue;

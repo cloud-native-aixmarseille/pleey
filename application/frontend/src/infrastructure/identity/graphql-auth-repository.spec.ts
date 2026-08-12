@@ -35,14 +35,12 @@ describe('GraphqlAuthRepository', () => {
     it('keeps backend-translated transport errors unchanged', async () => {
       // Arrange
       const { client } = new GraphqlClientMockFactory().create({
-        requestError: new Error('Email ou mot de passe invalide.'),
+        requestError: new Error('Invalid email or password.'),
       });
       const repository = createGraphqlAuthRepository(client);
 
       // Act + Assert
-      await expect(repository.login('captain@pleey.io', 'wrong')).rejects.toThrow(
-        'Email ou mot de passe invalide.',
-      );
+      await expect(repository.login('captain@pleey.io', 'wrong')).rejects.toThrow('Invalid email or password.');
     });
 
     it('rejects invalid login payloads with the dedicated login response error', async () => {
@@ -55,9 +53,7 @@ describe('GraphqlAuthRepository', () => {
       const repository = createGraphqlAuthRepository(client);
 
       // Act + Assert
-      await expect(repository.login('captain@pleey.io', 'secret')).rejects.toBeInstanceOf(
-        InvalidLoginResponseError,
-      );
+      await expect(repository.login('captain@pleey.io', 'secret')).rejects.toBeInstanceOf(InvalidLoginResponseError);
     });
   });
 });

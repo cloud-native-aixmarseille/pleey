@@ -14,10 +14,7 @@ export type PartyObservationPayload = Omit<PartyObservation, 'gameType'> & {
   readonly gameType: GameType;
 };
 
-type AcceptedPartyJoinMessage = Extract<
-  PartyJoinReceipt,
-  { status: PartyJoinReceiptStatus.ACCEPTED }
->;
+type AcceptedPartyJoinMessage = Extract<PartyJoinReceipt, { status: PartyJoinReceiptStatus.ACCEPTED }>;
 
 export type PartyJoinMessage =
   | AcceptedPartyJoinMessage

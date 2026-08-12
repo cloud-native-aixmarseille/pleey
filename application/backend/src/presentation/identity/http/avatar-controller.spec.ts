@@ -45,10 +45,7 @@ describe('AvatarController', () => {
     expect(getUserAvatarUseCase.execute).toHaveBeenCalledWith(backendTestIdentifiers.user(7));
     expect(userIdentifier.parse).toHaveBeenCalledWith(backendTestIdentifiers.user(7));
     expect(response.setHeader).toHaveBeenCalledWith('Content-Type', 'image/svg+xml');
-    expect(response.setHeader).toHaveBeenCalledWith(
-      'Cache-Control',
-      'no-store, max-age=0, must-revalidate',
-    );
+    expect(response.setHeader).toHaveBeenCalledWith('Cache-Control', 'no-store, max-age=0, must-revalidate');
     expect(response.setHeader).toHaveBeenCalledWith('Pragma', 'no-cache');
     expect(response.setHeader).toHaveBeenCalledWith('Expires', '0');
     expect(response.send).toHaveBeenCalledWith(userAvatar);

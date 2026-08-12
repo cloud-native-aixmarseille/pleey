@@ -43,22 +43,12 @@ export function ProjectFormDialog({
     await handleSubmit();
   }
 
-  const titleKey =
-    mode === 'create'
-      ? 'project.management.form.create.title'
-      : 'project.management.form.edit.title';
+  const titleKey = mode === 'create' ? 'project.management.form.create.title' : 'project.management.form.edit.title';
   const eyebrowKey =
-    mode === 'create'
-      ? 'project.management.form.create.eyebrow'
-      : 'project.management.form.edit.eyebrow';
-  const submitKey =
-    mode === 'create'
-      ? 'project.management.form.create.submit'
-      : 'project.management.form.edit.submit';
+    mode === 'create' ? 'project.management.form.create.eyebrow' : 'project.management.form.edit.eyebrow';
+  const submitKey = mode === 'create' ? 'project.management.form.create.submit' : 'project.management.form.edit.submit';
   const submittingKey =
-    mode === 'create'
-      ? 'project.management.form.create.submitting'
-      : 'project.management.form.edit.submitting';
+    mode === 'create' ? 'project.management.form.create.submitting' : 'project.management.form.edit.submitting';
 
   return (
     <FormDialog
@@ -92,10 +82,7 @@ export function ProjectFormDialog({
         />
       </FieldShell>
 
-      <FieldShell
-        id="project-description"
-        label={t('project.management.form.fields.description.label')}
-      >
+      <FieldShell id="project-description" label={t('project.management.form.fields.description.label')}>
         <Textarea
           id="project-description"
           name="description"

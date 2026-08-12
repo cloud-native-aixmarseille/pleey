@@ -16,9 +16,7 @@ type OrganizationMemberFixtureParams = {
   joinedAt?: Date;
 };
 
-export const createOrganizationMemberFixture = (
-  params: OrganizationMemberFixtureParams = {},
-): OrganizationMember => {
+export const createOrganizationMemberFixture = (params: OrganizationMemberFixtureParams = {}): OrganizationMember => {
   return new OrganizationMember(
     params.id ?? backendTestIdentifiers.organizationMember(1),
     params.organizationId ?? backendTestIdentifiers.organization(1),

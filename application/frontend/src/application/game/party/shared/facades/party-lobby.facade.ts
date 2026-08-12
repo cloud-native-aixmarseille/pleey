@@ -20,11 +20,7 @@ import {
   PartyPlayerPortToken,
   type PartySubmitActionCommand,
 } from '../../../../../domains/game/party/player/ports/party-player.port';
-import type {
-  Party,
-  PartyId,
-  PartyPin,
-} from '../../../../../domains/game/party/shared/entities/party';
+import type { Party, PartyId, PartyPin } from '../../../../../domains/game/party/shared/entities/party';
 import type { GuestId } from '../../../../../domains/identity/entities/guest';
 
 export interface PartyLobbyGateway {
@@ -57,10 +53,7 @@ export class PartyLobbyFacade implements PartyLobbyGateway {
     this.partyGuestSessionPort.clearGuestId(pin);
   }
 
-  async executeHostRuntimeCommand(
-    command: HostPartyRuntimeCommand,
-    partyId: PartyId,
-  ): Promise<void> {
+  async executeHostRuntimeCommand(command: HostPartyRuntimeCommand, partyId: PartyId): Promise<void> {
     const hostCommand = { partyId };
 
     switch (command) {

@@ -1,8 +1,4 @@
-import type {
-  Party,
-  PartyId,
-  PartyPin,
-} from '../../../../../domains/game/party/shared/entities/party';
+import type { Party, PartyId, PartyPin } from '../../../../../domains/game/party/shared/entities/party';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import type { PartyObservationPlayer } from '../../../../../domains/game/party/shared/entities/party-observation-player';
 import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/shared/entities/party-player-identity';
@@ -92,8 +88,7 @@ export function resolvePartyLobbyScreenViewModel({
   const isAuthenticatedUserObservedInParty =
     userId !== null &&
     (party?.players.some(
-      (player) =>
-        player.identity.kind === PartyPlayerIdentityKind.User && player.identity.userId === userId,
+      (player) => player.identity.kind === PartyPlayerIdentityKind.User && player.identity.userId === userId,
     ) ??
       false);
   const isRecoveringPersistedGuestSession =
@@ -123,24 +118,16 @@ export function resolvePartyLobbyScreenViewModel({
     leaveRedirectTo === null &&
     !isJoinSubmitting &&
     ((routeKind === PartyLobbyRouteKind.PIN && normalizedPin !== null) ||
-      (routeKind === PartyLobbyRouteKind.PARTY_ID &&
-        party !== undefined &&
-        currentPlayer === null));
+      (routeKind === PartyLobbyRouteKind.PARTY_ID && party !== undefined && currentPlayer === null));
 
   return {
     errorMessage: joinErrorMessage ?? partyIdErrorMessage ?? bootstrapErrorMessage,
     joinPin: bootstrapPartyByPin?.pin ?? normalizedPin ?? '',
     persistedGuestJoinGuestId: canReusePersistedGuestIdentity ? currentGuestId : null,
-    redirectTo:
-      leaveRedirectTo ??
-      routeState.bootstrapRedirectTo ??
-      pinRouteRedirectTo ??
-      partyIdRouteRedirectTo,
+    redirectTo: leaveRedirectTo ?? routeState.bootstrapRedirectTo ?? pinRouteRedirectTo ?? partyIdRouteRedirectTo,
   };
 }
 
-function findCurrentPlayer(
-  players: readonly PartyObservationPlayer[],
-): PartyObservationPlayer | null {
+function findCurrentPlayer(players: readonly PartyObservationPlayer[]): PartyObservationPlayer | null {
   return players.find((player) => player.isCurrentPlayer) ?? null;
 }

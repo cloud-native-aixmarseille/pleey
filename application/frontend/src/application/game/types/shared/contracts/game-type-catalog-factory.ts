@@ -1,7 +1,4 @@
-import type {
-  GameTypeCatalog,
-  GameTypeDescriptor,
-} from '../../../../../domains/game/types/shared/game-type-catalog';
+import type { GameTypeCatalog, GameTypeDescriptor } from '../../../../../domains/game/types/shared/game-type-catalog';
 
 export interface GameTypeCatalogFactory {
   create(descriptors: readonly GameTypeDescriptor[]): GameTypeCatalog;

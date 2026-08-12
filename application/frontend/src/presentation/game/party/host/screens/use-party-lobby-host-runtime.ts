@@ -51,9 +51,7 @@ function resolveHostRuntimeObservationKey(party: PartyObservation | undefined): 
   ].join('|');
 }
 
-function hasTimedStage(
-  stageEndsAtEpochMs: number | null | undefined,
-): stageEndsAtEpochMs is number {
+function hasTimedStage(stageEndsAtEpochMs: number | null | undefined): stageEndsAtEpochMs is number {
   return stageEndsAtEpochMs !== null && stageEndsAtEpochMs !== undefined;
 }
 
@@ -116,10 +114,7 @@ function shouldSkipAutoReveal({
   return !isStageActionSubmissionComplete && !hasStageTimer;
 }
 
-function resolveAutoRevealRemainingDurationMs(
-  stageEndsAtEpochMs: number,
-  nowEpochMs: number = Date.now(),
-): number {
+function resolveAutoRevealRemainingDurationMs(stageEndsAtEpochMs: number, nowEpochMs: number = Date.now()): number {
   return stageEndsAtEpochMs - nowEpochMs;
 }
 
@@ -132,11 +127,8 @@ export function usePartyLobbyHostRuntime({
   const feedback = usePresentationFeedbackChannel();
   const clearError = feedback.clearError;
   const [pendingKickedPlayerKey, setPendingKickedPlayerKey] = useState<string | null>(null);
-  const [pendingHostRuntimeCommand, setPendingHostRuntimeCommand] =
-    useState<HostPartyRuntimeCommand | null>(null);
-  const [pendingHostRuntimeObservationKey, setPendingHostRuntimeObservationKey] = useState<
-    string | null
-  >(null);
+  const [pendingHostRuntimeCommand, setPendingHostRuntimeCommand] = useState<HostPartyRuntimeCommand | null>(null);
+  const [pendingHostRuntimeObservationKey, setPendingHostRuntimeObservationKey] = useState<string | null>(null);
   const [pendingHostRuntimeConfirmationCommand, setPendingHostRuntimeConfirmationCommand] =
     useState<HostPartyRuntimeCommand | null>(null);
   const autoRevealedStageKeyRef = useRef<string | null>(null);
@@ -148,9 +140,7 @@ export function usePartyLobbyHostRuntime({
     pendingHostRuntimeCommand !== null &&
     pendingHostRuntimeObservationKey !== null &&
     pendingHostRuntimeObservationKey !== hostRuntimeObservationKey;
-  const effectivePendingHostRuntimeCommand = hasObservedPendingCommandCompletion
-    ? null
-    : pendingHostRuntimeCommand;
+  const effectivePendingHostRuntimeCommand = hasObservedPendingCommandCompletion ? null : pendingHostRuntimeCommand;
 
   const resetPendingHostRuntimeCommandState = () => {
     setPendingHostRuntimeCommand(null);

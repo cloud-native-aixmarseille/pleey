@@ -12,8 +12,7 @@ const gameTypeIdentifier = new GameTypeIdentifierMockFactory().create();
 const playableManagementFixtureFactory = new PlayableManagementFixtureFactory();
 const projectIdentifier = new ProjectIdentifierMockFactory().create();
 const predictionPromptIdentifier = new PredictionPromptIdentifier();
-const parsePromptId = (value: number) =>
-  predictionPromptIdentifier.parse(coerceUuidV7TestValue(value));
+const parsePromptId = (value: number) => predictionPromptIdentifier.parse(coerceUuidV7TestValue(value));
 
 describe('PredictionManagementFacade', () => {
   it('adapts shared management gateway calls to prediction repository methods', async () => {

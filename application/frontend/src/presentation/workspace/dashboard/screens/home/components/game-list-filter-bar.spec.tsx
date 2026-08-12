@@ -41,9 +41,7 @@ describe('GameListFilterBar', () => {
     }),
   ];
 
-  function renderGameListFilterBar(
-    overrides: Partial<React.ComponentProps<typeof GameListFilterBar>> = {},
-  ) {
+  function renderGameListFilterBar(overrides: Partial<React.ComponentProps<typeof GameListFilterBar>> = {}) {
     const onSearchChange = vi.fn();
     const onSortDirectionChange = vi.fn();
     const onSortFieldChange = vi.fn();
@@ -123,9 +121,7 @@ describe('GameListFilterBar', () => {
 
     expect(onSortFieldChange).toHaveBeenCalledWith('title');
     expect(onSortDirectionChange).toHaveBeenCalledWith('asc');
-    expect(
-      screen.getByText('dashboard.games.filters.showing (count=2, total=5)'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('dashboard.games.filters.showing (count=2, total=5)')).toBeInTheDocument();
   });
 
   it('parses selected game types before forwarding the filter change', () => {

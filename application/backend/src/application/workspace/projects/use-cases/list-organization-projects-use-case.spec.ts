@@ -46,12 +46,7 @@ describe('ListOrganizationProjectsUseCase', () => {
       backendTestIdentifiers.user(2),
     );
 
-    expect(projectRepository.findPageByOrganization).toHaveBeenCalledWith(
-      organizationId,
-      1,
-      25,
-      'launch',
-    );
+    expect(projectRepository.findPageByOrganization).toHaveBeenCalledWith(organizationId, 1, 25, 'launch');
   });
 
   it('rejects non-members before querying projects', async () => {
@@ -71,9 +66,9 @@ describe('ListOrganizationProjectsUseCase', () => {
       paginationQueryNormalizer,
     );
 
-    await expect(
-      useCase.execute({ organizationId }, backendTestIdentifiers.user(4)),
-    ).rejects.toThrow(OrganizationErrorCode.NOT_A_MEMBER);
+    await expect(useCase.execute({ organizationId }, backendTestIdentifiers.user(4))).rejects.toThrow(
+      OrganizationErrorCode.NOT_A_MEMBER,
+    );
     expect(projectRepository.findPageByOrganization).not.toHaveBeenCalled();
   });
 });

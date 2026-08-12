@@ -28,10 +28,7 @@ export function NotFoundScreen() {
           <PrimaryActionLink leftSection={<AppIcon name="dashboard" size={16} />} to="/">
             {t('notFound.homeCta')}
           </PrimaryActionLink>
-          <SecondaryActionLink
-            leftSection={<AppIcon name="dashboard" size={16} />}
-            to="/workspace/dashboard"
-          >
+          <SecondaryActionLink leftSection={<AppIcon name="dashboard" size={16} />} to="/workspace/dashboard">
             {t('notFound.dashboardCta')}
           </SecondaryActionLink>
         </nav>

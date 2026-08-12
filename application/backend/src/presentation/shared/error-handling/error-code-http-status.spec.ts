@@ -78,9 +78,7 @@ describe('ErrorCodeHttpStatusService', () => {
         GameErrorHttpStatusService,
         {
           provide: ERROR_CODE_HTTP_STATUS_RESOLVERS,
-          useFactory: (gameErrorHttpStatusService: GameErrorHttpStatusService) => [
-            gameErrorHttpStatusService,
-          ],
+          useFactory: (gameErrorHttpStatusService: GameErrorHttpStatusService) => [gameErrorHttpStatusService],
           inject: [GameErrorHttpStatusService],
         },
         ErrorCodeHttpStatusService,

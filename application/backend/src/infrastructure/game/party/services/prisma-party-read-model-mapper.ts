@@ -153,9 +153,7 @@ export class PrismaPartyReadModelMapper {
       }
     }
 
-    return [...players.values()].sort(
-      (left, right) => left.joinedAt.getTime() - right.joinedAt.getTime(),
-    );
+    return [...players.values()].sort((left, right) => left.joinedAt.getTime() - right.joinedAt.getTime());
   }
 
   private upsertPlayerSummary(
@@ -188,9 +186,7 @@ export class PrismaPartyReadModelMapper {
     });
   }
 
-  normalizePlayerScores(
-    scores: readonly PrismaPartyPlayerScoreRecord[],
-  ): readonly PartyPlayerScoreRecord[] {
+  normalizePlayerScores(scores: readonly PrismaPartyPlayerScoreRecord[]): readonly PartyPlayerScoreRecord[] {
     return scores.map((score) => ({
       ...score,
       user: score.user
@@ -361,8 +357,7 @@ export class PrismaPartyReadModelMapper {
       return null;
     }
 
-    const normalizedStageId =
-      stageId === null ? null : this.partyStageIdentifier.parseOrNull(stageId);
+    const normalizedStageId = stageId === null ? null : this.partyStageIdentifier.parseOrNull(stageId);
 
     if (stageId !== null && normalizedStageId === null) {
       return null;
@@ -380,15 +375,9 @@ export class PrismaPartyReadModelMapper {
       return null;
     }
 
-    const normalizedStageEndsAtEpochMs = this.toNullableNonNegativeInteger(
-      stageEndsAtEpochMs ?? null,
-    );
-    const normalizedStageRemainingDurationMs = this.toNullableNonNegativeInteger(
-      stageRemainingDurationMs ?? null,
-    );
-    const normalizedStageTimeLimitSeconds = this.toNullableNonNegativeInteger(
-      stageTimeLimitSeconds ?? null,
-    );
+    const normalizedStageEndsAtEpochMs = this.toNullableNonNegativeInteger(stageEndsAtEpochMs ?? null);
+    const normalizedStageRemainingDurationMs = this.toNullableNonNegativeInteger(stageRemainingDurationMs ?? null);
+    const normalizedStageTimeLimitSeconds = this.toNullableNonNegativeInteger(stageTimeLimitSeconds ?? null);
 
     if (
       normalizedStageEndsAtEpochMs === undefined ||
@@ -532,9 +521,7 @@ export class PrismaPartyReadModelMapper {
   }
 
   private toPlayerKey(identity: PartyPlayerIdentity): string {
-    return identity.kind === PartyPlayerKind.USER
-      ? `user:${identity.userId}`
-      : `guest:${identity.guestId}`;
+    return identity.kind === PartyPlayerKind.USER ? `user:${identity.userId}` : `guest:${identity.guestId}`;
   }
 
   private toPartyPlayerCorrectStages(score: PartyPlayerScoreRecord): number {
@@ -592,9 +579,7 @@ export class PrismaPartyReadModelMapper {
     }
 
     const current = this.toPartyRuntimeCurrentResultContext(Reflect.get(value, 'current'));
-    const currentPlayer = this.toPartyRuntimeCurrentPlayerResultContext(
-      Reflect.get(value, 'currentPlayer'),
-    );
+    const currentPlayer = this.toPartyRuntimeCurrentPlayerResultContext(Reflect.get(value, 'currentPlayer'));
 
     if (current === undefined && currentPlayer === undefined) {
       return undefined;
@@ -630,9 +615,7 @@ export class PrismaPartyReadModelMapper {
 
     return {
       currentPlayer:
-        this.toPartyRuntimeCurrentPlayerActionSubmissionContext(
-          Reflect.get(value, 'currentPlayer'),
-        ) ?? null,
+        this.toPartyRuntimeCurrentPlayerActionSubmissionContext(Reflect.get(value, 'currentPlayer')) ?? null,
       submittedPlayerCount: Number(submittedPlayerCount),
       totalEligiblePlayerCount: Number(totalEligiblePlayerCount),
     };
@@ -640,9 +623,7 @@ export class PrismaPartyReadModelMapper {
 
   private toPartyRuntimeCurrentPlayerActionSubmissionContext(
     value: unknown,
-  ):
-    | NonNullable<NonNullable<PartyRuntimeContext['stage']>['actionSubmission']>['currentPlayer']
-    | undefined {
+  ): NonNullable<NonNullable<PartyRuntimeContext['stage']>['actionSubmission']>['currentPlayer'] | undefined {
     if (value === null) {
       return null;
     }
@@ -740,9 +721,7 @@ export class PrismaPartyReadModelMapper {
 
   private toPartyRuntimeStageActionContext(
     value: unknown,
-  ):
-    | NonNullable<NonNullable<PartyRuntimeContext['stage']>['current']>['actions'][number]
-    | undefined {
+  ): NonNullable<NonNullable<PartyRuntimeContext['stage']>['current']>['actions'][number] | undefined {
     if (!value || typeof value !== 'object' || Array.isArray(value)) {
       return undefined;
     }
@@ -800,9 +779,7 @@ export class PrismaPartyReadModelMapper {
 
   private toPartyRuntimeResultActionContext(
     value: unknown,
-  ):
-    | NonNullable<NonNullable<PartyRuntimeContext['result']>['current']>['actions'][number]
-    | undefined {
+  ): NonNullable<NonNullable<PartyRuntimeContext['result']>['current']>['actions'][number] | undefined {
     if (!value || typeof value !== 'object' || Array.isArray(value)) {
       return undefined;
     }

@@ -18,22 +18,12 @@ const QUIZ_MANAGEMENT_REPOSITORY_ERROR_DEFINITIONS = {
 
 export class QuizNotCreatedError extends DomainError<QuizManagementRepositoryErrorCode> {
   constructor(context?: Record<string, unknown>) {
-    super(
-      QUIZ_MANAGEMENT_REPOSITORY_ERROR_DEFINITIONS[
-        QuizManagementRepositoryErrorCode.QUIZ_NOT_CREATED
-      ],
-      context,
-    );
+    super(QUIZ_MANAGEMENT_REPOSITORY_ERROR_DEFINITIONS[QuizManagementRepositoryErrorCode.QUIZ_NOT_CREATED], context);
   }
 }
 
 export class QuizNotUpdatedError extends DomainError<QuizManagementRepositoryErrorCode> {
   constructor(context?: Record<string, unknown>) {
-    super(
-      QUIZ_MANAGEMENT_REPOSITORY_ERROR_DEFINITIONS[
-        QuizManagementRepositoryErrorCode.QUIZ_NOT_UPDATED
-      ],
-      context,
-    );
+    super(QUIZ_MANAGEMENT_REPOSITORY_ERROR_DEFINITIONS[QuizManagementRepositoryErrorCode.QUIZ_NOT_UPDATED], context);
   }
 }

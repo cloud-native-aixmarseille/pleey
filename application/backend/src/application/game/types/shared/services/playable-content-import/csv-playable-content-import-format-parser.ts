@@ -3,11 +3,7 @@ import { PlayableContentImportInvalidFileError } from '../../../../../../domain/
 import { AbstractPlayableContentImportFormatParser } from './abstract-playable-content-import-format-parser';
 import type { PlayableContentImportFormatParser } from './import-format-parser';
 import type { RawImportItem, RawImportOption } from './import-parser.types';
-import {
-  PlayableImportFormat,
-  PlayableImportItemKind,
-  TRUE_FALSE_OPTION_TEXTS,
-} from './import-parser.types';
+import { PlayableImportFormat, PlayableImportItemKind, TRUE_FALSE_OPTION_TEXTS } from './import-parser.types';
 import type { PlayableContentImportSource } from './import-source';
 
 interface CsvHeaderContext {
@@ -41,9 +37,7 @@ export class CsvPlayableContentImportFormatParser
 
     const firstLine = content.split(/\r?\n/u)[0]?.toLowerCase() ?? '';
 
-    return (
-      firstLine.includes(',') && (firstLine.includes('question') || firstLine.includes('prompt'))
-    );
+    return firstLine.includes(',') && (firstLine.includes('question') || firstLine.includes('prompt'));
   }
 
   async parse(source: PlayableContentImportSource): Promise<readonly RawImportItem[]> {
@@ -85,22 +79,11 @@ export class CsvPlayableContentImportFormatParser
 
   private createHeaderContext(headerRow: readonly string[], fileName: string): CsvHeaderContext {
     const headers = headerRow.map((value) => value.trim().toLowerCase());
-    const textIndex = this.findHeaderIndex(headers, [
-      'prompt',
-      'prompttext',
-      'question',
-      'questiontext',
-      'text',
-    ]);
+    const textIndex = this.findHeaderIndex(headers, ['prompt', 'prompttext', 'question', 'questiontext', 'text']);
     const kindIndex = this.findHeaderIndex(headers, ['type', 'kind']);
     const timeLimitIndex = this.findHeaderIndex(headers, ['timelimit', 'time', 'seconds']);
     const pointsIndex = this.findHeaderIndex(headers, ['points', 'score']);
-    const correctIndex = this.findHeaderIndex(headers, [
-      'correct',
-      'correctanswers',
-      'correctpositions',
-      'answer',
-    ]);
+    const correctIndex = this.findHeaderIndex(headers, ['correct', 'correctanswers', 'correctpositions', 'answer']);
     const optionIndexes = headers
       .map((header, index) => ({ header, index }))
       .filter(({ header }) => /^option\d+$/u.test(header) || /^answer\d+$/u.test(header))
@@ -141,21 +124,12 @@ export class CsvPlayableContentImportFormatParser
       inferredKind === PlayableImportItemKind.TRUE_FALSE && optionTexts.length === 0
         ? [...TRUE_FALSE_OPTION_TEXTS]
         : optionTexts;
-    const correctValue =
-      headerContext.correctIndex === null ? '' : (row[headerContext.correctIndex] ?? '');
+    const correctValue = headerContext.correctIndex === null ? '' : (row[headerContext.correctIndex] ?? '');
 
     return {
       kind: inferredKind,
-      options: this.createOptions(
-        resolvedOptionTexts,
-        correctValue,
-        inferredKind,
-        fileName,
-        rowIndex,
-      ),
-      points: this.parseOptionalNumber(
-        headerContext.pointsIndex === null ? undefined : row[headerContext.pointsIndex],
-      ),
+      options: this.createOptions(resolvedOptionTexts, correctValue, inferredKind, fileName, rowIndex),
+      points: this.parseOptionalNumber(headerContext.pointsIndex === null ? undefined : row[headerContext.pointsIndex]),
       text: row[headerContext.textIndex] ?? '',
       timeLimit: this.parseOptionalNumber(
         headerContext.timeLimitIndex === null ? undefined : row[headerContext.timeLimitIndex],
@@ -247,9 +221,7 @@ export class CsvPlayableContentImportFormatParser
     }
 
     return normalizedOptions.map((optionText, index) => ({
-      isCorrect:
-        correctTokens.includes(String(index + 1)) ||
-        correctTokens.includes(optionText.toLowerCase()),
+      isCorrect: correctTokens.includes(String(index + 1)) || correctTokens.includes(optionText.toLowerCase()),
       text: optionText,
     }));
   }
@@ -276,10 +248,7 @@ export class CsvPlayableContentImportFormatParser
     return null;
   }
 
-  private findHeaderIndex(
-    headers: readonly string[],
-    candidates: readonly string[],
-  ): number | null {
+  private findHeaderIndex(headers: readonly string[], candidates: readonly string[]): number | null {
     for (const candidate of candidates) {
       const index = headers.indexOf(candidate);
 

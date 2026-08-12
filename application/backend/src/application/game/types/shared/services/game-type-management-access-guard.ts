@@ -23,10 +23,7 @@ export class GameTypeManagementAccessGuard {
       throw new ProjectNotFoundError({ projectId });
     }
 
-    const membership = await this.memberRepository.findByOrganizationAndUser(
-      project.organizationId,
-      userId,
-    );
+    const membership = await this.memberRepository.findByOrganizationAndUser(project.organizationId, userId);
     if (!membership) {
       throw new NotAMemberError({
         organizationId: project.organizationId,

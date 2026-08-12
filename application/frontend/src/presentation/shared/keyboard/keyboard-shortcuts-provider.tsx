@@ -102,8 +102,7 @@ function matchesShortcutCombo(combo: ShortcutCombo, event: KeyboardEvent): boole
     return false;
   }
 
-  const shouldMatchShiftExactly =
-    combo.shift !== undefined || /[a-z0-9]/i.test(combo.key) || combo.key.length > 1;
+  const shouldMatchShiftExactly = combo.shift !== undefined || /[a-z0-9]/i.test(combo.key) || combo.key.length > 1;
 
   return (
     Boolean(combo.alt) === event.altKey &&
@@ -113,10 +112,7 @@ function matchesShortcutCombo(combo: ShortcutCombo, event: KeyboardEvent): boole
   );
 }
 
-function getScopePriority(
-  scopeId: string,
-  activeScopes: ReadonlyMap<string, ShortcutScopeDefinition>,
-): number {
+function getScopePriority(scopeId: string, activeScopes: ReadonlyMap<string, ShortcutScopeDefinition>): number {
   if (scopeId === GLOBAL_SHORTCUT_SCOPE) {
     return Number.NEGATIVE_INFINITY;
   }
@@ -136,10 +132,7 @@ function getScopePriority(
   return bestPriority;
 }
 
-function isScopeActive(
-  scopeId: string,
-  activeScopes: ReadonlyMap<string, ShortcutScopeDefinition>,
-): boolean {
+function isScopeActive(scopeId: string, activeScopes: ReadonlyMap<string, ShortcutScopeDefinition>): boolean {
   for (const activeScope of activeScopes.values()) {
     if (activeScope.scope === scopeId) {
       return true;
@@ -263,10 +256,7 @@ export function KeyboardShortcutsProvider({ children }: PropsWithChildren) {
         return false;
       }
 
-      if (
-        registration.scope !== GLOBAL_SHORTCUT_SCOPE &&
-        !isScopeActive(registration.scope, activeScopesRef.current)
-      ) {
+      if (registration.scope !== GLOBAL_SHORTCUT_SCOPE && !isScopeActive(registration.scope, activeScopesRef.current)) {
         return false;
       }
 
@@ -285,9 +275,7 @@ export function KeyboardShortcutsProvider({ children }: PropsWithChildren) {
       return;
     }
 
-    registrations.sort((left, right) =>
-      compareShortcutRegistrations(left, right, activeScopesRef.current),
-    );
+    registrations.sort((left, right) => compareShortcutRegistrations(left, right, activeScopesRef.current));
 
     const [selectedRegistration] = registrations;
 
@@ -371,8 +359,7 @@ export function KeyboardShortcutsProvider({ children }: PropsWithChildren) {
         }
 
         return (
-          registration.scope === GLOBAL_SHORTCUT_SCOPE ||
-          isScopeActive(registration.scope, activeScopesRef.current)
+          registration.scope === GLOBAL_SHORTCUT_SCOPE || isScopeActive(registration.scope, activeScopesRef.current)
         );
       })
       .sort((left, right) => compareShortcutRegistrations(left, right, activeScopesRef.current));

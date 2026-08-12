@@ -4,23 +4,14 @@ import { usePresentationTranslation } from '../../../../../../shared/i18n/use-pr
 import { useKeyboardShortcut, useShortcutScope } from '../../../../../../shared/keyboard';
 import { ResponsiveGrid } from '../../../../../../shared/ui/layout/containers';
 import { usePresentationMediaQuery } from '../../../../../../shared/ui/layout/use-presentation-media-query';
-import {
-  MotionStagger,
-  MotionStaggerItem,
-} from '../../../../../../shared/ui/motion/motion-primitives';
+import { MotionStagger, MotionStaggerItem } from '../../../../../../shared/ui/motion/motion-primitives';
 import { PlayerStageSurfaceFrame } from '../../../../../party/player/screens/components/player-stage-surface-frame';
 import { resolvePlayableChoiceActionSlotLabel } from './playable-choice-action-slot-identity';
-import {
-  mobileTileWrapperStyle,
-  resolveMobileGridStyle,
-} from './playable-choice-player-stage-surface.styles';
+import { mobileTileWrapperStyle, resolveMobileGridStyle } from './playable-choice-player-stage-surface.styles';
 import { PlayableChoiceResultActionTile } from './playable-choice-result-action-tile';
 import type { PlayableChoicePlayerStageSurfaceProps } from './playable-choice-runtime-panel.types';
 import { StageCountdownTimer } from './stage-countdown-timer';
-import {
-  resolveStageTotalDurationMs,
-  useStageRemainingDurationMs,
-} from './use-stage-remaining-duration-ms';
+import { resolveStageTotalDurationMs, useStageRemainingDurationMs } from './use-stage-remaining-duration-ms';
 import { useStageRevealPhase } from './use-stage-reveal-phase';
 
 const STAGE_ANSWER_REVEAL_INITIAL_DELAY_SECONDS_DESKTOP = 1.8;
@@ -73,8 +64,7 @@ export function PlayableChoicePlayerStageSurface({
   const currentStage = party.context?.stage?.current;
   const stageId = party.context?.lifecycle.stageId ?? null;
   const stageEndsAtEpochMs = party.context?.lifecycle.stageEndsAtEpochMs ?? null;
-  const stageRevealCycleKey =
-    stageId === null ? null : `${stageId}-${stageEndsAtEpochMs ?? 'no-deadline'}`;
+  const stageRevealCycleKey = stageId === null ? null : `${stageId}-${stageEndsAtEpochMs ?? 'no-deadline'}`;
   const currentPlayerAction = party.context?.stage?.actionSubmission?.currentPlayer ?? null;
   const remainingDurationMs = useStageRemainingDurationMs(party);
   const totalDurationMs = resolveStageTotalDurationMs(party);
@@ -90,11 +80,7 @@ export function PlayableChoicePlayerStageSurface({
   const isSubmitting = pendingActionId !== null && currentPlayerAction === null;
   const isLocked = currentPlayerAction !== null;
   const areActionsDisabled =
-    party.status !== PartyStatus.ACTIVE ||
-    isSubmitting ||
-    isLocked ||
-    isStageTimerExpired ||
-    isStageRevealing;
+    party.status !== PartyStatus.ACTIVE || isSubmitting || isLocked || isStageTimerExpired || isStageRevealing;
   const shortcutScope = `${testIdPrefix}-player-stage-shortcuts`;
 
   useShortcutScope(shortcutScope, { active: true, priority: 100 });

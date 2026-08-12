@@ -63,12 +63,7 @@ function ResponseSuccessRatio({
   );
 }
 
-export function PartyFinalSummaryPodium({
-  isMobile,
-  podiumByRank,
-  totalStages,
-  winner,
-}: PartyFinalSummaryPodiumProps) {
+export function PartyFinalSummaryPodium({ isMobile, podiumByRank, totalStages, winner }: PartyFinalSummaryPodiumProps) {
   const { t } = usePresentationTranslation();
 
   return (
@@ -77,9 +72,7 @@ export function PartyFinalSummaryPodium({
         <ContentStack gap="lg">
           <div style={podiumHeaderStyle}>
             <Heading level={2}>{t('game.party.route.finalSummaryPodiumTitle')}</Heading>
-            <SupportingText tone="soft">
-              {t('game.party.route.finalSummaryPodiumHint')}
-            </SupportingText>
+            <SupportingText tone="soft">{t('game.party.route.finalSummaryPodiumHint')}</SupportingText>
           </div>
 
           {isMobile ? (
@@ -150,13 +143,8 @@ function renderDesktopPodiumEntry(
           })}
         </p>
         <ResponseSuccessRatio player={player} t={t} totalStages={totalStages} />
-        <div
-          data-testid={`party-final-podium-rank-${rank}-badge-slot`}
-          style={podiumCurrentPlayerSlotStyle}
-        >
-          {player.isCurrentPlayer ? (
-            <Badge tone="success">{t('game.party.route.youBadge')}</Badge>
-          ) : null}
+        <div data-testid={`party-final-podium-rank-${rank}-badge-slot`} style={podiumCurrentPlayerSlotStyle}>
+          {player.isCurrentPlayer ? <Badge tone="success">{t('game.party.route.youBadge')}</Badge> : null}
         </div>
       </div>
     </MotionPodiumRise>
@@ -173,10 +161,7 @@ function renderMobilePodiumEntry(
 
   return (
     <MotionPodiumRise delay={entryDelay} key={`mobile-${toPartyFinalSummaryPlayerKey(player)}`}>
-      <div
-        data-testid={`party-final-podium-mobile-rank-${rank}`}
-        style={buildPodiumMobileCardStyle(rank)}
-      >
+      <div data-testid={`party-final-podium-mobile-rank-${rank}`} style={buildPodiumMobileCardStyle(rank)}>
         <div style={podiumMobileCardHeaderStyle}>
           <div style={podiumMobileRankGroupStyle}>
             <div style={buildPodiumBadgeStyle(rank)}>{rank}</div>
@@ -200,9 +185,7 @@ function renderMobilePodiumEntry(
           </div>
           <div style={podiumMobileNameGroupStyle}>
             <p style={podiumUsernameStyle}>{player.username}</p>
-            {player.isCurrentPlayer ? (
-              <Badge tone="success">{t('game.party.route.youBadge')}</Badge>
-            ) : null}
+            {player.isCurrentPlayer ? <Badge tone="success">{t('game.party.route.youBadge')}</Badge> : null}
           </div>
         </div>
       </div>
@@ -240,9 +223,7 @@ function renderMobileWinnerEntry(
           })}
         </p>
         <ResponseSuccessRatio player={player} t={t} totalStages={totalStages} />
-        {player.isCurrentPlayer ? (
-          <Badge tone="success">{t('game.party.route.youBadge')}</Badge>
-        ) : null}
+        {player.isCurrentPlayer ? <Badge tone="success">{t('game.party.route.youBadge')}</Badge> : null}
       </div>
     </MotionPodiumRise>
   );

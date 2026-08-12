@@ -37,17 +37,11 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
     );
   }
 
-  findNextStage(
-    gameId: GameId,
-    currentStageId: PartyStageId,
-  ): Promise<PartyStageCatalogEntry | null> {
+  findNextStage(gameId: GameId, currentStageId: PartyStageId): Promise<PartyStageCatalogEntry | null> {
     return this.findAdjacentStage(gameId, currentStageId, 1);
   }
 
-  findPreviousStage(
-    gameId: GameId,
-    currentStageId: PartyStageId,
-  ): Promise<PartyStageCatalogEntry | null> {
+  findPreviousStage(gameId: GameId, currentStageId: PartyStageId): Promise<PartyStageCatalogEntry | null> {
     return this.findAdjacentStage(gameId, currentStageId, -1);
   }
 
@@ -179,13 +173,9 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
     const position = currentStage.stagePosition;
 
     if (offset === 1) {
-      return this.findStage(gameId, { deletedAt: null, position: { gt: position } }, [
-        { position: 'asc' },
-      ]);
+      return this.findStage(gameId, { deletedAt: null, position: { gt: position } }, [{ position: 'asc' }]);
     }
 
-    return this.findStage(gameId, { deletedAt: null, position: { lt: position } }, [
-      { position: 'desc' },
-    ]);
+    return this.findStage(gameId, { deletedAt: null, position: { lt: position } }, [{ position: 'desc' }]);
   }
 }

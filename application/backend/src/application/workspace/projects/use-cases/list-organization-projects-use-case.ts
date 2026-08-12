@@ -31,20 +31,14 @@ export class ListOrganizationProjectsUseCase {
     private readonly paginationQueryNormalizer: PaginationQueryNormalizer,
   ) {}
 
-  async execute(
-    input: ListOrganizationProjectsQuery,
-    userId: UserId,
-  ): Promise<PaginatedResult<Project>> {
+  async execute(input: ListOrganizationProjectsQuery, userId: UserId): Promise<PaginatedResult<Project>> {
     const pagination = this.paginationQueryNormalizer.normalizeQuery(input, DEFAULT_PAGE_SIZE);
     const organization = await this.organizationRepository.findById(input.organizationId);
     if (!organization) {
       throw new OrganizationNotFoundError({ organizationId: input.organizationId });
     }
 
-    const membership = await this.memberRepository.findByOrganizationAndUser(
-      input.organizationId,
-      userId,
-    );
+    const membership = await this.memberRepository.findByOrganizationAndUser(input.organizationId, userId);
 
     if (!membership) {
       throw new NotAMemberError({

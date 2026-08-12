@@ -1,8 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type {
-  Organization,
-  OrganizationId,
-} from '../../../../../domains/organization/entities/organization';
+import type { Organization, OrganizationId } from '../../../../../domains/organization/entities/organization';
 import { OrganizationRole } from '../../../../../domains/organization/entities/organization';
 import type { OrganizationMember } from '../../../../../domains/organization/entities/organization-member';
 import type {
@@ -40,13 +37,9 @@ interface OrganizationScreenStateParams {
   readonly listOrganizationMembers: (
     query: ListOrganizationMembersQuery,
   ) => Promise<PaginatedResult<OrganizationMember>>;
-  readonly addOrganizationMember: (
-    command: AddOrganizationMemberCommand,
-  ) => Promise<OrganizationMember>;
+  readonly addOrganizationMember: (command: AddOrganizationMemberCommand) => Promise<OrganizationMember>;
   readonly removeOrganizationMember: (member: OrganizationMember) => Promise<void>;
-  readonly updateOrganizationMemberRole: (
-    command: UpdateOrganizationMemberRoleCommand,
-  ) => Promise<OrganizationMember>;
+  readonly updateOrganizationMemberRole: (command: UpdateOrganizationMemberRoleCommand) => Promise<OrganizationMember>;
 }
 
 interface ProjectFormValues {
@@ -71,9 +64,7 @@ function normalizeSearchTerm(search: string): string | undefined {
 }
 
 function canManageMembers(organization: Organization | null): boolean {
-  return (
-    organization?.role === OrganizationRole.OWNER || organization?.role === OrganizationRole.MANAGER
-  );
+  return organization?.role === OrganizationRole.OWNER || organization?.role === OrganizationRole.MANAGER;
 }
 
 export function useOrganizationScreenState({
@@ -103,35 +94,32 @@ export function useOrganizationScreenState({
   const [isMembersLoading, setIsMembersLoading] = useState(false);
   const [isAddingMember, setIsAddingMember] = useState(false);
   const [memberPendingRemoval, setMemberPendingRemoval] = useState<OrganizationMember | null>(null);
-  const [pendingRoleUpdateMemberId, setPendingRoleUpdateMemberId] = useState<
-    OrganizationMember['id'] | null
-  >(null);
-  const [pendingRemovalMemberId, setPendingRemovalMemberId] = useState<
-    OrganizationMember['id'] | null
-  >(null);
+  const [pendingRoleUpdateMemberId, setPendingRoleUpdateMemberId] = useState<OrganizationMember['id'] | null>(null);
+  const [pendingRemovalMemberId, setPendingRemovalMemberId] = useState<OrganizationMember['id'] | null>(null);
   const [debouncedMemberSearch] = usePresentationDebouncedValue(memberSearch);
-  const isMemberSearchPending =
-    normalizeSearchTerm(memberSearch) !== normalizeSearchTerm(debouncedMemberSearch);
+  const isMemberSearchPending = normalizeSearchTerm(memberSearch) !== normalizeSearchTerm(debouncedMemberSearch);
 
-  const stableDashboardWorkspace = useCallback<
-    DashboardWorkspaceSelectionGateway['restoreOrganizationSelection']
-  >((query) => dashboardWorkspace.restoreOrganizationSelection(query), [dashboardWorkspace]);
+  const stableDashboardWorkspace = useCallback<DashboardWorkspaceSelectionGateway['restoreOrganizationSelection']>(
+    (query) => dashboardWorkspace.restoreOrganizationSelection(query),
+    [dashboardWorkspace],
+  );
 
-  const stableOrganizationWorkspace = useCallback<
-    DashboardWorkspaceSelectionGateway['loadOrganizationWorkspaceState']
-  >((query) => dashboardWorkspace.loadOrganizationWorkspaceState(query), [dashboardWorkspace]);
+  const stableOrganizationWorkspace = useCallback<DashboardWorkspaceSelectionGateway['loadOrganizationWorkspaceState']>(
+    (query) => dashboardWorkspace.loadOrganizationWorkspaceState(query),
+    [dashboardWorkspace],
+  );
 
-  const stableOrganizationsPage = useCallback<
-    DashboardWorkspaceSelectionGateway['loadOrganizationsPage']
-  >((query) => dashboardWorkspace.loadOrganizationsPage(query), [dashboardWorkspace]);
+  const stableOrganizationsPage = useCallback<DashboardWorkspaceSelectionGateway['loadOrganizationsPage']>(
+    (query) => dashboardWorkspace.loadOrganizationsPage(query),
+    [dashboardWorkspace],
+  );
 
   const stableOrganizationProjectsPage = useCallback<
     DashboardWorkspaceSelectionGateway['loadOrganizationProjectsPage']
   >((query) => dashboardWorkspace.loadOrganizationProjectsPage(query), [dashboardWorkspace]);
 
   const stableSetOrganizationSelection = useCallback(
-    (organizationId: OrganizationId | null) =>
-      dashboardWorkspace.setOrganizationSelection(organizationId),
+    (organizationId: OrganizationId | null) => dashboardWorkspace.setOrganizationSelection(organizationId),
     [dashboardWorkspace],
   );
 
@@ -321,9 +309,7 @@ export function useOrganizationScreenState({
 
     const usernameOrEmail = memberForm.usernameOrEmail.trim();
     if (usernameOrEmail.length === 0) {
-      memberFeedback.setErrorMessage(
-        'organization.management.members.validation.usernameOrEmailRequired',
-      );
+      memberFeedback.setErrorMessage('organization.management.members.validation.usernameOrEmailRequired');
       return;
     }
 
@@ -348,11 +334,7 @@ export function useOrganizationScreenState({
   }
 
   async function handleConfirmOrganizationMemberRemoval() {
-    if (
-      !memberPendingRemoval ||
-      pendingRemovalMemberId !== null ||
-      pendingRoleUpdateMemberId !== null
-    ) {
+    if (!memberPendingRemoval || pendingRemovalMemberId !== null || pendingRoleUpdateMemberId !== null) {
       return;
     }
 
@@ -389,10 +371,7 @@ export function useOrganizationScreenState({
     setMemberPendingRemoval(null);
   }
 
-  async function handleUpdateOrganizationMemberRole(
-    member: OrganizationMember,
-    role: OrganizationRole,
-  ) {
+  async function handleUpdateOrganizationMemberRole(member: OrganizationMember, role: OrganizationRole) {
     if (pendingRoleUpdateMemberId !== null || pendingRemovalMemberId !== null) {
       return;
     }

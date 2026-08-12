@@ -1,11 +1,7 @@
 import { screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { renderWithProviders } from '../../../../test-utils/render-with-providers';
-import {
-  HomeFeaturesSection,
-  HomeHowItWorksSection,
-  HomeValuePropositionSection,
-} from './home-content-sections';
+import { HomeFeaturesSection, HomeHowItWorksSection, HomeValuePropositionSection } from './home-content-sections';
 
 vi.mock('../../../shared/i18n/use-presentation-translation', async (importOriginal) => {
   const { PresentationTranslationMockFactory } = await import(
@@ -38,9 +34,7 @@ describe('home-content-sections', () => {
   it('renders the value proposition heading and description', () => {
     renderWithProviders(<HomeValuePropositionSection />);
 
-    expect(
-      screen.getByRole('heading', { name: 'home.valueProposition.heading' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'home.valueProposition.heading' })).toBeInTheDocument();
     expect(screen.getByText('home.valueProposition.description')).toBeInTheDocument();
   });
 

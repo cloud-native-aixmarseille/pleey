@@ -7,11 +7,7 @@ type AsyncMethodKeys<T> = {
 }[keyof T];
 
 type SyncMethodKeys<T> = {
-  [K in keyof T]-?: T[K] extends (...args: never[]) => infer R
-    ? R extends Promise<unknown>
-      ? never
-      : K
-    : never;
+  [K in keyof T]-?: T[K] extends (...args: never[]) => infer R ? (R extends Promise<unknown> ? never : K) : never;
 }[keyof T];
 
 type ResolvedValueFor<T, K extends AsyncMethodKeys<T>> = Awaited<ReturnType<Extract<T[K], AnyFn>>>;
@@ -49,10 +45,7 @@ const hasMockResolvedValue = (value: unknown): value is ResolvableMock =>
 const hasMockReturnValue = (value: unknown): value is ReturnableMock =>
   typeof (value as ReturnableMock)?.mockReturnValue === 'function';
 
-const applyMockFactoryOptions = <T extends object>(
-  mock: T,
-  options: MockFactoryOptions<T> = {},
-): void => {
+const applyMockFactoryOptions = <T extends object>(mock: T, options: MockFactoryOptions<T> = {}): void => {
   const record = mock as Record<string, unknown>;
 
   if (options.resolved) {
@@ -91,10 +84,7 @@ export const applyMockFactoryConfig = <T extends object>(
 
     if (!fn) continue;
 
-    if (
-      (methodKinds.resolved as ReadonlyArray<keyof T>).includes(key) &&
-      hasMockResolvedValue(fn)
-    ) {
+    if ((methodKinds.resolved as ReadonlyArray<keyof T>).includes(key) && hasMockResolvedValue(fn)) {
       fn.mockResolvedValue(value);
       continue;
     }

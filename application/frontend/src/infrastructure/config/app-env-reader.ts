@@ -35,7 +35,5 @@ function readBrowserOrigin(): string {
 
   const origin = window.location?.origin;
 
-  return typeof origin === 'string' && origin.trim().length > 0
-    ? origin.trim().replace(/\/$/, '')
-    : '';
+  return typeof origin === 'string' && origin.trim().length > 0 ? origin.trim().replace(/\/$/, '') : '';
 }

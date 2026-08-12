@@ -18,11 +18,7 @@ export class PrismaProjectRepository implements ProjectRepository {
     private readonly paginationQueryNormalizer: PaginationQueryNormalizer,
   ) {}
 
-  async create(
-    organizationId: OrganizationId,
-    name: string,
-    description: string | null,
-  ): Promise<Project> {
+  async create(organizationId: OrganizationId, name: string, description: string | null): Promise<Project> {
     const project = await this.prisma.project.create({
       data: {
         name,

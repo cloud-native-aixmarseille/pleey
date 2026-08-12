@@ -1,9 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { PaginatedResult } from '../../../domain/shared/value-objects/paginated-result';
-import type {
-  NormalizedPaginationQuery,
-  PaginationQuery,
-} from '../../../domain/shared/value-objects/pagination-query';
+import type { NormalizedPaginationQuery, PaginationQuery } from '../../../domain/shared/value-objects/pagination-query';
 
 const DEFAULT_PAGE = 1;
 
@@ -22,11 +19,7 @@ export class PaginationQueryNormalizer {
   }
 
   normalizePage(page: number, pageSize: number, search?: string): NormalizedPaginationQuery {
-    return this.create(
-      Math.max(DEFAULT_PAGE, page),
-      Math.max(1, pageSize),
-      this.normalizeSearchTerm(search),
-    );
+    return this.create(Math.max(DEFAULT_PAGE, page), Math.max(1, pageSize), this.normalizeSearchTerm(search));
   }
 
   toPaginatedResult<TItem>(

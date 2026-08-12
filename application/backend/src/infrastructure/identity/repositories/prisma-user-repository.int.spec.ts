@@ -35,9 +35,7 @@ describeIfDatabase('PrismaUserRepository', () => {
     );
     createdUserIds.push(created.id);
 
-    await expect(harness.repository.exists(userFixture.email, userFixture.username)).resolves.toBe(
-      true,
-    );
+    await expect(harness.repository.exists(userFixture.email, userFixture.username)).resolves.toBe(true);
 
     const byEmail = await harness.repository.findByEmail(userFixture.email);
     expect(byEmail?.id).toBe(created.id);

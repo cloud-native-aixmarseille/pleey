@@ -31,9 +31,7 @@ describe('GetOrganizationDashboardUseCase', () => {
       });
 
       // Assert
-      expect(organizationRepository.getOrganizationDashboard).toHaveBeenCalledWith(
-        organizationIdentifier.parse(4),
-      );
+      expect(organizationRepository.getOrganizationDashboard).toHaveBeenCalledWith(organizationIdentifier.parse(4));
       expect(result.organization.id).toBe(organizationIdentifier.parse(4));
     });
   });

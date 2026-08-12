@@ -45,21 +45,18 @@ describe('PartyRouteService', () => {
     expect(service.resolvePartyLeaderboardRoute(partyIdentifier.parse(44))).toBe(
       `/party/${partyIdentifier.parse(44)}/final`,
     );
-    expect(
-      service.resolvePartyStageRoute(partyIdentifier.parse(44), stageIdentifier.parse(2)),
-    ).toBe(`/party/${partyIdentifier.parse(44)}/stage/${stageIdentifier.parse(2)}`);
-    expect(
-      service.resolvePartyResultRoute(partyIdentifier.parse(44), stageIdentifier.parse(2)),
-    ).toBe(`/party/${partyIdentifier.parse(44)}/stage/${stageIdentifier.parse(2)}/result`);
+    expect(service.resolvePartyStageRoute(partyIdentifier.parse(44), stageIdentifier.parse(2))).toBe(
+      `/party/${partyIdentifier.parse(44)}/stage/${stageIdentifier.parse(2)}`,
+    );
+    expect(service.resolvePartyResultRoute(partyIdentifier.parse(44), stageIdentifier.parse(2))).toBe(
+      `/party/${partyIdentifier.parse(44)}/stage/${stageIdentifier.parse(2)}/result`,
+    );
   });
 
   it('builds an absolute canonical join url for sharing', () => {
-    expect(
-      service.resolveJoinPartyAbsoluteUrl(
-        partyPinIdentifier.parse(' ab12cd '),
-        'https://pleey.app/app/',
-      ),
-    ).toBe('https://pleey.app/join/AB12CD');
+    expect(service.resolveJoinPartyAbsoluteUrl(partyPinIdentifier.parse(' ab12cd '), 'https://pleey.app/app/')).toBe(
+      'https://pleey.app/join/AB12CD',
+    );
   });
 
   it('normalizes blank pins to null', () => {

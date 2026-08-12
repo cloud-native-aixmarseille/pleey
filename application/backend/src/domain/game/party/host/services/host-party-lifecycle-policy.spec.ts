@@ -2,16 +2,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { GameErrorCode } from '../../../enums/game-error-code.enum';
 import { PartyStatus } from '../../enums/party-status.enum';
-import {
-  type PartyRuntimeContext,
-  PartyRuntimePhase,
-} from '../../shared/entities/party-runtime-context';
+import { type PartyRuntimeContext, PartyRuntimePhase } from '../../shared/entities/party-runtime-context';
 import { HostPartyLifecyclePolicy } from './host-party-lifecycle-policy';
 
 function createRuntimeContext(
-  overrides: Partial<
-    Extract<PartyRuntimeContext, { lifecycle: { phase: PartyRuntimePhase.STAGE } }>['lifecycle']
-  > = {},
+  overrides: Partial<Extract<PartyRuntimeContext, { lifecycle: { phase: PartyRuntimePhase.STAGE } }>['lifecycle']> = {},
 ): Extract<PartyRuntimeContext, { lifecycle: { phase: PartyRuntimePhase.STAGE } }> {
   return {
     lifecycle: {

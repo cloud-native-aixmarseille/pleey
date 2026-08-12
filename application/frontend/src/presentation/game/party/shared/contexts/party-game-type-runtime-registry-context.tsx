@@ -1,10 +1,4 @@
-import {
-  createContext,
-  createElement,
-  type PropsWithChildren,
-  type ReactElement,
-  useContext,
-} from 'react';
+import { createContext, createElement, type PropsWithChildren, type ReactElement, useContext } from 'react';
 import type { PartyActionId } from '../../../../../domains/game/party/shared/entities/party-action';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import { type GameType } from '../../../../../domains/game/types/shared/game-type';
@@ -36,9 +30,7 @@ export interface PartyGameTypeRuntimeRegistry {
   resolve(gameType: GameType): PartyGameTypeRuntimeView | null;
 }
 
-const PartyGameTypeRuntimeRegistryContext = createContext<PartyGameTypeRuntimeRegistry | null>(
-  null,
-);
+const PartyGameTypeRuntimeRegistryContext = createContext<PartyGameTypeRuntimeRegistry | null>(null);
 
 interface PartyGameTypeRuntimeRegistryProviderProps extends PropsWithChildren {
   readonly value: PartyGameTypeRuntimeRegistry;

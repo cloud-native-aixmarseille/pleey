@@ -2,12 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PlayableContentImportInvalidFileError } from '../../../../../../domain/game/types/shared/errors/import-parser.error';
 import { AbstractPlayableContentImportFormatParser } from './abstract-playable-content-import-format-parser';
 import type { PlayableContentImportFormatParser } from './import-format-parser';
-import type {
-  JsonItemRecord,
-  JsonOptionRecord,
-  RawImportItem,
-  RawImportOption,
-} from './import-parser.types';
+import type { JsonItemRecord, JsonOptionRecord, RawImportItem, RawImportOption } from './import-parser.types';
 import { PlayableImportFormat } from './import-parser.types';
 import type { PlayableContentImportSource } from './import-source';
 
@@ -67,9 +62,7 @@ export class JsonPlayableContentImportFormatParser
       });
     }
 
-    return itemRecords.map((record, itemIndex) =>
-      this.parseItem(record, source.fileName, itemIndex),
-    );
+    return itemRecords.map((record, itemIndex) => this.parseItem(record, source.fileName, itemIndex));
   }
 
   private parseItem(record: unknown, fileName: string, itemIndex: number): RawImportItem {
@@ -94,9 +87,7 @@ export class JsonPlayableContentImportFormatParser
 
     return {
       kind: this.normalizeKind(item.type),
-      options: options.map((option, optionIndex) =>
-        this.parseOption(option, fileName, itemIndex, optionIndex),
-      ),
+      options: options.map((option, optionIndex) => this.parseOption(option, fileName, itemIndex, optionIndex)),
       points: this.parseOptionalNumber(item.points),
       text: this.resolveItemText(item, fileName, itemIndex),
       timeLimit: this.parseOptionalNumber(item.timeLimit),

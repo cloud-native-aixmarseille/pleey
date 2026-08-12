@@ -9,10 +9,7 @@ import { usePartyDependencies } from '../../../../../../presentation/game/party/
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../../shared/ui/actions/button';
 import { CopyButton } from '../../../../../shared/ui/actions/copy-button';
-import {
-  FeedbackState,
-  FeedbackStateGate,
-} from '../../../../../shared/ui/feedback/feedback-state-gate';
+import { FeedbackState, FeedbackStateGate } from '../../../../../shared/ui/feedback/feedback-state-gate';
 import { EmptyState } from '../../../../../shared/ui/feedback/state-blocks';
 import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';
 import { Checkbox } from '../../../../../shared/ui/forms/checkbox';
@@ -85,10 +82,7 @@ interface DashboardGamesSectionProps {
   readonly onSortFieldChange: (value: DashboardGameSortField) => void;
   readonly onSortDirectionChange: (value: 'asc' | 'desc') => void;
   readonly onPageChange: (value: number) => void;
-  readonly onCreateParty: (
-    game: DashboardGameListItem,
-    options?: { privatePartyPassword?: string },
-  ) => void;
+  readonly onCreateParty: (game: DashboardGameListItem, options?: { privatePartyPassword?: string }) => void;
   readonly onManageGame: (game: DashboardGameListItem) => void;
 }
 
@@ -145,8 +139,7 @@ export function DashboardGamesSection({
   const selectedGameType = gameTypes.find((gameType) => gameType.key === createGameForm.type);
   const createGameTypeValue = createGameForm.type ?? '';
   const [createPartyGame, setCreatePartyGame] = useState<DashboardGameListItem | null>(null);
-  const [createPartyForm, setCreatePartyForm] =
-    useState<DashboardCreatePartyForm>(DEFAULT_CREATE_PARTY_FORM);
+  const [createPartyForm, setCreatePartyForm] = useState<DashboardCreatePartyForm>(DEFAULT_CREATE_PARTY_FORM);
   const [showPrivatePartyPassword, setShowPrivatePartyPassword] = useState(false);
 
   const openCreatePartyDialog = (game: DashboardGameListItem) => {
@@ -216,9 +209,7 @@ export function DashboardGamesSection({
       }
       title={t('dashboard.games.title')}
     >
-      <StatusBanner tone="error">
-        {partyActionErrorMessage ? t(partyActionErrorMessage) : null}
-      </StatusBanner>
+      <StatusBanner tone="error">{partyActionErrorMessage ? t(partyActionErrorMessage) : null}</StatusBanner>
 
       <FeedbackStateGate
         emptyLabel={t('dashboard.games.empty')}
@@ -274,11 +265,7 @@ export function DashboardGamesSection({
       </FeedbackStateGate>
 
       <FormDialog
-        banner={
-          <StatusBanner tone="error">
-            {createGameErrorMessage ? t(createGameErrorMessage) : null}
-          </StatusBanner>
-        }
+        banner={<StatusBanner tone="error">{createGameErrorMessage ? t(createGameErrorMessage) : null}</StatusBanner>}
         footer={
           <>
             <Button disabled={isCreatingGame} intent="primary" type="submit">
@@ -319,9 +306,7 @@ export function DashboardGamesSection({
             ))}
           </Select>
         </FieldShell>
-        {selectedGameType ? (
-          <SupportingText>{t(selectedGameType.descriptionKey)}</SupportingText>
-        ) : null}
+        {selectedGameType ? <SupportingText>{t(selectedGameType.descriptionKey)}</SupportingText> : null}
         <FieldShell id="create-game-title" label={t('dashboard.games.create.titleLabel')} required>
           <Input
             id="create-game-title"
@@ -329,10 +314,7 @@ export function DashboardGamesSection({
             value={createGameForm.title}
           />
         </FieldShell>
-        <FieldShell
-          id="create-game-description"
-          label={t('dashboard.games.create.descriptionLabel')}
-        >
+        <FieldShell id="create-game-description" label={t('dashboard.games.create.descriptionLabel')}>
           <Textarea
             id="create-game-description"
             onChange={(event) => onCreateGameFormChange({ description: event.target.value })}
@@ -367,11 +349,7 @@ export function DashboardGamesSection({
         title={t('dashboard.games.createParty.title')}
         footer={
           <>
-            <Button
-              disabled={createPartyGame === null || creatingPartyGameId !== null}
-              intent="primary"
-              type="submit"
-            >
+            <Button disabled={createPartyGame === null || creatingPartyGameId !== null} intent="primary" type="submit">
               {t('dashboard.games.actions.createParty')}
             </Button>
             <Button intent="ghost" onClick={closeCreatePartyDialog} type="button">

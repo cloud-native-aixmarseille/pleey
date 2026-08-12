@@ -64,11 +64,7 @@ export function CreateOrganizationForm({ onSubmit, onCreated }: CreateOrganizati
         onSubmit={handleFormSubmit}
         title={t('organization.management.create.title')}
       >
-        <FieldShell
-          id="create-org-name"
-          label={t('organization.management.create.fields.name.label')}
-          required
-        >
+        <FieldShell id="create-org-name" label={t('organization.management.create.fields.name.label')} required>
           <Input
             id="create-org-name"
             name="name"
@@ -79,10 +75,7 @@ export function CreateOrganizationForm({ onSubmit, onCreated }: CreateOrganizati
           />
         </FieldShell>
 
-        <FieldShell
-          id="create-org-description"
-          label={t('organization.management.create.fields.description.label')}
-        >
+        <FieldShell id="create-org-description" label={t('organization.management.create.fields.description.label')}>
           <Textarea
             id="create-org-description"
             name="description"

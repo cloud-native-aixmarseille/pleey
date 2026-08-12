@@ -12,11 +12,5 @@ interface PredictionPlayerStageSurfaceProps {
 }
 
 export function PredictionPlayerStageSurface(props: PredictionPlayerStageSurfaceProps) {
-  return (
-    <PlayableChoicePlayerStageSurface
-      {...props}
-      copy={predictionRuntimeCopy}
-      testIdPrefix="prediction"
-    />
-  );
+  return <PlayableChoicePlayerStageSurface {...props} copy={predictionRuntimeCopy} testIdPrefix="prediction" />;
 }

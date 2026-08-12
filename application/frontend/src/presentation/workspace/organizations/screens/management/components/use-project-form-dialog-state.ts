@@ -50,8 +50,7 @@ export function useProjectFormDialogState({
       onSubmitted(savedProject);
     } catch (error) {
       feedback.handleError(error, {
-        fallbackMessage:
-          mode === 'create' ? 'project.errors.createFailed' : 'project.errors.updateFailed',
+        fallbackMessage: mode === 'create' ? 'project.errors.createFailed' : 'project.errors.updateFailed',
       });
     } finally {
       setIsSubmitting(false);

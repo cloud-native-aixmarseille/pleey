@@ -8,10 +8,7 @@ import { JsonPlayableContentImportFormatParser } from './json-playable-content-i
 import { MarkdownPlayableContentImportFormatParser } from './markdown-playable-content-import-format-parser';
 import { PlaintextPlayableContentImportFormatParser } from './plaintext-playable-content-import-format-parser';
 
-function createBufferedPlayableContentImportSource(
-  fileName: string,
-  content: string,
-): PlayableContentImportSource {
+function createBufferedPlayableContentImportSource(fileName: string, content: string): PlayableContentImportSource {
   return {
     fileName,
     async readAll(): Promise<string> {
@@ -55,9 +52,7 @@ export class PlayableContentImportParserContainer {
     return parser.parse(parseSource);
   }
 
-  private async resolveParser(
-    source: PlayableContentImportSource,
-  ): Promise<PlayableContentImportFormatParser | null> {
+  private async resolveParser(source: PlayableContentImportSource): Promise<PlayableContentImportFormatParser | null> {
     for (const parser of this.parsers) {
       if (await parser.canParse(source)) {
         return parser;

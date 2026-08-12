@@ -15,15 +15,14 @@ vi.mock('../../../../../shared/i18n/use-presentation-translation', async (import
   return new PresentationTranslationMockFactory().createPartialModule(importOriginal);
 });
 
-const DASHBOARD_FIXTURE: OrganizationDashboard =
-  organizationFixtureFactory.createOrganizationDashboard({
-    organization: { id: 1, name: 'Org', description: null },
-    stats: {
-      totalGames: 12,
-      totalMembers: 8,
-      totalProjects: 4,
-    },
-  });
+const DASHBOARD_FIXTURE: OrganizationDashboard = organizationFixtureFactory.createOrganizationDashboard({
+  organization: { id: 1, name: 'Org', description: null },
+  stats: {
+    totalGames: 12,
+    totalMembers: 8,
+    totalProjects: 4,
+  },
+});
 
 describe('OrganizationMetricsStrip', () => {
   it('renders the empty message when dashboard is null', () => {
@@ -49,9 +48,7 @@ describe('OrganizationMetricsStrip', () => {
     renderWithProviders(<OrganizationMetricsStrip dashboard={DASHBOARD_FIXTURE} />);
 
     // Assert
-    expect(
-      screen.getByRole('region', { name: 'organization.management.stats.title' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'organization.management.stats.title' })).toBeInTheDocument();
   });
 
   it('renders metric labels using translation keys', () => {

@@ -7,22 +7,15 @@ export type PatienceAnimationRegistry = Record<PatienceAnimationId, PatienceAnim
 
 export const PatienceAnimationRegistryToken = Symbol('PatienceAnimationRegistry');
 
-const PatienceAnimationRegistryContext = createContext<PatienceAnimationRegistry | undefined>(
-  undefined,
-);
+const PatienceAnimationRegistryContext = createContext<PatienceAnimationRegistry | undefined>(undefined);
 
 interface PatienceAnimationRegistryProviderProps extends PropsWithChildren {
   readonly value?: PatienceAnimationRegistry;
 }
 
-export function PatienceAnimationRegistryProvider({
-  children,
-  value,
-}: PatienceAnimationRegistryProviderProps) {
+export function PatienceAnimationRegistryProvider({ children, value }: PatienceAnimationRegistryProviderProps) {
   return (
-    <PatienceAnimationRegistryContext.Provider value={value}>
-      {children}
-    </PatienceAnimationRegistryContext.Provider>
+    <PatienceAnimationRegistryContext.Provider value={value}>{children}</PatienceAnimationRegistryContext.Provider>
   );
 }
 

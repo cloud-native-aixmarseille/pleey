@@ -3,10 +3,7 @@ import type { GameId } from '../../../../domain/game/entities/game';
 import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { PartyStageConfigurationPort } from '../../types/shared/ports/party-stage-configuration.port';
-import {
-  CreatePartyDisabledReason,
-  LaunchReadinessDisabledReason,
-} from '../ports/game-catalog.port';
+import { CreatePartyDisabledReason, LaunchReadinessDisabledReason } from '../ports/game-catalog.port';
 import { GamePermissionResolver } from './game-permission-resolver';
 
 describe('GamePermissionResolver', () => {
@@ -175,9 +172,7 @@ describe('GamePermissionResolver', () => {
     const resolver = new GamePermissionResolver(
       {
         findActivePartyByGameId: async () => null,
-        findActivePartiesByHostId: async () => [
-          { partyId: 12, gameId: backendTestIdentifiers.game(99) },
-        ],
+        findActivePartiesByHostId: async () => [{ partyId: 12, gameId: backendTestIdentifiers.game(99) }],
       } as never,
       partyStageConfiguration,
     );

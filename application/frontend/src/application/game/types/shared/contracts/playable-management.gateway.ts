@@ -12,14 +12,8 @@ export interface PlayableManagementGateway<TItemId extends string = string> {
   load(gameTypeId: GameTypeId): Promise<PlayableManagementState<TItemId>>;
   updateMetadata(gameTypeId: GameTypeId, input: PlayableGameMetadataInput): Promise<void>;
   deleteGame(gameTypeId: GameTypeId): Promise<void>;
-  createItem(
-    gameTypeId: GameTypeId,
-    input: PlayableManagementItemInput,
-  ): Promise<PlayableManagementItem<TItemId>>;
-  updateItem(
-    itemId: TItemId,
-    input: PlayableManagementItemInput,
-  ): Promise<PlayableManagementItem<TItemId>>;
+  createItem(gameTypeId: GameTypeId, input: PlayableManagementItemInput): Promise<PlayableManagementItem<TItemId>>;
+  updateItem(itemId: TItemId, input: PlayableManagementItemInput): Promise<PlayableManagementItem<TItemId>>;
   deleteItem(itemId: TItemId): Promise<void>;
 }
 

@@ -155,23 +155,17 @@ describeIfDatabase('PrismaOrganizationMemberRepository', () => {
     );
     createdMemberIds.push(secondMembership.id);
 
-    const latestMembership = await harness.repository.findLatestByUser(
-      backendTestIdentifiers.user(user.id),
-    );
+    const latestMembership = await harness.repository.findLatestByUser(backendTestIdentifiers.user(user.id));
     expect(latestMembership?.id).toBe(secondMembership.id);
 
     expect(
-      await harness.repository.countOwnersByOrganization(
-        backendTestIdentifiers.organization(secondOrganization.id),
-      ),
+      await harness.repository.countOwnersByOrganization(backendTestIdentifiers.organization(secondOrganization.id)),
     ).toBe(1);
 
     await harness.repository.delete(secondMembership.id);
 
     expect(
-      await harness.repository.countOwnersByOrganization(
-        backendTestIdentifiers.organization(secondOrganization.id),
-      ),
+      await harness.repository.countOwnersByOrganization(backendTestIdentifiers.organization(secondOrganization.id)),
     ).toBe(0);
   });
 });

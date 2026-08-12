@@ -16,11 +16,7 @@ describe('PersistedWorkspaceSelectionAdapter', () => {
       [StorageKey.WORKSPACE_ORGANIZATION_ID]: '15',
       [StorageKey.WORKSPACE_PROJECT_ID]: '44',
     });
-    const service = new PersistedWorkspaceSelectionAdapter(
-      storage,
-      organizationIdentifier,
-      projectIdentifier,
-    );
+    const service = new PersistedWorkspaceSelectionAdapter(storage, organizationIdentifier, projectIdentifier);
 
     const selection = service.restoreSelection();
 
@@ -35,11 +31,7 @@ describe('PersistedWorkspaceSelectionAdapter', () => {
       [StorageKey.WORKSPACE_ORGANIZATION_ID]: 'abc',
       [StorageKey.WORKSPACE_PROJECT_ID]: '  ',
     });
-    const service = new PersistedWorkspaceSelectionAdapter(
-      storage,
-      organizationIdentifier,
-      projectIdentifier,
-    );
+    const service = new PersistedWorkspaceSelectionAdapter(storage, organizationIdentifier, projectIdentifier);
 
     const selection = service.restoreSelection();
 
@@ -54,28 +46,17 @@ describe('PersistedWorkspaceSelectionAdapter', () => {
       [StorageKey.WORKSPACE_ORGANIZATION_ID]: '4',
       [StorageKey.WORKSPACE_PROJECT_ID]: '30',
     });
-    const service = new PersistedWorkspaceSelectionAdapter(
-      storage,
-      organizationIdentifier,
-      projectIdentifier,
-    );
+    const service = new PersistedWorkspaceSelectionAdapter(storage, organizationIdentifier, projectIdentifier);
 
     service.setOrganizationId(organizationIdentifier.parse(6));
 
-    expect(storage.setItem).toHaveBeenCalledWith(
-      StorageKey.WORKSPACE_ORGANIZATION_ID,
-      organizationIdentifier.parse(6),
-    );
+    expect(storage.setItem).toHaveBeenCalledWith(StorageKey.WORKSPACE_ORGANIZATION_ID, organizationIdentifier.parse(6));
     expect(storage.removeItem).toHaveBeenCalledWith(StorageKey.WORKSPACE_PROJECT_ID);
   });
 
   it('clears both workspace keys when the organization is reset', () => {
     const storage = storagePortMockFactory.create();
-    const service = new PersistedWorkspaceSelectionAdapter(
-      storage,
-      organizationIdentifier,
-      projectIdentifier,
-    );
+    const service = new PersistedWorkspaceSelectionAdapter(storage, organizationIdentifier, projectIdentifier);
 
     service.setOrganizationId(null);
 

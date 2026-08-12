@@ -1,13 +1,4 @@
-import {
-  Box,
-  Combobox,
-  Input,
-  InputBase,
-  Loader,
-  ScrollArea,
-  Text,
-  useVirtualizedCombobox,
-} from '@mantine/core';
+import { Box, Combobox, Input, InputBase, Loader, ScrollArea, Text, useVirtualizedCombobox } from '@mantine/core';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { type ReactNode, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 
@@ -158,8 +149,7 @@ export function AsyncCombobox({
       return;
     }
 
-    const nextSelectedIndex =
-      value === null ? 0 : options.findIndex((option) => option.value === value);
+    const nextSelectedIndex = value === null ? 0 : options.findIndex((option) => option.value === value);
 
     setSelectedOptionIndex(nextSelectedIndex >= 0 ? nextSelectedIndex : 0);
   }, [options, value]);
@@ -221,11 +211,7 @@ export function AsyncCombobox({
           rightSection={targetRightSection ?? <Combobox.Chevron />}
           type="button"
         >
-          {selectedOption ? (
-            selectedOption.label
-          ) : (
-            <Input.Placeholder>{placeholder}</Input.Placeholder>
-          )}
+          {selectedOption ? selectedOption.label : <Input.Placeholder>{placeholder}</Input.Placeholder>}
         </InputBase>
       </Combobox.Target>
 

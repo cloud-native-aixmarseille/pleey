@@ -1,11 +1,4 @@
-import {
-  type ComponentType,
-  createContext,
-  createElement,
-  type PropsWithChildren,
-  useContext,
-  useRef,
-} from 'react';
+import { type ComponentType, createContext, createElement, type PropsWithChildren, useContext, useRef } from 'react';
 import type {
   PresentationNavigate,
   PresentationParams,
@@ -54,13 +47,7 @@ export function createLink<TProps extends object>(
   };
 }
 
-export function PresentationRedirect({
-  to,
-  replace = true,
-}: {
-  readonly to: string;
-  readonly replace?: boolean;
-}) {
+export function PresentationRedirect({ to, replace = true }: { readonly to: string; readonly replace?: boolean }) {
   const { Navigate: NavigateComponent } = usePresentationRouting();
 
   return <NavigateComponent replace={replace} to={to} />;

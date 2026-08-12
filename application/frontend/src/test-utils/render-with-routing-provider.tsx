@@ -15,10 +15,7 @@ export function renderWithRoutingProvider(
   );
 }
 
-export function renderHookWithRoutingProvider<TResult>(
-  hook: () => TResult,
-  routingPort: RoutingPort,
-) {
+export function renderHookWithRoutingProvider<TResult>(hook: () => TResult, routingPort: RoutingPort) {
   return renderHook(hook, {
     wrapper: ({ children }: { children: ReactNode }) => (
       <PresentationRoutingProvider value={routingPort}>{children}</PresentationRoutingProvider>

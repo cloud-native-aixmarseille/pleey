@@ -5,10 +5,7 @@ import { AppIcon } from '../icons/app-icon';
 import { ContentStack } from '../layout/containers';
 import { SupportingText } from '../layout/typography';
 
-function IconMessageState({
-  children,
-  iconName,
-}: PropsWithChildren<{ readonly iconName: 'empty' | 'pending' }>) {
+function IconMessageState({ children, iconName }: PropsWithChildren<{ readonly iconName: 'empty' | 'pending' }>) {
   return (
     <ContentStack align="center" gap="xs">
       <AccentIconBadge size={32}>

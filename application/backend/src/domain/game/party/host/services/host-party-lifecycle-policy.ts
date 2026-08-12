@@ -97,17 +97,9 @@ export class HostPartyLifecyclePolicy {
   }
 
   restartStage(state: HostPartyLifecycleState): HostPartyLifecycleTransitionResult {
-    const lifecycle = this.requireLifecycle(
-      state,
-      PartyRuntimePhase.STAGE,
-      PartyRuntimePhase.RESULT,
-    );
+    const lifecycle = this.requireLifecycle(state, PartyRuntimePhase.STAGE, PartyRuntimePhase.RESULT);
 
-    if (
-      lifecycle.stageId === null ||
-      lifecycle.stagePosition === null ||
-      lifecycle.stageTimeLimitSeconds === null
-    ) {
+    if (lifecycle.stageId === null || lifecycle.stagePosition === null || lifecycle.stageTimeLimitSeconds === null) {
       throw new PartyCommandNotAvailableError(
         this.createLifecycleErrorContext(state, {
           reason: 'stageTimerReferenceMissing',
@@ -132,17 +124,9 @@ export class HostPartyLifecyclePolicy {
       readonly previousStage: HostPartyStageReference | null;
     },
   ): HostPartyLifecycleTransitionResult {
-    const lifecycle = this.requireLifecycle(
-      state,
-      PartyRuntimePhase.STAGE,
-      PartyRuntimePhase.RESULT,
-    );
+    const lifecycle = this.requireLifecycle(state, PartyRuntimePhase.STAGE, PartyRuntimePhase.RESULT);
 
-    if (
-      lifecycle.stageId === null ||
-      lifecycle.stagePosition === null ||
-      input.previousStage === null
-    ) {
+    if (lifecycle.stageId === null || lifecycle.stagePosition === null || input.previousStage === null) {
       throw new PartyCommandNotAvailableError(
         this.createLifecycleErrorContext(state, {
           hasPreviousStage: input.previousStage !== null,
@@ -163,11 +147,7 @@ export class HostPartyLifecyclePolicy {
   }
 
   rewindParty(state: HostPartyLifecycleState): HostPartyLifecycleTransitionResult {
-    const lifecycle = this.requireLifecycle(
-      state,
-      PartyRuntimePhase.STAGE,
-      PartyRuntimePhase.RESULT,
-    );
+    const lifecycle = this.requireLifecycle(state, PartyRuntimePhase.STAGE, PartyRuntimePhase.RESULT);
 
     return {
       status: PartyStatus.WAITING,
@@ -318,8 +298,7 @@ export class HostPartyLifecyclePolicy {
     return {
       lifecycle: {
         phase: PartyRuntimePhase.STAGE,
-        stageEndsAtEpochMs:
-          stageRemainingDurationMs === null ? null : Date.now() + stageRemainingDurationMs,
+        stageEndsAtEpochMs: stageRemainingDurationMs === null ? null : Date.now() + stageRemainingDurationMs,
         stageRemainingDurationMs,
         stageId,
         stagePosition,

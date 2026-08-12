@@ -13,10 +13,7 @@ export abstract class AbstractTextPlayableContentImportFormatParser
   protected abstract readonly supportedFileExtensions: readonly string[];
 
   async canParse(source: PlayableContentImportSource): Promise<boolean> {
-    const supportFromFileName = this.resolveSupportFromFileName(
-      source.fileName,
-      this.supportedFileExtensions,
-    );
+    const supportFromFileName = this.resolveSupportFromFileName(source.fileName, this.supportedFileExtensions);
 
     if (supportFromFileName !== null) {
       return supportFromFileName;

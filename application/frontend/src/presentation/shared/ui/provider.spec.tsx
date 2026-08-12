@@ -10,13 +10,8 @@ function MockProvider({ children }: PropsWithChildren) {
 }
 
 function ThemeStateProbe() {
-  const {
-    activeColorScheme,
-    activeThemeId,
-    activeThemeName,
-    availableColorSchemes,
-    availableThemes,
-  } = usePresentationThemeState();
+  const { activeColorScheme, activeThemeId, activeThemeName, availableColorSchemes, availableThemes } =
+    usePresentationThemeState();
 
   return (
     <div>

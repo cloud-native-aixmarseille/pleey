@@ -5,9 +5,7 @@ import { PinCodePreview } from './pin-code-preview';
 
 describe('PinCodePreview', () => {
   it('renders the label and each character of the code', () => {
-    renderWithUiProvider(
-      <PinCodePreview ariaLabel="Party pin" label="Enter this code" value="AB12" />,
-    );
+    renderWithUiProvider(<PinCodePreview ariaLabel="Party pin" label="Enter this code" value="AB12" />);
 
     expect(screen.getByText('Enter this code')).toBeInTheDocument();
     expect(screen.getByRole('img', { name: 'Party pin' })).toBeInTheDocument();

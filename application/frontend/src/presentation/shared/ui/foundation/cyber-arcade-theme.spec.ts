@@ -29,9 +29,7 @@ describe('theme', () => {
       expect(tokens.color.text.primary).toBe(cyberArcadeThemeSeed.semantic.dark.text.primary);
       expect(tokens.color.surface.panel).toBe(cyberArcadeThemeSeed.semantic.dark.surface.panel);
       expect(tokens.color.brand.primary).toBe(cyberArcadeThemeSeed.colorScales.accent[5]);
-      expect(tokens.leaderboard.podiumGlow.first).toBe(
-        cyberArcadeThemeSeed.semantic.dark.leaderboard.podiumGlow.first,
-      );
+      expect(tokens.leaderboard.podiumGlow.first).toBe(cyberArcadeThemeSeed.semantic.dark.leaderboard.podiumGlow.first);
       expect(tokens.leaderboard.podium.first.columnBackground).toBe(
         cyberArcadeThemeSeed.semantic.dark.leaderboard.podium.first.columnBackground,
       );
@@ -42,29 +40,19 @@ describe('theme', () => {
 
       expect(tokens.color.surface.canvas).toBe(cyberArcadeThemeSeed.semantic.light.surface.canvas);
       expect(tokens.color.text.primary).toBe(cyberArcadeThemeSeed.semantic.light.text.primary);
-      expect(tokens.color.surface.canvas).not.toBe(
-        cyberArcadeThemeSeed.semantic.dark.surface.canvas,
-      );
+      expect(tokens.color.surface.canvas).not.toBe(cyberArcadeThemeSeed.semantic.dark.surface.canvas);
     });
   });
 
   describe('defaultUiThemeDefinition.mantineTheme', () => {
     it('exposes the shared spacing, typography, and shadow defaults for the default scheme', () => {
-      expect(defaultUiThemeDefinition.mantineTheme.spacing?.xl).toBe(
-        defaultUiThemeDefinition.tokens.spacing.xl,
-      );
+      expect(defaultUiThemeDefinition.mantineTheme.spacing?.xl).toBe(defaultUiThemeDefinition.tokens.spacing.xl);
       expect(defaultUiThemeDefinition.mantineTheme.fontFamily).toBe(
         defaultUiThemeDefinition.tokens.typography.bodyFamily,
       );
-      expect(defaultUiThemeDefinition.tokens.typography.bodyFamily).toBe(
-        '"Space Grotesk", system-ui, sans-serif',
-      );
-      expect(defaultUiThemeDefinition.tokens.typography.displayFamily).toBe(
-        '"Orbitron", system-ui, sans-serif',
-      );
-      expect(defaultUiThemeDefinition.mantineTheme.shadows?.xl).toBe(
-        defaultUiThemeDefinition.tokens.shadow.elevated,
-      );
+      expect(defaultUiThemeDefinition.tokens.typography.bodyFamily).toBe('"Space Grotesk", system-ui, sans-serif');
+      expect(defaultUiThemeDefinition.tokens.typography.displayFamily).toBe('"Orbitron", system-ui, sans-serif');
+      expect(defaultUiThemeDefinition.mantineTheme.shadows?.xl).toBe(defaultUiThemeDefinition.tokens.shadow.elevated);
     });
   });
 
@@ -72,25 +60,16 @@ describe('theme', () => {
     it('registers multiple switchable themes with light and dark variants', () => {
       expect(uiThemes.map((theme) => theme.id)).toEqual([DEFAULT_UI_THEME_ID, SOLAR_GRID_THEME_ID]);
       expect(findUiTheme(SOLAR_GRID_THEME_ID).name).toBe('Solar Grid');
-      expect(defaultUiThemeDefinition.tokensByColorScheme.light.color.surface.canvas).toBe(
-        '#fff8fc',
-      );
-      expect(defaultUiThemeDefinition.tokensByColorScheme.dark.color.surface.canvas).toBe(
-        '#12091f',
-      );
+      expect(defaultUiThemeDefinition.tokensByColorScheme.light.color.surface.canvas).toBe('#fff8fc');
+      expect(defaultUiThemeDefinition.tokensByColorScheme.dark.color.surface.canvas).toBe('#12091f');
     });
   });
 
   describe('createUiThemeCssVariables()', () => {
     it('maps resolved tokens into runtime css variables', () => {
-      const cssVariables = createUiThemeCssVariables(defaultUiThemeDefinition.tokens) as Record<
-        string,
-        string
-      >;
+      const cssVariables = createUiThemeCssVariables(defaultUiThemeDefinition.tokens) as Record<string, string>;
 
-      expect(cssVariables['--ui-color-brand-primary']).toBe(
-        defaultUiThemeDefinition.tokens.color.brand.primary,
-      );
+      expect(cssVariables['--ui-color-brand-primary']).toBe(defaultUiThemeDefinition.tokens.color.brand.primary);
       expect(cssVariables['--ui-radius-panel']).toBe(defaultUiThemeDefinition.tokens.radius.panel);
     });
   });
@@ -126,10 +105,7 @@ describe('theme', () => {
     });
 
     it('exposes new tokens in CSS variable map', () => {
-      const cssVars = createUiThemeCssVariables(defaultUiThemeDefinition.tokens) as Record<
-        string,
-        string
-      >;
+      const cssVars = createUiThemeCssVariables(defaultUiThemeDefinition.tokens) as Record<string, string>;
       expect(cssVars['--ui-color-border-info']).toBeDefined();
       expect(cssVars['--ui-leaderboard-podium-glow-first']).toBeDefined();
       expect(cssVars['--ui-leaderboard-podium-first-column-background']).toBeDefined();

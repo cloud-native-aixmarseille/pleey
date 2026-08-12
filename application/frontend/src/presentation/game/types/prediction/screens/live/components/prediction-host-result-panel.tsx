@@ -7,11 +7,5 @@ interface PredictionHostResultPanelProps {
 }
 
 export function PredictionHostResultPanel({ party }: PredictionHostResultPanelProps) {
-  return (
-    <PlayableChoiceHostResultPanel
-      copy={predictionRuntimeCopy}
-      party={party}
-      testIdPrefix="prediction"
-    />
-  );
+  return <PlayableChoiceHostResultPanel copy={predictionRuntimeCopy} party={party} testIdPrefix="prediction" />;
 }

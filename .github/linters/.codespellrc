@@ -1,0 +1,4 @@
+[codespell]
+# Skip third-party/generated paths and French-locale content files.
+ignore-words-list = afterAll,bootstrapPin,previousY
+skip = .git,*.svg,**/package-lock.json,**/application/*/dist/**,**/application/*/node_modules/**,**/application/*/coverage/**,**/application/*/junit.xml,**/charts/dist/**,**/charts/application/crds/**,**/application/backend/src/i18n/fr/*.json,**/application/frontend/src/presentation/**/i18n/fr.ts

@@ -2,8 +2,7 @@ export const dashboardFr = {
   dashboard: {
     console: {
       title: "Console de l'espace de travail",
-      subtitle:
-        'Choisissez un espace, puis passez de la préparation au lancement sans quitter le tableau de bord.',
+      subtitle: 'Choisissez un espace, puis passez de la préparation au lancement sans quitter le tableau de bord.',
     },
     workspace: {
       sectionTitle: 'Choisissez votre espace',

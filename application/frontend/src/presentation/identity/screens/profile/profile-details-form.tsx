@@ -14,11 +14,7 @@ interface ProfileDetailsFormProps {
   readonly successMessage: string | null;
 }
 
-export function ProfileDetailsForm({
-  errorMessage,
-  form,
-  successMessage,
-}: ProfileDetailsFormProps) {
+export function ProfileDetailsForm({ errorMessage, form, successMessage }: ProfileDetailsFormProps) {
   const { t } = usePresentationTranslation();
 
   return (
@@ -33,9 +29,7 @@ export function ProfileDetailsForm({
               name="username"
               validators={{
                 onBlur: ({ value }) =>
-                  value.trim().length === 0
-                    ? t('auth.form.validation.usernameRequired')
-                    : undefined,
+                  value.trim().length === 0 ? t('auth.form.validation.usernameRequired') : undefined,
               }}
             >
               {() => (
@@ -68,10 +62,7 @@ export function ProfileDetailsForm({
         <StatusBanner tone="error">{errorMessage}</StatusBanner>
         <StatusBanner tone="success">{successMessage}</StatusBanner>
 
-        <SubmitButton
-          label={t('auth.profile.submitCta')}
-          submittingLabel={t('auth.profile.submittingCta')}
-        />
+        <SubmitButton label={t('auth.profile.submitCta')} submittingLabel={t('auth.profile.submittingCta')} />
       </PresentationForm>
     </form.AppForm>
   );

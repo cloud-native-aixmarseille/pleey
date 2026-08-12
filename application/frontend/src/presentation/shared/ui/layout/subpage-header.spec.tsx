@@ -6,9 +6,7 @@ import { SubpageHeader } from './subpage-header';
 describe('SubpageHeader', () => {
   describe('render()', () => {
     it('renders kicker, title, and subtitle', () => {
-      renderWithUiProvider(
-        <SubpageHeader kicker="Section" subtitle="Helpful context" title="Page Title" />,
-      );
+      renderWithUiProvider(<SubpageHeader kicker="Section" subtitle="Helpful context" title="Page Title" />);
 
       expect(screen.getByText('Section')).toBeInTheDocument();
       expect(screen.getByRole('heading', { level: 2, name: 'Page Title' })).toBeInTheDocument();

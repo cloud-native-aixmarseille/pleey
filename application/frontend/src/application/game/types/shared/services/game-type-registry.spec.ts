@@ -99,9 +99,7 @@ describe('GameTypeRegistry', () => {
         gameTypeId: gameTypeIdentifier.parse(12),
       }),
     ).toBeNull();
-    expect(registry.resolveManagementRouteByType('prediction', gameTypeIdentifier.parse(12))).toBe(
-      null,
-    );
+    expect(registry.resolveManagementRouteByType('prediction', gameTypeIdentifier.parse(12))).toBe(null);
   });
 
   it('delegates game creation to the contributor for the requested type', async () => {
@@ -112,9 +110,9 @@ describe('GameTypeRegistry', () => {
     ]);
     const projectId = projectIdentifier.parse(8);
 
-    await expect(
-      registry.createGame('quiz', projectId, { title: 'Sprint quiz', description: null }),
-    ).resolves.toBe(gameTypeIdentifier.parse(41));
+    await expect(registry.createGame('quiz', projectId, { title: 'Sprint quiz', description: null })).resolves.toBe(
+      gameTypeIdentifier.parse(41),
+    );
     expect(createQuiz).toHaveBeenCalledWith(projectId, {
       title: 'Sprint quiz',
       description: null,
@@ -186,9 +184,7 @@ function createContributor({
       managementRoutePath,
     },
     importExampleProvider: importExampleProvider ?? createImportExampleProvider(),
-    createGame:
-      createGame ??
-      vi.fn().mockResolvedValue(gameTypeIdentifier.parse(key === GameType.Quiz ? 41 : 42)),
+    createGame: createGame ?? vi.fn().mockResolvedValue(gameTypeIdentifier.parse(key === GameType.Quiz ? 41 : 42)),
     createGameFromImport:
       createGameFromImport ??
       vi.fn().mockResolvedValue({

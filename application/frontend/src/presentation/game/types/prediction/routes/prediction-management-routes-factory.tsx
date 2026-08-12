@@ -1,9 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { PredictionManagementFacade } from '../../../../../application/game/types/prediction/facades/prediction-management.facade';
-import type {
-  PresentationRouteObject,
-  RouteFactory,
-} from '../../../../../application/shared/contracts/routing.port';
+import type { PresentationRouteObject, RouteFactory } from '../../../../../application/shared/contracts/routing.port';
 import { ProtectedRoute } from '../../../../shared/routing/protected-route';
 import type { ManagementGameTypeIdParser } from '../../shared/management/playable-content-management-model';
 import { PredictionManagementScreen } from '../screens/management/prediction-management-screen';

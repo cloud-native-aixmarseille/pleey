@@ -1,11 +1,4 @@
-import {
-  createContext,
-  type PropsWithChildren,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { createContext, type PropsWithChildren, useContext, useEffect, useMemo, useState } from 'react';
 import { PresentationToastProviderRequiredError } from '../../../../domains/shared/errors/presentation-context-error-code';
 import { StatusBanner } from './status-banner';
 import { ToastItemShell, ToastViewportShell } from './toast-primitives';
@@ -79,11 +72,7 @@ export function PresentationToastProvider({ children }: PropsWithChildren) {
     [api, entries],
   );
 
-  return (
-    <PresentationToastContext.Provider value={contextValue}>
-      {children}
-    </PresentationToastContext.Provider>
-  );
+  return <PresentationToastContext.Provider value={contextValue}>{children}</PresentationToastContext.Provider>;
 }
 
 export function usePresentationToast(): PresentationToastApi {

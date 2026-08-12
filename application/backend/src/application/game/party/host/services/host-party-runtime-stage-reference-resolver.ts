@@ -7,10 +7,7 @@ import {
 import { PartyStageConfigurationPort } from '../../../../game/types/shared/ports/party-stage-configuration.port';
 import type { HostControlledPartyRuntime } from '../ports/host-party-runtime-control.port';
 
-type HostPartyStageReference = Pick<
-  PartyStageCatalogEntry,
-  'id' | 'stagePosition' | 'timeLimitSeconds'
->;
+type HostPartyStageReference = Pick<PartyStageCatalogEntry, 'id' | 'stagePosition' | 'timeLimitSeconds'>;
 
 @Injectable()
 export class HostPartyRuntimeStageReferenceResolver {
@@ -71,9 +68,7 @@ export class HostPartyRuntimeStageReferenceResolver {
     });
   }
 
-  async findPreviousStage(
-    party: HostControlledPartyRuntime,
-  ): Promise<HostPartyStageReference | null> {
+  async findPreviousStage(party: HostControlledPartyRuntime): Promise<HostPartyStageReference | null> {
     const currentStageId = party.context?.lifecycle.stageId;
 
     if (currentStageId === null || currentStageId === undefined) {

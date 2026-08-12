@@ -9,9 +9,7 @@ const gameTypeIdentifier = new GameTypeIdentifierMockFactory().create();
 const predictionId = gameTypeIdentifier.parse(12);
 
 vi.mock('../../../../../shared/routing/router', () => ({
-  PresentationRedirect: ({ to }: { readonly to: string }) => (
-    <span data-testid="redirect">{to}</span>
-  ),
+  PresentationRedirect: ({ to }: { readonly to: string }) => <span data-testid="redirect">{to}</span>,
   usePresentationParams: () => routeParams.current,
 }));
 
@@ -39,9 +37,7 @@ describe('PredictionManagementScreen', () => {
   it('renders the shared editor for a valid prediction id', () => {
     routeParams.current = { predictionId: '12' };
 
-    render(
-      <PredictionManagementScreen gameTypeIdentifier={gameTypeIdentifier} gateway={{} as never} />,
-    );
+    render(<PredictionManagementScreen gameTypeIdentifier={gameTypeIdentifier} gateway={{} as never} />);
 
     expect(screen.getByTestId('editor')).toHaveAttribute('data-game-type-id', predictionId);
     expect(screen.getByTestId('editor')).toHaveAttribute('data-has-kind-config', 'false');
@@ -51,9 +47,7 @@ describe('PredictionManagementScreen', () => {
   it('redirects when the prediction id is invalid', () => {
     routeParams.current = { predictionId: 'invalid' };
 
-    render(
-      <PredictionManagementScreen gameTypeIdentifier={gameTypeIdentifier} gateway={{} as never} />,
-    );
+    render(<PredictionManagementScreen gameTypeIdentifier={gameTypeIdentifier} gateway={{} as never} />);
 
     expect(screen.getByTestId('redirect')).toHaveTextContent('/workspace/dashboard');
   });

@@ -29,15 +29,9 @@ describe('RefreshAccessTokenUseCase', () => {
       verifyRefreshToken: backendTestIdentifiers.user(1),
     });
 
-    const useCase = new RefreshAccessTokenUseCase(
-      userRepository,
-      passwordService as never,
-      authTokenService as never,
-    );
+    const useCase = new RefreshAccessTokenUseCase(userRepository, passwordService as never, authTokenService as never);
 
-    await expect(useCase.execute('refresh')).rejects.toThrow(
-      IdentityErrorCode.REFRESH_TOKEN_EXPIRED,
-    );
+    await expect(useCase.execute('refresh')).rejects.toThrow(IdentityErrorCode.REFRESH_TOKEN_EXPIRED);
     expect(userRepository.clearRefreshToken).toHaveBeenCalledWith(backendTestIdentifiers.user(1));
   });
 
@@ -77,11 +71,7 @@ describe('RefreshAccessTokenUseCase', () => {
       } as never,
     });
 
-    const useCase = new RefreshAccessTokenUseCase(
-      userRepository,
-      passwordService as never,
-      authTokenService as never,
-    );
+    const useCase = new RefreshAccessTokenUseCase(userRepository, passwordService as never, authTokenService as never);
 
     const result = await useCase.execute('refresh');
 

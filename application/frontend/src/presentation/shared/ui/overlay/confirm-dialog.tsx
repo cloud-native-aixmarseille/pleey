@@ -50,9 +50,7 @@ export function ConfirmDialog({
           ...surfaceRecipes.elevated,
           maxWidth: isMobile ? '100%' : '28rem',
           margin: 0,
-          borderRadius: isMobile
-            ? `${uiThemeTokens.radius.panel} ${uiThemeTokens.radius.panel} 0 0`
-            : undefined,
+          borderRadius: isMobile ? `${uiThemeTokens.radius.panel} ${uiThemeTokens.radius.panel} 0 0` : undefined,
         },
         header: { display: 'none' },
         inner: isMobile
@@ -76,12 +74,7 @@ export function ConfirmDialog({
           {children}
         </Stack>
         <DialogActionsFooter stacked={isMobile}>
-          <Button
-            disabled={confirmDisabled}
-            intent="primary"
-            onClick={onConfirm}
-            width={isMobile ? 'full' : 'auto'}
-          >
+          <Button disabled={confirmDisabled} intent="primary" onClick={onConfirm} width={isMobile ? 'full' : 'auto'}>
             {confirmLabel}
           </Button>
           <Button intent="ghost" onClick={onCancel} width={isMobile ? 'full' : 'auto'}>

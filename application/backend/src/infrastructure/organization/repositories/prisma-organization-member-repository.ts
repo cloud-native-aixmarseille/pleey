@@ -37,11 +37,7 @@ export class PrismaOrganizationMemberRepository implements OrganizationMemberRep
     private readonly paginationQueryNormalizer: PaginationQueryNormalizer,
   ) {}
 
-  async create(
-    organizationId: OrganizationId,
-    userId: UserId,
-    role: OrganizationRole,
-  ): Promise<OrganizationMember> {
+  async create(organizationId: OrganizationId, userId: UserId, role: OrganizationRole): Promise<OrganizationMember> {
     const existingMember = await this.prisma.organizationMember.findFirst({
       where: {
         organizationId,
@@ -131,10 +127,7 @@ export class PrismaOrganizationMemberRepository implements OrganizationMemberRep
     return this.toDomain(member);
   }
 
-  async findByOrganizationAndUser(
-    organizationId: OrganizationId,
-    userId: UserId,
-  ): Promise<OrganizationMember | null> {
+  async findByOrganizationAndUser(organizationId: OrganizationId, userId: UserId): Promise<OrganizationMember | null> {
     const member = await this.prisma.organizationMember.findFirst({
       include: ORGANIZATION_MEMBER_USER_INCLUDE,
       where: {

@@ -22,14 +22,11 @@ describe('UpdateOrganizationMemberRoleUseCase', () => {
       memberRepository as never,
       membershipPolicy,
     );
-    const useCase = new UpdateOrganizationMemberRoleUseCase(
-      organizationMembershipAccess,
-      memberRepository as never,
-    );
+    const useCase = new UpdateOrganizationMemberRoleUseCase(organizationMembershipAccess, memberRepository as never);
 
-    await expect(
-      useCase.execute(memberId, OrganizationRole.MANAGER, requesterUserId),
-    ).rejects.toThrow(OrganizationErrorCode.MEMBER_NOT_FOUND);
+    await expect(useCase.execute(memberId, OrganizationRole.MANAGER, requesterUserId)).rejects.toThrow(
+      OrganizationErrorCode.MEMBER_NOT_FOUND,
+    );
   });
 
   it('throws when requesting user lacks management privileges', async () => {
@@ -47,14 +44,11 @@ describe('UpdateOrganizationMemberRoleUseCase', () => {
       memberRepository as never,
       membershipPolicy,
     );
-    const useCase = new UpdateOrganizationMemberRoleUseCase(
-      organizationMembershipAccess,
-      memberRepository as never,
-    );
+    const useCase = new UpdateOrganizationMemberRoleUseCase(organizationMembershipAccess, memberRepository as never);
 
-    await expect(
-      useCase.execute(memberId, OrganizationRole.MANAGER, requesterUserId),
-    ).rejects.toThrow(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
+    await expect(useCase.execute(memberId, OrganizationRole.MANAGER, requesterUserId)).rejects.toThrow(
+      OrganizationErrorCode.INSUFFICIENT_PERMISSIONS,
+    );
   });
 
   it('throws when trying to demote the last owner', async () => {
@@ -77,14 +71,11 @@ describe('UpdateOrganizationMemberRoleUseCase', () => {
       memberRepository as never,
       membershipPolicy,
     );
-    const useCase = new UpdateOrganizationMemberRoleUseCase(
-      organizationMembershipAccess,
-      memberRepository as never,
-    );
+    const useCase = new UpdateOrganizationMemberRoleUseCase(organizationMembershipAccess, memberRepository as never);
 
-    await expect(
-      useCase.execute(memberId, OrganizationRole.MANAGER, requesterUserId),
-    ).rejects.toThrow(OrganizationErrorCode.CANNOT_REMOVE_LAST_OWNER);
+    await expect(useCase.execute(memberId, OrganizationRole.MANAGER, requesterUserId)).rejects.toThrow(
+      OrganizationErrorCode.CANNOT_REMOVE_LAST_OWNER,
+    );
   });
 
   it('throws when a manager tries to promote a member to owner', async () => {
@@ -105,14 +96,11 @@ describe('UpdateOrganizationMemberRoleUseCase', () => {
       memberRepository as never,
       membershipPolicy,
     );
-    const useCase = new UpdateOrganizationMemberRoleUseCase(
-      organizationMembershipAccess,
-      memberRepository as never,
-    );
+    const useCase = new UpdateOrganizationMemberRoleUseCase(organizationMembershipAccess, memberRepository as never);
 
-    await expect(
-      useCase.execute(memberId, OrganizationRole.OWNER, requesterUserId),
-    ).rejects.toThrow(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
+    await expect(useCase.execute(memberId, OrganizationRole.OWNER, requesterUserId)).rejects.toThrow(
+      OrganizationErrorCode.INSUFFICIENT_PERMISSIONS,
+    );
   });
 
   it('throws when a manager tries to edit an owner', async () => {
@@ -133,14 +121,11 @@ describe('UpdateOrganizationMemberRoleUseCase', () => {
       memberRepository as never,
       membershipPolicy,
     );
-    const useCase = new UpdateOrganizationMemberRoleUseCase(
-      organizationMembershipAccess,
-      memberRepository as never,
-    );
+    const useCase = new UpdateOrganizationMemberRoleUseCase(organizationMembershipAccess, memberRepository as never);
 
-    await expect(
-      useCase.execute(memberId, OrganizationRole.MANAGER, requesterUserId),
-    ).rejects.toThrow(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
+    await expect(useCase.execute(memberId, OrganizationRole.MANAGER, requesterUserId)).rejects.toThrow(
+      OrganizationErrorCode.INSUFFICIENT_PERMISSIONS,
+    );
   });
 
   it('returns the current member when role is unchanged', async () => {
@@ -163,14 +148,9 @@ describe('UpdateOrganizationMemberRoleUseCase', () => {
       memberRepository as never,
       membershipPolicy,
     );
-    const useCase = new UpdateOrganizationMemberRoleUseCase(
-      organizationMembershipAccess,
-      memberRepository as never,
-    );
+    const useCase = new UpdateOrganizationMemberRoleUseCase(organizationMembershipAccess, memberRepository as never);
 
-    await expect(
-      useCase.execute(memberId, OrganizationRole.MANAGER, requesterUserId),
-    ).resolves.toBe(member);
+    await expect(useCase.execute(memberId, OrganizationRole.MANAGER, requesterUserId)).resolves.toBe(member);
     expect(memberRepository.updateRole).not.toHaveBeenCalled();
   });
 
@@ -197,10 +177,7 @@ describe('UpdateOrganizationMemberRoleUseCase', () => {
       memberRepository as never,
       membershipPolicy,
     );
-    const useCase = new UpdateOrganizationMemberRoleUseCase(
-      organizationMembershipAccess,
-      memberRepository as never,
-    );
+    const useCase = new UpdateOrganizationMemberRoleUseCase(organizationMembershipAccess, memberRepository as never);
 
     await useCase.execute(memberId, OrganizationRole.MANAGER, requesterUserId);
 

@@ -194,9 +194,7 @@ export class PrismaPlayerPartyRuntimeAdapter extends PlayerPartyRuntimePort {
         },
       });
 
-      const player = this.partyReadModelMapper.collectPlayers(
-        this.normalizePlayerScores(scores),
-      )[0];
+      const player = this.partyReadModelMapper.collectPlayers(this.normalizePlayerScores(scores))[0];
 
       return player ? this.partyReadModelMapper.toPartyPlayer(player) : null;
     }

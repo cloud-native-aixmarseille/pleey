@@ -8,10 +8,7 @@ import { Badge } from '../../../../../shared/ui/feedback/badge';
 import { ContentStack, SplitWrapRow } from '../../../../../shared/ui/layout/containers';
 import { ElevatedPanel, InsetPanel } from '../../../../../shared/ui/layout/panels';
 import { Heading, SupportingText } from '../../../../../shared/ui/layout/typography';
-import {
-  MotionStagger,
-  MotionStaggerItem,
-} from '../../../../../shared/ui/motion/motion-primitives';
+import { MotionStagger, MotionStaggerItem } from '../../../../../shared/ui/motion/motion-primitives';
 import { usePrefersReducedMotion } from '../../../../../shared/ui/motion/use-prefers-reduced-motion';
 import { toPartyFinalSummaryPlayerKey } from './party-final-summary-panel.model';
 import {
@@ -67,10 +64,7 @@ export function PartyStandingsList({
 
   const hasPreviousData = (previousScores?.size ?? 0) > 0;
 
-  const rankedPlayers = useMemo(
-    () => buildRankedPlayers(players, previousScores),
-    [players, previousScores],
-  );
+  const rankedPlayers = useMemo(() => buildRankedPlayers(players, previousScores), [players, previousScores]);
 
   if (rankedPlayers.length === 0) {
     return null;
@@ -188,9 +182,7 @@ function StandingsRevealList({
       revealed
         ? [...rankedPlayers].sort((a, b) => a.currentRank - b.currentRank)
         : [...rankedPlayers].sort(
-            (a, b) =>
-              (a.previousRank ?? rankedPlayers.length + 1) -
-              (b.previousRank ?? rankedPlayers.length + 1),
+            (a, b) => (a.previousRank ?? rankedPlayers.length + 1) - (b.previousRank ?? rankedPlayers.length + 1),
           ),
     [rankedPlayers, revealed],
   );
@@ -235,15 +227,7 @@ interface StandingsRowProps {
   readonly totalStages: number;
 }
 
-function StandingsRow({
-  entry,
-  isMobile,
-  revealed,
-  showDelta,
-  t,
-  testIdPrefix,
-  totalStages,
-}: StandingsRowProps) {
+function StandingsRow({ entry, isMobile, revealed, showDelta, t, testIdPrefix, totalStages }: StandingsRowProps) {
   const displayRank = revealed ? entry.currentRank : (entry.previousRank ?? entry.currentRank);
 
   if (isMobile) {
@@ -331,9 +315,7 @@ function DesktopStandingsRow({
             src={player.avatarUri}
           />
           <p style={standingsUsernameStyle}>{player.username}</p>
-          {player.isCurrentPlayer ? (
-            <Badge tone="success">{t('game.party.route.youBadge')}</Badge>
-          ) : null}
+          {player.isCurrentPlayer ? <Badge tone="success">{t('game.party.route.youBadge')}</Badge> : null}
           {showDelta ? <RankChangeBadge entry={entry} revealed={revealed} t={t} /> : null}
         </div>
         <ResponseStats
@@ -385,9 +367,7 @@ function MobileStandingsRow({
           />
           <div style={mobileStandingsNameGroupStyle}>
             <p style={standingsUsernameStyle}>{player.username}</p>
-            {player.isCurrentPlayer ? (
-              <Badge tone="success">{t('game.party.route.youBadge')}</Badge>
-            ) : null}
+            {player.isCurrentPlayer ? <Badge tone="success">{t('game.party.route.youBadge')}</Badge> : null}
           </div>
         </div>
       </div>
@@ -513,9 +493,7 @@ function buildRankedPlayers(
   previousScores: ReadonlyMap<string, number> | undefined,
 ): readonly RankedPlayer[] {
   const sortedByCurrent = sortByScore(players);
-  const sortedByPrevious = previousScores
-    ? sortByPreviousScore(players, previousScores)
-    : sortedByCurrent;
+  const sortedByPrevious = previousScores ? sortByPreviousScore(players, previousScores) : sortedByCurrent;
 
   const currentRankByKey = new Map<string, number>();
   sortedByCurrent.forEach((player, index) => {
@@ -545,9 +523,7 @@ function buildRankedPlayers(
   });
 }
 
-function sortByScore(
-  players: readonly PartyObservationPlayer[],
-): readonly PartyObservationPlayer[] {
+function sortByScore(players: readonly PartyObservationPlayer[]): readonly PartyObservationPlayer[] {
   return [...players].sort((a, b) => {
     if (b.totalScore !== a.totalScore) {
       return b.totalScore - a.totalScore;

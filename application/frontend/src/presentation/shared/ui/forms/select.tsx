@@ -8,8 +8,7 @@ interface SelectProps extends Omit<ComponentPropsWithoutRef<'select'>, 'size'> {
 }
 
 export function Select({ invalid = false, children, ...props }: SelectProps) {
-  const isAriaInvalid =
-    invalid || props['aria-invalid'] === true || props['aria-invalid'] === 'true';
+  const isAriaInvalid = invalid || props['aria-invalid'] === true || props['aria-invalid'] === 'true';
 
   return (
     <Box pos="relative" w="100%">
@@ -20,9 +19,7 @@ export function Select({ invalid = false, children, ...props }: SelectProps) {
         style={{
           appearance: 'none',
           background: uiThemeTokens.color.surface.field,
-          border: `1px solid ${
-            isAriaInvalid ? uiThemeTokens.color.border.danger : uiThemeTokens.color.border.subtle
-          }`,
+          border: `1px solid ${isAriaInvalid ? uiThemeTokens.color.border.danger : uiThemeTokens.color.border.subtle}`,
           borderRadius: uiThemeTokens.radius.field,
           color: uiThemeTokens.color.text.primary,
           cursor: props.disabled ? 'not-allowed' : 'pointer',

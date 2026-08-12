@@ -73,9 +73,7 @@ export class GraphqlGameCatalogAdapter implements GameCatalogPort {
     };
   }
 
-  private toCreatePartyDisabledReason(
-    reason: string | null | undefined,
-  ): CreatePartyDisabledReason | null {
+  private toCreatePartyDisabledReason(reason: string | null | undefined): CreatePartyDisabledReason | null {
     switch (reason) {
       case CreatePartyDisabledReason.ACTIVE_PARTY_EXISTS:
       case CreatePartyDisabledReason.HOST_HAS_ACTIVE_PARTY:
@@ -86,9 +84,7 @@ export class GraphqlGameCatalogAdapter implements GameCatalogPort {
     }
   }
 
-  private toLaunchReadinessDisabledReason(
-    reason: string | null | undefined,
-  ): LaunchReadinessDisabledReason | null {
+  private toLaunchReadinessDisabledReason(reason: string | null | undefined): LaunchReadinessDisabledReason | null {
     switch (reason) {
       case LaunchReadinessDisabledReason.NO_STAGES_AVAILABLE:
         return reason;

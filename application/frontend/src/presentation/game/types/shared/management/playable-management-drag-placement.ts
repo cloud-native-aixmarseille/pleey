@@ -8,9 +8,7 @@ export interface PlayableManagementDropPreview {
 }
 
 interface PlayableManagementDragPlacement {
-  resolveDropEdge<Element extends HTMLElement>(
-    event: DragEvent<Element>,
-  ): PlayableManagementDropEdge;
+  resolveDropEdge<Element extends HTMLElement>(event: DragEvent<Element>): PlayableManagementDropEdge;
 
   resolveDisplaySlot(targetIndex: number, edge: PlayableManagementDropEdge): number;
 
@@ -18,9 +16,7 @@ interface PlayableManagementDragPlacement {
 }
 
 export const playableManagementDragPlacement: PlayableManagementDragPlacement = {
-  resolveDropEdge<Element extends HTMLElement>(
-    event: DragEvent<Element>,
-  ): PlayableManagementDropEdge {
+  resolveDropEdge<Element extends HTMLElement>(event: DragEvent<Element>): PlayableManagementDropEdge {
     const bounds = event.currentTarget.getBoundingClientRect();
 
     return event.clientY - bounds.top < bounds.height / 2 ? 'before' : 'after';

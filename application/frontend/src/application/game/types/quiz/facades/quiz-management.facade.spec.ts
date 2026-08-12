@@ -12,8 +12,7 @@ const gameTypeIdentifier = new GameTypeIdentifierMockFactory().create();
 const playableManagementFixtureFactory = new PlayableManagementFixtureFactory();
 const projectIdentifier = new ProjectIdentifierMockFactory().create();
 const quizQuestionIdentifier = new QuizQuestionIdentifier();
-const parseQuestionId = (value: number) =>
-  quizQuestionIdentifier.parse(coerceUuidV7TestValue(value));
+const parseQuestionId = (value: number) => quizQuestionIdentifier.parse(coerceUuidV7TestValue(value));
 
 describe('QuizManagementFacade', () => {
   it('adapts shared management gateway calls to quiz repository methods', async () => {

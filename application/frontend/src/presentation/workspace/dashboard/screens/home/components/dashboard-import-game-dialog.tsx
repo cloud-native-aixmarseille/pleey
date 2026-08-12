@@ -128,9 +128,7 @@ export function DashboardImportGameDialog({
           ))}
         </Select>
       </FieldShell>
-      {selectedGameType ? (
-        <SupportingText>{t(selectedGameType.descriptionKey)}</SupportingText>
-      ) : null}
+      {selectedGameType ? <SupportingText>{t(selectedGameType.descriptionKey)}</SupportingText> : null}
 
       <FieldShell id="import-game-title" label={t('dashboard.games.import.titleLabel')} required>
         <Input

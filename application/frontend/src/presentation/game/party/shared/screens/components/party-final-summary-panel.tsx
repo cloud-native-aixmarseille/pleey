@@ -20,10 +20,7 @@ export function PartyFinalSummaryPanel({ players, totalStages }: PartyFinalSumma
   const { podiumByRank, rankedPlayers, winner } = createPartyFinalSummaryModel(players);
 
   return (
-    <section
-      aria-label={t('game.party.route.finalSummaryLabel')}
-      data-testid="party-final-summary-panel"
-    >
+    <section aria-label={t('game.party.route.finalSummaryLabel')} data-testid="party-final-summary-panel">
       <ContentStack gap="lg">
         <PartyFinalSummaryHero isMobile={isMobile} winner={winner} />
 

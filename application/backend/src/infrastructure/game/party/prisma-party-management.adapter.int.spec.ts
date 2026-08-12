@@ -114,9 +114,7 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
     });
     scoreIds.push(score.id);
 
-    const managedGame = await harness.repository.findManagedGame(
-      backendTestIdentifiers.game(game.id),
-    );
+    const managedGame = await harness.repository.findManagedGame(backendTestIdentifiers.game(game.id));
     const hostParties = await harness.repository.listUserParties({
       userId: backendTestIdentifiers.user(host.id),
     });

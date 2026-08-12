@@ -1,10 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { Organization as PrismaOrganization } from '@prisma/client';
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
-import {
-  Organization,
-  type OrganizationId,
-} from '../../../domain/organization/entities/organization';
+import { Organization, type OrganizationId } from '../../../domain/organization/entities/organization';
 import type { OrganizationRepository } from '../../../domain/organization/ports/organization.repository';
 import { PrismaService } from '../../database/prisma-service';
 

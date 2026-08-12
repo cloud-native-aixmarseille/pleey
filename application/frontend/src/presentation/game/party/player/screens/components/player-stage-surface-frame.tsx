@@ -77,8 +77,7 @@ export function PlayerStageSurfaceFrame({
   const stagePosition = party.context?.lifecycle.stagePosition;
   const stageId = party.context?.lifecycle.stageId ?? null;
   const stageEndsAtEpochMs = party.context?.lifecycle.stageEndsAtEpochMs ?? null;
-  const stageRevealCycleKey =
-    stageId === null ? 'none' : `${stageId}-${stageEndsAtEpochMs ?? 'no-deadline'}`;
+  const stageRevealCycleKey = stageId === null ? 'none' : `${stageId}-${stageEndsAtEpochMs ?? 'no-deadline'}`;
   const currentStage = party.context?.stage?.current;
   const isMobile = usePresentationMediaQuery();
 
@@ -122,9 +121,7 @@ export function PlayerStageSurfaceFrame({
     const { fill: timerFillStyle, secondsLeft } = resolveMobileTimerBarStyle(mobileTimer);
     const inlineTimerColor = resolveInlineTimerColor(mobileTimer);
     const shouldShowInlineSeconds =
-      secondsLeft !== null &&
-      secondsLeft > 0 &&
-      secondsLeft <= MOBILE_TIMER_INLINE_THRESHOLD_SECONDS;
+      secondsLeft !== null && secondsLeft > 0 && secondsLeft <= MOBILE_TIMER_INLINE_THRESHOLD_SECONDS;
 
     return (
       <div data-testid={testId} style={mobileRootStyle}>
@@ -138,9 +135,7 @@ export function PlayerStageSurfaceFrame({
           confirmLeaveLabel={t('game.party.player.route.confirmLeavePartyCta')}
           inlineStatus={
             shouldShowInlineSeconds && inlineTimerColor ? (
-              <span style={{ ...mobileTimerInlineStyle, color: inlineTimerColor }}>
-                {secondsLeft}
-              </span>
+              <span style={{ ...mobileTimerInlineStyle, color: inlineTimerColor }}>{secondsLeft}</span>
             ) : undefined
           }
           leaveDialogMessage={t('game.party.player.route.leavePartyConfirmMessage')}

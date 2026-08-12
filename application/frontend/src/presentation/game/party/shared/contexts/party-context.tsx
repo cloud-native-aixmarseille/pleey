@@ -1,11 +1,4 @@
-import {
-  createContext,
-  type PropsWithChildren,
-  startTransition,
-  useContext,
-  useRef,
-  useState,
-} from 'react';
+import { createContext, type PropsWithChildren, startTransition, useContext, useRef, useState } from 'react';
 import type { PartyId } from '../../../../../domains/game/party/shared/entities/party';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import type {
@@ -87,16 +80,12 @@ export function PartyProvider({ children, port }: PartyProviderProps) {
       return currentErrorPartyIdRef.current === partyId ? currentErrorMessageRef.current : null;
     },
     getPartyByPartyId: (partyId?: PartyId | null) => {
-      return partyId !== null &&
-        partyId !== undefined &&
-        currentPartyRef.current?.partyId === partyId
+      return partyId !== null && partyId !== undefined && currentPartyRef.current?.partyId === partyId
         ? currentPartyRef.current
         : null;
     },
     getRuntimeNoticeByPartyId: (partyId?: PartyId | null) => {
-      return partyId !== null &&
-        partyId !== undefined &&
-        currentRuntimeNoticeRef.current?.partyId === partyId
+      return partyId !== null && partyId !== undefined && currentRuntimeNoticeRef.current?.partyId === partyId
         ? currentRuntimeNoticeRef.current
         : null;
     },

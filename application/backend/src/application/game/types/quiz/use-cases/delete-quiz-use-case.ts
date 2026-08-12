@@ -1,8 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  QuizHasActivePartyError,
-  QuizNotFoundError,
-} from '../../../../../domain/game/types/quiz/errors';
+import { QuizHasActivePartyError, QuizNotFoundError } from '../../../../../domain/game/types/quiz/errors';
 import type { QuizManagementRepository } from '../../../../../domain/game/types/quiz/ports/quiz-management.repository';
 import { QuizManagementRepositoryProvider } from '../../../../../domain/game/types/quiz/ports/quiz-management.repository';
 import type { GameTypeId } from '../../../../../domain/game/types/shared/entities/game-type';

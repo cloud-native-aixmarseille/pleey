@@ -155,10 +155,7 @@ export class LemmingsPatienceEngine {
   ) {
     const previousY = lemming.y;
     lemming.rotation = lemming.direction === 1 ? 12 : -12;
-    lemming.vy = Math.min(
-      lemming.vy + GRAVITY_PX_PER_S2 * deltaSeconds,
-      TERMINAL_VELOCITY_PX_PER_S,
-    );
+    lemming.vy = Math.min(lemming.vy + GRAVITY_PX_PER_S2 * deltaSeconds, TERMINAL_VELOCITY_PX_PER_S);
     lemming.y += lemming.vy * deltaSeconds;
 
     const landingIndex = this.pickLandingSegmentCrossing(
@@ -247,12 +244,8 @@ export class LemmingsPatienceEngine {
     return true;
   }
 
-  private resolveWalkingSegmentIndex(
-    lemming: LemmingInternalState,
-    segments: Array<LemmingSegment>,
-  ): number | null {
-    const preferredSegment =
-      lemming.segmentIndex !== null ? segments[lemming.segmentIndex] : undefined;
+  private resolveWalkingSegmentIndex(lemming: LemmingInternalState, segments: Array<LemmingSegment>): number | null {
+    const preferredSegment = lemming.segmentIndex !== null ? segments[lemming.segmentIndex] : undefined;
 
     if (
       preferredSegment &&

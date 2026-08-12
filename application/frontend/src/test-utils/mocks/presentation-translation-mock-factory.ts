@@ -7,9 +7,7 @@ interface PresentationTranslationMockValue {
 }
 
 export class PresentationTranslationMockFactory {
-  createValue(
-    overrides: Partial<PresentationTranslationMockValue> = {},
-  ): PresentationTranslationMockValue {
+  createValue(overrides: Partial<PresentationTranslationMockValue> = {}): PresentationTranslationMockValue {
     return {
       currentLanguage: 'en',
       changeLanguage: () => {},

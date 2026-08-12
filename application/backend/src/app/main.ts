@@ -38,11 +38,7 @@ async function bootstrap() {
 
   app.enableCors();
   app.useWebSocketAdapter(
-    new ConfiguredIoAdapter(
-      app,
-      socketCorsOptions,
-      runtimeConfiguration.partySessionRecoveryWindowMs,
-    ),
+    new ConfiguredIoAdapter(app, socketCorsOptions, runtimeConfiguration.partySessionRecoveryWindowMs),
   );
 
   const errorCodeHttpStatusService = appModuleContext.get(ErrorCodeHttpStatusService, {
@@ -51,9 +47,7 @@ async function bootstrap() {
   const errorTranslationService = appModuleContext.get(ErrorTranslationService, {
     strict: true,
   });
-  app.useGlobalFilters(
-    new I18nHttpExceptionFilter(errorTranslationService, errorCodeHttpStatusService),
-  );
+  app.useGlobalFilters(new I18nHttpExceptionFilter(errorTranslationService, errorCodeHttpStatusService));
 
   app.useGlobalPipes(
     new ValidationPipe({

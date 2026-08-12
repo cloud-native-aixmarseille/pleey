@@ -6,4 +6,4 @@ ignore:
 
 rules:
   line-length:
-    max: 170
+    max: 320

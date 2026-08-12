@@ -65,10 +65,7 @@ describe('PlayableContentImportParser', () => {
     ],
     [
       'prediction-import.csv',
-      [
-        'prompt,correct,timeLimit,points,option1,option2,option3',
-        'Who wins?,1,25,500,Home,Away,Draw',
-      ].join('\n'),
+      ['prompt,correct,timeLimit,points,option1,option2,option3', 'Who wins?,1,25,500,Home,Away,Draw'].join('\n'),
       { readAllCalls: 0, readLinesCalls: 1 },
     ],
     [
@@ -87,13 +84,7 @@ describe('PlayableContentImportParser', () => {
     ],
     [
       'prediction-import.txt',
-      [
-        'Prompt: Which team scores first?',
-        'Time: 30',
-        'Points: 250',
-        '- [x] Home',
-        '- [ ] Away',
-      ].join('\n'),
+      ['Prompt: Which team scores first?', 'Time: 30', 'Points: 250', '- [x] Home', '- [ ] Away'].join('\n'),
       { readAllCalls: 0, readLinesCalls: 1 },
     ],
   ])('parses supported import formats from %s', async (fileName, content, expectedConsumption) => {
@@ -110,13 +101,7 @@ describe('PlayableContentImportParser', () => {
   it('falls back to buffered format detection for extensionless imports', async () => {
     const source = new TestPlayableContentImportSource(
       'prediction-import',
-      [
-        'Prompt: Which team scores first?',
-        'Time: 30',
-        'Points: 250',
-        '- [x] Home',
-        '- [ ] Away',
-      ].join('\n'),
+      ['Prompt: Which team scores first?', 'Time: 30', 'Points: 250', '- [x] Home', '- [ ] Away'].join('\n'),
     );
 
     const result = await parser.parse(source);
@@ -132,25 +117,25 @@ describe('PlayableContentImportParser', () => {
       [
         '# BuildKit Powers - Quiz Pleey',
         '',
-        "## BuildKit, c'est quoi vraiment ?",
+        '## What is BuildKit, really?',
         '',
         'Time: 20',
         'Points: 1000',
         '',
-        '- [ ] Un flag pour accelerer `docker build`',
-        '- [x] Le moteur de build moderne derriere Docker et Buildx',
-        '- [ ] Un remplaçant de Dockerfile',
-        '- [ ] Uniquement un outil de multi-arch',
+        '- [ ] A flag to speed up `docker build`',
+        '- [x] The modern build engine behind Docker and Buildx',
+        '- [ ] A replacement for Dockerfile',
+        '- [ ] Only a multi-arch tool',
         '',
-        '## Mon cache ne sert a rien en CI',
+        '## My cache is useless in CI',
         '',
         'Time: 20',
         'Points: 1000',
         '',
-        '- [ ] Il suffit de mettre `--cache-from` et prier',
-        '- [ ] Le cache de layers + `--cache-from` suffit pour `npm`, `pip`, `go`, `cargo`',
-        '- [x] Il faut traiter differemment le cache de build et le cache des dependances',
-        "- [ ] En runner ephemere, il n'y a de toute facon rien a faire",
+        '- [ ] Just add `--cache-from` and hope for the best',
+        '- [ ] Layer cache plus `--cache-from` is enough for `npm`, `pip`, `go`, and `cargo`',
+        '- [x] Build cache and dependency cache need different handling',
+        '- [ ] On an ephemeral runner, there is nothing you can do anyway',
       ].join('\n'),
     );
 
@@ -159,7 +144,7 @@ describe('PlayableContentImportParser', () => {
     expect(result).toHaveLength(2);
     expect(result[0]).toMatchObject({
       points: 1000,
-      text: "BuildKit, c'est quoi vraiment ?",
+      text: 'What is BuildKit, really?',
       timeLimit: 20,
     });
     expect(result[0]?.options).toHaveLength(4);

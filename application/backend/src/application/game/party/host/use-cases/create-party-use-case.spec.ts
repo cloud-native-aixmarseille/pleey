@@ -159,9 +159,7 @@ describe('CreatePartyUseCase', () => {
   });
 
   it('rejects when the host already owns another active party', async () => {
-    gamePermissionResolver.assertCanCreateParty.mockRejectedValue(
-      new Error(GameErrorCode.ACTIVE_PARTY_EXISTS),
-    );
+    gamePermissionResolver.assertCanCreateParty.mockRejectedValue(new Error(GameErrorCode.ACTIVE_PARTY_EXISTS));
 
     await expect(
       useCase.execute({
@@ -172,9 +170,7 @@ describe('CreatePartyUseCase', () => {
   });
 
   it('rejects when the game has no configured stages', async () => {
-    gamePermissionResolver.assertCanCreateParty.mockRejectedValue(
-      new Error(GameErrorCode.PARTY_STAGES_NOT_AVAILABLE),
-    );
+    gamePermissionResolver.assertCanCreateParty.mockRejectedValue(new Error(GameErrorCode.PARTY_STAGES_NOT_AVAILABLE));
 
     await expect(
       useCase.execute({
@@ -185,16 +181,14 @@ describe('CreatePartyUseCase', () => {
   });
 
   it('retries pin generation when a generated pin is already in use', async () => {
-    partyManagement.createParty
-      .mockRejectedValueOnce(new PinAlreadyInUseError())
-      .mockResolvedValueOnce({
-        partyId: backendTestIdentifiers.party(88),
-        gameId: backendTestIdentifiers.game(17),
-        pin: '654321',
-        status: 'WAITING',
-        role: 'HOST',
-        createdAt: new Date('2026-04-13T12:30:00.000Z'),
-      });
+    partyManagement.createParty.mockRejectedValueOnce(new PinAlreadyInUseError()).mockResolvedValueOnce({
+      partyId: backendTestIdentifiers.party(88),
+      gameId: backendTestIdentifiers.game(17),
+      pin: '654321',
+      status: 'WAITING',
+      role: 'HOST',
+      createdAt: new Date('2026-04-13T12:30:00.000Z'),
+    });
 
     const result = await useCase.execute({
       gameId: backendTestIdentifiers.game(17),

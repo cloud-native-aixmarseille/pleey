@@ -59,10 +59,7 @@ export class PartyPlayerSessionRegistry {
   /**
    * Get the active session for a player identity, if any.
    */
-  getActiveSession(
-    partyId: PartyId,
-    playerIdentity: PartyPlayerIdentity,
-  ): PartyPlayerSession | null {
+  getActiveSession(partyId: PartyId, playerIdentity: PartyPlayerIdentity): PartyPlayerSession | null {
     const key = this.toSessionKey(partyId, playerIdentity);
     return this.sessions.get(key) ?? null;
   }
@@ -90,9 +87,7 @@ export class PartyPlayerSessionRegistry {
 
   private toSessionKey(partyId: PartyId, playerIdentity: PartyPlayerIdentity): string {
     const identityKey =
-      playerIdentity.kind === 'user'
-        ? `user:${playerIdentity.userId}`
-        : `guest:${playerIdentity.guestId}`;
+      playerIdentity.kind === 'user' ? `user:${playerIdentity.userId}` : `guest:${playerIdentity.guestId}`;
     return `${partyId}:${identityKey}`;
   }
 }

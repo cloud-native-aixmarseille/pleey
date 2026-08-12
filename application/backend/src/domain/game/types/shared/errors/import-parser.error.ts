@@ -7,10 +7,7 @@ export enum PlayableContentImportParserErrorCode {
 }
 
 export const PLAYABLE_CONTENT_IMPORT_PARSER_ERROR_DEFINITIONS: Readonly<
-  Record<
-    PlayableContentImportParserErrorCode,
-    DomainErrorDefinition<PlayableContentImportParserErrorCode>
-  >
+  Record<PlayableContentImportParserErrorCode, DomainErrorDefinition<PlayableContentImportParserErrorCode>>
 > = {
   [PlayableContentImportParserErrorCode.EMPTY_FILE]: {
     code: PlayableContentImportParserErrorCode.EMPTY_FILE,

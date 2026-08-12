@@ -8,15 +8,8 @@ describe('FormFieldShell', () => {
     it('connects descriptions and errors to the control', () => {
       // Arrange + Act
       renderWithUiProvider(
-        <FormFieldShell
-          description="Use your workspace email."
-          error="Email is required."
-          id="email"
-          label="Email"
-        >
-          {({ describedBy, invalid }) => (
-            <input aria-describedby={describedBy} aria-invalid={invalid} id="email" />
-          )}
+        <FormFieldShell description="Use your workspace email." error="Email is required." id="email" label="Email">
+          {({ describedBy, invalid }) => <input aria-describedby={describedBy} aria-invalid={invalid} id="email" />}
         </FormFieldShell>,
       );
 

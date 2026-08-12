@@ -28,17 +28,13 @@ describe('ForgotPasswordScreen', () => {
     it('renders the forgot password title', () => {
       renderWithFormProvider(<ForgotPasswordScreen />);
 
-      expect(
-        screen.getByRole('heading', { name: 'auth.forgotPassword.title' }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'auth.forgotPassword.title' })).toBeInTheDocument();
     });
 
     it('renders the submit button', () => {
       renderWithFormProvider(<ForgotPasswordScreen />);
 
-      expect(
-        screen.getByRole('button', { name: 'auth.forgotPassword.submitCta' }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'auth.forgotPassword.submitCta' })).toBeInTheDocument();
     });
 
     it('renders the back to sign in link', () => {
@@ -57,9 +53,7 @@ describe('ForgotPasswordScreen', () => {
       fireEvent.submit(screen.getByRole('button', { name: 'auth.forgotPassword.submitCta' }));
 
       await waitFor(() => {
-        expect(
-          screen.getByRole('heading', { name: 'auth.forgotPassword.success.title' }),
-        ).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: 'auth.forgotPassword.success.title' })).toBeInTheDocument();
       });
       expect(screen.getByRole('status')).toHaveTextContent('auth.forgotPassword.success.message');
     });
@@ -69,9 +63,7 @@ describe('ForgotPasswordScreen', () => {
 
       fireEvent.blur(screen.getByLabelText('auth.forgotPassword.emailLabel *'));
 
-      expect(await screen.findByRole('alert')).toHaveTextContent(
-        'auth.form.validation.emailRequired',
-      );
+      expect(await screen.findByRole('alert')).toHaveTextContent('auth.form.validation.emailRequired');
     });
   });
 });

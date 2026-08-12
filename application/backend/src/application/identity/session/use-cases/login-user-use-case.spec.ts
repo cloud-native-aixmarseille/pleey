@@ -15,11 +15,7 @@ describe('LoginUserUseCase', () => {
 
     const authTokenService = createAuthTokenServiceMock();
 
-    const useCase = new LoginUserUseCase(
-      userRepository as never,
-      passwordService as never,
-      authTokenService as never,
-    );
+    const useCase = new LoginUserUseCase(userRepository as never, passwordService as never, authTokenService as never);
 
     await expect(useCase.execute({ email: 'x@y.z', password: 'pw' })).rejects.toThrow(
       IdentityErrorCode.INVALID_CREDENTIALS,
@@ -58,11 +54,7 @@ describe('LoginUserUseCase', () => {
       } as never,
     });
 
-    const useCase = new LoginUserUseCase(
-      userRepository as never,
-      passwordService as never,
-      authTokenService as never,
-    );
+    const useCase = new LoginUserUseCase(userRepository as never, passwordService as never, authTokenService as never);
 
     const result = await useCase.execute({ email: 'alice@example.com', password: 'pw' });
 

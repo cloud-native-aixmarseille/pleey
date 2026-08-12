@@ -20,17 +20,13 @@ const DEFAULT_SEEDED_GAME_ID = 18;
 function resolveGraphqlUrl(): string {
   const apiBaseUrl = (process.env.API_BASE_URL ?? "http://backend:3001/api").replace(/\/+$/, "");
 
-  return apiBaseUrl.endsWith("/graphql")
-    ? apiBaseUrl
-    : `${apiBaseUrl.replace(/\/api$/, "")}/graphql`;
+  return apiBaseUrl.endsWith("/graphql") ? apiBaseUrl : `${apiBaseUrl.replace(/\/api$/, "")}/graphql`;
 }
 
 function resolveSeededGameId(): number {
   const configuredGameId = Number(process.env.E2E_PARTY_GAME_ID ?? DEFAULT_SEEDED_GAME_ID);
 
-  return Number.isInteger(configuredGameId) && configuredGameId > 0
-    ? configuredGameId
-    : DEFAULT_SEEDED_GAME_ID;
+  return Number.isInteger(configuredGameId) && configuredGameId > 0 ? configuredGameId : DEFAULT_SEEDED_GAME_ID;
 }
 
 async function executeGraphql<TData>(
@@ -52,9 +48,7 @@ async function executeGraphql<TData>(
   });
 
   if (!response.ok()) {
-    throw new Error(
-      `GraphQL request failed: ${response.status()} ${response.statusText()} ${await response.text()}`,
-    );
+    throw new Error(`GraphQL request failed: ${response.status()} ${response.statusText()} ${await response.text()}`);
   }
 
   const payload = (await response.json()) as GraphqlResponse<TData>;
@@ -70,10 +64,7 @@ async function executeGraphql<TData>(
   return payload.data;
 }
 
-async function listParties(
-  request: APIRequestContext,
-  accessToken: string,
-): Promise<readonly PartySummary[]> {
+async function listParties(request: APIRequestContext, accessToken: string): Promise<readonly PartySummary[]> {
   const data = await executeGraphql<{ listParties: { items: PartySummary[] } }>(
     request,
     accessToken,
@@ -96,11 +87,7 @@ async function listParties(
   return data.listParties.items;
 }
 
-async function createParty(
-  request: APIRequestContext,
-  accessToken: string,
-  gameId: number,
-): Promise<PartySummary> {
+async function createParty(request: APIRequestContext, accessToken: string, gameId: number): Promise<PartySummary> {
   const data = await executeGraphql<{ createParty: PartySummary }>(
     request,
     accessToken,
@@ -124,10 +111,7 @@ async function createParty(
   return data.createParty;
 }
 
-export async function ensureHostParty(
-  request: APIRequestContext,
-  accessToken: string,
-): Promise<PartySummary> {
+export async function ensureHostParty(request: APIRequestContext, accessToken: string): Promise<PartySummary> {
   const existingHostParty = [...(await listParties(request, accessToken))]
     .filter((party) => party.role === "HOST")
     .sort((left, right) => right.createdAt.localeCompare(left.createdAt))[0];

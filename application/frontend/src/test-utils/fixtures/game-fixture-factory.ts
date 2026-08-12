@@ -21,8 +21,7 @@ type DashboardGamePermissionOverrides = {
   readonly launchReadiness?: Partial<DashboardGamePermissions['launchReadiness']>;
 };
 
-interface GameOverrides
-  extends Omit<Partial<DashboardGameListItem>, 'gameId' | 'gameTypeId' | 'permissions' | 'type'> {
+interface GameOverrides extends Omit<Partial<DashboardGameListItem>, 'gameId' | 'gameTypeId' | 'permissions' | 'type'> {
   readonly gameId?: number | GameId;
   readonly gameTypeId?: number | GameTypeId | null;
   readonly type?: DashboardGameListItem['type'] | string;
@@ -52,10 +51,7 @@ export class GameFixtureFactory {
           : typeof gameId === 'number'
             ? gameIdentifier.parse(coerceUuidV7TestValue(gameId))
             : gameId,
-      type:
-        type === undefined
-          ? GameType.Quiz
-          : (gameTypeParser.parse(type) as DashboardGameListItem['type']),
+      type: type === undefined ? GameType.Quiz : (gameTypeParser.parse(type) as DashboardGameListItem['type']),
       title: 'Roadmap quiz',
       description: 'Planning workshop',
       createdAt: '2026-03-19T08:30:00.000Z',

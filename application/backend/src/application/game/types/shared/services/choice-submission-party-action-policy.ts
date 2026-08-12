@@ -22,9 +22,7 @@ export class ChoiceSubmissionPartyActionPolicy extends GameTypePartyActionPolicy
     super();
   }
 
-  async evaluateSubmission(
-    command: EvaluatePartyActionSubmissionCommand,
-  ): Promise<PartyActionSubmissionResolution> {
+  async evaluateSubmission(command: EvaluatePartyActionSubmissionCommand): Promise<PartyActionSubmissionResolution> {
     const stageId = command.context?.lifecycle.stageId;
 
     if (

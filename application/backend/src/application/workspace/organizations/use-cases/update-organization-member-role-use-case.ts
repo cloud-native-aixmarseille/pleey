@@ -36,9 +36,7 @@ export class UpdateOrganizationMemberRoleUseCase {
     this.organizationMembershipAccess.assertCanAssignRole(requestingMember, role);
 
     if (memberToUpdate.isOwner() && memberToUpdate.role !== role) {
-      await this.organizationMembershipAccess.assertOwnerCountCanShrink(
-        memberToUpdate.organizationId,
-      );
+      await this.organizationMembershipAccess.assertOwnerCountCanShrink(memberToUpdate.organizationId);
     }
 
     if (memberToUpdate.role === role) {

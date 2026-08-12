@@ -33,9 +33,7 @@ export class AuthProfilePresenter {
       ...response,
       user: {
         ...publicUser,
-        avatarUri: avatarVersion
-          ? this.buildAvatarUrl(response.user.id, avatarVersion, request)
-          : null,
+        avatarUri: avatarVersion ? this.buildAvatarUrl(response.user.id, avatarVersion, request) : null,
       },
     };
   }

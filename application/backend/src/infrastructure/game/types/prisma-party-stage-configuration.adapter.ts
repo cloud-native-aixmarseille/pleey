@@ -32,8 +32,6 @@ export class PrismaPartyStageConfigurationAdapter extends PartyStageConfiguratio
 
     const gameType = this.gameTypeParser.parse(game.type);
 
-    return this.stageConfigurationProviderRegistry
-      .resolveByGameType(gameType)
-      .getStageCount(gameId);
+    return this.stageConfigurationProviderRegistry.resolveByGameType(gameType).getStageCount(gameId);
   }
 }

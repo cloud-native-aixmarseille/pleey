@@ -6,20 +6,9 @@ interface PromptSurfaceButtonProps
   readonly children: ReactNode;
 }
 
-export function PromptSurfaceButton({
-  children,
-  type = 'button',
-  ...props
-}: PromptSurfaceButtonProps) {
+export function PromptSurfaceButton({ children, type = 'button', ...props }: PromptSurfaceButtonProps) {
   return (
-    <Button
-      appearance="prompt-surface"
-      fullWidth
-      intent="ghost"
-      justify="center"
-      type={type}
-      {...props}
-    >
+    <Button appearance="prompt-surface" fullWidth intent="ghost" justify="center" type={type} {...props}>
       {children}
     </Button>
   );

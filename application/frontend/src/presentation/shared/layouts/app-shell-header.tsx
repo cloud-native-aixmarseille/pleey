@@ -30,12 +30,7 @@ interface AppShellHeaderProps {
   readonly navHandlers: AppShellNavHandlers;
 }
 
-export function AppShellHeader({
-  appVersion = '',
-  isAuthenticated,
-  navOpened,
-  navHandlers,
-}: AppShellHeaderProps) {
+export function AppShellHeader({ appVersion = '', isAuthenticated, navOpened, navHandlers }: AppShellHeaderProps) {
   const { t } = usePresentationTranslation();
 
   return (
@@ -48,16 +43,9 @@ export function AppShellHeader({
           </BrandLink>
 
           <div style={headerRightStyle}>
-            <nav
-              aria-label={t('shared.shell.navLabel')}
-              className="mantine-visible-from-sm"
-              style={desktopNavStyle}
-            >
+            <nav aria-label={t('shared.shell.navLabel')} className="mantine-visible-from-sm" style={desktopNavStyle}>
               {isAuthenticated ? (
-                <NavPillLink
-                  leftSection={<AppIcon name="dashboard" size={16} />}
-                  to="/workspace/dashboard"
-                >
+                <NavPillLink leftSection={<AppIcon name="dashboard" size={16} />} to="/workspace/dashboard">
                   {t('shared.nav.dashboard')}
                 </NavPillLink>
               ) : null}
@@ -83,10 +71,7 @@ export function AppShellHeader({
         <nav aria-label={t('shared.shell.navLabel')}>
           <div style={drawerNavStyle}>
             {isAuthenticated ? (
-              <NavPillLink
-                leftSection={<AppIcon name="dashboard" size={16} />}
-                to="/workspace/dashboard"
-              >
+              <NavPillLink leftSection={<AppIcon name="dashboard" size={16} />} to="/workspace/dashboard">
                 {t('shared.nav.dashboard')}
               </NavPillLink>
             ) : null}

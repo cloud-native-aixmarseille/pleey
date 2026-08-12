@@ -39,10 +39,7 @@ export class ListProjectGamesUseCase {
       throw new ProjectNotFoundError({ projectId: input.projectId });
     }
 
-    const membership = await this.memberRepository.findByOrganizationAndUser(
-      project.organizationId,
-      userId,
-    );
+    const membership = await this.memberRepository.findByOrganizationAndUser(project.organizationId, userId);
     if (!membership) {
       throw new NotAMemberError({
         organizationId: project.organizationId,
@@ -69,18 +66,12 @@ export class ListProjectGamesUseCase {
       ...page,
       items: page.items.map((item) => ({
         ...item,
-        permissions: this.requireResolvedPermissions(
-          item.gameId,
-          permissionsByGameId.get(item.gameId),
-        ),
+        permissions: this.requireResolvedPermissions(item.gameId, permissionsByGameId.get(item.gameId)),
       })),
     };
   }
 
-  private requireResolvedPermissions(
-    gameId: GameId,
-    permissions: GamePermissions | undefined,
-  ): GamePermissions {
+  private requireResolvedPermissions(gameId: GameId, permissions: GamePermissions | undefined): GamePermissions {
     if (!permissions?.createParty || !permissions.launchReadiness) {
       const missingRequirements: string[] = [];
 

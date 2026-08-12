@@ -36,11 +36,7 @@ export class I18nHttpExceptionFilter implements ExceptionFilter {
       message = await this.errorTranslationService.translateErrorCode(unwrappedException.code);
     } else if (typeof exceptionResponse === 'string') {
       message = await this.errorTranslationService.translateErrorCode(exceptionResponse);
-    } else if (
-      exceptionResponse &&
-      typeof exceptionResponse === 'object' &&
-      'message' in exceptionResponse
-    ) {
+    } else if (exceptionResponse && typeof exceptionResponse === 'object' && 'message' in exceptionResponse) {
       const msgValue = (exceptionResponse as { message?: unknown }).message;
       if (typeof msgValue === 'string') {
         message = await this.errorTranslationService.translateErrorCode(msgValue);
@@ -88,10 +84,7 @@ export class I18nHttpExceptionFilter implements ExceptionFilter {
     return new HttpException(errorCode, status);
   }
 
-  private extractErrorCode(
-    exceptionResponse: string | object,
-    exception: HttpException | Error,
-  ): string | null {
+  private extractErrorCode(exceptionResponse: string | object, exception: HttpException | Error): string | null {
     if (isDomainError(exception)) {
       return exception.code;
     }

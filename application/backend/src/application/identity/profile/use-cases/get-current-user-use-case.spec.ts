@@ -10,9 +10,7 @@ describe('GetCurrentUserUseCase', () => {
 
     const useCase = new GetCurrentUserUseCase(userRepository);
 
-    await expect(useCase.execute(backendTestIdentifiers.user(123))).rejects.toThrow(
-      IdentityErrorCode.USER_NOT_FOUND,
-    );
+    await expect(useCase.execute(backendTestIdentifiers.user(123))).rejects.toThrow(IdentityErrorCode.USER_NOT_FOUND);
   });
 
   it('returns a public profile for existing user', async () => {

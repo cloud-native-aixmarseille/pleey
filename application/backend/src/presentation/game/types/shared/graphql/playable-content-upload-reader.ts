@@ -24,9 +24,7 @@ export class PlayableContentUploadReader {
     private readonly maxFileSizeBytes: number = DEFAULT_PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES,
   ) {}
 
-  async read(
-    uploadPromise: Promise<PlayableContentUploadFile>,
-  ): Promise<PlayableContentImportSource> {
+  async read(uploadPromise: Promise<PlayableContentUploadFile>): Promise<PlayableContentImportSource> {
     let upload: PlayableContentUploadFile;
 
     try {
@@ -40,10 +38,7 @@ export class PlayableContentUploadReader {
     return this.createImportSource(upload.createReadStream, upload.filename);
   }
 
-  private createImportSource(
-    createUploadReadStream: () => Readable,
-    fileName: string,
-  ): PlayableContentImportSource {
+  private createImportSource(createUploadReadStream: () => Readable, fileName: string): PlayableContentImportSource {
     let cachedContent: string | null = null;
     let hasOpenedStream = false;
     const maxFileSizeBytes = this.maxFileSizeBytes;
@@ -96,9 +91,7 @@ export class PlayableContentUploadReader {
       } catch (error) {
         stream.destroy();
 
-        throw error instanceof Error
-          ? error
-          : new Error(PlayableContentImportParserErrorCode.INVALID_FILE);
+        throw error instanceof Error ? error : new Error(PlayableContentImportParserErrorCode.INVALID_FILE);
       }
     };
 

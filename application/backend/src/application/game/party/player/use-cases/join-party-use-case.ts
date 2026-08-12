@@ -45,10 +45,7 @@ export class JoinPartyUseCase {
         throw new MissingPartyPasswordError({ partyId: party.partyId });
       }
 
-      const isPasswordValid = await this.passwordService.compare(
-        password,
-        party.privatePartyPasswordHash,
-      );
+      const isPasswordValid = await this.passwordService.compare(password, party.privatePartyPasswordHash);
 
       if (!isPasswordValid) {
         throw new InvalidPartyPasswordError({ partyId: party.partyId });
@@ -72,9 +69,7 @@ export class JoinPartyUseCase {
     }
 
     if (input.playerIdentity.kind === PartyPlayerKind.USER) {
-      const activeParty = await this.playerPartyRuntime.findActivePartyByUserId(
-        input.playerIdentity.userId,
-      );
+      const activeParty = await this.playerPartyRuntime.findActivePartyByUserId(input.playerIdentity.userId);
 
       if (activeParty && activeParty.partyId !== party.partyId) {
         throw new PlayerAlreadyInActivePartyError({
@@ -111,9 +106,7 @@ export class JoinPartyUseCase {
 
     // Enforce single-session rule: check if this guest is already in a different active party
     if (isPersistedGuestRejoin) {
-      const activeParty = await this.playerPartyRuntime.findActivePartyByGuestId(
-        input.playerIdentity.guestId,
-      );
+      const activeParty = await this.playerPartyRuntime.findActivePartyByGuestId(input.playerIdentity.guestId);
 
       if (activeParty && activeParty.partyId !== party.partyId) {
         throw new PlayerAlreadyInActivePartyError({

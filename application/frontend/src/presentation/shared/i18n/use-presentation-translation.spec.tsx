@@ -1,9 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import {
-  PresentationTranslationProvider,
-  usePresentationTranslation,
-} from './use-presentation-translation';
+import { PresentationTranslationProvider, usePresentationTranslation } from './use-presentation-translation';
 
 describe('usePresentationTranslation', () => {
   describe('usePresentationTranslation()', () => {

@@ -43,8 +43,7 @@ export class GamePermissionResolver {
     const activePartyByGameId = new Map<GameId, ActivePartyGameConflict | null>(
       await Promise.all(
         items.map(
-          async (item) =>
-            [item.gameId, await this.partyManagement.findActivePartyByGameId(item.gameId)] as const,
+          async (item) => [item.gameId, await this.partyManagement.findActivePartyByGameId(item.gameId)] as const,
         ),
       ),
     );
@@ -56,9 +55,7 @@ export class GamePermissionResolver {
             item.gameId,
             this.buildGamePermissions({
               hasActiveParty: (activePartyByGameId.get(item.gameId) ?? null) !== null,
-              hasHostConflictForAnotherGame: activeHostConflicts.some(
-                (party) => party.gameId !== item.gameId,
-              ),
+              hasHostConflictForAnotherGame: activeHostConflicts.some((party) => party.gameId !== item.gameId),
               hasNoStages: item.stageCount <= 0,
               stageCount: item.stageCount,
             }),
@@ -67,13 +64,7 @@ export class GamePermissionResolver {
     );
   }
 
-  async assertCanCreateParty({
-    gameId,
-    hostUserId,
-  }: {
-    gameId: GameId;
-    hostUserId: UserId;
-  }): Promise<void> {
+  async assertCanCreateParty({ gameId, hostUserId }: { gameId: GameId; hostUserId: UserId }): Promise<void> {
     const [gameConflict, hostConflicts, stageCount] = await Promise.all([
       this.partyManagement.findActivePartyByGameId(gameId),
       this.partyManagement.findActivePartiesByHostId(hostUserId),

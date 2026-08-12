@@ -11,10 +11,7 @@ export function ColorSchemeToggle() {
     setActiveColorScheme(activeColorScheme === 'dark' ? 'light' : 'dark');
   }
 
-  const label =
-    activeColorScheme === 'dark'
-      ? t('shared.shell.colorSchemeLight')
-      : t('shared.shell.colorSchemeDark');
+  const label = activeColorScheme === 'dark' ? t('shared.shell.colorSchemeLight') : t('shared.shell.colorSchemeDark');
   const iconName = activeColorScheme === 'dark' ? 'light-mode' : 'dark-mode';
 
   return (

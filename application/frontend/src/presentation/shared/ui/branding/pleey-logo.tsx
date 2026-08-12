@@ -21,12 +21,7 @@ interface PleeyLogoProps {
   readonly src?: string;
 }
 
-export function PleeyLogo({
-  size = 'md',
-  decorative = false,
-  glow,
-  src = '/brand/pleey-logo.png',
-}: PleeyLogoProps) {
+export function PleeyLogo({ size = 'md', decorative = false, glow, src = '/brand/pleey-logo.png' }: PleeyLogoProps) {
   const { t } = usePresentationTranslation();
   const dimension = logoSizeMap[size];
   const glowFilter = glow ? logoGlowFilterMap[glow] : undefined;

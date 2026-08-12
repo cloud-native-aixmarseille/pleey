@@ -9,9 +9,9 @@ describe('UpdateUserProfileUseCase', () => {
     const userRepository = createUserRepositoryMock({ findById: null });
 
     const useCase = new UpdateUserProfileUseCase(userRepository);
-    await expect(
-      useCase.execute(backendTestIdentifiers.user(1), { username: 'alice' }),
-    ).rejects.toThrow(IdentityErrorCode.USER_NOT_FOUND);
+    await expect(useCase.execute(backendTestIdentifiers.user(1), { username: 'alice' })).rejects.toThrow(
+      IdentityErrorCode.USER_NOT_FOUND,
+    );
   });
 
   it('throws USER_ALREADY_EXISTS when email is taken', async () => {
@@ -27,9 +27,9 @@ describe('UpdateUserProfileUseCase', () => {
     });
 
     const useCase = new UpdateUserProfileUseCase(userRepository);
-    await expect(
-      useCase.execute(backendTestIdentifiers.user(1), { email: 'taken@example.com' }),
-    ).rejects.toThrow(IdentityErrorCode.USER_ALREADY_EXISTS);
+    await expect(useCase.execute(backendTestIdentifiers.user(1), { email: 'taken@example.com' })).rejects.toThrow(
+      IdentityErrorCode.USER_ALREADY_EXISTS,
+    );
   });
 
   it('updates profile and returns public profile', async () => {

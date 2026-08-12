@@ -26,8 +26,7 @@ export const gamePartyPlayerFr = {
           actionLocked: 'Votre réponse est verrouillée.',
           answerShortcuts: 'Choix de réponse',
           answerShortcut: 'Sélectionner la réponse {{number}}',
-          actionPaused:
-            "L'hôte a mis la partie en pause. Les réponses sont temporairement verrouillées.",
+          actionPaused: "L'hôte a mis la partie en pause. Les réponses sont temporairement verrouillées.",
           runtimeRestartStageToast:
             "L'hôte a relancé cette manche. Les réponses déjà envoyées pour celle-ci ont été effacées.",
           runtimeRewindStageToast:

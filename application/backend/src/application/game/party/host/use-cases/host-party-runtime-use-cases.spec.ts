@@ -47,19 +47,14 @@ describe('Host party runtime use cases', () => {
       getStageCount: vi.fn().mockResolvedValue(3),
     };
     const partyStageCatalog = {
-      findFirstStage: vi
-        .fn()
-        .mockResolvedValue({ id: STAGE_101, stagePosition: 0, timeLimitSeconds: 20 }),
+      findFirstStage: vi.fn().mockResolvedValue({ id: STAGE_101, stagePosition: 0, timeLimitSeconds: 20 }),
     };
     const broadcastPartyObservationUseCase = {
       execute: vi.fn().mockResolvedValue(undefined),
     };
     const useCase = new StartPartyUseCase(
       hostPartyRuntimeControl as never,
-      new HostPartyRuntimeStageReferenceResolver(
-        partyStageConfiguration as never,
-        partyStageCatalog as never,
-      ),
+      new HostPartyRuntimeStageReferenceResolver(partyStageConfiguration as never, partyStageCatalog as never),
       broadcastPartyObservationUseCase as never,
       new HostPartyLifecyclePolicy(),
     );
@@ -217,9 +212,7 @@ describe('Host party runtime use cases', () => {
       savePartyRuntime: vi.fn().mockResolvedValue(undefined),
     };
     const partyStageCatalog = {
-      findNextStage: vi
-        .fn()
-        .mockResolvedValue({ id: STAGE_303, stagePosition: 2, timeLimitSeconds: 15 }),
+      findNextStage: vi.fn().mockResolvedValue({ id: STAGE_303, stagePosition: 2, timeLimitSeconds: 15 }),
     };
     const useCase = new AdvanceStageUseCase(
       hostPartyRuntimeControl as never,
@@ -352,9 +345,7 @@ describe('Host party runtime use cases', () => {
           getStageCount: vi.fn(),
         } as never,
         {
-          findPreviousStage: vi
-            .fn()
-            .mockResolvedValue({ id: STAGE_202, stagePosition: 1, timeLimitSeconds: 25 }),
+          findPreviousStage: vi.fn().mockResolvedValue({ id: STAGE_202, stagePosition: 1, timeLimitSeconds: 25 }),
         } as never,
       ),
       {

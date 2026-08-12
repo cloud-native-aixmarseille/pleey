@@ -12,9 +12,7 @@ export class DashboardHomeActionsFacadeMockFactory {
       getImportExampleProvider: vi.fn().mockReturnValue(null),
       resolveImportAcceptedFileTypes: vi
         .fn()
-        .mockReturnValue(
-          '.json,application/json,.csv,text/csv,.md,.markdown,text/markdown,.txt,text/plain',
-        ),
+        .mockReturnValue('.json,application/json,.csv,text/csv,.md,.markdown,text/markdown,.txt,text/plain'),
       resolveManageGameRoute: vi.fn().mockReturnValue(null),
       resolveOrganizationsRoute: vi.fn().mockReturnValue('/workspace/organizations'),
       resolveProjectsRoute: vi.fn().mockReturnValue('/workspace/organizations#projects'),

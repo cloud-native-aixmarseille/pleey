@@ -24,18 +24,9 @@ export function DashboardMetricsStrip({ dashboard }: DashboardMetricsStripProps)
     <div role="region" aria-label={t('dashboard.stats.title')}>
       <InsetPanel>
         <ResponsiveGrid columns={{ base: 1, sm: 3 }} gap="sm">
-          <WorkspaceMetricCell
-            label={t('dashboard.stats.totalGames')}
-            value={dashboard.stats.totalGames}
-          />
-          <WorkspaceMetricCell
-            label={t('dashboard.stats.totalProjects')}
-            value={dashboard.stats.totalProjects}
-          />
-          <WorkspaceMetricCell
-            label={t('dashboard.stats.totalMembers')}
-            value={dashboard.stats.totalMembers}
-          />
+          <WorkspaceMetricCell label={t('dashboard.stats.totalGames')} value={dashboard.stats.totalGames} />
+          <WorkspaceMetricCell label={t('dashboard.stats.totalProjects')} value={dashboard.stats.totalProjects} />
+          <WorkspaceMetricCell label={t('dashboard.stats.totalMembers')} value={dashboard.stats.totalMembers} />
         </ResponsiveGrid>
       </InsetPanel>
     </div>

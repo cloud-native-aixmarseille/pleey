@@ -71,9 +71,7 @@ describe('HostStartPartyAction', () => {
       />,
     );
 
-    expect(
-      screen.queryByRole('button', { name: 'game.party.host.route.startPartyCta' }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'game.party.host.route.startPartyCta' })).not.toBeInTheDocument();
     expect(screen.queryByText('game.party.host.route.runtimeLobbyHint')).not.toBeInTheDocument();
   });
 
@@ -102,9 +100,7 @@ describe('HostStartPartyAction', () => {
     );
 
     expect(screen.getByText('game.party.host.route.runtimePending')).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'game.party.host.route.startPartyCta' }),
-    ).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'game.party.host.route.startPartyCta' })).toBeDisabled();
   });
 
   it('keeps the start CTA visible but disabled while the lobby has no players yet', () => {
