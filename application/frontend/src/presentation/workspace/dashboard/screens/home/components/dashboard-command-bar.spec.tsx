@@ -19,9 +19,7 @@ vi.mock('../../../../../shared/i18n/use-presentation-translation', async () => {
 });
 
 describe('DashboardCommandBar', () => {
-  function renderDashboardCommandBar(
-    overrides: Partial<React.ComponentProps<typeof DashboardCommandBar>> = {},
-  ) {
+  function renderDashboardCommandBar(overrides: Partial<React.ComponentProps<typeof DashboardCommandBar>> = {}) {
     const onOrganizationChange = vi.fn();
     const onOrganizationSearchChange = vi.fn();
     const onProjectChange = vi.fn();
@@ -113,12 +111,8 @@ describe('DashboardCommandBar', () => {
   it('renders workspace selectors and dashboard metrics', () => {
     renderDashboardCommandBar();
 
-    expect(
-      screen.getByRole('toolbar', { name: 'dashboard.workspace.sectionTitle' }),
-    ).toBeInTheDocument();
-    expect(screen.getByLabelText('dashboard.workspace.organizationLabel')).toHaveTextContent(
-      'Arcade Org',
-    );
+    expect(screen.getByRole('toolbar', { name: 'dashboard.workspace.sectionTitle' })).toBeInTheDocument();
+    expect(screen.getByLabelText('dashboard.workspace.organizationLabel')).toHaveTextContent('Arcade Org');
     expect(screen.getByLabelText('dashboard.workspace.projectLabel')).toHaveTextContent('Flagship');
     expect(screen.getByRole('region', { name: 'dashboard.stats.title' })).toBeInTheDocument();
     expect(screen.getByText('18')).toBeInTheDocument();
@@ -155,9 +149,7 @@ describe('DashboardCommandBar', () => {
     const user = userEvent.setup();
     const { onManageOrganizations, onManageProjects } = renderDashboardCommandBar();
 
-    await user.click(
-      screen.getByRole('button', { name: 'dashboard.workspace.manageOrganizations' }),
-    );
+    await user.click(screen.getByRole('button', { name: 'dashboard.workspace.manageOrganizations' }));
     await user.click(screen.getByRole('button', { name: 'dashboard.workspace.manageProjects' }));
 
     expect(onManageOrganizations).toHaveBeenCalledOnce();

@@ -42,18 +42,13 @@ function createIdentifierMock<TParser extends IdentifierParserLike>(
   });
 }
 
-export function createNumericUuidV7IdentifierMock<TParser extends IdentifierParserLike>(
-  identifier: TParser,
-): TParser {
+export function createNumericUuidV7IdentifierMock<TParser extends IdentifierParserLike>(identifier: TParser): TParser {
   return createIdentifierMock(identifier, (value) => /^\d+$/.test(value) && Number(value) > 0);
 }
 
-export function createGuestUuidV7IdentifierMock<TParser extends IdentifierParserLike>(
-  identifier: TParser,
-): TParser {
+export function createGuestUuidV7IdentifierMock<TParser extends IdentifierParserLike>(identifier: TParser): TParser {
   return createIdentifierMock(
     identifier,
-    (value) =>
-      (/^\d+$/.test(value) && Number(value) > 0) || value.toLowerCase().startsWith('guest'),
+    (value) => (/^\d+$/.test(value) && Number(value) > 0) || value.toLowerCase().startsWith('guest'),
   );
 }

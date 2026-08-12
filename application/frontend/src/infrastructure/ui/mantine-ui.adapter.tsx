@@ -1,12 +1,5 @@
 import { MantineProvider } from '@mantine/core';
-import {
-  type CSSProperties,
-  createContext,
-  type PropsWithChildren,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import { type CSSProperties, createContext, type PropsWithChildren, useContext, useEffect, useState } from 'react';
 import type { PresentationUiThemeState, UiPort } from '../../application/shared/contracts/ui.port';
 import { createDomainError } from '../../domains/shared/errors/domain-error';
 import {
@@ -74,8 +67,7 @@ export class MantineUiAdapter {
     function MantineUiProvider({ children }: PropsWithChildren) {
       const [activeThemeId, setActiveTheme] = useState<UiThemeId>(initialThemeId);
       const [activeColorScheme, setActiveColorScheme] = useState<UiColorScheme>(defaultColorScheme);
-      const activeTheme =
-        themes.find((theme) => theme.id === activeThemeId) ?? findUiTheme(initialThemeId);
+      const activeTheme = themes.find((theme) => theme.id === activeThemeId) ?? findUiTheme(initialThemeId);
       const activeMantineTheme = activeTheme.mantineThemes[activeColorScheme];
       const activeThemeTokens = activeTheme.tokensByColorScheme[activeColorScheme];
       const themeState: PresentationUiThemeState = {

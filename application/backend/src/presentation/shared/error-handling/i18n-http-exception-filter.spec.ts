@@ -14,10 +14,7 @@ type MockResponse = {
 
 describe('I18nHttpExceptionFilter', () => {
   let response: MockResponse;
-  let errorTranslationService: Pick<
-    ErrorTranslationService,
-    'translateErrorCode' | 'translateUnknownError'
-  >;
+  let errorTranslationService: Pick<ErrorTranslationService, 'translateErrorCode' | 'translateUnknownError'>;
   let errorCodeHttpStatusService: Pick<ErrorCodeHttpStatusService, 'resolve'>;
   let filter: I18nHttpExceptionFilter;
 
@@ -57,9 +54,7 @@ describe('I18nHttpExceptionFilter', () => {
 
     await filter.catch(new UnauthorizedException(IdentityErrorCode.UNAUTHORIZED), host);
 
-    expect(errorTranslationService.translateErrorCode).toHaveBeenCalledWith(
-      IdentityErrorCode.UNAUTHORIZED,
-    );
+    expect(errorTranslationService.translateErrorCode).toHaveBeenCalledWith(IdentityErrorCode.UNAUTHORIZED);
     expect(response.status).toHaveBeenCalledWith(401);
     expect(response.json).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -72,10 +67,7 @@ describe('I18nHttpExceptionFilter', () => {
   it('returns a translated exception for GraphQL requests', async () => {
     const host = createArgumentsHost('graphql', {});
 
-    const result = await filter.catch(
-      new UnauthorizedException(IdentityErrorCode.UNAUTHORIZED),
-      host,
-    );
+    const result = await filter.catch(new UnauthorizedException(IdentityErrorCode.UNAUTHORIZED), host);
 
     expect(result).toBeInstanceOf(GraphQLError);
     expect(result?.message).toBe(`translated:${IdentityErrorCode.UNAUTHORIZED}`);
@@ -90,9 +82,7 @@ describe('I18nHttpExceptionFilter', () => {
 
     const result = await filter.catch(new Error(OrganizationErrorCode.MEMBER_USER_NOT_FOUND), host);
 
-    expect(errorCodeHttpStatusService.resolve).toHaveBeenCalledWith(
-      OrganizationErrorCode.MEMBER_USER_NOT_FOUND,
-    );
+    expect(errorCodeHttpStatusService.resolve).toHaveBeenCalledWith(OrganizationErrorCode.MEMBER_USER_NOT_FOUND);
     expect(errorTranslationService.translateErrorCode).toHaveBeenCalledWith(
       OrganizationErrorCode.MEMBER_USER_NOT_FOUND,
     );
@@ -113,9 +103,7 @@ describe('I18nHttpExceptionFilter', () => {
 
     const result = await filter.catch(wrappedError, host);
 
-    expect(errorCodeHttpStatusService.resolve).toHaveBeenCalledWith(
-      OrganizationErrorCode.MEMBER_USER_NOT_FOUND,
-    );
+    expect(errorCodeHttpStatusService.resolve).toHaveBeenCalledWith(OrganizationErrorCode.MEMBER_USER_NOT_FOUND);
     expect(errorTranslationService.translateErrorCode).toHaveBeenCalledWith(
       OrganizationErrorCode.MEMBER_USER_NOT_FOUND,
     );
@@ -143,10 +131,7 @@ describe('I18nHttpExceptionFilter', () => {
   });
 });
 
-function createArgumentsHost(
-  type: 'http' | 'graphql',
-  responseObject: Partial<MockResponse>,
-): ArgumentsHost {
+function createArgumentsHost(type: 'http' | 'graphql', responseObject: Partial<MockResponse>): ArgumentsHost {
   return {
     getType: () => type,
     switchToHttp: () => ({

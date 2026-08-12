@@ -1,3 +1,4 @@
+---
 version: 2
 
 updates:
@@ -7,6 +8,8 @@ updates:
       - "/application/backend"
       - "/application/frontend"
     versioning-strategy: increase
+    cooldown:
+      default-days: 7
     schedule:
       interval: "weekly"
     groups:
@@ -41,6 +44,8 @@ updates:
   - package-ecosystem: github-actions
     open-pull-requests-limit: 20
     directory: "/"
+    cooldown:
+      default-days: 7
     schedule:
       interval: weekly
     groups:
@@ -51,8 +56,14 @@ updates:
   - package-ecosystem: "devcontainers"
     open-pull-requests-limit: 20
     directory: "/"
+    cooldown:
+      default-days: 7
     schedule:
       interval: weekly
+    groups:
+      devcontainers-dependencies:
+        patterns:
+          - "*"
 
   - package-ecosystem: "docker"
     open-pull-requests-limit: 20
@@ -60,6 +71,8 @@ updates:
       - "/"
       - "/application/backend"
       - "/application/frontend"
+    cooldown:
+      default-days: 7
     schedule:
       interval: "weekly"
     groups:

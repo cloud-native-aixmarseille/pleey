@@ -81,8 +81,7 @@ export function useDashboardHomeScreenState({
     dashboardWorkspace,
   });
 
-  const { filters, setSearch, setTypeFilter, setSortField, setSortDirection, setPage } =
-    useGameListFilters();
+  const { filters, setSearch, setTypeFilter, setSortField, setSortDirection, setPage } = useGameListFilters();
 
   const gamesQuery = useMemo(() => {
     if (workspace.projectId === null) {
@@ -136,26 +135,19 @@ export function useDashboardHomeScreenState({
   const actions = useDashboardHomeActions({
     actionsFacade: dashboardHomeActions,
   });
-  const [createGameForm, setCreateGameForm] = useState<DashboardCreateGameForm>(() =>
-    createEmptyGameForm(gameTypes),
-  );
+  const [createGameForm, setCreateGameForm] = useState<DashboardCreateGameForm>(() => createEmptyGameForm(gameTypes));
   const [createGameErrorMessage, setCreateGameErrorMessage] = useState<string | null>(null);
   const [isCreateGameDialogOpen, setIsCreateGameDialogOpen] = useState(false);
   const [isCreatingGame, setIsCreatingGame] = useState(false);
 
-  const [importGameForm, setImportGameForm] = useState<DashboardCreateGameForm>(() =>
-    createEmptyGameForm(gameTypes),
-  );
+  const [importGameForm, setImportGameForm] = useState<DashboardCreateGameForm>(() => createEmptyGameForm(gameTypes));
   const [importGameFile, setImportGameFile] = useState<File | null>(null);
   const [importGameErrorMessage, setImportGameErrorMessage] = useState<string | null>(null);
   const [isImportGameDialogOpen, setIsImportGameDialogOpen] = useState(false);
   const [isImportingGame, setIsImportingGame] = useState(false);
 
   const importExampleProvider = useMemo(
-    () =>
-      importGameForm.type === null
-        ? null
-        : dashboardHomeActions.getImportExampleProvider(importGameForm.type),
+    () => (importGameForm.type === null ? null : dashboardHomeActions.getImportExampleProvider(importGameForm.type)),
     [dashboardHomeActions, importGameForm.type],
   );
   const importAcceptedFileTypes = useMemo(
@@ -203,11 +195,7 @@ export function useDashboardHomeScreenState({
   };
 
   const handleCreateGame = async () => {
-    if (
-      workspace.projectId === null ||
-      createGameForm.type === null ||
-      createGameForm.title.trim().length === 0
-    ) {
+    if (workspace.projectId === null || createGameForm.type === null || createGameForm.title.trim().length === 0) {
       return;
     }
 

@@ -87,10 +87,7 @@ describe('GetOrganizationDashboardUseCase', () => {
       workspaceGameManagement as never,
     );
 
-    const result = await useCase.execute(
-      backendTestIdentifiers.organization(1),
-      backendTestIdentifiers.user(10),
-    );
+    const result = await useCase.execute(backendTestIdentifiers.organization(1), backendTestIdentifiers.user(10));
     expect(result.stats).toEqual({
       totalGames: 4,
       totalParties: 8,

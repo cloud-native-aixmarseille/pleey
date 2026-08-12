@@ -24,14 +24,8 @@ export function DialogTitleBlock({ eyebrow, level = 2, title }: DialogTitleBlock
   );
 }
 
-export function DialogActionsFooter({
-  children,
-  bordered = false,
-  stacked = false,
-}: DialogActionsFooterProps) {
-  const paddingBottom = stacked
-    ? `calc(${uiThemeTokens.spacing.md} + env(safe-area-inset-bottom, 0px))`
-    : undefined;
+export function DialogActionsFooter({ children, bordered = false, stacked = false }: DialogActionsFooterProps) {
+  const paddingBottom = stacked ? `calc(${uiThemeTokens.spacing.md} + env(safe-area-inset-bottom, 0px))` : undefined;
 
   return (
     <Box

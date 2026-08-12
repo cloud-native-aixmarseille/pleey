@@ -1,7 +1,4 @@
-import {
-  Organization,
-  type OrganizationId,
-} from '../../../domain/organization/entities/organization';
+import { Organization, type OrganizationId } from '../../../domain/organization/entities/organization';
 import { backendTestIdentifiers } from '../../branded-identifiers';
 
 export type OrganizationFixtureParams = {

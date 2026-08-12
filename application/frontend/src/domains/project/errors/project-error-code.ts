@@ -7,9 +7,7 @@ export enum ProjectErrorCode {
   UPDATE_FAILED = 'project.errors.updateFailed',
 }
 
-export const PROJECT_ERROR_DEFINITIONS: Readonly<
-  Record<ProjectErrorCode, DomainErrorDefinition<ProjectErrorCode>>
-> = {
+export const PROJECT_ERROR_DEFINITIONS: Readonly<Record<ProjectErrorCode, DomainErrorDefinition<ProjectErrorCode>>> = {
   [ProjectErrorCode.CREATE_FAILED]: {
     code: ProjectErrorCode.CREATE_FAILED,
     message: 'project.errors.createFailed',

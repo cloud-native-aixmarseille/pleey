@@ -1,9 +1,6 @@
 import { inject, injectable } from 'inversify';
 import type { Project } from '../../../../domains/project/entities/project';
-import type {
-  ProjectRepository,
-  UpdateProjectCommand,
-} from '../../../../domains/project/ports/project-repository';
+import type { ProjectRepository, UpdateProjectCommand } from '../../../../domains/project/ports/project-repository';
 import { ProjectRepositoryToken } from '../../../../domains/project/ports/project-repository';
 
 @injectable()

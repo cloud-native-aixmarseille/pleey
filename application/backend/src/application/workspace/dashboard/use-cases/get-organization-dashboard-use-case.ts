@@ -36,10 +36,7 @@ export class GetOrganizationDashboardUseCase {
     private readonly workspaceGameManagement: WorkspaceGameManagementPort,
   ) {}
 
-  async execute(
-    organizationId: OrganizationId,
-    requestingUserId: UserId,
-  ): Promise<OrganizationDashboard> {
+  async execute(organizationId: OrganizationId, requestingUserId: UserId): Promise<OrganizationDashboard> {
     await this.defaultWorkspaceService.ensure(requestingUserId);
 
     // Verify organization exists
@@ -49,10 +46,7 @@ export class GetOrganizationDashboardUseCase {
     }
 
     // Verify user is a member
-    const membership = await this.memberRepository.findByOrganizationAndUser(
-      organizationId,
-      requestingUserId,
-    );
+    const membership = await this.memberRepository.findByOrganizationAndUser(organizationId, requestingUserId);
     if (!membership) {
       throw new NotAMemberError({
         organizationId,

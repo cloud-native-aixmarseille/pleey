@@ -235,10 +235,7 @@ export class PrismaPartyManagementAdapter extends PartyManagementPort {
         status: this.partyReadModelMapper.toPartyStatus(party.status, {
           unknownStatus: 'validation-error',
         }),
-        role:
-          party.hostId === query.userId || party.scores.length === 0
-            ? PartyRole.HOST
-            : PartyRole.PLAYER,
+        role: party.hostId === query.userId || party.scores.length === 0 ? PartyRole.HOST : PartyRole.PLAYER,
         createdAt: party.createdAt,
       })),
       totalCount,

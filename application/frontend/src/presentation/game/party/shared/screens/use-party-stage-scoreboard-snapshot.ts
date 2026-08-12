@@ -28,9 +28,7 @@ export function usePartyStageScoreboardSnapshot(
   if (stagePosition !== null && stagePosition !== undefined) {
     if (stagePosition !== lastCapturedStageRef.current) {
       const hadPreviousSnapshot = lastCapturedStageRef.current !== null;
-      baselineRef.current = hadPreviousSnapshot
-        ? latestSnapshotRef.current
-        : buildZeroedScoreboard(players);
+      baselineRef.current = hadPreviousSnapshot ? latestSnapshotRef.current : buildZeroedScoreboard(players);
       latestSnapshotRef.current = buildScoreboard(players);
       lastCapturedStageRef.current = stagePosition;
     }
@@ -49,9 +47,7 @@ function buildScoreboard(players: readonly PartyObservationPlayer[]): ReadonlyMa
   return scoreboard;
 }
 
-function buildZeroedScoreboard(
-  players: readonly PartyObservationPlayer[],
-): ReadonlyMap<string, number> {
+function buildZeroedScoreboard(players: readonly PartyObservationPlayer[]): ReadonlyMap<string, number> {
   const scoreboard = new Map<string, number>();
 
   for (const player of players) {

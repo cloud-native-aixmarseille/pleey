@@ -2,9 +2,7 @@ import { Inject } from '@nestjs/common';
 import { I18nService } from 'nestjs-i18n';
 import type { ErrorCodeTranslationPort } from './error-code-translation.port';
 
-export abstract class AbstractErrorTranslationService<TErrorCode extends string>
-  implements ErrorCodeTranslationPort
-{
+export abstract class AbstractErrorTranslationService<TErrorCode extends string> implements ErrorCodeTranslationPort {
   private readonly errorCodes: ReadonlySet<TErrorCode>;
 
   protected constructor(

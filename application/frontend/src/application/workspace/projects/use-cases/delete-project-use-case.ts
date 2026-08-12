@@ -1,8 +1,5 @@
 import { inject, injectable } from 'inversify';
-import type {
-  DeleteProjectCommand,
-  ProjectRepository,
-} from '../../../../domains/project/ports/project-repository';
+import type { DeleteProjectCommand, ProjectRepository } from '../../../../domains/project/ports/project-repository';
 import { ProjectRepositoryToken } from '../../../../domains/project/ports/project-repository';
 
 @injectable()

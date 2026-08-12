@@ -1,46 +1,46 @@
-import fs from 'node:fs';
-import path from 'node:path';
+import fs from "node:fs";
+import path from "node:path";
 import {
   loadTsConfigProgram,
   loadTypeScriptFromDirectory,
   resolveAppProject,
   toProjectRelative,
-} from './shared/ts-analysis-harness.mjs';
+} from "./shared/ts-analysis-harness.mjs";
 
 const TEST_FILE_PATTERN = /\.(test|spec)\.[jt]sx?$/u;
 
 const PROJECT_FILTERS = {
   backend(relativePath) {
-    if (!relativePath.startsWith('src/')) {
+    if (!relativePath.startsWith("src/")) {
       return false;
     }
 
-    if (relativePath.startsWith('src/app/')) {
+    if (relativePath.startsWith("src/app/")) {
       return false;
     }
 
     return !(
-      relativePath.startsWith('src/test-utils/') ||
-      relativePath.includes('/generated/') ||
+      relativePath.startsWith("src/test-utils/") ||
+      relativePath.includes("/generated/") ||
       TEST_FILE_PATTERN.test(relativePath)
     );
   },
   frontend(relativePath) {
-    if (!relativePath.startsWith('src/')) {
+    if (!relativePath.startsWith("src/")) {
       return false;
     }
 
     return !(
-      relativePath.startsWith('src/test-utils/') ||
-      relativePath.includes('/generated/') ||
+      relativePath.startsWith("src/test-utils/") ||
+      relativePath.includes("/generated/") ||
       TEST_FILE_PATTERN.test(relativePath)
     );
   },
 };
 
 const DOMAIN_ROOTS = {
-  backend: 'src/domain/',
-  frontend: 'src/domains/',
+  backend: "src/domain/",
+  frontend: "src/domains/",
 };
 
 const ERROR_MODULE_PATTERN = /(^|\/)(errors\/.*|[^/]+(?:\.error|-error-code)\.[jt]sx?)$/u;
@@ -49,11 +49,11 @@ const ENUM_ERROR_DIRECTORY_PATTERN = /\/enums\/errors\//u;
 
 function getScriptKind(ts, filePath) {
   switch (path.extname(filePath)) {
-    case '.tsx':
+    case ".tsx":
       return ts.ScriptKind.TSX;
-    case '.jsx':
+    case ".jsx":
       return ts.ScriptKind.JSX;
-    case '.js':
+    case ".js":
       return ts.ScriptKind.JS;
     default:
       return ts.ScriptKind.TS;
@@ -63,7 +63,7 @@ function getScriptKind(ts, filePath) {
 function createSourceFile(ts, filePath) {
   return ts.createSourceFile(
     filePath,
-    fs.readFileSync(filePath, 'utf8'),
+    fs.readFileSync(filePath, "utf8"),
     ts.ScriptTarget.Latest,
     true,
     getScriptKind(ts, filePath),
@@ -99,7 +99,7 @@ function hasNonEmptyContext(ts, args, index) {
     return false;
   }
 
-  if (ts.isIdentifier(contextExpression) && contextExpression.text === 'undefined') {
+  if (ts.isIdentifier(contextExpression) && contextExpression.text === "undefined") {
     return false;
   }
 
@@ -166,15 +166,15 @@ function resolveAliasedEmptyContextReason(ts, checker, expression, seenSymbols =
   const initializer = unwrapExpression(ts, declaration.initializer);
 
   if (initializer.kind === ts.SyntaxKind.NullKeyword) {
-    return 'resolves to null';
+    return "resolves to null";
   }
 
-  if (ts.isIdentifier(initializer) && initializer.text === 'undefined') {
-    return 'resolves to undefined';
+  if (ts.isIdentifier(initializer) && initializer.text === "undefined") {
+    return "resolves to undefined";
   }
 
   if (ts.isObjectLiteralExpression(initializer) && initializer.properties.length === 0) {
-    return 'resolves to an empty object literal';
+    return "resolves to an empty object literal";
   }
 
   if (ts.isIdentifier(initializer)) {
@@ -190,13 +190,13 @@ function getThrownContextArgument(ts, expression) {
   if (ts.isNewExpression(unwrappedExpression) && ts.isIdentifier(unwrappedExpression.expression)) {
     const errorName = unwrappedExpression.expression.text;
 
-    if (errorName !== 'Error' && errorName.endsWith('Error')) {
+    if (errorName !== "Error" && errorName.endsWith("Error")) {
       return unwrappedExpression.arguments?.[0] ?? null;
     }
   }
 
   if (ts.isCallExpression(unwrappedExpression) && ts.isIdentifier(unwrappedExpression.expression)) {
-    if (unwrappedExpression.expression.text === 'createDomainError') {
+    if (unwrappedExpression.expression.text === "createDomainError") {
       return unwrappedExpression.arguments?.[1] ?? null;
     }
   }
@@ -210,7 +210,7 @@ function isThrownCreateDomainError(ts, expression) {
   return (
     ts.isCallExpression(unwrappedExpression) &&
     ts.isIdentifier(unwrappedExpression.expression) &&
-    unwrappedExpression.expression.text === 'createDomainError'
+    unwrappedExpression.expression.text === "createDomainError"
   );
 }
 
@@ -228,14 +228,14 @@ function hasDomainErrorModuleExports(ts, sourceFile) {
       if (
         statement.exportClause.elements.some((element) => {
           const exportedName = element.name.text;
-          return exportedName.endsWith('Error') || exportedName.endsWith('ErrorCode');
+          return exportedName.endsWith("Error") || exportedName.endsWith("ErrorCode");
         })
       ) {
         return true;
       }
     }
 
-    if (ts.isEnumDeclaration(statement) && statement.name.text.endsWith('ErrorCode')) {
+    if (ts.isEnumDeclaration(statement) && statement.name.text.endsWith("ErrorCode")) {
       return true;
     }
 
@@ -243,8 +243,7 @@ function hasDomainErrorModuleExports(ts, sourceFile) {
       for (const declaration of statement.declarationList.declarations) {
         if (
           ts.isIdentifier(declaration.name) &&
-          (declaration.name.text.endsWith('ERROR_CODE') ||
-            declaration.name.text.endsWith('ERROR_DEFINITIONS'))
+          (declaration.name.text.endsWith("ERROR_CODE") || declaration.name.text.endsWith("ERROR_DEFINITIONS"))
         ) {
           return true;
         }
@@ -266,7 +265,7 @@ function exportedErrorClassNames(ts, sourceFile) {
     for (const element of statement.exportClause.elements) {
       const exportedName = element.name.text;
 
-      if (exportedName.endsWith('Error')) {
+      if (exportedName.endsWith("Error")) {
         names.push(exportedName);
       }
     }
@@ -290,7 +289,7 @@ function extendsDomainError(ts, checker, classDeclaration, seenSymbols = new Set
       continue;
     }
 
-    if (baseSymbol.getName() === 'DomainError') {
+    if (baseSymbol.getName() === "DomainError") {
       return true;
     }
 
@@ -333,7 +332,7 @@ function collectViolationsForFile(ts, checker, sourceFile, relativePath, project
   if (ENUM_ERROR_DIRECTORY_PATTERN.test(relativePath)) {
     report(
       sourceFile,
-      'Domain error files must not live under an enums/errors folder. Move them into a sibling errors/ folder outside enums.',
+      "Domain error files must not live under an enums/errors folder. Move them into a sibling errors/ folder outside enums.",
     );
   }
 
@@ -363,10 +362,7 @@ function collectViolationsForFile(ts, checker, sourceFile, relativePath, project
       const contextArgument = getThrownContextArgument(ts, node.expression);
 
       if (isThrownCreateDomainError(ts, node.expression) && !hasNonEmptyContext(ts, [contextArgument], 0)) {
-        report(
-          node.expression,
-          'createDomainError(...) must include a non-empty context object when thrown.',
-        );
+        report(node.expression, "createDomainError(...) must include a non-empty context object when thrown.");
       }
 
       if (contextArgument && hasNonEmptyContext(ts, [contextArgument], 0)) {

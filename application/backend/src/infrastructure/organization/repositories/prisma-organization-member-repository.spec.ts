@@ -36,12 +36,7 @@ describe('PrismaOrganizationMemberRepository', () => {
       new PaginationQueryNormalizer(),
     );
 
-    const page = await repository.findPageByOrganization(
-      backendTestIdentifiers.organization(9),
-      1,
-      25,
-      '  rocket  ',
-    );
+    const page = await repository.findPageByOrganization(backendTestIdentifiers.organization(9), 1, 25, '  rocket  ');
 
     expect(count).toHaveBeenNthCalledWith(1, {
       where: {
@@ -127,12 +122,7 @@ describe('PrismaOrganizationMemberRepository', () => {
       new PaginationQueryNormalizer(),
     );
 
-    const page = await repository.findPageByUser(
-      backendTestIdentifiers.user(18),
-      1,
-      25,
-      '  studio  ',
-    );
+    const page = await repository.findPageByUser(backendTestIdentifiers.user(18), 1, 25, '  studio  ');
 
     expect(count).toHaveBeenNthCalledWith(1, {
       where: {

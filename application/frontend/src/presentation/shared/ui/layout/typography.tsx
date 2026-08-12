@@ -43,13 +43,7 @@ export function Heading({ children, id, level = 2, hero = false }: HeadingProps)
   const fontSize = hero ? 'clamp(2rem, 3vw, 2.75rem)' : level === 3 ? '1.25rem' : '2rem';
 
   return (
-    <Title
-      c={uiThemeTokens.color.text.emphasis}
-      fz={fontSize}
-      id={id}
-      lh={hero ? 1.1 : 1.15}
-      order={level}
-    >
+    <Title c={uiThemeTokens.color.text.emphasis} fz={fontSize} id={id} lh={hero ? 1.1 : 1.15} order={level}>
       {children}
     </Title>
   );
@@ -62,8 +56,7 @@ export function SupportingText({
   marginTop = 'none',
   maxWidth,
 }: SupportingTextProps) {
-  const color =
-    tone === 'soft' ? uiThemeTokens.color.text.soft : uiThemeTokens.color.text.secondary;
+  const color = tone === 'soft' ? uiThemeTokens.color.text.soft : uiThemeTokens.color.text.secondary;
   const mt = marginTop === 'none' ? undefined : marginTop;
 
   return (

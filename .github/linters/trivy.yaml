@@ -1,0 +1,24 @@
+---
+exit-code: 1
+exit-on-eol: 2
+db:
+  repository:
+    - ghcr.io/aquasecurity/trivy-db:2
+    - mirror.gcr.io/aquasec/trivy-db:2
+rego:
+  data:
+    - .github/linters/trivy-data
+scan:
+  disable-telemetry: true
+  scanners:
+    - vuln
+    - misconfig
+    - secret
+  skip-files:
+    # Vendored backend subchart tarballs are third-party dependencies.
+    - charts/application/charts/backend/charts/*.tgz
+  skip-dirs:
+    - charts/dist
+    - charts/dist/**
+    - charts/application/charts/backend/charts
+    - charts/application/charts/backend/charts/**

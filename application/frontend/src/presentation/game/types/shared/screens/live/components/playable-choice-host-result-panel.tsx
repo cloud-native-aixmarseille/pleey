@@ -2,20 +2,13 @@ import { usePresentationTranslation } from '../../../../../../shared/i18n/use-pr
 import { ContentStack, ResponsiveGrid } from '../../../../../../shared/ui/layout/containers';
 import { InsetPanel } from '../../../../../../shared/ui/layout/panels';
 import { Heading, SupportingText } from '../../../../../../shared/ui/layout/typography';
-import {
-  MotionStagger,
-  MotionStaggerItem,
-} from '../../../../../../shared/ui/motion/motion-primitives';
+import { MotionStagger, MotionStaggerItem } from '../../../../../../shared/ui/motion/motion-primitives';
 import { PartyStandingsList } from '../../../../../party/shared/screens/components/party-standings-list';
 import { usePartyStageScoreboardSnapshot } from '../../../../../party/shared/screens/use-party-stage-scoreboard-snapshot';
 import { resolvePlayableChoiceActionSlotLabel } from './playable-choice-action-slot-identity';
 import { PlayableChoiceResultActionTile } from './playable-choice-result-action-tile';
 import type { PlayableChoiceHostRuntimePanelProps } from './playable-choice-runtime-panel.types';
-export function PlayableChoiceHostResultPanel({
-  copy,
-  party,
-  testIdPrefix,
-}: PlayableChoiceHostRuntimePanelProps) {
+export function PlayableChoiceHostResultPanel({ copy, party, testIdPrefix }: PlayableChoiceHostRuntimePanelProps) {
   const { t } = usePresentationTranslation();
   const stagePosition = party.context?.lifecycle.stagePosition;
   const result = party.context?.result?.current;

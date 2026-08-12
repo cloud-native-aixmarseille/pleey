@@ -37,9 +37,7 @@ export class SocketPartyObservationBroadcaster implements PartyObservationBroadc
     client: Pick<Socket, 'emit' | 'data'>,
     snapshot: PartyObservationSnapshot,
   ): Promise<PartyObservationMessage> {
-    const livePlayerIdentities = await this.resolveLivePlayerIdentities(
-      snapshot.hostObservation.partyId,
-    );
+    const livePlayerIdentities = await this.resolveLivePlayerIdentities(snapshot.hostObservation.partyId);
     const payload = this.toAudienceMessage(
       ((client as { data?: PartyObserverSocketData }).data ?? {}) as PartyObserverSocketData,
       snapshot,
@@ -56,29 +54,19 @@ export class SocketPartyObservationBroadcaster implements PartyObservationBroadc
       return;
     }
 
-    const livePlayerIdentities = await this.resolveLivePlayerIdentities(
-      snapshot.hostObservation.partyId,
-    );
+    const livePlayerIdentities = await this.resolveLivePlayerIdentities(snapshot.hostObservation.partyId);
     const room = resolvePartyObservationRoom(snapshot.hostObservation.partyId);
     const sockets = await this.server.in(room).fetchSockets();
 
     for (const socket of this.orderAudienceSockets(sockets, snapshot.hostObservation.host.userId)) {
       socket.emit(
         PARTY_SOCKET_OUTBOUND_EVENTS.PARTY_UPDATED,
-        this.toAudienceMessage(
-          socket.data as PartyObserverSocketData,
-          snapshot,
-          livePlayerIdentities,
-        ),
+        this.toAudienceMessage(socket.data as PartyObserverSocketData, snapshot, livePlayerIdentities),
       );
     }
   }
 
-  async publishRuntimeNotice(
-    partyId: PartyId,
-    hostUserId: UserId,
-    kind: PartyRuntimeNoticeKind,
-  ): Promise<void> {
+  async publishRuntimeNotice(partyId: PartyId, hostUserId: UserId, kind: PartyRuntimeNoticeKind): Promise<void> {
     if (!this.server) {
       return;
     }
@@ -94,9 +82,7 @@ export class SocketPartyObservationBroadcaster implements PartyObservationBroadc
     }
   }
 
-  private async resolveLivePlayerIdentities(
-    partyId: PartyId,
-  ): Promise<readonly PartyPlayerIdentity[]> {
+  private async resolveLivePlayerIdentities(partyId: PartyId): Promise<readonly PartyPlayerIdentity[]> {
     if (!this.server) {
       return [];
     }

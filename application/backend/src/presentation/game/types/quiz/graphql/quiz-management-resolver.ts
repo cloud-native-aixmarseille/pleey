@@ -61,20 +61,14 @@ export class QuizManagementResolver {
     @Args('quizId', { type: () => ID }) quizId: string,
     @Context() context: GraphqlAuthContext,
   ): Promise<QuizType> {
-    const quiz = await this.getQuizUseCase.execute(
-      this.gameTypeIdentifier.parse(quizId),
-      this.resolveUserId(context),
-    );
+    const quiz = await this.getQuizUseCase.execute(this.gameTypeIdentifier.parse(quizId), this.resolveUserId(context));
 
     return this.mapQuiz(quiz);
   }
 
   @Mutation(() => QuizType)
   @UseGuards(GqlJwtAuthGuard)
-  async createQuiz(
-    @Args('input') input: CreateQuizInput,
-    @Context() context: GraphqlAuthContext,
-  ): Promise<QuizType> {
+  async createQuiz(@Args('input') input: CreateQuizInput, @Context() context: GraphqlAuthContext): Promise<QuizType> {
     const quiz = await this.createQuizUseCase.execute(
       {
         projectId: this.projectIdentifier.parse(input.projectId),
@@ -135,10 +129,7 @@ export class QuizManagementResolver {
     @Args('quizId', { type: () => ID }) quizId: string,
     @Context() context: GraphqlAuthContext,
   ): Promise<boolean> {
-    return this.deleteQuizUseCase.execute(
-      this.gameTypeIdentifier.parse(quizId),
-      this.resolveUserId(context),
-    );
+    return this.deleteQuizUseCase.execute(this.gameTypeIdentifier.parse(quizId), this.resolveUserId(context));
   }
 
   @Query(() => [QuizQuestionTypeObject])
@@ -169,10 +160,7 @@ export class QuizManagementResolver {
         type: input.type,
         timeLimit: input.timeLimit,
         points: input.points,
-        answers: this.selectableOptionInputMapper.toDomainInputs(
-          input.answers,
-          this.quizSelectableOptionIdentifier,
-        ),
+        answers: this.selectableOptionInputMapper.toDomainInputs(input.answers, this.quizSelectableOptionIdentifier),
       },
       this.resolveUserId(context),
     );
@@ -195,10 +183,7 @@ export class QuizManagementResolver {
         type: input.type,
         timeLimit: input.timeLimit,
         points: input.points,
-        answers: this.selectableOptionInputMapper.toDomainInputs(
-          input.answers,
-          this.quizSelectableOptionIdentifier,
-        ),
+        answers: this.selectableOptionInputMapper.toDomainInputs(input.answers, this.quizSelectableOptionIdentifier),
       },
       this.resolveUserId(context),
     );

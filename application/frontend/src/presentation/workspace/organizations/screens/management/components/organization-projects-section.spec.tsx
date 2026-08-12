@@ -77,12 +77,8 @@ describe('OrganizationProjectsSection', () => {
     await user.type(screen.getByRole('searchbox', { name: 'Search projects' }), 'Side');
 
     await user.click(screen.getByRole('button', { name: 'Create project' }));
-    await user.click(
-      screen.getAllByRole('button', { name: 'project.management.list.editButton' })[0],
-    );
-    await user.click(
-      screen.getAllByRole('button', { name: 'project.management.list.removeButton' })[0],
-    );
+    await user.click(screen.getAllByRole('button', { name: 'project.management.list.editButton' })[0]);
+    await user.click(screen.getAllByRole('button', { name: 'project.management.list.removeButton' })[0]);
 
     expect(onCreateProject).toHaveBeenCalledTimes(1);
     expect(onEditProject).toHaveBeenCalledWith(expect.objectContaining({ id: project.id }));

@@ -1,10 +1,7 @@
 import i18next, { type i18n as I18n } from 'i18next';
 import { injectable } from 'inversify';
 import { getI18n } from 'react-i18next';
-import type {
-  TranslationPort,
-  TranslationVariables,
-} from '../../application/shared/contracts/translation.port';
+import type { TranslationPort, TranslationVariables } from '../../application/shared/contracts/translation.port';
 
 @injectable()
 export class I18nextTranslationAdapter implements TranslationPort {

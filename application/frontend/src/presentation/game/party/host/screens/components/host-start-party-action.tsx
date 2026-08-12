@@ -14,11 +14,7 @@ interface HostStartPartyActionProps {
   readonly onStartParty: () => void;
 }
 
-export function HostStartPartyAction({
-  controls,
-  pendingCommand,
-  onStartParty,
-}: HostStartPartyActionProps) {
+export function HostStartPartyAction({ controls, pendingCommand, onStartParty }: HostStartPartyActionProps) {
   const { t } = usePresentationTranslation();
 
   if (controls.lifecyclePhase !== PartyRuntimePhase.LOBBY) {

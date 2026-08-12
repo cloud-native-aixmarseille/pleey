@@ -178,10 +178,7 @@ export class OtelLoggerService implements LoggerService {
           message: error instanceof Error ? error.message : 'Unknown error',
         });
         span.recordException(error as Error);
-        this.error(
-          `Error in operation: ${operationName}`,
-          error instanceof Error ? error.stack : undefined,
-        );
+        this.error(`Error in operation: ${operationName}`, error instanceof Error ? error.stack : undefined);
         throw error;
       } finally {
         span.end();

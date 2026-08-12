@@ -29,9 +29,7 @@ export class ProjectFixtureFactory {
         organizationId === undefined
           ? organizationIdentifier.parse(coerceUuidV7TestValue(3))
           : organizationIdentifier.parse(
-              typeof organizationId === 'number'
-                ? coerceUuidV7TestValue(organizationId)
-                : organizationId,
+              typeof organizationId === 'number' ? coerceUuidV7TestValue(organizationId) : organizationId,
             ),
       createdAt: DEFAULT_TIMESTAMP,
       ...restOverrides,

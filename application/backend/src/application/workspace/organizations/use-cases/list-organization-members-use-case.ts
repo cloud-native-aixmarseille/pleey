@@ -29,10 +29,7 @@ export class ListOrganizationMembersUseCase {
     requestingUserId: UserId,
   ): Promise<PaginatedResult<OrganizationMember>> {
     await this.organizationMembershipAccess.assertOrganizationExists(input.organizationId);
-    await this.organizationMembershipAccess.requireMembership(
-      input.organizationId,
-      requestingUserId,
-    );
+    await this.organizationMembershipAccess.requireMembership(input.organizationId, requestingUserId);
     const pagination = this.paginationQueryNormalizer.normalizeQuery(input, DEFAULT_PAGE_SIZE);
 
     return this.memberRepository.findPageByOrganization(

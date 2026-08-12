@@ -22,8 +22,6 @@ describe('OrganizationIdentifier', () => {
   });
 
   it('throws when the raw value is not numeric', () => {
-    expect(() => organizationIdentifier.parse('not-a-uuid')).toThrow(
-      IdentifierParserErrorCode.INVALID_VALUE,
-    );
+    expect(() => organizationIdentifier.parse('not-a-uuid')).toThrow(IdentifierParserErrorCode.INVALID_VALUE);
   });
 });

@@ -19,8 +19,6 @@ describe('ProjectIdentifier', () => {
 
   it('returns null for empty raw input and throws for invalid raw input', () => {
     expect(projectIdentifier.parse('')).toBeNull();
-    expect(() => projectIdentifier.parse('not-a-uuid')).toThrow(
-      IdentifierParserErrorCode.INVALID_VALUE,
-    );
+    expect(() => projectIdentifier.parse('not-a-uuid')).toThrow(IdentifierParserErrorCode.INVALID_VALUE);
   });
 });

@@ -1,6 +1,6 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.5.2/schema.json",
-  "extends": ["./biome.shared-party-rules.json", "./biome.shared-style-rules.json"],
+  "$schema": "https://biomejs.dev/schemas/2.4.10/schema.json",
+  "root": false,
   "files": {
     "includes": [
       "src/**",
@@ -9,14 +9,18 @@
       "vite.config.js",
       "vitest.config.js",
       "tailwind.config.js",
-      "postcss.config.js"
+      "postcss.config.js",
+      "!dist",
+      "!dist-types",
+      "!coverage",
+      "!lcov-report"
     ]
   },
   "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
     "enabled": true,
     "rules": {
-      "preset": "recommended",
+      "recommended": true,
       "suspicious": {
         "noConsole": "error",
         "noExplicitAny": "error",
@@ -39,6 +43,9 @@
         "useOptionalChain": "off"
       },
       "style": {
+        "useThrowNewError": "error",
+        "useThrowOnlyError": "error",
+        "useConst": "error",
         "useImportType": "off",
         "noNonNullAssertion": "off"
       },
@@ -55,8 +62,7 @@
     "formatWithErrors": false,
     "indentStyle": "space",
     "indentWidth": 2,
-    "lineWidth": 100,
-    "lineEnding": "lf"
+    "lineWidth": 120
   },
   "javascript": {
     "parser": {
@@ -75,6 +81,33 @@
     }
   },
   "overrides": [
+    {
+      "includes": ["src/**/*.{ts,tsx,js,jsx}"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/game/party/*/**",
+                      "!**/game/party/enums/**",
+                      "!**/game/party/errors/**",
+                      "!**/game/party/host/**",
+                      "!**/game/party/player/**",
+                      "!**/game/party/shared/**"
+                    ],
+                    "message": "Only **/game/party/{host,player,shared}/** is allowed under game/party."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
     {
       "includes": ["src/**/*.{ts,tsx,js,jsx}"],
       "linter": {
@@ -113,6 +146,49 @@
       }
     },
     {
+      "includes": ["src/presentation/game/types/shared/**/*.{ts,tsx,js,jsx}"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["**/game/types/quiz/**", "**/game/types/prediction/**"],
+                    "message": "Game types shared layer must not import from game-type specific layers (quiz/, prediction/)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "src/presentation/game/party/shared/**/*.{ts,tsx,js,jsx}",
+        "!!src/presentation/game/party/shared/screens/components/party-screen-content.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["**/game/party/host/**", "**/game/party/player/**"],
+                    "message": "Party shared layer must not import from host/ or player/ layers. Shared must stay role-agnostic."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       "includes": ["src/application/**/*.{ts,tsx,js,jsx}", "src/domains/**/*.{ts,tsx,js,jsx}"],
       "plugins": ["./biome/plugins/application-domain-boundaries.grit"]
     },
@@ -140,10 +216,7 @@
       "plugins": ["./biome/plugins/dashboard-application-boundaries.grit"]
     },
     {
-      "includes": [
-        "src/presentation/**/*.{ts,tsx,js,jsx}",
-        "!!src/presentation/**/routes/**/*.{ts,tsx,js,jsx}"
-      ],
+      "includes": ["src/presentation/**/*.{ts,tsx,js,jsx}", "!!src/presentation/**/routes/**/*.{ts,tsx,js,jsx}"],
       "plugins": [
         "./biome/plugins/presentation-boundaries.grit",
         "./biome/plugins/feedback-patterns.grit",

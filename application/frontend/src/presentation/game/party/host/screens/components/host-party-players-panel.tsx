@@ -25,11 +25,7 @@ function toPlayerKey(player: PartyObservationPlayer): string {
     : `guest:${player.identity.guestId}`;
 }
 
-export function HostPartyPlayersPanel({
-  onKickPlayer,
-  pendingKickedPlayerKey,
-  players,
-}: HostPartyPlayersPanelProps) {
+export function HostPartyPlayersPanel({ onKickPlayer, pendingKickedPlayerKey, players }: HostPartyPlayersPanelProps) {
   const { t } = usePresentationTranslation();
   const confirmDialog = useConfirmDialog();
   const [pendingKickPlayer, setPendingKickPlayer] = useState<PendingKickPlayer | null>(null);

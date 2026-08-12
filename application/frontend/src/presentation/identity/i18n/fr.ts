@@ -26,8 +26,7 @@ export const authFr = {
       title: 'Ravi de vous revoir.',
       subtitle: 'Connectez-vous \u00e0 votre compte Pleey pour continuer.',
       formLegend: 'Vos identifiants',
-      formDescription:
-        'Saisissez l\u2019email et le mot de passe associ\u00e9s \u00e0 votre compte Pleey.',
+      formDescription: 'Saisissez l\u2019email et le mot de passe associ\u00e9s \u00e0 votre compte Pleey.',
       submitCta: 'Se connecter',
       submittingCta: 'Connexion en cours\u2026',
       registerPrompt: "Vous n'avez pas de compte\u00a0?",
@@ -36,8 +35,7 @@ export const authFr = {
       activeSession: {
         eyebrow: 'Session active',
         title: 'Ravi de vous revoir, {{username}}.',
-        description:
-          'Vous \u00eates d\u00e9j\u00e0 connect\u00e9. Acc\u00e9dez au dashboard ou changez de compte.',
+        description: 'Vous \u00eates d\u00e9j\u00e0 connect\u00e9. Acc\u00e9dez au dashboard ou changez de compte.',
         dashboardCta: 'Aller au dashboard',
         signOutCta: 'Se d\u00e9connecter',
       },
@@ -48,8 +46,7 @@ export const authFr = {
       title: 'Commencez avec Pleey.',
       subtitle: 'Cr\u00e9ez votre compte gratuit et animez vos premiers jeux en quelques minutes.',
       formLegend: 'D\u00e9tails du compte',
-      formDescription:
-        "Choisissez un nom d'utilisateur, saisissez votre email et cr\u00e9ez un mot de passe.",
+      formDescription: "Choisissez un nom d'utilisateur, saisissez votre email et cr\u00e9ez un mot de passe.",
       submitCta: 'Cr\u00e9er le compte',
       submittingCta: 'Cr\u00e9ation du compte\u2026',
       signInPrompt: 'Vous avez d\u00e9j\u00e0 un compte\u00a0?',
@@ -63,8 +60,7 @@ export const authFr = {
     forgotPassword: {
       eyebrow: 'R\u00e9initialiser',
       title: 'Mot de passe oubli\u00e9\u00a0?',
-      subtitle:
-        'Entrez votre email et nous vous enverrons les instructions pour le r\u00e9initialiser.',
+      subtitle: 'Entrez votre email et nous vous enverrons les instructions pour le r\u00e9initialiser.',
       emailLabel: 'Adresse email',
       emailPlaceholder: 'capitaine@pleey.io',
       submitCta: 'Envoyer le lien',
@@ -97,11 +93,9 @@ export const authFr = {
     errors: {
       invalidResponse: 'Une erreur est survenue. Veuillez r\u00e9essayer.',
       invalidCredentials: 'Email ou mot de passe incorrect.',
-      registrationFailed:
-        'Impossible de cr\u00e9er le compte pour le moment. Veuillez r\u00e9essayer.',
+      registrationFailed: 'Impossible de cr\u00e9er le compte pour le moment. Veuillez r\u00e9essayer.',
       unauthorized: 'Votre session a expir\u00e9. Veuillez vous reconnecter.',
-      invalidRefreshToken:
-        'Votre session n\u2019a pas pu \u00eatre renouvel\u00e9e. Veuillez vous reconnecter.',
+      invalidRefreshToken: 'Votre session n\u2019a pas pu \u00eatre renouvel\u00e9e. Veuillez vous reconnecter.',
       refreshTokenExpired: 'Votre session a expir\u00e9. Veuillez vous reconnecter.',
       generic: 'Une erreur est survenue. Veuillez r\u00e9essayer.',
     },

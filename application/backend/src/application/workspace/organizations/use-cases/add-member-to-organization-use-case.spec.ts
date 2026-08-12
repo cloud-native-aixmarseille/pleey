@@ -159,11 +159,7 @@ describe('AddMemberToOrganizationUseCase', () => {
       usernameOrEmail: 'captain',
     };
 
-    const result = await useCase.execute(
-      backendTestIdentifiers.organization(1),
-      dto,
-      backendTestIdentifiers.user(10),
-    );
+    const result = await useCase.execute(backendTestIdentifiers.organization(1), dto, backendTestIdentifiers.user(10));
     expect(memberRepository.create).toHaveBeenCalledWith(
       backendTestIdentifiers.organization(1),
       2,
@@ -206,11 +202,7 @@ describe('AddMemberToOrganizationUseCase', () => {
       usernameOrEmail: 'captain@pleey.io',
     };
 
-    await useCase.execute(
-      backendTestIdentifiers.organization(1),
-      dto,
-      backendTestIdentifiers.user(10),
-    );
+    await useCase.execute(backendTestIdentifiers.organization(1), dto, backendTestIdentifiers.user(10));
 
     expect(userRepository.findByEmail).toHaveBeenCalledWith('captain@pleey.io');
     expect(memberRepository.create).toHaveBeenCalledWith(

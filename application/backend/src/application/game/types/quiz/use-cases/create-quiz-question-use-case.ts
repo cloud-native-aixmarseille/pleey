@@ -1,8 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  type QuizQuestion,
-  QuizQuestionType,
-} from '../../../../../domain/game/types/quiz/entities/quiz-question';
+import { type QuizQuestion, QuizQuestionType } from '../../../../../domain/game/types/quiz/entities/quiz-question';
 import { QuizErrorCode } from '../../../../../domain/game/types/quiz/enums/quiz-error-code.enum';
 import { QuizNotFoundError } from '../../../../../domain/game/types/quiz/errors';
 import type { QuizManagementRepository } from '../../../../../domain/game/types/quiz/ports/quiz-management.repository';
@@ -56,10 +53,7 @@ export class CreateQuizQuestionUseCase {
     });
   }
 
-  private assertAnswers(
-    type: QuizQuestionType,
-    answers: ReturnType<SelectableOptionPolicy['normalize']>,
-  ): void {
+  private assertAnswers(type: QuizQuestionType, answers: ReturnType<SelectableOptionPolicy['normalize']>): void {
     const errorCodes = {
       invalidCorrectOption: QuizErrorCode.INVALID_CORRECT_ANSWER,
       emptyOptionText: QuizErrorCode.CORRECT_ANSWER_OPTION_EMPTY,

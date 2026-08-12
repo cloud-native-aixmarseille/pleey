@@ -46,10 +46,7 @@ export class QuizManagementFacade implements PlayableManagementGateway<QuizQuest
     await this.repository.deleteQuiz(quizId);
   }
 
-  createItem(
-    quizId: GameTypeId,
-    input: PlayableManagementItemInput,
-  ): Promise<PlayableManagementItem<QuizQuestionId>> {
+  createItem(quizId: GameTypeId, input: PlayableManagementItemInput): Promise<PlayableManagementItem<QuizQuestionId>> {
     return this.repository.createQuestion(quizId, input);
   }
 

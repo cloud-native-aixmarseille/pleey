@@ -26,9 +26,7 @@ describe('ProjectFormDialog', () => {
     onSubmitted.mockReset();
   });
 
-  function renderProjectFormDialog(
-    overrides: Partial<React.ComponentProps<typeof ProjectFormDialog>> = {},
-  ) {
+  function renderProjectFormDialog(overrides: Partial<React.ComponentProps<typeof ProjectFormDialog>> = {}) {
     return renderWithProviders(
       <ProjectFormDialog
         isOpen
@@ -47,15 +45,9 @@ describe('ProjectFormDialog', () => {
     renderProjectFormDialog();
 
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
-    expect(
-      screen.getByText('project.management.form.create.title (organization=Arcade Org)'),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText('project.management.form.fields.name.placeholder'),
-    ).toHaveValue('');
-    expect(
-      screen.getByPlaceholderText('project.management.form.fields.description.placeholder'),
-    ).toHaveValue('');
+    expect(screen.getByText('project.management.form.create.title (organization=Arcade Org)')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('project.management.form.fields.name.placeholder')).toHaveValue('');
+    expect(screen.getByPlaceholderText('project.management.form.fields.description.placeholder')).toHaveValue('');
   });
 
   it('prefills the form fields in edit mode', async () => {
@@ -72,15 +64,13 @@ describe('ProjectFormDialog', () => {
     });
 
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
-    expect(
-      screen.getByText('project.management.form.edit.title (organization=Arcade Org)'),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText('project.management.form.fields.name.placeholder'),
-    ).toHaveValue('Flagship Project');
-    expect(
-      screen.getByPlaceholderText('project.management.form.fields.description.placeholder'),
-    ).toHaveValue('Core project');
+    expect(screen.getByText('project.management.form.edit.title (organization=Arcade Org)')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('project.management.form.fields.name.placeholder')).toHaveValue(
+      'Flagship Project',
+    );
+    expect(screen.getByPlaceholderText('project.management.form.fields.description.placeholder')).toHaveValue(
+      'Core project',
+    );
   });
 
   it('shows a validation error and blocks submit when name is blank', async () => {
@@ -150,13 +140,8 @@ describe('ProjectFormDialog', () => {
       }),
     });
 
-    await user.clear(
-      await screen.findByPlaceholderText('project.management.form.fields.name.placeholder'),
-    );
-    await user.type(
-      screen.getByPlaceholderText('project.management.form.fields.name.placeholder'),
-      'Updated',
-    );
+    await user.clear(await screen.findByPlaceholderText('project.management.form.fields.name.placeholder'));
+    await user.type(screen.getByPlaceholderText('project.management.form.fields.name.placeholder'), 'Updated');
     await user.click(
       screen.getByRole('button', {
         name: 'project.management.form.edit.submit',

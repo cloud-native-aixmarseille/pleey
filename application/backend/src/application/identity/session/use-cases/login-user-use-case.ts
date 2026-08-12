@@ -51,11 +51,7 @@ export class LoginUserUseCase {
     const tokenPair = this.authTokenService.createTokenPair(payload);
 
     const hashedRefreshToken = await this.passwordService.hash(tokenPair.refreshToken);
-    await this.userRepository.updateRefreshToken(
-      user.id,
-      hashedRefreshToken,
-      tokenPair.refreshTokenExpiresAt,
-    );
+    await this.userRepository.updateRefreshToken(user.id, hashedRefreshToken, tokenPair.refreshTokenExpiresAt);
 
     return this.authTokenService.mapTokensToResponse(tokenPair, user.toProfileSnapshot());
   }

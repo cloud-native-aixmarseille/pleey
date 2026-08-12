@@ -81,9 +81,7 @@ describe('ProjectRemovalDialog', () => {
     await user.keyboard('{Enter}');
     await user.click(screen.getByRole('button', { name: 'Remove project' }));
 
-    expect(onMigrationProjectChange).toHaveBeenCalledWith(
-      projectIdentifier.parse(coerceUuidV7TestValue(21)),
-    );
+    expect(onMigrationProjectChange).toHaveBeenCalledWith(projectIdentifier.parse(coerceUuidV7TestValue(21)));
     expect(onConfirm).toHaveBeenCalledTimes(1);
   });
 

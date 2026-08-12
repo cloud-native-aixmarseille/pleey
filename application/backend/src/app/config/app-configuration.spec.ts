@@ -101,4 +101,14 @@ describe('AppConfiguration', () => {
 
     expect(configuration.getApplicationVersion()).toBe('1.2.3');
   });
+
+  it('defaults the server port to 3001 when PORT is not provided', () => {
+    const configuration = new AppConfiguration(
+      new AppEnvironment({
+        ...REQUIRED_RUNTIME_ENVIRONMENT,
+      } as NodeJS.ProcessEnv),
+    );
+
+    expect(configuration.getServerConfig().port).toBe(3001);
+  });
 });

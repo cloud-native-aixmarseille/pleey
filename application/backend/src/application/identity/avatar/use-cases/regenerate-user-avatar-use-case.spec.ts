@@ -14,9 +14,7 @@ describe('RegenerateUserAvatarUseCase', () => {
 
     const useCase = new RegenerateUserAvatarUseCase(userRepository, userAvatarService as never);
 
-    await expect(useCase.execute(backendTestIdentifiers.user(1))).rejects.toThrow(
-      IdentityErrorCode.USER_NOT_FOUND,
-    );
+    await expect(useCase.execute(backendTestIdentifiers.user(1))).rejects.toThrow(IdentityErrorCode.USER_NOT_FOUND);
   });
 
   it('updates avatar svg and returns public profile', async () => {

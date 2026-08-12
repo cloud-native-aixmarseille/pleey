@@ -1,8 +1,5 @@
 import { inject, injectable } from 'inversify';
-import {
-  type TranslationPort,
-  TranslationPortToken,
-} from '../../../../shared/contracts/translation.port';
+import { type TranslationPort, TranslationPortToken } from '../../../../shared/contracts/translation.port';
 import type {
   PlayableContentImportExampleFile,
   PlayableContentImportExampleFormat,
@@ -33,9 +30,7 @@ export class QuizQuestionImportExampleFactory {
             {
               questions: [
                 {
-                  questionText: this.translationPort.t(
-                    'dashboard.games.import.examples.quiz.questionSky',
-                  ),
+                  questionText: this.translationPort.t('dashboard.games.import.examples.quiz.questionSky'),
                   type: 'multiple',
                   timeLimit: 20,
                   points: 1000,
@@ -55,9 +50,7 @@ export class QuizQuestionImportExampleFactory {
                   ],
                 },
                 {
-                  questionText: this.translationPort.t(
-                    'dashboard.games.import.examples.quiz.questionEarthRound',
-                  ),
+                  questionText: this.translationPort.t('dashboard.games.import.examples.quiz.questionEarthRound'),
                   type: 'truefalse',
                   timeLimit: 10,
                   points: 500,

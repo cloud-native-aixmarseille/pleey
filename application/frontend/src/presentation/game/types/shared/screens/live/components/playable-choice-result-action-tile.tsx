@@ -81,30 +81,18 @@ export function PlayableChoiceResultActionTile({
     <>
       {isCorrect ? <div style={buildCorrectMarkerStyle(slot)}>{t(copy.correctBadge)}</div> : null}
       <ContentStack gap="sm">
-        <div
-          style={
-            (isCompact && fillParent) || isMobileResultTile
-              ? compactCenteredHeaderStyle
-              : slotHeaderStyle
-          }
-        >
+        <div style={(isCompact && fillParent) || isMobileResultTile ? compactCenteredHeaderStyle : slotHeaderStyle}>
           <div
             aria-label={t(copy.actionSlotLabel, { letter: slot.letter })}
             style={buildSlotBadgeStyle(slot, useCompactBadge)}
           >
             {slot.letter}
           </div>
-          {useCompactBadge ? (
-            <span style={compactAnswerTextStyle}>{text}</span>
-          ) : (
-            <Heading level={3}>{text}</Heading>
-          )}
+          {useCompactBadge ? <span style={compactAnswerTextStyle}>{text}</span> : <Heading level={3}>{text}</Heading>}
         </div>
         {typeof actionCount === 'number' && typeof actionPercent === 'number' ? (
           <SplitWrapRow>
-            <SupportingText tone="soft">
-              {t(copy.voteCount, { count: String(actionCount) })}
-            </SupportingText>
+            <SupportingText tone="soft">{t(copy.voteCount, { count: String(actionCount) })}</SupportingText>
             <SupportingText tone="soft">{actionPercent}%</SupportingText>
           </SplitWrapRow>
         ) : null}

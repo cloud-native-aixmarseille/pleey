@@ -11,9 +11,7 @@ describe('GetUserAvatarUseCase', () => {
     const userRepository = createUserRepositoryMock({ findById: null });
     const useCase = new GetUserAvatarUseCase(userRepository);
 
-    await expect(useCase.execute(backendTestIdentifiers.user(1))).rejects.toThrow(
-      IdentityErrorCode.USER_NOT_FOUND,
-    );
+    await expect(useCase.execute(backendTestIdentifiers.user(1))).rejects.toThrow(IdentityErrorCode.USER_NOT_FOUND);
   });
 
   it('throws AVATAR_NOT_FOUND when avatar url is missing', async () => {
@@ -21,9 +19,7 @@ describe('GetUserAvatarUseCase', () => {
     const userRepository = createUserRepositoryMock({ findById: user });
     const useCase = new GetUserAvatarUseCase(userRepository);
 
-    await expect(useCase.execute(backendTestIdentifiers.user(1))).rejects.toThrow(
-      IdentityErrorCode.AVATAR_NOT_FOUND,
-    );
+    await expect(useCase.execute(backendTestIdentifiers.user(1))).rejects.toThrow(IdentityErrorCode.AVATAR_NOT_FOUND);
   });
 
   it('returns stored svg buffer when avatar is available', async () => {

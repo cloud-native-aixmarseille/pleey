@@ -5,6 +5,4 @@ export interface PartyGameTypeRuntimeViewContributor extends PartyGameTypeRuntim
   readonly gameType: GameType;
 }
 
-export const PartyGameTypeRuntimeViewContributorToken = Symbol(
-  'PartyGameTypeRuntimeViewContributor',
-);
+export const PartyGameTypeRuntimeViewContributorToken = Symbol('PartyGameTypeRuntimeViewContributor');

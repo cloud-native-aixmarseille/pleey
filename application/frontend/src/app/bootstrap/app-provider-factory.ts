@@ -6,8 +6,7 @@ export interface AppProviderFactory {
   wrap(children: ReactNode): ReactNode;
 }
 
-export const AppProviderFactoryToken: ServiceIdentifier<AppProviderFactory> =
-  Symbol('AppProviderFactory');
+export const AppProviderFactoryToken: ServiceIdentifier<AppProviderFactory> = Symbol('AppProviderFactory');
 
 export abstract class BaseAppProviderFactory implements AppProviderFactory {
   abstract readonly order: number;
@@ -37,10 +36,7 @@ export function createAppProviderFactories(container: Container): readonly AppPr
   );
 }
 
-export function composeAppProviders(
-  children: ReactNode,
-  providerFactories: readonly AppProviderFactory[],
-): ReactNode {
+export function composeAppProviders(children: ReactNode, providerFactories: readonly AppProviderFactory[]): ReactNode {
   return providerFactories.reduceRight((currentChildren, providerFactory) => {
     return providerFactory.wrap(currentChildren);
   }, children);

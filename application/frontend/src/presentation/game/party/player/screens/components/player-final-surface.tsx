@@ -34,9 +34,7 @@ export function PlayerFinalSurface({ onLeaveParty, party }: PlayerFinalSurfacePr
             <InsetPanel padding={isMobile ? 'md' : 'lg'} tone="accent">
               <ContentStack gap={isMobile ? 'sm' : 'md'}>
                 <SplitWrapRow align="center" gap="sm">
-                  <SupportingText tone="soft">
-                    {t('game.party.player.route.finalResultTitle')}
-                  </SupportingText>
+                  <SupportingText tone="soft">{t('game.party.player.route.finalResultTitle')}</SupportingText>
 
                   <WrapRow gap="xs">
                     <Badge tone="success">{t('game.party.route.youBadge')}</Badge>
@@ -66,20 +64,14 @@ export function PlayerFinalSurface({ onLeaveParty, party }: PlayerFinalSurfacePr
           </section>
         ) : null}
 
-        <PartyFinalSummaryPanel
-          players={party.players}
-          totalStages={party.context?.lifecycle.totalStages ?? 0}
-        />
+        <PartyFinalSummaryPanel players={party.players} totalStages={party.context?.lifecycle.totalStages ?? 0} />
 
         {shouldPromptGuestSignIn ? (
           <InsetPanel padding={isMobile ? 'md' : 'lg'} tone="accent">
             <ContentStack gap="sm">
               <Heading level={3}>{t('game.party.player.route.saveScorePromptTitle')}</Heading>
               <SupportingText>{t('game.party.player.route.saveScorePromptMessage')}</SupportingText>
-              <PrimaryActionLink
-                leftSection={<AppIcon aria-hidden name="sign-in" size={16} />}
-                to="/identity/sign-in"
-              >
+              <PrimaryActionLink leftSection={<AppIcon aria-hidden name="sign-in" size={16} />} to="/identity/sign-in">
                 {t('game.party.player.route.saveScorePromptCta')}
               </PrimaryActionLink>
             </ContentStack>

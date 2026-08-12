@@ -65,9 +65,7 @@ describe('QuizImportQuestionMapper', () => {
     } as unknown as PlayableContentImportParser;
     const mapper = new QuizImportQuestionMapper(parser, new SelectableOptionPolicy());
 
-    await expect(
-      mapper.map(new TestPlayableContentImportSource('quiz-import.json')),
-    ).rejects.toMatchObject({
+    await expect(mapper.map(new TestPlayableContentImportSource('quiz-import.json'))).rejects.toMatchObject({
       code: QuizErrorCode.QUIZ_IMPORT_INVALID_FILE,
       context: {
         fileName: 'quiz-import.json',

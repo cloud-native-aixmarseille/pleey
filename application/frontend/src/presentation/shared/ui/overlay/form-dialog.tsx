@@ -20,16 +20,7 @@ const accentStripStyle = {
   height: 2,
 } as const;
 
-export function FormDialog({
-  banner,
-  children,
-  eyebrow,
-  footer,
-  isOpen,
-  onClose,
-  onSubmit,
-  title,
-}: FormDialogProps) {
+export function FormDialog({ banner, children, eyebrow, footer, isOpen, onClose, onSubmit, title }: FormDialogProps) {
   return (
     <Modal
       centered

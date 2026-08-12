@@ -19,11 +19,7 @@ export function ManualMenuWrapper({ children, wrapperRef }: ManualMenuWrapperPro
   );
 }
 
-export function ManualMenuPanel({
-  children,
-  minWidth = '13rem',
-  role = 'menu',
-}: ManualMenuPanelProps) {
+export function ManualMenuPanel({ children, minWidth = '13rem', role = 'menu' }: ManualMenuPanelProps) {
   return (
     <Paper
       bg="var(--ui-color-surface-canvas)"

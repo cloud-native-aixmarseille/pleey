@@ -32,12 +32,7 @@ describe('PrismaProjectRepository', () => {
       new PaginationQueryNormalizer(),
     );
 
-    const page = await repository.findPageByOrganization(
-      backendTestIdentifiers.organization(7),
-      1,
-      25,
-      '  launch  ',
-    );
+    const page = await repository.findPageByOrganization(backendTestIdentifiers.organization(7), 1, 25, '  launch  ');
 
     expect(count).toHaveBeenNthCalledWith(1, {
       where: {

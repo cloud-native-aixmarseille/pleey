@@ -19,9 +19,7 @@ export class AuthPayloadInspector {
     const candidate = value as Partial<User>;
 
     return (
-      typeof candidate.id === 'string' &&
-      typeof candidate.username === 'string' &&
-      typeof candidate.email === 'string'
+      typeof candidate.id === 'string' && typeof candidate.username === 'string' && typeof candidate.email === 'string'
     );
   }
 

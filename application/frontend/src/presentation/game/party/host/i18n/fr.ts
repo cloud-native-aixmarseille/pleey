@@ -59,8 +59,7 @@ export const gamePartyHostFr = {
             },
             suspense: {
               name: 'Suspense',
-              description:
-                'Des pulsations montantes pour créer une attente dramatique avant la partie.',
+              description: 'Des pulsations montantes pour créer une attente dramatique avant la partie.',
             },
             retro: {
               name: 'Rétro',

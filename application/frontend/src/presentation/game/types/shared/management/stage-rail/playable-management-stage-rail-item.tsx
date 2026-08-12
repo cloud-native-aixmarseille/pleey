@@ -15,11 +15,7 @@ import { type PlayableManagementDropPreview } from '../playable-management-drag-
 import { PlayableManagementIconActionButton } from '../playable-management-icon-action-button';
 import { createPlayableManagementReorderBindings } from '../playable-management-reorder-bindings';
 import { isStageReady, resolveStageTitle } from './stage-rail-helpers';
-import {
-  createItemCardStyle,
-  itemButtonContentStyle,
-  itemSelectButtonStyle,
-} from './stage-rail-styles';
+import { createItemCardStyle, itemButtonContentStyle, itemSelectButtonStyle } from './stage-rail-styles';
 
 type StageRailIconName = ComponentProps<typeof AppIcon>['name'];
 
@@ -91,22 +87,14 @@ export function PlayableManagementStageRailItem({
       onDrop={reorderBindings.onDrop}
     >
       {dropPreview?.slot === index ? <ReorderDropIndicator /> : null}
-      <div
-        style={createItemCardStyle(
-          selected,
-          reorderBindings.isDragging,
-          reorderBindings.isDropTarget,
-        )}
-      >
+      <div style={createItemCardStyle(selected, reorderBindings.isDragging, reorderBindings.isDropTarget)}>
         <InteractiveSurfaceButton
           aria-current={selected ? 'true' : undefined}
           onClick={() => onSelectItem(item)}
           surfaceStyle={itemSelectButtonStyle}
         >
           <div style={itemButtonContentStyle}>
-            <SummaryText>
-              {resolveStageTitle(item, t(`${translationRoot}.itemUntitled`))}
-            </SummaryText>
+            <SummaryText>{resolveStageTitle(item, t(`${translationRoot}.itemUntitled`))}</SummaryText>
             <WrapRow gap="sm">
               <Badge tone={ready ? 'success' : 'warning'}>
                 {ready ? t(`${translationRoot}.ready`) : t(`${translationRoot}.incomplete`)}
@@ -126,9 +114,7 @@ export function PlayableManagementStageRailItem({
             active={hoveredHandleIndex === index}
             dragging={reorderBindings.isDragging}
             onMouseEnter={() => setHoveredHandleIndex(index)}
-            onMouseLeave={() =>
-              setHoveredHandleIndex((current) => (current === index ? null : current))
-            }
+            onMouseLeave={() => setHoveredHandleIndex((current) => (current === index ? null : current))}
           />
           <ActionRow justify="end">
             <PlayableManagementIconActionButton

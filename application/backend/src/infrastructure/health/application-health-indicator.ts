@@ -1,9 +1,5 @@
 import { type BeforeApplicationShutdown, Injectable } from '@nestjs/common';
-import {
-  HealthCheckError,
-  type HealthIndicatorResult,
-  HealthIndicatorService,
-} from '@nestjs/terminus';
+import { HealthCheckError, type HealthIndicatorResult, HealthIndicatorService } from '@nestjs/terminus';
 
 @Injectable()
 export class ApplicationHealthIndicator implements BeforeApplicationShutdown {
@@ -23,10 +19,7 @@ export class ApplicationHealthIndicator implements BeforeApplicationShutdown {
     const indicator = this.healthIndicatorService.check(key);
 
     if (this.isShuttingDown) {
-      throw new HealthCheckError(
-        'Application is shutting down',
-        indicator.down({ reason: 'shutting_down' }),
-      );
+      throw new HealthCheckError('Application is shutting down', indicator.down({ reason: 'shutting_down' }));
     }
 
     return indicator.up();

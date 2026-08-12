@@ -23,12 +23,9 @@ import { PartyLobbyRuntimeRedirectResolver } from '../screens/party-lobby-runtim
 import { PartyProvider, useParty } from './party-context';
 import { type PartyDependencies, providePartyDependencies } from './party-dependencies-context';
 
-const partyIdentifier: PartyDependencies['partyIdentifier'] =
-  new PartyIdentifierMockFactory().create();
-const partyPinIdentifier: PartyDependencies['partyPinIdentifier'] =
-  new PartyPinIdentifierMockFactory().create();
-const stageIdentifier: PartyDependencies['stageIdentifier'] =
-  new StageIdentifierMockFactory().create();
+const partyIdentifier: PartyDependencies['partyIdentifier'] = new PartyIdentifierMockFactory().create();
+const partyPinIdentifier: PartyDependencies['partyPinIdentifier'] = new PartyPinIdentifierMockFactory().create();
+const stageIdentifier: PartyDependencies['stageIdentifier'] = new StageIdentifierMockFactory().create();
 const partyFixtureFactory = new PartyFixtureFactory();
 const guestUsernameGenerator: GuestUsernameGeneratorPort = {
   generateGuestUsername: () => 'Bright Otter 0001',
@@ -102,9 +99,7 @@ describe('PartyProvider', () => {
     };
     const wrapper = ({ children }: PropsWithChildren) =>
       providePartyDependencies(
-        <PartyProvider port={{ observeParty } satisfies PartyObservationPort}>
-          {children}
-        </PartyProvider>,
+        <PartyProvider port={{ observeParty } satisfies PartyObservationPort}>{children}</PartyProvider>,
         {
           guestPartyEntryDraftFactory,
           hostPartyRuntimeControlsResolver,
@@ -158,9 +153,7 @@ describe('PartyProvider', () => {
     expect(rendered.result.current.first.currentParty?.partyId).toBe(observedPartyId);
     expect(rendered.result.current.second.currentParty?.partyId).toBe(observedPartyId);
     expect(rendered.result.current.first.getPartyByPartyId(observedPartyId)?.status).toBe('ACTIVE');
-    expect(rendered.result.current.second.getPartyByPartyId(observedPartyId)?.status).toBe(
-      'ACTIVE',
-    );
+    expect(rendered.result.current.second.getPartyByPartyId(observedPartyId)?.status).toBe('ACTIVE');
 
     act(() => {
       releaseFirst();
@@ -181,9 +174,7 @@ describe('PartyProvider', () => {
     };
     const wrapper = ({ children }: PropsWithChildren) =>
       providePartyDependencies(
-        <PartyProvider port={{ observeParty } satisfies PartyObservationPort}>
-          {children}
-        </PartyProvider>,
+        <PartyProvider port={{ observeParty } satisfies PartyObservationPort}>{children}</PartyProvider>,
         {
           guestPartyEntryDraftFactory,
           hostPartyRuntimeControlsResolver,
@@ -236,9 +227,7 @@ describe('PartyProvider', () => {
     };
     const wrapper = ({ children }: PropsWithChildren) =>
       providePartyDependencies(
-        <PartyProvider port={{ observeParty } satisfies PartyObservationPort}>
-          {children}
-        </PartyProvider>,
+        <PartyProvider port={{ observeParty } satisfies PartyObservationPort}>{children}</PartyProvider>,
         {
           guestPartyEntryDraftFactory,
           hostPartyRuntimeControlsResolver,
@@ -266,9 +255,7 @@ describe('PartyProvider', () => {
       observeParty.handlers?.onError?.('game.party.errors.observeFailed');
     });
 
-    expect(rendered.result.current.getErrorByPartyId(observedPartyId)).toBe(
-      'game.party.errors.observeFailed',
-    );
+    expect(rendered.result.current.getErrorByPartyId(observedPartyId)).toBe('game.party.errors.observeFailed');
   });
 
   it('exposes runtime notices by party id', () => {
@@ -280,9 +267,7 @@ describe('PartyProvider', () => {
     };
     const wrapper = ({ children }: PropsWithChildren) =>
       providePartyDependencies(
-        <PartyProvider port={{ observeParty } satisfies PartyObservationPort}>
-          {children}
-        </PartyProvider>,
+        <PartyProvider port={{ observeParty } satisfies PartyObservationPort}>{children}</PartyProvider>,
         {
           guestPartyEntryDraftFactory,
           hostPartyRuntimeControlsResolver,
@@ -328,9 +313,7 @@ describe('PartyProvider', () => {
     };
     const wrapper = ({ children }: PropsWithChildren) =>
       providePartyDependencies(
-        <PartyProvider port={{ observeParty } satisfies PartyObservationPort}>
-          {children}
-        </PartyProvider>,
+        <PartyProvider port={{ observeParty } satisfies PartyObservationPort}>{children}</PartyProvider>,
         {
           guestPartyEntryDraftFactory,
           hostPartyRuntimeControlsResolver,
@@ -363,9 +346,7 @@ describe('PartyProvider', () => {
       observeParty.handlers?.onConnected?.(connectionState);
     });
 
-    expect(rendered.result.current.getConnectionStateByPartyId(observedPartyId)).toEqual(
-      connectionState,
-    );
+    expect(rendered.result.current.getConnectionStateByPartyId(observedPartyId)).toEqual(connectionState);
   });
 
   it('consumes a runtime notice after it has been handled', () => {
@@ -377,9 +358,7 @@ describe('PartyProvider', () => {
     };
     const wrapper = ({ children }: PropsWithChildren) =>
       providePartyDependencies(
-        <PartyProvider port={{ observeParty } satisfies PartyObservationPort}>
-          {children}
-        </PartyProvider>,
+        <PartyProvider port={{ observeParty } satisfies PartyObservationPort}>{children}</PartyProvider>,
         {
           guestPartyEntryDraftFactory,
           hostPartyRuntimeControlsResolver,

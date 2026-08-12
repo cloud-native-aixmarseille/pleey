@@ -5,8 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 function ensureModuleTestEnvironment() {
   process.env.JWT_SECRET = process.env.JWT_SECRET ?? 'test_jwt_secret_only_for_tests';
-  process.env.DATABASE_URL =
-    process.env.DATABASE_URL ?? 'postgresql://postgres:postgres@localhost:5432/pleey_test';
+  process.env.DATABASE_URL = process.env.DATABASE_URL ?? 'postgresql://postgres:postgres@localhost:5432/pleey_test';
 }
 
 type ModuleCase = {

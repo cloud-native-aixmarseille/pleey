@@ -4,9 +4,7 @@ import { PrismaService } from '../../../database/prisma-service';
 import type { GameTypePartyStageConfigurationProvider } from '../shared/game-type-party-stage-configuration-provider-registry';
 
 @Injectable()
-export class QuizPartyStageConfigurationResolver
-  implements GameTypePartyStageConfigurationProvider
-{
+export class QuizPartyStageConfigurationResolver implements GameTypePartyStageConfigurationProvider {
   constructor(private readonly prisma: PrismaService) {}
 
   async getStageCount(gameId: GameId): Promise<number> {

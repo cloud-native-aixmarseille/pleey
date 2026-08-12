@@ -4,10 +4,7 @@ import { OrganizationIdentifier } from '../../application/workspace/shared/servi
 import { OrganizationMemberIdentifier } from '../../application/workspace/shared/services/identifiers/organization-member-identifier';
 import type { UserId } from '../../domains/identity/entities/user';
 import type { OrganizationId } from '../../domains/organization/entities/organization';
-import {
-  type Organization,
-  OrganizationRole,
-} from '../../domains/organization/entities/organization';
+import { type Organization, OrganizationRole } from '../../domains/organization/entities/organization';
 import type { OrganizationDashboard } from '../../domains/organization/entities/organization-dashboard';
 import type { OrganizationMember } from '../../domains/organization/entities/organization-member';
 import {
@@ -66,9 +63,7 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
     private readonly userIdentifier: UserIdentifier,
   ) {}
 
-  async getMyOrganizations(
-    query: ListOrganizationsQuery = {},
-  ): Promise<PaginatedResult<Organization>> {
+  async getMyOrganizations(query: ListOrganizationsQuery = {}): Promise<PaginatedResult<Organization>> {
     try {
       const result = await this.graphqlClient.request<
         WorkspaceOrganizationsQuery,
@@ -133,15 +128,15 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
 
   async createOrganization(command: CreateOrganizationCommand): Promise<Organization> {
     try {
-      const result = await this.graphqlClient.request<
-        CreateOrganizationMutation,
-        CreateOrganizationMutationVariables
-      >(CreateOrganizationDocument, {
-        input: {
-          name: command.name,
-          description: command.description,
+      const result = await this.graphqlClient.request<CreateOrganizationMutation, CreateOrganizationMutationVariables>(
+        CreateOrganizationDocument,
+        {
+          input: {
+            name: command.name,
+            description: command.description,
+          },
         },
-      });
+      );
 
       return {
         id: this.organizationIdentifier.parse(result.createOrganization.id),
@@ -159,21 +154,19 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
     }
   }
 
-  async getOrganizationMembers(
-    query: ListOrganizationMembersQuery,
-  ): Promise<PaginatedResult<OrganizationMember>> {
+  async getOrganizationMembers(query: ListOrganizationMembersQuery): Promise<PaginatedResult<OrganizationMember>> {
     try {
-      const result = await this.graphqlClient.request<
-        OrganizationMembersQuery,
-        OrganizationMembersQueryVariables
-      >(OrganizationMembersDocument, {
-        input: {
-          organizationId: query.organizationId,
-          page: query.page ?? DEFAULT_LIST_PAGE,
-          pageSize: query.pageSize ?? DEFAULT_LIST_PAGE_SIZE,
-          search: query.search,
+      const result = await this.graphqlClient.request<OrganizationMembersQuery, OrganizationMembersQueryVariables>(
+        OrganizationMembersDocument,
+        {
+          input: {
+            organizationId: query.organizationId,
+            page: query.page ?? DEFAULT_LIST_PAGE,
+            pageSize: query.pageSize ?? DEFAULT_LIST_PAGE_SIZE,
+            search: query.search,
+          },
         },
-      });
+      );
 
       return {
         items: result.organizationMembers.items.map((member) => this.toDomainMember(member)),
@@ -215,10 +208,10 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
 
   async removeOrganizationMember(command: RemoveOrganizationMemberCommand): Promise<void> {
     try {
-      await this.graphqlClient.request<
-        RemoveOrganizationMemberMutation,
-        RemoveOrganizationMemberMutationVariables
-      >(RemoveOrganizationMemberDocument, { memberId: command.memberId });
+      await this.graphqlClient.request<RemoveOrganizationMemberMutation, RemoveOrganizationMemberMutationVariables>(
+        RemoveOrganizationMemberDocument,
+        { memberId: command.memberId },
+      );
     } catch (error) {
       throw this.graphqlClient.resolveDomainError(
         error,
@@ -227,9 +220,7 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
     }
   }
 
-  async updateOrganizationMemberRole(
-    command: UpdateOrganizationMemberRoleCommand,
-  ): Promise<OrganizationMember> {
+  async updateOrganizationMemberRole(command: UpdateOrganizationMemberRoleCommand): Promise<OrganizationMember> {
     try {
       const result = await this.graphqlClient.request<
         UpdateOrganizationMemberRoleMutation,

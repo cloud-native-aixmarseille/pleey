@@ -1,9 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { QuizQuestionId } from '../../../../../domain/game/types/quiz/entities/quiz-question';
-import {
-  QuestionNotFoundError,
-  QuizNotFoundError,
-} from '../../../../../domain/game/types/quiz/errors';
+import { QuestionNotFoundError, QuizNotFoundError } from '../../../../../domain/game/types/quiz/errors';
 import type { QuizManagementRepository } from '../../../../../domain/game/types/quiz/ports/quiz-management.repository';
 import { QuizManagementRepositoryProvider } from '../../../../../domain/game/types/quiz/ports/quiz-management.repository';
 import type { QuizQuestionRepository } from '../../../../../domain/game/types/quiz/ports/quiz-question.repository';

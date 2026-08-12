@@ -16,14 +16,11 @@ type AuthPayload = {
   user?: unknown;
 };
 
-const resolveApiBaseUrl = () =>
-  process.env.API_BASE_URL ?? "http://backend:3001/api";
+const resolveApiBaseUrl = () => process.env.API_BASE_URL ?? "http://backend:3001/api";
 
 const resolveGraphqlUrl = () => {
   const apiBaseUrl = resolveApiBaseUrl().replace(/\/+$/, "");
-  return apiBaseUrl.endsWith("/graphql")
-    ? apiBaseUrl
-    : `${apiBaseUrl.replace(/\/api$/, "")}/graphql`;
+  return apiBaseUrl.endsWith("/graphql") ? apiBaseUrl : `${apiBaseUrl.replace(/\/api$/, "")}/graphql`;
 };
 
 export async function loginViaApi(
@@ -63,9 +60,7 @@ export async function loginViaApi(
 
   if (!response.ok) {
     const responseBody = await response.text();
-    throw new Error(
-      `Failed to login via API: ${response.status} ${response.statusText} ${responseBody}`,
-    );
+    throw new Error(`Failed to login via API: ${response.status} ${response.statusText} ${responseBody}`);
   }
 
   const graphqlPayload = (await response.json()) as {

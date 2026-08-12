@@ -161,10 +161,7 @@ export function buildTileStyle(
   };
 }
 
-export function buildSlotBadgeStyle(
-  slot: PlayableChoiceActionSlotIdentity,
-  isCompact: boolean,
-): CSSProperties {
+export function buildSlotBadgeStyle(slot: PlayableChoiceActionSlotIdentity, isCompact: boolean): CSSProperties {
   return {
     ...(isCompact ? compactSlotBadgeBaseStyle : slotBadgeBaseStyle),
     background: slot.badgeBackground,

@@ -31,9 +31,7 @@ export class RemoveMemberFromOrganizationUseCase {
     this.organizationMembershipAccess.assertCanManageMember(requestingMember, memberToRemove);
 
     if (memberToRemove.isOwner()) {
-      await this.organizationMembershipAccess.assertOwnerCountCanShrink(
-        memberToRemove.organizationId,
-      );
+      await this.organizationMembershipAccess.assertOwnerCountCanShrink(memberToRemove.organizationId);
     }
 
     await this.memberRepository.delete(memberId);

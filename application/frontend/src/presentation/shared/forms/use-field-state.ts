@@ -10,9 +10,7 @@ interface FieldState<TValue> {
 export function useFieldState<TValue = string>(): FieldState<TValue> {
   const field = useFieldContext<TValue>();
   const fieldId = String(field.name).replace(/\./g, '-');
-  const error = field.state.meta.isTouched
-    ? (field.state.meta.errors.map(readFieldError).find(Boolean) ?? null)
-    : null;
+  const error = field.state.meta.isTouched ? (field.state.meta.errors.map(readFieldError).find(Boolean) ?? null) : null;
 
   return { field, fieldId, error };
 }

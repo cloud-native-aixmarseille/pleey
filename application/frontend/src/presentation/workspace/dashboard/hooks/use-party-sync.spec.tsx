@@ -51,15 +51,9 @@ describe('usePartySync', () => {
     );
 
     expect(mocks.observePartyById).toHaveBeenCalledTimes(1);
-    expect(mocks.observePartyById).toHaveBeenCalledWith(
-      partyFixtureFactory.createParty({ partyId: 3 }).partyId,
-    );
-    expect(mocks.observePartyById).not.toHaveBeenCalledWith(
-      partyFixtureFactory.createParty({ partyId: 1 }).partyId,
-    );
-    expect(mocks.observePartyById).not.toHaveBeenCalledWith(
-      partyFixtureFactory.createParty({ partyId: 2 }).partyId,
-    );
+    expect(mocks.observePartyById).toHaveBeenCalledWith(partyFixtureFactory.createParty({ partyId: 3 }).partyId);
+    expect(mocks.observePartyById).not.toHaveBeenCalledWith(partyFixtureFactory.createParty({ partyId: 1 }).partyId);
+    expect(mocks.observePartyById).not.toHaveBeenCalledWith(partyFixtureFactory.createParty({ partyId: 2 }).partyId);
   });
 
   it('projects observations only for the current party', () => {

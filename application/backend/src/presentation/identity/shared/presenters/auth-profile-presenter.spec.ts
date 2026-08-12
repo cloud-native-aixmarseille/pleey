@@ -53,9 +53,7 @@ describe('AuthProfilePresenter', () => {
 
     const result = presenter.presentUserProfile(profile);
 
-    expect(result.avatarUri).toBe(
-      `/api/avatars/users/${backendTestIdentifiers.user(7)}?v=${TEST_AVATAR_VERSION}`,
-    );
+    expect(result.avatarUri).toBe(`/api/avatars/users/${backendTestIdentifiers.user(7)}?v=${TEST_AVATAR_VERSION}`);
   });
 
   it('applies the same transformation to auth responses', () => {
@@ -89,8 +87,7 @@ describe('AuthProfilePresenter', () => {
 const TEST_AVATAR_VERSION = '42-1743465600000';
 
 function readHostHeader(host: string): Request['get'] {
-  return ((name: string) =>
-    name.toLowerCase() === 'set-cookie' ? undefined : host) as Request['get'];
+  return ((name: string) => (name.toLowerCase() === 'set-cookie' ? undefined : host)) as Request['get'];
 }
 
 function createProfile(overrides: Partial<UserProfileSnapshot> = {}): UserProfileSnapshot {

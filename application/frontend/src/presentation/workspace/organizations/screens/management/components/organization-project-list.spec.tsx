@@ -58,10 +58,9 @@ describe('OrganizationProjectList', () => {
     ).toBeInTheDocument();
 
     await user.click(
-      within(screen.getByText('Flagship Project').closest('article') as HTMLElement).getByRole(
-        'button',
-        { name: 'project.management.list.editButton' },
-      ),
+      within(screen.getByText('Flagship Project').closest('article') as HTMLElement).getByRole('button', {
+        name: 'project.management.list.editButton',
+      }),
     );
     await user.click(
       within(selectedArticle as HTMLElement).getByRole('button', {
@@ -86,9 +85,7 @@ describe('OrganizationProjectList', () => {
       />,
     );
 
-    expect(
-      screen.getByRole('button', { name: 'project.management.list.removeButton' }),
-    ).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'project.management.list.removeButton' })).toBeDisabled();
   });
 
   it('shows the empty state when there are no projects', () => {

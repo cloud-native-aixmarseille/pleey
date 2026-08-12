@@ -26,10 +26,7 @@ export class AvatarController {
   }
 
   @Get('guests/:guestId')
-  async getGuestAvatar(
-    @Param('guestId') encodedGuestId: string,
-    @Res() res: Response,
-  ): Promise<void> {
+  async getGuestAvatar(@Param('guestId') encodedGuestId: string, @Res() res: Response): Promise<void> {
     const avatar = await this.getGuestAvatarUseCase.execute(encodedGuestId);
 
     res.setHeader('Content-Type', avatar.mimeType);
@@ -38,10 +35,7 @@ export class AvatarController {
   }
 
   @Get('guests/preview/:avatarSeed')
-  getGuestAvatarPreview(
-    @Param('avatarSeed') encodedAvatarSeed: string,
-    @Res() res: Response,
-  ): void {
+  getGuestAvatarPreview(@Param('avatarSeed') encodedAvatarSeed: string, @Res() res: Response): void {
     const avatar = this.getGuestAvatarPreviewUseCase.execute(encodedAvatarSeed);
 
     res.setHeader('Content-Type', avatar.mimeType);

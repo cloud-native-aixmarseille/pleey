@@ -109,10 +109,8 @@ export function usePlayableContentManagement({
       normalizedDescription === lastDescriptionRef.current &&
       (allowOptionChangeAfterVoting ?? state.game.allowOptionChangeAfterVoting ?? false) ===
         (state.game.allowOptionChangeAfterVoting ?? false) &&
-      (randomizeStageOrder ?? state.game.randomizeStageOrder ?? false) ===
-        (state.game.randomizeStageOrder ?? false) &&
-      (randomizeOptionOrder ?? state.game.randomizeOptionOrder ?? false) ===
-        (state.game.randomizeOptionOrder ?? false)
+      (randomizeStageOrder ?? state.game.randomizeStageOrder ?? false) === (state.game.randomizeStageOrder ?? false) &&
+      (randomizeOptionOrder ?? state.game.randomizeOptionOrder ?? false) === (state.game.randomizeOptionOrder ?? false)
     ) {
       return;
     }
@@ -186,9 +184,7 @@ export function usePlayableContentManagement({
       await gateway.deleteGame(gameTypeId);
       navigate('/workspace/dashboard');
     } catch (deleteError) {
-      setError(
-        deleteError instanceof Error ? deleteError.message : t(`${translationRoot}.deleteError`),
-      );
+      setError(deleteError instanceof Error ? deleteError.message : t(`${translationRoot}.deleteError`));
       setIsSaving(false);
     }
   };
@@ -199,9 +195,7 @@ export function usePlayableContentManagement({
     }
     setPendingConfirm({ kind: 'deleteGame', title: state.game.title });
     void confirmDialog
-      .requestConfirmation(
-        t(`${translationRoot}.deleteGameConfirmMessage`, { title: state.game.title }),
-      )
+      .requestConfirmation(t(`${translationRoot}.deleteGameConfirmMessage`, { title: state.game.title }))
       .then(async (confirmed) => {
         setPendingConfirm(null);
         if (confirmed) {
@@ -314,9 +308,7 @@ export function usePlayableContentManagement({
         }
       }
     } catch (deleteError) {
-      setError(
-        deleteError instanceof Error ? deleteError.message : t(`${translationRoot}.deleteError`),
-      );
+      setError(deleteError instanceof Error ? deleteError.message : t(`${translationRoot}.deleteError`));
     } finally {
       setIsSaving(false);
     }
@@ -380,9 +372,7 @@ export function usePlayableContentManagement({
       pulseSaved();
     } catch (reorderError) {
       setState(previous);
-      setError(
-        reorderError instanceof Error ? reorderError.message : t(`${translationRoot}.saveError`),
-      );
+      setError(reorderError instanceof Error ? reorderError.message : t(`${translationRoot}.saveError`));
     } finally {
       setIsSaving(false);
     }

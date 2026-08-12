@@ -78,9 +78,7 @@ export function GuestPreferencesMenu({ appVersion = '' }: GuestPreferencesMenuPr
           {normalizedAppVersion.length > 0 ? (
             <>
               <AccountMenuDivider />
-              <AccountMenuMetaText>
-                {t('shared.shell.version', { version: normalizedAppVersion })}
-              </AccountMenuMetaText>
+              <AccountMenuMetaText>{t('shared.shell.version', { version: normalizedAppVersion })}</AccountMenuMetaText>
             </>
           ) : null}
         </AccountMenuDropdown>

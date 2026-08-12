@@ -86,39 +86,14 @@ const flameSparks: readonly JetpackParticleProps[] = [
   },
 ];
 
-function JetpackParticle({
-  animate,
-  cx,
-  cy,
-  fill,
-  initial,
-  kind,
-  rx,
-  transition,
-}: JetpackParticleProps) {
+function JetpackParticle({ animate, cx, cy, fill, initial, kind, rx, transition }: JetpackParticleProps) {
   if (kind === 'ellipse') {
     return (
-      <motion.ellipse
-        animate={animate}
-        cx={cx}
-        cy={cy}
-        fill={fill}
-        initial={initial}
-        rx={rx}
-        transition={transition}
-      />
+      <motion.ellipse animate={animate} cx={cx} cy={cy} fill={fill} initial={initial} rx={rx} transition={transition} />
     );
   }
 
-  return (
-    <motion.circle
-      animate={animate}
-      cx={cx}
-      fill={fill}
-      initial={initial}
-      transition={transition}
-    />
-  );
+  return <motion.circle animate={animate} cx={cx} fill={fill} initial={initial} transition={transition} />;
 }
 
 export const jetpackIdleConfig: IdleVariantConfig = {
@@ -141,10 +116,7 @@ export function LemmingJetpack() {
       ))}
       {/* Primary flame – ignites small then grows to full thrust */}
       {flamePlumes.map((particle) => (
-        <JetpackParticle
-          {...particle}
-          key={`${particle.kind}-${particle.cx}-${particle.cy}-${particle.fill}`}
-        />
+        <JetpackParticle {...particle} key={`${particle.kind}-${particle.cx}-${particle.cy}-${particle.fill}`} />
       ))}
       {/* Inner flame core */}
       {/* Flame sparks */}

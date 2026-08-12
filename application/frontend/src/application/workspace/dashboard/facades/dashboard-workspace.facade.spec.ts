@@ -31,9 +31,7 @@ describe('DashboardWorkspaceFacade', () => {
 
   it('delegates project game loading to the use case', async () => {
     const listProjectGamesUseCase = {
-      execute: vi
-        .fn()
-        .mockResolvedValue(dashboardHomeScreenFixtureFactory.createDashboardGamesPage()),
+      execute: vi.fn().mockResolvedValue(dashboardHomeScreenFixtureFactory.createDashboardGamesPage()),
     };
     const facade = new DashboardWorkspaceFacade(
       listProjectGamesUseCase as never,
@@ -138,9 +136,7 @@ describe('DashboardWorkspaceFacade', () => {
       organizationsPage: createPaginatedResult([organization]),
       organizationId: organizationIdentifier.parse(7),
     });
-    expect(workspaceSelection.setOrganizationId).toHaveBeenCalledWith(
-      organizationIdentifier.parse(7),
-    );
+    expect(workspaceSelection.setOrganizationId).toHaveBeenCalledWith(organizationIdentifier.parse(7));
   });
 
   it('falls back to the first organization when the persisted one is missing', async () => {
@@ -151,9 +147,7 @@ describe('DashboardWorkspaceFacade', () => {
       id: organizationIdentifier.parse(7),
     });
     const listMyOrganizationsUseCase = {
-      execute: vi
-        .fn()
-        .mockResolvedValue(createPaginatedResult([firstOrganization, secondOrganization])),
+      execute: vi.fn().mockResolvedValue(createPaginatedResult([firstOrganization, secondOrganization])),
     };
     const workspaceSelection = workspaceSelectionPortMockFactory.create(undefined, {
       organizationId: organizationIdentifier.parse(99),
@@ -173,9 +167,7 @@ describe('DashboardWorkspaceFacade', () => {
       organizationsPage: createPaginatedResult([firstOrganization, secondOrganization]),
       organizationId: organizationIdentifier.parse(3),
     });
-    expect(workspaceSelection.setOrganizationId).toHaveBeenCalledWith(
-      organizationIdentifier.parse(3),
-    );
+    expect(workspaceSelection.setOrganizationId).toHaveBeenCalledWith(organizationIdentifier.parse(3));
   });
 
   it('restores the persisted project for the selected organization', async () => {

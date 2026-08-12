@@ -19,10 +19,7 @@ interface UseProjectGamesResult {
   readonly reload: () => void;
 }
 
-export function useProjectGames({
-  query,
-  loadGames,
-}: UseProjectGamesOptions): UseProjectGamesResult {
+export function useProjectGames({ query, loadGames }: UseProjectGamesOptions): UseProjectGamesResult {
   const feedback = usePresentationFeedbackChannel();
   const [games, setGames] = useState<DashboardGameListItem[]>([]);
   const [_reloadVersion, setReloadVersion] = useState(0);

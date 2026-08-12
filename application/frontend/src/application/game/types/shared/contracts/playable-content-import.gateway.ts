@@ -7,13 +7,12 @@ export enum PlayableContentImportExampleFormat {
   PLAINTEXT = 'plaintext',
 }
 
-export const DEFAULT_PLAYABLE_CONTENT_IMPORT_EXAMPLE_FORMATS: readonly PlayableContentImportExampleFormat[] =
-  [
-    PlayableContentImportExampleFormat.JSON,
-    PlayableContentImportExampleFormat.CSV,
-    PlayableContentImportExampleFormat.MARKDOWN,
-    PlayableContentImportExampleFormat.PLAINTEXT,
-  ];
+export const DEFAULT_PLAYABLE_CONTENT_IMPORT_EXAMPLE_FORMATS: readonly PlayableContentImportExampleFormat[] = [
+  PlayableContentImportExampleFormat.JSON,
+  PlayableContentImportExampleFormat.CSV,
+  PlayableContentImportExampleFormat.MARKDOWN,
+  PlayableContentImportExampleFormat.PLAINTEXT,
+];
 
 const playableContentImportAcceptedTypesByFormat: Readonly<
   Record<PlayableContentImportExampleFormat, readonly string[]>
@@ -39,9 +38,7 @@ export interface PlayableContentImportExampleProvider {
 export class PlayableContentImportAcceptedTypesResolver {
   resolve(formats: readonly PlayableContentImportExampleFormat[]): string {
     return Array.from(
-      new Set(
-        formats.flatMap((format) => playableContentImportAcceptedTypesByFormat[format] ?? []),
-      ),
+      new Set(formats.flatMap((format) => playableContentImportAcceptedTypesByFormat[format] ?? [])),
     ).join(',');
   }
 }

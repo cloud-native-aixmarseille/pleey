@@ -1,10 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import { Media } from '../../media/entities/media';
-import {
-  type AvatarGeneratorAdapter,
-  AvatarGeneratorAdapterProvider,
-} from '../ports/avatar-generator.adapter';
+import { type AvatarGeneratorAdapter, AvatarGeneratorAdapterProvider } from '../ports/avatar-generator.adapter';
 
 /**
  * User Avatar Service

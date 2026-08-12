@@ -4,11 +4,7 @@ import { ContentStack, ResponsiveGrid } from '../../../../../../shared/ui/layout
 import { InsetPanel } from '../../../../../../shared/ui/layout/panels';
 import { Heading } from '../../../../../../shared/ui/layout/typography';
 import { usePresentationMediaQuery } from '../../../../../../shared/ui/layout/use-presentation-media-query';
-import {
-  MotionFadeIn,
-  MotionStagger,
-  MotionStaggerItem,
-} from '../../../../../../shared/ui/motion/motion-primitives';
+import { MotionFadeIn, MotionStagger, MotionStaggerItem } from '../../../../../../shared/ui/motion/motion-primitives';
 import { PlayerPartyStatusBar } from '../../../../../party/player/screens/components/player-party-status-bar';
 import { PlayerRuntimeMobileMenu } from '../../../../../party/player/screens/components/player-runtime-mobile-menu';
 import { PartyStandingsList } from '../../../../../party/shared/screens/components/party-standings-list';
@@ -42,9 +38,7 @@ export function PlayableChoicePlayerResultSurface({
   const result = party.context?.result;
   const currentResult = result?.current;
   const currentPlayerResult = result?.currentPlayer;
-  const currentPlayerTotalScore = party.players.find(
-    (player) => player.isCurrentPlayer,
-  )?.totalScore;
+  const currentPlayerTotalScore = party.players.find((player) => player.isCurrentPlayer)?.totalScore;
   const previousScores = usePartyStageScoreboardSnapshot(party.players, stagePosition);
 
   if (!currentResult || stagePosition === null || stagePosition === undefined) {
@@ -96,8 +90,7 @@ export function PlayableChoicePlayerResultSurface({
       : heroState === 'incorrect'
         ? t(copy.resultIncorrect)
         : t(copy.resultNoAnswer);
-  const heroIconName =
-    heroState === 'correct' ? 'success' : heroState === 'incorrect' ? 'error' : 'pending';
+  const heroIconName = heroState === 'correct' ? 'success' : heroState === 'incorrect' ? 'error' : 'pending';
   const heroHint =
     heroState === 'incorrect'
       ? t(copy.resultIncorrectHint)

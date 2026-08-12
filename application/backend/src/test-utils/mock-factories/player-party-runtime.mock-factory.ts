@@ -92,28 +92,24 @@ export const createPlayerPartyRuntimeMock = (
     >,
   );
   mock.findActivePartyByUserId.mockResolvedValue(
-    (config.findActivePartyByUserId === undefined
-      ? null
-      : config.findActivePartyByUserId) as Awaited<
+    (config.findActivePartyByUserId === undefined ? null : config.findActivePartyByUserId) as Awaited<
       ReturnType<PlayerPartyRuntimeLike['findActivePartyByUserId']>
     >,
   );
   mock.findActivePartyByGuestId.mockResolvedValue(
-    (config.findActivePartyByGuestId === undefined
-      ? null
-      : config.findActivePartyByGuestId) as Awaited<
+    (config.findActivePartyByGuestId === undefined ? null : config.findActivePartyByGuestId) as Awaited<
       ReturnType<PlayerPartyRuntimeLike['findActivePartyByGuestId']>
     >,
   );
   mock.findPartyByPin.mockResolvedValue(
-    (config.findPartyByPin === undefined
-      ? DEFAULT_PARTY_JOIN_TARGET
-      : config.findPartyByPin) as Awaited<ReturnType<PlayerPartyRuntimeLike['findPartyByPin']>>,
+    (config.findPartyByPin === undefined ? DEFAULT_PARTY_JOIN_TARGET : config.findPartyByPin) as Awaited<
+      ReturnType<PlayerPartyRuntimeLike['findPartyByPin']>
+    >,
   );
   mock.findPartyPlayer.mockResolvedValue(
-    (config.findPartyPlayer === undefined
-      ? DEFAULT_PARTY_PLAYER
-      : config.findPartyPlayer) as Awaited<ReturnType<PlayerPartyRuntimeLike['findPartyPlayer']>>,
+    (config.findPartyPlayer === undefined ? DEFAULT_PARTY_PLAYER : config.findPartyPlayer) as Awaited<
+      ReturnType<PlayerPartyRuntimeLike['findPartyPlayer']>
+    >,
   );
   mock.removePlayer.mockResolvedValue(config.removePlayer ?? false);
 

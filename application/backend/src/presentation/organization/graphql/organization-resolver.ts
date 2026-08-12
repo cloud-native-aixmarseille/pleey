@@ -79,10 +79,7 @@ export class OrganizationResolver {
     @Context() context: GraphqlAuthContext,
   ): Promise<OrganizationDashboardType> {
     const userId = this.resolveUserId(context);
-    return this.getOrganizationDashboardUseCase.execute(
-      this.organizationIdentifier.parse(organizationId),
-      userId,
-    );
+    return this.getOrganizationDashboardUseCase.execute(this.organizationIdentifier.parse(organizationId), userId);
   }
 
   @Query(() => OrganizationMemberListType)
@@ -124,10 +121,7 @@ export class OrganizationResolver {
     @Context() context: GraphqlAuthContext,
   ): Promise<boolean> {
     const userId = this.resolveUserId(context);
-    await this.removeMemberFromOrganizationUseCase.execute(
-      this.organizationMemberIdentifier.parse(memberId),
-      userId,
-    );
+    await this.removeMemberFromOrganizationUseCase.execute(this.organizationMemberIdentifier.parse(memberId), userId);
     return true;
   }
 

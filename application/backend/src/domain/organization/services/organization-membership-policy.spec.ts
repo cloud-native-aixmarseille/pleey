@@ -22,15 +22,15 @@ describe('OrganizationMembershipPolicy', () => {
   const policy = new OrganizationMembershipPolicy();
 
   it('rejects member management when the requesting user lacks management privileges', () => {
-    expect(() =>
-      policy.assertCanManageMembers(createMember({ hasManagementPrivileges: () => false })),
-    ).toThrow(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
+    expect(() => policy.assertCanManageMembers(createMember({ hasManagementPrivileges: () => false }))).toThrow(
+      OrganizationErrorCode.INSUFFICIENT_PERMISSIONS,
+    );
   });
 
   it('rejects assigning the owner role when the requester is not an owner', () => {
-    expect(() =>
-      policy.assertCanAssignRole(createMember({ isOwner: () => false }), OrganizationRole.OWNER),
-    ).toThrow(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
+    expect(() => policy.assertCanAssignRole(createMember({ isOwner: () => false }), OrganizationRole.OWNER)).toThrow(
+      OrganizationErrorCode.INSUFFICIENT_PERMISSIONS,
+    );
   });
 
   it('rejects managing an owner when the requester is not an owner', () => {
@@ -43,9 +43,7 @@ describe('OrganizationMembershipPolicy', () => {
   });
 
   it('rejects shrinking ownership to zero', () => {
-    expect(() => policy.assertOwnerCountCanShrink(1)).toThrow(
-      OrganizationErrorCode.CANNOT_REMOVE_LAST_OWNER,
-    );
+    expect(() => policy.assertOwnerCountCanShrink(1)).toThrow(OrganizationErrorCode.CANNOT_REMOVE_LAST_OWNER);
   });
 
   it('allows shrinking ownership when another owner remains', () => {

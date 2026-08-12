@@ -1,15 +1,6 @@
 import { usePresentationTranslation } from '../../../shared/i18n/use-presentation-translation';
-import {
-  AppIcon,
-  homeFeatureIconNames,
-  homeStepIconNames,
-} from '../../../shared/ui/icons/app-icon';
-import {
-  ContentStack,
-  ResponsiveGrid,
-  SectionContainer,
-  WrapRow,
-} from '../../../shared/ui/layout/containers';
+import { AppIcon, homeFeatureIconNames, homeStepIconNames } from '../../../shared/ui/icons/app-icon';
+import { ContentStack, ResponsiveGrid, SectionContainer, WrapRow } from '../../../shared/ui/layout/containers';
 import { IntroBlock } from '../../../shared/ui/layout/intro-block';
 import { LandingStepBadge } from '../../../shared/ui/layout/landing-sections';
 import { ElevatedPanel, InsetPanel } from '../../../shared/ui/layout/panels';
@@ -58,9 +49,7 @@ export function HomeHowItWorksSection() {
                 <LandingStepBadge stepNumber={index + 1} />
                 <WrapRow gap="xs">
                   <AppIcon
-                    name={
-                      homeStepIconNames[index] ?? homeStepIconNames[homeStepIconNames.length - 1]
-                    }
+                    name={homeStepIconNames[index] ?? homeStepIconNames[homeStepIconNames.length - 1]}
                     size={18}
                   />
                   <Heading level={3}>{step.title}</Heading>
@@ -77,9 +66,10 @@ export function HomeHowItWorksSection() {
 
 export function HomeFeaturesSection() {
   const { t } = usePresentationTranslation();
-  const items = (
-    t as unknown as (key: string, options: { returnObjects: true }) => HomeFeatureItem[]
-  )('home.features.items', { returnObjects: true });
+  const items = (t as unknown as (key: string, options: { returnObjects: true }) => HomeFeatureItem[])(
+    'home.features.items',
+    { returnObjects: true },
+  );
 
   return (
     <SectionContainer maxWidth="50rem">
@@ -91,10 +81,7 @@ export function HomeFeaturesSection() {
               <ContentStack gap="xs">
                 <WrapRow gap="xs">
                   <AppIcon
-                    name={
-                      homeFeatureIconNames[index] ??
-                      homeFeatureIconNames[homeFeatureIconNames.length - 1]
-                    }
+                    name={homeFeatureIconNames[index] ?? homeFeatureIconNames[homeFeatureIconNames.length - 1]}
                     size={18}
                   />
                   <Heading level={3}>{item.label}</Heading>

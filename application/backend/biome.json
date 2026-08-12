@@ -1,6 +1,6 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.5.2/schema.json",
-  "extends": ["./biome.shared-party-rules.json", "./biome.shared-style-rules.json"],
+  "$schema": "https://biomejs.dev/schemas/2.4.10/schema.json",
+  "root": false,
   "files": {
     "includes": [
       "src/**",
@@ -8,7 +8,11 @@
       "prisma/**",
       "prisma.config.ts",
       "vitest.config.ts",
-      "vitest.config.mts"
+      "vitest.config.mts",
+      "!dist",
+      "!dist-types",
+      "!coverage",
+      "!lcov-report"
     ]
   },
   "assist": { "actions": { "source": { "organizeImports": "on" } } },
@@ -16,7 +20,7 @@
     "enabled": true,
     "includes": ["**", "!src/schema.gql"],
     "rules": {
-      "preset": "recommended",
+      "recommended": true,
       "suspicious": {
         "noConsole": "error",
         "noExplicitAny": "error"
@@ -32,18 +36,17 @@
         "noUnusedFunctionParameters": "error"
       },
       "style": {
+        "useThrowNewError": "error",
+        "useThrowOnlyError": "error",
+        "useConst": "error",
+        "noNonNullAssertion": "error",
         "noProcessEnv": "error",
         "noRestrictedImports": {
           "level": "error",
           "options": {
             "patterns": [
               {
-                "group": [
-                  "**/app/config",
-                  "**/app/config/**",
-                  "src/app/config",
-                  "src/app/config/**"
-                ],
+                "group": ["**/app/config", "**/app/config/**", "src/app/config", "src/app/config/**"],
                 "message": "Only the app layer may import app config readers. Inject derived configuration values into other layers via providers."
               }
             ]
@@ -59,8 +62,7 @@
     "formatWithErrors": false,
     "indentStyle": "space",
     "indentWidth": 2,
-    "lineWidth": 100,
-    "lineEnding": "lf"
+    "lineWidth": 120
   },
   "javascript": {
     "formatter": {
@@ -74,6 +76,33 @@
     }
   },
   "overrides": [
+    {
+      "includes": ["src/**/*.{ts,tsx,js,jsx}"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/game/party/*/**",
+                      "!**/game/party/enums/**",
+                      "!**/game/party/errors/**",
+                      "!**/game/party/host/**",
+                      "!**/game/party/player/**",
+                      "!**/game/party/shared/**"
+                    ],
+                    "message": "Only **/game/party/{host,player,shared}/** is allowed under game/party."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
     {
       "includes": ["src/app/**/*.ts"],
       "linter": {
@@ -106,6 +135,49 @@
           },
           "complexity": {
             "noStaticOnlyClass": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/presentation/game/types/shared/**/*.{ts,tsx,js,jsx}"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["**/game/types/quiz/**", "**/game/types/prediction/**"],
+                    "message": "Game types shared layer must not import from game-type specific layers (quiz/, prediction/)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "src/presentation/game/party/shared/**/*.{ts,tsx,js,jsx}",
+        "!!src/presentation/game/party/shared/screens/components/party-screen-content.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["**/game/party/host/**", "**/game/party/player/**"],
+                    "message": "Party shared layer must not import from host/ or player/ layers. Shared must stay role-agnostic."
+                  }
+                ]
+              }
+            }
           }
         }
       }

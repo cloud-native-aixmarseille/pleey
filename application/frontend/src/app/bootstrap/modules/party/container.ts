@@ -9,10 +9,7 @@ import { PartyPinIdentifier } from '../../../../application/game/party/shared/se
 import { StageIdentifier } from '../../../../application/game/party/shared/services/identifiers/stage-identifier';
 import { PartyRouteService } from '../../../../application/game/party/shared/services/party-route.service';
 import { GameTypeParser } from '../../../../application/game/types/shared/services/game-type-parser';
-import {
-  ROUTE_FACTORY,
-  type RouteFactory,
-} from '../../../../application/shared/contracts/routing.port';
+import { ROUTE_FACTORY, type RouteFactory } from '../../../../application/shared/contracts/routing.port';
 import {
   type PartyHostControlPort,
   PartyHostControlPortToken,
@@ -107,12 +104,8 @@ export const partyContainerModule = new ContainerModule(({ bind }) => {
   bind(PartyGameTypeRuntimeViewContributorToken).toService(QuizPartyGameTypeRuntimeView);
 
   bind<PartyHostControlPort>(PartyHostControlPortToken).toService(SocketIoPartyHostControlAdapter);
-  bind<PartyHostRuntimeControlsPort>(PartyHostRuntimeControlsPortToken).toService(
-    HostPartyRuntimeControlsResolver,
-  );
-  bind<PartyGuestSessionPort>(PartyGuestSessionPortToken).toService(
-    PersistedPartyGuestSessionAdapter,
-  );
+  bind<PartyHostRuntimeControlsPort>(PartyHostRuntimeControlsPortToken).toService(HostPartyRuntimeControlsResolver);
+  bind<PartyGuestSessionPort>(PartyGuestSessionPortToken).toService(PersistedPartyGuestSessionAdapter);
   bind<GuestUsernameGeneratorPort>(GuestUsernameGeneratorPortToken).toService(
     UniqueUsernameGuestUsernameGeneratorAdapter,
   );

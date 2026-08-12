@@ -427,11 +427,7 @@ describe('JoinPartyUseCase', () => {
       execute: vi.fn(),
     };
     const passwordService = createPasswordServiceMock({ compare: true });
-    const useCase = new JoinPartyUseCase(
-      runtime as never,
-      broadcastPartyObservationUseCase as never,
-      passwordService,
-    );
+    const useCase = new JoinPartyUseCase(runtime as never, broadcastPartyObservationUseCase as never, passwordService);
 
     await expect(
       useCase.execute({
@@ -466,11 +462,7 @@ describe('JoinPartyUseCase', () => {
       execute: vi.fn(),
     };
     const passwordService = createPasswordServiceMock({ compare: false });
-    const useCase = new JoinPartyUseCase(
-      runtime as never,
-      broadcastPartyObservationUseCase as never,
-      passwordService,
-    );
+    const useCase = new JoinPartyUseCase(runtime as never, broadcastPartyObservationUseCase as never, passwordService);
 
     await expect(
       useCase.execute({

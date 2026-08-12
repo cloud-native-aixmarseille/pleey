@@ -1,10 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
-import {
-  MemoryRouter,
-  Outlet as ReactRouterOutlet,
-  useNavigate as useReactRouterNavigate,
-} from 'react-router-dom';
+import { MemoryRouter, Outlet as ReactRouterOutlet, useNavigate as useReactRouterNavigate } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 import { ReactRouterRoutingAdapter } from './react-router-routing.adapter';
 
@@ -44,10 +40,7 @@ describe('ReactRouterRoutingAdapter', () => {
       );
 
       // Assert
-      expect(screen.getByRole('link', { name: 'Dashboard' })).toHaveAttribute(
-        'href',
-        '/workspace/dashboard',
-      );
+      expect(screen.getByRole('link', { name: 'Dashboard' })).toHaveAttribute('href', '/workspace/dashboard');
     });
   });
 });

@@ -35,11 +35,7 @@ export class PlayableContentImportParser {
     return items.map((item, itemIndex) => this.toItemDefinition(item, source.fileName, itemIndex));
   }
 
-  private toItemDefinition(
-    item: RawImportItem,
-    fileName: string,
-    itemIndex: number,
-  ): PlayableImportItemDefinition {
+  private toItemDefinition(item: RawImportItem, fileName: string, itemIndex: number): PlayableImportItemDefinition {
     const text = item.text.trim();
 
     if (text.length === 0) {
@@ -54,8 +50,7 @@ export class PlayableContentImportParser {
       .map((option) => ({ ...option, text: option.text.trim() }))
       .filter((option) => option.text.length > 0);
 
-    const kind =
-      item.kind ?? this.inferKindFromOptionTexts(normalizedOptions.map((option) => option.text));
+    const kind = item.kind ?? this.inferKindFromOptionTexts(normalizedOptions.map((option) => option.text));
 
     if (normalizedOptions.length < 2) {
       throw new PlayableContentImportInvalidFileError({
@@ -111,8 +106,7 @@ export class PlayableContentImportParser {
     }
 
     return TRUE_FALSE_OPTION_TEXTS.map((text, position) => ({
-      isCorrect:
-        options[text.toLowerCase() === 'true' ? trueIndex : falseIndex]?.isCorrect ?? false,
+      isCorrect: options[text.toLowerCase() === 'true' ? trueIndex : falseIndex]?.isCorrect ?? false,
       position,
       text,
     }));

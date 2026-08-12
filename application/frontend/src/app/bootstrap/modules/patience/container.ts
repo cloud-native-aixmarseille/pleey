@@ -16,9 +16,7 @@ export const patienceContainerModule = new ContainerModule(({ bind }) => {
   bind(LemmingsPatienceEngine).toSelf().inSingletonScope();
   bind(AppPatienceProviderFactory)
     .toDynamicValue(({ get }) => {
-      return new AppPatienceProviderFactory(
-        get<PatienceAnimationRegistry>(PatienceAnimationRegistryToken),
-      );
+      return new AppPatienceProviderFactory(get<PatienceAnimationRegistry>(PatienceAnimationRegistryToken));
     })
     .inSingletonScope();
   bind(AppProviderFactoryToken).toService(AppPatienceProviderFactory);

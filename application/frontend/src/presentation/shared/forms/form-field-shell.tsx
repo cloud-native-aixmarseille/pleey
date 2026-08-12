@@ -10,14 +10,7 @@ interface FormFieldShellProps {
   readonly children: (options: { describedBy?: string; invalid: boolean }) => ReactNode;
 }
 
-export function FormFieldShell({
-  children,
-  description,
-  error,
-  id,
-  label,
-  required = false,
-}: FormFieldShellProps) {
+export function FormFieldShell({ children, description, error, id, label, required = false }: FormFieldShellProps) {
   const descriptionId = description ? `${id}-description` : undefined;
   const errorId = error ? `${id}-error` : undefined;
   const describedBy = [descriptionId, errorId].filter(Boolean).join(' ') || undefined;

@@ -3,10 +3,7 @@ import type { UserId } from '../../../../domain/identity/entities/user';
 import type { OrganizationId } from '../../../../domain/organization/entities/organization';
 import type { OrganizationMember } from '../../../../domain/organization/entities/organization-member';
 import { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
-import {
-  InsufficientPermissionsError,
-  OrganizationNotFoundError,
-} from '../../../../domain/organization/errors';
+import { InsufficientPermissionsError, OrganizationNotFoundError } from '../../../../domain/organization/errors';
 import type { OrganizationRepository } from '../../../../domain/organization/ports/organization.repository';
 import { OrganizationRepositoryProvider } from '../../../../domain/organization/ports/organization.repository';
 import type { OrganizationMemberRepository } from '../../../../domain/organization/ports/organization-member.repository';
@@ -35,14 +32,8 @@ export class OrganizationMembershipAccessService {
     }
   }
 
-  async requireMembership(
-    organizationId: OrganizationId,
-    requestingUserId: UserId,
-  ): Promise<OrganizationMember> {
-    const requestingMember = await this.memberRepository.findByOrganizationAndUser(
-      organizationId,
-      requestingUserId,
-    );
+  async requireMembership(organizationId: OrganizationId, requestingUserId: UserId): Promise<OrganizationMember> {
+    const requestingMember = await this.memberRepository.findByOrganizationAndUser(organizationId, requestingUserId);
 
     if (!requestingMember) {
       throw new InsufficientPermissionsError({
@@ -55,10 +46,7 @@ export class OrganizationMembershipAccessService {
     return requestingMember;
   }
 
-  async requireManager(
-    organizationId: OrganizationId,
-    requestingUserId: UserId,
-  ): Promise<OrganizationMember> {
+  async requireManager(organizationId: OrganizationId, requestingUserId: UserId): Promise<OrganizationMember> {
     const requestingMember = await this.requireMembership(organizationId, requestingUserId);
 
     this.membershipPolicy.assertCanManageMembers(requestingMember);
@@ -70,10 +58,7 @@ export class OrganizationMembershipAccessService {
     this.membershipPolicy.assertCanAssignRole(requestingMember, role);
   }
 
-  assertCanManageMember(
-    requestingMember: OrganizationMember,
-    targetMember: OrganizationMember,
-  ): void {
+  assertCanManageMember(requestingMember: OrganizationMember, targetMember: OrganizationMember): void {
     this.membershipPolicy.assertCanManageMember(requestingMember, targetMember);
   }
 

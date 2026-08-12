@@ -35,9 +35,7 @@ export class PartyLobbyRuntimeRedirectResolver {
     const currentResult = party.context?.result?.current ?? null;
 
     if (party.status === PartyStatus.ENDED && currentResult) {
-      return screenSection === PartyScreenSection.LEADERBOARD
-        ? null
-        : resolvePartyLeaderboardRoute(party.partyId);
+      return screenSection === PartyScreenSection.LEADERBOARD ? null : resolvePartyLeaderboardRoute(party.partyId);
     }
 
     if (
@@ -71,8 +69,6 @@ export class PartyLobbyRuntimeRedirectResolver {
         : resolvePartyStageRoute(party.partyId, currentStageId);
     }
 
-    return screenSection === PartyScreenSection.LOBBY
-      ? null
-      : resolvePartyLobbyRoute(party.partyId);
+    return screenSection === PartyScreenSection.LOBBY ? null : resolvePartyLobbyRoute(party.partyId);
   }
 }

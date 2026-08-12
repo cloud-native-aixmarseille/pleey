@@ -39,9 +39,7 @@ export abstract class PartyManagementPort {
 
   abstract findActivePartyByGameId(gameId: GameId): Promise<ActivePartyGameConflict | null>;
 
-  abstract findActivePartiesByHostId(
-    hostUserId: UserId,
-  ): Promise<readonly ActivePartyHostConflict[]>;
+  abstract findActivePartiesByHostId(hostUserId: UserId): Promise<readonly ActivePartyHostConflict[]>;
 
   abstract createParty(command: CreatePartyCommand): Promise<PartySummary>;
 

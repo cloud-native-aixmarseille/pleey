@@ -100,10 +100,7 @@ export function usePartySessionRecovery({
         partyLobbyFacade.setGuestId(currentPartyPin, receipt.player.identity.guestId);
       }
 
-      if (
-        receipt.player.identity.kind === PartyPlayerIdentityKind.User &&
-        currentGuestId !== null
-      ) {
+      if (receipt.player.identity.kind === PartyPlayerIdentityKind.User && currentGuestId !== null) {
         partyLobbyFacade.clearGuestId(currentPartyPin);
       }
 
@@ -132,12 +129,7 @@ export function usePartySessionRecovery({
       return;
     }
 
-    const identityKey =
-      userId !== null
-        ? `user:${userId}`
-        : currentGuestId !== null
-          ? `guest:${currentGuestId}`
-          : null;
+    const identityKey = userId !== null ? `user:${userId}` : currentGuestId !== null ? `guest:${currentGuestId}` : null;
 
     if (currentPartyPin === null || identityKey === null) {
       return;
@@ -259,8 +251,7 @@ function shouldRecoverPartySession({
     return false;
   }
 
-  const hasRecoveryEvidence =
-    hasObservedCurrentPlayer || joinedPartyId !== null || hasRecoverableObservedIdentity;
+  const hasRecoveryEvidence = hasObservedCurrentPlayer || joinedPartyId !== null || hasRecoverableObservedIdentity;
 
   if (!hasRecoveryEvidence) {
     return false;
@@ -272,8 +263,7 @@ function shouldRecoverPartySession({
     Date.now() - connectionState.epoch <= sessionRecoverySignalWindowMs;
 
   const hasLifecycleSignal =
-    lifecycleRecoveryEpoch > 0 &&
-    Date.now() - lifecycleRecoveryEpoch <= sessionRecoverySignalWindowMs;
+    lifecycleRecoveryEpoch > 0 && Date.now() - lifecycleRecoveryEpoch <= sessionRecoverySignalWindowMs;
 
   return hasReconnectSignal || hasLifecycleSignal;
 }

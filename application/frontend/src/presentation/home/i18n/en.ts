@@ -17,18 +17,15 @@ export const homeEn = {
       steps: [
         {
           title: 'Design your game',
-          description:
-            'Choose a format - quiz, prediction, or custom - and build your content in the dashboard.',
+          description: 'Choose a format - quiz, prediction, or custom - and build your content in the dashboard.',
         },
         {
           title: 'Share the pin',
-          description:
-            'Generate a join code and send it to your audience. They join instantly from any device.',
+          description: 'Generate a join code and send it to your audience. They join instantly from any device.',
         },
         {
           title: 'Go live',
-          description:
-            'Launch the game, watch responses stream in, and reveal results on the big screen.',
+          description: 'Launch the game, watch responses stream in, and reveal results on the big screen.',
         },
       ],
     },
@@ -45,8 +42,7 @@ export const homeEn = {
         },
         {
           label: 'Multilingual by default',
-          description:
-            'Seamlessly host in English or French - the interface adapts to each player.',
+          description: 'Seamlessly host in English or French - the interface adapts to each player.',
         },
         {
           label: 'Any device, zero installs',

@@ -1,10 +1,6 @@
 import type { SelectableOption } from '../../shared/entities/selectable-option';
 import type { QuizId } from '../entities/quiz';
-import {
-  QuizQuestion,
-  type QuizQuestionId,
-  type QuizQuestionType,
-} from '../entities/quiz-question';
+import { QuizQuestion, type QuizQuestionId, type QuizQuestionType } from '../entities/quiz-question';
 
 export const QuizQuestionRepositoryProvider = Symbol('QuizQuestionRepository');
 

@@ -1,9 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { I18nService } from 'nestjs-i18n';
-import {
-  GAME_ERROR_DEFINITIONS,
-  GameErrorCode,
-} from '../../../../domain/game/enums/game-error-code.enum';
+import { GAME_ERROR_DEFINITIONS, GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
 import { AbstractErrorTranslationService } from '../../../shared/error-handling/abstract-error-translation.service';
 
 const GAME_ERROR_CODES = Object.values(GameErrorCode) as GameErrorCode[];

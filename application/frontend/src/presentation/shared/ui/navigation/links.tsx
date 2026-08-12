@@ -61,13 +61,7 @@ function LinkContent({ children, leftSection, rightSection }: LinkContentProps) 
   );
 }
 
-function RoutedContentLink({
-  children,
-  leftSection,
-  rightSection,
-  styles,
-  to,
-}: RoutedContentLinkProps) {
+function RoutedContentLink({ children, leftSection, rightSection, styles, to }: RoutedContentLinkProps) {
   return (
     <RoutedAnchor styles={styles} to={to}>
       <LinkContent leftSection={leftSection} rightSection={rightSection}>
@@ -118,12 +112,7 @@ export function SecondaryActionLink({ children, leftSection, rightSection, to }:
 
 export function InlineTextLink({ children, leftSection, rightSection, to }: BaseLinkProps) {
   return (
-    <RoutedContentLink
-      leftSection={leftSection}
-      rightSection={rightSection}
-      styles={{ root: inlineLinkStyle }}
-      to={to}
-    >
+    <RoutedContentLink leftSection={leftSection} rightSection={rightSection} styles={{ root: inlineLinkStyle }} to={to}>
       {children}
     </RoutedContentLink>
   );

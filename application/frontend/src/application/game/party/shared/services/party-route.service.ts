@@ -1,9 +1,5 @@
 import { inject, injectable } from 'inversify';
-import type {
-  Party,
-  PartyId,
-  PartyPin,
-} from '../../../../../domains/game/party/shared/entities/party';
+import type { Party, PartyId, PartyPin } from '../../../../../domains/game/party/shared/entities/party';
 import { PartyRole } from '../../../../../domains/game/party/shared/entities/party-role';
 import type { StageId } from '../../../../../domains/game/party/shared/entities/party-stage';
 import { PartyIdentifier } from './identifiers/party-identifier';
@@ -52,10 +48,7 @@ export class PartyRouteService {
     return `${PartyRouteService.PARTY_LOBBY_ROUTE_BASE_PATH}/${partyId}/final`;
   }
 
-  resolvePartyResultRoute(
-    partyId: PartyId | null | undefined,
-    stageId: StageId | null | undefined,
-  ): string {
+  resolvePartyResultRoute(partyId: PartyId | null | undefined, stageId: StageId | null | undefined): string {
     if (partyId === null || partyId === undefined || stageId === null || stageId === undefined) {
       return PartyRouteService.PARTY_LOBBY_ROUTE_BASE_PATH;
     }
@@ -69,10 +62,7 @@ export class PartyRouteService {
     return `${PartyRouteService.PARTY_LOBBY_ROUTE_BASE_PATH}/${partyId}/stage/${normalizedStageId}/result`;
   }
 
-  resolvePartyStageRoute(
-    partyId: PartyId | null | undefined,
-    stageId: StageId | null | undefined,
-  ): string {
+  resolvePartyStageRoute(partyId: PartyId | null | undefined, stageId: StageId | null | undefined): string {
     if (partyId === null || partyId === undefined || stageId === null || stageId === undefined) {
       return PartyRouteService.PARTY_LOBBY_ROUTE_BASE_PATH;
     }

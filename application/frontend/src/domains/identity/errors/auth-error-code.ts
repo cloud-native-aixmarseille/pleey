@@ -10,9 +10,7 @@ export enum AuthErrorCode {
   GENERIC = 'auth.errors.generic',
 }
 
-export const AUTH_ERROR_DEFINITIONS: Readonly<
-  Record<AuthErrorCode, DomainErrorDefinition<AuthErrorCode>>
-> = {
+export const AUTH_ERROR_DEFINITIONS: Readonly<Record<AuthErrorCode, DomainErrorDefinition<AuthErrorCode>>> = {
   [AuthErrorCode.INVALID_RESPONSE]: {
     code: AuthErrorCode.INVALID_RESPONSE,
     message: 'auth.errors.invalidResponse',

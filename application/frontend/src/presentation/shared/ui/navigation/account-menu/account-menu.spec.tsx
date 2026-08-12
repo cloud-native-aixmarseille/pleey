@@ -28,8 +28,7 @@ vi.mock('../../../routing/router', async (importOriginal) => {
 });
 
 vi.mock('../../../../identity/contexts/auth-context', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('../../../../identity/contexts/auth-context')>();
+  const actual = await importOriginal<typeof import('../../../../identity/contexts/auth-context')>();
   const { AuthContextMockFactory } = await import('src/test-utils/mocks/auth-context-mock-factory');
 
   return {
@@ -72,12 +71,8 @@ describe('AccountMenu', () => {
     it('opens a menu with profile and sign out options on click', async () => {
       renderAccountMenu();
       await userEvent.click(screen.getByRole('button', { name: 'shared.shell.accountMenu' }));
-      expect(
-        screen.getByRole('menuitem', { name: 'shared.shell.profileLink' }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('menuitem', { name: 'shared.shell.signOutAction' }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('menuitem', { name: 'shared.shell.profileLink' })).toBeInTheDocument();
+      expect(screen.getByRole('menuitem', { name: 'shared.shell.signOutAction' })).toBeInTheDocument();
     });
 
     it('navigates to profile when profile menu item is clicked', async () => {

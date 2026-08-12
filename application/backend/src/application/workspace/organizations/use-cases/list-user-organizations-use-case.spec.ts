@@ -33,12 +33,7 @@ describe('ListUserOrganizationsUseCase', () => {
     );
 
     const result = await useCase.execute({}, backendTestIdentifiers.user(1));
-    expect(memberRepository.findPageByUser).toHaveBeenCalledWith(
-      backendTestIdentifiers.user(1),
-      1,
-      25,
-      undefined,
-    );
+    expect(memberRepository.findPageByUser).toHaveBeenCalledWith(backendTestIdentifiers.user(1), 1, 25, undefined);
     expect(result).toEqual({
       items: [],
       totalCount: 0,
@@ -77,12 +72,7 @@ describe('ListUserOrganizationsUseCase', () => {
     );
 
     const result = await useCase.execute({}, backendTestIdentifiers.user(10));
-    expect(memberRepository.findPageByUser).toHaveBeenCalledWith(
-      backendTestIdentifiers.user(10),
-      1,
-      25,
-      undefined,
-    );
+    expect(memberRepository.findPageByUser).toHaveBeenCalledWith(backendTestIdentifiers.user(10), 1, 25, undefined);
     expect(organizationRepository.findByIds).toHaveBeenCalledWith([organizationId]);
     expect(result).toEqual({
       items: [{ id: organizationId, role: OrganizationRole.MEMBER }],
@@ -115,11 +105,6 @@ describe('ListUserOrganizationsUseCase', () => {
 
     await useCase.execute({ search: '  pleey  ' }, backendTestIdentifiers.user(3));
 
-    expect(memberRepository.findPageByUser).toHaveBeenCalledWith(
-      backendTestIdentifiers.user(3),
-      1,
-      25,
-      'pleey',
-    );
+    expect(memberRepository.findPageByUser).toHaveBeenCalledWith(backendTestIdentifiers.user(3), 1, 25, 'pleey');
   });
 });

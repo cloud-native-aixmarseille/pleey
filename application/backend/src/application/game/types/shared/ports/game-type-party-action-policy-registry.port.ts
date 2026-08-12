@@ -22,9 +22,7 @@ export interface PartyActionSubmissionResolution {
 }
 
 export abstract class GameTypePartyActionPolicy {
-  abstract evaluateSubmission(
-    command: EvaluatePartyActionSubmissionCommand,
-  ): Promise<PartyActionSubmissionResolution>;
+  abstract evaluateSubmission(command: EvaluatePartyActionSubmissionCommand): Promise<PartyActionSubmissionResolution>;
 }
 
 export abstract class GameTypePartyActionPolicyRegistryPort {

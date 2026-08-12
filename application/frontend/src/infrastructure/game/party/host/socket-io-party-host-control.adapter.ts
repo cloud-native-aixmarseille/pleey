@@ -16,10 +16,9 @@ export class SocketIoPartyHostControlAdapter implements PartyHostControlPort {
   ) {}
 
   advanceStage(command: HostPartyControlCommand): Promise<void> {
-    return this.realtimeTransport.dispatchHostCommand(
-      SocketIoPartyHostCommandEventName.AdvanceStage,
-      { partyId: command.partyId },
-    );
+    return this.realtimeTransport.dispatchHostCommand(SocketIoPartyHostCommandEventName.AdvanceStage, {
+      partyId: command.partyId,
+    });
   }
 
   endParty(command: HostPartyControlCommand): Promise<void> {
@@ -44,51 +43,44 @@ export class SocketIoPartyHostControlAdapter implements PartyHostControlPort {
   }
 
   pauseParty(command: HostPartyControlCommand): Promise<void> {
-    return this.realtimeTransport.dispatchHostCommand(
-      SocketIoPartyHostCommandEventName.PauseParty,
-      { partyId: command.partyId },
-    );
+    return this.realtimeTransport.dispatchHostCommand(SocketIoPartyHostCommandEventName.PauseParty, {
+      partyId: command.partyId,
+    });
   }
 
   restartStage(command: HostPartyControlCommand): Promise<void> {
-    return this.realtimeTransport.dispatchHostCommand(
-      SocketIoPartyHostCommandEventName.RestartStage,
-      { partyId: command.partyId },
-    );
+    return this.realtimeTransport.dispatchHostCommand(SocketIoPartyHostCommandEventName.RestartStage, {
+      partyId: command.partyId,
+    });
   }
 
   resumeParty(command: HostPartyControlCommand): Promise<void> {
-    return this.realtimeTransport.dispatchHostCommand(
-      SocketIoPartyHostCommandEventName.ResumeParty,
-      { partyId: command.partyId },
-    );
+    return this.realtimeTransport.dispatchHostCommand(SocketIoPartyHostCommandEventName.ResumeParty, {
+      partyId: command.partyId,
+    });
   }
 
   revealStageResult(command: HostPartyControlCommand): Promise<void> {
-    return this.realtimeTransport.dispatchHostCommand(
-      SocketIoPartyHostCommandEventName.RevealStageResult,
-      { partyId: command.partyId },
-    );
+    return this.realtimeTransport.dispatchHostCommand(SocketIoPartyHostCommandEventName.RevealStageResult, {
+      partyId: command.partyId,
+    });
   }
 
   rewindParty(command: HostPartyControlCommand): Promise<void> {
-    return this.realtimeTransport.dispatchHostCommand(
-      SocketIoPartyHostCommandEventName.RewindParty,
-      { partyId: command.partyId },
-    );
+    return this.realtimeTransport.dispatchHostCommand(SocketIoPartyHostCommandEventName.RewindParty, {
+      partyId: command.partyId,
+    });
   }
 
   rewindStage(command: HostPartyControlCommand): Promise<void> {
-    return this.realtimeTransport.dispatchHostCommand(
-      SocketIoPartyHostCommandEventName.RewindStage,
-      { partyId: command.partyId },
-    );
+    return this.realtimeTransport.dispatchHostCommand(SocketIoPartyHostCommandEventName.RewindStage, {
+      partyId: command.partyId,
+    });
   }
 
   startParty(command: HostPartyControlCommand): Promise<void> {
-    return this.realtimeTransport.dispatchHostCommand(
-      SocketIoPartyHostCommandEventName.StartParty,
-      { partyId: command.partyId },
-    );
+    return this.realtimeTransport.dispatchHostCommand(SocketIoPartyHostCommandEventName.StartParty, {
+      partyId: command.partyId,
+    });
   }
 }

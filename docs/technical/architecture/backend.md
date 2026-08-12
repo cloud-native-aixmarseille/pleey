@@ -48,6 +48,7 @@ Two styles:
    ```
 
 2. **Abstract class as token** (application ports):
+
    ```ts
    export abstract class GameCatalogPort { abstract listGames(...): Promise<...>; }
    ```

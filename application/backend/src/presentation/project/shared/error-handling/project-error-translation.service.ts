@@ -1,9 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { I18nService } from 'nestjs-i18n';
-import {
-  PROJECT_ERROR_DEFINITIONS,
-  ProjectErrorCode,
-} from '../../../../domain/project/enums/project-error-code.enum';
+import { PROJECT_ERROR_DEFINITIONS, ProjectErrorCode } from '../../../../domain/project/enums/project-error-code.enum';
 import { AbstractErrorTranslationService } from '../../../shared/error-handling/abstract-error-translation.service';
 
 const PROJECT_ERROR_CODES = Object.values(ProjectErrorCode) as ProjectErrorCode[];

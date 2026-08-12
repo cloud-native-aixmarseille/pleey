@@ -22,36 +22,24 @@ describe('links', () => {
         routingPort,
       );
 
-      expect(screen.getByRole('link', { name: 'Dashboard' })).toHaveAttribute(
-        'href',
-        '/workspace/dashboard',
-      );
+      expect(screen.getByRole('link', { name: 'Dashboard' })).toHaveAttribute('href', '/workspace/dashboard');
     });
 
     it('keeps the same accessible name when icon sections are provided', () => {
       renderWithRoutingProvider(
-        <PrimaryActionLink
-          leftSection={<span aria-hidden="true">L</span>}
-          to="/workspace/dashboard"
-        >
+        <PrimaryActionLink leftSection={<span aria-hidden="true">L</span>} to="/workspace/dashboard">
           Dashboard
         </PrimaryActionLink>,
         routingPort,
       );
 
-      expect(screen.getByRole('link', { name: 'Dashboard' })).toHaveAttribute(
-        'href',
-        '/workspace/dashboard',
-      );
+      expect(screen.getByRole('link', { name: 'Dashboard' })).toHaveAttribute('href', '/workspace/dashboard');
     });
   });
 
   describe('InlineTextLink()', () => {
     it('renders inline copy link content', () => {
-      renderWithRoutingProvider(
-        <InlineTextLink to="/help">Read guide</InlineTextLink>,
-        routingPort,
-      );
+      renderWithRoutingProvider(<InlineTextLink to="/help">Read guide</InlineTextLink>, routingPort);
 
       expect(screen.getByRole('link', { name: 'Read guide' })).toHaveAttribute('href', '/help');
     });
@@ -68,10 +56,7 @@ describe('links', () => {
         'href',
         'https://pleey.example.com/help',
       );
-      expect(screen.getByRole('link', { name: 'External guide' })).toHaveAttribute(
-        'target',
-        '_blank',
-      );
+      expect(screen.getByRole('link', { name: 'External guide' })).toHaveAttribute('target', '_blank');
     });
   });
 });

@@ -9,16 +9,10 @@ import { Input } from '../../../../shared/ui/forms/input';
 import { ActionRow, ContentStack } from '../../../../shared/ui/layout/containers';
 import { ConfirmDialog } from '../../../../shared/ui/overlay/confirm-dialog';
 import { useConfirmDialog } from '../../../../shared/ui/overlay/use-confirm-dialog';
-import type {
-  PlayableItemEditorState,
-  PlayableItemKindConfig,
-} from './playable-content-management-model';
+import type { PlayableItemEditorState, PlayableItemKindConfig } from './playable-content-management-model';
 import { type PlayableManagementDropPreview } from './playable-management-drag-placement';
 import { PlayableManagementIconActionButton } from './playable-management-icon-action-button';
-import {
-  createOutcomeBlockStyle,
-  outcomeDropZoneStyle,
-} from './playable-management-outcomes-editor.styles';
+import { createOutcomeBlockStyle, outcomeDropZoneStyle } from './playable-management-outcomes-editor.styles';
 import { createPlayableManagementReorderBindings } from './playable-management-reorder-bindings';
 import { playableOutcomeEditorPolicy } from './playable-outcome-editor-policy';
 
@@ -60,12 +54,9 @@ export function PlayableManagementOutcomesEditor({
 }: PlayableManagementOutcomesEditorProps) {
   const { t } = usePresentationTranslation();
   const confirmDialog = useConfirmDialog();
-  const [pendingOutcomeRemoval, setPendingOutcomeRemoval] = useState<PendingOutcomeRemoval | null>(
-    null,
-  );
+  const [pendingOutcomeRemoval, setPendingOutcomeRemoval] = useState<PendingOutcomeRemoval | null>(null);
 
-  const getOutcomeAriaLabel = (label: string) =>
-    `${t(`${translationRoot}.correctOptionLabel`)}: ${label}`;
+  const getOutcomeAriaLabel = (label: string) => `${t(`${translationRoot}.correctOptionLabel`)}: ${label}`;
 
   const requestOutcomeRemoval = (index: number, label: string) => {
     setPendingOutcomeRemoval({ index, label });
@@ -78,11 +69,7 @@ export function PlayableManagementOutcomesEditor({
       )
       .then((confirmed) => {
         if (confirmed) {
-          const nextState = playableOutcomeEditorPolicy.removeOutcome(
-            editorState,
-            index,
-            visibleOutcomeCount,
-          );
+          const nextState = playableOutcomeEditorPolicy.removeOutcome(editorState, index, visibleOutcomeCount);
           setEditorState(nextState.editorState);
           setVisibleOutcomeCount(nextState.visibleOutcomeCount);
         }
@@ -105,9 +92,7 @@ export function PlayableManagementOutcomesEditor({
             enabled: canReorderOutcomes,
             index,
             moveItem: (fromIndex, toIndex) => {
-              setEditorState(
-                playableOutcomeEditorPolicy.moveOutcome(editorState, fromIndex, toIndex),
-              );
+              setEditorState(playableOutcomeEditorPolicy.moveOutcome(editorState, fromIndex, toIndex));
             },
             setDraggedIndex: setDraggedOutcomeIndex,
             setDropPreview,
@@ -158,19 +143,13 @@ export function PlayableManagementOutcomesEditor({
                     />
                   </FieldShell>
                   <ActionRow gap="xs">
-                    {canReorderOutcomes ? (
-                      <ReorderHandle dragging={reorderBindings.isDragging} />
-                    ) : null}
+                    {canReorderOutcomes ? <ReorderHandle dragging={reorderBindings.isDragging} /> : null}
                     <Button
                       aria-label={getOutcomeAriaLabel(label)}
                       intent={isCorrect ? 'primary' : 'ghost'}
                       onClick={() =>
                         setEditorState(
-                          playableOutcomeEditorPolicy.toggleCorrectPosition(
-                            editorState,
-                            index,
-                            itemKindConfig,
-                          ),
+                          playableOutcomeEditorPolicy.toggleCorrectPosition(editorState, index, itemKindConfig),
                         )
                       }
                       size="sm"
@@ -183,9 +162,7 @@ export function PlayableManagementOutcomesEditor({
                         iconName="arrow-up"
                         label={t(`${translationRoot}.moveItemUpShort`)}
                         onClick={() =>
-                          setEditorState(
-                            playableOutcomeEditorPolicy.moveOutcome(editorState, index, index - 1),
-                          )
+                          setEditorState(playableOutcomeEditorPolicy.moveOutcome(editorState, index, index - 1))
                         }
                       />
                     ) : null}
@@ -195,9 +172,7 @@ export function PlayableManagementOutcomesEditor({
                         iconName="arrow-down"
                         label={t(`${translationRoot}.moveItemDownShort`)}
                         onClick={() =>
-                          setEditorState(
-                            playableOutcomeEditorPolicy.moveOutcome(editorState, index, index + 1),
-                          )
+                          setEditorState(playableOutcomeEditorPolicy.moveOutcome(editorState, index, index + 1))
                         }
                       />
                     ) : null}
@@ -214,9 +189,7 @@ export function PlayableManagementOutcomesEditor({
             </div>
           );
         })}
-        {dropPreview?.slot === visibleOutcomeIndexes.length ? (
-          <ReorderDropIndicator compact />
-        ) : null}
+        {dropPreview?.slot === visibleOutcomeIndexes.length ? <ReorderDropIndicator compact /> : null}
       </ContentStack>
       <ConfirmDialog
         cancelLabel={t(`${translationRoot}.confirmCancel`)}

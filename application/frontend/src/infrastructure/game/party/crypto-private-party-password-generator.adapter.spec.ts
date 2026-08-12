@@ -11,9 +11,7 @@ describe('CryptoPrivatePartyPasswordGeneratorAdapter', () => {
 
     // Assert
     expect(password).toHaveLength(12);
-    expect(
-      /^[ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%*]+$/.test(password),
-    ).toBe(true);
+    expect(/^[ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%*]+$/.test(password)).toBe(true);
   });
 
   it('generates different passwords on consecutive calls', () => {

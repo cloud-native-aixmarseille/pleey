@@ -3,10 +3,7 @@ import type { PartyPin } from '../../../../../../domains/game/party/shared/entit
 import type { PartyObservation } from '../../../../../../domains/game/party/shared/entities/party-observation';
 import { type PartyRuntimeNoticeKind } from '../../../../../../domains/game/party/shared/ports/party-observation.port';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
-import {
-  FeedbackState,
-  FeedbackStateGate,
-} from '../../../../../shared/ui/feedback/feedback-state-gate';
+import { FeedbackState, FeedbackStateGate } from '../../../../../shared/ui/feedback/feedback-state-gate';
 import { usePresentationToast } from '../../../../../shared/ui/feedback/presentation-toast';
 import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';
 import { ContentStack, SectionContainer } from '../../../../../shared/ui/layout/containers';
@@ -25,11 +22,7 @@ import {
   type PartyGameTypeRuntimeView,
   usePartyGameTypeRuntimeRegistry,
 } from '../../contexts/party-game-type-runtime-registry-context';
-import {
-  PartyLobbyRouteKind,
-  type PartyLobbyScreenState,
-  PartyScreenSection,
-} from '../use-party-lobby-screen-state';
+import { PartyLobbyRouteKind, type PartyLobbyScreenState, PartyScreenSection } from '../use-party-lobby-screen-state';
 import { usePartyScreenWakeLock } from '../use-party-screen-wake-lock';
 import { PartyFinalSummaryPanel } from './party-final-summary-panel';
 import { mobilePlayerSurfaceBackdropStyle } from './party-screen-content.styles';
@@ -40,15 +33,10 @@ interface PartyScreenContentProps {
   readonly state: PartyLobbyScreenState;
 }
 
-export function PartyScreenContent({
-  resolvePartyAbsoluteUrl,
-  screenSection,
-  state,
-}: PartyScreenContentProps) {
+export function PartyScreenContent({ resolvePartyAbsoluteUrl, screenSection, state }: PartyScreenContentProps) {
   const { t } = usePresentationTranslation();
   const toast = usePresentationToast();
-  const { hostPartyRuntimeControlsResolver, playerRuntimeNoticeMessageResolver } =
-    usePartyDependencies();
+  const { hostPartyRuntimeControlsResolver, playerRuntimeNoticeMessageResolver } = usePartyDependencies();
   const partyGameTypeRuntimeRegistry = usePartyGameTypeRuntimeRegistry();
   const isMobile = usePresentationMediaQuery();
   const {
@@ -92,9 +80,7 @@ export function PartyScreenContent({
     submitAction,
   } = state;
   usePartyScreenWakeLock(isMobile && !!party);
-  const hostRuntimeControls = party
-    ? hostPartyRuntimeControlsResolver.resolveControls(party)
-    : null;
+  const hostRuntimeControls = party ? hostPartyRuntimeControlsResolver.resolveControls(party) : null;
   const joinSurface = (
     <JoinPartySurface
       errorMessage={joinErrorMessage}
@@ -114,9 +100,7 @@ export function PartyScreenContent({
     />
   );
   const dashboardLink = (
-    <SecondaryActionLink to="/workspace/dashboard">
-      {t('game.party.route.dashboardCta')}
-    </SecondaryActionLink>
+    <SecondaryActionLink to="/workspace/dashboard">{t('game.party.route.dashboardCta')}</SecondaryActionLink>
   );
 
   if (state.hasInvalidPinRoute) {
@@ -146,9 +130,7 @@ export function PartyScreenContent({
     runtimeNoticeKind,
     playerRuntimeNoticeMessageResolver,
   );
-  const partyGameTypeRuntimeView = party
-    ? partyGameTypeRuntimeRegistry.resolve(party.gameType)
-    : null;
+  const partyGameTypeRuntimeView = party ? partyGameTypeRuntimeRegistry.resolve(party.gameType) : null;
   const runtimeLoadingState = (
     <FeedbackStateGate
       loadingLabel={t('game.party.route.loading')}
@@ -172,11 +154,7 @@ export function PartyScreenContent({
   let surface = null;
 
   if (!party) {
-    surface = pageErrorMessage
-      ? null
-      : routeKind === PartyLobbyRouteKind.PIN
-        ? joinSurface
-        : runtimeLoadingState;
+    surface = pageErrorMessage ? null : routeKind === PartyLobbyRouteKind.PIN ? joinSurface : runtimeLoadingState;
   } else if (isHostSurface && hostRuntimeControls) {
     const runtimePanel = renderHostRuntimePanel(party, screenSection, partyGameTypeRuntimeView);
 
@@ -253,13 +231,9 @@ export function PartyScreenContent({
 
   return (
     <SectionContainer maxWidth="80rem">
-      {showMobilePlayerSurfaceBackdrop ? (
-        <div aria-hidden style={mobilePlayerSurfaceBackdropStyle} />
-      ) : null}
+      {showMobilePlayerSurfaceBackdrop ? <div aria-hidden style={mobilePlayerSurfaceBackdropStyle} /> : null}
       <ContentStack gap="lg">
-        {pageErrorMessage && !party ? (
-          <StatusBanner tone="error">{t(pageErrorMessage)}</StatusBanner>
-        ) : null}
+        {pageErrorMessage && !party ? <StatusBanner tone="error">{t(pageErrorMessage)}</StatusBanner> : null}
 
         {hostRuntimeErrorMessage && isHostSurface ? (
           <StatusBanner tone="error">{t(hostRuntimeErrorMessage)}</StatusBanner>
@@ -295,12 +269,7 @@ function renderHostRuntimePanel(
   partyGameTypeRuntimeView: PartyGameTypeRuntimeView | null,
 ) {
   if (screenSection === PartyScreenSection.LEADERBOARD) {
-    return (
-      <PartyFinalSummaryPanel
-        players={party.players}
-        totalStages={party.context?.lifecycle.totalStages ?? 0}
-      />
-    );
+    return <PartyFinalSummaryPanel players={party.players} totalStages={party.context?.lifecycle.totalStages ?? 0} />;
   }
 
   if (screenSection === PartyScreenSection.RESULT && party.context?.result?.current) {
@@ -316,9 +285,7 @@ function renderHostRuntimePanel(
 
 function resolvePlayerRuntimeNoticeMessage(
   runtimeNoticeKind: PartyRuntimeNoticeKind | null,
-  playerRuntimeNoticeMessageResolver: ReturnType<
-    typeof usePartyDependencies
-  >['playerRuntimeNoticeMessageResolver'],
+  playerRuntimeNoticeMessageResolver: ReturnType<typeof usePartyDependencies>['playerRuntimeNoticeMessageResolver'],
 ): string | null {
   if (runtimeNoticeKind === null) {
     return null;

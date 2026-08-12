@@ -57,18 +57,10 @@ type OrganizationDashboardReadGateway = {
 };
 
 interface OrganizationScreenActions {
-  readonly createOrganization: ReturnType<
-    typeof vi.fn<OrganizationRepository['createOrganization']>
-  >;
-  readonly listOrganizationMembers: ReturnType<
-    typeof vi.fn<OrganizationRepository['getOrganizationMembers']>
-  >;
-  readonly addOrganizationMember: ReturnType<
-    typeof vi.fn<OrganizationRepository['addOrganizationMember']>
-  >;
-  readonly removeOrganizationMember: ReturnType<
-    typeof vi.fn<OrganizationRepository['removeOrganizationMember']>
-  >;
+  readonly createOrganization: ReturnType<typeof vi.fn<OrganizationRepository['createOrganization']>>;
+  readonly listOrganizationMembers: ReturnType<typeof vi.fn<OrganizationRepository['getOrganizationMembers']>>;
+  readonly addOrganizationMember: ReturnType<typeof vi.fn<OrganizationRepository['addOrganizationMember']>>;
+  readonly removeOrganizationMember: ReturnType<typeof vi.fn<OrganizationRepository['removeOrganizationMember']>>;
   readonly updateOrganizationMemberRole: ReturnType<
     typeof vi.fn<OrganizationRepository['updateOrganizationMemberRole']>
   >;
@@ -95,9 +87,7 @@ export class OrganizationScreenFixtureFactory {
     });
   }
 
-  createOrganizationDashboard(
-    overrides: Partial<OrganizationDashboard> = {},
-  ): OrganizationDashboard {
+  createOrganizationDashboard(overrides: Partial<OrganizationDashboard> = {}): OrganizationDashboard {
     return this.organizationFixtureFactory.createOrganizationDashboard({
       organization: {
         id: defaultOrganizationId,
@@ -113,9 +103,7 @@ export class OrganizationScreenFixtureFactory {
     overrides: Partial<OrganizationDashboardReadGateway> = {},
   ): OrganizationDashboardReadGateway {
     return this.dashboardReadGatewayMockFactory.create({
-      loadOrganizations: vi
-        .fn()
-        .mockResolvedValue([this.organizationFixtureFactory.createOrganization()]),
+      loadOrganizations: vi.fn().mockResolvedValue([this.organizationFixtureFactory.createOrganization()]),
       loadOrganizationDashboard: vi.fn().mockResolvedValue(this.createOrganizationDashboard()),
       loadProjectsByOrganization: vi.fn().mockResolvedValue([]),
       ...overrides,
@@ -124,16 +112,14 @@ export class OrganizationScreenFixtureFactory {
 
   createActions(overrides: Partial<OrganizationScreenActions> = {}): OrganizationScreenActions {
     return {
-      createOrganization: vi
-        .fn<(_: CreateOrganizationCommand) => Promise<Organization>>()
-        .mockResolvedValue({
-          id: createdOrganizationId,
-          name: 'New Org',
-          description: null,
-          createdAt: DEFAULT_TIMESTAMP,
-          updatedAt: DEFAULT_TIMESTAMP,
-          role: OrganizationRole.OWNER,
-        }),
+      createOrganization: vi.fn<(_: CreateOrganizationCommand) => Promise<Organization>>().mockResolvedValue({
+        id: createdOrganizationId,
+        name: 'New Org',
+        description: null,
+        createdAt: DEFAULT_TIMESTAMP,
+        updatedAt: DEFAULT_TIMESTAMP,
+        role: OrganizationRole.OWNER,
+      }),
       createProject: vi.fn<(_: CreateProjectCommand) => Promise<Project>>().mockResolvedValue(
         this.createProject({
           id: createdProjectId,
@@ -183,9 +169,7 @@ export class OrganizationScreenFixtureFactory {
           organizationId: fallbackOrganizationId,
         }),
       ),
-      deleteProject: vi
-        .fn<(_: DeleteProjectCommand) => Promise<void>>()
-        .mockResolvedValue(undefined),
+      deleteProject: vi.fn<(_: DeleteProjectCommand) => Promise<void>>().mockResolvedValue(undefined),
       ...overrides,
     };
   }

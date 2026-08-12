@@ -11,9 +11,7 @@ describe('AuthPayloadInspector', () => {
       const inspector = new AuthPayloadInspector();
 
       // Act
-      const result = inspector.isUser(
-        authFixtureFactory.createUserPayload({ avatarUri: undefined }),
-      );
+      const result = inspector.isUser(authFixtureFactory.createUserPayload({ avatarUri: undefined }));
 
       // Assert
       expect(result).toBe(true);

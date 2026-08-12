@@ -15,15 +15,7 @@ interface SectionCardProps extends PropsWithChildren {
   readonly icon?: ReactNode;
 }
 
-export function SectionCard({
-  actions,
-  children,
-  eyebrow,
-  title,
-  description,
-  footer,
-  icon,
-}: SectionCardProps) {
+export function SectionCard({ actions, children, eyebrow, title, description, footer, icon }: SectionCardProps) {
   const titleId = useId();
 
   return (

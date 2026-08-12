@@ -25,8 +25,7 @@ export const gamePartyHostEn = {
           runtimeShortcutRequestEndParty: 'Request ending the party (confirmation required)',
           runtimePending: 'Applying the latest host command...',
           runtimeEndConfirmTitle: 'End the party?',
-          runtimeEndConfirmMessage:
-            'Players will be disconnected from the live session. This cannot be undone.',
+          runtimeEndConfirmMessage: 'Players will be disconnected from the live session. This cannot be undone.',
           runtimeRestartStageConfirmTitle: 'Restart this stage?',
           runtimeRestartStageConfirmMessage:
             'Every player answer and score earned on this stage will be cleared before the stage starts again.',

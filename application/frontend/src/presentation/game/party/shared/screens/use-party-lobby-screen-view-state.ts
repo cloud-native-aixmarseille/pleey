@@ -3,11 +3,7 @@ import type { PartyId } from '../../../../../domains/game/party/shared/entities/
 import { useAuth } from '../../../../identity/contexts/auth-context';
 import { usePresentationParams, usePresentationPathname } from '../../../../shared/routing/router';
 import { useParty } from '../contexts/party-context';
-import type {
-  PartyIdParser,
-  PartyPinParser,
-  StageIdParser,
-} from '../contexts/party-dependencies-context';
+import type { PartyIdParser, PartyPinParser, StageIdParser } from '../contexts/party-dependencies-context';
 import {
   defaultNormalizePartyId,
   defaultNormalizePin,
@@ -65,35 +61,25 @@ export function usePartyLobbyScreenViewState({
   const resolvedNormalizePin =
     normalizePin ?? ((value: string | undefined) => defaultNormalizePin(value, partyPinIdentifier));
   const resolvedNormalizePartyId =
-    normalizePartyId ??
-    ((value: string | undefined) => defaultNormalizePartyId(value, partyIdentifier));
-  const resolvedNormalizeStageId = (value: string | undefined) =>
-    defaultNormalizeStageId(value, stageIdentifier);
+    normalizePartyId ?? ((value: string | undefined) => defaultNormalizePartyId(value, partyIdentifier));
+  const resolvedNormalizeStageId = (value: string | undefined) => defaultNormalizeStageId(value, stageIdentifier);
   const normalizedPin = resolvedNormalizePin(pin);
   const normalizedPartyId = resolvedNormalizePartyId(partyId);
-  const requestedStageId = resolvedNormalizeStageId(
-    stageId ?? resolveStageSegmentFromPathname(pathname, routeKind),
-  );
-  const {
-    bootstrapErrorMessage,
-    bootstrapPartyByPin,
-    party,
-    partyIdErrorMessage,
-    routeState,
-    runtimeNotice,
-  } = usePartyLobbyRouteContext({
-    getErrorByPartyId,
-    getPartyByPartyId,
-    getRuntimeNoticeByPartyId,
-    isAuthenticated,
-    joinedPartyId,
-    normalizedPartyId,
-    normalizedPin,
-    observePartyById,
-    partyLobbyFacade,
-    resolvePartyLobbyRoute,
-    routeKind,
-  });
+  const requestedStageId = resolvedNormalizeStageId(stageId ?? resolveStageSegmentFromPathname(pathname, routeKind));
+  const { bootstrapErrorMessage, bootstrapPartyByPin, party, partyIdErrorMessage, routeState, runtimeNotice } =
+    usePartyLobbyRouteContext({
+      getErrorByPartyId,
+      getPartyByPartyId,
+      getRuntimeNoticeByPartyId,
+      isAuthenticated,
+      joinedPartyId,
+      normalizedPartyId,
+      normalizedPin,
+      observePartyById,
+      partyLobbyFacade,
+      resolvePartyLobbyRoute,
+      routeKind,
+    });
   const currentPartyPin = normalizedPin ?? party?.pin ?? null;
   const currentGuestId = currentPartyPin ? partyLobbyFacade.getGuestId(currentPartyPin) : null;
   const connectionState = getConnectionStateByPartyId(routeState.resolvedPartyId);

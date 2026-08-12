@@ -23,10 +23,7 @@ import { PlayableContentImportAcceptedTypesResolver } from '../../../../applicat
 import { GAME_TYPE_CATALOG_GATEWAY } from '../../../../application/game/types/shared/gateways/game-type-catalog.gateway';
 import { GameTypeIdentifier } from '../../../../application/game/types/shared/services/game-type-identifier';
 import { GameTypeRegistry } from '../../../../application/game/types/shared/services/game-type-registry';
-import {
-  ROUTE_FACTORY,
-  type RouteFactory,
-} from '../../../../application/shared/contracts/routing.port';
+import { ROUTE_FACTORY, type RouteFactory } from '../../../../application/shared/contracts/routing.port';
 import {
   WORKSPACE_SELECTION_PORT,
   type WorkspaceSelectionPort,
@@ -52,10 +49,7 @@ import { OrganizationMemberIdentifier } from '../../../../application/workspace/
 import { ProjectIdentifier } from '../../../../application/workspace/shared/services/identifiers/project-identifier';
 import { PredictionManagementRepositoryToken } from '../../../../domains/game/types/prediction/ports/prediction-management.repository';
 import { QuizManagementRepositoryToken } from '../../../../domains/game/types/quiz/ports/quiz-management.repository';
-import {
-  type GameTypeCatalog,
-  type GameTypeDescriptor,
-} from '../../../../domains/game/types/shared/game-type-catalog';
+import { type GameTypeCatalog, type GameTypeDescriptor } from '../../../../domains/game/types/shared/game-type-catalog';
 import { StaticGameTypeCatalog } from '../../../../domains/game/types/shared/static-game-type-catalog';
 import { OrganizationRepositoryToken } from '../../../../domains/organization/ports/organization-repository';
 import { OrganizationFormService } from '../../../../domains/organization/services/organization-form.service';
@@ -153,9 +147,7 @@ export const workspaceContainerModule = new ContainerModule(({ bind }) => {
   bind<GameTypeContributor>(GameTypeContributorToken).toService(QuizGameTypeContributor);
   bind(OrganizationRepositoryToken).to(GraphqlOrganizationRepository).inSingletonScope();
   bind(ProjectRepositoryToken).to(GraphqlProjectRepository).inSingletonScope();
-  bind<WorkspaceSelectionPort>(WORKSPACE_SELECTION_PORT)
-    .to(PersistedWorkspaceSelectionAdapter)
-    .inSingletonScope();
+  bind<WorkspaceSelectionPort>(WORKSPACE_SELECTION_PORT).to(PersistedWorkspaceSelectionAdapter).inSingletonScope();
   bind(AppProviderFactoryToken).toService(AppWorkspaceProviderFactory);
   bind<RouteFactory>(ROUTE_FACTORY).toService(DashboardRoutesFactory);
   bind<RouteFactory>(ROUTE_FACTORY).toService(PredictionManagementRoutesFactory);

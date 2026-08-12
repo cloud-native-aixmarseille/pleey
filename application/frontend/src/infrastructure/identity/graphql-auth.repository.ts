@@ -1,20 +1,14 @@
 import { inject, injectable } from 'inversify';
 import type { AuthSession } from '../../domains/identity/entities/auth-session';
 import type { User } from '../../domains/identity/entities/user';
-import {
-  AUTH_ERROR_DEFINITIONS,
-  AuthErrorCode,
-} from '../../domains/identity/errors/auth-error-code';
+import { AUTH_ERROR_DEFINITIONS, AuthErrorCode } from '../../domains/identity/errors/auth-error-code';
 import {
   InvalidLoginResponseError,
   InvalidRegenerateAvatarResponseError,
   InvalidRegistrationResponseError,
   InvalidUpdateProfileResponseError,
 } from '../../domains/identity/errors/graphql-auth-repository.error';
-import type {
-  AuthRepository,
-  UpdateProfileInput,
-} from '../../domains/identity/ports/auth-repository';
+import type { AuthRepository, UpdateProfileInput } from '../../domains/identity/ports/auth-repository';
 import { AuthPayloadInspector } from '../../domains/identity/services/auth-payload-inspector';
 import { GraphqlClient } from '../graphql/client/graphql-client';
 import {
@@ -44,10 +38,9 @@ export class GraphqlAuthRepository implements AuthRepository {
 
   async login(email: string, password: string): Promise<AuthSession> {
     try {
-      const result = await this.graphqlClient.request<LoginMutation, LoginMutationVariables>(
-        LoginDocument,
-        { input: { email, password } },
-      );
+      const result = await this.graphqlClient.request<LoginMutation, LoginMutationVariables>(LoginDocument, {
+        input: { email, password },
+      });
       const session = this.payloadInspector.toAuthSession(result.login);
 
       if (!session) {
@@ -56,20 +49,17 @@ export class GraphqlAuthRepository implements AuthRepository {
 
       return session;
     } catch (error) {
-      throw this.graphqlClient.resolveDomainError(
-        error,
-        AUTH_ERROR_DEFINITIONS[AuthErrorCode.INVALID_CREDENTIALS],
-        { operationName: 'login' },
-      );
+      throw this.graphqlClient.resolveDomainError(error, AUTH_ERROR_DEFINITIONS[AuthErrorCode.INVALID_CREDENTIALS], {
+        operationName: 'login',
+      });
     }
   }
 
   async register(username: string, email: string, password: string): Promise<User> {
     try {
-      const result = await this.graphqlClient.request<RegisterMutation, RegisterMutationVariables>(
-        RegisterDocument,
-        { input: { username, email, password } },
-      );
+      const result = await this.graphqlClient.request<RegisterMutation, RegisterMutationVariables>(RegisterDocument, {
+        input: { username, email, password },
+      });
       const user = this.payloadInspector.toUser(result.register);
 
       if (!user) {
@@ -78,20 +68,18 @@ export class GraphqlAuthRepository implements AuthRepository {
 
       return user;
     } catch (error) {
-      throw this.graphqlClient.resolveDomainError(
-        error,
-        AUTH_ERROR_DEFINITIONS[AuthErrorCode.REGISTRATION_FAILED],
-        { operationName: 'register' },
-      );
+      throw this.graphqlClient.resolveDomainError(error, AUTH_ERROR_DEFINITIONS[AuthErrorCode.REGISTRATION_FAILED], {
+        operationName: 'register',
+      });
     }
   }
 
   async updateProfile(input: UpdateProfileInput): Promise<User> {
     try {
-      const result = await this.graphqlClient.request<
-        UpdateProfileMutation,
-        UpdateProfileMutationVariables
-      >(UpdateProfileDocument, { input });
+      const result = await this.graphqlClient.request<UpdateProfileMutation, UpdateProfileMutationVariables>(
+        UpdateProfileDocument,
+        { input },
+      );
       const user = this.payloadInspector.toUser(result.updateProfile);
 
       if (!user) {
@@ -100,18 +88,15 @@ export class GraphqlAuthRepository implements AuthRepository {
 
       return user;
     } catch (error) {
-      throw this.graphqlClient.resolveDomainError(
-        error,
-        AUTH_ERROR_DEFINITIONS[AuthErrorCode.GENERIC],
-        { operationName: 'updateProfile' },
-      );
+      throw this.graphqlClient.resolveDomainError(error, AUTH_ERROR_DEFINITIONS[AuthErrorCode.GENERIC], {
+        operationName: 'updateProfile',
+      });
     }
   }
 
   async regenerateAvatar(): Promise<User> {
     try {
-      const result =
-        await this.graphqlClient.request<RegenerateAvatarMutation>(RegenerateAvatarDocument);
+      const result = await this.graphqlClient.request<RegenerateAvatarMutation>(RegenerateAvatarDocument);
       const user = this.payloadInspector.toUser(result.regenerateAvatar);
 
       if (!user) {
@@ -122,11 +107,9 @@ export class GraphqlAuthRepository implements AuthRepository {
 
       return user;
     } catch (error) {
-      throw this.graphqlClient.resolveDomainError(
-        error,
-        AUTH_ERROR_DEFINITIONS[AuthErrorCode.GENERIC],
-        { operationName: 'regenerateAvatar' },
-      );
+      throw this.graphqlClient.resolveDomainError(error, AUTH_ERROR_DEFINITIONS[AuthErrorCode.GENERIC], {
+        operationName: 'regenerateAvatar',
+      });
     }
   }
 

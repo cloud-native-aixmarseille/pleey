@@ -156,33 +156,11 @@ interface AppIconProps extends Omit<IconProps, 'size'> {
   readonly size?: number;
 }
 
-export function AppIcon({
-  name,
-  decorative = true,
-  size = 18,
-  stroke = 1.75,
-  ...props
-}: AppIconProps) {
+export function AppIcon({ name, decorative = true, size = 18, stroke = 1.75, ...props }: AppIconProps) {
   const IconComponent = iconRegistry[name];
 
-  return (
-    <IconComponent
-      aria-hidden={decorative}
-      focusable={false}
-      size={size}
-      stroke={stroke}
-      {...props}
-    />
-  );
+  return <IconComponent aria-hidden={decorative} focusable={false} size={size} stroke={stroke} {...props} />;
 }
 
-export const homeFeatureIconNames = [
-  'feature',
-  'account',
-  'game',
-] as const satisfies readonly AppIconName[];
-export const homeStepIconNames = [
-  'register',
-  'settings',
-  'trophy',
-] as const satisfies readonly AppIconName[];
+export const homeFeatureIconNames = ['feature', 'account', 'game'] as const satisfies readonly AppIconName[];
+export const homeStepIconNames = ['register', 'settings', 'trophy'] as const satisfies readonly AppIconName[];

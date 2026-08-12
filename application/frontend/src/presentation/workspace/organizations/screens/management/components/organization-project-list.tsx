@@ -48,18 +48,11 @@ export function OrganizationProjectList({
                 </SupportingText>
               </WrapRow>
               <ActionRow gap="sm">
-                {isSelected ? (
-                  <Badge tone="accent">{t('project.management.list.selectedBadge')}</Badge>
-                ) : null}
+                {isSelected ? <Badge tone="accent">{t('project.management.list.selectedBadge')}</Badge> : null}
                 <Button intent="secondary" size="sm" onClick={() => onEditProject(project)}>
                   {t('project.management.list.editButton')}
                 </Button>
-                <Button
-                  disabled={!canRemoveProjects}
-                  intent="ghost"
-                  size="sm"
-                  onClick={() => onRemoveProject(project)}
-                >
+                <Button disabled={!canRemoveProjects} intent="ghost" size="sm" onClick={() => onRemoveProject(project)}>
                   {t('project.management.list.removeButton')}
                 </Button>
               </ActionRow>

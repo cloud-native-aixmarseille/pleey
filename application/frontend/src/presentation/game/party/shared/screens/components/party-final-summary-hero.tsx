@@ -33,14 +33,10 @@ export function PartyFinalSummaryHero({ isMobile, winner }: PartyFinalSummaryHer
             </span>
           </MotionPop>
           <MotionFadeIn delay={1.1}>
-            <span style={finalSummaryEyebrowStyle}>
-              {t('game.party.route.finalSummaryEyebrow')}
-            </span>
+            <span style={finalSummaryEyebrowStyle}>{t('game.party.route.finalSummaryEyebrow')}</span>
           </MotionFadeIn>
           <MotionFadeIn delay={1.7}>
-            <h1 style={isMobile ? mobileHeroTitleStyle : heroTitleStyle}>
-              {t('game.party.route.finalSummaryTitle')}
-            </h1>
+            <h1 style={isMobile ? mobileHeroTitleStyle : heroTitleStyle}>{t('game.party.route.finalSummaryTitle')}</h1>
           </MotionFadeIn>
           <MotionFadeIn delay={2.3}>
             <p style={isMobile ? mobileHeroSubtitleStyle : heroSubtitleStyle}>

@@ -67,9 +67,7 @@ describe('AsyncCombobox', () => {
     const viewport = screen
       .getByLabelText('Search projects')
       .closest('[role="presentation"]')
-      ?.querySelector(
-        '[data-radix-scroll-area-viewport], [data-scroll-area-viewport], .mantine-ScrollArea-viewport',
-      );
+      ?.querySelector('[data-radix-scroll-area-viewport], [data-scroll-area-viewport], .mantine-ScrollArea-viewport');
 
     if (!(viewport instanceof HTMLElement)) {
       throw new Error('scroll viewport not found');

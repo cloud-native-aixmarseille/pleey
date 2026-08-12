@@ -3,10 +3,7 @@ import type { PartyObservation } from '../../../../../../domains/game/party/shar
 import { PartyStatus } from '../../../../../../domains/game/party/shared/entities/party-status';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../../shared/ui/actions/button';
-import {
-  MotionStagger,
-  MotionStaggerItem,
-} from '../../../../../shared/ui/motion/motion-primitives';
+import { MotionStagger, MotionStaggerItem } from '../../../../../shared/ui/motion/motion-primitives';
 import { actionGridStyle } from './player-stage-surface.styles';
 import { PlayerStageSurfaceFrame } from './player-stage-surface-frame';
 

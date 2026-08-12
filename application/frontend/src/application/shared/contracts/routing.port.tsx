@@ -13,9 +13,7 @@ export type CreateLinkFn = <TProps extends object>(
 
 export type PresentationNavigate = (to: string) => void;
 
-export type PresentationParams<TKey extends string = string> = Readonly<
-  Partial<Record<TKey, string>>
->;
+export type PresentationParams<TKey extends string = string> = Readonly<Partial<Record<TKey, string>>>;
 
 export interface RoutingPort {
   readonly createLink: CreateLinkFn;

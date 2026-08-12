@@ -33,12 +33,7 @@ export function PartyLobbySharePanel({
         <ContentStack align="center" gap="xl">
           <Heading hero>{heading}</Heading>
 
-          <QrShareCard
-            copyLabel={copyLabel}
-            href={joinUrl}
-            scanLabel={scanLabel}
-            visitLabel={orVisitLabel}
-          />
+          <QrShareCard copyLabel={copyLabel} href={joinUrl} scanLabel={scanLabel} visitLabel={orVisitLabel} />
 
           <PartyPinPreview ariaLabel={pinAriaLabel} label={enterCodeLabel} pin={pin} />
         </ContentStack>

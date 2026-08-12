@@ -7,11 +7,7 @@ interface AccessibleFieldExpectation {
   readonly error?: string;
 }
 
-export function expectAccessibleField({
-  description,
-  error,
-  label,
-}: AccessibleFieldExpectation): HTMLElement {
+export function expectAccessibleField({ description, error, label }: AccessibleFieldExpectation): HTMLElement {
   const field = screen.getByLabelText(label);
   const describedByIds: string[] = [];
 
@@ -35,9 +31,7 @@ export function expectAccessibleField({
     const ariaDescribedBy = field.getAttribute('aria-describedby');
 
     expect(ariaDescribedBy).toBeTruthy();
-    expect(ariaDescribedBy?.split(/\s+/).filter(Boolean).sort()).toEqual(
-      [...describedByIds].sort(),
-    );
+    expect(ariaDescribedBy?.split(/\s+/).filter(Boolean).sort()).toEqual([...describedByIds].sort());
   }
 
   return field;

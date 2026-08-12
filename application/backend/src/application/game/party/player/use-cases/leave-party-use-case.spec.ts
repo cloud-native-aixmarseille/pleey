@@ -15,10 +15,7 @@ describe('LeavePartyUseCase', () => {
     const broadcastPartyObservationUseCase = {
       broadcastIfPresent: vi.fn(),
     };
-    const useCase = new LeavePartyUseCase(
-      runtime as never,
-      broadcastPartyObservationUseCase as never,
-    );
+    const useCase = new LeavePartyUseCase(runtime as never, broadcastPartyObservationUseCase as never);
 
     await expect(
       useCase.execute({
@@ -36,10 +33,7 @@ describe('LeavePartyUseCase', () => {
     const broadcastPartyObservationUseCase = {
       broadcastIfPresent: vi.fn().mockResolvedValue(undefined),
     };
-    const useCase = new LeavePartyUseCase(
-      runtime as never,
-      broadcastPartyObservationUseCase as never,
-    );
+    const useCase = new LeavePartyUseCase(runtime as never, broadcastPartyObservationUseCase as never);
 
     await expect(
       useCase.execute({
@@ -64,10 +58,7 @@ describe('LeavePartyUseCase', () => {
     const broadcastPartyObservationUseCase = {
       broadcastIfPresent: vi.fn().mockResolvedValue(undefined),
     };
-    const useCase = new LeavePartyUseCase(
-      runtime as never,
-      broadcastPartyObservationUseCase as never,
-    );
+    const useCase = new LeavePartyUseCase(runtime as never, broadcastPartyObservationUseCase as never);
 
     await expect(
       useCase.execute({

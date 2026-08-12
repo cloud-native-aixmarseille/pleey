@@ -55,9 +55,7 @@ function collectFrontendTranslationReferences(directory: string): {
   const resources = translationResourceComposer.compose();
   const translationNamespaces = Object.keys(resources.en.translation as Record<string, unknown>);
   const isTranslationKey = (candidate: string) => {
-    return translationNamespaces.some(
-      (namespace) => candidate === namespace || candidate.startsWith(`${namespace}.`),
-    );
+    return translationNamespaces.some((namespace) => candidate === namespace || candidate.startsWith(`${namespace}.`));
   };
   const exactKeys = new Set<string>();
   const rootedKeys = new Set<string>();
@@ -212,26 +210,16 @@ describe('TranslationResourceComposer', () => {
       const englishKeys = new Set(englishTranslationKeys);
       const frenchKeys = new Set(frenchTranslationKeys);
       const { exactKeys, rootedKeys } = collectFrontendTranslationReferences(sourceDirectory);
-      const effectiveEnglishRoots = [
-        ...rootedKeys,
-        ...collectDefinedReferenceRoots(exactKeys, englishTranslationKeys),
-      ];
-      const effectiveFrenchRoots = [
-        ...rootedKeys,
-        ...collectDefinedReferenceRoots(exactKeys, frenchTranslationKeys),
-      ];
+      const effectiveEnglishRoots = [...rootedKeys, ...collectDefinedReferenceRoots(exactKeys, englishTranslationKeys)];
+      const effectiveFrenchRoots = [...rootedKeys, ...collectDefinedReferenceRoots(exactKeys, frenchTranslationKeys)];
 
       // Assert
-      expect(
-        exactKeys.filter(
-          (key) => !englishKeys.has(key) && !isCoveredByRoot(key, effectiveEnglishRoots),
-        ),
-      ).toEqual([]);
-      expect(
-        exactKeys.filter(
-          (key) => !frenchKeys.has(key) && !isCoveredByRoot(key, effectiveFrenchRoots),
-        ),
-      ).toEqual([]);
+      expect(exactKeys.filter((key) => !englishKeys.has(key) && !isCoveredByRoot(key, effectiveEnglishRoots))).toEqual(
+        [],
+      );
+      expect(exactKeys.filter((key) => !frenchKeys.has(key) && !isCoveredByRoot(key, effectiveFrenchRoots))).toEqual(
+        [],
+      );
     });
 
     it('does not keep stale translation keys in the frontend resources', () => {
@@ -241,17 +229,12 @@ describe('TranslationResourceComposer', () => {
       const resources = translationResourceComposer.compose();
       const englishKeys = flattenTranslationKeys(resources.en.translation).sort();
       const { exactKeys, rootedKeys } = collectFrontendTranslationReferences(sourceDirectory);
-      const effectiveRoots = [
-        ...rootedKeys,
-        ...collectDefinedReferenceRoots(exactKeys, englishKeys),
-      ];
+      const effectiveRoots = [...rootedKeys, ...collectDefinedReferenceRoots(exactKeys, englishKeys)];
 
       // Assert
-      expect(
-        englishKeys.filter(
-          (key) => !exactKeys.includes(key) && !isCoveredByRoot(key, effectiveRoots),
-        ),
-      ).toEqual([]);
+      expect(englishKeys.filter((key) => !exactKeys.includes(key) && !isCoveredByRoot(key, effectiveRoots))).toEqual(
+        [],
+      );
     });
   });
 });

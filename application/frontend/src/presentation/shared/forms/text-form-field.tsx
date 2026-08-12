@@ -14,13 +14,7 @@ export function TextFormField({
   const { field, fieldId, error } = useFieldState<string>();
 
   return (
-    <FormFieldShell
-      description={description}
-      error={error}
-      id={fieldId}
-      label={label}
-      required={required}
-    >
+    <FormFieldShell description={description} error={error} id={fieldId} label={label} required={required}>
       {({ describedBy, invalid }) => (
         <Input
           aria-describedby={describedBy}

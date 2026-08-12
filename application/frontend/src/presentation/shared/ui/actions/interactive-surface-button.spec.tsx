@@ -7,9 +7,7 @@ describe('InteractiveSurfaceButton', () => {
   it('lets the Mantine label container shrink and wrap long content', () => {
     renderWithUiProvider(
       <InteractiveSurfaceButton>
-        <div data-testid="surface-content">
-          Paris Paris Paris Paris Paris Paris Paris Paris Paris Paris
-        </div>
+        <div data-testid="surface-content">Paris Paris Paris Paris Paris Paris Paris Paris Paris Paris</div>
       </InteractiveSurfaceButton>,
     );
 

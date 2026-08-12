@@ -26,8 +26,7 @@ vi.mock('../../../routing/router', async (importOriginal) => {
 });
 
 vi.mock('../../../../identity/contexts/auth-context', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('../../../../identity/contexts/auth-context')>();
+  const actual = await importOriginal<typeof import('../../../../identity/contexts/auth-context')>();
   const { AuthContextMockFactory } = await import('src/test-utils/mocks/auth-context-mock-factory');
 
   return {

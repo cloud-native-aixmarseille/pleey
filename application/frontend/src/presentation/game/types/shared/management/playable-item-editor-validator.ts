@@ -41,8 +41,7 @@ export class PlayableItemEditorValidator {
       }
 
       const hasCorrectOutcome = editorState.optionTexts.some(
-        (option, index) =>
-          option.trim().length > 0 && editorState.correctPositions.includes(String(index)),
+        (option, index) => option.trim().length > 0 && editorState.correctPositions.includes(String(index)),
       );
 
       if (!hasCorrectOutcome) {
@@ -50,10 +49,7 @@ export class PlayableItemEditorValidator {
       }
     }
 
-    if (
-      selectedKindOption?.correctSelectionMode === 'single' &&
-      editorState.correctPositions.length !== 1
-    ) {
+    if (selectedKindOption?.correctSelectionMode === 'single' && editorState.correctPositions.length !== 1) {
       issues.push({ code: 'missingCorrectOption' });
     }
 

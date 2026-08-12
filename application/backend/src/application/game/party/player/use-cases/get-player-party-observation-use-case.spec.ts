@@ -32,9 +32,7 @@ describe('GetPlayerPartyObservationUseCase', () => {
   it('loads the player observation by party id', async () => {
     const result = await useCase.execute({ partyId });
 
-    expect(playerPartyObservationReader.findPlayerObservationByPartyId).toHaveBeenCalledWith(
-      partyId,
-    );
+    expect(playerPartyObservationReader.findPlayerObservationByPartyId).toHaveBeenCalledWith(partyId);
     expect(result.partyId).toBe(partyId);
   });
 

@@ -5,9 +5,7 @@ const READINESS_ENDPOINT = process.env.READINESS_ENDPOINT ?? "http://backend:300
 
 async function waitForHomePageReady(page: Page) {
   await expect(page.getByRole("main")).toBeVisible();
-  await expect(
-    page.getByRole("link", { name: /create your first game/i }),
-  ).toBeVisible();
+  await expect(page.getByRole("link", { name: /create your first game/i })).toBeVisible();
   await expect(page.getByRole("link", { name: /get started/i })).toBeVisible();
 }
 
@@ -33,9 +31,7 @@ test.describe("Smoke Tests", () => {
     await expect(page.locator("body")).toBeVisible();
   });
 
-  test("should have backend liveness probe responding @smoke", async ({
-    request,
-  }) => {
+  test("should have backend liveness probe responding @smoke", async ({ request }) => {
     // Check liveness probe
     const response = await request.get(LIVENESS_ENDPOINT);
 
@@ -43,9 +39,7 @@ test.describe("Smoke Tests", () => {
     expect(response.status()).toBe(200);
   });
 
-  test("should have backend readiness probe responding @smoke", async ({
-    request,
-  }) => {
+  test("should have backend readiness probe responding @smoke", async ({ request }) => {
     // Check readiness probe
     const response = await request.get(READINESS_ENDPOINT);
 
@@ -53,9 +47,7 @@ test.describe("Smoke Tests", () => {
     expect(response.status()).toBe(200);
   });
 
-  test("should render the primary home actions @smoke", async ({
-    page,
-  }) => {
+  test("should render the primary home actions @smoke", async ({ page }) => {
     await page.goto("/");
 
     await waitForHomePageReady(page);
@@ -92,25 +84,14 @@ test.describe("Smoke Tests", () => {
     await page.goto("/");
     await waitForHomePageReady(page);
 
-    const refusedRequests = failedRequests.filter((entry) =>
-      entry.errorText.includes("net::ERR_CONNECTION_REFUSED"),
-    );
-    expect(
-      refusedRequests,
-      `Requests refused: ${JSON.stringify(refusedRequests, null, 2)}`,
-    ).toHaveLength(0);
+    const refusedRequests = failedRequests.filter((entry) => entry.errorText.includes("net::ERR_CONNECTION_REFUSED"));
+    expect(refusedRequests, `Requests refused: ${JSON.stringify(refusedRequests, null, 2)}`).toHaveLength(0);
 
     // Allow some warnings but no critical errors
     const criticalErrors = errors.filter(
-      (e) =>
-        !e.includes("favicon") &&
-        !e.includes("sourcemap") &&
-        !e.includes("DevTools"),
+      (e) => !e.includes("favicon") && !e.includes("sourcemap") && !e.includes("DevTools"),
     );
 
-    expect(
-      criticalErrors,
-      `Console errors detected: ${JSON.stringify(criticalErrors, null, 2)}`,
-    ).toHaveLength(0);
+    expect(criticalErrors, `Console errors detected: ${JSON.stringify(criticalErrors, null, 2)}`).toHaveLength(0);
   });
 });

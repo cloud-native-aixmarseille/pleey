@@ -4,10 +4,7 @@ import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';
 import { Input } from '../../../../../shared/ui/forms/input';
 import { ContentStack } from '../../../../../shared/ui/layout/containers';
 import { SectionCard } from '../../../../../shared/ui/layout/section-card';
-import {
-  PaginationBar,
-  type PaginationViewModel,
-} from '../../../../shared/components/pagination-bar';
+import { PaginationBar, type PaginationViewModel } from '../../../../shared/components/pagination-bar';
 import { OrganizationProjectList } from './organization-project-list';
 
 interface OrganizationProjectsSectionProps {

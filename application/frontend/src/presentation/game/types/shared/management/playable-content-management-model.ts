@@ -49,9 +49,7 @@ export interface PlayableItemEditorState {
 
 const defaultOptionTexts = ['', '', '', '', '', '', '', ''];
 
-function resolveDefaultEditorKind(
-  itemKindConfig: PlayableItemKindConfig | undefined,
-): PlayableItemEditorKind {
+function resolveDefaultEditorKind(itemKindConfig: PlayableItemKindConfig | undefined): PlayableItemEditorKind {
   return itemKindConfig?.defaultKind ?? null;
 }
 
@@ -66,9 +64,7 @@ export function resolvePlayableItemKindOption(
   return itemKindConfig.options.find((option) => option.value === kind) ?? null;
 }
 
-export function createEmptyPlayableItemEditorState(
-  itemKindConfig?: PlayableItemKindConfig,
-): PlayableItemEditorState {
+export function createEmptyPlayableItemEditorState(itemKindConfig?: PlayableItemKindConfig): PlayableItemEditorState {
   return {
     id: null,
     text: '',

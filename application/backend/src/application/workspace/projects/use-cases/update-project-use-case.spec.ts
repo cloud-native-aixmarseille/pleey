@@ -18,11 +18,7 @@ describe('UpdateProjectUseCase', () => {
     const useCase = new UpdateProjectUseCase(projectRepository as never, memberRepository as never);
 
     await expect(
-      useCase.execute(
-        projectId,
-        { name: 'Updated project' } satisfies UpdateProjectDto,
-        actorUserId,
-      ),
+      useCase.execute(projectId, { name: 'Updated project' } satisfies UpdateProjectDto, actorUserId),
     ).rejects.toThrow(ProjectErrorCode.PROJECT_NOT_FOUND);
   });
 
@@ -40,11 +36,7 @@ describe('UpdateProjectUseCase', () => {
     const useCase = new UpdateProjectUseCase(projectRepository as never, memberRepository as never);
 
     await expect(
-      useCase.execute(
-        projectId,
-        { name: 'Updated project' } satisfies UpdateProjectDto,
-        actorUserId,
-      ),
+      useCase.execute(projectId, { name: 'Updated project' } satisfies UpdateProjectDto, actorUserId),
     ).rejects.toThrow(OrganizationErrorCode.NOT_A_MEMBER);
   });
 
@@ -64,11 +56,7 @@ describe('UpdateProjectUseCase', () => {
     const useCase = new UpdateProjectUseCase(projectRepository as never, memberRepository as never);
 
     await expect(
-      useCase.execute(
-        projectId,
-        { name: 'Updated project' } satisfies UpdateProjectDto,
-        actorUserId,
-      ),
+      useCase.execute(projectId, { name: 'Updated project' } satisfies UpdateProjectDto, actorUserId),
     ).rejects.toThrow(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
   });
 
@@ -100,11 +88,7 @@ describe('UpdateProjectUseCase', () => {
       actorUserId,
     );
 
-    expect(projectRepository.update).toHaveBeenCalledWith(
-      projectId,
-      'Updated project',
-      'Refined scope',
-    );
+    expect(projectRepository.update).toHaveBeenCalledWith(projectId, 'Updated project', 'Refined scope');
     expect(result).toBe(updatedProject);
   });
 });

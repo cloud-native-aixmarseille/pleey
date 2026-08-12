@@ -28,15 +28,11 @@ const impactFlashRays = [
 ] as const satisfies readonly HighFiveImpactRaySegment[];
 
 function HighFiveFinger({ height, x, y }: HighFiveFingerSegment) {
-  return (
-    <rect fill="var(--ui-color-surface-panel)" height={height} rx="0.4" width="0.9" x={x} y={y} />
-  );
+  return <rect fill="var(--ui-color-surface-panel)" height={height} rx="0.4" width="0.9" x={x} y={y} />;
 }
 
 function HighFiveImpactRay({ x1, x2, y1, y2 }: HighFiveImpactRaySegment) {
-  return (
-    <line stroke="var(--ui-color-brand-accent)" strokeWidth="0.8" x1={x1} x2={x2} y1={y1} y2={y2} />
-  );
+  return <line stroke="var(--ui-color-brand-accent)" strokeWidth="0.8" x1={x1} x2={x2} y1={y1} y2={y2} />;
 }
 
 export function LemmingHandHighFive() {
@@ -71,17 +67,9 @@ export function LemmingHandHighFive() {
           transition={{ duration: 1, times: [0, 0.12, 0.28, 0.35, 0.92] }}
         />
         {/* Fingers spread open */}
-        <motion.g
-          animate={{ opacity: [0, 0, 1, 1, 0] }}
-          transition={{ duration: 1, times: [0, 0.2, 0.3, 0.7, 0.9] }}
-        >
+        <motion.g animate={{ opacity: [0, 0, 1, 1, 0] }} transition={{ duration: 1, times: [0, 0.2, 0.3, 0.7, 0.9] }}>
           {highFiveFingerSegments.map((segment) => (
-            <HighFiveFinger
-              height={segment.height}
-              key={`${segment.x}-${segment.y}`}
-              x={segment.x}
-              y={segment.y}
-            />
+            <HighFiveFinger height={segment.height} key={`${segment.x}-${segment.y}`} x={segment.x} y={segment.y} />
           ))}
         </motion.g>
       </motion.g>

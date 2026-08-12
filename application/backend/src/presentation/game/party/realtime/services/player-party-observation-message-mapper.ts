@@ -27,11 +27,8 @@ export class PlayerPartyObservationMessageMapper {
         correctStages: player.correctStages,
         identity: player.identity,
         isCurrentPlayer:
-          currentPlayerIdentity !== null &&
-          this.areSamePlayerIdentity(currentPlayerIdentity, player.identity),
-        isLive: livePlayerIdentities.some((identity) =>
-          this.areSamePlayerIdentity(identity, player.identity),
-        ),
+          currentPlayerIdentity !== null && this.areSamePlayerIdentity(currentPlayerIdentity, player.identity),
+        isLive: livePlayerIdentities.some((identity) => this.areSamePlayerIdentity(identity, player.identity)),
         totalScore: player.totalScore,
         username: player.username,
       })),
@@ -75,10 +72,7 @@ export class PlayerPartyObservationMessageMapper {
         : observation.context;
     }
 
-    if (
-      observation.context.lifecycle.phase !== 'result' &&
-      observation.context.lifecycle.phase !== 'ended'
-    ) {
+    if (observation.context.lifecycle.phase !== 'result' && observation.context.lifecycle.phase !== 'ended') {
       return observation.context;
     }
 

@@ -81,9 +81,7 @@ describe('RegisterScreen', () => {
           password: 'secret',
         });
       });
-      expect(
-        await screen.findByRole('heading', { name: 'auth.register.success.title' }),
-      ).toBeInTheDocument();
+      expect(await screen.findByRole('heading', { name: 'auth.register.success.title' })).toBeInTheDocument();
       expect(screen.getByText('auth.register.success.message')).toBeInTheDocument();
     });
 
@@ -111,7 +109,7 @@ describe('RegisterScreen', () => {
 
     it('renders backend-translated registration errors without passing them through i18n', async () => {
       // Arrange
-      mocks.register.mockRejectedValue(new Error('Un compte existe deja pour cet email.'));
+      mocks.register.mockRejectedValue(new Error('An account already exists for this email.'));
       renderWithFormProvider(<RegisterScreen />);
 
       fireEvent.change(screen.getByLabelText('auth.form.usernameLabel *'), {
@@ -128,9 +126,7 @@ describe('RegisterScreen', () => {
       fireEvent.submit(screen.getByRole('button', { name: 'auth.register.submitCta' }));
 
       // Assert
-      expect(await screen.findByRole('alert')).toHaveTextContent(
-        'Un compte existe deja pour cet email.',
-      );
+      expect(await screen.findByRole('alert')).toHaveTextContent('An account already exists for this email.');
     });
 
     it('renders a username validation message after blur when the field is empty', async () => {
@@ -141,9 +137,7 @@ describe('RegisterScreen', () => {
       fireEvent.blur(screen.getByLabelText('auth.form.usernameLabel *'));
 
       // Assert
-      expect(await screen.findByRole('alert')).toHaveTextContent(
-        'auth.form.validation.usernameRequired',
-      );
+      expect(await screen.findByRole('alert')).toHaveTextContent('auth.form.validation.usernameRequired');
     });
   });
 });

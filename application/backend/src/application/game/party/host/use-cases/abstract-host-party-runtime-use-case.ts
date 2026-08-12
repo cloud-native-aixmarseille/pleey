@@ -1,7 +1,4 @@
-import {
-  HostPartyControlForbiddenError,
-  PartyNotFoundError,
-} from '../../../../../domain/game/errors';
+import { HostPartyControlForbiddenError, PartyNotFoundError } from '../../../../../domain/game/errors';
 import type { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
 import { HostPartyLifecyclePolicy } from '../../../../../domain/game/party/host/services/host-party-lifecycle-policy';
 import type { PartyRuntimeContext } from '../../../../../domain/game/party/shared/entities/party-runtime-context';
@@ -61,9 +58,7 @@ export abstract class AbstractHostPartyRuntimeUseCase {
     };
   }
 
-  protected async loadControlledParty(
-    input: HostPartyControlDto,
-  ): Promise<HostControlledPartyRuntime> {
+  protected async loadControlledParty(input: HostPartyControlDto): Promise<HostControlledPartyRuntime> {
     const party = await this.hostPartyRuntimeControl.findPartyRuntimeByPartyId(input.partyId);
 
     if (!party) {

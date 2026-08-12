@@ -13,11 +13,7 @@ export function StatusBanner({ children, tone = 'info' }: StatusBannerProps) {
   const isError = tone === 'error';
 
   return (
-    <StatusBannerFrame
-      ariaLive={isError ? 'assertive' : 'polite'}
-      role={isError ? 'alert' : 'status'}
-      tone={tone}
-    >
+    <StatusBannerFrame ariaLive={isError ? 'assertive' : 'polite'} role={isError ? 'alert' : 'status'} tone={tone}>
       {children}
     </StatusBannerFrame>
   );

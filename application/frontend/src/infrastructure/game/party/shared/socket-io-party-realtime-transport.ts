@@ -47,14 +47,10 @@ export class SocketIoPartyRealtimeTransport {
   private readonly pendingHostCommands = new Set<PendingHostCommand>();
   private readonly pendingPlayerCommands = new Set<PendingPlayerCommand>();
   private hasConnectedOnce = false;
-  private readonly subscriptions = new Map<
-    PartyId,
-    Set<SocketIoPartyObservationTransportHandlers>
-  >();
+  private readonly subscriptions = new Map<PartyId, Set<SocketIoPartyObservationTransportHandlers>>();
 
   observeParty(partyId: PartyId, handlers: SocketIoPartyObservationTransportHandlers): () => void {
-    const listeners =
-      this.subscriptions.get(partyId) ?? new Set<SocketIoPartyObservationTransportHandlers>();
+    const listeners = this.subscriptions.get(partyId) ?? new Set<SocketIoPartyObservationTransportHandlers>();
 
     listeners.add(handlers);
     this.subscriptions.set(partyId, listeners);
@@ -107,9 +103,7 @@ export class SocketIoPartyRealtimeTransport {
   async leaveParty(): Promise<boolean> {
     this.ensureConnected();
 
-    const result = await this.emitWithAcknowledgement<{ left: boolean }>(
-      SocketIoPartyJoinEventName.LeaveParty,
-    );
+    const result = await this.emitWithAcknowledgement<{ left: boolean }>(SocketIoPartyJoinEventName.LeaveParty);
 
     return result.left;
   }
@@ -233,17 +227,11 @@ export class SocketIoPartyRealtimeTransport {
 
     this.lastRequestedPartyId = partyId;
     this.activePartyObservationIds.add(partyId);
-    this.socket?.emit(
-      SocketIoPartyObservationEventName.ObserveParty,
-      this.toObservePartyPayload(partyId),
-    );
+    this.socket?.emit(SocketIoPartyObservationEventName.ObserveParty, this.toObservePartyPayload(partyId));
   }
 
   private emitWithAcknowledgement<TResponse>(
-    eventName:
-      | SocketIoPartyHostCommandEventName
-      | SocketIoPartyJoinEventName
-      | SocketIoPartyPlayerCommand['eventName'],
+    eventName: SocketIoPartyHostCommandEventName | SocketIoPartyJoinEventName | SocketIoPartyPlayerCommand['eventName'],
     payload?: object,
   ): Promise<TResponse> {
     return new Promise((resolve) => {
@@ -262,10 +250,7 @@ export class SocketIoPartyRealtimeTransport {
     });
   }
 
-  private dispatchConnected(
-    partyId: PartyId,
-    state: SocketIoPartyObservationConnectionState,
-  ): void {
+  private dispatchConnected(partyId: PartyId, state: SocketIoPartyObservationConnectionState): void {
     const listeners = this.subscriptions.get(partyId);
 
     if (!listeners || listeners.size === 0) {
@@ -278,8 +263,7 @@ export class SocketIoPartyRealtimeTransport {
   }
 
   private dispatchError(message: string, partyId?: PartyId | null): void {
-    const scopedListeners =
-      partyId === null || partyId === undefined ? undefined : this.subscriptions.get(partyId);
+    const scopedListeners = partyId === null || partyId === undefined ? undefined : this.subscriptions.get(partyId);
     const targets = scopedListeners ? [scopedListeners] : [...this.subscriptions.values()];
 
     for (const listeners of targets) {

@@ -101,37 +101,31 @@ describe('ErrorTranslationService', () => {
       'auth.errors.invalidCredentials',
     );
 
-    await expect(service.translateErrorCode(QuizErrorCode.QUIZ_NOT_FOUND)).resolves.toBe(
-      'quiz.errors.quizNotFound',
-    );
+    await expect(service.translateErrorCode(QuizErrorCode.QUIZ_NOT_FOUND)).resolves.toBe('quiz.errors.quizNotFound');
 
-    await expect(service.translateErrorCode(GameErrorCode.GAME_NOT_FOUND)).resolves.toBe(
-      'game.errors.gameNotFound',
-    );
+    await expect(service.translateErrorCode(GameErrorCode.GAME_NOT_FOUND)).resolves.toBe('game.errors.gameNotFound');
 
     await expect(service.translateErrorCode(GameErrorCode.PIN_ALREADY_IN_USE)).resolves.toBe(
       'game.errors.pinAlreadyInUse',
     );
 
-    await expect(
-      service.translateErrorCode(GameErrorCode.HOST_ALREADY_HAS_ACTIVE_PARTY_FOR_GAME),
-    ).resolves.toBe('game.errors.hostAlreadyHasActivePartyForGame');
+    await expect(service.translateErrorCode(GameErrorCode.HOST_ALREADY_HAS_ACTIVE_PARTY_FOR_GAME)).resolves.toBe(
+      'game.errors.hostAlreadyHasActivePartyForGame',
+    );
 
-    await expect(
-      service.translateErrorCode(PredictionErrorCode.PREDICTION_NOT_FOUND),
-    ).resolves.toBe('prediction.errors.predictionNotFound');
+    await expect(service.translateErrorCode(PredictionErrorCode.PREDICTION_NOT_FOUND)).resolves.toBe(
+      'prediction.errors.predictionNotFound',
+    );
 
-    await expect(
-      service.translateErrorCode(OrganizationErrorCode.ORGANIZATION_NOT_FOUND),
-    ).resolves.toBe('organization.errors.organizationNotFound');
+    await expect(service.translateErrorCode(OrganizationErrorCode.ORGANIZATION_NOT_FOUND)).resolves.toBe(
+      'organization.errors.organizationNotFound',
+    );
 
     await expect(service.translateErrorCode(ProjectErrorCode.PROJECT_NOT_FOUND)).resolves.toBe(
       'project.errors.projectNotFound',
     );
 
-    await expect(service.translateErrorCode('SOMETHING_ELSE')).resolves.toBe(
-      'common.errors.unknownError',
-    );
+    await expect(service.translateErrorCode('SOMETHING_ELSE')).resolves.toBe('common.errors.unknownError');
 
     expect(translateMock).toHaveBeenCalledWith('common.errors.unknownError', {
       args: { code: 'SOMETHING_ELSE' },
@@ -148,9 +142,7 @@ describe('ErrorTranslationService', () => {
 
   it('translates every declared error code without falling back to unknown', async () => {
     for (const errorCode of KNOWN_ERROR_CODES) {
-      await expect(service.translateErrorCode(errorCode)).resolves.not.toBe(
-        'common.errors.unknownError',
-      );
+      await expect(service.translateErrorCode(errorCode)).resolves.not.toBe('common.errors.unknownError');
     }
   });
 });

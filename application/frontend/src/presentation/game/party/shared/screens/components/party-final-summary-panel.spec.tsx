@@ -76,23 +76,13 @@ describe('PartyFinalSummaryPanel', () => {
       gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
     });
 
-    expect(
-      within(screen.getByTestId('party-final-podium-rank-2')).getByText('Player Two'),
-    ).toBeInTheDocument();
-    expect(
-      within(screen.getByTestId('party-final-podium-rank-1')).getByText('Winner'),
-    ).toBeInTheDocument();
-    expect(
-      within(screen.getByTestId('party-final-podium-rank-3')).getByText('Player Three'),
-    ).toBeInTheDocument();
-    expect(
-      screen.getAllByText('game.party.route.finalLeaderboardResponseSuccessRatio'),
-    ).toHaveLength(6);
+    expect(within(screen.getByTestId('party-final-podium-rank-2')).getByText('Player Two')).toBeInTheDocument();
+    expect(within(screen.getByTestId('party-final-podium-rank-1')).getByText('Winner')).toBeInTheDocument();
+    expect(within(screen.getByTestId('party-final-podium-rank-3')).getByText('Player Three')).toBeInTheDocument();
+    expect(screen.getAllByText('game.party.route.finalLeaderboardResponseSuccessRatio')).toHaveLength(6);
     expect(screen.getByTestId('party-final-podium-rank-2-badge-slot')).toBeEmptyDOMElement();
     expect(
-      within(screen.getByTestId('party-final-podium-rank-3-badge-slot')).getByText(
-        'game.party.route.youBadge',
-      ),
+      within(screen.getByTestId('party-final-podium-rank-3-badge-slot')).getByText('game.party.route.youBadge'),
     ).toBeInTheDocument();
     const rankTwoPodium = screen.getByTestId('party-final-podium-rank-2');
     const rankThreePodium = screen.getByTestId('party-final-podium-rank-3');
@@ -148,26 +138,16 @@ describe('PartyFinalSummaryPanel', () => {
     expect(screen.getByTestId('party-final-podium-mobile')).toBeInTheDocument();
     expect(screen.queryByTestId('party-final-podium-desktop')).not.toBeInTheDocument();
 
-    expect(
-      within(screen.getByTestId('party-final-mobile-winner')).getByText('Winner'),
-    ).toBeInTheDocument();
-    expect(
-      within(screen.getByTestId('party-final-podium-mobile-rank-2')).getByText('Player Two'),
-    ).toBeInTheDocument();
+    expect(within(screen.getByTestId('party-final-mobile-winner')).getByText('Winner')).toBeInTheDocument();
+    expect(within(screen.getByTestId('party-final-podium-mobile-rank-2')).getByText('Player Two')).toBeInTheDocument();
     expect(
       within(screen.getByTestId('party-final-podium-mobile-rank-3')).getByText('Player Three'),
     ).toBeInTheDocument();
 
+    expect(within(screen.getByTestId('party-final-standings-rank-1')).getByText('Winner')).toBeInTheDocument();
     expect(
-      within(screen.getByTestId('party-final-standings-rank-1')).getByText('Winner'),
+      within(screen.getByTestId('party-final-standings-rank-3')).getByText('game.party.route.youBadge'),
     ).toBeInTheDocument();
-    expect(
-      within(screen.getByTestId('party-final-standings-rank-3')).getByText(
-        'game.party.route.youBadge',
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getAllByText('game.party.route.finalLeaderboardResponseSuccessRatio'),
-    ).toHaveLength(6);
+    expect(screen.getAllByText('game.party.route.finalLeaderboardResponseSuccessRatio')).toHaveLength(6);
   });
 });

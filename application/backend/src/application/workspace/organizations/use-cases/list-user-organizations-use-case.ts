@@ -31,10 +31,7 @@ export class ListUserOrganizationsUseCase {
     private readonly paginationQueryNormalizer: PaginationQueryNormalizer,
   ) {}
 
-  async execute(
-    input: ListUserOrganizationsQuery,
-    userId: UserId,
-  ): Promise<PaginatedResult<OrganizationWithRole>> {
+  async execute(input: ListUserOrganizationsQuery, userId: UserId): Promise<PaginatedResult<OrganizationWithRole>> {
     const pagination = this.paginationQueryNormalizer.normalizeQuery(input, DEFAULT_PAGE_SIZE);
     const memberships = await this.memberRepository.findPageByUser(
       userId,
@@ -52,9 +49,7 @@ export class ListUserOrganizationsUseCase {
 
     const organizationIds = memberships.items.map((membership) => membership.organizationId);
     const organizations = await this.organizationRepository.findByIds(organizationIds);
-    const organizationsById = new Map(
-      organizations.map((organization) => [organization.id, organization]),
-    );
+    const organizationsById = new Map(organizations.map((organization) => [organization.id, organization]));
     const rolesByOrganizationId = new Map(
       memberships.items.map((membership) => [membership.organizationId, membership.role]),
     );

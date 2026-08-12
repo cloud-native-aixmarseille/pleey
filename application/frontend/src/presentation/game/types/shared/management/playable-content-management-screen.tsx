@@ -1,9 +1,6 @@
 import { useState } from 'react';
 import { usePresentationTranslation } from '../../../../shared/i18n/use-presentation-translation';
-import {
-  FeedbackState,
-  FeedbackStateGate,
-} from '../../../../shared/ui/feedback/feedback-state-gate';
+import { FeedbackState, FeedbackStateGate } from '../../../../shared/ui/feedback/feedback-state-gate';
 import { ContentStack, PageContainer } from '../../../../shared/ui/layout/containers';
 import { InsetPanel } from '../../../../shared/ui/layout/panels';
 import { ConfirmDialog } from '../../../../shared/ui/overlay/confirm-dialog';
@@ -42,11 +39,7 @@ export function PlayableContentManagementScreen(props: PlayableContentManagement
     setActiveTab(PlayableManagementTab.REVIEW);
   };
   const state = viewModel.state;
-  const gateState = viewModel.isLoading
-    ? FeedbackState.LOADING
-    : state
-      ? FeedbackState.READY
-      : FeedbackState.EMPTY;
+  const gateState = viewModel.isLoading ? FeedbackState.LOADING : state ? FeedbackState.READY : FeedbackState.EMPTY;
 
   const openFirstIssue = () => {
     if (!state) {
@@ -96,9 +89,7 @@ export function PlayableContentManagementScreen(props: PlayableContentManagement
               onDeleteGame={viewModel.requestDeleteGame}
               onEditGame={openSetupTab}
               saveStateLabel={
-                viewModel.isSaving
-                  ? t(`${props.translationRoot}.saving`)
-                  : t(`${props.translationRoot}.savedJustNow`)
+                viewModel.isSaving ? t(`${props.translationRoot}.saving`) : t(`${props.translationRoot}.savedJustNow`)
               }
               state={state}
               translationRoot={props.translationRoot}
@@ -133,9 +124,7 @@ export function PlayableContentManagementScreen(props: PlayableContentManagement
                     items={state.items}
                     onAddItem={() => viewModel.selectItem(null)}
                     onDeleteItem={viewModel.requestDeleteItem}
-                    onMoveItem={(fromIndex, toIndex) =>
-                      void viewModel.reorderItems(fromIndex, toIndex)
-                    }
+                    onMoveItem={(fromIndex, toIndex) => void viewModel.reorderItems(fromIndex, toIndex)}
                     onSelectItem={viewModel.selectItem}
                     selectedItemId={viewModel.selectedItemId}
                     translationRoot={props.translationRoot}

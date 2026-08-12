@@ -5,10 +5,7 @@ import type { PartyPlayer } from '../../../../../domain/game/party/player/entiti
 import type { PartyPlayerIdentity } from '../../../../../domain/game/party/player/entities/party-player-identity';
 import type { PlayerPartyObservationPlayer } from '../../../../../domain/game/party/player/entities/player-party-observation';
 import type { GameType } from '../../../../../domain/game/types/shared/entities/game-type';
-import type {
-  HostPartyObservationMessage,
-  PartyObservationPlayerMessage,
-} from './party-observation-message';
+import type { HostPartyObservationMessage, PartyObservationPlayerMessage } from './party-observation-message';
 
 @Injectable()
 export class HostPartyObservationMessageMapper {
@@ -32,20 +29,12 @@ export class HostPartyObservationMessageMapper {
         avatarUri: observation.host.avatarUri,
         username: observation.host.username,
       },
-      players: this.toPlayerMessages(
-        observation.players,
-        livePlayerIdentityKeys,
-        stagesStatsByIdentity,
-      ),
+      players: this.toPlayerMessages(observation.players, livePlayerIdentityKeys, stagesStatsByIdentity),
     };
   }
 
-  private createStagesStatsMap(
-    players: readonly PlayerPartyObservationPlayer[],
-  ): ReadonlyMap<string, number> {
-    return new Map(
-      players.map((player) => [this.toPlayerIdentityKey(player.identity), player.correctStages]),
-    );
+  private createStagesStatsMap(players: readonly PlayerPartyObservationPlayer[]): ReadonlyMap<string, number> {
+    return new Map(players.map((player) => [this.toPlayerIdentityKey(player.identity), player.correctStages]));
   }
 
   private createIdentityKeySet(identities: readonly PartyPlayerIdentity[]): ReadonlySet<string> {

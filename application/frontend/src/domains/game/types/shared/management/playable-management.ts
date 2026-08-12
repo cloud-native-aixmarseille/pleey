@@ -20,10 +20,7 @@ export interface PlayableManagementGame {
   readonly itemCount: number;
 }
 
-export interface PlayableManagementItem<
-  TItemId extends string = string,
-  TKind extends string = string,
-> {
+export interface PlayableManagementItem<TItemId extends string = string, TKind extends string = string> {
   readonly id: TItemId;
   readonly gameTypeId: GameTypeId;
   readonly position: number;
@@ -34,10 +31,7 @@ export interface PlayableManagementItem<
   readonly options: readonly PlayableChoiceOption[];
 }
 
-export interface PlayableManagementState<
-  TItemId extends string = string,
-  TKind extends string = string,
-> {
+export interface PlayableManagementState<TItemId extends string = string, TKind extends string = string> {
   readonly game: PlayableManagementGame;
   readonly items: readonly PlayableManagementItem<TItemId, TKind>[];
 }

@@ -8,9 +8,7 @@ export abstract class IdentifierParser<TPrimitive extends string | number, TIden
   abstract parseOrNull(value: unknown): TIdentifier | null;
 
   protected isEmpty(value: unknown): value is EmptyIdentifierValue {
-    return (
-      value === null || value === undefined || (typeof value === 'string' && value.trim() === '')
-    );
+    return value === null || value === undefined || (typeof value === 'string' && value.trim() === '');
   }
 
   protected cast(value: TPrimitive): TIdentifier {

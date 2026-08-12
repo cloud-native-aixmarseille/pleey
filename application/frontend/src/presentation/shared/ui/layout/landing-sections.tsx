@@ -30,11 +30,7 @@ const landingStepBadgeDotStyle = {
   width: '0.45rem',
 } as const;
 
-export function LandingHeroSurface({
-  ariaLabel,
-  children,
-  maxWidth = '40rem',
-}: LandingSurfaceProps) {
+export function LandingHeroSurface({ ariaLabel, children, maxWidth = '40rem' }: LandingSurfaceProps) {
   return (
     <section aria-label={ariaLabel}>
       <HeroPanel padding="xl">

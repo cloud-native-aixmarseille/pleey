@@ -5,10 +5,7 @@ import {
   usePresentationPathname,
 } from '../../../../shared/routing/router';
 import { PartyScreenContent } from './components/party-screen-content';
-import {
-  PartyLobbyRouteKind,
-  resolvePartyScreenSectionFromPathname,
-} from './party-lobby-screen-route-utils';
+import { PartyLobbyRouteKind, resolvePartyScreenSectionFromPathname } from './party-lobby-screen-route-utils';
 import {
   type PartyLobbyScreenProps,
   resolveDefaultPartyAbsoluteUrl,
@@ -19,8 +16,7 @@ export function PartyLobbyScreen(props: PartyLobbyScreenProps) {
   const requestedRouteKind = props.routeKind ?? PartyLobbyRouteKind.PIN;
   const navigate = usePresentationNavigate();
   const pathname = usePresentationPathname();
-  const screenSection =
-    props.screenSection ?? resolvePartyScreenSectionFromPathname(pathname, requestedRouteKind);
+  const screenSection = props.screenSection ?? resolvePartyScreenSectionFromPathname(pathname, requestedRouteKind);
   const resolvePartyAbsoluteUrl = props.resolvePartyAbsoluteUrl ?? resolveDefaultPartyAbsoluteUrl;
   const state = usePartyLobbyScreenState({
     ...props,
@@ -47,10 +43,6 @@ export function PartyLobbyScreen(props: PartyLobbyScreenProps) {
   }
 
   return (
-    <PartyScreenContent
-      resolvePartyAbsoluteUrl={resolvePartyAbsoluteUrl}
-      screenSection={screenSection}
-      state={state}
-    />
+    <PartyScreenContent resolvePartyAbsoluteUrl={resolvePartyAbsoluteUrl} screenSection={screenSection} state={state} />
   );
 }

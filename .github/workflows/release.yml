@@ -1,6 +1,7 @@
+---
 name: "• 🚀 Release"
 
-on:
+"on":
   workflow_dispatch:
 
 concurrency:
@@ -20,7 +21,7 @@ jobs:
       name: ${{ steps.plan-release.outputs.name }}
     steps:
       - id: plan-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@ba941863a698984b6596e760f4e7727beea81167 # 0.26.0
+        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@ed354ada70b9f518c2bb663e18a80041c2cf5156 # 0.27.1
         with:
           github-token: ${{ github.token }}
 
@@ -34,12 +35,11 @@ jobs:
       checks: write
       contents: read
       id-token: write
-      issues: read
+      issues: write
       packages: write
       pull-requests: write
       security-events: write
       statuses: write
-    secrets: inherit
 
   prepare-release-files:
     needs: [plan-release, ci]
@@ -50,12 +50,12 @@ jobs:
     outputs:
       release-sha: ${{ steps.generate-docs.outputs.merged-sha || github.sha }}
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
       - name: Update chart image defaults
-        uses: hoverkraft-tech/ci-github-container/actions/helm/update-chart-values@6931f4886bf8af8570acbace09db06a639cbae6f # 0.36.0
+        uses: hoverkraft-tech/ci-github-container/actions/helm/update-chart-values@f8255a6a37eb141fa331527f5aed9b9e1d598c77 # 0.38.0
         with:
           path: charts/application
           values: >-
@@ -121,7 +121,7 @@ jobs:
             ]
 
       - name: Set up Helm
-        uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5.0.0
+        uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
 
       - name: Refresh umbrella Chart.lock
         shell: bash
@@ -129,12 +129,12 @@ jobs:
 
       - name: Regenerate Helm chart documentation
         id: generate-docs
-        uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@6931f4886bf8af8570acbace09db06a639cbae6f # 0.36.0
+        uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@f8255a6a37eb141fa331527f5aed9b9e1d598c77 # 0.38.0
         with:
           working-directory: ./charts
           checkout-ref: ""
           github-app-client-id: ${{ vars.CI_BOT_APP_CLIENT_ID }}
-          github-app-key: ${{ secrets.CI_BOT_APP_PRIVATE_KEY }}
+          github-app-key: ${{ secrets.CI_BOT_APP_PRIVATE_KEY }} # zizmor: ignore[secrets-outside-env] repository automation uses a dedicated app secret without untrusted code execution
 
   draft-release:
     needs: [plan-release, prepare-release-files]
@@ -146,7 +146,7 @@ jobs:
       tag: ${{ steps.create-release.outputs.tag }}
     steps:
       - id: create-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/create@ba941863a698984b6596e760f4e7727beea81167 # 0.26.0
+        uses: hoverkraft-tech/ci-github-publish/actions/release/create@ed354ada70b9f518c2bb663e18a80041c2cf5156 # 0.27.1
         with:
           tag: ${{ needs.plan-release.outputs.tag }}
           target-sha: ${{ needs.prepare-release-files.outputs.release-sha }}
@@ -161,7 +161,7 @@ jobs:
       packages: write
     steps:
       - id: release-chart
-        uses: hoverkraft-tech/ci-github-container/actions/helm/release-chart@6931f4886bf8af8570acbace09db06a639cbae6f # 0.36.0
+        uses: hoverkraft-tech/ci-github-container/actions/helm/release-chart@f8255a6a37eb141fa331527f5aed9b9e1d598c77 # 0.38.0
         with:
           oci-registry: ${{ vars.OCI_REGISTRY }}
           oci-registry-username: ${{ github.repository_owner }}
@@ -180,7 +180,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: hoverkraft-tech/ci-github-publish/actions/release/update@ba941863a698984b6596e760f4e7727beea81167 # 0.26.0
+      - uses: hoverkraft-tech/ci-github-publish/actions/release/update@ed354ada70b9f518c2bb663e18a80041c2cf5156 # 0.27.1
         with:
           tag: ${{ needs.draft-release.outputs.tag }}
           publish: "true"

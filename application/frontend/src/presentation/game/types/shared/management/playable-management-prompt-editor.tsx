@@ -7,12 +7,7 @@ import { Input } from '../../../../shared/ui/forms/input';
 import { Select } from '../../../../shared/ui/forms/select';
 import { Textarea } from '../../../../shared/ui/forms/textarea';
 import { AppIcon } from '../../../../shared/ui/icons/app-icon';
-import {
-  ActionRow,
-  ContentStack,
-  ResponsiveGrid,
-  SplitWrapRow,
-} from '../../../../shared/ui/layout/containers';
+import { ActionRow, ContentStack, ResponsiveGrid, SplitWrapRow } from '../../../../shared/ui/layout/containers';
 import { ElevatedPanel, InsetPanel } from '../../../../shared/ui/layout/panels';
 import { Heading, SupportingText } from '../../../../shared/ui/layout/typography';
 import { useWorkspaceDependencies } from '../../../../workspace/shared/contexts/workspace-dependencies-context';
@@ -27,10 +22,7 @@ import {
 } from './playable-item-editor-validator';
 import { type PlayableManagementDropPreview } from './playable-management-drag-placement';
 import { PlayableManagementOutcomesEditor } from './playable-management-outcomes-editor';
-import {
-  MAX_PLAYABLE_OUTCOME_COUNT,
-  playableOutcomeEditorPolicy,
-} from './playable-outcome-editor-policy';
+import { MAX_PLAYABLE_OUTCOME_COUNT, playableOutcomeEditorPolicy } from './playable-outcome-editor-policy';
 
 interface PlayableManagementPromptEditorProps {
   readonly editorState: PlayableItemEditorState;
@@ -73,9 +65,7 @@ export function PlayableManagementPromptEditor({
   const canReorderOutcomes = fixedOptions === undefined && visibleOutcomeCount > 2;
 
   useEffect(() => {
-    setVisibleOutcomeCount(
-      playableOutcomeEditorPolicy.resolveInitialOutcomeCount(editorState, itemKindConfig),
-    );
+    setVisibleOutcomeCount(playableOutcomeEditorPolicy.resolveInitialOutcomeCount(editorState, itemKindConfig));
   }, [editorState.id, editorState.kind, itemKindConfig, editorState]);
 
   const visibleOutcomeIndexes = Array.from(
@@ -100,9 +90,7 @@ export function PlayableManagementPromptEditor({
               leftSection={<AppIcon name="save" size={14} />}
               onClick={onSave}
             >
-              {editorState.id
-                ? t(`${translationRoot}.saveItem`)
-                : t(`${translationRoot}.createItem`)}
+              {editorState.id ? t(`${translationRoot}.saveItem`) : t(`${translationRoot}.createItem`)}
             </Button>
           </ActionRow>
         </SplitWrapRow>
@@ -121,9 +109,7 @@ export function PlayableManagementPromptEditor({
             <Select
               id="playable-item-kind"
               onChange={(event) => {
-                const nextKindOption = itemKindConfig.options.find(
-                  (option) => option.value === event.target.value,
-                );
+                const nextKindOption = itemKindConfig.options.find((option) => option.value === event.target.value);
 
                 if (!nextKindOption) {
                   return;
@@ -135,9 +121,7 @@ export function PlayableManagementPromptEditor({
                     nextKindOption.correctSelectionMode === 'single'
                       ? ['0']
                       : editorState.correctPositions.length > 0
-                        ? playableOutcomeEditorPolicy.normalizeCorrectPositions(
-                            editorState.correctPositions,
-                          )
+                        ? playableOutcomeEditorPolicy.normalizeCorrectPositions(editorState.correctPositions)
                         : ['0'],
                   kind: nextKindOption.value,
                 });
@@ -160,9 +144,7 @@ export function PlayableManagementPromptEditor({
               <Button
                 intent="ghost"
                 leftSection={<AppIcon name="plus" size={14} />}
-                onClick={() =>
-                  setVisibleOutcomeCount((count) => Math.min(MAX_PLAYABLE_OUTCOME_COUNT, count + 1))
-                }
+                onClick={() => setVisibleOutcomeCount((count) => Math.min(MAX_PLAYABLE_OUTCOME_COUNT, count + 1))}
                 size="sm"
               >
                 {t(`${translationRoot}.addOutcome`)}
@@ -193,32 +175,20 @@ export function PlayableManagementPromptEditor({
           <summary>{t(`${translationRoot}.advancedSettings`)}</summary>
           <ContentStack gap="sm" marginTop="sm">
             <ResponsiveGrid columns={{ base: 1, sm: 2 }} gap="md">
-              <FieldShell
-                id="playable-item-time-limit"
-                label={t(`${translationRoot}.timeLimitLabel`)}
-                required
-              >
+              <FieldShell id="playable-item-time-limit" label={t(`${translationRoot}.timeLimitLabel`)} required>
                 <Input
                   id="playable-item-time-limit"
                   min={5}
-                  onChange={(event) =>
-                    setEditorState({ ...editorState, timeLimit: event.target.value })
-                  }
+                  onChange={(event) => setEditorState({ ...editorState, timeLimit: event.target.value })}
                   type="number"
                   value={editorState.timeLimit}
                 />
               </FieldShell>
-              <FieldShell
-                id="playable-item-points"
-                label={t(`${translationRoot}.pointsLabel`)}
-                required
-              >
+              <FieldShell id="playable-item-points" label={t(`${translationRoot}.pointsLabel`)} required>
                 <Input
                   id="playable-item-points"
                   min={0}
-                  onChange={(event) =>
-                    setEditorState({ ...editorState, points: event.target.value })
-                  }
+                  onChange={(event) => setEditorState({ ...editorState, points: event.target.value })}
                   type="number"
                   value={editorState.points}
                 />
@@ -234,9 +204,7 @@ export function PlayableManagementPromptEditor({
                 count: String(validationIssues.length),
               })}{' '}
               {validationIssues
-                .map((issue) =>
-                  t(`${translationRoot}.${resolveValidationTranslationKey(issue.code)}`),
-                )
+                .map((issue) => t(`${translationRoot}.${resolveValidationTranslationKey(issue.code)}`))
                 .join(' ')}
             </SupportingText>
           </InsetPanel>

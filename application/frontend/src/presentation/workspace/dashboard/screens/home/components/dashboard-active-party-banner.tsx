@@ -18,16 +18,10 @@ interface DashboardActivePartyBannerProps {
   readonly partyRoute: string;
 }
 
-export function DashboardActivePartyBanner({
-  gameTypeBadge,
-  party,
-  partyRoute,
-}: DashboardActivePartyBannerProps) {
+export function DashboardActivePartyBanner({ gameTypeBadge, party, partyRoute }: DashboardActivePartyBannerProps) {
   const { t } = usePresentationTranslation();
   const roleLabel = t(
-    party.role === PartyRole.PLAYER
-      ? 'dashboard.activeParty.role.player'
-      : 'dashboard.activeParty.role.host',
+    party.role === PartyRole.PLAYER ? 'dashboard.activeParty.role.player' : 'dashboard.activeParty.role.host',
   );
 
   return (
@@ -35,13 +29,9 @@ export function DashboardActivePartyBanner({
       <SplitWrapRow align="center" gap="md">
         <WrapRow gap="sm">
           <Heading level={3}>{t('dashboard.activeParty.pinTitle', { pin: party.pin })}</Heading>
-          <Badge tone={resolveStatusTone(party.status)}>
-            {t(`game.party.status.${party.status.toLowerCase()}`)}
-          </Badge>
+          <Badge tone={resolveStatusTone(party.status)}>{t(`game.party.status.${party.status.toLowerCase()}`)}</Badge>
           <Badge
-            icon={
-              <AppIcon name={party.role === PartyRole.PLAYER ? 'profile' : 'success'} size={12} />
-            }
+            icon={<AppIcon name={party.role === PartyRole.PLAYER ? 'profile' : 'success'} size={12} />}
             tone={party.role === PartyRole.PLAYER ? 'neutral' : 'success'}
           >
             {roleLabel}
@@ -53,9 +43,7 @@ export function DashboardActivePartyBanner({
           ) : null}
         </WrapRow>
 
-        <PrimaryActionLink to={partyRoute}>
-          {t(resolveOpenLabelKey(party.status))}
-        </PrimaryActionLink>
+        <PrimaryActionLink to={partyRoute}>{t(resolveOpenLabelKey(party.status))}</PrimaryActionLink>
       </SplitWrapRow>
     </InsetPanel>
   );

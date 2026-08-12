@@ -58,8 +58,7 @@ export const gamePartyFr = {
         listFailed: 'Impossible de charger les parties pour le moment.',
         leaveFailed: 'Impossible de quitter cette partie pour le moment.',
         hostPartyControlForbidden: "Seul l'hôte peut exécuter cette commande.",
-        connectionLost:
-          'La connexion temps réel de la partie a été interrompue. Reconnexion en cours.',
+        connectionLost: 'La connexion temps réel de la partie a été interrompue. Reconnexion en cours.',
         observeFailed: "Impossible d'observer cette partie pour le moment.",
         partyCommandNotAvailable: "Cette commande hôte n'est pas disponible actuellement.",
         partyNotFound: "Cette partie n'est plus disponible.",

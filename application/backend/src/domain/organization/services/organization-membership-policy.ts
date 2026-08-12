@@ -5,9 +5,7 @@ import { CannotRemoveLastOwnerError, InsufficientPermissionsError } from '../err
 export const OrganizationMembershipPolicyProvider = Symbol('OrganizationMembershipPolicy');
 
 export class OrganizationMembershipPolicy {
-  assertCanManageMembers(
-    requestingMember: OrganizationMember | null,
-  ): asserts requestingMember is OrganizationMember {
+  assertCanManageMembers(requestingMember: OrganizationMember | null): asserts requestingMember is OrganizationMember {
     if (!requestingMember?.hasManagementPrivileges()) {
       throw new InsufficientPermissionsError({
         reason: 'memberManagementRequiresPrivileges',
@@ -25,10 +23,7 @@ export class OrganizationMembershipPolicy {
     }
   }
 
-  assertCanManageMember(
-    requestingMember: OrganizationMember,
-    targetMember: OrganizationMember,
-  ): void {
+  assertCanManageMember(requestingMember: OrganizationMember, targetMember: OrganizationMember): void {
     if (targetMember.isOwner() && !requestingMember.isOwner()) {
       throw new InsufficientPermissionsError({
         requestingMemberRole: requestingMember.role,

@@ -64,11 +64,7 @@ function parseThemeHexColor(color: string): {
   return null;
 }
 
-function convertRgbToHsl(color: {
-  readonly blue: number;
-  readonly green: number;
-  readonly red: number;
-}): HslColor {
+function convertRgbToHsl(color: { readonly blue: number; readonly green: number; readonly red: number }): HslColor {
   const red = color.red / 255;
   const green = color.green / 255;
   const blue = color.blue / 255;
@@ -108,11 +104,7 @@ function convertRgbToHsl(color: {
 }
 
 function resolveThemeProfile(theme: PlayableChoiceActionSlotTheme): HslColor {
-  const themeAnchors = [
-    theme.colors?.brand?.[5],
-    theme.colors?.accent?.[5],
-    theme.colors?.success?.[5],
-  ]
+  const themeAnchors = [theme.colors?.brand?.[5], theme.colors?.accent?.[5], theme.colors?.success?.[5]]
     .filter((color): color is string => typeof color === 'string')
     .map(parseThemeHexColor)
     .filter((color): color is NonNullable<ReturnType<typeof parseThemeHexColor>> => color !== null)
@@ -124,20 +116,12 @@ function resolveThemeProfile(theme: PlayableChoiceActionSlotTheme): HslColor {
 
   return {
     hue: themeAnchors[0]?.hue ?? DEFAULT_HSL_THEME_PROFILE.hue,
-    lightness: Math.round(
-      themeAnchors.reduce((sum, color) => sum + color.lightness, 0) / themeAnchors.length,
-    ),
-    saturation: Math.round(
-      themeAnchors.reduce((sum, color) => sum + color.saturation, 0) / themeAnchors.length,
-    ),
+    lightness: Math.round(themeAnchors.reduce((sum, color) => sum + color.lightness, 0) / themeAnchors.length),
+    saturation: Math.round(themeAnchors.reduce((sum, color) => sum + color.saturation, 0) / themeAnchors.length),
   };
 }
 
-function createThemeHue(
-  index: number,
-  slotCount: number,
-  theme: PlayableChoiceActionSlotTheme,
-): HslColor {
+function createThemeHue(index: number, slotCount: number, theme: PlayableChoiceActionSlotTheme): HslColor {
   const profile = resolveThemeProfile(theme);
   const normalizedSlotCount = normalizeActionSlotCount(slotCount);
   const wrappedIndex = normalizeWrappedIndex(index, normalizedSlotCount);

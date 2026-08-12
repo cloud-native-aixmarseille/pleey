@@ -3,10 +3,7 @@ import type { ComponentProps, ReactNode } from 'react';
 import { Button } from './button';
 
 interface UnderlineTabButtonProps
-  extends Omit<
-    ComponentProps<typeof Button>,
-    'children' | 'fullWidth' | 'intent' | 'justify' | 'rootStyle'
-  > {
+  extends Omit<ComponentProps<typeof Button>, 'children' | 'fullWidth' | 'intent' | 'justify' | 'rootStyle'> {
   readonly active: boolean;
   readonly children: ReactNode;
 }

@@ -816,19 +816,16 @@ describe('PartyObserverGateway', () => {
         }),
       'endPartyUseCase',
     ],
-  ] as const)(
-    'routes %s through the authenticated host use case',
-    async (_eventName, invoke, useCaseName) => {
-      const { gateway, useCases } = createHostControlGateway();
+  ] as const)('routes %s through the authenticated host use case', async (_eventName, invoke, useCaseName) => {
+    const { gateway, useCases } = createHostControlGateway();
 
-      await invoke(gateway);
+    await invoke(gateway);
 
-      expect(useCases[useCaseName].execute).toHaveBeenCalledWith({
-        hostUserId: HOST_USER_ID,
-        partyId: PARTY_ID,
-      });
-    },
-  );
+    expect(useCases[useCaseName].execute).toHaveBeenCalledWith({
+      hostUserId: HOST_USER_ID,
+      partyId: PARTY_ID,
+    });
+  });
 
   it('clears all live sessions after ending the party', async () => {
     const { gateway, sessionRegistry } = createHostControlGateway();
@@ -865,20 +862,17 @@ describe('PartyObserverGateway', () => {
         }),
       'rewindParty',
     ],
-  ] as const)(
-    'publishes a rollback notice after %s succeeds',
-    async (_eventName, invoke, runtimeNoticeKind) => {
-      const { gateway, partyObservationBroadcaster } = createHostControlGateway();
+  ] as const)('publishes a rollback notice after %s succeeds', async (_eventName, invoke, runtimeNoticeKind) => {
+    const { gateway, partyObservationBroadcaster } = createHostControlGateway();
 
-      await invoke(gateway);
+    await invoke(gateway);
 
-      expect(partyObservationBroadcaster.publishRuntimeNotice).toHaveBeenCalledWith(
-        PARTY_ID,
-        HOST_USER_ID,
-        runtimeNoticeKind,
-      );
-    },
-  );
+    expect(partyObservationBroadcaster.publishRuntimeNotice).toHaveBeenCalledWith(
+      PARTY_ID,
+      HOST_USER_ID,
+      runtimeNoticeKind,
+    );
+  });
 
   it('rejects unauthenticated host controls', async () => {
     const { gateway, useCases } = createHostControlGateway();

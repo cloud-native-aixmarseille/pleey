@@ -9,10 +9,7 @@ type MockWsClient = {
 };
 
 describe('I18nWsExceptionFilter', () => {
-  let errorTranslationService: Pick<
-    ErrorTranslationService,
-    'translateErrorCode' | 'translateUnknownError'
-  >;
+  let errorTranslationService: Pick<ErrorTranslationService, 'translateErrorCode' | 'translateUnknownError'>;
   let filter: I18nWsExceptionFilter;
 
   beforeEach(() => {

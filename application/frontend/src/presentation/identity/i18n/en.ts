@@ -67,8 +67,7 @@ export const authEn = {
       backToSignIn: 'Back to sign in',
       success: {
         title: 'Check your inbox.',
-        message:
-          'If an account with that email exists, you will receive reset instructions shortly.',
+        message: 'If an account with that email exists, you will receive reset instructions shortly.',
         cta: 'Return to sign in',
       },
     },

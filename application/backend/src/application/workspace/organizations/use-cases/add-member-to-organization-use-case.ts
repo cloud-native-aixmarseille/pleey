@@ -4,10 +4,7 @@ import type { UserRepository } from '../../../../domain/identity/ports/user.repo
 import { UserRepositoryProvider } from '../../../../domain/identity/ports/user.repository';
 import type { OrganizationId } from '../../../../domain/organization/entities/organization';
 import type { OrganizationMember } from '../../../../domain/organization/entities/organization-member';
-import {
-  MemberAlreadyExistsError,
-  MemberUserNotFoundError,
-} from '../../../../domain/organization/errors';
+import { MemberAlreadyExistsError, MemberUserNotFoundError } from '../../../../domain/organization/errors';
 import type { OrganizationMemberRepository } from '../../../../domain/organization/ports/organization-member.repository';
 import { OrganizationMemberRepositoryProvider } from '../../../../domain/organization/ports/organization-member.repository';
 import type { AddMemberDto } from '../dto/add-member-dto';
@@ -33,18 +30,12 @@ export class AddMemberToOrganizationUseCase {
     requestingUserId: UserId,
   ): Promise<OrganizationMember> {
     await this.organizationMembershipAccess.assertOrganizationExists(organizationId);
-    const requestingMember = await this.organizationMembershipAccess.requireManager(
-      organizationId,
-      requestingUserId,
-    );
+    const requestingMember = await this.organizationMembershipAccess.requireManager(organizationId, requestingUserId);
     this.organizationMembershipAccess.assertCanAssignRole(requestingMember, dto.role);
 
     const memberUserId = await this.resolveMemberUserId(dto.usernameOrEmail);
 
-    const existingMember = await this.memberRepository.findByOrganizationAndUser(
-      organizationId,
-      memberUserId,
-    );
+    const existingMember = await this.memberRepository.findByOrganizationAndUser(organizationId, memberUserId);
     if (existingMember) {
       throw new MemberAlreadyExistsError({ memberUserId, organizationId });
     }

@@ -19,15 +19,7 @@ const openEyes = [
 ] as const satisfies readonly OpenEyeShape[];
 
 function SleepingEye({ d }: SleepingEyePath) {
-  return (
-    <path
-      d={d}
-      fill="none"
-      stroke="var(--ui-color-text-emphasis)"
-      strokeLinecap="round"
-      strokeWidth="0.8"
-    />
-  );
+  return <path d={d} fill="none" stroke="var(--ui-color-text-emphasis)" strokeLinecap="round" strokeWidth="0.8" />;
 }
 
 function OpenEye({ pupilCx, pupilHighlightCx, scleraCx }: OpenEyeShape) {

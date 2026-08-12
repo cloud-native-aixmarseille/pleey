@@ -8,9 +8,7 @@ export function LanguageToggle() {
   const { currentLanguage, changeLanguage, t } = usePresentationTranslation();
 
   function handleToggle() {
-    const currentIdx = SUPPORTED_LANGUAGES.indexOf(
-      currentLanguage as (typeof SUPPORTED_LANGUAGES)[number],
-    );
+    const currentIdx = SUPPORTED_LANGUAGES.indexOf(currentLanguage as (typeof SUPPORTED_LANGUAGES)[number]);
     const nextIdx = (currentIdx + 1) % SUPPORTED_LANGUAGES.length;
     changeLanguage(SUPPORTED_LANGUAGES[nextIdx]);
   }

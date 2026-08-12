@@ -8,7 +8,5 @@ interface QuizPlayerResultSurfaceProps {
 }
 
 export function QuizPlayerResultSurface(props: QuizPlayerResultSurfaceProps) {
-  return (
-    <PlayableChoicePlayerResultSurface {...props} copy={quizRuntimeCopy} testIdPrefix="quiz" />
-  );
+  return <PlayableChoicePlayerResultSurface {...props} copy={quizRuntimeCopy} testIdPrefix="quiz" />;
 }

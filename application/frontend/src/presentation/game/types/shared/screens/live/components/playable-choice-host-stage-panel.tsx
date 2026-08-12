@@ -5,11 +5,7 @@ import { AppIcon } from '../../../../../../shared/ui/icons/app-icon';
 import { ContentStack, ResponsiveGrid } from '../../../../../../shared/ui/layout/containers';
 import { HeroPanel, InsetPanel } from '../../../../../../shared/ui/layout/panels';
 import { Heading, SummaryText } from '../../../../../../shared/ui/layout/typography';
-import {
-  MotionFadeIn,
-  MotionStagger,
-  MotionStaggerItem,
-} from '../../../../../../shared/ui/motion/motion-primitives';
+import { MotionFadeIn, MotionStagger, MotionStaggerItem } from '../../../../../../shared/ui/motion/motion-primitives';
 import { resolvePlayableChoiceActionSlotLabel } from './playable-choice-action-slot-identity';
 import {
   stageContentStyle,
@@ -25,20 +21,13 @@ import {
 import { PlayableChoiceResultActionTile } from './playable-choice-result-action-tile';
 import type { PlayableChoiceHostRuntimePanelProps } from './playable-choice-runtime-panel.types';
 import { StageCountdownTimer } from './stage-countdown-timer';
-import {
-  resolveStageTotalDurationMs,
-  useStageRemainingDurationMs,
-} from './use-stage-remaining-duration-ms';
+import { resolveStageTotalDurationMs, useStageRemainingDurationMs } from './use-stage-remaining-duration-ms';
 
 const STAGE_ANSWER_REVEAL_INITIAL_DELAY_SECONDS = 1.8;
 const STAGE_ANSWER_REVEAL_STAGGER_SECONDS = 0.22;
 const STAGE_QUESTION_REVEAL_DURATION_SECONDS = 1.0;
 
-export function PlayableChoiceHostStagePanel({
-  copy,
-  party,
-  testIdPrefix,
-}: PlayableChoiceHostRuntimePanelProps) {
+export function PlayableChoiceHostStagePanel({ copy, party, testIdPrefix }: PlayableChoiceHostRuntimePanelProps) {
   const { t } = usePresentationTranslation();
   const stagePosition = party.context?.lifecycle.stagePosition;
   const stageId = party.context?.lifecycle.stageId ?? null;
@@ -93,12 +82,7 @@ export function PlayableChoiceHostStagePanel({
                 <div style={stageMetaStatusStyle}>
                   <ContentStack align="center" gap="xs">
                     <Badge
-                      icon={
-                        <AppIcon
-                          name={pendingResponseCount === 0 ? 'success' : 'pending'}
-                          size={12}
-                        />
-                      }
+                      icon={<AppIcon name={pendingResponseCount === 0 ? 'success' : 'pending'} size={12} />}
                       tone={pendingResponseCount === 0 ? 'success' : 'warning'}
                     >
                       {submissionStateLabel}
@@ -113,10 +97,7 @@ export function PlayableChoiceHostStagePanel({
           <div style={stagePromptRegionStyle}>
             <div style={stagePromptContentStyle}>
               <ContentStack align="center" gap="md">
-                <MotionFadeIn
-                  key={`question-${stageId}`}
-                  duration={STAGE_QUESTION_REVEAL_DURATION_SECONDS}
-                >
+                <MotionFadeIn key={`question-${stageId}`} duration={STAGE_QUESTION_REVEAL_DURATION_SECONDS}>
                   <Heading hero level={1}>
                     {currentStage.text}
                   </Heading>

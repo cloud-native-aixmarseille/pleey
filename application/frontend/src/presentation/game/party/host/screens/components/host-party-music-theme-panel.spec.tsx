@@ -32,9 +32,7 @@ describe('HostPartyMusicThemePanel', () => {
   };
 
   it('plays selected theme in host browser and updates playing state', async () => {
-    const playSpy = vi
-      .spyOn(window.HTMLMediaElement.prototype, 'play')
-      .mockResolvedValue(undefined);
+    const playSpy = vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockResolvedValue(undefined);
 
     renderWithUiProvider(<HostPartyMusicThemePanel />);
 
@@ -82,9 +80,7 @@ describe('HostPartyMusicThemePanel', () => {
 
   it('stops playback when host selects no music', async () => {
     vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockResolvedValue(undefined);
-    const pauseSpy = vi
-      .spyOn(window.HTMLMediaElement.prototype, 'pause')
-      .mockImplementation(() => undefined);
+    const pauseSpy = vi.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => undefined);
 
     renderWithUiProvider(<HostPartyMusicThemePanel />);
 
@@ -102,9 +98,7 @@ describe('HostPartyMusicThemePanel', () => {
 
   it('resets the selection when browser rejects audio playback', async () => {
     vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockRejectedValue(new Error('blocked'));
-    const pauseSpy = vi
-      .spyOn(window.HTMLMediaElement.prototype, 'pause')
-      .mockImplementation(() => undefined);
+    const pauseSpy = vi.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => undefined);
 
     renderWithUiProvider(<HostPartyMusicThemePanel />);
 

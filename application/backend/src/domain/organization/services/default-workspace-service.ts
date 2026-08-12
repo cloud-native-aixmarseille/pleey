@@ -26,10 +26,7 @@ export class DefaultWorkspaceService {
     const membership = await this.memberRepository.findLatestByUser(userId);
 
     if (!membership) {
-      const organization = await this.organizationRepository.create(
-        DEFAULT_ORGANIZATION_NAME,
-        null,
-      );
+      const organization = await this.organizationRepository.create(DEFAULT_ORGANIZATION_NAME, null);
 
       await this.memberRepository.create(organization.id, userId, OrganizationRole.OWNER);
 

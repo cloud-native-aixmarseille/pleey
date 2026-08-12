@@ -19,10 +19,7 @@ import type {
   AuthSessionTransportHandlers,
 } from '../../../application/identity/contracts/auth-runtime.port';
 import type { AuthSession } from '../../../domains/identity/entities/auth-session';
-import {
-  AUTH_ERROR_DEFINITIONS,
-  AuthErrorCode,
-} from '../../../domains/identity/errors/auth-error-code';
+import { AUTH_ERROR_DEFINITIONS, AuthErrorCode } from '../../../domains/identity/errors/auth-error-code';
 import { GenericAuthError } from '../../../domains/identity/errors/generic-auth-error';
 import { AuthPayloadInspector } from '../../../domains/identity/services/auth-payload-inspector';
 import {
@@ -32,11 +29,7 @@ import {
   isDomainError,
 } from '../../../domains/shared/errors/domain-error';
 import { GRAPHQL_URL } from '../../config/api';
-import {
-  RefreshDocument,
-  type RefreshMutation,
-  type RefreshMutationVariables,
-} from '../generated/graphql';
+import { RefreshDocument, type RefreshMutation, type RefreshMutationVariables } from '../generated/graphql';
 
 interface GraphqlRequestOptions {
   readonly authToken?: string;
@@ -124,8 +117,7 @@ export class GraphqlClient implements AuthSessionTransport {
 
   private createClient(): ApolloClient {
     const authLink = new SetContextLink((context) => {
-      const contextAuthToken =
-        typeof context.authToken === 'string' ? context.authToken : undefined;
+      const contextAuthToken = typeof context.authToken === 'string' ? context.authToken : undefined;
 
       const resolvedAuthToken = contextAuthToken ?? this.accessToken;
 
@@ -178,11 +170,7 @@ export class GraphqlClient implements AuthSessionTransport {
     const operationType = this.resolveOperationType(parsedOperation);
 
     try {
-      return await this.executeOperation<TData, TVariables>(
-        parsedOperation,
-        variables,
-        options?.authToken,
-      );
+      return await this.executeOperation<TData, TVariables>(parsedOperation, variables, options?.authToken);
     } catch (error) {
       const normalizedError = this.normalizeApolloError(error);
 
@@ -224,13 +212,10 @@ export class GraphqlClient implements AuthSessionTransport {
     variables?: TVariables,
     authToken?: string,
   ): Promise<TData> {
-    const operationDefinition = operation.definitions.find(
-      (definition) => definition.kind === 'OperationDefinition',
-    );
+    const operationDefinition = operation.definitions.find((definition) => definition.kind === 'OperationDefinition');
 
     const isMutation =
-      operationDefinition?.kind === 'OperationDefinition' &&
-      operationDefinition.operation === 'mutation';
+      operationDefinition?.kind === 'OperationDefinition' && operationDefinition.operation === 'mutation';
     const resolvedVariables = (variables ?? {}) as TVariables;
     const operationName = this.resolveOperationName(operation);
 
@@ -263,23 +248,15 @@ export class GraphqlClient implements AuthSessionTransport {
   }
 
   private resolveOperationName(document: DocumentNode): string | null {
-    const operationDefinition = document.definitions.find(
-      (definition) => definition.kind === 'OperationDefinition',
-    );
+    const operationDefinition = document.definitions.find((definition) => definition.kind === 'OperationDefinition');
 
     return operationDefinition?.name?.value ?? null;
   }
 
-  private resolveOperationType(
-    document: DocumentNode,
-  ): 'mutation' | 'query' | 'subscription' | null {
-    const operationDefinition = document.definitions.find(
-      (definition) => definition.kind === 'OperationDefinition',
-    );
+  private resolveOperationType(document: DocumentNode): 'mutation' | 'query' | 'subscription' | null {
+    const operationDefinition = document.definitions.find((definition) => definition.kind === 'OperationDefinition');
 
-    return operationDefinition?.kind === 'OperationDefinition'
-      ? operationDefinition.operation
-      : null;
+    return operationDefinition?.kind === 'OperationDefinition' ? operationDefinition.operation : null;
   }
 
   private async refreshSession(): Promise<AuthSession | null> {
@@ -290,10 +267,9 @@ export class GraphqlClient implements AuthSessionTransport {
     if (!this.refreshPromise) {
       this.refreshPromise = (async () => {
         try {
-          const result = await this.executeOperation<RefreshMutation, RefreshMutationVariables>(
-            RefreshDocument,
-            { input: { refreshToken: this.refreshToken ?? '' } },
-          );
+          const result = await this.executeOperation<RefreshMutation, RefreshMutationVariables>(RefreshDocument, {
+            input: { refreshToken: this.refreshToken ?? '' },
+          });
 
           const session = this.payloadInspector.toAuthSession(result.refresh);
 
@@ -378,8 +354,7 @@ export class GraphqlClient implements AuthSessionTransport {
   } {
     if (CombinedGraphQLErrors.is(error)) {
       const firstError = error.errors[0];
-      const code =
-        typeof firstError?.extensions?.code === 'string' ? firstError.extensions.code : undefined;
+      const code = typeof firstError?.extensions?.code === 'string' ? firstError.extensions.code : undefined;
 
       const message = firstError
         ? this.resolveGraphqlErrorMessage({

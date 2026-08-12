@@ -9,21 +9,20 @@ import {
   mockFn,
 } from './mock-factory.utils';
 
-const ORGANIZATION_MEMBER_REPOSITORY_METHOD_KINDS: MockFactoryMethodKinds<OrganizationMemberRepository> =
-  {
-    resolved: [
-      'create',
-      'findById',
-      'findByOrganizationAndUser',
-      'countOwnersByOrganization',
-      'findPageByOrganization',
-      'findLatestByUser',
-      'findPageByUser',
-      'updateRole',
-      'delete',
-    ],
-    returned: [],
-  };
+const ORGANIZATION_MEMBER_REPOSITORY_METHOD_KINDS: MockFactoryMethodKinds<OrganizationMemberRepository> = {
+  resolved: [
+    'create',
+    'findById',
+    'findByOrganizationAndUser',
+    'countOwnersByOrganization',
+    'findPageByOrganization',
+    'findLatestByUser',
+    'findPageByUser',
+    'updateRole',
+    'delete',
+  ],
+  returned: [],
+};
 
 const ORGANIZATION_REPOSITORY_METHOD_KINDS: MockFactoryMethodKinds<OrganizationRepository> = {
   resolved: ['create', 'findById', 'findByIds', 'findByName'],

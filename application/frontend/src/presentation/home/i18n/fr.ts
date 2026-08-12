@@ -27,8 +27,7 @@ export const homeFr = {
         },
         {
           title: 'Passez en live',
-          description:
-            'Lancez le jeu, regardez les réponses affluer et révélez les résultats sur grand écran.',
+          description: 'Lancez le jeu, regardez les réponses affluer et révélez les résultats sur grand écran.',
         },
       ],
     },
@@ -37,13 +36,11 @@ export const homeFr = {
       items: [
         {
           label: 'Quiz en temps réel',
-          description:
-            'Manches de questions chronométrées avec scores instantanés et classements live.',
+          description: 'Manches de questions chronométrées avec scores instantanés et classements live.',
         },
         {
           label: 'Pronostics du public',
-          description:
-            'Laissez la salle prédire les résultats avant de révéler la vérité sur scène.',
+          description: 'Laissez la salle prédire les résultats avant de révéler la vérité sur scène.',
         },
         {
           label: 'Multilingue par défaut',
@@ -51,8 +48,7 @@ export const homeFr = {
         },
         {
           label: 'Tout appareil, zéro installation',
-          description:
-            'Les joueurs rejoignent depuis téléphone, tablette ou ordinateur sans rien télécharger.',
+          description: 'Les joueurs rejoignent depuis téléphone, tablette ou ordinateur sans rien télécharger.',
         },
       ],
     },

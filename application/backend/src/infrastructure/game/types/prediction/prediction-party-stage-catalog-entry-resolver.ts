@@ -23,17 +23,11 @@ export class PredictionPartyStageCatalogEntryResolver implements GameTypePartySt
     return this.findStage(gameId, { position: 0 });
   }
 
-  findNextStage(
-    gameId: GameId,
-    currentStageId: PartyStageId,
-  ): Promise<PartyStageCatalogEntry | null> {
+  findNextStage(gameId: GameId, currentStageId: PartyStageId): Promise<PartyStageCatalogEntry | null> {
     return this.findAdjacentStage(gameId, currentStageId, 1);
   }
 
-  findPreviousStage(
-    gameId: GameId,
-    currentStageId: PartyStageId,
-  ): Promise<PartyStageCatalogEntry | null> {
+  findPreviousStage(gameId: GameId, currentStageId: PartyStageId): Promise<PartyStageCatalogEntry | null> {
     return this.findAdjacentStage(gameId, currentStageId, -1);
   }
 

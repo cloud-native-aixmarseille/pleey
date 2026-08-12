@@ -117,28 +117,19 @@ export class PrismaHostPartyObservationReader implements HostPartyObservationRea
       excludedUserId,
       resolveGuestJoinedAt: (score) => score.guest?.createdAt ?? score.createdAt,
     });
-    const playerActionStates = this.partyReadModelMapper.collectPlayerActionStates(
-      normalizedScores,
-      {
-        excludedUserId,
-      },
-    );
+    const playerActionStates = this.partyReadModelMapper.collectPlayerActionStates(normalizedScores, {
+      excludedUserId,
+    });
     const baseContext = this.partyReadModelMapper.toPartyRuntimeContext(party.context);
     const stageId = baseContext?.lifecycle.stageId;
     const stage =
       stageId === null || stageId === undefined
         ? null
-        : await this.partyStageCatalog.findStageById(
-            this.gameIdentifier.parse(party.gameId),
-            stageId,
-            {
-              partyId: this.partyIdentifier.parse(party.id),
-              settings: this.gameSettingsMapper.toGameSettings(party.game),
-            },
-          );
-    const submittedPlayerCount = playerActionStates.filter(
-      (entry) => entry.state.stageId === stageId,
-    ).length;
+        : await this.partyStageCatalog.findStageById(this.gameIdentifier.parse(party.gameId), stageId, {
+            partyId: this.partyIdentifier.parse(party.id),
+            settings: this.gameSettingsMapper.toGameSettings(party.game),
+          });
+    const submittedPlayerCount = playerActionStates.filter((entry) => entry.state.stageId === stageId).length;
 
     return {
       partyId: this.partyIdentifier.parse(party.id),

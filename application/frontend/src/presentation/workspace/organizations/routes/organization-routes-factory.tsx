@@ -1,8 +1,5 @@
 import { inject, injectable } from 'inversify';
-import type {
-  PresentationRouteObject,
-  RouteFactory,
-} from '../../../../application/shared/contracts/routing.port';
+import type { PresentationRouteObject, RouteFactory } from '../../../../application/shared/contracts/routing.port';
 import { DashboardWorkspaceFacade } from '../../../../application/workspace/dashboard/facades/dashboard-workspace.facade';
 import { OrganizationManagementFacade } from '../../../../application/workspace/organizations/facades/organization-management.facade';
 import { ProtectedRoute } from '../../../shared/routing/protected-route';
@@ -25,15 +22,9 @@ export class OrganizationRoutesFactory implements RouteFactory {
           <ProtectedRoute>
             <OrganizationScreen
               dashboardWorkspace={this.dashboardWorkspaceFacade}
-              createOrganization={(command) =>
-                this.organizationManagementFacade.createOrganization(command)
-              }
-              listOrganizationMembers={(query) =>
-                this.organizationManagementFacade.listOrganizationMembers(query)
-              }
-              addOrganizationMember={(command) =>
-                this.organizationManagementFacade.addOrganizationMember(command)
-              }
+              createOrganization={(command) => this.organizationManagementFacade.createOrganization(command)}
+              listOrganizationMembers={(query) => this.organizationManagementFacade.listOrganizationMembers(query)}
+              addOrganizationMember={(command) => this.organizationManagementFacade.addOrganizationMember(command)}
               removeOrganizationMember={(member) =>
                 this.organizationManagementFacade.removeOrganizationMember({ memberId: member.id })
               }

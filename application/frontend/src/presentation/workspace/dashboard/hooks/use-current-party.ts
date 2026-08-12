@@ -3,11 +3,7 @@ import type { Party } from '../../../../domains/game/party/shared/entities/party
 import { PartyStatus } from '../../../../domains/game/party/shared/entities/party-status';
 import { usePresentationFeedbackChannel } from '../../../shared/ui/feedback/use-presentation-feedback-channel';
 
-const CURRENT_PARTY_STATUS_PRIORITY = [
-  PartyStatus.ACTIVE,
-  PartyStatus.PAUSED,
-  PartyStatus.WAITING,
-] as const;
+const CURRENT_PARTY_STATUS_PRIORITY = [PartyStatus.ACTIVE, PartyStatus.PAUSED, PartyStatus.WAITING] as const;
 
 function resolveCurrentParty(parties: readonly Party[]): Party | null {
   for (const status of CURRENT_PARTY_STATUS_PRIORITY) {

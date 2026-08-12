@@ -13,11 +13,7 @@ export function useStageRemainingDurationMs(party: PartyObservation): number | n
   const [nowEpochMs, setNowEpochMs] = useState(() => Date.now());
 
   useEffect(() => {
-    if (
-      phase !== PartyRuntimePhase.STAGE ||
-      party.status !== PartyStatus.ACTIVE ||
-      stageEndsAtEpochMs === null
-    ) {
+    if (phase !== PartyRuntimePhase.STAGE || party.status !== PartyStatus.ACTIVE || stageEndsAtEpochMs === null) {
       return;
     }
 

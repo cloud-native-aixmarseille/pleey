@@ -70,10 +70,7 @@ describe('QuizPartyStageCatalogEntryResolver', () => {
       });
     const resolver = createResolverWithFindFirst(findFirst);
 
-    const stage = await resolver.findNextStage(
-      backendTestIdentifiers.game(77),
-      backendTestIdentifiers.partyStage(10),
-    );
+    const stage = await resolver.findNextStage(backendTestIdentifiers.game(77), backendTestIdentifiers.partyStage(10));
 
     expect(stage).toMatchObject({
       id: backendTestIdentifiers.partyStage(11),

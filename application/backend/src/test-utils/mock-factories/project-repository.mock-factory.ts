@@ -8,14 +8,7 @@ import {
 } from './mock-factory.utils';
 
 const PROJECT_REPOSITORY_METHOD_KINDS: MockFactoryMethodKinds<ProjectRepository> = {
-  resolved: [
-    'create',
-    'findById',
-    'countByOrganization',
-    'findPageByOrganization',
-    'delete',
-    'update',
-  ],
+  resolved: ['create', 'findById', 'countByOrganization', 'findPageByOrganization', 'delete', 'update'],
   returned: [],
 };
 

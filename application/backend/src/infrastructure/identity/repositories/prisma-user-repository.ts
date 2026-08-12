@@ -54,13 +54,7 @@ function toDomainMedia(media: PrismaMediaRecord | null): Media | null {
     return null;
   }
 
-  return new Media(
-    media.id,
-    media.mimeType,
-    Buffer.from(media.content),
-    media.createdAt,
-    media.updatedAt,
-  );
+  return new Media(media.id, media.mimeType, Buffer.from(media.content), media.createdAt, media.updatedAt);
 }
 
 function toDomainUser(user: PrismaUserRecord): User {
@@ -84,12 +78,7 @@ function toDomainUser(user: PrismaUserRecord): User {
 export class PrismaUserRepository implements UserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(
-    username: string,
-    email: string,
-    password: string,
-    avatar: Media | null = null,
-  ): Promise<User> {
+  async create(username: string, email: string, password: string, avatar: Media | null = null): Promise<User> {
     const data: Prisma.UserCreateInput = {
       username,
       email,
@@ -201,11 +190,7 @@ export class PrismaUserRepository implements UserRepository {
     return toDomainUser(user);
   }
 
-  async updateRefreshToken(
-    id: UserId,
-    refreshTokenHash: string,
-    refreshTokenExpiresAt: Date,
-  ): Promise<void> {
+  async updateRefreshToken(id: UserId, refreshTokenHash: string, refreshTokenExpiresAt: Date): Promise<void> {
     await this.prisma.user.update({
       where: { id },
       data: {

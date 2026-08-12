@@ -27,28 +27,18 @@ describe('ProfileIdentitySection', () => {
     const onRegenerateAvatar = vi.fn().mockResolvedValue(undefined);
 
     renderWithUiProvider(
-      <ProfileIdentitySection
-        isRegenerating={false}
-        onRegenerateAvatar={onRegenerateAvatar}
-        user={currentUser}
-      />,
+      <ProfileIdentitySection isRegenerating={false} onRegenerateAvatar={onRegenerateAvatar} user={currentUser} />,
     );
 
     expect(screen.getByRole('heading', { name: 'Morgan' })).toBeInTheDocument();
-    await user.click(
-      screen.getByRole('button', { name: 'auth.profile.avatarSection.regenerateCta' }),
-    );
+    await user.click(screen.getByRole('button', { name: 'auth.profile.avatarSection.regenerateCta' }));
 
     expect(onRegenerateAvatar).toHaveBeenCalledTimes(1);
   });
 
   it('shows the regenerating label while avatar generation is pending', () => {
-    renderWithUiProvider(
-      <ProfileIdentitySection isRegenerating onRegenerateAvatar={vi.fn()} user={currentUser} />,
-    );
+    renderWithUiProvider(<ProfileIdentitySection isRegenerating onRegenerateAvatar={vi.fn()} user={currentUser} />);
 
-    expect(
-      screen.getByRole('button', { name: 'auth.profile.avatarSection.regeneratingCta' }),
-    ).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'auth.profile.avatarSection.regeneratingCta' })).toBeDisabled();
   });
 });

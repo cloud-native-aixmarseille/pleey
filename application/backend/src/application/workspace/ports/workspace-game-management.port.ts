@@ -12,12 +12,7 @@ export interface OrganizationDashboardStats {
 export abstract class WorkspaceGameManagementPort {
   abstract countProjectGames(projectId: ProjectId): Promise<number>;
 
-  abstract reassignProjectGames(
-    sourceProjectId: ProjectId,
-    targetProjectId: ProjectId,
-  ): Promise<void>;
+  abstract reassignProjectGames(sourceProjectId: ProjectId, targetProjectId: ProjectId): Promise<void>;
 
-  abstract getOrganizationDashboardStats(
-    organizationId: OrganizationId,
-  ): Promise<OrganizationDashboardStats>;
+  abstract getOrganizationDashboardStats(organizationId: OrganizationId): Promise<OrganizationDashboardStats>;
 }

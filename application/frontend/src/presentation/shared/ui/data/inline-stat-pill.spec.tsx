@@ -6,9 +6,7 @@ import { InlineStatPill } from './inline-stat-pill';
 describe('InlineStatPill', () => {
   it('renders the icon and label content', () => {
     renderWithUiProvider(
-      <InlineStatPill icon={<span data-testid="inline-stat-icon">Icon</span>}>
-        120 seconds
-      </InlineStatPill>,
+      <InlineStatPill icon={<span data-testid="inline-stat-icon">Icon</span>}>120 seconds</InlineStatPill>,
     );
 
     expect(screen.getByTestId('inline-stat-icon')).toBeInTheDocument();
@@ -17,9 +15,7 @@ describe('InlineStatPill', () => {
 
   it('renders nothing when no content is provided', () => {
     renderWithUiProvider(
-      <InlineStatPill icon={<span data-testid="inline-stat-icon">Icon</span>}>
-        {null}
-      </InlineStatPill>,
+      <InlineStatPill icon={<span data-testid="inline-stat-icon">Icon</span>}>{null}</InlineStatPill>,
     );
 
     expect(screen.queryByTestId('inline-stat-icon')).not.toBeInTheDocument();

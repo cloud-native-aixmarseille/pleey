@@ -27,8 +27,7 @@ export const gamePartyEn = {
         finalSummaryTitle: 'Game over!',
         finalSummarySubtitleWithWinner:
           '{{username}} takes the crown. Take a bow - every player scored a moment to remember.',
-        finalSummarySubtitleNoWinner:
-          'No scores were recorded for this party. Replay it to crown a champion.',
+        finalSummarySubtitleNoWinner: 'No scores were recorded for this party. Replay it to crown a champion.',
         finalSummaryPodiumTitle: 'Podium',
         finalSummaryPodiumHint: 'The top three finishers of this party.',
         finalSummaryStandingsTitle: 'Standings',

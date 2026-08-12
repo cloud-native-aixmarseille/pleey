@@ -108,9 +108,7 @@ export function buildMobileHeroStyle(state: 'correct' | 'incorrect' | 'no-answer
   };
 }
 
-export function buildMobileHeroIconWrapperStyle(
-  state: 'correct' | 'incorrect' | 'no-answer',
-): CSSProperties {
+export function buildMobileHeroIconWrapperStyle(state: 'correct' | 'incorrect' | 'no-answer'): CSSProperties {
   if (state === 'no-answer') {
     return {
       ...mobileHeroIconWrapperStyle,

@@ -18,9 +18,7 @@ describe('StatusBanner', () => {
     });
 
     it('renders a presentational icon alongside banner content', () => {
-      const { container } = renderWithUiProvider(
-        <StatusBanner tone="info">Game is ready.</StatusBanner>,
-      );
+      const { container } = renderWithUiProvider(<StatusBanner tone="info">Game is ready.</StatusBanner>);
 
       expect(container.querySelector('svg')).not.toBeNull();
     });

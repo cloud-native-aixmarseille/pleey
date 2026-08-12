@@ -254,9 +254,7 @@ async function main() {
       const createdPrompt = await prisma.predictionPrompt.create({
         data: {
           predictionId: prediction.id,
-          position: predictionPromptsData.findIndex(
-            (item) => item.promptText === prompt.promptText,
-          ),
+          position: predictionPromptsData.findIndex((item) => item.promptText === prompt.promptText),
           promptText: prompt.promptText,
           timeLimit: prompt.timeLimit,
           points: prompt.points,

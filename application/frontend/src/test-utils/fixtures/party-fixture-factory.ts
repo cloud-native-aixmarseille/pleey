@@ -46,8 +46,7 @@ type PartyHostOverrides = {
   readonly username?: string;
 };
 
-interface PartyObservationOverrides
-  extends Omit<Partial<PartyObservation>, 'partyId' | 'pin' | 'host' | 'players'> {
+interface PartyObservationOverrides extends Omit<Partial<PartyObservation>, 'partyId' | 'pin' | 'host' | 'players'> {
   readonly partyId?: number | PartyId;
   readonly pin?: string | PartyPin;
   readonly host?: PartyHost;

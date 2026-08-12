@@ -5,9 +5,7 @@ import { renderWithProviders } from '../../../test-utils/render-with-providers';
 import { AppShellHeader } from './app-shell-header';
 
 vi.mock('../ui/navigation/account-menu/account-menu', () => ({
-  AccountMenu: ({ appVersion }: { appVersion?: string }) => (
-    <div>account-menu:{appVersion ?? ''}</div>
-  ),
+  AccountMenu: ({ appVersion }: { appVersion?: string }) => <div>account-menu:{appVersion ?? ''}</div>,
 }));
 
 vi.mock('../ui/navigation/account-menu/guest-preferences-menu', () => ({
@@ -34,19 +32,11 @@ describe('AppShellHeader', () => {
     const navHandlers = { toggle: vi.fn(), close: vi.fn() };
 
     renderWithProviders(
-      <AppShellHeader
-        appVersion="1.2.3"
-        isAuthenticated
-        navHandlers={navHandlers}
-        navOpened={false}
-      />,
+      <AppShellHeader appVersion="1.2.3" isAuthenticated navHandlers={navHandlers} navOpened={false} />,
     );
 
     expect(screen.getByText('shared.shell.kicker')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /shared.nav.dashboard/i })).toHaveAttribute(
-      'href',
-      '/workspace/dashboard',
-    );
+    expect(screen.getByRole('link', { name: /shared.nav.dashboard/i })).toHaveAttribute('href', '/workspace/dashboard');
     expect(screen.getByText('account-menu:1.2.3')).toBeInTheDocument();
     expect(screen.queryByText(/guest-preferences-menu:/)).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'shared.shell.navToggle' })).toBeInTheDocument();

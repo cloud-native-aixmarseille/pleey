@@ -1,12 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-const DEFAULT_EVENTS: Array<keyof WindowEventMap> = [
-  'mousemove',
-  'mousedown',
-  'keydown',
-  'touchstart',
-  'scroll',
-];
+const DEFAULT_EVENTS: Array<keyof WindowEventMap> = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'];
 
 export function useUserIdle(
   enabled: boolean,

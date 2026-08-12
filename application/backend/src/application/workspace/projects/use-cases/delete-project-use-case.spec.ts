@@ -26,9 +26,7 @@ describe('DeleteProjectUseCase', () => {
       memberRepository as never,
     );
 
-    await expect(useCase.execute(projectId, actorUserId)).rejects.toThrow(
-      ProjectErrorCode.PROJECT_NOT_FOUND,
-    );
+    await expect(useCase.execute(projectId, actorUserId)).rejects.toThrow(ProjectErrorCode.PROJECT_NOT_FOUND);
   });
 
   it('throws NOT_A_MEMBER when the user is outside the organization', async () => {
@@ -52,9 +50,7 @@ describe('DeleteProjectUseCase', () => {
       memberRepository as never,
     );
 
-    await expect(useCase.execute(projectId, actorUserId)).rejects.toThrow(
-      OrganizationErrorCode.NOT_A_MEMBER,
-    );
+    await expect(useCase.execute(projectId, actorUserId)).rejects.toThrow(OrganizationErrorCode.NOT_A_MEMBER);
   });
 
   it('throws INSUFFICIENT_PERMISSIONS when the user cannot manage projects', async () => {
@@ -109,13 +105,9 @@ describe('DeleteProjectUseCase', () => {
       memberRepository as never,
     );
 
-    await expect(useCase.execute(projectId, actorUserId)).rejects.toThrow(
-      ProjectErrorCode.CANNOT_DELETE_LAST_PROJECT,
-    );
+    await expect(useCase.execute(projectId, actorUserId)).rejects.toThrow(ProjectErrorCode.CANNOT_DELETE_LAST_PROJECT);
 
-    expect(projectRepository.countByOrganization).toHaveBeenCalledWith(
-      backendTestIdentifiers.organization(3),
-    );
+    expect(projectRepository.countByOrganization).toHaveBeenCalledWith(backendTestIdentifiers.organization(3));
     expect(projectRepository.delete).not.toHaveBeenCalled();
   });
 
@@ -213,10 +205,7 @@ describe('DeleteProjectUseCase', () => {
 
     await useCase.execute(projectId, actorUserId, migrationProjectId);
 
-    expect(workspaceGameManagement.reassignProjectGames).toHaveBeenCalledWith(
-      projectId,
-      migrationProjectId,
-    );
+    expect(workspaceGameManagement.reassignProjectGames).toHaveBeenCalledWith(projectId, migrationProjectId);
     expect(projectRepository.delete).toHaveBeenCalledWith(projectId);
   });
 
@@ -246,9 +235,7 @@ describe('DeleteProjectUseCase', () => {
 
     await useCase.execute(projectId, actorUserId);
 
-    expect(projectRepository.countByOrganization).toHaveBeenCalledWith(
-      backendTestIdentifiers.organization(3),
-    );
+    expect(projectRepository.countByOrganization).toHaveBeenCalledWith(backendTestIdentifiers.organization(3));
     expect(projectRepository.delete).toHaveBeenCalledWith(backendTestIdentifiers.project(8));
     expect(workspaceGameManagement.reassignProjectGames).not.toHaveBeenCalled();
   });

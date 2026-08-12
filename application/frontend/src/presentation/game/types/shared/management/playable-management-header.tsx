@@ -33,16 +33,10 @@ export function PlayableManagementHeader({
       <ContentStack gap="xs">
         <Eyebrow compact>{t(`${translationRoot}.eyebrow`)}</Eyebrow>
         <Heading level={1}>{state.game.title}</Heading>
-        <SupportingText>
-          {t(`${translationRoot}.statusLine`, { saveState: saveStateLabel })}
-        </SupportingText>
+        <SupportingText>{t(`${translationRoot}.statusLine`, { saveState: saveStateLabel })}</SupportingText>
       </ContentStack>
       <ActionRow justify="end">
-        <Button
-          intent="ghost"
-          leftSection={<AppIcon name="arrow-left" size={14} />}
-          onClick={onBack}
-        >
+        <Button intent="ghost" leftSection={<AppIcon name="arrow-left" size={14} />} onClick={onBack}>
           {t(`${translationRoot}.back`)}
         </Button>
         <ManualMenuWrapper>

@@ -121,9 +121,7 @@ export function DashboardHomeScreen({
         dashboard={organizationDashboard}
       />
 
-      <StatusBanner tone="error">
-        {workspaceErrorMessage ? t(workspaceErrorMessage) : null}
-      </StatusBanner>
+      <StatusBanner tone="error">{workspaceErrorMessage ? t(workspaceErrorMessage) : null}</StatusBanner>
 
       <DashboardActivePartySection
         currentParty={currentParty}

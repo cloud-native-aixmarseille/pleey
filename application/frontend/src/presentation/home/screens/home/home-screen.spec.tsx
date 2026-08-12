@@ -49,9 +49,7 @@ describe('HomeScreen', () => {
 
     it('renders the hero title as h1', () => {
       renderWithProviders(<HomeScreen />);
-      expect(
-        screen.getByRole('heading', { level: 1, name: 'home.hero.title' }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 1, name: 'home.hero.title' })).toBeInTheDocument();
     });
 
     it('renders the hero tagline', () => {
@@ -69,9 +67,7 @@ describe('HomeScreen', () => {
   describe('value proposition section', () => {
     it('renders the value proposition heading', () => {
       renderWithProviders(<HomeScreen />);
-      expect(
-        screen.getByRole('heading', { name: 'home.valueProposition.heading' }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'home.valueProposition.heading' })).toBeInTheDocument();
     });
 
     it('renders the value proposition description', () => {

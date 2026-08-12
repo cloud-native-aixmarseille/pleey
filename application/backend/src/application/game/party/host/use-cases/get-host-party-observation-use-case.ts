@@ -12,9 +12,7 @@ export class GetHostPartyObservationUseCase {
   ) {}
 
   async execute(input: { partyId: PartyId }): Promise<HostPartyObservation> {
-    const observation = await this.hostPartyObservationReader.findHostObservationByPartyId(
-      input.partyId,
-    );
+    const observation = await this.hostPartyObservationReader.findHostObservationByPartyId(input.partyId);
 
     if (!observation) {
       throw new PartyNotFoundError({ partyId: input.partyId });

@@ -59,11 +59,7 @@ export function AuthShellContent({ children }: PropsWithChildren) {
   );
 }
 
-export function AuthBrandingPanel({
-  brandingEyebrow,
-  brandingTitle,
-  featureItems,
-}: AuthBrandingPanelProps) {
+export function AuthBrandingPanel({ brandingEyebrow, brandingTitle, featureItems }: AuthBrandingPanelProps) {
   return (
     <>
       <div style={authLayoutBrandingPanelStyle}>

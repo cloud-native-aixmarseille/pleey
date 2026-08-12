@@ -1,7 +1,4 @@
-import type {
-  Organization,
-  OrganizationId,
-} from '../../../../../../domains/organization/entities/organization';
+import type { Organization, OrganizationId } from '../../../../../../domains/organization/entities/organization';
 import type { OrganizationDashboard } from '../../../../../../domains/organization/entities/organization-dashboard';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { Badge } from '../../../../../shared/ui/feedback/badge';
@@ -83,9 +80,7 @@ export function OrganizationOverviewPanel({
             {selectedOrganization.description ? (
               <SupportingText>{selectedOrganization.description}</SupportingText>
             ) : null}
-            {selectedOrganization.role ? (
-              <Badge tone="accent">{selectedOrganization.role}</Badge>
-            ) : null}
+            {selectedOrganization.role ? <Badge tone="accent">{selectedOrganization.role}</Badge> : null}
             <SupportingText>
               {t('organization.management.details.created', {
                 date: formatDate(selectedOrganization.createdAt, currentLanguage),

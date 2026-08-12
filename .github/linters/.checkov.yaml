@@ -1,3 +1,4 @@
+---
 quiet: true
 skip-path:
   # Ignore third-party Helm dependency charts vendored by the backend subchart.

@@ -107,10 +107,7 @@ type PartyHostControlUseCase = Pick<StartPartyUseCase, 'execute'>;
 @WebSocketGateway({ cors: true })
 export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit {
   private server: Pick<Server, 'in'> | null = null;
-  private readonly pendingLobbyPlayerAbsencePrunes = new Map<
-    string,
-    ReturnType<typeof setTimeout>
-  >();
+  private readonly pendingLobbyPlayerAbsencePrunes = new Map<string, ReturnType<typeof setTimeout>>();
 
   constructor(
     private readonly joinPartyUseCase: JoinPartyUseCase,
@@ -184,10 +181,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
       const joinedPlayerIdentity = this.resolveJoinedPlayerIdentity(client);
 
       if (joinedPlayerIdentity !== null) {
-        this.clearPendingLobbyPlayerAbsencePrune(
-          snapshot.hostObservation.partyId,
-          joinedPlayerIdentity,
-        );
+        this.clearPendingLobbyPlayerAbsencePrune(snapshot.hostObservation.partyId, joinedPlayerIdentity);
       }
 
       await this.partyObservationBroadcaster.emitSnapshot(client, snapshot);
@@ -397,11 +391,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
       this.rememberJoinedPlayer(client, result.pin, result.player.identity);
 
       // Register the new session for this player identity
-      const { sessionId } = this.sessionRegistry.registerSession(
-        result.partyId,
-        result.player.identity,
-        client.id,
-      );
+      const { sessionId } = this.sessionRegistry.registerSession(result.partyId, result.player.identity, client.id);
 
       const socketData = client.data as PartyObserverSocketData;
       socketData.playerSessionId = sessionId;
@@ -444,11 +434,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
       });
 
       if (runtimeNoticeKind) {
-        await this.partyObservationBroadcaster.publishRuntimeNotice(
-          partyId,
-          hostUserId,
-          runtimeNoticeKind,
-        );
+        await this.partyObservationBroadcaster.publishRuntimeNotice(partyId, hostUserId, runtimeNoticeKind);
       }
     } catch (error) {
       throw this.toWsException(error);
@@ -474,10 +460,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
       avatarSeed: payload?.avatarSeed?.trim() || undefined,
       partyPassword: payload?.partyPassword?.trim() || undefined,
       pin: normalizedPin,
-      playerIdentity:
-        guestId === null
-          ? { kind: PartyPlayerKind.GUEST }
-          : { kind: PartyPlayerKind.GUEST, guestId },
+      playerIdentity: guestId === null ? { kind: PartyPlayerKind.GUEST } : { kind: PartyPlayerKind.GUEST, guestId },
       username: payload?.username?.trim() ?? '',
     };
   }
@@ -559,10 +542,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     await this.broadcastPartyObservationUseCase.execute({ partyId });
   }
 
-  private async clearJoinedPlayerSockets(
-    partyId: PartyId,
-    playerIdentity: PartyPlayerIdentity,
-  ): Promise<void> {
+  private async clearJoinedPlayerSockets(partyId: PartyId, playerIdentity: PartyPlayerIdentity): Promise<void> {
     if (this.server === null) {
       return;
     }
@@ -570,8 +550,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     const sockets = await this.server.in(resolvePartyObservationRoom(partyId)).fetchSockets();
 
     for (const socket of sockets) {
-      const joinedPlayerIdentity = (socket.data as PartyObserverSocketData).joinedPartyPlayer
-        ?.identity;
+      const joinedPlayerIdentity = (socket.data as PartyObserverSocketData).joinedPartyPlayer?.identity;
 
       if (this.isSamePlayerIdentity(joinedPlayerIdentity ?? null, playerIdentity)) {
         this.clearJoinedPlayer(socket);
@@ -587,11 +566,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     return this.partyIdentifier.parseOrNull(room.slice('party:'.length));
   }
 
-  private rememberJoinedPlayer(
-    client: Socket,
-    pin: PartyPin,
-    playerIdentity: PartyPlayerIdentity,
-  ): void {
+  private rememberJoinedPlayer(client: Socket, pin: PartyPin, playerIdentity: PartyPlayerIdentity): void {
     const socketData = client.data as PartyObserverSocketData;
 
     socketData.joinedPartyPlayer = {
@@ -606,9 +581,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     delete socketData.joinedPartyPlayer;
   }
 
-  private resolvePendingLobbyPlayerAbsencePrune(
-    client: Pick<Socket, 'data'>,
-  ): PendingLobbyPlayerAbsencePrune | null {
+  private resolvePendingLobbyPlayerAbsencePrune(client: Pick<Socket, 'data'>): PendingLobbyPlayerAbsencePrune | null {
     const socketData = client.data as PartyObserverSocketData;
     const joinedPartyPlayer = socketData.joinedPartyPlayer;
     const partyId = this.parsePartyObservationId(socketData.partyObservationRoom);
@@ -666,10 +639,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     }
   }
 
-  private async hasJoinedPlayerConnection(
-    partyId: PartyId,
-    playerIdentity: PartyPlayerIdentity,
-  ): Promise<boolean> {
+  private async hasJoinedPlayerConnection(partyId: PartyId, playerIdentity: PartyPlayerIdentity): Promise<boolean> {
     if (this.server === null) {
       return true;
     }
@@ -694,13 +664,8 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     }
   }
 
-  private clearPendingLobbyPlayerAbsencePrune(
-    partyId: PartyId,
-    playerIdentity: PartyPlayerIdentity,
-  ): void {
-    this.clearPendingLobbyPlayerAbsencePruneByKey(
-      this.toLobbyPlayerAbsencePruneKey(partyId, playerIdentity),
-    );
+  private clearPendingLobbyPlayerAbsencePrune(partyId: PartyId, playerIdentity: PartyPlayerIdentity): void {
+    this.clearPendingLobbyPlayerAbsencePruneByKey(this.toLobbyPlayerAbsencePruneKey(partyId, playerIdentity));
   }
 
   private clearPendingLobbyPlayerAbsencePruneByKey(pruneKey: string): void {
@@ -714,10 +679,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     this.pendingLobbyPlayerAbsencePrunes.delete(pruneKey);
   }
 
-  private toLobbyPlayerAbsencePruneKey(
-    partyId: PartyId,
-    playerIdentity: PartyPlayerIdentity,
-  ): string {
+  private toLobbyPlayerAbsencePruneKey(partyId: PartyId, playerIdentity: PartyPlayerIdentity): string {
     return `${partyId}:${this.toPlayerIdentityKey(playerIdentity)}`;
   }
 
@@ -730,10 +692,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     }
   }
 
-  private isSamePlayerIdentity(
-    left: PartyPlayerIdentity | null,
-    right: PartyPlayerIdentity,
-  ): boolean {
+  private isSamePlayerIdentity(left: PartyPlayerIdentity | null, right: PartyPlayerIdentity): boolean {
     if (left === null || left.kind !== right.kind) {
       return false;
     }
@@ -775,9 +734,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     return normalizedPartyId;
   }
 
-  private toTargetPlayerIdentity(
-    payload: PartyHostPlayerMessageDto | undefined,
-  ): PartyPlayerIdentity {
+  private toTargetPlayerIdentity(payload: PartyHostPlayerMessageDto | undefined): PartyPlayerIdentity {
     const guestId = this.guestIdentifier.parseOrNull(payload?.guestId);
     const userId = this.userIdentifier.parseOrNull(payload?.userId);
 

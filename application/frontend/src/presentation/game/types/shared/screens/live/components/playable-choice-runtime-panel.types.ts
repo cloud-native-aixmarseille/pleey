@@ -27,7 +27,6 @@ export interface PlayableChoicePlayerStageSurfaceProps extends PlayableChoiceHos
   readonly playerActionErrorMessage: string | null;
 }
 
-export interface PlayableChoicePlayerResultSurfaceProps
-  extends PlayableChoiceHostRuntimePanelProps {
+export interface PlayableChoicePlayerResultSurfaceProps extends PlayableChoiceHostRuntimePanelProps {
   readonly onLeaveParty: () => void;
 }

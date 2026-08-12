@@ -242,14 +242,10 @@ export class GraphqlQuizManagementRepository implements QuizManagementRepository
   }
 
   private toGraphqlQuestionKind(kind: string | undefined): QuizQuestionType {
-    return kind === QuizQuestionKindCode.TRUE_FALSE
-      ? QuizQuestionType.TrueFalse
-      : QuizQuestionType.Multiple;
+    return kind === QuizQuestionKindCode.TRUE_FALSE ? QuizQuestionType.TrueFalse : QuizQuestionType.Multiple;
   }
 
   private fromGraphqlQuestionKind(kind: QuizQuestionType): QuizQuestionKind {
-    return kind === QuizQuestionType.TrueFalse
-      ? QuizQuestionKindCode.TRUE_FALSE
-      : QuizQuestionKindCode.MULTIPLE;
+    return kind === QuizQuestionType.TrueFalse ? QuizQuestionKindCode.TRUE_FALSE : QuizQuestionKindCode.MULTIPLE;
   }
 }

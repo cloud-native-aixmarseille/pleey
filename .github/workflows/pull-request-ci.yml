@@ -1,6 +1,7 @@
+---
 name: Pull request - Continuous Integration
 
-on:
+"on":
   pull_request:
     branches: [main]
 
@@ -18,9 +19,8 @@ jobs:
       checks: write
       contents: read
       id-token: write
-      issues: read
+      issues: write
       packages: write
       pull-requests: write
       security-events: write
       statuses: write
-    secrets: inherit

@@ -21,18 +21,12 @@ export class RouteRegistry {
   ) {}
 
   getRoutes(): RouteObject[] {
-    const children = this.routeFactories.flatMap((routeFactory) =>
-      routeFactory.create(),
-    ) as RouteObject[];
+    const children = this.routeFactories.flatMap((routeFactory) => routeFactory.create()) as RouteObject[];
 
     return [
       {
         path: '/',
-        element: (
-          <AppShellLayout
-            loadAppVersion={() => this.applicationVersionPort.loadApplicationVersion()}
-          />
-        ),
+        element: <AppShellLayout loadAppVersion={() => this.applicationVersionPort.loadApplicationVersion()} />,
         children: [
           {
             index: true,

@@ -25,10 +25,7 @@ export class PrismaWorkspaceGameManagementAdapter extends WorkspaceGameManagemen
     });
   }
 
-  async reassignProjectGames(
-    sourceProjectId: ProjectId,
-    targetProjectId: ProjectId,
-  ): Promise<void> {
+  async reassignProjectGames(sourceProjectId: ProjectId, targetProjectId: ProjectId): Promise<void> {
     await this.prisma.game.updateMany({
       where: {
         projectId: sourceProjectId,
@@ -40,13 +37,24 @@ export class PrismaWorkspaceGameManagementAdapter extends WorkspaceGameManagemen
     });
   }
 
-  async getOrganizationDashboardStats(
-    organizationId: OrganizationId,
-  ): Promise<OrganizationDashboardStats> {
-    const [totalGames, totalParties, activeParties, totalMembers, totalProjects] =
-      await Promise.all([
-        this.prisma.game.count({
-          where: {
+  async getOrganizationDashboardStats(organizationId: OrganizationId): Promise<OrganizationDashboardStats> {
+    const [totalGames, totalParties, activeParties, totalMembers, totalProjects] = await Promise.all([
+      this.prisma.game.count({
+        where: {
+          deletedAt: null,
+          project: {
+            organizationId,
+            deletedAt: null,
+            organization: {
+              deletedAt: null,
+            },
+          },
+        },
+      }),
+      this.prisma.party.count({
+        where: {
+          deletedAt: null,
+          game: {
             deletedAt: null,
             project: {
               organizationId,
@@ -56,59 +64,45 @@ export class PrismaWorkspaceGameManagementAdapter extends WorkspaceGameManagemen
               },
             },
           },
-        }),
-        this.prisma.party.count({
-          where: {
+        },
+      }),
+      this.prisma.party.count({
+        where: {
+          deletedAt: null,
+          status: {
+            in: ACTIVE_PARTY_STATUSES,
+          },
+          game: {
             deletedAt: null,
-            game: {
+            project: {
+              organizationId,
               deletedAt: null,
-              project: {
-                organizationId,
+              organization: {
                 deletedAt: null,
-                organization: {
-                  deletedAt: null,
-                },
               },
             },
           },
-        }),
-        this.prisma.party.count({
-          where: {
+        },
+      }),
+      this.prisma.organizationMember.count({
+        where: {
+          organizationId,
+          deletedAt: null,
+          organization: {
             deletedAt: null,
-            status: {
-              in: ACTIVE_PARTY_STATUSES,
-            },
-            game: {
-              deletedAt: null,
-              project: {
-                organizationId,
-                deletedAt: null,
-                organization: {
-                  deletedAt: null,
-                },
-              },
-            },
           },
-        }),
-        this.prisma.organizationMember.count({
-          where: {
-            organizationId,
+        },
+      }),
+      this.prisma.project.count({
+        where: {
+          organizationId,
+          deletedAt: null,
+          organization: {
             deletedAt: null,
-            organization: {
-              deletedAt: null,
-            },
           },
-        }),
-        this.prisma.project.count({
-          where: {
-            organizationId,
-            deletedAt: null,
-            organization: {
-              deletedAt: null,
-            },
-          },
-        }),
-      ]);
+        },
+      }),
+    ]);
 
     return {
       totalGames,

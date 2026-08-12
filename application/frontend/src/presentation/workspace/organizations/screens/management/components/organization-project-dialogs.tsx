@@ -10,18 +10,12 @@ interface OrganizationProjectDialogsProps {
   readonly closeEditProjectDialog: () => void;
   readonly editingProject: Project | null;
   readonly handleConfirmProjectRemoval: () => void;
-  readonly handleCreateProject: (values: {
-    name: string;
-    description: string | null;
-  }) => Promise<Project>;
+  readonly handleCreateProject: (values: { name: string; description: string | null }) => Promise<Project>;
   readonly handleLoadMoreProjects: () => void;
   readonly handleMigrationProjectChange: (projectId: Project['id'] | null) => void;
   readonly handleProjectMutationCompleted: (project: Project) => void;
   readonly handleProjectSearchChange: (value: string) => void;
-  readonly handleUpdateProject: (values: {
-    name: string;
-    description: string | null;
-  }) => Promise<Project>;
+  readonly handleUpdateProject: (values: { name: string; description: string | null }) => Promise<Project>;
   readonly hasMoreProjects: boolean;
   readonly isCreateProjectOpen: boolean;
   readonly isDeletingProject: boolean;
@@ -87,9 +81,7 @@ export function OrganizationProjectDialogs({
         cancelLabel={t('common.cancel')}
         confirmDisabled={projectTotalCount > 1 && migrationProjectId === null}
         confirmLabel={
-          isDeletingProject
-            ? t('project.management.removal.submitting')
-            : t('project.management.removal.confirm')
+          isDeletingProject ? t('project.management.removal.submitting') : t('project.management.removal.confirm')
         }
         description={t('project.management.removal.migrationDescription')}
         isDeletingProject={isDeletingProject}

@@ -25,26 +25,17 @@ export function SignInScreen() {
         subtitle={hasRestoredSession ? t('auth.signIn.subtitle') : t('auth.signIn.restoring')}
       >
         {user ? (
-          <ActiveSessionPanel
-            user={user}
-            onNavigateDashboard={handleNavigateDashboard}
-            onSignOut={handleSignOut}
-          />
+          <ActiveSessionPanel user={user} onNavigateDashboard={handleNavigateDashboard} onSignOut={handleSignOut} />
         ) : (
           <form.AppForm>
             <PresentationForm form={form}>
-              <FormSection
-                description={t('auth.signIn.formDescription')}
-                legend={t('auth.signIn.formLegend')}
-              >
+              <FormSection description={t('auth.signIn.formDescription')} legend={t('auth.signIn.formLegend')}>
                 <ContentStack gap="sm">
                   <form.AppField
                     name="email"
                     validators={{
                       onBlur: ({ value }) =>
-                        value.trim().length === 0
-                          ? t('auth.form.validation.emailRequired')
-                          : undefined,
+                        value.trim().length === 0 ? t('auth.form.validation.emailRequired') : undefined,
                     }}
                   >
                     {() => (
@@ -60,9 +51,7 @@ export function SignInScreen() {
                     name="password"
                     validators={{
                       onBlur: ({ value }) =>
-                        value.trim().length === 0
-                          ? t('auth.form.validation.passwordRequired')
-                          : undefined,
+                        value.trim().length === 0 ? t('auth.form.validation.passwordRequired') : undefined,
                     }}
                   >
                     {() => (
@@ -92,9 +81,7 @@ export function SignInScreen() {
 
               <SupportingText>
                 {t('auth.signIn.registerPrompt')}{' '}
-                <InlineTextLink to="/identity/register">
-                  {t('auth.signIn.registerLink')}
-                </InlineTextLink>
+                <InlineTextLink to="/identity/register">{t('auth.signIn.registerLink')}</InlineTextLink>
               </SupportingText>
             </PresentationForm>
           </form.AppForm>

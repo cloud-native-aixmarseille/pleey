@@ -9,10 +9,7 @@ import {
   mockFn,
 } from './mock-factory.utils';
 
-type AuthTokenServiceLike = Pick<
-  AuthTokenService,
-  'createTokenPair' | 'verifyRefreshToken' | 'mapTokensToResponse'
->;
+type AuthTokenServiceLike = Pick<AuthTokenService, 'createTokenPair' | 'verifyRefreshToken' | 'mapTokensToResponse'>;
 
 const AUTH_TOKEN_SERVICE_METHOD_KINDS: MockFactoryMethodKinds<AuthTokenServiceLike> = {
   resolved: ['verifyRefreshToken'],

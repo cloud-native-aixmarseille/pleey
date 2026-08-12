@@ -50,9 +50,7 @@ describe('GameItemCard', () => {
     );
 
     expect(screen.getByText('Roadmap quiz')).toBeInTheDocument();
-    expect(
-      screen.getByText('game.types.quiz.management.questionSummary (count=14)'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('game.types.quiz.management.questionSummary (count=14)')).toBeInTheDocument();
   });
 
   it('shows the disabled reason tooltip for blocked party creation', async () => {
@@ -74,13 +72,10 @@ describe('GameItemCard', () => {
     );
 
     await user.hover(
-      screen.getByRole('button', { name: 'dashboard.games.actions.createParty' })
-        .parentElement as HTMLElement,
+      screen.getByRole('button', { name: 'dashboard.games.actions.createParty' }).parentElement as HTMLElement,
     );
 
-    expect(
-      await screen.findByText('dashboard.games.permissions.createParty.hostHasActiveParty'),
-    ).toBeInTheDocument();
+    expect(await screen.findByText('dashboard.games.permissions.createParty.hostHasActiveParty')).toBeInTheDocument();
   });
 
   it('shows the no-stages tooltip when the game has no configured stages', async () => {
@@ -103,13 +98,10 @@ describe('GameItemCard', () => {
     );
 
     await user.hover(
-      screen.getByRole('button', { name: 'dashboard.games.actions.createParty' })
-        .parentElement as HTMLElement,
+      screen.getByRole('button', { name: 'dashboard.games.actions.createParty' }).parentElement as HTMLElement,
     );
 
-    expect(
-      await screen.findByText('dashboard.games.permissions.createParty.noStagesAvailable'),
-    ).toBeInTheDocument();
+    expect(await screen.findByText('dashboard.games.permissions.createParty.noStagesAvailable')).toBeInTheDocument();
   });
 
   it('renders launch readiness from the backend permission entry', () => {

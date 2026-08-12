@@ -251,23 +251,13 @@ export function HostRuntimeCommandMenu({
       withinPortal
     >
       {groups.map((group, groupIndex) => (
-        <RuntimeMenuGroup
-          key={group.label}
-          group={group}
-          withDivider={groupIndex < groups.length - 1}
-        />
+        <RuntimeMenuGroup key={group.label} group={group} withDivider={groupIndex < groups.length - 1} />
       ))}
     </DropdownMenu>
   );
 }
 
-function RuntimeMenuGroup({
-  group,
-  withDivider,
-}: {
-  readonly group: MenuGroup;
-  readonly withDivider: boolean;
-}) {
+function RuntimeMenuGroup({ group, withDivider }: { readonly group: MenuGroup; readonly withDivider: boolean }) {
   return (
     <>
       <DropdownMenuLabel>{group.label}</DropdownMenuLabel>

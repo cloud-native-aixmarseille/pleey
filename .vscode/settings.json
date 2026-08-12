@@ -26,12 +26,7 @@
   "emmet.includeLanguages": {
     "javascript": "javascriptreact"
   },
-  "tailwindCSS.experimental.classRegex": [
-    [
-      "class(?:Name)?\\s*=\\s*['\"]([^'\"]*)['\"]",
-      "([^\\s]*)"
-    ]
-  ],
+  "tailwindCSS.experimental.classRegex": [["class(?:Name)?\\s*=\\s*['\"]([^'\"]*)['\"]", "([^\\s]*)"]],
   "[javascript]": {
     "editor.defaultFormatter": "biomejs.biome"
   },

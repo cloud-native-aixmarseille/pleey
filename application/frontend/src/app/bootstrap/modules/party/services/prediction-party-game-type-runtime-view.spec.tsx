@@ -9,9 +9,7 @@ import { PredictionPlayerStageSurface } from '../../../../../presentation/game/t
 import { PredictionPartyGameTypeRuntimeView } from './prediction-party-game-type-runtime-view';
 
 type HostRuntimePanelProps = Parameters<PartyGameTypeRuntimeView['renderHostStagePanel']>[0];
-type PlayerResultSurfaceProps = Parameters<
-  PartyGameTypeRuntimeView['renderPlayerResultSurface']
->[0];
+type PlayerResultSurfaceProps = Parameters<PartyGameTypeRuntimeView['renderPlayerResultSurface']>[0];
 type PlayerStageSurfaceProps = Parameters<PartyGameTypeRuntimeView['renderPlayerStageSurface']>[0];
 
 function expectElementType(renderedNode: ReactNode, expectedType: unknown) {
@@ -49,13 +47,7 @@ describe('PredictionPartyGameTypeRuntimeView', () => {
     } satisfies PlayerResultSurfaceProps;
     const runtimeView = new PredictionPartyGameTypeRuntimeView();
 
-    expectElementType(
-      runtimeView.renderPlayerStageSurface(playerStageProps),
-      PredictionPlayerStageSurface,
-    );
-    expectElementType(
-      runtimeView.renderPlayerResultSurface(playerResultProps),
-      PredictionPlayerResultSurface,
-    );
+    expectElementType(runtimeView.renderPlayerStageSurface(playerStageProps), PredictionPlayerStageSurface);
+    expectElementType(runtimeView.renderPlayerResultSurface(playerResultProps), PredictionPlayerResultSurface);
   });
 });

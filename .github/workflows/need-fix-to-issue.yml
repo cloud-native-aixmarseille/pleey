@@ -6,7 +6,7 @@ on: # yamllint disable-line rule:truthy
     branches: [main]
   workflow_dispatch:
     inputs:
-      #checkov:skip=CKV_GHA_7: required
+      # checkov:skip=CKV_GHA_7: required
       manual-commit-ref:
         description: "The SHA of the commit to get the diff for"
         required: true
@@ -18,7 +18,7 @@ permissions: {}
 
 jobs:
   main:
-    uses: hoverkraft-tech/ci-github-common/.github/workflows/need-fix-to-issue.yml@b553a696531fbd36743ccbb0c76c717971b8acdb # 0.35.4
+    uses: hoverkraft-tech/ci-github-common/.github/workflows/need-fix-to-issue.yml@2334d395217f9811699dbd4ace9d8559e4d99e0d # 0.37.3
     permissions:
       contents: read
       issues: write

@@ -35,13 +35,9 @@ interface OrganizationScreenProps {
   readonly listOrganizationMembers: (
     query: ListOrganizationMembersQuery,
   ) => Promise<PaginatedResult<OrganizationMember>>;
-  readonly addOrganizationMember: (
-    command: AddOrganizationMemberCommand,
-  ) => Promise<OrganizationMember>;
+  readonly addOrganizationMember: (command: AddOrganizationMemberCommand) => Promise<OrganizationMember>;
   readonly removeOrganizationMember: (member: OrganizationMember) => Promise<void>;
-  readonly updateOrganizationMemberRole: (
-    command: UpdateOrganizationMemberRoleCommand,
-  ) => Promise<OrganizationMember>;
+  readonly updateOrganizationMemberRole: (command: UpdateOrganizationMemberRoleCommand) => Promise<OrganizationMember>;
   readonly createProject: (command: CreateProjectCommand) => Promise<Project>;
   readonly updateProject: (command: UpdateProjectCommand) => Promise<Project>;
   readonly deleteProject: (command: DeleteProjectCommand) => Promise<void>;
@@ -166,12 +162,7 @@ export function OrganizationScreen({
         kicker={t('organization.management.header.eyebrow')}
         title={t('organization.management.header.title')}
         subtitle={t('organization.management.header.subtitle')}
-        actions={
-          <CreateOrganizationForm
-            onSubmit={createOrganization}
-            onCreated={handleOrganizationCreated}
-          />
-        }
+        actions={<CreateOrganizationForm onSubmit={createOrganization} onCreated={handleOrganizationCreated} />}
       />
 
       <StatusBanner tone="error">{errorMessage ? t(errorMessage) : null}</StatusBanner>

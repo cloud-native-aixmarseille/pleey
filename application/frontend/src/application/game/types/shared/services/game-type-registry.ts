@@ -9,14 +9,8 @@ import type {
   PlayableGameMetadataInput,
 } from '../../../../../domains/game/types/shared/management/playable-management';
 import type { ProjectId } from '../../../../../domains/project/entities/project';
-import {
-  type GameTypeCatalogFactory,
-  GameTypeCatalogFactoryToken,
-} from '../contracts/game-type-catalog-factory';
-import {
-  type GameTypeContributor,
-  GameTypeContributorToken,
-} from '../contracts/game-type-contributor';
+import { type GameTypeCatalogFactory, GameTypeCatalogFactoryToken } from '../contracts/game-type-catalog-factory';
+import { type GameTypeContributor, GameTypeContributorToken } from '../contracts/game-type-contributor';
 import type { PlayableContentImportExampleProvider } from '../contracts/playable-content-import.gateway';
 import type { GameTypeCatalogGateway } from '../gateways/game-type-catalog.gateway';
 
@@ -30,9 +24,7 @@ export class GameTypeRegistry implements GameTypeCatalogGateway {
   ) {}
 
   listCatalog(): GameTypeCatalog {
-    return this.gameTypeCatalogFactory.create(
-      this.contributors.map((contributor) => contributor.descriptor),
-    );
+    return this.gameTypeCatalogFactory.create(this.contributors.map((contributor) => contributor.descriptor));
   }
 
   enrichGames(items: readonly DashboardGameListItem[]): DashboardGameListItem[] {
@@ -60,11 +52,7 @@ export class GameTypeRegistry implements GameTypeCatalogGateway {
     return this.resolveManagementRouteByType(game.type, game.gameTypeId);
   }
 
-  async createGame(
-    type: GameType,
-    projectId: ProjectId,
-    input: PlayableGameMetadataInput,
-  ): Promise<GameTypeId> {
+  async createGame(type: GameType, projectId: ProjectId, input: PlayableGameMetadataInput): Promise<GameTypeId> {
     return this.getContributor(type).createGame(projectId, input);
   }
 
@@ -99,9 +87,7 @@ export class GameTypeRegistry implements GameTypeCatalogGateway {
   }
 
   private createContributorsByType(): ReadonlyMap<GameType, GameTypeContributor> {
-    return new Map(
-      this.contributors.map((contributor) => [contributor.descriptor.key, contributor]),
-    );
+    return new Map(this.contributors.map((contributor) => [contributor.descriptor.key, contributor]));
   }
 
   private getContributor(type: GameType): GameTypeContributor {

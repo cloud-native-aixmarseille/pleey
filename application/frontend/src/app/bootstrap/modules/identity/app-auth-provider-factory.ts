@@ -18,10 +18,7 @@ import {
 import type { User } from '../../../../domains/identity/entities/user';
 import type { UpdateProfileInput } from '../../../../domains/identity/ports/auth-repository';
 import { PersistedAuthSessionAdapter } from '../../../../infrastructure/identity/persisted-auth-session.adapter';
-import {
-  type AuthContextValue,
-  AuthProvider,
-} from '../../../../presentation/identity/contexts/auth-context';
+import { type AuthContextValue, AuthProvider } from '../../../../presentation/identity/contexts/auth-context';
 import { AppProviderOrder, BaseAppProviderFactory } from '../../app-provider-factory';
 
 interface AppAuthProviderDependencies {

@@ -288,12 +288,10 @@ lint-fix: ## Execute linting and fix (alias for linter-fix)
 
 linter-fix: ## Execute linting and fix
 	$(call run_linter, \
+		-e FIX_SPELL_CODESPELL=true \
 		-e FIX_MARKDOWN=true \
-		-e FIX_PRETTIER=true \
-		-e FIX_YAML_PRETTIER=true \
-		-e FIX_CSS_PRETTIER=true \
-		-e FIX_HTML_PRETTIER=true \
 		-e FIX_MARKDOWN_PRETTIER=true \
+		-e FIX_YAML_PRETTIER=true \
 		-e FIX_NATURAL_LANGUAGE=true \
 		-e FIX_SHELL_SHFMT=true \
 	)
@@ -309,17 +307,13 @@ define run_linter
 		--rm \
 		-e DEFAULT_WORKSPACE="$$DEFAULT_WORKSPACE" \
 		-e FILTER_REGEX_INCLUDE="$(filter-out $@,$(MAKECMDGOALS))" \
-		-e IGNORE_GITIGNORED_FILES=true \
-		-e VALIDATE_TSX=false \
-		-e VALIDATE_JSX_PRETTIER=false \
-		-e VALIDATE_JAVASCRIPT_PRETTIER=false \
-		-e VALIDATE_TYPESCRIPT_PRETTIER=false \
-		-e VALIDATE_TYPESCRIPT_ES=false \
-		-e VALIDATE_GRAPHQL_PRETTIER=false \
-		-e VALIDATE_JSON_PRETTIER=false \
+		-e VALIDATE_BIOME_FORMAT=false \
+		-e VALIDATE_BIOME_LINT=false \
+		-e KUBERNETES_KUBECONFORM_OPTIONS='-ignore-missing-schemas -ignore-filename-pattern .*Chart\.yaml -ignore-filename-pattern .*values.*\.yaml -ignore-filename-pattern .*values\.schema\.json -ignore-filename-pattern charts/.*/templates/.* -ignore-filename-pattern charts/.*/crds/.*' \
 		$(1) \
 		$$LINTER_IMAGE
 endef
+
 
 # ==========================================
 # Testing Commands

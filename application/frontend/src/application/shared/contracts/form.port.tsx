@@ -39,10 +39,7 @@ interface PresentationFormFieldValidators<TValue> {
   readonly onBlur?: (context: PresentationFormValidatorContext<TValue>) => string | undefined;
 }
 
-interface PresentationFormFieldProps<
-  TValues extends Record<string, unknown>,
-  TName extends keyof TValues & string,
-> {
+interface PresentationFormFieldProps<TValues extends Record<string, unknown>, TName extends keyof TValues & string> {
   readonly name: TName;
   readonly validators?: PresentationFormFieldValidators<TValues[TName]>;
   readonly children: () => ReactNode;
@@ -57,9 +54,7 @@ export interface PresentationFormApi<TValues extends Record<string, unknown>> {
   handleSubmit(): void | Promise<void>;
   reset(): void;
   AppForm: ComponentType<PropsWithChildren>;
-  AppField: <TName extends keyof TValues & string>(
-    props: PresentationFormFieldProps<TValues, TName>,
-  ) => ReactNode;
+  AppField: <TName extends keyof TValues & string>(props: PresentationFormFieldProps<TValues, TName>) => ReactNode;
 }
 
 export interface TextFormFieldProps {

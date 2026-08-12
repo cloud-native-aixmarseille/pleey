@@ -69,10 +69,7 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
       const questionCount = await transaction.question.count({
         where: { quizId, deletedAt: null },
       });
-      const position =
-        data.position === undefined
-          ? questionCount
-          : this.clampPosition(data.position, questionCount);
+      const position = data.position === undefined ? questionCount : this.clampPosition(data.position, questionCount);
 
       if (position < questionCount) {
         await this.shiftQuestionsForInsert(transaction, quizId, position);
@@ -164,12 +161,7 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
           where: { id },
           data: { position: questionCount },
         });
-        await this.shiftQuestionsDown(
-          transaction,
-          quizId,
-          currentQuestion.position,
-          targetPosition,
-        );
+        await this.shiftQuestionsDown(transaction, quizId, currentQuestion.position, targetPosition);
       }
 
       await transaction.questionAnswer.deleteMany({ where: { questionId: id } });
@@ -214,10 +206,7 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
     },
   };
 
-  private async normalizeQuestionPositions(
-    transaction: Prisma.TransactionClient,
-    quizId: QuizId,
-  ): Promise<void> {
+  private async normalizeQuestionPositions(transaction: Prisma.TransactionClient, quizId: QuizId): Promise<void> {
     const questions = await transaction.question.findMany({
       where: { quizId, deletedAt: null },
       orderBy: [{ position: 'asc' }, { id: 'asc' }],

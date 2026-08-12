@@ -13,15 +13,15 @@
  * this script reports symbols imported by tests but never by production code.
  */
 
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   createTypeScriptLanguageService,
   loadTypeScriptFromDirectory,
   loadTypeScriptProjectConfiguration,
   walkFiles,
-} from './shared/ts-analysis-harness.mjs';
+} from "./shared/ts-analysis-harness.mjs";
 
 const exportPatterns = [
   /export\s+(?:abstract\s+)?class\s+(\w+)/g,
@@ -33,42 +33,42 @@ const exportPatterns = [
   /export\s+type\s+(\w+)\s*[=<{]/g,
 ];
 
-const RUNTIME_MANAGED_CLASS_DECORATORS = new Set(['Controller', 'Module', 'Resolver', 'WebSocketGateway']);
+const RUNTIME_MANAGED_CLASS_DECORATORS = new Set(["Controller", "Module", "Resolver", "WebSocketGateway"]);
 const RUNTIME_MANAGED_METHOD_DECORATORS = new Set([
-  'Delete',
-  'EventPattern',
-  'Get',
-  'GrpcMethod',
-  'Head',
-  'MessagePattern',
-  'Mutation',
-  'Options',
-  'Patch',
-  'Post',
-  'Put',
-  'Query',
-  'ResolveField',
-  'ResolveReference',
-  'SubscribeMessage',
-  'Subscription',
+  "Delete",
+  "EventPattern",
+  "Get",
+  "GrpcMethod",
+  "Head",
+  "MessagePattern",
+  "Mutation",
+  "Options",
+  "Patch",
+  "Post",
+  "Put",
+  "Query",
+  "ResolveField",
+  "ResolveReference",
+  "SubscribeMessage",
+  "Subscription",
 ]);
 const RUNTIME_LIFECYCLE_METHOD_NAMES = new Set([
-  'beforeApplicationShutdown',
-  'onApplicationBootstrap',
-  'onApplicationShutdown',
-  'onModuleDestroy',
-  'onModuleInit',
+  "beforeApplicationShutdown",
+  "onApplicationBootstrap",
+  "onApplicationShutdown",
+  "onModuleDestroy",
+  "onModuleInit",
 ]);
 
 function walk(dir) {
-  return walkFiles(dir, { extensions: ['.ts', '.tsx'] }).filter((file) => !file.endsWith('.d.ts'));
+  return walkFiles(dir, { extensions: [".ts", ".tsx"] }).filter((file) => !file.endsWith(".d.ts"));
 }
 
 function getSearchRoots(absRoot) {
   const roots = [absRoot];
 
-  const siblingTestRoot = path.resolve(absRoot, '../test');
-  if (path.basename(absRoot) === 'src' && fs.existsSync(siblingTestRoot)) {
+  const siblingTestRoot = path.resolve(absRoot, "../test");
+  if (path.basename(absRoot) === "src" && fs.existsSync(siblingTestRoot)) {
     roots.push(siblingTestRoot);
   }
 
@@ -77,22 +77,22 @@ function getSearchRoots(absRoot) {
 
 const isTestFile = (file) =>
   /\.(test|spec|e2e-spec|int\.spec)\.(ts|tsx)$/.test(file) ||
-  file.includes('/test-utils/') ||
-  file.includes('/test/') ||
-  file.includes('/fixtures/') ||
-  file.includes('/mocks/') ||
-  file.includes('__test');
+  file.includes("/test-utils/") ||
+  file.includes("/test/") ||
+  file.includes("/fixtures/") ||
+  file.includes("/mocks/") ||
+  file.includes("__test");
 
-const isBarrelFile = (file) => path.basename(file) === 'index.ts' || path.basename(file) === 'index.tsx';
-const isEntryFile = (file) => path.basename(file) === 'main.ts' || path.basename(file) === 'app-module.ts';
-const isI18nFile = (file) => file.includes('/i18n/');
-const isMigrationFile = (file) => file.includes('/migrations/');
-const isSeedFile = (file) => path.basename(file) === 'seed.ts';
+const isBarrelFile = (file) => path.basename(file) === "index.ts" || path.basename(file) === "index.tsx";
+const isEntryFile = (file) => path.basename(file) === "main.ts" || path.basename(file) === "app-module.ts";
+const isI18nFile = (file) => file.includes("/i18n/");
+const isMigrationFile = (file) => file.includes("/migrations/");
+const isSeedFile = (file) => path.basename(file) === "seed.ts";
 const isConfigFile = (file) =>
   /\.(config|setup)\.(ts|mts)$/.test(file) ||
-  path.basename(file) === 'codegen.ts' ||
-  path.basename(file) === 'prisma.config.ts';
-const isGeneratedFile = (file) => file.includes('/generated/');
+  path.basename(file) === "codegen.ts" ||
+  path.basename(file) === "prisma.config.ts";
+const isGeneratedFile = (file) => file.includes("/generated/");
 
 const isExportSourceIgnored = (file) =>
   isTestFile(file) ||
@@ -106,15 +106,20 @@ const isExportSourceIgnored = (file) =>
 
 const splitDestructuredNames = (block) =>
   block
-    .split(',')
-    .map((value) => value.trim().split(/\s+as\s+/)[0].trim().replace(/^type\s+/, ''))
+    .split(",")
+    .map((value) =>
+      value
+        .trim()
+        .split(/\s+as\s+/)[0]
+        .trim()
+        .replace(/^type\s+/, ""),
+    )
     .filter((value) => /^\w+$/.test(value));
 
-const stripComments = (content) =>
-  content.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
+const stripComments = (content) => content.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
 
 const isReusedWithinOwnFile = (name, content) => {
-  const occurrenceRe = new RegExp(`\\b${name}\\b`, 'g');
+  const occurrenceRe = new RegExp(`\\b${name}\\b`, "g");
   return (stripComments(content).match(occurrenceRe) ?? []).length > 1;
 };
 
@@ -151,13 +156,11 @@ function isRuntimeManagedMethod(ts, node) {
 }
 
 function hasImplementsClause(ts, node) {
-  return (node.heritageClauses ?? []).some(
-    (clause) => clause.token === ts.SyntaxKind.ImplementsKeyword,
-  );
+  return (node.heritageClauses ?? []).some((clause) => clause.token === ts.SyntaxKind.ImplementsKeyword);
 }
 
 function isInterfaceMethodCandidateFile(file) {
-  return file.includes('/ports/');
+  return file.includes("/ports/");
 }
 
 function collectMethodCandidates(ts, contentCache) {
@@ -173,7 +176,7 @@ function collectMethodCandidates(ts, contentCache) {
       content,
       ts.ScriptTarget.Latest,
       true,
-      file.endsWith('.tsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
+      file.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
     );
 
     for (const statement of sourceFile.statements) {
@@ -202,7 +205,7 @@ function collectMethodCandidates(ts, contentCache) {
           candidates.push({
             end: member.name.getEnd(),
             file,
-            kind: 'member',
+            kind: "member",
             name: member.name.text,
             position: member.name.getStart(sourceFile),
           });
@@ -227,7 +230,7 @@ function collectMethodCandidates(ts, contentCache) {
         candidates.push({
           end: member.name.getEnd(),
           file,
-          kind: 'member',
+          kind: "member",
           name: member.name.text,
           position: member.name.getStart(sourceFile),
         });
@@ -259,7 +262,8 @@ function isDeclarationLikeReference(reference, declarationSpanIndex) {
   }
 
   return fileSpans.some(
-    (span) => span.start === reference.textSpan.start && span.end === reference.textSpan.start + reference.textSpan.length,
+    (span) =>
+      span.start === reference.textSpan.start && span.end === reference.textSpan.start + reference.textSpan.length,
   );
 }
 
@@ -322,7 +326,7 @@ function collectTestOnlyMembers(absRoot, allFiles, contentCache) {
 
 export function runCheckTestOnlyExports(rootDir) {
   if (!rootDir) {
-    console.error('Usage: node check-test-only-exports.mjs <rootDir>');
+    console.error("Usage: node check-test-only-exports.mjs <rootDir>");
     process.exit(1);
   }
 
@@ -331,7 +335,7 @@ export function runCheckTestOnlyExports(rootDir) {
 
   const contentCache = new Map();
   for (const file of allFiles) {
-    contentCache.set(file, fs.readFileSync(file, 'utf-8'));
+    contentCache.set(file, fs.readFileSync(file, "utf-8"));
   }
 
   const exportsByFile = new Map();
@@ -347,7 +351,7 @@ export function runCheckTestOnlyExports(rootDir) {
       while ((match = pattern.exec(content)) !== null) {
         const name = match[1];
         if (
-          ['Module', 'Controller', 'Gateway'].some((suffix) => name.endsWith(suffix)) &&
+          ["Module", "Controller", "Gateway"].some((suffix) => name.endsWith(suffix)) &&
           /\@(Module|Controller|WebSocketGateway)/.test(content)
         ) {
           continue;
@@ -380,7 +384,7 @@ export function runCheckTestOnlyExports(rootDir) {
 
     const defaultImportRe = /import\s+(\w+)\s+from\s+/g;
     while ((match = defaultImportRe.exec(content)) !== null) {
-      if (match[1] !== 'type') {
+      if (match[1] !== "type") {
         addImporter(match[1], file);
       }
     }
@@ -432,30 +436,25 @@ export function runCheckTestOnlyExports(rootDir) {
   }
 
   const testOnlyMembers = collectTestOnlyMembers(absRoot, allFiles, contentCache);
-  const testOnlySymbols = [
-    ...testOnly.map((entry) => ({ ...entry, kind: 'export' })),
-    ...testOnlyMembers,
-  ];
+  const testOnlySymbols = [...testOnly.map((entry) => ({ ...entry, kind: "export" })), ...testOnlyMembers];
 
   testOnlySymbols.sort(
     (left, right) =>
-      left.file.localeCompare(right.file) ||
-      left.name.localeCompare(right.name) ||
-      left.kind.localeCompare(right.kind),
+      left.file.localeCompare(right.file) || left.name.localeCompare(right.name) || left.kind.localeCompare(right.kind),
   );
 
   console.log(`\nScanned ${allFiles.length} files, inspected ${exportsByFile.size} production files with exports.`);
   console.log(`Symbols used only by tests: ${testOnlySymbols.length}\n`);
 
   for (const { file, kind, name } of testOnlySymbols) {
-    const usageLabel = kind === 'member' ? 'only referenced by tests' : 'only imported by tests';
+    const usageLabel = kind === "member" ? "only referenced by tests" : "only imported by tests";
     console.log(`  ${file} -> ${name} (${kind}, ${usageLabel})`);
   }
 
   if (testOnlySymbols.length > 0) {
     console.log(
-      '\nThese symbols have no production consumer. Remove them (and their tests),' +
-        '\nor move genuinely test-dedicated helpers into a test-utils/fixtures/mocks folder.',
+      "\nThese symbols have no production consumer. Remove them (and their tests)," +
+        "\nor move genuinely test-dedicated helpers into a test-utils/fixtures/mocks folder.",
     );
     process.exitCode = 1;
   }

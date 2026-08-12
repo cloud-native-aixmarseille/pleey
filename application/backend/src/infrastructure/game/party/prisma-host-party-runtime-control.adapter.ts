@@ -104,28 +104,19 @@ export class PrismaHostPartyRuntimeControlAdapter extends HostPartyRuntimeContro
       excludedUserId,
       resolveGuestJoinedAt: (score) => score.guest?.createdAt ?? score.createdAt,
     });
-    const playerActionStates = this.partyReadModelMapper.collectPlayerActionStates(
-      normalizedScores,
-      {
-        excludedUserId,
-      },
-    );
+    const playerActionStates = this.partyReadModelMapper.collectPlayerActionStates(normalizedScores, {
+      excludedUserId,
+    });
     const baseContext = this.partyReadModelMapper.toPartyRuntimeContext(party.context);
     const stageId = baseContext?.lifecycle.stageId;
     const stage =
       stageId === null || stageId === undefined
         ? null
-        : await this.partyStageCatalog.findStageById(
-            this.gameIdentifier.parse(party.gameId),
-            stageId,
-            {
-              partyId: this.partyIdentifier.parse(party.id),
-              settings: this.gameSettingsMapper.toGameSettings(party.game),
-            },
-          );
-    const submittedPlayerCount = playerActionStates.filter(
-      (entry) => entry.state.stageId === stageId,
-    ).length;
+        : await this.partyStageCatalog.findStageById(this.gameIdentifier.parse(party.gameId), stageId, {
+            partyId: this.partyIdentifier.parse(party.id),
+            settings: this.gameSettingsMapper.toGameSettings(party.game),
+          });
+    const submittedPlayerCount = playerActionStates.filter((entry) => entry.state.stageId === stageId).length;
 
     return {
       context: this.runtimeContextProjection.project({
@@ -188,11 +179,9 @@ export class PrismaHostPartyRuntimeControlAdapter extends HostPartyRuntimeContro
 
     await Promise.all(
       scores.map(async (score) => {
-        const resetFromStagePosition =
-          await this.resolveResetFromStagePosition(resetPlayerProgress);
+        const resetFromStagePosition = await this.resolveResetFromStagePosition(resetPlayerProgress);
         const stageHistory = this.toPersistedStageHistory(score.context, score.points).filter(
-          (entry) =>
-            resetFromStagePosition !== null && entry.stagePosition < resetFromStagePosition,
+          (entry) => resetFromStagePosition !== null && entry.stagePosition < resetFromStagePosition,
         );
 
         await transaction.score.update({
@@ -273,9 +262,7 @@ export class PrismaHostPartyRuntimeControlAdapter extends HostPartyRuntimeContro
     ];
   }
 
-  private toPersistedStageHistoryEntry(
-    value: unknown,
-  ): PersistedPartyPlayerStageProgressEntry | null {
+  private toPersistedStageHistoryEntry(value: unknown): PersistedPartyPlayerStageProgressEntry | null {
     if (!value || typeof value !== 'object' || Array.isArray(value)) {
       return null;
     }
@@ -368,14 +355,12 @@ export class PrismaHostPartyRuntimeControlAdapter extends HostPartyRuntimeContro
                 ? {
                     currentPlayer: command.stage.actionSubmission.currentPlayer
                       ? {
-                          selectedActionId:
-                            command.stage.actionSubmission.currentPlayer.selectedActionId,
+                          selectedActionId: command.stage.actionSubmission.currentPlayer.selectedActionId,
                           status: command.stage.actionSubmission.currentPlayer.status,
                         }
                       : null,
                     submittedPlayerCount: command.stage.actionSubmission.submittedPlayerCount,
-                    totalEligiblePlayerCount:
-                      command.stage.actionSubmission.totalEligiblePlayerCount,
+                    totalEligiblePlayerCount: command.stage.actionSubmission.totalEligiblePlayerCount,
                   }
                 : null,
               current: command.stage.current

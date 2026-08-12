@@ -4,10 +4,7 @@ import { Button } from './button';
 type InteractiveSurfaceStyle = NonNullable<ComponentProps<typeof Button>['rootStyle']>;
 
 interface InteractiveSurfaceButtonProps
-  extends Omit<
-    ComponentProps<typeof Button>,
-    'children' | 'fullWidth' | 'intent' | 'justify' | 'rootStyle'
-  > {
+  extends Omit<ComponentProps<typeof Button>, 'children' | 'fullWidth' | 'intent' | 'justify' | 'rootStyle'> {
   readonly children: ReactNode;
   readonly surfaceStyle?: InteractiveSurfaceStyle;
 }

@@ -8,18 +8,7 @@ export const DEFAULT_UI_COLOR_SCHEME = 'dark';
 export type UiThemeId = typeof CYBER_ARCADE_THEME_ID | typeof SOLAR_GRID_THEME_ID;
 export type UiColorScheme = (typeof UI_COLOR_SCHEMES)[number];
 
-type UiThemeColorScale = readonly [
-  string,
-  string,
-  string,
-  string,
-  string,
-  string,
-  string,
-  string,
-  string,
-  string,
-];
+type UiThemeColorScale = readonly [string, string, string, string, string, string, string, string, string, string];
 
 export interface UiThemeSeed {
   readonly colorScales: {

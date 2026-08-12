@@ -104,10 +104,6 @@ export class AppPartyProviderFactory extends BaseAppProviderFactory {
       stageIdentifier: this.stageIdentifier,
     };
 
-    return createElement(
-      AppPartyProvider,
-      { dependencies, runtimeRegistry: this.runtimeRegistry },
-      children,
-    );
+    return createElement(AppPartyProvider, { dependencies, runtimeRegistry: this.runtimeRegistry }, children);
   }
 }

@@ -22,9 +22,7 @@ describe('PersistedAuthSessionAdapter', () => {
       const transport = createTransportMock();
       const service = new PersistedAuthSessionAdapter(storage, transport);
 
-      service.commit(
-        authFixtureFactory.createAuthSession({ user: { id: 7, avatarUri: undefined } }),
-      );
+      service.commit(authFixtureFactory.createAuthSession({ user: { id: 7, avatarUri: undefined } }));
 
       expect(storage.setItem).toHaveBeenCalledWith(StorageKey.AUTH_ACCESS_TOKEN, 'access-token');
       expect(storage.setItem).toHaveBeenCalledWith(StorageKey.AUTH_REFRESH_TOKEN, 'refresh-token');

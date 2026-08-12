@@ -8,11 +8,7 @@ test.describe("Party Routes - Nominal Use Case", () => {
     password: process.env.E2E_ADMIN_PASSWORD ?? "admin123",
   };
 
-  test("should resolve host lobbies by party id and join links by pin", async ({
-    browser,
-    page,
-    request,
-  }) => {
+  test("should resolve host lobbies by party id and join links by pin", async ({ browser, page, request }) => {
     const { accessToken } = await loginViaApi(page, adminCredentials);
     const party = await ensureHostParty(request, accessToken);
 
@@ -27,9 +23,7 @@ test.describe("Party Routes - Nominal Use Case", () => {
     await guestPage.goto(`/join/${party.pin}`);
 
     await expect(guestPage).toHaveURL(new RegExp(`/join/${party.pin}$`));
-    await expect(
-      guestPage.getByRole("heading", { name: "Ready to play?" }),
-    ).toBeVisible();
+    await expect(guestPage.getByRole("heading", { name: "Ready to play?" })).toBeVisible();
     await expect(guestPage.locator(`a[href$="/join/${party.pin}"]`)).toHaveCount(0);
 
     await guestPage.close();

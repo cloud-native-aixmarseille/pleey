@@ -23,10 +23,7 @@ export function HomeHeroSection() {
           title={t('home.hero.title')}
         />
         <ContentStack align="center" gap="sm" marginTop="sm">
-          <PrimaryActionLink
-            leftSection={<AppIcon name="dashboard" size={16} />}
-            to="/workspace/dashboard"
-          >
+          <PrimaryActionLink leftSection={<AppIcon name="dashboard" size={16} />} to="/workspace/dashboard">
             {t('home.hero.primaryCta')}
           </PrimaryActionLink>
         </ContentStack>

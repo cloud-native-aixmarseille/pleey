@@ -1,10 +1,7 @@
 import { PlayableImportItemKind } from './import-parser.types';
 
 export abstract class AbstractPlayableContentImportFormatParser {
-  protected resolveSupportFromFileName(
-    fileName: string,
-    supportedFileExtensions: readonly string[],
-  ): boolean | null {
+  protected resolveSupportFromFileName(fileName: string, supportedFileExtensions: readonly string[]): boolean | null {
     const normalizedFileName = fileName.toLowerCase();
 
     if (supportedFileExtensions.some((extension) => normalizedFileName.endsWith(extension))) {

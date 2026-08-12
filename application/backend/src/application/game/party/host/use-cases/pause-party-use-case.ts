@@ -17,8 +17,6 @@ export class PausePartyUseCase extends AbstractHostPartyRuntimeUseCase {
   }
 
   execute(input: HostPartyControlDto): Promise<void> {
-    return this.executeTransition(input, (party) =>
-      this.hostPartyLifecyclePolicy.pause(this.toLifecycleState(party)),
-    );
+    return this.executeTransition(input, (party) => this.hostPartyLifecyclePolicy.pause(this.toLifecycleState(party)));
   }
 }

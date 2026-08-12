@@ -58,10 +58,7 @@ export class PrismaPredictionPromptRepository implements PredictionPromptReposit
     private readonly optionMapper: PrismaSelectableOptionMapper,
   ) {}
 
-  async create(
-    predictionId: PredictionId,
-    data: PredictionPromptMutationData,
-  ): Promise<PredictionPrompt> {
+  async create(predictionId: PredictionId, data: PredictionPromptMutationData): Promise<PredictionPrompt> {
     const position = data.position ?? (await this.resolveNextPosition(predictionId));
     const prompt = await this.prisma.predictionPrompt.create({
       data: {
@@ -107,10 +104,7 @@ export class PrismaPredictionPromptRepository implements PredictionPromptReposit
     return prompts.map((prompt) => this.toDomain(prompt));
   }
 
-  async update(
-    id: PredictionPromptId,
-    data: PredictionPromptMutationData,
-  ): Promise<PredictionPrompt> {
+  async update(id: PredictionPromptId, data: PredictionPromptMutationData): Promise<PredictionPrompt> {
     await this.prisma.$transaction([
       this.prisma.predictionOption.deleteMany({ where: { promptId: id } }),
       this.prisma.predictionPrompt.update({

@@ -9,12 +9,7 @@ import { Checkbox } from '../../../../shared/ui/forms/checkbox';
 import { FieldShell } from '../../../../shared/ui/forms/field-shell';
 import { Input } from '../../../../shared/ui/forms/input';
 import { Textarea } from '../../../../shared/ui/forms/textarea';
-import {
-  ActionRow,
-  ContentStack,
-  ResponsiveGrid,
-  SplitWrapRow,
-} from '../../../../shared/ui/layout/containers';
+import { ActionRow, ContentStack, ResponsiveGrid, SplitWrapRow } from '../../../../shared/ui/layout/containers';
 import { ElevatedPanel, InsetPanel } from '../../../../shared/ui/layout/panels';
 import { Heading, SummaryText, SupportingText } from '../../../../shared/ui/layout/typography';
 import { useWorkspaceDependencies } from '../../../../workspace/shared/contexts/workspace-dependencies-context';
@@ -42,10 +37,7 @@ export function PlayableManagementEditorLayout({ children }: PropsWithChildren) 
   return <div style={editorLayoutStyle}>{children}</div>;
 }
 
-function PlayableManagementTabList({
-  children,
-  label,
-}: PropsWithChildren<{ readonly label: string }>) {
+function PlayableManagementTabList({ children, label }: PropsWithChildren<{ readonly label: string }>) {
   return (
     <div aria-label={label} role="tablist" style={tabsStyle}>
       {children}
@@ -170,9 +162,7 @@ function ReviewChecklistRow({
     <SplitWrapRow gap="sm">
       <SplitWrapRow gap="sm">
         <Badge tone={isComplete ? 'success' : 'warning'}>
-          {isComplete
-            ? t(`${translationRoot}.reviewCheckPassed`)
-            : t(`${translationRoot}.reviewCheckNeedsFix`)}
+          {isComplete ? t(`${translationRoot}.reviewCheckPassed`) : t(`${translationRoot}.reviewCheckNeedsFix`)}
         </Badge>
         <SupportingText>{label}</SupportingText>
       </SplitWrapRow>
@@ -217,9 +207,7 @@ function ReviewItemSummaryCard({
                 position: String(item.position + 1),
               })}
             </SupportingText>
-            <SummaryText>
-              {resolveReviewItemTitle(item, t(`${translationRoot}.itemUntitled`))}
-            </SummaryText>
+            <SummaryText>{resolveReviewItemTitle(item, t(`${translationRoot}.itemUntitled`))}</SummaryText>
           </ContentStack>
           <Badge tone={isReady ? 'success' : 'warning'}>
             {isReady ? t(`${translationRoot}.ready`) : t(`${translationRoot}.incomplete`)}
@@ -234,9 +222,7 @@ function ReviewItemSummaryCard({
         {issues.length > 0 ? (
           <InsetPanel tone="accent">
             <SupportingText>
-              {issues
-                .map((issue) => t(`${translationRoot}.${resolveValidationTranslationKey(issue)}`))
-                .join(' ')}
+              {issues.map((issue) => t(`${translationRoot}.${resolveValidationTranslationKey(issue)}`)).join(' ')}
             </SupportingText>
           </InsetPanel>
         ) : null}
@@ -278,9 +264,8 @@ export function MetadataPanel({
   const { t } = usePresentationTranslation();
   const [titleValue, setTitleValue] = useState(title);
   const [descriptionValue, setDescriptionValue] = useState(description ?? '');
-  const [allowOptionChangeAfterVotingValue, setAllowOptionChangeAfterVotingValue] = useState(
-    allowOptionChangeAfterVoting,
-  );
+  const [allowOptionChangeAfterVotingValue, setAllowOptionChangeAfterVotingValue] =
+    useState(allowOptionChangeAfterVoting);
   const [randomizeOptionOrderValue, setRandomizeOptionOrderValue] = useState(randomizeOptionOrder);
   const [randomizeStageOrderValue, setRandomizeStageOrderValue] = useState(randomizeStageOrder);
 
@@ -307,11 +292,7 @@ export function MetadataPanel({
           <SupportingText>{t(`${translationRoot}.editGame`)}</SupportingText>
         </ContentStack>
         <FieldShell id="playable-game-title" label={t(`${translationRoot}.titleLabel`)} required>
-          <Input
-            id="playable-game-title"
-            onChange={(event) => setTitleValue(event.target.value)}
-            value={titleValue}
-          />
+          <Input id="playable-game-title" onChange={(event) => setTitleValue(event.target.value)} value={titleValue} />
         </FieldShell>
         <FieldShell id="playable-game-description" label={t(`${translationRoot}.descriptionLabel`)}>
           <Textarea
@@ -384,9 +365,7 @@ export function ReviewPanel({
 }) {
   const { t } = usePresentationTranslation();
   const { playableItemEditorValidator } = useWorkspaceDependencies();
-  const itemSummaries = items.map((item) =>
-    createReviewItemSummary(item, playableItemEditorValidator, itemKindConfig),
-  );
+  const itemSummaries = items.map((item) => createReviewItemSummary(item, playableItemEditorValidator, itemKindConfig));
   const readyCount = itemSummaries.filter((item) => item.isReady).length;
   const issueCount = itemSummaries.length - readyCount;
   const hasItems = items.length > 0;
@@ -411,10 +390,7 @@ export function ReviewPanel({
           </SupportingText>
         </ContentStack>
         <ResponsiveGrid columns={{ base: 1, sm: 2, lg: 4 }} gap="md">
-          <ReviewMetricCard
-            label={t(`${translationRoot}.itemsTitle`)}
-            value={String(items.length)}
-          />
+          <ReviewMetricCard label={t(`${translationRoot}.itemsTitle`)} value={String(items.length)} />
           <ReviewMetricCard label={t(`${translationRoot}.ready`)} value={String(readyCount)} />
           <ReviewMetricCard label={t(`${translationRoot}.incomplete`)} value={String(issueCount)} />
           <ReviewMetricCard
@@ -467,9 +443,7 @@ export function ReviewPanel({
               <SplitWrapRow gap="sm">
                 <Heading level={3}>{t(`${translationRoot}.reviewItemsTitle`)}</Heading>
                 <Badge tone={isReadyForPlay ? 'success' : 'warning'}>
-                  {isReadyForPlay
-                    ? t(`${translationRoot}.ready`)
-                    : t(`${translationRoot}.incomplete`)}
+                  {isReadyForPlay ? t(`${translationRoot}.ready`) : t(`${translationRoot}.incomplete`)}
                 </Badge>
               </SplitWrapRow>
               {itemSummaries.length === 0 ? (

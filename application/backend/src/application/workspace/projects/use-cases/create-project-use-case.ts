@@ -1,10 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { UserId } from '../../../../domain/identity/entities/user';
 import type { OrganizationId } from '../../../../domain/organization/entities/organization';
-import {
-  InsufficientPermissionsError,
-  OrganizationNotFoundError,
-} from '../../../../domain/organization/errors';
+import { InsufficientPermissionsError, OrganizationNotFoundError } from '../../../../domain/organization/errors';
 import type { OrganizationRepository } from '../../../../domain/organization/ports/organization.repository';
 import { OrganizationRepositoryProvider } from '../../../../domain/organization/ports/organization.repository';
 import type { OrganizationMemberRepository } from '../../../../domain/organization/ports/organization-member.repository';
@@ -25,20 +22,13 @@ export class CreateProjectUseCase {
     private readonly memberRepository: OrganizationMemberRepository,
   ) {}
 
-  async execute(
-    organizationId: OrganizationId,
-    dto: CreateProjectDto,
-    requestingUserId: UserId,
-  ): Promise<Project> {
+  async execute(organizationId: OrganizationId, dto: CreateProjectDto, requestingUserId: UserId): Promise<Project> {
     const organization = await this.organizationRepository.findById(organizationId);
     if (!organization) {
       throw new OrganizationNotFoundError({ organizationId });
     }
 
-    const membership = await this.memberRepository.findByOrganizationAndUser(
-      organizationId,
-      requestingUserId,
-    );
+    const membership = await this.memberRepository.findByOrganizationAndUser(organizationId, requestingUserId);
 
     if (!membership?.hasManagementPrivileges()) {
       throw new InsufficientPermissionsError({

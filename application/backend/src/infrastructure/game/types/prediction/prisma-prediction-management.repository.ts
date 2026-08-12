@@ -5,10 +5,7 @@ import { ProjectIdentifier } from '../../../../application/workspace/shared/serv
 import type { GameId } from '../../../../domain/game/entities/game';
 import { PartyStatus } from '../../../../domain/game/party/enums/party-status.enum';
 import type { GameSettings } from '../../../../domain/game/party/shared/entities/game-settings';
-import {
-  Prediction,
-  type PredictionId,
-} from '../../../../domain/game/types/prediction/entities/prediction';
+import { Prediction, type PredictionId } from '../../../../domain/game/types/prediction/entities/prediction';
 import {
   PredictionNotCreatedError,
   PredictionNotUpdatedError,
@@ -236,9 +233,7 @@ export class PrismaPredictionManagementRepository implements PredictionManagemen
     );
   }
 
-  private toPrismaPredictionRecord(
-    prediction: PrismaPredictionSourceRecord,
-  ): PrismaPredictionRecord {
+  private toPrismaPredictionRecord(prediction: PrismaPredictionSourceRecord): PrismaPredictionRecord {
     return {
       id: prediction.id,
       gameId: prediction.gameId,

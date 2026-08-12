@@ -49,19 +49,9 @@ vi.mock('src/presentation/game/party/shared/contexts/party-dependencies-context'
 }));
 
 vi.mock('./game-item-card', () => ({
-  GameItemCard: ({
-    descriptor,
-    game,
-    isCreatingParty,
-    onCreateParty,
-    onManage,
-  }: MockGameItemCardProps) => (
+  GameItemCard: ({ descriptor, game, isCreatingParty, onCreateParty, onManage }: MockGameItemCardProps) => (
     <div>
-      <button
-        disabled={!game.permissions.createParty.allowed}
-        onClick={() => onCreateParty?.(game)}
-        type="button"
-      >
+      <button disabled={!game.permissions.createParty.allowed} onClick={() => onCreateParty?.(game)} type="button">
         {`create:${game.title}:${String(isCreatingParty ?? false)}`}
       </button>
       <button onClick={() => onManage?.(game)} type="button">
@@ -90,9 +80,7 @@ describe('DashboardGamesSection', () => {
     iconKey: 'quiz',
   });
 
-  function renderDashboardGamesSection(
-    overrides: Partial<React.ComponentProps<typeof DashboardGamesSection>> = {},
-  ) {
+  function renderDashboardGamesSection(overrides: Partial<React.ComponentProps<typeof DashboardGamesSection>> = {}) {
     const onCloseCreateGameDialog = vi.fn();
     const onCreateGame = vi.fn();
     const onCreateGameFormChange = vi.fn();
@@ -205,9 +193,7 @@ describe('DashboardGamesSection', () => {
     const { onManageGame } = renderDashboardGamesSection();
 
     expect(screen.getByTestId('game-list-filter-bar')).toHaveTextContent('1/1');
-    expect(screen.getByTestId('pagination-bar')).toHaveTextContent(
-      '1/2:dashboard.games.pagination.pageOf',
-    );
+    expect(screen.getByTestId('pagination-bar')).toHaveTextContent('1/2:dashboard.games.pagination.pageOf');
 
     await user.click(screen.getByRole('button', { name: 'Arcade Quiz:game.types.quiz.title' }));
 
@@ -234,13 +220,8 @@ describe('DashboardGamesSection', () => {
         name: 'dashboard.games.createParty.privateToggleLabel',
       }),
     );
-    await user.type(
-      within(dialog).getByLabelText('dashboard.games.createParty.privatePasswordLabel'),
-      'secret42',
-    );
-    await user.click(
-      within(dialog).getByRole('button', { name: 'dashboard.games.actions.createParty' }),
-    );
+    await user.type(within(dialog).getByLabelText('dashboard.games.createParty.privatePasswordLabel'), 'secret42');
+    await user.click(within(dialog).getByRole('button', { name: 'dashboard.games.actions.createParty' }));
 
     expect(onCreateParty).toHaveBeenCalledWith(
       gameFixtureFactory.createDashboardGame({

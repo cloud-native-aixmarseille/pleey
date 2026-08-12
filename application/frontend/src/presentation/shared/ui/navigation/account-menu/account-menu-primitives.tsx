@@ -9,13 +9,11 @@ interface AccountMenuWrapperProps extends PropsWithChildren {
   readonly wrapperRef?: RefObject<HTMLDivElement | null>;
 }
 
-interface AccountMenuTriggerButtonProps
-  extends Omit<ComponentProps<typeof PillTriggerButton>, 'children'> {
+interface AccountMenuTriggerButtonProps extends Omit<ComponentProps<typeof PillTriggerButton>, 'children'> {
   readonly children: ReactNode;
 }
 
-interface AccountMenuActionButtonProps
-  extends Omit<ComponentProps<typeof MenuActionButton>, 'children'> {
+interface AccountMenuActionButtonProps extends Omit<ComponentProps<typeof MenuActionButton>, 'children'> {
   readonly children: ReactNode;
   readonly danger?: boolean;
 }
@@ -28,11 +26,7 @@ export function AccountMenuWrapper({ children, wrapperRef }: AccountMenuWrapperP
   );
 }
 
-export function AccountMenuTriggerButton({
-  children,
-  type = 'button',
-  ...props
-}: AccountMenuTriggerButtonProps) {
+export function AccountMenuTriggerButton({ children, type = 'button', ...props }: AccountMenuTriggerButtonProps) {
   return (
     <PillTriggerButton
       padding={`${uiThemeTokens.spacing.xxs} ${uiThemeTokens.spacing.sm} ${uiThemeTokens.spacing.xxs} ${uiThemeTokens.spacing.xxs}`}

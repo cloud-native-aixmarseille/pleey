@@ -1,9 +1,5 @@
 import { createDomainError } from '../../../../shared/errors/domain-error';
-import {
-  SelectableOption,
-  type SelectableOptionId,
-  type SelectableOptionInput,
-} from '../entities/selectable-option';
+import { SelectableOption, type SelectableOptionId, type SelectableOptionInput } from '../entities/selectable-option';
 
 const FIRST_CHOICE_POSITION = 0;
 const MAX_SELECTABLE_OPTIONS = 4;
@@ -14,9 +10,7 @@ interface SelectableOptionPolicyErrorCodes {
 }
 
 export class SelectableOptionPolicy {
-  normalize<TId extends SelectableOptionId>(
-    options: readonly SelectableOptionInput<TId>[],
-  ): SelectableOption<TId>[] {
+  normalize<TId extends SelectableOptionId>(options: readonly SelectableOptionInput<TId>[]): SelectableOption<TId>[] {
     return options.map(
       (option, index) =>
         new SelectableOption(
@@ -89,10 +83,7 @@ export class SelectableOptionPolicy {
     }
   }
 
-  assertTrueFalseOptions(
-    options: readonly SelectableOption[],
-    errorCodes: SelectableOptionPolicyErrorCodes,
-  ): void {
+  assertTrueFalseOptions(options: readonly SelectableOption[], errorCodes: SelectableOptionPolicyErrorCodes): void {
     this.assertBaseOptions(options, errorCodes.invalidCorrectOption);
 
     if (options.length !== 2 || options.filter((option) => option.isCorrect).length !== 1) {

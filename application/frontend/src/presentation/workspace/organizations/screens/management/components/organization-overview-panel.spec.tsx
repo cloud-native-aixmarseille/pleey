@@ -10,8 +10,7 @@ import { renderWithProviders } from '../../../../../../test-utils/render-with-pr
 import { OrganizationOverviewPanel } from './organization-overview-panel';
 
 const organizationIdentifier = new OrganizationIdentifierMockFactory().create();
-const parseOrganizationId = (value: number) =>
-  organizationIdentifier.parse(coerceUuidV7TestValue(value));
+const parseOrganizationId = (value: number) => organizationIdentifier.parse(coerceUuidV7TestValue(value));
 
 vi.mock('../../../../../shared/i18n/use-presentation-translation', async (importOriginal) => {
   const { PresentationTranslationMockFactory } = await import(
@@ -22,11 +21,9 @@ vi.mock('../../../../../shared/i18n/use-presentation-translation', async (import
 });
 
 vi.mock('./organization-metrics-strip', () => ({
-  OrganizationMetricsStrip: ({
-    dashboard,
-  }: {
-    dashboard: { stats: { totalProjects: number } };
-  }) => <div data-testid="organization-metrics-strip">metrics:{dashboard.stats.totalProjects}</div>,
+  OrganizationMetricsStrip: ({ dashboard }: { dashboard: { stats: { totalProjects: number } } }) => (
+    <div data-testid="organization-metrics-strip">metrics:{dashboard.stats.totalProjects}</div>
+  ),
 }));
 
 describe('OrganizationOverviewPanel', () => {

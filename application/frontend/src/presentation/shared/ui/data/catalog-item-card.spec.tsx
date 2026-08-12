@@ -19,9 +19,7 @@ describe('CatalogItemCard', () => {
     });
 
     it('renders the description fallback when description is null', () => {
-      renderWithUiProvider(
-        <CatalogItemCard title="My Quiz" description={null} descriptionFallback="No description" />,
-      );
+      renderWithUiProvider(<CatalogItemCard title="My Quiz" description={null} descriptionFallback="No description" />);
 
       expect(screen.getByText('No description')).toBeInTheDocument();
     });
@@ -33,18 +31,14 @@ describe('CatalogItemCard', () => {
     });
 
     it('renders metadata lines', () => {
-      renderWithUiProvider(
-        <CatalogItemCard title="My Quiz" metadata={['5 questions', 'Created Jan 1']} />,
-      );
+      renderWithUiProvider(<CatalogItemCard title="My Quiz" metadata={['5 questions', 'Created Jan 1']} />);
 
       expect(screen.getByText('5 questions')).toBeInTheDocument();
       expect(screen.getByText('Created Jan 1')).toBeInTheDocument();
     });
 
     it('renders actions when provided', () => {
-      renderWithUiProvider(
-        <CatalogItemCard title="My Quiz" actions={<button type="button">Manage</button>} />,
-      );
+      renderWithUiProvider(<CatalogItemCard title="My Quiz" actions={<button type="button">Manage</button>} />);
 
       expect(screen.getByRole('button', { name: 'Manage' })).toBeInTheDocument();
     });

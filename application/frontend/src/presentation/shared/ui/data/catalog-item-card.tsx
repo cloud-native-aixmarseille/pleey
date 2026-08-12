@@ -39,9 +39,7 @@ export function CatalogItemCard({
             </Group>
           ) : null}
           <Heading level={3}>{title}</Heading>
-          {displayDescription ? (
-            <SupportingText tone="soft">{displayDescription}</SupportingText>
-          ) : null}
+          {displayDescription ? <SupportingText tone="soft">{displayDescription}</SupportingText> : null}
           {metadata?.map((item) => (
             <SummaryText key={item}>{item}</SummaryText>
           ))}

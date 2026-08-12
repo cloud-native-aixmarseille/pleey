@@ -4,7 +4,7 @@ import {
   resolveAppProject,
   shouldAnalyzeAppFile,
   toProjectRelative,
-} from './shared/ts-analysis-harness.mjs';
+} from "./shared/ts-analysis-harness.mjs";
 
 const MIN_USAGE_COUNT = 2;
 
@@ -180,12 +180,12 @@ function isAllowedJsxReference(node) {
     ts.isPropertyAccessExpression(parent) &&
       parent.name === node &&
       (ts.isJsxOpeningElement(parent.parent) || ts.isJsxSelfClosingElement(parent.parent)) &&
-      getJsxReferenceNode(parent.parent.tagName) === parent.name
+      getJsxReferenceNode(parent.parent.tagName) === parent.name,
   );
 }
 
 function normalizeExpressionValue(expression, sourceFile) {
-  return expression.getText(sourceFile).replace(/\s+/g, ' ').trim();
+  return expression.getText(sourceFile).replace(/\s+/g, " ").trim();
 }
 
 function isModuleScopedDeclaration(declaration) {
@@ -215,10 +215,7 @@ function isInvariantExpression(checker, expression) {
     }
 
     if (ts.isIdentifier(node)) {
-      if (
-        ts.isPropertyAccessExpression(node.parent) &&
-        node.parent.name === node
-      ) {
+      if (ts.isPropertyAccessExpression(node.parent) && node.parent.name === node) {
         return;
       }
 
@@ -274,7 +271,7 @@ function isInvariantExpression(checker, expression) {
 
 function normalizeJsxAttributeValue(attribute, sourceFile) {
   if (!attribute.initializer) {
-    return 'true';
+    return "true";
   }
 
   if (ts.isStringLiteral(attribute.initializer)) {
@@ -328,12 +325,7 @@ function collectCandidates(program, checker, project) {
     }
 
     function visit(node) {
-      if (
-        ts.isFunctionDeclaration(node) &&
-        node.body &&
-        node.name &&
-        !node.asteriskToken
-      ) {
+      if (ts.isFunctionDeclaration(node) && node.body && node.name && !node.asteriskToken) {
         const symbol = resolveSymbol(checker, node.name);
         if (symbol) {
           candidates.set(symbol, createCandidate(symbol, node.name, node, project));
@@ -544,7 +536,7 @@ function collectViolations(candidates) {
         }
 
         violations.push({
-          kind: 'argument',
+          kind: "argument",
           declarationFilePath: candidate.declarationFilePath,
           declarationLine: candidate.declarationLine,
           symbolName: candidate.name,
@@ -562,7 +554,7 @@ function collectViolations(candidates) {
         }
 
         violations.push({
-          kind: 'prop',
+          kind: "prop",
           declarationFilePath: candidate.declarationFilePath,
           declarationLine: candidate.declarationLine,
           symbolName: candidate.name,
@@ -589,7 +581,7 @@ function collectViolations(candidates) {
 }
 
 function formatViolation(violation) {
-  if (violation.kind === 'argument') {
+  if (violation.kind === "argument") {
     return `- ${violation.declarationFilePath}:${violation.declarationLine} ${violation.symbolName} parameter "${violation.memberName}" is always called with ${violation.value} across ${violation.usageCount} call sites. Remove the parameter or inline the invariant.`;
   }
 

@@ -165,9 +165,7 @@ export class SocketIoPartyPayloadMapper {
           actionSubmission: {
             currentPlayer: actionSubmission.currentPlayer
               ? {
-                  selectedActionId: this.partyActionIdentifier.parse(
-                    actionSubmission.currentPlayer.selectedActionId,
-                  ),
+                  selectedActionId: this.partyActionIdentifier.parse(actionSubmission.currentPlayer.selectedActionId),
                   status: actionSubmission.currentPlayer.status,
                 }
               : null,
@@ -209,9 +207,7 @@ export class SocketIoPartyPayloadMapper {
             ? {
                 earnedPoints: resultContext.result.currentPlayer.earnedPoints,
                 isCorrect: resultContext.result.currentPlayer.isCorrect,
-                selectedActionId: this.partyActionIdentifier.parse(
-                  resultContext.result.currentPlayer.selectedActionId,
-                ),
+                selectedActionId: this.partyActionIdentifier.parse(resultContext.result.currentPlayer.selectedActionId),
               }
             : null,
         },
@@ -236,9 +232,7 @@ export class SocketIoPartyPayloadMapper {
           ? {
               result: {
                 current: {
-                  actions: currentResult.actions.map((action) =>
-                    this.toResultActionContext(action),
-                  ),
+                  actions: currentResult.actions.map((action) => this.toResultActionContext(action)),
                   text: currentResult.text,
                 },
                 currentPlayer: endedContext.result.currentPlayer
@@ -266,9 +260,7 @@ export class SocketIoPartyPayloadMapper {
     };
   }
 
-  private toResultActionContext(
-    action: PartyRuntimeResultActionValue,
-  ): PartyRuntimeResultActionValue {
+  private toResultActionContext(action: PartyRuntimeResultActionValue): PartyRuntimeResultActionValue {
     return {
       actionCount: action.actionCount,
       actionPercent: action.actionPercent,

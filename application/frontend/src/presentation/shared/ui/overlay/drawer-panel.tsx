@@ -16,14 +16,7 @@ const drawerOverlayStyle = {
   background: uiThemeTokens.color.surface.overlay,
 } as const;
 
-export function DrawerPanel({
-  children,
-  isOpen,
-  onClose,
-  position = 'right',
-  size = '100%',
-  title,
-}: DrawerPanelProps) {
+export function DrawerPanel({ children, isOpen, onClose, position = 'right', size = '100%', title }: DrawerPanelProps) {
   return (
     <Drawer
       onClose={onClose}

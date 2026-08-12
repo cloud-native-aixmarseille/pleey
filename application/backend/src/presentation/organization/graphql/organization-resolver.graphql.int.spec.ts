@@ -158,10 +158,7 @@ describe('OrganizationResolver', () => {
 
     app = moduleRef.createNestApplication();
     app.useGlobalFilters(
-      new I18nHttpExceptionFilter(
-        moduleRef.get(ErrorTranslationService),
-        moduleRef.get(ErrorCodeHttpStatusService),
-      ),
+      new I18nHttpExceptionFilter(moduleRef.get(ErrorTranslationService), moduleRef.get(ErrorCodeHttpStatusService)),
     );
     app.useGlobalPipes(
       new ValidationPipe({
@@ -226,9 +223,7 @@ describe('OrganizationResolver', () => {
       },
       10,
     );
-    expect(organizationIdentifier.parse).toHaveBeenCalledWith(
-      backendTestIdentifiers.organization(7),
-    );
+    expect(organizationIdentifier.parse).toHaveBeenCalledWith(backendTestIdentifiers.organization(7));
   });
 
   it('passes member search input through the GraphQL query', async () => {
@@ -277,9 +272,7 @@ describe('OrganizationResolver', () => {
       },
       10,
     );
-    expect(organizationIdentifier.parse).toHaveBeenCalledWith(
-      backendTestIdentifiers.organization(7),
-    );
+    expect(organizationIdentifier.parse).toHaveBeenCalledWith(backendTestIdentifiers.organization(7));
   });
 
   it('passes member search input through the GraphQL query', async () => {
@@ -328,9 +321,7 @@ describe('OrganizationResolver', () => {
       },
       10,
     );
-    expect(organizationIdentifier.parse).toHaveBeenCalledWith(
-      backendTestIdentifiers.organization(7),
-    );
+    expect(organizationIdentifier.parse).toHaveBeenCalledWith(backendTestIdentifiers.organization(7));
   });
 
   it('updates an organization member role', async () => {

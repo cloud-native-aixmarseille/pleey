@@ -5,10 +5,7 @@ import { ProjectErrorCode } from '../../../../domain/project/enums/project-error
 import { ProjectNotFoundError } from '../../../../domain/project/errors/project-not-found.error';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { GameTypeParser } from '../../types/shared/services/game-type-parser';
-import {
-  CreatePartyDisabledReason,
-  LaunchReadinessDisabledReason,
-} from '../ports/game-catalog.port';
+import { CreatePartyDisabledReason, LaunchReadinessDisabledReason } from '../ports/game-catalog.port';
 import { GamePermissionResolver } from '../services/game-permission-resolver';
 import { ListProjectGamesUseCase } from './list-project-games-use-case';
 
@@ -412,8 +409,6 @@ describe('ListProjectGamesUseCase', () => {
       gameTypeParser,
     );
 
-    await expect(useCase.execute({ projectId }, hostUserId)).rejects.toThrow(
-      GameErrorCode.VALIDATION_FAILED,
-    );
+    await expect(useCase.execute({ projectId }, hostUserId)).rejects.toThrow(GameErrorCode.VALIDATION_FAILED);
   });
 });

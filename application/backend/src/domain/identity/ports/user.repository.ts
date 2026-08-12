@@ -48,11 +48,7 @@ export interface UserRepository {
   /**
    * Stores the hashed refresh token for a user
    */
-  updateRefreshToken(
-    id: UserId,
-    refreshTokenHash: string,
-    refreshTokenExpiresAt: Date,
-  ): Promise<void>;
+  updateRefreshToken(id: UserId, refreshTokenHash: string, refreshTokenExpiresAt: Date): Promise<void>;
 
   /**
    * Clears the stored refresh token information

@@ -23,9 +23,7 @@ const USER_REPOSITORY_METHOD_KINDS: MockFactoryMethodKinds<UserRepository> = {
   returned: [],
 };
 
-export const createUserRepositoryMock = (
-  config: MockFactoryConfig<UserRepository> = {},
-): Mocked<UserRepository> => {
+export const createUserRepositoryMock = (config: MockFactoryConfig<UserRepository> = {}): Mocked<UserRepository> => {
   const mock: Mocked<UserRepository> = {
     create: mockFn<UserRepository['create']>(),
     findByEmail: mockFn<UserRepository['findByEmail']>(),

@@ -140,9 +140,9 @@ describe('HostRuntimeCommandMenu', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /runtimeMenuTrigger/ }));
 
-    expect(
-      await screen.findByRole('menuitem', { name: 'game.party.host.route.restartStageCta' }),
-    ).toHaveAttribute('data-disabled');
+    expect(await screen.findByRole('menuitem', { name: 'game.party.host.route.restartStageCta' })).toHaveAttribute(
+      'data-disabled',
+    );
 
     view.rerender(
       <KeyboardShortcutsProvider>
@@ -209,9 +209,7 @@ describe('HostRuntimeCommandMenu', () => {
     });
 
     fireEvent.click(screen.getByRole('button', { name: /runtimeMenuTrigger/ }));
-    fireEvent.click(
-      await screen.findByRole('menuitem', { name: 'game.party.host.route.endPartyCta' }),
-    );
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'game.party.host.route.endPartyCta' }));
 
     expect(onRequestEndParty).toHaveBeenCalledTimes(1);
   });
@@ -243,9 +241,7 @@ describe('HostRuntimeCommandMenu', () => {
     expect(
       screen.queryByRole('menuitem', { name: 'game.party.host.route.showFinalLeaderboardCta' }),
     ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('menuitem', { name: 'game.party.host.route.advanceStageCta' }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'game.party.host.route.advanceStageCta' })).not.toBeInTheDocument();
   });
 
   it('renders the party music selector inside the host commands menu', async () => {

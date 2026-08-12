@@ -79,9 +79,7 @@ describe('SignInScreen', () => {
       fireEvent.blur(screen.getByLabelText('auth.form.emailLabel *'));
 
       // Assert
-      expect(await screen.findByRole('alert')).toHaveTextContent(
-        'auth.form.validation.emailRequired',
-      );
+      expect(await screen.findByRole('alert')).toHaveTextContent('auth.form.validation.emailRequired');
     });
 
     it('submits credentials and navigates to the dashboard on success', async () => {
@@ -130,11 +128,7 @@ describe('SignInScreen', () => {
 
     it('ignores unsafe redirect targets after successful sign-in', async () => {
       mocks.signIn.mockResolvedValue(undefined);
-      window.history.replaceState(
-        {},
-        '',
-        '/identity/sign-in?redirectTo=https%3A%2F%2Fevil.example%2Fphishing',
-      );
+      window.history.replaceState({}, '', '/identity/sign-in?redirectTo=https%3A%2F%2Fevil.example%2Fphishing');
       renderWithFormProvider(<SignInScreen />);
 
       fireEvent.change(screen.getByLabelText('auth.form.emailLabel *'), {
@@ -172,7 +166,7 @@ describe('SignInScreen', () => {
 
     it('renders backend-translated errors without passing them through i18n', async () => {
       // Arrange
-      mocks.signIn.mockRejectedValue(new Error('Email ou mot de passe invalide.'));
+      mocks.signIn.mockRejectedValue(new Error('Invalid email or password.'));
       renderWithFormProvider(<SignInScreen />);
 
       fireEvent.change(screen.getByLabelText('auth.form.emailLabel *'), {
@@ -186,7 +180,7 @@ describe('SignInScreen', () => {
       fireEvent.submit(screen.getByRole('button', { name: 'auth.signIn.submitCta' }));
 
       // Assert
-      expect(await screen.findByRole('alert')).toHaveTextContent('Email ou mot de passe invalide.');
+      expect(await screen.findByRole('alert')).toHaveTextContent('Invalid email or password.');
     });
   });
 });

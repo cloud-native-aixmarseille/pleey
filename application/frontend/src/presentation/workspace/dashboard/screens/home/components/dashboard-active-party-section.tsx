@@ -1,10 +1,7 @@
 import type { GameId } from '../../../../../../domains/game/entities/game';
 import type { Party } from '../../../../../../domains/game/party/shared/entities/party';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
-import {
-  FeedbackState,
-  FeedbackStateGate,
-} from '../../../../../shared/ui/feedback/feedback-state-gate';
+import { FeedbackState, FeedbackStateGate } from '../../../../../shared/ui/feedback/feedback-state-gate';
 import type { AppIconName } from '../../../../../shared/ui/icons/app-icon';
 import { SectionCard } from '../../../../../shared/ui/layout/section-card';
 import { DashboardActivePartyBanner } from './dashboard-active-party-banner';
@@ -28,8 +25,7 @@ export function DashboardActivePartySection({
   resolvePartyGameTypeBadge,
 }: DashboardActivePartySectionProps) {
   const { t } = usePresentationTranslation();
-  const gateState =
-    isCurrentPartyLoading && currentParty === null ? FeedbackState.LOADING : FeedbackState.READY;
+  const gateState = isCurrentPartyLoading && currentParty === null ? FeedbackState.LOADING : FeedbackState.READY;
   const isEmpty = gateState === FeedbackState.READY && currentParty === null;
 
   return (

@@ -5,11 +5,7 @@ import type { Project, ProjectId } from '../entities/project';
 export const ProjectRepositoryProvider = Symbol('ProjectRepository');
 
 export interface ProjectRepository {
-  create(
-    organizationId: OrganizationId,
-    name: string,
-    description: string | null,
-  ): Promise<Project>;
+  create(organizationId: OrganizationId, name: string, description: string | null): Promise<Project>;
 
   findById(id: ProjectId): Promise<Project | null>;
 

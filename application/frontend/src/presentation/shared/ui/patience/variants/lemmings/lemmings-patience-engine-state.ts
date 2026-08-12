@@ -139,11 +139,7 @@ export function landOnSegment(
   }
 }
 
-export function startEdgeFall(
-  lemming: LemmingInternalState,
-  currentSegmentIndex: number,
-  segment: LemmingSegment,
-) {
+export function startEdgeFall(lemming: LemmingInternalState, currentSegmentIndex: number, segment: LemmingSegment) {
   lemming.mode = 'fall';
   lemming.vy = 0;
   lemming.segmentIndex = null;
@@ -185,10 +181,7 @@ function scheduleNextIdleCheck(lemming: LemmingInternalState, nowMs: number) {
   lemming.nextIdleAtMs = nowMs + IDLE_AFTER_WALK_MS;
 }
 
-export function ensureIdleSchedulingWhileWalking(
-  lemming: LemmingInternalState,
-  nowMs: number,
-): boolean {
+export function ensureIdleSchedulingWhileWalking(lemming: LemmingInternalState, nowMs: number): boolean {
   if (lemming.greetUntilMs > nowMs) {
     return false;
   }

@@ -3,9 +3,7 @@ import type { GameTypeDescriptor } from '../../domains/game/types/shared/game-ty
 
 let sequence = 0;
 
-export function createGameTypeDescriptorFixture(
-  overrides: Partial<GameTypeDescriptor> = {},
-): GameTypeDescriptor {
+export function createGameTypeDescriptorFixture(overrides: Partial<GameTypeDescriptor> = {}): GameTypeDescriptor {
   const n = ++sequence;
   const defaultKey = n % 2 === 0 ? GameType.Prediction : GameType.Quiz;
 

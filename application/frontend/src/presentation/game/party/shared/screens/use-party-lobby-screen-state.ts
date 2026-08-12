@@ -101,13 +101,8 @@ export function usePartyLobbyScreenState({
   resolveJoinPartyRoute = defaultResolveJoinPartyRoute,
   screenSection = PartyScreenSection.LOBBY,
 }: PartyLobbyScreenProps): PartyLobbyScreenState {
-  const {
-    partyIdentifier,
-    partyLobbyFacade,
-    partyLobbyRuntimeRedirectResolver,
-    partyPinIdentifier,
-    stageIdentifier,
-  } = usePartyDependencies();
+  const { partyIdentifier, partyLobbyFacade, partyLobbyRuntimeRedirectResolver, partyPinIdentifier, stageIdentifier } =
+    usePartyDependencies();
   const [joinErrorMessage, setJoinErrorMessage] = useState<string | null>(null);
   const [isJoinSubmitting, setIsJoinSubmitting] = useState(false);
   const [, setIsLeaveSubmitting] = useState(false);
@@ -181,15 +176,14 @@ export function usePartyLobbyScreenState({
     setJoinErrorMessage,
     user,
   });
-  const { leaveParty, pendingPlayerActionId, playerActionErrorMessage, submitAction } =
-    usePartyLobbyPlayerSession({
-      currentGuestId,
-      onPartyLeft: () => setLeaveRedirectTo(resolveHomeRoute()),
-      party,
-      partyLobbyFacade,
-      setIsLeaveSubmitting,
-      setJoinErrorMessage,
-    });
+  const { leaveParty, pendingPlayerActionId, playerActionErrorMessage, submitAction } = usePartyLobbyPlayerSession({
+    currentGuestId,
+    onPartyLeft: () => setLeaveRedirectTo(resolveHomeRoute()),
+    party,
+    partyLobbyFacade,
+    setIsLeaveSubmitting,
+    setJoinErrorMessage,
+  });
   const {
     cancelHostRuntimeConfirmation,
     confirmHostRuntimeConfirmation,

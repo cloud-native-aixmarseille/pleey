@@ -34,9 +34,6 @@ describe('MultiSelect', () => {
       />,
     );
 
-    expect(screen.getByRole('combobox', { name: 'Game types' })).toHaveAttribute(
-      'aria-invalid',
-      'true',
-    );
+    expect(screen.getByRole('combobox', { name: 'Game types' })).toHaveAttribute('aria-invalid', 'true');
   });
 });

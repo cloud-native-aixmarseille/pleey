@@ -30,11 +30,7 @@ function createPrismaWithPrompt(prompt: PredictionPromptRecord | null): PrismaSe
 }
 
 function createResolver(prisma: PrismaService): PredictionPartyStageCatalogEntryResolver {
-  return new PredictionPartyStageCatalogEntryResolver(
-    prisma,
-    new PartyActionIdentifier(),
-    new PartyStageIdentifier(),
-  );
+  return new PredictionPartyStageCatalogEntryResolver(prisma, new PartyActionIdentifier(), new PartyStageIdentifier());
 }
 
 describe('PredictionPartyStageCatalogEntryResolver', () => {
@@ -105,10 +101,7 @@ describe('PredictionPartyStageCatalogEntryResolver', () => {
     const prisma = { game: { findFirst } } as unknown as PrismaService;
     const resolver = createResolver(prisma);
 
-    const stage = await resolver.findNextStage(
-      backendTestIdentifiers.game(77),
-      backendTestIdentifiers.partyStage(10),
-    );
+    const stage = await resolver.findNextStage(backendTestIdentifiers.game(77), backendTestIdentifiers.partyStage(10));
 
     expect(stage).toMatchObject({
       id: backendTestIdentifiers.partyStage(11),

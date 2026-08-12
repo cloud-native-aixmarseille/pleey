@@ -62,11 +62,7 @@ export class ProjectResolver {
     @Context() context: GraphqlAuthContext,
   ): Promise<ProjectType> {
     const userId = this.resolveUserId(context);
-    return this.createProjectUseCase.execute(
-      this.organizationIdentifier.parse(organizationId),
-      input,
-      userId,
-    );
+    return this.createProjectUseCase.execute(this.organizationIdentifier.parse(organizationId), input, userId);
   }
 
   @Mutation(() => ProjectType)
@@ -77,11 +73,7 @@ export class ProjectResolver {
     @Context() context: GraphqlAuthContext,
   ): Promise<ProjectType> {
     const userId = this.resolveUserId(context);
-    return this.updateProjectUseCase.execute(
-      this.projectIdentifier.parse(projectId),
-      input,
-      userId,
-    );
+    return this.updateProjectUseCase.execute(this.projectIdentifier.parse(projectId), input, userId);
   }
 
   @Mutation(() => Boolean)
@@ -95,9 +87,7 @@ export class ProjectResolver {
     await this.deleteProjectUseCase.execute(
       this.projectIdentifier.parse(projectId),
       userId,
-      migrationProjectId === undefined
-        ? undefined
-        : this.projectIdentifier.parse(migrationProjectId),
+      migrationProjectId === undefined ? undefined : this.projectIdentifier.parse(migrationProjectId),
     );
     return true;
   }

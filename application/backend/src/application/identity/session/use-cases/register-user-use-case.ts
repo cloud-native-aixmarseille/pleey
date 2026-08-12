@@ -44,12 +44,7 @@ export class RegisterUserUseCase {
     const avatar = this.userAvatarService.generateAvatar();
 
     // Create user
-    const created = await this.userRepository.create(
-      dto.username,
-      dto.email,
-      hashedPassword,
-      avatar,
-    );
+    const created = await this.userRepository.create(dto.username, dto.email, hashedPassword, avatar);
 
     await this.defaultWorkspaceService.ensure(created.id);
 

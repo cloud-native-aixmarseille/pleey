@@ -1,9 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { UserId } from '../../../../domain/identity/entities/user';
-import {
-  InsufficientPermissionsError,
-  NotAMemberError,
-} from '../../../../domain/organization/errors';
+import { InsufficientPermissionsError, NotAMemberError } from '../../../../domain/organization/errors';
 import type { OrganizationMemberRepository } from '../../../../domain/organization/ports/organization-member.repository';
 import { OrganizationMemberRepositoryProvider } from '../../../../domain/organization/ports/organization-member.repository';
 import type { Project, ProjectId } from '../../../../domain/project/entities/project';
@@ -21,21 +18,14 @@ export class UpdateProjectUseCase {
     private readonly memberRepository: OrganizationMemberRepository,
   ) {}
 
-  async execute(
-    projectId: ProjectId,
-    dto: UpdateProjectDto,
-    requestingUserId: UserId,
-  ): Promise<Project> {
+  async execute(projectId: ProjectId, dto: UpdateProjectDto, requestingUserId: UserId): Promise<Project> {
     const project = await this.projectRepository.findById(projectId);
 
     if (!project) {
       throw new ProjectNotFoundError({ projectId });
     }
 
-    const membership = await this.memberRepository.findByOrganizationAndUser(
-      project.organizationId,
-      requestingUserId,
-    );
+    const membership = await this.memberRepository.findByOrganizationAndUser(project.organizationId, requestingUserId);
 
     if (!membership) {
       throw new NotAMemberError({

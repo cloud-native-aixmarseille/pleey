@@ -58,9 +58,7 @@ describe('LoadPartyObservationSnapshotUseCase', () => {
   it('loads the role-specific observations by party id', async () => {
     const result = await useCase.execute({ partyId: backendTestIdentifiers.party(11) });
 
-    expect(partyGameTypeReader.findGameTypeByPartyId).toHaveBeenCalledWith(
-      backendTestIdentifiers.party(11),
-    );
+    expect(partyGameTypeReader.findGameTypeByPartyId).toHaveBeenCalledWith(backendTestIdentifiers.party(11));
     expect(hostPartyObservationReader.findHostObservationByPartyId).toHaveBeenCalledWith(
       backendTestIdentifiers.party(11),
     );

@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "pleey.backend.fullname" . }}
+  namespace: {{ include "pleey.backend.namespace" . | quote }}
   labels:
     {{- include "pleey.backend.labels" . | nindent 4 }}
 spec:

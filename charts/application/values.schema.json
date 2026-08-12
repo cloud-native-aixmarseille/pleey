@@ -169,10 +169,7 @@
       "properties": {
         "enabled": { "type": "boolean" },
         "minAvailable": {
-          "oneOf": [
-            { "type": "integer", "minimum": 0 },
-            { "type": "string" }
-          ]
+          "oneOf": [{ "type": "integer", "minimum": 0 }, { "type": "string" }]
         }
       }
     },

@@ -38,8 +38,7 @@ export const quizEn = {
           titleLabel: 'Title',
           descriptionLabel: 'Description',
           allowOptionChangeAfterVotingLabel: 'Allow players to change answer after voting',
-          allowOptionChangeAfterVotingDescription:
-            'Participants can update their choice until the stage ends.',
+          allowOptionChangeAfterVotingDescription: 'Participants can update their choice until the stage ends.',
           randomizeStageOrderLabel: 'Randomize stage order',
           randomizeStageOrderDescription: 'Shuffle stage order each time a party starts.',
           randomizeOptionOrderLabel: 'Randomize answer order',
@@ -93,8 +92,7 @@ export const quizEn = {
           previewUnavailable: 'Complete the question to preview it.',
           reviewEmptyMessage: 'Add at least one ready question.',
           reviewReadyMessage: '{{count}} questions are ready for play.',
-          reviewBlockedSummary:
-            '{{issues}} questions still need attention. {{ready}} of {{total}} are ready.',
+          reviewBlockedSummary: '{{issues}} questions still need attention. {{ready}} of {{total}} are ready.',
           reviewTotalDurationLabel: 'Estimated run time',
           reviewTotalDurationValue: '{{seconds}} s total',
           reviewChecklistTitle: 'Readiness checklist',

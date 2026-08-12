@@ -3,10 +3,7 @@ import { OrganizationRole } from '../../../../../../domains/organization/entitie
 import type { OrganizationMember } from '../../../../../../domains/organization/entities/organization-member';
 import { Button } from '../../../../../shared/ui/actions/button';
 import { Badge } from '../../../../../shared/ui/feedback/badge';
-import {
-  FeedbackState,
-  FeedbackStateGate,
-} from '../../../../../shared/ui/feedback/feedback-state-gate';
+import { FeedbackState, FeedbackStateGate } from '../../../../../shared/ui/feedback/feedback-state-gate';
 import { FieldShell } from '../../../../../shared/ui/forms/field-shell';
 import { Input } from '../../../../../shared/ui/forms/input';
 import { Select } from '../../../../../shared/ui/forms/select';
@@ -14,10 +11,7 @@ import { AppIcon } from '../../../../../shared/ui/icons/app-icon';
 import { ContentStack, SplitWrapRow, WrapRow } from '../../../../../shared/ui/layout/containers';
 import { SectionCard } from '../../../../../shared/ui/layout/section-card';
 import { SupportingText } from '../../../../../shared/ui/layout/typography';
-import {
-  PaginationBar,
-  type PaginationViewModel,
-} from '../../../../shared/components/pagination-bar';
+import { PaginationBar, type PaginationViewModel } from '../../../../shared/components/pagination-bar';
 
 interface OrganizationMemberFormState {
   readonly role: OrganizationRole;
@@ -58,12 +52,8 @@ interface OrganizationMembersSectionProps {
 
 const NON_OWNER_ROLES = [OrganizationRole.MANAGER, OrganizationRole.MEMBER] as const;
 
-function getAssignableRoles(
-  selectedOrganizationRole: OrganizationRole | null,
-): readonly OrganizationRole[] {
-  return selectedOrganizationRole === OrganizationRole.OWNER
-    ? Object.values(OrganizationRole)
-    : NON_OWNER_ROLES;
+function getAssignableRoles(selectedOrganizationRole: OrganizationRole | null): readonly OrganizationRole[] {
+  return selectedOrganizationRole === OrganizationRole.OWNER ? Object.values(OrganizationRole) : NON_OWNER_ROLES;
 }
 
 export function OrganizationMembersSection({
@@ -99,8 +89,7 @@ export function OrganizationMembersSection({
 }: OrganizationMembersSectionProps) {
   const assignableRoles = getAssignableRoles(selectedOrganizationRole);
   const canManageMember = (member: OrganizationMember) =>
-    canManageMembers &&
-    (selectedOrganizationRole === OrganizationRole.OWNER || member.role !== OrganizationRole.OWNER);
+    canManageMembers && (selectedOrganizationRole === OrganizationRole.OWNER || member.role !== OrganizationRole.OWNER);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -113,11 +102,7 @@ export function OrganizationMembersSection({
         {canManageMembers && selectedOrganizationName ? (
           <form onSubmit={handleSubmit}>
             <SplitWrapRow align="center" gap="sm">
-              <FieldShell
-                id="organization-member-username-or-email"
-                label={usernameOrEmailLabel}
-                required
-              >
+              <FieldShell id="organization-member-username-or-email" label={usernameOrEmailLabel} required>
                 <Input
                   id="organization-member-username-or-email"
                   onChange={(event) => onAddFormChange({ usernameOrEmail: event.target.value })}
@@ -130,9 +115,7 @@ export function OrganizationMembersSection({
               <FieldShell id="organization-member-role" label={roleLabel} required>
                 <Select
                   id="organization-member-role"
-                  onChange={(event) =>
-                    onAddFormChange({ role: event.target.value as OrganizationRole })
-                  }
+                  onChange={(event) => onAddFormChange({ role: event.target.value as OrganizationRole })}
                   value={addForm.role}
                 >
                   {assignableRoles.map((role) => (
@@ -171,13 +154,7 @@ export function OrganizationMembersSection({
           emptyLabel={emptyLabel}
           errorMessage={errorMessage}
           loadingLabel={title}
-          state={
-            isLoading
-              ? FeedbackState.LOADING
-              : members.length === 0
-                ? FeedbackState.EMPTY
-                : FeedbackState.READY
-          }
+          state={isLoading ? FeedbackState.LOADING : members.length === 0 ? FeedbackState.EMPTY : FeedbackState.READY}
         >
           <ContentStack gap="sm">
             {members.map((member) => (
@@ -189,13 +166,8 @@ export function OrganizationMembersSection({
                       <FieldShell id={`organization-member-role-${member.id}`} label={roleLabel}>
                         <Select
                           id={`organization-member-role-${member.id}`}
-                          disabled={
-                            pendingRoleUpdateMemberId === member.id ||
-                            pendingRemovalMemberId === member.id
-                          }
-                          onChange={(event) =>
-                            onUpdateMemberRole(member, event.target.value as OrganizationRole)
-                          }
+                          disabled={pendingRoleUpdateMemberId === member.id || pendingRemovalMemberId === member.id}
+                          onChange={(event) => onUpdateMemberRole(member, event.target.value as OrganizationRole)}
                           value={member.role}
                         >
                           {assignableRoles.map((role) => (
@@ -215,10 +187,7 @@ export function OrganizationMembersSection({
 
                 {canManageMember(member) ? (
                   <Button
-                    disabled={
-                      pendingRemovalMemberId === member.id ||
-                      pendingRoleUpdateMemberId === member.id
-                    }
+                    disabled={pendingRemovalMemberId === member.id || pendingRoleUpdateMemberId === member.id}
                     intent="ghost"
                     onClick={() => onRemoveMember(member)}
                     size="sm"

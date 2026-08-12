@@ -17,10 +17,7 @@ export function HomeClosingCtaSection() {
         title={t('home.closingCta.heading')}
       />
       <ContentStack align="center" gap="sm">
-        <PrimaryActionLink
-          leftSection={<AppIcon name="register" size={16} />}
-          to="/identity/register"
-        >
+        <PrimaryActionLink leftSection={<AppIcon name="register" size={16} />} to="/identity/register">
           {t('home.closingCta.primaryCta')}
         </PrimaryActionLink>
       </ContentStack>

@@ -23,10 +23,7 @@ describeIfDatabase('PrismaOrganizationRepository', () => {
       description: 'desc',
     });
 
-    const created = await harness.repository.create(
-      organizationFixture.name,
-      organizationFixture.description,
-    );
+    const created = await harness.repository.create(organizationFixture.name, organizationFixture.description);
     createdOrganizationIds.push(created.id);
 
     const byId = await harness.repository.findById(created.id);
