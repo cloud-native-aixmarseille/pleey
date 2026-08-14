@@ -2,8 +2,8 @@ apiVersion: v2
 name: backend
 description: Pleey backend API service subchart.
 type: application
-version: 0.4.1
-appVersion: "0.4.1"
+version: 0.5.0
+appVersion: "0.5.0"
 home: https://github.com/cloud-native-aixmarseille/pleey
 sources:
   - https://github.com/cloud-native-aixmarseille/pleey

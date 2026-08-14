@@ -1,6 +1,6 @@
 # pleey
 
-![Version: 0.4.1](https://img.shields.io/badge/Version-0.4.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.4.1](https://img.shields.io/badge/AppVersion-0.4.1-informational?style=flat-square)
+![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.5.0](https://img.shields.io/badge/AppVersion-0.5.0-informational?style=flat-square)
 
 Production-ready umbrella chart for the Pleey frontend, backend, PostgreSQL, and Valkey runtime.
 
@@ -20,8 +20,8 @@ Production-ready umbrella chart for the Pleey frontend, backend, PostgreSQL, and
 
 | Repository             | Name     | Version |
 | ---------------------- | -------- | ------- |
-| file://charts/backend  | backend  | 0.4.1   |
-| file://charts/frontend | frontend | 0.4.1   |
+| file://charts/backend  | backend  | 0.5.0   |
+| file://charts/frontend | frontend | 0.5.0   |
 
 ## Values
 
