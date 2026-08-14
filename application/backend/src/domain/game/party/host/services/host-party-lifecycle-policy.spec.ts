@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { GameErrorCode } from '../../../enums/game-error-code.enum';
 import { PartyStatus } from '../../enums/party-status.enum';
@@ -44,45 +44,48 @@ function createResultRuntimeContext(
 describe('HostPartyLifecyclePolicy', () => {
   const policy = new HostPartyLifecyclePolicy();
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   it('starts a waiting party on the first stage', () => {
-    vi.spyOn(Date, 'now').mockReturnValue(100_000);
+    // Arrange + Act
+    const nowSpy = vi.spyOn(Date, 'now').mockReturnValue(100_000);
 
-    const result = policy.start(
-      {
-        status: PartyStatus.WAITING,
-        runtime: null,
-      },
-      {
-        firstStage: {
-          id: backendTestIdentifiers.partyStage(101),
-          stagePosition: 0,
-          timeLimitSeconds: 20,
+    // Assert
+    try {
+      const result = policy.start(
+        {
+          status: PartyStatus.WAITING,
+          runtime: null,
         },
-        totalStages: 4,
-      },
-    );
-
-    expect(result).toEqual({
-      status: PartyStatus.ACTIVE,
-      runtime: {
-        lifecycle: {
-          phase: PartyRuntimePhase.STAGE,
-          stageEndsAtEpochMs: 120_000,
-          stageRemainingDurationMs: 20_000,
-          stageId: backendTestIdentifiers.partyStage(101),
-          stagePosition: 0,
-          stageTimeLimitSeconds: 20,
+        {
+          firstStage: {
+            id: backendTestIdentifiers.partyStage(101),
+            stagePosition: 0,
+            timeLimitSeconds: 20,
+          },
           totalStages: 4,
         },
-      },
-    });
+      );
+
+      expect(result).toEqual({
+        status: PartyStatus.ACTIVE,
+        runtime: {
+          lifecycle: {
+            phase: PartyRuntimePhase.STAGE,
+            stageEndsAtEpochMs: 120_000,
+            stageRemainingDurationMs: 20_000,
+            stageId: backendTestIdentifiers.partyStage(101),
+            stagePosition: 0,
+            stageTimeLimitSeconds: 20,
+            totalStages: 4,
+          },
+        },
+      });
+    } finally {
+      nowSpy.mockRestore();
+    }
   });
 
   it('rejects starting a party without configured stages', () => {
+    // Arrange + Act + Assert
     expect(() =>
       policy.start(
         {
@@ -98,53 +101,62 @@ describe('HostPartyLifecyclePolicy', () => {
   });
 
   it('reveals the current stage result', () => {
+    // Arrange + Act
     const result = policy.revealStageResult({
       status: PartyStatus.ACTIVE,
       runtime: createRuntimeContext(),
     });
 
+    // Assert
     expect(result.runtime?.lifecycle.phase).toBe(PartyRuntimePhase.RESULT);
     expect(result.runtime?.lifecycle.stageId).toBe(backendTestIdentifiers.partyStage(101));
     expect(result.runtime?.lifecycle.stagePosition).toBe(0);
   });
 
   it('advances to the next stage after a result', () => {
-    vi.spyOn(Date, 'now').mockReturnValue(200_000);
+    // Arrange + Act
+    const nowSpy = vi.spyOn(Date, 'now').mockReturnValue(200_000);
 
-    const result = policy.advanceStage(
-      {
+    // Assert
+    try {
+      const result = policy.advanceStage(
+        {
+          status: PartyStatus.ACTIVE,
+          runtime: createResultRuntimeContext({
+            stageId: backendTestIdentifiers.partyStage(102),
+            stagePosition: 1,
+          }),
+        },
+        {
+          nextStage: {
+            id: backendTestIdentifiers.partyStage(103),
+            stagePosition: 2,
+            timeLimitSeconds: 15,
+          },
+        },
+      );
+
+      expect(result).toEqual({
         status: PartyStatus.ACTIVE,
-        runtime: createResultRuntimeContext({
-          stageId: backendTestIdentifiers.partyStage(102),
-          stagePosition: 1,
-        }),
-      },
-      {
-        nextStage: {
-          id: backendTestIdentifiers.partyStage(103),
-          stagePosition: 2,
-          timeLimitSeconds: 15,
+        runtime: {
+          lifecycle: {
+            phase: PartyRuntimePhase.STAGE,
+            stageEndsAtEpochMs: 215_000,
+            stageRemainingDurationMs: 15_000,
+            stageId: backendTestIdentifiers.partyStage(103),
+            stagePosition: 2,
+            stageTimeLimitSeconds: 15,
+            totalStages: 3,
+          },
         },
-      },
-    );
-
-    expect(result).toEqual({
-      status: PartyStatus.ACTIVE,
-      runtime: {
-        lifecycle: {
-          phase: PartyRuntimePhase.STAGE,
-          stageEndsAtEpochMs: 215_000,
-          stageRemainingDurationMs: 15_000,
-          stageId: backendTestIdentifiers.partyStage(103),
-          stagePosition: 2,
-          stageTimeLimitSeconds: 15,
-          totalStages: 3,
-        },
-      },
-    });
+      });
+    } finally {
+      nowSpy.mockRestore();
+    }
   });
 
   it('ends the party after advancing beyond the final result', () => {
+    // Arrange + Act
     const result = policy.advanceStage(
       {
         status: PartyStatus.ACTIVE,
@@ -176,6 +188,7 @@ describe('HostPartyLifecyclePolicy', () => {
       },
     );
 
+    // Assert
     expect(result).toEqual({
       status: PartyStatus.ENDED,
       runtime: {
@@ -209,6 +222,7 @@ describe('HostPartyLifecyclePolicy', () => {
   });
 
   it('rewinds to the lobby while preserving configured stage count', () => {
+    // Arrange + Act
     const result = policy.rewindParty({
       status: PartyStatus.ACTIVE,
       runtime: createRuntimeContext({
@@ -217,6 +231,7 @@ describe('HostPartyLifecyclePolicy', () => {
       }),
     });
 
+    // Assert
     expect(result).toEqual({
       status: PartyStatus.WAITING,
       runtime: {
@@ -234,29 +249,36 @@ describe('HostPartyLifecyclePolicy', () => {
   });
 
   it('pauses and resumes an in-progress party', () => {
-    vi.spyOn(Date, 'now').mockReturnValueOnce(110_000).mockReturnValueOnce(130_000);
+    // Arrange + Act
+    const nowSpy = vi.spyOn(Date, 'now').mockReturnValueOnce(110_000).mockReturnValueOnce(130_000);
 
-    const paused = policy.pause({
-      status: PartyStatus.ACTIVE,
-      runtime: createRuntimeContext({
-        phase: PartyRuntimePhase.STAGE,
-        stageEndsAtEpochMs: 120_000,
-        stageRemainingDurationMs: 20_000,
-        stageId: backendTestIdentifiers.partyStage(102),
-        stagePosition: 1,
-      }),
-    });
-    const resumed = policy.resume(paused);
+    // Assert
+    try {
+      const paused = policy.pause({
+        status: PartyStatus.ACTIVE,
+        runtime: createRuntimeContext({
+          phase: PartyRuntimePhase.STAGE,
+          stageEndsAtEpochMs: 120_000,
+          stageRemainingDurationMs: 20_000,
+          stageId: backendTestIdentifiers.partyStage(102),
+          stagePosition: 1,
+        }),
+      });
+      const resumed = policy.resume(paused);
 
-    expect(paused.status).toBe(PartyStatus.PAUSED);
-    expect(resumed.status).toBe(PartyStatus.ACTIVE);
-    expect(paused.runtime?.lifecycle.stageEndsAtEpochMs).toBeNull();
-    expect(paused.runtime?.lifecycle.stageRemainingDurationMs).toBe(10_000);
-    expect(resumed.runtime?.lifecycle.stageEndsAtEpochMs).toBe(140_000);
-    expect(resumed.runtime?.lifecycle.stageRemainingDurationMs).toBe(10_000);
+      expect(paused.status).toBe(PartyStatus.PAUSED);
+      expect(resumed.status).toBe(PartyStatus.ACTIVE);
+      expect(paused.runtime?.lifecycle.stageEndsAtEpochMs).toBeNull();
+      expect(paused.runtime?.lifecycle.stageRemainingDurationMs).toBe(10_000);
+      expect(resumed.runtime?.lifecycle.stageEndsAtEpochMs).toBe(140_000);
+      expect(resumed.runtime?.lifecycle.stageRemainingDurationMs).toBe(10_000);
+    } finally {
+      nowSpy.mockRestore();
+    }
   });
 
   it('rejects rewinding before the first stage', () => {
+    // Arrange + Act + Assert
     expect(() =>
       policy.rewindStage(
         {

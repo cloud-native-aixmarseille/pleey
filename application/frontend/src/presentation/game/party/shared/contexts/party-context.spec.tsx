@@ -89,6 +89,7 @@ const partyObservationPort = {
 
 describe('PartyProvider', () => {
   it('shares one underlying observation per party id and updates state from snapshots', () => {
+    // Arrange
     const observeParty = vi.fn((partyId: PartyId, handlers: PartyObservationHandlers) => {
       observeParty.handlers = handlers;
       observeParty.partyId = partyId;
@@ -131,11 +132,13 @@ describe('PartyProvider', () => {
     let releaseSecond: () => void;
     const observedPartyId = parsePartyId(44);
 
+    // Act
     act(() => {
       releaseFirst = rendered.result.current.first.observePartyById(observedPartyId);
       releaseSecond = rendered.result.current.second.observePartyById(observedPartyId);
     });
 
+    // Assert
     expect(observeParty).toHaveBeenCalledTimes(1);
     expect(observeParty.partyId).toBe(observedPartyId);
 
@@ -164,6 +167,7 @@ describe('PartyProvider', () => {
   });
 
   it('observes parties by party id for host lobby routes', () => {
+    // Arrange
     const observeParty = vi.fn((partyId: PartyId, handlers: PartyObservationHandlers) => {
       observeParty.handlers = handlers;
       observeParty.partyId = partyId;
@@ -197,10 +201,12 @@ describe('PartyProvider', () => {
     const rendered = renderHook(() => useParty(), { wrapper });
     const observedPartyId = parsePartyId(44);
 
+    // Act
     act(() => {
       rendered.result.current.observePartyById(observedPartyId);
     });
 
+    // Assert
     expect(observeParty.partyId).toBe(observedPartyId);
 
     act(() => {
@@ -219,6 +225,7 @@ describe('PartyProvider', () => {
   });
 
   it('exposes observation errors by party id', () => {
+    // Arrange
     const observeParty = vi.fn((_: PartyId, handlers: PartyObservationHandlers) => {
       observeParty.handlers = handlers;
       return vi.fn();
@@ -250,15 +257,18 @@ describe('PartyProvider', () => {
     const rendered = renderHook(() => useParty(), { wrapper });
     const observedPartyId = parsePartyId(44);
 
+    // Act
     act(() => {
       rendered.result.current.observePartyById(observedPartyId);
       observeParty.handlers?.onError?.('game.party.errors.observeFailed');
     });
 
+    // Assert
     expect(rendered.result.current.getErrorByPartyId(observedPartyId)).toBe('game.party.errors.observeFailed');
   });
 
   it('exposes runtime notices by party id', () => {
+    // Arrange
     const observeParty = vi.fn((_: PartyId, handlers: PartyObservationHandlers) => {
       observeParty.handlers = handlers;
       return vi.fn();
@@ -290,6 +300,7 @@ describe('PartyProvider', () => {
     const rendered = renderHook(() => useParty(), { wrapper });
     const observedPartyId = parsePartyId(44);
 
+    // Act
     act(() => {
       rendered.result.current.observePartyById(observedPartyId);
       observeParty.handlers?.onRuntimeNotice?.({
@@ -298,6 +309,7 @@ describe('PartyProvider', () => {
       });
     });
 
+    // Assert
     expect(rendered.result.current.getRuntimeNoticeByPartyId(observedPartyId)).toEqual({
       kind: PartyRuntimeNoticeKind.RewindStage,
       partyId: observedPartyId,
@@ -305,6 +317,7 @@ describe('PartyProvider', () => {
   });
 
   it('exposes transport connection state by party id', () => {
+    // Arrange
     const observeParty = vi.fn((_: PartyId, handlers: PartyObservationHandlers) => {
       observeParty.handlers = handlers;
       return vi.fn();
@@ -341,15 +354,18 @@ describe('PartyProvider', () => {
       reconnected: true,
     };
 
+    // Act
     act(() => {
       rendered.result.current.observePartyById(observedPartyId);
       observeParty.handlers?.onConnected?.(connectionState);
     });
 
+    // Assert
     expect(rendered.result.current.getConnectionStateByPartyId(observedPartyId)).toEqual(connectionState);
   });
 
   it('consumes a runtime notice after it has been handled', () => {
+    // Arrange
     const observeParty = vi.fn((_: PartyId, handlers: PartyObservationHandlers) => {
       observeParty.handlers = handlers;
       return vi.fn();
@@ -389,8 +405,10 @@ describe('PartyProvider', () => {
       });
     });
 
+    // Act
     const runtimeNotice = rendered.result.current.getRuntimeNoticeByPartyId(observedPartyId);
 
+    // Assert
     expect(runtimeNotice).toEqual({
       kind: PartyRuntimeNoticeKind.RewindStage,
       partyId: observedPartyId,

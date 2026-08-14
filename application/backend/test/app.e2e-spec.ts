@@ -1,22 +1,56 @@
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { INestApplication } from '@nestjs/common';
 import { Test, type TestingModule } from '@nestjs/testing';
 import type { App } from 'supertest/types';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { AppModule } from '../src/app/app-module';
 
+const currentDir = dirname(fileURLToPath(import.meta.url));
+const backendRootDir = resolve(currentDir, '..');
+
+function ensureE2eTestEnvironment() {
+  process.env.JWT_SECRET = process.env.JWT_SECRET ?? 'test_jwt_secret_only_for_tests';
+  process.env.DATABASE_URL = process.env.DATABASE_URL ?? 'postgresql://postgres:postgres@localhost:5432/pleey_test';
+}
+
 describe('AppModule (e2e)', () => {
-  let app: INestApplication<App>;
+  async function arrangeApp() {
+    ensureE2eTestEnvironment();
+    const originalCwd = process.cwd();
 
-  beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
+    process.chdir(backendRootDir);
 
-    app = moduleFixture.createNestApplication();
-    await app.init();
-  });
+    try {
+      const moduleFixture: TestingModule = await Test.createTestingModule({
+        imports: [AppModule],
+      }).compile();
 
-  it('should be defined', () => {
-    expect(app).toBeDefined();
+      const app = moduleFixture.createNestApplication();
+      await app.init();
+
+      return {
+        app,
+        restoreCwd: () => {
+          process.chdir(originalCwd);
+        },
+      };
+    } catch (error) {
+      process.chdir(originalCwd);
+      throw error;
+    }
+  }
+
+  it('should be defined', async () => {
+    // Arrange + Act
+    const { app, restoreCwd }: { app: INestApplication<App>; restoreCwd: () => void } = await arrangeApp();
+
+    // Assert
+    try {
+      expect(app).toBeDefined();
+    } finally {
+      await app.close();
+      restoreCwd();
+    }
   });
 });

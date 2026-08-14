@@ -16,6 +16,7 @@ const parseQuestionId = (value: number) => quizQuestionIdentifier.parse(coerceUu
 
 describe('QuizManagementFacade', () => {
   it('adapts shared management gateway calls to quiz repository methods', async () => {
+    // Arrange
     const itemInput = playableManagementFixtureFactory.createItemInput({
       kind: 'multiple' as const,
     });
@@ -60,8 +61,10 @@ describe('QuizManagementFacade', () => {
     await facade.deleteGame(gameTypeId);
     const createdItem = await facade.createItem(gameTypeId, itemInput);
     const updatedItem = await facade.updateItem(questionId, itemInput);
+    // Act
     await facade.deleteItem(questionId);
 
+    // Assert
     expect(repository.createQuiz).toHaveBeenCalledWith(projectId, {
       title: 'Quiz',
       description: null,

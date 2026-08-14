@@ -48,13 +48,18 @@ describe('AccountMenu (unauthenticated)', () => {
   }
 
   it('renders a sign-in button when user is not authenticated', () => {
+    // Arrange + Act
     renderAccountMenu();
+    // Assert
     expect(screen.getByRole('button', { name: 'shared.shell.signInLink' })).toBeInTheDocument();
   });
 
   it('navigates to sign-in on click', async () => {
+    // Arrange
     renderAccountMenu();
+    // Act
     await userEvent.click(screen.getByRole('button', { name: 'shared.shell.signInLink' }));
+    // Assert
     expect(mocks.navigate).toHaveBeenCalledWith('/identity/sign-in');
   });
 });

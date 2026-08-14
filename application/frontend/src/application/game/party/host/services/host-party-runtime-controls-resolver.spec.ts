@@ -34,8 +34,10 @@ function createObservation(overrides: Partial<PartyObservation> = {}): PartyObse
 
 describe('HostPartyRuntimeControlsResolver', () => {
   it('enables the start action for waiting lobbies with joined players', () => {
+    // Arrange + Act
     const resolver = new HostPartyRuntimeControlsResolver();
 
+    // Assert
     expect(
       resolver.resolveControls(
         createObservation({
@@ -65,8 +67,10 @@ describe('HostPartyRuntimeControlsResolver', () => {
   });
 
   it('disables the start action for waiting lobbies without joined players', () => {
+    // Arrange + Act
     const resolver = new HostPartyRuntimeControlsResolver();
 
+    // Assert
     expect(resolver.resolveControls(createObservation())).toEqual(
       expect.objectContaining({
         canStartParty: false,
@@ -76,8 +80,10 @@ describe('HostPartyRuntimeControlsResolver', () => {
   });
 
   it('enables reveal and pause controls during an active stage', () => {
+    // Arrange + Act
     const resolver = new HostPartyRuntimeControlsResolver();
 
+    // Assert
     expect(
       resolver.resolveControls(
         createObservation({
@@ -121,8 +127,10 @@ describe('HostPartyRuntimeControlsResolver', () => {
   });
 
   it('enables resume and advance controls for paused results', () => {
+    // Arrange + Act
     const resolver = new HostPartyRuntimeControlsResolver();
 
+    // Assert
     expect(
       resolver.resolveControls(
         createObservation({

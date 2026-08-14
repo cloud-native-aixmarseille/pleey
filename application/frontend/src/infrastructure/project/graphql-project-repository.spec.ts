@@ -90,6 +90,7 @@ describe('GraphqlProjectRepository', () => {
 
   describe('createProject()', () => {
     it('creates a project through the GraphQL mutation', async () => {
+      // Arrange
       const { client } = new GraphqlClientMockFactory().create({
         requestResult: {
           createProject: {
@@ -103,12 +104,14 @@ describe('GraphqlProjectRepository', () => {
       });
       const repository = new GraphqlProjectRepository(client, projectIdentifier, organizationIdentifier);
 
+      // Act
       const project = await repository.createProject({
         organizationId: organizationIdentifier.parse(3),
         name: 'Spring Event',
         description: 'Launch campaign',
       });
 
+      // Assert
       expect(project).toEqual({
         id: projectIdentifier.parse(22),
         name: 'Spring Event',
@@ -119,11 +122,13 @@ describe('GraphqlProjectRepository', () => {
     });
 
     it('maps create failures to translated project error keys', async () => {
+      // Arrange
       const { client } = new GraphqlClientMockFactory().create({
         requestError: new Error('project.errors.createFailed'),
       });
       const repository = new GraphqlProjectRepository(client, projectIdentifier, organizationIdentifier);
 
+      // Act + Assert
       await expect(
         repository.createProject({
           organizationId: organizationIdentifier.parse(3),
@@ -136,6 +141,7 @@ describe('GraphqlProjectRepository', () => {
 
   describe('updateProject()', () => {
     it('updates a project through the GraphQL mutation', async () => {
+      // Arrange
       const { client } = new GraphqlClientMockFactory().create({
         requestResult: {
           updateProject: {
@@ -149,12 +155,14 @@ describe('GraphqlProjectRepository', () => {
       });
       const repository = new GraphqlProjectRepository(client, projectIdentifier, organizationIdentifier);
 
+      // Act
       const project = await repository.updateProject({
         projectId: projectIdentifier.parse(22),
         name: 'Spring Event 2',
         description: 'Expanded launch',
       });
 
+      // Assert
       expect(project).toEqual({
         id: projectIdentifier.parse(22),
         name: 'Spring Event 2',
@@ -165,11 +173,13 @@ describe('GraphqlProjectRepository', () => {
     });
 
     it('maps update failures to translated project error keys', async () => {
+      // Arrange
       const { client } = new GraphqlClientMockFactory().create({
         requestError: new Error('project.errors.updateFailed'),
       });
       const repository = new GraphqlProjectRepository(client, projectIdentifier, organizationIdentifier);
 
+      // Act + Assert
       await expect(
         repository.updateProject({
           projectId: projectIdentifier.parse(22),
@@ -182,6 +192,7 @@ describe('GraphqlProjectRepository', () => {
 
   describe('deleteProject()', () => {
     it('deletes a project through the GraphQL mutation', async () => {
+      // Arrange
       const { client } = new GraphqlClientMockFactory().create({
         requestResult: {
           deleteProject: true,
@@ -189,6 +200,7 @@ describe('GraphqlProjectRepository', () => {
       });
       const repository = new GraphqlProjectRepository(client, projectIdentifier, organizationIdentifier);
 
+      // Act + Assert
       await expect(
         repository.deleteProject({
           projectId: projectIdentifier.parse(22),
@@ -198,11 +210,13 @@ describe('GraphqlProjectRepository', () => {
     });
 
     it('maps delete failures to translated project error keys', async () => {
+      // Arrange
       const { client } = new GraphqlClientMockFactory().create({
         requestError: new Error('project.errors.deleteFailed'),
       });
       const repository = new GraphqlProjectRepository(client, projectIdentifier, organizationIdentifier);
 
+      // Act + Assert
       await expect(
         repository.deleteProject({
           projectId: projectIdentifier.parse(22),

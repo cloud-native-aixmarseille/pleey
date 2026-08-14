@@ -27,6 +27,7 @@ const createRect = ({
 
 describe('LemmingsPlatformService', () => {
   it('detects bordered cards and dividers as walkable segments', () => {
+    // Arrange
     const service = new LemmingsPlatformService();
     const container = document.createElement('div');
     const card = document.createElement('div');
@@ -42,8 +43,10 @@ describe('LemmingsPlatformService', () => {
     card.getBoundingClientRect = () => createRect({ top: 64, left: 40, width: 220, height: 140 });
     divider.getBoundingClientRect = () => createRect({ top: 250, left: 52, width: 216, height: 2 });
 
+    // Act
     const segments = service.computeSegments(container);
 
+    // Assert
     expect(segments[0]).toEqual({ x1: 8, x2: 294, y: 334 });
     expect(segments).toContainEqual({ x1: 42, x2: 240, y: 46 });
     expect(segments).toContainEqual({ x1: 54, x2: 248, y: 232 });

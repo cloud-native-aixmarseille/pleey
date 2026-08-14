@@ -11,6 +11,7 @@ import { PrismaQuizManagementRepository } from './prisma-quiz-management.reposit
 
 describe('PrismaQuizManagementRepository', () => {
   it('creates a quiz with initial question positions from array order', async () => {
+    // Arrange
     const createdAt = new Date('2026-06-01T10:00:00.000Z');
     const prisma = {
       game: {
@@ -39,6 +40,7 @@ describe('PrismaQuizManagementRepository', () => {
       new PrismaGameSettingsMapper(),
     );
 
+    // Act
     const quiz = await repository.createWithQuestions({
       projectId: backendTestIdentifiers.project(7),
       title: 'Sprint quiz',
@@ -61,6 +63,7 @@ describe('PrismaQuizManagementRepository', () => {
       ],
     });
 
+    // Assert
     expect(prisma.game.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({

@@ -15,6 +15,7 @@ function createResolverWithFindFirst(findFirst: ReturnType<typeof vi.fn>) {
 
 describe('QuizPartyStageCatalogEntryResolver', () => {
   it('findFirstStage queries the first stage by ascending position order', async () => {
+    // Arrange
     const findFirst = vi.fn().mockResolvedValue({
       id: backendTestIdentifiers.partyStage(10),
       position: 0,
@@ -25,8 +26,10 @@ describe('QuizPartyStageCatalogEntryResolver', () => {
     });
     const resolver = createResolverWithFindFirst(findFirst);
 
+    // Act
     const stage = await resolver.findFirstStage(backendTestIdentifiers.game(77));
 
+    // Assert
     expect(stage).toMatchObject({
       id: backendTestIdentifiers.partyStage(10),
       stagePosition: 0,
@@ -50,6 +53,7 @@ describe('QuizPartyStageCatalogEntryResolver', () => {
   });
 
   it('findNextStage resolves adjacent stages with position gaps', async () => {
+    // Arrange
     const findFirst = vi
       .fn()
       .mockResolvedValueOnce({
@@ -70,8 +74,10 @@ describe('QuizPartyStageCatalogEntryResolver', () => {
       });
     const resolver = createResolverWithFindFirst(findFirst);
 
+    // Act
     const stage = await resolver.findNextStage(backendTestIdentifiers.game(77), backendTestIdentifiers.partyStage(10));
 
+    // Assert
     expect(stage).toMatchObject({
       id: backendTestIdentifiers.partyStage(11),
       stagePosition: 5,

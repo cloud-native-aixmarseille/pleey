@@ -10,6 +10,7 @@ const REQUIRED_RUNTIME_ENVIRONMENT = {
 
 describe('AppConfiguration', () => {
   it('limits development-only server features to development environments', () => {
+    // Arrange
     const developmentConfiguration = new AppConfiguration(
       new AppEnvironment({
         ...REQUIRED_RUNTIME_ENVIRONMENT,
@@ -17,6 +18,7 @@ describe('AppConfiguration', () => {
       } as NodeJS.ProcessEnv),
     );
 
+    // Act
     const testConfiguration = new AppConfiguration(
       new AppEnvironment({
         ...REQUIRED_RUNTIME_ENVIRONMENT,
@@ -24,6 +26,7 @@ describe('AppConfiguration', () => {
       } as NodeJS.ProcessEnv),
     );
 
+    // Assert
     expect(developmentConfiguration.getServerConfig()).toMatchObject({
       isDevelopment: true,
       isProduction: false,
@@ -35,6 +38,7 @@ describe('AppConfiguration', () => {
   });
 
   it('disables otel console output by default', () => {
+    // Arrange
     const configuration = new AppConfiguration(
       new AppEnvironment({
         ...REQUIRED_RUNTIME_ENVIRONMENT,
@@ -42,8 +46,10 @@ describe('AppConfiguration', () => {
       } as NodeJS.ProcessEnv),
     );
 
+    // Act
     const telemetryConfig = configuration.getTelemetryConfig();
 
+    // Assert
     expect(telemetryConfig).toEqual({
       consoleDiagnosticsEnabled: false,
       consoleExportersEnabled: false,
@@ -55,6 +61,7 @@ describe('AppConfiguration', () => {
   });
 
   it('allows explicit opt-in for otel console output', () => {
+    // Arrange
     const configuration = new AppConfiguration(
       new AppEnvironment({
         ...REQUIRED_RUNTIME_ENVIRONMENT,
@@ -67,8 +74,10 @@ describe('AppConfiguration', () => {
       } as NodeJS.ProcessEnv),
     );
 
+    // Act
     const telemetryConfig = configuration.getTelemetryConfig();
 
+    // Assert
     expect(telemetryConfig).toEqual({
       consoleDiagnosticsEnabled: true,
       consoleExportersEnabled: true,
@@ -80,6 +89,7 @@ describe('AppConfiguration', () => {
   });
 
   it('rejects invalid otel console boolean values', () => {
+    // Arrange + Act + Assert
     expect(
       () =>
         new AppConfiguration(
@@ -92,6 +102,7 @@ describe('AppConfiguration', () => {
   });
 
   it('reads the application version from APP_VERSION', () => {
+    // Arrange + Act
     const configuration = new AppConfiguration(
       new AppEnvironment({
         ...REQUIRED_RUNTIME_ENVIRONMENT,
@@ -99,16 +110,19 @@ describe('AppConfiguration', () => {
       } as NodeJS.ProcessEnv),
     );
 
+    // Assert
     expect(configuration.getApplicationVersion()).toBe('1.2.3');
   });
 
   it('defaults the server port to 3001 when PORT is not provided', () => {
+    // Arrange + Act
     const configuration = new AppConfiguration(
       new AppEnvironment({
         ...REQUIRED_RUNTIME_ENVIRONMENT,
       } as NodeJS.ProcessEnv),
     );
 
+    // Assert
     expect(configuration.getServerConfig().port).toBe(3001);
   });
 });

@@ -29,10 +29,12 @@ function ProfileDetailsFormHarness({
 
 describe('ProfileDetailsForm', () => {
   it('renders the profile fields and status banners', () => {
+    // Arrange + Act
     renderWithFormProvider(
       <ProfileDetailsFormHarness errorMessage="Unable to save profile" successMessage="Profile updated" />,
     );
 
+    // Assert
     expect(screen.getByText('auth.profile.detailsSection.legend')).toBeInTheDocument();
     expect(screen.getByLabelText('auth.form.usernameLabel *')).toBeInTheDocument();
     expect(screen.getByLabelText('auth.form.emailLabel *')).toBeInTheDocument();
@@ -42,11 +44,14 @@ describe('ProfileDetailsForm', () => {
   });
 
   it('shows validation errors when required fields blur empty', () => {
+    // Arrange
     renderWithFormProvider(<ProfileDetailsFormHarness />);
 
     fireEvent.blur(screen.getByLabelText('auth.form.usernameLabel *'));
+    // Act
     fireEvent.blur(screen.getByLabelText('auth.form.emailLabel *'));
 
+    // Assert
     expect(screen.getByText('auth.form.validation.usernameRequired')).toBeInTheDocument();
     expect(screen.getByText('auth.form.validation.emailRequired')).toBeInTheDocument();
   });

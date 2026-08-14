@@ -8,11 +8,14 @@ const describeIfDatabase = hasDatabase ? describe : describe.skip;
 
 describeIfDatabase('PrismaService', () => {
   it('connects and can run a simple query', async () => {
+    // Arrange
     const module: TestingModule = await Test.createTestingModule({
       providers: [PrismaService],
     }).compile();
+    // Act
     const prisma = module.get(PrismaService);
 
+    // Assert
     try {
       await prisma.onModuleInit();
       await expect(prisma.$queryRaw(Prisma.sql`SELECT 1 as ok`)).resolves.toBeDefined();

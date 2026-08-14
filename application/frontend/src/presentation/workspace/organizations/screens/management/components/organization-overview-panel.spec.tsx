@@ -1,6 +1,6 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { OrganizationRole } from '../../../../../../domains/organization/entities/organization';
 import { OrganizationFixtureFactory } from '../../../../../../test-utils/fixtures/organization-fixture-factory';
 import { OrganizationScreenFixtureFactory } from '../../../../../../test-utils/fixtures/organization-screen-fixture-factory';
@@ -32,12 +32,14 @@ describe('OrganizationOverviewPanel', () => {
   const onOrganizationChange = vi.fn();
   const onOrganizationSearchChange = vi.fn();
 
-  beforeEach(() => {
+  function arrangeCallbacks() {
     onOrganizationChange.mockReset();
     onOrganizationSearchChange.mockReset();
-  });
+  }
 
   it('renders selected organization details and forwards selector changes', async () => {
+    // Arrange
+    arrangeCallbacks();
     const user = userEvent.setup();
     const firstOrganization = organizationFixtureFactory.createOrganization({
       id: parseOrganizationId(3),
@@ -82,8 +84,10 @@ describe('OrganizationOverviewPanel', () => {
     const toolbar = screen.getByRole('toolbar', {
       name: 'organization.management.header.title',
     });
+    // Act
     const [combobox] = within(toolbar).getAllByRole('button');
 
+    // Assert
     expect(combobox).toHaveTextContent('Arcade Org');
     expect(screen.getByText('Main community hub')).toBeInTheDocument();
     expect(screen.getByText('manager')).toBeInTheDocument();
@@ -100,6 +104,8 @@ describe('OrganizationOverviewPanel', () => {
   });
 
   it('shows the empty state when no organization is selected', () => {
+    // Arrange
+    arrangeCallbacks();
     renderWithProviders(
       <OrganizationOverviewPanel
         organizations={[]}
@@ -123,8 +129,10 @@ describe('OrganizationOverviewPanel', () => {
     const toolbar = screen.getByRole('toolbar', {
       name: 'organization.management.header.title',
     });
+    // Act
     const [combobox] = within(toolbar).getAllByRole('button');
 
+    // Assert
     expect(combobox).toHaveTextContent('dashboard.workspace.organizationPlaceholder');
     expect(combobox).toBeDisabled();
     expect(screen.getByText('organization.management.details.empty')).toBeInTheDocument();

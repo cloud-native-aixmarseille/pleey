@@ -6,9 +6,11 @@ import { GameListSortChips } from './game-list-sort-chips';
 
 describe('GameListSortChips', () => {
   it('marks the active field and forwards the selected sort field and default direction', async () => {
+    // Arrange
     const user = userEvent.setup();
     const onToggle = vi.fn();
 
+    // Act
     renderWithProviders(
       <GameListSortChips
         currentDirection="desc"
@@ -24,6 +26,7 @@ describe('GameListSortChips', () => {
       />,
     );
 
+    // Assert
     expect(screen.getByRole('button', { name: /sort.createdAt/i })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByRole('button', { name: /sort.title/i })).toHaveAttribute('aria-pressed', 'false');
 

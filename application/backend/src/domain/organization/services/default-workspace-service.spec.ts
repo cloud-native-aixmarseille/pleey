@@ -12,6 +12,7 @@ const latestOrganizationId = backendTestIdentifiers.organization(11);
 
 describe('DefaultWorkspaceService', () => {
   it('creates default organization and project when user has no memberships', async () => {
+    // Arrange
     const organizationRepository = createOrganizationRepositoryMock({
       create: { id: defaultOrganizationId } as never,
     });
@@ -26,14 +27,17 @@ describe('DefaultWorkspaceService', () => {
       projectRepository as never,
     );
 
+    // Act
     await service.ensure(backendTestIdentifiers.user(7));
 
+    // Assert
     expect(organizationRepository.create).toHaveBeenCalledWith('Default', null);
     expect(memberRepository.create).toHaveBeenCalled();
     expect(projectRepository.create).toHaveBeenCalledWith(defaultOrganizationId, 'Default', null);
   });
 
   it('creates default project when membership exists but no project exists', async () => {
+    // Arrange
     const organizationRepository = createOrganizationRepositoryMock();
     const memberRepository = createOrganizationMemberRepositoryMock({
       findLatestByUser: { organizationId: latestOrganizationId } as never,
@@ -48,13 +52,16 @@ describe('DefaultWorkspaceService', () => {
       projectRepository as never,
     );
 
+    // Act
     await service.ensure(backendTestIdentifiers.user(7));
 
+    // Assert
     expect(projectRepository.countByOrganization).toHaveBeenCalledWith(latestOrganizationId);
     expect(projectRepository.create).toHaveBeenCalledWith(latestOrganizationId, 'Default', null);
   });
 
   it('does nothing when membership and project already exist', async () => {
+    // Arrange
     const organizationRepository = createOrganizationRepositoryMock();
     const memberRepository = createOrganizationMemberRepositoryMock({
       findLatestByUser: { organizationId: latestOrganizationId } as never,
@@ -69,8 +76,10 @@ describe('DefaultWorkspaceService', () => {
       projectRepository as never,
     );
 
+    // Act
     await service.ensure(backendTestIdentifiers.user(7));
 
+    // Assert
     expect(organizationRepository.create).not.toHaveBeenCalled();
     expect(memberRepository.create).not.toHaveBeenCalled();
     expect(projectRepository.countByOrganization).toHaveBeenCalledWith(latestOrganizationId);

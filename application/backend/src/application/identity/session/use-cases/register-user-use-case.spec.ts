@@ -10,6 +10,7 @@ import { RegisterUserUseCase } from './register-user-use-case';
 
 describe('RegisterUserUseCase', () => {
   it('throws USER_ALREADY_EXISTS when repository reports existing user', async () => {
+    // Arrange
     const userRepository = createUserRepositoryMock();
     userRepository.exists.mockResolvedValue(true);
     const passwordService = createPasswordServiceMock();
@@ -23,12 +24,14 @@ describe('RegisterUserUseCase', () => {
       defaultWorkspaceService as never,
     );
 
+    // Act + Assert
     await expect(useCase.execute({ username: 'alice', email: 'alice@example.com', password: 'pw' })).rejects.toThrow(
       IdentityErrorCode.USER_ALREADY_EXISTS,
     );
   });
 
   it('throws PASSWORD_TOO_SHORT when password is invalid', async () => {
+    // Arrange
     const userRepository = createUserRepositoryMock();
     userRepository.exists.mockResolvedValue(false);
     const passwordService = createPasswordServiceMock();
@@ -43,12 +46,14 @@ describe('RegisterUserUseCase', () => {
       defaultWorkspaceService as never,
     );
 
+    // Act + Assert
     await expect(useCase.execute({ username: 'alice', email: 'alice@example.com', password: 'pw' })).rejects.toThrow(
       IdentityErrorCode.PASSWORD_TOO_SHORT,
     );
   });
 
   it('creates user with hashed password and generated avatar uri', async () => {
+    // Arrange
     const created = createUserFixture({
       username: 'alice',
       email: 'alice@example.com',
@@ -73,12 +78,14 @@ describe('RegisterUserUseCase', () => {
       defaultWorkspaceService as never,
     );
 
+    // Act
     await useCase.execute({
       username: 'alice',
       email: 'alice@example.com',
       password: 'strong-password',
     });
 
+    // Assert
     expect(passwordService.hash).toHaveBeenCalledWith('strong-password');
     expect(userAvatarService.generateAvatar).toHaveBeenCalledWith();
     expect(userRepository.create).toHaveBeenCalledWith('alice', 'alice@example.com', 'hashed', avatar);

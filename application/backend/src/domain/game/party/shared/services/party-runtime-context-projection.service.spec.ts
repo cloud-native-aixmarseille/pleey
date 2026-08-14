@@ -8,8 +8,10 @@ describe('PartyRuntimeContextProjectionService', () => {
   const stageId = backendTestIdentifiers.partyStage(202);
 
   it('projects stage details and acknowledgement counts for the active stage', () => {
+    // Arrange
     const service = new PartyRuntimeContextProjectionService();
 
+    // Act
     const result = service.project({
       baseContext: {
         lifecycle: {
@@ -60,6 +62,7 @@ describe('PartyRuntimeContextProjectionService', () => {
       totalEligiblePlayerCount: 3,
     });
 
+    // Assert
     expect(result).toEqual({
       lifecycle: {
         phase: PartyRuntimePhase.STAGE,
@@ -91,8 +94,10 @@ describe('PartyRuntimeContextProjectionService', () => {
   });
 
   it('projects result details and current-player outcome for the revealed stage', () => {
+    // Arrange
     const service = new PartyRuntimeContextProjectionService();
 
+    // Act
     const result = service.project({
       baseContext: {
         lifecycle: {
@@ -150,6 +155,7 @@ describe('PartyRuntimeContextProjectionService', () => {
       totalEligiblePlayerCount: 3,
     });
 
+    // Assert
     expect(result).toEqual({
       lifecycle: {
         phase: PartyRuntimePhase.RESULT,

@@ -97,6 +97,7 @@ describe('ErrorTranslationService', () => {
   });
 
   it('translates known error codes and falls back to common unknown error key', async () => {
+    // Arrange + Act + Assert
     await expect(service.translateErrorCode(IdentityErrorCode.INVALID_CREDENTIALS)).resolves.toBe(
       'auth.errors.invalidCredentials',
     );
@@ -133,6 +134,7 @@ describe('ErrorTranslationService', () => {
   });
 
   it('translates unknown error using default key', async () => {
+    // Arrange + Act + Assert
     await expect(service.translateUnknownError()).resolves.toBe('common.errors.unknownError');
 
     expect(translateMock).toHaveBeenCalledWith('common.errors.unknownError', {
@@ -141,6 +143,7 @@ describe('ErrorTranslationService', () => {
   });
 
   it('translates every declared error code without falling back to unknown', async () => {
+    // Arrange + Act + Assert
     for (const errorCode of KNOWN_ERROR_CODES) {
       await expect(service.translateErrorCode(errorCode)).resolves.not.toBe('common.errors.unknownError');
     }

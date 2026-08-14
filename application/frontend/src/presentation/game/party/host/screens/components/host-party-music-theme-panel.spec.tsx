@@ -32,11 +32,14 @@ describe('HostPartyMusicThemePanel', () => {
   };
 
   it('plays selected theme in host browser and updates playing state', async () => {
+    // Arrange
     const playSpy = vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockResolvedValue(undefined);
 
     renderWithUiProvider(<HostPartyMusicThemePanel />);
 
+    // Act
     const themeSelect = screen.getByTestId('host-party-music-theme-select');
+    // Assert
     expect(
       within(themeSelect).getByRole('option', {
         name: 'game.party.host.route.musicThemes.none.name',
@@ -79,6 +82,7 @@ describe('HostPartyMusicThemePanel', () => {
   });
 
   it('stops playback when host selects no music', async () => {
+    // Arrange
     vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockResolvedValue(undefined);
     const pauseSpy = vi.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => undefined);
 
@@ -89,22 +93,27 @@ describe('HostPartyMusicThemePanel', () => {
 
     const audioElement = screen.getByTestId('host-party-music-audio') as HTMLAudioElement;
     audioElement.currentTime = 14;
+    // Act
     fireEvent.change(themeSelect, { target: { value: 'none' } });
 
+    // Assert
     expect(pauseSpy).toHaveBeenCalled();
     expect(audioElement.currentTime).toBe(0);
     expect(themeSelect).toHaveValue('none');
   });
 
   it('resets the selection when browser rejects audio playback', async () => {
+    // Arrange
     vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockRejectedValue(new Error('blocked'));
     const pauseSpy = vi.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => undefined);
 
     renderWithUiProvider(<HostPartyMusicThemePanel />);
 
     const themeSelect = screen.getByTestId('host-party-music-theme-select');
+    // Act
     fireEvent.change(themeSelect, { target: { value: 'suspense' } });
 
+    // Assert
     await waitFor(() => {
       expect(pauseSpy).toHaveBeenCalled();
       expect(themeSelect).toHaveValue('none');
@@ -112,6 +121,7 @@ describe('HostPartyMusicThemePanel', () => {
   });
 
   it('keeps latest selected theme when previous playback settles later', async () => {
+    // Arrange
     const firstPlayback = createDeferred();
     const secondPlayback = createDeferred();
     vi.spyOn(window.HTMLMediaElement.prototype, 'play')
@@ -125,8 +135,10 @@ describe('HostPartyMusicThemePanel', () => {
     fireEvent.change(themeSelect, { target: { value: 'party' } });
 
     secondPlayback.resolve();
+    // Act
     firstPlayback.reject(new Error('stale failure'));
 
+    // Assert
     await waitFor(() => {
       expect(themeSelect).toHaveValue('party');
     });

@@ -28,13 +28,16 @@ vi.mock('../i18n/use-presentation-translation', async (importOriginal) => {
 
 describe('AppShellHeader', () => {
   it('renders authenticated navigation and delegates the burger toggle', async () => {
+    // Arrange
     const user = userEvent.setup();
     const navHandlers = { toggle: vi.fn(), close: vi.fn() };
 
+    // Act
     renderWithProviders(
       <AppShellHeader appVersion="1.2.3" isAuthenticated navHandlers={navHandlers} navOpened={false} />,
     );
 
+    // Assert
     expect(screen.getByText('shared.shell.kicker')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /shared.nav.dashboard/i })).toHaveAttribute('href', '/workspace/dashboard');
     expect(screen.getByText('account-menu:1.2.3')).toBeInTheDocument();
@@ -47,6 +50,7 @@ describe('AppShellHeader', () => {
   });
 
   it('hides the dashboard link for guests', () => {
+    // Arrange + Act
     renderWithProviders(
       <AppShellHeader
         appVersion="1.2.3"
@@ -56,6 +60,7 @@ describe('AppShellHeader', () => {
       />,
     );
 
+    // Assert
     expect(screen.queryByRole('link', { name: /shared.nav.dashboard/i })).not.toBeInTheDocument();
     expect(screen.getByText('guest-preferences-menu:1.2.3')).toBeInTheDocument();
   });

@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { resetGameTypeSequence } from '../../../../test-utils/fixtures/game-type-descriptor-fixture-factory';
 import { DashboardHomeActionsFacadeMockFactory } from '../../../../test-utils/mocks/dashboard-home-actions-facade-mock-factory';
 import { DashboardWorkspaceGatewayMockFactory } from '../../../../test-utils/mocks/dashboard-workspace-gateway-mock-factory';
@@ -15,16 +15,25 @@ describe('DashboardRoutesFactory', () => {
   const dashboardWorkspaceGatewayMockFactory = new DashboardWorkspaceGatewayMockFactory();
   const gameTypeCatalogGatewayMockFactory = new GameTypeCatalogGatewayMockFactory();
 
-  beforeEach(() => {
+  function arrangeFactory() {
     resetGameTypeSequence();
-  });
+
+    const gateway = gameTypeCatalogGatewayMockFactory.create();
+    const dashboardHomeActions = dashboardHomeActionsFacadeMockFactory.create();
+    const dashboardWorkspace = dashboardWorkspaceGatewayMockFactory.create();
+
+    return {
+      gateway,
+      dashboardHomeActions,
+      dashboardWorkspace,
+    };
+  }
 
   describe('create()', () => {
     it('includes the dashboard index route', () => {
       // Arrange
+      const { dashboardHomeActions, dashboardWorkspace } = arrangeFactory();
       const gateway = gameTypeCatalogGatewayMockFactory.create({ descriptors: [] });
-      const dashboardHomeActions = dashboardHomeActionsFacadeMockFactory.create();
-      const dashboardWorkspace = dashboardWorkspaceGatewayMockFactory.create();
 
       // Act
       const routes = new DashboardRoutesFactory(
@@ -40,9 +49,7 @@ describe('DashboardRoutesFactory', () => {
 
     it('returns only the dashboard route regardless of game types', () => {
       // Arrange
-      const gateway = gameTypeCatalogGatewayMockFactory.create();
-      const dashboardHomeActions = dashboardHomeActionsFacadeMockFactory.create();
-      const dashboardWorkspace = dashboardWorkspaceGatewayMockFactory.create();
+      const { gateway, dashboardHomeActions, dashboardWorkspace } = arrangeFactory();
 
       // Act
       const routes = new DashboardRoutesFactory(

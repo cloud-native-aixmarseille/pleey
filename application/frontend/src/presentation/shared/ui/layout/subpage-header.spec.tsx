@@ -6,14 +6,17 @@ import { SubpageHeader } from './subpage-header';
 describe('SubpageHeader', () => {
   describe('render()', () => {
     it('renders kicker, title, and subtitle', () => {
+      // Arrange + Act
       renderWithUiProvider(<SubpageHeader kicker="Section" subtitle="Helpful context" title="Page Title" />);
 
+      // Assert
       expect(screen.getByText('Section')).toBeInTheDocument();
       expect(screen.getByRole('heading', { level: 2, name: 'Page Title' })).toBeInTheDocument();
       expect(screen.getByText('Helpful context')).toBeInTheDocument();
     });
 
     it('renders the actions slot when provided', () => {
+      // Arrange + Act
       renderWithUiProvider(
         <SubpageHeader
           actions={<button type="button">Back</button>}
@@ -23,14 +26,17 @@ describe('SubpageHeader', () => {
         />,
       );
 
+      // Assert
       expect(screen.getByRole('button', { name: 'Back' })).toBeInTheDocument();
     });
 
     it('renders without actions when none provided', () => {
+      // Arrange + Act
       const { container } = renderWithUiProvider(
         <SubpageHeader kicker="Section" subtitle="Helpful context" title="Page Title" />,
       );
 
+      // Assert
       expect(container.querySelector('header')).toBeInTheDocument();
       expect(screen.queryByRole('button')).not.toBeInTheDocument();
     });

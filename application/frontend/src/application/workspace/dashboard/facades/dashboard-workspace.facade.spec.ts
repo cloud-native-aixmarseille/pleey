@@ -30,6 +30,7 @@ describe('DashboardWorkspaceFacade', () => {
   const workspaceSelectionPortMockFactory = new WorkspaceSelectionPortMockFactory();
 
   it('delegates project game loading to the use case', async () => {
+    // Arrange
     const listProjectGamesUseCase = {
       execute: vi.fn().mockResolvedValue(dashboardHomeScreenFixtureFactory.createDashboardGamesPage()),
     };
@@ -43,6 +44,7 @@ describe('DashboardWorkspaceFacade', () => {
       workspaceSelectionPortMockFactory.create(),
     );
 
+    // Act
     await facade.loadProjectGameCatalog({
       projectId: projectIdentifier.parse(8),
       search: '',
@@ -53,6 +55,7 @@ describe('DashboardWorkspaceFacade', () => {
       pageSize: 9,
     });
 
+    // Assert
     expect(listProjectGamesUseCase.execute).toHaveBeenCalledWith({
       projectId: projectIdentifier.parse(8),
       search: '',
@@ -65,6 +68,7 @@ describe('DashboardWorkspaceFacade', () => {
   });
 
   it('delegates user party loading to the use case', async () => {
+    // Arrange
     const listPartiesUseCase = {
       execute: vi.fn().mockResolvedValue([]),
     };
@@ -78,12 +82,15 @@ describe('DashboardWorkspaceFacade', () => {
       workspaceSelectionPortMockFactory.create(),
     );
 
+    // Act
     await facade.loadUserParties();
 
+    // Assert
     expect(listPartiesUseCase.execute).toHaveBeenCalledWith();
   });
 
   it('delegates party creation to the use case', async () => {
+    // Arrange
     const createPartyUseCase = {
       execute: vi.fn().mockResolvedValue({
         partyId: partyIdentifier.parse(44),
@@ -104,14 +111,17 @@ describe('DashboardWorkspaceFacade', () => {
       workspaceSelectionPortMockFactory.create(),
     );
 
+    // Act
     await facade.createParty(gameIdentifier.parse(18));
 
+    // Assert
     expect(createPartyUseCase.execute).toHaveBeenCalledWith({
       gameId: gameIdentifier.parse(18),
     });
   });
 
   it('restores the persisted organization when it is still available', async () => {
+    // Arrange
     const organization = dashboardHomeScreenFixtureFactory.createOrganization({
       id: organizationIdentifier.parse(7),
     });
@@ -132,6 +142,7 @@ describe('DashboardWorkspaceFacade', () => {
       workspaceSelection,
     );
 
+    // Act + Assert
     await expect(facade.restoreOrganizationSelection()).resolves.toEqual({
       organizationsPage: createPaginatedResult([organization]),
       organizationId: organizationIdentifier.parse(7),
@@ -140,6 +151,7 @@ describe('DashboardWorkspaceFacade', () => {
   });
 
   it('falls back to the first organization when the persisted one is missing', async () => {
+    // Arrange
     const firstOrganization = dashboardHomeScreenFixtureFactory.createOrganization({
       id: organizationIdentifier.parse(3),
     });
@@ -163,6 +175,7 @@ describe('DashboardWorkspaceFacade', () => {
       workspaceSelection,
     );
 
+    // Act + Assert
     await expect(facade.restoreOrganizationSelection()).resolves.toEqual({
       organizationsPage: createPaginatedResult([firstOrganization, secondOrganization]),
       organizationId: organizationIdentifier.parse(3),
@@ -171,6 +184,7 @@ describe('DashboardWorkspaceFacade', () => {
   });
 
   it('restores the persisted project for the selected organization', async () => {
+    // Arrange
     const organizationDashboard = dashboardHomeScreenFixtureFactory.createOrganizationDashboard();
     const firstProject = dashboardHomeScreenFixtureFactory.createProject({
       id: projectIdentifier.parse(8),
@@ -198,6 +212,7 @@ describe('DashboardWorkspaceFacade', () => {
       workspaceSelection,
     );
 
+    // Act + Assert
     await expect(
       facade.loadOrganizationWorkspaceState({ organizationId: organizationIdentifier.parse(2) }),
     ).resolves.toEqual({
@@ -209,6 +224,7 @@ describe('DashboardWorkspaceFacade', () => {
   });
 
   it('clears the project selection when no organization is selected', async () => {
+    // Arrange
     const workspaceSelection = workspaceSelectionPortMockFactory.create();
     const facade = new DashboardWorkspaceFacade(
       { execute: vi.fn() } as never,
@@ -220,6 +236,7 @@ describe('DashboardWorkspaceFacade', () => {
       workspaceSelection,
     );
 
+    // Act + Assert
     await expect(facade.loadOrganizationWorkspaceState({ organizationId: null })).resolves.toEqual({
       organizationDashboard: null,
       projectsPage: {

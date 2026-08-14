@@ -10,6 +10,7 @@ const guestIdentifier = new GuestIdentifier();
 
 describe('GetGuestAvatarUseCase', () => {
   it('throws AVATAR_NOT_FOUND when guest id is invalid', async () => {
+    // Arrange
     const guestRepository = {
       findById: vi.fn(),
     };
@@ -17,10 +18,12 @@ describe('GetGuestAvatarUseCase', () => {
 
     const useCase = new GetGuestAvatarUseCase(guestRepository as never, userAvatarService as never, guestIdentifier);
 
+    // Act + Assert
     await expect(useCase.execute('%')).rejects.toThrow(IdentityErrorCode.AVATAR_NOT_FOUND);
   });
 
   it('throws AVATAR_NOT_FOUND when guest does not exist', async () => {
+    // Arrange
     const guestId = backendTestIdentifiers.guest('guest-1');
     const guestRepository = {
       findById: vi.fn().mockResolvedValue(null),
@@ -29,11 +32,13 @@ describe('GetGuestAvatarUseCase', () => {
 
     const useCase = new GetGuestAvatarUseCase(guestRepository as never, userAvatarService as never, guestIdentifier);
 
+    // Act + Assert
     await expect(useCase.execute(guestId)).rejects.toThrow(IdentityErrorCode.AVATAR_NOT_FOUND);
     expect(guestRepository.findById).toHaveBeenCalledWith(guestId);
   });
 
   it('returns raw svg buffer for the guest avatar seed resolved from guest id', async () => {
+    // Arrange
     const guestId = backendTestIdentifiers.guest('guest-1');
     const svgBuffer = Buffer.from('<svg />', 'utf8');
     const avatar = new Media(null, 'image/svg+xml', svgBuffer);
@@ -44,8 +49,10 @@ describe('GetGuestAvatarUseCase', () => {
     userAvatarService.generateAvatar.mockReturnValue(avatar);
 
     const useCase = new GetGuestAvatarUseCase(guestRepository as never, userAvatarService as never, guestIdentifier);
+    // Act
     const result = await useCase.execute(encodeURIComponent(guestId));
 
+    // Assert
     expect(guestRepository.findById).toHaveBeenCalledWith(guestId);
     expect(userAvatarService.generateAvatar).toHaveBeenCalledWith('guest-seed-1');
     expect(result).toBe(avatar);

@@ -6,6 +6,7 @@ import { Tooltip } from './tooltip';
 
 describe('Tooltip', () => {
   it('shows the tooltip label on hover when enabled', async () => {
+    // Arrange
     const user = userEvent.setup();
 
     renderWithUiProvider(
@@ -14,12 +15,15 @@ describe('Tooltip', () => {
       </Tooltip>,
     );
 
+    // Act
     await user.hover(screen.getByRole('button', { name: 'Hover me' }));
 
+    // Assert
     expect(await screen.findByText('Helpful hint')).toBeInTheDocument();
   });
 
   it('does not show the tooltip label when disabled', async () => {
+    // Arrange
     const user = userEvent.setup();
 
     renderWithUiProvider(
@@ -28,8 +32,10 @@ describe('Tooltip', () => {
       </Tooltip>,
     );
 
+    // Act
     await user.hover(screen.getByRole('button', { name: 'Hover me' }));
 
+    // Assert
     expect(screen.queryByText('Hidden hint')).not.toBeInTheDocument();
   });
 });

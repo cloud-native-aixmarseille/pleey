@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { renderWithUiProvider } from '../../../../test-utils/render-with-ui-provider';
 import { usePresentationFeedbackChannel } from './use-presentation-feedback-channel';
 
@@ -35,42 +35,56 @@ function ToastHarness() {
 }
 
 describe('PresentationToastViewport', () => {
-  afterEach(() => {
+  function resetGlobals() {
     vi.unstubAllGlobals();
-  });
+  }
 
   it('renders toast items on an opaque shell', async () => {
+    // Arrange
     const user = userEvent.setup();
+    // Act
     stubMatchMedia(false);
 
-    renderWithUiProvider(<ToastHarness />);
+    // Assert
+    try {
+      renderWithUiProvider(<ToastHarness />);
 
-    await user.click(screen.getByRole('button', { name: 'Trigger toast' }));
+      await user.click(screen.getByRole('button', { name: 'Trigger toast' }));
 
-    expect(await screen.findByTestId('toast-shell')).toHaveStyle({
-      background: 'var(--ui-color-surface-canvas)',
-    });
-    expect(screen.getByTestId('presentation-toast-viewport')).toHaveStyle({
-      right: 'var(--mantine-spacing-lg)',
-      top: 'var(--mantine-spacing-lg)',
-    });
-    expect(screen.getByRole('status')).toHaveTextContent('Project created successfully.');
+      expect(await screen.findByTestId('toast-shell')).toHaveStyle({
+        background: 'var(--ui-color-surface-canvas)',
+      });
+      expect(screen.getByTestId('presentation-toast-viewport')).toHaveStyle({
+        right: 'var(--mantine-spacing-lg)',
+        top: 'var(--mantine-spacing-lg)',
+      });
+      expect(screen.getByRole('status')).toHaveTextContent('Project created successfully.');
+    } finally {
+      resetGlobals();
+    }
   });
 
   it('anchors the toast viewport to the bottom of the screen on mobile', async () => {
+    // Arrange
     const user = userEvent.setup();
+    // Act
     stubMatchMedia(true);
 
-    renderWithUiProvider(<ToastHarness />);
+    // Assert
+    try {
+      renderWithUiProvider(<ToastHarness />);
 
-    await user.click(screen.getByRole('button', { name: 'Trigger toast' }));
+      await user.click(screen.getByRole('button', { name: 'Trigger toast' }));
 
-    expect(await screen.findByTestId('presentation-toast-viewport')).toHaveStyle({
-      bottom: 'max(var(--mantine-spacing-lg), env(safe-area-inset-bottom))',
-      left: '50%',
-      right: 'auto',
-      top: 'auto',
-      transform: 'translateX(-50%)',
-    });
+      expect(await screen.findByTestId('presentation-toast-viewport')).toHaveStyle({
+        bottom: 'max(var(--mantine-spacing-lg), env(safe-area-inset-bottom))',
+        left: '50%',
+        right: 'auto',
+        top: 'auto',
+        transform: 'translateX(-50%)',
+      });
+    } finally {
+      resetGlobals();
+    }
   });
 });

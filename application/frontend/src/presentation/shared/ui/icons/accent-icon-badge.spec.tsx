@@ -5,12 +5,14 @@ import { AccentIconBadge } from './accent-icon-badge';
 
 describe('AccentIconBadge', () => {
   it('renders its icon content', () => {
+    // Arrange + Act
     renderWithUiProvider(
       <AccentIconBadge>
         <span>Icon</span>
       </AccentIconBadge>,
     );
 
+    // Assert
     expect(screen.getByText('Icon')).toBeInTheDocument();
   });
 });

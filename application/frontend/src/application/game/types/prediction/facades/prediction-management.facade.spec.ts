@@ -16,6 +16,7 @@ const parsePromptId = (value: number) => predictionPromptIdentifier.parse(coerce
 
 describe('PredictionManagementFacade', () => {
   it('adapts shared management gateway calls to prediction repository methods', async () => {
+    // Arrange
     const itemInput = playableManagementFixtureFactory.createItemInput({
       options: [playableManagementFixtureFactory.createOption({ text: 'Home' })],
       points: 250,
@@ -65,8 +66,10 @@ describe('PredictionManagementFacade', () => {
     await facade.deleteGame(gameTypeId);
     const createdItem = await facade.createItem(gameTypeId, itemInput);
     const updatedItem = await facade.updateItem(promptId, itemInput);
+    // Act
     await facade.deleteItem(promptId);
 
+    // Assert
     expect(repository.createPrediction).toHaveBeenCalledWith(projectId, {
       title: 'Prediction',
       description: null,

@@ -21,6 +21,7 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
   const STAGE_303 = backendTestIdentifiers.partyStage(303);
 
   it('trims player progress from the requested stage and recalculates totals', async () => {
+    // Arrange
     const transaction = {
       party: {
         update: vi.fn().mockResolvedValue(undefined),
@@ -116,6 +117,7 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
       {} as never,
     );
 
+    // Act
     await adapter.savePartyRuntime({
       context: {
         lifecycle: {
@@ -142,6 +144,7 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
       status: PartyStatus.ACTIVE,
     });
 
+    // Assert
     expect(transaction.score.update).toHaveBeenCalledWith({
       where: {
         id: 42,
@@ -169,6 +172,7 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
   });
 
   it('clears all player progress when rewinding back to the lobby', async () => {
+    // Arrange
     const transaction = {
       party: {
         update: vi.fn().mockResolvedValue(undefined),
@@ -220,6 +224,7 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
       {} as never,
     );
 
+    // Act
     await adapter.savePartyRuntime({
       context: {
         lifecycle: {
@@ -246,6 +251,7 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
       status: PartyStatus.WAITING,
     });
 
+    // Assert
     expect(transaction.score.update).toHaveBeenCalledWith({
       where: {
         id: 42,

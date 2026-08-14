@@ -1,7 +1,7 @@
 import * as path from 'node:path';
 import { Test } from '@nestjs/testing';
 import { I18nJsonLoader, I18nModule } from 'nestjs-i18n';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 function ensureModuleTestEnvironment() {
   process.env.JWT_SECRET = process.env.JWT_SECRET ?? 'test_jwt_secret_only_for_tests';
@@ -76,21 +76,19 @@ function createRootI18nTestModule() {
 }
 
 describe('Nest module integration smoke tests', () => {
-  afterEach(() => {
-    // Reset any module-level overrides that future tests may rely on.
-    vi.restoreAllMocks();
-  });
-
   it(
     `compiles '${appModuleCase.moduleName}' without unresolved providers`,
     async () => {
+      // Arrange
       ensureModuleTestEnvironment();
       const moduleType = await appModuleCase.loadModule();
 
+      // Act
       const testingModule = await Test.createTestingModule({
         imports: [moduleType as never],
       }).compile();
 
+      // Assert
       try {
         expect(testingModule).toBeDefined();
         expect(testingModule.select(moduleType as never)).toBeDefined();

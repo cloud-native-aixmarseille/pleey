@@ -17,22 +17,27 @@ const parser = new TestUuidV7IdentifierParser();
 
 describe('UuidV7IdentifierParser', () => {
   it('builds a branded id from a UUIDv7 string', () => {
+    // Arrange + Act
     const identifier = uuidv7();
 
+    // Assert
     expect(parser.parse(identifier)).toBe(identifier);
   });
 
   it('returns null when the input is absent', () => {
+    // Arrange + Act + Assert
     expect(parser.parse(undefined)).toBeNull();
   });
 
   it('returns null for invalid or non-v7 values via parseOrNull', () => {
+    // Arrange + Act + Assert
     expect(parser.parseOrNull('not-a-uuid')).toBeNull();
     expect(parser.parseOrNull(uuidv4())).toBeNull();
     expect(parser.parseOrNull('')).toBeNull();
   });
 
   it('throws for invalid raw input via parse', () => {
+    // Arrange + Act + Assert
     expect(() => parser.parse(uuidv4())).toThrow(IdentifierParserErrorCode.INVALID_VALUE);
   });
 });

@@ -6,6 +6,7 @@ import { Textarea } from './textarea';
 describe('Textarea', () => {
   describe('render()', () => {
     it('renders the provided value', () => {
+      // Arrange + Act
       renderWithUiProvider(
         <label htmlFor="bio">
           Bio
@@ -13,10 +14,12 @@ describe('Textarea', () => {
         </label>,
       );
 
+      // Assert
       expect(screen.getByLabelText('Bio')).toHaveValue('Arcade host');
     });
 
     it('exposes aria-invalid when invalid', () => {
+      // Arrange + Act
       renderWithUiProvider(
         <label htmlFor="notes">
           Notes
@@ -24,6 +27,7 @@ describe('Textarea', () => {
         </label>,
       );
 
+      // Assert
       expect(screen.getByLabelText('Notes')).toHaveAttribute('aria-invalid', 'true');
     });
   });

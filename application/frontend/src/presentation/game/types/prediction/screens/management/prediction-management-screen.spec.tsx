@@ -35,20 +35,26 @@ vi.mock('../../../shared/management/playable-content-management-screen', () => (
 
 describe('PredictionManagementScreen', () => {
   it('renders the shared editor for a valid prediction id', () => {
+    // Arrange
     routeParams.current = { predictionId: '12' };
 
+    // Act
     render(<PredictionManagementScreen gameTypeIdentifier={gameTypeIdentifier} gateway={{} as never} />);
 
+    // Assert
     expect(screen.getByTestId('editor')).toHaveAttribute('data-game-type-id', predictionId);
     expect(screen.getByTestId('editor')).toHaveAttribute('data-has-kind-config', 'false');
     expect(screen.getByText('game.types.prediction.management')).toBeInTheDocument();
   });
 
   it('redirects when the prediction id is invalid', () => {
+    // Arrange
     routeParams.current = { predictionId: 'invalid' };
 
+    // Act
     render(<PredictionManagementScreen gameTypeIdentifier={gameTypeIdentifier} gateway={{} as never} />);
 
+    // Assert
     expect(screen.getByTestId('redirect')).toHaveTextContent('/workspace/dashboard');
   });
 });

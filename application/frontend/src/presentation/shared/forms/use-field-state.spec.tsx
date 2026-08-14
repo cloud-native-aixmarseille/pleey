@@ -53,22 +53,29 @@ function UseFieldStateHarness() {
 describe('useFieldState', () => {
   describe('useFieldState()', () => {
     it('derives the field id from the field name', () => {
+      // Arrange + Act
       renderWithFormProvider(<UseFieldStateHarness />);
 
+      // Assert
       expect(screen.getByLabelText('Email')).toHaveAttribute('id', 'email');
     });
 
     it('exposes no error before the field is touched', () => {
+      // Arrange + Act
       renderWithFormProvider(<UseFieldStateHarness />);
 
+      // Assert
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     });
 
     it('exposes the validation error after blur', () => {
+      // Arrange
       renderWithFormProvider(<UseFieldStateHarness />);
 
+      // Act
       fireEvent.blur(screen.getByLabelText('Email'));
 
+      // Assert
       expect(screen.getByRole('alert')).toHaveTextContent('Email is required.');
     });
   });

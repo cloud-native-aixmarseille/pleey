@@ -21,11 +21,13 @@ const gameTypeCatalogFactory = new StaticGameTypeCatalogFactory();
 
 describe('GameTypeRegistry', () => {
   it('lists contributed descriptors in registration order', () => {
+    // Arrange + Act
     const registry = new GameTypeRegistry(gameTypeCatalogFactory, [
       createContributor({ key: 'quiz', managementRoutePath: '/quizzes' }),
       createContributor({ key: 'prediction', managementRoutePath: '/predictions' }),
     ]);
 
+    // Assert
     expect(registry.listCatalog().list()).toEqual([
       {
         key: 'quiz',
@@ -47,6 +49,7 @@ describe('GameTypeRegistry', () => {
   });
 
   it('enriches games with the contributed summary', () => {
+    // Arrange
     const registry = new GameTypeRegistry(gameTypeCatalogFactory, [
       createContributor({ key: 'quiz', summaryKey: 'game.types.quiz.management.questionSummary' }),
       createContributor({
@@ -54,11 +57,13 @@ describe('GameTypeRegistry', () => {
         summaryKey: 'game.types.prediction.management.promptSummary',
       }),
     ]);
+    // Act
     const games = [
       createGame({ gameId: gameIdentifier.parse(1), type: 'quiz', stageCount: 12 }),
       createGame({ gameId: gameIdentifier.parse(2), type: 'prediction', stageCount: 4 }),
     ];
 
+    // Assert
     expect(registry.enrichGames(games)).toEqual([
       {
         ...games[0],
@@ -78,11 +83,13 @@ describe('GameTypeRegistry', () => {
   });
 
   it('resolves the management route from the contributed descriptor', () => {
+    // Arrange + Act
     const registry = new GameTypeRegistry(gameTypeCatalogFactory, [
       createContributor({ key: 'quiz', managementRoutePath: '/quizzes' }),
       createContributor({ key: 'prediction' }),
     ]);
 
+    // Assert
     expect(
       registry.resolveManagementRoute({
         type: 'quiz',
@@ -103,6 +110,7 @@ describe('GameTypeRegistry', () => {
   });
 
   it('delegates game creation to the contributor for the requested type', async () => {
+    // Arrange
     const createQuiz = vi.fn().mockResolvedValue(gameTypeIdentifier.parse(41));
     const registry = new GameTypeRegistry(gameTypeCatalogFactory, [
       createContributor({ key: 'quiz', createGame: createQuiz }),
@@ -110,6 +118,7 @@ describe('GameTypeRegistry', () => {
     ]);
     const projectId = projectIdentifier.parse(8);
 
+    // Act + Assert
     await expect(registry.createGame('quiz', projectId, { title: 'Sprint quiz', description: null })).resolves.toBe(
       gameTypeIdentifier.parse(41),
     );
@@ -120,7 +129,9 @@ describe('GameTypeRegistry', () => {
   });
 
   it('delegates example provider lookup to the contributor', () => {
+    // Arrange
     const importExampleProvider = createImportExampleProvider();
+    // Act
     const registry = new GameTypeRegistry(gameTypeCatalogFactory, [
       createContributor({ key: 'quiz' }),
       createContributor({
@@ -129,10 +140,12 @@ describe('GameTypeRegistry', () => {
       }),
     ]);
 
+    // Assert
     expect(registry.getImportExampleProvider('prediction')).toBe(importExampleProvider);
   });
 
   it('delegates atomic game creation from import to the contributor for the requested type', async () => {
+    // Arrange
     const createGameFromImport = vi.fn().mockResolvedValue({
       gameTypeId: gameTypeIdentifier.parse(17),
       importedCount: 3,
@@ -143,6 +156,7 @@ describe('GameTypeRegistry', () => {
     ]);
     const importFile = new File(['[]'], 'prompts.json', { type: 'application/json' });
 
+    // Act + Assert
     await expect(
       registry.createGameFromImport('prediction', projectIdentifier.parse(8), {
         title: 'Sprint prediction',

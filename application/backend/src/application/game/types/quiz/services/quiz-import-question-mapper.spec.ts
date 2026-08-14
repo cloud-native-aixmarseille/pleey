@@ -25,6 +25,7 @@ class TestPlayableContentImportSource extends PlayableContentImportSource {
 
 describe('QuizImportQuestionMapper', () => {
   it('maps parsed quiz import items to question mutation data', async () => {
+    // Arrange
     const parser = {
       parse: vi.fn().mockResolvedValue([
         {
@@ -41,8 +42,10 @@ describe('QuizImportQuestionMapper', () => {
     } as unknown as PlayableContentImportParser;
     const mapper = new QuizImportQuestionMapper(parser, new SelectableOptionPolicy());
 
+    // Act
     const questions = await mapper.map(new TestPlayableContentImportSource('quiz-import.json'));
 
+    // Assert
     expect(questions).toEqual([
       {
         answers: [
@@ -58,6 +61,7 @@ describe('QuizImportQuestionMapper', () => {
   });
 
   it('maps parser failures to quiz import error codes', async () => {
+    // Arrange
     const parser = {
       parse: vi.fn().mockImplementation(async () => {
         throw new Error(PlayableContentImportParserErrorCode.INVALID_FILE);
@@ -65,6 +69,7 @@ describe('QuizImportQuestionMapper', () => {
     } as unknown as PlayableContentImportParser;
     const mapper = new QuizImportQuestionMapper(parser, new SelectableOptionPolicy());
 
+    // Act + Assert
     await expect(mapper.map(new TestPlayableContentImportSource('quiz-import.json'))).rejects.toMatchObject({
       code: QuizErrorCode.QUIZ_IMPORT_INVALID_FILE,
       context: {

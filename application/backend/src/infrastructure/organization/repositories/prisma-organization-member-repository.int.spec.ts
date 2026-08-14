@@ -33,6 +33,7 @@ describeIfDatabase('PrismaOrganizationMemberRepository', () => {
   });
 
   it('creates and queries members, and updates role', async () => {
+    // Arrange
     const unique = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
     const user = await createPersistedUserFixture(harness.prisma, {
@@ -60,10 +61,12 @@ describeIfDatabase('PrismaOrganizationMemberRepository', () => {
     );
     createdMemberIds.push(member.id);
 
+    // Act
     const found = await harness.repository.findByOrganizationAndUser(
       backendTestIdentifiers.organization(organization.id),
       backendTestIdentifiers.user(user.id),
     );
+    // Assert
     expect(found?.id).toBe(member.id);
     expect(found?.role).toBe(OrganizationRole.MEMBER);
 
@@ -72,6 +75,7 @@ describeIfDatabase('PrismaOrganizationMemberRepository', () => {
   });
 
   it('restores a soft-deleted member when the same user is added again', async () => {
+    // Arrange
     const unique = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
     const user = await createPersistedUserFixture(harness.prisma, {
@@ -94,7 +98,9 @@ describeIfDatabase('PrismaOrganizationMemberRepository', () => {
     );
     createdMemberIds.push(createdMember.id);
 
+    // Act
     await harness.repository.delete(createdMember.id);
+    // Assert
     expect(
       await harness.repository.findByOrganizationAndUser(
         backendTestIdentifiers.organization(organization.id),
@@ -120,6 +126,7 @@ describeIfDatabase('PrismaOrganizationMemberRepository', () => {
   });
 
   it('returns the latest membership for a user and counts active owners', async () => {
+    // Arrange
     const unique = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
     const user = await createPersistedUserFixture(harness.prisma, {
@@ -155,7 +162,9 @@ describeIfDatabase('PrismaOrganizationMemberRepository', () => {
     );
     createdMemberIds.push(secondMembership.id);
 
+    // Act
     const latestMembership = await harness.repository.findLatestByUser(backendTestIdentifiers.user(user.id));
+    // Assert
     expect(latestMembership?.id).toBe(secondMembership.id);
 
     expect(

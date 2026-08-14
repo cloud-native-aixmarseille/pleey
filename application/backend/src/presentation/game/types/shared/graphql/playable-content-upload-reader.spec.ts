@@ -16,6 +16,7 @@ const collectLines = async (source: Awaited<ReturnType<PlayableContentUploadRead
 
 describe('PlayableContentUploadReader', () => {
   it('returns an import source that can buffer uploaded content on demand', async () => {
+    // Arrange
     const reader = new PlayableContentUploadReader();
     const source = await reader.read(
       Promise.resolve({
@@ -25,11 +26,13 @@ describe('PlayableContentUploadReader', () => {
       }),
     );
 
+    // Act + Assert
     await expect(source.readAll()).resolves.toBe('{"items":[]}');
     await expect(collectLines(source)).resolves.toEqual(['{"items":[]}']);
   });
 
   it('streams uploaded lines without buffering the entire file first', async () => {
+    // Arrange
     const reader = new PlayableContentUploadReader();
     const source = await reader.read(
       Promise.resolve({
@@ -39,6 +42,7 @@ describe('PlayableContentUploadReader', () => {
       }),
     );
 
+    // Act + Assert
     await expect(collectLines(source)).resolves.toEqual([
       'Prompt: Which team scores first?',
       '- [x] Home',
@@ -47,6 +51,7 @@ describe('PlayableContentUploadReader', () => {
   });
 
   it('rejects files that exceed the configured import size limit', async () => {
+    // Arrange
     const reader = new PlayableContentUploadReader();
     const source = await reader.read(
       Promise.resolve({
@@ -56,6 +61,7 @@ describe('PlayableContentUploadReader', () => {
       }),
     );
 
+    // Act + Assert
     await expect(source.readAll()).rejects.toThrow(PlayableContentImportParserErrorCode.INVALID_FILE);
   });
 });

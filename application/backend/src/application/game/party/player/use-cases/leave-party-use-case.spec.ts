@@ -9,6 +9,7 @@ const partyId = backendTestIdentifiers.party(12);
 
 describe('LeavePartyUseCase', () => {
   it('returns false when the party no longer exists', async () => {
+    // Arrange
     const runtime = createPlayerPartyRuntimeMock({
       findPartyByPin: null,
     });
@@ -17,6 +18,7 @@ describe('LeavePartyUseCase', () => {
     };
     const useCase = new LeavePartyUseCase(runtime as never, broadcastPartyObservationUseCase as never);
 
+    // Act + Assert
     await expect(
       useCase.execute({
         pin: backendTestIdentifiers.partyPin('123456'),
@@ -27,6 +29,7 @@ describe('LeavePartyUseCase', () => {
   });
 
   it('publishes an updated observation when an authenticated player leaves', async () => {
+    // Arrange
     const runtime = createPlayerPartyRuntimeMock({
       removePlayer: true,
     });
@@ -35,6 +38,7 @@ describe('LeavePartyUseCase', () => {
     };
     const useCase = new LeavePartyUseCase(runtime as never, broadcastPartyObservationUseCase as never);
 
+    // Act + Assert
     await expect(
       useCase.execute({
         pin: backendTestIdentifiers.partyPin('123456'),
@@ -52,6 +56,7 @@ describe('LeavePartyUseCase', () => {
   });
 
   it('publishes an updated observation when a guest leaves', async () => {
+    // Arrange
     const runtime = createPlayerPartyRuntimeMock({
       removePlayer: true,
     });
@@ -60,6 +65,7 @@ describe('LeavePartyUseCase', () => {
     };
     const useCase = new LeavePartyUseCase(runtime as never, broadcastPartyObservationUseCase as never);
 
+    // Act + Assert
     await expect(
       useCase.execute({
         pin: backendTestIdentifiers.partyPin('123456'),

@@ -4,6 +4,7 @@ import { PrismaPartyStageConfigurationAdapter } from './prisma-party-stage-confi
 
 describe('PrismaPartyStageConfigurationAdapter', () => {
   it('returns zero when the game cannot be found', async () => {
+    // Arrange
     const prisma = {
       game: {
         findFirst: vi.fn().mockResolvedValue(null),
@@ -21,12 +22,14 @@ describe('PrismaPartyStageConfigurationAdapter', () => {
       registry as never,
     );
 
+    // Act + Assert
     await expect(adapter.getStageCount(44 as never)).resolves.toBe(0);
     expect(gameTypeParser.parse).not.toHaveBeenCalled();
     expect(registry.resolveByGameType).not.toHaveBeenCalled();
   });
 
   it('resolves the provider from the game type and delegates the stage count lookup', async () => {
+    // Arrange
     const provider = {
       getStageCount: vi.fn().mockResolvedValue(7),
     };
@@ -47,6 +50,7 @@ describe('PrismaPartyStageConfigurationAdapter', () => {
       registry as never,
     );
 
+    // Act + Assert
     await expect(adapter.getStageCount(44 as never)).resolves.toBe(7);
     expect(gameTypeParser.parse).toHaveBeenCalledWith('quiz');
     expect(registry.resolveByGameType).toHaveBeenCalledWith(GameType.Quiz);

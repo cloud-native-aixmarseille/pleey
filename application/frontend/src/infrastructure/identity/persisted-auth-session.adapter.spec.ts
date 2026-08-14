@@ -1,29 +1,26 @@
-import { describe, expect, it, vi } from 'vitest';
-import type { AuthSessionTransport } from '../../application/identity/contracts/auth-runtime.port';
+import { describe, expect, it } from 'vitest';
 import { StorageKey } from '../../domains/shared/value-objects/storage-key';
 import { AuthFixtureFactory } from '../../test-utils/fixtures/auth-fixture-factory';
+import { AuthSessionTransportMockFactory } from '../../test-utils/mocks/auth-session-transport-mock-factory';
 import { StoragePortMockFactory } from '../../test-utils/mocks/storage-port-mock-factory';
 import { PersistedAuthSessionAdapter } from './persisted-auth-session.adapter';
 
 const authFixtureFactory = new AuthFixtureFactory();
+const authSessionTransportMockFactory = new AuthSessionTransportMockFactory();
 const storagePortMockFactory = new StoragePortMockFactory();
 
 describe('PersistedAuthSessionAdapter', () => {
-  function createTransportMock(): AuthSessionTransport {
-    return {
-      setAuthSessionTokens: vi.fn(),
-      registerAuthSessionHandlers: vi.fn(),
-    };
-  }
-
   describe('commit()', () => {
     it('persists the auth session and forwards tokens to the transport', () => {
+      // Arrange
       const storage = storagePortMockFactory.create();
-      const transport = createTransportMock();
+      const transport = authSessionTransportMockFactory.create();
       const service = new PersistedAuthSessionAdapter(storage, transport);
 
+      // Act
       service.commit(authFixtureFactory.createAuthSession({ user: { id: 7, avatarUri: undefined } }));
 
+      // Assert
       expect(storage.setItem).toHaveBeenCalledWith(StorageKey.AUTH_ACCESS_TOKEN, 'access-token');
       expect(storage.setItem).toHaveBeenCalledWith(StorageKey.AUTH_REFRESH_TOKEN, 'refresh-token');
       expect(storage.setItem).toHaveBeenCalledWith(
@@ -39,6 +36,7 @@ describe('PersistedAuthSessionAdapter', () => {
 
   describe('restore()', () => {
     it('returns a restored auth session and replays tokens to the transport', () => {
+      // Arrange
       const storage = storagePortMockFactory.create({
         [StorageKey.AUTH_ACCESS_TOKEN]: 'access-token',
         [StorageKey.AUTH_REFRESH_TOKEN]: 'refresh-token',
@@ -49,11 +47,13 @@ describe('PersistedAuthSessionAdapter', () => {
           avatarUri: undefined,
         }),
       });
-      const transport = createTransportMock();
+      const transport = authSessionTransportMockFactory.create();
       const service = new PersistedAuthSessionAdapter(storage, transport);
 
+      // Act
       const restored = service.restore();
 
+      // Assert
       expect(restored).toEqual(
         authFixtureFactory.createAuthSession({
           expiresIn: 0,
@@ -72,16 +72,19 @@ describe('PersistedAuthSessionAdapter', () => {
     });
 
     it('clears persisted data when the stored user payload is invalid JSON', () => {
+      // Arrange
       const storage = storagePortMockFactory.create({
         [StorageKey.AUTH_ACCESS_TOKEN]: 'access-token',
         [StorageKey.AUTH_REFRESH_TOKEN]: 'refresh-token',
         [StorageKey.AUTH_USER]: '{invalid-json',
       });
-      const transport = createTransportMock();
+      const transport = authSessionTransportMockFactory.create();
       const service = new PersistedAuthSessionAdapter(storage, transport);
 
+      // Act
       const restored = service.restore();
 
+      // Assert
       expect(restored).toBeNull();
       expect(storage.removeItem).toHaveBeenCalledWith(StorageKey.AUTH_ACCESS_TOKEN);
       expect(storage.removeItem).toHaveBeenCalledWith(StorageKey.AUTH_REFRESH_TOKEN);
@@ -93,6 +96,7 @@ describe('PersistedAuthSessionAdapter', () => {
     });
 
     it('clears persisted data when the stored user payload shape is invalid', () => {
+      // Arrange
       const storage = storagePortMockFactory.create({
         [StorageKey.AUTH_ACCESS_TOKEN]: 'access-token',
         [StorageKey.AUTH_REFRESH_TOKEN]: 'refresh-token',
@@ -102,11 +106,13 @@ describe('PersistedAuthSessionAdapter', () => {
           email: 'arcade@pleey.io',
         }),
       });
-      const transport = createTransportMock();
+      const transport = authSessionTransportMockFactory.create();
       const service = new PersistedAuthSessionAdapter(storage, transport);
 
+      // Act
       const restored = service.restore();
 
+      // Assert
       expect(restored).toBeNull();
       expect(storage.removeItem).toHaveBeenCalledWith(StorageKey.AUTH_ACCESS_TOKEN);
       expect(storage.removeItem).toHaveBeenCalledWith(StorageKey.AUTH_REFRESH_TOKEN);
@@ -120,6 +126,7 @@ describe('PersistedAuthSessionAdapter', () => {
 
   describe('updateUser()', () => {
     it('persists the updated user when an auth session exists', () => {
+      // Arrange
       const storage = storagePortMockFactory.create({
         [StorageKey.AUTH_ACCESS_TOKEN]: 'access-token',
         [StorageKey.AUTH_REFRESH_TOKEN]: 'refresh-token',
@@ -130,9 +137,10 @@ describe('PersistedAuthSessionAdapter', () => {
           avatarUri: '/api/avatars/users/4?v=old',
         }),
       });
-      const transport = createTransportMock();
+      const transport = authSessionTransportMockFactory.create();
       const service = new PersistedAuthSessionAdapter(storage, transport);
 
+      // Act
       service.updateUser(
         authFixtureFactory.createUser({
           id: 4,
@@ -142,6 +150,7 @@ describe('PersistedAuthSessionAdapter', () => {
         }),
       );
 
+      // Assert
       expect(storage.setItem).toHaveBeenCalledWith(
         StorageKey.AUTH_USER,
         authFixtureFactory.createSerializedUser({
@@ -154,10 +163,12 @@ describe('PersistedAuthSessionAdapter', () => {
     });
 
     it('does not persist the user when tokens are missing', () => {
+      // Arrange
       const storage = storagePortMockFactory.create();
-      const transport = createTransportMock();
+      const transport = authSessionTransportMockFactory.create();
       const service = new PersistedAuthSessionAdapter(storage, transport);
 
+      // Act
       service.updateUser(
         authFixtureFactory.createUser({
           id: 4,
@@ -167,6 +178,7 @@ describe('PersistedAuthSessionAdapter', () => {
         }),
       );
 
+      // Assert
       expect(storage.setItem).not.toHaveBeenCalledWith(StorageKey.AUTH_USER, expect.any(String));
     });
   });

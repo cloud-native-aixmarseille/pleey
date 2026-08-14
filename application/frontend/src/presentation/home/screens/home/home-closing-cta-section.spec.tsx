@@ -13,8 +13,10 @@ vi.mock('../../../shared/i18n/use-presentation-translation', async (importOrigin
 
 describe('HomeClosingCtaSection', () => {
   it('renders the closing call to action with the register link', () => {
+    // Arrange + Act
     renderWithProviders(<HomeClosingCtaSection />);
 
+    // Assert
     expect(screen.getByRole('heading', { name: 'home.closingCta.heading' })).toBeInTheDocument();
     expect(screen.getByText('home.closingCta.description')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /home.closingCta.primaryCta/i })).toHaveAttribute(

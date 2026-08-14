@@ -1,5 +1,5 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { renderWithFormProvider } from '../../../../test-utils/render-with-form-provider';
 import { RegisterScreen } from './register-screen';
 
@@ -34,14 +34,16 @@ vi.mock('../../../shared/routing/router', async (importOriginal) => {
 });
 
 describe('RegisterScreen', () => {
-  beforeEach(() => {
+  function arrangeScreen() {
     mocks.register.mockReset();
-  });
+
+    renderWithFormProvider(<RegisterScreen />);
+  }
 
   describe('render()', () => {
     it('renders the register eyebrow i18n key', () => {
       // Arrange + Act
-      renderWithFormProvider(<RegisterScreen />);
+      arrangeScreen();
 
       // Assert
       expect(screen.getByText('auth.register.eyebrow')).toBeInTheDocument();
@@ -49,7 +51,7 @@ describe('RegisterScreen', () => {
 
     it('renders the register title heading', () => {
       // Arrange + Act
-      renderWithFormProvider(<RegisterScreen />);
+      arrangeScreen();
 
       // Assert
       expect(screen.getByRole('heading', { name: 'auth.register.title' })).toBeInTheDocument();
@@ -57,8 +59,8 @@ describe('RegisterScreen', () => {
 
     it('submits registration data and renders the success state', async () => {
       // Arrange
+      arrangeScreen();
       mocks.register.mockResolvedValue(undefined);
-      renderWithFormProvider(<RegisterScreen />);
 
       fireEvent.change(screen.getByLabelText('auth.form.usernameLabel *'), {
         target: { value: 'ArcadeCaptain' },
@@ -87,8 +89,8 @@ describe('RegisterScreen', () => {
 
     it('renders the translated generic fallback when registration fails without an Error instance', async () => {
       // Arrange
+      arrangeScreen();
       mocks.register.mockRejectedValue({ reason: 'unexpected' });
-      renderWithFormProvider(<RegisterScreen />);
 
       fireEvent.change(screen.getByLabelText('auth.form.usernameLabel *'), {
         target: { value: 'ArcadeCaptain' },
@@ -109,8 +111,8 @@ describe('RegisterScreen', () => {
 
     it('renders backend-translated registration errors without passing them through i18n', async () => {
       // Arrange
+      arrangeScreen();
       mocks.register.mockRejectedValue(new Error('An account already exists for this email.'));
-      renderWithFormProvider(<RegisterScreen />);
 
       fireEvent.change(screen.getByLabelText('auth.form.usernameLabel *'), {
         target: { value: 'ArcadeCaptain' },
@@ -131,7 +133,7 @@ describe('RegisterScreen', () => {
 
     it('renders a username validation message after blur when the field is empty', async () => {
       // Arrange
-      renderWithFormProvider(<RegisterScreen />);
+      arrangeScreen();
 
       // Act
       fireEvent.blur(screen.getByLabelText('auth.form.usernameLabel *'));

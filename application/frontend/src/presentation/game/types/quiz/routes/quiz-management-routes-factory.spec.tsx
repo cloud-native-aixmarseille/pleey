@@ -3,8 +3,10 @@ import { QuizManagementRoutesFactory } from './quiz-management-routes-factory';
 
 describe('QuizManagementRoutesFactory', () => {
   it('registers the quiz management route', () => {
+    // Arrange + Act
     const routes = new QuizManagementRoutesFactory({} as never, {} as never).create();
 
+    // Assert
     expect(routes).toHaveLength(1);
     expect(routes[0].path).toBe('quizzes/:quizId');
     expect(routes[0].element).toBeTruthy();

@@ -176,10 +176,12 @@ describe('OrganizationResolver', () => {
   });
 
   it('returns the translated organization error when adding a missing member by identifier', async () => {
+    // Arrange
     addMemberToOrganizationUseCase.execute.mockRejectedValueOnce(
       new Error(OrganizationErrorCode.MEMBER_USER_NOT_FOUND),
     );
 
+    // Act
     const response = await request(app.getHttpServer())
       .post('/graphql')
       .send({
@@ -202,6 +204,7 @@ describe('OrganizationResolver', () => {
         },
       });
 
+    // Assert
     expect(response.status).toBe(200);
     expect(response.body.data).toBeNull();
     expect(response.body.errors).toEqual(
@@ -227,6 +230,7 @@ describe('OrganizationResolver', () => {
   });
 
   it('passes member search input through the GraphQL query', async () => {
+    // Arrange
     listOrganizationMembersUseCase.execute.mockResolvedValueOnce({
       items: [],
       totalCount: 0,
@@ -236,6 +240,7 @@ describe('OrganizationResolver', () => {
       totalPages: 1,
     });
 
+    // Act
     const response = await request(app.getHttpServer())
       .post('/graphql')
       .send({
@@ -261,6 +266,7 @@ describe('OrganizationResolver', () => {
         },
       });
 
+    // Assert
     expect(response.status).toBe(200);
     expect(response.body.errors).toBeUndefined();
     expect(listOrganizationMembersUseCase.execute).toHaveBeenCalledWith(
@@ -276,6 +282,7 @@ describe('OrganizationResolver', () => {
   });
 
   it('passes member search input through the GraphQL query', async () => {
+    // Arrange
     listOrganizationMembersUseCase.execute.mockResolvedValueOnce({
       items: [],
       totalCount: 0,
@@ -285,6 +292,7 @@ describe('OrganizationResolver', () => {
       totalPages: 1,
     });
 
+    // Act
     const response = await request(app.getHttpServer())
       .post('/graphql')
       .send({
@@ -310,6 +318,7 @@ describe('OrganizationResolver', () => {
         },
       });
 
+    // Assert
     expect(response.status).toBe(200);
     expect(response.body.errors).toBeUndefined();
     expect(listOrganizationMembersUseCase.execute).toHaveBeenCalledWith(
@@ -325,6 +334,7 @@ describe('OrganizationResolver', () => {
   });
 
   it('updates an organization member role', async () => {
+    // Arrange
     updateOrganizationMemberRoleUseCase.execute.mockResolvedValueOnce({
       id: backendTestIdentifiers.organizationMember(18),
       organizationId: backendTestIdentifiers.organization(7),
@@ -334,6 +344,7 @@ describe('OrganizationResolver', () => {
       joinedAt: new Date('2026-03-20T10:00:00.000Z'),
     });
 
+    // Act
     const response = await request(app.getHttpServer())
       .post('/graphql')
       .send({
@@ -355,6 +366,7 @@ describe('OrganizationResolver', () => {
         },
       });
 
+    // Assert
     expect(response.status).toBe(200);
     expect(response.body.errors).toBeUndefined();
     expect(response.body.data.updateOrganizationMemberRole).toEqual(

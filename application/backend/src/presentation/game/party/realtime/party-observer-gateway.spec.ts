@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { PartyActionIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-action-identifier';
 import { PartyIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-identifier';
 import { PartyPinIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-pin-identifier';
@@ -8,6 +8,7 @@ import { UserIdentifier } from '../../../../application/identity/shared/services
 import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
 import { PartyPlayerKind } from '../../../../domain/game/party/enums/party-player-kind.enum';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
+import { createPartyPlayerSessionRegistryMock } from '../../../../test-utils/mock-factories/party-player-session-registry.mock-factory';
 import { PartyObserverGateway } from './party-observer-gateway';
 
 const guestIdentifier = new GuestIdentifier();
@@ -22,19 +23,6 @@ const PLAYER_USER_ID = backendTestIdentifiers.user(11);
 const GUEST_ID = backendTestIdentifiers.guest('guest-7');
 const PARTY_PIN = partyPinIdentifier.parse('123456');
 const PARTY_ROOM = `party:${PARTY_ID}`;
-
-function createPartyPlayerSessionRegistryMock() {
-  return {
-    registerSession: vi.fn((_: unknown, __: unknown, sessionId: string) => ({
-      sessionId,
-      previousSessionId: null,
-    })),
-    hasActiveSession: vi.fn().mockReturnValue(false),
-    getActiveSession: vi.fn().mockReturnValue(null),
-    invalidateSession: vi.fn().mockReturnValue(false),
-    invalidateAllSessions: vi.fn(),
-  };
-}
 
 function createHostControlUseCases() {
   return [
@@ -144,11 +132,8 @@ function createSnapshot() {
 }
 
 describe('PartyObserverGateway', () => {
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
   it('joins the party room by party id and emits the current snapshot', async () => {
+    // Arrange
     const loadPartyObservationSnapshotUseCase = {
       execute: vi.fn().mockResolvedValue(createSnapshot()),
     };
@@ -181,8 +166,10 @@ describe('PartyObserverGateway', () => {
       leave: vi.fn().mockResolvedValue(undefined),
     };
 
+    // Act
     await gateway.observeParty(client as never, { partyId: PARTY_ID });
 
+    // Assert
     expect(loadPartyObservationSnapshotUseCase.execute).toHaveBeenCalledWith({
       partyId: PARTY_ID,
     });
@@ -191,6 +178,7 @@ describe('PartyObserverGateway', () => {
   });
 
   it('observes a host lobby by party id', async () => {
+    // Arrange
     const loadPartyObservationSnapshotUseCase = {
       execute: vi.fn().mockResolvedValue(createSnapshot()),
     };
@@ -217,6 +205,7 @@ describe('PartyObserverGateway', () => {
       createPartyPlayerSessionRegistryMock() as never,
     );
 
+    // Act
     await gateway.observeParty(
       {
         data: {},
@@ -227,12 +216,14 @@ describe('PartyObserverGateway', () => {
       { partyId: PARTY_ID },
     );
 
+    // Assert
     expect(loadPartyObservationSnapshotUseCase.execute).toHaveBeenCalledWith({
       partyId: PARTY_ID,
     });
   });
 
   it('throws a websocket exception when the party cannot be observed', async () => {
+    // Arrange
     const gateway = new PartyObserverGateway(
       { execute: vi.fn() } as never,
       { execute: vi.fn() } as never,
@@ -256,6 +247,7 @@ describe('PartyObserverGateway', () => {
       createPartyPlayerSessionRegistryMock() as never,
     );
 
+    // Act + Assert
     await expect(
       gateway.observeParty({ data: {}, leave: vi.fn() } as never, { partyId: undefined }),
     ).rejects.toMatchObject({
@@ -264,6 +256,7 @@ describe('PartyObserverGateway', () => {
   });
 
   it('returns an accepted acknowledgement for authenticated joins and stores socket player metadata', async () => {
+    // Arrange
     const joinPartyUseCase = {
       execute: vi.fn().mockResolvedValue({
         partyId: PARTY_ID,
@@ -312,8 +305,10 @@ describe('PartyObserverGateway', () => {
       leave: vi.fn().mockResolvedValue(undefined),
     };
 
+    // Act
     const result = await gateway.joinParty(client as never, { pin: '123456' });
 
+    // Assert
     expect(joinPartyUseCase.execute).toHaveBeenCalledWith({
       avatarSeed: undefined,
       pin: PARTY_PIN,
@@ -339,6 +334,7 @@ describe('PartyObserverGateway', () => {
   });
 
   it('returns a rejected acknowledgement when a join fails validation', async () => {
+    // Arrange
     const gateway = new PartyObserverGateway(
       {
         execute: vi.fn().mockRejectedValue(new Error(GameErrorCode.PLAYER_ALREADY_IN_ACTIVE_PARTY)),
@@ -364,6 +360,7 @@ describe('PartyObserverGateway', () => {
       createPartyPlayerSessionRegistryMock() as never,
     );
 
+    // Act + Assert
     await expect(
       gateway.joinParty(
         {
@@ -380,6 +377,7 @@ describe('PartyObserverGateway', () => {
   });
 
   it('forwards trimmed guest avatar seeds on guest joins', async () => {
+    // Arrange
     const joinPartyUseCase = {
       execute: vi.fn().mockResolvedValue({
         partyId: PARTY_ID,
@@ -413,6 +411,7 @@ describe('PartyObserverGateway', () => {
       createPartyPlayerSessionRegistryMock() as never,
     );
 
+    // Act
     await gateway.joinParty(
       {
         data: {},
@@ -426,6 +425,7 @@ describe('PartyObserverGateway', () => {
       },
     );
 
+    // Assert
     expect(joinPartyUseCase.execute).toHaveBeenCalledWith({
       avatarSeed: 'neon-seed',
       pin: PARTY_PIN,
@@ -435,6 +435,7 @@ describe('PartyObserverGateway', () => {
   });
 
   it('publishes a corrected room update after a player leaves', async () => {
+    // Arrange
     const leavePartyUseCase = {
       execute: vi.fn().mockResolvedValue(true),
     };
@@ -475,6 +476,7 @@ describe('PartyObserverGateway', () => {
       leave: vi.fn().mockResolvedValue(undefined),
     };
 
+    // Act + Assert
     await expect(gateway.leaveParty(client as never)).resolves.toEqual({ left: true });
 
     expect(leavePartyUseCase.execute).toHaveBeenCalledWith({
@@ -487,6 +489,7 @@ describe('PartyObserverGateway', () => {
   });
 
   it('waits for the socket to leave the room before republishing after leave', async () => {
+    // Arrange
     const leavePartyUseCase = {
       execute: vi.fn().mockResolvedValue(true),
     };
@@ -532,8 +535,10 @@ describe('PartyObserverGateway', () => {
       leave: vi.fn().mockReturnValue(leavePromise),
     };
 
+    // Act
     const pendingLeave = gateway.leaveParty(client as never);
 
+    // Assert
     expect(broadcastPartyObservationUseCase.execute).not.toHaveBeenCalled();
 
     resolveLeave();
@@ -543,6 +548,7 @@ describe('PartyObserverGateway', () => {
   });
 
   it('kicks a targeted player and clears the matched joined-player socket metadata', async () => {
+    // Arrange
     const { gateway, useCases } = createHostControlGateway();
     const removedPlayerSocket = {
       data: {
@@ -559,6 +565,7 @@ describe('PartyObserverGateway', () => {
       }),
     } as never);
 
+    // Act
     await gateway.kickPlayer(
       {
         data: {
@@ -571,6 +578,7 @@ describe('PartyObserverGateway', () => {
       },
     );
 
+    // Assert
     expect(useCases.kickPartyPlayerUseCase.execute).toHaveBeenCalledWith({
       hostUserId: backendTestIdentifiers.user(7),
       partyId: backendTestIdentifiers.party(44),
@@ -583,164 +591,182 @@ describe('PartyObserverGateway', () => {
   });
 
   it('prunes a disconnected waiting player after the grace period', async () => {
+    // Arrange + Act
     vi.useFakeTimers();
 
-    const leavePartyUseCase = {
-      execute: vi.fn().mockResolvedValue(true),
-    };
-    const loadPartyObservationSnapshotUseCase = {
-      execute: vi.fn().mockResolvedValue(createSnapshot()),
-    };
-    const gateway = new PartyObserverGateway(
-      { execute: vi.fn() } as never,
-      leavePartyUseCase as never,
-      { execute: vi.fn() } as never,
-      loadPartyObservationSnapshotUseCase as never,
-      { execute: vi.fn() } as never,
-      { attachServer: vi.fn(), emitSnapshot: vi.fn().mockResolvedValue(undefined) } as never,
-      guestIdentifier,
-      partyActionIdentifier,
-      partyIdentifier,
-      partyPinIdentifier,
-      userIdentifier,
-      ...createHostControlUseCases(),
-      createPartyPlayerSessionRegistryMock() as never,
-    );
+    // Assert
+    try {
+      const leavePartyUseCase = {
+        execute: vi.fn().mockResolvedValue(true),
+      };
+      const loadPartyObservationSnapshotUseCase = {
+        execute: vi.fn().mockResolvedValue(createSnapshot()),
+      };
+      const gateway = new PartyObserverGateway(
+        { execute: vi.fn() } as never,
+        leavePartyUseCase as never,
+        { execute: vi.fn() } as never,
+        loadPartyObservationSnapshotUseCase as never,
+        { execute: vi.fn() } as never,
+        { attachServer: vi.fn(), emitSnapshot: vi.fn().mockResolvedValue(undefined) } as never,
+        guestIdentifier,
+        partyActionIdentifier,
+        partyIdentifier,
+        partyPinIdentifier,
+        userIdentifier,
+        ...createHostControlUseCases(),
+        createPartyPlayerSessionRegistryMock() as never,
+      );
 
-    gateway.afterInit({
-      in: vi.fn().mockReturnValue({ fetchSockets: vi.fn().mockResolvedValue([]) }),
-    } as never);
+      gateway.afterInit({
+        in: vi.fn().mockReturnValue({ fetchSockets: vi.fn().mockResolvedValue([]) }),
+      } as never);
 
-    gateway.handleDisconnect({
-      data: {
-        joinedPartyPlayer: {
-          identity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
-          pin: PARTY_PIN,
+      gateway.handleDisconnect({
+        data: {
+          joinedPartyPlayer: {
+            identity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
+            pin: PARTY_PIN,
+          },
+          partyObservationRoom: PARTY_ROOM,
         },
-        partyObservationRoom: PARTY_ROOM,
-      },
-      leave: vi.fn().mockResolvedValue(undefined),
-    } as never);
+        leave: vi.fn().mockResolvedValue(undefined),
+      } as never);
 
-    await vi.runAllTimersAsync();
+      await vi.runAllTimersAsync();
 
-    expect(loadPartyObservationSnapshotUseCase.execute).toHaveBeenCalledWith({
-      partyId: PARTY_ID,
-    });
-    expect(leavePartyUseCase.execute).toHaveBeenCalledWith({
-      pin: PARTY_PIN,
-      playerIdentity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
-    });
+      expect(loadPartyObservationSnapshotUseCase.execute).toHaveBeenCalledWith({
+        partyId: PARTY_ID,
+      });
+      expect(leavePartyUseCase.execute).toHaveBeenCalledWith({
+        pin: PARTY_PIN,
+        playerIdentity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
+      });
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('does not prune a waiting player who is still connected through another party socket', async () => {
+    // Arrange + Act
     vi.useFakeTimers();
 
-    const leavePartyUseCase = {
-      execute: vi.fn().mockResolvedValue(true),
-    };
-    const loadPartyObservationSnapshotUseCase = {
-      execute: vi.fn().mockResolvedValue(createSnapshot()),
-    };
-    const gateway = new PartyObserverGateway(
-      { execute: vi.fn() } as never,
-      leavePartyUseCase as never,
-      { execute: vi.fn() } as never,
-      loadPartyObservationSnapshotUseCase as never,
-      { execute: vi.fn() } as never,
-      { attachServer: vi.fn(), emitSnapshot: vi.fn().mockResolvedValue(undefined) } as never,
-      guestIdentifier,
-      partyActionIdentifier,
-      partyIdentifier,
-      partyPinIdentifier,
-      userIdentifier,
-      ...createHostControlUseCases(),
-      createPartyPlayerSessionRegistryMock() as never,
-    );
+    // Assert
+    try {
+      const leavePartyUseCase = {
+        execute: vi.fn().mockResolvedValue(true),
+      };
+      const loadPartyObservationSnapshotUseCase = {
+        execute: vi.fn().mockResolvedValue(createSnapshot()),
+      };
+      const gateway = new PartyObserverGateway(
+        { execute: vi.fn() } as never,
+        leavePartyUseCase as never,
+        { execute: vi.fn() } as never,
+        loadPartyObservationSnapshotUseCase as never,
+        { execute: vi.fn() } as never,
+        { attachServer: vi.fn(), emitSnapshot: vi.fn().mockResolvedValue(undefined) } as never,
+        guestIdentifier,
+        partyActionIdentifier,
+        partyIdentifier,
+        partyPinIdentifier,
+        userIdentifier,
+        ...createHostControlUseCases(),
+        createPartyPlayerSessionRegistryMock() as never,
+      );
 
-    gateway.afterInit({
-      in: vi.fn().mockReturnValue({
-        fetchSockets: vi.fn().mockResolvedValue([
-          {
-            data: {
-              joinedPartyPlayer: {
-                identity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
-                pin: PARTY_PIN,
+      gateway.afterInit({
+        in: vi.fn().mockReturnValue({
+          fetchSockets: vi.fn().mockResolvedValue([
+            {
+              data: {
+                joinedPartyPlayer: {
+                  identity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
+                  pin: PARTY_PIN,
+                },
               },
             },
+          ]),
+        }),
+      } as never);
+
+      gateway.handleDisconnect({
+        data: {
+          joinedPartyPlayer: {
+            identity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
+            pin: PARTY_PIN,
           },
-        ]),
-      }),
-    } as never);
-
-    gateway.handleDisconnect({
-      data: {
-        joinedPartyPlayer: {
-          identity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
-          pin: PARTY_PIN,
+          partyObservationRoom: PARTY_ROOM,
         },
-        partyObservationRoom: PARTY_ROOM,
-      },
-      leave: vi.fn().mockResolvedValue(undefined),
-    } as never);
+        leave: vi.fn().mockResolvedValue(undefined),
+      } as never);
 
-    await vi.runAllTimersAsync();
+      await vi.runAllTimersAsync();
 
-    expect(loadPartyObservationSnapshotUseCase.execute).not.toHaveBeenCalled();
-    expect(leavePartyUseCase.execute).not.toHaveBeenCalled();
+      expect(loadPartyObservationSnapshotUseCase.execute).not.toHaveBeenCalled();
+      expect(leavePartyUseCase.execute).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('prunes a waiting player who stops observing the party for too long', async () => {
+    // Arrange + Act
     vi.useFakeTimers();
 
-    const leavePartyUseCase = {
-      execute: vi.fn().mockResolvedValue(true),
-    };
-    const loadPartyObservationSnapshotUseCase = {
-      execute: vi.fn().mockResolvedValue(createSnapshot()),
-    };
-    const gateway = new PartyObserverGateway(
-      { execute: vi.fn() } as never,
-      leavePartyUseCase as never,
-      { execute: vi.fn() } as never,
-      loadPartyObservationSnapshotUseCase as never,
-      { execute: vi.fn() } as never,
-      { attachServer: vi.fn(), emitSnapshot: vi.fn().mockResolvedValue(undefined) } as never,
-      guestIdentifier,
-      partyActionIdentifier,
-      partyIdentifier,
-      partyPinIdentifier,
-      userIdentifier,
-      ...createHostControlUseCases(),
-      createPartyPlayerSessionRegistryMock() as never,
-    );
+    // Assert
+    try {
+      const leavePartyUseCase = {
+        execute: vi.fn().mockResolvedValue(true),
+      };
+      const loadPartyObservationSnapshotUseCase = {
+        execute: vi.fn().mockResolvedValue(createSnapshot()),
+      };
+      const gateway = new PartyObserverGateway(
+        { execute: vi.fn() } as never,
+        leavePartyUseCase as never,
+        { execute: vi.fn() } as never,
+        loadPartyObservationSnapshotUseCase as never,
+        { execute: vi.fn() } as never,
+        { attachServer: vi.fn(), emitSnapshot: vi.fn().mockResolvedValue(undefined) } as never,
+        guestIdentifier,
+        partyActionIdentifier,
+        partyIdentifier,
+        partyPinIdentifier,
+        userIdentifier,
+        ...createHostControlUseCases(),
+        createPartyPlayerSessionRegistryMock() as never,
+      );
 
-    gateway.afterInit({
-      in: vi.fn().mockReturnValue({ fetchSockets: vi.fn().mockResolvedValue([]) }),
-    } as never);
+      gateway.afterInit({
+        in: vi.fn().mockReturnValue({ fetchSockets: vi.fn().mockResolvedValue([]) }),
+      } as never);
 
-    const client = {
-      data: {
+      const client = {
+        data: {
+          joinedPartyPlayer: {
+            identity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
+            pin: PARTY_PIN,
+          },
+          partyObservationRoom: PARTY_ROOM,
+        },
+        leave: vi.fn().mockResolvedValue(undefined),
+      };
+
+      await gateway.stopObservingParty(client as never);
+      await vi.runAllTimersAsync();
+
+      // stopObservingParty should NOT trigger a prune; observation is separate from membership
+      expect(client.data).toEqual({
         joinedPartyPlayer: {
           identity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
           pin: PARTY_PIN,
         },
-        partyObservationRoom: PARTY_ROOM,
-      },
-      leave: vi.fn().mockResolvedValue(undefined),
-    };
-
-    await gateway.stopObservingParty(client as never);
-    await vi.runAllTimersAsync();
-
-    // stopObservingParty should NOT trigger a prune; observation is separate from membership
-    expect(client.data).toEqual({
-      joinedPartyPlayer: {
-        identity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
-        pin: PARTY_PIN,
-      },
-    });
-    expect(leavePartyUseCase.execute).not.toHaveBeenCalled();
+      });
+      expect(leavePartyUseCase.execute).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it.each([
@@ -828,12 +854,15 @@ describe('PartyObserverGateway', () => {
   });
 
   it('clears all live sessions after ending the party', async () => {
+    // Arrange
     const { gateway, sessionRegistry } = createHostControlGateway();
 
+    // Act
     await gateway.endParty({ data: { authenticatedUserId: HOST_USER_ID } } as never, {
       partyId: PARTY_ID,
     });
 
+    // Assert
     expect(sessionRegistry.invalidateAllSessions).toHaveBeenCalledWith(PARTY_ID);
   });
 
@@ -875,8 +904,10 @@ describe('PartyObserverGateway', () => {
   });
 
   it('rejects unauthenticated host controls', async () => {
+    // Arrange
     const { gateway, useCases } = createHostControlGateway();
 
+    // Act + Assert
     await expect(
       gateway.pauseParty(
         {
@@ -891,6 +922,7 @@ describe('PartyObserverGateway', () => {
   });
 
   it('routes submit-action through the joined player identity', async () => {
+    // Arrange
     const submitPartyActionUseCase = {
       execute: vi.fn().mockResolvedValue(undefined),
     };
@@ -910,6 +942,7 @@ describe('PartyObserverGateway', () => {
       createPartyPlayerSessionRegistryMock() as never,
     );
 
+    // Act
     await gateway.submitAction(
       {
         data: {
@@ -926,6 +959,7 @@ describe('PartyObserverGateway', () => {
       },
     );
 
+    // Assert
     expect(submitPartyActionUseCase.execute).toHaveBeenCalledWith({
       actionId: backendTestIdentifiers.partyAction(2),
       partyId: backendTestIdentifiers.party(44),

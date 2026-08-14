@@ -11,6 +11,7 @@ import { CreateOrganizationUseCase } from './create-organization-use-case';
 
 describe('CreateOrganizationUseCase', () => {
   it('throws when organization name already exists', async () => {
+    // Arrange
     const organizationRepository = createOrganizationRepositoryMock({
       findByName: { id: 1 } as never,
     });
@@ -22,12 +23,14 @@ describe('CreateOrganizationUseCase', () => {
       projectRepository as never,
     );
 
+    // Act + Assert
     await expect(
       useCase.execute({ name: 'Org', description: '' } satisfies CreateOrganizationDto, backendTestIdentifiers.user(1)),
     ).rejects.toThrow(OrganizationErrorCode.ORGANIZATION_NAME_ALREADY_EXISTS);
   });
 
   it('creates organization and assigns owner role', async () => {
+    // Arrange
     const organizationRepository = createOrganizationRepositoryMock({
       findByName: null,
       create: { id: 10, name: 'Org', description: null } as never,
@@ -41,7 +44,9 @@ describe('CreateOrganizationUseCase', () => {
     );
 
     const dto: CreateOrganizationDto = { name: 'Org' };
+    // Act
     const org = await useCase.execute(dto, backendTestIdentifiers.user(1));
+    // Assert
     expect(memberRepository.create).toHaveBeenCalledWith(10, backendTestIdentifiers.user(1), OrganizationRole.OWNER);
     expect(projectRepository.create).toHaveBeenCalledWith(10, 'Default', null);
     expect(org).toMatchObject({ id: 10, name: 'Org' });

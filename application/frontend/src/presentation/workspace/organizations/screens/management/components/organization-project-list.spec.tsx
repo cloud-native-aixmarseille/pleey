@@ -1,6 +1,6 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { OrganizationScreenFixtureFactory } from '../../../../../../test-utils/fixtures/organization-screen-fixture-factory';
 import { renderWithProviders } from '../../../../../../test-utils/render-with-providers';
 import { OrganizationProjectList } from './organization-project-list';
@@ -18,12 +18,14 @@ describe('OrganizationProjectList', () => {
   const onEditProject = vi.fn();
   const onRemoveProject = vi.fn();
 
-  beforeEach(() => {
+  function arrangeCallbacks() {
     onEditProject.mockReset();
     onRemoveProject.mockReset();
-  });
+  }
 
   it('renders projects, selected state, fallback description, and row actions', async () => {
+    // Arrange
+    arrangeCallbacks();
     const user = userEvent.setup();
     const flagshipProject = fixtureFactory.createProject({
       id: 11,
@@ -36,6 +38,7 @@ describe('OrganizationProjectList', () => {
       description: null,
     });
 
+    // Act
     renderWithProviders(
       <OrganizationProjectList
         canRemoveProjects
@@ -46,6 +49,7 @@ describe('OrganizationProjectList', () => {
       />,
     );
 
+    // Assert
     expect(screen.getByText('Flagship Project')).toBeInTheDocument();
     expect(screen.getByText('Core project')).toBeInTheDocument();
     expect(screen.getByText('project.management.list.descriptionFallback')).toBeInTheDocument();
@@ -73,8 +77,11 @@ describe('OrganizationProjectList', () => {
   });
 
   it('disables removal when the current user cannot remove projects', () => {
+    // Arrange
+    arrangeCallbacks();
     const project = fixtureFactory.createProject();
 
+    // Act
     renderWithProviders(
       <OrganizationProjectList
         canRemoveProjects={false}
@@ -85,10 +92,14 @@ describe('OrganizationProjectList', () => {
       />,
     );
 
+    // Assert
     expect(screen.getByRole('button', { name: 'project.management.list.removeButton' })).toBeDisabled();
   });
 
   it('shows the empty state when there are no projects', () => {
+    // Arrange
+    arrangeCallbacks();
+    // Act
     renderWithProviders(
       <OrganizationProjectList
         canRemoveProjects
@@ -99,6 +110,7 @@ describe('OrganizationProjectList', () => {
       />,
     );
 
+    // Assert
     expect(screen.getByText('project.management.list.empty')).toBeInTheDocument();
   });
 });

@@ -17,21 +17,27 @@ function createFactory(): GuestPartyEntryDraftFactory {
 
 describe('GuestPartyEntryDraftFactory', () => {
   it('creates guest names with a readable format and compact length', () => {
+    // Arrange
     const factory = createFactory();
+    // Act
     const guestName = factory.createGuestName();
 
+    // Assert
     expect(guestName).toMatch(/^[A-Za-z]+ [A-Za-z]+ \d{4}$/);
     expect(guestName.length).toBeLessThanOrEqual(30);
   });
 
   it('produces varied guest names across many generations', () => {
+    // Arrange
     const factory = createFactory();
     const generated = new Set<string>();
 
+    // Act
     for (let index = 0; index < 200; index += 1) {
       generated.add(factory.createGuestName());
     }
 
+    // Assert
     expect(generated.size).toBeGreaterThan(190);
   });
 });

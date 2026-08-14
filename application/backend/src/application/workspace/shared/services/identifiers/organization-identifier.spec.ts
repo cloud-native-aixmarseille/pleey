@@ -6,8 +6,10 @@ const organizationIdentifier = new OrganizationIdentifier();
 
 describe('OrganizationIdentifier', () => {
   it('builds a branded organization id from a UUIDv7 string', () => {
+    // Arrange + Act
     const identifier = uuidv7();
 
+    // Assert
     expect(organizationIdentifier.parse(identifier)).toBe(identifier);
   });
 });

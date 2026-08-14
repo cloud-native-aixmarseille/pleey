@@ -16,6 +16,7 @@ const requesterUserId = backendTestIdentifiers.user(10);
 
 describe('RemoveMemberFromOrganizationUseCase', () => {
   it('throws MEMBER_NOT_FOUND when member does not exist', async () => {
+    // Arrange
     const memberRepository = createOrganizationMemberRepositoryMock({ findById: null });
     const organizationMembershipAccess = new OrganizationMembershipAccessService(
       createOrganizationRepositoryMock() as never,
@@ -23,10 +24,12 @@ describe('RemoveMemberFromOrganizationUseCase', () => {
       membershipPolicy,
     );
     const useCase = new RemoveMemberFromOrganizationUseCase(organizationMembershipAccess, memberRepository as never);
+    // Act + Assert
     await expect(useCase.execute(memberId, requesterUserId)).rejects.toThrow(OrganizationErrorCode.MEMBER_NOT_FOUND);
   });
 
   it('throws when requesting user lacks management privileges', async () => {
+    // Arrange
     const memberRepository = createOrganizationMemberRepositoryMock({
       findById: {
         id: memberId,
@@ -42,12 +45,14 @@ describe('RemoveMemberFromOrganizationUseCase', () => {
       membershipPolicy,
     );
     const useCase = new RemoveMemberFromOrganizationUseCase(organizationMembershipAccess, memberRepository as never);
+    // Act + Assert
     await expect(useCase.execute(memberId, requesterUserId)).rejects.toThrow(
       OrganizationErrorCode.INSUFFICIENT_PERMISSIONS,
     );
   });
 
   it('throws when trying to remove the last owner', async () => {
+    // Arrange
     const ownerMember = {
       id: memberId,
       organizationId,
@@ -68,12 +73,14 @@ describe('RemoveMemberFromOrganizationUseCase', () => {
       membershipPolicy,
     );
     const useCase = new RemoveMemberFromOrganizationUseCase(organizationMembershipAccess, memberRepository as never);
+    // Act + Assert
     await expect(useCase.execute(memberId, requesterUserId)).rejects.toThrow(
       OrganizationErrorCode.CANNOT_REMOVE_LAST_OWNER,
     );
   });
 
   it('throws when a manager tries to remove an owner', async () => {
+    // Arrange
     const ownerMember = {
       id: memberId,
       organizationId,
@@ -94,12 +101,14 @@ describe('RemoveMemberFromOrganizationUseCase', () => {
     );
     const useCase = new RemoveMemberFromOrganizationUseCase(organizationMembershipAccess, memberRepository as never);
 
+    // Act + Assert
     await expect(useCase.execute(memberId, requesterUserId)).rejects.toThrow(
       OrganizationErrorCode.INSUFFICIENT_PERMISSIONS,
     );
   });
 
   it('deletes member when allowed', async () => {
+    // Arrange
     const memberToRemove = {
       id: memberId,
       organizationId,
@@ -120,7 +129,9 @@ describe('RemoveMemberFromOrganizationUseCase', () => {
       membershipPolicy,
     );
     const useCase = new RemoveMemberFromOrganizationUseCase(organizationMembershipAccess, memberRepository as never);
+    // Act
     await useCase.execute(memberId, requesterUserId);
+    // Assert
     expect(memberRepository.delete).toHaveBeenCalledWith(memberId);
   });
 });

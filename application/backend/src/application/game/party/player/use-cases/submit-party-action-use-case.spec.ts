@@ -14,6 +14,7 @@ const stageId = backendTestIdentifiers.partyStage(101);
 
 describe('SubmitPartyActionUseCase', () => {
   it('delegates action evaluation through the resolved game-type policy and broadcasts the updated observation', async () => {
+    // Arrange
     const playerIdentity = {
       kind: PartyPlayerKind.USER,
       userId: playerUserId,
@@ -96,12 +97,14 @@ describe('SubmitPartyActionUseCase', () => {
       broadcastPartyObservationUseCase as never,
     );
 
+    // Act
     await useCase.execute({
       actionId: selectedActionId,
       partyId,
       playerIdentity,
     });
 
+    // Assert
     expect(policyRegistry.resolveByGameType).toHaveBeenCalledWith(GameType.Quiz);
     expect(policy.evaluateSubmission).toHaveBeenCalledWith({
       actionId: selectedActionId,
@@ -135,6 +138,7 @@ describe('SubmitPartyActionUseCase', () => {
   });
 
   it('accepts answer changes within the same stage when the party setting allows it', async () => {
+    // Arrange
     const playerIdentity = {
       kind: PartyPlayerKind.USER,
       userId: playerUserId,
@@ -201,12 +205,14 @@ describe('SubmitPartyActionUseCase', () => {
       broadcastPartyObservationUseCase as never,
     );
 
+    // Act
     await useCase.execute({
       actionId: selectedActionId,
       partyId,
       playerIdentity,
     });
 
+    // Assert
     expect(policy.evaluateSubmission).toHaveBeenCalledTimes(1);
     expect(playerPartyActionRuntime.saveSubmissionResult).toHaveBeenCalledTimes(1);
   });

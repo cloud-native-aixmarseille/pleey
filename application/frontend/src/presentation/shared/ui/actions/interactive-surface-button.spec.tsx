@@ -5,14 +5,17 @@ import { InteractiveSurfaceButton } from './interactive-surface-button';
 
 describe('InteractiveSurfaceButton', () => {
   it('lets the Mantine label container shrink and wrap long content', () => {
+    // Arrange
     renderWithUiProvider(
       <InteractiveSurfaceButton>
         <div data-testid="surface-content">Paris Paris Paris Paris Paris Paris Paris Paris Paris Paris</div>
       </InteractiveSurfaceButton>,
     );
 
+    // Act
     const label = screen.getByTestId('surface-content').parentElement;
 
+    // Assert
     expect(label).not.toBeNull();
     expect(label).toHaveStyle({
       alignItems: 'stretch',

@@ -15,18 +15,21 @@ import {
 describe('containers', () => {
   describe('PageContainer()', () => {
     it('renders children', () => {
+      // Arrange + Act
       renderWithUiProvider(
         <PageContainer>
           <span data-testid="child">Content</span>
         </PageContainer>,
       );
 
+      // Assert
       expect(screen.getByTestId('child')).toBeInTheDocument();
     });
   });
 
   describe('ResponsiveGrid()', () => {
     it('renders children in a grid', () => {
+      // Arrange + Act
       renderWithUiProvider(
         <ResponsiveGrid columns={{ base: 2 }}>
           <div>A</div>
@@ -34,6 +37,7 @@ describe('containers', () => {
         </ResponsiveGrid>,
       );
 
+      // Assert
       expect(screen.getByText('A')).toBeInTheDocument();
       expect(screen.getByText('B')).toBeInTheDocument();
     });
@@ -41,6 +45,7 @@ describe('containers', () => {
 
   describe('ActionRow()', () => {
     it('renders children horizontally', () => {
+      // Arrange + Act
       renderWithUiProvider(
         <ActionRow>
           <button type="button">One</button>
@@ -48,6 +53,7 @@ describe('containers', () => {
         </ActionRow>,
       );
 
+      // Assert
       expect(screen.getByRole('button', { name: 'One' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Two' })).toBeInTheDocument();
     });
@@ -55,6 +61,7 @@ describe('containers', () => {
 
   describe('ContentStack()', () => {
     it('renders children in a vertical stack', () => {
+      // Arrange + Act
       renderWithUiProvider(
         <ContentStack>
           <p>First</p>
@@ -62,6 +69,7 @@ describe('containers', () => {
         </ContentStack>,
       );
 
+      // Assert
       expect(screen.getByText('First')).toBeInTheDocument();
       expect(screen.getByText('Second')).toBeInTheDocument();
     });
@@ -69,18 +77,21 @@ describe('containers', () => {
 
   describe('SectionContainer()', () => {
     it('renders children inside a constrained section wrapper', () => {
+      // Arrange + Act
       renderWithUiProvider(
         <SectionContainer>
           <p>Section content</p>
         </SectionContainer>,
       );
 
+      // Assert
       expect(screen.getByText('Section content')).toBeInTheDocument();
     });
   });
 
   describe('WrapRow()', () => {
     it('renders children that wrap', () => {
+      // Arrange + Act
       renderWithUiProvider(
         <WrapRow>
           <span>Tag A</span>
@@ -88,6 +99,7 @@ describe('containers', () => {
         </WrapRow>,
       );
 
+      // Assert
       expect(screen.getByText('Tag A')).toBeInTheDocument();
       expect(screen.getByText('Tag B')).toBeInTheDocument();
     });
@@ -95,6 +107,7 @@ describe('containers', () => {
 
   describe('SplitWrapRow()', () => {
     it('renders children in a row that can distribute content', () => {
+      // Arrange + Act
       renderWithUiProvider(
         <SplitWrapRow>
           <span>Leading</span>
@@ -102,6 +115,7 @@ describe('containers', () => {
         </SplitWrapRow>,
       );
 
+      // Assert
       expect(screen.getByText('Leading')).toBeInTheDocument();
       expect(screen.getByText('Trailing')).toBeInTheDocument();
     });
@@ -109,6 +123,7 @@ describe('containers', () => {
 
   describe('AutoFillGrid()', () => {
     it('renders children inside an auto-filling grid', () => {
+      // Arrange + Act
       renderWithUiProvider(
         <AutoFillGrid minItemWidth="8rem">
           <div>Card A</div>
@@ -116,6 +131,7 @@ describe('containers', () => {
         </AutoFillGrid>,
       );
 
+      // Assert
       expect(screen.getByText('Card A')).toBeInTheDocument();
       expect(screen.getByText('Card B')).toBeInTheDocument();
     });

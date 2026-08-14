@@ -19,6 +19,7 @@ describe('ListProjectGamesUseCase', () => {
   const gameTypeRegistryMockFactory = new GameTypeRegistryMockFactory();
 
   it('enriches paginated dashboard games with facade-owned summaries', async () => {
+    // Arrange
     const baseItem = {
       gameId: gameIdentifier.parse(16),
       type: GameType.Quiz,

@@ -13,12 +13,14 @@ const argumentMetadata: ArgumentMetadata = {
 
 describe('Project GraphQL inputs validation', () => {
   it('accepts create project input with whitelisted properties', async () => {
+    // Arrange
     const pipe = new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
     });
 
+    // Act
     const result = await pipe.transform(
       {
         description: 'Project scope',
@@ -27,6 +29,7 @@ describe('Project GraphQL inputs validation', () => {
       argumentMetadata,
     );
 
+    // Assert
     expect(result).toBeInstanceOf(CreateProjectInput);
     expect(result).toMatchObject({
       description: 'Project scope',
@@ -35,12 +38,14 @@ describe('Project GraphQL inputs validation', () => {
   });
 
   it('rejects non-whitelisted properties for create project input', async () => {
+    // Arrange
     const pipe = new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
     });
 
+    // Act + Assert
     await expect(
       pipe.transform(
         {
@@ -53,12 +58,14 @@ describe('Project GraphQL inputs validation', () => {
   });
 
   it('accepts update project input with whitelisted properties', async () => {
+    // Arrange
     const pipe = new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
     });
 
+    // Act
     const result = await pipe.transform(
       {
         description: 'Expanded scope',
@@ -70,6 +77,7 @@ describe('Project GraphQL inputs validation', () => {
       },
     );
 
+    // Assert
     expect(result).toBeInstanceOf(UpdateProjectInput);
     expect(result).toMatchObject({
       description: 'Expanded scope',
@@ -78,12 +86,14 @@ describe('Project GraphQL inputs validation', () => {
   });
 
   it('accepts list organization projects input with whitelisted properties', async () => {
+    // Arrange
     const pipe = new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
     });
 
+    // Act
     const result = await pipe.transform(
       {
         organizationId: backendTestIdentifiers.organization(7),
@@ -97,6 +107,7 @@ describe('Project GraphQL inputs validation', () => {
       },
     );
 
+    // Assert
     expect(result).toBeInstanceOf(ListOrganizationProjectsInput);
     expect(result).toMatchObject({
       organizationId: backendTestIdentifiers.organization(7),

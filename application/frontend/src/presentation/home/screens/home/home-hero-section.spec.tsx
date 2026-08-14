@@ -17,8 +17,10 @@ vi.mock('../../../shared/i18n/use-presentation-translation', async (importOrigin
 
 describe('HomeHeroSection', () => {
   it('renders the hero copy with the dashboard action', () => {
+    // Arrange + Act
     renderWithProviders(<HomeHeroSection />);
 
+    // Assert
     expect(screen.getByRole('heading', { name: 'home.hero.title' })).toBeInTheDocument();
     expect(screen.getByText('home.hero.tagline')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /home.hero.primaryCta/i })).toHaveAttribute('href', '/workspace/dashboard');

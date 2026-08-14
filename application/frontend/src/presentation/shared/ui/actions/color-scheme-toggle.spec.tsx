@@ -35,18 +35,25 @@ vi.mock('../provider', async (importOriginal) => {
 
 describe('ColorSchemeToggle', () => {
   it('renders a toggle button with the correct aria-label', () => {
+    // Arrange + Act
     renderWithUiProvider(<ColorSchemeToggle />);
+    // Assert
     expect(screen.getByRole('button', { name: 'shared.shell.colorSchemeToggle' })).toBeInTheDocument();
   });
 
   it('displays light label when current scheme is dark', () => {
+    // Arrange + Act
     renderWithUiProvider(<ColorSchemeToggle />);
+    // Assert
     expect(screen.getByRole('button')).toHaveTextContent('shared.shell.colorSchemeLight');
   });
 
   it('toggles to light on click when current scheme is dark', async () => {
+    // Arrange
     renderWithUiProvider(<ColorSchemeToggle />);
+    // Act
     await userEvent.click(screen.getByRole('button', { name: 'shared.shell.colorSchemeToggle' }));
+    // Assert
     expect(mocks.setActiveColorScheme).toHaveBeenCalledWith('light');
   });
 });

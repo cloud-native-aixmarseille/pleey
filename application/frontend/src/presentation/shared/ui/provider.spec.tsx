@@ -27,6 +27,7 @@ function ThemeStateProbe() {
 describe('provider', () => {
   describe('PresentationUiRoot()', () => {
     it('renders children through the configured ui provider', () => {
+      // Arrange
       const uiPort: PresentationUiPort = {
         Provider: MockProvider,
         useThemeState: () => ({
@@ -40,6 +41,7 @@ describe('provider', () => {
         }),
       };
 
+      // Act
       render(
         <PresentationUiProvider value={uiPort}>
           <PresentationUiRoot>
@@ -48,11 +50,13 @@ describe('provider', () => {
         </PresentationUiProvider>,
       );
 
+      // Assert
       expect(screen.getByTestId('mock-ui-provider')).toBeInTheDocument();
       expect(screen.getByTestId('child')).toBeInTheDocument();
     });
 
     it('exposes theme state through the presentation provider hook', () => {
+      // Arrange
       const uiPort: PresentationUiPort = {
         Provider: MockProvider,
         useThemeState: () => ({
@@ -66,12 +70,14 @@ describe('provider', () => {
         }),
       };
 
+      // Act
       render(
         <PresentationUiProvider value={uiPort}>
           <ThemeStateProbe />
         </PresentationUiProvider>,
       );
 
+      // Assert
       expect(screen.getByTestId('active-color-scheme')).toHaveTextContent('dark');
       expect(screen.getByTestId('active-theme-id')).toHaveTextContent('cyber-arcade');
       expect(screen.getByTestId('active-theme-name')).toHaveTextContent('Cyber Arcade');

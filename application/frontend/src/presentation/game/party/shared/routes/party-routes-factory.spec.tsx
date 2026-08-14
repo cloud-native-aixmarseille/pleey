@@ -37,35 +37,44 @@ function getWrappedRouteElement(path: string): ReactElement<{ routeKind: string 
 
 describe('PartyRoutesFactory', () => {
   it('registers the host party journey as one persistent wildcard route plus the join route', () => {
+    // Arrange + Act
     const routes = new PartyRoutesFactory(partyRouteService as never).create();
 
+    // Assert
     expect(routes).toHaveLength(2);
     expect(routes[0].path).toBe('party/:partyId/*');
     expect(routes[1].path).toBe('join/:pin');
   });
 
   it('renders the persistent party screen for a result route URL', () => {
+    // Arrange
     const routes = new PartyRoutesFactory(partyRouteService as never).create() as Parameters<
       typeof renderRouteWithProviders
     >[0]['routes'];
 
+    // Act
     renderRouteWithProviders({
       initialEntries: ['/party/1/stage/1/result'],
       routes,
     });
 
+    // Assert
     expect(screen.getByTestId('party-lobby-screen-stub')).toBeInTheDocument();
   });
 
   it('wraps the party journey route in a patience route provider', () => {
+    // Arrange + Act
     const wrappedRoute = getWrappedRouteElement('party/:partyId/*');
 
+    // Assert
     expect(wrappedRoute.props.routeKind).toBe('partyId');
   });
 
   it('wraps the join route in a patience route provider', () => {
+    // Arrange + Act
     const wrappedRoute = getWrappedRouteElement('join/:pin');
 
+    // Assert
     expect(wrappedRoute.props.routeKind).toBe('pin');
   });
 });

@@ -26,6 +26,7 @@ class TestPlayableContentImportSource extends PlayableContentImportSource {
 
 describe('CreateQuizFromImportUseCase', () => {
   it('creates a quiz and imported questions through one repository command', async () => {
+    // Arrange
     const gameTypeIdentifier = new GameTypeIdentifier();
     const quizId = gameTypeIdentifier.parse(backendTestIdentifiers.game(9));
     const gameId = backendTestIdentifiers.game(21);
@@ -62,6 +63,7 @@ describe('CreateQuizFromImportUseCase', () => {
     const useCase = new CreateQuizFromImportUseCase(quizRepository, accessGuard as never, importQuestionMapper);
     const source = new TestPlayableContentImportSource('quiz-import.json');
 
+    // Act
     const quiz = await useCase.execute(
       {
         projectId: backendTestIdentifiers.project(4),
@@ -72,6 +74,7 @@ describe('CreateQuizFromImportUseCase', () => {
       backendTestIdentifiers.user(12),
     );
 
+    // Assert
     expect(accessGuard.assertCanManageProject).toHaveBeenCalledWith(
       backendTestIdentifiers.project(4),
       backendTestIdentifiers.user(12),
@@ -94,6 +97,7 @@ describe('CreateQuizFromImportUseCase', () => {
   });
 
   it('does not create a quiz when import parsing fails', async () => {
+    // Arrange
     const quizRepository = {
       createWithQuestions: vi.fn(),
     } as unknown as QuizManagementRepository;
@@ -107,6 +111,7 @@ describe('CreateQuizFromImportUseCase', () => {
     } as unknown as QuizImportQuestionMapper;
     const useCase = new CreateQuizFromImportUseCase(quizRepository, accessGuard as never, importQuestionMapper);
 
+    // Act + Assert
     await expect(
       useCase.execute(
         {

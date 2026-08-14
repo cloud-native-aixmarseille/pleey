@@ -11,6 +11,7 @@ import { PrismaQuizQuestionRepository } from './prisma-quiz-question.repository'
 
 describe('PrismaQuizQuestionRepository', () => {
   it('inserts a question at a target position by shifting following questions', async () => {
+    // Arrange
     const gameTypeId = new GameTypeIdentifier().parse(backendTestIdentifiers.game(5));
 
     const transaction = {
@@ -38,6 +39,7 @@ describe('PrismaQuizQuestionRepository', () => {
       new PrismaSelectableOptionMapper(),
     );
 
+    // Act
     const question = await repository.create(gameTypeId, {
       position: 1,
       questionText: 'Question',
@@ -47,6 +49,7 @@ describe('PrismaQuizQuestionRepository', () => {
       answers: [{ id: null, position: 0, text: 'A', isCorrect: true }],
     });
 
+    // Assert
     expect(transaction.question.update).toHaveBeenCalledWith({
       where: { id: backendTestIdentifiers.partyStage(2) },
       data: { position: 2 },
@@ -60,6 +63,7 @@ describe('PrismaQuizQuestionRepository', () => {
   });
 
   it('clamps negative insertion positions to the first question slot', async () => {
+    // Arrange
     const gameTypeId = new GameTypeIdentifier().parse(backendTestIdentifiers.game(5));
 
     const transaction = {
@@ -90,6 +94,7 @@ describe('PrismaQuizQuestionRepository', () => {
       new PrismaSelectableOptionMapper(),
     );
 
+    // Act
     const question = await repository.create(gameTypeId, {
       position: -1,
       questionText: 'Question',
@@ -99,6 +104,7 @@ describe('PrismaQuizQuestionRepository', () => {
       answers: [{ id: null, position: 0, text: 'A', isCorrect: true }],
     });
 
+    // Assert
     expect(transaction.question.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ position: 0 }),
@@ -108,6 +114,7 @@ describe('PrismaQuizQuestionRepository', () => {
   });
 
   it('reorders neighbouring questions when updating a question position', async () => {
+    // Arrange
     const quizQuestionIdentifier = new QuizQuestionIdentifier();
     const questionId = quizQuestionIdentifier.parse(backendTestIdentifiers.partyStage(10));
 
@@ -147,6 +154,7 @@ describe('PrismaQuizQuestionRepository', () => {
       new PrismaSelectableOptionMapper(),
     );
 
+    // Act
     const question = await repository.update(questionId, {
       position: 2,
       questionText: 'Question',
@@ -156,6 +164,7 @@ describe('PrismaQuizQuestionRepository', () => {
       answers: [{ id: null, position: 0, text: 'A', isCorrect: true }],
     });
 
+    // Assert
     expect(transaction.question.update).toHaveBeenCalledTimes(3);
     expect(transaction.question.update).toHaveBeenCalledWith({
       where: { id: questionId },
@@ -178,6 +187,7 @@ describe('PrismaQuizQuestionRepository', () => {
   });
 
   it('clamps negative update positions to the first question slot', async () => {
+    // Arrange
     const quizQuestionIdentifier = new QuizQuestionIdentifier();
     const questionId = quizQuestionIdentifier.parse(backendTestIdentifiers.partyStage(10));
 
@@ -217,6 +227,7 @@ describe('PrismaQuizQuestionRepository', () => {
       new PrismaSelectableOptionMapper(),
     );
 
+    // Act
     const question = await repository.update(questionId, {
       position: -1,
       questionText: 'Question',
@@ -226,6 +237,7 @@ describe('PrismaQuizQuestionRepository', () => {
       answers: [{ id: null, position: 0, text: 'A', isCorrect: true }],
     });
 
+    // Assert
     expect(transaction.question.update).toHaveBeenCalledWith({
       where: { id: questionId },
       data: { position: 3 },

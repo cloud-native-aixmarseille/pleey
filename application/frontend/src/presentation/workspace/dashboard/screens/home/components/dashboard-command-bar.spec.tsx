@@ -109,8 +109,10 @@ describe('DashboardCommandBar', () => {
   }
 
   it('renders workspace selectors and dashboard metrics', () => {
+    // Arrange + Act
     renderDashboardCommandBar();
 
+    // Assert
     expect(screen.getByRole('toolbar', { name: 'dashboard.workspace.sectionTitle' })).toBeInTheDocument();
     expect(screen.getByLabelText('dashboard.workspace.organizationLabel')).toHaveTextContent('Arcade Org');
     expect(screen.getByLabelText('dashboard.workspace.projectLabel')).toHaveTextContent('Flagship');
@@ -120,6 +122,7 @@ describe('DashboardCommandBar', () => {
   });
 
   it('forwards selector changes', async () => {
+    // Arrange
     const user = userEvent.setup();
     const {
       secondaryOrganization,
@@ -137,8 +140,10 @@ describe('DashboardCommandBar', () => {
     await user.click(screen.getByLabelText('dashboard.workspace.projectLabel'));
     await user.type(screen.getByLabelText('dashboard.workspace.projectSearchLabel'), 'Side');
     await user.keyboard('{ArrowDown}');
+    // Act
     await user.keyboard('{Enter}');
 
+    // Assert
     expect(onOrganizationChange).toHaveBeenCalledWith(secondaryOrganization.id);
     expect(onOrganizationSearchChange).toHaveBeenCalledWith('Quiz');
     expect(onProjectChange).toHaveBeenCalledWith(sideQuestProject.id);
@@ -146,12 +151,15 @@ describe('DashboardCommandBar', () => {
   });
 
   it('forwards manage button clicks', async () => {
+    // Arrange
     const user = userEvent.setup();
     const { onManageOrganizations, onManageProjects } = renderDashboardCommandBar();
 
     await user.click(screen.getByRole('button', { name: 'dashboard.workspace.manageOrganizations' }));
+    // Act
     await user.click(screen.getByRole('button', { name: 'dashboard.workspace.manageProjects' }));
 
+    // Assert
     expect(onManageOrganizations).toHaveBeenCalledOnce();
     expect(onManageProjects).toHaveBeenCalledOnce();
   });

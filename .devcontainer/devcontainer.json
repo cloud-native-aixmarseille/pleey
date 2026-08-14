@@ -2,6 +2,9 @@
   "name": "pleey",
   "image": "mcr.microsoft.com/devcontainers/base:debian",
   "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "configureZshAsDefaultShell": true
+    },
     "ghcr.io/devcontainers/features/node:2": {},
     "ghcr.io/devcontainers/features/docker-in-docker:4": {
       "moby": false
@@ -26,16 +29,17 @@
         "servers": {
           "playwright": {
             "command": "npx",
-            "args": ["@playwright/mcp@latest"]
+            "args": [
+              "@playwright/mcp@latest"
+            ]
           },
           "lighthouse": {
             "command": "npx",
-            "args": ["lighthouse-mcp"]
+            "args": [
+              "lighthouse-mcp"
+            ]
           }
         }
-      },
-      "settings": {
-        "terminal.integrated.defaultProfile.linux": "zsh"
       }
     }
   }

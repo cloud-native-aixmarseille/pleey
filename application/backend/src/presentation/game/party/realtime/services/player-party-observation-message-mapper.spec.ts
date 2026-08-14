@@ -9,8 +9,10 @@ import { PlayerPartyObservationMessageMapper } from './player-party-observation-
 
 describe('PlayerPartyObservationMessageMapper', () => {
   it('injects the current-player result outcome into the observer-specific payload', () => {
+    // Arrange
     const mapper = new PlayerPartyObservationMessageMapper();
 
+    // Act
     const message = mapper.toMessage(
       {
         partyId: backendTestIdentifiers.party(44),
@@ -95,6 +97,7 @@ describe('PlayerPartyObservationMessageMapper', () => {
       },
     );
 
+    // Assert
     expect(message.context?.result?.currentPlayer).toEqual({
       earnedPoints: 750,
       isCorrect: true,

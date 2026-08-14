@@ -13,72 +13,86 @@ vi.mock('../../../../shared/i18n/use-presentation-translation', async (importOri
 
 describe('AuthLayout', () => {
   it('renders children inside the main content area', () => {
+    // Arrange + Act
     renderWithProviders(
       <AuthLayout>
         <p>test content</p>
       </AuthLayout>,
     );
 
+    // Assert
     expect(screen.getByText('test content')).toBeInTheDocument();
   });
 
   it('renders the branding eyebrow i18n key', () => {
+    // Arrange + Act
     renderWithProviders(
       <AuthLayout>
         <p>content</p>
       </AuthLayout>,
     );
 
+    // Assert
     expect(screen.getByText('auth.branding.eyebrow')).toBeInTheDocument();
   });
 
   it('renders the default branding title i18n key', () => {
+    // Arrange + Act
     renderWithProviders(
       <AuthLayout>
         <p>content</p>
       </AuthLayout>,
     );
 
+    // Assert
     expect(screen.getByText('auth.branding.title')).toBeInTheDocument();
   });
 
   it('renders a custom branding title when provided', () => {
+    // Arrange + Act
     renderWithProviders(
       <AuthLayout brandingTitle="Custom Title">
         <p>content</p>
       </AuthLayout>,
     );
 
+    // Assert
     expect(screen.getByText('Custom Title')).toBeInTheDocument();
   });
 
   it('renders a main landmark for the content panel', () => {
+    // Arrange + Act
     renderWithProviders(
       <AuthLayout>
         <p>content</p>
       </AuthLayout>,
     );
 
+    // Assert
     expect(screen.getByRole('main')).toBeInTheDocument();
   });
 
   it('does not render a separate complementary hero aside', () => {
+    // Arrange + Act
     renderWithProviders(
       <AuthLayout>
         <p>content</p>
       </AuthLayout>,
     );
 
+    // Assert
     expect(screen.queryByRole('complementary')).not.toBeInTheDocument();
   });
 
   it('renders trust features in the branding panel', () => {
+    // Arrange + Act
     renderWithProviders(
       <AuthLayout>
         <p>content</p>
       </AuthLayout>,
     );
 
+    // Assert
     expect(screen.getByText('auth.branding.feature1')).toBeInTheDocument();
     expect(screen.getByText('auth.branding.feature2')).toBeInTheDocument();
     expect(screen.getByText('auth.branding.feature3')).toBeInTheDocument();

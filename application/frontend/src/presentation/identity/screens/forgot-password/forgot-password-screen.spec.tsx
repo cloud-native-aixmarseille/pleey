@@ -20,38 +20,49 @@ vi.mock('../../../shared/routing/router', async (importOriginal) => {
 describe('ForgotPasswordScreen', () => {
   describe('render()', () => {
     it('renders the forgot password eyebrow', () => {
+      // Arrange + Act
       renderWithFormProvider(<ForgotPasswordScreen />);
 
+      // Assert
       expect(screen.getByText('auth.forgotPassword.eyebrow')).toBeInTheDocument();
     });
 
     it('renders the forgot password title', () => {
+      // Arrange + Act
       renderWithFormProvider(<ForgotPasswordScreen />);
 
+      // Assert
       expect(screen.getByRole('heading', { name: 'auth.forgotPassword.title' })).toBeInTheDocument();
     });
 
     it('renders the submit button', () => {
+      // Arrange + Act
       renderWithFormProvider(<ForgotPasswordScreen />);
 
+      // Assert
       expect(screen.getByRole('button', { name: 'auth.forgotPassword.submitCta' })).toBeInTheDocument();
     });
 
     it('renders the back to sign in link', () => {
+      // Arrange + Act
       renderWithFormProvider(<ForgotPasswordScreen />);
 
+      // Assert
       expect(screen.getByText('auth.forgotPassword.backToSignIn')).toBeInTheDocument();
     });
 
     it('shows the success state after submitting the form', async () => {
+      // Arrange
       renderWithFormProvider(<ForgotPasswordScreen />);
 
       fireEvent.change(screen.getByLabelText('auth.forgotPassword.emailLabel *'), {
         target: { value: 'captain@pleey.io' },
       });
 
+      // Act
       fireEvent.submit(screen.getByRole('button', { name: 'auth.forgotPassword.submitCta' }));
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByRole('heading', { name: 'auth.forgotPassword.success.title' })).toBeInTheDocument();
       });
@@ -59,10 +70,13 @@ describe('ForgotPasswordScreen', () => {
     });
 
     it('renders a validation message after blurring an empty email field', async () => {
+      // Arrange
       renderWithFormProvider(<ForgotPasswordScreen />);
 
+      // Act
       fireEvent.blur(screen.getByLabelText('auth.forgotPassword.emailLabel *'));
 
+      // Assert
       expect(await screen.findByRole('alert')).toHaveTextContent('auth.form.validation.emailRequired');
     });
   });

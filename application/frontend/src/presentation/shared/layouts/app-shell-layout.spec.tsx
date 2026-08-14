@@ -20,52 +20,71 @@ function renderLayout(loadAppVersion?: () => Promise<string>) {
 describe('AppShellLayout', () => {
   describe('render()', () => {
     it('renders the brand as a link to home', () => {
+      // Arrange
       renderLayout();
+      // Act
       const brand = screen.getByRole('link', { name: 'shared.shell.kicker' });
+      // Assert
       expect(brand).toBeInTheDocument();
       expect(brand).toHaveAttribute('href', '/');
     });
 
     it('does not render the auth link (sign-in handled by account menu)', () => {
+      // Arrange + Act
       renderLayout();
+      // Assert
       expect(screen.queryByRole('link', { name: 'shared.nav.auth' })).not.toBeInTheDocument();
     });
 
     it('does not render the dashboard link when not authenticated', () => {
+      // Arrange + Act
       renderLayout();
+      // Assert
       expect(screen.queryByRole('link', { name: 'shared.nav.dashboard' })).not.toBeInTheDocument();
     });
 
     it('renders child route content via Outlet', () => {
+      // Arrange + Act
       renderLayout();
+      // Assert
       expect(screen.getByTestId('outlet-content')).toBeInTheDocument();
     });
 
     it('renders the mobile navigation burger', () => {
+      // Arrange + Act
       renderLayout();
+      // Assert
       expect(screen.getByRole('button', { name: 'shared.shell.navToggle' })).toBeInTheDocument();
     });
 
     it('labels the navigation landmark for accessibility', () => {
+      // Arrange + Act
       renderLayout();
+      // Assert
       expect(screen.getByRole('navigation', { name: 'shared.shell.navLabel' })).toBeInTheDocument();
     });
 
     it('loads the deployed version from the backend', async () => {
+      // Arrange
       const loadAppVersion = vi.fn().mockResolvedValue('1.2.3');
 
+      // Act
       renderLayout(loadAppVersion);
 
+      // Assert
       await waitFor(() => {
         expect(loadAppVersion).toHaveBeenCalledTimes(1);
       });
     });
 
     it('does not render the deployed version in the page body when the backend returns a value', async () => {
+      // Arrange
       const loadAppVersion = vi.fn().mockResolvedValue('1.2.3');
 
+      // Act
       renderLayout(loadAppVersion);
 
+      // Assert
       await waitFor(() => {
         expect(loadAppVersion).toHaveBeenCalledTimes(1);
       });
@@ -74,10 +93,13 @@ describe('AppShellLayout', () => {
     });
 
     it('does not render the deployed version when the backend returns an empty value', async () => {
+      // Arrange
       const loadAppVersion = vi.fn().mockResolvedValue('  ');
 
+      // Act
       renderLayout(loadAppVersion);
 
+      // Assert
       await waitFor(() => {
         expect(loadAppVersion).toHaveBeenCalledTimes(1);
       });
@@ -86,10 +108,13 @@ describe('AppShellLayout', () => {
     });
 
     it('does not render the deployed version when loading fails', async () => {
+      // Arrange
       const loadAppVersion = vi.fn().mockRejectedValue(new Error('boom'));
 
+      // Act
       renderLayout(loadAppVersion);
 
+      // Assert
       await waitFor(() => {
         expect(loadAppVersion).toHaveBeenCalledTimes(1);
       });

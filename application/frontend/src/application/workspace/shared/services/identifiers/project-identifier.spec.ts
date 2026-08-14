@@ -7,17 +7,21 @@ const projectIdentifier = new ProjectIdentifier();
 
 describe('ProjectIdentifier', () => {
   it('parses a UUIDv7 project id from raw input', () => {
+    // Arrange + Act
     const identifier = uuidv7();
 
+    // Assert
     expect(projectIdentifier.parse(identifier)).toBe(identifier);
   });
 
   it('returns null for invalid raw input via parseOrNull', () => {
+    // Arrange + Act + Assert
     expect(projectIdentifier.parseOrNull('not-a-uuid')).toBeNull();
     expect(projectIdentifier.parseOrNull('')).toBeNull();
   });
 
   it('returns null for empty raw input and throws for invalid raw input', () => {
+    // Arrange + Act + Assert
     expect(projectIdentifier.parse('')).toBeNull();
     expect(() => projectIdentifier.parse('not-a-uuid')).toThrow(IdentifierParserErrorCode.INVALID_VALUE);
   });

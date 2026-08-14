@@ -1,7 +1,7 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { GameTypeIdentifierMockFactory } from '../../../../../test-utils/mocks/game-type-identifier-mock-factory';
 import { renderWithUiProvider } from '../../../../../test-utils/render-with-ui-provider';
 import { provideWorkspaceDependencies } from '../../../../workspace/shared/contexts/workspace-dependencies-context';
@@ -39,7 +39,7 @@ describe('PlayableContentManagementScreen', () => {
     updateMetadata: vi.fn(),
   };
 
-  beforeEach(() => {
+  function arrangeGatewayDefaults() {
     navigateMock.mockReset();
     gateway.createItem.mockReset();
     gateway.deleteGame.mockReset();
@@ -106,7 +106,7 @@ describe('PlayableContentManagementScreen', () => {
       text: input.text,
       timeLimit: input.timeLimit,
     }));
-  });
+  }
 
   function renderScreen() {
     return renderWithUiProvider(
@@ -156,6 +156,8 @@ describe('PlayableContentManagementScreen', () => {
   }
 
   it('creates an item from the inline editor', async () => {
+    // Arrange
+    arrangeGatewayDefaults();
     const user = userEvent.setup();
     renderScreen();
 
@@ -167,8 +169,10 @@ describe('PlayableContentManagementScreen', () => {
     const createButtons = screen.getAllByRole('button', {
       name: 'game.types.quiz.management.createItem',
     });
+    // Act
     await user.click(createButtons[createButtons.length - 1]);
 
+    // Assert
     await waitFor(() => {
       expect(gateway.createItem).toHaveBeenCalledWith(gameTypeId, {
         kind: 'multiple',
@@ -185,6 +189,8 @@ describe('PlayableContentManagementScreen', () => {
   });
 
   it('resets the editor to a blank creation form after creating an item', async () => {
+    // Arrange
+    arrangeGatewayDefaults();
     const user = userEvent.setup();
     renderScreen();
 
@@ -196,8 +202,10 @@ describe('PlayableContentManagementScreen', () => {
     const createButtons = screen.getAllByRole('button', {
       name: 'game.types.quiz.management.createItem',
     });
+    // Act
     await user.click(createButtons[createButtons.length - 1]);
 
+    // Assert
     await waitFor(() => {
       expect(gateway.createItem).toHaveBeenCalledTimes(1);
     });
@@ -208,6 +216,8 @@ describe('PlayableContentManagementScreen', () => {
   });
 
   it('allows adding a fifth answer option while creating an item', async () => {
+    // Arrange
+    arrangeGatewayDefaults();
     const user = userEvent.setup();
     renderScreen();
 
@@ -215,19 +225,25 @@ describe('PlayableContentManagementScreen', () => {
 
     await user.click(screen.getByRole('button', { name: 'game.types.quiz.management.addOutcome' }));
     await user.click(screen.getByRole('button', { name: 'game.types.quiz.management.addOutcome' }));
+    // Act
     await user.click(screen.getByRole('button', { name: 'game.types.quiz.management.addOutcome' }));
 
+    // Assert
     expect(screen.getAllByRole('textbox')).toHaveLength(6);
   });
 
   it('asks for confirmation before removing an outcome while creating an item', async () => {
+    // Arrange
+    arrangeGatewayDefaults();
     const user = userEvent.setup();
     renderScreen();
 
     await user.click(await screen.findByRole('button', { name: 'game.types.quiz.management.createItem' }));
 
+    // Act
     await user.click(screen.getByRole('button', { name: 'game.types.quiz.management.addOutcome' }));
 
+    // Assert
     expect(screen.getAllByRole('textbox')).toHaveLength(4);
 
     await user.click(screen.getAllByRole('button', { name: 'game.types.quiz.management.removeOutcomeShort' })[0]);
@@ -251,12 +267,16 @@ describe('PlayableContentManagementScreen', () => {
   });
 
   it('reorders items from the compact stage rail', async () => {
+    // Arrange
+    arrangeGatewayDefaults();
     const user = userEvent.setup();
     renderScreen();
 
     const rail = within(await screen.findByRole('list', { name: 'game.types.quiz.management.itemsTitle' }));
+    // Act
     await user.click(rail.getAllByRole('button', { name: 'game.types.quiz.management.moveItemDownShort' })[0]);
 
+    // Assert
     await waitFor(() => {
       expect(gateway.updateItem.mock.calls).toEqual([
         [21, expect.objectContaining({ position: 2, text: 'First question' })],
@@ -267,6 +287,8 @@ describe('PlayableContentManagementScreen', () => {
   });
 
   it('switches to the setup tab from the more menu and saves metadata', async () => {
+    // Arrange
+    arrangeGatewayDefaults();
     const user = userEvent.setup();
     renderScreen();
 
@@ -278,8 +300,10 @@ describe('PlayableContentManagementScreen', () => {
     });
     await user.clear(titleField);
     await user.type(titleField, 'Arcade Quiz Updated');
+    // Act
     await user.click(screen.getByRole('button', { name: 'game.types.quiz.management.saveMetadata' }));
 
+    // Assert
     await waitFor(() => {
       expect(gateway.updateMetadata).toHaveBeenCalledWith(gameTypeId, {
         title: 'Arcade Quiz Updated',
@@ -293,10 +317,14 @@ describe('PlayableContentManagementScreen', () => {
   });
 
   it('shows only available more-menu actions', async () => {
+    // Arrange
+    arrangeGatewayDefaults();
     const user = userEvent.setup();
     renderScreen();
 
+    // Act
     await user.click(await screen.findByRole('button', { name: 'game.types.quiz.management.moreActions' }));
+    // Assert
     expect(screen.queryByRole('menuitem', { name: 'game.types.quiz.management.activityLog' })).not.toBeInTheDocument();
     expect(screen.queryByRole('menuitem', { name: 'game.types.quiz.management.archiveGame' })).not.toBeInTheDocument();
     expect(
@@ -305,11 +333,15 @@ describe('PlayableContentManagementScreen', () => {
   });
 
   it('switches to the review tab', async () => {
+    // Arrange
+    arrangeGatewayDefaults();
     const user = userEvent.setup();
     renderScreen();
 
+    // Act
     await user.click(await screen.findByRole('tab', { name: 'game.types.quiz.management.tabReview' }));
 
+    // Assert
     expect(await screen.findByRole('heading', { name: 'game.types.quiz.management.tabReview' })).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { name: 'game.types.quiz.management.reviewChecklistTitle' }),
@@ -321,6 +353,8 @@ describe('PlayableContentManagementScreen', () => {
   });
 
   it('surfaces incomplete review items and links back to edit them', async () => {
+    // Arrange
+    arrangeGatewayDefaults();
     const user = userEvent.setup();
     gateway.load.mockResolvedValueOnce({
       game: {
@@ -356,8 +390,10 @@ describe('PlayableContentManagementScreen', () => {
 
     renderScreen();
 
+    // Act
     await user.click(await screen.findByRole('tab', { name: 'game.types.quiz.management.tabReview' }));
 
+    // Assert
     expect(screen.getByText('game.types.quiz.management.validation.missingOutcome')).toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: 'game.types.quiz.management.goToFirstIssue' })).not.toHaveLength(0);
     expect(screen.getAllByRole('button', { name: 'game.types.quiz.management.editItem' })).toHaveLength(2);

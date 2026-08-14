@@ -1,6 +1,6 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { ProjectFixtureFactory } from '../../../../../../test-utils/fixtures/project-fixture-factory';
 import { renderWithProviders } from '../../../../../../test-utils/render-with-providers';
 import { ProjectFormDialog } from './project-form-dialog';
@@ -20,11 +20,11 @@ describe('ProjectFormDialog', () => {
   const onSubmit = vi.fn();
   const onSubmitted = vi.fn();
 
-  beforeEach(() => {
+  function arrangeCallbacks() {
     onClose.mockReset();
     onSubmit.mockReset();
     onSubmitted.mockReset();
-  });
+  }
 
   function renderProjectFormDialog(overrides: Partial<React.ComponentProps<typeof ProjectFormDialog>> = {}) {
     return renderWithProviders(
@@ -42,8 +42,12 @@ describe('ProjectFormDialog', () => {
   }
 
   it('renders the create dialog title with the organization name', async () => {
+    // Arrange
+    arrangeCallbacks();
+    // Act
     renderProjectFormDialog();
 
+    // Assert
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
     expect(screen.getByText('project.management.form.create.title (organization=Arcade Org)')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('project.management.form.fields.name.placeholder')).toHaveValue('');
@@ -51,6 +55,9 @@ describe('ProjectFormDialog', () => {
   });
 
   it('prefills the form fields in edit mode', async () => {
+    // Arrange
+    arrangeCallbacks();
+    // Act
     renderProjectFormDialog({
       mode: 'edit',
       organizationName: 'Arcade Org',
@@ -63,6 +70,7 @@ describe('ProjectFormDialog', () => {
       }),
     });
 
+    // Assert
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
     expect(screen.getByText('project.management.form.edit.title (organization=Arcade Org)')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('project.management.form.fields.name.placeholder')).toHaveValue(
@@ -74,22 +82,28 @@ describe('ProjectFormDialog', () => {
   });
 
   it('shows a validation error and blocks submit when name is blank', async () => {
+    // Arrange
+    arrangeCallbacks();
     const user = userEvent.setup();
 
     renderProjectFormDialog();
 
+    // Act
     await user.click(
       await screen.findByRole('button', {
         name: 'project.management.form.create.submit',
       }),
     );
 
+    // Assert
     expect(screen.getByText('project.management.validation.nameRequired')).toBeInTheDocument();
     expect(onSubmit).not.toHaveBeenCalled();
     expect(onSubmitted).not.toHaveBeenCalled();
   });
 
   it('submits trimmed values and forwards the saved project', async () => {
+    // Arrange
+    arrangeCallbacks();
     const user = userEvent.setup();
     const savedProject = projectFixtureFactory.createProject({
       id: 101,
@@ -110,12 +124,14 @@ describe('ProjectFormDialog', () => {
       screen.getByPlaceholderText('project.management.form.fields.description.placeholder'),
       '  Ready to launch  ',
     );
+    // Act
     await user.click(
       screen.getByRole('button', {
         name: 'project.management.form.create.submit',
       }),
     );
 
+    // Assert
     await waitFor(() => {
       expect(onSubmit).toHaveBeenCalledWith({
         name: 'New Project',
@@ -126,6 +142,8 @@ describe('ProjectFormDialog', () => {
   });
 
   it('shows the rejection message when submit fails', async () => {
+    // Arrange
+    arrangeCallbacks();
     const user = userEvent.setup();
     onSubmit.mockRejectedValue(new Error('project.errors.updateFailed'));
 
@@ -142,12 +160,14 @@ describe('ProjectFormDialog', () => {
 
     await user.clear(await screen.findByPlaceholderText('project.management.form.fields.name.placeholder'));
     await user.type(screen.getByPlaceholderText('project.management.form.fields.name.placeholder'), 'Updated');
+    // Act
     await user.click(
       screen.getByRole('button', {
         name: 'project.management.form.edit.submit',
       }),
     );
 
+    // Assert
     expect(await screen.findByText('project.errors.updateFailed')).toBeInTheDocument();
     expect(onSubmitted).not.toHaveBeenCalled();
   });

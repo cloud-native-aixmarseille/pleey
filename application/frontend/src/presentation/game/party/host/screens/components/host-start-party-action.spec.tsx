@@ -15,8 +15,10 @@ vi.mock('../../../../../shared/i18n/use-presentation-translation', async (import
 
 describe('HostStartPartyAction', () => {
   it('renders the prominent start CTA and triggers the start handler when the lobby is ready', () => {
+    // Arrange
     const onStartParty = vi.fn();
 
+    // Act
     renderWithUiProvider(
       <HostStartPartyAction
         controls={{
@@ -40,6 +42,7 @@ describe('HostStartPartyAction', () => {
       />,
     );
 
+    // Assert
     expect(screen.queryByText('game.party.host.route.runtimeLobbyHint')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'game.party.host.route.startPartyCta' }));
@@ -48,6 +51,7 @@ describe('HostStartPartyAction', () => {
   });
 
   it('renders nothing once the party has started', () => {
+    // Arrange + Act
     renderWithUiProvider(
       <HostStartPartyAction
         controls={{
@@ -71,11 +75,13 @@ describe('HostStartPartyAction', () => {
       />,
     );
 
+    // Assert
     expect(screen.queryByRole('button', { name: 'game.party.host.route.startPartyCta' })).not.toBeInTheDocument();
     expect(screen.queryByText('game.party.host.route.runtimeLobbyHint')).not.toBeInTheDocument();
   });
 
   it('disables the start CTA and shows the pending hint while a command is in flight', () => {
+    // Arrange + Act
     renderWithUiProvider(
       <HostStartPartyAction
         controls={{
@@ -99,11 +105,13 @@ describe('HostStartPartyAction', () => {
       />,
     );
 
+    // Assert
     expect(screen.getByText('game.party.host.route.runtimePending')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'game.party.host.route.startPartyCta' })).toBeDisabled();
   });
 
   it('keeps the start CTA visible but disabled while the lobby has no players yet', () => {
+    // Arrange
     const onStartParty = vi.fn();
 
     renderWithUiProvider(
@@ -129,8 +137,10 @@ describe('HostStartPartyAction', () => {
       />,
     );
 
+    // Act
     const startButton = screen.getByRole('button', { name: 'game.party.host.route.startPartyCta' });
 
+    // Assert
     expect(startButton).toBeDisabled();
     expect(screen.queryByText('game.party.host.route.runtimeLobbyHint')).not.toBeInTheDocument();
 

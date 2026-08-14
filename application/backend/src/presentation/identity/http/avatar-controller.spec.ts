@@ -15,6 +15,7 @@ type MockResponse = {
 
 describe('AvatarController', () => {
   it('serves user avatars as SVG with no-store cache headers', async () => {
+    // Arrange
     const userAvatar = Buffer.from('<svg>user-avatar</svg>', 'utf8');
     const avatar = new Media(null, 'image/svg+xml', userAvatar);
     const getUserAvatarUseCase = {
@@ -40,8 +41,10 @@ describe('AvatarController', () => {
       send: vi.fn(),
     };
 
+    // Act
     await controller.getUserAvatar(backendTestIdentifiers.user(7), response as never);
 
+    // Assert
     expect(getUserAvatarUseCase.execute).toHaveBeenCalledWith(backendTestIdentifiers.user(7));
     expect(userIdentifier.parse).toHaveBeenCalledWith(backendTestIdentifiers.user(7));
     expect(response.setHeader).toHaveBeenCalledWith('Content-Type', 'image/svg+xml');
@@ -52,6 +55,7 @@ describe('AvatarController', () => {
   });
 
   it('serves guest avatars as SVG', async () => {
+    // Arrange
     const guestAvatar = Buffer.from('<svg>guest-avatar</svg>', 'utf8');
     const avatar = new Media(null, 'image/svg+xml', guestAvatar);
     const getUserAvatarUseCase = {
@@ -77,8 +81,10 @@ describe('AvatarController', () => {
       send: vi.fn(),
     };
 
+    // Act
     await controller.getGuestAvatar('guest-42', response as never);
 
+    // Assert
     expect(getGuestAvatarUseCase.execute).toHaveBeenCalledWith('guest-42');
     expect(response.setHeader).toHaveBeenCalledWith('Content-Type', 'image/svg+xml');
     expect(response.setHeader).toHaveBeenCalledWith('Cache-Control', 'public, max-age=60');
@@ -86,6 +92,7 @@ describe('AvatarController', () => {
   });
 
   it('serves guest preview avatars as SVG', () => {
+    // Arrange
     const guestAvatar = Buffer.from('<svg>guest-preview</svg>', 'utf8');
     const avatar = new Media(null, 'image/svg+xml', guestAvatar);
     const getUserAvatarUseCase = {
@@ -111,8 +118,10 @@ describe('AvatarController', () => {
       send: vi.fn(),
     };
 
+    // Act
     controller.getGuestAvatarPreview('preview-seed', response as never);
 
+    // Assert
     expect(getGuestAvatarPreviewUseCase.execute).toHaveBeenCalledWith('preview-seed');
     expect(response.setHeader).toHaveBeenCalledWith('Content-Type', 'image/svg+xml');
     expect(response.setHeader).toHaveBeenCalledWith('Cache-Control', 'public, max-age=60');

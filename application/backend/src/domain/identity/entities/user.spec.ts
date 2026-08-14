@@ -7,7 +7,9 @@ import { Media } from '../../media/entities/media';
 describe('User', () => {
   describe('constructor', () => {
     it('should create a user instance with all properties', () => {
+      // Arrange
       const now = new Date();
+      // Act
       const user = createUserFixture({
         id: backendTestIdentifiers.user(1),
         username: 'testuser',
@@ -17,6 +19,7 @@ describe('User', () => {
         createdAt: now,
       });
 
+      // Assert
       expect(user.id).toBe(backendTestIdentifiers.user(1));
       expect(user.username).toBe('testuser');
       expect(user.email).toBe('test@example.com');
@@ -27,6 +30,7 @@ describe('User', () => {
 
   describe('toSafeObject', () => {
     it('should return user object without password', () => {
+      // Arrange
       const now = new Date();
       const avatarBuffer = Buffer.from('https://cdn/avatar.png', 'utf8');
       const user = createUserFixture({
@@ -38,8 +42,10 @@ describe('User', () => {
         createdAt: now,
       });
 
+      // Act
       const safeUser = user.toSafeObject();
 
+      // Assert
       expect(safeUser).toHaveProperty('id', backendTestIdentifiers.user(1));
       expect(safeUser).toHaveProperty('username', 'testuser');
       expect(safeUser).toHaveProperty('email', 'test@example.com');
@@ -50,6 +56,7 @@ describe('User', () => {
     });
 
     it('should not expose password in safe object', () => {
+      // Arrange
       const user = createUserFixture({
         id: backendTestIdentifiers.user(1),
         username: 'testuser',
@@ -60,14 +67,17 @@ describe('User', () => {
       });
 
       const safeUser = user.toSafeObject();
+      // Act
       const keys = Object.keys(safeUser);
 
+      // Assert
       expect(keys).not.toContain('password');
     });
   });
 
   describe('toProfileSnapshot', () => {
     it('maps avatar media to a profile snapshot version token', () => {
+      // Arrange
       const avatar = new Media(
         backendTestIdentifiers.media(42),
         'image/svg+xml',
@@ -77,16 +87,21 @@ describe('User', () => {
       );
       const user = createUserFixture({ avatar });
 
+      // Act
       const result = user.toProfileSnapshot();
 
+      // Assert
       expect(result.avatarVersion).toBe(avatar.versionToken());
     });
 
     it('maps missing avatar to null avatar version', () => {
+      // Arrange
       const user = createUserFixture({ avatar: null });
 
+      // Act
       const result = user.toProfileSnapshot();
 
+      // Assert
       expect(result.avatarVersion).toBeNull();
     });
   });

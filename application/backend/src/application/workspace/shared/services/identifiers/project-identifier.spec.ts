@@ -7,21 +7,26 @@ const projectIdentifier = new ProjectIdentifier();
 
 describe('ProjectIdentifier', () => {
   it('builds a branded project id from a UUIDv7 string', () => {
+    // Arrange + Act
     const identifier = uuidv7();
 
+    // Assert
     expect(projectIdentifier.parse(identifier)).toBe(identifier);
   });
 
   it('returns null when the input is absent', () => {
+    // Arrange + Act + Assert
     expect(projectIdentifier.parse(undefined)).toBeNull();
   });
 
   it('returns null for invalid raw input via parseOrNull', () => {
+    // Arrange + Act + Assert
     expect(projectIdentifier.parseOrNull('not-a-uuid')).toBeNull();
     expect(projectIdentifier.parseOrNull('')).toBeNull();
   });
 
   it('throws for invalid raw input via parse', () => {
+    // Arrange + Act + Assert
     expect(() => projectIdentifier.parse('not-a-uuid')).toThrow(IdentifierParserErrorCode.INVALID_VALUE);
   });
 });

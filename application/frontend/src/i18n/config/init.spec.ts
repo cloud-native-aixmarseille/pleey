@@ -1,51 +1,73 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { LanguagePreferenceResolver, SupportedLanguage } from './init';
 
 const STORAGE_KEY = 'pleey_language';
-const languagePreferenceResolver = new LanguagePreferenceResolver();
 
 describe('LanguagePreferenceResolver', () => {
-  afterEach(() => {
+  function clearStoredLanguagePreference() {
     localStorage.removeItem(STORAGE_KEY);
-  });
+  }
 
   describe('resolve()', () => {
     it('returns "en" when "en" is persisted in localStorage', () => {
       // Arrange
+      const languagePreferenceResolver = new LanguagePreferenceResolver();
+
+      clearStoredLanguagePreference();
+      // Act
       localStorage.setItem(STORAGE_KEY, 'en');
 
-      // Act
-      const result = languagePreferenceResolver.resolve();
-
       // Assert
-      expect(result).toBe(SupportedLanguage.EN);
+      try {
+        const result = languagePreferenceResolver.resolve();
+
+        expect(result).toBe(SupportedLanguage.EN);
+      } finally {
+        clearStoredLanguagePreference();
+      }
     });
 
     it('returns "fr" when "fr" is persisted in localStorage', () => {
       // Arrange
+      const languagePreferenceResolver = new LanguagePreferenceResolver();
+
+      clearStoredLanguagePreference();
+      // Act
       localStorage.setItem(STORAGE_KEY, 'fr');
 
-      // Act
-      const result = languagePreferenceResolver.resolve();
-
       // Assert
-      expect(result).toBe(SupportedLanguage.FR);
+      try {
+        const result = languagePreferenceResolver.resolve();
+
+        expect(result).toBe(SupportedLanguage.FR);
+      } finally {
+        clearStoredLanguagePreference();
+      }
     });
 
     it('ignores an invalid persisted value and falls back to browser detection', () => {
-      // Arrange - store an unsupported locale code
+      // Arrange
+      const languagePreferenceResolver = new LanguagePreferenceResolver();
+
+      clearStoredLanguagePreference();
+      // Act
       localStorage.setItem(STORAGE_KEY, 'de');
 
-      // Act
-      const result = languagePreferenceResolver.resolve();
+      // Assert
+      try {
+        const result = languagePreferenceResolver.resolve();
 
-      // Assert - jsdom defaults navigator.language to 'en-US' → resolves 'en'
-      expect([SupportedLanguage.EN, SupportedLanguage.FR]).toContain(result);
+        expect([SupportedLanguage.EN, SupportedLanguage.FR]).toContain(result);
+      } finally {
+        clearStoredLanguagePreference();
+      }
     });
 
     it('returns "en" when no preference is stored and browser language is not fr', () => {
-      // Arrange - jsdom provides navigator.language = 'en-US' by default
-      localStorage.removeItem(STORAGE_KEY);
+      // Arrange
+      const languagePreferenceResolver = new LanguagePreferenceResolver();
+
+      clearStoredLanguagePreference();
 
       // Act
       const result = languagePreferenceResolver.resolve();

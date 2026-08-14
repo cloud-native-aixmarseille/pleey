@@ -15,6 +15,7 @@ const validationPipe = new ValidationPipe({
 
 describe('Party observer realtime payload validation', () => {
   it('accepts a whitelisted party entry payload', async () => {
+    // Arrange + Act
     const result = await validationPipe.transform(
       {
         guestId: backendTestIdentifiers.guest('guest-7'),
@@ -24,6 +25,7 @@ describe('Party observer realtime payload validation', () => {
       toArgumentMetadata(PartyEntryMessageDto),
     );
 
+    // Assert
     expect(result).toBeInstanceOf(PartyEntryMessageDto);
     expect(result).toMatchObject({
       guestId: backendTestIdentifiers.guest('guest-7'),
@@ -33,6 +35,7 @@ describe('Party observer realtime payload validation', () => {
   });
 
   it('rejects non-whitelisted party entry properties', async () => {
+    // Arrange + Act + Assert
     await expect(
       validationPipe.transform(
         {
@@ -45,6 +48,7 @@ describe('Party observer realtime payload validation', () => {
   });
 
   it('accepts a host control payload with a valid party id', async () => {
+    // Arrange + Act
     const result = await validationPipe.transform(
       {
         partyId: backendTestIdentifiers.party(44),
@@ -52,6 +56,7 @@ describe('Party observer realtime payload validation', () => {
       toArgumentMetadata(PartyObservationMessageDto),
     );
 
+    // Assert
     expect(result).toBeInstanceOf(PartyObservationMessageDto);
     expect(result).toMatchObject({
       partyId: backendTestIdentifiers.party(44),
@@ -59,6 +64,7 @@ describe('Party observer realtime payload validation', () => {
   });
 
   it('rejects invalid submit action payload values', async () => {
+    // Arrange + Act + Assert
     await expect(
       validationPipe.transform(
         {

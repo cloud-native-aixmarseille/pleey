@@ -16,17 +16,20 @@ vi.mock('./use-prefers-reduced-motion', () => ({
 
 describe('motion-primitives', () => {
   it('renders MotionFadeIn content', () => {
+    // Arrange + Act
     renderWithUiProvider(
       <MotionFadeIn testId="fade-in">
         <span>Fade content</span>
       </MotionFadeIn>,
     );
 
+    // Assert
     expect(screen.getByTestId('fade-in')).toBeInTheDocument();
     expect(screen.getByText('Fade content')).toBeInTheDocument();
   });
 
   it('renders MotionStagger and MotionStaggerItem content', () => {
+    // Arrange + Act
     renderWithUiProvider(
       <MotionStagger testId="stagger-root">
         <MotionStaggerItem testId="stagger-item">
@@ -35,22 +38,26 @@ describe('motion-primitives', () => {
       </MotionStagger>,
     );
 
+    // Assert
     expect(screen.getByTestId('stagger-root')).toBeInTheDocument();
     expect(screen.getByTestId('stagger-item')).toBeInTheDocument();
     expect(screen.getByText('Stagger content')).toBeInTheDocument();
   });
 
   it('renders MotionScreenTransition content', () => {
+    // Arrange + Act
     renderWithUiProvider(
       <MotionScreenTransition sectionKey="details">
         <span>Screen content</span>
       </MotionScreenTransition>,
     );
 
+    // Assert
     expect(screen.getByText('Screen content')).toBeInTheDocument();
   });
 
   it('renders MotionPop and MotionListItem content', () => {
+    // Arrange + Act
     renderWithUiProvider(
       <>
         <MotionPop>
@@ -62,6 +69,7 @@ describe('motion-primitives', () => {
       </>,
     );
 
+    // Assert
     expect(screen.getByText('Pop content')).toBeInTheDocument();
     expect(screen.getByText('List content')).toBeInTheDocument();
   });

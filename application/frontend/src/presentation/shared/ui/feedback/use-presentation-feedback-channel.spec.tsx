@@ -27,26 +27,33 @@ function FeedbackChannelNotificationHarness() {
 
 describe('usePresentationFeedbackChannel', () => {
   it('starts with no error message', () => {
+    // Arrange + Act
     const { result } = renderHook(() => usePresentationFeedbackChannel());
 
+    // Assert
     expect(result.current.errorMessage).toBeNull();
   });
 
   it('sets a resolved error message from Error inputs', () => {
+    // Arrange
     const { result } = renderHook(() => usePresentationFeedbackChannel());
 
+    // Act
     act(() => {
       result.current.handleError(new Error('Failed to submit'), {
         fallbackMessage: 'fallback.error',
       });
     });
 
+    // Assert
     expect(result.current.errorMessage).toBe('Failed to submit');
   });
 
   it('uses the fallback error message for unknown errors', () => {
+    // Arrange
     const { result } = renderHook(() => usePresentationFeedbackChannel());
 
+    // Act
     act(() => {
       result.current.handleError(
         { reason: 'unexpected' },
@@ -56,10 +63,12 @@ describe('usePresentationFeedbackChannel', () => {
       );
     });
 
+    // Assert
     expect(result.current.errorMessage).toBe('fallback.error');
   });
 
   it('clears error state when clearError is called', () => {
+    // Arrange
     const { result } = renderHook(() => usePresentationFeedbackChannel());
 
     act(() => {
@@ -68,17 +77,22 @@ describe('usePresentationFeedbackChannel', () => {
       });
     });
 
+    // Act
     act(() => {
       result.current.clearError();
     });
 
+    // Assert
     expect(result.current.errorMessage).toBeNull();
   });
 
   it('dispatches a toast notification when notify is enabled and provider is present', () => {
+    // Arrange
     renderWithUiProvider(<FeedbackChannelNotificationHarness />);
+    // Act
     fireEvent.click(screen.getByRole('button', { name: 'Trigger error' }));
 
+    // Assert
     expect(screen.getByTestId('feedback-channel-error-toast')).toBeInTheDocument();
     expect(screen.getByRole('alert')).toHaveTextContent('fallback.error');
   });

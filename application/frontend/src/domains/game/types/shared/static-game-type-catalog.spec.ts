@@ -3,6 +3,7 @@ import { StaticGameTypeCatalog } from './static-game-type-catalog';
 
 describe('StaticGameTypeCatalog', () => {
   it('returns descriptors in registration order', () => {
+    // Arrange + Act
     const catalog = new StaticGameTypeCatalog([
       {
         key: 'quiz',
@@ -22,6 +23,7 @@ describe('StaticGameTypeCatalog', () => {
       },
     ]);
 
+    // Assert
     expect(catalog.list()).toEqual([
       {
         key: 'quiz',
@@ -43,6 +45,7 @@ describe('StaticGameTypeCatalog', () => {
   });
 
   it('returns a defensive copy of the descriptors', () => {
+    // Arrange
     const catalog = new StaticGameTypeCatalog([
       {
         key: 'quiz',
@@ -54,6 +57,7 @@ describe('StaticGameTypeCatalog', () => {
     ]);
     const descriptors = [...catalog.list()];
 
+    // Act
     descriptors.push({
       key: 'prediction',
       badge: 'PR',
@@ -62,6 +66,7 @@ describe('StaticGameTypeCatalog', () => {
       descriptionKey: 'game.types.prediction.description',
     });
 
+    // Assert
     expect(catalog.list()).toEqual([
       {
         key: 'quiz',

@@ -28,12 +28,14 @@ vi.mock('../../../../../shared/routing/router', async (importOriginal) => {
 
 describe('GameItemCard', () => {
   it('renders the summary text when a descriptor is available', () => {
+    // Arrange
     const descriptor = createGameTypeDescriptorFixture({
       key: 'quiz',
       badge: 'QUIZ',
       titleKey: 'game.types.quiz.title',
     });
 
+    // Act
     renderWithUiProvider(
       <GameItemCard
         descriptor={descriptor}
@@ -49,11 +51,13 @@ describe('GameItemCard', () => {
       />,
     );
 
+    // Assert
     expect(screen.getByText('Roadmap quiz')).toBeInTheDocument();
     expect(screen.getByText('game.types.quiz.management.questionSummary (count=14)')).toBeInTheDocument();
   });
 
   it('shows the disabled reason tooltip for blocked party creation', async () => {
+    // Arrange
     const user = userEvent.setup();
 
     renderWithUiProvider(
@@ -71,14 +75,17 @@ describe('GameItemCard', () => {
       />,
     );
 
+    // Act
     await user.hover(
       screen.getByRole('button', { name: 'dashboard.games.actions.createParty' }).parentElement as HTMLElement,
     );
 
+    // Assert
     expect(await screen.findByText('dashboard.games.permissions.createParty.hostHasActiveParty')).toBeInTheDocument();
   });
 
   it('shows the no-stages tooltip when the game has no configured stages', async () => {
+    // Arrange
     const user = userEvent.setup();
 
     renderWithUiProvider(
@@ -97,14 +104,17 @@ describe('GameItemCard', () => {
       />,
     );
 
+    // Act
     await user.hover(
       screen.getByRole('button', { name: 'dashboard.games.actions.createParty' }).parentElement as HTMLElement,
     );
 
+    // Assert
     expect(await screen.findByText('dashboard.games.permissions.createParty.noStagesAvailable')).toBeInTheDocument();
   });
 
   it('renders launch readiness from the backend permission entry', () => {
+    // Arrange + Act
     renderWithUiProvider(
       <GameItemCard
         descriptor={createGameTypeDescriptorFixture({ key: 'quiz', badge: 'QUIZ' })}
@@ -124,6 +134,7 @@ describe('GameItemCard', () => {
       />,
     );
 
+    // Assert
     expect(screen.getByText('dashboard.games.readiness.needsStages')).toBeInTheDocument();
   });
 });

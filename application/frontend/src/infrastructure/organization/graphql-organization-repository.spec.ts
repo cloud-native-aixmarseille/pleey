@@ -258,6 +258,7 @@ describe('GraphqlOrganizationRepository', () => {
     });
 
     it('forwards optional member search to the GraphQL query', async () => {
+      // Arrange
       const { client, requestMock } = new GraphqlClientMockFactory().create({
         requestResult: {
           organizationMembers: {
@@ -272,6 +273,7 @@ describe('GraphqlOrganizationRepository', () => {
       });
       const repository = createRepository(client);
 
+      // Act
       await repository.getOrganizationMembers({
         organizationId: parseOrganizationId(9),
         page: 1,
@@ -279,6 +281,7 @@ describe('GraphqlOrganizationRepository', () => {
         search: 'captain',
       });
 
+      // Assert
       expect(requestMock).toHaveBeenCalledWith(
         expect.anything(),
         {

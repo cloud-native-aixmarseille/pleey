@@ -14,6 +14,7 @@ const organizationId = backendTestIdentifiers.organization(1);
 
 describe('ListUserOrganizationsUseCase', () => {
   it('returns an empty page when user has no memberships', async () => {
+    // Arrange
     const organizationRepository = createOrganizationRepositoryMock();
     const memberRepository = createOrganizationMemberRepositoryMock({
       findPageByUser: {
@@ -32,7 +33,9 @@ describe('ListUserOrganizationsUseCase', () => {
       paginationQueryNormalizer,
     );
 
+    // Act
     const result = await useCase.execute({}, backendTestIdentifiers.user(1));
+    // Assert
     expect(memberRepository.findPageByUser).toHaveBeenCalledWith(backendTestIdentifiers.user(1), 1, 25, undefined);
     expect(result).toEqual({
       items: [],
@@ -46,6 +49,7 @@ describe('ListUserOrganizationsUseCase', () => {
   });
 
   it('fetches organizations by membership ids', async () => {
+    // Arrange
     const organizationRepository = createOrganizationRepositoryMock({
       findByIds: [{ id: organizationId }] as never,
     });
@@ -71,7 +75,9 @@ describe('ListUserOrganizationsUseCase', () => {
       paginationQueryNormalizer,
     );
 
+    // Act
     const result = await useCase.execute({}, backendTestIdentifiers.user(10));
+    // Assert
     expect(memberRepository.findPageByUser).toHaveBeenCalledWith(backendTestIdentifiers.user(10), 1, 25, undefined);
     expect(organizationRepository.findByIds).toHaveBeenCalledWith([organizationId]);
     expect(result).toEqual({
@@ -85,6 +91,7 @@ describe('ListUserOrganizationsUseCase', () => {
   });
 
   it('forwards trimmed search terms to the membership repository', async () => {
+    // Arrange
     const organizationRepository = createOrganizationRepositoryMock();
     const memberRepository = createOrganizationMemberRepositoryMock({
       findPageByUser: {
@@ -103,8 +110,10 @@ describe('ListUserOrganizationsUseCase', () => {
       paginationQueryNormalizer,
     );
 
+    // Act
     await useCase.execute({ search: '  pleey  ' }, backendTestIdentifiers.user(3));
 
+    // Assert
     expect(memberRepository.findPageByUser).toHaveBeenCalledWith(backendTestIdentifiers.user(3), 1, 25, 'pleey');
   });
 });

@@ -6,6 +6,7 @@ import { Select } from './select';
 describe('Select', () => {
   describe('render()', () => {
     it('renders the selected option', () => {
+      // Arrange + Act
       renderWithUiProvider(
         <label htmlFor="game-type">
           Game type
@@ -16,11 +17,13 @@ describe('Select', () => {
         </label>,
       );
 
+      // Assert
       expect(screen.getByLabelText('Game type')).toHaveValue('quiz');
       expect(screen.getByLabelText('Game type')).toHaveDisplayValue('Quiz');
     });
 
     it('exposes aria-invalid when invalid', () => {
+      // Arrange + Act
       renderWithUiProvider(
         <label htmlFor="workspace">
           Workspace
@@ -30,6 +33,7 @@ describe('Select', () => {
         </label>,
       );
 
+      // Assert
       expect(screen.getByLabelText('Workspace')).toHaveAttribute('aria-invalid', 'true');
     });
   });

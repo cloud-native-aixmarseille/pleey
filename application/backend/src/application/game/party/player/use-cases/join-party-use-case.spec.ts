@@ -25,6 +25,7 @@ const guestId = backendTestIdentifiers.guest('guest-42');
 
 describe('JoinPartyUseCase', () => {
   it('rejects a new authenticated join when the party has already started', async () => {
+    // Arrange
     const runtime = createPlayerPartyRuntimeMock({
       findActivePartyByUserId: {
         partyId,
@@ -56,6 +57,7 @@ describe('JoinPartyUseCase', () => {
       createPasswordServiceMock({ compare: true }) as never,
     );
 
+    // Act + Assert
     await expect(
       useCase.execute({
         pin: partyPin,
@@ -72,6 +74,7 @@ describe('JoinPartyUseCase', () => {
   });
 
   it('rejects a new guest join when the party has already started', async () => {
+    // Arrange
     const runtime = createPlayerPartyRuntimeMock({
       findPartyByPin: {
         partyId,
@@ -96,6 +99,7 @@ describe('JoinPartyUseCase', () => {
       createPasswordServiceMock({ compare: true }) as never,
     );
 
+    // Act + Assert
     await expect(
       useCase.execute({
         pin: partyPin,
@@ -112,6 +116,7 @@ describe('JoinPartyUseCase', () => {
   });
 
   it('rejects authenticated joins when the user is active in another party', async () => {
+    // Arrange
     const runtime = createPlayerPartyRuntimeMock({
       findActivePartyByUserId: {
         partyId: otherPartyId,
@@ -129,6 +134,7 @@ describe('JoinPartyUseCase', () => {
       createPasswordServiceMock({ compare: true }) as never,
     );
 
+    // Act + Assert
     await expect(
       useCase.execute({
         pin: partyPin,
@@ -152,6 +158,7 @@ describe('JoinPartyUseCase', () => {
   });
 
   it('allows an authenticated player to rejoin the same active party', async () => {
+    // Arrange
     const player = {
       identity: { kind: PartyPlayerKind.USER, userId: playerUserId },
       username: 'Morgan',
@@ -190,6 +197,7 @@ describe('JoinPartyUseCase', () => {
       createPasswordServiceMock({ compare: true }) as never,
     );
 
+    // Act
     const result = await useCase.execute({
       pin: partyPin,
       playerIdentity: {
@@ -199,6 +207,7 @@ describe('JoinPartyUseCase', () => {
       username: '',
     });
 
+    // Assert
     expect(runtime.ensureAuthenticatedPlayer).toHaveBeenCalledWith({
       partyId,
       userId: playerUserId,
@@ -207,6 +216,7 @@ describe('JoinPartyUseCase', () => {
   });
 
   it('joins an authenticated player into the requested party and resolves the published player', async () => {
+    // Arrange
     const player = {
       identity: { kind: PartyPlayerKind.USER, userId: playerUserId },
       username: 'Morgan',
@@ -232,6 +242,7 @@ describe('JoinPartyUseCase', () => {
       createPasswordServiceMock({ compare: true }) as never,
     );
 
+    // Act
     const result = await useCase.execute({
       pin: partyPin,
       playerIdentity: {
@@ -241,6 +252,7 @@ describe('JoinPartyUseCase', () => {
       username: '',
     });
 
+    // Assert
     expect(runtime.ensureAuthenticatedPlayer).toHaveBeenCalledWith({
       partyId,
       userId: playerUserId,
@@ -264,6 +276,7 @@ describe('JoinPartyUseCase', () => {
   });
 
   it('normalizes guest usernames and resolves a rejoined guest player by guest id', async () => {
+    // Arrange
     const player = {
       identity: { kind: PartyPlayerKind.GUEST, guestId },
       username: 'Morgan Guest',
@@ -283,6 +296,7 @@ describe('JoinPartyUseCase', () => {
       createPasswordServiceMock({ compare: true }) as never,
     );
 
+    // Act
     const result = await useCase.execute({
       avatarSeed: 'neon-seed',
       pin: partyPin,
@@ -293,6 +307,7 @@ describe('JoinPartyUseCase', () => {
       username: '  Morgan Guest  ',
     });
 
+    // Assert
     expect(runtime.ensureGuestPlayer).toHaveBeenCalledWith({
       avatarSeed: 'neon-seed',
       partyId,
@@ -310,6 +325,7 @@ describe('JoinPartyUseCase', () => {
   });
 
   it('allows guest rejoin by guest id when the browser no longer has the username', async () => {
+    // Arrange
     const player = {
       identity: { kind: PartyPlayerKind.GUEST, guestId },
       username: 'Morgan Guest',
@@ -329,6 +345,7 @@ describe('JoinPartyUseCase', () => {
       createPasswordServiceMock({ compare: true }) as never,
     );
 
+    // Act
     const result = await useCase.execute({
       avatarSeed: '  aurora-seed  ',
       pin: partyPin,
@@ -339,6 +356,7 @@ describe('JoinPartyUseCase', () => {
       username: '   ',
     });
 
+    // Assert
     expect(runtime.ensureGuestPlayer).toHaveBeenCalledWith({
       avatarSeed: 'aurora-seed',
       partyId,
@@ -356,6 +374,7 @@ describe('JoinPartyUseCase', () => {
   });
 
   it('rejects guest rejoin by guest id when the player is no longer in the party', async () => {
+    // Arrange
     const runtime = createPlayerPartyRuntimeMock({
       findPartyPlayer: null,
     });
@@ -368,6 +387,7 @@ describe('JoinPartyUseCase', () => {
       createPasswordServiceMock({ compare: true }) as never,
     );
 
+    // Act + Assert
     await expect(
       useCase.execute({
         pin: partyPin,
@@ -384,6 +404,7 @@ describe('JoinPartyUseCase', () => {
   });
 
   it('rejects guest joins with an empty username', async () => {
+    // Arrange
     const runtime = createPlayerPartyRuntimeMock();
     const broadcastPartyObservationUseCase = {
       execute: vi.fn(),
@@ -394,6 +415,7 @@ describe('JoinPartyUseCase', () => {
       createPasswordServiceMock({ compare: true }) as never,
     );
 
+    // Act + Assert
     await expect(
       useCase.execute({
         pin: partyPin,
@@ -408,6 +430,7 @@ describe('JoinPartyUseCase', () => {
   });
 
   it('rejects private-party joins with missing password', async () => {
+    // Arrange
     const runtime = createPlayerPartyRuntimeMock({
       findPartyByPin: {
         partyId,
@@ -429,6 +452,7 @@ describe('JoinPartyUseCase', () => {
     const passwordService = createPasswordServiceMock({ compare: true });
     const useCase = new JoinPartyUseCase(runtime as never, broadcastPartyObservationUseCase as never, passwordService);
 
+    // Act + Assert
     await expect(
       useCase.execute({
         pin: partyPin,
@@ -443,6 +467,7 @@ describe('JoinPartyUseCase', () => {
   });
 
   it('rejects private-party joins with invalid password', async () => {
+    // Arrange
     const runtime = createPlayerPartyRuntimeMock({
       findPartyByPin: {
         partyId,
@@ -464,6 +489,7 @@ describe('JoinPartyUseCase', () => {
     const passwordService = createPasswordServiceMock({ compare: false });
     const useCase = new JoinPartyUseCase(runtime as never, broadcastPartyObservationUseCase as never, passwordService);
 
+    // Act + Assert
     await expect(
       useCase.execute({
         partyPassword: 'wrong-secret',

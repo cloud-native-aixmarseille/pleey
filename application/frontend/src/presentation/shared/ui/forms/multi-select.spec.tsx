@@ -5,6 +5,7 @@ import { MultiSelect } from './multi-select';
 
 describe('MultiSelect', () => {
   it('renders selected values as chips', () => {
+    // Arrange + Act
     renderWithUiProvider(
       <MultiSelect
         aria-label="Game types"
@@ -17,10 +18,12 @@ describe('MultiSelect', () => {
       />,
     );
 
+    // Assert
     expect(screen.getAllByText('Quiz')).not.toHaveLength(0);
   });
 
   it('exposes aria-invalid when invalid', () => {
+    // Arrange + Act
     renderWithUiProvider(
       <MultiSelect
         aria-label="Game types"
@@ -34,6 +37,7 @@ describe('MultiSelect', () => {
       />,
     );
 
+    // Assert
     expect(screen.getByRole('combobox', { name: 'Game types' })).toHaveAttribute('aria-invalid', 'true');
   });
 });

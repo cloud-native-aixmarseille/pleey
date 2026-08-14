@@ -1,6 +1,6 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, vi, it as vitestIt } from 'vitest';
 import type { DashboardWorkspaceGateway } from '../../../../../application/workspace/dashboard/facades/dashboard-workspace.facade';
 import { CreatePartyDisabledReason } from '../../../../../domains/game/management/entities/dashboard-game-list-item';
 import type { PartyId, PartyPin } from '../../../../../domains/game/party/shared/entities/party';
@@ -198,57 +198,79 @@ vi.mock('../../../../shared/routing/router', async (importOriginal) => {
 });
 
 describe('DashboardHomeScreen', () => {
-  beforeEach(() => {
-    resetGameTypeSequence();
-    navigateMock.mockReset();
-  });
+  const it = ((name: string, testCase: () => Promise<void> | void, timeout?: number) =>
+    vitestIt(
+      name,
+      async () => {
+        resetGameTypeSequence();
+        navigateMock.mockReset();
+
+        await testCase();
+      },
+      timeout,
+    )) as typeof vitestIt;
 
   describe('render()', () => {
     it('renders the workspace toolbar with organization and project selects', async () => {
+      // Arrange + Act
       await renderDashboardHomeScreen();
 
+      // Assert
       expect(screen.getByRole('toolbar', { name: 'dashboard.workspace.sectionTitle' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'dashboard.workspace.manageOrganizations' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'dashboard.workspace.manageProjects' })).toBeInTheDocument();
     });
 
     it('navigates to organization management from the workspace bar', async () => {
+      // Arrange
       const user = userEvent.setup();
 
       await renderDashboardHomeScreen();
 
+      // Act
       await user.click(screen.getByRole('button', { name: 'dashboard.workspace.manageOrganizations' }));
 
+      // Assert
       expect(navigateMock).toHaveBeenCalledWith('/workspace/organizations');
     });
 
     it('navigates to project management from the workspace bar', async () => {
+      // Arrange
       const user = userEvent.setup();
 
       await renderDashboardHomeScreen();
 
+      // Act
       await user.click(screen.getByRole('button', { name: 'dashboard.workspace.manageProjects' }));
 
+      // Assert
       expect(navigateMock).toHaveBeenCalledWith('/workspace/organizations#projects');
     });
 
     it('does not render metrics when no organization is selected', async () => {
+      // Arrange + Act
       await renderDashboardHomeScreen();
 
+      // Assert
       expect(screen.queryByRole('region', { name: 'dashboard.stats.title' })).not.toBeInTheDocument();
     });
 
     it('renders the games section', async () => {
+      // Arrange + Act
       await renderDashboardHomeScreen();
 
+      // Assert
       expect(screen.getByRole('heading', { name: 'dashboard.games.title' })).toBeInTheDocument();
     });
 
     it('renders the active party section above the games section', async () => {
+      // Arrange
       await renderDashboardHomeScreen();
 
+      // Act
       const headings = screen.getAllByRole('heading', { level: 2 });
 
+      // Assert
       expect(headings.map((heading) => heading.textContent)).toContain('dashboard.activeParty.title');
       expect(headings.findIndex((heading) => heading.textContent === 'dashboard.activeParty.title')).toBeLessThan(
         headings.findIndex((heading) => heading.textContent === 'dashboard.games.title'),
@@ -256,11 +278,13 @@ describe('DashboardHomeScreen', () => {
     });
 
     it('restores the persisted workspace selection and shows metrics', async () => {
+      // Arrange
       workspaceSelectionPortMockFactory.create(undefined, {
         organizationId: organizationIdentifier.parse(2),
         projectId: projectIdentifier.parse(8),
       });
 
+      // Act
       renderWithProviders(
         <DashboardHomeScreen
           dashboardHomeActions={createDefaultDashboardHomeActions()}
@@ -282,10 +306,12 @@ describe('DashboardHomeScreen', () => {
         />,
       );
 
+      // Assert
       expect(await screen.findByRole('region', { name: 'dashboard.stats.title' })).toBeInTheDocument();
     });
 
     it('renders metrics when organization dashboard is loaded', async () => {
+      // Arrange + Act
       renderWithProviders(
         <DashboardHomeScreen
           dashboardHomeActions={createDefaultDashboardHomeActions()}
@@ -307,11 +333,13 @@ describe('DashboardHomeScreen', () => {
         />,
       );
 
+      // Assert
       expect(await screen.findByText('3')).toBeInTheDocument();
       expect(screen.getByText('5')).toBeInTheDocument();
     });
 
     it('renders project-scoped game summaries after the project loads', async () => {
+      // Arrange
       const loadProjectGameCatalog = vi.fn().mockResolvedValue(
         dashboardHomeScreenFixtureFactory.createDashboardGamesPage({
           items: [
@@ -342,6 +370,7 @@ describe('DashboardHomeScreen', () => {
         }),
       );
 
+      // Act
       renderWithProviders(
         <DashboardHomeScreen
           dashboardHomeActions={createDefaultDashboardHomeActions()}
@@ -364,17 +393,20 @@ describe('DashboardHomeScreen', () => {
         />,
       );
 
+      // Assert
       expect(await screen.findByText('Project quiz')).toBeInTheDocument();
       expect(screen.getByText('game.types.quiz.management.questionSummary (count=6)')).toBeInTheDocument();
     });
 
     it('loads the selected organization workspace only once on initialization', async () => {
+      // Arrange
       const loadOrganizationWorkspaceState = vi.fn().mockResolvedValue({
         organizationDashboard: null,
         projectsPage: createPaginatedResult([dashboardHomeScreenFixtureFactory.createProject()]),
         projectId: projectIdentifier.parse(8),
       });
 
+      // Act
       renderWithProviders(
         <DashboardHomeScreen
           dashboardHomeActions={createDefaultDashboardHomeActions()}
@@ -386,12 +418,14 @@ describe('DashboardHomeScreen', () => {
         />,
       );
 
+      // Assert
       await waitFor(() => {
         expect(loadOrganizationWorkspaceState).toHaveBeenCalledTimes(1);
       });
     });
 
     it('renders project-scoped parties after the project loads', async () => {
+      // Arrange
       const loadUserParties = vi.fn().mockResolvedValue([
         partyFixtureFactory.createParty({
           partyId: 44,
@@ -401,6 +435,7 @@ describe('DashboardHomeScreen', () => {
         }),
       ]);
 
+      // Act
       renderWithProviders(
         <DashboardHomeScreen
           dashboardHomeActions={createDefaultDashboardHomeActions()}
@@ -423,6 +458,7 @@ describe('DashboardHomeScreen', () => {
         />,
       );
 
+      // Assert
       expect(
         await screen.findByRole('heading', {
           name: 'dashboard.activeParty.pinTitle (pin=123456)',
@@ -432,6 +468,7 @@ describe('DashboardHomeScreen', () => {
     });
 
     it('loads user parties even when no project is selected', async () => {
+      // Arrange
       const loadUserParties = vi.fn().mockResolvedValue([
         partyFixtureFactory.createParty({
           partyId: 44,
@@ -441,6 +478,7 @@ describe('DashboardHomeScreen', () => {
         }),
       ]);
 
+      // Act
       renderWithProviders(
         <DashboardHomeScreen
           dashboardHomeActions={createDefaultDashboardHomeActions()}
@@ -457,6 +495,7 @@ describe('DashboardHomeScreen', () => {
         />,
       );
 
+      // Assert
       expect(
         await screen.findByRole('heading', {
           name: 'dashboard.activeParty.pinTitle (pin=123456)',
@@ -467,6 +506,7 @@ describe('DashboardHomeScreen', () => {
     });
 
     it('navigates quiz management with the quiz id instead of the game id', async () => {
+      // Arrange
       const user = userEvent.setup();
       const dashboardHomeActions = dashboardHomeActionsFacadeMockFactory.create({
         resolveManageGameRoute: vi.fn((game) => `/quizzes/${game.gameTypeId}`),
@@ -524,12 +564,15 @@ describe('DashboardHomeScreen', () => {
 
       await screen.findByText('Project quiz');
 
+      // Act
       await user.click(screen.getByRole('button', { name: 'dashboard.games.actions.manage' }));
 
+      // Assert
       expect(navigateMock).toHaveBeenCalledWith(`/quizzes/${gameTypeIdentifier.parse(12)}`);
     });
 
     it('creates a party directly from a dashboard game card and surfaces it in the parties section', async () => {
+      // Arrange
       const user = userEvent.setup();
       const createParty = vi.fn().mockResolvedValue(
         partyFixtureFactory.createParty({
@@ -595,8 +638,10 @@ describe('DashboardHomeScreen', () => {
 
       await user.click(screen.getByRole('button', { name: 'dashboard.games.actions.createParty' }));
       const dialog = await screen.findByRole('dialog');
+      // Act
       await user.click(within(dialog).getByRole('button', { name: 'dashboard.games.actions.createParty' }));
 
+      // Assert
       expect(createParty).toHaveBeenCalledWith(gameIdentifier.parse(13), {
         privatePartyPassword: undefined,
       });
@@ -611,6 +656,7 @@ describe('DashboardHomeScreen', () => {
     });
 
     it('creates a game from the dashboard dialog and navigates to its management route', async () => {
+      // Arrange
       const user = userEvent.setup();
       const loadProjectGameCatalog = vi
         .fn()
@@ -651,8 +697,10 @@ describe('DashboardHomeScreen', () => {
       fireEvent.change(within(dialog).getAllByRole('textbox')[0], {
         target: { value: 'Project quiz' },
       });
+      // Act
       await user.click(screen.getByRole('button', { name: 'dashboard.games.create.submit' }));
 
+      // Assert
       await waitFor(() => {
         expect(dashboardHomeActions.createGame).toHaveBeenCalledWith({
           description: null,
@@ -666,6 +714,7 @@ describe('DashboardHomeScreen', () => {
     });
 
     it('disables create-party when the user already hosts a non-ended party for another game', async () => {
+      // Arrange
       const loadProjectGameCatalog = vi.fn().mockResolvedValue(
         dashboardHomeScreenFixtureFactory.createDashboardGamesPage({
           items: [
@@ -690,6 +739,7 @@ describe('DashboardHomeScreen', () => {
         }),
       );
 
+      // Act
       renderWithProviders(
         <DashboardHomeScreen
           dashboardHomeActions={createDefaultDashboardHomeActions()}
@@ -725,11 +775,13 @@ describe('DashboardHomeScreen', () => {
         />,
       );
 
+      // Assert
       expect(await screen.findByText('Project quiz', {}, { timeout: 5000 })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'dashboard.games.actions.createParty' })).toBeDisabled();
     });
 
     it('disables create-party from backend-provided catalog permissions', async () => {
+      // Arrange
       const loadProjectGameCatalog = vi.fn().mockResolvedValue(
         dashboardHomeScreenFixtureFactory.createDashboardGamesPage({
           items: [
@@ -754,6 +806,7 @@ describe('DashboardHomeScreen', () => {
         }),
       );
 
+      // Act
       renderWithProviders(
         <DashboardHomeScreen
           dashboardHomeActions={createDefaultDashboardHomeActions()}
@@ -789,6 +842,7 @@ describe('DashboardHomeScreen', () => {
         />,
       );
 
+      // Assert
       expect(await screen.findByText('Project quiz')).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'dashboard.games.actions.createParty' })).toBeDisabled();
     });
@@ -920,24 +974,30 @@ describe('DashboardHomeScreen', () => {
     ];
 
     it('renders the search filter when games are loaded', async () => {
+      // Arrange + Act
       renderWithGames(twoGames);
 
+      // Assert
       expect(await screen.findByRole('search', { name: 'dashboard.games.filters.label' })).toBeInTheDocument();
     });
 
     it('filters games by search term', async () => {
+      // Arrange
       const user = userEvent.setup();
       renderWithGames(twoGames);
 
       await screen.findByText('Alpha quiz');
 
+      // Act
       await user.type(screen.getByPlaceholderText('dashboard.games.filters.searchPlaceholder'), 'Beta');
 
+      // Assert
       expect(screen.queryByText('Alpha quiz')).not.toBeInTheDocument();
       expect(screen.getByText('Beta prediction')).toBeInTheDocument();
     });
 
     it('filters games by type', async () => {
+      // Arrange
       const user = userEvent.setup();
       const gameTypes = [
         createGameTypeDescriptorFixture({ key: 'quiz' }),
@@ -956,21 +1016,26 @@ describe('DashboardHomeScreen', () => {
         name: 'games.type2.title',
         hidden: true,
       });
+      // Act
       await user.click(predictionOption);
 
+      // Assert
       expect(screen.queryByText('Alpha quiz')).not.toBeInTheDocument();
       expect(screen.getByText('Beta prediction')).toBeInTheDocument();
     });
 
     it('shows no-results state when filters exclude all games', async () => {
+      // Arrange
       const { loadProjectGameCatalog } = renderWithGames(twoGames);
 
       await screen.findByText('Alpha quiz');
 
+      // Act
       fireEvent.change(screen.getByPlaceholderText('dashboard.games.filters.searchPlaceholder'), {
         target: { value: 'zzz-no-match' },
       });
 
+      // Assert
       await waitFor(() => {
         expect(loadProjectGameCatalog).toHaveBeenLastCalledWith({
           projectId: projectIdentifier.parse(8),

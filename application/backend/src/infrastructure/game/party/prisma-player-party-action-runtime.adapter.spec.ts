@@ -18,6 +18,7 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
   const STAGE_202 = backendTestIdentifiers.partyStage(202);
 
   it('stores first submission progress when the existing score context is null', async () => {
+    // Arrange
     const transaction = {
       party: {
         update: vi.fn().mockResolvedValue(undefined),
@@ -48,6 +49,7 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
       {} as never,
     );
 
+    // Act
     await adapter.saveSubmissionResult({
       actionId: ACTION_22,
       context: {
@@ -70,6 +72,7 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
       status: PartyStatus.ACTIVE,
     });
 
+    // Assert
     expect(transaction.score.update).toHaveBeenCalledWith({
       where: {
         id: 42,
@@ -97,6 +100,7 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
   });
 
   it('stores per-stage progress history and rewrites the cumulative score from that history', async () => {
+    // Arrange
     const transaction = {
       party: {
         update: vi.fn().mockResolvedValue(undefined),
@@ -161,6 +165,7 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
       {} as never,
     );
 
+    // Act
     await adapter.saveSubmissionResult({
       actionId: ACTION_22,
       context: {
@@ -183,6 +188,7 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
       status: PartyStatus.ACTIVE,
     });
 
+    // Assert
     expect(transaction.score.update).toHaveBeenCalledWith({
       where: {
         id: 42,

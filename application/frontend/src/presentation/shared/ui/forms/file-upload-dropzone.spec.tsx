@@ -6,6 +6,7 @@ import { FileUploadDropzone } from './file-upload-dropzone';
 
 describe('FileUploadDropzone', () => {
   it('renders the prompt state when no file is selected', () => {
+    // Arrange + Act
     renderWithUiProvider(
       <FileUploadDropzone
         acceptedFileTypes=".csv,text/csv"
@@ -20,6 +21,7 @@ describe('FileUploadDropzone', () => {
       />,
     );
 
+    // Assert
     expect(screen.getByRole('button', { name: 'Choose file' })).toBeInTheDocument();
     expect(screen.getByText('Drop a file here')).toBeInTheDocument();
     expect(screen.getByText('Choose file')).toBeInTheDocument();
@@ -27,6 +29,7 @@ describe('FileUploadDropzone', () => {
   });
 
   it('renders a visible label inside the dropzone when provided', () => {
+    // Arrange + Act
     renderWithUiProvider(
       <FileUploadDropzone
         acceptedFileTypes=".csv,text/csv"
@@ -43,14 +46,17 @@ describe('FileUploadDropzone', () => {
       />,
     );
 
+    // Assert
     expect(screen.getByText('Import file')).toBeInTheDocument();
   });
 
   it('renders selected file details and clears the selection', async () => {
+    // Arrange
     const user = userEvent.setup();
     const onFileSelect = vi.fn();
     const file = new File(['content'], 'questions.csv', { type: 'text/csv' });
 
+    // Act
     renderWithUiProvider(
       <FileUploadDropzone
         acceptedFileTypes=".csv,text/csv"
@@ -65,6 +71,7 @@ describe('FileUploadDropzone', () => {
       />,
     );
 
+    // Assert
     expect(screen.getByText('questions.csv')).toBeInTheDocument();
     expect(screen.getByText('CSV')).toBeInTheDocument();
     expect(screen.getByText('7 B')).toBeInTheDocument();

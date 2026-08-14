@@ -1,5 +1,5 @@
 import { act, fireEvent, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { PartyObservation } from '../../../../../../../domains/game/party/shared/entities/party-observation';
 import { PartyRuntimePhase } from '../../../../../../../domains/game/party/shared/entities/party-runtime-context';
 import { PartyStatus } from '../../../../../../../domains/game/party/shared/entities/party-status';
@@ -156,100 +156,142 @@ function renderPredictionPlayerStageSurface(
 }
 
 describe('prediction runtime panels', () => {
-  afterEach(() => {
+  function restoreEnvironment() {
     vi.useRealTimers();
     vi.unstubAllGlobals();
-  });
+  }
 
   it('renders the host prediction stage from party state', () => {
+    // Arrange
     vi.useFakeTimers();
+    // Act
     vi.setSystemTime(1_000);
 
-    renderWithUiProvider(<PredictionHostStagePanel party={createStageParty()} />);
+    // Assert
+    try {
+      renderWithUiProvider(<PredictionHostStagePanel party={createStageParty()} />);
 
-    expect(screen.getByTestId('prediction-host-stage-panel')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Who wins the final?' })).toBeInTheDocument();
-    expect(screen.getByText('Home wins')).toBeInTheDocument();
-    expect(screen.getByText('Away wins')).toBeInTheDocument();
-    expect(screen.getByText('game.party.route.runtimeTimeLeft:time=00:10')).toBeInTheDocument();
-    expect(screen.getAllByText('game.party.route.runtimeResponsesReceived:submitted=1,total=3')[0]).toBeInTheDocument();
-    expect(screen.getByText('game.party.route.runtimeResponsesPending:remaining=2')).toBeInTheDocument();
+      expect(screen.getByTestId('prediction-host-stage-panel')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Who wins the final?' })).toBeInTheDocument();
+      expect(screen.getByText('Home wins')).toBeInTheDocument();
+      expect(screen.getByText('Away wins')).toBeInTheDocument();
+      expect(screen.getByText('game.party.route.runtimeTimeLeft:time=00:10')).toBeInTheDocument();
+      expect(
+        screen.getAllByText('game.party.route.runtimeResponsesReceived:submitted=1,total=3')[0],
+      ).toBeInTheDocument();
+      expect(screen.getByText('game.party.route.runtimeResponsesPending:remaining=2')).toBeInTheDocument();
+    } finally {
+      restoreEnvironment();
+    }
   });
 
   it('submits the selected prediction action from the player stage', () => {
+    // Arrange
     vi.useFakeTimers();
+    // Act
     vi.setSystemTime(1_000);
 
-    const onSubmitAction = vi.fn();
+    // Assert
+    try {
+      const onSubmitAction = vi.fn();
 
-    renderPredictionPlayerStageSurface({ onSubmitAction });
+      renderPredictionPlayerStageSurface({ onSubmitAction });
 
-    act(() => {
-      vi.advanceTimersByTime(3_000);
-    });
+      act(() => {
+        vi.advanceTimersByTime(3_000);
+      });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Away wins' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Away wins' }));
 
-    expect(onSubmitAction).toHaveBeenCalledWith(secondActionId);
+      expect(onSubmitAction).toHaveBeenCalledWith(secondActionId);
+    } finally {
+      restoreEnvironment();
+    }
   });
 
   it('submits immediately on mobile without waiting for a reveal lock', () => {
+    // Arrange
     vi.useFakeTimers();
     vi.setSystemTime(1_000);
+    // Act
     stubMatchMedia(true);
 
-    const onSubmitAction = vi.fn();
+    // Assert
+    try {
+      const onSubmitAction = vi.fn();
 
-    renderPredictionPlayerStageSurface({ onSubmitAction });
+      renderPredictionPlayerStageSurface({ onSubmitAction });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Away wins' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Away wins' }));
 
-    expect(onSubmitAction).toHaveBeenCalledWith(secondActionId);
+      expect(onSubmitAction).toHaveBeenCalledWith(secondActionId);
+    } finally {
+      restoreEnvironment();
+    }
   });
 
   it('submits the selected prediction action from the keyboard shortcut', () => {
+    // Arrange
     vi.useFakeTimers();
+    // Act
     vi.setSystemTime(1_000);
 
-    const onSubmitAction = vi.fn();
+    // Assert
+    try {
+      const onSubmitAction = vi.fn();
 
-    renderPredictionPlayerStageSurface({ onSubmitAction });
+      renderPredictionPlayerStageSurface({ onSubmitAction });
 
-    act(() => {
-      vi.advanceTimersByTime(3_000);
-    });
+      act(() => {
+        vi.advanceTimersByTime(3_000);
+      });
 
-    fireEvent.keyDown(document, { key: '2' });
+      fireEvent.keyDown(document, { key: '2' });
 
-    expect(onSubmitAction).toHaveBeenCalledWith(secondActionId);
-    expect(screen.getByRole('button', { name: 'Away wins' })).toHaveAttribute('aria-keyshortcuts', '2');
+      expect(onSubmitAction).toHaveBeenCalledWith(secondActionId);
+      expect(screen.getByRole('button', { name: 'Away wins' })).toHaveAttribute('aria-keyshortcuts', '2');
+    } finally {
+      restoreEnvironment();
+    }
   });
 
   it('disables prediction actions when the stage timer has expired', () => {
+    // Arrange
     vi.useFakeTimers();
+    // Act
     vi.setSystemTime(11_000);
 
-    const onSubmitAction = vi.fn();
+    // Assert
+    try {
+      const onSubmitAction = vi.fn();
 
-    renderPredictionPlayerStageSurface({ onSubmitAction });
+      renderPredictionPlayerStageSurface({ onSubmitAction });
 
-    const actionButton = screen.getByRole('button', { name: 'Away wins' });
+      const actionButton = screen.getByRole('button', { name: 'Away wins' });
 
-    expect(screen.getAllByText('game.party.route.runtimeTimeUp')).toHaveLength(2);
-    expect(actionButton).toBeDisabled();
+      expect(screen.getAllByText('game.party.route.runtimeTimeUp')).toHaveLength(2);
+      expect(actionButton).toBeDisabled();
 
-    fireEvent.click(actionButton);
+      fireEvent.click(actionButton);
 
-    expect(onSubmitAction).not.toHaveBeenCalled();
+      expect(onSubmitAction).not.toHaveBeenCalled();
+    } finally {
+      restoreEnvironment();
+    }
   });
 
   it('renders the player prediction result reveal from party state', () => {
-    renderWithUiProvider(<PredictionPlayerResultSurface onLeaveParty={vi.fn()} party={createResultParty()} />);
+    // Arrange + Act + Assert
+    try {
+      renderWithUiProvider(<PredictionPlayerResultSurface onLeaveParty={vi.fn()} party={createResultParty()} />);
 
-    expect(screen.getByTestId('prediction-player-result-surface')).toBeInTheDocument();
-    expect(screen.getByText('game.types.prediction.runtime.resultCorrect')).toBeInTheDocument();
-    expect(screen.getByText('game.types.prediction.runtime.pointsAwarded:points=250')).toBeInTheDocument();
-    expect(screen.getByText('game.types.prediction.runtime.correctBadge')).toBeInTheDocument();
-    expect(screen.getByText('game.types.prediction.runtime.yourPickBadge')).toBeInTheDocument();
+      expect(screen.getByTestId('prediction-player-result-surface')).toBeInTheDocument();
+      expect(screen.getByText('game.types.prediction.runtime.resultCorrect')).toBeInTheDocument();
+      expect(screen.getByText('game.types.prediction.runtime.pointsAwarded:points=250')).toBeInTheDocument();
+      expect(screen.getByText('game.types.prediction.runtime.correctBadge')).toBeInTheDocument();
+      expect(screen.getByText('game.types.prediction.runtime.yourPickBadge')).toBeInTheDocument();
+    } finally {
+      restoreEnvironment();
+    }
   });
 });
