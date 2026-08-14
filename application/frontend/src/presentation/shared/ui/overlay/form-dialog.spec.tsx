@@ -27,8 +27,10 @@ describe('FormDialog', () => {
   }
 
   it('renders the dialog chrome and body content when open', async () => {
+    // Arrange + Act
     renderFormDialog();
 
+    // Assert
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
     expect(screen.getByText('Projects')).toBeInTheDocument();
     expect(screen.getByText('Create project')).toBeInTheDocument();
@@ -38,9 +40,12 @@ describe('FormDialog', () => {
   });
 
   it('submits the form when the footer submit button is triggered', () => {
+    // Arrange
     const { onSubmit } = renderFormDialog();
+    // Act
     const form = document.querySelector('form');
 
+    // Assert
     expect(form).not.toBeNull();
     fireEvent.submit(form as HTMLFormElement);
 
@@ -48,8 +53,10 @@ describe('FormDialog', () => {
   });
 
   it('renders nothing visible when closed', () => {
+    // Arrange + Act
     renderFormDialog({ isOpen: false });
 
+    // Assert
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 });

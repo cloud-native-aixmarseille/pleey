@@ -24,23 +24,28 @@ function renderGuestOnlyRoute(authValue: AuthContextValue) {
 
 describe('GuestOnlyRoute', () => {
   it('does not render guest content before session restoration completes', () => {
+    // Arrange + Act
     renderGuestOnlyRoute(
       authContextMockFactory.createValue({
         hasRestoredSession: false,
       }),
     );
 
+    // Assert
     expect(screen.queryByText('sign-in-content')).not.toBeInTheDocument();
     expect(screen.queryByTestId('navigate-/workspace/dashboard')).not.toBeInTheDocument();
   });
 
   it('renders guest content for unauthenticated users', () => {
+    // Arrange + Act
     renderGuestOnlyRoute(authContextMockFactory.createValue());
 
+    // Assert
     expect(screen.getByText('sign-in-content')).toBeInTheDocument();
   });
 
   it('redirects authenticated users to the dashboard after restoration', () => {
+    // Arrange + Act
     renderGuestOnlyRoute(
       authContextMockFactory.createAuthenticatedValue({
         user: authFixtureFactory.createUser({
@@ -51,6 +56,7 @@ describe('GuestOnlyRoute', () => {
       }),
     );
 
+    // Assert
     expect(screen.getByTestId('navigate-/workspace/dashboard')).toBeInTheDocument();
   });
 });

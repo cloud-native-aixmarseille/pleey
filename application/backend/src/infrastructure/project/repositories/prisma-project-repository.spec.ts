@@ -8,6 +8,7 @@ import { PrismaProjectRepository } from './prisma-project-repository';
 
 describe('PrismaProjectRepository', () => {
   it('preserves the unfiltered overallCount when search narrows the project page', async () => {
+    // Arrange
     const count = vi.fn().mockResolvedValueOnce(3).mockResolvedValueOnce(1);
     const findMany = vi.fn().mockResolvedValue([
       {
@@ -32,8 +33,10 @@ describe('PrismaProjectRepository', () => {
       new PaginationQueryNormalizer(),
     );
 
+    // Act
     const page = await repository.findPageByOrganization(backendTestIdentifiers.organization(7), 1, 25, '  launch  ');
 
+    // Assert
     expect(count).toHaveBeenNthCalledWith(1, {
       where: {
         organizationId: backendTestIdentifiers.organization(7),

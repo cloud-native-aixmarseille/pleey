@@ -14,13 +14,16 @@ vi.mock('../../../i18n/use-presentation-translation', async (importOriginal) => 
 
 describe('AccountMenuGuestButton', () => {
   it('renders the sign-in action and delegates clicks', async () => {
+    // Arrange
     const user = userEvent.setup();
     const onSignIn = vi.fn();
 
     renderWithProviders(<AccountMenuGuestButton onSignIn={onSignIn} />);
 
+    // Act
     await user.click(screen.getByRole('button', { name: 'shared.shell.signInLink' }));
 
+    // Assert
     expect(onSignIn).toHaveBeenCalledTimes(1);
   });
 });

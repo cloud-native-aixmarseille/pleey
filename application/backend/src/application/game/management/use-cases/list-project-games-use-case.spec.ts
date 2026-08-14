@@ -18,6 +18,7 @@ const gameTypeId = backendTestIdentifiers.game(101);
 
 describe('ListProjectGamesUseCase', () => {
   it('throws PROJECT_NOT_FOUND when the project does not exist', async () => {
+    // Arrange
     const useCase = new ListProjectGamesUseCase(
       { listProjectGames: vi.fn() } as never,
       { findById: vi.fn().mockResolvedValue(null) } as never,
@@ -28,8 +29,9 @@ describe('ListProjectGamesUseCase', () => {
 
     const execution = useCase.execute({ projectId }, hostUserId);
 
-    await expect(execution).rejects.toBeInstanceOf(ProjectNotFoundError);
+    // Act + Assert
     await expect(execution).rejects.toMatchObject({
+      constructor: ProjectNotFoundError,
       code: ProjectErrorCode.PROJECT_NOT_FOUND,
       context: {
         projectId,
@@ -38,6 +40,7 @@ describe('ListProjectGamesUseCase', () => {
   });
 
   it('throws NOT_A_MEMBER when the user is outside the organization', async () => {
+    // Arrange
     const useCase = new ListProjectGamesUseCase(
       { listProjectGames: vi.fn() } as never,
       {
@@ -51,6 +54,7 @@ describe('ListProjectGamesUseCase', () => {
       gameTypeParser,
     );
 
+    // Act + Assert
     await expect(useCase.execute({ projectId }, hostUserId)).rejects.toMatchObject({
       code: OrganizationErrorCode.NOT_A_MEMBER,
       context: {
@@ -62,6 +66,7 @@ describe('ListProjectGamesUseCase', () => {
   });
 
   it('normalizes the request before delegating to the management catalog', async () => {
+    // Arrange
     const gameManagementCatalog = {
       listProjectGames: vi.fn().mockResolvedValue({
         items: [
@@ -115,6 +120,7 @@ describe('ListProjectGamesUseCase', () => {
       gameTypeParser,
     );
 
+    // Act
     const result = await useCase.execute(
       {
         projectId,
@@ -128,6 +134,7 @@ describe('ListProjectGamesUseCase', () => {
       hostUserId,
     );
 
+    // Assert
     expect(gameManagementCatalog.listProjectGames).toHaveBeenCalledWith({
       projectId,
       search: 'quiz',
@@ -182,6 +189,7 @@ describe('ListProjectGamesUseCase', () => {
   });
 
   it('marks games as non-creatable when the host already has an active party elsewhere', async () => {
+    // Arrange
     const useCase = new ListProjectGamesUseCase(
       {
         listProjectGames: vi.fn().mockResolvedValue({
@@ -233,8 +241,10 @@ describe('ListProjectGamesUseCase', () => {
       gameTypeParser,
     );
 
+    // Act
     const result = await useCase.execute({ projectId }, hostUserId);
 
+    // Assert
     expect(result.items[0]?.permissions.createParty).toEqual({
       allowed: false,
       reason: CreatePartyDisabledReason.HOST_HAS_ACTIVE_PARTY,
@@ -246,6 +256,7 @@ describe('ListProjectGamesUseCase', () => {
   });
 
   it('marks games as non-creatable when the game already has an active party', async () => {
+    // Arrange
     const useCase = new ListProjectGamesUseCase(
       {
         listProjectGames: vi.fn().mockResolvedValue({
@@ -297,8 +308,10 @@ describe('ListProjectGamesUseCase', () => {
       gameTypeParser,
     );
 
+    // Act
     const result = await useCase.execute({ projectId }, hostUserId);
 
+    // Assert
     expect(result.items[0]?.permissions.createParty).toEqual({
       allowed: false,
       reason: CreatePartyDisabledReason.ACTIVE_PARTY_EXISTS,
@@ -310,6 +323,7 @@ describe('ListProjectGamesUseCase', () => {
   });
 
   it('marks games as non-creatable when the game has no configured stages', async () => {
+    // Arrange
     const useCase = new ListProjectGamesUseCase(
       {
         listProjectGames: vi.fn().mockResolvedValue({
@@ -361,8 +375,10 @@ describe('ListProjectGamesUseCase', () => {
       gameTypeParser,
     );
 
+    // Act
     const result = await useCase.execute({ projectId }, hostUserId);
 
+    // Assert
     expect(result.items[0]?.permissions.createParty).toEqual({
       allowed: false,
       reason: CreatePartyDisabledReason.NO_STAGES_AVAILABLE,
@@ -374,6 +390,7 @@ describe('ListProjectGamesUseCase', () => {
   });
 
   it('throws VALIDATION_FAILED when the resolver omits permissions for a listed game', async () => {
+    // Arrange
     const useCase = new ListProjectGamesUseCase(
       {
         listProjectGames: vi.fn().mockResolvedValue({
@@ -409,6 +426,7 @@ describe('ListProjectGamesUseCase', () => {
       gameTypeParser,
     );
 
+    // Act + Assert
     await expect(useCase.execute({ projectId }, hostUserId)).rejects.toThrow(GameErrorCode.VALIDATION_FAILED);
   });
 });

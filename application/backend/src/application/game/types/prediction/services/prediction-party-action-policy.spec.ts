@@ -10,6 +10,7 @@ import { PredictionPartyActionPolicy } from './prediction-party-action-policy';
 
 describe('PredictionPartyActionPolicy', () => {
   it('evaluates prediction submissions through the shared structured choice behavior', async () => {
+    // Arrange
     const gameId = backendTestIdentifiers.game(12);
     const stageId = backendTestIdentifiers.partyStage(42);
     const selectedActionId = backendTestIdentifiers.partyAction(2);
@@ -40,6 +41,7 @@ describe('PredictionPartyActionPolicy', () => {
     const policy = new PredictionPartyActionPolicy(partyStageCatalog);
     vi.spyOn(Date, 'now').mockReturnValue(20_000);
 
+    // Act
     const resolution = await policy.evaluateSubmission({
       actionId: selectedActionId,
       context,
@@ -49,6 +51,7 @@ describe('PredictionPartyActionPolicy', () => {
       status: PartyStatus.ACTIVE,
     });
 
+    // Assert
     expect(partyStageCatalog.findStageById).toHaveBeenCalledWith(gameId, stageId);
     expect(resolution).toEqual({
       context,

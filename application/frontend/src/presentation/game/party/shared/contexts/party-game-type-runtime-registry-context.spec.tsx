@@ -14,6 +14,7 @@ const runtimeGameType = Object.values(GameType)[0] as GameType;
 describe('partyGameTypeRuntimeRegistryContext', () => {
   describe('usePartyGameTypeRuntimeRegistry()', () => {
     it('returns the registry from context', () => {
+      // Arrange
       const registry: PartyGameTypeRuntimeRegistry = {
         resolve: (gameType) =>
           gameType === runtimeGameType
@@ -29,14 +30,18 @@ describe('partyGameTypeRuntimeRegistryContext', () => {
         <PartyGameTypeRuntimeRegistryProvider value={registry}>{children}</PartyGameTypeRuntimeRegistryProvider>
       );
 
+      // Act
       const { result } = renderHook(() => usePartyGameTypeRuntimeRegistry(), { wrapper });
 
+      // Assert
       expect(result.current).toBe(registry);
     });
 
     it('throws when called without the provider', () => {
+      // Arrange + Act
       const renderWithoutProvider = () => renderHook(() => usePartyGameTypeRuntimeRegistry());
 
+      // Assert
       expect(renderWithoutProvider).toThrow(
         PresentationContextErrorCode.PRESENTATION_RUNTIME_DEPENDENCY_PROVIDER_REQUIRED,
       );

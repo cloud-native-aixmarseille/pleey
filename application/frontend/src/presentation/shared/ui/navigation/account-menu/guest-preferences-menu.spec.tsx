@@ -18,10 +18,13 @@ vi.mock('./account-menu-preferences-panel', () => ({
 
 describe('GuestPreferencesMenu', () => {
   it('opens and closes the dedicated preferences dropdown', async () => {
+    // Arrange
     const user = userEvent.setup();
 
+    // Act
     renderWithProviders(<GuestPreferencesMenu appVersion="1.2.3" />);
 
+    // Assert
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'shared.shell.preferencesMenu' }));
@@ -36,6 +39,7 @@ describe('GuestPreferencesMenu', () => {
   });
 
   it('closes when clicking outside', async () => {
+    // Arrange
     const user = userEvent.setup();
 
     renderWithProviders(
@@ -45,7 +49,9 @@ describe('GuestPreferencesMenu', () => {
       </>,
     );
 
+    // Act
     await user.click(screen.getByRole('button', { name: 'shared.shell.preferencesMenu' }));
+    // Assert
     expect(screen.getByRole('menu')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'outside' }));
@@ -54,12 +60,15 @@ describe('GuestPreferencesMenu', () => {
   });
 
   it('omits the version label when no version is available', async () => {
+    // Arrange
     const user = userEvent.setup();
 
     renderWithProviders(<GuestPreferencesMenu appVersion="  " />);
 
+    // Act
     await user.click(screen.getByRole('button', { name: 'shared.shell.preferencesMenu' }));
 
+    // Assert
     expect(screen.queryByText(/shared\.shell\.version/i)).not.toBeInTheDocument();
   });
 });

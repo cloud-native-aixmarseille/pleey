@@ -6,17 +6,20 @@ import { FieldShell } from './field-shell';
 describe('FieldShell', () => {
   describe('render()', () => {
     it('renders the label and required marker for the wrapped field', () => {
+      // Arrange + Act
       renderWithUiProvider(
         <FieldShell id="email" label="Email" required>
           <input id="email" />
         </FieldShell>,
       );
 
+      // Assert
       expect(screen.getByLabelText('Email *')).toBeInTheDocument();
       expect(screen.getByText('Email')).toBeInTheDocument();
     });
 
     it('renders the description and error content', () => {
+      // Arrange + Act
       renderWithUiProvider(
         <FieldShell
           description="Use your workspace email."
@@ -29,6 +32,7 @@ describe('FieldShell', () => {
         </FieldShell>,
       );
 
+      // Assert
       expect(screen.getByText('Use your workspace email.')).toBeInTheDocument();
       expect(screen.getByRole('alert')).toHaveTextContent('Email is required.');
     });

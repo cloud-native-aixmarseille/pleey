@@ -1,58 +1,90 @@
 import { act, renderHook } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { useStageRevealPhase } from './use-stage-reveal-phase';
 
 describe('useStageRevealPhase', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
   it('starts in the revealing state for a non-null stage key', () => {
-    const { result } = renderHook(() => useStageRevealPhase('stage-1', 1_000));
+    // Arrange + Act
+    vi.useFakeTimers();
 
-    expect(result.current).toBe(true);
+    // Assert
+    try {
+      const { result } = renderHook(() => useStageRevealPhase('stage-1', 1_000));
+
+      expect(result.current).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('clears the revealing state after the reveal duration elapses', () => {
-    const { result } = renderHook(() => useStageRevealPhase('stage-1', 1_000));
+    // Arrange + Act
+    vi.useFakeTimers();
 
-    act(() => {
-      vi.advanceTimersByTime(1_000);
-    });
+    // Assert
+    try {
+      const { result } = renderHook(() => useStageRevealPhase('stage-1', 1_000));
 
-    expect(result.current).toBe(false);
+      act(() => {
+        vi.advanceTimersByTime(1_000);
+      });
+
+      expect(result.current).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('restarts the revealing state when the stage key changes', () => {
-    const { rerender, result } = renderHook(
-      ({ stageKey }: { stageKey: string }) => useStageRevealPhase(stageKey, 1_000),
-      { initialProps: { stageKey: 'stage-1' } },
-    );
+    // Arrange + Act
+    vi.useFakeTimers();
 
-    act(() => {
-      vi.advanceTimersByTime(1_000);
-    });
+    // Assert
+    try {
+      const { rerender, result } = renderHook(
+        ({ stageKey }: { stageKey: string }) => useStageRevealPhase(stageKey, 1_000),
+        { initialProps: { stageKey: 'stage-1' } },
+      );
 
-    expect(result.current).toBe(false);
+      act(() => {
+        vi.advanceTimersByTime(1_000);
+      });
 
-    rerender({ stageKey: 'stage-2' });
+      expect(result.current).toBe(false);
 
-    expect(result.current).toBe(true);
+      rerender({ stageKey: 'stage-2' });
+
+      expect(result.current).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('stays in the cleared state when the stage key is null', () => {
-    const { result } = renderHook(() => useStageRevealPhase(null, 1_000));
+    // Arrange + Act
+    vi.useFakeTimers();
 
-    expect(result.current).toBe(false);
+    // Assert
+    try {
+      const { result } = renderHook(() => useStageRevealPhase(null, 1_000));
+
+      expect(result.current).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('stays cleared when the reveal duration is zero', () => {
-    const { result } = renderHook(() => useStageRevealPhase('stage-1', 0));
+    // Arrange + Act
+    vi.useFakeTimers();
 
-    expect(result.current).toBe(false);
+    // Assert
+    try {
+      const { result } = renderHook(() => useStageRevealPhase('stage-1', 0));
+
+      expect(result.current).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

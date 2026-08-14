@@ -32,23 +32,29 @@ vi.mock('../../../shared/i18n/use-presentation-translation', async (importOrigin
 
 describe('home-content-sections', () => {
   it('renders the value proposition heading and description', () => {
+    // Arrange + Act
     renderWithProviders(<HomeValuePropositionSection />);
 
+    // Assert
     expect(screen.getByRole('heading', { name: 'home.valueProposition.heading' })).toBeInTheDocument();
     expect(screen.getByText('home.valueProposition.description')).toBeInTheDocument();
   });
 
   it('renders the how-it-works steps from translated objects', () => {
+    // Arrange + Act
     renderWithProviders(<HomeHowItWorksSection />);
 
+    // Assert
     expect(screen.getByText('home.howItWorks.eyebrow')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Create a room' })).toBeInTheDocument();
     expect(screen.getByText('Share the pin with players.')).toBeInTheDocument();
   });
 
   it('renders the feature cards from translated objects', () => {
+    // Arrange + Act
     renderWithProviders(<HomeFeaturesSection />);
 
+    // Assert
     expect(screen.getByText('home.features.eyebrow')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Fast setup' })).toBeInTheDocument();
     expect(screen.getByText('Keep the room engaged round after round.')).toBeInTheDocument();

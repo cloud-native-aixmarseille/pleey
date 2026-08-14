@@ -7,8 +7,10 @@ import { HostPartyObservationMessageMapper } from './host-party-observation-mess
 
 describe('HostPartyObservationMessageMapper', () => {
   it('marks live players and maps response success stats by identity', () => {
+    // Arrange
     const mapper = new HostPartyObservationMessageMapper();
 
+    // Act
     const message = mapper.toMessage(
       {
         partyId: backendTestIdentifiers.party(44),
@@ -95,6 +97,7 @@ describe('HostPartyObservationMessageMapper', () => {
       ],
     );
 
+    // Assert
     expect(message.isObserverHost).toBe(true);
     expect(message.players).toEqual([
       {

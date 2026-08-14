@@ -14,11 +14,14 @@ vi.mock('../../../shared/i18n/use-presentation-translation', async (importOrigin
 
 describe('ProfileSignOutSection', () => {
   it('renders the sign-out explanation and delegates the sign-out action', async () => {
+    // Arrange
     const user = userEvent.setup();
     const onSignOut = vi.fn();
 
+    // Act
     renderWithUiProvider(<ProfileSignOutSection onSignOut={onSignOut} />);
 
+    // Assert
     expect(screen.getByText('auth.profile.signOutDescription')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'auth.profile.signOutCta' }));
 

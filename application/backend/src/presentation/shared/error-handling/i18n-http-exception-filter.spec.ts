@@ -1,6 +1,6 @@
 import { type ArgumentsHost, UnauthorizedException } from '@nestjs/common';
 import { GraphQLError } from 'graphql';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { IdentityErrorCode } from '../../../domain/identity/enums/identity-error-code.enum';
 import { OrganizationErrorCode } from '../../../domain/organization/enums/organization-error-code.enum';
 import { ErrorCodeHttpStatusService } from './error-code-http-status.service';
@@ -13,23 +13,18 @@ type MockResponse = {
 };
 
 describe('I18nHttpExceptionFilter', () => {
-  let response: MockResponse;
-  let errorTranslationService: Pick<ErrorTranslationService, 'translateErrorCode' | 'translateUnknownError'>;
-  let errorCodeHttpStatusService: Pick<ErrorCodeHttpStatusService, 'resolve'>;
-  let filter: I18nHttpExceptionFilter;
-
-  beforeEach(() => {
-    response = {
+  function arrangeFilter() {
+    const response: MockResponse = {
       status: vi.fn().mockReturnThis(),
       json: vi.fn(),
     };
 
-    errorTranslationService = {
+    const errorTranslationService: Pick<ErrorTranslationService, 'translateErrorCode' | 'translateUnknownError'> = {
       translateErrorCode: vi.fn(async (code: string) => `translated:${code}`),
       translateUnknownError: vi.fn(async () => 'translated:UNKNOWN_ERROR'),
     };
 
-    errorCodeHttpStatusService = {
+    const errorCodeHttpStatusService: Pick<ErrorCodeHttpStatusService, 'resolve'> = {
       resolve: vi.fn((code: string) => {
         if (code === IdentityErrorCode.UNAUTHORIZED) {
           return 401;
@@ -43,17 +38,23 @@ describe('I18nHttpExceptionFilter', () => {
       }),
     };
 
-    filter = new I18nHttpExceptionFilter(
+    const filter = new I18nHttpExceptionFilter(
       errorTranslationService as ErrorTranslationService,
       errorCodeHttpStatusService as ErrorCodeHttpStatusService,
     );
-  });
+
+    return { response, errorTranslationService, errorCodeHttpStatusService, filter };
+  }
 
   it('writes translated JSON responses for HTTP requests', async () => {
+    // Arrange
+    const { response, errorTranslationService, filter } = arrangeFilter();
     const host = createArgumentsHost('http', response);
 
+    // Act
     await filter.catch(new UnauthorizedException(IdentityErrorCode.UNAUTHORIZED), host);
 
+    // Assert
     expect(errorTranslationService.translateErrorCode).toHaveBeenCalledWith(IdentityErrorCode.UNAUTHORIZED);
     expect(response.status).toHaveBeenCalledWith(401);
     expect(response.json).toHaveBeenCalledWith(
@@ -65,10 +66,14 @@ describe('I18nHttpExceptionFilter', () => {
   });
 
   it('returns a translated exception for GraphQL requests', async () => {
+    // Arrange
+    const { filter } = arrangeFilter();
     const host = createArgumentsHost('graphql', {});
 
+    // Act
     const result = await filter.catch(new UnauthorizedException(IdentityErrorCode.UNAUTHORIZED), host);
 
+    // Assert
     expect(result).toBeInstanceOf(GraphQLError);
     expect(result?.message).toBe(`translated:${IdentityErrorCode.UNAUTHORIZED}`);
     expect(result?.extensions).toMatchObject({
@@ -78,10 +83,14 @@ describe('I18nHttpExceptionFilter', () => {
   });
 
   it('translates plain domain errors for GraphQL requests', async () => {
+    // Arrange
+    const { errorCodeHttpStatusService, errorTranslationService, filter } = arrangeFilter();
     const host = createArgumentsHost('graphql', {});
 
+    // Act
     const result = await filter.catch(new Error(OrganizationErrorCode.MEMBER_USER_NOT_FOUND), host);
 
+    // Assert
     expect(errorCodeHttpStatusService.resolve).toHaveBeenCalledWith(OrganizationErrorCode.MEMBER_USER_NOT_FOUND);
     expect(errorTranslationService.translateErrorCode).toHaveBeenCalledWith(
       OrganizationErrorCode.MEMBER_USER_NOT_FOUND,
@@ -95,14 +104,18 @@ describe('I18nHttpExceptionFilter', () => {
   });
 
   it('unwraps wrapped GraphQL resolver domain errors before translating them', async () => {
+    // Arrange
+    const { errorCodeHttpStatusService, errorTranslationService, filter } = arrangeFilter();
     const host = createArgumentsHost('graphql', {});
     const wrappedError = new GraphQLError('Unexpected error value', {
       originalError: new Error(OrganizationErrorCode.MEMBER_USER_NOT_FOUND),
       path: ['addOrganizationMember'],
     });
 
+    // Act
     const result = await filter.catch(wrappedError, host);
 
+    // Assert
     expect(errorCodeHttpStatusService.resolve).toHaveBeenCalledWith(OrganizationErrorCode.MEMBER_USER_NOT_FOUND);
     expect(errorTranslationService.translateErrorCode).toHaveBeenCalledWith(
       OrganizationErrorCode.MEMBER_USER_NOT_FOUND,
@@ -116,10 +129,14 @@ describe('I18nHttpExceptionFilter', () => {
   });
 
   it('normalizes unexpected plain errors to UNKNOWN_ERROR for GraphQL requests', async () => {
+    // Arrange
+    const { errorCodeHttpStatusService, errorTranslationService, filter } = arrangeFilter();
     const host = createArgumentsHost('graphql', {});
 
+    // Act
     const result = await filter.catch(new Error('boom'), host);
 
+    // Assert
     expect(errorCodeHttpStatusService.resolve).toHaveBeenCalledWith('boom');
     expect(errorTranslationService.translateErrorCode).toHaveBeenCalledWith('UNKNOWN_ERROR');
     expect(result).toBeInstanceOf(GraphQLError);

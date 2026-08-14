@@ -5,55 +5,65 @@ import { FeedbackState, FeedbackStateGate } from './feedback-state-gate';
 
 describe('FeedbackStateGate', () => {
   it('renders pending state when requested', () => {
+    // Arrange + Act
     renderWithUiProvider(
       <FeedbackStateGate pendingLabel="Select a project first" state={FeedbackState.PENDING}>
         <div>Content</div>
       </FeedbackStateGate>,
     );
 
+    // Assert
     expect(screen.getByText('Select a project first')).toBeInTheDocument();
     expect(screen.queryByText('Content')).not.toBeInTheDocument();
   });
 
   it('renders loading state when requested', () => {
+    // Arrange + Act
     renderWithUiProvider(
       <FeedbackStateGate loadingLabel="Loading..." state={FeedbackState.LOADING}>
         <div>Content</div>
       </FeedbackStateGate>,
     );
 
+    // Assert
     expect(screen.getByRole('status')).toHaveTextContent('Loading...');
     expect(screen.queryByText('Content')).not.toBeInTheDocument();
   });
 
   it('renders empty state when requested', () => {
+    // Arrange + Act
     renderWithUiProvider(
       <FeedbackStateGate emptyLabel="No games" state={FeedbackState.EMPTY}>
         <div>Content</div>
       </FeedbackStateGate>,
     );
 
+    // Assert
     expect(screen.getByText('No games')).toBeInTheDocument();
     expect(screen.queryByText('Content')).not.toBeInTheDocument();
   });
 
   it('renders content when state is ready', () => {
+    // Arrange + Act
     renderWithUiProvider(
       <FeedbackStateGate state={FeedbackState.READY}>
         <div>Content</div>
       </FeedbackStateGate>,
     );
 
+    // Assert
     expect(screen.getByText('Content')).toBeInTheDocument();
   });
 
   it('renders an error banner when errorMessage is provided', () => {
+    // Arrange + Act
     renderWithUiProvider(
       <FeedbackStateGate errorMessage="Something failed" state={FeedbackState.READY}>
         <div>Content</div>
       </FeedbackStateGate>,
     );
 
+    // Assert
     expect(screen.getByRole('alert')).toHaveTextContent('Something failed');
   });
 });

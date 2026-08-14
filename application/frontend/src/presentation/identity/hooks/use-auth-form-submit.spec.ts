@@ -12,33 +12,44 @@ vi.mock('../../shared/i18n/use-presentation-translation', async (importOriginal)
 
 describe('useAuthFormSubmit', () => {
   it('starts with no error message', () => {
+    // Arrange + Act
     const { result } = renderHook(() => useAuthFormSubmit());
 
+    // Assert
     expect(result.current.errorMessage).toBeNull();
   });
 
   it('sets the Error message when handleError receives an Error instance', () => {
+    // Arrange
     const { result } = renderHook(() => useAuthFormSubmit());
 
+    // Act
     act(() => result.current.handleError(new Error('Invalid credentials')));
 
+    // Assert
     expect(result.current.errorMessage).toBe('Invalid credentials');
   });
 
   it('sets the generic fallback when handleError receives a non-Error value', () => {
+    // Arrange
     const { result } = renderHook(() => useAuthFormSubmit());
 
+    // Act
     act(() => result.current.handleError({ reason: 'unexpected' }));
 
+    // Assert
     expect(result.current.errorMessage).toBe('auth.errors.generic');
   });
 
   it('clears the error message when clearError is called', () => {
+    // Arrange
     const { result } = renderHook(() => useAuthFormSubmit());
 
     act(() => result.current.handleError(new Error('fail')));
+    // Act
     act(() => result.current.clearError());
 
+    // Assert
     expect(result.current.errorMessage).toBeNull();
   });
 });

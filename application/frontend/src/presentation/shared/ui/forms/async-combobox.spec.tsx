@@ -6,6 +6,7 @@ import { AsyncCombobox } from './async-combobox';
 
 describe('AsyncCombobox', () => {
   it('delegates search changes and selection', async () => {
+    // Arrange
     const user = userEvent.setup();
     const onChange = vi.fn();
     const onSearchChange = vi.fn();
@@ -32,13 +33,16 @@ describe('AsyncCombobox', () => {
     await user.click(screen.getByLabelText('Organization'));
     await user.type(screen.getByLabelText('Search organizations'), 'Rocket');
     await user.keyboard('{ArrowDown}');
+    // Act
     await user.keyboard('{Enter}');
 
+    // Assert
     expect(onSearchChange).toHaveBeenLastCalledWith('');
     expect(onChange).toHaveBeenCalledWith('2');
   });
 
   it('requests more options when the list is scrolled near the end', async () => {
+    // Arrange
     const user = userEvent.setup();
     const onLoadMore = vi.fn();
 
@@ -76,8 +80,10 @@ describe('AsyncCombobox', () => {
     Object.defineProperty(viewport, 'clientHeight', { configurable: true, value: 120 });
     Object.defineProperty(viewport, 'scrollHeight', { configurable: true, value: 320 });
     viewport.scrollTop = 210;
+    // Act
     fireEvent.scroll(viewport);
 
+    // Assert
     await waitFor(() => {
       expect(onLoadMore).toHaveBeenCalledTimes(1);
     });

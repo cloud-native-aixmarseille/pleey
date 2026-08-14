@@ -37,6 +37,21 @@ Per-app npm scripts are in each `package.json`. Key entrypoints:
 
 Test frameworks: **Vitest** (backend + frontend), **Playwright** (end-to-end).
 
+## Test Writing Rules
+
+- Follow Arrange-Act-Assert explicitly: keep setup, execution, and verification distinct, and do not resume acting after the assertion phase starts.
+- Avoid testing the same behavior multiple times in one test. For async failures, prefer one assertion chain per execution instead of reusing the same promise for class and payload checks.
+- Prefer shared fixtures and test doubles from `src/test-utils/` over inline helpers inside spec files.
+- Keep fixture defaults broad and override only the fields that matter for the scenario.
+- Use mocks, stubs, and spies only for collaborators or boundaries that need isolation; do not replace simple value objects or deterministic domain state with doubles.
+- Keep unit specs colocated with the module they validate and name them after that module with a `.spec.ts` or `.spec.tsx` suffix. Keep the existing dedicated integration locations for `test/` and `*.int.spec.ts`.
+
+Repository enforcement:
+
+- Lint rejects `beforeEach` and `afterEach` inside spec files so Arrange stays local to each test.
+- Lint rejects inline `create*Fixture` and `create*Mock` helper declarations inside spec files so reusable setup stays in shared test utilities.
+- Lint rejects repeated async `expect(...).rejects` or `expect(...).resolves` chains on the same subject inside a single test.
+
 ## Commits
 
 [Conventional Commits](https://www.conventionalcommits.org/) required:

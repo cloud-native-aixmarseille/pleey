@@ -33,12 +33,14 @@ function createParty(overrides: Partial<Party> = {}): Party {
 
 describe('usePartySync', () => {
   it('observes only the current party', () => {
+    // Arrange
     const upsertParty = vi.fn();
 
     mocks.observePartyById.mockClear();
     mocks.currentParty = null;
     mocks.getPartyByPartyId.mockReset();
 
+    // Act
     renderHook(() =>
       usePartySync({
         currentParty: createParty({
@@ -50,6 +52,7 @@ describe('usePartySync', () => {
       }),
     );
 
+    // Assert
     expect(mocks.observePartyById).toHaveBeenCalledTimes(1);
     expect(mocks.observePartyById).toHaveBeenCalledWith(partyFixtureFactory.createParty({ partyId: 3 }).partyId);
     expect(mocks.observePartyById).not.toHaveBeenCalledWith(partyFixtureFactory.createParty({ partyId: 1 }).partyId);
@@ -57,6 +60,7 @@ describe('usePartySync', () => {
   });
 
   it('projects observations only for the current party', () => {
+    // Arrange
     const upsertParty = vi.fn();
     const activeParty = createParty({
       partyId: partyFixtureFactory.createParty({ partyId: 1 }).partyId,
@@ -85,6 +89,7 @@ describe('usePartySync', () => {
       players: [],
     });
 
+    // Act
     renderHook(() =>
       usePartySync({
         currentParty: activeParty,
@@ -92,6 +97,7 @@ describe('usePartySync', () => {
       }),
     );
 
+    // Assert
     expect(upsertParty).toHaveBeenCalledTimes(1);
     expect(upsertParty).toHaveBeenCalledWith({
       ...activeParty,
@@ -100,12 +106,14 @@ describe('usePartySync', () => {
   });
 
   it('does not observe anything when there is no current party', () => {
+    // Arrange
     const upsertParty = vi.fn();
 
     mocks.observePartyById.mockClear();
     mocks.currentParty = null;
     mocks.getPartyByPartyId.mockReset();
 
+    // Act
     renderHook(() =>
       usePartySync({
         currentParty: null,
@@ -113,6 +121,7 @@ describe('usePartySync', () => {
       }),
     );
 
+    // Assert
     expect(mocks.observePartyById).not.toHaveBeenCalled();
     expect(upsertParty).not.toHaveBeenCalled();
   });

@@ -172,9 +172,12 @@ describe('PlayableContentUpload GraphQL integration', () => {
   });
 
   it('accepts a large multipart CSV upload through GraphQL and keeps the CSV path streaming', async () => {
+    // Arrange
     const csvContent = createLargeCsvImportContent(LARGE_CSV_ROW_COUNT);
+    // Act
     const csvSizeBytes = Buffer.byteLength(csvContent, 'utf-8');
 
+    // Assert
     expect(csvSizeBytes).toBeGreaterThan(250_000);
     expect(csvSizeBytes).toBeLessThan(DEFAULT_PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES);
 

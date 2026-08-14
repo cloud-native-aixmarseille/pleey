@@ -9,6 +9,7 @@ import { PrismaOrganizationMemberRepository } from './prisma-organization-member
 
 describe('PrismaOrganizationMemberRepository', () => {
   it('preserves the unfiltered overallCount when organization member search narrows the result set', async () => {
+    // Arrange
     const count = vi.fn().mockResolvedValueOnce(4).mockResolvedValueOnce(1);
     const findMany = vi.fn().mockResolvedValue([
       {
@@ -36,8 +37,10 @@ describe('PrismaOrganizationMemberRepository', () => {
       new PaginationQueryNormalizer(),
     );
 
+    // Act
     const page = await repository.findPageByOrganization(backendTestIdentifiers.organization(9), 1, 25, '  rocket  ');
 
+    // Assert
     expect(count).toHaveBeenNthCalledWith(1, {
       where: {
         organizationId: backendTestIdentifiers.organization(9),
@@ -95,6 +98,7 @@ describe('PrismaOrganizationMemberRepository', () => {
   });
 
   it('preserves the unfiltered overallCount when user organization search narrows the result set', async () => {
+    // Arrange
     const count = vi.fn().mockResolvedValueOnce(5).mockResolvedValueOnce(1);
     const findMany = vi.fn().mockResolvedValue([
       {
@@ -122,8 +126,10 @@ describe('PrismaOrganizationMemberRepository', () => {
       new PaginationQueryNormalizer(),
     );
 
+    // Act
     const page = await repository.findPageByUser(backendTestIdentifiers.user(18), 1, 25, '  studio  ');
 
+    // Assert
     expect(count).toHaveBeenNthCalledWith(1, {
       where: {
         userId: backendTestIdentifiers.user(18),

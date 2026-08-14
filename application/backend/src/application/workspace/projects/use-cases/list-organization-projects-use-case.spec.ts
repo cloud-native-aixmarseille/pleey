@@ -13,6 +13,7 @@ const paginationQueryNormalizer = new PaginationQueryNormalizer();
 
 describe('ListOrganizationProjectsUseCase', () => {
   it('forwards trimmed search terms to the project repository', async () => {
+    // Arrange
     const organizationId = backendTestIdentifiers.organization(8);
     const organizationRepository = createOrganizationRepositoryMock({
       findById: { id: organizationId } as never,
@@ -38,6 +39,7 @@ describe('ListOrganizationProjectsUseCase', () => {
       paginationQueryNormalizer,
     );
 
+    // Act
     await useCase.execute(
       {
         organizationId,
@@ -46,10 +48,12 @@ describe('ListOrganizationProjectsUseCase', () => {
       backendTestIdentifiers.user(2),
     );
 
+    // Assert
     expect(projectRepository.findPageByOrganization).toHaveBeenCalledWith(organizationId, 1, 25, 'launch');
   });
 
   it('rejects non-members before querying projects', async () => {
+    // Arrange
     const organizationId = backendTestIdentifiers.organization(9);
     const organizationRepository = createOrganizationRepositoryMock({
       findById: { id: organizationId } as never,
@@ -66,6 +70,7 @@ describe('ListOrganizationProjectsUseCase', () => {
       paginationQueryNormalizer,
     );
 
+    // Act + Assert
     await expect(useCase.execute({ organizationId }, backendTestIdentifiers.user(4))).rejects.toThrow(
       OrganizationErrorCode.NOT_A_MEMBER,
     );

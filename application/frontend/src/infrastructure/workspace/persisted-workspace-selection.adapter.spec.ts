@@ -12,14 +12,17 @@ const storagePortMockFactory = new StoragePortMockFactory();
 
 describe('PersistedWorkspaceSelectionAdapter', () => {
   it('restores persisted organization and project ids', () => {
+    // Arrange
     const storage = storagePortMockFactory.create({
       [StorageKey.WORKSPACE_ORGANIZATION_ID]: '15',
       [StorageKey.WORKSPACE_PROJECT_ID]: '44',
     });
     const service = new PersistedWorkspaceSelectionAdapter(storage, organizationIdentifier, projectIdentifier);
 
+    // Act
     const selection = service.restoreSelection();
 
+    // Assert
     expect(selection).toEqual({
       organizationId: organizationIdentifier.parse(15),
       projectId: projectIdentifier.parse(44),
@@ -27,14 +30,17 @@ describe('PersistedWorkspaceSelectionAdapter', () => {
   });
 
   it('returns null for invalid persisted identifier values', () => {
+    // Arrange
     const storage = storagePortMockFactory.create({
       [StorageKey.WORKSPACE_ORGANIZATION_ID]: 'abc',
       [StorageKey.WORKSPACE_PROJECT_ID]: '  ',
     });
     const service = new PersistedWorkspaceSelectionAdapter(storage, organizationIdentifier, projectIdentifier);
 
+    // Act
     const selection = service.restoreSelection();
 
+    // Assert
     expect(selection).toEqual({
       organizationId: null,
       projectId: null,
@@ -42,24 +48,30 @@ describe('PersistedWorkspaceSelectionAdapter', () => {
   });
 
   it('clears the project selection when the organization changes', () => {
+    // Arrange
     const storage = storagePortMockFactory.create({
       [StorageKey.WORKSPACE_ORGANIZATION_ID]: '4',
       [StorageKey.WORKSPACE_PROJECT_ID]: '30',
     });
     const service = new PersistedWorkspaceSelectionAdapter(storage, organizationIdentifier, projectIdentifier);
 
+    // Act
     service.setOrganizationId(organizationIdentifier.parse(6));
 
+    // Assert
     expect(storage.setItem).toHaveBeenCalledWith(StorageKey.WORKSPACE_ORGANIZATION_ID, organizationIdentifier.parse(6));
     expect(storage.removeItem).toHaveBeenCalledWith(StorageKey.WORKSPACE_PROJECT_ID);
   });
 
   it('clears both workspace keys when the organization is reset', () => {
+    // Arrange
     const storage = storagePortMockFactory.create();
     const service = new PersistedWorkspaceSelectionAdapter(storage, organizationIdentifier, projectIdentifier);
 
+    // Act
     service.setOrganizationId(null);
 
+    // Assert
     expect(storage.removeItem).toHaveBeenCalledWith(StorageKey.WORKSPACE_ORGANIZATION_ID);
     expect(storage.removeItem).toHaveBeenCalledWith(StorageKey.WORKSPACE_PROJECT_ID);
   });

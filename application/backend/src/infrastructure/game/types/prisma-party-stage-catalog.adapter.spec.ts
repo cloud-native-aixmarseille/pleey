@@ -36,6 +36,7 @@ describe('PrismaPartyStageCatalogAdapter', () => {
   }
 
   it('returns null when the game cannot be found', async () => {
+    // Arrange
     const prisma = {
       game: {
         findFirst: vi.fn().mockResolvedValue(null),
@@ -49,6 +50,7 @@ describe('PrismaPartyStageCatalogAdapter', () => {
     };
     const adapter = new PrismaPartyStageCatalogAdapter(prisma as never, gameTypeParser as never, registry as never);
 
+    // Act + Assert
     await expect(adapter.findFirstStage(gameId)).resolves.toBeNull();
     await expect(adapter.findStageById(gameId, firstStageId)).resolves.toBeNull();
     expect(gameTypeParser.parse).not.toHaveBeenCalled();
@@ -56,6 +58,7 @@ describe('PrismaPartyStageCatalogAdapter', () => {
   });
 
   it('resolves the provider from the game type and delegates catalog lookups', async () => {
+    // Arrange
     const firstStage = createStage(0);
     const nextStage = createStage(1);
     const provider = {
@@ -79,6 +82,7 @@ describe('PrismaPartyStageCatalogAdapter', () => {
     const adapter = new PrismaPartyStageCatalogAdapter(prisma as never, gameTypeParser as never, registry as never);
     const currentStageId = firstStageId;
 
+    // Act + Assert
     await expect(adapter.findFirstStage(gameId)).resolves.toEqual(firstStage);
     await expect(adapter.findStageById(gameId, currentStageId)).resolves.toEqual(firstStage);
     await expect(adapter.findNextStage(gameId, currentStageId)).resolves.toEqual(nextStage);
@@ -93,6 +97,7 @@ describe('PrismaPartyStageCatalogAdapter', () => {
   });
 
   it('keeps deterministic stage order for the same party and randomization settings', async () => {
+    // Arrange
     const stages = [createStage(1), createStage(2), createStage(3), createStage(4), createStage(5)];
     const provider = {
       findFirstStage: vi.fn().mockResolvedValue(stages[0]),
@@ -125,13 +130,16 @@ describe('PrismaPartyStageCatalogAdapter', () => {
     };
 
     const firstRun = await adapter.listStages(gameId, options);
+    // Act
     const secondRun = await adapter.listStages(gameId, options);
 
+    // Assert
     expect(firstRun.map((stage) => stage.id)).toEqual(secondRun.map((stage) => stage.id));
     expect(firstRun.map((stage) => stage.stagePosition)).toEqual([0, 1, 2, 3, 4]);
   });
 
   it('can produce different stage orders for different parties', async () => {
+    // Arrange
     const stages = [createStage(1), createStage(2), createStage(3), createStage(4), createStage(5)];
     const provider = {
       findFirstStage: vi.fn().mockResolvedValue(stages[0]),
@@ -164,15 +172,18 @@ describe('PrismaPartyStageCatalogAdapter', () => {
       partyId: 'party-A' as never,
       settings,
     });
+    // Act
     const partyB = await adapter.listStages(gameId, {
       partyId: 'party-B' as never,
       settings,
     });
 
+    // Assert
     expect(partyA.map((stage) => stage.id)).not.toEqual(partyB.map((stage) => stage.id));
   });
 
   it('uses randomized order consistently for first/next navigation', async () => {
+    // Arrange
     const stages = [createStage(1), createStage(2), createStage(3), createStage(4)];
     const provider = {
       findFirstStage: vi.fn().mockResolvedValue(stages[0]),
@@ -206,13 +217,16 @@ describe('PrismaPartyStageCatalogAdapter', () => {
 
     const ordered = await adapter.listStages(gameId, options);
     const first = await adapter.findFirstStage(gameId, options);
+    // Act
     const second = first === null ? null : await adapter.findNextStage(gameId, first.id, options);
 
+    // Assert
     expect(first?.id ?? null).toBe(ordered[0]?.id ?? null);
     expect(second?.id ?? null).toBe(ordered[1]?.id ?? null);
   });
 
   it('keeps randomized action order deterministic per stage and party', async () => {
+    // Arrange
     const stages = [createStage(1), createStage(2)];
     const provider = {
       findFirstStage: vi.fn().mockResolvedValue(stages[0]),
@@ -245,8 +259,10 @@ describe('PrismaPartyStageCatalogAdapter', () => {
     };
 
     const first = await adapter.findStageById(gameId, stages[0].id, options);
+    // Act
     const second = await adapter.findStageById(gameId, stages[0].id, options);
 
+    // Assert
     expect(first?.actions.map((action) => action.id) ?? []).toEqual(second?.actions.map((action) => action.id) ?? []);
     expect(first?.actions.map((action) => action.id).sort() ?? []).toEqual(
       stages[0].actions.map((action) => action.id).sort(),

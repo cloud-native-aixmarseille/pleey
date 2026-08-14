@@ -19,6 +19,7 @@ describeIfDatabase('PrismaUserRepository', () => {
   });
 
   it('creates and retrieves users by email/username/id', async () => {
+    // Arrange
     const unique = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
     const userFixture = createUserFixture({
       username: `user_${unique}`,
@@ -35,6 +36,7 @@ describeIfDatabase('PrismaUserRepository', () => {
     );
     createdUserIds.push(created.id);
 
+    // Act + Assert
     await expect(harness.repository.exists(userFixture.email, userFixture.username)).resolves.toBe(true);
 
     const byEmail = await harness.repository.findByEmail(userFixture.email);
@@ -49,6 +51,7 @@ describeIfDatabase('PrismaUserRepository', () => {
   });
 
   it('updates profile and refresh token fields', async () => {
+    // Arrange
     const unique = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
     const userFixture = createUserFixture({
       username: `user_${unique}`,
@@ -65,11 +68,13 @@ describeIfDatabase('PrismaUserRepository', () => {
     );
     createdUserIds.push(created.id);
 
+    // Act
     const updatedProfile = await harness.repository.updateProfile(created.id, {
       username: `${userFixture.username}_v2`,
       avatar: new Media(null, 'image/svg+xml', Buffer.from('<svg>avatar</svg>', 'utf8')),
     });
 
+    // Assert
     expect(updatedProfile.username).toBe(`${userFixture.username}_v2`);
     expect(updatedProfile.avatar?.content?.toString('utf8')).toBe('<svg>avatar</svg>');
 

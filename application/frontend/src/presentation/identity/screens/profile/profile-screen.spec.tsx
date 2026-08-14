@@ -1,6 +1,6 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { AuthFixtureFactory } from '../../../../test-utils/fixtures/auth-fixture-factory';
 import { renderWithFormProvider } from '../../../../test-utils/render-with-form-provider';
 import { ProfileScreen } from './profile-screen';
@@ -44,56 +44,68 @@ vi.mock('../../../shared/routing/router', async (importOriginal) => {
 });
 
 describe('ProfileScreen', () => {
-  beforeEach(() => {
+  function arrangeScreen() {
     mocks.updateProfile.mockReset();
     mocks.regenerateAvatar.mockReset();
     mocks.signOut.mockReset();
-  });
 
-  function renderScreen() {
     renderWithFormProvider(<ProfileScreen />);
   }
 
   describe('render()', () => {
     it('renders the profile eyebrow', () => {
-      renderScreen();
+      // Arrange + Act
+      arrangeScreen();
 
+      // Assert
       expect(screen.getByText('auth.profile.eyebrow')).toBeInTheDocument();
     });
 
     it('renders the profile title heading', () => {
-      renderScreen();
+      // Arrange + Act
+      arrangeScreen();
 
+      // Assert
       expect(screen.getByRole('heading', { name: 'auth.profile.title' })).toBeInTheDocument();
     });
 
     it('renders the avatar regeneration button', () => {
-      renderScreen();
+      // Arrange + Act
+      arrangeScreen();
 
+      // Assert
       expect(screen.getByRole('button', { name: 'auth.profile.avatarSection.regenerateCta' })).toBeInTheDocument();
     });
 
     it('renders the sign out button', () => {
-      renderScreen();
+      // Arrange + Act
+      arrangeScreen();
 
+      // Assert
       expect(screen.getByRole('button', { name: 'auth.profile.signOutCta' })).toBeInTheDocument();
     });
 
     it('renders the sign out description', () => {
-      renderScreen();
+      // Arrange + Act
+      arrangeScreen();
 
+      // Assert
       expect(screen.getByText('auth.profile.signOutDescription')).toBeInTheDocument();
     });
 
     it('renders the username in the identity section', () => {
-      renderScreen();
+      // Arrange + Act
+      arrangeScreen();
 
+      // Assert
       expect(screen.getByRole('heading', { name: currentUser.username })).toBeInTheDocument();
     });
 
     it('renders pre-filled username and email fields', () => {
-      renderScreen();
+      // Arrange + Act
+      arrangeScreen();
 
+      // Assert
       expect(screen.getByLabelText('auth.form.usernameLabel *')).toHaveValue(currentUser.username);
       expect(screen.getByLabelText('auth.form.emailLabel *')).toHaveValue(currentUser.email);
     });
@@ -101,33 +113,42 @@ describe('ProfileScreen', () => {
 
   describe('actions', () => {
     it('calls regenerateAvatar when the regenerate button is clicked', async () => {
+      // Arrange
+      arrangeScreen();
       mocks.regenerateAvatar.mockResolvedValue(undefined);
-      renderScreen();
 
+      // Act
       await userEvent.click(screen.getByRole('button', { name: 'auth.profile.avatarSection.regenerateCta' }));
 
+      // Assert
       expect(mocks.regenerateAvatar).toHaveBeenCalledOnce();
     });
 
     it('calls signOut when the sign out button is clicked', async () => {
+      // Arrange
+      arrangeScreen();
       mocks.signOut.mockResolvedValue(undefined);
-      renderScreen();
 
+      // Act
       await userEvent.click(screen.getByRole('button', { name: 'auth.profile.signOutCta' }));
 
+      // Assert
       expect(mocks.signOut).toHaveBeenCalledOnce();
     });
 
     it('submits profile updates and shows a success message', async () => {
+      // Arrange
+      arrangeScreen();
       mocks.updateProfile.mockResolvedValue(undefined);
-      renderScreen();
 
       fireEvent.change(screen.getByLabelText('auth.form.usernameLabel *'), {
         target: { value: 'newcaptain' },
       });
 
+      // Act
       fireEvent.submit(screen.getByRole('button', { name: 'auth.profile.submitCta' }));
 
+      // Assert
       await waitFor(() => {
         expect(mocks.updateProfile).toHaveBeenCalledWith({
           username: 'newcaptain',
@@ -137,15 +158,18 @@ describe('ProfileScreen', () => {
     });
 
     it('renders an error when profile update fails', async () => {
+      // Arrange
+      arrangeScreen();
       mocks.updateProfile.mockRejectedValue(new Error('Profile update failed.'));
-      renderScreen();
 
       fireEvent.change(screen.getByLabelText('auth.form.usernameLabel *'), {
         target: { value: 'newcaptain' },
       });
 
+      // Act
       fireEvent.submit(screen.getByRole('button', { name: 'auth.profile.submitCta' }));
 
+      // Assert
       expect(await screen.findByRole('alert')).toHaveTextContent('Profile update failed.');
     });
   });

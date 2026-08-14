@@ -24,6 +24,7 @@ describe('PrismaPartyReadModelMapper', () => {
   const playerAvatarUpdatedAt = new Date('2026-05-01T07:00:00.000Z');
 
   it('collects and sorts non-host players from persisted score rows', () => {
+    // Arrange + Act
     const players = mapper.collectPlayers(
       [
         {
@@ -79,6 +80,7 @@ describe('PrismaPartyReadModelMapper', () => {
       },
     );
 
+    // Assert
     expect(players.map((player) => mapper.toPartyPlayer(player))).toEqual([
       {
         avatarUri: `/api/avatars/guests/${backendTestIdentifiers.guest('guest-42')}`,
@@ -123,6 +125,7 @@ describe('PrismaPartyReadModelMapper', () => {
   });
 
   it('derives response success ratio from persisted stage history when a player has one cumulative score row', () => {
+    // Arrange + Act
     const players = mapper.collectPlayers([
       {
         context: {
@@ -168,6 +171,7 @@ describe('PrismaPartyReadModelMapper', () => {
       },
     ]);
 
+    // Assert
     expect(players.map((player) => mapper.toPlayerObservationPlayer(player))).toEqual([
       {
         avatarUri: `/api/avatars/users/${backendTestIdentifiers.user(42)}?v=${playerAvatarUpdatedAt.getTime()}`,
@@ -183,6 +187,7 @@ describe('PrismaPartyReadModelMapper', () => {
   });
 
   it('keeps persisted result context details when reloading a full runtime snapshot', () => {
+    // Arrange + Act + Assert
     expect(
       mapper.toPartyRuntimeContext({
         lifecycle: {
@@ -251,6 +256,7 @@ describe('PrismaPartyReadModelMapper', () => {
   });
 
   it('normalizes persisted party status values', () => {
+    // Arrange + Act + Assert
     expect(mapper.toPartyStatus(' active ')).toBe(PartyStatus.ACTIVE);
     expect(mapper.toPartyStatus('paused')).toBe(PartyStatus.PAUSED);
     expect(mapper.toPartyStatus('ended')).toBe(PartyStatus.ENDED);
@@ -259,6 +265,7 @@ describe('PrismaPartyReadModelMapper', () => {
   });
 
   it('can reject unknown statuses for stricter callers', () => {
+    // Arrange + Act + Assert
     expect(() => mapper.toPartyStatus('mystery', { unknownStatus: 'validation-error' })).toThrow(
       GameErrorCode.VALIDATION_FAILED,
     );

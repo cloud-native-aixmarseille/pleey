@@ -35,9 +35,12 @@ function createRuntimeView(): PartyGameTypeRuntimeView {
 
 describe('AppPartyGameTypeRuntimeRegistry', () => {
   it('resolves the registered runtime view for a game type', () => {
+    // Arrange
     const quizRuntimeView = new TestRuntimeViewContributor(GameType.Quiz);
+    // Act
     const registry = new AppPartyGameTypeRuntimeRegistry([quizRuntimeView]);
 
+    // Assert
     expect(registry.resolve(GameType.Quiz)).toEqual(quizRuntimeView);
     expect(registry.resolve(GameType.Quiz)?.renderHostStagePanel).toBeTypeOf('function');
     expect(registry.resolve(GameType.Quiz)?.renderPlayerStageSurface).toBeTypeOf('function');
@@ -45,6 +48,7 @@ describe('AppPartyGameTypeRuntimeRegistry', () => {
   });
 
   it('rejects duplicate runtime view registrations for the same game type', () => {
+    // Arrange + Act + Assert
     expect(
       () =>
         new AppPartyGameTypeRuntimeRegistry([

@@ -48,6 +48,7 @@ function createSnapshot() {
 
 describe('SocketPartyObservationBroadcaster', () => {
   it('hides host-only context from non-host observers in the emitted snapshot', async () => {
+    // Arrange
     const broadcaster = new SocketPartyObservationBroadcaster(
       new PartyObservationAudienceResolver(),
       new HostPartyObservationMessageMapper(),
@@ -78,8 +79,10 @@ describe('SocketPartyObservationBroadcaster', () => {
     const client = { emit: vi.fn() };
 
     broadcaster.attachServer(server as never);
+    // Act
     await broadcaster.emitSnapshot(client as never, createSnapshot() as never);
 
+    // Assert
     expect(server.in).toHaveBeenCalledWith(PARTY_ROOM);
 
     const [, payload] = client.emit.mock.calls[0];
@@ -97,6 +100,7 @@ describe('SocketPartyObservationBroadcaster', () => {
   });
 
   it('keeps host-only context for the host observer', async () => {
+    // Arrange
     const broadcaster = new SocketPartyObservationBroadcaster(
       new PartyObservationAudienceResolver(),
       new HostPartyObservationMessageMapper(),
@@ -118,8 +122,10 @@ describe('SocketPartyObservationBroadcaster', () => {
     broadcaster.attachServer(server as never);
     await broadcaster.emitSnapshot(client as never, createSnapshot() as never);
 
+    // Act
     const [, payload] = client.emit.mock.calls[0];
 
+    // Assert
     expect(payload).toMatchObject({
       context: { round: 2 },
       isObserverHost: true,
@@ -127,6 +133,7 @@ describe('SocketPartyObservationBroadcaster', () => {
   });
 
   it('publishes party updates to host sockets before player sockets', async () => {
+    // Arrange
     const broadcaster = new SocketPartyObservationBroadcaster(
       new PartyObservationAudienceResolver(),
       new HostPartyObservationMessageMapper(),
@@ -166,12 +173,15 @@ describe('SocketPartyObservationBroadcaster', () => {
 
     broadcaster.attachServer(server as never);
 
+    // Act
     await broadcaster.publish(createSnapshot() as never);
 
+    // Assert
     expect(deliveryOrder).toEqual(['host', 'player', 'observer']);
   });
 
   it('publishes runtime notices to host sockets before player sockets', async () => {
+    // Arrange
     const broadcaster = new SocketPartyObservationBroadcaster(
       new PartyObservationAudienceResolver(),
       new HostPartyObservationMessageMapper(),
@@ -210,12 +220,14 @@ describe('SocketPartyObservationBroadcaster', () => {
 
     broadcaster.attachServer(server as never);
 
+    // Act
     await broadcaster.publishRuntimeNotice(
       backendTestIdentifiers.party(44),
       backendTestIdentifiers.user(7),
       'rewindStage',
     );
 
+    // Assert
     expect(deliveryOrder).toEqual(['host', 'player', 'observer']);
   });
 });

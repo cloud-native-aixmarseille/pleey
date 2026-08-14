@@ -28,6 +28,7 @@ const createMetadata = (
 
 describe('Import playable content GraphQL inputs validation', () => {
   it('accepts whitelisted upload properties for quiz import creation input', async () => {
+    // Arrange + Act
     const result = await validationPipe.transform(
       {
         description: 'Imported quiz',
@@ -38,6 +39,7 @@ describe('Import playable content GraphQL inputs validation', () => {
       createMetadata(CreateQuizFromImportInput),
     );
 
+    // Assert
     expect(result).toBeInstanceOf(CreateQuizFromImportInput);
     expect(result).toMatchObject({
       description: 'Imported quiz',
@@ -51,6 +53,7 @@ describe('Import playable content GraphQL inputs validation', () => {
   });
 
   it('accepts whitelisted upload properties for prediction import creation input', async () => {
+    // Arrange + Act
     const result = await validationPipe.transform(
       {
         description: 'Imported prediction',
@@ -61,6 +64,7 @@ describe('Import playable content GraphQL inputs validation', () => {
       createMetadata(CreatePredictionFromImportInput),
     );
 
+    // Assert
     expect(result).toBeInstanceOf(CreatePredictionFromImportInput);
     expect(result).toMatchObject({
       description: 'Imported prediction',
@@ -74,6 +78,7 @@ describe('Import playable content GraphQL inputs validation', () => {
   });
 
   it('rejects non-whitelisted properties for quiz import creation input', async () => {
+    // Arrange + Act + Assert
     await expect(
       validationPipe.transform(
         {

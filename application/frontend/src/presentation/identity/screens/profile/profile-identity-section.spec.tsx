@@ -23,13 +23,16 @@ vi.mock('../../../shared/i18n/use-presentation-translation', async (importOrigin
 
 describe('ProfileIdentitySection', () => {
   it('renders the current user and delegates avatar regeneration', async () => {
+    // Arrange
     const user = userEvent.setup();
     const onRegenerateAvatar = vi.fn().mockResolvedValue(undefined);
 
+    // Act
     renderWithUiProvider(
       <ProfileIdentitySection isRegenerating={false} onRegenerateAvatar={onRegenerateAvatar} user={currentUser} />,
     );
 
+    // Assert
     expect(screen.getByRole('heading', { name: 'Morgan' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'auth.profile.avatarSection.regenerateCta' }));
 
@@ -37,8 +40,10 @@ describe('ProfileIdentitySection', () => {
   });
 
   it('shows the regenerating label while avatar generation is pending', () => {
+    // Arrange + Act
     renderWithUiProvider(<ProfileIdentitySection isRegenerating onRegenerateAvatar={vi.fn()} user={currentUser} />);
 
+    // Assert
     expect(screen.getByRole('button', { name: 'auth.profile.avatarSection.regeneratingCta' })).toBeDisabled();
   });
 });

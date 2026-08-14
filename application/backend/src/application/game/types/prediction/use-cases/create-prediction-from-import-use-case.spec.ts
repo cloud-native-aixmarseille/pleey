@@ -25,6 +25,7 @@ class TestPlayableContentImportSource extends PlayableContentImportSource {
 
 describe('CreatePredictionFromImportUseCase', () => {
   it('creates a prediction and imported prompts through one repository command', async () => {
+    // Arrange
     const gameTypeIdentifier = new GameTypeIdentifier();
     const predictionId = gameTypeIdentifier.parse(backendTestIdentifiers.game(13));
     const gameId = backendTestIdentifiers.game(31);
@@ -64,6 +65,7 @@ describe('CreatePredictionFromImportUseCase', () => {
     );
     const source = new TestPlayableContentImportSource('prediction-import.json');
 
+    // Act
     const prediction = await useCase.execute(
       {
         projectId: backendTestIdentifiers.project(7),
@@ -74,6 +76,7 @@ describe('CreatePredictionFromImportUseCase', () => {
       backendTestIdentifiers.user(17),
     );
 
+    // Assert
     expect(accessGuard.assertCanManageProject).toHaveBeenCalledWith(
       backendTestIdentifiers.project(7),
       backendTestIdentifiers.user(17),
@@ -95,6 +98,7 @@ describe('CreatePredictionFromImportUseCase', () => {
   });
 
   it('does not create a prediction when import parsing fails', async () => {
+    // Arrange
     const predictionRepository = {
       createWithPrompts: vi.fn(),
     } as unknown as PredictionManagementRepository;
@@ -112,6 +116,7 @@ describe('CreatePredictionFromImportUseCase', () => {
       importPromptMapper,
     );
 
+    // Act + Assert
     await expect(
       useCase.execute(
         {

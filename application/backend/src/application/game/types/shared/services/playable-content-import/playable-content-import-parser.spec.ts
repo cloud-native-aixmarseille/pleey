@@ -99,19 +99,23 @@ describe('PlayableContentImportParser', () => {
   });
 
   it('falls back to buffered format detection for extensionless imports', async () => {
+    // Arrange
     const source = new TestPlayableContentImportSource(
       'prediction-import',
       ['Prompt: Which team scores first?', 'Time: 30', 'Points: 250', '- [x] Home', '- [ ] Away'].join('\n'),
     );
 
+    // Act
     const result = await parser.parse(source);
 
+    // Assert
     expect(result).toHaveLength(1);
     expect(source.readAllCalls).toBe(1);
     expect(source.readLinesCalls).toBe(0);
   });
 
   it('parses markdown quiz imports that use headings, metadata, and checklist answers', async () => {
+    // Arrange
     const source = new TestPlayableContentImportSource(
       'pleey-quiz-import.md',
       [
@@ -139,8 +143,10 @@ describe('PlayableContentImportParser', () => {
       ].join('\n'),
     );
 
+    // Act
     const result = await parser.parse(source);
 
+    // Assert
     expect(result).toHaveLength(2);
     expect(result[0]).toMatchObject({
       points: 1000,
@@ -152,6 +158,7 @@ describe('PlayableContentImportParser', () => {
   });
 
   it('rejects unsupported file extensions', async () => {
+    // Arrange + Act + Assert
     await expect(
       parser.parse(new TestPlayableContentImportSource('quiz-import.docx', 'Question: Example')),
     ).rejects.toThrow(PlayableContentImportParserErrorCode.UNSUPPORTED_FORMAT);

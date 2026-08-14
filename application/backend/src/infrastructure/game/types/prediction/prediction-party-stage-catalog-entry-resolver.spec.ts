@@ -35,6 +35,7 @@ function createResolver(prisma: PrismaService): PredictionPartyStageCatalogEntry
 
 describe('PredictionPartyStageCatalogEntryResolver', () => {
   it('maps prediction prompts to generic party stage entries', async () => {
+    // Arrange
     const prisma = createPrismaWithPrompt({
       id: backendTestIdentifiers.partyStage(10),
       options: [
@@ -47,8 +48,10 @@ describe('PredictionPartyStageCatalogEntryResolver', () => {
     });
     const resolver = createResolver(prisma);
 
+    // Act
     const stage = await resolver.findFirstStage(backendTestIdentifiers.game(77));
 
+    // Assert
     expect(stage).toEqual({
       actions: [
         {
@@ -70,6 +73,7 @@ describe('PredictionPartyStageCatalogEntryResolver', () => {
   });
 
   it('resolves adjacent prediction stages by current stage position', async () => {
+    // Arrange
     const findFirst = vi
       .fn()
       .mockResolvedValueOnce({
@@ -101,8 +105,10 @@ describe('PredictionPartyStageCatalogEntryResolver', () => {
     const prisma = { game: { findFirst } } as unknown as PrismaService;
     const resolver = createResolver(prisma);
 
+    // Act
     const stage = await resolver.findNextStage(backendTestIdentifiers.game(77), backendTestIdentifiers.partyStage(10));
 
+    // Assert
     expect(stage).toMatchObject({
       id: backendTestIdentifiers.partyStage(11),
       points: 200,

@@ -24,15 +24,19 @@ function expectElementType(renderedNode: ReactNode, expectedType: unknown) {
 
 describe('PredictionPartyGameTypeRuntimeView', () => {
   it('contributes runtime panels for prediction parties', () => {
+    // Arrange
     const party = {} as HostRuntimePanelProps['party'];
+    // Act
     const runtimeView = new PredictionPartyGameTypeRuntimeView();
 
+    // Assert
     expect(runtimeView.gameType).toBe(GameType.Prediction);
     expectElementType(runtimeView.renderHostStagePanel({ party }), PredictionHostStagePanel);
     expectElementType(runtimeView.renderHostResultPanel({ party }), PredictionHostResultPanel);
   });
 
   it('contributes player runtime surfaces for prediction parties', () => {
+    // Arrange
     const party = {} as PlayerStageSurfaceProps['party'];
     const playerStageProps = {
       onLeaveParty: vi.fn(),
@@ -45,8 +49,11 @@ describe('PredictionPartyGameTypeRuntimeView', () => {
       onLeaveParty: vi.fn(),
       party,
     } satisfies PlayerResultSurfaceProps;
+
+    // Act
     const runtimeView = new PredictionPartyGameTypeRuntimeView();
 
+    // Assert
     expectElementType(runtimeView.renderPlayerStageSurface(playerStageProps), PredictionPlayerStageSurface);
     expectElementType(runtimeView.renderPlayerResultSurface(playerResultProps), PredictionPlayerResultSurface);
   });

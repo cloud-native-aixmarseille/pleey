@@ -25,6 +25,7 @@ vi.mock('../../../i18n/use-presentation-translation', async (importOriginal) => 
 
 describe('AccountMenuAuthenticated', () => {
   it('shows the user name on the trigger and toggles the menu state', async () => {
+    // Arrange
     const user = userEvent.setup();
     const onToggle = vi.fn();
 
@@ -40,18 +41,22 @@ describe('AccountMenuAuthenticated', () => {
       />,
     );
 
+    // Act
     await user.click(screen.getByRole('button', { name: 'shared.shell.accountMenu' }));
 
+    // Assert
     expect(screen.getByText('Morgan')).toBeInTheDocument();
     expect(onToggle).toHaveBeenCalledTimes(1);
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
   });
 
   it('renders profile and sign-out actions when opened', async () => {
+    // Arrange
     const user = userEvent.setup();
     const onNavigateToProfile = vi.fn();
     const onSignOut = vi.fn();
 
+    // Act
     renderWithProviders(
       <AccountMenuAuthenticated
         appVersion="1.2.3"
@@ -64,6 +69,7 @@ describe('AccountMenuAuthenticated', () => {
       />,
     );
 
+    // Assert
     expect(screen.getByRole('menu')).toBeInTheDocument();
     expect(screen.getByText('shared.shell.version (version=1.2.3)')).toBeInTheDocument();
     await user.click(screen.getByRole('menuitem', { name: 'shared.shell.profileLink' }));
@@ -74,6 +80,7 @@ describe('AccountMenuAuthenticated', () => {
   });
 
   it('omits the version label when no version is available', () => {
+    // Arrange + Act
     renderWithProviders(
       <AccountMenuAuthenticated
         appVersion="  "
@@ -86,6 +93,7 @@ describe('AccountMenuAuthenticated', () => {
       />,
     );
 
+    // Assert
     expect(screen.queryByText(/shared\.shell\.version/i)).not.toBeInTheDocument();
   });
 });

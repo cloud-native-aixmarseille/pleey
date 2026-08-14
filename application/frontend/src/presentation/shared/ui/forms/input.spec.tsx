@@ -6,6 +6,7 @@ import { Input } from './input';
 describe('Input', () => {
   describe('render()', () => {
     it('renders the provided value', () => {
+      // Arrange + Act
       renderWithUiProvider(
         <label htmlFor="email">
           Email
@@ -13,10 +14,12 @@ describe('Input', () => {
         </label>,
       );
 
+      // Assert
       expect(screen.getByLabelText('Email')).toHaveValue('captain@pleey.io');
     });
 
     it('exposes aria-invalid when the field is invalid', () => {
+      // Arrange + Act
       renderWithUiProvider(
         <label htmlFor="password">
           Password
@@ -24,6 +27,7 @@ describe('Input', () => {
         </label>,
       );
 
+      // Assert
       expect(screen.getByLabelText('Password')).toHaveAttribute('aria-invalid', 'true');
     });
   });

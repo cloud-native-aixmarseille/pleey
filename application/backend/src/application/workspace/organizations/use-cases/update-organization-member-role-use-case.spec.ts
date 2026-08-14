@@ -16,6 +16,7 @@ const requesterUserId = backendTestIdentifiers.user(10);
 
 describe('UpdateOrganizationMemberRoleUseCase', () => {
   it('throws MEMBER_NOT_FOUND when member does not exist', async () => {
+    // Arrange
     const memberRepository = createOrganizationMemberRepositoryMock({ findById: null });
     const organizationMembershipAccess = new OrganizationMembershipAccessService(
       createOrganizationRepositoryMock() as never,
@@ -24,12 +25,14 @@ describe('UpdateOrganizationMemberRoleUseCase', () => {
     );
     const useCase = new UpdateOrganizationMemberRoleUseCase(organizationMembershipAccess, memberRepository as never);
 
+    // Act + Assert
     await expect(useCase.execute(memberId, OrganizationRole.MANAGER, requesterUserId)).rejects.toThrow(
       OrganizationErrorCode.MEMBER_NOT_FOUND,
     );
   });
 
   it('throws when requesting user lacks management privileges', async () => {
+    // Arrange
     const memberRepository = createOrganizationMemberRepositoryMock({
       findById: {
         id: memberId,
@@ -46,12 +49,14 @@ describe('UpdateOrganizationMemberRoleUseCase', () => {
     );
     const useCase = new UpdateOrganizationMemberRoleUseCase(organizationMembershipAccess, memberRepository as never);
 
+    // Act + Assert
     await expect(useCase.execute(memberId, OrganizationRole.MANAGER, requesterUserId)).rejects.toThrow(
       OrganizationErrorCode.INSUFFICIENT_PERMISSIONS,
     );
   });
 
   it('throws when trying to demote the last owner', async () => {
+    // Arrange
     const ownerMember = {
       id: memberId,
       organizationId,
@@ -73,12 +78,14 @@ describe('UpdateOrganizationMemberRoleUseCase', () => {
     );
     const useCase = new UpdateOrganizationMemberRoleUseCase(organizationMembershipAccess, memberRepository as never);
 
+    // Act + Assert
     await expect(useCase.execute(memberId, OrganizationRole.MANAGER, requesterUserId)).rejects.toThrow(
       OrganizationErrorCode.CANNOT_REMOVE_LAST_OWNER,
     );
   });
 
   it('throws when a manager tries to promote a member to owner', async () => {
+    // Arrange
     const memberRepository = createOrganizationMemberRepositoryMock({
       findById: {
         id: memberId,
@@ -98,12 +105,14 @@ describe('UpdateOrganizationMemberRoleUseCase', () => {
     );
     const useCase = new UpdateOrganizationMemberRoleUseCase(organizationMembershipAccess, memberRepository as never);
 
+    // Act + Assert
     await expect(useCase.execute(memberId, OrganizationRole.OWNER, requesterUserId)).rejects.toThrow(
       OrganizationErrorCode.INSUFFICIENT_PERMISSIONS,
     );
   });
 
   it('throws when a manager tries to edit an owner', async () => {
+    // Arrange
     const memberRepository = createOrganizationMemberRepositoryMock({
       findById: {
         id: memberId,
@@ -123,12 +132,14 @@ describe('UpdateOrganizationMemberRoleUseCase', () => {
     );
     const useCase = new UpdateOrganizationMemberRoleUseCase(organizationMembershipAccess, memberRepository as never);
 
+    // Act + Assert
     await expect(useCase.execute(memberId, OrganizationRole.MANAGER, requesterUserId)).rejects.toThrow(
       OrganizationErrorCode.INSUFFICIENT_PERMISSIONS,
     );
   });
 
   it('returns the current member when role is unchanged', async () => {
+    // Arrange
     const member = {
       id: memberId,
       organizationId,
@@ -150,11 +161,13 @@ describe('UpdateOrganizationMemberRoleUseCase', () => {
     );
     const useCase = new UpdateOrganizationMemberRoleUseCase(organizationMembershipAccess, memberRepository as never);
 
+    // Act + Assert
     await expect(useCase.execute(memberId, OrganizationRole.MANAGER, requesterUserId)).resolves.toBe(member);
     expect(memberRepository.updateRole).not.toHaveBeenCalled();
   });
 
   it('updates the role when allowed', async () => {
+    // Arrange
     const memberRepository = createOrganizationMemberRepositoryMock({
       findById: {
         id: memberId,
@@ -179,8 +192,10 @@ describe('UpdateOrganizationMemberRoleUseCase', () => {
     );
     const useCase = new UpdateOrganizationMemberRoleUseCase(organizationMembershipAccess, memberRepository as never);
 
+    // Act
     await useCase.execute(memberId, OrganizationRole.MANAGER, requesterUserId);
 
+    // Assert
     expect(memberRepository.updateRole).toHaveBeenCalledWith(memberId, OrganizationRole.MANAGER);
   });
 });

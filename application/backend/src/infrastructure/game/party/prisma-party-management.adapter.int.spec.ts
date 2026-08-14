@@ -48,6 +48,7 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
   });
 
   it('creates a party in party storage and lists host/player projections through one read model', async () => {
+    // Arrange
     const unique = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
     const host = await harness.prisma.user.create({
@@ -118,10 +119,12 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
     const hostParties = await harness.repository.listUserParties({
       userId: backendTestIdentifiers.user(host.id),
     });
+    // Act
     const playerParties = await harness.repository.listUserParties({
       userId: backendTestIdentifiers.user(player.id),
     });
 
+    // Assert
     expect(managedGame).toEqual({
       gameId: game.id,
       projectId: project.id,
@@ -148,6 +151,7 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
   });
 
   it('lists parties across projects and organizations for the same user', async () => {
+    // Arrange
     const unique = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
     const host = await harness.prisma.user.create({
@@ -231,10 +235,12 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
     });
     partyIds.push(secondParty.id);
 
+    // Act
     const parties = await harness.repository.listUserParties({
       userId: backendTestIdentifiers.user(host.id),
     });
 
+    // Assert
     expect(parties.items).toEqual([
       expect.objectContaining({ partyId: secondParty.id, gameId: secondGame.id }),
       expect.objectContaining({ partyId: firstParty.partyId, gameId: firstGame.id }),

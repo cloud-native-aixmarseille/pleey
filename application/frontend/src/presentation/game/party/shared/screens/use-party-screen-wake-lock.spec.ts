@@ -1,13 +1,13 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { act } from 'react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { usePartyScreenWakeLock } from './use-party-screen-wake-lock';
 
 describe('usePartyScreenWakeLock', () => {
   const originalWakeLockDescriptor = Object.getOwnPropertyDescriptor(window.navigator, 'wakeLock');
   const originalVisibilityDescriptor = Object.getOwnPropertyDescriptor(document, 'visibilityState');
 
-  afterEach(() => {
+  function restoreEnvironment() {
     vi.restoreAllMocks();
 
     if (originalWakeLockDescriptor) {
@@ -19,107 +19,129 @@ describe('usePartyScreenWakeLock', () => {
     if (originalVisibilityDescriptor) {
       Object.defineProperty(document, 'visibilityState', originalVisibilityDescriptor);
     }
-  });
+  }
 
   it('requests a screen wake lock when enabled on a visible page', async () => {
+    // Arrange + Act
     let released = false;
-    const request = vi.fn(async () => ({
-      get released() {
-        return released;
-      },
-      release: vi.fn(async () => {
-        released = true;
-      }),
-    }));
 
-    Object.defineProperty(window.navigator, 'wakeLock', {
-      configurable: true,
-      value: { request },
-    });
+    // Assert
+    try {
+      const request = vi.fn(async () => ({
+        get released() {
+          return released;
+        },
+        release: vi.fn(async () => {
+          released = true;
+        }),
+      }));
 
-    renderHook(() => usePartyScreenWakeLock(true));
+      Object.defineProperty(window.navigator, 'wakeLock', {
+        configurable: true,
+        value: { request },
+      });
 
-    await waitFor(() => {
-      expect(request).toHaveBeenCalledWith('screen');
-    });
+      renderHook(() => usePartyScreenWakeLock(true));
+
+      await waitFor(() => {
+        expect(request).toHaveBeenCalledWith('screen');
+      });
+    } finally {
+      restoreEnvironment();
+    }
   });
 
   it('releases the wake lock when the hook unmounts', async () => {
+    // Arrange + Act
     let released = false;
-    const release = vi.fn(async () => {
-      released = true;
-    });
-    const request = vi.fn(async () => ({
-      get released() {
-        return released;
-      },
-      release,
-    }));
 
-    Object.defineProperty(window.navigator, 'wakeLock', {
-      configurable: true,
-      value: { request },
-    });
+    // Assert
+    try {
+      const release = vi.fn(async () => {
+        released = true;
+      });
+      const request = vi.fn(async () => ({
+        get released() {
+          return released;
+        },
+        release,
+      }));
 
-    const { unmount } = renderHook(() => usePartyScreenWakeLock(true));
+      Object.defineProperty(window.navigator, 'wakeLock', {
+        configurable: true,
+        value: { request },
+      });
 
-    await waitFor(() => {
-      expect(request).toHaveBeenCalledTimes(1);
-    });
+      const { unmount } = renderHook(() => usePartyScreenWakeLock(true));
 
-    unmount();
+      await waitFor(() => {
+        expect(request).toHaveBeenCalledTimes(1);
+      });
 
-    await waitFor(() => {
-      expect(release).toHaveBeenCalledTimes(1);
-    });
+      unmount();
+
+      await waitFor(() => {
+        expect(release).toHaveBeenCalledTimes(1);
+      });
+    } finally {
+      restoreEnvironment();
+    }
   });
 
   it('releases when hidden and re-requests when visible again', async () => {
+    // Arrange
     let released = false;
+    // Act
     let visibilityState: DocumentVisibilityState = 'visible';
-    const release = vi.fn(async () => {
-      released = true;
-    });
-    const request = vi.fn(async () => ({
-      get released() {
-        return released;
-      },
-      release,
-    }));
 
-    Object.defineProperty(window.navigator, 'wakeLock', {
-      configurable: true,
-      value: { request },
-    });
-    Object.defineProperty(document, 'visibilityState', {
-      configurable: true,
-      get: () => visibilityState,
-    });
+    // Assert
+    try {
+      const release = vi.fn(async () => {
+        released = true;
+      });
+      const request = vi.fn(async () => ({
+        get released() {
+          return released;
+        },
+        release,
+      }));
 
-    renderHook(() => usePartyScreenWakeLock(true));
+      Object.defineProperty(window.navigator, 'wakeLock', {
+        configurable: true,
+        value: { request },
+      });
+      Object.defineProperty(document, 'visibilityState', {
+        configurable: true,
+        get: () => visibilityState,
+      });
 
-    await waitFor(() => {
-      expect(request).toHaveBeenCalledTimes(1);
-    });
+      renderHook(() => usePartyScreenWakeLock(true));
 
-    await act(async () => {
-      visibilityState = 'hidden';
-      document.dispatchEvent(new Event('visibilitychange'));
-    });
+      await waitFor(() => {
+        expect(request).toHaveBeenCalledTimes(1);
+      });
 
-    await waitFor(() => {
-      expect(release).toHaveBeenCalledTimes(1);
-    });
+      await act(async () => {
+        visibilityState = 'hidden';
+        document.dispatchEvent(new Event('visibilitychange'));
+      });
 
-    released = false;
+      await waitFor(() => {
+        expect(release).toHaveBeenCalledTimes(1);
+      });
 
-    await act(async () => {
-      visibilityState = 'visible';
-      document.dispatchEvent(new Event('visibilitychange'));
-    });
+      released = false;
 
-    await waitFor(() => {
-      expect(request).toHaveBeenCalledTimes(2);
-    });
+      await act(async () => {
+        visibilityState = 'visible';
+        document.dispatchEvent(new Event('visibilitychange'));
+      });
+
+      await waitFor(() => {
+        expect(request).toHaveBeenCalledTimes(2);
+      });
+    } finally {
+      restoreEnvironment();
+    }
   });
 });

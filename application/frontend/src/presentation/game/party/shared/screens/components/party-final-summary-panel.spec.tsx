@@ -1,5 +1,5 @@
 import { screen, within } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { PartyPlayerIdentityKind } from '../../../../../../domains/game/party/shared/entities/party-player-identity';
 import { PartyFixtureFactory } from '../../../../../../test-utils/fixtures/party-fixture-factory';
 import { renderWithUiProvider } from '../../../../../../test-utils/render-with-ui-provider';
@@ -32,122 +32,136 @@ function stubMatchMedia(matches: boolean) {
 }
 
 describe('PartyFinalSummaryPanel', () => {
-  afterEach(() => {
+  function resetGlobals() {
     vi.unstubAllGlobals();
-  });
+  }
 
   it('renders the desktop podium ordering on wide screens', () => {
+    // Arrange + Act
     stubMatchMedia(false);
 
-    renderWithUiProvider(
-      <PartyFinalSummaryPanel
-        players={[
-          partyFixtureFactory.createObservationPlayer({
-            avatarUri: null,
-            identity: { kind: PartyPlayerIdentityKind.User, userId: 7 },
-            correctStages: 3,
-            totalScore: 800,
-            username: 'Player Two',
-          }),
-          partyFixtureFactory.createObservationPlayer({
-            avatarUri: null,
-            identity: { kind: PartyPlayerIdentityKind.Guest, guestId: 'guest-1' },
-            correctStages: 6,
-            totalScore: 1200,
-            username: 'Winner',
-          }),
-          partyFixtureFactory.createObservationPlayer({
-            avatarUri: null,
-            identity: { kind: PartyPlayerIdentityKind.User, userId: 9 },
-            isCurrentPlayer: true,
-            correctStages: 1,
-            totalScore: 400,
-            username: 'Player Three',
-          }),
-        ]}
-        totalStages={6}
-      />,
-    );
+    // Assert
+    try {
+      renderWithUiProvider(
+        <PartyFinalSummaryPanel
+          players={[
+            partyFixtureFactory.createObservationPlayer({
+              avatarUri: null,
+              identity: { kind: PartyPlayerIdentityKind.User, userId: 7 },
+              correctStages: 3,
+              totalScore: 800,
+              username: 'Player Two',
+            }),
+            partyFixtureFactory.createObservationPlayer({
+              avatarUri: null,
+              identity: { kind: PartyPlayerIdentityKind.Guest, guestId: 'guest-1' },
+              correctStages: 6,
+              totalScore: 1200,
+              username: 'Winner',
+            }),
+            partyFixtureFactory.createObservationPlayer({
+              avatarUri: null,
+              identity: { kind: PartyPlayerIdentityKind.User, userId: 9 },
+              isCurrentPlayer: true,
+              correctStages: 1,
+              totalScore: 400,
+              username: 'Player Three',
+            }),
+          ]}
+          totalStages={6}
+        />,
+      );
 
-    expect(screen.getByTestId('party-final-podium-desktop')).toBeInTheDocument();
-    expect(screen.queryByTestId('party-final-podium-mobile')).not.toBeInTheDocument();
-    expect(screen.getByTestId('party-final-podium-desktop')).toHaveStyle({
-      display: 'grid',
-      gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-    });
+      expect(screen.getByTestId('party-final-podium-desktop')).toBeInTheDocument();
+      expect(screen.queryByTestId('party-final-podium-mobile')).not.toBeInTheDocument();
+      expect(screen.getByTestId('party-final-podium-desktop')).toHaveStyle({
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+      });
 
-    expect(within(screen.getByTestId('party-final-podium-rank-2')).getByText('Player Two')).toBeInTheDocument();
-    expect(within(screen.getByTestId('party-final-podium-rank-1')).getByText('Winner')).toBeInTheDocument();
-    expect(within(screen.getByTestId('party-final-podium-rank-3')).getByText('Player Three')).toBeInTheDocument();
-    expect(screen.getAllByText('game.party.route.finalLeaderboardResponseSuccessRatio')).toHaveLength(6);
-    expect(screen.getByTestId('party-final-podium-rank-2-badge-slot')).toBeEmptyDOMElement();
-    expect(
-      within(screen.getByTestId('party-final-podium-rank-3-badge-slot')).getByText('game.party.route.youBadge'),
-    ).toBeInTheDocument();
-    const rankTwoPodium = screen.getByTestId('party-final-podium-rank-2');
-    const rankThreePodium = screen.getByTestId('party-final-podium-rank-3');
+      expect(within(screen.getByTestId('party-final-podium-rank-2')).getByText('Player Two')).toBeInTheDocument();
+      expect(within(screen.getByTestId('party-final-podium-rank-1')).getByText('Winner')).toBeInTheDocument();
+      expect(within(screen.getByTestId('party-final-podium-rank-3')).getByText('Player Three')).toBeInTheDocument();
+      expect(screen.getAllByText('game.party.route.finalLeaderboardResponseSuccessRatio')).toHaveLength(6);
+      expect(screen.getByTestId('party-final-podium-rank-2-badge-slot')).toBeEmptyDOMElement();
+      expect(
+        within(screen.getByTestId('party-final-podium-rank-3-badge-slot')).getByText('game.party.route.youBadge'),
+      ).toBeInTheDocument();
+      const rankTwoPodium = screen.getByTestId('party-final-podium-rank-2');
+      const rankThreePodium = screen.getByTestId('party-final-podium-rank-3');
 
-    expect(rankTwoPodium).toHaveStyle({
-      minHeight: '208px',
-    });
-    expect(rankTwoPodium.getAttribute('style')).toContain(
-      'padding: var(--ui-spacing-xl) var(--ui-spacing-sm) var(--ui-spacing-xl)',
-    );
+      expect(rankTwoPodium).toHaveStyle({
+        minHeight: '208px',
+      });
+      expect(rankTwoPodium.getAttribute('style')).toContain(
+        'padding: var(--ui-spacing-xl) var(--ui-spacing-sm) var(--ui-spacing-xl)',
+      );
 
-    expect(rankThreePodium).toHaveStyle({
-      minHeight: '160px',
-    });
-    expect(rankThreePodium.getAttribute('style')).toContain(
-      'padding: var(--ui-spacing-lg) var(--ui-spacing-sm) var(--ui-spacing-md)',
-    );
+      expect(rankThreePodium).toHaveStyle({
+        minHeight: '160px',
+      });
+      expect(rankThreePodium.getAttribute('style')).toContain(
+        'padding: var(--ui-spacing-lg) var(--ui-spacing-sm) var(--ui-spacing-md)',
+      );
+    } finally {
+      resetGlobals();
+    }
   });
 
   it('renders a dedicated mobile winner card and compact standings on narrow screens', () => {
+    // Arrange + Act
     stubMatchMedia(true);
 
-    renderWithUiProvider(
-      <PartyFinalSummaryPanel
-        players={[
-          partyFixtureFactory.createObservationPlayer({
-            avatarUri: null,
-            identity: { kind: PartyPlayerIdentityKind.User, userId: 7 },
-            correctStages: 3,
-            totalScore: 800,
-            username: 'Player Two',
-          }),
-          partyFixtureFactory.createObservationPlayer({
-            avatarUri: null,
-            identity: { kind: PartyPlayerIdentityKind.Guest, guestId: 'guest-1' },
-            correctStages: 6,
-            totalScore: 1200,
-            username: 'Winner',
-          }),
-          partyFixtureFactory.createObservationPlayer({
-            avatarUri: null,
-            identity: { kind: PartyPlayerIdentityKind.User, userId: 9 },
-            isCurrentPlayer: true,
-            correctStages: 1,
-            totalScore: 400,
-            username: 'Player Three',
-          }),
-        ]}
-        totalStages={6}
-      />,
-    );
+    // Assert
+    try {
+      renderWithUiProvider(
+        <PartyFinalSummaryPanel
+          players={[
+            partyFixtureFactory.createObservationPlayer({
+              avatarUri: null,
+              identity: { kind: PartyPlayerIdentityKind.User, userId: 7 },
+              correctStages: 3,
+              totalScore: 800,
+              username: 'Player Two',
+            }),
+            partyFixtureFactory.createObservationPlayer({
+              avatarUri: null,
+              identity: { kind: PartyPlayerIdentityKind.Guest, guestId: 'guest-1' },
+              correctStages: 6,
+              totalScore: 1200,
+              username: 'Winner',
+            }),
+            partyFixtureFactory.createObservationPlayer({
+              avatarUri: null,
+              identity: { kind: PartyPlayerIdentityKind.User, userId: 9 },
+              isCurrentPlayer: true,
+              correctStages: 1,
+              totalScore: 400,
+              username: 'Player Three',
+            }),
+          ]}
+          totalStages={6}
+        />,
+      );
 
-    expect(screen.getByTestId('party-final-podium-mobile')).toBeInTheDocument();
-    expect(screen.queryByTestId('party-final-podium-desktop')).not.toBeInTheDocument();
+      expect(screen.getByTestId('party-final-podium-mobile')).toBeInTheDocument();
+      expect(screen.queryByTestId('party-final-podium-desktop')).not.toBeInTheDocument();
 
-    expect(within(screen.getByTestId('party-final-mobile-winner')).getByText('Winner')).toBeInTheDocument();
-    expect(within(screen.getByTestId('party-final-podium-mobile-rank-2')).getByText('Player Two')).toBeInTheDocument();
-    expect(
-      within(screen.getByTestId('party-final-podium-mobile-rank-3')).getByText('Player Three'),
-    ).toBeInTheDocument();
+      expect(within(screen.getByTestId('party-final-mobile-winner')).getByText('Winner')).toBeInTheDocument();
+      expect(
+        within(screen.getByTestId('party-final-podium-mobile-rank-2')).getByText('Player Two'),
+      ).toBeInTheDocument();
+      expect(
+        within(screen.getByTestId('party-final-podium-mobile-rank-3')).getByText('Player Three'),
+      ).toBeInTheDocument();
 
-    expect(within(screen.getByTestId('party-final-standings-rank-1')).getByText('Winner')).toBeInTheDocument();
-    expect(
-      within(screen.getByTestId('party-final-standings-rank-3')).getByText('game.party.route.youBadge'),
-    ).toBeInTheDocument();
-    expect(screen.getAllByText('game.party.route.finalLeaderboardResponseSuccessRatio')).toHaveLength(6);
+      expect(within(screen.getByTestId('party-final-standings-rank-1')).getByText('Winner')).toBeInTheDocument();
+      expect(
+        within(screen.getByTestId('party-final-standings-rank-3')).getByText('game.party.route.youBadge'),
+      ).toBeInTheDocument();
+      expect(screen.getAllByText('game.party.route.finalLeaderboardResponseSuccessRatio')).toHaveLength(6);
+    } finally {
+      resetGlobals();
+    }
   });
 });

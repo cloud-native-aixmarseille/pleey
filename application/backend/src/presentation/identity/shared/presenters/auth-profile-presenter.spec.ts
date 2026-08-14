@@ -6,9 +6,11 @@ import { AuthProfilePresenter } from './auth-profile-presenter';
 
 describe('AuthProfilePresenter', () => {
   it('builds an absolute avatar URL from forwarded request headers', () => {
+    // Arrange
     const presenter = new AuthProfilePresenter();
     const profile = createProfile({ avatarVersion: TEST_AVATAR_VERSION });
 
+    // Act
     const result = presenter.presentUserProfile(profile, {
       headers: {
         'x-forwarded-proto': 'https',
@@ -18,47 +20,59 @@ describe('AuthProfilePresenter', () => {
       get: () => undefined,
     });
 
+    // Assert
     expect(result.avatarUri).toBe(
       `https://api.pleey.example/api/avatars/users/${backendTestIdentifiers.user(7)}?v=${TEST_AVATAR_VERSION}`,
     );
   });
 
   it('returns null avatarUri when the user has no avatar', () => {
+    // Arrange
     const presenter = new AuthProfilePresenter();
     const profile = createProfile({ avatarVersion: null });
 
+    // Act
     const result = presenter.presentUserProfile(profile, {
       headers: {},
       protocol: 'http',
       get: readHostHeader('localhost:3000'),
     });
 
+    // Assert
     expect(result.avatarUri).toBeNull();
   });
 
   it('uses API_BASE_URL when request host data is unavailable', () => {
+    // Arrange
     const presenter = new AuthProfilePresenter('https://api.pleey.example/api');
     const profile = createProfile({ avatarVersion: TEST_AVATAR_VERSION });
 
+    // Act
     const result = presenter.presentUserProfile(profile);
 
+    // Assert
     expect(result.avatarUri).toBe(
       `https://api.pleey.example/api/avatars/users/${backendTestIdentifiers.user(7)}?v=${TEST_AVATAR_VERSION}`,
     );
   });
 
   it('falls back to a relative avatar path when neither request nor config are available', () => {
+    // Arrange
     const presenter = new AuthProfilePresenter();
     const profile = createProfile({ avatarVersion: TEST_AVATAR_VERSION });
 
+    // Act
     const result = presenter.presentUserProfile(profile);
 
+    // Assert
     expect(result.avatarUri).toBe(`/api/avatars/users/${backendTestIdentifiers.user(7)}?v=${TEST_AVATAR_VERSION}`);
   });
 
   it('applies the same transformation to auth responses', () => {
+    // Arrange
     const presenter = new AuthProfilePresenter();
 
+    // Act
     const result = presenter.presentAuthResponse(
       {
         accessToken: 'access-token',
@@ -78,6 +92,7 @@ describe('AuthProfilePresenter', () => {
       },
     );
 
+    // Assert
     expect(result.user.avatarUri).toBe(
       `http://localhost:3000/api/avatars/users/${backendTestIdentifiers.user(7)}?v=${TEST_AVATAR_VERSION}`,
     );

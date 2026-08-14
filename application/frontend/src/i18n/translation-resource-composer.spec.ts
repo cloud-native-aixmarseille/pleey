@@ -131,7 +131,7 @@ function collectDefinedReferenceRoots(exactKeys: string[], definedKeys: string[]
 describe('TranslationResourceComposer', () => {
   describe('compose()', () => {
     it('returns resources for the en locale', () => {
-      // Act
+      // Arrange + Act
       const resources = translationResourceComposer.compose();
 
       // Assert
@@ -139,7 +139,7 @@ describe('TranslationResourceComposer', () => {
     });
 
     it('returns resources for the fr locale', () => {
-      // Act
+      // Arrange + Act
       const resources = translationResourceComposer.compose();
 
       // Assert
@@ -147,7 +147,7 @@ describe('TranslationResourceComposer', () => {
     });
 
     it('merges shared namespace keys into the translation object', () => {
-      // Act
+      // Arrange + Act
       const { en } = translationResourceComposer.compose();
 
       // Assert - shared.shell.* keys come from the shared i18n module
@@ -155,7 +155,7 @@ describe('TranslationResourceComposer', () => {
     });
 
     it('merges auth namespace keys into the translation object', () => {
-      // Act
+      // Arrange + Act
       const { en } = translationResourceComposer.compose();
 
       // Assert
@@ -163,7 +163,7 @@ describe('TranslationResourceComposer', () => {
     });
 
     it('merges dashboard namespace keys into the translation object', () => {
-      // Act
+      // Arrange + Act
       const { en } = translationResourceComposer.compose();
 
       // Assert
@@ -171,7 +171,7 @@ describe('TranslationResourceComposer', () => {
     });
 
     it('merges game namespace keys into the translation object', () => {
-      // Act
+      // Arrange + Act
       const { en } = translationResourceComposer.compose();
 
       // Assert
@@ -179,7 +179,7 @@ describe('TranslationResourceComposer', () => {
     });
 
     it('deeply merges overlapping top-level sections without losing sibling keys', () => {
-      // Act
+      // Arrange + Act
       const { en } = translationResourceComposer.compose();
       const translation = en.translation as Record<string, unknown>;
 
@@ -191,7 +191,7 @@ describe('TranslationResourceComposer', () => {
     });
 
     it('keeps english and french translation keys aligned', () => {
-      // Act
+      // Arrange + Act
       const resources = translationResourceComposer.compose();
       const englishKeys = flattenTranslationKeys(resources.en.translation).sort();
       const frenchKeys = flattenTranslationKeys(resources.fr.translation).sort();
@@ -201,6 +201,7 @@ describe('TranslationResourceComposer', () => {
     });
 
     it('covers statically referenced translation keys across the frontend source tree', () => {
+      // Arrange
       const sourceDirectory = join(process.cwd(), 'src');
 
       // Act
@@ -223,6 +224,7 @@ describe('TranslationResourceComposer', () => {
     });
 
     it('does not keep stale translation keys in the frontend resources', () => {
+      // Arrange
       const sourceDirectory = join(process.cwd(), 'src');
 
       // Act

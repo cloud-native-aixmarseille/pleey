@@ -26,6 +26,7 @@ const NON_INTERNAL_ERROR_CODES = [
 
 describe('ErrorCodeHttpStatusService', () => {
   it('maps every declared domain error code to a non-default HTTP status', async () => {
+    // Arrange
     const module = await Test.createTestingModule({
       providers: [
         IdentityErrorHttpStatusService,
@@ -63,8 +64,10 @@ describe('ErrorCodeHttpStatusService', () => {
         ErrorCodeHttpStatusService,
       ],
     }).compile();
+    // Act
     const service = module.get(ErrorCodeHttpStatusService);
 
+    // Assert
     for (const errorCode of NON_INTERNAL_ERROR_CODES) {
       expect(service.resolve(errorCode)).not.toBe(500);
     }
@@ -73,6 +76,7 @@ describe('ErrorCodeHttpStatusService', () => {
   });
 
   it('keeps UNKNOWN_ERROR mapped to internal server error', async () => {
+    // Arrange
     const module = await Test.createTestingModule({
       providers: [
         GameErrorHttpStatusService,
@@ -84,8 +88,10 @@ describe('ErrorCodeHttpStatusService', () => {
         ErrorCodeHttpStatusService,
       ],
     }).compile();
+    // Act
     const service = module.get(ErrorCodeHttpStatusService);
 
+    // Assert
     expect(service.resolve(GameErrorCode.UNKNOWN_ERROR)).toBe(500);
 
     await module.close();

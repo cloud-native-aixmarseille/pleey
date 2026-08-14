@@ -6,6 +6,7 @@ import { ProfileTile } from './profile-tile';
 
 describe('ProfileTile', () => {
   it('renders the player identity and role badge', () => {
+    // Arrange + Act
     renderWithUiProvider(
       <ProfileTile
         avatarAlt="Casey avatar"
@@ -17,20 +18,24 @@ describe('ProfileTile', () => {
       />,
     );
 
+    // Assert
     expect(screen.getByText('Casey')).toBeInTheDocument();
     expect(screen.getByText('Player')).toBeInTheDocument();
     expect(screen.getByText('You')).toBeInTheDocument();
   });
 
   it('keeps a dedicated highlight slot even when no highlight label is shown', () => {
+    // Arrange + Act
     renderWithUiProvider(<ProfileTile avatarAlt="Morgan avatar" avatarSrc={null} badgeLabel="Player" title="Morgan" />);
 
+    // Assert
     expect(screen.getByTestId('profile-tile-highlight-slot')).toHaveStyle({
       minHeight: '24px',
     });
   });
 
   it('renders an optional footer action', () => {
+    // Arrange + Act
     renderWithUiProvider(
       <ProfileTile
         avatarAlt="Morgan avatar"
@@ -41,6 +46,7 @@ describe('ProfileTile', () => {
       />,
     );
 
+    // Assert
     expect(screen.getByRole('button', { name: 'Remove' })).toBeInTheDocument();
   });
 });

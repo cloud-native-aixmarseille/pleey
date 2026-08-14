@@ -19,6 +19,7 @@ const projectIdentifier = new ProjectIdentifierMockFactory().create();
 
 describe('GraphqlGameCatalogAdapter', () => {
   it('maps the project dashboard games query into the shared management catalog page', async () => {
+    // Arrange
     const graphqlClientMockFactory = new GraphqlClientMockFactory();
     const { client, requestMock } = graphqlClientMockFactory.create({
       requestResult: {
@@ -54,6 +55,7 @@ describe('GraphqlGameCatalogAdapter', () => {
     });
     const adapter = new GraphqlGameCatalogAdapter(client, gameIdentifier, gameTypeIdentifier, gameTypeParser);
 
+    // Act
     const result = await adapter.listProjectGames({
       projectId: projectIdentifier.parse(9),
       search: 'sprint',
@@ -64,6 +66,7 @@ describe('GraphqlGameCatalogAdapter', () => {
       pageSize: 9,
     });
 
+    // Assert
     expect(requestMock).toHaveBeenCalledWith(
       ProjectGamesDocument,
       {
@@ -110,6 +113,7 @@ describe('GraphqlGameCatalogAdapter', () => {
   });
 
   it('maps the no-stages disabled reason returned by GraphQL', async () => {
+    // Arrange
     const graphqlClientMockFactory = new GraphqlClientMockFactory();
     const { client } = graphqlClientMockFactory.create({
       requestResult: {
@@ -145,6 +149,7 @@ describe('GraphqlGameCatalogAdapter', () => {
     });
     const adapter = new GraphqlGameCatalogAdapter(client, gameIdentifier, gameTypeIdentifier, gameTypeParser);
 
+    // Act
     const result = await adapter.listProjectGames({
       projectId: projectIdentifier.parse(9),
       search: '',
@@ -155,6 +160,7 @@ describe('GraphqlGameCatalogAdapter', () => {
       pageSize: 9,
     });
 
+    // Assert
     expect(result.items[0]?.permissions.createParty).toEqual({
       allowed: false,
       reason: CreatePartyDisabledReason.NO_STAGES_AVAILABLE,

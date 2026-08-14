@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { GetPlayerPartyObservationUseCase } from './get-player-party-observation-use-case';
@@ -7,38 +7,43 @@ import { GetPlayerPartyObservationUseCase } from './get-player-party-observation
 const partyId = backendTestIdentifiers.party(11);
 
 describe('GetPlayerPartyObservationUseCase', () => {
-  const playerPartyObservationReader = {
-    findPlayerObservationByPartyId: vi.fn(),
-  };
+  function arrangeUseCase() {
+    const playerPartyObservationReader = {
+      findPlayerObservationByPartyId: vi.fn().mockResolvedValue({
+        partyId,
+        pin: '123456',
+        status: 'WAITING',
+        host: {
+          avatarUri: null,
+          username: 'Host',
+        },
+        players: [],
+      }),
+    };
+    const useCase = new GetPlayerPartyObservationUseCase(playerPartyObservationReader as never);
 
-  let useCase: GetPlayerPartyObservationUseCase;
-
-  beforeEach(() => {
-    playerPartyObservationReader.findPlayerObservationByPartyId.mockReset();
-    playerPartyObservationReader.findPlayerObservationByPartyId.mockResolvedValue({
-      partyId,
-      pin: '123456',
-      status: 'WAITING',
-      host: {
-        avatarUri: null,
-        username: 'Host',
-      },
-      players: [],
-    });
-
-    useCase = new GetPlayerPartyObservationUseCase(playerPartyObservationReader as never);
-  });
+    return { useCase, playerPartyObservationReader };
+  }
 
   it('loads the player observation by party id', async () => {
+    // Arrange
+    const { useCase, playerPartyObservationReader } = arrangeUseCase();
+
+    // Act
     const result = await useCase.execute({ partyId });
 
+    // Assert
     expect(playerPartyObservationReader.findPlayerObservationByPartyId).toHaveBeenCalledWith(partyId);
     expect(result.partyId).toBe(partyId);
   });
 
   it('raises a game-domain error when the party is missing', async () => {
+    // Arrange
+    const { useCase, playerPartyObservationReader } = arrangeUseCase();
+
     playerPartyObservationReader.findPlayerObservationByPartyId.mockResolvedValue(null);
 
+    // Act + Assert
     await expect(useCase.execute({ partyId })).rejects.toThrow(GameErrorCode.PARTY_NOT_FOUND);
   });
 });

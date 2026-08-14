@@ -13,6 +13,7 @@ const actorUserId = backendTestIdentifiers.user(22);
 
 describe('DeleteProjectUseCase', () => {
   it('throws PROJECT_NOT_FOUND when the project does not exist', async () => {
+    // Arrange
     const projectRepository = createProjectRepositoryMock({ findById: null });
     const workspaceGameManagement = {
       countProjectGames: vi.fn(),
@@ -26,10 +27,12 @@ describe('DeleteProjectUseCase', () => {
       memberRepository as never,
     );
 
+    // Act + Assert
     await expect(useCase.execute(projectId, actorUserId)).rejects.toThrow(ProjectErrorCode.PROJECT_NOT_FOUND);
   });
 
   it('throws NOT_A_MEMBER when the user is outside the organization', async () => {
+    // Arrange
     const projectRepository = createProjectRepositoryMock({
       findById: {
         id: projectId,
@@ -50,10 +53,12 @@ describe('DeleteProjectUseCase', () => {
       memberRepository as never,
     );
 
+    // Act + Assert
     await expect(useCase.execute(projectId, actorUserId)).rejects.toThrow(OrganizationErrorCode.NOT_A_MEMBER);
   });
 
   it('throws INSUFFICIENT_PERMISSIONS when the user cannot manage projects', async () => {
+    // Arrange
     const projectRepository = createProjectRepositoryMock({
       findById: {
         id: projectId,
@@ -76,12 +81,14 @@ describe('DeleteProjectUseCase', () => {
       memberRepository as never,
     );
 
+    // Act + Assert
     await expect(useCase.execute(projectId, actorUserId)).rejects.toThrow(
       OrganizationErrorCode.INSUFFICIENT_PERMISSIONS,
     );
   });
 
   it('throws when deleting the last project of an organization', async () => {
+    // Arrange
     const projectRepository = createProjectRepositoryMock({
       findById: {
         id: projectId,
@@ -105,6 +112,7 @@ describe('DeleteProjectUseCase', () => {
       memberRepository as never,
     );
 
+    // Act + Assert
     await expect(useCase.execute(projectId, actorUserId)).rejects.toThrow(ProjectErrorCode.CANNOT_DELETE_LAST_PROJECT);
 
     expect(projectRepository.countByOrganization).toHaveBeenCalledWith(backendTestIdentifiers.organization(3));
@@ -112,6 +120,7 @@ describe('DeleteProjectUseCase', () => {
   });
 
   it('requires a migration target when the project still contains games', async () => {
+    // Arrange
     const projectRepository = createProjectRepositoryMock({
       findById: {
         id: projectId,
@@ -135,6 +144,7 @@ describe('DeleteProjectUseCase', () => {
       memberRepository as never,
     );
 
+    // Act + Assert
     await expect(useCase.execute(projectId, actorUserId)).rejects.toThrow(
       ProjectErrorCode.PROJECT_MIGRATION_TARGET_REQUIRED,
     );
@@ -144,6 +154,7 @@ describe('DeleteProjectUseCase', () => {
   });
 
   it('rejects an invalid migration target', async () => {
+    // Arrange
     const projectRepository = createProjectRepositoryMock({
       countByOrganization: 2,
     });
@@ -169,12 +180,14 @@ describe('DeleteProjectUseCase', () => {
       memberRepository as never,
     );
 
+    // Act + Assert
     await expect(useCase.execute(projectId, actorUserId, missingProjectId)).rejects.toThrow(
       ProjectErrorCode.PROJECT_MIGRATION_TARGET_NOT_FOUND,
     );
   });
 
   it('migrates games before deleting the project when a target is provided', async () => {
+    // Arrange
     const projectRepository = createProjectRepositoryMock({
       countByOrganization: 2,
     });
@@ -203,13 +216,16 @@ describe('DeleteProjectUseCase', () => {
       memberRepository as never,
     );
 
+    // Act
     await useCase.execute(projectId, actorUserId, migrationProjectId);
 
+    // Assert
     expect(workspaceGameManagement.reassignProjectGames).toHaveBeenCalledWith(projectId, migrationProjectId);
     expect(projectRepository.delete).toHaveBeenCalledWith(projectId);
   });
 
   it('deletes the project directly when there are no games to migrate', async () => {
+    // Arrange
     const projectRepository = createProjectRepositoryMock({
       findById: {
         id: projectId,
@@ -233,8 +249,10 @@ describe('DeleteProjectUseCase', () => {
       memberRepository as never,
     );
 
+    // Act
     await useCase.execute(projectId, actorUserId);
 
+    // Assert
     expect(projectRepository.countByOrganization).toHaveBeenCalledWith(backendTestIdentifiers.organization(3));
     expect(projectRepository.delete).toHaveBeenCalledWith(backendTestIdentifiers.project(8));
     expect(workspaceGameManagement.reassignProjectGames).not.toHaveBeenCalled();

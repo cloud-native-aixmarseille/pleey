@@ -11,6 +11,7 @@ const projectFixtureFactory = new ProjectFixtureFactory();
 
 describe('DashboardWorkspaceSelectors', () => {
   it('renders both selectors and delegates organization/project changes and management actions', async () => {
+    // Arrange
     const user = userEvent.setup();
     const onOrganizationChange = vi.fn();
     const onOrganizationSearchChange = vi.fn();
@@ -80,8 +81,10 @@ describe('DashboardWorkspaceSelectors', () => {
     await user.type(screen.getByLabelText('Search projects'), 'Main');
     await user.keyboard('{Enter}');
     await user.click(screen.getByRole('button', { name: 'Manage organizations' }));
+    // Act
     await user.click(screen.getByRole('button', { name: 'Manage projects' }));
 
+    // Assert
     expect(onOrganizationChange).toHaveBeenCalledWith(organization.id);
     expect(onProjectChange).toHaveBeenCalledWith(project.id);
     expect(onOrganizationSearchChange).toHaveBeenCalledWith('Pleey');
@@ -91,6 +94,7 @@ describe('DashboardWorkspaceSelectors', () => {
   });
 
   it('disables the project selector until an organization is selected', () => {
+    // Arrange + Act
     renderWithUiProvider(
       <DashboardWorkspaceSelectors
         hasMoreOrganizations={false}
@@ -132,6 +136,7 @@ describe('DashboardWorkspaceSelectors', () => {
       />,
     );
 
+    // Assert
     expect(screen.getByLabelText('Project')).toBeDisabled();
   });
 });

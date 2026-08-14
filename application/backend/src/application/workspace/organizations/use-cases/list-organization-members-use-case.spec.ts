@@ -17,6 +17,7 @@ const requesterUserId = backendTestIdentifiers.user(10);
 
 describe('ListOrganizationMembersUseCase', () => {
   it('throws when organization does not exist', async () => {
+    // Arrange
     const organizationRepository = createOrganizationRepositoryMock({ findById: null });
     const memberRepository = createOrganizationMemberRepositoryMock();
     const organizationMembershipAccess = new OrganizationMembershipAccessService(
@@ -30,12 +31,14 @@ describe('ListOrganizationMembersUseCase', () => {
       paginationQueryNormalizer,
     );
 
+    // Act + Assert
     await expect(useCase.execute({ organizationId }, requesterUserId)).rejects.toThrow(
       OrganizationErrorCode.ORGANIZATION_NOT_FOUND,
     );
   });
 
   it('throws when requesting user is not a member', async () => {
+    // Arrange
     const organizationRepository = createOrganizationRepositoryMock({
       findById: { id: organizationId } as never,
     });
@@ -53,12 +56,14 @@ describe('ListOrganizationMembersUseCase', () => {
       paginationQueryNormalizer,
     );
 
+    // Act + Assert
     await expect(useCase.execute({ organizationId }, requesterUserId)).rejects.toThrow(
       OrganizationErrorCode.INSUFFICIENT_PERMISSIONS,
     );
   });
 
   it('returns organization members when requester belongs to the organization', async () => {
+    // Arrange
     const organizationRepository = createOrganizationRepositoryMock({
       findById: { id: organizationId } as never,
     });
@@ -99,13 +104,16 @@ describe('ListOrganizationMembersUseCase', () => {
       paginationQueryNormalizer,
     );
 
+    // Act
     const result = await useCase.execute({ organizationId }, requesterUserId);
 
+    // Assert
     expect(memberRepository.findPageByOrganization).toHaveBeenCalledWith(organizationId, 1, 25, undefined);
     expect(result).toEqual(page);
   });
 
   it('trims and forwards member search to the repository', async () => {
+    // Arrange
     const organizationRepository = createOrganizationRepositoryMock({
       findById: { id: organizationId } as never,
     });
@@ -131,6 +139,7 @@ describe('ListOrganizationMembersUseCase', () => {
       paginationQueryNormalizer,
     );
 
+    // Act
     await useCase.execute(
       {
         organizationId,
@@ -139,6 +148,7 @@ describe('ListOrganizationMembersUseCase', () => {
       requesterUserId,
     );
 
+    // Assert
     expect(memberRepository.findPageByOrganization).toHaveBeenCalledWith(organizationId, 1, 25, 'captain');
   });
 });

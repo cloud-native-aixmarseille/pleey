@@ -10,6 +10,7 @@ import { PrismaPredictionManagementRepository } from './prisma-prediction-manage
 
 describe('PrismaPredictionManagementRepository', () => {
   it('creates a prediction with initial prompt positions from array order', async () => {
+    // Arrange
     const createdAt = new Date('2026-06-01T10:00:00.000Z');
     const prisma = {
       game: {
@@ -38,6 +39,7 @@ describe('PrismaPredictionManagementRepository', () => {
       new PrismaGameSettingsMapper(),
     );
 
+    // Act
     const prediction = await repository.createWithPrompts({
       projectId: backendTestIdentifiers.project(9),
       title: 'Sprint prediction',
@@ -58,6 +60,7 @@ describe('PrismaPredictionManagementRepository', () => {
       ],
     });
 
+    // Assert
     expect(prisma.game.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({

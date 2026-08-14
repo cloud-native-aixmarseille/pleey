@@ -43,8 +43,10 @@ describe('router', () => {
 
   describe('usePresentationNavigate()', () => {
     it('returns the configured navigation hook result', () => {
-      // Act
+      // Arrange
       const { result } = renderHookWithRoutingProvider(() => usePresentationNavigate(), routingPort);
+
+      // Act
       result.current('/workspace/dashboard');
 
       // Assert
@@ -54,16 +56,20 @@ describe('router', () => {
 
   describe('usePresentationParams()', () => {
     it('returns the configured route params result', () => {
+      // Arrange + Act
       const { result } = renderHookWithRoutingProvider(() => usePresentationParams<'projectId'>(), routingPort);
 
+      // Assert
       expect(result.current.projectId).toBe('12');
     });
   });
 
   describe('usePresentationPathname()', () => {
     it('returns the configured pathname result', () => {
+      // Arrange + Act
       const { result } = renderHookWithRoutingProvider(() => usePresentationPathname(), routingPort);
 
+      // Assert
       expect(result.current).toBe('/party/12/lobby');
     });
   });

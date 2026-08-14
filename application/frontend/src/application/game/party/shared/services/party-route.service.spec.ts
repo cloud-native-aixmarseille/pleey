@@ -13,6 +13,7 @@ describe('PartyRouteService', () => {
   const service = new PartyRouteService(partyIdentifier, partyPinIdentifier, stageIdentifier);
 
   it('builds the host lobby route under /party/:partyId/lobby', () => {
+    // Arrange + Act + Assert
     expect(
       service.resolvePartyRoute({
         partyId: partyIdentifier.parse(44),
@@ -23,6 +24,7 @@ describe('PartyRouteService', () => {
   });
 
   it('builds the join route under /join/:pin for players', () => {
+    // Arrange + Act + Assert
     expect(
       service.resolvePartyRoute({
         partyId: partyIdentifier.parse(44),
@@ -33,6 +35,7 @@ describe('PartyRouteService', () => {
   });
 
   it('exposes the frontend host lobby and join route patterns for route factories', () => {
+    // Arrange + Act + Assert
     expect(service.resolvePartyJourneyRoutePattern()).toBe('party/:partyId/*');
     expect(service.resolvePartyLobbyRoutePattern()).toBe('party/:partyId/lobby');
     expect(service.resolvePartyLeaderboardRoutePattern()).toBe('party/:partyId/final');
@@ -42,6 +45,7 @@ describe('PartyRouteService', () => {
   });
 
   it('builds dedicated host runtime routes for leaderboard, stage, and result screens', () => {
+    // Arrange + Act + Assert
     expect(service.resolvePartyLeaderboardRoute(partyIdentifier.parse(44))).toBe(
       `/party/${partyIdentifier.parse(44)}/final`,
     );
@@ -54,22 +58,26 @@ describe('PartyRouteService', () => {
   });
 
   it('builds an absolute canonical join url for sharing', () => {
+    // Arrange + Act + Assert
     expect(service.resolveJoinPartyAbsoluteUrl(partyPinIdentifier.parse(' ab12cd '), 'https://pleey.app/app/')).toBe(
       'https://pleey.app/join/AB12CD',
     );
   });
 
   it('normalizes blank pins to null', () => {
+    // Arrange + Act + Assert
     expect(service.normalizePin('   ')).toBeNull();
   });
 
   it('normalizes blank or invalid party ids to null', () => {
+    // Arrange + Act + Assert
     expect(service.normalizePartyId('   ')).toBeNull();
     expect(service.normalizePartyId('0')).toBeNull();
     expect(service.normalizePartyId(' 44 ')).toBe(partyIdentifier.parse(44));
   });
 
   it('normalizes blank or invalid stage ids to null', () => {
+    // Arrange + Act + Assert
     expect(service.normalizeStageId('   ')).toBeNull();
     expect(service.normalizeStageId('0')).toBeNull();
     expect(service.normalizeStageId(' 4 ')).toBe(stageIdentifier.parse(4));

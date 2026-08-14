@@ -1,6 +1,6 @@
 import type { ArgumentsHost } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { ErrorTranslationService } from './error-translation-service';
 import { I18nWsExceptionFilter } from './i18n-ws-exception-filter';
 
@@ -9,36 +9,43 @@ type MockWsClient = {
 };
 
 describe('I18nWsExceptionFilter', () => {
-  let errorTranslationService: Pick<ErrorTranslationService, 'translateErrorCode' | 'translateUnknownError'>;
-  let filter: I18nWsExceptionFilter;
-
-  beforeEach(() => {
-    errorTranslationService = {
+  function arrangeFilter() {
+    const errorTranslationService: Pick<ErrorTranslationService, 'translateErrorCode' | 'translateUnknownError'> = {
       translateErrorCode: vi.fn(async (code: string) => `translated:${code}`),
       translateUnknownError: vi.fn(async () => 'translated:UNKNOWN_ERROR'),
     };
 
-    filter = new I18nWsExceptionFilter(errorTranslationService as ErrorTranslationService);
-  });
+    const filter = new I18nWsExceptionFilter(errorTranslationService as ErrorTranslationService);
+
+    return { errorTranslationService, filter };
+  }
 
   it('returns a translated exception when no websocket client is available', async () => {
+    // Arrange
+    const { errorTranslationService, filter } = arrangeFilter();
     const host = createArgumentsHost(null);
 
+    // Act
     const result = await filter.catch(new WsException('VALIDATION_FAILED'), host);
 
+    // Assert
     expect(errorTranslationService.translateErrorCode).toHaveBeenCalledWith('VALIDATION_FAILED');
     expect(result).toBeInstanceOf(WsException);
     expect((result as WsException).getError()).toBe('translated:VALIDATION_FAILED');
   });
 
   it('emits translated websocket payloads when a client is available', async () => {
+    // Arrange
+    const { errorTranslationService, filter } = arrangeFilter();
     const client: MockWsClient = {
       emit: vi.fn(),
     };
     const host = createArgumentsHost(client);
 
+    // Act
     await filter.catch(new WsException('VALIDATION_FAILED'), host);
 
+    // Assert
     expect(errorTranslationService.translateErrorCode).toHaveBeenCalledWith('VALIDATION_FAILED');
     expect(client.emit).toHaveBeenCalledWith('exception', expect.anything());
   });

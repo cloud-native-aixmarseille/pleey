@@ -27,6 +27,7 @@ function PatienceRouteProbe() {
 
 describe('PatienceHost', () => {
   it('mounts the playground once at the host and exposes route-enabled patience state', async () => {
+    // Arrange + Act
     renderWithUiProvider(
       <PatienceAnimationRegistryProvider value={patienceAnimations}>
         <PatienceHost>
@@ -38,6 +39,7 @@ describe('PatienceHost', () => {
       </PatienceAnimationRegistryProvider>,
     );
 
+    // Assert
     expect(document.querySelector('[data-patience-playground="true"]')).not.toBeNull();
     expect(await screen.findByTestId('patience-route-probe')).toHaveTextContent('true:true');
   });

@@ -7,6 +7,7 @@ import { KickPartyPlayerUseCase } from './kick-party-player-use-case';
 
 describe('KickPartyPlayerUseCase', () => {
   it('removes the targeted player and republishes the party observation', async () => {
+    // Arrange
     const hostPartyRuntimeControl = {
       findPartyRuntimeByPartyId: vi.fn().mockResolvedValue({
         context: null,
@@ -25,6 +26,7 @@ describe('KickPartyPlayerUseCase', () => {
       broadcastPartyObservationUseCase as never,
     );
 
+    // Act
     await useCase.execute({
       hostUserId: backendTestIdentifiers.user(7),
       partyId: backendTestIdentifiers.party(44),
@@ -34,6 +36,7 @@ describe('KickPartyPlayerUseCase', () => {
       },
     });
 
+    // Assert
     expect(hostPartyRuntimeControl.removePartyPlayer).toHaveBeenCalledWith({
       partyId: backendTestIdentifiers.party(44),
       playerIdentity: {
@@ -47,6 +50,7 @@ describe('KickPartyPlayerUseCase', () => {
   });
 
   it('rejects non-host callers', async () => {
+    // Arrange
     const useCase = new KickPartyPlayerUseCase(
       {
         findPartyRuntimeByPartyId: vi.fn().mockResolvedValue({
@@ -61,6 +65,7 @@ describe('KickPartyPlayerUseCase', () => {
       { execute: vi.fn() } as never,
     );
 
+    // Act + Assert
     await expect(
       useCase.execute({
         hostUserId: backendTestIdentifiers.user(7),

@@ -12,12 +12,14 @@ const argumentMetadata: ArgumentMetadata = {
 
 describe('Organization GraphQL inputs validation', () => {
   it('accepts organization members input with whitelisted properties', async () => {
+    // Arrange
     const pipe = new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
     });
 
+    // Act
     const result = await pipe.transform(
       {
         organizationId: backendTestIdentifiers.organization(3),
@@ -27,6 +29,7 @@ describe('Organization GraphQL inputs validation', () => {
       argumentMetadata,
     );
 
+    // Assert
     expect(result).toBeInstanceOf(OrganizationMembersInput);
     expect(result).toMatchObject({
       organizationId: backendTestIdentifiers.organization(3),
@@ -36,12 +39,14 @@ describe('Organization GraphQL inputs validation', () => {
   });
 
   it('accepts list organizations input with search', async () => {
+    // Arrange
     const pipe = new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
     });
 
+    // Act
     const result = await pipe.transform(
       {
         page: 2,
@@ -54,6 +59,7 @@ describe('Organization GraphQL inputs validation', () => {
       },
     );
 
+    // Assert
     expect(result).toBeInstanceOf(ListOrganizationsInput);
     expect(result).toMatchObject({
       page: 2,
@@ -63,12 +69,14 @@ describe('Organization GraphQL inputs validation', () => {
   });
 
   it('rejects non-whitelisted properties for organization members input', async () => {
+    // Arrange
     const pipe = new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
     });
 
+    // Act + Assert
     await expect(
       pipe.transform(
         {

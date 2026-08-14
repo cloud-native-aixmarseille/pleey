@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { PartyIdentifier } from '../../application/game/party/shared/services/identifiers/party-identifier';
 import { PartyPinIdentifier } from '../../application/game/party/shared/services/identifiers/party-pin-identifier';
 import { StageIdentifier } from '../../application/game/party/shared/services/identifiers/stage-identifier';
@@ -37,6 +37,8 @@ describe('RouteRegistry', () => {
       loadApplicationVersion: vi.fn().mockResolvedValue(''),
     },
   ): RouteRegistry {
+    resetGameTypeSequence();
+
     return new RouteRegistry(
       [
         new AuthRoutesFactory(),
@@ -67,10 +69,6 @@ describe('RouteRegistry', () => {
       applicationVersionPort,
     );
   }
-
-  beforeEach(() => {
-    resetGameTypeSequence();
-  });
 
   describe('getRoutes()', () => {
     it('returns a single root route at path "/"', () => {
@@ -119,10 +117,13 @@ describe('RouteRegistry', () => {
     });
 
     it('includes the host party journey route and join route', () => {
+      // Arrange
       const registry = createRegistry();
 
+      // Act
       const children = registry.getRoutes()[0].children ?? [];
 
+      // Assert
       expect(children.some((r) => r.path === 'party/:partyId/*')).toBe(true);
       expect(children.some((r) => r.path === 'join/:pin')).toBe(true);
     });

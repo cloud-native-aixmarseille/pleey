@@ -5,6 +5,7 @@ import { PredictionPartyStageConfigurationResolver } from './prediction-party-st
 
 describe('PredictionPartyStageConfigurationResolver', () => {
   it('counts active prediction prompts as party runtime stages', async () => {
+    // Arrange
     const prisma = {
       game: {
         findFirst: vi.fn().mockResolvedValue({
@@ -16,8 +17,10 @@ describe('PredictionPartyStageConfigurationResolver', () => {
     } as unknown as PrismaService;
     const resolver = new PredictionPartyStageConfigurationResolver(prisma);
 
+    // Act
     const stageCount = await resolver.getStageCount(backendTestIdentifiers.game(77));
 
+    // Assert
     expect(stageCount).toBe(3);
     expect(prisma.game.findFirst).toHaveBeenCalledWith(
       expect.objectContaining({

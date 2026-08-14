@@ -26,10 +26,13 @@ describe('JwtAuthTokenService', () => {
   };
 
   it('creates and verifies refresh tokens via Nest DI', async () => {
+    // Arrange
     const service = buildService();
     const jwtService = new JwtService({ secret: accessTokenConfig.secret });
+    // Act
     const tokens = service.createTokenPair(payload);
 
+    // Assert
     expect(tokens.accessToken).toBeTypeOf('string');
     expect(tokens.refreshToken).toBeTypeOf('string');
     expect(tokens.accessTokenExpiresIn).toBe(accessTokenConfig.expiresInSeconds);
@@ -42,8 +45,10 @@ describe('JwtAuthTokenService', () => {
   });
 
   it('rejects invalid refresh tokens', async () => {
+    // Arrange
     const service = buildService();
 
+    // Act + Assert
     await expect(service.verifyRefreshToken('invalid.token' as AuthToken)).rejects.toThrowError();
   });
 });

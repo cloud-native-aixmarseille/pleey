@@ -19,6 +19,7 @@ const pagination = {
 
 describe('OrganizationProjectsSection', () => {
   it('renders the section content and delegates create/edit/remove actions', async () => {
+    // Arrange
     const user = userEvent.setup();
     const project = projectFixtureFactory.createProject({
       id: 11,
@@ -68,8 +69,10 @@ describe('OrganizationProjectsSection', () => {
       );
     }
 
+    // Act
     renderWithProviders(<ControlledOrganizationProjectsSection />);
 
+    // Assert
     expect(screen.getByText('Projects')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Organization projects' })).toBeInTheDocument();
     expect(screen.getByText('Unable to update project')).toBeInTheDocument();
@@ -87,6 +90,7 @@ describe('OrganizationProjectsSection', () => {
   });
 
   it('disables project creation when creation is not allowed', () => {
+    // Arrange + Act
     renderWithProviders(
       <OrganizationProjectsSection
         actionErrorMessage={null}
@@ -109,6 +113,7 @@ describe('OrganizationProjectsSection', () => {
       />,
     );
 
+    // Assert
     expect(screen.getByRole('button', { name: 'Create project' })).toBeDisabled();
   });
 });

@@ -33,8 +33,10 @@ describe('AuthRoutesFactory', () => {
     });
 
     it('wraps the sign-in route in a guest-only guard', () => {
+      // Arrange + Act
       const wrappedRoute = getWrappedRouteElement('identity/sign-in');
 
+      // Assert
       expect(wrappedRoute.type).toBe(GuestOnlyRoute);
     });
 
@@ -47,8 +49,10 @@ describe('AuthRoutesFactory', () => {
     });
 
     it('wraps the register route in a guest-only guard', () => {
+      // Arrange + Act
       const wrappedRoute = getWrappedRouteElement('identity/register');
 
+      // Assert
       expect(wrappedRoute.type).toBe(GuestOnlyRoute);
     });
 

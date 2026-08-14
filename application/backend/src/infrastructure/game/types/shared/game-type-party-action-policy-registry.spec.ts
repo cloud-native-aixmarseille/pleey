@@ -6,8 +6,10 @@ import { GameTypePartyActionPolicyRegistry } from './game-type-party-action-poli
 
 describe('GameTypePartyActionPolicyRegistry', () => {
   it('resolves policies using game-type value objects', () => {
+    // Arrange
     const quizPolicy = {} as GameTypePartyActionPolicy;
     const predictionPolicy = {} as GameTypePartyActionPolicy;
+    // Act
     const registry = new GameTypePartyActionPolicyRegistry([
       {
         gameType: GameType.Prediction,
@@ -19,11 +21,13 @@ describe('GameTypePartyActionPolicyRegistry', () => {
       },
     ]);
 
+    // Assert
     expect(registry.resolveByGameType(GameType.Prediction)).toBe(predictionPolicy);
     expect(registry.resolveByGameType(GameType.Quiz)).toBe(quizPolicy);
   });
 
   it('rejects duplicate game-type bindings', () => {
+    // Arrange + Act + Assert
     expect(
       () =>
         new GameTypePartyActionPolicyRegistry([

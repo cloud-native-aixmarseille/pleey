@@ -4,12 +4,14 @@ import { OtelLoggerService } from './otel-logger-service';
 
 describe('OtelLoggerService', () => {
   it('logs without mirroring otel messages to console by default', () => {
+    // Arrange
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {
       // suppress test output
     });
 
     const service = new OtelLoggerService();
 
+    // Act + Assert
     expect(() => service.log('hello', 'ctx')).not.toThrow();
     expect(() => service.warn('warn', 'ctx')).not.toThrow();
     expect(() => service.error('err', 'trace', 'ctx')).not.toThrow();

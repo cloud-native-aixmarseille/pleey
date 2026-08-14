@@ -17,6 +17,7 @@ describeIfDatabase('PrismaOrganizationRepository', () => {
   });
 
   it('creates and finds organizations', async () => {
+    // Arrange
     const unique = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
     const organizationFixture = createOrganizationFixture({
       name: `Org ${unique}`,
@@ -26,7 +27,9 @@ describeIfDatabase('PrismaOrganizationRepository', () => {
     const created = await harness.repository.create(organizationFixture.name, organizationFixture.description);
     createdOrganizationIds.push(created.id);
 
+    // Act
     const byId = await harness.repository.findById(created.id);
+    // Assert
     expect(byId?.name).toBe(organizationFixture.name);
 
     const byName = await harness.repository.findByName(organizationFixture.name);

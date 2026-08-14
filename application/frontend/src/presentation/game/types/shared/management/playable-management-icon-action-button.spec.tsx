@@ -5,12 +5,15 @@ import { PlayableManagementIconActionButton } from './playable-management-icon-a
 
 describe('PlayableManagementIconActionButton', () => {
   it('renders the action label as a button', () => {
+    // Arrange + Act
     renderWithUiProvider(<PlayableManagementIconActionButton iconName="arrow-up" label="Move up" onClick={() => {}} />);
 
+    // Assert
     expect(screen.getByRole('button', { name: 'Move up' })).toBeInTheDocument();
   });
 
   it('stops click propagation when requested', () => {
+    // Arrange
     const onClick = vi.fn();
     const onParentClick = vi.fn();
 
@@ -20,13 +23,16 @@ describe('PlayableManagementIconActionButton', () => {
       </div>,
     );
 
+    // Act
     fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
 
+    // Assert
     expect(onClick).toHaveBeenCalledTimes(1);
     expect(onParentClick).not.toHaveBeenCalled();
   });
 
   it('allows click propagation by default', () => {
+    // Arrange
     const onClick = vi.fn();
     const onParentClick = vi.fn();
 
@@ -36,8 +42,10 @@ describe('PlayableManagementIconActionButton', () => {
       </div>,
     );
 
+    // Act
     fireEvent.click(screen.getByRole('button', { name: 'Move down' }));
 
+    // Assert
     expect(onClick).toHaveBeenCalledTimes(1);
     expect(onParentClick).toHaveBeenCalledTimes(1);
   });

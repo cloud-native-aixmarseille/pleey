@@ -11,6 +11,7 @@ const acceptedTypesResolver = { resolve: vi.fn().mockReturnValue('.csv,text/csv'
 
 describe('DashboardHomeActionsFacade', () => {
   it('delegates manage-game route resolution to the game type registry', () => {
+    // Arrange
     const gameTypeRegistry = {
       resolveManagementRoute: vi.fn().mockReturnValue('/quizzes/12'),
       createGame: vi.fn(),
@@ -18,8 +19,10 @@ describe('DashboardHomeActionsFacade', () => {
       getImportExampleProvider: vi.fn(),
       resolveManagementRouteByType: vi.fn(),
     } as unknown as GameTypeRegistry;
+    // Act
     const facade = new DashboardHomeActionsFacade(gameTypeRegistry, acceptedTypesResolver);
 
+    // Assert
     expect(facade.resolveManageGameRoute({ type: 'quiz', gameTypeId: 12 } as never)).toBe('/quizzes/12');
     expect(gameTypeRegistry.resolveManagementRoute).toHaveBeenCalledWith({
       type: 'quiz',
@@ -28,6 +31,7 @@ describe('DashboardHomeActionsFacade', () => {
   });
 
   it('returns the organizations route', () => {
+    // Arrange + Act
     const facade = new DashboardHomeActionsFacade(
       {
         resolveManagementRoute: vi.fn(),
@@ -39,10 +43,12 @@ describe('DashboardHomeActionsFacade', () => {
       acceptedTypesResolver,
     );
 
+    // Assert
     expect(facade.resolveOrganizationsRoute()).toBe('/workspace/organizations');
   });
 
   it('returns the projects route', () => {
+    // Arrange + Act
     const facade = new DashboardHomeActionsFacade(
       {
         resolveManagementRoute: vi.fn(),
@@ -54,10 +60,12 @@ describe('DashboardHomeActionsFacade', () => {
       acceptedTypesResolver,
     );
 
+    // Assert
     expect(facade.resolveProjectsRoute()).toBe('/workspace/organizations#projects');
   });
 
   it('creates quiz games and returns the management route', async () => {
+    // Arrange
     const gameTypeId = gameTypeIdentifier.parse(18);
     const gameTypeRegistry = {
       resolveManagementRoute: vi.fn(),
@@ -69,6 +77,7 @@ describe('DashboardHomeActionsFacade', () => {
     const facade = new DashboardHomeActionsFacade(gameTypeRegistry, acceptedTypesResolver);
     const projectId = projectIdentifier.parse(4);
 
+    // Act
     const result = await facade.createGame({
       type: GameType.Quiz,
       projectId,
@@ -76,6 +85,7 @@ describe('DashboardHomeActionsFacade', () => {
       description: null,
     });
 
+    // Assert
     expect(gameTypeRegistry.createGame).toHaveBeenCalledWith(GameType.Quiz, projectId, {
       title: 'Sprint quiz',
       description: null,
@@ -85,6 +95,7 @@ describe('DashboardHomeActionsFacade', () => {
   });
 
   it('creates a game from import and returns the imported count with the management route', async () => {
+    // Arrange
     const gameTypeId = gameTypeIdentifier.parse(18);
     const gameTypeRegistry = {
       resolveManagementRoute: vi.fn(),
@@ -97,6 +108,7 @@ describe('DashboardHomeActionsFacade', () => {
     const projectId = projectIdentifier.parse(4);
     const importFile = new File(['[]'], 'questions.json', { type: 'application/json' });
 
+    // Act
     const result = await facade.createGameFromImport({
       type: GameType.Quiz,
       projectId,
@@ -105,6 +117,7 @@ describe('DashboardHomeActionsFacade', () => {
       file: importFile,
     });
 
+    // Assert
     expect(gameTypeRegistry.createGameFromImport).toHaveBeenCalledWith(GameType.Quiz, projectId, {
       title: 'Sprint quiz',
       description: null,
@@ -116,10 +129,12 @@ describe('DashboardHomeActionsFacade', () => {
   });
 
   it('returns the import example provider from the game type registry', () => {
+    // Arrange
     const exampleProvider = {
       create: vi.fn(),
       listFormats: vi.fn().mockReturnValue([]),
     };
+    // Act
     const facade = new DashboardHomeActionsFacade(
       {
         resolveManagementRoute: vi.fn(),
@@ -131,6 +146,7 @@ describe('DashboardHomeActionsFacade', () => {
       acceptedTypesResolver,
     );
 
+    // Assert
     expect(facade.getImportExampleProvider(GameType.Prediction)).toBe(exampleProvider);
   });
 });

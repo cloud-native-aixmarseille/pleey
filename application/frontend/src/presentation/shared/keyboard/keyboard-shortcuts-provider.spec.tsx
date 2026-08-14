@@ -37,28 +37,35 @@ function ShortcutProbe({
 
 describe('KeyboardShortcutsProvider', () => {
   it('opens the shortcuts help dialog with the global question-mark shortcut', async () => {
+    // Arrange
     renderWithProviders(<div>Surface</div>);
 
+    // Act
     fireEvent.keyDown(document, { key: '?', shiftKey: true });
 
+    // Assert
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
     expect(screen.getByText('shared.keyboard.helpTitle')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'shared.keyboard.close' })).toBeInTheDocument();
   });
 
   it('ignores registered shortcuts when the event target is editable', () => {
+    // Arrange
     const onGlobalTrigger = vi.fn();
 
     renderWithProviders(<ShortcutProbe onGlobalTrigger={onGlobalTrigger} />);
 
+    // Act
     fireEvent.keyDown(screen.getByRole('textbox', { name: 'shortcut-input' }), {
       key: 'k',
     });
 
+    // Assert
     expect(onGlobalTrigger).not.toHaveBeenCalled();
   });
 
   it('prefers the highest-priority active scope over global shortcuts', () => {
+    // Arrange
     const onGlobalTrigger = vi.fn();
     const onScopedTrigger = vi.fn();
 
@@ -84,13 +91,16 @@ describe('KeyboardShortcutsProvider', () => {
 
     renderWithProviders(<ScopePriorityProbe />);
 
+    // Act
     fireEvent.keyDown(document, { key: 'x' });
 
+    // Assert
     expect(onScopedTrigger).toHaveBeenCalledOnce();
     expect(onGlobalTrigger).not.toHaveBeenCalled();
   });
 
   it('keeps shortcuts active when one of two identical registrations unmounts', () => {
+    // Arrange
     const onGlobalTrigger = vi.fn();
 
     function DuplicateShortcutProbe({ renderFirst }: { readonly renderFirst: boolean }) {
@@ -104,7 +114,9 @@ describe('KeyboardShortcutsProvider', () => {
 
     const view = renderWithProviders(<DuplicateShortcutProbe renderFirst />);
 
+    // Act
     fireEvent.keyDown(document, { key: 'k' });
+    // Assert
     expect(onGlobalTrigger).toHaveBeenCalledTimes(1);
 
     view.rerender(<DuplicateShortcutProbe renderFirst={false} />);

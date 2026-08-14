@@ -1,74 +1,93 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { readAppEnv } from './app-env-reader';
 
 describe('readAppEnv()', () => {
-  afterEach(() => {
+  function arrangeApiUrl(value: string) {
     vi.unstubAllEnvs();
-  });
+    vi.stubEnv('VITE_API_URL', value);
+  }
 
   it('returns the browser origin when VITE_API_URL is not set', () => {
-    // Arrange
-    vi.stubEnv('VITE_API_URL', '');
-
-    // Act
-    const env = readAppEnv();
+    // Arrange + Act
+    arrangeApiUrl('');
 
     // Assert
-    expect(env.apiUrl).toBe(window.location.origin);
+    try {
+      const env = readAppEnv();
+
+      expect(env.apiUrl).toBe(window.location.origin);
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it('uses VITE_API_URL when set to a valid URL', () => {
-    // Arrange
-    vi.stubEnv('VITE_API_URL', 'https://api.example.com');
-
-    // Act
-    const env = readAppEnv();
+    // Arrange + Act
+    arrangeApiUrl('https://api.example.com');
 
     // Assert
-    expect(env.apiUrl).toBe('https://api.example.com');
+    try {
+      const env = readAppEnv();
+
+      expect(env.apiUrl).toBe('https://api.example.com');
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it('strips trailing slash from the API URL', () => {
-    // Arrange
-    vi.stubEnv('VITE_API_URL', 'https://api.example.com/');
-
-    // Act
-    const env = readAppEnv();
+    // Arrange + Act
+    arrangeApiUrl('https://api.example.com/');
 
     // Assert
-    expect(env.apiUrl).toBe('https://api.example.com');
+    try {
+      const env = readAppEnv();
+
+      expect(env.apiUrl).toBe('https://api.example.com');
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it('trims whitespace from the API URL', () => {
-    // Arrange
-    vi.stubEnv('VITE_API_URL', '  https://api.example.com  ');
-
-    // Act
-    const env = readAppEnv();
+    // Arrange + Act
+    arrangeApiUrl('  https://api.example.com  ');
 
     // Assert
-    expect(env.apiUrl).toBe('https://api.example.com');
+    try {
+      const env = readAppEnv();
+
+      expect(env.apiUrl).toBe('https://api.example.com');
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it('derives graphqlPath by appending /graphql to the api URL', () => {
-    // Arrange
-    vi.stubEnv('VITE_API_URL', 'https://api.example.com');
-
-    // Act
-    const { graphqlPath } = readAppEnv();
+    // Arrange + Act
+    arrangeApiUrl('https://api.example.com');
 
     // Assert
-    expect(graphqlPath).toBe('https://api.example.com/graphql');
+    try {
+      const { graphqlPath } = readAppEnv();
+
+      expect(graphqlPath).toBe('https://api.example.com/graphql');
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it('derives socketPath equal to the api URL', () => {
-    // Arrange
-    vi.stubEnv('VITE_API_URL', 'https://api.example.com');
-
-    // Act
-    const { socketPath } = readAppEnv();
+    // Arrange + Act
+    arrangeApiUrl('https://api.example.com');
 
     // Assert
-    expect(socketPath).toBe('https://api.example.com');
+    try {
+      const { socketPath } = readAppEnv();
+
+      expect(socketPath).toBe('https://api.example.com');
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 });

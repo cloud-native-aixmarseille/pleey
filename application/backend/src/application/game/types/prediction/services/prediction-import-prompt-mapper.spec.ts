@@ -24,6 +24,7 @@ class TestPlayableContentImportSource extends PlayableContentImportSource {
 
 describe('PredictionImportPromptMapper', () => {
   it('maps parsed prediction import items to prompt mutation data', async () => {
+    // Arrange
     const parser = {
       parse: vi.fn().mockResolvedValue([
         {
@@ -40,8 +41,10 @@ describe('PredictionImportPromptMapper', () => {
     } as unknown as PlayableContentImportParser;
     const mapper = new PredictionImportPromptMapper(parser, new SelectableOptionPolicy());
 
+    // Act
     const prompts = await mapper.map(new TestPlayableContentImportSource('prediction-import.json'));
 
+    // Assert
     expect(prompts).toEqual([
       {
         options: [
@@ -56,6 +59,7 @@ describe('PredictionImportPromptMapper', () => {
   });
 
   it('maps parser failures to prediction import error codes', async () => {
+    // Arrange
     const parser = {
       parse: vi.fn().mockImplementation(async () => {
         throw new Error(PlayableContentImportParserErrorCode.UNSUPPORTED_FORMAT);
@@ -63,6 +67,7 @@ describe('PredictionImportPromptMapper', () => {
     } as unknown as PlayableContentImportParser;
     const mapper = new PredictionImportPromptMapper(parser, new SelectableOptionPolicy());
 
+    // Act + Assert
     await expect(mapper.map(new TestPlayableContentImportSource('prediction-import.docx'))).rejects.toMatchObject({
       code: PredictionErrorCode.PREDICTION_IMPORT_UNSUPPORTED_FORMAT,
       context: {

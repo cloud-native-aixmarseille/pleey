@@ -9,6 +9,7 @@ import { LoginUserUseCase } from './login-user-use-case';
 
 describe('LoginUserUseCase', () => {
   it('throws INVALID_CREDENTIALS when user is not found', async () => {
+    // Arrange
     const userRepository = createUserRepositoryMock({ findByEmail: null });
 
     const passwordService = createPasswordServiceMock();
@@ -17,12 +18,14 @@ describe('LoginUserUseCase', () => {
 
     const useCase = new LoginUserUseCase(userRepository as never, passwordService as never, authTokenService as never);
 
+    // Act + Assert
     await expect(useCase.execute({ email: 'x@y.z', password: 'pw' })).rejects.toThrow(
       IdentityErrorCode.INVALID_CREDENTIALS,
     );
   });
 
   it('generates tokens and updates refresh token on success', async () => {
+    // Arrange
     const user = createUserFixture({
       id: backendTestIdentifiers.user(1),
       username: 'alice',
@@ -56,8 +59,10 @@ describe('LoginUserUseCase', () => {
 
     const useCase = new LoginUserUseCase(userRepository as never, passwordService as never, authTokenService as never);
 
+    // Act
     const result = await useCase.execute({ email: 'alice@example.com', password: 'pw' });
 
+    // Assert
     expect(authTokenService.createTokenPair).toHaveBeenCalledTimes(1);
     expect(passwordService.hash).toHaveBeenCalledWith('refresh');
     expect(userRepository.updateRefreshToken).toHaveBeenCalledWith(

@@ -6,11 +6,14 @@ import { LogoutUserUseCase } from './logout-user-use-case';
 
 describe('LogoutUserUseCase', () => {
   it('clears refresh token for the user', async () => {
+    // Arrange
     const userRepository = createUserRepositoryMock({ clearRefreshToken: undefined });
 
     const useCase = new LogoutUserUseCase(userRepository);
+    // Act
     await useCase.execute(backendTestIdentifiers.user(42));
 
+    // Assert
     expect(userRepository.clearRefreshToken).toHaveBeenCalledWith(backendTestIdentifiers.user(42));
   });
 });

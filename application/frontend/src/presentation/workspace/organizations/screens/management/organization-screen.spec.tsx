@@ -256,6 +256,7 @@ describe('OrganizationScreen', () => {
     });
 
     it('disables project removal when the organization only has one project', async () => {
+      // Arrange
       const user = userEvent.setup();
       const deleteProject = vi.fn().mockResolvedValue(undefined);
 
@@ -288,10 +289,12 @@ describe('OrganizationScreen', () => {
         },
       ).deleteProject.mockImplementation(deleteProject);
 
+      // Act
       const removeButton = await screen.findByRole('button', {
         name: 'project.management.list.removeButton',
       });
 
+      // Assert
       expect(removeButton).toBeDisabled();
 
       await user.click(removeButton);
@@ -332,6 +335,7 @@ describe('OrganizationScreen', () => {
         },
       );
 
+      // Act
       // Assert
       const toolbar = await screen.findByRole('toolbar', {
         name: 'organization.management.header.title',
@@ -344,6 +348,7 @@ describe('OrganizationScreen', () => {
     });
 
     it('loads organizations through the async selector search', async () => {
+      // Arrange
       const user = userEvent.setup();
       const loadOrganizationsPage = vi
         .fn()
@@ -356,8 +361,10 @@ describe('OrganizationScreen', () => {
       });
 
       await user.click(within(toolbar).getAllByRole('button')[0]);
+      // Act
       await user.type(screen.getByLabelText('dashboard.workspace.organizationSearchLabel'), 'Arcade');
 
+      // Assert
       await waitFor(() => {
         expect(loadOrganizationsPage).toHaveBeenCalledWith({
           page: 1,
@@ -368,6 +375,7 @@ describe('OrganizationScreen', () => {
     });
 
     it('loads projects through the project search input', async () => {
+      // Arrange
       const user = userEvent.setup();
       const loadOrganizationWorkspaceState = vi.fn().mockResolvedValue({
         organizationDashboard: organizationScreenFixtureFactory.createOrganizationDashboard(),
@@ -379,8 +387,10 @@ describe('OrganizationScreen', () => {
 
       renderOrganizationScreen({}, { loadOrganizationWorkspaceState });
 
+      // Act
       await user.type(await screen.findByRole('searchbox', { name: 'project.management.searchLabel' }), 'Flag');
 
+      // Assert
       await waitFor(() => {
         expect(loadOrganizationWorkspaceState).toHaveBeenLastCalledWith({
           organizationId: parseOrganizationId(3),
@@ -392,10 +402,12 @@ describe('OrganizationScreen', () => {
     });
 
     it('loads members through the member search input', async () => {
+      // Arrange
       const user = userEvent.setup();
 
       const view = renderOrganizationScreen();
 
+      // Act
       await user.type(
         await screen.findByRole('searchbox', {
           name: 'organization.management.members.searchLabel',
@@ -403,6 +415,7 @@ describe('OrganizationScreen', () => {
         'captain',
       );
 
+      // Assert
       await waitFor(() => {
         expect(view.listOrganizationMembers).toHaveBeenLastCalledWith({
           organizationId: parseOrganizationId(3),
@@ -414,6 +427,7 @@ describe('OrganizationScreen', () => {
     });
 
     it('loads the next project page from pagination controls', async () => {
+      // Arrange
       const user = userEvent.setup();
       const loadOrganizationWorkspaceState = vi
         .fn()
@@ -442,8 +456,10 @@ describe('OrganizationScreen', () => {
 
       renderOrganizationScreen({}, { loadOrganizationWorkspaceState });
 
+      // Act
       await user.click(await screen.findByRole('button', { name: 'project.management.pagination.next' }));
 
+      // Assert
       await waitFor(() => {
         expect(loadOrganizationWorkspaceState).toHaveBeenLastCalledWith({
           organizationId: parseOrganizationId(3),
@@ -455,6 +471,7 @@ describe('OrganizationScreen', () => {
     });
 
     it('loads the next member page from pagination controls', async () => {
+      // Arrange
       const user = userEvent.setup();
       const view = renderOrganizationScreen(
         {},
@@ -486,12 +503,14 @@ describe('OrganizationScreen', () => {
         },
       );
 
+      // Act
       await user.click(
         await screen.findByRole('button', {
           name: 'organization.management.members.pagination.next',
         }),
       );
 
+      // Assert
       await waitFor(() => {
         expect(view.listOrganizationMembers).toHaveBeenLastCalledWith({
           organizationId: parseOrganizationId(3),
@@ -503,7 +522,7 @@ describe('OrganizationScreen', () => {
     });
 
     it('renders metrics when an organization dashboard loads', async () => {
-      // Arrange
+      // Arrange + Act
       renderOrganizationScreen(
         {
           loadOrganizations: vi.fn().mockResolvedValue([organizationFixtureFactory.createOrganization()]),
@@ -531,7 +550,7 @@ describe('OrganizationScreen', () => {
     });
 
     it('renders organization projects and highlights the selected project', async () => {
-      // Arrange
+      // Arrange + Act
       renderOrganizationScreen(
         {},
         {
@@ -566,6 +585,7 @@ describe('OrganizationScreen', () => {
     });
 
     it('opens the create project dialog from the projects section', async () => {
+      // Arrange
       const user = userEvent.setup();
 
       renderOrganizationScreen(
@@ -581,17 +601,20 @@ describe('OrganizationScreen', () => {
         },
       );
 
+      // Act
       await user.click(
         await screen.findByRole('button', {
           name: 'project.management.section.createButton',
         }),
       );
 
+      // Assert
       expect(await screen.findByRole('dialog')).toBeInTheDocument();
       expect(screen.getByText(/project\.management\.form\.create\.title/)).toBeInTheDocument();
     });
 
     it('shows a success toast and refreshes the project list after creating a project', async () => {
+      // Arrange
       const user = userEvent.setup();
       const createdProject = organizationScreenFixtureFactory.createProject({
         id: parseProjectId(15),
@@ -633,14 +656,17 @@ describe('OrganizationScreen', () => {
         screen.getByPlaceholderText('project.management.form.fields.description.placeholder'),
         'Newly created',
       );
+      // Act
       await user.click(screen.getByRole('button', { name: 'project.management.form.create.submit' }));
 
+      // Assert
       expect(await screen.findByRole('status')).toHaveTextContent('project.management.form.create.success');
       expect(await screen.findByText('Fresh Project')).toBeInTheDocument();
       expect(loadOrganizationWorkspaceState).toHaveBeenCalledTimes(2);
     });
 
     it('selects the newly created organization after a successful creation', async () => {
+      // Arrange
       const user = userEvent.setup();
       const setOrganizationSelection = vi.fn();
       const createdOrganization = organizationFixtureFactory.createCreatedOrganization({
@@ -667,14 +693,17 @@ describe('OrganizationScreen', () => {
         screen.getByLabelText(/organization\.management\.create\.fields\.description\.label/),
         'Fresh workspace',
       );
+      // Act
       await user.click(screen.getByRole('button', { name: 'organization.management.create.submit' }));
 
+      // Assert
       await waitFor(() => {
         expect(setOrganizationSelection).toHaveBeenCalledWith(parseOrganizationId(9));
       });
     });
 
     it('opens the edit project dialog for a listed project', async () => {
+      // Arrange
       const user = userEvent.setup();
       renderOrganizationScreen(
         {},
@@ -687,17 +716,20 @@ describe('OrganizationScreen', () => {
         },
       );
 
+      // Act
       await user.click(
         await screen.findByRole('button', {
           name: 'project.management.list.editButton',
         }),
       );
 
+      // Assert
       expect(await screen.findByRole('dialog')).toBeInTheDocument();
       expect(screen.getByText(/project\.management\.form\.edit\.title/)).toBeInTheDocument();
     });
 
     it('opens the remove confirmation dialog for a listed project', async () => {
+      // Arrange
       const user = userEvent.setup();
       const deleteProject = vi.fn().mockResolvedValue(undefined);
       const actions = organizationScreenFixtureFactory.createActions({
@@ -749,8 +781,10 @@ describe('OrganizationScreen', () => {
 
       await user.click(removeButtons[0]);
 
+      // Act
       const dialog = await screen.findByRole('dialog');
 
+      // Assert
       expect(dialog).toBeInTheDocument();
       expect(screen.getByText('project.management.removal.dialogTitle')).toBeInTheDocument();
       expect(screen.getByLabelText('project.management.removal.migrationLabel')).toBeInTheDocument();
@@ -775,8 +809,10 @@ describe('OrganizationScreen', () => {
     });
 
     it('renders organization members for the selected organization', async () => {
+      // Arrange
       const member = createOrganizationMember({ role: OrganizationRole.MANAGER });
 
+      // Act
       renderOrganizationScreen(
         {},
         {},
@@ -786,11 +822,13 @@ describe('OrganizationScreen', () => {
         },
       );
 
+      // Assert
       expect(await screen.findByText('captain')).toBeInTheDocument();
       expect(screen.getAllByText('organization.management.members.roles.manager').length).toBeGreaterThan(0);
     });
 
     it('updates an organization member role from the member list', async () => {
+      // Arrange
       const user = userEvent.setup();
       const member = createOrganizationMember();
       const updateOrganizationMemberRole = vi.fn().mockResolvedValue({
@@ -808,11 +846,13 @@ describe('OrganizationScreen', () => {
         },
       );
 
+      // Act
       await user.selectOptions(
         await screen.findByLabelText('organization.management.members.roleLabel'),
         OrganizationRole.MANAGER,
       );
 
+      // Assert
       await waitFor(() => {
         expect(updateOrganizationMemberRole).toHaveBeenCalledWith({
           memberId: member.id,
@@ -822,6 +862,7 @@ describe('OrganizationScreen', () => {
     });
 
     it('hides owner-only member actions for managers', async () => {
+      // Arrange
       const ownerMember = createOrganizationMember({ role: OrganizationRole.OWNER });
 
       renderOrganizationScreen(
@@ -838,8 +879,10 @@ describe('OrganizationScreen', () => {
         },
       );
 
+      // Act
       await screen.findByText('captain');
 
+      // Assert
       expect(
         screen.queryAllByRole('option', {
           name: 'organization.management.members.roles.owner',
@@ -850,6 +893,7 @@ describe('OrganizationScreen', () => {
     });
 
     it('adds an organization member from the member form', async () => {
+      // Arrange
       const user = userEvent.setup();
       const addOrganizationMember = vi.fn().mockResolvedValue(createOrganizationMember());
 
@@ -859,8 +903,10 @@ describe('OrganizationScreen', () => {
         await screen.findByLabelText(/organization\.management\.members\.usernameOrEmailLabel/),
         'captain@pleey.io',
       );
+      // Act
       await user.click(screen.getByRole('button', { name: 'organization.management.members.addButton' }));
 
+      // Assert
       await waitFor(() => {
         expect(addOrganizationMember).toHaveBeenCalledWith({
           organizationId: parseOrganizationId(3),
@@ -871,6 +917,7 @@ describe('OrganizationScreen', () => {
     });
 
     it('removes an organization member from the member list', async () => {
+      // Arrange
       const user = userEvent.setup();
       const member = createOrganizationMember();
       const removeOrganizationMember = vi.fn().mockResolvedValue(undefined);
@@ -885,12 +932,14 @@ describe('OrganizationScreen', () => {
         },
       );
 
+      // Act
       await user.click(
         await screen.findByRole('button', {
           name: 'organization.management.members.removeButton',
         }),
       );
 
+      // Assert
       expect(await screen.findByRole('dialog')).toBeInTheDocument();
       expect(screen.getByText('organization.management.members.removal.dialogTitle')).toBeInTheDocument();
 

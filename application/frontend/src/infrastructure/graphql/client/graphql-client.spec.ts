@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { AUTH_ERROR_DEFINITIONS, AuthErrorCode } from '../../../domains/identity/errors/auth-error-code';
 import { InvalidLoginResponseError } from '../../../domains/identity/errors/graphql-auth-repository.error';
 import { AuthPayloadInspector } from '../../../domains/identity/services/auth-payload-inspector';
@@ -14,14 +14,22 @@ function createGraphqlClient() {
 }
 
 describe('GraphqlClient', () => {
-  beforeEach(() => {
-    vi.restoreAllMocks();
-  });
+  async function withFetchMock<T>(fetchMock: ReturnType<typeof vi.fn>, callback: () => Promise<T> | T): Promise<T> {
+    vi.stubGlobal('fetch', fetchMock);
+
+    try {
+      return await callback();
+    } finally {
+      vi.unstubAllGlobals();
+      vi.restoreAllMocks();
+    }
+  }
 
   describe('request()', () => {
     it('sends a GraphQL request and returns the response data', async () => {
       // Arrange
       const currentUser = authFixtureFactory.createUserPayload({ avatarUri: undefined });
+      // Act
       const fetchMock = vi.fn().mockResolvedValue(
         new Response(
           JSON.stringify({
@@ -35,21 +43,21 @@ describe('GraphqlClient', () => {
           },
         ),
       );
-      vi.stubGlobal('fetch', fetchMock);
-      const client = createGraphqlClient();
-      client.setAuthSessionTokens({ accessToken: 'access-token', refreshToken: 'refresh-token' });
-
-      // Act
-      const result = await client.request<MeQuery>(MeDocument);
-
       // Assert
-      expect(result).toEqual({ me: currentUser });
-      expect(fetchMock).toHaveBeenCalledTimes(1);
-      expect(fetchMock.mock.calls[0]?.[1]).toMatchObject({
-        headers: expect.objectContaining({
-          'apollo-require-preflight': 'true',
-          authorization: 'Bearer access-token',
-        }),
+      await withFetchMock(fetchMock, async () => {
+        const client = createGraphqlClient();
+        client.setAuthSessionTokens({ accessToken: 'access-token', refreshToken: 'refresh-token' });
+
+        const result = await client.request<MeQuery>(MeDocument);
+
+        expect(result).toEqual({ me: currentUser });
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(fetchMock.mock.calls[0]?.[1]).toMatchObject({
+          headers: expect.objectContaining({
+            'apollo-require-preflight': 'true',
+            authorization: 'Bearer access-token',
+          }),
+        });
       });
     });
 
@@ -61,6 +69,7 @@ describe('GraphqlClient', () => {
         user: { avatarUri: null },
       });
       const currentUser = authFixtureFactory.createUserPayload({ avatarUri: undefined });
+      // Act
       const fetchMock = vi
         .fn()
         .mockResolvedValueOnce(
@@ -105,21 +114,21 @@ describe('GraphqlClient', () => {
             },
           ),
         );
-      vi.stubGlobal('fetch', fetchMock);
-      const client = createGraphqlClient();
-      client.setAuthSessionTokens({
-        accessToken: 'expired-access-token',
-        refreshToken: 'refresh-token',
-      });
-
-      // Act
-      const result = await client.request<MeQuery>(MeDocument);
-
       // Assert
-      expect(result).toEqual({ me: currentUser });
-      expect(fetchMock).toHaveBeenCalledTimes(3);
-      expect(fetchMock.mock.calls[2]?.[1]).toMatchObject({
-        headers: expect.objectContaining({ authorization: 'Bearer new-access-token' }),
+      await withFetchMock(fetchMock, async () => {
+        const client = createGraphqlClient();
+        client.setAuthSessionTokens({
+          accessToken: 'expired-access-token',
+          refreshToken: 'refresh-token',
+        });
+
+        const result = await client.request<MeQuery>(MeDocument);
+
+        expect(result).toEqual({ me: currentUser });
+        expect(fetchMock).toHaveBeenCalledTimes(3);
+        expect(fetchMock.mock.calls[2]?.[1]).toMatchObject({
+          headers: expect.objectContaining({ authorization: 'Bearer new-access-token' }),
+        });
       });
     });
   });

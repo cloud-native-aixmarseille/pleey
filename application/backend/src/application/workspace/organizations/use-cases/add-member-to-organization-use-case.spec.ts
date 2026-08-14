@@ -16,6 +16,7 @@ const membershipPolicy = new OrganizationMembershipPolicy();
 
 describe('AddMemberToOrganizationUseCase', () => {
   it('throws when organization does not exist', async () => {
+    // Arrange
     const organizationRepository = createOrganizationRepositoryMock({ findById: null });
     const memberRepository = createOrganizationMemberRepositoryMock();
     const userRepository = createUserRepositoryMock({
@@ -42,6 +43,7 @@ describe('AddMemberToOrganizationUseCase', () => {
       usernameOrEmail: 'captain',
     };
 
+    // Act + Assert
     await expect(
       useCase.execute(backendTestIdentifiers.organization(1), dto, backendTestIdentifiers.user(10)),
     ).rejects.toThrow(OrganizationErrorCode.ORGANIZATION_NOT_FOUND);
@@ -50,6 +52,7 @@ describe('AddMemberToOrganizationUseCase', () => {
   });
 
   it('throws when requesting user lacks management privileges', async () => {
+    // Arrange
     const organizationRepository = createOrganizationRepositoryMock({
       findById: { id: 1 } as never,
     });
@@ -81,6 +84,7 @@ describe('AddMemberToOrganizationUseCase', () => {
       usernameOrEmail: 'captain',
     };
 
+    // Act + Assert
     await expect(
       useCase.execute(backendTestIdentifiers.organization(1), dto, backendTestIdentifiers.user(10)),
     ).rejects.toThrow(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
@@ -89,6 +93,7 @@ describe('AddMemberToOrganizationUseCase', () => {
   });
 
   it('throws when a manager tries to add an owner', async () => {
+    // Arrange
     const organizationRepository = createOrganizationRepositoryMock({
       findById: { id: 1 } as never,
     });
@@ -111,6 +116,7 @@ describe('AddMemberToOrganizationUseCase', () => {
       userRepository as never,
     );
 
+    // Act + Assert
     await expect(
       useCase.execute(
         backendTestIdentifiers.organization(1),
@@ -126,6 +132,7 @@ describe('AddMemberToOrganizationUseCase', () => {
   });
 
   it('adds member when allowed with a username', async () => {
+    // Arrange
     const organizationRepository = createOrganizationRepositoryMock({
       findById: { id: 1 } as never,
     });
@@ -159,7 +166,9 @@ describe('AddMemberToOrganizationUseCase', () => {
       usernameOrEmail: 'captain',
     };
 
+    // Act
     const result = await useCase.execute(backendTestIdentifiers.organization(1), dto, backendTestIdentifiers.user(10));
+    // Assert
     expect(memberRepository.create).toHaveBeenCalledWith(
       backendTestIdentifiers.organization(1),
       2,
@@ -169,6 +178,7 @@ describe('AddMemberToOrganizationUseCase', () => {
   });
 
   it('adds member when allowed with an email address', async () => {
+    // Arrange
     const organizationRepository = createOrganizationRepositoryMock({
       findById: { id: 1 } as never,
     });
@@ -202,8 +212,10 @@ describe('AddMemberToOrganizationUseCase', () => {
       usernameOrEmail: 'captain@pleey.io',
     };
 
+    // Act
     await useCase.execute(backendTestIdentifiers.organization(1), dto, backendTestIdentifiers.user(10));
 
+    // Assert
     expect(userRepository.findByEmail).toHaveBeenCalledWith('captain@pleey.io');
     expect(memberRepository.create).toHaveBeenCalledWith(
       backendTestIdentifiers.organization(1),
@@ -213,6 +225,7 @@ describe('AddMemberToOrganizationUseCase', () => {
   });
 
   it('falls back to username lookup when the identifier contains @ but no email matches', async () => {
+    // Arrange
     const organizationRepository = createOrganizationRepositoryMock({
       findById: { id: 1 } as never,
     });
@@ -242,6 +255,7 @@ describe('AddMemberToOrganizationUseCase', () => {
       userRepository as never,
     );
 
+    // Act
     await useCase.execute(
       backendTestIdentifiers.organization(1),
       {
@@ -251,6 +265,7 @@ describe('AddMemberToOrganizationUseCase', () => {
       backendTestIdentifiers.user(10),
     );
 
+    // Assert
     expect(userRepository.findByEmail).toHaveBeenCalledWith('captain@team');
     expect(userRepository.findByUsername).toHaveBeenCalledWith('captain@team');
     expect(memberRepository.create).toHaveBeenCalledWith(
@@ -261,6 +276,7 @@ describe('AddMemberToOrganizationUseCase', () => {
   });
 
   it('throws when the username or email does not match a user', async () => {
+    // Arrange
     const organizationRepository = createOrganizationRepositoryMock({
       findById: { id: 1 } as never,
     });
@@ -290,6 +306,7 @@ describe('AddMemberToOrganizationUseCase', () => {
       usernameOrEmail: 'unknown-user',
     };
 
+    // Act + Assert
     await expect(
       useCase.execute(backendTestIdentifiers.organization(1), dto, backendTestIdentifiers.user(10)),
     ).rejects.toThrow(OrganizationErrorCode.MEMBER_USER_NOT_FOUND);

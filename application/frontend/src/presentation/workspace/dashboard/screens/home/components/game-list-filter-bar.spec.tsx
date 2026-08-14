@@ -98,37 +98,49 @@ describe('GameListFilterBar', () => {
   }
 
   it('forwards search input changes', () => {
+    // Arrange
     const { onSearchChange } = renderGameListFilterBar();
 
+    // Act
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'arcade' } });
 
+    // Assert
     expect(onSearchChange).toHaveBeenCalledWith('arcade');
   });
 
   it('toggles sort direction when the active sort chip is clicked', () => {
+    // Arrange
     const { onSortDirectionChange, onSortFieldChange } = renderGameListFilterBar();
 
+    // Act
     fireEvent.click(screen.getByRole('button', { name: 'dashboard.games.filters.sortDate' }));
 
+    // Assert
     expect(onSortDirectionChange).toHaveBeenCalledWith('asc');
     expect(onSortFieldChange).not.toHaveBeenCalled();
   });
 
   it('switches sort field and applies its default direction', () => {
+    // Arrange
     const { onSortDirectionChange, onSortFieldChange } = renderGameListFilterBar();
 
+    // Act
     fireEvent.click(screen.getByRole('button', { name: 'dashboard.games.filters.sortName' }));
 
+    // Assert
     expect(onSortFieldChange).toHaveBeenCalledWith('title');
     expect(onSortDirectionChange).toHaveBeenCalledWith('asc');
     expect(screen.getByText('dashboard.games.filters.showing (count=2, total=5)')).toBeInTheDocument();
   });
 
   it('parses selected game types before forwarding the filter change', () => {
+    // Arrange
     const { onTypeFilterChange } = renderGameListFilterBar();
 
+    // Act
     fireEvent.click(screen.getByRole('button', { name: 'dashboard.games.filters.typeLabel' }));
 
+    // Assert
     expect(onTypeFilterChange).toHaveBeenCalledWith([GameType.Quiz]);
   });
 });

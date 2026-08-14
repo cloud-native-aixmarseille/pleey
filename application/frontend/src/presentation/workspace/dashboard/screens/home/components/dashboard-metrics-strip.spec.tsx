@@ -16,12 +16,15 @@ vi.mock('../../../../../shared/i18n/use-presentation-translation', async () => {
 
 describe('DashboardMetricsStrip', () => {
   it('renders empty state when dashboard is null', () => {
+    // Arrange + Act
     renderWithUiProvider(<DashboardMetricsStrip dashboard={null} />);
 
+    // Assert
     expect(screen.getByText('dashboard.stats.empty')).toBeInTheDocument();
   });
 
   it('renders all metric cells when dashboard is provided', () => {
+    // Arrange
     const dashboard = organizationFixtureFactory.createOrganizationDashboard({
       organization: { id: 1, name: 'Test Org', description: null },
       stats: {
@@ -31,14 +34,17 @@ describe('DashboardMetricsStrip', () => {
       },
     });
 
+    // Act
     renderWithUiProvider(<DashboardMetricsStrip dashboard={dashboard} />);
 
+    // Assert
     expect(screen.getByText('12')).toBeInTheDocument();
     expect(screen.getByText('3')).toBeInTheDocument();
     expect(screen.getByText('7')).toBeInTheDocument();
   });
 
   it('renders the metrics strip as a labeled region', () => {
+    // Arrange
     const dashboard = organizationFixtureFactory.createOrganizationDashboard({
       organization: { id: 1, name: 'Test Org', description: null },
       stats: {
@@ -48,8 +54,10 @@ describe('DashboardMetricsStrip', () => {
       },
     });
 
+    // Act
     renderWithUiProvider(<DashboardMetricsStrip dashboard={dashboard} />);
 
+    // Assert
     expect(screen.getByRole('region', { name: 'dashboard.stats.title' })).toBeInTheDocument();
   });
 });

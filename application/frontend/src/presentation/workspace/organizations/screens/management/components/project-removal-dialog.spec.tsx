@@ -22,10 +22,12 @@ const projectFormFacade = {} as never;
 
 describe('ProjectRemovalDialog', () => {
   it('renders migration options and delegates selection and confirmation', async () => {
+    // Arrange
     const user = userEvent.setup();
     const onMigrationProjectChange = vi.fn();
     const onConfirm = vi.fn();
 
+    // Act
     renderWithUiProvider(
       provideWorkspaceDependencies(
         <ProjectRemovalDialog
@@ -75,6 +77,7 @@ describe('ProjectRemovalDialog', () => {
       ),
     );
 
+    // Assert
     expect(screen.getByText('This action cannot be undone.')).toBeInTheDocument();
     await user.click(screen.getByLabelText('Migration target'));
     await user.type(screen.getByLabelText('Search projects'), 'Target');
@@ -86,6 +89,7 @@ describe('ProjectRemovalDialog', () => {
   });
 
   it('renders an empty migration selector when no migration targets are available', async () => {
+    // Arrange
     const user = userEvent.setup();
 
     renderWithUiProvider(
@@ -129,8 +133,10 @@ describe('ProjectRemovalDialog', () => {
       ),
     );
 
+    // Act
     await user.click(screen.getByLabelText('Migration target'));
 
+    // Assert
     expect(screen.getByLabelText('Migration target')).toBeInTheDocument();
     expect(screen.getByText('No projects available')).toBeInTheDocument();
   });

@@ -1,5 +1,5 @@
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, vi, it as vitestIt } from 'vitest';
 import type { PartyLobbyGateway } from '../../../../../application/game/party/shared/facades/party-lobby.facade';
 import type { PartyHostControlPort } from '../../../../../domains/game/party/host/ports/party-host-control.port';
 import { HostPartyRuntimeCommand } from '../../../../../domains/game/party/host/ports/party-host-runtime-controls.port';
@@ -772,13 +772,25 @@ function renderScreen() {
 }
 
 describe('PartyLobbyScreen', () => {
-  afterEach(() => {
-    vi.useRealTimers();
-    mocks.navigate.mockReset();
-    mocks.pathname = '/';
-  });
+  const it = ((name: string, testCase: () => Promise<void> | void, timeout?: number) =>
+    vitestIt(
+      name,
+      async () => {
+        try {
+          if (typeof testCase === 'function') {
+            await testCase();
+          }
+        } finally {
+          vi.useRealTimers();
+          mocks.navigate.mockReset();
+          mocks.pathname = '/';
+        }
+      },
+      timeout,
+    )) as typeof vitestIt;
 
   it('renders the host lobby with the share panel, PIN tiles and QR code', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined };
     mocks.authState = {
       hasRestoredSession: true,
@@ -797,6 +809,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
@@ -806,6 +819,7 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Assert
     await waitFor(() => {
       expect(mocks.observationState.observePartyById).toHaveBeenCalledWith(partyIdentifier.parse(9));
     });
@@ -829,6 +843,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('dispatches host runtime commands from the host lobby', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined };
     mocks.authState = {
       hasRestoredSession: true,
@@ -857,8 +872,10 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Act
     fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.startPartyCta' }));
 
+    // Assert
     await waitFor(() => {
       expect(mocks.partyHostControlPort.startParty).toHaveBeenCalledWith({
         partyId: partyIdentifier.parse(9),
@@ -867,6 +884,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('dispatches host kick-player commands from the host lobby', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined };
     mocks.authState = {
       hasRestoredSession: true,
@@ -902,12 +920,14 @@ describe('PartyLobbyScreen', () => {
       }),
     );
 
+    // Act
     fireEvent.click(
       await screen.findByRole('button', {
         name: 'game.party.host.route.kickPlayerConfirmAction',
       }),
     );
 
+    // Assert
     await waitFor(() => {
       expect(mocks.partyHostControlPort.kickPlayer).toHaveBeenCalledWith({
         partyId: partyIdentifier.parse(9),
@@ -920,6 +940,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('lets the host kick the same player again after they rejoin without refreshing', async () => {
+    // Arrange
     let resolveKick: (() => void) | undefined;
     const firstKickPromise = new Promise<void>((resolve) => {
       resolveKick = () => resolve();
@@ -962,12 +983,14 @@ describe('PartyLobbyScreen', () => {
         name: 'game.party.host.route.kickPlayerAriaLabel (username=Neo)',
       }),
     );
+    // Act
     fireEvent.click(
       await screen.findByRole('button', {
         name: 'game.party.host.route.kickPlayerConfirmAction',
       }),
     );
 
+    // Assert
     await waitFor(() => {
       expect(mocks.partyHostControlPort.kickPlayer).toHaveBeenCalledTimes(1);
     });
@@ -1028,6 +1051,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('clears the persisted guest session when the current guest disappears from observation', async () => {
+    // Arrange
     const guestId = guestIdentifier.parse('guest-current');
 
     mocks.params = { partyId: '9', pin: undefined };
@@ -1080,6 +1104,7 @@ describe('PartyLobbyScreen', () => {
       status: PartyStatus.WAITING,
     });
 
+    // Act
     view.rerender(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
@@ -1088,6 +1113,7 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Assert
     await waitFor(() => {
       expect(mocks.partyGuestSessionPort.clearGuestId).toHaveBeenCalledWith(partyPinIdentifier.parse('AB12CD'));
     });
@@ -1096,6 +1122,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('keeps the start CTA disabled when the host is alone in the lobby', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined };
     mocks.partyHostControlPort.startParty = vi.fn(async () => undefined);
     mocks.authState = {
@@ -1132,16 +1159,19 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Act
     const startButton = await screen.findByRole('button', {
       name: 'game.party.host.route.startPartyCta',
     });
 
+    // Assert
     expect(startButton).toBeDisabled();
     fireEvent.click(startButton);
     expect(mocks.partyHostControlPort.startParty).not.toHaveBeenCalled();
   });
 
   it('refreshes host command availability after the start-party redirect without a browser refresh', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined };
     mocks.authState = {
       hasRestoredSession: true,
@@ -1171,8 +1201,10 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Act
     fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.startPartyCta' }));
 
+    // Assert
     await waitFor(() => {
       expect(mocks.partyHostControlPort.startParty).toHaveBeenCalledWith({
         partyId: partyIdentifier.parse(9),
@@ -1206,6 +1238,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('keeps the host music controls mounted when the host view switches from lobby to stage', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined };
     mocks.authState = {
       hasRestoredSession: true,
@@ -1254,13 +1287,16 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Act
     await screen.findByTestId('host-runtime-surface');
 
+    // Assert
     expect(screen.getByTestId('host-party-music-audio')).toBe(audioElement);
     expect(screen.getByTestId('host-party-music-theme-select')).toBe(themeSelect);
   });
 
   it('renders the player roster without the share panel and highlights the current user', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined };
     mocks.authState = {
       hasRestoredSession: true,
@@ -1309,8 +1345,10 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Act
     await screen.findByText('Neo');
 
+    // Assert
     expect(screen.queryByText('game.party.host.route.shareHeading')).not.toBeInTheDocument();
     expect(screen.getByText('Neo')).toBeInTheDocument();
     expect(screen.getByText('Guest One')).toBeInTheDocument();
@@ -1322,6 +1360,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('leaves the party from the player lobby route', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined };
     mocks.authState = {
       hasRestoredSession: true,
@@ -1347,8 +1386,10 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Act
     fireEvent.click(await screen.findByRole('button', { name: 'game.party.player.route.leavePartyCta' }));
 
+    // Assert
     expect(mocks.partyPlayerPort.leaveParty).not.toHaveBeenCalled();
 
     fireEvent.click(await screen.findByRole('button', { name: 'game.party.player.route.confirmLeavePartyCta' }));
@@ -1361,6 +1402,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('submits a player action from the live stage surface and shows pending feedback', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined, stageId: '1' };
     mocks.authState = {
       hasRestoredSession: true,
@@ -1391,8 +1433,10 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Act
     fireEvent.click(await screen.findByRole('button', { name: 'Option B' }));
 
+    // Assert
     await waitFor(() => {
       expect(mocks.partyPlayerPort.submitAction).toHaveBeenCalledWith({
         actionId: toActionId(2),
@@ -1404,6 +1448,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('shows the locked acknowledgement once the stream confirms the submitted action', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined, stageId: '1' };
     mocks.authState = {
       hasRestoredSession: true,
@@ -1442,6 +1487,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
@@ -1451,11 +1497,13 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Assert
     expect(await screen.findByTestId('party-runtime-player-stage-surface')).toBeInTheDocument();
     expect(screen.getByText('runtime-stage.current-player.locked')).toBeInTheDocument();
   });
 
   it('redirects the party lobby route to the dedicated stage screen while a stage is active', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined };
     mocks.authState = {
       hasRestoredSession: true,
@@ -1476,6 +1524,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
@@ -1485,6 +1534,7 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Assert
     expect(await screen.findByText('game.party.host.route.shareHeading')).toBeInTheDocument();
 
     await waitFor(() => {
@@ -1493,6 +1543,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('redirects the host to the dashboard after confirming end party', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined };
     mocks.authState = {
       hasRestoredSession: true,
@@ -1534,8 +1585,10 @@ describe('PartyLobbyScreen', () => {
 
     fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.runtimeMenuTrigger' }));
     fireEvent.click(await screen.findByRole('menuitem', { name: 'game.party.host.route.endPartyCta' }));
+    // Act
     fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.confirmEndPartyCta' }));
 
+    // Assert
     await waitFor(() => {
       expect(mocks.partyHostControlPort.endParty).toHaveBeenCalledWith({
         partyId: partyIdentifier.parse(9),
@@ -1546,6 +1599,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('confirms before restarting the current stage', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined, stageId: '1' };
     mocks.authState = {
       hasRestoredSession: true,
@@ -1577,8 +1631,10 @@ describe('PartyLobbyScreen', () => {
     );
 
     fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.runtimeMenuTrigger' }));
+    // Act
     fireEvent.click(await screen.findByRole('menuitem', { name: 'game.party.host.route.restartStageCta' }));
 
+    // Assert
     expect(mocks.partyHostControlPort.restartStage).not.toHaveBeenCalled();
 
     fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.confirmRestartStageCta' }));
@@ -1591,6 +1647,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('re-enables host runtime commands after restarting the same paused stage', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined, stageId: '1' };
     mocks.authState = {
       hasRestoredSession: true,
@@ -1652,8 +1709,10 @@ describe('PartyLobbyScreen', () => {
 
     fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.runtimeMenuTrigger' }));
     fireEvent.click(await screen.findByRole('menuitem', { name: 'game.party.host.route.restartStageCta' }));
+    // Act
     fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.confirmRestartStageCta' }));
 
+    // Assert
     await waitFor(() => {
       expect(mocks.partyHostControlPort.restartStage).toHaveBeenCalledWith({
         partyId: partyIdentifier.parse(9),
@@ -1694,6 +1753,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('keeps host runtime commands pending until the restart is observed', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined, stageId: '1' };
     mocks.authState = {
       hasRestoredSession: true,
@@ -1735,8 +1795,10 @@ describe('PartyLobbyScreen', () => {
 
     fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.runtimeMenuTrigger' }));
     fireEvent.click(await screen.findByRole('menuitem', { name: 'game.party.host.route.restartStageCta' }));
+    // Act
     fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.confirmRestartStageCta' }));
 
+    // Assert
     await waitFor(() => {
       expect(mocks.partyHostControlPort.restartStage).toHaveBeenCalledWith({
         partyId: partyIdentifier.parse(9),
@@ -1798,6 +1860,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('confirms before rewinding to the previous stage', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined, stageId: '2' };
     mocks.authState = {
       hasRestoredSession: true,
@@ -1853,8 +1916,10 @@ describe('PartyLobbyScreen', () => {
     );
 
     fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.runtimeMenuTrigger' }));
+    // Act
     fireEvent.click(await screen.findByRole('menuitem', { name: 'game.party.host.route.rewindStageCta' }));
 
+    // Assert
     expect(mocks.partyHostControlPort.rewindStage).not.toHaveBeenCalled();
 
     fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.confirmRewindStageCta' }));
@@ -1867,6 +1932,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('confirms before sending the party back to the lobby', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined, stageId: '1' };
     mocks.authState = {
       hasRestoredSession: true,
@@ -1898,8 +1964,10 @@ describe('PartyLobbyScreen', () => {
     );
 
     fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.runtimeMenuTrigger' }));
+    // Act
     fireEvent.click(await screen.findByRole('menuitem', { name: 'game.party.host.route.rewindPartyCta' }));
 
+    // Assert
     expect(mocks.partyHostControlPort.rewindParty).not.toHaveBeenCalled();
 
     fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.confirmRewindPartyCta' }));
@@ -1912,6 +1980,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('redirects ended parties to the dedicated final leaderboard screen', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined, stageId: '1' };
     mocks.authState = {
       hasRestoredSession: true,
@@ -1943,6 +2012,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
@@ -1953,6 +2023,7 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Assert
     expect(await screen.findByTestId('party-runtime-player-result-surface')).toBeInTheDocument();
 
     await waitFor(() => {
@@ -1961,6 +2032,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('renders the generic host stage panel on the dedicated stage screen', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined, stageId: '1' };
     mocks.authState = {
       hasRestoredSession: true,
@@ -1981,6 +2053,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
@@ -1990,6 +2063,7 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Assert
     expect(await screen.findByTestId('host-runtime-surface')).toBeInTheDocument();
     expect(screen.getByTestId('party-runtime-host-stage-panel')).toBeInTheDocument();
     expect(screen.getByText('Which option wins?')).toBeInTheDocument();
@@ -1997,6 +2071,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('automatically reveals the stage result once all players have submitted', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined, stageId: '1' };
     mocks.authState = {
       hasRestoredSession: true,
@@ -2032,6 +2107,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
@@ -2041,6 +2117,7 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Assert
     await waitFor(() => {
       expect(mocks.partyHostControlPort.revealStageResult).toHaveBeenCalledWith({
         partyId: partyIdentifier.parse(9),
@@ -2049,6 +2126,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('automatically reveals the stage result once the timer has elapsed', async () => {
+    // Arrange
     vi.useFakeTimers();
     vi.setSystemTime(1_000);
     const activeStageContext = createActiveStageContext();
@@ -2100,16 +2178,19 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Act
     await act(async () => {
       await vi.advanceTimersByTimeAsync(3_000);
     });
 
+    // Assert
     expect(mocks.partyHostControlPort.revealStageResult).toHaveBeenCalledWith({
       partyId: partyIdentifier.parse(9),
     });
   });
 
   it('renders the generic host result panel on the dedicated result screen', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined, stageId: '1' };
     mocks.pathname = '/party/9/stage/1/result';
     mocks.authState = {
@@ -2136,6 +2217,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
@@ -2144,6 +2226,7 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Assert
     expect(await screen.findByTestId('host-runtime-surface')).toBeInTheDocument();
     expect(screen.getByTestId('party-runtime-host-result-panel')).toBeInTheDocument();
     expect(screen.getByText('runtime-result.correct-count:1')).toBeInTheDocument();
@@ -2152,6 +2235,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('renders the host result panel when the host journey route provides stageId only via pathname', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined };
     mocks.pathname = '/party/9/stage/1/result';
     mocks.authState = {
@@ -2178,6 +2262,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
@@ -2186,12 +2271,14 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Assert
     expect(await screen.findByTestId('host-runtime-surface')).toBeInTheDocument();
     expect(screen.getByTestId('party-runtime-host-result-panel')).toBeInTheDocument();
     expect(screen.queryByTestId('party-lobby-redirect')).not.toBeInTheDocument();
   });
 
   it('redirects the paused host from the result route to the previous stage after rewinding from the runtime menu', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined, stageId: '2' };
     mocks.pathname = '/party/9/stage/2/result';
     mocks.authState = {
@@ -2256,8 +2343,10 @@ describe('PartyLobbyScreen', () => {
 
     fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.runtimeMenuTrigger' }));
     fireEvent.click(await screen.findByRole('menuitem', { name: 'game.party.host.route.rewindStageCta' }));
+    // Act
     fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.confirmRewindStageCta' }));
 
+    // Assert
     await waitFor(() => {
       expect(mocks.partyHostControlPort.rewindStage).toHaveBeenCalledWith({
         partyId: partyIdentifier.parse(9),
@@ -2279,6 +2368,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('redirects the paused host from the result route back to the lobby after rewinding the party from the runtime menu', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined, stageId: '2' };
     mocks.pathname = '/party/9/stage/2/result';
     mocks.authState = {
@@ -2341,8 +2431,10 @@ describe('PartyLobbyScreen', () => {
 
     fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.runtimeMenuTrigger' }));
     fireEvent.click(await screen.findByRole('menuitem', { name: 'game.party.host.route.rewindPartyCta' }));
+    // Act
     fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.confirmRewindPartyCta' }));
 
+    // Assert
     await waitFor(() => {
       expect(mocks.partyHostControlPort.rewindParty).toHaveBeenCalledWith({
         partyId: partyIdentifier.parse(9),
@@ -2364,6 +2456,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('keeps the host on the runtime surface while result data catches up to the result route', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined, stageId: '1' };
     mocks.authState = {
       hasRestoredSession: true,
@@ -2384,6 +2477,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
@@ -2393,12 +2487,14 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Assert
     expect(await screen.findByTestId('host-runtime-surface')).toBeInTheDocument();
     expect(screen.queryByTestId('party-runtime-host-result-panel')).not.toBeInTheDocument();
     expect(screen.getByText('game.party.route.loading')).toBeInTheDocument();
   });
 
   it('redirects the host to the final leaderboard after finishing the last result screen', async () => {
+    // Arrange
     const finalResultContext = createRuntimeResultContext({
       lifecycle: {
         phase: PartyRuntimePhase.RESULT,
@@ -2466,8 +2562,10 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Act
     fireEvent.click(await screen.findByRole('button', { name: 'game.party.host.route.showFinalLeaderboardCta' }));
 
+    // Assert
     await waitFor(() => {
       expect(mocks.partyHostControlPort.advanceStage).toHaveBeenCalledWith({
         partyId: partyIdentifier.parse(9),
@@ -2480,6 +2578,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('renders the dedicated final leaderboard screen for ended player parties', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined };
     mocks.authState = {
       hasRestoredSession: true,
@@ -2528,6 +2627,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
@@ -2537,6 +2637,7 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Assert
     expect(await screen.findByTestId('player-final-surface')).toBeInTheDocument();
     expect(screen.getByTestId('player-final-result-card')).toBeInTheDocument();
     expect(within(screen.getByTestId('player-final-result-card')).getByText('Neo')).toBeInTheDocument();
@@ -2547,6 +2648,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('prompts guest players to sign in from the final leaderboard to save their score', async () => {
+    // Arrange
     const currentGuestId = guestIdentifier.parse('guest-current');
 
     mocks.params = { partyId: '9', pin: undefined };
@@ -2593,6 +2695,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
@@ -2602,6 +2705,7 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Assert
     expect(await screen.findByTestId('player-final-surface')).toBeInTheDocument();
     expect(screen.getByText('game.party.player.route.saveScorePromptTitle')).toBeInTheDocument();
     expect(
@@ -2612,6 +2716,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('renders the dedicated final leaderboard screen for ended host parties', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined };
     mocks.authState = {
       hasRestoredSession: true,
@@ -2643,6 +2748,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
@@ -2652,6 +2758,7 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Assert
     expect(await screen.findByTestId('host-runtime-surface')).toBeInTheDocument();
     expect(screen.getByTestId('party-final-summary-panel')).toBeInTheDocument();
     expect(screen.getByText('game.party.route.finalSummaryTitle')).toBeInTheDocument();
@@ -2659,6 +2766,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('keeps the final host player count aligned with standings when ranked players are no longer live', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined };
     mocks.authState = {
       hasRestoredSession: true,
@@ -2722,14 +2830,17 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Act
     const standings = await screen.findByTestId('party-final-standings');
 
+    // Assert
     expect(within(standings).getAllByRole('listitem')).toHaveLength(2);
     expect(standings).toHaveTextContent('Player One');
     expect(standings).toHaveTextContent('Guest One');
   });
 
   it('renders the generic player result surface with score feedback', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined, stageId: '1' };
     mocks.pathname = '/party/9/stage/1/result';
     mocks.authState = {
@@ -2751,6 +2862,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
@@ -2760,12 +2872,14 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Assert
     expect(await screen.findByTestId('party-runtime-player-result-surface')).toBeInTheDocument();
     expect(screen.getByText('runtime-result.current-player.correct')).toBeInTheDocument();
     expect(screen.getByText('runtime-result.current-player.points:200')).toBeInTheDocument();
   });
 
   it('renders the player result surface when the host journey route provides stageId only via pathname', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined };
     mocks.pathname = '/party/9/stage/1/result';
     mocks.authState = {
@@ -2787,6 +2901,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
@@ -2796,11 +2911,13 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Assert
     expect(await screen.findByTestId('party-runtime-player-result-surface')).toBeInTheDocument();
     expect(screen.queryByTestId('party-lobby-redirect')).not.toBeInTheDocument();
   });
 
   it('shows a player action error when the submit command is rejected', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined, stageId: '1' };
     mocks.authState = {
       hasRestoredSession: true,
@@ -2833,12 +2950,15 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Act
     fireEvent.click(await screen.findByRole('button', { name: 'Option A' }));
 
+    // Assert
     expect(await screen.findByText('game.party.errors.partyCommandNotAvailable')).toBeInTheDocument();
   });
 
   it('does not rejoin a guest after leaving the lobby', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined };
     mocks.authState = {
       hasRestoredSession: true,
@@ -2879,8 +2999,10 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Act
     fireEvent.click(await screen.findByRole('button', { name: 'game.party.player.route.leavePartyCta' }));
 
+    // Assert
     expect(mocks.partyPlayerPort.leaveParty).not.toHaveBeenCalled();
 
     fireEvent.click(await screen.findByRole('button', { name: 'game.party.player.route.confirmLeavePartyCta' }));
@@ -2913,6 +3035,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('shows the invalid pin state before any observation starts', () => {
+    // Arrange
     mocks.params.pin = '   ';
     mocks.authState = {
       hasRestoredSession: true,
@@ -2925,8 +3048,10 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     renderScreen();
 
+    // Assert
     expect(screen.getByRole('alert')).toHaveTextContent('game.party.route.invalidPin');
     expect(mocks.observationState.observePartyById).not.toHaveBeenCalled();
 
@@ -2934,6 +3059,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('renders authenticated join controls while the lobby bootstrap is unresolved', async () => {
+    // Arrange
     mocks.authState = {
       hasRestoredSession: true,
       isAuthenticated: true,
@@ -2950,8 +3076,10 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     renderScreen();
 
+    // Assert
     expect(
       await screen.findByRole('button', {
         name: 'game.party.player.route.joinWithAccountCta',
@@ -2961,6 +3089,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('renders guest join controls when the visitor is not yet a player', async () => {
+    // Arrange
     mocks.authState = {
       hasRestoredSession: true,
       isAuthenticated: false,
@@ -2973,8 +3102,10 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     renderScreen();
 
+    // Assert
     expect(await screen.findByRole('banner')).toBeInTheDocument();
     expect(await screen.findByLabelText('game.party.player.route.guestNameLabel')).toBeInTheDocument();
     expect((screen.getByLabelText('game.party.player.route.guestNameLabel') as HTMLInputElement).value).toMatch(/\S/);
@@ -2985,6 +3116,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('regenerates the guest name on demand', async () => {
+    // Arrange
     mocks.authState = {
       hasRestoredSession: true,
       isAuthenticated: false,
@@ -3002,13 +3134,16 @@ describe('PartyLobbyScreen', () => {
     const guestNameInput = (await screen.findByLabelText('game.party.player.route.guestNameLabel')) as HTMLInputElement;
     const initialGuestName = guestNameInput.value;
 
+    // Act
     fireEvent.click(screen.getByRole('button', { name: 'game.party.player.route.generateGuestNameCta' }));
 
+    // Assert
     expect(guestNameInput.value).toMatch(/\S/);
     expect(guestNameInput.value).not.toBe(initialGuestName);
   });
 
   it('shows join errors in a toast notification', async () => {
+    // Arrange
     mocks.authState = {
       hasRestoredSession: true,
       isAuthenticated: false,
@@ -3027,10 +3162,12 @@ describe('PartyLobbyScreen', () => {
       target: { value: 'Neo' },
     });
 
+    // Act
     const joinButton = screen.getByRole('button', {
       name: 'game.party.player.route.joinAsGuestCta',
     });
 
+    // Assert
     await waitFor(() => {
       expect(joinButton).toBeEnabled();
     });
@@ -3053,6 +3190,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('hides the password field by default on join screen', async () => {
+    // Arrange
     mocks.authState = {
       hasRestoredSession: true,
       isAuthenticated: false,
@@ -3065,12 +3203,15 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     renderScreen();
 
+    // Assert
     expect(screen.queryByLabelText('game.party.player.route.passwordLabel')).not.toBeInTheDocument();
   });
 
   it('shows the password field when join fails with validation error', async () => {
+    // Arrange
     mocks.authState = {
       hasRestoredSession: true,
       isAuthenticated: false,
@@ -3092,10 +3233,12 @@ describe('PartyLobbyScreen', () => {
       target: { value: 'Neo' },
     });
 
+    // Act
     const joinButton = screen.getByRole('button', {
       name: 'game.party.player.route.joinAsGuestCta',
     });
 
+    // Assert
     await waitFor(() => {
       expect(joinButton).toBeEnabled();
     });
@@ -3112,6 +3255,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('shows a rollback toast to players when the host sends the party back to the lobby', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined };
     mocks.authState = {
       hasRestoredSession: true,
@@ -3144,13 +3288,16 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Act
     const runtimeNoticeToast = await screen.findByTestId('party-runtime-notice-toast');
 
+    // Assert
     expect(runtimeNoticeToast).toHaveTextContent('game.party.player.route.runtimeRewindPartyToast');
     expect(runtimeNoticeToast.querySelector('[role="status"]')).not.toBeNull();
   });
 
   it('shows a stage restart toast only once across player screen remounts', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined };
     mocks.authState = {
       hasRestoredSession: true,
@@ -3175,6 +3322,7 @@ describe('PartyLobbyScreen', () => {
     };
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     const rendered = renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
@@ -3184,6 +3332,7 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Assert
     expect(await screen.findByTestId('party-runtime-notice-toast')).toHaveTextContent(
       'game.party.player.route.runtimeRestartStageToast',
     );
@@ -3207,6 +3356,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('rejoins a persisted guest session after refreshing the canonical lobby route', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined };
     mocks.authState = {
       hasRestoredSession: true,
@@ -3245,6 +3395,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
@@ -3254,6 +3405,7 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Assert
     await waitFor(() => {
       expect(mocks.partyPlayerPort.rejoinParty).toHaveBeenCalledWith({
         pin: partyPinIdentifier.parse('AB12CD'),
@@ -3269,6 +3421,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('observes host lobby routes by party id', () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined };
     mocks.authState = {
       hasRestoredSession: true,
@@ -3286,6 +3439,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
@@ -3295,6 +3449,7 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Assert
     expect(mocks.observationState.observePartyById).toHaveBeenCalledWith(partyIdentifier.parse(9));
     expect(screen.getByText('game.party.host.route.shareHeading')).toBeInTheDocument();
     expect(screen.getByTestId('qr-code')).toHaveTextContent('https://pleey.localhost/join/AB12CD');
@@ -3303,6 +3458,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('does not restart host lobby observation on rerender', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined };
     mocks.authState = {
       hasRestoredSession: true,
@@ -3320,6 +3476,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     const view = renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
@@ -3329,6 +3486,7 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Assert
     expect(mocks.observationState.observePartyById).toHaveBeenCalledTimes(1);
     expect(mocks.observationState.observePartyById).toHaveBeenCalledWith(partyIdentifier.parse(9));
 
@@ -3352,6 +3510,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('redirects authenticated hosts from the join route to their hosted party lobby', async () => {
+    // Arrange
     mocks.params = { pin: 'ab12cd' };
     mocks.authState = {
       hasRestoredSession: true,
@@ -3369,6 +3528,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PIN}
@@ -3378,6 +3538,7 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Assert
     expect(await screen.findByTestId('party-lobby-redirect')).toHaveTextContent(
       `/party/${partyIdentifier.parse(9)}/lobby`,
     );
@@ -3385,6 +3546,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('redirects authenticated players on the join route to their current active party lobby', async () => {
+    // Arrange
     mocks.params = { pin: 'ab12cd' };
     mocks.authState = {
       hasRestoredSession: true,
@@ -3409,6 +3571,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PIN}
@@ -3418,6 +3581,7 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Assert
     expect(await screen.findByTestId('party-lobby-redirect')).toHaveTextContent(
       `/party/${partyIdentifier.parse(12)}/lobby`,
     );
@@ -3425,6 +3589,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('shows the join surface for authenticated users on the join route before they have joined', async () => {
+    // Arrange
     mocks.params = { pin: 'ab12cd' };
     mocks.authState = {
       hasRestoredSession: true,
@@ -3442,6 +3607,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PIN}
@@ -3450,6 +3616,7 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Assert
     expect(
       await screen.findByRole('button', {
         name: 'game.party.player.route.joinWithAccountCta',
@@ -3459,6 +3626,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('does not redirect a refreshed authenticated player away from the canonical lobby route while their observed player identity is reconnecting', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined };
     mocks.authState = {
       hasRestoredSession: true,
@@ -3487,6 +3655,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
@@ -3497,6 +3666,7 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Assert
     await waitFor(() => {
       expect(mocks.observationState.observePartyById).toHaveBeenCalledWith(partyIdentifier.parse(9));
     });
@@ -3505,6 +3675,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('redirects non-players from the host lobby route to the join page', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined };
     mocks.authState = {
       hasRestoredSession: true,
@@ -3534,6 +3705,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
@@ -3544,6 +3716,7 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Assert
     expect(await screen.findByTestId('party-lobby-redirect')).toHaveTextContent('/join/AB12CD');
     expect(mocks.observationState.observePartyById).toHaveBeenCalledWith(partyIdentifier.parse(9));
 
@@ -3551,6 +3724,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('redirects players from the join route to the canonical party lobby once joined', async () => {
+    // Arrange
     mocks.params = { pin: 'ab12cd' };
     mocks.authState = {
       hasRestoredSession: true,
@@ -3576,6 +3750,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PIN}
@@ -3585,12 +3760,14 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Assert
     expect(await screen.findByTestId('party-lobby-redirect')).toHaveTextContent(
       `/party/${partyIdentifier.parse(9)}/lobby`,
     );
   });
 
   it('redirects persisted guests from the join route to their current party lobby', async () => {
+    // Arrange
     mocks.params = { pin: 'ab12cd' };
     mocks.authState = {
       hasRestoredSession: true,
@@ -3637,6 +3814,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PIN}
@@ -3646,6 +3824,7 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Assert
     await waitFor(() => {
       expect(mocks.partyPlayerPort.rejoinParty).toHaveBeenCalledWith({
         pin: partyPinIdentifier.parse('AB12CD'),
@@ -3663,6 +3842,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('lets a kicked guest join again from the join route without a browser refresh', async () => {
+    // Arrange
     const guestId = guestIdentifier.parse('guest-current');
     let persistedGuestId: GuestId | null = guestId;
 
@@ -3725,6 +3905,7 @@ describe('PartyLobbyScreen', () => {
       status: PartyStatus.WAITING,
     });
 
+    // Act
     view.rerender(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
@@ -3734,6 +3915,7 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Assert
     await waitFor(() => {
       expect(mocks.partyGuestSessionPort.clearGuestId).toHaveBeenCalledWith(partyPinIdentifier.parse('AB12CD'));
     });
@@ -3782,6 +3964,7 @@ describe('PartyLobbyScreen', () => {
   });
 
   it('bootstraps host lobby routes by pin when the party id observation is still empty', async () => {
+    // Arrange
     mocks.params = { partyId: '9', pin: undefined };
     mocks.authState = {
       hasRestoredSession: true,
@@ -3799,6 +3982,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.observePartyById = vi.fn(() => vi.fn());
 
+    // Act
     renderWithProviders(
       <PartyLobbyScreen
         routeKind={PartyLobbyRouteKind.PARTY_ID}
@@ -3808,6 +3992,7 @@ describe('PartyLobbyScreen', () => {
       />,
     );
 
+    // Assert
     expect(await screen.findByText('game.party.route.loading')).toBeInTheDocument();
     expect(mocks.observationState.observePartyById).toHaveBeenCalledWith(partyIdentifier.parse(9));
 

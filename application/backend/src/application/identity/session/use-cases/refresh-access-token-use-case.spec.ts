@@ -9,6 +9,7 @@ import { RefreshAccessTokenUseCase } from './refresh-access-token-use-case';
 
 describe('RefreshAccessTokenUseCase', () => {
   it('clears refresh token and throws when refresh token is expired', async () => {
+    // Arrange
     const user = createUserFixture({
       id: backendTestIdentifiers.user(1),
       username: 'alice',
@@ -31,11 +32,13 @@ describe('RefreshAccessTokenUseCase', () => {
 
     const useCase = new RefreshAccessTokenUseCase(userRepository, passwordService as never, authTokenService as never);
 
+    // Act + Assert
     await expect(useCase.execute('refresh')).rejects.toThrow(IdentityErrorCode.REFRESH_TOKEN_EXPIRED);
     expect(userRepository.clearRefreshToken).toHaveBeenCalledWith(backendTestIdentifiers.user(1));
   });
 
   it('returns new tokens when refresh token is valid', async () => {
+    // Arrange
     const user = createUserFixture({
       id: backendTestIdentifiers.user(1),
       username: 'alice',
@@ -73,8 +76,10 @@ describe('RefreshAccessTokenUseCase', () => {
 
     const useCase = new RefreshAccessTokenUseCase(userRepository, passwordService as never, authTokenService as never);
 
+    // Act
     const result = await useCase.execute('refresh');
 
+    // Assert
     expect(passwordService.compare).toHaveBeenCalledWith('refresh', 'hash');
     expect(userRepository.updateRefreshToken).toHaveBeenCalledWith(
       backendTestIdentifiers.user(1),

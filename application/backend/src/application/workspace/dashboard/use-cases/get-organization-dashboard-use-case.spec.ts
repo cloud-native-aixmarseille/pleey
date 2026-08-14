@@ -9,6 +9,7 @@ import { GetOrganizationDashboardUseCase } from './get-organization-dashboard-us
 
 describe('GetOrganizationDashboardUseCase', () => {
   it('throws when organization does not exist', async () => {
+    // Arrange
     const defaultWorkspaceService = createDefaultWorkspaceServiceMock();
     const organizationRepository = createOrganizationRepositoryMock({ findById: null });
     const memberRepository = createOrganizationMemberRepositoryMock();
@@ -23,6 +24,7 @@ describe('GetOrganizationDashboardUseCase', () => {
       workspaceGameManagement as never,
     );
 
+    // Act + Assert
     await expect(
       useCase.execute(backendTestIdentifiers.organization(1), backendTestIdentifiers.user(10)),
     ).rejects.toThrow(OrganizationErrorCode.ORGANIZATION_NOT_FOUND);
@@ -30,6 +32,7 @@ describe('GetOrganizationDashboardUseCase', () => {
   });
 
   it('throws when user is not a member', async () => {
+    // Arrange
     const defaultWorkspaceService = createDefaultWorkspaceServiceMock();
     const organizationRepository = createOrganizationRepositoryMock({
       findById: {
@@ -52,12 +55,14 @@ describe('GetOrganizationDashboardUseCase', () => {
       workspaceGameManagement as never,
     );
 
+    // Act + Assert
     await expect(
       useCase.execute(backendTestIdentifiers.organization(1), backendTestIdentifiers.user(10)),
     ).rejects.toThrow(OrganizationErrorCode.NOT_A_MEMBER);
   });
 
   it('returns aggregated stats', async () => {
+    // Arrange
     const defaultWorkspaceService = createDefaultWorkspaceServiceMock();
     const organizationRepository = createOrganizationRepositoryMock({
       findById: {
@@ -87,7 +92,9 @@ describe('GetOrganizationDashboardUseCase', () => {
       workspaceGameManagement as never,
     );
 
+    // Act
     const result = await useCase.execute(backendTestIdentifiers.organization(1), backendTestIdentifiers.user(10));
+    // Assert
     expect(result.stats).toEqual({
       totalGames: 4,
       totalParties: 8,

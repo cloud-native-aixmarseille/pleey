@@ -9,15 +9,18 @@ import { RegenerateUserAvatarUseCase } from './regenerate-user-avatar-use-case';
 
 describe('RegenerateUserAvatarUseCase', () => {
   it('throws USER_NOT_FOUND when user does not exist', async () => {
+    // Arrange
     const userRepository = createUserRepositoryMock({ findById: null });
     const userAvatarService = createUserAvatarServiceMock();
 
     const useCase = new RegenerateUserAvatarUseCase(userRepository, userAvatarService as never);
 
+    // Act + Assert
     await expect(useCase.execute(backendTestIdentifiers.user(1))).rejects.toThrow(IdentityErrorCode.USER_NOT_FOUND);
   });
 
   it('updates avatar svg and returns public profile', async () => {
+    // Arrange
     const createdAt = new Date();
     const user = createUserFixture({
       id: backendTestIdentifiers.user(1),
@@ -48,8 +51,10 @@ describe('RegenerateUserAvatarUseCase', () => {
     });
 
     const useCase = new RegenerateUserAvatarUseCase(userRepository, userAvatarService as never);
+    // Act
     const result = await useCase.execute(backendTestIdentifiers.user(1));
 
+    // Assert
     expect(userAvatarService.generateAvatar).toHaveBeenCalledTimes(1);
     expect(userRepository.updateProfile).toHaveBeenCalledWith(backendTestIdentifiers.user(1), {
       avatar,

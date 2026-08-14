@@ -50,13 +50,17 @@ describe('AccountMenu', () => {
     }
 
     it('renders the account menu trigger with the username', () => {
+      // Arrange + Act
       renderAccountMenu();
+      // Assert
       expect(screen.getByText('captain')).toBeInTheDocument();
     });
 
     it('renders the authenticated user avatar in the trigger', () => {
+      // Arrange + Act
       renderAccountMenu();
 
+      // Assert
       expect(screen.getByRole('img', { name: 'captain' })).toHaveAttribute(
         'src',
         `https://api.example.com/api/avatars/users/${coerceUuidV7TestValue(1)}?v=fingerprint`,
@@ -64,35 +68,49 @@ describe('AccountMenu', () => {
     });
 
     it('renders the account menu button with an accessible label', () => {
+      // Arrange + Act
       renderAccountMenu();
+      // Assert
       expect(screen.getByRole('button', { name: 'shared.shell.accountMenu' })).toBeInTheDocument();
     });
 
     it('opens a menu with profile and sign out options on click', async () => {
+      // Arrange
       renderAccountMenu();
+      // Act
       await userEvent.click(screen.getByRole('button', { name: 'shared.shell.accountMenu' }));
+      // Assert
       expect(screen.getByRole('menuitem', { name: 'shared.shell.profileLink' })).toBeInTheDocument();
       expect(screen.getByRole('menuitem', { name: 'shared.shell.signOutAction' })).toBeInTheDocument();
     });
 
     it('navigates to profile when profile menu item is clicked', async () => {
+      // Arrange
       renderAccountMenu();
       await userEvent.click(screen.getByRole('button', { name: 'shared.shell.accountMenu' }));
+      // Act
       await userEvent.click(screen.getByRole('menuitem', { name: 'shared.shell.profileLink' }));
+      // Assert
       expect(mocks.navigate).toHaveBeenCalledWith('/identity/profile');
     });
 
     it('calls signOut when sign out menu item is clicked', async () => {
+      // Arrange
       renderAccountMenu();
       await userEvent.click(screen.getByRole('button', { name: 'shared.shell.accountMenu' }));
+      // Act
       await userEvent.click(screen.getByRole('menuitem', { name: 'shared.shell.signOutAction' }));
+      // Assert
       expect(mocks.signOut).toHaveBeenCalled();
     });
 
     it('closes the opened menu when Escape is pressed', async () => {
+      // Arrange
       renderAccountMenu();
 
+      // Act
       await userEvent.click(screen.getByRole('button', { name: 'shared.shell.accountMenu' }));
+      // Assert
       expect(screen.getByRole('menu')).toBeInTheDocument();
 
       fireEvent.keyDown(document, { key: 'Escape' });
@@ -101,8 +119,10 @@ describe('AccountMenu', () => {
     });
 
     it('toggles the account menu when pressing the U shortcut', () => {
+      // Arrange + Act
       renderAccountMenu();
 
+      // Assert
       expect(screen.queryByRole('menu')).not.toBeInTheDocument();
 
       fireEvent.keyDown(document, { key: 'u' });

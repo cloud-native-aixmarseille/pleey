@@ -8,6 +8,7 @@ describe('PlayableManagementGraphqlMapper', () => {
   const playableManagementFixtureFactory = new PlayableManagementFixtureFactory();
 
   it('preserves the provided item kind without imposing a shared kind contract', () => {
+    // Arrange + Act + Assert
     expect(
       mapper.mapItem(
         playableManagementFixtureFactory.createItem({

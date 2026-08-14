@@ -1,5 +1,5 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { renderWithFormProvider } from '../../../../test-utils/render-with-form-provider';
 import { SignInScreen } from './sign-in-screen';
 
@@ -39,17 +39,25 @@ vi.mock('../../../shared/routing/router', async (importOriginal) => {
 });
 
 describe('SignInScreen', () => {
-  beforeEach(() => {
-    window.history.replaceState({}, '', '/identity/sign-in');
+  function arrangeSignInScreen(route = '/identity/sign-in') {
+    window.history.replaceState({}, '', route);
     mocks.signIn.mockReset();
     mocks.signOut.mockReset();
     mocks.navigate.mockReset();
-  });
+
+    renderWithFormProvider(<SignInScreen />);
+
+    return {
+      emailInput: screen.getByLabelText('auth.form.emailLabel *'),
+      passwordInput: screen.getByLabelText('auth.form.passwordLabel *'),
+      submitButton: screen.getByRole('button', { name: 'auth.signIn.submitCta' }),
+    };
+  }
 
   describe('render()', () => {
     it('renders the sign-in eyebrow i18n key', () => {
       // Arrange + Act
-      renderWithFormProvider(<SignInScreen />);
+      arrangeSignInScreen();
 
       // Assert
       expect(screen.getByText('auth.signIn.eyebrow')).toBeInTheDocument();
@@ -57,7 +65,7 @@ describe('SignInScreen', () => {
 
     it('renders the sign-in title heading', () => {
       // Arrange + Act
-      renderWithFormProvider(<SignInScreen />);
+      arrangeSignInScreen();
 
       // Assert
       expect(screen.getByRole('heading', { name: 'auth.signIn.title' })).toBeInTheDocument();
@@ -65,7 +73,7 @@ describe('SignInScreen', () => {
 
     it('renders the sign-in action button', () => {
       // Arrange + Act
-      renderWithFormProvider(<SignInScreen />);
+      arrangeSignInScreen();
 
       // Assert
       expect(screen.getByRole('button', { name: 'auth.signIn.submitCta' })).toBeInTheDocument();
@@ -73,10 +81,10 @@ describe('SignInScreen', () => {
 
     it('renders a field validation message after blurring an empty email field', async () => {
       // Arrange
-      renderWithFormProvider(<SignInScreen />);
+      const { emailInput } = arrangeSignInScreen();
 
       // Act
-      fireEvent.blur(screen.getByLabelText('auth.form.emailLabel *'));
+      fireEvent.blur(emailInput);
 
       // Assert
       expect(await screen.findByRole('alert')).toHaveTextContent('auth.form.validation.emailRequired');
@@ -84,18 +92,18 @@ describe('SignInScreen', () => {
 
     it('submits credentials and navigates to the dashboard on success', async () => {
       // Arrange
+      const { emailInput, passwordInput, submitButton } = arrangeSignInScreen();
       mocks.signIn.mockResolvedValue(undefined);
-      renderWithFormProvider(<SignInScreen />);
 
-      fireEvent.change(screen.getByLabelText('auth.form.emailLabel *'), {
+      fireEvent.change(emailInput, {
         target: { value: 'captain@pleey.io' },
       });
-      fireEvent.change(screen.getByLabelText('auth.form.passwordLabel *'), {
+      fireEvent.change(passwordInput, {
         target: { value: 'secret' },
       });
 
       // Act
-      fireEvent.submit(screen.getByRole('button', { name: 'auth.signIn.submitCta' }));
+      fireEvent.submit(submitButton);
 
       // Assert
       await waitFor(() => {
@@ -108,38 +116,46 @@ describe('SignInScreen', () => {
     });
 
     it('returns to the requested join route after successful sign-in', async () => {
+      // Arrange
+      const { emailInput, passwordInput, submitButton } = arrangeSignInScreen(
+        '/identity/sign-in?redirectTo=%2Fjoin%2FAB12CD',
+      );
       mocks.signIn.mockResolvedValue(undefined);
-      window.history.replaceState({}, '', '/identity/sign-in?redirectTo=%2Fjoin%2FAB12CD');
-      renderWithFormProvider(<SignInScreen />);
 
-      fireEvent.change(screen.getByLabelText('auth.form.emailLabel *'), {
+      fireEvent.change(emailInput, {
         target: { value: 'captain@pleey.io' },
       });
-      fireEvent.change(screen.getByLabelText('auth.form.passwordLabel *'), {
+      fireEvent.change(passwordInput, {
         target: { value: 'secret' },
       });
 
-      fireEvent.submit(screen.getByRole('button', { name: 'auth.signIn.submitCta' }));
+      // Act
+      fireEvent.submit(submitButton);
 
+      // Assert
       await waitFor(() => {
         expect(mocks.navigate).toHaveBeenCalledWith('/join/AB12CD');
       });
     });
 
     it('ignores unsafe redirect targets after successful sign-in', async () => {
+      // Arrange
+      const { emailInput, passwordInput, submitButton } = arrangeSignInScreen(
+        '/identity/sign-in?redirectTo=https%3A%2F%2Fevil.example%2Fphishing',
+      );
       mocks.signIn.mockResolvedValue(undefined);
-      window.history.replaceState({}, '', '/identity/sign-in?redirectTo=https%3A%2F%2Fevil.example%2Fphishing');
-      renderWithFormProvider(<SignInScreen />);
 
-      fireEvent.change(screen.getByLabelText('auth.form.emailLabel *'), {
+      fireEvent.change(emailInput, {
         target: { value: 'captain@pleey.io' },
       });
-      fireEvent.change(screen.getByLabelText('auth.form.passwordLabel *'), {
+      fireEvent.change(passwordInput, {
         target: { value: 'secret' },
       });
 
-      fireEvent.submit(screen.getByRole('button', { name: 'auth.signIn.submitCta' }));
+      // Act
+      fireEvent.submit(submitButton);
 
+      // Assert
       await waitFor(() => {
         expect(mocks.navigate).toHaveBeenCalledWith('/workspace/dashboard');
       });
@@ -147,18 +163,18 @@ describe('SignInScreen', () => {
 
     it('renders the translated generic fallback when sign-in fails without an Error instance', async () => {
       // Arrange
+      const { emailInput, passwordInput, submitButton } = arrangeSignInScreen();
       mocks.signIn.mockRejectedValue({ reason: 'unexpected' });
-      renderWithFormProvider(<SignInScreen />);
 
-      fireEvent.change(screen.getByLabelText('auth.form.emailLabel *'), {
+      fireEvent.change(emailInput, {
         target: { value: 'captain@pleey.io' },
       });
-      fireEvent.change(screen.getByLabelText('auth.form.passwordLabel *'), {
+      fireEvent.change(passwordInput, {
         target: { value: 'wrong' },
       });
 
       // Act
-      fireEvent.submit(screen.getByRole('button', { name: 'auth.signIn.submitCta' }));
+      fireEvent.submit(submitButton);
 
       // Assert
       expect(await screen.findByRole('alert')).toHaveTextContent('auth.errors.generic');
@@ -166,18 +182,18 @@ describe('SignInScreen', () => {
 
     it('renders backend-translated errors without passing them through i18n', async () => {
       // Arrange
+      const { emailInput, passwordInput, submitButton } = arrangeSignInScreen();
       mocks.signIn.mockRejectedValue(new Error('Invalid email or password.'));
-      renderWithFormProvider(<SignInScreen />);
 
-      fireEvent.change(screen.getByLabelText('auth.form.emailLabel *'), {
+      fireEvent.change(emailInput, {
         target: { value: 'captain@pleey.io' },
       });
-      fireEvent.change(screen.getByLabelText('auth.form.passwordLabel *'), {
+      fireEvent.change(passwordInput, {
         target: { value: 'wrong' },
       });
 
       // Act
-      fireEvent.submit(screen.getByRole('button', { name: 'auth.signIn.submitCta' }));
+      fireEvent.submit(submitButton);
 
       // Assert
       expect(await screen.findByRole('alert')).toHaveTextContent('Invalid email or password.');

@@ -177,21 +177,28 @@ describe('DashboardGamesSection', () => {
   }
 
   it('renders the pending state until a project is selected', () => {
+    // Arrange + Act
     renderDashboardGamesSection({ hasSelectedProject: false });
 
+    // Assert
     expect(screen.getByText('dashboard.games.pending')).toBeInTheDocument();
   });
 
   it('renders the empty state when the selected project has no games', () => {
+    // Arrange + Act
     renderDashboardGamesSection({ games: [], totalFiltered: 0, totalGames: 0 });
 
+    // Assert
     expect(screen.getByText('dashboard.games.empty')).toBeInTheDocument();
   });
 
   it('renders game cards and forwards manage actions for visible games', async () => {
+    // Arrange
     const user = userEvent.setup();
+    // Act
     const { onManageGame } = renderDashboardGamesSection();
 
+    // Assert
     expect(screen.getByTestId('game-list-filter-bar')).toHaveTextContent('1/1');
     expect(screen.getByTestId('pagination-bar')).toHaveTextContent('1/2:dashboard.games.pagination.pageOf');
 
@@ -210,6 +217,7 @@ describe('DashboardGamesSection', () => {
   });
 
   it('forwards create-party actions for visible games', async () => {
+    // Arrange
     const user = userEvent.setup();
     const { onCreateParty } = renderDashboardGamesSection();
 
@@ -221,8 +229,10 @@ describe('DashboardGamesSection', () => {
       }),
     );
     await user.type(within(dialog).getByLabelText('dashboard.games.createParty.privatePasswordLabel'), 'secret42');
+    // Act
     await user.click(within(dialog).getByRole('button', { name: 'dashboard.games.actions.createParty' }));
 
+    // Assert
     expect(onCreateParty).toHaveBeenCalledWith(
       gameFixtureFactory.createDashboardGame({
         gameId: 1,
@@ -239,6 +249,7 @@ describe('DashboardGamesSection', () => {
   });
 
   it('generates and copies a private party password from the create-party dialog', async () => {
+    // Arrange
     const user = userEvent.setup();
     const clipboardWriteText = vi.fn().mockResolvedValue(undefined);
 
@@ -265,9 +276,11 @@ describe('DashboardGamesSection', () => {
     });
     await user.click(generateButton);
 
+    // Act
     const passwordInput = within(dialog).getByLabelText(
       'dashboard.games.createParty.privatePasswordLabel',
     ) as HTMLInputElement;
+    // Assert
     expect(passwordInput.value.length).toBeGreaterThanOrEqual(6);
 
     await user.click(
@@ -287,6 +300,7 @@ describe('DashboardGamesSection', () => {
   });
 
   it('disables create-party actions when the game is not eligible', () => {
+    // Arrange + Act
     renderDashboardGamesSection({
       games: [
         gameFixtureFactory.createBlockedDashboardGame({
@@ -306,17 +320,21 @@ describe('DashboardGamesSection', () => {
       ],
     });
 
+    // Assert
     expect(screen.getByRole('button', { name: 'create:Arcade Quiz:false' })).toBeDisabled();
   });
 
   it('opens the create-game dialog and forwards form changes', async () => {
+    // Arrange
     const user = userEvent.setup();
     const { onCreateGameFormChange, onOpenCreateGameDialog } = renderDashboardGamesSection({
       isCreateGameDialogOpen: true,
     });
 
+    // Act
     await user.click(screen.getByRole('button', { name: 'dashboard.games.actions.createGame' }));
 
+    // Assert
     expect(onOpenCreateGameDialog).toHaveBeenCalledTimes(1);
     const dialog = await screen.findByRole('dialog');
     const textboxes = within(dialog).getAllByRole('textbox');
@@ -329,26 +347,33 @@ describe('DashboardGamesSection', () => {
   });
 
   it('submits the create-game dialog', async () => {
+    // Arrange
     const user = userEvent.setup();
     const { onCreateGame } = renderDashboardGamesSection({
       isCreateGameDialogOpen: true,
     });
 
+    // Act
     await user.click(screen.getByRole('button', { name: 'dashboard.games.create.submit' }));
 
+    // Assert
     expect(onCreateGame).toHaveBeenCalledTimes(1);
   });
 
   it('opens the import-game dialog from the import action', async () => {
+    // Arrange
     const user = userEvent.setup();
     const { onOpenImportGameDialog } = renderDashboardGamesSection();
 
+    // Act
     await user.click(screen.getByRole('button', { name: 'dashboard.games.actions.importGame' }));
 
+    // Assert
     expect(onOpenImportGameDialog).toHaveBeenCalledTimes(1);
   });
 
   it('submits the import-game dialog once a file is selected', async () => {
+    // Arrange
     const user = userEvent.setup();
     const { onImportGame } = renderDashboardGamesSection({
       isImportGameDialogOpen: true,
@@ -356,8 +381,10 @@ describe('DashboardGamesSection', () => {
       importGameFile: new File(['content'], 'questions.csv', { type: 'text/csv' }),
     });
 
+    // Act
     await user.click(screen.getByRole('button', { name: 'dashboard.games.import.submit' }));
 
+    // Assert
     expect(onImportGame).toHaveBeenCalledTimes(1);
   });
 });

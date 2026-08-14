@@ -25,6 +25,7 @@ const createContainer = (): HTMLElement => {
 
 describe('LemmingsPatienceEngine', () => {
   it('starts a legacy-style idle once a walker reaches its scheduled idle time', () => {
+    // Arrange
     const engine = new LemmingsPatienceEngine(1, {
       computeSegments: () => segments,
     } as never);
@@ -41,14 +42,17 @@ describe('LemmingsPatienceEngine', () => {
     lemming.speedPxPerSecond = 0;
     lemming.nextIdleAtMs = 1_000;
 
+    // Act
     const snapshots = engine.step(0, 1_000, container);
 
+    // Assert
     expect(snapshots).toHaveLength(1);
     expect(snapshots[0]?.mode).toBe('idle');
     expect(snapshots[0]?.idleVariant).not.toBeNull();
   });
 
   it('starts a greeting when two walkers meet on the same segment moving toward each other', () => {
+    // Arrange
     const engine = new LemmingsPatienceEngine(2, {
       computeSegments: () => segments,
     } as never);
@@ -81,8 +85,10 @@ describe('LemmingsPatienceEngine', () => {
     second.speedPxPerSecond = 0;
     second.nextIdleAtMs = 99_000;
 
+    // Act
     const snapshots = engine.step(0, 2_000, container);
 
+    // Assert
     expect(snapshots).toHaveLength(2);
     expect(snapshots[0]?.greetingVariant).not.toBeNull();
     expect(snapshots[1]?.greetingVariant).toBe(snapshots[0]?.greetingVariant ?? null);

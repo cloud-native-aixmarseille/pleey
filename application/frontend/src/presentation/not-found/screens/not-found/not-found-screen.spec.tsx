@@ -13,34 +13,48 @@ vi.mock('../../../shared/i18n/use-presentation-translation', async (importOrigin
 
 describe('NotFoundScreen', () => {
   it('renders the 404 code', () => {
+    // Arrange + Act
     renderWithProviders(<NotFoundScreen />);
+    // Assert
     expect(screen.getByText('notFound.code')).toBeInTheDocument();
   });
 
   it('renders the not-found title heading', () => {
+    // Arrange + Act
     renderWithProviders(<NotFoundScreen />);
+    // Assert
     expect(screen.getByRole('heading', { name: 'notFound.title' })).toBeInTheDocument();
   });
 
   it('renders the description text', () => {
+    // Arrange + Act
     renderWithProviders(<NotFoundScreen />);
+    // Assert
     expect(screen.getByText('notFound.description')).toBeInTheDocument();
   });
 
   it('renders a recovery navigation area', () => {
+    // Arrange + Act
     renderWithProviders(<NotFoundScreen />);
+    // Assert
     expect(screen.getByRole('navigation', { name: 'notFound.title' })).toBeInTheDocument();
   });
 
   it('renders a home CTA link', () => {
+    // Arrange
     renderWithProviders(<NotFoundScreen />);
+    // Act
     const link = screen.getByRole('link', { name: 'notFound.homeCta' });
+    // Assert
     expect(link).toHaveAttribute('href', '/');
   });
 
   it('renders a dashboard CTA link', () => {
+    // Arrange
     renderWithProviders(<NotFoundScreen />);
+    // Act
     const link = screen.getByRole('link', { name: 'notFound.dashboardCta' });
+    // Assert
     expect(link).toHaveAttribute('href', '/workspace/dashboard');
   });
 });

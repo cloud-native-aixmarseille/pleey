@@ -10,6 +10,7 @@ const guestIdentifier = new GuestIdentifierMockFactory().create();
 
 describe('PersistedPartyGuestSessionAdapter', () => {
   it('stores and restores a guest id per party pin', () => {
+    // Arrange
     const adapter = new PersistedPartyGuestSessionAdapter(
       guestIdentifier,
       partyPinIdentifier,
@@ -18,12 +19,15 @@ describe('PersistedPartyGuestSessionAdapter', () => {
     const pin = partyPinIdentifier.parse('ab12cd');
     const guestId = guestIdentifier.parse('guest-42');
 
+    // Act
     adapter.setGuestId(pin, guestId);
 
+    // Assert
     expect(adapter.getGuestId(pin)).toBe(guestId);
   });
 
   it('clears the persisted guest id for a party pin', () => {
+    // Arrange
     const adapter = new PersistedPartyGuestSessionAdapter(
       guestIdentifier,
       partyPinIdentifier,
@@ -33,8 +37,10 @@ describe('PersistedPartyGuestSessionAdapter', () => {
     const guestId = guestIdentifier.parse('guest-42');
 
     adapter.setGuestId(pin, guestId);
+    // Act
     adapter.clearGuestId(pin);
 
+    // Assert
     expect(adapter.getGuestId(pin)).toBeNull();
   });
 });

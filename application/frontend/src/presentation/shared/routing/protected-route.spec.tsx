@@ -24,17 +24,20 @@ function renderProtectedRoute(authValue: AuthContextValue) {
 
 describe('ProtectedRoute', () => {
   it('does not render protected content before session restoration completes', () => {
+    // Arrange + Act
     renderProtectedRoute(
       authContextMockFactory.createValue({
         hasRestoredSession: false,
       }),
     );
 
+    // Assert
     expect(screen.queryByText('dashboard-content')).not.toBeInTheDocument();
     expect(screen.queryByTestId('navigate-/identity/sign-in')).not.toBeInTheDocument();
   });
 
   it('renders protected content for authenticated users', () => {
+    // Arrange + Act
     renderProtectedRoute(
       authContextMockFactory.createAuthenticatedValue({
         user: authFixtureFactory.createUser({
@@ -45,12 +48,15 @@ describe('ProtectedRoute', () => {
       }),
     );
 
+    // Assert
     expect(screen.getByText('dashboard-content')).toBeInTheDocument();
   });
 
   it('redirects unauthenticated users to the sign-in route after restoration', () => {
+    // Arrange + Act
     renderProtectedRoute(authContextMockFactory.createValue());
 
+    // Assert
     expect(screen.getByTestId('navigate-/identity/sign-in')).toBeInTheDocument();
   });
 });

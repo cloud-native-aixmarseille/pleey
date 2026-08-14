@@ -6,19 +6,23 @@ import { MantineUiAdapter } from './mantine-ui.adapter';
 describe('MantineUiAdapter', () => {
   describe('createPort()', () => {
     it('returns a provider that renders children', () => {
+      // Arrange
       const adapter = new MantineUiAdapter({});
       const port = adapter.createPort();
 
+      // Act
       render(
         <port.Provider>
           <span data-testid="child">child</span>
         </port.Provider>,
       );
 
+      // Assert
       expect(screen.getByTestId('child')).toBeInTheDocument();
     });
 
     it('exposes theme and color scheme state and allows switching both', () => {
+      // Arrange
       const adapter = new MantineUiAdapter();
       const port = adapter.createPort();
 
@@ -50,12 +54,14 @@ describe('MantineUiAdapter', () => {
         );
       }
 
+      // Act
       render(
         <port.Provider>
           <ThemeConsumer />
         </port.Provider>,
       );
 
+      // Assert
       expect(screen.getByTestId('active-color-scheme')).toHaveTextContent('dark');
       expect(screen.getByTestId('active-theme-id')).toHaveTextContent('cyber-arcade');
       expect(screen.getByTestId('active-theme-name')).toHaveTextContent('Cyber Arcade');
@@ -73,6 +79,7 @@ describe('MantineUiAdapter', () => {
     });
 
     it('applies the active color scheme to runtime theme attributes', () => {
+      // Arrange
       const adapter = new MantineUiAdapter({ defaultColorScheme: 'light' });
       const port = adapter.createPort();
 
@@ -82,8 +89,10 @@ describe('MantineUiAdapter', () => {
         </port.Provider>,
       );
 
+      // Act
       const themedRoot = screen.getByTestId('child').parentElement;
 
+      // Assert
       expect(themedRoot).toHaveAttribute('data-ui-color-scheme', 'light');
       expect(themedRoot).toHaveAttribute('data-ui-theme', 'cyber-arcade');
       expect(themedRoot).toHaveStyle({ '--ui-color-surface-canvas': '#fff8fc' });

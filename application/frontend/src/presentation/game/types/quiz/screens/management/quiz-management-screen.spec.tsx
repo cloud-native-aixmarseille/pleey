@@ -36,10 +36,13 @@ vi.mock('../../../shared/management/playable-content-management-screen', () => (
 
 describe('QuizManagementScreen', () => {
   it('renders the shared editor for a valid quiz id', () => {
+    // Arrange
     routeParams.current = { quizId: '9' };
 
+    // Act
     render(<QuizManagementScreen gameTypeIdentifier={gameTypeIdentifier} gateway={{} as never} />);
 
+    // Assert
     expect(screen.getByTestId('editor')).toHaveAttribute('data-game-type-id', quizId);
     expect(screen.getByTestId('editor')).toHaveAttribute('data-has-kind-config', 'true');
     expect(screen.getByTestId('editor')).toHaveAttribute('data-item-kind-default', 'multiple');
@@ -47,10 +50,13 @@ describe('QuizManagementScreen', () => {
   });
 
   it('redirects when the quiz id is invalid', () => {
+    // Arrange
     routeParams.current = { quizId: 'invalid' };
 
+    // Act
     render(<QuizManagementScreen gameTypeIdentifier={gameTypeIdentifier} gateway={{} as never} />);
 
+    // Assert
     expect(screen.getByTestId('redirect')).toHaveTextContent('/workspace/dashboard');
   });
 });

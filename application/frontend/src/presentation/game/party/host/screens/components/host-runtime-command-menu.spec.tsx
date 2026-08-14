@@ -36,6 +36,7 @@ function renderHostRuntimeCommandMenu(props: Parameters<typeof HostRuntimeComman
 
 describe('HostRuntimeCommandMenu', () => {
   it('opens the discrete menu and routes a click to the matching runtime handler', async () => {
+    // Arrange
     const onAdvanceStage = vi.fn();
 
     renderHostRuntimeCommandMenu({
@@ -68,8 +69,10 @@ describe('HostRuntimeCommandMenu', () => {
       name: 'game.party.host.route.advanceStageCta',
     });
     const dropdownId = trigger.getAttribute('aria-controls');
+    // Act
     const dropdown = dropdownId ? document.getElementById(dropdownId) : null;
 
+    // Assert
     expect(dropdown).not.toBeNull();
 
     expect(dropdown).toHaveAttribute(
@@ -85,6 +88,7 @@ describe('HostRuntimeCommandMenu', () => {
   });
 
   it('disables every menu item while a host command is pending', async () => {
+    // Arrange
     renderHostRuntimeCommandMenu({
       controls: {
         canAdvanceStage: true,
@@ -108,8 +112,10 @@ describe('HostRuntimeCommandMenu', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /runtimeMenuTrigger/ }));
 
+    // Act
     const items = await screen.findAllByRole('menuitem');
 
+    // Assert
     expect(items.length).toBeGreaterThan(0);
     for (const item of items) {
       expect(item).toHaveAttribute('data-disabled');
@@ -117,6 +123,7 @@ describe('HostRuntimeCommandMenu', () => {
   });
 
   it('rebuilds the mounted menu items when the pending command clears', async () => {
+    // Arrange
     const view = renderHostRuntimeCommandMenu({
       controls: {
         canAdvanceStage: false,
@@ -138,8 +145,10 @@ describe('HostRuntimeCommandMenu', () => {
       pendingCommand: HostPartyRuntimeCommand.RestartStage,
     });
 
+    // Act
     fireEvent.click(screen.getByRole('button', { name: /runtimeMenuTrigger/ }));
 
+    // Assert
     expect(await screen.findByRole('menuitem', { name: 'game.party.host.route.restartStageCta' })).toHaveAttribute(
       'data-disabled',
     );
@@ -184,6 +193,7 @@ describe('HostRuntimeCommandMenu', () => {
   });
 
   it('routes the end-party item to the request handler so the surface can show its confirmation', async () => {
+    // Arrange
     const onRequestEndParty = vi.fn();
 
     renderHostRuntimeCommandMenu({
@@ -209,12 +219,15 @@ describe('HostRuntimeCommandMenu', () => {
     });
 
     fireEvent.click(screen.getByRole('button', { name: /runtimeMenuTrigger/ }));
+    // Act
     fireEvent.click(await screen.findByRole('menuitem', { name: 'game.party.host.route.endPartyCta' }));
 
+    // Assert
     expect(onRequestEndParty).toHaveBeenCalledTimes(1);
   });
 
   it('does not expose the final leaderboard action from the runtime menu on the last result screen', async () => {
+    // Arrange
     renderHostRuntimeCommandMenu({
       controls: {
         canAdvanceStage: true,
@@ -236,8 +249,10 @@ describe('HostRuntimeCommandMenu', () => {
       pendingCommand: null,
     });
 
+    // Act
     fireEvent.click(screen.getByRole('button', { name: /runtimeMenuTrigger/ }));
 
+    // Assert
     expect(
       screen.queryByRole('menuitem', { name: 'game.party.host.route.showFinalLeaderboardCta' }),
     ).not.toBeInTheDocument();
@@ -245,6 +260,7 @@ describe('HostRuntimeCommandMenu', () => {
   });
 
   it('renders the party music selector inside the host commands menu', async () => {
+    // Arrange
     renderHostRuntimeCommandMenu({
       controls: {
         canAdvanceStage: true,
@@ -266,12 +282,15 @@ describe('HostRuntimeCommandMenu', () => {
       pendingCommand: null,
     });
 
+    // Act
     fireEvent.click(screen.getByRole('button', { name: /runtimeMenuTrigger/ }));
+    // Assert
     expect(await screen.findByText('game.party.host.route.musicPanelTitle')).toBeInTheDocument();
     expect(screen.getByTestId('host-party-music-theme-select')).toBeInTheDocument();
   });
 
   it('keeps the party music player mounted when the host closes the menu', async () => {
+    // Arrange
     renderHostRuntimeCommandMenu({
       controls: {
         canAdvanceStage: true,
@@ -299,13 +318,16 @@ describe('HostRuntimeCommandMenu', () => {
     const audioElement = await screen.findByTestId('host-party-music-audio');
     const themeSelect = screen.getByTestId('host-party-music-theme-select');
 
+    // Act
     fireEvent.click(trigger);
 
+    // Assert
     expect(screen.getByTestId('host-party-music-audio')).toBe(audioElement);
     expect(screen.getByTestId('host-party-music-theme-select')).toBe(themeSelect);
   });
 
   it('routes safe host shortcuts to the matching handlers when enabled', () => {
+    // Arrange
     const onAdvanceStage = vi.fn();
     const onRevealStageResult = vi.fn();
     const onPauseParty = vi.fn();
@@ -336,14 +358,17 @@ describe('HostRuntimeCommandMenu', () => {
 
     fireEvent.keyDown(document, { key: 'n' });
     fireEvent.keyDown(document, { key: 'r' });
+    // Act
     fireEvent.keyDown(document, { key: 'p' });
 
+    // Assert
     expect(onAdvanceStage).toHaveBeenCalledTimes(1);
     expect(onRevealStageResult).toHaveBeenCalledTimes(1);
     expect(onPauseParty).toHaveBeenCalledTimes(1);
   });
 
   it('routes modifier-based high-impact shortcuts to the matching handlers when enabled', () => {
+    // Arrange
     const onRequestEndParty = vi.fn();
     const onRestartStage = vi.fn();
     const onRewindParty = vi.fn();
@@ -377,8 +402,10 @@ describe('HostRuntimeCommandMenu', () => {
     fireEvent.keyDown(document, { key: 'B', shiftKey: true });
     fireEvent.keyDown(document, { key: 'R', shiftKey: true });
     fireEvent.keyDown(document, { key: 'L', shiftKey: true });
+    // Act
     fireEvent.keyDown(document, { key: 'E', shiftKey: true });
 
+    // Assert
     expect(onRewindStage).toHaveBeenCalledTimes(1);
     expect(onRestartStage).toHaveBeenCalledTimes(1);
     expect(onRewindParty).toHaveBeenCalledTimes(1);
@@ -386,6 +413,7 @@ describe('HostRuntimeCommandMenu', () => {
   });
 
   it('does not route high-impact actions from unmodified keys', () => {
+    // Arrange
     const onRequestEndParty = vi.fn();
     const onRestartStage = vi.fn();
     const onRewindParty = vi.fn();
@@ -419,8 +447,10 @@ describe('HostRuntimeCommandMenu', () => {
     fireEvent.keyDown(document, { key: 'b' });
     fireEvent.keyDown(document, { key: 'r' });
     fireEvent.keyDown(document, { key: 'l' });
+    // Act
     fireEvent.keyDown(document, { key: 'e' });
 
+    // Assert
     expect(onRewindStage).not.toHaveBeenCalled();
     expect(onRestartStage).not.toHaveBeenCalled();
     expect(onRewindParty).not.toHaveBeenCalled();
@@ -428,6 +458,7 @@ describe('HostRuntimeCommandMenu', () => {
   });
 
   it('does not route host shortcuts while a command is pending', () => {
+    // Arrange
     const onAdvanceStage = vi.fn();
     const onRevealStageResult = vi.fn();
     const onPauseParty = vi.fn();
@@ -462,8 +493,10 @@ describe('HostRuntimeCommandMenu', () => {
     fireEvent.keyDown(document, { key: 'B', shiftKey: true });
     fireEvent.keyDown(document, { key: 'R', shiftKey: true });
     fireEvent.keyDown(document, { key: 'L', shiftKey: true });
+    // Act
     fireEvent.keyDown(document, { key: 'E', shiftKey: true });
 
+    // Assert
     expect(onAdvanceStage).not.toHaveBeenCalled();
     expect(onRevealStageResult).not.toHaveBeenCalled();
     expect(onPauseParty).not.toHaveBeenCalled();

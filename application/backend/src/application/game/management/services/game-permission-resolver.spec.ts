@@ -17,6 +17,7 @@ describe('GamePermissionResolver', () => {
   const resolver = new GamePermissionResolver(partyManagement as never, partyStageConfiguration);
 
   it('allows party creation with no conflicts', async () => {
+    // Arrange + Act + Assert
     await expect(
       resolver.resolveGamePermissions({
         items: [{ gameId: backendTestIdentifiers.game(17), stageCount: 4 }],
@@ -42,6 +43,7 @@ describe('GamePermissionResolver', () => {
   });
 
   it('disables other listed games when the host already owns an active party for one listed game', async () => {
+    // Arrange
     const resolver = new GamePermissionResolver(
       {
         findActivePartyByGameId: async (gameId: GameId) =>
@@ -63,6 +65,7 @@ describe('GamePermissionResolver', () => {
       partyStageConfiguration,
     );
 
+    // Act + Assert
     await expect(
       resolver.resolveGamePermissions({
         items: [
@@ -104,6 +107,7 @@ describe('GamePermissionResolver', () => {
   });
 
   it('disables party creation when the game has no configured stages', async () => {
+    // Arrange + Act + Assert
     await expect(
       resolver.resolveGamePermissions({
         items: [{ gameId: backendTestIdentifiers.game(17), stageCount: 0 }],
@@ -129,6 +133,7 @@ describe('GamePermissionResolver', () => {
   });
 
   it('assertCanCreateParty throws when another active party already exists for the game', async () => {
+    // Arrange
     const resolver = new GamePermissionResolver(
       {
         findActivePartyByGameId: async () => ({
@@ -140,6 +145,7 @@ describe('GamePermissionResolver', () => {
       partyStageConfiguration,
     );
 
+    // Act + Assert
     await expect(
       resolver.assertCanCreateParty({
         gameId: backendTestIdentifiers.game(17),
@@ -149,6 +155,7 @@ describe('GamePermissionResolver', () => {
   });
 
   it('assertCanCreateParty throws when the same host already owns an active party for the game', async () => {
+    // Arrange
     const resolver = new GamePermissionResolver(
       {
         findActivePartyByGameId: async () => ({
@@ -160,6 +167,7 @@ describe('GamePermissionResolver', () => {
       partyStageConfiguration,
     );
 
+    // Act + Assert
     await expect(
       resolver.assertCanCreateParty({
         gameId: backendTestIdentifiers.game(17),
@@ -169,6 +177,7 @@ describe('GamePermissionResolver', () => {
   });
 
   it('assertCanCreateParty throws when the host already owns another active party', async () => {
+    // Arrange
     const resolver = new GamePermissionResolver(
       {
         findActivePartyByGameId: async () => null,
@@ -177,6 +186,7 @@ describe('GamePermissionResolver', () => {
       partyStageConfiguration,
     );
 
+    // Act + Assert
     await expect(
       resolver.assertCanCreateParty({
         gameId: backendTestIdentifiers.game(17),
@@ -186,10 +196,12 @@ describe('GamePermissionResolver', () => {
   });
 
   it('assertCanCreateParty throws when the game has no configured stages', async () => {
+    // Arrange
     const resolver = new GamePermissionResolver(partyManagement as never, {
       getStageCount: async () => 0,
     } satisfies PartyStageConfigurationPort);
 
+    // Act + Assert
     await expect(
       resolver.assertCanCreateParty({
         gameId: backendTestIdentifiers.game(17),

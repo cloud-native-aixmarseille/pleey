@@ -3,6 +3,7 @@ import { compactAnswerTextStyle, compactCenteredHeaderStyle } from './playable-c
 
 describe('playable choice result action tile mobile styles', () => {
   it('clamps compact mobile answer text to two lines with ellipsis', () => {
+    // Arrange + Act + Assert
     expect(compactAnswerTextStyle).toMatchObject({
       WebkitBoxOrient: 'vertical',
       WebkitLineClamp: 2,
@@ -13,6 +14,7 @@ describe('playable choice result action tile mobile styles', () => {
   });
 
   it('allows the centered mobile header to shrink inside the tile width', () => {
+    // Arrange + Act + Assert
     expect(compactCenteredHeaderStyle).toMatchObject({
       minWidth: 0,
       width: '100%',

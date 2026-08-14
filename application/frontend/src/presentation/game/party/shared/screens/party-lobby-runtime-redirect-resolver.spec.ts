@@ -33,6 +33,7 @@ function createTransitionalRuntimeContext(
 
 describe('PartyLobbyRuntimeRedirectResolver', () => {
   it('redirects paused hosts back to the stage route when stale result data survives a rewind', () => {
+    // Arrange
     const party = partyFixtureFactory.createPartyObservation({
       context: createTransitionalRuntimeContext({
         lifecycle: {
@@ -59,6 +60,7 @@ describe('PartyLobbyRuntimeRedirectResolver', () => {
       status: PartyStatus.PAUSED,
     });
 
+    // Act
     const redirectTo = resolver.resolve({
       party,
       requestedStageId: toStageId(2),
@@ -69,10 +71,12 @@ describe('PartyLobbyRuntimeRedirectResolver', () => {
       screenSection: PartyScreenSection.RESULT,
     });
 
+    // Assert
     expect(redirectTo).toBe(`/party/${party.partyId}/stage/${toStageId(2)}`);
   });
 
   it('redirects waiting hosts back to the lobby when stale result data survives a party rewind', () => {
+    // Arrange
     const party = partyFixtureFactory.createPartyObservation({
       context: createTransitionalRuntimeContext({
         lifecycle: {
@@ -88,6 +92,7 @@ describe('PartyLobbyRuntimeRedirectResolver', () => {
       status: PartyStatus.WAITING,
     });
 
+    // Act
     const redirectTo = resolver.resolve({
       party,
       requestedStageId: toStageId(2),
@@ -98,10 +103,12 @@ describe('PartyLobbyRuntimeRedirectResolver', () => {
       screenSection: PartyScreenSection.RESULT,
     });
 
+    // Assert
     expect(redirectTo).toBe(`/party/${party.partyId}/lobby`);
   });
 
   it('keeps valid result routes stable when the lifecycle is still in the result phase', () => {
+    // Arrange
     const party = partyFixtureFactory.createPartyObservation({
       context: {
         lifecycle: {
@@ -124,6 +131,7 @@ describe('PartyLobbyRuntimeRedirectResolver', () => {
       status: PartyStatus.PAUSED,
     });
 
+    // Act
     const redirectTo = resolver.resolve({
       party,
       requestedStageId: toStageId(2),
@@ -134,6 +142,7 @@ describe('PartyLobbyRuntimeRedirectResolver', () => {
       screenSection: PartyScreenSection.RESULT,
     });
 
+    // Assert
     expect(redirectTo).toBeNull();
   });
 });

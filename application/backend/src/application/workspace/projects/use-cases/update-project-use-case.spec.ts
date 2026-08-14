@@ -12,17 +12,20 @@ const actorUserId = backendTestIdentifiers.user(22);
 
 describe('UpdateProjectUseCase', () => {
   it('throws PROJECT_NOT_FOUND when the project does not exist', async () => {
+    // Arrange
     const projectRepository = createProjectRepositoryMock({ findById: null });
     const memberRepository = createOrganizationMemberRepositoryMock();
 
     const useCase = new UpdateProjectUseCase(projectRepository as never, memberRepository as never);
 
+    // Act + Assert
     await expect(
       useCase.execute(projectId, { name: 'Updated project' } satisfies UpdateProjectDto, actorUserId),
     ).rejects.toThrow(ProjectErrorCode.PROJECT_NOT_FOUND);
   });
 
   it('throws NOT_A_MEMBER when the user is outside the organization', async () => {
+    // Arrange
     const projectRepository = createProjectRepositoryMock({
       findById: {
         id: projectId,
@@ -35,12 +38,14 @@ describe('UpdateProjectUseCase', () => {
 
     const useCase = new UpdateProjectUseCase(projectRepository as never, memberRepository as never);
 
+    // Act + Assert
     await expect(
       useCase.execute(projectId, { name: 'Updated project' } satisfies UpdateProjectDto, actorUserId),
     ).rejects.toThrow(OrganizationErrorCode.NOT_A_MEMBER);
   });
 
   it('throws INSUFFICIENT_PERMISSIONS when the user cannot manage projects', async () => {
+    // Arrange
     const projectRepository = createProjectRepositoryMock({
       findById: {
         id: projectId,
@@ -55,12 +60,14 @@ describe('UpdateProjectUseCase', () => {
 
     const useCase = new UpdateProjectUseCase(projectRepository as never, memberRepository as never);
 
+    // Act + Assert
     await expect(
       useCase.execute(projectId, { name: 'Updated project' } satisfies UpdateProjectDto, actorUserId),
     ).rejects.toThrow(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
   });
 
   it('updates the project when the user has management rights', async () => {
+    // Arrange
     const updatedProject = {
       id: projectId,
       name: 'Updated project',
@@ -82,12 +89,14 @@ describe('UpdateProjectUseCase', () => {
 
     const useCase = new UpdateProjectUseCase(projectRepository as never, memberRepository as never);
 
+    // Act
     const result = await useCase.execute(
       projectId,
       { name: 'Updated project', description: 'Refined scope' } satisfies UpdateProjectDto,
       actorUserId,
     );
 
+    // Assert
     expect(projectRepository.update).toHaveBeenCalledWith(projectId, 'Updated project', 'Refined scope');
     expect(result).toBe(updatedProject);
   });

@@ -6,8 +6,10 @@ import { GameTypePartyStageConfigurationProviderRegistry } from './game-type-par
 
 describe('GameTypePartyStageConfigurationProviderRegistry', () => {
   it('resolves stage configuration providers using game-type value objects', () => {
+    // Arrange
     const quizProvider = {} as GameTypePartyStageConfigurationProvider;
     const predictionProvider = {} as GameTypePartyStageConfigurationProvider;
+    // Act
     const registry = new GameTypePartyStageConfigurationProviderRegistry([
       {
         gameType: GameType.Prediction,
@@ -19,11 +21,13 @@ describe('GameTypePartyStageConfigurationProviderRegistry', () => {
       },
     ]);
 
+    // Assert
     expect(registry.resolveByGameType(GameType.Prediction)).toBe(predictionProvider);
     expect(registry.resolveByGameType(GameType.Quiz)).toBe(quizProvider);
   });
 
   it('rejects duplicate game-type bindings', () => {
+    // Arrange + Act + Assert
     expect(
       () =>
         new GameTypePartyStageConfigurationProviderRegistry([
