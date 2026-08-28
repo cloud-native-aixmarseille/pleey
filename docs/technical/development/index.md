@@ -117,11 +117,22 @@ Process-startup, config, and tooling code outside the runtime application layers
 
 Enforced by Biome `noRestrictedImports` in each app's `biome.json`. Violations fail CI. See [architecture](../architecture/) for the conceptual rules.
 
+## Architecture Decision Records
+
+Every architecture, technology, or design choice must start with an ADR before implementation starts.
+
+- Create the ADR first under [docs/technical/architecture/adr/](../architecture/adr/index.md).
+- Use the repository template at [docs/technical/architecture/adr/template.md](../architecture/adr/template.md).
+- Name ADR files with a zero-padded sequence and kebab-case title, for example `0001-example-decision.md`.
+- Start with `Status: Proposed`, then update the ADR as the decision is accepted, rejected, or superseded.
+- Do not use free-form proposal docs for these decisions when an ADR is required.
+
 ## PR Process
 
 1. Branch from `main`: `git checkout -b feat/my-feature`
-2. Make changes, add tests, update translations
-3. `make ci` (lint + test)
-4. Commit with conventional commit message
-5. Push and open PR
-6. PRs blocked if translations or error enum mappings are missing
+2. For architecture, technology, or design changes, add or update the ADR first
+3. Make changes, add tests, update translations
+4. `make ci` (lint + test)
+5. Commit with conventional commit message
+6. Push and open PR
+7. PRs blocked if translations or error enum mappings are missing

@@ -4,6 +4,8 @@
 
 Pleey is a real-time interactive game platform (quiz, prediction) with a host/player model. The stack is a monorepo with two applications (`application/backend`, `application/frontend`), shared tooling (`scripts/`), end-to-end tests (`e2e/`), and Helm charts (`charts/`).
 
+All architecture, technology, and design choices must start with an ADR. See [ADR Index](./adr/index.md) before proposing or implementing any structural change.
+
 Both apps follow **Clean Architecture** with strict dependency rules enforced at lint time via Biome `noRestrictedImports` and shared GritQL plugins.
 
 ### Dependency Rule
@@ -56,6 +58,13 @@ Domain/application layers throw plain `Error(errorCode)` using enum error codes.
 Biome `noRestrictedImports` overrides, app-local GritQL plugins under `application/backend/biome/plugins/` and `application/frontend/biome/plugins/`, plus targeted custom scripts:
 
 - `scripts/check-naming.mjs` — enforces naming conventions for exports
+
+## Architecture Decision Records
+
+Architecture Decision Records are mandatory for architecture, technology, and design choices.
+
+- ADR workflow and registry: [ADR Index](./adr/index.md)
+- ADR authoring template: [ADR Template](./adr/template.md)
 
 ### Tech Stack Summary
 
