@@ -5,8 +5,8 @@ import type {
   GuestPartyPlayerIdentity,
   PartyPlayerIdentity,
 } from '../../../../../domain/game/party/player/entities/party-player-identity';
-import type { GameSettings } from '../../../../../domain/game/party/shared/entities/game-settings';
 import type { PartyId, PartyPin } from '../../../../../domain/game/party/shared/entities/party';
+import type { PartySettings } from '../../../../../domain/game/party/shared/entities/party-settings';
 import type { GuestId } from '../../../../../domain/identity/entities/guest';
 import type { UserId } from '../../../../../domain/identity/entities/user';
 
@@ -23,7 +23,7 @@ export interface PartyJoinTarget {
   readonly hostUserId: UserId;
   readonly privatePartyPasswordHash: string | null;
   readonly pin: PartyPin;
-  readonly settings: GameSettings;
+  readonly settings: PartySettings;
   readonly status: PartyStatus;
 }
 

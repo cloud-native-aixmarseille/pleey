@@ -1,20 +1,55 @@
 import { Injectable } from '@nestjs/common';
-import type { Organization as PrismaOrganization } from '@prisma/client';
+import { Prisma, type Organization as PrismaOrganization } from '@prisma/client';
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { Organization, type OrganizationId } from '../../../domain/organization/entities/organization';
 import type { OrganizationRepository } from '../../../domain/organization/ports/organization.repository';
 import { PrismaService } from '../../database/prisma-service';
+import { PrismaPartySettingsMapper } from '../../game/shared/prisma-party-settings.mapper';
 
 @Injectable()
 export class PrismaOrganizationRepository implements OrganizationRepository {
   constructor(
     private readonly prisma: PrismaService,
     private readonly organizationIdentifier: OrganizationIdentifier,
+    private readonly partySettingsMapper: PrismaPartySettingsMapper,
   ) {}
 
-  async create(name: string, description: string | null): Promise<Organization> {
+  async create(
+    name: string,
+    description: string | null,
+    defaults: {
+      readonly defaultPartySettings: Parameters<PrismaPartySettingsMapper['toPersistedPartySettings']>[0] | null;
+    },
+  ): Promise<Organization> {
     const organization = await this.prisma.organization.create({
       data: {
+        defaultPartySettings:
+          defaults.defaultPartySettings === null
+            ? Prisma.DbNull
+            : this.partySettingsMapper.toPersistedPartySettings(defaults.defaultPartySettings),
+        name,
+        description,
+      },
+    });
+
+    return this.toDomain(organization);
+  }
+
+  async update(
+    id: OrganizationId,
+    name: string,
+    description: string | null,
+    defaults: {
+      readonly defaultPartySettings: Parameters<PrismaPartySettingsMapper['toPersistedPartySettings']>[0] | null;
+    },
+  ): Promise<Organization> {
+    const organization = await this.prisma.organization.update({
+      where: { id },
+      data: {
+        defaultPartySettings:
+          defaults.defaultPartySettings === null
+            ? Prisma.DbNull
+            : this.partySettingsMapper.toPersistedPartySettings(defaults.defaultPartySettings),
         name,
         description,
       },
@@ -63,7 +98,7 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
       },
     });
 
-    return organizations.map((organization: PrismaOrganization) => this.toDomain(organization));
+    return organizations.map((organization) => this.toDomain(organization));
   }
 
   private toDomain(organization: PrismaOrganization): Organization {
@@ -73,6 +108,7 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
       organization.description,
       organization.createdAt,
       organization.updatedAt,
+      this.partySettingsMapper.toOptionalPartySettings(organization.defaultPartySettings),
     );
   }
 }

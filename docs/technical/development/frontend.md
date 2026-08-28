@@ -117,7 +117,7 @@ Each feature defines a `RouteFactory` class returning `PresentationRouteObject[]
 
 ## Framework Abstractions
 
-All third-party libs hidden behind port interfaces in `application/shared/contracts/` (`RoutingPort`, `UiPort`, `FormPort`, `TranslationPort`). Infrastructure adapters provide concrete implementations. Presentation code never imports framework libraries directly — Biome enforces this.
+All third-party libs hidden behind port interfaces in `application/shared/ports/` (`RoutingPort`, `UiPort`, `FormPort`, `TranslationPort`). Infrastructure adapters provide concrete implementations. Presentation code never imports framework libraries directly — Biome enforces this.
 
 ## `console.*` is Forbidden
 

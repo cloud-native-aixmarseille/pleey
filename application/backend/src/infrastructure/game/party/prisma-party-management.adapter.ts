@@ -22,6 +22,7 @@ import type { PartySummary } from '../../../domain/game/party/shared/entities/pa
 import type { UserId } from '../../../domain/identity/entities/user';
 import type { PaginatedResult } from '../../../domain/shared/value-objects/paginated-result';
 import { PrismaService } from '../../database/prisma-service';
+import { PrismaPartySettingsMapper } from '../shared/prisma-party-settings.mapper';
 import { PrismaPartyReadModelMapper } from './services/prisma-party-read-model-mapper';
 
 const ACTIVE_PARTY_STATUSES = ['waiting', 'active', 'paused'];
@@ -38,6 +39,7 @@ export class PrismaPartyManagementAdapter extends PartyManagementPort {
     private readonly organizationIdentifier: OrganizationIdentifier,
     private readonly projectIdentifier: ProjectIdentifier,
     private readonly paginationQueryNormalizer: PaginationQueryNormalizer,
+    private readonly partySettingsMapper: PrismaPartySettingsMapper,
   ) {
     super();
   }
@@ -59,7 +61,13 @@ export class PrismaPartyManagementAdapter extends PartyManagementPort {
         projectId: true,
         project: {
           select: {
+            defaultPartySettings: true,
             organizationId: true,
+            organization: {
+              select: {
+                defaultPartySettings: true,
+              },
+            },
           },
         },
       },
@@ -73,6 +81,10 @@ export class PrismaPartyManagementAdapter extends PartyManagementPort {
       gameId: this.gameIdentifier.parse(game.id),
       projectId: this.projectIdentifier.parse(game.projectId),
       organizationId: this.organizationIdentifier.parse(game.project.organizationId),
+      projectDefaultSettings: this.partySettingsMapper.toOptionalPartySettings(game.project.defaultPartySettings),
+      organizationDefaultSettings: this.partySettingsMapper.toOptionalPartySettings(
+        game.project.organization.defaultPartySettings,
+      ),
     };
   }
 
@@ -142,6 +154,7 @@ export class PrismaPartyManagementAdapter extends PartyManagementPort {
           hostId: command.hostUserId,
           pin: command.pin,
           passwordHash: command.privatePartyPasswordHash,
+          settings: this.partySettingsMapper.toPersistedPartySettings(command.settings),
           status: 'waiting',
         },
       });

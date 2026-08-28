@@ -5,6 +5,7 @@ import type {
   AddOrganizationMemberCommand,
   CreateOrganizationCommand,
   ListOrganizationMembersQuery,
+  UpdateOrganizationCommand,
   UpdateOrganizationMemberRoleCommand,
 } from '../../../../../domains/organization/ports/organization-repository';
 import type { Project } from '../../../../../domains/project/entities/project';
@@ -21,6 +22,7 @@ import { SubpageHeader } from '../../../../shared/ui/layout/subpage-header';
 import type { DashboardWorkspaceSelectionGateway } from '../../../dashboard/hooks/use-dashboard-workspace';
 import type { PaginationViewModel } from '../../../shared/components/pagination-bar';
 import { CreateOrganizationForm } from './components/create-organization-form';
+import { EditOrganizationForm } from './components/edit-organization-form';
 import { OrganizationMemberRemovalDialog } from './components/organization-member-removal-dialog';
 import { OrganizationMembersSection } from './components/organization-members-section';
 import { OrganizationOverviewPanel } from './components/organization-overview-panel';
@@ -32,6 +34,7 @@ import { useOrganizationScreenState } from './use-organization-screen-state';
 interface OrganizationScreenProps {
   readonly dashboardWorkspace: DashboardWorkspaceSelectionGateway;
   readonly createOrganization: (command: CreateOrganizationCommand) => Promise<Organization>;
+  readonly updateOrganization: (command: UpdateOrganizationCommand) => Promise<Organization>;
   readonly listOrganizationMembers: (
     query: ListOrganizationMembersQuery,
   ) => Promise<PaginatedResult<OrganizationMember>>;
@@ -46,6 +49,7 @@ interface OrganizationScreenProps {
 export function OrganizationScreen({
   dashboardWorkspace,
   createOrganization,
+  updateOrganization,
   listOrganizationMembers,
   addOrganizationMember,
   removeOrganizationMember,
@@ -74,6 +78,7 @@ export function OrganizationScreen({
     handleOrganizationChange,
     handleOrganizationSearchChange,
     handleOrganizationCreated,
+    handleOrganizationUpdated,
     handleLoadMoreOrganizations,
     handleProjectSearchChange,
     handleProjectPageChange,
@@ -171,6 +176,13 @@ export function OrganizationScreen({
         organizations={organizations}
         hasMoreOrganizations={hasMoreOrganizations}
         organizationId={organizationId}
+        organizationAction={
+          <EditOrganizationForm
+            organization={selectedOrganization}
+            onSubmit={updateOrganization}
+            onUpdated={handleOrganizationUpdated}
+          />
+        }
         organizationEmptyLabel={t('dashboard.workspace.organizationEmpty')}
         organizationLoadingLabel={t('dashboard.workspace.organizationLoading')}
         organizationNoResultsLabel={t('dashboard.workspace.organizationNoResults')}
@@ -281,6 +293,7 @@ export function OrganizationScreen({
         migrationProjectLabel={migrationProjectLabel}
         projectPendingRemoval={projectPendingRemoval}
         projectTotalCount={projectTotalCount}
+        selectedOrganization={selectedOrganization}
         selectedOrganizationName={selectedOrganization?.name ?? null}
       />
     </ContentStack>

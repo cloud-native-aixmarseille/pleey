@@ -2,10 +2,10 @@ import type { GameId } from '../../../../../domain/game/entities/game';
 import type { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
 import type { PartyPlayerActionState } from '../../../../../domain/game/party/player/entities/party-player-action-state';
 import type { PartyPlayerIdentity } from '../../../../../domain/game/party/player/entities/party-player-identity';
-import type { GameSettings } from '../../../../../domain/game/party/shared/entities/game-settings';
 import type { PartyId } from '../../../../../domain/game/party/shared/entities/party';
 import type { PartyActionId } from '../../../../../domain/game/party/shared/entities/party-action';
 import type { PartyRuntimeContext } from '../../../../../domain/game/party/shared/entities/party-runtime-context';
+import type { PartySettings } from '../../../../../domain/game/party/shared/entities/party-settings';
 import type { GameType } from '../../../../../domain/game/types/shared/entities/game-type';
 
 export interface FindPartyActionSubmissionTargetCommand {
@@ -20,7 +20,7 @@ interface PartyActionSubmissionTarget {
   readonly partyId: PartyId;
   readonly playerActionState?: PartyPlayerActionState | null;
   readonly playerIdentity: PartyPlayerIdentity;
-  readonly settings: GameSettings;
+  readonly settings: PartySettings;
   readonly status: PartyStatus;
 }
 

@@ -11,7 +11,7 @@ import type { PartyId } from '../../../domain/game/party/shared/entities/party';
 import { PartyRuntimeContextProjectionService } from '../../../domain/game/party/shared/services/party-runtime-context-projection.service';
 import { createDomainError } from '../../../domain/shared/errors/domain-error';
 import { PrismaService } from '../../database/prisma-service';
-import { PrismaGameSettingsMapper } from '../shared/prisma-game-settings.mapper';
+import { PrismaPartySettingsMapper } from '../shared/prisma-party-settings.mapper';
 import { PrismaPartyReadModelMapper } from './services/prisma-party-read-model-mapper';
 
 const HOST_PARTY_OBSERVATION_PARTY_REQUIRED_ERROR = {
@@ -30,7 +30,7 @@ export class PrismaHostPartyObservationReader implements HostPartyObservationRea
     private readonly partyReadModelMapper: PrismaPartyReadModelMapper,
     private readonly runtimeContextProjection: PartyRuntimeContextProjectionService,
     private readonly userIdentifier: UserIdentifier,
-    private readonly gameSettingsMapper: PrismaGameSettingsMapper,
+    private readonly partySettingsMapper: PrismaPartySettingsMapper,
   ) {}
 
   async findHostObservationByPartyId(partyId: PartyId): Promise<HostPartyObservation | null> {
@@ -45,10 +45,17 @@ export class PrismaHostPartyObservationReader implements HostPartyObservationRea
         id: partyId,
         deletedAt: null,
       },
-      include: {
+      select: {
+        id: true,
+        gameId: true,
+        createdAt: true,
+        updatedAt: true,
+        pin: true,
+        status: true,
+        context: true,
+        settings: true,
         game: {
           select: {
-            ...this.gameSettingsMapper.select,
             type: true,
           },
         },
@@ -127,7 +134,7 @@ export class PrismaHostPartyObservationReader implements HostPartyObservationRea
         ? null
         : await this.partyStageCatalog.findStageById(this.gameIdentifier.parse(party.gameId), stageId, {
             partyId: this.partyIdentifier.parse(party.id),
-            settings: this.gameSettingsMapper.toGameSettings(party.game),
+            settings: this.partySettingsMapper.toPartySettings(party.settings),
           });
     const submittedPlayerCount = playerActionStates.filter((entry) => entry.state.stageId === stageId).length;
 

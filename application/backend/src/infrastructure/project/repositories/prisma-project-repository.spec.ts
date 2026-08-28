@@ -4,6 +4,7 @@ import { OrganizationIdentifier } from '../../../application/workspace/shared/se
 import { ProjectIdentifier } from '../../../application/workspace/shared/services/identifiers/project-identifier';
 import { backendTestIdentifiers } from '../../../test-utils/branded-identifiers';
 import type { PrismaService } from '../../database/prisma-service';
+import { PrismaPartySettingsMapper } from '../../game/shared/prisma-party-settings.mapper';
 import { PrismaProjectRepository } from './prisma-project-repository';
 
 describe('PrismaProjectRepository', () => {
@@ -15,6 +16,7 @@ describe('PrismaProjectRepository', () => {
         id: backendTestIdentifiers.project(21),
         name: 'Launch plan',
         description: null,
+        defaultPartySettings: null,
         organizationId: backendTestIdentifiers.organization(7),
         createdAt: new Date('2026-06-01T09:00:00.000Z'),
       } as never,
@@ -31,6 +33,7 @@ describe('PrismaProjectRepository', () => {
       new OrganizationIdentifier(),
       new ProjectIdentifier(),
       new PaginationQueryNormalizer(),
+      new PrismaPartySettingsMapper(),
     );
 
     // Act

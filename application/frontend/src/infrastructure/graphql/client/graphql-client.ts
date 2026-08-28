@@ -3,7 +3,6 @@ import {
   ApolloLink,
   CombinedGraphQLErrors,
   type DocumentNode,
-  type FetchResult,
   gql,
   InMemoryCache,
   type OperationVariables,
@@ -17,7 +16,7 @@ import { inject, injectable } from 'inversify';
 import type {
   AuthSessionTransport,
   AuthSessionTransportHandlers,
-} from '../../../application/identity/contracts/auth-runtime.port';
+} from '../../../application/identity/ports/auth-session-transport.port';
 import type { AuthSession } from '../../../domains/identity/entities/auth-session';
 import { AUTH_ERROR_DEFINITIONS, AuthErrorCode } from '../../../domains/identity/errors/auth-error-code';
 import { GenericAuthError } from '../../../domains/identity/errors/generic-auth-error';
@@ -219,23 +218,19 @@ export class GraphqlClient implements AuthSessionTransport {
     const resolvedVariables = (variables ?? {}) as TVariables;
     const operationName = this.resolveOperationName(operation);
 
-    let result: FetchResult<TData>;
-
-    if (isMutation) {
-      result = await this.client.mutate<TData, TVariables>({
-        mutation: operation,
-        variables: resolvedVariables,
-        context: { authToken },
-        fetchPolicy: 'no-cache',
-      });
-    } else {
-      result = await this.client.query<TData, TVariables>({
-        query: operation,
-        variables: resolvedVariables,
-        context: { authToken },
-        fetchPolicy: 'no-cache',
-      });
-    }
+    const result = isMutation
+      ? await this.client.mutate({
+          mutation: operation,
+          variables: resolvedVariables,
+          context: { authToken },
+          fetchPolicy: 'no-cache',
+        })
+      : await this.client.query({
+          query: operation,
+          variables: resolvedVariables,
+          context: { authToken },
+          fetchPolicy: 'no-cache',
+        });
 
     if (!result.data) {
       throw new GenericAuthError({

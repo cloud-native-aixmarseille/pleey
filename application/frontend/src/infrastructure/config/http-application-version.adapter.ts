@@ -1,5 +1,5 @@
 import { injectable } from 'inversify';
-import type { ApplicationVersionPort } from '../../application/shared/contracts/application-version.port';
+import type { ApplicationVersionPort } from '../../application/shared/ports/application-version.port';
 import { createDomainError } from '../../domains/shared/errors/domain-error';
 import { API_URL } from './api';
 

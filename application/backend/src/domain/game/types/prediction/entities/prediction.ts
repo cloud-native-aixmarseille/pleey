@@ -13,8 +13,5 @@ export class Prediction {
     readonly description: string | null,
     readonly createdAt: Date,
     readonly promptCount: number,
-    readonly allowOptionChangeAfterVoting: boolean = false,
-    readonly randomizeStageOrder: boolean = false,
-    readonly randomizeOptionOrder: boolean = false,
   ) {}
 }

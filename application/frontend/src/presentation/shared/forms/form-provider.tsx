@@ -1,5 +1,5 @@
 import { createContext, type PropsWithChildren, useContext } from 'react';
-import type { FormPort } from '../../../application/shared/contracts/form.port';
+import type { FormPort } from '../../../application/shared/ports/form.port';
 import { PresentationFormProviderRequiredError } from '../../../domains/shared/errors/presentation-context-error-code';
 
 const FormContext = createContext<FormPort | null>(null);

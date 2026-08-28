@@ -1,6 +1,10 @@
 import { useState } from 'react';
-import type { CreateOrganizationCommand } from '../../../../../../application/workspace/organizations/contracts/create-organization-command';
+import {
+  DEFAULT_PARTY_SETTINGS,
+  type PartySettings,
+} from '../../../../../../domains/game/party/shared/entities/party-settings';
 import type { Organization } from '../../../../../../domains/organization/entities/organization';
+import type { CreateOrganizationCommand } from '../../../../../../domains/organization/ports/organization-repository';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { usePresentationFeedbackChannel } from '../../../../../shared/ui/feedback/use-presentation-feedback-channel';
 import { useWorkspaceDependencies } from '../../../../shared/contexts/workspace-dependencies-context';
@@ -16,12 +20,14 @@ export function useCreateOrganizationFormState({ onSubmit, onCreated }: UseCreat
   const feedback = usePresentationFeedbackChannel();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [partySettings, setPartySettings] = useState<PartySettings>(DEFAULT_PARTY_SETTINGS);
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   function resetForm() {
     setName('');
     setDescription('');
+    setPartySettings(DEFAULT_PARTY_SETTINGS);
     feedback.clearError();
   }
 
@@ -52,7 +58,7 @@ export function useCreateOrganizationFormState({ onSubmit, onCreated }: UseCreat
 
     try {
       const organization = await onSubmit(
-        organizationFormFacade.createCommand(name, description) as CreateOrganizationCommand,
+        organizationFormFacade.createCommand(name, description, partySettings) as CreateOrganizationCommand,
       );
 
       resetForm();
@@ -79,7 +85,9 @@ export function useCreateOrganizationFormState({ onSubmit, onCreated }: UseCreat
     isOpen,
     isSubmitting,
     name,
+    partySettings,
     setDescription,
     setName,
+    setPartySettings,
   };
 }

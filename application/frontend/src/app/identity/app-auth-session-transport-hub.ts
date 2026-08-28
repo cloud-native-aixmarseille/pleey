@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify';
 import {
   type AuthSessionTransport,
   type AuthSessionTransportHandlers,
-} from '../../application/identity/contracts/auth-runtime.port';
+} from '../../application/identity/ports/auth-session-transport.port';
 import { SocketIoPartyRealtimeTransport } from '../../infrastructure/game/party/shared/socket-io-party-realtime-transport';
 import { GraphqlClient } from '../../infrastructure/graphql/client/graphql-client';
 

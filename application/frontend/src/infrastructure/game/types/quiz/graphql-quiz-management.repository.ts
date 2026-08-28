@@ -111,9 +111,6 @@ export class GraphqlQuizManagementRepository implements QuizManagementRepository
         gameId: this.gameIdentifier.parse(result.quiz.gameId),
         title: result.quiz.title,
         description: result.quiz.description,
-        allowOptionChangeAfterVoting: result.quiz.allowOptionChangeAfterVoting,
-        randomizeStageOrder: result.quiz.randomizeStageOrder,
-        randomizeOptionOrder: result.quiz.randomizeOptionOrder,
         createdAt: result.quiz.createdAt,
         itemCount: result.quiz.questionCount,
       }),
@@ -138,9 +135,6 @@ export class GraphqlQuizManagementRepository implements QuizManagementRepository
       input: {
         title: input.title,
         description: input.description,
-        allowOptionChangeAfterVoting: input.allowOptionChangeAfterVoting,
-        randomizeStageOrder: input.randomizeStageOrder,
-        randomizeOptionOrder: input.randomizeOptionOrder,
       },
     });
   }

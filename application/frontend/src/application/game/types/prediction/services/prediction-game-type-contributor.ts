@@ -6,8 +6,8 @@ import type {
   PlayableGameMetadataInput,
 } from '../../../../../domains/game/types/shared/management/playable-management';
 import type { ProjectId } from '../../../../../domains/project/entities/project';
-import type { GameTypeContributor } from '../../shared/contracts/game-type-contributor';
-import type { PlayableContentImportExampleProvider } from '../../shared/contracts/playable-content-import.gateway';
+import type { GameTypeContributor } from '../../shared/ports/game-type-contributor.port';
+import type { PlayableContentImportExampleProvider } from '../../shared/ports/playable-content-import-example-provider.port';
 import { PredictionManagementFacade } from '../facades/prediction-management.facade';
 import { PredictionContentImportExampleFactory } from './prediction-content-import-example-factory';
 

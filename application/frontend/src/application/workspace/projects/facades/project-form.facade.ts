@@ -1,4 +1,5 @@
 import { inject, injectable } from 'inversify';
+import type { PartySettings } from '../../../../domains/game/party/shared/entities/party-settings';
 import type { ProjectValidationErrorCode } from '../../../../domains/project/errors/project-validation-error-code';
 import type { ProjectFormInput } from '../../../../domains/project/services/project-form.service';
 import { ProjectFormService } from '../../../../domains/project/services/project-form.service';
@@ -14,7 +15,7 @@ export class ProjectFormFacade {
     return this.service.validateName(name);
   }
 
-  createInput(name: string, description: string): ProjectFormInput {
-    return this.service.createInput(name, description);
+  createInput(name: string, description: string, partySettings: PartySettings): ProjectFormInput {
+    return this.service.createInput(name, description, partySettings);
   }
 }

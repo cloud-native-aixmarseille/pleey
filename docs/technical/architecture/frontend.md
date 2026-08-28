@@ -7,7 +7,7 @@
 ```text
 src/
   domains/          → entities, ports (interfaces), services, errors, value objects
-  application/      → use-cases, facades, gateways, contracts (service IDs)
+  application/      → use-cases, facades, gateways, ports, services
   infrastructure/   → adapters (GraphQL, routing, storage, i18n, UI, forms)
   presentation/     → screens, hooks, routes, shared UI library
   app/              → DI container, providers, routing, bootstrap
@@ -21,7 +21,9 @@ Central to the architecture. Replaces prop-drilling and ad-hoc singletons.
 
 ### Service Identifiers
 
-Defined in `application/*/contracts/`:
+Application service identifiers live with the owning application port in `application/*/ports/`. Module-local contributor tokens stay next to the owning bootstrap module concept.
+
+Example:
 
 ```ts
 export const AUTH_SERVICE_ID = {
@@ -67,7 +69,7 @@ Facades in `application/*/facades/` aggregate multiple use-cases for coarse-grai
 
 ## Framework Abstractions
 
-All third-party UI/routing/form/i18n frameworks are hidden behind port interfaces in `application/shared/contracts/`:
+All third-party UI/routing/form/i18n frameworks are hidden behind port interfaces in `application/shared/ports/`:
 
 | Port              | Adapter                          | Library              |
 | ----------------- | -------------------------------- | -------------------- |

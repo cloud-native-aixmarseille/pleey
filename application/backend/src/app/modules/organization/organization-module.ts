@@ -7,6 +7,7 @@ import { ListOrganizationMembersUseCase } from '../../../application/workspace/o
 import { ListUserOrganizationsUseCase } from '../../../application/workspace/organizations/use-cases/list-user-organizations-use-case';
 import { RemoveMemberFromOrganizationUseCase } from '../../../application/workspace/organizations/use-cases/remove-member-from-organization-use-case';
 import { UpdateOrganizationMemberRoleUseCase } from '../../../application/workspace/organizations/use-cases/update-organization-member-role-use-case';
+import { UpdateOrganizationUseCase } from '../../../application/workspace/organizations/use-cases/update-organization-use-case';
 import { WorkspaceGameManagementPort } from '../../../application/workspace/ports/workspace-game-management.port';
 import { CreateProjectUseCase } from '../../../application/workspace/projects/use-cases/create-project-use-case';
 import { DeleteProjectUseCase } from '../../../application/workspace/projects/use-cases/delete-project-use-case';
@@ -24,6 +25,7 @@ import {
 } from '../../../domain/organization/services/organization-membership-policy';
 import { ProjectRepositoryProvider } from '../../../domain/project/ports/project.repository';
 import { PrismaWorkspaceGameManagementAdapter } from '../../../infrastructure/game/management/prisma-workspace-game-management.adapter';
+import { PrismaPartySettingsMapper } from '../../../infrastructure/game/shared/prisma-party-settings.mapper';
 import { PrismaOrganizationMemberRepository } from '../../../infrastructure/organization/repositories/prisma-organization-member-repository';
 import { PrismaOrganizationRepository } from '../../../infrastructure/organization/repositories/prisma-organization-repository';
 import { PrismaProjectRepository } from '../../../infrastructure/project/repositories/prisma-project-repository';
@@ -41,6 +43,7 @@ import { SharedServicesModule } from '../shared/shared-services.module';
     PrismaOrganizationRepository,
     PrismaOrganizationMemberRepository,
     PrismaProjectRepository,
+    PrismaPartySettingsMapper,
     PrismaWorkspaceGameManagementAdapter,
     {
       provide: OrganizationMembershipPolicyProvider,
@@ -70,6 +73,7 @@ import { SharedServicesModule } from '../shared/shared-services.module';
 
     // Use cases
     CreateOrganizationUseCase,
+    UpdateOrganizationUseCase,
     ListUserOrganizationsUseCase,
     OrganizationMembershipAccessService,
     ListOrganizationMembersUseCase,

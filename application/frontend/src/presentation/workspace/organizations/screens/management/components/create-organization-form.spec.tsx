@@ -77,6 +77,11 @@ describe('CreateOrganizationForm', () => {
       expect(onSubmit).toHaveBeenCalledWith({
         name: 'New Org',
         description: 'A test org',
+        defaultPartySettings: {
+          allowOptionChangeAfterVoting: false,
+          randomizeOptionOrder: false,
+          randomizeStageOrder: false,
+        },
       });
     });
     expect(onCreated).toHaveBeenCalledWith(CREATED_ORG);

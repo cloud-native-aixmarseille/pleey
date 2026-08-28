@@ -70,6 +70,7 @@ describe('GraphqlOrganizationRepository', () => {
             description: 'Main workspace',
             createdAt: '2026-03-10T12:00:00.000Z',
             updatedAt: '2026-03-10T12:00:00.000Z',
+            defaultPartySettings: null,
           }),
         ],
         totalCount: 1,
@@ -166,6 +167,7 @@ describe('GraphqlOrganizationRepository', () => {
       const organization = await repository.createOrganization({
         name: 'New Org',
         description: 'A brand new org',
+        defaultPartySettings: null,
       });
 
       // Assert
@@ -175,6 +177,7 @@ describe('GraphqlOrganizationRepository', () => {
         description: 'A brand new org',
         createdAt: '2026-03-15T10:00:00.000Z',
         updatedAt: '2026-03-15T10:00:00.000Z',
+        defaultPartySettings: null,
         role: OrganizationRole.OWNER,
       });
     });
@@ -187,9 +190,13 @@ describe('GraphqlOrganizationRepository', () => {
       const repository = createRepository(client);
 
       // Act + Assert
-      await expect(repository.createOrganization({ name: 'Fail', description: null })).rejects.toThrow(
-        OrganizationErrorCode.CREATE_FAILED,
-      );
+      await expect(
+        repository.createOrganization({
+          name: 'Fail',
+          description: null,
+          defaultPartySettings: null,
+        }),
+      ).rejects.toThrow(OrganizationErrorCode.CREATE_FAILED);
     });
   });
 

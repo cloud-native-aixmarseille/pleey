@@ -7,8 +7,10 @@ import { ListOrganizationMembersUseCase } from '../../../application/workspace/o
 import { ListUserOrganizationsUseCase } from '../../../application/workspace/organizations/use-cases/list-user-organizations-use-case';
 import { RemoveMemberFromOrganizationUseCase } from '../../../application/workspace/organizations/use-cases/remove-member-from-organization-use-case';
 import { UpdateOrganizationMemberRoleUseCase } from '../../../application/workspace/organizations/use-cases/update-organization-member-role-use-case';
+import { UpdateOrganizationUseCase } from '../../../application/workspace/organizations/use-cases/update-organization-use-case';
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-member-identifier';
+import type { PartySettings } from '../../../domain/game/party/shared/entities/party-settings';
 import type { UserId } from '../../../domain/identity/entities/user';
 import { IdentityErrorCode } from '../../../domain/identity/enums/identity-error-code.enum';
 import { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
@@ -22,6 +24,7 @@ import { OrganizationMemberListType } from './types/organization-member-list-typ
 import { OrganizationMemberType } from './types/organization-member-type';
 import { OrganizationMembersInput } from './types/organization-members-input';
 import { OrganizationType } from './types/organization-type';
+import { UpdateOrganizationInput } from './types/update-organization-input';
 import { UpdateOrganizationMemberRoleInput } from './types/update-organization-member-role-input';
 
 type GraphqlAuthContext = {
@@ -39,6 +42,7 @@ type GraphqlAuthContext = {
 export class OrganizationResolver {
   constructor(
     private readonly createOrganizationUseCase: CreateOrganizationUseCase,
+    private readonly updateOrganizationUseCase: UpdateOrganizationUseCase,
     private readonly listUserOrganizationsUseCase: ListUserOrganizationsUseCase,
     private readonly listOrganizationMembersUseCase: ListOrganizationMembersUseCase,
     private readonly addMemberToOrganizationUseCase: AddMemberToOrganizationUseCase,
@@ -56,8 +60,33 @@ export class OrganizationResolver {
     @Context() context: GraphqlAuthContext,
   ): Promise<OrganizationType> {
     const userId = this.resolveUserId(context);
-    const organization = await this.createOrganizationUseCase.execute(input, userId);
+    const organization = await this.createOrganizationUseCase.execute(
+      {
+        ...input,
+        defaultPartySettings: this.toPartySettings(input.defaultPartySettings),
+      },
+      userId,
+    );
     return { ...organization, role: OrganizationRole.OWNER };
+  }
+
+  @Mutation(() => OrganizationType)
+  @UseGuards(GqlJwtAuthGuard)
+  async updateOrganization(
+    @Args('organizationId', { type: () => ID }) organizationId: string,
+    @Args('input') input: UpdateOrganizationInput,
+    @Context() context: GraphqlAuthContext,
+  ): Promise<OrganizationType> {
+    const userId = this.resolveUserId(context);
+
+    return this.updateOrganizationUseCase.execute(
+      this.organizationIdentifier.parse(organizationId),
+      {
+        ...input,
+        defaultPartySettings: this.toPartySettings(input.defaultPartySettings),
+      },
+      userId,
+    );
   }
 
   @Query(() => OrganizationListType)
@@ -148,5 +177,25 @@ export class OrganizationResolver {
     }
 
     return userId;
+  }
+
+  private toPartySettings(
+    settings:
+      | {
+          readonly allowOptionChangeAfterVoting?: boolean;
+          readonly randomizeOptionOrder?: boolean;
+          readonly randomizeStageOrder?: boolean;
+        }
+      | undefined,
+  ): PartySettings | null {
+    if (!settings) {
+      return null;
+    }
+
+    return {
+      allowOptionChangeAfterVoting: settings.allowOptionChangeAfterVoting ?? false,
+      randomizeOptionOrder: settings.randomizeOptionOrder ?? false,
+      randomizeStageOrder: settings.randomizeStageOrder ?? false,
+    };
   }
 }

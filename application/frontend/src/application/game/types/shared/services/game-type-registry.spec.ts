@@ -7,11 +7,11 @@ import { GameType, type GameTypeId } from '../../../../../domains/game/types/sha
 import { GameIdentifierMockFactory } from '../../../../../test-utils/mocks/game-identifier-mock-factory';
 import { GameTypeIdentifierMockFactory } from '../../../../../test-utils/mocks/game-type-identifier-mock-factory';
 import { ProjectIdentifierMockFactory } from '../../../../../test-utils/mocks/project-identifier-mock-factory';
-import type { GameTypeContributor } from '../contracts/game-type-contributor';
+import type { GameTypeContributor } from '../ports/game-type-contributor.port';
 import {
   PlayableContentImportExampleFormat,
   type PlayableContentImportExampleProvider,
-} from '../contracts/playable-content-import.gateway';
+} from '../ports/playable-content-import-example-provider.port';
 import { GameTypeRegistry } from './game-type-registry';
 
 const gameIdentifier = new GameIdentifierMockFactory().create();

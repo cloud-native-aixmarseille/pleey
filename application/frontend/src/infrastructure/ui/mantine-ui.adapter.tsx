@@ -1,6 +1,6 @@
 import { MantineProvider } from '@mantine/core';
 import { type CSSProperties, createContext, type PropsWithChildren, useContext, useEffect, useState } from 'react';
-import type { PresentationUiThemeState, UiPort } from '../../application/shared/contracts/ui.port';
+import type { PresentationUiThemeState, UiPort } from '../../application/shared/ports/ui.port';
 import { createDomainError } from '../../domains/shared/errors/domain-error';
 import {
   createUiThemeCssVariables,

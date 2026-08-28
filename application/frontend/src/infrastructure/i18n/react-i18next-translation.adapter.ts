@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { TranslationPort } from '../../application/shared/contracts/translation.port';
+import type { TranslationPort } from '../../application/shared/ports/translation.port';
 import type { StoragePort } from '../../domains/shared/ports/storage.port';
 import { LANGUAGE_STORAGE_KEY } from '../../i18n/config/init';
 

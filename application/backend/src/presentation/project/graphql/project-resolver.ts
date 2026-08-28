@@ -6,6 +6,7 @@ import { ListOrganizationProjectsUseCase } from '../../../application/workspace/
 import { UpdateProjectUseCase } from '../../../application/workspace/projects/use-cases/update-project-use-case';
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { ProjectIdentifier } from '../../../application/workspace/shared/services/identifiers/project-identifier';
+import type { PartySettings } from '../../../domain/game/party/shared/entities/party-settings';
 import type { UserId } from '../../../domain/identity/entities/user';
 import { IdentityErrorCode } from '../../../domain/identity/enums/identity-error-code.enum';
 import { GqlJwtAuthGuard } from '../../identity/shared/guards/gql-jwt-auth-guard';
@@ -62,7 +63,14 @@ export class ProjectResolver {
     @Context() context: GraphqlAuthContext,
   ): Promise<ProjectType> {
     const userId = this.resolveUserId(context);
-    return this.createProjectUseCase.execute(this.organizationIdentifier.parse(organizationId), input, userId);
+    return this.createProjectUseCase.execute(
+      this.organizationIdentifier.parse(organizationId),
+      {
+        ...input,
+        defaultPartySettings: this.toPartySettings(input.defaultPartySettings),
+      },
+      userId,
+    );
   }
 
   @Mutation(() => ProjectType)
@@ -73,7 +81,14 @@ export class ProjectResolver {
     @Context() context: GraphqlAuthContext,
   ): Promise<ProjectType> {
     const userId = this.resolveUserId(context);
-    return this.updateProjectUseCase.execute(this.projectIdentifier.parse(projectId), input, userId);
+    return this.updateProjectUseCase.execute(
+      this.projectIdentifier.parse(projectId),
+      {
+        ...input,
+        defaultPartySettings: this.toPartySettings(input.defaultPartySettings),
+      },
+      userId,
+    );
   }
 
   @Mutation(() => Boolean)
@@ -100,5 +115,25 @@ export class ProjectResolver {
     }
 
     return userId;
+  }
+
+  private toPartySettings(
+    settings:
+      | {
+          readonly allowOptionChangeAfterVoting?: boolean;
+          readonly randomizeOptionOrder?: boolean;
+          readonly randomizeStageOrder?: boolean;
+        }
+      | undefined,
+  ): PartySettings | null {
+    if (!settings) {
+      return null;
+    }
+
+    return {
+      allowOptionChangeAfterVoting: settings.allowOptionChangeAfterVoting ?? false,
+      randomizeOptionOrder: settings.randomizeOptionOrder ?? false,
+      randomizeStageOrder: settings.randomizeStageOrder ?? false,
+    };
   }
 }

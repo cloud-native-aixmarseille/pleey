@@ -3,6 +3,7 @@ import { UserIdentifier } from '../../application/identity/shared/services/ident
 import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../application/workspace/shared/services/identifiers/organization-member-identifier';
 import { ProjectIdentifier } from '../../application/workspace/shared/services/identifiers/project-identifier';
+import { DEFAULT_PARTY_SETTINGS } from '../../domains/game/party/shared/entities/party-settings';
 import {
   type Organization,
   type OrganizationId,
@@ -16,6 +17,7 @@ import type {
   ListOrganizationMembersQuery,
   OrganizationRepository,
   RemoveOrganizationMemberCommand,
+  UpdateOrganizationCommand,
   UpdateOrganizationMemberRoleCommand,
 } from '../../domains/organization/ports/organization-repository';
 import type { Project, ProjectId } from '../../domains/project/entities/project';
@@ -58,6 +60,7 @@ type OrganizationDashboardReadGateway = {
 
 interface OrganizationScreenActions {
   readonly createOrganization: ReturnType<typeof vi.fn<OrganizationRepository['createOrganization']>>;
+  readonly updateOrganization: ReturnType<typeof vi.fn<OrganizationRepository['updateOrganization']>>;
   readonly listOrganizationMembers: ReturnType<typeof vi.fn<OrganizationRepository['getOrganizationMembers']>>;
   readonly addOrganizationMember: ReturnType<typeof vi.fn<OrganizationRepository['addOrganizationMember']>>;
   readonly removeOrganizationMember: ReturnType<typeof vi.fn<OrganizationRepository['removeOrganizationMember']>>;
@@ -118,8 +121,16 @@ export class OrganizationScreenFixtureFactory {
         description: null,
         createdAt: DEFAULT_TIMESTAMP,
         updatedAt: DEFAULT_TIMESTAMP,
+        defaultPartySettings: DEFAULT_PARTY_SETTINGS,
         role: OrganizationRole.OWNER,
       }),
+      updateOrganization: vi.fn<(_: UpdateOrganizationCommand) => Promise<Organization>>().mockResolvedValue(
+        this.organizationFixtureFactory.createOrganization({
+          id: defaultOrganizationId,
+          name: 'Updated Org',
+          description: 'Updated description',
+        }),
+      ),
       createProject: vi.fn<(_: CreateProjectCommand) => Promise<Project>>().mockResolvedValue(
         this.createProject({
           id: createdProjectId,

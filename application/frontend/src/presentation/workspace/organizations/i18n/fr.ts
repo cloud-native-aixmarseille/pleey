@@ -64,7 +64,25 @@ export const organizationFr = {
             label: 'Description',
             placeholder: "Décrivez l'organisation (optionnel)",
           },
+          partySettings: {
+            label: 'Mode de partie par defaut',
+            allowOptionChangeAfterVotingLabel: 'Autoriser les joueurs a changer de reponse apres avoir vote',
+            allowOptionChangeAfterVotingDescription:
+              "Les participants peuvent modifier leur choix jusqu'a la fin de la manche.",
+            randomizeStageOrderLabel: 'Aleatoiriser l ordre des manches',
+            randomizeStageOrderDescription: 'Melangez l ordre des manches a chaque debut de partie.',
+            randomizeOptionOrderLabel: 'Aleatoiriser l ordre des reponses',
+            randomizeOptionOrderDescription: 'Melangez l ordre des reponses ou des resultats a chaque manche.',
+          },
         },
+      },
+      edit: {
+        eyebrow: 'Mettre a jour l organisation',
+        openButton: 'Modifier l organisation',
+        title: 'Modifier l organisation',
+        submit: 'Enregistrer',
+        submitting: 'Enregistrement...',
+        success: "L'organisation a ete mise a jour.",
       },
       validation: {
         nameRequired: "Le nom de l'organisation est requis.",
@@ -76,6 +94,7 @@ export const organizationFr = {
       memberAddFailed: "Impossible d'ajouter le membre.",
       memberRemoveFailed: 'Impossible de retirer le membre.',
       memberRoleUpdateFailed: 'Impossible de mettre à jour le rôle du membre.',
+      updateFailed: 'Impossible de mettre a jour l organisation.',
     },
   },
   project: {
@@ -122,6 +141,16 @@ export const organizationFr = {
           description: {
             label: 'Description',
             placeholder: 'Décrivez le projet (optionnel)',
+          },
+          partySettings: {
+            label: 'Mode de partie par defaut',
+            allowOptionChangeAfterVotingLabel: 'Autoriser les joueurs a changer de reponse apres avoir vote',
+            allowOptionChangeAfterVotingDescription:
+              "Les participants peuvent modifier leur choix jusqu'a la fin de la manche.",
+            randomizeStageOrderLabel: 'Aleatoiriser l ordre des manches',
+            randomizeStageOrderDescription: 'Melangez l ordre des manches a chaque debut de partie.',
+            randomizeOptionOrderLabel: 'Aleatoiriser l ordre des reponses',
+            randomizeOptionOrderDescription: 'Melangez l ordre des reponses ou des resultats a chaque manche.',
           },
         },
         fallbackOrganization: "l'organisation sélectionnée",

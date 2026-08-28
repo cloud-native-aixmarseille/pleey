@@ -2,6 +2,7 @@ import { inject, injectable } from 'inversify';
 import { UserIdentifier } from '../../application/identity/shared/services/identifiers/user-identifier';
 import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../application/workspace/shared/services/identifiers/organization-member-identifier';
+import type { PartySettings } from '../../domains/game/party/shared/entities/party-settings';
 import type { UserId } from '../../domains/identity/entities/user';
 import type { OrganizationId } from '../../domains/organization/entities/organization';
 import { type Organization, OrganizationRole } from '../../domains/organization/entities/organization';
@@ -18,6 +19,7 @@ import type {
   ListOrganizationsQuery,
   OrganizationRepository,
   RemoveOrganizationMemberCommand,
+  UpdateOrganizationCommand,
   UpdateOrganizationMemberRoleCommand,
 } from '../../domains/organization/ports/organization-repository';
 import type { PaginatedResult } from '../../domains/shared/value-objects/paginated-result';
@@ -36,9 +38,12 @@ import {
   RemoveOrganizationMemberDocument,
   type RemoveOrganizationMemberMutation,
   type RemoveOrganizationMemberMutationVariables,
+  UpdateOrganizationDocument,
   UpdateOrganizationMemberRoleDocument,
   type UpdateOrganizationMemberRoleMutation,
   type UpdateOrganizationMemberRoleMutationVariables,
+  type UpdateOrganizationMutation,
+  type UpdateOrganizationMutationVariables,
   WorkspaceOrganizationDashboardDocument,
   type WorkspaceOrganizationDashboardQuery,
   type WorkspaceOrganizationDashboardQueryVariables,
@@ -83,6 +88,7 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
           description: organization.description ?? null,
           createdAt: organization.createdAt,
           updatedAt: organization.updatedAt,
+          defaultPartySettings: this.toPartySettings(organization.defaultPartySettings),
           role: this.toDomainRole(organization.role),
         })),
         totalCount: result.myOrganizations.totalCount,
@@ -134,6 +140,7 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
           input: {
             name: command.name,
             description: command.description,
+            defaultPartySettings: command.defaultPartySettings,
           },
         },
       );
@@ -144,12 +151,44 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
         description: result.createOrganization.description ?? null,
         createdAt: result.createOrganization.createdAt,
         updatedAt: result.createOrganization.updatedAt,
+        defaultPartySettings: this.toPartySettings(result.createOrganization.defaultPartySettings),
         role: this.toDomainRole(result.createOrganization.role),
       };
     } catch (error) {
       throw this.graphqlClient.resolveDomainError(
         error,
         ORGANIZATION_ERROR_DEFINITIONS[OrganizationErrorCode.CREATE_FAILED],
+      );
+    }
+  }
+
+  async updateOrganization(command: UpdateOrganizationCommand): Promise<Organization> {
+    try {
+      const result = await this.graphqlClient.request<UpdateOrganizationMutation, UpdateOrganizationMutationVariables>(
+        UpdateOrganizationDocument,
+        {
+          organizationId: command.organizationId,
+          input: {
+            name: command.name,
+            description: command.description,
+            defaultPartySettings: command.defaultPartySettings,
+          },
+        },
+      );
+
+      return {
+        id: this.organizationIdentifier.parse(result.updateOrganization.id),
+        name: result.updateOrganization.name,
+        description: result.updateOrganization.description ?? null,
+        createdAt: result.updateOrganization.createdAt,
+        updatedAt: result.updateOrganization.updatedAt,
+        defaultPartySettings: this.toPartySettings(result.updateOrganization.defaultPartySettings),
+        role: this.toDomainRole(result.updateOrganization.role),
+      };
+    } catch (error) {
+      throw this.graphqlClient.resolveDomainError(
+        error,
+        ORGANIZATION_ERROR_DEFINITIONS[OrganizationErrorCode.UPDATE_FAILED],
       );
     }
   }
@@ -285,5 +324,24 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
     }
 
     return GraphqlOrganizationRole.Member;
+  }
+
+  private toPartySettings(
+    settings:
+      | {
+          readonly allowOptionChangeAfterVoting: boolean;
+          readonly randomizeOptionOrder: boolean;
+          readonly randomizeStageOrder: boolean;
+        }
+      | null
+      | undefined,
+  ): PartySettings | null {
+    return settings
+      ? {
+          allowOptionChangeAfterVoting: settings.allowOptionChangeAfterVoting,
+          randomizeOptionOrder: settings.randomizeOptionOrder,
+          randomizeStageOrder: settings.randomizeStageOrder,
+        }
+      : null;
   }
 }

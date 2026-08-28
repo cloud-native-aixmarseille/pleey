@@ -1,5 +1,5 @@
 import { createContext, type PropsWithChildren, useContext } from 'react';
-import type { TranslationPort } from '../../../application/shared/contracts/translation.port';
+import type { TranslationPort } from '../../../application/shared/ports/translation.port';
 import { PresentationTranslationProviderRequiredError } from '../../../domains/shared/errors/presentation-context-error-code';
 
 const TranslationContext = createContext<TranslationPort | null>(null);

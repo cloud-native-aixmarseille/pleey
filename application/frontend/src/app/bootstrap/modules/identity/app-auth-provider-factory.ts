@@ -14,7 +14,7 @@ import { UpdateProfileUseCase } from '../../../../application/identity/use-cases
 import {
   WORKSPACE_SELECTION_PORT,
   type WorkspaceSelectionPort,
-} from '../../../../application/workspace/contracts/workspace-selection.port';
+} from '../../../../application/workspace/ports/workspace-selection.port';
 import type { User } from '../../../../domains/identity/entities/user';
 import type { UpdateProfileInput } from '../../../../domains/identity/ports/auth-repository';
 import { PersistedAuthSessionAdapter } from '../../../../infrastructure/identity/persisted-auth-session.adapter';

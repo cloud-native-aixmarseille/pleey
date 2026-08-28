@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import type { AuthSessionTransport } from '../../application/identity/contracts/auth-runtime.port';
+import type { AuthSessionTransport } from '../../application/identity/ports/auth-session-transport.port';
 
 export class AuthSessionTransportMockFactory {
   create(): AuthSessionTransport {

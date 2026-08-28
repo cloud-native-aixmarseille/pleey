@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { PartyRouteService } from '../../../../../application/game/party/shared/services/party-route.service';
-import type { PresentationRouteObject, RouteFactory } from '../../../../../application/shared/contracts/routing.port';
+import type { PresentationRouteObject, RouteFactory } from '../../../../../application/shared/ports/routing.port';
 import { PatienceRouteProvider } from '../../../../shared/ui/patience';
 import { PartyLobbyScreen } from '../screens/party-lobby-screen';
 import { PartyLobbyRouteKind, PartyScreenSection } from '../screens/use-party-lobby-screen-state';

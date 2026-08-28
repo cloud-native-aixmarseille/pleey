@@ -13,21 +13,17 @@ import { QuizManagementFacade } from '../../../../application/game/types/quiz/fa
 import { QuizGameTypeContributor } from '../../../../application/game/types/quiz/services/quiz-game-type-contributor';
 import { QuizQuestionIdentifier } from '../../../../application/game/types/quiz/services/quiz-question-identifier';
 import { QuizQuestionImportExampleFactory } from '../../../../application/game/types/quiz/services/quiz-question-import-example-factory';
-import type { GameTypeCatalogFactory } from '../../../../application/game/types/shared/contracts/game-type-catalog-factory';
-import { GameTypeCatalogFactoryToken } from '../../../../application/game/types/shared/contracts/game-type-catalog-factory';
+import { GAME_TYPE_CATALOG_GATEWAY } from '../../../../application/game/types/shared/gateways/game-type-catalog.gateway';
+import type { GameTypeCatalogFactory } from '../../../../application/game/types/shared/ports/game-type-catalog-factory.port';
+import { GameTypeCatalogFactoryToken } from '../../../../application/game/types/shared/ports/game-type-catalog-factory.port';
 import {
   type GameTypeContributor,
   GameTypeContributorToken,
-} from '../../../../application/game/types/shared/contracts/game-type-contributor';
-import { PlayableContentImportAcceptedTypesResolver } from '../../../../application/game/types/shared/contracts/playable-content-import.gateway';
-import { GAME_TYPE_CATALOG_GATEWAY } from '../../../../application/game/types/shared/gateways/game-type-catalog.gateway';
+} from '../../../../application/game/types/shared/ports/game-type-contributor.port';
 import { GameTypeIdentifier } from '../../../../application/game/types/shared/services/game-type-identifier';
 import { GameTypeRegistry } from '../../../../application/game/types/shared/services/game-type-registry';
-import { ROUTE_FACTORY, type RouteFactory } from '../../../../application/shared/contracts/routing.port';
-import {
-  WORKSPACE_SELECTION_PORT,
-  type WorkspaceSelectionPort,
-} from '../../../../application/workspace/contracts/workspace-selection.port';
+import { PlayableContentImportAcceptedTypesResolver } from '../../../../application/game/types/shared/services/playable-content-import-accepted-types-resolver';
+import { ROUTE_FACTORY, type RouteFactory } from '../../../../application/shared/ports/routing.port';
 import { DashboardHomeActionsFacade } from '../../../../application/workspace/dashboard/facades/dashboard-home-actions.facade';
 import { DashboardWorkspaceFacade } from '../../../../application/workspace/dashboard/facades/dashboard-workspace.facade';
 import { OrganizationFormFacade } from '../../../../application/workspace/organizations/facades/organization-form.facade';
@@ -39,6 +35,11 @@ import { ListMyOrganizationsUseCase } from '../../../../application/workspace/or
 import { ListOrganizationMembersUseCase } from '../../../../application/workspace/organizations/use-cases/list-organization-members-use-case';
 import { RemoveOrganizationMemberUseCase } from '../../../../application/workspace/organizations/use-cases/remove-organization-member-use-case';
 import { UpdateOrganizationMemberRoleUseCase } from '../../../../application/workspace/organizations/use-cases/update-organization-member-role-use-case';
+import { UpdateOrganizationUseCase } from '../../../../application/workspace/organizations/use-cases/update-organization-use-case';
+import {
+  WORKSPACE_SELECTION_PORT,
+  type WorkspaceSelectionPort,
+} from '../../../../application/workspace/ports/workspace-selection.port';
 import { ProjectFormFacade } from '../../../../application/workspace/projects/facades/project-form.facade';
 import { CreateProjectUseCase } from '../../../../application/workspace/projects/use-cases/create-project-use-case';
 import { DeleteProjectUseCase } from '../../../../application/workspace/projects/use-cases/delete-project-use-case';
@@ -122,6 +123,7 @@ export const workspaceContainerModule = new ContainerModule(({ bind }) => {
   bind(DashboardRoutesFactory).toSelf().inSingletonScope();
   bind(ListProjectGamesUseCase).toSelf().inSingletonScope();
   bind(CreateOrganizationUseCase).toSelf().inSingletonScope();
+  bind(UpdateOrganizationUseCase).toSelf().inSingletonScope();
   bind(GetOrganizationDashboardUseCase).toSelf().inSingletonScope();
   bind(ListMyOrganizationsUseCase).toSelf().inSingletonScope();
   bind(ListOrganizationMembersUseCase).toSelf().inSingletonScope();

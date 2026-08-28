@@ -8,7 +8,7 @@ import type {
 import {
   type PartyGameTypeRuntimeViewContributor,
   PartyGameTypeRuntimeViewContributorToken,
-} from '../contracts/party-game-type-runtime-view-contributor';
+} from '../party-game-type-runtime-view-contributor';
 
 const PARTY_RUNTIME_VIEW_DUPLICATE_REGISTRATION_ERROR = {
   code: 'PARTY_RUNTIME_VIEW_DUPLICATE_REGISTRATION',

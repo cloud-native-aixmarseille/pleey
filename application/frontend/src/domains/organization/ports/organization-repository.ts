@@ -1,3 +1,4 @@
+import type { PartySettings } from '../../game/party/shared/entities/party-settings';
 import type { PaginatedResult } from '../../shared/value-objects/paginated-result';
 import type { PaginationQuery } from '../../shared/value-objects/pagination-query';
 import type { Organization, OrganizationId, OrganizationRole } from '../entities/organization';
@@ -13,6 +14,14 @@ export interface ListOrganizationMembersQuery extends PaginationQuery {
 export interface CreateOrganizationCommand {
   readonly name: string;
   readonly description: string | null;
+  readonly defaultPartySettings?: PartySettings | null;
+}
+
+export interface UpdateOrganizationCommand {
+  readonly organizationId: OrganizationId;
+  readonly name: string;
+  readonly description: string | null;
+  readonly defaultPartySettings?: PartySettings | null;
 }
 
 export interface AddOrganizationMemberCommand {
@@ -35,6 +44,7 @@ export interface OrganizationRepository {
   getOrganizationDashboard(organizationId: OrganizationId): Promise<OrganizationDashboard>;
   getOrganizationMembers(query: ListOrganizationMembersQuery): Promise<PaginatedResult<OrganizationMember>>;
   createOrganization(command: CreateOrganizationCommand): Promise<Organization>;
+  updateOrganization(command: UpdateOrganizationCommand): Promise<Organization>;
   addOrganizationMember(command: AddOrganizationMemberCommand): Promise<OrganizationMember>;
   removeOrganizationMember(command: RemoveOrganizationMemberCommand): Promise<void>;
   updateOrganizationMemberRole(command: UpdateOrganizationMemberRoleCommand): Promise<OrganizationMember>;

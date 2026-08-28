@@ -7,8 +7,8 @@ import type {
 } from '../../../../../domains/game/types/shared/management/playable-management';
 import type { ProjectId } from '../../../../../domains/project/entities/project';
 import { QuizManagementFacade } from '../../quiz/facades/quiz-management.facade';
-import type { GameTypeContributor } from '../../shared/contracts/game-type-contributor';
-import type { PlayableContentImportExampleProvider } from '../../shared/contracts/playable-content-import.gateway';
+import type { GameTypeContributor } from '../../shared/ports/game-type-contributor.port';
+import type { PlayableContentImportExampleProvider } from '../../shared/ports/playable-content-import-example-provider.port';
 import { QuizQuestionImportExampleFactory } from './quiz-question-import-example-factory';
 
 @injectable()

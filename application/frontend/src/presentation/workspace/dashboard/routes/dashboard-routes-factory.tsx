@@ -4,7 +4,7 @@ import {
   GAME_TYPE_CATALOG_GATEWAY,
   type GameTypeCatalogGateway,
 } from '../../../../application/game/types/shared/gateways/game-type-catalog.gateway';
-import type { PresentationRouteObject, RouteFactory } from '../../../../application/shared/contracts/routing.port';
+import type { PresentationRouteObject, RouteFactory } from '../../../../application/shared/ports/routing.port';
 import { DashboardHomeActionsFacade } from '../../../../application/workspace/dashboard/facades/dashboard-home-actions.facade';
 import {
   DashboardWorkspaceFacade,

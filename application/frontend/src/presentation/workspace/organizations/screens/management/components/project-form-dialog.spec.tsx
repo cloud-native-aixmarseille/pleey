@@ -136,6 +136,11 @@ describe('ProjectFormDialog', () => {
       expect(onSubmit).toHaveBeenCalledWith({
         name: 'New Project',
         description: 'Ready to launch',
+        partySettings: {
+          allowOptionChangeAfterVoting: false,
+          randomizeOptionOrder: false,
+          randomizeStageOrder: false,
+        },
       });
     });
     expect(onSubmitted).toHaveBeenCalledWith(savedProject);
@@ -170,5 +175,55 @@ describe('ProjectFormDialog', () => {
     // Assert
     expect(await screen.findByText('project.errors.updateFailed')).toBeInTheDocument();
     expect(onSubmitted).not.toHaveBeenCalled();
+  });
+
+  it('submits edited project default settings', async () => {
+    // Arrange
+    arrangeCallbacks();
+    const user = userEvent.setup();
+    onSubmit.mockResolvedValue(
+      projectFixtureFactory.createProject({
+        id: 77,
+        name: 'Preset Project',
+        description: 'Preset ready',
+      }),
+    );
+
+    renderProjectFormDialog();
+
+    await user.type(
+      await screen.findByPlaceholderText('project.management.form.fields.name.placeholder'),
+      'Preset Project',
+    );
+    await user.type(
+      screen.getByPlaceholderText('project.management.form.fields.description.placeholder'),
+      'Preset ready',
+    );
+    await user.click(
+      screen.getByRole('checkbox', {
+        name: 'project.management.form.fields.partySettings.allowOptionChangeAfterVotingLabel',
+      }),
+    );
+    await user.click(
+      screen.getByRole('checkbox', {
+        name: 'project.management.form.fields.partySettings.randomizeOptionOrderLabel',
+      }),
+    );
+
+    // Act
+    await user.click(screen.getByRole('button', { name: 'project.management.form.create.submit' }));
+
+    // Assert
+    await waitFor(() => {
+      expect(onSubmit).toHaveBeenCalledWith({
+        name: 'Preset Project',
+        description: 'Preset ready',
+        partySettings: {
+          allowOptionChangeAfterVoting: true,
+          randomizeOptionOrder: true,
+          randomizeStageOrder: false,
+        },
+      });
+    });
   });
 });

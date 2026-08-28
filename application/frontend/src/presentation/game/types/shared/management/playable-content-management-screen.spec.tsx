@@ -308,9 +308,6 @@ describe('PlayableContentManagementScreen', () => {
       expect(gateway.updateMetadata).toHaveBeenCalledWith(gameTypeId, {
         title: 'Arcade Quiz Updated',
         description: 'Live rounds',
-        allowOptionChangeAfterVoting: false,
-        randomizeStageOrder: false,
-        randomizeOptionOrder: false,
       });
     });
     expect(await screen.findByRole('status')).toHaveTextContent('game.types.quiz.management.savedJustNow');

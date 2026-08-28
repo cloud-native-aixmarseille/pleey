@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { GameType } from '../../../../../domains/game/types/shared/game-type';
 import type { PartyGameTypeRuntimeView } from '../../../../../presentation/game/party/shared/contexts/party-game-type-runtime-registry-context';
-import type { PartyGameTypeRuntimeViewContributor } from '../contracts/party-game-type-runtime-view-contributor';
+import type { PartyGameTypeRuntimeViewContributor } from '../party-game-type-runtime-view-contributor';
 import { AppPartyGameTypeRuntimeRegistry } from './app-party-game-type-runtime-registry';
 
 class TestRuntimeViewContributor implements PartyGameTypeRuntimeViewContributor {

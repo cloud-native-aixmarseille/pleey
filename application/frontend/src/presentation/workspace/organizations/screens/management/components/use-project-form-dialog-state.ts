@@ -1,17 +1,27 @@
 import { useEffect, useState } from 'react';
+import {
+  DEFAULT_PARTY_SETTINGS,
+  type PartySettings,
+} from '../../../../../../domains/game/party/shared/entities/party-settings';
 import type { Project } from '../../../../../../domains/project/entities/project';
 import { usePresentationFeedbackChannel } from '../../../../../shared/ui/feedback/use-presentation-feedback-channel';
 import { useWorkspaceDependencies } from '../../../../shared/contexts/workspace-dependencies-context';
 
 interface UseProjectFormDialogStateParams {
+  readonly defaultPartySettings: PartySettings;
   readonly isOpen: boolean;
   readonly mode: 'create' | 'edit';
   readonly project: Project | null;
-  readonly onSubmit: (values: { name: string; description: string | null }) => Promise<Project>;
+  readonly onSubmit: (values: {
+    name: string;
+    description: string | null;
+    partySettings: PartySettings;
+  }) => Promise<Project>;
   readonly onSubmitted: (project: Project) => void;
 }
 
 export function useProjectFormDialogState({
+  defaultPartySettings,
   isOpen,
   mode,
   project,
@@ -22,6 +32,7 @@ export function useProjectFormDialogState({
   const feedback = usePresentationFeedbackChannel();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [partySettings, setPartySettings] = useState<PartySettings>(DEFAULT_PARTY_SETTINGS);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -31,8 +42,9 @@ export function useProjectFormDialogState({
 
     setName(project?.name ?? '');
     setDescription(project?.description ?? '');
+    setPartySettings(project?.defaultPartySettings ?? defaultPartySettings);
     feedback.clearError();
-  }, [isOpen, mode, project?.id]);
+  }, [defaultPartySettings, isOpen, mode, project?.defaultPartySettings, project?.id]);
 
   async function handleSubmit() {
     feedback.clearError();
@@ -46,7 +58,12 @@ export function useProjectFormDialogState({
     setIsSubmitting(true);
 
     try {
-      const savedProject = await onSubmit(projectFormFacade.createInput(name, description));
+      const input = projectFormFacade.createInput(name, description, partySettings);
+      const savedProject = await onSubmit({
+        name: input.name,
+        description: input.description,
+        partySettings,
+      });
       onSubmitted(savedProject);
     } catch (error) {
       feedback.handleError(error, {
@@ -63,7 +80,9 @@ export function useProjectFormDialogState({
     handleSubmit,
     isSubmitting,
     name,
+    partySettings,
     setDescription,
     setName,
+    setPartySettings,
   };
 }

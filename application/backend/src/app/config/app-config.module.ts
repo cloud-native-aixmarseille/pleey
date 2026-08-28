@@ -1,8 +1,8 @@
 import { Global, Module } from '@nestjs/common';
-import { PARTY_SESSION_RECOVERY_WINDOW_MS } from '../../application/game/party/shared/contracts/party-session-recovery-window-ms.token';
 import { ACCESS_TOKEN_CONFIG, REFRESH_TOKEN_CONFIG } from '../../domain/identity/ports/auth-token.service';
 import { DATABASE_CONNECTION_STRING } from '../../infrastructure/database/database-connection-string.token';
 import { AUTH_JWT_SECRET } from '../../infrastructure/identity/auth-jwt-secret.token';
+import { PARTY_SESSION_RECOVERY_WINDOW_MS } from '../../presentation/game/party/realtime/party-session-recovery-window-ms.token';
 import { PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES_TOKEN } from '../../presentation/game/types/shared/graphql/playable-content-upload.constants';
 import { APP_VERSION } from '../../presentation/health/http/app-version.token';
 import { AUTH_PUBLIC_API_BASE_URL } from '../../presentation/identity/shared/auth-public-api-base-url.token';

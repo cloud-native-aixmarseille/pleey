@@ -97,7 +97,9 @@ describe('UpdateProjectUseCase', () => {
     );
 
     // Assert
-    expect(projectRepository.update).toHaveBeenCalledWith(projectId, 'Updated project', 'Refined scope');
+    expect(projectRepository.update).toHaveBeenCalledWith(projectId, 'Updated project', 'Refined scope', {
+      defaultPartySettings: null,
+    });
     expect(result).toBe(updatedProject);
   });
 });

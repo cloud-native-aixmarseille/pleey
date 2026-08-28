@@ -48,7 +48,9 @@ describe('CreateOrganizationUseCase', () => {
     const org = await useCase.execute(dto, backendTestIdentifiers.user(1));
     // Assert
     expect(memberRepository.create).toHaveBeenCalledWith(10, backendTestIdentifiers.user(1), OrganizationRole.OWNER);
-    expect(projectRepository.create).toHaveBeenCalledWith(10, 'Default', null);
+    expect(projectRepository.create).toHaveBeenCalledWith(10, 'Default', null, {
+      defaultPartySettings: null,
+    });
     expect(org).toMatchObject({ id: 10, name: 'Org' });
   });
 });

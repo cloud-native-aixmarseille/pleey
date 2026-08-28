@@ -19,7 +19,7 @@ import type { PartyActionId } from '../../../domain/game/party/shared/entities/p
 import type { PartyRuntimeContext } from '../../../domain/game/party/shared/entities/party-runtime-context';
 import type { PartyStageId } from '../../../domain/game/party/shared/entities/party-stage';
 import { PrismaService } from '../../database/prisma-service';
-import { PrismaGameSettingsMapper } from '../shared/prisma-game-settings.mapper';
+import { PrismaPartySettingsMapper } from '../shared/prisma-party-settings.mapper';
 import { PrismaPartyReadModelMapper } from './services/prisma-party-read-model-mapper';
 
 interface PersistedPartyPlayerStageProgressEntry {
@@ -46,7 +46,7 @@ export class PrismaPlayerPartyActionRuntimeAdapter extends PlayerPartyActionRunt
     private readonly guestIdentifier: GuestIdentifier,
     private readonly partyReadModelMapper: PrismaPartyReadModelMapper,
     private readonly userIdentifier: UserIdentifier,
-    private readonly gameSettingsMapper: PrismaGameSettingsMapper,
+    private readonly partySettingsMapper: PrismaPartySettingsMapper,
   ) {
     super();
   }
@@ -64,9 +64,9 @@ export class PrismaPlayerPartyActionRuntimeAdapter extends PlayerPartyActionRunt
         gameId: true,
         status: true,
         context: true,
+        settings: true,
         game: {
           select: {
-            ...this.gameSettingsMapper.select,
             type: true,
           },
         },
@@ -111,7 +111,7 @@ export class PrismaPlayerPartyActionRuntimeAdapter extends PlayerPartyActionRunt
       partyId: command.partyId,
       playerActionState: this.partyReadModelMapper.toPartyPlayerActionState(score.context),
       playerIdentity,
-      settings: this.gameSettingsMapper.toGameSettings(party.game),
+      settings: this.partySettingsMapper.toPartySettings(party.settings),
       status: this.partyReadModelMapper.toPartyStatus(party.status),
     };
   }

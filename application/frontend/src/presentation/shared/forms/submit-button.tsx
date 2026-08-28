@@ -1,4 +1,4 @@
-import type { SubmitButtonProps } from '../../../application/shared/contracts/form.port';
+import type { SubmitButtonProps } from '../../../application/shared/ports/form.port';
 import { Button } from '../ui/actions/button';
 import { useFormContext } from './form-context';
 

@@ -13,9 +13,6 @@ export interface PlayableManagementGame {
   readonly gameId: GameId;
   readonly title: string;
   readonly description: string | null;
-  readonly allowOptionChangeAfterVoting?: boolean;
-  readonly randomizeStageOrder?: boolean;
-  readonly randomizeOptionOrder?: boolean;
   readonly createdAt: string;
   readonly itemCount: number;
 }
@@ -39,9 +36,6 @@ export interface PlayableManagementState<TItemId extends string = string, TKind 
 export interface PlayableGameMetadataInput {
   readonly title: string;
   readonly description: string | null;
-  readonly allowOptionChangeAfterVoting?: boolean;
-  readonly randomizeStageOrder?: boolean;
-  readonly randomizeOptionOrder?: boolean;
 }
 
 export interface PlayableContentImportCreationInput extends PlayableGameMetadataInput {

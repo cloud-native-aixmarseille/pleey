@@ -186,6 +186,7 @@ function renderOrganizationScreen(
       <OrganizationScreen
         dashboardWorkspace={dashboardWorkspace}
         createOrganization={actions.createOrganization}
+        updateOrganization={actions.updateOrganization}
         listOrganizationMembers={listOrganizationMembers}
         addOrganizationMember={actions.addOrganizationMember}
         removeOrganizationMember={(member) => actions.removeOrganizationMember({ memberId: member.id })}
@@ -763,6 +764,7 @@ describe('OrganizationScreen', () => {
             setProjectSelection: vi.fn(),
           }}
           createOrganization={actions.createOrganization}
+          updateOrganization={actions.updateOrganization}
           listOrganizationMembers={actions.listOrganizationMembers}
           addOrganizationMember={actions.addOrganizationMember}
           removeOrganizationMember={(member) => actions.removeOrganizationMember({ memberId: member.id })}

@@ -8,6 +8,7 @@ import {
 import { PinAlreadyInUseError } from '../../../../../domain/game/party/errors/pin-already-in-use.error';
 import type { PartyPin } from '../../../../../domain/game/party/shared/entities/party';
 import type { PartySummary } from '../../../../../domain/game/party/shared/entities/party-summary';
+import { PartySettingsResolver } from '../../../../../domain/game/party/shared/services/party-settings-resolver';
 import { PasswordService } from '../../../../../domain/identity/services/password-service';
 import { NotAMemberError } from '../../../../../domain/organization/errors';
 import type { OrganizationMemberRepository } from '../../../../../domain/organization/ports/organization-member.repository';
@@ -29,6 +30,7 @@ export class CreatePartyUseCase {
     private readonly memberRepository: OrganizationMemberRepository,
     private readonly gamePermissionResolver: GamePermissionResolver,
     private readonly broadcastPartyObservationUseCase: BroadcastPartyObservationUseCase,
+    private readonly partySettingsResolver: PartySettingsResolver,
     private readonly partyPinIdentifier: PartyPinIdentifier,
     @Inject(PasswordService)
     private readonly passwordService: Pick<PasswordService, 'hash' | 'isValidPassword'>,
@@ -75,6 +77,11 @@ export class CreatePartyUseCase {
       privatePartyPassword && privatePartyPassword.length > 0
         ? await this.passwordService.hash(privatePartyPassword)
         : undefined;
+    const settings = this.partySettingsResolver.resolve({
+      organizationDefaultSettings: managedGame.organizationDefaultSettings,
+      projectDefaultSettings: managedGame.projectDefaultSettings,
+      settingsOverride: input.settingsOverride,
+    });
 
     for (let attempt = 0; attempt < CreatePartyUseCase.MAX_PIN_GENERATION_ATTEMPTS; attempt += 1) {
       try {
@@ -83,6 +90,7 @@ export class CreatePartyUseCase {
           hostUserId: input.hostUserId,
           pin: this.generatePin(),
           privatePartyPasswordHash,
+          settings,
         });
 
         await this.broadcastPartyObservationUseCase.broadcastIfPresent({

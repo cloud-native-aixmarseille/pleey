@@ -4,10 +4,10 @@ import { GameType, type GameTypeId } from '../../../../domains/game/types/shared
 import type { ProjectId } from '../../../../domains/project/entities/project';
 import {
   DEFAULT_PLAYABLE_CONTENT_IMPORT_EXAMPLE_FORMATS,
-  PlayableContentImportAcceptedTypesResolver,
   type PlayableContentImportExampleProvider,
-} from '../../../game/types/shared/contracts/playable-content-import.gateway';
+} from '../../../game/types/shared/ports/playable-content-import-example-provider.port';
 import { GameTypeRegistry } from '../../../game/types/shared/services/game-type-registry';
+import { PlayableContentImportAcceptedTypesResolver } from '../../../game/types/shared/services/playable-content-import-accepted-types-resolver';
 
 interface DashboardCreateGameCommand {
   readonly description: string | null;

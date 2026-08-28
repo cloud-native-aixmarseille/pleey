@@ -3,8 +3,10 @@ import type { Organization } from '../../../../domains/organization/entities/org
 import type { OrganizationMember } from '../../../../domains/organization/entities/organization-member';
 import type {
   AddOrganizationMemberCommand,
+  CreateOrganizationCommand,
   ListOrganizationMembersQuery,
   RemoveOrganizationMemberCommand,
+  UpdateOrganizationCommand,
   UpdateOrganizationMemberRoleCommand,
 } from '../../../../domains/organization/ports/organization-repository';
 import type { Project } from '../../../../domains/project/entities/project';
@@ -17,18 +19,20 @@ import type { PaginatedResult } from '../../../../domains/shared/value-objects/p
 import { CreateProjectUseCase } from '../../projects/use-cases/create-project-use-case';
 import { DeleteProjectUseCase } from '../../projects/use-cases/delete-project-use-case';
 import { UpdateProjectUseCase } from '../../projects/use-cases/update-project-use-case';
-import type { CreateOrganizationCommand } from '../contracts/create-organization-command';
 import { AddOrganizationMemberUseCase } from '../use-cases/add-organization-member-use-case';
 import { CreateOrganizationUseCase } from '../use-cases/create-organization-use-case';
 import { ListOrganizationMembersUseCase } from '../use-cases/list-organization-members-use-case';
 import { RemoveOrganizationMemberUseCase } from '../use-cases/remove-organization-member-use-case';
 import { UpdateOrganizationMemberRoleUseCase } from '../use-cases/update-organization-member-role-use-case';
+import { UpdateOrganizationUseCase } from '../use-cases/update-organization-use-case';
 
 @injectable()
 export class OrganizationManagementFacade {
   constructor(
     @inject(CreateOrganizationUseCase)
     private readonly createOrganizationUseCase: CreateOrganizationUseCase,
+    @inject(UpdateOrganizationUseCase)
+    private readonly updateOrganizationUseCase: UpdateOrganizationUseCase,
     @inject(ListOrganizationMembersUseCase)
     private readonly listOrganizationMembersUseCase: ListOrganizationMembersUseCase,
     @inject(AddOrganizationMemberUseCase)
@@ -47,6 +51,10 @@ export class OrganizationManagementFacade {
 
   createOrganization(command: CreateOrganizationCommand): Promise<Organization> {
     return this.createOrganizationUseCase.execute(command);
+  }
+
+  updateOrganization(command: UpdateOrganizationCommand): Promise<Organization> {
+    return this.updateOrganizationUseCase.execute(command);
   }
 
   listOrganizationMembers(query: ListOrganizationMembersQuery): Promise<PaginatedResult<OrganizationMember>> {

@@ -1,4 +1,5 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { PartySettingsType } from '../../../shared/graphql/types/party-settings-type';
 
 @ObjectType()
 export class ProjectType {
@@ -16,4 +17,7 @@ export class ProjectType {
 
   @Field()
   createdAt!: Date;
+
+  @Field(() => PartySettingsType, { nullable: true })
+  defaultPartySettings!: PartySettingsType | null;
 }

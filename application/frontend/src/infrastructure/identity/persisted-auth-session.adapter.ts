@@ -2,8 +2,8 @@ import { inject, injectable } from 'inversify';
 import type {
   AuthSessionTransport,
   AuthSessionTransportHandlers,
-} from '../../application/identity/contracts/auth-runtime.port';
-import { AuthSessionTransportToken } from '../../application/identity/contracts/auth-runtime.port';
+} from '../../application/identity/ports/auth-session-transport.port';
+import { AuthSessionTransportToken } from '../../application/identity/ports/auth-session-transport.port';
 import type { AuthSession } from '../../domains/identity/entities/auth-session';
 import { createDomainError } from '../../domains/shared/errors/domain-error';
 import { type StoragePort, StoragePortToken } from '../../domains/shared/ports/storage.port';

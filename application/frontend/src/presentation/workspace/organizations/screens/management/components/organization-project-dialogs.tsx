@@ -1,7 +1,18 @@
+import {
+  DEFAULT_PARTY_SETTINGS,
+  type PartySettings,
+} from '../../../../../../domains/game/party/shared/entities/party-settings';
+import type { Organization } from '../../../../../../domains/organization/entities/organization';
 import type { Project } from '../../../../../../domains/project/entities/project';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { ProjectFormDialog } from './project-form-dialog';
 import { ProjectRemovalDialog } from './project-removal-dialog';
+
+interface ProjectFormValues {
+  readonly name: string;
+  readonly description: string | null;
+  readonly partySettings: PartySettings;
+}
 
 interface OrganizationProjectDialogsProps {
   readonly availableMigrationProjects: readonly Project[];
@@ -10,12 +21,12 @@ interface OrganizationProjectDialogsProps {
   readonly closeEditProjectDialog: () => void;
   readonly editingProject: Project | null;
   readonly handleConfirmProjectRemoval: () => void;
-  readonly handleCreateProject: (values: { name: string; description: string | null }) => Promise<Project>;
+  readonly handleCreateProject: (values: ProjectFormValues) => Promise<Project>;
   readonly handleLoadMoreProjects: () => void;
   readonly handleMigrationProjectChange: (projectId: Project['id'] | null) => void;
   readonly handleProjectMutationCompleted: (project: Project) => void;
   readonly handleProjectSearchChange: (value: string) => void;
-  readonly handleUpdateProject: (values: { name: string; description: string | null }) => Promise<Project>;
+  readonly handleUpdateProject: (values: ProjectFormValues) => Promise<Project>;
   readonly hasMoreProjects: boolean;
   readonly isCreateProjectOpen: boolean;
   readonly isDeletingProject: boolean;
@@ -25,6 +36,7 @@ interface OrganizationProjectDialogsProps {
   readonly migrationProjectLabel: string | null;
   readonly projectPendingRemoval: Project | null;
   readonly projectTotalCount: number;
+  readonly selectedOrganization: Organization | null;
   readonly selectedOrganizationName: string | null;
 }
 
@@ -50,6 +62,7 @@ export function OrganizationProjectDialogs({
   migrationProjectLabel,
   projectPendingRemoval,
   projectTotalCount,
+  selectedOrganization,
   selectedOrganizationName,
 }: OrganizationProjectDialogsProps) {
   const { t } = usePresentationTranslation();
@@ -57,6 +70,7 @@ export function OrganizationProjectDialogs({
   return (
     <>
       <ProjectFormDialog
+        defaultPartySettings={selectedOrganization?.defaultPartySettings ?? DEFAULT_PARTY_SETTINGS}
         isOpen={isCreateProjectOpen}
         mode="create"
         onClose={closeCreateProjectDialog}
@@ -67,6 +81,7 @@ export function OrganizationProjectDialogs({
       />
 
       <ProjectFormDialog
+        defaultPartySettings={selectedOrganization?.defaultPartySettings ?? DEFAULT_PARTY_SETTINGS}
         isOpen={editingProject !== null}
         mode="edit"
         onClose={closeEditProjectDialog}

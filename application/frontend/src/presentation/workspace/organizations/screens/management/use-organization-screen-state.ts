@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { PartySettings } from '../../../../../domains/game/party/shared/entities/party-settings';
 import type { Organization, OrganizationId } from '../../../../../domains/organization/entities/organization';
 import { OrganizationRole } from '../../../../../domains/organization/entities/organization';
 import type { OrganizationMember } from '../../../../../domains/organization/entities/organization-member';
@@ -45,6 +46,7 @@ interface OrganizationScreenStateParams {
 interface ProjectFormValues {
   readonly name: string;
   readonly description: string | null;
+  readonly partySettings: PartySettings;
 }
 
 interface MemberFormValues {
@@ -226,6 +228,12 @@ export function useOrganizationScreenState({
     workspace.reloadWorkspace();
   }
 
+  function handleOrganizationUpdated(organization: Organization) {
+    actionFeedback.clearError();
+    dashboardWorkspace.setOrganizationSelection(organization.id);
+    workspace.reloadWorkspace();
+  }
+
   function handleProjectMutationCompleted(_project: Project) {
     const isCreateMutation = editingProject === null;
 
@@ -259,6 +267,7 @@ export function useOrganizationScreenState({
       organizationId: workspace.selectedOrganization.id,
       name: values.name,
       description: values.description,
+      defaultPartySettings: values.partySettings,
     });
   }
 
@@ -273,6 +282,7 @@ export function useOrganizationScreenState({
       projectId: editingProject.id,
       name: values.name,
       description: values.description,
+      defaultPartySettings: values.partySettings,
     });
   }
 
@@ -469,6 +479,7 @@ export function useOrganizationScreenState({
     handleAddOrganizationMember,
     handleCreateProject,
     handleOrganizationCreated,
+    handleOrganizationUpdated,
     handleMemberFormChange,
     handleProjectMutationCompleted,
     handleUpdateOrganizationMemberRole,

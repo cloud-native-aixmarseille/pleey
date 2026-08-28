@@ -1,6 +1,6 @@
 import { type RenderOptions, renderHook } from '@testing-library/react';
 import type { ReactElement, ReactNode } from 'react';
-import type { RoutingPort } from '../application/shared/contracts/routing.port';
+import type { RoutingPort } from '../application/shared/ports/routing.port';
 import { PresentationRoutingProvider } from '../presentation/shared/routing/router';
 import { renderWithUiProvider } from './render-with-ui-provider';
 

@@ -1,8 +1,13 @@
 import type { FormEvent } from 'react';
+import {
+  DEFAULT_PARTY_SETTINGS,
+  type PartySettings,
+} from '../../../../../../domains/game/party/shared/entities/party-settings';
 import type { Project } from '../../../../../../domains/project/entities/project';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../../shared/ui/actions/button';
 import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';
+import { Checkbox } from '../../../../../shared/ui/forms/checkbox';
 import { FieldShell } from '../../../../../shared/ui/forms/field-shell';
 import { Input } from '../../../../../shared/ui/forms/input';
 import { Textarea } from '../../../../../shared/ui/forms/textarea';
@@ -10,16 +15,22 @@ import { FormDialog } from '../../../../../shared/ui/overlay/form-dialog';
 import { useProjectFormDialogState } from './use-project-form-dialog-state';
 
 interface ProjectFormDialogProps {
+  readonly defaultPartySettings?: PartySettings;
   readonly isOpen: boolean;
   readonly mode: 'create' | 'edit';
   readonly organizationName: string | null;
   readonly project: Project | null;
   readonly onClose: () => void;
-  readonly onSubmit: (values: { name: string; description: string | null }) => Promise<Project>;
+  readonly onSubmit: (values: {
+    name: string;
+    description: string | null;
+    partySettings: PartySettings;
+  }) => Promise<Project>;
   readonly onSubmitted: (project: Project) => void;
 }
 
 export function ProjectFormDialog({
+  defaultPartySettings = DEFAULT_PARTY_SETTINGS,
   isOpen,
   mode,
   organizationName,
@@ -29,14 +40,24 @@ export function ProjectFormDialog({
   onSubmitted,
 }: ProjectFormDialogProps) {
   const { t } = usePresentationTranslation();
-  const { description, errorMessage, handleSubmit, isSubmitting, name, setDescription, setName } =
-    useProjectFormDialogState({
-      isOpen,
-      mode,
-      onSubmit,
-      onSubmitted,
-      project,
-    });
+  const {
+    description,
+    errorMessage,
+    handleSubmit,
+    isSubmitting,
+    name,
+    partySettings,
+    setDescription,
+    setName,
+    setPartySettings,
+  } = useProjectFormDialogState({
+    defaultPartySettings,
+    isOpen,
+    mode,
+    onSubmit,
+    onSubmitted,
+    project,
+  });
 
   async function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -90,6 +111,48 @@ export function ProjectFormDialog({
           rows={3}
           value={description}
           onChange={(event) => setDescription(event.target.value)}
+          disabled={isSubmitting}
+        />
+      </FieldShell>
+
+      <FieldShell id="project-party-settings" label={t('project.management.form.fields.partySettings.label')}>
+        <Checkbox
+          id="project-party-settings-change-after-voting"
+          label={t('project.management.form.fields.partySettings.allowOptionChangeAfterVotingLabel')}
+          description={t('project.management.form.fields.partySettings.allowOptionChangeAfterVotingDescription')}
+          checked={partySettings.allowOptionChangeAfterVoting}
+          onChange={(event) => {
+            setPartySettings({
+              ...partySettings,
+              allowOptionChangeAfterVoting: event.currentTarget.checked,
+            });
+          }}
+          disabled={isSubmitting}
+        />
+        <Checkbox
+          id="project-party-settings-randomize-stage-order"
+          label={t('project.management.form.fields.partySettings.randomizeStageOrderLabel')}
+          description={t('project.management.form.fields.partySettings.randomizeStageOrderDescription')}
+          checked={partySettings.randomizeStageOrder}
+          onChange={(event) => {
+            setPartySettings({
+              ...partySettings,
+              randomizeStageOrder: event.currentTarget.checked,
+            });
+          }}
+          disabled={isSubmitting}
+        />
+        <Checkbox
+          id="project-party-settings-randomize-option-order"
+          label={t('project.management.form.fields.partySettings.randomizeOptionOrderLabel')}
+          description={t('project.management.form.fields.partySettings.randomizeOptionOrderDescription')}
+          checked={partySettings.randomizeOptionOrder}
+          onChange={(event) => {
+            setPartySettings({
+              ...partySettings,
+              randomizeOptionOrder: event.currentTarget.checked,
+            });
+          }}
           disabled={isSubmitting}
         />
       </FieldShell>

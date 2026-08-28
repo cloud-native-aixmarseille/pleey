@@ -23,15 +23,6 @@ export class PredictionType {
 
   @Field(() => Int)
   promptCount!: number;
-
-  @Field(() => Boolean)
-  allowOptionChangeAfterVoting!: boolean;
-
-  @Field(() => Boolean)
-  randomizeStageOrder!: boolean;
-
-  @Field(() => Boolean)
-  randomizeOptionOrder!: boolean;
 }
 
 @ObjectType()

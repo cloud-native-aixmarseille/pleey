@@ -1,4 +1,4 @@
-import type { TextFormFieldProps } from '../../../application/shared/contracts/form.port';
+import type { TextFormFieldProps } from '../../../application/shared/ports/form.port';
 import { Input } from '../ui/forms/input';
 import { FormFieldShell } from './form-field-shell';
 import { useFieldState } from './use-field-state';

@@ -38,6 +38,8 @@ export class CreateProjectUseCase {
       });
     }
 
-    return this.projectRepository.create(organizationId, dto.name, dto.description ?? null);
+    return this.projectRepository.create(organizationId, dto.name, dto.description ?? null, {
+      defaultPartySettings: dto.defaultPartySettings ?? null,
+    });
   }
 }

@@ -1,4 +1,4 @@
-import type { TranslationVariables } from '../../application/shared/contracts/translation.port';
+import type { TranslationVariables } from '../../application/shared/ports/translation.port';
 
 interface PresentationTranslationMockValue {
   readonly currentLanguage: string;
