@@ -5,6 +5,7 @@ import {
   createOrganizationRepositoryMock,
 } from '../../../test-utils/mock-factories/organization.mock-factory';
 import { createProjectRepositoryMock } from '../../../test-utils/mock-factories/project-repository.mock-factory';
+import { DEFAULT_PARTY_SETTINGS } from '../../game/party/shared/entities/party-settings';
 import { DefaultWorkspaceService } from './default-workspace-service';
 
 const defaultOrganizationId = backendTestIdentifiers.organization(42);
@@ -31,9 +32,13 @@ describe('DefaultWorkspaceService', () => {
     await service.ensure(backendTestIdentifiers.user(7));
 
     // Assert
-    expect(organizationRepository.create).toHaveBeenCalledWith('Default', null);
+    expect(organizationRepository.create).toHaveBeenCalledWith('Default', null, {
+      defaultPartySettings: DEFAULT_PARTY_SETTINGS,
+    });
     expect(memberRepository.create).toHaveBeenCalled();
-    expect(projectRepository.create).toHaveBeenCalledWith(defaultOrganizationId, 'Default', null);
+    expect(projectRepository.create).toHaveBeenCalledWith(defaultOrganizationId, 'Default', null, {
+      defaultPartySettings: DEFAULT_PARTY_SETTINGS,
+    });
   });
 
   it('creates default project when membership exists but no project exists', async () => {
@@ -57,7 +62,9 @@ describe('DefaultWorkspaceService', () => {
 
     // Assert
     expect(projectRepository.countByOrganization).toHaveBeenCalledWith(latestOrganizationId);
-    expect(projectRepository.create).toHaveBeenCalledWith(latestOrganizationId, 'Default', null);
+    expect(projectRepository.create).toHaveBeenCalledWith(latestOrganizationId, 'Default', null, {
+      defaultPartySettings: DEFAULT_PARTY_SETTINGS,
+    });
   });
 
   it('does nothing when membership and project already exist', async () => {

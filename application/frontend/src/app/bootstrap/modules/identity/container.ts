@@ -1,5 +1,5 @@
 import { ContainerModule } from 'inversify';
-import { AuthSessionTransportToken } from '../../../../application/identity/contracts/auth-runtime.port';
+import { AuthSessionTransportToken } from '../../../../application/identity/ports/auth-session-transport.port';
 import { GuestIdentifier } from '../../../../application/identity/shared/services/identifiers/guest-identifier';
 import { UserIdentifier } from '../../../../application/identity/shared/services/identifiers/user-identifier';
 import { LoginUserUseCase } from '../../../../application/identity/use-cases/login-user-use-case';
@@ -7,7 +7,7 @@ import { LogoutUserUseCase } from '../../../../application/identity/use-cases/lo
 import { RegenerateAvatarUseCase } from '../../../../application/identity/use-cases/regenerate-avatar-use-case';
 import { RegisterUserUseCase } from '../../../../application/identity/use-cases/register-user-use-case';
 import { UpdateProfileUseCase } from '../../../../application/identity/use-cases/update-profile-use-case';
-import { ROUTE_FACTORY, type RouteFactory } from '../../../../application/shared/contracts/routing.port';
+import { ROUTE_FACTORY, type RouteFactory } from '../../../../application/shared/ports/routing.port';
 import { AuthRepositoryToken } from '../../../../domains/identity/ports/auth-repository';
 import { AuthPayloadInspector } from '../../../../domains/identity/services/auth-payload-inspector';
 import { GraphqlClient } from '../../../../infrastructure/graphql/client/graphql-client';

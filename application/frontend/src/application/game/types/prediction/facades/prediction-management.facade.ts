@@ -14,7 +14,7 @@ import type {
   PlayableManagementState,
 } from '../../../../../domains/game/types/shared/management/playable-management';
 import type { ProjectId } from '../../../../../domains/project/entities/project';
-import type { PlayableManagementGateway } from '../../shared/contracts/playable-management.gateway';
+import type { PlayableManagementGateway } from '../../shared/gateways/playable-management.gateway';
 
 @injectable()
 export class PredictionManagementFacade implements PlayableManagementGateway<PredictionPromptId> {

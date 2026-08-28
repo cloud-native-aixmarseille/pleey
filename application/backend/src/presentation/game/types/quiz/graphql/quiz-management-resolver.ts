@@ -113,9 +113,6 @@ export class QuizManagementResolver {
         quizId: this.gameTypeIdentifier.parse(quizId),
         title: input.title,
         description: input.description ?? null,
-        allowOptionChangeAfterVoting: input.allowOptionChangeAfterVoting,
-        randomizeStageOrder: input.randomizeStageOrder,
-        randomizeOptionOrder: input.randomizeOptionOrder,
       },
       this.resolveUserId(context),
     );
@@ -212,9 +209,6 @@ export class QuizManagementResolver {
       description: quiz.description,
       createdAt: quiz.createdAt,
       questionCount: quiz.questionCount,
-      allowOptionChangeAfterVoting: quiz.allowOptionChangeAfterVoting,
-      randomizeStageOrder: quiz.randomizeStageOrder,
-      randomizeOptionOrder: quiz.randomizeOptionOrder,
     };
   }
 

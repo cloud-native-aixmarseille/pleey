@@ -9,7 +9,7 @@ import { PartyPinIdentifier } from '../../../../application/game/party/shared/se
 import { StageIdentifier } from '../../../../application/game/party/shared/services/identifiers/stage-identifier';
 import { PartyRouteService } from '../../../../application/game/party/shared/services/party-route.service';
 import { GameTypeParser } from '../../../../application/game/types/shared/services/game-type-parser';
-import { ROUTE_FACTORY, type RouteFactory } from '../../../../application/shared/contracts/routing.port';
+import { ROUTE_FACTORY, type RouteFactory } from '../../../../application/shared/ports/routing.port';
 import {
   type PartyHostControlPort,
   PartyHostControlPortToken,
@@ -57,7 +57,7 @@ import { PartyRoutesFactory } from '../../../../presentation/game/party/shared/r
 import { PartyLobbyRuntimeRedirectResolver } from '../../../../presentation/game/party/shared/screens/party-lobby-runtime-redirect-resolver';
 import { AppProviderFactoryToken } from '../../app-provider-factory';
 import { AppPartyProviderFactory } from './app-party-provider-factory';
-import { PartyGameTypeRuntimeViewContributorToken } from './contracts/party-game-type-runtime-view-contributor';
+import { PartyGameTypeRuntimeViewContributorToken } from './party-game-type-runtime-view-contributor';
 import { AppPartyGameTypeRuntimeRegistry } from './services/app-party-game-type-runtime-registry';
 import { PredictionPartyGameTypeRuntimeView } from './services/prediction-party-game-type-runtime-view';
 import { QuizPartyGameTypeRuntimeView } from './services/quiz-party-game-type-runtime-view';

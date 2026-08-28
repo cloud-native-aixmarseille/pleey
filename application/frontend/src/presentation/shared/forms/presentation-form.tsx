@@ -1,9 +1,8 @@
-import type { FormEvent, FormHTMLAttributes, ReactNode } from 'react';
+import type { FormHTMLAttributes, ReactNode, SyntheticEvent } from 'react';
+import type { PresentationFormApi } from '../../../application/shared/ports/form.port';
 import { FormRoot } from '../ui/forms/frames';
 
-interface PresentationFormRuntime {
-  handleSubmit: () => void | Promise<void>;
-}
+type PresentationFormRuntime = Pick<PresentationFormApi<Record<string, unknown>>, 'handleSubmit'>;
 
 interface PresentationFormProps
   extends Omit<FormHTMLAttributes<HTMLFormElement>, 'children' | 'className' | 'onSubmit' | 'style'> {
@@ -12,7 +11,7 @@ interface PresentationFormProps
 }
 
 export function PresentationForm({ children, form, ...props }: PresentationFormProps) {
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
     event.stopPropagation();
     await form.handleSubmit();

@@ -28,6 +28,7 @@ type AuthUserProfileType {
 }
 
 input CreateOrganizationInput {
+  defaultPartySettings: PartySettingsInput
   description: String
   name: String!
 }
@@ -41,6 +42,7 @@ enum CreatePartyDisabledReason {
 input CreatePartyInput {
   gameId: ID!
   privatePartyPassword: String
+  settingsOverride: PartySettingsInput
 }
 
 input CreatePredictionFromImportInput {
@@ -66,6 +68,7 @@ input CreatePredictionPromptInput {
 }
 
 input CreateProjectInput {
+  defaultPartySettings: PartySettingsInput
   description: String
   name: String!
 }
@@ -157,6 +160,7 @@ type Mutation {
   regenerateAvatar: AuthUserProfileType!
   register(input: RegisterInput!): AuthUserProfileType!
   removeOrganizationMember(memberId: ID!): Boolean!
+  updateOrganization(input: UpdateOrganizationInput!, organizationId: ID!): OrganizationType!
   updateOrganizationMemberRole(input: UpdateOrganizationMemberRoleInput!, memberId: ID!): OrganizationMemberType!
   updatePrediction(input: UpdatePredictionInput!, predictionId: ID!): PredictionType!
   updatePredictionPrompt(input: UpdatePredictionPromptInput!, promptId: ID!): PredictionPromptType!
@@ -227,6 +231,7 @@ enum OrganizationRole {
 
 type OrganizationType {
   createdAt: DateTime!
+  defaultPartySettings: PartySettingsType
   description: String
   id: ID!
   name: String!
@@ -246,6 +251,18 @@ type PartyListType {
 enum PartyRole {
   HOST
   PLAYER
+}
+
+input PartySettingsInput {
+  allowOptionChangeAfterVoting: Boolean
+  randomizeOptionOrder: Boolean
+  randomizeStageOrder: Boolean
+}
+
+type PartySettingsType {
+  allowOptionChangeAfterVoting: Boolean!
+  randomizeOptionOrder: Boolean!
+  randomizeStageOrder: Boolean!
 }
 
 enum PartyStatus {
@@ -275,14 +292,11 @@ type PredictionPromptType {
 }
 
 type PredictionType {
-  allowOptionChangeAfterVoting: Boolean!
   createdAt: DateTime!
   description: String
   gameId: ID!
   predictionId: ID!
   promptCount: Int!
-  randomizeOptionOrder: Boolean!
-  randomizeStageOrder: Boolean!
   title: String!
   type: String!
 }
@@ -328,6 +342,7 @@ type ProjectListType {
 
 type ProjectType {
   createdAt: DateTime!
+  defaultPartySettings: PartySettingsType
   description: String
   id: ID!
   name: String!
@@ -365,14 +380,11 @@ type QuizQuestionTypeObject {
 }
 
 type QuizType {
-  allowOptionChangeAfterVoting: Boolean!
   createdAt: DateTime!
   description: String
   gameId: ID!
   questionCount: Int!
   quizId: ID!
-  randomizeOptionOrder: Boolean!
-  randomizeStageOrder: Boolean!
   title: String!
   type: String!
 }
@@ -401,15 +413,18 @@ type SelectableOptionType {
   text: String
 }
 
+input UpdateOrganizationInput {
+  defaultPartySettings: PartySettingsInput
+  description: String
+  name: String!
+}
+
 input UpdateOrganizationMemberRoleInput {
   role: OrganizationRole!
 }
 
 input UpdatePredictionInput {
-  allowOptionChangeAfterVoting: Boolean
   description: String
-  randomizeOptionOrder: Boolean
-  randomizeStageOrder: Boolean
   title: String!
 }
 
@@ -427,15 +442,13 @@ input UpdateProfileInput {
 }
 
 input UpdateProjectInput {
+  defaultPartySettings: PartySettingsInput
   description: String
   name: String!
 }
 
 input UpdateQuizInput {
-  allowOptionChangeAfterVoting: Boolean
   description: String
-  randomizeOptionOrder: Boolean
-  randomizeStageOrder: Boolean
   title: String!
 }
 

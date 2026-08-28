@@ -1,5 +1,6 @@
 import type { GameId } from '../../../../../domain/game/entities/game';
 import type { PartyId, PartyPin } from '../../../../../domain/game/party/shared/entities/party';
+import type { PartySettings } from '../../../../../domain/game/party/shared/entities/party-settings';
 import type { PartySummary } from '../../../../../domain/game/party/shared/entities/party-summary';
 import type { UserId } from '../../../../../domain/identity/entities/user';
 import type { OrganizationId } from '../../../../../domain/organization/entities/organization';
@@ -11,6 +12,8 @@ export interface ManagedGameContext {
   readonly gameId: GameId;
   readonly projectId: ProjectId;
   readonly organizationId: OrganizationId;
+  readonly projectDefaultSettings: PartySettings | null;
+  readonly organizationDefaultSettings: PartySettings | null;
 }
 
 export interface ActivePartyHostConflict {
@@ -28,6 +31,7 @@ export interface CreatePartyCommand {
   readonly hostUserId: UserId;
   readonly pin: PartyPin;
   readonly privatePartyPasswordHash?: string;
+  readonly settings: PartySettings;
 }
 
 export interface ListPartiesQuery extends PaginationQuery {

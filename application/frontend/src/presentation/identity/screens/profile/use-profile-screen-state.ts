@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { PresentationFormApi } from '../../../../application/shared/contracts/form.port';
+import type { PresentationFormApi } from '../../../../application/shared/ports/form.port';
 import type { UpdateProfileInput } from '../../../../domains/identity/ports/auth-repository';
 import { usePresentationForm } from '../../../shared/forms/use-presentation-form';
 import { usePresentationTranslation } from '../../../shared/i18n/use-presentation-translation';

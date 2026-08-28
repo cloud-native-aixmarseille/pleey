@@ -1,5 +1,5 @@
 import { injectable } from 'inversify';
-import type { PresentationRouteObject, RouteFactory } from '../../../application/shared/contracts/routing.port';
+import type { PresentationRouteObject, RouteFactory } from '../../../application/shared/ports/routing.port';
 import { GuestOnlyRoute } from '../../shared/routing/guest-only-route';
 import { ProtectedRoute } from '../../shared/routing/protected-route';
 import { PatienceRouteProvider } from '../../shared/ui/patience';

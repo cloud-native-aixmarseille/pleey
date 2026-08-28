@@ -25,7 +25,7 @@ const ORGANIZATION_MEMBER_REPOSITORY_METHOD_KINDS: MockFactoryMethodKinds<Organi
 };
 
 const ORGANIZATION_REPOSITORY_METHOD_KINDS: MockFactoryMethodKinds<OrganizationRepository> = {
-  resolved: ['create', 'findById', 'findByIds', 'findByName'],
+  resolved: ['create', 'update', 'findById', 'findByIds', 'findByName'],
   returned: [],
 };
 
@@ -53,6 +53,7 @@ export const createOrganizationRepositoryMock = (
 ): Mocked<OrganizationRepository> => {
   const mock: Mocked<OrganizationRepository> = {
     create: mockFn<OrganizationRepository['create']>(),
+    update: mockFn<OrganizationRepository['update']>(),
     findById: mockFn<OrganizationRepository['findById']>(),
     findByIds: mockFn<OrganizationRepository['findByIds']>(),
     findByName: mockFn<OrganizationRepository['findByName']>(),

@@ -52,6 +52,7 @@ describe('GraphqlProjectRepository', () => {
             description: null,
             organizationId: organizationIdentifier.parse(3),
             createdAt: '2026-03-10T16:00:00.000Z',
+            defaultPartySettings: null,
           },
         ],
         totalCount: 1,
@@ -109,6 +110,7 @@ describe('GraphqlProjectRepository', () => {
         organizationId: organizationIdentifier.parse(3),
         name: 'Spring Event',
         description: 'Launch campaign',
+        defaultPartySettings: null,
       });
 
       // Assert
@@ -118,6 +120,7 @@ describe('GraphqlProjectRepository', () => {
         description: 'Launch campaign',
         organizationId: organizationIdentifier.parse(3),
         createdAt: '2026-03-10T16:00:00.000Z',
+        defaultPartySettings: null,
       });
     });
 
@@ -134,6 +137,7 @@ describe('GraphqlProjectRepository', () => {
           organizationId: organizationIdentifier.parse(3),
           name: 'Spring Event',
           description: null,
+          defaultPartySettings: null,
         }),
       ).rejects.toThrow(ProjectErrorCode.CREATE_FAILED);
     });
@@ -160,6 +164,7 @@ describe('GraphqlProjectRepository', () => {
         projectId: projectIdentifier.parse(22),
         name: 'Spring Event 2',
         description: 'Expanded launch',
+        defaultPartySettings: null,
       });
 
       // Assert
@@ -169,6 +174,7 @@ describe('GraphqlProjectRepository', () => {
         description: 'Expanded launch',
         organizationId: organizationIdentifier.parse(3),
         createdAt: '2026-03-10T16:00:00.000Z',
+        defaultPartySettings: null,
       });
     });
 
@@ -185,6 +191,7 @@ describe('GraphqlProjectRepository', () => {
           projectId: projectIdentifier.parse(22),
           name: 'Spring Event 2',
           description: null,
+          defaultPartySettings: null,
         }),
       ).rejects.toThrow(ProjectErrorCode.UPDATE_FAILED);
     });

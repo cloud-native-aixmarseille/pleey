@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import type { Project as PrismaProject } from '@prisma/client';
+import { Prisma, type Project as PrismaProject } from '@prisma/client';
 import { PaginationQueryNormalizer } from '../../../application/shared/services/pagination-query-normalizer';
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { ProjectIdentifier } from '../../../application/workspace/shared/services/identifiers/project-identifier';
 import type { OrganizationId } from '../../../domain/organization/entities/organization';
 import { Project, type ProjectId } from '../../../domain/project/entities/project';
-import type { ProjectRepository } from '../../../domain/project/ports/project.repository';
+import type { PartySettingsDefaultsInput, ProjectRepository } from '../../../domain/project/ports/project.repository';
 import type { PaginatedResult } from '../../../domain/shared/value-objects/paginated-result';
 import { PrismaService } from '../../database/prisma-service';
+import { PrismaPartySettingsMapper } from '../../game/shared/prisma-party-settings.mapper';
 
 @Injectable()
 export class PrismaProjectRepository implements ProjectRepository {
@@ -16,16 +17,24 @@ export class PrismaProjectRepository implements ProjectRepository {
     private readonly organizationIdentifier: OrganizationIdentifier,
     private readonly projectIdentifier: ProjectIdentifier,
     private readonly paginationQueryNormalizer: PaginationQueryNormalizer,
+    private readonly partySettingsMapper: PrismaPartySettingsMapper,
   ) {}
 
-  async create(organizationId: OrganizationId, name: string, description: string | null): Promise<Project> {
+  async create(
+    organizationId: OrganizationId,
+    name: string,
+    description: string | null,
+    defaults: PartySettingsDefaultsInput,
+  ): Promise<Project> {
     const project = await this.prisma.project.create({
       data: {
+        defaultPartySettings:
+          defaults.defaultPartySettings === null
+            ? Prisma.DbNull
+            : this.partySettingsMapper.toPersistedPartySettings(defaults.defaultPartySettings),
         name,
         description,
-        organization: {
-          connect: { id: organizationId },
-        },
+        organizationId,
       },
     });
 
@@ -117,10 +126,22 @@ export class PrismaProjectRepository implements ProjectRepository {
     });
   }
 
-  async update(id: ProjectId, name: string, description: string | null): Promise<Project> {
+  async update(
+    id: ProjectId,
+    name: string,
+    description: string | null,
+    defaults: PartySettingsDefaultsInput,
+  ): Promise<Project> {
     const project = await this.prisma.project.update({
       where: { id },
-      data: { name, description },
+      data: {
+        defaultPartySettings:
+          defaults.defaultPartySettings === null
+            ? Prisma.DbNull
+            : this.partySettingsMapper.toPersistedPartySettings(defaults.defaultPartySettings),
+        name,
+        description,
+      },
     });
 
     return this.toDomain(project);
@@ -133,6 +154,7 @@ export class PrismaProjectRepository implements ProjectRepository {
       project.description,
       this.organizationIdentifier.parse(project.organizationId),
       project.createdAt,
+      this.partySettingsMapper.toOptionalPartySettings(project.defaultPartySettings),
     );
   }
 }

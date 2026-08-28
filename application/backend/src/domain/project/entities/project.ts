@@ -1,3 +1,4 @@
+import type { PartySettings } from '../../game/party/shared/entities/party-settings';
 import type { OrganizationId } from '../../organization/entities/organization';
 
 export type ProjectId = string & {
@@ -11,6 +12,7 @@ export class Project {
     public readonly description: string | null,
     public readonly organizationId: OrganizationId,
     public readonly createdAt: Date,
+    public readonly defaultPartySettings: PartySettings | null = null,
   ) {}
 
   hasValidName(): boolean {

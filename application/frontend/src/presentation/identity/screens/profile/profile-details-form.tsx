@@ -1,4 +1,4 @@
-import type { PresentationFormApi } from '../../../../application/shared/contracts/form.port';
+import type { PresentationFormApi } from '../../../../application/shared/ports/form.port';
 import { FormSection } from '../../../shared/forms/form-section';
 import { PresentationForm } from '../../../shared/forms/presentation-form';
 import { SubmitButton } from '../../../shared/forms/submit-button';

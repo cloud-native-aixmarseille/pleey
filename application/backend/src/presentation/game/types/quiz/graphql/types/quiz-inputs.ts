@@ -3,7 +3,6 @@ import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
-  IsBoolean,
   IsEnum,
   IsInt,
   IsNotEmpty,
@@ -67,21 +66,6 @@ export class UpdateQuizInput {
   @IsString()
   @MaxLength(500)
   description?: string | null;
-
-  @Field(() => Boolean, { nullable: true })
-  @IsOptional()
-  @IsBoolean()
-  allowOptionChangeAfterVoting?: boolean;
-
-  @Field(() => Boolean, { nullable: true })
-  @IsOptional()
-  @IsBoolean()
-  randomizeStageOrder?: boolean;
-
-  @Field(() => Boolean, { nullable: true })
-  @IsOptional()
-  @IsBoolean()
-  randomizeOptionOrder?: boolean;
 }
 
 @InputType()

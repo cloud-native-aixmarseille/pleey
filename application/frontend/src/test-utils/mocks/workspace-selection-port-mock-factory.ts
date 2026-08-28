@@ -2,7 +2,7 @@ import { vi } from 'vitest';
 import type {
   WorkspaceSelection,
   WorkspaceSelectionPort,
-} from '../../application/workspace/contracts/workspace-selection.port';
+} from '../../application/workspace/ports/workspace-selection.port';
 
 const EMPTY_WORKSPACE_SELECTION: WorkspaceSelection = {
   organizationId: null,

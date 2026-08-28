@@ -24,7 +24,6 @@ import type { SubmitPartyActionDto } from '../../../../application/game/party/pl
 import { JoinPartyUseCase } from '../../../../application/game/party/player/use-cases/join-party-use-case';
 import { LeavePartyUseCase } from '../../../../application/game/party/player/use-cases/leave-party-use-case';
 import { SubmitPartyActionUseCase } from '../../../../application/game/party/player/use-cases/submit-party-action-use-case';
-import { PARTY_SESSION_RECOVERY_WINDOW_MS } from '../../../../application/game/party/shared/contracts/party-session-recovery-window-ms.token';
 import { PartyActionIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-action-identifier';
 import { PartyIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-identifier';
 import { PartyPinIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-pin-identifier';
@@ -59,6 +58,7 @@ import {
   SubmitPartyActionMessageDto,
 } from './party-observer-message.dto';
 import type { PartyObserverSocketData } from './party-observer-socket-data';
+import { PARTY_SESSION_RECOVERY_WINDOW_MS } from './party-session-recovery-window-ms.token';
 import {
   PARTY_SOCKET_INBOUND_EVENTS,
   type PartyRuntimeNoticeKind,

@@ -6,6 +6,11 @@ query WorkspaceProjectsByOrganization($input: ListOrganizationProjectsInput!) {
       description
       organizationId
       createdAt
+      defaultPartySettings {
+        allowOptionChangeAfterVoting
+        randomizeOptionOrder
+        randomizeStageOrder
+      }
     }
     totalCount
     overallCount
@@ -22,6 +27,11 @@ mutation CreateProject($organizationId: ID!, $input: CreateProjectInput!) {
     description
     organizationId
     createdAt
+    defaultPartySettings {
+      allowOptionChangeAfterVoting
+      randomizeOptionOrder
+      randomizeStageOrder
+    }
   }
 }
 
@@ -32,6 +42,11 @@ mutation UpdateProject($projectId: ID!, $input: UpdateProjectInput!) {
     description
     organizationId
     createdAt
+    defaultPartySettings {
+      allowOptionChangeAfterVoting
+      randomizeOptionOrder
+      randomizeStageOrder
+    }
   }
 }
 

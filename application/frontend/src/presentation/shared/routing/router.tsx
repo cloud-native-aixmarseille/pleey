@@ -3,7 +3,7 @@ import type {
   PresentationNavigate,
   PresentationParams,
   RoutingPort,
-} from '../../../application/shared/contracts/routing.port';
+} from '../../../application/shared/ports/routing.port';
 import { PresentationRoutingProviderRequiredError } from '../../../domains/shared/errors/presentation-context-error-code';
 
 const RoutingContext = createContext<RoutingPort | null>(null);

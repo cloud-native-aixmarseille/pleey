@@ -6,7 +6,7 @@ import { PredictionHostResultPanel } from '../../../../../presentation/game/type
 import { PredictionHostStagePanel } from '../../../../../presentation/game/types/prediction/screens/live/components/prediction-host-stage-panel';
 import { PredictionPlayerResultSurface } from '../../../../../presentation/game/types/prediction/screens/live/components/prediction-player-result-surface';
 import { PredictionPlayerStageSurface } from '../../../../../presentation/game/types/prediction/screens/live/components/prediction-player-stage-surface';
-import type { PartyGameTypeRuntimeViewContributor } from '../contracts/party-game-type-runtime-view-contributor';
+import type { PartyGameTypeRuntimeViewContributor } from '../party-game-type-runtime-view-contributor';
 
 type HostRuntimePanelProps = Parameters<PartyGameTypeRuntimeView['renderHostResultPanel']>[0];
 type PlayerResultSurfaceProps = Parameters<PartyGameTypeRuntimeView['renderPlayerResultSurface']>[0];

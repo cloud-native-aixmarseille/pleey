@@ -3,6 +3,7 @@ import type { GameId } from '../../../../domains/game/entities/game';
 import type { DashboardGameListPage } from '../../../../domains/game/management/entities/dashboard-game-list-page';
 import type { DashboardGameListQuery } from '../../../../domains/game/management/entities/dashboard-game-list-query';
 import type { Party } from '../../../../domains/game/party/shared/entities/party';
+import type { PartySettings } from '../../../../domains/game/party/shared/entities/party-settings';
 import type { Organization, OrganizationId } from '../../../../domains/organization/entities/organization';
 import type { OrganizationDashboard } from '../../../../domains/organization/entities/organization-dashboard';
 import type { Project, ProjectId } from '../../../../domains/project/entities/project';
@@ -11,9 +12,9 @@ import type { PaginationQuery } from '../../../../domains/shared/value-objects/p
 import { ListProjectGamesUseCase } from '../../../game/management/use-cases/list-project-games-use-case';
 import { CreatePartyUseCase } from '../../../game/party/host/use-cases/create-party-use-case';
 import { ListPartiesUseCase } from '../../../game/party/host/use-cases/list-parties-use-case';
-import { WORKSPACE_SELECTION_PORT, type WorkspaceSelectionPort } from '../../contracts/workspace-selection.port';
 import { GetOrganizationDashboardUseCase } from '../../organizations/use-cases/get-organization-dashboard-use-case';
 import { ListMyOrganizationsUseCase } from '../../organizations/use-cases/list-my-organizations-use-case';
+import { WORKSPACE_SELECTION_PORT, type WorkspaceSelectionPort } from '../../ports/workspace-selection.port';
 import { ListOrganizationProjectsUseCase } from '../../projects/use-cases/list-organization-projects-use-case';
 
 const DEFAULT_PAGE = 1;
@@ -55,7 +56,10 @@ function createEmptyPage<TItem>(
 export interface DashboardWorkspaceGateway {
   loadProjectGameCatalog(query: DashboardGameListQuery): Promise<DashboardGameListPage>;
   loadUserParties(): Promise<readonly Party[]>;
-  createParty(gameId: GameId, options?: { privatePartyPassword?: string }): Promise<Party>;
+  createParty(
+    gameId: GameId,
+    options?: { privatePartyPassword?: string; settingsOverride?: Partial<PartySettings> },
+  ): Promise<Party>;
   loadOrganizationsPage(query?: PaginationQuery): Promise<PaginatedResult<Organization>>;
   restoreOrganizationSelection(query?: PaginationQuery): Promise<DashboardOrganizationSelection>;
   loadOrganizationProjectsPage(query: DashboardOrganizationProjectsPageQuery): Promise<PaginatedResult<Project>>;
@@ -91,10 +95,14 @@ export class DashboardWorkspaceFacade implements DashboardWorkspaceGateway {
     return this.listPartiesUseCase.execute();
   }
 
-  createParty(gameId: GameId, options?: { privatePartyPassword?: string }): Promise<Party> {
+  createParty(
+    gameId: GameId,
+    options?: { privatePartyPassword?: string; settingsOverride?: Partial<PartySettings> },
+  ): Promise<Party> {
     return this.createPartyUseCase.execute({
       gameId,
       privatePartyPassword: options?.privatePartyPassword,
+      settingsOverride: options?.settingsOverride,
     });
   }
 

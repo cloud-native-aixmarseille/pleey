@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { Organization, OrganizationId } from '../../../../../../domains/organization/entities/organization';
 import type { OrganizationDashboard } from '../../../../../../domains/organization/entities/organization-dashboard';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
@@ -13,6 +14,7 @@ interface OrganizationOverviewPanelProps {
   readonly organizations: readonly Organization[];
   readonly hasMoreOrganizations: boolean;
   readonly organizationId: OrganizationId | null;
+  readonly organizationAction?: ReactNode;
   readonly organizationEmptyLabel: string;
   readonly organizationLoadingLabel: string;
   readonly organizationNoResultsLabel: string;
@@ -31,6 +33,7 @@ export function OrganizationOverviewPanel({
   organizations,
   hasMoreOrganizations,
   organizationId,
+  organizationAction,
   organizationEmptyLabel,
   organizationLoadingLabel,
   organizationNoResultsLabel,
@@ -86,6 +89,7 @@ export function OrganizationOverviewPanel({
                 date: formatDate(selectedOrganization.createdAt, currentLanguage),
               })}
             </SupportingText>
+            {organizationAction}
           </ActionRow>
         ) : (
           <SupportingText>{t('organization.management.details.empty')}</SupportingText>

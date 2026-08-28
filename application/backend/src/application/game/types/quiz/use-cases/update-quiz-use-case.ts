@@ -11,9 +11,6 @@ interface UpdateQuizCommand {
   readonly quizId: GameTypeId;
   readonly title: string;
   readonly description: string | null;
-  readonly allowOptionChangeAfterVoting?: boolean;
-  readonly randomizeStageOrder?: boolean;
-  readonly randomizeOptionOrder?: boolean;
 }
 
 @Injectable()
@@ -35,9 +32,6 @@ export class UpdateQuizUseCase {
     return this.quizRepository.update(quiz.id, {
       title: command.title,
       description: command.description,
-      allowOptionChangeAfterVoting: command.allowOptionChangeAfterVoting,
-      randomizeStageOrder: command.randomizeStageOrder,
-      randomizeOptionOrder: command.randomizeOptionOrder,
     });
   }
 }

@@ -36,12 +36,16 @@ export class CreateOrganizationUseCase {
     }
 
     // Create the organization
-    const organization = await this.organizationRepository.create(dto.name, dto.description || null);
+    const organization = await this.organizationRepository.create(dto.name, dto.description || null, {
+      defaultPartySettings: dto.defaultPartySettings ?? null,
+    });
 
     // Add the creator as owner
     await this.memberRepository.create(organization.id, creatorUserId, OrganizationRole.OWNER);
 
-    await this.projectRepository.create(organization.id, DEFAULT_PROJECT_NAME, null);
+    await this.projectRepository.create(organization.id, DEFAULT_PROJECT_NAME, null, {
+      defaultPartySettings: dto.defaultPartySettings ?? null,
+    });
 
     return organization;
   }

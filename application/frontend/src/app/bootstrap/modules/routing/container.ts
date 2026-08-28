@@ -3,7 +3,7 @@ import { createBrowserRouter } from 'react-router-dom';
 import {
   APPLICATION_VERSION_PORT,
   type ApplicationVersionPort,
-} from '../../../../application/shared/contracts/application-version.port';
+} from '../../../../application/shared/ports/application-version.port';
 import { HttpApplicationVersionAdapter } from '../../../../infrastructure/config/http-application-version.adapter';
 import { ROUTE_REGISTRY, RouteRegistry } from '../../../routing/route-registry';
 import { AppProviderFactoryToken } from '../../app-provider-factory';

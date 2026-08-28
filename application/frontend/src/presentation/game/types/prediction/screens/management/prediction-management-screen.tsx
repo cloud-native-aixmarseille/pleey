@@ -1,4 +1,4 @@
-import type { PlayableContentManagementGateway } from '../../../../../../application/game/types/shared/contracts/playable-management.gateway';
+import type { PlayableContentManagementGateway } from '../../../../../../application/game/types/shared/gateways/playable-management.gateway';
 import type { PredictionPromptId } from '../../../../../../domains/game/types/prediction/entities/prediction-prompt-id';
 import { PresentationRedirect, usePresentationParams } from '../../../../../shared/routing/router';
 import type { ManagementGameTypeIdParser } from '../../../shared/management/playable-content-management-model';

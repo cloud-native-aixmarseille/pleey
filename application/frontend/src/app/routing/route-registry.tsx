@@ -3,8 +3,8 @@ import type { RouteObject } from 'react-router-dom';
 import {
   APPLICATION_VERSION_PORT,
   type ApplicationVersionPort,
-} from '../../application/shared/contracts/application-version.port';
-import { ROUTE_FACTORY, type RouteFactory } from '../../application/shared/contracts/routing.port';
+} from '../../application/shared/ports/application-version.port';
+import { ROUTE_FACTORY, type RouteFactory } from '../../application/shared/ports/routing.port';
 import { HomeScreen } from '../../presentation/home/screens/home/home-screen';
 import { NotFoundScreen } from '../../presentation/not-found/screens/not-found/not-found-screen';
 import { AppShellLayout } from '../../presentation/shared/layouts/app-shell-layout';

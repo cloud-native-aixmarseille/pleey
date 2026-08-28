@@ -1,3 +1,4 @@
+import type { PartySettings } from '../../game/party/shared/entities/party-settings';
 import type { OrganizationId } from '../../organization/entities/organization';
 import type { PaginatedResult } from '../../shared/value-objects/paginated-result';
 import type { PaginationQuery } from '../../shared/value-objects/pagination-query';
@@ -11,12 +12,14 @@ export interface CreateProjectCommand {
   readonly organizationId: OrganizationId;
   readonly name: string;
   readonly description: string | null;
+  readonly defaultPartySettings?: PartySettings | null;
 }
 
 export interface UpdateProjectCommand {
   readonly projectId: ProjectId;
   readonly name: string;
   readonly description: string | null;
+  readonly defaultPartySettings?: PartySettings | null;
 }
 
 export interface DeleteProjectCommand {

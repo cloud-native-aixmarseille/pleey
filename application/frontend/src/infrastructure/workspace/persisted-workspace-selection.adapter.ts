@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import type { WorkspaceSelectionPort } from '../../application/workspace/contracts/workspace-selection.port';
+import type { WorkspaceSelectionPort } from '../../application/workspace/ports/workspace-selection.port';
 import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
 import { ProjectIdentifier } from '../../application/workspace/shared/services/identifiers/project-identifier';
 import type { OrganizationId } from '../../domains/organization/entities/organization';

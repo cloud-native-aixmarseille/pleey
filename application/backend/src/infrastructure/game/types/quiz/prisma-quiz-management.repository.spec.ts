@@ -6,7 +6,6 @@ import { QuizQuestionType } from '../../../../domain/game/types/quiz/entities/qu
 import { SelectableOption } from '../../../../domain/game/types/shared/entities/selectable-option';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import type { PrismaService } from '../../../database/prisma-service';
-import { PrismaGameSettingsMapper } from '../../shared/prisma-game-settings.mapper';
 import { PrismaQuizManagementRepository } from './prisma-quiz-management.repository';
 
 describe('PrismaQuizManagementRepository', () => {
@@ -37,7 +36,6 @@ describe('PrismaQuizManagementRepository', () => {
       new GameIdentifier(),
       new GameTypeIdentifier(),
       projectIdentifier,
-      new PrismaGameSettingsMapper(),
     );
 
     // Act

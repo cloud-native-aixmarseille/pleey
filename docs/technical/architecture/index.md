@@ -47,7 +47,7 @@ Inner layers never import outer layers. The `app/` layer is the composition root
 Domain and application layers define **ports** (interfaces + DI tokens). Infrastructure provides **adapters** (concrete implementations). Binding happens in the composition root.
 
 - **Backend**: Ports use `Symbol` tokens or `abstract class` as NestJS provider tokens. Bound in `app/modules/` via `{ provide: TOKEN, useExisting: Adapter }`.
-- **Frontend**: Ports use Inversify `Symbol` service identifiers defined in `application/*/contracts/`. Bound in `app/composition/container-modules/`.
+- **Frontend**: Application ports use Inversify `Symbol` service identifiers defined in `application/*/ports/`. Bound in `app/composition/container-modules/`.
 
 ### Error Handling Strategy
 

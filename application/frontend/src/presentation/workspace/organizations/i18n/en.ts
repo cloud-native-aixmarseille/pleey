@@ -63,7 +63,24 @@ export const organizationEn = {
             label: 'Description',
             placeholder: 'Describe the organization (optional)',
           },
+          partySettings: {
+            label: 'Default party mode',
+            allowOptionChangeAfterVotingLabel: 'Allow players to change answer after voting',
+            allowOptionChangeAfterVotingDescription: 'Participants can update their choice until the stage ends.',
+            randomizeStageOrderLabel: 'Randomize stage order',
+            randomizeStageOrderDescription: 'Shuffle stage order each time a party starts.',
+            randomizeOptionOrderLabel: 'Randomize outcome order',
+            randomizeOptionOrderDescription: 'Shuffle the answer or outcome order in each stage.',
+          },
         },
+      },
+      edit: {
+        eyebrow: 'Update organization',
+        openButton: 'Edit organization',
+        title: 'Edit organization',
+        submit: 'Save changes',
+        submitting: 'Saving changes...',
+        success: 'Organization updated successfully.',
       },
       validation: {
         nameRequired: 'Organization name is required.',
@@ -75,6 +92,7 @@ export const organizationEn = {
       memberAddFailed: 'Unable to add the organization member.',
       memberRemoveFailed: 'Unable to remove the organization member.',
       memberRoleUpdateFailed: 'Unable to update the organization member role.',
+      updateFailed: 'Unable to update the organization.',
     },
   },
   project: {
@@ -121,6 +139,15 @@ export const organizationEn = {
           description: {
             label: 'Description',
             placeholder: 'Describe the project (optional)',
+          },
+          partySettings: {
+            label: 'Default party mode',
+            allowOptionChangeAfterVotingLabel: 'Allow players to change answer after voting',
+            allowOptionChangeAfterVotingDescription: 'Participants can update their choice until the stage ends.',
+            randomizeStageOrderLabel: 'Randomize stage order',
+            randomizeStageOrderDescription: 'Shuffle stage order each time a party starts.',
+            randomizeOptionOrderLabel: 'Randomize outcome order',
+            randomizeOptionOrderDescription: 'Shuffle the answer or outcome order in each stage.',
           },
         },
         fallbackOrganization: 'the selected organization',

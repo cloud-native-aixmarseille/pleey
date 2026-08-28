@@ -336,6 +336,11 @@ async function main() {
       status: 'waiting',
       gameId: quizGame.id,
       hostId: admin.id,
+      settings: {
+        allowOptionChangeAfterVoting: false,
+        randomizeOptionOrder: false,
+        randomizeStageOrder: false,
+      },
       context: Prisma.JsonNull,
     },
     create: {
@@ -343,6 +348,11 @@ async function main() {
       hostId: admin.id,
       pin: partyPin,
       status: 'waiting',
+      settings: {
+        allowOptionChangeAfterVoting: false,
+        randomizeOptionOrder: false,
+        randomizeStageOrder: false,
+      },
       context: Prisma.JsonNull,
     },
   });

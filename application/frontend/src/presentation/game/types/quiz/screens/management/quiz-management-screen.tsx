@@ -1,4 +1,4 @@
-import type { PlayableContentManagementGateway } from '../../../../../../application/game/types/shared/contracts/playable-management.gateway';
+import type { PlayableContentManagementGateway } from '../../../../../../application/game/types/shared/gateways/playable-management.gateway';
 import type { QuizQuestionId } from '../../../../../../domains/game/types/quiz/entities/quiz-question-id';
 import type { QuizQuestionKind } from '../../../../../../domains/game/types/quiz/entities/quiz-question-kind';
 import { PresentationRedirect, usePresentationParams } from '../../../../../shared/routing/router';

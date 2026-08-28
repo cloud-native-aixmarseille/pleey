@@ -4,7 +4,7 @@ import { PartyIdentifier } from '../../application/game/party/shared/services/id
 import { PartyPinIdentifier } from '../../application/game/party/shared/services/identifiers/party-pin-identifier';
 import { StageIdentifier } from '../../application/game/party/shared/services/identifiers/stage-identifier';
 import { PartyRouteService } from '../../application/game/party/shared/services/party-route.service';
-import type { ApplicationVersionPort } from '../../application/shared/contracts/application-version.port';
+import type { ApplicationVersionPort } from '../../application/shared/ports/application-version.port';
 import { DashboardWorkspaceFacade } from '../../application/workspace/dashboard/facades/dashboard-workspace.facade';
 import { OrganizationManagementFacade } from '../../application/workspace/organizations/facades/organization-management.facade';
 import { PartyRoutesFactory } from '../../presentation/game/party/shared/routes/party-routes-factory';

@@ -5,7 +5,7 @@ import type {
   PresentationNavigate,
   PresentationParams,
   RoutingPort,
-} from '../../application/shared/contracts/routing.port';
+} from '../../application/shared/ports/routing.port';
 
 interface RoutingPortOverrides {
   readonly navigate?: PresentationNavigate;

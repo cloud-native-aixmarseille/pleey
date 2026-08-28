@@ -100,9 +100,6 @@ export class GraphqlPredictionManagementRepository implements PredictionManageme
         gameId: this.gameIdentifier.parse(result.prediction.gameId),
         title: result.prediction.title,
         description: result.prediction.description,
-        allowOptionChangeAfterVoting: result.prediction.allowOptionChangeAfterVoting,
-        randomizeStageOrder: result.prediction.randomizeStageOrder,
-        randomizeOptionOrder: result.prediction.randomizeOptionOrder,
         createdAt: result.prediction.createdAt,
         itemCount: result.prediction.promptCount,
       }),
@@ -126,9 +123,6 @@ export class GraphqlPredictionManagementRepository implements PredictionManageme
       input: {
         title: input.title,
         description: input.description,
-        allowOptionChangeAfterVoting: input.allowOptionChangeAfterVoting,
-        randomizeStageOrder: input.randomizeStageOrder,
-        randomizeOptionOrder: input.randomizeOptionOrder,
       },
     });
   }

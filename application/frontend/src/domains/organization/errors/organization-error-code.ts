@@ -2,6 +2,7 @@ import { type DomainErrorDefinition } from '../../shared/errors/domain-error';
 
 export enum OrganizationErrorCode {
   CREATE_FAILED = 'organization.errors.createFailed',
+  UPDATE_FAILED = 'organization.errors.updateFailed',
   MEMBER_ADD_FAILED = 'organization.errors.memberAddFailed',
   MEMBER_REMOVE_FAILED = 'organization.errors.memberRemoveFailed',
   MEMBER_ROLE_UPDATE_FAILED = 'organization.errors.memberRoleUpdateFailed',
@@ -15,6 +16,11 @@ export const ORGANIZATION_ERROR_DEFINITIONS: Readonly<
     code: OrganizationErrorCode.CREATE_FAILED,
     message: 'organization.errors.createFailed',
     messageKey: 'organization.errors.createFailed',
+  },
+  [OrganizationErrorCode.UPDATE_FAILED]: {
+    code: OrganizationErrorCode.UPDATE_FAILED,
+    message: 'organization.errors.updateFailed',
+    messageKey: 'organization.errors.updateFailed',
   },
   [OrganizationErrorCode.MEMBER_ADD_FAILED]: {
     code: OrganizationErrorCode.MEMBER_ADD_FAILED,

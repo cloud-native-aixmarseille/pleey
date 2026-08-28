@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { DEFAULT_PARTY_SETTINGS } from '../../game/party/shared/entities/party-settings';
 import type { UserId } from '../../identity/entities/user';
 import type { ProjectRepository } from '../../project/ports/project.repository';
 import { ProjectRepositoryProvider } from '../../project/ports/project.repository';
@@ -26,11 +27,15 @@ export class DefaultWorkspaceService {
     const membership = await this.memberRepository.findLatestByUser(userId);
 
     if (!membership) {
-      const organization = await this.organizationRepository.create(DEFAULT_ORGANIZATION_NAME, null);
+      const organization = await this.organizationRepository.create(DEFAULT_ORGANIZATION_NAME, null, {
+        defaultPartySettings: DEFAULT_PARTY_SETTINGS,
+      });
 
       await this.memberRepository.create(organization.id, userId, OrganizationRole.OWNER);
 
-      await this.projectRepository.create(organization.id, DEFAULT_PROJECT_NAME, null);
+      await this.projectRepository.create(organization.id, DEFAULT_PROJECT_NAME, null, {
+        defaultPartySettings: DEFAULT_PARTY_SETTINGS,
+      });
 
       return;
     }
@@ -39,7 +44,9 @@ export class DefaultWorkspaceService {
     const projectCount = await this.projectRepository.countByOrganization(primaryOrganizationId);
 
     if (projectCount === 0) {
-      await this.projectRepository.create(primaryOrganizationId, DEFAULT_PROJECT_NAME, null);
+      await this.projectRepository.create(primaryOrganizationId, DEFAULT_PROJECT_NAME, null, {
+        defaultPartySettings: DEFAULT_PARTY_SETTINGS,
+      });
     }
   }
 }

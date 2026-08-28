@@ -152,6 +152,8 @@ export function DashboardHomeScreen({
         isGamesLoading={isGamesLoading}
         gamesErrorMessage={gamesErrorMessage}
         partyActionErrorMessage={partyActionErrorMessage}
+        selectedOrganization={selectedOrganization}
+        selectedProject={selectedProject}
         totalFiltered={totalCount}
         totalGames={overallCount}
         totalPages={totalPages}

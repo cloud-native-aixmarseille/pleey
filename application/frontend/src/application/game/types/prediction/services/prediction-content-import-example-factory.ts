@@ -1,10 +1,10 @@
 import { inject, injectable } from 'inversify';
-import { type TranslationPort, TranslationPortToken } from '../../../../shared/contracts/translation.port';
+import { type TranslationPort, TranslationPortToken } from '../../../../shared/ports/translation.port';
 import type {
   PlayableContentImportExampleFile,
   PlayableContentImportExampleFormat,
-} from '../../shared/contracts/playable-content-import.gateway';
-import { PlayableContentImportExampleFormat as ImportExampleFormat } from '../../shared/contracts/playable-content-import.gateway';
+} from '../../shared/ports/playable-content-import-example-provider.port';
+import { PlayableContentImportExampleFormat as ImportExampleFormat } from '../../shared/ports/playable-content-import-example-provider.port';
 
 @injectable()
 export class PredictionContentImportExampleFactory {

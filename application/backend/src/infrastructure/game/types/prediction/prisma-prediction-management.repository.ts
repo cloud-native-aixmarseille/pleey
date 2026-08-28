@@ -4,7 +4,6 @@ import { GameTypeIdentifier } from '../../../../application/game/types/shared/se
 import { ProjectIdentifier } from '../../../../application/workspace/shared/services/identifiers/project-identifier';
 import type { GameId } from '../../../../domain/game/entities/game';
 import { PartyStatus } from '../../../../domain/game/party/enums/party-status.enum';
-import type { GameSettings } from '../../../../domain/game/party/shared/entities/game-settings';
 import { Prediction, type PredictionId } from '../../../../domain/game/types/prediction/entities/prediction';
 import {
   PredictionNotCreatedError,
@@ -20,11 +19,10 @@ import type { GameTypeId } from '../../../../domain/game/types/shared/entities/g
 import { GameType } from '../../../../domain/game/types/shared/entities/game-type';
 import type { ProjectId } from '../../../../domain/project/entities/project';
 import { PrismaService } from '../../../database/prisma-service';
-import { PrismaGameSettingsMapper } from '../../shared/prisma-game-settings.mapper';
 
 const ACTIVE_PARTY_STATUSES = [PartyStatus.WAITING, PartyStatus.ACTIVE, PartyStatus.PAUSED];
 
-interface PrismaPredictionRecord extends GameSettings {
+interface PrismaPredictionRecord {
   readonly id: string;
   readonly gameId: string;
   readonly projectId: string;
@@ -34,7 +32,7 @@ interface PrismaPredictionRecord extends GameSettings {
   readonly promptCount: number;
 }
 
-interface PredictionRecord extends GameSettings {
+interface PredictionRecord {
   readonly id: PredictionId;
   readonly gameId: GameId;
   readonly projectId: ProjectId;
@@ -52,7 +50,7 @@ interface PrismaPredictionSourceRecord {
     readonly title: string;
     readonly description: string | null;
     readonly createdAt: Date;
-  } & GameSettings;
+  };
   readonly _count: {
     readonly prompts: number;
   };
@@ -65,7 +63,6 @@ export class PrismaPredictionManagementRepository implements PredictionManagemen
     private readonly gameIdentifier: GameIdentifier,
     private readonly gameTypeIdentifier: GameTypeIdentifier,
     private readonly projectIdentifier: ProjectIdentifier,
-    private readonly gameSettingsMapper: PrismaGameSettingsMapper,
   ) {}
 
   async create(data: CreatePredictionData): Promise<Prediction> {
@@ -178,7 +175,6 @@ export class PrismaPredictionManagementRepository implements PredictionManagemen
       data: {
         title: data.title,
         description: data.description,
-        ...this.gameSettingsMapper.toPrismaGameSettingsUpdate(data),
       },
     });
 
@@ -227,9 +223,6 @@ export class PrismaPredictionManagementRepository implements PredictionManagemen
       record.description,
       record.createdAt,
       record.promptCount,
-      record.allowOptionChangeAfterVoting,
-      record.randomizeStageOrder,
-      record.randomizeOptionOrder,
     );
   }
 
@@ -240,7 +233,6 @@ export class PrismaPredictionManagementRepository implements PredictionManagemen
       projectId: prediction.game.projectId,
       title: prediction.game.title,
       description: prediction.game.description,
-      ...this.gameSettingsMapper.toGameSettings(prediction.game),
       createdAt: prediction.game.createdAt,
       promptCount: prediction._count.prompts,
     };
@@ -253,7 +245,6 @@ export class PrismaPredictionManagementRepository implements PredictionManagemen
       projectId: this.projectIdentifier.parse(prediction.projectId),
       title: prediction.title,
       description: prediction.description,
-      ...this.gameSettingsMapper.toGameSettings(prediction),
       createdAt: prediction.createdAt,
       promptCount: prediction.promptCount,
     };

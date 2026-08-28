@@ -14,6 +14,7 @@ import { ListOrganizationMembersUseCase } from '../../../application/workspace/o
 import { ListUserOrganizationsUseCase } from '../../../application/workspace/organizations/use-cases/list-user-organizations-use-case';
 import { RemoveMemberFromOrganizationUseCase } from '../../../application/workspace/organizations/use-cases/remove-member-from-organization-use-case';
 import { UpdateOrganizationMemberRoleUseCase } from '../../../application/workspace/organizations/use-cases/update-organization-member-role-use-case';
+import { UpdateOrganizationUseCase } from '../../../application/workspace/organizations/use-cases/update-organization-use-case';
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-member-identifier';
 import { OrganizationErrorCode } from '../../../domain/organization/enums/organization-error-code.enum';
@@ -34,6 +35,10 @@ const addMemberToOrganizationUseCase = {
 };
 
 const createOrganizationUseCase = {
+  execute: vi.fn(),
+};
+
+const updateOrganizationUseCase = {
   execute: vi.fn(),
 };
 
@@ -89,6 +94,10 @@ const organizationMemberIdentifier = {
     {
       provide: CreateOrganizationUseCase,
       useValue: createOrganizationUseCase,
+    },
+    {
+      provide: UpdateOrganizationUseCase,
+      useValue: updateOrganizationUseCase,
     },
     {
       provide: ListUserOrganizationsUseCase,

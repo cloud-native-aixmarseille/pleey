@@ -1,5 +1,5 @@
 import { createContext, type PropsWithChildren, useContext } from 'react';
-import type { PresentationUiThemeState, UiPort } from '../../../application/shared/contracts/ui.port';
+import type { PresentationUiThemeState, UiPort } from '../../../application/shared/ports/ui.port';
 import { PresentationUiProviderRequiredError } from '../../../domains/shared/errors/presentation-context-error-code';
 import { PresentationToastProvider, PresentationToastViewport } from './feedback/presentation-toast';
 

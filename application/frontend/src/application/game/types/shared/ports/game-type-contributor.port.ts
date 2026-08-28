@@ -10,7 +10,7 @@ import type {
   PlayableGameMetadataInput,
 } from '../../../../../domains/game/types/shared/management/playable-management';
 import type { ProjectId } from '../../../../../domains/project/entities/project';
-import type { PlayableContentImportExampleProvider } from './playable-content-import.gateway';
+import type { PlayableContentImportExampleProvider } from './playable-content-import-example-provider.port';
 
 export interface GameTypeContributor {
   readonly descriptor: GameTypeDescriptor;

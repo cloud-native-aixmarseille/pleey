@@ -6,6 +6,11 @@ query WorkspaceOrganizations($input: ListOrganizationsInput) {
       description
       createdAt
       updatedAt
+      defaultPartySettings {
+        allowOptionChangeAfterVoting
+        randomizeOptionOrder
+        randomizeStageOrder
+      }
       role
     }
     totalCount
@@ -13,5 +18,21 @@ query WorkspaceOrganizations($input: ListOrganizationsInput) {
     page
     pageSize
     totalPages
+  }
+}
+
+mutation UpdateOrganization($organizationId: ID!, $input: UpdateOrganizationInput!) {
+  updateOrganization(organizationId: $organizationId, input: $input) {
+    id
+    name
+    description
+    createdAt
+    updatedAt
+    defaultPartySettings {
+      allowOptionChangeAfterVoting
+      randomizeOptionOrder
+      randomizeStageOrder
+    }
+    role
   }
 }

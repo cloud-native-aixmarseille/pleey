@@ -6,7 +6,7 @@ import { QuizHostResultPanel } from '../../../../../presentation/game/types/quiz
 import { QuizHostStagePanel } from '../../../../../presentation/game/types/quiz/screens/live/components/quiz-host-stage-panel';
 import { QuizPlayerResultSurface } from '../../../../../presentation/game/types/quiz/screens/live/components/quiz-player-result-surface';
 import { QuizPlayerStageSurface } from '../../../../../presentation/game/types/quiz/screens/live/components/quiz-player-stage-surface';
-import type { PartyGameTypeRuntimeViewContributor } from '../contracts/party-game-type-runtime-view-contributor';
+import type { PartyGameTypeRuntimeViewContributor } from '../party-game-type-runtime-view-contributor';
 
 type HostRuntimePanelProps = Parameters<PartyGameTypeRuntimeView['renderHostResultPanel']>[0];
 type PlayerResultSurfaceProps = Parameters<PartyGameTypeRuntimeView['renderPlayerResultSurface']>[0];

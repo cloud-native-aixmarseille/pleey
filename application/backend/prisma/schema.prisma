@@ -44,9 +44,6 @@ model Game {
   type           String
   title          String
   description    String?
-  randomizeStageOrder Boolean @default(false) @map("randomize_stage_order")
-  randomizeOptionOrder Boolean @default(false) @map("randomize_option_order")
-  allowOptionChangeAfterVoting Boolean @default(false) @map("allow_option_change_after_voting")
   projectId      String   @map("project_id") @db.Uuid
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
@@ -67,6 +64,7 @@ model Party {
   pin             String   @unique
   status          String   @default("waiting")
   passwordHash    String?  @map("password_hash")
+  settings        Json     @map("settings")
   context         Json?    @map("context")
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
@@ -114,6 +112,7 @@ model Organization {
   id          String   @id @default(uuid(7)) @db.Uuid
   name        String
   description String?
+  defaultPartySettings Json? @map("default_party_settings")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
   deletedAt   DateTime? @map("deleted_at")
@@ -146,6 +145,7 @@ model Project {
   name           String
   description    String?
   organizationId String   @map("organization_id") @db.Uuid
+  defaultPartySettings Json? @map("default_party_settings")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
   deletedAt      DateTime? @map("deleted_at")

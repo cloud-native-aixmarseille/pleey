@@ -8,10 +8,14 @@ import {
 import type { GameTypeDescriptor } from '../../../../../../domains/game/types/shared/game-type-catalog';
 import { GameFixtureFactory } from '../../../../../../test-utils/fixtures/game-fixture-factory';
 import { createGameTypeDescriptorFixture } from '../../../../../../test-utils/fixtures/game-type-descriptor-fixture-factory';
+import { OrganizationFixtureFactory } from '../../../../../../test-utils/fixtures/organization-fixture-factory';
+import { ProjectFixtureFactory } from '../../../../../../test-utils/fixtures/project-fixture-factory';
 import { renderWithUiProvider } from '../../../../../../test-utils/render-with-ui-provider';
 import { DashboardGamesSection } from './dashboard-games-section';
 
 const gameFixtureFactory = new GameFixtureFactory();
+const organizationFixtureFactory = new OrganizationFixtureFactory();
+const projectFixtureFactory = new ProjectFixtureFactory();
 
 type MockGameItemCardProps = {
   readonly descriptor?: Pick<GameTypeDescriptor, 'titleKey'>;
@@ -150,6 +154,8 @@ describe('DashboardGamesSection', () => {
         onOpenImportGameDialog={onOpenImportGameDialog}
         onPageChange={vi.fn()}
         onSearchChange={vi.fn()}
+        selectedOrganization={null}
+        selectedProject={null}
         onSortDirectionChange={vi.fn()}
         onSortFieldChange={vi.fn()}
         onTypeFilterChange={vi.fn()}
@@ -297,6 +303,52 @@ describe('DashboardGamesSection', () => {
         }),
       ).toBeInTheDocument();
     });
+  });
+
+  it('launches a party with customized settings', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    const { onCreateParty } = renderDashboardGamesSection({
+      selectedOrganization: organizationFixtureFactory.createOrganization(),
+      selectedProject: projectFixtureFactory.createProject(),
+    });
+
+    await user.click(screen.getByRole('button', { name: 'create:Arcade Quiz:false' }));
+    const dialog = await screen.findByRole('dialog');
+
+    await user.click(
+      within(dialog).getByRole('checkbox', {
+        name: 'dashboard.games.createParty.allowOptionChangeAfterVotingLabel',
+      }),
+    );
+    await user.click(
+      within(dialog).getByRole('checkbox', {
+        name: 'dashboard.games.createParty.randomizeOptionOrderLabel',
+      }),
+    );
+
+    // Act
+    await user.click(within(dialog).getByRole('button', { name: 'dashboard.games.actions.createParty' }));
+
+    // Assert
+    expect(onCreateParty).toHaveBeenCalledWith(
+      gameFixtureFactory.createDashboardGame({
+        gameId: 1,
+        title: 'Arcade Quiz',
+        description: null,
+        createdAt: '2026-03-20T00:00:00.000Z',
+        gameTypeId: 1,
+        stageCount: 0,
+      }),
+      {
+        privatePartyPassword: undefined,
+        settingsOverride: {
+          allowOptionChangeAfterVoting: true,
+          randomizeOptionOrder: true,
+          randomizeStageOrder: false,
+        },
+      },
+    );
   });
 
   it('disables create-party actions when the game is not eligible', () => {

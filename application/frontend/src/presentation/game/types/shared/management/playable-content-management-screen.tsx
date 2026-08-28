@@ -105,12 +105,9 @@ export function PlayableContentManagementScreen(props: PlayableContentManagement
             {activeTab === PlayableManagementTab.SETUP ? (
               <PlayableManagementTabPanel>
                 <MetadataPanel
-                  allowOptionChangeAfterVoting={state.game.allowOptionChangeAfterVoting ?? false}
                   description={state.game.description}
                   isSaving={viewModel.isSaving}
                   onSave={(input) => void viewModel.saveMetadata(input)}
-                  randomizeOptionOrder={state.game.randomizeOptionOrder ?? false}
-                  randomizeStageOrder={state.game.randomizeStageOrder ?? false}
                   title={state.game.title}
                   translationRoot={props.translationRoot}
                 />

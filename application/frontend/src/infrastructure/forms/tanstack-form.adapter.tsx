@@ -5,7 +5,7 @@ import type {
   PresentationFormApi,
   PresentationFormContextApi,
   PresentationUseFormOptions,
-} from '../../application/shared/contracts/form.port';
+} from '../../application/shared/ports/form.port';
 
 const { fieldContext, formContext, useFieldContext, useFormContext } = createFormHookContexts();
 

@@ -1,3 +1,4 @@
+import type { PartySettings } from '../../game/party/shared/entities/party-settings';
 import type { OrganizationId } from '../../organization/entities/organization';
 
 export type ProjectId = string & {
@@ -10,4 +11,5 @@ export interface Project {
   readonly description: string | null;
   readonly organizationId: OrganizationId;
   readonly createdAt: string;
+  readonly defaultPartySettings: PartySettings | null;
 }

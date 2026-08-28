@@ -1,4 +1,5 @@
 import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
+import { DEFAULT_PARTY_SETTINGS } from '../../domains/game/party/shared/entities/party-settings';
 import {
   type Organization,
   type OrganizationId,
@@ -39,6 +40,7 @@ export class OrganizationFixtureFactory {
       description: null,
       createdAt: DEFAULT_TIMESTAMP,
       updatedAt: DEFAULT_TIMESTAMP,
+      defaultPartySettings: DEFAULT_PARTY_SETTINGS,
       role: OrganizationRole.OWNER,
       ...restOverrides,
     };

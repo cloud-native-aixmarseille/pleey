@@ -5,6 +5,11 @@ mutation CreateOrganization($input: CreateOrganizationInput!) {
     description
     createdAt
     updatedAt
+    defaultPartySettings {
+      allowOptionChangeAfterVoting
+      randomizeOptionOrder
+      randomizeStageOrder
+    }
     role
   }
 }

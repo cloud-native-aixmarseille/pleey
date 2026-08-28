@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { describe, expect, it, vi } from 'vitest';
 import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
 import { PinAlreadyInUseError } from '../../../../../domain/game/party/errors/pin-already-in-use.error';
+import { PartySettingsResolver } from '../../../../../domain/game/party/shared/services/party-settings-resolver';
 import { OrganizationErrorCode } from '../../../../../domain/organization/enums/organization-error-code.enum';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { createOrganizationMemberRepositoryMock } from '../../../../../test-utils/mock-factories/organization.mock-factory';
@@ -46,6 +47,7 @@ describe('CreatePartyUseCase', () => {
       hash: 'hashed-private-party-password',
       isValidPassword: true,
     });
+    const partySettingsResolver = new PartySettingsResolver();
     const gamePermissionResolver = {
       assertCanCreateParty: vi.fn().mockResolvedValue(undefined),
       resolveGamePermissions: vi.fn(),
@@ -55,6 +57,7 @@ describe('CreatePartyUseCase', () => {
       memberRepository,
       gamePermissionResolver as unknown as GamePermissionResolver,
       broadcastPartyObservationUseCase as never,
+      partySettingsResolver,
       partyPinIdentifier,
       passwordService,
     );
@@ -90,6 +93,11 @@ describe('CreatePartyUseCase', () => {
       expect.objectContaining({
         gameId: defaultCommand.gameId,
         hostUserId: defaultCommand.hostUserId,
+        settings: {
+          allowOptionChangeAfterVoting: false,
+          randomizeOptionOrder: false,
+          randomizeStageOrder: false,
+        },
       }),
     );
     expect(broadcastPartyObservationUseCase.broadcastIfPresent).toHaveBeenCalledWith({
@@ -205,6 +213,47 @@ describe('CreatePartyUseCase', () => {
     expect(partyManagement.createParty).toHaveBeenCalledWith(
       expect.objectContaining({
         privatePartyPasswordHash: 'hashed-private-party-password',
+      }),
+    );
+  });
+
+  it('merges project defaults and party overrides into the created party settings', async () => {
+    // Arrange
+    const { useCase, partyManagement } = arrangeCreatePartyUseCase();
+
+    partyManagement.findManagedGame.mockResolvedValue({
+      gameId: backendTestIdentifiers.game(17),
+      gameType: 'quiz',
+      projectId: backendTestIdentifiers.project(6),
+      organizationId: backendTestIdentifiers.organization(3),
+      projectDefaultSettings: {
+        allowOptionChangeAfterVoting: true,
+        randomizeOptionOrder: false,
+        randomizeStageOrder: true,
+      },
+      organizationDefaultSettings: {
+        allowOptionChangeAfterVoting: false,
+        randomizeOptionOrder: true,
+        randomizeStageOrder: false,
+      },
+    });
+
+    // Act
+    await useCase.execute({
+      ...defaultCommand,
+      settingsOverride: {
+        randomizeOptionOrder: true,
+      },
+    });
+
+    // Assert
+    expect(partyManagement.createParty).toHaveBeenCalledWith(
+      expect.objectContaining({
+        settings: {
+          allowOptionChangeAfterVoting: true,
+          randomizeOptionOrder: true,
+          randomizeStageOrder: true,
+        },
       }),
     );
   });

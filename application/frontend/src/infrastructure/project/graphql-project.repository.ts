@@ -1,6 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
 import { ProjectIdentifier } from '../../application/workspace/shared/services/identifiers/project-identifier';
+import type { PartySettings } from '../../domains/game/party/shared/entities/party-settings';
 import type { Project } from '../../domains/project/entities/project';
 import { PROJECT_ERROR_DEFINITIONS, ProjectErrorCode } from '../../domains/project/errors/project-error-code';
 import type {
@@ -62,6 +63,7 @@ export class GraphqlProjectRepository implements ProjectRepository {
           description: project.description ?? null,
           organizationId: this.organizationIdentifier.parse(project.organizationId),
           createdAt: project.createdAt,
+          defaultPartySettings: this.toPartySettings(project.defaultPartySettings),
         })),
         totalCount: result.organizationProjects.totalCount,
         overallCount: result.organizationProjects.overallCount,
@@ -83,6 +85,7 @@ export class GraphqlProjectRepository implements ProjectRepository {
           input: {
             name: command.name,
             description: command.description,
+            defaultPartySettings: command.defaultPartySettings,
           },
         },
       );
@@ -102,6 +105,7 @@ export class GraphqlProjectRepository implements ProjectRepository {
           input: {
             name: command.name,
             description: command.description,
+            defaultPartySettings: command.defaultPartySettings,
           },
         },
       );
@@ -129,6 +133,11 @@ export class GraphqlProjectRepository implements ProjectRepository {
     readonly description?: string | null;
     readonly organizationId: string;
     readonly createdAt: string;
+    readonly defaultPartySettings?: {
+      readonly allowOptionChangeAfterVoting: boolean;
+      readonly randomizeOptionOrder: boolean;
+      readonly randomizeStageOrder: boolean;
+    } | null;
   }): Project {
     return {
       id: this.projectIdentifier.parse(project.id),
@@ -136,6 +145,26 @@ export class GraphqlProjectRepository implements ProjectRepository {
       description: project.description ?? null,
       organizationId: this.organizationIdentifier.parse(project.organizationId),
       createdAt: project.createdAt,
+      defaultPartySettings: this.toPartySettings(project.defaultPartySettings),
     };
+  }
+
+  private toPartySettings(
+    settings:
+      | {
+          readonly allowOptionChangeAfterVoting: boolean;
+          readonly randomizeOptionOrder: boolean;
+          readonly randomizeStageOrder: boolean;
+        }
+      | null
+      | undefined,
+  ): PartySettings | null {
+    return settings
+      ? {
+          allowOptionChangeAfterVoting: settings.allowOptionChangeAfterVoting,
+          randomizeOptionOrder: settings.randomizeOptionOrder,
+          randomizeStageOrder: settings.randomizeStageOrder,
+        }
+      : null;
   }
 }

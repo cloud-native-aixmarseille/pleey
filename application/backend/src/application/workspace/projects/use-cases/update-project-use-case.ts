@@ -44,6 +44,8 @@ export class UpdateProjectUseCase {
       });
     }
 
-    return this.projectRepository.update(projectId, dto.name, dto.description ?? null);
+    return this.projectRepository.update(projectId, dto.name, dto.description ?? null, {
+      defaultPartySettings: dto.defaultPartySettings ?? null,
+    });
   }
 }

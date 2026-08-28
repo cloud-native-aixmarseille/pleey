@@ -54,6 +54,7 @@ import {
   PartyPlayerSessionRegistryProvider,
 } from '../../../domain/game/party/player/services/party-player-session-registry';
 import { PartyRuntimeContextProjectionService } from '../../../domain/game/party/shared/services/party-runtime-context-projection.service';
+import { PartySettingsResolver } from '../../../domain/game/party/shared/services/party-settings-resolver';
 import { GameType } from '../../../domain/game/types/shared/entities/game-type';
 import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/ports/organization-member.repository';
 import { ProjectRepositoryProvider } from '../../../domain/project/ports/project.repository';
@@ -67,7 +68,7 @@ import { PrismaPlayerPartyObservationReader } from '../../../infrastructure/game
 import { PrismaPlayerPartyRuntimeAdapter } from '../../../infrastructure/game/party/prisma-player-party-runtime.adapter';
 import { PrismaPartyPlayerRemovalService } from '../../../infrastructure/game/party/services/prisma-party-player-removal.service';
 import { PrismaPartyReadModelMapper } from '../../../infrastructure/game/party/services/prisma-party-read-model-mapper';
-import { PrismaGameSettingsMapper } from '../../../infrastructure/game/shared/prisma-game-settings.mapper';
+import { PrismaPartySettingsMapper } from '../../../infrastructure/game/shared/prisma-party-settings.mapper';
 import { PredictionPartyStageCatalogEntryResolver } from '../../../infrastructure/game/types/prediction/prediction-party-stage-catalog-entry-resolver';
 import { PredictionPartyStageConfigurationResolver } from '../../../infrastructure/game/types/prediction/prediction-party-stage-configuration-resolver';
 import { PrismaPartyStageCatalogAdapter } from '../../../infrastructure/game/types/prisma-party-stage-catalog.adapter';
@@ -112,7 +113,7 @@ import { SharedServicesModule } from '../shared/shared-services.module';
     PrismaPartyPlayerRemovalService,
     PrismaPartyManagementAdapter,
     PrismaPartyReadModelMapper,
-    PrismaGameSettingsMapper,
+    PrismaPartySettingsMapper,
     PrismaHostPartyObservationReader,
     PrismaPartyGameTypeReader,
     PrismaHostPartyRuntimeControlAdapter,
@@ -129,6 +130,7 @@ import { SharedServicesModule } from '../shared/shared-services.module';
     QuizPartyStageCatalogEntryResolver,
     QuizPartyStageConfigurationResolver,
     HostPartyRuntimeStageReferenceResolver,
+    PartySettingsResolver,
     HostPartyLifecyclePolicy,
     PartyRuntimeContextProjectionService,
     ChoiceSubmissionPartyActionPolicy,

@@ -9,10 +9,10 @@ import type {
   PlayableGameMetadataInput,
 } from '../../../../../domains/game/types/shared/management/playable-management';
 import type { ProjectId } from '../../../../../domains/project/entities/project';
-import { type GameTypeCatalogFactory, GameTypeCatalogFactoryToken } from '../contracts/game-type-catalog-factory';
-import { type GameTypeContributor, GameTypeContributorToken } from '../contracts/game-type-contributor';
-import type { PlayableContentImportExampleProvider } from '../contracts/playable-content-import.gateway';
 import type { GameTypeCatalogGateway } from '../gateways/game-type-catalog.gateway';
+import { type GameTypeCatalogFactory, GameTypeCatalogFactoryToken } from '../ports/game-type-catalog-factory.port';
+import { type GameTypeContributor, GameTypeContributorToken } from '../ports/game-type-contributor.port';
+import type { PlayableContentImportExampleProvider } from '../ports/playable-content-import-example-provider.port';
 
 @injectable()
 export class GameTypeRegistry implements GameTypeCatalogGateway {
