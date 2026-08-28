@@ -6,14 +6,13 @@ Instructions for AI agents (GitHub Copilot, Claude, ChatGPT, and other assistant
 
 Read the docs **before** generating code. All architecture, coding standards, and development practices live in `/docs`.
 
-| Topic                 | File                                                                               |
-| --------------------- | ---------------------------------------------------------------------------------- |
-| Architecture & layers | [docs/technical/architecture/index.md](docs/technical/architecture/index.md)       |
-| Backend architecture  | [docs/technical/architecture/backend.md](docs/technical/architecture/backend.md)   |
-| Frontend architecture | [docs/technical/architecture/frontend.md](docs/technical/architecture/frontend.md) |
-| Development practices | [docs/technical/development/index.md](docs/technical/development/index.md)         |
-| Backend development   | [docs/technical/development/backend.md](docs/technical/development/backend.md)     |
-| Frontend development  | [docs/technical/development/frontend.md](docs/technical/development/frontend.md)   |
+- Architecture & layers: [docs/technical/architecture/index.md](docs/technical/architecture/index.md)
+- Architecture ADRs: [docs/technical/architecture/adr/index.md](docs/technical/architecture/adr/index.md)
+- Backend architecture: [docs/technical/architecture/backend.md](docs/technical/architecture/backend.md)
+- Frontend architecture: [docs/technical/architecture/frontend.md](docs/technical/architecture/frontend.md)
+- Development practices: [docs/technical/development/index.md](docs/technical/development/index.md)
+- Backend development: [docs/technical/development/backend.md](docs/technical/development/backend.md)
+- Frontend development: [docs/technical/development/frontend.md](docs/technical/development/frontend.md)
 
 ## 🎯 Copilot Instruction Files
 
@@ -34,6 +33,7 @@ Review and generation instruction files are configured from `.vscode/settings.js
 ## ⚠️ Key Rules
 
 - **Never duplicate docs content** — reference the relevant doc file instead
+- **Every architecture, technology, and design choice starts with an ADR** under `docs/technical/architecture/adr/` — do not start with a free-form proposal
 - **Clean Architecture boundaries are enforced by Biome** — `domain/` → `application/` → `infrastructure/` → `presentation/` (see architecture docs)
 - **All user-facing text uses i18n** — never hardcode strings
 - **Error codes are domain enums** mapped to translations (see development docs)
