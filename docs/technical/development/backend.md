@@ -1,6 +1,6 @@
 # Backend Development
 
-`application/backend/` — NestJS 11, TypeScript, Vitest.
+`application/backend/` — NestJS 12, TypeScript, Vitest.
 
 ## Commands
 
@@ -80,6 +80,12 @@ Error handling is automatic — use-cases and runtime services throw domain erro
 ## Config
 
 `process.env` reads only in `src/app/config/`. Runtime code receives config via DI tokens (`APP_SERVER_CONFIG`, `GAME_SOCKET_CORS_OPTIONS`, etc.).
+
+## Framework API Currency
+
+- Treat TypeScript `@deprecated` diagnostics, editor deprecation warnings, and official framework migration notes as blockers for new backend code.
+- Use the current documented NestJS, Prisma, Zod, GraphQL, and related package APIs directly instead of older compatibility syntax kept only for migration tolerance.
+- When transport validation or framework integration offers a newer recommended API shape, prefer that form in new code and refactors rather than preserving deprecated helpers for a smaller diff.
 
 ## Performance
 

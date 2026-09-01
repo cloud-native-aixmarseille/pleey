@@ -1,4 +1,4 @@
-import { Inject, Injectable, type OnModuleDestroy, type OnModuleInit } from '@nestjs/common';
+import { type BeforeApplicationShutdown, Inject, Injectable, type OnModuleInit } from '@nestjs/common';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
 import { DATABASE_CONNECTION_STRING } from './database-connection-string.token';
@@ -8,7 +8,7 @@ import { DATABASE_CONNECTION_STRING } from './database-connection-string.token';
  * Manages Prisma Client lifecycle and database connection
  */
 @Injectable()
-export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+export class PrismaService extends PrismaClient implements OnModuleInit, BeforeApplicationShutdown {
   constructor(@Inject(DATABASE_CONNECTION_STRING) connectionString: string) {
     const adapter = new PrismaPg({ connectionString });
     super({ adapter });
@@ -18,7 +18,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     await this.$connect();
   }
 
-  async onModuleDestroy(): Promise<void> {
+  async beforeApplicationShutdown(): Promise<void> {
     await this.$disconnect();
   }
 }

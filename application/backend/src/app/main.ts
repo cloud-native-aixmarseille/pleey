@@ -28,6 +28,11 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule, {
     logger: new OtelLoggerService(),
+    routeConflictPolicy: {
+      duplicate: 'error',
+      shadow: 'warn',
+    },
+    routeResolutionStrategy: 'specificity',
   });
   const appModuleContext = app.select(AppModule);
 
