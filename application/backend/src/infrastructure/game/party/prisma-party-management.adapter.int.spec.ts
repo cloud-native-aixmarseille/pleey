@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { describe, expect, it } from 'vitest';
+import { DEFAULT_PARTY_SETTINGS } from '../../../domain/game/party/shared/entities/party-settings';
 import { backendTestIdentifiers } from '../../../test-utils/branded-identifiers';
 import { PrismaIntegrationTestHarness } from '../../../test-utils/fixtures/integration/prisma-integration-test-harness';
 import { PrismaPartyManagementAdapter } from './prisma-party-management.adapter';
@@ -104,6 +105,7 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
       gameId: backendTestIdentifiers.game(game.id),
       hostUserId: backendTestIdentifiers.user(host.id),
       pin: backendTestIdentifiers.partyPin('123456'),
+      settings: DEFAULT_PARTY_SETTINGS,
     });
     partyIds.push(created.partyId);
 
@@ -127,7 +129,9 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
     // Assert
     expect(managedGame).toEqual({
       gameId: game.id,
+      projectDefaultSettings: null,
       projectId: project.id,
+      organizationDefaultSettings: null,
       organizationId: organization.id,
     });
     expect(created).toMatchObject({
@@ -222,6 +226,7 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
       gameId: backendTestIdentifiers.game(firstGame.id),
       hostUserId: backendTestIdentifiers.user(host.id),
       pin: backendTestIdentifiers.partyPin('111111'),
+      settings: DEFAULT_PARTY_SETTINGS,
     });
     partyIds.push(firstParty.partyId);
 
@@ -230,6 +235,7 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
         gameId: secondGame.id,
         hostId: host.id,
         pin: '222222',
+        settings: { ...DEFAULT_PARTY_SETTINGS },
         status: 'waiting',
       },
     });

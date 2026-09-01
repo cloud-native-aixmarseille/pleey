@@ -47,6 +47,7 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
         toPersistedPartyStatus: vi.fn().mockReturnValue('active'),
       } as never,
       {} as never,
+      {} as never,
     );
 
     // Act
@@ -162,6 +163,7 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
         }),
         toPersistedPartyStatus: vi.fn().mockReturnValue('active'),
       } as never,
+      {} as never,
       {} as never,
     );
 

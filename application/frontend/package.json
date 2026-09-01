@@ -63,7 +63,7 @@
     "@vitest/coverage-v8": "^5.0.0",
     "autoprefixer": "^10.5.5",
     "jsdom": "^30.0.1",
-    "knip": "^6.34.0",
+    "knip": "^6.35.1",
     "postcss": "^8.5.28",
     "typescript": "^6.0.3",
     "vite": "^8.2.2",

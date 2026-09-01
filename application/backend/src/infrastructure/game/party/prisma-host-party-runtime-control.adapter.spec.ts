@@ -116,6 +116,7 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
       } as never,
       {} as never,
       {} as never,
+      {} as never,
     );
 
     // Act
@@ -217,6 +218,7 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
         toPersistedPartyStatus: vi.fn().mockReturnValue('waiting'),
         toPartyPlayerActionState: vi.fn().mockReturnValue(null),
       } as never,
+      {} as never,
       {} as never,
       {} as never,
     );

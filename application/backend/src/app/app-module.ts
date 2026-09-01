@@ -69,7 +69,7 @@ function createI18nDirectory(serverConfig: AppServerConfig): string {
         return {
           autoSchemaFile: serverConfig.isProduction ? true : path.join(process.cwd(), 'src/schema.gql'),
           sortSchema: true,
-          playground: !serverConfig.isProduction,
+          graphiql: !serverConfig.isProduction,
           resolvers: {
             Upload: GraphQLUpload,
           },

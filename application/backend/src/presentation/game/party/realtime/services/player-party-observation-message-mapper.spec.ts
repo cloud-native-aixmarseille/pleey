@@ -75,6 +75,7 @@ describe('PlayerPartyObservationMessageMapper', () => {
         players: [
           {
             avatarUri: null,
+            correctStages: 0,
             identity: {
               kind: PartyPlayerKind.USER,
               userId: backendTestIdentifiers.user(42),
