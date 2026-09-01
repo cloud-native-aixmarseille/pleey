@@ -71,7 +71,7 @@ Architecture Decision Records are mandatory for architecture, technology, and de
 | Concern       | Backend                                      | Frontend                                     |
 | ------------- | -------------------------------------------- | -------------------------------------------- |
 | Language      | TypeScript 5.7                               | TypeScript 5.7                               |
-| Framework     | NestJS 11                                    | React 19                                     |
+| Framework     | NestJS 12                                    | React 19                                     |
 | Build         | nest-cli                                     | Vite 7                                       |
 | API           | GraphQL (Apollo Server 5, code-first)        | Apollo Client 4                              |
 | Realtime      | Socket.IO (via `@nestjs/platform-socket.io`) | socket.io-client                             |

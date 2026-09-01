@@ -1,13 +1,11 @@
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
 import type { INestApplication } from '@nestjs/common';
 import { Test, type TestingModule } from '@nestjs/testing';
 import type { App } from 'supertest/types';
 import { describe, expect, it } from 'vitest';
 import { AppModule } from '../src/app/app-module';
 
-const currentDir = dirname(fileURLToPath(import.meta.url));
-const backendRootDir = resolve(currentDir, '..');
+const backendRootDir = resolve(__dirname, '..');
 
 function ensureE2eTestEnvironment() {
   process.env.JWT_SECRET = process.env.JWT_SECRET ?? 'test_jwt_secret_only_for_tests';

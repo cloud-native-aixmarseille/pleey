@@ -24,7 +24,9 @@ describeIfDatabase('PrismaOrganizationRepository', () => {
       description: 'desc',
     });
 
-    const created = await harness.repository.create(organizationFixture.name, organizationFixture.description);
+    const created = await harness.repository.create(organizationFixture.name, organizationFixture.description, {
+      defaultPartySettings: null,
+    });
     createdOrganizationIds.push(created.id);
 
     // Act

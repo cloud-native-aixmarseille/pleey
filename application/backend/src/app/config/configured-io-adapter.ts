@@ -24,16 +24,17 @@ export class ConfiguredIoAdapter extends IoAdapter {
   }
 
   override createIOServer(port: number, options?: ServerOptions) {
-    const serverOptions: Partial<ServerOptions> = {
+    const serverOptions = {
       ...(options ?? {}),
+      path: options?.path ?? '/socket.io',
       connectionStateRecovery: {
         maxDisconnectionDuration: this.partySessionRecoveryWindowMs,
         skipMiddlewares: false,
       },
       cors: this.createCorsOptions(),
-    };
+    } as ServerOptions;
 
-    const server = super.createIOServer(port, serverOptions as ServerOptions);
+    const server = super.createIOServer(port, serverOptions);
 
     server.use((socket: Socket, next: (error?: Error) => void) => {
       try {

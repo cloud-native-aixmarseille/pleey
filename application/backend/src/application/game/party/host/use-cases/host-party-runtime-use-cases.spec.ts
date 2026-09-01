@@ -2,6 +2,10 @@ import { describe, expect, it, vi } from 'vitest';
 import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
 import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
 import { HostPartyLifecyclePolicy } from '../../../../../domain/game/party/host/services/host-party-lifecycle-policy';
+import {
+  type PartyRuntimeContext,
+  PartyRuntimePhase,
+} from '../../../../../domain/game/party/shared/entities/party-runtime-context';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { HostPartyRuntimeStageReferenceResolver } from '../services/host-party-runtime-stage-reference-resolver';
 import { AdvanceStageUseCase } from './advance-stage-use-case';
@@ -40,7 +44,7 @@ describe('Host party runtime use cases', () => {
     };
   }
 
-  function arrangeActiveRuntimeControl(lifecycle) {
+  function arrangeActiveRuntimeControl(lifecycle: PartyRuntimeContext['lifecycle']) {
     return {
       findPartyRuntimeByPartyId: vi.fn().mockResolvedValue({
         context: { lifecycle },
@@ -90,7 +94,7 @@ describe('Host party runtime use cases', () => {
       expect(hostPartyRuntimeControl.savePartyRuntime).toHaveBeenCalledWith({
         context: {
           lifecycle: {
-            phase: 'stage',
+            phase: PartyRuntimePhase.STAGE,
             stageEndsAtEpochMs: 120_000,
             stageRemainingDurationMs: 20_000,
             stageId: STAGE_101,
@@ -147,7 +151,7 @@ describe('Host party runtime use cases', () => {
   it('persists and broadcasts generic lifecycle transitions', async () => {
     // Arrange
     const hostPartyRuntimeControl = arrangeActiveRuntimeControl({
-      phase: 'stage',
+      phase: PartyRuntimePhase.STAGE,
       stageEndsAtEpochMs: 120_000,
       stageRemainingDurationMs: 20_000,
       stageId: STAGE_202,
@@ -174,7 +178,7 @@ describe('Host party runtime use cases', () => {
     expect(hostPartyRuntimeControl.savePartyRuntime).toHaveBeenCalledWith({
       context: {
         lifecycle: {
-          phase: 'result',
+          phase: PartyRuntimePhase.RESULT,
           stageEndsAtEpochMs: 120_000,
           stageRemainingDurationMs: 20_000,
           stageId: STAGE_202,
@@ -198,7 +202,7 @@ describe('Host party runtime use cases', () => {
     // Assert
     try {
       const hostPartyRuntimeControl = arrangeActiveRuntimeControl({
-        phase: 'result',
+        phase: PartyRuntimePhase.RESULT,
         stageEndsAtEpochMs: 120_000,
         stageRemainingDurationMs: 20_000,
         stageId: STAGE_202,
@@ -235,7 +239,7 @@ describe('Host party runtime use cases', () => {
       expect(hostPartyRuntimeControl.savePartyRuntime).toHaveBeenCalledWith({
         context: {
           lifecycle: {
-            phase: 'stage',
+            phase: PartyRuntimePhase.STAGE,
             stageEndsAtEpochMs: 115_000,
             stageRemainingDurationMs: 15_000,
             stageId: STAGE_303,
@@ -259,7 +263,7 @@ describe('Host party runtime use cases', () => {
     // Assert
     try {
       const hostPartyRuntimeControl = arrangeActiveRuntimeControl({
-        phase: 'result',
+        phase: PartyRuntimePhase.RESULT,
         stageEndsAtEpochMs: 120_000,
         stageRemainingDurationMs: 20_000,
         stageId: STAGE_202,
@@ -283,7 +287,7 @@ describe('Host party runtime use cases', () => {
       expect(hostPartyRuntimeControl.savePartyRuntime).toHaveBeenCalledWith({
         context: {
           lifecycle: {
-            phase: 'stage',
+            phase: PartyRuntimePhase.STAGE,
             stageEndsAtEpochMs: 170_000,
             stageRemainingDurationMs: 20_000,
             stageId: STAGE_202,
@@ -313,7 +317,7 @@ describe('Host party runtime use cases', () => {
     // Assert
     try {
       const hostPartyRuntimeControl = arrangeActiveRuntimeControl({
-        phase: 'stage',
+        phase: PartyRuntimePhase.STAGE,
         stageEndsAtEpochMs: 120_000,
         stageRemainingDurationMs: 20_000,
         stageId: STAGE_303,
@@ -345,7 +349,7 @@ describe('Host party runtime use cases', () => {
       expect(hostPartyRuntimeControl.savePartyRuntime).toHaveBeenCalledWith({
         context: {
           lifecycle: {
-            phase: 'stage',
+            phase: PartyRuntimePhase.STAGE,
             stageEndsAtEpochMs: 205_000,
             stageRemainingDurationMs: 25_000,
             stageId: STAGE_202,
@@ -371,7 +375,7 @@ describe('Host party runtime use cases', () => {
   it('rewinds the party to the lobby and clears all player progress', async () => {
     // Arrange
     const hostPartyRuntimeControl = arrangeActiveRuntimeControl({
-      phase: 'result',
+      phase: PartyRuntimePhase.RESULT,
       stageEndsAtEpochMs: 120_000,
       stageRemainingDurationMs: 20_000,
       stageId: STAGE_303,
@@ -397,7 +401,7 @@ describe('Host party runtime use cases', () => {
     expect(hostPartyRuntimeControl.savePartyRuntime).toHaveBeenCalledWith({
       context: {
         lifecycle: {
-          phase: 'lobby',
+          phase: PartyRuntimePhase.LOBBY,
           stageEndsAtEpochMs: null,
           stageRemainingDurationMs: null,
           stageId: null,

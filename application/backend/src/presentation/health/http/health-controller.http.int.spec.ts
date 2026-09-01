@@ -103,6 +103,16 @@ describe('HealthController', () => {
 
     // Assert
     expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      status: 'ok',
+      info: {
+        application: { status: 'up' },
+      },
+      error: {},
+      details: {
+        application: { status: 'up' },
+      },
+    });
     expect(applicationHealthIndicator.isLive).toHaveBeenCalledWith('application');
     expect(prismaHealthIndicator.isHealthy).not.toHaveBeenCalled();
   });
@@ -122,6 +132,19 @@ describe('HealthController', () => {
 
     // Assert
     expect(response.status).toBe(503);
+    expect(response.body).toEqual({
+      status: 'error',
+      info: {
+        application: { status: 'up' },
+      },
+      error: {
+        database: { status: 'down' },
+      },
+      details: {
+        application: { status: 'up' },
+        database: { status: 'down' },
+      },
+    });
     expect(applicationHealthIndicator.isReady).toHaveBeenCalledWith('application');
     expect(prismaHealthIndicator.isHealthy).toHaveBeenCalledWith('database');
   });

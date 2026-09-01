@@ -47,3 +47,4 @@ If a change can alter how the system is structured, operated, or extended, it ne
 - 0005: [Adopt the current test strategy](./0005-adopt-the-current-test-strategy.md) - Accepted - 2026-08-15
 - 0006: [Use GraphQL subscriptions instead of custom stage-management event flows where useful](./0006-limit-graphql-subscriptions-to-secondary-realtime-surfaces.md) - Proposed - 2026-08-15
 - 0007: [Move play session settings to party-owned defaults](./0007-move-play-session-settings-to-party-owned-defaults.md) - Proposed - 2026-09-02
+- 0008: [Upgrade the backend to NestJS 12](./0008-upgrade-the-backend-to-nestjs-12.md) - Accepted - 2026-08-28
