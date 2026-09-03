@@ -254,12 +254,14 @@ enum PartyRole {
 }
 
 input PartySettingsInput {
+  allowJoiningAfterStart: Boolean
   allowOptionChangeAfterVoting: Boolean
   randomizeOptionOrder: Boolean
   randomizeStageOrder: Boolean
 }
 
 type PartySettingsType {
+  allowJoiningAfterStart: Boolean!
   allowOptionChangeAfterVoting: Boolean!
   randomizeOptionOrder: Boolean!
   randomizeStageOrder: Boolean!

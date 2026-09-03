@@ -17,6 +17,7 @@ import { Eyebrow, SummaryText, SupportingText } from '../../../../../shared/ui/l
 import { FormDialog } from '../../../../../shared/ui/overlay/form-dialog';
 
 interface DashboardCreatePartyForm {
+  readonly allowJoiningAfterStart: boolean;
   readonly allowOptionChangeAfterVoting: boolean;
   readonly isPrivateParty: boolean;
   readonly privatePartyPassword: string;
@@ -25,6 +26,7 @@ interface DashboardCreatePartyForm {
 }
 
 const DEFAULT_CREATE_PARTY_FORM: DashboardCreatePartyForm = {
+  allowJoiningAfterStart: false,
   allowOptionChangeAfterVoting: false,
   isPrivateParty: false,
   privatePartyPassword: '',
@@ -66,6 +68,7 @@ export function DashboardCreatePartyDialog({
 
     setForm({
       ...DEFAULT_CREATE_PARTY_FORM,
+      allowJoiningAfterStart: defaultPartySettings.allowJoiningAfterStart,
       allowOptionChangeAfterVoting: defaultPartySettings.allowOptionChangeAfterVoting,
       randomizeOptionOrder: defaultPartySettings.randomizeOptionOrder,
       randomizeStageOrder: defaultPartySettings.randomizeStageOrder,
@@ -74,6 +77,7 @@ export function DashboardCreatePartyDialog({
   }, [defaultPartySettings, game]);
 
   const hasCustomPartySettings =
+    form.allowJoiningAfterStart !== defaultPartySettings.allowJoiningAfterStart ||
     form.allowOptionChangeAfterVoting !== defaultPartySettings.allowOptionChangeAfterVoting ||
     form.randomizeOptionOrder !== defaultPartySettings.randomizeOptionOrder ||
     form.randomizeStageOrder !== defaultPartySettings.randomizeStageOrder;
@@ -106,6 +110,7 @@ export function DashboardCreatePartyDialog({
       privatePartyPassword,
       settingsOverride: hasCustomPartySettings
         ? {
+            allowJoiningAfterStart: form.allowJoiningAfterStart,
             allowOptionChangeAfterVoting: form.allowOptionChangeAfterVoting,
             randomizeOptionOrder: form.randomizeOptionOrder,
             randomizeStageOrder: form.randomizeStageOrder,
@@ -171,6 +176,20 @@ export function DashboardCreatePartyDialog({
           </SplitWrapRow>
 
           <ContentStack gap="sm">
+            <Checkbox
+              id="create-party-allow-joining-after-start"
+              label={t('dashboard.games.createParty.allowJoiningAfterStartLabel')}
+              description={t('dashboard.games.createParty.allowJoiningAfterStartDescription')}
+              checked={form.allowJoiningAfterStart}
+              onChange={(event) => {
+                const checked = event.currentTarget.checked;
+
+                setForm((current) => ({
+                  ...current,
+                  allowJoiningAfterStart: checked,
+                }));
+              }}
+            />
             <Checkbox
               id="create-party-allow-option-change-after-voting"
               label={t('dashboard.games.createParty.allowOptionChangeAfterVotingLabel')}

@@ -65,6 +65,9 @@ export const dashboardFr = {
           'Ces reglages reprennent les valeurs par defaut heritees pour ce jeu. Changez uniquement ce dont cette partie a besoin.',
         settingsUpdatedBadge: 'Modifie pour cette partie',
         privacyHeading: 'Confidentialite',
+        allowJoiningAfterStartLabel: 'Autoriser les joueurs a rejoindre apres le debut de la partie',
+        allowJoiningAfterStartDescription:
+          'Les nouveaux joueurs peuvent rejoindre meme si une session est deja en cours.',
         allowOptionChangeAfterVotingLabel: 'Autoriser les joueurs a changer de reponse apres avoir vote',
         allowOptionChangeAfterVotingDescription:
           "Les participants peuvent modifier leur choix jusqu'a la fin de la manche.",

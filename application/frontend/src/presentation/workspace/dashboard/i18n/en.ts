@@ -65,6 +65,8 @@ export const dashboardEn = {
           'These toggles start from the inherited defaults for this game. Change only what this party needs.',
         settingsUpdatedBadge: 'Updated for this party',
         privacyHeading: 'Privacy',
+        allowJoiningAfterStartLabel: 'Allow players to join after the party has started',
+        allowJoiningAfterStartDescription: 'New players can join even when a session is already in progress.',
         allowOptionChangeAfterVotingLabel: 'Allow players to change answer after voting',
         allowOptionChangeAfterVotingDescription: 'Participants can update their choice until the stage ends.',
         randomizeStageOrderLabel: 'Randomize stage order',

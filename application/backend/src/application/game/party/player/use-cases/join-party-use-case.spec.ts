@@ -39,6 +39,7 @@ describe('JoinPartyUseCase', () => {
         hostUserId,
         privatePartyPasswordHash: null,
         settings: {
+          allowJoiningAfterStart: false,
           allowOptionChangeAfterVoting: false,
           randomizeOptionOrder: false,
           randomizeStageOrder: false,
@@ -82,6 +83,7 @@ describe('JoinPartyUseCase', () => {
         hostUserId,
         privatePartyPasswordHash: null,
         settings: {
+          allowJoiningAfterStart: false,
           allowOptionChangeAfterVoting: false,
           randomizeOptionOrder: false,
           randomizeStageOrder: false,
@@ -179,6 +181,7 @@ describe('JoinPartyUseCase', () => {
         hostUserId,
         privatePartyPasswordHash: null,
         settings: {
+          allowJoiningAfterStart: false,
           allowOptionChangeAfterVoting: false,
           randomizeOptionOrder: false,
           randomizeStageOrder: false,
@@ -439,6 +442,7 @@ describe('JoinPartyUseCase', () => {
         privatePartyPasswordHash: 'hashed-private-password',
         pin: partyPin,
         settings: {
+          allowJoiningAfterStart: false,
           allowOptionChangeAfterVoting: false,
           randomizeOptionOrder: false,
           randomizeStageOrder: false,
@@ -476,6 +480,7 @@ describe('JoinPartyUseCase', () => {
         privatePartyPasswordHash: 'hashed-private-password',
         pin: partyPin,
         settings: {
+          allowJoiningAfterStart: false,
           allowOptionChangeAfterVoting: false,
           randomizeOptionOrder: false,
           randomizeStageOrder: false,
@@ -502,5 +507,114 @@ describe('JoinPartyUseCase', () => {
     ).rejects.toBeInstanceOf(InvalidPartyPasswordError);
 
     expect(passwordService.compare).toHaveBeenCalledWith('wrong-secret', 'hashed-private-password');
+  });
+
+  it('allows a new authenticated player to join a started party when allowJoiningAfterStart is enabled', async () => {
+    // Arrange
+    const player = {
+      identity: { kind: PartyPlayerKind.USER, userId: playerUserId },
+      username: 'Morgan',
+      avatarUri: '/api/avatars/users/42?v=1',
+      totalScore: 0,
+      joinedAt: new Date('2026-04-27T10:00:00.000Z'),
+    } satisfies PartyPlayer;
+    const runtime = createPlayerPartyRuntimeMock({
+      findActivePartyByUserId: null,
+      findPartyByPin: {
+        partyId,
+        gameId,
+        hostUserId,
+        privatePartyPasswordHash: null,
+        settings: {
+          allowJoiningAfterStart: true,
+          allowOptionChangeAfterVoting: false,
+          randomizeOptionOrder: false,
+          randomizeStageOrder: false,
+        },
+        pin: partyPin,
+        status: 'ACTIVE',
+      },
+      findPartyPlayer: player,
+    });
+    const broadcastPartyObservationUseCase = {
+      execute: vi.fn().mockResolvedValue(undefined),
+    };
+    const useCase = new JoinPartyUseCase(
+      runtime as never,
+      broadcastPartyObservationUseCase as never,
+      createPasswordServiceMock({ compare: true }) as never,
+    );
+
+    // Act
+    const result = await useCase.execute({
+      pin: partyPin,
+      playerIdentity: {
+        kind: PartyPlayerKind.USER,
+        userId: playerUserId,
+      },
+      username: '',
+    });
+
+    // Assert
+    expect(runtime.ensureAuthenticatedPlayer).toHaveBeenCalledWith({
+      partyId,
+      userId: playerUserId,
+    });
+    expect(result.player).toEqual(player);
+    expect(broadcastPartyObservationUseCase.execute).toHaveBeenCalledWith({ partyId });
+  });
+
+  it('allows a new guest player to join a started party when allowJoiningAfterStart is enabled', async () => {
+    // Arrange
+    const player = {
+      identity: { kind: PartyPlayerKind.GUEST, guestId },
+      username: 'Morgan Guest',
+      avatarUri: '/api/avatars/guests/guest-42',
+      totalScore: 0,
+      joinedAt: new Date('2026-04-27T10:00:00.000Z'),
+    } satisfies PartyPlayer;
+    const runtime = createPlayerPartyRuntimeMock({
+      findPartyByPin: {
+        partyId,
+        gameId,
+        hostUserId,
+        privatePartyPasswordHash: null,
+        settings: {
+          allowJoiningAfterStart: true,
+          allowOptionChangeAfterVoting: false,
+          randomizeOptionOrder: false,
+          randomizeStageOrder: false,
+        },
+        pin: partyPin,
+        status: 'ACTIVE',
+      },
+      findPartyPlayer: player,
+    });
+    const broadcastPartyObservationUseCase = {
+      execute: vi.fn().mockResolvedValue(undefined),
+    };
+    const useCase = new JoinPartyUseCase(
+      runtime as never,
+      broadcastPartyObservationUseCase as never,
+      createPasswordServiceMock({ compare: true }) as never,
+    );
+
+    // Act
+    const result = await useCase.execute({
+      pin: partyPin,
+      playerIdentity: {
+        kind: PartyPlayerKind.GUEST,
+      },
+      username: 'Morgan Guest',
+    });
+
+    // Assert
+    expect(runtime.ensureGuestPlayer).toHaveBeenCalledWith({
+      partyId,
+      guestId: null,
+      username: 'Morgan Guest',
+    });
+    expect(result.player).toEqual(player);
+    expect(broadcastPartyObservationUseCase.execute).toHaveBeenCalledWith({ partyId });
   });
 });

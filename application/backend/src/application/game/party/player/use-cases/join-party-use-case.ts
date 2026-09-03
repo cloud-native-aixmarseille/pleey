@@ -60,7 +60,7 @@ export class JoinPartyUseCase {
         })
       : null;
 
-    if (party.status !== PartyStatus.WAITING && !existingPlayer) {
+    if (party.status !== PartyStatus.WAITING && !existingPlayer && !party.settings.allowJoiningAfterStart) {
       throw new PartyCommandNotAvailableError({
         isRejoin: existingPlayer !== null,
         partyId: party.partyId,

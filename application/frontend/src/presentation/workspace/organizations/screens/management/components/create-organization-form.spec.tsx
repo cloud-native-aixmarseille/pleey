@@ -78,6 +78,7 @@ describe('CreateOrganizationForm', () => {
         name: 'New Org',
         description: 'A test org',
         defaultPartySettings: {
+          allowJoiningAfterStart: false,
           allowOptionChangeAfterVoting: false,
           randomizeOptionOrder: false,
           randomizeStageOrder: false,
