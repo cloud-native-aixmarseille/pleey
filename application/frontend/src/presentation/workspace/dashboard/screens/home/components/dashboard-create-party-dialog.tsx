@@ -7,9 +7,9 @@ import { usePresentationTranslation } from '../../../../../shared/i18n/use-prese
 import { Button } from '../../../../../shared/ui/actions/button';
 import { CopyButton } from '../../../../../shared/ui/actions/copy-button';
 import { Badge } from '../../../../../shared/ui/feedback/badge';
-import { Checkbox } from '../../../../../shared/ui/forms/checkbox';
 import { FieldShell } from '../../../../../shared/ui/forms/field-shell';
 import { Input } from '../../../../../shared/ui/forms/input';
+import { PartySettingsCheckboxes } from '../../../../../shared/ui/forms/party-settings-checkboxes';
 import { AppIcon, type AppIconName } from '../../../../../shared/ui/icons/app-icon';
 import { ContentStack, SplitWrapRow, WrapRow } from '../../../../../shared/ui/layout/containers';
 import { InsetPanel } from '../../../../../shared/ui/layout/panels';
@@ -82,6 +82,17 @@ export function DashboardCreatePartyDialog({
     form.randomizeOptionOrder !== defaultPartySettings.randomizeOptionOrder ||
     form.randomizeStageOrder !== defaultPartySettings.randomizeStageOrder;
   const gameIconName: AppIconName = (descriptor?.iconKey as AppIconName | undefined) ?? 'game';
+
+  const formPartySettings: PartySettings = {
+    allowJoiningAfterStart: form.allowJoiningAfterStart,
+    allowOptionChangeAfterVoting: form.allowOptionChangeAfterVoting,
+    randomizeOptionOrder: form.randomizeOptionOrder,
+    randomizeStageOrder: form.randomizeStageOrder,
+  };
+
+  const handlePartySettingsChange = (newSettings: PartySettings) => {
+    setForm((current) => ({ ...current, ...newSettings }));
+  };
 
   const handleGeneratePrivatePartyPassword = () => {
     const generatedPassword = privatePartyPasswordGeneratorPort.generatePrivatePartyPassword();
@@ -176,61 +187,11 @@ export function DashboardCreatePartyDialog({
           </SplitWrapRow>
 
           <ContentStack gap="sm">
-            <Checkbox
-              id="create-party-allow-joining-after-start"
-              label={t('dashboard.games.createParty.allowJoiningAfterStartLabel')}
-              description={t('dashboard.games.createParty.allowJoiningAfterStartDescription')}
-              checked={form.allowJoiningAfterStart}
-              onChange={(event) => {
-                const checked = event.currentTarget.checked;
-
-                setForm((current) => ({
-                  ...current,
-                  allowJoiningAfterStart: checked,
-                }));
-              }}
-            />
-            <Checkbox
-              id="create-party-allow-option-change-after-voting"
-              label={t('dashboard.games.createParty.allowOptionChangeAfterVotingLabel')}
-              description={t('dashboard.games.createParty.allowOptionChangeAfterVotingDescription')}
-              checked={form.allowOptionChangeAfterVoting}
-              onChange={(event) => {
-                const checked = event.currentTarget.checked;
-
-                setForm((current) => ({
-                  ...current,
-                  allowOptionChangeAfterVoting: checked,
-                }));
-              }}
-            />
-            <Checkbox
-              id="create-party-randomize-stage-order"
-              label={t('dashboard.games.createParty.randomizeStageOrderLabel')}
-              description={t('dashboard.games.createParty.randomizeStageOrderDescription')}
-              checked={form.randomizeStageOrder}
-              onChange={(event) => {
-                const checked = event.currentTarget.checked;
-
-                setForm((current) => ({
-                  ...current,
-                  randomizeStageOrder: checked,
-                }));
-              }}
-            />
-            <Checkbox
-              id="create-party-randomize-option-order"
-              label={t('dashboard.games.createParty.randomizeOptionOrderLabel')}
-              description={t('dashboard.games.createParty.randomizeOptionOrderDescription')}
-              checked={form.randomizeOptionOrder}
-              onChange={(event) => {
-                const checked = event.currentTarget.checked;
-
-                setForm((current) => ({
-                  ...current,
-                  randomizeOptionOrder: checked,
-                }));
-              }}
+            <PartySettingsCheckboxes
+              idPrefix="create-party"
+              settings={formPartySettings}
+              translationKeyPrefix="dashboard.games.createParty"
+              onChange={handlePartySettingsChange}
             />
           </ContentStack>
         </ContentStack>
