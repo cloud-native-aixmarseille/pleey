@@ -63,17 +63,7 @@ export const organizationEn = {
             label: 'Description',
             placeholder: 'Describe the organization (optional)',
           },
-          partySettings: {
-            label: 'Default party mode',
-            allowJoiningAfterStartLabel: 'Allow players to join after the party has started',
-            allowJoiningAfterStartDescription: 'New players can join even when a session is already in progress.',
-            allowOptionChangeAfterVotingLabel: 'Allow players to change answer after voting',
-            allowOptionChangeAfterVotingDescription: 'Participants can update their choice until the stage ends.',
-            randomizeStageOrderLabel: 'Randomize stage order',
-            randomizeStageOrderDescription: 'Shuffle stage order each time a party starts.',
-            randomizeOptionOrderLabel: 'Randomize outcome order',
-            randomizeOptionOrderDescription: 'Shuffle the answer or outcome order in each stage.',
-          },
+
         },
       },
       edit: {
@@ -142,17 +132,7 @@ export const organizationEn = {
             label: 'Description',
             placeholder: 'Describe the project (optional)',
           },
-          partySettings: {
-            label: 'Default party mode',
-            allowJoiningAfterStartLabel: 'Allow players to join after the party has started',
-            allowJoiningAfterStartDescription: 'New players can join even when a session is already in progress.',
-            allowOptionChangeAfterVotingLabel: 'Allow players to change answer after voting',
-            allowOptionChangeAfterVotingDescription: 'Participants can update their choice until the stage ends.',
-            randomizeStageOrderLabel: 'Randomize stage order',
-            randomizeStageOrderDescription: 'Shuffle stage order each time a party starts.',
-            randomizeOptionOrderLabel: 'Randomize outcome order',
-            randomizeOptionOrderDescription: 'Shuffle the answer or outcome order in each stage.',
-          },
+
         },
         fallbackOrganization: 'the selected organization',
       },

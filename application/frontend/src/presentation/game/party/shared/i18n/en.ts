@@ -1,6 +1,17 @@
 export const gamePartyEn = {
   game: {
     party: {
+      settings: {
+        fieldLabel: 'Default party mode',
+        allowJoiningAfterStartLabel: 'Allow players to join after the party has started',
+        allowJoiningAfterStartDescription: 'New players can join even when a session is already in progress.',
+        allowOptionChangeAfterVotingLabel: 'Allow players to change answer after voting',
+        allowOptionChangeAfterVotingDescription: 'Participants can update their choice until the stage ends.',
+        randomizeStageOrderLabel: 'Randomize stage order',
+        randomizeStageOrderDescription: 'Shuffle stage order each time a party starts.',
+        randomizeOptionOrderLabel: 'Randomize outcome order',
+        randomizeOptionOrderDescription: 'Shuffle the answer or outcome order in each stage.',
+      },
       route: {
         invalidPin: 'A party pin is required to open this page.',
         loading: 'Loading lobby observation...',
