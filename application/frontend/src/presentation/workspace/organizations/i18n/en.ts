@@ -65,6 +65,8 @@ export const organizationEn = {
           },
           partySettings: {
             label: 'Default party mode',
+            allowJoiningAfterStartLabel: 'Allow players to join after the party has started',
+            allowJoiningAfterStartDescription: 'New players can join even when a session is already in progress.',
             allowOptionChangeAfterVotingLabel: 'Allow players to change answer after voting',
             allowOptionChangeAfterVotingDescription: 'Participants can update their choice until the stage ends.',
             randomizeStageOrderLabel: 'Randomize stage order',
@@ -142,6 +144,8 @@ export const organizationEn = {
           },
           partySettings: {
             label: 'Default party mode',
+            allowJoiningAfterStartLabel: 'Allow players to join after the party has started',
+            allowJoiningAfterStartDescription: 'New players can join even when a session is already in progress.',
             allowOptionChangeAfterVotingLabel: 'Allow players to change answer after voting',
             allowOptionChangeAfterVotingDescription: 'Participants can update their choice until the stage ends.',
             randomizeStageOrderLabel: 'Randomize stage order',

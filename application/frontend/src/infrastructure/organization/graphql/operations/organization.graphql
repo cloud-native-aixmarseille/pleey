@@ -7,6 +7,7 @@ query WorkspaceOrganizations($input: ListOrganizationsInput) {
       createdAt
       updatedAt
       defaultPartySettings {
+        allowJoiningAfterStart
         allowOptionChangeAfterVoting
         randomizeOptionOrder
         randomizeStageOrder
@@ -29,6 +30,7 @@ mutation UpdateOrganization($organizationId: ID!, $input: UpdateOrganizationInpu
     createdAt
     updatedAt
     defaultPartySettings {
+      allowJoiningAfterStart
       allowOptionChangeAfterVoting
       randomizeOptionOrder
       randomizeStageOrder

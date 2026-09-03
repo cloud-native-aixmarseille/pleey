@@ -329,6 +329,7 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
   private toPartySettings(
     settings:
       | {
+          readonly allowJoiningAfterStart: boolean;
           readonly allowOptionChangeAfterVoting: boolean;
           readonly randomizeOptionOrder: boolean;
           readonly randomizeStageOrder: boolean;
@@ -338,6 +339,7 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
   ): PartySettings | null {
     return settings
       ? {
+          allowJoiningAfterStart: settings.allowJoiningAfterStart,
           allowOptionChangeAfterVoting: settings.allowOptionChangeAfterVoting,
           randomizeOptionOrder: settings.randomizeOptionOrder,
           randomizeStageOrder: settings.randomizeStageOrder,

@@ -137,6 +137,7 @@ describe('ProjectFormDialog', () => {
         name: 'New Project',
         description: 'Ready to launch',
         partySettings: {
+          allowJoiningAfterStart: false,
           allowOptionChangeAfterVoting: false,
           randomizeOptionOrder: false,
           randomizeStageOrder: false,
@@ -219,6 +220,7 @@ describe('ProjectFormDialog', () => {
         name: 'Preset Project',
         description: 'Preset ready',
         partySettings: {
+          allowJoiningAfterStart: false,
           allowOptionChangeAfterVoting: true,
           randomizeOptionOrder: true,
           randomizeStageOrder: false,

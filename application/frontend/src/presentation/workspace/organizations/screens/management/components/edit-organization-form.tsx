@@ -111,6 +111,21 @@ function EditableOrganizationFormContent({ onSubmit, onUpdated, organization }: 
 
         <FieldShell id="edit-org-party-settings" label={t('organization.management.create.fields.partySettings.label')}>
           <Checkbox
+            id="edit-org-allow-joining-after-start"
+            label={t('organization.management.create.fields.partySettings.allowJoiningAfterStartLabel')}
+            description={t(
+              'organization.management.create.fields.partySettings.allowJoiningAfterStartDescription',
+            )}
+            checked={partySettings.allowJoiningAfterStart}
+            onChange={(event) =>
+              setPartySettings({
+                ...partySettings,
+                allowJoiningAfterStart: event.currentTarget.checked,
+              })
+            }
+            disabled={isSubmitting}
+          />
+          <Checkbox
             id="edit-org-allow-option-change-after-voting"
             label={t('organization.management.create.fields.partySettings.allowOptionChangeAfterVotingLabel')}
             description={t(

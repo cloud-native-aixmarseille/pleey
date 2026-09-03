@@ -6,6 +6,11 @@ export class PartySettingsInput {
   @Field(() => Boolean, { nullable: true })
   @IsBoolean()
   @IsOptional()
+  allowJoiningAfterStart?: boolean;
+
+  @Field(() => Boolean, { nullable: true })
+  @IsBoolean()
+  @IsOptional()
   allowOptionChangeAfterVoting?: boolean;
 
   @Field(() => Boolean, { nullable: true })

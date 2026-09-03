@@ -45,6 +45,7 @@ describe('EditOrganizationForm', () => {
       description: 'Updated hub',
       role: OrganizationRole.MANAGER,
       defaultPartySettings: {
+        allowJoiningAfterStart: false,
         allowOptionChangeAfterVoting: true,
         randomizeOptionOrder: false,
         randomizeStageOrder: true,
@@ -94,6 +95,7 @@ describe('EditOrganizationForm', () => {
         name: 'Arcade Org 2',
         description: 'Updated hub',
         defaultPartySettings: {
+          allowJoiningAfterStart: false,
           allowOptionChangeAfterVoting: true,
           randomizeOptionOrder: false,
           randomizeStageOrder: true,

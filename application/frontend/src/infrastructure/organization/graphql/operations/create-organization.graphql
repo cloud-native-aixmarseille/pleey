@@ -6,6 +6,7 @@ mutation CreateOrganization($input: CreateOrganizationInput!) {
     createdAt
     updatedAt
     defaultPartySettings {
+      allowJoiningAfterStart
       allowOptionChangeAfterVoting
       randomizeOptionOrder
       randomizeStageOrder
