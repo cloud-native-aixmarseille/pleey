@@ -67,6 +67,7 @@ describe('UpdateOrganizationUseCase', () => {
       name: 'Updated Org',
       description: 'Updated description',
       defaultPartySettings: {
+        allowJoiningAfterStart: false,
         allowOptionChangeAfterVoting: true,
         randomizeOptionOrder: false,
         randomizeStageOrder: true,

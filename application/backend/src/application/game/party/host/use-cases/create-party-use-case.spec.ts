@@ -94,6 +94,7 @@ describe('CreatePartyUseCase', () => {
         gameId: defaultCommand.gameId,
         hostUserId: defaultCommand.hostUserId,
         settings: {
+          allowJoiningAfterStart: false,
           allowOptionChangeAfterVoting: false,
           randomizeOptionOrder: false,
           randomizeStageOrder: false,
@@ -227,11 +228,13 @@ describe('CreatePartyUseCase', () => {
       projectId: backendTestIdentifiers.project(6),
       organizationId: backendTestIdentifiers.organization(3),
       projectDefaultSettings: {
+        allowJoiningAfterStart: false,
         allowOptionChangeAfterVoting: true,
         randomizeOptionOrder: false,
         randomizeStageOrder: true,
       },
       organizationDefaultSettings: {
+        allowJoiningAfterStart: false,
         allowOptionChangeAfterVoting: false,
         randomizeOptionOrder: true,
         randomizeStageOrder: false,
@@ -250,6 +253,7 @@ describe('CreatePartyUseCase', () => {
     expect(partyManagement.createParty).toHaveBeenCalledWith(
       expect.objectContaining({
         settings: {
+          allowJoiningAfterStart: false,
           allowOptionChangeAfterVoting: true,
           randomizeOptionOrder: true,
           randomizeStageOrder: true,
