@@ -4,6 +4,7 @@ import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-pl
 import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
 import { GameType } from '../../../../../domain/game/types/shared/entities/game-type';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
+import { DEFAULT_PARTY_SETTINGS } from '../../../../../domain/game/party/shared/entities/party-settings';
 import { SubmitPartyActionUseCase } from './submit-party-action-use-case';
 
 const gameId = backendTestIdentifiers.game(9);
@@ -79,12 +80,7 @@ describe('SubmitPartyActionUseCase', () => {
         gameType: GameType.Quiz,
         partyId,
         playerIdentity,
-        settings: {
-          allowJoiningAfterStart: false,
-          allowOptionChangeAfterVoting: false,
-          randomizeOptionOrder: false,
-          randomizeStageOrder: false,
-        },
+        settings: DEFAULT_PARTY_SETTINGS,
         status: PartyStatus.ACTIVE,
       }),
       saveSubmissionResult: vi.fn().mockResolvedValue(undefined),
@@ -188,12 +184,7 @@ describe('SubmitPartyActionUseCase', () => {
           status: 'acknowledged',
         },
         playerIdentity,
-        settings: {
-          allowJoiningAfterStart: false,
-          allowOptionChangeAfterVoting: true,
-          randomizeOptionOrder: false,
-          randomizeStageOrder: false,
-        },
+        settings: { ...DEFAULT_PARTY_SETTINGS, allowOptionChangeAfterVoting: true },
         status: PartyStatus.ACTIVE,
       }),
       saveSubmissionResult: vi.fn().mockResolvedValue(undefined),
