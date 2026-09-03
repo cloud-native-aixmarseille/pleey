@@ -37,20 +37,27 @@ type PartyJoinTargetInput = ActivePlayerPartySessionInput & {
 type CreatePlayerPartyRuntimeMockConfig = {
   readonly ensureAuthenticatedPlayer?: undefined;
   readonly ensureGuestPlayer?: Awaited<ReturnType<PlayerPartyRuntimeLike['ensureGuestPlayer']>>;
-  readonly findActivePartyByUserId?: ActivePlayerPartySessionInput | null;
-  readonly findActivePartyByGuestId?: ActivePlayerPartySessionInput | null;
-  readonly findPartyByPin?: PartyJoinTargetInput | null;
+  readonly findActivePartyByUserId?: Partial<ActivePlayerPartySessionInput> | null;
+  readonly findActivePartyByGuestId?: Partial<ActivePlayerPartySessionInput> | null;
+  readonly findPartyByPin?: Partial<PartyJoinTargetInput> | null;
   readonly findPartyPlayer?: Awaited<ReturnType<PlayerPartyRuntimeLike['findPartyPlayer']>>;
   readonly removePlayer?: boolean;
 };
 
-const DEFAULT_PARTY_JOIN_TARGET: PartyJoinTargetInput = {
+export const DEFAULT_PARTY_JOIN_TARGET: PartyJoinTargetInput = {
   partyId: backendTestIdentifiers.party(12),
   gameId: backendTestIdentifiers.game(21),
   hostUserId: backendTestIdentifiers.user(7),
   privatePartyPasswordHash: null,
   pin: '123456',
   settings: DEFAULT_PARTY_SETTINGS,
+  status: 'WAITING',
+};
+
+export const DEFAULT_ACTIVE_PARTY_SESSION: ActivePlayerPartySessionInput = {
+  partyId: backendTestIdentifiers.party(12),
+  gameId: backendTestIdentifiers.game(21),
+  pin: '123456',
   status: 'WAITING',
 };
 
@@ -90,17 +97,29 @@ export const createPlayerPartyRuntimeMock = (
     >,
   );
   mock.findActivePartyByUserId.mockResolvedValue(
-    (config.findActivePartyByUserId === undefined ? null : config.findActivePartyByUserId) as Awaited<
+    (config.findActivePartyByUserId === undefined
+      ? null
+      : config.findActivePartyByUserId === null
+        ? null
+        : { ...DEFAULT_ACTIVE_PARTY_SESSION, ...config.findActivePartyByUserId }) as Awaited<
       ReturnType<PlayerPartyRuntimeLike['findActivePartyByUserId']>
     >,
   );
   mock.findActivePartyByGuestId.mockResolvedValue(
-    (config.findActivePartyByGuestId === undefined ? null : config.findActivePartyByGuestId) as Awaited<
+    (config.findActivePartyByGuestId === undefined
+      ? null
+      : config.findActivePartyByGuestId === null
+        ? null
+        : { ...DEFAULT_ACTIVE_PARTY_SESSION, ...config.findActivePartyByGuestId }) as Awaited<
       ReturnType<PlayerPartyRuntimeLike['findActivePartyByGuestId']>
     >,
   );
   mock.findPartyByPin.mockResolvedValue(
-    (config.findPartyByPin === undefined ? DEFAULT_PARTY_JOIN_TARGET : config.findPartyByPin) as Awaited<
+    (config.findPartyByPin === undefined
+      ? DEFAULT_PARTY_JOIN_TARGET
+      : config.findPartyByPin === null
+        ? null
+        : { ...DEFAULT_PARTY_JOIN_TARGET, ...config.findPartyByPin }) as Awaited<
       ReturnType<PlayerPartyRuntimeLike['findPartyByPin']>
     >,
   );

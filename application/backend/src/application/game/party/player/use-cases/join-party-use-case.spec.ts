@@ -9,10 +9,9 @@ import {
   MissingPartyPasswordError,
 } from '../../../../../domain/game/party/errors/join-party.error';
 import type { PartyPlayer } from '../../../../../domain/game/party/player/entities/party-player';
-import { DEFAULT_PARTY_SETTINGS } from '../../../../../domain/game/party/shared/entities/party-settings';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { createPasswordServiceMock } from '../../../../../test-utils/mock-factories/password-service.mock-factory';
-import { createPlayerPartyRuntimeMock } from '../../../../../test-utils/mock-factories/player-party-runtime.mock-factory';
+import { DEFAULT_PARTY_JOIN_TARGET, createPlayerPartyRuntimeMock } from '../../../../../test-utils/mock-factories/player-party-runtime.mock-factory';
 import { JoinPartyUseCase } from './join-party-use-case';
 
 const partyPin = backendTestIdentifiers.partyPin('123456');
@@ -28,21 +27,8 @@ describe('JoinPartyUseCase', () => {
   it('rejects a new authenticated join when the party has already started', async () => {
     // Arrange
     const runtime = createPlayerPartyRuntimeMock({
-      findActivePartyByUserId: {
-        partyId,
-        gameId,
-        pin: partyPin,
-        status: 'ACTIVE',
-      },
-      findPartyByPin: {
-        partyId,
-        gameId,
-        hostUserId,
-        privatePartyPasswordHash: null,
-        settings: DEFAULT_PARTY_SETTINGS,
-        pin: partyPin,
-        status: 'ACTIVE',
-      },
+      findActivePartyByUserId: { status: 'ACTIVE' },
+      findPartyByPin: { status: 'ACTIVE' },
       findPartyPlayer: null,
     });
     const broadcastPartyObservationUseCase = {
@@ -73,15 +59,7 @@ describe('JoinPartyUseCase', () => {
   it('rejects a new guest join when the party has already started', async () => {
     // Arrange
     const runtime = createPlayerPartyRuntimeMock({
-      findPartyByPin: {
-        partyId,
-        gameId,
-        hostUserId,
-        privatePartyPasswordHash: null,
-        settings: DEFAULT_PARTY_SETTINGS,
-        pin: partyPin,
-        status: 'ACTIVE',
-      },
+      findPartyByPin: { status: 'ACTIVE' },
     });
     const broadcastPartyObservationUseCase = {
       execute: vi.fn(),
@@ -111,12 +89,7 @@ describe('JoinPartyUseCase', () => {
   it('rejects authenticated joins when the user is active in another party', async () => {
     // Arrange
     const runtime = createPlayerPartyRuntimeMock({
-      findActivePartyByUserId: {
-        partyId: otherPartyId,
-        gameId,
-        pin: activePartyPin,
-        status: 'WAITING',
-      },
+      findActivePartyByUserId: { partyId: otherPartyId, pin: activePartyPin },
     });
     const broadcastPartyObservationUseCase = {
       execute: vi.fn(),
@@ -160,21 +133,8 @@ describe('JoinPartyUseCase', () => {
       joinedAt: new Date('2026-04-27T10:00:00.000Z'),
     } satisfies PartyPlayer;
     const runtime = createPlayerPartyRuntimeMock({
-      findActivePartyByUserId: {
-        partyId,
-        gameId,
-        pin: partyPin,
-        status: 'ACTIVE',
-      },
-      findPartyByPin: {
-        partyId,
-        gameId,
-        hostUserId,
-        privatePartyPasswordHash: null,
-        settings: DEFAULT_PARTY_SETTINGS,
-        pin: partyPin,
-        status: 'ACTIVE',
-      },
+      findActivePartyByUserId: { status: 'ACTIVE' },
+      findPartyByPin: { status: 'ACTIVE' },
       findPartyPlayer: player,
     });
     const broadcastPartyObservationUseCase = {
@@ -421,15 +381,7 @@ describe('JoinPartyUseCase', () => {
   it('rejects private-party joins with missing password', async () => {
     // Arrange
     const runtime = createPlayerPartyRuntimeMock({
-      findPartyByPin: {
-        partyId,
-        gameId,
-        hostUserId,
-        privatePartyPasswordHash: 'hashed-private-password',
-        pin: partyPin,
-        settings: DEFAULT_PARTY_SETTINGS,
-        status: 'WAITING',
-      },
+      findPartyByPin: { privatePartyPasswordHash: 'hashed-private-password' },
     });
     const broadcastPartyObservationUseCase = {
       execute: vi.fn(),
@@ -454,15 +406,7 @@ describe('JoinPartyUseCase', () => {
   it('rejects private-party joins with invalid password', async () => {
     // Arrange
     const runtime = createPlayerPartyRuntimeMock({
-      findPartyByPin: {
-        partyId,
-        gameId,
-        hostUserId,
-        privatePartyPasswordHash: 'hashed-private-password',
-        pin: partyPin,
-        settings: DEFAULT_PARTY_SETTINGS,
-        status: 'WAITING',
-      },
+      findPartyByPin: { privatePartyPasswordHash: 'hashed-private-password' },
     });
     const broadcastPartyObservationUseCase = {
       execute: vi.fn(),
@@ -496,15 +440,7 @@ describe('JoinPartyUseCase', () => {
     } satisfies PartyPlayer;
     const runtime = createPlayerPartyRuntimeMock({
       findActivePartyByUserId: null,
-      findPartyByPin: {
-        partyId,
-        gameId,
-        hostUserId,
-        privatePartyPasswordHash: null,
-        settings: { ...DEFAULT_PARTY_SETTINGS, allowJoiningAfterStart: true },
-        pin: partyPin,
-        status: 'ACTIVE',
-      },
+      findPartyByPin: { status: 'ACTIVE', settings: { ...DEFAULT_PARTY_JOIN_TARGET.settings, allowJoiningAfterStart: true } },
       findPartyPlayer: player,
     });
     const broadcastPartyObservationUseCase = {
@@ -545,15 +481,7 @@ describe('JoinPartyUseCase', () => {
       joinedAt: new Date('2026-04-27T10:00:00.000Z'),
     } satisfies PartyPlayer;
     const runtime = createPlayerPartyRuntimeMock({
-      findPartyByPin: {
-        partyId,
-        gameId,
-        hostUserId,
-        privatePartyPasswordHash: null,
-        settings: { ...DEFAULT_PARTY_SETTINGS, allowJoiningAfterStart: true },
-        pin: partyPin,
-        status: 'ACTIVE',
-      },
+      findPartyByPin: { status: 'ACTIVE', settings: { ...DEFAULT_PARTY_JOIN_TARGET.settings, allowJoiningAfterStart: true } },
       findPartyPlayer: player,
     });
     const broadcastPartyObservationUseCase = {
