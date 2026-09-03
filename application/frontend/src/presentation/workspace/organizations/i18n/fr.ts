@@ -64,18 +64,6 @@ export const organizationFr = {
             label: 'Description',
             placeholder: "Décrivez l'organisation (optionnel)",
           },
-          partySettings: {
-            label: 'Mode de partie par defaut',
-            allowJoiningAfterStartLabel: 'Autoriser les joueurs a rejoindre apres le debut de la partie',
-            allowJoiningAfterStartDescription: 'Les nouveaux joueurs peuvent rejoindre meme si une session est deja en cours.',
-            allowOptionChangeAfterVotingLabel: 'Autoriser les joueurs a changer de reponse apres avoir vote',
-            allowOptionChangeAfterVotingDescription:
-              "Les participants peuvent modifier leur choix jusqu'a la fin de la manche.",
-            randomizeStageOrderLabel: 'Aleatoiriser l ordre des manches',
-            randomizeStageOrderDescription: 'Melangez l ordre des manches a chaque debut de partie.',
-            randomizeOptionOrderLabel: 'Aleatoiriser l ordre des reponses',
-            randomizeOptionOrderDescription: 'Melangez l ordre des reponses ou des resultats a chaque manche.',
-          },
         },
       },
       edit: {
@@ -143,18 +131,6 @@ export const organizationFr = {
           description: {
             label: 'Description',
             placeholder: 'Décrivez le projet (optionnel)',
-          },
-          partySettings: {
-            label: 'Mode de partie par defaut',
-            allowJoiningAfterStartLabel: 'Autoriser les joueurs a rejoindre apres le debut de la partie',
-            allowJoiningAfterStartDescription: 'Les nouveaux joueurs peuvent rejoindre meme si une session est deja en cours.',
-            allowOptionChangeAfterVotingLabel: 'Autoriser les joueurs a changer de reponse apres avoir vote',
-            allowOptionChangeAfterVotingDescription:
-              "Les participants peuvent modifier leur choix jusqu'a la fin de la manche.",
-            randomizeStageOrderLabel: 'Aleatoiriser l ordre des manches',
-            randomizeStageOrderDescription: 'Melangez l ordre des manches a chaque debut de partie.',
-            randomizeOptionOrderLabel: 'Aleatoiriser l ordre des reponses',
-            randomizeOptionOrderDescription: 'Melangez l ordre des reponses ou des resultats a chaque manche.',
           },
         },
         fallbackOrganization: "l'organisation sélectionnée",
