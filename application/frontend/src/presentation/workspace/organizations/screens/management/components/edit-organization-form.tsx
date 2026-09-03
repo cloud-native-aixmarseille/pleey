@@ -7,7 +7,7 @@ import { Button } from '../../../../../shared/ui/actions/button';
 import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';
 import { FieldShell } from '../../../../../shared/ui/forms/field-shell';
 import { Input } from '../../../../../shared/ui/forms/input';
-import { PartySettingsCheckboxes } from '../../../../../shared/ui/forms/party-settings-checkboxes';
+import { PartySettingsFormField } from '../../../../../shared/ui/forms/party-settings-form-field';
 import { Textarea } from '../../../../../shared/ui/forms/textarea';
 import { FormDialog } from '../../../../../shared/ui/overlay/form-dialog';
 import { useEditOrganizationFormState } from './use-edit-organization-form-state';
@@ -109,15 +109,12 @@ function EditableOrganizationFormContent({ onSubmit, onUpdated, organization }: 
           />
         </FieldShell>
 
-        <FieldShell id="edit-org-party-settings" label={t('organization.management.create.fields.partySettings.label')}>
-          <PartySettingsCheckboxes
-            idPrefix="edit-org"
-            settings={partySettings}
-            translationKeyPrefix="organization.management.create.fields.partySettings"
-            disabled={isSubmitting}
-            onChange={setPartySettings}
-          />
-        </FieldShell>
+        <PartySettingsFormField
+          id="edit-org-party-settings"
+          settings={partySettings}
+          disabled={isSubmitting}
+          onChange={setPartySettings}
+        />
       </FormDialog>
     </>
   );

@@ -65,16 +65,6 @@ export const dashboardFr = {
           'Ces reglages reprennent les valeurs par defaut heritees pour ce jeu. Changez uniquement ce dont cette partie a besoin.',
         settingsUpdatedBadge: 'Modifie pour cette partie',
         privacyHeading: 'Confidentialite',
-        allowJoiningAfterStartLabel: 'Autoriser les joueurs a rejoindre apres le debut de la partie',
-        allowJoiningAfterStartDescription:
-          'Les nouveaux joueurs peuvent rejoindre meme si une session est deja en cours.',
-        allowOptionChangeAfterVotingLabel: 'Autoriser les joueurs a changer de reponse apres avoir vote',
-        allowOptionChangeAfterVotingDescription:
-          "Les participants peuvent modifier leur choix jusqu'a la fin de la manche.",
-        randomizeStageOrderLabel: 'Aleatoiriser l ordre des manches',
-        randomizeStageOrderDescription: 'Melangez l ordre des manches a chaque debut de partie.',
-        randomizeOptionOrderLabel: 'Aleatoiriser l ordre des reponses',
-        randomizeOptionOrderDescription: 'Melangez l ordre des reponses ou des resultats a chaque manche.',
         privateToggleLabel: 'Créer une partie privée',
         privateToggleDescription: 'Les joueurs devront saisir un mot de passe pour rejoindre.',
         privatePasswordLabel: 'Mot de passe de partie privée',

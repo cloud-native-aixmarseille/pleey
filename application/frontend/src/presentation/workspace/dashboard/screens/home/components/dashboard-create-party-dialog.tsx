@@ -190,7 +190,6 @@ export function DashboardCreatePartyDialog({
             <PartySettingsCheckboxes
               idPrefix="create-party"
               settings={formPartySettings}
-              translationKeyPrefix="dashboard.games.createParty"
               onChange={handlePartySettingsChange}
             />
           </ContentStack>

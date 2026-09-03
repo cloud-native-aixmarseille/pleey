@@ -74,12 +74,12 @@ describe('EditOrganizationForm', () => {
     await user.type(descriptionInput, 'Updated hub');
     await user.click(
       within(dialog).getByRole('checkbox', {
-        name: 'organization.management.create.fields.partySettings.allowOptionChangeAfterVotingLabel',
+        name: 'game.party.settings.allowOptionChangeAfterVotingLabel',
       }),
     );
     await user.click(
       within(dialog).getByRole('checkbox', {
-        name: 'organization.management.create.fields.partySettings.randomizeStageOrderLabel',
+        name: 'game.party.settings.randomizeStageOrderLabel',
       }),
     );
 

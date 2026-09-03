@@ -1,6 +1,17 @@
 export const gamePartyFr = {
   game: {
     party: {
+      settings: {
+        fieldLabel: 'Mode de partie par défaut',
+        allowJoiningAfterStartLabel: 'Autoriser les joueurs à rejoindre après le début de la partie',
+        allowJoiningAfterStartDescription: 'Les nouveaux joueurs peuvent rejoindre même si une session est déjà en cours.',
+        allowOptionChangeAfterVotingLabel: 'Autoriser les joueurs à changer de réponse après avoir voté',
+        allowOptionChangeAfterVotingDescription: "Les participants peuvent modifier leur choix jusqu'à la fin de la manche.",
+        randomizeStageOrderLabel: "Aléatoriser l'ordre des manches",
+        randomizeStageOrderDescription: 'Mélanger l\'ordre des manches à chaque début de partie.',
+        randomizeOptionOrderLabel: "Aléatoriser l'ordre des réponses",
+        randomizeOptionOrderDescription: 'Mélanger l\'ordre des réponses ou des résultats à chaque manche.',
+      },
       route: {
         invalidPin: 'Un code PIN de partie est requis pour ouvrir cette page.',
         loading: "Chargement de l'observation du lobby...",

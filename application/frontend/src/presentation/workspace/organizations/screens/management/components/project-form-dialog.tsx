@@ -9,7 +9,7 @@ import { Button } from '../../../../../shared/ui/actions/button';
 import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';
 import { FieldShell } from '../../../../../shared/ui/forms/field-shell';
 import { Input } from '../../../../../shared/ui/forms/input';
-import { PartySettingsCheckboxes } from '../../../../../shared/ui/forms/party-settings-checkboxes';
+import { PartySettingsFormField } from '../../../../../shared/ui/forms/party-settings-form-field';
 import { Textarea } from '../../../../../shared/ui/forms/textarea';
 import { FormDialog } from '../../../../../shared/ui/overlay/form-dialog';
 import { useProjectFormDialogState } from './use-project-form-dialog-state';
@@ -115,15 +115,12 @@ export function ProjectFormDialog({
         />
       </FieldShell>
 
-      <FieldShell id="project-party-settings" label={t('project.management.form.fields.partySettings.label')}>
-        <PartySettingsCheckboxes
-          idPrefix="project-party-settings"
-          settings={partySettings}
-          translationKeyPrefix="project.management.form.fields.partySettings"
-          disabled={isSubmitting}
-          onChange={setPartySettings}
-        />
-      </FieldShell>
+      <PartySettingsFormField
+        id="project-party-settings"
+        settings={partySettings}
+        disabled={isSubmitting}
+        onChange={setPartySettings}
+      />
     </FormDialog>
   );
 }
