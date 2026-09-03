@@ -80,6 +80,7 @@ describe('SubmitPartyActionUseCase', () => {
         partyId,
         playerIdentity,
         settings: {
+          allowJoiningAfterStart: false,
           allowOptionChangeAfterVoting: false,
           randomizeOptionOrder: false,
           randomizeStageOrder: false,
@@ -188,6 +189,7 @@ describe('SubmitPartyActionUseCase', () => {
         },
         playerIdentity,
         settings: {
+          allowJoiningAfterStart: false,
           allowOptionChangeAfterVoting: true,
           randomizeOptionOrder: false,
           randomizeStageOrder: false,
