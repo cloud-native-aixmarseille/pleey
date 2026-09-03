@@ -1,5 +1,6 @@
 import type { Mocked } from 'vitest';
 import type { PlayerPartyRuntimePort } from '../../application/game/party/player/ports/player-party-runtime.port';
+import { DEFAULT_PARTY_SETTINGS } from '../../domain/game/party/shared/entities/party-settings';
 import { PartyPlayerKind } from '../../domain/game/party/enums/party-player-kind.enum';
 import { backendTestIdentifiers } from '../branded-identifiers';
 import { mockFn } from './mock-factory.utils';
@@ -49,12 +50,7 @@ const DEFAULT_PARTY_JOIN_TARGET: PartyJoinTargetInput = {
   hostUserId: backendTestIdentifiers.user(7),
   privatePartyPasswordHash: null,
   pin: '123456',
-  settings: {
-    allowJoiningAfterStart: false,
-    allowOptionChangeAfterVoting: false,
-    randomizeOptionOrder: false,
-    randomizeStageOrder: false,
-  },
+  settings: DEFAULT_PARTY_SETTINGS,
   status: 'WAITING',
 };
 

@@ -9,6 +9,7 @@ import {
   MissingPartyPasswordError,
 } from '../../../../../domain/game/party/errors/join-party.error';
 import type { PartyPlayer } from '../../../../../domain/game/party/player/entities/party-player';
+import { DEFAULT_PARTY_SETTINGS } from '../../../../../domain/game/party/shared/entities/party-settings';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { createPasswordServiceMock } from '../../../../../test-utils/mock-factories/password-service.mock-factory';
 import { createPlayerPartyRuntimeMock } from '../../../../../test-utils/mock-factories/player-party-runtime.mock-factory';
@@ -38,12 +39,7 @@ describe('JoinPartyUseCase', () => {
         gameId,
         hostUserId,
         privatePartyPasswordHash: null,
-        settings: {
-          allowJoiningAfterStart: false,
-          allowOptionChangeAfterVoting: false,
-          randomizeOptionOrder: false,
-          randomizeStageOrder: false,
-        },
+        settings: DEFAULT_PARTY_SETTINGS,
         pin: partyPin,
         status: 'ACTIVE',
       },
@@ -82,12 +78,7 @@ describe('JoinPartyUseCase', () => {
         gameId,
         hostUserId,
         privatePartyPasswordHash: null,
-        settings: {
-          allowJoiningAfterStart: false,
-          allowOptionChangeAfterVoting: false,
-          randomizeOptionOrder: false,
-          randomizeStageOrder: false,
-        },
+        settings: DEFAULT_PARTY_SETTINGS,
         pin: partyPin,
         status: 'ACTIVE',
       },
@@ -180,12 +171,7 @@ describe('JoinPartyUseCase', () => {
         gameId,
         hostUserId,
         privatePartyPasswordHash: null,
-        settings: {
-          allowJoiningAfterStart: false,
-          allowOptionChangeAfterVoting: false,
-          randomizeOptionOrder: false,
-          randomizeStageOrder: false,
-        },
+        settings: DEFAULT_PARTY_SETTINGS,
         pin: partyPin,
         status: 'ACTIVE',
       },
@@ -441,12 +427,7 @@ describe('JoinPartyUseCase', () => {
         hostUserId,
         privatePartyPasswordHash: 'hashed-private-password',
         pin: partyPin,
-        settings: {
-          allowJoiningAfterStart: false,
-          allowOptionChangeAfterVoting: false,
-          randomizeOptionOrder: false,
-          randomizeStageOrder: false,
-        },
+        settings: DEFAULT_PARTY_SETTINGS,
         status: 'WAITING',
       },
     });
@@ -479,12 +460,7 @@ describe('JoinPartyUseCase', () => {
         hostUserId,
         privatePartyPasswordHash: 'hashed-private-password',
         pin: partyPin,
-        settings: {
-          allowJoiningAfterStart: false,
-          allowOptionChangeAfterVoting: false,
-          randomizeOptionOrder: false,
-          randomizeStageOrder: false,
-        },
+        settings: DEFAULT_PARTY_SETTINGS,
         status: 'WAITING',
       },
     });
@@ -525,12 +501,7 @@ describe('JoinPartyUseCase', () => {
         gameId,
         hostUserId,
         privatePartyPasswordHash: null,
-        settings: {
-          allowJoiningAfterStart: true,
-          allowOptionChangeAfterVoting: false,
-          randomizeOptionOrder: false,
-          randomizeStageOrder: false,
-        },
+        settings: { ...DEFAULT_PARTY_SETTINGS, allowJoiningAfterStart: true },
         pin: partyPin,
         status: 'ACTIVE',
       },
@@ -579,12 +550,7 @@ describe('JoinPartyUseCase', () => {
         gameId,
         hostUserId,
         privatePartyPasswordHash: null,
-        settings: {
-          allowJoiningAfterStart: true,
-          allowOptionChangeAfterVoting: false,
-          randomizeOptionOrder: false,
-          randomizeStageOrder: false,
-        },
+        settings: { ...DEFAULT_PARTY_SETTINGS, allowJoiningAfterStart: true },
         pin: partyPin,
         status: 'ACTIVE',
       },

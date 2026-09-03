@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { PartyStageCatalogEntry } from '../../../application/game/types/shared/ports/party-stage-catalog.port';
+import { DEFAULT_PARTY_SETTINGS } from '../../../domain/game/party/shared/entities/party-settings';
 import { GameType } from '../../../domain/game/types/shared/entities/game-type';
 import { backendTestIdentifiers } from '../../../test-utils/branded-identifiers';
 import { PrismaPartyStageCatalogAdapter } from './prisma-party-stage-catalog.adapter';
@@ -122,12 +123,7 @@ describe('PrismaPartyStageCatalogAdapter', () => {
     const adapter = new PrismaPartyStageCatalogAdapter(prisma as never, gameTypeParser as never, registry as never);
     const options = {
       partyId: 'party-A' as never,
-      settings: {
-        allowJoiningAfterStart: false,
-        allowOptionChangeAfterVoting: false,
-        randomizeOptionOrder: false,
-        randomizeStageOrder: true,
-      },
+      settings: { ...DEFAULT_PARTY_SETTINGS, randomizeStageOrder: true },
     };
 
     const firstRun = await adapter.listStages(gameId, options);
@@ -164,12 +160,7 @@ describe('PrismaPartyStageCatalogAdapter', () => {
     };
     const adapter = new PrismaPartyStageCatalogAdapter(prisma as never, gameTypeParser as never, registry as never);
 
-    const settings = {
-      allowJoiningAfterStart: false,
-      allowOptionChangeAfterVoting: false,
-      randomizeOptionOrder: false,
-      randomizeStageOrder: true,
-    };
+    const settings = { ...DEFAULT_PARTY_SETTINGS, randomizeStageOrder: true };
     const partyA = await adapter.listStages(gameId, {
       partyId: 'party-A' as never,
       settings,
@@ -210,12 +201,7 @@ describe('PrismaPartyStageCatalogAdapter', () => {
     const adapter = new PrismaPartyStageCatalogAdapter(prisma as never, gameTypeParser as never, registry as never);
     const options = {
       partyId: 'party-A' as never,
-      settings: {
-        allowJoiningAfterStart: false,
-        allowOptionChangeAfterVoting: false,
-        randomizeOptionOrder: false,
-        randomizeStageOrder: true,
-      },
+      settings: { ...DEFAULT_PARTY_SETTINGS, randomizeStageOrder: true },
     };
 
     const ordered = await adapter.listStages(gameId, options);
@@ -254,12 +240,7 @@ describe('PrismaPartyStageCatalogAdapter', () => {
     const adapter = new PrismaPartyStageCatalogAdapter(prisma as never, gameTypeParser as never, registry as never);
     const options = {
       partyId: 'party-A' as never,
-      settings: {
-        allowJoiningAfterStart: false,
-        allowOptionChangeAfterVoting: false,
-        randomizeOptionOrder: true,
-        randomizeStageOrder: false,
-      },
+      settings: { ...DEFAULT_PARTY_SETTINGS, randomizeOptionOrder: true },
     };
 
     const first = await adapter.findStageById(gameId, stages[0].id, options);

@@ -6,6 +6,7 @@ import {
   createOrganizationRepositoryMock,
 } from '../../../../test-utils/mock-factories/organization.mock-factory';
 import type { UpdateOrganizationDto } from '../dto/update-organization-dto';
+import { DEFAULT_PARTY_SETTINGS } from '../../../../domain/game/party/shared/entities/party-settings';
 import { UpdateOrganizationUseCase } from './update-organization-use-case';
 
 describe('UpdateOrganizationUseCase', () => {
@@ -66,12 +67,7 @@ describe('UpdateOrganizationUseCase', () => {
     const dto: UpdateOrganizationDto = {
       name: 'Updated Org',
       description: 'Updated description',
-      defaultPartySettings: {
-        allowJoiningAfterStart: false,
-        allowOptionChangeAfterVoting: true,
-        randomizeOptionOrder: false,
-        randomizeStageOrder: true,
-      },
+      defaultPartySettings: { ...DEFAULT_PARTY_SETTINGS, allowOptionChangeAfterVoting: true, randomizeStageOrder: true },
     };
 
     // Act
