@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { type INestApplication, Module } from '@nestjs/common';
-import { HealthCheckError, TerminusModule } from '@nestjs/terminus';
+import { TerminusModule } from '@nestjs/terminus';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
@@ -92,19 +92,27 @@ describe('HealthController', () => {
     // Arrange
     arrangeHealthyIndicators();
 
-    prismaHealthIndicator.isHealthy.mockRejectedValue(
-      new HealthCheckError('database is down', {
-        database: {
-          status: 'down',
-        },
-      }),
-    );
+    prismaHealthIndicator.isHealthy.mockResolvedValue({
+      database: {
+        status: 'down',
+      },
+    });
 
     // Act
     const response = await request(app.getHttpServer()).get('/healthz');
 
     // Assert
     expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      status: 'ok',
+      info: {
+        application: { status: 'up' },
+      },
+      error: {},
+      details: {
+        application: { status: 'up' },
+      },
+    });
     expect(applicationHealthIndicator.isLive).toHaveBeenCalledWith('application');
     expect(prismaHealthIndicator.isHealthy).not.toHaveBeenCalled();
   });
@@ -113,19 +121,30 @@ describe('HealthController', () => {
     // Arrange
     arrangeHealthyIndicators();
 
-    prismaHealthIndicator.isHealthy.mockRejectedValue(
-      new HealthCheckError('database is down', {
-        database: {
-          status: 'down',
-        },
-      }),
-    );
+    prismaHealthIndicator.isHealthy.mockResolvedValue({
+      database: {
+        status: 'down',
+      },
+    });
 
     // Act
     const response = await request(app.getHttpServer()).get('/ready');
 
     // Assert
     expect(response.status).toBe(503);
+    expect(response.body).toEqual({
+      status: 'error',
+      info: {
+        application: { status: 'up' },
+      },
+      error: {
+        database: { status: 'down' },
+      },
+      details: {
+        application: { status: 'up' },
+        database: { status: 'down' },
+      },
+    });
     expect(applicationHealthIndicator.isReady).toHaveBeenCalledWith('application');
     expect(prismaHealthIndicator.isHealthy).toHaveBeenCalledWith('database');
   });

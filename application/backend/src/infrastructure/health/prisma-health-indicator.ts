@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { HealthCheckError, type HealthIndicatorResult, HealthIndicatorService } from '@nestjs/terminus';
+import { type HealthIndicatorResult, HealthIndicatorService } from '@nestjs/terminus';
 import { PrismaService } from '../database/prisma-service';
 
 @Injectable()
@@ -19,7 +19,7 @@ export class PrismaHealthIndicator {
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Database connection failed';
 
-      throw new HealthCheckError('Database health check failed', indicator.down({ message }));
+      return indicator.down({ message });
     }
   }
 }

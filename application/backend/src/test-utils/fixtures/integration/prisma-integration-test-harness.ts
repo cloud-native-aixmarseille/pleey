@@ -1,5 +1,6 @@
 import { Test, type TestingModule } from '@nestjs/testing';
 import { afterAll, beforeAll } from 'vitest';
+import { DatabaseModule } from '../../../app/modules/database/database-module';
 import { PaginationQueryNormalizer } from '../../../application/shared/services/pagination-query-normalizer';
 import { PrismaService } from '../../../infrastructure/database/prisma-service';
 
@@ -15,8 +16,11 @@ export class PrismaIntegrationTestHarness<TRepository> {
   constructor(private readonly repositoryType: ProviderClass<TRepository>) {
     beforeAll(async () => {
       const testingModule = await Test.createTestingModule({
-        providers: [PrismaService, PaginationQueryNormalizer, this.repositoryType],
+        imports: [DatabaseModule],
+        providers: [PaginationQueryNormalizer, this.repositoryType],
       }).compile();
+
+      await testingModule.init();
 
       const prismaService = testingModule.get(PrismaService);
       const repositoryInstance = testingModule.get(this.repositoryType);
@@ -24,7 +28,6 @@ export class PrismaIntegrationTestHarness<TRepository> {
       this.testingModule = testingModule;
       this.prismaService = prismaService;
       this.repositoryInstance = repositoryInstance;
-      await prismaService.onModuleInit();
     });
 
     afterAll(async () => {
@@ -35,10 +38,6 @@ export class PrismaIntegrationTestHarness<TRepository> {
           }
         }
       } finally {
-        if (this.prismaService !== null) {
-          await this.prismaService.onModuleDestroy();
-        }
-
         if (this.testingModule !== null) {
           await this.testingModule.close();
         }

@@ -50,7 +50,7 @@
     "uuid": "^14.0.2"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.11",
+    "@biomejs/biome": "^2.5.12",
     "@graphql-codegen/cli": "^7.4.0",
     "@graphql-codegen/typed-document-node": "^7.1.0",
     "@graphql-codegen/typescript-operations": "^6.1.6",

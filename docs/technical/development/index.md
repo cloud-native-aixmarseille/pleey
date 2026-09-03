@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - Docker & Docker Compose V2
-- Node.js 18+
+- Node.js 22.22.3+, 24.15+, or 26+ for NestJS CLI workflows
 - Git
 
 ## Setup
@@ -72,6 +72,8 @@ refactor(game): simplify score calculation logic
 
 - SOLID, ACID, DRY, KISS
 - Prefer factorization when the same structure or decision repeats; remove redundant abstractions, branches, wrappers, and parameters instead of keeping parallel code paths
+- Do not introduce deprecated APIs, config keys, or helper methods into new code; when typings, editor diagnostics, or official docs mark an API as deprecated, switch to the current supported replacement.
+- Prefer the current documented API shape over legacy-compatible aliases or chained helpers, even when the older syntax still works.
 - Descriptive names, no magic numbers, early returns
 - All user-facing text via i18n translation keys (both `en` and `fr`)
 - Error messages from domain error code enums, translated at transport layer

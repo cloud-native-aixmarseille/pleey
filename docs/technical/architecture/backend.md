@@ -1,6 +1,6 @@
 # Backend Reference
 
-`application/backend/` — NestJS 11, GraphQL code-first, Prisma 7, PostgreSQL.
+`application/backend/` — NestJS 12, GraphQL code-first, Prisma 7, PostgreSQL.
 
 ## Directory Structure
 

@@ -46,3 +46,4 @@ If a change can alter how the system is structured, operated, or extended, it ne
 - 0004: [Use GraphQL for the primary API and Socket.IO for realtime](./0004-use-graphql-for-primary-api-and-socketio-for-realtime.md) - Accepted - 2026-08-15
 - 0005: [Adopt the current test strategy](./0005-adopt-the-current-test-strategy.md) - Accepted - 2026-08-15
 - 0006: [Use GraphQL subscriptions instead of custom stage-management event flows where useful](./0006-limit-graphql-subscriptions-to-secondary-realtime-surfaces.md) - Proposed - 2026-08-15
+- 0007: [Upgrade the backend to NestJS 12](./0007-upgrade-the-backend-to-nestjs-12.md) - Accepted - 2026-08-28

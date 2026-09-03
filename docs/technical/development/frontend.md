@@ -123,6 +123,12 @@ All third-party libs hidden behind port interfaces in `application/shared/contra
 
 Use translated UI notifications, domain error flows, or telemetry. `console.*` only allowed in test helpers.
 
+## Framework API Currency
+
+- Treat TypeScript `@deprecated` diagnostics, editor deprecation warnings, and official library migration notes as blockers for new frontend code.
+- Use the current documented React, Vite, Apollo, Mantine, Zod, and related package APIs directly instead of legacy-compatible aliases or deprecated helpers.
+- When a library documents a newer recommended component, hook, config key, or validation shape, prefer that form during edits instead of extending older syntax that only remains backward compatible.
+
 ## Performance
 
 - Use code splitting / lazy loading for route-level components
