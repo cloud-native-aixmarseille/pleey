@@ -117,6 +117,19 @@ export function ProjectFormDialog({
 
       <FieldShell id="project-party-settings" label={t('project.management.form.fields.partySettings.label')}>
         <Checkbox
+          id="project-party-settings-allow-joining-after-start"
+          label={t('project.management.form.fields.partySettings.allowJoiningAfterStartLabel')}
+          description={t('project.management.form.fields.partySettings.allowJoiningAfterStartDescription')}
+          checked={partySettings.allowJoiningAfterStart}
+          onChange={(event) => {
+            setPartySettings({
+              ...partySettings,
+              allowJoiningAfterStart: event.currentTarget.checked,
+            });
+          }}
+          disabled={isSubmitting}
+        />
+        <Checkbox
           id="project-party-settings-change-after-voting"
           label={t('project.management.form.fields.partySettings.allowOptionChangeAfterVotingLabel')}
           description={t('project.management.form.fields.partySettings.allowOptionChangeAfterVotingDescription')}

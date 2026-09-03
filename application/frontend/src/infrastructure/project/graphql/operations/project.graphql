@@ -7,6 +7,7 @@ query WorkspaceProjectsByOrganization($input: ListOrganizationProjectsInput!) {
       organizationId
       createdAt
       defaultPartySettings {
+        allowJoiningAfterStart
         allowOptionChangeAfterVoting
         randomizeOptionOrder
         randomizeStageOrder
@@ -28,6 +29,7 @@ mutation CreateProject($organizationId: ID!, $input: CreateProjectInput!) {
     organizationId
     createdAt
     defaultPartySettings {
+      allowJoiningAfterStart
       allowOptionChangeAfterVoting
       randomizeOptionOrder
       randomizeStageOrder
@@ -43,6 +45,7 @@ mutation UpdateProject($projectId: ID!, $input: UpdateProjectInput!) {
     organizationId
     createdAt
     defaultPartySettings {
+      allowJoiningAfterStart
       allowOptionChangeAfterVoting
       randomizeOptionOrder
       randomizeStageOrder

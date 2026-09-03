@@ -26,6 +26,7 @@ type PartyJoinTargetInput = ActivePlayerPartySessionInput & {
   readonly hostUserId: ReturnType<typeof backendTestIdentifiers.user>;
   readonly privatePartyPasswordHash: string | null;
   readonly settings: {
+    readonly allowJoiningAfterStart: boolean;
     readonly allowOptionChangeAfterVoting: boolean;
     readonly randomizeOptionOrder: boolean;
     readonly randomizeStageOrder: boolean;
@@ -49,6 +50,7 @@ const DEFAULT_PARTY_JOIN_TARGET: PartyJoinTargetInput = {
   privatePartyPasswordHash: null,
   pin: '123456',
   settings: {
+    allowJoiningAfterStart: false,
     allowOptionChangeAfterVoting: false,
     randomizeOptionOrder: false,
     randomizeStageOrder: false,

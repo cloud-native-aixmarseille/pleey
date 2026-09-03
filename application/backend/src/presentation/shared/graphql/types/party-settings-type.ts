@@ -3,6 +3,9 @@ import { Field, ObjectType } from '@nestjs/graphql';
 @ObjectType()
 export class PartySettingsType {
   @Field(() => Boolean)
+  allowJoiningAfterStart!: boolean;
+
+  @Field(() => Boolean)
   allowOptionChangeAfterVoting!: boolean;
 
   @Field(() => Boolean)

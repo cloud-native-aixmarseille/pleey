@@ -95,6 +95,21 @@ export function CreateOrganizationForm({ onSubmit, onCreated }: CreateOrganizati
           label={t('organization.management.create.fields.partySettings.label')}
         >
           <Checkbox
+            id="create-org-allow-joining-after-start"
+            label={t('organization.management.create.fields.partySettings.allowJoiningAfterStartLabel')}
+            description={t(
+              'organization.management.create.fields.partySettings.allowJoiningAfterStartDescription',
+            )}
+            checked={partySettings.allowJoiningAfterStart}
+            onChange={(event) =>
+              setPartySettings({
+                ...partySettings,
+                allowJoiningAfterStart: event.currentTarget.checked,
+              })
+            }
+            disabled={isSubmitting}
+          />
+          <Checkbox
             id="create-org-allow-option-change-after-voting"
             label={t('organization.management.create.fields.partySettings.allowOptionChangeAfterVotingLabel')}
             description={t(
