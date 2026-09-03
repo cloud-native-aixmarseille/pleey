@@ -123,6 +123,7 @@ describe('PrismaPartyStageCatalogAdapter', () => {
     const options = {
       partyId: 'party-A' as never,
       settings: {
+        allowJoiningAfterStart: false,
         allowOptionChangeAfterVoting: false,
         randomizeOptionOrder: false,
         randomizeStageOrder: true,
@@ -164,6 +165,7 @@ describe('PrismaPartyStageCatalogAdapter', () => {
     const adapter = new PrismaPartyStageCatalogAdapter(prisma as never, gameTypeParser as never, registry as never);
 
     const settings = {
+      allowJoiningAfterStart: false,
       allowOptionChangeAfterVoting: false,
       randomizeOptionOrder: false,
       randomizeStageOrder: true,
@@ -209,6 +211,7 @@ describe('PrismaPartyStageCatalogAdapter', () => {
     const options = {
       partyId: 'party-A' as never,
       settings: {
+        allowJoiningAfterStart: false,
         allowOptionChangeAfterVoting: false,
         randomizeOptionOrder: false,
         randomizeStageOrder: true,
@@ -252,6 +255,7 @@ describe('PrismaPartyStageCatalogAdapter', () => {
     const options = {
       partyId: 'party-A' as never,
       settings: {
+        allowJoiningAfterStart: false,
         allowOptionChangeAfterVoting: false,
         randomizeOptionOrder: true,
         randomizeStageOrder: false,

@@ -136,6 +136,7 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
         gameId: GAME_ID,
         partyId: PARTY_ID,
         settings: {
+          allowJoiningAfterStart: false,
           allowOptionChangeAfterVoting: false,
           randomizeOptionOrder: false,
           randomizeStageOrder: false,
@@ -243,6 +244,7 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
         gameId: GAME_ID,
         partyId: PARTY_ID,
         settings: {
+          allowJoiningAfterStart: false,
           allowOptionChangeAfterVoting: false,
           randomizeOptionOrder: false,
           randomizeStageOrder: false,

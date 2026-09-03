@@ -19,6 +19,7 @@ const STAGE_101 = backendTestIdentifiers.partyStage(101);
 const STAGE_202 = backendTestIdentifiers.partyStage(202);
 const STAGE_303 = backendTestIdentifiers.partyStage(303);
 const DEFAULT_PARTY_SETTINGS = {
+  allowJoiningAfterStart: false,
   allowOptionChangeAfterVoting: false,
   randomizeOptionOrder: false,
   randomizeStageOrder: false,

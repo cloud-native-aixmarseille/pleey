@@ -26,6 +26,7 @@ export class HostPartyRuntimeStageReferenceResolver {
       gameId,
       partyId: null,
       settings: {
+        allowJoiningAfterStart: false,
         allowOptionChangeAfterVoting: false,
         randomizeOptionOrder: false,
         randomizeStageOrder: false,
