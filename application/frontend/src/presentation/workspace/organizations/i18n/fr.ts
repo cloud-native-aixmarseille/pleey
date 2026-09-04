@@ -64,16 +64,6 @@ export const organizationFr = {
             label: 'Description',
             placeholder: "Décrivez l'organisation (optionnel)",
           },
-          partySettings: {
-            label: 'Mode de partie par defaut',
-            allowOptionChangeAfterVotingLabel: 'Autoriser les joueurs a changer de reponse apres avoir vote',
-            allowOptionChangeAfterVotingDescription:
-              "Les participants peuvent modifier leur choix jusqu'a la fin de la manche.",
-            randomizeStageOrderLabel: 'Aleatoiriser l ordre des manches',
-            randomizeStageOrderDescription: 'Melangez l ordre des manches a chaque debut de partie.',
-            randomizeOptionOrderLabel: 'Aleatoiriser l ordre des reponses',
-            randomizeOptionOrderDescription: 'Melangez l ordre des reponses ou des resultats a chaque manche.',
-          },
         },
       },
       edit: {
@@ -141,16 +131,6 @@ export const organizationFr = {
           description: {
             label: 'Description',
             placeholder: 'Décrivez le projet (optionnel)',
-          },
-          partySettings: {
-            label: 'Mode de partie par defaut',
-            allowOptionChangeAfterVotingLabel: 'Autoriser les joueurs a changer de reponse apres avoir vote',
-            allowOptionChangeAfterVotingDescription:
-              "Les participants peuvent modifier leur choix jusqu'a la fin de la manche.",
-            randomizeStageOrderLabel: 'Aleatoiriser l ordre des manches',
-            randomizeStageOrderDescription: 'Melangez l ordre des manches a chaque debut de partie.',
-            randomizeOptionOrderLabel: 'Aleatoiriser l ordre des reponses',
-            randomizeOptionOrderDescription: 'Melangez l ordre des reponses ou des resultats a chaque manche.',
           },
         },
         fallbackOrganization: "l'organisation sélectionnée",

@@ -4,6 +4,7 @@ import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-pl
 import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
 import { GameType } from '../../../../../domain/game/types/shared/entities/game-type';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
+import { DEFAULT_PARTY_SETTINGS } from '../../../../../domain/game/party/shared/entities/party-settings';
 import { SubmitPartyActionUseCase } from './submit-party-action-use-case';
 
 const gameId = backendTestIdentifiers.game(9);
@@ -12,13 +13,34 @@ const playerUserId = backendTestIdentifiers.user(42);
 const selectedActionId = backendTestIdentifiers.partyAction(2);
 const stageId = backendTestIdentifiers.partyStage(101);
 
+const playerIdentity = {
+  kind: PartyPlayerKind.USER,
+  userId: playerUserId,
+} as const;
+
+const DEFAULT_SUBMISSION_TARGET = {
+  context: {
+    lifecycle: {
+      phase: 'stage',
+      stageEndsAtEpochMs: 30_000,
+      stageRemainingDurationMs: 20_000,
+      stageId,
+      stagePosition: 0,
+      stageTimeLimitSeconds: 20,
+      totalStages: 3,
+    },
+  },
+  gameId,
+  gameType: GameType.Quiz,
+  partyId,
+  playerIdentity,
+  settings: DEFAULT_PARTY_SETTINGS,
+  status: PartyStatus.ACTIVE,
+} as const;
+
 describe('SubmitPartyActionUseCase', () => {
   it('delegates action evaluation through the resolved game-type policy and broadcasts the updated observation', async () => {
     // Arrange
-    const playerIdentity = {
-      kind: PartyPlayerKind.USER,
-      userId: playerUserId,
-    } as const;
     const nextContext = {
       lifecycle: {
         phase: 'stage',
@@ -63,29 +85,7 @@ describe('SubmitPartyActionUseCase', () => {
       resolveByGameType: vi.fn().mockReturnValue(policy),
     };
     const playerPartyActionRuntime = {
-      findSubmissionTarget: vi.fn().mockResolvedValue({
-        context: {
-          lifecycle: {
-            phase: 'stage',
-            stageEndsAtEpochMs: 30_000,
-            stageRemainingDurationMs: 20_000,
-            stageId,
-            stagePosition: 0,
-            stageTimeLimitSeconds: 20,
-            totalStages: 3,
-          },
-        },
-        gameId,
-        gameType: GameType.Quiz,
-        partyId,
-        playerIdentity,
-        settings: {
-          allowOptionChangeAfterVoting: false,
-          randomizeOptionOrder: false,
-          randomizeStageOrder: false,
-        },
-        status: PartyStatus.ACTIVE,
-      }),
+      findSubmissionTarget: vi.fn().mockResolvedValue(DEFAULT_SUBMISSION_TARGET),
       saveSubmissionResult: vi.fn().mockResolvedValue(undefined),
     };
     const broadcastPartyObservationUseCase = {
@@ -139,10 +139,6 @@ describe('SubmitPartyActionUseCase', () => {
 
   it('accepts answer changes within the same stage when the party setting allows it', async () => {
     // Arrange
-    const playerIdentity = {
-      kind: PartyPlayerKind.USER,
-      userId: playerUserId,
-    } as const;
     const policy = {
       evaluateSubmission: vi.fn().mockResolvedValue({
         context: {
@@ -165,20 +161,7 @@ describe('SubmitPartyActionUseCase', () => {
     };
     const playerPartyActionRuntime = {
       findSubmissionTarget: vi.fn().mockResolvedValue({
-        context: {
-          lifecycle: {
-            phase: 'stage',
-            stageEndsAtEpochMs: 30_000,
-            stageRemainingDurationMs: 20_000,
-            stageId,
-            stagePosition: 0,
-            stageTimeLimitSeconds: 20,
-            totalStages: 3,
-          },
-        },
-        gameId,
-        gameType: GameType.Quiz,
-        partyId,
+        ...DEFAULT_SUBMISSION_TARGET,
         playerActionState: {
           earnedPoints: 500,
           selectedActionId,
@@ -186,13 +169,7 @@ describe('SubmitPartyActionUseCase', () => {
           stagePosition: 0,
           status: 'acknowledged',
         },
-        playerIdentity,
-        settings: {
-          allowOptionChangeAfterVoting: true,
-          randomizeOptionOrder: false,
-          randomizeStageOrder: false,
-        },
-        status: PartyStatus.ACTIVE,
+        settings: { ...DEFAULT_PARTY_SETTINGS, allowOptionChangeAfterVoting: true },
       }),
       saveSubmissionResult: vi.fn().mockResolvedValue(undefined),
     };

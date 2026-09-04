@@ -2,6 +2,7 @@ import { Prisma } from '@prisma/client';
 import { describe, expect, it, vi } from 'vitest';
 import { PartyActionIdentifier } from '../../../application/game/party/shared/services/identifiers/party-action-identifier';
 import { PartyStageIdentifier } from '../../../application/game/party/shared/services/identifiers/party-stage-identifier';
+import { DEFAULT_PARTY_SETTINGS } from '../../../domain/game/party/shared/entities/party-settings';
 import { PartyStatus } from '../../../domain/game/party/enums/party-status.enum';
 import { PartyRuntimePhase } from '../../../domain/game/party/shared/entities/party-runtime-context';
 import { backendTestIdentifiers } from '../../../test-utils/branded-identifiers';
@@ -135,11 +136,7 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
         fromStageId: backendTestIdentifiers.partyStage(202),
         gameId: GAME_ID,
         partyId: PARTY_ID,
-        settings: {
-          allowOptionChangeAfterVoting: false,
-          randomizeOptionOrder: false,
-          randomizeStageOrder: false,
-        },
+        settings: DEFAULT_PARTY_SETTINGS,
       },
       status: PartyStatus.ACTIVE,
     });
@@ -242,11 +239,7 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
         fromStageId: null,
         gameId: GAME_ID,
         partyId: PARTY_ID,
-        settings: {
-          allowOptionChangeAfterVoting: false,
-          randomizeOptionOrder: false,
-          randomizeStageOrder: false,
-        },
+        settings: DEFAULT_PARTY_SETTINGS,
       },
       status: PartyStatus.WAITING,
     });

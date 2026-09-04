@@ -7,9 +7,9 @@ import type { Project } from '../../../../../../domains/project/entities/project
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../../shared/ui/actions/button';
 import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';
-import { Checkbox } from '../../../../../shared/ui/forms/checkbox';
 import { FieldShell } from '../../../../../shared/ui/forms/field-shell';
 import { Input } from '../../../../../shared/ui/forms/input';
+import { PartySettingsFormField } from '../../../../../shared/ui/forms/party-settings-form-field';
 import { Textarea } from '../../../../../shared/ui/forms/textarea';
 import { FormDialog } from '../../../../../shared/ui/overlay/form-dialog';
 import { useProjectFormDialogState } from './use-project-form-dialog-state';
@@ -115,47 +115,12 @@ export function ProjectFormDialog({
         />
       </FieldShell>
 
-      <FieldShell id="project-party-settings" label={t('project.management.form.fields.partySettings.label')}>
-        <Checkbox
-          id="project-party-settings-change-after-voting"
-          label={t('project.management.form.fields.partySettings.allowOptionChangeAfterVotingLabel')}
-          description={t('project.management.form.fields.partySettings.allowOptionChangeAfterVotingDescription')}
-          checked={partySettings.allowOptionChangeAfterVoting}
-          onChange={(event) => {
-            setPartySettings({
-              ...partySettings,
-              allowOptionChangeAfterVoting: event.currentTarget.checked,
-            });
-          }}
-          disabled={isSubmitting}
-        />
-        <Checkbox
-          id="project-party-settings-randomize-stage-order"
-          label={t('project.management.form.fields.partySettings.randomizeStageOrderLabel')}
-          description={t('project.management.form.fields.partySettings.randomizeStageOrderDescription')}
-          checked={partySettings.randomizeStageOrder}
-          onChange={(event) => {
-            setPartySettings({
-              ...partySettings,
-              randomizeStageOrder: event.currentTarget.checked,
-            });
-          }}
-          disabled={isSubmitting}
-        />
-        <Checkbox
-          id="project-party-settings-randomize-option-order"
-          label={t('project.management.form.fields.partySettings.randomizeOptionOrderLabel')}
-          description={t('project.management.form.fields.partySettings.randomizeOptionOrderDescription')}
-          checked={partySettings.randomizeOptionOrder}
-          onChange={(event) => {
-            setPartySettings({
-              ...partySettings,
-              randomizeOptionOrder: event.currentTarget.checked,
-            });
-          }}
-          disabled={isSubmitting}
-        />
-      </FieldShell>
+      <PartySettingsFormField
+        id="project-party-settings"
+        settings={partySettings}
+        disabled={isSubmitting}
+        onChange={setPartySettings}
+      />
     </FormDialog>
   );
 }

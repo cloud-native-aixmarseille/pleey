@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { GameId } from '../../../../../domain/game/entities/game';
+import { DEFAULT_PARTY_SETTINGS } from '../../../../../domain/game/party/shared/entities/party-settings';
 import {
   type PartyStageCatalogEntry,
   PartyStageCatalogPort,
@@ -25,11 +26,7 @@ export class HostPartyRuntimeStageReferenceResolver {
     return this.resolveStartStateForGame({
       gameId,
       partyId: null,
-      settings: {
-        allowOptionChangeAfterVoting: false,
-        randomizeOptionOrder: false,
-        randomizeStageOrder: false,
-      },
+      settings: DEFAULT_PARTY_SETTINGS,
     });
   }
 

@@ -134,6 +134,7 @@ export class GraphqlProjectRepository implements ProjectRepository {
     readonly organizationId: string;
     readonly createdAt: string;
     readonly defaultPartySettings?: {
+      readonly allowJoiningAfterStart: boolean;
       readonly allowOptionChangeAfterVoting: boolean;
       readonly randomizeOptionOrder: boolean;
       readonly randomizeStageOrder: boolean;
@@ -152,6 +153,7 @@ export class GraphqlProjectRepository implements ProjectRepository {
   private toPartySettings(
     settings:
       | {
+          readonly allowJoiningAfterStart: boolean;
           readonly allowOptionChangeAfterVoting: boolean;
           readonly randomizeOptionOrder: boolean;
           readonly randomizeStageOrder: boolean;
@@ -161,6 +163,7 @@ export class GraphqlProjectRepository implements ProjectRepository {
   ): PartySettings | null {
     return settings
       ? {
+          allowJoiningAfterStart: settings.allowJoiningAfterStart,
           allowOptionChangeAfterVoting: settings.allowOptionChangeAfterVoting,
           randomizeOptionOrder: settings.randomizeOptionOrder,
           randomizeStageOrder: settings.randomizeStageOrder,

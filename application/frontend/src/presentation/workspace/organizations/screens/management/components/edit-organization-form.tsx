@@ -5,9 +5,9 @@ import type { UpdateOrganizationCommand } from '../../../../../../domains/organi
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../../shared/ui/actions/button';
 import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';
-import { Checkbox } from '../../../../../shared/ui/forms/checkbox';
 import { FieldShell } from '../../../../../shared/ui/forms/field-shell';
 import { Input } from '../../../../../shared/ui/forms/input';
+import { PartySettingsFormField } from '../../../../../shared/ui/forms/party-settings-form-field';
 import { Textarea } from '../../../../../shared/ui/forms/textarea';
 import { FormDialog } from '../../../../../shared/ui/overlay/form-dialog';
 import { useEditOrganizationFormState } from './use-edit-organization-form-state';
@@ -109,49 +109,12 @@ function EditableOrganizationFormContent({ onSubmit, onUpdated, organization }: 
           />
         </FieldShell>
 
-        <FieldShell id="edit-org-party-settings" label={t('organization.management.create.fields.partySettings.label')}>
-          <Checkbox
-            id="edit-org-allow-option-change-after-voting"
-            label={t('organization.management.create.fields.partySettings.allowOptionChangeAfterVotingLabel')}
-            description={t(
-              'organization.management.create.fields.partySettings.allowOptionChangeAfterVotingDescription',
-            )}
-            checked={partySettings.allowOptionChangeAfterVoting}
-            onChange={(event) =>
-              setPartySettings({
-                ...partySettings,
-                allowOptionChangeAfterVoting: event.currentTarget.checked,
-              })
-            }
-            disabled={isSubmitting}
-          />
-          <Checkbox
-            id="edit-org-randomize-stage-order"
-            label={t('organization.management.create.fields.partySettings.randomizeStageOrderLabel')}
-            description={t('organization.management.create.fields.partySettings.randomizeStageOrderDescription')}
-            checked={partySettings.randomizeStageOrder}
-            onChange={(event) =>
-              setPartySettings({
-                ...partySettings,
-                randomizeStageOrder: event.currentTarget.checked,
-              })
-            }
-            disabled={isSubmitting}
-          />
-          <Checkbox
-            id="edit-org-randomize-option-order"
-            label={t('organization.management.create.fields.partySettings.randomizeOptionOrderLabel')}
-            description={t('organization.management.create.fields.partySettings.randomizeOptionOrderDescription')}
-            checked={partySettings.randomizeOptionOrder}
-            onChange={(event) =>
-              setPartySettings({
-                ...partySettings,
-                randomizeOptionOrder: event.currentTarget.checked,
-              })
-            }
-            disabled={isSubmitting}
-          />
-        </FieldShell>
+        <PartySettingsFormField
+          id="edit-org-party-settings"
+          settings={partySettings}
+          disabled={isSubmitting}
+          onChange={setPartySettings}
+        />
       </FormDialog>
     </>
   );

@@ -2,6 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { OrganizationRole } from '../../../../../../domains/organization/entities/organization';
+import { DEFAULT_PARTY_SETTINGS } from '../../../../../../domains/game/party/shared/entities/party-settings';
 import { OrganizationFixtureFactory } from '../../../../../../test-utils/fixtures/organization-fixture-factory';
 import { renderWithProviders } from '../../../../../../test-utils/render-with-providers';
 import { EditOrganizationForm } from './edit-organization-form';
@@ -39,16 +40,13 @@ describe('EditOrganizationForm', () => {
       description: 'Main community hub',
       role: OrganizationRole.MANAGER,
     });
+    const customPartySettings = { ...DEFAULT_PARTY_SETTINGS, allowOptionChangeAfterVoting: true, randomizeStageOrder: true };
     const updatedOrganization = organizationFixtureFactory.createOrganization({
       id: organization.id,
       name: 'Arcade Org 2',
       description: 'Updated hub',
       role: OrganizationRole.MANAGER,
-      defaultPartySettings: {
-        allowOptionChangeAfterVoting: true,
-        randomizeOptionOrder: false,
-        randomizeStageOrder: true,
-      },
+      defaultPartySettings: customPartySettings,
     });
     const onSubmit = vi.fn().mockResolvedValue(updatedOrganization);
     const onUpdated = vi.fn();
@@ -76,12 +74,12 @@ describe('EditOrganizationForm', () => {
     await user.type(descriptionInput, 'Updated hub');
     await user.click(
       within(dialog).getByRole('checkbox', {
-        name: 'organization.management.create.fields.partySettings.allowOptionChangeAfterVotingLabel',
+        name: 'game.party.settings.allowOptionChangeAfterVotingLabel',
       }),
     );
     await user.click(
       within(dialog).getByRole('checkbox', {
-        name: 'organization.management.create.fields.partySettings.randomizeStageOrderLabel',
+        name: 'game.party.settings.randomizeStageOrderLabel',
       }),
     );
 
@@ -93,11 +91,7 @@ describe('EditOrganizationForm', () => {
         organizationId: organization.id,
         name: 'Arcade Org 2',
         description: 'Updated hub',
-        defaultPartySettings: {
-          allowOptionChangeAfterVoting: true,
-          randomizeOptionOrder: false,
-          randomizeStageOrder: true,
-        },
+        defaultPartySettings: customPartySettings,
       });
     });
     expect(onUpdated).toHaveBeenCalledWith(updatedOrganization);

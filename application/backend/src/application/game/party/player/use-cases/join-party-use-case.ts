@@ -60,7 +60,10 @@ export class JoinPartyUseCase {
         })
       : null;
 
-    if (party.status !== PartyStatus.WAITING && !existingPlayer) {
+    const isNewPlayerBlockedFromActiveParty =
+      party.status !== PartyStatus.WAITING && !existingPlayer && !party.settings.allowJoiningAfterStart;
+
+    if (isNewPlayerBlockedFromActiveParty) {
       throw new PartyCommandNotAvailableError({
         isRejoin: existingPlayer !== null,
         partyId: party.partyId,
