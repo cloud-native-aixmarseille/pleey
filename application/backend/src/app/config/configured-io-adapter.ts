@@ -24,14 +24,16 @@ export class ConfiguredIoAdapter extends IoAdapter {
   }
 
   override createIOServer(port: number, options?: ServerOptions) {
-    const server = super.createIOServer(port, {
-      ...options,
+    const serverOptions: Partial<ServerOptions> = {
+      ...(options ?? {}),
       connectionStateRecovery: {
         maxDisconnectionDuration: this.partySessionRecoveryWindowMs,
         skipMiddlewares: false,
       },
-      cors: this.corsOptions,
-    });
+      cors: this.createCorsOptions(),
+    };
+
+    const server = super.createIOServer(port, serverOptions as ServerOptions);
 
     server.use((socket: Socket, next: (error?: Error) => void) => {
       try {
@@ -54,6 +56,13 @@ export class ConfiguredIoAdapter extends IoAdapter {
     });
 
     return server;
+  }
+
+  private createCorsOptions(): NonNullable<ServerOptions['cors']> {
+    return {
+      ...this.corsOptions,
+      origin: this.corsOptions.origin === '*' ? '*' : [...this.corsOptions.origin],
+    };
   }
 
   private extractBearerToken(socket: Socket): string | null {

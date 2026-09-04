@@ -8,7 +8,7 @@ import { createOrganizationMemberFixture } from '../../../test-utils/fixtures/un
 import { PrismaOrganizationMemberRepository } from './prisma-organization-member-repository';
 
 const hasDatabase = Boolean((process.env.DATABASE_URL ?? '').trim());
-const describeIfDatabase = hasDatabase ? describe.sequential : describe.skip;
+const describeIfDatabase = hasDatabase ? describe : describe.skip;
 
 describeIfDatabase('PrismaOrganizationMemberRepository', () => {
   const harness = new PrismaIntegrationTestHarness(PrismaOrganizationMemberRepository);

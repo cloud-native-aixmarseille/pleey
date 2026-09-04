@@ -5,7 +5,7 @@ import { PrismaIntegrationTestHarness } from '../../../test-utils/fixtures/integ
 import { PrismaPartyManagementAdapter } from './prisma-party-management.adapter';
 
 const hasDatabase = Boolean((process.env.DATABASE_URL ?? '').trim());
-const describeIfDatabase = hasDatabase ? describe.sequential : describe.skip;
+const describeIfDatabase = hasDatabase ? describe : describe.skip;
 
 describeIfDatabase('PrismaPartyManagementAdapter', () => {
   const harness = new PrismaIntegrationTestHarness(PrismaPartyManagementAdapter);

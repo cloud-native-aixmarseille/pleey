@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { type INestApplication, Module } from '@nestjs/common';
-import { HealthCheckError, TerminusModule } from '@nestjs/terminus';
+import { TerminusModule } from '@nestjs/terminus';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
@@ -92,13 +92,11 @@ describe('HealthController', () => {
     // Arrange
     arrangeHealthyIndicators();
 
-    prismaHealthIndicator.isHealthy.mockRejectedValue(
-      new HealthCheckError('database is down', {
-        database: {
-          status: 'down',
-        },
-      }),
-    );
+    prismaHealthIndicator.isHealthy.mockResolvedValue({
+      database: {
+        status: 'down',
+      },
+    });
 
     // Act
     const response = await request(app.getHttpServer()).get('/healthz');
@@ -113,13 +111,11 @@ describe('HealthController', () => {
     // Arrange
     arrangeHealthyIndicators();
 
-    prismaHealthIndicator.isHealthy.mockRejectedValue(
-      new HealthCheckError('database is down', {
-        database: {
-          status: 'down',
-        },
-      }),
-    );
+    prismaHealthIndicator.isHealthy.mockResolvedValue({
+      database: {
+        status: 'down',
+      },
+    });
 
     // Act
     const response = await request(app.getHttpServer()).get('/ready');

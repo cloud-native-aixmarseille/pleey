@@ -54,7 +54,7 @@ function parseAuthorizationHeader(connectionParams?: Record<string, unknown>): s
 }
 
 function createI18nDirectory(serverConfig: AppServerConfig): string {
-  return serverConfig.isProduction ? path.join(__dirname, '../../i18n/') : path.join(process.cwd(), 'src/i18n/');
+  return serverConfig.isProduction ? path.join(__dirname, '../i18n/') : path.join(process.cwd(), 'src/i18n/');
 }
 
 @Module({
