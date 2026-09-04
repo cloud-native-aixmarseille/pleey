@@ -2,9 +2,9 @@ import 'reflect-metadata';
 import { describe, expect, it, vi } from 'vitest';
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
 import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
+import { DEFAULT_PARTY_SETTINGS } from '../../../../../domain/game/party/shared/entities/party-settings';
 import { GameType } from '../../../../../domain/game/types/shared/entities/game-type';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
-import { DEFAULT_PARTY_SETTINGS } from '../../../../../domain/game/party/shared/entities/party-settings';
 import { SubmitPartyActionUseCase } from './submit-party-action-use-case';
 
 const gameId = backendTestIdentifiers.game(9);

@@ -1,8 +1,8 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import { OrganizationRole } from '../../../../../../domains/organization/entities/organization';
 import { DEFAULT_PARTY_SETTINGS } from '../../../../../../domains/game/party/shared/entities/party-settings';
+import { OrganizationRole } from '../../../../../../domains/organization/entities/organization';
 import { OrganizationFixtureFactory } from '../../../../../../test-utils/fixtures/organization-fixture-factory';
 import { renderWithProviders } from '../../../../../../test-utils/render-with-providers';
 import { EditOrganizationForm } from './edit-organization-form';
@@ -40,7 +40,11 @@ describe('EditOrganizationForm', () => {
       description: 'Main community hub',
       role: OrganizationRole.MANAGER,
     });
-    const customPartySettings = { ...DEFAULT_PARTY_SETTINGS, allowOptionChangeAfterVoting: true, randomizeStageOrder: true };
+    const customPartySettings = {
+      ...DEFAULT_PARTY_SETTINGS,
+      allowOptionChangeAfterVoting: true,
+      randomizeStageOrder: true,
+    };
     const updatedOrganization = organizationFixtureFactory.createOrganization({
       id: organization.id,
       name: 'Arcade Org 2',

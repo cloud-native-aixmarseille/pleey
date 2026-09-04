@@ -11,7 +11,10 @@ import {
 import type { PartyPlayer } from '../../../../../domain/game/party/player/entities/party-player';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { createPasswordServiceMock } from '../../../../../test-utils/mock-factories/password-service.mock-factory';
-import { DEFAULT_PARTY_JOIN_TARGET, createPlayerPartyRuntimeMock } from '../../../../../test-utils/mock-factories/player-party-runtime.mock-factory';
+import {
+  createPlayerPartyRuntimeMock,
+  DEFAULT_PARTY_JOIN_TARGET,
+} from '../../../../../test-utils/mock-factories/player-party-runtime.mock-factory';
 import { JoinPartyUseCase } from './join-party-use-case';
 
 const partyPin = backendTestIdentifiers.partyPin('123456');
@@ -19,7 +22,6 @@ const activePartyPin = backendTestIdentifiers.partyPin('654321');
 const partyId = backendTestIdentifiers.party(12);
 const otherPartyId = backendTestIdentifiers.party(99);
 const gameId = backendTestIdentifiers.game(21);
-const hostUserId = backendTestIdentifiers.user(7);
 const playerUserId = backendTestIdentifiers.user(42);
 const guestId = backendTestIdentifiers.guest('guest-42');
 
@@ -440,7 +442,10 @@ describe('JoinPartyUseCase', () => {
     } satisfies PartyPlayer;
     const runtime = createPlayerPartyRuntimeMock({
       findActivePartyByUserId: null,
-      findPartyByPin: { status: 'ACTIVE', settings: { ...DEFAULT_PARTY_JOIN_TARGET.settings, allowJoiningAfterStart: true } },
+      findPartyByPin: {
+        status: 'ACTIVE',
+        settings: { ...DEFAULT_PARTY_JOIN_TARGET.settings, allowJoiningAfterStart: true },
+      },
       findPartyPlayer: player,
     });
     const broadcastPartyObservationUseCase = {
@@ -481,7 +486,10 @@ describe('JoinPartyUseCase', () => {
       joinedAt: new Date('2026-04-27T10:00:00.000Z'),
     } satisfies PartyPlayer;
     const runtime = createPlayerPartyRuntimeMock({
-      findPartyByPin: { status: 'ACTIVE', settings: { ...DEFAULT_PARTY_JOIN_TARGET.settings, allowJoiningAfterStart: true } },
+      findPartyByPin: {
+        status: 'ACTIVE',
+        settings: { ...DEFAULT_PARTY_JOIN_TARGET.settings, allowJoiningAfterStart: true },
+      },
       findPartyPlayer: player,
     });
     const broadcastPartyObservationUseCase = {
