@@ -202,12 +202,12 @@ describe('ProjectFormDialog', () => {
     );
     await user.click(
       screen.getByRole('checkbox', {
-        name: 'project.management.form.fields.partySettings.allowOptionChangeAfterVotingLabel',
+        name: 'game.party.settings.allowOptionChangeAfterVotingLabel',
       }),
     );
     await user.click(
       screen.getByRole('checkbox', {
-        name: 'project.management.form.fields.partySettings.randomizeOptionOrderLabel',
+        name: 'game.party.settings.randomizeOptionOrderLabel',
       }),
     );
 

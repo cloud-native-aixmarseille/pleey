@@ -1,7 +1,7 @@
 import type { Mocked } from 'vitest';
 import type { PlayerPartyRuntimePort } from '../../application/game/party/player/ports/player-party-runtime.port';
-import { DEFAULT_PARTY_SETTINGS } from '../../domain/game/party/shared/entities/party-settings';
 import { PartyPlayerKind } from '../../domain/game/party/enums/party-player-kind.enum';
+import { DEFAULT_PARTY_SETTINGS } from '../../domain/game/party/shared/entities/party-settings';
 import { backendTestIdentifiers } from '../branded-identifiers';
 import { mockFn } from './mock-factory.utils';
 
@@ -54,7 +54,7 @@ export const DEFAULT_PARTY_JOIN_TARGET: PartyJoinTargetInput = {
   status: 'WAITING',
 };
 
-export const DEFAULT_ACTIVE_PARTY_SESSION: ActivePlayerPartySessionInput = {
+const DEFAULT_ACTIVE_PARTY_SESSION: ActivePlayerPartySessionInput = {
   partyId: backendTestIdentifiers.party(12),
   gameId: backendTestIdentifiers.game(21),
   pin: '123456',

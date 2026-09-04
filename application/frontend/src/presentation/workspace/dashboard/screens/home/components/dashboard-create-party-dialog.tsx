@@ -7,6 +7,7 @@ import { usePresentationTranslation } from '../../../../../shared/i18n/use-prese
 import { Button } from '../../../../../shared/ui/actions/button';
 import { CopyButton } from '../../../../../shared/ui/actions/copy-button';
 import { Badge } from '../../../../../shared/ui/feedback/badge';
+import { Checkbox } from '../../../../../shared/ui/forms/checkbox';
 import { FieldShell } from '../../../../../shared/ui/forms/field-shell';
 import { Input } from '../../../../../shared/ui/forms/input';
 import { PartySettingsCheckboxes } from '../../../../../shared/ui/forms/party-settings-checkboxes';

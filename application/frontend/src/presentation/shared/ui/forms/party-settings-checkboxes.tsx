@@ -11,12 +11,7 @@ interface PartySettingsCheckboxesProps {
   readonly onChange: (settings: PartySettings) => void;
 }
 
-export function PartySettingsCheckboxes({
-  disabled,
-  idPrefix,
-  settings,
-  onChange,
-}: PartySettingsCheckboxesProps) {
+export function PartySettingsCheckboxes({ disabled, idPrefix, settings, onChange }: PartySettingsCheckboxesProps) {
   const { t } = usePresentationTranslation();
 
   return (

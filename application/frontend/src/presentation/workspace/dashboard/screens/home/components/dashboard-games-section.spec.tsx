@@ -318,12 +318,12 @@ describe('DashboardGamesSection', () => {
 
     await user.click(
       within(dialog).getByRole('checkbox', {
-        name: 'dashboard.games.createParty.allowOptionChangeAfterVotingLabel',
+        name: 'game.party.settings.allowOptionChangeAfterVotingLabel',
       }),
     );
     await user.click(
       within(dialog).getByRole('checkbox', {
-        name: 'dashboard.games.createParty.randomizeOptionOrderLabel',
+        name: 'game.party.settings.randomizeOptionOrderLabel',
       }),
     );
 
@@ -343,6 +343,7 @@ describe('DashboardGamesSection', () => {
       {
         privatePartyPassword: undefined,
         settingsOverride: {
+          allowJoiningAfterStart: false,
           allowOptionChangeAfterVoting: true,
           randomizeOptionOrder: true,
           randomizeStageOrder: false,

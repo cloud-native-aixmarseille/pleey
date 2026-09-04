@@ -55,4 +55,56 @@ describe('OrganizationResolver', () => {
       backendTestIdentifiers.user(10),
     );
   });
+
+  it('defaults allowJoiningAfterStart to false when it is omitted', async () => {
+    // Arrange
+    const createOrganizationUseCase = {
+      execute: vi.fn().mockResolvedValue({
+        id: backendTestIdentifiers.organization(7),
+        name: 'Pleey',
+        slug: 'pleey',
+        ownerId: backendTestIdentifiers.user(10),
+        defaultPartySettings: null,
+      }),
+    };
+    const resolver = new OrganizationResolver(
+      createOrganizationUseCase as never,
+      { execute: vi.fn() } as never,
+      { execute: vi.fn() } as never,
+      { execute: vi.fn() } as never,
+      { execute: vi.fn() } as never,
+      { execute: vi.fn() } as never,
+      { execute: vi.fn() } as never,
+      { execute: vi.fn() } as never,
+      { parse: vi.fn((value: string) => value) } as never,
+      { parse: vi.fn((value: string) => value) } as never,
+    );
+
+    // Act
+    await resolver.createOrganization(
+      {
+        name: 'Pleey',
+        defaultPartySettings: {
+          allowOptionChangeAfterVoting: true,
+          randomizeOptionOrder: false,
+          randomizeStageOrder: true,
+        },
+      },
+      { user: { id: backendTestIdentifiers.user(10) } },
+    );
+
+    // Assert
+    expect(createOrganizationUseCase.execute).toHaveBeenCalledWith(
+      {
+        name: 'Pleey',
+        defaultPartySettings: {
+          allowJoiningAfterStart: false,
+          allowOptionChangeAfterVoting: true,
+          randomizeOptionOrder: false,
+          randomizeStageOrder: true,
+        },
+      },
+      backendTestIdentifiers.user(10),
+    );
+  });
 });

@@ -1,3 +1,4 @@
+import { DEFAULT_PARTY_SETTINGS } from '../../../../domain/game/party/shared/entities/party-settings';
 import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
 import { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
@@ -6,7 +7,6 @@ import {
   createOrganizationRepositoryMock,
 } from '../../../../test-utils/mock-factories/organization.mock-factory';
 import type { UpdateOrganizationDto } from '../dto/update-organization-dto';
-import { DEFAULT_PARTY_SETTINGS } from '../../../../domain/game/party/shared/entities/party-settings';
 import { UpdateOrganizationUseCase } from './update-organization-use-case';
 
 describe('UpdateOrganizationUseCase', () => {
@@ -67,7 +67,11 @@ describe('UpdateOrganizationUseCase', () => {
     const dto: UpdateOrganizationDto = {
       name: 'Updated Org',
       description: 'Updated description',
-      defaultPartySettings: { ...DEFAULT_PARTY_SETTINGS, allowOptionChangeAfterVoting: true, randomizeStageOrder: true },
+      defaultPartySettings: {
+        ...DEFAULT_PARTY_SETTINGS,
+        allowOptionChangeAfterVoting: true,
+        randomizeStageOrder: true,
+      },
     };
 
     // Act

@@ -63,7 +63,6 @@ export const organizationEn = {
             label: 'Description',
             placeholder: 'Describe the organization (optional)',
           },
-
         },
       },
       edit: {
@@ -132,7 +131,6 @@ export const organizationEn = {
             label: 'Description',
             placeholder: 'Describe the project (optional)',
           },
-
         },
         fallbackOrganization: 'the selected organization',
       },
