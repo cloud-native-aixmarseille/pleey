@@ -120,6 +120,7 @@ export class ProjectResolver {
   private toPartySettings(
     settings:
       | {
+          readonly allowJoiningAfterStart?: boolean;
           readonly allowOptionChangeAfterVoting?: boolean;
           readonly randomizeOptionOrder?: boolean;
           readonly randomizeStageOrder?: boolean;
@@ -131,6 +132,7 @@ export class ProjectResolver {
     }
 
     return {
+      allowJoiningAfterStart: settings.allowJoiningAfterStart ?? false,
       allowOptionChangeAfterVoting: settings.allowOptionChangeAfterVoting ?? false,
       randomizeOptionOrder: settings.randomizeOptionOrder ?? false,
       randomizeStageOrder: settings.randomizeStageOrder ?? false,
