@@ -6,7 +6,7 @@ import { createUserFixture } from '../../../test-utils/fixtures/unit/user.fixtur
 import { PrismaUserRepository } from './prisma-user-repository';
 
 const hasDatabase = Boolean((process.env.DATABASE_URL ?? '').trim());
-const describeIfDatabase = hasDatabase ? describe.sequential : describe.skip;
+const describeIfDatabase = hasDatabase ? describe : describe.skip;
 
 describeIfDatabase('PrismaUserRepository', () => {
   const harness = new PrismaIntegrationTestHarness(PrismaUserRepository);

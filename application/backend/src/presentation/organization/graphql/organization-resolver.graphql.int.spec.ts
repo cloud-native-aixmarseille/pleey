@@ -238,7 +238,7 @@ describe('OrganizationResolver', () => {
     expect(organizationIdentifier.parse).toHaveBeenCalledWith(backendTestIdentifiers.organization(7));
   });
 
-  it('passes member search input through the GraphQL query', async () => {
+  it('coerces numeric GraphQL member search ids to strings before parsing', async () => {
     // Arrange
     listOrganizationMembersUseCase.execute.mockResolvedValueOnce({
       items: [],
@@ -290,7 +290,7 @@ describe('OrganizationResolver', () => {
     expect(organizationIdentifier.parse).toHaveBeenCalledWith(backendTestIdentifiers.organization(7));
   });
 
-  it('passes member search input through the GraphQL query', async () => {
+  it('coerces numeric GraphQL member search ids to strings before parsing', async () => {
     // Arrange
     listOrganizationMembersUseCase.execute.mockResolvedValueOnce({
       items: [],
@@ -332,14 +332,14 @@ describe('OrganizationResolver', () => {
     expect(response.body.errors).toBeUndefined();
     expect(listOrganizationMembersUseCase.execute).toHaveBeenCalledWith(
       {
-        organizationId: backendTestIdentifiers.organization(7),
+        organizationId: '7',
         page: 1,
         pageSize: 25,
         search: 'captain',
       },
       10,
     );
-    expect(organizationIdentifier.parse).toHaveBeenCalledWith(backendTestIdentifiers.organization(7));
+    expect(organizationIdentifier.parse).toHaveBeenCalledWith('7');
   });
 
   it('updates an organization member role', async () => {

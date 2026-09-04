@@ -1,19 +1,19 @@
 import 'reflect-metadata';
-import '@testing-library/jest-dom';
-import { configure, cleanup } from '@testing-library/react';
+import '@testing-library/jest-dom/vitest';
+import { cleanup, configure } from '@testing-library/react';
 import { afterEach } from 'vitest';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-function createMemoryStorage() {
-  const store = new Map();
+const createMemoryStorage = (): Storage => {
+  const store = new Map<string, string>();
 
   return {
     clear() {
       store.clear();
     },
     getItem(key) {
-      return store.has(key) ? store.get(key) : null;
+      return store.has(key) ? store.get(key) ?? null : null;
     },
     key(index) {
       return Array.from(store.keys())[index] ?? null;
@@ -28,13 +28,39 @@ function createMemoryStorage() {
       return store.size;
     },
   };
-}
+};
 
-function installStorageGlobal(target, property, value) {
+const installStorageGlobal = (
+  target: object,
+  property: 'localStorage' | 'sessionStorage',
+  value: Storage,
+): void => {
   Object.defineProperty(target, property, {
     configurable: true,
     value,
   });
+};
+
+const createMatchMedia = (query: string): MediaQueryList =>
+  ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => false,
+    addListener: () => {},
+    removeListener: () => {},
+  }) as MediaQueryList;
+
+class ResizeObserverStub implements ResizeObserver {
+  constructor(_callback: ResizeObserverCallback) {}
+
+  disconnect(): void {}
+
+  observe(_target: Element, _options?: ResizeObserverOptions): void {}
+
+  unobserve(_target: Element): void {}
 }
 
 const localStorageMock = createMemoryStorage();
@@ -68,7 +94,11 @@ afterEach(() => {
 });
 
 if (typeof window !== 'undefined') {
-  globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  const reactActEnvironment = globalThis as typeof globalThis & {
+    IS_REACT_ACT_ENVIRONMENT?: boolean;
+  };
+
+  reactActEnvironment.IS_REACT_ACT_ENVIRONMENT = true;
 
   installStorageGlobal(window, 'localStorage', localStorageMock);
   installStorageGlobal(window, 'sessionStorage', sessionStorageMock);
@@ -77,23 +107,10 @@ if (typeof window !== 'undefined') {
 
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
-    value: (query) => ({
-      matches: false,
-      media: query,
-      onchange: null,
-      addListener: () => {},
-      removeListener: () => {},
-      addEventListener: () => {},
-      removeEventListener: () => {},
-      dispatchEvent: () => {},
-    }),
+    value: createMatchMedia,
   });
 
   if (typeof globalThis.ResizeObserver === 'undefined') {
-    globalThis.ResizeObserver = class ResizeObserver {
-      observe() {}
-      unobserve() {}
-      disconnect() {}
-    };
+    globalThis.ResizeObserver = ResizeObserverStub;
   }
 }
