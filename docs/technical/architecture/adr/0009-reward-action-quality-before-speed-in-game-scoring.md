@@ -10,10 +10,13 @@ Pleey's current choice-submission scoring gives more points to correct answers w
 
 That creates a gameplay incentive to rush for points instead of making the best decision, and it affects every game type that reuses the shared choice-submission scoring policy.
 
+The live standings currently add a rank-change badge (`Up`, `Down`, `Hold`, `New`) based on previous-rank snapshots. That shorthand is easy to animate, but it reads strangely and does not accurately describe score changes.
+
 ## Decision Drivers
 
 - good actions should be rewarded more than fast actions
 - score outcomes must stay easy to understand for players and hosts
+- scoreboard labels should describe actual score changes, not approximate position movement
 - the scoring model must remain deterministic in realtime play
 - the solution should work across current and future choice-based game types
 - speed should still matter, but only as a secondary factor
@@ -71,6 +74,17 @@ For the current quiz and prediction game types:
 | 1000 | correct | 0% | 800 |
 | 1000 | incorrect | any | 0 |
 
+## Scoreboard Presentation
+
+The scoreboard should stay score-first:
+
+- sort players by total score
+- keep the cumulative score visible on each row
+- use rank as the ordering label, not as a proxy for score gain
+- avoid the current `+/- place(s)` badge because it describes rank movement instead of the points earned
+
+If we keep a movement indicator, it should show the exact stage points gained for the current result, for example `+800 pts this stage`, rather than `Up 1` / `Down 1`.
+
 ## Consequences
 
 ### Positive
@@ -85,10 +99,12 @@ For the current quiz and prediction game types:
 - the scoring policy and related tests will need to change
 - leaderboards will shift compared with the current timing-heavy system
 - the exact quality/speed balance will need product review after implementation
+- the scoreboard presentation will need to be updated so its labels stay truthful and easy to read
 
 ### Follow-Up
 
 - update the shared choice-submission scoring policy to use a quality-first formula
 - define how each game type expresses action quality
 - add tests for strong-but-slow actions and weak-but-fast actions
+- replace the current rank-delta badge in live standings with score-based feedback or hide it
 - review player-facing score explanations after the scoring change
