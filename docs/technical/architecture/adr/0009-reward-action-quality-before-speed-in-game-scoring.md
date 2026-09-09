@@ -44,6 +44,33 @@ Choose option 2.
 
 Pleey will move to a quality-first scoring model for choice-based game play. Action quality will determine the majority of the score, and speed will only contribute a smaller bounded bonus. Speed will remain useful as a secondary differentiator, but it will not outweigh a better action.
 
+## Calculation Model
+
+The shared choice-submission policy will split a stage's points into a larger quality bucket and a smaller speed bucket.
+
+```text
+speedBonusCap = round(stagePoints * 0.20)
+qualityPoints = stagePoints - speedBonusCap
+speedRatio = clamp(remainingTime / totalTime, 0, 1)
+
+score = isCorrect ? qualityPoints + round(speedBonusCap * speedRatio) : 0
+```
+
+For the current quiz and prediction game types:
+
+- `isCorrect` is `true` for the correct answer and `false` for an incorrect answer
+- `remainingTime` is the time left when the submission is accepted
+- `totalTime` is the stage time limit
+
+### Examples
+
+| Stage points | Answer | Remaining time | Score |
+| --- | --- | --- | --- |
+| 1000 | correct | 100% | 1000 |
+| 1000 | correct | 50% | 900 |
+| 1000 | correct | 0% | 800 |
+| 1000 | incorrect | any | 0 |
+
 ## Consequences
 
 ### Positive
