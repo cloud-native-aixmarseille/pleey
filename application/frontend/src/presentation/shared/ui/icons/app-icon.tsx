@@ -5,6 +5,7 @@ import {
   IconArrowLeft,
   IconArrowRight,
   IconArrowUp,
+  IconBrandGithub,
   IconBuilding,
   IconChartBar,
   IconChevronDown,
@@ -68,6 +69,7 @@ export type AppIconName =
   | 'eye'
   | 'feature'
   | 'game'
+  | 'github'
   | 'grip-vertical'
   | 'info'
   | 'language'
@@ -118,6 +120,7 @@ const iconRegistry: Record<AppIconName, ComponentType<IconProps>> = {
   eye: IconEye,
   feature: IconSparkles,
   game: IconDeviceGamepad2,
+  github: IconBrandGithub,
   'grip-vertical': IconGripVertical,
   info: IconInfoCircle,
   language: IconLanguage,

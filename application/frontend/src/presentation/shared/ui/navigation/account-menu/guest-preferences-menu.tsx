@@ -4,8 +4,10 @@ import { useKeyboardShortcut, useShortcutScope } from '../../../keyboard';
 import { AppIcon } from '../../icons/app-icon';
 import { AccountMenuPreferencesPanel } from './account-menu-preferences-panel';
 import {
+  AccountMenuActionRow,
   AccountMenuDivider,
   AccountMenuDropdown,
+  AccountMenuExternalAnchor,
   AccountMenuMetaText,
   AccountMenuTriggerButton,
   AccountMenuWrapper,
@@ -75,6 +77,13 @@ export function GuestPreferencesMenu({ appVersion = '' }: GuestPreferencesMenuPr
       {opened ? (
         <AccountMenuDropdown>
           <AccountMenuPreferencesPanel />
+          <AccountMenuDivider />
+          <AccountMenuExternalAnchor href="https://github.com/cloud-native-aixmarseille/pleey/issues/new/choose">
+            <AccountMenuActionRow>
+              <AppIcon name="github" size={16} />
+              <span>{t('shared.shell.feedbackLink')}</span>
+            </AccountMenuActionRow>
+          </AccountMenuExternalAnchor>
           {normalizedAppVersion.length > 0 ? (
             <>
               <AccountMenuDivider />
