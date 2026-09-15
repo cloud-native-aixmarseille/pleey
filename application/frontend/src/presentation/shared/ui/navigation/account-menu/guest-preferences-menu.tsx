@@ -4,8 +4,12 @@ import { useKeyboardShortcut, useShortcutScope } from '../../../keyboard';
 import { AppIcon } from '../../icons/app-icon';
 import { AccountMenuPreferencesPanel } from './account-menu-preferences-panel';
 import {
+  AccountMenuActionRow,
   AccountMenuDivider,
   AccountMenuDropdown,
+  AccountMenuExternalAnchor,
+  AccountMenuFooter,
+  AccountMenuFooterLink,
   AccountMenuMetaText,
   AccountMenuTriggerButton,
   AccountMenuWrapper,
@@ -15,13 +19,15 @@ const GUEST_PREFERENCES_SCOPE = 'guest-preferences-menu';
 
 interface GuestPreferencesMenuProps {
   readonly appVersion?: string;
+  readonly feedbackUrl: string;
 }
 
-export function GuestPreferencesMenu({ appVersion = '' }: GuestPreferencesMenuProps) {
+export function GuestPreferencesMenu({ appVersion = '', feedbackUrl }: GuestPreferencesMenuProps) {
   const { t } = usePresentationTranslation();
   const [opened, setOpened] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const normalizedAppVersion = appVersion.trim();
+  const normalizedFeedbackUrl = feedbackUrl.trim();
 
   const toggle = () => {
     setOpened((current) => !current);
@@ -75,10 +81,33 @@ export function GuestPreferencesMenu({ appVersion = '' }: GuestPreferencesMenuPr
       {opened ? (
         <AccountMenuDropdown>
           <AccountMenuPreferencesPanel />
-          {normalizedAppVersion.length > 0 ? (
+          {normalizedAppVersion.length > 0 || normalizedFeedbackUrl.length > 0 ? (
             <>
               <AccountMenuDivider />
-              <AccountMenuMetaText>{t('shared.shell.version', { version: normalizedAppVersion })}</AccountMenuMetaText>
+              {normalizedAppVersion.length > 0 && normalizedFeedbackUrl.length > 0 ? (
+                <AccountMenuFooter>
+                  <AccountMenuMetaText>
+                    {t('shared.shell.version', { version: normalizedAppVersion })}
+                  </AccountMenuMetaText>
+                  <AccountMenuFooterLink href={normalizedFeedbackUrl} label={t('shared.shell.feedbackLink')}>
+                    <AccountMenuActionRow>
+                      <AppIcon name="github" size={14} />
+                      <span>{t('shared.shell.feedbackAction')}</span>
+                    </AccountMenuActionRow>
+                  </AccountMenuFooterLink>
+                </AccountMenuFooter>
+              ) : normalizedAppVersion.length > 0 ? (
+                <AccountMenuMetaText>
+                  {t('shared.shell.version', { version: normalizedAppVersion })}
+                </AccountMenuMetaText>
+              ) : (
+                <AccountMenuExternalAnchor href={normalizedFeedbackUrl}>
+                  <AccountMenuActionRow>
+                    <AppIcon name="github" size={16} />
+                    <span>{t('shared.shell.feedbackLink')}</span>
+                  </AccountMenuActionRow>
+                </AccountMenuExternalAnchor>
+              )}
             </>
           ) : null}
         </AccountMenuDropdown>

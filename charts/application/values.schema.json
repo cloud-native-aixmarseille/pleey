@@ -124,7 +124,14 @@
     "frontend": {
       "type": "object",
       "properties": {
-        "enabled": { "type": "boolean" }
+        "enabled": { "type": "boolean" },
+        "config": {
+          "type": "object",
+          "properties": {
+            "apiUrl": { "type": "string" },
+            "feedbackUrl": { "type": "string" }
+          }
+        }
       }
     },
     "gateway": {

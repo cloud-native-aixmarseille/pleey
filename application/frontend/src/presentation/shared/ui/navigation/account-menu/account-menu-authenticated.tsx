@@ -8,6 +8,9 @@ import {
   AccountMenuActionRow,
   AccountMenuDivider,
   AccountMenuDropdown,
+  AccountMenuExternalAnchor,
+  AccountMenuFooter,
+  AccountMenuFooterLink,
   AccountMenuMetaText,
   AccountMenuTriggerButton,
   AccountMenuUsername,
@@ -16,6 +19,7 @@ import {
 
 interface AccountMenuAuthenticatedProps {
   readonly appVersion?: string;
+  readonly feedbackUrl: string;
   readonly onNavigateToProfile: () => void;
   readonly onSignOut: () => void;
   readonly onToggle: () => void;
@@ -26,6 +30,7 @@ interface AccountMenuAuthenticatedProps {
 
 export function AccountMenuAuthenticated({
   appVersion = '',
+  feedbackUrl,
   onNavigateToProfile,
   onSignOut,
   onToggle,
@@ -35,6 +40,7 @@ export function AccountMenuAuthenticated({
 }: AccountMenuAuthenticatedProps) {
   const { t } = usePresentationTranslation();
   const normalizedAppVersion = appVersion.trim();
+  const normalizedFeedbackUrl = feedbackUrl.trim();
 
   return (
     <AccountMenuWrapper wrapperRef={wrapperRef}>
@@ -66,10 +72,33 @@ export function AccountMenuAuthenticated({
           </AccountMenuActionButton>
           <AccountMenuDivider />
           <AccountMenuPreferencesPanel />
-          {normalizedAppVersion.length > 0 ? (
+          {normalizedAppVersion.length > 0 || normalizedFeedbackUrl.length > 0 ? (
             <>
               <AccountMenuDivider />
-              <AccountMenuMetaText>{t('shared.shell.version', { version: normalizedAppVersion })}</AccountMenuMetaText>
+              {normalizedAppVersion.length > 0 && normalizedFeedbackUrl.length > 0 ? (
+                <AccountMenuFooter>
+                  <AccountMenuMetaText>
+                    {t('shared.shell.version', { version: normalizedAppVersion })}
+                  </AccountMenuMetaText>
+                  <AccountMenuFooterLink href={normalizedFeedbackUrl} label={t('shared.shell.feedbackLink')}>
+                    <AccountMenuActionRow>
+                      <AppIcon name="github" size={14} />
+                      <span>{t('shared.shell.feedbackAction')}</span>
+                    </AccountMenuActionRow>
+                  </AccountMenuFooterLink>
+                </AccountMenuFooter>
+              ) : normalizedAppVersion.length > 0 ? (
+                <AccountMenuMetaText>
+                  {t('shared.shell.version', { version: normalizedAppVersion })}
+                </AccountMenuMetaText>
+              ) : (
+                <AccountMenuExternalAnchor href={normalizedFeedbackUrl}>
+                  <AccountMenuActionRow>
+                    <AppIcon name="github" size={16} />
+                    <span>{t('shared.shell.feedbackLink')}</span>
+                  </AccountMenuActionRow>
+                </AccountMenuExternalAnchor>
+              )}
             </>
           ) : null}
         </AccountMenuDropdown>

@@ -4,9 +4,10 @@ import { useAccountMenuState } from './use-account-menu-state';
 
 interface AccountMenuProps {
   readonly appVersion?: string;
+  readonly feedbackUrl: string;
 }
 
-export function AccountMenu({ appVersion = '' }: AccountMenuProps) {
+export function AccountMenu({ appVersion = '', feedbackUrl }: AccountMenuProps) {
   const { handleNavigateToProfile, handleSignIn, handleSignOut, opened, toggle, user, wrapperRef } =
     useAccountMenuState();
 
@@ -17,6 +18,7 @@ export function AccountMenu({ appVersion = '' }: AccountMenuProps) {
   return (
     <AccountMenuAuthenticated
       appVersion={appVersion}
+      feedbackUrl={feedbackUrl}
       onNavigateToProfile={handleNavigateToProfile}
       onSignOut={handleSignOut}
       onToggle={toggle}

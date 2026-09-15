@@ -1,5 +1,6 @@
 import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+import type { ApplicationShellConfig } from '../../../application/shared/ports/application-shell-config.port';
 import { createOutletRoute, renderRouteWithProviders } from '../../../test-utils/render-route-with-providers';
 import { AppShellLayout } from './app-shell-layout';
 
@@ -11,9 +12,12 @@ vi.mock('../i18n/use-presentation-translation', async (importOriginal) => {
   return new PresentationTranslationMockFactory().createPartialModule(importOriginal);
 });
 
-function renderLayout(loadAppVersion?: () => Promise<string>) {
+function renderLayout(loadShellConfig?: () => Promise<ApplicationShellConfig>) {
   return renderRouteWithProviders({
-    routes: createOutletRoute(<AppShellLayout loadAppVersion={loadAppVersion} />, <div data-testid="outlet-content" />),
+    routes: createOutletRoute(
+      <AppShellLayout loadShellConfig={loadShellConfig} />,
+      <div data-testid="outlet-content" />,
+    ),
   });
 }
 
@@ -66,27 +70,33 @@ describe('AppShellLayout', () => {
 
     it('loads the deployed version from the backend', async () => {
       // Arrange
-      const loadAppVersion = vi.fn().mockResolvedValue('1.2.3');
+      const loadShellConfig = vi.fn().mockResolvedValue({
+        appVersion: '1.2.3',
+        feedbackUrl: 'https://example.com/feedback',
+      });
 
       // Act
-      renderLayout(loadAppVersion);
+      renderLayout(loadShellConfig);
 
       // Assert
       await waitFor(() => {
-        expect(loadAppVersion).toHaveBeenCalledTimes(1);
+        expect(loadShellConfig).toHaveBeenCalledTimes(1);
       });
     });
 
     it('does not render the deployed version in the page body when the backend returns a value', async () => {
       // Arrange
-      const loadAppVersion = vi.fn().mockResolvedValue('1.2.3');
+      const loadShellConfig = vi.fn().mockResolvedValue({
+        appVersion: '1.2.3',
+        feedbackUrl: 'https://example.com/feedback',
+      });
 
       // Act
-      renderLayout(loadAppVersion);
+      renderLayout(loadShellConfig);
 
       // Assert
       await waitFor(() => {
-        expect(loadAppVersion).toHaveBeenCalledTimes(1);
+        expect(loadShellConfig).toHaveBeenCalledTimes(1);
       });
 
       expect(screen.queryByText('shared.shell.version (version=1.2.3)')).not.toBeInTheDocument();
@@ -94,14 +104,17 @@ describe('AppShellLayout', () => {
 
     it('does not render the deployed version when the backend returns an empty value', async () => {
       // Arrange
-      const loadAppVersion = vi.fn().mockResolvedValue('  ');
+      const loadShellConfig = vi.fn().mockResolvedValue({
+        appVersion: '  ',
+        feedbackUrl: 'https://example.com/feedback',
+      });
 
       // Act
-      renderLayout(loadAppVersion);
+      renderLayout(loadShellConfig);
 
       // Assert
       await waitFor(() => {
-        expect(loadAppVersion).toHaveBeenCalledTimes(1);
+        expect(loadShellConfig).toHaveBeenCalledTimes(1);
       });
 
       expect(screen.queryByText(/shared\.shell\.version/i)).not.toBeInTheDocument();
@@ -109,14 +122,14 @@ describe('AppShellLayout', () => {
 
     it('does not render the deployed version when loading fails', async () => {
       // Arrange
-      const loadAppVersion = vi.fn().mockRejectedValue(new Error('boom'));
+      const loadShellConfig = vi.fn().mockRejectedValue(new Error('boom'));
 
       // Act
-      renderLayout(loadAppVersion);
+      renderLayout(loadShellConfig);
 
       // Assert
       await waitFor(() => {
-        expect(loadAppVersion).toHaveBeenCalledTimes(1);
+        expect(loadShellConfig).toHaveBeenCalledTimes(1);
       });
 
       expect(screen.queryByText(/shared\.shell\.version/i)).not.toBeInTheDocument();
