@@ -23,6 +23,6 @@ export default defineConfig({
     url: readEnvOrFile('DATABASE_URL'),
   },
   migrations: {
-    seed: 'ts-node --esm --transpile-only prisma/seed.ts',
+    seed: 'npm run seed',
   },
 });

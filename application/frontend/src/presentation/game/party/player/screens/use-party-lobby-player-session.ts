@@ -2,6 +2,7 @@ import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import type { PartyLobbyGateway } from '../../../../../application/game/party/shared/facades/party-lobby.facade';
 import type { PartyActionId } from '../../../../../domains/game/party/shared/entities/party-action';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
+import { PartyStatus } from '../../../../../domains/game/party/shared/entities/party-status';
 import { PartyManagementErrorCode } from '../../../../../domains/game/party/shared/errors/party-management-error-code';
 import type { GuestId } from '../../../../../domains/identity/entities/guest';
 import { usePresentationFeedbackChannel } from '../../../../shared/ui/feedback/use-presentation-feedback-channel';
@@ -67,12 +68,13 @@ export function usePartyLobbyPlayerSession({
       return;
     }
 
-    if (party.context?.stage?.actionSubmission?.currentPlayer) {
+    if (party.context?.stage?.actionSubmission?.currentPlayer?.selectedActionId === pendingPlayerActionId) {
       setPendingPlayerActionId(null);
       clearError();
     }
   }, [
     clearError,
+    pendingPlayerActionId,
     party?.context?.lifecycle.phase,
     party?.context?.stage?.actionSubmission?.currentPlayer?.selectedActionId,
   ]);
@@ -80,10 +82,21 @@ export function usePartyLobbyPlayerSession({
   const submitAction = useEffectEvent(async (actionId: PartyActionId) => {
     if (
       !party ||
+      party.status !== PartyStatus.ACTIVE ||
       party.context?.stage?.current === undefined ||
       party.context?.stage?.current === null ||
-      party.context?.stage?.actionSubmission?.currentPlayer !== null ||
       pendingPlayerActionId !== null
+    ) {
+      return;
+    }
+
+    const currentPlayerAction = party.context.stage.actionSubmission.currentPlayer;
+    const stageEndsAtEpochMs = party.context.lifecycle.stageEndsAtEpochMs;
+
+    if (
+      (currentPlayerAction !== null &&
+        (!party.settings.allowOptionChangeAfterVoting || currentPlayerAction.selectedActionId === actionId)) ||
+      (stageEndsAtEpochMs !== null && stageEndsAtEpochMs <= Date.now())
     ) {
       return;
     }

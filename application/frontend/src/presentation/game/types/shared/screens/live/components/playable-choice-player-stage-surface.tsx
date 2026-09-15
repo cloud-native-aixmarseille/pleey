@@ -76,9 +76,10 @@ export function PlayableChoicePlayerStageSurface({
     return null;
   }
 
-  const selectedActionId = currentPlayerAction?.selectedActionId ?? pendingActionId;
-  const isSubmitting = pendingActionId !== null && currentPlayerAction === null;
-  const isLocked = currentPlayerAction !== null;
+  const selectedActionId = pendingActionId ?? currentPlayerAction?.selectedActionId;
+  const isSubmitting = pendingActionId !== null;
+  const canChangeAnswer = party.settings.allowOptionChangeAfterVoting && !isStageTimerExpired;
+  const isLocked = currentPlayerAction !== null && !canChangeAnswer;
   const areActionsDisabled =
     party.status !== PartyStatus.ACTIVE || isSubmitting || isLocked || isStageTimerExpired || isStageRevealing;
   const shortcutScope = `${testIdPrefix}-player-stage-shortcuts`;

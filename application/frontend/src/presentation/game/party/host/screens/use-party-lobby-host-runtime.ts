@@ -273,7 +273,7 @@ export function usePartyLobbyHostRuntime({
       void runHostRuntimeCommand(HostPartyRuntimeCommand.RevealStageResult);
     };
 
-    if (isComplete) {
+    if (isComplete && (!hasStageTimer || !party.settings.allowOptionChangeAfterVoting)) {
       revealStageResult();
       return;
     }

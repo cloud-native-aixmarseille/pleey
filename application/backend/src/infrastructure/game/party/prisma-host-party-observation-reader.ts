@@ -143,6 +143,7 @@ export class PrismaHostPartyObservationReader implements HostPartyObservationRea
       gameId: this.gameIdentifier.parse(party.gameId),
       pin: this.partyPinIdentifier.parse(party.pin),
       status: this.partyReadModelMapper.toPartyStatus(party.status),
+      settings: this.partySettingsMapper.toPartySettings(party.settings),
       context: this.runtimeContextProjection.project({
         baseContext,
         playerActionStates: playerActionStates.map((entry) => entry.state),

@@ -13,6 +13,7 @@ import {
   PartyPlayerIdentityKind,
 } from '../../domains/game/party/shared/entities/party-player-identity';
 import { PartyRole } from '../../domains/game/party/shared/entities/party-role';
+import { DEFAULT_PARTY_SETTINGS } from '../../domains/game/party/shared/entities/party-settings';
 import { PartyStatus } from '../../domains/game/party/shared/entities/party-status';
 import { GameType } from '../../domains/game/types/shared/game-type';
 import type { GuestId } from '../../domains/identity/entities/guest';
@@ -127,6 +128,7 @@ export class PartyFixtureFactory {
       gameType: GameType.Quiz,
       pin: pin === undefined ? partyPinIdentifier.parse('AB12CD') : partyPinIdentifier.parse(pin),
       status: PartyStatus.WAITING,
+      settings: DEFAULT_PARTY_SETTINGS,
       context: null,
       isObserverHost: false,
       host: host ?? this.createHost(),

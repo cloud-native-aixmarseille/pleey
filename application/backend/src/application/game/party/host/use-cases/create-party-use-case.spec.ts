@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { describe, expect, it, vi } from 'vitest';
 import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
 import { PinAlreadyInUseError } from '../../../../../domain/game/party/errors/pin-already-in-use.error';
+import { DEFAULT_PARTY_SETTINGS } from '../../../../../domain/game/party/shared/entities/party-settings';
 import { PartySettingsResolver } from '../../../../../domain/game/party/shared/services/party-settings-resolver';
 import { OrganizationErrorCode } from '../../../../../domain/organization/enums/organization-error-code.enum';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
@@ -93,12 +94,7 @@ describe('CreatePartyUseCase', () => {
       expect.objectContaining({
         gameId: defaultCommand.gameId,
         hostUserId: defaultCommand.hostUserId,
-        settings: {
-          allowJoiningAfterStart: false,
-          allowOptionChangeAfterVoting: false,
-          randomizeOptionOrder: false,
-          randomizeStageOrder: false,
-        },
+        settings: DEFAULT_PARTY_SETTINGS,
       }),
     );
     expect(broadcastPartyObservationUseCase.broadcastIfPresent).toHaveBeenCalledWith({

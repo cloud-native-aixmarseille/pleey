@@ -3,6 +3,7 @@ import type { PartyStatus } from '../../enums/party-status.enum';
 import type { PartyPlayer } from '../../player/entities/party-player';
 import type { PartyId, PartyPin } from '../../shared/entities/party';
 import type { PartyRuntimeContext } from '../../shared/entities/party-runtime-context';
+import type { PartySettings } from '../../shared/entities/party-settings';
 import type { PartyHost } from './party-host';
 
 export interface HostPartyObservation {
@@ -10,6 +11,7 @@ export interface HostPartyObservation {
   readonly gameId: GameId;
   readonly pin: PartyPin;
   readonly status: PartyStatus;
+  readonly settings: PartySettings;
   readonly host: PartyHost;
   readonly players: readonly PartyPlayer[];
   readonly createdAt: Date;

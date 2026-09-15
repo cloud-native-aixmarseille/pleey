@@ -27,7 +27,7 @@
     "start:dev": "nest start --watch --watchAssets",
     "start:debug": "nest start --debug --watch --watchAssets",
     "start:prod": "node dist/app/main",
-    "seed": "ts-node --esm --transpile-only prisma/seed.ts",
+    "seed": "ts-node --transpile-only prisma/seed.ts",
     "db:migrate": "prisma migrate deploy",
     "db:generate": "prisma generate",
     "db:seed": "npm run db:migrate && npm run db:generate && npm run seed",
