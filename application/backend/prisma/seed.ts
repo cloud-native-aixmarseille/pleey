@@ -1,6 +1,7 @@
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Prisma, PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { DEFAULT_PARTY_SETTINGS } from '../src/domain/game/party/shared/entities/party-settings';
 
 type SeedAnswer = {
   text: string;
@@ -336,11 +337,7 @@ async function main() {
       status: 'waiting',
       gameId: quizGame.id,
       hostId: admin.id,
-      settings: {
-        allowOptionChangeAfterVoting: true,
-        randomizeOptionOrder: false,
-        randomizeStageOrder: false,
-      },
+      settings: DEFAULT_PARTY_SETTINGS,
       context: Prisma.JsonNull,
     },
     create: {
@@ -348,11 +345,7 @@ async function main() {
       hostId: admin.id,
       pin: partyPin,
       status: 'waiting',
-      settings: {
-        allowOptionChangeAfterVoting: true,
-        randomizeOptionOrder: false,
-        randomizeStageOrder: false,
-      },
+      settings: DEFAULT_PARTY_SETTINGS,
       context: Prisma.JsonNull,
     },
   });

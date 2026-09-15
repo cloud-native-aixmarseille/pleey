@@ -10,7 +10,7 @@ import { UpdateOrganizationMemberRoleUseCase } from '../../../application/worksp
 import { UpdateOrganizationUseCase } from '../../../application/workspace/organizations/use-cases/update-organization-use-case';
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-member-identifier';
-import type { PartySettings } from '../../../domain/game/party/shared/entities/party-settings';
+import { DEFAULT_PARTY_SETTINGS, type PartySettings } from '../../../domain/game/party/shared/entities/party-settings';
 import type { UserId } from '../../../domain/identity/entities/user';
 import { IdentityErrorCode } from '../../../domain/identity/enums/identity-error-code.enum';
 import { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
@@ -194,10 +194,10 @@ export class OrganizationResolver {
     }
 
     return {
-      allowJoiningAfterStart: settings.allowJoiningAfterStart ?? false,
-      allowOptionChangeAfterVoting: settings.allowOptionChangeAfterVoting ?? true,
-      randomizeOptionOrder: settings.randomizeOptionOrder ?? false,
-      randomizeStageOrder: settings.randomizeStageOrder ?? false,
+      allowJoiningAfterStart: settings.allowJoiningAfterStart ?? DEFAULT_PARTY_SETTINGS.allowJoiningAfterStart,
+      allowOptionChangeAfterVoting: settings.allowOptionChangeAfterVoting ?? DEFAULT_PARTY_SETTINGS.allowOptionChangeAfterVoting,
+      randomizeOptionOrder: settings.randomizeOptionOrder ?? DEFAULT_PARTY_SETTINGS.randomizeOptionOrder,
+      randomizeStageOrder: settings.randomizeStageOrder ?? DEFAULT_PARTY_SETTINGS.randomizeStageOrder,
     };
   }
 }
