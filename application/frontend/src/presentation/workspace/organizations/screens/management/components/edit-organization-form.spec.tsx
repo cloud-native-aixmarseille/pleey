@@ -42,7 +42,7 @@ describe('EditOrganizationForm', () => {
     });
     const customPartySettings = {
       ...DEFAULT_PARTY_SETTINGS,
-      allowOptionChangeAfterVoting: true,
+      allowOptionChangeAfterVoting: false,
       randomizeStageOrder: true,
     };
     const updatedOrganization = organizationFixtureFactory.createOrganization({

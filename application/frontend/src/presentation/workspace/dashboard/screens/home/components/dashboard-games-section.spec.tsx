@@ -344,7 +344,7 @@ describe('DashboardGamesSection', () => {
         privatePartyPassword: undefined,
         settingsOverride: {
           allowJoiningAfterStart: false,
-          allowOptionChangeAfterVoting: true,
+          allowOptionChangeAfterVoting: false,
           randomizeOptionOrder: true,
           randomizeStageOrder: false,
         },

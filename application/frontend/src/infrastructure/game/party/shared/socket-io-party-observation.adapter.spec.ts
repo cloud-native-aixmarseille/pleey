@@ -3,6 +3,7 @@ import { PartyPinIdentifier } from '../../../../application/game/party/shared/se
 import { GameTypeParser } from '../../../../application/game/types/shared/services/game-type-parser';
 import { PartyJoinReceiptStatus } from '../../../../domains/game/party/player/ports/party-player.port';
 import { PartyPlayerIdentityKind } from '../../../../domains/game/party/shared/entities/party-player-identity';
+import { DEFAULT_PARTY_SETTINGS } from '../../../../domains/game/party/shared/entities/party-settings';
 import { GameType } from '../../../../domains/game/types/shared/game-type';
 import { GameIdentifierMockFactory } from '../../../../test-utils/mocks/game-identifier-mock-factory';
 import { GuestIdentifierMockFactory } from '../../../../test-utils/mocks/guest-identifier-mock-factory';
@@ -275,6 +276,7 @@ describe('SocketIoPartyObservationAdapter', () => {
       gameType: GameType.Quiz,
       pin: 'AB12CD',
       status: 'WAITING',
+      settings: DEFAULT_PARTY_SETTINGS,
       context: null,
       isObserverHost: false,
       host: {
@@ -339,6 +341,7 @@ describe('SocketIoPartyObservationAdapter', () => {
       gameType: GameType.Quiz,
       pin: 'AB12CD',
       status: 'ACTIVE',
+      settings: DEFAULT_PARTY_SETTINGS,
       context: {
         lifecycle: {
           phase: 'stage',
@@ -413,6 +416,7 @@ describe('SocketIoPartyObservationAdapter', () => {
         gameType: GameType.Quiz,
         pin: 'AB12CD',
         status: 'ACTIVE',
+        settings: DEFAULT_PARTY_SETTINGS,
         context: {
           lifecycle: {
             phase: 'stage',

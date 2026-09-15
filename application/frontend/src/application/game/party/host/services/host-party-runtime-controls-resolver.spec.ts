@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/shared/entities/party-player-identity';
 import { PartyRuntimePhase } from '../../../../../domains/game/party/shared/entities/party-runtime-context';
+import { DEFAULT_PARTY_SETTINGS } from '../../../../../domains/game/party/shared/entities/party-settings';
 import { PartyStatus } from '../../../../../domains/game/party/shared/entities/party-status';
 import { GameType } from '../../../../../domains/game/types/shared/game-type';
 import { PartyIdentifierMockFactory } from '../../../../../test-utils/mocks/party-identifier-mock-factory';
@@ -28,6 +29,7 @@ function createObservation(overrides: Partial<PartyObservation> = {}): PartyObse
       username: 'Host',
     },
     players: [],
+    settings: DEFAULT_PARTY_SETTINGS,
     ...overrides,
   };
 }

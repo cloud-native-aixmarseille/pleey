@@ -18,6 +18,7 @@ import type { PartyObservationPlayer } from '../../../../../domains/game/party/s
 import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/shared/entities/party-player-identity';
 import { PartyRole } from '../../../../../domains/game/party/shared/entities/party-role';
 import { PartyRuntimePhase } from '../../../../../domains/game/party/shared/entities/party-runtime-context';
+import { DEFAULT_PARTY_SETTINGS } from '../../../../../domains/game/party/shared/entities/party-settings';
 import { PartyStatus } from '../../../../../domains/game/party/shared/entities/party-status';
 import { PartyManagementErrorCode } from '../../../../../domains/game/party/shared/errors/party-management-error-code';
 import { GameType } from '../../../../../domains/game/types/shared/game-type';
@@ -1447,6 +1448,139 @@ describe('PartyLobbyScreen', () => {
     expect(screen.getByText('game.party.player.route.actionSubmitting')).toBeInTheDocument();
   });
 
+  for (const scenario of [
+    { name: 'submits a replacement answer', allowChanges: true, expired: false, action: 'Option B', submissions: 1 },
+    {
+      name: 'blocks corrections when disabled',
+      allowChanges: false,
+      expired: false,
+      action: 'Option B',
+      submissions: 0,
+    },
+    {
+      name: 'blocks corrections after the deadline',
+      allowChanges: true,
+      expired: true,
+      action: 'Option B',
+      submissions: 0,
+    },
+    {
+      name: 'ignores the already selected answer',
+      allowChanges: true,
+      expired: false,
+      action: 'Option A',
+      submissions: 0,
+    },
+  ]) {
+    it(scenario.name, async () => {
+      // Arrange
+      mocks.params = { partyId: '9', pin: undefined, stageId: '1' };
+      mocks.authState = {
+        hasRestoredSession: true,
+        isAuthenticated: true,
+        user: authFixtureFactory.createUser({ id: 11 }),
+      };
+      mocks.partyManagementState.parties = [createManagedParty({ role: PartyRole.PLAYER })];
+      mocks.partyPlayerPort.submitAction = vi.fn(async () => undefined);
+      mocks.observationState.currentParty = createPartyObservation({
+        status: PartyStatus.ACTIVE,
+        settings: { ...DEFAULT_PARTY_SETTINGS, allowOptionChangeAfterVoting: scenario.allowChanges },
+        context: createActiveStageContext({
+          lifecycle: { stageEndsAtEpochMs: Date.now() + (scenario.expired ? -1 : 30_000) },
+          stage: {
+            actionSubmission: {
+              currentPlayer: { selectedActionId: toActionId(1), status: 'acknowledged' },
+            },
+          },
+        }),
+      });
+      mocks.observationState.currentErrorMessage = null;
+      mocks.observationState.currentErrorPartyId = null;
+      const stageScreen = (
+        <PartyLobbyScreen
+          routeKind={PartyLobbyRouteKind.PARTY_ID}
+          screenSection={PartyScreenSection.STAGE}
+          normalizePartyId={(partyId) => (partyId ? partyIdentifier.parse(Number(partyId)) : null)}
+          resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
+        />
+      );
+      renderWithProviders(stageScreen);
+      const actionButton = await screen.findByRole('button', { name: scenario.action });
+
+      // Act
+      fireEvent.click(actionButton);
+      fireEvent.click(actionButton);
+
+      // Assert
+      expect(mocks.partyPlayerPort.submitAction).toHaveBeenCalledTimes(scenario.submissions);
+    });
+  }
+
+  it('allows another correction after the stream acknowledges the previous replacement', async () => {
+    // Arrange
+    mocks.params = { partyId: '9', pin: undefined, stageId: '1' };
+    mocks.authState = {
+      hasRestoredSession: true,
+      isAuthenticated: true,
+      user: authFixtureFactory.createUser({ id: 11 }),
+    };
+    mocks.partyManagementState.parties = [createManagedParty({ role: PartyRole.PLAYER })];
+    mocks.partyPlayerPort.submitAction = vi.fn(async () => undefined);
+    const party = createPartyObservation({
+      status: PartyStatus.ACTIVE,
+      context: createActiveStageContext({
+        lifecycle: { stageEndsAtEpochMs: Date.now() + 30_000 },
+        stage: {
+          actionSubmission: {
+            currentPlayer: { selectedActionId: toActionId(1), status: 'acknowledged' },
+          },
+        },
+      }),
+    });
+    mocks.observationState.currentParty = party;
+    mocks.observationState.currentErrorMessage = null;
+    mocks.observationState.currentErrorPartyId = null;
+    const stageScreen = (
+      <PartyLobbyScreen
+        routeKind={PartyLobbyRouteKind.PARTY_ID}
+        screenSection={PartyScreenSection.STAGE}
+        normalizePartyId={(partyId) => (partyId ? partyIdentifier.parse(Number(partyId)) : null)}
+        resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
+      />
+    );
+    const { rerender } = renderWithProviders(stageScreen);
+    const secondAction = await screen.findByRole('button', { name: 'Option B' });
+
+    // Act
+    fireEvent.click(secondAction);
+    mocks.observationState.currentParty = {
+      ...party,
+      context: createActiveStageContext({
+        lifecycle: { stageEndsAtEpochMs: Date.now() + 30_000 },
+        stage: {
+          actionSubmission: {
+            currentPlayer: { selectedActionId: toActionId(2), status: 'acknowledged' },
+          },
+        },
+      }),
+    };
+    rerender(
+      <PartyLobbyScreen
+        routeKind={PartyLobbyRouteKind.PARTY_ID}
+        screenSection={PartyScreenSection.STAGE}
+        normalizePartyId={(partyId) => (partyId ? partyIdentifier.parse(Number(partyId)) : null)}
+        resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Option A' }));
+
+    // Assert
+    expect(vi.mocked(mocks.partyPlayerPort.submitAction).mock.calls).toEqual([
+      [{ actionId: toActionId(2), partyId: party.partyId }],
+      [{ actionId: toActionId(1), partyId: party.partyId }],
+    ]);
+  });
+
   it('shows the locked acknowledgement once the stream confirms the submitted action', async () => {
     // Arrange
     mocks.params = { partyId: '9', pin: undefined, stageId: '1' };
@@ -2124,6 +2258,68 @@ describe('PartyLobbyScreen', () => {
       });
     });
   });
+
+  for (const scenario of [
+    {
+      name: 'keeps all submitted answers editable before the deadline',
+      allowChanges: true,
+      elapsedMs: 2_999,
+      reveals: 0,
+    },
+    {
+      name: 'reveals all submitted answers at the correction deadline',
+      allowChanges: true,
+      elapsedMs: 3_000,
+      reveals: 1,
+    },
+    {
+      name: 'reveals all submitted answers immediately when corrections are disabled',
+      allowChanges: false,
+      elapsedMs: 0,
+      reveals: 1,
+    },
+  ]) {
+    it(scenario.name, async () => {
+      // Arrange
+      vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'] });
+      vi.setSystemTime(1_000);
+      mocks.params = { partyId: '9', pin: undefined, stageId: '1' };
+      mocks.authState = {
+        hasRestoredSession: true,
+        isAuthenticated: true,
+        user: authFixtureFactory.createUser({ id: 7 }),
+      };
+      mocks.partyManagementState.parties = [createManagedParty()];
+      mocks.partyHostControlPort.revealStageResult = vi.fn(async () => undefined);
+      mocks.observationState.currentParty = createPartyObservation({
+        status: PartyStatus.ACTIVE,
+        settings: { ...DEFAULT_PARTY_SETTINGS, allowOptionChangeAfterVoting: scenario.allowChanges },
+        context: createActiveStageContext({
+          lifecycle: { stageEndsAtEpochMs: 4_000, stageTimeLimitSeconds: 3 },
+          stage: { actionSubmission: { submittedPlayerCount: 2, totalEligiblePlayerCount: 2 } },
+        }),
+      });
+      mocks.observationState.currentErrorMessage = null;
+      mocks.observationState.currentErrorPartyId = null;
+
+      // Act
+      const { unmount } = renderWithProviders(
+        <PartyLobbyScreen
+          routeKind={PartyLobbyRouteKind.PARTY_ID}
+          screenSection={PartyScreenSection.STAGE}
+          normalizePartyId={(partyId) => (partyId ? partyIdentifier.parse(Number(partyId)) : null)}
+          resolvePartyAbsoluteUrl={(pin) => `https://pleey.localhost/join/${pin}`}
+        />,
+      );
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(scenario.elapsedMs);
+      });
+      unmount();
+
+      // Assert
+      expect(mocks.partyHostControlPort.revealStageResult).toHaveBeenCalledTimes(scenario.reveals);
+    });
+  }
 
   it('automatically reveals the stage result once the timer has elapsed', async () => {
     // Arrange

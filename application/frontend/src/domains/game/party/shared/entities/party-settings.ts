@@ -7,7 +7,7 @@ export interface PartySettings {
 
 export const DEFAULT_PARTY_SETTINGS: PartySettings = {
   allowJoiningAfterStart: false,
-  allowOptionChangeAfterVoting: false,
+  allowOptionChangeAfterVoting: true,
   randomizeOptionOrder: false,
   randomizeStageOrder: false,
 };

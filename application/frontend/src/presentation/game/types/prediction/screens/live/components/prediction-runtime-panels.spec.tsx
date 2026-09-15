@@ -2,6 +2,7 @@ import { act, fireEvent, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import type { PartyObservation } from '../../../../../../../domains/game/party/shared/entities/party-observation';
 import { PartyRuntimePhase } from '../../../../../../../domains/game/party/shared/entities/party-runtime-context';
+import { DEFAULT_PARTY_SETTINGS } from '../../../../../../../domains/game/party/shared/entities/party-settings';
 import { PartyStatus } from '../../../../../../../domains/game/party/shared/entities/party-status';
 import { GameType } from '../../../../../../../domains/game/types/shared/game-type';
 import { PartyActionIdentifierMockFactory } from '../../../../../../../test-utils/mocks/party-action-identifier-mock-factory';
@@ -64,6 +65,7 @@ function createPredictionParty(context: PartyObservation['context']): PartyObser
     partyId: partyIdentifier.parse(1),
     pin: partyPinIdentifier.parse('AB12CD'),
     players: [],
+    settings: DEFAULT_PARTY_SETTINGS,
     status: PartyStatus.ACTIVE,
   };
 }
@@ -274,6 +276,51 @@ describe('prediction runtime panels', () => {
 
       fireEvent.click(actionButton);
 
+      expect(onSubmitAction).not.toHaveBeenCalled();
+    } finally {
+      restoreEnvironment();
+    }
+  });
+
+  it('highlights a pending correction and disables clicks and shortcuts until acknowledgement', () => {
+    // Arrange
+    vi.useFakeTimers();
+    vi.setSystemTime(1_000);
+    const party = createStageParty();
+    const context = party.context!;
+    const onSubmitAction = vi.fn();
+    const partyWithAnswer = {
+      ...party,
+      context: {
+        ...context,
+        stage: {
+          ...context.stage!,
+          actionSubmission: {
+            ...context.stage!.actionSubmission,
+            currentPlayer: { selectedActionId: firstActionId, status: 'acknowledged' as const },
+          },
+        },
+      },
+    } as PartyObservation;
+
+    // Act + Assert
+    try {
+      renderPredictionPlayerStageSurface({
+        onSubmitAction,
+        party: partyWithAnswer,
+        pendingActionId: secondActionId,
+      });
+      act(() => {
+        vi.advanceTimersByTime(3_000);
+      });
+      fireEvent.click(screen.getByRole('button', { name: 'Home wins' }));
+      fireEvent.keyDown(document, { key: '1' });
+
+      // Assert
+      expect(screen.getByRole('button', { name: 'Away wins' })).toHaveAttribute('aria-pressed', 'true');
+      expect(screen.getByRole('button', { name: 'Away wins' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Home wins' })).toHaveAttribute('aria-pressed', 'false');
+      expect(screen.getByText('game.party.player.route.actionSubmitting')).toBeInTheDocument();
       expect(onSubmitAction).not.toHaveBeenCalled();
     } finally {
       restoreEnvironment();

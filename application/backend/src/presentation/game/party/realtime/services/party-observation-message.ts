@@ -2,6 +2,7 @@ import type {
   PlayerPartyObservation,
   PlayerPartyObservationPlayer,
 } from '../../../../../domain/game/party/player/entities/player-party-observation';
+import type { PartySettings } from '../../../../../domain/game/party/shared/entities/party-settings';
 import type { GameType } from '../../../../../domain/game/types/shared/entities/game-type';
 
 export interface PartyObservationPlayerMessage extends PlayerPartyObservationPlayer {
@@ -11,6 +12,7 @@ export interface PartyObservationPlayerMessage extends PlayerPartyObservationPla
 
 type PartyObservationMessageBase = Pick<PlayerPartyObservation, 'partyId' | 'pin' | 'status' | 'context' | 'host'> & {
   readonly gameType: GameType;
+  readonly settings: PartySettings;
   readonly players: readonly PartyObservationPlayerMessage[];
 };
 

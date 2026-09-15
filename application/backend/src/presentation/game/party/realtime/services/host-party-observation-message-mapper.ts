@@ -23,6 +23,7 @@ export class HostPartyObservationMessageMapper {
       gameType,
       pin: observation.pin,
       status: observation.status,
+      settings: observation.settings,
       context: observation.context,
       isObserverHost: true,
       host: {
