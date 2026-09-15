@@ -28,6 +28,7 @@ Production-ready umbrella chart for the Pleey frontend, backend, PostgreSQL, and
 | Key                                            | Type   | Default                                                                     | Description |
 | ---------------------------------------------- | ------ | --------------------------------------------------------------------------- | ----------- |
 | backend.enabled                                | bool   | `true`                                                                      |             |
+| frontend.config.feedbackUrl                    | string | `"https://github.com/cloud-native-aixmarseille/pleey/issues/new/choose"`    |             |
 | frontend.enabled                               | bool   | `true`                                                                      |             |
 | gateway.ingress.annotations                    | object | `{}`                                                                        |             |
 | gateway.ingress.apiPath                        | string | `"/api"`                                                                    |             |

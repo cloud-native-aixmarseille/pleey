@@ -1,4 +1,4 @@
-import { Box, Divider, Paper, Text } from '@mantine/core';
+import { Box, Divider, Button as MantineButton, Paper, Text } from '@mantine/core';
 import type { ComponentProps, PropsWithChildren, ReactNode, RefObject } from 'react';
 import { MenuActionButton } from '../../actions/menu-action-button';
 import { PillTriggerButton } from '../../actions/pill-trigger-button';
@@ -52,7 +52,7 @@ export function AccountMenuDropdown({ children }: PropsWithChildren) {
   return (
     <Paper
       bg={uiThemeTokens.color.surface.canvas}
-      miw="12rem"
+      miw="14rem"
       p="xs"
       pos="absolute"
       radius="xl"
@@ -80,6 +80,91 @@ export function AccountMenuActionButton({
   );
 }
 
+export function AccountMenuExternalAnchor({ children, href }: { readonly children: ReactNode; readonly href: string }) {
+  return (
+    <MantineButton
+      component="a"
+      fullWidth
+      href={href}
+      justify="flex-start"
+      rel="noopener noreferrer"
+      role="menuitem"
+      size="sm"
+      styles={{
+        root: {
+          '--button-bd': '1px solid transparent',
+          '--button-bg': 'transparent',
+          '--button-color': uiThemeTokens.color.text.primary,
+          '--button-hover': uiThemeTokens.color.surface.recessed,
+          '--button-hover-color': uiThemeTokens.color.text.primary,
+          borderRadius: uiThemeTokens.radius.field,
+          padding: `${uiThemeTokens.spacing.xs} ${uiThemeTokens.spacing.sm}`,
+          textDecoration: 'none',
+        },
+      }}
+      target="_blank"
+      variant="subtle"
+    >
+      {children}
+    </MantineButton>
+  );
+}
+
+export function AccountMenuFooter({ children }: PropsWithChildren) {
+  return (
+    <Box
+      px="xs"
+      style={{
+        alignItems: 'center',
+        display: 'grid',
+        gap: uiThemeTokens.spacing.sm,
+        gridTemplateColumns: 'minmax(0, 1fr) auto',
+      }}
+    >
+      {children}
+    </Box>
+  );
+}
+
+export function AccountMenuFooterLink({
+  children,
+  href,
+  label,
+}: {
+  readonly children: ReactNode;
+  readonly href: string;
+  readonly label: string;
+}) {
+  return (
+    <Box
+      aria-label={label}
+      component="a"
+      href={href}
+      rel="noopener noreferrer"
+      role="menuitem"
+      style={{
+        alignItems: 'center',
+        borderRadius: uiThemeTokens.radius.field,
+        color: uiThemeTokens.color.text.primary,
+        display: 'inline-flex',
+        flexShrink: 0,
+        fontSize: '0.75rem',
+        fontWeight: 600,
+        gap: uiThemeTokens.spacing.xxs,
+        lineHeight: 1,
+        minWidth: 'max-content',
+        padding: `${uiThemeTokens.spacing.xxs} ${uiThemeTokens.spacing.xs}`,
+        textDecoration: 'none',
+        whiteSpace: 'nowrap',
+      }}
+      target="_blank"
+      title={label}
+    >
+      {children}
+    </Box>
+  );
+}
+
 export function AccountMenuActionRow({ children }: PropsWithChildren) {
   return <ActionRow gap="sm">{children}</ActionRow>;
 }
@@ -90,7 +175,7 @@ export function AccountMenuDivider() {
 
 export function AccountMenuMetaText({ children }: PropsWithChildren) {
   return (
-    <Text c={uiThemeTokens.color.text.secondary} px="xs" size="xs" ta="center">
+    <Text c={uiThemeTokens.color.text.secondary} px={0} size="xs" ta="left">
       {children}
     </Text>
   );

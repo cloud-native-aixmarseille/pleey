@@ -36,9 +36,9 @@ spec:
         - name: frontend
           image: {{ include "pleey.frontend.image" . | quote }}
           imagePullPolicy: {{ include "pleey.frontend.imagePullPolicy" . }}
-          {{- if or .Values.config.apiUrl .Values.extraEnvFrom }}
+          {{- if or .Values.config.apiUrl .Values.config.feedbackUrl .Values.extraEnvFrom }}
           envFrom:
-            {{- if .Values.config.apiUrl }}
+            {{- if or .Values.config.apiUrl .Values.config.feedbackUrl }}
             - configMapRef:
                 name: {{ include "pleey.frontend.fullname" . }}
             {{- end }}

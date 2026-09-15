@@ -44,7 +44,7 @@ describe('AccountMenu', () => {
     function renderAccountMenu() {
       renderWithUiProvider(
         <KeyboardShortcutsProvider>
-          <AccountMenu />
+          <AccountMenu feedbackUrl="https://example.com/feedback" />
         </KeyboardShortcutsProvider>,
       );
     }

@@ -26,6 +26,7 @@ Pleey frontend service subchart.
 | autoscaling.minReplicas                    | int    | `2`                                                                         |             |
 | autoscaling.targetCPUUtilizationPercentage | int    | `80`                                                                        |             |
 | config.apiUrl                              | string | `""`                                                                        |             |
+| config.feedbackUrl                         | string | `""`                                                                        |             |
 | extraEnv                                   | list   | `[]`                                                                        |             |
 | extraEnvFrom                               | list   | `[]`                                                                        |             |
 | extraVolumeMounts                          | list   | `[]`                                                                        |             |

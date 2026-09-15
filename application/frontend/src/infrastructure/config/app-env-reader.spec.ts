@@ -7,6 +7,10 @@ describe('readAppEnv()', () => {
     vi.stubEnv('VITE_API_URL', value);
   }
 
+  function arrangeFeedbackUrl(value: string) {
+    vi.stubEnv('VITE_FEEDBACK_URL', value);
+  }
+
   it('returns the browser origin when VITE_API_URL is not set', () => {
     // Arrange + Act
     arrangeApiUrl('');
@@ -86,6 +90,36 @@ describe('readAppEnv()', () => {
       const { socketPath } = readAppEnv();
 
       expect(socketPath).toBe('https://api.example.com');
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
+  it('uses the default feedback URL when VITE_FEEDBACK_URL is not set', () => {
+    // Arrange + Act
+    arrangeApiUrl('');
+    arrangeFeedbackUrl('');
+
+    // Assert
+    try {
+      const { feedbackUrl } = readAppEnv();
+
+      expect(feedbackUrl).toBe('');
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
+  it('uses VITE_FEEDBACK_URL when set', () => {
+    // Arrange + Act
+    arrangeApiUrl('');
+    arrangeFeedbackUrl('https://example.com/feedback');
+
+    // Assert
+    try {
+      const { feedbackUrl } = readAppEnv();
+
+      expect(feedbackUrl).toBe('https://example.com/feedback');
     } finally {
       vi.unstubAllEnvs();
     }

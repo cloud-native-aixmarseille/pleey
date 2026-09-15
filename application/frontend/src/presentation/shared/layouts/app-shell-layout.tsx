@@ -1,4 +1,5 @@
 import { useEffect, useEffectEvent, useState } from 'react';
+import type { ApplicationShellConfig } from '../../../application/shared/ports/application-shell-config.port';
 import { useAuth } from '../../identity/contexts/auth-context';
 import { Outlet } from '../routing/router';
 import { AppShellHeader } from './app-shell-header';
@@ -7,26 +8,32 @@ import { mainContentStyle, shellContentStyle, shellMainStyle } from './app-shell
 /* ── Shell layout ── */
 
 interface AppShellLayoutProps {
-  readonly loadAppVersion?: () => Promise<string>;
+  readonly loadShellConfig?: () => Promise<ApplicationShellConfig>;
 }
 
-export function AppShellLayout({ loadAppVersion }: AppShellLayoutProps) {
+const EMPTY_SHELL_CONFIG: ApplicationShellConfig = {
+  appVersion: '',
+  feedbackUrl: '',
+};
+
+export function AppShellLayout({ loadShellConfig }: AppShellLayoutProps) {
   const { user } = useAuth();
   const isAuthenticated = user !== null;
-  const [appVersion, setAppVersion] = useState('');
+  const [shellConfig, setShellConfig] = useState<ApplicationShellConfig>(EMPTY_SHELL_CONFIG);
   const [navOpened, setNavOpened] = useState(false);
-  const normalizedAppVersion = appVersion.trim();
-  const loadAppVersionEffect = useEffectEvent(async () => {
-    if (!loadAppVersion) {
-      return '';
+  const normalizedAppVersion = shellConfig.appVersion.trim();
+  const normalizedFeedbackUrl = shellConfig.feedbackUrl.trim();
+  const loadShellConfigEffect = useEffectEvent(async () => {
+    if (!loadShellConfig) {
+      return EMPTY_SHELL_CONFIG;
     }
 
-    return loadAppVersion();
+    return loadShellConfig();
   });
 
   useEffect(() => {
-    if (!loadAppVersion) {
-      setAppVersion('');
+    if (!loadShellConfig) {
+      setShellConfig(EMPTY_SHELL_CONFIG);
       return;
     }
 
@@ -34,14 +41,17 @@ export function AppShellLayout({ loadAppVersion }: AppShellLayoutProps) {
 
     const load = async () => {
       try {
-        const nextAppVersion = await loadAppVersionEffect();
+        const nextShellConfig = await loadShellConfigEffect();
 
         if (!ignore) {
-          setAppVersion(nextAppVersion.trim());
+          setShellConfig({
+            appVersion: nextShellConfig.appVersion.trim(),
+            feedbackUrl: nextShellConfig.feedbackUrl.trim(),
+          });
         }
       } catch {
         if (!ignore) {
-          setAppVersion('');
+          setShellConfig(EMPTY_SHELL_CONFIG);
         }
       }
     };
@@ -51,7 +61,7 @@ export function AppShellLayout({ loadAppVersion }: AppShellLayoutProps) {
     return () => {
       ignore = true;
     };
-  }, [loadAppVersion]);
+  }, [loadShellConfig]);
 
   const toggleNav = () => {
     setNavOpened((isOpen) => !isOpen);
@@ -65,6 +75,7 @@ export function AppShellLayout({ loadAppVersion }: AppShellLayoutProps) {
     <div style={shellMainStyle}>
       <AppShellHeader
         appVersion={normalizedAppVersion}
+        feedbackUrl={normalizedFeedbackUrl}
         isAuthenticated={isAuthenticated}
         navHandlers={{ toggle: toggleNav, close: closeNav }}
         navOpened={navOpened}

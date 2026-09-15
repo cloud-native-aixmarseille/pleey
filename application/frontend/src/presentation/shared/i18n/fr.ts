@@ -34,6 +34,7 @@ export const sharedFr = {
       navLabel: 'Navigation principale',
       navToggle: 'Afficher la navigation',
       version: 'Version {{version}}',
+      feedbackAction: 'Avis',
       preferencesMenu: 'Ouvrir le menu des preferences',
       languageToggle: 'Changer de langue',
       colorSchemeToggle: 'Changer le thème',
@@ -43,6 +44,7 @@ export const sharedFr = {
       profileLink: 'Profil',
       signOutAction: 'Se déconnecter',
       signInLink: 'Se connecter',
+      feedbackLink: 'Signaler un bug ou suggérer une fonctionnalité',
     },
   },
 };

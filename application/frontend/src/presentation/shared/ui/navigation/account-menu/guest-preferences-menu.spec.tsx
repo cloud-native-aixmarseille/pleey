@@ -22,7 +22,7 @@ describe('GuestPreferencesMenu', () => {
     const user = userEvent.setup();
 
     // Act
-    renderWithProviders(<GuestPreferencesMenu appVersion="1.2.3" />);
+    renderWithProviders(<GuestPreferencesMenu appVersion="1.2.3" feedbackUrl="https://example.com/feedback" />);
 
     // Assert
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
@@ -32,6 +32,10 @@ describe('GuestPreferencesMenu', () => {
     expect(screen.getByRole('menu')).toBeInTheDocument();
     expect(screen.getByText('preferences-controls')).toBeInTheDocument();
     expect(screen.getByText('shared.shell.version (version=1.2.3)')).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'shared.shell.feedbackLink' })).toHaveAttribute(
+      'href',
+      'https://example.com/feedback',
+    );
 
     fireEvent.keyDown(document, { key: 'Escape' });
 
@@ -44,7 +48,7 @@ describe('GuestPreferencesMenu', () => {
 
     renderWithProviders(
       <>
-        <GuestPreferencesMenu appVersion="" />
+        <GuestPreferencesMenu appVersion="" feedbackUrl="https://example.com/feedback" />
         <button type="button">outside</button>
       </>,
     );
@@ -63,12 +67,26 @@ describe('GuestPreferencesMenu', () => {
     // Arrange
     const user = userEvent.setup();
 
-    renderWithProviders(<GuestPreferencesMenu appVersion="  " />);
+    renderWithProviders(<GuestPreferencesMenu appVersion="  " feedbackUrl="https://example.com/feedback" />);
 
     // Act
     await user.click(screen.getByRole('button', { name: 'shared.shell.preferencesMenu' }));
 
     // Assert
     expect(screen.queryByText(/shared\.shell\.version/i)).not.toBeInTheDocument();
+  });
+
+  it('omits the feedback action when no feedback URL is configured', async () => {
+    // Arrange
+    const user = userEvent.setup();
+
+    renderWithProviders(<GuestPreferencesMenu appVersion="1.2.3" feedbackUrl="  " />);
+
+    // Act
+    await user.click(screen.getByRole('button', { name: 'shared.shell.preferencesMenu' }));
+
+    // Assert
+    expect(screen.getByText('shared.shell.version (version=1.2.3)')).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'shared.shell.feedbackLink' })).not.toBeInTheDocument();
   });
 });

@@ -1,4 +1,4 @@
-{{- if .Values.config.apiUrl }}
+{{- if or .Values.config.apiUrl .Values.config.feedbackUrl }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -6,5 +6,10 @@ metadata:
   labels:
     {{- include "pleey.frontend.labels" . | nindent 4 }}
 data:
+  {{- if .Values.config.apiUrl }}
   VITE_API_URL: {{ .Values.config.apiUrl | quote }}
+  {{- end }}
+  {{- if .Values.config.feedbackUrl }}
+  VITE_FEEDBACK_URL: {{ .Values.config.feedbackUrl | quote }}
+  {{- end }}
 {{- end }}

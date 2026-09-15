@@ -5,12 +5,18 @@ import { renderWithProviders } from '../../../test-utils/render-with-providers';
 import { AppShellHeader } from './app-shell-header';
 
 vi.mock('../ui/navigation/account-menu/account-menu', () => ({
-  AccountMenu: ({ appVersion }: { appVersion?: string }) => <div>account-menu:{appVersion ?? ''}</div>,
+  AccountMenu: ({ appVersion, feedbackUrl }: { appVersion?: string; feedbackUrl: string }) => (
+    <div>
+      account-menu:{appVersion ?? ''}:{feedbackUrl}
+    </div>
+  ),
 }));
 
 vi.mock('../ui/navigation/account-menu/guest-preferences-menu', () => ({
-  GuestPreferencesMenu: ({ appVersion }: { appVersion?: string }) => (
-    <div>guest-preferences-menu:{appVersion ?? ''}</div>
+  GuestPreferencesMenu: ({ appVersion, feedbackUrl }: { appVersion?: string; feedbackUrl: string }) => (
+    <div>
+      guest-preferences-menu:{appVersion ?? ''}:{feedbackUrl}
+    </div>
   ),
 }));
 
@@ -34,13 +40,19 @@ describe('AppShellHeader', () => {
 
     // Act
     renderWithProviders(
-      <AppShellHeader appVersion="1.2.3" isAuthenticated navHandlers={navHandlers} navOpened={false} />,
+      <AppShellHeader
+        appVersion="1.2.3"
+        feedbackUrl="https://example.com/feedback"
+        isAuthenticated
+        navHandlers={navHandlers}
+        navOpened={false}
+      />,
     );
 
     // Assert
     expect(screen.getByText('shared.shell.kicker')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /shared.nav.dashboard/i })).toHaveAttribute('href', '/workspace/dashboard');
-    expect(screen.getByText('account-menu:1.2.3')).toBeInTheDocument();
+    expect(screen.getByText('account-menu:1.2.3:https://example.com/feedback')).toBeInTheDocument();
     expect(screen.queryByText(/guest-preferences-menu:/)).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'shared.shell.navToggle' })).toBeInTheDocument();
 
@@ -54,6 +66,7 @@ describe('AppShellHeader', () => {
     renderWithProviders(
       <AppShellHeader
         appVersion="1.2.3"
+        feedbackUrl="https://example.com/feedback"
         isAuthenticated={false}
         navHandlers={{ toggle: vi.fn(), close: vi.fn() }}
         navOpened={false}
@@ -62,6 +75,6 @@ describe('AppShellHeader', () => {
 
     // Assert
     expect(screen.queryByRole('link', { name: /shared.nav.dashboard/i })).not.toBeInTheDocument();
-    expect(screen.getByText('guest-preferences-menu:1.2.3')).toBeInTheDocument();
+    expect(screen.getByText('guest-preferences-menu:1.2.3:https://example.com/feedback')).toBeInTheDocument();
   });
 });

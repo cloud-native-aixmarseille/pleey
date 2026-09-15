@@ -25,12 +25,19 @@ interface AppShellNavHandlers {
 
 interface AppShellHeaderProps {
   readonly appVersion?: string;
+  readonly feedbackUrl: string;
   readonly isAuthenticated: boolean;
   readonly navOpened: boolean;
   readonly navHandlers: AppShellNavHandlers;
 }
 
-export function AppShellHeader({ appVersion = '', isAuthenticated, navOpened, navHandlers }: AppShellHeaderProps) {
+export function AppShellHeader({
+  appVersion = '',
+  feedbackUrl,
+  isAuthenticated,
+  navOpened,
+  navHandlers,
+}: AppShellHeaderProps) {
   const { t } = usePresentationTranslation();
 
   return (
@@ -51,8 +58,8 @@ export function AppShellHeader({ appVersion = '', isAuthenticated, navOpened, na
               ) : null}
             </nav>
 
-            <AccountMenu appVersion={appVersion} />
-            {!isAuthenticated ? <GuestPreferencesMenu appVersion={appVersion} /> : null}
+            <AccountMenu appVersion={appVersion} feedbackUrl={feedbackUrl} />
+            {!isAuthenticated ? <GuestPreferencesMenu appVersion={appVersion} feedbackUrl={feedbackUrl} /> : null}
 
             <IconTriggerButton
               aria-label={t('shared.shell.navToggle')}
@@ -81,7 +88,7 @@ export function AppShellHeader({ appVersion = '', isAuthenticated, navOpened, na
           <>
             <hr style={drawerDividerStyle} />
             <div style={drawerControlsStyle}>
-              <GuestPreferencesMenu appVersion={appVersion} />
+              <GuestPreferencesMenu appVersion={appVersion} feedbackUrl={feedbackUrl} />
             </div>
           </>
         ) : null}

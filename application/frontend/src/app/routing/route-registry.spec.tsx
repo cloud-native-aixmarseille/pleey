@@ -4,7 +4,10 @@ import { PartyIdentifier } from '../../application/game/party/shared/services/id
 import { PartyPinIdentifier } from '../../application/game/party/shared/services/identifiers/party-pin-identifier';
 import { StageIdentifier } from '../../application/game/party/shared/services/identifiers/stage-identifier';
 import { PartyRouteService } from '../../application/game/party/shared/services/party-route.service';
-import type { ApplicationVersionPort } from '../../application/shared/ports/application-version.port';
+import type {
+  ApplicationShellConfig,
+  ApplicationShellConfigPort,
+} from '../../application/shared/ports/application-shell-config.port';
 import { DashboardWorkspaceFacade } from '../../application/workspace/dashboard/facades/dashboard-workspace.facade';
 import { OrganizationManagementFacade } from '../../application/workspace/organizations/facades/organization-management.facade';
 import { PartyRoutesFactory } from '../../presentation/game/party/shared/routes/party-routes-factory';
@@ -23,6 +26,11 @@ function createPartyRouteService(): PartyRouteService {
   return new PartyRouteService(partyIdentifier, partyPinIdentifier, stageIdentifier);
 }
 
+const DEFAULT_SHELL_CONFIG: ApplicationShellConfig = {
+  appVersion: '',
+  feedbackUrl: '',
+};
+
 vi.mock('react-i18next', async () => {
   const { ReactI18nextMockFactory } = await import('src/test-utils/mocks/react-i18next-mock-factory');
 
@@ -33,8 +41,8 @@ describe('RouteRegistry', () => {
   const gameTypeCatalogGatewayMockFactory = new GameTypeCatalogGatewayMockFactory();
 
   function createRegistry(
-    applicationVersionPort: ApplicationVersionPort = {
-      loadApplicationVersion: vi.fn().mockResolvedValue(''),
+    applicationShellConfigPort: ApplicationShellConfigPort = {
+      loadApplicationShellConfig: vi.fn().mockResolvedValue(DEFAULT_SHELL_CONFIG),
     },
   ): RouteRegistry {
     resetGameTypeSequence();
@@ -66,7 +74,7 @@ describe('RouteRegistry', () => {
           } as unknown as OrganizationManagementFacade,
         ),
       ],
-      applicationVersionPort,
+      applicationShellConfigPort,
     );
   }
 
@@ -161,24 +169,28 @@ describe('RouteRegistry', () => {
       expect(children.some((r) => r.path === '*')).toBe(true);
     });
 
-    it('passes a backend version loader to the shell layout', async () => {
+    it('passes a shell config loader to the shell layout', async () => {
       // Arrange
-      const applicationVersionPort: ApplicationVersionPort = {
-        loadApplicationVersion: vi.fn().mockResolvedValue('1.2.3'),
+      const shellConfig: ApplicationShellConfig = {
+        appVersion: '1.2.3',
+        feedbackUrl: 'https://example.com/feedback',
       };
-      const registry = createRegistry(applicationVersionPort);
+      const applicationShellConfigPort: ApplicationShellConfigPort = {
+        loadApplicationShellConfig: vi.fn().mockResolvedValue(shellConfig),
+      };
+      const registry = createRegistry(applicationShellConfigPort);
 
       // Act
       const rootElement = registry.getRoutes()[0].element as {
         props: {
-          loadAppVersion?: () => Promise<string>;
+          loadShellConfig?: () => Promise<ApplicationShellConfig>;
         };
       };
 
       // Assert
-      expect(applicationVersionPort.loadApplicationVersion).not.toHaveBeenCalled();
-      await expect(rootElement.props.loadAppVersion?.()).resolves.toBe('1.2.3');
-      expect(applicationVersionPort.loadApplicationVersion).toHaveBeenCalledTimes(1);
+      expect(applicationShellConfigPort.loadApplicationShellConfig).not.toHaveBeenCalled();
+      await expect(rootElement.props.loadShellConfig?.()).resolves.toEqual(shellConfig);
+      expect(applicationShellConfigPort.loadApplicationShellConfig).toHaveBeenCalledTimes(1);
     });
   });
 });

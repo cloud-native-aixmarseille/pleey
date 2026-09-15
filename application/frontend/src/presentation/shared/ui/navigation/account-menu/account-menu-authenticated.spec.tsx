@@ -32,6 +32,7 @@ describe('AccountMenuAuthenticated', () => {
     renderWithProviders(
       <AccountMenuAuthenticated
         appVersion=""
+        feedbackUrl="https://example.com/feedback"
         onNavigateToProfile={vi.fn()}
         onSignOut={vi.fn()}
         onToggle={onToggle}
@@ -60,6 +61,7 @@ describe('AccountMenuAuthenticated', () => {
     renderWithProviders(
       <AccountMenuAuthenticated
         appVersion="1.2.3"
+        feedbackUrl="https://example.com/feedback"
         onNavigateToProfile={onNavigateToProfile}
         onSignOut={onSignOut}
         onToggle={vi.fn()}
@@ -72,6 +74,10 @@ describe('AccountMenuAuthenticated', () => {
     // Assert
     expect(screen.getByRole('menu')).toBeInTheDocument();
     expect(screen.getByText('shared.shell.version (version=1.2.3)')).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'shared.shell.feedbackLink' })).toHaveAttribute(
+      'href',
+      'https://example.com/feedback',
+    );
     await user.click(screen.getByRole('menuitem', { name: 'shared.shell.profileLink' }));
     await user.click(screen.getByRole('menuitem', { name: 'shared.shell.signOutAction' }));
 
@@ -84,6 +90,7 @@ describe('AccountMenuAuthenticated', () => {
     renderWithProviders(
       <AccountMenuAuthenticated
         appVersion="  "
+        feedbackUrl="https://example.com/feedback"
         onNavigateToProfile={vi.fn()}
         onSignOut={vi.fn()}
         onToggle={vi.fn()}
@@ -95,5 +102,25 @@ describe('AccountMenuAuthenticated', () => {
 
     // Assert
     expect(screen.queryByText(/shared\.shell\.version/i)).not.toBeInTheDocument();
+  });
+
+  it('omits the feedback action when no feedback URL is configured', () => {
+    // Arrange + Act
+    renderWithProviders(
+      <AccountMenuAuthenticated
+        appVersion="1.2.3"
+        feedbackUrl="  "
+        onNavigateToProfile={vi.fn()}
+        onSignOut={vi.fn()}
+        onToggle={vi.fn()}
+        opened
+        user={authenticatedUser}
+        wrapperRef={createRef()}
+      />,
+    );
+
+    // Assert
+    expect(screen.getByText('shared.shell.version (version=1.2.3)')).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'shared.shell.feedbackLink' })).not.toBeInTheDocument();
   });
 });

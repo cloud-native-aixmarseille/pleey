@@ -20,6 +20,7 @@ service:
   annotations: {}
 config:
   apiUrl: ""
+  feedbackUrl: ""
 resources:
   limits:
     cpu: 200m
