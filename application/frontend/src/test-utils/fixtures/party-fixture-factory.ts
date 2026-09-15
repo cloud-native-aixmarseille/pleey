@@ -8,6 +8,7 @@ import type { Party, PartyId, PartyPin } from '../../domains/game/party/shared/e
 import type { PartyHost } from '../../domains/game/party/shared/entities/party-host';
 import type { PartyObservation } from '../../domains/game/party/shared/entities/party-observation';
 import type { PartyObservationPlayer } from '../../domains/game/party/shared/entities/party-observation-player';
+import { DEFAULT_PARTY_SETTINGS } from '../../domains/game/party/shared/entities/party-settings';
 import {
   type PartyPlayerIdentity,
   PartyPlayerIdentityKind,
@@ -127,6 +128,7 @@ export class PartyFixtureFactory {
       gameType: GameType.Quiz,
       pin: pin === undefined ? partyPinIdentifier.parse('AB12CD') : partyPinIdentifier.parse(pin),
       status: PartyStatus.WAITING,
+      settings: DEFAULT_PARTY_SETTINGS,
       context: null,
       isObserverHost: false,
       host: host ?? this.createHost(),

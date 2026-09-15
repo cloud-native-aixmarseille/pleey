@@ -91,6 +91,7 @@ export class SocketIoPartyPayloadMapper {
       gameType: this.parseGameType(payload.gameType),
       pin: this.normalizePin(payload.pin),
       status: payload.status,
+      settings: payload.settings,
       context: this.toRuntimeContext(payload.context),
       isObserverHost: payload.isObserverHost,
       host: {

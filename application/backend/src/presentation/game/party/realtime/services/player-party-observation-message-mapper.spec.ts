@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
 import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
 import { PARTY_PLAYER_ACTION_STATE_STATUS } from '../../../../../domain/game/party/player/entities/party-player-action-state';
+import { DEFAULT_PARTY_SETTINGS } from '../../../../../domain/game/party/shared/entities/party-settings';
 import { PartyRuntimePhase } from '../../../../../domain/game/party/shared/entities/party-runtime-context';
 import { GameType } from '../../../../../domain/game/types/shared/entities/game-type';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
@@ -18,6 +19,7 @@ describe('PlayerPartyObservationMessageMapper', () => {
         partyId: backendTestIdentifiers.party(44),
         pin: backendTestIdentifiers.partyPin('AB12CD'),
         status: PartyStatus.ACTIVE,
+        settings: DEFAULT_PARTY_SETTINGS,
         context: {
           lifecycle: {
             phase: PartyRuntimePhase.RESULT,

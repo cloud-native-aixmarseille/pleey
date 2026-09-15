@@ -2,6 +2,7 @@ import { act, fireEvent, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import type { PartyObservation } from '../../../../../../../domains/game/party/shared/entities/party-observation';
 import { PartyRuntimePhase } from '../../../../../../../domains/game/party/shared/entities/party-runtime-context';
+import { DEFAULT_PARTY_SETTINGS } from '../../../../../../../domains/game/party/shared/entities/party-settings';
 import { PartyStatus } from '../../../../../../../domains/game/party/shared/entities/party-status';
 import { GameType } from '../../../../../../../domains/game/types/shared/game-type';
 import { PartyActionIdentifierMockFactory } from '../../../../../../../test-utils/mocks/party-action-identifier-mock-factory';
@@ -64,6 +65,7 @@ function createPredictionParty(context: PartyObservation['context']): PartyObser
     partyId: partyIdentifier.parse(1),
     pin: partyPinIdentifier.parse('AB12CD'),
     players: [],
+    settings: DEFAULT_PARTY_SETTINGS,
     status: PartyStatus.ACTIVE,
   };
 }
