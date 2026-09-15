@@ -95,7 +95,7 @@ describe('CreatePartyUseCase', () => {
         hostUserId: defaultCommand.hostUserId,
         settings: {
           allowJoiningAfterStart: false,
-          allowOptionChangeAfterVoting: false,
+          allowOptionChangeAfterVoting: true,
           randomizeOptionOrder: false,
           randomizeStageOrder: false,
         },

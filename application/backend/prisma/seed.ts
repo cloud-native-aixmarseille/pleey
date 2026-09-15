@@ -337,7 +337,7 @@ async function main() {
       gameId: quizGame.id,
       hostId: admin.id,
       settings: {
-        allowOptionChangeAfterVoting: false,
+        allowOptionChangeAfterVoting: true,
         randomizeOptionOrder: false,
         randomizeStageOrder: false,
       },
@@ -349,7 +349,7 @@ async function main() {
       pin: partyPin,
       status: 'waiting',
       settings: {
-        allowOptionChangeAfterVoting: false,
+        allowOptionChangeAfterVoting: true,
         randomizeOptionOrder: false,
         randomizeStageOrder: false,
       },

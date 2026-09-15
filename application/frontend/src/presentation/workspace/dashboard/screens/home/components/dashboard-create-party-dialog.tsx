@@ -28,8 +28,7 @@ interface DashboardCreatePartyForm {
 
 const DEFAULT_CREATE_PARTY_FORM: DashboardCreatePartyForm = {
   allowJoiningAfterStart: false,
-  allowOptionChangeAfterVoting: false,
-  isPrivateParty: false,
+  allowOptionChangeAfterVoting: true,
   privatePartyPassword: '',
   randomizeOptionOrder: false,
   randomizeStageOrder: false,

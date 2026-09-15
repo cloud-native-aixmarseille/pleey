@@ -195,7 +195,7 @@ export class OrganizationResolver {
 
     return {
       allowJoiningAfterStart: settings.allowJoiningAfterStart ?? false,
-      allowOptionChangeAfterVoting: settings.allowOptionChangeAfterVoting ?? false,
+      allowOptionChangeAfterVoting: settings.allowOptionChangeAfterVoting ?? true,
       randomizeOptionOrder: settings.randomizeOptionOrder ?? false,
       randomizeStageOrder: settings.randomizeStageOrder ?? false,
     };
