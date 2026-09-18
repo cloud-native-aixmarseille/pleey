@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { DashboardGameListItem } from '../../../../../../domains/game/management/entities/dashboard-game-list-item';
-import type { PartySettings } from '../../../../../../domains/game/party/shared/entities/party-settings';
+import { DEFAULT_PARTY_SETTINGS, type PartySettings } from '../../../../../../domains/game/party/shared/entities/party-settings';
 import type { GameTypeDescriptor } from '../../../../../../domains/game/types/shared/game-type-catalog';
 import { usePartyDependencies } from '../../../../../../presentation/game/party/shared/contexts/party-dependencies-context';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
@@ -27,12 +27,12 @@ interface DashboardCreatePartyForm {
 }
 
 const DEFAULT_CREATE_PARTY_FORM: DashboardCreatePartyForm = {
-  allowJoiningAfterStart: false,
-  allowOptionChangeAfterVoting: false,
+  allowJoiningAfterStart: DEFAULT_PARTY_SETTINGS.allowJoiningAfterStart,
+  allowOptionChangeAfterVoting: DEFAULT_PARTY_SETTINGS.allowOptionChangeAfterVoting,
   isPrivateParty: false,
   privatePartyPassword: '',
-  randomizeOptionOrder: false,
-  randomizeStageOrder: false,
+  randomizeOptionOrder: DEFAULT_PARTY_SETTINGS.randomizeOptionOrder,
+  randomizeStageOrder: DEFAULT_PARTY_SETTINGS.randomizeStageOrder,
 };
 
 interface DashboardCreatePartyDialogProps {

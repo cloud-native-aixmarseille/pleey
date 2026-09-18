@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { describe, expect, it, vi } from 'vitest';
 import { PartyIdentifier } from '../../../../../application/game/party/shared/services/identifiers/party-identifier';
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
+import { DEFAULT_PARTY_SETTINGS } from '../../../../../domain/game/party/shared/entities/party-settings';
 import { GameType } from '../../../../../domain/game/types/shared/entities/game-type';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { HostPartyObservationMessageMapper } from './host-party-observation-message-mapper';
@@ -23,6 +24,7 @@ function createSnapshot() {
       gameId: GAME_ID,
       pin: '123456',
       status: 'WAITING',
+      settings: DEFAULT_PARTY_SETTINGS,
       context: { round: 2 },
       host: {
         userId: HOST_USER_ID,
@@ -37,6 +39,7 @@ function createSnapshot() {
       partyId: backendTestIdentifiers.party(44),
       pin: '123456',
       status: 'WAITING',
+      settings: DEFAULT_PARTY_SETTINGS,
       host: {
         avatarUri: '/api/avatars/users/7?v=1',
         username: 'Host',

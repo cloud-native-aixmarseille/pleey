@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
 import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
+import { DEFAULT_PARTY_SETTINGS } from '../../../../../domain/game/party/shared/entities/party-settings';
 import { GameType } from '../../../../../domain/game/types/shared/entities/game-type';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { HostPartyObservationMessageMapper } from './host-party-observation-message-mapper';
@@ -17,6 +18,7 @@ describe('HostPartyObservationMessageMapper', () => {
         gameId: backendTestIdentifiers.game(17),
         pin: backendTestIdentifiers.partyPin('AB12CD'),
         status: PartyStatus.ACTIVE,
+        settings: DEFAULT_PARTY_SETTINGS,
         context: null,
         host: {
           avatarUri: '/api/avatars/users/7?v=1',

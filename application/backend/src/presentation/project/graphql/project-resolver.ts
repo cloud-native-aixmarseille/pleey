@@ -6,7 +6,7 @@ import { ListOrganizationProjectsUseCase } from '../../../application/workspace/
 import { UpdateProjectUseCase } from '../../../application/workspace/projects/use-cases/update-project-use-case';
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { ProjectIdentifier } from '../../../application/workspace/shared/services/identifiers/project-identifier';
-import type { PartySettings } from '../../../domain/game/party/shared/entities/party-settings';
+import { DEFAULT_PARTY_SETTINGS, type PartySettings } from '../../../domain/game/party/shared/entities/party-settings';
 import type { UserId } from '../../../domain/identity/entities/user';
 import { IdentityErrorCode } from '../../../domain/identity/enums/identity-error-code.enum';
 import { GqlJwtAuthGuard } from '../../identity/shared/guards/gql-jwt-auth-guard';
@@ -132,10 +132,10 @@ export class ProjectResolver {
     }
 
     return {
-      allowJoiningAfterStart: settings.allowJoiningAfterStart ?? false,
-      allowOptionChangeAfterVoting: settings.allowOptionChangeAfterVoting ?? false,
-      randomizeOptionOrder: settings.randomizeOptionOrder ?? false,
-      randomizeStageOrder: settings.randomizeStageOrder ?? false,
+      allowJoiningAfterStart: settings.allowJoiningAfterStart ?? DEFAULT_PARTY_SETTINGS.allowJoiningAfterStart,
+      allowOptionChangeAfterVoting: settings.allowOptionChangeAfterVoting ?? DEFAULT_PARTY_SETTINGS.allowOptionChangeAfterVoting,
+      randomizeOptionOrder: settings.randomizeOptionOrder ?? DEFAULT_PARTY_SETTINGS.randomizeOptionOrder,
+      randomizeStageOrder: settings.randomizeStageOrder ?? DEFAULT_PARTY_SETTINGS.randomizeStageOrder,
     };
   }
 }
