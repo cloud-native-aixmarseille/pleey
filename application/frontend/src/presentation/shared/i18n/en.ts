@@ -43,6 +43,7 @@ export const sharedEn = {
       profileLink: 'Profile',
       signOutAction: 'Sign out',
       signInLink: 'Sign in',
+      feedbackLink: 'Report a bug or suggest a feature',
     },
   },
 };

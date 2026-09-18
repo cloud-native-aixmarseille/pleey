@@ -8,6 +8,7 @@ import {
   AccountMenuActionRow,
   AccountMenuDivider,
   AccountMenuDropdown,
+  AccountMenuExternalAnchor,
   AccountMenuMetaText,
   AccountMenuTriggerButton,
   AccountMenuUsername,
@@ -64,6 +65,13 @@ export function AccountMenuAuthenticated({
               <span>{t('shared.shell.signOutAction')}</span>
             </AccountMenuActionRow>
           </AccountMenuActionButton>
+          <AccountMenuDivider />
+          <AccountMenuExternalAnchor href="https://github.com/cloud-native-aixmarseille/pleey/issues/new/choose">
+            <AccountMenuActionRow>
+              <AppIcon name="github" size={16} />
+              <span>{t('shared.shell.feedbackLink')}</span>
+            </AccountMenuActionRow>
+          </AccountMenuExternalAnchor>
           <AccountMenuDivider />
           <AccountMenuPreferencesPanel />
           {normalizedAppVersion.length > 0 ? (

@@ -1,4 +1,4 @@
-import { Box, Divider, Paper, Text } from '@mantine/core';
+import { Box, Button as MantineButton, Divider, Paper, Text } from '@mantine/core';
 import type { ComponentProps, PropsWithChildren, ReactNode, RefObject } from 'react';
 import { MenuActionButton } from '../../actions/menu-action-button';
 import { PillTriggerButton } from '../../actions/pill-trigger-button';
@@ -77,6 +77,42 @@ export function AccountMenuActionButton({
     <MenuActionButton tone={danger ? 'danger' : 'default'} type={type} {...props}>
       {children}
     </MenuActionButton>
+  );
+}
+
+export function AccountMenuExternalAnchor({
+  children,
+  href,
+}: {
+  readonly children: ReactNode;
+  readonly href: string;
+}) {
+  return (
+    <MantineButton
+      component="a"
+      fullWidth
+      href={href}
+      justify="flex-start"
+      rel="noopener noreferrer"
+      role="menuitem"
+      size="sm"
+      styles={{
+        root: {
+          '--button-bd': '1px solid transparent',
+          '--button-bg': 'transparent',
+          '--button-color': uiThemeTokens.color.text.primary,
+          '--button-hover': uiThemeTokens.color.surface.recessed,
+          '--button-hover-color': uiThemeTokens.color.text.primary,
+          borderRadius: uiThemeTokens.radius.field,
+          padding: `${uiThemeTokens.spacing.xs} ${uiThemeTokens.spacing.sm}`,
+          textDecoration: 'none',
+        },
+      }}
+      target="_blank"
+      variant="subtle"
+    >
+      {children}
+    </MantineButton>
   );
 }
 
