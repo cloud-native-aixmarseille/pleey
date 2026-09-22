@@ -3,6 +3,18 @@ backend:
   image:
     tag: main
     digest: ""
+  config:
+    nodeEnv: development
+  smtp:
+    enabled: false
+  passwordRecovery:
+    frontendUrl: http://pleey.k8s.orb.local
+    smtp:
+      # Deploy Mailpit separately in the same namespace, or override this host
+      # with a mail server reachable from the backend pod. The bundled relay is disabled.
+      host: mailpit
+      port: 1025
+      from: Pleey <noreply@pleey.localhost>
 frontend:
   image:
     tag: main

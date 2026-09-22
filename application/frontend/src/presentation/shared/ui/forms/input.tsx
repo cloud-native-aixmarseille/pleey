@@ -15,6 +15,14 @@ export function Input({ invalid = false, compact = false, ...props }: InputProps
       size={compact ? 'sm' : 'md'}
       variant="default"
       {...props}
+      attributes={{
+        ...props.attributes,
+        input: {
+          ...props.attributes?.input,
+          // FieldShell owns descriptions and errors outside Mantine's input wrapper.
+          ...(props['aria-describedby'] ? { 'aria-describedby': props['aria-describedby'] } : {}),
+        },
+      }}
     />
   );
 }

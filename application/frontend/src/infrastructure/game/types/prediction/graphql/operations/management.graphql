@@ -1,4 +1,4 @@
-query PredictionManagement($predictionId: ID!) {
+query PredictionManagement($predictionId: ID!, $input: PaginationInput!) {
   prediction(predictionId: $predictionId) {
     predictionId
     gameId
@@ -7,19 +7,8 @@ query PredictionManagement($predictionId: ID!) {
     createdAt
     promptCount
   }
-  predictionPrompts(predictionId: $predictionId) {
-    id
-    predictionId
-    position
-    promptText
-    timeLimit
-    points
-    options {
-      id
-      text
-      position
-      isCorrect
-    }
+  predictionPrompts(predictionId: $predictionId, input: $input) {
+    ...PredictionManagementItemsPage
   }
 }
 
@@ -82,4 +71,32 @@ mutation UpdatePredictionPromptManagement($promptId: ID!, $input: UpdatePredicti
 
 mutation DeletePredictionPromptManagement($promptId: ID!) {
   deletePredictionPrompt(promptId: $promptId)
+}
+
+query PredictionManagementItems($predictionId: ID!, $input: PaginationInput!) {
+  predictionPrompts(predictionId: $predictionId, input: $input) {
+    ...PredictionManagementItemsPage
+  }
+}
+
+fragment PredictionManagementItemsPage on PredictionPromptListType {
+  items {
+    id
+    predictionId
+    position
+    promptText
+    timeLimit
+    points
+    options {
+      id
+      text
+      position
+      isCorrect
+    }
+  }
+  totalCount
+  overallCount
+  page
+  pageSize
+  totalPages
 }

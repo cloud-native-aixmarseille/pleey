@@ -51,4 +51,26 @@ describe('JwtAuthTokenService', () => {
     // Act + Assert
     await expect(service.verifyRefreshToken('invalid.token' as AuthToken)).rejects.toThrowError();
   });
+  it('issues distinct refresh tokens even within the same second', () => {
+    // Arrange
+    const service = buildService();
+    // Act
+    const first = service.createTokenPair(payload);
+    const second = service.createTokenPair({ ...payload, sessionId: first.sessionId });
+    // Assert
+    expect(first.refreshToken).not.toBe(second.refreshToken);
+    expect(first.sessionId).toBe(second.sessionId);
+  });
+
+  it('digests the entire token including bytes beyond the bcrypt input limit', () => {
+    // Arrange
+    const service = buildService();
+    const prefix = 'a'.repeat(100);
+    // Act
+    const first = service.hashToken(`${prefix}.first`);
+    const second = service.hashToken(`${prefix}.second`);
+    // Assert
+    expect(first).toMatch(/^[a-f0-9]{64}$/);
+    expect(first).not.toBe(second);
+  });
 });

@@ -33,6 +33,19 @@ Per-app npm scripts are in each `package.json`. Key entrypoints:
 - `make ci` — lint-fix + test (pre-push check)
 - `make test` — all tests (supports `SCOPE` and `MODE` args)
 
+## Documentation Maintenance
+
+Development docs under `docs/technical/development/**` describe the current approved repository state only.
+
+- Update the relevant development docs in the same change as any tooling, behavior, contract, workflow, or deployment change.
+- Do not keep superseded, transitional, compatibility, rollout, or upgrade-only guidance in these reference pages.
+- Put decision history in ADRs and put time-bounded operational procedures in dedicated runbooks instead of preserving them in long-lived reference docs.
+
+## Application Guides
+
+- [Backend development](./backend/index.md)
+- [Frontend development](./frontend/index.md)
+
 ## Frontend Implementation Specs
 
 Test frameworks: **Vitest** (backend + frontend), **Playwright** (end-to-end).
@@ -73,7 +86,7 @@ refactor(game): simplify score calculation logic
 - SOLID, ACID, DRY, KISS
 - Prefer factorization when the same structure or decision repeats; remove redundant abstractions, branches, wrappers, and parameters instead of keeping parallel code paths
 - Do not introduce deprecated APIs, config keys, or helper methods into new code; when typings, editor diagnostics, or official docs mark an API as deprecated, switch to the current supported replacement.
-- Prefer the current documented API shape over legacy-compatible aliases or chained helpers, even when the older syntax still works.
+- Prefer the current documented API shape over compatibility aliases or chained helpers, even when older syntax still works.
 - Descriptive names, no magic numbers, early returns
 - All user-facing text via i18n translation keys (both `en` and `fr`)
 - Error messages from domain error code enums, translated at transport layer

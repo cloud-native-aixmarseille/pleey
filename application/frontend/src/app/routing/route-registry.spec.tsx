@@ -12,6 +12,7 @@ import { AuthRoutesFactory } from '../../presentation/identity/routes/auth-route
 import { DashboardRoutesFactory } from '../../presentation/workspace/dashboard/routes/dashboard-routes-factory';
 import { OrganizationRoutesFactory } from '../../presentation/workspace/organizations/routes/organization-routes-factory';
 import { resetGameTypeSequence } from '../../test-utils/fixtures/game-type-descriptor-fixture-factory';
+import { AccountGatewayMockFactory } from '../../test-utils/mocks/account-gateway-mock-factory';
 import { GameTypeCatalogGatewayMockFactory } from '../../test-utils/mocks/game-type-catalog-gateway-mock-factory';
 import { RouteRegistry } from './route-registry';
 
@@ -41,7 +42,7 @@ describe('RouteRegistry', () => {
 
     return new RouteRegistry(
       [
-        new AuthRoutesFactory(),
+        new AuthRoutesFactory(new AccountGatewayMockFactory().create()),
         new PartyRoutesFactory(createPartyRouteService()),
         new DashboardRoutesFactory(
           gameTypeCatalogGatewayMockFactory.create(),

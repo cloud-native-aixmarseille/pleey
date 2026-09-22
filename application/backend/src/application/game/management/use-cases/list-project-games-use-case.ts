@@ -17,9 +17,6 @@ import {
 } from '../ports/game-catalog.port';
 import { GamePermissionResolver } from '../services/game-permission-resolver';
 
-const DEFAULT_PAGE = 1;
-const DEFAULT_PAGE_SIZE = 9;
-
 @Injectable()
 export class ListProjectGamesUseCase {
   constructor(
@@ -54,8 +51,8 @@ export class ListProjectGamesUseCase {
       types: this.normalizeTypes(input.types),
       sortField: input.sortField ?? 'createdAt',
       sortDirection: input.sortDirection ?? 'desc',
-      page: Math.max(DEFAULT_PAGE, input.page ?? DEFAULT_PAGE),
-      pageSize: Math.max(1, input.pageSize ?? DEFAULT_PAGE_SIZE),
+      page: input.page,
+      pageSize: input.pageSize,
     });
     const permissionsByGameId = await this.gamePermissionResolver.resolveGamePermissions({
       items: page.items,

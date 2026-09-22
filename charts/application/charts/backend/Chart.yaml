@@ -18,6 +18,11 @@ maintainers:
     url: https://github.com/cloud-native-aixmarseille/pleey
 icon: https://raw.githubusercontent.com/cloud-native-aixmarseille/pleey/main/application/frontend/public/favicon/favicon.svg
 dependencies:
+  - name: mail
+    alias: smtp
+    version: 5.1.0
+    repository: https://bokysan.github.io/docker-postfix/
+    condition: smtp.enabled
   - name: valkey
     version: ~0.9.4
     repository: https://valkey.io/valkey-helm/

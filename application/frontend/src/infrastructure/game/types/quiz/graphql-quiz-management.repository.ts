@@ -2,6 +2,7 @@ import { inject, injectable } from 'inversify';
 import { GameIdentifier } from '../../../../application/game/shared/services/identifiers/game-identifier';
 import { QuizQuestionIdentifier } from '../../../../application/game/types/quiz/services/quiz-question-identifier';
 import { GameTypeIdentifier } from '../../../../application/game/types/shared/services/game-type-identifier';
+import { collectPaginatedItems } from '../../../../application/shared/services/collect-paginated-items';
 import type { QuizQuestionId } from '../../../../domains/game/types/quiz/entities/quiz-question-id';
 import type { QuizQuestionKind } from '../../../../domains/game/types/quiz/entities/quiz-question-kind';
 import type { QuizManagementRepository } from '../../../../domains/game/types/quiz/ports/quiz-management.repository';
@@ -16,6 +17,7 @@ import type {
 } from '../../../../domains/game/types/shared/management/playable-management';
 import type { ProjectId } from '../../../../domains/project/entities/project';
 import { createDomainError } from '../../../../domains/shared/errors/domain-error';
+import { PAGINATION_LIMITS } from '../../../../domains/shared/value-objects/pagination-limits';
 import { GraphqlClient } from '../../../graphql/client/graphql-client';
 import {
   CreateQuizFromImportManagementDocument,
@@ -26,6 +28,7 @@ import {
   DeleteQuizManagementDocument,
   DeleteQuizQuestionManagementDocument,
   QuizManagementDocument,
+  QuizManagementItemsDocument,
   type QuizManagementQuery,
   QuizQuestionType,
   UpdateQuizManagementDocument,
@@ -35,7 +38,7 @@ import {
 import { PlayableManagementGraphqlMapper } from '../shared/playable-management-graphql.mapper';
 
 type GraphqlQuizQuestion =
-  | QuizManagementQuery['quizQuestions'][number]
+  | QuizManagementQuery['quizQuestions']['items'][number]
   | NonNullable<CreateQuizQuestionManagementMutation['createQuizQuestion']>
   | NonNullable<UpdateQuizQuestionManagementMutation['updateQuizQuestion']>;
 
@@ -102,8 +105,15 @@ export class GraphqlQuizManagementRepository implements QuizManagementRepository
   }
 
   async load(quizId: GameTypeId): Promise<PlayableManagementState<QuizQuestionId>> {
-    const result = await this.graphqlClient.request(QuizManagementDocument, { quizId });
+    const result = await this.graphqlClient.request(QuizManagementDocument, {
+      quizId,
+      input: { page: 1, pageSize: PAGINATION_LIMITS.maxPageSize },
+    });
     const gameTypeId = this.gameTypeIdentifier.parse(result.quiz.quizId);
+    const items = await collectPaginatedItems(result.quizQuestions, async (input) => {
+      const next = await this.graphqlClient.request(QuizManagementItemsDocument, { quizId, input });
+      return next.quizQuestions;
+    });
 
     return {
       game: this.mapper.mapGame({
@@ -114,7 +124,7 @@ export class GraphqlQuizManagementRepository implements QuizManagementRepository
         createdAt: result.quiz.createdAt,
         itemCount: result.quiz.questionCount,
       }),
-      items: result.quizQuestions.map((question) =>
+      items: items.map((question) =>
         this.mapper.mapItem({
           id: this.quizQuestionIdentifier.parse(question.id),
           gameTypeId,

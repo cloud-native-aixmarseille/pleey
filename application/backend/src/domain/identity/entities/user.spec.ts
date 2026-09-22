@@ -14,7 +14,6 @@ describe('User', () => {
         id: backendTestIdentifiers.user(1),
         username: 'testuser',
         email: 'test@example.com',
-        password: 'hashedpassword',
         avatar: null,
         createdAt: now,
       });
@@ -23,7 +22,6 @@ describe('User', () => {
       expect(user.id).toBe(backendTestIdentifiers.user(1));
       expect(user.username).toBe('testuser');
       expect(user.email).toBe('test@example.com');
-      expect(user.password).toBe('hashedpassword');
       expect(user.createdAt).toBe(now);
     });
   });
@@ -37,7 +35,6 @@ describe('User', () => {
         id: backendTestIdentifiers.user(1),
         username: 'testuser',
         email: 'test@example.com',
-        password: 'hashedpassword',
         avatar: new Media(null, 'image/svg+xml', avatarBuffer),
         createdAt: now,
       });
@@ -53,6 +50,9 @@ describe('User', () => {
       expect(safeUser.avatar?.content).toBe(avatarBuffer);
       expect(safeUser).toHaveProperty('createdAt', now);
       expect(safeUser).not.toHaveProperty('password');
+      expect(safeUser).not.toHaveProperty('sessionId');
+      expect(safeUser).not.toHaveProperty('refreshTokenHash');
+      expect(safeUser).not.toHaveProperty('refreshTokenExpiresAt');
     });
 
     it('should not expose password in safe object', () => {
@@ -61,7 +61,6 @@ describe('User', () => {
         id: backendTestIdentifiers.user(1),
         username: 'testuser',
         email: 'test@example.com',
-        password: 'secretpassword',
         avatar: null,
         createdAt: new Date(),
       });

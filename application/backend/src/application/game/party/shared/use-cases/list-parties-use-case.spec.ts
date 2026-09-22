@@ -41,8 +41,6 @@ describe('ListPartiesUseCase', () => {
     // Assert
     expect(partyManagement.listUserParties).toHaveBeenCalledWith({
       userId: USER_ID,
-      page: 1,
-      pageSize: 25,
     });
     expect(result.items).toHaveLength(1);
   });

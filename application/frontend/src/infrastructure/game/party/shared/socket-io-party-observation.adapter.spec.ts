@@ -166,6 +166,19 @@ describe('SocketIoPartyObservationAdapter', () => {
     expect(connectMock).toHaveBeenCalledTimes(2);
   });
 
+  it('preserves an active connection when persistence replays the same access token', () => {
+    // Arrange
+    resetSocketMocks();
+    const { adapter, transport } = createObservationAdapter();
+    transport.setAuthSessionTokens({ accessToken: 'token-1', refreshToken: 'refresh-1' });
+    adapter.observeParty(PARTY_ID, { onSnapshot: vi.fn() });
+    // Act
+    transport.setAuthSessionTokens({ accessToken: 'token-1', refreshToken: 'refresh-2' });
+    // Assert
+    expect(connectMock).toHaveBeenCalledTimes(1);
+    expect(disconnectMock).not.toHaveBeenCalled();
+  });
+
   it('does not emit duplicate observe requests for the same active party id', () => {
     // Arrange
     resetSocketMocks();

@@ -13,7 +13,6 @@ export {
 export {
   AUTH_LAYOUT_RESPONSIVE_CSS,
   actionLinkStyles,
-  authAccountActionsStyle,
   authAvatarFrameStyle,
   authBrandingFeatureItemStyle,
   authBrandingFeatureListStyle,
@@ -24,7 +23,6 @@ export {
   authLayoutRootStyle,
   authLayoutShellStyle,
   authLayoutTaglineStyle,
-  authProfileIdentityStyle,
   createBadgeStyle,
   externalMonoLinkStyle,
   inlineLinkStyle,

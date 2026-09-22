@@ -41,6 +41,22 @@ services:
       timeout: 5s
       retries: 5
 
+  mailpit:
+    image: axllent/mailpit:v1.29.0
+    restart: unless-stopped
+    expose:
+      - "8025"
+      - "1025"
+    networks:
+      - pleey-network
+      - traefik-proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mailpit.rule=Host(`mailpit.pleey.localhost`)"
+      - "traefik.http.routers.mailpit.entrypoints=http"
+      - "traefik.http.services.mailpit.loadbalancer.server.port=8025"
+      - "traefik.docker.network=traefik-proxy"
+
   # Backend NestJS (dev watch mode)
   backend:
     build:
@@ -54,6 +70,9 @@ services:
     expose:
       - "3001"
     environment:
+      - FRONTEND_URL=http://pleey.localhost
+      - SMTP_HOST=mailpit
+      - SMTP_PORT=1025
       - NODE_ENV=development
       - APP_VERSION=${APP_VERSION:-dev}
       - PORT=3001

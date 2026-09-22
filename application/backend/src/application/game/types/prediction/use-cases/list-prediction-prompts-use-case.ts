@@ -7,6 +7,8 @@ import type { PredictionPromptRepository } from '../../../../../domain/game/type
 import { PredictionPromptRepositoryProvider } from '../../../../../domain/game/types/prediction/ports/prediction-prompt.repository';
 import type { GameTypeId } from '../../../../../domain/game/types/shared/entities/game-type';
 import type { UserId } from '../../../../../domain/identity/entities/user';
+import type { PaginatedResult } from '../../../../../domain/shared/value-objects/paginated-result';
+import type { PaginationQuery } from '../../../../../domain/shared/value-objects/pagination-query';
 import { GameTypeManagementAccessGuard } from '../../shared/services/game-type-management-access-guard';
 
 @Injectable()
@@ -19,7 +21,11 @@ export class ListPredictionPromptsUseCase {
     private readonly accessGuard: GameTypeManagementAccessGuard,
   ) {}
 
-  async execute(predictionId: GameTypeId, userId: UserId): Promise<PredictionPrompt[]> {
+  async execute(
+    predictionId: GameTypeId,
+    userId: UserId,
+    query: PaginationQuery,
+  ): Promise<PaginatedResult<PredictionPrompt>> {
     const prediction = await this.predictionRepository.findById(predictionId);
     if (!prediction) {
       throw new PredictionNotFoundError({ predictionId });
@@ -27,6 +33,6 @@ export class ListPredictionPromptsUseCase {
 
     await this.accessGuard.assertCanManageProject(prediction.projectId, userId);
 
-    return this.promptRepository.findByPredictionId(prediction.id);
+    return this.promptRepository.findByPredictionId(prediction.id, query);
   }
 }

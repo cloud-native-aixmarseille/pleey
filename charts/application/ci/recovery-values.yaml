@@ -1,0 +1,12 @@
+---
+# Chart smoke tests check application health without requesting recovery mail.
+# These are test-only sender settings for the bundled SMTP relay.
+backend:
+  smtp:
+    config:
+      general:
+        ALLOWED_SENDER_DOMAINS: pleey.localhost
+  passwordRecovery:
+    frontendUrl: https://pleey.localhost
+    smtp:
+      from: noreply@pleey.localhost

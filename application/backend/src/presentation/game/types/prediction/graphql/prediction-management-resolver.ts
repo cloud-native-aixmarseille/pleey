@@ -19,6 +19,7 @@ import { GameType } from '../../../../../domain/game/types/shared/entities/game-
 import type { UserId } from '../../../../../domain/identity/entities/user';
 import { IdentityErrorCode } from '../../../../../domain/identity/enums/identity-error-code.enum';
 import { GqlJwtAuthGuard } from '../../../../identity/shared/guards/gql-jwt-auth-guard';
+import { PaginationInput } from '../../../../shared/graphql/types/pagination-input';
 import { PlayableContentUploadReader } from '../../shared/graphql/playable-content-upload-reader';
 import { SelectableOptionInputMapper } from '../../shared/graphql/selectable-option-input-mapper';
 import {
@@ -28,6 +29,7 @@ import {
   UpdatePredictionInput,
   UpdatePredictionPromptInput,
 } from './types/prediction-inputs';
+import { PredictionPromptListType } from './types/prediction-prompt-list-type';
 import { PredictionPromptType, PredictionType } from './types/prediction-types';
 
 type GraphqlAuthContext = {
@@ -138,18 +140,20 @@ export class PredictionManagementResolver {
     );
   }
 
-  @Query(() => [PredictionPromptType])
+  @Query(() => PredictionPromptListType)
   @UseGuards(GqlJwtAuthGuard)
   async predictionPrompts(
     @Args('predictionId', { type: () => ID }) predictionId: string,
     @Context() context: GraphqlAuthContext,
-  ): Promise<PredictionPromptType[]> {
+    @Args('input') input: PaginationInput,
+  ): Promise<PredictionPromptListType> {
     const prompts = await this.listPredictionPromptsUseCase.execute(
       this.gameTypeIdentifier.parse(predictionId),
       this.resolveUserId(context),
+      input,
     );
 
-    return prompts.map((prompt) => this.mapPrompt(prompt));
+    return { ...prompts, items: prompts.items.map((prompt) => this.mapPrompt(prompt)) };
   }
 
   @Mutation(() => PredictionPromptType)

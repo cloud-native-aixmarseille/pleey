@@ -43,7 +43,14 @@ export function Heading({ children, id, level = 2, hero = false }: HeadingProps)
   const fontSize = hero ? 'clamp(2rem, 3vw, 2.75rem)' : level === 3 ? '1.25rem' : '2rem';
 
   return (
-    <Title c={uiThemeTokens.color.text.emphasis} fz={fontSize} id={id} lh={hero ? 1.1 : 1.15} order={level}>
+    <Title
+      c={uiThemeTokens.color.text.emphasis}
+      fz={fontSize}
+      id={id}
+      lh={hero ? 1.1 : 1.15}
+      order={level}
+      style={{ overflowWrap: 'anywhere' }}
+    >
       {children}
     </Title>
   );
@@ -60,7 +67,7 @@ export function SupportingText({
   const mt = marginTop === 'none' ? undefined : marginTop;
 
   return (
-    <Text c={color} maw={maxWidth} mt={mt} size={size}>
+    <Text c={color} maw={maxWidth} mt={mt} size={size} style={{ overflowWrap: 'anywhere' }}>
       {children}
     </Text>
   );
@@ -68,7 +75,14 @@ export function SupportingText({
 
 export function SummaryText({ children }: PropsWithChildren) {
   return (
-    <Text c={uiThemeTokens.color.text.emphasis} component="p" fz="0.875rem" fw={600} m={0}>
+    <Text
+      c={uiThemeTokens.color.text.emphasis}
+      component="p"
+      fz="0.875rem"
+      fw={600}
+      m={0}
+      style={{ overflowWrap: 'anywhere' }}
+    >
       {children}
     </Text>
   );

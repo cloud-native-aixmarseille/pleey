@@ -27,7 +27,7 @@ Production-ready umbrella chart for the Pleey frontend, backend, PostgreSQL, and
 
 | Key                                            | Type   | Default                                                                     | Description |
 | ---------------------------------------------- | ------ | --------------------------------------------------------------------------- | ----------- |
-| backend.enabled                                | bool   | `true`                                                                      |             |
+| backend.enabled                                | bool   | `true`                                                                      |                                                                                                                                                                                                |
 | frontend.enabled                               | bool   | `true`                                                                      |             |
 | gateway.ingress.annotations                    | object | `{}`                                                                        |             |
 | gateway.ingress.apiPath                        | string | `"/api"`                                                                    |             |

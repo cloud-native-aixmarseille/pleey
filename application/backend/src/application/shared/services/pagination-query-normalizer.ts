@@ -1,25 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import type { PaginatedResult } from '../../../domain/shared/value-objects/paginated-result';
+import { PAGINATION_LIMITS } from '../../../domain/shared/value-objects/pagination-limits';
 import type { NormalizedPaginationQuery, PaginationQuery } from '../../../domain/shared/value-objects/pagination-query';
-
-const DEFAULT_PAGE = 1;
 
 @Injectable()
 export class PaginationQueryNormalizer {
-  normalizeQuery(
-    query: PaginationQuery,
-    defaultPageSize: number,
-    defaultPage = DEFAULT_PAGE,
-  ): NormalizedPaginationQuery {
-    return this.create(
-      Math.max(defaultPage, query.page ?? defaultPage),
-      Math.max(1, query.pageSize ?? defaultPageSize),
-      this.normalizeSearchTerm(query.search),
+  normalizeQuery(query: PaginationQuery): NormalizedPaginationQuery {
+    const page = this.normalizeInteger(query.page, PAGINATION_LIMITS.defaultPage, PAGINATION_LIMITS.maxPage);
+    const pageSize = this.normalizeInteger(
+      query.pageSize,
+      PAGINATION_LIMITS.defaultPageSize,
+      PAGINATION_LIMITS.maxPageSize,
     );
+    return { page, pageSize, search: query.search?.trim() || undefined, skip: (page - 1) * pageSize };
   }
 
   normalizePage(page: number, pageSize: number, search?: string): NormalizedPaginationQuery {
-    return this.create(Math.max(DEFAULT_PAGE, page), Math.max(1, pageSize), this.normalizeSearchTerm(search));
+    return this.normalizeQuery({ page, pageSize, search });
   }
 
   toPaginatedResult<TItem>(
@@ -38,18 +35,9 @@ export class PaginationQueryNormalizer {
     };
   }
 
-  private create(page: number, pageSize: number, search?: string): NormalizedPaginationQuery {
-    return {
-      page,
-      pageSize,
-      search,
-      skip: (page - 1) * pageSize,
-    };
-  }
-
-  private normalizeSearchTerm(search: string | undefined): string | undefined {
-    const normalizedSearch = search?.trim();
-
-    return normalizedSearch && normalizedSearch.length > 0 ? normalizedSearch : undefined;
+  private normalizeInteger(value: number | undefined, fallback: number, maximum: number): number {
+    return value === undefined || !Number.isFinite(value)
+      ? fallback
+      : Math.min(maximum, Math.max(1, Math.trunc(value)));
   }
 }

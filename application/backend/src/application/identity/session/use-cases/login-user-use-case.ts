@@ -5,9 +5,10 @@ import {
   type AuthTokenService,
   AuthTokenServiceProvider,
 } from '../../../../domain/identity/ports/auth-token.service';
-import type { UserRepository } from '../../../../domain/identity/ports/user.repository';
-import { UserRepositoryProvider } from '../../../../domain/identity/ports/user.repository';
+import type { UserAuthenticationRepository } from '../../../../domain/identity/ports/user-authentication.repository';
+import { UserAuthenticationRepositoryProvider } from '../../../../domain/identity/ports/user-authentication.repository';
 import { PasswordService } from '../../../../domain/identity/services/password-service';
+import type { SessionClientMetadata } from '../../../../domain/identity/types/user-session';
 import type { LoginUserDto } from '../dto/login-user-dto';
 
 /**
@@ -17,25 +18,27 @@ import type { LoginUserDto } from '../dto/login-user-dto';
 @Injectable()
 export class LoginUserUseCase {
   constructor(
-    @Inject(UserRepositoryProvider)
-    private readonly userRepository: UserRepository,
+    @Inject(UserAuthenticationRepositoryProvider)
+    private readonly authenticationRepository: UserAuthenticationRepository,
     private readonly passwordService: PasswordService,
     @Inject(AuthTokenServiceProvider)
     private readonly authTokenService: AuthTokenService,
   ) {}
 
-  async execute(dto: LoginUserDto): Promise<AuthTokenResponse> {
+  async execute(dto: LoginUserDto, client?: SessionClientMetadata): Promise<AuthTokenResponse> {
     // Find user by email
-    const user = await this.userRepository.findByEmail(dto.email);
-    if (!user) {
+    const authentication = await this.authenticationRepository.findByEmail(dto.email);
+    if (!authentication) {
       throw new InvalidCredentialsError({
         email: dto.email,
         reason: 'userNotFound',
       });
     }
 
+    const { user } = authentication;
+
     // Verify password
-    const isPasswordValid = await this.passwordService.compare(dto.password, user.password);
+    const isPasswordValid = await this.passwordService.compare(dto.password, authentication.password);
     if (!isPasswordValid) {
       throw new InvalidCredentialsError({
         email: dto.email,
@@ -50,8 +53,19 @@ export class LoginUserUseCase {
     };
     const tokenPair = this.authTokenService.createTokenPair(payload);
 
-    const hashedRefreshToken = await this.passwordService.hash(tokenPair.refreshToken);
-    await this.userRepository.updateRefreshToken(user.id, hashedRefreshToken, tokenPair.refreshTokenExpiresAt);
+    const saved = await this.authenticationRepository.saveSession(
+      user.id,
+      {
+        sessionId: tokenPair.sessionId,
+        refreshTokenHash: this.authTokenService.hashToken(tokenPair.refreshToken),
+        refreshTokenExpiresAt: tokenPair.refreshTokenExpiresAt,
+        ...(client ? { client } : {}),
+      },
+      { password: authentication.password },
+    );
+    if (!saved) {
+      throw new InvalidCredentialsError({ userId: user.id, reason: 'credentialsChanged' });
+    }
 
     return this.authTokenService.mapTokensToResponse(tokenPair, user.toProfileSnapshot());
   }

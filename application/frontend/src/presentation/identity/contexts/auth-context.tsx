@@ -17,6 +17,8 @@ interface RegisterFormState {
 export interface AuthContextValue {
   readonly user: User | null;
   readonly hasRestoredSession: boolean;
+  requestPasswordReset(email: string, locale: string): Promise<void>;
+  resetPassword(token: string, password: string): Promise<void>;
   signIn(input: SignInFormState): Promise<void>;
   register(input: RegisterFormState): Promise<void>;
   signOut(): Promise<void>;

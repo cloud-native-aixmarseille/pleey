@@ -19,6 +19,7 @@ import { GameType } from '../../../../../domain/game/types/shared/entities/game-
 import type { UserId } from '../../../../../domain/identity/entities/user';
 import { IdentityErrorCode } from '../../../../../domain/identity/enums/identity-error-code.enum';
 import { GqlJwtAuthGuard } from '../../../../identity/shared/guards/gql-jwt-auth-guard';
+import { PaginationInput } from '../../../../shared/graphql/types/pagination-input';
 import { PlayableContentUploadReader } from '../../shared/graphql/playable-content-upload-reader';
 import { SelectableOptionInputMapper } from '../../shared/graphql/selectable-option-input-mapper';
 import {
@@ -28,6 +29,7 @@ import {
   UpdateQuizInput,
   UpdateQuizQuestionInput,
 } from './types/quiz-inputs';
+import { QuizQuestionListType } from './types/quiz-question-list-type';
 import { QuizQuestionTypeObject, QuizType } from './types/quiz-types';
 
 type GraphqlAuthContext = {
@@ -129,18 +131,20 @@ export class QuizManagementResolver {
     return this.deleteQuizUseCase.execute(this.gameTypeIdentifier.parse(quizId), this.resolveUserId(context));
   }
 
-  @Query(() => [QuizQuestionTypeObject])
+  @Query(() => QuizQuestionListType)
   @UseGuards(GqlJwtAuthGuard)
   async quizQuestions(
     @Args('quizId', { type: () => ID }) quizId: string,
     @Context() context: GraphqlAuthContext,
-  ): Promise<QuizQuestionTypeObject[]> {
+    @Args('input') input: PaginationInput,
+  ): Promise<QuizQuestionListType> {
     const questions = await this.listQuizQuestionsUseCase.execute(
       this.gameTypeIdentifier.parse(quizId),
       this.resolveUserId(context),
+      input,
     );
 
-    return questions.map((question) => this.mapQuestion(question));
+    return { ...questions, items: questions.items.map((question) => this.mapQuestion(question)) };
   }
 
   @Mutation(() => QuizQuestionTypeObject)

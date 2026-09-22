@@ -100,16 +100,19 @@ export class PrismaProjectRepository implements ProjectRepository {
         deletedAt: null,
       },
     };
-    const [overallCount, totalCount, projects] = await this.prisma.$transaction([
-      this.prisma.project.count({ where: baseWhere }),
-      this.prisma.project.count({ where: filteredWhere }),
-      this.prisma.project.findMany({
-        where: filteredWhere,
-        orderBy: { createdAt: 'desc' },
-        skip: pagination.skip,
-        take: pagination.pageSize,
-      }),
-    ]);
+    const [overallCount, totalCount, projects] = await this.prisma.$transaction(
+      [
+        this.prisma.project.count({ where: baseWhere }),
+        this.prisma.project.count({ where: filteredWhere }),
+        this.prisma.project.findMany({
+          where: filteredWhere,
+          orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+          skip: pagination.skip,
+          take: pagination.pageSize,
+        }),
+      ],
+      { isolationLevel: 'RepeatableRead' },
+    );
 
     return this.paginationQueryNormalizer.toPaginatedResult(
       pagination,

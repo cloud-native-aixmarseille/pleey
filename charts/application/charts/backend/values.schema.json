@@ -1,0 +1,244 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["passwordRecovery", "smtp"],
+  "properties": {
+    "passwordRecovery": {
+      "type": "object",
+      "required": ["frontendUrl", "tokenLifetimeMinutes", "smtp"],
+      "properties": {
+        "frontendUrl": {
+          "type": "string",
+          "description": "Trusted frontend origin; HTTPS is required in production.",
+          "pattern": "^$|^https?://[^/?#@\\s]+/?$"
+        },
+        "tokenLifetimeMinutes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "smtp": {
+          "type": "object",
+          "required": ["host", "port", "secure", "from", "existingSecret"],
+          "properties": {
+            "host": {
+              "type": "string"
+            },
+            "port": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535
+            },
+            "secure": {
+              "type": "boolean"
+            },
+            "from": {
+              "type": "string"
+            },
+            "existingSecret": {
+              "type": "object",
+              "required": ["name", "userKey", "passwordKey"],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "userKey": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "passwordKey": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "smtp": {
+      "type": "object",
+      "required": ["enabled", "tls", "certs", "service", "config", "pod"],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "tls": {
+          "type": "object",
+          "required": ["existingSecret", "validityDays"],
+          "properties": {
+            "existingSecret": {
+              "type": "string"
+            },
+            "validityDays": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "certs": {
+          "type": "object",
+          "required": ["create", "existingSecret"],
+          "properties": {
+            "create": {
+              "const": false
+            },
+            "existingSecret": {
+              "const": "{{ default (printf \"%s-tls\" (include \"mail.fullname\" .)) .Values.tls.existingSecret }}"
+            }
+          }
+        },
+        "service": {
+          "type": "object",
+          "required": ["type", "port"],
+          "properties": {
+            "type": {
+              "const": "ClusterIP"
+            },
+            "port": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535
+            }
+          }
+        },
+        "config": {
+          "type": "object",
+          "required": ["general", "postfix"],
+          "properties": {
+            "general": {
+              "type": "object",
+              "properties": {
+                "ALLOWED_SENDER_DOMAINS": {
+                  "type": "string"
+                }
+              }
+            },
+            "postfix": {
+              "type": "object",
+              "required": ["smtpd_tls_security_level"],
+              "properties": {
+                "smtpd_tls_security_level": {
+                  "const": "encrypt"
+                }
+              }
+            }
+          }
+        },
+        "pod": {
+          "type": "object",
+          "required": ["labels"],
+          "properties": {
+            "labels": {
+              "type": "object",
+              "required": ["app.kubernetes.io/component"],
+              "properties": {
+                "app.kubernetes.io/component": {
+                  "const": "smtp"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "if": {
+    "properties": {
+      "config": {
+        "properties": {
+          "nodeEnv": {
+            "const": "production"
+          }
+        }
+      }
+    }
+  },
+  "then": {
+    "properties": {
+      "passwordRecovery": {
+        "properties": {
+          "frontendUrl": {
+            "pattern": "^https://"
+          },
+          "smtp": {
+            "properties": {
+              "from": {
+                "pattern": "\\S"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "smtp": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "smtp": {
+            "properties": {
+              "config": {
+                "properties": {
+                  "general": {
+                    "required": ["ALLOWED_SENDER_DOMAINS"],
+                    "properties": {
+                      "ALLOWED_SENDER_DOMAINS": {
+                        "pattern": "\\S"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "smtp": {
+            "properties": {
+              "enabled": {
+                "const": false
+              }
+            }
+          },
+          "config": {
+            "properties": {
+              "nodeEnv": {
+                "const": "production"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "passwordRecovery": {
+            "properties": {
+              "smtp": {
+                "properties": {
+                  "host": {
+                    "pattern": "\\S"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,6 +1,5 @@
 export {
   AUTH_LAYOUT_RESPONSIVE_CSS,
-  authAccountActionsStyle,
   authBrandingFeatureItemStyle,
   authBrandingFeatureListStyle,
   authFormCardStyle,
@@ -10,5 +9,4 @@ export {
   authLayoutRootStyle,
   authLayoutShellStyle,
   authLayoutTaglineStyle,
-  authProfileIdentityStyle,
 } from '../../../../shared/ui/foundation/ui-theme';

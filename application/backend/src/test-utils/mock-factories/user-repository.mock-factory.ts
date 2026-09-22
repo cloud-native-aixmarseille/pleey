@@ -10,16 +10,7 @@ import {
 } from './mock-factory.utils';
 
 const USER_REPOSITORY_METHOD_KINDS: MockFactoryMethodKinds<UserRepository> = {
-  resolved: [
-    'create',
-    'findByEmail',
-    'findById',
-    'findByUsername',
-    'exists',
-    'updateProfile',
-    'updateRefreshToken',
-    'clearRefreshToken',
-  ],
+  resolved: ['create', 'findByEmail', 'findById', 'findByUsername', 'exists', 'updateProfile'],
   returned: [],
 };
 
@@ -31,8 +22,6 @@ export const createUserRepositoryMock = (config: MockFactoryConfig<UserRepositor
     findByUsername: mockFn<UserRepository['findByUsername']>(),
     exists: mockFn<UserRepository['exists']>(),
     updateProfile: mockFn<UserRepository['updateProfile']>(),
-    updateRefreshToken: mockFn<UserRepository['updateRefreshToken']>(),
-    clearRefreshToken: mockFn<UserRepository['clearRefreshToken']>(),
   };
 
   applyMockFactoryConfig(mock, config, USER_REPOSITORY_METHOD_KINDS);

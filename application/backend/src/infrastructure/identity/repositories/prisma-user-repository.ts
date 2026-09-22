@@ -1,35 +1,12 @@
 import { Buffer } from 'node:buffer';
 import { Injectable } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
-import type { UserId } from '../../../domain/identity/entities/user';
-import { User } from '../../../domain/identity/entities/user';
+import type { User, UserId } from '../../../domain/identity/entities/user';
 import type { UserRepository } from '../../../domain/identity/ports/user.repository';
-import { Media, type MediaId } from '../../../domain/media/entities/media';
+import type { Media } from '../../../domain/media/entities/media';
 import { createDomainError } from '../../../domain/shared/errors/domain-error';
 import { PrismaService } from '../../database/prisma-service';
-
-type PrismaMediaRecord = {
-  id: MediaId;
-  mimeType: string;
-  content: Uint8Array;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-type PrismaUserRecord = {
-  id: UserId;
-  username: string;
-  email: string;
-  password: string;
-  avatar: PrismaMediaRecord | null;
-  refreshTokenHash: string | null;
-  refreshTokenExpiresAt: Date | null;
-  createdAt: Date;
-};
-
-const USER_MEDIA_INCLUDE = {
-  avatar: true,
-} satisfies Prisma.UserInclude;
+import { toDomainUser, USER_PROFILE_INCLUDE } from './prisma-user-profile-mapper';
 
 const USER_PROFILE_UPDATE_USER_NOT_FOUND_ERROR = {
   code: 'USER_PROFILE_UPDATE_USER_NOT_FOUND',
@@ -49,27 +26,6 @@ function toAvatarMediaCreateInput(avatar: Media): Prisma.MediaCreateWithoutAvata
   };
 }
 
-function toDomainMedia(media: PrismaMediaRecord | null): Media | null {
-  if (!media) {
-    return null;
-  }
-
-  return new Media(media.id, media.mimeType, Buffer.from(media.content), media.createdAt, media.updatedAt);
-}
-
-function toDomainUser(user: PrismaUserRecord): User {
-  return new User(
-    user.id,
-    user.username,
-    user.email,
-    user.password,
-    toDomainMedia(user.avatar),
-    user.createdAt,
-    user.refreshTokenHash ?? null,
-    user.refreshTokenExpiresAt ?? null,
-  );
-}
-
 /**
  * Prisma User Repository Implementation
  * Implements UserRepository using Prisma ORM
@@ -81,31 +37,32 @@ export class PrismaUserRepository implements UserRepository {
   async create(username: string, email: string, password: string, avatar: Media | null = null): Promise<User> {
     const data: Prisma.UserCreateInput = {
       username,
-      email,
-      password,
+      authentication: { create: { email, password } },
       ...(avatar ? { avatar: { create: toAvatarMediaCreateInput(avatar) } } : {}),
     };
 
-    const user = (await this.prisma.user.create({
+    const user = await this.prisma.user.create({
       data,
-      include: USER_MEDIA_INCLUDE,
-    })) as unknown as PrismaUserRecord;
+      include: USER_PROFILE_INCLUDE,
+    });
 
     return toDomainUser(user);
   }
 
-  private async findRawById(id: UserId): Promise<PrismaUserRecord | null> {
-    return (await this.prisma.user.findUnique({
-      where: { id },
-      include: USER_MEDIA_INCLUDE,
-    })) as PrismaUserRecord | null;
+  private async findRawById(
+    id: UserId,
+  ): Promise<Prisma.UserGetPayload<{ include: typeof USER_PROFILE_INCLUDE }> | null> {
+    return this.prisma.user.findUnique({
+      where: { id, deletedAt: null },
+      include: USER_PROFILE_INCLUDE,
+    });
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    const user = (await this.prisma.user.findUnique({
-      where: { email },
-      include: USER_MEDIA_INCLUDE,
-    })) as PrismaUserRecord | null;
+    const user = await this.prisma.user.findFirst({
+      where: { authentication: { email }, deletedAt: null },
+      include: USER_PROFILE_INCLUDE,
+    });
 
     if (!user) return null;
 
@@ -121,10 +78,10 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async findByUsername(username: string): Promise<User | null> {
-    const user = (await this.prisma.user.findUnique({
-      where: { username },
-      include: USER_MEDIA_INCLUDE,
-    })) as PrismaUserRecord | null;
+    const user = await this.prisma.user.findUnique({
+      where: { username, deletedAt: null },
+      include: USER_PROFILE_INCLUDE,
+    });
 
     if (!user) return null;
 
@@ -134,7 +91,7 @@ export class PrismaUserRepository implements UserRepository {
   async exists(email: string, username: string): Promise<boolean> {
     const user = await this.prisma.user.findFirst({
       where: {
-        OR: [{ email }, { username }],
+        OR: [{ authentication: { email } }, { username }],
       },
     });
 
@@ -161,7 +118,20 @@ export class PrismaUserRepository implements UserRepository {
     }
 
     if (typeof updates.email !== 'undefined') {
-      data.email = updates.email;
+      data.authentication = {
+        update: {
+          email: updates.email,
+          ...(updates.email !== existingUser.authentication?.email
+            ? {
+                passwordResetTokenHash: null,
+                passwordResetExpiresAt: null,
+                resetRequestLocale: null,
+                resetRequestedAt: null,
+                resetAvailableAt: null,
+              }
+            : {}),
+        },
+      };
     }
 
     if (updates.avatar !== undefined) {
@@ -181,32 +151,12 @@ export class PrismaUserRepository implements UserRepository {
       }
     }
 
-    const user = (await this.prisma.user.update({
-      where: { id },
+    const user = await this.prisma.user.update({
+      where: { id, deletedAt: null },
       data,
-      include: USER_MEDIA_INCLUDE,
-    })) as unknown as PrismaUserRecord;
+      include: USER_PROFILE_INCLUDE,
+    });
 
     return toDomainUser(user);
-  }
-
-  async updateRefreshToken(id: UserId, refreshTokenHash: string, refreshTokenExpiresAt: Date): Promise<void> {
-    await this.prisma.user.update({
-      where: { id },
-      data: {
-        refreshTokenHash,
-        refreshTokenExpiresAt,
-      },
-    });
-  }
-
-  async clearRefreshToken(id: UserId): Promise<void> {
-    await this.prisma.user.update({
-      where: { id },
-      data: {
-        refreshTokenHash: null,
-        refreshTokenExpiresAt: null,
-      },
-    });
   }
 }

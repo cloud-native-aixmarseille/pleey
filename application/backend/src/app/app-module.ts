@@ -2,11 +2,9 @@ import * as path from 'node:path';
 import { ApolloDriver, type ApolloDriverConfig } from '@nestjs/apollo';
 import { Inject, MiddlewareConsumer, Module, type NestModule } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
-import { JwtService } from '@nestjs/jwt';
 import { GraphQLUpload, graphqlUploadExpress } from 'graphql-upload-minimal';
 import { AcceptLanguageResolver, I18nJsonLoader, I18nModule, QueryResolver } from 'nestjs-i18n';
-import type { UserId } from '../domain/identity/entities/user';
-import { AUTH_JWT_SECRET } from '../infrastructure/identity/auth-jwt-secret.token';
+import { JwtSessionAuthenticator } from '../infrastructure/identity/services/jwt-session-authenticator';
 import { GameErrorHttpStatusService } from '../presentation/game/shared/error-handling/game-error-http-status.service';
 import { GameErrorTranslationService } from '../presentation/game/shared/error-handling/game-error-translation.service';
 import { PredictionErrorHttpStatusService } from '../presentation/game/types/prediction/shared/error-handling/prediction-error-http-status.service';
@@ -33,21 +31,15 @@ import { HealthModule } from './modules/health/health-module';
 import { IdentityModule } from './modules/identity/identity-module';
 import { OrganizationModule } from './modules/organization/organization-module';
 
-type GraphqlWsUser = {
-  id: UserId;
-  username: string;
-};
-
 function parseAuthorizationHeader(connectionParams?: Record<string, unknown>): string | null {
   const authorizationValue = connectionParams?.authorization;
 
-  if (typeof authorizationValue !== 'string') {
-    return null;
-  }
+  if (authorizationValue === undefined) return null;
+  if (typeof authorizationValue !== 'string') throw new Error('Unauthorized');
 
-  const [scheme, token] = authorizationValue.split(' ');
-  if (scheme?.toLowerCase() !== 'bearer' || !token) {
-    return null;
+  const [scheme, token, extra] = authorizationValue.split(' ');
+  if (scheme?.toLowerCase() !== 'bearer' || !token || extra !== undefined) {
+    throw new Error('Unauthorized');
   }
 
   return token;
@@ -62,10 +54,8 @@ function createI18nDirectory(serverConfig: AppServerConfig): string {
     AppConfigModule,
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
-      imports: [AppConfigModule],
-      useFactory: (serverConfig: AppServerConfig, jwtSecret: string) => {
-        const jwtService = new JwtService();
-
+      imports: [AppConfigModule, IdentityModule],
+      useFactory: (serverConfig: AppServerConfig, sessions: JwtSessionAuthenticator) => {
         return {
           autoSchemaFile: serverConfig.isProduction ? true : path.join(process.cwd(), 'src/schema.gql'),
           sortSchema: true,
@@ -75,7 +65,7 @@ function createI18nDirectory(serverConfig: AppServerConfig): string {
           },
           subscriptions: {
             'graphql-ws': {
-              onConnect: (context) => {
+              onConnect: async (context) => {
                 const connectionParams =
                   context.connectionParams && typeof context.connectionParams === 'object'
                     ? (context.connectionParams as Record<string, unknown>)
@@ -87,16 +77,11 @@ function createI18nDirectory(serverConfig: AppServerConfig): string {
                   return true;
                 }
 
-                const payload = jwtService.verify<GraphqlWsUser>(token, {
-                  secret: jwtSecret,
-                });
-
+                const payload = await sessions.authenticate(token);
                 const extra = context.extra;
                 if (extra && typeof extra === 'object') {
-                  (extra as Record<string, unknown>).user = {
-                    id: payload.id,
-                    username: payload.username,
-                  };
+                  (extra as Record<string, unknown>).user = payload;
+                  (extra as Record<string, unknown>).authorization = `Bearer ${token}`;
                 }
 
                 return true;
@@ -104,12 +89,12 @@ function createI18nDirectory(serverConfig: AppServerConfig): string {
             },
           },
           context: ({ req, extra }: { req?: unknown; extra?: Record<string, unknown> }) => ({
-            req,
+            req: req ?? { headers: { authorization: extra?.authorization } },
             user: extra?.user ?? null,
           }),
         };
       },
-      inject: [APP_SERVER_CONFIG, AUTH_JWT_SECRET],
+      inject: [APP_SERVER_CONFIG, JwtSessionAuthenticator],
     }),
     I18nModule.forRootAsync({
       imports: [AppConfigModule],

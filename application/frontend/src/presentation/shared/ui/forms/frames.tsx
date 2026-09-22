@@ -1,4 +1,4 @@
-import { Box, Stack, Text } from '@mantine/core';
+import { Box, Fieldset, Stack, Text } from '@mantine/core';
 import type { ComponentPropsWithoutRef, PropsWithChildren, ReactNode } from 'react';
 import { uiThemeTokens } from '../foundation/ui-theme';
 import { uiTypeScale } from '../foundation/ui-typography';
@@ -11,6 +11,14 @@ interface FormSectionFrameProps extends PropsWithChildren {
   readonly legend: string;
   readonly description?: string;
   readonly descriptionId?: string;
+}
+
+export function FormFields({ children, disabled }: PropsWithChildren<{ readonly disabled: boolean }>) {
+  return (
+    <Fieldset disabled={disabled} variant="unstyled">
+      {children}
+    </Fieldset>
+  );
 }
 
 export function FormRoot({ children, ...props }: FormRootProps) {

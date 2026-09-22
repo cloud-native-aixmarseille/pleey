@@ -86,7 +86,7 @@ describe('ListOrganizationMembersUseCase', () => {
       totalCount: 2,
       overallCount: 2,
       page: 1,
-      pageSize: 25,
+      pageSize: 9,
       totalPages: 1,
     } as const;
     const memberRepository = createOrganizationMemberRepositoryMock({
@@ -108,7 +108,7 @@ describe('ListOrganizationMembersUseCase', () => {
     const result = await useCase.execute({ organizationId }, requesterUserId);
 
     // Assert
-    expect(memberRepository.findPageByOrganization).toHaveBeenCalledWith(organizationId, 1, 25, undefined);
+    expect(memberRepository.findPageByOrganization).toHaveBeenCalledWith(organizationId, 1, 9, undefined);
     expect(result).toEqual(page);
   });
 
@@ -124,7 +124,7 @@ describe('ListOrganizationMembersUseCase', () => {
         totalCount: 0,
         overallCount: 0,
         page: 1,
-        pageSize: 25,
+        pageSize: 9,
         totalPages: 1,
       } as never,
     });
@@ -149,6 +149,6 @@ describe('ListOrganizationMembersUseCase', () => {
     );
 
     // Assert
-    expect(memberRepository.findPageByOrganization).toHaveBeenCalledWith(organizationId, 1, 25, 'captain');
+    expect(memberRepository.findPageByOrganization).toHaveBeenCalledWith(organizationId, 1, 9, 'captain');
   });
 });

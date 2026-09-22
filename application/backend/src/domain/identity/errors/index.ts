@@ -3,5 +3,6 @@ export { InvalidCredentialsError } from './invalid-credentials.error';
 export { InvalidRefreshTokenError } from './invalid-refresh-token.error';
 export { PasswordTooShortError } from './password-too-short.error';
 export { RefreshTokenExpiredError } from './refresh-token-expired.error';
+export { UnauthorizedError } from './unauthorized.error';
 export { UserAlreadyExistsError } from './user-already-exists.error';
 export { UserNotFoundError } from './user-not-found.error';

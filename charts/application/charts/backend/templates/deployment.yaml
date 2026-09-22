@@ -14,10 +14,11 @@ spec:
       {{- include "pleey.backend.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
       annotations:
+        checksum/config: {{ include (print .Template.BasePath "/configmap.yaml") . | sha256sum | quote }}
+        {{- with omit .Values.podAnnotations "checksum/config" }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
       labels:
         {{- include "pleey.backend.selectorLabels" . | nindent 8 }}
         {{- with .Values.podLabels }}
@@ -74,6 +75,15 @@ spec:
             {{- toYaml . | nindent 12 }}
             {{- end }}
           env:
+            {{- if .Values.smtp.enabled }}
+            - name: NODE_EXTRA_CA_CERTS
+              value: /var/run/pleey-secrets/smtp-ca/ca.crt
+            {{- else if .Values.passwordRecovery.smtp.existingSecret.name }}
+            - name: SMTP_USER_FILE
+              value: /var/run/pleey-secrets/smtp/username
+            - name: SMTP_PASSWORD_FILE
+              value: /var/run/pleey-secrets/smtp/password
+            {{- end }}
             {{- with .Values.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -109,6 +119,15 @@ spec:
             - name: valkey-secret
               mountPath: {{ include "pleey.backend.valkeySecretMountPath" . }}
               readOnly: true
+            {{- if .Values.smtp.enabled }}
+            - name: smtp-ca
+              mountPath: /var/run/pleey-secrets/smtp-ca
+              readOnly: true
+            {{- else if .Values.passwordRecovery.smtp.existingSecret.name }}
+            - name: smtp-secret
+              mountPath: /var/run/pleey-secrets/smtp
+              readOnly: true
+            {{- end }}
             {{- with .Values.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -134,6 +153,27 @@ spec:
             items:
               - key: {{ include "pleey.backend.valkeySecretKey" . }}
                 path: {{ include "pleey.backend.valkeySecretKey" . }}
+        {{- if .Values.smtp.enabled }}
+        - name: smtp-ca
+          secret:
+            secretName: {{ include "tls.secretName" .Subcharts.smtp | quote }}
+            items:
+              - key: ca.crt
+                path: ca.crt
+        {{- else }}
+        {{- with .Values.passwordRecovery.smtp.existingSecret }}
+        {{- if .name }}
+        - name: smtp-secret
+          secret:
+            secretName: {{ .name | quote }}
+            items:
+              - key: {{ .userKey | quote }}
+                path: username
+              - key: {{ .passwordKey | quote }}
+                path: password
+        {{- end }}
+        {{- end }}
+        {{- end }}
         {{- with .Values.extraVolumes }}
         {{- toYaml . | nindent 8 }}
         {{- end }}

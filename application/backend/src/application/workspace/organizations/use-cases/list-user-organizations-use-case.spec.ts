@@ -22,7 +22,7 @@ describe('ListUserOrganizationsUseCase', () => {
         totalCount: 0,
         overallCount: 0,
         page: 1,
-        pageSize: 25,
+        pageSize: 9,
         totalPages: 1,
       } as never,
     });
@@ -36,13 +36,13 @@ describe('ListUserOrganizationsUseCase', () => {
     // Act
     const result = await useCase.execute({}, backendTestIdentifiers.user(1));
     // Assert
-    expect(memberRepository.findPageByUser).toHaveBeenCalledWith(backendTestIdentifiers.user(1), 1, 25, undefined);
+    expect(memberRepository.findPageByUser).toHaveBeenCalledWith(backendTestIdentifiers.user(1), 1, 9, undefined);
     expect(result).toEqual({
       items: [],
       totalCount: 0,
       overallCount: 0,
       page: 1,
-      pageSize: 25,
+      pageSize: 9,
       totalPages: 1,
     });
     expect(organizationRepository.findByIds).not.toHaveBeenCalled();
@@ -64,7 +64,7 @@ describe('ListUserOrganizationsUseCase', () => {
         totalCount: 1,
         overallCount: 1,
         page: 1,
-        pageSize: 25,
+        pageSize: 9,
         totalPages: 1,
       } as never,
     });
@@ -78,14 +78,14 @@ describe('ListUserOrganizationsUseCase', () => {
     // Act
     const result = await useCase.execute({}, backendTestIdentifiers.user(10));
     // Assert
-    expect(memberRepository.findPageByUser).toHaveBeenCalledWith(backendTestIdentifiers.user(10), 1, 25, undefined);
+    expect(memberRepository.findPageByUser).toHaveBeenCalledWith(backendTestIdentifiers.user(10), 1, 9, undefined);
     expect(organizationRepository.findByIds).toHaveBeenCalledWith([organizationId]);
     expect(result).toEqual({
       items: [{ id: organizationId, role: OrganizationRole.MEMBER }],
       totalCount: 1,
       overallCount: 1,
       page: 1,
-      pageSize: 25,
+      pageSize: 9,
       totalPages: 1,
     });
   });
@@ -99,7 +99,7 @@ describe('ListUserOrganizationsUseCase', () => {
         totalCount: 0,
         overallCount: 0,
         page: 1,
-        pageSize: 25,
+        pageSize: 9,
         totalPages: 1,
       } as never,
     });
@@ -114,6 +114,6 @@ describe('ListUserOrganizationsUseCase', () => {
     await useCase.execute({ search: '  pleey  ' }, backendTestIdentifiers.user(3));
 
     // Assert
-    expect(memberRepository.findPageByUser).toHaveBeenCalledWith(backendTestIdentifiers.user(3), 1, 25, 'pleey');
+    expect(memberRepository.findPageByUser).toHaveBeenCalledWith(backendTestIdentifiers.user(3), 1, 9, 'pleey');
   });
 });
