@@ -1,13 +1,18 @@
 import { describe, expect, it } from 'vitest';
+import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { PrismaIntegrationTestHarness } from '../../../test-utils/fixtures/integration/prisma-integration-test-harness';
 import { createOrganizationFixture } from '../../../test-utils/fixtures/unit/organization.fixture';
+import { PrismaPartySettingsMapper } from '../../game/shared/prisma-party-settings.mapper';
 import { PrismaOrganizationRepository } from './prisma-organization-repository';
 
 const hasDatabase = Boolean((process.env.DATABASE_URL ?? '').trim());
 const describeIfDatabase = hasDatabase ? describe : describe.skip;
 
 describeIfDatabase('PrismaOrganizationRepository', () => {
-  const harness = new PrismaIntegrationTestHarness(PrismaOrganizationRepository);
+  const harness = new PrismaIntegrationTestHarness(PrismaOrganizationRepository, [
+    OrganizationIdentifier,
+    PrismaPartySettingsMapper,
+  ]);
 
   const createdOrganizationIds: string[] = [];
   harness.addCleanupStep(async (prisma) => {

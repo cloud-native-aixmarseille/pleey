@@ -24,7 +24,14 @@ function ProfileDetailsFormHarness({
     onSubmit: async () => undefined,
   });
 
-  return <ProfileDetailsForm errorMessage={errorMessage} form={form} successMessage={successMessage} />;
+  return (
+    <ProfileDetailsForm
+      errorMessage={errorMessage}
+      form={form}
+      onDiscard={() => form.reset()}
+      successMessage={successMessage}
+    />
+  );
 }
 
 describe('ProfileDetailsForm', () => {

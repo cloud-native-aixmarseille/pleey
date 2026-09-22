@@ -9,17 +9,21 @@ import {
   mockFn,
 } from './mock-factory.utils';
 
-type AuthTokenServiceLike = Pick<AuthTokenService, 'createTokenPair' | 'verifyRefreshToken' | 'mapTokensToResponse'>;
+type AuthTokenServiceLike = Pick<
+  AuthTokenService,
+  'hashToken' | 'createTokenPair' | 'verifyRefreshToken' | 'mapTokensToResponse'
+>;
 
 const AUTH_TOKEN_SERVICE_METHOD_KINDS: MockFactoryMethodKinds<AuthTokenServiceLike> = {
   resolved: ['verifyRefreshToken'],
-  returned: ['createTokenPair', 'mapTokensToResponse'],
+  returned: ['hashToken', 'createTokenPair', 'mapTokensToResponse'],
 };
 
 export const createAuthTokenServiceMock = (
   config: MockFactoryConfig<AuthTokenServiceLike> = {},
 ): Mocked<AuthTokenServiceLike> => {
   const mock: Mocked<AuthTokenServiceLike> = {
+    hashToken: mockFn<AuthTokenServiceLike['hashToken']>(),
     createTokenPair: mockFn<AuthTokenServiceLike['createTokenPair']>(),
     verifyRefreshToken: mockFn<AuthTokenServiceLike['verifyRefreshToken']>(),
     mapTokensToResponse: mockFn<AuthTokenServiceLike['mapTokensToResponse']>(),

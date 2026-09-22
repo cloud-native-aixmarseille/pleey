@@ -20,6 +20,7 @@ export interface PresentationFieldApi<TValue = string> {
 
 interface PresentationFormState {
   readonly isSubmitting: boolean;
+  readonly isDefaultValue: boolean;
 }
 
 interface PresentationFormSubscribeProps<TSelected = boolean> {
@@ -47,12 +48,17 @@ interface PresentationFormFieldProps<TValues extends Record<string, unknown>, TN
 
 export interface PresentationUseFormOptions<TValues extends Record<string, unknown>> {
   readonly defaultValues: TValues;
+  readonly validators?: {
+    readonly onChange: (
+      context: PresentationFormValidatorContext<TValues>,
+    ) => { readonly fields: Partial<Record<keyof TValues, string | undefined>> } | undefined;
+  };
   readonly onSubmit: (context: { readonly value: TValues }) => void | Promise<void>;
 }
 
 export interface PresentationFormApi<TValues extends Record<string, unknown>> {
   handleSubmit(): void | Promise<void>;
-  reset(): void;
+  reset(values?: TValues): void;
   AppForm: ComponentType<PropsWithChildren>;
   AppField: <TName extends keyof TValues & string>(props: PresentationFormFieldProps<TValues, TName>) => ReactNode;
 }

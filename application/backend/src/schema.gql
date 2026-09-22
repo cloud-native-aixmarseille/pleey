@@ -101,6 +101,11 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+input ForgotPasswordInput {
+  email: String!
+  locale: String!
+}
+
 type GamePermissionsType {
   createParty: ActionPermissionType!
   launchReadiness: LaunchReadinessPermissionType!
@@ -154,12 +159,16 @@ type Mutation {
   deleteProject(migrationProjectId: ID, projectId: ID!): Boolean!
   deleteQuiz(quizId: ID!): Boolean!
   deleteQuizQuestion(questionId: ID!): Boolean!
+  forgotPassword(input: ForgotPasswordInput!): Boolean!
   login(input: LoginInput!): AuthResponseType!
   logout: Boolean!
   refresh(input: RefreshTokenInput!): AuthResponseType!
   regenerateAvatar: AuthUserProfileType!
   register(input: RegisterInput!): AuthUserProfileType!
   removeOrganizationMember(memberId: ID!): Boolean!
+  resetPassword(input: ResetPasswordInput!): Boolean!
+  revokeOtherSessions: Boolean!
+  revokeSession(input: RevokeUserSessionInput!): Boolean!
   updateOrganization(input: UpdateOrganizationInput!, organizationId: ID!): OrganizationType!
   updateOrganizationMemberRole(input: UpdateOrganizationMemberRoleInput!, memberId: ID!): OrganizationMemberType!
   updatePrediction(input: UpdatePredictionInput!, predictionId: ID!): PredictionType!
@@ -239,6 +248,11 @@ type OrganizationType {
   updatedAt: DateTime!
 }
 
+input PaginationInput {
+  page: Int! = 1
+  pageSize: Int! = 9
+}
+
 type PartyListType {
   items: [PartyType!]!
   overallCount: Int!
@@ -281,6 +295,15 @@ type PartyType {
   pin: String!
   role: PartyRole!
   status: PartyStatus!
+}
+
+type PredictionPromptListType {
+  items: [PredictionPromptType!]!
+  overallCount: Int!
+  page: Int!
+  pageSize: Int!
+  totalCount: Int!
+  totalPages: Int!
 }
 
 type PredictionPromptType {
@@ -354,15 +377,27 @@ type ProjectType {
 type Query {
   listParties(input: ListPartiesInput): PartyListType!
   me: AuthUserProfileType!
+  myCurrentSession: UserSessionType!
+  myGameHistory(input: UserGameHistoryInput!): UserGameHistoryType!
   myOrganizations(input: ListOrganizationsInput): OrganizationListType!
+  myOtherSessions(input: UserSessionListInput!): UserSessionListType!
   organizationDashboard(organizationId: ID!): OrganizationDashboardType!
   organizationMembers(input: OrganizationMembersInput!): OrganizationMemberListType!
   organizationProjects(input: ListOrganizationProjectsInput!): ProjectListType!
   prediction(predictionId: ID!): PredictionType!
-  predictionPrompts(predictionId: ID!): [PredictionPromptType!]!
+  predictionPrompts(input: PaginationInput!, predictionId: ID!): PredictionPromptListType!
   projectGames(input: ProjectGamesInput!): ProjectGamesType!
   quiz(quizId: ID!): QuizType!
-  quizQuestions(quizId: ID!): [QuizQuestionTypeObject!]!
+  quizQuestions(input: PaginationInput!, quizId: ID!): QuizQuestionListType!
+}
+
+type QuizQuestionListType {
+  items: [QuizQuestionTypeObject!]!
+  overallCount: Int!
+  page: Int!
+  pageSize: Int!
+  totalCount: Int!
+  totalPages: Int!
 }
 
 enum QuizQuestionType {
@@ -399,6 +434,15 @@ input RegisterInput {
   email: String!
   password: String!
   username: String!
+}
+
+input ResetPasswordInput {
+  password: String!
+  token: String!
+}
+
+input RevokeUserSessionInput {
+  sessionId: String!
 }
 
 input SelectableOptionInput {
@@ -465,3 +509,50 @@ input UpdateQuizQuestionInput {
 
 """The `Upload` scalar type represents a file upload."""
 scalar Upload
+
+type UserGameHistoryEntryType {
+  createdAt: DateTime!
+  gameType: String!
+  partyId: String!
+  points: Int
+  role: String!
+  status: String!
+  title: String!
+}
+
+input UserGameHistoryInput {
+  page: Int! = 1
+  pageSize: Int! = 9
+}
+
+type UserGameHistoryType {
+  items: [UserGameHistoryEntryType!]!
+  overallCount: Int!
+  page: Int!
+  pageSize: Int!
+  totalCount: Int!
+  totalPages: Int!
+}
+
+input UserSessionListInput {
+  page: Int! = 1
+  pageSize: Int! = 9
+}
+
+type UserSessionListType {
+  items: [UserSessionType!]!
+  overallCount: Int!
+  page: Int!
+  pageSize: Int!
+  totalCount: Int!
+  totalPages: Int!
+}
+
+type UserSessionType {
+  createdAt: DateTime
+  expiresAt: DateTime!
+  id: String!
+  ipAddress: String
+  lastActiveAt: DateTime
+  userAgent: String
+}

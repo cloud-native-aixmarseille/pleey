@@ -1,3 +1,4 @@
+import type { Provider } from '@nestjs/common';
 import { Test, type TestingModule } from '@nestjs/testing';
 import { afterAll, beforeAll } from 'vitest';
 import { DatabaseModule } from '../../../app/modules/database/database-module';
@@ -13,11 +14,14 @@ export class PrismaIntegrationTestHarness<TRepository> {
   private repositoryInstance: TRepository | null = null;
   private readonly cleanupSteps: CleanupStep[] = [];
 
-  constructor(private readonly repositoryType: ProviderClass<TRepository>) {
+  constructor(
+    private readonly repositoryType: ProviderClass<TRepository>,
+    providers: Provider[] = [],
+  ) {
     beforeAll(async () => {
       const testingModule = await Test.createTestingModule({
         imports: [DatabaseModule],
-        providers: [PaginationQueryNormalizer, this.repositoryType],
+        providers: [PaginationQueryNormalizer, ...providers, this.repositoryType],
       }).compile();
 
       await testingModule.init();

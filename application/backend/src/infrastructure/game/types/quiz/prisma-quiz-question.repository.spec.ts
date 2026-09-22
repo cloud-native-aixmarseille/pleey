@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { QuizQuestionIdentifier } from '../../../../application/game/types/quiz/services/quiz-question-identifier';
 import { QuizSelectableOptionIdentifier } from '../../../../application/game/types/quiz/services/quiz-selectable-option-identifier';
 import { GameTypeIdentifier } from '../../../../application/game/types/shared/services/game-type-identifier';
+import { PaginationQueryNormalizer } from '../../../../application/shared/services/pagination-query-normalizer';
 import { QuizQuestionType } from '../../../../domain/game/types/quiz/entities/quiz-question';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { createQuizQuestionRecordFixture } from '../../../../test-utils/fixtures/unit/quiz-question.fixture';
@@ -37,6 +38,7 @@ describe('PrismaQuizQuestionRepository', () => {
       new QuizQuestionIdentifier(),
       new QuizSelectableOptionIdentifier(),
       new PrismaSelectableOptionMapper(),
+      new PaginationQueryNormalizer(),
     );
 
     // Act
@@ -92,6 +94,7 @@ describe('PrismaQuizQuestionRepository', () => {
       new QuizQuestionIdentifier(),
       new QuizSelectableOptionIdentifier(),
       new PrismaSelectableOptionMapper(),
+      new PaginationQueryNormalizer(),
     );
 
     // Act
@@ -152,6 +155,7 @@ describe('PrismaQuizQuestionRepository', () => {
       new QuizQuestionIdentifier(),
       new QuizSelectableOptionIdentifier(),
       new PrismaSelectableOptionMapper(),
+      new PaginationQueryNormalizer(),
     );
 
     // Act
@@ -225,6 +229,7 @@ describe('PrismaQuizQuestionRepository', () => {
       new QuizQuestionIdentifier(),
       new QuizSelectableOptionIdentifier(),
       new PrismaSelectableOptionMapper(),
+      new PaginationQueryNormalizer(),
     );
 
     // Act

@@ -8,6 +8,24 @@ data:
   NODE_ENV: {{ .Values.config.nodeEnv | quote }}
   CORS_ORIGIN: {{ .Values.config.corsOrigin | quote }}
   APP_VERSION: {{ default .Chart.AppVersion .Values.config.appVersion | quote }}
+  {{- with .Values.passwordRecovery.frontendUrl }}
+  FRONTEND_URL: {{ . | quote }}
+  {{- end }}
+  PASSWORD_RESET_TOKEN_LIFETIME_MINUTES: {{ .Values.passwordRecovery.tokenLifetimeMinutes | quote }}
+  {{- if .Values.smtp.enabled }}
+  SMTP_HOST: {{ printf "%s.%s.svc" (include "mail.fullname" .Subcharts.smtp) .Release.Namespace | quote }}
+  SMTP_PORT: {{ .Values.smtp.service.port | quote }}
+  SMTP_SECURE: "false"
+  {{- else }}
+  {{- with .Values.passwordRecovery.smtp.host }}
+  SMTP_HOST: {{ . | quote }}
+  {{- end }}
+  SMTP_PORT: {{ .Values.passwordRecovery.smtp.port | quote }}
+  SMTP_SECURE: {{ .Values.passwordRecovery.smtp.secure | quote }}
+  {{- end }}
+  {{- with .Values.passwordRecovery.smtp.from }}
+  SMTP_FROM: {{ . | quote }}
+  {{- end }}
   {{- if .Values.config.apiBaseUrl }}
   API_BASE_URL: {{ .Values.config.apiBaseUrl | quote }}
   {{- end }}

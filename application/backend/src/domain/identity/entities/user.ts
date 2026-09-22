@@ -14,19 +14,15 @@ export class User {
     public readonly id: UserId,
     public readonly username: string,
     public readonly email: string,
-    public readonly password: string,
     public readonly avatar: Media | null,
     public readonly createdAt: Date,
-    public readonly refreshTokenHash: string | null = null,
-    public readonly refreshTokenExpiresAt: Date | null = null,
   ) {}
 
   /**
-   * Creates a sanitized version of user without sensitive data
+   * Returns the user's profile data.
    */
-  toSafeObject(): Omit<User, 'password' | 'refreshTokenHash' | 'refreshTokenExpiresAt'> {
-    const { password, refreshTokenHash, refreshTokenExpiresAt, ...safeUser } = this;
-    return safeUser as Omit<User, 'password' | 'refreshTokenHash' | 'refreshTokenExpiresAt'>;
+  toSafeObject() {
+    return { ...this };
   }
 
   toProfileSnapshot(): UserProfileSnapshot {

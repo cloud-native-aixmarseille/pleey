@@ -6,7 +6,7 @@ applyTo: "application/frontend/**/*.{ts,tsx,js,jsx,mjs,cjs}"
 
 # Pleey frontend accessibility rules
 
-Use `docs/technical/development/index.md` and `docs/technical/development/frontend.md` for the broader frontend standards. This file only captures accessibility rules that are easy to miss during implementation.
+Use `docs/technical/development/index.md` and `docs/technical/development/frontend/index.md` for the broader frontend standards. This file only captures accessibility rules that are easy to miss during implementation.
 
 - Treat WCAG 2.1 AA compliance as mandatory because UI accessibility is an explicit repository standard.
 - Keep visible labels, helper text, and `aria-*` copy in i18n keys because accessibility text is still user-facing content.

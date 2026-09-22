@@ -27,7 +27,6 @@ export class PasswordService {
    * Validates password strength
    */
   isValidPassword(password: string): boolean {
-    // At least 6 characters
-    return password.length >= 6;
+    return password.length >= 6 && !bcrypt.truncates(password);
   }
 }

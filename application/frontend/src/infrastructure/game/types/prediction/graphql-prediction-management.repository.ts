@@ -2,6 +2,7 @@ import { inject, injectable } from 'inversify';
 import { GameIdentifier } from '../../../../application/game/shared/services/identifiers/game-identifier';
 import { PredictionPromptIdentifier } from '../../../../application/game/types/prediction/services/prediction-prompt-identifier';
 import { GameTypeIdentifier } from '../../../../application/game/types/shared/services/game-type-identifier';
+import { collectPaginatedItems } from '../../../../application/shared/services/collect-paginated-items';
 import type { PredictionPromptId } from '../../../../domains/game/types/prediction/entities/prediction-prompt-id';
 import type { PredictionManagementRepository } from '../../../../domains/game/types/prediction/ports/prediction-management.repository';
 import type { GameTypeId } from '../../../../domains/game/types/shared/game-type';
@@ -15,6 +16,7 @@ import type {
 } from '../../../../domains/game/types/shared/management/playable-management';
 import type { ProjectId } from '../../../../domains/project/entities/project';
 import { createDomainError } from '../../../../domains/shared/errors/domain-error';
+import { PAGINATION_LIMITS } from '../../../../domains/shared/value-objects/pagination-limits';
 import { GraphqlClient } from '../../../graphql/client/graphql-client';
 import {
   CreatePredictionFromImportManagementDocument,
@@ -25,6 +27,7 @@ import {
   DeletePredictionManagementDocument,
   DeletePredictionPromptManagementDocument,
   PredictionManagementDocument,
+  PredictionManagementItemsDocument,
   type PredictionManagementQuery,
   UpdatePredictionManagementDocument,
   UpdatePredictionPromptManagementDocument,
@@ -33,7 +36,7 @@ import {
 import { PlayableManagementGraphqlMapper } from '../shared/playable-management-graphql.mapper';
 
 type GraphqlPredictionPrompt =
-  | PredictionManagementQuery['predictionPrompts'][number]
+  | PredictionManagementQuery['predictionPrompts']['items'][number]
   | NonNullable<CreatePredictionPromptManagementMutation['createPredictionPrompt']>
   | NonNullable<UpdatePredictionPromptManagementMutation['updatePredictionPrompt']>;
 
@@ -91,8 +94,13 @@ export class GraphqlPredictionManagementRepository implements PredictionManageme
   async load(predictionId: GameTypeId): Promise<PlayableManagementState<PredictionPromptId>> {
     const result = await this.graphqlClient.request(PredictionManagementDocument, {
       predictionId,
+      input: { page: 1, pageSize: PAGINATION_LIMITS.maxPageSize },
     });
     const gameTypeId = this.gameTypeIdentifier.parse(result.prediction.predictionId);
+    const items = await collectPaginatedItems(result.predictionPrompts, async (input) => {
+      const next = await this.graphqlClient.request(PredictionManagementItemsDocument, { predictionId, input });
+      return next.predictionPrompts;
+    });
 
     return {
       game: this.mapper.mapGame({
@@ -103,7 +111,7 @@ export class GraphqlPredictionManagementRepository implements PredictionManageme
         createdAt: result.prediction.createdAt,
         itemCount: result.prediction.promptCount,
       }),
-      items: result.predictionPrompts.map((prompt) =>
+      items: items.map((prompt) =>
         this.mapper.mapItem({
           id: this.predictionPromptIdentifier.parse(prompt.id),
           gameTypeId,

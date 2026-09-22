@@ -13,7 +13,7 @@ import { useForgotPasswordScreenState } from './use-forgot-password-screen-state
 
 export function ForgotPasswordScreen() {
   const { t } = usePresentationTranslation();
-  const { form, isSubmitted } = useForgotPasswordScreenState();
+  const { form, isSubmitted, errorMessage } = useForgotPasswordScreenState();
 
   return (
     <AuthLayout>
@@ -30,6 +30,7 @@ export function ForgotPasswordScreen() {
         ) : (
           <form.AppForm>
             <PresentationForm form={form}>
+              {errorMessage && <StatusBanner tone="error">{errorMessage}</StatusBanner>}
               <FormSection legend={t('auth.forgotPassword.emailLabel')}>
                 <form.AppField
                   name="email"

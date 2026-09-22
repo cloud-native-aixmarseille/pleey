@@ -1,6 +1,7 @@
 import { type DomainErrorDefinition } from '../../shared/errors/domain-error';
 
 export enum IdentityErrorCode {
+  INVALID_RESET_TOKEN = 'INVALID_RESET_TOKEN',
   INVALID_CREDENTIALS = 'INVALID_CREDENTIALS',
   USER_ALREADY_EXISTS = 'USER_ALREADY_EXISTS',
   PASSWORD_TOO_SHORT = 'PASSWORD_TOO_SHORT',
@@ -14,6 +15,10 @@ export enum IdentityErrorCode {
 
 export const IDENTITY_ERROR_DEFINITIONS: Readonly<Record<IdentityErrorCode, DomainErrorDefinition<IdentityErrorCode>>> =
   {
+    [IdentityErrorCode.INVALID_RESET_TOKEN]: {
+      code: IdentityErrorCode.INVALID_RESET_TOKEN,
+      messageKey: 'auth.errors.invalidResetToken',
+    },
     [IdentityErrorCode.INVALID_CREDENTIALS]: {
       code: IdentityErrorCode.INVALID_CREDENTIALS,
       messageKey: 'auth.errors.invalidCredentials',

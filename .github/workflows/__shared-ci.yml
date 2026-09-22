@@ -146,6 +146,7 @@ jobs:
           helm-repositories: |
             cloudnative-pg https://cloudnative-pg.github.io/charts
             valkey https://valkey.io/valkey-helm/
+            bokysan https://bokysan.github.io/docker-postfix/
           helm-set: |
             backend.image.registry=${{ fromJSON(needs.build-prod.outputs.built-images).backend.registry }}
             backend.image.repository=${{ fromJSON(needs.build-prod.outputs.built-images).backend.repository }}

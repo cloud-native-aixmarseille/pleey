@@ -11,8 +11,8 @@ Read the docs **before** generating code. All architecture, coding standards, an
 - Backend architecture: [docs/technical/architecture/backend.md](docs/technical/architecture/backend.md)
 - Frontend architecture: [docs/technical/architecture/frontend.md](docs/technical/architecture/frontend.md)
 - Development practices: [docs/technical/development/index.md](docs/technical/development/index.md)
-- Backend development: [docs/technical/development/backend.md](docs/technical/development/backend.md)
-- Frontend development: [docs/technical/development/frontend.md](docs/technical/development/frontend.md)
+- Backend development: [docs/technical/development/backend/index.md](docs/technical/development/backend/index.md)
+- Frontend development: [docs/technical/development/frontend/index.md](docs/technical/development/frontend/index.md)
 
 ## 🎯 Copilot Instruction Files
 
@@ -42,3 +42,7 @@ Review and generation instruction files are configured from `.vscode/settings.js
 - **Vitest** for all tests (not Jest) — Arrange-Act-Assert pattern
 - **Biome** for linting/formatting (not ESLint/Prettier)
 - **Conventional Commits** for all commit messages
+- **List query pagination**: follow [ADR 0011](docs/technical/architecture/adr/0011-standardize-list-query-pagination.md) and the linked development guidance; run the pagination guard for both applications.
+ettier)
+- **Conventional Commits** for all commit messages
+- **List query pagination**: follow [ADR 0011](docs/technical/architecture/adr/0011-standardize-list-query-pagination.md) and the linked development guidance; run the pagination guard for both applications.

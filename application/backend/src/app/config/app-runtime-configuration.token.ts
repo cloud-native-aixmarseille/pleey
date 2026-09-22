@@ -1,4 +1,5 @@
 import type { TokenConfig } from '../../domain/identity/ports/auth-token.service';
+import type { PasswordRecoveryConfig } from '../../infrastructure/identity/services/password-recovery-config.token';
 import type { OpenTelemetryConfig } from '../../infrastructure/telemetry/otel.config';
 import type { AppServerConfig } from './app-server-config.token';
 import type { GameSocketCorsOptions } from './game-socket-cors-options.token';
@@ -13,6 +14,7 @@ export type AppRuntimeConfiguration = {
   readonly partySessionRecoveryWindowMs: number;
   readonly playableContentImportMaxFileSizeBytes: number;
   readonly refreshToken: TokenConfig;
+  readonly passwordRecovery: PasswordRecoveryConfig;
   readonly server: AppServerConfig;
   readonly telemetry: OpenTelemetryConfig;
 };

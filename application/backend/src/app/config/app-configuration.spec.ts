@@ -125,4 +125,74 @@ describe('AppConfiguration', () => {
     // Assert
     expect(configuration.getServerConfig().port).toBe(3001);
   });
+  it('requires trusted HTTPS links and SMTP encryption in production', () => {
+    // Arrange
+    const configuration = new AppConfiguration(
+      new AppEnvironment({
+        ...REQUIRED_RUNTIME_ENVIRONMENT,
+        NODE_ENV: 'production',
+        FRONTEND_URL: 'https://play.example.com/path',
+        SMTP_HOST: 'smtp.example.com',
+        SMTP_FROM: 'noreply@example.com',
+        SMTP_REQUIRE_TLS: 'false',
+      }),
+    );
+    // Act
+    const recovery = configuration.getRuntimeConfiguration().passwordRecovery;
+    // Assert
+    expect(recovery).toMatchObject({
+      frontendUrl: 'https://play.example.com',
+      smtpRequireTls: true,
+      smtpPort: 587,
+      resetTokenLifetimeMinutes: 30,
+    });
+  });
+
+  it('allows configuring the password reset token lifetime in minutes', () => {
+    // Arrange
+    const configuration = new AppConfiguration(
+      new AppEnvironment({
+        ...REQUIRED_RUNTIME_ENVIRONMENT,
+        PASSWORD_RESET_TOKEN_LIFETIME_MINUTES: '45',
+      } as NodeJS.ProcessEnv),
+    );
+
+    // Act
+    const recovery = configuration.getRuntimeConfiguration().passwordRecovery;
+
+    // Assert
+    expect(recovery.resetTokenLifetimeMinutes).toBe(45);
+  });
+
+  it.each(['http://play.example.com', 'https://user:password@play.example.com', 'javascript:alert(1)'])(
+    'rejects unsafe production frontend URL %s',
+    (frontendUrl) => {
+      // Arrange
+      const environment = new AppEnvironment({
+        ...REQUIRED_RUNTIME_ENVIRONMENT,
+        NODE_ENV: 'production',
+        FRONTEND_URL: frontendUrl,
+      });
+      // Act + Assert
+      expect(() => new AppConfiguration(environment)).toThrow('FRONTEND_URL');
+    },
+  );
+
+  it('rejects incomplete SMTP credentials', () => {
+    // Arrange
+    const environment = new AppEnvironment({ ...REQUIRED_RUNTIME_ENVIRONMENT, SMTP_USER: 'user' });
+    // Act + Assert
+    expect(() => new AppConfiguration(environment)).toThrow('SMTP_USER and SMTP_PASSWORD');
+  });
+
+  it('rejects a non-positive password reset token lifetime', () => {
+    // Arrange
+    const environment = new AppEnvironment({
+      ...REQUIRED_RUNTIME_ENVIRONMENT,
+      PASSWORD_RESET_TOKEN_LIFETIME_MINUTES: '0',
+    });
+
+    // Act + Assert
+    expect(() => new AppConfiguration(environment)).toThrow('PASSWORD_RESET_TOKEN_LIFETIME_MINUTES');
+  });
 });

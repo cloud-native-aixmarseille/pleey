@@ -10,7 +10,7 @@ import {
   type TypedDocumentNode,
 } from '@apollo/client';
 import { SetContextLink } from '@apollo/client/link/context';
-import { ErrorLink } from '@apollo/client/link/error';
+import { canonicalStringify, print } from '@apollo/client/utilities';
 import UploadHttpLink from 'apollo-upload-client/UploadHttpLink.mjs';
 import { inject, injectable } from 'inversify';
 import type {
@@ -28,6 +28,7 @@ import {
   isDomainError,
 } from '../../../domains/shared/errors/domain-error';
 import { GRAPHQL_URL } from '../../config/api';
+import { isSameAccessTokenSession, readAccessTokenClaims } from '../../identity/access-token-claims';
 import { RefreshDocument, type RefreshMutation, type RefreshMutationVariables } from '../generated/graphql';
 
 interface GraphqlRequestOptions {
@@ -59,9 +60,13 @@ const GRAPHQL_UPLOAD_PREFLIGHT_HEADERS = {
 export class GraphqlClient implements AuthSessionTransport {
   private handlers: AuthSessionTransportHandlers = {};
   private readonly client: ApolloClient;
+  private readonly pendingQueries = new Map<string, Promise<unknown>>();
   private accessToken: string | null = null;
   private refreshToken: string | null = null;
-  private refreshPromise: Promise<AuthSession | null> | null = null;
+  private refreshPromise: Promise<Pick<AuthSession, 'accessToken'> | null> | null = null;
+  private sessionRevision = 0;
+  private credentialsRevision = 0;
+  private renewalTimer?: ReturnType<typeof setTimeout>;
 
   constructor(
     @inject(AuthPayloadInspector)
@@ -79,8 +84,10 @@ export class GraphqlClient implements AuthSessionTransport {
   }
 
   setAuthSessionTokens(tokens: { accessToken: string | null; refreshToken: string | null }): void {
-    this.accessToken = tokens.accessToken;
-    this.refreshToken = tokens.refreshToken;
+    if (this.accessToken === tokens.accessToken && this.refreshToken === tokens.refreshToken) return;
+    if (!isSameAccessTokenSession(this.accessToken, tokens.accessToken)) this.sessionRevision++;
+    this.refreshPromise = null;
+    this.updateCredentials(tokens.accessToken, tokens.refreshToken);
   }
 
   registerAuthSessionHandlers(handlers: AuthSessionTransportHandlers): void {
@@ -116,9 +123,7 @@ export class GraphqlClient implements AuthSessionTransport {
 
   private createClient(): ApolloClient {
     const authLink = new SetContextLink((context) => {
-      const contextAuthToken = typeof context.authToken === 'string' ? context.authToken : undefined;
-
-      const resolvedAuthToken = contextAuthToken ?? this.accessToken;
+      const resolvedAuthToken = typeof context.authToken === 'string' ? context.authToken : undefined;
 
       return {
         headers: {
@@ -129,33 +134,13 @@ export class GraphqlClient implements AuthSessionTransport {
       };
     });
 
-    const errorLink = new ErrorLink(({ error }) => {
-      if (ServerError.is(error) && error.statusCode === 401) {
-        this.invalidateSession();
-        return;
-      }
-
-      if (!CombinedGraphQLErrors.is(error)) {
-        return;
-      }
-
-      const isUnauthorized = error.errors.some((entry) => {
-        const code = typeof entry.extensions?.code === 'string' ? entry.extensions.code : undefined;
-        const message = entry.message ?? '';
-
-        return this.isAuthError(code, message);
-      });
-
-      if (isUnauthorized) {
-        this.accessToken = null;
-      }
-    });
-
     const httpLink = new UploadHttpLink({ uri: GRAPHQL_URL });
 
     return new ApolloClient({
+      // Apollo's default key omits credentials. Queries are shared by session below.
+      queryDeduplication: false,
       cache: new InMemoryCache(),
-      link: ApolloLink.from([errorLink, authLink, httpLink]),
+      link: ApolloLink.from([authLink, httpLink]),
     });
   }
 
@@ -168,27 +153,39 @@ export class GraphqlClient implements AuthSessionTransport {
     const operationName = this.resolveOperationName(parsedOperation);
     const operationType = this.resolveOperationType(parsedOperation);
 
+    const revision = this.sessionRevision;
+    const credentialsRevision = this.credentialsRevision;
+    const requestToken = options?.authToken ?? this.accessToken;
     try {
       return await this.executeOperation<TData, TVariables>(parsedOperation, variables, options?.authToken);
     } catch (error) {
-      const normalizedError = this.normalizeApolloError(error);
-
+      let normalizedError = this.normalizeApolloError(error);
       if (
         !options?.skipAuthRefresh &&
-        this.refreshToken &&
+        revision === this.sessionRevision &&
         this.isAuthError(normalizedError.code, normalizedError.message)
       ) {
-        const refreshed = await this.refreshSession();
-
-        if (refreshed) {
-          return this.executeRequest<TData, TVariables>(operation, variables, {
-            ...options,
-            authToken: refreshed.accessToken,
-            skipAuthRefresh: true,
-          });
+        const refreshed =
+          requestToken !== this.accessToken && this.accessToken
+            ? { accessToken: this.accessToken }
+            : await this.refreshSession();
+        if (revision === this.sessionRevision) {
+          const retryToken = this.accessToken;
+          const retryCredentialsRevision = this.credentialsRevision;
+          if (retryToken && (refreshed || credentialsRevision !== retryCredentialsRevision)) {
+            try {
+              return await this.executeOperation<TData, TVariables>(parsedOperation, variables, retryToken);
+            } catch (retryError) {
+              normalizedError = this.normalizeApolloError(retryError);
+            }
+          }
+          if (
+            revision === this.sessionRevision &&
+            retryCredentialsRevision === this.credentialsRevision &&
+            this.isAuthError(normalizedError.code, normalizedError.message)
+          )
+            this.invalidateSession();
         }
-
-        this.invalidateSession();
       }
 
       throw createDomainError(
@@ -209,7 +206,7 @@ export class GraphqlClient implements AuthSessionTransport {
   private async executeOperation<TData, TVariables extends OperationVariables>(
     operation: DocumentNode | TypedDocumentNode<TData, TVariables>,
     variables?: TVariables,
-    authToken?: string,
+    authToken: string = this.accessToken ?? '',
   ): Promise<TData> {
     const operationDefinition = operation.definitions.find((definition) => definition.kind === 'OperationDefinition');
 
@@ -218,28 +215,42 @@ export class GraphqlClient implements AuthSessionTransport {
     const resolvedVariables = (variables ?? {}) as TVariables;
     const operationName = this.resolveOperationName(operation);
 
-    const result = isMutation
-      ? await this.client.mutate({
-          mutation: operation,
-          variables: resolvedVariables,
-          context: { authToken },
-          fetchPolicy: 'no-cache',
-        })
-      : await this.client.query({
-          query: operation,
-          variables: resolvedVariables,
-          context: { authToken },
-          fetchPolicy: 'no-cache',
+    const execute = async () => {
+      const result = isMutation
+        ? await this.client.mutate({
+            mutation: operation,
+            variables: resolvedVariables,
+            context: { authToken },
+            fetchPolicy: 'no-cache',
+          })
+        : await this.client.query({
+            query: operation,
+            variables: resolvedVariables,
+            context: { authToken },
+            fetchPolicy: 'no-cache',
+          });
+
+      if (!result.data) {
+        throw new GenericAuthError({
+          operationName,
+          operationType: isMutation ? 'mutation' : 'query',
         });
+      }
 
-    if (!result.data) {
-      throw new GenericAuthError({
-        operationName,
-        operationType: isMutation ? 'mutation' : 'query',
-      });
+      return result.data;
+    };
+
+    if (isMutation) return execute();
+    const key = canonicalStringify([this.credentialsRevision, authToken, print(operation), resolvedVariables]);
+    const pending = this.pendingQueries.get(key);
+    if (pending) return pending as Promise<TData>;
+    const request = execute();
+    this.pendingQueries.set(key, request);
+    try {
+      return await request;
+    } finally {
+      this.pendingQueries.delete(key);
     }
-
-    return result.data;
   }
 
   private resolveOperationName(document: DocumentNode): string | null {
@@ -254,44 +265,86 @@ export class GraphqlClient implements AuthSessionTransport {
     return operationDefinition?.kind === 'OperationDefinition' ? operationDefinition.operation : null;
   }
 
-  private async refreshSession(): Promise<AuthSession | null> {
-    if (!this.refreshToken) {
-      return null;
-    }
+  private async refreshSession(): Promise<Pick<AuthSession, 'accessToken'> | null> {
+    if (!this.refreshToken) return null;
+    if (this.refreshPromise) return this.refreshPromise;
 
-    if (!this.refreshPromise) {
-      this.refreshPromise = (async () => {
-        try {
-          const result = await this.executeOperation<RefreshMutation, RefreshMutationVariables>(RefreshDocument, {
-            input: { refreshToken: this.refreshToken ?? '' },
-          });
-
-          const session = this.payloadInspector.toAuthSession(result.refresh);
-
-          if (!session) {
-            return null;
-          }
-
-          this.setAuthSessionTokens({
-            accessToken: session.accessToken,
-            refreshToken: session.refreshToken,
-          });
-          this.handlers.onSessionRefreshed?.(session);
-          return session;
-        } catch {
-          return null;
-        } finally {
-          this.refreshPromise = null;
+    const revision = this.credentialsRevision;
+    const renew = async () => {
+      if (revision !== this.credentialsRevision) return null;
+      const stored = this.handlers.readSessionTokens?.();
+      if (stored && (stored.accessToken !== this.accessToken || stored.refreshToken !== this.refreshToken)) {
+        if (
+          isSameAccessTokenSession(this.accessToken, stored.accessToken) &&
+          stored.accessToken &&
+          stored.refreshToken
+        ) {
+          this.updateCredentials(stored.accessToken, stored.refreshToken);
+          return { accessToken: stored.accessToken };
         }
-      })();
-    }
+        this.setAuthSessionTokens(stored);
+        return null;
+      }
+      const refreshToken = this.refreshToken;
+      if (!refreshToken) return null;
+      try {
+        const result = await this.executeOperation<RefreshMutation, RefreshMutationVariables>(RefreshDocument, {
+          input: { refreshToken },
+        });
+        const session = this.payloadInspector.toAuthSession(result.refresh);
+        if (!session || revision !== this.credentialsRevision) return null;
 
-    return this.refreshPromise;
+        this.updateCredentials(session.accessToken, session.refreshToken);
+        this.handlers.onSessionRefreshed?.(session);
+        return session;
+      } catch (error) {
+        const normalized = this.normalizeApolloError(error);
+        if (this.isAuthError(normalized.code, normalized.message)) return null;
+        throw error;
+      }
+    };
+    const promise =
+      typeof navigator !== 'undefined' && navigator.locks
+        ? navigator.locks.request('pleey-identity-refresh', renew)
+        : renew();
+    this.refreshPromise = promise;
+    try {
+      return await promise;
+    } finally {
+      if (this.refreshPromise === promise) this.refreshPromise = null;
+    }
+  }
+
+  private updateCredentials(accessToken: string | null, refreshToken: string | null): void {
+    this.credentialsRevision++;
+    this.accessToken = accessToken;
+    this.refreshToken = refreshToken;
+    this.scheduleRenewal();
+  }
+
+  private scheduleRenewal(): void {
+    clearTimeout(this.renewalTimer);
+    if (!this.accessToken || !this.refreshToken) return;
+    const payload = readAccessTokenClaims(this.accessToken);
+    if (typeof payload?.exp !== 'number' || !Number.isFinite(payload.exp)) return;
+    const expiresAt = payload.exp * 1000;
+    const revision = this.credentialsRevision;
+    const renew = async () => {
+      try {
+        const session = await this.refreshSession();
+        if (!session && revision === this.credentialsRevision) this.invalidateSession();
+      } catch {
+        if (revision === this.credentialsRevision) this.renewalTimer = setTimeout(() => void renew(), 30_000);
+      }
+    };
+    this.renewalTimer = setTimeout(
+      () => void renew(),
+      Math.max(1_000, Math.min(2_147_483_647, expiresAt - Date.now() - 30_000)),
+    );
   }
 
   private invalidateSession(): void {
-    this.accessToken = null;
-    this.refreshToken = null;
+    this.setAuthSessionTokens({ accessToken: null, refreshToken: null });
     this.handlers.onSessionInvalidated?.();
   }
 
@@ -299,7 +352,7 @@ export class GraphqlClient implements AuthSessionTransport {
     const normalizedMessage = message.toLowerCase();
 
     if (typeof code === 'string') {
-      if (['UNAUTHORIZED', 'UNAUTHENTICATED', 'FORBIDDEN'].includes(code)) {
+      if (['401', 'UNAUTHORIZED', 'UNAUTHENTICATED', 'INVALID_REFRESH_TOKEN', 'REFRESH_TOKEN_EXPIRED'].includes(code)) {
         return true;
       }
     }
@@ -307,9 +360,8 @@ export class GraphqlClient implements AuthSessionTransport {
     if (
       normalizedMessage.includes('unauthorized') ||
       normalizedMessage.includes('unauthenticated') ||
-      normalizedMessage.includes('forbidden') ||
       normalizedMessage.includes('invalid refresh token') ||
-      normalizedMessage.includes('refresh token')
+      normalizedMessage.includes('refresh token expired')
     ) {
       return true;
     }

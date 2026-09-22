@@ -86,9 +86,7 @@ describe('PrismaOrganizationMemberRepository', () => {
           deletedAt: null,
         },
       },
-      orderBy: {
-        joinedAt: 'asc',
-      },
+      orderBy: [{ joinedAt: 'asc' }, { id: 'asc' }],
       skip: 0,
       take: 25,
     });
@@ -171,9 +169,7 @@ describe('PrismaOrganizationMemberRepository', () => {
           },
         },
       },
-      orderBy: {
-        joinedAt: 'desc',
-      },
+      orderBy: [{ joinedAt: 'desc' }, { id: 'desc' }],
       skip: 0,
       take: 25,
     });

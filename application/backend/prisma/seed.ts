@@ -45,13 +45,19 @@ async function main() {
   const admin = await prisma.user.upsert({
     where: { username: 'admin' },
     update: {
-      email: 'admin@pleey.com',
-      password: adminPassword,
+      authentication: {
+        update: {
+          email: 'admin@pleey.com',
+          password: adminPassword,
+          sessions: { deleteMany: {} },
+          passwordResetTokenHash: null,
+          passwordResetExpiresAt: null,
+        },
+      },
     },
     create: {
       username: 'admin',
-      email: 'admin@pleey.com',
-      password: adminPassword,
+      authentication: { create: { email: 'admin@pleey.com', password: adminPassword } },
     },
   });
 
@@ -59,13 +65,19 @@ async function main() {
   const player = await prisma.user.upsert({
     where: { username: 'player1' },
     update: {
-      email: 'player@pleey.com',
-      password: playerPassword,
+      authentication: {
+        update: {
+          email: 'player@pleey.com',
+          password: playerPassword,
+          sessions: { deleteMany: {} },
+          passwordResetTokenHash: null,
+          passwordResetExpiresAt: null,
+        },
+      },
     },
     create: {
       username: 'player1',
-      email: 'player@pleey.com',
-      password: playerPassword,
+      authentication: { create: { email: 'player@pleey.com', password: playerPassword } },
     },
   });
 

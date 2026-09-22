@@ -6,7 +6,7 @@ applyTo: "application/**/*.{spec,test}.{ts,tsx,js,jsx,mts,cts}"
 
 # Pleey unit test rules
 
-Use `docs/technical/development/backend.md`, `docs/technical/development/frontend.md`, and `docs/technical/development/index.md` for the broader testing model. This file only captures high-signal test rules shared across the applications.
+Use `docs/technical/development/backend/tooling-and-testing.md`, `docs/technical/development/frontend/tooling-and-testing.md`, and `docs/technical/development/index.md` for the broader testing model. This file only captures high-signal test rules shared across the applications.
 
 - Use Vitest, not Jest, because the repository test runner, setup files, and helpers are built around Vitest.
 - Keep tests deterministic and structured as arrange, act, then assert because that keeps failures easy to debug.

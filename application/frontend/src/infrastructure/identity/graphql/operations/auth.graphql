@@ -55,3 +55,63 @@ mutation Refresh($input: RefreshTokenInput!) {
     }
   }
 }
+
+mutation ForgotPassword($input: ForgotPasswordInput!) {
+  forgotPassword(input: $input)
+}
+
+mutation ResetPassword($input: ResetPasswordInput!) {
+  resetPassword(input: $input)
+}
+
+query MyGameHistory($input: UserGameHistoryInput!) {
+  myGameHistory(input: $input) {
+    totalCount
+    overallCount
+    page
+    pageSize
+    totalPages
+    items {
+      partyId
+      title
+      gameType
+      status
+      createdAt
+      role
+      points
+    }
+  }
+}
+
+fragment UserSessionFields on UserSessionType {
+  id
+  createdAt
+  lastActiveAt
+  expiresAt
+  userAgent
+  ipAddress
+}
+
+query MySessions($input: UserSessionListInput!) {
+  myCurrentSession {
+    ...UserSessionFields
+  }
+  myOtherSessions(input: $input) {
+    items {
+      ...UserSessionFields
+    }
+    page
+    pageSize
+    totalCount
+    overallCount
+    totalPages
+  }
+}
+
+mutation RevokeSession($input: RevokeUserSessionInput!) {
+  revokeSession(input: $input)
+}
+
+mutation RevokeOtherSessions {
+  revokeOtherSessions
+}

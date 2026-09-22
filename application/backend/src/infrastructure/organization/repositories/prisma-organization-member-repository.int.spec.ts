@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
+import { UserIdentifier } from '../../../application/identity/shared/services/identifiers/user-identifier';
+import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
+import { OrganizationMemberIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-member-identifier';
 import { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
-import { backendTestIdentifiers } from '../../../test-utils/branded-identifiers';
 import { createPersistedOrganizationFixture } from '../../../test-utils/fixtures/integration/organization.fixture';
 import { PrismaIntegrationTestHarness } from '../../../test-utils/fixtures/integration/prisma-integration-test-harness';
 import { createPersistedUserFixture } from '../../../test-utils/fixtures/integration/user.fixture';
@@ -11,7 +13,12 @@ const hasDatabase = Boolean((process.env.DATABASE_URL ?? '').trim());
 const describeIfDatabase = hasDatabase ? describe : describe.skip;
 
 describeIfDatabase('PrismaOrganizationMemberRepository', () => {
-  const harness = new PrismaIntegrationTestHarness(PrismaOrganizationMemberRepository);
+  const userIdentifier = new UserIdentifier();
+  const organizationIdentifier = new OrganizationIdentifier();
+  const harness = new PrismaIntegrationTestHarness(PrismaOrganizationMemberRepository, [
+    OrganizationIdentifier,
+    OrganizationMemberIdentifier,
+  ]);
 
   const createdUserIds: string[] = [];
   const createdOrganizationIds: string[] = [];
@@ -39,7 +46,6 @@ describeIfDatabase('PrismaOrganizationMemberRepository', () => {
     const user = await createPersistedUserFixture(harness.prisma, {
       username: `member_${unique}`,
       email: `member_${unique}@example.com`,
-      password: 'hashed',
     });
     createdUserIds.push(user.id);
 
@@ -50,8 +56,8 @@ describeIfDatabase('PrismaOrganizationMemberRepository', () => {
     createdOrganizationIds.push(organization.id);
 
     const memberFixture = createOrganizationMemberFixture({
-      organizationId: backendTestIdentifiers.organization(organization.id),
-      userId: backendTestIdentifiers.user(user.id),
+      organizationId: organizationIdentifier.parse(organization.id),
+      userId: userIdentifier.parse(user.id),
       role: OrganizationRole.MEMBER,
     });
     const member = await harness.repository.create(
@@ -63,8 +69,8 @@ describeIfDatabase('PrismaOrganizationMemberRepository', () => {
 
     // Act
     const found = await harness.repository.findByOrganizationAndUser(
-      backendTestIdentifiers.organization(organization.id),
-      backendTestIdentifiers.user(user.id),
+      organizationIdentifier.parse(organization.id),
+      userIdentifier.parse(user.id),
     );
     // Assert
     expect(found?.id).toBe(member.id);
@@ -81,7 +87,6 @@ describeIfDatabase('PrismaOrganizationMemberRepository', () => {
     const user = await createPersistedUserFixture(harness.prisma, {
       username: `restored_member_${unique}`,
       email: `restored_member_${unique}@example.com`,
-      password: 'hashed',
     });
     createdUserIds.push(user.id);
 
@@ -92,8 +97,8 @@ describeIfDatabase('PrismaOrganizationMemberRepository', () => {
     createdOrganizationIds.push(organization.id);
 
     const createdMember = await harness.repository.create(
-      backendTestIdentifiers.organization(organization.id),
-      backendTestIdentifiers.user(user.id),
+      organizationIdentifier.parse(organization.id),
+      userIdentifier.parse(user.id),
       OrganizationRole.MEMBER,
     );
     createdMemberIds.push(createdMember.id);
@@ -103,14 +108,14 @@ describeIfDatabase('PrismaOrganizationMemberRepository', () => {
     // Assert
     expect(
       await harness.repository.findByOrganizationAndUser(
-        backendTestIdentifiers.organization(organization.id),
-        backendTestIdentifiers.user(user.id),
+        organizationIdentifier.parse(organization.id),
+        userIdentifier.parse(user.id),
       ),
     ).toBeNull();
 
     const restoredMember = await harness.repository.create(
-      backendTestIdentifiers.organization(organization.id),
-      backendTestIdentifiers.user(user.id),
+      organizationIdentifier.parse(organization.id),
+      userIdentifier.parse(user.id),
       OrganizationRole.MANAGER,
     );
 
@@ -118,8 +123,8 @@ describeIfDatabase('PrismaOrganizationMemberRepository', () => {
     expect(restoredMember.role).toBe(OrganizationRole.MANAGER);
 
     const activeMember = await harness.repository.findByOrganizationAndUser(
-      backendTestIdentifiers.organization(organization.id),
-      backendTestIdentifiers.user(user.id),
+      organizationIdentifier.parse(organization.id),
+      userIdentifier.parse(user.id),
     );
     expect(activeMember?.id).toBe(createdMember.id);
     expect(activeMember?.role).toBe(OrganizationRole.MANAGER);
@@ -132,7 +137,6 @@ describeIfDatabase('PrismaOrganizationMemberRepository', () => {
     const user = await createPersistedUserFixture(harness.prisma, {
       username: `latest_member_${unique}`,
       email: `latest_member_${unique}@example.com`,
-      password: 'hashed',
     });
     createdUserIds.push(user.id);
 
@@ -149,32 +153,32 @@ describeIfDatabase('PrismaOrganizationMemberRepository', () => {
     createdOrganizationIds.push(secondOrganization.id);
 
     const firstMembership = await harness.repository.create(
-      backendTestIdentifiers.organization(firstOrganization.id),
-      backendTestIdentifiers.user(user.id),
+      organizationIdentifier.parse(firstOrganization.id),
+      userIdentifier.parse(user.id),
       OrganizationRole.MEMBER,
     );
     createdMemberIds.push(firstMembership.id);
 
     const secondMembership = await harness.repository.create(
-      backendTestIdentifiers.organization(secondOrganization.id),
-      backendTestIdentifiers.user(user.id),
+      organizationIdentifier.parse(secondOrganization.id),
+      userIdentifier.parse(user.id),
       OrganizationRole.OWNER,
     );
     createdMemberIds.push(secondMembership.id);
 
     // Act
-    const latestMembership = await harness.repository.findLatestByUser(backendTestIdentifiers.user(user.id));
+    const latestMembership = await harness.repository.findLatestByUser(userIdentifier.parse(user.id));
     // Assert
     expect(latestMembership?.id).toBe(secondMembership.id);
 
     expect(
-      await harness.repository.countOwnersByOrganization(backendTestIdentifiers.organization(secondOrganization.id)),
+      await harness.repository.countOwnersByOrganization(organizationIdentifier.parse(secondOrganization.id)),
     ).toBe(1);
 
     await harness.repository.delete(secondMembership.id);
 
     expect(
-      await harness.repository.countOwnersByOrganization(backendTestIdentifiers.organization(secondOrganization.id)),
+      await harness.repository.countOwnersByOrganization(organizationIdentifier.parse(secondOrganization.id)),
     ).toBe(0);
   });
 });

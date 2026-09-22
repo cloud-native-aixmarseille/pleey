@@ -188,7 +188,7 @@ export class PrismaPartyManagementAdapter extends PartyManagementPort {
   }
 
   async listUserParties(query: ListPartiesQuery): Promise<PaginatedResult<PartySummary>> {
-    const pagination = this.paginationQueryNormalizer.normalizeQuery(query, 25);
+    const pagination = this.paginationQueryNormalizer.normalizeQuery(query);
     const where = {
       deletedAt: null,
       game: {
@@ -215,29 +215,30 @@ export class PrismaPartyManagementAdapter extends PartyManagementPort {
       ],
     } satisfies Prisma.PartyWhereInput;
 
-    const [totalCount, parties] = await this.prisma.$transaction([
-      this.prisma.party.count({ where }),
-      this.prisma.party.findMany({
-        where,
-        orderBy: {
-          createdAt: 'desc',
-        },
-        include: {
-          scores: {
-            where: {
-              userId: query.userId,
-              deletedAt: null,
+    const [totalCount, parties] = await this.prisma.$transaction(
+      [
+        this.prisma.party.count({ where }),
+        this.prisma.party.findMany({
+          where,
+          orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+          include: {
+            scores: {
+              where: {
+                userId: query.userId,
+                deletedAt: null,
+              },
+              select: {
+                id: true,
+              },
+              take: 1,
             },
-            select: {
-              id: true,
-            },
-            take: 1,
           },
-        },
-        skip: pagination.skip,
-        take: pagination.pageSize,
-      }),
-    ]);
+          skip: pagination.skip,
+          take: pagination.pageSize,
+        }),
+      ],
+      { isolationLevel: 'RepeatableRead' },
+    );
 
     return this.paginationQueryNormalizer.toPaginatedResult(
       pagination,
