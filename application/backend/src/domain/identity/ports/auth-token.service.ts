@@ -14,9 +14,11 @@ export const AuthTokenServiceProvider = Symbol('AuthTokenService');
 export type AccessTokenPayload = {
   id: UserId;
   username: string;
+  sessionId?: string;
 };
 
 export interface TokenPair {
+  sessionId: string;
   accessToken: AuthToken;
   refreshToken: AuthToken;
   accessTokenExpiresIn: number;
@@ -33,6 +35,7 @@ export interface AuthTokenResponse {
 }
 
 export interface AuthTokenService {
+  hashToken(token: string): string;
   createTokenPair(payload: AccessTokenPayload): TokenPair;
   verifyRefreshToken(token: AuthToken): Promise<UserId>;
   mapTokensToResponse(tokens: TokenPair, user: AuthenticatedUserSnapshot): AuthTokenResponse;

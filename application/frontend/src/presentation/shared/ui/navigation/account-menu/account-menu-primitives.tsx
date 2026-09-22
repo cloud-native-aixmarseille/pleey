@@ -42,7 +42,7 @@ export function AccountMenuTriggerButton({ children, type = 'button', ...props }
 
 export function AccountMenuUsername({ children }: PropsWithChildren) {
   return (
-    <Text c={uiThemeTokens.color.text.primary} fw={600} size="xs" span>
+    <Text c={uiThemeTokens.color.text.primary} fw={600} maw="12rem" size="xs" span truncate visibleFrom="sm">
       {children}
     </Text>
   );

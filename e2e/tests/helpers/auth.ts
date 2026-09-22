@@ -18,7 +18,7 @@ type AuthPayload = {
 
 const resolveApiBaseUrl = () => process.env.API_BASE_URL ?? "http://backend:3001/api";
 
-const resolveGraphqlUrl = () => {
+export const resolveGraphqlUrl = () => {
   const apiBaseUrl = resolveApiBaseUrl().replace(/\/+$/, "");
   return apiBaseUrl.endsWith("/graphql") ? apiBaseUrl : `${apiBaseUrl.replace(/\/api$/, "")}/graphql`;
 };

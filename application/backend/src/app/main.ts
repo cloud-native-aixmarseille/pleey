@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { initializeOpenTelemetry, OtelLoggerService } from '../infrastructure/telemetry';
 import { APP_SERVER_CONFIG, type AppServerConfig } from './config/app-server-config.token';
 import { ConfiguredIoAdapter } from './config/configured-io-adapter';
@@ -26,7 +27,7 @@ async function bootstrap() {
     import('../presentation/shared/error-handling/error-translation-service.js'),
   ]);
 
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: new OtelLoggerService(),
     routeConflictPolicy: {
       duplicate: 'error',
@@ -41,6 +42,7 @@ async function bootstrap() {
   const serverConfig = app.get<AppServerConfig>(APP_SERVER_CONFIG);
   const socketCorsOptions = app.get(GAME_SOCKET_CORS_OPTIONS);
 
+  app.set('trust proxy', serverConfig.trustedProxyCidrs);
   app.enableCors();
   app.useWebSocketAdapter(
     new ConfiguredIoAdapter(app, socketCorsOptions, runtimeConfiguration.partySessionRecoveryWindowMs),

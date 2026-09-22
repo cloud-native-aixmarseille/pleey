@@ -74,7 +74,7 @@ describe('PrismaProjectRepository', () => {
           deletedAt: null,
         },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       skip: 0,
       take: 25,
     });

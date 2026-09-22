@@ -50,8 +50,8 @@ All documentation lives in [`/docs`](docs/) — the single source of truth.
 ### Development
 
 - [Development Reference](docs/technical/development/index.md) — setup, commands, coding standards, commits, PR process
-- [Backend Development](docs/technical/development/backend.md) — testing, use-cases, ports, resolvers, performance
-- [Frontend Development](docs/technical/development/frontend.md) — codegen, lint, testing, screens, styling, DI, routing
+- [Backend Development](docs/technical/development/backend/index.md) — tooling, testing, application patterns, operations, pagination
+- [Frontend Development](docs/technical/development/frontend/index.md) — tooling, testing, application patterns, standards, pagination
 
 ### Contributing
 

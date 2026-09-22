@@ -28,7 +28,9 @@ describe('PresentationFormProvider', () => {
           handleChange: (_value: TValue) => undefined,
         }),
         useFormContext: () => ({
-          Subscribe: ({ children, selector }) => <>{children(selector({ isSubmitting: false }))}</>,
+          Subscribe: ({ children, selector }) => (
+            <>{children(selector({ isSubmitting: false, isDefaultValue: true }))}</>
+          ),
         }),
       };
 

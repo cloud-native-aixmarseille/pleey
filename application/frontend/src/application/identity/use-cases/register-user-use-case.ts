@@ -3,6 +3,7 @@ import type { User } from '../../../domains/identity/entities/user';
 import { type AuthRepository, AuthRepositoryToken } from '../../../domains/identity/ports/auth-repository';
 
 export interface RegisterUserCommand {
+  readonly captchaToken: string;
   readonly username: string;
   readonly email: string;
   readonly password: string;
@@ -16,6 +17,6 @@ export class RegisterUserUseCase {
   ) {}
 
   execute(command: RegisterUserCommand): Promise<User> {
-    return this.authRepository.register(command.username, command.email, command.password);
+    return this.authRepository.register(command.username, command.email, command.password, command.captchaToken);
   }
 }

@@ -14,8 +14,6 @@ type OrganizationWithRole = Organization & {
   role: OrganizationRole | null;
 };
 
-const DEFAULT_PAGE_SIZE = 25;
-
 interface ListUserOrganizationsQuery extends PaginationQuery {}
 
 /**
@@ -32,7 +30,7 @@ export class ListUserOrganizationsUseCase {
   ) {}
 
   async execute(input: ListUserOrganizationsQuery, userId: UserId): Promise<PaginatedResult<OrganizationWithRole>> {
-    const pagination = this.paginationQueryNormalizer.normalizeQuery(input, DEFAULT_PAGE_SIZE);
+    const pagination = this.paginationQueryNormalizer.normalizeQuery(input);
     const memberships = await this.memberRepository.findPageByUser(
       userId,
       pagination.page,

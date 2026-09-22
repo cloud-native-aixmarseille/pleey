@@ -100,7 +100,7 @@ Root `AppModule` imports all feature modules + `GraphQLModule` (Apollo, code-fir
 
 - `process.env` reads restricted to `src/app/config/` (enforced by Biome `noProcessEnv`)
 - `AppEnvironment` reads raw env vars
-- `AppConfiguration` wraps into typed config objects
+- `AppConfiguration` validates supplied values into typed config objects, without defaults or environment-name branches; see [ADR 0009](./adr/0009-harden-identity-recovery-and-sessions.md#explicit-runtime-configuration) and [runtime configuration](../development/backend/operations.md#runtime-configuration)
 - Distributed via NestJS DI tokens: `APP_SERVER_CONFIG`, `GAME_SOCKET_CORS_OPTIONS`, etc.
 
 ## Bootstrap (`main.ts`)

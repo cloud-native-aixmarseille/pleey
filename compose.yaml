@@ -41,6 +41,22 @@ services:
       timeout: 5s
       retries: 5
 
+  mailpit:
+    image: axllent/mailpit:v1.29.0
+    restart: unless-stopped
+    expose:
+      - "8025"
+      - "1025"
+    networks:
+      - pleey-network
+      - traefik-proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mailpit.rule=Host(`mailpit.pleey.localhost`)"
+      - "traefik.http.routers.mailpit.entrypoints=http"
+      - "traefik.http.services.mailpit.loadbalancer.server.port=8025"
+      - "traefik.docker.network=traefik-proxy"
+
   # Backend NestJS (dev watch mode)
   backend:
     build:
@@ -54,17 +70,39 @@ services:
     expose:
       - "3001"
     environment:
+      - FRONTEND_URL=http://pleey.localhost
+      - FRONTEND_REQUIRE_HTTPS=false
+      - SMTP_HOST=mailpit
+      - SMTP_PORT=1025
+      - SMTP_SECURE=false
+      - SMTP_REQUIRE_TLS=false
+      - SMTP_FROM=Pleey <noreply@pleey.localhost>
+      - PASSWORD_RESET_TOKEN_LIFETIME_MINUTES=30
       - NODE_ENV=development
       - APP_VERSION=${APP_VERSION:-dev}
       - PORT=3001
+      - GRAPHQL_GRAPHIQL_ENABLED=true
+      - GRAPHQL_INTROSPECTION_ENABLED=true
+      - GRAPHQL_SCHEMA_OUTPUT_PATH=src/schema.gql
+      - I18N_WATCH_ENABLED=true
+      - PARTY_SESSION_RECOVERY_WINDOW_MS=300000
+      - PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES=5242880
       - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_change_me}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-your_jwt_refresh_secret_change_me}
+      - JWT_ACCESS_EXPIRES_IN_SECONDS=3600
+      - JWT_REFRESH_EXPIRES_IN_SECONDS=1209600
+      - CAP_SECRET=${CAP_SECRET:-pleey-development-cap-secret-change-before-production}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-pleeyapp}:${POSTGRES_PASSWORD:-pleeyapp_password}@postgres:5432/${POSTGRES_DB:-pleeydb}?schema=public
       - DATABASE_URL_TEST=postgresql://${POSTGRES_USER:-pleeyapp}:${POSTGRES_PASSWORD:-pleeyapp_password}@postgres:5432/${POSTGRES_TEST_DB:-pleeydb_test}?schema=public
       - VALKEY_URL=redis://valkey:6379
       - CORS_ORIGIN=*
+      - TRUSTED_PROXY_CIDRS=${TRUSTED_PROXY_CIDRS:-}
       - CHOKIDAR_USEPOLLING=1
       - CHOKIDAR_INTERVAL=500
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_CONSOLE_DIAGNOSTICS_ENABLED=false
+      - OTEL_CONSOLE_EXPORTERS_ENABLED=false
+      - OTEL_CONSOLE_LOGS_ENABLED=false
     depends_on:
       otel-collector:
         condition: service_healthy

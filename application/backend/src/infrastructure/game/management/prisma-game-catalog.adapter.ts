@@ -20,7 +20,7 @@ export class PrismaGameCatalogAdapter implements GameCatalogPort {
   ) {}
 
   async listProjectGames(query: ListProjectGamesQuery): Promise<ProjectGameCatalogPage> {
-    const pagination = this.paginationQueryNormalizer.normalizeQuery(query, 9);
+    const pagination = this.paginationQueryNormalizer.normalizeQuery(query);
     const search = pagination.search ?? '';
     const baseWhere: Prisma.GameWhereInput = {
       projectId: query.projectId,
@@ -62,31 +62,34 @@ export class PrismaGameCatalogAdapter implements GameCatalogPort {
     };
     const orderBy: Prisma.GameOrderByWithRelationInput[] =
       query.sortField === 'title'
-        ? [{ title: query.sortDirection ?? 'asc' }, { createdAt: Prisma.SortOrder.desc }]
-        : [{ createdAt: query.sortDirection ?? 'desc' }, { title: Prisma.SortOrder.asc }];
+        ? [{ title: query.sortDirection ?? 'asc' }, { createdAt: Prisma.SortOrder.desc }, { id: Prisma.SortOrder.asc }]
+        : [{ createdAt: query.sortDirection ?? 'desc' }, { title: Prisma.SortOrder.asc }, { id: Prisma.SortOrder.asc }];
 
-    const [overallCount, totalCount, games] = await this.prisma.$transaction([
-      this.prisma.game.count({ where: baseWhere }),
-      this.prisma.game.count({ where: filteredWhere }),
-      this.prisma.game.findMany({
-        where: filteredWhere,
-        include: {
-          prediction: {
-            select: {
-              id: true,
+    const [overallCount, totalCount, games] = await this.prisma.$transaction(
+      [
+        this.prisma.game.count({ where: baseWhere }),
+        this.prisma.game.count({ where: filteredWhere }),
+        this.prisma.game.findMany({
+          where: filteredWhere,
+          include: {
+            prediction: {
+              select: {
+                id: true,
+              },
+            },
+            quiz: {
+              select: {
+                id: true,
+              },
             },
           },
-          quiz: {
-            select: {
-              id: true,
-            },
-          },
-        },
-        orderBy,
-        skip: pagination.skip,
-        take: pagination.pageSize,
-      }),
-    ]);
+          orderBy,
+          skip: pagination.skip,
+          take: pagination.pageSize,
+        }),
+      ],
+      { isolationLevel: 'RepeatableRead' },
+    );
 
     const predictionIds = games.map((game) => game.prediction?.id ?? null).filter((id): id is string => id !== null);
     const promptCounts = predictionIds.length

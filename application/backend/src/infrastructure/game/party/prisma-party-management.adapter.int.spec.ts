@@ -1,3 +1,14 @@
+import { PartyActionIdentifier } from '../../../application/game/party/shared/services/identifiers/party-action-identifier';
+import { PartyIdentifier } from '../../../application/game/party/shared/services/identifiers/party-identifier';
+import { PartyPinIdentifier } from '../../../application/game/party/shared/services/identifiers/party-pin-identifier';
+import { PartyStageIdentifier } from '../../../application/game/party/shared/services/identifiers/party-stage-identifier';
+import { GameIdentifier } from '../../../application/game/shared/services/identifiers/game-identifier';
+import { GuestIdentifier } from '../../../application/identity/shared/services/identifiers/guest-identifier';
+import { UserIdentifier } from '../../../application/identity/shared/services/identifiers/user-identifier';
+import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
+import { ProjectIdentifier } from '../../../application/workspace/shared/services/identifiers/project-identifier';
+import { PrismaPartySettingsMapper } from '../shared/prisma-party-settings.mapper';
+import { PrismaPartyReadModelMapper } from './services/prisma-party-read-model-mapper';
 import 'reflect-metadata';
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_PARTY_SETTINGS } from '../../../domain/game/party/shared/entities/party-settings';
@@ -9,7 +20,21 @@ const hasDatabase = Boolean((process.env.DATABASE_URL ?? '').trim());
 const describeIfDatabase = hasDatabase ? describe : describe.skip;
 
 describeIfDatabase('PrismaPartyManagementAdapter', () => {
-  const harness = new PrismaIntegrationTestHarness(PrismaPartyManagementAdapter);
+  const userIdentifier = new UserIdentifier();
+  const gameIdentifier = new GameIdentifier();
+  const harness = new PrismaIntegrationTestHarness(PrismaPartyManagementAdapter, [
+    PartyIdentifier,
+    PartyPinIdentifier,
+    PartyActionIdentifier,
+    PartyStageIdentifier,
+    GameIdentifier,
+    UserIdentifier,
+    GuestIdentifier,
+    OrganizationIdentifier,
+    ProjectIdentifier,
+    PrismaPartyReadModelMapper,
+    PrismaPartySettingsMapper,
+  ]);
 
   const userIds: string[] = [];
   const organizationIds: string[] = [];
@@ -55,8 +80,7 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
     const host = await harness.prisma.user.create({
       data: {
         username: `host_${unique}`,
-        email: `host_${unique}@example.com`,
-        password: 'hashed',
+        authentication: { create: { email: `host_${unique}@example.com`, password: 'hashed' } },
       },
     });
     userIds.push(host.id);
@@ -64,8 +88,7 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
     const player = await harness.prisma.user.create({
       data: {
         username: `player_${unique}`,
-        email: `player_${unique}@example.com`,
-        password: 'hashed',
+        authentication: { create: { email: `player_${unique}@example.com`, password: 'hashed' } },
       },
     });
     userIds.push(player.id);
@@ -102,8 +125,8 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
     gameIds.push(game.id);
 
     const created = await harness.repository.createParty({
-      gameId: backendTestIdentifiers.game(game.id),
-      hostUserId: backendTestIdentifiers.user(host.id),
+      gameId: gameIdentifier.parse(game.id),
+      hostUserId: userIdentifier.parse(host.id),
       pin: backendTestIdentifiers.partyPin('123456'),
       settings: DEFAULT_PARTY_SETTINGS,
     });
@@ -117,13 +140,13 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
     });
     scoreIds.push(score.id);
 
-    const managedGame = await harness.repository.findManagedGame(backendTestIdentifiers.game(game.id));
+    const managedGame = await harness.repository.findManagedGame(gameIdentifier.parse(game.id));
     const hostParties = await harness.repository.listUserParties({
-      userId: backendTestIdentifiers.user(host.id),
+      userId: userIdentifier.parse(host.id),
     });
     // Act
     const playerParties = await harness.repository.listUserParties({
-      userId: backendTestIdentifiers.user(player.id),
+      userId: userIdentifier.parse(player.id),
     });
 
     // Assert
@@ -161,8 +184,7 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
     const host = await harness.prisma.user.create({
       data: {
         username: `cross_host_${unique}`,
-        email: `cross_host_${unique}@example.com`,
-        password: 'hashed',
+        authentication: { create: { email: `cross_host_${unique}@example.com`, password: 'hashed' } },
       },
     });
     userIds.push(host.id);
@@ -223,8 +245,8 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
     gameIds.push(secondGame.id);
 
     const firstParty = await harness.repository.createParty({
-      gameId: backendTestIdentifiers.game(firstGame.id),
-      hostUserId: backendTestIdentifiers.user(host.id),
+      gameId: gameIdentifier.parse(firstGame.id),
+      hostUserId: userIdentifier.parse(host.id),
       pin: backendTestIdentifiers.partyPin('111111'),
       settings: DEFAULT_PARTY_SETTINGS,
     });
@@ -243,7 +265,7 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
 
     // Act
     const parties = await harness.repository.listUserParties({
-      userId: backendTestIdentifiers.user(host.id),
+      userId: userIdentifier.parse(host.id),
     });
 
     // Assert

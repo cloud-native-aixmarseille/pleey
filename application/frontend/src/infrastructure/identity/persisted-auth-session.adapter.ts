@@ -45,6 +45,7 @@ export class PersistedAuthSessionAdapter {
     const user = this.storage.getItem(StorageKey.AUTH_USER);
 
     if (!accessToken || !refreshToken || !user) {
+      this.clear();
       return null;
     }
 
@@ -70,11 +71,19 @@ export class PersistedAuthSessionAdapter {
     this.storage.removeItem(StorageKey.AUTH_ACCESS_TOKEN);
     this.storage.removeItem(StorageKey.AUTH_REFRESH_TOKEN);
     this.storage.removeItem(StorageKey.AUTH_USER);
+    this.suspend();
+  }
+
+  suspend(): void {
     this.transport.setAuthSessionTokens({ accessToken: null, refreshToken: null });
   }
 
   registerHandlers(handlers: AuthSessionTransportHandlers): void {
     this.transport.registerAuthSessionHandlers({
+      readSessionTokens: () => ({
+        accessToken: this.storage.getItem(StorageKey.AUTH_ACCESS_TOKEN),
+        refreshToken: this.storage.getItem(StorageKey.AUTH_REFRESH_TOKEN),
+      }),
       onSessionRefreshed: (session) => {
         this.commit(session);
         handlers.onSessionRefreshed?.(session);
@@ -84,6 +93,16 @@ export class PersistedAuthSessionAdapter {
         handlers.onSessionInvalidated?.();
       },
     });
+  }
+
+  watch(listener: () => void): () => void {
+    const onStorage = (event: StorageEvent) => {
+      if (event.storageArea && event.storageArea !== window.localStorage) return;
+      if (event.key === null || event.key === StorageKey.AUTH_REFRESH_TOKEN || event.key === StorageKey.AUTH_USER)
+        listener();
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
   }
 
   private parseStoredUser(rawUser: string): AuthSession['user'] {

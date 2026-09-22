@@ -34,6 +34,7 @@ export function ConfirmDialog({
 
   return (
     <Modal
+      attributes={{ content: { 'aria-label': title ?? message } }}
       centered={!isMobile}
       onClose={onCancel}
       opened={isOpen}
@@ -52,7 +53,6 @@ export function ConfirmDialog({
           margin: 0,
           borderRadius: isMobile ? `${uiThemeTokens.radius.panel} ${uiThemeTokens.radius.panel} 0 0` : undefined,
         },
-        header: { display: 'none' },
         inner: isMobile
           ? {
               alignItems: 'flex-end',

@@ -50,7 +50,7 @@ describe('ConfirmDialog', () => {
     renderWithUiProvider(<ConfirmDialog {...defaults} />);
 
     // Assert
-    expect(screen.getByRole('dialog')).toHaveAttribute('aria-modal', 'true');
+    expect(screen.getByRole('dialog', { name: defaults.message })).toHaveAttribute('aria-modal', 'true');
   });
 
   it('renders an optional title', () => {
@@ -59,6 +59,7 @@ describe('ConfirmDialog', () => {
 
     // Assert
     expect(screen.getByText('Confirm deletion')).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: 'Confirm deletion' })).toBeInTheDocument();
   });
 
   it('calls onConfirm when confirm button is clicked', async () => {

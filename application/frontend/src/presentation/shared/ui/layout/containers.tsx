@@ -1,5 +1,5 @@
-import { Box, Container, Group, type MantineBreakpoint, SimpleGrid, Stack } from '@mantine/core';
-import type { PropsWithChildren } from 'react';
+import { Box, Container, Grid, Group, type MantineBreakpoint, SimpleGrid, Stack } from '@mantine/core';
+import type { PropsWithChildren, ReactNode } from 'react';
 
 interface PageContainerProps extends PropsWithChildren {
   readonly maxWidth?: string;
@@ -51,6 +51,21 @@ interface StretchRowProps extends PropsWithChildren {
 }
 
 interface FlexGrowItemProps extends PropsWithChildren {}
+
+interface SidebarLayoutProps extends PropsWithChildren {
+  readonly sidebar: ReactNode;
+}
+
+export function SidebarLayout({ children, sidebar }: SidebarLayoutProps) {
+  return (
+    <Grid align="start" gap={{ base: 'md', sm: 'xl' }}>
+      <Grid.Col span={{ base: 12, sm: 3 }}>{sidebar}</Grid.Col>
+      <Grid.Col miw={0} span={{ base: 12, sm: 9 }}>
+        {children}
+      </Grid.Col>
+    </Grid>
+  );
+}
 
 export function PageContainer({ children, maxWidth = 'xl' }: PageContainerProps) {
   return (

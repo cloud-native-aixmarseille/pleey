@@ -27,7 +27,7 @@ describe('ListOrganizationProjectsUseCase', () => {
         totalCount: 0,
         overallCount: 0,
         page: 1,
-        pageSize: 25,
+        pageSize: 9,
         totalPages: 1,
       } as never,
     });
@@ -49,7 +49,7 @@ describe('ListOrganizationProjectsUseCase', () => {
     );
 
     // Assert
-    expect(projectRepository.findPageByOrganization).toHaveBeenCalledWith(organizationId, 1, 25, 'launch');
+    expect(projectRepository.findPageByOrganization).toHaveBeenCalledWith(organizationId, 1, 9, 'launch');
   });
 
   it('rejects non-members before querying projects', async () => {

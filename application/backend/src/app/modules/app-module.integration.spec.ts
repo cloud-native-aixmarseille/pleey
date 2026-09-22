@@ -49,6 +49,7 @@ const moduleCases: ModuleCase[] = [
   },
   {
     moduleName: 'IdentityModule',
+    requiresRootI18n: true,
     loadModule: async () => {
       const { IdentityModule } = await import('./identity/identity-module.js');
       return IdentityModule;

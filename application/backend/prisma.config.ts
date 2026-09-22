@@ -21,6 +21,7 @@ export default defineConfig({
   schema: './prisma/schema.prisma',
   datasource: {
     url: readEnvOrFile('DATABASE_URL'),
+    shadowDatabaseUrl: readEnvOrFile('SHADOW_DATABASE_URL') || undefined,
   },
   migrations: {
     seed: 'npm run seed',

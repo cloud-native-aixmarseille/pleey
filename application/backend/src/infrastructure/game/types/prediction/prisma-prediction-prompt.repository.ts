@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PredictionPromptIdentifier } from '../../../../application/game/types/prediction/services/prediction-prompt-identifier';
 import { PredictionSelectableOptionIdentifier } from '../../../../application/game/types/prediction/services/prediction-selectable-option-identifier';
 import { GameTypeIdentifier } from '../../../../application/game/types/shared/services/game-type-identifier';
+import { PaginationQueryNormalizer } from '../../../../application/shared/services/pagination-query-normalizer';
 import type { PredictionId } from '../../../../domain/game/types/prediction/entities/prediction';
 import {
   PredictionPrompt,
@@ -13,6 +14,8 @@ import type {
   PredictionPromptRepository,
 } from '../../../../domain/game/types/prediction/ports/prediction-prompt.repository';
 import { createDomainError } from '../../../../domain/shared/errors/domain-error';
+import type { PaginatedResult } from '../../../../domain/shared/value-objects/paginated-result';
+import type { PaginationQuery } from '../../../../domain/shared/value-objects/pagination-query';
 import { PrismaService } from '../../../database/prisma-service';
 import {
   PrismaSelectableOptionMapper,
@@ -56,6 +59,7 @@ export class PrismaPredictionPromptRepository implements PredictionPromptReposit
     private readonly predictionPromptIdentifier: PredictionPromptIdentifier,
     private readonly predictionSelectableOptionIdentifier: PredictionSelectableOptionIdentifier,
     private readonly optionMapper: PrismaSelectableOptionMapper,
+    private readonly paginationQueryNormalizer: PaginationQueryNormalizer,
   ) {}
 
   async create(predictionId: PredictionId, data: PredictionPromptMutationData): Promise<PredictionPrompt> {
@@ -90,18 +94,30 @@ export class PrismaPredictionPromptRepository implements PredictionPromptReposit
     return prompt ? this.toDomain(prompt) : null;
   }
 
-  async findByPredictionId(predictionId: PredictionId): Promise<PredictionPrompt[]> {
-    const prompts = await this.prisma.predictionPrompt.findMany({
-      where: {
-        predictionId,
-        deletedAt: null,
-        prediction: { deletedAt: null, game: { deletedAt: null } },
-      },
-      include: this.promptInclude,
-      orderBy: [{ position: 'asc' }, { id: 'asc' }],
-    });
-
-    return prompts.map((prompt) => this.toDomain(prompt));
+  async findByPredictionId(
+    predictionId: PredictionId,
+    query: PaginationQuery,
+  ): Promise<PaginatedResult<PredictionPrompt>> {
+    const pagination = this.paginationQueryNormalizer.normalizeQuery(query);
+    const where = { predictionId, deletedAt: null, prediction: { deletedAt: null, game: { deletedAt: null } } };
+    const [totalCount, prompts] = await this.prisma.$transaction(
+      [
+        this.prisma.predictionPrompt.count({ where }),
+        this.prisma.predictionPrompt.findMany({
+          where,
+          include: this.promptInclude,
+          orderBy: [{ position: 'asc' }, { id: 'asc' }],
+          skip: pagination.skip,
+          take: pagination.pageSize,
+        }),
+      ],
+      { isolationLevel: 'RepeatableRead' },
+    );
+    return this.paginationQueryNormalizer.toPaginatedResult(
+      pagination,
+      prompts.map((item) => this.toDomain(item)),
+      totalCount,
+    );
   }
 
   async update(id: PredictionPromptId, data: PredictionPromptMutationData): Promise<PredictionPrompt> {

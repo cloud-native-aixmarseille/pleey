@@ -1,3 +1,4 @@
+import { ok as assert } from 'node:assert';
 import { createConnection } from 'node:net';
 import process from 'node:process';
 import { URL } from 'node:url';
@@ -21,14 +22,7 @@ export type OpenTelemetryConfig = {
   headersJson?: string;
 };
 
-const DEFAULT_TELEMETRY_CONFIG: OpenTelemetryConfig = {
-  consoleDiagnosticsEnabled: false,
-  consoleExportersEnabled: false,
-  consoleLogsEnabled: false,
-  environment: 'development',
-};
-
-let telemetryConfig: OpenTelemetryConfig = DEFAULT_TELEMETRY_CONFIG;
+let telemetryConfig: OpenTelemetryConfig | undefined;
 
 function createResource(config: OpenTelemetryConfig) {
   return resourceFromAttributes({
@@ -38,7 +32,10 @@ function createResource(config: OpenTelemetryConfig) {
   });
 }
 
-function createLoggerProvider(logExporter?: OTLPLogExporter | ConsoleLogRecordExporter): LoggerProvider {
+function createLoggerProvider(
+  resource: ReturnType<typeof createResource>,
+  logExporter?: OTLPLogExporter | ConsoleLogRecordExporter,
+): LoggerProvider {
   return new LoggerProvider({
     resource,
     processors: logExporter
@@ -51,30 +48,19 @@ function createLoggerProvider(logExporter?: OTLPLogExporter | ConsoleLogRecordEx
   });
 }
 
-/**
- * OpenTelemetry Configuration
- * Sets up tracing, metrics, and logging for the application
- */
-let resource = createResource(telemetryConfig);
-
-// Configure Logger Provider
-let loggerProvider = createLoggerProvider();
+let loggerProvider: LoggerProvider | undefined;
 let otelSDK: NodeSDK | null = null;
 
 let shutdownHookRegistered = false;
 
 export function getLoggerProvider(): LoggerProvider {
+  assert(loggerProvider, 'OpenTelemetry must be initialized before accessing the logger provider');
   return loggerProvider;
 }
 
 export function isTelemetryConsoleLoggingEnabled(): boolean {
+  assert(telemetryConfig, 'OpenTelemetry must be initialized before reading its configuration');
   return telemetryConfig.consoleLogsEnabled;
-}
-
-function applyTelemetryConfig(config: OpenTelemetryConfig): void {
-  telemetryConfig = config;
-  resource = createResource(config);
-  loggerProvider = createLoggerProvider();
 }
 
 function parseHeaders(headersJson?: string): Record<string, string> | undefined {
@@ -162,7 +148,7 @@ export async function initializeOpenTelemetry(config: OpenTelemetryConfig): Prom
     return;
   }
 
-  applyTelemetryConfig(config);
+  const resource = createResource(config);
 
   if (config.consoleDiagnosticsEnabled) {
     diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.INFO);
@@ -188,7 +174,8 @@ export async function initializeOpenTelemetry(config: OpenTelemetryConfig): Prom
     config.headersJson,
   );
 
-  loggerProvider = createLoggerProvider(logExporter);
+  loggerProvider = createLoggerProvider(resource, logExporter);
+  telemetryConfig = config;
 
   otelSDK = new NodeSDK({
     resource,

@@ -1,8 +1,14 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
 
 @InputType()
 export class RegisterInput {
+  @Field()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(128)
+  captchaToken!: string;
+
   @Field()
   @IsString()
   @IsNotEmpty()

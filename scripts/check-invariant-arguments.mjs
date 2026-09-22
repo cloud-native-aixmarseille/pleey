@@ -258,6 +258,7 @@ function isInvariantExpression(checker, expression) {
     }
 
     if (node.kind === ts.SyntaxKind.ThisKeyword) {
+      invariant = false;
       return;
     }
 
@@ -588,14 +589,18 @@ function formatViolation(violation) {
   return `- ${violation.declarationFilePath}:${violation.declarationLine} ${violation.symbolName} prop "${violation.memberName}" is always passed as ${violation.value} across ${violation.usageCount} JSX usages. Remove the prop or inline the invariant inside the component.`;
 }
 
-function runProject(projectName) {
-  const project = resolveAppProject(projectName);
+function checkInvariantArguments(project) {
   ts = loadTypeScriptFromDirectory(project.root);
   const program = loadTsConfigProgram(ts, project.root, { compilerOptions: { noEmit: true } });
   const checker = program.getTypeChecker();
   const candidates = collectCandidates(program, checker, project);
   collectUsages(program, checker, project, candidates);
-  const violations = collectViolations(candidates);
+  return collectViolations(candidates);
+}
+
+function runProject(projectName) {
+  const project = resolveAppProject(projectName);
+  const violations = checkInvariantArguments(project);
 
   if (violations.length === 0) {
     console.log(`${project.label} invariant argument checks passed.`);
@@ -609,4 +614,4 @@ function runProject(projectName) {
   process.exitCode = 1;
 }
 
-export { runProject };
+export { checkInvariantArguments, runProject };

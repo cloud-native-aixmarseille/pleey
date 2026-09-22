@@ -179,19 +179,20 @@ export class PrismaOrganizationMemberRepository implements OrganizationMemberRep
       },
     } satisfies Prisma.OrganizationMemberWhereInput;
 
-    const [overallCount, totalCount, members] = await this.prisma.$transaction([
-      this.prisma.organizationMember.count({ where: baseWhere }),
-      this.prisma.organizationMember.count({ where: filteredWhere }),
-      this.prisma.organizationMember.findMany({
-        include: ORGANIZATION_MEMBER_USER_INCLUDE,
-        where: filteredWhere,
-        orderBy: {
-          joinedAt: 'asc',
-        },
-        skip: pagination.skip,
-        take: pagination.pageSize,
-      }),
-    ]);
+    const [overallCount, totalCount, members] = await this.prisma.$transaction(
+      [
+        this.prisma.organizationMember.count({ where: baseWhere }),
+        this.prisma.organizationMember.count({ where: filteredWhere }),
+        this.prisma.organizationMember.findMany({
+          include: ORGANIZATION_MEMBER_USER_INCLUDE,
+          where: filteredWhere,
+          orderBy: [{ joinedAt: 'asc' }, { id: 'asc' }],
+          skip: pagination.skip,
+          take: pagination.pageSize,
+        }),
+      ],
+      { isolationLevel: 'RepeatableRead' },
+    );
 
     return this.paginationQueryNormalizer.toPaginatedResult(
       pagination,
@@ -231,19 +232,20 @@ export class PrismaOrganizationMemberRepository implements OrganizationMemberRep
       },
     } satisfies Prisma.OrganizationMemberWhereInput;
 
-    const [overallCount, totalCount, members] = await this.prisma.$transaction([
-      this.prisma.organizationMember.count({ where: baseWhere }),
-      this.prisma.organizationMember.count({ where: filteredWhere }),
-      this.prisma.organizationMember.findMany({
-        include: ORGANIZATION_MEMBER_USER_INCLUDE,
-        where: filteredWhere,
-        orderBy: {
-          joinedAt: 'desc',
-        },
-        skip: pagination.skip,
-        take: pagination.pageSize,
-      }),
-    ]);
+    const [overallCount, totalCount, members] = await this.prisma.$transaction(
+      [
+        this.prisma.organizationMember.count({ where: baseWhere }),
+        this.prisma.organizationMember.count({ where: filteredWhere }),
+        this.prisma.organizationMember.findMany({
+          include: ORGANIZATION_MEMBER_USER_INCLUDE,
+          where: filteredWhere,
+          orderBy: [{ joinedAt: 'desc' }, { id: 'desc' }],
+          skip: pagination.skip,
+          take: pagination.pageSize,
+        }),
+      ],
+      { isolationLevel: 'RepeatableRead' },
+    );
 
     return this.paginationQueryNormalizer.toPaginatedResult(
       pagination,

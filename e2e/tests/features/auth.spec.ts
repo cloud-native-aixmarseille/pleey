@@ -1,5 +1,6 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { loginViaApi } from "../helpers/auth";
+import { completeSecurityCheck } from "../helpers/captcha";
 
 /**
  * Authentication Flow - Nominal Use Case
@@ -21,6 +22,11 @@ test.describe("Authentication Flow - Nominal Use Case", () => {
   };
 
   test("should register a new user successfully", async ({ page }) => {
+    const solverOrigins = new Set<string>();
+    page.on("request", (request) => {
+      const url = new URL(request.url());
+      if (url.pathname.endsWith(".wasm")) solverOrigins.add(url.origin);
+    });
     await page.goto("/identity/register");
     await expect(page.getByRole("heading", { name: /get started with pleey\./i })).toBeVisible();
 
@@ -28,12 +34,13 @@ test.describe("Authentication Flow - Nominal Use Case", () => {
     await page.fill('input[name="email"]', testUser.email);
     await page.fill('input[name="password"]', testUser.password);
 
-    await page
-      .getByRole("button", {
-        name: /register|create|créer|account|compte/i,
-      })
-      .click();
+    const submitButton = page.locator("form").getByRole("button", { name: "Create account", exact: true });
+    const initiallyDisabled = await submitButton.isDisabled();
+    await completeSecurityCheck(page);
+    await submitButton.click();
 
+    expect(initiallyDisabled).toBe(true);
+    expect([...solverOrigins]).toEqual([new URL(page.url()).origin]);
     await expect(page.getByRole("heading", { name: /account created!/i })).toBeVisible();
 
     const signInLink = page.getByRole("link", {
@@ -44,6 +51,22 @@ test.describe("Authentication Flow - Nominal Use Case", () => {
     await Promise.all([page.waitForURL(/\/identity\/sign-in/), signInLink.click()]);
 
     await expect(page.getByRole("heading", { name: /welcome back\./i })).toBeVisible();
+  });
+
+  test("should request password recovery after completing the security check", async ({ page }) => {
+    await page.goto("/identity/forgot-password");
+    await page.getByLabel("Email address").fill(`recovery-${Date.now()}@example.com`);
+    const submitButton = page.getByRole("button", { name: "Send reset link", exact: true });
+    const initiallyDisabled = await submitButton.isDisabled();
+
+    await completeSecurityCheck(page);
+    await submitButton.click();
+
+    expect(initiallyDisabled).toBe(true);
+    await expect(page.getByRole("heading", { name: "Check your inbox.", exact: true })).toBeVisible();
+    await expect(page.getByRole("status")).toHaveText(
+      "If an account with that email exists, you will receive reset instructions shortly.",
+    );
   });
 
   test("should login with valid credentials", async ({ page }) => {

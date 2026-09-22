@@ -29,12 +29,12 @@ export class AppEnvironment {
     return value;
   }
 
-  isProduction(): boolean {
-    return this.getOptionalString('NODE_ENV') === 'production';
-  }
-
-  getNodeEnvironment(): string {
-    return this.getOptionalString('NODE_ENV') ?? 'development';
+  getRequiredStringAllowEmpty(name: string): string {
+    const direct = this.values[name];
+    if (direct !== undefined) return direct.trim();
+    const filePath = this.normalizeValue(this.values[`${name}_FILE`]);
+    if (filePath) return readFileSync(filePath, { encoding: 'utf8' }).trim();
+    throw new Error(`${name} environment variable is not defined`);
   }
 
   private normalizeValue(value: string | undefined): string | undefined {

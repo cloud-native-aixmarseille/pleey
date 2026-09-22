@@ -3,6 +3,15 @@ import { describe, expect, it, vi } from 'vitest';
 import { renderWithFormProvider } from '../../../../test-utils/render-with-form-provider';
 import { ForgotPasswordScreen } from './forgot-password-screen';
 
+const mocks = vi.hoisted(() => ({ requestPasswordReset: vi.fn().mockResolvedValue(undefined) }));
+
+vi.mock('../../contexts/auth-context', async (importOriginal) => {
+  const { AuthContextMockFactory } = await import('src/test-utils/mocks/auth-context-mock-factory');
+  return new AuthContextMockFactory().createPartialModule(importOriginal, {
+    requestPasswordReset: mocks.requestPasswordReset,
+  });
+});
+
 vi.mock('../../../shared/i18n/use-presentation-translation', async (importOriginal) => {
   const { PresentationTranslationMockFactory } = await import(
     'src/test-utils/mocks/presentation-translation-mock-factory'
@@ -60,6 +69,7 @@ describe('ForgotPasswordScreen', () => {
       });
 
       // Act
+      fireEvent.click(screen.getByRole('button', { name: 'auth.captcha.verifyAriaLabel' }));
       fireEvent.submit(screen.getByRole('button', { name: 'auth.forgotPassword.submitCta' }));
 
       // Assert
@@ -67,6 +77,23 @@ describe('ForgotPasswordScreen', () => {
         expect(screen.getByRole('heading', { name: 'auth.forgotPassword.success.title' })).toBeInTheDocument();
       });
       expect(screen.getByRole('status')).toHaveTextContent('auth.forgotPassword.success.message');
+      expect(mocks.requestPasswordReset).toHaveBeenCalledWith('captain@pleey.io', 'en', 'captcha-test-token');
+    });
+
+    it('keeps the form available when the reset request fails', async () => {
+      // Arrange
+      mocks.requestPasswordReset.mockRejectedValueOnce(new Error('Delivery unavailable'));
+      renderWithFormProvider(<ForgotPasswordScreen />);
+      fireEvent.change(screen.getByLabelText('auth.forgotPassword.emailLabel *'), {
+        target: { value: 'captain@pleey.io' },
+      });
+      // Act
+      fireEvent.click(screen.getByRole('button', { name: 'auth.captcha.verifyAriaLabel' }));
+      fireEvent.submit(screen.getByRole('button', { name: 'auth.forgotPassword.submitCta' }));
+      // Assert
+      expect(await screen.findByRole('alert')).toHaveTextContent('Delivery unavailable');
+      expect(screen.queryByText('auth.forgotPassword.success.title')).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'auth.forgotPassword.submitCta' })).toBeDisabled();
     });
 
     it('renders a validation message after blurring an empty email field', async () => {

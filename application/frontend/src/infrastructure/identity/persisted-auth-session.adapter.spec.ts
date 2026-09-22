@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { StorageKey } from '../../domains/shared/value-objects/storage-key';
 import { AuthFixtureFactory } from '../../test-utils/fixtures/auth-fixture-factory';
 import { AuthSessionTransportMockFactory } from '../../test-utils/mocks/auth-session-transport-mock-factory';
@@ -181,5 +181,49 @@ describe('PersistedAuthSessionAdapter', () => {
       // Assert
       expect(storage.setItem).not.toHaveBeenCalledWith(StorageKey.AUTH_USER, expect.any(String));
     });
+  });
+  it('suspends authenticated transport while keeping credentials for an offline recovery retry', () => {
+    // Arrange
+    const storage = storagePortMockFactory.create({
+      [StorageKey.AUTH_ACCESS_TOKEN]: 'access',
+      [StorageKey.AUTH_REFRESH_TOKEN]: 'refresh',
+    });
+    const transport = authSessionTransportMockFactory.create();
+    const service = new PersistedAuthSessionAdapter(storage, transport);
+    // Act
+    service.suspend();
+    // Assert
+    expect(transport.setAuthSessionTokens).toHaveBeenCalledWith({ accessToken: null, refreshToken: null });
+    expect(storage.removeItem).not.toHaveBeenCalled();
+  });
+
+  it('notifies the account owner about credential changes in other tabs and stops watching on cleanup', () => {
+    // Arrange
+    const service = new PersistedAuthSessionAdapter(
+      storagePortMockFactory.create(),
+      authSessionTransportMockFactory.create(),
+    );
+    const listener = vi.fn();
+    const unwatch = service.watch(listener);
+    // Act
+    window.dispatchEvent(new StorageEvent('storage', { key: StorageKey.AUTH_REFRESH_TOKEN }));
+    window.dispatchEvent(new StorageEvent('storage', { key: 'unrelated-guest-session' }));
+    unwatch();
+    window.dispatchEvent(new StorageEvent('storage', { key: StorageKey.AUTH_USER }));
+    // Assert
+    expect(listener).toHaveBeenCalledOnce();
+  });
+
+  it('clears partial credentials so guest requests do not inherit a leftover access token', () => {
+    // Arrange
+    const storage = storagePortMockFactory.create({ [StorageKey.AUTH_ACCESS_TOKEN]: 'orphaned-access' });
+    const transport = authSessionTransportMockFactory.create();
+    const service = new PersistedAuthSessionAdapter(storage, transport);
+    // Act
+    const result = service.restore();
+    // Assert
+    expect(result).toBeNull();
+    expect(storage.removeItem).toHaveBeenCalledWith(StorageKey.AUTH_ACCESS_TOKEN);
+    expect(transport.setAuthSessionTokens).toHaveBeenCalledWith({ accessToken: null, refreshToken: null });
   });
 });

@@ -238,20 +238,3 @@ export const pinCodeTileStyle = {
 export const pinCodeCharacterGlowStyle = {
   textShadow: `0 0 12px ${uiThemeTokens.color.brand.accent}`,
 } satisfies CSSProperties;
-
-export const authProfileIdentityStyle = {
-  alignItems: 'center',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: uiThemeTokens.spacing.sm,
-} satisfies CSSProperties;
-
-export const authAccountActionsStyle = {
-  background: uiThemeTokens.color.surface.recessed,
-  border: `1px solid ${uiThemeTokens.color.border.subtle}`,
-  borderRadius: uiThemeTokens.radius.inset,
-  display: 'flex',
-  flexDirection: 'column',
-  gap: uiThemeTokens.spacing.sm,
-  padding: uiThemeTokens.spacing.md,
-} satisfies CSSProperties;
