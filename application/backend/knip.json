@@ -18,7 +18,6 @@
     "@opentelemetry/instrumentation",
     "graphql-ws",
     "nestjs-otel",
-    "redis",
     "swagger-ui-express",
     "source-map-support",
     "ts-loader",

@@ -57,6 +57,20 @@ describe('RegisterScreen', () => {
       expect(screen.getByRole('heading', { name: 'auth.register.title' })).toBeInTheDocument();
     });
 
+    it('blocks registration until the security check is complete', async () => {
+      // Arrange
+      arrangeScreen();
+      fireEvent.change(screen.getByLabelText('auth.form.usernameLabel *'), { target: { value: 'ArcadeCaptain' } });
+      fireEvent.change(screen.getByLabelText('auth.form.emailLabel *'), { target: { value: 'captain@pleey.io' } });
+      fireEvent.change(screen.getByLabelText('auth.form.passwordLabel *'), { target: { value: 'secret' } });
+      const submit = screen.getByRole('button', { name: 'auth.register.submitCta' });
+      // Act
+      fireEvent.submit(submit);
+      // Assert
+      await waitFor(() => expect(submit).toBeDisabled());
+      expect(mocks.register).not.toHaveBeenCalled();
+    });
+
     it('submits registration data and renders the success state', async () => {
       // Arrange
       arrangeScreen();
@@ -73,11 +87,13 @@ describe('RegisterScreen', () => {
       });
 
       // Act
+      fireEvent.click(screen.getByRole('button', { name: 'auth.captcha.verifyAriaLabel' }));
       fireEvent.submit(screen.getByRole('button', { name: 'auth.register.submitCta' }));
 
       // Assert
       await waitFor(() => {
         expect(mocks.register).toHaveBeenCalledWith({
+          captchaToken: 'captcha-test-token',
           username: 'ArcadeCaptain',
           email: 'captain@pleey.io',
           password: 'secret',
@@ -103,6 +119,7 @@ describe('RegisterScreen', () => {
       });
 
       // Act
+      fireEvent.click(screen.getByRole('button', { name: 'auth.captcha.verifyAriaLabel' }));
       fireEvent.submit(screen.getByRole('button', { name: 'auth.register.submitCta' }));
 
       // Assert
@@ -125,6 +142,7 @@ describe('RegisterScreen', () => {
       });
 
       // Act
+      fireEvent.click(screen.getByRole('button', { name: 'auth.captcha.verifyAriaLabel' }));
       fireEvent.submit(screen.getByRole('button', { name: 'auth.register.submitCta' }));
 
       // Assert

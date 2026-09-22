@@ -5,6 +5,10 @@ import { AbstractErrorCodeHttpStatusService } from '../../../shared/error-handli
 const IDENTITY_ERROR_CODES = Object.values(IdentityErrorCode) as IdentityErrorCode[];
 
 const IDENTITY_ERROR_HTTP_STATUSES: Record<IdentityErrorCode, number> = {
+  [IdentityErrorCode.CAPTCHA_INVALID]: 400,
+  [IdentityErrorCode.CAPTCHA_UNAVAILABLE]: 503,
+  [IdentityErrorCode.CAPTCHA_RATE_LIMITED]: 429,
+  [IdentityErrorCode.INVALID_RESET_TOKEN]: 400,
   [IdentityErrorCode.INVALID_CREDENTIALS]: 401,
   [IdentityErrorCode.USER_ALREADY_EXISTS]: 409,
   [IdentityErrorCode.PASSWORD_TOO_SHORT]: 400,

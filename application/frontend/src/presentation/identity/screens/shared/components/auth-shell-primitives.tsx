@@ -1,9 +1,7 @@
 import type { PropsWithChildren } from 'react';
 import { PleeyLogo } from '../../../../shared/ui/branding/pleey-logo';
-import { UserAvatar } from '../../../../shared/ui/data/user-avatar';
 import {
   AUTH_LAYOUT_RESPONSIVE_CSS,
-  authAccountActionsStyle,
   authBrandingFeatureItemStyle,
   authBrandingFeatureListStyle,
   authFormCardStyle,
@@ -13,18 +11,12 @@ import {
   authLayoutRootStyle,
   authLayoutShellStyle,
   authLayoutTaglineStyle,
-  authProfileIdentityStyle,
 } from './auth-shell-primitives.styles';
 
 interface AuthBrandingPanelProps {
   readonly brandingEyebrow: string;
   readonly brandingTitle: string;
   readonly featureItems: readonly string[];
-}
-
-interface AuthFramedAvatarProps {
-  readonly alt: string;
-  readonly src?: string | null;
 }
 
 const featureCheckColor = 'var(--ui-color-brand-success)';
@@ -88,16 +80,4 @@ export function AuthContentPanel({ children }: PropsWithChildren) {
 
 export function AuthFormSurface({ children }: PropsWithChildren) {
   return <div style={authFormCardStyle}>{children}</div>;
-}
-
-export function AuthProfileIdentityPanel({ children }: PropsWithChildren) {
-  return <div style={authProfileIdentityStyle}>{children}</div>;
-}
-
-export function AuthFramedAvatar({ alt, src }: AuthFramedAvatarProps) {
-  return <UserAvatar alt={alt} appearance="framed" src={src} />;
-}
-
-export function AuthActionPanel({ children }: PropsWithChildren) {
-  return <div style={authAccountActionsStyle}>{children}</div>;
 }

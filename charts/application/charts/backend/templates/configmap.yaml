@@ -5,9 +5,39 @@ metadata:
   labels:
     {{- include "pleey.backend.labels" . | nindent 4 }}
 data:
+  PORT: {{ .Values.service.targetPort | int64 | quote }}
   NODE_ENV: {{ .Values.config.nodeEnv | quote }}
+  TRUSTED_PROXY_CIDRS: {{ .Values.config.trustedProxyCidrs | quote }}
   CORS_ORIGIN: {{ .Values.config.corsOrigin | quote }}
   APP_VERSION: {{ default .Chart.AppVersion .Values.config.appVersion | quote }}
+  JWT_ACCESS_EXPIRES_IN_SECONDS: {{ .Values.auth.accessTokenLifetimeSeconds | int64 | quote }}
+  JWT_REFRESH_EXPIRES_IN_SECONDS: {{ .Values.auth.refreshTokenLifetimeSeconds | int64 | quote }}
+  PARTY_SESSION_RECOVERY_WINDOW_MS: {{ .Values.config.partySessionRecoveryWindowMs | int64 | quote }}
+  PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES: {{ .Values.config.playableContentImportMaxFileSizeBytes | int64 | quote }}
+  OTEL_CONSOLE_DIAGNOSTICS_ENABLED: {{ .Values.config.otelConsoleDiagnosticsEnabled | quote }}
+  OTEL_CONSOLE_EXPORTERS_ENABLED: {{ .Values.config.otelConsoleExportersEnabled | quote }}
+  OTEL_CONSOLE_LOGS_ENABLED: {{ .Values.config.otelConsoleLogsEnabled | quote }}
+  GRAPHQL_GRAPHIQL_ENABLED: {{ .Values.config.graphiqlEnabled | quote }}
+  GRAPHQL_INTROSPECTION_ENABLED: {{ .Values.config.graphqlIntrospectionEnabled | quote }}
+  I18N_WATCH_ENABLED: {{ .Values.config.i18nWatchEnabled | quote }}
+  {{- with .Values.config.graphqlSchemaOutputPath }}
+  GRAPHQL_SCHEMA_OUTPUT_PATH: {{ . | quote }}
+  {{- end }}
+  FRONTEND_URL: {{ .Values.passwordRecovery.frontendUrl | quote }}
+  FRONTEND_REQUIRE_HTTPS: {{ .Values.passwordRecovery.requireHttps | quote }}
+  PASSWORD_RESET_TOKEN_LIFETIME_MINUTES: {{ .Values.passwordRecovery.tokenLifetimeMinutes | int64 | quote }}
+  {{- if .Values.smtp.enabled }}
+  SMTP_HOST: {{ printf "%s.%s.svc" (include "mail.fullname" .Subcharts.smtp) .Release.Namespace | quote }}
+  SMTP_PORT: {{ .Values.smtp.service.port | int64 | quote }}
+  SMTP_SECURE: "false"
+  SMTP_REQUIRE_TLS: "true"
+  {{- else }}
+  SMTP_HOST: {{ .Values.passwordRecovery.smtp.host | quote }}
+  SMTP_PORT: {{ .Values.passwordRecovery.smtp.port | int64 | quote }}
+  SMTP_SECURE: {{ .Values.passwordRecovery.smtp.secure | quote }}
+  SMTP_REQUIRE_TLS: {{ .Values.passwordRecovery.smtp.requireTls | quote }}
+  {{- end }}
+  SMTP_FROM: {{ .Values.passwordRecovery.smtp.from | quote }}
   {{- if .Values.config.apiBaseUrl }}
   API_BASE_URL: {{ .Values.config.apiBaseUrl | quote }}
   {{- end }}

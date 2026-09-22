@@ -4,6 +4,7 @@ import type {
   PlayableManagementItemInput,
   PlayableManagementState,
 } from '../../../../../domains/game/types/shared/management/playable-management';
+import { isDomainError } from '../../../../../domains/shared/errors/domain-error';
 import { usePresentationTranslation } from '../../../../shared/i18n/use-presentation-translation';
 import { usePresentationNavigate } from '../../../../shared/routing/router';
 import { usePresentationFeedbackChannel } from '../../../../shared/ui/feedback/use-presentation-feedback-channel';
@@ -58,7 +59,7 @@ export function usePlayableContentManagement({
         setEditorState(createEmptyPlayableItemEditorState(itemKindConfig));
       }
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : t(`${translationRoot}.loadError`));
+      setError(isDomainError(loadError) ? t(loadError.messageKey) : t(`${translationRoot}.loadError`));
     } finally {
       setIsLoading(false);
     }

@@ -224,3 +224,16 @@ VALKEY_URL
 {{- define "pleey.backend.valkeySecretFile" -}}
 {{- printf "%s/%s" (include "pleey.backend.valkeySecretMountPath" .) (include "pleey.backend.valkeySecretKey" .) -}}
 {{- end }}
+
+{{- define "pleey.backend.capSecretName" -}}
+{{- default (include "pleey.backend.appSecretName" .) .Values.captcha.existingSecret.name }}
+{{- end }}
+
+{{- define "pleey.backend.capSecret" -}}
+{{- $secret := lookup "v1" "Secret" (include "pleey.backend.namespace" .) (include "pleey.backend.appSecretName" .) -}}
+{{- if and $secret (hasKey $secret.data "CAP_SECRET") -}}
+{{- index $secret.data "CAP_SECRET" | b64dec -}}
+{{- else -}}
+{{- randAlphaNum 64 -}}
+{{- end -}}
+{{- end }}

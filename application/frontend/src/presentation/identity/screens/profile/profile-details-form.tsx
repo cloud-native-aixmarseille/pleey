@@ -1,30 +1,31 @@
 import type { PresentationFormApi } from '../../../../application/shared/ports/form.port';
-import { FormSection } from '../../../shared/forms/form-section';
+import { useFormContext } from '../../../shared/forms/form-context';
 import { PresentationForm } from '../../../shared/forms/presentation-form';
-import { SubmitButton } from '../../../shared/forms/submit-button';
 import { TextFormField } from '../../../shared/forms/text-form-field';
 import { usePresentationTranslation } from '../../../shared/i18n/use-presentation-translation';
+import { Button } from '../../../shared/ui/actions/button';
 import { StatusBanner } from '../../../shared/ui/feedback/status-banner';
-import { ContentStack } from '../../../shared/ui/layout/containers';
+import { FormFields } from '../../../shared/ui/forms/frames';
+import { AppIcon } from '../../../shared/ui/icons/app-icon';
+import { ActionRow, ContentStack, ResponsiveGrid, SplitWrapRow } from '../../../shared/ui/layout/containers';
+import { Heading, SupportingText } from '../../../shared/ui/layout/typography';
 import type { ProfileFormValues } from './profile-form-values';
 
 interface ProfileDetailsFormProps {
   readonly errorMessage: string | null;
   readonly form: PresentationFormApi<ProfileFormValues>;
+  readonly onDiscard: () => void;
   readonly successMessage: string | null;
 }
 
-export function ProfileDetailsForm({ errorMessage, form, successMessage }: ProfileDetailsFormProps) {
+function ProfileFields({ form }: { readonly form: PresentationFormApi<ProfileFormValues> }) {
   const { t } = usePresentationTranslation();
-
+  const context = useFormContext();
   return (
-    <form.AppForm>
-      <PresentationForm form={form}>
-        <FormSection
-          description={t('auth.profile.detailsSection.description')}
-          legend={t('auth.profile.detailsSection.legend')}
-        >
-          <ContentStack gap="sm">
+    <context.Subscribe selector={(state) => state.isSubmitting}>
+      {(isSubmitting) => (
+        <FormFields disabled={isSubmitting}>
+          <ResponsiveGrid columns={{ base: 1, sm: 2 }}>
             <form.AppField
               name="username"
               validators={{
@@ -35,6 +36,7 @@ export function ProfileDetailsForm({ errorMessage, form, successMessage }: Profi
               {() => (
                 <TextFormField
                   autoComplete="username"
+                  description={t('auth.profile.detailsSection.usernameHelp')}
                   label={t('auth.form.usernameLabel')}
                   placeholder={t('auth.form.usernamePlaceholder')}
                 />
@@ -44,26 +46,88 @@ export function ProfileDetailsForm({ errorMessage, form, successMessage }: Profi
               name="email"
               validators={{
                 onBlur: ({ value }) =>
-                  value.trim().length === 0 ? t('auth.form.validation.emailRequired') : undefined,
+                  value.trim().length === 0
+                    ? t('auth.form.validation.emailRequired')
+                    : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+                      ? t('auth.profile.detailsSection.invalidEmail')
+                      : undefined,
               }}
             >
               {() => (
                 <TextFormField
                   autoComplete="email"
+                  description={t('auth.profile.detailsSection.emailHelp')}
                   label={t('auth.form.emailLabel')}
                   placeholder={t('auth.form.emailPlaceholder')}
                   type="email"
                 />
               )}
             </form.AppField>
-          </ContentStack>
-        </FormSection>
+          </ResponsiveGrid>
+        </FormFields>
+      )}
+    </context.Subscribe>
+  );
+}
 
-        <StatusBanner tone="error">{errorMessage}</StatusBanner>
-        <StatusBanner tone="success">{successMessage}</StatusBanner>
+export function ProfileDetailsForm({ errorMessage, form, onDiscard, successMessage }: ProfileDetailsFormProps) {
+  const { t } = usePresentationTranslation();
+  return (
+    <ContentStack gap="lg">
+      <ContentStack gap="xs">
+        <Heading id="profile-details-heading" level={2}>
+          {t('auth.profile.detailsSection.legend')}
+        </Heading>
+        <SupportingText>{t('auth.profile.detailsSection.description')}</SupportingText>
+      </ContentStack>
+      <form.AppForm>
+        <PresentationForm aria-labelledby="profile-details-heading" form={form}>
+          <ProfileFields form={form} />
+          <StatusBanner tone="error">{errorMessage}</StatusBanner>
+          <ProfileFormActions onDiscard={onDiscard} successMessage={successMessage} />
+        </PresentationForm>
+      </form.AppForm>
+    </ContentStack>
+  );
+}
 
-        <SubmitButton label={t('auth.profile.submitCta')} submittingLabel={t('auth.profile.submittingCta')} />
-      </PresentationForm>
-    </form.AppForm>
+interface ProfileFormActionsProps {
+  readonly onDiscard: () => void;
+  readonly successMessage: string | null;
+}
+
+function ProfileFormActions({ onDiscard, successMessage }: ProfileFormActionsProps) {
+  const form = useFormContext();
+  const { t } = usePresentationTranslation();
+  return (
+    <form.Subscribe selector={(state) => state.isSubmitting}>
+      {(isSubmitting) => (
+        <form.Subscribe selector={(state) => state.isDefaultValue}>
+          {(isDefaultValue) => (
+            <>
+              {isDefaultValue && <StatusBanner tone="success">{successMessage}</StatusBanner>}
+              <SplitWrapRow>
+                <SupportingText>
+                  {t(isDefaultValue ? 'auth.profile.savedHint' : 'auth.profile.unsavedHint')}
+                </SupportingText>
+                <ActionRow justify="end">
+                  <Button disabled={isDefaultValue || isSubmitting} intent="ghost" onClick={onDiscard}>
+                    {t('auth.profile.discardCta')}
+                  </Button>
+                  <Button
+                    disabled={isDefaultValue || isSubmitting}
+                    loading={isSubmitting}
+                    leftSection={<AppIcon name="save" size={17} />}
+                    type="submit"
+                  >
+                    {t(isSubmitting ? 'auth.profile.submittingCta' : 'auth.profile.submitCta')}
+                  </Button>
+                </ActionRow>
+              </SplitWrapRow>
+            </>
+          )}
+        </form.Subscribe>
+      )}
+    </form.Subscribe>
   );
 }

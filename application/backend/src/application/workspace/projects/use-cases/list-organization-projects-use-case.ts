@@ -13,8 +13,6 @@ import type { PaginatedResult } from '../../../../domain/shared/value-objects/pa
 import type { PaginationQuery } from '../../../../domain/shared/value-objects/pagination-query';
 import { PaginationQueryNormalizer } from '../../../shared/services/pagination-query-normalizer';
 
-const DEFAULT_PAGE_SIZE = 25;
-
 interface ListOrganizationProjectsQuery extends PaginationQuery {
   readonly organizationId: OrganizationId;
 }
@@ -32,7 +30,7 @@ export class ListOrganizationProjectsUseCase {
   ) {}
 
   async execute(input: ListOrganizationProjectsQuery, userId: UserId): Promise<PaginatedResult<Project>> {
-    const pagination = this.paginationQueryNormalizer.normalizeQuery(input, DEFAULT_PAGE_SIZE);
+    const pagination = this.paginationQueryNormalizer.normalizeQuery(input);
     const organization = await this.organizationRepository.findById(input.organizationId);
     if (!organization) {
       throw new OrganizationNotFoundError({ organizationId: input.organizationId });

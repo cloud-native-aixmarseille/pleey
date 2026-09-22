@@ -1,6 +1,10 @@
 import { type DomainErrorDefinition } from '../../shared/errors/domain-error';
 
 export enum IdentityErrorCode {
+  CAPTCHA_INVALID = 'CAPTCHA_INVALID',
+  CAPTCHA_UNAVAILABLE = 'CAPTCHA_UNAVAILABLE',
+  CAPTCHA_RATE_LIMITED = 'CAPTCHA_RATE_LIMITED',
+  INVALID_RESET_TOKEN = 'INVALID_RESET_TOKEN',
   INVALID_CREDENTIALS = 'INVALID_CREDENTIALS',
   USER_ALREADY_EXISTS = 'USER_ALREADY_EXISTS',
   PASSWORD_TOO_SHORT = 'PASSWORD_TOO_SHORT',
@@ -14,6 +18,22 @@ export enum IdentityErrorCode {
 
 export const IDENTITY_ERROR_DEFINITIONS: Readonly<Record<IdentityErrorCode, DomainErrorDefinition<IdentityErrorCode>>> =
   {
+    [IdentityErrorCode.CAPTCHA_INVALID]: {
+      code: IdentityErrorCode.CAPTCHA_INVALID,
+      messageKey: 'auth.errors.captchaInvalid',
+    },
+    [IdentityErrorCode.CAPTCHA_UNAVAILABLE]: {
+      code: IdentityErrorCode.CAPTCHA_UNAVAILABLE,
+      messageKey: 'auth.errors.captchaUnavailable',
+    },
+    [IdentityErrorCode.CAPTCHA_RATE_LIMITED]: {
+      code: IdentityErrorCode.CAPTCHA_RATE_LIMITED,
+      messageKey: 'auth.errors.captchaRateLimited',
+    },
+    [IdentityErrorCode.INVALID_RESET_TOKEN]: {
+      code: IdentityErrorCode.INVALID_RESET_TOKEN,
+      messageKey: 'auth.errors.invalidResetToken',
+    },
     [IdentityErrorCode.INVALID_CREDENTIALS]: {
       code: IdentityErrorCode.INVALID_CREDENTIALS,
       messageKey: 'auth.errors.invalidCredentials',

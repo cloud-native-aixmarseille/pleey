@@ -1,18 +1,12 @@
 import type { INestApplicationContext } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import type { ServerOptions, Socket } from 'socket.io';
-import type { UserId } from '../../domain/identity/entities/user';
-import { AUTH_JWT_SECRET } from '../../infrastructure/identity/auth-jwt-secret.token';
+import { UnauthorizedError } from '../../domain/identity/errors';
+import { JwtSessionAuthenticator } from '../../infrastructure/identity/services/jwt-session-authenticator';
 import type { GameSocketCorsOptions } from './game-socket-cors-options.token';
 
-interface SocketAuthenticatedUser {
-  readonly id: UserId;
-}
-
 export class ConfiguredIoAdapter extends IoAdapter {
-  private readonly jwtService = new JwtService();
-  private readonly jwtSecret: string;
+  private readonly sessions: JwtSessionAuthenticator;
 
   constructor(
     app: INestApplicationContext,
@@ -20,7 +14,7 @@ export class ConfiguredIoAdapter extends IoAdapter {
     private readonly partySessionRecoveryWindowMs: number,
   ) {
     super(app);
-    this.jwtSecret = app.get<string>(AUTH_JWT_SECRET);
+    this.sessions = app.get(JwtSessionAuthenticator);
   }
 
   override createIOServer(port: number, options?: ServerOptions) {
@@ -36,7 +30,7 @@ export class ConfiguredIoAdapter extends IoAdapter {
 
     const server = super.createIOServer(port, serverOptions);
 
-    server.use((socket: Socket, next: (error?: Error) => void) => {
+    server.use(async (socket: Socket, next: (error?: Error) => void) => {
       try {
         const token = this.extractBearerToken(socket);
 
@@ -45,14 +39,25 @@ export class ConfiguredIoAdapter extends IoAdapter {
           return;
         }
 
-        const payload = this.jwtService.verify<SocketAuthenticatedUser>(token, {
-          secret: this.jwtSecret,
-        });
-
+        const payload = await this.sessions.authenticate(token);
         socket.data.authenticatedUserId = payload.id;
+        socket.use(async (_packet, nextPacket) => {
+          try {
+            await this.sessions.authenticate(token);
+            nextPacket();
+          } catch {
+            nextPacket(new UnauthorizedError({ reason: 'socketPacketSessionRevoked' }));
+            socket.disconnect(true);
+          }
+        });
+        const checkSession = setInterval(() => {
+          void this.sessions.authenticate(token, false).catch(() => socket.disconnect(true));
+        }, 15_000);
+        checkSession.unref();
+        socket.once('disconnect', () => clearInterval(checkSession));
         next();
       } catch (error) {
-        next(error instanceof Error ? error : new Error('Unauthorized'));
+        next(error instanceof Error ? error : new UnauthorizedError({ reason: 'socketAuthenticationFailed' }));
       }
     });
 
@@ -77,14 +82,13 @@ export class ConfiguredIoAdapter extends IoAdapter {
   }
 
   private parseAuthorizationValue(value: unknown): string | null {
-    if (typeof value !== 'string') {
-      return null;
-    }
+    if (value === undefined) return null;
+    if (typeof value !== 'string') throw new UnauthorizedError({ reason: 'invalidSocketAuthorizationType' });
 
-    const [scheme, token] = value.split(' ');
+    const [scheme, token, extra] = value.split(' ');
 
-    if (scheme?.toLowerCase() !== 'bearer' || !token) {
-      return null;
+    if (scheme?.toLowerCase() !== 'bearer' || !token || extra !== undefined) {
+      throw new UnauthorizedError({ reason: 'invalidSocketAuthorizationFormat' });
     }
 
     return token;

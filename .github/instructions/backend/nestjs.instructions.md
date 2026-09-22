@@ -6,7 +6,7 @@ applyTo: "application/backend/**/*.{ts,js,mts,cts}"
 
 # Pleey backend NestJS rules
 
-Use `docs/technical/architecture/backend.md` and `docs/technical/development/backend.md` for the full backend design. This file only captures non-obvious backend rules that should load automatically.
+Use `docs/technical/architecture/backend.md` and `docs/technical/development/backend/index.md` for the full backend design. This file only captures non-obvious backend rules that should load automatically.
 
 - Keep domain and application code free of NestJS, Prisma, and transport concerns because backend boundary checks assume the core stays framework-agnostic.
 - Keep resolvers, controllers, and gateways thin because orchestration belongs in use-cases and application services behind ports.

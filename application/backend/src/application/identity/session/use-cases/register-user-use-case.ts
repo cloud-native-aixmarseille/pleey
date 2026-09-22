@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { CaptchaAction } from '../../../../domain/identity/enums/captcha-action.enum';
 import { PasswordTooShortError, UserAlreadyExistsError } from '../../../../domain/identity/errors';
 import type { UserRepository } from '../../../../domain/identity/ports/user.repository';
 import { UserRepositoryProvider } from '../../../../domain/identity/ports/user.repository';
@@ -6,6 +7,7 @@ import { PasswordService } from '../../../../domain/identity/services/password-s
 import { UserAvatarService } from '../../../../domain/identity/services/user-avatar-service';
 import type { UserProfileSnapshot } from '../../../../domain/identity/types/user-profile-snapshot';
 import { DefaultWorkspaceService } from '../../../../domain/organization/services/default-workspace-service';
+import { type CaptchaPort, CaptchaPortProvider } from '../../captcha/ports/captcha.port';
 import type { RegisterUserDto } from '../dto/register-user-dto';
 
 /**
@@ -20,9 +22,11 @@ export class RegisterUserUseCase {
     private readonly passwordService: PasswordService,
     private readonly userAvatarService: UserAvatarService,
     private readonly defaultWorkspaceService: DefaultWorkspaceService,
+    @Inject(CaptchaPortProvider) private readonly captcha: CaptchaPort,
   ) {}
 
-  async execute(dto: RegisterUserDto): Promise<UserProfileSnapshot> {
+  async execute(dto: RegisterUserDto, peer: string): Promise<UserProfileSnapshot> {
+    await this.captcha.verify(CaptchaAction.SIGNUP, dto.captchaToken, peer);
     // Check if user already exists
     const exists = await this.userRepository.exists(dto.email, dto.username);
     if (exists) {

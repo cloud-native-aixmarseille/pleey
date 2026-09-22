@@ -1,0 +1,361 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["passwordRecovery", "smtp", "captcha", "config", "auth", "service"],
+  "properties": {
+    "passwordRecovery": {
+      "type": "object",
+      "required": ["frontendUrl", "requireHttps", "tokenLifetimeMinutes", "smtp"],
+      "properties": {
+        "frontendUrl": {
+          "type": "string",
+          "description": "Required trusted frontend origin; HTTPS is controlled by requireHttps.",
+          "pattern": "^https?://[^/?#@\\s]+/?$"
+        },
+        "tokenLifetimeMinutes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "smtp": {
+          "type": "object",
+          "required": ["host", "port", "secure", "requireTls", "from", "existingSecret"],
+          "properties": {
+            "host": {
+              "type": "string"
+            },
+            "port": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535
+            },
+            "secure": {
+              "type": "boolean"
+            },
+            "from": {
+              "type": "string",
+              "pattern": "\\S"
+            },
+            "existingSecret": {
+              "type": "object",
+              "required": ["name", "userKey", "passwordKey"],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "userKey": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "passwordKey": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "requireTls": {
+              "type": "boolean"
+            }
+          }
+        },
+        "requireHttps": {
+          "type": "boolean"
+        }
+      },
+      "if": {
+        "properties": {
+          "requireHttps": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "frontendUrl": {
+            "pattern": "^https://"
+          }
+        }
+      }
+    },
+    "smtp": {
+      "type": "object",
+      "required": ["enabled", "tls", "certs", "service", "config", "pod"],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "tls": {
+          "type": "object",
+          "required": ["existingSecret", "validityDays"],
+          "properties": {
+            "existingSecret": {
+              "type": "string"
+            },
+            "validityDays": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "certs": {
+          "type": "object",
+          "required": ["create", "existingSecret"],
+          "properties": {
+            "create": {
+              "const": false
+            },
+            "existingSecret": {
+              "const": "{{ default (printf \"%s-tls\" (include \"mail.fullname\" .)) .Values.tls.existingSecret }}"
+            }
+          }
+        },
+        "service": {
+          "type": "object",
+          "required": ["type", "port"],
+          "properties": {
+            "type": {
+              "const": "ClusterIP"
+            },
+            "port": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535
+            }
+          }
+        },
+        "config": {
+          "type": "object",
+          "required": ["general", "postfix"],
+          "properties": {
+            "general": {
+              "type": "object",
+              "properties": {
+                "ALLOWED_SENDER_DOMAINS": {
+                  "type": "string"
+                }
+              }
+            },
+            "postfix": {
+              "type": "object",
+              "required": ["smtpd_tls_security_level"],
+              "properties": {
+                "smtpd_tls_security_level": {
+                  "const": "encrypt"
+                }
+              }
+            }
+          }
+        },
+        "pod": {
+          "type": "object",
+          "required": ["labels"],
+          "properties": {
+            "labels": {
+              "type": "object",
+              "required": ["app.kubernetes.io/component"],
+              "properties": {
+                "app.kubernetes.io/component": {
+                  "const": "smtp"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "captcha": {
+      "type": "object",
+      "required": ["existingSecret"],
+      "properties": {
+        "existingSecret": {
+          "type": "object",
+          "required": ["name", "key"],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "if": {
+            "properties": {
+              "name": {
+                "const": ""
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "key": {
+                "const": "CAP_SECRET"
+              }
+            }
+          }
+        }
+      }
+    },
+    "config": {
+      "type": "object",
+      "required": ["nodeEnv", "corsOrigin", "appVersion", "apiBaseUrl", "trustedProxyCidrs", "otelExporterOtlpEndpoint", "otelExporterOtlpHeaders", "otelConsoleDiagnosticsEnabled", "otelConsoleExportersEnabled", "otelConsoleLogsEnabled", "graphiqlEnabled", "graphqlIntrospectionEnabled", "graphqlSchemaOutputPath", "i18nWatchEnabled", "partySessionRecoveryWindowMs", "playableContentImportMaxFileSizeBytes"],
+      "properties": {
+        "nodeEnv": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "corsOrigin": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "appVersion": {
+          "type": "string"
+        },
+        "apiBaseUrl": {
+          "type": "string"
+        },
+        "trustedProxyCidrs": {
+          "type": "string"
+        },
+        "otelExporterOtlpEndpoint": {
+          "type": "string"
+        },
+        "otelExporterOtlpHeaders": {
+          "type": "string"
+        },
+        "otelConsoleDiagnosticsEnabled": {
+          "type": "boolean"
+        },
+        "otelConsoleExportersEnabled": {
+          "type": "boolean"
+        },
+        "otelConsoleLogsEnabled": {
+          "type": "boolean"
+        },
+        "graphiqlEnabled": {
+          "type": "boolean"
+        },
+        "graphqlIntrospectionEnabled": {
+          "type": "boolean"
+        },
+        "graphqlSchemaOutputPath": {
+          "type": "string"
+        },
+        "i18nWatchEnabled": {
+          "type": "boolean"
+        },
+        "partySessionRecoveryWindowMs": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "playableContentImportMaxFileSizeBytes": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "auth": {
+      "type": "object",
+      "required": ["jwtSecret", "accessTokenLifetimeSeconds", "refreshTokenLifetimeSeconds", "existingSecret"],
+      "properties": {
+        "jwtSecret": {
+          "type": "string"
+        },
+        "accessTokenLifetimeSeconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "refreshTokenLifetimeSeconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "existingSecret": {
+          "type": "object",
+          "required": ["name", "jwtSecretKey"],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "jwtSecretKey": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "service": {
+      "type": "object",
+      "required": ["targetPort"],
+      "properties": {
+        "targetPort": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "smtp": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "smtp": {
+            "properties": {
+              "config": {
+                "properties": {
+                  "general": {
+                    "required": ["ALLOWED_SENDER_DOMAINS"],
+                    "properties": {
+                      "ALLOWED_SENDER_DOMAINS": {
+                        "pattern": "\\S"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "smtp": {
+            "properties": {
+              "enabled": {
+                "const": false
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "passwordRecovery": {
+            "properties": {
+              "smtp": {
+                "properties": {
+                  "host": {
+                    "pattern": "\\S"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -98,7 +98,7 @@ export class OtelLoggerService implements LoggerService {
       timestamp: Date.now(),
     });
 
-    // Also log to console in development
+    // Mirror logs to the console only when explicitly enabled.
     if (isTelemetryConsoleLoggingEnabled()) {
       const timestamp = new Date().toISOString();
       const color = this.getConsoleColor(severityText);

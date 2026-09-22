@@ -26,7 +26,6 @@ describe('RegenerateUserAvatarUseCase', () => {
       id: backendTestIdentifiers.user(1),
       username: 'alice',
       email: 'alice@example.com',
-      password: 'hashed-password',
       avatar: new Media(null, 'image/svg+xml', Buffer.from('<svg>AAA</svg>', 'utf8')),
       createdAt,
     });
@@ -35,7 +34,6 @@ describe('RegenerateUserAvatarUseCase', () => {
       id: backendTestIdentifiers.user(1),
       username: 'alice',
       email: 'alice@example.com',
-      password: 'hashed-password',
       avatar: new Media(null, 'image/svg+xml', Buffer.from('<svg>BBB</svg>', 'utf8')),
       createdAt,
     });

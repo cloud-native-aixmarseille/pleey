@@ -11,6 +11,7 @@ export const sharedEn = {
       logoAlt: 'Pleey logo',
     },
     errors: {
+      incompleteCollection: 'The collection changed while loading. Please reload and try again.',
       identifier: {
         invalidValue: 'Invalid value.',
       },

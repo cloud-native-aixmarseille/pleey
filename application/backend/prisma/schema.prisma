@@ -9,21 +9,53 @@ datasource db {
 model User {
   id        String   @id @default(uuid(7)) @db.Uuid
   username  String   @unique
-  email     String   @unique
-  password  String
   avatarMediaId String? @unique @map("avatar_media_id") @db.Uuid
-  refreshTokenHash String? @map("refresh_token_hash")
-  refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
   avatar              Media? @relation("UserAvatar", fields: [avatarMediaId], references: [id], onDelete: SetNull)
+  authentication      UserAuthentication?
   scores              Score[]
   hostedParties       Party[] @relation("HostedParties")
   organizationMembers OrganizationMember[]
   
   @@map("users")
+}
+
+model UserAuthentication {
+  userId                 String    @id @map("user_id") @db.Uuid
+  email                  String    @unique
+  password               String
+  passwordResetTokenHash String?   @unique @map("password_reset_token_hash")
+  passwordResetExpiresAt DateTime? @map("password_reset_expires_at")
+  resetRequestLocale     String?   @map("reset_request_locale")
+  resetRequestedAt       DateTime? @map("reset_requested_at")
+  resetAvailableAt       DateTime? @map("reset_available_at")
+  createdAt              DateTime  @default(now()) @map("created_at")
+  updatedAt              DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions UserSession[]
+
+  @@index([resetAvailableAt])
+  @@map("user_authentications")
+}
+
+model UserSession {
+  id                    String    @id @db.Uuid
+  userId                String    @map("user_id") @db.Uuid
+  refreshTokenHash      String    @unique @map("refresh_token_hash")
+  refreshTokenExpiresAt DateTime  @map("refresh_token_expires_at")
+  createdAt             DateTime? @default(now()) @map("created_at")
+  lastActiveAt          DateTime? @default(now()) @map("last_active_at")
+  userAgent             String?   @map("user_agent") @db.VarChar(512)
+  ipAddress             String?   @map("ip_address") @db.VarChar(64)
+
+  authentication UserAuthentication @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@index([userId, createdAt, id])
+  @@map("user_sessions")
 }
 
 model Media {

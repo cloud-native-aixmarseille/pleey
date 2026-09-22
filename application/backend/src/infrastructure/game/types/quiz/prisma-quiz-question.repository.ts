@@ -3,6 +3,7 @@ import type { Prisma } from '@prisma/client';
 import { QuizQuestionIdentifier } from '../../../../application/game/types/quiz/services/quiz-question-identifier';
 import { QuizSelectableOptionIdentifier } from '../../../../application/game/types/quiz/services/quiz-selectable-option-identifier';
 import { GameTypeIdentifier } from '../../../../application/game/types/shared/services/game-type-identifier';
+import { PaginationQueryNormalizer } from '../../../../application/shared/services/pagination-query-normalizer';
 import type { QuizId } from '../../../../domain/game/types/quiz/entities/quiz';
 import {
   QuizQuestion,
@@ -15,6 +16,8 @@ import type {
   QuizQuestionRepository,
 } from '../../../../domain/game/types/quiz/ports/quiz-question.repository';
 import { createDomainError } from '../../../../domain/shared/errors/domain-error';
+import type { PaginatedResult } from '../../../../domain/shared/value-objects/paginated-result';
+import type { PaginationQuery } from '../../../../domain/shared/value-objects/pagination-query';
 import { PrismaService } from '../../../database/prisma-service';
 import {
   PrismaSelectableOptionMapper,
@@ -60,6 +63,7 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
     private readonly quizQuestionIdentifier: QuizQuestionIdentifier,
     private readonly quizSelectableOptionIdentifier: QuizSelectableOptionIdentifier,
     private readonly optionMapper: PrismaSelectableOptionMapper,
+    private readonly paginationQueryNormalizer: PaginationQueryNormalizer,
   ) {}
 
   async create(quizId: QuizId, data: QuizQuestionMutationData): Promise<QuizQuestion> {
@@ -107,14 +111,27 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
     return question ? this.toDomain(question) : null;
   }
 
-  async findByQuizId(quizId: QuizId): Promise<QuizQuestion[]> {
-    const questions = await this.prisma.question.findMany({
-      where: { quizId, deletedAt: null, quiz: { deletedAt: null, game: { deletedAt: null } } },
-      include: this.questionInclude,
-      orderBy: [{ position: 'asc' }, { id: 'asc' }],
-    });
-
-    return questions.map((question) => this.toDomain(question));
+  async findByQuizId(quizId: QuizId, query: PaginationQuery): Promise<PaginatedResult<QuizQuestion>> {
+    const pagination = this.paginationQueryNormalizer.normalizeQuery(query);
+    const where = { quizId, deletedAt: null, quiz: { deletedAt: null, game: { deletedAt: null } } };
+    const [totalCount, questions] = await this.prisma.$transaction(
+      [
+        this.prisma.question.count({ where }),
+        this.prisma.question.findMany({
+          where,
+          include: this.questionInclude,
+          orderBy: [{ position: 'asc' }, { id: 'asc' }],
+          skip: pagination.skip,
+          take: pagination.pageSize,
+        }),
+      ],
+      { isolationLevel: 'RepeatableRead' },
+    );
+    return this.paginationQueryNormalizer.toPaginatedResult(
+      pagination,
+      questions.map((item) => this.toDomain(item)),
+      totalCount,
+    );
   }
 
   async update(id: QuizQuestionId, data: QuizQuestionMutationData): Promise<QuizQuestion> {

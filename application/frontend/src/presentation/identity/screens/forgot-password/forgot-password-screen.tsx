@@ -9,11 +9,12 @@ import { SupportingText } from '../../../shared/ui/layout/typography';
 import { InlineTextLink } from '../../../shared/ui/navigation/links';
 import { AuthFormCard } from '../shared/components/auth-form-card';
 import { AuthLayout } from '../shared/components/auth-layout';
+import { SecurityCheck } from '../shared/components/security-check';
 import { useForgotPasswordScreenState } from './use-forgot-password-screen-state';
 
 export function ForgotPasswordScreen() {
   const { t } = usePresentationTranslation();
-  const { form, isSubmitted } = useForgotPasswordScreenState();
+  const { captcha, form, isSubmitted, errorMessage } = useForgotPasswordScreenState();
 
   return (
     <AuthLayout>
@@ -30,6 +31,7 @@ export function ForgotPasswordScreen() {
         ) : (
           <form.AppForm>
             <PresentationForm form={form}>
+              {errorMessage && <StatusBanner tone="error">{errorMessage}</StatusBanner>}
               <FormSection legend={t('auth.forgotPassword.emailLabel')}>
                 <form.AppField
                   name="email"
@@ -49,7 +51,10 @@ export function ForgotPasswordScreen() {
                 </form.AppField>
               </FormSection>
 
+              <SecurityCheck action="password-recovery" captcha={captcha} />
+
               <SubmitButton
+                disabled={!captcha.isVerified}
                 label={t('auth.forgotPassword.submitCta')}
                 submittingLabel={t('auth.forgotPassword.submittingCta')}
               />

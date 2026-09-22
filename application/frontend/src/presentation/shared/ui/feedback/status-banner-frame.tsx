@@ -59,11 +59,21 @@ export function StatusBannerFrame({ ariaLive, children, role, tone }: StatusBann
           p="0.45rem"
           radius={uiThemeTokens.radius.pill}
           shadow="sm"
-          style={{ alignSelf: 'flex-start' }}
+          style={{ alignSelf: 'flex-start', flexShrink: 0 }}
         >
           <StatusBannerIcon tone={tone} />
         </Paper>
-        <Text c={recipe.color} fz="0.96rem" fw={600} lh={1.45} lts="-0.01em" m={0}>
+        <Text
+          c={recipe.color}
+          flex={1}
+          fz="0.96rem"
+          fw={600}
+          lh={1.45}
+          lts="-0.01em"
+          m={0}
+          miw={0}
+          style={{ overflowWrap: 'anywhere' }}
+        >
           {children}
         </Text>
       </Group>

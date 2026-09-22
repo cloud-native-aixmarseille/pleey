@@ -80,6 +80,7 @@ export class SocketIoPartyRealtimeTransport {
   }
 
   setAuthSessionTokens(tokens: { accessToken: string | null; refreshToken: string | null }): void {
+    if (this.accessToken === tokens.accessToken) return;
     this.accessToken = tokens.accessToken;
 
     if (!this.socket || this.subscriptions.size === 0) {

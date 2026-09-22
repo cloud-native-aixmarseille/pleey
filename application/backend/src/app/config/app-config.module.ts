@@ -1,7 +1,10 @@
 import { Global, Module } from '@nestjs/common';
+import { PASSWORD_RESET_TOKEN_LIFETIME_MS } from '../../application/identity/recovery/use-cases/password-reset-token-lifetime-ms.token';
 import { ACCESS_TOKEN_CONFIG, REFRESH_TOKEN_CONFIG } from '../../domain/identity/ports/auth-token.service';
 import { DATABASE_CONNECTION_STRING } from '../../infrastructure/database/database-connection-string.token';
 import { AUTH_JWT_SECRET } from '../../infrastructure/identity/auth-jwt-secret.token';
+import { CAPTCHA_CONFIG } from '../../infrastructure/identity/captcha/captcha-config.token';
+import { PASSWORD_RECOVERY_CONFIG } from '../../infrastructure/identity/services/password-recovery-config.token';
 import { PARTY_SESSION_RECOVERY_WINDOW_MS } from '../../presentation/game/party/realtime/party-session-recovery-window-ms.token';
 import { PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES_TOKEN } from '../../presentation/game/types/shared/graphql/playable-content-upload.constants';
 import { APP_VERSION } from '../../presentation/health/http/app-version.token';
@@ -14,6 +17,22 @@ import { loadAppRuntimeConfiguration } from './load-app-runtime-configuration';
 @Global()
 @Module({
   providers: [
+    {
+      provide: CAPTCHA_CONFIG,
+      useFactory: (configuration: AppRuntimeConfiguration) => configuration.captcha,
+      inject: [APP_RUNTIME_CONFIGURATION],
+    },
+    {
+      provide: PASSWORD_RECOVERY_CONFIG,
+      useFactory: (configuration: AppRuntimeConfiguration) => configuration.passwordRecovery,
+      inject: [APP_RUNTIME_CONFIGURATION],
+    },
+    {
+      provide: PASSWORD_RESET_TOKEN_LIFETIME_MS,
+      useFactory: (configuration: AppRuntimeConfiguration) =>
+        configuration.passwordRecovery.resetTokenLifetimeMinutes * 60 * 1000,
+      inject: [APP_RUNTIME_CONFIGURATION],
+    },
     {
       provide: APP_RUNTIME_CONFIGURATION,
       useFactory: loadAppRuntimeConfiguration,
@@ -70,6 +89,9 @@ import { loadAppRuntimeConfiguration } from './load-app-runtime-configuration';
     },
   ],
   exports: [
+    CAPTCHA_CONFIG,
+    PASSWORD_RECOVERY_CONFIG,
+    PASSWORD_RESET_TOKEN_LIFETIME_MS,
     APP_RUNTIME_CONFIGURATION,
     APP_SERVER_CONFIG,
     APP_VERSION,

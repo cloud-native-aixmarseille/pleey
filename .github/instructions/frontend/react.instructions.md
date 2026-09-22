@@ -6,7 +6,7 @@ applyTo: "application/frontend/**/*.{ts,tsx,js,jsx,mjs,cjs}"
 
 # Pleey frontend React rules
 
-Use `docs/technical/architecture/frontend.md` and `docs/technical/development/frontend.md` for the full architecture. This file only captures non-obvious React and presentation-layer rules.
+Use `docs/technical/architecture/frontend.md` and `docs/technical/development/frontend/index.md` for the full architecture. This file only captures non-obvious React and presentation-layer rules.
 
 - Keep presentation code on presentation hooks, route factories, facades, and shared presentation UI components because frontend boundary checks forbid direct infrastructure access from screens.
 - Do not import Mantine, routing, form, or infrastructure libraries directly in presentation code because those dependencies are intentionally hidden behind repository ports.

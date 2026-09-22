@@ -6,14 +6,14 @@ Thank you for your interest in contributing to Pleey! This guide will help you g
 
 **All technical details live in [`/docs`](docs/).** This file covers contribution workflow only — refer to the docs for architecture, coding standards, testing, and development practices.
 
-| Topic                 | Reference                                                                          |
-| --------------------- | ---------------------------------------------------------------------------------- |
-| Architecture & layers | [docs/technical/architecture/index.md](docs/technical/architecture/index.md)       |
-| Backend architecture  | [docs/technical/architecture/backend.md](docs/technical/architecture/backend.md)   |
-| Frontend architecture | [docs/technical/architecture/frontend.md](docs/technical/architecture/frontend.md) |
-| Development practices | [docs/technical/development/index.md](docs/technical/development/index.md)         |
-| Backend development   | [docs/technical/development/backend.md](docs/technical/development/backend.md)     |
-| Frontend development  | [docs/technical/development/frontend.md](docs/technical/development/frontend.md)   |
+| Topic                 | Reference                                                                                    |
+| --------------------- | -------------------------------------------------------------------------------------------- |
+| Architecture & layers | [docs/technical/architecture/index.md](docs/technical/architecture/index.md)                 |
+| Backend architecture  | [docs/technical/architecture/backend.md](docs/technical/architecture/backend.md)             |
+| Frontend architecture | [docs/technical/architecture/frontend.md](docs/technical/architecture/frontend.md)           |
+| Development practices | [docs/technical/development/index.md](docs/technical/development/index.md)                   |
+| Backend development   | [docs/technical/development/backend/index.md](docs/technical/development/backend/index.md)   |
+| Frontend development  | [docs/technical/development/frontend/index.md](docs/technical/development/frontend/index.md) |
 
 ## 🤝 Code of Conduct
 

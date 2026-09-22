@@ -25,6 +25,26 @@ describe('readAppEnv()', () => {
     }
   });
 
+  it('keeps API paths relative when no browser origin is available', () => {
+    // Arrange
+    arrangeApiUrl('');
+    vi.stubGlobal('window', undefined);
+
+    // Act + Assert
+    try {
+      // Act
+      const env = readAppEnv();
+
+      // Assert
+      expect(env.apiUrl).toBe('');
+      expect(env.graphqlPath).toBe('/graphql');
+      expect(env.socketPath).toBe('');
+    } finally {
+      vi.unstubAllEnvs();
+      vi.unstubAllGlobals();
+    }
+  });
+
   it('uses VITE_API_URL when set to a valid URL', () => {
     // Arrange + Act
     arrangeApiUrl('https://api.example.com');
@@ -95,7 +115,7 @@ describe('readAppEnv()', () => {
     }
   });
 
-  it('uses the default feedback URL when VITE_FEEDBACK_URL is not set', () => {
+  it('leaves the feedback URL empty when VITE_FEEDBACK_URL is not set', () => {
     // Arrange + Act
     arrangeApiUrl('');
     arrangeFeedbackUrl('');

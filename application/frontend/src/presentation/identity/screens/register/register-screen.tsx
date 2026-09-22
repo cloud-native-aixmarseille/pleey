@@ -9,11 +9,12 @@ import { SupportingText } from '../../../shared/ui/layout/typography';
 import { InlineTextLink } from '../../../shared/ui/navigation/links';
 import { AuthFormCard } from '../shared/components/auth-form-card';
 import { AuthLayout } from '../shared/components/auth-layout';
+import { SecurityCheck } from '../shared/components/security-check';
 import { useRegisterScreenState } from './use-register-screen-state';
 
 export function RegisterScreen() {
   const { t } = usePresentationTranslation();
-  const { errorMessage, form, isRegistered } = useRegisterScreenState();
+  const { captcha, errorMessage, form, isRegistered } = useRegisterScreenState();
 
   return (
     <AuthLayout>
@@ -84,7 +85,13 @@ export function RegisterScreen() {
 
               <StatusBanner tone="error">{errorMessage}</StatusBanner>
 
-              <SubmitButton label={t('auth.register.submitCta')} submittingLabel={t('auth.register.submittingCta')} />
+              <SecurityCheck action="signup" captcha={captcha} />
+
+              <SubmitButton
+                disabled={!captcha.isVerified}
+                label={t('auth.register.submitCta')}
+                submittingLabel={t('auth.register.submittingCta')}
+              />
 
               <SupportingText>
                 {t('auth.register.signInPrompt')}{' '}

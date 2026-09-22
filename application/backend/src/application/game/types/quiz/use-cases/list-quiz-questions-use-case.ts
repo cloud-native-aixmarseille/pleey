@@ -7,6 +7,8 @@ import type { QuizQuestionRepository } from '../../../../../domain/game/types/qu
 import { QuizQuestionRepositoryProvider } from '../../../../../domain/game/types/quiz/ports/quiz-question.repository';
 import type { GameTypeId } from '../../../../../domain/game/types/shared/entities/game-type';
 import type { UserId } from '../../../../../domain/identity/entities/user';
+import type { PaginatedResult } from '../../../../../domain/shared/value-objects/paginated-result';
+import type { PaginationQuery } from '../../../../../domain/shared/value-objects/pagination-query';
 import { GameTypeManagementAccessGuard } from '../../shared/services/game-type-management-access-guard';
 
 @Injectable()
@@ -19,7 +21,7 @@ export class ListQuizQuestionsUseCase {
     private readonly accessGuard: GameTypeManagementAccessGuard,
   ) {}
 
-  async execute(quizId: GameTypeId, userId: UserId): Promise<QuizQuestion[]> {
+  async execute(quizId: GameTypeId, userId: UserId, query: PaginationQuery): Promise<PaginatedResult<QuizQuestion>> {
     const quiz = await this.quizRepository.findById(quizId);
     if (!quiz) {
       throw new QuizNotFoundError({ quizId });
@@ -27,6 +29,6 @@ export class ListQuizQuestionsUseCase {
 
     await this.accessGuard.assertCanManageProject(quiz.projectId, userId);
 
-    return this.questionRepository.findByQuizId(quiz.id);
+    return this.questionRepository.findByQuizId(quiz.id, query);
   }
 }

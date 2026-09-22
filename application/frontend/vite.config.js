@@ -27,6 +27,10 @@ export default defineConfig(() => {
       host: true,
       allowedHosts: ['frontend', 'pleey.localhost'],
       proxy: {
+        '/api': {
+          target: proxyTarget,
+          changeOrigin: true,
+        },
         '/graphql': {
           target: proxyTarget,
           changeOrigin: true,

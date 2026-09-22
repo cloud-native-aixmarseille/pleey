@@ -98,6 +98,7 @@ setup: setup-traefik build up migrate-dev-recover seed graphql-types ## Prepare 
 	@echo "Application available at:"
 	@echo "  Frontend: $(YELLOW)http://pleey.localhost$(NC)"
 	@echo "  Backend:  $(YELLOW)http://pleey.localhost/api$(NC)"
+	@echo "  Mailpit:  $(YELLOW)http://mailpit.pleey.localhost$(NC)"
 	@echo "  Traefik dashboard: $(YELLOW)http://traefik.localhost$(NC) (managed by setup-traefik)"
 	@echo ""
 	@echo "Default admin account:"
@@ -424,6 +425,8 @@ test-chart: ## Run Helm chart lint+install like CI, building app images locally 
 	DOCKER_BUILDKIT=1 docker build --target prod --file application/frontend/Dockerfile --tag "$$FRONTEND_IMAGE" .; \
 	echo "$(GREEN)Adding Helm repositories...$(NC)"; \
 	helm repo add cloudnative-pg https://cloudnative-pg.github.io/charts --force-update >/dev/null; \
+	helm repo add valkey https://valkey.io/valkey-helm/ --force-update >/dev/null; \
+	helm repo add bokysan https://bokysan.github.io/docker-postfix/ --force-update >/dev/null; \
 	echo "$(GREEN)Running chart lint...$(NC)"; \
 	set -- $$CT_ARGS; \
 	ct lint "$$@"; \

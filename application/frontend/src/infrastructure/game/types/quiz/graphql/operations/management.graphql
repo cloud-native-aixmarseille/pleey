@@ -1,4 +1,4 @@
-query QuizManagement($quizId: ID!) {
+query QuizManagement($quizId: ID!, $input: PaginationInput!) {
   quiz(quizId: $quizId) {
     quizId
     gameId
@@ -7,20 +7,8 @@ query QuizManagement($quizId: ID!) {
     createdAt
     questionCount
   }
-  quizQuestions(quizId: $quizId) {
-    id
-    quizId
-    position
-    questionText
-    type
-    timeLimit
-    points
-    answers {
-      id
-      text
-      position
-      isCorrect
-    }
+  quizQuestions(quizId: $quizId, input: $input) {
+    ...QuizManagementItemsPage
   }
 }
 
@@ -85,4 +73,33 @@ mutation UpdateQuizQuestionManagement($questionId: ID!, $input: UpdateQuizQuesti
 
 mutation DeleteQuizQuestionManagement($questionId: ID!) {
   deleteQuizQuestion(questionId: $questionId)
+}
+
+query QuizManagementItems($quizId: ID!, $input: PaginationInput!) {
+  quizQuestions(quizId: $quizId, input: $input) {
+    ...QuizManagementItemsPage
+  }
+}
+
+fragment QuizManagementItemsPage on QuizQuestionListType {
+  items {
+    id
+    quizId
+    position
+    questionText
+    type
+    timeLimit
+    points
+    answers {
+      id
+      text
+      position
+      isCorrect
+    }
+  }
+  totalCount
+  overallCount
+  page
+  pageSize
+  totalPages
 }

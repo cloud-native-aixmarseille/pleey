@@ -37,6 +37,14 @@ function hasOwn<TObject extends object>(target: TObject, key: PropertyKey): bool
 }
 
 export class AuthFixtureFactory {
+  createAccessToken(overrides: { id?: UserPayloadOverrides['id']; sessionId?: string } = {}): string {
+    const payload = {
+      id: coerceUuidV7TestValue(overrides.id ?? 1),
+      sessionId: overrides.sessionId ?? '11111111-1111-4111-8111-111111111111',
+    };
+    return `header.${btoa(JSON.stringify(payload))}.signature`;
+  }
+
   createUser(overrides: UserPayloadOverrides = {}): User {
     const userPayload = this.createUserPayload(overrides);
 

@@ -1,6 +1,7 @@
 import type { AuthSession } from '../../../domains/identity/entities/auth-session';
 
 export interface AuthSessionTransportHandlers {
+  readonly readSessionTokens?: () => { accessToken: string | null; refreshToken: string | null };
   readonly onSessionRefreshed?: (session: AuthSession) => void;
   readonly onSessionInvalidated?: () => void;
 }

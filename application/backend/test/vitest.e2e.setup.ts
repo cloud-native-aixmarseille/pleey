@@ -1,9 +1,12 @@
-// Ensure PrismaService switches to DATABASE_URL_TEST.
-process.env.NODE_ENV = 'test';
+import { createAppEnvironmentFixture } from '../src/test-utils/fixtures/unit/app-environment.fixture';
 
-// AppModule imports AuthModule which requires JWT_SECRET at import-time.
-// Provide a deterministic dummy secret for tests if not already set.
-process.env.JWT_SECRET = process.env.JWT_SECRET ?? 'test_jwt_secret_only_for_tests';
+// Test tooling supplies explicit runtime values; real database availability remains opt-in.
+process.env.NODE_ENV = 'test';
+for (const [name, value] of Object.entries(createAppEnvironmentFixture())) {
+  if (name !== 'DATABASE_URL' && process.env[name] === undefined && process.env[`${name}_FILE`] === undefined) {
+    process.env[name] = value;
+  }
+}
 
 function deriveTestDatabaseUrlFromDev(devUrl: string): string {
   const url = new URL(devUrl);

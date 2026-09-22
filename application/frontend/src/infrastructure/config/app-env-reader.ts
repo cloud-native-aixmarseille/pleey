@@ -22,13 +22,7 @@ function normalizeApiUrl(candidate: unknown): string {
     return candidate.trim().replace(/\/$/, '');
   }
 
-  const browserOrigin = readBrowserOrigin();
-
-  if (browserOrigin.length > 0) {
-    return browserOrigin;
-  }
-
-  return 'http://localhost:3001';
+  return readBrowserOrigin();
 }
 
 function readBrowserOrigin(): string {

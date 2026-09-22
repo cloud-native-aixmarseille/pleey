@@ -9,8 +9,6 @@ import type { PaginationQuery } from '../../../../domain/shared/value-objects/pa
 import { PaginationQueryNormalizer } from '../../../shared/services/pagination-query-normalizer';
 import { OrganizationMembershipAccessService } from '../services/organization-membership-access.service';
 
-const DEFAULT_PAGE_SIZE = 25;
-
 interface ListOrganizationMembersQuery extends PaginationQuery {
   readonly organizationId: OrganizationId;
 }
@@ -30,7 +28,7 @@ export class ListOrganizationMembersUseCase {
   ): Promise<PaginatedResult<OrganizationMember>> {
     await this.organizationMembershipAccess.assertOrganizationExists(input.organizationId);
     await this.organizationMembershipAccess.requireMembership(input.organizationId, requestingUserId);
-    const pagination = this.paginationQueryNormalizer.normalizeQuery(input, DEFAULT_PAGE_SIZE);
+    const pagination = this.paginationQueryNormalizer.normalizeQuery(input);
 
     return this.memberRepository.findPageByOrganization(
       input.organizationId,
