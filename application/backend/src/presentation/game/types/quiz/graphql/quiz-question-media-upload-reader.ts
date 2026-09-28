@@ -55,7 +55,7 @@ export class QuizQuestionMediaUploadReader {
 
     try {
       for await (const chunk of stream) {
-        chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : Buffer.from(chunk));
+        chunks.push(typeof chunk === 'string' ? Buffer.from(chunk, 'binary') : Buffer.from(chunk));
       }
     } catch {
       stream.destroy();
