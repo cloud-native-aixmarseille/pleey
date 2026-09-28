@@ -54,4 +54,4 @@ If a change can alter how the system is structured, operated, or extended, it ne
 - 0013: [Share GraphQL upload stream reading](./0013-share-graphql-upload-stream-reading.md) - Proposed - 2026-10-12
 - 0014: [Unify resource-scoped permissions across backend and frontend](./0014-unify-resource-scoped-permissions.md) - Accepted - 2026-10-12
 - 0015: [Use Chokidar 5 for translation watching](./0015-use-chokidar-5-for-translation-watching.md) - Proposed - 2026-10-12
-- 0016: [Support media on quiz questions](./0016-support-media-on-quiz-questions.md) - Accepted - 2026-09-28
+- 0016: [Support media on quiz questions](./0016-support-media-on-quiz-questions.md) - Proposed - 2026-09-28
