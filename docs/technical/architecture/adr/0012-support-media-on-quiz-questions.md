@@ -1,8 +1,8 @@
 # ADR 0012: Support media on quiz questions
 
-- Status: Accepted
+- Status: Proposed
 - Proposed date: 2026-09-28
-- Accepted date: 2026-09-28
+- Accepted date: N/A
 
 ## Context
 
