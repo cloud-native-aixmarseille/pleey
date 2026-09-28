@@ -4,6 +4,7 @@ import type {
   PlayableChoiceOption,
   PlayableManagementItem,
   PlayableManagementItemInput,
+  PlayableMedia,
 } from '../../../../../domains/game/types/shared/management/playable-management';
 import { playableOutcomeEditorPolicy } from './playable-outcome-editor-policy';
 
@@ -27,6 +28,7 @@ export interface PlayableItemKindConfig<TKind extends string = string> {
 }
 
 export interface PlayableContentManagementScreenProps {
+  readonly allowMedia?: boolean;
   readonly gameTypeId: GameTypeId;
   readonly gateway: PlayableContentManagementGateway;
   readonly itemKindConfig?: PlayableItemKindConfig;
@@ -43,6 +45,9 @@ export interface PlayableItemEditorState {
   readonly kind: PlayableItemEditorKind;
   readonly timeLimit: string;
   readonly points: string;
+  readonly media: PlayableMedia | null;
+  readonly mediaFile: File | null;
+  readonly clearMedia: boolean;
   readonly correctPositions: readonly string[];
   readonly optionTexts: readonly string[];
 }
@@ -71,6 +76,9 @@ export function createEmptyPlayableItemEditorState(itemKindConfig?: PlayableItem
     kind: resolveDefaultEditorKind(itemKindConfig),
     timeLimit: '20',
     points: '1000',
+    media: null,
+    mediaFile: null,
+    clearMedia: false,
     correctPositions: ['0'],
     optionTexts: defaultOptionTexts,
   };
@@ -91,6 +99,9 @@ export function createPlayableItemEditorStateFromItem(
     kind: typeof item.kind === 'string' ? item.kind : resolveDefaultEditorKind(itemKindConfig),
     timeLimit: String(item.timeLimit),
     points: String(item.points),
+    media: item.media ?? null,
+    mediaFile: null,
+    clearMedia: false,
     correctPositions: correctPositions.length > 0 ? correctPositions : ['0'],
     optionTexts: defaultOptionTexts.map(
       (_, index) => sortedOptions.find((option) => option.position === index)?.text ?? '',
@@ -135,6 +146,8 @@ export function createPlayableItemInput(
     kind: itemKindConfig ? (editorState.kind ?? itemKindConfig.defaultKind) : undefined,
     timeLimit: Number.parseInt(editorState.timeLimit, 10),
     points: Number.parseInt(editorState.points, 10),
+    mediaFile: editorState.mediaFile,
+    clearMedia: editorState.clearMedia ? true : undefined,
     options: toOptions(editorState, itemKindConfig, t),
   };
 }

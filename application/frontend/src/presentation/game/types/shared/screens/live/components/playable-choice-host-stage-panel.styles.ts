@@ -1,20 +1,26 @@
+import { surfaceRecipes } from '../../../../../../shared/ui/foundation/ui-recipes';
+
 export const stageShellStyle = {
   display: 'flex',
   flexDirection: 'column',
-  minHeight: 'calc(100vh - 240px)',
+  height: 'calc(100dvh - 16rem)',
+  minHeight: '24rem',
   width: '100%',
 } as const;
 
-export const stageContentStyle = {
+export const stageHeroStyle = {
+  ...surfaceRecipes.hero,
   display: 'flex',
   flex: 1,
   flexDirection: 'column',
-  gap: 'var(--mantine-spacing-xl)',
+  gap: 'var(--mantine-spacing-md)',
+  minHeight: 0,
+  padding: 'var(--mantine-spacing-lg)',
 } as const;
 
 export const stageMetaStyle = {
   margin: '0 auto',
-  maxWidth: '52rem',
+  maxWidth: '60rem',
   width: '100%',
 } as const;
 
@@ -52,13 +58,19 @@ export const stagePromptRegionStyle = {
   alignItems: 'center',
   display: 'flex',
   flex: 1,
+  flexDirection: 'column',
+  gap: 'var(--mantine-spacing-sm)',
   justifyContent: 'center',
+  minHeight: 0,
   textAlign: 'center',
   width: '100%',
 } as const;
 
-export const stagePromptContentStyle = {
-  margin: '0 auto',
-  maxWidth: '60rem',
+export const stageMediaSlotStyle = {
+  alignItems: 'center',
+  display: 'flex',
+  flex: 1,
+  justifyContent: 'center',
+  minHeight: 0,
   width: '100%',
 } as const;

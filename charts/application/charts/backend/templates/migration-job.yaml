@@ -1,18 +1,16 @@
 {{- if .Values.migrationJob.enabled }}
+{{- $nameSuffix := printf "-migrate-%d" .Release.Revision }}
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ include "pleey.backend.fullname" . }}-migrate
+  name: {{ include "pleey.backend.fullname" . | trunc (int (sub 63 (len $nameSuffix))) | trimSuffix "-" }}{{ $nameSuffix }}
   labels:
     {{- include "pleey.backend.labels" . | nindent 4 }}
     app.kubernetes.io/component: database-migration
+  {{- with .Values.migrationJob.annotations }}
   annotations:
-    "helm.sh/hook": post-install,post-upgrade
-    "helm.sh/hook-weight": "5"
-    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
-    {{- with .Values.migrationJob.annotations }}
     {{- toYaml . | nindent 4 }}
-    {{- end }}
+  {{- end }}
 spec:
   backoffLimit: {{ .Values.migrationJob.backoffLimit }}
   template:

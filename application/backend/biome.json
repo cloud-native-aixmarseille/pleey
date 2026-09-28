@@ -92,7 +92,8 @@
                       "!**/game/party/errors/**",
                       "!**/game/party/host/**",
                       "!**/game/party/player/**",
-                      "!**/game/party/shared/**"
+                      "!**/game/party/shared/**",
+                      "!**/presentation/game/party/realtime/**"
                     ],
                     "message": "Only **/game/party/{host,player,shared}/** is allowed under game/party."
                   }

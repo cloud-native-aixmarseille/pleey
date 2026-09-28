@@ -32,6 +32,7 @@ import {
   IconLogout2,
   IconMenu2,
   IconMoonStars,
+  IconMusic,
   IconPalette,
   IconPhoto,
   IconPlayerPause,
@@ -54,6 +55,7 @@ import {
   IconUser,
   IconUserCircle,
   IconUserPlus,
+  IconVideo,
 } from '@tabler/icons-react';
 import type { ComponentType } from 'react';
 
@@ -71,6 +73,7 @@ export type AppIconName =
   | 'arrow-left'
   | 'arrow-right'
   | 'arrow-up'
+  | 'audio'
   | 'catalog'
   | 'chevron-down'
   | 'command'
@@ -113,7 +116,8 @@ export type AppIconName =
   | 'stats'
   | 'success'
   | 'trash'
-  | 'trophy';
+  | 'trophy'
+  | 'video';
 
 const iconRegistry: Record<AppIconName, ComponentType<IconProps>> = {
   undo: IconArrowBackUp,
@@ -129,6 +133,7 @@ const iconRegistry: Record<AppIconName, ComponentType<IconProps>> = {
   'arrow-left': IconArrowLeft,
   'arrow-right': IconArrowRight,
   'arrow-up': IconArrowUp,
+  audio: IconMusic,
   catalog: IconLayoutGrid,
   'chevron-down': IconChevronDown,
   command: IconCommand,
@@ -172,6 +177,7 @@ const iconRegistry: Record<AppIconName, ComponentType<IconProps>> = {
   success: IconCircleCheck,
   trash: IconTrash,
   trophy: IconTrophy,
+  video: IconVideo,
 };
 
 interface AppIconProps extends Omit<IconProps, 'size'> {

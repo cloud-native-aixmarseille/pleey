@@ -1,0 +1,3 @@
+export const MEDIA_PENDING_LIFETIME_MS = 60 * 60 * 1000;
+export const MEDIA_RETENTION_MS = 24 * 60 * 60 * 1000;
+export const MEDIA_CLEANUP_INTERVAL_MS = 60 * 1000;

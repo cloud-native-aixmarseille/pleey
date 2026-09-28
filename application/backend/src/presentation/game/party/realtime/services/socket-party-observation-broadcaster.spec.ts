@@ -1,322 +1,178 @@
-import { PartyObservationAccessService } from '../../../../../application/game/party/shared/services/party-observation-access-service';
-import { PartyPlayerSessionRegistry } from '../../../../../domain/game/party/player/services/party-player-session-registry';
-import { PartyObservationPolicy } from '../../../../../domain/game/party/shared/services/party-observation-policy';
 import 'reflect-metadata';
 import { describe, expect, it, vi } from 'vitest';
-import { PartyIdentifier } from '../../../../../application/game/party/shared/services/identifiers/party-identifier';
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
-import { DEFAULT_PARTY_SETTINGS } from '../../../../../domain/game/party/shared/entities/party-settings';
-import { GameType } from '../../../../../domain/game/types/shared/entities/game-type';
+import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
-import { HostPartyObservationMessageMapper } from './host-party-observation-message-mapper';
-import { PartyObservationAudienceResolver } from './party-observation-audience-resolver';
-import { PlayerPartyObservationMessageMapper } from './player-party-observation-message-mapper';
-import { SocketPartyObservationBroadcaster } from './socket-party-observation-broadcaster';
-
-const partyIdentifier = new PartyIdentifier();
-const PARTY_ID = backendTestIdentifiers.party(44);
-const GAME_ID = backendTestIdentifiers.game(17);
-const HOST_USER_ID = backendTestIdentifiers.user(7);
-const PARTY_ROOM = `party:${PARTY_ID}`;
-
-function createSnapshot() {
-  return {
-    gameType: GameType.Quiz,
-    hostObservation: {
-      isPrivate: false,
-      partyId: PARTY_ID,
-      gameId: GAME_ID,
-      pin: '123456',
-      status: 'WAITING',
-      settings: DEFAULT_PARTY_SETTINGS,
-      context: { round: 2 },
-      host: {
-        userId: HOST_USER_ID,
-        username: 'Host',
-        avatarUri: '/api/avatars/users/7?v=1',
-      },
-      players: [],
-      createdAt: new Date('2026-04-17T10:00:00.000Z'),
-      updatedAt: new Date('2026-04-17T10:00:00.000Z'),
-    },
-    playerObservation: {
-      partyId: backendTestIdentifiers.party(44),
-      pin: '123456',
-      status: 'WAITING',
-      settings: DEFAULT_PARTY_SETTINGS,
-      host: {
-        avatarUri: '/api/avatars/users/7?v=1',
-        username: 'Host',
-      },
-      players: [],
-    },
-  } as const;
-}
+import { createPartyMediaAccessFixture } from '../../../../../test-utils/fixtures/unit/party-media-access.fixture';
 
 describe('SocketPartyObservationBroadcaster', () => {
-  it('hides host-only context from non-host observers in the emitted snapshot', async () => {
+  it('withholds the signed grant from a joined player without changing the shared snapshot', async () => {
     // Arrange
-    const broadcaster = new SocketPartyObservationBroadcaster(
-      new PartyObservationAudienceResolver(
-        new PartyObservationAccessService(new PartyPlayerSessionRegistry(), new PartyObservationPolicy()),
-        {
-          validate: vi.fn().mockImplementation(async (claims) => claims),
-        } as never,
-      ),
-      new HostPartyObservationMessageMapper(),
-      new PlayerPartyObservationMessageMapper(),
-      partyIdentifier,
-      { findIfPresent: vi.fn().mockResolvedValue(createSnapshot()) } as never,
-    );
-    const server = {
-      in: vi.fn().mockReturnValue({
-        fetchSockets: vi.fn().mockResolvedValue([
-          {
-            data: {
-              authenticatedUserId: HOST_USER_ID,
-              authenticatedSession: { id: HOST_USER_ID },
-            },
-          },
-          {
-            data: {
-              authenticatedUserId: 11,
-              authenticatedSession: { id: 11 },
-              joinedPartyPlayer: {
-                identity: { kind: PartyPlayerKind.GUEST, guestId: 'guest-1' },
-                pin: '123456',
-              },
-            },
-          },
-          { data: {} },
-        ]),
-      }),
-    };
-    const client = { emit: vi.fn(), data: {} };
-
-    broadcaster.attachServer(server as never);
-    // Act
-    await broadcaster.emitSnapshot(client as never, createSnapshot() as never);
-
-    // Assert
-    expect(server.in).toHaveBeenCalledWith(PARTY_ROOM);
-
-    const [, payload] = client.emit.mock.calls[0];
-
-    expect(payload).toMatchObject({
-      context: undefined,
-      isObserverHost: false,
-      host: expect.objectContaining({
-        avatarUri: '/api/avatars/users/7?v=1',
-        username: 'Host',
-      }),
-      players: [],
-    });
-    expect(payload.host).not.toHaveProperty('joinedAt');
-  });
-
-  it('keeps host-only context for the host observer', async () => {
-    // Arrange
-    const broadcaster = new SocketPartyObservationBroadcaster(
-      new PartyObservationAudienceResolver(
-        new PartyObservationAccessService(new PartyPlayerSessionRegistry(), new PartyObservationPolicy()),
-        {
-          validate: vi.fn().mockImplementation(async (claims) => claims),
-        } as never,
-      ),
-      new HostPartyObservationMessageMapper(),
-      new PlayerPartyObservationMessageMapper(),
-      partyIdentifier,
-      { findIfPresent: vi.fn().mockResolvedValue(createSnapshot()) } as never,
-    );
-    const server = {
-      in: vi.fn().mockReturnValue({
-        fetchSockets: vi.fn().mockResolvedValue([]),
-      }),
-    };
-    const client = {
-      data: {
-        authenticatedUserId: HOST_USER_ID,
-        authenticatedSession: { id: HOST_USER_ID },
-      },
-      emit: vi.fn(),
-    };
-
-    broadcaster.attachServer(server as never);
-    await broadcaster.emitSnapshot(client as never, createSnapshot() as never);
+    const fixture = createPartyMediaAccessFixture();
 
     // Act
-    const [, payload] = client.emit.mock.calls[0];
+    const message = await fixture.broadcaster.emitSnapshot(fixture.client, fixture.snapshot);
 
     // Assert
-    expect(payload).toMatchObject({
-      context: { round: 2 },
-      isObserverHost: true,
-    });
+    expect(message.context?.stage?.current?.media).toBeNull();
+    expect(fixture.snapshot.playerObservation.context?.stage?.current?.media).toEqual(fixture.stageMedia);
+    expect(fixture.issuer.issue).not.toHaveBeenCalled();
   });
 
-  it('publishes party updates to host sockets before player sockets', async () => {
+  it.each(['observer', 'different-party', 'replaced-session', 'removed-member', 'unauthenticated-user'])(
+    'withholds question content, players and signing from a %s',
+    async (scenario) => {
+      // Arrange
+      const fixture = createPartyMediaAccessFixture();
+      if (scenario === 'observer') fixture.client.data = {};
+      if (scenario === 'different-party') {
+        fixture.client.data.joinedPartyPlayer = {
+          identity: fixture.identity,
+          partyId: backendTestIdentifiers.party(999),
+          pin: fixture.snapshot.hostObservation.pin,
+        };
+      }
+      if (scenario === 'replaced-session')
+        fixture.registry.registerSession(fixture.partyId, fixture.identity, 'new-socket');
+      if (scenario === 'removed-member') fixture.runtime.findPartyPlayer.mockResolvedValue(null);
+      if (scenario === 'unauthenticated-user') {
+        const identity = { kind: PartyPlayerKind.USER, userId: backendTestIdentifiers.user(42) } as const;
+        fixture.registry.registerSession(fixture.partyId, identity, fixture.client.id);
+        fixture.client.data.joinedPartyPlayer = {
+          identity,
+          partyId: fixture.partyId,
+          pin: fixture.snapshot.hostObservation.pin,
+        };
+      }
+
+      // Act
+      const message = await fixture.broadcaster.emitSnapshot(fixture.client, fixture.snapshot);
+
+      // Assert
+      expect(message).toMatchObject({ context: null, isObserverHost: false, players: [] });
+      expect(fixture.issuer.issue).not.toHaveBeenCalled();
+    },
+  );
+
+  it('delivers media to the authenticated owner without requiring player membership', async () => {
     // Arrange
-    const broadcaster = new SocketPartyObservationBroadcaster(
-      new PartyObservationAudienceResolver(
-        new PartyObservationAccessService(new PartyPlayerSessionRegistry(), new PartyObservationPolicy()),
-        {
-          validate: vi.fn().mockImplementation(async (claims) => claims),
-        } as never,
-      ),
-      new HostPartyObservationMessageMapper(),
-      new PlayerPartyObservationMessageMapper(),
-      partyIdentifier,
-      { findIfPresent: vi.fn().mockResolvedValue(createSnapshot()) } as never,
-    );
-    const deliveryOrder: string[] = [];
-    const hostSocket = {
-      data: { authenticatedUserId: HOST_USER_ID, authenticatedSession: { id: HOST_USER_ID } },
-      emit: vi.fn(() => {
-        deliveryOrder.push('host');
-      }),
-    };
-    const playerSocket = {
-      data: {
-        authenticatedUserId: 11,
-        authenticatedSession: { id: 11 },
-        joinedPartyPlayer: {
-          identity: { kind: PartyPlayerKind.GUEST, guestId: 'guest-1' },
-          pin: '123456',
+    const fixture = createPartyMediaAccessFixture();
+    fixture.client.data = fixture.hostSocketData;
+
+    // Act
+    const message = await fixture.broadcaster.emitSnapshot(fixture.client, fixture.snapshot);
+
+    // Assert
+    expect(message.isObserverHost).toBe(true);
+    expect(message).toMatchObject({ permissions: fixture.snapshot.hostPermissions });
+    expect(message.context?.stage?.current?.media).toEqual({ ...fixture.grant, partyId: fixture.partyId });
+  });
+
+  it('continues delivering media to the host after the persisted party has ended', async () => {
+    // Arrange
+    const fixture = createPartyMediaAccessFixture();
+    fixture.client.data = fixture.hostSocketData;
+    fixture.runtime.findPartyByPin.mockResolvedValue({ ...fixture.target, status: PartyStatus.ENDED });
+
+    // Act
+    const message = await fixture.broadcaster.emitSnapshot(fixture.client, fixture.snapshot);
+
+    // Assert
+    expect(message.context?.stage?.current?.media).toEqual({ ...fixture.grant, partyId: fixture.partyId });
+  });
+
+  it('removes legacy media without an asset id from host delivery', async () => {
+    // Arrange
+    const fixture = createPartyMediaAccessFixture();
+    fixture.client.data = fixture.hostSocketData;
+    const context = fixture.context;
+    const snapshot = {
+      ...fixture.snapshot,
+      hostObservation: {
+        ...fixture.snapshot.hostObservation,
+        context: {
+          ...context,
+          stage: {
+            ...context.stage,
+            current: { ...context.stage.current, media: { mimeType: 'video/mp4', uri: fixture.stageMedia.uri } },
+          },
         },
       },
-      emit: vi.fn(() => {
-        deliveryOrder.push('player');
-      }),
     };
-    const observerSocket = {
-      data: {},
-      emit: vi.fn(() => {
-        deliveryOrder.push('observer');
-      }),
-    };
-    const server = {
-      in: vi.fn().mockReturnValue({
-        fetchSockets: vi.fn().mockResolvedValue([observerSocket, playerSocket, hostSocket]),
-      }),
-    };
-
-    broadcaster.attachServer(server as never);
 
     // Act
-    await broadcaster.publish(createSnapshot() as never);
+    const message = await fixture.broadcaster.emitSnapshot(fixture.client, snapshot);
 
     // Assert
-    expect(deliveryOrder).toEqual(['host', 'player', 'observer']);
+    expect(message.context?.stage?.current?.media).toBeNull();
+    expect(fixture.issuer.issue).not.toHaveBeenCalled();
   });
 
-  it('publishes runtime notices to host sockets before player sockets', async () => {
+  it('publishes updates and runtime notices to host sockets before player sockets', async () => {
     // Arrange
-    const broadcaster = new SocketPartyObservationBroadcaster(
-      new PartyObservationAudienceResolver(
-        new PartyObservationAccessService(new PartyPlayerSessionRegistry(), new PartyObservationPolicy()),
-        {
-          validate: vi.fn().mockImplementation(async (claims) => claims),
-        } as never,
-      ),
-      new HostPartyObservationMessageMapper(),
-      new PlayerPartyObservationMessageMapper(),
-      partyIdentifier,
-      { findIfPresent: vi.fn().mockResolvedValue(createSnapshot()) } as never,
-    );
+    const fixture = createPartyMediaAccessFixture();
     const deliveryOrder: string[] = [];
     const hostSocket = {
-      data: { authenticatedUserId: HOST_USER_ID, authenticatedSession: { id: HOST_USER_ID } },
-      emit: vi.fn(() => {
-        deliveryOrder.push('host');
-      }),
+      id: 'host',
+      data: fixture.hostSocketData,
+      emit: vi.fn(() => deliveryOrder.push('host')),
     };
-    const playerSocket = {
-      data: {
-        joinedPartyPlayer: {
-          identity: { kind: PartyPlayerKind.GUEST, guestId: 'guest-1' },
-          pin: '123456',
-        },
-      },
-      emit: vi.fn(() => {
-        deliveryOrder.push('player');
-      }),
-    };
+    fixture.client.emit.mockImplementation(() => deliveryOrder.push('player'));
     const observerSocket = {
+      id: 'observer',
       data: {},
-      emit: vi.fn(() => {
-        deliveryOrder.push('observer');
-      }),
+      emit: vi.fn((_event: string, _payload: unknown) => deliveryOrder.push('observer')),
     };
-    const server = {
-      in: vi.fn().mockReturnValue({
-        fetchSockets: vi.fn().mockResolvedValue([observerSocket, playerSocket, hostSocket]),
-      }),
-    };
-
-    broadcaster.attachServer(server as never);
+    fixture.broadcaster.attachServer({
+      in: vi
+        .fn()
+        .mockReturnValue({ fetchSockets: vi.fn().mockResolvedValue([observerSocket, fixture.client, hostSocket]) }),
+    } as never);
 
     // Act
-    await broadcaster.publishRuntimeNotice(
-      backendTestIdentifiers.party(44),
-      backendTestIdentifiers.user(7),
+    await fixture.broadcaster.publish(fixture.snapshot);
+    await fixture.broadcaster.publishRuntimeNotice(
+      fixture.partyId,
+      fixture.snapshot.hostObservation.host.userId,
       'rewindStage',
     );
 
     // Assert
-    expect(deliveryOrder).toEqual(['host', 'player', 'observer']);
+    expect(deliveryOrder).toEqual(['host', 'player', 'observer', 'host', 'player', 'observer']);
+    expect(observerSocket.emit.mock.calls[0]?.[1]).toMatchObject({ context: null, players: [] });
   });
+
   it('rechecks revoked account sessions before sending an update', async () => {
     // Arrange
-    const sessions = { validate: vi.fn().mockRejectedValue(new Error('revoked')) };
-    const audience = new PartyObservationAudienceResolver(
-      new PartyObservationAccessService(new PartyPlayerSessionRegistry(), new PartyObservationPolicy()),
-      sessions as never,
-    );
-    const broadcaster = new SocketPartyObservationBroadcaster(
-      audience,
-      new HostPartyObservationMessageMapper(),
-      new PlayerPartyObservationMessageMapper(),
-      partyIdentifier,
-      { findIfPresent: vi.fn() } as never,
-    );
-    const socket = {
-      data: { authenticatedUserId: HOST_USER_ID, authenticatedSession: { id: HOST_USER_ID } },
-      emit: vi.fn(),
-      leave: vi.fn(),
-    };
-    broadcaster.attachServer({
-      in: vi.fn().mockReturnValue({ fetchSockets: vi.fn().mockResolvedValue([socket]) }),
+    const fixture = createPartyMediaAccessFixture();
+    fixture.client.data = fixture.hostSocketData;
+    fixture.sessions.validate.mockRejectedValue(new Error('revoked'));
+    fixture.broadcaster.attachServer({
+      in: vi.fn().mockReturnValue({ fetchSockets: vi.fn().mockResolvedValue([fixture.client]) }),
     } as never);
+
     // Act
-    await broadcaster.publish(createSnapshot() as never);
+    await fixture.broadcaster.publish(fixture.snapshot);
+
     // Assert
-    expect(socket.emit).not.toHaveBeenCalled();
-    expect(socket.leave).toHaveBeenCalledWith(PARTY_ROOM);
-    expect(sessions.validate).toHaveBeenCalledWith(socket.data.authenticatedSession, false);
+    expect(fixture.client.emit).not.toHaveBeenCalled();
+    expect(fixture.client.leave).toHaveBeenCalledWith(`party:${fixture.partyId}`);
+    expect(fixture.sessions.validate).toHaveBeenCalledWith(fixture.hostSocketData.authenticatedSession, false);
+    expect(fixture.issuer.issue).not.toHaveBeenCalled();
   });
 
   it('denies a private snapshot to an anonymous observer before emitting it', async () => {
     // Arrange
-    const audience = new PartyObservationAudienceResolver(
-      new PartyObservationAccessService(new PartyPlayerSessionRegistry(), new PartyObservationPolicy()),
-      { validate: vi.fn() } as never,
-    );
-    const broadcaster = new SocketPartyObservationBroadcaster(
-      audience,
-      new HostPartyObservationMessageMapper(),
-      new PlayerPartyObservationMessageMapper(),
-      partyIdentifier,
-      { findIfPresent: vi.fn() } as never,
-    );
-    const client = { data: {}, emit: vi.fn() };
-    const snapshot = createSnapshot();
+    const fixture = createPartyMediaAccessFixture();
+    fixture.client.data = {};
+    const snapshot = {
+      ...fixture.snapshot,
+      hostObservation: { ...fixture.snapshot.hostObservation, isPrivate: true },
+    };
+
     // Act + Assert
-    await expect(
-      broadcaster.emitSnapshot(
-        client as never,
-        { ...snapshot, hostObservation: { ...snapshot.hostObservation, isPrivate: true } } as never,
-      ),
-    ).rejects.toThrow('PARTY_NOT_FOUND');
-    expect(client.emit).not.toHaveBeenCalled();
+    await expect(fixture.broadcaster.emitSnapshot(fixture.client, snapshot)).rejects.toThrow('PARTY_NOT_FOUND');
+    expect(fixture.client.emit).not.toHaveBeenCalled();
+    expect(fixture.issuer.issue).not.toHaveBeenCalled();
   });
 });

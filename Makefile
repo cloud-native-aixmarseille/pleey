@@ -90,7 +90,13 @@ help: ## Display this help
 # Manage stack
 # ==========================================
 
-setup: setup-traefik build up migrate-dev-recover seed graphql-types ## Prepare stack to run
+setup: setup-traefik build ## Prepare stack to run
+	$(COMPOSE) up -d --wait --wait-timeout $(APP_START_WAIT_TIMEOUT) postgres
+	$(COMPOSE) run --rm --no-deps -T backend npm install
+	$(MAKE) --no-print-directory migrate-dev-recover APP_EXEC="$(COMPOSE) run --rm --no-deps -T"
+	$(MAKE) --no-print-directory up
+	$(MAKE) --no-print-directory seed
+	$(MAKE) --no-print-directory graphql-types
 	@echo "$(GREEN)═══════════════════════════════════════$(NC)"
 	@echo "$(GREEN)✓ Installation completed successfully!$(NC)"
 	@echo "$(GREEN)═══════════════════════════════════════$(NC)"

@@ -46,6 +46,21 @@ describe('GraphqlUploadReader', () => {
     expect(stream.destroyed).toBe(true);
   });
 
+  it('preserves binary string chunks when the adapter specifies their encoding', async () => {
+    // Arrange
+    const { reader, file, options } = fixtures.create({
+      chunks: [String.fromCharCode(0x89, 0x50), new Uint8Array([0x4e, 0x47])],
+      maxFileSizeBytes: 4,
+    });
+    const source = await reader.read(file, { ...options, stringEncoding: 'latin1' });
+
+    // Act
+    const chunks = await Readable.from(source.readChunks()).toArray();
+
+    // Assert
+    expect(Buffer.concat(chunks)).toEqual(Buffer.from([0x89, 0x50, 0x4e, 0x47]));
+  });
+
   it('maps rejected upload promises to the consumer error', async () => {
     // Arrange
     const { reader, options } = fixtures.create();

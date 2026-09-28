@@ -53,6 +53,10 @@ describe('PartyRuntimeContextProjectionService', () => {
           { id: backendTestIdentifiers.partyAction(7), isCorrect: true, text: 'B' },
         ],
         id: stageId,
+        media: {
+          mimeType: 'image/png',
+          uri: '/api/quiz-questions/019f11f0-0000-7000-8000-000000000010/media?v=1',
+        },
         points: 1000,
         stagePosition: 1,
         timeLimitSeconds: 20,
@@ -87,6 +91,10 @@ describe('PartyRuntimeContextProjectionService', () => {
             { id: backendTestIdentifiers.partyAction(5), text: 'A' },
             { id: backendTestIdentifiers.partyAction(7), text: 'B' },
           ],
+          media: {
+            mimeType: 'image/png',
+            uri: '/api/quiz-questions/019f11f0-0000-7000-8000-000000000010/media?v=1',
+          },
           text: 'Question 2',
         },
       },
@@ -146,6 +154,10 @@ describe('PartyRuntimeContextProjectionService', () => {
           { id: backendTestIdentifiers.partyAction(7), isCorrect: true, text: 'B' },
         ],
         id: stageId,
+        media: {
+          mimeType: 'audio/mpeg',
+          uri: '/api/quiz-questions/019f11f0-0000-7000-8000-000000000011/media?v=2',
+        },
         points: 1000,
         stagePosition: 1,
         timeLimitSeconds: 20,
@@ -186,6 +198,10 @@ describe('PartyRuntimeContextProjectionService', () => {
               text: 'B',
             },
           ],
+          media: {
+            mimeType: 'audio/mpeg',
+            uri: '/api/quiz-questions/019f11f0-0000-7000-8000-000000000011/media?v=2',
+          },
           text: 'Question 2',
         },
         currentPlayer: {

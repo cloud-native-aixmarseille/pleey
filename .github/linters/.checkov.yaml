@@ -13,3 +13,5 @@ skip-check:
   # Checkov's Helm guidance recommends skipping CKV_K8S_21 for Helm-rendered manifests,
   # because namespace assignment is release-managed and static analysis renders into "default".
   - CKV_K8S_21
+  # Public, development-only SeaweedFS fixture; JSON cannot carry inline suppressions.
+  - CKV_SECRET_6:docker/media/s3\.json$
