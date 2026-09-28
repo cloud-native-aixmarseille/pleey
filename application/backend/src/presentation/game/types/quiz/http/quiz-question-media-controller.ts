@@ -17,6 +17,8 @@ export class QuizQuestionMediaController {
     private readonly quizQuestionIdentifier: QuizQuestionIdentifier,
   ) {}
 
+  // Intentionally public: live host and player screens load question media directly through
+  // browser media elements, including guest participants who do not have back-office JWTs.
   @Get(':questionId/media')
   async getQuestionMedia(
     @Param('questionId', { schema: quizQuestionMediaQuestionIdParamSchema })
