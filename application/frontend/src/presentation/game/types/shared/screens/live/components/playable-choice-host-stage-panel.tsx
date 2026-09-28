@@ -18,6 +18,7 @@ import {
   stagePromptRegionStyle,
   stageShellStyle,
 } from './playable-choice-host-stage-panel.styles';
+import { PlayableQuestionMedia } from '../../../media/playable-question-media';
 import { PlayableChoiceResultActionTile } from './playable-choice-result-action-tile';
 import type { PlayableChoiceHostRuntimePanelProps } from './playable-choice-runtime-panel.types';
 import { StageCountdownTimer } from './stage-countdown-timer';
@@ -102,6 +103,7 @@ export function PlayableChoiceHostStagePanel({ copy, party, testIdPrefix }: Play
                     {currentStage.text}
                   </Heading>
                 </MotionFadeIn>
+                <PlayableQuestionMedia media={currentStage.media} questionText={currentStage.text} />
               </ContentStack>
             </div>
           </div>

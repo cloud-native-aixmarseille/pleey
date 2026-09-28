@@ -21,6 +21,7 @@ import {
   mobileQuestionTextStyle,
   mobileRootStyle,
 } from './playable-choice-player-result-surface.styles';
+import { PlayableQuestionMedia } from '../../../media/playable-question-media';
 import { PlayableChoiceResultActionTile } from './playable-choice-result-action-tile';
 import type { PlayableChoicePlayerResultSurfaceProps } from './playable-choice-runtime-panel.types';
 export function PlayableChoicePlayerResultSurface({
@@ -143,6 +144,7 @@ export function PlayableChoicePlayerResultSurface({
             <ContentStack gap="sm">
               <span style={mobileQuestionLabelStyle}>{t(copy.resultHeading)}</span>
               <p style={mobileQuestionTextStyle}>{currentResult.text}</p>
+              <PlayableQuestionMedia media={currentResult.media} questionText={currentResult.text} />
               {tilesGrid}
             </ContentStack>
           </InsetPanel>
@@ -175,6 +177,7 @@ export function PlayableChoicePlayerResultSurface({
         <InsetPanel padding="lg">
           <ContentStack gap="md">
             <Heading level={3}>{currentResult.text}</Heading>
+            <PlayableQuestionMedia media={currentResult.media} questionText={currentResult.text} />
             {tilesGrid}
           </ContentStack>
         </InsetPanel>

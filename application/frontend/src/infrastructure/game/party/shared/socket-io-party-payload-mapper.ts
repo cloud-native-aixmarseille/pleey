@@ -175,6 +175,7 @@ export class SocketIoPartyPayloadMapper {
           },
           current: {
             actions: currentStage.actions.map((action) => this.toStageActionContext(action)),
+            media: currentStage.media ?? null,
             text: currentStage.text,
           },
         },
@@ -202,6 +203,7 @@ export class SocketIoPartyPayloadMapper {
         result: {
           current: {
             actions: currentResult.actions.map((action) => this.toResultActionContext(action)),
+            media: currentResult.media ?? null,
             text: currentResult.text,
           },
           currentPlayer: resultContext.result.currentPlayer
@@ -234,6 +236,7 @@ export class SocketIoPartyPayloadMapper {
               result: {
                 current: {
                   actions: currentResult.actions.map((action) => this.toResultActionContext(action)),
+                  media: currentResult.media ?? null,
                   text: currentResult.text,
                 },
                 currentPlayer: endedContext.result.currentPlayer

@@ -7,6 +7,15 @@ registerEnumType(QuizQuestionType, {
 });
 
 @ObjectType()
+class QuizQuestionMediaType {
+  @Field()
+  mimeType!: string;
+
+  @Field()
+  uri!: string;
+}
+
+@ObjectType()
 export class QuizType {
   @Field(() => ID)
   quizId!: string;
@@ -52,6 +61,9 @@ export class QuizQuestionTypeObject {
 
   @Field(() => Int)
   points!: number;
+
+  @Field(() => QuizQuestionMediaType, { nullable: true })
+  media!: QuizQuestionMediaType | null;
 
   @Field(() => [SelectableOptionType])
   answers!: SelectableOptionType[];

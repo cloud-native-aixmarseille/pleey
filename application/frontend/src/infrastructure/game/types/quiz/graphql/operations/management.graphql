@@ -44,6 +44,10 @@ mutation CreateQuizQuestionManagement($input: CreateQuizQuestionInput!) {
     type
     timeLimit
     points
+    media {
+      mimeType
+      uri
+    }
     answers {
       id
       text
@@ -62,6 +66,10 @@ mutation UpdateQuizQuestionManagement($questionId: ID!, $input: UpdateQuizQuesti
     type
     timeLimit
     points
+    media {
+      mimeType
+      uri
+    }
     answers {
       id
       text
@@ -90,6 +98,10 @@ fragment QuizManagementItemsPage on QuizQuestionListType {
     type
     timeLimit
     points
+    media {
+      mimeType
+      uri
+    }
     answers {
       id
       text

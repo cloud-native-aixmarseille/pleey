@@ -7,6 +7,7 @@ import type { GameId } from '../../../../domain/game/entities/game';
 import type { PartyStageId } from '../../../../domain/game/party/shared/entities/party-stage';
 import { PrismaService } from '../../../database/prisma-service';
 import type { GameTypePartyStageCatalogProvider } from '../shared/game-type-party-stage-catalog-provider-registry';
+import { buildQuizQuestionMediaUri } from './quiz-question-media-uri';
 
 @Injectable()
 export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCatalogProvider {
@@ -63,6 +64,12 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
         points: true,
         questionText: true,
         timeLimit: true,
+        media: {
+          select: {
+            mimeType: true,
+            updatedAt: true,
+          },
+        },
         answers: {
           where: {
             deletedAt: null,
@@ -87,6 +94,12 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
         text: answer.text ?? '',
       })),
       id: this.partyStageIdentifier.parse(question.id),
+      media: question.media
+        ? {
+            mimeType: question.media.mimeType,
+            uri: buildQuizQuestionMediaUri(question.id, question.media.updatedAt),
+          }
+        : null,
       points: question.points,
       stagePosition: question.position,
       text: question.questionText,
@@ -117,6 +130,12 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
         points: true,
         questionText: true,
         timeLimit: true,
+        media: {
+          select: {
+            mimeType: true,
+            updatedAt: true,
+          },
+        },
         answers: {
           where: {
             deletedAt: null,
@@ -145,6 +164,12 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
         text: answer.text ?? '',
       })),
       id: this.partyStageIdentifier.parse(question.id),
+      media: question.media
+        ? {
+            mimeType: question.media.mimeType,
+            uri: buildQuizQuestionMediaUri(question.id, question.media.updatedAt),
+          }
+        : null,
       points: question.points,
       stagePosition: question.position,
       timeLimitSeconds: question.timeLimit,

@@ -52,6 +52,7 @@ export class PartyRuntimeContextProjectionService {
             id: action.id,
             text: action.text,
           })),
+          media: input.stage.media ?? null,
           text: input.stage.text,
         },
       },
@@ -110,6 +111,7 @@ export class PartyRuntimeContextProjectionService {
               text: action.text,
             };
           }),
+          media: stage.media ?? null,
           text: stage.text,
         },
         currentPlayer:

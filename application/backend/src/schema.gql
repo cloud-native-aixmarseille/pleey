@@ -88,6 +88,7 @@ input CreateQuizInput {
 
 input CreateQuizQuestionInput {
   answers: [SelectableOptionInput!]!
+  mediaFile: Upload
   points: Int!
   position: Int
   questionText: String!
@@ -401,6 +402,11 @@ type QuizQuestionListType {
   totalPages: Int!
 }
 
+type QuizQuestionMediaType {
+  mimeType: String!
+  uri: String!
+}
+
 enum QuizQuestionType {
   Multiple
   TrueFalse
@@ -409,6 +415,7 @@ enum QuizQuestionType {
 type QuizQuestionTypeObject {
   answers: [SelectableOptionType!]!
   id: ID!
+  media: QuizQuestionMediaType
   points: Int!
   position: Int!
   questionText: String!
@@ -502,6 +509,8 @@ input UpdateQuizInput {
 
 input UpdateQuizQuestionInput {
   answers: [SelectableOptionInput!]!
+  clearMedia: Boolean
+  mediaFile: Upload
   points: Int!
   position: Int
   questionText: String!

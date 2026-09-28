@@ -108,11 +108,12 @@ describe('PlayableContentManagementScreen', () => {
     }));
   }
 
-  function renderScreen() {
+  function renderScreen({ allowMedia = false }: { readonly allowMedia?: boolean } = {}) {
     return renderWithUiProvider(
       provideWorkspaceDependencies(
         <MemoryRouter>
           <PlayableContentManagementScreen
+            allowMedia={allowMedia}
             gameTypeId={gameTypeId}
             gateway={gateway}
             itemKindConfig={{
@@ -175,7 +176,9 @@ describe('PlayableContentManagementScreen', () => {
     // Assert
     await waitFor(() => {
       expect(gateway.createItem).toHaveBeenCalledWith(gameTypeId, {
+        clearMedia: undefined,
         kind: 'multiple',
+        mediaFile: null,
         options: [
           { id: null, isCorrect: true, position: 0, text: 'Alpha' },
           { id: null, isCorrect: false, position: 1, text: 'Beta' },
@@ -401,5 +404,35 @@ describe('PlayableContentManagementScreen', () => {
       await screen.findByRole('heading', { name: 'game.types.quiz.management.editItemTitle' }),
     ).toBeInTheDocument();
     expect(screen.getByDisplayValue('Broken question')).toBeInTheDocument();
+  });
+
+  it('passes an uploaded media file when creating an item', async () => {
+    // Arrange
+    arrangeGatewayDefaults();
+    const user = userEvent.setup();
+    const mediaFile = new File(['png'], 'clue.png', { type: 'image/png' });
+    renderScreen({ allowMedia: true });
+
+    await user.click(await screen.findByRole('button', { name: 'game.types.quiz.management.createItem' }));
+    const textboxes = screen.getAllByRole('textbox');
+    fireEvent.change(textboxes[0], { target: { value: 'New question' } });
+    fireEvent.change(textboxes[1], { target: { value: 'Alpha' } });
+    fireEvent.change(textboxes[2], { target: { value: 'Beta' } });
+    const mediaInput = screen.getByLabelText('game.types.quiz.management.mediaPickerLabel', { selector: 'input' });
+    await user.upload(mediaInput, mediaFile);
+
+    // Act
+    await user.click(screen.getAllByRole('button', { name: 'game.types.quiz.management.createItem' }).at(-1)!);
+
+    // Assert
+    await waitFor(() => {
+      expect(gateway.createItem).toHaveBeenCalledWith(
+        gameTypeId,
+        expect.objectContaining({
+          mediaFile,
+          text: 'New question',
+        }),
+      );
+    });
   });
 });

@@ -3,6 +3,7 @@ import { usePresentationTranslation } from '../../../../shared/i18n/use-presenta
 import { Button } from '../../../../shared/ui/actions/button';
 import { Badge } from '../../../../shared/ui/feedback/badge';
 import { FieldShell } from '../../../../shared/ui/forms/field-shell';
+import { FileUploadDropzone } from '../../../../shared/ui/forms/file-upload-dropzone';
 import { Input } from '../../../../shared/ui/forms/input';
 import { Select } from '../../../../shared/ui/forms/select';
 import { Textarea } from '../../../../shared/ui/forms/textarea';
@@ -11,6 +12,7 @@ import { ActionRow, ContentStack, ResponsiveGrid, SplitWrapRow } from '../../../
 import { ElevatedPanel, InsetPanel } from '../../../../shared/ui/layout/panels';
 import { Heading, SupportingText } from '../../../../shared/ui/layout/typography';
 import { useWorkspaceDependencies } from '../../../../workspace/shared/contexts/workspace-dependencies-context';
+import { PlayableQuestionMedia } from '../media/playable-question-media';
 import {
   type PlayableItemEditorState,
   type PlayableItemKindConfig,
@@ -25,6 +27,7 @@ import { PlayableManagementOutcomesEditor } from './playable-management-outcomes
 import { MAX_PLAYABLE_OUTCOME_COUNT, playableOutcomeEditorPolicy } from './playable-outcome-editor-policy';
 
 interface PlayableManagementPromptEditorProps {
+  readonly allowMedia?: boolean;
   readonly editorState: PlayableItemEditorState;
   readonly isSaving: boolean;
   readonly itemKindConfig?: PlayableItemKindConfig;
@@ -40,6 +43,7 @@ function resolveValidationTranslationKey(
 }
 
 export function PlayableManagementPromptEditor({
+  allowMedia = false,
   editorState,
   isSaving,
   itemKindConfig,
@@ -63,6 +67,7 @@ export function PlayableManagementPromptEditor({
   const isReadyToSave = validationIssues.length === 0;
   const titleKey = editorState.id ? 'editItemTitle' : 'createItemTitle';
   const canReorderOutcomes = fixedOptions === undefined && visibleOutcomeCount > 2;
+  const showPersistedMediaPreview = allowMedia && editorState.media !== null && editorState.mediaFile === null;
 
   useEffect(() => {
     setVisibleOutcomeCount(playableOutcomeEditorPolicy.resolveInitialOutcomeCount(editorState, itemKindConfig));
@@ -135,6 +140,60 @@ export function PlayableManagementPromptEditor({
               ))}
             </Select>
           </FieldShell>
+        ) : null}
+
+        {allowMedia ? (
+          <ContentStack gap="sm">
+            <SplitWrapRow align="center">
+              <Heading level={3}>{t(`${translationRoot}.mediaLabel`)}</Heading>
+              {showPersistedMediaPreview ? (
+                <Button
+                  intent="ghost"
+                  leftSection={<AppIcon name="trash" size={14} />}
+                  onClick={() =>
+                    setEditorState({
+                      ...editorState,
+                      clearMedia: true,
+                      media: null,
+                      mediaFile: null,
+                    })
+                  }
+                  size="sm"
+                  type="button"
+                >
+                  {t(`${translationRoot}.removeMedia`)}
+                </Button>
+              ) : null}
+            </SplitWrapRow>
+
+            {showPersistedMediaPreview ? (
+              <PlayableQuestionMedia
+                media={editorState.media}
+                questionText={editorState.text.trim() || t(`${translationRoot}.mediaLabel`)}
+                testId="playable-item-media-preview"
+              />
+            ) : null}
+
+            <FileUploadDropzone
+              acceptedFileTypes="image/*,audio/*,video/*"
+              activePrompt={t(`${translationRoot}.mediaActivePrompt`)}
+              clearFileLabel={t(`${translationRoot}.clearMediaSelection`)}
+              file={editorState.mediaFile}
+              fieldHelpText={t(`${translationRoot}.mediaHelpText`)}
+              inputAriaLabel={t(`${translationRoot}.mediaPickerLabel`)}
+              inputId="playable-item-media"
+              label={t(`${translationRoot}.mediaLabel`)}
+              onFileSelect={(file) =>
+                setEditorState({
+                  ...editorState,
+                  clearMedia: false,
+                  mediaFile: file,
+                })
+              }
+              prompt={t(`${translationRoot}.mediaPrompt`)}
+              replaceFileLabel={t(`${translationRoot}.replaceMedia`)}
+            />
+          </ContentStack>
         ) : null}
 
         <ContentStack gap="sm">

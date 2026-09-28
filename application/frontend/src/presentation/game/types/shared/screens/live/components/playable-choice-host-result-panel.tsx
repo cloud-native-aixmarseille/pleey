@@ -6,6 +6,7 @@ import { MotionStagger, MotionStaggerItem } from '../../../../../../shared/ui/mo
 import { PartyStandingsList } from '../../../../../party/shared/screens/components/party-standings-list';
 import { usePartyStageScoreboardSnapshot } from '../../../../../party/shared/screens/use-party-stage-scoreboard-snapshot';
 import { resolvePlayableChoiceActionSlotLabel } from './playable-choice-action-slot-identity';
+import { PlayableQuestionMedia } from '../../../media/playable-question-media';
 import { PlayableChoiceResultActionTile } from './playable-choice-result-action-tile';
 import type { PlayableChoiceHostRuntimePanelProps } from './playable-choice-runtime-panel.types';
 export function PlayableChoiceHostResultPanel({ copy, party, testIdPrefix }: PlayableChoiceHostRuntimePanelProps) {
@@ -31,6 +32,7 @@ export function PlayableChoiceHostResultPanel({ copy, party, testIdPrefix }: Pla
             </SupportingText>
 
             <Heading level={3}>{result.text}</Heading>
+            <PlayableQuestionMedia media={result.media} questionText={result.text} />
             <SupportingText tone="soft">{t(copy.resultHeading)}</SupportingText>
 
             <MotionStagger>

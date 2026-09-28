@@ -8,6 +8,7 @@ import { CreateQuizQuestionUseCase } from '../../../../application/game/types/qu
 import { CreateQuizUseCase } from '../../../../application/game/types/quiz/use-cases/create-quiz-use-case';
 import { DeleteQuizQuestionUseCase } from '../../../../application/game/types/quiz/use-cases/delete-quiz-question-use-case';
 import { DeleteQuizUseCase } from '../../../../application/game/types/quiz/use-cases/delete-quiz-use-case';
+import { GetQuizQuestionMediaUseCase } from '../../../../application/game/types/quiz/use-cases/get-quiz-question-media-use-case';
 import { GetQuizUseCase } from '../../../../application/game/types/quiz/use-cases/get-quiz-use-case';
 import { ListQuizQuestionsUseCase } from '../../../../application/game/types/quiz/use-cases/list-quiz-questions-use-case';
 import { UpdateQuizQuestionUseCase } from '../../../../application/game/types/quiz/use-cases/update-quiz-question-use-case';
@@ -29,6 +30,8 @@ import { PrismaSelectableOptionMapper } from '../../../../infrastructure/game/ty
 import { PrismaOrganizationMemberRepository } from '../../../../infrastructure/organization/repositories/prisma-organization-member-repository';
 import { PrismaProjectRepository } from '../../../../infrastructure/project/repositories/prisma-project-repository';
 import { QuizManagementResolver } from '../../../../presentation/game/types/quiz/graphql/quiz-management-resolver';
+import { QuizQuestionMediaUploadReader } from '../../../../presentation/game/types/quiz/graphql/quiz-question-media-upload-reader';
+import { QuizQuestionMediaController } from '../../../../presentation/game/types/quiz/http/quiz-question-media-controller';
 import { PlayableContentUploadReader } from '../../../../presentation/game/types/shared/graphql/playable-content-upload-reader';
 import { SelectableOptionInputMapper } from '../../../../presentation/game/types/shared/graphql/selectable-option-input-mapper';
 import { DatabaseModule } from '../../database/database-module';
@@ -37,12 +40,14 @@ import { SharedServicesModule } from '../../shared/shared-services.module';
 
 @Module({
   imports: [DatabaseModule, IdentityModule, SharedServicesModule],
+  controllers: [QuizQuestionMediaController],
   providers: [
     CreateQuizUseCase,
     CreateQuizFromImportUseCase,
     UpdateQuizUseCase,
     DeleteQuizUseCase,
     GetQuizUseCase,
+    GetQuizQuestionMediaUseCase,
     CreateQuizQuestionUseCase,
     ListQuizQuestionsUseCase,
     QuizImportQuestionMapper,
@@ -63,6 +68,7 @@ import { SharedServicesModule } from '../../shared/shared-services.module';
     PrismaSelectableOptionMapper,
     ProjectIdentifier,
     QuizManagementResolver,
+    QuizQuestionMediaUploadReader,
     PlayableContentUploadReader,
     SelectableOptionInputMapper,
     SelectableOptionPolicy,

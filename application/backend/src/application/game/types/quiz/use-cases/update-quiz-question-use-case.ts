@@ -13,6 +13,7 @@ import { QuizQuestionRepositoryProvider } from '../../../../../domain/game/types
 import type { SelectableOptionInput } from '../../../../../domain/game/types/shared/entities/selectable-option';
 import { SelectableOptionPolicy } from '../../../../../domain/game/types/shared/services/selectable-option-policy';
 import type { UserId } from '../../../../../domain/identity/entities/user';
+import type { Media } from '../../../../../domain/media/entities/media';
 import { GameTypeManagementAccessGuard } from '../../shared/services/game-type-management-access-guard';
 
 interface UpdateQuizQuestionCommand {
@@ -23,6 +24,7 @@ interface UpdateQuizQuestionCommand {
   readonly timeLimit: number;
   readonly points: number;
   readonly answers: readonly SelectableOptionInput[];
+  readonly media?: Media | null;
 }
 
 @Injectable()
@@ -61,6 +63,7 @@ export class UpdateQuizQuestionUseCase {
       timeLimit: command.timeLimit,
       points: command.points,
       answers,
+      media: command.media,
     });
   }
 

@@ -66,7 +66,8 @@ model Media {
   updatedAt DateTime @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
-  avatarForUser User? @relation("UserAvatar")
+  avatarForUser      User?     @relation("UserAvatar")
+  questionForMedia   Question? @relation("QuestionMedia")
 
   @@map("media")
 }
@@ -203,18 +204,20 @@ model Quiz {
 }
 
 model Question {
-  id           String   @id @default(uuid(7)) @db.Uuid
-  quizId       String   @map("quiz_id") @db.Uuid
-  position     Int      @map("position")
-  questionText String   @map("question_text")
-  type         String   // 'multiple' or 'truefalse'
-  timeLimit    Int      @default(20) @map("time_limit")
-  points       Int      @default(1000)
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-  deletedAt    DateTime? @map("deleted_at")
+  id              String    @id @default(uuid(7)) @db.Uuid
+  quizId          String    @map("quiz_id") @db.Uuid
+  questionMediaId String?   @unique @map("question_media_id") @db.Uuid
+  position        Int       @map("position")
+  questionText    String    @map("question_text")
+  type            String    // 'multiple' or 'truefalse'
+  timeLimit       Int       @default(20) @map("time_limit")
+  points          Int       @default(1000)
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
 
   quiz          Quiz            @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  media         Media?          @relation("QuestionMedia", fields: [questionMediaId], references: [id], onDelete: SetNull)
   answers       QuestionAnswer[] @relation("QuestionAnswers")
 
   @@unique([quizId, position])

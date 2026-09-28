@@ -133,6 +133,7 @@ export class GraphqlQuizManagementRepository implements QuizManagementRepository
           kind: question.type,
           timeLimit: question.timeLimit,
           points: question.points,
+          media: question.media,
           options: question.answers,
         }),
       ),
@@ -166,6 +167,7 @@ export class GraphqlQuizManagementRepository implements QuizManagementRepository
         type: this.toGraphqlQuestionKind(input.kind),
         timeLimit: mappedInput.timeLimit,
         points: mappedInput.points,
+        mediaFile: mappedInput.mediaFile,
         answers: mappedInput.options,
       },
     });
@@ -186,6 +188,8 @@ export class GraphqlQuizManagementRepository implements QuizManagementRepository
         type: this.toGraphqlQuestionKind(input.kind),
         timeLimit: mappedInput.timeLimit,
         points: mappedInput.points,
+        mediaFile: mappedInput.mediaFile,
+        clearMedia: mappedInput.clearMedia,
         answers: mappedInput.options,
       },
     });
@@ -220,6 +224,7 @@ export class GraphqlQuizManagementRepository implements QuizManagementRepository
       kind: this.fromGraphqlQuestionKind(question.type),
       timeLimit: question.timeLimit,
       points: question.points,
+      media: question.media,
       options: question.answers,
     });
   }

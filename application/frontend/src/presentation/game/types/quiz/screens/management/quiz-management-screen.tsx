@@ -43,6 +43,7 @@ export function QuizManagementScreen({ gameTypeIdentifier, gateway }: QuizManage
 
   return (
     <PlayableContentManagementScreen
+      allowMedia
       gameTypeId={quizId}
       gateway={gateway}
       itemKindConfig={quizItemKindConfig}

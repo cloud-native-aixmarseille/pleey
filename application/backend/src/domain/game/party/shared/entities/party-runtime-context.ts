@@ -57,6 +57,11 @@ interface PartyRuntimeStageActionContext {
   readonly text: string;
 }
 
+interface PartyRuntimeStageMediaContext {
+  readonly mimeType: string;
+  readonly uri: string;
+}
+
 interface PartyRuntimeResultActionContext extends PartyRuntimeStageActionContext {
   readonly actionCount: number;
   readonly actionPercent: number;
@@ -66,6 +71,7 @@ interface PartyRuntimeResultActionContext extends PartyRuntimeStageActionContext
 
 interface PartyRuntimeCurrentStageContext {
   readonly actions: readonly PartyRuntimeStageActionContext[];
+  readonly media?: PartyRuntimeStageMediaContext | null;
   readonly text: string;
 }
 
@@ -93,6 +99,7 @@ interface PartyRuntimeStageContext {
 
 interface PartyRuntimeCurrentResultContext {
   readonly actions: readonly PartyRuntimeResultActionContext[];
+  readonly media?: PartyRuntimeStageMediaContext | null;
   readonly text: string;
 }
 
