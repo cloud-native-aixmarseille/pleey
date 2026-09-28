@@ -3,6 +3,7 @@ export const PARTY_SOCKET_INBOUND_EVENTS = {
   LEAVE_PARTY: 'leave-party',
   OBSERVE_PARTY: 'observe-party',
   REJOIN_PARTY: 'rejoin-party',
+  REQUEST_PARTY_MEDIA: 'request-party-media',
   SUBMIT_ACTION: 'submit-action',
   START_PARTY: 'start-party',
   ADVANCE_STAGE: 'advance-stage',

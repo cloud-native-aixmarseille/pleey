@@ -10,9 +10,16 @@ interface PartyStageActionCatalogEntry {
   readonly text: string;
 }
 
+interface PartyStageMediaCatalogEntry {
+  readonly id?: string;
+  readonly mimeType: string;
+  readonly uri: string;
+}
+
 export interface PartyStageCatalogEntry {
   readonly actions: readonly PartyStageActionCatalogEntry[];
   readonly id: PartyStageId;
+  readonly media?: PartyStageMediaCatalogEntry | null;
   readonly points: number;
   readonly stagePosition: number;
   readonly timeLimitSeconds: number;

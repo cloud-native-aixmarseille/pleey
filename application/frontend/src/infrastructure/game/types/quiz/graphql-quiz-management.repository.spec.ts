@@ -12,6 +12,15 @@ describe('GraphqlQuizManagementRepository', () => {
   it('loads every stage through bounded pages and fetches metadata only once', async () => {
     // Arrange
     const fixture = new PlayableManagementPageFixtureFactory().create('quiz');
+    if (!('quizQuestions' in fixture.firstResponse)) {
+      throw new Error('Expected quiz questions response');
+    }
+    const quizQuestions = fixture.firstResponse.quizQuestions;
+
+    quizQuestions.items[0].media = {
+      mimeType: 'image/png',
+      uri: '/api/quiz-questions/3/media?v=1',
+    };
     const { client, requestMock } = new GraphqlClientMockFactory().create();
     requestMock.mockResolvedValueOnce(fixture.firstResponse).mockResolvedValueOnce(fixture.nextResponse);
     const identifier = new GameTypeIdentifier();
@@ -25,7 +34,12 @@ describe('GraphqlQuizManagementRepository', () => {
     // Act
     const result = await repository.load(identifier.parse(fixture.gameTypeId));
     // Assert
-    expect({ stages: result.items.map((item) => item.text), requests: requestMock.mock.calls }).toEqual({
+    expect({
+      mediaUris: result.items.map((item) => item.media?.uri ?? null),
+      requests: requestMock.mock.calls,
+      stages: result.items.map((item) => item.text),
+    }).toEqual({
+      mediaUris: ['/api/quiz-questions/3/media?v=1', null],
       stages: ['First stage', 'Last stage'],
       requests: [
         [QuizManagementDocument, { quizId: fixture.gameTypeId, input: { page: 1, pageSize: 100 } }, undefined],

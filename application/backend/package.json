@@ -44,6 +44,9 @@
   "dependencies": {
     "@apollo/server": "^5.5.1",
     "@as-integrations/express5": "^1.1.2",
+    "@aws-sdk/client-s3": "^3.1142.0",
+    "@aws-sdk/s3-request-presigner": "^3.1142.0",
+    "@aws-sdk/util-format-url": "^3.972.48",
     "@dicebear/core": "^10.7.0",
     "@dicebear/styles": "^10.6.0",
     "@nestjs/apollo": "^14.1.1",
@@ -69,6 +72,7 @@
     "@opentelemetry/semantic-conventions": "^1.43.0",
     "@prisma/adapter-pg": "^7.10.1",
     "@prisma/client": "^7.10.1",
+    "@smithy/protocol-http": "^5.6.2",
     "bcryptjs": "^3.0.3",
     "capjs-core": "0.1.6",
     "class-transformer": "^0.5.1",

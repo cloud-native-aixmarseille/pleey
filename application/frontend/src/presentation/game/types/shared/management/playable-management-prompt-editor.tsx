@@ -11,6 +11,7 @@ import { ActionRow, ContentStack, ResponsiveGrid, SplitWrapRow } from '../../../
 import { ElevatedPanel, InsetPanel } from '../../../../shared/ui/layout/panels';
 import { Heading, SupportingText } from '../../../../shared/ui/layout/typography';
 import { useWorkspaceDependencies } from '../../../../workspace/shared/contexts/workspace-dependencies-context';
+import { PlayableMediaField } from '../media/playable-media-field';
 import {
   type PlayableItemEditorState,
   type PlayableItemKindConfig,
@@ -22,9 +23,11 @@ import {
 } from './playable-item-editor-validator';
 import { type PlayableManagementDropPreview } from './playable-management-drag-placement';
 import { PlayableManagementOutcomesEditor } from './playable-management-outcomes-editor';
+import { playableMediaUploadPolicy } from './playable-media-upload-policy';
 import { MAX_PLAYABLE_OUTCOME_COUNT, playableOutcomeEditorPolicy } from './playable-outcome-editor-policy';
 
 interface PlayableManagementPromptEditorProps {
+  readonly allowMedia?: boolean;
   readonly editorState: PlayableItemEditorState;
   readonly isSaving: boolean;
   readonly itemKindConfig?: PlayableItemKindConfig;
@@ -40,6 +43,7 @@ function resolveValidationTranslationKey(
 }
 
 export function PlayableManagementPromptEditor({
+  allowMedia = false,
   editorState,
   isSaving,
   itemKindConfig,
@@ -61,6 +65,9 @@ export function PlayableManagementPromptEditor({
     [editorState, itemKindConfig, playableItemEditorValidator],
   );
   const isReadyToSave = validationIssues.length === 0;
+  const mediaValidationIssue = validationIssues.find(
+    (issue) => issue.code === 'unsupportedMediaType' || issue.code === 'mediaTooLarge',
+  );
   const titleKey = editorState.id ? 'editItemTitle' : 'createItemTitle';
   const canReorderOutcomes = fixedOptions === undefined && visibleOutcomeCount > 2;
 
@@ -135,6 +142,48 @@ export function PlayableManagementPromptEditor({
               ))}
             </Select>
           </FieldShell>
+        ) : null}
+
+        {allowMedia ? (
+          <ContentStack gap="sm">
+            <Heading level={3}>{t(`${translationRoot}.mediaLabel`)}</Heading>
+            <PlayableMediaField
+              acceptedMimeTypes={playableMediaUploadPolicy.acceptedMimeTypes.join(',')}
+              activePrompt={t(`${translationRoot}.mediaActivePrompt`)}
+              discardLabel={t(`${translationRoot}.clearMediaSelection`)}
+              error={
+                mediaValidationIssue
+                  ? t(`${translationRoot}.${resolveValidationTranslationKey(mediaValidationIssue.code)}`)
+                  : undefined
+              }
+              helpText={t(`${translationRoot}.mediaHelpText`)}
+              media={editorState.media}
+              mediaFile={editorState.mediaFile}
+              onFileSelect={(file) =>
+                setEditorState({
+                  ...editorState,
+                  clearMedia: false,
+                  mediaFile: file,
+                })
+              }
+              onRemovePersisted={() =>
+                setEditorState({
+                  ...editorState,
+                  clearMedia: true,
+                  media: null,
+                  mediaFile: null,
+                })
+              }
+              pickerLabel={t(`${translationRoot}.mediaPickerLabel`)}
+              previewLabel={t(`${translationRoot}.mediaLabel`)}
+              prompt={t(`${translationRoot}.mediaPrompt`)}
+              questionText={editorState.text}
+              removeLabel={t(`${translationRoot}.removeMedia`)}
+              replaceLabel={t(`${translationRoot}.replaceMedia`)}
+              savedLabel={t(`${translationRoot}.mediaSavedBadge`)}
+              unsavedLabel={t(`${translationRoot}.mediaUnsavedBadge`)}
+            />
+          </ContentStack>
         ) : null}
 
         <ContentStack gap="sm">

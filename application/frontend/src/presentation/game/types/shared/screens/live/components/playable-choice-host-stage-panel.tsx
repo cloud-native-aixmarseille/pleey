@@ -3,18 +3,19 @@ import { usePresentationTranslation } from '../../../../../../shared/i18n/use-pr
 import { Badge } from '../../../../../../shared/ui/feedback/badge';
 import { AppIcon } from '../../../../../../shared/ui/icons/app-icon';
 import { ContentStack, ResponsiveGrid } from '../../../../../../shared/ui/layout/containers';
-import { HeroPanel, InsetPanel } from '../../../../../../shared/ui/layout/panels';
+import { InsetPanel } from '../../../../../../shared/ui/layout/panels';
 import { Heading, SummaryText } from '../../../../../../shared/ui/layout/typography';
 import { MotionFadeIn, MotionStagger, MotionStaggerItem } from '../../../../../../shared/ui/motion/motion-primitives';
+import { PlayableQuestionMedia } from '../../../media/playable-question-media';
 import { resolvePlayableChoiceActionSlotLabel } from './playable-choice-action-slot-identity';
 import {
-  stageContentStyle,
+  stageHeroStyle,
+  stageMediaSlotStyle,
   stageMetaPrimarySlotStyle,
   stageMetaRowStyle,
   stageMetaStatusStyle,
   stageMetaStyle,
   stageMetaTimerSlotStyle,
-  stagePromptContentStyle,
   stagePromptRegionStyle,
   stageShellStyle,
 } from './playable-choice-host-stage-panel.styles';
@@ -57,78 +58,82 @@ export function PlayableChoiceHostStagePanel({ copy, party, testIdPrefix }: Play
 
   return (
     <div data-testid={`${testIdPrefix}-host-stage-panel`} style={stageShellStyle}>
-      <HeroPanel padding="xl">
-        <div style={stageContentStyle}>
-          <div style={stageMetaStyle}>
-            <InsetPanel padding="md" tone={pendingResponseCount === 0 ? 'success' : 'default'}>
-              <div style={stageMetaRowStyle}>
-                <div style={stageMetaPrimarySlotStyle}>
-                  <Badge icon={<AppIcon name="skip-forward" size={14} />} tone="info">
-                    {t('game.party.route.runtimeStageProgress', {
-                      current: String(stagePosition + 1),
-                      total: String(totalStages),
-                    })}
-                  </Badge>
-                </div>
-                <div style={stageMetaTimerSlotStyle}>
-                  <StageCountdownTimer
-                    isPaused={party.status === PartyStatus.PAUSED}
-                    remainingDurationMs={remainingDurationMs}
-                    size="md"
-                    testId={`${testIdPrefix}-host-stage-timer`}
-                    totalDurationMs={totalDurationMs}
-                  />
-                </div>
-                <div style={stageMetaStatusStyle}>
-                  <ContentStack align="center" gap="xs">
-                    <Badge
-                      icon={<AppIcon name={pendingResponseCount === 0 ? 'success' : 'pending'} size={12} />}
-                      tone={pendingResponseCount === 0 ? 'success' : 'warning'}
-                    >
-                      {submissionStateLabel}
-                    </Badge>
-                    <SummaryText>{submissionProgressLabel}</SummaryText>
-                  </ContentStack>
-                </div>
+      <div style={stageHeroStyle}>
+        <div style={stageMetaStyle}>
+          <InsetPanel padding="sm" tone={pendingResponseCount === 0 ? 'success' : 'default'}>
+            <div style={stageMetaRowStyle}>
+              <div style={stageMetaPrimarySlotStyle}>
+                <Badge icon={<AppIcon name="skip-forward" size={14} />} tone="info">
+                  {t('game.party.route.runtimeStageProgress', {
+                    current: String(stagePosition + 1),
+                    total: String(totalStages),
+                  })}
+                </Badge>
               </div>
-            </InsetPanel>
-          </div>
-
-          <div style={stagePromptRegionStyle}>
-            <div style={stagePromptContentStyle}>
-              <ContentStack align="center" gap="md">
-                <MotionFadeIn key={`question-${stageId}`} duration={STAGE_QUESTION_REVEAL_DURATION_SECONDS}>
-                  <Heading hero level={1}>
-                    {currentStage.text}
-                  </Heading>
-                </MotionFadeIn>
-              </ContentStack>
+              <div style={stageMetaTimerSlotStyle}>
+                <StageCountdownTimer
+                  isPaused={party.status === PartyStatus.PAUSED}
+                  remainingDurationMs={remainingDurationMs}
+                  size="sm"
+                  testId={`${testIdPrefix}-host-stage-timer`}
+                  totalDurationMs={totalDurationMs}
+                />
+              </div>
+              <div style={stageMetaStatusStyle}>
+                <ContentStack align="center" gap="xs">
+                  <Badge
+                    icon={<AppIcon name={pendingResponseCount === 0 ? 'success' : 'pending'} size={12} />}
+                    tone={pendingResponseCount === 0 ? 'success' : 'warning'}
+                  >
+                    {submissionStateLabel}
+                  </Badge>
+                  <SummaryText>{submissionProgressLabel}</SummaryText>
+                </ContentStack>
+              </div>
             </div>
-          </div>
-
-          <MotionStagger
-            key={`answers-${stageId}`}
-            initialDelay={STAGE_ANSWER_REVEAL_INITIAL_DELAY_SECONDS}
-            staggerDelay={STAGE_ANSWER_REVEAL_STAGGER_SECONDS}
-          >
-            <ResponsiveGrid columns={{ base: 1, sm: 2 }} gap="lg">
-              {currentStage.actions.map((action, index) => (
-                <MotionStaggerItem key={action.id}>
-                  <PlayableChoiceResultActionTile
-                    copy={copy}
-                    index={index}
-                    isCorrect={false}
-                    isSelected={false}
-                    slotCount={currentStage.actions.length}
-                    testId={`${testIdPrefix}-host-stage-action-${resolvePlayableChoiceActionSlotLabel(index).toLowerCase()}`}
-                    text={action.text}
-                  />
-                </MotionStaggerItem>
-              ))}
-            </ResponsiveGrid>
-          </MotionStagger>
+          </InsetPanel>
         </div>
-      </HeroPanel>
+
+        <div style={stagePromptRegionStyle}>
+          <MotionFadeIn key={`question-${stageId}`} duration={STAGE_QUESTION_REVEAL_DURATION_SECONDS}>
+            <Heading hero level={1}>
+              {currentStage.text}
+            </Heading>
+          </MotionFadeIn>
+          {currentStage.media ? (
+            <div style={stageMediaSlotStyle}>
+              <PlayableQuestionMedia
+                maxHeight="100%"
+                media={currentStage.media}
+                questionText={currentStage.text}
+                sizing="fit"
+              />
+            </div>
+          ) : null}
+        </div>
+
+        <MotionStagger
+          key={`answers-${stageId}`}
+          initialDelay={STAGE_ANSWER_REVEAL_INITIAL_DELAY_SECONDS}
+          staggerDelay={STAGE_ANSWER_REVEAL_STAGGER_SECONDS}
+        >
+          <ResponsiveGrid columns={{ base: 1, sm: 2 }} gap="md">
+            {currentStage.actions.map((action, index) => (
+              <MotionStaggerItem key={action.id}>
+                <PlayableChoiceResultActionTile
+                  copy={copy}
+                  index={index}
+                  isCorrect={false}
+                  isSelected={false}
+                  slotCount={currentStage.actions.length}
+                  testId={`${testIdPrefix}-host-stage-action-${resolvePlayableChoiceActionSlotLabel(index).toLowerCase()}`}
+                  text={action.text}
+                />
+              </MotionStaggerItem>
+            ))}
+          </ResponsiveGrid>
+        </MotionStagger>
+      </div>
     </div>
   );
 }

@@ -383,6 +383,10 @@ describe('SocketIoPartyObservationAdapter', () => {
           },
           current: {
             actions: [{ id: 100, text: 'First answer' }],
+            media: {
+              mimeType: 'image/png',
+              uri: '/api/quiz-questions/12/media?v=1',
+            },
             text: 'Who answers first?',
           },
         },
@@ -413,6 +417,10 @@ describe('SocketIoPartyObservationAdapter', () => {
         },
         current: {
           actions: [{ id: ACTION_ID, text: 'First answer' }],
+          media: {
+            mimeType: 'image/png',
+            uri: '/api/quiz-questions/12/media?v=1',
+          },
           text: 'Who answers first?',
         },
       },

@@ -9,6 +9,8 @@ import { AppEnvironment } from './app-environment';
 const requiredNames = Object.keys(createAppEnvironmentFixture());
 const booleanNames = [
   'FRONTEND_REQUIRE_HTTPS',
+  'MEDIA_REQUIRE_HTTPS',
+  'MEDIA_STORAGE_FORCE_PATH_STYLE',
   'SMTP_SECURE',
   'SMTP_REQUIRE_TLS',
   'GRAPHQL_GRAPHIQL_ENABLED',
@@ -19,6 +21,10 @@ const booleanNames = [
   'OTEL_CONSOLE_LOGS_ENABLED',
 ];
 const integerNames = [
+  'MEDIA_ACCESS_TTL_SECONDS',
+  'MEDIA_PROCESSING_TIMEOUT_MS',
+  'MEDIA_PROCESSING_CONCURRENCY',
+  'MEDIA_PROCESSING_MEMORY_LIMIT_MB',
   'JWT_ACCESS_EXPIRES_IN_SECONDS',
   'JWT_REFRESH_EXPIRES_IN_SECONDS',
   'SMTP_PORT',
@@ -289,6 +295,85 @@ describe('AppConfiguration', () => {
     },
   );
 
+  it('normalizes CDN paths and supplies explicit storage and processing configuration', () => {
+    // Arrange
+    const environment = new AppEnvironment(
+      createAppEnvironmentFixture({
+        MEDIA_STORAGE_ENDPOINT: 'https://s3.example/',
+        MEDIA_PUBLIC_BASE_URL: 'https://cdn.example/assets/',
+        MEDIA_STORAGE_FORCE_PATH_STYLE: 'false',
+        MEDIA_REQUIRE_HTTPS: 'true',
+        MEDIA_ACCESS_TTL_SECONDS: '600',
+        MEDIA_PROCESSING_TIMEOUT_MS: '300000',
+        MEDIA_PROCESSING_CONCURRENCY: '2',
+        MEDIA_PROCESSING_MEMORY_LIMIT_MB: '2048',
+      }),
+    );
+    // Act
+    const config = new AppConfiguration(environment).getRuntimeConfiguration();
+    // Assert
+    expect(config.mediaStorage).toMatchObject({
+      endpoint: 'https://s3.example',
+      publicBaseUrl: 'https://cdn.example/assets',
+      forcePathStyle: false,
+      accessTtlSeconds: 600,
+    });
+    expect(config.mediaProcessing).toEqual({ timeoutMs: 300000, concurrency: 2, memoryLimitMb: 2048 });
+  });
+
+  it.each(
+    ['MEDIA_STORAGE_ENDPOINT', 'MEDIA_PUBLIC_BASE_URL'].flatMap((name) =>
+      [
+        'invalid',
+        'file:///tmp/media',
+        'https://user:secret@media.example',
+        'https://media.example/path?secret=token',
+        'https://media.example/path#fragment',
+      ].map((value) => [name, value]),
+    ),
+  )('rejects invalid media URL in %s', (name, value) => {
+    // Arrange
+    const environment = new AppEnvironment(createAppEnvironmentFixture({ [name]: value }));
+    // Act + Assert
+    expect(() => new AppConfiguration(environment)).toThrow(name);
+  });
+
+  it.each(['MEDIA_STORAGE_ENDPOINT', 'MEDIA_PUBLIC_BASE_URL'])('enforces HTTPS for %s when requested', (name) => {
+    // Arrange
+    const environment = new AppEnvironment(
+      createAppEnvironmentFixture({
+        MEDIA_REQUIRE_HTTPS: 'true',
+        MEDIA_STORAGE_ENDPOINT: 'https://storage.example',
+        MEDIA_PUBLIC_BASE_URL: 'https://cdn.example',
+        [name]: 'http://media.example',
+      }),
+    );
+    // Act + Assert
+    expect(() => new AppConfiguration(environment)).toThrow(name);
+  });
+
+  it.each([
+    ['MEDIA_ACCESS_TTL_SECONDS', '59'],
+    ['MEDIA_ACCESS_TTL_SECONDS', '901'],
+    ['MEDIA_PROCESSING_TIMEOUT_MS', '999'],
+    ['MEDIA_PROCESSING_TIMEOUT_MS', '300001'],
+    ['MEDIA_PROCESSING_CONCURRENCY', '9'],
+    ['MEDIA_PROCESSING_MEMORY_LIMIT_MB', '255'],
+    ['MEDIA_PROCESSING_MEMORY_LIMIT_MB', '4097'],
+  ])('rejects unbounded media setting %s=%s', (name, value) => {
+    // Arrange
+    const environment = new AppEnvironment(createAppEnvironmentFixture({ [name]: value }));
+    // Act + Assert
+    expect(() => new AppConfiguration(environment)).toThrow(`${name} must be between`);
+  });
+
+  it.each(['../media', 'a', 'asset..bucket', 'Uppercase', 'media/quiz'])('rejects invalid bucket %s', (bucket) => {
+    // Arrange
+    const environment = new AppEnvironment(createAppEnvironmentFixture({ MEDIA_STORAGE_BUCKET: bucket }));
+    // Act + Assert
+    expect(() => new AppConfiguration(environment)).toThrow('MEDIA_STORAGE_BUCKET');
+  });
+
   it('loads required values and optional SMTP credentials from mounted files', () => {
     // Arrange
     const directory = mkdtempSync(join(tmpdir(), 'pleey-config-'));
@@ -298,6 +383,8 @@ describe('AppConfiguration', () => {
       JWT_REFRESH_SECRET: 'mounted-refresh-key',
       SMTP_USER: 'smtp-user',
       SMTP_PASSWORD: 'smtp-password',
+      MEDIA_STORAGE_ACCESS_KEY_ID: 'mounted-media-access-key',
+      MEDIA_STORAGE_SECRET_ACCESS_KEY: 'mounted-media-secret-key',
       TRUSTED_PROXY_CIDRS: '',
     };
     const overrides: NodeJS.ProcessEnv = {};
@@ -316,6 +403,10 @@ describe('AppConfiguration', () => {
       expect(config.refreshToken.secret).toBe(values.JWT_REFRESH_SECRET);
       expect(config.passwordRecovery).toMatchObject({ smtpUser: values.SMTP_USER, smtpPassword: values.SMTP_PASSWORD });
       expect(config.server.trustedProxyCidrs).toEqual([]);
+      expect(config.mediaStorage).toMatchObject({
+        accessKeyId: values.MEDIA_STORAGE_ACCESS_KEY_ID,
+        secretAccessKey: values.MEDIA_STORAGE_SECRET_ACCESS_KEY,
+      });
     } finally {
       rmSync(directory, { recursive: true });
     }

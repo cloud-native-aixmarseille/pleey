@@ -6,7 +6,14 @@ See `package.json` scripts and `make help` for available commands.
 
 Prisma uses `DATABASE_URL` for the application database. `SHADOW_DATABASE_URL` is optional and is omitted from Prisma configuration when unset or blank; `make setup` does not require it. Both settings also support their `_FILE` variants.
 
-`make setup` uses `make migrate-dev-recover` for existing development databases. It
+`make setup` starts PostgreSQL and installs backend dependencies in a temporary
+container, then runs `make migrate-dev-recover` through temporary backend containers
+before starting the application services and waiting for readiness. Startup hooks
+can therefore read the migrated schema. These containers use the backend's source
+mount and database configuration without starting its application process. Setup
+stops if database preparation fails, before proceeding to application startup.
+
+`make migrate-dev-recover` supports existing development databases. It
 baselines a non-empty schema and marks duplicate or previously failed migrations
 as applied. When an aborted PostgreSQL transaction hides the migration error, it
 retries deployment to read the failed migration from Prisma history. The retry

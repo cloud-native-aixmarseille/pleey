@@ -9,7 +9,7 @@
 ## Setup
 
 ```bash
-make setup    # builds images, starts stack, runs migrations, seeds DB, generates GraphQL types
+make setup    # builds images, prepares DB, starts stack, seeds DB, generates GraphQL types
 ```
 
 Access points:

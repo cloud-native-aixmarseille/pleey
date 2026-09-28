@@ -121,3 +121,11 @@ Theme feature components, routes, screens, hooks, and translations live in `pres
 [ADR 0017](../../architecture/adr/0017-reward-action-quality-before-speed-in-game-scoring.md#scoreboard-presentation) defines score and rank deltas. `PartyProvider` captures complete stage and result rosters for the observed party. Result surfaces consume `usePartyStageScoreboardSnapshot`; they must not create a zero baseline or recalculate historical ranks from the current roster. Missing history omits deltas, while an observed empty roster identifies newcomers. Keep the baseline fixed through result animations and reconnects. Shared ranking orders equal scores by username, then stable player identity.
 
 Translation variables support numbers. Pass a numeric `count` for plural labels and provide locale-specific plural keys.
+
+## Quiz Question Media
+
+The editor validates the selected file type and upload byte budget before saving, using the formats and limits in [ADR 0018](../../architecture/adr/0018-support-media-on-quiz-questions.md). English and French upload guidance and errors are connected to the file picker; server-side decoding and processing remain authoritative.
+
+Persisted editor previews and the live host stage render optimized assets through expiring signed URLs and published MIME types. The media access adapter renews editor grants through the authorized GraphQL query and host grants through the host's joined socket. Players answer without media, so player sockets never receive media grants. The shared presentation provider schedules renewal before expiry, cancels stale responses when the asset changes, and removes media if renewal fails or expires. URL changes preserve audio/video playback position and paused state; changing assets starts a new player. The shared media preview preserves the full image/video with `object-fit: contain`, bounded container width, and a `20rem` maximum height. Audio/video use native controls and metadata preloading. Browser playback and seeking depend on the storage/CDN content type, CORS, and byte-range configuration.
+
+Media currently has no caption or transcript field. The player does not create empty caption tracks; accessible captions/transcripts require actual authored content and remain outstanding.

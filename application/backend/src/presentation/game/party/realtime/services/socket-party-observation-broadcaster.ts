@@ -16,6 +16,7 @@ import {
 } from '../party-socket-events';
 import { HostPartyObservationMessageMapper } from './host-party-observation-message-mapper';
 import { PartyObservationAudienceResolver } from './party-observation-audience-resolver';
+import { PartyObservationMediaAccessService } from './party-observation-media-access.service';
 import { type PartyObservationMessage } from './party-observation-message';
 import { PlayerPartyObservationMessageMapper } from './player-party-observation-message-mapper';
 
@@ -29,6 +30,7 @@ export class SocketPartyObservationBroadcaster implements PartyObservationBroadc
     private readonly playerMessageMapper: PlayerPartyObservationMessageMapper,
     private readonly partyIdentifier: PartyIdentifier,
     private readonly snapshots: LoadPartyObservationSnapshotUseCase,
+    private readonly mediaAccess: PartyObservationMediaAccessService,
   ) {}
 
   attachServer(server: Server): void {
@@ -40,13 +42,13 @@ export class SocketPartyObservationBroadcaster implements PartyObservationBroadc
   }
 
   async emitSnapshot(
-    client: Pick<Socket, 'emit' | 'data'>,
+    client: Pick<Socket, 'id' | 'emit' | 'data'>,
     snapshot: PartyObservationSnapshot,
   ): Promise<PartyObservationMessage> {
     await this.assertCanObserve(client, snapshot);
     const livePlayerIdentities = await this.resolveLivePlayerIdentities(snapshot.hostObservation.partyId);
-    const payload = this.toAudienceMessage(
-      ((client as { data?: PartyObserverSocketData }).data ?? {}) as PartyObserverSocketData,
+    const payload = await this.toAudienceMessage(
+      { id: client.id, data: ((client as { data?: PartyObserverSocketData }).data ?? {}) as PartyObserverSocketData },
       snapshot,
       livePlayerIdentities,
     );
@@ -72,7 +74,11 @@ export class SocketPartyObservationBroadcaster implements PartyObservationBroadc
       }
       socket.emit(
         PARTY_SOCKET_OUTBOUND_EVENTS.PARTY_UPDATED,
-        this.toAudienceMessage(socket.data as PartyObserverSocketData, snapshot, livePlayerIdentities),
+        await this.toAudienceMessage(
+          { id: socket.id, data: socket.data as PartyObserverSocketData },
+          snapshot,
+          livePlayerIdentities,
+        ),
       );
     }
   }
@@ -112,7 +118,7 @@ export class SocketPartyObservationBroadcaster implements PartyObservationBroadc
       const socketData = socket.data as PartyObserverSocketData;
       const identity = socketData.joinedPartyPlayer?.identity;
 
-      if (identity) {
+      if (identity && socketData.joinedPartyPlayer?.partyId === partyId) {
         playerIdentities.set(this.toIdentityKey(identity), identity);
       }
     }
@@ -156,24 +162,35 @@ export class SocketPartyObservationBroadcaster implements PartyObservationBroadc
     return [...hostSockets, ...playerSockets, ...observerSockets];
   }
 
-  private toAudienceMessage(
-    socketData: PartyObserverSocketData,
+  requestMediaAccess(client: Pick<Socket, 'id' | 'data'>, snapshot: PartyObservationSnapshot, assetId: string) {
+    return this.mediaAccess.request(client, snapshot, assetId);
+  }
+
+  private async toAudienceMessage(
+    socket: { readonly id: string; readonly data: PartyObserverSocketData },
     snapshot: PartyObservationSnapshot,
     livePlayerIdentities: readonly PartyPlayerIdentity[],
-  ): PartyObservationMessage {
-    return this.audienceResolver.isHostObserver(socketData, snapshot.hostObservation)
-      ? this.hostMessageMapper.toMessage(
-          snapshot.hostObservation,
-          snapshot.gameType,
-          livePlayerIdentities,
-          snapshot.playerObservation.players,
-          snapshot.hostPermissions,
-        )
-      : this.playerMessageMapper.toMessage(
-          snapshot.playerObservation,
-          snapshot.gameType,
-          livePlayerIdentities,
-          this.audienceResolver.verifiedPlayerIdentity(socketData, snapshot.hostObservation),
-        );
+  ): Promise<PartyObservationMessage> {
+    const audience = await this.audienceResolver.resolve(socket, snapshot.hostObservation);
+    const message =
+      audience.kind === 'host'
+        ? this.hostMessageMapper.toMessage(
+            snapshot.hostObservation,
+            snapshot.gameType,
+            livePlayerIdentities,
+            snapshot.playerObservation.players,
+            snapshot.hostPermissions,
+          )
+        : this.playerMessageMapper.toMessage(
+            snapshot.playerObservation,
+            snapshot.gameType,
+            livePlayerIdentities,
+            audience.kind === 'player' ? audience.identity : null,
+          );
+
+    return {
+      ...message,
+      context: await this.mediaAccess.toDeliveryContext(message.context, message.partyId, audience.kind === 'host'),
+    };
   }
 }
