@@ -31,6 +31,7 @@ describe('PlayableQuestionMedia', () => {
     // Assert
     const audio = screen.getByLabelText('Question audio');
     expect(audio.tagName).toBe('AUDIO');
+    expect(audio.querySelector('track')).toHaveAttribute('kind', 'descriptions');
   });
 
   it('renders a video player when the media mime type is video', () => {
@@ -45,5 +46,6 @@ describe('PlayableQuestionMedia', () => {
     // Assert
     const video = screen.getByLabelText('Question video');
     expect(video.tagName).toBe('VIDEO');
+    expect(video.querySelector('track')).toHaveAttribute('kind', 'captions');
   });
 });

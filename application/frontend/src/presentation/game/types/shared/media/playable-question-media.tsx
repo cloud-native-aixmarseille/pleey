@@ -6,6 +6,8 @@ interface PlayableQuestionMediaProps {
   readonly testId?: string;
 }
 
+const emptyMediaTextTrackUri = 'data:text/vtt;charset=utf-8,WEBVTT%0A%0A';
+
 const visualMediaStyle = {
   background: 'var(--mantine-color-gray-0)',
   borderRadius: '1rem',
@@ -30,6 +32,7 @@ export function PlayableQuestionMedia({ media, questionText, testId }: PlayableQ
     return (
       <audio aria-label={accessibleLabel || undefined} controls data-testid={testId} preload="metadata" style={{ width: '100%' }}>
         <source src={media.uri} type={media.mimeType} />
+        <track kind="descriptions" label={accessibleLabel || undefined} src={emptyMediaTextTrackUri} srcLang="und" />
       </audio>
     );
   }
@@ -43,7 +46,9 @@ export function PlayableQuestionMedia({ media, questionText, testId }: PlayableQ
         preload="metadata"
         src={media.uri}
         style={visualMediaStyle}
-      />
+      >
+        <track kind="captions" label={accessibleLabel || undefined} src={emptyMediaTextTrackUri} srcLang="und" />
+      </video>
     );
   }
 
