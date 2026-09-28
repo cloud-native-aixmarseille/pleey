@@ -3,6 +3,7 @@ import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
+  IsBoolean,
   IsEnum,
   IsInt,
   IsNotEmpty,
@@ -12,8 +13,10 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
+import { GraphQLUpload } from 'graphql-upload-minimal';
 import { QuizQuestionType } from '../../../../../../domain/game/types/quiz/entities/quiz-question';
 import { ImportPlayableContentInputBase } from '../../../shared/graphql/import-playable-content-inputs';
+import type { PlayableContentUploadFile } from '../../../shared/graphql/playable-content-upload-reader';
 import { SelectableOptionInput } from '../../../shared/graphql/selectable-option-types';
 
 @InputType()
@@ -106,6 +109,10 @@ export class CreateQuizQuestionInput {
   @ValidateNested({ each: true })
   @Type(() => SelectableOptionInput)
   answers!: SelectableOptionInput[];
+
+  @Field(() => GraphQLUpload, { nullable: true })
+  @IsOptional()
+  mediaFile?: Promise<PlayableContentUploadFile> | null;
 }
 
 @InputType()
@@ -141,4 +148,13 @@ export class UpdateQuizQuestionInput {
   @ValidateNested({ each: true })
   @Type(() => SelectableOptionInput)
   answers!: SelectableOptionInput[];
+
+  @Field(() => GraphQLUpload, { nullable: true })
+  @IsOptional()
+  mediaFile?: Promise<PlayableContentUploadFile> | null;
+
+  @Field(() => Boolean, { nullable: true })
+  @IsOptional()
+  @IsBoolean()
+  clearMedia?: boolean;
 }

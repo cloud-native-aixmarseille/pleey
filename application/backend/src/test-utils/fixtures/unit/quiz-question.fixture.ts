@@ -9,6 +9,7 @@ export type QuizQuestionRecordFixtureParams = {
   type?: string;
   timeLimit?: number;
   points?: number;
+  media?: { id: string; mimeType: string; updatedAt: Date } | null;
   answers?: ReadonlyArray<{ id: string; text: string; position: number; isCorrect: boolean }>;
 };
 
@@ -20,6 +21,14 @@ export const createQuizQuestionRecordFixture = (params: QuizQuestionRecordFixtur
   type: params.type ?? QuizQuestionType.Multiple,
   timeLimit: params.timeLimit ?? 20,
   points: params.points ?? 100,
+  media:
+    params.media == null
+      ? null
+      : {
+          id: params.media.id,
+          mimeType: params.media.mimeType,
+          updatedAt: params.media.updatedAt,
+        },
   answers: params.answers ?? [
     {
       id: backendTestIdentifiers.partyAction(1),

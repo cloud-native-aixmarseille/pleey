@@ -15,11 +15,14 @@ import { GameTypeIdentifier } from '../../../../../application/game/types/shared
 import { ProjectIdentifier } from '../../../../../application/workspace/shared/services/identifiers/project-identifier';
 import type { Quiz } from '../../../../../domain/game/types/quiz/entities/quiz';
 import type { QuizQuestion } from '../../../../../domain/game/types/quiz/entities/quiz-question';
+import { QUIZ_ERROR_DEFINITIONS, QuizErrorCode } from '../../../../../domain/game/types/quiz/enums/quiz-error-code.enum';
 import { GameType } from '../../../../../domain/game/types/shared/entities/game-type';
 import type { UserId } from '../../../../../domain/identity/entities/user';
 import { IdentityErrorCode } from '../../../../../domain/identity/enums/identity-error-code.enum';
+import { createDomainError } from '../../../../../domain/shared/errors/domain-error';
 import { GqlJwtAuthGuard } from '../../../../identity/shared/guards/gql-jwt-auth-guard';
 import { PaginationInput } from '../../../../shared/graphql/types/pagination-input';
+import { QuizQuestionMediaUploadReader } from './quiz-question-media-upload-reader';
 import { PlayableContentUploadReader } from '../../shared/graphql/playable-content-upload-reader';
 import { SelectableOptionInputMapper } from '../../shared/graphql/selectable-option-input-mapper';
 import {
@@ -52,6 +55,7 @@ export class QuizManagementResolver {
     private readonly gameTypeIdentifier: GameTypeIdentifier,
     private readonly quizQuestionIdentifier: QuizQuestionIdentifier,
     private readonly quizSelectableOptionIdentifier: QuizSelectableOptionIdentifier,
+    private readonly quizQuestionMediaUploadReader: QuizQuestionMediaUploadReader,
     private readonly playableContentUploadReader: PlayableContentUploadReader,
     private readonly selectableOptionInputMapper: SelectableOptionInputMapper,
     private readonly projectIdentifier: ProjectIdentifier,
@@ -162,6 +166,7 @@ export class QuizManagementResolver {
         timeLimit: input.timeLimit,
         points: input.points,
         answers: this.selectableOptionInputMapper.toDomainInputs(input.answers, this.quizSelectableOptionIdentifier),
+        media: (await this.quizQuestionMediaUploadReader.readOptional(input.mediaFile)) ?? null,
       },
       this.resolveUserId(context),
     );
@@ -185,6 +190,7 @@ export class QuizManagementResolver {
         timeLimit: input.timeLimit,
         points: input.points,
         answers: this.selectableOptionInputMapper.toDomainInputs(input.answers, this.quizSelectableOptionIdentifier),
+        media: await this.resolveQuestionMediaMutation(input),
       },
       this.resolveUserId(context),
     );
@@ -225,6 +231,7 @@ export class QuizManagementResolver {
       type: question.type,
       timeLimit: question.timeLimit,
       points: question.points,
+      media: question.media,
       answers: question.answers.map((answer) => ({
         id: answer.id,
         text: answer.text,
@@ -232,6 +239,20 @@ export class QuizManagementResolver {
         isCorrect: answer.isCorrect,
       })),
     };
+  }
+
+  private async resolveQuestionMediaMutation(input: UpdateQuizQuestionInput) {
+    if (input.clearMedia === true && input.mediaFile) {
+      throw createDomainError(QUIZ_ERROR_DEFINITIONS[QuizErrorCode.INVALID_QUESTION_MEDIA], {
+        reason: 'conflictingMutationInstructions',
+      });
+    }
+
+    if (input.clearMedia === true) {
+      return null;
+    }
+
+    return this.quizQuestionMediaUploadReader.readOptional(input.mediaFile);
   }
 
   private resolveUserId(context: GraphqlAuthContext): UserId {

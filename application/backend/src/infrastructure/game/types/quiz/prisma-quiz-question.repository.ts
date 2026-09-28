@@ -8,6 +8,7 @@ import type { QuizId } from '../../../../domain/game/types/quiz/entities/quiz';
 import {
   QuizQuestion,
   type QuizQuestionId,
+  type QuizQuestionMedia,
   QuizQuestionType,
   type QuizSelectableOptionId,
 } from '../../../../domain/game/types/quiz/entities/quiz-question';
@@ -15,6 +16,7 @@ import type {
   QuizQuestionMutationData,
   QuizQuestionRepository,
 } from '../../../../domain/game/types/quiz/ports/quiz-question.repository';
+import { Media, type MediaId } from '../../../../domain/media/entities/media';
 import { createDomainError } from '../../../../domain/shared/errors/domain-error';
 import type { PaginatedResult } from '../../../../domain/shared/value-objects/paginated-result';
 import type { PaginationQuery } from '../../../../domain/shared/value-objects/pagination-query';
@@ -23,6 +25,7 @@ import {
   PrismaSelectableOptionMapper,
   type PrismaSelectableOptionRecord,
 } from '../shared/prisma-selectable-option-mapper';
+import { buildQuizQuestionMediaUri } from './quiz-question-media-uri';
 
 type PrismaQuestionAnswerRecord = PrismaSelectableOptionRecord;
 
@@ -33,6 +36,12 @@ const QUESTION_NOT_UPDATED_ERROR = {
   messageKey: 'QUESTION_NOT_UPDATED',
 } as const;
 
+function toPrismaBytes(content: Buffer): Uint8Array<ArrayBuffer> {
+  const bytes = new Uint8Array(content.byteLength);
+  bytes.set(content);
+  return bytes as Uint8Array<ArrayBuffer>;
+}
+
 interface PrismaQuestionRecord {
   readonly id: string;
   readonly quizId: string;
@@ -41,6 +50,11 @@ interface PrismaQuestionRecord {
   readonly type: string;
   readonly timeLimit: number;
   readonly points: number;
+  readonly media: {
+    readonly id: string;
+    readonly mimeType: string;
+    readonly updatedAt: Date;
+  } | null;
   readonly answers: readonly PrismaQuestionAnswerRecord[];
 }
 
@@ -52,6 +66,7 @@ interface QuestionRecord {
   readonly type: string;
   readonly timeLimit: number;
   readonly points: number;
+  readonly media: QuizQuestionMedia | null;
   readonly answers: readonly QuestionAnswerRecord[];
 }
 
@@ -81,12 +96,23 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
 
       const question = await transaction.question.create({
         data: {
-          quizId,
+          quiz: {
+            connect: {
+              id: quizId,
+            },
+          },
           position,
           questionText: data.questionText,
           type: data.type,
           timeLimit: data.timeLimit,
           points: data.points,
+          ...(data.media
+            ? {
+                media: {
+                  create: this.toQuestionMediaCreateInput(data.media),
+                },
+              }
+            : {}),
           answers: {
             create: data.answers.map((answer) => ({
               text: answer.text,
@@ -109,6 +135,33 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
     });
 
     return question ? this.toDomain(question) : null;
+  }
+
+  async findMediaById(id: QuizQuestionId): Promise<Media | null> {
+    const question = await this.prisma.question.findFirst({
+      where: { id, deletedAt: null, quiz: { deletedAt: null, game: { deletedAt: null } } },
+      select: {
+        media: {
+          select: {
+            id: true,
+            mimeType: true,
+            content: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+      },
+    });
+
+    return question?.media
+      ? new Media(
+          question.media.id as MediaId,
+          question.media.mimeType,
+          Buffer.from(question.media.content),
+          question.media.createdAt,
+          question.media.updatedAt,
+        )
+      : null;
   }
 
   async findByQuizId(quizId: QuizId, query: PaginationQuery): Promise<PaginatedResult<QuizQuestion>> {
@@ -138,7 +191,7 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
     const question = await this.prisma.$transaction(async (transaction) => {
       const existingQuestion = await transaction.question.findFirst({
         where: { id, deletedAt: null },
-        select: { quizId: true },
+        select: { quizId: true, questionMediaId: true },
       });
       if (!existingQuestion) {
         throw createDomainError(QUESTION_NOT_UPDATED_ERROR, { questionId: id });
@@ -191,6 +244,7 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
           type: data.type,
           timeLimit: data.timeLimit,
           points: data.points,
+          media: this.resolveQuestionMediaUpdateInput(existingQuestion.questionMediaId, data.media),
           answers: {
             create: data.answers.map((answer) => ({
               text: answer.text,
@@ -207,7 +261,21 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
   }
 
   async delete(id: QuizQuestionId): Promise<void> {
-    await this.prisma.question.delete({ where: { id } });
+    const question = await this.prisma.question.findUnique({
+      where: { id },
+      select: { questionMediaId: true },
+    });
+
+    await this.prisma.$transaction([
+      this.prisma.question.delete({ where: { id } }),
+      ...(question?.questionMediaId
+        ? [
+            this.prisma.media.delete({
+              where: { id: question.questionMediaId },
+            }),
+          ]
+        : []),
+    ]);
   }
 
   private readonly questionInclude = {
@@ -221,7 +289,42 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
         isCorrect: true,
       },
     },
+    media: {
+      select: {
+        id: true,
+        mimeType: true,
+        updatedAt: true,
+      },
+    },
   };
+
+  private toQuestionMediaCreateInput(media: Media): Prisma.MediaCreateWithoutQuestionForMediaInput {
+    return {
+      mimeType: media.mimeType,
+      content: toPrismaBytes(media.content),
+    };
+  }
+
+  private resolveQuestionMediaUpdateInput(
+    existingQuestionMediaId: string | null,
+    media: Media | null | undefined,
+  ): Prisma.QuestionUpdateInput['media'] | undefined {
+    if (media === undefined) {
+      return undefined;
+    }
+
+    if (media === null) {
+      return existingQuestionMediaId ? { delete: true } : undefined;
+    }
+
+    return existingQuestionMediaId
+      ? {
+          update: this.toQuestionMediaCreateInput(media),
+        }
+      : {
+          create: this.toQuestionMediaCreateInput(media),
+        };
+  }
 
   private async normalizeQuestionPositions(transaction: Prisma.TransactionClient, quizId: QuizId): Promise<void> {
     const questions = await transaction.question.findMany({
@@ -325,6 +428,7 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
       record.timeLimit,
       record.points,
       record.answers.map((answer) => this.optionMapper.toDomain(answer)),
+      record.media,
     );
   }
 
@@ -337,6 +441,12 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
       type: question.type,
       timeLimit: question.timeLimit,
       points: question.points,
+      media: question.media
+        ? {
+            mimeType: question.media.mimeType,
+            uri: buildQuizQuestionMediaUri(question.id, question.media.updatedAt),
+          }
+        : null,
       answers: question.answers.map((answer) =>
         this.optionMapper.toRecord(answer, this.quizSelectableOptionIdentifier),
       ),
