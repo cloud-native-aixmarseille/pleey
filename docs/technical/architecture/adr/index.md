@@ -57,4 +57,4 @@ If a change can alter how the system is structured, operated, or extended, it ne
 - 0016: [Accept localized true/false import values](./0016-accept-localized-true-false-import-values.md) - Proposed - 2026-10-15
 - 0017: [Reward correct answers before speed in game scoring](./0017-reward-action-quality-before-speed-in-game-scoring.md) - Accepted - 2026-10-28
 - 0018: [Support media on quiz questions](./0018-support-media-on-quiz-questions.md) - Proposed - 2026-09-28
-- 0019: [Support multi-select quiz questions](./0019-support-multi-select-quiz-questions.md) - Accepted - 2026-09-29
+- 0019: [Distinguish single- and multi-select quiz questions](./0019-support-multi-select-quiz-questions.md) - Accepted - 2026-09-29
