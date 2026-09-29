@@ -3,6 +3,7 @@
 - Status: Accepted
 - Proposed date: 2026-09-09
 - Accepted date: 2026-10-28
+- Extended by: [ADR 0022](./0022-support-multi-select-quiz-questions.md#scoring-alignment-2026-10-29) for multi-select partial credit
 
 ## Context
 
