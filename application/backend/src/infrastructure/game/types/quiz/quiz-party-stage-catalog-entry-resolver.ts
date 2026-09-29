@@ -129,6 +129,7 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
     const isTrueFalse = question.type === QuizQuestionType.TrueFalse;
 
     return {
+      allowsMultipleSelections: question.answers.filter((answer) => answer.isCorrect).length > 1,
       actions: question.answers.map((answer) => ({
         booleanValue: isTrueFalse ? answer.position === 0 : undefined,
         id: this.partyActionIdentifier.parse(answer.id),

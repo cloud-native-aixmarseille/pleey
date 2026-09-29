@@ -204,6 +204,11 @@ export class SocketIoPartyPayloadMapper {
             currentPlayer: actionSubmission.currentPlayer
               ? {
                   selectedActionId: this.partyActionIdentifier.parse(actionSubmission.currentPlayer.selectedActionId),
+                  selectedActionIds: (
+                    actionSubmission.currentPlayer.selectedActionIds ?? [
+                      actionSubmission.currentPlayer.selectedActionId,
+                    ]
+                  ).map((actionId) => this.partyActionIdentifier.parse(actionId)),
                   status: actionSubmission.currentPlayer.status,
                 }
               : null,
@@ -211,6 +216,7 @@ export class SocketIoPartyPayloadMapper {
             totalEligiblePlayerCount: actionSubmission.totalEligiblePlayerCount,
           },
           current: {
+            allowsMultipleSelections: currentStage.allowsMultipleSelections ?? false,
             actions: currentStage.actions.map((action) => this.toStageActionContext(action)),
             media: currentStage.media ?? null,
             text: currentStage.text,
@@ -249,6 +255,11 @@ export class SocketIoPartyPayloadMapper {
                 earnedPoints: resultContext.result.currentPlayer.earnedPoints,
                 isCorrect: resultContext.result.currentPlayer.isCorrect,
                 selectedActionId: this.partyActionIdentifier.parse(resultContext.result.currentPlayer.selectedActionId),
+                selectedActionIds: (
+                  resultContext.result.currentPlayer.selectedActionIds ?? [
+                    resultContext.result.currentPlayer.selectedActionId,
+                  ]
+                ).map((actionId) => this.partyActionIdentifier.parse(actionId)),
               }
             : null,
         },
@@ -285,6 +296,11 @@ export class SocketIoPartyPayloadMapper {
                       selectedActionId: this.partyActionIdentifier.parse(
                         endedContext.result.currentPlayer.selectedActionId,
                       ),
+                      selectedActionIds: (
+                        endedContext.result.currentPlayer.selectedActionIds ?? [
+                          endedContext.result.currentPlayer.selectedActionId,
+                        ]
+                      ).map((actionId) => this.partyActionIdentifier.parse(actionId)),
                     }
                   : null,
               },

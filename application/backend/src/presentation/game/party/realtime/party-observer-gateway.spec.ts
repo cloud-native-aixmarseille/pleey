@@ -994,7 +994,7 @@ describe('PartyObserverGateway', () => {
     expect(useCases.pausePartyUseCase.execute).not.toHaveBeenCalled();
   });
 
-  it('routes submit-action through the joined player identity', async () => {
+  it('routes multi-select action IDs through the joined player identity', async () => {
     // Arrange
     const submitPartyActionUseCase = {
       execute: vi.fn().mockResolvedValue(undefined),
@@ -1032,14 +1032,14 @@ describe('PartyObserverGateway', () => {
         },
       } as never,
       {
-        actionId: backendTestIdentifiers.partyAction(2),
+        actionIds: [backendTestIdentifiers.partyAction(2), backendTestIdentifiers.partyAction(3)],
         partyId: backendTestIdentifiers.party(44),
       },
     );
 
     // Assert
     expect(submitPartyActionUseCase.execute).toHaveBeenCalledWith({
-      actionId: backendTestIdentifiers.partyAction(2),
+      actionIds: [backendTestIdentifiers.partyAction(2), backendTestIdentifiers.partyAction(3)],
       partyId: backendTestIdentifiers.party(44),
       playerIdentity: { kind: PartyPlayerKind.USER, userId: PLAYER_USER_ID },
     });

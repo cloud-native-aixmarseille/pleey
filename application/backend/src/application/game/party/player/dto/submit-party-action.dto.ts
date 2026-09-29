@@ -3,7 +3,7 @@ import type { PartyId } from '../../../../../domain/game/party/shared/entities/p
 import type { PartyActionId } from '../../../../../domain/game/party/shared/entities/party-action';
 
 export interface SubmitPartyActionDto {
-  readonly actionId: PartyActionId;
+  readonly actionIds: readonly PartyActionId[];
   readonly partyId: PartyId;
   readonly playerIdentity: PartyPlayerIdentity;
 }

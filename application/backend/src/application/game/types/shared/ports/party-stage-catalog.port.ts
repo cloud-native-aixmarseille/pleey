@@ -18,6 +18,7 @@ interface PartyStageMediaCatalogEntry {
 }
 
 export interface PartyStageCatalogEntry {
+  readonly allowsMultipleSelections?: boolean;
   readonly actions: readonly PartyStageActionCatalogEntry[];
   readonly preserveActionOrder?: boolean;
   readonly id: PartyStageId;

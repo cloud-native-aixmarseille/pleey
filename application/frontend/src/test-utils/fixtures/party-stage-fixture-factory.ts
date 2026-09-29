@@ -14,6 +14,7 @@ export class PartyStageFixtureFactory {
   createObservation(
     lifecycle: Partial<StageLifecycle> = {},
     overrides: Partial<PartyObservation> = {},
+    currentStage: Partial<NonNullable<PartyRuntimeContext['stage']>['current']> = {},
   ): PartyObservation {
     const actionIdentifier = new PartyActionIdentifierMockFactory().create();
     return new PartyFixtureFactory().createPartyObservation({
@@ -37,6 +38,7 @@ export class PartyStageFixtureFactory {
               { id: actionIdentifier.parse(1), text: 'First answer' },
               { id: actionIdentifier.parse(2), text: 'Second answer' },
             ],
+            ...currentStage,
           },
           actionSubmission: { currentPlayer: null, submittedPlayerCount: 0, totalEligiblePlayerCount: 1 },
         },

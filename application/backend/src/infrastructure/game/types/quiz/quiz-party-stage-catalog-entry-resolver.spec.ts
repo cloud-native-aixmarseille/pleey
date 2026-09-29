@@ -117,7 +117,10 @@ describe('QuizPartyStageCatalogEntryResolver', () => {
       points: 100,
       questionText: 'Question',
       timeLimit: 20,
-      answers: [],
+      answers: [
+        { id: backendTestIdentifiers.partyAction(91), isCorrect: true, text: 'A' },
+        { id: backendTestIdentifiers.partyAction(92), isCorrect: true, text: 'B' },
+      ],
     });
     const resolver = createResolverWithFindFirst(findFirst);
 
@@ -131,7 +134,11 @@ describe('QuizPartyStageCatalogEntryResolver', () => {
       points: 100,
       text: 'Question',
       timeLimitSeconds: 20,
-      actions: [],
+      allowsMultipleSelections: true,
+      actions: [
+        { id: backendTestIdentifiers.partyAction(91), isCorrect: true, text: 'A' },
+        { id: backendTestIdentifiers.partyAction(92), isCorrect: true, text: 'B' },
+      ],
     });
 
     expect(findFirst).toHaveBeenCalledWith(
@@ -178,6 +185,7 @@ describe('QuizPartyStageCatalogEntryResolver', () => {
       stagePosition: 5,
       points: 200,
       text: 'Next',
+      allowsMultipleSelections: false,
     });
     expect(findFirst).toHaveBeenNthCalledWith(
       2,

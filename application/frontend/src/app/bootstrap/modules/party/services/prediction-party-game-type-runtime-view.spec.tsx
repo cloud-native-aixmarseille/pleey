@@ -42,7 +42,7 @@ describe('PredictionPartyGameTypeRuntimeView', () => {
       onLeaveParty: vi.fn(),
       onSubmitAction: vi.fn(),
       party,
-      pendingActionId: null,
+      pendingActionIds: null,
       playerActionErrorMessage: null,
     } satisfies PlayerStageSurfaceProps;
     const playerResultProps = {

@@ -12,6 +12,9 @@ export const quizRuntimeCopy = {
   resultIncorrectHint: 'game.types.quiz.runtime.resultIncorrectHint',
   resultNoAnswer: 'game.types.quiz.runtime.resultNoAnswer',
   resultNoAnswerHint: 'game.types.quiz.runtime.resultNoAnswerHint',
+  resultPartiallyCorrect: 'game.types.quiz.runtime.resultPartiallyCorrect',
+  selectAnswersHint: 'game.types.quiz.runtime.selectAnswersHint',
+  submitAnswers: 'game.types.quiz.runtime.submitAnswers',
   voteCount: 'game.types.quiz.runtime.voteCount',
   yourPickBadge: 'game.types.quiz.runtime.yourPickBadge',
 } as const satisfies PlayableChoiceRuntimeCopy;

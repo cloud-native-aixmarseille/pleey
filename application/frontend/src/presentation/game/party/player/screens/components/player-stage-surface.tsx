@@ -9,9 +9,9 @@ import { PlayerStageSurfaceFrame } from './player-stage-surface-frame';
 
 interface PlayerStageSurfaceProps {
   readonly onLeaveParty: () => void;
-  readonly onSubmitAction: (actionId: PartyActionId) => void;
+  readonly onSubmitAction: (actionIds: readonly PartyActionId[]) => void;
   readonly party: PartyObservation;
-  readonly pendingActionId: PartyActionId | null;
+  readonly pendingActionIds: readonly PartyActionId[] | null;
   readonly playerActionErrorMessage: string | null;
 }
 
@@ -19,7 +19,7 @@ export function PlayerStageSurface({
   onLeaveParty,
   onSubmitAction,
   party,
-  pendingActionId,
+  pendingActionIds,
   playerActionErrorMessage,
 }: PlayerStageSurfaceProps) {
   const { t } = usePresentationTranslation();
@@ -30,8 +30,11 @@ export function PlayerStageSurface({
     return null;
   }
 
-  const selectedActionId = currentPlayerAction?.selectedActionId ?? pendingActionId;
-  const isSubmitting = pendingActionId !== null && currentPlayerAction === null;
+  const selectedActionIds =
+    pendingActionIds ??
+    currentPlayerAction?.selectedActionIds ??
+    (currentPlayerAction ? [currentPlayerAction.selectedActionId] : []);
+  const isSubmitting = pendingActionIds !== null && currentPlayerAction === null;
   const isLocked = currentPlayerAction !== null;
   const areActionsDisabled = party.status !== PartyStatus.ACTIVE || isSubmitting || isLocked;
 
@@ -49,13 +52,13 @@ export function PlayerStageSurface({
     >
       <MotionStagger style={actionGridStyle}>
         {currentStage.actions.map((action) => {
-          const isSelected = selectedActionId === action.id;
+          const isSelected = selectedActionIds.includes(action.id);
 
           return (
             <MotionStaggerItem key={action.id}>
               <Button
                 intent={isSelected ? 'primary' : 'secondary'}
-                onClick={() => onSubmitAction(action.id)}
+                onClick={() => onSubmitAction([action.id])}
                 disabled={areActionsDisabled}
                 width="wide"
               >
