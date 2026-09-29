@@ -17,7 +17,7 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
   const STAGE_101 = backendTestIdentifiers.partyStage(101);
   const STAGE_202 = backendTestIdentifiers.partyStage(202);
 
-  it('stores first submission progress when the existing score context is null', async () => {
+  it('stores selected action sets in first submission progress', async () => {
     // Arrange
     const transaction = {
       party: {
@@ -52,7 +52,7 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
 
     // Act
     await adapter.saveSubmissionResult({
-      actionId: ACTION_22,
+      actionIds: [ACTION_22, ACTION_11],
       context: {
         lifecycle: {
           phase: PartyRuntimePhase.STAGE,
@@ -64,6 +64,7 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
           totalStages: 3,
         },
       },
+      isCorrect: true,
       partyId: PARTY_ID,
       playerIdentity: {
         kind: PartyPlayerKind.USER,
@@ -81,11 +82,15 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
       data: {
         context: {
           earnedPoints: 500,
+          isCorrect: true,
           selectedActionId: ACTION_22,
+          selectedActionIds: [ACTION_22, ACTION_11],
           stageHistory: [
             {
               earnedPoints: 500,
+              isCorrect: true,
               selectedActionId: ACTION_22,
+              selectedActionIds: [ACTION_22, ACTION_11],
               stageId: STAGE_101,
               stagePosition: 0,
               status: 'acknowledged',
@@ -169,7 +174,7 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
 
     // Act
     await adapter.saveSubmissionResult({
-      actionId: ACTION_22,
+      actionIds: [ACTION_22],
       context: {
         lifecycle: {
           phase: PartyRuntimePhase.STAGE,
@@ -181,6 +186,7 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
           totalStages: 3,
         },
       },
+      isCorrect: false,
       partyId: PARTY_ID,
       playerIdentity: {
         kind: PartyPlayerKind.USER,
@@ -198,18 +204,23 @@ describe('PrismaPlayerPartyActionRuntimeAdapter', () => {
       data: {
         context: {
           earnedPoints: 500,
+          isCorrect: false,
           selectedActionId: ACTION_22,
+          selectedActionIds: [ACTION_22],
           stageHistory: [
             {
               earnedPoints: 1000,
               selectedActionId: ACTION_11,
+              selectedActionIds: [ACTION_11],
               stageId: STAGE_101,
               stagePosition: 0,
               status: 'acknowledged',
             },
             {
               earnedPoints: 500,
+              isCorrect: false,
               selectedActionId: ACTION_22,
+              selectedActionIds: [ACTION_22],
               stageId: STAGE_202,
               stagePosition: 1,
               status: 'acknowledged',

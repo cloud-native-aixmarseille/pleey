@@ -13,6 +13,7 @@ import {
 } from '../../../../domain/game/party/player/entities/party-player-action-state';
 import type { PartyPlayerIdentity } from '../../../../domain/game/party/player/entities/party-player-identity';
 import type { PlayerPartyObservationPlayer } from '../../../../domain/game/party/player/entities/player-party-observation';
+import type { PartyActionId } from '../../../../domain/game/party/shared/entities/party-action';
 import {
   type PartyRuntimeContext,
   PartyRuntimePhase,
@@ -467,14 +468,17 @@ export class PrismaPartyReadModelMapper {
     }
 
     const selectedActionId = Reflect.get(value, 'selectedActionId');
+    const selectedActionIds = Reflect.get(value, 'selectedActionIds');
     const stageId = Reflect.get(value, 'stageId');
     const stagePosition = Reflect.get(value, 'stagePosition');
     const earnedPoints = Reflect.get(value, 'earnedPoints');
+    const isCorrect = Reflect.get(value, 'isCorrect');
     const status = Reflect.get(value, 'status');
 
     const normalizedSelectedActionId = this.partyActionIdentifier.parseOrNull(selectedActionId);
+    const normalizedSelectedActionIds = this.toSelectedActionIds(selectedActionIds, normalizedSelectedActionId);
 
-    if (normalizedSelectedActionId === null) {
+    if (normalizedSelectedActionIds === null) {
       return null;
     }
 
@@ -501,7 +505,9 @@ export class PrismaPartyReadModelMapper {
 
     return {
       earnedPoints: normalizedEarnedPoints,
-      selectedActionId: normalizedSelectedActionId,
+      ...(typeof isCorrect === 'boolean' ? { isCorrect } : {}),
+      selectedActionId: normalizedSelectedActionIds[0],
+      selectedActionIds: normalizedSelectedActionIds,
       stageId: normalizedStageId,
       stagePosition: Number(stagePosition),
       status,
@@ -532,6 +538,12 @@ export class PrismaPartyReadModelMapper {
     const stageHistory = Reflect.get(score.context, 'stageHistory');
 
     if (!Array.isArray(stageHistory) || stageHistory.length === 0) {
+      const isCorrect = Reflect.get(score.context, 'isCorrect');
+
+      if (typeof isCorrect === 'boolean') {
+        return Number(isCorrect);
+      }
+
       return (score.points ?? 0) > 0 ? 1 : 0;
     }
 
@@ -545,9 +557,16 @@ export class PrismaPartyReadModelMapper {
     }
 
     const correctStages = stages.reduce((total, stage) => {
+      const isCorrect = Reflect.get(stage, 'isCorrect');
       const earnedPoints = Reflect.get(stage, 'earnedPoints');
 
-      return Number.isInteger(earnedPoints) && Number(earnedPoints) > 0 ? total + 1 : total;
+      return typeof isCorrect === 'boolean'
+        ? isCorrect
+          ? total + 1
+          : total
+        : Number.isInteger(earnedPoints) && Number(earnedPoints) > 0
+          ? total + 1
+          : total;
     }, 0);
 
     return correctStages;
@@ -633,11 +652,13 @@ export class PrismaPartyReadModelMapper {
     }
 
     const selectedActionId = Reflect.get(value, 'selectedActionId');
+    const selectedActionIds = Reflect.get(value, 'selectedActionIds');
     const status = Reflect.get(value, 'status');
 
     const normalizedSelectedActionId = this.partyActionIdentifier.parseOrNull(selectedActionId);
+    const normalizedSelectedActionIds = this.toSelectedActionIds(selectedActionIds, normalizedSelectedActionId);
 
-    if (normalizedSelectedActionId === null) {
+    if (normalizedSelectedActionIds === null) {
       return undefined;
     }
 
@@ -646,7 +667,8 @@ export class PrismaPartyReadModelMapper {
     }
 
     return {
-      selectedActionId: normalizedSelectedActionId,
+      selectedActionId: normalizedSelectedActionIds[0],
+      selectedActionIds: normalizedSelectedActionIds,
       status,
     };
   }
@@ -682,6 +704,7 @@ export class PrismaPartyReadModelMapper {
     }
 
     return {
+      allowsMultipleSelections: Reflect.get(value, 'allowsMultipleSelections') === true,
       actions: normalizedActions,
       text,
     };
@@ -831,14 +854,16 @@ export class PrismaPartyReadModelMapper {
     const earnedPoints = Reflect.get(value, 'earnedPoints');
     const isCorrect = Reflect.get(value, 'isCorrect');
     const selectedActionId = Reflect.get(value, 'selectedActionId');
+    const selectedActionIds = Reflect.get(value, 'selectedActionIds');
 
     const normalizedSelectedActionId = this.partyActionIdentifier.parseOrNull(selectedActionId);
+    const normalizedSelectedActionIds = this.toSelectedActionIds(selectedActionIds, normalizedSelectedActionId);
 
     if (
       !Number.isInteger(earnedPoints) ||
       Number(earnedPoints) < 0 ||
       typeof isCorrect !== 'boolean' ||
-      normalizedSelectedActionId === null
+      normalizedSelectedActionIds === null
     ) {
       return undefined;
     }
@@ -846,7 +871,29 @@ export class PrismaPartyReadModelMapper {
     return {
       earnedPoints: Number(earnedPoints),
       isCorrect,
-      selectedActionId: normalizedSelectedActionId,
+      selectedActionId: normalizedSelectedActionIds[0],
+      selectedActionIds: normalizedSelectedActionIds,
     };
+  }
+
+  private toSelectedActionIds(
+    value: unknown,
+    legacyActionId: PartyActionId | null,
+  ): [PartyActionId, ...PartyActionId[]] | null {
+    if (!Array.isArray(value)) {
+      return legacyActionId === null ? null : [legacyActionId];
+    }
+
+    const selectedActionIds = value.map((actionId) => this.partyActionIdentifier.parseOrNull(actionId));
+
+    if (
+      selectedActionIds.length === 0 ||
+      selectedActionIds.some((actionId) => actionId === null) ||
+      new Set(selectedActionIds).size !== selectedActionIds.length
+    ) {
+      return null;
+    }
+
+    return selectedActionIds as [PartyActionId, ...PartyActionId[]];
   }
 }

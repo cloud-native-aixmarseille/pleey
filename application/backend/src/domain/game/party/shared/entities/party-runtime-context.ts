@@ -65,12 +65,14 @@ interface PartyRuntimeResultActionContext extends PartyRuntimeStageActionContext
 }
 
 interface PartyRuntimeCurrentStageContext {
+  readonly allowsMultipleSelections?: boolean;
   readonly actions: readonly PartyRuntimeStageActionContext[];
   readonly text: string;
 }
 
 interface PartyRuntimeCurrentPlayerActionSubmissionContext {
   readonly selectedActionId: PartyActionId;
+  readonly selectedActionIds?: readonly PartyActionId[];
   readonly status: PartyRuntimeActionSubmissionStatus;
 }
 
@@ -78,6 +80,7 @@ interface PartyRuntimeCurrentPlayerResultContext {
   readonly earnedPoints: number;
   readonly isCorrect: boolean;
   readonly selectedActionId: PartyActionId;
+  readonly selectedActionIds?: readonly PartyActionId[];
 }
 
 interface PartyRuntimeActionSubmissionContext {

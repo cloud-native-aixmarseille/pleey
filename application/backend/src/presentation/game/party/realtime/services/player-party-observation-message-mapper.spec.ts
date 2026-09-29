@@ -105,6 +105,7 @@ describe('PlayerPartyObservationMessageMapper', () => {
       earnedPoints: 750,
       isCorrect: true,
       selectedActionId: backendTestIdentifiers.partyAction(7),
+      selectedActionIds: [backendTestIdentifiers.partyAction(7)],
     });
     expect(message.gameType).toBe('quiz');
     expect(message.players[0]).toMatchObject({

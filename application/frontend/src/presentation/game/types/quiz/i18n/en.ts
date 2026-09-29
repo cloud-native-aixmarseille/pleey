@@ -123,6 +123,9 @@ export const quizEn = {
           resultNoAnswer: 'No answer submitted.',
           resultNoAnswerHint:
             'Time ran out before you locked in a pick. Check the distribution to see the right answer.',
+          resultPartiallyCorrect: 'Partly correct — you earned some points.',
+          selectAnswersHint: 'Select all answers that apply, then submit.',
+          submitAnswers: 'Submit answers',
         },
       },
     },

@@ -12,6 +12,9 @@ export interface PlayableChoiceRuntimeCopy extends PlayableChoiceResultActionTil
   readonly resultIncorrectHint: string;
   readonly resultNoAnswer: string;
   readonly resultNoAnswerHint: string;
+  readonly resultPartiallyCorrect: string;
+  readonly selectAnswersHint: string;
+  readonly submitAnswers: string;
 }
 
 export interface PlayableChoiceHostRuntimePanelProps {
@@ -22,8 +25,8 @@ export interface PlayableChoiceHostRuntimePanelProps {
 
 export interface PlayableChoicePlayerStageSurfaceProps extends PlayableChoiceHostRuntimePanelProps {
   readonly onLeaveParty: () => void;
-  readonly onSubmitAction: (actionId: PartyActionId) => void;
-  readonly pendingActionId: PartyActionId | null;
+  readonly onSubmitAction: (actionIds: readonly PartyActionId[]) => void;
+  readonly pendingActionIds: readonly PartyActionId[] | null;
   readonly playerActionErrorMessage: string | null;
 }
 

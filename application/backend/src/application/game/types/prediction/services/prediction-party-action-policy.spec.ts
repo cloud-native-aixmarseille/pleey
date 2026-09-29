@@ -43,7 +43,7 @@ describe('PredictionPartyActionPolicy', () => {
 
     // Act
     const resolution = await policy.evaluateSubmission({
-      actionId: selectedActionId,
+      actionIds: [selectedActionId],
       context,
       gameId,
       partyId: backendTestIdentifiers.party(99),
@@ -55,6 +55,7 @@ describe('PredictionPartyActionPolicy', () => {
     expect(partyStageCatalog.findStageById).toHaveBeenCalledWith(gameId, stageId);
     expect(resolution).toEqual({
       context,
+      isCorrect: true,
       scoreDelta: 125,
       status: PartyStatus.ACTIVE,
     });

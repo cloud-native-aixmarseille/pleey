@@ -124,6 +124,9 @@ export const quizFr = {
           resultNoAnswer: 'Aucune réponse envoyée.',
           resultNoAnswerHint:
             'Le temps est écoulé avant que vous ne validiez. Consultez la répartition pour voir la bonne réponse.',
+          resultPartiallyCorrect: 'Partiellement correct : vous avez gagné des points.',
+          selectAnswersHint: 'Sélectionnez toutes les réponses qui conviennent, puis validez.',
+          submitAnswers: 'Valider les réponses',
         },
       },
     },

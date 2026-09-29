@@ -75,6 +75,24 @@ describe('Party observer realtime payload validation', () => {
       ),
     ).rejects.toBeInstanceOf(BadRequestException);
   });
+
+  it('accepts a non-empty multi-select action ID array', async () => {
+    // Arrange + Act
+    const actionIds = [backendTestIdentifiers.partyAction(1), backendTestIdentifiers.partyAction(2)];
+    const result = await validationPipe.transform(
+      {
+        actionIds,
+        partyId: backendTestIdentifiers.party(44),
+      },
+      toArgumentMetadata(SubmitPartyActionMessageDto),
+    );
+
+    // Assert
+    expect(result).toMatchObject({
+      actionIds,
+      partyId: backendTestIdentifiers.party(44),
+    });
+  });
 });
 
 function toArgumentMetadata(metatype: ArgumentMetadata['metatype']): ArgumentMetadata {

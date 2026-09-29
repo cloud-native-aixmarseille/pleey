@@ -11,6 +11,7 @@ interface PartyStageActionCatalogEntry {
 }
 
 export interface PartyStageCatalogEntry {
+  readonly allowsMultipleSelections?: boolean;
   readonly actions: readonly PartyStageActionCatalogEntry[];
   readonly id: PartyStageId;
   readonly points: number;

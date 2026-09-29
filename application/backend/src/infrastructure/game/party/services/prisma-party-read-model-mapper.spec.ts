@@ -124,16 +124,18 @@ describe('PrismaPartyReadModelMapper', () => {
     ]);
   });
 
-  it('derives response success ratio from persisted stage history when a player has one cumulative score row', () => {
+  it('counts exact correct answers from persisted stage history when a player has one cumulative score row', () => {
     // Arrange + Act
     const players = mapper.collectPlayers([
       {
         context: {
           earnedPoints: 0,
+          isCorrect: false,
           selectedActionId: backendTestIdentifiers.partyAction(3),
           stageHistory: [
             {
               earnedPoints: 1000,
+              isCorrect: true,
               selectedActionId: backendTestIdentifiers.partyAction(1),
               stageId: backendTestIdentifiers.partyStage(1),
               stagePosition: 1,
@@ -141,6 +143,7 @@ describe('PrismaPartyReadModelMapper', () => {
             },
             {
               earnedPoints: 0,
+              isCorrect: false,
               selectedActionId: backendTestIdentifiers.partyAction(2),
               stageId: backendTestIdentifiers.partyStage(2),
               stagePosition: 2,
@@ -148,6 +151,7 @@ describe('PrismaPartyReadModelMapper', () => {
             },
             {
               earnedPoints: 500,
+              isCorrect: false,
               selectedActionId: backendTestIdentifiers.partyAction(3),
               stageId: backendTestIdentifiers.partyStage(3),
               stagePosition: 3,
@@ -175,7 +179,7 @@ describe('PrismaPartyReadModelMapper', () => {
     expect(players.map((player) => mapper.toPlayerObservationPlayer(player))).toEqual([
       {
         avatarUri: `/api/avatars/users/${backendTestIdentifiers.user(42)}?v=${playerAvatarUpdatedAt.getTime()}`,
-        correctStages: 2,
+        correctStages: 1,
         identity: {
           kind: PartyPlayerKind.USER,
           userId: backendTestIdentifiers.user(42),
@@ -219,6 +223,7 @@ describe('PrismaPartyReadModelMapper', () => {
             earnedPoints: 200,
             isCorrect: true,
             selectedActionId: backendTestIdentifiers.partyAction(2),
+            selectedActionIds: [backendTestIdentifiers.partyAction(2)],
           },
         },
       }),
@@ -250,6 +255,7 @@ describe('PrismaPartyReadModelMapper', () => {
           earnedPoints: 200,
           isCorrect: true,
           selectedActionId: backendTestIdentifiers.partyAction(2),
+          selectedActionIds: [backendTestIdentifiers.partyAction(2)],
         },
       },
     });

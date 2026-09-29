@@ -49,6 +49,7 @@ import {
   PartyPlayerSessionRegistryProvider,
 } from '../../../../domain/game/party/player/services/party-player-session-registry';
 import type { PartyId, PartyPin } from '../../../../domain/game/party/shared/entities/party';
+import type { PartyActionId } from '../../../../domain/game/party/shared/entities/party-action';
 import type { UserId } from '../../../../domain/identity/entities/user';
 import { I18nWsExceptionFilter } from '../../../shared/error-handling/i18n-ws-exception-filter';
 import {
@@ -482,26 +483,28 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
       });
     }
 
-    const actionId = this.partyActionIdentifier.parseOrNull(payload?.actionId);
+    const rawActionIds = payload?.actionIds ?? (payload?.actionId ? [payload.actionId] : []);
+    const normalizedActionIds = rawActionIds.map((actionId) => this.partyActionIdentifier.parseOrNull(actionId));
+    const actionIds = normalizedActionIds.filter((actionId): actionId is PartyActionId => actionId !== null);
 
-    if (actionId === null) {
+    if (actionIds.length === 0 || actionIds.length !== normalizedActionIds.length) {
       throw new GameValidationFailedError({
         partyId,
-        rawActionId: payload?.actionId,
-        reason: 'invalidActionId',
+        rawActionIds,
+        reason: 'invalidActionIds',
       });
     }
 
     if (joinedPlayerIdentity.kind === PartyPlayerKind.USER) {
       return {
-        actionId,
+        actionIds,
         partyId,
         playerIdentity: joinedPlayerIdentity,
       };
     }
 
     return {
-      actionId,
+      actionIds,
       partyId,
       playerIdentity: joinedPlayerIdentity,
     };

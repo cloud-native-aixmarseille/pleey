@@ -151,10 +151,12 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
         context: {
           earnedPoints: 1000,
           selectedActionId: ACTION_11,
+          selectedActionIds: [ACTION_11],
           stageHistory: [
             {
               earnedPoints: 1000,
               selectedActionId: ACTION_11,
+              selectedActionIds: [ACTION_11],
               stageId: STAGE_101,
               stagePosition: 0,
               status: 'acknowledged',

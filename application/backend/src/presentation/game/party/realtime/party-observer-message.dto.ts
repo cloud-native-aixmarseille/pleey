@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { ArrayNotEmpty, ArrayUnique, IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class PartyEntryMessageDto {
   @IsOptional()
@@ -46,6 +46,14 @@ export class PartyHostPlayerMessageDto extends PartyObservationMessageDto {
 }
 
 export class SubmitPartyActionMessageDto extends PartyObservationMessageDto {
+  @IsOptional()
+  @IsArray()
+  @ArrayNotEmpty()
+  @ArrayUnique()
+  @IsString({ each: true })
+  @IsNotEmpty({ each: true })
+  actionIds?: string[];
+
   @IsOptional()
   @IsString()
   @IsNotEmpty()

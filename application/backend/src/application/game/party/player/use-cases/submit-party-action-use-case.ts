@@ -35,7 +35,7 @@ export class SubmitPartyActionUseCase {
       target.playerActionState?.stageId === target.context.lifecycle.stageId
     ) {
       throw new PartyCommandNotAvailableError({
-        actionId: input.actionId,
+        actionIds: input.actionIds,
         allowOptionChangeAfterVoting: target.settings.allowOptionChangeAfterVoting,
         currentStageId: target.context?.lifecycle.stageId,
         partyId: target.partyId,
@@ -46,7 +46,7 @@ export class SubmitPartyActionUseCase {
 
     const policy = this.gameTypePartyActionPolicyRegistry.resolveByGameType(target.gameType);
     const resolution = await policy.evaluateSubmission({
-      actionId: input.actionId,
+      actionIds: input.actionIds,
       context: target.context,
       gameId: target.gameId,
       partyId: target.partyId,
@@ -55,8 +55,9 @@ export class SubmitPartyActionUseCase {
     });
 
     await this.playerPartyActionRuntime.saveSubmissionResult({
-      actionId: input.actionId,
+      actionIds: input.actionIds,
       context: resolution.context,
+      isCorrect: resolution.isCorrect,
       partyId: target.partyId,
       playerIdentity: target.playerIdentity,
       scoreDelta: resolution.scoreDelta,

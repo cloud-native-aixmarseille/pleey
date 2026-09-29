@@ -77,12 +77,14 @@ describe('PartyRuntimeContextProjectionService', () => {
         actionSubmission: {
           currentPlayer: {
             selectedActionId: backendTestIdentifiers.partyAction(7),
+            selectedActionIds: [backendTestIdentifiers.partyAction(7)],
             status: PARTY_PLAYER_ACTION_STATE_STATUS.ACKNOWLEDGED,
           },
           submittedPlayerCount: 2,
           totalEligiblePlayerCount: 3,
         },
         current: {
+          allowsMultipleSelections: false,
           actions: [
             { id: backendTestIdentifiers.partyAction(5), text: 'A' },
             { id: backendTestIdentifiers.partyAction(7), text: 'B' },
@@ -192,8 +194,84 @@ describe('PartyRuntimeContextProjectionService', () => {
           earnedPoints: 625,
           isCorrect: true,
           selectedActionId: backendTestIdentifiers.partyAction(7),
+          selectedActionIds: [backendTestIdentifiers.partyAction(7)],
         },
       },
+    });
+  });
+
+  it('projects each multi-select answer and marks exact answer sets correct', () => {
+    // Arrange
+    const service = new PartyRuntimeContextProjectionService();
+    const firstCorrectActionId = backendTestIdentifiers.partyAction(11);
+    const secondCorrectActionId = backendTestIdentifiers.partyAction(12);
+    const incorrectActionId = backendTestIdentifiers.partyAction(13);
+
+    // Act
+    const result = service.project({
+      baseContext: {
+        lifecycle: {
+          phase: PartyRuntimePhase.RESULT,
+          stageEndsAtEpochMs: null,
+          stageRemainingDurationMs: null,
+          stageId,
+          stagePosition: 1,
+          stageTimeLimitSeconds: null,
+          totalStages: 4,
+        },
+      },
+      currentPlayerActionState: {
+        earnedPoints: 1_000,
+        selectedActionId: firstCorrectActionId,
+        selectedActionIds: [firstCorrectActionId, secondCorrectActionId],
+        stageId,
+        stagePosition: 1,
+        status: PARTY_PLAYER_ACTION_STATE_STATUS.ACKNOWLEDGED,
+      },
+      playerActionStates: [
+        {
+          earnedPoints: 1_000,
+          selectedActionId: firstCorrectActionId,
+          selectedActionIds: [firstCorrectActionId, secondCorrectActionId],
+          stageId,
+          stagePosition: 1,
+          status: PARTY_PLAYER_ACTION_STATE_STATUS.ACKNOWLEDGED,
+        },
+        {
+          earnedPoints: 0,
+          selectedActionId: firstCorrectActionId,
+          selectedActionIds: [firstCorrectActionId, incorrectActionId],
+          stageId,
+          stagePosition: 1,
+          status: PARTY_PLAYER_ACTION_STATE_STATUS.ACKNOWLEDGED,
+        },
+      ],
+      stage: {
+        allowsMultipleSelections: true,
+        actions: [
+          { id: firstCorrectActionId, isCorrect: true, text: 'A' },
+          { id: secondCorrectActionId, isCorrect: true, text: 'B' },
+          { id: incorrectActionId, isCorrect: false, text: 'C' },
+        ],
+        id: stageId,
+        points: 1_000,
+        stagePosition: 1,
+        timeLimitSeconds: 20,
+        text: 'Question 2',
+      },
+      submittedPlayerCount: 2,
+      totalEligiblePlayerCount: 2,
+    });
+
+    // Assert
+    expect(result?.result?.current?.actions).toMatchObject([
+      { actionCount: 2, actionPercent: 50, id: firstCorrectActionId },
+      { actionCount: 1, actionPercent: 25, id: secondCorrectActionId },
+      { actionCount: 1, actionPercent: 25, id: incorrectActionId },
+    ]);
+    expect(result?.result?.currentPlayer).toMatchObject({
+      isCorrect: true,
+      selectedActionIds: [firstCorrectActionId, secondCorrectActionId],
     });
   });
 });
