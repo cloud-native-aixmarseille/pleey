@@ -138,19 +138,7 @@ export function PlayableManagementPromptEditor({
         ) : null}
 
         <ContentStack gap="sm">
-          <SplitWrapRow>
-            <Heading level={3}>{t(`${translationRoot}.outcomesTitle`)}</Heading>
-            {fixedOptions === undefined && visibleOutcomeCount < MAX_PLAYABLE_OUTCOME_COUNT ? (
-              <Button
-                intent="ghost"
-                leftSection={<AppIcon name="plus" size={14} />}
-                onClick={() => setVisibleOutcomeCount((count) => Math.min(MAX_PLAYABLE_OUTCOME_COUNT, count + 1))}
-                size="sm"
-              >
-                {t(`${translationRoot}.addOutcome`)}
-              </Button>
-            ) : null}
-          </SplitWrapRow>
+          <Heading level={3}>{t(`${translationRoot}.outcomesTitle`)}</Heading>
 
           <ContentStack gap="sm">
             <PlayableManagementOutcomesEditor
@@ -169,6 +157,18 @@ export function PlayableManagementPromptEditor({
               visibleOutcomeIndexes={visibleOutcomeIndexes}
             />
           </ContentStack>
+          {fixedOptions === undefined && visibleOutcomeCount < MAX_PLAYABLE_OUTCOME_COUNT ? (
+            <ActionRow justify="end">
+              <Button
+                intent="ghost"
+                leftSection={<AppIcon name="plus" size={14} />}
+                onClick={() => setVisibleOutcomeCount((count) => Math.min(MAX_PLAYABLE_OUTCOME_COUNT, count + 1))}
+                size="sm"
+              >
+                {t(`${translationRoot}.addOutcome`)}
+              </Button>
+            </ActionRow>
+          ) : null}
         </ContentStack>
 
         <details>

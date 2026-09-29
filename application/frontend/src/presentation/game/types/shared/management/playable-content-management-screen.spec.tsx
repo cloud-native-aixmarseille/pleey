@@ -232,6 +232,29 @@ describe('PlayableContentManagementScreen', () => {
     expect(screen.getAllByRole('textbox')).toHaveLength(6);
   });
 
+  it('places the add-answer button after the answers and before advanced settings', async () => {
+    // Arrange
+    arrangeGatewayDefaults();
+    const user = userEvent.setup();
+    renderScreen();
+
+    await user.click(await screen.findByRole('button', { name: 'game.types.quiz.management.createItem' }));
+
+    const lastAnswer = screen.getByRole('textbox', {
+      name: 'game.types.quiz.management.optionLabel (position=2)',
+    });
+    const addAnswerButton = screen.getByRole('button', { name: 'game.types.quiz.management.addOutcome' });
+    const advancedSettings = screen.getByText('game.types.quiz.management.advancedSettings');
+
+    // Act
+    const answerToButton = lastAnswer.compareDocumentPosition(addAnswerButton);
+    const buttonToAdvancedSettings = addAnswerButton.compareDocumentPosition(advancedSettings);
+
+    // Assert
+    expect(answerToButton & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(buttonToAdvancedSettings & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it('asks for confirmation before removing an outcome while creating an item', async () => {
     // Arrange
     arrangeGatewayDefaults();
