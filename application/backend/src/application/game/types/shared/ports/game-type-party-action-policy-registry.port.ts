@@ -7,7 +7,7 @@ import type { PartyRuntimeContext } from '../../../../../domain/game/party/share
 import type { GameType } from '../../../../../domain/game/types/shared/entities/game-type';
 
 export interface EvaluatePartyActionSubmissionCommand {
-  readonly actionId: PartyActionId;
+  readonly actionIds: readonly PartyActionId[];
   readonly context: PartyRuntimeContext | null;
   readonly gameId: GameId;
   readonly partyId: PartyId;
@@ -17,6 +17,7 @@ export interface EvaluatePartyActionSubmissionCommand {
 
 export interface PartyActionSubmissionResolution {
   readonly context: PartyRuntimeContext | null;
+  readonly isCorrect: boolean;
   readonly scoreDelta: number;
   readonly status: PartyStatus;
 }

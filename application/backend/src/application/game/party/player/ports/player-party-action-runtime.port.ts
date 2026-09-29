@@ -25,8 +25,9 @@ interface PartyActionSubmissionTarget {
 }
 
 export interface SavePartyActionSubmissionResultCommand {
-  readonly actionId: PartyActionId;
+  readonly actionIds: readonly PartyActionId[];
   readonly context: PartyRuntimeContext | null;
+  readonly isCorrect: boolean;
   readonly partyId: PartyId;
   readonly playerIdentity: PartyPlayerIdentity;
   readonly scoreDelta: number;

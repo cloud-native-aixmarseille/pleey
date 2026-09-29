@@ -59,7 +59,9 @@ export function PlayableChoicePlayerResultSurface({
     <MotionStagger>
       <ResponsiveGrid columns={{ base: 2 }} gap={isMobile ? 'sm' : 'md'}>
         {currentResult.actions.map((action, index) => {
-          const isSelected = currentPlayerResult?.selectedActionId === action.id;
+          const isSelected =
+            currentPlayerResult?.selectedActionIds?.includes(action.id) ??
+            currentPlayerResult?.selectedActionId === action.id;
           return (
             <MotionStaggerItem key={action.id}>
               <PlayableChoiceResultActionTile
@@ -85,11 +87,13 @@ export function PlayableChoicePlayerResultSurface({
       : 'incorrect'
     : 'no-answer';
   const heroTitle =
-    heroState === 'correct'
-      ? t(copy.resultCorrect)
-      : heroState === 'incorrect'
-        ? t(copy.resultIncorrect)
-        : t(copy.resultNoAnswer);
+    heroState === 'incorrect' && currentPlayerResult && currentPlayerResult.earnedPoints > 0
+      ? t(copy.resultPartiallyCorrect)
+      : heroState === 'correct'
+        ? t(copy.resultCorrect)
+        : heroState === 'incorrect'
+          ? t(copy.resultIncorrect)
+          : t(copy.resultNoAnswer);
   const heroIconName = heroState === 'correct' ? 'success' : heroState === 'incorrect' ? 'error' : 'pending';
   const heroHint =
     heroState === 'incorrect'

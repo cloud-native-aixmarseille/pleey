@@ -14,8 +14,8 @@ interface PartyGameTypePlayerResultSurfaceProps {
 }
 
 interface PartyGameTypePlayerStageSurfaceProps extends PartyGameTypePlayerResultSurfaceProps {
-  readonly onSubmitAction: (actionId: PartyActionId) => void;
-  readonly pendingActionId: PartyActionId | null;
+  readonly onSubmitAction: (actionIds: readonly PartyActionId[]) => void;
+  readonly pendingActionIds: readonly PartyActionId[] | null;
   readonly playerActionErrorMessage: string | null;
 }
 

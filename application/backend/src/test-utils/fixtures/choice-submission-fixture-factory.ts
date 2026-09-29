@@ -8,7 +8,7 @@ import { backendTestIdentifiers } from '../branded-identifiers';
 export class ChoiceSubmissionFixtureFactory {
   createCommand(overrides: Partial<EvaluatePartyActionSubmissionCommand> = {}): EvaluatePartyActionSubmissionCommand {
     return {
-      actionId: backendTestIdentifiers.partyAction(1),
+      actionIds: [backendTestIdentifiers.partyAction(1)],
       gameId: backendTestIdentifiers.game(1),
       partyId: backendTestIdentifiers.party(1),
       playerIdentity: { kind: PartyPlayerKind.USER, userId: backendTestIdentifiers.user(1) },
