@@ -201,11 +201,13 @@ describe('ProfileSessionsSection', () => {
 
     // Assert
     expect(nextDisabled).toBe(true);
-    expect(vi.mocked(account.sessions).mock.calls).toEqual([
-      [{ page: 1, pageSize: 5 }],
-      [{ page: 2, pageSize: 5 }],
-      [{ page: 1, pageSize: 5 }],
-    ]);
+    await waitFor(() => {
+      expect(vi.mocked(account.sessions).mock.calls).toEqual([
+        [{ page: 1, pageSize: 5 }],
+        [{ page: 2, pageSize: 5 }],
+        [{ page: 1, pageSize: 5 }],
+      ]);
+    });
   });
 
   it('offers refresh after a loading failure', async () => {
