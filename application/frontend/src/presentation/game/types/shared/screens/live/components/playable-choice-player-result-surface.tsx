@@ -9,6 +9,7 @@ import { PlayerPartyStatusBar } from '../../../../../party/player/screens/compon
 import { PlayerRuntimeMobileMenu } from '../../../../../party/player/screens/components/player-runtime-mobile-menu';
 import { PartyStandingsList } from '../../../../../party/shared/screens/components/party-standings-list';
 import { usePartyStageScoreboardSnapshot } from '../../../../../party/shared/screens/use-party-stage-scoreboard-snapshot';
+import { PlayableQuestionMedia } from '../../../media/playable-question-media';
 import {
   buildMobileHeroIconWrapperStyle,
   buildMobileHeroStyle,
@@ -143,6 +144,7 @@ export function PlayableChoicePlayerResultSurface({
             <ContentStack gap="sm">
               <span style={mobileQuestionLabelStyle}>{t(copy.resultHeading)}</span>
               <p style={mobileQuestionTextStyle}>{currentResult.text}</p>
+              <PlayableQuestionMedia media={currentResult.media} questionText={currentResult.text} />
               {tilesGrid}
             </ContentStack>
           </InsetPanel>
@@ -175,6 +177,7 @@ export function PlayableChoicePlayerResultSurface({
         <InsetPanel padding="lg">
           <ContentStack gap="md">
             <Heading level={3}>{currentResult.text}</Heading>
+            <PlayableQuestionMedia media={currentResult.media} questionText={currentResult.text} />
             {tilesGrid}
           </ContentStack>
         </InsetPanel>

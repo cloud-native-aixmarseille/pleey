@@ -8,6 +8,14 @@ export interface PlayableChoiceOption {
   readonly isCorrect: boolean;
 }
 
+export interface PlayableMedia {
+  readonly id?: string;
+  readonly expiresAt?: string;
+  readonly partyId?: string;
+  readonly mimeType: string;
+  readonly uri: string;
+}
+
 export interface PlayableManagementGame {
   readonly gameTypeId: GameTypeId;
   readonly gameId: GameId;
@@ -25,6 +33,7 @@ export interface PlayableManagementItem<TItemId extends string = string, TKind e
   readonly kind?: TKind;
   readonly timeLimit: number;
   readonly points: number;
+  readonly media?: PlayableMedia | null;
   readonly options: readonly PlayableChoiceOption[];
 }
 
@@ -53,5 +62,7 @@ export interface PlayableManagementItemInput<TKind extends string = string> {
   readonly kind?: TKind;
   readonly timeLimit: number;
   readonly points: number;
+  readonly mediaFile?: File | null;
+  readonly clearMedia?: boolean;
   readonly options: readonly PlayableChoiceOption[];
 }

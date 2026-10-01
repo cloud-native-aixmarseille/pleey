@@ -43,8 +43,10 @@ function createHostControlGateway() {
   const partyObservationBroadcaster = {
     attachServer: vi.fn(),
     emitSnapshot: vi.fn(),
+    requestMediaAccess: vi.fn(),
     publishRuntimeNotice: vi.fn().mockResolvedValue(undefined),
   };
+  const snapshotLoader = { execute: vi.fn().mockResolvedValue(createSnapshot()) };
   const sessionRegistry = createPartyPlayerSessionRegistryMock();
   const startPartyUseCase = { execute: vi.fn().mockResolvedValue(undefined) };
   const advanceStageUseCase = { execute: vi.fn().mockResolvedValue(undefined) };
@@ -62,7 +64,7 @@ function createHostControlGateway() {
       { execute: vi.fn() } as never,
       { execute: vi.fn() } as never,
       { execute: vi.fn() } as never,
-      { execute: vi.fn() } as never,
+      snapshotLoader as never,
       { execute: vi.fn() } as never,
       partyObservationBroadcaster as never,
       guestIdentifier,
@@ -96,6 +98,7 @@ function createHostControlGateway() {
     },
     partyObservationBroadcaster,
     sessionRegistry,
+    snapshotLoader,
   };
 }
 
@@ -132,6 +135,41 @@ function createSnapshot() {
 }
 
 describe('PartyObserverGateway', () => {
+  it('acknowledges a media refresh after loading the current party snapshot', async () => {
+    // Arrange
+    const { gateway, partyObservationBroadcaster, snapshotLoader } = createHostControlGateway();
+    const grant = {
+      id: 'asset-1',
+      mimeType: 'image/webp',
+      uri: 'https://cdn.test/signed',
+      expiresAt: '2026-09-28T10:05:00.000Z',
+      partyId: PARTY_ID,
+    };
+    partyObservationBroadcaster.requestMediaAccess.mockResolvedValue(grant);
+    const client = { id: 'socket-1', data: {} };
+
+    // Act
+    const result = await gateway.requestPartyMedia(client as never, { partyId: PARTY_ID, assetId: 'asset-1' });
+
+    // Assert
+    expect(result).toEqual(grant);
+    expect(snapshotLoader.execute).toHaveBeenCalledWith({ partyId: PARTY_ID });
+    expect(partyObservationBroadcaster.requestMediaAccess).toHaveBeenCalledWith(client, createSnapshot(), 'asset-1');
+  });
+
+  it('turns a denied media refresh into the existing websocket error response', async () => {
+    // Arrange
+    const { gateway, partyObservationBroadcaster } = createHostControlGateway();
+    partyObservationBroadcaster.requestMediaAccess.mockRejectedValue(
+      new Error(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE),
+    );
+
+    // Act + Assert
+    await expect(
+      gateway.requestPartyMedia({ data: {} } as never, { partyId: PARTY_ID, assetId: 'asset-1' }),
+    ).rejects.toThrow(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
+  });
+
   it('joins the party room by party id and emits the current snapshot', async () => {
     // Arrange
     const loadPartyObservationSnapshotUseCase = {

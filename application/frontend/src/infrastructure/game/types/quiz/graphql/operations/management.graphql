@@ -44,6 +44,12 @@ mutation CreateQuizQuestionManagement($input: CreateQuizQuestionInput!) {
     type
     timeLimit
     points
+    media {
+      id
+      expiresAt
+      mimeType
+      uri
+    }
     answers {
       id
       text
@@ -62,6 +68,12 @@ mutation UpdateQuizQuestionManagement($questionId: ID!, $input: UpdateQuizQuesti
     type
     timeLimit
     points
+    media {
+      id
+      expiresAt
+      mimeType
+      uri
+    }
     answers {
       id
       text
@@ -90,6 +102,12 @@ fragment QuizManagementItemsPage on QuizQuestionListType {
     type
     timeLimit
     points
+    media {
+      id
+      expiresAt
+      mimeType
+      uri
+    }
     answers {
       id
       text
@@ -102,4 +120,13 @@ fragment QuizManagementItemsPage on QuizQuestionListType {
   page
   pageSize
   totalPages
+}
+
+query QuizQuestionMediaAccess($assetId: ID!) {
+  quizQuestionMediaAccess(assetId: $assetId) {
+    id
+    mimeType
+    uri
+    expiresAt
+  }
 }

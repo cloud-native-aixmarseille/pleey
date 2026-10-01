@@ -12,6 +12,12 @@ export enum QuizQuestionType {
   TrueFalse = 'truefalse',
 }
 
+export interface QuizQuestionMedia {
+  readonly id: string;
+  readonly mimeType: string;
+  readonly uri: string;
+}
+
 export class QuizQuestion {
   constructor(
     readonly id: QuizQuestionId,
@@ -22,5 +28,6 @@ export class QuizQuestion {
     readonly timeLimit: number,
     readonly points: number,
     readonly answers: readonly SelectableOption<QuizSelectableOptionId>[],
+    readonly media: QuizQuestionMedia | null = null,
   ) {}
 }

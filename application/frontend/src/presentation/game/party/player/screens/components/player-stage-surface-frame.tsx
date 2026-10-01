@@ -7,6 +7,7 @@ import { InsetPanel } from '../../../../../shared/ui/layout/panels';
 import { Heading, SupportingText } from '../../../../../shared/ui/layout/typography';
 import { usePresentationMediaQuery } from '../../../../../shared/ui/layout/use-presentation-media-query';
 import { MotionFadeIn, MotionPresence } from '../../../../../shared/ui/motion/motion-primitives';
+import { PlayableQuestionMedia } from '../../../../types/shared/media/playable-question-media';
 import { PlayerPartyStatusBar } from './player-party-status-bar';
 import { PlayerRuntimeMobileMenu } from './player-runtime-mobile-menu';
 import {
@@ -155,6 +156,8 @@ export function PlayerStageSurfaceFrame({
           </div>
         </MotionFadeIn>
 
+        <PlayableQuestionMedia media={currentStage.media} questionText={currentStage.text} />
+
         <div style={mobileActionsAreaStyle}>{children}</div>
 
         {submissionBanners}
@@ -179,6 +182,8 @@ export function PlayerStageSurfaceFrame({
             <MotionFadeIn key={`question-${stageRevealCycleKey}`} duration={1.0}>
               <Heading level={3}>{currentStage.text}</Heading>
             </MotionFadeIn>
+
+            <PlayableQuestionMedia media={currentStage.media} questionText={currentStage.text} />
 
             {children}
 

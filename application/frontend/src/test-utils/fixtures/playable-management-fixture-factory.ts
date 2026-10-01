@@ -4,12 +4,14 @@ import type {
   PlayableChoiceOption,
   PlayableManagementItem,
   PlayableManagementItemInput,
+  PlayableMedia,
 } from '../../domains/game/types/shared/management/playable-management';
 import { coerceUuidV7TestValue } from './uuid-v7-test-value';
 
 const gameTypeIdentifier = new GameTypeIdentifier();
 
 interface PlayableChoiceOptionOverrides extends Partial<PlayableChoiceOption> {}
+interface PlayableMediaOverrides extends Partial<PlayableMedia> {}
 
 interface PlayableManagementItemInputOverrides<TKind extends string = string>
   extends Partial<PlayableManagementItemInput<TKind>> {
@@ -23,6 +25,14 @@ interface PlayableManagementItemOverrides<TItemId extends string = string, TKind
 }
 
 export class PlayableManagementFixtureFactory {
+  createMedia(overrides: PlayableMediaOverrides = {}): PlayableMedia {
+    return {
+      mimeType: 'image/png',
+      uri: '/api/quiz-questions/019f11f0-0000-7000-8000-000000000010/media?v=1',
+      ...overrides,
+    };
+  }
+
   createOption(overrides: PlayableChoiceOptionOverrides = {}): PlayableChoiceOption {
     return {
       id: null,
@@ -41,6 +51,8 @@ export class PlayableManagementFixtureFactory {
       points: 500,
       text: 'Question?',
       timeLimit: 20,
+      mediaFile: undefined,
+      clearMedia: undefined,
       ...overrides,
     };
   }
@@ -63,6 +75,7 @@ export class PlayableManagementFixtureFactory {
       position: 0,
       text: 'Question?',
       timeLimit: 20,
+      media: null,
       ...restOverrides,
     };
   }

@@ -127,6 +127,7 @@ export function PlayableContentManagementScreen(props: PlayableContentManagement
                     translationRoot={props.translationRoot}
                   />
                   <PlayableManagementPromptEditor
+                    allowMedia={props.allowMedia}
                     editorState={viewModel.editorState}
                     isSaving={viewModel.isSaving}
                     itemKindConfig={props.itemKindConfig}

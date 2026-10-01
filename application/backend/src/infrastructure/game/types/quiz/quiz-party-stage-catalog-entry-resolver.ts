@@ -63,6 +63,13 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
         points: true,
         questionText: true,
         timeLimit: true,
+        media: {
+          select: {
+            id: true,
+            mimeType: true,
+            uri: true,
+          },
+        },
         answers: {
           where: {
             deletedAt: null,
@@ -87,6 +94,13 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
         text: answer.text ?? '',
       })),
       id: this.partyStageIdentifier.parse(question.id),
+      media: question.media
+        ? {
+            id: question.media.id,
+            mimeType: question.media.mimeType,
+            uri: question.media.uri,
+          }
+        : null,
       points: question.points,
       stagePosition: question.position,
       text: question.questionText,
@@ -117,6 +131,13 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
         points: true,
         questionText: true,
         timeLimit: true,
+        media: {
+          select: {
+            id: true,
+            mimeType: true,
+            uri: true,
+          },
+        },
         answers: {
           where: {
             deletedAt: null,
@@ -145,6 +166,13 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
         text: answer.text ?? '',
       })),
       id: this.partyStageIdentifier.parse(question.id),
+      media: question.media
+        ? {
+            id: question.media.id,
+            mimeType: question.media.mimeType,
+            uri: question.media.uri,
+          }
+        : null,
       points: question.points,
       stagePosition: question.position,
       timeLimitSeconds: question.timeLimit,

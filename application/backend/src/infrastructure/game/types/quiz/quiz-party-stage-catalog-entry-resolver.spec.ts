@@ -95,4 +95,30 @@ describe('QuizPartyStageCatalogEntryResolver', () => {
       }),
     );
   });
+
+  it('maps question media into a stage media URI', async () => {
+    // Arrange
+    const findFirst = vi.fn().mockResolvedValue({
+      id: backendTestIdentifiers.partyStage(10),
+      position: 0,
+      points: 100,
+      questionText: 'Question',
+      timeLimit: 20,
+      media: {
+        mimeType: 'image/png',
+        uri: 'https://cdn.example.test/quiz/asset.webp',
+      },
+      answers: [],
+    });
+    const resolver = createResolverWithFindFirst(findFirst);
+
+    // Act
+    const stage = await resolver.findFirstStage(backendTestIdentifiers.game(77));
+
+    // Assert
+    expect(stage?.media).toEqual({
+      mimeType: 'image/png',
+      uri: 'https://cdn.example.test/quiz/asset.webp',
+    });
+  });
 });

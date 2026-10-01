@@ -4,13 +4,16 @@ import {
   type PlayableItemKindConfig,
   resolvePlayableItemKindOption,
 } from './playable-content-management-model';
+import { playableMediaUploadPolicy } from './playable-media-upload-policy';
 
 export type PlayableManagementValidationIssueCode =
   | 'missingText'
   | 'missingOutcome'
   | 'missingCorrectOption'
   | 'invalidTimeLimit'
-  | 'invalidPoints';
+  | 'invalidPoints'
+  | 'unsupportedMediaType'
+  | 'mediaTooLarge';
 
 export interface PlayableManagementValidationIssue {
   readonly code: PlayableManagementValidationIssueCode;
@@ -59,6 +62,16 @@ export class PlayableItemEditorValidator {
 
     if (Number.parseInt(editorState.points, 10) < MINIMUM_POINTS) {
       issues.push({ code: 'invalidPoints' });
+    }
+
+    if (editorState.mediaFile) {
+      if (!playableMediaUploadPolicy.acceptedMimeTypes.some((mimeType) => mimeType === editorState.mediaFile?.type)) {
+        issues.push({ code: 'unsupportedMediaType' });
+      }
+
+      if (editorState.mediaFile.size > playableMediaUploadPolicy.maxBytes) {
+        issues.push({ code: 'mediaTooLarge' });
+      }
     }
 
     return issues;

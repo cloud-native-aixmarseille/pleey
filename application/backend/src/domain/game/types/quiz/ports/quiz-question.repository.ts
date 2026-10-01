@@ -1,3 +1,4 @@
+import type { StoredMediaAsset } from '../../../../media/entities/stored-media-asset';
 import type { PaginatedResult } from '../../../../shared/value-objects/paginated-result';
 import type { PaginationQuery } from '../../../../shared/value-objects/pagination-query';
 import type { SelectableOption } from '../../shared/entities/selectable-option';
@@ -12,6 +13,7 @@ export interface QuizQuestionCreationData {
   readonly timeLimit: number;
   readonly points: number;
   readonly answers: readonly SelectableOption[];
+  readonly media?: StoredMediaAsset | null;
 }
 
 export interface QuizQuestionMutationData extends QuizQuestionCreationData {
@@ -20,6 +22,7 @@ export interface QuizQuestionMutationData extends QuizQuestionCreationData {
 
 export interface QuizQuestionRepository {
   create(quizId: QuizId, data: QuizQuestionMutationData): Promise<QuizQuestion>;
+  findByMediaAssetId(assetId: string): Promise<QuizQuestion | null>;
   findById(id: QuizQuestionId): Promise<QuizQuestion | null>;
   findByQuizId(quizId: QuizId, query: PaginationQuery): Promise<PaginatedResult<QuizQuestion>>;
   update(id: QuizQuestionId, data: QuizQuestionMutationData): Promise<QuizQuestion>;

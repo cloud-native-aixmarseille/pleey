@@ -50,3 +50,4 @@ If a change can alter how the system is structured, operated, or extended, it ne
 - 0008: [Upgrade the backend to NestJS 12](./0008-upgrade-the-backend-to-nestjs-12.md) - Accepted - 2026-08-28
 - 0009: [Redesign account identity, recovery, sessions, and delivery](./0009-harden-identity-recovery-and-sessions.md) - Proposed - 2026-09-09
 - 0011: [Standardize list query pagination](./0011-standardize-list-query-pagination.md) - Proposed - 2026-09-10
+- 0012: [Support media on quiz questions](./0012-support-media-on-quiz-questions.md) - Proposed - 2026-09-28

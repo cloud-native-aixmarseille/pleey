@@ -1,0 +1,7 @@
+{
+  "errors": {
+    "invalidMedia": "This media is invalid or exceeds the supported format, size, dimensions, or duration limits.",
+    "unavailable": "Media storage is temporarily unavailable. Please try again.",
+    "busy": "Media processing is busy. Please try again shortly."
+  }
+}

@@ -15,15 +15,18 @@ vi.mock('../../../../../shared/routing/router', () => ({
 
 vi.mock('../../../shared/management/playable-content-management-screen', () => ({
   PlayableContentManagementScreen: ({
+    allowMedia,
     gameTypeId,
     itemKindConfig,
     translationRoot,
   }: {
+    readonly allowMedia?: boolean;
     readonly gameTypeId: GameTypeId;
     readonly itemKindConfig?: { readonly defaultKind: string };
     readonly translationRoot: string;
   }) => (
     <span
+      data-allows-media={String(allowMedia === true)}
       data-game-type-id={gameTypeId}
       data-has-kind-config={String(itemKindConfig !== undefined)}
       data-item-kind-default={itemKindConfig?.defaultKind}
@@ -44,6 +47,7 @@ describe('QuizManagementScreen', () => {
 
     // Assert
     expect(screen.getByTestId('editor')).toHaveAttribute('data-game-type-id', quizId);
+    expect(screen.getByTestId('editor')).toHaveAttribute('data-allows-media', 'true');
     expect(screen.getByTestId('editor')).toHaveAttribute('data-has-kind-config', 'true');
     expect(screen.getByTestId('editor')).toHaveAttribute('data-item-kind-default', 'multiple');
     expect(screen.getByText('game.types.quiz.management')).toBeInTheDocument();

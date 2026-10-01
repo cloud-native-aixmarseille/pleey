@@ -99,3 +99,11 @@ Hide third-party libraries behind port interfaces in `application/shared/ports/`
 Signup, recovery-email requests, and the signed-in security recovery action use the shared identity CAPTCHA integration from [ADR 0009](../../architecture/adr/0009-harden-identity-recovery-and-sessions.md). The infrastructure adapter bundles Cap's widget and WebAssembly assets locally and supplies the configured backend API endpoint through the application port.
 
 The form requires a verified token before submission and discards it after an attempt, expiry, or widget failure. English and French resources provide widget labels and failure feedback. The token-bearing password replacement form does not request a new CAPTCHA.
+
+## Quiz Question Media
+
+The editor validates the selected file type and upload byte budget before saving, using the formats and limits in [ADR 0012](../../architecture/adr/0012-support-media-on-quiz-questions.md). English and French upload guidance and errors are connected to the file picker; server-side decoding and processing remain authoritative.
+
+Persisted editor previews and host/player views render optimized assets through expiring signed URLs and published MIME types. The media access adapter renews editor grants through the authorized GraphQL query and party grants through the existing joined socket. The shared presentation provider schedules renewal before expiry, cancels stale responses when the asset changes, and removes media if renewal fails or expires. URL changes preserve audio/video playback position and paused state; changing assets starts a new player. The shared media preview preserves the full image/video with `object-fit: contain`, bounded container width, and a `20rem` maximum height. Audio/video use native controls and metadata preloading. Browser playback and seeking depend on the storage/CDN content type, CORS, and byte-range configuration.
+
+Media currently has no caption or transcript field. The player does not create empty caption tracks; accessible captions/transcripts require actual authored content and remain outstanding.

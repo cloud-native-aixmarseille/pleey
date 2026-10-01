@@ -88,6 +88,7 @@ input CreateQuizInput {
 
 input CreateQuizQuestionInput {
   answers: [SelectableOptionInput!]!
+  mediaFile: Upload
   points: Int!
   position: Int
   questionText: String!
@@ -389,6 +390,7 @@ type Query {
   predictionPrompts(input: PaginationInput!, predictionId: ID!): PredictionPromptListType!
   projectGames(input: ProjectGamesInput!): ProjectGamesType!
   quiz(quizId: ID!): QuizType!
+  quizQuestionMediaAccess(assetId: ID!): QuizQuestionMediaType!
   quizQuestions(input: PaginationInput!, quizId: ID!): QuizQuestionListType!
 }
 
@@ -401,6 +403,13 @@ type QuizQuestionListType {
   totalPages: Int!
 }
 
+type QuizQuestionMediaType {
+  expiresAt: DateTime!
+  id: ID!
+  mimeType: String!
+  uri: String!
+}
+
 enum QuizQuestionType {
   Multiple
   TrueFalse
@@ -409,6 +418,7 @@ enum QuizQuestionType {
 type QuizQuestionTypeObject {
   answers: [SelectableOptionType!]!
   id: ID!
+  media: QuizQuestionMediaType
   points: Int!
   position: Int!
   questionText: String!
@@ -502,6 +512,8 @@ input UpdateQuizInput {
 
 input UpdateQuizQuestionInput {
   answers: [SelectableOptionInput!]!
+  clearMedia: Boolean
+  mediaFile: Upload
   points: Int!
   position: Int
   questionText: String!

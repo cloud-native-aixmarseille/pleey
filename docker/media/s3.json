@@ -1,0 +1,9 @@
+{
+  "identities": [
+    {
+      "name": "pleey-development",
+      "credentials": [{ "accessKey": "pleey-media-dev", "secretKey": "pleey-media-development-secret" }],
+      "actions": ["Read:pleey-media", "Write:pleey-media", "List:pleey-media", "Tagging:pleey-media"]
+    }
+  ]
+}
