@@ -15,8 +15,8 @@ import {
 } from 'class-validator';
 import { GraphQLUpload } from 'graphql-upload-minimal';
 import { QuizQuestionType } from '../../../../../../domain/game/types/quiz/entities/quiz-question';
+import type { GraphqlUploadFile } from '../../../../../shared/graphql/graphql-upload-reader';
 import { ImportPlayableContentInputBase } from '../../../shared/graphql/import-playable-content-inputs';
-import type { PlayableContentUploadFile } from '../../../shared/graphql/playable-content-upload-reader';
 import { SelectableOptionInput } from '../../../shared/graphql/selectable-option-types';
 
 @InputType()
@@ -112,7 +112,7 @@ export class CreateQuizQuestionInput {
 
   @Field(() => GraphQLUpload, { nullable: true })
   @IsOptional()
-  mediaFile?: Promise<PlayableContentUploadFile> | null;
+  mediaFile?: Promise<GraphqlUploadFile> | null;
 }
 
 @InputType()
@@ -151,7 +151,7 @@ export class UpdateQuizQuestionInput {
 
   @Field(() => GraphQLUpload, { nullable: true })
   @IsOptional()
-  mediaFile?: Promise<PlayableContentUploadFile> | null;
+  mediaFile?: Promise<GraphqlUploadFile> | null;
 
   @Field(() => Boolean, { nullable: true })
   @IsOptional()

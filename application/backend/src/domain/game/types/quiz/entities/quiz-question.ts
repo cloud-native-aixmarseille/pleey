@@ -13,6 +13,7 @@ export enum QuizQuestionType {
 }
 
 export interface QuizQuestionMedia {
+  readonly id: string;
   readonly mimeType: string;
   readonly uri: string;
 }

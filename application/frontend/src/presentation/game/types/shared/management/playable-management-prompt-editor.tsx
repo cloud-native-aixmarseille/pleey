@@ -24,6 +24,7 @@ import {
 } from './playable-item-editor-validator';
 import { type PlayableManagementDropPreview } from './playable-management-drag-placement';
 import { PlayableManagementOutcomesEditor } from './playable-management-outcomes-editor';
+import { playableMediaUploadPolicy } from './playable-media-upload-policy';
 import { MAX_PLAYABLE_OUTCOME_COUNT, playableOutcomeEditorPolicy } from './playable-outcome-editor-policy';
 
 interface PlayableManagementPromptEditorProps {
@@ -65,6 +66,9 @@ export function PlayableManagementPromptEditor({
     [editorState, itemKindConfig, playableItemEditorValidator],
   );
   const isReadyToSave = validationIssues.length === 0;
+  const mediaValidationIssue = validationIssues.find(
+    (issue) => issue.code === 'unsupportedMediaType' || issue.code === 'mediaTooLarge',
+  );
   const titleKey = editorState.id ? 'editItemTitle' : 'createItemTitle';
   const canReorderOutcomes = fixedOptions === undefined && visibleOutcomeCount > 2;
   const showPersistedMediaPreview = allowMedia && editorState.media !== null && editorState.mediaFile === null;
@@ -175,9 +179,14 @@ export function PlayableManagementPromptEditor({
             ) : null}
 
             <FileUploadDropzone
-              acceptedFileTypes="image/*,audio/*,video/*"
+              acceptedFileTypes={playableMediaUploadPolicy.acceptedMimeTypes.join(',')}
               activePrompt={t(`${translationRoot}.mediaActivePrompt`)}
               clearFileLabel={t(`${translationRoot}.clearMediaSelection`)}
+              error={
+                mediaValidationIssue
+                  ? t(`${translationRoot}.${resolveValidationTranslationKey(mediaValidationIssue.code)}`)
+                  : undefined
+              }
               file={editorState.mediaFile}
               fieldHelpText={t(`${translationRoot}.mediaHelpText`)}
               inputAriaLabel={t(`${translationRoot}.mediaPickerLabel`)}

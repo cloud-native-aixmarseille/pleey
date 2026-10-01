@@ -6,6 +6,7 @@ import { ContentStack, ResponsiveGrid } from '../../../../../../shared/ui/layout
 import { HeroPanel, InsetPanel } from '../../../../../../shared/ui/layout/panels';
 import { Heading, SummaryText } from '../../../../../../shared/ui/layout/typography';
 import { MotionFadeIn, MotionStagger, MotionStaggerItem } from '../../../../../../shared/ui/motion/motion-primitives';
+import { PlayableQuestionMedia } from '../../../media/playable-question-media';
 import { resolvePlayableChoiceActionSlotLabel } from './playable-choice-action-slot-identity';
 import {
   stageContentStyle,
@@ -18,7 +19,6 @@ import {
   stagePromptRegionStyle,
   stageShellStyle,
 } from './playable-choice-host-stage-panel.styles';
-import { PlayableQuestionMedia } from '../../../media/playable-question-media';
 import { PlayableChoiceResultActionTile } from './playable-choice-result-action-tile';
 import type { PlayableChoiceHostRuntimePanelProps } from './playable-choice-runtime-panel.types';
 import { StageCountdownTimer } from './stage-countdown-timer';

@@ -5,6 +5,7 @@ import { DATABASE_CONNECTION_STRING } from '../../infrastructure/database/databa
 import { AUTH_JWT_SECRET } from '../../infrastructure/identity/auth-jwt-secret.token';
 import { CAPTCHA_CONFIG } from '../../infrastructure/identity/captcha/captcha-config.token';
 import { PASSWORD_RECOVERY_CONFIG } from '../../infrastructure/identity/services/password-recovery-config.token';
+import { MEDIA_PROCESSING_CONFIG, MEDIA_STORAGE_CONFIG } from '../../infrastructure/media/media-config.token';
 import { PARTY_SESSION_RECOVERY_WINDOW_MS } from '../../presentation/game/party/realtime/party-session-recovery-window-ms.token';
 import { PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES_TOKEN } from '../../presentation/game/types/shared/graphql/playable-content-upload.constants';
 import { APP_VERSION } from '../../presentation/health/http/app-version.token';
@@ -17,6 +18,16 @@ import { loadAppRuntimeConfiguration } from './load-app-runtime-configuration';
 @Global()
 @Module({
   providers: [
+    {
+      provide: MEDIA_STORAGE_CONFIG,
+      useFactory: (configuration: AppRuntimeConfiguration) => configuration.mediaStorage,
+      inject: [APP_RUNTIME_CONFIGURATION],
+    },
+    {
+      provide: MEDIA_PROCESSING_CONFIG,
+      useFactory: (configuration: AppRuntimeConfiguration) => configuration.mediaProcessing,
+      inject: [APP_RUNTIME_CONFIGURATION],
+    },
     {
       provide: CAPTCHA_CONFIG,
       useFactory: (configuration: AppRuntimeConfiguration) => configuration.captcha,
@@ -89,6 +100,8 @@ import { loadAppRuntimeConfiguration } from './load-app-runtime-configuration';
     },
   ],
   exports: [
+    MEDIA_STORAGE_CONFIG,
+    MEDIA_PROCESSING_CONFIG,
     CAPTCHA_CONFIG,
     PASSWORD_RECOVERY_CONFIG,
     PASSWORD_RESET_TOKEN_LIFETIME_MS,

@@ -13,8 +13,10 @@ import { QuizQuestionRepositoryProvider } from '../../../../../domain/game/types
 import type { SelectableOptionInput } from '../../../../../domain/game/types/shared/entities/selectable-option';
 import { SelectableOptionPolicy } from '../../../../../domain/game/types/shared/services/selectable-option-policy';
 import type { UserId } from '../../../../../domain/identity/entities/user';
-import type { Media } from '../../../../../domain/media/entities/media';
+import type { MediaUploadSource } from '../../../../media/ports/media-upload-source.port';
+import { MediaMutationService } from '../../../../media/services/media-mutation.service';
 import { GameTypeManagementAccessGuard } from '../../shared/services/game-type-management-access-guard';
+import { QuizQuestionMediaPreparationService } from '../services/quiz-question-media-preparation-service';
 
 interface UpdateQuizQuestionCommand {
   readonly questionId: QuizQuestionId;
@@ -24,7 +26,7 @@ interface UpdateQuizQuestionCommand {
   readonly timeLimit: number;
   readonly points: number;
   readonly answers: readonly SelectableOptionInput[];
-  readonly media?: Media | null;
+  readonly media?: MediaUploadSource | null;
 }
 
 @Injectable()
@@ -36,6 +38,8 @@ export class UpdateQuizQuestionUseCase {
     private readonly questionRepository: QuizQuestionRepository,
     private readonly accessGuard: GameTypeManagementAccessGuard,
     private readonly optionPolicy: SelectableOptionPolicy,
+    private readonly mediaMutation: MediaMutationService,
+    private readonly mediaPreparation: QuizQuestionMediaPreparationService,
   ) {}
 
   async execute(command: UpdateQuizQuestionCommand, userId: UserId): Promise<QuizQuestion> {
@@ -56,15 +60,18 @@ export class UpdateQuizQuestionUseCase {
     const answers = this.optionPolicy.normalize(command.answers);
     this.assertAnswers(command.type, answers);
 
-    return this.questionRepository.update(command.questionId, {
-      position: command.position,
-      questionText: command.questionText,
-      type: command.type,
-      timeLimit: command.timeLimit,
-      points: command.points,
-      answers,
-      media: command.media,
-    });
+    const preparedMedia = await this.mediaPreparation.prepare(command.media);
+    return this.mediaMutation.persist(preparedMedia, (media) =>
+      this.questionRepository.update(command.questionId, {
+        position: command.position,
+        questionText: command.questionText,
+        type: command.type,
+        timeLimit: command.timeLimit,
+        points: command.points,
+        answers,
+        media,
+      }),
+    );
   }
 
   private assertAnswers(type: QuizQuestionType, answers: ReturnType<SelectableOptionPolicy['normalize']>): void {

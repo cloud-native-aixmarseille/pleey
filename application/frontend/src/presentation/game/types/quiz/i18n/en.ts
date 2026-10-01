@@ -63,7 +63,8 @@ export const quizEn = {
           mediaLabel: 'Media',
           mediaPrompt: 'Drop or choose an image, audio, or video file',
           mediaActivePrompt: 'Release to attach this media file',
-          mediaHelpText: 'Accepted formats: image, audio, and video files.',
+          mediaHelpText:
+            'JPEG, PNG or WebP (static, up to 25 megapixels); MP3, WAV or Ogg (up to 120 seconds); MP4 or WebM (up to 60 seconds). Maximum 5 MiB per file. Media is optimized when saved.',
           mediaPickerLabel: 'Choose question media',
           replaceMedia: 'Replace media',
           clearMediaSelection: 'Clear selected media file',
@@ -84,6 +85,8 @@ export const quizEn = {
           advancedSettings: 'Advanced settings',
           validationSummary: '{{count}} issue before saving:',
           validation: {
+            unsupportedMediaType: 'Choose a JPEG, PNG, WebP, MP3, WAV, Ogg, MP4 or WebM file.',
+            mediaTooLarge: 'Choose a media file no larger than 5 MiB.',
             missingText: 'Add the question text.',
             missingOutcome: 'Add at least two answers.',
             missingCorrectOption: 'Select at least one correct answer.',

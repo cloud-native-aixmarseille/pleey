@@ -7,7 +7,6 @@ import type { GameId } from '../../../../domain/game/entities/game';
 import type { PartyStageId } from '../../../../domain/game/party/shared/entities/party-stage';
 import { PrismaService } from '../../../database/prisma-service';
 import type { GameTypePartyStageCatalogProvider } from '../shared/game-type-party-stage-catalog-provider-registry';
-import { buildQuizQuestionMediaUri } from './quiz-question-media-uri';
 
 @Injectable()
 export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCatalogProvider {
@@ -66,8 +65,9 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
         timeLimit: true,
         media: {
           select: {
+            id: true,
             mimeType: true,
-            updatedAt: true,
+            uri: true,
           },
         },
         answers: {
@@ -96,8 +96,9 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
       id: this.partyStageIdentifier.parse(question.id),
       media: question.media
         ? {
+            id: question.media.id,
             mimeType: question.media.mimeType,
-            uri: buildQuizQuestionMediaUri(question.id, question.media.updatedAt),
+            uri: question.media.uri,
           }
         : null,
       points: question.points,
@@ -132,8 +133,9 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
         timeLimit: true,
         media: {
           select: {
+            id: true,
             mimeType: true,
-            updatedAt: true,
+            uri: true,
           },
         },
         answers: {
@@ -166,8 +168,9 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
       id: this.partyStageIdentifier.parse(question.id),
       media: question.media
         ? {
+            id: question.media.id,
             mimeType: question.media.mimeType,
-            uri: buildQuizQuestionMediaUri(question.id, question.media.updatedAt),
+            uri: question.media.uri,
           }
         : null,
       points: question.points,

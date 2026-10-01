@@ -1,6 +1,7 @@
 import type { TokenConfig } from '../../domain/identity/ports/auth-token.service';
 import type { CaptchaConfig } from '../../infrastructure/identity/captcha/captcha-config.token';
 import type { PasswordRecoveryConfig } from '../../infrastructure/identity/services/password-recovery-config.token';
+import type { MediaStorageConfig } from '../../infrastructure/media/media-config.token';
 import type { OpenTelemetryConfig } from '../../infrastructure/telemetry/otel.config';
 import { AppEnvironment } from './app-environment';
 import type { AppRuntimeConfiguration } from './app-runtime-configuration.token';
@@ -28,6 +29,12 @@ export class AppConfiguration {
       },
       passwordRecovery: this.createPasswordRecoveryConfig(),
       captcha: this.createCaptchaConfig(),
+      mediaStorage: this.createMediaStorageConfig(),
+      mediaProcessing: {
+        timeoutMs: this.readBoundedInteger('MEDIA_PROCESSING_TIMEOUT_MS', 1000, 300000),
+        concurrency: this.readBoundedInteger('MEDIA_PROCESSING_CONCURRENCY', 1, 8),
+        memoryLimitMb: this.readBoundedInteger('MEDIA_PROCESSING_MEMORY_LIMIT_MB', 256, 4096),
+      },
       databaseConnectionString: this.environment.getRequiredString('DATABASE_URL'),
       authPublicApiBaseUrl: this.environment.getOptionalString('API_BASE_URL'),
       gameSocketCorsOptions: this.createGameSocketCorsOptions(),
@@ -112,6 +119,47 @@ export class AppConfiguration {
     return { secret, valkeyUrl };
   }
 
+  private createMediaStorageConfig(): MediaStorageConfig {
+    const requireHttps = this.readBoolean('MEDIA_REQUIRE_HTTPS');
+    const bucket = this.environment.getRequiredString('MEDIA_STORAGE_BUCKET');
+    if (!/^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$/.test(bucket) || bucket.includes('..')) {
+      throw new Error('MEDIA_STORAGE_BUCKET must be a valid S3 bucket name');
+    }
+    return {
+      endpoint: this.readMediaUrl('MEDIA_STORAGE_ENDPOINT', requireHttps),
+      region: this.environment.getRequiredString('MEDIA_STORAGE_REGION'),
+      bucket,
+      accessKeyId: this.environment.getRequiredString('MEDIA_STORAGE_ACCESS_KEY_ID'),
+      secretAccessKey: this.environment.getRequiredString('MEDIA_STORAGE_SECRET_ACCESS_KEY'),
+      forcePathStyle: this.readBoolean('MEDIA_STORAGE_FORCE_PATH_STYLE'),
+      publicBaseUrl: this.readMediaUrl('MEDIA_PUBLIC_BASE_URL', requireHttps),
+      accessTtlSeconds: this.readBoundedInteger('MEDIA_ACCESS_TTL_SECONDS', 60, 900),
+    };
+  }
+
+  private readMediaUrl(name: string, requireHttps: boolean): string {
+    const raw = this.environment.getRequiredString(name);
+    let url: URL;
+    try {
+      url = new URL(raw);
+    } catch {
+      throw new Error(`${name} must be a valid HTTP(S) URL`);
+    }
+    if (
+      !['http:', 'https:'].includes(url.protocol) ||
+      (requireHttps && url.protocol !== 'https:') ||
+      url.username ||
+      url.password ||
+      url.search ||
+      url.hash
+    ) {
+      throw new Error(
+        `${name} must be an HTTP(S) URL without credentials, query, or fragment and use HTTPS when MEDIA_REQUIRE_HTTPS is true`,
+      );
+    }
+    return url.toString().replace(/\/+$/, '');
+  }
+
   private createPasswordRecoveryConfig(): PasswordRecoveryConfig {
     const frontendUrl = this.environment.getRequiredString('FRONTEND_URL');
     const requireHttps = this.readBoolean('FRONTEND_REQUIRE_HTTPS');
@@ -180,6 +228,12 @@ export class AppConfiguration {
     if (!/^\d+$/.test(raw) || !Number.isSafeInteger(parsed) || parsed <= 0)
       throw new Error(`${name} must be a positive safe integer`);
     return parsed;
+  }
+
+  private readBoundedInteger(name: string, minimum: number, maximum: number): number {
+    const value = this.readPositiveInteger(name);
+    if (value < minimum || value > maximum) throw new Error(`${name} must be between ${minimum} and ${maximum}`);
+    return value;
   }
 
   private readPort(name: string): number {

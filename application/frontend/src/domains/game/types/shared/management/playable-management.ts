@@ -9,6 +9,9 @@ export interface PlayableChoiceOption {
 }
 
 export interface PlayableMedia {
+  readonly id?: string;
+  readonly expiresAt?: string;
+  readonly partyId?: string;
   readonly mimeType: string;
   readonly uri: string;
 }

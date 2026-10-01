@@ -1,72 +1,47 @@
 import { Buffer } from 'node:buffer';
-import { Injectable } from '@nestjs/common';
-import { QUIZ_ERROR_DEFINITIONS, QuizErrorCode } from '../../../../../domain/game/types/quiz/enums/quiz-error-code.enum';
-import { Media } from '../../../../../domain/media/entities/media';
+import { Inject, Injectable } from '@nestjs/common';
+import type { MediaUploadSource } from '../../../../../application/media/ports/media-upload-source.port';
+import {
+  QUIZ_ERROR_DEFINITIONS,
+  QuizErrorCode,
+} from '../../../../../domain/game/types/quiz/enums/quiz-error-code.enum';
 import { createDomainError } from '../../../../../domain/shared/errors/domain-error';
-import type { PlayableContentUploadFile } from '../../shared/graphql/playable-content-upload-reader';
-
-const SUPPORTED_QUESTION_MEDIA_MIME_TYPE_PREFIXES = ['audio/', 'image/', 'video/'] as const;
+import { type GraphqlUploadFile, GraphqlUploadReader } from '../../../../shared/graphql/graphql-upload-reader';
 
 @Injectable()
 export class QuizQuestionMediaUploadReader {
-  async readOptional(uploadPromise?: Promise<PlayableContentUploadFile> | null): Promise<Media | undefined> {
-    if (uploadPromise == null) {
+  constructor(@Inject(GraphqlUploadReader) private readonly uploads: GraphqlUploadReader) {}
+
+  sourceOptional(upload?: Promise<GraphqlUploadFile> | GraphqlUploadFile | null): MediaUploadSource | undefined {
+    if (upload == null) {
       return undefined;
     }
 
-    let upload: PlayableContentUploadFile;
-
-    try {
-      upload = await uploadPromise;
-    } catch {
-      throw createDomainError(QUIZ_ERROR_DEFINITIONS[QuizErrorCode.INVALID_QUESTION_MEDIA], {
-        reason: 'uploadPromiseRejected',
-      });
-    }
-
-    if (!this.isSupportedMimeType(upload.mimetype)) {
-      throw createDomainError(QUIZ_ERROR_DEFINITIONS[QuizErrorCode.INVALID_QUESTION_MEDIA], {
-        fileName: upload.filename,
-        mimeType: upload.mimetype,
-        reason: 'unsupportedMimeType',
-      });
-    }
-
-    const content = await this.readContent(upload);
-
-    if (content.byteLength === 0) {
-      throw createDomainError(QUIZ_ERROR_DEFINITIONS[QuizErrorCode.INVALID_QUESTION_MEDIA], {
-        fileName: upload.filename,
-        mimeType: upload.mimetype,
-        reason: 'emptyFile',
-      });
-    }
-
-    return new Media(null, upload.mimetype, content);
-  }
-
-  private isSupportedMimeType(mimeType: string): boolean {
-    return SUPPORTED_QUESTION_MEDIA_MIME_TYPE_PREFIXES.some((prefix) => mimeType.startsWith(prefix));
-  }
-
-  private async readContent(upload: PlayableContentUploadFile): Promise<Buffer> {
-    const stream = upload.createReadStream();
-    const chunks: Buffer[] = [];
-
-    try {
-      for await (const chunk of stream) {
-        chunks.push(typeof chunk === 'string' ? Buffer.from(chunk, 'binary') : Buffer.from(chunk));
-      }
-    } catch {
-      stream.destroy();
-
-      throw createDomainError(QUIZ_ERROR_DEFINITIONS[QuizErrorCode.INVALID_QUESTION_MEDIA], {
-        fileName: upload.filename,
-        mimeType: upload.mimetype,
-        reason: 'streamReadFailed',
-      });
-    }
-
-    return Buffer.concat(chunks);
+    let pendingSource: ReturnType<GraphqlUploadReader['read']> | undefined;
+    return {
+      open: async (maxFileSizeBytes) => {
+        pendingSource ??= this.uploads.read(upload, {
+          maxFileSizeBytes,
+          stringEncoding: 'latin1',
+          invalidFile: (failure) =>
+            createDomainError(QUIZ_ERROR_DEFINITIONS[QuizErrorCode.INVALID_QUESTION_MEDIA], {
+              ...failure,
+              reason: failure.reason === 'fileTooLarge' ? 'uploadTooLarge' : failure.reason,
+            }),
+        });
+        const source = await pendingSource;
+        return {
+          fileName: source.fileName,
+          mimeType: source.mimeType,
+          readContent: async () => {
+            const chunks: Buffer[] = [];
+            for await (const chunk of source.readChunks()) {
+              chunks.push(chunk);
+            }
+            return Buffer.concat(chunks);
+          },
+        };
+      },
+    };
   }
 }

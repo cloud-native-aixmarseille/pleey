@@ -56,3 +56,9 @@ export class SubmitPartyActionMessageDto extends PartyObservationMessageDto {
   @IsNotEmpty()
   actionId?: string;
 }
+
+export class RequestPartyMediaMessageDto extends PartyObservationMessageDto {
+  @IsString()
+  @IsNotEmpty()
+  assetId!: string;
+}

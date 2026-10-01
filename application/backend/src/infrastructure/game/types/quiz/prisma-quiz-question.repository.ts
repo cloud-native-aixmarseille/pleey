@@ -16,16 +16,16 @@ import type {
   QuizQuestionMutationData,
   QuizQuestionRepository,
 } from '../../../../domain/game/types/quiz/ports/quiz-question.repository';
-import { Media, type MediaId } from '../../../../domain/media/entities/media';
+import type { StoredMediaAsset } from '../../../../domain/media/entities/stored-media-asset';
 import { createDomainError } from '../../../../domain/shared/errors/domain-error';
 import type { PaginatedResult } from '../../../../domain/shared/value-objects/paginated-result';
 import type { PaginationQuery } from '../../../../domain/shared/value-objects/pagination-query';
 import { PrismaService } from '../../../database/prisma-service';
+import { PrismaMediaAssetLifecycle } from '../../../media/prisma-media-asset-lifecycle';
 import {
   PrismaSelectableOptionMapper,
   type PrismaSelectableOptionRecord,
 } from '../shared/prisma-selectable-option-mapper';
-import { buildQuizQuestionMediaUri } from './quiz-question-media-uri';
 
 type PrismaQuestionAnswerRecord = PrismaSelectableOptionRecord;
 
@@ -35,12 +35,6 @@ const QUESTION_NOT_UPDATED_ERROR = {
   code: 'QUESTION_NOT_UPDATED',
   messageKey: 'QUESTION_NOT_UPDATED',
 } as const;
-
-function toPrismaBytes(content: Buffer): Uint8Array<ArrayBuffer> {
-  const bytes = new Uint8Array(content.byteLength);
-  bytes.set(content);
-  return bytes as Uint8Array<ArrayBuffer>;
-}
 
 interface PrismaQuestionRecord {
   readonly id: string;
@@ -53,7 +47,7 @@ interface PrismaQuestionRecord {
   readonly media: {
     readonly id: string;
     readonly mimeType: string;
-    readonly updatedAt: Date;
+    readonly uri: string;
   } | null;
   readonly answers: readonly PrismaQuestionAnswerRecord[];
 }
@@ -79,6 +73,7 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
     private readonly quizSelectableOptionIdentifier: QuizSelectableOptionIdentifier,
     private readonly optionMapper: PrismaSelectableOptionMapper,
     private readonly paginationQueryNormalizer: PaginationQueryNormalizer,
+    private readonly mediaLifecycle: PrismaMediaAssetLifecycle,
   ) {}
 
   async create(quizId: QuizId, data: QuizQuestionMutationData): Promise<QuizQuestion> {
@@ -93,6 +88,8 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
       if (position < questionCount) {
         await this.shiftQuestionsForInsert(transaction, quizId, position);
       }
+
+      if (data.media) await this.mediaLifecycle.attach(transaction, data.media);
 
       const question = await transaction.question.create({
         data: {
@@ -109,7 +106,7 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
           ...(data.media
             ? {
                 media: {
-                  create: this.toQuestionMediaCreateInput(data.media),
+                  connect: { id: data.media.id },
                 },
               }
             : {}),
@@ -137,31 +134,12 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
     return question ? this.toDomain(question) : null;
   }
 
-  async findMediaById(id: QuizQuestionId): Promise<Media | null> {
+  async findByMediaAssetId(assetId: string): Promise<QuizQuestion | null> {
     const question = await this.prisma.question.findFirst({
-      where: { id, deletedAt: null, quiz: { deletedAt: null, game: { deletedAt: null } } },
-      select: {
-        media: {
-          select: {
-            id: true,
-            mimeType: true,
-            content: true,
-            createdAt: true,
-            updatedAt: true,
-          },
-        },
-      },
+      where: { mediaAssetId: assetId, deletedAt: null, quiz: { deletedAt: null, game: { deletedAt: null } } },
+      include: this.questionInclude,
     });
-
-    return question?.media
-      ? new Media(
-          question.media.id as MediaId,
-          question.media.mimeType,
-          Buffer.from(question.media.content),
-          question.media.createdAt,
-          question.media.updatedAt,
-        )
-      : null;
+    return question ? this.toDomain(question) : null;
   }
 
   async findByQuizId(quizId: QuizId, query: PaginationQuery): Promise<PaginatedResult<QuizQuestion>> {
@@ -189,9 +167,11 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
 
   async update(id: QuizQuestionId, data: QuizQuestionMutationData): Promise<QuizQuestion> {
     const question = await this.prisma.$transaction(async (transaction) => {
+      // Serialize replacements before reading the previous asset reference.
+      await transaction.$queryRaw`SELECT id FROM questions WHERE id = ${id}::uuid FOR UPDATE`;
       const existingQuestion = await transaction.question.findFirst({
         where: { id, deletedAt: null },
-        select: { quizId: true, questionMediaId: true },
+        select: { quizId: true, mediaAssetId: true },
       });
       if (!existingQuestion) {
         throw createDomainError(QUESTION_NOT_UPDATED_ERROR, { questionId: id });
@@ -234,6 +214,10 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
         await this.shiftQuestionsDown(transaction, quizId, currentQuestion.position, targetPosition);
       }
 
+      if (data.media) await this.mediaLifecycle.attach(transaction, data.media);
+      if (data.media !== undefined && existingQuestion.mediaAssetId) {
+        await this.mediaLifecycle.retire(transaction, existingQuestion.mediaAssetId);
+      }
       await transaction.questionAnswer.deleteMany({ where: { questionId: id } });
 
       return transaction.question.update({
@@ -244,7 +228,7 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
           type: data.type,
           timeLimit: data.timeLimit,
           points: data.points,
-          media: this.resolveQuestionMediaUpdateInput(existingQuestion.questionMediaId, data.media),
+          media: this.resolveQuestionMediaUpdateInput(data.media),
           answers: {
             create: data.answers.map((answer) => ({
               text: answer.text,
@@ -261,21 +245,10 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
   }
 
   async delete(id: QuizQuestionId): Promise<void> {
-    const question = await this.prisma.question.findUnique({
-      where: { id },
-      select: { questionMediaId: true },
+    await this.prisma.$transaction(async (transaction) => {
+      const question = await transaction.question.delete({ where: { id }, select: { mediaAssetId: true } });
+      if (question.mediaAssetId) await this.mediaLifecycle.retire(transaction, question.mediaAssetId);
     });
-
-    await this.prisma.$transaction([
-      this.prisma.question.delete({ where: { id } }),
-      ...(question?.questionMediaId
-        ? [
-            this.prisma.media.delete({
-              where: { id: question.questionMediaId },
-            }),
-          ]
-        : []),
-    ]);
   }
 
   private readonly questionInclude = {
@@ -293,37 +266,16 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
       select: {
         id: true,
         mimeType: true,
-        updatedAt: true,
+        uri: true,
       },
     },
   };
 
-  private toQuestionMediaCreateInput(media: Media): Prisma.MediaCreateWithoutQuestionForMediaInput {
-    return {
-      mimeType: media.mimeType,
-      content: toPrismaBytes(media.content),
-    };
-  }
-
   private resolveQuestionMediaUpdateInput(
-    existingQuestionMediaId: string | null,
-    media: Media | null | undefined,
+    media: StoredMediaAsset | null | undefined,
   ): Prisma.QuestionUpdateInput['media'] | undefined {
-    if (media === undefined) {
-      return undefined;
-    }
-
-    if (media === null) {
-      return existingQuestionMediaId ? { delete: true } : undefined;
-    }
-
-    return existingQuestionMediaId
-      ? {
-          update: this.toQuestionMediaCreateInput(media),
-        }
-      : {
-          create: this.toQuestionMediaCreateInput(media),
-        };
+    if (media === undefined) return undefined;
+    return media === null ? { disconnect: true } : { connect: { id: media.id } };
   }
 
   private async normalizeQuestionPositions(transaction: Prisma.TransactionClient, quizId: QuizId): Promise<void> {
@@ -443,8 +395,9 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
       points: question.points,
       media: question.media
         ? {
+            id: question.media.id,
             mimeType: question.media.mimeType,
-            uri: buildQuizQuestionMediaUri(question.id, question.media.updatedAt),
+            uri: question.media.uri,
           }
         : null,
       answers: question.answers.map((answer) =>

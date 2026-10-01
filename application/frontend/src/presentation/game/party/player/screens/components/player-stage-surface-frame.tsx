@@ -7,9 +7,9 @@ import { InsetPanel } from '../../../../../shared/ui/layout/panels';
 import { Heading, SupportingText } from '../../../../../shared/ui/layout/typography';
 import { usePresentationMediaQuery } from '../../../../../shared/ui/layout/use-presentation-media-query';
 import { MotionFadeIn, MotionPresence } from '../../../../../shared/ui/motion/motion-primitives';
+import { PlayableQuestionMedia } from '../../../../types/shared/media/playable-question-media';
 import { PlayerPartyStatusBar } from './player-party-status-bar';
 import { PlayerRuntimeMobileMenu } from './player-runtime-mobile-menu';
-import { PlayableQuestionMedia } from '../../../../types/shared/media/playable-question-media';
 import {
   MOBILE_TIMER_BAR_HEIGHT_PX,
   type MobileStageTimer,

@@ -9,6 +9,7 @@ import { PlayerPartyStatusBar } from '../../../../../party/player/screens/compon
 import { PlayerRuntimeMobileMenu } from '../../../../../party/player/screens/components/player-runtime-mobile-menu';
 import { PartyStandingsList } from '../../../../../party/shared/screens/components/party-standings-list';
 import { usePartyStageScoreboardSnapshot } from '../../../../../party/shared/screens/use-party-stage-scoreboard-snapshot';
+import { PlayableQuestionMedia } from '../../../media/playable-question-media';
 import {
   buildMobileHeroIconWrapperStyle,
   buildMobileHeroStyle,
@@ -21,7 +22,6 @@ import {
   mobileQuestionTextStyle,
   mobileRootStyle,
 } from './playable-choice-player-result-surface.styles';
-import { PlayableQuestionMedia } from '../../../media/playable-question-media';
 import { PlayableChoiceResultActionTile } from './playable-choice-result-action-tile';
 import type { PlayableChoicePlayerResultSurfaceProps } from './playable-choice-runtime-panel.types';
 export function PlayableChoicePlayerResultSurface({

@@ -58,6 +58,9 @@ interface PartyRuntimeStageActionContext {
 }
 
 interface PartyRuntimeStageMediaContext {
+  readonly id?: string;
+  readonly expiresAt?: string;
+  readonly partyId?: string;
   readonly mimeType: string;
   readonly uri: string;
 }

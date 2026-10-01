@@ -9,7 +9,7 @@ export type QuizQuestionRecordFixtureParams = {
   type?: string;
   timeLimit?: number;
   points?: number;
-  media?: { id: string; mimeType: string; updatedAt: Date } | null;
+  media?: { id: string; mimeType: string; uri: string } | null;
   answers?: ReadonlyArray<{ id: string; text: string; position: number; isCorrect: boolean }>;
 };
 
@@ -27,7 +27,7 @@ export const createQuizQuestionRecordFixture = (params: QuizQuestionRecordFixtur
       : {
           id: params.media.id,
           mimeType: params.media.mimeType,
-          updatedAt: params.media.updatedAt,
+          uri: params.media.uri,
         },
   answers: params.answers ?? [
     {

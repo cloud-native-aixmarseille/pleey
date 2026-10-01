@@ -24,12 +24,13 @@ interface UploadReadFailure {
 interface UploadReadOptions {
   readonly maxFileSizeBytes: number;
   readonly invalidFile: (failure: UploadReadFailure) => DomainError;
+  readonly stringEncoding?: BufferEncoding;
 }
 
 @Injectable()
 export class GraphqlUploadReader {
   async read(upload: Promise<GraphqlUploadFile> | GraphqlUploadFile, options: UploadReadOptions) {
-    const { maxFileSizeBytes, invalidFile } = options;
+    const { maxFileSizeBytes, invalidFile, stringEncoding = 'utf8' } = options;
     if (!Number.isSafeInteger(maxFileSizeBytes) || maxFileSizeBytes <= 0) {
       throw invalidFile({ reason: 'invalidSizeLimit', maxFileSizeBytes });
     }
@@ -65,7 +66,7 @@ export class GraphqlUploadReader {
         try {
           stream = file.createReadStream();
           for await (const chunk of stream) {
-            const buffer = Buffer.from(chunk);
+            const buffer = typeof chunk === 'string' ? Buffer.from(chunk, stringEncoding) : Buffer.from(chunk);
             totalBytes += buffer.byteLength;
             if (totalBytes > maxFileSizeBytes) {
               tooLarge = true;

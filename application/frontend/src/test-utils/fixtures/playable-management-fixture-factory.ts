@@ -2,9 +2,9 @@ import { GameTypeIdentifier } from '../../application/game/types/shared/services
 import type { GameTypeId } from '../../domains/game/types/shared/game-type';
 import type {
   PlayableChoiceOption,
-  PlayableMedia,
   PlayableManagementItem,
   PlayableManagementItemInput,
+  PlayableMedia,
 } from '../../domains/game/types/shared/management/playable-management';
 import { coerceUuidV7TestValue } from './uuid-v7-test-value';
 

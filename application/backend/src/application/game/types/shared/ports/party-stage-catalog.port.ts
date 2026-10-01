@@ -11,6 +11,7 @@ interface PartyStageActionCatalogEntry {
 }
 
 interface PartyStageMediaCatalogEntry {
+  readonly id?: string;
   readonly mimeType: string;
   readonly uri: string;
 }
