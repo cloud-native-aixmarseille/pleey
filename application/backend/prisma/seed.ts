@@ -2,6 +2,7 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { Prisma, PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { DEFAULT_PARTY_SETTINGS } from '../src/domain/game/party/shared/entities/party-settings';
+import { PrismaPartySettingsMapper } from '../src/infrastructure/game/shared/prisma-party-settings.mapper';
 
 type SeedAnswer = {
   text: string;
@@ -38,6 +39,7 @@ if (!connectionString) {
 const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString }),
 });
+const partySettingsMapper = new PrismaPartySettingsMapper();
 
 async function main() {
   console.log('Seeding database...');
@@ -349,7 +351,7 @@ async function main() {
       status: 'waiting',
       gameId: quizGame.id,
       hostId: admin.id,
-      settings: DEFAULT_PARTY_SETTINGS,
+      settings: partySettingsMapper.toPersistedPartySettings(DEFAULT_PARTY_SETTINGS),
       context: Prisma.JsonNull,
     },
     create: {
@@ -357,7 +359,7 @@ async function main() {
       hostId: admin.id,
       pin: partyPin,
       status: 'waiting',
-      settings: DEFAULT_PARTY_SETTINGS,
+      settings: partySettingsMapper.toPersistedPartySettings(DEFAULT_PARTY_SETTINGS),
       context: Prisma.JsonNull,
     },
   });
