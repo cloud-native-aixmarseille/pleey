@@ -1,14 +1,13 @@
-import { Buffer } from 'node:buffer';
 import { describe, expect, it, vi } from 'vitest';
 import { QuizQuestionIdentifier } from '../../../../application/game/types/quiz/services/quiz-question-identifier';
 import { QuizSelectableOptionIdentifier } from '../../../../application/game/types/quiz/services/quiz-selectable-option-identifier';
 import { GameTypeIdentifier } from '../../../../application/game/types/shared/services/game-type-identifier';
 import { PaginationQueryNormalizer } from '../../../../application/shared/services/pagination-query-normalizer';
 import { QuizQuestionType } from '../../../../domain/game/types/quiz/entities/quiz-question';
-import { Media } from '../../../../domain/media/entities/media';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { createQuizQuestionRecordFixture } from '../../../../test-utils/fixtures/unit/quiz-question.fixture';
 import type { PrismaService } from '../../../database/prisma-service';
+import { PrismaMediaAssetLifecycle } from '../../../media/prisma-media-asset-lifecycle';
 import { PrismaSelectableOptionMapper } from '../shared/prisma-selectable-option-mapper';
 import { PrismaQuizQuestionRepository } from './prisma-quiz-question.repository';
 
@@ -18,6 +17,8 @@ describe('PrismaQuizQuestionRepository', () => {
     const gameTypeId = new GameTypeIdentifier().parse(backendTestIdentifiers.game(5));
 
     const transaction = {
+      $queryRaw: vi.fn().mockResolvedValue([]),
+      mediaAsset: { updateMany: vi.fn().mockResolvedValue({ count: 1 }) },
       question: {
         count: vi.fn().mockResolvedValue(2),
         create: vi.fn().mockResolvedValue(createQuizQuestionRecordFixture({ position: 1 })),
@@ -41,6 +42,7 @@ describe('PrismaQuizQuestionRepository', () => {
       new QuizSelectableOptionIdentifier(),
       new PrismaSelectableOptionMapper(),
       new PaginationQueryNormalizer(),
+      new PrismaMediaAssetLifecycle(),
     );
 
     // Act
@@ -71,6 +73,8 @@ describe('PrismaQuizQuestionRepository', () => {
     const gameTypeId = new GameTypeIdentifier().parse(backendTestIdentifiers.game(5));
 
     const transaction = {
+      $queryRaw: vi.fn().mockResolvedValue([]),
+      mediaAsset: { updateMany: vi.fn().mockResolvedValue({ count: 1 }) },
       question: {
         count: vi.fn().mockResolvedValue(2),
         create: vi.fn().mockResolvedValue(createQuizQuestionRecordFixture({ position: 0 })),
@@ -97,6 +101,7 @@ describe('PrismaQuizQuestionRepository', () => {
       new QuizSelectableOptionIdentifier(),
       new PrismaSelectableOptionMapper(),
       new PaginationQueryNormalizer(),
+      new PrismaMediaAssetLifecycle(),
     );
 
     // Act
@@ -121,17 +126,19 @@ describe('PrismaQuizQuestionRepository', () => {
   it('stores uploaded media when creating a question', async () => {
     // Arrange
     const gameTypeId = new GameTypeIdentifier().parse(backendTestIdentifiers.game(5));
-    const mediaUpdatedAt = new Date('2026-09-28T13:00:00.000Z');
+    const mediaUri = 'https://cdn.example.test/quiz/asset.webp';
 
     const transaction = {
+      $queryRaw: vi.fn().mockResolvedValue([]),
+      mediaAsset: { updateMany: vi.fn().mockResolvedValue({ count: 1 }) },
       question: {
         count: vi.fn().mockResolvedValue(0),
         create: vi.fn().mockResolvedValue(
           createQuizQuestionRecordFixture({
             media: {
               id: backendTestIdentifiers.partyAction(50),
-              mimeType: 'image/png',
-              updatedAt: mediaUpdatedAt,
+              mimeType: 'image/webp',
+              uri: mediaUri,
             },
           }),
         ),
@@ -148,8 +155,9 @@ describe('PrismaQuizQuestionRepository', () => {
       new QuizSelectableOptionIdentifier(),
       new PrismaSelectableOptionMapper(),
       new PaginationQueryNormalizer(),
+      new PrismaMediaAssetLifecycle(),
     );
-    const media = new Media(null, 'image/png', Buffer.from('png', 'utf8'));
+    const media = { id: backendTestIdentifiers.partyAction(50), mimeType: 'image/webp', uri: mediaUri };
 
     // Act
     const question = await repository.create(gameTypeId, {
@@ -166,17 +174,15 @@ describe('PrismaQuizQuestionRepository', () => {
       expect.objectContaining({
         data: expect.objectContaining({
           media: {
-            create: {
-              mimeType: 'image/png',
-              content: expect.any(Uint8Array),
-            },
+            connect: { id: media.id },
           },
         }),
       }),
     );
     expect(question.media).toEqual({
-      mimeType: 'image/png',
-      uri: `/api/quiz-questions/${backendTestIdentifiers.partyStage(10)}/media?v=${mediaUpdatedAt.getTime()}`,
+      id: media.id,
+      mimeType: 'image/webp',
+      uri: mediaUri,
     });
   });
 
@@ -186,6 +192,8 @@ describe('PrismaQuizQuestionRepository', () => {
     const questionId = quizQuestionIdentifier.parse(backendTestIdentifiers.partyStage(10));
 
     const transaction = {
+      $queryRaw: vi.fn().mockResolvedValue([]),
+      mediaAsset: { updateMany: vi.fn().mockResolvedValue({ count: 1 }) },
       question: {
         count: vi.fn().mockResolvedValue(3),
         findFirst: vi
@@ -220,6 +228,7 @@ describe('PrismaQuizQuestionRepository', () => {
       new QuizSelectableOptionIdentifier(),
       new PrismaSelectableOptionMapper(),
       new PaginationQueryNormalizer(),
+      new PrismaMediaAssetLifecycle(),
     );
 
     // Act
@@ -260,6 +269,8 @@ describe('PrismaQuizQuestionRepository', () => {
     const questionId = quizQuestionIdentifier.parse(backendTestIdentifiers.partyStage(10));
 
     const transaction = {
+      $queryRaw: vi.fn().mockResolvedValue([]),
+      mediaAsset: { updateMany: vi.fn().mockResolvedValue({ count: 1 }) },
       question: {
         count: vi.fn().mockResolvedValue(3),
         findFirst: vi
@@ -294,6 +305,7 @@ describe('PrismaQuizQuestionRepository', () => {
       new QuizSelectableOptionIdentifier(),
       new PrismaSelectableOptionMapper(),
       new PaginationQueryNormalizer(),
+      new PrismaMediaAssetLifecycle(),
     );
 
     // Act
@@ -331,11 +343,13 @@ describe('PrismaQuizQuestionRepository', () => {
     const mediaId = backendTestIdentifiers.partyAction(40);
 
     const transaction = {
+      $queryRaw: vi.fn().mockResolvedValue([]),
+      mediaAsset: { updateMany: vi.fn().mockResolvedValue({ count: 1 }) },
       question: {
         count: vi.fn().mockResolvedValue(3),
         findFirst: vi
           .fn()
-          .mockResolvedValueOnce({ quizId: backendTestIdentifiers.game(5), questionMediaId: mediaId })
+          .mockResolvedValueOnce({ quizId: backendTestIdentifiers.game(5), mediaAssetId: mediaId })
           .mockResolvedValueOnce({ position: 1 }),
         findMany: vi.fn().mockResolvedValueOnce([
           { id: backendTestIdentifiers.partyStage(1), position: 0 },
@@ -358,6 +372,7 @@ describe('PrismaQuizQuestionRepository', () => {
       new QuizSelectableOptionIdentifier(),
       new PrismaSelectableOptionMapper(),
       new PaginationQueryNormalizer(),
+      new PrismaMediaAssetLifecycle(),
     );
 
     // Act
@@ -375,7 +390,7 @@ describe('PrismaQuizQuestionRepository', () => {
       expect.objectContaining({
         where: { id: questionId },
         data: expect.objectContaining({
-          media: { delete: true },
+          media: { disconnect: true },
         }),
       }),
     );

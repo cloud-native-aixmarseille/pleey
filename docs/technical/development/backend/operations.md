@@ -136,3 +136,59 @@ Per action and client address, the backend permits 30 challenge requests per min
 `TRUSTED_PROXY_CIDRS` is required and accepts a comma-separated list of trusted proxy IP addresses or CIDR ranges. The chart exposes it as `backend.config.trustedProxyCidrs`. Set it explicitly to an empty value for direct access. When behind ingress, set only the actual ingress addresses or controlled network ranges; the ingress must sanitize forwarded headers. The backend rejects universal CIDR ranges and blanket trust values.
 
 With an explicitly empty trusted-proxy list, forwarded headers are ignored and clients behind the same proxy share its request limits. This prevents arbitrary client headers from selecting the rate-limit identity. The setting also affects session IP display and Express's forwarded protocol/hostname resolution.
+
+
+## Quiz Media Storage, Processing, and Delivery
+
+[ADR 0012](../../architecture/adr/0012-support-media-on-quiz-questions.md) defines the accepted formats, transformation budgets, publication semantics, and retention windows. Quiz assets use an existing private S3-compatible bucket and signed delivery URLs; avatars retain their existing storage.
+
+Required media settings are `MEDIA_STORAGE_ENDPOINT`, `MEDIA_STORAGE_REGION`, `MEDIA_STORAGE_BUCKET`, `MEDIA_STORAGE_ACCESS_KEY_ID`, `MEDIA_STORAGE_SECRET_ACCESS_KEY`, `MEDIA_STORAGE_FORCE_PATH_STYLE`, `MEDIA_PUBLIC_BASE_URL`, `MEDIA_REQUIRE_HTTPS`, `MEDIA_ACCESS_TTL_SECONDS`, `MEDIA_PROCESSING_TIMEOUT_MS`, `MEDIA_PROCESSING_CONCURRENCY`, and `MEDIA_PROCESSING_MEMORY_LIMIT_MB`. Both credentials support the `_FILE` convention. The browser-visible delivery base URL may include a path; immutable keys are appended beneath it. Neither URL accepts embedded credentials, query parameters, or fragments. Set `MEDIA_REQUIRE_HTTPS=true` in public deployments to require HTTPS for both the storage API and delivery URL.
+
+Read grants expire after the explicitly configured `MEDIA_ACCESS_TTL_SECONDS` (60–900 seconds; deployment default 300). Issuance requires an authorized editor, the actual party host, or a joined participant with a valid same-party socket session. Clients renew grants while their session and access remain valid. Leaving, kicking, ending a party, or losing permissions prevents renewal; previously issued bearer URLs remain usable until expiry. Treat their query strings as credentials and redact them from ingress, CDN, and tracing logs.
+
+Processing runs synchronously with a per-process concurrency limit (1–8), a deadline (1,000–300,000 milliseconds), and a per-worker memory ceiling (256–4,096 MiB). Deployment examples explicitly use one worker, 120 seconds, and 1,024 MiB. Increase container memory to cover the Node application plus all concurrent processing workers; increasing concurrency without adjusting resources may cause the container to be terminated. The backend image includes FFmpeg, FFprobe, and `prlimit` from Debian's `ffmpeg` and `util-linux` packages. Host workflows require those commands on `PATH`, Linux resource-limit support, and a writable temporary directory. Sharp is installed with backend dependencies. Do not run the media processor against untrusted uploads without the worker resource limits.
+
+### Development Media Services
+
+Compose starts SeaweedFS with a persistent `media-data` volume, authenticated S3 reads and writes, and development-only credentials in `docker/media/s3.json`. Its S3 API is available on the private Compose network at `http://media-storage:8333` and on host loopback at `http://localhost:8333`. The `pleey-media` bucket is created at startup. Use the [example environment](../../../../application/backend/.env.example) for a backend started on the host.
+
+The separate `media-delivery` proxy exposes `http://media.pleey.localhost/pleey-media/quiz/…` through Traefik. It preserves the signed browser-visible Host, escaped path, and complete query string so SeaweedFS validates every read. Response caching is disabled and every response uses `Cache-Control: private, no-store`. Unsigned, expired, and tampered URLs fail at the private origin. The proxy permits GET, HEAD, and OPTIONS, exposes browser CORS headers, and forwards byte ranges. Grants sign GET: use GET with a Range header to inspect or seek media; replaying a GET grant as HEAD fails signature verification. OPTIONS carries no media bytes and remains available for CORS. Bucket listing and public writes are unavailable.
+
+After `docker compose up -d media-storage media-delivery`, run `node docker/media/verify-signed-delivery.cjs` from the repository root to check private origin access, signed GETs/ranges, expiry, tampering, HEAD replay, no-store headers, and CORS. This development-only check needs backend dependencies and access to the Compose container network; it uploads and removes one random probe object.
+
+### Production Media Configuration
+
+Provision a private bucket and a signed-read delivery route before deploying. Disable anonymous reads, public ACLs, and public bucket policies. Grant the backend credential only the object read/write/delete permissions needed for the `quiz/` prefix. `MEDIA_PUBLIC_BASE_URL` selects the exact browser-visible URL to sign with S3 Signature V4, not an unsigned public URL. Its host, escaped path, and full query must arrive unchanged at an origin that accepts that signed host and resolves that bucket path. For AWS S3, configure a direct HTTPS S3 bucket URL as the delivery base, or a proxy that preserves a host accepted by S3; do not rewrite a signature between an arbitrary CDN hostname and an S3 hostname. A custom S3-compatible gateway may accept the external hostname, as the development setup does.
+
+Disable response caching on the entire media route, including existing cached objects and errors. Every read and range request must reach origin signature validation; `private, no-store` alone does not secure a CDN configured to ignore that header. Do not configure a CDN to replace viewer authorization with its own unrestricted origin credentials. This provider-neutral adapter does not implement CloudFront signed URLs or cookies. Cached delivery requires a separate CDN-native signer and viewer authorization before every cache hit, as described in ADR 0012.
+
+Configure CORS for browser GET requests, allow the `Range` header, and expose `Content-Length`, `Content-Range`, `Accept-Ranges`, and `ETag`. Preserve object `Content-Type`, enforce `Cache-Control: private, no-store`, and forward `Range`/`If-Range` requests and `206 Partial Content` responses for seeking. Redact signature query strings from access logs. Verify valid GETs and byte ranges succeed while unsigned, expired, tampered, and HEAD replays of GET grants fail.
+The Helm chart supplies runtime settings and mounts credentials from an existing Secret. It does not install object storage or provision a CDN:
+
+```yaml
+backend:
+  media:
+    endpoint: https://s3.example.com
+    region: eu-west-1
+    bucket: pleey-media
+    publicBaseUrl: https://pleey-media.s3.eu-west-1.amazonaws.com
+    accessTtlSeconds: 300
+    requireHttps: true
+    forcePathStyle: false
+    existingSecret:
+      name: pleey-media
+      accessKeyIdKey: MEDIA_STORAGE_ACCESS_KEY_ID
+      secretAccessKeyKey: MEDIA_STORAGE_SECRET_ACCESS_KEY
+    processing:
+      timeoutMs: 120000
+      concurrency: 1
+      memoryLimitMb: 1024
+```
+
+Restart backend replicas after rotating credential Secret contents. Configuration changes restart pods through the existing ConfigMap checksum. The chart defaults reserve 2 GiB of memory for one processing worker plus the application; tune CPU, memory, concurrency, and deadlines together. Its writable `/tmp` volume holds private transient files. Chart CI values use explicit dummy credentials and endpoints because health checks do not upload media. Development chart values require separately deployed storage/delivery services and a `pleey-media` Secret.
+
+### Failure Recovery and Existing Quiz Uploads
+
+Uploads are published only after validation and optimization. A failed replacement leaves the question's previous media reference intact. The durable database asset ledger records pending and retired objects; the cleanup worker scans every minute, expires unattached pending uploads after one hour, and removes retired assets after the 24-hour retirement grace period. Failed deletions remain eligible for retry, including after a restart. Restore storage connectivity or credentials before retrying failed saves; inspect backend errors and the asset ledger when cleanup remains overdue. Keep the ledger when restoring database backups and reconcile storage contents with it before deleting objects manually. Downloaded bytes cannot be recalled, and outstanding grants remain usable until expiry.
+
+For deployments that previously served public object URLs, follow the [private media transition runbook](../../runbooks/private-quiz-media-delivery.md) before reopening traffic. For deployments containing quiz uploads from the earlier PR implementation, follow the [quiz media conversion runbook](../../runbooks/quiz-media-conversion.md).

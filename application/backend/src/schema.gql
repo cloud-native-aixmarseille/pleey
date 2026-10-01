@@ -390,6 +390,7 @@ type Query {
   predictionPrompts(input: PaginationInput!, predictionId: ID!): PredictionPromptListType!
   projectGames(input: ProjectGamesInput!): ProjectGamesType!
   quiz(quizId: ID!): QuizType!
+  quizQuestionMediaAccess(assetId: ID!): QuizQuestionMediaType!
   quizQuestions(input: PaginationInput!, quizId: ID!): QuizQuestionListType!
 }
 
@@ -403,6 +404,8 @@ type QuizQuestionListType {
 }
 
 type QuizQuestionMediaType {
+  expiresAt: DateTime!
+  id: ID!
   mimeType: String!
   uri: String!
 }

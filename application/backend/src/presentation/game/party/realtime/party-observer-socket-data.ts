@@ -1,8 +1,9 @@
 import type { PartyPlayerIdentity } from '../../../../domain/game/party/player/entities/party-player-identity';
-import type { PartyPin } from '../../../../domain/game/party/shared/entities/party';
+import type { PartyId, PartyPin } from '../../../../domain/game/party/shared/entities/party';
 import type { UserId } from '../../../../domain/identity/entities/user';
 
 interface JoinedPartyPlayerSocketData {
+  partyId?: PartyId;
   identity: PartyPlayerIdentity;
   pin: PartyPin;
 }

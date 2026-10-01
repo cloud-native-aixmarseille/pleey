@@ -57,6 +57,51 @@ services:
       - "traefik.http.services.mailpit.loadbalancer.server.port=8025"
       - "traefik.docker.network=traefik-proxy"
 
+  # Development S3 origin. Credentials are development-only and defined in docker/media/s3.json.
+  media-storage:
+    image: chrislusf/seaweedfs:4.47
+    restart: unless-stopped
+    command:
+      - mini
+      - -dir=/data
+      - -s3.config=/etc/seaweedfs/s3.json
+      - -bucket=pleey-media
+      - -webdav=false
+      - -admin.ui=false
+      - -s3.port.iceberg=0
+      - -s3.port.lance=0
+    volumes:
+      - media-data:/data
+      - ./docker/media/s3.json:/etc/seaweedfs/s3.json:ro
+    ports:
+      - "127.0.0.1:8333:8333"
+    networks:
+      - pleey-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:9333/cluster/status"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # Browser delivery boundary: signed reads, CORS and byte ranges.
+  media-delivery:
+    image: nginx:1.28-alpine
+    restart: unless-stopped
+    volumes:
+      - ./docker/media/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      media-storage:
+        condition: service_healthy
+    networks:
+      - pleey-network
+      - traefik-proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.media.rule=Host(`media.pleey.localhost`)"
+      - "traefik.http.routers.media.entrypoints=http"
+      - "traefik.http.services.media.loadbalancer.server.port=8080"
+      - "traefik.docker.network=traefik-proxy"
+
   # Backend NestJS (dev watch mode)
   backend:
     build:
@@ -87,6 +132,18 @@ services:
       - I18N_WATCH_ENABLED=true
       - PARTY_SESSION_RECOVERY_WINDOW_MS=300000
       - PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES=5242880
+      - MEDIA_STORAGE_ENDPOINT=http://media-storage:8333
+      - MEDIA_STORAGE_REGION=us-east-1
+      - MEDIA_STORAGE_BUCKET=pleey-media
+      - MEDIA_STORAGE_ACCESS_KEY_ID=pleey-media-dev
+      - MEDIA_STORAGE_SECRET_ACCESS_KEY=pleey-media-development-secret
+      - MEDIA_STORAGE_FORCE_PATH_STYLE=true
+      - MEDIA_PUBLIC_BASE_URL=http://media.pleey.localhost/pleey-media
+      - MEDIA_REQUIRE_HTTPS=false
+      - MEDIA_ACCESS_TTL_SECONDS=300
+      - MEDIA_PROCESSING_TIMEOUT_MS=120000
+      - MEDIA_PROCESSING_CONCURRENCY=1
+      - MEDIA_PROCESSING_MEMORY_LIMIT_MB=1024
       - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_change_me}
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-your_jwt_refresh_secret_change_me}
       - JWT_ACCESS_EXPIRES_IN_SECONDS=3600
@@ -104,6 +161,10 @@ services:
       - OTEL_CONSOLE_EXPORTERS_ENABLED=false
       - OTEL_CONSOLE_LOGS_ENABLED=false
     depends_on:
+      media-storage:
+        condition: service_healthy
+      media-delivery:
+        condition: service_started
       otel-collector:
         condition: service_healthy
       postgres:
@@ -224,5 +285,7 @@ networks:
     external: true
 
 volumes:
+  media-data:
+    driver: local
   postgres-data:
     driver: local

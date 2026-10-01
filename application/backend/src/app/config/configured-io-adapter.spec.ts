@@ -4,6 +4,21 @@ import { backendTestIdentifiers } from '../../test-utils/branded-identifiers';
 import { SocketAuthenticationFixtureFactory } from '../../test-utils/fixtures/unit/socket-authentication-fixture-factory';
 
 describe('ConfiguredIoAdapter', () => {
+  it('clears recovered authenticated identity when the reconnect supplies no credentials', async () => {
+    // Arrange
+    const fixture = new SocketAuthenticationFixtureFactory().create();
+    Object.assign(fixture.socket.data, { authenticatedUserId: backendTestIdentifiers.user(1) });
+
+    // Act + Assert
+    try {
+      await fixture.connect();
+      expect(fixture.socket.data).toEqual({});
+      expect(fixture.next).toHaveBeenCalledWith();
+    } finally {
+      fixture.dispose();
+    }
+  });
+
   it('keeps unauthenticated guest connections explicit', async () => {
     // Arrange
     const fixture = new SocketAuthenticationFixtureFactory().create();
@@ -49,7 +64,7 @@ describe('ConfiguredIoAdapter', () => {
       fixture.sessions.authenticate.mockRejectedValueOnce(new UnauthorizedError({ reason: 'revokedSession' }));
       await fixture.socket.use.mock.calls[0][0](['host-control'], nextPacket);
       // Assert
-      expect(fixture.socket.data).toEqual({ authenticatedUserId: backendTestIdentifiers.user(1) });
+      expect(fixture.socket.data).toEqual({});
       expect(nextPacket).toHaveBeenCalledWith(expect.any(UnauthorizedError));
       expect(fixture.socket.disconnect).toHaveBeenCalledWith(true);
     } finally {

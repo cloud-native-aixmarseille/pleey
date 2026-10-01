@@ -1,4 +1,4 @@
-import { UnauthorizedException, UseGuards } from '@nestjs/common';
+import { ParseUUIDPipe, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { Args, Context, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { QuizQuestionIdentifier } from '../../../../../application/game/types/quiz/services/quiz-question-identifier';
 import { QuizSelectableOptionIdentifier } from '../../../../../application/game/types/quiz/services/quiz-selectable-option-identifier';
@@ -7,6 +7,7 @@ import { CreateQuizQuestionUseCase } from '../../../../../application/game/types
 import { CreateQuizUseCase } from '../../../../../application/game/types/quiz/use-cases/create-quiz-use-case';
 import { DeleteQuizQuestionUseCase } from '../../../../../application/game/types/quiz/use-cases/delete-quiz-question-use-case';
 import { DeleteQuizUseCase } from '../../../../../application/game/types/quiz/use-cases/delete-quiz-use-case';
+import { GetQuizQuestionMediaAccessUseCase } from '../../../../../application/game/types/quiz/use-cases/get-quiz-question-media-access-use-case';
 import { GetQuizUseCase } from '../../../../../application/game/types/quiz/use-cases/get-quiz-use-case';
 import { ListQuizQuestionsUseCase } from '../../../../../application/game/types/quiz/use-cases/list-quiz-questions-use-case';
 import { UpdateQuizQuestionUseCase } from '../../../../../application/game/types/quiz/use-cases/update-quiz-question-use-case';
@@ -15,16 +16,20 @@ import { GameTypeIdentifier } from '../../../../../application/game/types/shared
 import { ProjectIdentifier } from '../../../../../application/workspace/shared/services/identifiers/project-identifier';
 import type { Quiz } from '../../../../../domain/game/types/quiz/entities/quiz';
 import type { QuizQuestion } from '../../../../../domain/game/types/quiz/entities/quiz-question';
-import { QUIZ_ERROR_DEFINITIONS, QuizErrorCode } from '../../../../../domain/game/types/quiz/enums/quiz-error-code.enum';
+import {
+  QUIZ_ERROR_DEFINITIONS,
+  QuizErrorCode,
+} from '../../../../../domain/game/types/quiz/enums/quiz-error-code.enum';
 import { GameType } from '../../../../../domain/game/types/shared/entities/game-type';
 import type { UserId } from '../../../../../domain/identity/entities/user';
 import { IdentityErrorCode } from '../../../../../domain/identity/enums/identity-error-code.enum';
+import { MediaAccessIssuer } from '../../../../../domain/media/ports/media-access-issuer.port';
 import { createDomainError } from '../../../../../domain/shared/errors/domain-error';
 import { GqlJwtAuthGuard } from '../../../../identity/shared/guards/gql-jwt-auth-guard';
 import { PaginationInput } from '../../../../shared/graphql/types/pagination-input';
-import { QuizQuestionMediaUploadReader } from './quiz-question-media-upload-reader';
 import { PlayableContentUploadReader } from '../../shared/graphql/playable-content-upload-reader';
 import { SelectableOptionInputMapper } from '../../shared/graphql/selectable-option-input-mapper';
+import { QuizQuestionMediaUploadReader } from './quiz-question-media-upload-reader';
 import {
   CreateQuizFromImportInput,
   CreateQuizInput,
@@ -33,7 +38,7 @@ import {
   UpdateQuizQuestionInput,
 } from './types/quiz-inputs';
 import { QuizQuestionListType } from './types/quiz-question-list-type';
-import { QuizQuestionTypeObject, QuizType } from './types/quiz-types';
+import { QuizQuestionMediaType, QuizQuestionTypeObject, QuizType } from './types/quiz-types';
 
 type GraphqlAuthContext = {
   req?: { user?: { id: UserId } };
@@ -59,6 +64,8 @@ export class QuizManagementResolver {
     private readonly playableContentUploadReader: PlayableContentUploadReader,
     private readonly selectableOptionInputMapper: SelectableOptionInputMapper,
     private readonly projectIdentifier: ProjectIdentifier,
+    private readonly mediaAccess: GetQuizQuestionMediaAccessUseCase,
+    private readonly mediaIssuer: MediaAccessIssuer,
   ) {}
 
   @Query(() => QuizType)
@@ -148,7 +155,7 @@ export class QuizManagementResolver {
       input,
     );
 
-    return { ...questions, items: questions.items.map((question) => this.mapQuestion(question)) };
+    return { ...questions, items: await Promise.all(questions.items.map((question) => this.mapQuestion(question))) };
   }
 
   @Mutation(() => QuizQuestionTypeObject)
@@ -210,6 +217,16 @@ export class QuizManagementResolver {
     );
   }
 
+  @Query(() => QuizQuestionMediaType)
+  @UseGuards(GqlJwtAuthGuard)
+  async quizQuestionMediaAccess(
+    @Args('assetId', { type: () => ID }, new ParseUUIDPipe()) assetId: string,
+    @Context() context: GraphqlAuthContext,
+  ): Promise<QuizQuestionMediaType> {
+    const grant = await this.mediaAccess.execute(assetId, this.resolveUserId(context));
+    return { ...grant, expiresAt: new Date(grant.expiresAt) };
+  }
+
   private mapQuiz(quiz: Quiz): QuizType {
     return {
       quizId: quiz.id,
@@ -222,7 +239,8 @@ export class QuizManagementResolver {
     };
   }
 
-  private mapQuestion(question: QuizQuestion): QuizQuestionTypeObject {
+  private async mapQuestion(question: QuizQuestion): Promise<QuizQuestionTypeObject> {
+    const media = question.media ? await this.mediaIssuer.issue(question.media.id) : null;
     return {
       id: question.id,
       quizId: question.quizId,
@@ -231,7 +249,7 @@ export class QuizManagementResolver {
       type: question.type,
       timeLimit: question.timeLimit,
       points: question.points,
-      media: question.media,
+      media: media ? { ...media, expiresAt: new Date(media.expiresAt) } : null,
       answers: question.answers.map((answer) => ({
         id: answer.id,
         text: answer.text,

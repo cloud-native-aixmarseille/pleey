@@ -59,15 +59,15 @@ model UserSession {
 }
 
 model Media {
-  id        String   @id @default(uuid(7)) @db.Uuid
-  mimeType  String   @map("mime_type")
+  id        String    @id @default(uuid(7)) @db.Uuid
+  mimeType  String    @map("mime_type")
   content   Bytes
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
-  avatarForUser      User?     @relation("UserAvatar")
-  questionForMedia   Question? @relation("QuestionMedia")
+  avatarForUser    User?     @relation("UserAvatar")
+  questionForMedia Question? @relation("LegacyQuestionMedia")
 
   @@map("media")
 }
@@ -204,21 +204,23 @@ model Quiz {
 }
 
 model Question {
-  id              String    @id @default(uuid(7)) @db.Uuid
-  quizId          String    @map("quiz_id") @db.Uuid
-  questionMediaId String?   @unique @map("question_media_id") @db.Uuid
-  position        Int       @map("position")
-  questionText    String    @map("question_text")
-  type            String    // 'multiple' or 'truefalse'
-  timeLimit       Int       @default(20) @map("time_limit")
-  points          Int       @default(1000)
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
-  deletedAt       DateTime? @map("deleted_at")
+  id                    String    @id @default(uuid(7)) @db.Uuid
+  quizId                String    @map("quiz_id") @db.Uuid
+  legacyQuestionMediaId String?   @unique @map("question_media_id") @db.Uuid
+  mediaAssetId          String?   @unique @map("media_asset_id") @db.Uuid
+  position              Int       @map("position")
+  questionText          String    @map("question_text")
+  type                  String // 'multiple' or 'truefalse'
+  timeLimit             Int       @default(20) @map("time_limit")
+  points                Int       @default(1000)
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+  deletedAt             DateTime? @map("deleted_at")
 
-  quiz          Quiz            @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  media         Media?          @relation("QuestionMedia", fields: [questionMediaId], references: [id], onDelete: SetNull)
-  answers       QuestionAnswer[] @relation("QuestionAnswers")
+  quiz        Quiz             @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  legacyMedia Media?           @relation("LegacyQuestionMedia", fields: [legacyQuestionMediaId], references: [id], onDelete: SetNull)
+  media       MediaAsset?      @relation(fields: [mediaAssetId], references: [id], onDelete: SetNull)
+  answers     QuestionAnswer[] @relation("QuestionAnswers")
 
   @@unique([quizId, position])
   @@map("questions")
@@ -286,4 +288,22 @@ model PredictionOption {
 
   @@unique([promptId, position])
   @@map("prediction_options")
+}
+
+model MediaAsset {
+  id              String    @id @db.Uuid
+  objectKey       String    @unique @map("object_key")
+  uri             String
+  mimeType        String    @map("mime_type")
+  byteSize        Int       @map("byte_size")
+  width           Int?
+  height          Int?
+  durationSeconds Float?    @map("duration_seconds")
+  status          String
+  deleteAfter     DateTime? @map("delete_after")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  question        Question?
+
+  @@index([status, deleteAfter, id])
+  @@map("media_assets")
 }

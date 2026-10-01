@@ -98,7 +98,6 @@ describe('QuizPartyStageCatalogEntryResolver', () => {
 
   it('maps question media into a stage media URI', async () => {
     // Arrange
-    const mediaUpdatedAt = new Date('2026-09-28T13:00:00.000Z');
     const findFirst = vi.fn().mockResolvedValue({
       id: backendTestIdentifiers.partyStage(10),
       position: 0,
@@ -107,7 +106,7 @@ describe('QuizPartyStageCatalogEntryResolver', () => {
       timeLimit: 20,
       media: {
         mimeType: 'image/png',
-        updatedAt: mediaUpdatedAt,
+        uri: 'https://cdn.example.test/quiz/asset.webp',
       },
       answers: [],
     });
@@ -119,7 +118,7 @@ describe('QuizPartyStageCatalogEntryResolver', () => {
     // Assert
     expect(stage?.media).toEqual({
       mimeType: 'image/png',
-      uri: `/api/quiz-questions/${backendTestIdentifiers.partyStage(10)}/media?v=${mediaUpdatedAt.getTime()}`,
+      uri: 'https://cdn.example.test/quiz/asset.webp',
     });
   });
 });

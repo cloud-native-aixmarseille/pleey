@@ -67,6 +67,7 @@ export interface SocketIoPartyObservationTransportHandlers {
 }
 
 export enum SocketIoPartyObservationEventName {
+  RequestPartyMedia = 'request-party-media',
   ObserveParty = 'observe-party',
   StopObservingParty = 'stop-observing-party',
 }

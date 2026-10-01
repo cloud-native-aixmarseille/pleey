@@ -12,6 +12,8 @@ import {
 const metadata = ["totalCount", "overallCount", "page", "pageSize", "totalPages"];
 // ADR 0011: complete internal aggregate reads, never public collection endpoints.
 const completeReads = new Map([
+  ["LegacyQuestionMediaMigrator.onModuleInit", "Converts legacy assets in batches of 10 before accepting traffic; consumed rows leave the work queue."],
+  ["MediaAssetCleanupWorker.sweep", "Claims bounded batches of 100 expired/orphan assets for background cleanup; no public list or total count."],
   ["PrismaOrganizationRepository.findByIds", "Hydrates organization IDs from one bounded membership page."],
   [
     "PrismaPartyManagementAdapter.findActivePartiesByHostId",

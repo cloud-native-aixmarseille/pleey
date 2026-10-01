@@ -35,6 +35,7 @@ export class ConfiguredIoAdapter extends IoAdapter {
         const token = this.extractBearerToken(socket);
 
         if (!token) {
+          delete socket.data.authenticatedUserId;
           next();
           return;
         }
@@ -46,12 +47,16 @@ export class ConfiguredIoAdapter extends IoAdapter {
             await this.sessions.authenticate(token);
             nextPacket();
           } catch {
+            delete socket.data.authenticatedUserId;
             nextPacket(new UnauthorizedError({ reason: 'socketPacketSessionRevoked' }));
             socket.disconnect(true);
           }
         });
         const checkSession = setInterval(() => {
-          void this.sessions.authenticate(token, false).catch(() => socket.disconnect(true));
+          void this.sessions.authenticate(token, false).catch(() => {
+            delete socket.data.authenticatedUserId;
+            socket.disconnect(true);
+          });
         }, 15_000);
         checkSession.unref();
         socket.once('disconnect', () => clearInterval(checkSession));

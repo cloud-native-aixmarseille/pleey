@@ -3,6 +3,8 @@ import { io, type Socket } from 'socket.io-client';
 import { PartyIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-identifier';
 import type { PartyId } from '../../../../domains/game/party/shared/entities/party';
 import { PartyManagementErrorCode } from '../../../../domains/game/party/shared/errors/party-management-error-code';
+import type { MediaAccessGrant } from '../../../../domains/media/ports/media-access.port';
+import { createDomainError } from '../../../../domains/shared/errors/domain-error';
 import { SOCKET_URL } from '../../../config/api';
 import type {
   ObservePartyPayload,
@@ -46,6 +48,7 @@ export class SocketIoPartyRealtimeTransport {
   private lastRequestedPartyId: PartyId | null = null;
   private readonly pendingHostCommands = new Set<PendingHostCommand>();
   private readonly pendingPlayerCommands = new Set<PendingPlayerCommand>();
+  private readonly pendingMediaRequests = new Set<PendingPlayerCommand>();
   private hasConnectedOnce = false;
   private readonly subscriptions = new Map<PartyId, Set<SocketIoPartyObservationTransportHandlers>>();
 
@@ -107,6 +110,56 @@ export class SocketIoPartyRealtimeTransport {
     const result = await this.emitWithAcknowledgement<{ left: boolean }>(SocketIoPartyJoinEventName.LeaveParty);
 
     return result.left;
+  }
+
+  requestMediaAccess(partyId: PartyId, assetId: string): Promise<MediaAccessGrant> {
+    const socket = this.socket;
+    const unavailable = () =>
+      createDomainError(
+        {
+          code: PartyManagementErrorCode.CONNECTION_LOST,
+          message: PartyManagementErrorCode.CONNECTION_LOST,
+          messageKey: PartyManagementErrorCode.CONNECTION_LOST,
+        },
+        { partyId, assetId },
+      );
+    if (!socket?.connected) return Promise.reject(unavailable());
+    return new Promise((resolve, reject) => {
+      const pending: PendingPlayerCommand = {
+        reject: (error) => {
+          cleanup();
+          reject(error);
+        },
+      };
+      const cleanup = () => {
+        clearTimeout(timer);
+        this.pendingMediaRequests.delete(pending);
+      };
+      const timer = setTimeout(() => pending.reject(unavailable()), 10_000);
+      this.pendingMediaRequests.add(pending);
+      socket.emit(
+        SocketIoPartyObservationEventName.RequestPartyMedia,
+        { partyId, assetId },
+        (grant: MediaAccessGrant) => {
+          if (!this.pendingMediaRequests.has(pending)) return;
+          cleanup();
+          if (
+            grant?.id !== assetId ||
+            grant.partyId !== partyId ||
+            typeof grant.uri !== 'string' ||
+            grant.uri.trim().length === 0 ||
+            typeof grant.mimeType !== 'string' ||
+            grant.mimeType.trim().length === 0 ||
+            !Number.isFinite(Date.parse(grant.expiresAt)) ||
+            Date.parse(grant.expiresAt) <= Date.now()
+          ) {
+            reject(unavailable());
+            return;
+          }
+          resolve(grant);
+        },
+      );
+    });
   }
 
   dispatchPlayerCommand(command: SocketIoPartyPlayerCommand): Promise<void> {
@@ -182,6 +235,18 @@ export class SocketIoPartyRealtimeTransport {
 
     socket.on(SocketIoPartyInboundEventName.Disconnect, () => {
       this.activePartyObservationIds.clear();
+      for (const request of this.pendingMediaRequests) {
+        request.reject(
+          createDomainError(
+            {
+              code: PartyManagementErrorCode.CONNECTION_LOST,
+              message: PartyManagementErrorCode.CONNECTION_LOST,
+              messageKey: PartyManagementErrorCode.CONNECTION_LOST,
+            },
+            { operation: 'requestPartyMedia' },
+          ),
+        );
+      }
     });
 
     socket.on(SocketIoPartyInboundEventName.PartySnapshot, (payload) => {
@@ -207,6 +272,11 @@ export class SocketIoPartyRealtimeTransport {
         pendingPlayerCommand.reject(new Error(message));
       }
 
+      for (const request of this.pendingMediaRequests) {
+        request.reject(
+          createDomainError({ code: message, message, messageKey: message }, { operation: 'requestPartyMedia' }),
+        );
+      }
       this.pendingHostCommands.clear();
       this.pendingPlayerCommands.clear();
       this.dispatchError(message, this.lastRequestedPartyId);

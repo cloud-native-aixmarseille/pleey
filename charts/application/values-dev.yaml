@@ -1,5 +1,14 @@
 ---
 backend:
+  media:
+    endpoint: http://media-storage:8333
+    bucket: pleey-media
+    publicBaseUrl: http://media.pleey.k8s.orb.local/pleey-media
+    requireHttps: false
+    forcePathStyle: true
+    # Deploy S3/CDN separately and create this Secret before installing the chart.
+    existingSecret:
+      name: pleey-media
   image:
     tag: main
     digest: ""

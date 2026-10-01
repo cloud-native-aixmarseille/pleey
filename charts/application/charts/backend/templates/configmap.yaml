@@ -5,6 +5,16 @@ metadata:
   labels:
     {{- include "pleey.backend.labels" . | nindent 4 }}
 data:
+  MEDIA_STORAGE_ENDPOINT: {{ .Values.media.endpoint | quote }}
+  MEDIA_STORAGE_REGION: {{ .Values.media.region | quote }}
+  MEDIA_STORAGE_BUCKET: {{ .Values.media.bucket | quote }}
+  MEDIA_ACCESS_TTL_SECONDS: {{ .Values.media.accessTtlSeconds | int64 | quote }}
+  MEDIA_PUBLIC_BASE_URL: {{ .Values.media.publicBaseUrl | quote }}
+  MEDIA_REQUIRE_HTTPS: {{ .Values.media.requireHttps | quote }}
+  MEDIA_STORAGE_FORCE_PATH_STYLE: {{ .Values.media.forcePathStyle | quote }}
+  MEDIA_PROCESSING_TIMEOUT_MS: {{ .Values.media.processing.timeoutMs | int64 | quote }}
+  MEDIA_PROCESSING_CONCURRENCY: {{ .Values.media.processing.concurrency | int64 | quote }}
+  MEDIA_PROCESSING_MEMORY_LIMIT_MB: {{ .Values.media.processing.memoryLimitMb | int64 | quote }}
   PORT: {{ .Values.service.targetPort | int64 | quote }}
   NODE_ENV: {{ .Values.config.nodeEnv | quote }}
   TRUSTED_PROXY_CIDRS: {{ .Values.config.trustedProxyCidrs | quote }}

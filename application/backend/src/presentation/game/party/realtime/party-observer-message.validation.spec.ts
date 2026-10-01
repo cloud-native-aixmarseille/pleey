@@ -4,6 +4,7 @@ import { backendTestIdentifiers } from '../../../../test-utils/branded-identifie
 import {
   PartyEntryMessageDto,
   PartyObservationMessageDto,
+  RequestPartyMediaMessageDto,
   SubmitPartyActionMessageDto,
 } from './party-observer-message.dto';
 
@@ -14,6 +15,16 @@ const validationPipe = new ValidationPipe({
 });
 
 describe('Party observer realtime payload validation', () => {
+  it.each([undefined, 123, ''])('rejects a media request without a valid asset id (%s)', async (assetId) => {
+    // Arrange + Act + Assert
+    await expect(
+      validationPipe.transform(
+        { partyId: backendTestIdentifiers.party(44), assetId },
+        toArgumentMetadata(RequestPartyMediaMessageDto),
+      ),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
   it('accepts a whitelisted party entry payload', async () => {
     // Arrange + Act
     const result = await validationPipe.transform(

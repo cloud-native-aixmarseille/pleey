@@ -2,9 +2,9 @@ import type { PlayableContentManagementGateway } from '../../../../../applicatio
 import type { GameTypeId } from '../../../../../domains/game/types/shared/game-type';
 import type {
   PlayableChoiceOption,
-  PlayableMedia,
   PlayableManagementItem,
   PlayableManagementItemInput,
+  PlayableMedia,
 } from '../../../../../domains/game/types/shared/management/playable-management';
 import { playableOutcomeEditorPolicy } from './playable-outcome-editor-policy';
 

@@ -55,6 +55,7 @@ import {
   PartyEntryMessageDto,
   PartyHostPlayerMessageDto,
   PartyObservationMessageDto,
+  RequestPartyMediaMessageDto,
   SubmitPartyActionMessageDto,
 } from './party-observer-message.dto';
 import type { PartyObserverSocketData } from './party-observer-socket-data';
@@ -185,6 +186,24 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
       }
 
       await this.partyObservationBroadcaster.emitSnapshot(client, snapshot);
+    } catch (error) {
+      throw this.toWsException(error);
+    }
+  }
+
+  @SubscribeMessage(PARTY_SOCKET_INBOUND_EVENTS.REQUEST_PARTY_MEDIA)
+  async requestPartyMedia(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: RequestPartyMediaMessageDto | undefined,
+  ) {
+    try {
+      const partyId = this.normalizePartyId(payload?.partyId);
+      const assetId = payload?.assetId?.trim();
+      if (!assetId) {
+        throw new GameValidationFailedError({ partyId, reason: 'invalidMediaAssetId' });
+      }
+      const snapshot = await this.loadPartyObservationSnapshotUseCase.execute({ partyId });
+      return await this.partyObservationBroadcaster.requestMediaAccess(client, snapshot, assetId);
     } catch (error) {
       throw this.toWsException(error);
     }
@@ -324,7 +343,8 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     const socketData = client.data as PartyObserverSocketData;
     const joinedPartyPlayer = socketData.joinedPartyPlayer;
     const pin = joinedPartyPlayer?.pin;
-    const partyObservationId = this.parsePartyObservationId(socketData.partyObservationRoom);
+    const partyObservationId =
+      joinedPartyPlayer?.partyId ?? this.parsePartyObservationId(socketData.partyObservationRoom);
 
     if (joinedPartyPlayer && partyObservationId !== null) {
       this.clearPendingLobbyPlayerAbsencePrune(partyObservationId, joinedPartyPlayer.identity);
@@ -388,7 +408,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
       const result = await this.joinPartyUseCase.execute(this.toJoinPartyDto(client, payload));
 
       this.clearPendingLobbyPlayerAbsencePrune(result.partyId, result.player.identity);
-      this.rememberJoinedPlayer(client, result.pin, result.player.identity);
+      this.rememberJoinedPlayer(client, result.partyId, result.pin, result.player.identity);
 
       // Register the new session for this player identity
       const { sessionId } = this.sessionRegistry.registerSession(result.partyId, result.player.identity, client.id);
@@ -566,10 +586,16 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     return this.partyIdentifier.parseOrNull(room.slice('party:'.length));
   }
 
-  private rememberJoinedPlayer(client: Socket, pin: PartyPin, playerIdentity: PartyPlayerIdentity): void {
+  private rememberJoinedPlayer(
+    client: Socket,
+    partyId: PartyId,
+    pin: PartyPin,
+    playerIdentity: PartyPlayerIdentity,
+  ): void {
     const socketData = client.data as PartyObserverSocketData;
 
     socketData.joinedPartyPlayer = {
+      partyId,
       identity: playerIdentity,
       pin,
     };
@@ -579,12 +605,13 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     const socketData = client.data as PartyObserverSocketData;
 
     delete socketData.joinedPartyPlayer;
+    delete socketData.playerSessionId;
   }
 
   private resolvePendingLobbyPlayerAbsencePrune(client: Pick<Socket, 'data'>): PendingLobbyPlayerAbsencePrune | null {
     const socketData = client.data as PartyObserverSocketData;
     const joinedPartyPlayer = socketData.joinedPartyPlayer;
-    const partyId = this.parsePartyObservationId(socketData.partyObservationRoom);
+    const partyId = joinedPartyPlayer?.partyId ?? this.parsePartyObservationId(socketData.partyObservationRoom);
 
     if (joinedPartyPlayer === undefined || partyId === null) {
       return null;

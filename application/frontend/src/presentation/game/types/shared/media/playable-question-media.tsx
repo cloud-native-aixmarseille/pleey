@@ -1,4 +1,7 @@
 import type { PlayableMedia } from '../../../../../domains/game/types/shared/management/playable-management';
+import type { MediaAccessGrant } from '../../../../../domains/media/ports/media-access.port';
+import { useMediaAccessGrant } from '../../../../shared/media/use-media-access-grant';
+import { MediaPreview } from '../../../../shared/ui/media/media-preview';
 
 interface PlayableQuestionMediaProps {
   readonly media: PlayableMedia | null | undefined;
@@ -6,51 +9,37 @@ interface PlayableQuestionMediaProps {
   readonly testId?: string;
 }
 
-const emptyMediaTextTrackUri = 'data:text/vtt;charset=utf-8,WEBVTT%0A%0A';
-
-const visualMediaStyle = {
-  background: 'var(--mantine-color-gray-0)',
-  borderRadius: '1rem',
-  display: 'block',
-  maxHeight: '20rem',
-  objectFit: 'contain',
-  width: '100%',
-} as const;
+function ProtectedQuestionMedia({
+  media,
+  questionText,
+  testId,
+}: Omit<PlayableQuestionMediaProps, 'media'> & { readonly media: MediaAccessGrant }) {
+  const grant = useMediaAccessGrant(media);
+  return grant ? (
+    <MediaPreview label={questionText.trim()} mimeType={grant.mimeType} src={grant.uri} testId={testId} />
+  ) : null;
+}
 
 export function PlayableQuestionMedia({ media, questionText, testId }: PlayableQuestionMediaProps) {
-  if (!media) {
-    return null;
-  }
-
-  const accessibleLabel = questionText.trim();
-
-  if (media.mimeType.startsWith('image/')) {
-    return <img alt={accessibleLabel} data-testid={testId} src={media.uri} style={visualMediaStyle} />;
-  }
-
-  if (media.mimeType.startsWith('audio/')) {
+  if (!media) return null;
+  if (media.id || media.expiresAt) {
+    if (!media.id || !media.expiresAt) return null;
     return (
-      <audio aria-label={accessibleLabel || undefined} controls data-testid={testId} preload="metadata" style={{ width: '100%' }}>
-        <source src={media.uri} type={media.mimeType} />
-        <track kind="descriptions" label={accessibleLabel || undefined} src={emptyMediaTextTrackUri} srcLang="und" />
-      </audio>
+      <ProtectedQuestionMedia
+        key={`${media.partyId ?? 'editor'}:${media.id}`}
+        media={{ ...media, id: media.id, expiresAt: media.expiresAt }}
+        questionText={questionText}
+        testId={testId}
+      />
     );
   }
-
-  if (media.mimeType.startsWith('video/')) {
-    return (
-      <video
-        aria-label={accessibleLabel || undefined}
-        controls
-        data-testid={testId}
-        preload="metadata"
-        src={media.uri}
-        style={visualMediaStyle}
-      >
-        <track kind="captions" label={accessibleLabel || undefined} src={emptyMediaTextTrackUri} srcLang="und" />
-      </video>
-    );
-  }
-
-  return null;
+  return (
+    <MediaPreview
+      key={media.uri}
+      label={questionText.trim()}
+      mimeType={media.mimeType}
+      src={media.uri}
+      testId={testId}
+    />
+  );
 }

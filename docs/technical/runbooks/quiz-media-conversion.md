@@ -1,0 +1,13 @@
+# Convert branch-era quiz media to object storage
+
+This procedure applies only to deployments that installed PR #497 before its object-storage implementation. Fresh installations need no manual conversion. See [ADR 0012](../architecture/adr/0012-support-media-on-quiz-questions.md) for the decision and [media operations](../development/backend/operations.md#quiz-media-storage-processing-and-delivery) for configuration.
+
+1. Schedule a maintenance window and stop every old backend replica. Back up the database, including `media` and question references.
+2. Provision the S3 bucket and CDN, configure credentials and processing tools, and verify authenticated writes and signed guest playback through the delivery route, with anonymous origin reads denied.
+3. Ensure the database has the schema defined by the consolidated feature migration `20260928131500_question_media`: both question references and the asset ledger. This migration also creates the legacy column. Databases that already applied an earlier form of either media migration require schema and migration-history reconciliation before `prisma migrate deploy`; do not replay the consolidated SQL against an existing legacy column. Preserve all existing bytes during reconciliation.
+4. Start the new backend. Before serving traffic, it reads legacy attachments in batches of ten, optimizes/uploads each asset, and atomically attaches its metadata and clears the old reference. Unshared legacy binaries are removed only after publication succeeds; avatar-backed binaries are retained.
+5. Verify management previews, host/player playback, and replacement. The number of questions with a non-null `question_media_id` should reach zero. Retain the additive legacy column until a separately reviewed schema cleanup.
+
+A rejected legacy format, corrupt file, exceeded budget, or unavailable provider blocks startup and preserves the original attachment for recovery. Use the previous application to replace/remove the affected attachment while the new backend is stopped, then retry. Do not run old and new versions concurrently. If conversion already completed for some attachments, do not resume normal traffic on the old backend: it cannot read the new asset references. Restore the pre-conversion database backup for a full rollback and reconcile unreferenced storage objects afterwards.
+
+Migration is restartable: committed assets stay attached and an interrupted upload remains in the durable pending ledger for cleanup. Concurrent new replicas compare and lock the legacy reference before attaching, compensating any redundant upload. A storage/database failure never falls back to serving an unoptimized original.

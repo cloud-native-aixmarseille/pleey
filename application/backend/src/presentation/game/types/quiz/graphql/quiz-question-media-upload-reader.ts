@@ -1,11 +1,27 @@
 import { Buffer } from 'node:buffer';
 import { Injectable } from '@nestjs/common';
-import { QUIZ_ERROR_DEFINITIONS, QuizErrorCode } from '../../../../../domain/game/types/quiz/enums/quiz-error-code.enum';
+import {
+  QUIZ_ERROR_DEFINITIONS,
+  QuizErrorCode,
+} from '../../../../../domain/game/types/quiz/enums/quiz-error-code.enum';
 import { Media } from '../../../../../domain/media/entities/media';
 import { createDomainError } from '../../../../../domain/shared/errors/domain-error';
 import type { PlayableContentUploadFile } from '../../shared/graphql/playable-content-upload-reader';
 
-const SUPPORTED_QUESTION_MEDIA_MIME_TYPE_PREFIXES = ['audio/', 'image/', 'video/'] as const;
+const SUPPORTED_QUESTION_MEDIA_MIME_TYPES = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'audio/mpeg',
+  'audio/wav',
+  'audio/x-wav',
+  'audio/wave',
+  'audio/vnd.wave',
+  'audio/ogg',
+  'video/mp4',
+  'video/webm',
+]);
+const MAX_QUESTION_MEDIA_BYTES = 5 * 1024 * 1024;
 
 @Injectable()
 export class QuizQuestionMediaUploadReader {
@@ -46,19 +62,29 @@ export class QuizQuestionMediaUploadReader {
   }
 
   private isSupportedMimeType(mimeType: string): boolean {
-    return SUPPORTED_QUESTION_MEDIA_MIME_TYPE_PREFIXES.some((prefix) => mimeType.startsWith(prefix));
+    return SUPPORTED_QUESTION_MEDIA_MIME_TYPES.has(mimeType);
   }
 
   private async readContent(upload: PlayableContentUploadFile): Promise<Buffer> {
-    const stream = upload.createReadStream();
+    let stream: ReturnType<PlayableContentUploadFile['createReadStream']> | undefined;
     const chunks: Buffer[] = [];
+    let byteLength = 0;
 
     try {
+      stream = upload.createReadStream();
       for await (const chunk of stream) {
-        chunks.push(typeof chunk === 'string' ? Buffer.from(chunk, 'binary') : Buffer.from(chunk));
+        const bytes = typeof chunk === 'string' ? Buffer.from(chunk, 'binary') : Buffer.from(chunk);
+        byteLength += bytes.length;
+        if (byteLength > MAX_QUESTION_MEDIA_BYTES) {
+          throw createDomainError(QUIZ_ERROR_DEFINITIONS[QuizErrorCode.INVALID_QUESTION_MEDIA], {
+            fileName: upload.filename,
+            reason: 'uploadTooLarge',
+          });
+        }
+        chunks.push(bytes);
       }
     } catch {
-      stream.destroy();
+      stream?.destroy();
 
       throw createDomainError(QUIZ_ERROR_DEFINITIONS[QuizErrorCode.INVALID_QUESTION_MEDIA], {
         fileName: upload.filename,

@@ -94,6 +94,7 @@ import { PartyManagementResolver } from '../../../presentation/game/party/graphq
 import { PartyObserverGateway } from '../../../presentation/game/party/realtime/party-observer-gateway';
 import { HostPartyObservationMessageMapper } from '../../../presentation/game/party/realtime/services/host-party-observation-message-mapper';
 import { PartyObservationAudienceResolver } from '../../../presentation/game/party/realtime/services/party-observation-audience-resolver';
+import { PartyObservationMediaAccessService } from '../../../presentation/game/party/realtime/services/party-observation-media-access.service';
 import { PlayerPartyObservationMessageMapper } from '../../../presentation/game/party/realtime/services/player-party-observation-message-mapper';
 import { SocketPartyObservationBroadcaster } from '../../../presentation/game/party/realtime/services/socket-party-observation-broadcaster';
 import { GameErrorTranslationService } from '../../../presentation/game/shared/error-handling/game-error-translation.service';
@@ -102,10 +103,11 @@ import { ErrorTranslationService } from '../../../presentation/shared/error-hand
 import { I18nWsExceptionFilter } from '../../../presentation/shared/error-handling/i18n-ws-exception-filter';
 import { DatabaseModule } from '../database/database-module';
 import { IdentityModule } from '../identity/identity-module';
+import { MediaModule } from '../media/media-module';
 import { SharedServicesModule } from '../shared/shared-services.module';
 
 @Module({
-  imports: [DatabaseModule, IdentityModule, SharedServicesModule],
+  imports: [DatabaseModule, IdentityModule, SharedServicesModule, MediaModule],
   providers: [
     PrismaGameCatalogAdapter,
     PrismaPlayerPartyActionRuntimeAdapter,
@@ -229,6 +231,7 @@ import { SharedServicesModule } from '../shared/shared-services.module';
     PartyObserverGateway,
     HostPartyObservationMessageMapper,
     PartyObservationAudienceResolver,
+    PartyObservationMediaAccessService,
     PlayerPartyObservationMessageMapper,
     SocketPartyObservationBroadcaster,
     UserIdentifier,

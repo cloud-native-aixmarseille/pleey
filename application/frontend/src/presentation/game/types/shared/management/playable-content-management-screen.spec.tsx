@@ -435,4 +435,39 @@ describe('PlayableContentManagementScreen', () => {
       );
     });
   });
+
+  it.each([
+    { type: 'image/gif', size: 1, errorKey: 'unsupportedMediaType' },
+    { type: 'image/png', size: 5 * 1024 * 1024 + 1, errorKey: 'mediaTooLarge' },
+  ])(
+    'blocks a dropped file with $errorKey and associates the error with its picker',
+    async ({ type, size, errorKey }) => {
+      // Arrange
+      arrangeGatewayDefaults();
+      const user = userEvent.setup();
+      const file = new File([new Uint8Array(size)], 'prompt', { type });
+      renderScreen({ allowMedia: true });
+      await user.click(await screen.findByRole('button', { name: 'game.types.quiz.management.createItem' }));
+      const textboxes = screen.getAllByRole('textbox');
+      fireEvent.change(textboxes[0], { target: { value: 'New question' } });
+      fireEvent.change(textboxes[1], { target: { value: 'Alpha' } });
+      fireEvent.change(textboxes[2], { target: { value: 'Beta' } });
+
+      // Act
+      fireEvent.drop(screen.getByRole('group', { name: 'game.types.quiz.management.mediaPickerLabel' }), {
+        dataTransfer: { files: [file] },
+      });
+
+      // Assert
+      const input = screen.getByLabelText('game.types.quiz.management.mediaPickerLabel', { selector: 'input' });
+      expect(input).toHaveAttribute('aria-invalid', 'true');
+      expect(input).toHaveAccessibleDescription(
+        `game.types.quiz.management.mediaHelpText game.types.quiz.management.validation.${errorKey}`,
+      );
+      expect(input.getAttribute('accept')).not.toContain('*');
+      expect(screen.getByRole('alert')).toHaveTextContent(`game.types.quiz.management.validation.${errorKey}`);
+      expect(screen.getAllByRole('button', { name: 'game.types.quiz.management.createItem' }).at(-1)).toBeDisabled();
+      expect(gateway.createItem).not.toHaveBeenCalled();
+    },
+  );
 });

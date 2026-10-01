@@ -14,6 +14,7 @@ import type { SelectableOptionInput } from '../../../../../domain/game/types/sha
 import { SelectableOptionPolicy } from '../../../../../domain/game/types/shared/services/selectable-option-policy';
 import type { UserId } from '../../../../../domain/identity/entities/user';
 import type { Media } from '../../../../../domain/media/entities/media';
+import { MediaMutationService } from '../../../../media/services/media-mutation.service';
 import { GameTypeManagementAccessGuard } from '../../shared/services/game-type-management-access-guard';
 
 interface UpdateQuizQuestionCommand {
@@ -36,6 +37,7 @@ export class UpdateQuizQuestionUseCase {
     private readonly questionRepository: QuizQuestionRepository,
     private readonly accessGuard: GameTypeManagementAccessGuard,
     private readonly optionPolicy: SelectableOptionPolicy,
+    private readonly mediaMutation: MediaMutationService,
   ) {}
 
   async execute(command: UpdateQuizQuestionCommand, userId: UserId): Promise<QuizQuestion> {
@@ -56,15 +58,17 @@ export class UpdateQuizQuestionUseCase {
     const answers = this.optionPolicy.normalize(command.answers);
     this.assertAnswers(command.type, answers);
 
-    return this.questionRepository.update(command.questionId, {
-      position: command.position,
-      questionText: command.questionText,
-      type: command.type,
-      timeLimit: command.timeLimit,
-      points: command.points,
-      answers,
-      media: command.media,
-    });
+    return this.mediaMutation.persist(command.media, (media) =>
+      this.questionRepository.update(command.questionId, {
+        position: command.position,
+        questionText: command.questionText,
+        type: command.type,
+        timeLimit: command.timeLimit,
+        points: command.points,
+        answers,
+        media,
+      }),
+    );
   }
 
   private assertAnswers(type: QuizQuestionType, answers: ReturnType<SelectableOptionPolicy['normalize']>): void {

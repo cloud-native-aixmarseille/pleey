@@ -1,0 +1,7 @@
+{
+  "errors": {
+    "invalidMedia": "Ce média est invalide ou dépasse les limites de format, de poids, de dimensions ou de durée autorisées.",
+    "unavailable": "Le stockage des médias est temporairement indisponible. Veuillez réessayer.",
+    "busy": "Le traitement des médias est occupé. Veuillez réessayer dans un instant."
+  }
+}

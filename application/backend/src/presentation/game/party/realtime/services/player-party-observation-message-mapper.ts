@@ -23,7 +23,7 @@ export class PlayerPartyObservationMessageMapper {
       context: this.toContext(observation, currentPlayerIdentity),
       isObserverHost: false,
       host: observation.host,
-      players: observation.players.map((player) => ({
+      players: (currentPlayerIdentity === null ? [] : observation.players).map((player) => ({
         avatarUri: player.avatarUri,
         correctStages: player.correctStages,
         identity: player.identity,
@@ -41,7 +41,7 @@ export class PlayerPartyObservationMessageMapper {
     currentPlayerIdentity: PartyPlayerIdentity | null,
   ): PartyRuntimeContext | null {
     if (!observation.context || currentPlayerIdentity === null) {
-      return observation.context;
+      return null;
     }
 
     const currentPlayerActionState = observation.playerActionStates.find((entry) => {

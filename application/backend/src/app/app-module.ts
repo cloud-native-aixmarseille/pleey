@@ -14,6 +14,8 @@ import { QuizErrorTranslationService } from '../presentation/game/types/quiz/sha
 import { PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES_TOKEN } from '../presentation/game/types/shared/graphql/playable-content-upload.constants';
 import { IdentityErrorHttpStatusService } from '../presentation/identity/shared/error-handling/identity-error-http-status.service';
 import { IdentityErrorTranslationService } from '../presentation/identity/shared/error-handling/identity-error-translation.service';
+import { MediaErrorHttpStatusService } from '../presentation/media/shared/error-handling/media-error-http-status.service';
+import { MediaErrorTranslationService } from '../presentation/media/shared/error-handling/media-error-translation.service';
 import { OrganizationErrorHttpStatusService } from '../presentation/organization/shared/error-handling/organization-error-http-status.service';
 import { OrganizationErrorTranslationService } from '../presentation/organization/shared/error-handling/organization-error-translation.service';
 import { ProjectErrorHttpStatusService } from '../presentation/project/shared/error-handling/project-error-http-status.service';
@@ -126,7 +128,9 @@ function parseAuthorizationHeader(connectionParams?: Record<string, unknown>): s
     ProjectErrorHttpStatusService,
     ProjectErrorTranslationService,
     QuizErrorHttpStatusService,
+    MediaErrorHttpStatusService,
     QuizErrorTranslationService,
+    MediaErrorTranslationService,
     {
       provide: ERROR_CODE_TRANSLATORS,
       useFactory: (
@@ -136,9 +140,11 @@ function parseAuthorizationHeader(connectionParams?: Record<string, unknown>): s
         predictionErrorTranslationService: PredictionErrorTranslationService,
         projectErrorTranslationService: ProjectErrorTranslationService,
         quizErrorTranslationService: QuizErrorTranslationService,
+        mediaErrorTranslationService: MediaErrorTranslationService,
       ) => [
         identityErrorTranslationService,
         quizErrorTranslationService,
+        mediaErrorTranslationService,
         gameErrorTranslationService,
         organizationErrorTranslationService,
         predictionErrorTranslationService,
@@ -151,6 +157,7 @@ function parseAuthorizationHeader(connectionParams?: Record<string, unknown>): s
         PredictionErrorTranslationService,
         ProjectErrorTranslationService,
         QuizErrorTranslationService,
+        MediaErrorTranslationService,
       ],
     },
     {
@@ -162,9 +169,11 @@ function parseAuthorizationHeader(connectionParams?: Record<string, unknown>): s
         predictionErrorHttpStatusService: PredictionErrorHttpStatusService,
         projectErrorHttpStatusService: ProjectErrorHttpStatusService,
         quizErrorHttpStatusService: QuizErrorHttpStatusService,
+        mediaErrorHttpStatusService: MediaErrorHttpStatusService,
       ) => [
         identityErrorHttpStatusService,
         quizErrorHttpStatusService,
+        mediaErrorHttpStatusService,
         gameErrorHttpStatusService,
         organizationErrorHttpStatusService,
         predictionErrorHttpStatusService,
@@ -177,6 +186,7 @@ function parseAuthorizationHeader(connectionParams?: Record<string, unknown>): s
         PredictionErrorHttpStatusService,
         ProjectErrorHttpStatusService,
         QuizErrorHttpStatusService,
+        MediaErrorHttpStatusService,
       ],
     },
     ErrorCodeHttpStatusService,
