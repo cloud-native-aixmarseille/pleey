@@ -123,6 +123,9 @@ export const predictionEn = {
           resultNoAnswer: 'No prediction submitted.',
           resultNoAnswerHint:
             'Time ran out before you locked in a prediction. Check the distribution to see the resolved outcome.',
+          resultPartiallyCorrect: 'Partly correct — you earned some points.',
+          selectAnswersHint: 'Select all answers that apply, then submit.',
+          submitAnswers: 'Submit answers',
         },
       },
     },

@@ -77,6 +77,7 @@ describe('SubmitPartyActionUseCase', () => {
     const policy = {
       evaluateSubmission: vi.fn().mockResolvedValue({
         context: nextContext,
+        isCorrect: true,
         scoreDelta: 750,
         status: PartyStatus.ACTIVE,
       }),
@@ -99,7 +100,7 @@ describe('SubmitPartyActionUseCase', () => {
 
     // Act
     await useCase.execute({
-      actionId: selectedActionId,
+      actionIds: [selectedActionId],
       partyId,
       playerIdentity,
     });
@@ -107,7 +108,7 @@ describe('SubmitPartyActionUseCase', () => {
     // Assert
     expect(policyRegistry.resolveByGameType).toHaveBeenCalledWith(GameType.Quiz);
     expect(policy.evaluateSubmission).toHaveBeenCalledWith({
-      actionId: selectedActionId,
+      actionIds: [selectedActionId],
       context: {
         lifecycle: {
           phase: 'stage',
@@ -125,8 +126,9 @@ describe('SubmitPartyActionUseCase', () => {
       status: PartyStatus.ACTIVE,
     });
     expect(playerPartyActionRuntime.saveSubmissionResult).toHaveBeenCalledWith({
-      actionId: selectedActionId,
+      actionIds: [selectedActionId],
       context: nextContext,
+      isCorrect: true,
       partyId,
       playerIdentity,
       scoreDelta: 750,
@@ -152,6 +154,7 @@ describe('SubmitPartyActionUseCase', () => {
             totalStages: 3,
           },
         },
+        isCorrect: false,
         scoreDelta: 0,
         status: PartyStatus.ACTIVE,
       }),
@@ -184,7 +187,7 @@ describe('SubmitPartyActionUseCase', () => {
 
     // Act
     await useCase.execute({
-      actionId: selectedActionId,
+      actionIds: [selectedActionId],
       partyId,
       playerIdentity,
     });

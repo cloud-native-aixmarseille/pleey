@@ -65,6 +65,9 @@ export class PlayerPartyObservationMessageMapper {
                 ...observation.context.stage.actionSubmission,
                 currentPlayer: {
                   selectedActionId: currentPlayerActionState.state.selectedActionId,
+                  selectedActionIds: currentPlayerActionState.state.selectedActionIds ?? [
+                    currentPlayerActionState.state.selectedActionId,
+                  ],
                   status: currentPlayerActionState.state.status,
                 },
               },
@@ -77,22 +80,30 @@ export class PlayerPartyObservationMessageMapper {
       return observation.context;
     }
 
-    const currentPlayerResultAction = observation.context.result?.current?.actions.find(
-      (action) => action.id === currentPlayerActionState.state.selectedActionId,
-    );
+    const selectedActionIds = currentPlayerActionState.state.selectedActionIds ?? [
+      currentPlayerActionState.state.selectedActionId,
+    ];
+    const selectedResultActions =
+      observation.context.result?.current?.actions.filter((action) => selectedActionIds.includes(action.id)) ?? [];
+    const correctActionCount =
+      observation.context.result?.current?.actions.filter((action) => action.isCorrect).length ?? 0;
+    const isCorrect =
+      selectedResultActions.length === correctActionCount && selectedResultActions.every((action) => action.isCorrect);
 
     return observation.context.result
       ? {
           ...observation.context,
           result: {
             ...observation.context.result,
-            currentPlayer: currentPlayerResultAction
-              ? {
-                  earnedPoints: currentPlayerActionState.state.earnedPoints,
-                  isCorrect: currentPlayerResultAction.isCorrect,
-                  selectedActionId: currentPlayerActionState.state.selectedActionId,
-                }
-              : null,
+            currentPlayer:
+              selectedResultActions.length > 0
+                ? {
+                    earnedPoints: currentPlayerActionState.state.earnedPoints,
+                    isCorrect,
+                    selectedActionId: currentPlayerActionState.state.selectedActionId,
+                    selectedActionIds,
+                  }
+                : null,
           },
         }
       : observation.context;

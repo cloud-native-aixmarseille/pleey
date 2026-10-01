@@ -33,6 +33,9 @@ export class PartyRuntimeContextProjectionService {
 
     const currentPlayerActionState =
       input.currentPlayerActionState?.stageId === stageId ? input.currentPlayerActionState : null;
+    const selectedActionIds = currentPlayerActionState
+      ? (currentPlayerActionState.selectedActionIds ?? [currentPlayerActionState.selectedActionId])
+      : null;
 
     return {
       lifecycle: input.baseContext.lifecycle,
@@ -40,7 +43,8 @@ export class PartyRuntimeContextProjectionService {
         actionSubmission: {
           currentPlayer: currentPlayerActionState
             ? {
-                selectedActionId: currentPlayerActionState.selectedActionId,
+                selectedActionId: selectedActionIds?.[0] ?? currentPlayerActionState.selectedActionId,
+                selectedActionIds: selectedActionIds ?? [currentPlayerActionState.selectedActionId],
                 status: currentPlayerActionState.status,
               }
             : null,
@@ -48,6 +52,7 @@ export class PartyRuntimeContextProjectionService {
           totalEligiblePlayerCount: input.totalEligiblePlayerCount,
         },
         current: {
+          allowsMultipleSelections: input.stage.allowsMultipleSelections ?? false,
           actions: input.stage.actions.map((action) => ({
             id: action.id,
             text: action.text,
@@ -81,18 +86,24 @@ export class PartyRuntimeContextProjectionService {
         continue;
       }
 
-      actionCounts.set(
-        playerActionState.selectedActionId,
-        (actionCounts.get(playerActionState.selectedActionId) ?? 0) + 1,
-      );
+      for (const selectedActionId of playerActionState.selectedActionIds ?? [playerActionState.selectedActionId]) {
+        actionCounts.set(selectedActionId, (actionCounts.get(selectedActionId) ?? 0) + 1);
+      }
     }
 
     const totalVotes = Array.from(actionCounts.values()).reduce((sum, value) => sum + value, 0);
     const currentPlayerAction =
       input.currentPlayerActionState?.stageId === stageId ? input.currentPlayerActionState : null;
-    const selectedAction = currentPlayerAction
-      ? (stage.actions.find((action) => action.id === currentPlayerAction.selectedActionId) ?? null)
-      : null;
+    const selectedActionIds = currentPlayerAction
+      ? (currentPlayerAction.selectedActionIds ?? [currentPlayerAction.selectedActionId])
+      : [];
+    const selectedActions = currentPlayerAction
+      ? stage.actions.filter((action) => selectedActionIds.includes(action.id))
+      : [];
+    const isCorrect =
+      selectedActions.length === selectedActionIds.length &&
+      selectedActions.length === stage.actions.filter((action) => action.isCorrect).length &&
+      selectedActions.every((action) => action.isCorrect);
 
     return {
       lifecycle: baseContext.lifecycle,
@@ -113,12 +124,13 @@ export class PartyRuntimeContextProjectionService {
           text: stage.text,
         },
         currentPlayer:
-          currentPlayerAction === null || selectedAction === null
+          currentPlayerAction === null || selectedActions.length === 0
             ? null
             : {
                 earnedPoints: currentPlayerAction.earnedPoints,
-                isCorrect: selectedAction.isCorrect,
-                selectedActionId: currentPlayerAction.selectedActionId,
+                isCorrect,
+                selectedActionId: selectedActionIds[0] ?? currentPlayerAction.selectedActionId,
+                selectedActionIds,
               },
       },
     };

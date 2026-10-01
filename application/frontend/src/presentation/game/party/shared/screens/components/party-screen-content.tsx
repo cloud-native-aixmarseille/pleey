@@ -59,7 +59,7 @@ export function PartyScreenContent({ resolvePartyAbsoluteUrl, screenSection, sta
     leaveParty,
     pendingHostRuntimeConfirmationCommand,
     pendingKickedPlayerKey,
-    pendingPlayerActionId,
+    pendingPlayerActionIds,
     pauseParty,
     pendingHostRuntimeCommand,
     party,
@@ -197,16 +197,16 @@ export function PartyScreenContent({ resolvePartyAbsoluteUrl, screenSection, sta
       surface = party.context?.stage?.current
         ? (partyGameTypeRuntimeView?.renderPlayerStageSurface({
             onLeaveParty: () => void leaveParty(),
-            onSubmitAction: (actionId) => void submitAction(actionId),
+            onSubmitAction: (actionIds) => void submitAction(actionIds),
             party,
-            pendingActionId: pendingPlayerActionId,
+            pendingActionIds: pendingPlayerActionIds,
             playerActionErrorMessage,
           }) ?? (
             <PlayerStageSurface
               onLeaveParty={() => void leaveParty()}
-              onSubmitAction={(actionId) => void submitAction(actionId)}
+              onSubmitAction={(actionIds) => void submitAction(actionIds)}
               party={party}
-              pendingActionId={pendingPlayerActionId}
+              pendingActionIds={pendingPlayerActionIds}
               playerActionErrorMessage={playerActionErrorMessage}
             />
           ))

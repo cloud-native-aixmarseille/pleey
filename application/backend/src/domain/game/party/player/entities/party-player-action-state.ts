@@ -10,7 +10,9 @@ type PartyPlayerActionStateStatus =
 
 export interface PartyPlayerActionState {
   readonly earnedPoints: number;
+  readonly isCorrect?: boolean;
   readonly selectedActionId: PartyActionId;
+  readonly selectedActionIds?: readonly PartyActionId[];
   readonly stageId: PartyStageId;
   readonly stagePosition: number;
   readonly status: PartyPlayerActionStateStatus;

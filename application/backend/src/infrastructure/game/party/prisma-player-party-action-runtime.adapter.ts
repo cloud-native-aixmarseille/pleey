@@ -24,7 +24,9 @@ import { PrismaPartyReadModelMapper } from './services/prisma-party-read-model-m
 
 interface PersistedPartyPlayerStageProgressEntry {
   readonly earnedPoints: number;
+  readonly isCorrect?: boolean;
   readonly selectedActionId: PartyActionId;
+  readonly selectedActionIds?: readonly PartyActionId[];
   readonly stageId: PartyStageId;
   readonly stagePosition: number;
   readonly status: PartyPlayerActionState['status'];
@@ -117,6 +119,12 @@ export class PrismaPlayerPartyActionRuntimeAdapter extends PlayerPartyActionRunt
   }
 
   async saveSubmissionResult(command: SavePartyActionSubmissionResultCommand): Promise<void> {
+    const [selectedActionId] = command.actionIds;
+
+    if (selectedActionId === undefined) {
+      return;
+    }
+
     await this.prisma.$transaction(async (transaction) => {
       if (command.context !== null || command.status !== undefined) {
         await transaction.party.update({
@@ -161,7 +169,9 @@ export class PrismaPlayerPartyActionRuntimeAdapter extends PlayerPartyActionRunt
         ...progress.stageHistory.filter((entry) => entry.stageId !== stageId),
         {
           earnedPoints: command.scoreDelta,
-          selectedActionId: command.actionId,
+          isCorrect: command.isCorrect,
+          selectedActionId,
+          selectedActionIds: command.actionIds,
           stageId,
           stagePosition,
           status: PARTY_PLAYER_ACTION_STATE_STATUS.ACKNOWLEDGED,
@@ -196,7 +206,9 @@ export class PrismaPlayerPartyActionRuntimeAdapter extends PlayerPartyActionRunt
             ? latestState
             : {
                 earnedPoints: latestHistoryEntry.earnedPoints,
+                isCorrect: latestHistoryEntry.isCorrect,
                 selectedActionId: latestHistoryEntry.selectedActionId,
+                selectedActionIds: latestHistoryEntry.selectedActionIds ?? [latestHistoryEntry.selectedActionId],
                 stageId: latestHistoryEntry.stageId,
                 stagePosition: latestHistoryEntry.stagePosition,
                 status: latestHistoryEntry.status,
@@ -217,7 +229,9 @@ export class PrismaPlayerPartyActionRuntimeAdapter extends PlayerPartyActionRunt
       stageHistory: [
         {
           earnedPoints: totalPoints,
+          isCorrect: latestState.isCorrect,
           selectedActionId: latestState.selectedActionId,
+          selectedActionIds: latestState.selectedActionIds ?? [latestState.selectedActionId],
           stageId: latestState.stageId,
           stagePosition: latestState.stagePosition,
           status: latestState.status,
@@ -243,7 +257,9 @@ export class PrismaPlayerPartyActionRuntimeAdapter extends PlayerPartyActionRunt
     }
 
     const earnedPoints = Reflect.get(value, 'earnedPoints');
+    const isCorrect = Reflect.get(value, 'isCorrect');
     const selectedActionId = Reflect.get(value, 'selectedActionId');
+    const selectedActionIdsValue = Reflect.get(value, 'selectedActionIds');
     const stageId = Reflect.get(value, 'stageId');
     const stagePosition = Reflect.get(value, 'stagePosition');
     const status = Reflect.get(value, 'status');
@@ -253,8 +269,26 @@ export class PrismaPlayerPartyActionRuntimeAdapter extends PlayerPartyActionRunt
     }
 
     const normalizedSelectedActionId = this.partyActionIdentifier.parseOrNull(selectedActionId);
+    const normalizedSelectedActionIds = Array.isArray(selectedActionIdsValue)
+      ? selectedActionIdsValue.map((actionId) => this.partyActionIdentifier.parseOrNull(actionId))
+      : null;
 
-    if (normalizedSelectedActionId === null) {
+    if (
+      (normalizedSelectedActionIds !== null &&
+        (normalizedSelectedActionIds.length === 0 ||
+          normalizedSelectedActionIds.some((actionId) => actionId === null) ||
+          new Set(normalizedSelectedActionIds).size !== normalizedSelectedActionIds.length)) ||
+      (normalizedSelectedActionIds === null && normalizedSelectedActionId === null)
+    ) {
+      return null;
+    }
+
+    const validSelectedActionIds = (normalizedSelectedActionIds ?? [normalizedSelectedActionId]).filter(
+      (actionId): actionId is PartyActionId => actionId !== null,
+    );
+    const [primarySelectedActionId] = validSelectedActionIds;
+
+    if (primarySelectedActionId === undefined) {
       return null;
     }
 
@@ -274,7 +308,9 @@ export class PrismaPlayerPartyActionRuntimeAdapter extends PlayerPartyActionRunt
 
     return {
       earnedPoints: Number(earnedPoints),
-      selectedActionId: normalizedSelectedActionId,
+      ...(typeof isCorrect === 'boolean' ? { isCorrect } : {}),
+      selectedActionId: primarySelectedActionId,
+      selectedActionIds: validSelectedActionIds,
       stageId: normalizedStageId,
       stagePosition: Number(stagePosition),
       status,
@@ -292,10 +328,14 @@ export class PrismaPlayerPartyActionRuntimeAdapter extends PlayerPartyActionRunt
 
     return {
       earnedPoints: latestStage.earnedPoints,
+      ...(typeof latestStage.isCorrect === 'boolean' ? { isCorrect: latestStage.isCorrect } : {}),
       selectedActionId: latestStage.selectedActionId,
+      selectedActionIds: latestStage.selectedActionIds ?? [latestStage.selectedActionId],
       stageHistory: stageHistory.map((entry) => ({
         earnedPoints: entry.earnedPoints,
+        ...(typeof entry.isCorrect === 'boolean' ? { isCorrect: entry.isCorrect } : {}),
         selectedActionId: entry.selectedActionId,
+        selectedActionIds: entry.selectedActionIds ?? [entry.selectedActionId],
         stageId: entry.stageId,
         stagePosition: entry.stagePosition,
         status: entry.status,
