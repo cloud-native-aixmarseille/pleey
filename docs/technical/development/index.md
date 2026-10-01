@@ -33,6 +33,14 @@ Per-app npm scripts are in each `package.json`. Key entrypoints:
 - `make ci` — lint-fix + test (pre-push check)
 - `make test` — all tests (supports `SCOPE` and `MODE` args)
 
+## Repository Static Linting
+
+`make lint` runs both application lint pipelines, then Super-linter with the configurations under `.github/linters/`.
+
+Checkov renders the umbrella chart using [the CI recovery values](../../../charts/application/ci/recovery-values.yaml), including the frontend and backend templates. Only the two local subchart `Chart.yaml` entrypoints are excluded from duplicate standalone discovery; their directories remain eligible for scanning. Keep the fixture complete when chart schemas add required values, and verify that security checks still detect missing release policies and unsafe service workloads.
+
+The root and application Biome configurations use the installed CLI schema.
+
 ## Documentation Maintenance
 
 Development docs under `docs/technical/development/**` describe the current approved repository state only.
