@@ -1,6 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
 import { ProjectIdentifier } from '../../application/workspace/shared/services/identifiers/project-identifier';
+import { ThemeIdentifier } from '../../application/workspace/themes/services/theme-identifier';
 import type { PartySettings } from '../../domains/game/party/shared/entities/party-settings';
 import type { Project } from '../../domains/project/entities/project';
 import { PROJECT_ERROR_DEFINITIONS, ProjectErrorCode } from '../../domains/project/errors/project-error-code';
@@ -42,6 +43,8 @@ export class GraphqlProjectRepository implements ProjectRepository {
     private readonly projectIdentifier: ProjectIdentifier,
     @inject(OrganizationIdentifier)
     private readonly organizationIdentifier: OrganizationIdentifier,
+    @inject(ThemeIdentifier)
+    private readonly themeIdentifier: ThemeIdentifier,
   ) {}
 
   async getProjectsByOrganization(query: ListOrganizationProjectsQuery): Promise<PaginatedResult<Project>> {
@@ -69,6 +72,7 @@ export class GraphqlProjectRepository implements ProjectRepository {
             update: decodeActionPermission(project.permissions?.update, ProjectActionDisabledReason),
             delete: decodeActionPermission(project.permissions?.delete, ProjectActionDisabledReason),
           },
+          defaultThemeId: this.themeIdentifier.parse(project.defaultThemeId),
           defaultPartySettings: this.toPartySettings(project.defaultPartySettings),
         })),
         totalCount: result.organizationProjects.totalCount,
@@ -92,6 +96,7 @@ export class GraphqlProjectRepository implements ProjectRepository {
             name: command.name,
             description: command.description,
             defaultPartySettings: command.defaultPartySettings,
+            defaultThemeId: command.defaultThemeId,
           },
         },
       );
@@ -112,6 +117,7 @@ export class GraphqlProjectRepository implements ProjectRepository {
             name: command.name,
             description: command.description,
             defaultPartySettings: command.defaultPartySettings,
+            defaultThemeId: command.defaultThemeId,
           },
         },
       );
@@ -146,6 +152,7 @@ export class GraphqlProjectRepository implements ProjectRepository {
       readonly randomizeOptionOrder: boolean;
       readonly randomizeStageOrder: boolean;
     } | null;
+    readonly defaultThemeId?: string | null;
   }): Project {
     return {
       id: this.projectIdentifier.parse(project.id),
@@ -158,6 +165,7 @@ export class GraphqlProjectRepository implements ProjectRepository {
         update: decodeActionPermission(project.permissions?.update, ProjectActionDisabledReason),
         delete: decodeActionPermission(project.permissions?.delete, ProjectActionDisabledReason),
       },
+      defaultThemeId: this.themeIdentifier.parse(project.defaultThemeId),
     };
   }
 

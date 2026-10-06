@@ -1,4 +1,5 @@
 import type { PartySettings } from '../../game/party/shared/entities/party-settings';
+import type { ThemeId } from '../../theme/entities/theme-id';
 import type { Organization, OrganizationId } from '../entities/organization';
 
 /**
@@ -11,6 +12,7 @@ export interface OrganizationRepository {
     description: string | null,
     defaults: {
       readonly defaultPartySettings: PartySettings | null;
+      readonly defaultThemeId?: ThemeId | null;
     },
   ): Promise<Organization>;
   update(
@@ -19,6 +21,7 @@ export interface OrganizationRepository {
     description: string | null,
     defaults: {
       readonly defaultPartySettings: PartySettings | null;
+      readonly defaultThemeId?: ThemeId | null;
     },
   ): Promise<Organization>;
   findById(id: OrganizationId): Promise<Organization | null>;

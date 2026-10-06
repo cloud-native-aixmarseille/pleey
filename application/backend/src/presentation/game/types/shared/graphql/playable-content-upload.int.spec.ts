@@ -1,3 +1,4 @@
+import { GraphqlUploadReader } from '../../../../shared/graphql/graphql-upload-reader';
 import 'reflect-metadata';
 import { ApolloDriver, type ApolloDriverConfig } from '@nestjs/apollo';
 import { type INestApplication, Injectable, MiddlewareConsumer, Module, type NestModule } from '@nestjs/common';
@@ -135,6 +136,7 @@ class TestPlayableContentImportResolver {
       provide: PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES_TOKEN,
       useValue: DEFAULT_PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES,
     },
+    GraphqlUploadReader,
     PlayableContentUploadReader,
     TestPlayableContentImportResolver,
   ],

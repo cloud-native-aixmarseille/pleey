@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { PaginationQueryNormalizer } from '../../../application/shared/services/pagination-query-normalizer';
-import { PrismaPartySettingsMapper } from '../../../infrastructure/game/shared/prisma-party-settings.mapper';
+import { GraphqlUploadReader } from '../../../presentation/shared/graphql/graphql-upload-reader';
 
 @Module({
-  providers: [PaginationQueryNormalizer, PrismaPartySettingsMapper],
-  exports: [PaginationQueryNormalizer, PrismaPartySettingsMapper],
+  providers: [PaginationQueryNormalizer, GraphqlUploadReader],
+  exports: [PaginationQueryNormalizer, GraphqlUploadReader],
 })
 export class SharedServicesModule {}

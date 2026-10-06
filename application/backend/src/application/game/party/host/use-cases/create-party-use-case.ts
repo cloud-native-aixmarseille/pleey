@@ -12,6 +12,7 @@ import { PartySettingsResolver } from '../../../../../domain/game/party/shared/s
 import { PasswordService } from '../../../../../domain/identity/services/password-service';
 import { GamePermissionResolver } from '../../../../game/management/services/game-permission-resolver';
 import { OrganizationMembershipAccessService } from '../../../../workspace/organizations/services/organization-membership-access.service';
+import { ThemeSelectionService } from '../../../../workspace/themes/services/theme-selection-service';
 import type { CreatePartyDto } from '../../shared/dto/create-party.dto';
 import { PartyManagementPort } from '../../shared/ports/party-management.port';
 import { PartyPinIdentifier } from '../../shared/services/identifiers/party-pin-identifier';
@@ -31,6 +32,7 @@ export class CreatePartyUseCase {
     private readonly partyPinIdentifier: PartyPinIdentifier,
     @Inject(PasswordService)
     private readonly passwordService: Pick<PasswordService, 'hash' | 'isValidPassword'>,
+    private readonly themeSelection: ThemeSelectionService,
   ) {}
 
   async execute(input: CreatePartyDto): Promise<PartySummary> {
@@ -76,6 +78,11 @@ export class CreatePartyUseCase {
       projectDefaultSettings: managedGame.projectDefaultSettings,
       settingsOverride: input.settingsOverride,
     });
+    const themeDocument = await this.themeSelection.resolve(managedGame.organizationId, {
+      organizationDefaultThemeId: managedGame.organizationDefaultThemeId,
+      projectDefaultThemeId: managedGame.projectDefaultThemeId,
+      themeIdOverride: input.themeIdOverride,
+    });
 
     for (let attempt = 0; attempt < CreatePartyUseCase.MAX_PIN_GENERATION_ATTEMPTS; attempt += 1) {
       try {
@@ -85,6 +92,7 @@ export class CreatePartyUseCase {
           pin: this.generatePin(),
           privatePartyPasswordHash,
           settings,
+          themeDocument,
         });
 
         await this.broadcastPartyObservationUseCase.broadcastIfPresent({

@@ -1,3 +1,4 @@
+import type { ThemeDocument } from '../../../../theme/entities/theme-document';
 import type { GameType } from '../../../types/shared/game-type';
 import type { HostPartyPermissions } from '../../host/value-objects/host-party-permissions';
 import type { PartyId, PartyPin } from './party';
@@ -14,6 +15,7 @@ export interface PartyObservation {
   readonly pin: PartyPin;
   readonly status: PartyStatus;
   readonly settings: PartySettings;
+  readonly themeDocument: ThemeDocument;
   readonly context: PartyRuntimeContext | null;
   readonly isObserverHost: boolean;
   readonly host: PartyHost;

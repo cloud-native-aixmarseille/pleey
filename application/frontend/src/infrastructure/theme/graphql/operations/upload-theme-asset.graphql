@@ -1,0 +1,8 @@
+mutation UploadThemeAsset($organizationId: ID!, $file: Upload!) {
+  uploadThemeAsset(organizationId: $organizationId, file: $file) {
+    id
+    url
+    width
+    height
+  }
+}

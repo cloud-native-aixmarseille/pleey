@@ -4,24 +4,26 @@ import {
   type PartySettings,
 } from '../../../../../../domains/game/party/shared/entities/party-settings';
 import type { Project } from '../../../../../../domains/project/entities/project';
+import type { ThemeId } from '../../../../../../domains/theme/entities/theme-id';
 import { usePresentationFeedbackChannel } from '../../../../../shared/ui/feedback/use-presentation-feedback-channel';
 import { useWorkspaceDependencies } from '../../../../shared/contexts/workspace-dependencies-context';
 
 interface UseProjectFormDialogStateParams {
-  readonly defaultPartySettings: PartySettings;
+  readonly organizationDefaultPartySettings: PartySettings;
   readonly isOpen: boolean;
   readonly mode: 'create' | 'edit';
   readonly project: Project | null;
   readonly onSubmit: (values: {
     name: string;
     description: string | null;
-    partySettings: PartySettings;
+    defaultPartySettings: PartySettings;
+    defaultThemeId: ThemeId | null;
   }) => Promise<Project>;
   readonly onSubmitted: (project: Project) => void;
 }
 
 export function useProjectFormDialogState({
-  defaultPartySettings,
+  organizationDefaultPartySettings,
   isOpen,
   mode,
   project,
@@ -31,8 +33,9 @@ export function useProjectFormDialogState({
   const { projectFormFacade } = useWorkspaceDependencies();
   const feedback = usePresentationFeedbackChannel();
   const [name, setName] = useState('');
+  const [defaultThemeId, setDefaultThemeId] = useState<ThemeId | null>(null);
   const [description, setDescription] = useState('');
-  const [partySettings, setPartySettings] = useState<PartySettings>(DEFAULT_PARTY_SETTINGS);
+  const [defaultPartySettings, setDefaultPartySettings] = useState<PartySettings>(DEFAULT_PARTY_SETTINGS);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -41,10 +44,18 @@ export function useProjectFormDialogState({
     }
 
     setName(project?.name ?? '');
+    setDefaultThemeId(project?.defaultThemeId ?? null);
     setDescription(project?.description ?? '');
-    setPartySettings(project?.defaultPartySettings ?? defaultPartySettings);
+    setDefaultPartySettings(project?.defaultPartySettings ?? organizationDefaultPartySettings);
     feedback.clearError();
-  }, [defaultPartySettings, isOpen, mode, project?.defaultPartySettings, project?.id]);
+  }, [
+    organizationDefaultPartySettings,
+    isOpen,
+    mode,
+    project?.defaultPartySettings,
+    project?.id,
+    project?.defaultThemeId,
+  ]);
 
   async function handleSubmit() {
     feedback.clearError();
@@ -58,11 +69,12 @@ export function useProjectFormDialogState({
     setIsSubmitting(true);
 
     try {
-      const input = projectFormFacade.createInput(name, description, partySettings);
+      const input = projectFormFacade.createInput(name, description, defaultPartySettings, defaultThemeId);
       const savedProject = await onSubmit({
         name: input.name,
         description: input.description,
-        partySettings,
+        defaultPartySettings,
+        defaultThemeId: input.defaultThemeId,
       });
       onSubmitted(savedProject);
     } catch (error) {
@@ -80,9 +92,11 @@ export function useProjectFormDialogState({
     handleSubmit,
     isSubmitting,
     name,
-    partySettings,
+    defaultPartySettings,
     setDescription,
     setName,
-    setPartySettings,
+    setDefaultPartySettings,
+    defaultThemeId,
+    setDefaultThemeId,
   };
 }

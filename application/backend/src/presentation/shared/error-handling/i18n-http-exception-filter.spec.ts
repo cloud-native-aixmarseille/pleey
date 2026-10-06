@@ -1,4 +1,4 @@
-import { type ArgumentsHost, UnauthorizedException } from '@nestjs/common';
+import { type ArgumentsHost, Logger, UnauthorizedException } from '@nestjs/common';
 import { GraphQLError } from 'graphql';
 import { describe, expect, it, vi } from 'vitest';
 import { IdentityErrorCode } from '../../../domain/identity/enums/identity-error-code.enum';
@@ -46,10 +46,12 @@ describe('I18nHttpExceptionFilter', () => {
     return { response, errorTranslationService, errorCodeHttpStatusService, filter };
   }
 
-  it('writes translated JSON responses for HTTP requests', async () => {
+  it('writes translated JSON responses for HTTP requests', async ({ onTestFinished }) => {
     // Arrange
     const { response, errorTranslationService, filter } = arrangeFilter();
     const host = createArgumentsHost('http', response);
+    const loggerErrorSpy = vi.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
+    onTestFinished(() => loggerErrorSpy.mockRestore());
 
     // Act
     await filter.catch(new UnauthorizedException(IdentityErrorCode.UNAUTHORIZED), host);
@@ -63,6 +65,7 @@ describe('I18nHttpExceptionFilter', () => {
         message: `translated:${IdentityErrorCode.UNAUTHORIZED}`,
       }),
     );
+    expect(loggerErrorSpy).not.toHaveBeenCalled();
   });
 
   it('returns a translated exception for GraphQL requests', async () => {
@@ -128,13 +131,44 @@ describe('I18nHttpExceptionFilter', () => {
     });
   });
 
-  it('normalizes unexpected plain errors to UNKNOWN_ERROR for GraphQL requests', async () => {
+  it('unwraps GraphQL extension payloads when the original error is serialized as a plain object', async () => {
     // Arrange
     const { errorCodeHttpStatusService, errorTranslationService, filter } = arrangeFilter();
     const host = createArgumentsHost('graphql', {});
+    const wrappedError = new GraphQLError('Unexpected error value', {
+      extensions: {
+        originalError: {
+          code: OrganizationErrorCode.MEMBER_USER_NOT_FOUND,
+        },
+      },
+    });
 
     // Act
-    const result = await filter.catch(new Error('boom'), host);
+    const result = await filter.catch(wrappedError, host);
+
+    // Assert
+    expect(errorCodeHttpStatusService.resolve).toHaveBeenCalledWith(OrganizationErrorCode.MEMBER_USER_NOT_FOUND);
+    expect(errorTranslationService.translateErrorCode).toHaveBeenCalledWith(
+      OrganizationErrorCode.MEMBER_USER_NOT_FOUND,
+    );
+    expect(result).toBeInstanceOf(GraphQLError);
+    expect(result?.message).toBe(`translated:${OrganizationErrorCode.MEMBER_USER_NOT_FOUND}`);
+    expect(result?.extensions).toMatchObject({
+      code: OrganizationErrorCode.MEMBER_USER_NOT_FOUND,
+      http: { status: 404 },
+    });
+  });
+
+  it('normalizes unexpected plain errors to UNKNOWN_ERROR for GraphQL requests', async ({ onTestFinished }) => {
+    // Arrange
+    const { errorCodeHttpStatusService, errorTranslationService, filter } = arrangeFilter();
+    const host = createArgumentsHost('graphql', {});
+    const exception = new Error('boom');
+    const loggerErrorSpy = vi.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
+    onTestFinished(() => loggerErrorSpy.mockRestore());
+
+    // Act
+    const result = await filter.catch(exception, host);
 
     // Assert
     expect(errorCodeHttpStatusService.resolve).toHaveBeenCalledWith('boom');
@@ -145,6 +179,7 @@ describe('I18nHttpExceptionFilter', () => {
       code: 'INTERNAL_SERVER_ERROR',
       http: { status: 500 },
     });
+    expect(loggerErrorSpy).toHaveBeenCalledExactlyOnceWith(exception.message, exception.stack);
   });
 });
 

@@ -28,6 +28,17 @@ describe('Button', () => {
   });
 
   describe('render()', () => {
+    it('preserves the paired theme colors instead of Mantine variant defaults', () => {
+      // Arrange + Act
+      renderWithUiProvider(<Button>Save theme</Button>);
+      // Assert
+      const button = screen.getByRole('button', { name: 'Save theme' });
+      expect(button.style.getPropertyValue('--button-color')).toBe('var(--ui-color-text-on-action)');
+      expect(button.style.getPropertyValue('--button-bg')).toBe(
+        'light-dark(var(--mantine-color-brand-7), var(--mantine-color-brand-5))',
+      );
+    });
+
     it('defaults to a button type', () => {
       // Arrange + Act
       renderWithUiProvider(<Button>Launch game</Button>);

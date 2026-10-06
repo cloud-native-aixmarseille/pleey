@@ -286,16 +286,16 @@ export function Button({
       radius="xl"
       rightSection={rightSection}
       size={size === 'sm' ? 'sm' : 'md'}
+      style={{
+        fontWeight: 700,
+        minWidth: minWidth ?? (width === 'wide' ? '11rem' : undefined),
+        transition: 'background-color var(--ui-motion-quick), color var(--ui-motion-quick)',
+        width: width === 'full' ? '100%' : undefined,
+        ...intentProps.root,
+        ...appearanceRootStyle,
+        ...rootStyle,
+      }}
       styles={{
-        root: {
-          fontWeight: 700,
-          minWidth: minWidth ?? (width === 'wide' ? '11rem' : undefined),
-          transition: 'background-color var(--ui-motion-quick), color var(--ui-motion-quick)',
-          width: width === 'full' ? '100%' : undefined,
-          ...intentProps.root,
-          ...appearanceRootStyle,
-          ...rootStyle,
-        },
         label: {
           letterSpacing: size === 'sm' ? '0.04em' : '0.02em',
           ...labelStyle,

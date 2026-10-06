@@ -48,6 +48,9 @@ import { UpdateProjectUseCase } from '../../../../application/workspace/projects
 import { OrganizationIdentifier } from '../../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../../../application/workspace/shared/services/identifiers/organization-member-identifier';
 import { ProjectIdentifier } from '../../../../application/workspace/shared/services/identifiers/project-identifier';
+import { ThemeManagementFacade } from '../../../../application/workspace/themes/facades/theme-management.facade';
+import { ThemeDraftPortToken } from '../../../../application/workspace/themes/ports/theme-draft.port';
+import { ThemeIdentifier } from '../../../../application/workspace/themes/services/theme-identifier';
 import { PredictionManagementRepositoryToken } from '../../../../domains/game/types/prediction/ports/prediction-management.repository';
 import { QuizManagementRepositoryToken } from '../../../../domains/game/types/quiz/ports/quiz-management.repository';
 import { type GameTypeCatalog, type GameTypeDescriptor } from '../../../../domains/game/types/shared/game-type-catalog';
@@ -56,16 +59,22 @@ import { OrganizationRepositoryToken } from '../../../../domains/organization/po
 import { OrganizationFormService } from '../../../../domains/organization/services/organization-form.service';
 import { ProjectRepositoryToken } from '../../../../domains/project/ports/project-repository';
 import { ProjectFormService } from '../../../../domains/project/services/project-form.service';
+import { ThemeRepositoryToken } from '../../../../domains/theme/ports/theme-repository';
+import { ThemeDocumentNormalizer } from '../../../../domains/theme/services/theme-document-normalizer';
+import { ThemePaletteGenerator } from '../../../../domains/theme/services/theme-palette-generator';
 import { GraphqlGameCatalogAdapter } from '../../../../infrastructure/game/management/graphql-game-catalog.adapter';
 import { GraphqlPredictionManagementRepository } from '../../../../infrastructure/game/types/prediction/graphql-prediction-management.repository';
 import { GraphqlQuizManagementRepository } from '../../../../infrastructure/game/types/quiz/graphql-quiz-management.repository';
 import { PlayableManagementGraphqlMapper } from '../../../../infrastructure/game/types/shared/playable-management-graphql.mapper';
 import { GraphqlOrganizationRepository } from '../../../../infrastructure/organization/graphql-organization.repository';
 import { GraphqlProjectRepository } from '../../../../infrastructure/project/graphql-project.repository';
+import { GraphqlThemeRepository } from '../../../../infrastructure/theme/graphql-theme-repository';
+import { PersistedThemeDraftAdapter } from '../../../../infrastructure/theme/persisted-theme-draft.adapter';
 import { PersistedWorkspaceSelectionAdapter } from '../../../../infrastructure/workspace/persisted-workspace-selection.adapter';
 import { PredictionManagementRoutesFactory } from '../../../../presentation/game/types/prediction/routes/prediction-management-routes-factory';
 import { QuizManagementRoutesFactory } from '../../../../presentation/game/types/quiz/routes/quiz-management-routes-factory';
 import { PlayableItemEditorValidator } from '../../../../presentation/game/types/shared/management/playable-item-editor-validator';
+import { ThemeRoutesFactory } from '../../../../presentation/theme/routes/theme-routes-factory';
 import { DashboardRoutesFactory } from '../../../../presentation/workspace/dashboard/routes/dashboard-routes-factory';
 import { OrganizationRoutesFactory } from '../../../../presentation/workspace/organizations/routes/organization-routes-factory';
 import { AppProviderFactoryToken } from '../../app-provider-factory';
@@ -79,6 +88,18 @@ export class StaticGameTypeCatalogFactory implements GameTypeCatalogFactory {
 }
 
 export const workspaceContainerModule = new ContainerModule(({ bind }) => {
+  bind(ThemeIdentifier)
+    .toDynamicValue(() => new ThemeIdentifier())
+    .inSingletonScope();
+  bind(ThemeDocumentNormalizer)
+    .toDynamicValue(() => new ThemeDocumentNormalizer())
+    .inSingletonScope();
+  bind(ThemeManagementFacade).toSelf().inSingletonScope();
+  bind(ThemePaletteGenerator)
+    .toDynamicValue(() => new ThemePaletteGenerator())
+    .inSingletonScope();
+  bind(ThemeDraftPortToken).to(PersistedThemeDraftAdapter).inSingletonScope();
+  bind(ThemeRepositoryToken).to(GraphqlThemeRepository).inSingletonScope();
   bind(AppWorkspaceProviderFactory).toSelf().inSingletonScope();
   bind(OrganizationIdentifier)
     .toDynamicValue(() => new OrganizationIdentifier())
@@ -134,6 +155,7 @@ export const workspaceContainerModule = new ContainerModule(({ bind }) => {
   bind(OrganizationFormFacade).toSelf().inSingletonScope();
   bind(OrganizationManagementFacade).toSelf().inSingletonScope();
   bind(OrganizationRoutesFactory).toSelf().inSingletonScope();
+  bind(ThemeRoutesFactory).toSelf().inSingletonScope();
   bind(CreateProjectUseCase).toSelf().inSingletonScope();
   bind(UpdateProjectUseCase).toSelf().inSingletonScope();
   bind(DeleteProjectUseCase).toSelf().inSingletonScope();
@@ -155,4 +177,5 @@ export const workspaceContainerModule = new ContainerModule(({ bind }) => {
   bind<RouteFactory>(ROUTE_FACTORY).toService(PredictionManagementRoutesFactory);
   bind<RouteFactory>(ROUTE_FACTORY).toService(QuizManagementRoutesFactory);
   bind<RouteFactory>(ROUTE_FACTORY).toService(OrganizationRoutesFactory);
+  bind<RouteFactory>(ROUTE_FACTORY).toService(ThemeRoutesFactory);
 });

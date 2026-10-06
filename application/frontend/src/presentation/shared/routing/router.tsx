@@ -71,6 +71,10 @@ export function usePresentationParams<TKey extends string = string>(): Presentat
   return useParams<TKey>();
 }
 
+export function usePresentationNavigationBlocker(enabled: boolean) {
+  return usePresentationRouting().useNavigationBlocker(enabled);
+}
+
 export function Outlet() {
   const { Outlet: OutletComponent } = usePresentationRouting();
 

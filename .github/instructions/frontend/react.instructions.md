@@ -12,6 +12,7 @@ Use `docs/technical/architecture/frontend.md` and `docs/technical/development/fr
 - Do not import Mantine, routing, form, or infrastructure libraries directly in presentation code because those dependencies are intentionally hidden behind repository ports.
 - Resolve runtime collaborators through the DI container and `useRuntimeDependency` because manual `new` calls bypass the composition root and make tests harder to wire.
 - Keep visible text and accessible labels in i18n keys, and update both `en` and `fr`, because UI copy and accessibility text are shared repository invariants.
+- Follow the [i18n authoring rules](../../../docs/technical/development/index.md#i18n) for translation punctuation in every locale.
 - Prefer `useEffectEvent` for effect callbacks that need current values because it avoids fake dependencies and unnecessary re-subscription churn.
 - Use `startTransition` or `useDeferredValue` only for non-urgent UI work that benefits from it because unnecessary concurrency primitives add noise.
 - Do not add `useMemo` or `useCallback` by default because blanket memoization usually hurts readability more than it helps performance.

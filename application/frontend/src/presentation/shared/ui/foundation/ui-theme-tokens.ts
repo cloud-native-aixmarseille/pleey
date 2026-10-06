@@ -5,6 +5,12 @@ export function createUiThemeTokens(seed: UiThemeSeed, colorScheme: UiColorSchem
   const semanticTokens = seed.semantic[colorScheme];
 
   return {
+    assets: {
+      logoUrl: seed.assets?.logoAssetId ? `/api/theme-assets/${seed.assets.logoAssetId}` : null,
+      backgroundImage: seed.assets?.backgroundAssetId
+        ? `url("/api/theme-assets/${seed.assets.backgroundAssetId}")`
+        : 'none',
+    },
     leaderboard: {
       podium: {
         first: {
@@ -113,6 +119,7 @@ function createUiThemeCssVarToken(variableName: string) {
 }
 
 export const uiThemeTokens = {
+  assets: { backgroundImage: createUiThemeCssVarToken('--ui-brand-background-image') },
   leaderboard: {
     podium: {
       first: {
@@ -240,8 +247,9 @@ export const uiThemeTokens = {
   },
 } as const;
 
-export function createUiThemeCssVariables(tokens: ResolvedUiThemeTokens): CSSProperties {
+export function createUiThemeCssVariables(tokens: ResolvedUiThemeTokens, reducedMotion = false): CSSProperties {
   return {
+    '--ui-brand-background-image': tokens.assets.backgroundImage,
     '--ui-leaderboard-podium-first-avatar-border': tokens.leaderboard.podium.first.avatarBorder,
     '--ui-leaderboard-podium-first-avatar-shadow': tokens.leaderboard.podium.first.avatarShadow,
     '--ui-leaderboard-podium-first-badge-background': tokens.leaderboard.podium.first.badgeBackground,
@@ -308,11 +316,11 @@ export function createUiThemeCssVariables(tokens: ResolvedUiThemeTokens): CSSPro
     '--ui-color-text-status': tokens.color.text.status,
     '--ui-color-text-status-soft': tokens.color.text.statusSoft,
     '--ui-color-text-warning': tokens.color.text.warning,
-    '--ui-motion-emphasis': tokens.motion.emphasis,
-    '--ui-motion-modal': tokens.motion.modal,
-    '--ui-motion-quick': tokens.motion.quick,
-    '--ui-motion-reveal': tokens.motion.reveal,
-    '--ui-motion-standard': tokens.motion.standard,
+    '--ui-motion-emphasis': reducedMotion ? '0ms' : tokens.motion.emphasis,
+    '--ui-motion-modal': reducedMotion ? '0ms' : tokens.motion.modal,
+    '--ui-motion-quick': reducedMotion ? '0ms' : tokens.motion.quick,
+    '--ui-motion-reveal': reducedMotion ? '0ms' : tokens.motion.reveal,
+    '--ui-motion-standard': reducedMotion ? '0ms' : tokens.motion.standard,
     '--ui-radius-field': tokens.radius.field,
     '--ui-radius-inset': tokens.radius.inset,
     '--ui-radius-panel': tokens.radius.panel,

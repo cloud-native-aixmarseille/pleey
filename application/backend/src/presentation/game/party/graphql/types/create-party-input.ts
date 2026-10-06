@@ -1,6 +1,7 @@
 import { Field, ID, InputType } from '@nestjs/graphql';
 import { Type } from 'class-transformer';
-import { IsNotEmpty, IsOptional, IsString, MinLength, ValidateNested } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, Matches, MinLength, ValidateNested } from 'class-validator';
+import { THEME_ID_PATTERN, type ThemeId } from '../../../../../domain/theme/entities/theme-id';
 import { PartySettingsInput } from '../../../../shared/graphql/types/party-settings-input';
 
 @InputType()
@@ -21,4 +22,9 @@ export class CreatePartyInput {
   @ValidateNested()
   @Type(() => PartySettingsInput)
   settingsOverride?: PartySettingsInput;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  @Matches(THEME_ID_PATTERN)
+  themeIdOverride?: ThemeId | null;
 }

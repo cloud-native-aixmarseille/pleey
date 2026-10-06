@@ -1,98 +1,35 @@
-import type { Readable } from 'node:stream';
 import { TextDecoder } from 'node:util';
 import { Inject, Injectable } from '@nestjs/common';
 import { PlayableContentImportSource } from '../../../../../application/game/types/shared/services/playable-content-import/import-source';
-import {
-  PlayableContentImportInvalidFileError,
-  PlayableContentImportParserErrorCode,
-} from '../../../../../application/game/types/shared/services/playable-content-import/playable-content-import-parser';
+import { PlayableContentImportInvalidFileError } from '../../../../../domain/game/types/shared/errors/import-parser.error';
+import { type GraphqlUploadFile, GraphqlUploadReader } from '../../../../shared/graphql/graphql-upload-reader';
 import {
   DEFAULT_PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES,
   PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES_TOKEN,
 } from './playable-content-upload.constants';
 
-export interface PlayableContentUploadFile {
-  readonly createReadStream: () => Readable;
-  readonly filename: string;
-  readonly mimetype: string;
-}
-
 @Injectable()
 export class PlayableContentUploadReader {
   constructor(
+    @Inject(GraphqlUploadReader) private readonly uploads: GraphqlUploadReader,
     @Inject(PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES_TOKEN)
     private readonly maxFileSizeBytes: number = DEFAULT_PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES,
   ) {}
 
-  async read(uploadPromise: Promise<PlayableContentUploadFile>): Promise<PlayableContentImportSource> {
-    let upload: PlayableContentUploadFile;
-
-    try {
-      upload = await uploadPromise;
-    } catch {
-      throw new PlayableContentImportInvalidFileError({
-        reason: 'uploadPromiseRejected',
-      });
-    }
-
-    return this.createImportSource(upload.createReadStream, upload.filename);
-  }
-
-  private createImportSource(createUploadReadStream: () => Readable, fileName: string): PlayableContentImportSource {
+  async read(upload: Promise<GraphqlUploadFile>): Promise<PlayableContentImportSource> {
+    const source = await this.uploads.read(upload, {
+      maxFileSizeBytes: this.maxFileSizeBytes,
+      invalidFile: (failure) => new PlayableContentImportInvalidFileError({ ...failure }),
+    });
     let cachedContent: string | null = null;
-    let hasOpenedStream = false;
-    const maxFileSizeBytes = this.maxFileSizeBytes;
-
-    const openStream = (): Readable => {
-      if (hasOpenedStream) {
-        throw new PlayableContentImportInvalidFileError({
-          fileName,
-          reason: 'streamAlreadyOpened',
-        });
-      }
-
-      hasOpenedStream = true;
-
-      return createUploadReadStream();
-    };
-
     const readDecodedChunks = async function* (): AsyncIterable<string> {
-      const stream = openStream();
       const decoder = new TextDecoder('utf-8');
-      let totalBytes = 0;
-
-      try {
-        for await (const chunk of stream) {
-          const resolvedChunk = typeof chunk === 'string' ? Buffer.from(chunk) : Buffer.from(chunk);
-
-          totalBytes += resolvedChunk.byteLength;
-
-          if (totalBytes > maxFileSizeBytes) {
-            throw new PlayableContentImportInvalidFileError({
-              fileName,
-              maxFileSizeBytes,
-              reason: 'fileTooLarge',
-              totalBytes,
-            });
-          }
-
-          const decodedChunk = decoder.decode(resolvedChunk, { stream: true });
-
-          if (decodedChunk.length > 0) {
-            yield decodedChunk;
-          }
-        }
-
-        const trailingChunk = decoder.decode();
-
-        if (trailingChunk.length > 0) {
-          yield trailingChunk;
-        }
-      } catch (error) {
-        stream.destroy();
-
-        throw error instanceof Error ? error : new Error(PlayableContentImportParserErrorCode.INVALID_FILE);
+      for await (const chunk of source.readChunks()) {
+        const decodedChunk = decoder.decode(chunk, { stream: true });
+        if (decodedChunk.length > 0) yield decodedChunk;
       }
+      const trailingChunk = decoder.decode();
+      if (trailingChunk.length > 0) yield trailingChunk;
     };
 
     const linesFromText = function* (text: string): Iterable<string> {
@@ -102,7 +39,7 @@ export class PlayableContentUploadReader {
     };
 
     return {
-      fileName,
+      fileName: source.fileName,
       async readAll(): Promise<string> {
         if (cachedContent !== null) {
           return cachedContent;

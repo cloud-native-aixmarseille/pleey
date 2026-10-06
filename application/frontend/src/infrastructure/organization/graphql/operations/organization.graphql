@@ -12,6 +12,7 @@ query WorkspaceOrganizations($input: ListOrganizationsInput) {
         randomizeOptionOrder
         randomizeStageOrder
       }
+      defaultThemeId
       role
       assignableRoles
       permissions {
@@ -54,6 +55,7 @@ mutation UpdateOrganization($organizationId: ID!, $input: UpdateOrganizationInpu
       randomizeOptionOrder
       randomizeStageOrder
     }
+    defaultThemeId
     role
     assignableRoles
     permissions {

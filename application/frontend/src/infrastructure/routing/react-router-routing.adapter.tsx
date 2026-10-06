@@ -3,6 +3,7 @@ import React from 'react';
 import {
   Navigate as ReactRouterNavigate,
   Outlet as ReactRouterOutlet,
+  useBlocker,
   useHref,
   useLinkClickHandler,
   useLocation,
@@ -43,6 +44,14 @@ export class ReactRouterRoutingAdapter {
       useNavigate: useReactRouterNavigate,
       usePathname,
       useParams,
+      useNavigationBlocker: (enabled) => {
+        const blocker = useBlocker(enabled);
+        return {
+          blocked: blocker.state === 'blocked',
+          proceed: () => blocker.proceed?.(),
+          reset: () => blocker.reset?.(),
+        };
+      },
     };
   }
 }

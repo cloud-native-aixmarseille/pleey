@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { UserIdentifier } from '../../application/identity/shared/services/identifiers/user-identifier';
 import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../application/workspace/shared/services/identifiers/organization-member-identifier';
+import { ThemeIdentifier } from '../../application/workspace/themes/services/theme-identifier';
 import { OrganizationRole } from '../../domains/organization/entities/organization';
 import { OrganizationErrorCode } from '../../domains/organization/errors/organization-error-code';
 import { OrganizationFixtureFactory } from '../../test-utils/fixtures/organization-fixture-factory';
@@ -24,6 +25,7 @@ function createRepository(client: ConstructorParameters<typeof GraphqlOrganizati
     organizationIdentifier,
     organizationMemberIdentifier,
     userIdentifier,
+    new ThemeIdentifier(),
   );
 }
 
@@ -76,6 +78,7 @@ describe('GraphqlOrganizationRepository', () => {
             createdAt: '2026-03-10T12:00:00.000Z',
             updatedAt: '2026-03-10T12:00:00.000Z',
             defaultPartySettings: null,
+            defaultThemeId: null,
           }),
         ],
         totalCount: 1,
@@ -160,11 +163,12 @@ describe('GraphqlOrganizationRepository', () => {
   describe('createOrganization()', () => {
     it('returns the created organization with normalized role', async () => {
       // Arrange
-      const { client } = new GraphqlClientMockFactory().create({
+      const { client, requestMock } = new GraphqlClientMockFactory().create({
         requestResult: {
           createOrganization: {
             permissions: organizationFixtureFactory.createOrganization().permissions,
             assignableRoles: ['OWNER', 'MANAGER', 'MEMBER'],
+            defaultThemeId: 'solar-grid',
             id: parseOrganizationId(12),
             name: 'New Org',
             description: 'A brand new org',
@@ -181,9 +185,15 @@ describe('GraphqlOrganizationRepository', () => {
         name: 'New Org',
         description: 'A brand new org',
         defaultPartySettings: null,
+        defaultThemeId: 'solar-grid',
       });
 
       // Assert
+      expect(requestMock).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ input: expect.objectContaining({ defaultThemeId: 'solar-grid' }) }),
+        undefined,
+      );
       expect(organization).toEqual({
         permissions: organizationFixtureFactory.createOrganization().permissions,
         assignableRoles: Object.values(OrganizationRole),
@@ -193,6 +203,7 @@ describe('GraphqlOrganizationRepository', () => {
         createdAt: '2026-03-15T10:00:00.000Z',
         updatedAt: '2026-03-15T10:00:00.000Z',
         defaultPartySettings: null,
+        defaultThemeId: 'solar-grid',
         role: OrganizationRole.OWNER,
       });
     });
@@ -210,6 +221,7 @@ describe('GraphqlOrganizationRepository', () => {
           name: 'Fail',
           description: null,
           defaultPartySettings: null,
+          defaultThemeId: null,
         }),
       ).rejects.toThrow(OrganizationErrorCode.CREATE_FAILED);
     });

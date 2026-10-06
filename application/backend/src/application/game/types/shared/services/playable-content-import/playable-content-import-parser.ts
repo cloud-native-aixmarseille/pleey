@@ -16,10 +16,7 @@ import {
 import type { PlayableContentImportSource } from './import-source';
 import { PlayableContentImportParserContainer } from './playable-content-import-parser-container';
 
-export {
-  PlayableContentImportInvalidFileError,
-  PlayableContentImportParserErrorCode,
-} from '../../../../../../domain/game/types/shared/errors/import-parser.error';
+export { PlayableContentImportParserErrorCode } from '../../../../../../domain/game/types/shared/errors/import-parser.error';
 
 @Injectable()
 export class PlayableContentImportParser {

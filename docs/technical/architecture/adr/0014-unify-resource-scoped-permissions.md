@@ -13,8 +13,9 @@ role decision to a database adapter, while organization membership has a domain
 policy and the frontend repeats some of those rules.
 
 Implementation is included in [PR #514](https://github.com/cloud-native-aixmarseille/pleey/pull/514),
-based directly on `main`. Theme management remains in PR #505 and must adopt
-this strategy when integrated. It follows [ADR 0002](./0002-use-clean-architecture-with-strict-boundaries.md), the
+based directly on `main`. PR #505 reuses that foundation for theme management,
+with `ThemePermissionPolicy`, shared membership loading, and reason-bearing
+read/create/update/upload decisions. It follows [ADR 0002](./0002-use-clean-architecture-with-strict-boundaries.md), the
 [resolver boundary](../../development/backend/application-patterns.md#writing-resolvers),
 and the session responsibilities in
 [ADR 0009](./0009-harden-identity-recovery-and-sessions.md).
@@ -247,7 +248,8 @@ can expose `permissions.update` and `permissions.delete`. Member rows need
 target-specific update/removal decisions and an `assignableRoles` projection
 computed from the same actor/target policy. A single `canManageMembers` cannot
 express those distinctions. Organization, project, and member decisions are implemented in the generated
-GraphQL schema. Theme list decisions belong to the theme integration in PR #505.
+GraphQL schema. Theme collection decisions are exposed by `listThemes.permissions`;
+`themePermissions` supports direct management routes in PR #505.
 
 Use the same application decision projection for GraphQL and realtime views.
 Generate GraphQL transport types and map them through frontend infrastructure
@@ -356,15 +358,15 @@ wire decisions become `PERMISSION_UNAVAILABLE`; they cannot grant an action.
 
 The entry-point inventory is:
 
-| Entry points                                                                | Classification and enforcement                                                                                                                                                                                                    |
-| --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Organization, member, project, dashboard GraphQL operations                 | Workspace-scoped use cases resolve active membership through the shared access module; commands recheck feature decisions. Member rows carry target-specific roles and reasons.                                                   |
-| Quiz/prediction GraphQL authoring and import; game catalog and create-party | Workspace membership, including ordinary members; ancestry comes from stored project/game relationships. Create-party composes this with domain readiness/conflict policy.                                                        |
-| Socket observe, snapshots, updates, runtime notices                         | Party audience is checked before room admission and every outbound projection. Account sessions are revalidated; guest personal data requires the current verified connection. Obsolete unscoped observation getters are removed. |
-| Socket join/rejoin, submit, leave, kick, host lifecycle commands            | Join validates identity/password or signed guest recovery; submit and leave require the current player session. Kick and lifecycle use cases require the stored host; lifecycle projections and commands share the domain policy. |
-| Profile/avatar writes, identity sessions, personal party lists              | Existing authenticated-account ownership remains authoritative. Caller-supplied account identifiers cannot choose another account's scope.                                                                                        |
-| Authentication/recovery, health, avatar reads                               | Deliberately public entry points retain their existing validation, bounded media projections, and identity protections.                                                                                                           |
-| Theme GraphQL operations and theme-asset reads (PR #505 integration)        | Theme administration must use workspace decisions; asset reads remain public without granting theme-management access. These entry points are not introduced by PR #514.                                                          |
+| Entry points                                                                | Classification and enforcement                                                                                                                                                                                                                       |
+| --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Organization, member, project, dashboard GraphQL operations                 | Workspace-scoped use cases resolve active membership through the shared access module; commands recheck feature decisions. Member rows carry target-specific roles and reasons.                                                                      |
+| Quiz/prediction GraphQL authoring and import; game catalog and create-party | Workspace membership, including ordinary members; ancestry comes from stored project/game relationships. Create-party composes this with domain readiness/conflict policy.                                                                           |
+| Socket observe, snapshots, updates, runtime notices                         | Party audience is checked before room admission and every outbound projection. Account sessions are revalidated; guest personal data requires the current verified connection. Obsolete unscoped observation getters are removed.                    |
+| Socket join/rejoin, submit, leave, kick, host lifecycle commands            | Join validates identity/password or signed guest recovery; submit and leave require the current player session. Kick and lifecycle use cases require the stored host; lifecycle projections and commands share the domain policy.                    |
+| Profile/avatar writes, identity sessions, personal party lists              | Existing authenticated-account ownership remains authoritative. Caller-supplied account identifiers cannot choose another account's scope.                                                                                                           |
+| Authentication/recovery, health, avatar reads                               | Deliberately public entry points retain their existing validation, bounded media projections, and identity protections.                                                                                                                              |
+| Theme GraphQL operations and theme-asset reads (PR #505 integration)        | Theme use cases enforce theme decisions loaded through shared membership access before consuming uploads or writing. Theme collections and direct routes expose typed decisions; asset reads remain public without granting theme-management access. |
 
 Membership removal and role changes acquire the same organization row lock,
 then reload actor, target, and owner count inside the transaction. Competing
@@ -411,7 +413,9 @@ The following compatibility changes are intentional:
 
 Policy and use-case tests cover role/target boundaries, foreign resources,
 reason precedence, last-owner/project constraints, and denial before protected
-writes. Theme upload-consumption checks belong to the PR #505 integration.
+writes. The PR #505 integration also covers denied upload consumption, fresh membership
+checks after a previous grant, scoped updates, fail-closed decoding, and editor
+revalidation without losing unsaved content.
 Transport and credential tests cover private/public
 projection, forged/expired credentials, replacement/kick behavior, revoked
 sessions, and no output after denial. A PostgreSQL integration test races two

@@ -12,6 +12,8 @@ import { DeliverPasswordResetUseCase } from '../../../application/identity/recov
 import { LoginUserUseCase } from '../../../application/identity/session/use-cases/login-user-use-case';
 import { CaptchaAction } from '../../../domain/identity/enums/captcha-action.enum';
 import { PasswordService } from '../../../domain/identity/services/password-service';
+import { CURATED_THEME_DOCUMENTS } from '../../../domain/theme/entities/curated-theme-documents';
+import { DEFAULT_THEME_ID } from '../../../domain/theme/entities/theme-id';
 import { PrismaService } from '../../../infrastructure/database/prisma-service';
 import { CapCaptchaAdapter } from '../../../infrastructure/identity/captcha/cap-captcha-adapter';
 import { CAPTCHA_CONFIG, type CaptchaConfig } from '../../../infrastructure/identity/captcha/captcha-config.token';
@@ -90,7 +92,14 @@ export class IdentityGraphqlTestHarness {
       data: { title: 'History quiz', type: 'quiz', projectId: project.id },
     });
     const hosted = await this.prisma.party.create({
-      data: { gameId: game.id, hostId: ownerId, pin: randomUUID(), status: 'ENDED', settings: {} },
+      data: {
+        gameId: game.id,
+        hostId: ownerId,
+        pin: randomUUID(),
+        status: 'ENDED',
+        settings: {},
+        themeDocument: CURATED_THEME_DOCUMENTS[DEFAULT_THEME_ID],
+      },
     });
     const played = await this.prisma.party.create({
       data: {
@@ -99,6 +108,7 @@ export class IdentityGraphqlTestHarness {
         pin: randomUUID(),
         status: 'ENDED',
         settings: {},
+        themeDocument: CURATED_THEME_DOCUMENTS[DEFAULT_THEME_ID],
         scores: {
           create: [
             { userId: ownerId, points: 42 },
@@ -107,9 +117,24 @@ export class IdentityGraphqlTestHarness {
         },
       },
     });
-    await this.prisma.party.create({ data: { gameId: game.id, hostId: otherId, pin: randomUUID(), settings: {} } });
     await this.prisma.party.create({
-      data: { gameId: game.id, hostId: ownerId, pin: randomUUID(), settings: {}, deletedAt: new Date() },
+      data: {
+        gameId: game.id,
+        hostId: otherId,
+        pin: randomUUID(),
+        settings: {},
+        themeDocument: CURATED_THEME_DOCUMENTS[DEFAULT_THEME_ID],
+      },
+    });
+    await this.prisma.party.create({
+      data: {
+        gameId: game.id,
+        hostId: ownerId,
+        pin: randomUUID(),
+        settings: {},
+        themeDocument: CURATED_THEME_DOCUMENTS[DEFAULT_THEME_ID],
+        deletedAt: new Date(),
+      },
     });
     return { hosted, played };
   }

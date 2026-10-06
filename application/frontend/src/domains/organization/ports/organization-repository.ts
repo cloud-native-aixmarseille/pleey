@@ -1,6 +1,7 @@
 import type { PartySettings } from '../../game/party/shared/entities/party-settings';
 import type { PaginatedResult } from '../../shared/value-objects/paginated-result';
 import type { PaginationQuery } from '../../shared/value-objects/pagination-query';
+import type { ThemeId } from '../../theme/entities/theme-id';
 import type { Organization, OrganizationId, OrganizationRole } from '../entities/organization';
 import type { OrganizationDashboard } from '../entities/organization-dashboard';
 import type { OrganizationMember, OrganizationMemberId } from '../entities/organization-member';
@@ -15,6 +16,7 @@ export interface CreateOrganizationCommand {
   readonly name: string;
   readonly description: string | null;
   readonly defaultPartySettings?: PartySettings | null;
+  readonly defaultThemeId?: ThemeId | null;
 }
 
 export interface UpdateOrganizationCommand {
@@ -22,6 +24,7 @@ export interface UpdateOrganizationCommand {
   readonly name: string;
   readonly description: string | null;
   readonly defaultPartySettings?: PartySettings | null;
+  readonly defaultThemeId?: ThemeId | null;
 }
 
 export interface AddOrganizationMemberCommand {

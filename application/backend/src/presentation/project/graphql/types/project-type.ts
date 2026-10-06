@@ -24,4 +24,7 @@ export class ProjectType {
 
   @Field(() => PartySettingsType, { nullable: true })
   defaultPartySettings!: PartySettingsType | null;
+
+  @Field(() => String, { nullable: true })
+  defaultThemeId!: string | null;
 }

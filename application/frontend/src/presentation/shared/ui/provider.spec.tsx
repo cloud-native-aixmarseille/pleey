@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import type { PropsWithChildren } from 'react';
 import { describe, expect, it } from 'vitest';
+import { renderWithUiProvider } from '../../../test-utils/render-with-ui-provider';
 import { PresentationUiProvider, PresentationUiRoot, usePresentationThemeState } from './provider';
 
 type PresentationUiPort = Parameters<typeof PresentationUiProvider>[0]['value'];
@@ -25,11 +26,30 @@ function ThemeStateProbe() {
 }
 
 describe('provider', () => {
+  it('keeps the mounted UI provider available to a reloaded consumer module', async () => {
+    // Arrange: a versioned import reproduces a new module instance loaded during development.
+    const refreshedModulePath = './provider.tsx?context-regression';
+    const { usePresentationThemeState: useRefreshedThemeState } = (await import(
+      /* @vite-ignore */ refreshedModulePath
+    )) as typeof import('./provider');
+    function RefreshedThemeProbe() {
+      const { activeThemeName } = useRefreshedThemeState();
+      return <span>{activeThemeName}</span>;
+    }
+
+    // Act
+    renderWithUiProvider(<RefreshedThemeProbe />);
+
+    // Assert
+    expect(screen.getByText('Cyber Arcade')).toBeInTheDocument();
+  });
+
   describe('PresentationUiRoot()', () => {
     it('renders children through the configured ui provider', () => {
       // Arrange
       const uiPort: PresentationUiPort = {
         Provider: MockProvider,
+        ThemePreview: MockProvider,
         useThemeState: () => ({
           activeColorScheme: 'dark',
           activeThemeId: 'cyber-arcade',
@@ -38,6 +58,7 @@ describe('provider', () => {
           availableThemes: [{ id: 'cyber-arcade', name: 'Cyber Arcade' }],
           setActiveColorScheme: () => undefined,
           setActiveTheme: () => undefined,
+          applyScopedTheme: () => () => undefined,
         }),
       };
 
@@ -59,6 +80,7 @@ describe('provider', () => {
       // Arrange
       const uiPort: PresentationUiPort = {
         Provider: MockProvider,
+        ThemePreview: MockProvider,
         useThemeState: () => ({
           activeColorScheme: 'dark',
           activeThemeId: 'cyber-arcade',
@@ -67,6 +89,7 @@ describe('provider', () => {
           availableThemes: [{ id: 'cyber-arcade', name: 'Cyber Arcade' }],
           setActiveColorScheme: () => undefined,
           setActiveTheme: () => undefined,
+          applyScopedTheme: () => () => undefined,
         }),
       };
 

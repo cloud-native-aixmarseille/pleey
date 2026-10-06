@@ -28,10 +28,11 @@ import { DatabaseModule } from '../database/database-module';
 import { GameModule } from '../game/game-module';
 import { IdentityModule } from '../identity/identity-module';
 import { SharedServicesModule } from '../shared/shared-services.module';
+import { ThemeModule } from '../theme/theme-module';
 import { OrganizationAccessModule } from './organization-access-module';
 
 @Module({
-  imports: [OrganizationAccessModule, IdentityModule, DatabaseModule, GameModule, SharedServicesModule],
+  imports: [OrganizationAccessModule, ThemeModule, IdentityModule, DatabaseModule, GameModule, SharedServicesModule],
   providers: [
     ProjectPermissionService,
     { provide: ProjectPermissionPolicy, useValue: new ProjectPermissionPolicy() },

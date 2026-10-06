@@ -1,4 +1,5 @@
 import type { PartySettings } from '../../game/party/shared/entities/party-settings';
+import type { ThemeId } from '../../theme/entities/theme-id';
 import type { OrganizationPermissions } from '../value-objects/organization-permissions';
 
 export type OrganizationId = string & {
@@ -21,5 +22,6 @@ export interface Organization {
   readonly createdAt: string;
   readonly updatedAt: string;
   readonly defaultPartySettings: PartySettings | null;
+  readonly defaultThemeId: ThemeId | null;
   readonly role: OrganizationRole | null;
 }
