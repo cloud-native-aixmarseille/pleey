@@ -9,6 +9,7 @@ import type { OrganizationDashboard } from '../../../../domains/organization/ent
 import type { Project, ProjectId } from '../../../../domains/project/entities/project';
 import type { PaginatedResult } from '../../../../domains/shared/value-objects/paginated-result';
 import type { PaginationQuery } from '../../../../domains/shared/value-objects/pagination-query';
+import type { ThemeId } from '../../../../domains/theme/entities/theme-id';
 import { ListProjectGamesUseCase } from '../../../game/management/use-cases/list-project-games-use-case';
 import { CreatePartyUseCase } from '../../../game/party/host/use-cases/create-party-use-case';
 import { ListPartiesUseCase } from '../../../game/party/host/use-cases/list-parties-use-case';
@@ -58,7 +59,11 @@ export interface DashboardWorkspaceGateway {
   loadUserParties(): Promise<readonly Party[]>;
   createParty(
     gameId: GameId,
-    options?: { privatePartyPassword?: string; settingsOverride?: Partial<PartySettings> },
+    options?: {
+      privatePartyPassword?: string;
+      settingsOverride?: Partial<PartySettings>;
+      themeIdOverride?: ThemeId | null;
+    },
   ): Promise<Party>;
   loadOrganizationsPage(query?: PaginationQuery): Promise<PaginatedResult<Organization>>;
   restoreOrganizationSelection(query?: PaginationQuery): Promise<DashboardOrganizationSelection>;
@@ -97,12 +102,17 @@ export class DashboardWorkspaceFacade implements DashboardWorkspaceGateway {
 
   createParty(
     gameId: GameId,
-    options?: { privatePartyPassword?: string; settingsOverride?: Partial<PartySettings> },
+    options?: {
+      privatePartyPassword?: string;
+      settingsOverride?: Partial<PartySettings>;
+      themeIdOverride?: ThemeId | null;
+    },
   ): Promise<Party> {
     return this.createPartyUseCase.execute({
       gameId,
       privatePartyPassword: options?.privatePartyPassword,
       settingsOverride: options?.settingsOverride,
+      themeIdOverride: options?.themeIdOverride,
     });
   }
 

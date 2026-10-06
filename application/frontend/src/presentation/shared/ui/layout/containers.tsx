@@ -54,13 +54,17 @@ interface FlexGrowItemProps extends PropsWithChildren {}
 
 interface SidebarLayoutProps extends PropsWithChildren {
   readonly sidebar: ReactNode;
+  readonly sidebarWidth?: 'compact' | 'wide';
 }
 
-export function SidebarLayout({ children, sidebar }: SidebarLayoutProps) {
+export function SidebarLayout({ children, sidebar, sidebarWidth = 'compact' }: SidebarLayoutProps) {
+  const wide = sidebarWidth === 'wide';
   return (
     <Grid align="start" gap={{ base: 'md', sm: 'xl' }}>
-      <Grid.Col span={{ base: 12, sm: 3 }}>{sidebar}</Grid.Col>
-      <Grid.Col miw={0} span={{ base: 12, sm: 9 }}>
+      <Grid.Col miw={0} span={wide ? { base: 12, md: 4 } : { base: 12, sm: 3 }}>
+        {sidebar}
+      </Grid.Col>
+      <Grid.Col miw={0} span={wide ? { base: 12, md: 8 } : { base: 12, sm: 9 }}>
         {children}
       </Grid.Col>
     </Grid>

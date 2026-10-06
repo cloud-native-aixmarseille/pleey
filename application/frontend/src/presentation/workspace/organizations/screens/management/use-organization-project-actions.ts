@@ -10,6 +10,7 @@ import type {
   DeleteProjectCommand,
   UpdateProjectCommand,
 } from '../../../../../domains/project/ports/project-repository';
+import type { ThemeId } from '../../../../../domains/theme/entities/theme-id';
 import { usePresentationTranslation } from '../../../../shared/i18n/use-presentation-translation';
 import type { usePresentationFeedbackChannel } from '../../../../shared/ui/feedback/use-presentation-feedback-channel';
 import type { useDashboardWorkspace } from '../../../dashboard/hooks/use-dashboard-workspace';
@@ -26,7 +27,8 @@ interface OrganizationProjectActionsParams {
 interface ProjectFormValues {
   readonly name: string;
   readonly description: string | null;
-  readonly partySettings: PartySettings;
+  readonly defaultPartySettings: PartySettings;
+  readonly defaultThemeId: ThemeId | null;
 }
 
 export function useOrganizationProjectActions({
@@ -93,7 +95,8 @@ export function useOrganizationProjectActions({
         organizationId: workspace.selectedOrganization.id,
         name: values.name,
         description: values.description,
-        defaultPartySettings: values.partySettings,
+        defaultPartySettings: values.defaultPartySettings,
+        defaultThemeId: values.defaultThemeId,
       });
     } catch (error) {
       if (contextVersion.current === version) workspace.reloadWorkspace();
@@ -114,7 +117,8 @@ export function useOrganizationProjectActions({
         projectId: editingProject.id,
         name: values.name,
         description: values.description,
-        defaultPartySettings: values.partySettings,
+        defaultPartySettings: values.defaultPartySettings,
+        defaultThemeId: values.defaultThemeId,
       });
     } catch (error) {
       if (contextVersion.current === version) workspace.reloadWorkspace();

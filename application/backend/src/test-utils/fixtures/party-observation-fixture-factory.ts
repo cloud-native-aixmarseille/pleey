@@ -2,6 +2,7 @@ import { PartyStatus } from '../../domain/game/party/enums/party-status.enum';
 import type { HostPartyObservation } from '../../domain/game/party/host/entities/host-party-observation';
 import { DEFAULT_PARTY_SETTINGS } from '../../domain/game/party/shared/entities/party-settings';
 import { backendTestIdentifiers } from '../branded-identifiers';
+import { ThemeFixtureFactory } from './theme-fixture-factory';
 
 export class PartyObservationFixtureFactory {
   createHost(overrides: Partial<HostPartyObservation> = {}): HostPartyObservation {
@@ -12,6 +13,7 @@ export class PartyObservationFixtureFactory {
       pin: backendTestIdentifiers.partyPin('123456'),
       status: PartyStatus.WAITING,
       settings: DEFAULT_PARTY_SETTINGS,
+      themeDocument: new ThemeFixtureFactory().createDocument(),
       host: { userId: backendTestIdentifiers.user(1), username: 'Host', avatarUri: null },
       players: [],
       context: null,

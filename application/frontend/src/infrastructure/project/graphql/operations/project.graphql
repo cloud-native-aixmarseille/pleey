@@ -12,6 +12,7 @@ query WorkspaceProjectsByOrganization($input: ListOrganizationProjectsInput!) {
         randomizeOptionOrder
         randomizeStageOrder
       }
+      defaultThemeId
       permissions {
         update {
           allowed
@@ -44,6 +45,7 @@ mutation CreateProject($organizationId: ID!, $input: CreateProjectInput!) {
       randomizeOptionOrder
       randomizeStageOrder
     }
+    defaultThemeId
     permissions {
       update {
         allowed
@@ -70,6 +72,7 @@ mutation UpdateProject($projectId: ID!, $input: UpdateProjectInput!) {
       randomizeOptionOrder
       randomizeStageOrder
     }
+    defaultThemeId
     permissions {
       update {
         allowed

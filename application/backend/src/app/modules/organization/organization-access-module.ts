@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { OrganizationMembershipAccessService } from '../../../application/workspace/organizations/services/organization-membership-access.service';
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-member-identifier';
+import { ThemeIdentifier } from '../../../application/workspace/themes/services/theme-identifier';
 import { OrganizationRepositoryProvider } from '../../../domain/organization/ports/organization.repository';
 import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/ports/organization-member.repository';
 import {
@@ -19,6 +20,7 @@ import { SharedServicesModule } from '../shared/shared-services.module';
   providers: [
     OrganizationIdentifier,
     OrganizationMemberIdentifier,
+    ThemeIdentifier,
     PrismaPartySettingsMapper,
     PrismaOrganizationRepository,
     PrismaOrganizationMemberRepository,

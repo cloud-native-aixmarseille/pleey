@@ -639,11 +639,13 @@ describe('DashboardHomeScreen', () => {
       await user.click(screen.getByRole('button', { name: 'dashboard.games.actions.createParty' }));
       const dialog = await screen.findByRole('dialog');
       // Act
+      await user.selectOptions(within(dialog).getByRole('combobox', { name: 'theme.label' }), 'solar-grid');
       await user.click(within(dialog).getByRole('button', { name: 'dashboard.games.actions.createParty' }));
 
       // Assert
       expect(createParty).toHaveBeenCalledWith(gameIdentifier.parse(13), {
         privatePartyPassword: undefined,
+        themeIdOverride: 'solar-grid',
       });
       expect(navigateMock).toHaveBeenCalledWith(
         `/party/${partyFixtureFactory.createParty({ partyId: 98 }).partyId}/lobby`,

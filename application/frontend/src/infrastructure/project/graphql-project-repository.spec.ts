@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { describe, expect, it } from 'vitest';
+import { ThemeIdentifier } from '../../application/workspace/themes/services/theme-identifier';
 import { ProjectErrorCode } from '../../domains/project/errors/project-error-code';
 import { GraphqlClientMockFactory } from '../../test-utils/mocks/graphql-client-mock-factory';
 import { OrganizationIdentifierMockFactory } from '../../test-utils/mocks/organization-identifier-mock-factory';
@@ -8,6 +9,7 @@ import { GraphqlProjectRepository } from './graphql-project.repository';
 
 const organizationIdentifier = new OrganizationIdentifierMockFactory().create();
 const projectIdentifier = new ProjectIdentifierMockFactory().create();
+const themeIdentifier = new ThemeIdentifier();
 
 describe('GraphqlProjectRepository', () => {
   describe('getProjectsByOrganization()', () => {
@@ -34,7 +36,12 @@ describe('GraphqlProjectRepository', () => {
           },
         },
       });
-      const repository = new GraphqlProjectRepository(client, projectIdentifier, organizationIdentifier);
+      const repository = new GraphqlProjectRepository(
+        client,
+        projectIdentifier,
+        organizationIdentifier,
+        themeIdentifier,
+      );
 
       // Act
       const projects = await repository.getProjectsByOrganization({
@@ -55,6 +62,7 @@ describe('GraphqlProjectRepository', () => {
             organizationId: organizationIdentifier.parse(3),
             createdAt: '2026-03-10T16:00:00.000Z',
             defaultPartySettings: null,
+            defaultThemeId: null,
           },
         ],
         totalCount: 1,
@@ -82,7 +90,12 @@ describe('GraphqlProjectRepository', () => {
       const { client } = new GraphqlClientMockFactory().create({
         requestError: new Error('project.errors.loadFailed'),
       });
-      const repository = new GraphqlProjectRepository(client, projectIdentifier, organizationIdentifier);
+      const repository = new GraphqlProjectRepository(
+        client,
+        projectIdentifier,
+        organizationIdentifier,
+        themeIdentifier,
+      );
 
       // Act + Assert
       await expect(
@@ -94,10 +107,11 @@ describe('GraphqlProjectRepository', () => {
   describe('createProject()', () => {
     it('creates a project through the GraphQL mutation', async () => {
       // Arrange
-      const { client } = new GraphqlClientMockFactory().create({
+      const { client, requestMock } = new GraphqlClientMockFactory().create({
         requestResult: {
           createProject: {
             permissions: { update: { allowed: true, reason: null }, delete: { allowed: true, reason: null } },
+            defaultThemeId: 'solar-grid',
             id: 22,
             name: 'Spring Event',
             description: 'Launch campaign',
@@ -106,7 +120,12 @@ describe('GraphqlProjectRepository', () => {
           },
         },
       });
-      const repository = new GraphqlProjectRepository(client, projectIdentifier, organizationIdentifier);
+      const repository = new GraphqlProjectRepository(
+        client,
+        projectIdentifier,
+        organizationIdentifier,
+        themeIdentifier,
+      );
 
       // Act
       const project = await repository.createProject({
@@ -114,9 +133,15 @@ describe('GraphqlProjectRepository', () => {
         name: 'Spring Event',
         description: 'Launch campaign',
         defaultPartySettings: null,
+        defaultThemeId: 'solar-grid',
       });
 
       // Assert
+      expect(requestMock).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ input: expect.objectContaining({ defaultThemeId: 'solar-grid' }) }),
+        undefined,
+      );
       expect(project).toEqual({
         permissions: { update: { allowed: true, reason: null }, delete: { allowed: true, reason: null } },
         id: projectIdentifier.parse(22),
@@ -125,6 +150,7 @@ describe('GraphqlProjectRepository', () => {
         organizationId: organizationIdentifier.parse(3),
         createdAt: '2026-03-10T16:00:00.000Z',
         defaultPartySettings: null,
+        defaultThemeId: 'solar-grid',
       });
     });
 
@@ -133,7 +159,12 @@ describe('GraphqlProjectRepository', () => {
       const { client } = new GraphqlClientMockFactory().create({
         requestError: new Error('project.errors.createFailed'),
       });
-      const repository = new GraphqlProjectRepository(client, projectIdentifier, organizationIdentifier);
+      const repository = new GraphqlProjectRepository(
+        client,
+        projectIdentifier,
+        organizationIdentifier,
+        themeIdentifier,
+      );
 
       // Act + Assert
       await expect(
@@ -142,6 +173,7 @@ describe('GraphqlProjectRepository', () => {
           name: 'Spring Event',
           description: null,
           defaultPartySettings: null,
+          defaultThemeId: null,
         }),
       ).rejects.toThrow(ProjectErrorCode.CREATE_FAILED);
     });
@@ -162,7 +194,12 @@ describe('GraphqlProjectRepository', () => {
           },
         },
       });
-      const repository = new GraphqlProjectRepository(client, projectIdentifier, organizationIdentifier);
+      const repository = new GraphqlProjectRepository(
+        client,
+        projectIdentifier,
+        organizationIdentifier,
+        themeIdentifier,
+      );
 
       // Act
       const project = await repository.updateProject({
@@ -170,6 +207,7 @@ describe('GraphqlProjectRepository', () => {
         name: 'Spring Event 2',
         description: 'Expanded launch',
         defaultPartySettings: null,
+        defaultThemeId: null,
       });
 
       // Assert
@@ -181,6 +219,7 @@ describe('GraphqlProjectRepository', () => {
         organizationId: organizationIdentifier.parse(3),
         createdAt: '2026-03-10T16:00:00.000Z',
         defaultPartySettings: null,
+        defaultThemeId: null,
       });
     });
 
@@ -189,7 +228,12 @@ describe('GraphqlProjectRepository', () => {
       const { client } = new GraphqlClientMockFactory().create({
         requestError: new Error('project.errors.updateFailed'),
       });
-      const repository = new GraphqlProjectRepository(client, projectIdentifier, organizationIdentifier);
+      const repository = new GraphqlProjectRepository(
+        client,
+        projectIdentifier,
+        organizationIdentifier,
+        themeIdentifier,
+      );
 
       // Act + Assert
       await expect(
@@ -198,6 +242,7 @@ describe('GraphqlProjectRepository', () => {
           name: 'Spring Event 2',
           description: null,
           defaultPartySettings: null,
+          defaultThemeId: null,
         }),
       ).rejects.toThrow(ProjectErrorCode.UPDATE_FAILED);
     });
@@ -211,7 +256,12 @@ describe('GraphqlProjectRepository', () => {
           deleteProject: true,
         },
       });
-      const repository = new GraphqlProjectRepository(client, projectIdentifier, organizationIdentifier);
+      const repository = new GraphqlProjectRepository(
+        client,
+        projectIdentifier,
+        organizationIdentifier,
+        themeIdentifier,
+      );
 
       // Act + Assert
       await expect(
@@ -227,7 +277,12 @@ describe('GraphqlProjectRepository', () => {
       const { client } = new GraphqlClientMockFactory().create({
         requestError: new Error('project.errors.deleteFailed'),
       });
-      const repository = new GraphqlProjectRepository(client, projectIdentifier, organizationIdentifier);
+      const repository = new GraphqlProjectRepository(
+        client,
+        projectIdentifier,
+        organizationIdentifier,
+        themeIdentifier,
+      );
 
       // Act + Assert
       await expect(

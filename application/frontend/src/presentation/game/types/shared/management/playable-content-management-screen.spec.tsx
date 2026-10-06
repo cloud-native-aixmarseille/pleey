@@ -141,6 +141,7 @@ describe('PlayableContentManagementScreen', () => {
           gameTypeParser: {
             parseOrNull: () => null,
           },
+          themeManagementFacade: {} as never,
           organizationFormFacade: {} as never,
           organizationIdentifier: {
             parseOrNull: () => null,

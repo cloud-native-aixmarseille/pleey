@@ -5,6 +5,7 @@ import {
 } from '../../../../../../domains/game/party/shared/entities/party-settings';
 import type { Organization } from '../../../../../../domains/organization/entities/organization';
 import type { UpdateOrganizationCommand } from '../../../../../../domains/organization/ports/organization-repository';
+import type { ThemeId } from '../../../../../../domains/theme/entities/theme-id';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { usePresentationFeedbackChannel } from '../../../../../shared/ui/feedback/use-presentation-feedback-channel';
 import { useWorkspaceDependencies } from '../../../../shared/contexts/workspace-dependencies-context';
@@ -27,7 +28,8 @@ export function useEditOrganizationFormState({
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState('');
-  const [partySettings, setPartySettings] = useState<PartySettings>(DEFAULT_PARTY_SETTINGS);
+  const [defaultThemeId, setDefaultThemeId] = useState<ThemeId | null>(null);
+  const [defaultPartySettings, setDefaultPartySettings] = useState<PartySettings>(DEFAULT_PARTY_SETTINGS);
 
   function handleClose() {
     if (isSubmitting) {
@@ -40,8 +42,9 @@ export function useEditOrganizationFormState({
 
   function handleOpen() {
     setName(organization.name);
+    setDefaultThemeId(organization.defaultThemeId);
     setDescription(organization.description ?? '');
-    setPartySettings(organization.defaultPartySettings ?? DEFAULT_PARTY_SETTINGS);
+    setDefaultPartySettings(organization.defaultPartySettings ?? DEFAULT_PARTY_SETTINGS);
     feedback.clearError();
     setIsOpen(true);
   }
@@ -58,7 +61,7 @@ export function useEditOrganizationFormState({
     setIsSubmitting(true);
 
     try {
-      const command = organizationFormFacade.createCommand(name, description, partySettings);
+      const command = organizationFormFacade.createCommand(name, description, defaultPartySettings, defaultThemeId);
       const updatedOrganization = await onSubmit({
         organizationId: organization.id,
         ...command,
@@ -87,9 +90,11 @@ export function useEditOrganizationFormState({
     isOpen,
     isSubmitting,
     name,
-    partySettings,
+    defaultPartySettings,
     setDescription,
     setName,
-    setPartySettings,
+    setDefaultPartySettings,
+    defaultThemeId,
+    setDefaultThemeId,
   };
 }

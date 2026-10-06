@@ -15,6 +15,7 @@ import { UserIdentifier } from '../../../application/identity/shared/services/id
 import { PaginationQueryNormalizer } from '../../../application/shared/services/pagination-query-normalizer';
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { ProjectIdentifier } from '../../../application/workspace/shared/services/identifiers/project-identifier';
+import { ThemeIdentifier } from '../../../application/workspace/themes/services/theme-identifier';
 import type { GameId } from '../../../domain/game/entities/game';
 import { PartyRole } from '../../../domain/game/party/enums/party-role.enum';
 import { PinAlreadyInUseError } from '../../../domain/game/party/errors/pin-already-in-use.error';
@@ -40,6 +41,7 @@ export class PrismaPartyManagementAdapter extends PartyManagementPort {
     private readonly projectIdentifier: ProjectIdentifier,
     private readonly paginationQueryNormalizer: PaginationQueryNormalizer,
     private readonly partySettingsMapper: PrismaPartySettingsMapper,
+    private readonly themeIdentifier: ThemeIdentifier,
   ) {
     super();
   }
@@ -62,10 +64,12 @@ export class PrismaPartyManagementAdapter extends PartyManagementPort {
         project: {
           select: {
             defaultPartySettings: true,
+            defaultThemeId: true,
             organizationId: true,
             organization: {
               select: {
                 defaultPartySettings: true,
+                defaultThemeId: true,
               },
             },
           },
@@ -81,6 +85,8 @@ export class PrismaPartyManagementAdapter extends PartyManagementPort {
       gameId: this.gameIdentifier.parse(game.id),
       projectId: this.projectIdentifier.parse(game.projectId),
       organizationId: this.organizationIdentifier.parse(game.project.organizationId),
+      projectDefaultThemeId: this.themeIdentifier.parse(game.project.defaultThemeId),
+      organizationDefaultThemeId: this.themeIdentifier.parse(game.project.organization.defaultThemeId),
       projectDefaultSettings: this.partySettingsMapper.toOptionalPartySettings(game.project.defaultPartySettings),
       organizationDefaultSettings: this.partySettingsMapper.toOptionalPartySettings(
         game.project.organization.defaultPartySettings,
@@ -155,6 +161,7 @@ export class PrismaPartyManagementAdapter extends PartyManagementPort {
           pin: command.pin,
           passwordHash: command.privatePartyPasswordHash,
           settings: this.partySettingsMapper.toPersistedPartySettings(command.settings),
+          themeDocument: command.themeDocument as unknown as Prisma.InputJsonValue,
           status: 'waiting',
         },
       });

@@ -7,6 +7,7 @@ import { OrganizationRepositoryProvider } from '../../../../domain/organization/
 import type { ProjectRepository } from '../../../../domain/project/ports/project.repository';
 import { ProjectRepositoryProvider } from '../../../../domain/project/ports/project.repository';
 import { OrganizationMembershipAccessService } from '../../organizations/services/organization-membership-access.service';
+import { ThemeSelectionService } from '../../themes/services/theme-selection-service';
 import type { CreateProjectDto } from '../dto/create-project-dto';
 import { ProjectPermissionService, type ProjectWithAccess } from '../services/project-permission-service';
 
@@ -19,6 +20,7 @@ export class CreateProjectUseCase {
     private readonly projectRepository: ProjectRepository,
     @Inject(OrganizationRepositoryProvider)
     private readonly organizationRepository: OrganizationRepository,
+    private readonly themeSelection: ThemeSelectionService,
   ) {}
 
   async execute(
@@ -33,8 +35,13 @@ export class CreateProjectUseCase {
 
     const membership = await this.membershipAccess.requireManager(organizationId, requestingUserId);
 
+    if (dto.defaultThemeId != null) {
+      await this.themeSelection.resolve(organizationId, { projectDefaultThemeId: dto.defaultThemeId });
+    }
+
     const project = await this.projectRepository.create(organizationId, dto.name, dto.description ?? null, {
       defaultPartySettings: dto.defaultPartySettings ?? null,
+      defaultThemeId: dto.defaultThemeId ?? null,
     });
     const projectCount = await this.projectRepository.countByOrganization(organizationId);
     return this.projectPermissions.projectAccess(project, membership, projectCount);

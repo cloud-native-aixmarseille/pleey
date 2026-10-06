@@ -107,9 +107,10 @@ import { DatabaseModule } from '../database/database-module';
 import { IdentityModule } from '../identity/identity-module';
 import { OrganizationAccessModule } from '../organization/organization-access-module';
 import { SharedServicesModule } from '../shared/shared-services.module';
+import { ThemeModule } from '../theme/theme-module';
 
 @Module({
-  imports: [OrganizationAccessModule, DatabaseModule, IdentityModule, SharedServicesModule],
+  imports: [OrganizationAccessModule, ThemeModule, DatabaseModule, IdentityModule, SharedServicesModule],
   providers: [
     PartyObservationPolicy,
     PartyObservationAccessService,

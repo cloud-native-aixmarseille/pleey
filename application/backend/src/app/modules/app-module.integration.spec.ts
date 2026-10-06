@@ -1,6 +1,10 @@
+import { once } from 'node:events';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import * as path from 'node:path';
 import { Test } from '@nestjs/testing';
 import { I18nJsonLoader, I18nModule } from 'nestjs-i18n';
+import { firstValueFrom, isObservable, skip, timeout } from 'rxjs';
 import { describe, expect, it } from 'vitest';
 
 function ensureModuleTestEnvironment() {
@@ -120,4 +124,41 @@ describe('Nest module integration smoke tests', () => {
       expect(moduleName).toBeTruthy();
     },
   );
+});
+
+describe('Translation loader integration', () => {
+  it('loads translations, reloads directory changes, and closes the watcher', async () => {
+    // Arrange + Act + Assert - keep watcher and filesystem cleanup unconditional.
+    const directory = await mkdtemp(path.join(tmpdir(), 'pleey-i18n-'));
+    const translationFile = path.join(directory, 'en', 'messages.json');
+    let loader: I18nJsonLoader | undefined;
+    try {
+      await mkdir(path.join(directory, 'en'));
+      await writeFile(translationFile, JSON.stringify({ greeting: 'Initial greeting' }));
+      loader = new I18nJsonLoader({ path: directory, watch: true });
+      // Subscribe immediately to readiness so the file change cannot race the initial scan.
+      const watcher = Reflect.get(loader, 'watcher');
+      const ready = once(watcher, 'ready');
+      const translations = await loader.load();
+      if (!isObservable(translations)) {
+        throw new Error('Watch mode must provide translation updates');
+      }
+      const initial = await firstValueFrom(translations);
+      const updated = firstValueFrom(translations.pipe(skip(1), timeout(3000)));
+      await ready;
+
+      // Act
+      await writeFile(translationFile, JSON.stringify({ greeting: 'Updated greeting' }));
+      const reloaded = await updated;
+      await loader.onModuleDestroy();
+
+      // Assert
+      expect(initial).toEqual({ en: { messages: { greeting: 'Initial greeting' } } });
+      expect(reloaded).toEqual({ en: { messages: { greeting: 'Updated greeting' } } });
+      expect(watcher.getWatched()).toEqual({});
+    } finally {
+      await loader?.onModuleDestroy();
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
 });

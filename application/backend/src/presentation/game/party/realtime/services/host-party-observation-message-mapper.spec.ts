@@ -4,6 +4,7 @@ import { PartyStatus } from '../../../../../domain/game/party/enums/party-status
 import { DEFAULT_PARTY_SETTINGS } from '../../../../../domain/game/party/shared/entities/party-settings';
 import { GameType } from '../../../../../domain/game/types/shared/entities/game-type';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
+import { ThemeFixtureFactory } from '../../../../../test-utils/fixtures/theme-fixture-factory';
 import { HostPartyObservationMessageMapper } from './host-party-observation-message-mapper';
 
 describe('HostPartyObservationMessageMapper', () => {
@@ -19,6 +20,7 @@ describe('HostPartyObservationMessageMapper', () => {
         pin: backendTestIdentifiers.partyPin('AB12CD'),
         status: PartyStatus.ACTIVE,
         settings: DEFAULT_PARTY_SETTINGS,
+        themeDocument: new ThemeFixtureFactory().createDocument({ baseThemeId: 'solar-grid' }),
         context: null,
         host: {
           avatarUri: '/api/avatars/users/7?v=1',
@@ -100,6 +102,7 @@ describe('HostPartyObservationMessageMapper', () => {
     );
 
     // Assert
+    expect(message.themeDocument).toEqual(new ThemeFixtureFactory().createDocument({ baseThemeId: 'solar-grid' }));
     expect(message.isObserverHost).toBe(true);
     expect(message.players).toEqual([
       {

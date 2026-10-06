@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma, type Organization as PrismaOrganization } from '@prisma/client';
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
+import { ThemeIdentifier } from '../../../application/workspace/themes/services/theme-identifier';
 import { Organization, type OrganizationId } from '../../../domain/organization/entities/organization';
 import type { OrganizationRepository } from '../../../domain/organization/ports/organization.repository';
+import type { ThemeId } from '../../../domain/theme/entities/theme-id';
 import { PrismaService } from '../../database/prisma-service';
 import { PrismaPartySettingsMapper } from '../../game/shared/prisma-party-settings.mapper';
 
@@ -12,6 +14,7 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
     private readonly prisma: PrismaService,
     private readonly organizationIdentifier: OrganizationIdentifier,
     private readonly partySettingsMapper: PrismaPartySettingsMapper,
+    private readonly themeIdentifier: ThemeIdentifier,
   ) {}
 
   async create(
@@ -19,10 +22,12 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
     description: string | null,
     defaults: {
       readonly defaultPartySettings: Parameters<PrismaPartySettingsMapper['toPersistedPartySettings']>[0] | null;
+      readonly defaultThemeId?: ThemeId | null;
     },
   ): Promise<Organization> {
     const organization = await this.prisma.organization.create({
       data: {
+        ...(defaults.defaultThemeId === undefined ? {} : { defaultThemeId: defaults.defaultThemeId }),
         defaultPartySettings:
           defaults.defaultPartySettings === null
             ? Prisma.DbNull
@@ -41,11 +46,13 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
     description: string | null,
     defaults: {
       readonly defaultPartySettings: Parameters<PrismaPartySettingsMapper['toPersistedPartySettings']>[0] | null;
+      readonly defaultThemeId?: ThemeId | null;
     },
   ): Promise<Organization> {
     const organization = await this.prisma.organization.update({
       where: { id },
       data: {
+        ...(defaults.defaultThemeId === undefined ? {} : { defaultThemeId: defaults.defaultThemeId }),
         defaultPartySettings:
           defaults.defaultPartySettings === null
             ? Prisma.DbNull
@@ -109,6 +116,7 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
       organization.createdAt,
       organization.updatedAt,
       this.partySettingsMapper.toOptionalPartySettings(organization.defaultPartySettings),
+      this.themeIdentifier.parse(organization.defaultThemeId),
     );
   }
 }

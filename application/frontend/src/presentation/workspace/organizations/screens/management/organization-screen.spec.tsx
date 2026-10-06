@@ -677,6 +677,18 @@ describe('OrganizationScreen', () => {
       // Assert
       expect(await screen.findByRole('status')).toHaveTextContent('project.management.form.create.success');
       expect(await screen.findByText('Fresh Project')).toBeInTheDocument();
+      expect(view.createProject).toHaveBeenCalledWith({
+        organizationId: parseOrganizationId(3),
+        name: 'Fresh Project',
+        description: 'Newly created',
+        defaultThemeId: null,
+        defaultPartySettings: {
+          allowJoiningAfterStart: false,
+          allowOptionChangeAfterVoting: true,
+          randomizeOptionOrder: false,
+          randomizeStageOrder: false,
+        },
+      });
       expect(loadOrganizationWorkspaceState).toHaveBeenCalledTimes(2);
     });
 

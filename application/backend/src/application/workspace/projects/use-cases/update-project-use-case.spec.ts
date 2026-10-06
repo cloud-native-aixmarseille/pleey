@@ -4,6 +4,7 @@ import { backendTestIdentifiers } from '../../../../test-utils/branded-identifie
 import { createWorkspacePermissionServices } from '../../../../test-utils/fixtures/workspace-permission-fixture-factory';
 import { createOrganizationMemberRepositoryMock } from '../../../../test-utils/mock-factories/organization.mock-factory';
 import { createProjectRepositoryMock } from '../../../../test-utils/mock-factories/project-repository.mock-factory';
+import { ThemeSelectionServiceMockFactory } from '../../../../test-utils/mock-factories/theme-selection-service-mock-factory';
 import type { UpdateProjectDto } from '../dto/update-project-dto';
 import { UpdateProjectUseCase } from './update-project-use-case';
 
@@ -20,11 +21,16 @@ describe('UpdateProjectUseCase', () => {
     const useCase = new UpdateProjectUseCase(
       createWorkspacePermissionServices(memberRepository as never).projectPermissions,
       projectRepository as never,
+      new ThemeSelectionServiceMockFactory().create(),
     );
 
     // Act + Assert
     await expect(
-      useCase.execute(projectId, { name: 'Updated project' } satisfies UpdateProjectDto, actorUserId),
+      useCase.execute(
+        projectId,
+        { name: 'Updated project', defaultThemeId: 'solar-grid' } satisfies UpdateProjectDto,
+        actorUserId,
+      ),
     ).rejects.toThrow(ProjectErrorCode.PROJECT_NOT_FOUND);
   });
 
@@ -43,10 +49,17 @@ describe('UpdateProjectUseCase', () => {
     const useCase = new UpdateProjectUseCase(
       createWorkspacePermissionServices(memberRepository as never).projectPermissions,
       projectRepository as never,
+      new ThemeSelectionServiceMockFactory().create(),
     );
 
     // Act + Assert
-    await expect(useCase.execute(projectId, actorUserId)).rejects.toThrow(ProjectErrorCode.PROJECT_NOT_FOUND);
+    await expect(
+      useCase.execute(
+        projectId,
+        { name: 'Updated project', defaultThemeId: 'solar-grid' } satisfies UpdateProjectDto,
+        actorUserId,
+      ),
+    ).rejects.toThrow(ProjectErrorCode.PROJECT_NOT_FOUND);
   });
 
   it('throws INSUFFICIENT_PERMISSIONS when the user cannot manage projects', async () => {
@@ -66,11 +79,16 @@ describe('UpdateProjectUseCase', () => {
     const useCase = new UpdateProjectUseCase(
       createWorkspacePermissionServices(memberRepository as never).projectPermissions,
       projectRepository as never,
+      new ThemeSelectionServiceMockFactory().create(),
     );
 
     // Act + Assert
     await expect(
-      useCase.execute(projectId, { name: 'Updated project' } satisfies UpdateProjectDto, actorUserId),
+      useCase.execute(
+        projectId,
+        { name: 'Updated project', defaultThemeId: 'solar-grid' } satisfies UpdateProjectDto,
+        actorUserId,
+      ),
     ).rejects.toThrow(OrganizationErrorCode.INSUFFICIENT_PERMISSIONS);
   });
 
@@ -98,6 +116,7 @@ describe('UpdateProjectUseCase', () => {
     const useCase = new UpdateProjectUseCase(
       createWorkspacePermissionServices(memberRepository as never).projectPermissions,
       projectRepository as never,
+      new ThemeSelectionServiceMockFactory().create(),
     );
 
     // Act
@@ -113,4 +132,45 @@ describe('UpdateProjectUseCase', () => {
     });
     expect(result).toBe(updatedProject);
   });
+  it.each([
+    { selection: undefined, expected: undefined },
+    { selection: null, expected: null },
+    { selection: 'solar-grid', expected: 'solar-grid' },
+  ] as const)(
+    'updates theme selection $selection without conflating omission and inheritance',
+    async ({ selection, expected }) => {
+      // Arrange
+      const repository = createProjectRepositoryMock({
+        update: { id: backendTestIdentifiers.project(1) } as never,
+        findById: {
+          id: backendTestIdentifiers.project(1),
+          organizationId: backendTestIdentifiers.organization(3),
+          defaultThemeId: 'cyber-arcade',
+        } as never,
+      });
+      const members = createOrganizationMemberRepositoryMock({
+        findByOrganizationAndUser: { hasManagementPrivileges: () => true } as never,
+      });
+      const useCase = new UpdateProjectUseCase(
+        createWorkspacePermissionServices(members as never).projectPermissions,
+        repository as never,
+        new ThemeSelectionServiceMockFactory().create(),
+      );
+
+      // Act
+      await useCase.execute(
+        backendTestIdentifiers.project(1),
+        { name: 'Brand', defaultThemeId: selection },
+        backendTestIdentifiers.user(1),
+      );
+
+      // Assert
+      expect(repository.update).toHaveBeenCalledWith(
+        backendTestIdentifiers.project(1),
+        'Brand',
+        null,
+        expect.objectContaining({ defaultThemeId: expected }),
+      );
+    },
+  );
 });

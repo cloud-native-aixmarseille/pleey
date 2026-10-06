@@ -129,8 +129,9 @@ Process-startup, config, and tooling code outside the runtime application layers
 ### i18n
 
 - Backend: `application/backend/src/i18n/`
-- Frontend: `application/frontend/src/i18n/locales/`
+- Frontend: `application/frontend/src/presentation/**/i18n/`, assembled by `application/frontend/src/i18n/translation-resource-composer.ts`
 - Feature-specific keys stay in feature scope — no cross-feature key reads
+- Use the straight ASCII apostrophe (`'`, U+0027) in translation values for every locale. Curly apostrophes (U+2018 and U+2019) are forbidden. Use suitable string delimiters or escaping to preserve the straight apostrophe; keep language accents intact.
 
 ### HTTP Requests
 

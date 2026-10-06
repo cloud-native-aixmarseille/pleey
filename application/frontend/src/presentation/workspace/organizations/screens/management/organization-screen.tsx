@@ -20,6 +20,7 @@ import { usePresentationTranslation } from '../../../../shared/i18n/use-presenta
 import { StatusBanner } from '../../../../shared/ui/feedback/status-banner';
 import { ContentStack } from '../../../../shared/ui/layout/containers';
 import { SubpageHeader } from '../../../../shared/ui/layout/subpage-header';
+import { ThemeManagementLink } from '../../../../theme/components/theme-management-link';
 import type { DashboardWorkspaceSelectionGateway } from '../../../dashboard/hooks/use-dashboard-workspace';
 import type { PaginationViewModel } from '../../../shared/components/pagination-bar';
 import { CreateOrganizationForm } from './components/create-organization-form';
@@ -205,6 +206,10 @@ export function OrganizationScreen({
         onOrganizationSearchChange={handleOrganizationSearchChange}
         onLoadMoreOrganizations={handleLoadMoreOrganizations}
       />
+
+      {selectedOrganization && (
+        <ThemeManagementLink key={selectedOrganization.id} organizationId={selectedOrganization.id} />
+      )}
 
       <OrganizationProjectsSection
         actionErrorMessage={actionErrorMessage ? t(actionErrorMessage) : null}

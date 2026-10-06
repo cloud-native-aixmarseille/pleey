@@ -33,6 +33,7 @@ import {
 } from '../../../../domains/game/party/shared/ports/party-observation.port';
 import { GameType } from '../../../../domains/game/types/shared/game-type';
 import { decodeActionPermission } from '../../../../domains/shared/services/action-permission-decoder';
+import { ThemeDocumentNormalizer } from '../../../../domains/theme/services/theme-document-normalizer';
 import type {
   PartyJoinMessage,
   PartyObservationPayload,
@@ -50,6 +51,7 @@ type PartyRuntimeResultActionValue = NonNullable<
 @injectable()
 export class SocketIoPartyPayloadMapper {
   constructor(
+    @inject(ThemeDocumentNormalizer) private readonly themeDocumentNormalizer: ThemeDocumentNormalizer,
     @inject(PartyActionIdentifier)
     private readonly partyActionIdentifier: PartyActionIdentifier,
     @inject(GuestIdentifier)
@@ -95,6 +97,7 @@ export class SocketIoPartyPayloadMapper {
       pin: this.normalizePin(payload.pin),
       status: payload.status,
       settings: payload.settings,
+      themeDocument: this.themeDocumentNormalizer.normalize(payload.themeDocument),
       context: this.toRuntimeContext(payload.context),
       isObserverHost: payload.isObserverHost,
       permissions: {

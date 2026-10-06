@@ -11,7 +11,13 @@ export type CreateLinkFn = <TProps extends object>(
   component: ComponentType<TProps>,
 ) => ComponentType<{ to: string } & Omit<TProps, 'href'>>;
 
-export type PresentationNavigate = (to: string) => void;
+export type PresentationNavigate = (to: string, options?: { readonly replace?: boolean }) => void;
+
+interface PresentationNavigationBlocker {
+  readonly blocked: boolean;
+  proceed(): void;
+  reset(): void;
+}
 
 export type PresentationParams<TKey extends string = string> = Readonly<Partial<Record<TKey, string>>>;
 
@@ -22,6 +28,7 @@ export interface RoutingPort {
   readonly useNavigate: () => PresentationNavigate;
   readonly usePathname: () => string;
   readonly useParams: <TKey extends string = string>() => PresentationParams<TKey>;
+  readonly useNavigationBlocker: (enabled: boolean) => PresentationNavigationBlocker;
 }
 
 export interface PresentationRouteObject {

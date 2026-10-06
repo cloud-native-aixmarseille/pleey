@@ -226,7 +226,7 @@ function createMantineUiTheme(tokens: ResolvedUiThemeTokens, seed: UiThemeSeed, 
   });
 }
 
-function createUiThemeDefinition(seed: UiThemeSeed): UiThemeDefinition {
+export function createUiThemeDefinition(seed: UiThemeSeed): UiThemeDefinition {
   const tokensByColorScheme = {
     dark: createUiThemeTokens(seed, 'dark'),
     light: createUiThemeTokens(seed, 'light'),

@@ -3,7 +3,9 @@ import {
   DEFAULT_PARTY_SETTINGS,
   type PartySettings,
 } from '../../../../../../domains/game/party/shared/entities/party-settings';
+import type { OrganizationId } from '../../../../../../domains/organization/entities/organization';
 import type { Project } from '../../../../../../domains/project/entities/project';
+import type { ThemeId } from '../../../../../../domains/theme/entities/theme-id';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../../shared/ui/actions/button';
 import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';
@@ -12,10 +14,12 @@ import { Input } from '../../../../../shared/ui/forms/input';
 import { PartySettingsFormField } from '../../../../../shared/ui/forms/party-settings-form-field';
 import { Textarea } from '../../../../../shared/ui/forms/textarea';
 import { FormDialog } from '../../../../../shared/ui/overlay/form-dialog';
+import { WorkspaceThemeSelectField } from '../../../../../theme/components/workspace-theme-select-field';
 import { useProjectFormDialogState } from './use-project-form-dialog-state';
 
 interface ProjectFormDialogProps {
-  readonly defaultPartySettings?: PartySettings;
+  readonly organizationId?: OrganizationId;
+  readonly organizationDefaultPartySettings?: PartySettings;
   readonly isOpen: boolean;
   readonly mode: 'create' | 'edit';
   readonly organizationName: string | null;
@@ -24,13 +28,15 @@ interface ProjectFormDialogProps {
   readonly onSubmit: (values: {
     name: string;
     description: string | null;
-    partySettings: PartySettings;
+    defaultPartySettings: PartySettings;
+    defaultThemeId: ThemeId | null;
   }) => Promise<Project>;
   readonly onSubmitted: (project: Project) => void;
 }
 
 export function ProjectFormDialog({
-  defaultPartySettings = DEFAULT_PARTY_SETTINGS,
+  organizationId,
+  organizationDefaultPartySettings = DEFAULT_PARTY_SETTINGS,
   isOpen,
   mode,
   organizationName,
@@ -46,12 +52,14 @@ export function ProjectFormDialog({
     handleSubmit,
     isSubmitting,
     name,
-    partySettings,
+    defaultPartySettings,
     setDescription,
     setName,
-    setPartySettings,
+    setDefaultPartySettings,
+    defaultThemeId,
+    setDefaultThemeId,
   } = useProjectFormDialogState({
-    defaultPartySettings,
+    organizationDefaultPartySettings,
     isOpen,
     mode,
     onSubmit,
@@ -115,11 +123,19 @@ export function ProjectFormDialog({
         />
       </FieldShell>
 
+      <WorkspaceThemeSelectField
+        organizationId={organizationId}
+        id="project-theme"
+        value={defaultThemeId}
+        disabled={isSubmitting}
+        onChange={setDefaultThemeId}
+      />
+
       <PartySettingsFormField
         id="project-party-settings"
-        settings={partySettings}
+        settings={defaultPartySettings}
         disabled={isSubmitting}
-        onChange={setPartySettings}
+        onChange={setDefaultPartySettings}
       />
     </FormDialog>
   );

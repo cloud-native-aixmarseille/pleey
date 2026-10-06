@@ -4,6 +4,7 @@ import type { OrganizationId } from '../../../../domain/organization/entities/or
 import { OrganizationNameAlreadyExistsError, OrganizationNotFoundError } from '../../../../domain/organization/errors';
 import type { OrganizationRepository } from '../../../../domain/organization/ports/organization.repository';
 import { OrganizationRepositoryProvider } from '../../../../domain/organization/ports/organization.repository';
+import { ThemeSelectionService } from '../../themes/services/theme-selection-service';
 import type { OrganizationWithAccess } from '../dto/organization-access.dto';
 import type { UpdateOrganizationDto } from '../dto/update-organization-dto';
 import { OrganizationMembershipAccessService } from '../services/organization-membership-access.service';
@@ -14,6 +15,7 @@ export class UpdateOrganizationUseCase {
     private readonly membershipAccess: OrganizationMembershipAccessService,
     @Inject(OrganizationRepositoryProvider)
     private readonly organizationRepository: OrganizationRepository,
+    private readonly themeSelection: ThemeSelectionService,
   ) {}
 
   async execute(
@@ -35,8 +37,13 @@ export class UpdateOrganizationUseCase {
       throw new OrganizationNameAlreadyExistsError({ name: dto.name });
     }
 
+    if (dto.defaultThemeId != null) {
+      await this.themeSelection.resolve(organizationId, { organizationDefaultThemeId: dto.defaultThemeId });
+    }
+
     const updated = await this.organizationRepository.update(organizationId, dto.name, dto.description ?? null, {
       defaultPartySettings: dto.defaultPartySettings ?? null,
+      defaultThemeId: dto.defaultThemeId,
     });
     return this.membershipAccess.organizationAccess(updated, membership);
   }

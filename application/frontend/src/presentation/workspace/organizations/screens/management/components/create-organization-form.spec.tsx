@@ -70,12 +70,14 @@ describe('CreateOrganizationForm', () => {
       screen.getByLabelText(/organization\.management\.create\.fields\.description\.label/),
       'A test org',
     );
+    await user.selectOptions(screen.getByRole('combobox', { name: 'theme.label' }), 'solar-grid');
     await user.click(screen.getByRole('button', { name: 'organization.management.create.submit' }));
 
     // Assert
     await waitFor(() => {
       expect(onSubmit).toHaveBeenCalledWith({
         name: 'New Org',
+        defaultThemeId: 'solar-grid',
         description: 'A test org',
         defaultPartySettings: {
           allowJoiningAfterStart: false,

@@ -10,6 +10,15 @@ const authSessionTransportMockFactory = new AuthSessionTransportMockFactory();
 const storagePortMockFactory = new StoragePortMockFactory();
 
 describe('PersistedAuthSessionAdapter', () => {
+  it('removes recoverable theme drafts when the session is cleared', () => {
+    // Arrange
+    const storage = storagePortMockFactory.create({ [StorageKey.THEME_DRAFTS]: 'drafts' });
+    const service = new PersistedAuthSessionAdapter(storage, authSessionTransportMockFactory.create());
+    // Act
+    service.clear();
+    // Assert
+    expect(storage.getItem(StorageKey.THEME_DRAFTS)).toBeNull();
+  });
   describe('commit()', () => {
     it('persists the auth session and forwards tokens to the transport', () => {
       // Arrange
