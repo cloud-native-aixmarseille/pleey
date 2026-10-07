@@ -1,0 +1,10 @@
+mutation SaveTheme($organizationId: ID!, $input: SaveThemeInput!) {
+  saveTheme(organizationId: $organizationId, input: $input) {
+    id
+    organizationId
+    revision
+    document
+    createdAt
+    updatedAt
+  }
+}

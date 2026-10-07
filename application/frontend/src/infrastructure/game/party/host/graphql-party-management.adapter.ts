@@ -50,6 +50,7 @@ export class GraphqlPartyManagementAdapter implements PartyManagementPort {
             gameId: command.gameId,
             privatePartyPassword: command.privatePartyPassword,
             settingsOverride: command.settingsOverride,
+            themeIdOverride: command.themeIdOverride,
           },
         },
       );

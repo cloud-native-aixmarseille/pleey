@@ -12,6 +12,7 @@ query WorkspaceProjectsByOrganization($input: ListOrganizationProjectsInput!) {
         randomizeOptionOrder
         randomizeStageOrder
       }
+      defaultThemeId
     }
     totalCount
     overallCount
@@ -34,6 +35,7 @@ mutation CreateProject($organizationId: ID!, $input: CreateProjectInput!) {
       randomizeOptionOrder
       randomizeStageOrder
     }
+    defaultThemeId
   }
 }
 
@@ -50,6 +52,7 @@ mutation UpdateProject($projectId: ID!, $input: UpdateProjectInput!) {
       randomizeOptionOrder
       randomizeStageOrder
     }
+    defaultThemeId
   }
 }
 

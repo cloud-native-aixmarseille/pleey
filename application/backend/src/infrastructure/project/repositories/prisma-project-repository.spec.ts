@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { PaginationQueryNormalizer } from '../../../application/shared/services/pagination-query-normalizer';
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { ProjectIdentifier } from '../../../application/workspace/shared/services/identifiers/project-identifier';
+import { ThemeIdentifier } from '../../../application/workspace/themes/services/theme-identifier';
 import { backendTestIdentifiers } from '../../../test-utils/branded-identifiers';
 import type { PrismaService } from '../../database/prisma-service';
 import { PrismaPartySettingsMapper } from '../../game/shared/prisma-party-settings.mapper';
@@ -34,6 +35,7 @@ describe('PrismaProjectRepository', () => {
       new ProjectIdentifier(),
       new PaginationQueryNormalizer(),
       new PrismaPartySettingsMapper(),
+      new ThemeIdentifier(),
     );
 
     // Act

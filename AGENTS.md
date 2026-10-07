@@ -35,7 +35,9 @@ Review and generation instruction files are configured from `.vscode/settings.js
 - **Never duplicate docs content** — reference the relevant doc file instead
 - **Every architecture, technology, and design choice starts with an ADR** under `docs/technical/architecture/adr/` — do not start with a free-form proposal
 - **Clean Architecture boundaries are enforced by Biome** — `domain/` → `application/` → `infrastructure/` → `presentation/` (see architecture docs)
+- **Backend GraphQL resolvers use use cases** — follow the [resolver boundary rules](docs/technical/development/backend/application-patterns.md#writing-resolvers), enforced by `npm run _lint:resolvers`.
 - **All user-facing text uses i18n** — never hardcode strings
+- **Translation punctuation** — follow the [i18n authoring rules](docs/technical/development/index.md#i18n) when adding or editing any locale
 - **Error codes are domain enums** mapped to translations (see development docs)
 - **`console.*` is forbidden** in frontend committed code
 - **`process.env` is forbidden** in backend runtime code outside `src/app/config/`

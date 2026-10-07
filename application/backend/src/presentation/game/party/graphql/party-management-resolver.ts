@@ -43,6 +43,7 @@ export class PartyManagementResolver {
       hostUserId: userId,
       privatePartyPassword: input.privatePartyPassword,
       settingsOverride: input.settingsOverride,
+      themeIdOverride: input.themeIdOverride,
     });
   }
 

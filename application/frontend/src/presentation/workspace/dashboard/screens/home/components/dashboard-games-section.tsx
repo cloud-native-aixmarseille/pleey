@@ -11,6 +11,7 @@ import { GameType } from '../../../../../../domains/game/types/shared/game-type'
 import type { GameTypeDescriptor } from '../../../../../../domains/game/types/shared/game-type-catalog';
 import type { Organization } from '../../../../../../domains/organization/entities/organization';
 import type { Project } from '../../../../../../domains/project/entities/project';
+import type { ThemeId } from '../../../../../../domains/theme/entities/theme-id';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../../shared/ui/actions/button';
 import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';
@@ -91,7 +92,11 @@ interface DashboardGamesSectionProps {
   readonly onPageChange: (value: number) => void;
   readonly onCreateParty: (
     game: DashboardGameListItem,
-    options?: { privatePartyPassword?: string; settingsOverride?: Partial<PartySettings> },
+    options?: {
+      privatePartyPassword?: string;
+      settingsOverride?: Partial<PartySettings>;
+      themeIdOverride?: ThemeId | null;
+    },
   ) => void;
   readonly onManageGame: (game: DashboardGameListItem) => void;
 }
@@ -230,6 +235,7 @@ export function DashboardGamesSection({
       />
 
       <DashboardCreatePartyDialog
+        organizationId={selectedOrganization?.id}
         defaultPartySettings={defaultPartySettings}
         descriptor={createPartyGame ? gameTypesByKey.get(createPartyGame.type) : undefined}
         game={createPartyGame}

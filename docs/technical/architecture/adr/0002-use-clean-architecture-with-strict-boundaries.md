@@ -46,6 +46,10 @@ The enforced baseline is:
 
 Enforce the model through Biome rules, app-local plugins, DI boundaries, and repository conventions.
 
+Shared composition modules provide domain-neutral dependencies. Domain-specific stateless helpers, such as persistence mappers, retain their feature ownership and can be registered locally by modules that compose their consumers. Reuse across features does not require moving those helpers into a shared module or introducing circular feature-module imports.
+
+Backend GraphQL operations enter application behavior through use-case `execute()` methods. Resolvers handle authentication context, input parsing, upload adaptation, and response presentation; they do not call repositories, persistence adapters, or business services directly. Identifier parsers and presentation helpers remain valid transport dependencies. A resolver boundary guard in the backend lint pipeline checks operation delegation and resolved dependency origins, including aliased and re-exported imports.
+
 ## Consequences
 
 ### Positive

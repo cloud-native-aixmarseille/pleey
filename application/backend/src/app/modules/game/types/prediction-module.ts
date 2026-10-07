@@ -18,11 +18,13 @@ import { playableContentImportProviders } from '../../../../application/game/typ
 import { OrganizationIdentifier } from '../../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../../../application/workspace/shared/services/identifiers/organization-member-identifier';
 import { ProjectIdentifier } from '../../../../application/workspace/shared/services/identifiers/project-identifier';
+import { ThemeIdentifier } from '../../../../application/workspace/themes/services/theme-identifier';
 import { PredictionManagementRepositoryProvider } from '../../../../domain/game/types/prediction/ports/prediction-management.repository';
 import { PredictionPromptRepositoryProvider } from '../../../../domain/game/types/prediction/ports/prediction-prompt.repository';
 import { SelectableOptionPolicy } from '../../../../domain/game/types/shared/services/selectable-option-policy';
 import { OrganizationMemberRepositoryProvider } from '../../../../domain/organization/ports/organization-member.repository';
 import { ProjectRepositoryProvider } from '../../../../domain/project/ports/project.repository';
+import { PrismaPartySettingsMapper } from '../../../../infrastructure/game/shared/prisma-party-settings.mapper';
 import { PrismaPredictionManagementRepository } from '../../../../infrastructure/game/types/prediction/prisma-prediction-management.repository';
 import { PrismaPredictionPromptRepository } from '../../../../infrastructure/game/types/prediction/prisma-prediction-prompt.repository';
 import { PrismaSelectableOptionMapper } from '../../../../infrastructure/game/types/shared/prisma-selectable-option-mapper';
@@ -38,6 +40,7 @@ import { SharedServicesModule } from '../../shared/shared-services.module';
 @Module({
   imports: [DatabaseModule, IdentityModule, SharedServicesModule],
   providers: [
+    ThemeIdentifier,
     CreatePredictionUseCase,
     CreatePredictionFromImportUseCase,
     UpdatePredictionUseCase,
@@ -58,6 +61,7 @@ import { SharedServicesModule } from '../../shared/shared-services.module';
     OrganizationMemberIdentifier,
     PredictionManagementResolver,
     PrismaOrganizationMemberRepository,
+    PrismaPartySettingsMapper,
     PrismaPredictionManagementRepository,
     PrismaPredictionPromptRepository,
     PrismaProjectRepository,

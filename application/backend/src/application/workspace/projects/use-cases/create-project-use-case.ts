@@ -9,6 +9,7 @@ import { OrganizationMemberRepositoryProvider } from '../../../../domain/organiz
 import type { Project } from '../../../../domain/project/entities/project';
 import type { ProjectRepository } from '../../../../domain/project/ports/project.repository';
 import { ProjectRepositoryProvider } from '../../../../domain/project/ports/project.repository';
+import { ThemeSelectionService } from '../../themes/services/theme-selection-service';
 import type { CreateProjectDto } from '../dto/create-project-dto';
 
 @Injectable()
@@ -20,6 +21,7 @@ export class CreateProjectUseCase {
     private readonly organizationRepository: OrganizationRepository,
     @Inject(OrganizationMemberRepositoryProvider)
     private readonly memberRepository: OrganizationMemberRepository,
+    private readonly themeSelection: ThemeSelectionService,
   ) {}
 
   async execute(organizationId: OrganizationId, dto: CreateProjectDto, requestingUserId: UserId): Promise<Project> {
@@ -38,8 +40,13 @@ export class CreateProjectUseCase {
       });
     }
 
+    if (dto.defaultThemeId != null) {
+      await this.themeSelection.resolve(organizationId, { projectDefaultThemeId: dto.defaultThemeId });
+    }
+
     return this.projectRepository.create(organizationId, dto.name, dto.description ?? null, {
       defaultPartySettings: dto.defaultPartySettings ?? null,
+      defaultThemeId: dto.defaultThemeId ?? null,
     });
   }
 }

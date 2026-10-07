@@ -12,6 +12,7 @@ query WorkspaceOrganizations($input: ListOrganizationsInput) {
         randomizeOptionOrder
         randomizeStageOrder
       }
+      defaultThemeId
       role
     }
     totalCount
@@ -35,6 +36,7 @@ mutation UpdateOrganization($organizationId: ID!, $input: UpdateOrganizationInpu
       randomizeOptionOrder
       randomizeStageOrder
     }
+    defaultThemeId
     role
   }
 }

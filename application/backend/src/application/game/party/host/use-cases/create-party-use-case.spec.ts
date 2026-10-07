@@ -1,3 +1,5 @@
+import { ThemeFixtureFactory } from '../../../../../test-utils/fixtures/theme-fixture-factory';
+import { ThemeSelectionServiceMockFactory } from '../../../../../test-utils/mock-factories/theme-selection-service-mock-factory';
 import 'reflect-metadata';
 import { describe, expect, it, vi } from 'vitest';
 import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
@@ -53,6 +55,7 @@ describe('CreatePartyUseCase', () => {
       assertCanCreateParty: vi.fn().mockResolvedValue(undefined),
       resolveGamePermissions: vi.fn(),
     };
+    const themeSelection = new ThemeSelectionServiceMockFactory().create();
     const useCase = new CreatePartyUseCase(
       partyManagement as never,
       memberRepository,
@@ -61,17 +64,57 @@ describe('CreatePartyUseCase', () => {
       partySettingsResolver,
       partyPinIdentifier,
       passwordService,
+      themeSelection,
     );
 
     return {
       useCase,
       partyManagement,
+      themeSelection,
       memberRepository,
       passwordService,
       gamePermissionResolver,
       broadcastPartyObservationUseCase,
     };
   }
+
+  it('stores the resolved custom document with the party snapshot', async () => {
+    // Arrange
+    const { useCase, partyManagement, themeSelection } = arrangeCreatePartyUseCase();
+    const document = new ThemeFixtureFactory().createDocument();
+    vi.mocked(themeSelection.resolve).mockResolvedValue(document);
+    const themeId = 'custom:01900000-0000-7000-8000-000000000001';
+    // Act
+    await useCase.execute({ ...defaultCommand, themeIdOverride: themeId });
+    // Assert
+    expect(partyManagement.createParty).toHaveBeenCalledWith(expect.objectContaining({ themeDocument: document }));
+  });
+
+  it('stores the theme resolved from workspace defaults and the party override', async () => {
+    // Arrange
+    const { useCase, partyManagement, themeSelection } = arrangeCreatePartyUseCase();
+    const document = new ThemeFixtureFactory().createDocument({ baseThemeId: 'solar-grid' });
+    vi.mocked(themeSelection.resolve).mockResolvedValue(document);
+    partyManagement.findManagedGame.mockResolvedValue({
+      gameId: defaultCommand.gameId,
+      projectId: backendTestIdentifiers.project(6),
+      organizationId: backendTestIdentifiers.organization(3),
+      type: 'quiz',
+      projectDefaultThemeId: 'cyber-arcade',
+      organizationDefaultThemeId: 'solar-grid',
+    } as never);
+
+    // Act
+    await useCase.execute({ ...defaultCommand, themeIdOverride: 'solar-grid' });
+
+    // Assert
+    expect(themeSelection.resolve).toHaveBeenCalledExactlyOnceWith(backendTestIdentifiers.organization(3), {
+      organizationDefaultThemeId: 'solar-grid',
+      projectDefaultThemeId: 'cyber-arcade',
+      themeIdOverride: 'solar-grid',
+    });
+    expect(partyManagement.createParty).toHaveBeenCalledWith(expect.objectContaining({ themeDocument: document }));
+  });
 
   it('creates a host-owned party for an authorized member', async () => {
     // Arrange

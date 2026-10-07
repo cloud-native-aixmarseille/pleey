@@ -10,6 +10,8 @@ Prisma uses `DATABASE_URL` for the application database. `SHADOW_DATABASE_URL` i
 
 Lint pipeline runs targeted custom scripts before and after Biome, including naming, DI-instantiation, domain-error-context, and invariant-argument checks. Domain-error throw shape is enforced in Biome via a shared GritQL plugin, while the custom checker is kept for alias-based empty-context cases that the plugin cannot resolve. Path-boundary rules are enforced in `biome.json` via app-local GritQL plugins alongside `noRestrictedImports` overrides.
 
+`npm run _lint:resolvers` is part of the pre-Biome lint pipeline. It checks GraphQL operation delegation and prevents resolver dependencies on business services, repository ports, and infrastructure adapters. Identifier parsing and presentation helpers are allowed. Its Vitest fixtures cover both accepted and rejected code, including aliases and re-exports.
+
 ## Testing Conventions
 
 Unit tests are colocated with source (`*.spec.ts`). Integration tests live in `test/`.

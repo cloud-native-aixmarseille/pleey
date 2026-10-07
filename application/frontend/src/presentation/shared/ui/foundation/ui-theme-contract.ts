@@ -1,16 +1,16 @@
-import { CYBER_ARCADE_THEME_ID } from './cyber-arcade-theme';
-import { SOLAR_GRID_THEME_ID } from './solar-grid-theme';
+import { DEFAULT_THEME_ID, type ThemeId } from '../../../../domains/theme/entities/theme-id';
 
-export const DEFAULT_UI_THEME_ID = CYBER_ARCADE_THEME_ID;
+export const DEFAULT_UI_THEME_ID = DEFAULT_THEME_ID;
 export const UI_COLOR_SCHEMES = ['light', 'dark'] as const;
 export const DEFAULT_UI_COLOR_SCHEME = 'dark';
 
-export type UiThemeId = typeof CYBER_ARCADE_THEME_ID | typeof SOLAR_GRID_THEME_ID;
+export type UiThemeId = ThemeId;
 export type UiColorScheme = (typeof UI_COLOR_SCHEMES)[number];
 
 type UiThemeColorScale = readonly [string, string, string, string, string, string, string, string, string, string];
 
 export interface UiThemeSeed {
+  readonly assets?: { readonly logoAssetId?: string | null; readonly backgroundAssetId?: string | null };
   readonly colorScales: {
     readonly accent: UiThemeColorScale;
     readonly highlight: UiThemeColorScale;

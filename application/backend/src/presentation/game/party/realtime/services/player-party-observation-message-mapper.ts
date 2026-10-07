@@ -20,6 +20,7 @@ export class PlayerPartyObservationMessageMapper {
       pin: observation.pin,
       status: observation.status,
       settings: observation.settings,
+      themeDocument: observation.themeDocument,
       context: this.toContext(observation, currentPlayerIdentity),
       isObserverHost: false,
       host: observation.host,

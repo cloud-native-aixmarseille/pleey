@@ -5,6 +5,7 @@ import {
   CreatePartyDisabledReason,
   type DashboardGameListItem,
 } from '../../../../../../domains/game/management/entities/dashboard-game-list-item';
+import { DEFAULT_PARTY_SETTINGS } from '../../../../../../domains/game/party/shared/entities/party-settings';
 import type { GameTypeDescriptor } from '../../../../../../domains/game/types/shared/game-type-catalog';
 import { GameFixtureFactory } from '../../../../../../test-utils/fixtures/game-fixture-factory';
 import { createGameTypeDescriptorFixture } from '../../../../../../test-utils/fixtures/game-type-descriptor-fixture-factory';
@@ -50,6 +51,10 @@ vi.mock('src/presentation/game/party/shared/contexts/party-dependencies-context'
       generatePrivatePartyPassword: () => 'secret42',
     },
   }),
+}));
+
+vi.mock('src/presentation/workspace/shared/contexts/workspace-dependencies-context', () => ({
+  useWorkspaceDependencies: () => ({ themeManagementFacade: { list: vi.fn() } }),
 }));
 
 vi.mock('./game-item-card', () => ({
@@ -250,6 +255,7 @@ describe('DashboardGamesSection', () => {
       }),
       {
         privatePartyPassword: 'secret42',
+        themeIdOverride: null,
       },
     );
   });
@@ -288,6 +294,11 @@ describe('DashboardGamesSection', () => {
     ) as HTMLInputElement;
     // Assert
     expect(passwordInput.value.length).toBeGreaterThanOrEqual(6);
+    expect(passwordInput).toHaveAttribute('type', 'text');
+    await user.click(within(dialog).getByRole('button', { name: 'dashboard.games.createParty.hidePasswordCta' }));
+    expect(passwordInput).toHaveAttribute('type', 'password');
+    await user.click(within(dialog).getByRole('button', { name: 'dashboard.games.createParty.showPasswordCta' }));
+    expect(passwordInput).toHaveAttribute('type', 'text');
 
     await user.click(
       within(dialog).getByRole('button', {
@@ -342,6 +353,7 @@ describe('DashboardGamesSection', () => {
       }),
       {
         privatePartyPassword: undefined,
+        themeIdOverride: null,
         settingsOverride: {
           allowJoiningAfterStart: false,
           allowOptionChangeAfterVoting: false,
@@ -350,6 +362,42 @@ describe('DashboardGamesSection', () => {
         },
       },
     );
+  });
+
+  it('restores inherited settings and clears theme and privacy changes when the dialog is reopened', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    renderDashboardGamesSection({
+      selectedProject: projectFixtureFactory.createProject({
+        defaultPartySettings: { ...DEFAULT_PARTY_SETTINGS, allowJoiningAfterStart: true },
+      }),
+    });
+    await user.click(screen.getByRole('button', { name: 'create:Arcade Quiz:false' }));
+    const dialog = await screen.findByRole('dialog');
+    await user.selectOptions(within(dialog).getByRole('combobox', { name: 'theme.label' }), 'solar-grid');
+    await user.click(within(dialog).getByRole('checkbox', { name: 'game.party.settings.allowJoiningAfterStartLabel' }));
+    await user.click(within(dialog).getByRole('checkbox', { name: 'dashboard.games.createParty.privateToggleLabel' }));
+    await user.click(within(dialog).getByRole('button', { name: 'dashboard.games.createParty.generatePasswordCta' }));
+
+    // Act
+    await user.click(within(dialog).getByRole('button', { name: 'common.cancel' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    await user.click(screen.getByRole('button', { name: 'create:Arcade Quiz:false' }));
+    const reopenedDialog = await screen.findByRole('dialog');
+
+    // Assert
+    expect(within(reopenedDialog).getByRole('combobox', { name: 'theme.label' })).toHaveValue('');
+    expect(
+      within(reopenedDialog).getByRole('checkbox', { name: 'game.party.settings.allowJoiningAfterStartLabel' }),
+    ).toBeChecked();
+    const privacyCheckbox = within(reopenedDialog).getByRole('checkbox', {
+      name: 'dashboard.games.createParty.privateToggleLabel',
+    });
+    expect(privacyCheckbox).not.toBeChecked();
+    await user.click(privacyCheckbox);
+    const passwordInput = within(reopenedDialog).getByLabelText('dashboard.games.createParty.privatePasswordLabel');
+    expect(passwordInput).toHaveValue('');
+    expect(passwordInput).toHaveAttribute('type', 'password');
   });
 
   it('disables create-party actions when the game is not eligible', () => {

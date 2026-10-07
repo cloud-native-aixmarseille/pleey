@@ -1,0 +1,17 @@
+query ListThemes($organizationId: ID!, $input: ListThemesInput) {
+  listThemes(organizationId: $organizationId, input: $input) {
+    items {
+      id
+      organizationId
+      revision
+      document
+      createdAt
+      updatedAt
+    }
+    totalCount
+    overallCount
+    page
+    pageSize
+    totalPages
+  }
+}

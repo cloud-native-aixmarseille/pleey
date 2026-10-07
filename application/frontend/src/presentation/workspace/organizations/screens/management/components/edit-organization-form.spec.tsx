@@ -51,6 +51,7 @@ describe('EditOrganizationForm', () => {
       description: 'Updated hub',
       role: OrganizationRole.MANAGER,
       defaultPartySettings: customPartySettings,
+      defaultThemeId: null,
     });
     const onSubmit = vi.fn().mockResolvedValue(updatedOrganization);
     const onUpdated = vi.fn();
@@ -96,8 +97,26 @@ describe('EditOrganizationForm', () => {
         name: 'Arcade Org 2',
         description: 'Updated hub',
         defaultPartySettings: customPartySettings,
+        defaultThemeId: null,
       });
     });
     expect(onUpdated).toHaveBeenCalledWith(updatedOrganization);
+  });
+  it('clears a saved theme to restore inheritance', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    const organization = organizationFixtureFactory.createOrganization({ defaultThemeId: 'solar-grid' });
+    const onSubmit = vi.fn().mockResolvedValue(organization);
+    renderWithProviders(<EditOrganizationForm organization={organization} onSubmit={onSubmit} onUpdated={vi.fn()} />);
+
+    // Act
+    await user.click(screen.getByRole('button', { name: 'organization.management.edit.openButton' }));
+    const picker = await screen.findByRole('combobox', { name: 'theme.label' });
+    expect(picker).toHaveValue('solar-grid');
+    await user.selectOptions(picker, '');
+    await user.click(screen.getByRole('button', { name: 'organization.management.edit.submit' }));
+
+    // Assert
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ defaultThemeId: null })));
   });
 });

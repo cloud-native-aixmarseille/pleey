@@ -29,6 +29,7 @@ type AuthUserProfileType {
 
 input CreateOrganizationInput {
   defaultPartySettings: PartySettingsInput
+  defaultThemeId: String
   description: String
   name: String!
 }
@@ -43,6 +44,7 @@ input CreatePartyInput {
   gameId: ID!
   privatePartyPassword: String
   settingsOverride: PartySettingsInput
+  themeIdOverride: String
 }
 
 input CreatePredictionFromImportInput {
@@ -69,6 +71,7 @@ input CreatePredictionPromptInput {
 
 input CreateProjectInput {
   defaultPartySettings: PartySettingsInput
+  defaultThemeId: String
   description: String
   name: String!
 }
@@ -139,6 +142,12 @@ input ListPartiesInput {
   pageSize: Int! = 9
 }
 
+input ListThemesInput {
+  page: Int! = 1
+  pageSize: Int! = 9
+  search: String
+}
+
 input LoginInput {
   email: String!
   password: String!
@@ -170,6 +179,7 @@ type Mutation {
   resetPassword(input: ResetPasswordInput!): Boolean!
   revokeOtherSessions: Boolean!
   revokeSession(input: RevokeUserSessionInput!): Boolean!
+  saveTheme(input: SaveThemeInput!, organizationId: ID!): ThemeType!
   updateOrganization(input: UpdateOrganizationInput!, organizationId: ID!): OrganizationType!
   updateOrganizationMemberRole(input: UpdateOrganizationMemberRoleInput!, memberId: ID!): OrganizationMemberType!
   updatePrediction(input: UpdatePredictionInput!, predictionId: ID!): PredictionType!
@@ -178,6 +188,7 @@ type Mutation {
   updateProject(input: UpdateProjectInput!, projectId: ID!): ProjectType!
   updateQuiz(input: UpdateQuizInput!, quizId: ID!): QuizType!
   updateQuizQuestion(input: UpdateQuizQuestionInput!, questionId: ID!): QuizQuestionTypeObject!
+  uploadThemeAsset(file: Upload!, organizationId: ID!): ThemeAssetType!
 }
 
 type OrganizationDashboardEntityType {
@@ -242,6 +253,7 @@ enum OrganizationRole {
 type OrganizationType {
   createdAt: DateTime!
   defaultPartySettings: PartySettingsType
+  defaultThemeId: String
   description: String
   id: ID!
   name: String!
@@ -369,6 +381,7 @@ type ProjectListType {
 type ProjectType {
   createdAt: DateTime!
   defaultPartySettings: PartySettingsType
+  defaultThemeId: String
   description: String
   id: ID!
   name: String!
@@ -377,6 +390,7 @@ type ProjectType {
 
 type Query {
   listParties(input: ListPartiesInput): PartyListType!
+  listThemes(input: ListThemesInput, organizationId: ID!): ThemeListType!
   me: AuthUserProfileType!
   myCurrentSession: UserSessionType!
   myGameHistory(input: UserGameHistoryInput!): UserGameHistoryType!
@@ -447,6 +461,12 @@ input RevokeUserSessionInput {
   sessionId: String!
 }
 
+input SaveThemeInput {
+  document: ThemeDocument!
+  expectedRevision: Int
+  themeId: String
+}
+
 input SelectableOptionInput {
   id: ID
   isCorrect: Boolean
@@ -461,8 +481,37 @@ type SelectableOptionType {
   text: String
 }
 
+type ThemeAssetType {
+  height: Int!
+  id: ID!
+  url: String!
+  width: Int!
+}
+
+"""A validated, versioned token-theme document."""
+scalar ThemeDocument
+
+type ThemeListType {
+  items: [ThemeType!]!
+  overallCount: Int!
+  page: Int!
+  pageSize: Int!
+  totalCount: Int!
+  totalPages: Int!
+}
+
+type ThemeType {
+  createdAt: DateTime!
+  document: ThemeDocument!
+  id: ID!
+  organizationId: ID!
+  revision: Int!
+  updatedAt: DateTime!
+}
+
 input UpdateOrganizationInput {
   defaultPartySettings: PartySettingsInput
+  defaultThemeId: String
   description: String
   name: String!
 }
@@ -491,6 +540,7 @@ input UpdateProfileInput {
 
 input UpdateProjectInput {
   defaultPartySettings: PartySettingsInput
+  defaultThemeId: String
   description: String
   name: String!
 }

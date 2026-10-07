@@ -84,9 +84,49 @@ Grounded in the current stack; any new dependency is vetted against the GitHub A
 - **Assets:** the existing upload/media pipeline (GraphQL upload + media serving) holds logos and backgrounds; token asset references point at those app-hosted ids, not arbitrary remote files.
 - **i18n & DI:** existing i18next for user-facing theme metadata and Inversify to register the builder use-cases and adapters.
 
+### Scoped-selection implementation
+
+Increment 1 stores a nullable `defaultThemeId` on organizations and projects, matching their role as inherited defaults alongside `defaultPartySettings`. Workspace create/update inputs use that name and accept curated ids; `null` restores inheritance and an omitted field on update preserves the saved selection. Party creation inputs use `themeIdOverride`, alongside `settingsOverride`; `null` or omission inherits the workspace defaults. Resolved snapshots use `themeId`; the party database column is required, like `settings`. The resolver names inherited inputs `organizationDefaultThemeId` and `projectDefaultThemeId`. Existing management and party-creation permissions authorize these changes.
+
+Party creation resolves and stores a concrete theme snapshot using the precedence above. Workspace changes affect future parties only. The migration backfills legacy parties with the built-in default to preserve their appearance; readers parse the stored id without applying inheritance or a fallback. GraphQL exposes workspace selections and accepts the party override. Party summaries omit theme and settings; realtime host/player observations carry both resolved snapshots. The shared management picker reads `availableThemes` through `UiPort`, and party screens apply the observed theme id through the existing provider without changing the viewer's color scheme. Leaving the party restores the preceding UI theme.
+
+The migration `20261006120000_add_scoped_theme_selection` introduces nullable `theme_id` columns with constraints allowing only curated ids. The authoring migration described below converts this scoped-selection schema directly to workspace defaults and required party documents. Workspace defaults remain nullable for inheritance.
+
+### Authoring and assets implementation
+
+The backend uses a single `ThemeModule`, exporting theme selection and document validation to the game and organization modules. Theme persistence, asset processing, and transport providers remain internal to that module.
+
+Theme identifiers belong to the theme domain: `theme/entities/theme-id.ts` holds the selection types and constants in both applications, and `application/workspace/themes/services/theme-identifier.ts` owns parsing. Shared code contains only the generic identifier parsing infrastructure. The backend `ThemeModule` exports the stateless parser; modules that cannot import it without a cycle register the parser locally for their repository adapters. The frontend workspace container registers it alongside the other theme dependencies.
+
+Theme GraphQL operations call `ListThemesUseCase`, `SaveThemeUseCase`, and `UploadThemeAssetUseCase`. These use cases own authorization and orchestration through repository and image-processing ports, sharing a theme permission service. The public asset controller uses `GetThemeAssetUseCase`. Upload sources remain lazy so authorization completes before file reading or decoding.
+
+`ThemeSelectionService.resolve` is the application entry point for resolving a theme document. It accepts organization/project defaults and an optional override, applies override/project/organization/built-in precedence directly, and resolves the selected curated or organization-owned custom document. This precedence has a single consumer and stays inside the selection service. Party creation calls only that service and never handles the intermediate identifier.
+
+Increments 2 and 3 add an organization-owned theme library. Members may browse and select their organization's themes; owners and managers may create and edit them. Custom ids use `custom:<uuid>`, while curated ids keep their existing values. Every selection is checked against the owning organization. Updates use a revision check to prevent lost edits.
+
+Identifiers belong to selection: workspace defaults and `themeIdOverride` select a theme before party creation. Every concrete selection resolves to a required `ThemeDocument`; curated selections resolve to their base theme with empty overrides, while custom selections resolve to their saved document. Parties store and transmit only `themeDocument`, without a separate `themeId`. Rendering uses the document's `baseThemeId` and overrides, so contradictory id/document pairs cannot occur. Observations carry this immutable document snapshot so later library edits affect future parties only. As with curated seeds, a base seed may evolve with a product release; the snapshot freezes authored overrides, not the frontend implementation of the base seed.
+
+Schema version 1 supports partial color scales, semantic colors for both color schemes, radii, spacing, bounded motion durations, approved system-font stacks, and optional logo/background asset references. Unknown document keys are removed by normalization; unsupported versions and invalid known values are rejected. Authored colors use six-digit hexadecimal notation, lengths use bounded `px` or `rem` values, and motion uses bounded milliseconds. Contrast validation checks affected text/surface pairs, action colors, and focus indicators after resolving inherited values. Curated seeds remain in the frontend UI foundation; a tested baseline of their editable color values supports backend validation.
+
+Each curated validation palette lives in its own `theme/services/<theme-id>-theme-palette.ts` file in both applications. `curated-theme-palettes.ts` only maps curated ids to those definitions, keeping the lookup shared by normalization and the builder while each theme can be maintained separately.
+
+The builder uses `FormPort`, workspace authorization, and `UiPort` for a nested light/dark preview. Preview CSS variables stay within its container. The theme picker loads a paginated organization library. User-authored names are data, while all builder labels and errors are translated.
+
+The frontend theme feature lives in `presentation/theme/`: `components/` owns selectors, the library, authoring fields, branding surfaces, and their tests; `hooks/` owns theme-library state; `i18n/` owns the English and French catalogs under the `theme.*` key prefix. Workspace and party screens compose these feature components. `TranslationResourceComposer` registers the catalogs alongside the other locales, and theme domain error mappings use the same keys.
+
+The shared design system retains token contracts, curated seeds, CSS-variable generation, document-to-UI conversion, and its provider in `presentation/shared/ui/`, as defined by ADR 0003. Feature styling follows the existing sibling `*.styles.ts` convention, including the branding surface. `usePartyTheme` stays with party screens because it applies and restores the observed document for the party lifecycle.
+
+The presentation folder guard permits reusable components directly under `presentation/<feature>/components/`, alongside existing shared and screen-local component directories. Nested workspace components that belong to one screen still live under that screen; screen size limits and styling boundaries continue to apply.
+
+Brand assets reuse GraphQL multipart uploads and database-backed media. PNG, JPEG, and WebP files are limited to 5 MiB and 16 megapixels, decoded and re-encoded with Sharp, and stored as immutable WebP images. SVG, animation, arbitrary URLs, and externally hosted assets are excluded. Asset references are validated against the theme's organization. The application serves them from a dedicated immutable media route with an explicit MIME type and `nosniff`; party participants may load branding without workspace membership. Backgrounds are decorative and content surfaces stay opaque to preserve contrast. Referenced assets are retained for party snapshots.
+
+Sharp is the only new backend image dependency. Its current release is checked against the [maintainer's security advisories](https://github.com/lovell/sharp/security/advisories) before installation; image decoding follows its [documented input limits](https://sharp.pixelplumbing.com/api-constructor/) and [output API](https://sharp.pixelplumbing.com/api-output/).
+
+The migration `20261007100000_add_theme_documents_and_assets` follows `20261006120000_add_scoped_theme_selection` in one transaction. It renames organization and project selections to `default_theme_id`, preserves their values and nullable inheritance, extends their constraints to custom identifiers, and creates organization-owned theme and asset records. It backfills each party with a document for its saved curated selection, using `cyber-arcade` when the legacy id is null, then requires an object document without a database default and removes `parties.theme_id`. Apply this migration before deploying the backend and frontend together because realtime observations now require a document for every party. Existing curated selections and parties retain their behavior. Custom themes are edited from organization management; the organization, project, and party pickers can browse the paginated library. Asset references and the resolved document travel with realtime observations; no library request is needed on a participant device.
+
 ### Delivery increments
 
-1. **Scoped selection of curated themes** (the Option 3 base layer): persist and resolve a `themeId` at organization, project, and party scope; add a management picker listing `availableThemes` from `UiPort`. Establishes persistence, scoping, and transport.
+1. **Scoped selection of curated themes** (the Option 3 base layer): persist workspace `defaultThemeId` selections and resolve a party `themeId`; add a management picker listing `availableThemes` from `UiPort`. Establishes persistence, scoping, and transport.
 2. **Token-override builder**: author a validated partial override over a base seed, with live preview and enforced contrast; persist and resolve it through the same pipeline.
 3. **Managed brand assets**: logos and backgrounds via the existing upload pipeline, referenced by validated token URLs.
 
@@ -108,10 +148,10 @@ Grounded in the current stack; any new dependency is vetted against the GitHub A
 
 ### Follow-Up
 
-- deliver increment 1 first: add a nullable theme selection to organization, project, and party persistence and GraphQL, resolve it on party creation, and feed `MantineUiAdapter`
-- specify the versioned token-override schema, its backend validation, and the frontend normalizer before building increment 2
-- define the asset allowlist and upload constraints before increment 3
-- add regression tests for resolution precedence, schema validation/rejection, contrast enforcement, and migration; keep base seeds in `presentation/shared/ui/foundation/`
+- keep the backend and frontend normalizers and curated validation baselines synchronized when tokens change
+- introduce explicit document migrations before accepting a later schema version
+- retain assets referenced by party snapshots when adding future library deletion or cleanup workflows
+- run database integration coverage against the migrated test database before deployment; keep base seeds in `presentation/shared/ui/foundation/`
 
 ## References
 

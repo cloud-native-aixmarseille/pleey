@@ -4,11 +4,13 @@ import type { DashboardGameListItem } from '../../../../../domains/game/manageme
 import type { Party } from '../../../../../domains/game/party/shared/entities/party';
 import type { PartySettings } from '../../../../../domains/game/party/shared/entities/party-settings';
 import { PartyManagementErrorCode } from '../../../../../domains/game/party/shared/errors/party-management-error-code';
+import type { ThemeId } from '../../../../../domains/theme/entities/theme-id';
 import { usePresentationNavigate } from '../../../../shared/routing/router';
 
 interface CreatePartyOptions {
   readonly privatePartyPassword?: string;
   readonly settingsOverride?: Partial<PartySettings>;
+  readonly themeIdOverride?: ThemeId | null;
 }
 
 interface UseDashboardHomePartyCreationOptions {

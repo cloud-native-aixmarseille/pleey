@@ -18,11 +18,13 @@ import { playableContentImportProviders } from '../../../../application/game/typ
 import { OrganizationIdentifier } from '../../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../../../application/workspace/shared/services/identifiers/organization-member-identifier';
 import { ProjectIdentifier } from '../../../../application/workspace/shared/services/identifiers/project-identifier';
+import { ThemeIdentifier } from '../../../../application/workspace/themes/services/theme-identifier';
 import { QuizManagementRepositoryProvider } from '../../../../domain/game/types/quiz/ports/quiz-management.repository';
 import { QuizQuestionRepositoryProvider } from '../../../../domain/game/types/quiz/ports/quiz-question.repository';
 import { SelectableOptionPolicy } from '../../../../domain/game/types/shared/services/selectable-option-policy';
 import { OrganizationMemberRepositoryProvider } from '../../../../domain/organization/ports/organization-member.repository';
 import { ProjectRepositoryProvider } from '../../../../domain/project/ports/project.repository';
+import { PrismaPartySettingsMapper } from '../../../../infrastructure/game/shared/prisma-party-settings.mapper';
 import { PrismaQuizManagementRepository } from '../../../../infrastructure/game/types/quiz/prisma-quiz-management.repository';
 import { PrismaQuizQuestionRepository } from '../../../../infrastructure/game/types/quiz/prisma-quiz-question.repository';
 import { PrismaSelectableOptionMapper } from '../../../../infrastructure/game/types/shared/prisma-selectable-option-mapper';
@@ -38,6 +40,7 @@ import { SharedServicesModule } from '../../shared/shared-services.module';
 @Module({
   imports: [DatabaseModule, IdentityModule, SharedServicesModule],
   providers: [
+    ThemeIdentifier,
     CreateQuizUseCase,
     CreateQuizFromImportUseCase,
     UpdateQuizUseCase,
@@ -57,6 +60,7 @@ import { SharedServicesModule } from '../../shared/shared-services.module';
     OrganizationIdentifier,
     OrganizationMemberIdentifier,
     PrismaOrganizationMemberRepository,
+    PrismaPartySettingsMapper,
     PrismaProjectRepository,
     PrismaQuizManagementRepository,
     PrismaQuizQuestionRepository,

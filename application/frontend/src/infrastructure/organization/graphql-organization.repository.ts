@@ -2,6 +2,7 @@ import { inject, injectable } from 'inversify';
 import { UserIdentifier } from '../../application/identity/shared/services/identifiers/user-identifier';
 import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../application/workspace/shared/services/identifiers/organization-member-identifier';
+import { ThemeIdentifier } from '../../application/workspace/themes/services/theme-identifier';
 import type { PartySettings } from '../../domains/game/party/shared/entities/party-settings';
 import type { UserId } from '../../domains/identity/entities/user';
 import type { OrganizationId } from '../../domains/organization/entities/organization';
@@ -66,6 +67,8 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
     private readonly organizationMemberIdentifier: OrganizationMemberIdentifier,
     @inject(UserIdentifier)
     private readonly userIdentifier: UserIdentifier,
+    @inject(ThemeIdentifier)
+    private readonly themeIdentifier: ThemeIdentifier,
   ) {}
 
   async getMyOrganizations(query: ListOrganizationsQuery = {}): Promise<PaginatedResult<Organization>> {
@@ -89,6 +92,7 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
           createdAt: organization.createdAt,
           updatedAt: organization.updatedAt,
           defaultPartySettings: this.toPartySettings(organization.defaultPartySettings),
+          defaultThemeId: this.themeIdentifier.parse(organization.defaultThemeId),
           role: this.toDomainRole(organization.role),
         })),
         totalCount: result.myOrganizations.totalCount,
@@ -141,6 +145,7 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
             name: command.name,
             description: command.description,
             defaultPartySettings: command.defaultPartySettings,
+            defaultThemeId: command.defaultThemeId,
           },
         },
       );
@@ -152,6 +157,7 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
         createdAt: result.createOrganization.createdAt,
         updatedAt: result.createOrganization.updatedAt,
         defaultPartySettings: this.toPartySettings(result.createOrganization.defaultPartySettings),
+        defaultThemeId: this.themeIdentifier.parse(result.createOrganization.defaultThemeId),
         role: this.toDomainRole(result.createOrganization.role),
       };
     } catch (error) {
@@ -172,6 +178,7 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
             name: command.name,
             description: command.description,
             defaultPartySettings: command.defaultPartySettings,
+            defaultThemeId: command.defaultThemeId,
           },
         },
       );
@@ -183,6 +190,7 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
         createdAt: result.updateOrganization.createdAt,
         updatedAt: result.updateOrganization.updatedAt,
         defaultPartySettings: this.toPartySettings(result.updateOrganization.defaultPartySettings),
+        defaultThemeId: this.themeIdentifier.parse(result.updateOrganization.defaultThemeId),
         role: this.toDomainRole(result.updateOrganization.role),
       };
     } catch (error) {

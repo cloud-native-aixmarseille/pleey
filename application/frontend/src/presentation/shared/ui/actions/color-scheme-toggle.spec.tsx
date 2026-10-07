@@ -29,6 +29,7 @@ vi.mock('../provider', async (importOriginal) => {
       availableThemes: [{ id: 'cyber-arcade' as const, name: 'Cyber Arcade' }],
       setActiveColorScheme: mocks.setActiveColorScheme,
       setActiveTheme: vi.fn(),
+      applyScopedTheme: vi.fn(() => vi.fn()),
     }),
   };
 });

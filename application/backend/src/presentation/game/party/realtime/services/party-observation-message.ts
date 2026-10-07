@@ -2,7 +2,6 @@ import type {
   PlayerPartyObservation,
   PlayerPartyObservationPlayer,
 } from '../../../../../domain/game/party/player/entities/player-party-observation';
-import type { PartySettings } from '../../../../../domain/game/party/shared/entities/party-settings';
 import type { GameType } from '../../../../../domain/game/types/shared/entities/game-type';
 
 export interface PartyObservationPlayerMessage extends PlayerPartyObservationPlayer {
@@ -10,9 +9,11 @@ export interface PartyObservationPlayerMessage extends PlayerPartyObservationPla
   readonly isLive: boolean;
 }
 
-type PartyObservationMessageBase = Pick<PlayerPartyObservation, 'partyId' | 'pin' | 'status' | 'context' | 'host'> & {
+type PartyObservationMessageBase = Pick<
+  PlayerPartyObservation,
+  'partyId' | 'pin' | 'status' | 'settings' | 'context' | 'host' | 'themeDocument'
+> & {
   readonly gameType: GameType;
-  readonly settings: PartySettings;
   readonly players: readonly PartyObservationPlayerMessage[];
 };
 

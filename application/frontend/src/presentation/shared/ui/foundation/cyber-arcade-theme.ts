@@ -1,7 +1,7 @@
 import type { UiThemeSeed } from './ui-theme-contract';
 
 export const CYBER_ARCADE_THEME_NAME = 'Cyber Arcade';
-export const CYBER_ARCADE_THEME_ID = 'cyber-arcade';
+const CYBER_ARCADE_THEME_ID = 'cyber-arcade';
 
 export const cyberArcadeThemeSeed: UiThemeSeed = {
   id: CYBER_ARCADE_THEME_ID,

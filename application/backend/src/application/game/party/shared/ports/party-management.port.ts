@@ -7,8 +7,12 @@ import type { OrganizationId } from '../../../../../domain/organization/entities
 import type { ProjectId } from '../../../../../domain/project/entities/project';
 import type { PaginatedResult } from '../../../../../domain/shared/value-objects/paginated-result';
 import type { PaginationQuery } from '../../../../../domain/shared/value-objects/pagination-query';
+import type { ThemeDocument } from '../../../../../domain/theme/entities/theme-document';
+import type { ThemeId } from '../../../../../domain/theme/entities/theme-id';
 
 export interface ManagedGameContext {
+  readonly projectDefaultThemeId: ThemeId | null;
+  readonly organizationDefaultThemeId: ThemeId | null;
   readonly gameId: GameId;
   readonly projectId: ProjectId;
   readonly organizationId: OrganizationId;
@@ -27,6 +31,7 @@ export interface ActivePartyGameConflict {
 }
 
 export interface CreatePartyCommand {
+  readonly themeDocument: ThemeDocument;
   readonly gameId: GameId;
   readonly hostUserId: UserId;
   readonly pin: PartyPin;

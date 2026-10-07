@@ -81,6 +81,7 @@ describe('GameListFilterBar', () => {
                 : null;
             },
           },
+          themeManagementFacade: {} as never,
           organizationFormFacade: {} as never,
           organizationIdentifier: {
             parseOrNull: () => null,

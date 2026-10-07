@@ -4,6 +4,7 @@ import {
   usePresentationNavigate,
   usePresentationPathname,
 } from '../../../../shared/routing/router';
+import { ThemeBrandSurface } from '../../../../theme/components/theme-brand-surface';
 import { PartyScreenContent } from './components/party-screen-content';
 import { PartyLobbyRouteKind, resolvePartyScreenSectionFromPathname } from './party-lobby-screen-route-utils';
 import {
@@ -11,6 +12,7 @@ import {
   resolveDefaultPartyAbsoluteUrl,
   usePartyLobbyScreenState,
 } from './use-party-lobby-screen-state';
+import { usePartyTheme } from './use-party-theme';
 
 export function PartyLobbyScreen(props: PartyLobbyScreenProps) {
   const requestedRouteKind = props.routeKind ?? PartyLobbyRouteKind.PIN;
@@ -23,6 +25,7 @@ export function PartyLobbyScreen(props: PartyLobbyScreenProps) {
     routeKind: requestedRouteKind,
     screenSection,
   });
+  usePartyTheme(state.party?.themeDocument);
   const shouldAnimateJourneyRedirect =
     state.routeKind === PartyLobbyRouteKind.PARTY_ID &&
     state.normalizedPartyId !== null &&
@@ -43,6 +46,12 @@ export function PartyLobbyScreen(props: PartyLobbyScreenProps) {
   }
 
   return (
-    <PartyScreenContent resolvePartyAbsoluteUrl={resolvePartyAbsoluteUrl} screenSection={screenSection} state={state} />
+    <ThemeBrandSurface>
+      <PartyScreenContent
+        resolvePartyAbsoluteUrl={resolvePartyAbsoluteUrl}
+        screenSection={screenSection}
+        state={state}
+      />
+    </ThemeBrandSurface>
   );
 }
