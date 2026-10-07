@@ -373,7 +373,9 @@ vi.mock('../../../../shared/i18n/use-presentation-translation', async (importOri
 vi.mock('../../../../../test-utils/render-with-providers', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../../../../test-utils/render-with-providers')>();
   const { render } = await import('@testing-library/react');
-  const { MantineProvider } = await import('@mantine/core');
+  const { MantineUiAdapter } = await import('../../../../../infrastructure/ui/mantine-ui.adapter');
+  const { PresentationUiProvider, PresentationUiRoot } = await import('../../../../shared/ui/provider');
+  const uiPort = new MantineUiAdapter().createPort();
   const { MemoryRouter } = await import('react-router-dom');
   const { KeyboardShortcutsProvider } = await import('../../../../shared/keyboard');
   const { PresentationToastProvider, PresentationToastViewport } = await import(
@@ -385,14 +387,16 @@ vi.mock('../../../../../test-utils/render-with-providers', async (importOriginal
     renderWithProviders: (ui: React.ReactElement, { initialPath = '/', ...options }: { initialPath?: string } = {}) => {
       return render(ui, {
         wrapper: ({ children }) => (
-          <MantineProvider>
-            <PresentationToastProvider>
-              <KeyboardShortcutsProvider>
-                <MemoryRouter initialEntries={[initialPath]}>{children}</MemoryRouter>
-              </KeyboardShortcutsProvider>
-              <PresentationToastViewport />
-            </PresentationToastProvider>
-          </MantineProvider>
+          <PresentationUiProvider value={uiPort}>
+            <PresentationUiRoot>
+              <PresentationToastProvider>
+                <KeyboardShortcutsProvider>
+                  <MemoryRouter initialEntries={[initialPath]}>{children}</MemoryRouter>
+                </KeyboardShortcutsProvider>
+                <PresentationToastViewport />
+              </PresentationToastProvider>
+            </PresentationUiRoot>
+          </PresentationUiProvider>
         ),
         ...options,
       });

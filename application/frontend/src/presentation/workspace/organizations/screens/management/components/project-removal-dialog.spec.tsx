@@ -69,6 +69,7 @@ describe('ProjectRemovalDialog', () => {
         {
           gameTypeParser,
           organizationFormFacade,
+          themeManagementFacade: {} as never,
           organizationIdentifier,
           playableItemEditorValidator,
           projectFormFacade,
@@ -125,6 +126,7 @@ describe('ProjectRemovalDialog', () => {
         {
           gameTypeParser,
           organizationFormFacade,
+          themeManagementFacade: {} as never,
           organizationIdentifier,
           playableItemEditorValidator,
           projectFormFacade,

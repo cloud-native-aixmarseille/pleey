@@ -103,9 +103,10 @@ import { I18nWsExceptionFilter } from '../../../presentation/shared/error-handli
 import { DatabaseModule } from '../database/database-module';
 import { IdentityModule } from '../identity/identity-module';
 import { SharedServicesModule } from '../shared/shared-services.module';
+import { ThemeModule } from '../theme/theme-module';
 
 @Module({
-  imports: [DatabaseModule, IdentityModule, SharedServicesModule],
+  imports: [ThemeModule, DatabaseModule, IdentityModule, SharedServicesModule],
   providers: [
     PrismaGameCatalogAdapter,
     PrismaPlayerPartyActionRuntimeAdapter,

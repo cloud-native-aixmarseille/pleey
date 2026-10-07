@@ -124,6 +124,7 @@ describe('ProjectFormDialog', () => {
       screen.getByPlaceholderText('project.management.form.fields.description.placeholder'),
       '  Ready to launch  ',
     );
+    await user.selectOptions(screen.getByRole('combobox', { name: 'theme.label' }), 'solar-grid');
     // Act
     await user.click(
       screen.getByRole('button', {
@@ -135,8 +136,9 @@ describe('ProjectFormDialog', () => {
     await waitFor(() => {
       expect(onSubmit).toHaveBeenCalledWith({
         name: 'New Project',
+        defaultThemeId: 'solar-grid',
         description: 'Ready to launch',
-        partySettings: {
+        defaultPartySettings: {
           allowJoiningAfterStart: false,
           allowOptionChangeAfterVoting: true,
           randomizeOptionOrder: false,
@@ -186,6 +188,7 @@ describe('ProjectFormDialog', () => {
       projectFixtureFactory.createProject({
         id: 77,
         name: 'Preset Project',
+        defaultThemeId: null,
         description: 'Preset ready',
       }),
     );
@@ -218,8 +221,9 @@ describe('ProjectFormDialog', () => {
     await waitFor(() => {
       expect(onSubmit).toHaveBeenCalledWith({
         name: 'Preset Project',
+        defaultThemeId: null,
         description: 'Preset ready',
-        partySettings: {
+        defaultPartySettings: {
           allowJoiningAfterStart: false,
           allowOptionChangeAfterVoting: false,
           randomizeOptionOrder: true,

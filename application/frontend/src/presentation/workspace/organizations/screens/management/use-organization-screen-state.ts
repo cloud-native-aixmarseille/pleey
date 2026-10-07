@@ -19,6 +19,7 @@ import type {
   UpdateProjectCommand,
 } from '../../../../../domains/project/ports/project-repository';
 import type { PaginatedResult } from '../../../../../domains/shared/value-objects/paginated-result';
+import type { ThemeId } from '../../../../../domains/theme/entities/theme-id';
 import { usePresentationDebouncedValue } from '../../../../shared/hooks/use-presentation-debounced-value';
 import { usePresentationTranslation } from '../../../../shared/i18n/use-presentation-translation';
 import { usePresentationFeedbackChannel } from '../../../../shared/ui/feedback/use-presentation-feedback-channel';
@@ -46,7 +47,8 @@ interface OrganizationScreenStateParams {
 interface ProjectFormValues {
   readonly name: string;
   readonly description: string | null;
-  readonly partySettings: PartySettings;
+  readonly defaultPartySettings: PartySettings;
+  readonly defaultThemeId: ThemeId | null;
 }
 
 interface MemberFormValues {
@@ -267,7 +269,8 @@ export function useOrganizationScreenState({
       organizationId: workspace.selectedOrganization.id,
       name: values.name,
       description: values.description,
-      defaultPartySettings: values.partySettings,
+      defaultPartySettings: values.defaultPartySettings,
+      defaultThemeId: values.defaultThemeId,
     });
   }
 
@@ -282,7 +285,8 @@ export function useOrganizationScreenState({
       projectId: editingProject.id,
       name: values.name,
       description: values.description,
-      defaultPartySettings: values.partySettings,
+      defaultPartySettings: values.defaultPartySettings,
+      defaultThemeId: values.defaultThemeId,
     });
   }
 

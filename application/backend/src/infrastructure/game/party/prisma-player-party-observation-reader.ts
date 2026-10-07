@@ -5,6 +5,7 @@ import { PartyPinIdentifier } from '../../../application/game/party/shared/servi
 import { GameIdentifier } from '../../../application/game/shared/services/identifiers/game-identifier';
 import { PartyStageCatalogPort } from '../../../application/game/types/shared/ports/party-stage-catalog.port';
 import { UserIdentifier } from '../../../application/identity/shared/services/identifiers/user-identifier';
+import { ThemeDocumentValidator } from '../../../application/workspace/themes/services/theme-document-validator';
 import type { PlayerPartyObservation } from '../../../domain/game/party/player/entities/player-party-observation';
 import type { PartyId } from '../../../domain/game/party/shared/entities/party';
 import { PartyRuntimeContextProjectionService } from '../../../domain/game/party/shared/services/party-runtime-context-projection.service';
@@ -30,6 +31,7 @@ export class PrismaPlayerPartyObservationReader implements PlayerPartyObservatio
     private readonly runtimeContextProjection: PartyRuntimeContextProjectionService,
     private readonly userIdentifier: UserIdentifier,
     private readonly partySettingsMapper: PrismaPartySettingsMapper,
+    private readonly themeDocumentValidator: ThemeDocumentValidator,
   ) {}
 
   async findPlayerObservationByPartyId(partyId: PartyId): Promise<PlayerPartyObservation | null> {
@@ -48,6 +50,7 @@ export class PrismaPlayerPartyObservationReader implements PlayerPartyObservatio
         id: true,
         gameId: true,
         settings: true,
+        themeDocument: true,
         game: {
           select: {
             type: true,
@@ -132,6 +135,7 @@ export class PrismaPlayerPartyObservationReader implements PlayerPartyObservatio
       pin: this.partyPinIdentifier.parse(party.pin),
       status: this.partyReadModelMapper.toPartyStatus(party.status),
       settings: this.partySettingsMapper.toPartySettings(party.settings),
+      themeDocument: this.themeDocumentValidator.parse(party.themeDocument),
       context: this.runtimeContextProjection.project({
         baseContext,
         playerActionStates: playerActionStates.map((entry) => entry.state),

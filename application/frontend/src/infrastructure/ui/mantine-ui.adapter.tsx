@@ -1,7 +1,19 @@
 import { MantineProvider } from '@mantine/core';
-import { type CSSProperties, createContext, type PropsWithChildren, useContext, useEffect, useState } from 'react';
-import type { PresentationUiThemeState, UiPort } from '../../application/shared/ports/ui.port';
+import { useReducedMotion } from '@mantine/hooks';
+import {
+  type CSSProperties,
+  createContext,
+  type PropsWithChildren,
+  useCallback,
+  useContext,
+  useEffect,
+  useId,
+  useState,
+} from 'react';
+import type { PresentationUiThemeState, ThemePreviewProps, UiPort } from '../../application/shared/ports/ui.port';
 import { createDomainError } from '../../domains/shared/errors/domain-error';
+import type { ThemeDocument } from '../../domains/theme/entities/theme-document';
+import { createUiThemeFromDocument } from '../../presentation/shared/ui/foundation/document-ui-theme';
 import {
   createUiThemeCssVariables,
   DEFAULT_UI_COLOR_SCHEME,
@@ -65,12 +77,27 @@ export class MantineUiAdapter {
     }
 
     function MantineUiProvider({ children }: PropsWithChildren) {
+      const reducedMotion = useReducedMotion();
       const [activeThemeId, setActiveTheme] = useState<UiThemeId>(initialThemeId);
       const [activeColorScheme, setActiveColorScheme] = useState<UiColorScheme>(defaultColorScheme);
-      const activeTheme = themes.find((theme) => theme.id === activeThemeId) ?? findUiTheme(initialThemeId);
+      const [scopedThemes, setScopedThemes] = useState<
+        readonly { readonly key: symbol; readonly document: ThemeDocument }[]
+      >([]);
+      // Stable registration keeps scope ownership across provider renders and route remounts.
+      const applyScopedTheme = useCallback((document: ThemeDocument) => {
+        const key = Symbol('theme-scope');
+        setScopedThemes((current) => [...current, { key, document }]);
+        return () => setScopedThemes((current) => current.filter((scope) => scope.key !== key));
+      }, []);
+      const themeDocument = scopedThemes.at(-1)?.document ?? null;
+      const activeTheme = themeDocument
+        ? createUiThemeFromDocument(themeDocument)
+        : (themes.find((theme) => theme.id === activeThemeId) ?? findUiTheme(initialThemeId));
       const activeMantineTheme = activeTheme.mantineThemes[activeColorScheme];
       const activeThemeTokens = activeTheme.tokensByColorScheme[activeColorScheme];
       const themeState: PresentationUiThemeState = {
+        applyScopedTheme,
+        brandAssets: activeThemeTokens.assets,
         activeColorScheme,
         activeThemeId: activeTheme.id,
         activeThemeName: activeTheme.name,
@@ -87,11 +114,11 @@ export class MantineUiAdapter {
             forceColorScheme={activeColorScheme}
             theme={activeMantineTheme}
           >
-            <CssVariableSync variables={createUiThemeCssVariables(activeThemeTokens)} />
+            <CssVariableSync variables={createUiThemeCssVariables(activeThemeTokens, reducedMotion)} />
             <div
               data-ui-color-scheme={activeColorScheme}
               data-ui-theme={activeTheme.id}
-              style={createUiThemeCssVariables(activeThemeTokens)}
+              style={createUiThemeCssVariables(activeThemeTokens, reducedMotion)}
             >
               {children}
             </div>
@@ -100,7 +127,41 @@ export class MantineUiAdapter {
       );
     }
 
+    function ThemePreview({ document, colorScheme, children }: ThemePreviewProps) {
+      const reducedMotion = useReducedMotion();
+      const parentState = useThemeState();
+      const previewId = useId().replace(/:/g, '');
+      const theme = createUiThemeFromDocument(document);
+      return (
+        <MantineProvider
+          forceColorScheme={colorScheme}
+          theme={theme.mantineThemes[colorScheme]}
+          cssVariablesSelector={`[data-theme-preview="${previewId}"]`}
+          getRootElement={() => undefined}
+        >
+          <div
+            data-theme-preview={previewId}
+            data-mantine-color-scheme={colorScheme}
+            data-ui-color-scheme={colorScheme}
+            style={createUiThemeCssVariables(theme.tokensByColorScheme[colorScheme], reducedMotion)}
+          >
+            <MantineThemeStateContext.Provider
+              value={{
+                ...parentState,
+                activeColorScheme: colorScheme,
+                activeThemeId: theme.id,
+                activeThemeName: theme.name,
+                brandAssets: theme.tokensByColorScheme[colorScheme].assets,
+              }}
+            >
+              {children}
+            </MantineThemeStateContext.Provider>
+          </div>
+        </MantineProvider>
+      );
+    }
     return {
+      ThemePreview,
       Provider: MantineUiProvider,
       useThemeState,
     };

@@ -35,9 +35,10 @@ import { DatabaseModule } from '../database/database-module';
 import { GameModule } from '../game/game-module';
 import { IdentityModule } from '../identity/identity-module';
 import { SharedServicesModule } from '../shared/shared-services.module';
+import { ThemeModule } from '../theme/theme-module';
 
 @Module({
-  imports: [IdentityModule, DatabaseModule, GameModule, SharedServicesModule],
+  imports: [ThemeModule, IdentityModule, DatabaseModule, GameModule, SharedServicesModule],
   providers: [
     // Repository implementations
     PrismaOrganizationRepository,

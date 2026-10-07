@@ -5,6 +5,7 @@ import { PartyRuntimePhase } from '../../../../../../../domains/game/party/share
 import { DEFAULT_PARTY_SETTINGS } from '../../../../../../../domains/game/party/shared/entities/party-settings';
 import { PartyStatus } from '../../../../../../../domains/game/party/shared/entities/party-status';
 import { GameType } from '../../../../../../../domains/game/types/shared/game-type';
+import { ThemeFixtureFactory } from '../../../../../../../test-utils/fixtures/theme-fixture-factory';
 import { PartyActionIdentifierMockFactory } from '../../../../../../../test-utils/mocks/party-action-identifier-mock-factory';
 import { PartyIdentifierMockFactory } from '../../../../../../../test-utils/mocks/party-identifier-mock-factory';
 import { PartyPinIdentifierMockFactory } from '../../../../../../../test-utils/mocks/party-pin-identifier-mock-factory';
@@ -66,6 +67,8 @@ function createPredictionParty(context: PartyObservation['context']): PartyObser
     pin: partyPinIdentifier.parse('AB12CD'),
     players: [],
     settings: DEFAULT_PARTY_SETTINGS,
+
+    themeDocument: new ThemeFixtureFactory().createDocument(),
     status: PartyStatus.ACTIVE,
   };
 }

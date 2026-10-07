@@ -18,6 +18,7 @@ import { PartyStatus } from '../../domains/game/party/shared/entities/party-stat
 import { GameType } from '../../domains/game/types/shared/game-type';
 import type { GuestId } from '../../domains/identity/entities/guest';
 import type { UserId } from '../../domains/identity/entities/user';
+import { ThemeFixtureFactory } from './theme-fixture-factory';
 import { coerceUuidV7TestValue } from './uuid-v7-test-value';
 
 const gameIdentifier = new GameIdentifier();
@@ -129,6 +130,7 @@ export class PartyFixtureFactory {
       pin: pin === undefined ? partyPinIdentifier.parse('AB12CD') : partyPinIdentifier.parse(pin),
       status: PartyStatus.WAITING,
       settings: DEFAULT_PARTY_SETTINGS,
+      themeDocument: new ThemeFixtureFactory().createDocument(),
       context: null,
       isObserverHost: false,
       host: host ?? this.createHost(),

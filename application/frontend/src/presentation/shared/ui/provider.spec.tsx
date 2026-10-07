@@ -30,6 +30,7 @@ describe('provider', () => {
       // Arrange
       const uiPort: PresentationUiPort = {
         Provider: MockProvider,
+        ThemePreview: MockProvider,
         useThemeState: () => ({
           activeColorScheme: 'dark',
           activeThemeId: 'cyber-arcade',
@@ -38,6 +39,7 @@ describe('provider', () => {
           availableThemes: [{ id: 'cyber-arcade', name: 'Cyber Arcade' }],
           setActiveColorScheme: () => undefined,
           setActiveTheme: () => undefined,
+          applyScopedTheme: () => () => undefined,
         }),
       };
 
@@ -59,6 +61,7 @@ describe('provider', () => {
       // Arrange
       const uiPort: PresentationUiPort = {
         Provider: MockProvider,
+        ThemePreview: MockProvider,
         useThemeState: () => ({
           activeColorScheme: 'dark',
           activeThemeId: 'cyber-arcade',
@@ -67,6 +70,7 @@ describe('provider', () => {
           availableThemes: [{ id: 'cyber-arcade', name: 'Cyber Arcade' }],
           setActiveColorScheme: () => undefined,
           setActiveTheme: () => undefined,
+          applyScopedTheme: () => () => undefined,
         }),
       };
 

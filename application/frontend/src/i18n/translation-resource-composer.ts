@@ -16,6 +16,8 @@ import { notFoundEn } from '../presentation/not-found/i18n/en';
 import { notFoundFr } from '../presentation/not-found/i18n/fr';
 import { sharedEn } from '../presentation/shared/i18n/en';
 import { sharedFr } from '../presentation/shared/i18n/fr';
+import { themeEn } from '../presentation/theme/i18n/en';
+import { themeFr } from '../presentation/theme/i18n/fr';
 import { dashboardEn } from '../presentation/workspace/dashboard/i18n/en';
 import { dashboardFr } from '../presentation/workspace/dashboard/i18n/fr';
 import { organizationEn } from '../presentation/workspace/organizations/i18n/en';
@@ -34,6 +36,7 @@ export class TranslationResourceComposer {
           authEn,
           dashboardEn,
           organizationEn,
+          themeEn,
           gamePartyEn,
           gamePartyHostEn,
           gamePartyPlayerEn,
@@ -49,6 +52,7 @@ export class TranslationResourceComposer {
           authFr,
           dashboardFr,
           organizationFr,
+          themeFr,
           gamePartyFr,
           gamePartyHostFr,
           gamePartyPlayerFr,

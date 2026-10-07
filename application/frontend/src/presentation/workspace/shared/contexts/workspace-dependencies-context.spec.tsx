@@ -17,6 +17,7 @@ describe('workspaceDependenciesContext', () => {
         gameTypeParser: {
           parseOrNull: () => null,
         },
+        themeManagementFacade: {} as never,
         organizationFormFacade: {} as never,
         organizationIdentifier: {
           parseOrNull: () => 7 as never,

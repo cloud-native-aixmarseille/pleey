@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
+import { ThemeIdentifier } from '../../../application/workspace/themes/services/theme-identifier';
 import { PrismaIntegrationTestHarness } from '../../../test-utils/fixtures/integration/prisma-integration-test-harness';
 import { createOrganizationFixture } from '../../../test-utils/fixtures/unit/organization.fixture';
 import { PrismaPartySettingsMapper } from '../../game/shared/prisma-party-settings.mapper';
@@ -12,6 +13,7 @@ describeIfDatabase('PrismaOrganizationRepository', () => {
   const harness = new PrismaIntegrationTestHarness(PrismaOrganizationRepository, [
     OrganizationIdentifier,
     PrismaPartySettingsMapper,
+    ThemeIdentifier,
   ]);
 
   const createdOrganizationIds: string[] = [];

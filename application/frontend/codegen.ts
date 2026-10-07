@@ -12,6 +12,7 @@ const config: CodegenConfig = {
         enumType: 'native',
         scalars: {
           DateTime: 'string',
+          ThemeDocument: 'unknown',
           Upload: 'File',
         },
         useTypeImports: true,

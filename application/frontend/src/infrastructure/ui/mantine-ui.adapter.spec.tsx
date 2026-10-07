@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { SOLAR_GRID_THEME_ID } from '../../presentation/shared/ui/foundation/solar-grid-theme';
+import { ThemeFixtureFactory } from '../../test-utils/fixtures/theme-fixture-factory';
 import { MantineUiAdapter } from './mantine-ui.adapter';
 
 describe('MantineUiAdapter', () => {
@@ -97,5 +98,33 @@ describe('MantineUiAdapter', () => {
       expect(themedRoot).toHaveAttribute('data-ui-theme', 'cyber-arcade');
       expect(themedRoot).toHaveStyle({ '--ui-color-surface-canvas': '#fff8fc' });
     });
+  });
+});
+
+describe('Theme previews', () => {
+  it('isolates simultaneous light and dark previews from the application root', () => {
+    // Arrange
+    const port = new MantineUiAdapter({ defaultColorScheme: 'dark' }).createPort();
+    const document = new ThemeFixtureFactory().createDocument({ overrides: { radius: { panel: '7px' } } });
+    // Act
+    render(
+      <port.Provider>
+        <port.ThemePreview document={document} colorScheme="light">
+          <span data-testid="light-preview" />
+        </port.ThemePreview>
+        <port.ThemePreview document={document} colorScheme="dark">
+          <span data-testid="dark-preview" />
+        </port.ThemePreview>
+      </port.Provider>,
+    );
+    // Assert
+    const light = screen.getByTestId('light-preview').parentElement;
+    const dark = screen.getByTestId('dark-preview').parentElement;
+    expect(light).toHaveStyle({ '--ui-radius-panel': '7px' });
+    expect(light).toHaveAttribute('data-mantine-color-scheme', 'light');
+    expect(dark).toHaveAttribute('data-mantine-color-scheme', 'dark');
+    expect(light?.getAttribute('data-theme-preview')).not.toBe(dark?.getAttribute('data-theme-preview'));
+    expect(globalThis.document.documentElement.style.getPropertyValue('--ui-radius-panel')).not.toBe('7px');
+    expect(globalThis.document.documentElement).toHaveAttribute('data-mantine-color-scheme', 'dark');
   });
 });

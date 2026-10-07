@@ -34,6 +34,7 @@ export class ProjectFixtureFactory {
             ),
       createdAt: DEFAULT_TIMESTAMP,
       defaultPartySettings: DEFAULT_PARTY_SETTINGS,
+      defaultThemeId: null,
       ...restOverrides,
     };
   }

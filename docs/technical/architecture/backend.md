@@ -69,6 +69,8 @@ Bound in `app/modules/`:
 
 Code-first via `@nestjs/graphql`. Resolvers are `@Resolver()` classes with `@Query()` / `@Mutation()` methods. Auth via `@UseGuards(GqlJwtAuthGuard)`.
 
+GraphQL operations delegate application behavior to use-case `execute()` methods. Follow the [resolver boundary rules](../development/backend/application-patterns.md#writing-resolvers), enforced by the backend `_lint:resolvers` guard.
+
 ### HTTP (secondary)
 
 Used for identity endpoints (login, register, refresh). Standard NestJS controllers.
@@ -93,6 +95,8 @@ Each feature has a NestJS module in `app/modules/<domain>/`:
 2. Registers adapters, use-cases, resolvers as providers
 3. Binds ports → adapters
 4. Exports services for cross-module consumption
+
+Follow [ADR 0002](./adr/0002-use-clean-architecture-with-strict-boundaries.md#decision) for shared-provider ownership. `SharedServicesModule` provides `PaginationQueryNormalizer`; modules composing repositories that require `PrismaPartySettingsMapper` register that game infrastructure mapper locally.
 
 Root `AppModule` imports all feature modules + `GraphQLModule` (Apollo, code-first, auto-schema) + `I18nModule`.
 

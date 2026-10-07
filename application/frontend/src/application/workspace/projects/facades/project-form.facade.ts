@@ -3,6 +3,7 @@ import type { PartySettings } from '../../../../domains/game/party/shared/entiti
 import type { ProjectValidationErrorCode } from '../../../../domains/project/errors/project-validation-error-code';
 import type { ProjectFormInput } from '../../../../domains/project/services/project-form.service';
 import { ProjectFormService } from '../../../../domains/project/services/project-form.service';
+import type { ThemeId } from '../../../../domains/theme/entities/theme-id';
 
 @injectable()
 export class ProjectFormFacade {
@@ -15,7 +16,12 @@ export class ProjectFormFacade {
     return this.service.validateName(name);
   }
 
-  createInput(name: string, description: string, partySettings: PartySettings): ProjectFormInput {
-    return this.service.createInput(name, description, partySettings);
+  createInput(
+    name: string,
+    description: string,
+    defaultPartySettings: PartySettings,
+    defaultThemeId: ThemeId | null,
+  ): ProjectFormInput {
+    return this.service.createInput(name, description, defaultPartySettings, defaultThemeId);
   }
 }

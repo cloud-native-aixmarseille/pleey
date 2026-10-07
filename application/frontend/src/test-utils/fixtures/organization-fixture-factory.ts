@@ -41,6 +41,7 @@ export class OrganizationFixtureFactory {
       createdAt: DEFAULT_TIMESTAMP,
       updatedAt: DEFAULT_TIMESTAMP,
       defaultPartySettings: DEFAULT_PARTY_SETTINGS,
+      defaultThemeId: null,
       role: OrganizationRole.OWNER,
       ...restOverrides,
     };

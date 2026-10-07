@@ -24,6 +24,7 @@ export class HostPartyObservationMessageMapper {
       pin: observation.pin,
       status: observation.status,
       settings: observation.settings,
+      themeDocument: observation.themeDocument,
       context: observation.context,
       isObserverHost: true,
       host: {

@@ -6,6 +6,7 @@ import { PartyRuntimePhase } from '../../../../../domain/game/party/shared/entit
 import { DEFAULT_PARTY_SETTINGS } from '../../../../../domain/game/party/shared/entities/party-settings';
 import { GameType } from '../../../../../domain/game/types/shared/entities/game-type';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
+import { ThemeFixtureFactory } from '../../../../../test-utils/fixtures/theme-fixture-factory';
 import { PlayerPartyObservationMessageMapper } from './player-party-observation-message-mapper';
 
 describe('PlayerPartyObservationMessageMapper', () => {
@@ -20,6 +21,7 @@ describe('PlayerPartyObservationMessageMapper', () => {
         pin: backendTestIdentifiers.partyPin('AB12CD'),
         status: PartyStatus.ACTIVE,
         settings: DEFAULT_PARTY_SETTINGS,
+        themeDocument: new ThemeFixtureFactory().createDocument({ baseThemeId: 'solar-grid' }),
         context: {
           lifecycle: {
             phase: PartyRuntimePhase.RESULT,
@@ -101,6 +103,7 @@ describe('PlayerPartyObservationMessageMapper', () => {
     );
 
     // Assert
+    expect(message.themeDocument).toEqual(new ThemeFixtureFactory().createDocument({ baseThemeId: 'solar-grid' }));
     expect(message.context?.result?.currentPlayer).toEqual({
       earnedPoints: 750,
       isCorrect: true,

@@ -10,6 +10,7 @@ import { Input } from '../../../../../shared/ui/forms/input';
 import { PartySettingsFormField } from '../../../../../shared/ui/forms/party-settings-form-field';
 import { Textarea } from '../../../../../shared/ui/forms/textarea';
 import { FormDialog } from '../../../../../shared/ui/overlay/form-dialog';
+import { WorkspaceThemeSelectField } from '../../../../../theme/components/workspace-theme-select-field';
 import { useEditOrganizationFormState } from './use-edit-organization-form-state';
 
 interface EditOrganizationFormProps {
@@ -47,10 +48,12 @@ function EditableOrganizationFormContent({ onSubmit, onUpdated, organization }: 
     isOpen,
     isSubmitting,
     name,
-    partySettings,
+    defaultPartySettings,
     setDescription,
     setName,
-    setPartySettings,
+    setDefaultPartySettings,
+    defaultThemeId,
+    setDefaultThemeId,
   } = useEditOrganizationFormState({
     onSubmit,
     onUpdated,
@@ -109,11 +112,19 @@ function EditableOrganizationFormContent({ onSubmit, onUpdated, organization }: 
           />
         </FieldShell>
 
+        <WorkspaceThemeSelectField
+          organizationId={organization.id}
+          id="edit-org-theme"
+          value={defaultThemeId}
+          disabled={isSubmitting}
+          onChange={setDefaultThemeId}
+        />
+
         <PartySettingsFormField
           id="edit-org-party-settings"
-          settings={partySettings}
+          settings={defaultPartySettings}
           disabled={isSubmitting}
-          onChange={setPartySettings}
+          onChange={setDefaultPartySettings}
         />
       </FormDialog>
     </>

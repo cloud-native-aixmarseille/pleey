@@ -9,6 +9,7 @@ import type { OrganizationMemberRepository } from '../../../../domain/organizati
 import { OrganizationMemberRepositoryProvider } from '../../../../domain/organization/ports/organization-member.repository';
 import type { ProjectRepository } from '../../../../domain/project/ports/project.repository';
 import { ProjectRepositoryProvider } from '../../../../domain/project/ports/project.repository';
+import { ThemeError, ThemeErrorCode } from '../../../../domain/theme/errors/theme-error';
 import type { CreateOrganizationDto } from '../dto/create-organization-dto';
 
 const DEFAULT_PROJECT_NAME = 'Default';
@@ -30,6 +31,9 @@ export class CreateOrganizationUseCase {
 
   async execute(dto: CreateOrganizationDto, creatorUserId: UserId): Promise<Organization> {
     // Check if organization name already exists
+    if (dto.defaultThemeId?.startsWith('custom:'))
+      throw new ThemeError(ThemeErrorCode.INVALID_SELECTION, { themeId: dto.defaultThemeId });
+
     const existing = await this.organizationRepository.findByName(dto.name);
     if (existing) {
       throw new OrganizationNameAlreadyExistsError({ name: dto.name });
@@ -38,6 +42,7 @@ export class CreateOrganizationUseCase {
     // Create the organization
     const organization = await this.organizationRepository.create(dto.name, dto.description || null, {
       defaultPartySettings: dto.defaultPartySettings ?? null,
+      defaultThemeId: dto.defaultThemeId ?? null,
     });
 
     // Add the creator as owner

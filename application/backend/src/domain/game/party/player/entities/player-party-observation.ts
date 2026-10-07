@@ -1,3 +1,4 @@
+import type { ThemeDocument } from '../../../../theme/entities/theme-document';
 import type { PartyStatus } from '../../enums/party-status.enum';
 import type { PartyId, PartyPin } from '../../shared/entities/party';
 import type { PartyRuntimeContext } from '../../shared/entities/party-runtime-context';
@@ -23,6 +24,7 @@ export interface PlayerPartyObservation {
   readonly pin: PartyPin;
   readonly status: PartyStatus;
   readonly settings: PartySettings;
+  readonly themeDocument: ThemeDocument;
   readonly context: PartyRuntimeContext | null;
   readonly host: PlayerPartyObservationHost;
   readonly playerActionStates: readonly {

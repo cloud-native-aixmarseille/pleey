@@ -56,7 +56,7 @@ export const SignInScreen = () => {
 
 ## Component Organization
 
-- `presentation/<scope>/components/` is for shared components reused across multiple screens within that scope.
+- `presentation/<feature>/components/` is for feature components reused across screens, including screens in other scopes. The presentation folder guard accepts these directories directly below a top-level feature, as well as component directories under `shared/` and `screens/`.
 - Screen-local components go in `presentation/<scope>/screens/<feature>/components/`.
 - Split large components so each has one reason to change.
 - Keep component props strictly necessary; if every usage passes the same value, factor that invariant into the component or split the component.
@@ -99,3 +99,9 @@ Hide third-party libraries behind port interfaces in `application/shared/ports/`
 Signup, recovery-email requests, and the signed-in security recovery action use the shared identity CAPTCHA integration from [ADR 0009](../../architecture/adr/0009-harden-identity-recovery-and-sessions.md). The infrastructure adapter bundles Cap's widget and WebAssembly assets locally and supplies the configured backend API endpoint through the application port.
 
 The form requires a verified token before submission and discards it after an attempt, expiry, or widget failure. English and French resources provide widget labels and failure feedback. The token-bearing password replacement form does not request a new CAPTCHA.
+
+## Scoped event themes
+
+Theme feature components, hooks, and translations live in `presentation/theme/`. Follow the ownership boundary with the shared design system defined in ADR 0012 below.
+
+[ADR 0012](../../architecture/adr/0012-manage-themes-as-data-driven-token-themes.md#authoring-and-assets-implementation) defines inherited theme selections, documents, authoring, and rollout ordering. Theme selection types live in `domains/theme/entities/theme-id.ts`; `ThemeIdentifier` belongs to `application/workspace/themes/services/` and is registered in the workspace container. Management forms edit `defaultThemeId`, while realtime payloads carry the required resolved `themeDocument`. Party screens apply that document through `usePartyTheme`; color scheme stays independent and theme seeds remain in the UI foundation.

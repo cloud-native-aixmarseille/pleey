@@ -50,7 +50,11 @@ export class GameManagementResolver {
 }
 ```
 
-Resolvers, controllers, and gateways stay thin. Orchestration belongs in use-cases and application services behind ports.
+Each GraphQL query, mutation, and subscription must delegate application behavior to a use-case `execute()` method. Resolvers must not inject or call repositories, infrastructure adapters, or business services directly. Use cases own authorization, orchestration, and port access; shared business services are dependencies of use cases.
+
+Resolvers may parse identifiers, extract authentication context, adapt upload streams, and present results with transport helpers. Field resolvers may project already-loaded values directly; fetching additional data requires a use case. The `_lint:resolvers` guard checks these boundaries, including import aliases and re-exports. See [ADR 0002](../../architecture/adr/0002-use-clean-architecture-with-strict-boundaries.md).
+
+Controllers and gateways also stay thin; keep their orchestration in application use cases.
 
 ## Error Handling
 
@@ -65,3 +69,9 @@ Use-cases and runtime services throw domain errors, and `I18nHttpExceptionFilter
 ## Runtime Config
 
 Read `process.env` only in `src/app/config/`. Runtime code receives config via DI tokens such as `APP_SERVER_CONFIG` and `GAME_SOCKET_CORS_OPTIONS`.
+
+## Scoped event themes
+
+[ADR 0012](../../architecture/adr/0012-manage-themes-as-data-driven-token-themes.md#authoring-and-assets-implementation) defines the theme document contract, inherited selections, authoring rules, and rollout ordering. Theme selection uses the existing workspace and party authorization paths. Keep theme selection ids separate from gameplay settings and validate them at transport boundaries.
+
+`CreatePartyUseCase` calls `ThemeSelectionService.resolve`, provided by `ThemeModule`, with workspace defaults and the optional party override. The service owns inheritance and document lookup; callers receive the required theme document directly.

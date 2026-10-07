@@ -69,7 +69,9 @@ function collectComponentDirectories(directory, directories = []) {
 
 function isValidSharedComponentDirectory(directoryPath) {
   const relativePath = toPosix(path.relative(presentationRoot, directoryPath));
-  return relativePath.includes("/screens/") || relativePath.includes("/shared/");
+  return (
+    /^[^/]+\/components$/.test(relativePath) || relativePath.includes("/screens/") || relativePath.includes("/shared/")
+  );
 }
 
 function analyzeScreen(filePath) {
@@ -116,7 +118,7 @@ function run() {
 
   for (const directoryPath of invalidComponentDirectories) {
     console.error(
-      `- ${toFrontendRelative(directoryPath)} is a non-shared presentation components directory. Only shared component folders may live outside screens; move feature-only files under src/presentation/<scope>/screens/<feature>/components/.`,
+      `- ${toFrontendRelative(directoryPath)} is a misplaced presentation components directory. Reusable feature components belong in src/presentation/<feature>/components/ or a shared component folder; screen-local files belong under src/presentation/<scope>/screens/<feature>/components/.`,
     );
   }
 

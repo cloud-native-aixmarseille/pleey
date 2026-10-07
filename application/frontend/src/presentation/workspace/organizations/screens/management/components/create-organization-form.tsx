@@ -9,6 +9,7 @@ import { Input } from '../../../../../shared/ui/forms/input';
 import { PartySettingsFormField } from '../../../../../shared/ui/forms/party-settings-form-field';
 import { Textarea } from '../../../../../shared/ui/forms/textarea';
 import { FormDialog } from '../../../../../shared/ui/overlay/form-dialog';
+import { ThemeSelectField } from '../../../../../theme/components/theme-select-field';
 import { useCreateOrganizationFormState } from './use-create-organization-form-state';
 
 interface CreateOrganizationFormProps {
@@ -27,10 +28,12 @@ export function CreateOrganizationForm({ onSubmit, onCreated }: CreateOrganizati
     isOpen,
     isSubmitting,
     name,
-    partySettings,
+    defaultPartySettings,
     setDescription,
     setName,
-    setPartySettings,
+    setDefaultPartySettings,
+    defaultThemeId,
+    setDefaultThemeId,
   } = useCreateOrganizationFormState({
     onSubmit: onSubmit as (command: CreateOrganizationCommand) => Promise<Organization>,
     onCreated,
@@ -90,11 +93,18 @@ export function CreateOrganizationForm({ onSubmit, onCreated }: CreateOrganizati
           />
         </FieldShell>
 
+        <ThemeSelectField
+          id="create-org-theme"
+          value={defaultThemeId}
+          disabled={isSubmitting}
+          onChange={setDefaultThemeId}
+        />
+
         <PartySettingsFormField
           id="create-org-party-settings"
-          settings={partySettings}
+          settings={defaultPartySettings}
           disabled={isSubmitting}
-          onChange={setPartySettings}
+          onChange={setDefaultPartySettings}
         />
       </FormDialog>
     </>

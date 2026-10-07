@@ -10,6 +10,7 @@ import type { OrganizationRepository } from '../../../../domain/organization/por
 import { OrganizationRepositoryProvider } from '../../../../domain/organization/ports/organization.repository';
 import type { OrganizationMemberRepository } from '../../../../domain/organization/ports/organization-member.repository';
 import { OrganizationMemberRepositoryProvider } from '../../../../domain/organization/ports/organization-member.repository';
+import { ThemeSelectionService } from '../../themes/services/theme-selection-service';
 import type { UpdateOrganizationDto } from '../dto/update-organization-dto';
 
 @Injectable()
@@ -19,6 +20,7 @@ export class UpdateOrganizationUseCase {
     private readonly organizationRepository: OrganizationRepository,
     @Inject(OrganizationMemberRepositoryProvider)
     private readonly memberRepository: OrganizationMemberRepository,
+    private readonly themeSelection: ThemeSelectionService,
   ) {}
 
   async execute(
@@ -48,8 +50,13 @@ export class UpdateOrganizationUseCase {
       throw new OrganizationNameAlreadyExistsError({ name: dto.name });
     }
 
+    if (dto.defaultThemeId != null) {
+      await this.themeSelection.resolve(organizationId, { organizationDefaultThemeId: dto.defaultThemeId });
+    }
+
     return this.organizationRepository.update(organizationId, dto.name, dto.description ?? null, {
       defaultPartySettings: dto.defaultPartySettings ?? null,
+      defaultThemeId: dto.defaultThemeId,
     });
   }
 }

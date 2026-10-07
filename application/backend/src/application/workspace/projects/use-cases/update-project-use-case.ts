@@ -7,6 +7,7 @@ import type { Project, ProjectId } from '../../../../domain/project/entities/pro
 import { ProjectNotFoundError } from '../../../../domain/project/errors';
 import type { ProjectRepository } from '../../../../domain/project/ports/project.repository';
 import { ProjectRepositoryProvider } from '../../../../domain/project/ports/project.repository';
+import { ThemeSelectionService } from '../../themes/services/theme-selection-service';
 import type { UpdateProjectDto } from '../dto/update-project-dto';
 
 @Injectable()
@@ -16,6 +17,7 @@ export class UpdateProjectUseCase {
     private readonly projectRepository: ProjectRepository,
     @Inject(OrganizationMemberRepositoryProvider)
     private readonly memberRepository: OrganizationMemberRepository,
+    private readonly themeSelection: ThemeSelectionService,
   ) {}
 
   async execute(projectId: ProjectId, dto: UpdateProjectDto, requestingUserId: UserId): Promise<Project> {
@@ -44,8 +46,13 @@ export class UpdateProjectUseCase {
       });
     }
 
+    if (dto.defaultThemeId != null) {
+      await this.themeSelection.resolve(project.organizationId, { projectDefaultThemeId: dto.defaultThemeId });
+    }
+
     return this.projectRepository.update(projectId, dto.name, dto.description ?? null, {
       defaultPartySettings: dto.defaultPartySettings ?? null,
+      defaultThemeId: dto.defaultThemeId,
     });
   }
 }

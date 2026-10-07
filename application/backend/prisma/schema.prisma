@@ -67,6 +67,7 @@ model Media {
   deletedAt DateTime? @map("deleted_at")
 
   avatarForUser User? @relation("UserAvatar")
+  themeAsset ThemeAsset?
 
   @@map("media")
 }
@@ -96,6 +97,7 @@ model Party {
   pin             String   @unique
   status          String   @default("waiting")
   passwordHash    String?  @map("password_hash")
+  themeDocument   Json     @map("theme_document")
   settings        Json     @map("settings")
   context         Json?    @map("context")
   createdAt       DateTime @default(now()) @map("created_at")
@@ -141,16 +143,19 @@ model Score {
 }
 
 model Organization {
-  id          String   @id @default(uuid(7)) @db.Uuid
-  name        String
-  description String?
-  defaultPartySettings Json? @map("default_party_settings")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  deletedAt   DateTime? @map("deleted_at")
+  id                   String    @id @default(uuid(7)) @db.Uuid
+  name                 String
+  description          String?
+  defaultThemeId       String?   @map("default_theme_id")
+  defaultPartySettings Json?     @map("default_party_settings")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+  deletedAt            DateTime? @map("deleted_at")
 
-  members OrganizationMember[]
+  members  OrganizationMember[]
   projects Project[]
+  themes Theme[]
+  themeAssets ThemeAsset[]
 
   @@map("organizations")
 }
@@ -173,14 +178,15 @@ model OrganizationMember {
 }
 
 model Project {
-  id             String   @id @default(uuid(7)) @db.Uuid
-  name           String
-  description    String?
-  organizationId String   @map("organization_id") @db.Uuid
-  defaultPartySettings Json? @map("default_party_settings")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
-  deletedAt      DateTime? @map("deleted_at")
+  id                   String    @id @default(uuid(7)) @db.Uuid
+  name                 String
+  description          String?
+  organizationId       String    @map("organization_id") @db.Uuid
+  defaultThemeId       String?   @map("default_theme_id")
+  defaultPartySettings Json?     @map("default_party_settings")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+  deletedAt            DateTime? @map("deleted_at")
 
   organization Organization @relation(fields: [organizationId], references: [id])
   games        Game[]
@@ -283,4 +289,32 @@ model PredictionOption {
 
   @@unique([promptId, position])
   @@map("prediction_options")
+}
+
+model Theme {
+  id             String @id @default(uuid(7)) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  name           String @db.VarChar(80)
+  document       Json
+  revision       Int @default(1)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, updatedAt, id])
+  @@map("themes")
+}
+
+model ThemeAsset {
+  id             String @id @default(uuid(7)) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  mediaId        String @unique @map("media_id") @db.Uuid
+  width          Int
+  height         Int
+  createdAt      DateTime @default(now()) @map("created_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  media          Media @relation(fields: [mediaId], references: [id], onDelete: Restrict)
+
+  @@index([organizationId])
+  @@map("theme_assets")
 }
