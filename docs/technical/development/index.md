@@ -51,6 +51,7 @@ Development docs under `docs/technical/development/**` describe the current appr
 
 ## Application Guides
 
+- [Local mode and offline runtime audit](./local-mode-audit.md)
 - [Backend development](./backend/index.md)
 - [Frontend development](./frontend/index.md)
 
