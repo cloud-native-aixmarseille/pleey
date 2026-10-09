@@ -34,7 +34,7 @@ jobs:
         KUBERNETES_KUBECONFORM_OPTIONS=-ignore-missing-schemas -ignore-filename-pattern .*Chart\.yaml -ignore-filename-pattern .*values.*\.yaml -ignore-filename-pattern .*values\.schema\.json -ignore-filename-pattern charts/.*/templates/.* -ignore-filename-pattern charts/.*/crds/.*
 
   build:
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@f8255a6a37eb141fa331527f5aed9b9e1d598c77 # 0.38.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@5ffc3c81daacc57700a14bb91d67edbc67eedc1d # 0.39.0
     permissions:
       contents: read
       packages: write
@@ -71,7 +71,7 @@ jobs:
     strategy:
       matrix:
         service: ["backend", "frontend"]
-    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@df348077afa4e79725151d50606e9dc63f86dcb6 # v0.24.4
+    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@81a4bca8445b7b273455ff26a9a5c3c31c86b2a1 # v0.25.0
     needs: build
     permissions:
       contents: read
@@ -97,7 +97,7 @@ jobs:
       container-password: ${{ secrets.GITHUB_TOKEN }}
 
   build-prod:
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@f8255a6a37eb141fa331527f5aed9b9e1d598c77 # 0.38.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@5ffc3c81daacc57700a14bb91d67edbc67eedc1d # 0.39.0
     needs: continuous-integration
     permissions:
       contents: read
@@ -141,7 +141,7 @@ jobs:
       packages: read
     steps:
       - name: Test helm chart (umbrella)
-        uses: hoverkraft-tech/ci-github-container/actions/helm/test-chart@f8255a6a37eb141fa331527f5aed9b9e1d598c77 # 0.38.0
+        uses: hoverkraft-tech/ci-github-container/actions/helm/test-chart@5ffc3c81daacc57700a14bb91d67edbc67eedc1d # 0.39.0
         with:
           helm-repositories: |
             cloudnative-pg https://cloudnative-pg.github.io/charts
