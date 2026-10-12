@@ -7,6 +7,7 @@ import { GuestIdentifier } from '../../../../application/identity/shared/service
 import { UserIdentifier } from '../../../../application/identity/shared/services/identifiers/user-identifier';
 import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
 import { PartyPlayerKind } from '../../../../domain/game/party/enums/party-player-kind.enum';
+import { PartyPlayerSessionRegistry } from '../../../../domain/game/party/player/services/party-player-session-registry';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { createPartyPlayerSessionRegistryMock } from '../../../../test-utils/mock-factories/party-player-session-registry.mock-factory';
 import { PartyObserverGateway } from './party-observer-gateway';
@@ -471,11 +472,7 @@ describe('PartyObserverGateway', () => {
       userIdentifier,
       ...createHostControlUseCases(),
       createPartyPlayerSessionRegistryMock({
-        getActiveSession: {
-          identity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
-          sessionId: 'verified-socket',
-          createdAtEpochMs: 0,
-        },
+        isCurrentSession: true,
       }) as never,
     );
     const client = {
@@ -534,11 +531,7 @@ describe('PartyObserverGateway', () => {
       userIdentifier,
       ...createHostControlUseCases(),
       createPartyPlayerSessionRegistryMock({
-        getActiveSession: {
-          identity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
-          sessionId: 'verified-socket',
-          createdAtEpochMs: 0,
-        },
+        isCurrentSession: true,
       }) as never,
     );
 
@@ -578,6 +571,7 @@ describe('PartyObserverGateway', () => {
     const removedPlayerSocket = {
       data: {
         joinedPartyPlayer: {
+          partyId: PARTY_ID,
           identity: { kind: PartyPlayerKind.GUEST, guestId: GUEST_ID },
           pin: PARTY_PIN,
         },
@@ -654,6 +648,7 @@ describe('PartyObserverGateway', () => {
       gateway.handleDisconnect({
         data: {
           joinedPartyPlayer: {
+            partyId: PARTY_ID,
             identity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
             pin: PARTY_PIN,
           },
@@ -726,6 +721,7 @@ describe('PartyObserverGateway', () => {
       gateway.handleDisconnect({
         data: {
           joinedPartyPlayer: {
+            partyId: PARTY_ID,
             identity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
             pin: PARTY_PIN,
           },
@@ -782,6 +778,7 @@ describe('PartyObserverGateway', () => {
       const client = {
         data: {
           joinedPartyPlayer: {
+            partyId: PARTY_ID,
             identity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
             pin: PARTY_PIN,
           },
@@ -796,6 +793,7 @@ describe('PartyObserverGateway', () => {
       // stopObservingParty should NOT trigger a prune; observation is separate from membership
       expect(client.data).toEqual({
         joinedPartyPlayer: {
+          partyId: PARTY_ID,
           identity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
           pin: PARTY_PIN,
         },
@@ -977,11 +975,7 @@ describe('PartyObserverGateway', () => {
       userIdentifier,
       ...createHostControlUseCases(),
       createPartyPlayerSessionRegistryMock({
-        getActiveSession: {
-          identity: { kind: PartyPlayerKind.USER, userId: PLAYER_USER_ID },
-          sessionId: 'verified-socket',
-          createdAtEpochMs: 0,
-        },
+        isCurrentSession: true,
       }) as never,
     );
 
@@ -992,6 +986,7 @@ describe('PartyObserverGateway', () => {
         data: {
           authenticatedUserId: PLAYER_USER_ID,
           joinedPartyPlayer: {
+            partyId: PARTY_ID,
             identity: { kind: PartyPlayerKind.USER, userId: PLAYER_USER_ID },
             pin: PARTY_PIN,
           },
@@ -1010,5 +1005,61 @@ describe('PartyObserverGateway', () => {
       partyId: backendTestIdentifiers.party(44),
       playerIdentity: { kind: PartyPlayerKind.USER, userId: PLAYER_USER_ID },
     });
+  });
+  it.each(
+    ['leave', 'submit'].flatMap((command) =>
+      ['replaced-session', 'foreign-party', 'foreign-room', 'different-user', 'missing-player'].map((scenario) => [
+        command,
+        scenario,
+      ]),
+    ),
+  )('rejects %s from a %s before executing the command', async (command, scenario) => {
+    // Arrange
+    const sessions = new PartyPlayerSessionRegistry();
+    const identity = { kind: PartyPlayerKind.USER, userId: PLAYER_USER_ID } as const;
+    sessions.registerSession(PARTY_ID, identity, scenario === 'replaced-session' ? 'replacement' : 'socket-1');
+    const leaveParty = { execute: vi.fn() };
+    const submitAction = { execute: vi.fn() };
+    const gateway = new PartyObserverGateway(
+      { execute: vi.fn() } as never,
+      leaveParty as never,
+      submitAction as never,
+      { execute: vi.fn() } as never,
+      { execute: vi.fn() } as never,
+      { attachServer: vi.fn(), assertCanObserve: vi.fn(), emitSnapshot: vi.fn() } as never,
+      guestIdentifier,
+      partyActionIdentifier,
+      partyIdentifier,
+      partyPinIdentifier,
+      userIdentifier,
+      ...createHostControlUseCases(),
+      sessions,
+    );
+    const client = {
+      id: 'socket-1',
+      data: {
+        authenticatedUserId: scenario === 'different-user' ? HOST_USER_ID : PLAYER_USER_ID,
+        joinedPartyPlayer:
+          scenario === 'missing-player'
+            ? undefined
+            : {
+                identity,
+                partyId: scenario === 'foreign-party' ? backendTestIdentifiers.party(99) : PARTY_ID,
+                pin: PARTY_PIN,
+              },
+        partyObservationRoom: scenario === 'foreign-room' ? `party:${backendTestIdentifiers.party(99)}` : PARTY_ROOM,
+      },
+      leave: vi.fn().mockResolvedValue(undefined),
+    };
+    // Act + Assert
+    if (command === 'leave') {
+      await expect(gateway.leaveParty(client as never)).resolves.toEqual({ left: false });
+    } else {
+      await expect(
+        gateway.submitAction(client as never, { partyId: PARTY_ID, actionId: backendTestIdentifiers.partyAction(2) }),
+      ).rejects.toMatchObject({ message: GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE });
+    }
+    expect(leaveParty.execute).not.toHaveBeenCalled();
+    expect(submitAction.execute).not.toHaveBeenCalled();
   });
 });

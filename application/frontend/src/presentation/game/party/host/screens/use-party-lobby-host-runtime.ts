@@ -7,6 +7,7 @@ import {
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import type { PartyObservationPlayer } from '../../../../../domains/game/party/shared/entities/party-observation-player';
 import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/shared/entities/party-player-identity';
+import { PartyStatus } from '../../../../../domains/game/party/shared/entities/party-status';
 import { PartyManagementErrorCode } from '../../../../../domains/game/party/shared/errors/party-management-error-code';
 import { usePresentationFeedbackChannel } from '../../../../shared/ui/feedback/use-presentation-feedback-channel';
 import { usePartyDependencies } from '../../shared/contexts/party-dependencies-context';
@@ -236,7 +237,7 @@ export function usePartyLobbyHostRuntime({
   });
 
   useEffect(() => {
-    if (party?.status !== 'ACTIVE') return;
+    if (party?.status !== PartyStatus.ACTIVE) return;
     const currentStageId = party?.context?.lifecycle.stageId;
     const stageEndsAtEpochMs = party?.context?.lifecycle.stageEndsAtEpochMs;
     const hasStageTimer = hasTimedStage(stageEndsAtEpochMs);

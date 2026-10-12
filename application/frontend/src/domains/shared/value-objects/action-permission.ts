@@ -5,7 +5,3 @@ export type ActionPermission<Reason extends string = string> =
 export type Permissions<TActions extends Record<string, string>> = {
   readonly [K in keyof TActions]: ActionPermission<TActions[K]>;
 };
-
-export enum ActionPermissionReason {
-  UNAVAILABLE = 'PERMISSION_UNAVAILABLE',
-}

@@ -4,6 +4,7 @@ import type { PartyLobbyGateway } from '../../../../../application/game/party/sh
 import type { PartyHostControlPort } from '../../../../../domains/game/party/host/ports/party-host-control.port';
 import { HostPartyRuntimeCommand } from '../../../../../domains/game/party/host/ports/party-host-runtime-controls.port';
 import { type PartyManagementPort } from '../../../../../domains/game/party/host/ports/party-management.port';
+import { HostPartyDisabledReason } from '../../../../../domains/game/party/host/value-objects/host-party-permissions';
 import type { GuestUsernameGeneratorPort } from '../../../../../domains/game/party/player/ports/guest-username-generator.port';
 import type { PartyGuestSessionPort } from '../../../../../domains/game/party/player/ports/party-guest-session.port';
 import type {
@@ -24,7 +25,6 @@ import { PartyManagementErrorCode } from '../../../../../domains/game/party/shar
 import { GameType } from '../../../../../domains/game/types/shared/game-type';
 import type { GuestId } from '../../../../../domains/identity/entities/guest';
 import type { User, UserId } from '../../../../../domains/identity/entities/user';
-import { ActionPermissionReason } from '../../../../../domains/shared/value-objects/action-permission';
 import { AuthFixtureFactory } from '../../../../../test-utils/fixtures/auth-fixture-factory';
 import { PartyFixtureFactory } from '../../../../../test-utils/fixtures/party-fixture-factory';
 import { GameIdentifierMockFactory } from '../../../../../test-utils/mocks/game-identifier-mock-factory';
@@ -1133,7 +1133,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentParty = createPartyObservation({
       permissions: {
         ...partyFixtureFactory.createAllowedHostPermissions(),
-        startParty: { allowed: false, reason: ActionPermissionReason.UNAVAILABLE },
+        startParty: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
       },
       status: PartyStatus.WAITING,
       context: null,
@@ -2925,7 +2925,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentParty = createPartyObservation({
       permissions: {
         ...partyFixtureFactory.createAllowedHostPermissions(),
-        advanceStage: { allowed: false, reason: ActionPermissionReason.UNAVAILABLE },
+        advanceStage: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
       },
       status: PartyStatus.ENDED,
       context: {

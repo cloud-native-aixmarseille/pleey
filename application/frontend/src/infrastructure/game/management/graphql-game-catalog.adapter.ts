@@ -56,7 +56,7 @@ export class GraphqlGameCatalogAdapter implements GameCatalogPort {
         gameTypeId: item.gameTypeId == null ? null : this.gameTypeIdentifier.parse(item.gameTypeId),
         stageCount: item.stageCount,
         permissions: {
-          createParty: decodeActionPermission(item.permissions?.createParty, Object.values(CreatePartyDisabledReason)),
+          createParty: decodeActionPermission(item.permissions?.createParty, CreatePartyDisabledReason),
           launchReadiness: decodeActionPermission(
             {
               allowed: item.permissions?.launchReadiness?.allowed,
@@ -65,7 +65,7 @@ export class GraphqlGameCatalogAdapter implements GameCatalogPort {
                   ? LaunchReadinessDisabledReason.NO_STAGES_AVAILABLE
                   : item.permissions?.launchReadiness?.reason,
             },
-            Object.values(LaunchReadinessDisabledReason),
+            LaunchReadinessDisabledReason,
           ),
         },
       })),

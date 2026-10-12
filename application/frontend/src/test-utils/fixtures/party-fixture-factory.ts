@@ -5,6 +5,7 @@ import { GuestIdentifier } from '../../application/identity/shared/services/iden
 import { UserIdentifier } from '../../application/identity/shared/services/identifiers/user-identifier';
 import type { GameId } from '../../domains/game/entities/game';
 import type { HostPartyPermissions } from '../../domains/game/party/host/value-objects/host-party-permissions';
+import { HostPartyDisabledReason } from '../../domains/game/party/host/value-objects/host-party-permissions';
 import type { Party, PartyId, PartyPin } from '../../domains/game/party/shared/entities/party';
 import type { PartyHost } from '../../domains/game/party/shared/entities/party-host';
 import type { PartyObservation } from '../../domains/game/party/shared/entities/party-observation';
@@ -19,7 +20,6 @@ import { PartyStatus } from '../../domains/game/party/shared/entities/party-stat
 import { GameType } from '../../domains/game/types/shared/game-type';
 import type { GuestId } from '../../domains/identity/entities/guest';
 import type { UserId } from '../../domains/identity/entities/user';
-import { ActionPermissionReason } from '../../domains/shared/value-objects/action-permission';
 import { coerceUuidV7TestValue } from './uuid-v7-test-value';
 
 const gameIdentifier = new GameIdentifier();
@@ -135,13 +135,13 @@ export class PartyFixtureFactory {
     return {
       startParty: { allowed: true, reason: null },
       endParty: { allowed: true, reason: null },
-      advanceStage: { allowed: false, reason: ActionPermissionReason.UNAVAILABLE },
-      restartStage: { allowed: false, reason: ActionPermissionReason.UNAVAILABLE },
-      rewindStage: { allowed: false, reason: ActionPermissionReason.UNAVAILABLE },
-      rewindParty: { allowed: false, reason: ActionPermissionReason.UNAVAILABLE },
-      pauseParty: { allowed: false, reason: ActionPermissionReason.UNAVAILABLE },
-      resumeParty: { allowed: false, reason: ActionPermissionReason.UNAVAILABLE },
-      revealStageResult: { allowed: false, reason: ActionPermissionReason.UNAVAILABLE },
+      advanceStage: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+      restartStage: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+      rewindStage: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+      rewindParty: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+      pauseParty: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+      resumeParty: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+      revealStageResult: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
       ...overrides,
     };
   }

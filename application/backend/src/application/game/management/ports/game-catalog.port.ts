@@ -1,15 +1,8 @@
 import type { GameId } from '../../../../domain/game/entities/game';
+import type { GamePermissions } from '../../../../domain/game/management/value-objects/game-permissions';
 import type { GameTypeId } from '../../../../domain/game/types/shared/entities/game-type';
 import type { ProjectId } from '../../../../domain/project/entities/project';
 import type { PaginatedResult } from '../../../../domain/shared/value-objects/paginated-result';
-
-export {
-  CreatePartyDisabledReason,
-  type GamePermissions,
-  LaunchReadinessDisabledReason,
-} from '../../../../domain/game/management/value-objects/game-permissions';
-
-import type { GamePermissions } from '../../../../domain/game/management/value-objects/game-permissions';
 
 export interface ListProjectGamesQuery {
   readonly projectId: ProjectId;

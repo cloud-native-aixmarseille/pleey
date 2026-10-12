@@ -57,11 +57,11 @@ export class PartyPlayerSessionRegistry {
   }
 
   /**
-   * Get the active session for a player identity, if any.
+   * Check that the caller still owns the active session for this party and identity.
    */
-  getActiveSession(partyId: PartyId, playerIdentity: PartyPlayerIdentity): PartyPlayerSession | null {
+  isCurrentSession(partyId: PartyId, playerIdentity: PartyPlayerIdentity, sessionId: string): boolean {
     const key = this.toSessionKey(partyId, playerIdentity);
-    return this.sessions.get(key) ?? null;
+    return this.sessions.get(key)?.sessionId === sessionId;
   }
 
   /**

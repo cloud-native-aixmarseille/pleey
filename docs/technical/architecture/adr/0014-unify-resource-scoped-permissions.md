@@ -29,20 +29,20 @@ committed implementation at `9d0271c8b00b548b2146f9c873118c5e5e2bc84f` in
 route work was also inspected; it is identified separately below and is not part
 of the baseline or this PR. These are source observations, not a penetration test.
 
-| Area | Current behavior and consequence |
-| --- | --- |
-| Authentication | [GraphQL guard][gql-guard] and [session authenticator][session-auth] establish identity and active sessions. The [Socket.IO adapter][io-adapter] also checks authenticated inbound packets and periodically revalidates sessions. Authentication does not decide resource access. |
-| Organization membership | [Membership access service][membership-access] loads facts; [membership policy][membership-policy] enforces management privileges, owner protection, and the last-owner invariant. This is the closest existing model for reuse. |
-| Organization and project administration | [Organization update][organization-update] and [project create][project-create], [update][project-update], and [delete][project-delete] repeat membership and management checks. The delete path separately validates the last-project and migration-target constraints. |
-| Game authoring | [GameTypeManagementAccessGuard][game-access] resolves the project's organization and requires membership, including ordinary members. Its name must not be interpreted as an owner/manager restriction. |
-| Theme management | [ThemePermissionService][theme-access] calls `ThemeRepository.findAccess`; [PrismaThemeRepository][theme-repository] decides whether the role is owner or manager in infrastructure. Members may read the library; managers and owners may save themes and upload assets. |
-| Game action decisions | [GamePermissionResolver][game-permissions] returns `ActionPermission` decisions and reuses its decision builder for party creation. These decisions describe readiness and active-party conflicts; [CreatePartyUseCase][party-create] checks membership separately. They are not complete authorization decisions by themselves. |
-| Party host and player actions | [Host runtime use cases][host-access] compare the authenticated user with the party's host. [Player submission][player-submit] loads a target for the party/player and applies gameplay policy. Neither relationship is an organization role. |
-| Observation and public media | [Observation gateway][observation-gateway] accepts observation by party ID; [broadcaster][observation-broadcaster] and [audience resolver][observation-audience] select host or player output. [Avatars][avatars] and [theme assets][theme-assets] have public HTTP reads. A workspace-membership guard cannot be imposed on all these paths without changing their product contract. |
-| Account and personal lists | [Session revocation][session-revoke] uses the authenticated user's scope; [party listing][party-list] delegates to a user-scoped port. These need ownership and query scoping, not organization roles. |
-| Frontend organization management | [Screen state][organization-screen-state], [member controls][member-controls], and [organization edit][organization-edit] repeat owner/manager rules. [Project controls][organization-screen] enable creation when an organization is selected and removal when more than one project exists; [project edit][project-controls] is offered without a role check. The backend requires management privileges for all three operations. |
-| Frontend game and party actions | [Game catalog adapter][game-adapter] consumes server decisions and [game card][game-card] translates their reasons. [Host controls resolver][host-controls] derives lifecycle availability locally. Role labels and host/player navigation also exist, but those are not necessarily authorization checks. |
-| Frontend routes and theme work | [ProtectedRoute][protected-route] checks authentication only. The inspected local theme work adds a `canManageThemes` boolean and a route-specific loading/allowed/denied/error state. The theme navigation link still derives access from organization role rules. This is another consumer to migrate, not a second policy model to standardize. |
+| Area                                    | Current behavior and consequence                                                                                                                                                                                                                                                                                                                                                                                                     |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Authentication                          | [GraphQL guard][gql-guard] and [session authenticator][session-auth] establish identity and active sessions. The [Socket.IO adapter][io-adapter] also checks authenticated inbound packets and periodically revalidates sessions. Authentication does not decide resource access.                                                                                                                                                    |
+| Organization membership                 | [Membership access service][membership-access] loads facts; [membership policy][membership-policy] enforces management privileges, owner protection, and the last-owner invariant. This is the closest existing model for reuse.                                                                                                                                                                                                     |
+| Organization and project administration | [Organization update][organization-update] and [project create][project-create], [update][project-update], and [delete][project-delete] repeat membership and management checks. The delete path separately validates the last-project and migration-target constraints.                                                                                                                                                             |
+| Game authoring                          | [GameTypeManagementAccessGuard][game-access] resolves the project's organization and requires membership, including ordinary members. Its name must not be interpreted as an owner/manager restriction.                                                                                                                                                                                                                              |
+| Theme management                        | [ThemePermissionService][theme-access] calls `ThemeRepository.findAccess`; [PrismaThemeRepository][theme-repository] decides whether the role is owner or manager in infrastructure. Members may read the library; managers and owners may save themes and upload assets.                                                                                                                                                            |
+| Game action decisions                   | [GamePermissionResolver][game-permissions] returns `ActionPermission` decisions and reuses its decision builder for party creation. These decisions describe readiness and active-party conflicts; [CreatePartyUseCase][party-create] checks membership separately. They are not complete authorization decisions by themselves.                                                                                                     |
+| Party host and player actions           | [Host runtime use cases][host-access] compare the authenticated user with the party's host. [Player submission][player-submit] loads a target for the party/player and applies gameplay policy. Neither relationship is an organization role.                                                                                                                                                                                        |
+| Observation and public media            | [Observation gateway][observation-gateway] accepts observation by party ID; [broadcaster][observation-broadcaster] and [audience resolver][observation-audience] select host or player output. [Avatars][avatars] and [theme assets][theme-assets] have public HTTP reads. A workspace-membership guard cannot be imposed on all these paths without changing their product contract.                                                |
+| Account and personal lists              | [Session revocation][session-revoke] uses the authenticated user's scope; [party listing][party-list] delegates to a user-scoped port. These need ownership and query scoping, not organization roles.                                                                                                                                                                                                                               |
+| Frontend organization management        | [Screen state][organization-screen-state], [member controls][member-controls], and [organization edit][organization-edit] repeat owner/manager rules. [Project controls][organization-screen] enable creation when an organization is selected and removal when more than one project exists; [project edit][project-controls] is offered without a role check. The backend requires management privileges for all three operations. |
+| Frontend game and party actions         | [Game catalog adapter][game-adapter] consumes server decisions and [game card][game-card] translates their reasons. [Host controls resolver][host-controls] derives lifecycle availability locally. Role labels and host/player navigation also exist, but those are not necessarily authorization checks.                                                                                                                           |
+| Frontend routes and theme work          | [ProtectedRoute][protected-route] checks authentication only. The inspected local theme work adds a `canManageThemes` boolean and a route-specific loading/allowed/denied/error state. The theme navigation link still derives access from organization role rules. This is another consumer to migrate, not a second policy model to standardize.                                                                                   |
 
 The audit reveals a concrete UX mismatch in project administration and policy
 duplication across layers. It does not establish that every difference is a
@@ -128,16 +128,16 @@ role hierarchy. Each action defines its required actor, resource scope, target
 facts, and domain reason enum. The following is the initial migration baseline,
 not a new grants database or a complete API schema:
 
-| Action family | Authorization baseline to preserve | Additional facts or constraints |
-| --- | --- | --- |
-| Organization details, members, projects, game catalog, theme library reads | Current membership in that organization | Scope rows and counts to the same live organization. |
-| Organization update; project create/update/delete; theme create/update/asset upload | Owner or manager in the resource's organization | Project deletion constraints, valid theme selection, asset ownership, and theme revision still apply. |
-| Member add, role update, removal | Owner or manager; only an owner can assign the owner role or manage an owner | Target membership must belong to the same organization; preserve the last owner. |
-| Quiz/prediction authoring and imports; party creation | Organization membership, including ordinary members | Resolve organization through the stored project/game relationship; evaluate creation readiness separately. |
-| Party host commands | Authenticated user is that party's stored host | Lifecycle policy controls individual commands. Organization management alone grants no host control. |
-| Player commands | Verified user/guest participation in that party | Current player eligibility, party settings, and stage/action validity. |
-| Account profile, sessions, and personal lists | Authenticated account owns the requested scope | Derive the account from the session; a party list includes only that user's relevant parties. |
-| Public/observer reads | Explicitly declared public or audience-specific action | Define the permitted projection. Public avatars/assets and permitted party observation do not grant workspace or host access. |
+| Action family                                                                       | Authorization baseline to preserve                                           | Additional facts or constraints                                                                                               |
+| ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Organization details, members, projects, game catalog, theme library reads          | Current membership in that organization                                      | Scope rows and counts to the same live organization.                                                                          |
+| Organization update; project create/update/delete; theme create/update/asset upload | Owner or manager in the resource's organization                              | Project deletion constraints, valid theme selection, asset ownership, and theme revision still apply.                         |
+| Member add, role update, removal                                                    | Owner or manager; only an owner can assign the owner role or manage an owner | Target membership must belong to the same organization; preserve the last owner.                                              |
+| Quiz/prediction authoring and imports; party creation                               | Organization membership, including ordinary members                          | Resolve organization through the stored project/game relationship; evaluate creation readiness separately.                    |
+| Party host commands                                                                 | Authenticated user is that party's stored host                               | Lifecycle policy controls individual commands. Organization management alone grants no host control.                          |
+| Player commands                                                                     | Verified user/guest participation in that party                              | Current player eligibility, party settings, and stage/action validity.                                                        |
+| Account profile, sessions, and personal lists                                       | Authenticated account owns the requested scope                               | Derive the account from the session; a party list includes only that user's relevant parties.                                 |
+| Public/observer reads                                                               | Explicitly declared public or audience-specific action                       | Define the permitted projection. Public avatars/assets and permitted party observation do not grant workspace or host access. |
 
 Assigning a theme follows the permission for updating the destination
 organization/project or creating the party; permission to edit the theme itself
@@ -152,6 +152,12 @@ NestJS, GraphQL, React, or storage dependencies. Existing entity predicates can
 remain policy inputs. Keep organization rules under `domain/organization`, theme
 rules under `domain/theme`, and party rules under their owning game domains.
 Only domain-neutral decision types belong in `domain/shared`.
+
+Expose policies as framework-independent classes injected into their application
+consumers and registered in the owning composition module. Import contracts from
+their defining module rather than reexporting them from an unrelated port.
+Backend service modules must not export standalone runtime functions; application
+lint checks enforce these service and contract boundaries.
 
 Application access services load active memberships, resource ancestry, target
 members, or participant relationships through ports, then invoke those policies.
@@ -272,6 +278,12 @@ errors offer retry without rendering protected controls as allowed. Unknown
 actions, missing decisions, and malformed decision payloads fail closed; an
 unrecognized denial reason remains denied with a generic localized explanation.
 
+Each frontend action uses one feature-owned reason enum, including an
+`UNAVAILABLE` member for missing or malformed decisions. The decoder receives
+that enum and returns the same reason type without adding a second reason enum.
+Organization management composes separate project action, member list, and
+member action hooks; each asynchronous action remains scoped to its organization.
+
 Scope decision state to the authenticated session or guest context and resource
 IDs. Clear it on logout/account change, and reset the active resource on workspace
 switch. Discard responses from older contexts. Invalidate affected decisions
@@ -344,15 +356,15 @@ wire decisions become `PERMISSION_UNAVAILABLE`; they cannot grant an action.
 
 The entry-point inventory is:
 
-| Entry points | Classification and enforcement |
-| --- | --- |
-| Organization, member, project, dashboard GraphQL operations | Workspace-scoped use cases resolve active membership through the shared access module; commands recheck feature decisions. Member rows carry target-specific roles and reasons. |
-| Quiz/prediction GraphQL authoring and import; game catalog and create-party | Workspace membership, including ordinary members; ancestry comes from stored project/game relationships. Create-party composes this with domain readiness/conflict policy. |
-| Socket observe, snapshots, updates, runtime notices | Party audience is checked before room admission and every outbound projection. Account sessions are revalidated; guest personal data requires the current verified connection. Obsolete unscoped observation getters are removed. |
-| Socket join/rejoin, submit, leave, kick, host lifecycle commands | Join validates identity/password or signed guest recovery; submit and leave require the current player session. Kick and lifecycle use cases require the stored host; lifecycle projections and commands share the domain policy. |
-| Profile/avatar writes, identity sessions, personal party lists | Existing authenticated-account ownership remains authoritative. Caller-supplied account identifiers cannot choose another account's scope. |
-| Authentication/recovery, health, avatar reads | Deliberately public entry points retain their existing validation, bounded media projections, and identity protections. |
-| Theme GraphQL operations and theme-asset reads (PR #505 integration) | Theme administration must use workspace decisions; asset reads remain public without granting theme-management access. These entry points are not introduced by PR #514. |
+| Entry points                                                                | Classification and enforcement                                                                                                                                                                                                    |
+| --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Organization, member, project, dashboard GraphQL operations                 | Workspace-scoped use cases resolve active membership through the shared access module; commands recheck feature decisions. Member rows carry target-specific roles and reasons.                                                   |
+| Quiz/prediction GraphQL authoring and import; game catalog and create-party | Workspace membership, including ordinary members; ancestry comes from stored project/game relationships. Create-party composes this with domain readiness/conflict policy.                                                        |
+| Socket observe, snapshots, updates, runtime notices                         | Party audience is checked before room admission and every outbound projection. Account sessions are revalidated; guest personal data requires the current verified connection. Obsolete unscoped observation getters are removed. |
+| Socket join/rejoin, submit, leave, kick, host lifecycle commands            | Join validates identity/password or signed guest recovery; submit and leave require the current player session. Kick and lifecycle use cases require the stored host; lifecycle projections and commands share the domain policy. |
+| Profile/avatar writes, identity sessions, personal party lists              | Existing authenticated-account ownership remains authoritative. Caller-supplied account identifiers cannot choose another account's scope.                                                                                        |
+| Authentication/recovery, health, avatar reads                               | Deliberately public entry points retain their existing validation, bounded media projections, and identity protections.                                                                                                           |
+| Theme GraphQL operations and theme-asset reads (PR #505 integration)        | Theme administration must use workspace decisions; asset reads remain public without granting theme-management access. These entry points are not introduced by PR #514.                                                          |
 
 Membership removal and role changes acquire the same organization row lock,
 then reload actor, target, and owner count inside the transaction. Competing
@@ -382,8 +394,8 @@ The following compatibility changes are intentional:
   resources and private observations use the same public not-found result as
   absent resources. Visible resources retain actionable denial reasons.
 - Guest rejoin requires a signed, party/guest/join-record-bound credential with a
-  24-hour recovery lifetime. New joins return it; browser storage v2 retains it
-  with the party ID and PIN. A canonical private-party refresh recovers the guest
+  24-hour recovery lifetime. New joins return it; the existing
+  `party.guest-session.v1` storage key retains it with the party ID and PIN. A canonical private-party refresh recovers the guest
   before subscribing. Legacy guest IDs alone cannot be upgraded into proof: those
   users must join again under the party's normal joining rules. Existing open
   sockets should reconnect during deployment.

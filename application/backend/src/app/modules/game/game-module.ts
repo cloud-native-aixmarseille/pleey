@@ -47,12 +47,14 @@ import { UserIdentifier } from '../../../application/identity/shared/services/id
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-member-identifier';
 import { ProjectIdentifier } from '../../../application/workspace/shared/services/identifiers/project-identifier';
+import { GamePermissionPolicy } from '../../../domain/game/management/services/game-permission-policy';
 import { HostPartyLifecyclePolicy } from '../../../domain/game/party/host/services/host-party-lifecycle-policy';
 import { PartyGuestCredentialPort } from '../../../domain/game/party/player/ports/party-guest-credential.port';
 import {
   PartyPlayerSessionRegistry,
   PartyPlayerSessionRegistryProvider,
 } from '../../../domain/game/party/player/services/party-player-session-registry';
+import { PartyObservationPolicy } from '../../../domain/game/party/shared/services/party-observation-policy';
 import { PartyRuntimeContextProjectionService } from '../../../domain/game/party/shared/services/party-runtime-context-projection.service';
 import { PartySettingsResolver } from '../../../domain/game/party/shared/services/party-settings-resolver';
 import { GameType } from '../../../domain/game/types/shared/entities/game-type';
@@ -109,6 +111,7 @@ import { SharedServicesModule } from '../shared/shared-services.module';
 @Module({
   imports: [OrganizationAccessModule, DatabaseModule, IdentityModule, SharedServicesModule],
   providers: [
+    PartyObservationPolicy,
     PartyObservationAccessService,
     { provide: PartyGuestCredentialPort, useClass: JwtPartyGuestCredential },
     PrismaGameCatalogAdapter,
@@ -218,6 +221,7 @@ import { SharedServicesModule } from '../shared/shared-services.module';
     GameTypeIdentifier,
     GameTypeParser,
     GuestIdentifier,
+    GamePermissionPolicy,
     GamePermissionResolver,
     ListProjectGamesUseCase,
     ListPartiesUseCase,

@@ -66,8 +66,8 @@ export class GraphqlProjectRepository implements ProjectRepository {
           organizationId: this.organizationIdentifier.parse(project.organizationId),
           createdAt: project.createdAt,
           permissions: {
-            update: decodeActionPermission(project.permissions?.update, Object.values(ProjectActionDisabledReason)),
-            delete: decodeActionPermission(project.permissions?.delete, Object.values(ProjectActionDisabledReason)),
+            update: decodeActionPermission(project.permissions?.update, ProjectActionDisabledReason),
+            delete: decodeActionPermission(project.permissions?.delete, ProjectActionDisabledReason),
           },
           defaultPartySettings: this.toPartySettings(project.defaultPartySettings),
         })),
@@ -155,8 +155,8 @@ export class GraphqlProjectRepository implements ProjectRepository {
       createdAt: project.createdAt,
       defaultPartySettings: this.toPartySettings(project.defaultPartySettings),
       permissions: {
-        update: decodeActionPermission(project.permissions?.update, Object.values(ProjectActionDisabledReason)),
-        delete: decodeActionPermission(project.permissions?.delete, Object.values(ProjectActionDisabledReason)),
+        update: decodeActionPermission(project.permissions?.update, ProjectActionDisabledReason),
+        delete: decodeActionPermission(project.permissions?.delete, ProjectActionDisabledReason),
       },
     };
   }

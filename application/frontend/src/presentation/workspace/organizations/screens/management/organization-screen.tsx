@@ -8,13 +8,13 @@ import type {
   UpdateOrganizationCommand,
   UpdateOrganizationMemberRoleCommand,
 } from '../../../../../domains/organization/ports/organization-repository';
+import { OrganizationActionDisabledReason } from '../../../../../domains/organization/value-objects/organization-permissions';
 import type { Project } from '../../../../../domains/project/entities/project';
 import type {
   CreateProjectCommand,
   DeleteProjectCommand,
   UpdateProjectCommand,
 } from '../../../../../domains/project/ports/project-repository';
-import { ActionPermissionReason } from '../../../../../domains/shared/value-objects/action-permission';
 import type { PaginatedResult } from '../../../../../domains/shared/value-objects/paginated-result';
 import { usePresentationTranslation } from '../../../../shared/i18n/use-presentation-translation';
 import { StatusBanner } from '../../../../shared/ui/feedback/status-banner';
@@ -211,7 +211,7 @@ export function OrganizationScreen({
         createPermission={
           selectedOrganization?.permissions.createProject ?? {
             allowed: false,
-            reason: ActionPermissionReason.UNAVAILABLE,
+            reason: OrganizationActionDisabledReason.UNAVAILABLE,
           }
         }
         createButtonLabel={t('project.management.section.createButton')}

@@ -34,6 +34,7 @@ Review and generation instruction files are configured from `.vscode/settings.js
 
 - **Never duplicate docs content** — reference the relevant doc file instead
 - **Every architecture, technology, and design choice starts with an ADR** under `docs/technical/architecture/adr/` — do not start with a free-form proposal
+- **Module exports and runtime services**: follow [the development rules](docs/technical/development/index.md#module-exports-and-runtime-services); run the module export guard for both applications.
 - **Clean Architecture boundaries are enforced by Biome** — `domain/` → `application/` → `infrastructure/` → `presentation/` (see architecture docs)
 - **All user-facing text uses i18n** — never hardcode strings
 - **Error codes are domain enums** mapped to translations (see development docs)

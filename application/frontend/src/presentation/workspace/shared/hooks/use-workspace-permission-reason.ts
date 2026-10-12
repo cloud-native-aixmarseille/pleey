@@ -16,6 +16,7 @@ export function useWorkspacePermissionReason() {
         return t('organization.permissions.lastOwner');
       case ProjectActionDisabledReason.CANNOT_DELETE_LAST_PROJECT:
         return t('project.permissions.lastProject');
+      case ProjectActionDisabledReason.UNAVAILABLE:
       default:
         return t('common.permissions.unavailable');
     }
