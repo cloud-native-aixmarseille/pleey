@@ -324,35 +324,23 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
   @SubscribeMessage(PARTY_SOCKET_INBOUND_EVENTS.LEAVE_PARTY)
   async leaveParty(@ConnectedSocket() client: Socket): Promise<{ readonly left: boolean }> {
     const socketData = client.data as PartyObserverSocketData;
-    const joinedPartyPlayer = socketData.joinedPartyPlayer;
-    const pin = joinedPartyPlayer?.pin;
     const partyObservationId = this.parsePartyObservationId(socketData.partyObservationRoom);
+    const joinedPartyPlayer = this.resolveActiveJoinedPlayer(client, partyObservationId);
 
     if (joinedPartyPlayer && partyObservationId !== null) {
       this.clearPendingLobbyPlayerAbsencePrune(partyObservationId, joinedPartyPlayer.identity);
     }
 
-    if (
-      !pin ||
-      !joinedPartyPlayer ||
-      joinedPartyPlayer.partyId !== partyObservationId ||
-      this.sessionRegistry.getActiveSession(joinedPartyPlayer.partyId, joinedPartyPlayer.identity)?.sessionId !==
-        client.id
-    ) {
+    if (!joinedPartyPlayer) {
       await this.leavePartyObservationRoom(client);
       this.clearJoinedPlayer(client);
       return { left: false };
     }
 
-    const user = this.resolveAuthenticatedUser(client);
-    const left = user
-      ? await this.leavePartyUseCase.execute({ pin, playerIdentity: user })
-      : joinedPartyPlayer?.identity.kind === PartyPlayerKind.GUEST
-        ? await this.leavePartyUseCase.execute({
-            pin,
-            playerIdentity: joinedPartyPlayer.identity,
-          })
-        : false;
+    const left = await this.leavePartyUseCase.execute({
+      pin: joinedPartyPlayer.pin,
+      playerIdentity: joinedPartyPlayer.identity,
+    });
 
     if (left && partyObservationId !== null) {
       // Invalidate the session when the player explicitly leaves
@@ -480,17 +468,11 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     payload: SubmitPartyActionMessageDto | undefined,
   ): SubmitPartyActionDto {
     const socketData = client.data as PartyObserverSocketData;
-    const joinedPlayerIdentity = socketData.joinedPartyPlayer?.identity;
     const observedPartyId = this.parsePartyObservationId(socketData.partyObservationRoom);
     const partyId = this.normalizePartyId(payload?.partyId);
+    const joinedPlayerIdentity = this.resolveActiveJoinedPlayer(client, partyId)?.identity;
 
-    if (
-      joinedPlayerIdentity === undefined ||
-      observedPartyId !== partyId ||
-      this.sessionRegistry.getActiveSession(partyId, joinedPlayerIdentity)?.sessionId !== client.id ||
-      (joinedPlayerIdentity.kind === PartyPlayerKind.USER &&
-        socketData.authenticatedUserId !== joinedPlayerIdentity.userId)
-    ) {
+    if (joinedPlayerIdentity === undefined || observedPartyId !== partyId) {
       throw new PartyCommandNotAvailableError({
         hasJoinedPlayerIdentity: joinedPlayerIdentity !== undefined,
         observedPartyId,
@@ -508,19 +490,26 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
       });
     }
 
-    if (joinedPlayerIdentity.kind === PartyPlayerKind.USER) {
-      return {
-        actionId,
-        partyId,
-        playerIdentity: joinedPlayerIdentity,
-      };
-    }
-
     return {
       actionId,
       partyId,
       playerIdentity: joinedPlayerIdentity,
     };
+  }
+
+  private resolveActiveJoinedPlayer(client: Pick<Socket, 'data' | 'id'>, partyId: PartyId | null) {
+    const socketData = client.data as PartyObserverSocketData;
+    const player = socketData.joinedPartyPlayer;
+    if (
+      !player?.pin ||
+      partyId === null ||
+      player.partyId !== partyId ||
+      !this.sessionRegistry.isCurrentSession(partyId, player.identity, client.id) ||
+      (player.identity.kind === PartyPlayerKind.USER && socketData.authenticatedUserId !== player.identity.userId)
+    ) {
+      return null;
+    }
+    return player;
   }
 
   private resolveAuthenticatedUser(client: Socket): AuthenticatedPartyPlayerIdentity | null {

@@ -75,11 +75,11 @@ export class GameFixtureFactory {
       permissions: {
         createParty: decodeActionPermission(
           { ...defaultPermissions.createParty, ...permissions?.createParty },
-          Object.values(CreatePartyDisabledReason),
+          CreatePartyDisabledReason,
         ),
         launchReadiness: decodeActionPermission(
           { ...defaultPermissions.launchReadiness, ...permissions?.launchReadiness },
-          Object.values(LaunchReadinessDisabledReason),
+          LaunchReadinessDisabledReason,
         ),
       },
       ...restOverrides,

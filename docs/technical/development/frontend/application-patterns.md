@@ -58,7 +58,7 @@ export const SignInScreen = () => {
 
 - `presentation/<scope>/components/` is for shared components reused across multiple screens within that scope.
 - Screen-local components go in `presentation/<scope>/screens/<feature>/components/`.
-- Split large components so each has one reason to change.
+- Split large components so each has one reason to change. Organization management composes separate project actions, member actions, and member list hooks; preserve organization-scoped cancellation when moving asynchronous work.
 - Keep component props strictly necessary; if every usage passes the same value, factor that invariant into the component or split the component.
 
 ## Styling

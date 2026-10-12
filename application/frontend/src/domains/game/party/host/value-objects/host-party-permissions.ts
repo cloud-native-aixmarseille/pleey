@@ -1,6 +1,7 @@
-import { ActionPermissionReason, type Permissions } from '../../../../shared/value-objects/action-permission';
+import type { Permissions } from '../../../../shared/value-objects/action-permission';
 
 export enum HostPartyDisabledReason {
+  UNAVAILABLE = 'PERMISSION_UNAVAILABLE',
   HOST_REQUIRED = 'HOST_REQUIRED',
   PARTY_NOT_WAITING = 'PARTY_NOT_WAITING',
   NO_PLAYERS = 'NO_PLAYERS',
@@ -25,20 +26,20 @@ export type HostPartyPermissions = Permissions<
     | 'resumeParty'
     | 'revealStageResult'
     | 'endParty',
-    HostPartyDisabledReason | ActionPermissionReason
+    HostPartyDisabledReason
   >
 >;
 
 export function unavailableHostPermissions(): HostPartyPermissions {
   return {
-    startParty: { allowed: false, reason: ActionPermissionReason.UNAVAILABLE },
-    endParty: { allowed: false, reason: ActionPermissionReason.UNAVAILABLE },
-    advanceStage: { allowed: false, reason: ActionPermissionReason.UNAVAILABLE },
-    restartStage: { allowed: false, reason: ActionPermissionReason.UNAVAILABLE },
-    rewindStage: { allowed: false, reason: ActionPermissionReason.UNAVAILABLE },
-    rewindParty: { allowed: false, reason: ActionPermissionReason.UNAVAILABLE },
-    pauseParty: { allowed: false, reason: ActionPermissionReason.UNAVAILABLE },
-    resumeParty: { allowed: false, reason: ActionPermissionReason.UNAVAILABLE },
-    revealStageResult: { allowed: false, reason: ActionPermissionReason.UNAVAILABLE },
+    startParty: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+    endParty: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+    advanceStage: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+    restartStage: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+    rewindStage: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+    rewindParty: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+    pauseParty: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+    resumeParty: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+    revealStageResult: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
   };
 }

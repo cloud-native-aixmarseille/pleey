@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { ActionPermissionReason } from '../value-objects/action-permission';
 import { decodeActionPermission } from './action-permission-decoder';
+
+enum TestPermissionReason {
+  DENIED = 'DENIED',
+  UNAVAILABLE = 'TEST_UNAVAILABLE',
+}
 
 describe('decodeActionPermission', () => {
   it.each([
@@ -14,9 +18,9 @@ describe('decodeActionPermission', () => {
     { allowed: 'true', reason: null },
   ])('denies malformed or unknown decision %j', (value) => {
     // Arrange + Act
-    const decision = decodeActionPermission(value, ['DENIED']);
+    const decision = decodeActionPermission(value, TestPermissionReason);
     // Assert
-    expect(decision).toEqual({ allowed: false, reason: ActionPermissionReason.UNAVAILABLE });
+    expect(decision).toEqual({ allowed: false, reason: TestPermissionReason.UNAVAILABLE });
   });
 
   it.each([
@@ -24,7 +28,7 @@ describe('decodeActionPermission', () => {
     { allowed: false, reason: 'DENIED' },
   ])('preserves a valid decision and its reason %j', (value) => {
     // Arrange + Act
-    const decision = decodeActionPermission(value, ['DENIED']);
+    const decision = decodeActionPermission(value, TestPermissionReason);
     // Assert
     expect(decision).toEqual(value);
   });

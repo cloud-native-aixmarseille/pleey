@@ -1,11 +1,14 @@
 import { describe, expect, it, vi } from 'vitest';
 import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
+import {
+  CreatePartyDisabledReason,
+  LaunchReadinessDisabledReason,
+} from '../../../../domain/game/management/value-objects/game-permissions';
 import { ProjectErrorCode } from '../../../../domain/project/enums/project-error-code.enum';
 import { ProjectNotFoundError } from '../../../../domain/project/errors/project-not-found.error';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { createWorkspacePermissionServices } from '../../../../test-utils/fixtures/workspace-permission-fixture-factory';
 import { GameTypeParser } from '../../types/shared/services/game-type-parser';
-import { CreatePartyDisabledReason, LaunchReadinessDisabledReason } from '../ports/game-catalog.port';
 import { GamePermissionResolver } from '../services/game-permission-resolver';
 import { ListProjectGamesUseCase } from './list-project-games-use-case';
 

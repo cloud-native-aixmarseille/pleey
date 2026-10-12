@@ -310,11 +310,8 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
       organizationId: this.organizationIdentifier.parse(member.organizationId),
       role: this.toDomainRole(member.role) ?? OrganizationRole.MEMBER,
       permissions: {
-        updateRole: decodeActionPermission(
-          member.permissions?.updateRole,
-          Object.values(OrganizationActionDisabledReason),
-        ),
-        remove: decodeActionPermission(member.permissions?.remove, Object.values(OrganizationActionDisabledReason)),
+        updateRole: decodeActionPermission(member.permissions?.updateRole, OrganizationActionDisabledReason),
+        remove: decodeActionPermission(member.permissions?.remove, OrganizationActionDisabledReason),
       },
       assignableRoles: this.toAssignableRoles(member.assignableRoles),
       username: member.username,
@@ -328,7 +325,7 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
     readonly createProject: unknown;
     readonly manageMembers: unknown;
   }): OrganizationPermissions {
-    const reasons = Object.values(OrganizationActionDisabledReason);
+    const reasons = OrganizationActionDisabledReason;
     return {
       read: decodeActionPermission(permissions?.read, reasons),
       update: decodeActionPermission(permissions?.update, reasons),

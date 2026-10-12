@@ -1,5 +1,6 @@
 import { PartyObservationAccessService } from '../../../../../application/game/party/shared/services/party-observation-access-service';
 import { PartyPlayerSessionRegistry } from '../../../../../domain/game/party/player/services/party-player-session-registry';
+import { PartyObservationPolicy } from '../../../../../domain/game/party/shared/services/party-observation-policy';
 import 'reflect-metadata';
 import { describe, expect, it, vi } from 'vitest';
 import { PartyIdentifier } from '../../../../../application/game/party/shared/services/identifiers/party-identifier';
@@ -56,9 +57,12 @@ describe('SocketPartyObservationBroadcaster', () => {
   it('hides host-only context from non-host observers in the emitted snapshot', async () => {
     // Arrange
     const broadcaster = new SocketPartyObservationBroadcaster(
-      new PartyObservationAudienceResolver(new PartyObservationAccessService(new PartyPlayerSessionRegistry()), {
-        validate: vi.fn().mockImplementation(async (claims) => claims),
-      } as never),
+      new PartyObservationAudienceResolver(
+        new PartyObservationAccessService(new PartyPlayerSessionRegistry(), new PartyObservationPolicy()),
+        {
+          validate: vi.fn().mockImplementation(async (claims) => claims),
+        } as never,
+      ),
       new HostPartyObservationMessageMapper(),
       new PlayerPartyObservationMessageMapper(),
       partyIdentifier,
@@ -113,9 +117,12 @@ describe('SocketPartyObservationBroadcaster', () => {
   it('keeps host-only context for the host observer', async () => {
     // Arrange
     const broadcaster = new SocketPartyObservationBroadcaster(
-      new PartyObservationAudienceResolver(new PartyObservationAccessService(new PartyPlayerSessionRegistry()), {
-        validate: vi.fn().mockImplementation(async (claims) => claims),
-      } as never),
+      new PartyObservationAudienceResolver(
+        new PartyObservationAccessService(new PartyPlayerSessionRegistry(), new PartyObservationPolicy()),
+        {
+          validate: vi.fn().mockImplementation(async (claims) => claims),
+        } as never,
+      ),
       new HostPartyObservationMessageMapper(),
       new PlayerPartyObservationMessageMapper(),
       partyIdentifier,
@@ -150,9 +157,12 @@ describe('SocketPartyObservationBroadcaster', () => {
   it('publishes party updates to host sockets before player sockets', async () => {
     // Arrange
     const broadcaster = new SocketPartyObservationBroadcaster(
-      new PartyObservationAudienceResolver(new PartyObservationAccessService(new PartyPlayerSessionRegistry()), {
-        validate: vi.fn().mockImplementation(async (claims) => claims),
-      } as never),
+      new PartyObservationAudienceResolver(
+        new PartyObservationAccessService(new PartyPlayerSessionRegistry(), new PartyObservationPolicy()),
+        {
+          validate: vi.fn().mockImplementation(async (claims) => claims),
+        } as never,
+      ),
       new HostPartyObservationMessageMapper(),
       new PlayerPartyObservationMessageMapper(),
       partyIdentifier,
@@ -202,9 +212,12 @@ describe('SocketPartyObservationBroadcaster', () => {
   it('publishes runtime notices to host sockets before player sockets', async () => {
     // Arrange
     const broadcaster = new SocketPartyObservationBroadcaster(
-      new PartyObservationAudienceResolver(new PartyObservationAccessService(new PartyPlayerSessionRegistry()), {
-        validate: vi.fn().mockImplementation(async (claims) => claims),
-      } as never),
+      new PartyObservationAudienceResolver(
+        new PartyObservationAccessService(new PartyPlayerSessionRegistry(), new PartyObservationPolicy()),
+        {
+          validate: vi.fn().mockImplementation(async (claims) => claims),
+        } as never,
+      ),
       new HostPartyObservationMessageMapper(),
       new PlayerPartyObservationMessageMapper(),
       partyIdentifier,
@@ -256,7 +269,7 @@ describe('SocketPartyObservationBroadcaster', () => {
     // Arrange
     const sessions = { validate: vi.fn().mockRejectedValue(new Error('revoked')) };
     const audience = new PartyObservationAudienceResolver(
-      new PartyObservationAccessService(new PartyPlayerSessionRegistry()),
+      new PartyObservationAccessService(new PartyPlayerSessionRegistry(), new PartyObservationPolicy()),
       sessions as never,
     );
     const broadcaster = new SocketPartyObservationBroadcaster(
@@ -285,7 +298,7 @@ describe('SocketPartyObservationBroadcaster', () => {
   it('denies a private snapshot to an anonymous observer before emitting it', async () => {
     // Arrange
     const audience = new PartyObservationAudienceResolver(
-      new PartyObservationAccessService(new PartyPlayerSessionRegistry()),
+      new PartyObservationAccessService(new PartyPlayerSessionRegistry(), new PartyObservationPolicy()),
       { validate: vi.fn() } as never,
     );
     const broadcaster = new SocketPartyObservationBroadcaster(

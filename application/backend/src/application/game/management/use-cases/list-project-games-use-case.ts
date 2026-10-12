@@ -1,18 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { GameId } from '../../../../domain/game/entities/game';
 import { GameValidationFailedError } from '../../../../domain/game/errors';
+import { type GamePermissions } from '../../../../domain/game/management/value-objects/game-permissions';
 import type { UserId } from '../../../../domain/identity/entities/user';
 import { ProjectNotFoundError } from '../../../../domain/project/errors';
 import type { ProjectRepository } from '../../../../domain/project/ports/project.repository';
 import { ProjectRepositoryProvider } from '../../../../domain/project/ports/project.repository';
 import { OrganizationMembershipAccessService } from '../../../workspace/organizations/services/organization-membership-access.service';
 import { GameTypeParser } from '../../types/shared/services/game-type-parser';
-import {
-  GameCatalogPort,
-  type GamePermissions,
-  type ListProjectGamesQuery,
-  type ProjectGameListPage,
-} from '../ports/game-catalog.port';
+import { GameCatalogPort, type ListProjectGamesQuery, type ProjectGameListPage } from '../ports/game-catalog.port';
 import { GamePermissionResolver } from '../services/game-permission-resolver';
 
 @Injectable()

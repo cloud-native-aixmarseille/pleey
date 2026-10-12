@@ -6,7 +6,7 @@ import type { PartyId, PartyPin } from '../../../../domains/game/party/shared/en
 import type { GuestId } from '../../../../domains/identity/entities/guest';
 import { type StoragePort, StoragePortToken } from '../../../../domains/shared/ports/storage.port';
 
-const STORAGE_KEY = 'party.guest-session.v2';
+const STORAGE_KEY = 'party.guest-session.v1';
 
 /**
  * Persisted Party Guest Session Adapter

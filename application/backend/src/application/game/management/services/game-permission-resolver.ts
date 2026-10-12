@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import type { GameId } from '../../../../domain/game/entities/game';
 import {
   ActivePartyExistsError,
@@ -7,7 +7,11 @@ import {
   HostAlreadyHasActivePartyForGameError,
   PartyStagesNotAvailableError,
 } from '../../../../domain/game/errors';
-import { resolveGamePermissions } from '../../../../domain/game/management/services/game-permission-policy';
+import { GamePermissionPolicy } from '../../../../domain/game/management/services/game-permission-policy';
+import {
+  CreatePartyDisabledReason,
+  type GamePermissions,
+} from '../../../../domain/game/management/value-objects/game-permissions';
 import type { UserId } from '../../../../domain/identity/entities/user';
 import type { DomainError } from '../../../../domain/shared/errors/domain-error';
 import type {
@@ -16,13 +20,13 @@ import type {
 } from '../../../game/party/shared/ports/party-management.port';
 import { PartyManagementPort } from '../../../game/party/shared/ports/party-management.port';
 import { PartyStageConfigurationPort } from '../../types/shared/ports/party-stage-configuration.port';
-import { CreatePartyDisabledReason, type GamePermissions } from '../ports/game-catalog.port';
 
 @Injectable()
 export class GamePermissionResolver {
   constructor(
     private readonly partyManagement: PartyManagementPort,
     private readonly partyStageConfiguration: PartyStageConfigurationPort,
+    @Inject(GamePermissionPolicy) private readonly policy: GamePermissionPolicy,
   ) {}
 
   async resolveGamePermissions({
@@ -49,7 +53,7 @@ export class GamePermissionResolver {
         (item) =>
           [
             item.gameId,
-            resolveGamePermissions({
+            this.policy.resolve({
               hasActiveParty: (activePartyByGameId.get(item.gameId) ?? null) !== null,
               hasHostConflictForAnotherGame: activeHostConflicts.some((party) => party.gameId !== item.gameId),
               stageCount: item.stageCount,
@@ -65,7 +69,7 @@ export class GamePermissionResolver {
       this.partyManagement.findActivePartiesByHostId(hostUserId),
       this.partyStageConfiguration.getStageCount(gameId),
     ]);
-    const permission = resolveGamePermissions({
+    const permission = this.policy.resolve({
       hasActiveParty: gameConflict !== null,
       hasHostConflictForAnotherGame: hostConflicts.some((party) => party.gameId !== gameId),
       stageCount,

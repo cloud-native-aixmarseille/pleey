@@ -136,6 +136,12 @@ Process-startup, config, and tooling code outside the runtime application layers
 
 - No duplicate requests for the same data — colocate queries, use caching, deduplicate at the gateway/facade level
 
+### Module exports and runtime services
+
+- Import contracts from the module that defines them. Port modules define their own contracts and must not forward exports, including imported aliases or type-only exports.
+- Backend domain and application service modules expose classes with instance methods. Inject those classes into runtime consumers and register them in the owning app module; do not export standalone service functions. Domain policy classes stay framework-independent.
+- `check-module-exports.mjs` enforces these rules in both application lint pipelines; the existing DI guard enforces container-based consumption.
+
 ### Dependency Boundaries
 
 Enforced by Biome `noRestrictedImports` in each app's `biome.json`. Violations fail CI. See [architecture](../architecture/) for the conceptual rules.

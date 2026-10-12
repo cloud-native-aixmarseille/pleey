@@ -8,7 +8,7 @@ Prisma uses `DATABASE_URL` for the application database. `SHADOW_DATABASE_URL` i
 
 ## Lint Pipeline
 
-Lint pipeline runs targeted custom scripts before and after Biome, including naming, DI-instantiation, domain-error-context, and invariant-argument checks. Domain-error throw shape is enforced in Biome via a shared GritQL plugin, while the custom checker is kept for alias-based empty-context cases that the plugin cannot resolve. Path-boundary rules are enforced in `biome.json` via app-local GritQL plugins alongside `noRestrictedImports` overrides.
+Lint pipeline runs targeted custom scripts before and after Biome, including naming, module exports, DI-instantiation, domain-error-context, and invariant-argument checks. Domain-error throw shape is enforced in Biome via a shared GritQL plugin, while the custom checker is kept for alias-based empty-context cases that the plugin cannot resolve. Path-boundary rules are enforced in `biome.json` via app-local GritQL plugins alongside `noRestrictedImports` overrides.
 
 ## Testing Conventions
 

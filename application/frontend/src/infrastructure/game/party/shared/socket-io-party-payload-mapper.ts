@@ -99,31 +99,31 @@ export class SocketIoPartyPayloadMapper {
       isObserverHost: payload.isObserverHost,
       permissions: {
         startParty: payload.isObserverHost
-          ? decodeActionPermission(payload.permissions?.startParty, Object.values(HostPartyDisabledReason))
+          ? decodeActionPermission(payload.permissions?.startParty, HostPartyDisabledReason)
           : { allowed: false, reason: HostPartyDisabledReason.HOST_REQUIRED },
         advanceStage: payload.isObserverHost
-          ? decodeActionPermission(payload.permissions?.advanceStage, Object.values(HostPartyDisabledReason))
+          ? decodeActionPermission(payload.permissions?.advanceStage, HostPartyDisabledReason)
           : { allowed: false, reason: HostPartyDisabledReason.HOST_REQUIRED },
         restartStage: payload.isObserverHost
-          ? decodeActionPermission(payload.permissions?.restartStage, Object.values(HostPartyDisabledReason))
+          ? decodeActionPermission(payload.permissions?.restartStage, HostPartyDisabledReason)
           : { allowed: false, reason: HostPartyDisabledReason.HOST_REQUIRED },
         rewindStage: payload.isObserverHost
-          ? decodeActionPermission(payload.permissions?.rewindStage, Object.values(HostPartyDisabledReason))
+          ? decodeActionPermission(payload.permissions?.rewindStage, HostPartyDisabledReason)
           : { allowed: false, reason: HostPartyDisabledReason.HOST_REQUIRED },
         rewindParty: payload.isObserverHost
-          ? decodeActionPermission(payload.permissions?.rewindParty, Object.values(HostPartyDisabledReason))
+          ? decodeActionPermission(payload.permissions?.rewindParty, HostPartyDisabledReason)
           : { allowed: false, reason: HostPartyDisabledReason.HOST_REQUIRED },
         pauseParty: payload.isObserverHost
-          ? decodeActionPermission(payload.permissions?.pauseParty, Object.values(HostPartyDisabledReason))
+          ? decodeActionPermission(payload.permissions?.pauseParty, HostPartyDisabledReason)
           : { allowed: false, reason: HostPartyDisabledReason.HOST_REQUIRED },
         resumeParty: payload.isObserverHost
-          ? decodeActionPermission(payload.permissions?.resumeParty, Object.values(HostPartyDisabledReason))
+          ? decodeActionPermission(payload.permissions?.resumeParty, HostPartyDisabledReason)
           : { allowed: false, reason: HostPartyDisabledReason.HOST_REQUIRED },
         revealStageResult: payload.isObserverHost
-          ? decodeActionPermission(payload.permissions?.revealStageResult, Object.values(HostPartyDisabledReason))
+          ? decodeActionPermission(payload.permissions?.revealStageResult, HostPartyDisabledReason)
           : { allowed: false, reason: HostPartyDisabledReason.HOST_REQUIRED },
         endParty: payload.isObserverHost
-          ? decodeActionPermission(payload.permissions?.endParty, Object.values(HostPartyDisabledReason))
+          ? decodeActionPermission(payload.permissions?.endParty, HostPartyDisabledReason)
           : { allowed: false, reason: HostPartyDisabledReason.HOST_REQUIRED },
       },
       host: {

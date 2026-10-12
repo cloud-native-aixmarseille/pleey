@@ -65,8 +65,9 @@ export function useGameItemCardViewModel({
     switch (game.permissions.launchReadiness.reason) {
       case LaunchReadinessDisabledReason.NO_STAGES_AVAILABLE:
         return t('dashboard.games.readiness.needsStages');
+      case LaunchReadinessDisabledReason.UNAVAILABLE:
       default:
-        return t('dashboard.games.readiness.needsStages');
+        return t('common.permissions.unavailable');
     }
   }
 }
