@@ -1,5 +1,5 @@
 import type { GuestId } from '../../../../identity/entities/guest';
-import type { PartyPin } from '../../shared/entities/party';
+import type { PartyId, PartyPin } from '../../shared/entities/party';
 
 /**
  * Party Guest Session Port
@@ -24,11 +24,15 @@ export interface PartyGuestSessionPort {
    */
   getGuestId(pin: PartyPin): GuestId | null;
 
+  getGuestPin(partyId: PartyId): PartyPin | null;
+
+  getGuestCredential(pin: PartyPin): string | null;
+
   /**
    * Store a guest ID for a party for recovery purposes.
    * Called after a successful join or rejoin.
    */
-  setGuestId(pin: PartyPin, guestId: GuestId): void;
+  setGuestId(pin: PartyPin, guestId: GuestId, credential?: string, partyId?: PartyId): void;
 }
 
 export const PartyGuestSessionPortToken = Symbol('PartyGuestSessionPort');

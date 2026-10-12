@@ -30,6 +30,7 @@ describe('partyDependenciesContext', () => {
         } as never,
         partyIdentifier,
         partyLobbyFacade: {
+          recoverGuestParty: vi.fn(async () => undefined),
           clearGuestId: vi.fn(),
           executeHostRuntimeCommand: vi.fn(),
           getGuestId: vi.fn(() => null),
@@ -44,6 +45,8 @@ describe('partyDependenciesContext', () => {
         partyLobbyRuntimeRedirectResolver: new PartyLobbyRuntimeRedirectResolver(),
         partyGuestSessionPort: {
           clearGuestId: vi.fn(),
+          getGuestPin: vi.fn(() => null),
+          getGuestCredential: vi.fn(() => null),
           getGuestId: vi.fn(() => null),
           setGuestId: vi.fn(),
         },

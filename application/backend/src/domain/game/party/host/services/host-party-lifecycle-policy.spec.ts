@@ -3,6 +3,7 @@ import { backendTestIdentifiers } from '../../../../../test-utils/branded-identi
 import { GameErrorCode } from '../../../enums/game-error-code.enum';
 import { PartyStatus } from '../../enums/party-status.enum';
 import { type PartyRuntimeContext, PartyRuntimePhase } from '../../shared/entities/party-runtime-context';
+import { HostPartyDisabledReason } from '../value-objects/host-party-permissions';
 import { HostPartyLifecyclePolicy } from './host-party-lifecycle-policy';
 
 function createRuntimeContext(
@@ -44,6 +45,28 @@ function createResultRuntimeContext(
 describe('HostPartyLifecyclePolicy', () => {
   const policy = new HostPartyLifecyclePolicy();
 
+  it('uses the same denied decision for an empty lobby and the start command', () => {
+    // Arrange
+    const state = { status: PartyStatus.WAITING, playerCount: 0, stageCount: 1, runtime: null };
+    // Act
+    const permission = policy.permissions(state).startParty;
+    // Assert
+    expect(permission).toEqual({ allowed: false, reason: HostPartyDisabledReason.NO_PLAYERS });
+    expect(() =>
+      policy.start(state, {
+        firstStage: { id: backendTestIdentifiers.partyStage(101), stagePosition: 0, timeLimitSeconds: 20 },
+        totalStages: 1,
+      }),
+    ).toThrow(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
+  });
+
+  it('denies starting when required availability facts are missing', () => {
+    // Arrange
+    const state = { status: PartyStatus.WAITING, playerCount: 1, runtime: null };
+    // Act + Assert
+    expect(policy.permissions(state).startParty).toEqual({ allowed: false, reason: HostPartyDisabledReason.NO_STAGES });
+  });
+
   it('starts a waiting party on the first stage', () => {
     // Arrange + Act
     const nowSpy = vi.spyOn(Date, 'now').mockReturnValue(100_000);
@@ -52,6 +75,7 @@ describe('HostPartyLifecyclePolicy', () => {
     try {
       const result = policy.start(
         {
+          playerCount: 1,
           status: PartyStatus.WAITING,
           runtime: null,
         },
@@ -89,6 +113,7 @@ describe('HostPartyLifecyclePolicy', () => {
     expect(() =>
       policy.start(
         {
+          playerCount: 1,
           status: PartyStatus.WAITING,
           runtime: null,
         },

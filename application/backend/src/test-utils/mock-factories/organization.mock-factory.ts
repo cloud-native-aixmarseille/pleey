@@ -33,6 +33,9 @@ export const createOrganizationMemberRepositoryMock = (
   config: MockFactoryConfig<OrganizationMemberRepository> = {},
 ): Mocked<OrganizationMemberRepository> => {
   const mock: Mocked<OrganizationMemberRepository> = {
+    withOrganizationLock: mockFn<OrganizationMemberRepository['withOrganizationLock']>().mockImplementation(
+      async (_organizationId, operation) => operation(mock),
+    ) as Mocked<OrganizationMemberRepository>['withOrganizationLock'],
     create: mockFn<OrganizationMemberRepository['create']>(),
     findById: mockFn<OrganizationMemberRepository['findById']>(),
     findByOrganizationAndUser: mockFn<OrganizationMemberRepository['findByOrganizationAndUser']>(),

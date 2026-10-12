@@ -36,6 +36,8 @@ describe('GraphqlOrganizationRepository', () => {
           myOrganizations: {
             items: [
               {
+                permissions: organizationFixtureFactory.createOrganization().permissions,
+                assignableRoles: ['OWNER', 'MANAGER', 'MEMBER'],
                 id: parseOrganizationId(9),
                 name: 'Pleey Org',
                 description: 'Main workspace',
@@ -65,6 +67,9 @@ describe('GraphqlOrganizationRepository', () => {
       expect(organizations).toEqual({
         items: [
           organizationFixtureFactory.createOrganization({
+            permissions: organizationFixtureFactory.createOrganization().permissions,
+            assignableRoles: Object.values(OrganizationRole),
+            role: OrganizationRole.OWNER,
             id: parseOrganizationId(9),
             name: 'Pleey Org',
             description: 'Main workspace',
@@ -111,6 +116,9 @@ describe('GraphqlOrganizationRepository', () => {
         requestResult: {
           organizationDashboard: {
             organization: {
+              permissions: organizationFixtureFactory.createOrganization().permissions,
+              assignableRoles: ['OWNER', 'MANAGER', 'MEMBER'],
+              role: 'OWNER',
               id: parseOrganizationId(9),
               name: 'Pleey Org',
               description: 'Main workspace',
@@ -132,6 +140,9 @@ describe('GraphqlOrganizationRepository', () => {
       expect(dashboard).toEqual(
         organizationFixtureFactory.createOrganizationDashboard({
           organization: {
+            permissions: organizationFixtureFactory.createOrganization().permissions,
+            assignableRoles: Object.values(OrganizationRole),
+            role: OrganizationRole.OWNER,
             id: parseOrganizationId(9),
             name: 'Pleey Org',
             description: 'Main workspace',
@@ -152,6 +163,8 @@ describe('GraphqlOrganizationRepository', () => {
       const { client } = new GraphqlClientMockFactory().create({
         requestResult: {
           createOrganization: {
+            permissions: organizationFixtureFactory.createOrganization().permissions,
+            assignableRoles: ['OWNER', 'MANAGER', 'MEMBER'],
             id: parseOrganizationId(12),
             name: 'New Org',
             description: 'A brand new org',
@@ -172,6 +185,8 @@ describe('GraphqlOrganizationRepository', () => {
 
       // Assert
       expect(organization).toEqual({
+        permissions: organizationFixtureFactory.createOrganization().permissions,
+        assignableRoles: Object.values(OrganizationRole),
         id: parseOrganizationId(12),
         name: 'New Org',
         description: 'A brand new org',
@@ -208,6 +223,8 @@ describe('GraphqlOrganizationRepository', () => {
           organizationMembers: {
             items: [
               {
+                permissions: { updateRole: { allowed: true, reason: null }, remove: { allowed: true, reason: null } },
+                assignableRoles: ['OWNER', 'MANAGER', 'MEMBER'],
                 id: parseOrganizationMemberId(18),
                 organizationId: parseOrganizationId(9),
                 userId: parseUserId(42),
@@ -237,6 +254,8 @@ describe('GraphqlOrganizationRepository', () => {
       expect(members).toEqual({
         items: [
           {
+            permissions: { updateRole: { allowed: true, reason: null }, remove: { allowed: true, reason: null } },
+            assignableRoles: Object.values(OrganizationRole),
             id: parseOrganizationMemberId(18),
             joinedAt: '2026-03-20T10:00:00.000Z',
             organizationId: parseOrganizationId(9),
@@ -310,6 +329,8 @@ describe('GraphqlOrganizationRepository', () => {
       const { client, requestMock } = new GraphqlClientMockFactory().create({
         requestResult: {
           addOrganizationMember: {
+            permissions: { updateRole: { allowed: true, reason: null }, remove: { allowed: true, reason: null } },
+            assignableRoles: ['OWNER', 'MANAGER', 'MEMBER'],
             id: parseOrganizationMemberId(21),
             organizationId: parseOrganizationId(9),
             userId: parseUserId(43),
@@ -330,6 +351,8 @@ describe('GraphqlOrganizationRepository', () => {
 
       // Assert
       expect(member).toEqual({
+        permissions: { updateRole: { allowed: true, reason: null }, remove: { allowed: true, reason: null } },
+        assignableRoles: Object.values(OrganizationRole),
         id: parseOrganizationMemberId(21),
         joinedAt: '2026-03-21T10:00:00.000Z',
         organizationId: parseOrganizationId(9),
@@ -411,6 +434,8 @@ describe('GraphqlOrganizationRepository', () => {
       const { client, requestMock } = new GraphqlClientMockFactory().create({
         requestResult: {
           updateOrganizationMemberRole: {
+            permissions: { updateRole: { allowed: true, reason: null }, remove: { allowed: true, reason: null } },
+            assignableRoles: ['OWNER', 'MANAGER', 'MEMBER'],
             id: parseOrganizationMemberId(21),
             organizationId: parseOrganizationId(9),
             userId: parseUserId(43),
@@ -430,6 +455,8 @@ describe('GraphqlOrganizationRepository', () => {
 
       // Assert
       expect(member).toEqual({
+        permissions: { updateRole: { allowed: true, reason: null }, remove: { allowed: true, reason: null } },
+        assignableRoles: Object.values(OrganizationRole),
         id: parseOrganizationMemberId(21),
         joinedAt: '2026-03-21T10:00:00.000Z',
         organizationId: parseOrganizationId(9),

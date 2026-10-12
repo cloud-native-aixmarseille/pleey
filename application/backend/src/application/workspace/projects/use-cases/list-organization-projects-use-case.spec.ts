@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
+import { createWorkspacePermissionServices } from '../../../../test-utils/fixtures/workspace-permission-fixture-factory';
 import {
   createOrganizationMemberRepositoryMock,
   createOrganizationRepositoryMock,
@@ -33,9 +34,10 @@ describe('ListOrganizationProjectsUseCase', () => {
     });
 
     const useCase = new ListOrganizationProjectsUseCase(
+      createWorkspacePermissionServices(memberRepository as never, organizationRepository as never).membershipAccess,
+      createWorkspacePermissionServices(memberRepository as never, organizationRepository as never).projectPermissions,
       projectRepository as never,
       organizationRepository as never,
-      memberRepository as never,
       paginationQueryNormalizer,
     );
 
@@ -64,15 +66,16 @@ describe('ListOrganizationProjectsUseCase', () => {
     const projectRepository = createProjectRepositoryMock();
 
     const useCase = new ListOrganizationProjectsUseCase(
+      createWorkspacePermissionServices(memberRepository as never, organizationRepository as never).membershipAccess,
+      createWorkspacePermissionServices(memberRepository as never, organizationRepository as never).projectPermissions,
       projectRepository as never,
       organizationRepository as never,
-      memberRepository as never,
       paginationQueryNormalizer,
     );
 
     // Act + Assert
     await expect(useCase.execute({ organizationId }, backendTestIdentifiers.user(4))).rejects.toThrow(
-      OrganizationErrorCode.NOT_A_MEMBER,
+      OrganizationErrorCode.ORGANIZATION_NOT_FOUND,
     );
     expect(projectRepository.findPageByOrganization).not.toHaveBeenCalled();
   });

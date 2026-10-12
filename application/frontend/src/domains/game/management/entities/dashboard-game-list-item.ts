@@ -1,4 +1,4 @@
-import type { Permissions } from '../../../shared/value-objects/action-permission';
+import type { ActionPermissionReason, Permissions } from '../../../shared/value-objects/action-permission';
 import type { GameId } from '../../entities/game';
 import type { GameType, GameTypeId } from '../../types/shared/game-type';
 
@@ -18,8 +18,8 @@ export enum CreatePartyDisabledReason {
 }
 
 type DashboardGamePermissions = Permissions<{
-  createParty: CreatePartyDisabledReason;
-  launchReadiness: LaunchReadinessDisabledReason;
+  createParty: CreatePartyDisabledReason | ActionPermissionReason;
+  launchReadiness: LaunchReadinessDisabledReason | ActionPermissionReason;
 }>;
 
 export interface DashboardGameListItem {

@@ -1,9 +1,32 @@
 import { fireEvent, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+import { renderWithProviders } from '../../../../test-utils/render-with-providers';
 import { renderWithUiProvider } from '../../../../test-utils/render-with-ui-provider';
 import { Button } from './button';
 
 describe('Button', () => {
+  it('associates a visible denial reason with the disabled action', () => {
+    // Arrange
+    const onClick = vi.fn();
+    renderWithProviders(
+      <Button
+        permission={{ allowed: false, reason: 'MEMBER_REQUIRED' }}
+        permissionReason="Join the organization first."
+        onClick={onClick}
+      >
+        Create project
+      </Button>,
+    );
+    const button = screen.getByRole('button', { name: 'Create project' });
+    // Act
+    fireEvent.click(button);
+    // Assert
+    expect(button).toBeDisabled();
+    expect(button).toHaveAccessibleDescription('Join the organization first.');
+    expect(screen.getByText('Join the organization first.')).toBeVisible();
+    expect(onClick).not.toHaveBeenCalled();
+  });
+
   describe('render()', () => {
     it('defaults to a button type', () => {
       // Arrange + Act

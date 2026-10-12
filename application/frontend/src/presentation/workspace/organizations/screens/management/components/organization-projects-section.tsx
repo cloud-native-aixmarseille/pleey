@@ -1,16 +1,17 @@
 import type { Project, ProjectId } from '../../../../../../domains/project/entities/project';
+import type { ActionPermission } from '../../../../../../domains/shared/value-objects/action-permission';
 import { Button } from '../../../../../shared/ui/actions/button';
 import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';
 import { Input } from '../../../../../shared/ui/forms/input';
 import { ContentStack } from '../../../../../shared/ui/layout/containers';
 import { SectionCard } from '../../../../../shared/ui/layout/section-card';
 import { PaginationBar, type PaginationViewModel } from '../../../../shared/components/pagination-bar';
+import { useWorkspacePermissionReason } from '../../../../shared/hooks/use-workspace-permission-reason';
 import { OrganizationProjectList } from './organization-project-list';
 
 interface OrganizationProjectsSectionProps {
   readonly actionErrorMessage: string | null;
-  readonly canCreateProject: boolean;
-  readonly canRemoveProjects: boolean;
+  readonly createPermission: ActionPermission;
   readonly createButtonLabel: string;
   readonly eyebrow: string;
   readonly onCreateProject: () => void;
@@ -29,8 +30,7 @@ interface OrganizationProjectsSectionProps {
 
 export function OrganizationProjectsSection({
   actionErrorMessage,
-  canCreateProject,
-  canRemoveProjects,
+  createPermission,
   createButtonLabel,
   eyebrow,
   onCreateProject,
@@ -46,13 +46,20 @@ export function OrganizationProjectsSection({
   selectedProjectId,
   title,
 }: OrganizationProjectsSectionProps) {
+  const reason = useWorkspacePermissionReason();
   return (
     <section id="projects">
       <SectionCard
         eyebrow={eyebrow}
         title={title}
         actions={
-          <Button disabled={!canCreateProject} intent="primary" size="sm" onClick={onCreateProject}>
+          <Button
+            permission={createPermission}
+            permissionReason={reason(createPermission)}
+            intent="primary"
+            size="sm"
+            onClick={onCreateProject}
+          >
             {createButtonLabel}
           </Button>
         }
@@ -73,7 +80,6 @@ export function OrganizationProjectsSection({
           </div>
 
           <OrganizationProjectList
-            canRemoveProjects={canRemoveProjects}
             onEditProject={onEditProject}
             onRemoveProject={onRemoveProject}
             projects={projects}

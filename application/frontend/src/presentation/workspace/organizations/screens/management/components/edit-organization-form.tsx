@@ -1,6 +1,5 @@
 import type { FormEvent } from 'react';
 import type { Organization } from '../../../../../../domains/organization/entities/organization';
-import { OrganizationRole } from '../../../../../../domains/organization/entities/organization';
 import type { UpdateOrganizationCommand } from '../../../../../../domains/organization/ports/organization-repository';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../../shared/ui/actions/button';
@@ -10,6 +9,7 @@ import { Input } from '../../../../../shared/ui/forms/input';
 import { PartySettingsFormField } from '../../../../../shared/ui/forms/party-settings-form-field';
 import { Textarea } from '../../../../../shared/ui/forms/textarea';
 import { FormDialog } from '../../../../../shared/ui/overlay/form-dialog';
+import { useWorkspacePermissionReason } from '../../../../shared/hooks/use-workspace-permission-reason';
 import { useEditOrganizationFormState } from './use-edit-organization-form-state';
 
 interface EditOrganizationFormProps {
@@ -19,12 +19,7 @@ interface EditOrganizationFormProps {
 }
 
 export function EditOrganizationForm({ onSubmit, onUpdated, organization }: EditOrganizationFormProps) {
-  if (
-    !organization ||
-    (organization.role !== OrganizationRole.OWNER && organization.role !== OrganizationRole.MANAGER)
-  ) {
-    return null;
-  }
+  if (!organization) return null;
 
   return <EditableOrganizationFormContent organization={organization} onSubmit={onSubmit} onUpdated={onUpdated} />;
 }
@@ -36,6 +31,7 @@ interface EditableOrganizationFormContentProps {
 }
 
 function EditableOrganizationFormContent({ onSubmit, onUpdated, organization }: EditableOrganizationFormContentProps) {
+  const reason = useWorkspacePermissionReason();
   const { t } = usePresentationTranslation();
 
   const {
@@ -64,7 +60,14 @@ function EditableOrganizationFormContent({ onSubmit, onUpdated, organization }: 
 
   return (
     <>
-      <Button intent="ghost" onClick={handleOpen} size="sm" type="button">
+      <Button
+        permission={organization.permissions.update}
+        permissionReason={reason(organization.permissions.update)}
+        intent="ghost"
+        onClick={handleOpen}
+        size="sm"
+        type="button"
+      >
         {t('organization.management.edit.openButton')}
       </Button>
 
@@ -76,7 +79,13 @@ function EditableOrganizationFormContent({ onSubmit, onUpdated, organization }: 
             <Button disabled={isSubmitting} intent="ghost" onClick={handleClose}>
               {t('common.cancel')}
             </Button>
-            <Button disabled={isSubmitting} intent="primary" type="submit">
+            <Button
+              permission={organization.permissions.update}
+              permissionReason={reason(organization.permissions.update)}
+              disabled={isSubmitting}
+              intent="primary"
+              type="submit"
+            >
               {isSubmitting ? t('organization.management.edit.submitting') : t('organization.management.edit.submit')}
             </Button>
           </>

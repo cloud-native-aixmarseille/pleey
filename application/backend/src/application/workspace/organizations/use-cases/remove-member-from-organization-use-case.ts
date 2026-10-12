@@ -24,16 +24,13 @@ export class RemoveMemberFromOrganizationUseCase {
       throw new MemberNotFoundError({ memberId });
     }
 
-    const requestingMember = await this.organizationMembershipAccess.requireManager(
-      memberToRemove.organizationId,
-      requestingUserId,
-    );
-    this.organizationMembershipAccess.assertCanManageMember(requestingMember, memberToRemove);
-
-    if (memberToRemove.isOwner()) {
-      await this.organizationMembershipAccess.assertOwnerCountCanShrink(memberToRemove.organizationId);
-    }
-
-    await this.memberRepository.delete(memberId);
+    await this.memberRepository.withOrganizationLock(memberToRemove.organizationId, async (members) => {
+      const target = await members.findById(memberId);
+      const requester = await members.findByOrganizationAndUser(memberToRemove.organizationId, requestingUserId);
+      if (!target || !requester) throw new MemberNotFoundError({ memberId });
+      const ownerCount = await members.countOwnersByOrganization(target.organizationId);
+      this.organizationMembershipAccess.assertMemberRemoval(requester, target, ownerCount);
+      await members.delete(memberId);
+    });
   }
 }

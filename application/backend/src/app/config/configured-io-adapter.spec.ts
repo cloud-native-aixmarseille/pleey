@@ -49,7 +49,10 @@ describe('ConfiguredIoAdapter', () => {
       fixture.sessions.authenticate.mockRejectedValueOnce(new UnauthorizedError({ reason: 'revokedSession' }));
       await fixture.socket.use.mock.calls[0][0](['host-control'], nextPacket);
       // Assert
-      expect(fixture.socket.data).toEqual({ authenticatedUserId: backendTestIdentifiers.user(1) });
+      expect(fixture.socket.data).toMatchObject({
+        authenticatedUserId: backendTestIdentifiers.user(1),
+        authenticatedSession: { id: backendTestIdentifiers.user(1), tokenType: 'access' },
+      });
       expect(nextPacket).toHaveBeenCalledWith(expect.any(UnauthorizedError));
       expect(fixture.socket.disconnect).toHaveBeenCalledWith(true);
     } finally {

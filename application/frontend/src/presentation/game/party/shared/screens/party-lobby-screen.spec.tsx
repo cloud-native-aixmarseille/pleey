@@ -24,6 +24,7 @@ import { PartyManagementErrorCode } from '../../../../../domains/game/party/shar
 import { GameType } from '../../../../../domains/game/types/shared/game-type';
 import type { GuestId } from '../../../../../domains/identity/entities/guest';
 import type { User, UserId } from '../../../../../domains/identity/entities/user';
+import { ActionPermissionReason } from '../../../../../domains/shared/value-objects/action-permission';
 import { AuthFixtureFactory } from '../../../../../test-utils/fixtures/auth-fixture-factory';
 import { PartyFixtureFactory } from '../../../../../test-utils/fixtures/party-fixture-factory';
 import { GameIdentifierMockFactory } from '../../../../../test-utils/mocks/game-identifier-mock-factory';
@@ -251,20 +252,8 @@ const mocks = vi.hoisted(() => {
             ? null
             : lifecycle.stagePosition + 1;
         const totalStages = lifecycle?.totalStages ?? null;
-        const canControlActiveRuntime =
-          (party.status === 'ACTIVE' || party.status === 'PAUSED') &&
-          (lifecyclePhase === PartyRuntimePhase.STAGE || lifecyclePhase === PartyRuntimePhase.RESULT);
-
         return {
-          canAdvanceStage: party.status === 'ACTIVE' && lifecyclePhase === PartyRuntimePhase.RESULT,
-          canEndParty: party.status !== 'ENDED',
-          canPauseParty: party.status === 'ACTIVE' && canControlActiveRuntime,
-          canRestartStage: canControlActiveRuntime && currentStageNumber !== null,
-          canResumeParty: party.status === 'PAUSED' && canControlActiveRuntime,
-          canRevealStageResult: party.status === 'ACTIVE' && lifecyclePhase === PartyRuntimePhase.STAGE,
-          canRewindParty: canControlActiveRuntime,
-          canRewindStage: canControlActiveRuntime && currentStageNumber !== null && currentStageNumber > 1,
-          canStartParty: party.status === 'WAITING' && party.players.length > 0,
+          permissions: party.permissions,
           currentStageNumber,
           hasNextStage:
             lifecycle?.stagePosition !== null &&
@@ -303,10 +292,13 @@ const mocks = vi.hoisted(() => {
     } as PartyPlayerPort,
     partyGuestSessionPort: {
       clearGuestId: vi.fn(),
+      getGuestPin: vi.fn(() => null),
+      getGuestCredential: vi.fn(() => null),
       getGuestId: vi.fn(() => null),
       setGuestId: vi.fn(),
     } as PartyGuestSessionPort,
     partyLobbyFacade: {
+      recoverGuestParty: vi.fn(async () => undefined),
       clearGuestId: (pin) => mocks.partyGuestSessionPort.clearGuestId(pin),
       executeHostRuntimeCommand: async (command, partyId) => {
         const hostCommand = { partyId };
@@ -596,6 +588,7 @@ function createPartyObservation(
     .map((entry, index) => toObservationPlayer(entry, livePlayerIdentities, index === 0));
 
   return partyFixtureFactory.createPartyObservation({
+    permissions: partyFixtureFactory.createAllowedHostPermissions(),
     context: null,
     gameType: runtimeGameType,
     host: partyFixtureFactory.createHost({
@@ -1138,6 +1131,10 @@ describe('PartyLobbyScreen', () => {
     };
     mocks.partyManagementState.parties = [createManagedParty()];
     mocks.observationState.currentParty = createPartyObservation({
+      permissions: {
+        ...partyFixtureFactory.createAllowedHostPermissions(),
+        startParty: { allowed: false, reason: ActionPermissionReason.UNAVAILABLE },
+      },
       status: PartyStatus.WAITING,
       context: null,
       entries: [
@@ -2926,6 +2923,10 @@ describe('PartyLobbyScreen', () => {
     };
     mocks.partyManagementState.parties = [createManagedParty({ status: PartyStatus.ENDED })];
     mocks.observationState.currentParty = createPartyObservation({
+      permissions: {
+        ...partyFixtureFactory.createAllowedHostPermissions(),
+        advanceStage: { allowed: false, reason: ActionPermissionReason.UNAVAILABLE },
+      },
       status: PartyStatus.ENDED,
       context: {
         ...createRuntimeResultContext(),

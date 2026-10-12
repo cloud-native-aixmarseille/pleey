@@ -1,7 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { UserId } from '../../../../domain/identity/entities/user';
-import type { Organization } from '../../../../domain/organization/entities/organization';
-import { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
 import type { OrganizationRepository } from '../../../../domain/organization/ports/organization.repository';
 import { OrganizationRepositoryProvider } from '../../../../domain/organization/ports/organization.repository';
 import type { OrganizationMemberRepository } from '../../../../domain/organization/ports/organization-member.repository';
@@ -9,10 +7,8 @@ import { OrganizationMemberRepositoryProvider } from '../../../../domain/organiz
 import type { PaginatedResult } from '../../../../domain/shared/value-objects/paginated-result';
 import type { PaginationQuery } from '../../../../domain/shared/value-objects/pagination-query';
 import { PaginationQueryNormalizer } from '../../../shared/services/pagination-query-normalizer';
-
-type OrganizationWithRole = Organization & {
-  role: OrganizationRole | null;
-};
+import type { OrganizationWithAccess } from '../dto/organization-access.dto';
+import { OrganizationMembershipAccessService } from '../services/organization-membership-access.service';
 
 interface ListUserOrganizationsQuery extends PaginationQuery {}
 
@@ -27,9 +23,10 @@ export class ListUserOrganizationsUseCase {
     @Inject(OrganizationMemberRepositoryProvider)
     private readonly memberRepository: OrganizationMemberRepository,
     private readonly paginationQueryNormalizer: PaginationQueryNormalizer,
+    private readonly membershipAccess: OrganizationMembershipAccessService,
   ) {}
 
-  async execute(input: ListUserOrganizationsQuery, userId: UserId): Promise<PaginatedResult<OrganizationWithRole>> {
+  async execute(input: ListUserOrganizationsQuery, userId: UserId): Promise<PaginatedResult<OrganizationWithAccess>> {
     const pagination = this.paginationQueryNormalizer.normalizeQuery(input);
     const memberships = await this.memberRepository.findPageByUser(
       userId,
@@ -48,9 +45,6 @@ export class ListUserOrganizationsUseCase {
     const organizationIds = memberships.items.map((membership) => membership.organizationId);
     const organizations = await this.organizationRepository.findByIds(organizationIds);
     const organizationsById = new Map(organizations.map((organization) => [organization.id, organization]));
-    const rolesByOrganizationId = new Map(
-      memberships.items.map((membership) => [membership.organizationId, membership.role]),
-    );
 
     return {
       ...memberships,
@@ -61,11 +55,7 @@ export class ListUserOrganizationsUseCase {
           return [];
         }
 
-        return [
-          Object.assign(organization, {
-            role: rolesByOrganizationId.get(organization.id) ?? null,
-          }),
-        ];
+        return [this.membershipAccess.organizationAccess(organization, membership)];
       }),
     };
   }

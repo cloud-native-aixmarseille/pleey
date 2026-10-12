@@ -7,9 +7,9 @@ import { AppIcon } from '../../../../../shared/ui/icons/app-icon';
 import { ActionRow, ContentStack, WrapRow } from '../../../../../shared/ui/layout/containers';
 import { InsetPanel } from '../../../../../shared/ui/layout/panels';
 import { SupportingText } from '../../../../../shared/ui/layout/typography';
+import { useWorkspacePermissionReason } from '../../../../shared/hooks/use-workspace-permission-reason';
 
 interface OrganizationProjectListProps {
-  readonly canRemoveProjects: boolean;
   readonly onEditProject: (project: Project) => void;
   readonly onRemoveProject: (project: Project) => void;
   readonly projects: readonly Project[];
@@ -17,12 +17,12 @@ interface OrganizationProjectListProps {
 }
 
 export function OrganizationProjectList({
-  canRemoveProjects,
   onEditProject,
   onRemoveProject,
   projects,
   selectedProjectId,
 }: OrganizationProjectListProps) {
+  const reason = useWorkspacePermissionReason();
   const { t } = usePresentationTranslation();
 
   if (projects.length === 0) {
@@ -49,10 +49,22 @@ export function OrganizationProjectList({
               </WrapRow>
               <ActionRow gap="sm">
                 {isSelected ? <Badge tone="accent">{t('project.management.list.selectedBadge')}</Badge> : null}
-                <Button intent="secondary" size="sm" onClick={() => onEditProject(project)}>
+                <Button
+                  permission={project.permissions.update}
+                  permissionReason={reason(project.permissions.update)}
+                  intent="secondary"
+                  size="sm"
+                  onClick={() => onEditProject(project)}
+                >
                   {t('project.management.list.editButton')}
                 </Button>
-                <Button disabled={!canRemoveProjects} intent="ghost" size="sm" onClick={() => onRemoveProject(project)}>
+                <Button
+                  permission={project.permissions.delete}
+                  permissionReason={reason(project.permissions.delete)}
+                  intent="ghost"
+                  size="sm"
+                  onClick={() => onRemoveProject(project)}
+                >
                   {t('project.management.list.removeButton')}
                 </Button>
               </ActionRow>

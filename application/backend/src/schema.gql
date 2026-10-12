@@ -180,10 +180,20 @@ type Mutation {
   updateQuizQuestion(input: UpdateQuizQuestionInput!, questionId: ID!): QuizQuestionTypeObject!
 }
 
-type OrganizationDashboardEntityType {
-  description: String
-  id: ID!
-  name: String!
+enum OrganizationActionDisabledReason {
+  CANNOT_REMOVE_LAST_OWNER
+  INSUFFICIENT_PERMISSIONS
+  MEMBER_ALREADY_EXISTS
+  MEMBER_NOT_FOUND
+  MEMBER_USER_NOT_FOUND
+  NOT_A_MEMBER
+  ORGANIZATION_NAME_ALREADY_EXISTS
+  ORGANIZATION_NOT_FOUND
+}
+
+type OrganizationActionPermission {
+  allowed: Boolean!
+  reason: OrganizationActionDisabledReason
 }
 
 type OrganizationDashboardStatsType {
@@ -195,7 +205,7 @@ type OrganizationDashboardStatsType {
 }
 
 type OrganizationDashboardType {
-  organization: OrganizationDashboardEntityType!
+  organization: OrganizationType!
   stats: OrganizationDashboardStatsType!
 }
 
@@ -217,10 +227,17 @@ type OrganizationMemberListType {
   totalPages: Int!
 }
 
+type OrganizationMemberPermissionsType {
+  remove: OrganizationActionPermission!
+  updateRole: OrganizationActionPermission!
+}
+
 type OrganizationMemberType {
+  assignableRoles: [OrganizationRole!]!
   id: ID!
   joinedAt: DateTime!
   organizationId: ID!
+  permissions: OrganizationMemberPermissionsType!
   role: OrganizationRole!
   userId: ID!
   username: String!
@@ -233,6 +250,13 @@ input OrganizationMembersInput {
   search: String
 }
 
+type OrganizationPermissionsType {
+  createProject: OrganizationActionPermission!
+  manageMembers: OrganizationActionPermission!
+  read: OrganizationActionPermission!
+  update: OrganizationActionPermission!
+}
+
 enum OrganizationRole {
   MANAGER
   MEMBER
@@ -240,11 +264,13 @@ enum OrganizationRole {
 }
 
 type OrganizationType {
+  assignableRoles: [OrganizationRole!]!
   createdAt: DateTime!
   defaultPartySettings: PartySettingsType
   description: String
   id: ID!
   name: String!
+  permissions: OrganizationPermissionsType!
   role: OrganizationRole
   updatedAt: DateTime!
 }
@@ -327,6 +353,27 @@ type PredictionType {
   type: String!
 }
 
+enum ProjectActionDisabledReason {
+  CANNOT_DELETE_LAST_PROJECT
+  CANNOT_REMOVE_LAST_OWNER
+  INSUFFICIENT_PERMISSIONS
+  MEMBER_ALREADY_EXISTS
+  MEMBER_NOT_FOUND
+  MEMBER_USER_NOT_FOUND
+  NOT_A_MEMBER
+  ORGANIZATION_NAME_ALREADY_EXISTS
+  ORGANIZATION_NOT_FOUND
+  PROJECT_MIGRATION_TARGET_INVALID
+  PROJECT_MIGRATION_TARGET_NOT_FOUND
+  PROJECT_MIGRATION_TARGET_REQUIRED
+  PROJECT_NOT_FOUND
+}
+
+type ProjectActionPermission {
+  allowed: Boolean!
+  reason: ProjectActionDisabledReason
+}
+
 type ProjectGameListItemType {
   createdAt: DateTime!
   description: String
@@ -366,6 +413,11 @@ type ProjectListType {
   totalPages: Int!
 }
 
+type ProjectPermissionsType {
+  delete: ProjectActionPermission!
+  update: ProjectActionPermission!
+}
+
 type ProjectType {
   createdAt: DateTime!
   defaultPartySettings: PartySettingsType
@@ -373,6 +425,7 @@ type ProjectType {
   id: ID!
   name: String!
   organizationId: ID!
+  permissions: ProjectPermissionsType!
 }
 
 type Query {

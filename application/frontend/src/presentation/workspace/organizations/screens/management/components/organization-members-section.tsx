@@ -12,6 +12,7 @@ import { ContentStack, SplitWrapRow, WrapRow } from '../../../../../shared/ui/la
 import { SectionCard } from '../../../../../shared/ui/layout/section-card';
 import { SupportingText } from '../../../../../shared/ui/layout/typography';
 import { PaginationBar, type PaginationViewModel } from '../../../../shared/components/pagination-bar';
+import { useWorkspacePermissionReason } from '../../../../shared/hooks/use-workspace-permission-reason';
 
 interface OrganizationMemberFormState {
   readonly role: OrganizationRole;
@@ -42,18 +43,12 @@ interface OrganizationMembersSectionProps {
   readonly searchLabel: string;
   readonly searchPlaceholder: string;
   readonly searchValue: string;
-  readonly selectedOrganizationRole: OrganizationRole | null;
+  readonly assignableRoles: readonly OrganizationRole[];
   readonly selectedOrganizationName: string | null;
   readonly title: string;
   readonly usernameOrEmailLabel: string;
   readonly usernameOrEmailPlaceholder: string;
   readonly removeButtonLabel: string;
-}
-
-const NON_OWNER_ROLES = [OrganizationRole.MANAGER, OrganizationRole.MEMBER] as const;
-
-function getAssignableRoles(selectedOrganizationRole: OrganizationRole | null): readonly OrganizationRole[] {
-  return selectedOrganizationRole === OrganizationRole.OWNER ? Object.values(OrganizationRole) : NON_OWNER_ROLES;
 }
 
 export function OrganizationMembersSection({
@@ -80,16 +75,14 @@ export function OrganizationMembersSection({
   searchLabel,
   searchPlaceholder,
   searchValue,
-  selectedOrganizationRole,
+  assignableRoles,
   selectedOrganizationName,
   title,
   usernameOrEmailLabel,
   usernameOrEmailPlaceholder,
   removeButtonLabel,
 }: OrganizationMembersSectionProps) {
-  const assignableRoles = getAssignableRoles(selectedOrganizationRole);
-  const canManageMember = (member: OrganizationMember) =>
-    canManageMembers && (selectedOrganizationRole === OrganizationRole.OWNER || member.role !== OrganizationRole.OWNER);
+  const reason = useWorkspacePermissionReason();
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -162,20 +155,35 @@ export function OrganizationMembersSection({
                 <ContentStack gap="xs">
                   <SupportingText>{member.username}</SupportingText>
                   <WrapRow gap="xs">
-                    {canManageMember(member) ? (
+                    {canManageMembers ? (
                       <FieldShell id={`organization-member-role-${member.id}`} label={roleLabel}>
                         <Select
                           id={`organization-member-role-${member.id}`}
-                          disabled={pendingRoleUpdateMemberId === member.id || pendingRemovalMemberId === member.id}
+                          disabled={
+                            !member.permissions.updateRole.allowed ||
+                            pendingRoleUpdateMemberId === member.id ||
+                            pendingRemovalMemberId === member.id
+                          }
+                          aria-describedby={
+                            !member.permissions.updateRole.allowed ? `member-role-reason-${member.id}` : undefined
+                          }
                           onChange={(event) => onUpdateMemberRole(member, event.target.value as OrganizationRole)}
                           value={member.role}
                         >
-                          {assignableRoles.map((role) => (
+                          {(member.assignableRoles.includes(member.role)
+                            ? member.assignableRoles
+                            : [member.role, ...member.assignableRoles]
+                          ).map((role) => (
                             <option key={role} value={role}>
                               {roleLabels[role]}
                             </option>
                           ))}
                         </Select>
+                        {!member.permissions.updateRole.allowed && (
+                          <div id={`member-role-reason-${member.id}`}>
+                            <SupportingText>{reason(member.permissions.updateRole)}</SupportingText>
+                          </div>
+                        )}
                       </FieldShell>
                     ) : (
                       <Badge tone={member.role === OrganizationRole.OWNER ? 'accent' : 'neutral'}>
@@ -185,8 +193,10 @@ export function OrganizationMembersSection({
                   </WrapRow>
                 </ContentStack>
 
-                {canManageMember(member) ? (
+                {canManageMembers ? (
                   <Button
+                    permission={member.permissions.remove}
+                    permissionReason={reason(member.permissions.remove)}
                     disabled={pendingRemovalMemberId === member.id || pendingRoleUpdateMemberId === member.id}
                     intent="ghost"
                     onClick={() => onRemoveMember(member)}

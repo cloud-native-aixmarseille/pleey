@@ -10,10 +10,8 @@ import type { PartyPin } from '../../../../../domain/game/party/shared/entities/
 import type { PartySummary } from '../../../../../domain/game/party/shared/entities/party-summary';
 import { PartySettingsResolver } from '../../../../../domain/game/party/shared/services/party-settings-resolver';
 import { PasswordService } from '../../../../../domain/identity/services/password-service';
-import { NotAMemberError } from '../../../../../domain/organization/errors';
-import type { OrganizationMemberRepository } from '../../../../../domain/organization/ports/organization-member.repository';
-import { OrganizationMemberRepositoryProvider } from '../../../../../domain/organization/ports/organization-member.repository';
 import { GamePermissionResolver } from '../../../../game/management/services/game-permission-resolver';
+import { OrganizationMembershipAccessService } from '../../../../workspace/organizations/services/organization-membership-access.service';
 import type { CreatePartyDto } from '../../shared/dto/create-party.dto';
 import { PartyManagementPort } from '../../shared/ports/party-management.port';
 import { PartyPinIdentifier } from '../../shared/services/identifiers/party-pin-identifier';
@@ -26,8 +24,7 @@ export class CreatePartyUseCase {
   constructor(
     @Inject(PartyManagementPort)
     private readonly partyManagement: PartyManagementPort,
-    @Inject(OrganizationMemberRepositoryProvider)
-    private readonly memberRepository: OrganizationMemberRepository,
+    private readonly membershipAccess: OrganizationMembershipAccessService,
     private readonly gamePermissionResolver: GamePermissionResolver,
     private readonly broadcastPartyObservationUseCase: BroadcastPartyObservationUseCase,
     private readonly partySettingsResolver: PartySettingsResolver,
@@ -42,12 +39,9 @@ export class CreatePartyUseCase {
       throw new GameNotFoundError({ gameId: input.gameId });
     }
 
-    const membership = await this.memberRepository.findByOrganizationAndUser(
-      managedGame.organizationId,
-      input.hostUserId,
-    );
+    const membership = await this.membershipAccess.findMembership(managedGame.organizationId, input.hostUserId);
     if (!membership) {
-      throw new NotAMemberError({
+      throw new GameNotFoundError({
         gameId: input.gameId,
         organizationId: managedGame.organizationId,
         userId: input.hostUserId,

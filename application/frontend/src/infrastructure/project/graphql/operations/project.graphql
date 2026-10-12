@@ -12,6 +12,16 @@ query WorkspaceProjectsByOrganization($input: ListOrganizationProjectsInput!) {
         randomizeOptionOrder
         randomizeStageOrder
       }
+      permissions {
+        update {
+          allowed
+          reason
+        }
+        delete {
+          allowed
+          reason
+        }
+      }
     }
     totalCount
     overallCount
@@ -34,6 +44,16 @@ mutation CreateProject($organizationId: ID!, $input: CreateProjectInput!) {
       randomizeOptionOrder
       randomizeStageOrder
     }
+    permissions {
+      update {
+        allowed
+        reason
+      }
+      delete {
+        allowed
+        reason
+      }
+    }
   }
 }
 
@@ -49,6 +69,16 @@ mutation UpdateProject($projectId: ID!, $input: UpdateProjectInput!) {
       allowOptionChangeAfterVoting
       randomizeOptionOrder
       randomizeStageOrder
+    }
+    permissions {
+      update {
+        allowed
+        reason
+      }
+      delete {
+        allowed
+        reason
+      }
     }
   }
 }

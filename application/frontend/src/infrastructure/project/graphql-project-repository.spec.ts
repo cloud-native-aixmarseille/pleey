@@ -18,6 +18,7 @@ describe('GraphqlProjectRepository', () => {
           organizationProjects: {
             items: [
               {
+                permissions: { update: { allowed: true, reason: null }, delete: { allowed: true, reason: null } },
                 id: 17,
                 name: 'Spring Event',
                 description: null,
@@ -47,6 +48,7 @@ describe('GraphqlProjectRepository', () => {
       expect(projects).toEqual({
         items: [
           {
+            permissions: { update: { allowed: true, reason: null }, delete: { allowed: true, reason: null } },
             id: projectIdentifier.parse(17),
             name: 'Spring Event',
             description: null,
@@ -95,6 +97,7 @@ describe('GraphqlProjectRepository', () => {
       const { client } = new GraphqlClientMockFactory().create({
         requestResult: {
           createProject: {
+            permissions: { update: { allowed: true, reason: null }, delete: { allowed: true, reason: null } },
             id: 22,
             name: 'Spring Event',
             description: 'Launch campaign',
@@ -115,6 +118,7 @@ describe('GraphqlProjectRepository', () => {
 
       // Assert
       expect(project).toEqual({
+        permissions: { update: { allowed: true, reason: null }, delete: { allowed: true, reason: null } },
         id: projectIdentifier.parse(22),
         name: 'Spring Event',
         description: 'Launch campaign',
@@ -149,6 +153,7 @@ describe('GraphqlProjectRepository', () => {
       const { client } = new GraphqlClientMockFactory().create({
         requestResult: {
           updateProject: {
+            permissions: { update: { allowed: true, reason: null }, delete: { allowed: true, reason: null } },
             id: 22,
             name: 'Spring Event 2',
             description: 'Expanded launch',
@@ -169,6 +174,7 @@ describe('GraphqlProjectRepository', () => {
 
       // Assert
       expect(project).toEqual({
+        permissions: { update: { allowed: true, reason: null }, delete: { allowed: true, reason: null } },
         id: projectIdentifier.parse(22),
         name: 'Spring Event 2',
         description: 'Expanded launch',

@@ -113,9 +113,24 @@ export class OrganizationScreenFixtureFactory {
     });
   }
 
+  createOrganizationMember(overrides: Partial<OrganizationMember> = {}): OrganizationMember {
+    return {
+      id: organizationMemberIdentifier.parse(coerceUuidV7TestValue(21)),
+      joinedAt: '2026-03-20T10:00:00.000Z',
+      organizationId: defaultOrganizationId,
+      role: OrganizationRole.MEMBER,
+      userId: userIdentifier.parse(coerceUuidV7TestValue(42)),
+      username: 'captain',
+      permissions: { updateRole: { allowed: true, reason: null }, remove: { allowed: true, reason: null } },
+      assignableRoles: Object.values(OrganizationRole),
+      ...overrides,
+    };
+  }
+
   createActions(overrides: Partial<OrganizationScreenActions> = {}): OrganizationScreenActions {
     return {
       createOrganization: vi.fn<(_: CreateOrganizationCommand) => Promise<Organization>>().mockResolvedValue({
+        ...this.organizationFixtureFactory.createOrganization(),
         id: createdOrganizationId,
         name: 'New Org',
         description: null,
@@ -152,6 +167,7 @@ export class OrganizationScreenFixtureFactory {
       addOrganizationMember: vi
         .fn<(_: AddOrganizationMemberCommand) => Promise<OrganizationMember>>()
         .mockResolvedValue({
+          ...this.createOrganizationMember(),
           id: defaultMemberId,
           joinedAt: DEFAULT_TIMESTAMP,
           organizationId: fallbackOrganizationId,
@@ -165,6 +181,7 @@ export class OrganizationScreenFixtureFactory {
       updateOrganizationMemberRole: vi
         .fn<(_: UpdateOrganizationMemberRoleCommand) => Promise<OrganizationMember>>()
         .mockResolvedValue({
+          ...this.createOrganizationMember(),
           id: defaultMemberId,
           joinedAt: DEFAULT_TIMESTAMP,
           organizationId: fallbackOrganizationId,

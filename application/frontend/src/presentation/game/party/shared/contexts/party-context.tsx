@@ -1,4 +1,5 @@
-import { createContext, type PropsWithChildren, startTransition, useContext, useRef, useState } from 'react';
+import { createContext, type PropsWithChildren, startTransition, useContext, useEffect, useRef, useState } from 'react';
+import { unavailableHostPermissions } from '../../../../../domains/game/party/host/value-objects/host-party-permissions';
 import type { PartyId } from '../../../../../domains/game/party/shared/entities/party';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import type {
@@ -94,6 +95,14 @@ export function PartyProvider({ children, port }: PartyProviderProps) {
     },
   });
 
+  useEffect(
+    () => () => {
+      for (const registration of registrationsRef.current.values()) registration.release();
+      registrationsRef.current.clear();
+    },
+    [],
+  );
+
   function registerObservation(partyId: PartyId): () => void {
     const existing = registrationsRef.current.get(partyId);
 
@@ -103,14 +112,38 @@ export function PartyProvider({ children, port }: PartyProviderProps) {
       return () => releaseObservation(registrationsRef.current, partyId, clearCurrentObservation);
     }
 
+    let active = true;
+    const invalidate = () =>
+      active &&
+      setCurrentParty((current) =>
+        current?.partyId === partyId
+          ? {
+              ...current,
+              permissions: unavailableHostPermissions(),
+              players: current.players.map((player) => ({ ...player, isCurrentPlayer: false })),
+            }
+          : current,
+      );
     const release = port.observeParty(partyId, {
+      onDisconnected: invalidate,
       onConnected: (connectionState) => {
+        if (!active) return;
+        setCurrentParty((current) =>
+          current?.partyId === partyId
+            ? {
+                ...current,
+                permissions: unavailableHostPermissions(),
+                players: current.players.map((player) => ({ ...player, isCurrentPlayer: false })),
+              }
+            : current,
+        );
         connectionStatesRef.current.set(partyId, connectionState);
         startTransition(() => {
           setConnectionStateVersion((currentVersion) => currentVersion + 1);
         });
       },
       onSnapshot: (party) => {
+        if (!active || party.partyId !== partyId) return;
         startTransition(() => {
           setCurrentParty(party);
           setCurrentErrorMessage(null);
@@ -118,12 +151,23 @@ export function PartyProvider({ children, port }: PartyProviderProps) {
         });
       },
       onError: (message) => {
+        if (!active) return;
         startTransition(() => {
+          setCurrentParty((current) =>
+            current?.partyId === partyId
+              ? {
+                  ...current,
+                  permissions: unavailableHostPermissions(),
+                  players: current.players.map((player) => ({ ...player, isCurrentPlayer: false })),
+                }
+              : current,
+          );
           setCurrentErrorMessage(message);
           setCurrentErrorPartyId(partyId);
         });
       },
       onRuntimeNotice: (runtimeNotice) => {
+        if (!active || runtimeNotice.partyId !== partyId) return;
         startTransition(() => {
           setCurrentRuntimeNotice(runtimeNotice);
         });
@@ -132,7 +176,10 @@ export function PartyProvider({ children, port }: PartyProviderProps) {
 
     registrationsRef.current.set(partyId, {
       count: 1,
-      release,
+      release: () => {
+        active = false;
+        release();
+      },
     });
 
     return () => releaseObservation(registrationsRef.current, partyId, clearCurrentObservation);

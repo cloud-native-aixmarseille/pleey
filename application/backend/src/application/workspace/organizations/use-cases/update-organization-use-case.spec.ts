@@ -2,6 +2,8 @@ import { DEFAULT_PARTY_SETTINGS } from '../../../../domain/game/party/shared/ent
 import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
 import { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
+import { createOrganizationMemberFixture } from '../../../../test-utils/fixtures/unit/organization-member.fixture';
+import { createWorkspacePermissionServices } from '../../../../test-utils/fixtures/workspace-permission-fixture-factory';
 import {
   createOrganizationMemberRepositoryMock,
   createOrganizationRepositoryMock,
@@ -14,7 +16,10 @@ describe('UpdateOrganizationUseCase', () => {
     // Arrange
     const organizationRepository = createOrganizationRepositoryMock({ findById: null });
     const memberRepository = createOrganizationMemberRepositoryMock();
-    const useCase = new UpdateOrganizationUseCase(organizationRepository as never, memberRepository as never);
+    const useCase = new UpdateOrganizationUseCase(
+      createWorkspacePermissionServices(memberRepository as never, organizationRepository as never).membershipAccess,
+      organizationRepository as never,
+    );
 
     // Act + Assert
     await expect(
@@ -32,12 +37,12 @@ describe('UpdateOrganizationUseCase', () => {
       findById: { id: backendTestIdentifiers.organization(1), name: 'Org' } as never,
     });
     const memberRepository = createOrganizationMemberRepositoryMock({
-      findByOrganizationAndUser: {
-        role: OrganizationRole.MEMBER,
-        hasManagementPrivileges: () => false,
-      } as never,
+      findByOrganizationAndUser: createOrganizationMemberFixture({ role: OrganizationRole.MEMBER }) as never,
     });
-    const useCase = new UpdateOrganizationUseCase(organizationRepository as never, memberRepository as never);
+    const useCase = new UpdateOrganizationUseCase(
+      createWorkspacePermissionServices(memberRepository as never, organizationRepository as never).membershipAccess,
+      organizationRepository as never,
+    );
 
     // Act + Assert
     await expect(
@@ -57,12 +62,12 @@ describe('UpdateOrganizationUseCase', () => {
       update: { id: backendTestIdentifiers.organization(1), name: 'Updated Org' } as never,
     });
     const memberRepository = createOrganizationMemberRepositoryMock({
-      findByOrganizationAndUser: {
-        role: OrganizationRole.MANAGER,
-        hasManagementPrivileges: () => true,
-      } as never,
+      findByOrganizationAndUser: createOrganizationMemberFixture({ role: OrganizationRole.MANAGER }) as never,
     });
-    const useCase = new UpdateOrganizationUseCase(organizationRepository as never, memberRepository as never);
+    const useCase = new UpdateOrganizationUseCase(
+      createWorkspacePermissionServices(memberRepository as never, organizationRepository as never).membershipAccess,
+      organizationRepository as never,
+    );
 
     const dto: UpdateOrganizationDto = {
       name: 'Updated Org',

@@ -52,8 +52,11 @@ const hostPartyRuntimeControlsResolver = {
   resolveControls: vi.fn(),
 } as never;
 const partyLobbyFacade = {
+  recoverGuestParty: vi.fn(async () => undefined),
   clearGuestId: vi.fn(),
   executeHostRuntimeCommand: vi.fn(),
+  getGuestPin: vi.fn(() => null),
+  getGuestCredential: vi.fn(() => null),
   getGuestId: vi.fn(() => null),
   joinParty: vi.fn(),
   leaveParty: vi.fn(),
@@ -75,6 +78,8 @@ const partyHostControlPort = {
 } as never;
 const partyGuestSessionPort = {
   clearGuestId: vi.fn(),
+  getGuestPin: vi.fn(() => null),
+  getGuestCredential: vi.fn(() => null),
   getGuestId: vi.fn(() => null),
   setGuestId: vi.fn(),
 } as PartyGuestSessionPort;
@@ -158,11 +163,33 @@ describe('PartyProvider', () => {
     expect(rendered.result.current.first.getPartyByPartyId(observedPartyId)?.status).toBe('ACTIVE');
     expect(rendered.result.current.second.getPartyByPartyId(observedPartyId)?.status).toBe('ACTIVE');
 
+    act(() =>
+      observeParty.handlers?.onSnapshot(
+        partyFixtureFactory.createPartyObservation({
+          partyId: 44,
+          permissions: partyFixtureFactory.createAllowedHostPermissions(),
+        }),
+      ),
+    );
+    expect(rendered.result.current.first.currentParty?.permissions.startParty.allowed).toBe(true);
+    act(() => observeParty.handlers?.onDisconnected?.());
+    expect(rendered.result.current.first.currentParty?.permissions.startParty.allowed).toBe(false);
+
     act(() => {
       releaseFirst();
       releaseSecond();
     });
 
+    expect(rendered.result.current.first.currentParty).toBeNull();
+    // A callback already queued before unsubscribe must not restore a grant.
+    act(() =>
+      observeParty.handlers?.onSnapshot(
+        partyFixtureFactory.createPartyObservation({
+          partyId: 44,
+          permissions: partyFixtureFactory.createAllowedHostPermissions(),
+        }),
+      ),
+    );
     expect(rendered.result.current.first.currentParty).toBeNull();
   });
 

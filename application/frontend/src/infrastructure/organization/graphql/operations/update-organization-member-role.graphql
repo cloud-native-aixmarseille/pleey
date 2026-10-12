@@ -5,6 +5,17 @@ mutation UpdateOrganizationMemberRole($memberId: ID!, $input: UpdateOrganization
     userId
     username
     role
+    assignableRoles
+    permissions {
+      updateRole {
+        allowed
+        reason
+      }
+      remove {
+        allowed
+        reason
+      }
+    }
     joinedAt
   }
 }

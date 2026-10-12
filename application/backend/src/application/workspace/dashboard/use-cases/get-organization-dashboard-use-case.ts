@@ -1,23 +1,19 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { UserId } from '../../../../domain/identity/entities/user';
 import type { OrganizationId } from '../../../../domain/organization/entities/organization';
-import { NotAMemberError, OrganizationNotFoundError } from '../../../../domain/organization/errors';
+import { OrganizationNotFoundError } from '../../../../domain/organization/errors';
 import type { OrganizationRepository } from '../../../../domain/organization/ports/organization.repository';
 import { OrganizationRepositoryProvider } from '../../../../domain/organization/ports/organization.repository';
-import type { OrganizationMemberRepository } from '../../../../domain/organization/ports/organization-member.repository';
-import { OrganizationMemberRepositoryProvider } from '../../../../domain/organization/ports/organization-member.repository';
 import { DefaultWorkspaceService } from '../../../../domain/organization/services/default-workspace-service';
+import type { OrganizationWithAccess } from '../../organizations/dto/organization-access.dto';
+import { OrganizationMembershipAccessService } from '../../organizations/services/organization-membership-access.service';
 import {
   type OrganizationDashboardStats,
   WorkspaceGameManagementPort,
 } from '../../ports/workspace-game-management.port';
 
 interface OrganizationDashboard {
-  organization: {
-    id: OrganizationId;
-    name: string;
-    description: string | null;
-  };
+  organization: OrganizationWithAccess;
   stats: OrganizationDashboardStats;
 }
 
@@ -27,11 +23,10 @@ interface OrganizationDashboard {
 @Injectable()
 export class GetOrganizationDashboardUseCase {
   constructor(
+    private readonly membershipAccess: OrganizationMembershipAccessService,
     private readonly defaultWorkspaceService: DefaultWorkspaceService,
     @Inject(OrganizationRepositoryProvider)
     private readonly organizationRepository: OrganizationRepository,
-    @Inject(OrganizationMemberRepositoryProvider)
-    private readonly memberRepository: OrganizationMemberRepository,
     @Inject(WorkspaceGameManagementPort)
     private readonly workspaceGameManagement: WorkspaceGameManagementPort,
   ) {}
@@ -45,24 +40,13 @@ export class GetOrganizationDashboardUseCase {
       throw new OrganizationNotFoundError({ organizationId });
     }
 
-    // Verify user is a member
-    const membership = await this.memberRepository.findByOrganizationAndUser(organizationId, requestingUserId);
-    if (!membership) {
-      throw new NotAMemberError({
-        organizationId,
-        userId: requestingUserId,
-      });
-    }
+    const membership = await this.membershipAccess.requireMembership(organizationId, requestingUserId);
 
     // Get stats
     const stats = await this.workspaceGameManagement.getOrganizationDashboardStats(organizationId);
 
     return {
-      organization: {
-        id: organization.id,
-        name: organization.name,
-        description: organization.description,
-      },
+      organization: this.membershipAccess.organizationAccess(organization, membership),
       stats,
     };
   }

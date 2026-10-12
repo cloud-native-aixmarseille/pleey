@@ -1,6 +1,7 @@
 import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
 import { ProjectErrorCode } from '../../../../domain/project/enums/project-error-code.enum';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
+import { createWorkspacePermissionServices } from '../../../../test-utils/fixtures/workspace-permission-fixture-factory';
 import { createOrganizationMemberRepositoryMock } from '../../../../test-utils/mock-factories/organization.mock-factory';
 import { createProjectRepositoryMock } from '../../../../test-utils/mock-factories/project-repository.mock-factory';
 import { DeleteProjectUseCase } from './delete-project-use-case';
@@ -22,16 +23,16 @@ describe('DeleteProjectUseCase', () => {
     const memberRepository = createOrganizationMemberRepositoryMock();
 
     const useCase = new DeleteProjectUseCase(
+      createWorkspacePermissionServices(memberRepository as never).projectPermissions,
       projectRepository as never,
       workspaceGameManagement as never,
-      memberRepository as never,
     );
 
     // Act + Assert
     await expect(useCase.execute(projectId, actorUserId)).rejects.toThrow(ProjectErrorCode.PROJECT_NOT_FOUND);
   });
 
-  it('throws NOT_A_MEMBER when the user is outside the organization', async () => {
+  it('throws PROJECT_NOT_FOUND when the user is outside the organization', async () => {
     // Arrange
     const projectRepository = createProjectRepositoryMock({
       findById: {
@@ -48,13 +49,13 @@ describe('DeleteProjectUseCase', () => {
     });
 
     const useCase = new DeleteProjectUseCase(
+      createWorkspacePermissionServices(memberRepository as never).projectPermissions,
       projectRepository as never,
       workspaceGameManagement as never,
-      memberRepository as never,
     );
 
     // Act + Assert
-    await expect(useCase.execute(projectId, actorUserId)).rejects.toThrow(OrganizationErrorCode.NOT_A_MEMBER);
+    await expect(useCase.execute(projectId, actorUserId)).rejects.toThrow(ProjectErrorCode.PROJECT_NOT_FOUND);
   });
 
   it('throws INSUFFICIENT_PERMISSIONS when the user cannot manage projects', async () => {
@@ -76,9 +77,9 @@ describe('DeleteProjectUseCase', () => {
     });
 
     const useCase = new DeleteProjectUseCase(
+      createWorkspacePermissionServices(memberRepository as never).projectPermissions,
       projectRepository as never,
       workspaceGameManagement as never,
-      memberRepository as never,
     );
 
     // Act + Assert
@@ -107,9 +108,9 @@ describe('DeleteProjectUseCase', () => {
     });
 
     const useCase = new DeleteProjectUseCase(
+      createWorkspacePermissionServices(memberRepository as never).projectPermissions,
       projectRepository as never,
       workspaceGameManagement as never,
-      memberRepository as never,
     );
 
     // Act + Assert
@@ -139,9 +140,9 @@ describe('DeleteProjectUseCase', () => {
     });
 
     const useCase = new DeleteProjectUseCase(
+      createWorkspacePermissionServices(memberRepository as never).projectPermissions,
       projectRepository as never,
       workspaceGameManagement as never,
-      memberRepository as never,
     );
 
     // Act + Assert
@@ -175,9 +176,9 @@ describe('DeleteProjectUseCase', () => {
     });
 
     const useCase = new DeleteProjectUseCase(
+      createWorkspacePermissionServices(memberRepository as never).projectPermissions,
       projectRepository as never,
       workspaceGameManagement as never,
-      memberRepository as never,
     );
 
     // Act + Assert
@@ -211,9 +212,9 @@ describe('DeleteProjectUseCase', () => {
     });
 
     const useCase = new DeleteProjectUseCase(
+      createWorkspacePermissionServices(memberRepository as never).projectPermissions,
       projectRepository as never,
       workspaceGameManagement as never,
-      memberRepository as never,
     );
 
     // Act
@@ -244,9 +245,9 @@ describe('DeleteProjectUseCase', () => {
     });
 
     const useCase = new DeleteProjectUseCase(
+      createWorkspacePermissionServices(memberRepository as never).projectPermissions,
       projectRepository as never,
       workspaceGameManagement as never,
-      memberRepository as never,
     );
 
     // Act

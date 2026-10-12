@@ -1,46 +1,33 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { UserId } from '../../../../domain/identity/entities/user';
-import type { Organization, OrganizationId } from '../../../../domain/organization/entities/organization';
-import {
-  InsufficientPermissionsError,
-  OrganizationNameAlreadyExistsError,
-  OrganizationNotFoundError,
-} from '../../../../domain/organization/errors';
+import type { OrganizationId } from '../../../../domain/organization/entities/organization';
+import { OrganizationNameAlreadyExistsError, OrganizationNotFoundError } from '../../../../domain/organization/errors';
 import type { OrganizationRepository } from '../../../../domain/organization/ports/organization.repository';
 import { OrganizationRepositoryProvider } from '../../../../domain/organization/ports/organization.repository';
-import type { OrganizationMemberRepository } from '../../../../domain/organization/ports/organization-member.repository';
-import { OrganizationMemberRepositoryProvider } from '../../../../domain/organization/ports/organization-member.repository';
+import type { OrganizationWithAccess } from '../dto/organization-access.dto';
 import type { UpdateOrganizationDto } from '../dto/update-organization-dto';
+import { OrganizationMembershipAccessService } from '../services/organization-membership-access.service';
 
 @Injectable()
 export class UpdateOrganizationUseCase {
   constructor(
+    private readonly membershipAccess: OrganizationMembershipAccessService,
     @Inject(OrganizationRepositoryProvider)
     private readonly organizationRepository: OrganizationRepository,
-    @Inject(OrganizationMemberRepositoryProvider)
-    private readonly memberRepository: OrganizationMemberRepository,
   ) {}
 
   async execute(
     organizationId: OrganizationId,
     dto: UpdateOrganizationDto,
     requestingUserId: UserId,
-  ): Promise<Organization> {
+  ): Promise<OrganizationWithAccess> {
     const organization = await this.organizationRepository.findById(organizationId);
 
     if (!organization) {
       throw new OrganizationNotFoundError({ organizationId });
     }
 
-    const membership = await this.memberRepository.findByOrganizationAndUser(organizationId, requestingUserId);
-
-    if (!membership?.hasManagementPrivileges()) {
-      throw new InsufficientPermissionsError({
-        organizationId,
-        requestingUserId,
-        requestingUserRole: membership?.role ?? null,
-      });
-    }
+    const membership = await this.membershipAccess.requireManager(organizationId, requestingUserId);
 
     const existing = await this.organizationRepository.findByName(dto.name);
 
@@ -48,8 +35,9 @@ export class UpdateOrganizationUseCase {
       throw new OrganizationNameAlreadyExistsError({ name: dto.name });
     }
 
-    return this.organizationRepository.update(organizationId, dto.name, dto.description ?? null, {
+    const updated = await this.organizationRepository.update(organizationId, dto.name, dto.description ?? null, {
       defaultPartySettings: dto.defaultPartySettings ?? null,
     });
+    return this.membershipAccess.organizationAccess(updated, membership);
   }
 }

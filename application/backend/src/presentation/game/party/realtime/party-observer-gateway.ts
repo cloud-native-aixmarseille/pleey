@@ -80,6 +80,7 @@ enum PartyJoinAcknowledgementStatus {
 type PartyJoinAcknowledgement =
   | {
       readonly status: PartyJoinAcknowledgementStatus.ACCEPTED;
+      readonly guestCredential?: string;
       readonly gameId: GameId;
       readonly player: {
         readonly avatarUri: string | null;
@@ -172,6 +173,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
         partyId: this.normalizePartyId(payload?.partyId),
       });
 
+      await this.partyObservationBroadcaster.assertCanObserve(client, snapshot);
       await this.leavePartyObservationRoom(client);
       const room = resolvePartyObservationRoom(snapshot.hostObservation.partyId);
 
@@ -330,7 +332,13 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
       this.clearPendingLobbyPlayerAbsencePrune(partyObservationId, joinedPartyPlayer.identity);
     }
 
-    if (!pin) {
+    if (
+      !pin ||
+      !joinedPartyPlayer ||
+      joinedPartyPlayer.partyId !== partyObservationId ||
+      this.sessionRegistry.getActiveSession(joinedPartyPlayer.partyId, joinedPartyPlayer.identity)?.sessionId !==
+        client.id
+    ) {
       await this.leavePartyObservationRoom(client);
       this.clearJoinedPlayer(client);
       return { left: false };
@@ -388,7 +396,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
       const result = await this.joinPartyUseCase.execute(this.toJoinPartyDto(client, payload));
 
       this.clearPendingLobbyPlayerAbsencePrune(result.partyId, result.player.identity);
-      this.rememberJoinedPlayer(client, result.pin, result.player.identity);
+      this.rememberJoinedPlayer(client, result.pin, result.player.identity, result.partyId);
 
       // Register the new session for this player identity
       const { sessionId } = this.sessionRegistry.registerSession(result.partyId, result.player.identity, client.id);
@@ -401,6 +409,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
 
       return {
         status: PartyJoinAcknowledgementStatus.ACCEPTED,
+        guestCredential: result.guestCredential,
         gameId: result.gameId,
         player: {
           avatarUri: result.player.avatarUri,
@@ -457,6 +466,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     const guestId = this.guestIdentifier.parseOrNull(payload?.guestId);
 
     return {
+      guestCredential: payload?.guestCredential,
       avatarSeed: payload?.avatarSeed?.trim() || undefined,
       partyPassword: payload?.partyPassword?.trim() || undefined,
       pin: normalizedPin,
@@ -474,7 +484,13 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     const observedPartyId = this.parsePartyObservationId(socketData.partyObservationRoom);
     const partyId = this.normalizePartyId(payload?.partyId);
 
-    if (joinedPlayerIdentity === undefined || observedPartyId !== partyId) {
+    if (
+      joinedPlayerIdentity === undefined ||
+      observedPartyId !== partyId ||
+      this.sessionRegistry.getActiveSession(partyId, joinedPlayerIdentity)?.sessionId !== client.id ||
+      (joinedPlayerIdentity.kind === PartyPlayerKind.USER &&
+        socketData.authenticatedUserId !== joinedPlayerIdentity.userId)
+    ) {
       throw new PartyCommandNotAvailableError({
         hasJoinedPlayerIdentity: joinedPlayerIdentity !== undefined,
         observedPartyId,
@@ -530,6 +546,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
   private async joinPartyObservationRoom(client: Socket, partyId: PartyId): Promise<void> {
     const snapshot = await this.loadPartyObservationSnapshotUseCase.execute({ partyId });
 
+    await this.partyObservationBroadcaster.assertCanObserve(client, snapshot);
     await this.leavePartyObservationRoom(client);
     const room = resolvePartyObservationRoom(snapshot.hostObservation.partyId);
 
@@ -566,10 +583,16 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     return this.partyIdentifier.parseOrNull(room.slice('party:'.length));
   }
 
-  private rememberJoinedPlayer(client: Socket, pin: PartyPin, playerIdentity: PartyPlayerIdentity): void {
+  private rememberJoinedPlayer(
+    client: Socket,
+    pin: PartyPin,
+    playerIdentity: PartyPlayerIdentity,
+    partyId: PartyId,
+  ): void {
     const socketData = client.data as PartyObserverSocketData;
 
     socketData.joinedPartyPlayer = {
+      partyId,
       identity: playerIdentity,
       pin,
     };

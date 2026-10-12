@@ -2,6 +2,20 @@ export const gamePartyHostEn = {
   game: {
     party: {
       host: {
+        permissions: {
+          HOST_REQUIRED: 'Only the host can perform this action.',
+          PARTY_NOT_WAITING: 'The party must be waiting to start.',
+          NO_PLAYERS: 'At least one player must join first.',
+          NO_STAGES: 'Add a stage before starting.',
+          RUNTIME_UNAVAILABLE: 'This action needs an active stage or its results.',
+          RESULT_REQUIRED: 'Reveal the results first.',
+          STAGE_REQUIRED: 'This action needs a current stage.',
+          PREVIOUS_STAGE_REQUIRED: 'There is no previous stage.',
+          ACTIVE_PARTY_REQUIRED: 'The party must be active.',
+          PAUSED_PARTY_REQUIRED: 'Pause the party first.',
+          PARTY_ENDED: 'The party has ended.',
+        },
+
         route: {
           hostingBadge: 'You are hosting',
           sharePanelLabel: 'Invite players',

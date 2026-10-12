@@ -1,8 +1,8 @@
 # ADR 0014: Unify resource-scoped permissions across backend and frontend
 
-- Status: Proposed
+- Status: Accepted
 - Proposed date: 2026-10-12
-- Accepted date: N/A
+- Accepted date: 2026-10-12
 
 ## Context
 
@@ -12,13 +12,14 @@ Theme management exposes this fragmentation: its application service delegates a
 role decision to a database adapter, while organization membership has a domain
 policy and the frontend repeats some of those rules.
 
-This is a proposal only. It does not change permissions, APIs, or authentication.
-It follows [ADR 0002](./0002-use-clean-architecture-with-strict-boundaries.md), the
+Implementation is included in [PR #514](https://github.com/cloud-native-aixmarseille/pleey/pull/514),
+based directly on `main`. Theme management remains in PR #505 and must adopt
+this strategy when integrated. It follows [ADR 0002](./0002-use-clean-architecture-with-strict-boundaries.md), the
 [resolver boundary](../../development/backend/application-patterns.md#writing-resolvers),
 and the session responsibilities in
 [ADR 0009](./0009-harden-identity-recovery-and-sessions.md).
 
-### Audit of current usage
+### Audit of the pre-migration baseline
 
 The source audit covers workspace management, themes, game authoring, party
 commands and observation, account ownership, and frontend gates. The baseline is
@@ -92,7 +93,7 @@ until those requirements justify a separate ADR.
 
 ## Decision
 
-Propose option 2. The backend owns authorization. The frontend consumes
+Adopt option 2. The backend owns authorization. The frontend consumes
 resource-scoped decisions for presentation and still handles command rejection.
 Adopt the existing `ActionPermission<Reason>` pattern as the shared action
 decision contract: every exposed denial includes a typed reason that the
@@ -193,10 +194,9 @@ Reuse the existing [backend `ActionPermission`][backend-decision],
 shape:
 
 ```typescript
-interface ActionPermission<Reason extends string> {
-  readonly allowed: boolean;
-  readonly reason: Reason | null;
-}
+type ActionPermission<Reason extends string> =
+  | { readonly allowed: true; readonly reason: null }
+  | { readonly allowed: false; readonly reason: Reason };
 ```
 
 For new or migrated decisions, the contract requires:
@@ -240,8 +240,8 @@ and `permissions.createProject`, even when its project list is empty; a project
 can expose `permissions.update` and `permissions.delete`. Member rows need
 target-specific update/removal decisions and an `assignableRoles` projection
 computed from the same actor/target policy. A single `canManageMembers` cannot
-express those distinctions. These names illustrate the proposed contract;
-implementation PRs define the exact GraphQL fields and enums.
+express those distinctions. Organization, project, and member decisions are implemented in the generated
+GraphQL schema. Theme list decisions belong to the theme integration in PR #505.
 
 Use the same application decision projection for GraphQL and realtime views.
 Generate GraphQL transport types and map them through frontend infrastructure
@@ -294,11 +294,13 @@ PIN alone is not a substitute for defining what an observer may see.
 Party observation needs an explicit audience decision before joining a room and
 before projecting updates: host, verified player, or permitted observer. Preserve
 the existing host/player separation while defining the observer contract,
-including private parties. Guest participation requires server-verified session
+including private parties. **Private parties admit only their host and verified
+participants who have joined. Public parties retain anonymous observation with
+the player-safe projection.** Guest participation requires server-verified session
 binding; do not treat a supplied guest ID as a permission grant. Reconnects,
 kicks, expiry, and revoked sessions must update participation and audience
 decisions. Authentication/session mechanics remain owned by identity and ADR
-0009; this proposal does not replace them.
+0009; this decision does not replace them.
 
 Keep unauthenticated, forbidden, not-found, and invalid-state outcomes distinct
 internally using domain errors and the existing transport/i18n mappers. For a
@@ -326,58 +328,89 @@ replacing every existing error with a generic forbidden error.
   i18n work. They remain snapshots and cannot prevent later command rejection.
 - Fact loading, batched queries, and concurrency guarantees require deliberate
   implementation; a shared decision type alone provides none of them.
-- Migrating realtime audiences and lifecycle decisions is broader than extracting
-  the theme service and must be staged separately.
+- Realtime audience authorization requires coordinated frontend/backend rollout
+  and authenticated recovery before a private snapshot can be sent.
 
-### Follow-Up
+### Implementation and compatibility
 
-Implement only after this ADR is agreed, in independently reviewable slices:
+PR #514 implements the workspace policies, target-specific member decisions,
+project constraints, game readiness decisions, host lifecycle
+decisions, and party audience checks. The existing design-system button and menu
+components display translated denial reasons. The theme feature and its
+permission wiring remain outside this main-based PR; PR #505 must reuse the
+shared membership access service and decision contract. Unknown, missing, or
+inconsistent
+wire decisions become `PERMISSION_UNAVAILABLE`; they cannot grant an action.
 
-1. **Characterize behavior and contracts.** Add actor/action/resource matrices for
-   the audited areas, including nonmembers, deleted memberships, foreign resource
-   IDs, target owners, and public/guest cases. Inventory all entry points and
-   explicitly agree on observer/private-party disclosure. Record any entitlement
-   changes separately from structural refactoring.
-2. **Migrate organizations, projects, and themes first.** Reuse organization fact
-   loading, introduce pure feature policies and matching assertion/projection
-   paths, remove role decisions from the theme adapter, and expose resource
-   capabilities. Add target-specific member decisions. Replace frontend role
-   gates and correct project action visibility against those capabilities. Theme
-   integration follows PR #505; this ADR can merge independently.
-3. **Migrate game and party actions.** Preserve member-level authoring access;
-   compose membership with existing game readiness decisions. Move host/player
-   availability projections to the backend, make audience authorization explicit,
-   and apply it to HTTP/GraphQL/socket reads and commands as applicable. Verify
-   authenticated-session and guest-session behavior independently.
-4. **Complete account/public coverage and retire old paths.** Confirm personal
-   query/write scoping and public projections. Add fields before migrating
-   consumers; if `canManageThemes` or other boolean contracts have shipped, keep
-   temporary adapters backed by the same policy until their consumers move.
-   Remove duplicate rules afterward. Schema removals or intentional permission
-   changes need an explicit compatibility/release plan, not this documentation PR.
-5. **Enforce the convention and update guidance.** Extend existing architecture
-   checks where reliable to prevent role decisions in presentation/infrastructure;
-   allow role serialization and display. Update backend/frontend development
-   guidance with references to this ADR once accepted.
+The entry-point inventory is:
 
-Each migrated slice must demonstrate:
+| Entry points | Classification and enforcement |
+| --- | --- |
+| Organization, member, project, dashboard GraphQL operations | Workspace-scoped use cases resolve active membership through the shared access module; commands recheck feature decisions. Member rows carry target-specific roles and reasons. |
+| Quiz/prediction GraphQL authoring and import; game catalog and create-party | Workspace membership, including ordinary members; ancestry comes from stored project/game relationships. Create-party composes this with domain readiness/conflict policy. |
+| Socket observe, snapshots, updates, runtime notices | Party audience is checked before room admission and every outbound projection. Account sessions are revalidated; guest personal data requires the current verified connection. Obsolete unscoped observation getters are removed. |
+| Socket join/rejoin, submit, leave, kick, host lifecycle commands | Join validates identity/password or signed guest recovery; submit and leave require the current player session. Kick and lifecycle use cases require the stored host; lifecycle projections and commands share the domain policy. |
+| Profile/avatar writes, identity sessions, personal party lists | Existing authenticated-account ownership remains authoritative. Caller-supplied account identifiers cannot choose another account's scope. |
+| Authentication/recovery, health, avatar reads | Deliberately public entry points retain their existing validation, bounded media projections, and identity protections. |
+| Theme GraphQL operations and theme-asset reads (PR #505 integration) | Theme administration must use workspace decisions; asset reads remain public without granting theme-management access. These entry points are not introduced by PR #514. |
 
-- Policy tests for allowed and denied actor/resource/target combinations, and
-  parity between projected decisions and command enforcement for the same facts.
-  Verify allowed/null and denied/non-null reason invariants, deterministic reason
-  precedence, and reason preservation through transport and frontend adapters.
-- Use-case tests proving denied operations perform no protected side effects,
-  including upload reads, and repository tests for tenant-scoped rows and counts.
-- Transport tests for direct requests, forged actor/parent IDs, and cross-resource
-  access; socket tests also cover reconnect, kick, revocation, and audience output.
-- Frontend tests for direct routes, loading/error/denied states, stale asynchronous
-  responses after account/workspace changes, unknown reasons, and command denial
-  after an initially allowed decision. Verify that visible actions disabled by a
-  decision expose its localized explanation accessibly, including the generic
-  fallback for unknown denial reasons and the existing create-party reasons.
-- Database integration tests for critical concurrent transitions such as removing
-  or demoting the last owner. Existing rules must not become less restrictive
-  through a capability projection or more restrictive through generic role checks.
+Membership removal and role changes acquire the same organization row lock,
+then reload actor, target, and owner count inside the transaction. Competing
+last-owner changes cannot both succeed. Other protected writes authorize against
+current membership at the command checkpoint: a revocation committed before that
+check is observed; a write already authorized may complete concurrently with a
+later revocation. This does not claim global serialization of all tenant writes.
+
+Workspace capability projections reuse membership and collection counts rather
+than loading one fact set per action. The pre-existing game catalog active-party
+lookup still makes one lookup per game; batching that lookup is a performance
+follow-up, with no additional per-action queries introduced here.
+
+Frontend access is scoped to the current account, organization, and party.
+Account changes remount protected/party state. Workspace changes cancel obsolete
+requests; failed mutations, focus, and reconnect refresh decisions. Socket
+failures clear host grants and current-player claims until a new server snapshot.
+Released observations ignore queued callbacks. Form and pending state may further
+disable actions; frontend roles and lifecycle guesses never grant them.
+
+The following compatibility changes are intentional:
+
+- Deploy backend and frontend together. GraphQL gains permission objects and
+  role projections; host socket snapshots gain typed action decisions. Older
+  snapshots fail closed in the new client.
+- Private-party IDs alone no longer allow observation. Undiscoverable workspace
+  resources and private observations use the same public not-found result as
+  absent resources. Visible resources retain actionable denial reasons.
+- Guest rejoin requires a signed, party/guest/join-record-bound credential with a
+  24-hour recovery lifetime. New joins return it; browser storage v2 retains it
+  with the party ID and PIN. A canonical private-party refresh recovers the guest
+  before subscribing. Legacy guest IDs alone cannot be upgraded into proof: those
+  users must join again under the party's normal joining rules. Existing open
+  sockets should reconnect during deployment.
+- Socket.IO buffered connection recovery is disabled because replay could precede
+  renewed authorization. Reconnect uses fresh observation and verified rejoin.
+  Guest connection bindings remain in the existing process-local registry;
+  horizontal socket scaling still requires a shared registry/adapter design.
+- Starting an empty lobby is now rejected by the backend as well as shown disabled
+  in the UI. Manual paused-stage commands follow the existing backend lifecycle;
+  automatic result reveal waits until the party resumes.
+
+### Validation and maintenance
+
+Policy and use-case tests cover role/target boundaries, foreign resources,
+reason precedence, last-owner/project constraints, and denial before protected
+writes. Theme upload-consumption checks belong to the PR #505 integration.
+Transport and credential tests cover private/public
+projection, forged/expired credentials, replacement/kick behavior, revoked
+sessions, and no output after denial. A PostgreSQL integration test races two
+owner demotions and verifies that exactly one owner remains.
+
+Frontend tests cover reason decoding and localization, accessible disabled
+controls, target-role choices, host decisions, disconnected grants, late callbacks,
+and recovery before private observation. Existing architecture, resolver,
+pagination, unused-export, type, and i18n guards remain required for both apps.
+Future actions follow this ADR and extend the feature's policy/transport tests;
+role serialization and role badges remain presentation concerns.
 
 [gql-guard]: ../../../../application/backend/src/presentation/identity/shared/guards/gql-jwt-auth-guard.ts
 [session-auth]: ../../../../application/backend/src/infrastructure/identity/services/jwt-session-authenticator.ts

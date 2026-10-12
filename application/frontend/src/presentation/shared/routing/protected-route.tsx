@@ -1,4 +1,4 @@
-import type { PropsWithChildren } from 'react';
+import { Fragment, type PropsWithChildren } from 'react';
 import { useAuth } from '../../identity/contexts/auth-context';
 import { PresentationRedirect } from './router';
 
@@ -13,5 +13,5 @@ export function ProtectedRoute({ children }: PropsWithChildren) {
     return <PresentationRedirect to="/identity/sign-in" />;
   }
 
-  return children;
+  return <Fragment key={user.id}>{children}</Fragment>;
 }

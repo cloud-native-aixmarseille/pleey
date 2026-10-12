@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
-import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
 import { ProjectErrorCode } from '../../../../domain/project/enums/project-error-code.enum';
 import { ProjectNotFoundError } from '../../../../domain/project/errors/project-not-found.error';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
+import { createWorkspacePermissionServices } from '../../../../test-utils/fixtures/workspace-permission-fixture-factory';
 import { GameTypeParser } from '../../types/shared/services/game-type-parser';
 import { CreatePartyDisabledReason, LaunchReadinessDisabledReason } from '../ports/game-catalog.port';
 import { GamePermissionResolver } from '../services/game-permission-resolver';
@@ -22,7 +22,7 @@ describe('ListProjectGamesUseCase', () => {
     const useCase = new ListProjectGamesUseCase(
       { listProjectGames: vi.fn() } as never,
       { findById: vi.fn().mockResolvedValue(null) } as never,
-      { findByOrganizationAndUser: vi.fn() } as never,
+      createWorkspacePermissionServices({ findByOrganizationAndUser: vi.fn() } as never).membershipAccess,
       { resolveGamePermissions: vi.fn(), assertCanCreateParty: vi.fn() } as never,
       gameTypeParser,
     );
@@ -49,14 +49,15 @@ describe('ListProjectGamesUseCase', () => {
           organizationId,
         }),
       } as never,
-      { findByOrganizationAndUser: vi.fn().mockResolvedValue(null) } as never,
+      createWorkspacePermissionServices({ findByOrganizationAndUser: vi.fn().mockResolvedValue(null) } as never)
+        .membershipAccess,
       { resolveGamePermissions: vi.fn(), assertCanCreateParty: vi.fn() } as never,
       gameTypeParser,
     );
 
     // Act + Assert
     await expect(useCase.execute({ projectId }, hostUserId)).rejects.toMatchObject({
-      code: OrganizationErrorCode.NOT_A_MEMBER,
+      code: ProjectErrorCode.PROJECT_NOT_FOUND,
       context: {
         organizationId,
         projectId,
@@ -115,7 +116,8 @@ describe('ListProjectGamesUseCase', () => {
           organizationId,
         }),
       } as never,
-      { findByOrganizationAndUser: vi.fn().mockResolvedValue({}) } as never,
+      createWorkspacePermissionServices({ findByOrganizationAndUser: vi.fn().mockResolvedValue({}) } as never)
+        .membershipAccess,
       gamePermissionResolver as unknown as GamePermissionResolver,
       gameTypeParser,
     );
@@ -217,7 +219,8 @@ describe('ListProjectGamesUseCase', () => {
           organizationId,
         }),
       } as never,
-      { findByOrganizationAndUser: vi.fn().mockResolvedValue({}) } as never,
+      createWorkspacePermissionServices({ findByOrganizationAndUser: vi.fn().mockResolvedValue({}) } as never)
+        .membershipAccess,
       {
         resolveGamePermissions: vi.fn().mockResolvedValue(
           new Map([
@@ -284,7 +287,8 @@ describe('ListProjectGamesUseCase', () => {
           organizationId,
         }),
       } as never,
-      { findByOrganizationAndUser: vi.fn().mockResolvedValue({}) } as never,
+      createWorkspacePermissionServices({ findByOrganizationAndUser: vi.fn().mockResolvedValue({}) } as never)
+        .membershipAccess,
       {
         resolveGamePermissions: vi.fn().mockResolvedValue(
           new Map([
@@ -351,7 +355,8 @@ describe('ListProjectGamesUseCase', () => {
           organizationId,
         }),
       } as never,
-      { findByOrganizationAndUser: vi.fn().mockResolvedValue({}) } as never,
+      createWorkspacePermissionServices({ findByOrganizationAndUser: vi.fn().mockResolvedValue({}) } as never)
+        .membershipAccess,
       {
         resolveGamePermissions: vi.fn().mockResolvedValue(
           new Map([
@@ -418,7 +423,8 @@ describe('ListProjectGamesUseCase', () => {
           organizationId,
         }),
       } as never,
-      { findByOrganizationAndUser: vi.fn().mockResolvedValue({}) } as never,
+      createWorkspacePermissionServices({ findByOrganizationAndUser: vi.fn().mockResolvedValue({}) } as never)
+        .membershipAccess,
       {
         resolveGamePermissions: vi.fn().mockResolvedValue(new Map()),
         assertCanCreateParty: vi.fn(),

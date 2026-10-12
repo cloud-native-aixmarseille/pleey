@@ -3,6 +3,7 @@ import type { Server, Socket } from 'socket.io';
 import type { PartyObservationSnapshot } from '../../../../../application/game/party/shared/entities/party-observation-snapshot';
 import { PartyObservationBroadcasterPort } from '../../../../../application/game/party/shared/ports/party-observation-broadcaster.port';
 import { PartyIdentifier } from '../../../../../application/game/party/shared/services/identifiers/party-identifier';
+import { LoadPartyObservationSnapshotUseCase } from '../../../../../application/game/party/shared/use-cases/load-party-observation-snapshot-use-case';
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
 import type { PartyPlayerIdentity } from '../../../../../domain/game/party/player/entities/party-player-identity';
 import type { PartyId } from '../../../../../domain/game/party/shared/entities/party';
@@ -27,16 +28,22 @@ export class SocketPartyObservationBroadcaster implements PartyObservationBroadc
     private readonly hostMessageMapper: HostPartyObservationMessageMapper,
     private readonly playerMessageMapper: PlayerPartyObservationMessageMapper,
     private readonly partyIdentifier: PartyIdentifier,
+    private readonly snapshots: LoadPartyObservationSnapshotUseCase,
   ) {}
 
   attachServer(server: Server): void {
     this.server = server;
   }
 
+  async assertCanObserve(client: Pick<Socket, 'data'>, snapshot: PartyObservationSnapshot): Promise<void> {
+    await this.audienceResolver.assertCanObserve(client.data as PartyObserverSocketData, snapshot.hostObservation);
+  }
+
   async emitSnapshot(
     client: Pick<Socket, 'emit' | 'data'>,
     snapshot: PartyObservationSnapshot,
   ): Promise<PartyObservationMessage> {
+    await this.assertCanObserve(client, snapshot);
     const livePlayerIdentities = await this.resolveLivePlayerIdentities(snapshot.hostObservation.partyId);
     const payload = this.toAudienceMessage(
       ((client as { data?: PartyObserverSocketData }).data ?? {}) as PartyObserverSocketData,
@@ -59,6 +66,10 @@ export class SocketPartyObservationBroadcaster implements PartyObservationBroadc
     const sockets = await this.server.in(room).fetchSockets();
 
     for (const socket of this.orderAudienceSockets(sockets, snapshot.hostObservation.host.userId)) {
+      if (!(await this.audienceResolver.canObserve(socket.data as PartyObserverSocketData, snapshot.hostObservation))) {
+        await socket.leave(room);
+        continue;
+      }
       socket.emit(
         PARTY_SOCKET_OUTBOUND_EVENTS.PARTY_UPDATED,
         this.toAudienceMessage(socket.data as PartyObserverSocketData, snapshot, livePlayerIdentities),
@@ -71,10 +82,16 @@ export class SocketPartyObservationBroadcaster implements PartyObservationBroadc
       return;
     }
 
+    const snapshot = await this.snapshots.findIfPresent({ partyId });
+    if (!snapshot) return;
     const room = resolvePartyObservationRoom(partyId);
     const sockets = await this.server.in(room).fetchSockets();
 
     for (const socket of this.orderAudienceSockets(sockets, hostUserId)) {
+      if (!(await this.audienceResolver.canObserve(socket.data as PartyObserverSocketData, snapshot.hostObservation))) {
+        await socket.leave(room);
+        continue;
+      }
       socket.emit(PARTY_SOCKET_OUTBOUND_EVENTS.PARTY_RUNTIME_NOTICE, {
         kind,
         partyId,
@@ -112,13 +129,13 @@ export class SocketPartyObservationBroadcaster implements PartyObservationBroadc
     }
   }
 
-  private orderAudienceSockets(
-    sockets: readonly Pick<Socket, 'data' | 'emit'>[],
+  private orderAudienceSockets<TSocket extends Pick<Socket, 'data' | 'emit' | 'leave'>>(
+    sockets: readonly TSocket[],
     hostUserId: UserId,
-  ): readonly Pick<Socket, 'data' | 'emit'>[] {
-    const hostSockets: Pick<Socket, 'data' | 'emit'>[] = [];
-    const playerSockets: Pick<Socket, 'data' | 'emit'>[] = [];
-    const observerSockets: Pick<Socket, 'data' | 'emit'>[] = [];
+  ): readonly TSocket[] {
+    const hostSockets: TSocket[] = [];
+    const playerSockets: TSocket[] = [];
+    const observerSockets: TSocket[] = [];
 
     for (const socket of sockets) {
       const socketData = socket.data as PartyObserverSocketData;
@@ -150,12 +167,13 @@ export class SocketPartyObservationBroadcaster implements PartyObservationBroadc
           snapshot.gameType,
           livePlayerIdentities,
           snapshot.playerObservation.players,
+          snapshot.hostPermissions,
         )
       : this.playerMessageMapper.toMessage(
           snapshot.playerObservation,
           snapshot.gameType,
           livePlayerIdentities,
-          socketData.joinedPartyPlayer?.identity ?? null,
+          this.audienceResolver.verifiedPlayerIdentity(socketData, snapshot.hostObservation),
         );
   }
 }

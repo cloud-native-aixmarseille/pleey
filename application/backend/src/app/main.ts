@@ -44,9 +44,7 @@ async function bootstrap() {
 
   app.set('trust proxy', serverConfig.trustedProxyCidrs);
   app.enableCors();
-  app.useWebSocketAdapter(
-    new ConfiguredIoAdapter(app, socketCorsOptions, runtimeConfiguration.partySessionRecoveryWindowMs),
-  );
+  app.useWebSocketAdapter(new ConfiguredIoAdapter(app, socketCorsOptions));
 
   const errorCodeHttpStatusService = appModuleContext.get(ErrorCodeHttpStatusService, {
     strict: true,

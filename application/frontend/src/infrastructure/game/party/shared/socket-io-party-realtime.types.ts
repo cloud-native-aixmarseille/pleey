@@ -10,7 +10,8 @@ import type { GameType } from '../../../../domains/game/types/shared/game-type';
 import type { GuestId } from '../../../../domains/identity/entities/guest';
 import type { UserId } from '../../../../domains/identity/entities/user';
 
-export type PartyObservationPayload = Omit<PartyObservation, 'gameType'> & {
+export type PartyObservationPayload = Omit<PartyObservation, 'gameType' | 'permissions'> & {
+  readonly permissions?: Partial<Record<keyof PartyObservation['permissions'], unknown>>;
   readonly gameType: GameType;
 };
 
@@ -47,6 +48,7 @@ export type SocketPartyHostPlayerPayload =
     };
 
 export interface SocketPartyEntryPayload {
+  readonly guestCredential?: string;
   readonly avatarSeed?: string;
   readonly guestId?: GuestId;
   readonly partyPassword?: string;
@@ -60,6 +62,7 @@ export interface SocketIoPartyObservationConnectionState {
 }
 
 export interface SocketIoPartyObservationTransportHandlers {
+  readonly onDisconnected?: () => void;
   readonly onConnected?: (state: SocketIoPartyObservationConnectionState) => void;
   readonly onError?: (message: string) => void;
   readonly onRuntimeNotice?: (payload: SocketPartyRuntimeNoticePayload) => void;

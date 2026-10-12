@@ -3,6 +3,7 @@ import type { PartyPlayer } from '../../../../../domain/game/party/player/entiti
 import type { PartyId, PartyPin } from '../../../../../domain/game/party/shared/entities/party';
 
 export interface JoinPartyResultDto {
+  readonly guestCredential?: string;
   readonly gameId: GameId;
   readonly player: PartyPlayer;
   readonly partyId: PartyId;

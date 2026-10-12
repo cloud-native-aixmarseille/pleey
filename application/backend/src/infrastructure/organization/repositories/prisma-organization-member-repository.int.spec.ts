@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { UserIdentifier } from '../../../application/identity/shared/services/identifiers/user-identifier';
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-member-identifier';
+import { OrganizationErrorCode } from '../../../domain/organization/enums/organization-error-code.enum';
 import { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
+import { OrganizationMembershipPolicy } from '../../../domain/organization/services/organization-membership-policy';
 import { createPersistedOrganizationFixture } from '../../../test-utils/fixtures/integration/organization.fixture';
 import { PrismaIntegrationTestHarness } from '../../../test-utils/fixtures/integration/prisma-integration-test-harness';
 import { createPersistedUserFixture } from '../../../test-utils/fixtures/integration/user.fixture';
@@ -180,5 +182,54 @@ describeIfDatabase('PrismaOrganizationMemberRepository', () => {
     expect(
       await harness.repository.countOwnersByOrganization(organizationIdentifier.parse(secondOrganization.id)),
     ).toBe(0);
+  });
+  it('serializes competing owner demotions and preserves one owner', async () => {
+    // Arrange
+    const unique = `concurrent-${Date.now()}`;
+    const organization = await createPersistedOrganizationFixture(harness.prisma, { name: unique });
+    createdOrganizationIds.push(organization.id);
+    const organizationId = organizationIdentifier.parse(organization.id);
+    const owners = await Promise.all(
+      [1, 2].map(async (number) => {
+        const user = await createPersistedUserFixture(harness.prisma, {
+          username: `${unique}-${number}`,
+          email: `${unique}-${number}@example.com`,
+        });
+        createdUserIds.push(user.id);
+        const member = await harness.repository.create(
+          organizationId,
+          userIdentifier.parse(user.id),
+          OrganizationRole.OWNER,
+        );
+        createdMemberIds.push(member.id);
+        return member;
+      }),
+    );
+    const policy = new OrganizationMembershipPolicy();
+    // Act
+    const outcomes = await Promise.allSettled(
+      owners.map((owner) =>
+        harness.repository.withOrganizationLock(organizationId, async (members) => {
+          const current = await members.findById(owner.id);
+          if (!current) throw new Error('Expected the persisted owner');
+          policy.assertAllowed(
+            policy.changeRole(
+              current,
+              current,
+              OrganizationRole.MEMBER,
+              await members.countOwnersByOrganization(organizationId),
+            ),
+            { memberId: owner.id },
+          );
+          return members.updateRole(owner.id, OrganizationRole.MEMBER);
+        }),
+      ),
+    );
+    // Assert
+    expect(outcomes.filter((outcome) => outcome.status === 'fulfilled')).toHaveLength(1);
+    expect(outcomes.find((outcome) => outcome.status === 'rejected')).toMatchObject({
+      reason: { code: OrganizationErrorCode.CANNOT_REMOVE_LAST_OWNER },
+    });
+    expect(await harness.repository.countOwnersByOrganization(organizationId)).toBe(1);
   });
 });

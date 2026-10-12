@@ -1,16 +1,5 @@
-import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
-
-@ObjectType()
-class OrganizationDashboardEntityType {
-  @Field(() => ID)
-  id!: string;
-
-  @Field()
-  name!: string;
-
-  @Field(() => String, { nullable: true })
-  description!: string | null;
-}
+import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { OrganizationType } from './organization-type';
 
 @ObjectType()
 class OrganizationDashboardStatsType {
@@ -32,8 +21,8 @@ class OrganizationDashboardStatsType {
 
 @ObjectType()
 export class OrganizationDashboardType {
-  @Field(() => OrganizationDashboardEntityType)
-  organization!: OrganizationDashboardEntityType;
+  @Field(() => OrganizationType)
+  organization!: OrganizationType;
 
   @Field(() => OrganizationDashboardStatsType)
   stats!: OrganizationDashboardStatsType;

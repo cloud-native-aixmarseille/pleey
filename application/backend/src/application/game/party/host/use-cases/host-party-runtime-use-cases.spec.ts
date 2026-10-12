@@ -33,6 +33,7 @@ describe('Host party runtime use cases', () => {
   function arrangeWaitingRuntimeControl() {
     return {
       findPartyRuntimeByPartyId: vi.fn().mockResolvedValue({
+        playerCount: 1,
         context: null,
         gameId: GAME_ID,
         hostUserId: HOST_USER_ID,

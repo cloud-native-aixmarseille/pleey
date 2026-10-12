@@ -4,6 +4,7 @@ import type { PartyActionId } from '../../shared/entities/party-action';
 import type { PartyJoiningPlayerIdentity, PartyPlayerIdentity } from '../../shared/entities/party-player-identity';
 
 export interface PartyJoinCommand {
+  readonly guestCredential?: string;
   readonly avatarSeed?: string;
   readonly partyPassword?: string;
   readonly pin: PartyPin;
@@ -30,6 +31,7 @@ export enum PartyJoinReceiptStatus {
 export type PartyJoinReceipt =
   | {
       readonly gameId: GameId;
+      readonly guestCredential?: string;
       readonly player: PartyJoinPlayerReceipt;
       readonly partyId: PartyId;
       readonly pin: PartyPin;

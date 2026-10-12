@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { PartySettings } from '../../../../../domains/game/party/shared/entities/party-settings';
 import type { Organization, OrganizationId } from '../../../../../domains/organization/entities/organization';
 import { OrganizationRole } from '../../../../../domains/organization/entities/organization';
@@ -66,7 +66,7 @@ function normalizeSearchTerm(search: string): string | undefined {
 }
 
 function canManageMembers(organization: Organization | null): boolean {
-  return organization?.role === OrganizationRole.OWNER || organization?.role === OrganizationRole.MANAGER;
+  return organization?.permissions.manageMembers.allowed === true;
 }
 
 export function useOrganizationScreenState({
@@ -152,6 +152,24 @@ export function useOrganizationScreenState({
   const workspace = useDashboardWorkspace({
     dashboardWorkspace: stableDashboardWorkspaceProxy,
   });
+
+  const contextVersion = useRef(0);
+  useEffect(() => {
+    contextVersion.current += 1;
+    setIsCreateProjectOpen(false);
+    setEditingProject(null);
+    setProjectPendingRemoval(null);
+    setMemberPendingRemoval(null);
+    setMemberPage(DEFAULT_PAGE);
+    setMemberSearch('');
+    setIsAddingMember(false);
+    setIsDeletingProject(false);
+    setPendingRemovalMemberId(null);
+    setPendingRoleUpdateMemberId(null);
+    return () => {
+      contextVersion.current += 1;
+    };
+  }, [workspace.organizationId]);
 
   useEffect(() => {
     const selectedOrganization = workspace.selectedOrganization;
@@ -263,12 +281,18 @@ export function useOrganizationScreenState({
       });
     }
 
-    return createProject({
-      organizationId: workspace.selectedOrganization.id,
-      name: values.name,
-      description: values.description,
-      defaultPartySettings: values.partySettings,
-    });
+    const version = contextVersion.current;
+    try {
+      return await createProject({
+        organizationId: workspace.selectedOrganization.id,
+        name: values.name,
+        description: values.description,
+        defaultPartySettings: values.partySettings,
+      });
+    } catch (error) {
+      if (contextVersion.current === version) workspace.reloadWorkspace();
+      throw error;
+    }
   }
 
   async function handleUpdateProject(values: ProjectFormValues): Promise<Project> {
@@ -278,12 +302,18 @@ export function useOrganizationScreenState({
       });
     }
 
-    return updateProject({
-      projectId: editingProject.id,
-      name: values.name,
-      description: values.description,
-      defaultPartySettings: values.partySettings,
-    });
+    const version = contextVersion.current;
+    try {
+      return await updateProject({
+        projectId: editingProject.id,
+        name: values.name,
+        description: values.description,
+        defaultPartySettings: values.partySettings,
+      });
+    } catch (error) {
+      if (contextVersion.current === version) workspace.reloadWorkspace();
+      throw error;
+    }
   }
 
   async function handleConfirmProjectRemoval() {
@@ -294,21 +324,27 @@ export function useOrganizationScreenState({
     setIsDeletingProject(true);
     actionFeedback.clearError();
 
+    const requestVersion = contextVersion.current;
     try {
       await deleteProject({
         projectId: projectPendingRemoval.id,
         migrationProjectId,
       });
+      if (requestVersion !== contextVersion.current) return;
       setProjectPendingRemoval(null);
       setMigrationProjectId(null);
       setMigrationProjectLabel(null);
       workspace.reloadWorkspace();
     } catch (error) {
+      if (requestVersion !== contextVersion.current) return;
+      workspace.reloadWorkspace();
       actionFeedback.handleError(error, {
         fallbackMessage: 'project.errors.deleteFailed',
       });
     } finally {
-      setIsDeletingProject(false);
+      if (requestVersion === contextVersion.current) {
+        setIsDeletingProject(false);
+      }
     }
   }
 
@@ -326,20 +362,26 @@ export function useOrganizationScreenState({
     setIsAddingMember(true);
     memberFeedback.clearError();
 
+    const requestVersion = contextVersion.current;
     try {
       await addOrganizationMember({
         organizationId: workspace.selectedOrganization.id,
         role: memberForm.role,
         usernameOrEmail,
       });
+      if (requestVersion !== contextVersion.current) return;
       setMemberForm(defaultMemberForm);
       workspace.reloadWorkspace();
     } catch (error) {
+      if (requestVersion !== contextVersion.current) return;
+      workspace.reloadWorkspace();
       memberFeedback.handleError(error, {
         fallbackMessage: 'organization.errors.memberAddFailed',
       });
     } finally {
-      setIsAddingMember(false);
+      if (requestVersion === contextVersion.current) {
+        setIsAddingMember(false);
+      }
     }
   }
 
@@ -351,16 +393,22 @@ export function useOrganizationScreenState({
     setPendingRemovalMemberId(memberPendingRemoval.id);
     memberFeedback.clearError();
 
+    const requestVersion = contextVersion.current;
     try {
       await removeOrganizationMember(memberPendingRemoval);
+      if (requestVersion !== contextVersion.current) return;
       setMemberPendingRemoval(null);
       workspace.reloadWorkspace();
     } catch (error) {
+      if (requestVersion !== contextVersion.current) return;
+      workspace.reloadWorkspace();
       memberFeedback.handleError(error, {
         fallbackMessage: 'organization.errors.memberRemoveFailed',
       });
     } finally {
-      setPendingRemovalMemberId(null);
+      if (requestVersion === contextVersion.current) {
+        setPendingRemovalMemberId(null);
+      }
     }
   }
 
@@ -389,21 +437,27 @@ export function useOrganizationScreenState({
     setPendingRoleUpdateMemberId(member.id);
     memberFeedback.clearError();
 
+    const requestVersion = contextVersion.current;
     try {
       const updatedMember = await updateOrganizationMemberRole({
         memberId: member.id,
         role,
       });
+      if (requestVersion !== contextVersion.current) return;
       setOrganizationMembers((members) =>
         members.map((current) => (current.id === updatedMember.id ? updatedMember : current)),
       );
       workspace.reloadWorkspace();
     } catch (error) {
+      if (requestVersion !== contextVersion.current) return;
+      workspace.reloadWorkspace();
       memberFeedback.handleError(error, {
         fallbackMessage: 'organization.errors.memberRoleUpdateFailed',
       });
     } finally {
-      setPendingRoleUpdateMemberId(null);
+      if (requestVersion === contextVersion.current) {
+        setPendingRoleUpdateMemberId(null);
+      }
     }
   }
 
@@ -430,7 +484,7 @@ export function useOrganizationScreenState({
   }
 
   function openRemoveProjectDialog(project: Project) {
-    if (workspace.projectTotalCount <= 1) {
+    if (!project.permissions.delete.allowed) {
       return;
     }
 

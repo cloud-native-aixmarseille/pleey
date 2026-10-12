@@ -7,6 +7,7 @@ import { usePresentationTranslation } from '../../../../../shared/i18n/use-prese
 import { Button } from '../../../../../shared/ui/actions/button';
 import { AppIcon } from '../../../../../shared/ui/icons/app-icon';
 import { SupportingText } from '../../../../../shared/ui/layout/typography';
+import { useHostPermissionReason } from './use-host-permission-reason';
 
 interface HostStartPartyActionProps {
   readonly controls: HostPartyRuntimeControlsState;
@@ -15,6 +16,7 @@ interface HostStartPartyActionProps {
 }
 
 export function HostStartPartyAction({ controls, pendingCommand, onStartParty }: HostStartPartyActionProps) {
+  const reason = useHostPermissionReason();
   const { t } = usePresentationTranslation();
 
   if (controls.lifecyclePhase !== PartyRuntimePhase.LOBBY) {
@@ -23,7 +25,7 @@ export function HostStartPartyAction({ controls, pendingCommand, onStartParty }:
 
   const isCommandPending = pendingCommand !== null;
   const handleStartParty = () => {
-    if (isCommandPending || !controls.canStartParty) {
+    if (isCommandPending || !controls.permissions.startParty.allowed) {
       return;
     }
 
@@ -36,7 +38,9 @@ export function HostStartPartyAction({ controls, pendingCommand, onStartParty }:
         <SupportingText tone="soft">{t('game.party.host.route.runtimePending')}</SupportingText>
       ) : null}
       <Button
-        disabled={isCommandPending || !controls.canStartParty}
+        disabled={isCommandPending || !controls.permissions.startParty.allowed}
+        permission={controls.permissions.startParty}
+        permissionReason={reason(controls.permissions.startParty)}
         intent="primary"
         leftSection={<AppIcon name="play" size={18} />}
         onClick={handleStartParty}

@@ -1,3 +1,4 @@
+import type { ActionPermission } from '../../../../shared/value-objects/action-permission';
 import { PartyCommandNotAvailableError, PartyStagesNotAvailableError } from '../../../errors';
 import { PartyStatus } from '../../enums/party-status.enum';
 import {
@@ -5,8 +6,11 @@ import {
   type PartyRuntimeLifecycleContext,
   PartyRuntimePhase,
 } from '../../shared/entities/party-runtime-context';
+import { HostPartyDisabledReason, type HostPartyPermissions } from '../value-objects/host-party-permissions';
 
 interface HostPartyLifecycleState {
+  readonly playerCount: number;
+  readonly stageCount?: number;
   readonly status: PartyStatus;
   readonly runtime: PartyRuntimeContext | null;
 }
@@ -23,6 +27,62 @@ interface HostPartyStageReference {
 }
 
 export class HostPartyLifecyclePolicy {
+  permissions(state: HostPartyLifecycleState): HostPartyPermissions {
+    const lifecycle = state.runtime?.lifecycle;
+    const playable = lifecycle?.phase === PartyRuntimePhase.STAGE || lifecycle?.phase === PartyRuntimePhase.RESULT;
+    const running = state.status === PartyStatus.ACTIVE || state.status === PartyStatus.PAUSED;
+    const runtime = this.decision(running && playable, HostPartyDisabledReason.RUNTIME_UNAVAILABLE);
+    const stage = runtime.allowed
+      ? this.decision(
+          lifecycle?.stageId != null && lifecycle.stagePosition != null,
+          HostPartyDisabledReason.STAGE_REQUIRED,
+        )
+      : runtime;
+    return {
+      startParty:
+        state.status !== PartyStatus.WAITING
+          ? this.decision(false, HostPartyDisabledReason.PARTY_NOT_WAITING)
+          : !(state.playerCount > 0)
+            ? this.decision(false, HostPartyDisabledReason.NO_PLAYERS)
+            : this.decision((state.stageCount ?? 0) > 0, HostPartyDisabledReason.NO_STAGES),
+      advanceStage: !stage.allowed
+        ? stage
+        : this.decision(lifecycle?.phase === PartyRuntimePhase.RESULT, HostPartyDisabledReason.RESULT_REQUIRED),
+      restartStage: !stage.allowed
+        ? stage
+        : this.decision(lifecycle?.stageTimeLimitSeconds != null, HostPartyDisabledReason.STAGE_REQUIRED),
+      rewindStage: !stage.allowed
+        ? stage
+        : this.decision((lifecycle?.stagePosition ?? 0) > 0, HostPartyDisabledReason.PREVIOUS_STAGE_REQUIRED),
+      rewindParty: runtime,
+      pauseParty: !runtime.allowed
+        ? runtime
+        : this.decision(state.status === PartyStatus.ACTIVE, HostPartyDisabledReason.ACTIVE_PARTY_REQUIRED),
+      resumeParty: !runtime.allowed
+        ? runtime
+        : this.decision(state.status === PartyStatus.PAUSED, HostPartyDisabledReason.PAUSED_PARTY_REQUIRED),
+      revealStageResult: !runtime.allowed
+        ? runtime
+        : this.decision(lifecycle?.phase === PartyRuntimePhase.STAGE, HostPartyDisabledReason.STAGE_REQUIRED),
+      endParty: this.decision(state.status !== PartyStatus.ENDED, HostPartyDisabledReason.PARTY_ENDED),
+    };
+  }
+
+  private decision(allowed: boolean, reason: HostPartyDisabledReason): ActionPermission<HostPartyDisabledReason> {
+    return allowed ? { allowed: true, reason: null } : { allowed: false, reason };
+  }
+
+  private assertAction(state: HostPartyLifecycleState, action: keyof HostPartyPermissions): void {
+    const decision = this.permissions(state)[action];
+    if (!decision.allowed && decision.reason === HostPartyDisabledReason.NO_STAGES) {
+      throw new PartyStagesNotAvailableError(this.createLifecycleErrorContext(state));
+    }
+    if (!decision.allowed)
+      throw new PartyCommandNotAvailableError(
+        this.createLifecycleErrorContext(state, { reason: decision.reason, action }),
+      );
+  }
+
   start(
     state: HostPartyLifecycleState,
     input: {
@@ -30,6 +90,7 @@ export class HostPartyLifecyclePolicy {
       readonly totalStages: number;
     },
   ): HostPartyLifecycleTransitionResult {
+    this.assertAction({ ...state, stageCount: input.firstStage === null ? 0 : input.totalStages }, 'startParty');
     if (state.status !== PartyStatus.WAITING) {
       throw new PartyCommandNotAvailableError(
         this.createLifecycleErrorContext(state, {
@@ -63,6 +124,7 @@ export class HostPartyLifecyclePolicy {
       readonly nextStage: HostPartyStageReference | null;
     },
   ): HostPartyLifecycleTransitionResult {
+    this.assertAction(state, 'advanceStage');
     const lifecycle = this.requireLifecycle(state, PartyRuntimePhase.RESULT);
 
     if (lifecycle.stageId === null || lifecycle.stagePosition === null) {
@@ -97,6 +159,7 @@ export class HostPartyLifecyclePolicy {
   }
 
   restartStage(state: HostPartyLifecycleState): HostPartyLifecycleTransitionResult {
+    this.assertAction(state, 'restartStage');
     const lifecycle = this.requireLifecycle(state, PartyRuntimePhase.STAGE, PartyRuntimePhase.RESULT);
 
     if (lifecycle.stageId === null || lifecycle.stagePosition === null || lifecycle.stageTimeLimitSeconds === null) {
@@ -124,6 +187,7 @@ export class HostPartyLifecyclePolicy {
       readonly previousStage: HostPartyStageReference | null;
     },
   ): HostPartyLifecycleTransitionResult {
+    this.assertAction(state, 'rewindStage');
     const lifecycle = this.requireLifecycle(state, PartyRuntimePhase.STAGE, PartyRuntimePhase.RESULT);
 
     if (lifecycle.stageId === null || lifecycle.stagePosition === null || input.previousStage === null) {
@@ -147,6 +211,7 @@ export class HostPartyLifecyclePolicy {
   }
 
   rewindParty(state: HostPartyLifecycleState): HostPartyLifecycleTransitionResult {
+    this.assertAction(state, 'rewindParty');
     const lifecycle = this.requireLifecycle(state, PartyRuntimePhase.STAGE, PartyRuntimePhase.RESULT);
 
     return {
@@ -166,6 +231,7 @@ export class HostPartyLifecyclePolicy {
   }
 
   pause(state: HostPartyLifecycleState): HostPartyLifecycleTransitionResult {
+    this.assertAction(state, 'pauseParty');
     this.requireLifecycle(state, PartyRuntimePhase.STAGE, PartyRuntimePhase.RESULT);
 
     if (state.status !== PartyStatus.ACTIVE) {
@@ -195,6 +261,7 @@ export class HostPartyLifecyclePolicy {
   }
 
   resume(state: HostPartyLifecycleState): HostPartyLifecycleTransitionResult {
+    this.assertAction(state, 'resumeParty');
     this.requireLifecycle(state, PartyRuntimePhase.STAGE, PartyRuntimePhase.RESULT);
 
     if (state.status !== PartyStatus.PAUSED) {
@@ -224,6 +291,7 @@ export class HostPartyLifecyclePolicy {
   }
 
   revealStageResult(state: HostPartyLifecycleState): HostPartyLifecycleTransitionResult {
+    this.assertAction(state, 'revealStageResult');
     if (state.runtime === null || state.runtime.lifecycle.phase !== PartyRuntimePhase.STAGE) {
       throw new PartyCommandNotAvailableError(
         this.createLifecycleErrorContext(state, {
@@ -246,6 +314,7 @@ export class HostPartyLifecyclePolicy {
   }
 
   endParty(state: HostPartyLifecycleState): HostPartyLifecycleTransitionResult {
+    this.assertAction(state, 'endParty');
     if (state.status === PartyStatus.ENDED) {
       throw new PartyCommandNotAvailableError(
         this.createLifecycleErrorContext(state, {

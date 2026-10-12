@@ -49,10 +49,12 @@ export abstract class AbstractHostPartyRuntimeUseCase {
   }
 
   protected toLifecycleState(party: HostControlledPartyRuntime): {
+    readonly playerCount: number;
     readonly runtime: PartyRuntimeContext | null;
     readonly status: PartyStatus;
   } {
     return {
+      playerCount: party.playerCount,
       runtime: party.context,
       status: party.status,
     };

@@ -4,6 +4,26 @@ query WorkspaceOrganizationDashboard($organizationId: ID!) {
       id
       name
       description
+      role
+      assignableRoles
+      permissions {
+        read {
+          allowed
+          reason
+        }
+        update {
+          allowed
+          reason
+        }
+        createProject {
+          allowed
+          reason
+        }
+        manageMembers {
+          allowed
+          reason
+        }
+      }
     }
     stats {
       totalGames
