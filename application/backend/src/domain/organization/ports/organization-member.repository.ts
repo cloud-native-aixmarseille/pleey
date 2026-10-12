@@ -8,7 +8,16 @@ import type { OrganizationRole } from '../enums/organization-role.enum';
  * OrganizationMember Repository Interface
  * Defines the contract for organization member data access
  */
+export type OrganizationMemberWriteContext = Pick<
+  OrganizationMemberRepository,
+  'findById' | 'findByOrganizationAndUser' | 'countOwnersByOrganization' | 'updateRole' | 'delete'
+>;
+
 export interface OrganizationMemberRepository {
+  withOrganizationLock<T>(
+    organizationId: OrganizationId,
+    operation: (members: OrganizationMemberWriteContext) => Promise<T>,
+  ): Promise<T>;
   create(organizationId: OrganizationId, userId: UserId, role: OrganizationRole): Promise<OrganizationMember>;
   findById(id: OrganizationMemberId): Promise<OrganizationMember | null>;
   findByOrganizationAndUser(organizationId: OrganizationId, userId: UserId): Promise<OrganizationMember | null>;

@@ -7,20 +7,16 @@ import {
   HostAlreadyHasActivePartyForGameError,
   PartyStagesNotAvailableError,
 } from '../../../../domain/game/errors';
+import { resolveGamePermissions } from '../../../../domain/game/management/services/game-permission-policy';
 import type { UserId } from '../../../../domain/identity/entities/user';
 import type { DomainError } from '../../../../domain/shared/errors/domain-error';
-import type { ActionPermission } from '../../../../domain/shared/value-objects/action-permission';
 import type {
   ActivePartyGameConflict,
   ActivePartyHostConflict,
 } from '../../../game/party/shared/ports/party-management.port';
 import { PartyManagementPort } from '../../../game/party/shared/ports/party-management.port';
 import { PartyStageConfigurationPort } from '../../types/shared/ports/party-stage-configuration.port';
-import {
-  CreatePartyDisabledReason,
-  type GamePermissions,
-  LaunchReadinessDisabledReason,
-} from '../ports/game-catalog.port';
+import { CreatePartyDisabledReason, type GamePermissions } from '../ports/game-catalog.port';
 
 @Injectable()
 export class GamePermissionResolver {
@@ -53,10 +49,9 @@ export class GamePermissionResolver {
         (item) =>
           [
             item.gameId,
-            this.buildGamePermissions({
+            resolveGamePermissions({
               hasActiveParty: (activePartyByGameId.get(item.gameId) ?? null) !== null,
               hasHostConflictForAnotherGame: activeHostConflicts.some((party) => party.gameId !== item.gameId),
-              hasNoStages: item.stageCount <= 0,
               stageCount: item.stageCount,
             }),
           ] as const,
@@ -70,10 +65,9 @@ export class GamePermissionResolver {
       this.partyManagement.findActivePartiesByHostId(hostUserId),
       this.partyStageConfiguration.getStageCount(gameId),
     ]);
-    const permission = this.buildGamePermissions({
+    const permission = resolveGamePermissions({
       hasActiveParty: gameConflict !== null,
       hasHostConflictForAnotherGame: hostConflicts.some((party) => party.gameId !== gameId),
-      hasNoStages: stageCount <= 0,
       stageCount,
     }).createParty;
 
@@ -87,87 +81,6 @@ export class GamePermissionResolver {
         stageCount,
       });
     }
-  }
-
-  private buildGamePermissions({
-    hasActiveParty,
-    hasHostConflictForAnotherGame,
-    hasNoStages,
-    stageCount,
-  }: {
-    hasActiveParty: boolean;
-    hasHostConflictForAnotherGame: boolean;
-    hasNoStages: boolean;
-    stageCount: number;
-  }): GamePermissions {
-    const launchReadiness = this.resolveLaunchReadinessPermission({ hasNoStages, stageCount });
-
-    return {
-      createParty: this.resolveCreatePartyPermission({
-        hasActiveParty,
-        hasHostConflictForAnotherGame,
-        launchReadiness,
-      }),
-      launchReadiness,
-    };
-  }
-
-  private resolveLaunchReadinessPermission({
-    hasNoStages,
-    stageCount,
-  }: {
-    hasNoStages: boolean;
-    stageCount: number;
-  }): ActionPermission<LaunchReadinessDisabledReason> {
-    void stageCount;
-
-    if (hasNoStages) {
-      return {
-        allowed: false,
-        reason: LaunchReadinessDisabledReason.NO_STAGES_AVAILABLE,
-      };
-    }
-
-    return {
-      allowed: true,
-      reason: null,
-    };
-  }
-
-  private resolveCreatePartyPermission({
-    hasActiveParty,
-    hasHostConflictForAnotherGame,
-    launchReadiness,
-  }: {
-    hasActiveParty: boolean;
-    hasHostConflictForAnotherGame: boolean;
-    launchReadiness: ActionPermission<LaunchReadinessDisabledReason>;
-  }): ActionPermission<CreatePartyDisabledReason> {
-    if (!launchReadiness.allowed) {
-      return {
-        allowed: false,
-        reason: CreatePartyDisabledReason.NO_STAGES_AVAILABLE,
-      };
-    }
-
-    if (hasActiveParty) {
-      return {
-        allowed: false,
-        reason: CreatePartyDisabledReason.ACTIVE_PARTY_EXISTS,
-      };
-    }
-
-    if (hasHostConflictForAnotherGame) {
-      return {
-        allowed: false,
-        reason: CreatePartyDisabledReason.HOST_HAS_ACTIVE_PARTY,
-      };
-    }
-
-    return {
-      allowed: true,
-      reason: null,
-    };
   }
 
   private toCreatePartyError({

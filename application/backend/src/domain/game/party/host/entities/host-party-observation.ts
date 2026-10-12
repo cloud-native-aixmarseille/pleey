@@ -7,6 +7,7 @@ import type { PartySettings } from '../../shared/entities/party-settings';
 import type { PartyHost } from './party-host';
 
 export interface HostPartyObservation {
+  readonly isPrivate: boolean;
   readonly partyId: PartyId;
   readonly gameId: GameId;
   readonly pin: PartyPin;

@@ -18,7 +18,6 @@ export class ConfiguredIoAdapter extends IoAdapter {
   constructor(
     app: INestApplicationContext,
     private readonly corsOptions: GameSocketCorsOptions,
-    private readonly partySessionRecoveryWindowMs: number,
   ) {
     super(app);
     this.sessions = app.get(JwtSessionAuthenticator);
@@ -28,10 +27,8 @@ export class ConfiguredIoAdapter extends IoAdapter {
     const serverOptions: PartialIoServerOptions = {
       ...(options ?? {}),
       path: options?.path ?? '/socket.io',
-      connectionStateRecovery: {
-        maxDisconnectionDuration: this.partySessionRecoveryWindowMs,
-        skipMiddlewares: false,
-      },
+      // Recovery must reauthorize before sending a fresh snapshot. Socket.IO packet replay
+      // can otherwise deliver private updates buffered before a participant was removed.
       cors: this.createCorsOptions(),
     };
 
@@ -55,6 +52,7 @@ export class ConfiguredIoAdapter extends IoAdapter {
 
       const payload = await this.sessions.authenticate(token);
       socket.data.authenticatedUserId = payload.id;
+      socket.data.authenticatedSession = { ...payload, tokenType: 'access' };
       socket.use(async (_packet, nextPacket) => {
         try {
           await this.sessions.authenticate(token);

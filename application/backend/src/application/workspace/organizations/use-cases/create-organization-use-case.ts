@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { UserId } from '../../../../domain/identity/entities/user';
-import type { Organization } from '../../../../domain/organization/entities/organization';
 import { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
 import { OrganizationNameAlreadyExistsError } from '../../../../domain/organization/errors';
 import type { OrganizationRepository } from '../../../../domain/organization/ports/organization.repository';
@@ -10,6 +9,8 @@ import { OrganizationMemberRepositoryProvider } from '../../../../domain/organiz
 import type { ProjectRepository } from '../../../../domain/project/ports/project.repository';
 import { ProjectRepositoryProvider } from '../../../../domain/project/ports/project.repository';
 import type { CreateOrganizationDto } from '../dto/create-organization-dto';
+import type { OrganizationWithAccess } from '../dto/organization-access.dto';
+import { OrganizationMembershipAccessService } from '../services/organization-membership-access.service';
 
 const DEFAULT_PROJECT_NAME = 'Default';
 
@@ -20,6 +21,7 @@ const DEFAULT_PROJECT_NAME = 'Default';
 @Injectable()
 export class CreateOrganizationUseCase {
   constructor(
+    private readonly membershipAccess: OrganizationMembershipAccessService,
     @Inject(OrganizationRepositoryProvider)
     private readonly organizationRepository: OrganizationRepository,
     @Inject(OrganizationMemberRepositoryProvider)
@@ -28,7 +30,7 @@ export class CreateOrganizationUseCase {
     private readonly projectRepository: ProjectRepository,
   ) {}
 
-  async execute(dto: CreateOrganizationDto, creatorUserId: UserId): Promise<Organization> {
+  async execute(dto: CreateOrganizationDto, creatorUserId: UserId): Promise<OrganizationWithAccess> {
     // Check if organization name already exists
     const existing = await this.organizationRepository.findByName(dto.name);
     if (existing) {
@@ -41,12 +43,12 @@ export class CreateOrganizationUseCase {
     });
 
     // Add the creator as owner
-    await this.memberRepository.create(organization.id, creatorUserId, OrganizationRole.OWNER);
+    const membership = await this.memberRepository.create(organization.id, creatorUserId, OrganizationRole.OWNER);
 
     await this.projectRepository.create(organization.id, DEFAULT_PROJECT_NAME, null, {
       defaultPartySettings: dto.defaultPartySettings ?? null,
     });
 
-    return organization;
+    return this.membershipAccess.organizationAccess(organization, membership);
   }
 }

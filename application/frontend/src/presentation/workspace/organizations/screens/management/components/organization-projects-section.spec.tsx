@@ -2,6 +2,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
+import { OrganizationActionDisabledReason } from '../../../../../../domains/organization/value-objects/organization-permissions';
 import { ProjectFixtureFactory } from '../../../../../../test-utils/fixtures/project-fixture-factory';
 import { renderWithProviders } from '../../../../../../test-utils/render-with-providers';
 import { OrganizationProjectsSection } from './organization-projects-section';
@@ -39,8 +40,7 @@ describe('OrganizationProjectsSection', () => {
       return (
         <OrganizationProjectsSection
           actionErrorMessage="Unable to update project"
-          canCreateProject
-          canRemoveProjects
+          createPermission={{ allowed: true, reason: null }}
           createButtonLabel="Create project"
           eyebrow="Projects"
           onCreateProject={onCreateProject}
@@ -94,8 +94,7 @@ describe('OrganizationProjectsSection', () => {
     renderWithProviders(
       <OrganizationProjectsSection
         actionErrorMessage={null}
-        canCreateProject={false}
-        canRemoveProjects={false}
+        createPermission={{ allowed: false, reason: OrganizationActionDisabledReason.INSUFFICIENT_PERMISSIONS }}
         createButtonLabel="Create project"
         eyebrow="Projects"
         onCreateProject={vi.fn()}

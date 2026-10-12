@@ -17,7 +17,7 @@ interface OrganizationOverrides extends Omit<Partial<Organization>, 'id'> {
   readonly id?: number | OrganizationId;
 }
 
-interface OrganizationSummaryOverrides {
+interface OrganizationSummaryOverrides extends Partial<Pick<Organization, 'permissions' | 'assignableRoles' | 'role'>> {
   readonly description?: string | null;
   readonly id?: number | OrganizationId;
   readonly name?: string;
@@ -42,6 +42,13 @@ export class OrganizationFixtureFactory {
       updatedAt: DEFAULT_TIMESTAMP,
       defaultPartySettings: DEFAULT_PARTY_SETTINGS,
       role: OrganizationRole.OWNER,
+      permissions: {
+        read: { allowed: true, reason: null },
+        update: { allowed: true, reason: null },
+        createProject: { allowed: true, reason: null },
+        manageMembers: { allowed: true, reason: null },
+      },
+      assignableRoles: Object.values(OrganizationRole),
       ...restOverrides,
     };
   }
@@ -79,6 +86,9 @@ export class OrganizationFixtureFactory {
       id: organization.id,
       name: organization.name,
       description: organization.description,
+      role: overrides.role ?? organization.role,
+      permissions: overrides.permissions ?? organization.permissions,
+      assignableRoles: overrides.assignableRoles ?? organization.assignableRoles,
     };
   }
 

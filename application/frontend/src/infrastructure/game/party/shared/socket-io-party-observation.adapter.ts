@@ -23,6 +23,7 @@ export class SocketIoPartyObservationAdapter implements PartyObservationPort {
         handlers.onConnected?.(this.toConnectionState(state));
       },
       onError: handlers.onError,
+      onDisconnected: handlers.onDisconnected,
       onRuntimeNotice: (payload) => {
         const runtimeNotice = this.payloadMapper.toRuntimeNotice(payload);
 

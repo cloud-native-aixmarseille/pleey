@@ -1,5 +1,7 @@
 import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
+import { createOrganizationMemberFixture } from '../../../../test-utils/fixtures/unit/organization-member.fixture';
+import { createWorkspacePermissionServices } from '../../../../test-utils/fixtures/workspace-permission-fixture-factory';
 import { createDefaultWorkspaceServiceMock } from '../../../../test-utils/mock-factories/default-workspace-service.mock-factory';
 import {
   createOrganizationMemberRepositoryMock,
@@ -18,9 +20,9 @@ describe('GetOrganizationDashboardUseCase', () => {
     };
 
     const useCase = new GetOrganizationDashboardUseCase(
+      createWorkspacePermissionServices(memberRepository, organizationRepository).membershipAccess,
       defaultWorkspaceService as never,
       organizationRepository as never,
-      memberRepository as never,
       workspaceGameManagement as never,
     );
 
@@ -49,16 +51,16 @@ describe('GetOrganizationDashboardUseCase', () => {
     };
 
     const useCase = new GetOrganizationDashboardUseCase(
+      createWorkspacePermissionServices(memberRepository, organizationRepository).membershipAccess,
       defaultWorkspaceService as never,
       organizationRepository as never,
-      memberRepository as never,
       workspaceGameManagement as never,
     );
 
     // Act + Assert
     await expect(
       useCase.execute(backendTestIdentifiers.organization(1), backendTestIdentifiers.user(10)),
-    ).rejects.toThrow(OrganizationErrorCode.NOT_A_MEMBER);
+    ).rejects.toThrow(OrganizationErrorCode.ORGANIZATION_NOT_FOUND);
   });
 
   it('returns aggregated stats', async () => {
@@ -72,7 +74,7 @@ describe('GetOrganizationDashboardUseCase', () => {
       } as never,
     });
     const memberRepository = createOrganizationMemberRepositoryMock({
-      findByOrganizationAndUser: {} as never,
+      findByOrganizationAndUser: createOrganizationMemberFixture(),
     });
 
     const workspaceGameManagement = {
@@ -86,9 +88,9 @@ describe('GetOrganizationDashboardUseCase', () => {
     };
 
     const useCase = new GetOrganizationDashboardUseCase(
+      createWorkspacePermissionServices(memberRepository, organizationRepository).membershipAccess,
       defaultWorkspaceService as never,
       organizationRepository as never,
-      memberRepository as never,
       workspaceGameManagement as never,
     );
 

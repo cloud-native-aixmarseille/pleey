@@ -14,6 +14,7 @@ import {
   DropdownMenuLabel,
 } from '../../../../../shared/ui/overlay/dropdown-menu';
 import { HostPartyMusicThemePanel } from './host-party-music-theme-panel';
+import { useHostPermissionReason } from './use-host-permission-reason';
 
 const HOST_RUNTIME_SHORTCUT_SCOPE = 'host-runtime-controls';
 
@@ -35,6 +36,7 @@ interface MenuEntry {
   readonly icon: AppIconName;
   readonly label: string;
   readonly disabled: boolean;
+  readonly permissionReason: string | null;
   readonly onSelect: () => void;
 }
 
@@ -60,9 +62,10 @@ export function HostRuntimeCommandMenu({
   onRewindParty,
   onRewindStage,
 }: HostRuntimeCommandMenuProps) {
+  const reason = useHostPermissionReason();
   const { t } = usePresentationTranslation();
   const isCommandPending = pendingCommand !== null;
-  const canTogglePauseState = controls.canPauseParty || controls.canResumeParty;
+  const canTogglePauseState = controls.permissions.pauseParty.allowed || controls.permissions.resumeParty.allowed;
 
   useShortcutScope(HOST_RUNTIME_SHORTCUT_SCOPE, { active: true, priority: 140 });
 
@@ -70,7 +73,7 @@ export function HostRuntimeCommandMenu({
     ariaKeyShortcuts: 'r',
     combo: { key: 'r' },
     descriptionKey: 'game.party.host.route.runtimeShortcutRevealStageResult',
-    disabled: isCommandPending || !controls.canRevealStageResult,
+    disabled: isCommandPending || !controls.permissions.revealStageResult.allowed,
     execute: onRevealStageResult,
     id: 'reveal-stage-result',
     scope: HOST_RUNTIME_SHORTCUT_SCOPE,
@@ -81,7 +84,7 @@ export function HostRuntimeCommandMenu({
     ariaKeyShortcuts: 'n',
     combo: { key: 'n' },
     descriptionKey: 'game.party.host.route.runtimeShortcutAdvanceStage',
-    disabled: isCommandPending || !controls.canAdvanceStage || !controls.hasNextStage,
+    disabled: isCommandPending || !controls.permissions.advanceStage.allowed || !controls.hasNextStage,
     execute: onAdvanceStage,
     id: 'advance-stage',
     scope: HOST_RUNTIME_SHORTCUT_SCOPE,
@@ -91,11 +94,11 @@ export function HostRuntimeCommandMenu({
   useKeyboardShortcut({
     ariaKeyShortcuts: 'p',
     combo: { key: 'p' },
-    descriptionKey: controls.canPauseParty
+    descriptionKey: controls.permissions.pauseParty.allowed
       ? 'game.party.host.route.runtimeShortcutPauseParty'
       : 'game.party.host.route.runtimeShortcutResumeParty',
     disabled: isCommandPending || !canTogglePauseState,
-    execute: controls.canPauseParty ? onPauseParty : onResumeParty,
+    execute: controls.permissions.pauseParty.allowed ? onPauseParty : onResumeParty,
     id: 'toggle-pause-state',
     scope: HOST_RUNTIME_SHORTCUT_SCOPE,
     scopeLabelKey: 'game.party.host.route.runtimeMenuLabel',
@@ -105,7 +108,7 @@ export function HostRuntimeCommandMenu({
     ariaKeyShortcuts: 'Shift+B',
     combo: { key: 'b', shift: true },
     descriptionKey: 'game.party.host.route.runtimeShortcutRewindStage',
-    disabled: isCommandPending || !controls.canRewindStage,
+    disabled: isCommandPending || !controls.permissions.rewindStage.allowed,
     execute: onRewindStage,
     id: 'rewind-stage',
     scope: HOST_RUNTIME_SHORTCUT_SCOPE,
@@ -116,7 +119,7 @@ export function HostRuntimeCommandMenu({
     ariaKeyShortcuts: 'Shift+R',
     combo: { key: 'r', shift: true },
     descriptionKey: 'game.party.host.route.runtimeShortcutRestartStage',
-    disabled: isCommandPending || !controls.canRestartStage,
+    disabled: isCommandPending || !controls.permissions.restartStage.allowed,
     execute: onRestartStage,
     id: 'restart-stage',
     scope: HOST_RUNTIME_SHORTCUT_SCOPE,
@@ -127,7 +130,7 @@ export function HostRuntimeCommandMenu({
     ariaKeyShortcuts: 'Shift+L',
     combo: { key: 'l', shift: true },
     descriptionKey: 'game.party.host.route.runtimeShortcutRewindParty',
-    disabled: isCommandPending || !controls.canRewindParty,
+    disabled: isCommandPending || !controls.permissions.rewindParty.allowed,
     execute: onRewindParty,
     id: 'rewind-party',
     scope: HOST_RUNTIME_SHORTCUT_SCOPE,
@@ -138,7 +141,7 @@ export function HostRuntimeCommandMenu({
     ariaKeyShortcuts: 'Shift+E',
     combo: { key: 'e', shift: true },
     descriptionKey: 'game.party.host.route.runtimeShortcutRequestEndParty',
-    disabled: isCommandPending || !controls.canEndParty,
+    disabled: isCommandPending || !controls.permissions.endParty.allowed,
     execute: onRequestEndParty,
     id: 'request-end-party',
     scope: HOST_RUNTIME_SHORTCUT_SCOPE,
@@ -152,7 +155,8 @@ export function HostRuntimeCommandMenu({
         ariaKeyShortcuts: 'r',
         icon: 'success',
         label: t('game.party.host.route.revealStageResultCta'),
-        disabled: isCommandPending || !controls.canRevealStageResult,
+        permissionReason: reason(controls.permissions.revealStageResult),
+        disabled: isCommandPending || !controls.permissions.revealStageResult.allowed,
         onSelect: onRevealStageResult,
       },
       ...(controls.hasNextStage
@@ -161,7 +165,8 @@ export function HostRuntimeCommandMenu({
               ariaKeyShortcuts: 'n',
               icon: 'skip-forward' as const,
               label: t('game.party.host.route.advanceStageCta'),
-              disabled: isCommandPending || !controls.canAdvanceStage,
+              permissionReason: reason(controls.permissions.advanceStage),
+              disabled: isCommandPending || !controls.permissions.advanceStage.allowed,
               onSelect: onAdvanceStage,
             },
           ]
@@ -170,21 +175,24 @@ export function HostRuntimeCommandMenu({
         ariaKeyShortcuts: 'Shift+B',
         icon: 'skip-back',
         label: t('game.party.host.route.rewindStageCta'),
-        disabled: isCommandPending || !controls.canRewindStage,
+        permissionReason: reason(controls.permissions.rewindStage),
+        disabled: isCommandPending || !controls.permissions.rewindStage.allowed,
         onSelect: onRewindStage,
       },
       {
         ariaKeyShortcuts: 'Shift+R',
         icon: 'settings',
         label: t('game.party.host.route.restartStageCta'),
-        disabled: isCommandPending || !controls.canRestartStage,
+        permissionReason: reason(controls.permissions.restartStage),
+        disabled: isCommandPending || !controls.permissions.restartStage.allowed,
         onSelect: onRestartStage,
       },
       {
         ariaKeyShortcuts: 'Shift+L',
         icon: 'skip-back',
         label: t('game.party.host.route.rewindPartyCta'),
-        disabled: isCommandPending || !controls.canRewindParty,
+        permissionReason: reason(controls.permissions.rewindParty),
+        disabled: isCommandPending || !controls.permissions.rewindParty.allowed,
         onSelect: onRewindParty,
       },
     ],
@@ -197,13 +205,15 @@ export function HostRuntimeCommandMenu({
         ariaKeyShortcuts: 'p',
         icon: 'pause',
         label: t('game.party.host.route.pausePartyCta'),
-        disabled: isCommandPending || !controls.canPauseParty,
+        permissionReason: reason(controls.permissions.pauseParty),
+        disabled: isCommandPending || !controls.permissions.pauseParty.allowed,
         onSelect: onPauseParty,
       },
       {
         icon: 'play',
         label: t('game.party.host.route.resumePartyCta'),
-        disabled: isCommandPending || !controls.canResumeParty,
+        permissionReason: reason(controls.permissions.resumeParty),
+        disabled: isCommandPending || !controls.permissions.resumeParty.allowed,
         onSelect: onResumeParty,
       },
     ],
@@ -216,7 +226,8 @@ export function HostRuntimeCommandMenu({
         ariaKeyShortcuts: 'Shift+E',
         icon: 'power',
         label: t('game.party.host.route.endPartyCta'),
-        disabled: isCommandPending || !controls.canEndParty,
+        permissionReason: reason(controls.permissions.endParty),
+        disabled: isCommandPending || !controls.permissions.endParty.allowed,
         onSelect: onRequestEndParty,
       },
     ],
@@ -265,6 +276,7 @@ function RuntimeMenuGroup({ group, withDivider }: { readonly group: MenuGroup; r
         <DropdownMenuItem
           aria-keyshortcuts={entry.ariaKeyShortcuts}
           disabled={entry.disabled}
+          description={entry.permissionReason ?? undefined}
           key={entry.label}
           leftSection={<AppIcon name={entry.icon} size={16} />}
           onClick={entry.onSelect}

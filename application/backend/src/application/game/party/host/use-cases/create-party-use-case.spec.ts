@@ -1,10 +1,10 @@
+import { createWorkspacePermissionServices } from '../../../../../test-utils/fixtures/workspace-permission-fixture-factory';
 import 'reflect-metadata';
 import { describe, expect, it, vi } from 'vitest';
 import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
 import { PinAlreadyInUseError } from '../../../../../domain/game/party/errors/pin-already-in-use.error';
 import { DEFAULT_PARTY_SETTINGS } from '../../../../../domain/game/party/shared/entities/party-settings';
 import { PartySettingsResolver } from '../../../../../domain/game/party/shared/services/party-settings-resolver';
-import { OrganizationErrorCode } from '../../../../../domain/organization/enums/organization-error-code.enum';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { createOrganizationMemberRepositoryMock } from '../../../../../test-utils/mock-factories/organization.mock-factory';
 import { createPasswordServiceMock } from '../../../../../test-utils/mock-factories/password-service.mock-factory';
@@ -55,7 +55,7 @@ describe('CreatePartyUseCase', () => {
     };
     const useCase = new CreatePartyUseCase(
       partyManagement as never,
-      memberRepository,
+      createWorkspacePermissionServices(memberRepository).membershipAccess,
       gamePermissionResolver as unknown as GamePermissionResolver,
       broadcastPartyObservationUseCase as never,
       partySettingsResolver,
@@ -127,7 +127,7 @@ describe('CreatePartyUseCase', () => {
     memberRepository.findByOrganizationAndUser.mockResolvedValue(null);
 
     // Act + Assert
-    await expect(useCase.execute(defaultCommand)).rejects.toThrow(OrganizationErrorCode.NOT_A_MEMBER);
+    await expect(useCase.execute(defaultCommand)).rejects.toThrow(GameErrorCode.GAME_NOT_FOUND);
   });
 
   it('rejects when another host already owns an active party for the game', async () => {

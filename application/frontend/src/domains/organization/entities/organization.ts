@@ -1,4 +1,5 @@
 import type { PartySettings } from '../../game/party/shared/entities/party-settings';
+import type { OrganizationPermissions } from '../value-objects/organization-permissions';
 
 export type OrganizationId = string & {
   readonly __identifierBrand: 'OrganizationId';
@@ -11,6 +12,9 @@ export enum OrganizationRole {
 }
 
 export interface Organization {
+  readonly permissions: OrganizationPermissions;
+  readonly assignableRoles: readonly OrganizationRole[];
+
   readonly id: OrganizationId;
   readonly name: string;
   readonly description: string | null;

@@ -14,6 +14,7 @@ import type {
   DeleteProjectCommand,
   UpdateProjectCommand,
 } from '../../../../../domains/project/ports/project-repository';
+import { ActionPermissionReason } from '../../../../../domains/shared/value-objects/action-permission';
 import type { PaginatedResult } from '../../../../../domains/shared/value-objects/paginated-result';
 import { usePresentationTranslation } from '../../../../shared/i18n/use-presentation-translation';
 import { StatusBanner } from '../../../../shared/ui/feedback/status-banner';
@@ -120,6 +121,7 @@ export function OrganizationScreen({
     projectTotalCount,
     projectTotalPages,
     projects,
+    reloadWorkspace,
     selectedOrganization,
     selectedProject,
     handleLoadMoreProjects,
@@ -179,7 +181,14 @@ export function OrganizationScreen({
         organizationAction={
           <EditOrganizationForm
             organization={selectedOrganization}
-            onSubmit={updateOrganization}
+            onSubmit={async (command) => {
+              try {
+                return await updateOrganization(command);
+              } catch (error) {
+                reloadWorkspace();
+                throw error;
+              }
+            }}
             onUpdated={handleOrganizationUpdated}
           />
         }
@@ -199,8 +208,12 @@ export function OrganizationScreen({
 
       <OrganizationProjectsSection
         actionErrorMessage={actionErrorMessage ? t(actionErrorMessage) : null}
-        canCreateProject={selectedOrganization !== null}
-        canRemoveProjects={projectTotalCount > 1}
+        createPermission={
+          selectedOrganization?.permissions.createProject ?? {
+            allowed: false,
+            reason: ActionPermissionReason.UNAVAILABLE,
+          }
+        }
         createButtonLabel={t('project.management.section.createButton')}
         eyebrow={t('project.management.section.eyebrow')}
         onCreateProject={openCreateProjectDialog}
@@ -246,7 +259,7 @@ export function OrganizationScreen({
         searchLabel={t('organization.management.members.searchLabel')}
         searchPlaceholder={t('organization.management.members.searchPlaceholder')}
         searchValue={memberSearch}
-        selectedOrganizationRole={selectedOrganization?.role ?? null}
+        assignableRoles={selectedOrganization?.assignableRoles ?? []}
         selectedOrganizationName={selectedOrganization?.name ?? null}
         title={t('organization.management.members.title')}
         usernameOrEmailLabel={t('organization.management.members.usernameOrEmailLabel')}

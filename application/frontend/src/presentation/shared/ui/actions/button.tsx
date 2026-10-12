@@ -1,7 +1,12 @@
 import type { ButtonProps as MantineButtonProps } from '@mantine/core';
 import { Button as MantineButton } from '@mantine/core';
 import type { ButtonHTMLAttributes, ComponentPropsWithoutRef, ReactNode } from 'react';
+import { useId } from 'react';
+import type { ActionPermission } from '../../../../domains/shared/value-objects/action-permission';
+import { usePresentationTranslation } from '../../i18n/use-presentation-translation';
 import { uiThemeTokens } from '../foundation/ui-theme';
+import { ContentStack } from '../layout/containers';
+import { SupportingText } from '../layout/typography';
 
 type ButtonIntent = 'primary' | 'secondary' | 'ghost';
 type ButtonIntentCompat = ButtonIntent | 'outline';
@@ -24,6 +29,8 @@ type ButtonStyleVars = InlineStyle &
 interface ButtonProps
   extends Omit<MantineButtonProps, 'className' | 'color' | 'radius' | 'style' | 'styles' | 'variant'>,
     Omit<ComponentPropsWithoutRef<'button'>, 'children' | 'className' | 'style' | 'type'> {
+  readonly permission?: ActionPermission;
+  readonly permissionReason?: string | null;
   readonly appearance?: ButtonAppearance;
   readonly appearanceShadow?: ButtonAppearanceShadow;
   readonly appearanceSurface?: ButtonAppearanceSurface;
@@ -236,6 +243,8 @@ function resolveAppearanceRootStyle({
 }
 
 export function Button({
+  permission,
+  permissionReason,
   appearance = 'default',
   appearanceActive,
   appearanceShadow = 'none',
@@ -254,6 +263,8 @@ export function Button({
   width = 'auto',
   ...props
 }: ButtonProps) {
+  const descriptionId = useId();
+  const isPermissionDenied = permission?.allowed === false;
   const resolvedIntent = resolveButtonIntent(intent);
   const intentProps = buttonIntentProps[resolvedIntent];
   const appearanceRootStyle = resolveAppearanceRootStyle({
@@ -267,7 +278,7 @@ export function Button({
     padding,
   });
 
-  return (
+  const button = (
     <MantineButton
       color={intentProps.color}
       leftSection={leftSection}
@@ -293,6 +304,33 @@ export function Button({
       type={type}
       variant={intentProps.variant}
       {...props}
+      disabled={props.disabled || isPermissionDenied}
+      aria-describedby={
+        [props['aria-describedby'], isPermissionDenied ? descriptionId : null].filter(Boolean).join(' ') || undefined
+      }
     />
+  );
+  return isPermissionDenied ? (
+    <ContentStack gap="xs">
+      {button}
+      <ButtonPermissionDescription id={descriptionId} reason={permissionReason} />
+    </ContentStack>
+  ) : (
+    button
+  );
+}
+
+function ButtonPermissionDescription({
+  id,
+  reason,
+}: {
+  readonly id: string;
+  readonly reason: string | null | undefined;
+}) {
+  const { t } = usePresentationTranslation();
+  return (
+    <div id={id}>
+      <SupportingText>{reason ?? t('common.permissions.unavailable')}</SupportingText>
+    </div>
   );
 }

@@ -1,6 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PartyNotFoundError } from '../../../../../domain/game/errors';
+import { HostPartyLifecyclePolicy } from '../../../../../domain/game/party/host/services/host-party-lifecycle-policy';
 import type { PartyId } from '../../../../../domain/game/party/shared/entities/party';
+import { PartyStageConfigurationPort } from '../../../types/shared/ports/party-stage-configuration.port';
 import { HostPartyObservationReaderPort } from '../../host/ports/host-party-observation-reader.port';
 import { PlayerPartyObservationReaderPort } from '../../player/ports/player-party-observation-reader.port';
 import type { PartyObservationSnapshot } from '../entities/party-observation-snapshot';
@@ -9,6 +11,8 @@ import { PartyGameTypeReaderPort } from '../ports/party-game-type-reader.port';
 @Injectable()
 export class LoadPartyObservationSnapshotUseCase {
   constructor(
+    private readonly lifecyclePolicy: HostPartyLifecyclePolicy,
+    private readonly stageConfiguration: PartyStageConfigurationPort,
     @Inject(HostPartyObservationReaderPort)
     private readonly hostPartyObservationReader: HostPartyObservationReaderPort,
     @Inject(PlayerPartyObservationReaderPort)
@@ -39,6 +43,12 @@ export class LoadPartyObservationSnapshotUseCase {
     }
 
     return {
+      hostPermissions: this.lifecyclePolicy.permissions({
+        status: hostObservation.status,
+        runtime: hostObservation.context,
+        playerCount: hostObservation.players.length,
+        stageCount: await this.stageConfiguration.getStageCount(hostObservation.gameId),
+      }),
       gameType,
       hostObservation,
       playerObservation,

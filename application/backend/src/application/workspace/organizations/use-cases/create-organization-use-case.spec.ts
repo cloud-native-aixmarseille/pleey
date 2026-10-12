@@ -1,6 +1,8 @@
 import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
 import { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
+import { createOrganizationMemberFixture } from '../../../../test-utils/fixtures/unit/organization-member.fixture';
+import { createWorkspacePermissionServices } from '../../../../test-utils/fixtures/workspace-permission-fixture-factory';
 import {
   createOrganizationMemberRepositoryMock,
   createOrganizationRepositoryMock,
@@ -18,6 +20,7 @@ describe('CreateOrganizationUseCase', () => {
     const memberRepository = createOrganizationMemberRepositoryMock();
     const projectRepository = createProjectRepositoryMock();
     const useCase = new CreateOrganizationUseCase(
+      createWorkspacePermissionServices(memberRepository as never, organizationRepository as never).membershipAccess,
       organizationRepository as never,
       memberRepository as never,
       projectRepository as never,
@@ -35,9 +38,12 @@ describe('CreateOrganizationUseCase', () => {
       findByName: null,
       create: { id: 10, name: 'Org', description: null } as never,
     });
-    const memberRepository = createOrganizationMemberRepositoryMock({ create: undefined });
+    const memberRepository = createOrganizationMemberRepositoryMock({
+      create: createOrganizationMemberFixture({ role: OrganizationRole.OWNER }),
+    });
     const projectRepository = createProjectRepositoryMock({ create: undefined });
     const useCase = new CreateOrganizationUseCase(
+      createWorkspacePermissionServices(memberRepository as never, organizationRepository as never).membershipAccess,
       organizationRepository as never,
       memberRepository as never,
       projectRepository as never,

@@ -1,6 +1,7 @@
 import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
 import { ProjectErrorCode } from '../../../../domain/project/enums/project-error-code.enum';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
+import { createWorkspacePermissionServices } from '../../../../test-utils/fixtures/workspace-permission-fixture-factory';
 import { createOrganizationMemberRepositoryMock } from '../../../../test-utils/mock-factories/organization.mock-factory';
 import { createProjectRepositoryMock } from '../../../../test-utils/mock-factories/project-repository.mock-factory';
 import type { UpdateProjectDto } from '../dto/update-project-dto';
@@ -16,7 +17,10 @@ describe('UpdateProjectUseCase', () => {
     const projectRepository = createProjectRepositoryMock({ findById: null });
     const memberRepository = createOrganizationMemberRepositoryMock();
 
-    const useCase = new UpdateProjectUseCase(projectRepository as never, memberRepository as never);
+    const useCase = new UpdateProjectUseCase(
+      createWorkspacePermissionServices(memberRepository as never).projectPermissions,
+      projectRepository as never,
+    );
 
     // Act + Assert
     await expect(
@@ -24,7 +28,7 @@ describe('UpdateProjectUseCase', () => {
     ).rejects.toThrow(ProjectErrorCode.PROJECT_NOT_FOUND);
   });
 
-  it('throws NOT_A_MEMBER when the user is outside the organization', async () => {
+  it('throws PROJECT_NOT_FOUND when the user is outside the organization', async () => {
     // Arrange
     const projectRepository = createProjectRepositoryMock({
       findById: {
@@ -36,12 +40,13 @@ describe('UpdateProjectUseCase', () => {
       findByOrganizationAndUser: null,
     });
 
-    const useCase = new UpdateProjectUseCase(projectRepository as never, memberRepository as never);
+    const useCase = new UpdateProjectUseCase(
+      createWorkspacePermissionServices(memberRepository as never).projectPermissions,
+      projectRepository as never,
+    );
 
     // Act + Assert
-    await expect(
-      useCase.execute(projectId, { name: 'Updated project' } satisfies UpdateProjectDto, actorUserId),
-    ).rejects.toThrow(OrganizationErrorCode.NOT_A_MEMBER);
+    await expect(useCase.execute(projectId, actorUserId)).rejects.toThrow(ProjectErrorCode.PROJECT_NOT_FOUND);
   });
 
   it('throws INSUFFICIENT_PERMISSIONS when the user cannot manage projects', async () => {
@@ -58,7 +63,10 @@ describe('UpdateProjectUseCase', () => {
       } as never,
     });
 
-    const useCase = new UpdateProjectUseCase(projectRepository as never, memberRepository as never);
+    const useCase = new UpdateProjectUseCase(
+      createWorkspacePermissionServices(memberRepository as never).projectPermissions,
+      projectRepository as never,
+    );
 
     // Act + Assert
     await expect(
@@ -87,7 +95,10 @@ describe('UpdateProjectUseCase', () => {
       } as never,
     });
 
-    const useCase = new UpdateProjectUseCase(projectRepository as never, memberRepository as never);
+    const useCase = new UpdateProjectUseCase(
+      createWorkspacePermissionServices(memberRepository as never).projectPermissions,
+      projectRepository as never,
+    );
 
     // Act
     const result = await useCase.execute(

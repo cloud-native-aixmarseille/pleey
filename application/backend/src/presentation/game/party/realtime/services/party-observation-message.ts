@@ -1,3 +1,4 @@
+import type { HostPartyPermissions } from '../../../../../domain/game/party/host/value-objects/host-party-permissions';
 import type {
   PlayerPartyObservation,
   PlayerPartyObservationPlayer,
@@ -18,6 +19,7 @@ type PartyObservationMessageBase = Pick<PlayerPartyObservation, 'partyId' | 'pin
 
 export type HostPartyObservationMessage = PartyObservationMessageBase & {
   readonly isObserverHost: true;
+  readonly permissions: HostPartyPermissions;
 };
 
 export type PlayerPartyObservationMessage = PartyObservationMessageBase & {

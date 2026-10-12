@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { DEFAULT_PARTY_SETTINGS } from '../../../../../../domains/game/party/shared/entities/party-settings';
 import { OrganizationRole } from '../../../../../../domains/organization/entities/organization';
+import { OrganizationActionDisabledReason } from '../../../../../../domains/organization/value-objects/organization-permissions';
 import { OrganizationFixtureFactory } from '../../../../../../test-utils/fixtures/organization-fixture-factory';
 import { renderWithProviders } from '../../../../../../test-utils/render-with-providers';
 import { EditOrganizationForm } from './edit-organization-form';
@@ -18,18 +19,27 @@ vi.mock('../../../../../shared/i18n/use-presentation-translation', async (import
 });
 
 describe('EditOrganizationForm', () => {
-  it('hides the edit action when the selected user cannot manage the organization', () => {
+  it('explains why editing is disabled when the server denies it', () => {
     // Arrange + Act
     renderWithProviders(
       <EditOrganizationForm
-        organization={organizationFixtureFactory.createOrganization({ role: OrganizationRole.MEMBER })}
+        organization={organizationFixtureFactory.createOrganization({
+          role: OrganizationRole.MEMBER,
+          permissions: {
+            ...organizationFixtureFactory.createOrganization().permissions,
+            update: { allowed: false, reason: OrganizationActionDisabledReason.INSUFFICIENT_PERMISSIONS },
+          },
+        })}
         onSubmit={vi.fn()}
         onUpdated={vi.fn()}
       />,
     );
 
     // Assert
-    expect(screen.queryByRole('button', { name: 'organization.management.edit.openButton' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'organization.management.edit.openButton' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'organization.management.edit.openButton' })).toHaveAccessibleDescription(
+      'organization.permissions.managementRequired',
+    );
   });
 
   it('submits updated organization values and notifies the caller', async () => {

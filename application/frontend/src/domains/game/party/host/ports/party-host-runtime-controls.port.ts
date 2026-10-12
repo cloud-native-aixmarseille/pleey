@@ -1,5 +1,6 @@
 import type { PartyObservation } from '../../shared/entities/party-observation';
 import type { PartyRuntimePhase } from '../../shared/entities/party-runtime-context';
+import type { HostPartyPermissions } from '../value-objects/host-party-permissions';
 
 export enum HostPartyRuntimeCommand {
   AdvanceStage = 'advanceStage',
@@ -14,15 +15,7 @@ export enum HostPartyRuntimeCommand {
 }
 
 export interface HostPartyRuntimeControlsState {
-  readonly canAdvanceStage: boolean;
-  readonly canEndParty: boolean;
-  readonly canPauseParty: boolean;
-  readonly canRestartStage: boolean;
-  readonly canResumeParty: boolean;
-  readonly canRevealStageResult: boolean;
-  readonly canRewindParty: boolean;
-  readonly canRewindStage: boolean;
-  readonly canStartParty: boolean;
+  readonly permissions: HostPartyPermissions;
   readonly currentStageNumber: number | null;
   readonly hasNextStage: boolean;
   readonly isPaused: boolean;

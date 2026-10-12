@@ -51,6 +51,7 @@ export class PrismaHostPartyObservationReader implements HostPartyObservationRea
         createdAt: true,
         updatedAt: true,
         pin: true,
+        passwordHash: true,
         status: true,
         context: true,
         settings: true,
@@ -139,6 +140,7 @@ export class PrismaHostPartyObservationReader implements HostPartyObservationRea
     const submittedPlayerCount = playerActionStates.filter((entry) => entry.state.stageId === stageId).length;
 
     return {
+      isPrivate: party.passwordHash !== null,
       partyId: this.partyIdentifier.parse(party.id),
       gameId: this.gameIdentifier.parse(party.gameId),
       pin: this.partyPinIdentifier.parse(party.pin),

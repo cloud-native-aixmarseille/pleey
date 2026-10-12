@@ -26,7 +26,7 @@ export function HostAdvanceStageAction({
   const { t } = usePresentationTranslation();
   const isCommandPending = pendingCommand !== null;
 
-  if (!controls.canAdvanceStage) {
+  if (!controls.permissions.advanceStage.allowed) {
     return null;
   }
 

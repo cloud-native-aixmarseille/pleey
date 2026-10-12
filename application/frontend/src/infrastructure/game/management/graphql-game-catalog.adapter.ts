@@ -9,6 +9,7 @@ import {
 } from '../../../domains/game/management/entities/dashboard-game-list-item';
 import type { DashboardGameListPage } from '../../../domains/game/management/entities/dashboard-game-list-page';
 import type { DashboardGameListQuery } from '../../../domains/game/management/entities/dashboard-game-list-query';
+import { decodeActionPermission } from '../../../domains/shared/services/action-permission-decoder';
 import { GraphqlClient } from '../../graphql/client/graphql-client';
 import {
   ProjectGamesDocument,
@@ -55,14 +56,17 @@ export class GraphqlGameCatalogAdapter implements GameCatalogPort {
         gameTypeId: item.gameTypeId == null ? null : this.gameTypeIdentifier.parse(item.gameTypeId),
         stageCount: item.stageCount,
         permissions: {
-          createParty: {
-            allowed: item.permissions.createParty.allowed,
-            reason: this.toCreatePartyDisabledReason(item.permissions.createParty.reason),
-          },
-          launchReadiness: {
-            allowed: item.permissions.launchReadiness.allowed,
-            reason: this.toLaunchReadinessDisabledReason(item.permissions.launchReadiness.reason),
-          },
+          createParty: decodeActionPermission(item.permissions?.createParty, Object.values(CreatePartyDisabledReason)),
+          launchReadiness: decodeActionPermission(
+            {
+              allowed: item.permissions?.launchReadiness?.allowed,
+              reason:
+                item.permissions?.launchReadiness?.reason === 'NO_STAGES_AVAILABLE'
+                  ? LaunchReadinessDisabledReason.NO_STAGES_AVAILABLE
+                  : item.permissions?.launchReadiness?.reason,
+            },
+            Object.values(LaunchReadinessDisabledReason),
+          ),
         },
       })),
       totalCount: result.projectGames.totalCount,
@@ -71,25 +75,5 @@ export class GraphqlGameCatalogAdapter implements GameCatalogPort {
       pageSize: result.projectGames.pageSize,
       totalPages: result.projectGames.totalPages,
     };
-  }
-
-  private toCreatePartyDisabledReason(reason: string | null | undefined): CreatePartyDisabledReason | null {
-    switch (reason) {
-      case CreatePartyDisabledReason.ACTIVE_PARTY_EXISTS:
-      case CreatePartyDisabledReason.HOST_HAS_ACTIVE_PARTY:
-      case CreatePartyDisabledReason.NO_STAGES_AVAILABLE:
-        return reason;
-      default:
-        return null;
-    }
-  }
-
-  private toLaunchReadinessDisabledReason(reason: string | null | undefined): LaunchReadinessDisabledReason | null {
-    switch (reason) {
-      case LaunchReadinessDisabledReason.NO_STAGES_AVAILABLE:
-        return reason;
-      default:
-        return null;
-    }
   }
 }

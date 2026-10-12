@@ -13,6 +13,25 @@ query WorkspaceOrganizations($input: ListOrganizationsInput) {
         randomizeStageOrder
       }
       role
+      assignableRoles
+      permissions {
+        read {
+          allowed
+          reason
+        }
+        update {
+          allowed
+          reason
+        }
+        createProject {
+          allowed
+          reason
+        }
+        manageMembers {
+          allowed
+          reason
+        }
+      }
     }
     totalCount
     overallCount
@@ -36,5 +55,24 @@ mutation UpdateOrganization($organizationId: ID!, $input: UpdateOrganizationInpu
       randomizeStageOrder
     }
     role
+    assignableRoles
+    permissions {
+      read {
+        allowed
+        reason
+      }
+      update {
+        allowed
+        reason
+      }
+      createProject {
+        allowed
+        reason
+      }
+      manageMembers {
+        allowed
+        reason
+      }
+    }
   }
 }

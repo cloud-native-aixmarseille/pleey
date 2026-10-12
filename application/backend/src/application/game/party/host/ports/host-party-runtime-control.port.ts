@@ -8,6 +8,7 @@ import type { UserId } from '../../../../../domain/identity/entities/user';
 import type { HostPartyPlayerIdentity } from '../dto/host-party-player-control.dto';
 
 export interface HostControlledPartyRuntime {
+  readonly playerCount: number;
   readonly context: PartyRuntimeContext | null;
   readonly gameId: GameId;
   readonly hostUserId: UserId;

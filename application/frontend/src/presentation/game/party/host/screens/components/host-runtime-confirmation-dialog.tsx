@@ -49,28 +49,28 @@ function resolveHostRuntimeConfirmationDialogCopy(
   switch (command) {
     case HostPartyRuntimeCommand.RestartStage:
       return {
-        confirmDisabled: !controls.canRestartStage,
+        confirmDisabled: !controls.permissions.restartStage.allowed,
         confirmLabelKey: 'game.party.host.route.confirmRestartStageCta',
         messageKey: 'game.party.host.route.runtimeRestartStageConfirmMessage',
         titleKey: 'game.party.host.route.runtimeRestartStageConfirmTitle',
       };
     case HostPartyRuntimeCommand.RewindParty:
       return {
-        confirmDisabled: !controls.canRewindParty,
+        confirmDisabled: !controls.permissions.rewindParty.allowed,
         confirmLabelKey: 'game.party.host.route.confirmRewindPartyCta',
         messageKey: 'game.party.host.route.runtimeRewindPartyConfirmMessage',
         titleKey: 'game.party.host.route.runtimeRewindPartyConfirmTitle',
       };
     case HostPartyRuntimeCommand.RewindStage:
       return {
-        confirmDisabled: !controls.canRewindStage,
+        confirmDisabled: !controls.permissions.rewindStage.allowed,
         confirmLabelKey: 'game.party.host.route.confirmRewindStageCta',
         messageKey: 'game.party.host.route.runtimeRewindStageConfirmMessage',
         titleKey: 'game.party.host.route.runtimeRewindStageConfirmTitle',
       };
     default:
       return {
-        confirmDisabled: !controls.canEndParty,
+        confirmDisabled: !controls.permissions.endParty.allowed,
         confirmLabelKey: 'game.party.host.route.confirmEndPartyCta',
         messageKey: 'game.party.host.route.runtimeEndConfirmMessage',
         titleKey: 'game.party.host.route.runtimeEndConfirmTitle',

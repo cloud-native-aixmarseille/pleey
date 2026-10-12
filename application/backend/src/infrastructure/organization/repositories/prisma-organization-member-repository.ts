@@ -10,7 +10,10 @@ import {
   type OrganizationMemberId,
 } from '../../../domain/organization/entities/organization-member';
 import { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
-import type { OrganizationMemberRepository } from '../../../domain/organization/ports/organization-member.repository';
+import type {
+  OrganizationMemberRepository,
+  OrganizationMemberWriteContext,
+} from '../../../domain/organization/ports/organization-member.repository';
 import type { PaginatedResult } from '../../../domain/shared/value-objects/paginated-result';
 import { PrismaService } from '../../database/prisma-service';
 
@@ -36,6 +39,48 @@ export class PrismaOrganizationMemberRepository implements OrganizationMemberRep
     private readonly organizationMemberIdentifier: OrganizationMemberIdentifier,
     private readonly paginationQueryNormalizer: PaginationQueryNormalizer,
   ) {}
+
+  async withOrganizationLock<T>(
+    organizationId: OrganizationId,
+    operation: (members: OrganizationMemberWriteContext) => Promise<T>,
+  ): Promise<T> {
+    return this.prisma.$transaction(async (transaction) => {
+      await transaction.$queryRaw`SELECT id FROM organizations WHERE id = ${organizationId}::uuid AND deleted_at IS NULL FOR UPDATE`;
+      const scope = { organizationId, deletedAt: null, organization: { deletedAt: null } };
+      return operation({
+        findById: async (id) => {
+          const member = await transaction.organizationMember.findFirst({
+            where: { ...scope, id },
+            include: ORGANIZATION_MEMBER_USER_INCLUDE,
+          });
+          return member ? this.toDomain(member) : null;
+        },
+        findByOrganizationAndUser: async (requestedOrganizationId, userId) => {
+          if (requestedOrganizationId !== organizationId) return null;
+          const member = await transaction.organizationMember.findFirst({
+            where: { ...scope, userId },
+            include: ORGANIZATION_MEMBER_USER_INCLUDE,
+          });
+          return member ? this.toDomain(member) : null;
+        },
+        countOwnersByOrganization: (requestedOrganizationId) =>
+          requestedOrganizationId !== organizationId
+            ? Promise.resolve(0)
+            : transaction.organizationMember.count({ where: { ...scope, role: OrganizationRole.OWNER } }),
+        updateRole: async (id, role) =>
+          this.toDomain(
+            await transaction.organizationMember.update({
+              where: { ...scope, id },
+              data: { role },
+              include: ORGANIZATION_MEMBER_USER_INCLUDE,
+            }),
+          ),
+        delete: async (id) => {
+          await transaction.organizationMember.update({ where: { ...scope, id }, data: { deletedAt: new Date() } });
+        },
+      });
+    });
+  }
 
   async create(organizationId: OrganizationId, userId: UserId, role: OrganizationRole): Promise<OrganizationMember> {
     const existingMember = await this.prisma.organizationMember.findFirst({

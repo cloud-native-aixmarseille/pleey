@@ -2,6 +2,20 @@ export const gamePartyHostFr = {
   game: {
     party: {
       host: {
+        permissions: {
+          HOST_REQUIRED: "Seul l'hôte peut effectuer cette action.",
+          PARTY_NOT_WAITING: 'La partie doit être en attente.',
+          NO_PLAYERS: 'Au moins un joueur doit rejoindre la partie.',
+          NO_STAGES: 'Ajoutez une étape avant de commencer.',
+          RUNTIME_UNAVAILABLE: 'Cette action nécessite une étape active ou ses résultats.',
+          RESULT_REQUIRED: "Affichez les résultats d'abord.",
+          STAGE_REQUIRED: 'Cette action nécessite une étape en cours.',
+          PREVIOUS_STAGE_REQUIRED: "Il n'y a pas d'étape précédente.",
+          ACTIVE_PARTY_REQUIRED: 'La partie doit être active.',
+          PAUSED_PARTY_REQUIRED: "Mettez la partie en pause d'abord.",
+          PARTY_ENDED: 'La partie est terminée.',
+        },
+
         route: {
           hostingBadge: "Vous êtes l'hôte",
           sharePanelLabel: 'Inviter des joueurs',

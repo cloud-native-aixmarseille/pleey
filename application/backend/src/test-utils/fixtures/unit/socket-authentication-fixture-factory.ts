@@ -9,7 +9,7 @@ export class SocketAuthenticationFixtureFactory {
     const createServer = vi.spyOn(IoAdapter.prototype, 'createIOServer').mockReturnValue(server as never);
     const sessions = { authenticate: vi.fn().mockResolvedValue({ id: backendTestIdentifiers.user(1) }) };
     const app = { get: vi.fn().mockReturnValue(sessions) };
-    const adapter = new ConfiguredIoAdapter(app as never, { origin: '*', credentials: false }, 1000);
+    const adapter = new ConfiguredIoAdapter(app as never, { origin: '*', credentials: false });
     adapter.createIOServer(0);
     const socket = {
       handshake: { auth: { authorization }, headers: {} },

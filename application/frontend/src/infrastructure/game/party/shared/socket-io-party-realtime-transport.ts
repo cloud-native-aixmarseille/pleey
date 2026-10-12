@@ -182,6 +182,9 @@ export class SocketIoPartyRealtimeTransport {
 
     socket.on(SocketIoPartyInboundEventName.Disconnect, () => {
       this.activePartyObservationIds.clear();
+      for (const listeners of this.subscriptions.values()) {
+        for (const listener of listeners) listener.onDisconnected?.();
+      }
     });
 
     socket.on(SocketIoPartyInboundEventName.PartySnapshot, (payload) => {

@@ -1,6 +1,7 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
+import { ProjectActionDisabledReason } from '../../../../../../domains/project/value-objects/project-permissions';
 import { OrganizationScreenFixtureFactory } from '../../../../../../test-utils/fixtures/organization-screen-fixture-factory';
 import { renderWithProviders } from '../../../../../../test-utils/render-with-providers';
 import { OrganizationProjectList } from './organization-project-list';
@@ -41,7 +42,6 @@ describe('OrganizationProjectList', () => {
     // Act
     renderWithProviders(
       <OrganizationProjectList
-        canRemoveProjects
         onEditProject={onEditProject}
         onRemoveProject={onRemoveProject}
         projects={[flagshipProject, sideProject]}
@@ -79,12 +79,16 @@ describe('OrganizationProjectList', () => {
   it('disables removal when the current user cannot remove projects', () => {
     // Arrange
     arrangeCallbacks();
-    const project = fixtureFactory.createProject();
+    const project = fixtureFactory.createProject({
+      permissions: {
+        update: { allowed: true, reason: null },
+        delete: { allowed: false, reason: ProjectActionDisabledReason.INSUFFICIENT_PERMISSIONS },
+      },
+    });
 
     // Act
     renderWithProviders(
       <OrganizationProjectList
-        canRemoveProjects={false}
         onEditProject={onEditProject}
         onRemoveProject={onRemoveProject}
         projects={[project]}
@@ -102,7 +106,6 @@ describe('OrganizationProjectList', () => {
     // Act
     renderWithProviders(
       <OrganizationProjectList
-        canRemoveProjects
         onEditProject={onEditProject}
         onRemoveProject={onRemoveProject}
         projects={[]}

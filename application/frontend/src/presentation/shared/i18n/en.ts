@@ -1,5 +1,6 @@
 export const sharedEn = {
   common: {
+    permissions: { unavailable: 'This action is currently unavailable. Refresh to check your access.' },
     loading: 'Loading...',
     cancel: 'Cancel',
     patience: {

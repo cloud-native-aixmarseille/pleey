@@ -1,5 +1,6 @@
 export const sharedFr = {
   common: {
+    permissions: { unavailable: 'Cette action est actuellement indisponible. Actualisez pour vérifier vos droits.' },
     loading: 'Chargement...',
     cancel: 'Annuler',
     patience: {

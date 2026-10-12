@@ -8,7 +8,6 @@ import { HostPartyRuntimeStageReferenceResolver } from '../../../application/gam
 import { AdvanceStageUseCase } from '../../../application/game/party/host/use-cases/advance-stage-use-case';
 import { CreatePartyUseCase } from '../../../application/game/party/host/use-cases/create-party-use-case';
 import { EndPartyUseCase } from '../../../application/game/party/host/use-cases/end-party-use-case';
-import { GetHostPartyObservationUseCase } from '../../../application/game/party/host/use-cases/get-host-party-observation-use-case';
 import { KickPartyPlayerUseCase } from '../../../application/game/party/host/use-cases/kick-party-player-use-case';
 import { PausePartyUseCase } from '../../../application/game/party/host/use-cases/pause-party-use-case';
 import { RestartStageUseCase } from '../../../application/game/party/host/use-cases/restart-stage-use-case';
@@ -20,7 +19,6 @@ import { StartPartyUseCase } from '../../../application/game/party/host/use-case
 import { PlayerPartyActionRuntimePort } from '../../../application/game/party/player/ports/player-party-action-runtime.port';
 import { PlayerPartyObservationReaderPort } from '../../../application/game/party/player/ports/player-party-observation-reader.port';
 import { PlayerPartyRuntimePort } from '../../../application/game/party/player/ports/player-party-runtime.port';
-import { GetPlayerPartyObservationUseCase } from '../../../application/game/party/player/use-cases/get-player-party-observation-use-case';
 import { JoinPartyUseCase } from '../../../application/game/party/player/use-cases/join-party-use-case';
 import { LeavePartyUseCase } from '../../../application/game/party/player/use-cases/leave-party-use-case';
 import { SubmitPartyActionUseCase } from '../../../application/game/party/player/use-cases/submit-party-action-use-case';
@@ -31,6 +29,7 @@ import { PartyActionIdentifier } from '../../../application/game/party/shared/se
 import { PartyIdentifier } from '../../../application/game/party/shared/services/identifiers/party-identifier';
 import { PartyPinIdentifier } from '../../../application/game/party/shared/services/identifiers/party-pin-identifier';
 import { PartyStageIdentifier } from '../../../application/game/party/shared/services/identifiers/party-stage-identifier';
+import { PartyObservationAccessService } from '../../../application/game/party/shared/services/party-observation-access-service';
 import { BroadcastPartyObservationUseCase } from '../../../application/game/party/shared/use-cases/broadcast-party-observation-use-case';
 import { ListPartiesUseCase } from '../../../application/game/party/shared/use-cases/list-parties-use-case';
 import { LoadPartyObservationSnapshotUseCase } from '../../../application/game/party/shared/use-cases/load-party-observation-snapshot-use-case';
@@ -49,6 +48,7 @@ import { OrganizationIdentifier } from '../../../application/workspace/shared/se
 import { OrganizationMemberIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-member-identifier';
 import { ProjectIdentifier } from '../../../application/workspace/shared/services/identifiers/project-identifier';
 import { HostPartyLifecyclePolicy } from '../../../domain/game/party/host/services/host-party-lifecycle-policy';
+import { PartyGuestCredentialPort } from '../../../domain/game/party/player/ports/party-guest-credential.port';
 import {
   PartyPlayerSessionRegistry,
   PartyPlayerSessionRegistryProvider,
@@ -59,6 +59,7 @@ import { GameType } from '../../../domain/game/types/shared/entities/game-type';
 import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/ports/organization-member.repository';
 import { ProjectRepositoryProvider } from '../../../domain/project/ports/project.repository';
 import { PrismaGameCatalogAdapter } from '../../../infrastructure/game/management/prisma-game-catalog.adapter';
+import { JwtPartyGuestCredential } from '../../../infrastructure/game/party/jwt-party-guest-credential';
 import { PrismaHostPartyObservationReader } from '../../../infrastructure/game/party/prisma-host-party-observation-reader';
 import { PrismaHostPartyRuntimeControlAdapter } from '../../../infrastructure/game/party/prisma-host-party-runtime-control.adapter';
 import { PrismaPartyGameTypeReader } from '../../../infrastructure/game/party/prisma-party-game-type-reader';
@@ -102,11 +103,14 @@ import { ErrorTranslationService } from '../../../presentation/shared/error-hand
 import { I18nWsExceptionFilter } from '../../../presentation/shared/error-handling/i18n-ws-exception-filter';
 import { DatabaseModule } from '../database/database-module';
 import { IdentityModule } from '../identity/identity-module';
+import { OrganizationAccessModule } from '../organization/organization-access-module';
 import { SharedServicesModule } from '../shared/shared-services.module';
 
 @Module({
-  imports: [DatabaseModule, IdentityModule, SharedServicesModule],
+  imports: [OrganizationAccessModule, DatabaseModule, IdentityModule, SharedServicesModule],
   providers: [
+    PartyObservationAccessService,
+    { provide: PartyGuestCredentialPort, useClass: JwtPartyGuestCredential },
     PrismaGameCatalogAdapter,
     PrismaPlayerPartyActionRuntimeAdapter,
     PrismaPlayerPartyRuntimeAdapter,
@@ -215,8 +219,6 @@ import { SharedServicesModule } from '../shared/shared-services.module';
     GameTypeParser,
     GuestIdentifier,
     GamePermissionResolver,
-    GetHostPartyObservationUseCase,
-    GetPlayerPartyObservationUseCase,
     ListProjectGamesUseCase,
     ListPartiesUseCase,
     LoadPartyObservationSnapshotUseCase,
@@ -303,8 +305,6 @@ import { SharedServicesModule } from '../shared/shared-services.module';
     PartyManagementPort,
     CreatePartyUseCase,
     GamePermissionResolver,
-    GetHostPartyObservationUseCase,
-    GetPlayerPartyObservationUseCase,
     JoinPartyUseCase,
     LeavePartyUseCase,
     ListProjectGamesUseCase,

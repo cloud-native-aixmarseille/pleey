@@ -65,3 +65,9 @@ Use-cases and runtime services throw domain errors, and `I18nHttpExceptionFilter
 ## Runtime Config
 
 Read `process.env` only in `src/app/config/`. Runtime code receives config via DI tokens such as `APP_SERVER_CONFIG` and `GAME_SOCKET_CORS_OPTIONS`.
+
+## Resource permissions
+
+Follow [ADR 0014](../../architecture/adr/0014-unify-resource-scoped-permissions.md)
+for feature policy ownership, application enforcement, safe permission
+projections, and concurrency guarantees.

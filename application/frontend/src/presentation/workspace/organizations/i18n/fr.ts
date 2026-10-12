@@ -1,5 +1,10 @@
 export const organizationFr = {
   organization: {
+    permissions: {
+      membershipRequired: 'Vous devez être membre de cette organisation.',
+      managementRequired: 'Un propriétaire ou gestionnaire doit effectuer cette action.',
+      lastOwner: 'Désignez un autre propriétaire avant de retirer ou modifier le dernier propriétaire.',
+    },
     management: {
       header: {
         eyebrow: 'Organisation',
@@ -88,6 +93,7 @@ export const organizationFr = {
     },
   },
   project: {
+    permissions: { lastProject: 'Créez un autre projet avant de supprimer celui-ci.' },
     management: {
       searchLabel: 'Rechercher des projets',
       searchPlaceholder: 'Rechercher des projets',

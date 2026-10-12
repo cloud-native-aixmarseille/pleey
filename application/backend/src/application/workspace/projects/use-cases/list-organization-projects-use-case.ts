@@ -1,17 +1,16 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { UserId } from '../../../../domain/identity/entities/user';
 import type { OrganizationId } from '../../../../domain/organization/entities/organization';
-import { NotAMemberError, OrganizationNotFoundError } from '../../../../domain/organization/errors';
+import { OrganizationNotFoundError } from '../../../../domain/organization/errors';
 import type { OrganizationRepository } from '../../../../domain/organization/ports/organization.repository';
 import { OrganizationRepositoryProvider } from '../../../../domain/organization/ports/organization.repository';
-import type { OrganizationMemberRepository } from '../../../../domain/organization/ports/organization-member.repository';
-import { OrganizationMemberRepositoryProvider } from '../../../../domain/organization/ports/organization-member.repository';
-import type { Project } from '../../../../domain/project/entities/project';
 import type { ProjectRepository } from '../../../../domain/project/ports/project.repository';
 import { ProjectRepositoryProvider } from '../../../../domain/project/ports/project.repository';
 import type { PaginatedResult } from '../../../../domain/shared/value-objects/paginated-result';
 import type { PaginationQuery } from '../../../../domain/shared/value-objects/pagination-query';
 import { PaginationQueryNormalizer } from '../../../shared/services/pagination-query-normalizer';
+import { OrganizationMembershipAccessService } from '../../organizations/services/organization-membership-access.service';
+import { ProjectPermissionService, type ProjectWithAccess } from '../services/project-permission-service';
 
 interface ListOrganizationProjectsQuery extends PaginationQuery {
   readonly organizationId: OrganizationId;
@@ -20,36 +19,33 @@ interface ListOrganizationProjectsQuery extends PaginationQuery {
 @Injectable()
 export class ListOrganizationProjectsUseCase {
   constructor(
+    private readonly membershipAccess: OrganizationMembershipAccessService,
+    private readonly projectPermissions: ProjectPermissionService,
     @Inject(ProjectRepositoryProvider)
     private readonly projectRepository: ProjectRepository,
     @Inject(OrganizationRepositoryProvider)
     private readonly organizationRepository: OrganizationRepository,
-    @Inject(OrganizationMemberRepositoryProvider)
-    private readonly memberRepository: OrganizationMemberRepository,
     private readonly paginationQueryNormalizer: PaginationQueryNormalizer,
   ) {}
 
-  async execute(input: ListOrganizationProjectsQuery, userId: UserId): Promise<PaginatedResult<Project>> {
+  async execute(input: ListOrganizationProjectsQuery, userId: UserId): Promise<PaginatedResult<ProjectWithAccess>> {
     const pagination = this.paginationQueryNormalizer.normalizeQuery(input);
     const organization = await this.organizationRepository.findById(input.organizationId);
     if (!organization) {
       throw new OrganizationNotFoundError({ organizationId: input.organizationId });
     }
 
-    const membership = await this.memberRepository.findByOrganizationAndUser(input.organizationId, userId);
+    const membership = await this.membershipAccess.requireMembership(input.organizationId, userId);
 
-    if (!membership) {
-      throw new NotAMemberError({
-        organizationId: input.organizationId,
-        userId,
-      });
-    }
-
-    return this.projectRepository.findPageByOrganization(
+    const page = await this.projectRepository.findPageByOrganization(
       input.organizationId,
       pagination.page,
       pagination.pageSize,
       pagination.search,
     );
+    return {
+      ...page,
+      items: page.items.map((project) => this.projectPermissions.projectAccess(project, membership, page.overallCount)),
+    };
   }
 }

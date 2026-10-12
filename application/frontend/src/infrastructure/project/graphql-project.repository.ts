@@ -11,6 +11,8 @@ import type {
   ProjectRepository,
   UpdateProjectCommand,
 } from '../../domains/project/ports/project-repository';
+import { ProjectActionDisabledReason } from '../../domains/project/value-objects/project-permissions';
+import { decodeActionPermission } from '../../domains/shared/services/action-permission-decoder';
 import type { PaginatedResult } from '../../domains/shared/value-objects/paginated-result';
 import { GraphqlClient } from '../graphql/client/graphql-client';
 import {
@@ -63,6 +65,10 @@ export class GraphqlProjectRepository implements ProjectRepository {
           description: project.description ?? null,
           organizationId: this.organizationIdentifier.parse(project.organizationId),
           createdAt: project.createdAt,
+          permissions: {
+            update: decodeActionPermission(project.permissions?.update, Object.values(ProjectActionDisabledReason)),
+            delete: decodeActionPermission(project.permissions?.delete, Object.values(ProjectActionDisabledReason)),
+          },
           defaultPartySettings: this.toPartySettings(project.defaultPartySettings),
         })),
         totalCount: result.organizationProjects.totalCount,
@@ -128,6 +134,7 @@ export class GraphqlProjectRepository implements ProjectRepository {
   }
 
   private toDomainProject(project: {
+    readonly permissions: { readonly update: unknown; readonly delete: unknown };
     readonly id: string;
     readonly name: string;
     readonly description?: string | null;
@@ -147,6 +154,10 @@ export class GraphqlProjectRepository implements ProjectRepository {
       organizationId: this.organizationIdentifier.parse(project.organizationId),
       createdAt: project.createdAt,
       defaultPartySettings: this.toPartySettings(project.defaultPartySettings),
+      permissions: {
+        update: decodeActionPermission(project.permissions?.update, Object.values(ProjectActionDisabledReason)),
+        delete: decodeActionPermission(project.permissions?.delete, Object.values(ProjectActionDisabledReason)),
+      },
     };
   }
 

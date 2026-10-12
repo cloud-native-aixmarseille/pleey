@@ -236,6 +236,7 @@ export function usePartyLobbyHostRuntime({
   });
 
   useEffect(() => {
+    if (party?.status !== 'ACTIVE') return;
     const currentStageId = party?.context?.lifecycle.stageId;
     const stageEndsAtEpochMs = party?.context?.lifecycle.stageEndsAtEpochMs;
     const hasStageTimer = hasTimedStage(stageEndsAtEpochMs);
@@ -243,7 +244,7 @@ export function usePartyLobbyHostRuntime({
 
     if (
       shouldSkipAutoReveal({
-        canRevealStageResult: hostRuntimeControls?.canRevealStageResult ?? false,
+        canRevealStageResult: hostRuntimeControls?.permissions.revealStageResult.allowed ?? false,
         hasPendingHostRuntimeCommand: effectivePendingHostRuntimeCommand !== null,
         hasStageTimer,
         isObserverHost: party?.isObserverHost ?? false,
@@ -292,7 +293,7 @@ export function usePartyLobbyHostRuntime({
     const timeoutId = window.setTimeout(revealStageResult, remainingDurationMs);
 
     return () => window.clearTimeout(timeoutId);
-  }, [hostRuntimeControls?.canRevealStageResult, effectivePendingHostRuntimeCommand, party]);
+  }, [hostRuntimeControls?.permissions.revealStageResult.allowed, effectivePendingHostRuntimeCommand, party]);
 
   return {
     cancelHostRuntimeConfirmation: () => setPendingHostRuntimeConfirmationCommand(null),

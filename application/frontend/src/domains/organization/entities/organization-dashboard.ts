@@ -1,11 +1,7 @@
-import type { OrganizationId } from './organization';
+import type { Organization } from './organization';
 
 export interface OrganizationDashboard {
-  readonly organization: {
-    readonly id: OrganizationId;
-    readonly name: string;
-    readonly description: string | null;
-  };
+  readonly organization: Pick<Organization, 'id' | 'name' | 'description' | 'role' | 'permissions' | 'assignableRoles'>;
   readonly stats: {
     readonly totalGames: number;
     readonly totalMembers: number;

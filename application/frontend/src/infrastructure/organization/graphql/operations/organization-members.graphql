@@ -6,6 +6,17 @@ query OrganizationMembers($input: OrganizationMembersInput!) {
       userId
       username
       role
+      assignableRoles
+      permissions {
+        updateRole {
+          allowed
+          reason
+        }
+        remove {
+          allowed
+          reason
+        }
+      }
       joinedAt
     }
     totalCount

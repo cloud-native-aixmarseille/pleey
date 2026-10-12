@@ -1,172 +1,27 @@
 import { describe, expect, it } from 'vitest';
-import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
-import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/shared/entities/party-player-identity';
-import { PartyRuntimePhase } from '../../../../../domains/game/party/shared/entities/party-runtime-context';
-import { DEFAULT_PARTY_SETTINGS } from '../../../../../domains/game/party/shared/entities/party-settings';
+import { HostPartyDisabledReason } from '../../../../../domains/game/party/host/value-objects/host-party-permissions';
 import { PartyStatus } from '../../../../../domains/game/party/shared/entities/party-status';
-import { GameType } from '../../../../../domains/game/types/shared/game-type';
-import { PartyIdentifierMockFactory } from '../../../../../test-utils/mocks/party-identifier-mock-factory';
-import { StageIdentifierMockFactory } from '../../../../../test-utils/mocks/stage-identifier-mock-factory';
-import { UserIdentifierMockFactory } from '../../../../../test-utils/mocks/user-identifier-mock-factory';
-import { PartyPinIdentifier } from '../../shared/services/identifiers/party-pin-identifier';
+import { PartyFixtureFactory } from '../../../../../test-utils/fixtures/party-fixture-factory';
 import { HostPartyRuntimeControlsResolver } from './host-party-runtime-controls-resolver';
 
-const partyIdentifier = new PartyIdentifierMockFactory().create();
-const partyPinIdentifier = new PartyPinIdentifier();
-const stageIdentifier = new StageIdentifierMockFactory().create();
-const userIdentifier = new UserIdentifierMockFactory().create();
-
-function createObservation(overrides: Partial<PartyObservation> = {}): PartyObservation {
-  return {
-    partyId: partyIdentifier.parse(44),
-    gameType: GameType.Quiz,
-    pin: partyPinIdentifier.parse('AB12CD'),
-    status: PartyStatus.WAITING,
-    context: null,
-    isObserverHost: true,
-    host: {
-      avatarUri: null,
-      username: 'Host',
-    },
-    players: [],
-    settings: DEFAULT_PARTY_SETTINGS,
-    ...overrides,
-  };
-}
+const fixtures = new PartyFixtureFactory();
 
 describe('HostPartyRuntimeControlsResolver', () => {
-  it('enables the start action for waiting lobbies with joined players', () => {
-    // Arrange + Act
-    const resolver = new HostPartyRuntimeControlsResolver();
-
-    // Assert
-    expect(
-      resolver.resolveControls(
-        createObservation({
-          players: [
-            {
-              avatarUri: null,
-              identity: {
-                kind: PartyPlayerIdentityKind.User,
-                userId: userIdentifier.parse(11),
-              },
-              correctStages: 0,
-              isCurrentPlayer: false,
-              isLive: true,
-              totalScore: 0,
-              username: 'Neo',
-            },
-          ],
-        }),
-      ),
-    ).toEqual(
-      expect.objectContaining({
-        canEndParty: true,
-        canStartParty: true,
-        lifecyclePhase: PartyRuntimePhase.LOBBY,
+  it('preserves authoritative decisions even when local status would suggest a grant', () => {
+    // Arrange
+    const party = fixtures.createPartyObservation({
+      isObserverHost: true,
+      status: PartyStatus.WAITING,
+      permissions: fixtures.createHostPermissions({
+        startParty: { allowed: false, reason: HostPartyDisabledReason.NO_STAGES },
       }),
-    );
-  });
-
-  it('disables the start action for waiting lobbies without joined players', () => {
-    // Arrange + Act
-    const resolver = new HostPartyRuntimeControlsResolver();
-
+    });
+    // Act
+    const result = new HostPartyRuntimeControlsResolver().resolveControls(party);
     // Assert
-    expect(resolver.resolveControls(createObservation())).toEqual(
-      expect.objectContaining({
-        canStartParty: false,
-        lifecyclePhase: PartyRuntimePhase.LOBBY,
-      }),
-    );
-  });
-
-  it('enables reveal and pause controls during an active stage', () => {
-    // Arrange + Act
-    const resolver = new HostPartyRuntimeControlsResolver();
-
-    // Assert
-    expect(
-      resolver.resolveControls(
-        createObservation({
-          status: PartyStatus.ACTIVE,
-          context: {
-            lifecycle: {
-              phase: PartyRuntimePhase.STAGE,
-              stageEndsAtEpochMs: null,
-              stageId: stageIdentifier.parse(2),
-              stagePosition: 1,
-              stageRemainingDurationMs: null,
-              stageTimeLimitSeconds: null,
-              totalStages: 4,
-            },
-            stage: {
-              actionSubmission: {
-                currentPlayer: null,
-                submittedPlayerCount: 0,
-                totalEligiblePlayerCount: 0,
-              },
-              current: {
-                actions: [],
-                text: 'Question 2',
-              },
-            },
-          },
-        }),
-      ),
-    ).toEqual(
-      expect.objectContaining({
-        canPauseParty: true,
-        canRestartStage: true,
-        canRevealStageResult: true,
-        canRewindParty: true,
-        canRewindStage: true,
-        currentStageNumber: 2,
-        hasNextStage: true,
-        lifecyclePhase: PartyRuntimePhase.STAGE,
-      }),
-    );
-  });
-
-  it('enables resume and advance controls for paused results', () => {
-    // Arrange + Act
-    const resolver = new HostPartyRuntimeControlsResolver();
-
-    // Assert
-    expect(
-      resolver.resolveControls(
-        createObservation({
-          status: PartyStatus.PAUSED,
-          context: {
-            lifecycle: {
-              phase: PartyRuntimePhase.RESULT,
-              stageEndsAtEpochMs: null,
-              stageId: stageIdentifier.parse(3),
-              stagePosition: 2,
-              stageRemainingDurationMs: null,
-              stageTimeLimitSeconds: null,
-              totalStages: 3,
-            },
-            result: {
-              current: {
-                actions: [],
-                text: 'Question 3',
-              },
-              currentPlayer: null,
-            },
-          },
-        }),
-      ),
-    ).toEqual(
-      expect.objectContaining({
-        canAdvanceStage: false,
-        canPauseParty: false,
-        canResumeParty: true,
-        currentStageNumber: 3,
-        hasNextStage: false,
-        isPaused: true,
-        lifecyclePhase: PartyRuntimePhase.RESULT,
-      }),
-    );
+    expect(result.permissions).toBe(party.permissions);
+    expect(result.permissions.startParty).toEqual({ allowed: false, reason: HostPartyDisabledReason.NO_STAGES });
+    expect(result.currentStageNumber).toBeNull();
+    expect(result.hasNextStage).toBe(false);
   });
 });
