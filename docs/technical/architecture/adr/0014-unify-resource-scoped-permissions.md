@@ -52,6 +52,8 @@ observation have distinct existing semantics.
 
 - Give each action one authoritative backend policy, reused for enforcement and
   UI decisions, while keeping feature ownership.
+- Explain disabled actions to users with a typed reason from the same decision
+  that disables the action, including a recovery step when applicable.
 - Make organization, resource, actor, and target scope explicit; deny access when
   required facts are absent.
 - Preserve current entitlements during migration and make intentional changes
@@ -92,6 +94,10 @@ until those requirements justify a separate ADR.
 
 Propose option 2. The backend owns authorization. The frontend consumes
 resource-scoped decisions for presentation and still handles command rejection.
+Adopt the existing `ActionPermission<Reason>` pattern as the shared action
+decision contract: every exposed denial includes a typed reason that the
+frontend uses to explain the disabled action. Reason support is a required part
+of this decision, including for availability constraints such as party creation.
 No new authorization dependency or cross-application executable rules package is
 introduced by this strategy.
 
@@ -180,7 +186,7 @@ eliminate a race. Implementation must specify ordering against concurrent role
 revocation for protected writes; a revocation completed before command
 authorization must take effect without waiting for token expiry.
 
-### 4. Expose typed decisions, not frontend policy rules
+### 4. Require ActionPermission decisions with typed reasons
 
 Reuse the existing [backend `ActionPermission`][backend-decision],
 [GraphQL type factory][graphql-decision], and [frontend `Permissions`][frontend-decision]
@@ -193,12 +199,40 @@ interface ActionPermission<Reason extends string> {
 }
 ```
 
-For new or migrated decisions, `allowed: true` requires `reason: null`;
-`allowed: false` has a stable, feature-owned reason code. Codes describe either
-authorization denial or an action prerequisite, and their category is explicit
-in the feature contract. Reuse applicable domain error enums instead of creating
-parallel strings. Transport projections expose safe codes, not raw policy facts,
-private diagnostics, or translated sentences.
+For new or migrated decisions, the contract requires:
+
+- `allowed: true` has `reason: null`.
+- `allowed: false` has a non-null, stable, feature-owned reason code, suitable for
+  a user-facing explanation. A generic denial code is appropriate when more
+  detail would disclose protected information.
+- The backend selects the reason using the same policy and facts as `allowed`.
+  If several conditions block an action, return one reason in a documented,
+  deterministic order, checking authorization before sensitive state conditions.
+- Queries, realtime projections, adapters, and facades preserve both fields.
+  A control may derive its `disabled` prop from `allowed`, but its view model must
+  retain the reason for the accompanying explanation. Do not replace exposed
+  decisions with bare booleans during migration.
+
+Codes describe either authorization denial or an action prerequisite, and their
+category is explicit in the feature contract. Reuse applicable domain error
+enums instead of creating parallel strings. Transport projections expose safe
+codes, not raw policy facts, private diagnostics, or translated sentences.
+
+The existing party-creation flow is the reference pattern. For example, this
+domain decision uses the [existing create-party reason enum][game-contract]:
+
+```typescript
+const createParty: ActionPermission<CreatePartyDisabledReason> = {
+  allowed: false,
+  reason: CreatePartyDisabledReason.NO_STAGES_AVAILABLE,
+};
+```
+
+The frontend translates that reason with
+`dashboard.games.permissions.createParty.noStagesAvailable`, explaining that
+the user must add a stage before creating a party. Preserve this behavior and
+its existing conflict reasons when composing membership authorization with game
+readiness. The frontend must not reconstruct the reason from roles or game state.
 
 Add permission objects to existing authorized resource and collection-context
 responses. For example, an organization context can expose `permissions.update`
@@ -227,8 +261,13 @@ view preference rather than an access grant.
 
 Represent loading, allowed, denied, and failed access distinctly. Hide entry
 points the user cannot access; show a localized access state for a denied direct
-link. For an otherwise accessible resource, disable temporarily unavailable
-actions with a localized reason through the existing design system. Network
+link. Whenever a visible action is disabled by an `ActionPermission`, present
+its localized reason through the existing design system, whether the cause is
+authorization or temporary unavailability. Use an inline explanation or an
+accessible tooltip/help control, with information available to keyboard,
+screen-reader, and touch users rather than only on hover. Explain how to resolve
+the blocker when possible. Loading, pending requests, and form validation retain
+their own feedback; they must not be presented as permission denials. Network
 errors offer retry without rendering protected controls as allowed. Unknown
 actions, missing decisions, and malformed decision payloads fail closed; an
 unrecognized denial reason remains denied with a generic localized explanation.
@@ -276,6 +315,8 @@ replacing every existing error with a generic forbidden error.
 - Theme and workspace permission rules leave infrastructure and UI components.
 - Frontend routes and controls reflect backend decisions, including target and
   lifecycle constraints, instead of maintaining parallel role logic.
+- Disabled actions explain their reason and, when applicable, how the user can
+  make the action available, using the existing party-creation pattern.
 - The same policy can be tested through direct use-case calls and every transport.
 - Public/guest flows and existing member privileges remain explicit and reviewable.
 
@@ -323,13 +364,17 @@ Each migrated slice must demonstrate:
 
 - Policy tests for allowed and denied actor/resource/target combinations, and
   parity between projected decisions and command enforcement for the same facts.
+  Verify allowed/null and denied/non-null reason invariants, deterministic reason
+  precedence, and reason preservation through transport and frontend adapters.
 - Use-case tests proving denied operations perform no protected side effects,
   including upload reads, and repository tests for tenant-scoped rows and counts.
 - Transport tests for direct requests, forged actor/parent IDs, and cross-resource
   access; socket tests also cover reconnect, kick, revocation, and audience output.
 - Frontend tests for direct routes, loading/error/denied states, stale asynchronous
   responses after account/workspace changes, unknown reasons, and command denial
-  after an initially allowed decision.
+  after an initially allowed decision. Verify that visible actions disabled by a
+  decision expose its localized explanation accessibly, including the generic
+  fallback for unknown denial reasons and the existing create-party reasons.
 - Database integration tests for critical concurrent transitions such as removing
   or demoting the last owner. Existing rules must not become less restrictive
   through a capability projection or more restrictive through generic role checks.
@@ -347,6 +392,7 @@ Each migrated slice must demonstrate:
 [theme-access]: https://github.com/cloud-native-aixmarseille/pleey/blob/9d0271c8b00b548b2146f9c873118c5e5e2bc84f/application/backend/src/application/workspace/themes/services/theme-permission-service.ts
 [theme-repository]: https://github.com/cloud-native-aixmarseille/pleey/blob/9d0271c8b00b548b2146f9c873118c5e5e2bc84f/application/backend/src/infrastructure/theme/prisma-theme-repository.ts
 [game-permissions]: ../../../../application/backend/src/application/game/management/services/game-permission-resolver.ts
+[game-contract]: ../../../../application/backend/src/application/game/management/ports/game-catalog.port.ts
 [party-create]: ../../../../application/backend/src/application/game/party/host/use-cases/create-party-use-case.ts
 [host-access]: ../../../../application/backend/src/application/game/party/host/use-cases/abstract-host-party-runtime-use-case.ts
 [player-submit]: ../../../../application/backend/src/application/game/party/player/use-cases/submit-party-action-use-case.ts
