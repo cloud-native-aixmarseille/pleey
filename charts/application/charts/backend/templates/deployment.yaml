@@ -75,6 +75,10 @@ spec:
             {{- toYaml . | nindent 12 }}
             {{- end }}
           env:
+            - name: MEDIA_STORAGE_ACCESS_KEY_ID_FILE
+              value: /var/run/pleey-secrets/media/access-key-id
+            - name: MEDIA_STORAGE_SECRET_ACCESS_KEY_FILE
+              value: /var/run/pleey-secrets/media/secret-access-key
             - name: JWT_REFRESH_SECRET_FILE
               value: {{ include "pleey.backend.jwtSecretFile" . | quote }}
             - name: CAP_SECRET_FILE
@@ -114,6 +118,9 @@ spec:
           volumeMounts:
             - name: tmp
               mountPath: /tmp
+            - name: media-secret
+              mountPath: /var/run/pleey-secrets/media
+              readOnly: true
             - name: captcha-secret
               mountPath: /var/run/pleey-secrets/captcha
               readOnly: true
@@ -141,6 +148,14 @@ spec:
       volumes:
         - name: tmp
           emptyDir: {}
+        - name: media-secret
+          secret:
+            secretName: {{ default (include "pleey.backend.appSecretName" .) .Values.media.existingSecret.name | quote }}
+            items:
+              - key: {{ ternary .Values.media.existingSecret.accessKeyIdKey "MEDIA_STORAGE_ACCESS_KEY_ID" (ne .Values.media.existingSecret.name "") | quote }}
+                path: access-key-id
+              - key: {{ ternary .Values.media.existingSecret.secretAccessKeyKey "MEDIA_STORAGE_SECRET_ACCESS_KEY" (ne .Values.media.existingSecret.name "") | quote }}
+                path: secret-access-key
         - name: captcha-secret
           secret:
             secretName: {{ include "pleey.backend.capSecretName" . | quote }}

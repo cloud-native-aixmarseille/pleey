@@ -62,6 +62,8 @@ Controllers and gateways also stay thin; keep their orchestration in application
 
 Keep feature adaptation in the owning presentation reader: theme images buffer bounded binary data only after authorization, while quiz and prediction imports decode UTF-8 and stream lines. Image validation, re-encoding, and persistence stay outside the shared transport reader. Preserve `Promise<GraphqlUploadFile> | GraphqlUploadFile` on standalone GraphQL upload arguments so the global validation pipe does not transform the scalar as a DTO.
 
+Quiz question media also enters through a lazy application upload source. Create/update use cases check current project access and question inputs before `QuizQuestionMediaPreparationService` opens that source. It applies `QuizQuestionMediaPolicy` to MIME metadata before reading content and to the byte count before publication. The quiz adapter delegates stream limits and cleanup to `GraphqlUploadReader`, using the limit supplied by the application. `MediaMutationService` publishes prepared media and compensates failed persistence; see [ADR 0013](../../architecture/adr/0013-share-graphql-upload-stream-reading.md) and [ADR 0016](../../architecture/adr/0016-support-media-on-quiz-questions.md).
+
 ## Error Handling
 
 Use-cases and runtime services throw domain errors, and `I18nHttpExceptionFilter` translates them to HTTP status and localized messages.

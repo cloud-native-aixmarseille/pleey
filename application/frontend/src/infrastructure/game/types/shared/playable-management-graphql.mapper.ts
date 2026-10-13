@@ -14,6 +14,14 @@ interface GraphqlPlayableOption {
   readonly isCorrect: boolean;
 }
 
+interface GraphqlPlayableMedia {
+  readonly id?: string;
+  readonly expiresAt?: string;
+  readonly partyId?: string;
+  readonly mimeType: string;
+  readonly uri: string;
+}
+
 export class PlayableManagementGraphqlMapper {
   mapOptions(options: readonly GraphqlPlayableOption[]): PlayableChoiceOption[] {
     return options.map((option) => ({
@@ -29,6 +37,8 @@ export class PlayableManagementGraphqlMapper {
       position: input.position,
       timeLimit: input.timeLimit,
       points: input.points,
+      mediaFile: input.mediaFile ?? undefined,
+      clearMedia: input.clearMedia,
       options: input.options.map((option) => ({
         id: option.id ?? undefined,
         text: option.text,
@@ -64,6 +74,7 @@ export class PlayableManagementGraphqlMapper {
     readonly kind?: TKind;
     readonly timeLimit: number;
     readonly points: number;
+    readonly media?: GraphqlPlayableMedia | null;
     readonly options: readonly GraphqlPlayableOption[];
   }): PlayableManagementItem<TItemId, TKind> {
     return {
@@ -74,6 +85,7 @@ export class PlayableManagementGraphqlMapper {
       kind: input.kind,
       timeLimit: input.timeLimit,
       points: input.points,
+      media: input.media ?? null,
       options: this.mapOptions(input.options),
     };
   }

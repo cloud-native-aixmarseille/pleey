@@ -8,6 +8,7 @@ import type { QuizId } from '../../../../domain/game/types/quiz/entities/quiz';
 import {
   QuizQuestion,
   type QuizQuestionId,
+  type QuizQuestionMedia,
   QuizQuestionType,
   type QuizSelectableOptionId,
 } from '../../../../domain/game/types/quiz/entities/quiz-question';
@@ -15,10 +16,12 @@ import type {
   QuizQuestionMutationData,
   QuizQuestionRepository,
 } from '../../../../domain/game/types/quiz/ports/quiz-question.repository';
+import type { StoredMediaAsset } from '../../../../domain/media/entities/stored-media-asset';
 import { createDomainError } from '../../../../domain/shared/errors/domain-error';
 import type { PaginatedResult } from '../../../../domain/shared/value-objects/paginated-result';
 import type { PaginationQuery } from '../../../../domain/shared/value-objects/pagination-query';
 import { PrismaService } from '../../../database/prisma-service';
+import { PrismaMediaAssetLifecycle } from '../../../media/prisma-media-asset-lifecycle';
 import {
   PrismaSelectableOptionMapper,
   type PrismaSelectableOptionRecord,
@@ -41,6 +44,11 @@ interface PrismaQuestionRecord {
   readonly type: string;
   readonly timeLimit: number;
   readonly points: number;
+  readonly media: {
+    readonly id: string;
+    readonly mimeType: string;
+    readonly uri: string;
+  } | null;
   readonly answers: readonly PrismaQuestionAnswerRecord[];
 }
 
@@ -52,6 +60,7 @@ interface QuestionRecord {
   readonly type: string;
   readonly timeLimit: number;
   readonly points: number;
+  readonly media: QuizQuestionMedia | null;
   readonly answers: readonly QuestionAnswerRecord[];
 }
 
@@ -64,6 +73,7 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
     private readonly quizSelectableOptionIdentifier: QuizSelectableOptionIdentifier,
     private readonly optionMapper: PrismaSelectableOptionMapper,
     private readonly paginationQueryNormalizer: PaginationQueryNormalizer,
+    private readonly mediaLifecycle: PrismaMediaAssetLifecycle,
   ) {}
 
   async create(quizId: QuizId, data: QuizQuestionMutationData): Promise<QuizQuestion> {
@@ -79,14 +89,27 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
         await this.shiftQuestionsForInsert(transaction, quizId, position);
       }
 
+      if (data.media) await this.mediaLifecycle.attach(transaction, data.media);
+
       const question = await transaction.question.create({
         data: {
-          quizId,
+          quiz: {
+            connect: {
+              id: quizId,
+            },
+          },
           position,
           questionText: data.questionText,
           type: data.type,
           timeLimit: data.timeLimit,
           points: data.points,
+          ...(data.media
+            ? {
+                media: {
+                  connect: { id: data.media.id },
+                },
+              }
+            : {}),
           answers: {
             create: data.answers.map((answer) => ({
               text: answer.text,
@@ -108,6 +131,14 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
       include: this.questionInclude,
     });
 
+    return question ? this.toDomain(question) : null;
+  }
+
+  async findByMediaAssetId(assetId: string): Promise<QuizQuestion | null> {
+    const question = await this.prisma.question.findFirst({
+      where: { mediaAssetId: assetId, deletedAt: null, quiz: { deletedAt: null, game: { deletedAt: null } } },
+      include: this.questionInclude,
+    });
     return question ? this.toDomain(question) : null;
   }
 
@@ -136,9 +167,11 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
 
   async update(id: QuizQuestionId, data: QuizQuestionMutationData): Promise<QuizQuestion> {
     const question = await this.prisma.$transaction(async (transaction) => {
+      // Serialize replacements before reading the previous asset reference.
+      await transaction.$queryRaw`SELECT id FROM questions WHERE id = ${id}::uuid FOR UPDATE`;
       const existingQuestion = await transaction.question.findFirst({
         where: { id, deletedAt: null },
-        select: { quizId: true },
+        select: { quizId: true, mediaAssetId: true },
       });
       if (!existingQuestion) {
         throw createDomainError(QUESTION_NOT_UPDATED_ERROR, { questionId: id });
@@ -181,6 +214,10 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
         await this.shiftQuestionsDown(transaction, quizId, currentQuestion.position, targetPosition);
       }
 
+      if (data.media) await this.mediaLifecycle.attach(transaction, data.media);
+      if (data.media !== undefined && existingQuestion.mediaAssetId) {
+        await this.mediaLifecycle.retire(transaction, existingQuestion.mediaAssetId);
+      }
       await transaction.questionAnswer.deleteMany({ where: { questionId: id } });
 
       return transaction.question.update({
@@ -191,6 +228,7 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
           type: data.type,
           timeLimit: data.timeLimit,
           points: data.points,
+          media: this.resolveQuestionMediaUpdateInput(data.media),
           answers: {
             create: data.answers.map((answer) => ({
               text: answer.text,
@@ -207,7 +245,10 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
   }
 
   async delete(id: QuizQuestionId): Promise<void> {
-    await this.prisma.question.delete({ where: { id } });
+    await this.prisma.$transaction(async (transaction) => {
+      const question = await transaction.question.delete({ where: { id }, select: { mediaAssetId: true } });
+      if (question.mediaAssetId) await this.mediaLifecycle.retire(transaction, question.mediaAssetId);
+    });
   }
 
   private readonly questionInclude = {
@@ -221,7 +262,21 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
         isCorrect: true,
       },
     },
+    media: {
+      select: {
+        id: true,
+        mimeType: true,
+        uri: true,
+      },
+    },
   };
+
+  private resolveQuestionMediaUpdateInput(
+    media: StoredMediaAsset | null | undefined,
+  ): Prisma.QuestionUpdateInput['media'] | undefined {
+    if (media === undefined) return undefined;
+    return media === null ? { disconnect: true } : { connect: { id: media.id } };
+  }
 
   private async normalizeQuestionPositions(transaction: Prisma.TransactionClient, quizId: QuizId): Promise<void> {
     const questions = await transaction.question.findMany({
@@ -325,6 +380,7 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
       record.timeLimit,
       record.points,
       record.answers.map((answer) => this.optionMapper.toDomain(answer)),
+      record.media,
     );
   }
 
@@ -337,6 +393,13 @@ export class PrismaQuizQuestionRepository implements QuizQuestionRepository {
       type: question.type,
       timeLimit: question.timeLimit,
       points: question.points,
+      media: question.media
+        ? {
+            id: question.media.id,
+            mimeType: question.media.mimeType,
+            uri: question.media.uri,
+          }
+        : null,
       answers: question.answers.map((answer) =>
         this.optionMapper.toRecord(answer, this.quizSelectableOptionIdentifier),
       ),

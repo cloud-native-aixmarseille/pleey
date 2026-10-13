@@ -33,6 +33,12 @@ Use option 2, implementing the user's requested shared upload handling. Register
 
 Keep `ThemeAssetUploadReader` as the adapter to its application source, including deferred reading until authorization. Keep text decoding, line splitting, and cached full-text reads in `PlayableContentUploadReader`. Image format checks, decoding, re-encoding, authorization, and persistence retain their feature ownership. Centralize the existing theme asset byte limit for the reader, image processor, and multipart middleware.
 
+`QuizQuestionMediaUploadReader` adapts GraphQL to a lazy application upload source. Opening that source resolves metadata without opening its content stream; reading the content buffers bytes through the shared reader using the application's byte limit and the quiz transport-error mapping. Its application-facing contract carries no GraphQL or stream dependency.
+
+`QuizQuestionMediaPolicy` owns the accepted MIME types, maximum upload size, and non-empty content requirement in the domain. After authorizing the operation and validating question inputs, the existing create/update use cases call `QuizQuestionMediaPreparationService`. It opens the source with the policy's limit, checks MIME metadata before reading content, validates the resulting byte count, and constructs the media input. `MediaMutationService` then publishes that prepared media and compensates failed persistence under [ADR 0016](./0016-support-media-on-quiz-questions.md). This keeps acceptance rules effective for every transport without introducing a separate upload use case.
+
+Adapters may specify the encoding of string chunks: text uploads retain UTF-8, while quiz media preserves its existing byte-oriented Latin-1 behavior. Stream iteration, size enforcement during reading, single consumption, and cleanup remain shared. Content probing and decoding remain processor responsibilities; declared MIME validation does not replace them.
+
 No GraphQL schema or frontend changes are required.
 
 ## Consequences

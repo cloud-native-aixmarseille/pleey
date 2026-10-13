@@ -43,6 +43,28 @@ config:
   i18nWatchEnabled: false
   partySessionRecoveryWindowMs: 300000
   playableContentImportMaxFileSizeBytes: 5242880
+media:
+  # -- Existing S3-compatible bucket endpoint; the chart does not provision storage or a CDN.
+  endpoint: ""
+  region: "us-east-1"
+  bucket: ""
+  # -- Signed delivery base URL; private origin must verify every request with caching disabled.
+  publicBaseUrl: ""
+  # -- Presigned GET grant lifetime in seconds (60–900).
+  accessTtlSeconds: 300
+  requireHttps: true
+  forcePathStyle: false
+  # -- Use an existing Secret for production. Inline credentials are supported for ephemeral CI deployments only.
+  accessKeyId: ""
+  secretAccessKey: ""
+  existingSecret:
+    name: ""
+    accessKeyIdKey: MEDIA_STORAGE_ACCESS_KEY_ID
+    secretAccessKeyKey: MEDIA_STORAGE_SECRET_ACCESS_KEY
+  processing:
+    timeoutMs: 120000
+    concurrency: 1
+    memoryLimitMb: 1024
 auth:
   # -- Signing key for both access and refresh tokens; empty generates and preserves a release-scoped key.
   jwtSecret: ""
@@ -265,11 +287,11 @@ migrationJob:
   annotations: {}
 resources:
   limits:
-    cpu: 500m
-    memory: 512Mi
+    cpu: "2"
+    memory: 2Gi
   requests:
-    cpu: 100m
-    memory: 256Mi
+    cpu: 250m
+    memory: 512Mi
 startupProbe:
   enabled: true
   httpGet:

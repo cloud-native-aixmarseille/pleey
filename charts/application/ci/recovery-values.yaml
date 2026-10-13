@@ -2,6 +2,15 @@
 # Chart smoke tests check application health without requesting recovery mail.
 # These are test-only sender settings for the bundled SMTP relay.
 backend:
+  media:
+    endpoint: https://storage.example.test
+    bucket: pleey-media
+    publicBaseUrl: https://media.example.test
+    requireHttps: true
+    forcePathStyle: true
+    # Health checks do not write media. These credentials are only for chart smoke tests.
+    accessKeyId: chart-test-access-key
+    secretAccessKey: chart-test-secret-key
   smtp:
     config:
       general:
