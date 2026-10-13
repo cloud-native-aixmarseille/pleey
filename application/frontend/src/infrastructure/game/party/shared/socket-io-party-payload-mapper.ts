@@ -6,6 +6,7 @@ import { GameIdentifier } from '../../../../application/game/shared/services/ide
 import { GameTypeParser } from '../../../../application/game/types/shared/services/game-type-parser';
 import { GuestIdentifier } from '../../../../application/identity/shared/services/identifiers/guest-identifier';
 import { UserIdentifier } from '../../../../application/identity/shared/services/identifiers/user-identifier';
+import { HostPartyDisabledReason } from '../../../../domains/game/party/host/value-objects/host-party-permissions';
 import {
   type PartyJoinReceipt,
   PartyJoinReceiptStatus,
@@ -31,6 +32,8 @@ import {
   PartyRuntimeNoticeKind,
 } from '../../../../domains/game/party/shared/ports/party-observation.port';
 import { GameType } from '../../../../domains/game/types/shared/game-type';
+import { decodeActionPermission } from '../../../../domains/shared/services/action-permission-decoder';
+import { ThemeDocumentNormalizer } from '../../../../domains/theme/services/theme-document-normalizer';
 import type {
   PartyJoinMessage,
   PartyObservationPayload,
@@ -48,6 +51,7 @@ type PartyRuntimeResultActionValue = NonNullable<
 @injectable()
 export class SocketIoPartyPayloadMapper {
   constructor(
+    @inject(ThemeDocumentNormalizer) private readonly themeDocumentNormalizer: ThemeDocumentNormalizer,
     @inject(PartyActionIdentifier)
     private readonly partyActionIdentifier: PartyActionIdentifier,
     @inject(GuestIdentifier)
@@ -82,6 +86,7 @@ export class SocketIoPartyPayloadMapper {
       partyId: this.partyIdentifier.parse(response.partyId),
       pin: this.normalizePin(response.pin),
       status: PartyJoinReceiptStatus.ACCEPTED,
+      guestCredential: response.guestCredential,
     };
   }
 
@@ -92,8 +97,38 @@ export class SocketIoPartyPayloadMapper {
       pin: this.normalizePin(payload.pin),
       status: payload.status,
       settings: payload.settings,
+      themeDocument: this.themeDocumentNormalizer.normalize(payload.themeDocument),
       context: this.toRuntimeContext(payload.context),
       isObserverHost: payload.isObserverHost,
+      permissions: {
+        startParty: payload.isObserverHost
+          ? decodeActionPermission(payload.permissions?.startParty, HostPartyDisabledReason)
+          : { allowed: false, reason: HostPartyDisabledReason.HOST_REQUIRED },
+        advanceStage: payload.isObserverHost
+          ? decodeActionPermission(payload.permissions?.advanceStage, HostPartyDisabledReason)
+          : { allowed: false, reason: HostPartyDisabledReason.HOST_REQUIRED },
+        restartStage: payload.isObserverHost
+          ? decodeActionPermission(payload.permissions?.restartStage, HostPartyDisabledReason)
+          : { allowed: false, reason: HostPartyDisabledReason.HOST_REQUIRED },
+        rewindStage: payload.isObserverHost
+          ? decodeActionPermission(payload.permissions?.rewindStage, HostPartyDisabledReason)
+          : { allowed: false, reason: HostPartyDisabledReason.HOST_REQUIRED },
+        rewindParty: payload.isObserverHost
+          ? decodeActionPermission(payload.permissions?.rewindParty, HostPartyDisabledReason)
+          : { allowed: false, reason: HostPartyDisabledReason.HOST_REQUIRED },
+        pauseParty: payload.isObserverHost
+          ? decodeActionPermission(payload.permissions?.pauseParty, HostPartyDisabledReason)
+          : { allowed: false, reason: HostPartyDisabledReason.HOST_REQUIRED },
+        resumeParty: payload.isObserverHost
+          ? decodeActionPermission(payload.permissions?.resumeParty, HostPartyDisabledReason)
+          : { allowed: false, reason: HostPartyDisabledReason.HOST_REQUIRED },
+        revealStageResult: payload.isObserverHost
+          ? decodeActionPermission(payload.permissions?.revealStageResult, HostPartyDisabledReason)
+          : { allowed: false, reason: HostPartyDisabledReason.HOST_REQUIRED },
+        endParty: payload.isObserverHost
+          ? decodeActionPermission(payload.permissions?.endParty, HostPartyDisabledReason)
+          : { allowed: false, reason: HostPartyDisabledReason.HOST_REQUIRED },
+      },
       host: {
         avatarUri: payload.host.avatarUri,
         username: payload.host.username,

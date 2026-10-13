@@ -1,10 +1,44 @@
 import { fireEvent, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+import { renderWithProviders } from '../../../../test-utils/render-with-providers';
 import { renderWithUiProvider } from '../../../../test-utils/render-with-ui-provider';
 import { Button } from './button';
 
 describe('Button', () => {
+  it('associates a visible denial reason with the disabled action', () => {
+    // Arrange
+    const onClick = vi.fn();
+    renderWithProviders(
+      <Button
+        permission={{ allowed: false, reason: 'MEMBER_REQUIRED' }}
+        permissionReason="Join the organization first."
+        onClick={onClick}
+      >
+        Create project
+      </Button>,
+    );
+    const button = screen.getByRole('button', { name: 'Create project' });
+    // Act
+    fireEvent.click(button);
+    // Assert
+    expect(button).toBeDisabled();
+    expect(button).toHaveAccessibleDescription('Join the organization first.');
+    expect(screen.getByText('Join the organization first.')).toBeVisible();
+    expect(onClick).not.toHaveBeenCalled();
+  });
+
   describe('render()', () => {
+    it('preserves the paired theme colors instead of Mantine variant defaults', () => {
+      // Arrange + Act
+      renderWithUiProvider(<Button>Save theme</Button>);
+      // Assert
+      const button = screen.getByRole('button', { name: 'Save theme' });
+      expect(button.style.getPropertyValue('--button-color')).toBe('var(--ui-color-text-on-action)');
+      expect(button.style.getPropertyValue('--button-bg')).toBe(
+        'light-dark(var(--mantine-color-brand-7), var(--mantine-color-brand-5))',
+      );
+    });
+
     it('defaults to a button type', () => {
       // Arrange + Act
       renderWithUiProvider(<Button>Launch game</Button>);

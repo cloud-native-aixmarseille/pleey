@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { UserId } from '../../../../domain/identity/entities/user';
-import type { Organization } from '../../../../domain/organization/entities/organization';
 import { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
 import { OrganizationNameAlreadyExistsError } from '../../../../domain/organization/errors';
 import type { OrganizationRepository } from '../../../../domain/organization/ports/organization.repository';
@@ -9,7 +8,10 @@ import type { OrganizationMemberRepository } from '../../../../domain/organizati
 import { OrganizationMemberRepositoryProvider } from '../../../../domain/organization/ports/organization-member.repository';
 import type { ProjectRepository } from '../../../../domain/project/ports/project.repository';
 import { ProjectRepositoryProvider } from '../../../../domain/project/ports/project.repository';
+import { ThemeError, ThemeErrorCode } from '../../../../domain/theme/errors/theme-error';
 import type { CreateOrganizationDto } from '../dto/create-organization-dto';
+import type { OrganizationWithAccess } from '../dto/organization-access.dto';
+import { OrganizationMembershipAccessService } from '../services/organization-membership-access.service';
 
 const DEFAULT_PROJECT_NAME = 'Default';
 
@@ -20,6 +22,7 @@ const DEFAULT_PROJECT_NAME = 'Default';
 @Injectable()
 export class CreateOrganizationUseCase {
   constructor(
+    private readonly membershipAccess: OrganizationMembershipAccessService,
     @Inject(OrganizationRepositoryProvider)
     private readonly organizationRepository: OrganizationRepository,
     @Inject(OrganizationMemberRepositoryProvider)
@@ -28,8 +31,11 @@ export class CreateOrganizationUseCase {
     private readonly projectRepository: ProjectRepository,
   ) {}
 
-  async execute(dto: CreateOrganizationDto, creatorUserId: UserId): Promise<Organization> {
+  async execute(dto: CreateOrganizationDto, creatorUserId: UserId): Promise<OrganizationWithAccess> {
     // Check if organization name already exists
+    if (dto.defaultThemeId?.startsWith('custom:'))
+      throw new ThemeError(ThemeErrorCode.INVALID_SELECTION, { themeId: dto.defaultThemeId });
+
     const existing = await this.organizationRepository.findByName(dto.name);
     if (existing) {
       throw new OrganizationNameAlreadyExistsError({ name: dto.name });
@@ -38,15 +44,16 @@ export class CreateOrganizationUseCase {
     // Create the organization
     const organization = await this.organizationRepository.create(dto.name, dto.description || null, {
       defaultPartySettings: dto.defaultPartySettings ?? null,
+      defaultThemeId: dto.defaultThemeId ?? null,
     });
 
     // Add the creator as owner
-    await this.memberRepository.create(organization.id, creatorUserId, OrganizationRole.OWNER);
+    const membership = await this.memberRepository.create(organization.id, creatorUserId, OrganizationRole.OWNER);
 
     await this.projectRepository.create(organization.id, DEFAULT_PROJECT_NAME, null, {
       defaultPartySettings: dto.defaultPartySettings ?? null,
     });
 
-    return organization;
+    return this.membershipAccess.organizationAccess(organization, membership);
   }
 }

@@ -1,9 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import type { GameId } from '../../../../domain/game/entities/game';
 import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
+import { GamePermissionPolicy } from '../../../../domain/game/management/services/game-permission-policy';
+import {
+  CreatePartyDisabledReason,
+  LaunchReadinessDisabledReason,
+} from '../../../../domain/game/management/value-objects/game-permissions';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { PartyStageConfigurationPort } from '../../types/shared/ports/party-stage-configuration.port';
-import { CreatePartyDisabledReason, LaunchReadinessDisabledReason } from '../ports/game-catalog.port';
 import { GamePermissionResolver } from './game-permission-resolver';
 
 describe('GamePermissionResolver', () => {
@@ -14,7 +18,11 @@ describe('GamePermissionResolver', () => {
   const partyStageConfiguration = {
     getStageCount: async () => 1,
   } satisfies PartyStageConfigurationPort;
-  const resolver = new GamePermissionResolver(partyManagement as never, partyStageConfiguration);
+  const resolver = new GamePermissionResolver(
+    partyManagement as never,
+    partyStageConfiguration,
+    new GamePermissionPolicy(),
+  );
 
   it('allows party creation with no conflicts', async () => {
     // Arrange + Act + Assert
@@ -63,6 +71,7 @@ describe('GamePermissionResolver', () => {
         ],
       } as never,
       partyStageConfiguration,
+      new GamePermissionPolicy(),
     );
 
     // Act + Assert
@@ -143,6 +152,7 @@ describe('GamePermissionResolver', () => {
         findActivePartiesByHostId: async () => [],
       } as never,
       partyStageConfiguration,
+      new GamePermissionPolicy(),
     );
 
     // Act + Assert
@@ -165,6 +175,7 @@ describe('GamePermissionResolver', () => {
         findActivePartiesByHostId: async () => [],
       } as never,
       partyStageConfiguration,
+      new GamePermissionPolicy(),
     );
 
     // Act + Assert
@@ -184,6 +195,7 @@ describe('GamePermissionResolver', () => {
         findActivePartiesByHostId: async () => [{ partyId: 12, gameId: backendTestIdentifiers.game(99) }],
       } as never,
       partyStageConfiguration,
+      new GamePermissionPolicy(),
     );
 
     // Act + Assert
@@ -197,9 +209,13 @@ describe('GamePermissionResolver', () => {
 
   it('assertCanCreateParty throws when the game has no configured stages', async () => {
     // Arrange
-    const resolver = new GamePermissionResolver(partyManagement as never, {
-      getStageCount: async () => 0,
-    } satisfies PartyStageConfigurationPort);
+    const resolver = new GamePermissionResolver(
+      partyManagement as never,
+      {
+        getStageCount: async () => 0,
+      } satisfies PartyStageConfigurationPort,
+      new GamePermissionPolicy(),
+    );
 
     // Act + Assert
     await expect(

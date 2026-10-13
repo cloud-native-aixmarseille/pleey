@@ -14,6 +14,7 @@ import {
   MissingPartyPasswordError,
 } from '../../../../../domain/game/party/errors/join-party.error';
 import type { PartyPlayerIdentity } from '../../../../../domain/game/party/player/entities/party-player-identity';
+import { PartyGuestCredentialPort } from '../../../../../domain/game/party/player/ports/party-guest-credential.port';
 import { PasswordService } from '../../../../../domain/identity/services/password-service';
 import { BroadcastPartyObservationUseCase } from '../../shared/use-cases/broadcast-party-observation-use-case';
 import type { JoinPartyDto } from '../dto/join-party.dto';
@@ -23,6 +24,7 @@ import { PlayerPartyRuntimePort } from '../ports/player-party-runtime.port';
 @Injectable()
 export class JoinPartyUseCase {
   constructor(
+    private readonly guestCredentials: PartyGuestCredentialPort,
     @Inject(PlayerPartyRuntimePort)
     private readonly playerPartyRuntime: PlayerPartyRuntimePort,
     private readonly broadcastPartyObservationUseCase: BroadcastPartyObservationUseCase,
@@ -38,20 +40,6 @@ export class JoinPartyUseCase {
       throw new PartyNotFoundError({ requestedPin: input.pin });
     }
 
-    if (party.privatePartyPasswordHash) {
-      const password = input.partyPassword?.trim() ?? '';
-
-      if (password.length === 0) {
-        throw new MissingPartyPasswordError({ partyId: party.partyId });
-      }
-
-      const isPasswordValid = await this.passwordService.compare(password, party.privatePartyPasswordHash);
-
-      if (!isPasswordValid) {
-        throw new InvalidPartyPasswordError({ partyId: party.partyId });
-      }
-    }
-
     const persistedPlayerIdentity = this.resolvePersistedPlayerIdentity(input);
     const existingPlayer = persistedPlayerIdentity
       ? await this.playerPartyRuntime.findPartyPlayer({
@@ -59,6 +47,27 @@ export class JoinPartyUseCase {
           playerIdentity: persistedPlayerIdentity,
         })
       : null;
+    const guestId = input.playerIdentity.kind === PartyPlayerKind.GUEST ? input.playerIdentity.guestId : undefined;
+    const verifiedGuestRecovery =
+      guestId !== undefined &&
+      existingPlayer !== null &&
+      this.guestCredentials.verify(input.guestCredential ?? '', {
+        partyId: party.partyId,
+        guestId,
+        joinedAt: existingPlayer.joinedAt,
+      });
+
+    if (guestId !== undefined && !verifiedGuestRecovery) {
+      throw new GuestPlayerRejoinNotFoundError({ partyId: party.partyId });
+    }
+
+    if (party.privatePartyPasswordHash && !verifiedGuestRecovery) {
+      const password = input.partyPassword?.trim() ?? '';
+      if (password.length === 0) throw new MissingPartyPasswordError({ partyId: party.partyId });
+      if (!(await this.passwordService.compare(password, party.privatePartyPasswordHash))) {
+        throw new InvalidPartyPasswordError({ partyId: party.partyId });
+      }
+    }
 
     const isNewPlayerBlockedFromActiveParty =
       party.status !== PartyStatus.WAITING && !existingPlayer && !party.settings.allowJoiningAfterStart;
@@ -156,6 +165,14 @@ export class JoinPartyUseCase {
     await this.broadcastPartyObservationUseCase.execute({ partyId: party.partyId });
 
     return {
+      guestCredential:
+        player.identity.kind === PartyPlayerKind.GUEST
+          ? this.guestCredentials.issue({
+              partyId: party.partyId,
+              guestId: player.identity.guestId,
+              joinedAt: player.joinedAt,
+            })
+          : undefined,
       gameId: party.gameId,
       player,
       partyId: party.partyId,

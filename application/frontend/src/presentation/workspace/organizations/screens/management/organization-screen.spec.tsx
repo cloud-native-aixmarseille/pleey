@@ -5,7 +5,9 @@ import type { Organization, OrganizationId } from '../../../../../domains/organi
 import { OrganizationRole } from '../../../../../domains/organization/entities/organization';
 import type { OrganizationDashboard } from '../../../../../domains/organization/entities/organization-dashboard';
 import type { OrganizationMember } from '../../../../../domains/organization/entities/organization-member';
+import { OrganizationActionDisabledReason } from '../../../../../domains/organization/value-objects/organization-permissions';
 import type { Project, ProjectId } from '../../../../../domains/project/entities/project';
+import { ProjectActionDisabledReason } from '../../../../../domains/project/value-objects/project-permissions';
 import type { PaginatedResult } from '../../../../../domains/shared/value-objects/paginated-result';
 import { OrganizationFixtureFactory } from '../../../../../test-utils/fixtures/organization-fixture-factory';
 import { OrganizationScreenFixtureFactory } from '../../../../../test-utils/fixtures/organization-screen-fixture-factory';
@@ -21,22 +23,10 @@ const projectIdentifier = new ProjectIdentifierMockFactory().create();
 const parseOrganizationId = (value: number) => organizationIdentifier.parse(coerceUuidV7TestValue(value));
 const parseOrganizationMemberId = (value: number) => coerceUuidV7TestValue(value) as OrganizationMember['id'];
 const parseProjectId = (value: number) => projectIdentifier.parse(coerceUuidV7TestValue(value));
-const parseUserId = (value: number) => coerceUuidV7TestValue(value) as OrganizationMember['userId'];
+const _parseUserId = (value: number) => coerceUuidV7TestValue(value) as OrganizationMember['userId'];
 
 const organizationScreenFixtureFactory = new OrganizationScreenFixtureFactory();
 const organizationFixtureFactory = new OrganizationFixtureFactory();
-
-function createOrganizationMember(overrides: Partial<OrganizationMember> = {}): OrganizationMember {
-  return {
-    id: parseOrganizationMemberId(21),
-    joinedAt: '2026-03-20T10:00:00.000Z',
-    organizationId: parseOrganizationId(3),
-    role: OrganizationRole.MEMBER,
-    userId: parseUserId(42),
-    username: 'captain',
-    ...overrides,
-  };
-}
 
 vi.mock('../../../../shared/i18n/use-presentation-translation', async (importOriginal) => {
   const { PresentationTranslationMockFactory } = await import(
@@ -273,7 +263,14 @@ describe('OrganizationScreen', () => {
               },
             }),
           ),
-          loadProjectsByOrganization: vi.fn().mockResolvedValue([organizationScreenFixtureFactory.createProject()]),
+          loadProjectsByOrganization: vi.fn().mockResolvedValue([
+            organizationScreenFixtureFactory.createProject({
+              permissions: {
+                update: { allowed: true, reason: null },
+                delete: { allowed: false, reason: ProjectActionDisabledReason.CANNOT_DELETE_LAST_PROJECT },
+              },
+            }),
+          ]),
         },
         {
           loadOrganizationWorkspaceState: vi.fn().mockResolvedValue({
@@ -284,7 +281,14 @@ describe('OrganizationScreen', () => {
                 totalProjects: 1,
               },
             }),
-            projects: [organizationScreenFixtureFactory.createProject()],
+            projects: [
+              organizationScreenFixtureFactory.createProject({
+                permissions: {
+                  update: { allowed: true, reason: null },
+                  delete: { allowed: false, reason: ProjectActionDisabledReason.CANNOT_DELETE_LAST_PROJECT },
+                },
+              }),
+            ],
             projectId: parseProjectId(11),
           }),
         },
@@ -320,6 +324,7 @@ describe('OrganizationScreen', () => {
           loadOrganizationWorkspaceState: vi.fn().mockResolvedValue({
             organizationDashboard: organizationScreenFixtureFactory.createOrganizationDashboard({
               organization: {
+                ...organizationFixtureFactory.createOrganizationSummary(),
                 id: parseOrganizationId(3),
                 name: 'Active Org',
                 description: 'The best org',
@@ -482,7 +487,7 @@ describe('OrganizationScreen', () => {
           listOrganizationMembers: vi
             .fn()
             .mockResolvedValueOnce({
-              items: [createOrganizationMember()],
+              items: [organizationScreenFixtureFactory.createOrganizationMember()],
               totalCount: 1,
               overallCount: 2,
               page: 1,
@@ -491,7 +496,7 @@ describe('OrganizationScreen', () => {
             })
             .mockResolvedValueOnce({
               items: [
-                createOrganizationMember({
+                organizationScreenFixtureFactory.createOrganizationMember({
                   id: parseOrganizationMemberId(22),
                 }),
               ],
@@ -603,6 +608,9 @@ describe('OrganizationScreen', () => {
       );
 
       // Act
+      await waitFor(() =>
+        expect(screen.getByRole('button', { name: 'project.management.section.createButton' })).toBeEnabled(),
+      );
       await user.click(
         await screen.findByRole('button', {
           name: 'project.management.section.createButton',
@@ -644,6 +652,9 @@ describe('OrganizationScreen', () => {
 
       view.createProject.mockResolvedValue(createdProject);
 
+      await waitFor(() =>
+        expect(screen.getByRole('button', { name: 'project.management.section.createButton' })).toBeEnabled(),
+      );
       await user.click(
         await screen.findByRole('button', {
           name: 'project.management.section.createButton',
@@ -658,11 +669,26 @@ describe('OrganizationScreen', () => {
         'Newly created',
       );
       // Act
+      await waitFor(() =>
+        expect(screen.getByRole('button', { name: 'project.management.section.createButton' })).toBeEnabled(),
+      );
       await user.click(screen.getByRole('button', { name: 'project.management.form.create.submit' }));
 
       // Assert
       expect(await screen.findByRole('status')).toHaveTextContent('project.management.form.create.success');
       expect(await screen.findByText('Fresh Project')).toBeInTheDocument();
+      expect(view.createProject).toHaveBeenCalledWith({
+        organizationId: parseOrganizationId(3),
+        name: 'Fresh Project',
+        description: 'Newly created',
+        defaultThemeId: null,
+        defaultPartySettings: {
+          allowJoiningAfterStart: false,
+          allowOptionChangeAfterVoting: true,
+          randomizeOptionOrder: false,
+          randomizeStageOrder: false,
+        },
+      });
       expect(loadOrganizationWorkspaceState).toHaveBeenCalledTimes(2);
     });
 
@@ -812,7 +838,7 @@ describe('OrganizationScreen', () => {
 
     it('renders organization members for the selected organization', async () => {
       // Arrange
-      const member = createOrganizationMember({ role: OrganizationRole.MANAGER });
+      const member = organizationScreenFixtureFactory.createOrganizationMember({ role: OrganizationRole.MANAGER });
 
       // Act
       renderOrganizationScreen(
@@ -832,7 +858,7 @@ describe('OrganizationScreen', () => {
     it('updates an organization member role from the member list', async () => {
       // Arrange
       const user = userEvent.setup();
-      const member = createOrganizationMember();
+      const member = organizationScreenFixtureFactory.createOrganizationMember();
       const updateOrganizationMemberRole = vi.fn().mockResolvedValue({
         ...member,
         role: OrganizationRole.MANAGER,
@@ -863,13 +889,30 @@ describe('OrganizationScreen', () => {
       });
     });
 
-    it('hides owner-only member actions for managers', async () => {
+    it('disables owner actions using target decisions from the server', async () => {
       // Arrange
-      const ownerMember = createOrganizationMember({ role: OrganizationRole.OWNER });
+      const ownerMember = organizationScreenFixtureFactory.createOrganizationMember({
+        role: OrganizationRole.OWNER,
+        assignableRoles: [],
+        permissions: {
+          updateRole: { allowed: false, reason: OrganizationActionDisabledReason.INSUFFICIENT_PERMISSIONS },
+          remove: { allowed: false, reason: OrganizationActionDisabledReason.INSUFFICIENT_PERMISSIONS },
+        },
+      });
 
       renderOrganizationScreen(
         {},
         {
+          loadOrganizationWorkspaceState: vi.fn().mockResolvedValue({
+            organizationDashboard: organizationFixtureFactory.createOrganizationDashboard({
+              organization: {
+                role: OrganizationRole.MANAGER,
+                assignableRoles: [OrganizationRole.MEMBER, OrganizationRole.MANAGER],
+              },
+            }),
+            projectsPage: createPaginatedResult([]),
+            projectId: null,
+          }),
           restoreOrganizationSelection: vi.fn().mockResolvedValue({
             organizations: [organizationFixtureFactory.createOrganization({ role: OrganizationRole.MANAGER })],
             organizationId: parseOrganizationId(3),
@@ -889,15 +932,17 @@ describe('OrganizationScreen', () => {
         screen.queryAllByRole('option', {
           name: 'organization.management.members.roles.owner',
         }),
-      ).toHaveLength(0);
-      expect(screen.queryByRole('button', { name: 'organization.management.members.removeButton' })).toBeNull();
+      ).toHaveLength(1);
+      expect(screen.getByRole('button', { name: 'organization.management.members.removeButton' })).toBeDisabled();
       expect(screen.getAllByText('organization.management.members.roles.owner').length).toBeGreaterThan(0);
     });
 
     it('adds an organization member from the member form', async () => {
       // Arrange
       const user = userEvent.setup();
-      const addOrganizationMember = vi.fn().mockResolvedValue(createOrganizationMember());
+      const addOrganizationMember = vi
+        .fn()
+        .mockResolvedValue(organizationScreenFixtureFactory.createOrganizationMember());
 
       renderOrganizationScreen({}, {}, { deferWorkspaceLoad: false }, { addOrganizationMember });
 
@@ -921,7 +966,7 @@ describe('OrganizationScreen', () => {
     it('removes an organization member from the member list', async () => {
       // Arrange
       const user = userEvent.setup();
-      const member = createOrganizationMember();
+      const member = organizationScreenFixtureFactory.createOrganizationMember();
       const removeOrganizationMember = vi.fn().mockResolvedValue(undefined);
 
       renderOrganizationScreen(

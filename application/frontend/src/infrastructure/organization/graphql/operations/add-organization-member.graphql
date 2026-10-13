@@ -5,6 +5,17 @@ mutation AddOrganizationMember($organizationId: ID!, $input: AddOrganizationMemb
     userId
     username
     role
+    assignableRoles
+    permissions {
+      updateRole {
+        allowed
+        reason
+      }
+      remove {
+        allowed
+        reason
+      }
+    }
     joinedAt
   }
 }

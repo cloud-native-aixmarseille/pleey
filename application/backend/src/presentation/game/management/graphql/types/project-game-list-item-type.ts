@@ -2,11 +2,11 @@ import { Field, ID, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
 import type {
   GamePermissions,
   LaunchReadinessDisabledReason,
-} from '../../../../../application/game/management/ports/game-catalog.port';
+} from '../../../../../domain/game/management/value-objects/game-permissions';
 import {
   CreatePartyDisabledReason,
   LaunchReadinessDisabledReason as LaunchReadinessDisabledReasonEnum,
-} from '../../../../../application/game/management/ports/game-catalog.port';
+} from '../../../../../domain/game/management/value-objects/game-permissions';
 import type { ActionPermission } from '../../../../../domain/shared/value-objects/action-permission';
 import { createActionPermissionType } from '../../../../shared/graphql/types/action-permission-type';
 

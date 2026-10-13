@@ -4,6 +4,8 @@ import { GameIdentifier } from '../../application/game/shared/services/identifie
 import { GuestIdentifier } from '../../application/identity/shared/services/identifiers/guest-identifier';
 import { UserIdentifier } from '../../application/identity/shared/services/identifiers/user-identifier';
 import type { GameId } from '../../domains/game/entities/game';
+import type { HostPartyPermissions } from '../../domains/game/party/host/value-objects/host-party-permissions';
+import { HostPartyDisabledReason } from '../../domains/game/party/host/value-objects/host-party-permissions';
 import type { Party, PartyId, PartyPin } from '../../domains/game/party/shared/entities/party';
 import type { PartyHost } from '../../domains/game/party/shared/entities/party-host';
 import type { PartyObservation } from '../../domains/game/party/shared/entities/party-observation';
@@ -18,6 +20,7 @@ import { PartyStatus } from '../../domains/game/party/shared/entities/party-stat
 import { GameType } from '../../domains/game/types/shared/game-type';
 import type { GuestId } from '../../domains/identity/entities/guest';
 import type { UserId } from '../../domains/identity/entities/user';
+import { ThemeFixtureFactory } from './theme-fixture-factory';
 import { coerceUuidV7TestValue } from './uuid-v7-test-value';
 
 const gameIdentifier = new GameIdentifier();
@@ -115,6 +118,35 @@ export class PartyFixtureFactory {
     };
   }
 
+  createAllowedHostPermissions(): HostPartyPermissions {
+    return {
+      startParty: { allowed: true, reason: null },
+      endParty: { allowed: true, reason: null },
+      advanceStage: { allowed: true, reason: null },
+      restartStage: { allowed: true, reason: null },
+      rewindStage: { allowed: true, reason: null },
+      rewindParty: { allowed: true, reason: null },
+      pauseParty: { allowed: true, reason: null },
+      resumeParty: { allowed: true, reason: null },
+      revealStageResult: { allowed: true, reason: null },
+    };
+  }
+
+  createHostPermissions(overrides: Partial<HostPartyPermissions> = {}): HostPartyPermissions {
+    return {
+      startParty: { allowed: true, reason: null },
+      endParty: { allowed: true, reason: null },
+      advanceStage: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+      restartStage: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+      rewindStage: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+      rewindParty: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+      pauseParty: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+      resumeParty: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+      revealStageResult: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+      ...overrides,
+    };
+  }
+
   createPartyObservation(overrides: PartyObservationOverrides = {}): PartyObservation {
     const { partyId, pin, host, players, ...restOverrides } = overrides;
 
@@ -129,8 +161,10 @@ export class PartyFixtureFactory {
       pin: pin === undefined ? partyPinIdentifier.parse('AB12CD') : partyPinIdentifier.parse(pin),
       status: PartyStatus.WAITING,
       settings: DEFAULT_PARTY_SETTINGS,
+      themeDocument: new ThemeFixtureFactory().createDocument(),
       context: null,
       isObserverHost: false,
+      permissions: this.createHostPermissions(),
       host: host ?? this.createHost(),
       players: players ?? [
         this.createObservationPlayer({

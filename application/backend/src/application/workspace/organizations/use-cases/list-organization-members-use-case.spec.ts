@@ -2,6 +2,7 @@ import { OrganizationErrorCode } from '../../../../domain/organization/enums/org
 import { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
 import { OrganizationMembershipPolicy } from '../../../../domain/organization/services/organization-membership-policy';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
+import { createOrganizationMemberFixture } from '../../../../test-utils/fixtures/unit/organization-member.fixture';
 import {
   createOrganizationMemberRepositoryMock,
   createOrganizationRepositoryMock,
@@ -58,7 +59,7 @@ describe('ListOrganizationMembersUseCase', () => {
 
     // Act + Assert
     await expect(useCase.execute({ organizationId }, requesterUserId)).rejects.toThrow(
-      OrganizationErrorCode.INSUFFICIENT_PERMISSIONS,
+      OrganizationErrorCode.ORGANIZATION_NOT_FOUND,
     );
   });
 
@@ -68,18 +69,18 @@ describe('ListOrganizationMembersUseCase', () => {
       findById: { id: organizationId } as never,
     });
     const members = [
-      {
+      createOrganizationMemberFixture({
         id: backendTestIdentifiers.organizationMember(4),
         organizationId,
         role: OrganizationRole.OWNER,
         userId: requesterUserId,
-      },
-      {
+      }),
+      createOrganizationMemberFixture({
         id: backendTestIdentifiers.organizationMember(5),
         organizationId,
         role: OrganizationRole.MEMBER,
         userId: backendTestIdentifiers.user(11),
-      },
+      }),
     ] as never;
     const page = {
       items: members,
@@ -90,7 +91,7 @@ describe('ListOrganizationMembersUseCase', () => {
       totalPages: 1,
     } as const;
     const memberRepository = createOrganizationMemberRepositoryMock({
-      findByOrganizationAndUser: { id: backendTestIdentifiers.organizationMember(4) } as never,
+      findByOrganizationAndUser: createOrganizationMemberFixture({ id: backendTestIdentifiers.organizationMember(4) }),
       findPageByOrganization: page as never,
     });
     const organizationMembershipAccess = new OrganizationMembershipAccessService(
@@ -118,7 +119,7 @@ describe('ListOrganizationMembersUseCase', () => {
       findById: { id: organizationId } as never,
     });
     const memberRepository = createOrganizationMemberRepositoryMock({
-      findByOrganizationAndUser: { id: backendTestIdentifiers.organizationMember(4) } as never,
+      findByOrganizationAndUser: createOrganizationMemberFixture({ id: backendTestIdentifiers.organizationMember(4) }),
       findPageByOrganization: {
         items: [],
         totalCount: 0,

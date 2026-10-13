@@ -1,6 +1,7 @@
 import { fireEvent, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { HostPartyRuntimeCommand } from '../../../../../../domains/game/party/host/ports/party-host-runtime-controls.port';
+import { HostPartyDisabledReason } from '../../../../../../domains/game/party/host/value-objects/host-party-permissions';
 import { PartyRuntimePhase } from '../../../../../../domains/game/party/shared/entities/party-runtime-context';
 import { renderWithUiProvider } from '../../../../../../test-utils/render-with-ui-provider';
 import { HostStartPartyAction } from './host-start-party-action';
@@ -22,15 +23,17 @@ describe('HostStartPartyAction', () => {
     renderWithUiProvider(
       <HostStartPartyAction
         controls={{
-          canAdvanceStage: false,
-          canEndParty: true,
-          canPauseParty: false,
-          canRestartStage: false,
-          canResumeParty: false,
-          canRevealStageResult: false,
-          canRewindParty: false,
-          canRewindStage: false,
-          canStartParty: true,
+          permissions: {
+            advanceStage: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+            endParty: { allowed: true, reason: null },
+            pauseParty: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+            restartStage: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+            resumeParty: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+            revealStageResult: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+            rewindParty: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+            rewindStage: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+            startParty: { allowed: true, reason: null },
+          },
           currentStageNumber: null,
           hasNextStage: false,
           isPaused: false,
@@ -55,15 +58,17 @@ describe('HostStartPartyAction', () => {
     renderWithUiProvider(
       <HostStartPartyAction
         controls={{
-          canAdvanceStage: true,
-          canEndParty: true,
-          canPauseParty: true,
-          canRestartStage: true,
-          canResumeParty: false,
-          canRevealStageResult: false,
-          canRewindParty: true,
-          canRewindStage: true,
-          canStartParty: false,
+          permissions: {
+            advanceStage: { allowed: true, reason: null },
+            endParty: { allowed: true, reason: null },
+            pauseParty: { allowed: true, reason: null },
+            restartStage: { allowed: true, reason: null },
+            resumeParty: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+            revealStageResult: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+            rewindParty: { allowed: true, reason: null },
+            rewindStage: { allowed: true, reason: null },
+            startParty: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+          },
           currentStageNumber: 2,
           hasNextStage: true,
           isPaused: false,
@@ -85,15 +90,17 @@ describe('HostStartPartyAction', () => {
     renderWithUiProvider(
       <HostStartPartyAction
         controls={{
-          canAdvanceStage: false,
-          canEndParty: true,
-          canPauseParty: false,
-          canRestartStage: false,
-          canResumeParty: false,
-          canRevealStageResult: false,
-          canRewindParty: false,
-          canRewindStage: false,
-          canStartParty: true,
+          permissions: {
+            advanceStage: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+            endParty: { allowed: true, reason: null },
+            pauseParty: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+            restartStage: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+            resumeParty: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+            revealStageResult: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+            rewindParty: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+            rewindStage: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+            startParty: { allowed: true, reason: null },
+          },
           currentStageNumber: null,
           hasNextStage: false,
           isPaused: false,
@@ -117,15 +124,17 @@ describe('HostStartPartyAction', () => {
     renderWithUiProvider(
       <HostStartPartyAction
         controls={{
-          canAdvanceStage: false,
-          canEndParty: true,
-          canPauseParty: false,
-          canRestartStage: false,
-          canResumeParty: false,
-          canRevealStageResult: false,
-          canRewindParty: false,
-          canRewindStage: false,
-          canStartParty: false,
+          permissions: {
+            advanceStage: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+            endParty: { allowed: true, reason: null },
+            pauseParty: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+            restartStage: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+            resumeParty: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+            revealStageResult: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+            rewindParty: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+            rewindStage: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+            startParty: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+          },
           currentStageNumber: null,
           hasNextStage: false,
           isPaused: false,

@@ -33,6 +33,14 @@ Per-app npm scripts are in each `package.json`. Key entrypoints:
 - `make ci` — lint-fix + test (pre-push check)
 - `make test` — all tests (supports `SCOPE` and `MODE` args)
 
+## Repository Static Linting
+
+`make lint` runs both application lint pipelines, then Super-linter with the configurations under `.github/linters/`.
+
+Checkov renders the umbrella chart using [the CI recovery values](../../../charts/application/ci/recovery-values.yaml), including the frontend and backend templates. Only the two local subchart `Chart.yaml` entrypoints are excluded from duplicate standalone discovery; their directories remain eligible for scanning. Keep the fixture complete when chart schemas add required values, and verify that security checks still detect missing release policies and unsafe service workloads.
+
+The root and application Biome configurations use the installed CLI schema.
+
 ## Documentation Maintenance
 
 Development docs under `docs/technical/development/**` describe the current approved repository state only.
@@ -121,12 +129,19 @@ Process-startup, config, and tooling code outside the runtime application layers
 ### i18n
 
 - Backend: `application/backend/src/i18n/`
-- Frontend: `application/frontend/src/i18n/locales/`
+- Frontend: `application/frontend/src/presentation/**/i18n/`, assembled by `application/frontend/src/i18n/translation-resource-composer.ts`
 - Feature-specific keys stay in feature scope — no cross-feature key reads
+- Use the straight ASCII apostrophe (`'`, U+0027) in translation values for every locale. Curly apostrophes (U+2018 and U+2019) are forbidden. Use suitable string delimiters or escaping to preserve the straight apostrophe; keep language accents intact.
 
 ### HTTP Requests
 
 - No duplicate requests for the same data — colocate queries, use caching, deduplicate at the gateway/facade level
+
+### Module exports and runtime services
+
+- Import contracts from the module that defines them. Port modules define their own contracts and must not forward exports, including imported aliases or type-only exports.
+- Backend domain and application service modules expose classes with instance methods. Inject those classes into runtime consumers and register them in the owning app module; do not export standalone service functions. Domain policy classes stay framework-independent.
+- `check-module-exports.mjs` enforces these rules in both application lint pipelines; the existing DI guard enforces container-based consumption.
 
 ### Dependency Boundaries
 

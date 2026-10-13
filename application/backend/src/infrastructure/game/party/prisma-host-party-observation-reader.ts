@@ -5,6 +5,7 @@ import { PartyPinIdentifier } from '../../../application/game/party/shared/servi
 import { GameIdentifier } from '../../../application/game/shared/services/identifiers/game-identifier';
 import { PartyStageCatalogPort } from '../../../application/game/types/shared/ports/party-stage-catalog.port';
 import { UserIdentifier } from '../../../application/identity/shared/services/identifiers/user-identifier';
+import { ThemeDocumentValidator } from '../../../application/workspace/themes/services/theme-document-validator';
 import type { HostPartyObservation } from '../../../domain/game/party/host/entities/host-party-observation';
 import type { PartyHost } from '../../../domain/game/party/host/entities/party-host';
 import type { PartyId } from '../../../domain/game/party/shared/entities/party';
@@ -31,6 +32,7 @@ export class PrismaHostPartyObservationReader implements HostPartyObservationRea
     private readonly runtimeContextProjection: PartyRuntimeContextProjectionService,
     private readonly userIdentifier: UserIdentifier,
     private readonly partySettingsMapper: PrismaPartySettingsMapper,
+    private readonly themeDocumentValidator: ThemeDocumentValidator,
   ) {}
 
   async findHostObservationByPartyId(partyId: PartyId): Promise<HostPartyObservation | null> {
@@ -51,9 +53,11 @@ export class PrismaHostPartyObservationReader implements HostPartyObservationRea
         createdAt: true,
         updatedAt: true,
         pin: true,
+        passwordHash: true,
         status: true,
         context: true,
         settings: true,
+        themeDocument: true,
         game: {
           select: {
             type: true,
@@ -139,11 +143,13 @@ export class PrismaHostPartyObservationReader implements HostPartyObservationRea
     const submittedPlayerCount = playerActionStates.filter((entry) => entry.state.stageId === stageId).length;
 
     return {
+      isPrivate: party.passwordHash !== null,
       partyId: this.partyIdentifier.parse(party.id),
       gameId: this.gameIdentifier.parse(party.gameId),
       pin: this.partyPinIdentifier.parse(party.pin),
       status: this.partyReadModelMapper.toPartyStatus(party.status),
       settings: this.partySettingsMapper.toPartySettings(party.settings),
+      themeDocument: this.themeDocumentValidator.parse(party.themeDocument),
       context: this.runtimeContextProjection.project({
         baseContext,
         playerActionStates: playerActionStates.map((entry) => entry.state),

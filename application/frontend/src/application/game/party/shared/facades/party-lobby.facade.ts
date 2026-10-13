@@ -16,11 +16,13 @@ import {
 import {
   type PartyJoinCommand,
   type PartyJoinReceipt,
+  PartyJoinReceiptStatus,
   type PartyPlayerPort,
   PartyPlayerPortToken,
   type PartySubmitActionCommand,
 } from '../../../../../domains/game/party/player/ports/party-player.port';
 import type { Party, PartyId, PartyPin } from '../../../../../domains/game/party/shared/entities/party';
+import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/shared/entities/party-player-identity';
 import type { GuestId } from '../../../../../domains/identity/entities/guest';
 
 export interface PartyLobbyGateway {
@@ -32,6 +34,7 @@ export interface PartyLobbyGateway {
   leaveParty(): Promise<boolean>;
   listParties(): Promise<readonly Party[]>;
   rejoinParty(command: PartyJoinCommand): Promise<PartyJoinReceipt>;
+  recoverGuestParty(partyId: PartyId): Promise<void>;
   setGuestId(pin: PartyPin, guestId: GuestId): void;
   submitAction(command: PartySubmitActionCommand): Promise<void>;
 }
@@ -92,7 +95,7 @@ export class PartyLobbyFacade implements PartyLobbyGateway {
   }
 
   joinParty(command: PartyJoinCommand): Promise<PartyJoinReceipt> {
-    return this.partyPlayerPort.joinParty(command);
+    return this.enterParty(command, false);
   }
 
   kickPlayer(command: HostPartyPlayerControlCommand): Promise<void> {
@@ -108,11 +111,43 @@ export class PartyLobbyFacade implements PartyLobbyGateway {
   }
 
   rejoinParty(command: PartyJoinCommand): Promise<PartyJoinReceipt> {
-    return this.partyPlayerPort.rejoinParty(command);
+    return this.enterParty(command, true);
+  }
+
+  async recoverGuestParty(partyId: PartyId): Promise<void> {
+    const pin = this.partyGuestSessionPort.getGuestPin(partyId);
+    const guestId = pin ? this.partyGuestSessionPort.getGuestId(pin) : null;
+    if (!pin || !guestId) return;
+    const receipt = await this.rejoinParty({ pin, playerIdentity: { kind: PartyPlayerIdentityKind.Guest, guestId } });
+    if (receipt.status !== PartyJoinReceiptStatus.ACCEPTED) this.clearGuestId(pin);
   }
 
   setGuestId(pin: PartyPin, guestId: GuestId): void {
     this.partyGuestSessionPort.setGuestId(pin, guestId);
+  }
+
+  private async enterParty(command: PartyJoinCommand, rejoin: boolean): Promise<PartyJoinReceipt> {
+    const guestCredential =
+      command.playerIdentity.kind === PartyPlayerIdentityKind.Guest && command.playerIdentity.guestId
+        ? (this.partyGuestSessionPort.getGuestCredential(command.pin) ?? undefined)
+        : undefined;
+    const request = { ...command, guestCredential };
+    const receipt = await (rejoin
+      ? this.partyPlayerPort.rejoinParty(request)
+      : this.partyPlayerPort.joinParty(request));
+    if (
+      receipt.status === PartyJoinReceiptStatus.ACCEPTED &&
+      receipt.player.identity.kind === PartyPlayerIdentityKind.Guest &&
+      receipt.guestCredential
+    ) {
+      this.partyGuestSessionPort.setGuestId(
+        receipt.pin,
+        receipt.player.identity.guestId,
+        receipt.guestCredential,
+        receipt.partyId,
+      );
+    }
+    return receipt;
   }
 
   submitAction(command: PartySubmitActionCommand): Promise<void> {

@@ -4,6 +4,7 @@ import { Inject, MiddlewareConsumer, Module, type NestModule } from '@nestjs/com
 import { GraphQLModule } from '@nestjs/graphql';
 import { GraphQLUpload, graphqlUploadExpress } from 'graphql-upload-minimal';
 import { AcceptLanguageResolver, I18nJsonLoader, I18nModule, QueryResolver } from 'nestjs-i18n';
+import { THEME_ASSET_MAX_FILE_SIZE_BYTES } from '../domain/theme/entities/managed-theme';
 import { JwtSessionAuthenticator } from '../infrastructure/identity/services/jwt-session-authenticator';
 import { GameErrorHttpStatusService } from '../presentation/game/shared/error-handling/game-error-http-status.service';
 import { GameErrorTranslationService } from '../presentation/game/shared/error-handling/game-error-translation.service';
@@ -22,6 +23,8 @@ import { ErrorCodeHttpStatusService } from '../presentation/shared/error-handlin
 import { ERROR_CODE_HTTP_STATUS_RESOLVERS } from '../presentation/shared/error-handling/error-code-http-status-resolvers.token';
 import { ERROR_CODE_TRANSLATORS } from '../presentation/shared/error-handling/error-code-translators.token';
 import { ErrorTranslationService } from '../presentation/shared/error-handling/error-translation-service';
+import { ThemeErrorHttpStatusService } from '../presentation/theme/error-handling/theme-error-http-status.service';
+import { ThemeErrorTranslationService } from '../presentation/theme/error-handling/theme-error-translation.service';
 import { AppConfigModule } from './config/app-config.module';
 import { APP_SERVER_CONFIG, type AppServerConfig } from './config/app-server-config.token';
 import { GameModule } from './modules/game/game-module';
@@ -30,6 +33,7 @@ import { QuizModule } from './modules/game/types/quiz-module';
 import { HealthModule } from './modules/health/health-module';
 import { IdentityModule } from './modules/identity/identity-module';
 import { OrganizationModule } from './modules/organization/organization-module';
+import { ThemeModule } from './modules/theme/theme-module';
 
 function parseAuthorizationHeader(connectionParams?: Record<string, unknown>): string | null {
   const authorizationValue = connectionParams?.authorization;
@@ -47,6 +51,7 @@ function parseAuthorizationHeader(connectionParams?: Record<string, unknown>): s
 
 @Module({
   imports: [
+    ThemeModule,
     AppConfigModule,
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
@@ -124,7 +129,9 @@ function parseAuthorizationHeader(connectionParams?: Record<string, unknown>): s
     PredictionErrorHttpStatusService,
     PredictionErrorTranslationService,
     ProjectErrorHttpStatusService,
+    ThemeErrorHttpStatusService,
     ProjectErrorTranslationService,
+    ThemeErrorTranslationService,
     QuizErrorHttpStatusService,
     QuizErrorTranslationService,
     {
@@ -135,6 +142,7 @@ function parseAuthorizationHeader(connectionParams?: Record<string, unknown>): s
         organizationErrorTranslationService: OrganizationErrorTranslationService,
         predictionErrorTranslationService: PredictionErrorTranslationService,
         projectErrorTranslationService: ProjectErrorTranslationService,
+        themeErrorTranslationService: ThemeErrorTranslationService,
         quizErrorTranslationService: QuizErrorTranslationService,
       ) => [
         identityErrorTranslationService,
@@ -143,6 +151,7 @@ function parseAuthorizationHeader(connectionParams?: Record<string, unknown>): s
         organizationErrorTranslationService,
         predictionErrorTranslationService,
         projectErrorTranslationService,
+        themeErrorTranslationService,
       ],
       inject: [
         IdentityErrorTranslationService,
@@ -150,6 +159,7 @@ function parseAuthorizationHeader(connectionParams?: Record<string, unknown>): s
         OrganizationErrorTranslationService,
         PredictionErrorTranslationService,
         ProjectErrorTranslationService,
+        ThemeErrorTranslationService,
         QuizErrorTranslationService,
       ],
     },
@@ -161,6 +171,7 @@ function parseAuthorizationHeader(connectionParams?: Record<string, unknown>): s
         organizationErrorHttpStatusService: OrganizationErrorHttpStatusService,
         predictionErrorHttpStatusService: PredictionErrorHttpStatusService,
         projectErrorHttpStatusService: ProjectErrorHttpStatusService,
+        themeErrorHttpStatusService: ThemeErrorHttpStatusService,
         quizErrorHttpStatusService: QuizErrorHttpStatusService,
       ) => [
         identityErrorHttpStatusService,
@@ -169,6 +180,7 @@ function parseAuthorizationHeader(connectionParams?: Record<string, unknown>): s
         organizationErrorHttpStatusService,
         predictionErrorHttpStatusService,
         projectErrorHttpStatusService,
+        themeErrorHttpStatusService,
       ],
       inject: [
         IdentityErrorHttpStatusService,
@@ -176,6 +188,7 @@ function parseAuthorizationHeader(connectionParams?: Record<string, unknown>): s
         OrganizationErrorHttpStatusService,
         PredictionErrorHttpStatusService,
         ProjectErrorHttpStatusService,
+        ThemeErrorHttpStatusService,
         QuizErrorHttpStatusService,
       ],
     },
@@ -193,7 +206,7 @@ export class AppModule implements NestModule {
     consumer
       .apply(
         graphqlUploadExpress({
-          maxFileSize: this.playableContentImportMaxFileSizeBytes,
+          maxFileSize: Math.max(this.playableContentImportMaxFileSizeBytes, THEME_ASSET_MAX_FILE_SIZE_BYTES),
           maxFiles: 1,
         }),
       )

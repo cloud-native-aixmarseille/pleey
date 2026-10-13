@@ -3,6 +3,7 @@ import { uiThemeTokens } from '../../../../../../shared/ui/foundation/ui-theme';
 import type { PlayableChoiceActionSlotIdentity } from './playable-choice-action-slot-identity';
 
 const baseTileStyle: CSSProperties = {
+  color: uiThemeTokens.color.text.primary,
   borderRadius: uiThemeTokens.radius.panel,
   minHeight: '7rem',
   padding: uiThemeTokens.spacing.md,

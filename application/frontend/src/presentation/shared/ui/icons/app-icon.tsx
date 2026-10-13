@@ -1,7 +1,9 @@
 import {
   IconAlertCircle,
   IconArchive,
+  IconArrowBackUp,
   IconArrowDown,
+  IconArrowForwardUp,
   IconArrowLeft,
   IconArrowRight,
   IconArrowUp,
@@ -13,8 +15,10 @@ import {
   IconClockPause,
   IconCommand,
   IconCopy,
+  IconDeviceDesktop,
   IconDeviceFloppy,
   IconDeviceGamepad2,
+  IconDeviceMobile,
   IconDots,
   IconEye,
   IconGripVertical,
@@ -28,6 +32,8 @@ import {
   IconLogout2,
   IconMenu2,
   IconMoonStars,
+  IconPalette,
+  IconPhoto,
   IconPlayerPause,
   IconPlayerPlay,
   IconPlayerTrackNext,
@@ -44,6 +50,7 @@ import {
   IconTrash,
   IconTrendingUp,
   IconTrophy,
+  IconTypography,
   IconUser,
   IconUserCircle,
   IconUserPlus,
@@ -51,6 +58,13 @@ import {
 import type { ComponentType } from 'react';
 
 export type AppIconName =
+  | 'undo'
+  | 'redo'
+  | 'palette'
+  | 'typography'
+  | 'image'
+  | 'desktop'
+  | 'phone'
   | 'account'
   | 'archive'
   | 'arrow-down'
@@ -102,6 +116,13 @@ export type AppIconName =
   | 'trophy';
 
 const iconRegistry: Record<AppIconName, ComponentType<IconProps>> = {
+  undo: IconArrowBackUp,
+  redo: IconArrowForwardUp,
+  palette: IconPalette,
+  typography: IconTypography,
+  image: IconPhoto,
+  desktop: IconDeviceDesktop,
+  phone: IconDeviceMobile,
   account: IconUserCircle,
   archive: IconArchive,
   'arrow-down': IconArrowDown,

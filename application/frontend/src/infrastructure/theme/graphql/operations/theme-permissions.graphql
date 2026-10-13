@@ -1,0 +1,20 @@
+query ThemePermissions($organizationId: ID!) {
+  themePermissions(organizationId: $organizationId) {
+    read {
+      allowed
+      reason
+    }
+    create {
+      allowed
+      reason
+    }
+    update {
+      allowed
+      reason
+    }
+    uploadAsset {
+      allowed
+      reason
+    }
+  }
+}

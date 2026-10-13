@@ -4,6 +4,7 @@ import {
 } from '../../../../../../domains/game/party/shared/entities/party-settings';
 import type { Organization } from '../../../../../../domains/organization/entities/organization';
 import type { Project } from '../../../../../../domains/project/entities/project';
+import type { ThemeId } from '../../../../../../domains/theme/entities/theme-id';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { ProjectFormDialog } from './project-form-dialog';
 import { ProjectRemovalDialog } from './project-removal-dialog';
@@ -11,7 +12,8 @@ import { ProjectRemovalDialog } from './project-removal-dialog';
 interface ProjectFormValues {
   readonly name: string;
   readonly description: string | null;
-  readonly partySettings: PartySettings;
+  readonly defaultPartySettings: PartySettings;
+  readonly defaultThemeId: ThemeId | null;
 }
 
 interface OrganizationProjectDialogsProps {
@@ -70,7 +72,8 @@ export function OrganizationProjectDialogs({
   return (
     <>
       <ProjectFormDialog
-        defaultPartySettings={selectedOrganization?.defaultPartySettings ?? DEFAULT_PARTY_SETTINGS}
+        organizationId={selectedOrganization?.id}
+        organizationDefaultPartySettings={selectedOrganization?.defaultPartySettings ?? DEFAULT_PARTY_SETTINGS}
         isOpen={isCreateProjectOpen}
         mode="create"
         onClose={closeCreateProjectDialog}
@@ -81,7 +84,8 @@ export function OrganizationProjectDialogs({
       />
 
       <ProjectFormDialog
-        defaultPartySettings={selectedOrganization?.defaultPartySettings ?? DEFAULT_PARTY_SETTINGS}
+        organizationId={selectedOrganization?.id}
+        organizationDefaultPartySettings={selectedOrganization?.defaultPartySettings ?? DEFAULT_PARTY_SETTINGS}
         isOpen={editingProject !== null}
         mode="edit"
         onClose={closeEditProjectDialog}

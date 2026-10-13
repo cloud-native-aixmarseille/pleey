@@ -1,0 +1,9 @@
+{
+  "errors": {
+    "invalidDocument": "Vérifiez le nom et les valeurs du thème. Les couleurs doivent être hexadécimales sur six chiffres et conserver un contraste lisible du texte et du focus dans les deux modes.",
+    "invalidSelection": "Ce thème est indisponible dans cette organisation.",
+    "revisionConflict": "Ce thème a été modifié. Fermez et rouvrez-le avant de réessayer.",
+    "invalidAsset": "Choisissez une image fixe PNG, JPEG ou WebP valide de moins de 5 Mio et 16 mégapixels.",
+    "notFound": "Ce thème est introuvable."
+  }
+}

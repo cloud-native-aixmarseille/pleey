@@ -2,6 +2,7 @@ import { OrganizationErrorCode } from '../../../../domain/organization/enums/org
 import { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
 import { OrganizationMembershipPolicy } from '../../../../domain/organization/services/organization-membership-policy';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
+import { createOrganizationMemberFixture } from '../../../../test-utils/fixtures/unit/organization-member.fixture';
 import {
   createOrganizationMemberRepositoryMock,
   createOrganizationRepositoryMock,
@@ -31,13 +32,12 @@ describe('RemoveMemberFromOrganizationUseCase', () => {
   it('throws when requesting user lacks management privileges', async () => {
     // Arrange
     const memberRepository = createOrganizationMemberRepositoryMock({
-      findById: {
+      findById: createOrganizationMemberFixture({
         id: memberId,
         organizationId,
         role: OrganizationRole.MEMBER,
-        isOwner: () => false,
-      } as never,
-      findByOrganizationAndUser: { hasManagementPrivileges: () => false } as never,
+      }) as never,
+      findByOrganizationAndUser: createOrganizationMemberFixture({ role: OrganizationRole.MEMBER }) as never,
     });
     const organizationMembershipAccess = new OrganizationMembershipAccessService(
       createOrganizationRepositoryMock() as never,
@@ -53,18 +53,10 @@ describe('RemoveMemberFromOrganizationUseCase', () => {
 
   it('throws when trying to remove the last owner', async () => {
     // Arrange
-    const ownerMember = {
-      id: memberId,
-      organizationId,
-      role: OrganizationRole.OWNER,
-      isOwner: () => true,
-    };
+    const ownerMember = createOrganizationMemberFixture({ id: memberId, organizationId, role: OrganizationRole.OWNER });
     const memberRepository = createOrganizationMemberRepositoryMock({
       findById: ownerMember as never,
-      findByOrganizationAndUser: {
-        hasManagementPrivileges: () => true,
-        isOwner: () => true,
-      } as never,
+      findByOrganizationAndUser: createOrganizationMemberFixture({ role: OrganizationRole.OWNER }) as never,
       countOwnersByOrganization: 1,
     });
     const organizationMembershipAccess = new OrganizationMembershipAccessService(
@@ -81,18 +73,10 @@ describe('RemoveMemberFromOrganizationUseCase', () => {
 
   it('throws when a manager tries to remove an owner', async () => {
     // Arrange
-    const ownerMember = {
-      id: memberId,
-      organizationId,
-      role: OrganizationRole.OWNER,
-      isOwner: () => true,
-    };
+    const ownerMember = createOrganizationMemberFixture({ id: memberId, organizationId, role: OrganizationRole.OWNER });
     const memberRepository = createOrganizationMemberRepositoryMock({
       findById: ownerMember as never,
-      findByOrganizationAndUser: {
-        hasManagementPrivileges: () => true,
-        isOwner: () => false,
-      } as never,
+      findByOrganizationAndUser: createOrganizationMemberFixture({ role: OrganizationRole.MANAGER }) as never,
     });
     const organizationMembershipAccess = new OrganizationMembershipAccessService(
       createOrganizationRepositoryMock() as never,
@@ -109,18 +93,14 @@ describe('RemoveMemberFromOrganizationUseCase', () => {
 
   it('deletes member when allowed', async () => {
     // Arrange
-    const memberToRemove = {
+    const memberToRemove = createOrganizationMemberFixture({
       id: memberId,
       organizationId,
       role: OrganizationRole.MEMBER,
-      isOwner: () => false,
-    };
+    });
     const memberRepository = createOrganizationMemberRepositoryMock({
       findById: memberToRemove as never,
-      findByOrganizationAndUser: {
-        hasManagementPrivileges: () => true,
-        isOwner: () => false,
-      } as never,
+      findByOrganizationAndUser: createOrganizationMemberFixture({ role: OrganizationRole.MANAGER }) as never,
       delete: undefined,
     });
     const organizationMembershipAccess = new OrganizationMembershipAccessService(

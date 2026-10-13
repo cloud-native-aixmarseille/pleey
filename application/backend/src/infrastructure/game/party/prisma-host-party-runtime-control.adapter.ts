@@ -126,6 +126,7 @@ export class PrismaHostPartyRuntimeControlAdapter extends HostPartyRuntimeContro
       }),
       gameId: this.gameIdentifier.parse(party.gameId),
       hostUserId: this.userIdentifier.parse(party.hostId),
+      playerCount: party.scores.length,
       partyId: this.partyIdentifier.parse(party.id),
       settings: this.partySettingsMapper.toPartySettings(party.settings),
       status: this.partyReadModelMapper.toPartyStatus(party.status, {

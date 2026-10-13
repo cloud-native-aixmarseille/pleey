@@ -1,6 +1,11 @@
 ---
 quiet: true
+var-file:
+  - charts/application/ci/recovery-values.yaml
 skip-path:
+  # Avoid duplicate standalone rendering; the umbrella loads these chart definitions.
+  # All templates and other files in both directories remain eligible for checks.
+  - (^|.*/)charts/application/charts/(backend|frontend)/Chart\.yaml$
   # Ignore third-party Helm dependency charts vendored by the backend subchart.
   # Checkov renders them under paths that contain `charts/backend/charts/...`.
   - (^|.*/)charts/backend/charts/.*

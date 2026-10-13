@@ -1,3 +1,4 @@
+import type { ThemeDocument } from '../../../../theme/entities/theme-document';
 import type { GameId } from '../../../entities/game';
 import type { PartyStatus } from '../../enums/party-status.enum';
 import type { PartyPlayer } from '../../player/entities/party-player';
@@ -7,11 +8,13 @@ import type { PartySettings } from '../../shared/entities/party-settings';
 import type { PartyHost } from './party-host';
 
 export interface HostPartyObservation {
+  readonly isPrivate: boolean;
   readonly partyId: PartyId;
   readonly gameId: GameId;
   readonly pin: PartyPin;
   readonly status: PartyStatus;
   readonly settings: PartySettings;
+  readonly themeDocument: ThemeDocument;
   readonly host: PartyHost;
   readonly players: readonly PartyPlayer[];
   readonly createdAt: Date;

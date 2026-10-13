@@ -25,6 +25,7 @@ import { UserIdentifier } from '../../../application/identity/shared/services/id
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-member-identifier';
 import { ProjectIdentifier } from '../../../application/workspace/shared/services/identifiers/project-identifier';
+import { ThemeIdentifier } from '../../../application/workspace/themes/services/theme-identifier';
 import {
   ACCESS_TOKEN_CONFIG,
   AuthTokenServiceProvider,
@@ -45,6 +46,7 @@ import { OrganizationRepositoryProvider } from '../../../domain/organization/por
 import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/ports/organization-member.repository';
 import { DefaultWorkspaceService } from '../../../domain/organization/services/default-workspace-service';
 import { ProjectRepositoryProvider } from '../../../domain/project/ports/project.repository';
+import { PrismaPartySettingsMapper } from '../../../infrastructure/game/shared/prisma-party-settings.mapper';
 import { CapCaptchaAdapter } from '../../../infrastructure/identity/captcha/cap-captcha-adapter';
 import { ValkeyCaptchaStore } from '../../../infrastructure/identity/captcha/valkey-captcha-store';
 import { JwtStrategy } from '../../../infrastructure/identity/jwt-strategy';
@@ -89,6 +91,7 @@ import { SharedServicesModule } from '../shared/shared-services.module';
   ],
   controllers: [AvatarController, CaptchaController],
   providers: [
+    ThemeIdentifier,
     CapCaptchaAdapter,
     ValkeyCaptchaStore,
     { provide: CaptchaPortProvider, useExisting: CapCaptchaAdapter },
@@ -137,6 +140,7 @@ import { SharedServicesModule } from '../shared/shared-services.module';
     PrismaUserAuthenticationRepository,
     { provide: UserAuthenticationRepositoryProvider, useExisting: PrismaUserAuthenticationRepository },
     PrismaGuestRepository,
+    PrismaPartySettingsMapper,
     PrismaOrganizationRepository,
     PrismaOrganizationMemberRepository,
     PrismaProjectRepository,

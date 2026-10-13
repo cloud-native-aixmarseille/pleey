@@ -11,12 +11,12 @@ import {
 
 type PartyPlayerSessionRegistryMockShape = Pick<
   PartyPlayerSessionRegistry,
-  'registerSession' | 'hasActiveSession' | 'getActiveSession' | 'invalidateSession' | 'invalidateAllSessions'
+  'registerSession' | 'hasActiveSession' | 'isCurrentSession' | 'invalidateSession' | 'invalidateAllSessions'
 >;
 
 const PARTY_PLAYER_SESSION_REGISTRY_METHOD_KINDS: MockFactoryMethodKinds<PartyPlayerSessionRegistryMockShape> = {
   resolved: [],
-  returned: ['registerSession', 'hasActiveSession', 'getActiveSession', 'invalidateSession', 'invalidateAllSessions'],
+  returned: ['registerSession', 'hasActiveSession', 'isCurrentSession', 'invalidateSession', 'invalidateAllSessions'],
 };
 
 export const createPartyPlayerSessionRegistryMock = (
@@ -30,7 +30,7 @@ export const createPartyPlayerSessionRegistryMock = (
       }),
     ),
     hasActiveSession: mockFn<PartyPlayerSessionRegistry['hasActiveSession']>().mockReturnValue(false),
-    getActiveSession: mockFn<PartyPlayerSessionRegistry['getActiveSession']>().mockReturnValue(null),
+    isCurrentSession: mockFn<PartyPlayerSessionRegistry['isCurrentSession']>().mockReturnValue(false),
     invalidateSession: mockFn<PartyPlayerSessionRegistry['invalidateSession']>().mockReturnValue(false),
     invalidateAllSessions: mockFn<PartyPlayerSessionRegistry['invalidateAllSessions']>(),
   };

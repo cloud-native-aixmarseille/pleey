@@ -71,6 +71,7 @@ export class PersistedAuthSessionAdapter {
     this.storage.removeItem(StorageKey.AUTH_ACCESS_TOKEN);
     this.storage.removeItem(StorageKey.AUTH_REFRESH_TOKEN);
     this.storage.removeItem(StorageKey.AUTH_USER);
+    this.storage.removeItem(StorageKey.THEME_DRAFTS);
     this.suspend();
   }
 

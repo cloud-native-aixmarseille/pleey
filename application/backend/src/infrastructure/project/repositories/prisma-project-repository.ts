@@ -3,9 +3,10 @@ import { Prisma, type Project as PrismaProject } from '@prisma/client';
 import { PaginationQueryNormalizer } from '../../../application/shared/services/pagination-query-normalizer';
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { ProjectIdentifier } from '../../../application/workspace/shared/services/identifiers/project-identifier';
+import { ThemeIdentifier } from '../../../application/workspace/themes/services/theme-identifier';
 import type { OrganizationId } from '../../../domain/organization/entities/organization';
 import { Project, type ProjectId } from '../../../domain/project/entities/project';
-import type { PartySettingsDefaultsInput, ProjectRepository } from '../../../domain/project/ports/project.repository';
+import type { ProjectDefaultsInput, ProjectRepository } from '../../../domain/project/ports/project.repository';
 import type { PaginatedResult } from '../../../domain/shared/value-objects/paginated-result';
 import { PrismaService } from '../../database/prisma-service';
 import { PrismaPartySettingsMapper } from '../../game/shared/prisma-party-settings.mapper';
@@ -18,16 +19,18 @@ export class PrismaProjectRepository implements ProjectRepository {
     private readonly projectIdentifier: ProjectIdentifier,
     private readonly paginationQueryNormalizer: PaginationQueryNormalizer,
     private readonly partySettingsMapper: PrismaPartySettingsMapper,
+    private readonly themeIdentifier: ThemeIdentifier,
   ) {}
 
   async create(
     organizationId: OrganizationId,
     name: string,
     description: string | null,
-    defaults: PartySettingsDefaultsInput,
+    defaults: ProjectDefaultsInput,
   ): Promise<Project> {
     const project = await this.prisma.project.create({
       data: {
+        ...(defaults.defaultThemeId === undefined ? {} : { defaultThemeId: defaults.defaultThemeId }),
         defaultPartySettings:
           defaults.defaultPartySettings === null
             ? Prisma.DbNull
@@ -133,11 +136,12 @@ export class PrismaProjectRepository implements ProjectRepository {
     id: ProjectId,
     name: string,
     description: string | null,
-    defaults: PartySettingsDefaultsInput,
+    defaults: ProjectDefaultsInput,
   ): Promise<Project> {
     const project = await this.prisma.project.update({
       where: { id },
       data: {
+        ...(defaults.defaultThemeId === undefined ? {} : { defaultThemeId: defaults.defaultThemeId }),
         defaultPartySettings:
           defaults.defaultPartySettings === null
             ? Prisma.DbNull
@@ -158,6 +162,7 @@ export class PrismaProjectRepository implements ProjectRepository {
       this.organizationIdentifier.parse(project.organizationId),
       project.createdAt,
       this.partySettingsMapper.toOptionalPartySettings(project.defaultPartySettings),
+      this.themeIdentifier.parse(project.defaultThemeId),
     );
   }
 }

@@ -10,10 +10,9 @@ import type { PartyPin } from '../../../../../domain/game/party/shared/entities/
 import type { PartySummary } from '../../../../../domain/game/party/shared/entities/party-summary';
 import { PartySettingsResolver } from '../../../../../domain/game/party/shared/services/party-settings-resolver';
 import { PasswordService } from '../../../../../domain/identity/services/password-service';
-import { NotAMemberError } from '../../../../../domain/organization/errors';
-import type { OrganizationMemberRepository } from '../../../../../domain/organization/ports/organization-member.repository';
-import { OrganizationMemberRepositoryProvider } from '../../../../../domain/organization/ports/organization-member.repository';
 import { GamePermissionResolver } from '../../../../game/management/services/game-permission-resolver';
+import { OrganizationMembershipAccessService } from '../../../../workspace/organizations/services/organization-membership-access.service';
+import { ThemeSelectionService } from '../../../../workspace/themes/services/theme-selection-service';
 import type { CreatePartyDto } from '../../shared/dto/create-party.dto';
 import { PartyManagementPort } from '../../shared/ports/party-management.port';
 import { PartyPinIdentifier } from '../../shared/services/identifiers/party-pin-identifier';
@@ -26,14 +25,14 @@ export class CreatePartyUseCase {
   constructor(
     @Inject(PartyManagementPort)
     private readonly partyManagement: PartyManagementPort,
-    @Inject(OrganizationMemberRepositoryProvider)
-    private readonly memberRepository: OrganizationMemberRepository,
+    private readonly membershipAccess: OrganizationMembershipAccessService,
     private readonly gamePermissionResolver: GamePermissionResolver,
     private readonly broadcastPartyObservationUseCase: BroadcastPartyObservationUseCase,
     private readonly partySettingsResolver: PartySettingsResolver,
     private readonly partyPinIdentifier: PartyPinIdentifier,
     @Inject(PasswordService)
     private readonly passwordService: Pick<PasswordService, 'hash' | 'isValidPassword'>,
+    private readonly themeSelection: ThemeSelectionService,
   ) {}
 
   async execute(input: CreatePartyDto): Promise<PartySummary> {
@@ -42,12 +41,9 @@ export class CreatePartyUseCase {
       throw new GameNotFoundError({ gameId: input.gameId });
     }
 
-    const membership = await this.memberRepository.findByOrganizationAndUser(
-      managedGame.organizationId,
-      input.hostUserId,
-    );
+    const membership = await this.membershipAccess.findMembership(managedGame.organizationId, input.hostUserId);
     if (!membership) {
-      throw new NotAMemberError({
+      throw new GameNotFoundError({
         gameId: input.gameId,
         organizationId: managedGame.organizationId,
         userId: input.hostUserId,
@@ -82,6 +78,11 @@ export class CreatePartyUseCase {
       projectDefaultSettings: managedGame.projectDefaultSettings,
       settingsOverride: input.settingsOverride,
     });
+    const themeDocument = await this.themeSelection.resolve(managedGame.organizationId, {
+      organizationDefaultThemeId: managedGame.organizationDefaultThemeId,
+      projectDefaultThemeId: managedGame.projectDefaultThemeId,
+      themeIdOverride: input.themeIdOverride,
+    });
 
     for (let attempt = 0; attempt < CreatePartyUseCase.MAX_PIN_GENERATION_ATTEMPTS; attempt += 1) {
       try {
@@ -91,6 +92,7 @@ export class CreatePartyUseCase {
           pin: this.generatePin(),
           privatePartyPasswordHash,
           settings,
+          themeDocument,
         });
 
         await this.broadcastPartyObservationUseCase.broadcastIfPresent({

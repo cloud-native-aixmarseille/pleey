@@ -41,6 +41,7 @@ export class RoutingMockFactory {
     const params = overrides.params ?? {};
 
     return {
+      useNavigationBlocker: () => ({ blocked: false, proceed: vi.fn(), reset: vi.fn() }),
       createLink: this.createLink(),
       Navigate: ({ to }: { to: string }) => createElement('div', { 'data-testid': `navigate-${to}` }),
       Outlet,

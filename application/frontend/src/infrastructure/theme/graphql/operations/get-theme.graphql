@@ -1,0 +1,10 @@
+query GetTheme($organizationId: ID!, $themeId: ID!) {
+  theme(organizationId: $organizationId, themeId: $themeId) {
+    id
+    organizationId
+    revision
+    document
+    createdAt
+    updatedAt
+  }
+}

@@ -11,6 +11,26 @@ mutation CreateOrganization($input: CreateOrganizationInput!) {
       randomizeOptionOrder
       randomizeStageOrder
     }
+    defaultThemeId
     role
+    assignableRoles
+    permissions {
+      read {
+        allowed
+        reason
+      }
+      update {
+        allowed
+        reason
+      }
+      createProject {
+        allowed
+        reason
+      }
+      manageMembers {
+        allowed
+        reason
+      }
+    }
   }
 }

@@ -1,3 +1,4 @@
+import { HostPartyLifecyclePolicy } from '../../../../../domain/game/party/host/services/host-party-lifecycle-policy';
 import 'reflect-metadata';
 import { describe, expect, it, vi } from 'vitest';
 import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
@@ -41,6 +42,8 @@ describe('LoadPartyObservationSnapshotUseCase', () => {
       }),
     };
     const useCase = new LoadPartyObservationSnapshotUseCase(
+      new HostPartyLifecyclePolicy(),
+      { getStageCount: vi.fn().mockResolvedValue(3) } as never,
       hostPartyObservationReader as never,
       playerPartyObservationReader as never,
       partyGameTypeReader as never,

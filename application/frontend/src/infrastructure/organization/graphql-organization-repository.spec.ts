@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { UserIdentifier } from '../../application/identity/shared/services/identifiers/user-identifier';
 import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../application/workspace/shared/services/identifiers/organization-member-identifier';
+import { ThemeIdentifier } from '../../application/workspace/themes/services/theme-identifier';
 import { OrganizationRole } from '../../domains/organization/entities/organization';
 import { OrganizationErrorCode } from '../../domains/organization/errors/organization-error-code';
 import { OrganizationFixtureFactory } from '../../test-utils/fixtures/organization-fixture-factory';
@@ -24,6 +25,7 @@ function createRepository(client: ConstructorParameters<typeof GraphqlOrganizati
     organizationIdentifier,
     organizationMemberIdentifier,
     userIdentifier,
+    new ThemeIdentifier(),
   );
 }
 
@@ -36,6 +38,8 @@ describe('GraphqlOrganizationRepository', () => {
           myOrganizations: {
             items: [
               {
+                permissions: organizationFixtureFactory.createOrganization().permissions,
+                assignableRoles: ['OWNER', 'MANAGER', 'MEMBER'],
                 id: parseOrganizationId(9),
                 name: 'Pleey Org',
                 description: 'Main workspace',
@@ -65,12 +69,16 @@ describe('GraphqlOrganizationRepository', () => {
       expect(organizations).toEqual({
         items: [
           organizationFixtureFactory.createOrganization({
+            permissions: organizationFixtureFactory.createOrganization().permissions,
+            assignableRoles: Object.values(OrganizationRole),
+            role: OrganizationRole.OWNER,
             id: parseOrganizationId(9),
             name: 'Pleey Org',
             description: 'Main workspace',
             createdAt: '2026-03-10T12:00:00.000Z',
             updatedAt: '2026-03-10T12:00:00.000Z',
             defaultPartySettings: null,
+            defaultThemeId: null,
           }),
         ],
         totalCount: 1,
@@ -111,6 +119,9 @@ describe('GraphqlOrganizationRepository', () => {
         requestResult: {
           organizationDashboard: {
             organization: {
+              permissions: organizationFixtureFactory.createOrganization().permissions,
+              assignableRoles: ['OWNER', 'MANAGER', 'MEMBER'],
+              role: 'OWNER',
               id: parseOrganizationId(9),
               name: 'Pleey Org',
               description: 'Main workspace',
@@ -132,6 +143,9 @@ describe('GraphqlOrganizationRepository', () => {
       expect(dashboard).toEqual(
         organizationFixtureFactory.createOrganizationDashboard({
           organization: {
+            permissions: organizationFixtureFactory.createOrganization().permissions,
+            assignableRoles: Object.values(OrganizationRole),
+            role: OrganizationRole.OWNER,
             id: parseOrganizationId(9),
             name: 'Pleey Org',
             description: 'Main workspace',
@@ -149,9 +163,12 @@ describe('GraphqlOrganizationRepository', () => {
   describe('createOrganization()', () => {
     it('returns the created organization with normalized role', async () => {
       // Arrange
-      const { client } = new GraphqlClientMockFactory().create({
+      const { client, requestMock } = new GraphqlClientMockFactory().create({
         requestResult: {
           createOrganization: {
+            permissions: organizationFixtureFactory.createOrganization().permissions,
+            assignableRoles: ['OWNER', 'MANAGER', 'MEMBER'],
+            defaultThemeId: 'solar-grid',
             id: parseOrganizationId(12),
             name: 'New Org',
             description: 'A brand new org',
@@ -168,16 +185,25 @@ describe('GraphqlOrganizationRepository', () => {
         name: 'New Org',
         description: 'A brand new org',
         defaultPartySettings: null,
+        defaultThemeId: 'solar-grid',
       });
 
       // Assert
+      expect(requestMock).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ input: expect.objectContaining({ defaultThemeId: 'solar-grid' }) }),
+        undefined,
+      );
       expect(organization).toEqual({
+        permissions: organizationFixtureFactory.createOrganization().permissions,
+        assignableRoles: Object.values(OrganizationRole),
         id: parseOrganizationId(12),
         name: 'New Org',
         description: 'A brand new org',
         createdAt: '2026-03-15T10:00:00.000Z',
         updatedAt: '2026-03-15T10:00:00.000Z',
         defaultPartySettings: null,
+        defaultThemeId: 'solar-grid',
         role: OrganizationRole.OWNER,
       });
     });
@@ -195,6 +221,7 @@ describe('GraphqlOrganizationRepository', () => {
           name: 'Fail',
           description: null,
           defaultPartySettings: null,
+          defaultThemeId: null,
         }),
       ).rejects.toThrow(OrganizationErrorCode.CREATE_FAILED);
     });
@@ -208,6 +235,8 @@ describe('GraphqlOrganizationRepository', () => {
           organizationMembers: {
             items: [
               {
+                permissions: { updateRole: { allowed: true, reason: null }, remove: { allowed: true, reason: null } },
+                assignableRoles: ['OWNER', 'MANAGER', 'MEMBER'],
                 id: parseOrganizationMemberId(18),
                 organizationId: parseOrganizationId(9),
                 userId: parseUserId(42),
@@ -237,6 +266,8 @@ describe('GraphqlOrganizationRepository', () => {
       expect(members).toEqual({
         items: [
           {
+            permissions: { updateRole: { allowed: true, reason: null }, remove: { allowed: true, reason: null } },
+            assignableRoles: Object.values(OrganizationRole),
             id: parseOrganizationMemberId(18),
             joinedAt: '2026-03-20T10:00:00.000Z',
             organizationId: parseOrganizationId(9),
@@ -310,6 +341,8 @@ describe('GraphqlOrganizationRepository', () => {
       const { client, requestMock } = new GraphqlClientMockFactory().create({
         requestResult: {
           addOrganizationMember: {
+            permissions: { updateRole: { allowed: true, reason: null }, remove: { allowed: true, reason: null } },
+            assignableRoles: ['OWNER', 'MANAGER', 'MEMBER'],
             id: parseOrganizationMemberId(21),
             organizationId: parseOrganizationId(9),
             userId: parseUserId(43),
@@ -330,6 +363,8 @@ describe('GraphqlOrganizationRepository', () => {
 
       // Assert
       expect(member).toEqual({
+        permissions: { updateRole: { allowed: true, reason: null }, remove: { allowed: true, reason: null } },
+        assignableRoles: Object.values(OrganizationRole),
         id: parseOrganizationMemberId(21),
         joinedAt: '2026-03-21T10:00:00.000Z',
         organizationId: parseOrganizationId(9),
@@ -411,6 +446,8 @@ describe('GraphqlOrganizationRepository', () => {
       const { client, requestMock } = new GraphqlClientMockFactory().create({
         requestResult: {
           updateOrganizationMemberRole: {
+            permissions: { updateRole: { allowed: true, reason: null }, remove: { allowed: true, reason: null } },
+            assignableRoles: ['OWNER', 'MANAGER', 'MEMBER'],
             id: parseOrganizationMemberId(21),
             organizationId: parseOrganizationId(9),
             userId: parseUserId(43),
@@ -430,6 +467,8 @@ describe('GraphqlOrganizationRepository', () => {
 
       // Assert
       expect(member).toEqual({
+        permissions: { updateRole: { allowed: true, reason: null }, remove: { allowed: true, reason: null } },
+        assignableRoles: Object.values(OrganizationRole),
         id: parseOrganizationMemberId(21),
         joinedAt: '2026-03-21T10:00:00.000Z',
         organizationId: parseOrganizationId(9),

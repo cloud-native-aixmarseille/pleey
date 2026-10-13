@@ -54,6 +54,7 @@ export class SocketIoPartyPlayerAdapter implements PartyPlayerPort {
 
   private toSocketPartyEntryPayload(command: PartyJoinCommand): SocketPartyEntryPayload {
     return {
+      guestCredential: command.guestCredential,
       avatarSeed: command.avatarSeed,
       guestId:
         command.playerIdentity.kind === PartyPlayerIdentityKind.Guest ? command.playerIdentity.guestId : undefined,

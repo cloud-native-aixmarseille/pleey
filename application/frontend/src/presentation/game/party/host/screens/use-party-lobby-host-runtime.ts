@@ -7,6 +7,7 @@ import {
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import type { PartyObservationPlayer } from '../../../../../domains/game/party/shared/entities/party-observation-player';
 import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/shared/entities/party-player-identity';
+import { PartyStatus } from '../../../../../domains/game/party/shared/entities/party-status';
 import { PartyManagementErrorCode } from '../../../../../domains/game/party/shared/errors/party-management-error-code';
 import { usePresentationFeedbackChannel } from '../../../../shared/ui/feedback/use-presentation-feedback-channel';
 import { usePartyDependencies } from '../../shared/contexts/party-dependencies-context';
@@ -236,6 +237,7 @@ export function usePartyLobbyHostRuntime({
   });
 
   useEffect(() => {
+    if (party?.status !== PartyStatus.ACTIVE) return;
     const currentStageId = party?.context?.lifecycle.stageId;
     const stageEndsAtEpochMs = party?.context?.lifecycle.stageEndsAtEpochMs;
     const hasStageTimer = hasTimedStage(stageEndsAtEpochMs);
@@ -243,7 +245,7 @@ export function usePartyLobbyHostRuntime({
 
     if (
       shouldSkipAutoReveal({
-        canRevealStageResult: hostRuntimeControls?.canRevealStageResult ?? false,
+        canRevealStageResult: hostRuntimeControls?.permissions.revealStageResult.allowed ?? false,
         hasPendingHostRuntimeCommand: effectivePendingHostRuntimeCommand !== null,
         hasStageTimer,
         isObserverHost: party?.isObserverHost ?? false,
@@ -292,7 +294,7 @@ export function usePartyLobbyHostRuntime({
     const timeoutId = window.setTimeout(revealStageResult, remainingDurationMs);
 
     return () => window.clearTimeout(timeoutId);
-  }, [hostRuntimeControls?.canRevealStageResult, effectivePendingHostRuntimeCommand, party]);
+  }, [hostRuntimeControls?.permissions.revealStageResult.allowed, effectivePendingHostRuntimeCommand, party]);
 
   return {
     cancelHostRuntimeConfirmation: () => setPendingHostRuntimeConfirmationCommand(null),

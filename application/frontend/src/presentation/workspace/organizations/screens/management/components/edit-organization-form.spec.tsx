@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { DEFAULT_PARTY_SETTINGS } from '../../../../../../domains/game/party/shared/entities/party-settings';
 import { OrganizationRole } from '../../../../../../domains/organization/entities/organization';
+import { OrganizationActionDisabledReason } from '../../../../../../domains/organization/value-objects/organization-permissions';
 import { OrganizationFixtureFactory } from '../../../../../../test-utils/fixtures/organization-fixture-factory';
 import { renderWithProviders } from '../../../../../../test-utils/render-with-providers';
 import { EditOrganizationForm } from './edit-organization-form';
@@ -18,18 +19,27 @@ vi.mock('../../../../../shared/i18n/use-presentation-translation', async (import
 });
 
 describe('EditOrganizationForm', () => {
-  it('hides the edit action when the selected user cannot manage the organization', () => {
+  it('explains why editing is disabled when the server denies it', () => {
     // Arrange + Act
     renderWithProviders(
       <EditOrganizationForm
-        organization={organizationFixtureFactory.createOrganization({ role: OrganizationRole.MEMBER })}
+        organization={organizationFixtureFactory.createOrganization({
+          role: OrganizationRole.MEMBER,
+          permissions: {
+            ...organizationFixtureFactory.createOrganization().permissions,
+            update: { allowed: false, reason: OrganizationActionDisabledReason.INSUFFICIENT_PERMISSIONS },
+          },
+        })}
         onSubmit={vi.fn()}
         onUpdated={vi.fn()}
       />,
     );
 
     // Assert
-    expect(screen.queryByRole('button', { name: 'organization.management.edit.openButton' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'organization.management.edit.openButton' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'organization.management.edit.openButton' })).toHaveAccessibleDescription(
+      'organization.permissions.managementRequired',
+    );
   });
 
   it('submits updated organization values and notifies the caller', async () => {
@@ -51,6 +61,7 @@ describe('EditOrganizationForm', () => {
       description: 'Updated hub',
       role: OrganizationRole.MANAGER,
       defaultPartySettings: customPartySettings,
+      defaultThemeId: null,
     });
     const onSubmit = vi.fn().mockResolvedValue(updatedOrganization);
     const onUpdated = vi.fn();
@@ -96,8 +107,26 @@ describe('EditOrganizationForm', () => {
         name: 'Arcade Org 2',
         description: 'Updated hub',
         defaultPartySettings: customPartySettings,
+        defaultThemeId: null,
       });
     });
     expect(onUpdated).toHaveBeenCalledWith(updatedOrganization);
+  });
+  it('clears a saved theme to restore inheritance', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    const organization = organizationFixtureFactory.createOrganization({ defaultThemeId: 'solar-grid' });
+    const onSubmit = vi.fn().mockResolvedValue(organization);
+    renderWithProviders(<EditOrganizationForm organization={organization} onSubmit={onSubmit} onUpdated={vi.fn()} />);
+
+    // Act
+    await user.click(screen.getByRole('button', { name: 'organization.management.edit.openButton' }));
+    const picker = await screen.findByRole('combobox', { name: 'theme.label' });
+    expect(picker).toHaveValue('solar-grid');
+    await user.selectOptions(picker, '');
+    await user.click(screen.getByRole('button', { name: 'organization.management.edit.submit' }));
+
+    // Assert
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ defaultThemeId: null })));
   });
 });

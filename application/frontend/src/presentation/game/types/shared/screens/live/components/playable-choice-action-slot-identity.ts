@@ -1,5 +1,3 @@
-import type { MantineThemeOverride } from '@mantine/core';
-
 export interface PlayableChoiceActionSlotIdentity {
   readonly letter: string;
   readonly surfaceBackground: string;
@@ -14,7 +12,7 @@ interface HslColor {
   readonly saturation: number;
 }
 
-type PlayableChoiceActionSlotTheme = MantineThemeOverride;
+type PlayableChoiceActionSlotTheme = readonly string[];
 
 const DEFAULT_ACTION_SLOT_COUNT = 1;
 const DEFAULT_HSL_THEME_PROFILE: HslColor = {
@@ -104,8 +102,7 @@ function convertRgbToHsl(color: { readonly blue: number; readonly green: number;
 }
 
 function resolveThemeProfile(theme: PlayableChoiceActionSlotTheme): HslColor {
-  const themeAnchors = [theme.colors?.brand?.[5], theme.colors?.accent?.[5], theme.colors?.success?.[5]]
-    .filter((color): color is string => typeof color === 'string')
+  const themeAnchors = theme
     .map(parseThemeHexColor)
     .filter((color): color is NonNullable<ReturnType<typeof parseThemeHexColor>> => color !== null)
     .map(convertRgbToHsl);
@@ -162,10 +159,25 @@ export function resolvePlayableChoiceActionSlotIdentity(
   theme: PlayableChoiceActionSlotTheme,
 ): PlayableChoiceActionSlotIdentity {
   const slotColor = createThemeHue(index, slotCount, theme);
+  const saturation = clamp(slotColor.saturation + 10, 42, 94) / 100;
+  const lightness = clamp(slotColor.lightness - 2, 24, 88) / 100;
+  const amplitude = saturation * Math.min(lightness, 1 - lightness);
+  const primary = parseThemeHexColor(theme[0] ?? '');
+  const anchors = primary ? [primary.red, primary.green, primary.blue] : null;
+  const channels = [0, 8, 4].map((offset, channel) => {
+    const hue = (offset + slotColor.hue / 30) % 12;
+    const value = 255 * (lightness - amplitude * Math.max(-1, Math.min(hue - 3, 9 - hue, 1)));
+    return Math.round(value * 0.78 + (anchors?.[channel] ?? value) * 0.22);
+  });
+  const linear = channels.map((channel) => {
+    const value = channel / 255;
+    return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+  });
+  const luminance = linear[0] * 0.2126 + linear[1] * 0.7152 + linear[2] * 0.0722;
 
   return {
-    badgeBackground: `color-mix(in srgb, ${createHslColorString(slotColor, -2, 10)} 78%, var(--ui-color-brand-primary))`,
-    badgeText: 'var(--ui-color-text-on-action)',
+    badgeBackground: `rgb(${channels.join(' ')})`,
+    badgeText: luminance > 0.179 ? '#000000' : '#ffffff',
     letter: resolvePlayableChoiceActionSlotLabel(index),
     surfaceBackground: `color-mix(in srgb, ${createHslColorString(slotColor, 16, 4)} 22%, var(--ui-color-surface-panel))`,
     surfaceBorder: `color-mix(in srgb, ${createHslColorString(slotColor, 8, 8)} 62%, var(--ui-color-border-strong))`,

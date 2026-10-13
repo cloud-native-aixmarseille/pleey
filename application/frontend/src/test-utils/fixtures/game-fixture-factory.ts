@@ -6,8 +6,10 @@ import {
   CreatePartyDisabledReason,
   type DashboardGameListItem,
   type DashboardGameSummary,
+  LaunchReadinessDisabledReason,
 } from '../../domains/game/management/entities/dashboard-game-list-item';
 import { GameType, type GameTypeId } from '../../domains/game/types/shared/game-type';
+import { decodeActionPermission } from '../../domains/shared/services/action-permission-decoder';
 import { coerceUuidV7TestValue } from './uuid-v7-test-value';
 
 const gameIdentifier = new GameIdentifier();
@@ -17,8 +19,14 @@ const gameTypeParser = new GameTypeParser();
 type DashboardGamePermissions = DashboardGameListItem['permissions'];
 
 type DashboardGamePermissionOverrides = {
-  readonly createParty?: Partial<DashboardGamePermissions['createParty']>;
-  readonly launchReadiness?: Partial<DashboardGamePermissions['launchReadiness']>;
+  readonly createParty?: {
+    readonly allowed?: boolean;
+    readonly reason?: DashboardGamePermissions['createParty']['reason'];
+  };
+  readonly launchReadiness?: {
+    readonly allowed?: boolean;
+    readonly reason?: DashboardGamePermissions['launchReadiness']['reason'];
+  };
 };
 
 interface GameOverrides extends Omit<Partial<DashboardGameListItem>, 'gameId' | 'gameTypeId' | 'permissions' | 'type'> {
@@ -65,14 +73,14 @@ export class GameFixtureFactory {
               : gameTypeId,
       stageCount: 14,
       permissions: {
-        createParty: {
-          ...defaultPermissions.createParty,
-          ...permissions?.createParty,
-        },
-        launchReadiness: {
-          ...defaultPermissions.launchReadiness,
-          ...permissions?.launchReadiness,
-        },
+        createParty: decodeActionPermission(
+          { ...defaultPermissions.createParty, ...permissions?.createParty },
+          CreatePartyDisabledReason,
+        ),
+        launchReadiness: decodeActionPermission(
+          { ...defaultPermissions.launchReadiness, ...permissions?.launchReadiness },
+          LaunchReadinessDisabledReason,
+        ),
       },
       ...restOverrides,
     };

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
 import type { HostPartyObservation } from '../../../../../domain/game/party/host/entities/host-party-observation';
+import type { HostPartyPermissions } from '../../../../../domain/game/party/host/value-objects/host-party-permissions';
 import type { PartyPlayer } from '../../../../../domain/game/party/player/entities/party-player';
 import type { PartyPlayerIdentity } from '../../../../../domain/game/party/player/entities/party-player-identity';
 import type { PlayerPartyObservationPlayer } from '../../../../../domain/game/party/player/entities/player-party-observation';
@@ -13,7 +14,8 @@ export class HostPartyObservationMessageMapper {
     observation: HostPartyObservation,
     gameType: GameType,
     livePlayerIdentities: readonly PartyPlayerIdentity[],
-    playerObservationPlayers: readonly PlayerPartyObservationPlayer[] = [],
+    playerObservationPlayers: readonly PlayerPartyObservationPlayer[],
+    permissions: HostPartyPermissions,
   ): HostPartyObservationMessage {
     const stagesStatsByIdentity = this.createStagesStatsMap(playerObservationPlayers);
     const livePlayerIdentityKeys = this.createIdentityKeySet(livePlayerIdentities);
@@ -24,8 +26,10 @@ export class HostPartyObservationMessageMapper {
       pin: observation.pin,
       status: observation.status,
       settings: observation.settings,
+      themeDocument: observation.themeDocument,
       context: observation.context,
       isObserverHost: true,
+      permissions,
       host: {
         avatarUri: observation.host.avatarUri,
         username: observation.host.username,

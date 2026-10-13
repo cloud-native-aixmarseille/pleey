@@ -5,6 +5,11 @@ import { PartyJoinReceiptStatus } from '../../../../domains/game/party/player/po
 import { PartyPlayerIdentityKind } from '../../../../domains/game/party/shared/entities/party-player-identity';
 import { DEFAULT_PARTY_SETTINGS } from '../../../../domains/game/party/shared/entities/party-settings';
 import { GameType } from '../../../../domains/game/types/shared/game-type';
+import type { ThemeDocument } from '../../../../domains/theme/entities/theme-document';
+import { ThemeErrorCode } from '../../../../domains/theme/errors/theme-error';
+import { ThemeDocumentNormalizer } from '../../../../domains/theme/services/theme-document-normalizer';
+import { PartyFixtureFactory } from '../../../../test-utils/fixtures/party-fixture-factory';
+import { ThemeFixtureFactory } from '../../../../test-utils/fixtures/theme-fixture-factory';
 import { GameIdentifierMockFactory } from '../../../../test-utils/mocks/game-identifier-mock-factory';
 import { GuestIdentifierMockFactory } from '../../../../test-utils/mocks/guest-identifier-mock-factory';
 import { PartyActionIdentifierMockFactory } from '../../../../test-utils/mocks/party-action-identifier-mock-factory';
@@ -30,6 +35,7 @@ const ACTION_ID = partyActionIdentifier.parse(100);
 
 function createPayloadMapper() {
   return new SocketIoPartyPayloadMapper(
+    new ThemeDocumentNormalizer(),
     partyActionIdentifier,
     guestIdentifier,
     userIdentifier,
@@ -290,6 +296,8 @@ describe('SocketIoPartyObservationAdapter', () => {
       pin: 'AB12CD',
       status: 'WAITING',
       settings: DEFAULT_PARTY_SETTINGS,
+
+      themeDocument: new ThemeFixtureFactory().createDocument(),
       context: null,
       isObserverHost: false,
       host: {
@@ -355,6 +363,8 @@ describe('SocketIoPartyObservationAdapter', () => {
       pin: 'AB12CD',
       status: 'ACTIVE',
       settings: DEFAULT_PARTY_SETTINGS,
+
+      themeDocument: new ThemeFixtureFactory().createDocument(),
       context: {
         lifecycle: {
           phase: 'stage',
@@ -430,6 +440,8 @@ describe('SocketIoPartyObservationAdapter', () => {
         pin: 'AB12CD',
         status: 'ACTIVE',
         settings: DEFAULT_PARTY_SETTINGS,
+
+        themeDocument: new ThemeFixtureFactory().createDocument(),
         context: {
           lifecycle: {
             phase: 'stage',
@@ -595,5 +607,49 @@ describe('SocketIoPartyObservationAdapter', () => {
     exceptionHandler({ message: 'game.party.errors.partyCommandNotAvailable' });
 
     await expect(pendingCommand).rejects.toThrow('game.party.errors.partyCommandNotAvailable');
+  });
+});
+
+describe('SocketIoPartyPayloadMapper theme selection', () => {
+  it.each([null, undefined, { schemaVersion: 2 }, {}])('rejects an invalid theme document %j', (themeDocument) => {
+    // Arrange
+    const mapper = createPayloadMapper();
+    const observation = new PartyFixtureFactory().createPartyObservation({
+      themeDocument: themeDocument as unknown as ThemeDocument,
+    });
+
+    // Act + Assert
+    expect(() => mapper.toObservation(observation)).toThrow(
+      expect.objectContaining({ code: ThemeErrorCode.INVALID_DOCUMENT }),
+    );
+  });
+
+  it('preserves custom overrides and asset references without a selection identifier', () => {
+    // Arrange
+    const mapper = createPayloadMapper();
+    const themeDocument = new ThemeFixtureFactory().createDocument({
+      overrides: { radius: { panel: '12px' }, assets: { logoAssetId: '01900000-0000-7000-8000-000000000001' } },
+    });
+    const observation = new PartyFixtureFactory().createPartyObservation({ themeDocument });
+
+    // Act
+    const result = mapper.toObservation(observation);
+
+    // Assert
+    expect(result.themeDocument).toEqual(themeDocument);
+  });
+
+  it.each(['solar-grid', 'cyber-arcade'] as const)('preserves the server-resolved theme %s', (themeId) => {
+    // Arrange
+    const mapper = createPayloadMapper();
+    const observation = new PartyFixtureFactory().createPartyObservation({
+      themeDocument: new ThemeFixtureFactory().createDocument({ baseThemeId: themeId }),
+    });
+
+    // Act
+    const result = mapper.toObservation(observation);
+
+    // Assert
+    expect(result.themeDocument).toEqual(observation.themeDocument);
   });
 });

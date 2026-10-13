@@ -1,3 +1,4 @@
+import { PartyGuestCredentialMockFactory } from '../../../../../test-utils/mock-factories/party-guest-credential-mock-factory';
 import 'reflect-metadata';
 import { describe, expect, it, vi } from 'vitest';
 import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
@@ -37,6 +38,7 @@ describe('JoinPartyUseCase', () => {
       execute: vi.fn(),
     };
     const useCase = new JoinPartyUseCase(
+      new PartyGuestCredentialMockFactory().create(),
       runtime as never,
       broadcastPartyObservationUseCase as never,
       createPasswordServiceMock({ compare: true }) as never,
@@ -45,6 +47,7 @@ describe('JoinPartyUseCase', () => {
     // Act + Assert
     await expect(
       useCase.execute({
+        guestCredential: 'verified-test-credential',
         pin: partyPin,
         playerIdentity: {
           kind: PartyPlayerKind.USER,
@@ -67,6 +70,7 @@ describe('JoinPartyUseCase', () => {
       execute: vi.fn(),
     };
     const useCase = new JoinPartyUseCase(
+      new PartyGuestCredentialMockFactory().create(),
       runtime as never,
       broadcastPartyObservationUseCase as never,
       createPasswordServiceMock({ compare: true }) as never,
@@ -75,6 +79,7 @@ describe('JoinPartyUseCase', () => {
     // Act + Assert
     await expect(
       useCase.execute({
+        guestCredential: 'verified-test-credential',
         pin: partyPin,
         playerIdentity: {
           kind: PartyPlayerKind.GUEST,
@@ -97,6 +102,7 @@ describe('JoinPartyUseCase', () => {
       execute: vi.fn(),
     };
     const useCase = new JoinPartyUseCase(
+      new PartyGuestCredentialMockFactory().create(),
       runtime as never,
       broadcastPartyObservationUseCase as never,
       createPasswordServiceMock({ compare: true }) as never,
@@ -105,6 +111,7 @@ describe('JoinPartyUseCase', () => {
     // Act + Assert
     await expect(
       useCase.execute({
+        guestCredential: 'verified-test-credential',
         pin: partyPin,
         playerIdentity: {
           kind: PartyPlayerKind.USER,
@@ -143,6 +150,7 @@ describe('JoinPartyUseCase', () => {
       execute: vi.fn().mockResolvedValue(undefined),
     };
     const useCase = new JoinPartyUseCase(
+      new PartyGuestCredentialMockFactory().create(),
       runtime as never,
       broadcastPartyObservationUseCase as never,
       createPasswordServiceMock({ compare: true }) as never,
@@ -150,6 +158,7 @@ describe('JoinPartyUseCase', () => {
 
     // Act
     const result = await useCase.execute({
+      guestCredential: 'verified-test-credential',
       pin: partyPin,
       playerIdentity: {
         kind: PartyPlayerKind.USER,
@@ -188,6 +197,7 @@ describe('JoinPartyUseCase', () => {
       execute: vi.fn().mockResolvedValue(undefined),
     };
     const useCase = new JoinPartyUseCase(
+      new PartyGuestCredentialMockFactory().create(),
       runtime as never,
       broadcastPartyObservationUseCase as never,
       createPasswordServiceMock({ compare: true }) as never,
@@ -195,6 +205,7 @@ describe('JoinPartyUseCase', () => {
 
     // Act
     const result = await useCase.execute({
+      guestCredential: 'verified-test-credential',
       pin: partyPin,
       playerIdentity: {
         kind: PartyPlayerKind.USER,
@@ -226,6 +237,40 @@ describe('JoinPartyUseCase', () => {
     });
   });
 
+  it.each([undefined, 'forged-credential'])(
+    'rejects a guest id without valid proof before any write',
+    async (guestCredential) => {
+      // Arrange
+      const runtime = createPlayerPartyRuntimeMock({
+        findPartyPlayer: {
+          identity: { kind: PartyPlayerKind.GUEST, guestId },
+          username: 'Guest',
+          avatarUri: null,
+          totalScore: 0,
+          joinedAt: new Date(0),
+        },
+      });
+      const broadcast = { execute: vi.fn() };
+      const useCase = new JoinPartyUseCase(
+        new PartyGuestCredentialMockFactory().create(),
+        runtime as never,
+        broadcast as never,
+        createPasswordServiceMock({ compare: true }) as never,
+      );
+      // Act + Assert
+      await expect(
+        useCase.execute({
+          pin: partyPin,
+          guestCredential,
+          playerIdentity: { kind: PartyPlayerKind.GUEST, guestId },
+          username: 'Guest',
+        }),
+      ).rejects.toThrow(GuestPlayerRejoinNotFoundError);
+      expect(runtime.ensureGuestPlayer).not.toHaveBeenCalled();
+      expect(broadcast.execute).not.toHaveBeenCalled();
+    },
+  );
+
   it('normalizes guest usernames and resolves a rejoined guest player by guest id', async () => {
     // Arrange
     const player = {
@@ -242,6 +287,7 @@ describe('JoinPartyUseCase', () => {
       execute: vi.fn().mockResolvedValue(undefined),
     };
     const useCase = new JoinPartyUseCase(
+      new PartyGuestCredentialMockFactory().create(),
       runtime as never,
       broadcastPartyObservationUseCase as never,
       createPasswordServiceMock({ compare: true }) as never,
@@ -249,6 +295,7 @@ describe('JoinPartyUseCase', () => {
 
     // Act
     const result = await useCase.execute({
+      guestCredential: 'verified-test-credential',
       avatarSeed: 'neon-seed',
       pin: partyPin,
       playerIdentity: {
@@ -291,6 +338,7 @@ describe('JoinPartyUseCase', () => {
       execute: vi.fn().mockResolvedValue(undefined),
     };
     const useCase = new JoinPartyUseCase(
+      new PartyGuestCredentialMockFactory().create(),
       runtime as never,
       broadcastPartyObservationUseCase as never,
       createPasswordServiceMock({ compare: true }) as never,
@@ -298,6 +346,7 @@ describe('JoinPartyUseCase', () => {
 
     // Act
     const result = await useCase.execute({
+      guestCredential: 'verified-test-credential',
       avatarSeed: '  aurora-seed  ',
       pin: partyPin,
       playerIdentity: {
@@ -333,6 +382,7 @@ describe('JoinPartyUseCase', () => {
       execute: vi.fn(),
     };
     const useCase = new JoinPartyUseCase(
+      new PartyGuestCredentialMockFactory().create(),
       runtime as never,
       broadcastPartyObservationUseCase as never,
       createPasswordServiceMock({ compare: true }) as never,
@@ -341,6 +391,7 @@ describe('JoinPartyUseCase', () => {
     // Act + Assert
     await expect(
       useCase.execute({
+        guestCredential: 'verified-test-credential',
         pin: partyPin,
         playerIdentity: {
           kind: PartyPlayerKind.GUEST,
@@ -361,6 +412,7 @@ describe('JoinPartyUseCase', () => {
       execute: vi.fn(),
     };
     const useCase = new JoinPartyUseCase(
+      new PartyGuestCredentialMockFactory().create(),
       runtime as never,
       broadcastPartyObservationUseCase as never,
       createPasswordServiceMock({ compare: true }) as never,
@@ -369,6 +421,7 @@ describe('JoinPartyUseCase', () => {
     // Act + Assert
     await expect(
       useCase.execute({
+        guestCredential: 'verified-test-credential',
         pin: partyPin,
         playerIdentity: {
           kind: PartyPlayerKind.GUEST,
@@ -389,11 +442,17 @@ describe('JoinPartyUseCase', () => {
       execute: vi.fn(),
     };
     const passwordService = createPasswordServiceMock({ compare: true });
-    const useCase = new JoinPartyUseCase(runtime as never, broadcastPartyObservationUseCase as never, passwordService);
+    const useCase = new JoinPartyUseCase(
+      new PartyGuestCredentialMockFactory().create(),
+      runtime as never,
+      broadcastPartyObservationUseCase as never,
+      passwordService,
+    );
 
     // Act + Assert
     await expect(
       useCase.execute({
+        guestCredential: 'verified-test-credential',
         pin: partyPin,
         playerIdentity: {
           kind: PartyPlayerKind.GUEST,
@@ -414,11 +473,17 @@ describe('JoinPartyUseCase', () => {
       execute: vi.fn(),
     };
     const passwordService = createPasswordServiceMock({ compare: false });
-    const useCase = new JoinPartyUseCase(runtime as never, broadcastPartyObservationUseCase as never, passwordService);
+    const useCase = new JoinPartyUseCase(
+      new PartyGuestCredentialMockFactory().create(),
+      runtime as never,
+      broadcastPartyObservationUseCase as never,
+      passwordService,
+    );
 
     // Act + Assert
     await expect(
       useCase.execute({
+        guestCredential: 'verified-test-credential',
         partyPassword: 'wrong-secret',
         pin: partyPin,
         playerIdentity: {
@@ -452,6 +517,7 @@ describe('JoinPartyUseCase', () => {
       execute: vi.fn().mockResolvedValue(undefined),
     };
     const useCase = new JoinPartyUseCase(
+      new PartyGuestCredentialMockFactory().create(),
       runtime as never,
       broadcastPartyObservationUseCase as never,
       createPasswordServiceMock({ compare: true }) as never,
@@ -459,6 +525,7 @@ describe('JoinPartyUseCase', () => {
 
     // Act
     const result = await useCase.execute({
+      guestCredential: 'verified-test-credential',
       pin: partyPin,
       playerIdentity: {
         kind: PartyPlayerKind.USER,
@@ -496,6 +563,7 @@ describe('JoinPartyUseCase', () => {
       execute: vi.fn().mockResolvedValue(undefined),
     };
     const useCase = new JoinPartyUseCase(
+      new PartyGuestCredentialMockFactory().create(),
       runtime as never,
       broadcastPartyObservationUseCase as never,
       createPasswordServiceMock({ compare: true }) as never,
@@ -503,6 +571,7 @@ describe('JoinPartyUseCase', () => {
 
     // Act
     const result = await useCase.execute({
+      guestCredential: 'verified-test-credential',
       pin: partyPin,
       playerIdentity: {
         kind: PartyPlayerKind.GUEST,

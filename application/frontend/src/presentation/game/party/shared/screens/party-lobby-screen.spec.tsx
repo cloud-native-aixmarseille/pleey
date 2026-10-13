@@ -4,6 +4,7 @@ import type { PartyLobbyGateway } from '../../../../../application/game/party/sh
 import type { PartyHostControlPort } from '../../../../../domains/game/party/host/ports/party-host-control.port';
 import { HostPartyRuntimeCommand } from '../../../../../domains/game/party/host/ports/party-host-runtime-controls.port';
 import { type PartyManagementPort } from '../../../../../domains/game/party/host/ports/party-management.port';
+import { HostPartyDisabledReason } from '../../../../../domains/game/party/host/value-objects/host-party-permissions';
 import type { GuestUsernameGeneratorPort } from '../../../../../domains/game/party/player/ports/guest-username-generator.port';
 import type { PartyGuestSessionPort } from '../../../../../domains/game/party/player/ports/party-guest-session.port';
 import type {
@@ -251,20 +252,8 @@ const mocks = vi.hoisted(() => {
             ? null
             : lifecycle.stagePosition + 1;
         const totalStages = lifecycle?.totalStages ?? null;
-        const canControlActiveRuntime =
-          (party.status === 'ACTIVE' || party.status === 'PAUSED') &&
-          (lifecyclePhase === PartyRuntimePhase.STAGE || lifecyclePhase === PartyRuntimePhase.RESULT);
-
         return {
-          canAdvanceStage: party.status === 'ACTIVE' && lifecyclePhase === PartyRuntimePhase.RESULT,
-          canEndParty: party.status !== 'ENDED',
-          canPauseParty: party.status === 'ACTIVE' && canControlActiveRuntime,
-          canRestartStage: canControlActiveRuntime && currentStageNumber !== null,
-          canResumeParty: party.status === 'PAUSED' && canControlActiveRuntime,
-          canRevealStageResult: party.status === 'ACTIVE' && lifecyclePhase === PartyRuntimePhase.STAGE,
-          canRewindParty: canControlActiveRuntime,
-          canRewindStage: canControlActiveRuntime && currentStageNumber !== null && currentStageNumber > 1,
-          canStartParty: party.status === 'WAITING' && party.players.length > 0,
+          permissions: party.permissions,
           currentStageNumber,
           hasNextStage:
             lifecycle?.stagePosition !== null &&
@@ -303,10 +292,13 @@ const mocks = vi.hoisted(() => {
     } as PartyPlayerPort,
     partyGuestSessionPort: {
       clearGuestId: vi.fn(),
+      getGuestPin: vi.fn(() => null),
+      getGuestCredential: vi.fn(() => null),
       getGuestId: vi.fn(() => null),
       setGuestId: vi.fn(),
     } as PartyGuestSessionPort,
     partyLobbyFacade: {
+      recoverGuestParty: vi.fn(async () => undefined),
       clearGuestId: (pin) => mocks.partyGuestSessionPort.clearGuestId(pin),
       executeHostRuntimeCommand: async (command, partyId) => {
         const hostCommand = { partyId };
@@ -373,7 +365,9 @@ vi.mock('../../../../shared/i18n/use-presentation-translation', async (importOri
 vi.mock('../../../../../test-utils/render-with-providers', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../../../../test-utils/render-with-providers')>();
   const { render } = await import('@testing-library/react');
-  const { MantineProvider } = await import('@mantine/core');
+  const { MantineUiAdapter } = await import('../../../../../infrastructure/ui/mantine-ui.adapter');
+  const { PresentationUiProvider, PresentationUiRoot } = await import('../../../../shared/ui/provider');
+  const uiPort = new MantineUiAdapter().createPort();
   const { MemoryRouter } = await import('react-router-dom');
   const { KeyboardShortcutsProvider } = await import('../../../../shared/keyboard');
   const { PresentationToastProvider, PresentationToastViewport } = await import(
@@ -385,14 +379,16 @@ vi.mock('../../../../../test-utils/render-with-providers', async (importOriginal
     renderWithProviders: (ui: React.ReactElement, { initialPath = '/', ...options }: { initialPath?: string } = {}) => {
       return render(ui, {
         wrapper: ({ children }) => (
-          <MantineProvider>
-            <PresentationToastProvider>
-              <KeyboardShortcutsProvider>
-                <MemoryRouter initialEntries={[initialPath]}>{children}</MemoryRouter>
-              </KeyboardShortcutsProvider>
-              <PresentationToastViewport />
-            </PresentationToastProvider>
-          </MantineProvider>
+          <PresentationUiProvider value={uiPort}>
+            <PresentationUiRoot>
+              <PresentationToastProvider>
+                <KeyboardShortcutsProvider>
+                  <MemoryRouter initialEntries={[initialPath]}>{children}</MemoryRouter>
+                </KeyboardShortcutsProvider>
+                <PresentationToastViewport />
+              </PresentationToastProvider>
+            </PresentationUiRoot>
+          </PresentationUiProvider>
         ),
         ...options,
       });
@@ -596,6 +592,7 @@ function createPartyObservation(
     .map((entry, index) => toObservationPlayer(entry, livePlayerIdentities, index === 0));
 
   return partyFixtureFactory.createPartyObservation({
+    permissions: partyFixtureFactory.createAllowedHostPermissions(),
     context: null,
     gameType: runtimeGameType,
     host: partyFixtureFactory.createHost({
@@ -1138,6 +1135,10 @@ describe('PartyLobbyScreen', () => {
     };
     mocks.partyManagementState.parties = [createManagedParty()];
     mocks.observationState.currentParty = createPartyObservation({
+      permissions: {
+        ...partyFixtureFactory.createAllowedHostPermissions(),
+        startParty: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+      },
       status: PartyStatus.WAITING,
       context: null,
       entries: [
@@ -2926,6 +2927,10 @@ describe('PartyLobbyScreen', () => {
     };
     mocks.partyManagementState.parties = [createManagedParty({ status: PartyStatus.ENDED })];
     mocks.observationState.currentParty = createPartyObservation({
+      permissions: {
+        ...partyFixtureFactory.createAllowedHostPermissions(),
+        advanceStage: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
+      },
       status: PartyStatus.ENDED,
       context: {
         ...createRuntimeResultContext(),

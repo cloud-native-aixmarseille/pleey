@@ -1,7 +1,8 @@
 import { Menu } from '@mantine/core';
-import type { ComponentPropsWithoutRef, ReactNode } from 'react';
+import { type ComponentPropsWithoutRef, type ReactNode, useId } from 'react';
 import { surfaceRecipes } from '../foundation/ui-recipes';
 import { uiThemeTokens } from '../foundation/ui-theme';
+import { SupportingText } from '../layout/typography';
 
 interface DropdownMenuProps {
   readonly ariaLabel?: string;
@@ -23,6 +24,7 @@ interface DropdownMenuLabelProps {
 }
 
 interface DropdownMenuItemProps {
+  readonly description?: string;
   readonly ariaKeyShortcuts?: string;
   readonly children: ReactNode;
   readonly color?: string;
@@ -84,6 +86,7 @@ export function DropdownMenuDivider() {
 }
 
 export function DropdownMenuItem({
+  description,
   ariaKeyShortcuts,
   children,
   color,
@@ -91,8 +94,10 @@ export function DropdownMenuItem({
   leftSection,
   onClick,
 }: DropdownMenuItemProps) {
+  const descriptionId = useId();
   return (
     <Menu.Item
+      aria-describedby={description ? descriptionId : undefined}
       aria-keyshortcuts={ariaKeyShortcuts}
       color={color}
       disabled={disabled}
@@ -100,6 +105,11 @@ export function DropdownMenuItem({
       onClick={onClick}
     >
       {children}
+      {description && (
+        <span id={descriptionId}>
+          <SupportingText>{description}</SupportingText>
+        </span>
+      )}
     </Menu.Item>
   );
 }

@@ -40,7 +40,9 @@ export function useGameItemCardViewModel({
     summaryText: game.summary ? t(game.summary.translationKey, game.summary.values) : null,
   };
 
-  function resolveCreatePartyDisabledLabel(reason: CreatePartyDisabledReason | null): string | null {
+  function resolveCreatePartyDisabledLabel(
+    reason: DashboardGameListItem['permissions']['createParty']['reason'],
+  ): string | null {
     switch (reason) {
       case CreatePartyDisabledReason.ACTIVE_PARTY_EXISTS:
         return t('dashboard.games.permissions.createParty.activePartyExists');
@@ -49,7 +51,7 @@ export function useGameItemCardViewModel({
       case CreatePartyDisabledReason.NO_STAGES_AVAILABLE:
         return t('dashboard.games.permissions.createParty.noStagesAvailable');
       default:
-        return null;
+        return reason === null ? null : t('common.permissions.unavailable');
     }
   }
 
@@ -63,8 +65,9 @@ export function useGameItemCardViewModel({
     switch (game.permissions.launchReadiness.reason) {
       case LaunchReadinessDisabledReason.NO_STAGES_AVAILABLE:
         return t('dashboard.games.readiness.needsStages');
+      case LaunchReadinessDisabledReason.UNAVAILABLE:
       default:
-        return t('dashboard.games.readiness.needsStages');
+        return t('common.permissions.unavailable');
     }
   }
 }

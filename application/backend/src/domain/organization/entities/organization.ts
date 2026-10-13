@@ -1,4 +1,5 @@
 import type { PartySettings } from '../../game/party/shared/entities/party-settings';
+import type { ThemeId } from '../../theme/entities/theme-id';
 
 export type OrganizationId = string & {
   readonly __identifierBrand: 'OrganizationId';
@@ -16,6 +17,7 @@ export class Organization {
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
     public readonly defaultPartySettings: PartySettings | null = null,
+    public readonly defaultThemeId: ThemeId | null = null,
   ) {}
 
   /**

@@ -11,6 +11,7 @@ interface GuestPartyJoiningIdentity {
 type PartyJoiningPlayerIdentity = AuthenticatedPartyPlayerIdentity | GuestPartyJoiningIdentity;
 
 export interface JoinPartyDto {
+  readonly guestCredential?: string;
   readonly avatarSeed?: string;
   readonly partyPassword?: string;
   readonly pin: PartyPin;

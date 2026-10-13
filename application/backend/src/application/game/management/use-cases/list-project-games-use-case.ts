@@ -1,20 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { GameId } from '../../../../domain/game/entities/game';
 import { GameValidationFailedError } from '../../../../domain/game/errors';
+import { type GamePermissions } from '../../../../domain/game/management/value-objects/game-permissions';
 import type { UserId } from '../../../../domain/identity/entities/user';
-import { NotAMemberError } from '../../../../domain/organization/errors';
-import type { OrganizationMemberRepository } from '../../../../domain/organization/ports/organization-member.repository';
-import { OrganizationMemberRepositoryProvider } from '../../../../domain/organization/ports/organization-member.repository';
 import { ProjectNotFoundError } from '../../../../domain/project/errors';
 import type { ProjectRepository } from '../../../../domain/project/ports/project.repository';
 import { ProjectRepositoryProvider } from '../../../../domain/project/ports/project.repository';
+import { OrganizationMembershipAccessService } from '../../../workspace/organizations/services/organization-membership-access.service';
 import { GameTypeParser } from '../../types/shared/services/game-type-parser';
-import {
-  GameCatalogPort,
-  type GamePermissions,
-  type ListProjectGamesQuery,
-  type ProjectGameListPage,
-} from '../ports/game-catalog.port';
+import { GameCatalogPort, type ListProjectGamesQuery, type ProjectGameListPage } from '../ports/game-catalog.port';
 import { GamePermissionResolver } from '../services/game-permission-resolver';
 
 @Injectable()
@@ -24,8 +18,7 @@ export class ListProjectGamesUseCase {
     private readonly gameManagementCatalog: GameCatalogPort,
     @Inject(ProjectRepositoryProvider)
     private readonly projectRepository: ProjectRepository,
-    @Inject(OrganizationMemberRepositoryProvider)
-    private readonly memberRepository: OrganizationMemberRepository,
+    private readonly membershipAccess: OrganizationMembershipAccessService,
     private readonly gamePermissionResolver: GamePermissionResolver,
     private readonly gameTypeParser: GameTypeParser,
   ) {}
@@ -36,9 +29,9 @@ export class ListProjectGamesUseCase {
       throw new ProjectNotFoundError({ projectId: input.projectId });
     }
 
-    const membership = await this.memberRepository.findByOrganizationAndUser(project.organizationId, userId);
+    const membership = await this.membershipAccess.findMembership(project.organizationId, userId);
     if (!membership) {
-      throw new NotAMemberError({
+      throw new ProjectNotFoundError({
         organizationId: project.organizationId,
         projectId: input.projectId,
         userId,

@@ -42,7 +42,7 @@ export function AppShellHeader({
 
   return (
     <>
-      <header style={shellHeaderStyle}>
+      <header style={shellHeaderStyle} data-app-shell-header>
         <div style={headerRowStyle}>
           <BrandLink to="/">
             <PleeyLogo decorative size="sm" />

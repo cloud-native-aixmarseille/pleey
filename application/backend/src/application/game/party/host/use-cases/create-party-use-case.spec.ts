@@ -1,10 +1,12 @@
+import { ThemeFixtureFactory } from '../../../../../test-utils/fixtures/theme-fixture-factory';
+import { createWorkspacePermissionServices } from '../../../../../test-utils/fixtures/workspace-permission-fixture-factory';
+import { ThemeSelectionServiceMockFactory } from '../../../../../test-utils/mock-factories/theme-selection-service-mock-factory';
 import 'reflect-metadata';
 import { describe, expect, it, vi } from 'vitest';
 import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
 import { PinAlreadyInUseError } from '../../../../../domain/game/party/errors/pin-already-in-use.error';
 import { DEFAULT_PARTY_SETTINGS } from '../../../../../domain/game/party/shared/entities/party-settings';
 import { PartySettingsResolver } from '../../../../../domain/game/party/shared/services/party-settings-resolver';
-import { OrganizationErrorCode } from '../../../../../domain/organization/enums/organization-error-code.enum';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { createOrganizationMemberRepositoryMock } from '../../../../../test-utils/mock-factories/organization.mock-factory';
 import { createPasswordServiceMock } from '../../../../../test-utils/mock-factories/password-service.mock-factory';
@@ -53,25 +55,66 @@ describe('CreatePartyUseCase', () => {
       assertCanCreateParty: vi.fn().mockResolvedValue(undefined),
       resolveGamePermissions: vi.fn(),
     };
+    const themeSelection = new ThemeSelectionServiceMockFactory().create();
     const useCase = new CreatePartyUseCase(
       partyManagement as never,
-      memberRepository,
+      createWorkspacePermissionServices(memberRepository).membershipAccess,
       gamePermissionResolver as unknown as GamePermissionResolver,
       broadcastPartyObservationUseCase as never,
       partySettingsResolver,
       partyPinIdentifier,
       passwordService,
+      themeSelection,
     );
 
     return {
       useCase,
       partyManagement,
+      themeSelection,
       memberRepository,
       passwordService,
       gamePermissionResolver,
       broadcastPartyObservationUseCase,
     };
   }
+
+  it('stores the resolved custom document with the party snapshot', async () => {
+    // Arrange
+    const { useCase, partyManagement, themeSelection } = arrangeCreatePartyUseCase();
+    const document = new ThemeFixtureFactory().createDocument();
+    vi.mocked(themeSelection.resolve).mockResolvedValue(document);
+    const themeId = 'custom:01900000-0000-7000-8000-000000000001';
+    // Act
+    await useCase.execute({ ...defaultCommand, themeIdOverride: themeId });
+    // Assert
+    expect(partyManagement.createParty).toHaveBeenCalledWith(expect.objectContaining({ themeDocument: document }));
+  });
+
+  it('stores the theme resolved from workspace defaults and the party override', async () => {
+    // Arrange
+    const { useCase, partyManagement, themeSelection } = arrangeCreatePartyUseCase();
+    const document = new ThemeFixtureFactory().createDocument({ baseThemeId: 'solar-grid' });
+    vi.mocked(themeSelection.resolve).mockResolvedValue(document);
+    partyManagement.findManagedGame.mockResolvedValue({
+      gameId: defaultCommand.gameId,
+      projectId: backendTestIdentifiers.project(6),
+      organizationId: backendTestIdentifiers.organization(3),
+      type: 'quiz',
+      projectDefaultThemeId: 'cyber-arcade',
+      organizationDefaultThemeId: 'solar-grid',
+    } as never);
+
+    // Act
+    await useCase.execute({ ...defaultCommand, themeIdOverride: 'solar-grid' });
+
+    // Assert
+    expect(themeSelection.resolve).toHaveBeenCalledExactlyOnceWith(backendTestIdentifiers.organization(3), {
+      organizationDefaultThemeId: 'solar-grid',
+      projectDefaultThemeId: 'cyber-arcade',
+      themeIdOverride: 'solar-grid',
+    });
+    expect(partyManagement.createParty).toHaveBeenCalledWith(expect.objectContaining({ themeDocument: document }));
+  });
 
   it('creates a host-owned party for an authorized member', async () => {
     // Arrange
@@ -127,7 +170,7 @@ describe('CreatePartyUseCase', () => {
     memberRepository.findByOrganizationAndUser.mockResolvedValue(null);
 
     // Act + Assert
-    await expect(useCase.execute(defaultCommand)).rejects.toThrow(OrganizationErrorCode.NOT_A_MEMBER);
+    await expect(useCase.execute(defaultCommand)).rejects.toThrow(GameErrorCode.GAME_NOT_FOUND);
   });
 
   it('rejects when another host already owns an active party for the game', async () => {

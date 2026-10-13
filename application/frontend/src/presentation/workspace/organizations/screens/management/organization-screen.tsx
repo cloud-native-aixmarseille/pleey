@@ -8,6 +8,7 @@ import type {
   UpdateOrganizationCommand,
   UpdateOrganizationMemberRoleCommand,
 } from '../../../../../domains/organization/ports/organization-repository';
+import { OrganizationActionDisabledReason } from '../../../../../domains/organization/value-objects/organization-permissions';
 import type { Project } from '../../../../../domains/project/entities/project';
 import type {
   CreateProjectCommand,
@@ -19,6 +20,7 @@ import { usePresentationTranslation } from '../../../../shared/i18n/use-presenta
 import { StatusBanner } from '../../../../shared/ui/feedback/status-banner';
 import { ContentStack } from '../../../../shared/ui/layout/containers';
 import { SubpageHeader } from '../../../../shared/ui/layout/subpage-header';
+import { ThemeManagementLink } from '../../../../theme/components/theme-management-link';
 import type { DashboardWorkspaceSelectionGateway } from '../../../dashboard/hooks/use-dashboard-workspace';
 import type { PaginationViewModel } from '../../../shared/components/pagination-bar';
 import { CreateOrganizationForm } from './components/create-organization-form';
@@ -120,6 +122,7 @@ export function OrganizationScreen({
     projectTotalCount,
     projectTotalPages,
     projects,
+    reloadWorkspace,
     selectedOrganization,
     selectedProject,
     handleLoadMoreProjects,
@@ -179,7 +182,14 @@ export function OrganizationScreen({
         organizationAction={
           <EditOrganizationForm
             organization={selectedOrganization}
-            onSubmit={updateOrganization}
+            onSubmit={async (command) => {
+              try {
+                return await updateOrganization(command);
+              } catch (error) {
+                reloadWorkspace();
+                throw error;
+              }
+            }}
             onUpdated={handleOrganizationUpdated}
           />
         }
@@ -197,10 +207,18 @@ export function OrganizationScreen({
         onLoadMoreOrganizations={handleLoadMoreOrganizations}
       />
 
+      {selectedOrganization && (
+        <ThemeManagementLink key={selectedOrganization.id} organizationId={selectedOrganization.id} />
+      )}
+
       <OrganizationProjectsSection
         actionErrorMessage={actionErrorMessage ? t(actionErrorMessage) : null}
-        canCreateProject={selectedOrganization !== null}
-        canRemoveProjects={projectTotalCount > 1}
+        createPermission={
+          selectedOrganization?.permissions.createProject ?? {
+            allowed: false,
+            reason: OrganizationActionDisabledReason.UNAVAILABLE,
+          }
+        }
         createButtonLabel={t('project.management.section.createButton')}
         eyebrow={t('project.management.section.eyebrow')}
         onCreateProject={openCreateProjectDialog}
@@ -246,7 +264,7 @@ export function OrganizationScreen({
         searchLabel={t('organization.management.members.searchLabel')}
         searchPlaceholder={t('organization.management.members.searchPlaceholder')}
         searchValue={memberSearch}
-        selectedOrganizationRole={selectedOrganization?.role ?? null}
+        assignableRoles={selectedOrganization?.assignableRoles ?? []}
         selectedOrganizationName={selectedOrganization?.name ?? null}
         title={t('organization.management.members.title')}
         usernameOrEmailLabel={t('organization.management.members.usernameOrEmailLabel')}

@@ -2,6 +2,7 @@ import { inject, injectable } from 'inversify';
 import { UserIdentifier } from '../../application/identity/shared/services/identifiers/user-identifier';
 import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../application/workspace/shared/services/identifiers/organization-member-identifier';
+import { ThemeIdentifier } from '../../application/workspace/themes/services/theme-identifier';
 import type { PartySettings } from '../../domains/game/party/shared/entities/party-settings';
 import type { UserId } from '../../domains/identity/entities/user';
 import type { OrganizationId } from '../../domains/organization/entities/organization';
@@ -22,6 +23,11 @@ import type {
   UpdateOrganizationCommand,
   UpdateOrganizationMemberRoleCommand,
 } from '../../domains/organization/ports/organization-repository';
+import {
+  OrganizationActionDisabledReason,
+  type OrganizationPermissions,
+} from '../../domains/organization/value-objects/organization-permissions';
+import { decodeActionPermission } from '../../domains/shared/services/action-permission-decoder';
 import type { PaginatedResult } from '../../domains/shared/value-objects/paginated-result';
 import { GraphqlClient } from '../graphql/client/graphql-client';
 import {
@@ -66,6 +72,8 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
     private readonly organizationMemberIdentifier: OrganizationMemberIdentifier,
     @inject(UserIdentifier)
     private readonly userIdentifier: UserIdentifier,
+    @inject(ThemeIdentifier)
+    private readonly themeIdentifier: ThemeIdentifier,
   ) {}
 
   async getMyOrganizations(query: ListOrganizationsQuery = {}): Promise<PaginatedResult<Organization>> {
@@ -89,7 +97,10 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
           createdAt: organization.createdAt,
           updatedAt: organization.updatedAt,
           defaultPartySettings: this.toPartySettings(organization.defaultPartySettings),
+          defaultThemeId: this.themeIdentifier.parse(organization.defaultThemeId),
           role: this.toDomainRole(organization.role),
+          permissions: this.toPermissions(organization.permissions),
+          assignableRoles: this.toAssignableRoles(organization.assignableRoles),
         })),
         totalCount: result.myOrganizations.totalCount,
         overallCount: result.myOrganizations.overallCount,
@@ -117,6 +128,9 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
           id: this.organizationIdentifier.parse(result.organizationDashboard.organization.id),
           name: result.organizationDashboard.organization.name,
           description: result.organizationDashboard.organization.description ?? null,
+          role: this.toDomainRole(result.organizationDashboard.organization.role),
+          permissions: this.toPermissions(result.organizationDashboard.organization.permissions),
+          assignableRoles: this.toAssignableRoles(result.organizationDashboard.organization.assignableRoles),
         },
         stats: {
           totalGames: result.organizationDashboard.stats.totalGames,
@@ -141,6 +155,7 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
             name: command.name,
             description: command.description,
             defaultPartySettings: command.defaultPartySettings,
+            defaultThemeId: command.defaultThemeId,
           },
         },
       );
@@ -152,7 +167,10 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
         createdAt: result.createOrganization.createdAt,
         updatedAt: result.createOrganization.updatedAt,
         defaultPartySettings: this.toPartySettings(result.createOrganization.defaultPartySettings),
+        defaultThemeId: this.themeIdentifier.parse(result.createOrganization.defaultThemeId),
         role: this.toDomainRole(result.createOrganization.role),
+        permissions: this.toPermissions(result.createOrganization.permissions),
+        assignableRoles: this.toAssignableRoles(result.createOrganization.assignableRoles),
       };
     } catch (error) {
       throw this.graphqlClient.resolveDomainError(
@@ -172,6 +190,7 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
             name: command.name,
             description: command.description,
             defaultPartySettings: command.defaultPartySettings,
+            defaultThemeId: command.defaultThemeId,
           },
         },
       );
@@ -183,7 +202,10 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
         createdAt: result.updateOrganization.createdAt,
         updatedAt: result.updateOrganization.updatedAt,
         defaultPartySettings: this.toPartySettings(result.updateOrganization.defaultPartySettings),
+        defaultThemeId: this.themeIdentifier.parse(result.updateOrganization.defaultThemeId),
         role: this.toDomainRole(result.updateOrganization.role),
+        permissions: this.toPermissions(result.updateOrganization.permissions),
+        assignableRoles: this.toAssignableRoles(result.updateOrganization.assignableRoles),
       };
     } catch (error) {
       throw this.graphqlClient.resolveDomainError(
@@ -285,6 +307,8 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
     readonly joinedAt: string;
     readonly organizationId: string;
     readonly role: GraphqlOrganizationRole;
+    readonly permissions: { readonly updateRole: unknown; readonly remove: unknown };
+    readonly assignableRoles: readonly GraphqlOrganizationRole[];
     readonly username: string;
     readonly userId: string;
   }): OrganizationMember {
@@ -293,9 +317,36 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
       joinedAt: member.joinedAt,
       organizationId: this.organizationIdentifier.parse(member.organizationId),
       role: this.toDomainRole(member.role) ?? OrganizationRole.MEMBER,
+      permissions: {
+        updateRole: decodeActionPermission(member.permissions?.updateRole, OrganizationActionDisabledReason),
+        remove: decodeActionPermission(member.permissions?.remove, OrganizationActionDisabledReason),
+      },
+      assignableRoles: this.toAssignableRoles(member.assignableRoles),
       username: member.username,
       userId: this.userIdentifier.parse(member.userId) as UserId,
     };
+  }
+
+  private toPermissions(permissions: {
+    readonly read: unknown;
+    readonly update: unknown;
+    readonly createProject: unknown;
+    readonly manageMembers: unknown;
+  }): OrganizationPermissions {
+    const reasons = OrganizationActionDisabledReason;
+    return {
+      read: decodeActionPermission(permissions?.read, reasons),
+      update: decodeActionPermission(permissions?.update, reasons),
+      createProject: decodeActionPermission(permissions?.createProject, reasons),
+      manageMembers: decodeActionPermission(permissions?.manageMembers, reasons),
+    };
+  }
+
+  private toAssignableRoles(roles: readonly GraphqlOrganizationRole[] | undefined): readonly OrganizationRole[] {
+    return (roles ?? []).flatMap((role) => {
+      const parsed = this.toDomainRole(role);
+      return parsed === null ? [] : [parsed];
+    });
   }
 
   private toDomainRole(role: GraphqlOrganizationRole | null | undefined): OrganizationRole | null {

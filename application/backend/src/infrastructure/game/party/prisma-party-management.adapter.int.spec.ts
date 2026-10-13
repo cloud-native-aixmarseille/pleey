@@ -7,6 +7,8 @@ import { GuestIdentifier } from '../../../application/identity/shared/services/i
 import { UserIdentifier } from '../../../application/identity/shared/services/identifiers/user-identifier';
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { ProjectIdentifier } from '../../../application/workspace/shared/services/identifiers/project-identifier';
+import { ThemeIdentifier } from '../../../application/workspace/themes/services/theme-identifier';
+import { CURATED_THEME_DOCUMENTS } from '../../../domain/theme/entities/curated-theme-documents';
 import { PrismaPartySettingsMapper } from '../shared/prisma-party-settings.mapper';
 import { PrismaPartyReadModelMapper } from './services/prisma-party-read-model-mapper';
 import 'reflect-metadata';
@@ -34,6 +36,7 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
     ProjectIdentifier,
     PrismaPartyReadModelMapper,
     PrismaPartySettingsMapper,
+    ThemeIdentifier,
   ]);
 
   const userIds: string[] = [];
@@ -129,8 +132,10 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
       hostUserId: userIdentifier.parse(host.id),
       pin: backendTestIdentifiers.partyPin('123456'),
       settings: DEFAULT_PARTY_SETTINGS,
+      themeDocument: CURATED_THEME_DOCUMENTS['solar-grid'],
     });
     partyIds.push(created.partyId);
+    const storedParty = await harness.prisma.party.findUniqueOrThrow({ where: { id: created.partyId } });
 
     const score = await harness.prisma.score.create({
       data: {
@@ -153,10 +158,13 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
     expect(managedGame).toEqual({
       gameId: game.id,
       projectDefaultSettings: null,
+      projectDefaultThemeId: null,
+      organizationDefaultThemeId: null,
       projectId: project.id,
       organizationDefaultSettings: null,
       organizationId: organization.id,
     });
+    expect(storedParty.themeDocument).toEqual(CURATED_THEME_DOCUMENTS['solar-grid']);
     expect(created).toMatchObject({
       gameId: game.id,
       pin: '123456',
@@ -249,6 +257,7 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
       hostUserId: userIdentifier.parse(host.id),
       pin: backendTestIdentifiers.partyPin('111111'),
       settings: DEFAULT_PARTY_SETTINGS,
+      themeDocument: CURATED_THEME_DOCUMENTS['solar-grid'],
     });
     partyIds.push(firstParty.partyId);
 
@@ -258,6 +267,7 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
         hostId: host.id,
         pin: '222222',
         settings: { ...DEFAULT_PARTY_SETTINGS },
+        themeDocument: CURATED_THEME_DOCUMENTS['cyber-arcade'],
         status: 'waiting',
       },
     });

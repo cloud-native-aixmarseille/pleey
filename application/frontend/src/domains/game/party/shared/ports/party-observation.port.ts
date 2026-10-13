@@ -19,6 +19,7 @@ export interface PartyRuntimeNotice {
 }
 
 export interface PartyObservationHandlers {
+  readonly onDisconnected?: () => void;
   readonly onConnected?: (state: PartyObservationConnectionState) => void;
   readonly onError?: (message: string) => void;
   readonly onRuntimeNotice?: (notice: PartyRuntimeNotice) => void;

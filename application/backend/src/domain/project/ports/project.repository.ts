@@ -1,12 +1,14 @@
 import type { PartySettings } from '../../game/party/shared/entities/party-settings';
 import type { OrganizationId } from '../../organization/entities/organization';
 import type { PaginatedResult } from '../../shared/value-objects/paginated-result';
+import type { ThemeId } from '../../theme/entities/theme-id';
 import type { Project, ProjectId } from '../entities/project';
 
 export const ProjectRepositoryProvider = Symbol('ProjectRepository');
 
-export interface PartySettingsDefaultsInput {
+export interface ProjectDefaultsInput {
   readonly defaultPartySettings: PartySettings | null;
+  readonly defaultThemeId?: ThemeId | null;
 }
 
 export interface ProjectRepository {
@@ -14,7 +16,7 @@ export interface ProjectRepository {
     organizationId: OrganizationId,
     name: string,
     description: string | null,
-    defaults: PartySettingsDefaultsInput,
+    defaults: ProjectDefaultsInput,
   ): Promise<Project>;
 
   findById(id: ProjectId): Promise<Project | null>;
@@ -30,10 +32,5 @@ export interface ProjectRepository {
 
   delete(id: ProjectId): Promise<void>;
 
-  update(
-    id: ProjectId,
-    name: string,
-    description: string | null,
-    defaults: PartySettingsDefaultsInput,
-  ): Promise<Project>;
+  update(id: ProjectId, name: string, description: string | null, defaults: ProjectDefaultsInput): Promise<Project>;
 }

@@ -1,11 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { UserId } from '../../../../domain/identity/entities/user';
-import { InsufficientPermissionsError, NotAMemberError } from '../../../../domain/organization/errors';
-import type { OrganizationMemberRepository } from '../../../../domain/organization/ports/organization-member.repository';
-import { OrganizationMemberRepositoryProvider } from '../../../../domain/organization/ports/organization-member.repository';
 import type { ProjectId } from '../../../../domain/project/entities/project';
 import {
-  CannotDeleteLastProjectError,
   ProjectMigrationTargetInvalidError,
   ProjectMigrationTargetNotFoundError,
   ProjectMigrationTargetRequiredError,
@@ -14,16 +10,16 @@ import {
 import type { ProjectRepository } from '../../../../domain/project/ports/project.repository';
 import { ProjectRepositoryProvider } from '../../../../domain/project/ports/project.repository';
 import { WorkspaceGameManagementPort } from '../../ports/workspace-game-management.port';
+import { ProjectPermissionService } from '../services/project-permission-service';
 
 @Injectable()
 export class DeleteProjectUseCase {
   constructor(
+    private readonly projectPermissions: ProjectPermissionService,
     @Inject(ProjectRepositoryProvider)
     private readonly projectRepository: ProjectRepository,
     @Inject(WorkspaceGameManagementPort)
     private readonly workspaceGameManagement: WorkspaceGameManagementPort,
-    @Inject(OrganizationMemberRepositoryProvider)
-    private readonly memberRepository: OrganizationMemberRepository,
   ) {}
 
   async execute(projectId: ProjectId, requestingUserId: UserId, migrationProjectId?: ProjectId): Promise<void> {
@@ -33,33 +29,10 @@ export class DeleteProjectUseCase {
       throw new ProjectNotFoundError({ projectId });
     }
 
-    const membership = await this.memberRepository.findByOrganizationAndUser(project.organizationId, requestingUserId);
-
-    if (!membership) {
-      throw new NotAMemberError({
-        organizationId: project.organizationId,
-        projectId,
-        userId: requestingUserId,
-      });
-    }
-
-    if (!membership.hasManagementPrivileges()) {
-      throw new InsufficientPermissionsError({
-        organizationId: project.organizationId,
-        projectId,
-        userId: requestingUserId,
-      });
-    }
-
-    const organizationProjectCount = await this.projectRepository.countByOrganization(project.organizationId);
-
-    if (organizationProjectCount <= 1) {
-      throw new CannotDeleteLastProjectError({
-        organizationId: project.organizationId,
-        organizationProjectCount,
-        projectId,
-      });
-    }
+    const membership = await this.projectPermissions.requireMembership(project, requestingUserId);
+    const projectCount = await this.projectRepository.countByOrganization(project.organizationId);
+    const access = this.projectPermissions.projectAccess(project, membership, projectCount);
+    this.projectPermissions.assertAllowed(access.permissions.delete, projectId);
 
     const projectGameCount = await this.workspaceGameManagement.countProjectGames(projectId);
 

@@ -57,6 +57,7 @@ describe('PartyManagementResolver', () => {
     const input = new CreatePartyInput();
     input.gameId = backendTestIdentifiers.game(11);
     input.privatePartyPassword = 'secret42';
+    input.themeIdOverride = 'solar-grid';
 
     // Act
     const result = await resolver.createParty(input, {
@@ -72,6 +73,7 @@ describe('PartyManagementResolver', () => {
       gameId: backendTestIdentifiers.game(11),
       hostUserId: HOST_USER_ID,
       privatePartyPassword: 'secret42',
+      themeIdOverride: 'solar-grid',
     });
     expect(result.partyId).toBe(backendTestIdentifiers.party(14));
   });

@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
-
 import { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
+import { createOrganizationMemberFixture } from '../../../../test-utils/fixtures/unit/organization-member.fixture';
+import { createWorkspacePermissionServices } from '../../../../test-utils/fixtures/workspace-permission-fixture-factory';
 import {
   createOrganizationMemberRepositoryMock,
   createOrganizationRepositoryMock,
@@ -31,6 +32,7 @@ describe('ListUserOrganizationsUseCase', () => {
       organizationRepository as never,
       memberRepository as never,
       paginationQueryNormalizer,
+      createWorkspacePermissionServices(memberRepository as never, organizationRepository as never).membershipAccess,
     );
 
     // Act
@@ -55,12 +57,7 @@ describe('ListUserOrganizationsUseCase', () => {
     });
     const memberRepository = createOrganizationMemberRepositoryMock({
       findPageByUser: {
-        items: [
-          {
-            organizationId,
-            role: OrganizationRole.MEMBER,
-          },
-        ],
+        items: [createOrganizationMemberFixture({ organizationId, role: OrganizationRole.MEMBER })],
         totalCount: 1,
         overallCount: 1,
         page: 1,
@@ -73,6 +70,7 @@ describe('ListUserOrganizationsUseCase', () => {
       organizationRepository as never,
       memberRepository as never,
       paginationQueryNormalizer,
+      createWorkspacePermissionServices(memberRepository as never, organizationRepository as never).membershipAccess,
     );
 
     // Act
@@ -81,7 +79,13 @@ describe('ListUserOrganizationsUseCase', () => {
     expect(memberRepository.findPageByUser).toHaveBeenCalledWith(backendTestIdentifiers.user(10), 1, 9, undefined);
     expect(organizationRepository.findByIds).toHaveBeenCalledWith([organizationId]);
     expect(result).toEqual({
-      items: [{ id: organizationId, role: OrganizationRole.MEMBER }],
+      items: [
+        expect.objectContaining({
+          id: organizationId,
+          role: OrganizationRole.MEMBER,
+          permissions: expect.objectContaining({ update: { allowed: false, reason: 'INSUFFICIENT_PERMISSIONS' } }),
+        }),
+      ],
       totalCount: 1,
       overallCount: 1,
       page: 1,
@@ -108,6 +112,7 @@ describe('ListUserOrganizationsUseCase', () => {
       organizationRepository as never,
       memberRepository as never,
       paginationQueryNormalizer,
+      createWorkspacePermissionServices(memberRepository as never, organizationRepository as never).membershipAccess,
     );
 
     // Act

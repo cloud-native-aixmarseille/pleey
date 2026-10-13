@@ -5,7 +5,6 @@ import { Button } from '../../../../../shared/ui/actions/button';
 import { CatalogItemCard } from '../../../../../shared/ui/data/catalog-item-card';
 import { AppIcon, type AppIconName } from '../../../../../shared/ui/icons/app-icon';
 import { SummaryText, SupportingText } from '../../../../../shared/ui/layout/typography';
-import { Tooltip } from '../../../../../shared/ui/overlay/tooltip';
 import { useGameItemCardViewModel } from './use-game-item-card-view-model';
 
 interface GameItemCardProps {
@@ -36,23 +35,17 @@ export function GameItemCard({
   const actions = (
     <>
       {onCreateParty ? (
-        <Tooltip
-          disabled={!createPartyDisabledLabel || isCreatingParty}
-          label={createPartyDisabledLabel ?? ''}
-          withArrow
+        <Button
+          permission={game.permissions.createParty}
+          permissionReason={createPartyDisabledLabel}
+          intent="primary"
+          leftSection={<AppIcon name="game" size={14} />}
+          onClick={() => onCreateParty(game)}
+          size="sm"
+          disabled={isCreatingParty || !canCreateParty}
         >
-          <span>
-            <Button
-              intent="primary"
-              leftSection={<AppIcon name="game" size={14} />}
-              onClick={() => onCreateParty(game)}
-              size="sm"
-              disabled={isCreatingParty || !canCreateParty}
-            >
-              {isCreatingParty ? t('common.loading') : t('dashboard.games.actions.createParty')}
-            </Button>
-          </span>
-        </Tooltip>
+          {isCreatingParty ? t('common.loading') : t('dashboard.games.actions.createParty')}
+        </Button>
       ) : null}
       {onManage && descriptor?.managementRoutePath ? (
         <Button

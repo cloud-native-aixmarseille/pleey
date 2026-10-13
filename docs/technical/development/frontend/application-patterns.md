@@ -56,9 +56,9 @@ export const SignInScreen = () => {
 
 ## Component Organization
 
-- `presentation/<scope>/components/` is for shared components reused across multiple screens within that scope.
+- `presentation/<feature>/components/` is for feature components reused across screens, including screens in other scopes. The presentation folder guard accepts these directories directly below a top-level feature, as well as component directories under `shared/` and `screens/`.
 - Screen-local components go in `presentation/<scope>/screens/<feature>/components/`.
-- Split large components so each has one reason to change.
+- Split large components so each has one reason to change. Organization management composes separate project actions, member actions, and member list hooks; preserve organization-scoped cancellation when moving asynchronous work.
 - Keep component props strictly necessary; if every usage passes the same value, factor that invariant into the component or split the component.
 
 ## Styling
@@ -94,8 +94,16 @@ Each feature defines a `RouteFactory` class returning `PresentationRouteObject[]
 
 Hide third-party libraries behind port interfaces in `application/shared/ports/` such as `RoutingPort`, `UiPort`, `FormPort`, and `TranslationPort`. Infrastructure adapters provide concrete implementations. Presentation code does not import framework libraries directly.
 
+The shared UI context lives in `presentation/shared/ui/ui-context.ts`, independently of its provider components. Keep that identity stable so versioned development imports and lazy theme screens consume the mounted application's UI port.
+
 ## Identity CAPTCHA
 
 Signup, recovery-email requests, and the signed-in security recovery action use the shared identity CAPTCHA integration from [ADR 0009](../../architecture/adr/0009-harden-identity-recovery-and-sessions.md). The infrastructure adapter bundles Cap's widget and WebAssembly assets locally and supplies the configured backend API endpoint through the application port.
 
 The form requires a verified token before submission and discards it after an attempt, expiry, or widget failure. English and French resources provide widget labels and failure feedback. The token-bearing password replacement form does not request a new CAPTCHA.
+
+## Scoped event themes
+
+Theme feature components, routes, screens, hooks, and translations live in `presentation/theme/`. Organization management links to dedicated library, create, and edit pages under `/workspace/organizations/:organizationId/themes`. Owner/manager access is checked on direct navigation, and edit URLs load the saved theme by ID so reloads and bookmarks work. The preview-led editor follows [ADR 0012](../../architecture/adr/0012-manage-themes-as-data-driven-token-themes.md#theme-studio-interaction-model), composing shared controls, panels, typography, and responsive layouts. It inherits the application theme; authored tokens apply only inside the preview. Saving stays in the studio and refreshes the revision; first creation replaces the URL with its edit route. Back to themes returns to the library. Follow the ownership boundary with the shared design system defined in ADR 0012 below.
+
+[ADR 0012](../../architecture/adr/0012-manage-themes-as-data-driven-token-themes.md#authoring-and-assets-implementation) defines inherited theme selections, documents, authoring, and rollout ordering. Theme selection types live in `domains/theme/entities/theme-id.ts`; `ThemeIdentifier` belongs to `application/workspace/themes/services/` and is registered in the workspace container. Management forms edit `defaultThemeId`, while realtime payloads carry the required resolved `themeDocument`. Party screens apply that document through `usePartyTheme`; color scheme stays independent and theme seeds remain in the UI foundation.

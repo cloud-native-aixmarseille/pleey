@@ -3,7 +3,9 @@ import {
   Catch,
   type ExceptionFilter,
   HttpException,
+  HttpStatus,
   InternalServerErrorException,
+  Logger,
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { GraphQLError } from 'graphql';
@@ -17,6 +19,8 @@ import { ErrorTranslationService } from './error-translation-service';
  */
 @Catch(HttpException, Error)
 export class I18nHttpExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(I18nHttpExceptionFilter.name);
+
   constructor(
     private readonly errorTranslationService: ErrorTranslationService,
     private readonly errorCodeHttpStatusService: ErrorCodeHttpStatusService,
@@ -29,6 +33,10 @@ export class I18nHttpExceptionFilter implements ExceptionFilter {
     const exceptionResponse = normalizedException.getResponse();
     const hostType = host.getType<'http' | 'graphql'>();
     const errorCode = this.extractErrorCode(exceptionResponse, unwrappedException);
+
+    if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
+      this.logger.error(unwrappedException.message, unwrappedException.stack);
+    }
 
     let message: string | undefined;
 
@@ -121,10 +129,79 @@ export class I18nHttpExceptionFilter implements ExceptionFilter {
   }
 
   private unwrapException(exception: HttpException | Error): HttpException | Error {
-    if (exception instanceof GraphQLError && exception.path && exception.originalError) {
-      return exception.originalError as Error;
+    let current: HttpException | Error = exception;
+    const visited = new Set<Error>();
+
+    while (current instanceof Error && !visited.has(current)) {
+      visited.add(current);
+
+      const next = this.readWrappedError(current);
+      if (!next) {
+        return current;
+      }
+
+      current = next;
     }
 
-    return exception;
+    return current;
+  }
+
+  private readWrappedError(exception: Error): Error | null {
+    if (exception instanceof GraphQLError && exception.originalError instanceof Error) {
+      return exception.originalError;
+    }
+
+    if (exception instanceof GraphQLError) {
+      const extensionOriginalError = this.coerceWrappedError(exception.extensions?.originalError);
+
+      if (extensionOriginalError) {
+        return extensionOriginalError;
+      }
+    }
+
+    const cause = (exception as Error & { cause?: unknown }).cause;
+
+    if (cause instanceof Error) {
+      return cause;
+    }
+
+    const wrappedCause = this.coerceWrappedError(cause);
+
+    if (wrappedCause) {
+      return wrappedCause;
+    }
+
+    return null;
+  }
+
+  private coerceWrappedError(value: unknown): Error | null {
+    if (value instanceof Error) {
+      return value;
+    }
+
+    if (!value || typeof value !== 'object') {
+      return null;
+    }
+
+    const candidate = value as {
+      code?: unknown;
+      message?: unknown;
+      cause?: unknown;
+      originalError?: unknown;
+    };
+    const message = typeof candidate.code === 'string' ? candidate.code : candidate.message;
+
+    if (typeof message !== 'string' || message.trim().length === 0) {
+      return null;
+    }
+
+    const error = new Error(message);
+    const nested = this.coerceWrappedError(candidate.originalError) ?? this.coerceWrappedError(candidate.cause);
+
+    if (nested) {
+      (error as Error & { cause?: Error }).cause = nested;
+    }
+
+    return error;
   }
 }

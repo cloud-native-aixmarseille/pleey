@@ -5,6 +5,7 @@ import {
 } from '../../../../../../domains/game/party/shared/entities/party-settings';
 import type { Organization } from '../../../../../../domains/organization/entities/organization';
 import type { CreateOrganizationCommand } from '../../../../../../domains/organization/ports/organization-repository';
+import type { ThemeId } from '../../../../../../domains/theme/entities/theme-id';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { usePresentationFeedbackChannel } from '../../../../../shared/ui/feedback/use-presentation-feedback-channel';
 import { useWorkspaceDependencies } from '../../../../shared/contexts/workspace-dependencies-context';
@@ -19,15 +20,17 @@ export function useCreateOrganizationFormState({ onSubmit, onCreated }: UseCreat
   const { organizationFormFacade } = useWorkspaceDependencies();
   const feedback = usePresentationFeedbackChannel();
   const [name, setName] = useState('');
+  const [defaultThemeId, setDefaultThemeId] = useState<ThemeId | null>(null);
   const [description, setDescription] = useState('');
-  const [partySettings, setPartySettings] = useState<PartySettings>(DEFAULT_PARTY_SETTINGS);
+  const [defaultPartySettings, setDefaultPartySettings] = useState<PartySettings>(DEFAULT_PARTY_SETTINGS);
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   function resetForm() {
     setName('');
+    setDefaultThemeId(null);
     setDescription('');
-    setPartySettings(DEFAULT_PARTY_SETTINGS);
+    setDefaultPartySettings(DEFAULT_PARTY_SETTINGS);
     feedback.clearError();
   }
 
@@ -58,7 +61,7 @@ export function useCreateOrganizationFormState({ onSubmit, onCreated }: UseCreat
 
     try {
       const organization = await onSubmit(
-        organizationFormFacade.createCommand(name, description, partySettings) as CreateOrganizationCommand,
+        organizationFormFacade.createCommand(name, description, defaultPartySettings, defaultThemeId),
       );
 
       resetForm();
@@ -85,9 +88,11 @@ export function useCreateOrganizationFormState({ onSubmit, onCreated }: UseCreat
     isOpen,
     isSubmitting,
     name,
-    partySettings,
+    defaultPartySettings,
     setDescription,
     setName,
-    setPartySettings,
+    setDefaultPartySettings,
+    defaultThemeId,
+    setDefaultThemeId,
   };
 }

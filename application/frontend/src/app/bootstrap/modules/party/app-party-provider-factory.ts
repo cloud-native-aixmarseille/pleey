@@ -28,6 +28,7 @@ import {
 } from '../../../../presentation/game/party/shared/contexts/party-dependencies-context';
 import { PartyGameTypeRuntimeRegistryProvider } from '../../../../presentation/game/party/shared/contexts/party-game-type-runtime-registry-context';
 import { PartyLobbyRuntimeRedirectResolver } from '../../../../presentation/game/party/shared/screens/party-lobby-runtime-redirect-resolver';
+import { useAuth } from '../../../../presentation/identity/contexts/auth-context';
 import { AppProviderOrder, BaseAppProviderFactory } from '../../app-provider-factory';
 import { AppPartyGameTypeRuntimeRegistry } from './services/app-party-game-type-runtime-registry';
 
@@ -37,11 +38,12 @@ interface AppPartyProviderProps extends PropsWithChildren {
 }
 
 function AppPartyProvider({ children, dependencies, runtimeRegistry }: AppPartyProviderProps) {
+  const { user } = useAuth();
   return createElement(
     PartyGameTypeRuntimeRegistryProvider,
     { value: runtimeRegistry },
     providePartyDependencies(
-      createElement(PartyProvider, { port: dependencies.partyObservationPort }, children),
+      createElement(PartyProvider, { key: user?.id ?? 'guest', port: dependencies.partyObservationPort }, children),
       dependencies,
     ),
   );

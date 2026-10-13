@@ -112,11 +112,12 @@ describe('DashboardWorkspaceFacade', () => {
     );
 
     // Act
-    await facade.createParty(gameIdentifier.parse(18));
+    await facade.createParty(gameIdentifier.parse(18), { themeIdOverride: 'solar-grid' });
 
     // Assert
     expect(createPartyUseCase.execute).toHaveBeenCalledWith({
       gameId: gameIdentifier.parse(18),
+      themeIdOverride: 'solar-grid',
     });
   });
 

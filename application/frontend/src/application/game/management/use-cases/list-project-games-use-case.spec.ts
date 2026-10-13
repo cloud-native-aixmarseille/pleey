@@ -30,11 +30,11 @@ describe('ListProjectGamesUseCase', () => {
       stageCount: 12,
       permissions: {
         createParty: {
-          allowed: true,
+          allowed: true as const,
           reason: null,
         },
         launchReadiness: {
-          allowed: true,
+          allowed: true as const,
           reason: null,
         },
       },

@@ -1,0 +1,9 @@
+{
+  "errors": {
+    "invalidDocument": "Check the theme name and values. Colors must use six-digit hex notation and preserve readable text and focus contrast in both modes.",
+    "invalidSelection": "This theme is unavailable in this organization.",
+    "revisionConflict": "Someone updated this theme. Close and reopen it before saving again.",
+    "invalidAsset": "Choose a valid, still PNG, JPEG or WebP image under 5 MiB and 16 megapixels.",
+    "notFound": "This theme could not be found."
+  }
+}

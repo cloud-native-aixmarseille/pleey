@@ -2,6 +2,7 @@ import { OrganizationErrorCode } from '../../../../domain/organization/enums/org
 import { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
 import { OrganizationMembershipPolicy } from '../../../../domain/organization/services/organization-membership-policy';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
+import { createOrganizationMemberFixture } from '../../../../test-utils/fixtures/unit/organization-member.fixture';
 import { createUserFixture } from '../../../../test-utils/fixtures/unit/user.fixture';
 import {
   createOrganizationMemberRepositoryMock,
@@ -65,7 +66,7 @@ describe('AddMemberToOrganizationUseCase', () => {
       }),
     });
     vi.mocked(memberRepository.findByOrganizationAndUser)
-      .mockResolvedValueOnce({ hasManagementPrivileges: () => false } as never)
+      .mockResolvedValueOnce(createOrganizationMemberFixture({ role: OrganizationRole.MEMBER }) as never)
       .mockResolvedValueOnce(null);
     const organizationMembershipAccess = new OrganizationMembershipAccessService(
       organizationRepository as never,
@@ -98,10 +99,7 @@ describe('AddMemberToOrganizationUseCase', () => {
       findById: { id: 1 } as never,
     });
     const memberRepository = createOrganizationMemberRepositoryMock({
-      findByOrganizationAndUser: {
-        hasManagementPrivileges: () => true,
-        isOwner: () => false,
-      } as never,
+      findByOrganizationAndUser: createOrganizationMemberFixture({ role: OrganizationRole.MANAGER }) as never,
     });
     const userRepository = createUserRepositoryMock();
     const organizationMembershipAccess = new OrganizationMembershipAccessService(
@@ -137,7 +135,7 @@ describe('AddMemberToOrganizationUseCase', () => {
       findById: { id: 1 } as never,
     });
     const memberRepository = createOrganizationMemberRepositoryMock({
-      create: { id: 123 } as never,
+      create: createOrganizationMemberFixture({ id: 123 }),
     });
     const userRepository = createUserRepositoryMock({
       findByUsername: createUserFixture({
@@ -147,7 +145,7 @@ describe('AddMemberToOrganizationUseCase', () => {
       }),
     });
     vi.mocked(memberRepository.findByOrganizationAndUser)
-      .mockResolvedValueOnce({ hasManagementPrivileges: () => true } as never)
+      .mockResolvedValueOnce(createOrganizationMemberFixture({ role: OrganizationRole.MANAGER }) as never)
       .mockResolvedValueOnce(null);
     const organizationMembershipAccess = new OrganizationMembershipAccessService(
       organizationRepository as never,
@@ -183,7 +181,7 @@ describe('AddMemberToOrganizationUseCase', () => {
       findById: { id: 1 } as never,
     });
     const memberRepository = createOrganizationMemberRepositoryMock({
-      create: { id: 123 } as never,
+      create: createOrganizationMemberFixture({ id: 123 }),
     });
     const userRepository = createUserRepositoryMock({
       findByEmail: createUserFixture({
@@ -193,7 +191,7 @@ describe('AddMemberToOrganizationUseCase', () => {
       }),
     });
     vi.mocked(memberRepository.findByOrganizationAndUser)
-      .mockResolvedValueOnce({ hasManagementPrivileges: () => true } as never)
+      .mockResolvedValueOnce(createOrganizationMemberFixture({ role: OrganizationRole.MANAGER }) as never)
       .mockResolvedValueOnce(null);
     const organizationMembershipAccess = new OrganizationMembershipAccessService(
       organizationRepository as never,
@@ -230,7 +228,7 @@ describe('AddMemberToOrganizationUseCase', () => {
       findById: { id: 1 } as never,
     });
     const memberRepository = createOrganizationMemberRepositoryMock({
-      create: { id: 123 } as never,
+      create: createOrganizationMemberFixture({ id: 123 }),
     });
     const userRepository = createUserRepositoryMock({
       findByEmail: null,
@@ -241,7 +239,7 @@ describe('AddMemberToOrganizationUseCase', () => {
       }),
     });
     vi.mocked(memberRepository.findByOrganizationAndUser)
-      .mockResolvedValueOnce({ hasManagementPrivileges: () => true, isOwner: () => true } as never)
+      .mockResolvedValueOnce(createOrganizationMemberFixture({ role: OrganizationRole.OWNER }) as never)
       .mockResolvedValueOnce(null);
     const organizationMembershipAccess = new OrganizationMembershipAccessService(
       organizationRepository as never,
@@ -281,10 +279,7 @@ describe('AddMemberToOrganizationUseCase', () => {
       findById: { id: 1 } as never,
     });
     const memberRepository = createOrganizationMemberRepositoryMock({
-      findByOrganizationAndUser: {
-        hasManagementPrivileges: () => true,
-        isOwner: () => true,
-      } as never,
+      findByOrganizationAndUser: createOrganizationMemberFixture({ role: OrganizationRole.OWNER }) as never,
     });
     const userRepository = createUserRepositoryMock({
       findByUsername: null,

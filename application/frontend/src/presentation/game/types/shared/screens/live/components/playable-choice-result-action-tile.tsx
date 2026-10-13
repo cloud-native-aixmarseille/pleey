@@ -60,11 +60,16 @@ export function PlayableChoiceResultActionTile({
   testId,
   text,
 }: PlayableChoiceResultActionTileProps) {
-  const { activeColorScheme, activeThemeId } = usePresentationThemeState();
+  const { activeColorScheme, activeThemeId, brandColors } = usePresentationThemeState();
   const { t } = usePresentationTranslation();
   const isMobile = usePresentationMediaQuery();
   const theme = findUiTheme(activeThemeId).mantineThemes[activeColorScheme];
-  const slot = resolvePlayableChoiceActionSlotIdentity(index, slotCount, theme);
+  const colors = brandColors
+    ? Object.values(brandColors)
+    : [theme.colors?.brand?.[5], theme.colors?.accent?.[5], theme.colors?.success?.[5]].filter(
+        (color): color is string => typeof color === 'string',
+      );
+  const slot = resolvePlayableChoiceActionSlotIdentity(index, slotCount, colors);
   const isResultTile = typeof actionCount === 'number' && typeof actionPercent === 'number';
   const isCompact = isMobile && !isResultTile;
   const isMobileResultTile = isMobile && isResultTile;

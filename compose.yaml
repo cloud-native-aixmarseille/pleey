@@ -168,7 +168,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 6
-      start_period: 15s
+      # Allow dependency installation and auditing to finish before counting failures.
+      start_period: 120s
 
   e2e-tests:
     image: mcr.microsoft.com/playwright:v1.56.1-jammy
