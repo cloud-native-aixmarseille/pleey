@@ -41,6 +41,10 @@ See [docs/technical/development/index.md](docs/technical/development/index.md) f
 
 All documentation lives in [`/docs`](docs/) — the single source of truth.
 
+### User guide
+
+- [User Guide](docs/user/index.md) — accounts, creating games, hosting a party, playing, settings
+
 ### Architecture
 
 - [Architecture Reference](docs/technical/architecture/index.md) — layers, dependency rules, ports & adapters, error strategy, tech stack
