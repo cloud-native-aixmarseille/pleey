@@ -8,6 +8,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { usePresentationPathname } from '../../routing/router';
 import { useUserIdle } from './hooks/use-user-idle';
 
 const DEFAULT_PATIENCE_IDLE_AFTER_MS = 10_000;
@@ -85,10 +86,20 @@ interface PatienceRouteProviderProps extends PropsWithChildren {
 }
 
 export function PatienceRouteProvider({ children, idleAfterMs }: PatienceRouteProviderProps) {
+  const pathname = usePresentationPathname();
+
+  return (
+    <>
+      <PatienceRouteActivity idleAfterMs={idleAfterMs ?? DEFAULT_PATIENCE_IDLE_AFTER_MS} key={pathname} />
+      {children}
+    </>
+  );
+}
+
+function PatienceRouteActivity({ idleAfterMs }: { readonly idleAfterMs: number }) {
   const { registerRoute, unregisterRoute, updateRouteActivity } = usePatienceRouteState();
   const routeIdRef = useRef(Symbol('patience-route'));
-  const resolvedIdleAfterMs = idleAfterMs ?? DEFAULT_PATIENCE_IDLE_AFTER_MS;
-  const isIdle = useUserIdle(true, resolvedIdleAfterMs);
+  const isIdle = useUserIdle(true, idleAfterMs);
 
   useLayoutEffect(() => {
     registerRoute(routeIdRef.current);
@@ -106,5 +117,5 @@ export function PatienceRouteProvider({ children, idleAfterMs }: PatienceRoutePr
     };
   }, [isIdle, updateRouteActivity]);
 
-  return children;
+  return null;
 }

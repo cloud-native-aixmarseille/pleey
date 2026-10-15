@@ -5,7 +5,7 @@ import { PartySettingsCheckboxes } from '../../../../../shared/ui/forms/party-se
 import { AppIcon } from '../../../../../shared/ui/icons/app-icon';
 import { ContentStack, SplitWrapRow } from '../../../../../shared/ui/layout/containers';
 import { InsetPanel } from '../../../../../shared/ui/layout/panels';
-import { Eyebrow, SupportingText } from '../../../../../shared/ui/layout/typography';
+import { SupportingText } from '../../../../../shared/ui/layout/typography';
 
 interface DashboardPartySettingsPanelProps {
   readonly hasSettingsOverride: boolean;
@@ -21,13 +21,10 @@ export function DashboardPartySettingsPanel({
   const { t } = usePresentationTranslation();
 
   return (
-    <InsetPanel padding="md">
-      <ContentStack gap="md">
+    <InsetPanel padding="sm">
+      <ContentStack gap="sm">
         <SplitWrapRow align="center" gap="sm">
-          <ContentStack gap="xs">
-            <Eyebrow>{t('dashboard.games.createParty.playModeHeading')}</Eyebrow>
-            <SupportingText size="sm">{t('dashboard.games.createParty.playModeDescription')}</SupportingText>
-          </ContentStack>
+          <SupportingText size="sm">{t('dashboard.games.createParty.playModeDescription')}</SupportingText>
           {hasSettingsOverride ? (
             <Badge icon={<AppIcon name="success" size={12} />} tone="success">
               {t('dashboard.games.createParty.settingsUpdatedBadge')}
@@ -35,7 +32,7 @@ export function DashboardPartySettingsPanel({
           ) : null}
         </SplitWrapRow>
 
-        <ContentStack gap="sm">
+        <ContentStack gap="xs">
           <PartySettingsCheckboxes idPrefix="create-party" settings={settingsOverride} onChange={onChange} />
         </ContentStack>
       </ContentStack>

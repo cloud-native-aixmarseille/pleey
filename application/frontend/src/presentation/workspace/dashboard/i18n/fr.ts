@@ -57,14 +57,17 @@ export const dashboardFr = {
       },
       createParty: {
         title: 'Mode de partie',
-        subtitle: 'Choisissez comment {{game}} doit se jouer pour cette partie.',
         defaultModeBadge: 'Mode par defaut',
         customModeBadge: 'Mode personnalise',
-        playModeHeading: 'Mode de jeu',
+        sectionsLabel: 'Sections de configuration de la partie',
+        tabs: {
+          playMode: 'Mode de jeu',
+          privacy: 'Confidentialite',
+          theme: 'Thème',
+        },
         playModeDescription:
           'Ces reglages reprennent les valeurs par defaut heritees pour ce jeu. Changez uniquement ce dont cette partie a besoin.',
         settingsUpdatedBadge: 'Modifie pour cette partie',
-        privacyHeading: 'Confidentialite',
         privateToggleLabel: 'Créer une partie privée',
         privateToggleDescription: 'Les joueurs devront saisir un mot de passe pour rejoindre.',
         privatePasswordLabel: 'Mot de passe de partie privée',

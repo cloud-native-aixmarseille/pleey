@@ -14,6 +14,7 @@ interface HeadingProps extends PropsWithChildren {
 }
 
 interface SupportingTextProps extends PropsWithChildren {
+  readonly id?: string;
   readonly tone?: 'muted' | 'soft';
   readonly size?: 'sm' | 'md';
   readonly marginTop?: 'none' | 'xs' | 'sm' | 'md';
@@ -58,6 +59,7 @@ export function Heading({ children, id, level = 2, hero = false }: HeadingProps)
 
 export function SupportingText({
   children,
+  id,
   tone = 'muted',
   size = 'sm',
   marginTop = 'none',
@@ -67,7 +69,7 @@ export function SupportingText({
   const mt = marginTop === 'none' ? undefined : marginTop;
 
   return (
-    <Text c={color} maw={maxWidth} mt={mt} size={size} style={{ overflowWrap: 'anywhere' }}>
+    <Text c={color} id={id} maw={maxWidth} mt={mt} size={size} style={{ overflowWrap: 'anywhere' }}>
       {children}
     </Text>
   );

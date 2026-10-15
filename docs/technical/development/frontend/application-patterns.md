@@ -90,6 +90,14 @@ Do not instantiate services with `new` in presentation code.
 
 Each feature defines a `RouteFactory` class returning `PresentationRouteObject[]`. Bind it in DI and collect it with `RouteRegistry` via `@multiInject(ROUTE_FACTORY)`.
 
+### Idle animations
+
+Patience animations stop when the screen pathname changes, including route parameter
+changes and browser back/forward navigation. Each screen starts a fresh idle delay
+and display delay without remounting the screen's content. Unmounting the animation
+cancels its frame subscription and clears the shared engine's characters, timers,
+and cached geometry so the next animation starts from its initial state.
+
 ## Framework Abstractions
 
 Hide third-party libraries behind port interfaces in `application/shared/ports/` such as `RoutingPort`, `UiPort`, `FormPort`, and `TranslationPort`. Infrastructure adapters provide concrete implementations. Presentation code does not import framework libraries directly.

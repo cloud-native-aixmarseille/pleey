@@ -124,7 +124,8 @@ describe('ProjectFormDialog', () => {
       screen.getByPlaceholderText('project.management.form.fields.description.placeholder'),
       '  Ready to launch  ',
     );
-    await user.selectOptions(screen.getByRole('combobox', { name: 'theme.label' }), 'solar-grid');
+    await user.click(screen.getByLabelText('theme.label'));
+    await user.keyboard('{ArrowDown}{ArrowDown}{Enter}');
     // Act
     await user.click(
       screen.getByRole('button', {

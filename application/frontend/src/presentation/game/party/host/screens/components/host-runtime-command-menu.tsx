@@ -46,10 +46,6 @@ interface MenuGroup {
   readonly content?: ReactNode;
 }
 
-enum HostRuntimeCommandMenuInstanceKey {
-  Idle = 'idle',
-}
-
 export function HostRuntimeCommandMenu({
   controls,
   pendingCommand,
@@ -239,12 +235,10 @@ export function HostRuntimeCommandMenu({
   };
 
   const groups: readonly MenuGroup[] = [flowGroup, playbackGroup, musicGroup, dangerGroup];
-  const menuInstanceKey = pendingCommand ?? HostRuntimeCommandMenuInstanceKey.Idle;
 
   return (
     <DropdownMenu
       ariaLabel={t('game.party.host.route.runtimeMenuLabel')}
-      key={menuInstanceKey}
       keepMounted
       position="bottom-end"
       shadow="md"

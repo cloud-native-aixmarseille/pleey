@@ -62,7 +62,7 @@ export function InteractivePanel({ children, padding = 'lg' }: InteractivePanelP
 }
 
 interface InsetPanelProps extends PropsWithChildren {
-  readonly padding?: 'md' | 'lg';
+  readonly padding?: 'sm' | 'md' | 'lg';
   readonly tone?: 'accent' | 'default' | 'success';
 }
 

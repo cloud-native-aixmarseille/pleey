@@ -639,7 +639,9 @@ describe('DashboardHomeScreen', () => {
       await user.click(screen.getByRole('button', { name: 'dashboard.games.actions.createParty' }));
       const dialog = await screen.findByRole('dialog');
       // Act
-      await user.selectOptions(within(dialog).getByRole('combobox', { name: 'theme.label' }), 'solar-grid');
+      await user.click(within(dialog).getByRole('tab', { name: 'dashboard.games.createParty.tabs.theme' }));
+      await user.click(within(dialog).getByLabelText('theme.label'));
+      await user.keyboard('{ArrowDown}{ArrowDown}{Enter}');
       await user.click(within(dialog).getByRole('button', { name: 'dashboard.games.actions.createParty' }));
 
       // Assert
