@@ -34,6 +34,7 @@
     "db:generate": "prisma generate",
     "db:seed": "npm run db:migrate && npm run db:generate && npm run seed",
     "test": "vitest run",
+    "test:import-templates": "vitest run --config ./test/vitest.config.import-templates.mts",
     "test:watch": "vitest --watch",
     "test:cov": "vitest --coverage",
     "test:ui": "vitest --ui",

@@ -5,6 +5,7 @@ import type { PlayableContentImportFormatParser } from './import-format-parser';
 import type { RawImportItem, RawImportOption } from './import-parser.types';
 import { PlayableImportFormat, PlayableImportItemKind, TRUE_FALSE_OPTION_TEXTS } from './import-parser.types';
 import type { PlayableContentImportSource } from './import-source';
+import { TrueFalseImportValueParser } from './true-false-import-value-parser';
 
 interface CsvHeaderContext {
   readonly correctIndex: number | null;
@@ -21,6 +22,10 @@ export class CsvPlayableContentImportFormatParser
   implements PlayableContentImportFormatParser
 {
   readonly format = PlayableImportFormat.CSV;
+
+  constructor(private readonly trueFalseValues: TrueFalseImportValueParser) {
+    super();
+  }
 
   async canParse(source: PlayableContentImportSource): Promise<boolean> {
     const supportFromFileName = this.resolveSupportFromFileName(source.fileName, ['.csv']);
@@ -119,7 +124,7 @@ export class CsvPlayableContentImportFormatParser
     const optionTexts = headerContext.optionIndexes
       .map((index) => row[index]?.trim() ?? '')
       .filter((value) => value.length > 0);
-    const inferredKind = declaredKind ?? this.inferKindFromOptionTexts(optionTexts);
+    const inferredKind = declaredKind ?? this.trueFalseValues.inferKind(optionTexts);
     const resolvedOptionTexts =
       inferredKind === PlayableImportItemKind.TRUE_FALSE && optionTexts.length === 0
         ? [...TRUE_FALSE_OPTION_TEXTS]
@@ -201,7 +206,7 @@ export class CsvPlayableContentImportFormatParser
       }
 
       return TRUE_FALSE_OPTION_TEXTS.map((optionText) => ({
-        isCorrect: optionText.toLowerCase() === booleanAnswer,
+        isCorrect: this.trueFalseValues.parseLabel(optionText) === booleanAnswer,
         text: optionText,
       }));
     }
@@ -226,23 +231,20 @@ export class CsvPlayableContentImportFormatParser
     }));
   }
 
-  private inferKindFromOptionTexts(options: readonly string[]): PlayableImportItemKind {
-    const normalized = options.map((option) => option.toLowerCase());
-
-    return options.length === 2 && normalized.includes('true') && normalized.includes('false')
-      ? PlayableImportItemKind.TRUE_FALSE
-      : PlayableImportItemKind.MULTIPLE;
-  }
-
-  private parseBooleanish(value: string): 'false' | 'true' | null {
+  private parseBooleanish(value: string): boolean | null {
     const normalized = value.trim().toLowerCase();
+    const localizedValue = this.trueFalseValues.parseLabel(normalized);
 
-    if (['true', 't', 'yes', 'y', '1'].includes(normalized)) {
-      return 'true';
+    if (localizedValue !== null) {
+      return localizedValue;
     }
 
-    if (['false', 'f', 'no', 'n', '0', '2'].includes(normalized)) {
-      return 'false';
+    if (['t', 'yes', 'y', '1'].includes(normalized)) {
+      return true;
+    }
+
+    if (['f', 'no', 'n', '0', '2'].includes(normalized)) {
+      return false;
     }
 
     return null;

@@ -15,12 +15,16 @@ import {
 } from './import-parser.types';
 import type { PlayableContentImportSource } from './import-source';
 import { PlayableContentImportParserContainer } from './playable-content-import-parser-container';
+import { TrueFalseImportValueParser } from './true-false-import-value-parser';
 
 export { PlayableContentImportParserErrorCode } from '../../../../../../domain/game/types/shared/errors/import-parser.error';
 
 @Injectable()
 export class PlayableContentImportParser {
-  constructor(private readonly parserContainer: PlayableContentImportParserContainer) {}
+  constructor(
+    private readonly parserContainer: PlayableContentImportParserContainer,
+    private readonly trueFalseValues: TrueFalseImportValueParser,
+  ) {}
 
   async parse(source: PlayableContentImportSource): Promise<PlayableImportItemDefinition[]> {
     const items = await this.parserContainer.parse(source);
@@ -47,7 +51,7 @@ export class PlayableContentImportParser {
       .map((option) => ({ ...option, text: option.text.trim() }))
       .filter((option) => option.text.length > 0);
 
-    const kind = item.kind ?? this.inferKindFromOptionTexts(normalizedOptions.map((option) => option.text));
+    const kind = item.kind ?? this.trueFalseValues.inferKind(normalizedOptions.map((option) => option.text));
 
     if (normalizedOptions.length < 2) {
       throw new PlayableContentImportInvalidFileError({
@@ -89,9 +93,9 @@ export class PlayableContentImportParser {
     fileName: string,
     itemIndex: number,
   ): readonly SelectableOptionInput[] {
-    const normalizedTexts = options.map((option) => option.text.toLowerCase());
-    const trueIndex = normalizedTexts.indexOf('true');
-    const falseIndex = normalizedTexts.indexOf('false');
+    const values = options.map((option) => this.trueFalseValues.parseLabel(option.text));
+    const trueIndex = values.indexOf(true);
+    const falseIndex = values.indexOf(false);
 
     if (options.length !== 2 || trueIndex === -1 || falseIndex === -1) {
       throw new PlayableContentImportInvalidFileError({
@@ -103,17 +107,9 @@ export class PlayableContentImportParser {
     }
 
     return TRUE_FALSE_OPTION_TEXTS.map((text, position) => ({
-      isCorrect: options[text.toLowerCase() === 'true' ? trueIndex : falseIndex]?.isCorrect ?? false,
+      isCorrect: options[this.trueFalseValues.parseLabel(text) === true ? trueIndex : falseIndex]?.isCorrect ?? false,
       position,
       text,
     }));
-  }
-
-  private inferKindFromOptionTexts(options: readonly string[]): PlayableImportItemKind {
-    const normalized = options.map((option) => option.toLowerCase());
-
-    return options.length === 2 && normalized.includes('true') && normalized.includes('false')
-      ? PlayableImportItemKind.TRUE_FALSE
-      : PlayableImportItemKind.MULTIPLE;
   }
 }

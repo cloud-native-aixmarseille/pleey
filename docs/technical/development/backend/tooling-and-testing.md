@@ -23,3 +23,5 @@ Unit tests are colocated with source (`*.spec.ts`). Integration tests live in `t
 - Follow arrange-act-assert.
 - For backend error assertions, prefer `await expect(...).rejects.toThrow(ERROR_CODE)` so the same logic is not executed twice.
 - Keep Arrange explicit inside each test when practical; avoid hidden setup that makes failures harder to trace.
+
+Run `npm run test:import-templates` from `application/backend` to check `scripts/quiz-import-templates.spec.ts`. This cross-application contract test imports the real frontend template factory and translation resources and validates every supported locale and format through the backend quiz mapper. It requires a full repository checkout with both applications' dependencies installed. Run it when changing import formats or template translations; the regular backend suite covers localized parser behavior independently and runs in the backend-only CI container.
