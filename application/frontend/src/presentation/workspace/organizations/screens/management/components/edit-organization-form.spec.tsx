@@ -121,9 +121,10 @@ describe('EditOrganizationForm', () => {
 
     // Act
     await user.click(screen.getByRole('button', { name: 'organization.management.edit.openButton' }));
-    const picker = await screen.findByRole('combobox', { name: 'theme.label' });
-    expect(picker).toHaveValue('solar-grid');
-    await user.selectOptions(picker, '');
+    const trigger = await screen.findByLabelText('theme.label');
+    expect(trigger).toHaveTextContent('theme.names.solar-grid');
+    await user.click(trigger);
+    await user.keyboard('{ArrowUp}{ArrowUp}{Enter}');
     await user.click(screen.getByRole('button', { name: 'organization.management.edit.submit' }));
 
     // Assert

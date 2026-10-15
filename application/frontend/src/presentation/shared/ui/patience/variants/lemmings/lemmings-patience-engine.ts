@@ -47,6 +47,13 @@ export class LemmingsPatienceEngine {
     this.lemmings = Array.from({ length: count }, (_, index) => createLemming(index));
   }
 
+  reset() {
+    this.runtime = null;
+    for (let index = 0; index < this.lemmings.length; index += 1) {
+      this.lemmings[index] = createLemming(index);
+    }
+  }
+
   syncContainer(container: HTMLElement | null) {
     if (!container) {
       return;

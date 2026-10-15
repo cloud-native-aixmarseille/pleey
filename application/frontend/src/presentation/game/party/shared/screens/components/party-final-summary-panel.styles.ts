@@ -205,6 +205,8 @@ export function buildPodiumBadgeStyle(rank: PodiumRank): CSSProperties {
 export function buildPodiumAvatarStyle(rank: PodiumRank): CSSProperties {
   if (rank === 1) {
     return {
+      borderRadius: '50%',
+      padding: uiThemeTokens.spacing.xs,
       border: uiThemeTokens.leaderboard.podium.first.avatarBorder,
       boxShadow: uiThemeTokens.leaderboard.podium.first.avatarShadow,
     };
@@ -212,12 +214,16 @@ export function buildPodiumAvatarStyle(rank: PodiumRank): CSSProperties {
 
   if (rank === 2) {
     return {
+      borderRadius: '50%',
+      padding: uiThemeTokens.spacing.xxs,
       border: uiThemeTokens.leaderboard.podium.second.avatarBorder,
       boxShadow: uiThemeTokens.leaderboard.podium.second.avatarShadow,
     };
   }
 
   return {
+    borderRadius: '50%',
+    padding: uiThemeTokens.spacing.xxs,
     border: uiThemeTokens.leaderboard.podium.third.avatarBorder,
     boxShadow: uiThemeTokens.leaderboard.podium.third.avatarShadow,
   };

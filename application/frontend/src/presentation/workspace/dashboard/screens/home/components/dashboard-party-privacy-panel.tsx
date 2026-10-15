@@ -7,7 +7,6 @@ import { Input } from '../../../../../shared/ui/forms/input';
 import { AppIcon } from '../../../../../shared/ui/icons/app-icon';
 import { ContentStack, WrapRow } from '../../../../../shared/ui/layout/containers';
 import { InsetPanel } from '../../../../../shared/ui/layout/panels';
-import { Eyebrow } from '../../../../../shared/ui/layout/typography';
 
 interface DashboardPartyPrivacyPanelProps {
   readonly isPrivateParty: boolean;
@@ -32,10 +31,8 @@ export function DashboardPartyPrivacyPanel({
   const hasPassword = password.trim().length > 0;
 
   return (
-    <InsetPanel padding="md">
-      <ContentStack gap="md">
-        <Eyebrow>{t('dashboard.games.createParty.privacyHeading')}</Eyebrow>
-
+    <InsetPanel padding="sm">
+      <ContentStack gap="sm">
         <Checkbox
           id="create-party-private"
           label={t('dashboard.games.createParty.privateToggleLabel')}

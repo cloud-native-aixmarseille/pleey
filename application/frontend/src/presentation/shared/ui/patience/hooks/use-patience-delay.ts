@@ -19,5 +19,5 @@ export function usePatienceDelay(active: boolean, delayMs: number): boolean {
     return () => window.clearTimeout(timerId);
   }, [active, delayMs]);
 
-  return isElapsed;
+  return active && isElapsed;
 }

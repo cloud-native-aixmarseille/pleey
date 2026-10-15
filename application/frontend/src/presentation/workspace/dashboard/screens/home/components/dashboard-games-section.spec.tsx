@@ -54,7 +54,13 @@ vi.mock('src/presentation/game/party/shared/contexts/party-dependencies-context'
 }));
 
 vi.mock('src/presentation/workspace/shared/contexts/workspace-dependencies-context', () => ({
-  useWorkspaceDependencies: () => ({ themeManagementFacade: { list: vi.fn() } }),
+  useWorkspaceDependencies: () => ({
+    themeManagementFacade: {
+      list: vi
+        .fn()
+        .mockResolvedValue({ items: [], totalCount: 0, overallCount: 0, page: 1, pageSize: 10, totalPages: 0 }),
+    },
+  }),
 }));
 
 vi.mock('./game-item-card', () => ({
@@ -234,6 +240,7 @@ describe('DashboardGamesSection', () => {
 
     await user.click(screen.getByRole('button', { name: 'create:Arcade Quiz:false' }));
     const dialog = await screen.findByRole('dialog');
+    await user.click(within(dialog).getByRole('tab', { name: 'dashboard.games.createParty.tabs.privacy' }));
     await user.click(
       within(dialog).getByRole('checkbox', {
         name: 'dashboard.games.createParty.privateToggleLabel',
@@ -277,6 +284,7 @@ describe('DashboardGamesSection', () => {
     await user.click(screen.getByRole('button', { name: 'create:Arcade Quiz:false' }));
     const dialog = await screen.findByRole('dialog');
 
+    await user.click(within(dialog).getByRole('tab', { name: 'dashboard.games.createParty.tabs.privacy' }));
     await user.click(
       within(dialog).getByRole('checkbox', {
         name: 'dashboard.games.createParty.privateToggleLabel',
@@ -374,8 +382,11 @@ describe('DashboardGamesSection', () => {
     });
     await user.click(screen.getByRole('button', { name: 'create:Arcade Quiz:false' }));
     const dialog = await screen.findByRole('dialog');
-    await user.selectOptions(within(dialog).getByRole('combobox', { name: 'theme.label' }), 'solar-grid');
     await user.click(within(dialog).getByRole('checkbox', { name: 'game.party.settings.allowJoiningAfterStartLabel' }));
+    await user.click(within(dialog).getByRole('tab', { name: 'dashboard.games.createParty.tabs.theme' }));
+    await user.click(within(dialog).getByLabelText('theme.label'));
+    await user.keyboard('{ArrowDown}{ArrowDown}{Enter}');
+    await user.click(within(dialog).getByRole('tab', { name: 'dashboard.games.createParty.tabs.privacy' }));
     await user.click(within(dialog).getByRole('checkbox', { name: 'dashboard.games.createParty.privateToggleLabel' }));
     await user.click(within(dialog).getByRole('button', { name: 'dashboard.games.createParty.generatePasswordCta' }));
 
@@ -386,10 +397,13 @@ describe('DashboardGamesSection', () => {
     const reopenedDialog = await screen.findByRole('dialog');
 
     // Assert
-    expect(within(reopenedDialog).getByRole('combobox', { name: 'theme.label' })).toHaveValue('');
+    await user.click(within(reopenedDialog).getByRole('tab', { name: 'dashboard.games.createParty.tabs.playMode' }));
     expect(
       within(reopenedDialog).getByRole('checkbox', { name: 'game.party.settings.allowJoiningAfterStartLabel' }),
     ).toBeChecked();
+    await user.click(within(reopenedDialog).getByRole('tab', { name: 'dashboard.games.createParty.tabs.theme' }));
+    expect(within(reopenedDialog).getByLabelText('theme.label')).toHaveTextContent('theme.inherit');
+    await user.click(within(reopenedDialog).getByRole('tab', { name: 'dashboard.games.createParty.tabs.privacy' }));
     const privacyCheckbox = within(reopenedDialog).getByRole('checkbox', {
       name: 'dashboard.games.createParty.privateToggleLabel',
     });

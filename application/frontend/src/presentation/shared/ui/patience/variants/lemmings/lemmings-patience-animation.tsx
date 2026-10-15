@@ -18,6 +18,8 @@ export function LemmingsPatienceAnimation({
 
   useEffect(() => {
     engine.syncContainer(container);
+
+    return () => engine.reset();
   }, [container, engine]);
 
   useAnimationFrame((time, delta) => {

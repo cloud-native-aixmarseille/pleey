@@ -14,6 +14,7 @@ interface AsyncComboboxOption {
 
 interface AsyncComboboxProps {
   readonly ariaLabel: string;
+  readonly ariaDescribedBy?: string;
   readonly disabled?: boolean;
   readonly emptyLabel: string;
   readonly hasMore?: boolean;
@@ -57,6 +58,7 @@ function getVisibleStateLabel({
 
 export function AsyncCombobox({
   ariaLabel,
+  ariaDescribedBy,
   disabled = false,
   emptyLabel,
   hasMore = false,
@@ -203,6 +205,7 @@ export function AsyncCombobox({
       <Combobox.Target>
         <InputBase
           aria-label={ariaLabel}
+          aria-describedby={ariaDescribedBy}
           component="button"
           disabled={disabled}
           id={comboboxId}

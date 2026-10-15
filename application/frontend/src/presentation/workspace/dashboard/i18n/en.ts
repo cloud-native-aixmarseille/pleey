@@ -57,14 +57,17 @@ export const dashboardEn = {
       },
       createParty: {
         title: 'Party mode',
-        subtitle: 'Choose how {{game}} should run for this party.',
         defaultModeBadge: 'Default mode',
         customModeBadge: 'Custom mode',
-        playModeHeading: 'Play mode',
+        sectionsLabel: 'Party configuration sections',
+        tabs: {
+          playMode: 'Play mode',
+          privacy: 'Privacy',
+          theme: 'Theme',
+        },
         playModeDescription:
           'These toggles start from the inherited defaults for this game. Change only what this party needs.',
         settingsUpdatedBadge: 'Updated for this party',
-        privacyHeading: 'Privacy',
         privateToggleLabel: 'Make this a private party',
         privateToggleDescription: 'Players will need a password to join.',
         privatePasswordLabel: 'Private party password',
