@@ -4,8 +4,10 @@ import { MarkdownPlayableContentImportFormatParser } from './markdown-playable-c
 import { PlaintextPlayableContentImportFormatParser } from './plaintext-playable-content-import-format-parser';
 import { PlayableContentImportParser } from './playable-content-import-parser';
 import { PlayableContentImportParserContainer } from './playable-content-import-parser-container';
+import { TrueFalseImportValueParser } from './true-false-import-value-parser';
 
 export const playableContentImportProviders = [
+  TrueFalseImportValueParser,
   CsvPlayableContentImportFormatParser,
   JsonPlayableContentImportFormatParser,
   MarkdownPlayableContentImportFormatParser,

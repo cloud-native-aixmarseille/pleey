@@ -62,6 +62,12 @@ Controllers and gateways also stay thin; keep their orchestration in application
 
 Keep feature adaptation in the owning presentation reader: theme images buffer bounded binary data only after authorization, while quiz and prediction imports decode UTF-8 and stream lines. Image validation, re-encoding, and persistence stay outside the shared transport reader. Preserve `Promise<GraphqlUploadFile> | GraphqlUploadFile` on standalone GraphQL upload arguments so the global validation pipe does not transform the scalar as a DTO.
 
+## Playable content imports
+
+The shared importer accepts true/false answer labels in all supported template languages: `True`/`False` and `Vrai`/`Faux`. Recognition ignores case and surrounding whitespace and allows mixed-language pairs, independently of the request language. JSON, Markdown, plain text, and CSV imports infer true/false questions from one recognized true label and one recognized false label when no type is specified. Explicit multiple-choice questions retain their labels.
+
+True/false options normalize to `True` then `False`, preserving the correct answer. CSV also accepts translated labels in its `correct` column, alongside its existing boolean aliases. When adding a template language, extend `TrueFalseImportValueParser` and verify generated templates for that locale. See [ADR 0016](../../architecture/adr/0016-accept-localized-true-false-import-values.md).
+
 ## Error Handling
 
 Use-cases and runtime services throw domain errors, and `I18nHttpExceptionFilter` translates them to HTTP status and localized messages.
