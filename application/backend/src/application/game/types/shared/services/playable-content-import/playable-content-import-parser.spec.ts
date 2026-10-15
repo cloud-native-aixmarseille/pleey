@@ -168,22 +168,22 @@ describe('PlayableContentImportParser', () => {
   });
 
   it.each([
-    ['quiz.md', '## Question\nType: truefalse\n- [x] Vrai\n- [ ] Faux', true],
-    ['quiz.txt', 'Question: Example\nType: truefalse\n- [x] Faux\n- [ ] Vrai', false],
-    ['quiz.md', '## Question\n- [x]  vRaI  \n- [ ]  fAuX  ', true],
-    ['quiz.md', '## Question\nType: truefalse\n- [x] False\n- [ ] Vrai', false],
+    ['quiz-import.md', '## Question\nType: truefalse\n- [x] Vrai\n- [ ] Faux', true],
+    ['quiz-import.txt', 'Question: Example\nType: truefalse\n- [x] Faux\n- [ ] Vrai', false],
+    ['quiz-import.md', '## Question\n- [x]  vRaI  \n- [ ]  fAuX  ', true],
+    ['quiz-import.md', '## Question\nType: truefalse\n- [x] False\n- [ ] Vrai', false],
     [
-      'quiz.json',
+      'quiz-import.json',
       JSON.stringify({
         questions: [{ question: 'Example', answers: [{ text: 'Faux', isCorrect: true }, { text: 'Vrai' }] }],
       }),
       false,
     ],
-    ['quiz.csv', 'question,type,correct,option1,option2\nExample,truefalse,vrai,Vrai,Faux', true],
-    ['quiz.csv', 'question,type,correct,option1,option2\nExample,truefalse, FAUX ,Faux,Vrai', false],
-    ['quiz.csv', 'question,correct,option1,option2\nExample,true,Faux,Vrai', true],
-    ['quiz.csv', 'question,correct,option1,option2\nExample,faux,True,Faux', false],
-    ['quiz.csv', 'question,type,correct\nExample,truefalse,Vrai', true],
+    ['quiz-import.csv', 'question,type,correct,option1,option2\nExample,truefalse,vrai,Vrai,Faux', true],
+    ['quiz-import.csv', 'question,type,correct,option1,option2\nExample,truefalse, FAUX ,Faux,Vrai', false],
+    ['quiz-import.csv', 'question,correct,option1,option2\nExample,true,Faux,Vrai', true],
+    ['quiz-import.csv', 'question,correct,option1,option2\nExample,faux,True,Faux', false],
+    ['quiz-import.csv', 'question,type,correct\nExample,truefalse,Vrai', true],
   ])('normalizes translated true/false options in %s (%s)', async (fileName, content, trueIsCorrect) => {
     // Arrange
     const source = new TestPlayableContentImportSource(fileName, content);
@@ -207,7 +207,10 @@ describe('PlayableContentImportParser', () => {
     'rejects invalid true/false pairs: %s',
     async (options) => {
       // Arrange
-      const source = new TestPlayableContentImportSource('quiz.md', `## Question\nType: truefalse\n- [x] ${options}`);
+      const source = new TestPlayableContentImportSource(
+        'quiz-import.md',
+        `## Question\nType: truefalse\n- [x] ${options}`,
+      );
 
       // Act + Assert
       await expect(parser.parse(source)).rejects.toMatchObject({
@@ -219,7 +222,7 @@ describe('PlayableContentImportParser', () => {
   it('preserves translated labels for explicit multiple-choice questions', async () => {
     // Arrange
     const source = new TestPlayableContentImportSource(
-      'quiz.md',
+      'quiz-import.md',
       '## Question\nType: multiple\n- [x] Vrai\n- [ ] Faux',
     );
 
@@ -253,7 +256,7 @@ describe('PlayableContentImportParser', () => {
   ])('preserves the existing CSV correct-answer alias %s', async (correctValue, trueIsCorrect) => {
     // Arrange
     const source = new TestPlayableContentImportSource(
-      'quiz.csv',
+      'quiz-import.csv',
       `question,type,correct\nExample,truefalse,${correctValue}`,
     );
 
