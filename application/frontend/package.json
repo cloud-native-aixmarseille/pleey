@@ -44,7 +44,7 @@
     "motion": "^13.4.6",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
-    "react-i18next": "^17.0.15",
+    "react-i18next": "^17.0.16",
     "react-qr-code": "^2.2.0",
     "react-router-dom": "^7.18.4",
     "reflect-metadata": "^0.2.2",
