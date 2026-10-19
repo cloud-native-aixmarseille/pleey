@@ -1,0 +1,4 @@
+[tools]
+helm = "4.0.4"
+helm-ct = "3.14.0"
+helm-docs = "1.14.2"

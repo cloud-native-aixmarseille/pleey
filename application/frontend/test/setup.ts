@@ -1,9 +1,21 @@
 import 'reflect-metadata';
 import '@testing-library/jest-dom/vitest';
+import type { MantineProviderProps } from '@mantine/core';
 import { cleanup, configure } from '@testing-library/react';
-import { afterEach } from 'vitest';
 import i18n from 'i18next';
+import { createElement } from 'react';
 import { initReactI18next } from 'react-i18next';
+import { afterEach, vi } from 'vitest';
+
+// Keep real UI providers, including those created by the app container, in test mode.
+vi.mock('@mantine/core', async (importOriginal) => {
+  const mantine = await importOriginal<typeof import('@mantine/core')>();
+
+  return {
+    ...mantine,
+    MantineProvider: (props: MantineProviderProps) => createElement(mantine.MantineProvider, { ...props, env: 'test' }),
+  };
+});
 
 const createMemoryStorage = (): Storage => {
   const store = new Map<string, string>();

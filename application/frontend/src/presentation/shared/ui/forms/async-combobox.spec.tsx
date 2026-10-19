@@ -30,13 +30,14 @@ describe('AsyncCombobox', () => {
       />,
     );
 
+    // Act
     await user.click(screen.getByLabelText('Organization'));
     await user.type(screen.getByLabelText('Search organizations'), 'Rocket');
     await user.keyboard('{ArrowDown}');
-    // Act
     await user.keyboard('{Enter}');
 
     // Assert
+    expect(onSearchChange).toHaveBeenCalledWith('Rocket');
     expect(onSearchChange).toHaveBeenLastCalledWith('');
     expect(onChange).toHaveBeenCalledWith('2');
   });

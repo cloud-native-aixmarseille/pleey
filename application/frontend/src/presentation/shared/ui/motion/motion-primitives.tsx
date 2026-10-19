@@ -4,6 +4,7 @@ import {
   LayoutGroup,
   type MotionProps,
   motion,
+  stagger,
   type Transition,
   type Variants,
 } from 'motion/react';
@@ -84,8 +85,7 @@ export function MotionStagger({
         visible: {
           opacity: 1,
           transition: {
-            delayChildren: initialDelay,
-            staggerChildren: staggerDelay,
+            delayChildren: stagger(staggerDelay, { startDelay: initialDelay }),
           },
         },
       };
