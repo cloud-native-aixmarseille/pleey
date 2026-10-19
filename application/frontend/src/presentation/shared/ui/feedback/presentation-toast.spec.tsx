@@ -42,18 +42,19 @@ describe('PresentationToastViewport', () => {
   it('renders toast items on an opaque shell', async () => {
     // Arrange
     const user = userEvent.setup();
-    // Act
     stubMatchMedia(false);
 
-    // Assert
+    // Act + Assert
     try {
       renderWithUiProvider(<ToastHarness />);
 
+      // Act
       await user.click(screen.getByRole('button', { name: 'Trigger toast' }));
 
-      expect(await screen.findByTestId('toast-shell')).toHaveStyle({
-        background: 'var(--ui-color-surface-canvas)',
-      });
+      // Assert
+      const toast = await screen.findByTestId('toast-shell');
+      // jsdom does not resolve CSS variables in the computed background shorthand.
+      expect(toast.style.background).toBe('var(--ui-color-surface-canvas)');
       expect(screen.getByTestId('presentation-toast-viewport')).toHaveStyle({
         right: 'var(--mantine-spacing-lg)',
         top: 'var(--mantine-spacing-lg)',

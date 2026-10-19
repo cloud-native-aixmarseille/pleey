@@ -15,3 +15,5 @@ Custom scripts run before and after Biome: `check-naming.mjs`, `check-module-exp
 ## Testing Conventions
 
 Unit tests are colocated (`*.spec.ts` / `*.spec.tsx`). Screen tests require the shared `MantineProvider` wrapper. Route specs mock the exact import paths of auth, organization, and game contexts.
+
+The Vitest setup wraps the real `MantineProvider` with `env="test"`, following [Mantine's Vitest guidance](https://mantine.dev/guides/vitest/). This applies to both shared render helpers and app-container providers, keeping dropdowns interactive without browser layout measurements and disabling Mantine transitions in jsdom.

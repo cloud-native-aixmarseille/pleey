@@ -1,7 +1,7 @@
 # Makefile for Pleey
 # Using Docker Compose V2
 
-.PHONY: help setup build up down restart logs ps rebuild shell setup-traefik traefik health migrate migrate-dev-recover seed db-shell graphql-types ci lint lint-fix linter-fix test test-watch test-ui test-ci test-chart test-install e2e-report
+.PHONY: help setup build up down restart logs ps rebuild shell setup-traefik traefik health migrate migrate-dev-recover seed db-shell graphql-types npm-update ci lint lint-fix linter-fix test test-watch test-ui test-ci test-chart test-install e2e-report
 
 # Docker Compose command (V2)
 COMPOSE := docker compose
@@ -267,6 +267,30 @@ graphql-types: ## Generate GraphQL types
 	@echo "$(GREEN)Generating GraphQL types...$(NC)"
 	@$(APP_EXEC) frontend npm run graphql:codegen
 	@echo "$(GREEN)✓ GraphQL types generated$(NC)"
+
+# ==========================================
+# Dependency Management
+# ==========================================
+
+npm-update: ## Update npm dependencies interactively in containers (SCOPE=all|backend|frontend|e2e; default: all)
+	@set -e; \
+	case "$(SCOPE)" in \
+		""|all) PACKAGE_SERVICES="backend frontend e2e-tests" ;; \
+		backend|frontend) PACKAGE_SERVICES="$(SCOPE)" ;; \
+		e2e) PACKAGE_SERVICES="e2e-tests" ;; \
+		*) echo "$(RED)Unknown SCOPE '$(SCOPE)'; use all, backend, frontend, or e2e$(NC)"; exit 1 ;; \
+	esac; \
+	if [ ! -t 0 ] || [ ! -t 1 ]; then \
+		echo "$(RED)Run 'make npm-update' in an interactive terminal$(NC)"; \
+		exit 1; \
+	fi; \
+	for package_service in $$PACKAGE_SERVICES; do \
+		echo "$(GREEN)Selecting npm dependency updates in $$package_service...$(NC)"; \
+		$(COMPOSE) run --rm --no-deps \
+			--user "$(shell id -u):$(shell id -g)" \
+			--env NPM_CONFIG_CACHE=/tmp/pleey-npm-cache \
+			"$$package_service" npx --yes npm-check-updates@latest --interactive --install always; \
+	done
 
 # ==========================================
 # Linting Commands

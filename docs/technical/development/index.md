@@ -32,6 +32,16 @@ Per-app npm scripts are in each `package.json`. Key entrypoints:
 - `make setup` — full stack bootstrap
 - `make ci` — lint-fix + test (pre-push check)
 - `make test` — all tests (supports `SCOPE` and `MODE` args)
+- `make npm-update` — interactively select npm dependency upgrades in containers for the backend, frontend, and end-to-end projects, sequentially. Use `SCOPE=backend|frontend|e2e` to select one project.
+
+Dependency updates require Docker Compose, registry access, the development networks
+(`make setup-traefik`), and an interactive terminal. The command uses temporary
+containers for the `backend`, `frontend`, and `e2e-tests` services without starting
+their dependencies. It uses the host user's UID/GID and a writable temporary npm
+cache. The existing source mounts persist manifest and lockfile changes on the host.
+Inside each container, npx runs the latest npm-check-updates, then npm install runs
+after confirmed upgrades. Major upgrades are included in the selection; review the
+changes and run the affected project's checks afterward.
 
 ## Repository Static Linting
 
@@ -57,6 +67,11 @@ Development docs under `docs/technical/development/**` describe the current appr
 ## Frontend Implementation Specs
 
 Test frameworks: **Vitest** (backend + frontend), **Playwright** (end-to-end).
+
+Keep the Playwright image tag in [`compose.yaml`](../../../compose.yaml) aligned
+with the resolved `@playwright/test` version in
+[`e2e/package-lock.json`](../../../e2e/package-lock.json). The container supplies
+the browser binaries required by that exact Playwright version.
 
 ## Test Writing Rules
 
