@@ -67,6 +67,25 @@ describe('InlineMarkdownText', () => {
     expect(document.querySelector('strong')).toBeNull();
   });
 
+  it('keeps delimiter runs surrounded by whitespace as plain text', () => {
+    // Arrange + Act
+    render(<InlineMarkdownText text="2 * 3 ** 4" />);
+
+    // Assert
+    expect(screen.getByText('2 * 3 ** 4')).toBeInTheDocument();
+    expect(document.querySelector('em')).toBeNull();
+    expect(document.querySelector('strong')).toBeNull();
+  });
+
+  it('keeps underscores inside words as plain text', () => {
+    // Arrange + Act
+    render(<InlineMarkdownText text="Use snake_case_names in config files" />);
+
+    // Assert
+    expect(screen.getByText('Use snake_case_names in config files')).toBeInTheDocument();
+    expect(document.querySelector('em')).toBeNull();
+  });
+
   it('keeps empty emphasis as plain text', () => {
     // Arrange + Act
     render(<InlineMarkdownText text="empty **** emphasis" />);
