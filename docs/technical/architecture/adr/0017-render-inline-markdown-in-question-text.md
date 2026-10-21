@@ -19,7 +19,7 @@ Quiz and prediction maintainers author question text as plain strings, but they 
 
 ### Option 1: Full markdown renderer library (react-markdown, marked, markdown-it)
 
-Brings complete CommonMark support at the cost of a new dependency, a larger bundle, and block-level features (headings, lists, images, links) that question text does not need and that would disturb compact live layouts. HTML-capable configurations also widen the injection surface.
+Brings complete CommonMark support at the cost of a new dependency and a larger bundle. Unwanted block layouts are not inherent to this option: `react-markdown` can restrict output to inline elements through `allowedElements`, `unwrapDisallowed`, and component mappings, so a library could render the same inline-only subset. The real tradeoff is adding and maintaining a parsing dependency (with its transitive packages, upgrade cadence, and bundle weight) for a four-delimiter inline grammar, versus keeping small in-house parsing rules that must be maintained and may diverge from CommonMark edge cases.
 
 ### Option 2: In-house inline markdown subset renderer
 
@@ -32,6 +32,8 @@ Zero implementation cost, but maintainers keep seeing literal asterisks, which i
 ## Decision
 
 Use option 2. A shared `InlineMarkdownText` presentation component tokenizes the inline subset recursively, supports nested emphasis, keeps code span content raw, and renders `<strong>`, `<em>`, `<s>`, and `<code>` through React escaping. Unmatched or empty delimiters render as plain text. Every live question display (host stage panel, host result panel, and player stage and result surfaces on mobile and desktop) renders question text through this component.
+
+Although a library restricted to inline output (option 1) would avoid in-house parsing rules, the dependency and bundle tradeoff outweighs that benefit here: the supported grammar is four inline delimiters with no links, images, or blocks, so the maintenance surface kept in-house is deliberately small and fully covered by colocated specs. If question formatting ever grows toward richer markdown, revisiting option 1 with restricted output is the preferred path.
 
 ## Consequences
 
