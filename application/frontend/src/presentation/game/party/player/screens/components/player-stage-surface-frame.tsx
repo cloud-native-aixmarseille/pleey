@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import type { PartyObservation } from '../../../../../../domains/game/party/shared/entities/party-observation';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
+import { InlineMarkdownText } from '../../../../../shared/ui/data/inline-markdown-text';
 import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';
 import { ContentStack, SplitWrapRow } from '../../../../../shared/ui/layout/containers';
 import { InsetPanel } from '../../../../../shared/ui/layout/panels';
@@ -151,7 +152,9 @@ export function PlayerStageSurfaceFrame({
 
         <MotionFadeIn key={`question-${stageRevealCycleKey}`} duration={0.9}>
           <div style={mobileQuestionStyle}>
-            <p style={mobileQuestionTextStyle}>{currentStage.text}</p>
+            <p style={mobileQuestionTextStyle}>
+              <InlineMarkdownText text={currentStage.text} />
+            </p>
           </div>
         </MotionFadeIn>
 
@@ -177,7 +180,9 @@ export function PlayerStageSurfaceFrame({
             </SplitWrapRow>
 
             <MotionFadeIn key={`question-${stageRevealCycleKey}`} duration={1.0}>
-              <Heading level={3}>{currentStage.text}</Heading>
+              <Heading level={3}>
+                <InlineMarkdownText text={currentStage.text} />
+              </Heading>
             </MotionFadeIn>
 
             {children}

@@ -1,5 +1,6 @@
 import { PartyStatus } from '../../../../../../../domains/game/party/shared/entities/party-status';
 import { usePresentationTranslation } from '../../../../../../shared/i18n/use-presentation-translation';
+import { InlineMarkdownText } from '../../../../../../shared/ui/data/inline-markdown-text';
 import { Badge } from '../../../../../../shared/ui/feedback/badge';
 import { AppIcon } from '../../../../../../shared/ui/icons/app-icon';
 import { ContentStack, ResponsiveGrid } from '../../../../../../shared/ui/layout/containers';
@@ -99,7 +100,7 @@ export function PlayableChoiceHostStagePanel({ copy, party, testIdPrefix }: Play
               <ContentStack align="center" gap="md">
                 <MotionFadeIn key={`question-${stageId}`} duration={STAGE_QUESTION_REVEAL_DURATION_SECONDS}>
                   <Heading hero level={1}>
-                    {currentStage.text}
+                    <InlineMarkdownText text={currentStage.text} />
                   </Heading>
                 </MotionFadeIn>
               </ContentStack>

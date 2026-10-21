@@ -1,4 +1,5 @@
 import { usePresentationTranslation } from '../../../../../../shared/i18n/use-presentation-translation';
+import { InlineMarkdownText } from '../../../../../../shared/ui/data/inline-markdown-text';
 import { AppIcon } from '../../../../../../shared/ui/icons/app-icon';
 import { ContentStack, ResponsiveGrid } from '../../../../../../shared/ui/layout/containers';
 import { InsetPanel } from '../../../../../../shared/ui/layout/panels';
@@ -142,7 +143,9 @@ export function PlayableChoicePlayerResultSurface({
           <InsetPanel padding="md">
             <ContentStack gap="sm">
               <span style={mobileQuestionLabelStyle}>{t(copy.resultHeading)}</span>
-              <p style={mobileQuestionTextStyle}>{currentResult.text}</p>
+              <p style={mobileQuestionTextStyle}>
+                <InlineMarkdownText text={currentResult.text} />
+              </p>
               {tilesGrid}
             </ContentStack>
           </InsetPanel>
@@ -174,7 +177,9 @@ export function PlayableChoicePlayerResultSurface({
 
         <InsetPanel padding="lg">
           <ContentStack gap="md">
-            <Heading level={3}>{currentResult.text}</Heading>
+            <Heading level={3}>
+              <InlineMarkdownText text={currentResult.text} />
+            </Heading>
             {tilesGrid}
           </ContentStack>
         </InsetPanel>

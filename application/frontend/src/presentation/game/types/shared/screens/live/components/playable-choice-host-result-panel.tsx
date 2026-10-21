@@ -1,4 +1,5 @@
 import { usePresentationTranslation } from '../../../../../../shared/i18n/use-presentation-translation';
+import { InlineMarkdownText } from '../../../../../../shared/ui/data/inline-markdown-text';
 import { ContentStack, ResponsiveGrid } from '../../../../../../shared/ui/layout/containers';
 import { InsetPanel } from '../../../../../../shared/ui/layout/panels';
 import { Heading, SupportingText } from '../../../../../../shared/ui/layout/typography';
@@ -30,7 +31,9 @@ export function PlayableChoiceHostResultPanel({ copy, party, testIdPrefix }: Pla
               })}
             </SupportingText>
 
-            <Heading level={3}>{result.text}</Heading>
+            <Heading level={3}>
+              <InlineMarkdownText text={result.text} />
+            </Heading>
             <SupportingText tone="soft">{t(copy.resultHeading)}</SupportingText>
 
             <MotionStagger>
