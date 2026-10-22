@@ -16,12 +16,12 @@ Pleey currently stores and displays question text as plain strings. Existing sha
 
 The emphasis example is confirmed. The following broader capabilities are proposed for review, with a purpose for each; this is not a requirement to expose a markup language's entire feature set.
 
-| Maintainer outcome | Proposed capability | Scope |
-| --- | --- | --- |
-| Draw attention to a qualification, negation, or important term | Bold emphasis with a visible distinction from surrounding text | Confirmed by the example; additional styles remain a design choice. |
-| Show technical values or examples without changing their interpretation | Distinct presentation of identifiers and code, preserving significant spacing and line breaks | Proposed extension beyond emphasis. |
-| Make multi-part questions and comparisons easier to read | Paragraphs, lists, and, where useful, tables | Proposed extension to validate with representative questions. |
-| Give readers useful context or a source | References and links where navigation is appropriate | Proposed extension requiring a deliberate gameplay interaction policy. |
+| Maintainer outcome                                                      | Proposed capability                                                                           | Scope                                                                  |
+| ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| Draw attention to a qualification, negation, or important term          | Bold emphasis with a visible distinction from surrounding text                                | Confirmed by the example; additional styles remain a design choice.    |
+| Show technical values or examples without changing their interpretation | Distinct presentation of identifiers and code, preserving significant spacing and line breaks | Proposed extension beyond emphasis.                                    |
+| Make multi-part questions and comparisons easier to read                | Paragraphs, lists, and, where useful, tables                                                  | Proposed extension to validate with representative questions.          |
+| Give readers useful context or a source                                 | References and links where navigation is appropriate                                          | Proposed extension requiring a deliberate gameplay interaction policy. |
 
 The initial use case concerns quiz question bodies. Reuse for prediction prompts and free-form answer labels is a proposed extension, with field-specific acceptance criteria before inclusion. Shared components alone do not make every text field a formatting surface. Footnotes, task lists, embedded media, and other document features require their own demonstrated use cases.
 
