@@ -18,7 +18,7 @@ permissions: {}
 
 jobs:
   linter:
-    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@3a27d31e9ccefbe9609cc9165017ed100ff34a22 # 0.38.0
+    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@44f6108cef0e9884ea7735f3d62932c2310745d4 # 0.39.1
     permissions:
       actions: read
       contents: read
@@ -34,8 +34,9 @@ jobs:
         KUBERNETES_KUBECONFORM_OPTIONS=-ignore-missing-schemas -ignore-filename-pattern .*Chart\.yaml -ignore-filename-pattern .*values.*\.yaml -ignore-filename-pattern .*values\.schema\.json -ignore-filename-pattern charts/.*/templates/.* -ignore-filename-pattern charts/.*/crds/.*
 
   build:
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@f8255a6a37eb141fa331527f5aed9b9e1d598c77 # 0.38.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@5ffc3c81daacc57700a14bb91d67edbc67eedc1d # 0.39.0
     permissions:
+      attestations: write
       contents: read
       packages: write
       issues: read
@@ -44,7 +45,6 @@ jobs:
     with:
       oci-registry: ${{ vars.OCI_REGISTRY }}
       oci-registry-username: ${{ github.repository_owner }}
-      sign: false
       images: |
         [
           {
@@ -71,7 +71,7 @@ jobs:
     strategy:
       matrix:
         service: ["backend", "frontend"]
-    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@df348077afa4e79725151d50606e9dc63f86dcb6 # v0.24.4
+    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@1f81dd00d941680ab227a6eae5378790d6242e02 # 1.0.0
     needs: build
     permissions:
       contents: read
@@ -97,9 +97,10 @@ jobs:
       container-password: ${{ secrets.GITHUB_TOKEN }}
 
   build-prod:
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@f8255a6a37eb141fa331527f5aed9b9e1d598c77 # 0.38.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@5ffc3c81daacc57700a14bb91d67edbc67eedc1d # 0.39.0
     needs: continuous-integration
     permissions:
+      attestations: write
       contents: read
       packages: write
       issues: read
@@ -108,7 +109,6 @@ jobs:
     with:
       oci-registry: ${{ vars.OCI_REGISTRY }}
       oci-registry-username: ${{ github.repository_owner }}
-      sign: false
       images: |
         [
           {
@@ -141,7 +141,7 @@ jobs:
       packages: read
     steps:
       - name: Test helm chart (umbrella)
-        uses: hoverkraft-tech/ci-github-container/actions/helm/test-chart@f8255a6a37eb141fa331527f5aed9b9e1d598c77 # 0.38.0
+        uses: hoverkraft-tech/ci-github-container/actions/helm/test-chart@5ffc3c81daacc57700a14bb91d67edbc67eedc1d # 0.39.0
         with:
           helm-repositories: |
             cloudnative-pg https://cloudnative-pg.github.io/charts

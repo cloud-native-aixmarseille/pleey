@@ -8,11 +8,19 @@ import {
 } from '../../../test-utils/render-with-routing-provider';
 import { createLink, Outlet, usePresentationNavigate, usePresentationParams, usePresentationPathname } from './router';
 
+function OutletChild() {
+  return <div data-testid="outlet-child" />;
+}
+
+function AnchorComp({ href, children }: { href?: string; children?: ReactNode }) {
+  return <a href={href}>{children}</a>;
+}
+
 describe('router', () => {
   const navigate = vi.fn();
   const routingPort = new RoutingMockFactory().createRoutingPort({
     navigate,
-    Outlet: () => <div data-testid="outlet-child" />,
+    Outlet: OutletChild,
     pathname: '/party/12/lobby',
     params: { projectId: '12' },
   });
@@ -20,7 +28,6 @@ describe('router', () => {
   describe('createLink()', () => {
     it('creates a component that renders using the routing port createLink factory', () => {
       // Arrange
-      const AnchorComp = ({ href, children }: { href?: string; children?: ReactNode }) => <a href={href}>{children}</a>;
       const RoutedAnchor = createLink(AnchorComp);
 
       // Act

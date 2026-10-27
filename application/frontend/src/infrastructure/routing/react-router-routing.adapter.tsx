@@ -13,7 +13,7 @@ import {
 import type { CreateLinkFn, PresentationParams, RoutingPort } from '../../application/shared/ports/routing.port';
 
 const createLink: CreateLinkFn = <TProps extends object>(
-  component: ComponentType<TProps>,
+  WrappedComponent: ComponentType<TProps>,
 ): ComponentType<{ to: string } & Omit<TProps, 'href'>> => {
   function CreatedLink({ to, ...rest }: { to: string } & Omit<TProps, 'href'>) {
     const href = useHref(to);
@@ -25,7 +25,7 @@ const createLink: CreateLinkFn = <TProps extends object>(
       handleNavClick(e);
     };
 
-    return React.createElement(component, { ...rest, href, onClick } as unknown as TProps);
+    return React.createElement(WrappedComponent, { ...rest, href, onClick } as unknown as TProps);
   }
 
   return CreatedLink;

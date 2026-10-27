@@ -1,8 +1,18 @@
 import { render, screen } from '@testing-library/react';
+import type { ReactNode } from 'react';
 import { describe, expect, it } from 'vitest';
 import { PresentationFormProvider, usePresentationFormPort } from './form-provider';
 
 type PresentationFormPort = Parameters<typeof PresentationFormProvider>[0]['value'];
+
+const MockAppForm: ReturnType<PresentationFormPort['useForm']>['AppForm'] = ({ children }) => <>{children}</>;
+const MockSubscribe: ReturnType<PresentationFormPort['useFormContext']>['Subscribe'] = ({ children, selector }) => (
+  <>{children(selector({ isSubmitting: false, isDefaultValue: true }))}</>
+);
+
+function MockAppField({ children }: { readonly children: () => ReactNode }) {
+  return children();
+}
 
 function FormProviderHarness() {
   const port = usePresentationFormPort();
@@ -18,8 +28,8 @@ describe('PresentationFormProvider', () => {
         useForm: () => ({
           handleSubmit: () => undefined,
           reset: () => undefined,
-          AppForm: ({ children }) => <>{children}</>,
-          AppField: ({ children }) => children(),
+          AppForm: MockAppForm,
+          AppField: MockAppField,
         }),
         useFieldContext: <TValue = string>() => ({
           name: 'email',
@@ -28,9 +38,7 @@ describe('PresentationFormProvider', () => {
           handleChange: (_value: TValue) => undefined,
         }),
         useFormContext: () => ({
-          Subscribe: ({ children, selector }) => (
-            <>{children(selector({ isSubmitting: false, isDefaultValue: true }))}</>
-          ),
+          Subscribe: MockSubscribe,
         }),
       };
 

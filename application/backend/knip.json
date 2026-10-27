@@ -17,7 +17,6 @@
     "@as-integrations/express5",
     "@opentelemetry/instrumentation",
     "graphql-ws",
-    "nestjs-otel",
     "swagger-ui-express",
     "source-map-support",
     "ts-loader",

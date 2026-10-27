@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useState } from 'react';
+import { type ComponentProps, useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { OrganizationActionDisabledReason } from '../../../../../../domains/organization/value-objects/organization-permissions';
 import { ProjectFixtureFactory } from '../../../../../../test-utils/fixtures/project-fixture-factory';
@@ -18,6 +18,24 @@ const pagination = {
   totalPages: 1,
 };
 
+function ControlledOrganizationProjectsSection({
+  onProjectSearchChange,
+  ...props
+}: Omit<ComponentProps<typeof OrganizationProjectsSection>, 'projectSearchValue'>) {
+  const [projectSearchValue, setProjectSearchValue] = useState('');
+
+  return (
+    <OrganizationProjectsSection
+      {...props}
+      onProjectSearchChange={(value) => {
+        setProjectSearchValue(value);
+        onProjectSearchChange(value);
+      }}
+      projectSearchValue={projectSearchValue}
+    />
+  );
+}
+
 describe('OrganizationProjectsSection', () => {
   it('renders the section content and delegates create/edit/remove actions', async () => {
     // Arrange
@@ -34,43 +52,33 @@ describe('OrganizationProjectsSection', () => {
     const onRemoveProject = vi.fn();
     const onProjectSearchChange = vi.fn();
 
-    function ControlledOrganizationProjectsSection() {
-      const [projectSearchValue, setProjectSearchValue] = useState('');
-
-      return (
-        <OrganizationProjectsSection
-          actionErrorMessage="Unable to update project"
-          createPermission={{ allowed: true, reason: null }}
-          createButtonLabel="Create project"
-          eyebrow="Projects"
-          onCreateProject={onCreateProject}
-          onEditProject={onEditProject}
-          onProjectSearchChange={(value) => {
-            setProjectSearchValue(value);
-            onProjectSearchChange(value);
-          }}
-          onRemoveProject={onRemoveProject}
-          pagination={pagination}
-          projects={[
-            project,
-            {
-              ...project,
-              id: projectFixtureFactory.createProject({ id: 12 }).id,
-              name: 'Backup event',
-            },
-          ]}
-          projectSearchLabel="Search projects"
-          projectSearchPlaceholder="Search projects"
-          projectSearchValue={projectSearchValue}
-          searchDisabled={false}
-          selectedProjectId={project.id}
-          title="Organization projects"
-        />
-      );
-    }
-
     // Act
-    renderWithProviders(<ControlledOrganizationProjectsSection />);
+    renderWithProviders(
+      <ControlledOrganizationProjectsSection
+        actionErrorMessage="Unable to update project"
+        createPermission={{ allowed: true, reason: null }}
+        createButtonLabel="Create project"
+        eyebrow="Projects"
+        onCreateProject={onCreateProject}
+        onEditProject={onEditProject}
+        onProjectSearchChange={onProjectSearchChange}
+        onRemoveProject={onRemoveProject}
+        pagination={pagination}
+        projects={[
+          project,
+          {
+            ...project,
+            id: projectFixtureFactory.createProject({ id: 12 }).id,
+            name: 'Backup event',
+          },
+        ]}
+        projectSearchLabel="Search projects"
+        projectSearchPlaceholder="Search projects"
+        searchDisabled={false}
+        selectedProjectId={project.id}
+        title="Organization projects"
+      />,
+    );
 
     // Assert
     expect(screen.getByText('Projects')).toBeInTheDocument();

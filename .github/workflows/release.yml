@@ -21,17 +21,18 @@ jobs:
       name: ${{ steps.plan-release.outputs.name }}
     steps:
       - id: plan-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@1ee0354c40e4cd0a46c69cbe305c74fc67338042 # 0.28.0
+        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@4d906685a32df3cfab9139296d49dd914a86bafd # 1.0.2
         with:
           github-token: ${{ github.token }}
 
   ci:
     needs: [plan-release]
-    uses: ./.github/workflows/__shared-ci.yml
+    uses: $/.github/workflows/__shared-ci.yml
     with:
       production-image-tag: ${{ needs.plan-release.outputs.tag }}
     permissions:
       actions: read
+      attestations: write
       checks: write
       contents: read
       id-token: write
@@ -55,7 +56,7 @@ jobs:
           persist-credentials: false
 
       - name: Update chart image defaults
-        uses: hoverkraft-tech/ci-github-container/actions/helm/update-chart-values@f8255a6a37eb141fa331527f5aed9b9e1d598c77 # 0.38.0
+        uses: hoverkraft-tech/ci-github-container/actions/helm/update-chart-values@5ffc3c81daacc57700a14bb91d67edbc67eedc1d # 0.39.0
         with:
           path: charts/application
           values: >-
@@ -129,7 +130,7 @@ jobs:
 
       - name: Regenerate Helm chart documentation
         id: generate-docs
-        uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@f8255a6a37eb141fa331527f5aed9b9e1d598c77 # 0.38.0
+        uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@5ffc3c81daacc57700a14bb91d67edbc67eedc1d # 0.39.0
         with:
           working-directory: ./charts
           checkout-ref: ""
@@ -146,11 +147,19 @@ jobs:
       tag: ${{ steps.create-release.outputs.tag }}
     steps:
       - id: create-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/create@1ee0354c40e4cd0a46c69cbe305c74fc67338042 # 0.28.0
+        uses: hoverkraft-tech/ci-github-publish/actions/release/create@4d906685a32df3cfab9139296d49dd914a86bafd # 1.0.2
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} # zizmor: ignore[secrets-outside-env] Gemini credential is scoped to release summarization
         with:
           tag: ${{ needs.plan-release.outputs.tag }}
           target-sha: ${{ needs.prepare-release-files.outputs.release-sha }}
           publish: "false"
+          changelog-summary: |
+            {
+              "llmAuth": ${{ toJSON(env.GEMINI_API_KEY) }},
+              "llmProvider": "google-genai",
+              "llmModel": "gemini-3.8-flash"
+            }
           github-token: ${{ github.token }}
 
   publish-release-artifacts:
@@ -158,10 +167,11 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      id-token: write
       packages: write
     steps:
       - id: release-chart
-        uses: hoverkraft-tech/ci-github-container/actions/helm/release-chart@f8255a6a37eb141fa331527f5aed9b9e1d598c77 # 0.38.0
+        uses: hoverkraft-tech/ci-github-container/actions/helm/release-chart@5ffc3c81daacc57700a14bb91d67edbc67eedc1d # 0.39.0
         with:
           oci-registry: ${{ vars.OCI_REGISTRY }}
           oci-registry-username: ${{ github.repository_owner }}
@@ -180,7 +190,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: hoverkraft-tech/ci-github-publish/actions/release/update@1ee0354c40e4cd0a46c69cbe305c74fc67338042 # 0.28.0
+      - uses: hoverkraft-tech/ci-github-publish/actions/release/update@4d906685a32df3cfab9139296d49dd914a86bafd # 1.0.2
         with:
           tag: ${{ needs.draft-release.outputs.tag }}
           publish: "true"

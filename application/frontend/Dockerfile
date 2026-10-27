@@ -10,7 +10,7 @@ RUN \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' >/etc/apt/apt.conf.d/keep-cache && \
     apt-get update && apt-get install -y --no-install-recommends curl ca-certificates dumb-init
 
-USER node
+USER 1000:1000
 WORKDIR /usr/src/app
 
 FROM base AS build
@@ -68,7 +68,7 @@ EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:8080/ || exit 1
+    CMD ["curl", "-f", "http://localhost:8080/"]
 
 # Start Nginx
 CMD ["nginx", "-g", "daemon off;"]

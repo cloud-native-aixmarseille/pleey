@@ -30,13 +30,13 @@ function usePresentationRouting(): RoutingPort {
 }
 
 export function createLink<TProps extends object>(
-  component: ComponentType<TProps>,
+  WrappedComponent: ComponentType<TProps>,
 ): ComponentType<{ to: string } & Omit<TProps, 'href'>> {
   return function CreatedLink({ to, ...rest }: { to: string } & Omit<TProps, 'href'>) {
     const { createLink: portFactory } = usePresentationRouting();
     const implRef = useRef<ComponentType<{ to: string } & Omit<TProps, 'href'>> | null>(null);
     if (implRef.current === null) {
-      implRef.current = portFactory(component);
+      implRef.current = portFactory(WrappedComponent);
     }
     const Impl = implRef.current;
     const forwardedProps = rest as unknown as Omit<TProps, 'href'>;

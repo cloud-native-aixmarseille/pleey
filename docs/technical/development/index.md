@@ -29,27 +29,43 @@ Run `make help` for the full list of make targets (stack, database, lint, test, 
 
 Per-app npm scripts are in each `package.json`. Key entrypoints:
 
-- `make setup` — full stack bootstrap
-- `make ci` — lint-fix + test (pre-push check)
-- `make test` — all tests (supports `SCOPE` and `MODE` args)
-- `make npm-update` — interactively select npm dependency upgrades in containers for the backend, frontend, and end-to-end projects, sequentially. Use `SCOPE=backend|frontend|e2e` to select one project.
+- `make setup` - full stack bootstrap
+- `make ci` - npm-audit-fix (non-blocking) + lint-fix + test (pre-push check). Use `MODE=ci` for backend/frontend tests with coverage; the default also runs end-to-end tests, which reset the development database and session state.
+- `make test` - all tests (supports `SCOPE` and `MODE` args)
+- `make npm-update` - interactively select npm dependency upgrades in containers for the backend, frontend, and end-to-end projects, sequentially. Use `SCOPE=backend|frontend|e2e` to select one project.
+- `make npm-audit-fix` - run `npm audit fix` in containers for all three projects, sequentially. Use `SCOPE=backend|frontend|e2e` to select one project.
 
-Dependency updates require Docker Compose, registry access, the development networks
-(`make setup-traefik`), and an interactive terminal. The command uses temporary
+Both dependency commands require Docker Compose, registry access, and the development
+networks (`make setup-traefik`). They use temporary
 containers for the `backend`, `frontend`, and `e2e-tests` services without starting
-their dependencies. It uses the host user's UID/GID and a writable temporary npm
+their dependencies. They use the host user's UID/GID and a writable temporary npm
 cache. The existing source mounts persist manifest and lockfile changes on the host.
-Inside each container, npx runs the latest npm-check-updates, then npm install runs
-after confirmed upgrades. Major upgrades are included in the selection; review the
-changes and run the affected project's checks afterward.
+
+`make npm-update` requires an interactive terminal. Inside each container, npx runs
+the latest npm-check-updates, then npm install runs after confirmed upgrades. Major
+upgrades are included in the selection.
+
+`make npm-audit-fix` runs without an interactive terminal and applies the compatible
+updates available through [npm audit fix](https://docs.npmjs.com/cli/commands/npm-audit/).
+It does not pass `--force`. All selected projects are attempted even if one fails;
+the target fails if any invocation fails, including when vulnerabilities remain.
+Review dependency changes and run the affected project's checks after either command.
 
 ## Repository Static Linting
 
 `make lint` runs both application lint pipelines, then Super-linter with the configurations under `.github/linters/`.
 
+Local lint commands use the shared CI workflow's Kubeconform exclusions for Helm templates, chart metadata, and bundled CRDs. Use `make test-chart` for chart lint and installation checks.
+
 Checkov renders the umbrella chart using [the CI recovery values](../../../charts/application/ci/recovery-values.yaml), including the frontend and backend templates. Only the two local subchart `Chart.yaml` entrypoints are excluded from duplicate standalone discovery; their directories remain eligible for scanning. Keep the fixture complete when chart schemas add required values, and verify that security checks still detect missing release policies and unsafe service workloads.
 
 The root and application Biome configurations use the installed CLI schema.
+
+## Release Notes
+
+The [release workflow](../../../.github/workflows/release.yml) generates a Gemini
+summary followed by the complete changelog when it creates the draft release.
+The model and provider are configured in its `changelog-summary` input.
 
 ## Documentation Maintenance
 
@@ -120,7 +136,7 @@ refactor(game): simplify score calculation logic
 
 - No dead code: every exported function, class, component, and public method must have consumers
 - No orphan translations: every key must be used, every user-facing string must have a key
-- Applies to both backend and frontend — enforce on every PR
+- Applies to both backend and frontend - enforce on every PR
 
 ### Naming
 
@@ -145,12 +161,12 @@ Process-startup, config, and tooling code outside the runtime application layers
 
 - Backend: `application/backend/src/i18n/`
 - Frontend: `application/frontend/src/presentation/**/i18n/`, assembled by `application/frontend/src/i18n/translation-resource-composer.ts`
-- Feature-specific keys stay in feature scope — no cross-feature key reads
+- Feature-specific keys stay in feature scope - no cross-feature key reads
 - Use the straight ASCII apostrophe (`'`, U+0027) in translation values for every locale. Curly apostrophes (U+2018 and U+2019) are forbidden. Use suitable string delimiters or escaping to preserve the straight apostrophe; keep language accents intact.
 
 ### HTTP Requests
 
-- No duplicate requests for the same data — colocate queries, use caching, deduplicate at the gateway/facade level
+- No duplicate requests for the same data - colocate queries, use caching, deduplicate at the gateway/facade level
 
 ### Module exports and runtime services
 

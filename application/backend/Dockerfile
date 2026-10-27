@@ -10,7 +10,7 @@ RUN \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' >/etc/apt/apt.conf.d/keep-cache && \
     apt-get update && apt-get install -y --no-install-recommends curl ca-certificates dumb-init
 
-USER node
+USER 1000:1000
 WORKDIR /usr/src/app
 
 FROM base AS build
@@ -48,14 +48,14 @@ COPY --chown=node:node --from=build-prod /usr/src/app/prisma.config.ts /usr/src/
 COPY --chown=node:node --from=build-prod /usr/src/app/dist /usr/src/app/dist
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-    CMD curl -fsS http://localhost:3001/ready || exit 1
+    CMD ["curl", "-fsS", "http://localhost:3001/ready"]
 
 CMD ["dumb-init", "node", "--max-old-space-size=200", "/usr/src/app/dist/app/main.js"]
 
 FROM base AS tools
 
 # Install libs utils for ci
-USER root
+USER 0:0
 ENV DEBIAN_FRONTEND=noninteractive
 # hadolint ignore=DL3008
 RUN \
@@ -65,7 +65,7 @@ RUN \
     rm -f /etc/apt/apt.conf.d/docker-clean && \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' >/etc/apt/apt.conf.d/keep-cache && \
     apt-get update && apt-get install -y --no-install-recommends wait-for-it procps
-USER node
+USER 1000:1000
 
 FROM tools AS ci
 

@@ -22,6 +22,7 @@ const definitions = `
 
 // These fixtures exercise the checker against newly added code, including aliases,
 // rather than asserting a snapshot of currently compliant production files.
+// Their programs only need ECMAScript types, not DOM or ambient package declarations.
 describe('pagination guard', () => {
   it.each([
     ['accepts a shared page', `@Query(() => ItemPage) list(input: PaginationInput): ItemPage { return {} as ItemPage; }`, false],
@@ -34,7 +35,7 @@ describe('pagination guard', () => {
     const directory = mkdtempSync(join(tmpdir(), 'pleey-pagination-guard-'));
     mkdirSync(join(directory, 'src'));
     symlinkSync(resolve(process.cwd(), 'node_modules'), join(directory, 'node_modules'), 'dir');
-    writeFileSync(join(directory, 'tsconfig.json'), JSON.stringify({ compilerOptions: { experimentalDecorators: true, skipLibCheck: true }, include: ['src/*.ts'] }));
+    writeFileSync(join(directory, 'tsconfig.json'), JSON.stringify({ compilerOptions: { experimentalDecorators: true, skipLibCheck: true, lib: ['es2022'], types: [] }, include: ['src/*.ts'] }));
     writeFileSync(join(directory, 'src/resolver.ts'), `${definitions}\nclass Resolver { ${method} }`);
     try {
       // Act
@@ -57,7 +58,7 @@ describe('pagination guard', () => {
     const directory = mkdtempSync(join(tmpdir(), 'pleey-pagination-guard-'));
     mkdirSync(join(directory, 'src'));
     symlinkSync(resolve(process.cwd(), 'node_modules'), join(directory, 'node_modules'), 'dir');
-    writeFileSync(join(directory, 'tsconfig.json'), JSON.stringify({ compilerOptions: { skipLibCheck: true }, include: ['src/*.ts'] }));
+    writeFileSync(join(directory, 'tsconfig.json'), JSON.stringify({ compilerOptions: { skipLibCheck: true, lib: ['es2022'], types: [] }, include: ['src/*.ts'] }));
     writeFileSync(join(directory, 'src/repository.ts'), `declare const prisma: any; declare class PaginationQueryNormalizer { normalizeQuery(input: object): { skip: number; pageSize: number }; } declare const normalizer: PaginationQueryNormalizer; class Repository { list() { const pagination = normalizer.normalizeQuery({}); const ordering = ${order}; return prisma.$transaction([prisma.item.findMany({ ${window} orderBy: ordering })], { isolationLevel: 'RepeatableRead' }); } }`);
     try {
       // Act

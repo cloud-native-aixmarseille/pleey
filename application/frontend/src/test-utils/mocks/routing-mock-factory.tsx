@@ -22,9 +22,9 @@ interface RoutingModuleOverrides {
 
 export class RoutingMockFactory {
   createLink(): CreateLinkFn {
-    return <TProps extends object>(component: ComponentType<TProps>) => {
+    return <TProps extends object>(WrappedComponent: ComponentType<TProps>) => {
       return function MockCreatedLink({ to, ...rest }: { to: string } & Omit<TProps, 'href'>) {
-        const Component = component as ComponentType<TProps & { href?: string }>;
+        const Component = WrappedComponent as ComponentType<TProps & { href?: string }>;
 
         return createElement(Component, {
           ...(rest as TProps),
