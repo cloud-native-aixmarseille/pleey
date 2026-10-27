@@ -1,6 +1,5 @@
 import { Injectable, type LoggerService, Scope } from '@nestjs/common';
-import { context, SpanStatusCode, trace } from '@opentelemetry/api';
-import { SeverityNumber } from '@opentelemetry/api-logs';
+import { context, SeverityNumber, SpanStatusCode, trace } from '@opentelemetry/api';
 import { getLoggerProvider, isTelemetryConsoleLoggingEnabled } from './otel.config';
 
 enum LogSeverityText {
@@ -94,7 +93,7 @@ export class OtelLoggerService implements LoggerService {
       severityNumber,
       severityText,
       body,
-      attributes: logAttributes as Record<string, string | number | boolean>,
+      attributes: logAttributes,
       timestamp: Date.now(),
     });
 

@@ -4,6 +4,38 @@ import { SOLAR_GRID_THEME_ID } from '../../presentation/shared/ui/foundation/sol
 import { ThemeFixtureFactory } from '../../test-utils/fixtures/theme-fixture-factory';
 import { MantineUiAdapter } from './mantine-ui.adapter';
 
+function ThemeConsumer({
+  useThemeState,
+}: {
+  readonly useThemeState: ReturnType<MantineUiAdapter['createPort']>['useThemeState'];
+}) {
+  const {
+    activeColorScheme,
+    activeThemeId,
+    activeThemeName,
+    availableColorSchemes,
+    availableThemes,
+    setActiveColorScheme,
+    setActiveTheme,
+  } = useThemeState();
+
+  return (
+    <>
+      <span data-testid="active-color-scheme">{activeColorScheme}</span>
+      <span data-testid="active-theme-id">{activeThemeId}</span>
+      <span data-testid="active-theme-name">{activeThemeName}</span>
+      <span data-testid="color-scheme-count">{String(availableColorSchemes.length)}</span>
+      <span data-testid="theme-count">{String(availableThemes.length)}</span>
+      <button onClick={() => setActiveColorScheme('light')} type="button">
+        switch color scheme
+      </button>
+      <button onClick={() => setActiveTheme(SOLAR_GRID_THEME_ID)} type="button">
+        switch theme
+      </button>
+    </>
+  );
+}
+
 describe('MantineUiAdapter', () => {
   describe('createPort()', () => {
     it('returns a provider that renders children', () => {
@@ -27,38 +59,10 @@ describe('MantineUiAdapter', () => {
       const adapter = new MantineUiAdapter();
       const port = adapter.createPort();
 
-      function ThemeConsumer() {
-        const {
-          activeColorScheme,
-          activeThemeId,
-          activeThemeName,
-          availableColorSchemes,
-          availableThemes,
-          setActiveColorScheme,
-          setActiveTheme,
-        } = port.useThemeState();
-
-        return (
-          <>
-            <span data-testid="active-color-scheme">{activeColorScheme}</span>
-            <span data-testid="active-theme-id">{activeThemeId}</span>
-            <span data-testid="active-theme-name">{activeThemeName}</span>
-            <span data-testid="color-scheme-count">{String(availableColorSchemes.length)}</span>
-            <span data-testid="theme-count">{String(availableThemes.length)}</span>
-            <button onClick={() => setActiveColorScheme('light')} type="button">
-              switch color scheme
-            </button>
-            <button onClick={() => setActiveTheme(SOLAR_GRID_THEME_ID)} type="button">
-              switch theme
-            </button>
-          </>
-        );
-      }
-
       // Act
       render(
         <port.Provider>
-          <ThemeConsumer />
+          <ThemeConsumer useThemeState={port.useThemeState} />
         </port.Provider>,
       );
 

@@ -4,6 +4,10 @@ import { MemoryRouter, Outlet as ReactRouterOutlet, useNavigate as useReactRoute
 import { describe, expect, it } from 'vitest';
 import { ReactRouterRoutingAdapter } from './react-router-routing.adapter';
 
+function CustomAnchor({ href, children }: { href?: string; children?: React.ReactNode }) {
+  return <a href={href}>{children}</a>;
+}
+
 describe('ReactRouterRoutingAdapter', () => {
   describe('createPort()', () => {
     it('returns a port with createLink, Outlet, and useNavigate bindings', () => {
@@ -27,9 +31,6 @@ describe('ReactRouterRoutingAdapter', () => {
     it('createLink produces a component that renders the wrapped component with routing href', () => {
       // Arrange
       const port = new ReactRouterRoutingAdapter().createPort();
-      const CustomAnchor = ({ href, children }: { href?: string; children?: React.ReactNode }) => (
-        <a href={href}>{children}</a>
-      );
       const RoutedAnchor = port.createLink(CustomAnchor);
 
       // Act

@@ -238,7 +238,7 @@ describe('OrganizationResolver', () => {
     expect(organizationIdentifier.parse).toHaveBeenCalledWith(backendTestIdentifiers.organization(7));
   });
 
-  it('coerces numeric GraphQL member search ids to strings before parsing', async () => {
+  it('forwards organization member search filters with a UUID organization id', async () => {
     // Arrange
     listOrganizationMembersUseCase.execute.mockResolvedValueOnce({
       items: [],

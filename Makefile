@@ -1,7 +1,7 @@
 # Makefile for Pleey
 # Using Docker Compose V2
 
-.PHONY: help setup build up down restart logs ps rebuild shell setup-traefik traefik health migrate migrate-dev-recover seed db-shell graphql-types npm-update ci lint lint-fix linter-fix test test-watch test-ui test-ci test-chart test-install e2e-report
+.PHONY: help setup build up down restart logs ps rebuild shell setup-traefik traefik health migrate migrate-dev-recover seed db-shell graphql-types npm-update npm-audit-fix ci lint lint-fix linter-fix test test-watch test-ui test-ci test-chart test-install e2e-report
 
 # Docker Compose command (V2)
 COMPOSE := docker compose
@@ -207,7 +207,8 @@ migrate-dev-recover: ## Apply database migrations with dev recovery for existing
 	@echo "$(GREEN)Applying database migrations...$(NC)"
 	@set -e; \
 	attempt=0; \
-	max_attempts=5; \
+	migration_count="$$( $(APP_EXEC) backend sh -lc 'find prisma/migrations -mindepth 2 -maxdepth 2 -name migration.sql -type f | wc -l' )"; \
+	max_attempts=$$((migration_count * 2 + 2)); \
 	while true; do \
 		attempt=$$((attempt + 1)); \
 		if migrate_output="$$( $(APP_EXEC) backend npm run db:migrate 2>&1 )"; then \
@@ -240,6 +241,8 @@ migrate-dev-recover: ## Apply database migrations with dev recovery for existing
 			fi; \
 			echo "$(YELLOW)Detected failed migration '$$failed_migration' in dev history. Marking as applied and retrying...$(NC)"; \
 			$(APP_EXEC) backend npx prisma migrate resolve --applied "$$failed_migration"; \
+		elif printf "%s" "$$migrate_output" | grep -q "current transaction is aborted, commands ignored until end of transaction block"; then \
+			echo "$(YELLOW)Migration transaction aborted. Retrying to read the failed migration from Prisma history...$(NC)"; \
 		else \
 			exit 1; \
 		fi; \
@@ -292,11 +295,30 @@ npm-update: ## Update npm dependencies interactively in containers (SCOPE=all|ba
 			"$$package_service" npx --yes npm-check-updates@latest --interactive --install always; \
 	done
 
+npm-audit-fix: ## Fix npm vulnerabilities in containers (SCOPE=all|backend|frontend|e2e; default: all)
+	@set -e; \
+	case "$(SCOPE)" in \
+		""|all) PACKAGE_SERVICES="backend frontend e2e-tests" ;; \
+		backend|frontend) PACKAGE_SERVICES="$(SCOPE)" ;; \
+		e2e) PACKAGE_SERVICES="e2e-tests" ;; \
+		*) echo "$(RED)Unknown SCOPE '$(SCOPE)'; use all, backend, frontend, or e2e$(NC)"; exit 1 ;; \
+	esac; \
+	audit_status=0; \
+	for package_service in $$PACKAGE_SERVICES; do \
+		echo "$(GREEN)Fixing npm vulnerabilities in $$package_service...$(NC)"; \
+		$(COMPOSE) run --rm --no-deps -T \
+			--user "$(shell id -u):$(shell id -g)" \
+			--env NPM_CONFIG_CACHE=/tmp/pleey-npm-cache \
+			"$$package_service" npm audit fix || audit_status=1; \
+	done; \
+	exit $$audit_status
+
 # ==========================================
 # Linting Commands
 # ==========================================
 
 ci: ## Prepare for CI
+	$(MAKE) npm-audit-fix || true
 	$(MAKE) lint-fix
 	$(MAKE) test
 
@@ -322,19 +344,22 @@ linter-fix: ## Execute linting and fix
 	)
 
 define run_linter
+	set -eu; \
 	DEFAULT_WORKSPACE="$(CURDIR)"; \
 	LINTER_IMAGE="linter:latest"; \
 	VOLUME="$$DEFAULT_WORKSPACE:$$DEFAULT_WORKSPACE"; \
-	docker build --platform linux/amd64 --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --tag $$LINTER_IMAGE .; \
+	DEFAULT_BRANCH="$$(git -C "$$DEFAULT_WORKSPACE" rev-parse --abbrev-ref HEAD 2>/dev/null)"; \
+	docker build --platform=linux/amd64 --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) --tag $$LINTER_IMAGE .; \
 	docker run \
-		--platform linux/amd64 \
+		--platform=linux/amd64 \
 		-v $$VOLUME \
 		--rm \
 		-e DEFAULT_WORKSPACE="$$DEFAULT_WORKSPACE" \
+		-e DEFAULT_BRANCH="$$DEFAULT_BRANCH" \
+		-e USE_FIND_ALGORITHM=false \
 		-e FILTER_REGEX_INCLUDE="$(filter-out $@,$(MAKECMDGOALS))" \
 		-e VALIDATE_BIOME_FORMAT=false \
 		-e VALIDATE_BIOME_LINT=false \
-		-e KUBERNETES_KUBECONFORM_OPTIONS='-ignore-missing-schemas -ignore-filename-pattern .*Chart\.yaml -ignore-filename-pattern .*values.*\.yaml -ignore-filename-pattern .*values\.schema\.json -ignore-filename-pattern charts/.*/templates/.* -ignore-filename-pattern charts/.*/crds/.*' \
 		$(1) \
 		$$LINTER_IMAGE
 endef

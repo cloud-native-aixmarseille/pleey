@@ -151,7 +151,7 @@ export function AsyncCombobox({
 
     const nextSelectedIndex = value === null ? 0 : options.findIndex((option) => option.value === value);
 
-    setSelectedOptionIndex(nextSelectedIndex >= 0 ? nextSelectedIndex : 0);
+    setSelectedOptionIndex(Math.max(nextSelectedIndex, 0));
   }, [options, value]);
 
   useEffect(() => {

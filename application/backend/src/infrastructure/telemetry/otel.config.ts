@@ -2,13 +2,13 @@ import { ok as assert } from 'node:assert';
 import { createConnection } from 'node:net';
 import process from 'node:process';
 import { URL } from 'node:url';
-import { DiagConsoleLogger, DiagLogLevel, diag } from '@opentelemetry/api';
+import { DiagConsoleLogger, DiagLogLevel, diag, type LoggerProvider, logs } from '@opentelemetry/api';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-http';
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
-import { resourceFromAttributes } from '@opentelemetry/resources';
-import { BatchLogRecordProcessor, ConsoleLogRecordExporter, LoggerProvider } from '@opentelemetry/sdk-logs';
+import { defaultResource, resourceFromAttributes } from '@opentelemetry/resources';
+import { BatchLogRecordProcessor, ConsoleLogRecordExporter } from '@opentelemetry/sdk-logs';
 import { ConsoleMetricExporter, PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
@@ -25,37 +25,22 @@ export type OpenTelemetryConfig = {
 let telemetryConfig: OpenTelemetryConfig | undefined;
 
 function createResource(config: OpenTelemetryConfig) {
-  return resourceFromAttributes({
-    [ATTR_SERVICE_NAME]: 'quiz-backend',
-    [ATTR_SERVICE_VERSION]: '1.0.0',
-    environment: config.environment,
-  });
+  return defaultResource().merge(
+    resourceFromAttributes({
+      [ATTR_SERVICE_NAME]: 'quiz-backend',
+      [ATTR_SERVICE_VERSION]: '1.0.0',
+      environment: config.environment,
+    }),
+  );
 }
 
-function createLoggerProvider(
-  resource: ReturnType<typeof createResource>,
-  logExporter?: OTLPLogExporter | ConsoleLogRecordExporter,
-): LoggerProvider {
-  return new LoggerProvider({
-    resource,
-    processors: logExporter
-      ? [
-          new BatchLogRecordProcessor({
-            exporter: logExporter,
-          }),
-        ]
-      : [],
-  });
-}
-
-let loggerProvider: LoggerProvider | undefined;
 let otelSDK: NodeSDK | null = null;
 
 let shutdownHookRegistered = false;
 
 export function getLoggerProvider(): LoggerProvider {
-  assert(loggerProvider, 'OpenTelemetry must be initialized before accessing the logger provider');
-  return loggerProvider;
+  assert(otelSDK, 'OpenTelemetry must be initialized before accessing the logger provider');
+  return logs.getLoggerProvider();
 }
 
 export function isTelemetryConsoleLoggingEnabled(): boolean {
@@ -155,9 +140,11 @@ export async function initializeOpenTelemetry(config: OpenTelemetryConfig): Prom
   }
 
   const endpoint = config.endpoint?.trim();
+  let activeEndpoint = endpoint;
   let useConsoleExporters = !endpoint && config.consoleExportersEnabled;
 
   if (endpoint && !(await isEndpointReachable(endpoint))) {
+    activeEndpoint = undefined;
     if (config.consoleExportersEnabled) {
       console.warn(`[Telemetry] Unable to reach OTLP endpoint ${endpoint}. Falling back to console exporters.`);
       useConsoleExporters = true;
@@ -166,20 +153,17 @@ export async function initializeOpenTelemetry(config: OpenTelemetryConfig): Prom
     }
   }
 
-  const activeEndpoint = useConsoleExporters ? undefined : endpoint;
-
   const { traceExporter, metricExporter, logExporter } = buildExporters(
     useConsoleExporters,
     activeEndpoint,
     config.headersJson,
   );
 
-  loggerProvider = createLoggerProvider(resource, logExporter);
-  telemetryConfig = config;
-
-  otelSDK = new NodeSDK({
+  const sdk = new NodeSDK({
     resource,
     traceExporter,
+    spanProcessors: traceExporter ? undefined : [],
+    logRecordProcessors: logExporter ? [new BatchLogRecordProcessor({ exporter: logExporter })] : [],
     metricReaders: metricExporter
       ? [
           new PeriodicExportingMetricReader({
@@ -197,7 +181,9 @@ export async function initializeOpenTelemetry(config: OpenTelemetryConfig): Prom
     ],
   });
 
-  await otelSDK.start();
+  sdk.start();
+  otelSDK = sdk;
+  telemetryConfig = config;
 
   if (!shutdownHookRegistered) {
     process.on('SIGTERM', () => {

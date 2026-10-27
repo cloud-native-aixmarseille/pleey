@@ -10,6 +10,11 @@ function MockProvider({ children }: PropsWithChildren) {
   return <div data-testid="mock-ui-provider">{children}</div>;
 }
 
+function RefreshedThemeProbe({ useThemeState }: { readonly useThemeState: typeof usePresentationThemeState }) {
+  const { activeThemeName } = useThemeState();
+  return <span>{activeThemeName}</span>;
+}
+
 function ThemeStateProbe() {
   const { activeColorScheme, activeThemeId, activeThemeName, availableColorSchemes, availableThemes } =
     usePresentationThemeState();
@@ -32,13 +37,9 @@ describe('provider', () => {
     const { usePresentationThemeState: useRefreshedThemeState } = (await import(
       /* @vite-ignore */ refreshedModulePath
     )) as typeof import('./provider');
-    function RefreshedThemeProbe() {
-      const { activeThemeName } = useRefreshedThemeState();
-      return <span>{activeThemeName}</span>;
-    }
 
     // Act
-    renderWithUiProvider(<RefreshedThemeProbe />);
+    renderWithUiProvider(<RefreshedThemeProbe useThemeState={useRefreshedThemeState} />);
 
     // Assert
     expect(screen.getByText('Cyber Arcade')).toBeInTheDocument();

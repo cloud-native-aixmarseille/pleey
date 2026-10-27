@@ -35,6 +35,47 @@ function ShortcutProbe({
   return <input aria-label="shortcut-input" />;
 }
 
+function ScopePriorityProbe({
+  onGlobalTrigger,
+  onScopedTrigger,
+}: {
+  readonly onGlobalTrigger: () => void;
+  readonly onScopedTrigger: () => void;
+}) {
+  useShortcutScope('test-scope', { priority: 10 });
+  useKeyboardShortcut({
+    combo: { key: 'x' },
+    descriptionKey: 'shared.keyboard.shortcutsHelp',
+    execute: onGlobalTrigger,
+    id: 'global-x-trigger',
+    scope: 'global',
+  });
+  useKeyboardShortcut({
+    combo: { key: 'x' },
+    descriptionKey: 'shared.keyboard.shortcutsHelp',
+    execute: onScopedTrigger,
+    id: 'scoped-x-trigger',
+    scope: 'test-scope',
+  });
+
+  return <div>Scope priority</div>;
+}
+
+function DuplicateShortcutProbe({
+  renderFirst,
+  onGlobalTrigger,
+}: {
+  readonly renderFirst: boolean;
+  readonly onGlobalTrigger: () => void;
+}) {
+  return (
+    <>
+      {renderFirst ? <ShortcutProbe onGlobalTrigger={onGlobalTrigger} /> : null}
+      <ShortcutProbe onGlobalTrigger={onGlobalTrigger} />
+    </>
+  );
+}
+
 describe('KeyboardShortcutsProvider', () => {
   it('opens the shortcuts help dialog with the global question-mark shortcut', async () => {
     // Arrange
@@ -69,27 +110,7 @@ describe('KeyboardShortcutsProvider', () => {
     const onGlobalTrigger = vi.fn();
     const onScopedTrigger = vi.fn();
 
-    function ScopePriorityProbe() {
-      useShortcutScope('test-scope', { priority: 10 });
-      useKeyboardShortcut({
-        combo: { key: 'x' },
-        descriptionKey: 'shared.keyboard.shortcutsHelp',
-        execute: onGlobalTrigger,
-        id: 'global-x-trigger',
-        scope: 'global',
-      });
-      useKeyboardShortcut({
-        combo: { key: 'x' },
-        descriptionKey: 'shared.keyboard.shortcutsHelp',
-        execute: onScopedTrigger,
-        id: 'scoped-x-trigger',
-        scope: 'test-scope',
-      });
-
-      return <div>Scope priority</div>;
-    }
-
-    renderWithProviders(<ScopePriorityProbe />);
+    renderWithProviders(<ScopePriorityProbe onGlobalTrigger={onGlobalTrigger} onScopedTrigger={onScopedTrigger} />);
 
     // Act
     fireEvent.keyDown(document, { key: 'x' });
@@ -103,23 +124,14 @@ describe('KeyboardShortcutsProvider', () => {
     // Arrange
     const onGlobalTrigger = vi.fn();
 
-    function DuplicateShortcutProbe({ renderFirst }: { readonly renderFirst: boolean }) {
-      return (
-        <>
-          {renderFirst ? <ShortcutProbe onGlobalTrigger={onGlobalTrigger} /> : null}
-          <ShortcutProbe onGlobalTrigger={onGlobalTrigger} />
-        </>
-      );
-    }
-
-    const view = renderWithProviders(<DuplicateShortcutProbe renderFirst />);
+    const view = renderWithProviders(<DuplicateShortcutProbe onGlobalTrigger={onGlobalTrigger} renderFirst />);
 
     // Act
     fireEvent.keyDown(document, { key: 'k' });
     // Assert
     expect(onGlobalTrigger).toHaveBeenCalledTimes(1);
 
-    view.rerender(<DuplicateShortcutProbe renderFirst={false} />);
+    view.rerender(<DuplicateShortcutProbe onGlobalTrigger={onGlobalTrigger} renderFirst={false} />);
 
     fireEvent.keyDown(document, { key: 'k' });
     expect(onGlobalTrigger).toHaveBeenCalledTimes(2);
