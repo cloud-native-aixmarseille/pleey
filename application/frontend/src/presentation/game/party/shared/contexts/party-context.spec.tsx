@@ -6,6 +6,7 @@ import type { GuestUsernameGeneratorPort } from '../../../../../domains/game/par
 import type { PartyGuestSessionPort } from '../../../../../domains/game/party/player/ports/party-guest-session.port';
 import type { PartyPlayerPort } from '../../../../../domains/game/party/player/ports/party-player.port';
 import type { PartyId } from '../../../../../domains/game/party/shared/entities/party';
+import { PartyRuntimePhase } from '../../../../../domains/game/party/shared/entities/party-runtime-context';
 import { PartyStatus } from '../../../../../domains/game/party/shared/entities/party-status';
 import type {
   PartyObservationConnectionState,
@@ -14,12 +15,14 @@ import type {
 } from '../../../../../domains/game/party/shared/ports/party-observation.port';
 import { PartyRuntimeNoticeKind } from '../../../../../domains/game/party/shared/ports/party-observation.port';
 import { PartyFixtureFactory } from '../../../../../test-utils/fixtures/party-fixture-factory';
+import { PartyScoreboardFixtureFactory } from '../../../../../test-utils/fixtures/party-scoreboard-fixture-factory';
 import { PartyIdentifierMockFactory } from '../../../../../test-utils/mocks/party-identifier-mock-factory';
 import { PartyPinIdentifierMockFactory } from '../../../../../test-utils/mocks/party-pin-identifier-mock-factory';
 import { StageIdentifierMockFactory } from '../../../../../test-utils/mocks/stage-identifier-mock-factory';
 import { PlayerRuntimeNoticeMessageResolver } from '../../player/screens/components/player-runtime-notice-message-resolver';
 import { GuestPartyEntryDraftFactory } from '../../player/screens/guest-party-entry-draft-factory';
 import { PartyLobbyRuntimeRedirectResolver } from '../screens/party-lobby-runtime-redirect-resolver';
+import { usePartyStageScoreboardSnapshot } from '../screens/use-party-stage-scoreboard-snapshot';
 import { PartyProvider, useParty } from './party-context';
 import { type PartyDependencies, providePartyDependencies } from './party-dependencies-context';
 
@@ -93,6 +96,64 @@ const partyObservationPort = {
 } as unknown as PartyObservationPort;
 
 describe('PartyProvider', () => {
+  it('retains complete stage standings through reconnects and result consumer rerenders', () => {
+    // Arrange
+    const fixtures = new PartyScoreboardFixtureFactory();
+    const stage = fixtures.createObservation();
+    const result = fixtures.createObservation({
+      phase: PartyRuntimePhase.RESULT,
+      players: stage.players.map((player) => ({ ...player, totalScore: 900 })),
+    });
+    const callbacks: { handlers?: PartyObservationHandlers } = {};
+    const observeParty = vi.fn((_: PartyId, handlers: PartyObservationHandlers) => {
+      callbacks.handlers = handlers;
+      return vi.fn();
+    });
+    const wrapper = ({ children }: PropsWithChildren) =>
+      providePartyDependencies(<PartyProvider port={{ observeParty }}>{children}</PartyProvider>, {
+        guestPartyEntryDraftFactory,
+        hostPartyRuntimeControlsResolver,
+        partyLobbyFacade,
+        partyLobbyRuntimeRedirectResolver,
+        partyGuestSessionPort,
+        partyIdentifier,
+        partyHostControlPort,
+        partyManagementPort,
+        partyObservationPort,
+        partyPinIdentifier,
+        partyPlayerPort,
+        playerRuntimeNoticeMessageResolver,
+        privatePartyPasswordGeneratorPort: { generatePrivatePartyPassword: vi.fn(() => 'TestPassword1234') },
+        stageIdentifier,
+      });
+    const rendered = renderHook(() => ({ party: useParty(), scoreboard: usePartyStageScoreboardSnapshot(result) }), {
+      wrapper,
+    });
+    // Act
+    act(() => {
+      rendered.result.current.party.observePartyById(stage.partyId);
+    });
+    act(() => {
+      callbacks.handlers?.onSnapshot(stage);
+    });
+    act(() => {
+      callbacks.handlers?.onSnapshot(result);
+    });
+    act(() => {
+      callbacks.handlers?.onDisconnected?.();
+    });
+    act(() => {
+      callbacks.handlers?.onConnected?.({ epoch: 2, recovered: true, reconnected: true });
+    });
+    act(() => {
+      callbacks.handlers?.onSnapshot(result);
+    });
+    rendered.rerender();
+    // Assert
+    expect(rendered.result.current.scoreboard.previousPlayers).toEqual(stage.players);
+    expect(rendered.result.current.scoreboard.players).toEqual(result.players);
+  });
+
   it('shares one underlying observation per party id and updates state from snapshots', () => {
     // Arrange
     const observeParty = vi.fn((partyId: PartyId, handlers: PartyObservationHandlers) => {

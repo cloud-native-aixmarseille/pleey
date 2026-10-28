@@ -44,6 +44,9 @@ function sortPlayers(players: readonly PartyObservationPlayer[]): readonly Party
       return right.totalScore - left.totalScore;
     }
 
-    return left.username.localeCompare(right.username);
+    return (
+      left.username.localeCompare(right.username) ||
+      toPartyFinalSummaryPlayerKey(left).localeCompare(toPartyFinalSummaryPlayerKey(right))
+    );
   });
 }

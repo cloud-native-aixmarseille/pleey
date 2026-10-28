@@ -21,6 +21,8 @@ export const gamePartyPlayerEn = {
           shuffleGuestAvatarCta: 'Shuffle avatar',
           stageMenuLabel: 'Open stage menu',
           waitingForHost: 'Waiting for the host to start the game...',
+          scoringExplanation:
+            'Correct answers earn about 80% of the points, plus up to 20% for speed. Wrong answers earn 0. Without a timer, correct answers earn full points.',
           currentHost: 'Hosted by {{username}}',
           actionSubmitting: 'Submitting your answer...',
           actionLocked: 'Your answer is locked in.',

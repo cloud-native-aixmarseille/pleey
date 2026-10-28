@@ -13,6 +13,8 @@ import {
 } from '../ports/game-type-party-action-policy-registry.port';
 import { PartyStageCatalogPort } from '../ports/party-stage-catalog.port';
 
+const SPEED_BONUS_SHARE = 0.2;
+
 @Injectable()
 export class ChoiceSubmissionPartyActionPolicy extends GameTypePartyActionPolicy {
   constructor(
@@ -71,20 +73,11 @@ export class ChoiceSubmissionPartyActionPolicy extends GameTypePartyActionPolicy
     stagePoints: number,
     isCorrect: boolean,
   ): number {
-    if (!isCorrect || stagePoints <= 0) {
-      return 0;
-    }
-
     const totalDurationMs = (command.context?.lifecycle.stageTimeLimitSeconds ?? 0) * 1_000;
     const stageEndsAtEpochMs = command.context?.lifecycle.stageEndsAtEpochMs ?? null;
+    const remainingDurationMs = stageEndsAtEpochMs === null ? null : stageEndsAtEpochMs - Date.now();
 
-    if (totalDurationMs <= 0 || stageEndsAtEpochMs === null) {
-      return stagePoints;
-    }
-
-    const remainingDurationMs = stageEndsAtEpochMs - Date.now();
-
-    if (remainingDurationMs <= 0) {
+    if (remainingDurationMs !== null && remainingDurationMs <= 0) {
       throw new PartyCommandNotAvailableError({
         actionId: command.actionId,
         gameId: command.gameId,
@@ -95,8 +88,18 @@ export class ChoiceSubmissionPartyActionPolicy extends GameTypePartyActionPolicy
       });
     }
 
-    const boundedRemainingDurationMs = Math.min(totalDurationMs, remainingDurationMs);
+    if (!isCorrect || stagePoints <= 0) {
+      return 0;
+    }
 
-    return Math.max(1, Math.ceil((stagePoints * boundedRemainingDurationMs) / totalDurationMs));
+    if (totalDurationMs <= 0 || remainingDurationMs === null) {
+      return stagePoints;
+    }
+
+    const speedBonusCap = Math.round(stagePoints * SPEED_BONUS_SHARE);
+    const correctAnswerPoints = stagePoints - speedBonusCap;
+    const speedRatio = Math.min(1, Math.max(0, remainingDurationMs / totalDurationMs));
+
+    return correctAnswerPoints + Math.round(speedBonusCap * speedRatio);
   }
 }

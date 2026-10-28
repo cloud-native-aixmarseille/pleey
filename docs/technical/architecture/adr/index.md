@@ -55,3 +55,4 @@ If a change can alter how the system is structured, operated, or extended, it ne
 - 0014: [Unify resource-scoped permissions across backend and frontend](./0014-unify-resource-scoped-permissions.md) - Accepted - 2026-10-12
 - 0015: [Use Chokidar 5 for translation watching](./0015-use-chokidar-5-for-translation-watching.md) - Proposed - 2026-10-12
 - 0016: [Accept localized true/false import values](./0016-accept-localized-true-false-import-values.md) - Proposed - 2026-10-15
+- 0017: [Reward correct answers before speed in game scoring](./0017-reward-action-quality-before-speed-in-game-scoring.md) - Accepted - 2026-10-28

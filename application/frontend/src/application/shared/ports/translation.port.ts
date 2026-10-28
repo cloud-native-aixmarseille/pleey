@@ -1,5 +1,5 @@
 export interface TranslationVariables {
-  readonly [name: string]: string;
+  readonly [name: string]: string | number;
 }
 
 export interface TranslationPort {

@@ -208,8 +208,12 @@ describe('TranslationResourceComposer', () => {
       const resources = translationResourceComposer.compose();
       const englishTranslationKeys = flattenTranslationKeys(resources.en.translation).sort();
       const frenchTranslationKeys = flattenTranslationKeys(resources.fr.translation).sort();
-      const englishKeys = new Set(englishTranslationKeys);
-      const frenchKeys = new Set(frenchTranslationKeys);
+      const englishKeys = new Set(
+        englishTranslationKeys.flatMap((key) => [key, key.replace(/_(zero|one|two|few|many|other)$/, '')]),
+      );
+      const frenchKeys = new Set(
+        frenchTranslationKeys.flatMap((key) => [key, key.replace(/_(zero|one|two|few|many|other)$/, '')]),
+      );
       const { exactKeys, rootedKeys } = collectFrontendTranslationReferences(sourceDirectory);
       const effectiveEnglishRoots = [...rootedKeys, ...collectDefinedReferenceRoots(exactKeys, englishTranslationKeys)];
       const effectiveFrenchRoots = [...rootedKeys, ...collectDefinedReferenceRoots(exactKeys, frenchTranslationKeys)];
@@ -234,9 +238,14 @@ describe('TranslationResourceComposer', () => {
       const effectiveRoots = [...rootedKeys, ...collectDefinedReferenceRoots(exactKeys, englishKeys)];
 
       // Assert
-      expect(englishKeys.filter((key) => !exactKeys.includes(key) && !isCoveredByRoot(key, effectiveRoots))).toEqual(
-        [],
-      );
+      expect(
+        englishKeys.filter(
+          (key) =>
+            !exactKeys.includes(key) &&
+            !exactKeys.includes(key.replace(/_(zero|one|two|few|many|other)$/, '')) &&
+            !isCoveredByRoot(key, effectiveRoots),
+        ),
+      ).toEqual([]);
     });
   });
 });
