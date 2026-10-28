@@ -1357,6 +1357,7 @@ describe('PartyLobbyScreen', () => {
     expect(screen.getByText('game.party.route.playerCount (count=2)')).toBeInTheDocument();
     expect(screen.getByText('game.party.route.youBadge')).toBeInTheDocument();
     expect(screen.getByText('game.party.player.route.waitingForHost')).toBeInTheDocument();
+    expect(screen.getByText('game.party.player.route.scoringExplanation')).toBeInTheDocument();
     expect(screen.getByText('game.party.player.route.currentHost (username=Host)')).toBeInTheDocument();
     expect(screen.queryByAltText('Host avatar')).not.toBeInTheDocument();
   });

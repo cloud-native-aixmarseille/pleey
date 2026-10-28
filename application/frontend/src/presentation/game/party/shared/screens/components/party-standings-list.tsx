@@ -10,7 +10,7 @@ import { ElevatedPanel, InsetPanel } from '../../../../../shared/ui/layout/panel
 import { Heading, SupportingText } from '../../../../../shared/ui/layout/typography';
 import { MotionStagger, MotionStaggerItem } from '../../../../../shared/ui/motion/motion-primitives';
 import { usePrefersReducedMotion } from '../../../../../shared/ui/motion/use-prefers-reduced-motion';
-import { toPartyFinalSummaryPlayerKey } from './party-final-summary-panel.model';
+import { createPartyFinalSummaryModel, toPartyFinalSummaryPlayerKey } from './party-final-summary-panel.model';
 import {
   mobileRankGroupStyle,
   mobileStandingsIdentityStyle,
@@ -33,7 +33,7 @@ interface PartyStandingsListProps {
   readonly initialDelay?: number;
   readonly isMobile?: boolean;
   readonly players: readonly PartyObservationPlayer[];
-  readonly previousScores?: ReadonlyMap<string, number>;
+  readonly previousPlayers?: readonly PartyObservationPlayer[];
   readonly staggerDelay?: number;
   readonly testIdPrefix: string;
   readonly totalStages: number;
@@ -53,7 +53,7 @@ export function PartyStandingsList({
   initialDelay = 0.08,
   isMobile = false,
   players,
-  previousScores,
+  previousPlayers,
   staggerDelay = 0.05,
   testIdPrefix,
   totalStages,
@@ -62,9 +62,9 @@ export function PartyStandingsList({
   const { t } = usePresentationTranslation();
   const title = titleProp ?? t('game.party.route.finalSummaryStandingsTitle');
 
-  const hasPreviousData = (previousScores?.size ?? 0) > 0;
+  const hasPreviousData = previousPlayers !== undefined;
 
-  const rankedPlayers = useMemo(() => buildRankedPlayers(players, previousScores), [players, previousScores]);
+  const rankedPlayers = useMemo(() => buildRankedPlayers(players, previousPlayers), [players, previousPlayers]);
 
   if (rankedPlayers.length === 0) {
     return null;
@@ -273,14 +273,18 @@ interface ResponseStatsProps {
   readonly t: ReturnType<typeof usePresentationTranslation>['t'];
   readonly toScore: number;
   readonly totalStages: number;
+  readonly stagePoints: number | null;
 }
 
-function ResponseStats({ correctStages, fromScore, t, toScore, totalStages }: ResponseStatsProps) {
+function ResponseStats({ correctStages, fromScore, t, toScore, totalStages, stagePoints }: ResponseStatsProps) {
   return (
     <div style={standingsResponseStatsStyle}>
       <Badge tone="accent">
         <AnimatedScore from={fromScore} t={t} to={toScore} />
       </Badge>
+      {stagePoints !== null ? (
+        <SupportingText size="sm">{t('game.party.route.stageResultsPoints', { count: stagePoints })}</SupportingText>
+      ) : null}
       <SupportingText tone="soft" size="sm">
         {t('game.party.route.finalLeaderboardResponseSuccessRatio', {
           correct: String(correctStages),
@@ -301,7 +305,7 @@ function DesktopStandingsRow({
   totalStages,
 }: StandingsRowVariantProps) {
   const { player, previousScore } = entry;
-  const fromScore = revealed ? (previousScore ?? 0) : (previousScore ?? player.totalScore);
+  const fromScore = previousScore ?? player.totalScore;
   const toScore = revealed ? player.totalScore : (previousScore ?? player.totalScore);
 
   return (
@@ -320,6 +324,7 @@ function DesktopStandingsRow({
         </div>
         <ResponseStats
           correctStages={player.correctStages}
+          stagePoints={showDelta && revealed && previousScore !== null ? player.totalScore - previousScore : null}
           fromScore={fromScore}
           t={t}
           toScore={toScore}
@@ -340,7 +345,7 @@ function MobileStandingsRow({
   totalStages,
 }: StandingsRowVariantProps) {
   const { player, previousScore } = entry;
-  const fromScore = revealed ? (previousScore ?? 0) : (previousScore ?? player.totalScore);
+  const fromScore = previousScore ?? player.totalScore;
   const toScore = revealed ? player.totalScore : (previousScore ?? player.totalScore);
 
   return (
@@ -353,6 +358,7 @@ function MobileStandingsRow({
           </div>
           <ResponseStats
             correctStages={player.correctStages}
+            stagePoints={showDelta && revealed && previousScore !== null ? player.totalScore - previousScore : null}
             fromScore={fromScore}
             t={t}
             toScore={toScore}
@@ -448,7 +454,7 @@ function AnimatedScore({ from, t, to }: AnimatedScoreProps) {
 interface RankChange {
   readonly kind: 'up' | 'down' | 'same' | 'new';
   readonly labelKey: string;
-  readonly labelValues?: Record<string, string>;
+  readonly labelValues?: Record<string, string | number>;
   readonly tone: 'success' | 'warning' | 'neutral' | 'info';
 }
 
@@ -467,7 +473,7 @@ function computeRankChange(entry: RankedPlayer): RankChange | null {
     return {
       kind: 'up',
       labelKey: 'game.party.route.stageResultsRankChangeUp',
-      labelValues: { count: String(delta) },
+      labelValues: { count: delta },
       tone: 'success',
     };
   }
@@ -476,7 +482,7 @@ function computeRankChange(entry: RankedPlayer): RankChange | null {
     return {
       kind: 'down',
       labelKey: 'game.party.route.stageResultsRankChangeDown',
-      labelValues: { count: String(-delta) },
+      labelValues: { count: -delta },
       tone: 'warning',
     };
   }
@@ -490,61 +496,25 @@ function computeRankChange(entry: RankedPlayer): RankChange | null {
 
 function buildRankedPlayers(
   players: readonly PartyObservationPlayer[],
-  previousScores: ReadonlyMap<string, number> | undefined,
+  previousPlayers: readonly PartyObservationPlayer[] | undefined,
 ): readonly RankedPlayer[] {
-  const sortedByCurrent = sortByScore(players);
-  const sortedByPrevious = previousScores ? sortByPreviousScore(players, previousScores) : sortedByCurrent;
+  const sortedByCurrent = createPartyFinalSummaryModel(players).rankedPlayers;
+  const previousByKey = new Map(
+    createPartyFinalSummaryModel(previousPlayers ?? []).rankedPlayers.map((player, index) => [
+      toPartyFinalSummaryPlayerKey(player),
+      { rank: index + 1, score: player.totalScore },
+    ]),
+  );
 
-  const currentRankByKey = new Map<string, number>();
-  sortedByCurrent.forEach((player, index) => {
-    currentRankByKey.set(toPartyFinalSummaryPlayerKey(player), index + 1);
-  });
-
-  const previousRankByKey = new Map<string, number>();
-  if (previousScores) {
-    sortedByPrevious.forEach((player, index) => {
-      const key = toPartyFinalSummaryPlayerKey(player);
-      if (previousScores.has(key)) {
-        previousRankByKey.set(key, index + 1);
-      }
-    });
-  }
-
-  return sortedByCurrent.map((player) => {
+  return sortedByCurrent.map((player, index) => {
     const key = toPartyFinalSummaryPlayerKey(player);
-    const previousScore = previousScores?.get(key);
+    const previous = previousByKey.get(key);
     return {
-      currentRank: currentRankByKey.get(key) ?? 0,
+      currentRank: index + 1,
       key,
       player,
-      previousRank: previousRankByKey.get(key) ?? null,
-      previousScore: previousScore ?? null,
+      previousRank: previous?.rank ?? null,
+      previousScore: previous?.score ?? null,
     } satisfies RankedPlayer;
-  });
-}
-
-function sortByScore(players: readonly PartyObservationPlayer[]): readonly PartyObservationPlayer[] {
-  return [...players].sort((a, b) => {
-    if (b.totalScore !== a.totalScore) {
-      return b.totalScore - a.totalScore;
-    }
-
-    return a.username.localeCompare(b.username);
-  });
-}
-
-function sortByPreviousScore(
-  players: readonly PartyObservationPlayer[],
-  previousScores: ReadonlyMap<string, number>,
-): readonly PartyObservationPlayer[] {
-  return [...players].sort((a, b) => {
-    const aScore = previousScores.get(toPartyFinalSummaryPlayerKey(a)) ?? -1;
-    const bScore = previousScores.get(toPartyFinalSummaryPlayerKey(b)) ?? -1;
-
-    if (bScore !== aScore) {
-      return bScore - aScore;
-    }
-
-    return a.username.localeCompare(b.username);
   });
 }

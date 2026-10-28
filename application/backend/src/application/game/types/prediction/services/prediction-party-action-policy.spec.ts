@@ -55,7 +55,7 @@ describe('PredictionPartyActionPolicy', () => {
     expect(partyStageCatalog.findStageById).toHaveBeenCalledWith(gameId, stageId);
     expect(resolution).toEqual({
       context,
-      scoreDelta: 125,
+      scoreDelta: 225,
       status: PartyStatus.ACTIVE,
     });
   });

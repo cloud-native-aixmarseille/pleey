@@ -1,6 +1,7 @@
 import type { PartyObservation } from '../../../../../../domains/game/party/shared/entities/party-observation';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { ContentStack } from '../../../../../shared/ui/layout/containers';
+import { SupportingText } from '../../../../../shared/ui/layout/typography';
 import { PartyLobbyPlayersPanel } from '../../../shared/screens/components/party-lobby-players-panel';
 import { PlayerPartyStatusBar } from './player-party-status-bar';
 
@@ -15,6 +16,10 @@ export function PlayerLobbySurface({ onLeaveParty, party }: PlayerLobbySurfacePr
   return (
     <ContentStack gap="lg">
       <PlayerPartyStatusBar onLeaveParty={onLeaveParty} party={party} variant="lobby" />
+
+      <SupportingText size="sm" tone="soft">
+        {t('game.party.player.route.scoringExplanation')}
+      </SupportingText>
 
       <PartyLobbyPlayersPanel
         ariaLabel={t('game.party.route.playersLabel')}

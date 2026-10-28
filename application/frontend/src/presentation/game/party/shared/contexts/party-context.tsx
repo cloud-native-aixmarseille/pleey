@@ -9,6 +9,8 @@ import type {
 } from '../../../../../domains/game/party/shared/ports/party-observation.port';
 import { PartyProviderRequiredError } from '../../../../../domains/shared/errors/presentation-context-error-code';
 import { usePartyDependencies } from './party-dependencies-context';
+import { type PartyStageScoreboardSnapshot, updatePartyStageScoreboard } from './party-stage-scoreboard.model';
+import { PartyStageScoreboardContext } from './party-stage-scoreboard-context';
 
 interface PartyObservationStateValue {
   readonly currentErrorMessage: string | null;
@@ -42,6 +44,7 @@ interface PartyRegistration {
 export function PartyProvider({ children, port }: PartyProviderProps) {
   usePartyDependencies();
   const [currentParty, setCurrentParty] = useState<PartyObservation | null>(null);
+  const [stageScoreboard, setStageScoreboard] = useState<PartyStageScoreboardSnapshot | null>(null);
   const [currentErrorMessage, setCurrentErrorMessage] = useState<string | null>(null);
   const [currentErrorPartyId, setCurrentErrorPartyId] = useState<PartyId | null>(null);
   const [currentRuntimeNotice, setCurrentRuntimeNotice] = useState<PartyRuntimeNotice | null>(null);
@@ -145,6 +148,7 @@ export function PartyProvider({ children, port }: PartyProviderProps) {
       onSnapshot: (party) => {
         if (!active || party.partyId !== partyId) return;
         startTransition(() => {
+          setStageScoreboard((previous) => updatePartyStageScoreboard(previous, party));
           setCurrentParty(party);
           setCurrentErrorMessage(null);
           setCurrentErrorPartyId(null);
@@ -188,6 +192,7 @@ export function PartyProvider({ children, port }: PartyProviderProps) {
   function clearCurrentObservation(): void {
     startTransition(() => {
       setCurrentParty(null);
+      setStageScoreboard(null);
       setCurrentErrorMessage(null);
       setCurrentErrorPartyId(null);
       setCurrentRuntimeNotice(null);
@@ -202,7 +207,11 @@ export function PartyProvider({ children, port }: PartyProviderProps) {
     ...actionsRef.current,
   };
 
-  return <PartyContext.Provider value={value}>{children}</PartyContext.Provider>;
+  return (
+    <PartyContext.Provider value={value}>
+      <PartyStageScoreboardContext.Provider value={stageScoreboard}>{children}</PartyStageScoreboardContext.Provider>
+    </PartyContext.Provider>
+  );
 }
 
 export function useParty(): PartyContextValue {

@@ -39,7 +39,7 @@ export function PlayableChoicePlayerResultSurface({
   const currentResult = result?.current;
   const currentPlayerResult = result?.currentPlayer;
   const currentPlayerTotalScore = party.players.find((player) => player.isCurrentPlayer)?.totalScore;
-  const previousScores = usePartyStageScoreboardSnapshot(party.players, stagePosition);
+  const scoreboard = usePartyStageScoreboardSnapshot(party);
 
   if (!currentResult || stagePosition === null || stagePosition === undefined) {
     return null;
@@ -149,8 +149,8 @@ export function PlayableChoicePlayerResultSurface({
 
           <PartyStandingsList
             isMobile={isMobile}
-            players={party.players}
-            previousScores={previousScores}
+            players={scoreboard.players}
+            previousPlayers={scoreboard.previousPlayers}
             testIdPrefix={`${testIdPrefix}-stage-result-rankings`}
             totalStages={totalStages}
             title={t('game.party.route.stageResultsStandingsTitle')}
@@ -181,8 +181,8 @@ export function PlayableChoicePlayerResultSurface({
 
         <PartyStandingsList
           isMobile={isMobile}
-          players={party.players}
-          previousScores={previousScores}
+          players={scoreboard.players}
+          previousPlayers={scoreboard.previousPlayers}
           testIdPrefix={`${testIdPrefix}-stage-result-rankings`}
           totalStages={totalStages}
           title={t('game.party.route.stageResultsStandingsTitle')}

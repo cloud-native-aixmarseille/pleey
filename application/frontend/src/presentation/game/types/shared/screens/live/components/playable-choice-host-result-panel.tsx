@@ -12,7 +12,7 @@ export function PlayableChoiceHostResultPanel({ copy, party, testIdPrefix }: Pla
   const { t } = usePresentationTranslation();
   const stagePosition = party.context?.lifecycle.stagePosition;
   const result = party.context?.result?.current;
-  const previousScores = usePartyStageScoreboardSnapshot(party.players, stagePosition);
+  const scoreboard = usePartyStageScoreboardSnapshot(party);
 
   if (!result || stagePosition === null || stagePosition === undefined) {
     return null;
@@ -56,8 +56,8 @@ export function PlayableChoiceHostResultPanel({ copy, party, testIdPrefix }: Pla
         </InsetPanel>
 
         <PartyStandingsList
-          players={party.players}
-          previousScores={previousScores}
+          players={scoreboard.players}
+          previousPlayers={scoreboard.previousPlayers}
           testIdPrefix={`${testIdPrefix}-stage-result-rankings`}
           totalStages={party.context?.lifecycle.totalStages ?? stagePosition + 1}
           title={t('game.party.route.stageResultsStandingsTitle')}

@@ -93,3 +93,7 @@ The dedicated management pages use `themePermissions(organizationId)` through `G
 ## Resource permissions
 
 Follow [ADR 0014](../../architecture/adr/0014-unify-resource-scoped-permissions.md) for feature policy ownership, application enforcement, safe permission projections, and concurrency guarantees.
+
+## Choice submission scoring
+
+Quiz and prediction share `ChoiceSubmissionPartyActionPolicy`, following [ADR 0017](../../architecture/adr/0017-reward-action-quality-before-speed-in-game-scoring.md#calculation-model). Check stage availability and expiry before evaluating correctness, including wrong answers and zero-point stages. Preserve the bounded speed bonus and whole-point rounding in the shared policy; both game types use the selected option's `isCorrect` flag.

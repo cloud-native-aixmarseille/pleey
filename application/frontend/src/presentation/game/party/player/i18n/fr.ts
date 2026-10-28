@@ -21,6 +21,8 @@ export const gamePartyPlayerFr = {
           shuffleGuestAvatarCta: "Changer d'avatar",
           stageMenuLabel: 'Ouvrir le menu de la manche',
           waitingForHost: "En attente du démarrage par l'hôte...",
+          scoringExplanation:
+            'Une bonne réponse rapporte environ 80 % des points, plus un bonus de rapidité de 20 % maximum. Une mauvaise réponse rapporte 0 point. Sans chrono, une bonne réponse rapporte tous les points.',
           currentHost: 'Hébergée par {{username}}',
           actionSubmitting: 'Envoi de votre réponse...',
           actionLocked: 'Votre réponse est verrouillée.',
