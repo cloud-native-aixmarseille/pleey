@@ -24,7 +24,9 @@ import { PrismaPartyReadModelMapper } from './services/prisma-party-read-model-m
 
 interface PersistedPartyPlayerStageProgressEntry {
   readonly earnedPoints: number;
+  readonly isCorrect?: boolean;
   readonly selectedActionId: PartyActionId;
+  readonly selectedActionIds?: readonly PartyActionId[];
   readonly stageId: PartyStageId;
   readonly stagePosition: number;
   readonly status: string;
@@ -252,7 +254,9 @@ export class PrismaHostPartyRuntimeControlAdapter extends HostPartyRuntimeContro
     return [
       {
         earnedPoints: totalPoints,
+        isCorrect: latestState.isCorrect,
         selectedActionId: latestState.selectedActionId,
+        selectedActionIds: latestState.selectedActionIds ?? [latestState.selectedActionId],
         stageId: latestState.stageId,
         stagePosition: latestState.stagePosition,
         status: latestState.status,
@@ -266,7 +270,9 @@ export class PrismaHostPartyRuntimeControlAdapter extends HostPartyRuntimeContro
     }
 
     const earnedPoints = Reflect.get(value, 'earnedPoints');
+    const isCorrect = Reflect.get(value, 'isCorrect');
     const selectedActionId = Reflect.get(value, 'selectedActionId');
+    const selectedActionIdsValue = Reflect.get(value, 'selectedActionIds');
     const stageId = Reflect.get(value, 'stageId');
     const stagePosition = Reflect.get(value, 'stagePosition');
     const status = Reflect.get(value, 'status');
@@ -276,8 +282,26 @@ export class PrismaHostPartyRuntimeControlAdapter extends HostPartyRuntimeContro
     }
 
     const normalizedSelectedActionId = this.partyActionIdentifier.parseOrNull(selectedActionId);
+    const normalizedSelectedActionIds = Array.isArray(selectedActionIdsValue)
+      ? selectedActionIdsValue.map((actionId) => this.partyActionIdentifier.parseOrNull(actionId))
+      : null;
 
-    if (normalizedSelectedActionId === null) {
+    if (
+      (normalizedSelectedActionIds !== null &&
+        (normalizedSelectedActionIds.length === 0 ||
+          normalizedSelectedActionIds.some((actionId) => actionId === null) ||
+          new Set(normalizedSelectedActionIds).size !== normalizedSelectedActionIds.length)) ||
+      (normalizedSelectedActionIds === null && normalizedSelectedActionId === null)
+    ) {
+      return null;
+    }
+
+    const validSelectedActionIds = (normalizedSelectedActionIds ?? [normalizedSelectedActionId]).filter(
+      (actionId): actionId is PartyActionId => actionId !== null,
+    );
+    const [primarySelectedActionId] = validSelectedActionIds;
+
+    if (primarySelectedActionId === undefined) {
       return null;
     }
 
@@ -297,7 +321,9 @@ export class PrismaHostPartyRuntimeControlAdapter extends HostPartyRuntimeContro
 
     return {
       earnedPoints: Number(earnedPoints),
-      selectedActionId: normalizedSelectedActionId,
+      ...(typeof isCorrect === 'boolean' ? { isCorrect } : {}),
+      selectedActionId: primarySelectedActionId,
+      selectedActionIds: validSelectedActionIds,
       stageId: normalizedStageId,
       stagePosition: Number(stagePosition),
       status,
@@ -315,10 +341,14 @@ export class PrismaHostPartyRuntimeControlAdapter extends HostPartyRuntimeContro
 
     return {
       earnedPoints: latestStage.earnedPoints,
+      ...(typeof latestStage.isCorrect === 'boolean' ? { isCorrect: latestStage.isCorrect } : {}),
       selectedActionId: latestStage.selectedActionId,
+      selectedActionIds: latestStage.selectedActionIds ?? [latestStage.selectedActionId],
       stageHistory: stageHistory.map((entry) => ({
         earnedPoints: entry.earnedPoints,
+        ...(typeof entry.isCorrect === 'boolean' ? { isCorrect: entry.isCorrect } : {}),
         selectedActionId: entry.selectedActionId,
+        selectedActionIds: entry.selectedActionIds ?? [entry.selectedActionId],
         stageId: entry.stageId,
         stagePosition: entry.stagePosition,
         status: entry.status,
@@ -354,6 +384,9 @@ export class PrismaHostPartyRuntimeControlAdapter extends HostPartyRuntimeContro
                     currentPlayer: command.stage.actionSubmission.currentPlayer
                       ? {
                           selectedActionId: command.stage.actionSubmission.currentPlayer.selectedActionId,
+                          selectedActionIds: command.stage.actionSubmission.currentPlayer.selectedActionIds ?? [
+                            command.stage.actionSubmission.currentPlayer.selectedActionId,
+                          ],
                           status: command.stage.actionSubmission.currentPlayer.status,
                         }
                       : null,
@@ -363,6 +396,7 @@ export class PrismaHostPartyRuntimeControlAdapter extends HostPartyRuntimeContro
                 : null,
               current: command.stage.current
                 ? {
+                    allowsMultipleSelections: command.stage.current.allowsMultipleSelections ?? false,
                     actions: command.stage.current.actions.map((action) => ({
                       id: action.id,
                       text: action.text,
@@ -393,6 +427,9 @@ export class PrismaHostPartyRuntimeControlAdapter extends HostPartyRuntimeContro
                 ? {
                     earnedPoints: command.result.currentPlayer.earnedPoints,
                     isCorrect: command.result.currentPlayer.isCorrect,
+                    selectedActionIds: command.result.currentPlayer.selectedActionIds ?? [
+                      command.result.currentPlayer.selectedActionId,
+                    ],
                     selectedActionId: command.result.currentPlayer.selectedActionId,
                   }
                 : null,

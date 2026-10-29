@@ -13,7 +13,7 @@ export interface PartyJoinCommand {
 }
 
 export interface PartySubmitActionCommand {
-  readonly actionId: PartyActionId;
+  readonly actionIds: readonly PartyActionId[];
   readonly partyId: PartyId;
 }
 

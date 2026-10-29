@@ -88,6 +88,7 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
     });
 
     return questions.map((question) => ({
+      allowsMultipleSelections: question.answers.filter((answer) => answer.isCorrect).length > 1,
       actions: question.answers.map((answer) => ({
         id: this.partyActionIdentifier.parse(answer.id),
         isCorrect: answer.isCorrect,
@@ -160,6 +161,7 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
     }
 
     return {
+      allowsMultipleSelections: question.answers.filter((answer) => answer.isCorrect).length > 1,
       actions: question.answers.map((answer) => ({
         id: this.partyActionIdentifier.parse(answer.id),
         isCorrect: answer.isCorrect,

@@ -18,9 +18,9 @@ interface UsePartyLobbyPlayerSessionParams {
 
 interface UsePartyLobbyPlayerSessionResult {
   readonly leaveParty: () => Promise<void>;
-  readonly pendingPlayerActionId: PartyActionId | null;
+  readonly pendingPlayerActionIds: readonly PartyActionId[] | null;
   readonly playerActionErrorMessage: string | null;
-  readonly submitAction: (actionId: PartyActionId) => Promise<void>;
+  readonly submitAction: (actionIds: readonly PartyActionId[]) => Promise<void>;
 }
 
 export function usePartyLobbyPlayerSession({
@@ -33,7 +33,7 @@ export function usePartyLobbyPlayerSession({
 }: UsePartyLobbyPlayerSessionParams): UsePartyLobbyPlayerSessionResult {
   const feedback = usePresentationFeedbackChannel();
   const clearError = feedback.clearError;
-  const [pendingPlayerActionId, setPendingPlayerActionId] = useState<PartyActionId | null>(null);
+  const [pendingPlayerActionIds, setPendingPlayerActionIds] = useState<readonly PartyActionId[] | null>(null);
   const currentPartyPin = party?.pin ?? null;
   const currentPlayer = party?.players.find((player) => player.isCurrentPlayer) ?? null;
   const previousCurrentPlayerRef = useRef(currentPlayer);
@@ -63,51 +63,64 @@ export function usePartyLobbyPlayerSession({
 
   useEffect(() => {
     if (party?.context?.lifecycle.phase !== 'stage') {
-      setPendingPlayerActionId(null);
+      setPendingPlayerActionIds(null);
       clearError();
       return;
     }
 
-    if (party.context?.stage?.actionSubmission?.currentPlayer?.selectedActionId === pendingPlayerActionId) {
-      setPendingPlayerActionId(null);
+    const currentPlayerAction = party.context?.stage?.actionSubmission?.currentPlayer;
+    const currentActionIds =
+      currentPlayerAction?.selectedActionIds ?? (currentPlayerAction ? [currentPlayerAction.selectedActionId] : []);
+
+    if (
+      pendingPlayerActionIds !== null &&
+      pendingPlayerActionIds.length === currentActionIds.length &&
+      pendingPlayerActionIds.every((actionId) => currentActionIds.includes(actionId))
+    ) {
+      setPendingPlayerActionIds(null);
       clearError();
     }
   }, [
     clearError,
-    pendingPlayerActionId,
+    pendingPlayerActionIds,
     party?.context?.lifecycle.phase,
-    party?.context?.stage?.actionSubmission?.currentPlayer?.selectedActionId,
+    party?.context?.stage?.actionSubmission?.currentPlayer,
   ]);
 
-  const submitAction = useEffectEvent(async (actionId: PartyActionId) => {
+  const submitAction = useEffectEvent(async (actionIds: readonly PartyActionId[]) => {
     if (
       !party ||
       party.status !== PartyStatus.ACTIVE ||
       party.context?.stage?.current === undefined ||
       party.context?.stage?.current === null ||
-      pendingPlayerActionId !== null
+      pendingPlayerActionIds !== null ||
+      actionIds.length === 0
     ) {
       return;
     }
 
     const currentPlayerAction = party.context.stage.actionSubmission.currentPlayer;
+    const currentActionIds =
+      currentPlayerAction?.selectedActionIds ?? (currentPlayerAction ? [currentPlayerAction.selectedActionId] : []);
     const stageEndsAtEpochMs = party.context.lifecycle.stageEndsAtEpochMs;
+    const isSameSelection =
+      currentActionIds.length === actionIds.length &&
+      actionIds.every((actionId) => currentActionIds.includes(actionId));
 
     if (
-      (currentPlayerAction !== null &&
-        (!party.settings.allowOptionChangeAfterVoting || currentPlayerAction.selectedActionId === actionId)) ||
+      (currentPlayerAction !== null && (!party.settings.allowOptionChangeAfterVoting || isSameSelection)) ||
       (stageEndsAtEpochMs !== null && stageEndsAtEpochMs <= Date.now())
     ) {
       return;
     }
 
-    setPendingPlayerActionId(actionId);
+    setPendingPlayerActionIds(actionIds);
     clearError();
 
     try {
-      await partyLobbyFacade.submitAction({ actionId, partyId: party.partyId });
+      await partyLobbyFacade.submitAction({ actionIds, partyId: party.partyId });
     } catch (error) {
-      setPendingPlayerActionId(null);
+      setPendingPlayerActionIds(null);
       feedback.handleError(error, {
         fallbackMessage: PartyManagementErrorCode.OBSERVE_FAILED,
         id: 'party-player-submit-action-error-toast',
@@ -133,7 +146,7 @@ export function usePartyLobbyPlayerSession({
 
   return {
     leaveParty,
-    pendingPlayerActionId,
+    pendingPlayerActionIds,
     playerActionErrorMessage: feedback.errorMessage,
     submitAction,
   };
