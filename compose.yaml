@@ -242,6 +242,7 @@ services:
 
   e2e-tests:
     image: mcr.microsoft.com/playwright:v1.64.1-jammy
+    user: "${UID:-1000}:${GID:-1000}" # Keep host-mounted files writable by the local user
     working_dir: /workspace
     init: true
     stdin_open: true
@@ -249,6 +250,7 @@ services:
     expose:
       - "9323"
     environment:
+      - NPM_CONFIG_CACHE=/tmp/pleey-npm-cache
       - BASE_URL=${BASE_URL:-http://frontend:5173}
       - API_BASE_URL=${API_BASE_URL:-http://backend:3001/api}
       - E2E_ADMIN_EMAIL=${E2E_ADMIN_EMAIL:-admin@pleey.com}
