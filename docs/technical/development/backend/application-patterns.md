@@ -99,7 +99,3 @@ Follow [ADR 0014](../../architecture/adr/0014-unify-resource-scoped-permissions.
 ## Choice submission scoring
 
 Quiz and prediction share `ChoiceSubmissionPartyActionPolicy`, following [ADR 0017](../../architecture/adr/0017-reward-action-quality-before-speed-in-game-scoring.md#calculation-model). Check stage availability and expiry before evaluating correctness, including wrong answers and zero-point stages. Preserve the bounded speed bonus and whole-point rounding in the shared policy; both game types use the selected option's `isCorrect` flag.
-
-## Question reading time
-
-Party settings include `questionReadingTimeSeconds` (integer 0–30, default 3). The value follows existing party override, project, organization, and system precedence. `HostPartyLifecyclePolicy` persists the reading deadline separately from answering duration. Submission validation rejects answers before reading ends, including untimed and zero-point stages. Pausing freezes both intervals; restart and rewind grant a fresh reading period and keep timers frozen when paused. Existing stored runtime snapshots without reading state retain their deadlines. See [ADR 0019](../../architecture/adr/0019-separate-question-reading-from-answering-time.md).
