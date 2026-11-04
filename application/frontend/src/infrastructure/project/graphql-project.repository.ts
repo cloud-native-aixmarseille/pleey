@@ -151,6 +151,7 @@ export class GraphqlProjectRepository implements ProjectRepository {
       readonly allowOptionChangeAfterVoting: boolean;
       readonly randomizeOptionOrder: boolean;
       readonly randomizeStageOrder: boolean;
+      readonly questionReadingTimeSeconds: number;
     } | null;
     readonly defaultThemeId?: string | null;
   }): Project {
@@ -176,6 +177,7 @@ export class GraphqlProjectRepository implements ProjectRepository {
           readonly allowOptionChangeAfterVoting: boolean;
           readonly randomizeOptionOrder: boolean;
           readonly randomizeStageOrder: boolean;
+          readonly questionReadingTimeSeconds: number;
         }
       | null
       | undefined,
@@ -186,6 +188,7 @@ export class GraphqlProjectRepository implements ProjectRepository {
           allowOptionChangeAfterVoting: settings.allowOptionChangeAfterVoting,
           randomizeOptionOrder: settings.randomizeOptionOrder,
           randomizeStageOrder: settings.randomizeStageOrder,
+          questionReadingTimeSeconds: settings.questionReadingTimeSeconds,
         }
       : null;
   }

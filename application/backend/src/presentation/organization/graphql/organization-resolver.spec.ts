@@ -32,6 +32,7 @@ describe('OrganizationResolver', () => {
       {
         name: 'Pleey',
         defaultPartySettings: {
+          questionReadingTimeSeconds: 3,
           allowJoiningAfterStart: true,
           allowOptionChangeAfterVoting: true,
           randomizeOptionOrder: false,
@@ -46,6 +47,7 @@ describe('OrganizationResolver', () => {
       {
         name: 'Pleey',
         defaultPartySettings: {
+          questionReadingTimeSeconds: 3,
           allowJoiningAfterStart: true,
           allowOptionChangeAfterVoting: true,
           randomizeOptionOrder: false,
@@ -98,6 +100,7 @@ describe('OrganizationResolver', () => {
       {
         name: 'Pleey',
         defaultPartySettings: {
+          questionReadingTimeSeconds: 3,
           allowJoiningAfterStart: false,
           allowOptionChangeAfterVoting: true,
           randomizeOptionOrder: false,

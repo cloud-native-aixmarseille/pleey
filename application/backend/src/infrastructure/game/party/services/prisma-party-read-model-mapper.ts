@@ -334,6 +334,14 @@ export class PrismaPartyReadModelMapper {
     return PERSISTED_PARTY_STATUS_BY_DOMAIN_STATUS[status];
   }
 
+  private toReadingContext(value: unknown): PartyRuntimeContext['lifecycle']['reading'] {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
+    const endsAtEpochMs = this.toNullableNonNegativeInteger(Reflect.get(value, 'endsAtEpochMs'));
+    const remainingDurationMs = this.toNullableNonNegativeInteger(Reflect.get(value, 'remainingDurationMs'));
+    if (endsAtEpochMs === undefined || remainingDurationMs == null) return undefined;
+    return { endsAtEpochMs, remainingDurationMs };
+  }
+
   toPartyRuntimeContext(value: unknown): PartyRuntimeContext | null {
     if (!value || typeof value !== 'object' || Array.isArray(value)) {
       return null;
@@ -344,6 +352,10 @@ export class PrismaPartyReadModelMapper {
     if (!lifecycle || typeof lifecycle !== 'object' || Array.isArray(lifecycle)) {
       return null;
     }
+
+    const readingValue = Reflect.get(lifecycle, 'reading');
+    const reading = this.toReadingContext(readingValue);
+    if (readingValue !== undefined && !reading) return null;
 
     const phase = Reflect.get(lifecycle, 'phase');
     const stageEndsAtEpochMs = Reflect.get(lifecycle, 'stageEndsAtEpochMs');
@@ -401,6 +413,7 @@ export class PrismaPartyReadModelMapper {
         return {
           lifecycle: {
             phase: PartyRuntimePhase.LOBBY,
+            ...(reading ? { reading } : {}),
             stageEndsAtEpochMs: normalizedStageEndsAtEpochMs,
             stageRemainingDurationMs: normalizedStageRemainingDurationMs,
             stageId: null,
@@ -417,6 +430,7 @@ export class PrismaPartyReadModelMapper {
         return {
           lifecycle: {
             phase: PartyRuntimePhase.STAGE,
+            ...(reading ? { reading } : {}),
             stageEndsAtEpochMs: normalizedStageEndsAtEpochMs,
             stageRemainingDurationMs: normalizedStageRemainingDurationMs,
             stageId: normalizedStageId,
@@ -434,6 +448,7 @@ export class PrismaPartyReadModelMapper {
         return {
           lifecycle: {
             phase: PartyRuntimePhase.RESULT,
+            ...(reading ? { reading } : {}),
             stageEndsAtEpochMs: normalizedStageEndsAtEpochMs,
             stageRemainingDurationMs: normalizedStageRemainingDurationMs,
             stageId: normalizedStageId,
@@ -447,6 +462,7 @@ export class PrismaPartyReadModelMapper {
         return {
           lifecycle: {
             phase: PartyRuntimePhase.ENDED,
+            ...(reading ? { reading } : {}),
             stageEndsAtEpochMs: normalizedStageEndsAtEpochMs,
             stageRemainingDurationMs: normalizedStageRemainingDurationMs,
             stageId: normalizedStageId,

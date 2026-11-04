@@ -16,6 +16,10 @@ type PartyRuntimeActionSubmissionStatus =
   (typeof PARTY_RUNTIME_ACTION_SUBMISSION_STATUS)[keyof typeof PARTY_RUNTIME_ACTION_SUBMISSION_STATUS];
 
 interface PartyRuntimeBaseLifecycleContext {
+  readonly reading?: {
+    readonly endsAtEpochMs: number | null;
+    readonly remainingDurationMs: number;
+  };
   readonly stageEndsAtEpochMs: number | null;
   readonly stageRemainingDurationMs: number | null;
   readonly stageTimeLimitSeconds: number | null;
@@ -47,6 +51,7 @@ interface PartyRuntimeEndedLifecycleContext extends PartyRuntimeBaseLifecycleCon
 }
 
 interface PartyRuntimeStageActionContext {
+  readonly booleanValue?: boolean;
   readonly id: PartyActionId;
   readonly text: string;
 }

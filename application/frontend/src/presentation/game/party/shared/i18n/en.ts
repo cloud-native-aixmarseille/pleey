@@ -2,6 +2,9 @@ export const gamePartyEn = {
   game: {
     party: {
       settings: {
+        questionReadingTimeLabel: 'Question reading time (seconds)',
+        questionReadingTimeDescription:
+          'Show each question before the answers. 0 disables reading time; answering time starts afterwards.',
         fieldLabel: 'Default party mode',
         allowJoiningAfterStartLabel: 'Allow players to join after the party has started',
         allowJoiningAfterStartDescription: 'New players can join even when a session is already in progress.',
@@ -10,9 +13,11 @@ export const gamePartyEn = {
         randomizeStageOrderLabel: 'Randomize stage order',
         randomizeStageOrderDescription: 'Shuffle stage order each time a party starts.',
         randomizeOptionOrderLabel: 'Randomize outcome order',
-        randomizeOptionOrderDescription: 'Shuffle the answer or outcome order in each stage.',
+        randomizeOptionOrderDescription:
+          'Shuffle answers or outcomes. True/false quiz answers always stay in True, False order.',
       },
       route: {
+        runtimeReading: 'Read the question. Answers will appear shortly.',
         invalidPin: 'A party pin is required to open this page.',
         loading: 'Loading lobby observation...',
         statusBarLabel: 'Party lobby status bar',

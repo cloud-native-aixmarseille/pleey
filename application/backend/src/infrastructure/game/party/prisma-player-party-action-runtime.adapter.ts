@@ -314,6 +314,7 @@ export class PrismaPlayerPartyActionRuntimeAdapter extends PlayerPartyActionRunt
     return {
       lifecycle: {
         phase: context.lifecycle.phase,
+        ...(context.lifecycle.reading ? { reading: { ...context.lifecycle.reading } } : {}),
         stageEndsAtEpochMs: context.lifecycle.stageEndsAtEpochMs,
         stageRemainingDurationMs: context.lifecycle.stageRemainingDurationMs,
         stageId: context.lifecycle.stageId,

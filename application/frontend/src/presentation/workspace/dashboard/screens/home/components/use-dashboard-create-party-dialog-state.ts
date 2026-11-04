@@ -37,6 +37,7 @@ export function useDashboardCreatePartyDialogState({
   }, [defaultPartySettings, game]);
 
   const hasSettingsOverride =
+    settingsOverride.questionReadingTimeSeconds !== defaultPartySettings.questionReadingTimeSeconds ||
     settingsOverride.allowJoiningAfterStart !== defaultPartySettings.allowJoiningAfterStart ||
     settingsOverride.allowOptionChangeAfterVoting !== defaultPartySettings.allowOptionChangeAfterVoting ||
     settingsOverride.randomizeOptionOrder !== defaultPartySettings.randomizeOptionOrder ||

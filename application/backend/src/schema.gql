@@ -310,6 +310,7 @@ enum PartyRole {
 input PartySettingsInput {
   allowJoiningAfterStart: Boolean
   allowOptionChangeAfterVoting: Boolean
+  questionReadingTimeSeconds: Int
   randomizeOptionOrder: Boolean
   randomizeStageOrder: Boolean
 }
@@ -317,6 +318,7 @@ input PartySettingsInput {
 type PartySettingsType {
   allowJoiningAfterStart: Boolean!
   allowOptionChangeAfterVoting: Boolean!
+  questionReadingTimeSeconds: Int!
   randomizeOptionOrder: Boolean!
   randomizeStageOrder: Boolean!
 }

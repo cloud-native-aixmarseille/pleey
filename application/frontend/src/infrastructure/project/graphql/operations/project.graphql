@@ -10,6 +10,7 @@ query WorkspaceProjectsByOrganization($input: ListOrganizationProjectsInput!) {
         allowJoiningAfterStart
         allowOptionChangeAfterVoting
         randomizeOptionOrder
+        questionReadingTimeSeconds
         randomizeStageOrder
       }
       defaultThemeId
@@ -43,6 +44,7 @@ mutation CreateProject($organizationId: ID!, $input: CreateProjectInput!) {
       allowJoiningAfterStart
       allowOptionChangeAfterVoting
       randomizeOptionOrder
+      questionReadingTimeSeconds
       randomizeStageOrder
     }
     defaultThemeId
@@ -70,6 +72,7 @@ mutation UpdateProject($projectId: ID!, $input: UpdateProjectInput!) {
       allowJoiningAfterStart
       allowOptionChangeAfterVoting
       randomizeOptionOrder
+      questionReadingTimeSeconds
       randomizeStageOrder
     }
     defaultThemeId

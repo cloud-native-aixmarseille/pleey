@@ -1,7 +1,7 @@
 import type { PartySettings } from '../../../../domains/game/party/shared/entities/party-settings';
 import { usePresentationTranslation } from '../../i18n/use-presentation-translation';
 import { FieldShell } from './field-shell';
-import { PartySettingsCheckboxes } from './party-settings-checkboxes';
+import { PartySettingsFields } from './party-settings-fields';
 
 interface PartySettingsFormFieldProps {
   readonly disabled?: boolean;
@@ -15,7 +15,7 @@ export function PartySettingsFormField({ disabled, id, settings, onChange }: Par
 
   return (
     <FieldShell id={id} label={t('game.party.settings.fieldLabel')}>
-      <PartySettingsCheckboxes idPrefix={id} settings={settings} disabled={disabled} onChange={onChange} />
+      <PartySettingsFields idPrefix={id} settings={settings} disabled={disabled} onChange={onChange} />
     </FieldShell>
   );
 }

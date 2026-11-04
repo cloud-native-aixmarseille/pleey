@@ -80,6 +80,7 @@ describe('CreateOrganizationForm', () => {
         defaultThemeId: 'solar-grid',
         description: 'A test org',
         defaultPartySettings: {
+          questionReadingTimeSeconds: 3,
           allowJoiningAfterStart: false,
           allowOptionChangeAfterVoting: true,
           randomizeOptionOrder: false,

@@ -41,6 +41,16 @@ export class ChoiceSubmissionPartyActionPolicy extends GameTypePartyActionPolicy
       });
     }
 
+    const reading = command.context.lifecycle.reading;
+    if (reading && (reading.endsAtEpochMs === null || Date.now() < reading.endsAtEpochMs)) {
+      throw new PartyCommandNotAvailableError({
+        actionId: command.actionId,
+        gameId: command.gameId,
+        stageId,
+        reason: 'stageReading',
+      });
+    }
+
     const stage = await this.partyStageCatalog.findStageById(command.gameId, stageId);
 
     if (!stage) {

@@ -1,7 +1,7 @@
 import type { PartySettings } from '../../../../../../domains/game/party/shared/entities/party-settings';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { Badge } from '../../../../../shared/ui/feedback/badge';
-import { PartySettingsCheckboxes } from '../../../../../shared/ui/forms/party-settings-checkboxes';
+import { PartySettingsFields } from '../../../../../shared/ui/forms/party-settings-fields';
 import { AppIcon } from '../../../../../shared/ui/icons/app-icon';
 import { ContentStack, SplitWrapRow } from '../../../../../shared/ui/layout/containers';
 import { InsetPanel } from '../../../../../shared/ui/layout/panels';
@@ -33,7 +33,7 @@ export function DashboardPartySettingsPanel({
         </SplitWrapRow>
 
         <ContentStack gap="xs">
-          <PartySettingsCheckboxes idPrefix="create-party" settings={settingsOverride} onChange={onChange} />
+          <PartySettingsFields idPrefix="create-party" settings={settingsOverride} onChange={onChange} />
         </ContentStack>
       </ContentStack>
     </InsetPanel>

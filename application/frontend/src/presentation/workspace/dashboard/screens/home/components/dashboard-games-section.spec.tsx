@@ -324,6 +324,28 @@ describe('DashboardGamesSection', () => {
     });
   });
 
+  it('sends an override when only the reading time changes', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    const { onCreateParty } = renderDashboardGamesSection({
+      selectedOrganization: organizationFixtureFactory.createOrganization(),
+      selectedProject: projectFixtureFactory.createProject(),
+    });
+    await user.click(screen.getByRole('button', { name: 'create:Arcade Quiz:false' }));
+    const dialog = await screen.findByRole('dialog');
+    // Act
+    await user.selectOptions(
+      within(dialog).getByRole('combobox', { name: 'game.party.settings.questionReadingTimeLabel' }),
+      '0',
+    );
+    await user.click(within(dialog).getByRole('button', { name: 'dashboard.games.actions.createParty' }));
+    // Assert
+    expect(onCreateParty).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ settingsOverride: { ...DEFAULT_PARTY_SETTINGS, questionReadingTimeSeconds: 0 } }),
+    );
+  });
+
   it('launches a party with customized settings', async () => {
     // Arrange
     const user = userEvent.setup();
@@ -346,6 +368,11 @@ describe('DashboardGamesSection', () => {
       }),
     );
 
+    await user.selectOptions(
+      within(dialog).getByRole('combobox', { name: 'game.party.settings.questionReadingTimeLabel' }),
+      '5',
+    );
+
     // Act
     await user.click(within(dialog).getByRole('button', { name: 'dashboard.games.actions.createParty' }));
 
@@ -363,6 +390,7 @@ describe('DashboardGamesSection', () => {
         privatePartyPassword: undefined,
         themeIdOverride: null,
         settingsOverride: {
+          questionReadingTimeSeconds: 5,
           allowJoiningAfterStart: false,
           allowOptionChangeAfterVoting: false,
           randomizeOptionOrder: true,

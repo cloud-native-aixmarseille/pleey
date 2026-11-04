@@ -168,6 +168,7 @@ export class SocketIoPartyPayloadMapper {
       return {
         lifecycle: {
           phase: context.lifecycle.phase,
+          ...(context.lifecycle.reading ? { reading: { ...context.lifecycle.reading } } : {}),
           stageEndsAtEpochMs: context.lifecycle.stageEndsAtEpochMs,
           stageId: context.lifecycle.stageId,
           stagePosition: context.lifecycle.stagePosition,
@@ -190,6 +191,7 @@ export class SocketIoPartyPayloadMapper {
       return {
         lifecycle: {
           phase: stageContext.lifecycle.phase,
+          ...(stageContext.lifecycle.reading ? { reading: { ...stageContext.lifecycle.reading } } : {}),
           stageEndsAtEpochMs: stageContext.lifecycle.stageEndsAtEpochMs,
           stageId: stageContext.lifecycle.stageId,
           stagePosition: stageContext.lifecycle.stagePosition,
@@ -228,6 +230,7 @@ export class SocketIoPartyPayloadMapper {
       return {
         lifecycle: {
           phase: resultContext.lifecycle.phase,
+          ...(resultContext.lifecycle.reading ? { reading: { ...resultContext.lifecycle.reading } } : {}),
           stageEndsAtEpochMs: resultContext.lifecycle.stageEndsAtEpochMs,
           stageId: resultContext.lifecycle.stageId,
           stagePosition: resultContext.lifecycle.stagePosition,
@@ -259,6 +262,7 @@ export class SocketIoPartyPayloadMapper {
       return {
         lifecycle: {
           phase: endedContext.lifecycle.phase,
+          ...(endedContext.lifecycle.reading ? { reading: { ...endedContext.lifecycle.reading } } : {}),
           stageEndsAtEpochMs: endedContext.lifecycle.stageEndsAtEpochMs,
           stageId: endedContext.lifecycle.stageId,
           stagePosition: endedContext.lifecycle.stagePosition,

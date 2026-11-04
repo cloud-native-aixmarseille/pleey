@@ -683,6 +683,7 @@ describe('OrganizationScreen', () => {
         description: 'Newly created',
         defaultThemeId: null,
         defaultPartySettings: {
+          questionReadingTimeSeconds: 3,
           allowJoiningAfterStart: false,
           allowOptionChangeAfterVoting: true,
           randomizeOptionOrder: false,

@@ -2,6 +2,9 @@ export const gamePartyFr = {
   game: {
     party: {
       settings: {
+        questionReadingTimeLabel: 'Temps de lecture des questions (secondes)',
+        questionReadingTimeDescription:
+          'Afficher chaque question avant les réponses. 0 désactive le temps de lecture ; le temps de réponse commence ensuite.',
         fieldLabel: 'Mode de partie par défaut',
         allowJoiningAfterStartLabel: 'Autoriser les joueurs à rejoindre après le début de la partie',
         allowJoiningAfterStartDescription:
@@ -12,9 +15,11 @@ export const gamePartyFr = {
         randomizeStageOrderLabel: "Aléatoriser l'ordre des manches",
         randomizeStageOrderDescription: "Mélanger l'ordre des manches à chaque début de partie.",
         randomizeOptionOrderLabel: "Aléatoriser l'ordre des réponses",
-        randomizeOptionOrderDescription: "Mélanger l'ordre des réponses ou des résultats à chaque manche.",
+        randomizeOptionOrderDescription:
+          "Mélanger l'ordre des réponses ou des résultats. Les réponses vrai/faux des quiz restent toujours dans l'ordre Vrai, Faux.",
       },
       route: {
+        runtimeReading: 'Lisez la question. Les réponses vont apparaître.',
         invalidPin: 'Un code PIN de partie est requis pour ouvrir cette page.',
         loading: "Chargement de l'observation du lobby...",
         statusBarLabel: 'Barre de statut du lobby de partie',

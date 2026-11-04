@@ -69,11 +69,9 @@ describe('ChoiceSubmissionPartyActionPolicy', () => {
     { action: 2, expected: 0 },
   ])('awards $expected for untimed action $action', async ({ action, expected }) => {
     // Arrange
-    const timed = fixtures.createCommand();
-    if (!timed.context) throw new Error('The timed submission fixture requires a runtime context');
     const command = fixtures.createCommand({
       actionId: backendTestIdentifiers.partyAction(action),
-      context: { lifecycle: { ...timed.context.lifecycle, stageTimeLimitSeconds: 0, stageEndsAtEpochMs: null } },
+      context: fixtures.createContext({ stageTimeLimitSeconds: 0, stageEndsAtEpochMs: null }),
     });
     const catalog = {
       findStageById: vi.fn().mockResolvedValue(fixtures.createStage()),
@@ -98,4 +96,65 @@ describe('ChoiceSubmissionPartyActionPolicy', () => {
       expect(catalog.findStageById).not.toHaveBeenCalled();
     },
   );
+});
+
+describe('Question reading submission timing', () => {
+  it.each([
+    { action: 1, points: 1000, timeLimit: 10 },
+    { action: 2, points: 1000, timeLimit: 10 },
+    { action: 1, points: 0, timeLimit: 10 },
+    { action: 1, points: 1000, timeLimit: 0 },
+  ])(
+    'rejects action $action on a $points-point stage before reading ends (limit $timeLimit)',
+    async ({ action, points, timeLimit }) => {
+      // Arrange
+      const clock = vi.spyOn(Date, 'now').mockReturnValue(12_999);
+      const catalog = {
+        findStageById: vi.fn().mockResolvedValue(fixtures.createStage({ points })),
+      } as unknown as PartyStageCatalogPort;
+      const policy = new ChoiceSubmissionPartyActionPolicy(catalog);
+      const command = fixtures.createCommand({
+        actionId: backendTestIdentifiers.partyAction(action),
+        context: fixtures.createContext({
+          reading: { endsAtEpochMs: 13_000, remainingDurationMs: 3_000 },
+          stageEndsAtEpochMs: timeLimit === 0 ? null : 23_000,
+          stageTimeLimitSeconds: timeLimit,
+        }),
+      });
+      try {
+        // Act + Assert
+        await expect(policy.evaluateSubmission(command)).rejects.toThrow(PartyCommandNotAvailableError);
+      } finally {
+        clock.mockRestore();
+      }
+    },
+  );
+
+  it.each([
+    { now: 13_000, timeLimit: 10, expected: 1000 },
+    { now: 18_000, timeLimit: 10, expected: 900 },
+    { now: 13_000, timeLimit: 0, expected: 1000 },
+  ])('awards $expected at $now after reading (limit $timeLimit)', async ({ now, timeLimit, expected }) => {
+    // Arrange
+    const clock = vi.spyOn(Date, 'now').mockReturnValue(now);
+    const catalog = {
+      findStageById: vi.fn().mockResolvedValue(fixtures.createStage()),
+    } as unknown as PartyStageCatalogPort;
+    const policy = new ChoiceSubmissionPartyActionPolicy(catalog);
+    const command = fixtures.createCommand({
+      context: fixtures.createContext({
+        reading: { endsAtEpochMs: 13_000, remainingDurationMs: 3_000 },
+        stageEndsAtEpochMs: timeLimit === 0 ? null : 23_000,
+        stageTimeLimitSeconds: timeLimit,
+      }),
+    });
+    try {
+      // Act
+      const result = await policy.evaluateSubmission(command);
+      // Assert
+      expect(result.scoreDelta).toBe(expected);
+    } finally {
+      clock.mockRestore();
+    }
+  });
 });

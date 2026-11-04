@@ -339,6 +339,7 @@ export class PrismaHostPartyRuntimeControlAdapter extends HostPartyRuntimeContro
     return {
       lifecycle: {
         phase: command.lifecycle.phase,
+        ...(command.lifecycle.reading ? { reading: { ...command.lifecycle.reading } } : {}),
         stageEndsAtEpochMs: command.lifecycle.stageEndsAtEpochMs,
         stageRemainingDurationMs: command.lifecycle.stageRemainingDurationMs,
         stageId: command.lifecycle.stageId,

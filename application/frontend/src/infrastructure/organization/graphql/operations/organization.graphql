@@ -10,6 +10,7 @@ query WorkspaceOrganizations($input: ListOrganizationsInput) {
         allowJoiningAfterStart
         allowOptionChangeAfterVoting
         randomizeOptionOrder
+        questionReadingTimeSeconds
         randomizeStageOrder
       }
       defaultThemeId
@@ -53,6 +54,7 @@ mutation UpdateOrganization($organizationId: ID!, $input: UpdateOrganizationInpu
       allowJoiningAfterStart
       allowOptionChangeAfterVoting
       randomizeOptionOrder
+      questionReadingTimeSeconds
       randomizeStageOrder
     }
     defaultThemeId

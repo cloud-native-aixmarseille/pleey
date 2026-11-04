@@ -4,8 +4,8 @@ import { Badge } from '../../../../../../shared/ui/feedback/badge';
 import { AppIcon } from '../../../../../../shared/ui/icons/app-icon';
 import { ContentStack, ResponsiveGrid } from '../../../../../../shared/ui/layout/containers';
 import { InsetPanel } from '../../../../../../shared/ui/layout/panels';
-import { Heading, SummaryText } from '../../../../../../shared/ui/layout/typography';
-import { MotionFadeIn, MotionStagger, MotionStaggerItem } from '../../../../../../shared/ui/motion/motion-primitives';
+import { Heading, SummaryText, SupportingText } from '../../../../../../shared/ui/layout/typography';
+import { MotionFadeIn } from '../../../../../../shared/ui/motion/motion-primitives';
 import { PlayableQuestionMedia } from '../../../media/playable-question-media';
 import { resolvePlayableChoiceActionSlotLabel } from './playable-choice-action-slot-identity';
 import {
@@ -22,10 +22,8 @@ import {
 import { PlayableChoiceResultActionTile } from './playable-choice-result-action-tile';
 import type { PlayableChoiceHostRuntimePanelProps } from './playable-choice-runtime-panel.types';
 import { StageCountdownTimer } from './stage-countdown-timer';
-import { resolveStageTotalDurationMs, useStageRemainingDurationMs } from './use-stage-remaining-duration-ms';
+import { useStageTiming } from './use-stage-timing';
 
-const STAGE_ANSWER_REVEAL_INITIAL_DELAY_SECONDS = 1.8;
-const STAGE_ANSWER_REVEAL_STAGGER_SECONDS = 0.22;
 const STAGE_QUESTION_REVEAL_DURATION_SECONDS = 1.0;
 
 export function PlayableChoiceHostStagePanel({ copy, party, testIdPrefix }: PlayableChoiceHostRuntimePanelProps) {
@@ -34,8 +32,7 @@ export function PlayableChoiceHostStagePanel({ copy, party, testIdPrefix }: Play
   const stageId = party.context?.lifecycle.stageId ?? null;
   const currentStage = party.context?.stage?.current;
   const actionSubmission = party.context?.stage?.actionSubmission;
-  const remainingDurationMs = useStageRemainingDurationMs(party);
-  const totalDurationMs = resolveStageTotalDurationMs(party);
+  const { isReading, remainingDurationMs, totalDurationMs } = useStageTiming(party);
 
   if (!currentStage || !actionSubmission || stagePosition === null || stagePosition === undefined) {
     return null;
@@ -112,14 +109,14 @@ export function PlayableChoiceHostStagePanel({ copy, party, testIdPrefix }: Play
           ) : null}
         </div>
 
-        <MotionStagger
-          key={`answers-${stageId}`}
-          initialDelay={STAGE_ANSWER_REVEAL_INITIAL_DELAY_SECONDS}
-          staggerDelay={STAGE_ANSWER_REVEAL_STAGGER_SECONDS}
-        >
+        {isReading ? (
+          <div role="status">
+            <SupportingText>{t('game.party.route.runtimeReading')}</SupportingText>
+          </div>
+        ) : (
           <ResponsiveGrid columns={{ base: 1, sm: 2 }} gap="md">
             {currentStage.actions.map((action, index) => (
-              <MotionStaggerItem key={action.id}>
+              <div key={action.id}>
                 <PlayableChoiceResultActionTile
                   copy={copy}
                   index={index}
@@ -129,10 +126,10 @@ export function PlayableChoiceHostStagePanel({ copy, party, testIdPrefix }: Play
                   testId={`${testIdPrefix}-host-stage-action-${resolvePlayableChoiceActionSlotLabel(index).toLowerCase()}`}
                   text={action.text}
                 />
-              </MotionStaggerItem>
+              </div>
             ))}
           </ResponsiveGrid>
-        </MotionStagger>
+        )}
       </div>
     </div>
   );
