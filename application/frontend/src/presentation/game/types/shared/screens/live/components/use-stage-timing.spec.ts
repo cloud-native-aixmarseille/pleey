@@ -18,6 +18,7 @@ describe('useStageTiming', () => {
     vi.useFakeTimers();
     vi.setSystemTime(now);
     const party = fixtures.createObservation();
+    // Act + Assert
     try {
       // Act
       const { result } = renderHook(() => useStageTiming(party));
@@ -38,6 +39,7 @@ describe('useStageTiming', () => {
       stageRemainingDurationMs: null,
     });
     const { result } = renderHook(() => useStageTiming(party));
+    // Act + Assert
     try {
       // Act
       act(() => vi.advanceTimersByTime(3_000));
@@ -57,6 +59,7 @@ describe('useStageTiming', () => {
       { status: PartyStatus.PAUSED },
     );
     const { result, rerender } = renderHook(() => useStageTiming(party));
+    // Act + Assert
     try {
       // Act
       act(() => vi.advanceTimersByTime(60_000));
@@ -81,6 +84,7 @@ describe('useStageTiming', () => {
       stageEndsAtEpochMs: 222_000,
     });
     const { result, rerender } = renderHook(({ party }) => useStageTiming(party), { initialProps: { party: paused } });
+    // Act + Assert
     try {
       // Act
       rerender({ party: resumed });
