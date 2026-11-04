@@ -8,6 +8,7 @@ import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enu
 import { PartyPlayerKind } from '../../../../domain/game/party/enums/party-player-kind.enum';
 import { PartyStatus } from '../../../../domain/game/party/enums/party-status.enum';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
+import { ChoiceSubmissionFixtureFactory } from '../../../../test-utils/fixtures/choice-submission-fixture-factory';
 import { PrismaPartyReadModelMapper } from './prisma-party-read-model-mapper';
 
 describe('PrismaPartyReadModelMapper', () => {
@@ -22,6 +23,32 @@ describe('PrismaPartyReadModelMapper', () => {
     userIdentifier,
   );
   const playerAvatarUpdatedAt = new Date('2026-05-01T07:00:00.000Z');
+
+  it.each([
+    undefined,
+    { endsAtEpochMs: 13_000, remainingDurationMs: 3_000 },
+    { endsAtEpochMs: null, remainingDurationMs: 2_000 },
+  ])('preserves the stored reading state and answering deadline on reload: %j', (reading) => {
+    // Arrange
+    const context = new ChoiceSubmissionFixtureFactory().createContext({ ...(reading ? { reading } : {}) });
+    // Act
+    const reloaded = mapper.toPartyRuntimeContext(JSON.parse(JSON.stringify(context)));
+    // Assert
+    expect(reloaded).toEqual(context);
+  });
+
+  it.each([
+    { endsAtEpochMs: -1, remainingDurationMs: 3_000 },
+    { endsAtEpochMs: 13_000, remainingDurationMs: -1 },
+    { endsAtEpochMs: 13_000, remainingDurationMs: null },
+  ])('rejects malformed persisted reading state %j', (reading) => {
+    // Arrange
+    const context = new ChoiceSubmissionFixtureFactory().createContext();
+    // Act
+    const reloaded = mapper.toPartyRuntimeContext({ lifecycle: { ...context.lifecycle, reading } });
+    // Assert
+    expect(reloaded).toBeNull();
+  });
 
   it('collects and sorts non-host players from persisted score rows', () => {
     // Arrange + Act

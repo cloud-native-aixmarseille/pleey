@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import { DEFAULT_PARTY_SETTINGS, type PartySettings } from '../../../domain/game/party/shared/entities/party-settings';
 
 interface PersistedPartySettings {
+  readonly questionReadingTimeSeconds?: unknown;
   readonly allowJoiningAfterStart?: unknown;
   readonly allowOptionChangeAfterVoting?: unknown;
   readonly randomizeOptionOrder?: unknown;
@@ -21,6 +22,13 @@ export class PrismaPartySettingsMapper {
     const record = source as PersistedPartySettings;
 
     return {
+      questionReadingTimeSeconds:
+        typeof record.questionReadingTimeSeconds === 'number' &&
+        Number.isInteger(record.questionReadingTimeSeconds) &&
+        record.questionReadingTimeSeconds >= 0 &&
+        record.questionReadingTimeSeconds <= 30
+          ? record.questionReadingTimeSeconds
+          : this.defaults.questionReadingTimeSeconds,
       allowJoiningAfterStart: Boolean(record.allowJoiningAfterStart),
       allowOptionChangeAfterVoting: Boolean(record.allowOptionChangeAfterVoting),
       randomizeOptionOrder: Boolean(record.randomizeOptionOrder),
@@ -34,6 +42,7 @@ export class PrismaPartySettingsMapper {
 
   toPersistedPartySettings(settings: PartySettings): Prisma.InputJsonValue {
     return {
+      questionReadingTimeSeconds: settings.questionReadingTimeSeconds,
       allowJoiningAfterStart: settings.allowJoiningAfterStart,
       allowOptionChangeAfterVoting: settings.allowOptionChangeAfterVoting,
       randomizeOptionOrder: settings.randomizeOptionOrder,

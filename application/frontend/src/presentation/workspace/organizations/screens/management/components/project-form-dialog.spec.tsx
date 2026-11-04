@@ -140,6 +140,7 @@ describe('ProjectFormDialog', () => {
         defaultThemeId: 'solar-grid',
         description: 'Ready to launch',
         defaultPartySettings: {
+          questionReadingTimeSeconds: 3,
           allowJoiningAfterStart: false,
           allowOptionChangeAfterVoting: true,
           randomizeOptionOrder: false,
@@ -225,6 +226,7 @@ describe('ProjectFormDialog', () => {
         defaultThemeId: null,
         description: 'Preset ready',
         defaultPartySettings: {
+          questionReadingTimeSeconds: 3,
           allowJoiningAfterStart: false,
           allowOptionChangeAfterVoting: false,
           randomizeOptionOrder: true,

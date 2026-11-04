@@ -1,3 +1,4 @@
+import { GameValidationFailedError } from '../../../errors';
 import { DEFAULT_PARTY_SETTINGS, type PartySettings } from '../entities/party-settings';
 
 interface ResolvePartySettingsInput {
@@ -12,11 +13,22 @@ export class PartySettingsResolver {
     projectDefaultSettings,
     settingsOverride,
   }: ResolvePartySettingsInput): PartySettings {
-    return {
+    const settings = {
       ...DEFAULT_PARTY_SETTINGS,
       ...(organizationDefaultSettings ?? {}),
       ...(projectDefaultSettings ?? {}),
       ...(settingsOverride ?? {}),
     };
+    if (
+      !Number.isInteger(settings.questionReadingTimeSeconds) ||
+      settings.questionReadingTimeSeconds < 0 ||
+      settings.questionReadingTimeSeconds > 30
+    ) {
+      throw new GameValidationFailedError({
+        questionReadingTimeSeconds: settings.questionReadingTimeSeconds,
+        reason: 'invalidQuestionReadingTime',
+      });
+    }
+    return settings;
   }
 }

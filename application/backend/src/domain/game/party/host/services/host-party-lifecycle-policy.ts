@@ -6,9 +6,11 @@ import {
   type PartyRuntimeLifecycleContext,
   PartyRuntimePhase,
 } from '../../shared/entities/party-runtime-context';
+import { DEFAULT_PARTY_SETTINGS } from '../../shared/entities/party-settings';
 import { HostPartyDisabledReason, type HostPartyPermissions } from '../value-objects/host-party-permissions';
 
 interface HostPartyLifecycleState {
+  readonly questionReadingTimeSeconds?: number;
   readonly playerCount: number;
   readonly stageCount?: number;
   readonly status: PartyStatus;
@@ -114,6 +116,7 @@ export class HostPartyLifecyclePolicy {
         input.firstStage.stagePosition,
         input.totalStages,
         input.firstStage.timeLimitSeconds,
+        state,
       ),
     };
   }
@@ -154,6 +157,7 @@ export class HostPartyLifecyclePolicy {
         input.nextStage.stagePosition,
         lifecycle.totalStages,
         input.nextStage.timeLimitSeconds,
+        state,
       ),
     };
   }
@@ -177,6 +181,7 @@ export class HostPartyLifecyclePolicy {
         lifecycle.stagePosition,
         lifecycle.totalStages,
         lifecycle.stageTimeLimitSeconds,
+        state,
       ),
     };
   }
@@ -206,6 +211,7 @@ export class HostPartyLifecyclePolicy {
         input.previousStage.stagePosition,
         lifecycle.totalStages,
         input.previousStage.timeLimitSeconds,
+        state,
       ),
     };
   }
@@ -361,13 +367,27 @@ export class HostPartyLifecyclePolicy {
     stagePosition: number,
     totalStages: number,
     timeLimitSeconds: number,
+    state: HostPartyLifecycleState,
   ): PartyRuntimeContext {
     const stageRemainingDurationMs = this.toStageDurationMs(timeLimitSeconds);
+    const readingDurationMs =
+      (state.questionReadingTimeSeconds ?? DEFAULT_PARTY_SETTINGS.questionReadingTimeSeconds) * 1_000;
+    const isPaused = state.status === PartyStatus.PAUSED;
+    const answeringStartsAtEpochMs = Date.now() + readingDurationMs;
 
     return {
       lifecycle: {
         phase: PartyRuntimePhase.STAGE,
-        stageEndsAtEpochMs: stageRemainingDurationMs === null ? null : Date.now() + stageRemainingDurationMs,
+        ...(readingDurationMs > 0
+          ? {
+              reading: {
+                endsAtEpochMs: isPaused ? null : answeringStartsAtEpochMs,
+                remainingDurationMs: readingDurationMs,
+              },
+            }
+          : {}),
+        stageEndsAtEpochMs:
+          isPaused || stageRemainingDurationMs === null ? null : answeringStartsAtEpochMs + stageRemainingDurationMs,
         stageRemainingDurationMs,
         stageId,
         stagePosition,
@@ -380,34 +400,59 @@ export class HostPartyLifecyclePolicy {
   private pauseLifecycleTimer(
     lifecycle: Extract<PartyRuntimeLifecycleContext, { phase: PartyRuntimePhase.STAGE }>,
   ): Extract<PartyRuntimeLifecycleContext, { phase: PartyRuntimePhase.STAGE }> {
+    const nowEpochMs = Date.now();
     return {
       ...lifecycle,
+      ...(lifecycle.reading
+        ? {
+            reading: {
+              endsAtEpochMs: null,
+              remainingDurationMs:
+                lifecycle.reading.endsAtEpochMs === null
+                  ? lifecycle.reading.remainingDurationMs
+                  : Math.max(0, lifecycle.reading.endsAtEpochMs - nowEpochMs),
+            },
+          }
+        : {}),
       stageEndsAtEpochMs: null,
-      stageRemainingDurationMs: this.resolveRemainingDurationMs(lifecycle),
+      stageRemainingDurationMs: this.resolveRemainingDurationMs(lifecycle, nowEpochMs),
     };
   }
 
   private resumeLifecycleTimer(
     lifecycle: Extract<PartyRuntimeLifecycleContext, { phase: PartyRuntimePhase.STAGE }>,
   ): Extract<PartyRuntimeLifecycleContext, { phase: PartyRuntimePhase.STAGE }> {
-    if (lifecycle.stageRemainingDurationMs === null) {
-      return lifecycle;
-    }
+    const answeringStartsAtEpochMs = Date.now() + (lifecycle.reading?.remainingDurationMs ?? 0);
 
     return {
       ...lifecycle,
-      stageEndsAtEpochMs: Date.now() + lifecycle.stageRemainingDurationMs,
+      ...(lifecycle.reading
+        ? {
+            reading: {
+              ...lifecycle.reading,
+              endsAtEpochMs: answeringStartsAtEpochMs,
+            },
+          }
+        : {}),
+      stageEndsAtEpochMs:
+        lifecycle.stageRemainingDurationMs === null
+          ? null
+          : answeringStartsAtEpochMs + lifecycle.stageRemainingDurationMs,
     };
   }
 
   private resolveRemainingDurationMs(
     lifecycle: PartyRuntimeLifecycleContext,
+    nowEpochMs: number,
   ): PartyRuntimeLifecycleContext['stageRemainingDurationMs'] {
     if (lifecycle.stageEndsAtEpochMs === null) {
       return lifecycle.stageRemainingDurationMs;
     }
 
-    return Math.max(0, lifecycle.stageEndsAtEpochMs - Date.now());
+    return Math.max(
+      0,
+      Math.min((lifecycle.stageTimeLimitSeconds ?? 0) * 1_000, lifecycle.stageEndsAtEpochMs - nowEpochMs),
+    );
   }
 
   private toStageDurationMs(timeLimitSeconds: number): number | null {

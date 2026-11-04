@@ -3,23 +3,16 @@ import { PartyStatus } from '../../../../../../../domains/game/party/shared/enti
 import { usePresentationTranslation } from '../../../../../../shared/i18n/use-presentation-translation';
 import { useKeyboardShortcut, useShortcutScope } from '../../../../../../shared/keyboard';
 import { ResponsiveGrid } from '../../../../../../shared/ui/layout/containers';
+import { SupportingText } from '../../../../../../shared/ui/layout/typography';
 import { usePresentationMediaQuery } from '../../../../../../shared/ui/layout/use-presentation-media-query';
-import { MotionStagger, MotionStaggerItem } from '../../../../../../shared/ui/motion/motion-primitives';
 import { PlayerStageSurfaceFrame } from '../../../../../party/player/screens/components/player-stage-surface-frame';
 import { resolvePlayableChoiceActionSlotLabel } from './playable-choice-action-slot-identity';
 import { mobileTileWrapperStyle, resolveMobileGridStyle } from './playable-choice-player-stage-surface.styles';
 import { PlayableChoiceResultActionTile } from './playable-choice-result-action-tile';
 import type { PlayableChoicePlayerStageSurfaceProps } from './playable-choice-runtime-panel.types';
 import { StageCountdownTimer } from './stage-countdown-timer';
-import { resolveStageTotalDurationMs, useStageRemainingDurationMs } from './use-stage-remaining-duration-ms';
-import { useStageRevealPhase } from './use-stage-reveal-phase';
+import { useStageTiming } from './use-stage-timing';
 
-const STAGE_ANSWER_REVEAL_INITIAL_DELAY_SECONDS_DESKTOP = 1.8;
-const STAGE_ANSWER_REVEAL_STAGGER_SECONDS_DESKTOP = 0.22;
-const STAGE_REVEAL_LOCK_MS_DESKTOP = 2_800;
-const STAGE_ANSWER_REVEAL_INITIAL_DELAY_SECONDS_MOBILE = 1.4;
-const STAGE_ANSWER_REVEAL_STAGGER_SECONDS_MOBILE = 0.18;
-const STAGE_REVEAL_LOCK_MS_MOBILE = 0;
 const MAX_SHORTCUT_ACTION_COUNT = 9;
 
 function PlayableChoiceActionShortcutRegistration({
@@ -62,15 +55,9 @@ export function PlayableChoicePlayerStageSurface({
   const { t } = usePresentationTranslation();
   const isMobile = usePresentationMediaQuery();
   const currentStage = party.context?.stage?.current;
-  const stageId = party.context?.lifecycle.stageId ?? null;
-  const stageEndsAtEpochMs = party.context?.lifecycle.stageEndsAtEpochMs ?? null;
-  const stageRevealCycleKey = stageId === null ? null : `${stageId}-${stageEndsAtEpochMs ?? 'no-deadline'}`;
   const currentPlayerAction = party.context?.stage?.actionSubmission?.currentPlayer ?? null;
-  const remainingDurationMs = useStageRemainingDurationMs(party);
-  const totalDurationMs = resolveStageTotalDurationMs(party);
+  const { isReading, remainingDurationMs, totalDurationMs } = useStageTiming(party);
   const isStageTimerExpired = remainingDurationMs === 0;
-  const stageRevealLockMs = isMobile ? STAGE_REVEAL_LOCK_MS_MOBILE : STAGE_REVEAL_LOCK_MS_DESKTOP;
-  const isStageRevealing = useStageRevealPhase(stageRevealCycleKey, stageRevealLockMs);
 
   if (!currentStage) {
     return null;
@@ -81,7 +68,7 @@ export function PlayableChoicePlayerStageSurface({
   const canChangeAnswer = party.settings.allowOptionChangeAfterVoting && !isStageTimerExpired;
   const isLocked = currentPlayerAction !== null && !canChangeAnswer;
   const areActionsDisabled =
-    party.status !== PartyStatus.ACTIVE || isSubmitting || isLocked || isStageTimerExpired || isStageRevealing;
+    party.status !== PartyStatus.ACTIVE || isSubmitting || isLocked || isStageTimerExpired || isReading;
   const shortcutScope = `${testIdPrefix}-player-stage-shortcuts`;
 
   useShortcutScope(shortcutScope, { active: true, priority: 100 });
@@ -142,43 +129,37 @@ export function PlayableChoicePlayerStageSurface({
       submittingLabel={t('game.party.player.route.actionSubmitting')}
       testId={`${testIdPrefix}-player-stage-surface`}
     >
-      {actionItems.map((item) =>
-        item.shortcutNumber ? (
-          <PlayableChoiceActionShortcutRegistration
-            actionId={item.actionId}
-            enabled={!areActionsDisabled}
-            key={`shortcut-${item.actionId}`}
-            onSubmitAction={onSubmitAction}
-            scope={shortcutScope}
-            shortcutNumber={item.shortcutNumber}
-          />
-        ) : null,
-      )}
-      {isMobile ? (
-        <MotionStagger
-          key={`answers-${stageRevealCycleKey ?? 'none'}`}
-          initialDelay={STAGE_ANSWER_REVEAL_INITIAL_DELAY_SECONDS_MOBILE}
-          staggerDelay={STAGE_ANSWER_REVEAL_STAGGER_SECONDS_MOBILE}
-          style={resolveMobileGridStyle(currentStage.actions.length)}
-        >
+      {!isReading &&
+        actionItems.map((item) =>
+          item.shortcutNumber ? (
+            <PlayableChoiceActionShortcutRegistration
+              actionId={item.actionId}
+              enabled={!areActionsDisabled}
+              key={`shortcut-${item.actionId}`}
+              onSubmitAction={onSubmitAction}
+              scope={shortcutScope}
+              shortcutNumber={item.shortcutNumber}
+            />
+          ) : null,
+        )}
+      {isReading ? (
+        <div role="status">
+          <SupportingText>{t('game.party.route.runtimeReading')}</SupportingText>
+        </div>
+      ) : isMobile ? (
+        <div style={resolveMobileGridStyle(currentStage.actions.length)}>
           {actionItems.map((item) => (
-            <MotionStaggerItem key={item.actionId} style={mobileTileWrapperStyle}>
+            <div key={item.actionId} style={mobileTileWrapperStyle}>
               {renderActionTile(item)}
-            </MotionStaggerItem>
+            </div>
           ))}
-        </MotionStagger>
+        </div>
       ) : (
-        <MotionStagger
-          key={`answers-${stageRevealCycleKey ?? 'none'}`}
-          initialDelay={STAGE_ANSWER_REVEAL_INITIAL_DELAY_SECONDS_DESKTOP}
-          staggerDelay={STAGE_ANSWER_REVEAL_STAGGER_SECONDS_DESKTOP}
-        >
-          <ResponsiveGrid columns={{ base: 2 }} gap="md">
-            {actionItems.map((item) => (
-              <MotionStaggerItem key={item.actionId}>{renderActionTile(item)}</MotionStaggerItem>
-            ))}
-          </ResponsiveGrid>
-        </MotionStagger>
+        <ResponsiveGrid columns={{ base: 2 }} gap="md">
+          {actionItems.map((item) => (
+            <div key={item.actionId}>{renderActionTile(item)}</div>
+          ))}
+        </ResponsiveGrid>
       )}
     </PlayerStageSurfaceFrame>
   );

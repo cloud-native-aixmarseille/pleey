@@ -9,6 +9,7 @@ import type { ThemeDocument } from '../../../../domains/theme/entities/theme-doc
 import { ThemeErrorCode } from '../../../../domains/theme/errors/theme-error';
 import { ThemeDocumentNormalizer } from '../../../../domains/theme/services/theme-document-normalizer';
 import { PartyFixtureFactory } from '../../../../test-utils/fixtures/party-fixture-factory';
+import { PartyStageFixtureFactory } from '../../../../test-utils/fixtures/party-stage-fixture-factory';
 import { ThemeFixtureFactory } from '../../../../test-utils/fixtures/theme-fixture-factory';
 import { GameIdentifierMockFactory } from '../../../../test-utils/mocks/game-identifier-mock-factory';
 import { GuestIdentifierMockFactory } from '../../../../test-utils/mocks/guest-identifier-mock-factory';
@@ -659,5 +660,20 @@ describe('SocketIoPartyPayloadMapper theme selection', () => {
 
     // Assert
     expect(result.themeDocument).toEqual(observation.themeDocument);
+  });
+});
+
+describe('SocketIoPartyPayloadMapper reading timing', () => {
+  it.each([
+    { endsAtEpochMs: 103_000, remainingDurationMs: 3_000 },
+    { endsAtEpochMs: null, remainingDurationMs: 2_000 },
+  ])('preserves the server reading state on reconnect: %j', (reading) => {
+    // Arrange
+    const mapper = createPayloadMapper();
+    const observation = new PartyStageFixtureFactory().createObservation({ reading });
+    // Act
+    const mapped = mapper.toObservation(observation);
+    // Assert
+    expect(mapped.context?.lifecycle).toEqual(observation.context?.lifecycle);
   });
 });

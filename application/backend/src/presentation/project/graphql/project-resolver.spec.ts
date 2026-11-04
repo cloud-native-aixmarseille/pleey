@@ -34,6 +34,7 @@ describe('ProjectResolver', () => {
       {
         name: 'Party Project',
         defaultPartySettings: {
+          questionReadingTimeSeconds: 3,
           allowJoiningAfterStart: true,
           allowOptionChangeAfterVoting: false,
           randomizeOptionOrder: true,
@@ -50,6 +51,7 @@ describe('ProjectResolver', () => {
       {
         name: 'Party Project',
         defaultPartySettings: {
+          questionReadingTimeSeconds: 3,
           allowJoiningAfterStart: true,
           allowOptionChangeAfterVoting: false,
           randomizeOptionOrder: true,
@@ -106,6 +108,7 @@ describe('ProjectResolver', () => {
       {
         name: 'Party Project',
         defaultPartySettings: {
+          questionReadingTimeSeconds: 3,
           allowJoiningAfterStart: false,
           allowOptionChangeAfterVoting: false,
           randomizeOptionOrder: true,

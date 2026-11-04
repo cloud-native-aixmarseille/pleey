@@ -2,7 +2,10 @@ import type { EvaluatePartyActionSubmissionCommand } from '../../application/gam
 import type { PartyStageCatalogEntry } from '../../application/game/types/shared/ports/party-stage-catalog.port';
 import { PartyPlayerKind } from '../../domain/game/party/enums/party-player-kind.enum';
 import { PartyStatus } from '../../domain/game/party/enums/party-status.enum';
-import { PartyRuntimePhase } from '../../domain/game/party/shared/entities/party-runtime-context';
+import {
+  type PartyRuntimeContext,
+  PartyRuntimePhase,
+} from '../../domain/game/party/shared/entities/party-runtime-context';
 import { backendTestIdentifiers } from '../branded-identifiers';
 
 export class ChoiceSubmissionFixtureFactory {
@@ -13,18 +16,27 @@ export class ChoiceSubmissionFixtureFactory {
       partyId: backendTestIdentifiers.party(1),
       playerIdentity: { kind: PartyPlayerKind.USER, userId: backendTestIdentifiers.user(1) },
       status: PartyStatus.ACTIVE,
-      context: {
-        lifecycle: {
-          phase: PartyRuntimePhase.STAGE,
-          stageId: backendTestIdentifiers.partyStage(1),
-          stagePosition: 0,
-          stageEndsAtEpochMs: 20_000,
-          stageRemainingDurationMs: null,
-          stageTimeLimitSeconds: 10,
-          totalStages: 3,
-        },
-      },
+      context: this.createContext(),
       ...overrides,
+    };
+  }
+
+  createContext(
+    overrides: Partial<
+      Extract<PartyRuntimeContext, { lifecycle: { phase: PartyRuntimePhase.STAGE } }>['lifecycle']
+    > = {},
+  ): Extract<PartyRuntimeContext, { lifecycle: { phase: PartyRuntimePhase.STAGE } }> {
+    return {
+      lifecycle: {
+        phase: PartyRuntimePhase.STAGE,
+        stageId: backendTestIdentifiers.partyStage(1),
+        stagePosition: 0,
+        stageEndsAtEpochMs: 20_000,
+        stageRemainingDurationMs: null,
+        stageTimeLimitSeconds: 10,
+        totalStages: 3,
+        ...overrides,
+      },
     };
   }
 

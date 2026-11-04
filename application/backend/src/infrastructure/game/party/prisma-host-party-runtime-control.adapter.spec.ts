@@ -6,6 +6,7 @@ import { PartyStatus } from '../../../domain/game/party/enums/party-status.enum'
 import { PartyRuntimePhase } from '../../../domain/game/party/shared/entities/party-runtime-context';
 import { DEFAULT_PARTY_SETTINGS } from '../../../domain/game/party/shared/entities/party-settings';
 import { backendTestIdentifiers } from '../../../test-utils/branded-identifiers';
+import { ChoiceSubmissionFixtureFactory } from '../../../test-utils/fixtures/choice-submission-fixture-factory';
 import { PrismaHostPartyRuntimeControlAdapter } from './prisma-host-party-runtime-control.adapter';
 import { PrismaPartyPlayerRemovalService } from './services/prisma-party-player-removal.service';
 
@@ -166,6 +167,36 @@ describe('PrismaHostPartyRuntimeControlAdapter', () => {
         },
         points: 1000,
       },
+    });
+  });
+
+  it.each([
+    { endsAtEpochMs: 13_000, remainingDurationMs: 3_000 },
+    { endsAtEpochMs: null, remainingDurationMs: 2_000 },
+  ])('persists the server reading state: %j', async (reading) => {
+    // Arrange
+    const transaction = { party: { update: vi.fn().mockResolvedValue(undefined) } };
+    const prisma = { $transaction: vi.fn().mockImplementation(async (callback) => callback(transaction)) };
+    const adapter = new PrismaHostPartyRuntimeControlAdapter(
+      prisma as never,
+      partyActionIdentifier,
+      {} as never,
+      {} as never,
+      partyStageIdentifier,
+      {} as never,
+      {} as never,
+      { toPersistedPartyStatus: () => 'active' } as never,
+      {} as never,
+      {} as never,
+      {} as never,
+    );
+    const context = new ChoiceSubmissionFixtureFactory().createContext({ reading });
+    // Act
+    await adapter.savePartyRuntime({ context, partyId: PARTY_ID, status: PartyStatus.ACTIVE });
+    // Assert
+    expect(transaction.party.update).toHaveBeenCalledWith({
+      where: { id: PARTY_ID },
+      data: { context, status: 'active' },
     });
   });
 

@@ -384,6 +384,7 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
           readonly allowOptionChangeAfterVoting: boolean;
           readonly randomizeOptionOrder: boolean;
           readonly randomizeStageOrder: boolean;
+          readonly questionReadingTimeSeconds: number;
         }
       | null
       | undefined,
@@ -394,6 +395,7 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
           allowOptionChangeAfterVoting: settings.allowOptionChangeAfterVoting,
           randomizeOptionOrder: settings.randomizeOptionOrder,
           randomizeStageOrder: settings.randomizeStageOrder,
+          questionReadingTimeSeconds: settings.questionReadingTimeSeconds,
         }
       : null;
   }

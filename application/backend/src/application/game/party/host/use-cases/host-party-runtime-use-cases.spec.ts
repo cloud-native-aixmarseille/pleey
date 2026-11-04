@@ -22,7 +22,8 @@ const OTHER_USER_ID = backendTestIdentifiers.user(99);
 const STAGE_101 = backendTestIdentifiers.partyStage(101);
 const STAGE_202 = backendTestIdentifiers.partyStage(202);
 const STAGE_303 = backendTestIdentifiers.partyStage(303);
-const DEFAULT_PARTY_SETTINGS = {
+const PARTY_SETTINGS = {
+  questionReadingTimeSeconds: 5,
   allowJoiningAfterStart: false,
   allowOptionChangeAfterVoting: false,
   randomizeOptionOrder: false,
@@ -38,7 +39,7 @@ describe('Host party runtime use cases', () => {
         gameId: GAME_ID,
         hostUserId: HOST_USER_ID,
         partyId: PARTY_ID,
-        settings: DEFAULT_PARTY_SETTINGS,
+        settings: PARTY_SETTINGS,
         status: PartyStatus.WAITING,
       }),
       savePartyRuntime: vi.fn().mockResolvedValue(undefined),
@@ -52,7 +53,7 @@ describe('Host party runtime use cases', () => {
         gameId: GAME_ID,
         hostUserId: HOST_USER_ID,
         partyId: PARTY_ID,
-        settings: DEFAULT_PARTY_SETTINGS,
+        settings: PARTY_SETTINGS,
         status: PartyStatus.ACTIVE,
       }),
       savePartyRuntime: vi.fn().mockResolvedValue(undefined),
@@ -90,13 +91,14 @@ describe('Host party runtime use cases', () => {
       expect(partyStageConfiguration.getStageCount).toHaveBeenCalledWith(GAME_ID);
       expect(partyStageCatalog.findFirstStage).toHaveBeenCalledWith(GAME_ID, {
         partyId: PARTY_ID,
-        settings: DEFAULT_PARTY_SETTINGS,
+        settings: PARTY_SETTINGS,
       });
       expect(hostPartyRuntimeControl.savePartyRuntime).toHaveBeenCalledWith({
         context: {
           lifecycle: {
             phase: PartyRuntimePhase.STAGE,
-            stageEndsAtEpochMs: 120_000,
+            reading: { endsAtEpochMs: 105_000, remainingDurationMs: 5_000 },
+            stageEndsAtEpochMs: 125_000,
             stageRemainingDurationMs: 20_000,
             stageId: STAGE_101,
             stagePosition: 0,
@@ -109,7 +111,7 @@ describe('Host party runtime use cases', () => {
           fromStageId: null,
           gameId: GAME_ID,
           partyId: PARTY_ID,
-          settings: DEFAULT_PARTY_SETTINGS,
+          settings: PARTY_SETTINGS,
         },
         status: PartyStatus.ACTIVE,
       });
@@ -235,13 +237,14 @@ describe('Host party runtime use cases', () => {
 
       expect(partyStageCatalog.findNextStage).toHaveBeenCalledWith(GAME_ID, STAGE_202, {
         partyId: PARTY_ID,
-        settings: DEFAULT_PARTY_SETTINGS,
+        settings: PARTY_SETTINGS,
       });
       expect(hostPartyRuntimeControl.savePartyRuntime).toHaveBeenCalledWith({
         context: {
           lifecycle: {
             phase: PartyRuntimePhase.STAGE,
-            stageEndsAtEpochMs: 115_000,
+            reading: { endsAtEpochMs: 105_000, remainingDurationMs: 5_000 },
+            stageEndsAtEpochMs: 120_000,
             stageRemainingDurationMs: 15_000,
             stageId: STAGE_303,
             stagePosition: 2,
@@ -289,7 +292,8 @@ describe('Host party runtime use cases', () => {
         context: {
           lifecycle: {
             phase: PartyRuntimePhase.STAGE,
-            stageEndsAtEpochMs: 170_000,
+            reading: { endsAtEpochMs: 155_000, remainingDurationMs: 5_000 },
+            stageEndsAtEpochMs: 175_000,
             stageRemainingDurationMs: 20_000,
             stageId: STAGE_202,
             stagePosition: 1,
@@ -302,7 +306,7 @@ describe('Host party runtime use cases', () => {
           fromStageId: STAGE_202,
           gameId: GAME_ID,
           partyId: PARTY_ID,
-          settings: DEFAULT_PARTY_SETTINGS,
+          settings: PARTY_SETTINGS,
         },
         status: PartyStatus.ACTIVE,
       });
@@ -351,7 +355,8 @@ describe('Host party runtime use cases', () => {
         context: {
           lifecycle: {
             phase: PartyRuntimePhase.STAGE,
-            stageEndsAtEpochMs: 205_000,
+            reading: { endsAtEpochMs: 185_000, remainingDurationMs: 5_000 },
+            stageEndsAtEpochMs: 210_000,
             stageRemainingDurationMs: 25_000,
             stageId: STAGE_202,
             stagePosition: 1,
@@ -364,7 +369,7 @@ describe('Host party runtime use cases', () => {
           fromStageId: STAGE_202,
           gameId: GAME_ID,
           partyId: PARTY_ID,
-          settings: DEFAULT_PARTY_SETTINGS,
+          settings: PARTY_SETTINGS,
         },
         status: PartyStatus.ACTIVE,
       });
@@ -416,7 +421,7 @@ describe('Host party runtime use cases', () => {
         fromStageId: null,
         gameId: GAME_ID,
         partyId: PARTY_ID,
-        settings: DEFAULT_PARTY_SETTINGS,
+        settings: PARTY_SETTINGS,
       },
       status: PartyStatus.WAITING,
     });

@@ -186,6 +186,7 @@ export class OrganizationResolver {
           readonly allowOptionChangeAfterVoting?: boolean;
           readonly randomizeOptionOrder?: boolean;
           readonly randomizeStageOrder?: boolean;
+          readonly questionReadingTimeSeconds?: number;
         }
       | undefined,
   ): PartySettings | null {
@@ -199,6 +200,8 @@ export class OrganizationResolver {
         settings.allowOptionChangeAfterVoting ?? DEFAULT_PARTY_SETTINGS.allowOptionChangeAfterVoting,
       randomizeOptionOrder: settings.randomizeOptionOrder ?? DEFAULT_PARTY_SETTINGS.randomizeOptionOrder,
       randomizeStageOrder: settings.randomizeStageOrder ?? DEFAULT_PARTY_SETTINGS.randomizeStageOrder,
+      questionReadingTimeSeconds:
+        settings.questionReadingTimeSeconds ?? DEFAULT_PARTY_SETTINGS.questionReadingTimeSeconds,
     };
   }
 }

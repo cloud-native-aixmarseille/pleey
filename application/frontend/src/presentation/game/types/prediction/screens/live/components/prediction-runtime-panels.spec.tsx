@@ -216,7 +216,7 @@ describe('prediction runtime panels', () => {
     }
   });
 
-  it('submits immediately on mobile without waiting for a reveal lock', () => {
+  it('submits immediately on mobile when the stage has no reading period', () => {
     // Arrange
     vi.useFakeTimers();
     vi.setSystemTime(1_000);

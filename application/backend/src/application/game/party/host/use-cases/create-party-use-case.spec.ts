@@ -267,12 +267,14 @@ describe('CreatePartyUseCase', () => {
       projectId: backendTestIdentifiers.project(6),
       organizationId: backendTestIdentifiers.organization(3),
       projectDefaultSettings: {
+        questionReadingTimeSeconds: 3,
         allowJoiningAfterStart: false,
         allowOptionChangeAfterVoting: true,
         randomizeOptionOrder: false,
         randomizeStageOrder: true,
       },
       organizationDefaultSettings: {
+        questionReadingTimeSeconds: 3,
         allowJoiningAfterStart: false,
         allowOptionChangeAfterVoting: false,
         randomizeOptionOrder: true,
@@ -292,6 +294,7 @@ describe('CreatePartyUseCase', () => {
     expect(partyManagement.createParty).toHaveBeenCalledWith(
       expect.objectContaining({
         settings: {
+          questionReadingTimeSeconds: 3,
           allowJoiningAfterStart: false,
           allowOptionChangeAfterVoting: true,
           randomizeOptionOrder: true,
