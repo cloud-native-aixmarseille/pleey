@@ -116,6 +116,14 @@ Theme feature components, routes, screens, hooks, and translations live in `pres
 
 [ADR 0012](../../architecture/adr/0012-manage-themes-as-data-driven-token-themes.md#authoring-and-assets-implementation) defines inherited theme selections, documents, authoring, and rollout ordering. Theme selection types live in `domains/theme/entities/theme-id.ts`; `ThemeIdentifier` belongs to `application/workspace/themes/services/` and is registered in the workspace container. Management forms edit `defaultThemeId`, while realtime payloads carry the required resolved `themeDocument`. Party screens apply that document through `usePartyTheme`; color scheme stays independent and theme seeds remain in the UI foundation.
 
+## True/false choice colors
+
+True/false options use green for True and red for False in the editor and live
+host/player stage and result tiles. Color follows `booleanValue`, independently
+of correctness, labels, order, and event theme. Other choices retain themed colors.
+Keep explicit correctness labels and selection state alongside color. See
+[ADR 0020](../../architecture/adr/0020-use-semantic-colors-for-boolean-choices.md).
+
 ## Stage standings
 
 [ADR 0017](../../architecture/adr/0017-reward-action-quality-before-speed-in-game-scoring.md#scoreboard-presentation) defines score and rank deltas. `PartyProvider` captures complete stage and result rosters for the observed party. Result surfaces consume `usePartyStageScoreboardSnapshot`; they must not create a zero baseline or recalculate historical ranks from the current roster. Missing history omits deltas, while an observed empty roster identifies newcomers. Keep the baseline fixed through result animations and reconnects. Shared ranking orders equal scores by username, then stable player identity.

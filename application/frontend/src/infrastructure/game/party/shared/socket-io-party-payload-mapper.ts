@@ -298,6 +298,7 @@ export class SocketIoPartyPayloadMapper {
 
   private toStageActionContext(action: PartyRuntimeStageActionValue): PartyRuntimeStageActionValue {
     return {
+      booleanValue: typeof action.booleanValue === 'boolean' ? action.booleanValue : undefined,
       id: this.partyActionIdentifier.parse(action.id),
       text: action.text,
     };
@@ -305,6 +306,7 @@ export class SocketIoPartyPayloadMapper {
 
   private toResultActionContext(action: PartyRuntimeResultActionValue): PartyRuntimeResultActionValue {
     return {
+      booleanValue: typeof action.booleanValue === 'boolean' ? action.booleanValue : undefined,
       actionCount: action.actionCount,
       actionPercent: action.actionPercent,
       earnedPoints: action.earnedPoints,

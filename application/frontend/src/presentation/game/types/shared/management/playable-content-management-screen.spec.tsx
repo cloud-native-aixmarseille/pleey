@@ -127,8 +127,8 @@ describe('PlayableContentManagementScreen', () => {
                 {
                   correctSelectionMode: 'single',
                   fixedOptions: [
-                    { labelKey: 'game.types.quiz.management.true', text: null },
-                    { labelKey: 'game.types.quiz.management.false', text: null },
+                    { booleanValue: true, labelKey: 'game.types.quiz.management.true', text: null },
+                    { booleanValue: false, labelKey: 'game.types.quiz.management.false', text: null },
                   ],
                   labelKey: 'game.types.quiz.management.kindTrueFalse',
                   value: 'truefalse',
@@ -190,6 +190,31 @@ describe('PlayableContentManagementScreen', () => {
         timeLimit: 20,
       });
     });
+  });
+
+  it('keeps True green and False red when False is selected as the correct answer', async () => {
+    // Arrange
+    arrangeGatewayDefaults();
+    const user = userEvent.setup();
+    renderScreen();
+    await user.click(await screen.findByRole('button', { name: 'game.types.quiz.management.createItem' }));
+    await user.selectOptions(screen.getByRole('combobox'), 'truefalse');
+    const trueGroup = screen.getByRole('group', { name: 'game.types.quiz.management.true' });
+    const falseGroup = screen.getByRole('group', { name: 'game.types.quiz.management.false' });
+    const trueButton = within(trueGroup).getByRole('button');
+    const falseButton = within(falseGroup).getByRole('button');
+    expect(trueGroup).toHaveStyle({ borderColor: '#2f9e44' });
+    expect(falseGroup).toHaveStyle({ borderColor: '#e03131' });
+    expect(trueButton).toHaveAttribute('aria-pressed', 'true');
+
+    // Act
+    await user.click(falseButton);
+
+    // Assert
+    expect(trueGroup).toHaveStyle({ borderColor: '#2f9e44' });
+    expect(falseGroup).toHaveStyle({ borderColor: '#e03131' });
+    expect(trueButton).toHaveAttribute('aria-pressed', 'false');
+    expect(falseButton).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('resets the editor to a blank creation form after creating an item', async () => {

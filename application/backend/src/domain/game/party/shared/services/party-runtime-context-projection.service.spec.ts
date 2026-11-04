@@ -49,8 +49,8 @@ describe('PartyRuntimeContextProjectionService', () => {
       ],
       stage: {
         actions: [
-          { id: backendTestIdentifiers.partyAction(5), isCorrect: false, text: 'A' },
-          { id: backendTestIdentifiers.partyAction(7), isCorrect: true, text: 'B' },
+          { booleanValue: true, id: backendTestIdentifiers.partyAction(5), isCorrect: false, text: 'Vrai' },
+          { booleanValue: false, id: backendTestIdentifiers.partyAction(7), isCorrect: true, text: 'Faux' },
         ],
         id: stageId,
         media: {
@@ -88,8 +88,8 @@ describe('PartyRuntimeContextProjectionService', () => {
         },
         current: {
           actions: [
-            { id: backendTestIdentifiers.partyAction(5), text: 'A' },
-            { id: backendTestIdentifiers.partyAction(7), text: 'B' },
+            { booleanValue: true, id: backendTestIdentifiers.partyAction(5), text: 'Vrai' },
+            { booleanValue: false, id: backendTestIdentifiers.partyAction(7), text: 'Faux' },
           ],
           media: {
             mimeType: 'image/png',
@@ -150,8 +150,8 @@ describe('PartyRuntimeContextProjectionService', () => {
       ],
       stage: {
         actions: [
-          { id: backendTestIdentifiers.partyAction(5), isCorrect: false, text: 'A' },
-          { id: backendTestIdentifiers.partyAction(7), isCorrect: true, text: 'B' },
+          { booleanValue: true, id: backendTestIdentifiers.partyAction(5), isCorrect: false, text: 'Vrai' },
+          { booleanValue: false, id: backendTestIdentifiers.partyAction(7), isCorrect: true, text: 'Faux' },
         ],
         id: stageId,
         media: {
@@ -186,16 +186,18 @@ describe('PartyRuntimeContextProjectionService', () => {
               actionPercent: 33,
               earnedPoints: 0,
               id: backendTestIdentifiers.partyAction(5),
+              booleanValue: true,
               isCorrect: false,
-              text: 'A',
+              text: 'Vrai',
             },
             {
               actionCount: 2,
               actionPercent: 67,
               earnedPoints: 1000,
               id: backendTestIdentifiers.partyAction(7),
+              booleanValue: false,
               isCorrect: true,
-              text: 'B',
+              text: 'Faux',
             },
           ],
           media: {

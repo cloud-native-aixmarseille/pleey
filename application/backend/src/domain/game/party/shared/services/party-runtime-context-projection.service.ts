@@ -49,6 +49,7 @@ export class PartyRuntimeContextProjectionService {
         },
         current: {
           actions: input.stage.actions.map((action) => ({
+            booleanValue: action.booleanValue,
             id: action.id,
             text: action.text,
           })),
@@ -103,6 +104,7 @@ export class PartyRuntimeContextProjectionService {
             const actionCount = actionCounts.get(action.id) ?? 0;
 
             return {
+              booleanValue: action.booleanValue,
               actionCount,
               actionPercent: totalVotes > 0 ? Math.round((actionCount / totalVotes) * 100) : 0,
               earnedPoints: action.isCorrect ? stage.points : 0,

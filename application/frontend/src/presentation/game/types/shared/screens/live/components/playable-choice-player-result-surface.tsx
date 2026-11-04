@@ -63,6 +63,7 @@ export function PlayableChoicePlayerResultSurface({
           return (
             <MotionStaggerItem key={action.id}>
               <PlayableChoiceResultActionTile
+                booleanValue={action.booleanValue}
                 actionCount={action.actionCount}
                 actionPercent={action.actionPercent}
                 copy={copy}

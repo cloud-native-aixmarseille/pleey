@@ -5,6 +5,7 @@ import type { PartySettings } from '../../../../../domain/game/party/shared/enti
 import type { PartyStageId } from '../../../../../domain/game/party/shared/entities/party-stage';
 
 interface PartyStageActionCatalogEntry {
+  readonly booleanValue?: boolean;
   readonly id: PartyActionId;
   readonly isCorrect: boolean;
   readonly text: string;

@@ -82,6 +82,7 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
           select: {
             id: true,
             isCorrect: true,
+            position: true,
             text: true,
           },
         },
@@ -91,6 +92,7 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
 
     return questions.map((question) => ({
       actions: question.answers.map((answer) => ({
+        booleanValue: question.type === QuizQuestionType.TrueFalse ? answer.position === 0 : undefined,
         id: this.partyActionIdentifier.parse(answer.id),
         isCorrect: answer.isCorrect,
         text: answer.text ?? '',
@@ -152,6 +154,7 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
           select: {
             id: true,
             isCorrect: true,
+            position: true,
             text: true,
           },
         },
@@ -165,6 +168,7 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
 
     return {
       actions: question.answers.map((answer) => ({
+        booleanValue: question.type === QuizQuestionType.TrueFalse ? answer.position === 0 : undefined,
         id: this.partyActionIdentifier.parse(answer.id),
         isCorrect: answer.isCorrect,
         text: answer.text ?? '',
