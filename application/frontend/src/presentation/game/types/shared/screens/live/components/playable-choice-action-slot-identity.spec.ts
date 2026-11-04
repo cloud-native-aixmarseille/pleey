@@ -2,7 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { resolvePlayableChoiceActionSlotIdentity } from './playable-choice-action-slot-identity';
 
 describe('playable choice slot identity', () => {
-  it.each([true, false])('keeps boolean %s colors independent of theme and slot order', (booleanValue) => {
+  it.each([
+    { booleanValue: true, borderToken: 'success', backgroundToken: '--ui-color-brand-success' },
+    { booleanValue: false, borderToken: 'danger', backgroundToken: '--ui-color-surface-danger' },
+  ])('uses $borderToken theme tokens regardless of slot order', ({ booleanValue, borderToken, backgroundToken }) => {
     // Arrange
     const palettes = [['#ff0000'], ['#0000ff'], ['#00ff00'], ['#ffffff'], []];
 
@@ -14,9 +17,8 @@ describe('playable choice slot identity', () => {
     // Assert
     expect(new Set(slots.map((slot) => slot.badgeBackground)).size).toBe(1);
     expect(new Set(slots.map((slot) => slot.surfaceBackground)).size).toBe(1);
-    const [red, green, blue] = slots[0].badgeBackground.match(/\d+/g)!.map(Number);
-    expect(booleanValue ? green : red).toBeGreaterThan(booleanValue ? red : green);
-    expect(booleanValue ? green : red).toBeGreaterThan(blue);
+    expect(slots[0].surfaceBorder).toBe(`var(--ui-color-border-${borderToken})`);
+    expect(slots[0].surfaceBackground).toContain(`var(${backgroundToken})`);
     expect(slots.slice(0, 2).map((slot) => slot.letter)).toEqual(['A', 'B']);
   });
 
@@ -26,11 +28,7 @@ describe('playable choice slot identity', () => {
       // Arrange
       const palette = [primary, '#ff4fa3', '#a2d354'];
       // Act
-      const slots = [undefined, true, false].flatMap((booleanValue) =>
-        Array.from({ length: 8 }, (_, index) =>
-          resolvePlayableChoiceActionSlotIdentity(index, 8, palette, booleanValue),
-        ),
-      );
+      const slots = Array.from({ length: 8 }, (_, index) => resolvePlayableChoiceActionSlotIdentity(index, 8, palette));
       // Assert
       for (const slot of slots) {
         const channels = slot.badgeBackground.match(/\d+/g)?.map(Number) ?? [];

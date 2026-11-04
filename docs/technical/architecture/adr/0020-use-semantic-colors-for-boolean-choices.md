@@ -12,7 +12,7 @@ on the event theme, and runtime actions carry text without their boolean meaning
 
 ## Decision Drivers
 
-- Consistent colors in the editor, host/player stages, and results
+- Consistent theme semantics in the editor, host/player stages, and results
 - Independence from translated labels, answer order, and correctness
 - Preserve themed colors for multiple-choice questions and predictions
 
@@ -30,10 +30,13 @@ and retain it through stage and result projections.
 
 ## Decision
 
-Choose option 2. Boolean choices use a shared green/red palette in the existing
-design system. Their colors identify True/False, independently of which answer
-is correct. Other choices keep the theme-derived palette. Editor controls and
-result labels continue to communicate correctness explicitly.
+Choose option 2. Boolean choices inherit the active theme's success tokens for
+True and danger tokens for False through the existing design system. CSS variables
+preserve custom theme overrides, previews, and light/dark mode without fixed color
+values. Badge backgrounds and text use the theme's corresponding semantic pairs.
+Their colors identify True/False, independently of which answer is correct. Other
+choices keep the theme-derived palette. Editor controls and result labels continue
+to communicate correctness explicitly.
 
 The optional `booleanValue` field is absent for non-boolean choices. It carries
 no correctness information and requires no persistence or GraphQL schema change.
@@ -42,16 +45,17 @@ no correctness information and requires no persistence or GraphQL schema change.
 
 ### Positive
 
-- Translations and event themes cannot swap the meaning of the colors.
+- Translations and answer order cannot swap the semantic token assignments.
+- Custom themes and color schemes control the actual success and danger colors.
 - The same identity survives selection and result display.
 - Existing labels and accessible selection state supplement color.
 
 ### Negative
 
 - The realtime action contract gains one optional field.
-- Boolean choice colors intentionally do not follow the event brand palette.
+- Custom themes remain responsible for success/danger color semantics and contrast.
 
 ### Follow-Up
 
 - Validate catalog mapping, runtime projection, socket decoding, editor selection,
-  and rendered answer colors, including False as the correct answer.
+  and rendered answer colors, including theme overrides and False as the correct answer.

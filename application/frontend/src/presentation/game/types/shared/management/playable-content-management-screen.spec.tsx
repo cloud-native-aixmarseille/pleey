@@ -192,7 +192,7 @@ describe('PlayableContentManagementScreen', () => {
     });
   });
 
-  it('keeps True green and False red when False is selected as the correct answer', async () => {
+  it('preserves success and danger theme tokens when False is selected as the correct answer', async () => {
     // Arrange
     arrangeGatewayDefaults();
     const user = userEvent.setup();
@@ -203,16 +203,18 @@ describe('PlayableContentManagementScreen', () => {
     const falseGroup = screen.getByRole('group', { name: 'game.types.quiz.management.false' });
     const trueButton = within(trueGroup).getByRole('button');
     const falseButton = within(falseGroup).getByRole('button');
-    expect(trueGroup).toHaveStyle({ borderColor: '#2f9e44' });
-    expect(falseGroup).toHaveStyle({ borderColor: '#e03131' });
+    expect(trueGroup.style.border).toContain('var(--ui-color-border-success)');
+    expect(falseGroup.style.border).toContain('var(--ui-color-border-danger)');
     expect(trueButton).toHaveAttribute('aria-pressed', 'true');
 
     // Act
     await user.click(falseButton);
 
     // Assert
-    expect(trueGroup).toHaveStyle({ borderColor: '#2f9e44' });
-    expect(falseGroup).toHaveStyle({ borderColor: '#e03131' });
+    expect(trueGroup.style.border).toContain('var(--ui-color-border-success)');
+    expect(falseGroup.style.border).toContain('var(--ui-color-border-danger)');
+    expect(trueGroup.style.background).toContain('var(--ui-color-brand-success)');
+    expect(falseGroup.style.background).toBe('var(--ui-color-surface-danger)');
     expect(trueButton).toHaveAttribute('aria-pressed', 'false');
     expect(falseButton).toHaveAttribute('aria-pressed', 'true');
   });

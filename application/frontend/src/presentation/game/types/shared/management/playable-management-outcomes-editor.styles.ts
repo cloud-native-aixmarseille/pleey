@@ -7,14 +7,13 @@ export const outcomeDropZoneStyle = {
 } as const;
 
 export function createOutcomeBlockStyle(isCorrect: boolean, canReorder: boolean, booleanValue?: boolean) {
-  const choiceColor = typeof booleanValue === 'boolean' ? uiBooleanChoiceColors[booleanValue ? 'true' : 'false'] : null;
+  const choiceColors =
+    typeof booleanValue === 'boolean' ? uiBooleanChoiceColors[booleanValue ? 'true' : 'false'] : null;
 
   return {
-    background: choiceColor
-      ? `color-mix(in srgb, ${choiceColor} 16%, ${uiThemeTokens.color.surface.recessed})`
-      : uiThemeTokens.color.surface.recessed,
-    border: choiceColor
-      ? `1px solid ${choiceColor}`
+    background: choiceColors?.surfaceBackground ?? uiThemeTokens.color.surface.recessed,
+    border: choiceColors
+      ? `1px solid ${choiceColors.surfaceBorder}`
       : isCorrect
         ? `1px solid ${uiThemeTokens.color.brand.primary}`
         : `1px solid ${uiThemeTokens.color.border.subtle}`,
