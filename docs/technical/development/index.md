@@ -59,6 +59,10 @@ Local lint commands use the shared CI workflow's Kubeconform exclusions for Helm
 
 Checkov renders the umbrella chart using [the CI recovery values](../../../charts/application/ci/recovery-values.yaml), including the frontend and backend templates. Only the two local subchart `Chart.yaml` entrypoints are excluded from duplicate standalone discovery; their directories remain eligible for scanning. Keep the fixture complete when chart schemas add required values, and verify that security checks still detect missing release policies and unsafe service workloads.
 
+Trivy loads package-specific, expiring exceptions from
+[its ignore file](../../../.github/linters/.trivyignore.yaml). Keep each exception
+limited to the verified advisory and package version.
+
 The root and application Biome configurations use the installed CLI schema.
 
 ## Release Notes
@@ -88,6 +92,18 @@ Keep the Playwright image tag in [`compose.yaml`](../../../compose.yaml) aligned
 with the resolved `@playwright/test` version in
 [`e2e/package-lock.json`](../../../e2e/package-lock.json). The container supplies
 the browser binaries required by that exact Playwright version.
+
+The end-to-end container uses the same host UID/GID as the application containers and a
+temporary npm cache, so dependencies and test reports remain writable on the host.
+If existing end-to-end artifacts were created as root, repair their ownership before
+running dependency commands or tests:
+
+```bash
+docker compose run --rm --no-deps -T --user root e2e-tests \
+  chown -R "$(id -u):$(id -g)" node_modules playwright-report test-results
+```
+
+Include only artifact directories that exist in `e2e/`.
 
 ## Test Writing Rules
 

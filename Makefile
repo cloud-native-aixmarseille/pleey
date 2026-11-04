@@ -366,6 +366,7 @@ define run_linter
 		-e FILTER_REGEX_INCLUDE="$(filter-out $@,$(MAKECMDGOALS))" \
 		-e VALIDATE_BIOME_FORMAT=false \
 		-e VALIDATE_BIOME_LINT=false \
+		-e 'KUBERNETES_KUBECONFORM_OPTIONS=-ignore-missing-schemas -ignore-filename-pattern .*Chart\.yaml -ignore-filename-pattern .*values.*\.yaml -ignore-filename-pattern .*values\.schema\.json -ignore-filename-pattern charts/.*/templates/.* -ignore-filename-pattern charts/.*/crds/.*' \
 		$(1) \
 		$$LINTER_IMAGE
 endef

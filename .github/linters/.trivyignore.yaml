@@ -1,0 +1,10 @@
+---
+vulnerabilities:
+  - id: CVE-2026-118764
+    purls:
+      - pkg:npm/minimatch@3.1.5
+    expired_at: 2026-12-04
+    statement: >-
+      False positive: the reviewed advisory affects >=7.0.0 <11.0.1.
+      Version 3.1.5 does not contain the vulnerable preprocessing code.
+      See https://github.com/advisories/GHSA-g3hv-75wg-m249.
