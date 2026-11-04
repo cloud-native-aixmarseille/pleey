@@ -198,7 +198,7 @@ export class PrismaPartyStageCatalogAdapter extends PartyStageCatalogPort {
     stage: PartyStageCatalogEntry,
     options?: PartyStageCatalogQueryOptions,
   ): PartyStageCatalogEntry {
-    if (!this.shouldRandomizeAnswerOrder(options)) {
+    if (stage.preserveActionOrder || !this.shouldRandomizeAnswerOrder(options)) {
       return stage;
     }
 

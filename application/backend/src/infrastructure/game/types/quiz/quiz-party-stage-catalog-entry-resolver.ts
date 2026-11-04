@@ -5,6 +5,7 @@ import { PartyStageIdentifier } from '../../../../application/game/party/shared/
 import type { PartyStageCatalogEntry } from '../../../../application/game/types/shared/ports/party-stage-catalog.port';
 import type { GameId } from '../../../../domain/game/entities/game';
 import type { PartyStageId } from '../../../../domain/game/party/shared/entities/party-stage';
+import { QuizQuestionType } from '../../../../domain/game/types/quiz/entities/quiz-question';
 import { PrismaService } from '../../../database/prisma-service';
 import type { GameTypePartyStageCatalogProvider } from '../shared/game-type-party-stage-catalog-provider-registry';
 
@@ -62,6 +63,7 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
         position: true,
         points: true,
         questionText: true,
+        type: true,
         timeLimit: true,
         media: {
           select: {
@@ -102,6 +104,7 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
           }
         : null,
       points: question.points,
+      preserveActionOrder: question.type === QuizQuestionType.TrueFalse,
       stagePosition: question.position,
       text: question.questionText,
       timeLimitSeconds: question.timeLimit,
@@ -130,6 +133,7 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
         position: true,
         points: true,
         questionText: true,
+        type: true,
         timeLimit: true,
         media: {
           select: {
@@ -174,6 +178,7 @@ export class QuizPartyStageCatalogEntryResolver implements GameTypePartyStageCat
           }
         : null,
       points: question.points,
+      preserveActionOrder: question.type === QuizQuestionType.TrueFalse,
       stagePosition: question.position,
       timeLimitSeconds: question.timeLimit,
       text: question.questionText,

@@ -70,6 +70,15 @@ The shared importer accepts true/false answer labels in all supported template l
 
 True/false options normalize to `True` then `False`, preserving the correct answer. CSV also accepts translated labels in its `correct` column, alongside its existing boolean aliases. When adding a template language, extend `TrueFalseImportValueParser` and verify generated templates for that locale. See [ADR 0016](../../architecture/adr/0016-accept-localized-true-false-import-values.md).
 
+## Party answer ordering
+
+True/false quiz answers keep their stored position order (`True`, then `False`),
+even when the party enables `randomizeOptionOrder`. The quiz catalog provider
+marks these stages with `preserveActionOrder`; the shared catalog applies this
+constraint to list, individual, and navigation lookups. Multiple-choice quiz
+answers and prediction outcomes remain eligible for randomization. Stage order
+randomization is independent. See [ADR 0021](../../architecture/adr/0021-preserve-true-false-answer-order.md).
+
 ## Error Handling
 
 Use-cases and runtime services throw domain errors, and `I18nHttpExceptionFilter` translates them to HTTP status and localized messages.

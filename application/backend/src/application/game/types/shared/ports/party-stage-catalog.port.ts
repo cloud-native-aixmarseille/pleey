@@ -18,6 +18,7 @@ interface PartyStageMediaCatalogEntry {
 
 export interface PartyStageCatalogEntry {
   readonly actions: readonly PartyStageActionCatalogEntry[];
+  readonly preserveActionOrder?: boolean;
   readonly id: PartyStageId;
   readonly media?: PartyStageMediaCatalogEntry | null;
   readonly points: number;
