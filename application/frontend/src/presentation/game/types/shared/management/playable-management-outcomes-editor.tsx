@@ -97,7 +97,11 @@ export function PlayableManagementOutcomesEditor({
             setDraggedIndex: setDraggedOutcomeIndex,
             setDropPreview,
           });
-          const baseOutcomeStyle = createOutcomeBlockStyle(isCorrect, canReorderOutcomes);
+          const baseOutcomeStyle = createOutcomeBlockStyle(
+            isCorrect,
+            canReorderOutcomes,
+            fixedOptions?.[index]?.booleanValue,
+          );
 
           return (
             <div
@@ -112,6 +116,8 @@ export function PlayableManagementOutcomesEditor({
             >
               {dropPreview?.slot === index ? <ReorderDropIndicator compact /> : null}
               <div
+                role="group"
+                aria-label={label}
                 style={{
                   ...baseOutcomeStyle,
                   background: reorderBindings.isDropTarget
@@ -146,6 +152,7 @@ export function PlayableManagementOutcomesEditor({
                     {canReorderOutcomes ? <ReorderHandle dragging={reorderBindings.isDragging} /> : null}
                     <Button
                       aria-label={getOutcomeAriaLabel(label)}
+                      aria-pressed={isCorrect}
                       intent={isCorrect ? 'primary' : 'ghost'}
                       onClick={() =>
                         setEditorState(

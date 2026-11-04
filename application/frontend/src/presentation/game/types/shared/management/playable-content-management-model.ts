@@ -11,6 +11,7 @@ import { playableOutcomeEditorPolicy } from './playable-outcome-editor-policy';
 type PlayableItemEditorKind = string | null;
 
 interface PlayableItemKindFixedOption {
+  readonly booleanValue?: boolean;
   readonly labelKey: string;
   readonly text: string | null;
 }

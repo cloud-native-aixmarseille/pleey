@@ -19,8 +19,8 @@ const quizItemKindConfig: PlayableItemKindConfig<QuizQuestionKind> = {
     {
       correctSelectionMode: 'single',
       fixedOptions: [
-        { labelKey: 'game.types.quiz.management.true', text: null },
-        { labelKey: 'game.types.quiz.management.false', text: null },
+        { booleanValue: true, labelKey: 'game.types.quiz.management.true', text: null },
+        { booleanValue: false, labelKey: 'game.types.quiz.management.false', text: null },
       ],
       labelKey: 'game.types.quiz.management.kindTrueFalse',
       value: 'truefalse',

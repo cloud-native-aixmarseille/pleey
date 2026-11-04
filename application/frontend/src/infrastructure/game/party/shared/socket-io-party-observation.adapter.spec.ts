@@ -3,6 +3,7 @@ import { PartyPinIdentifier } from '../../../../application/game/party/shared/se
 import { GameTypeParser } from '../../../../application/game/types/shared/services/game-type-parser';
 import { PartyJoinReceiptStatus } from '../../../../domains/game/party/player/ports/party-player.port';
 import { PartyPlayerIdentityKind } from '../../../../domains/game/party/shared/entities/party-player-identity';
+import { PartyRuntimePhase } from '../../../../domains/game/party/shared/entities/party-runtime-context';
 import { DEFAULT_PARTY_SETTINGS } from '../../../../domains/game/party/shared/entities/party-settings';
 import { GameType } from '../../../../domains/game/types/shared/game-type';
 import type { ThemeDocument } from '../../../../domains/theme/entities/theme-document';
@@ -15,6 +16,7 @@ import { GameIdentifierMockFactory } from '../../../../test-utils/mocks/game-ide
 import { GuestIdentifierMockFactory } from '../../../../test-utils/mocks/guest-identifier-mock-factory';
 import { PartyActionIdentifierMockFactory } from '../../../../test-utils/mocks/party-action-identifier-mock-factory';
 import { PartyIdentifierMockFactory } from '../../../../test-utils/mocks/party-identifier-mock-factory';
+import { StageIdentifierMockFactory } from '../../../../test-utils/mocks/stage-identifier-mock-factory';
 import { UserIdentifierMockFactory } from '../../../../test-utils/mocks/user-identifier-mock-factory';
 import { SocketIoPartyHostControlAdapter } from '../host/socket-io-party-host-control.adapter';
 import { SocketIoPartyPlayerAdapter } from '../player/socket-io-party-player.adapter';
@@ -620,6 +622,55 @@ describe('SocketIoPartyObservationAdapter', () => {
 });
 
 describe('SocketIoPartyPayloadMapper theme selection', () => {
+  it.each([PartyRuntimePhase.STAGE, PartyRuntimePhase.RESULT] as const)(
+    'preserves boolean choice identity in %s snapshots',
+    (phase) => {
+      // Arrange
+      const mapper = createPayloadMapper();
+      const lifecycle = {
+        phase,
+        stageId: new StageIdentifierMockFactory().create().parse(12),
+        stagePosition: 0,
+        stageEndsAtEpochMs: null,
+        stageRemainingDurationMs: null,
+        stageTimeLimitSeconds: 20,
+        totalStages: 1,
+      };
+      const actions = [true, false, undefined].map((booleanValue, index) => ({
+        booleanValue,
+        id: partyActionIdentifier.parse(100 + index),
+        text: String(booleanValue),
+        isCorrect: booleanValue === false,
+        actionCount: 0,
+        actionPercent: 0,
+        earnedPoints: 0,
+      }));
+      const current = { actions, text: 'Question' };
+      const observation = new PartyFixtureFactory().createPartyObservation({
+        context:
+          phase === PartyRuntimePhase.STAGE
+            ? {
+                lifecycle: { ...lifecycle, phase },
+                stage: {
+                  current,
+                  actionSubmission: { currentPlayer: null, submittedPlayerCount: 0, totalEligiblePlayerCount: 0 },
+                },
+              }
+            : {
+                lifecycle: { ...lifecycle, phase },
+                result: { current, currentPlayer: null },
+              },
+      });
+
+      // Act
+      const result = mapper.toObservation(observation);
+
+      // Assert
+      const mapped = result.context?.stage?.current ?? result.context?.result?.current;
+      expect(mapped?.actions.map((action) => action.booleanValue)).toEqual([true, false, undefined]);
+    },
+  );
+
   it.each([null, undefined, { schemaVersion: 2 }, {}])('rejects an invalid theme document %j', (themeDocument) => {
     // Arrange
     const mapper = createPayloadMapper();

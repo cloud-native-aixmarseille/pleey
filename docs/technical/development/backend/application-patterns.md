@@ -79,6 +79,14 @@ constraint to list, individual, and navigation lookups. Multiple-choice quiz
 answers and prediction outcomes remain eligible for randomization. Stage order
 randomization is independent. See [ADR 0021](../../architecture/adr/0021-preserve-true-false-answer-order.md).
 
+## Boolean choice identity
+
+For true/false quiz questions, catalog actions carry `booleanValue`: position 0
+is True and position 1 is False. Stage and result projections preserve this value
+separately from `isCorrect`; non-boolean actions omit it. See
+[ADR 0020](../../architecture/adr/0020-use-semantic-colors-for-boolean-choices.md)
+for the editor and live color contract.
+
 ## Error Handling
 
 Use-cases and runtime services throw domain errors, and `I18nHttpExceptionFilter` translates them to HTTP status and localized messages.

@@ -78,6 +78,7 @@ export function PlayableChoicePlayerStageSurface({
     const shortcutNumber = index < MAX_SHORTCUT_ACTION_COUNT ? index + 1 : null;
 
     return {
+      booleanValue: action.booleanValue,
       actionId: action.id,
       index,
       isSelected,
@@ -89,6 +90,7 @@ export function PlayableChoicePlayerStageSurface({
 
   const renderActionTile = (item: (typeof actionItems)[number]) => (
     <PlayableChoiceResultActionTile
+      booleanValue={item.booleanValue}
       copy={copy}
       disabled={areActionsDisabled}
       fillParent={isMobile}

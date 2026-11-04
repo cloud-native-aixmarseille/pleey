@@ -118,6 +118,7 @@ export function PlayableChoiceHostStagePanel({ copy, party, testIdPrefix }: Play
             {currentStage.actions.map((action, index) => (
               <div key={action.id}>
                 <PlayableChoiceResultActionTile
+                  booleanValue={action.booleanValue}
                   copy={copy}
                   index={index}
                   isCorrect={false}

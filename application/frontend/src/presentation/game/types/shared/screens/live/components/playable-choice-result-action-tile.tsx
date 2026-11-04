@@ -25,6 +25,7 @@ export interface PlayableChoiceResultActionTileCopy {
 }
 
 interface PlayableChoiceResultActionTileProps {
+  readonly booleanValue?: boolean;
   readonly actionCount?: number;
   readonly actionPercent?: number;
   readonly ariaKeyShortcuts?: string;
@@ -46,6 +47,7 @@ interface PlayableChoiceResultActionTileProps {
 }
 
 export function PlayableChoiceResultActionTile({
+  booleanValue,
   actionCount,
   actionPercent,
   ariaKeyShortcuts,
@@ -69,7 +71,7 @@ export function PlayableChoiceResultActionTile({
     : [theme.colors?.brand?.[5], theme.colors?.accent?.[5], theme.colors?.success?.[5]].filter(
         (color): color is string => typeof color === 'string',
       );
-  const slot = resolvePlayableChoiceActionSlotIdentity(index, slotCount, colors);
+  const slot = resolvePlayableChoiceActionSlotIdentity(index, slotCount, colors, booleanValue);
   const isResultTile = typeof actionCount === 'number' && typeof actionPercent === 'number';
   const isCompact = isMobile && !isResultTile;
   const isMobileResultTile = isMobile && isResultTile;

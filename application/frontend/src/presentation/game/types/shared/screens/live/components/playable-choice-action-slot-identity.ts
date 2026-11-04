@@ -1,3 +1,5 @@
+import { uiBooleanChoiceColors } from '../../../../../../shared/ui/foundation/ui-boolean-choice-colors';
+
 export interface PlayableChoiceActionSlotIdentity {
   readonly letter: string;
   readonly surfaceBackground: string;
@@ -157,12 +159,15 @@ export function resolvePlayableChoiceActionSlotIdentity(
   index: number,
   slotCount: number,
   theme: PlayableChoiceActionSlotTheme,
+  booleanValue?: boolean,
 ): PlayableChoiceActionSlotIdentity {
-  const slotColor = createThemeHue(index, slotCount, theme);
+  const palette = typeof booleanValue === 'boolean' ? [uiBooleanChoiceColors[booleanValue ? 'true' : 'false']] : theme;
+  const slotColor =
+    typeof booleanValue === 'boolean' ? createThemeHue(0, 1, palette) : createThemeHue(index, slotCount, palette);
   const saturation = clamp(slotColor.saturation + 10, 42, 94) / 100;
   const lightness = clamp(slotColor.lightness - 2, 24, 88) / 100;
   const amplitude = saturation * Math.min(lightness, 1 - lightness);
-  const primary = parseThemeHexColor(theme[0] ?? '');
+  const primary = parseThemeHexColor(palette[0] ?? '');
   const anchors = primary ? [primary.red, primary.green, primary.blue] : null;
   const channels = [0, 8, 4].map((offset, channel) => {
     const hue = (offset + slotColor.hue / 30) % 12;

@@ -38,6 +38,7 @@ export function PlayableChoiceHostResultPanel({ copy, party, testIdPrefix }: Pla
                 {result.actions.map((action, index) => (
                   <MotionStaggerItem key={action.id}>
                     <PlayableChoiceResultActionTile
+                      booleanValue={action.booleanValue}
                       actionCount={action.actionCount}
                       actionPercent={action.actionPercent}
                       copy={copy}
