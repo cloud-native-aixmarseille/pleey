@@ -15,7 +15,7 @@ vi.mock('../../../../../../shared/i18n/use-presentation-translation', async () =
 
 const fixtures = new PartyStageFixtureFactory();
 
-describe('PlayableChoicePlayerStageSurface reading time', () => {
+describe('PlayableChoicePlayerStageSurface', () => {
   it.each([false, true])(
     'hides all answers and ignores keyboard shortcuts during reading (mobile/reduced motion: %s)',
     (matches) => {
@@ -31,6 +31,7 @@ describe('PlayableChoicePlayerStageSurface reading time', () => {
         removeListener: vi.fn(),
       }));
       const onSubmitAction = vi.fn();
+      // Act + Assert
       try {
         // Act
         renderWithUiProvider(
@@ -80,6 +81,7 @@ describe('PlayableChoicePlayerStageSurface reading time', () => {
         />
       </KeyboardShortcutsProvider>,
     );
+    // Act + Assert
     try {
       // Act
       act(() => vi.advanceTimersByTime(3_000));
@@ -96,6 +98,7 @@ describe('PlayableChoicePlayerStageSurface reading time', () => {
     // Arrange
     vi.useFakeTimers();
     vi.setSystemTime(105_000);
+    // Act + Assert
     try {
       // Act
       renderWithUiProvider(

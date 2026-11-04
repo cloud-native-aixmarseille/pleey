@@ -12,7 +12,7 @@ vi.mock('../../../../../../shared/i18n/use-presentation-translation', async () =
   return new PresentationTranslationMockFactory().createModule();
 });
 
-describe('PlayableChoiceHostStagePanel reading time', () => {
+describe('PlayableChoiceHostStagePanel', () => {
   it.each([
     { elapsed: 2_999, visible: false },
     { elapsed: 3_000, visible: true },
@@ -21,6 +21,7 @@ describe('PlayableChoiceHostStagePanel reading time', () => {
     vi.useFakeTimers();
     vi.setSystemTime(100_000);
     const party = new PartyStageFixtureFactory().createObservation();
+    // Act + Assert
     try {
       renderWithUiProvider(<PlayableChoiceHostStagePanel copy={quizRuntimeCopy} testIdPrefix="quiz" party={party} />);
       // Act
