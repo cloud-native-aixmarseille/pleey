@@ -214,43 +214,96 @@ describe('PrismaPartyStageCatalogAdapter', () => {
     expect(second?.id ?? null).toBe(ordered[1]?.id ?? null);
   });
 
-  it('keeps randomized action order deterministic per stage and party', async () => {
-    // Arrange
-    const stages = [createStage(1), createStage(2)];
-    const provider = {
-      findFirstStage: vi.fn().mockResolvedValue(stages[0]),
-      findNextStage: vi.fn().mockResolvedValue(stages[1]),
-      findPreviousStage: vi.fn().mockResolvedValue(null),
-      findStageById: vi.fn().mockImplementation(async (_gameId: string, stageId: string) => {
-        return stages.find((stage) => stage.id === stageId) ?? null;
-      }),
-      listStages: vi.fn().mockResolvedValue(stages),
-    };
-    const prisma = {
-      game: {
-        findFirst: vi.fn().mockResolvedValue({ type: 'prediction' }),
-      },
-    };
-    const gameTypeParser = {
-      parse: vi.fn().mockReturnValue(GameType.Prediction),
-    };
-    const registry = {
-      resolveByGameType: vi.fn().mockReturnValue(provider),
-    };
-    const adapter = new PrismaPartyStageCatalogAdapter(prisma as never, gameTypeParser as never, registry as never);
-    const options = {
-      partyId: 'party-A' as never,
-      settings: { ...DEFAULT_PARTY_SETTINGS, randomizeOptionOrder: true },
-    };
+  it.each([undefined, false])(
+    'keeps eligible action order randomized and deterministic (preserveActionOrder: %s)',
+    async (preserveActionOrder) => {
+      // Arrange
+      const stages = [{ ...createStage(1), preserveActionOrder }, createStage(2)];
+      const provider = {
+        findFirstStage: vi.fn().mockResolvedValue(stages[0]),
+        findNextStage: vi.fn().mockResolvedValue(stages[1]),
+        findPreviousStage: vi.fn().mockResolvedValue(null),
+        findStageById: vi.fn().mockImplementation(async (_gameId: string, stageId: string) => {
+          return stages.find((stage) => stage.id === stageId) ?? null;
+        }),
+        listStages: vi.fn().mockResolvedValue(stages),
+      };
+      const prisma = {
+        game: {
+          findFirst: vi.fn().mockResolvedValue({ type: 'prediction' }),
+        },
+      };
+      const gameTypeParser = {
+        parse: vi.fn().mockReturnValue(GameType.Prediction),
+      };
+      const registry = {
+        resolveByGameType: vi.fn().mockReturnValue(provider),
+      };
+      const adapter = new PrismaPartyStageCatalogAdapter(prisma as never, gameTypeParser as never, registry as never);
+      const options = {
+        partyId: backendTestIdentifiers.party('fixed-answer-order'),
+        settings: { ...DEFAULT_PARTY_SETTINGS, randomizeOptionOrder: true },
+      };
 
-    const first = await adapter.findStageById(gameId, stages[0].id, options);
-    // Act
-    const second = await adapter.findStageById(gameId, stages[0].id, options);
+      const first = await adapter.findStageById(gameId, stages[0].id, options);
+      // Act
+      const second = await adapter.findStageById(gameId, stages[0].id, options);
 
-    // Assert
-    expect(first?.actions.map((action) => action.id) ?? []).toEqual(second?.actions.map((action) => action.id) ?? []);
-    expect(first?.actions.map((action) => action.id).sort() ?? []).toEqual(
-      stages[0].actions.map((action) => action.id).sort(),
-    );
-  });
+      // Assert
+      expect(first?.actions.map((action) => action.id) ?? []).toEqual(second?.actions.map((action) => action.id) ?? []);
+      expect(first?.actions.map((action) => action.id).sort() ?? []).toEqual(
+        stages[0].actions.map((action) => action.id).sort(),
+      );
+      expect(first?.actions).not.toEqual(stages[0].actions);
+    },
+  );
+
+  it.each([
+    { randomizeOptionOrder: false, randomizeStageOrder: false },
+    { randomizeOptionOrder: false, randomizeStageOrder: true },
+    { randomizeOptionOrder: true, randomizeStageOrder: false },
+    { randomizeOptionOrder: true, randomizeStageOrder: true },
+  ])(
+    'preserves fixed action order across all lookups (options: $randomizeOptionOrder, stages: $randomizeStageOrder)',
+    async (settings) => {
+      // Arrange
+      const stages = [1, 2, 3].map((index) => ({
+        ...createStage(index),
+        preserveActionOrder: true,
+        actions: [
+          { id: backendTestIdentifiers.partyAction(index * 10 + 1), text: 'True', isCorrect: index % 2 === 0 },
+          { id: backendTestIdentifiers.partyAction(index * 10 + 2), text: 'False', isCorrect: index % 2 !== 0 },
+        ],
+      }));
+      const provider = {
+        findFirstStage: vi.fn().mockResolvedValue(stages[0]),
+        findNextStage: vi.fn().mockResolvedValue(stages[1]),
+        findPreviousStage: vi.fn().mockResolvedValue(stages[1]),
+        findStageById: vi.fn().mockResolvedValue(stages[0]),
+        listStages: vi.fn().mockResolvedValue(stages),
+      };
+      const prisma = { game: { findFirst: vi.fn().mockResolvedValue({ type: 'quiz' }) } };
+      const gameTypeParser = { parse: vi.fn().mockReturnValue(GameType.Quiz) };
+      const registry = { resolveByGameType: vi.fn().mockReturnValue(provider) };
+      const adapter = new PrismaPartyStageCatalogAdapter(prisma as never, gameTypeParser as never, registry as never);
+      const options = {
+        partyId: backendTestIdentifiers.party('fixed-answer-order'),
+        settings: { ...DEFAULT_PARTY_SETTINGS, ...settings },
+      };
+
+      // Act
+      const ordered = await adapter.listStages(gameId, options);
+      const first = await adapter.findFirstStage(gameId, options);
+      const byId = await adapter.findStageById(gameId, stages[0].id, options);
+      const next = await adapter.findNextStage(gameId, ordered[0].id, options);
+      const previous = await adapter.findPreviousStage(gameId, ordered[2].id, options);
+
+      // Assert
+      expect(ordered).toHaveLength(stages.length);
+      for (const stage of [...ordered, first, byId, next, previous]) {
+        expect(stage).not.toBeNull();
+        expect(stage?.actions).toEqual(stages.find((original) => original.id === stage?.id)?.actions);
+      }
+    },
+  );
 });

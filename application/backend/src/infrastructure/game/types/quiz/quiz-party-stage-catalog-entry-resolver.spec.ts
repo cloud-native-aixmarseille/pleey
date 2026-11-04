@@ -1,7 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 import { PartyActionIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-action-identifier';
 import { PartyStageIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-stage-identifier';
+import { QuizQuestionType } from '../../../../domain/game/types/quiz/entities/quiz-question';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
+import { createQuizQuestionRecordFixture } from '../../../../test-utils/fixtures/unit/quiz-question.fixture';
 import type { PrismaService } from '../../../database/prisma-service';
 import { QuizPartyStageCatalogEntryResolver } from './quiz-party-stage-catalog-entry-resolver';
 
@@ -14,6 +16,72 @@ function createResolverWithFindFirst(findFirst: ReturnType<typeof vi.fn>) {
 }
 
 describe('QuizPartyStageCatalogEntryResolver', () => {
+  it.each([
+    { type: QuizQuestionType.TrueFalse, preserveActionOrder: true },
+    { type: QuizQuestionType.Multiple, preserveActionOrder: false },
+  ])(
+    'preserves action order only for true/false questions in individual lookups ($type)',
+    async ({ type, preserveActionOrder }) => {
+      // Arrange
+      const question = createQuizQuestionRecordFixture({ type });
+      const findFirst = vi.fn().mockResolvedValue(question);
+      const resolver = createResolverWithFindFirst(findFirst);
+
+      // Act
+      const stage = await resolver.findFirstStage(backendTestIdentifiers.game(77));
+
+      // Assert
+      expect(stage).toMatchObject({ preserveActionOrder });
+      expect(findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({
+          select: expect.objectContaining({
+            type: true,
+            answers: expect.objectContaining({ orderBy: { position: 'asc' } }),
+          }),
+        }),
+      );
+    },
+  );
+
+  it('preserves action order only for true/false questions in list lookups', async () => {
+    // Arrange
+    const answers = [
+      { id: backendTestIdentifiers.partyAction(1), position: 0, text: 'True', isCorrect: false },
+      { id: backendTestIdentifiers.partyAction(2), position: 1, text: 'False', isCorrect: true },
+    ];
+    const questions = [
+      createQuizQuestionRecordFixture({ type: QuizQuestionType.TrueFalse, answers }),
+      createQuizQuestionRecordFixture({
+        id: backendTestIdentifiers.partyStage(11),
+        type: QuizQuestionType.Multiple,
+        answers,
+      }),
+    ];
+    const findMany = vi.fn().mockResolvedValue(questions);
+    const resolver = new QuizPartyStageCatalogEntryResolver(
+      { question: { findMany } } as unknown as PrismaService,
+      new PartyActionIdentifier(),
+      new PartyStageIdentifier(),
+    );
+
+    // Act
+    const stages = await resolver.listStages(backendTestIdentifiers.game(77));
+
+    // Assert
+    expect(stages).toMatchObject([
+      { preserveActionOrder: true, actions: answers.map(({ position: _position, ...answer }) => answer) },
+      { preserveActionOrder: false, actions: answers.map(({ position: _position, ...answer }) => answer) },
+    ]);
+    expect(findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        select: expect.objectContaining({
+          type: true,
+          answers: expect.objectContaining({ orderBy: { position: 'asc' } }),
+        }),
+      }),
+    );
+  });
+
   it('findFirstStage queries the first stage by ascending position order', async () => {
     // Arrange
     const findFirst = vi.fn().mockResolvedValue({
