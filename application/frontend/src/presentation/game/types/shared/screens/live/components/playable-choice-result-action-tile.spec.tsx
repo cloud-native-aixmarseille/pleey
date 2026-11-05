@@ -30,8 +30,7 @@ describe('PlayableChoiceResultActionTile', () => {
     const { rerender } = renderWithUiProvider(<PlayableChoiceResultActionTile {...props} onClick={onClick} />);
     const badge = screen.getByLabelText('slot (letter=B)');
     const background = badge.style.background;
-    expect(background).toBe(`var(--ui-color-surface-${booleanValue ? 'recessed' : 'danger'})`);
-    expect(badge.style.color).toBe(`var(--ui-color-text-${booleanValue ? 'status-soft' : 'danger'})`);
+    const color = badge.style.color;
 
     // Act
     fireEvent.click(screen.getByRole('button', { name: text }));
@@ -46,6 +45,8 @@ describe('PlayableChoiceResultActionTile', () => {
     );
 
     // Assert
+    expect(background).toBe(`var(--ui-color-surface-${booleanValue ? 'recessed' : 'danger'})`);
+    expect(color).toBe(`var(--ui-color-text-${booleanValue ? 'status-soft' : 'danger'})`);
     expect(onClick).toHaveBeenCalledOnce();
     expect(screen.getByLabelText('slot (letter=B)').style.background).toBe(background);
     expect(screen.getByText('yourPick')).toBeInTheDocument();

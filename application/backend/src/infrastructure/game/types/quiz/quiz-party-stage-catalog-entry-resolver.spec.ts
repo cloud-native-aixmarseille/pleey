@@ -17,77 +17,54 @@ function createResolverWithFindFirst(findFirst: ReturnType<typeof vi.fn>) {
 
 describe('QuizPartyStageCatalogEntryResolver', () => {
   it.each([
-    { type: QuizQuestionType.TrueFalse, expected: [true, false] },
-    { type: QuizQuestionType.Multiple, expected: [undefined, undefined] },
-  ])('maps boolean identity only for $type questions in single and listed stages', async ({ type, expected }) => {
-    // Arrange
-    const question = {
-      id: backendTestIdentifiers.partyStage(10),
-      position: 0,
-      points: 100,
-      questionText: 'Question',
-      timeLimit: 20,
-      type,
-      answers: [
-        { id: backendTestIdentifiers.partyAction(1), position: 0, text: 'Vrai', isCorrect: false },
-        { id: backendTestIdentifiers.partyAction(2), position: 1, text: 'Faux', isCorrect: true },
-      ],
-    };
-    const findFirst = vi.fn().mockResolvedValue(question);
-    const findMany = vi.fn().mockResolvedValue([question]);
-    const resolver = new QuizPartyStageCatalogEntryResolver(
-      { question: { findFirst, findMany } } as unknown as PrismaService,
-      new PartyActionIdentifier(),
-      new PartyStageIdentifier(),
-    );
-
-    // Act
-    const stage = await resolver.findFirstStage(backendTestIdentifiers.game(77));
-    const stages = await resolver.listStages(backendTestIdentifiers.game(77));
-
-    // Assert
-    expect(stage?.actions.map((action) => action.booleanValue)).toEqual(expected);
-    expect(stages[0]?.actions).toEqual(stage?.actions);
-    for (const query of [findFirst, findMany]) {
-      expect(query).toHaveBeenCalledWith(
-        expect.objectContaining({
-          select: expect.objectContaining({
-            type: true,
-            answers: expect.objectContaining({ select: expect.objectContaining({ position: true }) }),
-          }),
-        }),
-      );
-    }
-  });
-
-  it.each([
-    { type: QuizQuestionType.TrueFalse, preserveActionOrder: true },
-    { type: QuizQuestionType.Multiple, preserveActionOrder: false },
+    { type: QuizQuestionType.TrueFalse, preserveActionOrder: true, expected: [true, false] },
+    { type: QuizQuestionType.Multiple, preserveActionOrder: false, expected: [undefined, undefined] },
   ])(
-    'preserves action order only for true/false questions in individual lookups ($type)',
-    async ({ type, preserveActionOrder }) => {
+    'maps boolean metadata for $type questions in single and listed stages',
+    async ({ type, preserveActionOrder, expected }) => {
       // Arrange
-      const question = createQuizQuestionRecordFixture({ type });
+      const question = createQuizQuestionRecordFixture({
+        type,
+        answers: [
+          { id: backendTestIdentifiers.partyAction(1), position: 0, text: 'Vrai', isCorrect: false },
+          { id: backendTestIdentifiers.partyAction(2), position: 1, text: 'Faux', isCorrect: true },
+        ],
+      });
       const findFirst = vi.fn().mockResolvedValue(question);
-      const resolver = createResolverWithFindFirst(findFirst);
+      const findMany = vi.fn().mockResolvedValue([question]);
+      const resolver = new QuizPartyStageCatalogEntryResolver(
+        { question: { findFirst, findMany } } as unknown as PrismaService,
+        new PartyActionIdentifier(),
+        new PartyStageIdentifier(),
+      );
 
       // Act
       const stage = await resolver.findFirstStage(backendTestIdentifiers.game(77));
+      const stages = await resolver.listStages(backendTestIdentifiers.game(77));
 
       // Assert
-      expect(stage).toMatchObject({ preserveActionOrder });
-      expect(findFirst).toHaveBeenCalledWith(
-        expect.objectContaining({
-          select: expect.objectContaining({
-            type: true,
-            answers: expect.objectContaining({ orderBy: { position: 'asc' } }),
+      expect(stage).toMatchObject({
+        preserveActionOrder,
+        actions: expected.map((booleanValue) => ({ booleanValue })),
+      });
+      expect(stages).toEqual([stage]);
+      for (const query of [findFirst, findMany]) {
+        expect(query).toHaveBeenCalledWith(
+          expect.objectContaining({
+            select: expect.objectContaining({
+              type: true,
+              answers: expect.objectContaining({
+                orderBy: { position: 'asc' },
+                select: expect.objectContaining({ position: true }),
+              }),
+            }),
           }),
-        }),
-      );
+        );
+      }
     },
   );
 
-  it('preserves action order only for true/false questions in list lookups', async () => {
+  it('maps boolean metadata only for true/false questions in a mixed stage list', async () => {
     // Arrange
     const answers = [
       { id: backendTestIdentifiers.partyAction(1), position: 0, text: 'True', isCorrect: false },
@@ -113,8 +90,14 @@ describe('QuizPartyStageCatalogEntryResolver', () => {
 
     // Assert
     expect(stages).toMatchObject([
-      { preserveActionOrder: true, actions: answers.map(({ position: _position, ...answer }) => answer) },
-      { preserveActionOrder: false, actions: answers.map(({ position: _position, ...answer }) => answer) },
+      {
+        preserveActionOrder: true,
+        actions: answers.map(({ position, ...answer }) => ({ ...answer, booleanValue: position === 0 })),
+      },
+      {
+        preserveActionOrder: false,
+        actions: answers.map(({ position: _position, ...answer }) => ({ ...answer, booleanValue: undefined })),
+      },
     ]);
     expect(findMany).toHaveBeenCalledWith(
       expect.objectContaining({
