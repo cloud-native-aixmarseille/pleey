@@ -230,7 +230,7 @@ export function PartyScreenContent({ resolvePartyAbsoluteUrl, screenSection, sta
     (screenSection === PartyScreenSection.STAGE || screenSection === PartyScreenSection.RESULT);
 
   return (
-    <SectionContainer maxWidth="80rem">
+    <SectionContainer maxWidth={isHostSurface || isPlayerSurface ? '100%' : '80rem'}>
       {showMobilePlayerSurfaceBackdrop ? <div aria-hidden style={mobilePlayerSurfaceBackdropStyle} /> : null}
       <ContentStack gap="lg">
         {pageErrorMessage && !party ? <StatusBanner tone="error">{t(pageErrorMessage)}</StatusBanner> : null}
