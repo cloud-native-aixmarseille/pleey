@@ -621,7 +621,7 @@ describe('SocketIoPartyObservationAdapter', () => {
   });
 });
 
-describe('SocketIoPartyPayloadMapper theme selection', () => {
+describe('SocketIoPartyPayloadMapper', () => {
   it.each([PartyRuntimePhase.STAGE, PartyRuntimePhase.RESULT] as const)(
     'preserves boolean choice identity in %s snapshots',
     (phase) => {
