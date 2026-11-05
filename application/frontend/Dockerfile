@@ -1,4 +1,4 @@
-FROM node:26-bookworm-slim AS base
+FROM node:26-bookworm-slim@sha256:add5c17c14752c54d2f3d519ec46a3815684d41c33f198bcb09fb998f7dcbf68 AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 # hadolint ignore=DL3008
@@ -25,7 +25,7 @@ RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc \
 COPY --chown=node:node ./application/frontend/ /usr/src/app/
 RUN npm run build
 
-FROM nginx:1.31-alpine AS prod
+FROM nginx:1.31-alpine@sha256:a46f57e097e8effc26192437d2e715adf74bcbea836117651ee436c27983fa41 AS prod
 
 LABEL org.opencontainers.image.source="https://github.com/cloud-native-aixmarseille/pleey"
 

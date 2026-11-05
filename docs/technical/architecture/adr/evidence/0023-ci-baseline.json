@@ -61,13 +61,1572 @@
   },
   "measurement": {
     "unit": "seconds",
-    "initial_run": "First run primes the PR cache; excluded from the warm sample unless logs establish equivalence.",
+    "initial_run": "The unpinned series is superseded after Nginx tag drift. Start a new fixed-revision series after pinning; count successful attempts only when all four image jobs have cached dependency/compile operations.",
     "warm_runs": "Five successful sequential reruns of one unchanged PR revision and event; reject resolved-input changes.",
     "elapsed": "Latest completed job timestamp minus current attempt run_started_at.",
     "summed_jobs": "Sum completed_at minus started_at for every non-skipped job in this attempt.",
     "initial_queue": "Earliest job started_at minus current attempt run_started_at; later scheduling waits remain visible in job timestamps.",
     "main": "Historical contextual samples remain in ADR; controlled main measurements require reviewed merge and must not replay older mutable production tags.",
-    "resources": "Use emitted runner/image/container metadata. Do not infer measured CPU, memory or cache hit state from runner labels. Unreported values remain unavailable."
+    "resources": "Use emitted runner/image/container metadata. Do not infer measured CPU, memory or cache hit state from runner labels. Unreported values remain unavailable.",
+    "first_actionable_failure": "Earliest failed step completion minus attempt run_started_at; job-level failure completion is retained separately."
   },
-  "runs": []
+  "runs": [
+    {
+      "run_id": 42088318092,
+      "attempt": 1,
+      "head_sha": "d9ab38afbdeacc717e774e682a6e270ae9f71a2b",
+      "event": "pull_request",
+      "url": "https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42088318092/attempts/1",
+      "conclusion": "cancelled",
+      "classification": "diagnostic-excluded",
+      "attempt_started_at": "2026-11-05T18:51:45Z",
+      "last_job_completed_at": "2026-11-05T18:58:38Z",
+      "elapsed_seconds": 413.0,
+      "initial_queue_seconds": 3.0,
+      "summed_job_seconds": 959.0,
+      "first_failed_job_seconds": 139.0,
+      "failed_jobs": [
+        "ci / linter / 🧹 Lint Code Base"
+      ],
+      "job_step_metrics": "0023-run-42088318092-attempt-1.csv",
+      "referenced_workflows": [
+        {
+          "path": "cloud-native-aixmarseille/pleey/.github/workflows/__shared-ci.yml@d7cb3fd6f2709fc1f229cfd24e3bccdc76943e03",
+          "sha": "d7cb3fd6f2709fc1f229cfd24e3bccdc76943e03",
+          "ref": "refs/pull/552/merge"
+        },
+        {
+          "path": "hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@5ffc3c81daacc57700a14bb91d67edbc67eedc1d",
+          "sha": "5ffc3c81daacc57700a14bb91d67edbc67eedc1d"
+        },
+        {
+          "path": "hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@44f6108cef0e9884ea7735f3d62932c2310745d4",
+          "sha": "44f6108cef0e9884ea7735f3d62932c2310745d4"
+        },
+        {
+          "path": "hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@1f81dd00d941680ab227a6eae5378790d6242e02",
+          "sha": "1f81dd00d941680ab227a6eae5378790d6242e02"
+        }
+      ],
+      "telemetry": {
+        "resources": {
+          "16_ci _ build _ Attest image (ghcr.io_cloud-native-aixmarseille_pleey_backend-cipr-552-d7cb3fd@sha2566e41166eb6ca9d2cc914e1fe62825ce1c13a284ef383a3fe433b1f2eecb060b4).txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "17_ci _ build _ Attest image (ghcr.io_cloud-native-aixmarseille_pleey_frontend-cipr-552-d7cb3fd@sha256e6e06c474b6f00e3416258aa4bf5ff9d371a4b13a6da3947df693418726b4fe4).txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "18_ci _ build _ Publish images manifests.txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "20_ci _ build _ Build image frontend-ci for linux_amd64.txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "21_ci _ build _ Build image backend-ci for linux_amd64.txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          }
+        },
+        "runner_images": [
+          [
+            "ubuntu-24.04",
+            "20261025.353.1"
+          ],
+          [
+            "ubuntu-24.04",
+            "20261101.360.1"
+          ]
+        ],
+        "base_images": [
+          "docker.io/library/node:26-bookworm-slim@sha256:add5c17c14752c54d2f3d519ec46a3815684d41c33f198bcb09fb998f7dcbf68"
+        ],
+        "tests": {
+          "backend": {
+            "summary": [
+              "Test Files  149 passed | 13 skipped (162)",
+              "Tests  1218 passed | 60 skipped (1278)",
+              "Duration  29.20s (import 49%, tests 36%, transform 8%, worker 5%, setup 1%)",
+              "All files          |   75.18 |    65.91 |   67.17 |   76.39 |"
+            ],
+            "file_inventory_sha256": "5e180c3b5102483d831369040ffce7609a065e9ee35779a3d149cb96d5de57db",
+            "file_inventory_count": 162,
+            "summary_available": true
+          },
+          "frontend": {
+            "summary": [],
+            "file_inventory_sha256": "92cdb74fae2392f8b4c1dbf7d4a1efcf26e9c3b946e4c9f1598c82797393ac03",
+            "file_inventory_count": 57,
+            "summary_available": false
+          }
+        },
+        "cache_events": {
+          "20_ci _ build _ Build image frontend-ci for linux_amd64.txt": {
+            "cached_instruction_count": 9,
+            "imported_manifests": [
+              "gha:10393714723158183828",
+              "gha:5895155609185311263"
+            ],
+            "transfer_operations": [
+              {
+                "operation": "importing cache manifest from gha:5895155609185311263",
+                "seconds": 0.1
+              },
+              {
+                "operation": "importing cache manifest from gha:10393714723158183828",
+                "seconds": 0.3
+              },
+              {
+                "operation": "exporting to image",
+                "seconds": 2.9
+              },
+              {
+                "operation": "exporting to GitHub Actions Cache",
+                "seconds": 1.3
+              }
+            ],
+            "dependency_and_compile_steps": [
+              {
+                "stage": "build 2/4",
+                "operation": "RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc     --mount=type=cache,target=/root/.npm     set -eu;     npm ci --include=dev;",
+                "cached": true
+              },
+              {
+                "stage": "build 4/4",
+                "operation": "RUN npm run build",
+                "cached": true
+              }
+            ]
+          },
+          "21_ci _ build _ Build image backend-ci for linux_amd64.txt": {
+            "cached_instruction_count": 11,
+            "imported_manifests": [
+              "gha:193786736801681588",
+              "gha:3853651107374790059"
+            ],
+            "transfer_operations": [
+              {
+                "operation": "importing cache manifest from gha:3853651107374790059",
+                "seconds": 0.1
+              },
+              {
+                "operation": "importing cache manifest from gha:193786736801681588",
+                "seconds": 0.3
+              },
+              {
+                "operation": "exporting to image",
+                "seconds": 2.7
+              },
+              {
+                "operation": "exporting to GitHub Actions Cache",
+                "seconds": 1.2
+              }
+            ],
+            "dependency_and_compile_steps": [
+              {
+                "stage": "build 2/6",
+                "operation": "RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc     --mount=type=cache,target=/root/.npm     set -eu;     npm ci --include=dev;",
+                "cached": true
+              },
+              {
+                "stage": "build 4/6",
+                "operation": "RUN set -eu;     npm run db:generate;",
+                "cached": true
+              },
+              {
+                "stage": "build 6/6",
+                "operation": "RUN npm run build",
+                "cached": true
+              }
+            ]
+          }
+        }
+      },
+      "first_failed_step_seconds": 137.0,
+      "exclusion_reason": "Markdown layout failed the existing MARKDOWN_PRETTIER check; the formatting correction superseded and cancelled this attempt.",
+      "series": "unpinned-exploratory"
+    },
+    {
+      "run_id": 42089202414,
+      "attempt": 1,
+      "head_sha": "f29d1fea13d6effd157ef8168b8082281a6edf23",
+      "event": "pull_request",
+      "url": "https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42089202414/attempts/1",
+      "conclusion": "success",
+      "classification": "warm",
+      "attempt_started_at": "2026-11-05T18:57:18Z",
+      "last_job_completed_at": "2026-11-05T19:13:42Z",
+      "elapsed_seconds": 984.0,
+      "initial_queue_seconds": 83.0,
+      "summed_job_seconds": 1562.0,
+      "first_failed_job_seconds": null,
+      "first_failed_step_seconds": null,
+      "failed_jobs": [],
+      "job_step_metrics": "0023-run-42089202414-attempt-1.csv",
+      "referenced_workflows": [
+        {
+          "path": "cloud-native-aixmarseille/pleey/.github/workflows/__shared-ci.yml@a0b8cbac67b4a36ad5f3662b2234ad68ad53a827",
+          "sha": "a0b8cbac67b4a36ad5f3662b2234ad68ad53a827",
+          "ref": "refs/pull/552/merge"
+        },
+        {
+          "path": "hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@5ffc3c81daacc57700a14bb91d67edbc67eedc1d",
+          "sha": "5ffc3c81daacc57700a14bb91d67edbc67eedc1d"
+        },
+        {
+          "path": "hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@44f6108cef0e9884ea7735f3d62932c2310745d4",
+          "sha": "44f6108cef0e9884ea7735f3d62932c2310745d4"
+        },
+        {
+          "path": "hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@1f81dd00d941680ab227a6eae5378790d6242e02",
+          "sha": "1f81dd00d941680ab227a6eae5378790d6242e02"
+        }
+      ],
+      "telemetry": {
+        "resources": {
+          "1_ci _ build-prod _ Attest image (ghcr.io_cloud-native-aixmarseille_pleey_frontendpr-552-a0b8cba@sha2564acd9b6d6331cb03544a8986400a8d41d84df61c3eb884f1eafcbed9632058d6).txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "2_ci _ build-prod _ Attest image (ghcr.io_cloud-native-aixmarseille_pleey_backendpr-552-a0b8cba@sha256756a8bac191c2b47034012560c487d9a3b26e146adc6e415fed535cd36564d16).txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "3_ci _ build-prod _ Publish images manifests.txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "4_ci _ build-prod _ Build image frontend for linux_amd64.txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "5_ci _ build-prod _ Build image backend for linux_amd64.txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "21_ci _ build _ Attest image (ghcr.io_cloud-native-aixmarseille_pleey_frontend-cipr-552-a0b8cba@sha256079ff1569de1be40e11888c501463e125b10fc22e751b19e27f8e1bf0796e736).txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "22_ci _ build _ Attest image (ghcr.io_cloud-native-aixmarseille_pleey_backend-cipr-552-a0b8cba@sha256b63ba5ee5d541fa22e0dd9babe08e85ea34549c22458c67c06a2de2ccf4b2646).txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "23_ci _ build _ Publish images manifests.txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "25_ci _ build _ Build image backend-ci for linux_amd64.txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "26_ci _ build _ Build image frontend-ci for linux_amd64.txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          }
+        },
+        "runner_images": [
+          [
+            "ubuntu-24.04",
+            "20261101.360.1"
+          ]
+        ],
+        "base_images": [
+          "docker.io/library/nginx:1.31-alpine@sha256:785835ea65db4bba6f021acc0f3be91b0fef76a53fe41f8588c6698d2aed0606",
+          "docker.io/library/node:26-bookworm-slim@sha256:add5c17c14752c54d2f3d519ec46a3815684d41c33f198bcb09fb998f7dcbf68"
+        ],
+        "tests": {
+          "backend": {
+            "summary": [
+              "Test Files  149 passed | 13 skipped (162)",
+              "Tests  1218 passed | 60 skipped (1278)",
+              "Duration  30.32s (import 49%, tests 36%, transform 8%, worker 5%, setup 1%)",
+              "All files          |   75.17 |    65.91 |   67.11 |   76.37 |"
+            ],
+            "file_inventory_sha256": "5e180c3b5102483d831369040ffce7609a065e9ee35779a3d149cb96d5de57db",
+            "file_inventory_count": 162,
+            "summary_available": true
+          },
+          "frontend": {
+            "summary": [
+              "Test Files  228 passed (228)",
+              "Tests  1178 passed (1178)",
+              "Duration  294.92s (tests 32%, import 29%, environment 28%, setup 7%, transform 3%, worker 2%)",
+              "All files          |   82.87 |    75.52 |   81.86 |   83.36 |"
+            ],
+            "file_inventory_sha256": "ab146813b96150097b03ac5b2bac670a772d7e6f819b253cdf2c4f4412a540ce",
+            "file_inventory_count": 228,
+            "summary_available": true
+          }
+        },
+        "cache_events": {
+          "4_ci _ build-prod _ Build image frontend for linux_amd64.txt": {
+            "cached_instruction_count": 12,
+            "dependency_and_compile_steps": [
+              {
+                "stage": "build 2/4",
+                "operation": "RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc     --mount=type=cache,target=/root/.npm     set -eu;     npm ci --include=dev;",
+                "cached": true
+              },
+              {
+                "stage": "build 4/4",
+                "operation": "RUN npm run build",
+                "cached": true
+              }
+            ],
+            "imported_manifests": [
+              "gha:10816651997891009072",
+              "gha:6457850079303170300"
+            ],
+            "transfer_operations": [
+              {
+                "operation": "importing cache manifest from gha:10816651997891009072",
+                "seconds": 0.4
+              },
+              {
+                "operation": "importing cache manifest from gha:6457850079303170300",
+                "seconds": 0.2
+              },
+              {
+                "operation": "exporting to image",
+                "seconds": 2.4
+              },
+              {
+                "operation": "exporting to GitHub Actions Cache",
+                "seconds": 2.0
+              }
+            ]
+          },
+          "5_ci _ build-prod _ Build image backend for linux_amd64.txt": {
+            "cached_instruction_count": 14,
+            "dependency_and_compile_steps": [
+              {
+                "stage": "build 6/6",
+                "operation": "RUN npm run build",
+                "cached": true
+              },
+              {
+                "stage": "build-prod 1/1",
+                "operation": "RUN set -eu;     npm prune --production &&     npm cache clean --force",
+                "cached": true
+              },
+              {
+                "stage": "build 2/6",
+                "operation": "RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc     --mount=type=cache,target=/root/.npm     set -eu;     npm ci --include=dev;",
+                "cached": true
+              },
+              {
+                "stage": "build 4/6",
+                "operation": "RUN set -eu;     npm run db:generate;",
+                "cached": true
+              }
+            ],
+            "imported_manifests": [
+              "gha:10373082129826578397",
+              "gha:11741000976724492279"
+            ],
+            "transfer_operations": [
+              {
+                "operation": "importing cache manifest from gha:10373082129826578397",
+                "seconds": 0.5
+              },
+              {
+                "operation": "importing cache manifest from gha:11741000976724492279",
+                "seconds": 0.3
+              },
+              {
+                "operation": "exporting to image",
+                "seconds": 3.0
+              },
+              {
+                "operation": "exporting to GitHub Actions Cache",
+                "seconds": 2.3
+              }
+            ]
+          },
+          "25_ci _ build _ Build image backend-ci for linux_amd64.txt": {
+            "cached_instruction_count": 11,
+            "dependency_and_compile_steps": [
+              {
+                "stage": "build 2/6",
+                "operation": "RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc     --mount=type=cache,target=/root/.npm     set -eu;     npm ci --include=dev;",
+                "cached": true
+              },
+              {
+                "stage": "build 4/6",
+                "operation": "RUN set -eu;     npm run db:generate;",
+                "cached": true
+              },
+              {
+                "stage": "build 6/6",
+                "operation": "RUN npm run build",
+                "cached": true
+              }
+            ],
+            "imported_manifests": [
+              "gha:10643632136317984944",
+              "gha:16162730199678390369"
+            ],
+            "transfer_operations": [
+              {
+                "operation": "importing cache manifest from gha:16162730199678390369",
+                "seconds": 0.2
+              },
+              {
+                "operation": "importing cache manifest from gha:10643632136317984944",
+                "seconds": 0.2
+              },
+              {
+                "operation": "exporting to image",
+                "seconds": 3.2
+              },
+              {
+                "operation": "exporting to GitHub Actions Cache",
+                "seconds": 1.0
+              }
+            ]
+          },
+          "26_ci _ build _ Build image frontend-ci for linux_amd64.txt": {
+            "cached_instruction_count": 9,
+            "dependency_and_compile_steps": [
+              {
+                "stage": "build 2/4",
+                "operation": "RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc     --mount=type=cache,target=/root/.npm     set -eu;     npm ci --include=dev;",
+                "cached": true
+              },
+              {
+                "stage": "build 4/4",
+                "operation": "RUN npm run build",
+                "cached": true
+              }
+            ],
+            "imported_manifests": [
+              "gha:1302372145969158925",
+              "gha:309119890910049100"
+            ],
+            "transfer_operations": [
+              {
+                "operation": "importing cache manifest from gha:309119890910049100",
+                "seconds": 0.2
+              },
+              {
+                "operation": "importing cache manifest from gha:1302372145969158925",
+                "seconds": 0.2
+              },
+              {
+                "operation": "exporting to image",
+                "seconds": 3.0
+              },
+              {
+                "operation": "exporting to GitHub Actions Cache",
+                "seconds": 0.8
+              }
+            ]
+          }
+        },
+        "chart_database_readiness": {
+          "prisma_p1001_log_occurrences": 1
+        }
+      },
+      "classification_reason": "All four application image jobs reused cached dependency-install, generation, compile and prune operations; source and resolved base-image identities are recorded.",
+      "series": "unpinned-exploratory"
+    },
+    {
+      "run_id": 42089202414,
+      "attempt": 2,
+      "head_sha": "f29d1fea13d6effd157ef8168b8082281a6edf23",
+      "event": "pull_request",
+      "url": "https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42089202414/attempts/2",
+      "conclusion": "success",
+      "classification": "warm",
+      "attempt_started_at": "2026-11-05T19:15:13Z",
+      "last_job_completed_at": "2026-11-05T19:31:19Z",
+      "elapsed_seconds": 966.0,
+      "initial_queue_seconds": 4.0,
+      "summed_job_seconds": 1645.0,
+      "first_failed_job_seconds": null,
+      "first_failed_step_seconds": null,
+      "failed_jobs": [],
+      "job_step_metrics": "0023-run-42089202414-attempt-2.csv",
+      "referenced_workflows": [
+        {
+          "path": "hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@44f6108cef0e9884ea7735f3d62932c2310745d4",
+          "sha": "44f6108cef0e9884ea7735f3d62932c2310745d4"
+        },
+        {
+          "path": "hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@1f81dd00d941680ab227a6eae5378790d6242e02",
+          "sha": "1f81dd00d941680ab227a6eae5378790d6242e02"
+        },
+        {
+          "path": "cloud-native-aixmarseille/pleey/.github/workflows/__shared-ci.yml@a0b8cbac67b4a36ad5f3662b2234ad68ad53a827",
+          "sha": "a0b8cbac67b4a36ad5f3662b2234ad68ad53a827",
+          "ref": "refs/pull/552/merge"
+        },
+        {
+          "path": "hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@5ffc3c81daacc57700a14bb91d67edbc67eedc1d",
+          "sha": "5ffc3c81daacc57700a14bb91d67edbc67eedc1d"
+        }
+      ],
+      "telemetry": {
+        "resources": {
+          "1_ci _ build-prod _ Attest image (ghcr.io_cloud-native-aixmarseille_pleey_frontendpr-552-a0b8cba@sha25644a3161b33bf1d0f1d4a973831f4499b31b6cc8b4e9e81f095d298387842f2ea).txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "2_ci _ build-prod _ Attest image (ghcr.io_cloud-native-aixmarseille_pleey_backendpr-552-a0b8cba@sha2568094b8926822cfa773d1482466bf039da0d0b2597baa53a4f41939ca349abd07).txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "3_ci _ build-prod _ Publish images manifests.txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "4_ci _ build-prod _ Build image frontend for linux_amd64.txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "5_ci _ build-prod _ Build image backend for linux_amd64.txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "21_ci _ build _ Attest image (ghcr.io_cloud-native-aixmarseille_pleey_frontend-cipr-552-a0b8cba@sha2566102c6e78068636d1a69380242290eb5f0edc7cbadb37f4cf99eff39ddabb752).txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "22_ci _ build _ Attest image (ghcr.io_cloud-native-aixmarseille_pleey_backend-cipr-552-a0b8cba@sha2565d35593fe041ef629bd233ba483bfe465b8308b2cfdb6a0f2926dfdb39bbd0d4).txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "23_ci _ build _ Publish images manifests.txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "25_ci _ build _ Build image frontend-ci for linux_amd64.txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "26_ci _ build _ Build image backend-ci for linux_amd64.txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          }
+        },
+        "runner_images": [
+          [
+            "ubuntu-24.04",
+            "20261025.353.1"
+          ],
+          [
+            "ubuntu-24.04",
+            "20261101.360.1"
+          ]
+        ],
+        "base_images": [
+          "docker.io/library/nginx:1.31-alpine@sha256:785835ea65db4bba6f021acc0f3be91b0fef76a53fe41f8588c6698d2aed0606",
+          "docker.io/library/node:26-bookworm-slim@sha256:add5c17c14752c54d2f3d519ec46a3815684d41c33f198bcb09fb998f7dcbf68"
+        ],
+        "tests": {
+          "backend": {
+            "summary": [
+              "Test Files  149 passed | 13 skipped (162)",
+              "Tests  1218 passed | 60 skipped (1278)",
+              "Duration  48.07s (import 53%, tests 35%, transform 6%, worker 4%, setup 1%)",
+              "All files          |   75.17 |    65.91 |   67.11 |   76.37 |"
+            ],
+            "file_inventory_sha256": "5e180c3b5102483d831369040ffce7609a065e9ee35779a3d149cb96d5de57db",
+            "file_inventory_count": 162,
+            "summary_available": true
+          },
+          "frontend": {
+            "summary": [
+              "Test Files  228 passed (228)",
+              "Tests  1178 passed (1178)",
+              "Duration  277.96s (tests 32%, import 29%, environment 28%, setup 7%, transform 3%, worker 2%)",
+              "All files          |   82.87 |    75.52 |   81.86 |   83.36 |"
+            ],
+            "file_inventory_sha256": "ab146813b96150097b03ac5b2bac670a772d7e6f819b253cdf2c4f4412a540ce",
+            "file_inventory_count": 228,
+            "summary_available": true
+          }
+        },
+        "cache_events": {
+          "4_ci _ build-prod _ Build image frontend for linux_amd64.txt": {
+            "cached_instruction_count": 12,
+            "dependency_and_compile_steps": [
+              {
+                "stage": "build 4/4",
+                "operation": "RUN npm run build",
+                "cached": true
+              },
+              {
+                "stage": "build 2/4",
+                "operation": "RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc     --mount=type=cache,target=/root/.npm     set -eu;     npm ci --include=dev;",
+                "cached": true
+              }
+            ],
+            "imported_manifests": [
+              "gha:12877615753924298530",
+              "gha:5345356332855804026"
+            ],
+            "transfer_operations": [
+              {
+                "operation": "importing cache manifest from gha:12877615753924298530",
+                "seconds": 0.4
+              },
+              {
+                "operation": "importing cache manifest from gha:5345356332855804026",
+                "seconds": 0.4
+              },
+              {
+                "operation": "exporting to image",
+                "seconds": 3.3
+              },
+              {
+                "operation": "exporting to GitHub Actions Cache",
+                "seconds": 2.4
+              }
+            ]
+          },
+          "5_ci _ build-prod _ Build image backend for linux_amd64.txt": {
+            "cached_instruction_count": 14,
+            "dependency_and_compile_steps": [
+              {
+                "stage": "build 2/6",
+                "operation": "RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc     --mount=type=cache,target=/root/.npm     set -eu;     npm ci --include=dev;",
+                "cached": true
+              },
+              {
+                "stage": "build 4/6",
+                "operation": "RUN set -eu;     npm run db:generate;",
+                "cached": true
+              },
+              {
+                "stage": "build-prod 1/1",
+                "operation": "RUN set -eu;     npm prune --production &&     npm cache clean --force",
+                "cached": true
+              },
+              {
+                "stage": "build 6/6",
+                "operation": "RUN npm run build",
+                "cached": true
+              }
+            ],
+            "imported_manifests": [
+              "gha:3213465850286920368",
+              "gha:867384531958078924"
+            ],
+            "transfer_operations": [
+              {
+                "operation": "importing cache manifest from gha:3213465850286920368",
+                "seconds": 0.5
+              },
+              {
+                "operation": "importing cache manifest from gha:867384531958078924",
+                "seconds": 0.5
+              },
+              {
+                "operation": "exporting to image",
+                "seconds": 2.9
+              },
+              {
+                "operation": "exporting to GitHub Actions Cache",
+                "seconds": 2.5
+              }
+            ]
+          },
+          "25_ci _ build _ Build image frontend-ci for linux_amd64.txt": {
+            "cached_instruction_count": 9,
+            "dependency_and_compile_steps": [
+              {
+                "stage": "build 2/4",
+                "operation": "RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc     --mount=type=cache,target=/root/.npm     set -eu;     npm ci --include=dev;",
+                "cached": true
+              },
+              {
+                "stage": "build 4/4",
+                "operation": "RUN npm run build",
+                "cached": true
+              }
+            ],
+            "imported_manifests": [
+              "gha:4319357021474262223",
+              "gha:616967422240730324"
+            ],
+            "transfer_operations": [
+              {
+                "operation": "importing cache manifest from gha:616967422240730324",
+                "seconds": 0.3
+              },
+              {
+                "operation": "importing cache manifest from gha:4319357021474262223",
+                "seconds": 0.3
+              },
+              {
+                "operation": "exporting to image",
+                "seconds": 3.4
+              },
+              {
+                "operation": "exporting to GitHub Actions Cache",
+                "seconds": 1.2
+              }
+            ]
+          },
+          "26_ci _ build _ Build image backend-ci for linux_amd64.txt": {
+            "cached_instruction_count": 11,
+            "dependency_and_compile_steps": [
+              {
+                "stage": "build 6/6",
+                "operation": "RUN npm run build",
+                "cached": true
+              },
+              {
+                "stage": "build 2/6",
+                "operation": "RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc     --mount=type=cache,target=/root/.npm     set -eu;     npm ci --include=dev;",
+                "cached": true
+              },
+              {
+                "stage": "build 4/6",
+                "operation": "RUN set -eu;     npm run db:generate;",
+                "cached": true
+              }
+            ],
+            "imported_manifests": [
+              "gha:11941817394363217377",
+              "gha:14032131683089832469"
+            ],
+            "transfer_operations": [
+              {
+                "operation": "importing cache manifest from gha:11941817394363217377",
+                "seconds": 0.3
+              },
+              {
+                "operation": "importing cache manifest from gha:14032131683089832469",
+                "seconds": 0.3
+              },
+              {
+                "operation": "exporting to image",
+                "seconds": 3.6
+              },
+              {
+                "operation": "exporting to GitHub Actions Cache",
+                "seconds": 1.5
+              }
+            ]
+          }
+        },
+        "chart_database_readiness": {
+          "prisma_p1001_log_occurrences": 2
+        }
+      },
+      "classification_reason": "Same revision, referenced workflows, resolved application base images and test inventories as sample 1; dependency/compile operations cached in all four image jobs. Hosted runner-image versions are recorded as environmental variance.",
+      "series": "unpinned-exploratory"
+    },
+    {
+      "run_id": 42089202414,
+      "attempt": 3,
+      "head_sha": "f29d1fea13d6effd157ef8168b8082281a6edf23",
+      "event": "pull_request",
+      "url": "https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42089202414/attempts/3",
+      "conclusion": "success",
+      "classification": "warm",
+      "attempt_started_at": "2026-11-05T19:33:09Z",
+      "last_job_completed_at": "2026-11-05T19:47:23Z",
+      "elapsed_seconds": 854.0,
+      "initial_queue_seconds": 6.0,
+      "summed_job_seconds": 1544.0,
+      "first_failed_job_seconds": null,
+      "first_failed_step_seconds": null,
+      "failed_jobs": [],
+      "job_step_metrics": "0023-run-42089202414-attempt-3.csv",
+      "referenced_workflows": [
+        {
+          "path": "hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@5ffc3c81daacc57700a14bb91d67edbc67eedc1d",
+          "sha": "5ffc3c81daacc57700a14bb91d67edbc67eedc1d"
+        },
+        {
+          "path": "cloud-native-aixmarseille/pleey/.github/workflows/__shared-ci.yml@a0b8cbac67b4a36ad5f3662b2234ad68ad53a827",
+          "sha": "a0b8cbac67b4a36ad5f3662b2234ad68ad53a827",
+          "ref": "refs/pull/552/merge"
+        },
+        {
+          "path": "hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@44f6108cef0e9884ea7735f3d62932c2310745d4",
+          "sha": "44f6108cef0e9884ea7735f3d62932c2310745d4"
+        },
+        {
+          "path": "hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@1f81dd00d941680ab227a6eae5378790d6242e02",
+          "sha": "1f81dd00d941680ab227a6eae5378790d6242e02"
+        }
+      ],
+      "telemetry": {
+        "resources": {
+          "1_ci _ build-prod _ Attest image (ghcr.io_cloud-native-aixmarseille_pleey_backendpr-552-a0b8cba@sha256ccf7ffce96b43ecce596c25448b61f675f9b4d8fcb842c516954e396bd0e4a72).txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "2_ci _ build-prod _ Attest image (ghcr.io_cloud-native-aixmarseille_pleey_frontendpr-552-a0b8cba@sha2564e79d2532c0ea17fe88a895c9ad1bbd892cc6e02ffce1ef6f1fae29bcb618020).txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "3_ci _ build-prod _ Publish images manifests.txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "4_ci _ build-prod _ Build image backend for linux_amd64.txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "5_ci _ build-prod _ Build image frontend for linux_amd64.txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "21_ci _ build _ Attest image (ghcr.io_cloud-native-aixmarseille_pleey_frontend-cipr-552-a0b8cba@sha2569c0da255567b86d306e84a442bc2a6ed03cadd4d874a9394d5251cae3b06984a).txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "22_ci _ build _ Attest image (ghcr.io_cloud-native-aixmarseille_pleey_backend-cipr-552-a0b8cba@sha2563ece8f5e03211f5fa1e8fd78fbd5437843f5ded7d6f38929b3986ee481a9e390).txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "23_ci _ build _ Publish images manifests.txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "25_ci _ build _ Build image frontend-ci for linux_amd64.txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "26_ci _ build _ Build image backend-ci for linux_amd64.txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          }
+        },
+        "runner_images": [
+          [
+            "ubuntu-24.04",
+            "20261025.353.1"
+          ],
+          [
+            "ubuntu-24.04",
+            "20261101.360.1"
+          ]
+        ],
+        "base_images": [
+          "docker.io/library/nginx:1.31-alpine@sha256:785835ea65db4bba6f021acc0f3be91b0fef76a53fe41f8588c6698d2aed0606",
+          "docker.io/library/node:26-bookworm-slim@sha256:add5c17c14752c54d2f3d519ec46a3815684d41c33f198bcb09fb998f7dcbf68"
+        ],
+        "tests": {
+          "backend": {
+            "summary": [
+              "Test Files  149 passed | 13 skipped (162)",
+              "Tests  1218 passed | 60 skipped (1278)",
+              "Duration  46.39s (import 52%, tests 36%, transform 6%, worker 4%, setup 1%)",
+              "All files          |   75.18 |    65.91 |   67.17 |   76.39 |"
+            ],
+            "file_inventory_sha256": "5e180c3b5102483d831369040ffce7609a065e9ee35779a3d149cb96d5de57db",
+            "file_inventory_count": 162,
+            "summary_available": true
+          },
+          "frontend": {
+            "summary": [
+              "Test Files  228 passed (228)",
+              "Tests  1178 passed (1178)",
+              "Duration  165.80s (tests 32%, environment 28%, import 28%, setup 7%, transform 4%, worker 3%)",
+              "All files          |   83.12 |    75.72 |   82.02 |   83.63 |"
+            ],
+            "file_inventory_sha256": "ab146813b96150097b03ac5b2bac670a772d7e6f819b253cdf2c4f4412a540ce",
+            "file_inventory_count": 228,
+            "summary_available": true
+          }
+        },
+        "cache_events": {
+          "4_ci _ build-prod _ Build image backend for linux_amd64.txt": {
+            "cached_instruction_count": 14,
+            "dependency_and_compile_steps": [
+              {
+                "stage": "build 2/6",
+                "operation": "RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc     --mount=type=cache,target=/root/.npm     set -eu;     npm ci --include=dev;",
+                "cached": true
+              },
+              {
+                "stage": "build-prod 1/1",
+                "operation": "RUN set -eu;     npm prune --production &&     npm cache clean --force",
+                "cached": true
+              },
+              {
+                "stage": "build 6/6",
+                "operation": "RUN npm run build",
+                "cached": true
+              },
+              {
+                "stage": "build 4/6",
+                "operation": "RUN set -eu;     npm run db:generate;",
+                "cached": true
+              }
+            ],
+            "imported_manifests": [
+              "gha:12155931429962623091",
+              "gha:8750462645908672070"
+            ],
+            "transfer_operations": [
+              {
+                "operation": "importing cache manifest from gha:12155931429962623091",
+                "seconds": 0.1
+              },
+              {
+                "operation": "importing cache manifest from gha:8750462645908672070",
+                "seconds": 0.1
+              },
+              {
+                "operation": "exporting to image",
+                "seconds": 2.3
+              },
+              {
+                "operation": "exporting to GitHub Actions Cache",
+                "seconds": 1.2
+              }
+            ]
+          },
+          "5_ci _ build-prod _ Build image frontend for linux_amd64.txt": {
+            "cached_instruction_count": 12,
+            "dependency_and_compile_steps": [
+              {
+                "stage": "build 2/4",
+                "operation": "RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc     --mount=type=cache,target=/root/.npm     set -eu;     npm ci --include=dev;",
+                "cached": true
+              },
+              {
+                "stage": "build 4/4",
+                "operation": "RUN npm run build",
+                "cached": true
+              }
+            ],
+            "imported_manifests": [
+              "gha:1903719908731089594",
+              "gha:6715770203763281505"
+            ],
+            "transfer_operations": [
+              {
+                "operation": "importing cache manifest from gha:6715770203763281505",
+                "seconds": 0.5
+              },
+              {
+                "operation": "importing cache manifest from gha:1903719908731089594",
+                "seconds": 0.5
+              },
+              {
+                "operation": "exporting to image",
+                "seconds": 3.4
+              },
+              {
+                "operation": "exporting to GitHub Actions Cache",
+                "seconds": 3.9
+              }
+            ]
+          },
+          "25_ci _ build _ Build image frontend-ci for linux_amd64.txt": {
+            "cached_instruction_count": 9,
+            "dependency_and_compile_steps": [
+              {
+                "stage": "build 2/4",
+                "operation": "RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc     --mount=type=cache,target=/root/.npm     set -eu;     npm ci --include=dev;",
+                "cached": true
+              },
+              {
+                "stage": "build 4/4",
+                "operation": "RUN npm run build",
+                "cached": true
+              }
+            ],
+            "imported_manifests": [
+              "gha:11529591950480430326",
+              "gha:14330528339853666439"
+            ],
+            "transfer_operations": [
+              {
+                "operation": "importing cache manifest from gha:14330528339853666439",
+                "seconds": 0.3
+              },
+              {
+                "operation": "importing cache manifest from gha:11529591950480430326",
+                "seconds": 0.3
+              },
+              {
+                "operation": "exporting to image",
+                "seconds": 3.1
+              },
+              {
+                "operation": "exporting to GitHub Actions Cache",
+                "seconds": 1.3
+              }
+            ]
+          },
+          "26_ci _ build _ Build image backend-ci for linux_amd64.txt": {
+            "cached_instruction_count": 11,
+            "dependency_and_compile_steps": [
+              {
+                "stage": "build 2/6",
+                "operation": "RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc     --mount=type=cache,target=/root/.npm     set -eu;     npm ci --include=dev;",
+                "cached": true
+              },
+              {
+                "stage": "build 4/6",
+                "operation": "RUN set -eu;     npm run db:generate;",
+                "cached": true
+              },
+              {
+                "stage": "build 6/6",
+                "operation": "RUN npm run build",
+                "cached": true
+              }
+            ],
+            "imported_manifests": [
+              "gha:13506653481394972578",
+              "gha:13742499257150864481"
+            ],
+            "transfer_operations": [
+              {
+                "operation": "importing cache manifest from gha:13506653481394972578",
+                "seconds": 0.4
+              },
+              {
+                "operation": "importing cache manifest from gha:13742499257150864481",
+                "seconds": 0.4
+              },
+              {
+                "operation": "exporting to image",
+                "seconds": 3.4
+              },
+              {
+                "operation": "exporting to GitHub Actions Cache",
+                "seconds": 1.8
+              }
+            ]
+          }
+        },
+        "chart_database_readiness": {
+          "prisma_p1001_log_occurrences": 2
+        }
+      },
+      "classification_reason": "Same revision, referenced workflows, resolved application base images and test inventories as sample 1; dependency/compile operations cached in all four image jobs. Hosted runner-image versions are recorded as environmental variance.",
+      "series": "unpinned-exploratory"
+    },
+    {
+      "run_id": 42089202414,
+      "attempt": 4,
+      "head_sha": "f29d1fea13d6effd157ef8168b8082281a6edf23",
+      "event": "pull_request",
+      "url": "https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42089202414/attempts/4",
+      "conclusion": "success",
+      "classification": "input-change-excluded",
+      "attempt_started_at": "2026-11-05T19:48:36Z",
+      "last_job_completed_at": "2026-11-05T20:04:07Z",
+      "elapsed_seconds": 931.0,
+      "initial_queue_seconds": 4.0,
+      "summed_job_seconds": 1630.0,
+      "first_failed_job_seconds": null,
+      "first_failed_step_seconds": null,
+      "failed_jobs": [],
+      "job_step_metrics": "0023-run-42089202414-attempt-4.csv",
+      "referenced_workflows": [
+        {
+          "path": "hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@44f6108cef0e9884ea7735f3d62932c2310745d4",
+          "sha": "44f6108cef0e9884ea7735f3d62932c2310745d4"
+        },
+        {
+          "path": "cloud-native-aixmarseille/pleey/.github/workflows/__shared-ci.yml@a0b8cbac67b4a36ad5f3662b2234ad68ad53a827",
+          "sha": "a0b8cbac67b4a36ad5f3662b2234ad68ad53a827",
+          "ref": "refs/pull/552/merge"
+        },
+        {
+          "path": "hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@5ffc3c81daacc57700a14bb91d67edbc67eedc1d",
+          "sha": "5ffc3c81daacc57700a14bb91d67edbc67eedc1d"
+        },
+        {
+          "path": "hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@1f81dd00d941680ab227a6eae5378790d6242e02",
+          "sha": "1f81dd00d941680ab227a6eae5378790d6242e02"
+        }
+      ],
+      "telemetry": {
+        "resources": {
+          "1_ci _ build-prod _ Attest image (ghcr.io_cloud-native-aixmarseille_pleey_backendpr-552-a0b8cba@sha2568f28558c556208f86b0360ce37369c06fd3f8adfe354817af12deb8b17a281b1).txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "2_ci _ build-prod _ Attest image (ghcr.io_cloud-native-aixmarseille_pleey_frontendpr-552-a0b8cba@sha2566f9b31293453da721c51e429ec6cc3b0f314e064b6b60365961f072e024ad2cd).txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "3_ci _ build-prod _ Publish images manifests.txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "4_ci _ build-prod _ Build image frontend for linux_amd64.txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "5_ci _ build-prod _ Build image backend for linux_amd64.txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "21_ci _ build _ Attest image (ghcr.io_cloud-native-aixmarseille_pleey_frontend-cipr-552-a0b8cba@sha256606427897555feca2d491d3ddd8483b477e747bd33cd29bef33544d264d5f065).txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "22_ci _ build _ Attest image (ghcr.io_cloud-native-aixmarseille_pleey_backend-cipr-552-a0b8cba@sha25668884167c0960af7ce84a895de9a1797968240f138e64159bb8d02efa83a398f).txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "23_ci _ build _ Publish images manifests.txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "25_ci _ build _ Build image frontend-ci for linux_amd64.txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          },
+          "26_ci _ build _ Build image backend-ci for linux_amd64.txt": {
+            "reported_docker_cpus": [
+              "4"
+            ],
+            "reported_docker_total_memory": [
+              "15.61GiB"
+            ]
+          }
+        },
+        "runner_images": [
+          [
+            "ubuntu-24.04",
+            "20261025.353.1"
+          ],
+          [
+            "ubuntu-24.04",
+            "20261101.360.1"
+          ]
+        ],
+        "base_images": [
+          "docker.io/library/nginx:1.31-alpine@sha256:a46f57e097e8effc26192437d2e715adf74bcbea836117651ee436c27983fa41",
+          "docker.io/library/node:26-bookworm-slim@sha256:add5c17c14752c54d2f3d519ec46a3815684d41c33f198bcb09fb998f7dcbf68"
+        ],
+        "tests": {
+          "backend": {
+            "summary": [
+              "Test Files  149 passed | 13 skipped (162)",
+              "Tests  1218 passed | 60 skipped (1278)",
+              "Duration  30.20s (import 49%, tests 37%, transform 8%, worker 5%, setup 1%)",
+              "All files          |   75.17 |    65.91 |   67.11 |   76.37 |"
+            ],
+            "file_inventory_sha256": "5e180c3b5102483d831369040ffce7609a065e9ee35779a3d149cb96d5de57db",
+            "file_inventory_count": 162,
+            "summary_available": true
+          },
+          "frontend": {
+            "summary": [
+              "Test Files  228 passed (228)",
+              "Tests  1178 passed (1178)",
+              "Duration  268.23s (tests 31%, import 29%, environment 29%, setup 7%, transform 3%, worker 2%)",
+              "All files          |   82.87 |    75.58 |   81.86 |   83.36 |"
+            ],
+            "file_inventory_sha256": "ab146813b96150097b03ac5b2bac670a772d7e6f819b253cdf2c4f4412a540ce",
+            "file_inventory_count": 228,
+            "summary_available": true
+          }
+        },
+        "cache_events": {
+          "4_ci _ build-prod _ Build image frontend for linux_amd64.txt": {
+            "cached_instruction_count": 12,
+            "dependency_and_compile_steps": [
+              {
+                "stage": "build 4/4",
+                "operation": "RUN npm run build",
+                "cached": true
+              },
+              {
+                "stage": "build 2/4",
+                "operation": "RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc     --mount=type=cache,target=/root/.npm     set -eu;     npm ci --include=dev;",
+                "cached": true
+              }
+            ],
+            "imported_manifests": [
+              "gha:4001961585268957871",
+              "gha:6653360851043807097"
+            ],
+            "transfer_operations": [
+              {
+                "operation": "importing cache manifest from gha:4001961585268957871",
+                "seconds": 0.4
+              },
+              {
+                "operation": "importing cache manifest from gha:6653360851043807097",
+                "seconds": 0.3
+              },
+              {
+                "operation": "exporting to image",
+                "seconds": 2.6
+              },
+              {
+                "operation": "exporting to GitHub Actions Cache",
+                "seconds": 2.6
+              }
+            ]
+          },
+          "5_ci _ build-prod _ Build image backend for linux_amd64.txt": {
+            "cached_instruction_count": 14,
+            "dependency_and_compile_steps": [
+              {
+                "stage": "build-prod 1/1",
+                "operation": "RUN set -eu;     npm prune --production &&     npm cache clean --force",
+                "cached": true
+              },
+              {
+                "stage": "build 2/6",
+                "operation": "RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc     --mount=type=cache,target=/root/.npm     set -eu;     npm ci --include=dev;",
+                "cached": true
+              },
+              {
+                "stage": "build 6/6",
+                "operation": "RUN npm run build",
+                "cached": true
+              },
+              {
+                "stage": "build 4/6",
+                "operation": "RUN set -eu;     npm run db:generate;",
+                "cached": true
+              }
+            ],
+            "imported_manifests": [
+              "gha:12972334584524120029",
+              "gha:4739465998101599690"
+            ],
+            "transfer_operations": [
+              {
+                "operation": "importing cache manifest from gha:12972334584524120029",
+                "seconds": 0.2
+              },
+              {
+                "operation": "importing cache manifest from gha:4739465998101599690",
+                "seconds": 0.2
+              },
+              {
+                "operation": "exporting to image",
+                "seconds": 2.4
+              },
+              {
+                "operation": "exporting to GitHub Actions Cache",
+                "seconds": 1.4
+              }
+            ]
+          },
+          "25_ci _ build _ Build image frontend-ci for linux_amd64.txt": {
+            "cached_instruction_count": 9,
+            "dependency_and_compile_steps": [
+              {
+                "stage": "build 4/4",
+                "operation": "RUN npm run build",
+                "cached": true
+              },
+              {
+                "stage": "build 2/4",
+                "operation": "RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc     --mount=type=cache,target=/root/.npm     set -eu;     npm ci --include=dev;",
+                "cached": true
+              }
+            ],
+            "imported_manifests": [
+              "gha:5493089921192292655",
+              "gha:9451861733567346714"
+            ],
+            "transfer_operations": [
+              {
+                "operation": "importing cache manifest from gha:9451861733567346714",
+                "seconds": 0.1
+              },
+              {
+                "operation": "importing cache manifest from gha:5493089921192292655",
+                "seconds": 0.1
+              },
+              {
+                "operation": "exporting to image",
+                "seconds": 2.7
+              },
+              {
+                "operation": "exporting to GitHub Actions Cache",
+                "seconds": 0.6
+              }
+            ]
+          },
+          "26_ci _ build _ Build image backend-ci for linux_amd64.txt": {
+            "cached_instruction_count": 11,
+            "dependency_and_compile_steps": [
+              {
+                "stage": "build 4/6",
+                "operation": "RUN set -eu;     npm run db:generate;",
+                "cached": true
+              },
+              {
+                "stage": "build 6/6",
+                "operation": "RUN npm run build",
+                "cached": true
+              },
+              {
+                "stage": "build 2/6",
+                "operation": "RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc     --mount=type=cache,target=/root/.npm     set -eu;     npm ci --include=dev;",
+                "cached": true
+              }
+            ],
+            "imported_manifests": [
+              "gha:12183853722303308091",
+              "gha:6774345936493096753"
+            ],
+            "transfer_operations": [
+              {
+                "operation": "importing cache manifest from gha:6774345936493096753",
+                "seconds": 0.3
+              },
+              {
+                "operation": "importing cache manifest from gha:12183853722303308091",
+                "seconds": 0.3
+              },
+              {
+                "operation": "exporting to image",
+                "seconds": 3.4
+              },
+              {
+                "operation": "exporting to GitHub Actions Cache",
+                "seconds": 1.3
+              }
+            ]
+          }
+        },
+        "chart_database_readiness": {
+          "prisma_p1001_log_occurrences": 0
+        }
+      },
+      "exclusion_reason": "The mutable nginx:1.31-alpine base changed from sha256:785835ea65db4bba6f021acc0f3be91b0fef76a53fe41f8588c6698d2aed0606 to sha256:a46f57e097e8effc26192437d2e715adf74bcbea836117651ee436c27983fa41. Application source and dependency/compile caches remained unchanged, but production inputs are not equivalent.",
+      "series": "unpinned-exploratory"
+    }
+  ],
+  "unavailable_telemetry": [
+    "Effective test-container worker count and peak process memory are not emitted by the existing jobs.",
+    "JUnit case names and the LCOV coverage denominator are not retained by the current workflow; file inventories, test counts, coverage scope and printed coverage summaries are captured.",
+    "Cache instruction hits are observed events, not an asserted byte hit rate; transfer sizes are not fully exposed."
+  ],
+  "test_inventory_file": "0023-test-inventory.csv",
+  "environment_variance": "GitHub-hosted ubuntu-latest jobs reported more than one ubuntu-24.04 image release during the series. Resource metadata and image versions are retained per attempt; no samples are filtered by speed.",
+  "series": {
+    "unpinned-exploratory": {
+      "summary": {
+        "status": "superseded after mutable Nginx tag drift; not part of restarted baseline",
+        "warm_sample_count": 3,
+        "required_warm_sample_count": 5,
+        "elapsed_seconds": {
+          "median": 966.0,
+          "min": 854.0,
+          "max": 984.0
+        },
+        "summed_job_seconds": {
+          "median": 1562.0,
+          "min": 1544.0,
+          "max": 1645.0
+        }
+      }
+    },
+    "pinned-baseline": {
+      "status": "pending collection",
+      "application_base_images": [
+        "docker.io/library/nginx:1.31-alpine@sha256:a46f57e097e8effc26192437d2e715adf74bcbea836117651ee436c27983fa41",
+        "docker.io/library/node:26-bookworm-slim@sha256:add5c17c14752c54d2f3d519ec46a3815684d41c33f198bcb09fb998f7dcbf68"
+      ],
+      "registry_verification": {
+        "date": "2026-11-05",
+        "media_type": "application/vnd.oci.image.index.v1+json",
+        "platforms_verified": [
+          "linux/amd64",
+          "linux/arm64"
+        ]
+      }
+    }
+  },
+  "summary": {
+    "series": "pinned-baseline",
+    "status": "pending collection",
+    "warm_sample_count": 0,
+    "required_warm_sample_count": 5
+  }
 }
