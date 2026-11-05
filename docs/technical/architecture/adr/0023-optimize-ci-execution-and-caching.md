@@ -96,7 +96,8 @@ controlled PR baseline. Its [machine-readable evidence](./evidence/0023-ci-basel
 records source fingerprints, locked tools, enforcement state and attempt-specific
 measurements. The starting main commit is
 [`aa7d9223`](https://github.com/cloud-native-aixmarseille/pleey/commit/aa7d922386c5b707d19bf5bc8da9715c4f4066f1).
-No application, workflow, cache or chart behavior changes in P0.
+P0 pins application base-image inputs after the initial series exposed tag drift.
+Workflow ordering, application commands, cache configuration and charts remain unchanged.
 
 | Existing validation branch | Required inputs and outcome                                                                                                                   |
 | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -111,8 +112,8 @@ Existing code-query/dependency-review options disabled in the caller are not new
 required checks. A passing aggregate enforcement rule does not yet exist; P3 adds
 it after validating failure behavior. Current repository rules remain unchanged.
 
-The initial phase PR run validates documentation and primes its cache. Then collect
-five successful sequential reruns of that unchanged revision and event. Inspect
+The initial phase PR run validates the inputs and primes its cache. Collect
+five comparable successful attempts of an unchanged revision and event. Inspect
 resolved image/tool inputs and cache evidence before classifying attempts as
 equivalent warm samples. Keep failures and discarded samples with reasons; do not
 silently select only favorable timings. Store attempt-specific job/step timings
@@ -138,6 +139,92 @@ reviewed merge; do not rerun an older main publication merely to obtain a sample
 Record runner/image information and test/coverage summaries emitted by the current
 pipeline. Label unreported CPU/memory, coverage denominator and cache details as
 unavailable; obtain additional telemetry before the relevant P1/P6 comparison.
+
+### P0 controlled PR evidence: 2026-11-05
+
+[Phase PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552) validates
+the initial, superseded series without changing pipeline behavior. Its revision is
+`f29d1fea13d6effd157ef8168b8082281a6edf23`, with the shared workflow resolved from
+merge commit `a0b8cbac67b4a36ad5f3662b2234ad68ad53a827`.
+
+| Run / attempt                                                                                             | Classification        | Attempt elapsed | Summed job time | Initial queue |
+| --------------------------------------------------------------------------------------------------------- | --------------------- | --------------- | --------------- | ------------- |
+| [42088318092 / 1](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42088318092/attempts/1) | diagnostic-excluded   | 6m 53s          | 15m 59s         | 3s            |
+| [42089202414 / 1](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42089202414/attempts/1) | warm                  | 16m 24s         | 26m 02s         | 83s           |
+| [42089202414 / 2](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42089202414/attempts/2) | warm                  | 16m 06s         | 27m 25s         | 4s            |
+| [42089202414 / 3](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42089202414/attempts/3) | warm                  | 14m 14s         | 25m 44s         | 6s            |
+| [42089202414 / 4](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42089202414/attempts/4) | input-change-excluded | 15m 31s         | 27m 10s         | 4s            |
+
+The three equivalent warm attempts have a **provisional median of 16m 06s**
+(range 14m 14s–16m 24s), with median summed job time **26m 02s**
+(range 25m 44s–27m 25s). These are baseline observations, not achieved savings.
+This series is superseded by the pinned-input series below. Do not combine its
+three warm runs with the restarted five-sample baseline.
+
+Attempt 4 passed CI but resolved `nginx:1.31-alpine` to a different immutable
+image. Its digest changed from
+`sha256:785835ea65db4bba6f021acc0f3be91b0fef76a53fe41f8588c6698d2aed0606` to
+`sha256:a46f57e097e8effc26192437d2e715adf74bcbea836117651ee436c27983fa41`.
+The source revision and Node base stayed fixed, and npm/generation/compile steps
+were cached, but the production input set changed. Retain this run as
+changed-input evidence and exclude it from the equivalent warm group. This is
+why source SHA alone does not identify a reproducible build. The user approved pinning application base images and restarting the full
+five-run baseline on 2026-11-05.
+
+The first revision's Markdown-formatting failure was corrected. Its cancelled
+attempt is retained separately: the first failed step completed after 137s, and
+its consumed job time is not included in successful-run statistics.
+
+The [test inventory](./evidence/0023-test-inventory.csv) records 162 backend files
+(149 passed, 13 skipped; 1,218 passed and 60 skipped tests) and 228 frontend files
+(1,178 passed tests). Inventories and printed coverage summaries match across the
+three equivalent runs. Existing optional disabled jobs remain outside the required
+validation inventory. Fresh chart logs still contain Prisma `P1001` before a
+successful migration; the evidence records log occurrences, not inferred pod counts.
+
+Build/publication hosts reported four CPUs and 15.61 GiB Docker memory. Hosted
+Ubuntu image releases varied within the series and are recorded per attempt.
+Effective test-worker count, peak process memory and the coverage denominator are
+not emitted by the current retained reports; gather them before the corresponding
+P1/P6 experiments. Cache transfer spans can overlap and must not be summed to
+estimate workflow elapsed time.
+
+Raw job/step intervals, resolved inputs, cache events and test summaries are linked
+from the [evidence JSON](./evidence/0023-ci-baseline.json). The plan documents
+attempt-specific API collection. Review P0 before starting any P1 implementation;
+controlled main/release validation remains subject to the protocol above.
+
+### P0 input pinning and restarted baseline: 2026-11-05
+
+Pin the Node base in both application Dockerfiles and the frontend Nginx base
+using `tag@sha256:digest`. Registry inspection verified OCI image-index digests,
+including Linux amd64 and arm64 manifests; selecting the index preserves platform
+selection for local builds. The chosen Nginx input is the successfully validated
+image from the discarded fourth attempt. Keep the readable version tag alongside
+the digest. The exact references are maintained in the
+[backend](../../../../application/backend/Dockerfile) and
+[frontend](../../../../application/frontend/Dockerfile) Dockerfiles.
+
+This is an additional accepted P0 decision: mutable base tags invalidated the
+measurement, so fixed application base inputs are a prerequisite to the restarted
+baseline. Pinning makes image refresh explicit; security updates now require a
+reviewed digest change. Existing weekly Docker
+[Dependabot configuration](../../../../.github/dependabot.yml) covers both files.
+Review those updates promptly and keep both Node references aligned. See
+[Docker's digest-pinning guidance](https://docs.docker.com/build/building/best-practices/#pin-base-image-versions).
+
+Start a new series on one fixed PR revision after pinning. Count five successful
+attempts only after confirming all four image jobs reuse dependency/compile
+layers, resolved application images and workflow revisions stay identical, and
+test inventories match. Retain any cache-priming or failed attempts separately.
+The previous series remains supporting evidence and contributes no samples to
+this baseline. Collection is pending; P1 has not started.
+
+Pinning application images does not freeze apt/apk repositories, hosted runner
+releases, tools installed by upstream workflows or chart dependency tags. Record
+observable resolved inputs and runner variance; do not claim byte-identical cold
+builds. The root linter Dockerfile is not the image used by the pinned shared CI
+linter, so changing that unrelated input is outside this baseline adjustment.
 
 ## Decision Drivers
 
@@ -554,7 +641,7 @@ Validation must include:
   representative release path without publishing a release just to benchmark it.
 
 Cold-cache reproducibility means successful builds and equivalent behavior from
-declared inputs, not byte-identical images with mutable base tags/OS repositories.
+declared inputs, not byte-identical images from mutable OS package repositories.
 Report variance and reliability failures; collect more samples when timing ranges
 overlap substantially. Roll back regressions/flakiness, and record dated results
 with the ADR and implementation review. No optimization has been benchmarked here.

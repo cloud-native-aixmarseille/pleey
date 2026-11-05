@@ -51,6 +51,17 @@ It does not pass `--force`. All selected projects are attempted even if one fail
 the target fails if any invocation fails, including when vulnerabilities remain.
 Review dependency changes and run the affected project's checks after either command.
 
+## Application base images
+
+The [backend](../../../application/backend/Dockerfile) and
+[frontend](../../../application/frontend/Dockerfile) use base-image tags pinned to
+multi-platform index digests. Keep the two Node references aligned when updating
+them. Weekly Docker [Dependabot checks](../../../.github/dependabot.yml) cover both
+files; review digest updates to receive base-image fixes. Validate updates with
+the application image builds, application checks and chart installation in CI.
+See [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p0-input-pinning-and-restarted-baseline-2026-11-05)
+for the decision and measurement constraints.
+
 ## Repository Static Linting
 
 `make lint` runs both application lint pipelines, then Super-linter with the configurations under `.github/linters/`.

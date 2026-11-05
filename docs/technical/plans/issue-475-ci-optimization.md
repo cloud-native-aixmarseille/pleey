@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 in progress; ADR accepted; P1–P8 not started
+- Implementation status: P0 restarting with pinned application base images; P1–P8 not started
 
 Delivery: one phase per PR, with passing CI and user review before the next phase.
 
@@ -44,11 +44,12 @@ Dockerfiles/configurations and the upstream revisions pinned by those workflows.
 - [x] Record agreement on ADR 0023 before implementation; keep additional design decisions in the ADR. Accepted for phased implementation on 2026-11-05.
 - [x] Export classic branch protection and applicable rulesets: no effective `main` rule and a disabled default-branch ruleset on 2026-11-05. [Snapshot](../architecture/adr/evidence/0023-ci-baseline.json); actual emitted check names will also be retained in run evidence.
 - [x] Inventory application lint/tests, repository lint, workflow/security checks, signatures/attestations, reporting and umbrella-chart installation, including their dependencies. See the [P0 protocol](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p0-baseline-protocol-2026-11-05).
-- [ ] Record source/action revisions, resolved base/tool images, Node/npm/Vitest versions, runner CPU/memory, discovered tests and coverage configuration. Fix application inputs within comparisons.
+- [x] Record source/action revisions, resolved base/tool images, locked test tools, emitted runner resources and test/coverage inventory. [P0 evidence](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p0-controlled-pr-evidence-2026-11-05) explicitly records unavailable worker/peak-memory/coverage-denominator telemetry for later collection.
 - [x] Define equivalent warm, fully cold, lockfile-changing and source-only scenarios. The [P0 protocol](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p0-baseline-protocol-2026-11-05) separates PR/main and records later invalidation/release validation requirements.
-- [ ] Capture queue/dispatch time, job/step execution, cache import/export, image initialization, reporting and teardown. Save run links and raw timing data.
-- [ ] Calculate elapsed time, summed non-skipped job duration, critical path and time to first actionable failure. Track failed/cancelled work separately; job-duration sum is a resource proxy, not a bill.
-- [ ] Collect at least five equivalent warm baseline runs. Use the same method for retained candidates; historical runs in the ADR remain exploratory evidence.
+- [x] Capture queue/dispatch and job/step intervals, cache transfer spans, test summaries and teardown for the P0 attempts. [Raw evidence](../architecture/adr/evidence/0023-ci-baseline.json) retains links and limitations of composite-step timing.
+- [x] Calculate attempt elapsed, summed non-skipped job time and first failed-step timing, preserving intervals for critical-path analysis. Failed/cancelled and changed-input attempts are classified separately in the [P0 results](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p0-controlled-pr-evidence-2026-11-05); job-duration sum is not a bill.
+- [x] Pin application Node and Nginx bases to verified multi-platform index digests after the user approved restarting the baseline. Preserve existing Dependabot coverage and document the explicit image-update policy in ADR 0023.
+- [ ] Collect five equivalent warm runs on the new pinned revision. **0/5 new samples:** the earlier unpinned series is superseded and stays separate; exclude priming, failures and changed-input attempts.
 
 Read-only collection commands from the root, substituting an observed `RUN_ID`:
 
@@ -56,12 +57,18 @@ Read-only collection commands from the root, substituting an observed `RUN_ID`:
 gh run list --repo cloud-native-aixmarseille/pleey --limit 20
 gh run view RUN_ID --repo cloud-native-aixmarseille/pleey --json headSha,event,conclusion,createdAt,startedAt,updatedAt,jobs,url
 gh api --paginate repos/cloud-native-aixmarseille/pleey/actions/runs/RUN_ID/jobs
+gh api repos/cloud-native-aixmarseille/pleey/actions/runs/RUN_ID/attempts/ATTEMPT
+gh api --paginate 'repos/cloud-native-aixmarseille/pleey/actions/runs/RUN_ID/attempts/ATTEMPT/jobs?per_page=100'
+gh api repos/cloud-native-aixmarseille/pleey/actions/runs/RUN_ID/attempts/ATTEMPT/logs > /tmp/pleey-ci-run-logs.zip
 gh api repos/cloud-native-aixmarseille/pleey/branches/main/protection
 gh api 'repos/cloud-native-aixmarseille/pleey/rulesets?includes_parents=true'
 gh api repos/cloud-native-aixmarseille/pleey/rules/branches/main
 ```
 
-Distinguish an unprotected branch from unavailable access when interpreting 404s.
+Replace `ATTEMPT` with the recorded attempt number when collecting reruns; the
+unqualified jobs endpoint returns the latest attempt. Keep each downloaded archive
+under a distinct local filename. Distinguish an unprotected branch from unavailable
+access when interpreting 404s.
 Use job timestamps and the latest job finish to separate execution from dispatch
 and queueing. P0 is complete when another contributor can reproduce the comparison.
 
