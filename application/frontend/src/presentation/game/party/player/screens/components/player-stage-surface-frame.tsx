@@ -36,6 +36,7 @@ interface PlayerStageSurfaceFrameProps {
   readonly party: PartyObservation;
   readonly playerActionErrorMessage: string | null;
   readonly stageAside?: ReactNode;
+  readonly stageProgressLabelKey: string;
   readonly submittingLabel: string;
   readonly testId: string;
 }
@@ -70,6 +71,7 @@ export function PlayerStageSurfaceFrame({
   party,
   playerActionErrorMessage,
   stageAside,
+  stageProgressLabelKey,
   submittingLabel,
   testId,
 }: PlayerStageSurfaceFrameProps) {
@@ -86,7 +88,7 @@ export function PlayerStageSurfaceFrame({
   }
 
   const totalStages = party.context?.lifecycle.totalStages ?? stagePosition + 1;
-  const progressText = t('game.party.route.runtimeStageProgress', {
+  const progressText = t(stageProgressLabelKey, {
     current: String(stagePosition + 1),
     total: String(totalStages),
   });
@@ -141,7 +143,6 @@ export function PlayerStageSurfaceFrame({
           leaveDialogMessage={t('game.party.player.route.leavePartyConfirmMessage')}
           leaveDialogTitle={t('game.party.player.route.leavePartyConfirmTitle')}
           leaveLabel={t('game.party.player.route.leavePartyCta')}
-          menuLabel={progressText}
           onLeaveParty={onLeaveParty}
           timerBarHeightPx={MOBILE_TIMER_BAR_HEIGHT_PX}
           timerSlot={stageAside}
@@ -149,11 +150,14 @@ export function PlayerStageSurfaceFrame({
 
         {errorBanner}
 
-        <MotionFadeIn key={`question-${stageRevealCycleKey}`} duration={0.9}>
-          <div style={mobileQuestionStyle}>
-            <p style={mobileQuestionTextStyle}>{currentStage.text}</p>
-          </div>
-        </MotionFadeIn>
+        <div style={mobileQuestionStyle}>
+          <ContentStack align="center" gap="xs">
+            <SupportingText tone="soft">{progressText}</SupportingText>
+            <MotionFadeIn key={`question-${stageRevealCycleKey}`} duration={0.9}>
+              <p style={mobileQuestionTextStyle}>{currentStage.text}</p>
+            </MotionFadeIn>
+          </ContentStack>
+        </div>
 
         <div style={mobileActionsAreaStyle}>{children}</div>
 

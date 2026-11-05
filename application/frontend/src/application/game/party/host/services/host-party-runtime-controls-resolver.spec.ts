@@ -21,7 +21,6 @@ describe('HostPartyRuntimeControlsResolver', () => {
     // Assert
     expect(result.permissions).toBe(party.permissions);
     expect(result.permissions.startParty).toEqual({ allowed: false, reason: HostPartyDisabledReason.NO_STAGES });
-    expect(result.currentStageNumber).toBeNull();
     expect(result.hasNextStage).toBe(false);
   });
 });

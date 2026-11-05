@@ -25,7 +25,6 @@ export const gamePartyPlayerFr = {
             'Une bonne réponse rapporte environ 80 % des points, plus un bonus de rapidité de 20 % maximum. Une mauvaise réponse rapporte 0 point. Sans chrono, une bonne réponse rapporte tous les points.',
           currentHost: 'Hébergée par {{username}}',
           actionSubmitting: 'Envoi de votre réponse...',
-          actionLocked: 'Votre réponse est verrouillée.',
           answerShortcuts: 'Choix de réponse',
           answerShortcut: 'Sélectionner la réponse {{number}}',
           actionPaused: "L'hôte a mis la partie en pause. Les réponses sont temporairement verrouillées.",

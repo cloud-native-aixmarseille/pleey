@@ -34,11 +34,9 @@ describe('HostStartPartyAction', () => {
             rewindStage: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
             startParty: { allowed: true, reason: null },
           },
-          currentStageNumber: null,
           hasNextStage: false,
           isPaused: false,
           lifecyclePhase: PartyRuntimePhase.LOBBY,
-          totalStages: null,
         }}
         onStartParty={onStartParty}
         pendingCommand={null}
@@ -69,11 +67,9 @@ describe('HostStartPartyAction', () => {
             rewindStage: { allowed: true, reason: null },
             startParty: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
           },
-          currentStageNumber: 2,
           hasNextStage: true,
           isPaused: false,
           lifecyclePhase: PartyRuntimePhase.RESULT,
-          totalStages: 4,
         }}
         onStartParty={vi.fn()}
         pendingCommand={null}
@@ -101,11 +97,9 @@ describe('HostStartPartyAction', () => {
             rewindStage: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
             startParty: { allowed: true, reason: null },
           },
-          currentStageNumber: null,
           hasNextStage: false,
           isPaused: false,
           lifecyclePhase: PartyRuntimePhase.LOBBY,
-          totalStages: null,
         }}
         onStartParty={vi.fn()}
         pendingCommand={HostPartyRuntimeCommand.StartParty}
@@ -135,11 +129,9 @@ describe('HostStartPartyAction', () => {
             rewindStage: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
             startParty: { allowed: false, reason: HostPartyDisabledReason.UNAVAILABLE },
           },
-          currentStageNumber: null,
           hasNextStage: false,
           isPaused: false,
           lifecyclePhase: PartyRuntimePhase.LOBBY,
-          totalStages: null,
         }}
         onStartParty={onStartParty}
         pendingCommand={null}

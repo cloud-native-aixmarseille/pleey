@@ -20,14 +20,14 @@ interface PartyGameTypePlayerStageSurfaceProps extends PartyGameTypePlayerResult
 }
 
 export interface PartyGameTypeRuntimeView {
-  renderHostResultPanel(props: PartyGameTypeHostRuntimePanelProps): ReactElement | null;
-  renderHostStagePanel(props: PartyGameTypeHostRuntimePanelProps): ReactElement | null;
-  renderPlayerResultSurface(props: PartyGameTypePlayerResultSurfaceProps): ReactElement | null;
-  renderPlayerStageSurface(props: PartyGameTypePlayerStageSurfaceProps): ReactElement | null;
+  renderHostResultPanel(props: PartyGameTypeHostRuntimePanelProps): ReactElement;
+  renderHostStagePanel(props: PartyGameTypeHostRuntimePanelProps): ReactElement;
+  renderPlayerResultSurface(props: PartyGameTypePlayerResultSurfaceProps): ReactElement;
+  renderPlayerStageSurface(props: PartyGameTypePlayerStageSurfaceProps): ReactElement;
 }
 
 export interface PartyGameTypeRuntimeRegistry {
-  resolve(gameType: GameType): PartyGameTypeRuntimeView | null;
+  resolve(gameType: GameType): PartyGameTypeRuntimeView;
 }
 
 const PartyGameTypeRuntimeRegistryContext = createContext<PartyGameTypeRuntimeRegistry | null>(null);

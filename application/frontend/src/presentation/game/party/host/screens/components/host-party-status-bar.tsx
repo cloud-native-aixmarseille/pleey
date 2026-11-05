@@ -67,7 +67,6 @@ export function HostPartyStatusBar({
             pendingCommand={pendingHostRuntimeCommand}
           />
           <HostAdvanceStageAction
-            compact
             controls={hostRuntimeControls}
             onAdvanceStage={onAdvanceStage}
             pendingCommand={pendingHostRuntimeCommand}

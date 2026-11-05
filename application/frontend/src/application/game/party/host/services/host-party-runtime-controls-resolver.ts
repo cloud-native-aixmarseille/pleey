@@ -13,9 +13,6 @@ export class HostPartyRuntimeControlsResolver implements PartyHostRuntimeControl
     const lifecycle = party.context?.lifecycle ?? null;
     const lifecyclePhase =
       lifecycle?.phase ?? (party.status === PartyStatus.ENDED ? PartyRuntimePhase.ENDED : PartyRuntimePhase.LOBBY);
-    const currentStageNumber =
-      lifecycle?.stagePosition === null || lifecycle?.stagePosition === undefined ? null : lifecycle.stagePosition + 1;
-    const totalStages = lifecycle?.totalStages ?? null;
     const hasNextStage =
       lifecycle?.stagePosition !== null &&
       lifecycle?.stagePosition !== undefined &&
@@ -23,11 +20,9 @@ export class HostPartyRuntimeControlsResolver implements PartyHostRuntimeControl
 
     return {
       permissions: party.permissions,
-      currentStageNumber,
       hasNextStage,
       isPaused: party.status === PartyStatus.PAUSED,
       lifecyclePhase,
-      totalStages,
     };
   }
 }

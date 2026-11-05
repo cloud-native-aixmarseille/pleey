@@ -39,6 +39,7 @@ export function PlayableContentManagementScreen(props: PlayableContentManagement
     setActiveTab(PlayableManagementTab.REVIEW);
   };
   const state = viewModel.state;
+  const selectedItem = state?.items.find((item) => item.id === viewModel.selectedItemId);
   const gateState = viewModel.isLoading ? FeedbackState.LOADING : state ? FeedbackState.READY : FeedbackState.EMPTY;
 
   const openFirstIssue = () => {
@@ -134,6 +135,7 @@ export function PlayableContentManagementScreen(props: PlayableContentManagement
                       editorState={viewModel.editorState}
                       isSaving={viewModel.isSaving}
                       itemKindConfig={props.itemKindConfig}
+                      itemNumber={selectedItem ? selectedItem.position + 1 : null}
                       onSave={() => void viewModel.saveItem()}
                       setEditorState={viewModel.setEditorState}
                       translationRoot={props.translationRoot}

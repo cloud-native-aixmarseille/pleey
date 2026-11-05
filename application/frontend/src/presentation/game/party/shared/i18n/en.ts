@@ -23,7 +23,6 @@ export const gamePartyEn = {
         statusBarLabel: 'Party lobby status bar',
         statusTitle: 'Party {{pin}}',
         playerCount: '{{count}} players',
-        runtimeStageProgress: 'Stage {{current}} of {{total}}',
         runtimeTotalScore: 'Total: {{score}} pts',
         runtimeTimeLeft: '{{time}} left',
         runtimeTimeUp: 'Time is up',

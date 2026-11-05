@@ -1,6 +1,6 @@
+import { createElement } from 'react';
 import { describe, expect, it } from 'vitest';
 import { GameType } from '../../../../../domains/game/types/shared/game-type';
-import type { PartyGameTypeRuntimeView } from '../../../../../presentation/game/party/shared/contexts/party-game-type-runtime-registry-context';
 import type { PartyGameTypeRuntimeViewContributor } from '../party-game-type-runtime-view-contributor';
 import { AppPartyGameTypeRuntimeRegistry } from './app-party-game-type-runtime-registry';
 
@@ -8,59 +8,54 @@ class TestRuntimeViewContributor implements PartyGameTypeRuntimeViewContributor 
   constructor(readonly gameType: GameType) {}
 
   renderHostResultPanel() {
-    return null;
+    return createElement('div');
   }
 
   renderHostStagePanel() {
-    return null;
+    return createElement('div');
   }
 
   renderPlayerResultSurface() {
-    return null;
+    return createElement('div');
   }
 
   renderPlayerStageSurface() {
-    return null;
+    return createElement('div');
   }
 }
 
-function createRuntimeView(): PartyGameTypeRuntimeView {
-  return {
-    renderHostResultPanel: () => null,
-    renderHostStagePanel: () => null,
-    renderPlayerResultSurface: () => null,
-    renderPlayerStageSurface: () => null,
-  };
-}
-
 describe('AppPartyGameTypeRuntimeRegistry', () => {
-  it('resolves the registered runtime view for a game type', () => {
+  it.each(Object.values(GameType))('resolves the registered runtime view for %s', (gameType) => {
     // Arrange
     const quizRuntimeView = new TestRuntimeViewContributor(GameType.Quiz);
+    const predictionRuntimeView = new TestRuntimeViewContributor(GameType.Prediction);
+    const contributors = [quizRuntimeView, predictionRuntimeView];
+    const registry = new AppPartyGameTypeRuntimeRegistry(contributors);
+
     // Act
-    const registry = new AppPartyGameTypeRuntimeRegistry([quizRuntimeView]);
+    const runtimeView = registry.resolve(gameType);
 
     // Assert
-    expect(registry.resolve(GameType.Quiz)).toEqual(quizRuntimeView);
-    expect(registry.resolve(GameType.Quiz)?.renderHostStagePanel).toBeTypeOf('function');
-    expect(registry.resolve(GameType.Quiz)?.renderPlayerStageSurface).toBeTypeOf('function');
-    expect(registry.resolve(GameType.Prediction)).toBeNull();
+    expect(runtimeView).toBe(contributors.find((contributor) => contributor.gameType === gameType));
+  });
+
+  it('rejects a game type without a registered runtime view', () => {
+    // Arrange
+    const registry = new AppPartyGameTypeRuntimeRegistry([new TestRuntimeViewContributor(GameType.Quiz)]);
+
+    // Act + Assert
+    expect(() => registry.resolve(GameType.Prediction)).toThrow(
+      'No party runtime view registered for game type: prediction',
+    );
   });
 
   it('rejects duplicate runtime view registrations for the same game type', () => {
-    // Arrange + Act + Assert
-    expect(
-      () =>
-        new AppPartyGameTypeRuntimeRegistry([
-          {
-            ...createRuntimeView(),
-            gameType: GameType.Quiz,
-          } satisfies PartyGameTypeRuntimeViewContributor,
-          {
-            ...createRuntimeView(),
-            gameType: GameType.Quiz,
-          } satisfies PartyGameTypeRuntimeViewContributor,
-        ]),
-    ).toThrow('Duplicate party runtime view registration for game type: quiz');
+    // Arrange
+    const contributors = [new TestRuntimeViewContributor(GameType.Quiz), new TestRuntimeViewContributor(GameType.Quiz)];
+
+    // Act + Assert
+    expect(() => new AppPartyGameTypeRuntimeRegistry(contributors)).toThrow(
+      'Duplicate party runtime view registration for game type: quiz',
+    );
   });
 });

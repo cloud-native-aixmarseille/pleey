@@ -24,7 +24,7 @@ export function PlayableChoiceHostResultPanel({ copy, party, testIdPrefix }: Pla
         <InsetPanel padding="md">
           <ContentStack gap="md">
             <SupportingText tone="soft">
-              {t('game.party.route.runtimeStageProgress', {
+              {t(copy.stageProgress, {
                 current: String(stagePosition + 1),
                 total: String(party.context?.lifecycle.totalStages ?? stagePosition + 1),
               })}

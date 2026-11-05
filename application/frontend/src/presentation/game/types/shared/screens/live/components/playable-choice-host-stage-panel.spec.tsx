@@ -28,6 +28,7 @@ describe('PlayableChoiceHostStagePanel', () => {
       act(() => vi.advanceTimersByTime(elapsed));
       // Assert
       expect(screen.getByRole('heading', { name: 'Which answer?' })).toBeInTheDocument();
+      expect(screen.getByText('game.types.quiz.runtime.stageProgress (current=1, total=3)')).toBeVisible();
       expect(screen.queryAllByText(/^(First|Second) answer$/)).toHaveLength(visible ? 2 : 0);
     } finally {
       vi.useRealTimers();

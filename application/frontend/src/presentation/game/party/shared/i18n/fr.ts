@@ -25,7 +25,6 @@ export const gamePartyFr = {
         statusBarLabel: 'Barre de statut du lobby de partie',
         statusTitle: 'Partie {{pin}}',
         playerCount: '{{count}} joueurs',
-        runtimeStageProgress: 'Manche {{current}} sur {{total}}',
         runtimeTotalScore: 'Total : {{score}} pts',
         runtimeTimeLeft: 'Temps restant : {{time}}',
         runtimeTimeUp: 'Temps écoulé',

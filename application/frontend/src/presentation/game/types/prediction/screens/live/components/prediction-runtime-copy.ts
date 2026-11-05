@@ -1,6 +1,7 @@
 import type { PlayableChoiceRuntimeCopy } from '../../../../shared/screens/live/components/playable-choice-runtime-panels';
 
 export const predictionRuntimeCopy = {
+  stageProgress: 'game.types.prediction.runtime.stageProgress',
   actionSlotLabel: 'game.types.prediction.runtime.actionSlotLabel',
   correctBadge: 'game.types.prediction.runtime.correctBadge',
   paused: 'game.types.prediction.runtime.paused',
