@@ -247,21 +247,14 @@ const mocks = vi.hoisted(() => {
         const lifecycle = party.context?.lifecycle ?? null;
         const lifecyclePhase =
           lifecycle?.phase ?? (party.status === PartyStatus.ENDED ? PartyRuntimePhase.ENDED : PartyRuntimePhase.LOBBY);
-        const currentStageNumber =
-          lifecycle?.stagePosition === null || lifecycle?.stagePosition === undefined
-            ? null
-            : lifecycle.stagePosition + 1;
-        const totalStages = lifecycle?.totalStages ?? null;
         return {
           permissions: party.permissions,
-          currentStageNumber,
           hasNextStage:
             lifecycle?.stagePosition !== null &&
             lifecycle?.stagePosition !== undefined &&
             lifecycle.totalStages > lifecycle.stagePosition + 1,
           isPaused: party.status === 'PAUSED',
           lifecyclePhase,
-          totalStages,
         };
       }),
     },

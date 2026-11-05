@@ -49,7 +49,6 @@ export const gamePartyHostEn = {
           runtimeRewindPartyConfirmTitle: 'Back to the lobby?',
           runtimeRewindPartyConfirmMessage:
             'All played stages will be reset. Player answers and accumulated score will be cleared before everyone returns to the lobby.',
-          runtimeResultHint: 'Advance when you are ready to move to the next stage.',
           musicPanelTitle: 'Party animation',
           kickPlayerCta: 'Kick player',
           kickPlayerPending: 'Removing...',

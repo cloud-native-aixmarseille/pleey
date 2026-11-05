@@ -13,6 +13,7 @@ import { PartyPinIdentifierMockFactory } from '../../../../../../../test-utils/m
 import { StageIdentifierMockFactory } from '../../../../../../../test-utils/mocks/stage-identifier-mock-factory';
 import { renderWithUiProvider } from '../../../../../../../test-utils/render-with-ui-provider';
 import { KeyboardShortcutsProvider } from '../../../../../../shared/keyboard';
+import { PredictionHostResultPanel } from './prediction-host-result-panel';
 import { PredictionHostStagePanel } from './prediction-host-stage-panel';
 import { PredictionPlayerResultSurface } from './prediction-player-result-surface';
 import { PredictionPlayerStageSurface } from './prediction-player-stage-surface';
@@ -179,6 +180,7 @@ describe('prediction runtime panels', () => {
       renderWithUiProvider(<PredictionHostStagePanel party={createStageParty()} />);
 
       expect(screen.getByTestId('prediction-host-stage-panel')).toBeInTheDocument();
+      expect(screen.getByText('game.types.prediction.runtime.stageProgress:current=1,total=2')).toBeInTheDocument();
       expect(screen.getByRole('heading', { name: 'Who wins the final?' })).toBeInTheDocument();
       expect(screen.getByText('Home wins')).toBeInTheDocument();
       expect(screen.getByText('Away wins')).toBeInTheDocument();
@@ -332,12 +334,24 @@ describe('prediction runtime panels', () => {
     }
   });
 
+  it('uses the prediction progress translation in the host result', () => {
+    // Arrange
+    const party = createResultParty();
+
+    // Act
+    renderWithUiProvider(<PredictionHostResultPanel party={party} />);
+
+    // Assert
+    expect(screen.getByText('game.types.prediction.runtime.stageProgress:current=1,total=2')).toBeInTheDocument();
+  });
+
   it('renders the player prediction result reveal from party state', () => {
     // Arrange + Act + Assert
     try {
       renderWithUiProvider(<PredictionPlayerResultSurface onLeaveParty={vi.fn()} party={createResultParty()} />);
 
       expect(screen.getByTestId('prediction-player-result-surface')).toBeInTheDocument();
+      expect(screen.getByText('game.types.prediction.runtime.stageProgress:current=1,total=2')).toBeInTheDocument();
       expect(screen.getByText('game.types.prediction.runtime.resultCorrect')).toBeInTheDocument();
       expect(screen.getByText('game.types.prediction.runtime.pointsAwarded:points=250')).toBeInTheDocument();
       expect(screen.getByText('game.types.prediction.runtime.correctBadge')).toBeInTheDocument();

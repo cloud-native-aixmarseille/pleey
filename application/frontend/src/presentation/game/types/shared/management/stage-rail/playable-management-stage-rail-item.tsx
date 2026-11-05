@@ -8,7 +8,7 @@ import { InlineStatPill } from '../../../../../shared/ui/data/inline-stat-pill';
 import { Badge } from '../../../../../shared/ui/feedback/badge';
 import { AppIcon } from '../../../../../shared/ui/icons/app-icon';
 import { ActionRow, SplitWrapRow, WrapRow } from '../../../../../shared/ui/layout/containers';
-import { SummaryText } from '../../../../../shared/ui/layout/typography';
+import { SummaryText, SupportingText } from '../../../../../shared/ui/layout/typography';
 import type { PlayableItemKindConfig } from '../playable-content-management-model';
 import type { PlayableItemEditorValidator } from '../playable-item-editor-validator';
 import { type PlayableManagementDropPreview } from '../playable-management-drag-placement';
@@ -94,6 +94,7 @@ export function PlayableManagementStageRailItem({
           surfaceStyle={itemSelectButtonStyle}
         >
           <div style={itemButtonContentStyle}>
+            <SupportingText>{t(`${translationRoot}.itemPosition`, { position: index + 1 })}</SupportingText>
             <SummaryText>{resolveStageTitle(item, t(`${translationRoot}.itemUntitled`))}</SummaryText>
             <WrapRow gap="sm">
               <Badge tone={ready ? 'success' : 'warning'}>

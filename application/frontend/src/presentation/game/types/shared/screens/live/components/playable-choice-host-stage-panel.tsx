@@ -61,7 +61,7 @@ export function PlayableChoiceHostStagePanel({ copy, party, testIdPrefix }: Play
             <div style={stageMetaRowStyle}>
               <div style={stageMetaPrimarySlotStyle}>
                 <Badge icon={<AppIcon name="skip-forward" size={14} />} tone="info">
-                  {t('game.party.route.runtimeStageProgress', {
+                  {t(copy.stageProgress, {
                     current: String(stagePosition + 1),
                     total: String(totalStages),
                   })}

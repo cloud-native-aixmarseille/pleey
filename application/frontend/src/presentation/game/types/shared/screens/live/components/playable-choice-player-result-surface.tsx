@@ -45,7 +45,7 @@ export function PlayableChoicePlayerResultSurface({
     return null;
   }
 
-  const progressText = t('game.party.route.runtimeStageProgress', {
+  const progressText = t(copy.stageProgress, {
     current: String(stagePosition + 1),
     total: String(totalStages),
   });
@@ -133,7 +133,6 @@ export function PlayableChoicePlayerResultSurface({
           leaveDialogMessage={t('game.party.player.route.leavePartyConfirmMessage')}
           leaveDialogTitle={t('game.party.player.route.leavePartyConfirmTitle')}
           leaveLabel={t('game.party.player.route.leavePartyCta')}
-          menuLabel={progressText}
           onLeaveParty={onLeaveParty}
         />
 

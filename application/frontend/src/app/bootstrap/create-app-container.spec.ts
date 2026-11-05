@@ -5,9 +5,11 @@ import {
   GAME_TYPE_CATALOG_GATEWAY,
   type GameTypeCatalogGateway,
 } from '../../application/game/types/shared/gateways/game-type-catalog.gateway';
+import { GameType } from '../../domains/game/types/shared/game-type';
 import { ROUTE_REGISTRY, RouteRegistry } from '../routing/route-registry';
 import { AppProviderFactoryToken, createAppProviderFactories } from './app-provider-factory';
 import { createAppContainer } from './create-app-container';
+import { AppPartyGameTypeRuntimeRegistry } from './modules/party/services/app-party-game-type-runtime-registry';
 
 describe('createAppContainer', () => {
   describe('create()', () => {
@@ -35,6 +37,18 @@ describe('createAppContainer', () => {
       const gateway = container.get<GameTypeCatalogGateway>(GAME_TYPE_CATALOG_GATEWAY);
       // Assert
       expect(typeof gateway.listCatalog).toBe('function');
+    });
+
+    it.each(Object.values(GameType))('registers a party runtime view for %s', (gameType) => {
+      // Arrange
+      const container = createAppContainer();
+      const registry = container.get(AppPartyGameTypeRuntimeRegistry);
+
+      // Act
+      const runtimeView = registry.resolve(gameType);
+
+      // Assert
+      expect(runtimeView).toBeDefined();
     });
 
     it('returns the same RouteRegistry singleton on repeated resolution', () => {

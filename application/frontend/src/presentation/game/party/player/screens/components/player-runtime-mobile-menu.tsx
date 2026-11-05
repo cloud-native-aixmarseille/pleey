@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { IconTriggerButton } from '../../../../../shared/ui/actions/icon-trigger-button';
 import { AppIcon } from '../../../../../shared/ui/icons/app-icon';
-import { DropdownMenu, DropdownMenuDivider, DropdownMenuLabel } from '../../../../../shared/ui/overlay/dropdown-menu';
+import { DropdownMenu, DropdownMenuDivider } from '../../../../../shared/ui/overlay/dropdown-menu';
 import { ProtectedLeavePartyAction } from '../../../shared/screens/components/protected-leave-party-action';
 import {
   menuLeaveActionSlotStyle,
@@ -17,7 +17,6 @@ interface PlayerRuntimeMobileMenuProps {
   readonly leaveDialogMessage: string;
   readonly leaveDialogTitle: string;
   readonly leaveLabel: string;
-  readonly menuLabel: ReactNode;
   readonly onLeaveParty: () => void;
   readonly timerBarHeightPx?: number;
   readonly timerSlot?: ReactNode;
@@ -31,7 +30,6 @@ export function PlayerRuntimeMobileMenu({
   leaveDialogMessage,
   leaveDialogTitle,
   leaveLabel,
-  menuLabel,
   onLeaveParty,
   timerBarHeightPx,
   timerSlot,
@@ -61,9 +59,12 @@ export function PlayerRuntimeMobileMenu({
         </IconTriggerButton>
       }
     >
-      <DropdownMenuLabel>{menuLabel}</DropdownMenuLabel>
-      {timerSlot ? <div style={menuTimerSlotStyle}>{timerSlot}</div> : null}
-      <DropdownMenuDivider />
+      {timerSlot ? (
+        <>
+          <div style={menuTimerSlotStyle}>{timerSlot}</div>
+          <DropdownMenuDivider />
+        </>
+      ) : null}
       <div style={menuLeaveActionSlotStyle}>
         <ProtectedLeavePartyAction
           cancelLabel={cancelLeaveLabel}

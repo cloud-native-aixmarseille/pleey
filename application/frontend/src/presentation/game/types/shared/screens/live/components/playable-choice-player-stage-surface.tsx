@@ -119,6 +119,7 @@ export function PlayableChoicePlayerStageSurface({
       onLeaveParty={onLeaveParty}
       party={party}
       playerActionErrorMessage={playerActionErrorMessage}
+      stageProgressLabelKey={copy.stageProgress}
       stageAside={
         <StageCountdownTimer
           isPaused={party.status === PartyStatus.PAUSED}

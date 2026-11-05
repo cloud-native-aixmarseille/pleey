@@ -1,7 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { describe, expect, it } from 'vitest';
-import { GameType } from '../../../../../domains/game/types/shared/game-type';
 import { PresentationContextErrorCode } from '../../../../../domains/shared/errors/presentation-context-error-code';
 import {
   type PartyGameTypeRuntimeRegistry,
@@ -9,22 +8,17 @@ import {
   usePartyGameTypeRuntimeRegistry,
 } from './party-game-type-runtime-registry-context';
 
-const runtimeGameType = Object.values(GameType)[0] as GameType;
-
 describe('partyGameTypeRuntimeRegistryContext', () => {
   describe('usePartyGameTypeRuntimeRegistry()', () => {
     it('returns the registry from context', () => {
       // Arrange
       const registry: PartyGameTypeRuntimeRegistry = {
-        resolve: (gameType) =>
-          gameType === runtimeGameType
-            ? {
-                renderHostResultPanel: () => null,
-                renderHostStagePanel: () => null,
-                renderPlayerResultSurface: () => null,
-                renderPlayerStageSurface: () => null,
-              }
-            : null,
+        resolve: () => ({
+          renderHostResultPanel: () => <div />,
+          renderHostStagePanel: () => <div />,
+          renderPlayerResultSurface: () => <div />,
+          renderPlayerStageSurface: () => <div />,
+        }),
       };
       const wrapper = ({ children }: { children: ReactNode }) => (
         <PartyGameTypeRuntimeRegistryProvider value={registry}>{children}</PartyGameTypeRuntimeRegistryProvider>

@@ -16,11 +16,9 @@ export enum HostPartyRuntimeCommand {
 
 export interface HostPartyRuntimeControlsState {
   readonly permissions: HostPartyPermissions;
-  readonly currentStageNumber: number | null;
   readonly hasNextStage: boolean;
   readonly isPaused: boolean;
   readonly lifecyclePhase: PartyRuntimePhase;
-  readonly totalStages: number | null;
 }
 
 export interface PartyHostRuntimeControlsPort {

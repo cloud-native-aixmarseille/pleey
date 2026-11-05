@@ -157,6 +157,23 @@ describe('PlayableContentManagementScreen', () => {
     );
   }
 
+  it('shows the total, rail positions, and selected stage number', async () => {
+    // Arrange
+    arrangeGatewayDefaults();
+
+    // Act
+    renderScreen();
+    const rail = within(await screen.findByRole('list', { name: 'game.types.quiz.management.itemsTitle' }));
+
+    // Assert
+    expect(screen.getByText('game.types.quiz.management.summary (count=2)')).toBeInTheDocument();
+    expect(rail.getAllByRole('listitem')[0]).toHaveTextContent('game.types.quiz.management.itemPosition (position=1)');
+    expect(rail.getAllByRole('listitem')[1]).toHaveTextContent('game.types.quiz.management.itemPosition (position=2)');
+    expect(
+      screen.getByRole('heading', { name: 'game.types.quiz.management.editItemTitle (position=1)' }),
+    ).toBeInTheDocument();
+  });
+
   it('creates an item from the inline editor', async () => {
     // Arrange
     arrangeGatewayDefaults();
@@ -244,6 +261,8 @@ describe('PlayableContentManagementScreen', () => {
     expect(screen.getByRole('heading', { name: 'game.types.quiz.management.createItemTitle' })).toBeInTheDocument();
     expect(screen.getAllByRole('textbox')[0]).toHaveValue('');
     expect(screen.getByText('New question')).toBeInTheDocument();
+    expect(screen.getByText('game.types.quiz.management.summary (count=3)')).toBeInTheDocument();
+    expect(screen.getByText('game.types.quiz.management.itemPosition (position=3)')).toBeInTheDocument();
   });
 
   it('allows adding a fifth answer option while creating an item', async () => {
@@ -338,6 +357,59 @@ describe('PlayableContentManagementScreen', () => {
         [21, expect.objectContaining({ position: 1, text: 'First question' })],
       ]);
     });
+    const items = rail.getAllByRole('listitem');
+    expect(items[0]).toHaveTextContent('Second question');
+    expect(items[0]).toHaveTextContent('game.types.quiz.management.itemPosition (position=1)');
+    expect(items[1]).toHaveTextContent('First question');
+    expect(items[1]).toHaveTextContent('game.types.quiz.management.itemPosition (position=2)');
+    expect(
+      screen.getByRole('heading', { name: 'game.types.quiz.management.editItemTitle (position=2)' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('game.types.quiz.management.summary (count=2)')).toBeInTheDocument();
+  });
+
+  it('renumbers the selected stage after deleting an earlier stage without losing its draft', async () => {
+    // Arrange
+    arrangeGatewayDefaults();
+    const user = userEvent.setup();
+    renderScreen();
+    const rail = within(await screen.findByRole('list', { name: 'game.types.quiz.management.itemsTitle' }));
+    await user.click(rail.getByRole('button', { name: /Second question/ }));
+    fireEvent.change(screen.getAllByRole('textbox')[0], { target: { value: 'Unsaved question' } });
+
+    // Act
+    await user.click(rail.getAllByRole('button', { name: 'game.types.quiz.management.deleteItemShort' })[0]);
+    await user.click(await screen.findByRole('button', { name: 'game.types.quiz.management.deleteItemConfirmAction' }));
+
+    // Assert
+    expect(await screen.findByText('game.types.quiz.management.summary (count=1)')).toBeInTheDocument();
+    expect(rail.getAllByRole('listitem')).toHaveLength(1);
+    expect(rail.getByRole('listitem')).toHaveTextContent('game.types.quiz.management.itemPosition (position=1)');
+    expect(
+      screen.getByRole('heading', { name: 'game.types.quiz.management.editItemTitle (position=1)' }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByRole('textbox')[0]).toHaveValue('Unsaved question');
+  });
+
+  it('shows zero stages and an unnumbered creation form after deleting every stage', async () => {
+    // Arrange
+    arrangeGatewayDefaults();
+    const user = userEvent.setup();
+    renderScreen();
+    const rail = within(await screen.findByRole('list', { name: 'game.types.quiz.management.itemsTitle' }));
+
+    // Act
+    for (let index = 0; index < 2; index += 1) {
+      await user.click(rail.getAllByRole('button', { name: 'game.types.quiz.management.deleteItemShort' })[0]);
+      await user.click(
+        await screen.findByRole('button', { name: 'game.types.quiz.management.deleteItemConfirmAction' }),
+      );
+    }
+
+    // Assert
+    expect(await screen.findByText('game.types.quiz.management.summary (count=0)')).toBeInTheDocument();
+    expect(screen.queryByRole('list', { name: 'game.types.quiz.management.itemsTitle' })).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'game.types.quiz.management.createItemTitle' })).toBeInTheDocument();
   });
 
   it('switches to the setup tab from the more menu and saves metadata', async () => {
@@ -452,7 +524,7 @@ describe('PlayableContentManagementScreen', () => {
     await user.click(screen.getAllByRole('button', { name: 'game.types.quiz.management.editItem' })[1]);
 
     expect(
-      await screen.findByRole('heading', { name: 'game.types.quiz.management.editItemTitle' }),
+      await screen.findByRole('heading', { name: 'game.types.quiz.management.editItemTitle (position=2)' }),
     ).toBeInTheDocument();
     expect(screen.getByDisplayValue('Broken question')).toBeInTheDocument();
   });

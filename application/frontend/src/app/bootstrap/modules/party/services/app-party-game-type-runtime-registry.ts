@@ -15,6 +15,11 @@ const PARTY_RUNTIME_VIEW_DUPLICATE_REGISTRATION_ERROR = {
   messageKey: 'PARTY_RUNTIME_VIEW_DUPLICATE_REGISTRATION',
 } as const;
 
+const PARTY_RUNTIME_VIEW_MISSING_REGISTRATION_ERROR = {
+  code: 'PARTY_RUNTIME_VIEW_MISSING_REGISTRATION',
+  messageKey: 'PARTY_RUNTIME_VIEW_MISSING_REGISTRATION',
+} as const;
+
 @injectable()
 export class AppPartyGameTypeRuntimeRegistry implements PartyGameTypeRuntimeRegistry {
   private readonly runtimeViewsByType: ReadonlyMap<GameType, PartyGameTypeRuntimeView>;
@@ -26,8 +31,20 @@ export class AppPartyGameTypeRuntimeRegistry implements PartyGameTypeRuntimeRegi
     this.runtimeViewsByType = this.createRuntimeViewsByType(contributors);
   }
 
-  resolve(gameType: GameType): PartyGameTypeRuntimeView | null {
-    return this.runtimeViewsByType.get(gameType) ?? null;
+  resolve(gameType: GameType): PartyGameTypeRuntimeView {
+    const runtimeView = this.runtimeViewsByType.get(gameType);
+
+    if (!runtimeView) {
+      throw createDomainError(
+        {
+          ...PARTY_RUNTIME_VIEW_MISSING_REGISTRATION_ERROR,
+          message: `No party runtime view registered for game type: ${gameType}`,
+        },
+        { gameType },
+      );
+    }
+
+    return runtimeView;
   }
 
   private createRuntimeViewsByType(

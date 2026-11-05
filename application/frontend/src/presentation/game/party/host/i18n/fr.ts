@@ -50,7 +50,6 @@ export const gamePartyHostFr = {
           runtimeRewindPartyConfirmTitle: 'Retourner au lobby ?',
           runtimeRewindPartyConfirmMessage:
             'Toutes les manches jouées seront réinitialisées. Les réponses des joueurs et les scores cumulés seront effacés avant le retour au lobby.',
-          runtimeResultHint: 'Avancez quand vous êtes prêt·e à passer à la manche suivante.',
           musicPanelTitle: 'Animation de la partie',
           kickPlayerCta: 'Exclure',
           kickPlayerPending: 'Retrait...',

@@ -31,6 +31,7 @@ interface PlayableManagementPromptEditorProps {
   readonly editorState: PlayableItemEditorState;
   readonly isSaving: boolean;
   readonly itemKindConfig?: PlayableItemKindConfig;
+  readonly itemNumber: number | null;
   readonly translationRoot: string;
   readonly onSave: () => void;
   readonly setEditorState: (editorState: PlayableItemEditorState) => void;
@@ -47,6 +48,7 @@ export function PlayableManagementPromptEditor({
   editorState,
   isSaving,
   itemKindConfig,
+  itemNumber,
   onSave,
   setEditorState,
   translationRoot,
@@ -68,7 +70,6 @@ export function PlayableManagementPromptEditor({
   const mediaValidationIssue = validationIssues.find(
     (issue) => issue.code === 'unsupportedMediaType' || issue.code === 'mediaTooLarge',
   );
-  const titleKey = editorState.id ? 'editItemTitle' : 'createItemTitle';
   const canReorderOutcomes = fixedOptions === undefined && visibleOutcomeCount > 2;
 
   useEffect(() => {
@@ -85,7 +86,11 @@ export function PlayableManagementPromptEditor({
       <ContentStack gap="lg">
         <SplitWrapRow>
           <ContentStack gap="xs">
-            <Heading level={2}>{t(`${translationRoot}.${titleKey}`)}</Heading>
+            <Heading level={2}>
+              {itemNumber === null
+                ? t(`${translationRoot}.createItemTitle`)
+                : t(`${translationRoot}.editItemTitle`, { position: itemNumber })}
+            </Heading>
             <SupportingText>{t(`${translationRoot}.editorSubtitle`)}</SupportingText>
           </ContentStack>
           <ActionRow justify="end">

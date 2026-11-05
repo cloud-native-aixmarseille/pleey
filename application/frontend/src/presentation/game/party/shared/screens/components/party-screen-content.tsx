@@ -16,7 +16,6 @@ import { HostRuntimeSurface } from '../../../host/screens/components/host-runtim
 import { JoinPartySurface } from '../../../player/screens/components/join-party-surface';
 import { PlayerFinalSurface } from '../../../player/screens/components/player-final-surface';
 import { PlayerLobbySurface } from '../../../player/screens/components/player-lobby-surface';
-import { PlayerStageSurface } from '../../../player/screens/components/player-stage-surface';
 import { usePartyDependencies } from '../../contexts/party-dependencies-context';
 import {
   type PartyGameTypeRuntimeView,
@@ -130,7 +129,6 @@ export function PartyScreenContent({ resolvePartyAbsoluteUrl, screenSection, sta
     runtimeNoticeKind,
     playerRuntimeNoticeMessageResolver,
   );
-  const partyGameTypeRuntimeView = party ? partyGameTypeRuntimeRegistry.resolve(party.gameType) : null;
   const runtimeLoadingState = (
     <FeedbackStateGate
       loadingLabel={t('game.party.route.loading')}
@@ -156,7 +154,11 @@ export function PartyScreenContent({ resolvePartyAbsoluteUrl, screenSection, sta
   if (!party) {
     surface = pageErrorMessage ? null : routeKind === PartyLobbyRouteKind.PIN ? joinSurface : runtimeLoadingState;
   } else if (isHostSurface && hostRuntimeControls) {
-    const runtimePanel = renderHostRuntimePanel(party, screenSection, partyGameTypeRuntimeView);
+    const runtimePanel = renderHostRuntimePanel(
+      party,
+      screenSection,
+      partyGameTypeRuntimeRegistry.resolve(party.gameType),
+    );
 
     surface =
       screenSection !== PartyScreenSection.LOBBY ? (
@@ -184,32 +186,26 @@ export function PartyScreenContent({ resolvePartyAbsoluteUrl, screenSection, sta
         />
       );
   } else if (isPlayerSurface) {
+    const partyGameTypeRuntimeView = partyGameTypeRuntimeRegistry.resolve(party.gameType);
+
     if (screenSection === PartyScreenSection.LEADERBOARD) {
       surface = <PlayerFinalSurface onLeaveParty={() => void leaveParty()} party={party} />;
     } else if (screenSection === PartyScreenSection.RESULT) {
       surface = party.context?.result?.current
-        ? (partyGameTypeRuntimeView?.renderPlayerResultSurface({
+        ? partyGameTypeRuntimeView.renderPlayerResultSurface({
             onLeaveParty: () => void leaveParty(),
             party,
-          }) ?? runtimeLoadingState)
+          })
         : runtimeLoadingState;
     } else if (screenSection === PartyScreenSection.STAGE) {
       surface = party.context?.stage?.current
-        ? (partyGameTypeRuntimeView?.renderPlayerStageSurface({
+        ? partyGameTypeRuntimeView.renderPlayerStageSurface({
             onLeaveParty: () => void leaveParty(),
             onSubmitAction: (actionId) => void submitAction(actionId),
             party,
             pendingActionId: pendingPlayerActionId,
             playerActionErrorMessage,
-          }) ?? (
-            <PlayerStageSurface
-              onLeaveParty={() => void leaveParty()}
-              onSubmitAction={(actionId) => void submitAction(actionId)}
-              party={party}
-              pendingActionId={pendingPlayerActionId}
-              playerActionErrorMessage={playerActionErrorMessage}
-            />
-          ))
+          })
         : runtimeLoadingState;
     } else if (screenSection === PartyScreenSection.LOBBY) {
       surface = <PlayerLobbySurface onLeaveParty={() => void leaveParty()} party={party} />;
@@ -266,18 +262,18 @@ export function PartyScreenContent({ resolvePartyAbsoluteUrl, screenSection, sta
 function renderHostRuntimePanel(
   party: PartyObservation,
   screenSection: PartyScreenSection,
-  partyGameTypeRuntimeView: PartyGameTypeRuntimeView | null,
+  partyGameTypeRuntimeView: PartyGameTypeRuntimeView,
 ) {
   if (screenSection === PartyScreenSection.LEADERBOARD) {
     return <PartyFinalSummaryPanel players={party.players} totalStages={party.context?.lifecycle.totalStages ?? 0} />;
   }
 
   if (screenSection === PartyScreenSection.RESULT && party.context?.result?.current) {
-    return partyGameTypeRuntimeView?.renderHostResultPanel({ party }) ?? null;
+    return partyGameTypeRuntimeView.renderHostResultPanel({ party });
   }
 
   if (screenSection === PartyScreenSection.STAGE && party.context?.stage?.current) {
-    return partyGameTypeRuntimeView?.renderHostStagePanel({ party }) ?? null;
+    return partyGameTypeRuntimeView.renderHostStagePanel({ party });
   }
 
   return null;

@@ -3,6 +3,7 @@ import type { PartyObservation } from '../../../../../../../domains/game/party/s
 import type { PlayableChoiceResultActionTileCopy } from './playable-choice-result-action-tile';
 
 export interface PlayableChoiceRuntimeCopy extends PlayableChoiceResultActionTileCopy {
+  readonly stageProgress: string;
   readonly paused: string;
   readonly pointsAwarded: string;
   readonly responseLocked: string;
