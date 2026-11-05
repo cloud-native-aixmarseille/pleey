@@ -66,7 +66,7 @@ export interface PartyLobbyScreenState {
   readonly normalizedPartyId: PartyId | null;
   readonly pendingHostRuntimeConfirmationCommand: HostPartyRuntimeCommand | null;
   readonly pendingKickedPlayerKey: string | null;
-  readonly pendingPlayerActionId: PartyActionId | null;
+  readonly pendingPlayerActionIds: readonly PartyActionId[] | null;
   readonly pauseParty: () => Promise<void>;
   readonly pendingHostRuntimeCommand: HostPartyRuntimeCommand | null;
   readonly party: PartyObservation | undefined;
@@ -85,7 +85,7 @@ export interface PartyLobbyScreenState {
   readonly setGuestName: (value: string) => void;
   readonly setJoinPartyPassword: (value: string) => void;
   readonly startParty: () => Promise<void>;
-  readonly submitAction: (actionId: PartyActionId) => Promise<void>;
+  readonly submitAction: (actionIds: readonly PartyActionId[]) => Promise<void>;
 }
 
 export function usePartyLobbyScreenState({
@@ -176,7 +176,7 @@ export function usePartyLobbyScreenState({
     setJoinErrorMessage,
     user,
   });
-  const { leaveParty, pendingPlayerActionId, playerActionErrorMessage, submitAction } = usePartyLobbyPlayerSession({
+  const { leaveParty, pendingPlayerActionIds, playerActionErrorMessage, submitAction } = usePartyLobbyPlayerSession({
     currentGuestId,
     onPartyLeft: () => setLeaveRedirectTo(resolveHomeRoute()),
     party,
@@ -272,7 +272,7 @@ export function usePartyLobbyScreenState({
     normalizedPartyId,
     pendingHostRuntimeConfirmationCommand,
     pendingKickedPlayerKey,
-    pendingPlayerActionId,
+    pendingPlayerActionIds,
     pauseParty: () => runHostRuntimeCommand(HostPartyRuntimeCommand.PauseParty),
     pendingHostRuntimeCommand,
     party,

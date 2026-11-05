@@ -154,7 +154,7 @@ function renderPredictionPlayerStageSurface(
         onLeaveParty={vi.fn()}
         onSubmitAction={vi.fn()}
         party={createStageParty()}
-        pendingActionId={null}
+        pendingActionIds={null}
         playerActionErrorMessage={null}
         {...overrides}
       />
@@ -210,7 +210,7 @@ describe('prediction runtime panels', () => {
 
       fireEvent.click(screen.getByRole('button', { name: 'Away wins' }));
 
-      expect(onSubmitAction).toHaveBeenCalledWith(secondActionId);
+      expect(onSubmitAction).toHaveBeenCalledWith([secondActionId]);
     } finally {
       restoreEnvironment();
     }
@@ -231,7 +231,7 @@ describe('prediction runtime panels', () => {
 
       fireEvent.click(screen.getByRole('button', { name: 'Away wins' }));
 
-      expect(onSubmitAction).toHaveBeenCalledWith(secondActionId);
+      expect(onSubmitAction).toHaveBeenCalledWith([secondActionId]);
     } finally {
       restoreEnvironment();
     }
@@ -255,7 +255,7 @@ describe('prediction runtime panels', () => {
 
       fireEvent.keyDown(document, { key: '2' });
 
-      expect(onSubmitAction).toHaveBeenCalledWith(secondActionId);
+      expect(onSubmitAction).toHaveBeenCalledWith([secondActionId]);
       expect(screen.getByRole('button', { name: 'Away wins' })).toHaveAttribute('aria-keyshortcuts', '2');
     } finally {
       restoreEnvironment();
@@ -313,7 +313,7 @@ describe('prediction runtime panels', () => {
       renderPredictionPlayerStageSurface({
         onSubmitAction,
         party: partyWithAnswer,
-        pendingActionId: secondActionId,
+        pendingActionIds: [secondActionId],
       });
       act(() => {
         vi.advanceTimersByTime(3_000);

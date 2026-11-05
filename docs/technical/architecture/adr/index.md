@@ -59,3 +59,4 @@ If a change can alter how the system is structured, operated, or extended, it ne
 - 0018: [Support media on quiz questions](./0018-support-media-on-quiz-questions.md) - Proposed - 2026-09-28
 - 0019: [Separate question reading from answering time](./0019-separate-question-reading-from-answering-time.md) - Proposed - 2026-11-04
 - 0021: [Preserve true/false answer order](./0021-preserve-true-false-answer-order.md) - Proposed - 2026-11-04
+- 0022: [Distinguish single- and multi-select quiz questions](./0022-support-multi-select-quiz-questions.md) - Accepted - 2026-09-29

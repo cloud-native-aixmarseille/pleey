@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import type { PartyActionId } from '../../../../../../../domains/game/party/shared/entities/party-action';
 import { PartyStatus } from '../../../../../../../domains/game/party/shared/entities/party-status';
 import { usePresentationTranslation } from '../../../../../../shared/i18n/use-presentation-translation';
 import { useKeyboardShortcut, useShortcutScope } from '../../../../../../shared/keyboard';
+import { Button } from '../../../../../../shared/ui/actions/button';
 import { ResponsiveGrid } from '../../../../../../shared/ui/layout/containers';
 import { SupportingText } from '../../../../../../shared/ui/layout/typography';
 import { usePresentationMediaQuery } from '../../../../../../shared/ui/layout/use-presentation-media-query';
@@ -18,13 +20,13 @@ const MAX_SHORTCUT_ACTION_COUNT = 9;
 function PlayableChoiceActionShortcutRegistration({
   actionId,
   enabled,
-  onSubmitAction,
+  onSelectAction,
   scope,
   shortcutNumber,
 }: {
   readonly actionId: PartyActionId;
   readonly enabled: boolean;
-  readonly onSubmitAction: PlayableChoicePlayerStageSurfaceProps['onSubmitAction'];
+  readonly onSelectAction: (actionId: PartyActionId) => void;
   readonly scope: string;
   readonly shortcutNumber: number;
 }) {
@@ -34,7 +36,7 @@ function PlayableChoiceActionShortcutRegistration({
     descriptionKey: 'game.party.player.route.answerShortcut',
     descriptionVariables: { number: String(shortcutNumber) },
     disabled: !enabled,
-    execute: () => onSubmitAction(actionId),
+    execute: () => onSelectAction(actionId),
     id: `select-answer-${shortcutNumber}`,
     scope,
     scopeLabelKey: 'game.party.player.route.answerShortcuts',
@@ -48,14 +50,19 @@ export function PlayableChoicePlayerStageSurface({
   onLeaveParty,
   onSubmitAction,
   party,
-  pendingActionId,
+  pendingActionIds,
   playerActionErrorMessage,
   testIdPrefix,
 }: PlayableChoicePlayerStageSurfaceProps) {
   const { t } = usePresentationTranslation();
   const isMobile = usePresentationMediaQuery();
   const currentStage = party.context?.stage?.current;
+  const stageId = party.context?.lifecycle.stageId ?? null;
   const currentPlayerAction = party.context?.stage?.actionSubmission?.currentPlayer ?? null;
+  const currentPlayerActionIds =
+    currentPlayerAction?.selectedActionIds ?? (currentPlayerAction ? [currentPlayerAction.selectedActionId] : []);
+  const [multiSelection, setMultiSelection] = useState({ actionIds: currentPlayerActionIds, stageId });
+  const selectedMultiActionIds = multiSelection.stageId === stageId ? multiSelection.actionIds : currentPlayerActionIds;
   const { isReading, remainingDurationMs, totalDurationMs } = useStageTiming(party);
   const isStageTimerExpired = remainingDurationMs === 0;
 
@@ -63,8 +70,9 @@ export function PlayableChoicePlayerStageSurface({
     return null;
   }
 
-  const selectedActionId = pendingActionId ?? currentPlayerAction?.selectedActionId;
-  const isSubmitting = pendingActionId !== null;
+  const isMultiSelect = currentStage.allowsMultipleSelections === true;
+  const selectedActionIds = pendingActionIds ?? (isMultiSelect ? selectedMultiActionIds : currentPlayerActionIds);
+  const isSubmitting = pendingActionIds !== null;
   const canChangeAnswer = party.settings.allowOptionChangeAfterVoting && !isStageTimerExpired;
   const isLocked = currentPlayerAction !== null && !canChangeAnswer;
   const areActionsDisabled =
@@ -74,7 +82,7 @@ export function PlayableChoicePlayerStageSurface({
   useShortcutScope(shortcutScope, { active: true, priority: 100 });
 
   const actionItems = currentStage.actions.map((action, index) => {
-    const isSelected = selectedActionId === action.id;
+    const isSelected = selectedActionIds.includes(action.id);
     const shortcutNumber = index < MAX_SHORTCUT_ACTION_COUNT ? index + 1 : null;
 
     return {
@@ -98,12 +106,29 @@ export function PlayableChoicePlayerStageSurface({
       isCorrect={false}
       ariaKeyShortcuts={item.shortcutNumber ? String(item.shortcutNumber) : undefined}
       isSelected={item.isSelected}
-      onClick={() => onSubmitAction(item.actionId)}
+      onClick={() => onSelectAction(item.actionId)}
       slotCount={currentStage.actions.length}
       testId={item.testId}
       text={item.text}
     />
   );
+  const onSelectAction = (actionId: PartyActionId) => {
+    if (!isMultiSelect) {
+      onSubmitAction([actionId]);
+      return;
+    }
+
+    setMultiSelection((selection) => {
+      const selected = selection.stageId === stageId ? selection.actionIds : currentPlayerActionIds;
+
+      return {
+        actionIds: selected.includes(actionId)
+          ? selected.filter((selectedId) => selectedId !== actionId)
+          : [...selected, actionId],
+        stageId,
+      };
+    });
+  };
 
   return (
     <PlayerStageSurfaceFrame
@@ -138,12 +163,13 @@ export function PlayableChoicePlayerStageSurface({
               actionId={item.actionId}
               enabled={!areActionsDisabled}
               key={`shortcut-${item.actionId}`}
-              onSubmitAction={onSubmitAction}
+              onSelectAction={onSelectAction}
               scope={shortcutScope}
               shortcutNumber={item.shortcutNumber}
             />
           ) : null,
         )}
+      {isMultiSelect && !isReading ? <SupportingText>{t(copy.selectAnswersHint)}</SupportingText> : null}
       {isReading ? (
         <div role="status">
           <SupportingText>{t('game.party.route.runtimeReading')}</SupportingText>
@@ -163,6 +189,15 @@ export function PlayableChoicePlayerStageSurface({
           ))}
         </ResponsiveGrid>
       )}
+      {isMultiSelect && !isReading ? (
+        <Button
+          disabled={areActionsDisabled || selectedMultiActionIds.length === 0}
+          onClick={() => onSubmitAction(selectedMultiActionIds)}
+          width="full"
+        >
+          {t(copy.submitAnswers)}
+        </Button>
+      ) : null}
     </PlayerStageSurfaceFrame>
   );
 }

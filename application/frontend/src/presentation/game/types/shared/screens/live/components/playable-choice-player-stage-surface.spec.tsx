@@ -16,9 +16,14 @@ vi.mock('../../../../../../shared/i18n/use-presentation-translation', async () =
 const fixtures = new PartyStageFixtureFactory();
 
 describe('PlayableChoicePlayerStageSurface', () => {
-  it.each([false, true])(
-    'hides all answers and ignores keyboard shortcuts during reading (mobile/reduced motion: %s)',
-    (matches) => {
+  it.each([
+    { matches: false, allowsMultipleSelections: false },
+    { matches: true, allowsMultipleSelections: false },
+    { matches: false, allowsMultipleSelections: true },
+    { matches: true, allowsMultipleSelections: true },
+  ])(
+    'hides answer controls during reading (mobile/reduced motion: $matches, multi-select: $allowsMultipleSelections)',
+    ({ matches, allowsMultipleSelections }) => {
       // Arrange
       vi.useFakeTimers();
       vi.setSystemTime(100_000);
@@ -39,10 +44,10 @@ describe('PlayableChoicePlayerStageSurface', () => {
             <PlayableChoicePlayerStageSurface
               copy={quizRuntimeCopy}
               testIdPrefix="quiz"
-              party={fixtures.createObservation()}
+              party={fixtures.createObservation({}, {}, { allowsMultipleSelections })}
               onLeaveParty={vi.fn()}
               onSubmitAction={onSubmitAction}
-              pendingActionId={null}
+              pendingActionIds={null}
               playerActionErrorMessage={null}
             />
           </KeyboardShortcutsProvider>,
@@ -52,6 +57,7 @@ describe('PlayableChoicePlayerStageSurface', () => {
         expect(screen.getByText('Which answer?')).toBeInTheDocument();
         expect(screen.queryByText('First answer')).not.toBeInTheDocument();
         expect(screen.queryByText('Second answer')).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'game.types.quiz.runtime.submitAnswers' })).not.toBeInTheDocument();
         expect(onSubmitAction).not.toHaveBeenCalled();
       } finally {
         vi.useRealTimers();
@@ -76,7 +82,7 @@ describe('PlayableChoicePlayerStageSurface', () => {
           party={party}
           onLeaveParty={vi.fn()}
           onSubmitAction={onSubmitAction}
-          pendingActionId={null}
+          pendingActionIds={null}
           playerActionErrorMessage={null}
         />
       </KeyboardShortcutsProvider>,
@@ -89,6 +95,42 @@ describe('PlayableChoicePlayerStageSurface', () => {
       // Assert
       expect(screen.getByRole('button', { name: 'Second answer' })).toBeEnabled();
       expect(onSubmitAction).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it.each([false, true])('enables multi-select submission after reading ends (untimed: %s)', (untimed) => {
+    // Arrange
+    vi.useFakeTimers();
+    vi.setSystemTime(100_000);
+    const onSubmitAction = vi.fn();
+    const party = fixtures.createObservation(
+      untimed ? { stageEndsAtEpochMs: null, stageTimeLimitSeconds: 0, stageRemainingDurationMs: null } : {},
+      {},
+      { allowsMultipleSelections: true },
+    );
+    renderWithUiProvider(
+      <KeyboardShortcutsProvider>
+        <PlayableChoicePlayerStageSurface
+          copy={quizRuntimeCopy}
+          testIdPrefix="quiz"
+          party={party}
+          onLeaveParty={vi.fn()}
+          onSubmitAction={onSubmitAction}
+          pendingActionIds={null}
+          playerActionErrorMessage={null}
+        />
+      </KeyboardShortcutsProvider>,
+    );
+    try {
+      // Act
+      act(() => vi.advanceTimersByTime(3_000));
+      fireEvent.keyDown(document, { key: '1' });
+      fireEvent.click(screen.getByRole('button', { name: 'Second answer' }));
+      fireEvent.click(screen.getByRole('button', { name: 'game.types.quiz.runtime.submitAnswers' }));
+      // Assert
+      expect(onSubmitAction).toHaveBeenCalledExactlyOnceWith(party.context?.stage?.current.actions.map(({ id }) => id));
     } finally {
       vi.useRealTimers();
     }
@@ -109,7 +151,7 @@ describe('PlayableChoicePlayerStageSurface', () => {
             party={fixtures.createObservation()}
             onLeaveParty={vi.fn()}
             onSubmitAction={vi.fn()}
-            pendingActionId={null}
+            pendingActionIds={null}
             playerActionErrorMessage={null}
           />
         </KeyboardShortcutsProvider>,

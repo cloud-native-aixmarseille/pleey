@@ -505,12 +505,12 @@ vi.mock('../contexts/party-game-type-runtime-registry-context', async (importOri
         renderPlayerStageSurface: ({
           party,
           onSubmitAction,
-          pendingActionId,
+          pendingActionIds,
           playerActionErrorMessage,
         }: {
           party: PartyObservation;
-          onSubmitAction: (actionId: PartyActionId) => void;
-          pendingActionId: PartyActionId | null;
+          onSubmitAction: (actionIds: readonly PartyActionId[]) => void;
+          pendingActionIds: readonly PartyActionId[] | null;
           playerActionErrorMessage: string | null;
         }) => {
           const currentStage = party.context?.stage?.current;
@@ -519,13 +519,13 @@ vi.mock('../contexts/party-game-type-runtime-registry-context', async (importOri
           return (
             <div data-testid="party-runtime-player-stage-surface">
               {currentStage?.actions.map((action) => (
-                <button key={action.id} type="button" onClick={() => onSubmitAction(action.id)}>
+                <button key={action.id} type="button" onClick={() => onSubmitAction([action.id])}>
                   {action.text}
                 </button>
               ))}
               {playerActionErrorMessage ? <span>{playerActionErrorMessage}</span> : null}
               {currentPlayerAction ? <span>runtime-stage.current-player.locked</span> : null}
-              {pendingActionId !== null && currentPlayerAction === null ? (
+              {pendingActionIds !== null && currentPlayerAction === null ? (
                 <span>game.party.player.route.actionSubmitting</span>
               ) : null}
             </div>
@@ -1442,7 +1442,7 @@ describe('PartyLobbyScreen', () => {
     // Assert
     await waitFor(() => {
       expect(mocks.partyPlayerPort.submitAction).toHaveBeenCalledWith({
-        actionId: toActionId(2),
+        actionIds: [toActionId(2)],
         partyId: partyIdentifier.parse(9),
       });
     });
@@ -1578,8 +1578,8 @@ describe('PartyLobbyScreen', () => {
 
     // Assert
     expect(vi.mocked(mocks.partyPlayerPort.submitAction).mock.calls).toEqual([
-      [{ actionId: toActionId(2), partyId: party.partyId }],
-      [{ actionId: toActionId(1), partyId: party.partyId }],
+      [{ actionIds: [toActionId(2)], partyId: party.partyId }],
+      [{ actionIds: [toActionId(1)], partyId: party.partyId }],
     ]);
   });
 
