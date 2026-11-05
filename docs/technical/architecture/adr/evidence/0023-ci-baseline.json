@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "repository": "cloud-native-aixmarseille/pleey",
+  "collected_on": "2026-11-05",
+  "base_commit": "aa7d922386c5b707d19bf5bc8da9715c4f4066f1",
+  "input_git_objects": {
+    "application/backend": "61ca8b800cfe02801c9dc3615bfd8f7f2caf7fa9",
+    "application/frontend": "bb0d3d7b8bdb2a620acac09f96ee70787754a6b6",
+    "scripts": "b23b0719adba7cf8e6a97028d74735dc5a0d9e9c",
+    ".github": "f6319db667ea5873da2ee779488af9ca1d128ca9",
+    "charts": "ffd3ec1974959cb1ceb1fbf609920be3e56aed87",
+    "Dockerfile": "2cf267f57aa72ee6d1b1c99975987fa1fe2840e5",
+    ".dockerignore": "553bece67b50815302358e618a365773415ba048"
+  },
+  "locked_tool_versions": {
+    "backend": {
+      "vitest": "5.1.0",
+      "@vitest/coverage-v8": "5.1.0",
+      "@biomejs/biome": "2.6.5",
+      "typescript": "6.0.3"
+    },
+    "frontend": {
+      "vitest": "5.1.0",
+      "@vitest/coverage-v8": "5.1.0",
+      "@biomejs/biome": "2.6.5",
+      "typescript": "6.0.3"
+    }
+  },
+  "workflow_uses": [
+    "$/.github/workflows/__shared-ci.yml",
+    "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+    "azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310",
+    "hoverkraft-tech/ci-github-common/.github/workflows/greetings.yml@44f6108cef0e9884ea7735f3d62932c2310745d4",
+    "hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@44f6108cef0e9884ea7735f3d62932c2310745d4",
+    "hoverkraft-tech/ci-github-common/.github/workflows/need-fix-to-issue.yml@44f6108cef0e9884ea7735f3d62932c2310745d4",
+    "hoverkraft-tech/ci-github-common/.github/workflows/semantic-pull-request.yml@44f6108cef0e9884ea7735f3d62932c2310745d4",
+    "hoverkraft-tech/ci-github-common/.github/workflows/stale.yml@44f6108cef0e9884ea7735f3d62932c2310745d4",
+    "hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@5ffc3c81daacc57700a14bb91d67edbc67eedc1d",
+    "hoverkraft-tech/ci-github-container/.github/workflows/prune-pull-requests-images-tags.yml@5ffc3c81daacc57700a14bb91d67edbc67eedc1d",
+    "hoverkraft-tech/ci-github-container/actions/helm/generate-docs@5ffc3c81daacc57700a14bb91d67edbc67eedc1d",
+    "hoverkraft-tech/ci-github-container/actions/helm/release-chart@5ffc3c81daacc57700a14bb91d67edbc67eedc1d",
+    "hoverkraft-tech/ci-github-container/actions/helm/test-chart@5ffc3c81daacc57700a14bb91d67edbc67eedc1d",
+    "hoverkraft-tech/ci-github-container/actions/helm/update-chart-values@5ffc3c81daacc57700a14bb91d67edbc67eedc1d",
+    "hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@1f81dd00d941680ab227a6eae5378790d6242e02",
+    "hoverkraft-tech/ci-github-publish/.github/workflows/prepare-release.yml@4d906685a32df3cfab9139296d49dd914a86bafd",
+    "hoverkraft-tech/ci-github-publish/actions/release/create@4d906685a32df3cfab9139296d49dd914a86bafd",
+    "hoverkraft-tech/ci-github-publish/actions/release/plan@4d906685a32df3cfab9139296d49dd914a86bafd",
+    "hoverkraft-tech/ci-github-publish/actions/release/update@4d906685a32df3cfab9139296d49dd914a86bafd",
+    "write"
+  ],
+  "branch_enforcement": {
+    "main_protected": false,
+    "effective_rules": [],
+    "rulesets": [
+      {
+        "id": 16585294,
+        "name": "default-branch",
+        "enforcement": "disabled"
+      }
+    ]
+  },
+  "measurement": {
+    "unit": "seconds",
+    "initial_run": "First run primes the PR cache; excluded from the warm sample unless logs establish equivalence.",
+    "warm_runs": "Five successful sequential reruns of one unchanged PR revision and event; reject resolved-input changes.",
+    "elapsed": "Latest completed job timestamp minus current attempt run_started_at.",
+    "summed_jobs": "Sum completed_at minus started_at for every non-skipped job in this attempt.",
+    "initial_queue": "Earliest job started_at minus current attempt run_started_at; later scheduling waits remain visible in job timestamps.",
+    "main": "Historical contextual samples remain in ADR; controlled main measurements require reviewed merge and must not replay older mutable production tags.",
+    "resources": "Use emitted runner/image/container metadata. Do not infer measured CPU, memory or cache hit state from runner labels. Unreported values remain unavailable."
+  },
+  "runs": []
+}
