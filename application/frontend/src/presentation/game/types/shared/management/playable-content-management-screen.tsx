@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { usePresentationTranslation } from '../../../../shared/i18n/use-presentation-translation';
 import { FeedbackState, FeedbackStateGate } from '../../../../shared/ui/feedback/feedback-state-gate';
-import { ContentStack, PageContainer } from '../../../../shared/ui/layout/containers';
+import { ContentStack, PageContainer, SectionContainer } from '../../../../shared/ui/layout/containers';
 import { InsetPanel } from '../../../../shared/ui/layout/panels';
 import { ConfirmDialog } from '../../../../shared/ui/overlay/confirm-dialog';
 import { useWorkspaceDependencies } from '../../../../workspace/shared/contexts/workspace-dependencies-context';
@@ -75,7 +75,7 @@ export function PlayableContentManagementScreen(props: PlayableContentManagement
   };
 
   return (
-    <PageContainer maxWidth="90rem">
+    <PageContainer>
       <FeedbackStateGate
         emptyLabel={viewModel.error ?? t(`${props.translationRoot}.notFound`)}
         loadingLabel={t(`${props.translationRoot}.loading`)}
@@ -104,13 +104,15 @@ export function PlayableContentManagementScreen(props: PlayableContentManagement
             {viewModel.error ? <InsetPanel tone="accent">{viewModel.error}</InsetPanel> : null}
             {activeTab === PlayableManagementTab.SETUP ? (
               <PlayableManagementTabPanel>
-                <MetadataPanel
-                  description={state.game.description}
-                  isSaving={viewModel.isSaving}
-                  onSave={(input) => void viewModel.saveMetadata(input)}
-                  title={state.game.title}
-                  translationRoot={props.translationRoot}
-                />
+                <SectionContainer paddingX="none">
+                  <MetadataPanel
+                    description={state.game.description}
+                    isSaving={viewModel.isSaving}
+                    onSave={(input) => void viewModel.saveMetadata(input)}
+                    title={state.game.title}
+                    translationRoot={props.translationRoot}
+                  />
+                </SectionContainer>
               </PlayableManagementTabPanel>
             ) : null}
             {activeTab === PlayableManagementTab.STAGES ? (
@@ -126,15 +128,17 @@ export function PlayableContentManagementScreen(props: PlayableContentManagement
                     selectedItemId={viewModel.selectedItemId}
                     translationRoot={props.translationRoot}
                   />
-                  <PlayableManagementPromptEditor
-                    allowMedia={props.allowMedia}
-                    editorState={viewModel.editorState}
-                    isSaving={viewModel.isSaving}
-                    itemKindConfig={props.itemKindConfig}
-                    onSave={() => void viewModel.saveItem()}
-                    setEditorState={viewModel.setEditorState}
-                    translationRoot={props.translationRoot}
-                  />
+                  <SectionContainer paddingX="none">
+                    <PlayableManagementPromptEditor
+                      allowMedia={props.allowMedia}
+                      editorState={viewModel.editorState}
+                      isSaving={viewModel.isSaving}
+                      itemKindConfig={props.itemKindConfig}
+                      onSave={() => void viewModel.saveItem()}
+                      setEditorState={viewModel.setEditorState}
+                      translationRoot={props.translationRoot}
+                    />
+                  </SectionContainer>
                 </PlayableManagementEditorLayout>
               </PlayableManagementTabPanel>
             ) : null}

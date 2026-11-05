@@ -29,6 +29,7 @@ interface SectionContainerProps extends PropsWithChildren {
   readonly centered?: boolean;
   readonly gap?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   readonly maxWidth?: string;
+  readonly paddingX?: 'none' | 'sm';
 }
 
 interface WrapRowProps extends PropsWithChildren {
@@ -71,7 +72,7 @@ export function SidebarLayout({ children, sidebar, sidebarWidth = 'compact' }: S
   );
 }
 
-export function PageContainer({ children, maxWidth = 'xl' }: PageContainerProps) {
+export function PageContainer({ children, maxWidth = '100%' }: PageContainerProps) {
   return (
     <Container px="md" py="xl" size={maxWidth} w="100%">
       <Stack gap="xl">{children}</Stack>
@@ -112,9 +113,17 @@ export function SectionContainer({
   children,
   gap = 'md',
   maxWidth = '50rem',
+  paddingX = 'sm',
 }: SectionContainerProps) {
   return (
-    <Stack align={centered ? 'center' : undefined} gap={gap} maw={maxWidth} mx="auto" px="sm" w="100%">
+    <Stack
+      align={centered ? 'center' : undefined}
+      gap={gap}
+      maw={maxWidth}
+      mx="auto"
+      px={paddingX === 'none' ? 0 : paddingX}
+      w="100%"
+    >
       {children}
     </Stack>
   );

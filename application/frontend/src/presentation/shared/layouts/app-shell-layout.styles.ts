@@ -19,8 +19,8 @@ export const mainContentStyle = {
   flexDirection: 'column',
   gap: uiThemeTokens.spacing.xl,
   margin: '0 auto',
-  maxWidth: '110rem',
   minHeight: 0,
+  minWidth: 0,
   padding: `${uiThemeTokens.spacing.xl} ${uiThemeTokens.spacing.md}`,
   width: '100%',
 } as const;

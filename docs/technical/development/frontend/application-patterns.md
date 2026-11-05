@@ -67,6 +67,8 @@ export const SignInScreen = () => {
 - Use shared UI components from `presentation/shared/ui/*`.
 - Shared UI components use Mantine internally and rely on theme tokens; avoid custom CSS for those surfaces.
 
+The application shell and `PageContainer` use the available width with their existing gutters. Use `SectionContainer` or an explicit `maxWidth` for focused forms and prose; keep live game and content-management surfaces fluid.
+
 ## DI in Presentation
 
 Access services via `useRuntimeDependency()`:
