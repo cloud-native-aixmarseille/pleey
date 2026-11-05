@@ -41,6 +41,11 @@ to communicate correctness explicitly.
 The optional `booleanValue` field is absent for non-boolean choices. It carries
 no correctness information and requires no persistence or GraphQL schema change.
 
+The quiz provider shares its question selection and stage mapping between list
+and individual lookups. That mapping detects the true/false question type once
+to derive both action `booleanValue` and the `preserveActionOrder` constraint
+from [ADR 0021](./0021-preserve-true-false-answer-order.md).
+
 ## Consequences
 
 ### Positive
