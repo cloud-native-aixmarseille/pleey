@@ -28,18 +28,18 @@ and five successful main runs
 [41975502607](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/41975502607),
 [41972777934](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/41972777934)).
 
-| Measurement | PR median | Main median |
-| --- | --- | --- |
-| Workflow elapsed, creation to completion | 16m 39s | 18m 24s |
-| Workflow elapsed range | 14m 02s–20m 35s | 16m 52s–20m 53s |
-| Sum of non-skipped job durations | 27m 23s | 34m 17s |
-| Backend CI image job | 1m 08s | 3m 02s |
-| Frontend CI image job | 1m 52s | 1m 58s |
-| Frontend test job | 4m 19s | 4m 40s |
-| Backend test job | 1m 44s | 1m 31s |
-| Backend production image job | 59s | 2m 29s |
-| Helm chart test job | 3m 17s | 3m 14s |
-| Repository lint job | 2m 31s | 3m 49s |
+| Measurement                              | PR median       | Main median     |
+| ---------------------------------------- | --------------- | --------------- |
+| Workflow elapsed, creation to completion | 16m 39s         | 18m 24s         |
+| Workflow elapsed range                   | 14m 02s–20m 35s | 16m 52s–20m 53s |
+| Sum of non-skipped job durations         | 27m 23s         | 34m 17s         |
+| Backend CI image job                     | 1m 08s          | 3m 02s          |
+| Frontend CI image job                    | 1m 52s          | 1m 58s          |
+| Frontend test job                        | 4m 19s          | 4m 40s          |
+| Backend test job                         | 1m 44s          | 1m 31s          |
+| Backend production image job             | 59s             | 2m 29s          |
+| Helm chart test job                      | 3m 17s          | 3m 14s          |
+| Repository lint job                      | 2m 31s          | 3m 49s          |
 
 These are exploratory samples with different commits and cache histories, not a
 controlled before/after benchmark. Job durations include setup and teardown;
@@ -98,14 +98,14 @@ measurements. The starting main commit is
 [`aa7d9223`](https://github.com/cloud-native-aixmarseille/pleey/commit/aa7d922386c5b707d19bf5bc8da9715c4f4066f1).
 No application, workflow, cache or chart behavior changes in P0.
 
-| Existing validation branch | Required inputs and outcome |
-| --- | --- |
-| Repository lint | Current checkout, shared linter image/config and rendered-chart fixture; preserve all enabled checks |
-| CI image builds | Per-service Dockerfile, lockfile, source/generated inputs and shared scripts; build, publication and required signatures/attestations succeed |
-| Application lint/tests | Built service image and source path mapping; both services' lint/build/tests and report processing succeed |
-| Production images | Both application lanes complete; preserve normal tag, signing and provenance behavior |
-| Umbrella chart | Both immutable production image digests; fresh cluster, dependency preparation, lint, installation and chart tests succeed |
-| Independent PR checks | Existing semantic-title and workflow/security checks remain visible alongside shared CI |
+| Existing validation branch | Required inputs and outcome                                                                                                                   |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Repository lint            | Current checkout, shared linter image/config and rendered-chart fixture; preserve all enabled checks                                          |
+| CI image builds            | Per-service Dockerfile, lockfile, source/generated inputs and shared scripts; build, publication and required signatures/attestations succeed |
+| Application lint/tests     | Built service image and source path mapping; both services' lint/build/tests and report processing succeed                                    |
+| Production images          | Both application lanes complete; preserve normal tag, signing and provenance behavior                                                         |
+| Umbrella chart             | Both immutable production image digests; fresh cluster, dependency preparation, lint, installation and chart tests succeed                    |
+| Independent PR checks      | Existing semantic-title and workflow/security checks remain visible alongside shared CI                                                       |
 
 Existing code-query/dependency-review options disabled in the caller are not new
 required checks. A passing aggregate enforcement rule does not yet exist; P3 adds
@@ -123,13 +123,13 @@ its `run_started_at` to the latest job completion, separately reporting initial
 queue delay and summed job durations. Preserve job intervals to expose later
 scheduling waits. Compare medians and ranges after the full sample completes.
 
-| Subsequent comparison scenario | Controlled inputs and evidence |
-| --- | --- |
-| Warm | Same application/build inputs, event, cache scope and resolved tool/base images; five equivalent samples per compared state |
-| Cold | Explicitly bypass both layers and mount restoration in an isolated validation run; record successful declared-input execution |
-| Dependency change | Change one lockfile and record the corresponding install/cache invalidation while the other service remains controlled |
-| Source change | Change one source input and verify intended compile/test invalidation without unnecessary dependency installation |
-| Shared/generated/chart change | Verify all consumers of shared scripts, Prisma/GraphQL inputs and local chart sources invalidate correctly |
+| Subsequent comparison scenario | Controlled inputs and evidence                                                                                                |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| Warm                           | Same application/build inputs, event, cache scope and resolved tool/base images; five equivalent samples per compared state   |
+| Cold                           | Explicitly bypass both layers and mount restoration in an isolated validation run; record successful declared-input execution |
+| Dependency change              | Change one lockfile and record the corresponding install/cache invalidation while the other service remains controlled        |
+| Source change                  | Change one source input and verify intended compile/test invalidation without unnecessary dependency installation             |
+| Shared/generated/chart change  | Verify all consumers of shared scripts, Prisma/GraphQL inputs and local chart sources invalidate correctly                    |
 
 Cold and changed-input cases are defined here for later implementation comparisons;
 P0 does not claim to have executed optimizations or invalidation experiments.
@@ -257,17 +257,17 @@ Translate the intended DAG into the following dependencies. These are proposed
 job names, not existing workflow inputs; candidate publication still requires the
 contract described above.
 
-| Proposed jobs | Required predecessors (`needs`) | Work that can overlap |
-| --- | --- | --- |
-| `repository-lint`, `backend-ci`, `frontend-ci` | None beyond resolved workflow inputs | Repository checks and both service builds. Existing independent semantic/security checks remain parallel. |
-| `backend-lint`, `backend-tests` | `backend-ci` | Each other, frontend checks, and backend candidate production. |
-| `frontend-lint`, `frontend-tests` | `frontend-ci` | Each other, backend checks, and frontend candidate production. Tests may become a shard matrix. |
-| `backend-candidate` | `backend-ci` | Application lint/tests and frontend candidate production. |
-| `frontend-candidate` | `frontend-ci` | Application lint/tests and backend candidate production. |
-| `frontend-reports` when sharded | Every `frontend-tests` matrix entry | Backend checks and candidate/chart work. Merge only after all shard results are available. |
-| `chart-install` | `backend-candidate`, `frontend-candidate` | Remaining application tests, lint, and report aggregation. |
-| `ci-result` | Every expected validation branch, report merge, and candidate/security result | Final aggregation only; require success rather than merely completion. |
-| `promote` | `ci-result`, `backend-candidate`, `frontend-candidate` | No early publication; consume the tested digest outputs directly. |
+| Proposed jobs                                  | Required predecessors (`needs`)                                               | Work that can overlap                                                                                     |
+| ---------------------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `repository-lint`, `backend-ci`, `frontend-ci` | None beyond resolved workflow inputs                                          | Repository checks and both service builds. Existing independent semantic/security checks remain parallel. |
+| `backend-lint`, `backend-tests`                | `backend-ci`                                                                  | Each other, frontend checks, and backend candidate production.                                            |
+| `frontend-lint`, `frontend-tests`              | `frontend-ci`                                                                 | Each other, backend checks, and frontend candidate production. Tests may become a shard matrix.           |
+| `backend-candidate`                            | `backend-ci`                                                                  | Application lint/tests and frontend candidate production.                                                 |
+| `frontend-candidate`                           | `frontend-ci`                                                                 | Application lint/tests and backend candidate production.                                                  |
+| `frontend-reports` when sharded                | Every `frontend-tests` matrix entry                                           | Backend checks and candidate/chart work. Merge only after all shard results are available.                |
+| `chart-install`                                | `backend-candidate`, `frontend-candidate`                                     | Remaining application tests, lint, and report aggregation.                                                |
+| `ci-result`                                    | Every expected validation branch, report merge, and candidate/security result | Final aggregation only; require success rather than merely completion.                                    |
+| `promote`                                      | `ci-result`, `backend-candidate`, `frontend-candidate`                        | No early publication; consume the tested digest outputs directly.                                         |
 
 Lint and tests already overlap after the current Node setup/build gates. The
 change removes those unnecessary prerequisites for prebuilt images and the wait
@@ -393,13 +393,13 @@ workflow exposes `cache-type`, not arbitrary imports or export modes. Also compa
 a registry backend if sustained export cost or eviction remains significant,
 with separate trusted/PR write scopes and an explicit retention policy.
 
-| Data | Reuse and invalidation contract |
-| --- | --- |
-| BuildKit layers | Versioned application/target/platform scopes within permitted branch access. Dockerfile instructions, copied inputs, build arguments and resolved base-image content determine validity. A scope name is not proof of matching content. |
-| npm downloads | Mount the effective npm cache path with the runtime UID/GID. Versioned key includes application, target, platform, Node/npm toolchain, Dockerfile and lockfile. Restore prefixes retain application/target/platform/toolchain identity. `npm ci` still runs when its layer is invalidated. |
-| External Helm dependencies | Cache downloaded external packages using tool version, repository identity and dependency manifests/locks. Repackage local `file://` subcharts from current source; a lockfile alone does not identify their templates or values. |
-| Generated/build output | Pass the current run's digest-qualified images. Any prepared chart artifact also includes the source SHA and chart/input fingerprint. Do not restore installed dependencies, `dist`, Prisma/GraphQL output, or local chart packages from broad fallback archives. |
-| Test artifacts | Run/attempt/project/shard-qualified artifacts, with complete-set checks before merge. They transfer current results and never authorize skipping another commit's checks. |
+| Data                       | Reuse and invalidation contract                                                                                                                                                                                                                                                            |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| BuildKit layers            | Versioned application/target/platform scopes within permitted branch access. Dockerfile instructions, copied inputs, build arguments and resolved base-image content determine validity. A scope name is not proof of matching content.                                                    |
+| npm downloads              | Mount the effective npm cache path with the runtime UID/GID. Versioned key includes application, target, platform, Node/npm toolchain, Dockerfile and lockfile. Restore prefixes retain application/target/platform/toolchain identity. `npm ci` still runs when its layer is invalidated. |
+| External Helm dependencies | Cache downloaded external packages using tool version, repository identity and dependency manifests/locks. Repackage local `file://` subcharts from current source; a lockfile alone does not identify their templates or values.                                                          |
+| Generated/build output     | Pass the current run's digest-qualified images. Any prepared chart artifact also includes the source SHA and chart/input fingerprint. Do not restore installed dependencies, `dist`, Prisma/GraphQL output, or local chart packages from broad fallback archives.                          |
+| Test artifacts             | Run/attempt/project/shard-qualified artifacts, with complete-set checks before merge. They transfer current results and never authorize skipping another commit's checks.                                                                                                                  |
 
 Both Dockerfiles install as UID 1000 but mount `/root/.npm`; verify the effective
 cache path and fix its ownership. Upstream cache-mount keys currently omit the
@@ -506,12 +506,12 @@ This is a later experiment, not a prerequisite for the candidate DAG.
 
 ### Delivery sequence and ownership
 
-| Wave | Pleey changes | Upstream changes / dependency |
-| --- | --- | --- |
-| 1: Independent reductions | Disable duplicate compilation; verify npm mount; explicit reports; Node/jsdom test split; profile workers and lint; fix chart readiness; narrow greeting trigger. | None required for the initial candidates. Validate each separately. |
-| 2: Remove setup overhead | Adopt reviewed pinned releases; retain current publication ordering meanwhile. | `ci-github-nodejs`: lightweight prepare and optional build dependency. `ci-github-common`: bundled report parser. `ci-github-container`: single-platform metadata path, minimal signing/attestation setup, cache controls/keys, measured chart-preparation overlap. |
-| 3: Shorten the DAG | Benchmark explicit per-service calls using existing inputs; add candidate branches, final required gate, branch-protection migration and digest promotion. | `ci-github-container` candidate-only tag policy and promotion contract. Do not remove existing publication gates before these exist. |
-| 4: Profile-driven scaling | Two frontend shards if still critical; conservative change routing; compare runner classes and release reuse. | `ci-github-nodejs` test-only shards and merged reports/coverage; optional linter/tool image profiles in `ci-github-common` and `docker-base-images`. |
+| Wave                      | Pleey changes                                                                                                                                                     | Upstream changes / dependency                                                                                                                                                                                                                                       |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1: Independent reductions | Disable duplicate compilation; verify npm mount; explicit reports; Node/jsdom test split; profile workers and lint; fix chart readiness; narrow greeting trigger. | None required for the initial candidates. Validate each separately.                                                                                                                                                                                                 |
+| 2: Remove setup overhead  | Adopt reviewed pinned releases; retain current publication ordering meanwhile.                                                                                    | `ci-github-nodejs`: lightweight prepare and optional build dependency. `ci-github-common`: bundled report parser. `ci-github-container`: single-platform metadata path, minimal signing/attestation setup, cache controls/keys, measured chart-preparation overlap. |
+| 3: Shorten the DAG        | Benchmark explicit per-service calls using existing inputs; add candidate branches, final required gate, branch-protection migration and digest promotion.        | `ci-github-container` candidate-only tag policy and promotion contract. Do not remove existing publication gates before these exist.                                                                                                                                |
+| 4: Profile-driven scaling | Two frontend shards if still critical; conservative change routing; compare runner classes and release reuse.                                                     | `ci-github-nodejs` test-only shards and merged reports/coverage; optional linter/tool image profiles in `ci-github-common` and `docker-base-images`.                                                                                                                |
 
 If an upstream change is unavailable, retain the independently measured local
 improvements and current safe gate. Do not invent unsupported inputs, fork whole

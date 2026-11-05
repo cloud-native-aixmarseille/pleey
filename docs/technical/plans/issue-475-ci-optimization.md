@@ -19,17 +19,17 @@ through its existing generator.
 
 ## Execution order
 
-| Package | Owner/location | Prerequisites | Completion evidence |
-| --- | --- | --- | --- |
-| P0: Baseline | Pleey / GitHub Actions | ADR agreement | Comparable inputs, timings and check inventory |
-| P1: Local reductions | Pleey | P0 | Independent build/report, frontend and Helm results |
-| P2: Shared tooling | Node/common/container upstream repositories | P0; parallel with P1 | Contract tests and reviewed pinned releases |
-| P3: Service lanes and required gate | Pleey | P0; current upstream API suffices | Actual overlap and enforced aggregate result |
-| P4: Candidate DAG | Pleey + container tooling | P2.5 promotion contract and P3 gate | Tested digests promoted only after validation |
-| P5: Parallel operations within a job | Pleey / container tooling | Profiled independent operations | Correct joins, cleanup and measured overlap |
-| P6: Frontend shards | Pleey + Node tooling | P1.5 tuning and updated DAG timings | Complete merged results and net benefit |
-| P7: Remaining experiments | Relevant repository | Updated bottleneck measurements | Adopt/reject/defer result per experiment |
-| P8: Acceptance and documentation | All affected repositories | Selected work complete | Before/after and correctness evidence |
+| Package                              | Owner/location                              | Prerequisites                       | Completion evidence                                 |
+| ------------------------------------ | ------------------------------------------- | ----------------------------------- | --------------------------------------------------- |
+| P0: Baseline                         | Pleey / GitHub Actions                      | ADR agreement                       | Comparable inputs, timings and check inventory      |
+| P1: Local reductions                 | Pleey                                       | P0                                  | Independent build/report, frontend and Helm results |
+| P2: Shared tooling                   | Node/common/container upstream repositories | P0; parallel with P1                | Contract tests and reviewed pinned releases         |
+| P3: Service lanes and required gate  | Pleey                                       | P0; current upstream API suffices   | Actual overlap and enforced aggregate result        |
+| P4: Candidate DAG                    | Pleey + container tooling                   | P2.5 promotion contract and P3 gate | Tested digests promoted only after validation       |
+| P5: Parallel operations within a job | Pleey / container tooling                   | Profiled independent operations     | Correct joins, cleanup and measured overlap         |
+| P6: Frontend shards                  | Pleey + Node tooling                        | P1.5 tuning and updated DAG timings | Complete merged results and net benefit             |
+| P7: Remaining experiments            | Relevant repository                         | Updated bottleneck measurements     | Adopt/reject/defer result per experiment            |
+| P8: Acceptance and documentation     | All affected repositories                   | Selected work complete              | Before/after and correctness evidence               |
 
 P1's workflow/build, frontend and Helm work can proceed independently, as can
 P2's Node, common and container work. P3 need not wait for all upstream changes.
@@ -462,20 +462,20 @@ root Dockerfile/linter configuration.
 - [ ] Update [current development guidance](../development/index.md) with implemented DAG, inputs, cache scopes, routing and recovery. Regenerate upstream/Helm documentation through existing tooling.
 - [ ] Link implementation PRs and dated measurements from the ADR; update decision/plan status and prepare issue completion evidence.
 
-| Scenario | Required evidence |
-| --- | --- |
-| Warm execution | Same intended inputs/checks, known cache state and full timing breakdown |
-| Cold execution | Both layer and mount caches bypassed; declared-input build/test/install succeed |
-| Dependency/toolchain change | Lockfile, Dockerfile and resolved base/toolchain changes invalidate intended work |
-| Application input change | Source, Prisma/schema/config, GraphQL/codegen, shared scripts and build configuration reach consumers |
-| Chart change | Current local templates/values repackaged; external dependencies follow declared identity |
-| Test execution change | Same inventory, isolation and coverage denominator; complete shards if enabled |
-| Validation failure | Lint/test/chart/security/report failures block the gate and promotion |
-| Skip/cancel/rerun | Unexpected skips fail; no stale evidence, orphaned children/clusters or unchecked promotion |
-| Publication | Digest identity through build, security, chart and promotion; correct release metadata/rendered chart |
-| Database startup/failure | Healthy cold initialization avoids failed-migration retries; genuine failures are bounded and diagnosable |
-| Cache trust/recovery | PR/trusted writer boundaries hold; missing/bypassed caches remain correct |
-| Release | Representative supported path verified without publishing solely for measurement |
+| Scenario                    | Required evidence                                                                                         |
+| --------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Warm execution              | Same intended inputs/checks, known cache state and full timing breakdown                                  |
+| Cold execution              | Both layer and mount caches bypassed; declared-input build/test/install succeed                           |
+| Dependency/toolchain change | Lockfile, Dockerfile and resolved base/toolchain changes invalidate intended work                         |
+| Application input change    | Source, Prisma/schema/config, GraphQL/codegen, shared scripts and build configuration reach consumers     |
+| Chart change                | Current local templates/values repackaged; external dependencies follow declared identity                 |
+| Test execution change       | Same inventory, isolation and coverage denominator; complete shards if enabled                            |
+| Validation failure          | Lint/test/chart/security/report failures block the gate and promotion                                     |
+| Skip/cancel/rerun           | Unexpected skips fail; no stale evidence, orphaned children/clusters or unchecked promotion               |
+| Publication                 | Digest identity through build, security, chart and promotion; correct release metadata/rendered chart     |
+| Database startup/failure    | Healthy cold initialization avoids failed-migration retries; genuine failures are bounded and diagnosable |
+| Cache trust/recovery        | PR/trusted writer boundaries hold; missing/bypassed caches remain correct                                 |
+| Release                     | Representative supported path verified without publishing solely for measurement                          |
 
 Close the plan when selected optimizations meet these requirements and remaining
 experiments have explicit adopted, rejected or deferred dispositions.
