@@ -25,7 +25,8 @@ waiting. Connection and query attempts use at most five seconds and one connecti
 failed attempts disconnect before retrying. Logs contain attempt counts, elapsed
 time and sanitized codes. Credentials and connection URLs are never logged.
 `backend.waitForDatabase.enabled: false` omits both init containers. Resource limits
-remain configurable under `backend.waitForDatabase.resources`.
+remain configurable under `backend.waitForDatabase.resources`; the default memory
+limit is 128 MiB.
 
 Migration commands and retries still apply after readiness succeeds. A readiness
 failure does not authorize skipping migrations or increasing the Helm timeout.
