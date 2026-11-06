@@ -754,6 +754,159 @@ with the ADR and implementation review. No optimization has been benchmarked her
 - Required-check migration and release metadata need careful validation; elapsed
   gains cannot be inferred by adding individual benchmark savings.
 
+### P1 implementation candidate: 2026-11-06
+
+P0 was reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552).
+P1 keeps the current publication order and pinned reusable workflows. The image
+builds compile the same application inputs as the duplicate Node build commands;
+container test jobs do not consume artifacts from the latter. An empty `build`
+input removes those commands while the upstream setup and empty build jobs remain.
+
+Explicit SARIF/JUnit/LCOV paths retain command failure status. Biome SARIF paths
+are absolute, while Vitest JUnit paths are relative. Map both forms to each
+service's source directory. The pinned report parser accepts these formats;
+its discovery layer warns when no files match, so successful report parsing must
+be verified separately from command success. Strict missing-report enforcement
+belongs to the upstream reporting work in P2.
+
+The pinned Node base reports UID/GID 1000 and `/home/node/.npm` as the cache path.
+Use that path with matching mount ownership and exclude local dependencies,
+build output, reports and credentials from source copies. Do not attribute all
+P0 cache misses to the mount mistake: layer reuse and download-cache reuse are
+separate mechanisms, and the cause of the recorded frontend recompilation is
+still under investigation.
+
+The frontend experiment moved 21 inspected DOM-free suites into a Node project,
+retaining jsdom for other suites. Discovery and expanded JUnit cases matched the
+baseline, as did source coverage files and denominators. Four workers passed
+three split-project local runs on four available CPUs in 177.48s, 188.89s and
+203.15s; the original two-worker configuration took 270.84s. Three control runs with
+four workers and the original jsdom setup passed in 175.09s, 165.53s and 186.96s. The initial candidate retained the simpler
+jsdom setup and adopted four workers: the Node split had not shown
+an additional benefit. These are exploratory local measurements, not the final
+GitHub Actions comparison. The first split-only run overlapped a Docker build
+and is excluded from performance conclusions.
+
+Three subsequent warm-cache controls with the original two-worker configuration
+passed in 247.57s, 246.26s and 245.88s. Their median is 246.26s against 175.09s for
+the three four-worker controls, retaining the same test cases and coverage
+denominators. This supports the local worker choice without relying on the first
+control's cache state; it does not isolate a worker effect on GitHub-hosted runners.
+
+Both database init containers use the workload image and complete secret URI for
+an authenticated query through the pruned production Prisma client. The initial
+readiness deadline is 180 seconds, with connection/query timeouts capped at five
+seconds and one connection. Validate the deadline against fresh cluster timing;
+keep the global Helm timeout and migration retry policy unchanged. Cleanup is
+bounded by the same deadline; the command exits after cleanup to close any
+remaining socket. An isolated production-image query passed at 64 MiB, including
+a separate TLS certificate/hostname verification check, but the fresh kind install
+then exhausted that limit during readiness initialization. Increase the
+default limit to 128 MiB. The repeated cold installation passed: authenticated
+readiness took 78–90 seconds, both init containers completed without restarts,
+and the first migration pod succeeded. Readiness
+and migration containers also inherit configured extra mounts and environment
+settings so externally supplied database certificates remain accessible.
+`waitForDatabase.image` overrides are removed: installations must remove those
+BusyBox overrides and use the workload image. Enablement and resource overrides
+remain supported.
+
+[Local validation evidence](evidence/0023-p1-local-validation.json) records the
+frontend experiments, compile/lint/test failure probes, report parsing, cache
+checks and cold installation. The four-worker container completed all 1,178 tests
+on four CPUs with an aggregate cgroup peak of 2,134,478,848 bytes, below its 8 GiB
+limit. Coverage files and denominators match; covered counts vary in two lemmings
+animation files, within the variation already observed in P0.
+
+Both services built with fresh mount IDs and layer caching disabled. Changing
+package/lockfile root-version metadata forced another install without changing
+the dependency graph. The frontend reused downloads immediately; the first full
+backend repeat allocated another mount and downloaded again. A subsequent
+isolated install with its retained mount reported 884 cache-hit events and no
+download misses. Retain both outcomes: mounts are optional acceleration, and these
+checks do not establish the cause of P0's layer misses. Context probes excluded
+20 synthetic generated/credential files while retaining all 1,857 tracked
+application and shared-script inputs.
+
+The completed comparison below records the five post-priming CI samples. Strict
+missing-report enforcement and tracing unexplained layer misses remain explicit
+P2 follow-ups.
+
+### Completed P1 comparison: 2026-11-06
+
+[PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553) implements P1
+at source revision `25dbd1befd78cfccac0d07543751f9b5a23a90fd` and tested merge revision
+`b44fa2f6b8cd250bdfdfe5a2e4bc0e2712f32002`. The application bases, emitted runner image,
+Buildx/BuildKit and pinned upstream workflow revisions match P0. The full priming
+run passed and was excluded; the next five consecutive attempts all passed.
+[Machine-readable comparison](evidence/0023-p1-ci-comparison.json) links each job/step
+CSV, preserves test inventories and records both superseded cancelled runs.
+
+| Metric (median)                     | P0      | P1     | Change         |
+| ----------------------------------- | ------- | ------ | -------------- |
+| Attempt elapsed time                | 15m31s  | 14m08s | −8.92%         |
+| Summed non-skipped job time         | 26m58s  | 24m49s | −7.97%         |
+| Duplicate Node build action steps   | 11s     | 0s     | Omitted        |
+| Report discovery/parsing, four jobs | 28.584s | 1.309s | Explicit paths |
+
+Summed job time is not billed time. Build-step timing includes command preparation;
+container startup is separate. Parser timing excludes dependency installation and
+post cleanup. The empty Node build jobs still consume a median **64s** in total,
+which remains P2.1 work. Both lint jobs now find their SARIF report; P0's default
+discovery found none. Each test job consistently parses one JUnit and one LCOV file.
+
+| Attempt                                                                                     | Result | Elapsed | Summed job time |
+| ------------------------------------------------------------------------------------------- | ------ | ------- | --------------- |
+| [2](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42209078341/attempts/2) | Passed | 12m21s  | 23m25s          |
+| [3](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42209078341/attempts/3) | Passed | 14m50s  | 26m01s          |
+| [4](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42209078341/attempts/4) | Passed | 14m08s  | 24m35s          |
+| [5](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42209078341/attempts/5) | Passed | 13m32s  | 24m49s          |
+| [6](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42209078341/attempts/6) | Passed | 14m21s  | 25m44s          |
+
+P1 elapsed time ranges from **12m21s to 14m50s**, versus P0's **15m00s to 16m46s**.
+All five P1 samples have dependency/compilation layer hits; P0 had one full-hit and
+four partial-reuse samples. No misses were discarded. This cache-profile difference
+is part of the observed combined result, not proof that a particular P1 change
+resolved the earlier invalidation cause.
+
+The frontend Actions test-job median is **270s versus 267s** in P0, with overlapping
+ranges; Vitest itself reports medians of **233.96s versus 217.21s**. Do not claim an
+isolated Actions speedup from four workers. The initial candidate retained that setting for review based on
+the repeated local warm-cache controls, preserved inventory and measured memory
+headroom. Revisit worker sizing before sharding in P6. The overall phase reduces median
+elapsed and summed job time, while the combined **10% elapsed-time target remains
+unmet** and belongs to later phases.
+
+All 1,178 frontend cases remain, and backend inventory changes only by the 12 new
+readiness tests: 1,230 passed and 60 skipped. Compile/lint/test fault probes retain
+failure exits, and cold-cache/context/readiness checks are recorded in the linked
+local evidence. All measured chart jobs pass without a Prisma P1001 diagnostic;
+the observed local cold install has one successful migration pod and no failed
+migration pods. The earlier two cancelled CI runs used different candidate inputs
+and consumed 2,745 seconds of summed job time; they are excluded from the comparison
+and retained separately. P2 starts only after review of this phase.
+
+### P1 review: CPU-relative frontend workers, 2026-11-06
+
+The fixed four-worker candidate does not adapt to smaller or larger machines.
+Replace it with `maxWorkers: '100%'`, using Vitest's supported percentage setting
+and Node's detected available parallelism. This preserves four workers when four
+CPUs are available while scaling with CPU affinity on other hosts. Use the native
+`--maxWorkers` override to reserve resources on shared or memory-constrained hosts;
+CPU sizing alone does not enforce a memory budget.
+
+The [Vitest documentation](https://vitest.dev/config/maxworkers.html) and installed
+resolver confirm percentage support. An explicit percentage also avoids relying
+on the installed version's run-mode default of available parallelism minus one.
+No custom CPU detection, environment variables or worker cap are needed.
+
+The five-run comparison above remains historical evidence for the fixed-worker
+revision. It is not a performance measurement of this review change on other CPU
+counts. Local checks loaded the actual configuration with CPU affinities of 1, 2,
+4, 8 and 12 and resolved matching worker limits. On eight CPUs, explicit limits of
+`2` and `50%` resolved to two and four workers respectively. Full PR checks remain
+the merge gate for the revised configuration.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.

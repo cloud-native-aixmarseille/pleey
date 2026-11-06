@@ -80,6 +80,7 @@ coverage/
 *.lcov
 application/**/eslint-report.json
 application/**/junit.xml
+application/**/biome-report.sarif
 
 # E2E test artifacts
 e2e/test-results/

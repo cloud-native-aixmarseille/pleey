@@ -81,6 +81,9 @@ jobs:
       packages: read
     with:
       working-directory: /usr/src/app
+      build: ""
+      lint: '{"command":"lint:ci","report-file":"biome-report.sarif"}'
+      test: '{"command":"test:ci","report-file":"junit.xml,coverage/lcov.info"}'
       container: |
         {
           "image": ${{ toJSON(fromJSON(needs.build.outputs.built-images)[format('{0}-ci', matrix.service)].images[0]) }},
@@ -88,7 +91,9 @@ jobs:
             "username": ${{ toJson(github.repository_owner) }}
           },
           "pathMapping": {
-            "/usr/src/app": ${{ toJson(format('./application/{0}', matrix.service)) }}
+            "/usr/src/app": ${{ toJson(format('./application/{0}', matrix.service)) }},
+            "src/": ${{ toJson(format('./application/{0}/src/', matrix.service)) }},
+            "scripts/": ${{ toJson(format('./application/{0}/scripts/', matrix.service)) }}
           }
         }
       code-ql: "" # FIXME: Set `typescript` when CodeQL will be available (paid feature)
