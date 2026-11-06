@@ -39,6 +39,14 @@ spec:
         - name: wait-for-database
           image: {{ include "pleey.backend.image" . | quote }}
           imagePullPolicy: {{ include "pleey.backend.imagePullPolicy" . }}
+          {{- with .Values.extraEnvFrom }}
+          envFrom:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.extraEnv }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           command:
@@ -55,6 +63,9 @@ spec:
             - name: database-secret
               mountPath: {{ include "pleey.backend.databaseSecretMountPath" . }}
               readOnly: true
+            {{- with .Values.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
       {{- end }}
       containers:
         - name: backend

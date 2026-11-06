@@ -776,13 +776,16 @@ P0 cache misses to the mount mistake: layer reuse and download-cache reuse are
 separate mechanisms, and the cause of the recorded frontend recompilation is
 still under investigation.
 
-The frontend candidate moves 21 inspected DOM-free suites into a Node project,
-retaining jsdom for other and newly added suites. Discovery and expanded JUnit
-cases match the baseline, as do source coverage files and denominators. Four
-workers passed three local runs on four available CPUs in 177.48s, 188.89s and
-203.15s; the original two-worker configuration took 270.84s. These are exploratory
-local measurements, not the final GitHub Actions comparison. The first split-only
-run overlapped a Docker build and is excluded from performance conclusions.
+The frontend experiment moved 21 inspected DOM-free suites into a Node project,
+retaining jsdom for other suites. Discovery and expanded JUnit cases matched the
+baseline, as did source coverage files and denominators. Four workers passed
+three split-project local runs on four available CPUs in 177.48s, 188.89s and
+203.15s; the original two-worker configuration took 270.84s. Three control runs with
+four workers and the original jsdom setup passed in 175.09s, 165.53s and 186.96s. Retain the simpler
+jsdom setup and adopt four workers as the candidate: the Node split has not shown
+an additional benefit. These are exploratory local measurements, not the final
+GitHub Actions comparison. The first split-only run overlapped a Docker build
+and is excluded from performance conclusions.
 
 Both database init containers use the workload image and complete secret URI for
 an authenticated query through the pruned production Prisma client. The initial
@@ -791,7 +794,9 @@ seconds and one connection. Validate the deadline against fresh cluster timing;
 keep the global Helm timeout and migration retry policy unchanged. Cleanup is
 bounded by the same deadline; the command exits after cleanup to close any
 remaining socket. Existing resource limits passed an isolated production-image
-query, including a separate TLS certificate/hostname verification check.
+query, including a separate TLS certificate/hostname verification check. Readiness
+and migration containers also inherit configured extra mounts and environment
+settings so externally supplied database certificates remain accessible.
 `waitForDatabase.image` overrides are removed: installations must remove those
 BusyBox overrides and use the workload image. Enablement and resource overrides
 remain supported.

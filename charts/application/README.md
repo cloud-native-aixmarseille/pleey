@@ -8,7 +8,7 @@ Production-ready umbrella chart for the Pleey frontend, backend, PostgreSQL, and
 
 ## Maintainers
 
-| Name              | Email | Url                                                  |
+| Name              | Email | URL                                                  |
 | ----------------- | ----- | ---------------------------------------------------- |
 | Pleey Maintainers |       | <https://github.com/cloud-native-aixmarseille/pleey> |
 
