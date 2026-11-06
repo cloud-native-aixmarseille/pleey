@@ -793,8 +793,10 @@ readiness deadline is 180 seconds, with connection/query timeouts capped at five
 seconds and one connection. Validate the deadline against fresh cluster timing;
 keep the global Helm timeout and migration retry policy unchanged. Cleanup is
 bounded by the same deadline; the command exits after cleanup to close any
-remaining socket. Existing resource limits passed an isolated production-image
-query, including a separate TLS certificate/hostname verification check. Readiness
+remaining socket. An isolated production-image query passed at 64 MiB, including
+a separate TLS certificate/hostname verification check, but the fresh kind install
+then exhausted that limit while waiting for the database secret. Increase the
+default limit to 128 MiB and repeat the cold-install measurement. Readiness
 and migration containers also inherit configured extra mounts and environment
 settings so externally supplied database certificates remain accessible.
 `waitForDatabase.image` overrides are removed: installations must remove those
