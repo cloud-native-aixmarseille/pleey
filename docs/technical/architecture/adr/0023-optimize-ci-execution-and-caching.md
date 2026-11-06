@@ -757,7 +757,7 @@ with the ADR and implementation review. No optimization has been benchmarked her
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.
-- Track work in the [implementation checklist](../../plans/issue-475-ci-optimization.md)
+- Track work in the [implementation checklist](../../plans/0023-optimize-ci-execution-and-caching.md)
   under #475, with measurements and reviewable upstream proposals.
 - Document adopted inputs, scopes, DAG, routing and recovery in the
   [development guide](../../development/index.md) alongside implementation.
