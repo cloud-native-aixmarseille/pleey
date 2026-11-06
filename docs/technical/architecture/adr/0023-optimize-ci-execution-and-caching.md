@@ -281,7 +281,7 @@ added to estimate workflow elapsed time.
 
 | Job                                                    | Median | Range         |
 | ------------------------------------------------------ | ------ | ------------- |
-| ci / linter / 🧹 Lint Code Base                        | 2m 32s | 2m 26s–2m 39s |
+| Repository lint                                        | 2m 32s | 2m 26s–2m 39s |
 | ci / build / Build image backend-ci for linux/amd64    | 1m 00s | 0m 54s–2m 10s |
 | ci / build / Build image frontend-ci for linux/amd64   | 1m 10s | 0m 54s–1m 39s |
 | ci / continuous-integration (frontend) / 🧪 Test       | 4m 27s | 3m 33s–5m 31s |
