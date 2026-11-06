@@ -781,8 +781,8 @@ retaining jsdom for other suites. Discovery and expanded JUnit cases matched the
 baseline, as did source coverage files and denominators. Four workers passed
 three split-project local runs on four available CPUs in 177.48s, 188.89s and
 203.15s; the original two-worker configuration took 270.84s. Three control runs with
-four workers and the original jsdom setup passed in 175.09s, 165.53s and 186.96s. Retain the simpler
-jsdom setup and adopt four workers as the candidate: the Node split has not shown
+four workers and the original jsdom setup passed in 175.09s, 165.53s and 186.96s. The initial candidate retained the simpler
+jsdom setup and adopted four workers: the Node split had not shown
 an additional benefit. These are exploratory local measurements, not the final
 GitHub Actions comparison. The first split-only run overlapped a Docker build
 and is excluded from performance conclusions.
@@ -871,9 +871,9 @@ resolved the earlier invalidation cause.
 
 The frontend Actions test-job median is **270s versus 267s** in P0, with overlapping
 ranges; Vitest itself reports medians of **233.96s versus 217.21s**. Do not claim an
-isolated Actions speedup from four workers. Retain that setting for review based on
+isolated Actions speedup from four workers. The initial candidate retained that setting for review based on
 the repeated local warm-cache controls, preserved inventory and measured memory
-headroom, and revisit it before sharding in P6. The overall phase reduces median
+headroom. Revisit worker sizing before sharding in P6. The overall phase reduces median
 elapsed and summed job time, while the combined **10% elapsed-time target remains
 unmet** and belongs to later phases.
 
@@ -885,6 +885,27 @@ the observed local cold install has one successful migration pod and no failed
 migration pods. The earlier two cancelled CI runs used different candidate inputs
 and consumed 2,745 seconds of summed job time; they are excluded from the comparison
 and retained separately. P2 starts only after review of this phase.
+
+### P1 review: CPU-relative frontend workers, 2026-11-06
+
+The fixed four-worker candidate does not adapt to smaller or larger machines.
+Replace it with `maxWorkers: '100%'`, using Vitest's supported percentage setting
+and Node's detected available parallelism. This preserves four workers when four
+CPUs are available while scaling with CPU affinity on other hosts. Use the native
+`--maxWorkers` override to reserve resources on shared or memory-constrained hosts;
+CPU sizing alone does not enforce a memory budget.
+
+The [Vitest documentation](https://vitest.dev/config/maxworkers.html) and installed
+resolver confirm percentage support. An explicit percentage also avoids relying
+on the installed version's run-mode default of available parallelism minus one.
+No custom CPU detection, environment variables or worker cap are needed.
+
+The five-run comparison above remains historical evidence for the fixed-worker
+revision. It is not a performance measurement of this review change on other CPU
+counts. Local checks loaded the actual configuration with CPU affinities of 1, 2,
+4, 8 and 12 and resolved matching worker limits. On eight CPUs, explicit limits of
+`2` and `50%` resolved to two and four workers respectively. Full PR checks remain
+the merge gate for the revised configuration.
 
 ### Follow-Up
 
