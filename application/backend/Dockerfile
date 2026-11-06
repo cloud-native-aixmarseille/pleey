@@ -18,7 +18,7 @@ FROM base AS build
 COPY ./application/backend/package*.json /usr/src/app/
 
 RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc \
-    --mount=type=cache,target=/root/.npm \
+    --mount=type=cache,target=/home/node/.npm,uid=1000,gid=1000 \
     set -eu; \
     npm ci --include=dev;
 
@@ -46,6 +46,7 @@ COPY --chown=node:node --from=build-prod /usr/src/app/node_modules /usr/src/app/
 COPY --chown=node:node --from=build-prod /usr/src/app/prisma /usr/src/app/prisma
 COPY --chown=node:node --from=build-prod /usr/src/app/prisma.config.ts /usr/src/app/prisma.config.ts
 COPY --chown=node:node --from=build-prod /usr/src/app/dist /usr/src/app/dist
+COPY --chown=node:node ./application/backend/scripts/wait-for-database.mjs /usr/src/app/scripts/wait-for-database.mjs
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
     CMD ["curl", "-fsS", "http://localhost:3001/ready"]

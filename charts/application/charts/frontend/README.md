@@ -8,7 +8,7 @@ Pleey frontend service subchart.
 
 ## Maintainers
 
-| Name              | Email | URL                                                  |
+| Name              | Email | Url                                                  |
 | ----------------- | ----- | ---------------------------------------------------- |
 | Pleey Maintainers |       | <https://github.com/cloud-native-aixmarseille/pleey> |
 

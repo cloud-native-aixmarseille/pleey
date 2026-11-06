@@ -8,7 +8,7 @@ Pleey backend API service subchart.
 
 ## Maintainers
 
-| Name              | Email | URL                                                  |
+| Name              | Email | Url                                                  |
 | ----------------- | ----- | ---------------------------------------------------- |
 | Pleey Maintainers |       | <https://github.com/cloud-native-aixmarseille/pleey> |
 
@@ -18,11 +18,11 @@ Pleey backend API service subchart.
 
 ## Requirements
 
-| Repository                                  | Name           | Version |
-| ------------------------------------------- | -------------- | ------- |
-| <https://bokysan.github.io/docker-postfix/> | smtp(mail)     | 5.1.0   |
-| <https://cloudnative-pg.github.io/charts>   | cloudnative-pg | ~0.28.2 |
-| <https://valkey.io/valkey-helm/>            | valkey         | ~0.9.4  |
+| Repository                                | Name           | Version |
+| ----------------------------------------- | -------------- | ------- |
+| https://bokysan.github.io/docker-postfix/ | smtp(mail)     | 5.1.0   |
+| https://cloudnative-pg.github.io/charts   | cloudnative-pg | ~0.28.2 |
+| https://valkey.io/valkey-helm/            | valkey         | ~0.9.4  |
 
 ## Values
 
@@ -239,15 +239,11 @@ Pleey backend API service subchart.
 | valkey.service.type                                          | string | `"ClusterIP"`                                                                                  |                                                                                                                                                                                                                                                      |
 | valkey.tolerations                                           | list   | `[]`                                                                                           |                                                                                                                                                                                                                                                      |
 | waitForDatabase.enabled                                      | bool   | `true`                                                                                         |                                                                                                                                                                                                                                                      |
-| waitForDatabase.image.digest                                 | string | `"sha256:b8d1827e38a1d49cd17217efd7b07d689e4ea1744e39c7dcbb95533d175bea65"`                    |                                                                                                                                                                                                                                                      |
-| waitForDatabase.image.pullPolicy                             | string | `""`                                                                                           |                                                                                                                                                                                                                                                      |
-| waitForDatabase.image.registry                               | string | `"docker.io"`                                                                                  |                                                                                                                                                                                                                                                      |
-| waitForDatabase.image.repository                             | string | `"busybox"`                                                                                    |                                                                                                                                                                                                                                                      |
-| waitForDatabase.image.tag                                    | string | `"1.37.0"`                                                                                     |                                                                                                                                                                                                                                                      |
 | waitForDatabase.resources.limits.cpu                         | string | `"100m"`                                                                                       |                                                                                                                                                                                                                                                      |
 | waitForDatabase.resources.limits.memory                      | string | `"64Mi"`                                                                                       |                                                                                                                                                                                                                                                      |
 | waitForDatabase.resources.requests.cpu                       | string | `"10m"`                                                                                        |                                                                                                                                                                                                                                                      |
 | waitForDatabase.resources.requests.memory                    | string | `"32Mi"`                                                                                       |                                                                                                                                                                                                                                                      |
+| waitForDatabase.timeoutSeconds                               | int    | `180`                                                                                          | Maximum time to wait for the secret and an authenticated database query.                                                                                                                                                                             |
 
 ---
 

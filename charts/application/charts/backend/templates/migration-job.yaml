@@ -28,18 +28,18 @@ spec:
       {{- if .Values.waitForDatabase.enabled }}
       initContainers:
         - name: wait-for-database
-          image: {{ include "pleey.backend.waitForDatabaseImage" . | quote }}
-          imagePullPolicy: {{ include "pleey.backend.waitForDatabaseImagePullPolicy" . }}
+          image: {{ include "pleey.backend.image" . | quote }}
+          imagePullPolicy: {{ include "pleey.backend.imagePullPolicy" . }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           command:
-            - sh
-            - -ec
-            - |
-              until [ -s {{ include "pleey.backend.databaseSecretFile" . | quote }} ]; do
-                echo "Waiting for database secret at {{ include "pleey.backend.databaseSecretFile" . }}..."
-                sleep 2
-              done
+            - node
+            - /usr/src/app/scripts/wait-for-database.mjs
+          args:
+            - --secret-file
+            - {{ include "pleey.backend.databaseSecretFile" . | quote }}
+            - --timeout-ms
+            - {{ mul .Values.waitForDatabase.timeoutSeconds 1000 | quote }}
           resources:
             {{- toYaml .Values.waitForDatabase.resources | nindent 12 }}
           volumeMounts:
