@@ -1,0 +1,672 @@
+{
+  "recorded_on": "2026-11-06",
+  "candidate_source_revision": "25dbd1befd78cfccac0d07543751f9b5a23a90fd",
+  "environment": {
+    "kind_node": "kindest/node:v1.37.0",
+    "kind": "0.33.0",
+    "kubectl": "1.37.2",
+    "helm": "4.3.1",
+    "chart_testing": "3.14.0",
+    "node": "26.13.0",
+    "vitest": "5.1.0",
+    "benchmark_cpu_affinity": "0-3"
+  },
+  "frontend_experiments": {
+    "scope": "exploratory local timings, not the GitHub Actions before/after comparison",
+    "decision": "retain original jsdom environment and four workers; reject split-project candidate",
+    "memory_metric_note": "GNU time maximum RSS describes a process and is not aggregate worker memory",
+    "coverage_note": "covered counts vary in two lemmings animation files; source files and denominators match; P0 CI printed similar variation",
+    "runs": [
+      {
+        "profile": "baseline",
+        "elapsed_seconds": 270.84,
+        "exit_code": 0,
+        "max_process_rss_kib": 547184,
+        "expanded_test_count": 1178,
+        "test_case_inventory_sha256": "3a746382e398ef79f901738ef5a3c914b5b90e2a3e90e66ee118622d492bc0e1",
+        "coverage_file_denominators_sha256": "b24b9d5124cd69648b2f17c7e43fe0a66e65c2c3d79285496d462922e0d95b94",
+        "coverage": {
+          "lines": {
+            "total": 8296,
+            "covered": 6940,
+            "skipped": 0,
+            "pct": 83.65
+          },
+          "statements": {
+            "total": 8635,
+            "covered": 7180,
+            "skipped": 0,
+            "pct": 83.14
+          },
+          "functions": {
+            "total": 2465,
+            "covered": 2023,
+            "skipped": 0,
+            "pct": 82.06
+          },
+          "branches": {
+            "total": 5496,
+            "covered": 4161,
+            "skipped": 0,
+            "pct": 75.7
+          },
+          "branchesTrue": {
+            "total": 0,
+            "covered": 0,
+            "skipped": 0,
+            "pct": 100
+          }
+        },
+        "classification": "exploratory"
+      },
+      {
+        "profile": "split",
+        "elapsed_seconds": 296.68,
+        "exit_code": 0,
+        "max_process_rss_kib": 576068,
+        "expanded_test_count": 1178,
+        "test_case_inventory_sha256": "3a746382e398ef79f901738ef5a3c914b5b90e2a3e90e66ee118622d492bc0e1",
+        "coverage_file_denominators_sha256": "b24b9d5124cd69648b2f17c7e43fe0a66e65c2c3d79285496d462922e0d95b94",
+        "coverage": {
+          "lines": {
+            "total": 8296,
+            "covered": 6917,
+            "skipped": 0,
+            "pct": 83.37
+          },
+          "statements": {
+            "total": 8635,
+            "covered": 7157,
+            "skipped": 0,
+            "pct": 82.88
+          },
+          "functions": {
+            "total": 2465,
+            "covered": 2019,
+            "skipped": 0,
+            "pct": 81.9
+          },
+          "branches": {
+            "total": 5496,
+            "covered": 4152,
+            "skipped": 0,
+            "pct": 75.54
+          },
+          "branchesTrue": {
+            "total": 0,
+            "covered": 0,
+            "skipped": 0,
+            "pct": 100
+          }
+        },
+        "classification": "confounded-excluded"
+      },
+      {
+        "profile": "split-4workers",
+        "elapsed_seconds": 177.48,
+        "exit_code": 0,
+        "max_process_rss_kib": 585556,
+        "expanded_test_count": 1178,
+        "test_case_inventory_sha256": "3a746382e398ef79f901738ef5a3c914b5b90e2a3e90e66ee118622d492bc0e1",
+        "coverage_file_denominators_sha256": "b24b9d5124cd69648b2f17c7e43fe0a66e65c2c3d79285496d462922e0d95b94",
+        "coverage": {
+          "lines": {
+            "total": 8296,
+            "covered": 6917,
+            "skipped": 0,
+            "pct": 83.37
+          },
+          "statements": {
+            "total": 8635,
+            "covered": 7157,
+            "skipped": 0,
+            "pct": 82.88
+          },
+          "functions": {
+            "total": 2465,
+            "covered": 2019,
+            "skipped": 0,
+            "pct": 81.9
+          },
+          "branches": {
+            "total": 5496,
+            "covered": 4152,
+            "skipped": 0,
+            "pct": 75.54
+          },
+          "branchesTrue": {
+            "total": 0,
+            "covered": 0,
+            "skipped": 0,
+            "pct": 100
+          }
+        },
+        "classification": "exploratory"
+      },
+      {
+        "profile": "split-4workers-2",
+        "elapsed_seconds": 188.89,
+        "exit_code": 0,
+        "max_process_rss_kib": 591704,
+        "expanded_test_count": 1178,
+        "test_case_inventory_sha256": "3a746382e398ef79f901738ef5a3c914b5b90e2a3e90e66ee118622d492bc0e1",
+        "coverage_file_denominators_sha256": "b24b9d5124cd69648b2f17c7e43fe0a66e65c2c3d79285496d462922e0d95b94",
+        "coverage": {
+          "lines": {
+            "total": 8296,
+            "covered": 6917,
+            "skipped": 0,
+            "pct": 83.37
+          },
+          "statements": {
+            "total": 8635,
+            "covered": 7157,
+            "skipped": 0,
+            "pct": 82.88
+          },
+          "functions": {
+            "total": 2465,
+            "covered": 2019,
+            "skipped": 0,
+            "pct": 81.9
+          },
+          "branches": {
+            "total": 5496,
+            "covered": 4152,
+            "skipped": 0,
+            "pct": 75.54
+          },
+          "branchesTrue": {
+            "total": 0,
+            "covered": 0,
+            "skipped": 0,
+            "pct": 100
+          }
+        },
+        "classification": "exploratory"
+      },
+      {
+        "profile": "split-4workers-3",
+        "elapsed_seconds": 203.15,
+        "exit_code": 0,
+        "max_process_rss_kib": 590592,
+        "expanded_test_count": 1178,
+        "test_case_inventory_sha256": "3a746382e398ef79f901738ef5a3c914b5b90e2a3e90e66ee118622d492bc0e1",
+        "coverage_file_denominators_sha256": "b24b9d5124cd69648b2f17c7e43fe0a66e65c2c3d79285496d462922e0d95b94",
+        "coverage": {
+          "lines": {
+            "total": 8296,
+            "covered": 6940,
+            "skipped": 0,
+            "pct": 83.65
+          },
+          "statements": {
+            "total": 8635,
+            "covered": 7180,
+            "skipped": 0,
+            "pct": 83.14
+          },
+          "functions": {
+            "total": 2465,
+            "covered": 2023,
+            "skipped": 0,
+            "pct": 82.06
+          },
+          "branches": {
+            "total": 5496,
+            "covered": 4161,
+            "skipped": 0,
+            "pct": 75.7
+          },
+          "branchesTrue": {
+            "total": 0,
+            "covered": 0,
+            "skipped": 0,
+            "pct": 100
+          }
+        },
+        "classification": "exploratory"
+      },
+      {
+        "profile": "jsdom-4workers",
+        "elapsed_seconds": 175.09,
+        "exit_code": 0,
+        "max_process_rss_kib": 590004,
+        "expanded_test_count": 1178,
+        "test_case_inventory_sha256": "3a746382e398ef79f901738ef5a3c914b5b90e2a3e90e66ee118622d492bc0e1",
+        "coverage_file_denominators_sha256": "b24b9d5124cd69648b2f17c7e43fe0a66e65c2c3d79285496d462922e0d95b94",
+        "coverage": {
+          "lines": {
+            "total": 8296,
+            "covered": 6917,
+            "skipped": 0,
+            "pct": 83.37
+          },
+          "statements": {
+            "total": 8635,
+            "covered": 7157,
+            "skipped": 0,
+            "pct": 82.88
+          },
+          "functions": {
+            "total": 2465,
+            "covered": 2019,
+            "skipped": 0,
+            "pct": 81.9
+          },
+          "branches": {
+            "total": 5496,
+            "covered": 4152,
+            "skipped": 0,
+            "pct": 75.54
+          },
+          "branchesTrue": {
+            "total": 0,
+            "covered": 0,
+            "skipped": 0,
+            "pct": 100
+          }
+        },
+        "classification": "exploratory"
+      },
+      {
+        "profile": "jsdom-4workers-2",
+        "elapsed_seconds": 165.53,
+        "exit_code": 0,
+        "max_process_rss_kib": 543432,
+        "expanded_test_count": 1178,
+        "test_case_inventory_sha256": "3a746382e398ef79f901738ef5a3c914b5b90e2a3e90e66ee118622d492bc0e1",
+        "coverage_file_denominators_sha256": "b24b9d5124cd69648b2f17c7e43fe0a66e65c2c3d79285496d462922e0d95b94",
+        "coverage": {
+          "lines": {
+            "total": 8296,
+            "covered": 6917,
+            "skipped": 0,
+            "pct": 83.37
+          },
+          "statements": {
+            "total": 8635,
+            "covered": 7157,
+            "skipped": 0,
+            "pct": 82.88
+          },
+          "functions": {
+            "total": 2465,
+            "covered": 2019,
+            "skipped": 0,
+            "pct": 81.9
+          },
+          "branches": {
+            "total": 5496,
+            "covered": 4152,
+            "skipped": 0,
+            "pct": 75.54
+          },
+          "branchesTrue": {
+            "total": 0,
+            "covered": 0,
+            "skipped": 0,
+            "pct": 100
+          }
+        },
+        "classification": "exploratory"
+      },
+      {
+        "profile": "jsdom-4workers-3",
+        "elapsed_seconds": 186.96,
+        "exit_code": 0,
+        "max_process_rss_kib": 593216,
+        "expanded_test_count": 1178,
+        "test_case_inventory_sha256": "3a746382e398ef79f901738ef5a3c914b5b90e2a3e90e66ee118622d492bc0e1",
+        "coverage_file_denominators_sha256": "b24b9d5124cd69648b2f17c7e43fe0a66e65c2c3d79285496d462922e0d95b94",
+        "coverage": {
+          "lines": {
+            "total": 8296,
+            "covered": 6917,
+            "skipped": 0,
+            "pct": 83.37
+          },
+          "statements": {
+            "total": 8635,
+            "covered": 7157,
+            "skipped": 0,
+            "pct": 82.88
+          },
+          "functions": {
+            "total": 2465,
+            "covered": 2019,
+            "skipped": 0,
+            "pct": 81.9
+          },
+          "branches": {
+            "total": 5496,
+            "covered": 4152,
+            "skipped": 0,
+            "pct": 75.54
+          },
+          "branchesTrue": {
+            "total": 0,
+            "covered": 0,
+            "skipped": 0,
+            "pct": 100
+          }
+        },
+        "classification": "exploratory"
+      },
+      {
+        "profile": "jsdom-2workers-warm-1",
+        "elapsed_seconds": 247.57,
+        "exit_code": 0,
+        "max_process_rss_kib": 591112,
+        "expanded_test_count": 1178,
+        "test_case_inventory_sha256": "3a746382e398ef79f901738ef5a3c914b5b90e2a3e90e66ee118622d492bc0e1",
+        "coverage_file_denominators_sha256": "b24b9d5124cd69648b2f17c7e43fe0a66e65c2c3d79285496d462922e0d95b94",
+        "coverage": {
+          "lines": {
+            "total": 8296,
+            "covered": 6917,
+            "skipped": 0,
+            "pct": 83.37
+          },
+          "statements": {
+            "total": 8635,
+            "covered": 7157,
+            "skipped": 0,
+            "pct": 82.88
+          },
+          "functions": {
+            "total": 2465,
+            "covered": 2019,
+            "skipped": 0,
+            "pct": 81.9
+          },
+          "branches": {
+            "total": 5496,
+            "covered": 4155,
+            "skipped": 0,
+            "pct": 75.6
+          },
+          "branchesTrue": {
+            "total": 0,
+            "covered": 0,
+            "skipped": 0,
+            "pct": 100
+          }
+        },
+        "classification": "exploratory"
+      },
+      {
+        "profile": "jsdom-2workers-warm-2",
+        "elapsed_seconds": 246.26,
+        "exit_code": 0,
+        "max_process_rss_kib": 565492,
+        "expanded_test_count": 1178,
+        "test_case_inventory_sha256": "3a746382e398ef79f901738ef5a3c914b5b90e2a3e90e66ee118622d492bc0e1",
+        "coverage_file_denominators_sha256": "b24b9d5124cd69648b2f17c7e43fe0a66e65c2c3d79285496d462922e0d95b94",
+        "coverage": {
+          "lines": {
+            "total": 8296,
+            "covered": 6917,
+            "skipped": 0,
+            "pct": 83.37
+          },
+          "statements": {
+            "total": 8635,
+            "covered": 7157,
+            "skipped": 0,
+            "pct": 82.88
+          },
+          "functions": {
+            "total": 2465,
+            "covered": 2019,
+            "skipped": 0,
+            "pct": 81.9
+          },
+          "branches": {
+            "total": 5496,
+            "covered": 4152,
+            "skipped": 0,
+            "pct": 75.54
+          },
+          "branchesTrue": {
+            "total": 0,
+            "covered": 0,
+            "skipped": 0,
+            "pct": 100
+          }
+        },
+        "classification": "exploratory"
+      },
+      {
+        "profile": "jsdom-2workers-warm-3",
+        "elapsed_seconds": 245.88,
+        "exit_code": 0,
+        "max_process_rss_kib": 544180,
+        "expanded_test_count": 1178,
+        "test_case_inventory_sha256": "3a746382e398ef79f901738ef5a3c914b5b90e2a3e90e66ee118622d492bc0e1",
+        "coverage_file_denominators_sha256": "b24b9d5124cd69648b2f17c7e43fe0a66e65c2c3d79285496d462922e0d95b94",
+        "coverage": {
+          "lines": {
+            "total": 8296,
+            "covered": 6917,
+            "skipped": 0,
+            "pct": 83.37
+          },
+          "statements": {
+            "total": 8635,
+            "covered": 7157,
+            "skipped": 0,
+            "pct": 82.88
+          },
+          "functions": {
+            "total": 2465,
+            "covered": 2019,
+            "skipped": 0,
+            "pct": 81.9
+          },
+          "branches": {
+            "total": 5496,
+            "covered": 4155,
+            "skipped": 0,
+            "pct": 75.6
+          },
+          "branchesTrue": {
+            "total": 0,
+            "covered": 0,
+            "skipped": 0,
+            "pct": 100
+          }
+        },
+        "classification": "exploratory"
+      }
+    ],
+    "container_memory_check": {
+      "available_cpus": 4,
+      "configured_workers": 4,
+      "memory_limit_bytes": 8589934592,
+      "aggregate_peak_bytes": 2134478848,
+      "test_files": 228,
+      "tests_passed": 1178,
+      "scope": "cgroup memory.peak for the complete container, including npm, Vitest workers and filesystem cache",
+      "timing_excluded": "overlapped backend cache validation; resource/correctness check only",
+      "input_note": "Archived candidate with root package version metadata changed for the cache probe; dependency graph, application source and test configuration unchanged."
+    },
+    "warm_control_summary": {
+      "two_workers": {
+        "median_seconds": 246.26,
+        "min_seconds": 245.88,
+        "max_seconds": 247.57
+      },
+      "four_workers": {
+        "median_seconds": 175.09,
+        "min_seconds": 165.53,
+        "max_seconds": 186.96
+      }
+    }
+  },
+  "compile_faults": [
+    {
+      "service": "backend",
+      "exit_code": 1,
+      "diagnostic": "TS1110",
+      "log": "backend-compile-negative.log",
+      "temporary_source_mutation_only": true
+    },
+    {
+      "service": "frontend",
+      "exit_code": 1,
+      "diagnostic": "Unexpected token",
+      "log": "frontend-compile-negative.log",
+      "temporary_source_mutation_only": true
+    }
+  ],
+  "cache_checks": {
+    "fresh_cache_id": "1793963869",
+    "lockfile_change": "root package version metadata; dependency graph unchanged",
+    "results": [
+      {
+        "service": "frontend",
+        "phase": "cold",
+        "elapsed_seconds": 54.81,
+        "npm_cache_hits": 472,
+        "npm_cache_misses": 475,
+        "exit_code": 0,
+        "log": "frontend-cold-build.log"
+      },
+      {
+        "service": "frontend",
+        "phase": "invalidated-install",
+        "elapsed_seconds": 48.28,
+        "npm_cache_hits": 475,
+        "npm_cache_misses": 0,
+        "exit_code": 0,
+        "log": "frontend-invalidated-install-build.log"
+      },
+      {
+        "service": "backend",
+        "phase": "cold",
+        "elapsed_seconds": 133.46,
+        "npm_cache_hits": 884,
+        "npm_cache_misses": 886,
+        "exit_code": 0,
+        "log": "backend-cold-build.log"
+      },
+      {
+        "service": "backend",
+        "phase": "invalidated-install",
+        "elapsed_seconds": 110.12,
+        "npm_cache_hits": 884,
+        "npm_cache_misses": 886,
+        "exit_code": 0,
+        "log": "backend-invalidated-install-build.log"
+      }
+    ],
+    "interpretation": "Fresh unique mount IDs plus --no-cache bypassed layer and download caches. The first backend repeat allocated another mount and downloaded again; the isolated retained-mount repeat confirms download reuse. Cache hits are npm log events, not proof of layer hits. Package root version metadata changed; dependency graph stayed unchanged."
+  },
+  "backend_cache_repeat": {
+    "service": "backend",
+    "phase": "invalidated-install-repeat",
+    "elapsed_seconds": 53.17,
+    "npm_cache_hits": 884,
+    "npm_cache_misses": 0,
+    "exit_code": 0,
+    "scope": "install stage only, same cache ID; root package version metadata changed again"
+  },
+  "context_check": {
+    "excluded_synthetic_local_files": [
+      "application/backend/node_modules/p1-marker",
+      "application/backend/dist/p1-marker",
+      "application/backend/coverage/p1-marker",
+      "application/backend/.cache/p1-marker",
+      "application/backend/.env.p1",
+      "application/backend/.npmrc",
+      "application/backend/p1.key",
+      "application/backend/p1.pem",
+      "application/backend/junit.xml",
+      "application/backend/biome-report.sarif",
+      "application/frontend/node_modules/p1-marker",
+      "application/frontend/dist/p1-marker",
+      "application/frontend/coverage/p1-marker",
+      "application/frontend/.cache/p1-marker",
+      "application/frontend/.env.p1",
+      "application/frontend/.npmrc",
+      "application/frontend/p1.key",
+      "application/frontend/p1.pem",
+      "application/frontend/junit.xml",
+      "application/frontend/biome-report.sarif"
+    ],
+    "tracked_application_and_shared_files_retained": 1857,
+    "missing_tracked_application_and_shared_files": [],
+    "required_examples_retained": [
+      "application/backend/src/schema.gql",
+      "application/backend/prisma/schema.prisma",
+      "application/backend/.env.example"
+    ]
+  },
+  "database_readiness": {
+    "focused_tests": 12,
+    "fault_checks": [
+      {
+        "case": "late secret with verified TLS",
+        "exit": 0,
+        "elapsed_seconds": 3.289578882000569
+      },
+      {
+        "case": "stalled connection",
+        "exit": 1,
+        "elapsed_seconds": 2.346084382999834
+      },
+      {
+        "case": "SIGTERM",
+        "exit": 1,
+        "elapsed_seconds": 0.2622900709993701
+      }
+    ],
+    "verified_external_tls": true,
+    "migration_permission_error_after_readiness": "readiness passed; Prisma migrate failed with permission denied",
+    "cold_chart_install": {
+      "command": "make test-chart CHART_TARGET_BRANCH=main with isolated kind/kubeconfig and locally built images",
+      "exit_code": 0,
+      "memory_limit_mib": 128,
+      "deadline_seconds": 180,
+      "database_secret_created_at": "2026-11-06T11:15:04Z",
+      "postgres_ready_at": "2026-11-06T11:15:41Z",
+      "migration_pods": 1,
+      "failed_migration_pods": 0,
+      "workloads": [
+        {
+          "workload": "deployment",
+          "created_at": "2026-11-06T11:14:53Z",
+          "readiness_started_at": "2026-11-06T11:14:54Z",
+          "readiness_finished_at": "2026-11-06T11:16:27Z",
+          "readiness_attempts": 45,
+          "readiness_reported_elapsed_ms": 90400,
+          "init_exit_code": 0,
+          "init_restarts": 0,
+          "migration_exit_code": null
+        },
+        {
+          "workload": "migration",
+          "created_at": "2026-11-06T11:14:53Z",
+          "readiness_started_at": "2026-11-06T11:14:54Z",
+          "readiness_finished_at": "2026-11-06T11:16:14Z",
+          "readiness_attempts": 39,
+          "readiness_reported_elapsed_ms": 77992,
+          "init_exit_code": 0,
+          "init_restarts": 0,
+          "migration_exit_code": 0
+        }
+      ]
+    },
+    "rejected_limit": {
+      "memory_mib": 64,
+      "reason": "OOMKilled during cold-install initialization; immediate isolated queries had passed"
+    }
+  },
+  "report_faults": {
+    "lint": "debugger violation produced SARIF and nonzero exit",
+    "test": "deliberately failed assertion produced JUnit failure and nonzero exit",
+    "parser": "pinned core accepted SARIF/JUnit/LCOV, mapped source paths exist, missing/malformed direct parse throws",
+    "upstream_limitation": "action discovery warns if no report files match; strict missing-report enforcement deferred to P2"
+  }
+}
