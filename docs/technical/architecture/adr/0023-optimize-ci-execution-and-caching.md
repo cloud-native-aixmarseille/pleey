@@ -754,6 +754,51 @@ with the ADR and implementation review. No optimization has been benchmarked her
 - Required-check migration and release metadata need careful validation; elapsed
   gains cannot be inferred by adding individual benchmark savings.
 
+### P1 implementation candidate: 2026-11-06
+
+P0 was reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552).
+P1 keeps the current publication order and pinned reusable workflows. The image
+builds compile the same application inputs as the duplicate Node build commands;
+container test jobs do not consume artifacts from the latter. An empty `build`
+input removes those commands while the upstream setup and empty build jobs remain.
+
+Explicit SARIF/JUnit/LCOV paths retain command failure status. Biome SARIF paths
+are absolute, while Vitest JUnit paths are relative. Map both forms to each
+service's source directory. The pinned report parser accepts these formats;
+its discovery layer warns when no files match, so successful report parsing must
+be verified separately from command success. Strict missing-report enforcement
+belongs to the upstream reporting work in P2.
+
+The pinned Node base reports UID/GID 1000 and `/home/node/.npm` as the cache path.
+Use that path with matching mount ownership and exclude local dependencies,
+build output, reports and credentials from source copies. Do not attribute all
+P0 cache misses to the mount mistake: layer reuse and download-cache reuse are
+separate mechanisms, and the cause of the recorded frontend recompilation is
+still under investigation.
+
+The frontend candidate moves 21 inspected DOM-free suites into a Node project,
+retaining jsdom for other and newly added suites. Discovery and expanded JUnit
+cases match the baseline, as do source coverage files and denominators. Four
+workers passed three local runs on four available CPUs in 177.48s, 188.89s and
+203.15s; the original two-worker configuration took 270.84s. These are exploratory
+local measurements, not the final GitHub Actions comparison. The first split-only
+run overlapped a Docker build and is excluded from performance conclusions.
+
+Both database init containers use the workload image and complete secret URI for
+an authenticated query through the pruned production Prisma client. The initial
+readiness deadline is 180 seconds, with connection/query timeouts capped at five
+seconds and one connection. Validate the deadline against fresh cluster timing;
+keep the global Helm timeout and migration retry policy unchanged. Cleanup is
+bounded by the same deadline; the command exits after cleanup to close any
+remaining socket. Existing resource limits passed an isolated production-image
+query, including a separate TLS certificate/hostname verification check.
+`waitForDatabase.image` overrides are removed: installations must remove those
+BusyBox overrides and use the workload image. Enablement and resource overrides
+remain supported.
+
+Final phase acceptance, fault checks and five consecutive post-priming CI samples
+are still pending; track completion in the implementation checklist.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.

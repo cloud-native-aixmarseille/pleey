@@ -15,7 +15,7 @@
     "lint:fix": "npm run _lint:pre && npm run _lint:biome:fix && npm run _lint:post",
     "lint:ci": "npm run _lint:pre && npm run _lint:biome:ci && npm run _lint:post",
     "_lint:biome": "biome lint --config-path biome.json --error-on-warnings .",
-    "_lint:biome:ci": "biome ci --config-path biome.json --error-on-warnings --reporter=json --reporter-file=biome-report.json .",
+    "_lint:biome:ci": "biome ci --config-path biome.json --error-on-warnings --reporter=sarif --reporter-file=biome-report.sarif .",
     "_lint:biome:fix": "biome check --config-path biome.json --error-on-warnings --write .",
     "_lint:knip": "knip --config knip.json",
     "_lint:post": "node ./scripts/check-domain-errors.mjs",
