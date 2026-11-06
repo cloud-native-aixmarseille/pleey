@@ -8,7 +8,7 @@ Pleey backend API service subchart.
 
 ## Maintainers
 
-| Name              | Email | Url                                                  |
+| Name              | Email | URL                                                  |
 | ----------------- | ----- | ---------------------------------------------------- |
 | Pleey Maintainers |       | <https://github.com/cloud-native-aixmarseille/pleey> |
 
@@ -18,11 +18,11 @@ Pleey backend API service subchart.
 
 ## Requirements
 
-| Repository                                | Name           | Version |
-| ----------------------------------------- | -------------- | ------- |
-| https://bokysan.github.io/docker-postfix/ | smtp(mail)     | 5.1.0   |
-| https://cloudnative-pg.github.io/charts   | cloudnative-pg | ~0.28.2 |
-| https://valkey.io/valkey-helm/            | valkey         | ~0.9.4  |
+| Repository                                  | Name           | Version |
+| ------------------------------------------- | -------------- | ------- |
+| <https://bokysan.github.io/docker-postfix/> | smtp(mail)     | 5.1.0   |
+| <https://cloudnative-pg.github.io/charts>   | cloudnative-pg | ~0.28.2 |
+| <https://valkey.io/valkey-helm/>            | valkey         | ~0.9.4  |
 
 ## Values
 

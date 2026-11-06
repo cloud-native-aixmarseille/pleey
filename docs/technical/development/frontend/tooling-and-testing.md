@@ -18,15 +18,9 @@ Unit tests are colocated (`*.spec.ts` / `*.spec.tsx`). Screen tests require the 
 
 The Vitest setup wraps the real `MantineProvider` with `env="test"`, following [Mantine's Vitest guidance](https://mantine.dev/guides/vitest/). This applies to both shared render helpers and app-container providers, keeping dropdowns interactive without browser layout measurements and disabling Mantine transitions in jsdom.
 
-The [Vitest configuration](../../../../application/frontend/vitest.config.js) separates
-audited DOM-free suites into the `node` project, with only `reflect-metadata` setup.
-All other suites use the `jsdom` project and shared browser setup. New suites default
-to jsdom; inspect their transitive imports and behavior before adding them to the
-Node list. The projects have disjoint discovery rules and share the root coverage
-configuration, aliases, plugins, globals, isolation and timeout.
-
-Run one environment with `npm run test -- --project=node` or
-`npm run test -- --project=jsdom`. `npm run test:ci` runs both and emits one JUnit
-report and combined LCOV coverage. The worker limit is four; changes require
+The [Vitest configuration](../../../../application/frontend/vitest.config.js) uses
+jsdom with the shared browser setup and a limit of four workers. `npm run test:ci`
+emits JUnit and LCOV reports. Changes to worker limits or test environments require
 repeat measurements of time and memory on the CI runner, with matching tests and
-coverage totals. See [ADR 0023](../../architecture/adr/0023-optimize-ci-execution-and-caching.md).
+coverage totals. Keep isolation, mocks and coverage inclusion unchanged during
+performance experiments. See [ADR 0023](../../architecture/adr/0023-optimize-ci-execution-and-caching.md).
