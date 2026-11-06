@@ -3,14 +3,13 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 implementation and validation in progress; P2–P8 not started
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 implemented and awaiting review in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P2–P8 not started
 
 Delivery: one phase per PR, with passing CI and user review before the next phase.
 
 The ADR owns architecture, dated evidence, cache contracts and acceptance
-requirements. This file owns execution and progress. Commands below are future
-implementation/validation steps, not checks already run. Proposed helper files
-and upstream interfaces do not exist yet.
+requirements. This file owns execution and progress. Unchecked items describe planned work. Completed items link the implementation
+and its verification; proposed upstream interfaces remain future work.
 
 Complete checkboxes with PR/run links and measured results. For experiments,
 record "adopted", "rejected" or "deferred" with the reason. Keep independent
@@ -74,16 +73,24 @@ and queueing. P0 is complete when another contributor can reproduce the comparis
 
 ## P1: Deliver independent local reductions
 
+Implementation: [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553).
+[Local validation evidence](../architecture/adr/evidence/0023-p1-local-validation.json)
+records fault checks, cache probes, test inventories, memory and cold-install timing.
+**5/5 measured CI runs passed:** median elapsed **14m08s (−8.92%)** and summed
+job time **24m49s (−7.97%)**. See the [completed comparison](../architecture/adr/0023-optimize-ci-execution-and-caching.md#completed-p1-comparison-2026-11-06).
+The combined 10% target remains for later phases. Experimental dispositions are recorded in the
+[dated P1 ADR entry](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p1-implementation-candidate-2026-11-06).
+
 ### P1.1: Remove duplicate compilation
 
 **Files:** [shared workflow](../../../.github/workflows/__shared-ci.yml),
 [backend Dockerfile](../../../application/backend/Dockerfile) and
 [frontend Dockerfile](../../../application/frontend/Dockerfile).
 
-- [ ] Compare Dockerfile compilation and the Node build: source, generated Prisma/GraphQL inputs, environment/build arguments and compiler configuration. Confirm tests do not consume the second build's artifacts.
-- [ ] Set the existing reusable-workflow `build` input to `""` for prebuilt-image callers, retaining lint/tests.
-- [ ] Exercise both services and a deliberate compile failure in an isolated validation change. The image build must still reject that failure.
-- [ ] Measure removed compilation separately from the remaining empty build-container job; P2.1 removes that overhead.
+- [x] Compare Dockerfile compilation and the Node build: source, generated Prisma/GraphQL inputs, environment/build arguments and compiler configuration. Confirm tests do not consume the second build's artifacts.
+- [x] Set the existing reusable-workflow `build` input to `""` for prebuilt-image callers, retaining lint/tests.
+- [x] Exercise both services and a deliberate compile failure in an isolated validation change. The image build must still reject that failure.
+- [x] Measure removed build action steps: median summed duration 11s → 0s. Empty build jobs still consume a median 64s in total; P2.1 removes that overhead.
 
 **Rollback:** restore the caller's build input if equivalence fails.
 
@@ -91,11 +98,11 @@ and queueing. P0 is complete when another contributor can reproduce the comparis
 
 **Files:** shared workflow and both application `package.json` files.
 
-- [ ] Change `_lint:biome:ci` to emit `biome-report.sarif` with the supported SARIF reporter. Preserve `biome ci`, warning/error policy and every lint guard.
-- [ ] Set existing `lint`/`test` JSON inputs with explicit `report-file` paths relative to `/usr/src/app`. Preserve container-to-source path mapping.
-- [ ] Verify JUnit/LCOV outputs and annotations resolve to the correct service's source files.
-- [ ] Inject lint/test failures separately in a disposable validation change. Confirm reporting runs, original failure statuses survive, and missing/malformed reports are not mistaken for successful validation.
-- [ ] Compare discovery/startup/processing time; parser installation is separate P2.2 work.
+- [x] Change `_lint:biome:ci` to emit `biome-report.sarif` with the supported SARIF reporter. Preserve `biome ci`, warning/error policy and every lint guard.
+- [x] Set existing `lint`/`test` JSON inputs with explicit `report-file` paths relative to `/usr/src/app`. Preserve container-to-source path mapping.
+- [x] Verify JUnit/LCOV outputs and annotations resolve to the correct service's source files.
+- [x] Inject lint/test failures separately: nonzero producer exits and failure reports were retained. Direct parser calls reject missing/malformed files; action-level zero-match discovery only warns. Strict missing-report enforcement is explicitly deferred to P2.2.
+- [x] Compare report discovery/parsing: median summed duration across four jobs 28.584s → 1.309s. Parser installation remains separate P2.2 work.
 
 Existing caller input shape, as a fragment of the reusable-workflow call:
 
@@ -112,12 +119,12 @@ with:
 
 **Files:** both Dockerfiles and [.dockerignore](../../../.dockerignore).
 
-- [ ] Reproduce the P0 recompilation on unchanged pinned inputs and identify the invalidation cause; compare cache imports, context inputs and exported records before selecting a fix.
-- [ ] Inspect `npm config get cache` and effective UID/GID in the install stage. Verify `/home/node/.npm` before replacing `/root/.npm` and setting mount ownership.
-- [ ] Keep npm authentication in BuildKit secrets outside cached content. Force an install-layer miss with a scoped lockfile change; confirm download reuse and successful `npm ci`.
-- [ ] Repeat with both layer and mount caches bypassed. Cache absence must not change correctness.
-- [ ] Review `git ls-files` and Dockerfile `COPY` instructions before excluding local dependencies, build output, reports, caches and credentials. Retain committed schema/codegen inputs and shared scripts.
-- [ ] Build both targets from clean and locally built/tested checkouts. Verify local generated artifacts cannot replace declared image inputs.
+- [x] Investigate P0 recompilation: imports and unchanged source/base inputs are recorded, but logs do not expose the differing cache-record inputs. The cause remains unresolved; defer upstream tracing to P2.4. Do not attribute layer misses to the npm mount correction.
+- [x] Inspect `npm config get cache` and effective UID/GID in the install stage. Verify `/home/node/.npm` before replacing `/root/.npm` and setting mount ownership.
+- [x] Keep npm authentication in BuildKit secrets. A scoped package/lockfile root-version change forced `npm ci`; retained mounts served 475 frontend and 884 backend cache-hit events with no download misses. The dependency graph was unchanged. The first full backend repeat downloaded again; that result remains in the evidence.
+- [x] Repeat with both layer and mount caches bypassed. Cache absence must not change correctness.
+- [x] Review `git ls-files` and Dockerfile `COPY` instructions before excluding local dependencies, build output, reports, caches and credentials. Retain committed schema/codegen inputs and shared scripts.
+- [x] Build both services from clean archived inputs and locally built/tested checkouts. Context probes exclude 20 synthetic artifacts/credential files and retain all 1,857 tracked application/shared-script inputs, including schema and the committed environment example.
 
 **Measure:** invalidated-install time, download-cache use and context size. Context
 filtering is input hygiene until timing demonstrates a gain. **Rollback:** revert
@@ -127,8 +134,8 @@ mount/ignore rules independently without weakening `npm ci`.
 
 **File:** [greetings workflow](../../../.github/workflows/greetings.yml).
 
-- [ ] Restrict the PR lifecycle trigger to `opened`, preserving issue-opened behavior and branch scope.
-- [ ] Verify first-interaction semantics and that synchronize/reopen events avoid unnecessary runs. Use fixtures or controlled validation without posting test greetings on unrelated PRs.
+- [x] Restrict the PR lifecycle trigger to `opened`, preserving issue-opened behavior and branch scope.
+- [x] Verify first-interaction semantics and that synchronize/reopen events avoid unnecessary runs. Use fixtures or controlled validation without posting test greetings on unrelated PRs.
 
 **Measure:** avoided invocations, separately from shared CI elapsed time.
 **Rollback:** restore event selection if intended behavior changes.
@@ -140,30 +147,28 @@ mount/ignore rules independently without weakening `npm ci`.
 `application/frontend/src` (including domains and application services), and a
 minimal Node setup if needed.
 
-- [ ] Export discovered files/test cases from unchanged CI configuration; save coverage inclusion/exclusion and denominator.
-- [ ] Classify tests by imports and behavior, starting with plain value objects/services. Directory or `.ts` extension alone does not establish DOM independence.
-- [ ] Add named `node`/`jsdom` projects with disjoint discovery rules whose union equals the original inventory.
-- [ ] Move DOM `setupFiles` out of the root into the jsdom project. Inline projects inherit root configuration and concatenate setup arrays; `setupFiles: []` does not clear inherited setup. Add only required non-DOM setup to Node. See [Vitest projects](https://vitest.dev/guide/projects.html).
-- [ ] Preserve aliases, plugins, globals, timeout, isolation, mocks and root coverage. Run each project and the complete CI command; compare tests and coverage.
-- [ ] Record effective workers, available container CPUs, peak memory and slow files. Benchmark the existing 50% limit against explicit runner-sized limits, changing one variable at a time.
-- [ ] Repeat promising configurations without changing isolation/retries; reject flakes, memory pressure or worse total job time.
-- [ ] Record the result before evaluating shards. Update the [frontend testing guide](../development/frontend/tooling-and-testing.md) when implemented.
+- [x] Export discovered files/test cases from unchanged CI configuration; save coverage inclusion/exclusion and denominator.
+- [x] Classify tests by imports and behavior, starting with plain value objects/services. Directory or `.ts` extension alone does not establish DOM independence.
+- [x] Trial named `node`/`jsdom` projects with disjoint discovery rules; their union matched the original inventory. **Rejected:** the split added no benefit over four workers with the original jsdom setup.
+- [x] Keep DOM setup out of the Node trial and preserve project inheritance semantics. The trial setup was removed with the rejected split; the original setup remains.
+- [x] Preserve aliases, plugins, globals, timeout, isolation, mocks and coverage rules. Trial project runs and full-suite runs passed; all 228 files, 1,178 expanded cases and coverage denominators match.
+- [x] Compare the existing 50% limit with four workers on four CPUs. Three worker-only runs passed at 165.53s–186.96s; three subsequent warm-cache two-worker controls passed at 245.88s–247.57s. A separate four-CPU container passed with 2,134,478,848 bytes aggregate peak memory. Local timings remain exploratory; the CI series measures the combined phase.
+- [x] Repeat promising configurations without changing isolation/retries; reject flakes, memory pressure or worse total job time.
+- [x] Record the result before shards: retain four workers based on repeated local controls and memory headroom; the Actions frontend job median is 270s versus 267s, so an isolated Actions worker gain is unproven. The [frontend testing guide](../development/frontend/tooling-and-testing.md) reflects the retained configuration; reassess in P6.
 
-Future commands from `application/frontend` after dependencies are available:
+Inventory and validation commands from `application/frontend`:
 
 ```sh
 npm exec -- vitest list --filesOnly --json=/tmp/pleey-frontend-files.json
 npm exec -- vitest list --json=/tmp/pleey-frontend-tests.json
-npm run test -- --project=node
-npm run test -- --project=jsdom
 npm run test:ci
 npm run test:ci -- --maxWorkers=2
 npm run lint:ci
 ```
 
-Save baseline/candidate inventories under distinct filenames. Project commands
-apply after creating those projects; two workers is an experiment, not the chosen
-setting. **Rollback:** revert classification and worker limits separately.
+Save baseline/candidate inventories under distinct filenames. Two workers is the
+control setting; four workers is the retained candidate. **Rollback:** restore the
+previous worker limit.
 
 ### P1.6: Remove the chart database-startup race
 
@@ -173,15 +178,15 @@ setting. **Rollback:** revert classification and worker limits separately.
 [migration job](../../../charts/application/charts/backend/templates/migration-job.yaml),
 helpers, values and schemas.
 
-- [ ] Reproduce healthy fresh installation; time secret availability, database readiness, migration attempts and total install separately.
-- [ ] Add a small readiness command to the production image, reusing direct production dependencies `@prisma/client`/`@prisma/adapter-pg`. Verify imports/generated client in the pruned image first.
-- [ ] Query authenticated `SELECT 1` using the existing secret-file URI without bootstrapping Nest. Preserve external-database/TLS parameters; `pg_isready` alone does not prove authentication.
-- [ ] Bound missing-secret waiting and connection/query attempts with one deadline. Use one connection, bounded attempts, disconnect and signal cleanup. Log sanitized error codes and timing, never credentials/URLs.
-- [ ] Pass secret path and timing controls as arguments, respecting the environment-access boundary. Select deadlines from cold-start measurements; validate/document any exposed chart values.
-- [ ] Use `pleey.backend.image` for both init containers, matching the workload digest. Replace BusyBox defaults/helpers coherently; preserve enable toggle, resources, security context and secret mounts.
-- [ ] Add focused Vitest tests for late secret, transient failure, invalid credentials, deadline, redaction and cleanup, plus a pruned-image smoke check.
-- [ ] Exercise fresh CNPG, external URI/secret, unreachable DB, invalid credentials, slow query, disabled waiting and migration failure after readiness. Preserve migration command/retry policy and useful diagnostics.
-- [ ] Run `make test-chart` from the root with its documented prerequisites. Keep the global Helm timeout unchanged; healthy fresh installs must stop relying on failed migration pods.
+- [x] Reproduce healthy fresh installation; time secret availability, database readiness, migration attempts and total install separately.
+- [x] Add a small readiness command to the production image, reusing direct production dependencies `@prisma/client`/`@prisma/adapter-pg`. Verify imports/generated client in the pruned image first.
+- [x] Query authenticated `SELECT 1` using the existing secret-file URI without bootstrapping Nest. Preserve external-database/TLS parameters; `pg_isready` alone does not prove authentication.
+- [x] Bound missing-secret waiting and connection/query attempts with one deadline. Use one connection, bounded attempts, disconnect and signal cleanup. Log sanitized error codes and timing, never credentials/URLs.
+- [x] Pass secret path and timing controls as arguments, respecting the environment-access boundary. The cold install reached authenticated readiness at 78–90 seconds, within the 180-second default. Validate and document the timeout schema.
+- [x] Use `pleey.backend.image` for both init containers, matching the workload digest. Replace BusyBox defaults/helpers coherently; preserve enablement, resource overrides, security context and secret mounts. Raise the default memory limit to 128 MiB after the 64 MiB cold-install OOM.
+- [x] Add focused Vitest tests for late secret, transient failure, invalid credentials, deadline, redaction and cleanup, plus a pruned-image smoke check.
+- [x] Exercise fresh CNPG, external URI/secret, unreachable DB, invalid credentials, slow query, disabled waiting and migration failure after readiness. Preserve migration command/retry policy and useful diagnostics.
+- [x] Run `make test-chart` with isolated kind and kubeconfig: passed with one successful migration pod, zero failed migration pods and no init restarts. The global Helm timeout is unchanged.
 
 The existing target builds images, creates fresh kind, runs umbrella lint/install
 and cleans up. Use its isolated test context. **Rollback:** revert command, image
@@ -218,7 +223,7 @@ parser tests and `.github/workflows/__test-action-parse-ci-reports.yml`.
 - [ ] Add a reproducible distribution build using upstream conventions, including runtime dependencies/license material; do not assume an existing bundler.
 - [ ] Execute the bundle without action-time dependency installation. Remove setup/`NODE_PATH` only after supported runner/container execution succeeds.
 - [ ] Preserve inputs/outputs, formats, path mapping and annotations. Verify distribution matches source in upstream CI.
-- [ ] Validate supported fixtures, missing/malformed files, rewritten paths and error outputs without parser `node_modules`; preserve original lint/test failure when reporting succeeds.
+- [ ] Validate supported fixtures, missing/malformed files, rewritten paths and error outputs without parser `node_modules`; preserve original lint/test failure when reporting succeeds. Require explicit report paths to match files, closing the zero-match warning behavior observed in P1.
 - [ ] Measure startup, processing and download cost. Release upstream, update the consuming Node action pin where necessary, then adopt that release in Pleey.
 
 **Rollback:** restore parser/consumer pins if compatibility regresses.
@@ -244,6 +249,7 @@ parser tests and `.github/workflows/__test-action-parse-ci-reports.yml`.
 **Files:** container workflow, `actions/docker/build-image/action.yml`,
 `actions/docker/build-image/internal/action.yml` and caching integration workflow.
 
+- [ ] Trace unchanged-input layer misses recorded in P0/P1 before selecting an invalidation fix; capture source checksums and imported/exported cache records upstream.
 - [ ] Expose validated additional import/export-mode controls through all layers, retaining defaults, bypass and read-only-trigger behavior.
 - [ ] Let production import its own cache plus its service's CI cache. Preserve separate versioned exporter scopes and permitted branch access.
 - [ ] Retain Dockerfile fingerprinting and add lockfile/toolchain fingerprinting to mount keys. Preserve application/target/platform/toolchain identity in restore prefixes; fix fallbacks that discard it.
@@ -376,7 +382,7 @@ and aggregate gate.
 
 - [ ] Add explicit arguments/shard support upstream; current `test.command` is a package-script name, not arbitrary shell text.
 - [ ] Matrix only the test job: two shards, `max-parallel: 2`, `fail-fast: false`, failures fatal. Keep one preparation/lint/build path.
-- [ ] Execute both projects across shards with identical source/image/Vitest/config and produce blob/coverage payloads.
+- [ ] Execute the complete discovered frontend suite across shards with identical source/image/Vitest/config and produce blob/coverage payloads; P1 retained the original jsdom setup.
 - [ ] Upload payloads even after test failure, including required hidden paths. Distinguish run/attempt/project/shard and prevent stale downloads/overwrites.
 - [ ] Merge once after checking the complete set; emit existing JUnit/LCOV paths, apply any configured thresholds and publish once.
 - [ ] Gate on every shard and merge/report status. Test failed shard with successful merge, missing artifact, cancellation and previous-attempt data.

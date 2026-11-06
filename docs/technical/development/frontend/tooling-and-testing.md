@@ -20,7 +20,7 @@ The Vitest setup wraps the real `MantineProvider` with `env="test"`, following [
 
 The [Vitest configuration](../../../../application/frontend/vitest.config.js) uses
 jsdom with the shared browser setup and a limit of four workers. `npm run test:ci`
-emits JUnit and LCOV reports. Changes to worker limits or test environments require
-repeat measurements of time and memory on the CI runner, with matching tests and
-coverage totals. Keep isolation, mocks and coverage inclusion unchanged during
+emits JUnit and LCOV reports. When changing worker limits or test environments,
+repeat CI timings, record CPU/memory limits and peak memory, and compare test
+inventories and coverage denominators. Keep isolation, mocks and coverage inclusion unchanged during
 performance experiments. See [ADR 0023](../../architecture/adr/0023-optimize-ci-execution-and-caching.md).
