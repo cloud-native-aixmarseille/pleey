@@ -1,4 +1,4 @@
-# Implementation plan: CI optimization (#475)
+# Implementation plan: ADR 0023 - Optimize CI execution and caching
 
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
