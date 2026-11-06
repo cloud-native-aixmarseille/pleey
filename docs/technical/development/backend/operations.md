@@ -16,6 +16,9 @@ The backend Deployment and migration Job use the backend image for their databas
 init container. It waits for the configured secret file, then runs an authenticated
 `SELECT 1` through the production Prisma adapter without starting Nest. The complete
 URI is preserved, including external database and TLS settings.
+Custom database certificate mounts and environment settings supplied through
+`extraVolumes`, `extraVolumeMounts`, `extraEnv` and `extraEnvFrom` are also available
+to both readiness checks and the migration container.
 
 `backend.waitForDatabase.timeoutSeconds` bounds secret, connection, query and cleanup
 waiting. Connection and query attempts use at most five seconds and one connection;
