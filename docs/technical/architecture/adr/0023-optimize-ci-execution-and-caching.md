@@ -114,9 +114,9 @@ it after validating failure behavior. Current repository rules remain unchanged.
 
 The initial phase PR run validates the inputs and primes its cache. Collect
 five comparable successful attempts of an unchanged revision and event. Inspect
-resolved image/tool inputs and cache evidence before classifying attempts as
-equivalent warm samples. Keep failures and discarded samples with reasons; do not
-silently select only favorable timings. Store attempt-specific job/step timings
+resolved image/tool inputs and cache availability before including attempts.
+The measurement correction below retains cache misses after priming. Keep failures
+and changed-input samples with reasons; do not select only favorable timings. Store attempt-specific job/step timings
 and links rather than querying only the latest attempt of a rerun.
 
 For reruns, `created_at` belongs to the original run. Measure each attempt from
@@ -126,7 +126,7 @@ scheduling waits. Compare medians and ranges after the full sample completes.
 
 | Subsequent comparison scenario | Controlled inputs and evidence                                                                                                |
 | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| Warm                           | Same application/build inputs, event, cache scope and resolved tool/base images; five equivalent samples per compared state   |
+| Warm                           | Same inputs, event and cache scope after priming; five consecutive attempts, retaining cache misses                           |
 | Cold                           | Explicitly bypass both layers and mount restoration in an isolated validation run; record successful declared-input execution |
 | Dependency change              | Change one lockfile and record the corresponding install/cache invalidation while the other service remains controlled        |
 | Source change                  | Change one source input and verify intended compile/test invalidation without unnecessary dependency installation             |
@@ -213,18 +213,107 @@ reviewed digest change. Existing weekly Docker
 Review those updates promptly and keep both Node references aligned. See
 [Docker's digest-pinning guidance](https://docs.docker.com/build/building/best-practices/#pin-base-image-versions).
 
-Start a new series on one fixed PR revision after pinning. Count five successful
-attempts only after confirming all four image jobs reuse dependency/compile
-layers, resolved application images and workflow revisions stay identical, and
-test inventories match. Retain any cache-priming or failed attempts separately.
-The previous series remains supporting evidence and contributes no samples to
-this baseline. Collection is pending; P1 has not started.
+The initial restart protocol required five attempts with all dependency/compile
+layers cached, identical resolved inputs and matching test inventories. Recurring
+misses on unchanged inputs exposed selection bias in that criterion; the dated
+measurement correction below supersedes the all-hit filter. The previous
+unpinned series contributes no samples to the restarted baseline.
 
 Pinning application images does not freeze apt/apk repositories, hosted runner
 releases, tools installed by upstream workflows or chart dependency tags. Record
 observable resolved inputs and runner variance; do not claim byte-identical cold
 builds. The root linter Dockerfile is not the image used by the pinned shared CI
 linter, so changing that unrelated input is outside this baseline adjustment.
+
+### P0 measurement correction: 2026-11-06
+
+Use five consecutive successful attempts after the initial cache-priming run,
+with the same source revision, event, cache scope, resolved application images,
+reported build tools and test inventories. Cache imports must be available, but
+cache hits are a measured result, not an inclusion criterion. Retain failures and
+input changes separately and investigate them before completing a comparable
+series. Do not rerun until only favorable timings or perfect cache hits remain.
+
+On the pinned revision, attempt 2 reused every dependency/compile layer. Attempts
+3 and 4 executed frontend CI compilation and backend production compilation/pruning
+again despite successful cache imports. This repeated work is part of the behavior
+issue #475 aims to improve. Selecting only the all-hit attempt would hide it. Preserve
+the original cache-hit classifications in the JSON alongside baseline inclusion.
+The logs establish execution but do not establish the invalidation cause; carry
+that investigation into the cache experiments, without changing caching in P0.
+
+For cache telemetry, `cached` means an explicit BuildKit CACHED marker with no
+observed command output. Parse each main build invocation separately because step
+numbers restart in cache-mount helper builds. A missing CACHED marker can represent
+layer materialization; `command_output_observed` distinguishes visible command
+execution from that case. Cache transfer spans may overlap and are not additive.
+
+The restarted series is revision
+[`7a561944`](https://github.com/cloud-native-aixmarseille/pleey/commit/7a561944cb590b1937f547fe7deb3d6a654f7e17).
+Attempt 1 primes the changed Dockerfile inputs; attempts 2–6 form the baseline.
+Attempt 6 runs on 2026-11-06 after the session interruption. Record its scheduling
+and runner variance alongside the earlier attempts; the revision stays fixed.
+All five attempts passed input checks; the completed results follow.
+
+### Completed P0 baseline: 2026-11-06
+
+All five post-priming attempts passed the active validation jobs on the pinned
+revision above, with matching source/workflow revisions, observed application and
+build-tool image identities, and test-file inventories. Optional jobs disabled by
+the caller remained skipped. The initial priming run is retained separately.
+
+| Attempt                                                                                     | Included    | Cache evidence              | Elapsed | Summed job time | Initial queue |
+| ------------------------------------------------------------------------------------------- | ----------- | --------------------------- | ------- | --------------- | ------------- |
+| [1](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42101244328/attempts/1) | no: priming | partial reuse               | 17m 08s | 30m 55s         | 3s            |
+| [2](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42101244328/attempts/2) | yes         | all dependency/compile hits | 15m 04s | 26m 58s         | 5s            |
+| [3](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42101244328/attempts/3) | yes         | partial reuse               | 15m 00s | 26m 23s         | 5s            |
+| [4](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42101244328/attempts/4) | yes         | partial reuse               | 15m 31s | 26m 41s         | 5s            |
+| [5](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42101244328/attempts/5) | yes         | partial reuse               | 16m 46s | 28m 14s         | 6s            |
+| [6](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42101244328/attempts/6) | yes         | partial reuse               | 15m 44s | 27m 17s         | 5s            |
+
+- Workflow elapsed: median **15m 31s**, range 15m 00s–16m 46s.
+- Summed non-skipped job time: median **26m 58s**, range 26m 23s–28m 14s.
+- Cache behavior: 1 of 5 samples had explicit hits for every dependency/compile step; 4 retained partial reuse.
+
+These are before-change measurements for later comparisons, not an optimization
+gain. Selected job durations include setup and teardown; parallel spans cannot be
+added to estimate workflow elapsed time.
+
+| Job                                                    | Median | Range         |
+| ------------------------------------------------------ | ------ | ------------- |
+| ci / linter / 🧹 Lint Code Base                        | 2m 32s | 2m 26s–2m 39s |
+| ci / build / Build image backend-ci for linux/amd64    | 1m 00s | 0m 54s–2m 10s |
+| ci / build / Build image frontend-ci for linux/amd64   | 1m 10s | 0m 54s–1m 39s |
+| ci / continuous-integration (frontend) / 🧪 Test       | 4m 27s | 3m 33s–5m 31s |
+| ci / continuous-integration (backend) / 🧪 Test        | 1m 42s | 1m 27s–1m 48s |
+| ci / build-prod / Build image frontend for linux/amd64 | 0m 52s | 0m 44s–1m 20s |
+| ci / build-prod / Build image backend for linux/amd64  | 1m 43s | 0m 56s–2m 00s |
+| ci / tests-charts                                      | 3m 10s | 3m 04s–3m 55s |
+
+Discovered files and counts remain 162 backend files (1,218 passed / 60 skipped
+tests) and 228 frontend files (1,178 passed tests). Printed coverage percentages
+vary on unchanged inputs:
+
+| Service  | Statements   | Branches     | Functions    | Lines        |
+| -------- | ------------ | ------------ | ------------ | ------------ |
+| backend  | 75.17–75.18% | 65.91–65.91% | 67.11–67.17% | 76.37–76.39% |
+| frontend | 82.87–83.14% | 75.52–75.74% | 81.86–82.02% | 83.36–83.65% |
+
+The underlying coverage denominator and case-level reports are unavailable in the
+retained artifacts, so these percentages do not prove identical coverage maps.
+Capture those before changing test environments or shards. Peak process memory
+and effective test-worker counts remain unreported. Kind node tags are observed,
+but their resolved digests and mutable chart dependency images are not fully
+emitted; the baseline is not hermetic. The run evidence also retains Prisma
+`P1001` log occurrences before successful chart installation for the planned
+readiness work.
+
+The [evidence bundle](./evidence/0023-ci-baseline.json) links every attempt's job
+and step CSV, input identity, cache observation, printed test/coverage summary and
+runner metadata. Its original strict cache-hit classification remains available
+for comparison with the revised inclusion rule. P0 implementation and PR baseline
+collection are complete; final documentation CI and user review gate P1. Main and
+release measurements follow the publication-safe protocol above after review.
 
 ## Decision Drivers
 
@@ -613,7 +702,8 @@ image bytes, report time, and resource usage. Separate PR, main and release;
 separate warm, cold, dependency-changing and source-changing samples. Measure the
 whole workflow and time to first actionable failure, not just one faster command.
 
-Compare at least five equivalent warm runs before/after each candidate, recording
+Compare at least five consecutive runs after cache priming before/after each
+candidate, retaining cache misses and recording
 median and range. The target for the combined work is at least 10% lower median
 elapsed time for targeted workflows, without increasing median summed job time
 for successful runs. This is an acceptance target, not a predicted saving.

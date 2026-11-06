@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 restarting with pinned application base images; P1–P8 not started
+- Implementation status: P0 implemented and baseline collected; awaiting review; P1–P8 not started
 
 Delivery: one phase per PR, with passing CI and user review before the next phase.
 
@@ -49,7 +49,7 @@ Dockerfiles/configurations and the upstream revisions pinned by those workflows.
 - [x] Capture queue/dispatch and job/step intervals, cache transfer spans, test summaries and teardown for the P0 attempts. [Raw evidence](../architecture/adr/evidence/0023-ci-baseline.json) retains links and limitations of composite-step timing.
 - [x] Calculate attempt elapsed, summed non-skipped job time and first failed-step timing, preserving intervals for critical-path analysis. Failed/cancelled and changed-input attempts are classified separately in the [P0 results](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p0-controlled-pr-evidence-2026-11-05); job-duration sum is not a bill.
 - [x] Pin application Node and Nginx bases to verified multi-platform index digests after the user approved restarting the baseline. Preserve existing Dependabot coverage and document the explicit image-update policy in ADR 0023.
-- [ ] Collect five equivalent warm runs on the new pinned revision. **0/5 new samples:** the earlier unpinned series is superseded and stays separate; exclude priming, failures and changed-input attempts.
+- [x] Collect five consecutive comparable runs after priming on the pinned revision, retaining cache misses per the [measurement correction](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p0-measurement-correction-2026-11-06). **5/5 passed:** median elapsed **15m 31s**, median summed job time **26m 58s**. [Results](../architecture/adr/0023-optimize-ci-execution-and-caching.md#completed-p0-baseline-2026-11-06); priming and unpinned series remain separate.
 
 Read-only collection commands from the root, substituting an observed `RUN_ID`:
 
@@ -112,6 +112,7 @@ with:
 
 **Files:** both Dockerfiles and [.dockerignore](../../../.dockerignore).
 
+- [ ] Reproduce the P0 recompilation on unchanged pinned inputs and identify the invalidation cause; compare cache imports, context inputs and exported records before selecting a fix.
 - [ ] Inspect `npm config get cache` and effective UID/GID in the install stage. Verify `/home/node/.npm` before replacing `/root/.npm` and setting mount ownership.
 - [ ] Keep npm authentication in BuildKit secrets outside cached content. Force an install-layer miss with a scoped lockfile change; confirm download reuse and successful `npm ci`.
 - [ ] Repeat with both layer and mount caches bypassed. Cache absence must not change correctness.
@@ -461,7 +462,7 @@ root Dockerfile/linter configuration.
 
 ## P8: Complete acceptance and documentation
 
-- [ ] Compare at least five equivalent warm samples before/after each retained candidate; report median/range/run links and investigate overlapping timing distributions.
+- [ ] Compare at least five consecutive post-priming samples before/after each retained candidate; retain cache misses, report median/range/run links and investigate overlapping timing distributions.
 - [ ] Meet the combined target: at least 10% lower median elapsed time on targeted workflows without increased median summed successful-job time. Individual small changes need not each save 10%.
 - [ ] Report failed/cancelled-run waste and runner-class compute cost separately.
 - [ ] Complete the correctness matrix below, linking evidence and identifying untested cases explicitly.
