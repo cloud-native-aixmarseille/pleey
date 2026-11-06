@@ -6,6 +6,7 @@ on: # yamllint disable-line rule:truthy
     types: [opened]
   pull_request:
     branches: [main]
+    types: [opened]
 
 permissions: {}
 

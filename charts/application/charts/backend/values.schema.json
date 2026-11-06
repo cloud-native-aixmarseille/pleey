@@ -416,6 +416,28 @@
           }
         }
       ]
+    },
+    "waitForDatabase": {
+      "type": "object",
+      "required": [
+        "enabled",
+        "timeoutSeconds",
+        "resources"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3600
+        },
+        "resources": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
     }
   },
   "allOf": [

@@ -269,12 +269,8 @@ valkey:
   affinity: {}
 waitForDatabase:
   enabled: true
-  image:
-    registry: docker.io
-    repository: busybox
-    tag: "1.37.0"
-    digest: sha256:b8d1827e38a1d49cd17217efd7b07d689e4ea1744e39c7dcbb95533d175bea65
-    pullPolicy: ""
+  # -- Maximum time to wait for the secret and an authenticated database query.
+  timeoutSeconds: 180
   resources:
     limits:
       cpu: 100m
