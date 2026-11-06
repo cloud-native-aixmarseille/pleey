@@ -154,7 +154,8 @@ minimal Node setup if needed.
 - [x] Preserve aliases, plugins, globals, timeout, isolation, mocks and coverage rules. Trial project runs and full-suite runs passed; all 228 files, 1,178 expanded cases and coverage denominators match.
 - [x] Compare the existing 50% limit with four workers on four CPUs. Three worker-only runs passed at 165.53s–186.96s; three subsequent warm-cache two-worker controls passed at 245.88s–247.57s. A separate four-CPU container passed with 2,134,478,848 bytes aggregate peak memory. Local timings remain exploratory; the CI series measures the combined phase.
 - [x] Repeat promising configurations without changing isolation/retries; reject flakes, memory pressure or worse total job time.
-- [x] Record the result before shards: retain four workers based on repeated local controls and memory headroom; the Actions frontend job median is 270s versus 267s, so an isolated Actions worker gain is unproven. The [frontend testing guide](../development/frontend/tooling-and-testing.md) reflects the retained configuration; reassess in P6.
+- [x] Record the result before shards: use `maxWorkers: '100%'` to adapt to available CPUs, preserving four workers on four-CPU hosts. The initial fixed-worker Actions job median is 270s versus 267s, so an isolated Actions worker gain is unproven. The [frontend testing guide](../development/frontend/tooling-and-testing.md) reflects the retained configuration; reassess in P6.
+- [x] Verify CPU-relative sizing at 1, 2, 4, 8 and 12 CPUs and native CLI overrides; record review validation in [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p1-review-cpu-relative-frontend-workers-2026-11-06).
 
 Inventory and validation commands from `application/frontend`:
 
@@ -162,13 +163,13 @@ Inventory and validation commands from `application/frontend`:
 npm exec -- vitest list --filesOnly --json=/tmp/pleey-frontend-files.json
 npm exec -- vitest list --json=/tmp/pleey-frontend-tests.json
 npm run test:ci
-npm run test:ci -- --maxWorkers=2
+npm run test:ci -- --maxWorkers=50%
 npm run lint:ci
 ```
 
-Save baseline/candidate inventories under distinct filenames. Two workers is the
-control setting; four workers is the retained candidate. **Rollback:** restore the
-previous worker limit.
+Save baseline/candidate inventories under distinct filenames. The 50% limit is the
+control setting; 100% is the retained candidate. **Rollback:** restore the previous
+50% worker limit.
 
 ### P1.6: Remove the chart database-startup race
 

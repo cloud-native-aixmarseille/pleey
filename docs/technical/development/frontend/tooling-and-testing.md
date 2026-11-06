@@ -19,7 +19,10 @@ Unit tests are colocated (`*.spec.ts` / `*.spec.tsx`). Screen tests require the 
 The Vitest setup wraps the real `MantineProvider` with `env="test"`, following [Mantine's Vitest guidance](https://mantine.dev/guides/vitest/). This applies to both shared render helpers and app-container providers, keeping dropdowns interactive without browser layout measurements and disabling Mantine transitions in jsdom.
 
 The [Vitest configuration](../../../../application/frontend/vitest.config.js) uses
-jsdom with the shared browser setup and a limit of four workers. `npm run test:ci`
+jsdom with the shared browser setup and `maxWorkers: '100%'`, sizing the worker
+limit from Node's detected available CPU parallelism. On shared or
+memory-constrained machines, lower the limit with
+`npm run test:ci -- --maxWorkers=50%` or an explicit count. `npm run test:ci`
 emits JUnit and LCOV reports. When changing worker limits or test environments,
 repeat CI timings, record CPU/memory limits and peak memory, and compare test
 inventories and coverage denominators. Keep isolation, mocks and coverage inclusion unchanged during
