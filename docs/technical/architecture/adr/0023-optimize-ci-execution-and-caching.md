@@ -972,6 +972,96 @@ tests. Three smoke checks of its actual release input-resolution scripts preserv
 the prepared commit for new/existing tags and rejected a missing target, with no
 write API available. These checks do not claim a hosted release publication.
 
+Hosted preflight passed at `9f35667535c6bdbafeef9879158f5252337934d6` in
+[candidate attempt 1](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42903991722/attempts/1).
+All 23 executed jobs passed, including production images, signing/attestations
+and umbrella-chart installation. Twelve jobs were intentionally skipped; the
+previous workflow executed 27 jobs and skipped four. The application, shared-script
+and chart Git trees are identical to the baseline. Both revisions ran the same
+163 backend test files (1,230 passing tests and 60 existing skips) and 228 frontend
+test files (1,178 passing tests). The candidate also retained native JUnit and
+LCOV artifacts.
+Coverage denominators remained 6,327 lines / 3,511 branches / 1,799 functions for
+the backend and 8,296 / 5,496 / 2,465 for the frontend. Frontend coverage hits varied
+in several UI paths; this is not claimed as a coverage improvement.
+
+The primer used runner 2.338.2 and Ubuntu 24.04 image `20261101.360.1` on both
+revisions. Docker remained 29.7.2; the container release changed Buildx from
+0.36.1 to 0.38.1 and BuildKit from 0.32.2 to 0.34.1. Consequently, the complete
+comparison measures released-tooling adoption, not the parser change alone.
+The baseline primer took 14m 05s elapsed / 24m 27s summed job time with existing
+dependency/compilation hits; the candidate primer took 17m 08s / 28m 21s with
+misses. These priming observations are not a controlled cold-cache comparison.
+Neither primer counts toward the five-sample comparison.
+
+The earlier [candidate run](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42903815717)
+at `daa2ba4d705c62f4aebe88272b99c6427029fda3` was superseded when its commit
+message was wrapped to satisfy Commitlint. Its tree matched the measured
+candidate. It consumed 1m 28s elapsed / 4m 37s summed job time before cancellation
+and remains separate from successful samples.
+
+Real dependency-bot distribution commits remain unverified. Recent successful
+writer runs skipped their commit steps, and no open bot PR was available in
+common, container or publish during this check. These green writer runs do not
+establish that the complete bot-update path works.
+
+### Completed P2 adoption comparison: 2026-11-11
+
+All five alternating pairs passed on November 10 UTC, using the unchanged
+baseline and candidate revisions above. No measured attempts were rejected or
+replaced. Elapsed time runs from the attempt's `run_started_at` to the last job's
+completion, including queue/dependency gaps. Summed job time adds all executed
+jobs, excluding intentional skips; it is not billed runner time.
+
+| Pair | Baseline elapsed                                                                                  | Baseline summed jobs | Candidate elapsed                                                                                 | Candidate summed jobs |
+| ---- | ------------------------------------------------------------------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------------- | --------------------- |
+| 1    | [14m 45s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42250041246/attempts/3) | 25m 06s              | [12m 10s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42903991722/attempts/2) | 21m 48s               |
+| 2    | [14m 20s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42250041246/attempts/4) | 24m 44s              | [12m 10s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42903991722/attempts/3) | 21m 12s               |
+| 3    | [12m 56s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42250041246/attempts/5) | 23m 41s              | [12m 37s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42903991722/attempts/4) | 21m 38s               |
+| 4    | [13m 58s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42250041246/attempts/6) | 24m 35s              | [12m 48s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42903991722/attempts/5) | 22m 19s               |
+| 5    | [12m 17s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42250041246/attempts/7) | 22m 22s              | [12m 17s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42903991722/attempts/6) | 21m 27s               |
+
+The following values are medians with observed ranges:
+
+| Metric                                                     | Baseline                  | Candidate                 |
+| ---------------------------------------------------------- | ------------------------- | ------------------------- |
+| Workflow elapsed                                           | 13m 58s (12m 17s–14m 45s) | 12m 17s (12m 10s–12m 48s) |
+| Summed job time                                            | 24m 35s (22m 22s–25m 06s) | 21m 38s (21m 12s–22m 19s) |
+| Preparation, setup and empty build jobs, both applications | 133s (129–140s)           | 9s (7–12s)                |
+| Backend preparation to first lint/test job                 | 45s (41–46s)              | 8s (6–8s)                 |
+| Frontend preparation to first lint/test job                | 37s (36–41s)              | 6s (6–9s)                 |
+| Backend preparation to test job                            | 83s (75–88s)              | 8s (6–8s)                 |
+| Frontend preparation to test job                           | 67s (61–72s)              | 6s (6–9s)                 |
+| Four parser calls, including startup                       | 14.156s (12.784–16.137s)  | 1.177s (1.105–1.359s)     |
+| Processing inside those parser calls                       | 1.132s (1.024–1.323s)     | 1.126s (1.057–1.309s)     |
+| Four lint/test jobs' action preparation                    | 28s (24–30s)              | 22s (20–23s)              |
+| Native application report preparation/uploads              | 0s                        | 3.262s (3.057–4.226s)     |
+
+Preparation latency starts at the host preparation job's start. Action preparation
+uses the four `Set up job` step durations and includes all action downloads;
+GitHub's logs do not isolate parser-only transfer time. Parser timings use the
+first matching action boundaries, excluding post-job cleanup. Runtime parser
+installs fell from four per run to zero. The new repository-lint artifact upload
+also took 1s per candidate run. All artifact work is included in workflow/job
+totals; the parser row alone does not represent the complete reporting cost.
+
+Every measured run retained dependency/compilation cache hits for all four images.
+Runner images, resolved base-image digests and the per-series tool versions stayed
+fixed. Test-file inventories and coverage denominators matched the preflight
+values throughout. Coverage hit counts varied slightly in both series. Reports,
+production images, signing/attestations and chart installation all passed.
+
+Median elapsed time decreased **12.1%** and median summed job time decreased
+**12.0%**. The elapsed ranges overlap, and the fifth pair tied. Unchanged frontend
+Vitest execution varied from 153.59–239.92s in the baseline and 170.47–220.14s in
+the candidate; Helm job durations also varied (162–232s and 154–221s). These five
+pairs establish the observed adoption result, not an isolated test-runtime gain
+or a guarantee for every run. The directly measured reductions are the removed
+container setup/empty build jobs and parser installation.
+
+Retain the adoption in PR #553 for review. Later cache/publication and DAG phases
+remain separate, and the dependency-bot commit check above remains open.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.
