@@ -3,9 +3,9 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 implemented and awaiting review in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P2–P8 not started
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 implemented; P2.1/P2.2 upstream work released and Pleey adoption in progress in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); remaining P2 and P3–P8 pending
 
-Delivery: one phase per PR, with passing CI and user review before the next phase.
+Delivery: passing CI and user review between phases. At the user's request, P1 and the released P2.1/P2.2 adoption share PR #553; later phases remain separate.
 
 The ADR owns architecture, dated evidence, cache contracts and acceptance
 requirements. This file owns execution and progress. Unchecked items describe planned work. Completed items link the implementation
@@ -202,15 +202,16 @@ independently; unavailable upstream work does not block P1 or P3.
 ### P2.1: Lightweight Node preparation and optional build
 
 **Repository:** `hoverkraft-tech/ci-github-nodejs`.
+Upstream [PR #571](https://github.com/hoverkraft-tech/ci-github-nodejs/pull/571) is merged; [its ADR](https://github.com/hoverkraft-tech/ci-github-nodejs/blob/fbd3522b68c55a6314aadbededaa487825ba9b35/docs/adr/0002-lightweight-ci-preparation.md) records contract tests and controlled measurements. Pleey adoption and measurements are tracked below.
 **Files:** `.github/workflows/continuous-integration.yml`,
 `actions/{build,lint,test}/action.yml` and
 `.github/workflows/__test-workflow-continuous-integration.yml`.
 
-- [ ] Move pure command/environment/artifact/path normalization from container `setup` to lightweight `prepare`, preserving supported input forms/defaults.
-- [ ] Resolve paths lexically in preparation; retain existence/access/workspace-boundary validation in actual application jobs. Host preparation cannot inspect container `/usr/src/app`.
-- [ ] Switch consumers to preparation outputs, then remove the metadata-only container job.
-- [ ] Make build conditional on normalized nonempty commands, preserving `build: ""`. Schedule tests after successful preparation and either intentionally omitted build or successful requested build.
-- [ ] Preserve build-artifact transfer for callers that use it. Validate default/empty/malformed build, missing directory, preparation/build/lint/test failures, optional checks and container/noncontainer callers.
+- [x] Move pure command/environment/artifact/path normalization from container `setup` to lightweight `prepare`, preserving supported input forms/defaults.
+- [x] Resolve paths lexically in preparation; retain existence/access/workspace-boundary validation in actual application jobs. Host preparation cannot inspect container `/usr/src/app`.
+- [x] Switch consumers to preparation outputs, then remove the metadata-only container job.
+- [x] Make build conditional on normalized nonempty commands, preserving `build: ""`. Schedule tests after successful preparation and either intentionally omitted build or successful requested build.
+- [x] Preserve build-artifact transfer for callers that use it. Validate default/empty/malformed build, missing directory, preparation/build/lint/test failures, optional checks and container/noncontainer callers.
 - [ ] Compare prepare-to-first-check latency and summed job time, then adopt the release independently.
 
 **Rollback:** restore the pin on scheduling or artifact-transfer regression.
@@ -218,16 +219,29 @@ independently; unavailable upstream work does not block P1 or P3.
 ### P2.2: Bundle the report parser once
 
 **Repository:** `hoverkraft-tech/ci-github-common`.
-**Files:** `actions/parse-ci-reports/action.yml`, its package/lockfile and `src/**`,
+Upstream [PR #643](https://github.com/hoverkraft-tech/ci-github-common/pull/643) and consumer [PR #588](https://github.com/hoverkraft-tech/ci-github-nodejs/pull/588) are merged. The [released Node integration CI](https://github.com/hoverkraft-tech/ci-github-nodejs/actions/runs/42783148575) passed all 11 report scenarios; Pleey validation remains separate.
+**Files:** `actions/quality/parse-ci-reports/action.yml`, its package/lockfile and `src/**`,
 parser tests and `.github/workflows/__test-action-parse-ci-reports.yml`.
 
-- [ ] Add a reproducible distribution build using upstream conventions, including runtime dependencies/license material; do not assume an existing bundler.
-- [ ] Execute the bundle without action-time dependency installation. Remove setup/`NODE_PATH` only after supported runner/container execution succeeds.
-- [ ] Preserve inputs/outputs, formats, path mapping and annotations. Verify distribution matches source in upstream CI.
-- [ ] Validate supported fixtures, missing/malformed files, rewritten paths and error outputs without parser `node_modules`; preserve original lint/test failure when reporting succeeds. Require explicit report paths to match files, closing the zero-match warning behavior observed in P1.
+- [x] Add a reproducible distribution build using upstream conventions, including runtime dependencies/license material; do not assume an existing bundler.
+- [x] Execute the bundle without action-time dependency installation. Remove setup/`NODE_PATH` only after supported runner/container execution succeeds.
+- [x] Preserve inputs/outputs, formats, path mapping and annotations. Verify distribution matches source in upstream CI.
+- [x] Validate supported fixtures, missing/malformed files, rewritten paths and error outputs without parser `node_modules`; preserve original lint/test failure when reporting succeeds. Require explicit report paths to match files, closing the zero-match warning behavior observed in P1.
 - [ ] Measure startup, processing and download cost. Release upstream, update the consuming Node action pin where necessary, then adopt that release in Pleey.
 
 **Rollback:** restore parser/consumer pins if compatibility regresses.
+
+### P2 adoption validation in Pleey
+
+See the [dated adoption decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p2-released-tooling-adoption-2026-11-10) for released commits, compatibility changes and the measurement protocol.
+
+- [x] Audit all existing callers against the released interfaces, including semantic permissions and the release creation target input.
+- [ ] Validate the candidate locally and in full PR CI, preserving application inventories, reports, signatures/attestations and chart installation.
+- [ ] Collect fresh baseline and candidate series: one priming run plus five consecutive samples each, with unchanged application inputs and recorded runner/tool versions.
+- [ ] Record elapsed time, summed job time, preparation overhead and report overhead; retain failures and cache misses with their classification.
+- [x] Complete nonpublishing release-helper and explicit missing-report failure checks against the released bundles and input-resolution scripts. See the local preflight results in the dated adoption decision; hosted Pleey validation remains separate.
+- [ ] Validate generated distribution commits on real dependency-bot PRs separately; merging the reusable workflow is not end-to-end evidence.
+- [ ] Update PR #553 with the final scope and results, then wait for review before the next optimization phase.
 
 ### P2.3: Remove redundant publication/security setup
 
