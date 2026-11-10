@@ -65,11 +65,15 @@ for the decision and measurement constraints.
 ## Repository Static Linting
 
 Application CI uses the compiled backend/frontend CI images. The shared Node
-workflow runs lint and tests with an empty build command; Docker compilation
-remains the build gate. Biome emits `biome-report.sarif`, and tests emit `junit.xml`
+workflow prepares metadata on the host and omits its build job when the build
+command is empty; Docker compilation remains the build gate. Biome emits
+`biome-report.sarif`, and tests emit `junit.xml`
 and `coverage/lcov.info`. The [shared workflow](../../../.github/workflows/__shared-ci.yml)
 declares these paths and maps absolute container paths and relative test paths to
-the owning application. Keep report producers, consumers and mappings aligned.
+the owning application. Each declared report path must match a file; a missing
+report fails the action. The bundled parser runs without installing its own
+dependencies or changing the application's Node.js version. Keep report
+producers, consumers and mappings aligned.
 
 `make lint` runs both application lint pipelines, then Super-linter with the configurations under `.github/linters/`.
 

@@ -907,6 +907,71 @@ counts. Local checks loaded the actual configuration with CPU affinities of 1, 2
 `2` and `50%` resolved to two and four workers respectively. Full PR checks remain
 the merge gate for the revised configuration.
 
+### P2 released tooling adoption: 2026-11-10
+
+Continue P2.1 and P2.2 in the existing [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553),
+as requested during review. The accepted P1 changes remain in that PR. Later
+optimization phases still require a separate review.
+
+Adopt the following released commits throughout Pleey's CI and release callers:
+
+| Repository          | Previous release | Adopted release                                                                      | Commit                                     |
+| ------------------- | ---------------- | ------------------------------------------------------------------------------------ | ------------------------------------------ |
+| ci-github-common    | 0.39.1           | [4.0.0](https://github.com/hoverkraft-tech/ci-github-common/releases/tag/4.0.0)      | `66882b24f9f13e45a6541896a5a7c638cb91c94c` |
+| ci-github-nodejs    | 1.0.0            | [3.0.0](https://github.com/hoverkraft-tech/ci-github-nodejs/releases/tag/3.0.0)      | `fbd3522b68c55a6314aadbededaa487825ba9b35` |
+| ci-github-container | 0.39.0           | [0.40.0](https://github.com/hoverkraft-tech/ci-github-container/releases/tag/0.40.0) | `ec1cd960fb1a1908ac21680756eb49a4c8f018d5` |
+| ci-github-publish   | 1.0.2            | [3.0.2](https://github.com/hoverkraft-tech/ci-github-publish/releases/tag/3.0.2)     | `4193622a365c0ab0bcbd6645895fd2c3126b72ba` |
+
+Node [PR #571](https://github.com/hoverkraft-tech/ci-github-nodejs/pull/571)
+removes metadata-only container setup and omits empty build jobs. Common
+[PR #643](https://github.com/hoverkraft-tech/ci-github-common/pull/643) and Node
+[PR #588](https://github.com/hoverkraft-tech/ci-github-nodejs/pull/588) provide
+bundled parsing with strict explicit report paths. Their upstream validation is
+recorded in the owning repositories; it does not establish a Pleey timing gain.
+Publish [PR #507](https://github.com/hoverkraft-tech/ci-github-publish/pull/507)
+and container [PR #943](https://github.com/hoverkraft-tech/ci-github-container/pull/943)
+also bundle release helpers. These release-path improvements are outside the PR
+CI timing claim.
+
+Retain the current application commands, source mappings, report paths, image
+build ordering, signing/attestations and chart installation. Missing explicit
+JUnit, LCOV or SARIF files must now fail their producer action. Automatic discovery
+remains an upstream option, but Pleey continues to require its declared reports.
+The omitted build and removed setup jobs change emitted checks; no active branch
+protection or ruleset requires their names at adoption. P3 owns the future gate.
+
+The semantic workflow now needs only `contents: read`. The local Super-Linter
+image follows the shared workflow's pinned 2.0.1 image. Release creation replaces
+the removed `target-sha` input with `target-ref`, preserving the exact prepared
+release commit. Pleey has no custom release configuration or scoped release input,
+so the new partial-configuration and scope rules retain repository-wide defaults.
+Package API changes and distribution-writer input changes have no direct Pleey
+callers. Hosted runners satisfy the native `$/` reference requirement.
+
+Prime the baseline at `559b55a482da5bdda5ecf05f929e30b4263942a0`, then prime
+and validate the adoption candidate. Alternate five baseline/candidate pairs,
+retaining each revision's consecutive samples and any cache misses. Reruns keep
+their original event and commit; the same PR preserves cache scope. Run the pairs
+sequentially to respect PR concurrency and avoid cancelled samples. Record resolved
+tools, runner images and test inventories, and separate failed or changed-input
+attempts. November 6 results remain historical evidence. Local contract checks
+and full hosted CI precede the candidate measurement series.
+Do not publish a release merely to validate the upgraded release actions.
+
+Rollback restores the preceding action pins, local linter image and release input
+together. P2.3–P2.5, DAG parallelization and consolidated report publication are
+separate work; this adoption does not change their status.
+
+Local preflight validation passed for all 18 caller input contracts, unchanged
+shared-job dependencies and application inputs, Actionlint, repository
+Super-Linter, and both applications' module-export and pagination guards.
+The released common 3.0.0 source/bundle contracts passed 29 tests; this is the
+parser version consumed by Node 3.0.0. Common 4.0.0's bundle passed its 20 entrypoint
+tests separately. Publish 3.0.2 passed 17 configuration-bundle tests and 17 planner
+tests. Three smoke checks of its actual release input-resolution scripts preserved
+the prepared commit for new/existing tags and rejected a missing target, with no
+write API available. These checks do not claim a hosted release publication.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.
