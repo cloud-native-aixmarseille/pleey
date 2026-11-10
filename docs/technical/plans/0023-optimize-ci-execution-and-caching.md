@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 implemented; P2.1/P2.2 upstream work released and Pleey adoption in progress in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); remaining P2 and P3–P8 pending
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1/P2.2 adoption implemented and validated in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553), awaiting review; remaining P2 and P3–P8 pending
 
 Delivery: passing CI and user review between phases. At the user's request, P1 and the released P2.1/P2.2 adoption share PR #553; later phases remain separate.
 
@@ -212,7 +212,7 @@ Upstream [PR #571](https://github.com/hoverkraft-tech/ci-github-nodejs/pull/571)
 - [x] Switch consumers to preparation outputs, then remove the metadata-only container job.
 - [x] Make build conditional on normalized nonempty commands, preserving `build: ""`. Schedule tests after successful preparation and either intentionally omitted build or successful requested build.
 - [x] Preserve build-artifact transfer for callers that use it. Validate default/empty/malformed build, missing directory, preparation/build/lint/test failures, optional checks and container/noncontainer callers.
-- [ ] Compare prepare-to-first-check latency and summed job time, then adopt the release independently.
+- [x] Adopt the released Node workflow and compare preparation latency and summed job time in the combined tooling adoption. The [five-pair results](../architecture/adr/0023-optimize-ci-execution-and-caching.md#completed-p2-adoption-comparison-2026-11-11) separate preparation overhead from whole-workflow timing; this is not an isolated Node-only experiment.
 
 **Rollback:** restore the pin on scheduling or artifact-transfer regression.
 
@@ -227,7 +227,7 @@ parser tests and `.github/workflows/__test-action-parse-ci-reports.yml`.
 - [x] Execute the bundle without action-time dependency installation. Remove setup/`NODE_PATH` only after supported runner/container execution succeeds.
 - [x] Preserve inputs/outputs, formats, path mapping and annotations. Verify distribution matches source in upstream CI.
 - [x] Validate supported fixtures, missing/malformed files, rewritten paths and error outputs without parser `node_modules`; preserve original lint/test failure when reporting succeeds. Require explicit report paths to match files, closing the zero-match warning behavior observed in P1.
-- [ ] Measure startup, processing and download cost. Release upstream, update the consuming Node action pin where necessary, then adopt that release in Pleey.
+- [x] Adopt the released parser through Node 3.0.0 and measure startup, processing and total action preparation/download cost. The [comparison](../architecture/adr/0023-optimize-ci-execution-and-caching.md#completed-p2-adoption-comparison-2026-11-11) records the additional artifact work and the limit on isolating parser-only transfer time.
 
 **Rollback:** restore parser/consumer pins if compatibility regresses.
 
@@ -236,12 +236,12 @@ parser tests and `.github/workflows/__test-action-parse-ci-reports.yml`.
 See the [dated adoption decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p2-released-tooling-adoption-2026-11-10) for released commits, compatibility changes and the measurement protocol.
 
 - [x] Audit all existing callers against the released interfaces, including semantic permissions and the release creation target input.
-- [ ] Validate the candidate locally and in full PR CI, preserving application inventories, reports, signatures/attestations and chart installation.
-- [ ] Collect fresh baseline and candidate series: one priming run plus five consecutive samples each, with unchanged application inputs and recorded runner/tool versions.
-- [ ] Record elapsed time, summed job time, preparation overhead and report overhead; retain failures and cache misses with their classification.
+- [x] Validate the candidate locally and in full PR CI, preserving application inventories, reports, signatures/attestations and chart installation. [Candidate attempt 1 passed](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42903991722/attempts/1); the ADR records inventories, coverage denominators and resolved tools.
+- [x] Collect fresh baseline and candidate series: one priming run plus five consecutive samples each, with unchanged application inputs and recorded runner/tool versions. All ten measured runs passed; no samples were replaced.
+- [x] Record elapsed time, summed job time, preparation overhead and report overhead; retain failures and cache misses with their classification. [Median elapsed fell 12.1% and summed job time 12.0%](../architecture/adr/0023-optimize-ci-execution-and-caching.md#completed-p2-adoption-comparison-2026-11-11); overlapping ranges, priming misses and the superseded premeasurement run remain explicit.
 - [x] Complete nonpublishing release-helper and explicit missing-report failure checks against the released bundles and input-resolution scripts. See the local preflight results in the dated adoption decision; hosted Pleey validation remains separate.
 - [ ] Validate generated distribution commits on real dependency-bot PRs separately; merging the reusable workflow is not end-to-end evidence.
-- [ ] Update PR #553 with the final scope and results, then wait for review before the next optimization phase.
+- [x] Update PR #553 with the final scope and results. **Awaiting review** before the next optimization phase.
 
 ### P2.3: Remove redundant publication/security setup
 
