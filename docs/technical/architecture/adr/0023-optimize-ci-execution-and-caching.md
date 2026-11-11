@@ -1091,8 +1091,92 @@ cache scope. Keep cache misses and failed attempts; do not overlap runs because
 PR concurrency cancels superseded runs. Compare publication and attestation setup
 alongside whole-workflow elapsed and summed job times. Record runner/tool versions,
 base digests, application test inventories and coverage denominators. Hosted
-release publication is outside this validation. Adoption validation and the
-comparison are pending; P2.4 starts after review.
+release publication is outside this validation. P2.4 starts after review.
+
+Local validation passed for all eight container callers: their supplied inputs
+and secrets remain valid, and the consumed input/output/secret contracts are
+unchanged. Repository workflow/security/Markdown lint, local documentation links,
+and both applications' module-export and pagination guards passed. The application,
+shared-script and chart Git trees are unchanged from the baseline. Workflow changes
+are limited to the eight release pins; caller permissions and dependencies are
+unchanged.
+
+The candidate revision is `d6bf36652220238f0f188eb4cd69ba2ac3164cad`.
+Both the [baseline primer](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42927672519/attempts/2)
+and [candidate primer](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42992775410/attempts/1)
+passed 23 executed jobs with 12 intentional skips. Their elapsed/summed job times
+were 12m 34s / 21m 54s and 10m 39s / 19m 46s, respectively. Both had warm dependency
+and compilation caches. These priming runs are excluded from the comparison.
+
+Both primers ran the same 163 backend test files (1,230 passing tests and 60
+existing skips) and 228 frontend test files (1,178 passing tests). Coverage
+denominators were 6,327 lines / 3,511 branches / 1,799 functions for the backend
+and 8,296 / 5,496 / 2,465 for the frontend. Image build digests matched the
+attestation subjects and production Helm inputs. Signing, attestations, reports
+and umbrella-chart installation passed. Runner 2.338.2, Ubuntu 24.04 image
+`20261101.360.1`, Docker 29.7.2 and the pinned application bases remained unchanged;
+Buildx/BuildKit changed as described above.
+
+### Completed P2.3 adoption comparison: 2026-11-11
+
+All five alternating pairs passed on the fixed baseline and candidate revisions
+above, after their separate primers. No samples failed, were cancelled or were
+replaced. Each attempt passed 23 executed jobs with 12 intentional skips.
+Elapsed time includes queue/dependency gaps from the attempt's `run_started_at`
+to its last job completion. Summed job time excludes intentional skips and is
+not billed runner time.
+
+| Pair | Baseline elapsed                                                                                  | Baseline summed jobs | Candidate elapsed                                                                                 | Candidate summed jobs |
+| ---- | ------------------------------------------------------------------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------------- | --------------------- |
+| 1    | [13m 24s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42927672519/attempts/3) | 22m 35s              | [11m 26s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42992775410/attempts/2) | 20m 23s               |
+| 2    | [12m 23s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42927672519/attempts/4) | 21m 29s              | [12m 25s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42992775410/attempts/3) | 21m 18s               |
+| 3    | [12m 55s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42927672519/attempts/5) | 22m 01s              | [11m 16s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42992775410/attempts/4) | 19m 43s               |
+| 4    | [12m 30s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42927672519/attempts/6) | 22m 01s              | [9m 51s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42992775410/attempts/5)  | 18m 53s               |
+| 5    | [13m 02s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42927672519/attempts/7) | 22m 41s              | [11m 46s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42992775410/attempts/6) | 20m 39s               |
+
+The following values are medians with observed minimum–maximum ranges. Publication
+rows sum the CI and production publication actions/jobs within each run;
+attestation rows sum the four image attestation setup actions/jobs within each run.
+
+| Metric                              | Baseline                  | Candidate                 |
+| ----------------------------------- | ------------------------- | ------------------------- |
+| Workflow elapsed                    | 12m 55s (12m 23s–13m 24s) | 11m 26s (9m 51s–12m 25s)  |
+| Summed job time                     | 22m 01s (21m 29s–22m 41s) | 20m 23s (18m 53s–21m 18s) |
+| Publication actions                 | 49s (39–60s)              | 4s (3–4s)                 |
+| Publication cleanup                 | 13s (12–13s)              | 1s (0–1s)                 |
+| Publication jobs, including signing | 114s (95–121s)            | 58s (48–70s)              |
+| Attestation registry setup          | 49s (48–55s)              | 5s (4–10s)                |
+| Attestation setup cleanup           | 22s (21–23s)              | 1s (0–1s)                 |
+| Attestation jobs                    | 120s (114–133s)           | 57s (54–77s)              |
+
+Action durations exclude their post steps; whole-job durations include setup,
+signing/attestation and cleanup, but exclude runner queue time. GitHub's step
+timestamps have one-second resolution; zero does not mean no work. Action
+downloads remain part of job setup even when runtime Docker/Buildx setup is skipped.
+
+Runner images, application base digests and each series' source/tool versions
+remained fixed. Test-file inventories and coverage denominators matched the
+primers throughout; coverage hit counts varied slightly in both applications. All recorded
+dependency-install and compilation layers were cache hits, with no mount-cache
+misses or registry-visibility retries. Every run preserved the build digest in
+its attestation subject and production Helm input, and passed signing,
+attestations, reports and chart installation.
+
+Median elapsed time decreased **11.5%**, and median summed job time decreased
+**7.4%**. The elapsed ranges overlap, and pair 2 was effectively tied: the candidate
+finished two seconds later while its unchanged frontend Vitest execution took
+241.65s versus 177.11s. Across all pairs, frontend Vitest execution ranged from
+177.11–242.89s in the baseline and 136.13–244.93s in the candidate; chart jobs ranged
+from 156–225s and 157–213s. The faster fourth candidate also had the shortest
+frontend test execution. These results do not establish a test-runtime improvement
+or guarantee an elapsed-time gain for every run.
+
+Retain 0.41.0: publication and attestation setup savings recur across every pair,
+while the complete comparison also includes the released common/Buildx/BuildKit
+updates. This is a warm-cache PR comparison, not cold-cache, invalidation, main or
+release-publication evidence. Raw logs remain outside the repository; the
+attempt-specific links above identify the measurements. PR #553 is ready for
+review of this adoption. P2.4 cache work remains pending that review.
 
 ### Follow-Up
 
