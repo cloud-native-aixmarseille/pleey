@@ -1314,10 +1314,9 @@ The initial gate passed 63 synthetic shell scenarios before its removal; those
 checks describe that earlier candidate, not current behavior. Full
 [CI at `45ddfc1a`](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43103908128)
 passed with the clarified job names and the aggregate gate still present.
-The subsequent gate removal requires its own final CI check. Neither run is a
-controlled performance comparison; overlap/setup-cost measurements and P3 review
-remain pending. Restore the shared image barrier if the split is not worth its
-cost.
+The subsequent gate removal is validated in the dated entry below. Neither run
+is a controlled performance comparison. Restore the shared image barrier if the
+split is not worth its cost.
 
 The [first candidate run](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43095592017)
 queued without jobs while the fresh baseline stalled at artifact-upload steps.
@@ -1325,6 +1324,69 @@ GitHub reported a [webhook incident](https://www.githubstatus.com/incidents/1h2w
 during that interval; the cause of these individual delays is unconfirmed.
 Exclude those initial runs from performance samples. Raw logs remain outside the
 repository.
+
+### P3 final validation and review: 2026-11-12
+
+The final implementation `015897a150854f4bc8819779a4eb819196676803` passed
+[run 43108346715](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43108346715):
+25 successful jobs and 12 intentional skips. The aggregate job is absent.
+Downloaded logs and reports confirm all four build digests match publication and
+attestation subjects; CI-image digests reach application lint/tests, and production
+digests reach Helm. Signing, module-export/pagination guards and chart installation
+succeeded. Backend retains 1,290 cases (60 skipped); frontend retains 1,178 cases
+(none skipped). LCOV line/branch/function denominators remain 6,327/3,511/1,799
+and 8,296/5,496/2,465 respectively. All four install/compilation layers were cached.
+
+Backend configuration started 10s before the frontend image workflow completed;
+backend lint started 1s before that completion. This verifies independent
+dependencies. The run took 11m14s elapsed and 20m20s summed successful-job time.
+Its two CI-image preparation jobs totalled 10s and publication jobs 33s, compared
+with 4s and 24s for the shared jobs in
+[the earlier warm P2.4 run](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43088688000/attempts/2).
+The split therefore adds two jobs and showed 15s more preparation/publication job
+time in this observation. These runs were not controlled alternating samples;
+they do not establish a net gain or regression. Keep the controlled comparison
+open and make no P3 speedup claim.
+
+The user approved the implementation and authorized the next step on 2026-11-12.
+Record that review separately from the outstanding performance comparison.
+Repository rules and production/release ordering remain unchanged.
+
+### P2.5 candidate-publication increment: 2026-11-12
+
+Split the upstream publication contract into candidate publication and gated
+promotion, with CI and review between increments.
+[Upstream PR #959](https://github.com/hoverkraft-tech/ci-github-container/pull/959)
+and its [ADR 0005](https://github.com/hoverkraft-tech/ci-github-container/blob/feat/candidate-image-promotion/docs/adr/0005-publish-candidates-with-final-image-metadata.md)
+define the first increment. It exposes
+one `candidate: true` workflow setting and generates temporary identities
+internally. Existing `images[].tag` keeps its intended final tag/version meaning;
+normal metadata is resolved before substituting the temporary publication tag.
+This refines the earlier proposal to put temporary identities in `images[].tag`,
+which would otherwise embed a temporary OCI version in the promoted image.
+
+The existing image output carries the digest plus intended destinations, source
+revision and run/attempt identity. These fields describe the build and are not
+proof of successful validation. The promotion increment still needs to verify
+the gate, digests, authorized destinations, current source/run/attempt and
+security evidence; serialize conflicting writers; and define partial-write
+recovery and cleanup. Pleey retains gated production ordering until that complete
+contract is reviewed and released. No candidate mode is adopted by this tracking
+change.
+
+Candidate-specific checks in
+[upstream run 43119465301](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43119465301)
+passed at `26e58f071f97f752a29a84abb5cf2ae3db0725c4`. The existing Docker fixture
+produced signed and attested single/multi-platform candidates. Registry checks
+confirmed the returned digests, intended version `1.2.3`, source/run fields and
+absence of consumer tags. Both signature and GitHub attestation verification
+passed. A deliberately missing build argument failed the build with no image
+output. Local and hosted contracts cover identity isolation, invalid identities,
+duplicate image names and unchanged metadata policy; default-branch and tag-event
+policy use controlled contexts, while real publication was exercised on a PR.
+Generated action/workflow docs, repository lint and relative links passed.
+The upstream PR owns the complete regression-suite status and remains subject to
+review. No application speedup is claimed by this publication foundation.
 
 ### Follow-Up
 
