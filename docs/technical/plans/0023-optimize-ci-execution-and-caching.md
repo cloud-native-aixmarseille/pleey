@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1–P2.3 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P2.4 released in 0.41.1 and adopted with passing first/warm CI; Pleey adoption reviewed; P3 service lanes/gate in progress; P2.5 and P4–P8 pending
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1–P2.3 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P2.4 released in 0.41.1 and adopted with passing first/warm CI; Pleey adoption reviewed; P3 implementation in draft [PR #557](https://github.com/cloud-native-aixmarseille/pleey/pull/557), hosted validation pending; P2.5 and P4–P8 pending
 
 Delivery: passing CI and user review between phases. At the user's request, P1 and released P2 tooling adoption share PR #553; upstream phases are reviewed separately before adoption. Later cache and DAG changes remain separate.
 
@@ -330,13 +330,15 @@ The existing one-image-list API supports this stage. P3 starts before P2.5, as
 allowed by the execution order; P4 still requires both. See the
 [P3 ADR entry](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p3-service-lanes-and-aggregate-gate-2026-11-11).
 
-- [ ] Create explicit backend/frontend CI-image caller jobs, preserving inputs, authentication, security results and digest-qualified output use.
-- [ ] Give each service's Node call only its own image dependency. Keep repository lint and independent checks concurrent.
+- [x] Create explicit backend/frontend CI-image caller jobs, preserving inputs, authentication, security results and digest-qualified output use. Implemented in [PR #557](https://github.com/cloud-native-aixmarseille/pleey/pull/557); local contracts pass.
+- [x] Give each service's Node call only its own image dependency. Keep repository lint and independent checks concurrent.
 - [ ] Confirm one service starts checks before the other image call finishes; compare overlap against duplicated setup/publication cost.
-- [ ] Add stable `ci-result` after all expected validation branches, including current production/chart results. Retain existing production ordering during P3.
-- [ ] Schedule aggregation even when dependencies fail/skip, then explicitly require every expected result to be `success`. Completion alone is insufficient.
+- [x] Add stable `ci-result` after all expected validation branches, including current production/chart results. Retain existing production ordering during P3.
+- [x] Schedule aggregation even when dependencies fail/skip, then explicitly require every expected result to be `success`. Completion alone is insufficient.
+- [x] Run focused local workflow/security/documentation lint and gate checks. The actual shell command passed 63 success/failure/skip/cancellation/missing/malformed-result scenarios; dependency, input, permission and documentation-link checks passed.
+- [ ] Validate full hosted PR CI, image digest handoffs, signing/attestations and application reports. Initial run [43095592017](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43095592017) queued without jobs during the 2026-11-11 GitHub service incident; this is not validation or performance evidence.
 - [ ] Test failure, cancellation, missing/unexpected skip and successful reporting after failed tests; none may pass the gate.
-- [ ] Read the emitted check name from a trial run. If enforcement is absent, enable the verified rule; otherwise require the aggregate alongside existing checks first.
+- [ ] Read the emitted check name from a trial run. After the gate reaches `main`, enable a narrowly scoped required-check rule; otherwise require the aggregate alongside existing enforced checks first. Leave the unrelated disabled ruleset unchanged.
 - [ ] Verify enforcement on a test PR, then retire obsolete required-check entries before deleting/renaming their jobs. Preserve unrelated semantic/security requirements.
 
 **Rollback:** restore dependencies and corresponding enforced check names together;

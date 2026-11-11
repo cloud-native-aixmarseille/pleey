@@ -1311,6 +1311,23 @@ handoffs and reports, and the measured overlap/setup trade-off. Raw logs remain
 outside the repository. Restore the shared CI-image barrier if the split is not
 worth its cost; the aggregate gate can be retained independently.
 
+Implementation is in [PR #557](https://github.com/cloud-native-aixmarseille/pleey/pull/557),
+stacked on #553. Local checks execute the actual gate shell command against 63
+scenarios: all branches successful, each branch failed/skipped/cancelled, missing
+branches/results, invalid results and malformed JSON. Dependency checks verify
+that all shared-workflow branches join the gate. Per-service image/check inputs
+and permissions match the preceding workflow; application, chart, release and
+semantic-check sources are unchanged. Configured Super-Linter and documentation
+link/anchor checks passed.
+
+Hosted validation and the overlap/setup-cost comparison remain pending. The
+[initial candidate run](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43095592017)
+queued without jobs while the fresh baseline stalled at artifact-upload steps.
+GitHub reported a [webhook incident](https://www.githubstatus.com/incidents/1h2wbly1y72t)
+during that interval; the cause of these individual delays is unconfirmed. Do
+not count these initial runs as performance samples. No P3 speedup or hosted
+failure/cancellation behavior has been validated yet. Branch rules are unchanged.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.
