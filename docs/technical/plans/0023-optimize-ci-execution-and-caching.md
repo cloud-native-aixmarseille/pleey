@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1–P2.3 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P2.4 released in 0.41.1 and adopted with passing first/warm CI; Pleey adoption reviewed; P2.5 and P3–P8 pending
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1–P2.3 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P2.4 released in 0.41.1 and adopted with passing first/warm CI; Pleey adoption reviewed; P3 service lanes/gate in progress; P2.5 and P4–P8 pending
 
 Delivery: passing CI and user review between phases. At the user's request, P1 and released P2 tooling adoption share PR #553; upstream phases are reviewed separately before adoption. Later cache and DAG changes remain separate.
 
@@ -326,7 +326,9 @@ builds merely by removing `needs` before this contract is validated.
 **Files:** shared workflow and [PR](../../../.github/workflows/pull-request-ci.yml),
 [main](../../../.github/workflows/main-ci.yml),
 [release](../../../.github/workflows/release.yml) callers; repository rules/settings.
-The existing one-image-list API supports this stage.
+The existing one-image-list API supports this stage. P3 starts before P2.5, as
+allowed by the execution order; P4 still requires both. See the
+[P3 ADR entry](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p3-service-lanes-and-aggregate-gate-2026-11-11).
 
 - [ ] Create explicit backend/frontend CI-image caller jobs, preserving inputs, authentication, security results and digest-qualified output use.
 - [ ] Give each service's Node call only its own image dependency. Keep repository lint and independent checks concurrent.

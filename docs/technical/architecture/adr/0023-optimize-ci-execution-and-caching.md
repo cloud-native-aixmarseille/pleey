@@ -1270,6 +1270,47 @@ invalidation remain outside these PR runs. Restore the preceding release pin if
 consumer behavior regresses. User review of the adoption in PR #553 completed
 on 2026-11-11; the next optimization phase may proceed.
 
+### P3 service lanes and aggregate gate: 2026-11-11
+
+After review of the 0.41.1 adoption, start P3 using the released one-image-list
+API. P3 is independent of P2.5 in the accepted plan. Candidate publication and
+promotion remain prerequisites for P4; this phase retains production builds after
+both applications finish validation.
+
+Replace the shared CI-image matrix barrier with explicit `backend-ci` and
+`frontend-ci` workflow calls. Each application's Node workflow depends only on
+its own image workflow, including signing and attestation. Preserve all image
+inputs, digest-qualified references, report paths and permissions. The extra
+prepare/publication job has a cost: measure complete runs and service start times
+before deciding whether to retain the split.
+
+Add `ci-result` after all seven expected branches: repository lint, both CI image
+calls, both application checks, production publication and Helm installation.
+Schedule the gate with `always()` and require every result to be `success`.
+Failures, cancellation, skips, missing results and malformed result data must fail
+closed. Keep the gate independent of checkout, packages, registry access and
+network calls, with a short timeout. The shared workflow's existing production
+output remains unchanged, and release consumers continue waiting for the whole
+shared workflow.
+
+Allow PR CI for all target branches so the phase can be reviewed as a separate
+stacked PR on top of #553. The previous `main` target filter prevented that CI.
+Keep the existing per-PR cancellation policy and semantic PR check.
+
+On 2026-11-11, classic protection for `main` returned "Branch not protected", the
+`default-branch` ruleset remained disabled, and the effective branch rules were
+empty. Do not activate an unrelated disabled ruleset or require a check absent
+from `main`. Read the actual emitted check name from this phase's CI and prepare
+a narrowly scoped status-check rule. Activate it after the gate reaches `main`,
+then verify enforcement on a PR before marking P3 complete. No merge is authorized
+by this phase. Preserve unrelated semantic/security settings.
+
+Validation must cover the exact gate command with success and negative results,
+all workflow dependencies and caller contracts, full PR CI with immutable image
+handoffs and reports, and the measured overlap/setup trade-off. Raw logs remain
+outside the repository. Restore the shared CI-image barrier if the split is not
+worth its cost; the aggregate gate can be retained independently.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.
