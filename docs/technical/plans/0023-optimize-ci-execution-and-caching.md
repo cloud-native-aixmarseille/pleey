@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1–P2.3 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P2.4 upstream PR #957 validated and awaiting review/release; P2.5 and P3–P8 pending
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1–P2.3 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P2.4 upstream PR #957 narrowed to internal mount-cache fixes and validated; review/release pending; P2.5 and P3–P8 pending
 
 Delivery: passing CI and user review between phases. At the user's request, P1 and released P2 tooling adoption share PR #553; upstream phases are reviewed separately before adoption. Later cache and DAG changes remain separate.
 
@@ -275,26 +275,28 @@ defines the separate Pleey validation and comparison.
 
 Upstream implementation: [PR #957](https://github.com/hoverkraft-tech/ci-github-container/pull/957).
 Its [ADR](https://github.com/hoverkraft-tech/ci-github-container/blob/perf/cache-reuse-invalidation/docs/adr/0004-scope-build-cache-imports-and-mount-snapshots.md)
-records the cache controls, snapshot identity and validation. Historical compilation
-misses remain unresolved; recent controlled Pleey runs did not reproduce them.
-Keep `max` as the default: the local fixture comparison establishes no application
-or GHA transfer benefit from changing it. Pleey still uses container 0.41.0 until
-this upstream change is reviewed and released.
+owns the revised design and distinguishes earlier-proposal evidence from current
+validation. Review on 2026-11-11 narrowed this phase to internal fixes with no new
+public inputs. Pleey keeps container 0.41.0 until upstream review and release.
 
-- [x] Validate upstream controls and synthetic cache lifecycle in [CI run 43018820554](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43018820554): 174 successful jobs, 10 intentional skips. This covers seed, cross-image imports for both modes, dependency refresh, exact restore, bypass and failure propagation; live read-only triggers and application installers remain separate validation.
+- [x] Remove the proposed raw import, export-mode and dependency-pattern inputs, including per-image overrides. Keep the released public interface and `max` export mode.
+- [x] Isolate mount snapshots by image/context/target/platform/Dockerfile/build arguments, including separate local directories. Remove fallbacks that discard identity.
+- [x] Use restore-only access and skip extraction on read-only GHA triggers. Preserve extraction before builder teardown, exact-hit reuse and cache bypass.
+- [x] Validate the revised candidate's contracts, independent-runner snapshot restore/isolation, bypass and failed builds, plus existing integration tests. [CI run 43046729837](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43046729837) passed 172 jobs with 10 intentional skips, without reruns. Controlled contexts cover read-only event policy; live untrusted events and application installers remain untested.
+- [x] Simplify cache usage documentation and retain the rejected proposal's dated evidence in the upstream ADR.
+- [x] Submit the narrowed PR #957 for review with passing implementation CI. The upstream ADR records the revised candidate separately from the rejected proposal.
+- [ ] After review/release, adopt its released pin in PR #553 without new caller settings. Validate application behavior; do not claim a speedup from fixture correctness checks.
 
-- [ ] Trace unchanged-input layer misses recorded in P0/P1 before selecting an invalidation fix; capture source checksums and imported/exported cache records upstream.
-- [x] Expose validated additional import/export-mode controls through all layers, retaining defaults, bypass and read-only-trigger behavior. Implemented upstream in PR #957; consumer adoption follows review/release.
-- [ ] Let production import its own cache plus its service's CI cache. Preserve separate exporter scopes and permitted branch access.
-- [x] Retain Dockerfile fingerprinting and add lockfile/toolchain fingerprinting to mount keys. Preserve application/target/platform/toolchain identity in restore prefixes; fix fallbacks that discard it. Implemented upstream in PR #957; consumer adoption follows review/release.
-- [x] Ensure dependency changes permit a refreshed download snapshot rather than an obsolete immutable exact hit; keep extraction before builder teardown. Implemented upstream in PR #957; consumer adoption follows review/release.
-- [ ] Test exact/partial hits, changed dependency/toolchain/Dockerfile, cold/bypass, read-only triggers and failed builds. Confirm `npm ci` runs when its layer is invalidated.
-- [ ] Compare production `min`/`max` using total import/build/export time, sizes, hits and eviction. Keep CI's full reusable graph and adopt only beneficial combinations.
-- [x] Document scopes, writer boundaries, freshness and targeted recovery. Do not broadly cache installed dependencies, generated outputs or validation decisions. Implemented upstream in PR #957; consumer adoption follows review/release.
-- [ ] After upstream review/release, adopt the new controls and each application's lockfile pattern in PR #553; validate warm, cold and changed-input behavior and measure application-level import/build/export cost.
+**Deferred work:**
 
-**Rollback:** disable new controls independently; cache absence remains supported.
-Registry caching is a conditional P7 experiment.
+- [ ] Trace historical unchanged-input compilation misses if reproduced; recent controlled Pleey runs retained those layers. Do not attribute them to mount freshness without evidence.
+- [ ] Design cross-image reuse around at most a source-image relationship, with branch/registry/platform resolution inside the workflow. Keep separate exporters and permitted branch access.
+- [ ] Find a justified automatic dependency-refresh strategy before implementation. Exact mount snapshots currently do not refresh on dependency-only changes; avoid a brittle Dockerfile parser or package-manager heuristics.
+- [ ] Revisit export-mode tuning only if representative total import/build/export measurements justify it. The local fixture showed no meaningful size benefit from `min`.
+
+**Rollback:** restore the released pin or use the existing cache bypass. Old mount
+snapshots start cold once after adoption. Registry caching remains a conditional
+P7 experiment; P2.4's deferred features are not prerequisites for P3 service lanes.
 
 ### P2.5: Candidate publication and exact-digest promotion
 
