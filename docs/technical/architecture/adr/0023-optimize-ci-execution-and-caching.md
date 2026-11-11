@@ -109,8 +109,9 @@ Workflow ordering, application commands, cache configuration and charts remain u
 | Independent PR checks      | Existing semantic-title and workflow/security checks remain visible alongside shared CI                                                       |
 
 Existing code-query/dependency-review options disabled in the caller are not new
-required checks. A passing aggregate enforcement rule does not yet exist; P3 adds
-it after validating failure behavior. Current repository rules remain unchanged.
+required checks. No aggregate enforcement rule existed at baseline. The original
+plan assigned it to P3; the [P3 scope adjustment](#p3-service-lanes-2026-11-11)
+defers it until candidate-promotion work. Repository rules remain unchanged.
 
 The initial phase PR run validates the inputs and primes its cache. Collect
 five comparable successful attempts of an unchanged revision and event. Inspect
@@ -1270,7 +1271,7 @@ invalidation remain outside these PR runs. Restore the preceding release pin if
 consumer behavior regresses. User review of the adoption in PR #553 completed
 on 2026-11-11; the next optimization phase may proceed.
 
-### P3 service lanes and aggregate gate: 2026-11-11
+### P3 service lanes: 2026-11-11
 
 After review of the 0.41.1 adoption, start P3 using the released one-image-list
 API. P3 is independent of P2.5 in the accepted plan. Candidate publication and
@@ -1278,60 +1279,52 @@ promotion remain prerequisites for P4; this phase retains production builds afte
 both applications finish validation.
 
 Replace the shared CI-image matrix barrier with explicit
-`build-backend-ci-image` and `build-frontend-ci-image` workflow calls. The `check-backend` and `check-frontend`
-jobs display as "Lint and test backend" and "Lint and test frontend". Each
-application's Node workflow depends only on its own image workflow, including
-signing and attestation. Preserve all image
-inputs, digest-qualified references, report paths and permissions. The extra
+`build-backend-ci-image` and `build-frontend-ci-image` workflow calls. The
+`check-backend` and `check-frontend` jobs display as "Lint and test backend" and
+"Lint and test frontend". Each application's Node workflow depends only on its
+own image workflow, including signing and attestation. Preserve image inputs,
+digest-qualified references, report paths and permissions. The extra
 prepare/publication job has a cost: measure complete runs and service start times
 before deciding whether to retain the split.
 
-Add `ci-result` after all seven expected branches: repository lint, both CI image
-calls, both application checks, production publication and Helm installation.
-Schedule the gate with `always()` and require every result to be `success`.
-Failures, cancellation, skips, missing results and malformed result data must fail
-closed. Keep the gate independent of checkout, packages, registry access and
-network calls, with a short timeout. The shared workflow's existing production
-output remains unchanged, and release consumers continue waiting for the whole
-shared workflow.
+The initial P3 candidate also added `ci-result` to aggregate all seven validation
+branches. On 2026-11-11, the user requested its removal for now: required-check
+enforcement was not configured, and the job does not enable service parallelism.
+This supersedes the aggregate-gate portion of P3. Revisit the gate with its
+required-check rollout before enabling candidate promotion in P4. The existing
+production output and release dependencies remain unchanged.
 
-Following the user's delivery clarification on 2026-11-11, continue Pleey phases
-in existing PR #553, with CI and user review between phases. This supersedes the
-separate-PR delivery rule for Pleey while #553 remains open; upstream changes
-remain separate. The initial stacked draft #557 is superseded by this update.
-Keep the existing `main` PR target filter, per-PR cancellation policy and semantic
-PR check; the broader trigger introduced only for the stacked draft is removed.
+Continue Pleey phases in existing PR #553, with CI and user review between
+phases, following the user's delivery clarification on 2026-11-11. This
+supersedes separate-PR delivery for Pleey while #553 remains open; upstream
+changes remain separate. The initial stacked draft #557 is closed. Keep the
+existing `main` PR target filter, cancellation policy and semantic PR check.
 
-On 2026-11-11, classic protection for `main` returned "Branch not protected", the
-`default-branch` ruleset remained disabled, and the effective branch rules were
-empty. Do not activate an unrelated disabled ruleset or require a check absent
-from `main`. Read the actual emitted check name from this phase's CI and prepare
-a narrowly scoped status-check rule. Activate it after the gate reaches `main`,
-then verify enforcement on a PR before marking P3 complete. No merge is authorized
-by this phase. Preserve unrelated semantic/security settings.
-
-Validation must cover the exact gate command with success and negative results,
-all workflow dependencies and caller contracts, full PR CI with immutable image
-handoffs and reports, and the measured overlap/setup trade-off. Raw logs remain
-outside the repository. Restore the shared CI-image barrier if the split is not
-worth its cost; the aggregate gate can be retained independently.
+The 2026-11-11 protection inspection found no classic protection or effective
+rules for `main`; the unrelated `default-branch` ruleset remained disabled.
+No repository rule was changed during P3.
 
 Implementation is in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553).
-Local checks execute the actual gate shell command against 63
-scenarios: all branches successful, each branch failed/skipped/cancelled, missing
-branches/results, invalid results and malformed JSON. Dependency checks verify
-that all shared-workflow branches join the gate. Per-service image/check inputs
-and permissions match the preceding workflow; application, chart, release and
-semantic-check sources are unchanged. Configured Super-Linter and documentation
-link/anchor checks passed.
+Local contract checks verify independent per-service dependencies, unchanged
+image/check inputs and permissions, and production/release handoffs. Configured
+Super-Linter and documentation link/anchor checks passed. Application, chart,
+release and semantic-check sources are unchanged.
 
-Hosted validation and the overlap/setup-cost comparison remain pending. The
-[initial candidate run](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43095592017)
+The initial gate passed 63 synthetic shell scenarios before its removal; those
+checks describe that earlier candidate, not current behavior. Full
+[CI at `45ddfc1a`](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43103908128)
+passed with the clarified job names and the aggregate gate still present.
+The subsequent gate removal requires its own final CI check. Neither run is a
+controlled performance comparison; overlap/setup-cost measurements and P3 review
+remain pending. Restore the shared image barrier if the split is not worth its
+cost.
+
+The [first candidate run](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43095592017)
 queued without jobs while the fresh baseline stalled at artifact-upload steps.
 GitHub reported a [webhook incident](https://www.githubstatus.com/incidents/1h2wbly1y72t)
-during that interval; the cause of these individual delays is unconfirmed. Do
-not count these initial runs as performance samples. No P3 speedup or hosted
-failure/cancellation behavior has been validated yet. Branch rules are unchanged.
+during that interval; the cause of these individual delays is unconfirmed.
+Exclude those initial runs from performance samples. Raw logs remain outside the
+repository.
 
 ### Follow-Up
 
