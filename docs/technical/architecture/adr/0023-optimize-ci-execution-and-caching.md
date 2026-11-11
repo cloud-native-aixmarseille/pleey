@@ -433,17 +433,17 @@ Translate the intended DAG into the following dependencies. These are proposed
 job names, not existing workflow inputs; candidate publication still requires the
 contract described above.
 
-| Proposed jobs                                  | Required predecessors (`needs`)                                               | Work that can overlap                                                                                     |
-| ---------------------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `repository-lint`, `backend-ci`, `frontend-ci` | None beyond resolved workflow inputs                                          | Repository checks and both service builds. Existing independent semantic/security checks remain parallel. |
-| `backend-lint`, `backend-tests`                | `backend-ci`                                                                  | Each other, frontend checks, and backend candidate production.                                            |
-| `frontend-lint`, `frontend-tests`              | `frontend-ci`                                                                 | Each other, backend checks, and frontend candidate production. Tests may become a shard matrix.           |
-| `backend-candidate`                            | `backend-ci`                                                                  | Application lint/tests and frontend candidate production.                                                 |
-| `frontend-candidate`                           | `frontend-ci`                                                                 | Application lint/tests and backend candidate production.                                                  |
-| `frontend-reports` when sharded                | Every `frontend-tests` matrix entry                                           | Backend checks and candidate/chart work. Merge only after all shard results are available.                |
-| `chart-install`                                | `backend-candidate`, `frontend-candidate`                                     | Remaining application tests, lint, and report aggregation.                                                |
-| `ci-result`                                    | Every expected validation branch, report merge, and candidate/security result | Final aggregation only; require success rather than merely completion.                                    |
-| `promote`                                      | `ci-result`, `backend-candidate`, `frontend-candidate`                        | No early publication; consume the tested digest outputs directly.                                         |
+| Proposed jobs                                                          | Required predecessors (`needs`)                                               | Work that can overlap                                                                                     |
+| ---------------------------------------------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `repository-lint`, `build-backend-ci-image`, `build-frontend-ci-image` | None beyond resolved workflow inputs                                          | Repository checks and both service builds. Existing independent semantic/security checks remain parallel. |
+| `backend-lint`, `backend-tests`                                        | `build-backend-ci-image`                                                      | Each other, frontend checks, and backend candidate production.                                            |
+| `frontend-lint`, `frontend-tests`                                      | `build-frontend-ci-image`                                                     | Each other, backend checks, and frontend candidate production. Tests may become a shard matrix.           |
+| `backend-candidate`                                                    | `build-backend-ci-image`                                                      | Application lint/tests and frontend candidate production.                                                 |
+| `frontend-candidate`                                                   | `build-frontend-ci-image`                                                     | Application lint/tests and backend candidate production.                                                  |
+| `frontend-reports` when sharded                                        | Every `frontend-tests` matrix entry                                           | Backend checks and candidate/chart work. Merge only after all shard results are available.                |
+| `chart-install`                                                        | `backend-candidate`, `frontend-candidate`                                     | Remaining application tests, lint, and report aggregation.                                                |
+| `ci-result`                                                            | Every expected validation branch, report merge, and candidate/security result | Final aggregation only; require success rather than merely completion.                                    |
+| `promote`                                                              | `ci-result`, `backend-candidate`, `frontend-candidate`                        | No early publication; consume the tested digest outputs directly.                                         |
 
 Lint and tests already overlap after the current Node setup/build gates. The
 change removes those unnecessary prerequisites for prebuilt images and the wait
@@ -1277,9 +1277,11 @@ API. P3 is independent of P2.5 in the accepted plan. Candidate publication and
 promotion remain prerequisites for P4; this phase retains production builds after
 both applications finish validation.
 
-Replace the shared CI-image matrix barrier with explicit `backend-ci` and
-`frontend-ci` workflow calls. Each application's Node workflow depends only on
-its own image workflow, including signing and attestation. Preserve all image
+Replace the shared CI-image matrix barrier with explicit
+`build-backend-ci-image` and `build-frontend-ci-image` workflow calls. The `check-backend` and `check-frontend`
+jobs display as "Lint and test backend" and "Lint and test frontend". Each
+application's Node workflow depends only on its own image workflow, including
+signing and attestation. Preserve all image
 inputs, digest-qualified references, report paths and permissions. The extra
 prepare/publication job has a cost: measure complete runs and service start times
 before deciding whether to retain the split.

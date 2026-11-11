@@ -64,10 +64,11 @@ for the decision and measurement constraints.
 
 ## Repository Static Linting
 
-Application CI uses the compiled backend/frontend CI images. Each application
-starts its checks after its own image workflow completes, including signing and
-attestation. The shared Node workflow prepares metadata on the host and omits its build job when the build
-command is empty; Docker compilation remains the build gate. Biome emits
+The `build-backend-ci-image` and `build-frontend-ci-image` jobs compile, publish,
+sign and attest the application CI images. The `check-backend` and
+`check-frontend` jobs run lint and tests after their own image workflow completes.
+The shared Node workflow prepares metadata on the host and omits its build job
+when the build command is empty; Docker compilation remains the build gate. Biome emits
 `biome-report.sarif`, and tests emit `junit.xml`
 and `coverage/lcov.info`. The [shared workflow](../../../.github/workflows/__shared-ci.yml)
 declares these paths and maps absolute container paths and relative test paths to
