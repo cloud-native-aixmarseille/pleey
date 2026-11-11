@@ -1188,7 +1188,7 @@ review of this adoption. P2.4 cache work remains pending that review.
 The user reviewed PR #553 and authorized P2.4. The first version of upstream
 [PR #957](https://github.com/hoverkraft-tech/ci-github-container/pull/957) proposed
 additional imports, export-mode selection and dependency-aware mount snapshots.
-Its [ADR 0004](https://github.com/hoverkraft-tech/ci-github-container/blob/perf/cache-reuse-invalidation/docs/adr/0004-scope-build-cache-imports-and-mount-snapshots.md)
+Its [ADR 0004](https://github.com/hoverkraft-tech/ci-github-container/blob/79ab741d853f0cb8efd0823b497882c2d5995fc1/docs/adr/0004-scope-build-cache-imports-and-mount-snapshots.md)
 preserves that proposal's fixture measurements and hosted validation as history.
 
 Review rejected the caller burden of raw BuildKit scopes, dependency patterns and
@@ -1235,15 +1235,40 @@ configuration or runtime requirement is introduced. Mount snapshots use the new
 exact identity and start cold once; layer-cache configuration remains unchanged.
 Dependency-only snapshot refresh and cross-image imports remain deferred.
 
-Validate consumed contracts and repository lint locally, then full Pleey PR CI
-and a same-commit warm rerun. Inspect all four build identities, cache misses and
-saves on the first run, exact restoration on the rerun, unchanged application
-inventories/reports, signing/attestation and chart installation. These runs verify
-adoption correctness, not a speedup or a new controlled performance comparison.
-Do not classify a first mount miss as a fully cold layer-cache build. Main and
-release publication and live untrusted triggers remain outside this PR evidence.
-Restore the preceding release pin if consumer behavior regresses. Submit the
-adoption for review before P2.5 or later DAG work.
+The adoption candidate is `d03193a9b48dac5107a04586375bcc8fb5ed4241`.
+All eight consumed input/output/secret contracts, repository workflow/security/
+Markdown lint and local documentation links passed. Both applications' module-export
+and pagination guards passed in their CI images; the bare local checkout lacked
+the TypeScript/GraphQL dependencies required to run those guards.
+
+Both full CI attempts passed **23 jobs with 12 intentional skips** on the same
+commit. The timings below describe these correctness checks only; they are not a
+controlled performance comparison or a speedup estimate.
+
+| Attempt                                                                                     | Mount state                    | Elapsed | Summed successful jobs |
+| ------------------------------------------------------------------------------------------- | ------------------------------ | ------- | ---------------------- |
+| [1](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43088688000/attempts/1) | Four new keys missed and saved | 11m 37s | 20m 39s                |
+| [2](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43088688000/attempts/2) | Four exact keys restored       | 10m 10s | 19m 30s                |
+
+Backend/frontend CI and production builds used four distinct mount snapshots.
+The second attempt restored the same key for each build, set `skip-extraction`
+to `true` and did not save an existing snapshot again. All dependency-install and
+compilation layers were cache hits in both attempts. This validates mount-key
+initialization and exact restoration, not fully cold builds or re-executed package
+installers; upstream fixture tests cover restored mount contents.
+
+JUnit inventories, existing skips and LCOV denominators matched both attempts and
+the [P2.3 primer inventories](#p23-released-container-adoption-2026-11-11).
+Lint, reports, signing, attestations and umbrella-chart installation passed.
+Each build digest matched its publication output and attestation subject, and both
+production digests reached Helm's installation inputs. Raw logs and reports remain
+outside the repository; the attempt-specific links identify the tested evidence.
+
+No application speedup or fix for historical compilation misses is claimed.
+Main/release publication, live untrusted triggers and application dependency-change
+invalidation remain outside these PR runs. Restore the preceding release pin if
+consumer behavior regresses. The adoption is ready for review in PR #553;
+P2.5 and later DAG work remain pending that review.
 
 ### Follow-Up
 
