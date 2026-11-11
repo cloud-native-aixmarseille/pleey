@@ -330,8 +330,8 @@ The existing one-image-list API supports this stage. P3 starts before P2.5, as
 allowed by the execution order; P4 still requires both. See the
 [P3 ADR entry](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p3-service-lanes-and-aggregate-gate-2026-11-11).
 
-- [x] Create explicit backend/frontend CI-image caller jobs, preserving inputs, authentication, security results and digest-qualified output use. Implemented in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); local contracts pass.
-- [x] Give each service's Node call only its own image dependency. Keep repository lint and independent checks concurrent.
+- [x] Create `build-backend-ci-image` and `build-frontend-ci-image` caller jobs, preserving inputs, authentication, security results and digest-qualified output use. Implemented in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); local contracts pass.
+- [x] Give `check-backend` and `check-frontend` only their own image dependencies. Keep repository lint and independent checks concurrent.
 - [ ] Confirm one service starts checks before the other image call finishes; compare overlap against duplicated setup/publication cost.
 - [x] Add stable `ci-result` after all expected validation branches, including current production/chart results. Retain existing production ordering during P3.
 - [x] Schedule aggregation even when dependencies fail/skip, then explicitly require every expected result to be `success`. Completion alone is insufficient.
