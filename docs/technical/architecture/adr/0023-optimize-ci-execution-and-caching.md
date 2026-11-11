@@ -1267,8 +1267,8 @@ outside the repository; the attempt-specific links identify the tested evidence.
 No application speedup or fix for historical compilation misses is claimed.
 Main/release publication, live untrusted triggers and application dependency-change
 invalidation remain outside these PR runs. Restore the preceding release pin if
-consumer behavior regresses. The adoption is ready for review in PR #553;
-P2.5 and later DAG work remain pending that review.
+consumer behavior regresses. User review of the adoption in PR #553 completed
+on 2026-11-11; the next optimization phase may proceed.
 
 ### Follow-Up
 

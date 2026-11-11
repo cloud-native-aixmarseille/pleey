@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1–P2.3 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P2.4 released in 0.41.1 and adopted with passing first/warm CI; Pleey adoption review pending; P2.5 and P3–P8 pending
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1–P2.3 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P2.4 released in 0.41.1 and adopted with passing first/warm CI; Pleey adoption reviewed; P2.5 and P3–P8 pending
 
 Delivery: passing CI and user review between phases. At the user's request, P1 and released P2 tooling adoption share PR #553; upstream phases are reviewed separately before adoption. Later cache and DAG changes remain separate.
 
@@ -290,7 +290,7 @@ defines Pleey's first-run and warm-rerun correctness checks.
 - [x] Submit the narrowed PR #957 for review with passing implementation CI. The upstream ADR records the revised candidate separately from the rejected proposal.
 - [x] Verify reviewed PR #957 is merged and release 0.41.1 points to `79ab741d853f0cb8efd0823b497882c2d5995fc1`; update all eight existing pins in PR #553 without new caller settings.
 - [x] Validate consumed contracts, full application CI and a same-commit warm rerun; record exact snapshot isolation/restoration and submit the adoption for review. [Both attempts](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p24-released-container-adoption-2026-11-11) passed 23 jobs with 12 intentional skips; all four new mount keys were saved and then restored exactly. Application inventories, coverage denominators and digest handoffs were preserved. No speedup is claimed.
-- [ ] Review the released P2.4 adoption in PR #553 before starting P2.5 or later DAG work.
+- [x] Review the released P2.4 adoption in PR #553 before starting P2.5 or later DAG work. User review completed on 2026-11-11.
 
 **Deferred work:**
 
