@@ -561,6 +561,11 @@ parallelize memory-heavy TypeScript checks or remove architecture guards.
 
 ### Build, dependency, and artifact caches
 
+The targets below retain the original decision. The
+[P2.4 review](#p24-upstream-cache-review-2026-11-11) narrows the current implementation
+to internal mount isolation and read-only write protection; cross-image imports,
+dependency refresh and export-mode tuning remain deferred.
+
 Retain the existing GitHub Actions layer backend initially. Add upstream controls
 for production to import both its own and its application's CI cache, while keeping
 distinct target/platform/branch export scopes. Preserve `mode=max` on the CI graph;
@@ -1178,22 +1183,40 @@ release-publication evidence. Raw logs remain outside the repository; the
 attempt-specific links above identify the measurements. PR #553 is ready for
 review of this adoption. P2.4 cache work remains pending that review.
 
-### P2.4 upstream cache controls: 2026-11-11
+### P2.4 upstream cache review: 2026-11-11
 
-The user reviewed PR #553 and authorized P2.4. Upstream
-[PR #957](https://github.com/hoverkraft-tech/ci-github-container/pull/957) implements
+The user reviewed PR #553 and authorized P2.4. The first version of upstream
+[PR #957](https://github.com/hoverkraft-tech/ci-github-container/pull/957) proposed
 additional imports, export-mode selection and dependency-aware mount snapshots.
 Its [ADR 0004](https://github.com/hoverkraft-tech/ci-github-container/blob/perf/cache-reuse-invalidation/docs/adr/0004-scope-build-cache-imports-and-mount-snapshots.md)
-owns the design, fixture measurements and hosted validation. Only the mount-key
-format is versioned anew; existing per-image/branch/platform layer exporter scopes
-remain intact. No observed collision justifies discarding the existing layer caches.
+preserves that proposal's fixture measurements and hosted validation as history.
+
+Review rejected the caller burden of raw BuildKit scopes, dependency patterns and
+multiple override levels. The user approved narrowing this PR to internal mount
+isolation and read-only write protection, with no new public inputs. Exact keys
+retain image/context/target/platform/Dockerfile/build-argument identity; separate
+local directories prevent different builds sharing snapshot files. Remove broad
+fallbacks. Existing layer scopes, export mode and extraction-before-teardown
+ordering remain unchanged. The revised candidate
+`db0967b3f0980818d8ac53b10fcf755a1324270f` passed
+[CI run 43046729837](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43046729837):
+172 successful jobs and 10 intentional skips, without reruns. The upstream ADR
+records exact restoration, image isolation, bypass, failure propagation and
+save-before-teardown observations. Read-only policy uses controlled contexts;
+live untrusted events and real application installers remain untested.
+
+Cross-image reuse and automatic dependency refresh remain deferred. A future
+cross-image interface should expose at most the source-image relationship and
+resolve cache details internally. Dependency-only changes still do not refresh an
+immutable mount snapshot. Do not replace configuration burden with a fragile
+Dockerfile parser. Keep `max`: the earlier fixture did not establish a GHA or
+application benefit for `min`.
 
 Historical unchanged-input compilation misses remain unresolved, and the recent
-controlled Pleey comparison did not reproduce them. Do not attribute those misses
-to mount-snapshot freshness. Keep `max` by default; the local fixture does not
-establish a GHA or application benefit for `min`. Pleey adoption, lockfile patterns
-and application-level changed-input comparisons follow upstream review and release.
-P2.5 and later DAG phases remain pending.
+controlled Pleey comparison did not reproduce them. No application speedup or
+compilation-miss fix is claimed. Adoption follows upstream review and release
+without new caller settings; Pleey continues using 0.41.0. P2.5 and later DAG
+phases remain pending, and P3 does not depend on the deferred cache features.
 
 ### Follow-Up
 
