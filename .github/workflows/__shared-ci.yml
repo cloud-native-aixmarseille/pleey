@@ -33,7 +33,7 @@ jobs:
         VALIDATE_BIOME_LINT=false
         KUBERNETES_KUBECONFORM_OPTIONS=-ignore-missing-schemas -ignore-filename-pattern .*Chart\.yaml -ignore-filename-pattern .*values.*\.yaml -ignore-filename-pattern .*values\.schema\.json -ignore-filename-pattern charts/.*/templates/.* -ignore-filename-pattern charts/.*/crds/.*
 
-  build:
+  backend-ci:
     uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@79ab741d853f0cb8efd0823b497882c2d5995fc1 # 0.41.1
     permissions:
       attestations: write
@@ -54,25 +54,14 @@ jobs:
             "build-args": { "APP_PATH": "./application/backend/" },
             "target": "ci",
             "platforms": ["linux/amd64"]
-          },
-          {
-            "name": "frontend-ci",
-            "context": ".",
-            "dockerfile": "./application/frontend/Dockerfile",
-            "build-args": { "APP_PATH": "./application/frontend/" },
-            "target": "ci",
-            "platforms": ["linux/amd64"]
           }
         ]
     secrets:
       oci-registry-password: ${{ secrets.GITHUB_TOKEN }}
 
-  continuous-integration:
-    strategy:
-      matrix:
-        service: ["backend", "frontend"]
+  backend-checks:
     uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@fbd3522b68c55a6314aadbededaa487825ba9b35 # 3.0.0
-    needs: build
+    needs: backend-ci
     permissions:
       contents: read
       id-token: write
@@ -86,14 +75,71 @@ jobs:
       test: '{"command":"test:ci","report-file":"junit.xml,coverage/lcov.info"}'
       container: |
         {
-          "image": ${{ toJSON(fromJSON(needs.build.outputs.built-images)[format('{0}-ci', matrix.service)].images[0]) }},
+          "image": ${{ toJSON(fromJSON(needs.backend-ci.outputs.built-images)['backend-ci'].images[0]) }},
           "credentials": {
             "username": ${{ toJson(github.repository_owner) }}
           },
           "pathMapping": {
-            "/usr/src/app": ${{ toJson(format('./application/{0}', matrix.service)) }},
-            "src/": ${{ toJson(format('./application/{0}/src/', matrix.service)) }},
-            "scripts/": ${{ toJson(format('./application/{0}/scripts/', matrix.service)) }}
+            "/usr/src/app": "./application/backend",
+            "src/": "./application/backend/src/",
+            "scripts/": "./application/backend/scripts/"
+          }
+        }
+      code-ql: "" # FIXME: Set `typescript` when CodeQL will be available (paid feature)
+      dependency-review: false # FIXME: Set `true` when Dependency Review will be available (paid feature)
+    secrets:
+      container-password: ${{ secrets.GITHUB_TOKEN }}
+
+  frontend-ci:
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@79ab741d853f0cb8efd0823b497882c2d5995fc1 # 0.41.1
+    permissions:
+      attestations: write
+      contents: read
+      packages: write
+      issues: read
+      pull-requests: read
+      id-token: write
+    with:
+      oci-registry: ${{ vars.OCI_REGISTRY }}
+      oci-registry-username: ${{ github.repository_owner }}
+      images: |
+        [
+          {
+            "name": "frontend-ci",
+            "context": ".",
+            "dockerfile": "./application/frontend/Dockerfile",
+            "build-args": { "APP_PATH": "./application/frontend/" },
+            "target": "ci",
+            "platforms": ["linux/amd64"]
+          }
+        ]
+    secrets:
+      oci-registry-password: ${{ secrets.GITHUB_TOKEN }}
+
+  frontend-checks:
+    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@fbd3522b68c55a6314aadbededaa487825ba9b35 # 3.0.0
+    needs: frontend-ci
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+      security-events: write
+      packages: read
+    with:
+      working-directory: /usr/src/app
+      build: ""
+      lint: '{"command":"lint:ci","report-file":"biome-report.sarif"}'
+      test: '{"command":"test:ci","report-file":"junit.xml,coverage/lcov.info"}'
+      container: |
+        {
+          "image": ${{ toJSON(fromJSON(needs.frontend-ci.outputs.built-images)['frontend-ci'].images[0]) }},
+          "credentials": {
+            "username": ${{ toJson(github.repository_owner) }}
+          },
+          "pathMapping": {
+            "/usr/src/app": "./application/frontend",
+            "src/": "./application/frontend/src/",
+            "scripts/": "./application/frontend/scripts/"
           }
         }
       code-ql: "" # FIXME: Set `typescript` when CodeQL will be available (paid feature)
@@ -103,7 +149,7 @@ jobs:
 
   build-prod:
     uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@79ab741d853f0cb8efd0823b497882c2d5995fc1 # 0.41.1
-    needs: continuous-integration
+    needs: [backend-checks, frontend-checks]
     permissions:
       attestations: write
       contents: read
@@ -166,3 +212,25 @@ jobs:
           oci-registry: ${{ vars.OCI_REGISTRY }}
           oci-registry-username: ${{ github.repository_owner }}
           oci-registry-password: ${{ github.token }}
+
+  ci-result:
+    name: ci-result
+    if: ${{ always() }}
+    needs:
+      - linter
+      - backend-ci
+      - frontend-ci
+      - backend-checks
+      - frontend-checks
+      - build-prod
+      - tests-charts
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+      - name: Require every validation branch to succeed
+        env:
+          CI_RESULTS: ${{ toJSON(needs) }}
+        shell: bash
+        run: |
+          jq -r 'to_entries[] | "\(.key): \(.value.result)"' <<< "$CI_RESULTS"
+          jq -e 'type == "object" and length == 7 and all(.[]; .result == "success")' <<< "$CI_RESULTS" > /dev/null
