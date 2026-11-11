@@ -64,8 +64,9 @@ for the decision and measurement constraints.
 
 ## Repository Static Linting
 
-Application CI uses the compiled backend/frontend CI images. The shared Node
-workflow prepares metadata on the host and omits its build job when the build
+Application CI uses the compiled backend/frontend CI images. Each application
+starts its checks after its own image workflow completes, including signing and
+attestation. The shared Node workflow prepares metadata on the host and omits its build job when the build
 command is empty; Docker compilation remains the build gate. Biome emits
 `biome-report.sarif`, and tests emit `junit.xml`
 and `coverage/lcov.info`. The [shared workflow](../../../.github/workflows/__shared-ci.yml)
@@ -74,6 +75,12 @@ the owning application. Each declared report path must match a file; a missing
 report fails the action. The bundled parser runs without installing its own
 dependencies or changing the application's Node.js version. Keep report
 producers, consumers and mappings aligned.
+
+The `ci-result` job requires successful repository lint, both CI image workflows,
+both application workflows, production publication and Helm installation. It
+runs after failed or skipped dependencies and fails if any expected result is
+missing or unsuccessful. Production builds wait for both application workflows;
+release steps wait for the entire shared workflow.
 
 `make lint` runs both application lint pipelines, then Super-linter with the configurations under `.github/linters/`.
 
