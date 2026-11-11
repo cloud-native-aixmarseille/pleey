@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1–P2.3 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P2.4 released in 0.41.1 and adopted with passing first/warm CI; Pleey adoption reviewed; P3 implementation in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553), hosted validation pending; P2.5 and P4–P8 pending
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1–P2.4 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P3 implementation reviewed with passing final CI and report/digest checks, controlled performance comparison pending; P2.5 candidate-publication increment implemented upstream, review pending; promotion and P4–P8 pending
 
 Delivery: passing CI and user review between phases. At the user's request, continue Pleey implementation in existing PR #553, including P3 and subsequent Pleey phases while that PR remains open. Upstream phases are reviewed in their own PRs before adoption.
 
@@ -309,9 +309,18 @@ P7 experiment; P2.4's deferred features are not prerequisites for P3 service lan
 **Files:** metadata/build/publication actions and a proposed promotion entrypoint
 whose name/interface will be chosen upstream.
 
-- [ ] Reuse existing `images[].tag` for run/attempt-scoped candidate tags; verify normal/latest tags are suppressed. A new forced-tag input is unnecessary.
-- [ ] Separate temporary tags from intended destinations and final OCI version/release metadata; check the current forced-tag metadata derivation.
-- [ ] Return digest, source/build identity, destination plan and verification evidence in a documented contract.
+Deliver P2.5 in two reviewable increments: candidate publication, then gated
+promotion. Candidate publication is proposed in
+[upstream PR #959](https://github.com/hoverkraft-tech/ci-github-container/pull/959).
+The [2026-11-12 refinement](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p25-candidate-publication-increment-2026-11-12)
+keeps `images[].tag` as the intended final version and lets the workflow generate
+temporary identities behind one opt-in mode. Pleey adoption waits for both.
+
+- [x] Add opt-in candidate publication with repository/run/attempt/call isolation; verify normal/latest tags are untouched without caller-generated identities. Implemented in upstream PR #959; metadata contracts and hosted registry checks passed.
+- [x] Preserve intended destinations and final OCI version/release metadata, including the existing forced final tag. Hosted single/multi-platform candidates retain version `1.2.3`; event-derived metadata is compared with normal mode.
+- [x] Return the digest, source revision, run identity and destinations through the existing output; validate single/multi-platform publication and retained signatures/attestations. [Candidate-specific CI checks](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43119465301) passed on `26e58f07`, including failed builds without output. Build identity is not validation evidence; upstream review and promotion remain pending.
+- [ ] Review the candidate-publication increment before implementing promotion.
+- [ ] Bind verification evidence to the candidate contract for promotion.
 - [ ] Promote the tested digest without rebuilding/changing manifest bytes, retaining signatures/provenance.
 - [ ] Require a successful gate; reject missing/different digests, stale run/attempt evidence, incomplete destinations and unauthorized repositories.
 - [ ] Define reruns, cancellation, superseded runs, idempotency and partial-tag failures. Prevent an older run replacing a newer validated destination.
@@ -332,11 +341,12 @@ allowed by the execution order; P4 still requires both. See the
 
 - [x] Create `build-backend-ci-image` and `build-frontend-ci-image` caller jobs, preserving inputs, authentication, security results and digest-qualified output use. Implemented in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); local contracts pass.
 - [x] Give `check-backend` and `check-frontend` only their own image dependencies. Keep repository lint and independent checks concurrent.
-- [ ] Confirm one service starts checks before the other image call finishes; compare overlap against duplicated setup/publication cost.
+- [x] Confirm independent scheduling and record the initial overlap/setup observations. Backend checks started 1s before frontend image completion; summed CI-image preparation/publication took 43s versus 28s in an earlier warm P2.4 run. This is an uncontrolled observation, not demonstrated net benefit; see the [final P3 evidence](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p3-final-validation-and-review-2026-11-12).
+- [ ] Complete a controlled overlap/setup-cost comparison before claiming a P3 performance improvement.
 - [x] Run focused local workflow/security/documentation lint and contract checks, covering dependencies, inputs, permissions and documentation links.
 - [x] Validate hosted PR CI with the clarified job names. [Run 43103908128](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43103908128) passed before removal of the aggregate job.
-- [ ] Validate final hosted CI after cleanup, image digest handoffs, signing/attestations and application reports.
-- [ ] Review P3 with its overlap/setup-cost comparison before proceeding.
+- [x] Validate final hosted CI after cleanup, image digest handoffs, signing/attestations and application reports. [Run 43108346715](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43108346715) passed 25 jobs with 12 intentional skips; inventories and coverage denominators match.
+- [x] Record user review of the P3 implementation in PR #553 on 2026-11-12 and authorization to continue. Controlled performance validation remains open above.
 
 The aggregate job and required-check rollout are deferred at the user's request.
 Revisit them before candidate promotion in P4. No repository rules change in P3.
