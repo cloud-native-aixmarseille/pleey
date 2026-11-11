@@ -216,25 +216,3 @@ jobs:
           oci-registry: ${{ vars.OCI_REGISTRY }}
           oci-registry-username: ${{ github.repository_owner }}
           oci-registry-password: ${{ github.token }}
-
-  ci-result:
-    name: ci-result
-    if: ${{ always() }}
-    needs:
-      - linter
-      - build-backend-ci-image
-      - build-frontend-ci-image
-      - check-backend
-      - check-frontend
-      - build-prod
-      - tests-charts
-    runs-on: ubuntu-latest
-    timeout-minutes: 1
-    steps:
-      - name: Require every validation branch to succeed
-        env:
-          CI_RESULTS: ${{ toJSON(needs) }}
-        shell: bash
-        run: |
-          jq -r 'to_entries[] | "\(.key): \(.value.result)"' <<< "$CI_RESULTS"
-          jq -e 'type == "object" and length == 7 and all(.[]; .result == "success")' <<< "$CI_RESULTS" > /dev/null

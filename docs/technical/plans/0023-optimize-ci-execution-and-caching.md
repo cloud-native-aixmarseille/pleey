@@ -23,8 +23,8 @@ through its existing generator.
 | P0: Baseline                         | Pleey / GitHub Actions                      | ADR agreement                       | Comparable inputs, timings and check inventory      |
 | P1: Local reductions                 | Pleey                                       | P0                                  | Independent build/report, frontend and Helm results |
 | P2: Shared tooling                   | Node/common/container upstream repositories | P0; parallel with P1                | Contract tests and reviewed pinned releases         |
-| P3: Service lanes and required gate  | Pleey                                       | P0; current upstream API suffices   | Actual overlap and enforced aggregate result        |
-| P4: Candidate DAG                    | Pleey + container tooling                   | P2.5 promotion contract and P3 gate | Tested digests promoted only after validation       |
+| P3: Service lanes                    | Pleey                                       | P0; current upstream API suffices   | Actual overlap and measured setup cost              |
+| P4: Candidate DAG                    | Pleey + container tooling                   | P2.5, P3 and promotion gate         | Tested digests promoted only after validation       |
 | P5: Parallel operations within a job | Pleey / container tooling                   | Profiled independent operations     | Correct joins, cleanup and measured overlap         |
 | P6: Frontend shards                  | Pleey + Node tooling                        | P1.5 tuning and updated DAG timings | Complete merged results and net benefit             |
 | P7: Remaining experiments            | Relevant repository                         | Updated bottleneck measurements     | Adopt/reject/defer result per experiment            |
@@ -32,7 +32,7 @@ through its existing generator.
 
 P1's workflow/build, frontend and Helm work can proceed independently, as can
 P2's Node, common and container work. P3 need not wait for all upstream changes.
-P4 must wait for the publication contract. P5 does not depend on P4. Start P6
+P4 must wait for the publication contract and its validation gate. P5 does not depend on P4. Start P6
 only if tests still determine completion time after earlier optimizations.
 
 ## P0: Establish a reproducible baseline
@@ -321,33 +321,38 @@ whose name/interface will be chosen upstream.
 **Rollback:** retain/restore gated production ordering. Do not enable speculative
 builds merely by removing `needs` before this contract is validated.
 
-## P3: Parallelize service jobs and introduce the required gate
+## P3: Parallelize service jobs
 
 **Files:** shared workflow and [PR](../../../.github/workflows/pull-request-ci.yml),
 [main](../../../.github/workflows/main-ci.yml),
-[release](../../../.github/workflows/release.yml) callers; repository rules/settings.
+[release](../../../.github/workflows/release.yml) callers.
 The existing one-image-list API supports this stage. P3 starts before P2.5, as
 allowed by the execution order; P4 still requires both. See the
-[P3 ADR entry](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p3-service-lanes-and-aggregate-gate-2026-11-11).
+[P3 ADR entry](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p3-service-lanes-2026-11-11).
 
 - [x] Create `build-backend-ci-image` and `build-frontend-ci-image` caller jobs, preserving inputs, authentication, security results and digest-qualified output use. Implemented in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); local contracts pass.
 - [x] Give `check-backend` and `check-frontend` only their own image dependencies. Keep repository lint and independent checks concurrent.
 - [ ] Confirm one service starts checks before the other image call finishes; compare overlap against duplicated setup/publication cost.
-- [x] Add stable `ci-result` after all expected validation branches, including current production/chart results. Retain existing production ordering during P3.
-- [x] Schedule aggregation even when dependencies fail/skip, then explicitly require every expected result to be `success`. Completion alone is insufficient.
-- [x] Run focused local workflow/security/documentation lint and gate checks. The actual shell command passed 63 success/failure/skip/cancellation/missing/malformed-result scenarios; dependency, input, permission and documentation-link checks passed.
-- [ ] Validate full hosted PR CI, image digest handoffs, signing/attestations and application reports. Initial run [43095592017](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43095592017) queued without jobs during the 2026-11-11 GitHub service incident; this is not validation or performance evidence.
-- [ ] Test failure, cancellation, missing/unexpected skip and successful reporting after failed tests; none may pass the gate.
-- [ ] Read the emitted check name from a trial run. After the gate reaches `main`, enable a narrowly scoped required-check rule; otherwise require the aggregate alongside existing enforced checks first. Leave the unrelated disabled ruleset unchanged.
-- [ ] Verify enforcement on a test PR, then retire obsolete required-check entries before deleting/renaming their jobs. Preserve unrelated semantic/security requirements.
+- [x] Run focused local workflow/security/documentation lint and contract checks, covering dependencies, inputs, permissions and documentation links.
+- [x] Validate hosted PR CI with the clarified job names. [Run 43103908128](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43103908128) passed before removal of the aggregate job.
+- [ ] Validate final hosted CI after cleanup, image digest handoffs, signing/attestations and application reports.
+- [ ] Review P3 with its overlap/setup-cost comparison before proceeding.
 
-**Rollback:** restore dependencies and corresponding enforced check names together;
-never leave an absent job as the only required check.
+The aggregate job and required-check rollout are deferred at the user's request.
+Revisit them before candidate promotion in P4. No repository rules change in P3.
+The ADR preserves the earlier gate checks and incident-affected initial runs as
+historical evidence.
+
+**Rollback:** restore the shared CI-image barrier and matching application
+workflow dependencies.
 
 ## P4: Overlap candidates and Helm with application checks
 
 **Prerequisites:** P2.5 and P3. **Files:** shared workflow, release caller and adopted
 promotion interface. Follow the [ADR DAG](../architecture/adr/0023-optimize-ci-execution-and-caching.md#execution-graph-and-publication-gates).
+
+- [ ] Revisit and implement the aggregate validation gate with its required-check rollout before enabling candidate promotion. Schedule aggregation after failures/skips and require every expected result to be `success`.
+- [ ] Verify the emitted check name in CI; enable its narrowly scoped required-check rule once the gate exists on `main`, preserving unrelated semantic/security settings. Verify enforcement on a PR before retiring any existing required checks.
 
 - [ ] Start each production candidate after its CI image alongside its lint/tests, importing the permitted completed CI cache.
 - [ ] Supply candidate identity and planned final metadata; verify consumer tags stay unchanged while validation is pending.

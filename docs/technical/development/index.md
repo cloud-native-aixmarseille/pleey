@@ -77,11 +77,8 @@ report fails the action. The bundled parser runs without installing its own
 dependencies or changing the application's Node.js version. Keep report
 producers, consumers and mappings aligned.
 
-The `ci-result` job requires successful repository lint, both CI image workflows,
-both application workflows, production publication and Helm installation. It
-runs after failed or skipped dependencies and fails if any expected result is
-missing or unsuccessful. Production builds wait for both application workflows;
-release steps wait for the entire shared workflow.
+Production builds wait for both application workflows; release steps wait for
+the entire shared workflow.
 
 `make lint` runs both application lint pipelines, then Super-linter with the configurations under `.github/linters/`.
 
