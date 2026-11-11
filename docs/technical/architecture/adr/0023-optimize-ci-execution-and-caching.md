@@ -1062,6 +1062,38 @@ container setup/empty build jobs and parser installation.
 Retain the adoption in PR #553 for review. Later cache/publication and DAG phases
 remain separate, and the dependency-bot commit check above remains open.
 
+### P2.3 released container adoption: 2026-11-11
+
+Adopt [container 0.41.0](https://github.com/hoverkraft-tech/ci-github-container/releases/tag/0.41.0)
+at `bb7e3e5891e27a155182332537774b8653cf3531` in the existing PR #553.
+The reviewed upstream [PR #953](https://github.com/hoverkraft-tech/ci-github-container/pull/953)
+reuses validated single-platform build digests and skips redundant Docker/Buildx
+setup for publication and attestation. Multi-platform assembly and tag-only
+inspection retain their toolchain setup. Registry authentication, signing,
+attestation subjects and the `built-images` contract remain required. The
+[upstream decision and evidence](https://github.com/hoverkraft-tech/ci-github-container/blob/bb7e3e5891e27a155182332537774b8653cf3531/docs/adr/0003-reuse-build-digests-and-limit-publication-setup.md)
+record the implementation and its limitations.
+
+Update all eight existing container action/workflow references together. Preserve
+Pleey's application inputs, job dependencies, cache settings, image tags,
+permissions and chart-install checks. This adoption requires no new caller inputs.
+Rollback restores the preceding 0.40.0 pin; cache and DAG changes remain separate.
+
+The release also adopts common 4.1.0 and updates Buildx 0.38.1 to 0.38.2 and
+BuildKit 0.34.1 to 0.34.2. Whole-workflow measurements therefore describe the
+released container-tooling adoption, not an isolated publication optimization.
+The earlier P2 comparison above remains historical evidence for 0.40.0.
+
+Use the unchanged PR head `9fad2adf81b16a7530a5bbe2f19337c6354fd3a9` as the
+baseline. Prime its existing PR workflow and the adoption candidate separately,
+then alternate five baseline/candidate pairs on fixed revisions and the same PR
+cache scope. Keep cache misses and failed attempts; do not overlap runs because
+PR concurrency cancels superseded runs. Compare publication and attestation setup
+alongside whole-workflow elapsed and summed job times. Record runner/tool versions,
+base digests, application test inventories and coverage denominators. Hosted
+release publication is outside this validation. Adoption validation and the
+comparison are pending; P2.4 starts after review.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.
