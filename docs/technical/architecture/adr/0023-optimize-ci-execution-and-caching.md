@@ -1178,6 +1178,23 @@ release-publication evidence. Raw logs remain outside the repository; the
 attempt-specific links above identify the measurements. PR #553 is ready for
 review of this adoption. P2.4 cache work remains pending that review.
 
+### P2.4 upstream cache controls: 2026-11-11
+
+The user reviewed PR #553 and authorized P2.4. Upstream
+[PR #957](https://github.com/hoverkraft-tech/ci-github-container/pull/957) implements
+additional imports, export-mode selection and dependency-aware mount snapshots.
+Its [ADR 0004](https://github.com/hoverkraft-tech/ci-github-container/blob/perf/cache-reuse-invalidation/docs/adr/0004-scope-build-cache-imports-and-mount-snapshots.md)
+owns the design, fixture measurements and hosted validation. Only the mount-key
+format is versioned anew; existing per-image/branch/platform layer exporter scopes
+remain intact. No observed collision justifies discarding the existing layer caches.
+
+Historical unchanged-input compilation misses remain unresolved, and the recent
+controlled Pleey comparison did not reproduce them. Do not attribute those misses
+to mount-snapshot freshness. Keep `max` by default; the local fixture does not
+establish a GHA or application benefit for `min`. Pleey adoption, lockfile patterns
+and application-level changed-input comparisons follow upstream review and release.
+P2.5 and later DAG phases remain pending.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.

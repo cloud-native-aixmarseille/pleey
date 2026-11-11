@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1–P2.3 adoption implemented and validated in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553), awaiting review; P2.4/P2.5 and P3–P8 pending
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1–P2.3 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P2.4 upstream PR #957 validated and awaiting review/release; P2.5 and P3–P8 pending
 
 Delivery: passing CI and user review between phases. At the user's request, P1 and released P2 tooling adoption share PR #553; upstream phases are reviewed separately before adoption. Later cache and DAG changes remain separate.
 
@@ -241,7 +241,7 @@ See the [dated adoption decision](../architecture/adr/0023-optimize-ci-execution
 - [x] Record elapsed time, summed job time, preparation overhead and report overhead; retain failures and cache misses with their classification. [Median elapsed fell 12.1% and summed job time 12.0%](../architecture/adr/0023-optimize-ci-execution-and-caching.md#completed-p2-adoption-comparison-2026-11-11); overlapping ranges, priming misses and the superseded premeasurement run remain explicit.
 - [x] Complete nonpublishing release-helper and explicit missing-report failure checks against the released bundles and input-resolution scripts. See the local preflight results in the dated adoption decision; hosted Pleey validation remains separate.
 - [ ] Validate generated distribution commits on real dependency-bot PRs separately; merging the reusable workflow is not end-to-end evidence.
-- [x] Update PR #553 with the final scope and results. **Awaiting review** before the next optimization phase.
+- [x] Update PR #553 with the final scope and results. **Reviewed on 2026-11-11** as part of PR #553.
 
 ### P2.3: Remove redundant publication/security setup
 
@@ -263,7 +263,7 @@ defines the separate Pleey validation and comparison.
 - [x] Record upstream publication/security setup observations with their limitations in the [upstream ADR](https://github.com/hoverkraft-tech/ci-github-container/blob/bb7e3e5891e27a155182332537774b8653cf3531/docs/adr/0003-reuse-build-digests-and-limit-publication-setup.md).
 - [x] Adopt the released pin in Pleey and validate full PR CI, preserving digests, signing, attestations, reports and chart installation. The [candidate primer](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42992775410/attempts/1) passed all 23 executed jobs; the ADR records input, inventory and digest-handoff checks.
 - [x] Compare five post-priming baseline/candidate pairs, including publication/security setup and total elapsed/summed job time; keep toolchain changes explicit. All ten runs passed. [Median elapsed fell 11.5% and summed job time 7.4%](../architecture/adr/0023-optimize-ci-execution-and-caching.md#completed-p23-adoption-comparison-2026-11-11); overlapping elapsed ranges, the tied second pair and frontend variability remain explicit.
-- [x] Record final evidence and submit the updated PR #553 for review before P2.4. **Awaiting review**; cache and DAG phases remain separate.
+- [x] Record final evidence and submit the updated PR #553 for review before P2.4. **Reviewed on 2026-11-11**; P2.4 follows separately.
 
 **Rollback:** restore the pin on digest/output/security regression.
 
@@ -273,14 +273,25 @@ defines the separate Pleey validation and comparison.
 **Files:** container workflow, `actions/docker/build-image/action.yml`,
 `actions/docker/build-image/internal/action.yml` and caching integration workflow.
 
+Upstream implementation: [PR #957](https://github.com/hoverkraft-tech/ci-github-container/pull/957).
+Its [ADR](https://github.com/hoverkraft-tech/ci-github-container/blob/perf/cache-reuse-invalidation/docs/adr/0004-scope-build-cache-imports-and-mount-snapshots.md)
+records the cache controls, snapshot identity and validation. Historical compilation
+misses remain unresolved; recent controlled Pleey runs did not reproduce them.
+Keep `max` as the default: the local fixture comparison establishes no application
+or GHA transfer benefit from changing it. Pleey still uses container 0.41.0 until
+this upstream change is reviewed and released.
+
+- [x] Validate upstream controls and synthetic cache lifecycle in [CI run 43018820554](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43018820554): 174 successful jobs, 10 intentional skips. This covers seed, cross-image imports for both modes, dependency refresh, exact restore, bypass and failure propagation; live read-only triggers and application installers remain separate validation.
+
 - [ ] Trace unchanged-input layer misses recorded in P0/P1 before selecting an invalidation fix; capture source checksums and imported/exported cache records upstream.
-- [ ] Expose validated additional import/export-mode controls through all layers, retaining defaults, bypass and read-only-trigger behavior.
-- [ ] Let production import its own cache plus its service's CI cache. Preserve separate versioned exporter scopes and permitted branch access.
-- [ ] Retain Dockerfile fingerprinting and add lockfile/toolchain fingerprinting to mount keys. Preserve application/target/platform/toolchain identity in restore prefixes; fix fallbacks that discard it.
-- [ ] Ensure dependency changes permit a refreshed download snapshot rather than an obsolete immutable exact hit; keep extraction before builder teardown.
+- [x] Expose validated additional import/export-mode controls through all layers, retaining defaults, bypass and read-only-trigger behavior. Implemented upstream in PR #957; consumer adoption follows review/release.
+- [ ] Let production import its own cache plus its service's CI cache. Preserve separate exporter scopes and permitted branch access.
+- [x] Retain Dockerfile fingerprinting and add lockfile/toolchain fingerprinting to mount keys. Preserve application/target/platform/toolchain identity in restore prefixes; fix fallbacks that discard it. Implemented upstream in PR #957; consumer adoption follows review/release.
+- [x] Ensure dependency changes permit a refreshed download snapshot rather than an obsolete immutable exact hit; keep extraction before builder teardown. Implemented upstream in PR #957; consumer adoption follows review/release.
 - [ ] Test exact/partial hits, changed dependency/toolchain/Dockerfile, cold/bypass, read-only triggers and failed builds. Confirm `npm ci` runs when its layer is invalidated.
 - [ ] Compare production `min`/`max` using total import/build/export time, sizes, hits and eviction. Keep CI's full reusable graph and adopt only beneficial combinations.
-- [ ] Document scopes, writer boundaries, freshness and targeted recovery. Do not broadly cache installed dependencies, generated outputs or validation decisions.
+- [x] Document scopes, writer boundaries, freshness and targeted recovery. Do not broadly cache installed dependencies, generated outputs or validation decisions. Implemented upstream in PR #957; consumer adoption follows review/release.
+- [ ] After upstream review/release, adopt the new controls and each application's lockfile pattern in PR #553; validate warm, cold and changed-input behavior and measure application-level import/build/export cost.
 
 **Rollback:** disable new controls independently; cache absence remains supported.
 Registry caching is a conditional P7 experiment.
