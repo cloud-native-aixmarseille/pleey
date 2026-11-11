@@ -1218,6 +1218,33 @@ compilation-miss fix is claimed. Adoption follows upstream review and release
 without new caller settings; Pleey continues using 0.41.0. P2.5 and later DAG
 phases remain pending, and P3 does not depend on the deferred cache features.
 
+### P2.4 released-container adoption: 2026-11-11
+
+Adopt [container 0.41.1](https://github.com/hoverkraft-tech/ci-github-container/releases/tag/0.41.1)
+at `79ab741d853f0cb8efd0823b497882c2d5995fc1`, the merged commit of reviewed
+[PR #957](https://github.com/hoverkraft-tech/ci-github-container/pull/957).
+The [release comparison](https://github.com/hoverkraft-tech/ci-github-container/compare/0.41.0...0.41.1)
+contains the narrowed cache fix and its documentation/tests. The
+[released cache guide](https://github.com/hoverkraft-tech/ci-github-container/blob/79ab741d853f0cb8efd0823b497882c2d5995fc1/actions/docker/build-image/README.md#build-caches)
+and [upstream ADR](https://github.com/hoverkraft-tech/ci-github-container/blob/79ab741d853f0cb8efd0823b497882c2d5995fc1/docs/adr/0004-scope-build-cache-imports-and-mount-snapshots.md)
+own cache behavior, recovery, limitations and upstream evidence.
+
+Update all eight existing references in PR #553, preserving caller inputs,
+permissions, DAG, application sources, lockfiles and pinned base images. No new
+configuration or runtime requirement is introduced. Mount snapshots use the new
+exact identity and start cold once; layer-cache configuration remains unchanged.
+Dependency-only snapshot refresh and cross-image imports remain deferred.
+
+Validate consumed contracts and repository lint locally, then full Pleey PR CI
+and a same-commit warm rerun. Inspect all four build identities, cache misses and
+saves on the first run, exact restoration on the rerun, unchanged application
+inventories/reports, signing/attestation and chart installation. These runs verify
+adoption correctness, not a speedup or a new controlled performance comparison.
+Do not classify a first mount miss as a fully cold layer-cache build. Main and
+release publication and live untrusted triggers remain outside this PR evidence.
+Restore the preceding release pin if consumer behavior regresses. Submit the
+adoption for review before P2.5 or later DAG work.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.

@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1–P2.3 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P2.4 upstream PR #957 narrowed to internal mount-cache fixes and validated; review/release pending; P2.5 and P3–P8 pending
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1–P2.3 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P2.4 upstream PR #957 reviewed and released in 0.41.1; Pleey adoption in progress; P2.5 and P3–P8 pending
 
 Delivery: passing CI and user review between phases. At the user's request, P1 and released P2 tooling adoption share PR #553; upstream phases are reviewed separately before adoption. Later cache and DAG changes remain separate.
 
@@ -274,10 +274,13 @@ defines the separate Pleey validation and comparison.
 `actions/docker/build-image/internal/action.yml` and caching integration workflow.
 
 Upstream implementation: [PR #957](https://github.com/hoverkraft-tech/ci-github-container/pull/957).
-Its [ADR](https://github.com/hoverkraft-tech/ci-github-container/blob/perf/cache-reuse-invalidation/docs/adr/0004-scope-build-cache-imports-and-mount-snapshots.md)
+Its [ADR](https://github.com/hoverkraft-tech/ci-github-container/blob/79ab741d853f0cb8efd0823b497882c2d5995fc1/docs/adr/0004-scope-build-cache-imports-and-mount-snapshots.md)
 owns the revised design and distinguishes earlier-proposal evidence from current
 validation. Review on 2026-11-11 narrowed this phase to internal fixes with no new
-public inputs. Pleey keeps container 0.41.0 until upstream review and release.
+public inputs. The reviewed fix is released in
+[0.41.1](https://github.com/hoverkraft-tech/ci-github-container/releases/tag/0.41.1).
+The [adoption decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p24-released-container-adoption-2026-11-11)
+defines Pleey's first-run and warm-rerun correctness checks.
 
 - [x] Remove the proposed raw import, export-mode and dependency-pattern inputs, including per-image overrides. Keep the released public interface and `max` export mode.
 - [x] Isolate mount snapshots by image/context/target/platform/Dockerfile/build arguments, including separate local directories. Remove fallbacks that discard identity.
@@ -285,7 +288,8 @@ public inputs. Pleey keeps container 0.41.0 until upstream review and release.
 - [x] Validate the revised candidate's contracts, independent-runner snapshot restore/isolation, bypass and failed builds, plus existing integration tests. [CI run 43046729837](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43046729837) passed 172 jobs with 10 intentional skips, without reruns. Controlled contexts cover read-only event policy; live untrusted events and application installers remain untested.
 - [x] Simplify cache usage documentation and retain the rejected proposal's dated evidence in the upstream ADR.
 - [x] Submit the narrowed PR #957 for review with passing implementation CI. The upstream ADR records the revised candidate separately from the rejected proposal.
-- [ ] After review/release, adopt its released pin in PR #553 without new caller settings. Validate application behavior; do not claim a speedup from fixture correctness checks.
+- [x] Verify reviewed PR #957 is merged and release 0.41.1 points to `79ab741d853f0cb8efd0823b497882c2d5995fc1`; update all eight existing pins in PR #553 without new caller settings.
+- [ ] Validate consumed contracts, full application CI and a same-commit warm rerun; record exact snapshot isolation/restoration and submit the adoption for review. Do not claim a speedup from these correctness checks.
 
 **Deferred work:**
 
