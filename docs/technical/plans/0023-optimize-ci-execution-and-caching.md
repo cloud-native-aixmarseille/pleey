@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1/P2.2 adoption validated in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P2.3 reviewed and released upstream, Pleey adoption and comparison in progress in the same PR; P2.4/P2.5 and P3–P8 pending
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1–P2.3 adoption implemented and validated in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553), awaiting review; P2.4/P2.5 and P3–P8 pending
 
 Delivery: passing CI and user review between phases. At the user's request, P1 and released P2 tooling adoption share PR #553; upstream phases are reviewed separately before adoption. Later cache and DAG changes remain separate.
 
@@ -261,9 +261,9 @@ defines the separate Pleey validation and comparison.
 - [x] Remove daemon/Buildx setup used only for security metadata while preserving registry authentication, cosign, subjects, provenance and narrow permissions. Do not move signing privileges into untrusted builds.
 - [x] Use upstream platform/signing/attestation integration workflows to verify digest equality, manifest contents, signatures, attestation subjects and authentication failures.
 - [x] Record upstream publication/security setup observations with their limitations in the [upstream ADR](https://github.com/hoverkraft-tech/ci-github-container/blob/bb7e3e5891e27a155182332537774b8653cf3531/docs/adr/0003-reuse-build-digests-and-limit-publication-setup.md).
-- [ ] Adopt the released pin in Pleey and validate full PR CI, preserving digests, signatures, attestations, reports and chart installation.
-- [ ] Compare five post-priming baseline/candidate pairs, including publication/security setup and total elapsed/summed job time; keep toolchain changes explicit.
-- [ ] Record final evidence and submit the updated PR #553 for review before P2.4.
+- [x] Adopt the released pin in Pleey and validate full PR CI, preserving digests, signing, attestations, reports and chart installation. The [candidate primer](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42992775410/attempts/1) passed all 23 executed jobs; the ADR records input, inventory and digest-handoff checks.
+- [x] Compare five post-priming baseline/candidate pairs, including publication/security setup and total elapsed/summed job time; keep toolchain changes explicit. All ten runs passed. [Median elapsed fell 11.5% and summed job time 7.4%](../architecture/adr/0023-optimize-ci-execution-and-caching.md#completed-p23-adoption-comparison-2026-11-11); overlapping elapsed ranges, the tied second pair and frontend variability remain explicit.
+- [x] Record final evidence and submit the updated PR #553 for review before P2.4. **Awaiting review**; cache and DAG phases remain separate.
 
 **Rollback:** restore the pin on digest/output/security regression.
 
