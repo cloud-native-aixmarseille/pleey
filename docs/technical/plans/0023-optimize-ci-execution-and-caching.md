@@ -3,9 +3,9 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1/P2.2 adoption implemented and validated in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553), awaiting review; remaining P2 and P3–P8 pending
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1/P2.2 adoption validated in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P2.3 reviewed and released upstream, Pleey adoption and comparison in progress in the same PR; P2.4/P2.5 and P3–P8 pending
 
-Delivery: passing CI and user review between phases. At the user's request, P1 and the released P2.1/P2.2 adoption share PR #553; later phases remain separate.
+Delivery: passing CI and user review between phases. At the user's request, P1 and released P2 tooling adoption share PR #553; upstream phases are reviewed separately before adoption. Later cache and DAG changes remain separate.
 
 The ADR owns architecture, dated evidence, cache contracts and acceptance
 requirements. This file owns execution and progress. Unchecked items describe planned work. Completed items link the implementation
@@ -249,12 +249,21 @@ See the [dated adoption decision](../architecture/adr/0023-optimize-ci-execution
 **Files:** `.github/workflows/docker-build-images.yml` and
 `actions/docker/{build-image,create-images-manifests,sign-images,attest-image}/action.yml`.
 
-- [ ] Validate a complete single-platform result and reuse its existing build digest. Manifest creation already skips this case; remove redundant Docker/Buildx setup and tag inspection.
-- [ ] Preserve the `built-images` output shape, tags, registry/repository metadata and ordering expected by callers.
-- [ ] Initialize Buildx where manifest assembly is required; validate multi-platform and mixed batches.
-- [ ] Remove daemon/Buildx setup used only for security metadata while preserving registry authentication, cosign, subjects, provenance and narrow permissions. Do not move signing privileges into untrusted builds.
-- [ ] Use upstream platform/signing/attestation integration workflows to verify digest equality, manifest contents, signatures, attestation subjects and authentication failures.
-- [ ] Measure publication/security setup and adopt separately from cache changes.
+Upstream [PR #953](https://github.com/hoverkraft-tech/ci-github-container/pull/953)
+is merged and released in [0.41.0](https://github.com/hoverkraft-tech/ci-github-container/releases/tag/0.41.0).
+Its [final CI](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/42933849404)
+passed 167 jobs with 10 intentional skips. The [adoption decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p23-released-container-adoption-2026-11-11)
+defines the separate Pleey validation and comparison.
+
+- [x] Validate a complete single-platform result and reuse its existing build digest. Manifest creation already skips this case; remove redundant Docker/Buildx setup and tag inspection.
+- [x] Preserve the `built-images` output shape, tags, registry/repository metadata and ordering expected by callers.
+- [x] Initialize Buildx where manifest assembly is required; validate multi-platform and mixed batches.
+- [x] Remove daemon/Buildx setup used only for security metadata while preserving registry authentication, cosign, subjects, provenance and narrow permissions. Do not move signing privileges into untrusted builds.
+- [x] Use upstream platform/signing/attestation integration workflows to verify digest equality, manifest contents, signatures, attestation subjects and authentication failures.
+- [x] Record upstream publication/security setup observations with their limitations in the [upstream ADR](https://github.com/hoverkraft-tech/ci-github-container/blob/bb7e3e5891e27a155182332537774b8653cf3531/docs/adr/0003-reuse-build-digests-and-limit-publication-setup.md).
+- [ ] Adopt the released pin in Pleey and validate full PR CI, preserving digests, signatures, attestations, reports and chart installation.
+- [ ] Compare five post-priming baseline/candidate pairs, including publication/security setup and total elapsed/summed job time; keep toolchain changes explicit.
+- [ ] Record final evidence and submit the updated PR #553 for review before P2.4.
 
 **Rollback:** restore the pin on digest/output/security regression.
 
