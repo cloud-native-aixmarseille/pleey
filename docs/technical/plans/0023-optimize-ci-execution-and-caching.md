@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1–P2.4 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P3 implementation reviewed with passing final CI and report/digest checks, controlled performance comparison pending; P2.5 candidate publication reviewed and released in 0.42.0, normal-mode adoption validation pending; promotion and P4–P8 pending
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1–P2.4 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P3 implementation reviewed with passing final CI and report/digest checks, controlled performance comparison pending; P2.5 candidate publication reviewed and released in 0.42.0, normal-mode adoption validated and awaiting review; promotion and P4–P8 pending
 
 Delivery: passing CI and user review between phases. At the user's request, continue Pleey implementation in existing PR #553, including P3 and subsequent Pleey phases while that PR remains open. Upstream phases are reviewed in their own PRs before adoption.
 
@@ -322,7 +322,8 @@ for both; normal-mode release adoption is tracked separately below.
 - [x] Return the digest, source revision, run identity and destinations through the existing output; validate single/multi-platform publication and retained signatures/attestations. [Candidate-specific CI checks](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43119465301) passed on `26e58f07`, including failed builds without output. Build identity is not validation evidence; promotion remains pending.
 - [x] Review the candidate-publication increment before implementing promotion. Upstream PR #959 was merged and released in [0.42.0](https://github.com/hoverkraft-tech/ci-github-container/releases/tag/0.42.0); see the [release adoption decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p25-released-publication-support-2026-11-12).
 - [x] Pin all nine existing container references to released commit `ca71afa42c37bdd67ec2ca685fd2ff73d76190e8` in PR #553, keeping normal publication mode and existing dependencies.
-- [ ] Validate normal-mode adoption with consumed-contract checks, workflow/documentation lint and full PR CI; submit it for review.
+- [x] Validate normal-mode adoption with consumed-contract checks, workflow/documentation lint and full PR CI; submit it for review. [Run 43167373851](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43167373851) passed 25 jobs with 12 intentional skips on its first attempt; normal tags, digest handoffs, security results and report inventories were verified in the ADR.
+- [ ] Review normal-mode 0.42.0 adoption in PR #553 before starting gated promotion.
 - [ ] Bind verification evidence to the candidate contract for promotion.
 - [ ] Promote the tested digest without rebuilding/changing manifest bytes, retaining signatures/provenance.
 - [ ] Require a successful gate; reject missing/different digests, stale run/attempt evidence, incomplete destinations and unauthorized repositories.
