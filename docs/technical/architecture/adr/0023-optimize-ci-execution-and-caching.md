@@ -1421,6 +1421,53 @@ Main and release execution are not exercised by PR CI; their pins received
 static contract checks. This release adoption makes no performance claim and
 awaits user review before the gated-promotion increment.
 
+### P2.5 gated-promotion increment: 2026-11-12
+
+The user reviewed the normal-mode 0.42.0 adoption in PR #553 and authorized the
+next increment. [Upstream PR #962](https://github.com/hoverkraft-tech/ci-github-container/pull/962)
+implements promotion; [ADR 0006](https://github.com/hoverkraft-tech/ci-github-container/blob/feat/gated-image-promotion/docs/adr/0006-promote-validated-image-digests.md)
+owns its contract and trade-offs.
+
+The proposed reusable workflow consumes dependency results and exact validated
+candidate entries. It verifies source/run/attempt, authorized destinations,
+signatures and build provenance, and preserves manifest bytes when publishing.
+A repository-wide lock serializes writers; GitHub deployment records retain
+validated claims so an older run cannot overwrite a newer claimed destination.
+This adds `deployments: write` to the promotion job, without app credentials or
+external storage. The caller still owns its required check inventory and must
+forward the images it actually tested.
+
+Publication is not atomic across tags. A partial failure returns no successful
+output and retains its claim; retries in a new attempt rebuild and revalidate
+candidates. No automatic candidate/digest deletion is introduced. Keep all
+writers on this workflow and retain the publication journal while destinations
+can be reused. This narrows recovery and cleanup to an explicit safe contract.
+
+Validation on upstream commit `4d85b07cdfbb70be31e0d8ed1bdaff4fcbaedb1b`:
+
+- All 65 focused promotion tests passed locally and in CI. They cover unsuccessful
+  dependencies, mismatched evidence, unauthorized destinations, stale source/run/
+  attempt, security failures, superseded/conflicting claims, cancellation, partial
+  writes and recovery. These failure scenarios use controlled API/registry responses.
+- [Hosted run 43175617613](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43175617613)
+  passed on its first attempt: 191 successful jobs and 10 intentional skips. It
+  promoted the existing signed single/multi-platform fixtures to version `1.2.3`.
+  Independent checks compared raw manifest bytes and verified retained signatures
+  and attestations. Both promotion calls returned identical metadata; their two
+  journal records retained the expected destinations/revision and success statuses.
+  Cleanup removed only the isolated test packages and current-attempt records.
+- The promoted digests were `sha256:ae5fec5e3557d10bec85aff73b0f4d7242ea5ad6ffd196fad2efc07fd17c0480`
+  for the single-platform image and `sha256:9df2edb5ebc7f63797b5d79634ce132876c55d5c617b48c7afd2f59fdfec89cd`
+  for the multi-platform image. No rebuild or re-signing occurred during promotion.
+- Workflow/security/JavaScript/documentation lint and local links passed.
+
+Hosted tests use a PR event and a forced final version. Controlled contexts cover
+PR/main/release destinations; this is not evidence of live main/release promotion
+or injected registry failures. Those rollout checks remain explicit in the plan.
+Upstream review and release remain pending. Pleey retains normal mode and gated
+production ordering until the promotion release is reviewed and adopted with P4's
+aggregate validation gate. No performance gain is claimed.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.
