@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1–P2.4 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P3 implementation reviewed with passing final CI and report/digest checks, controlled performance comparison pending; P2.5 candidate publication reviewed and released in 0.42.0, normal-mode adoption reviewed; gated promotion implemented and awaiting review; P4–P8 pending
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1–P2.4 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P3 implementation reviewed with passing final CI and report/digest checks, controlled performance comparison pending; P2.5 candidate publication reviewed and released in 0.42.0, normal-mode adoption reviewed; gated promotion implemented and awaiting release; P4 consumer preview in progress in #553; P5–P8 pending
 
 Delivery: passing CI and user review between phases. At the user's request, continue Pleey implementation in existing PR #553, including P3 and subsequent Pleey phases while that PR remains open. Upstream phases are reviewed in their own PRs before adoption.
 
@@ -334,7 +334,7 @@ Promotion is implemented in [upstream PR #962](https://github.com/hoverkraft-tec
 - [x] Define candidate cleanup without deleting promoted content or another run's evidence. Promotion performs no deletion; registry retention must preserve consumer-tagged content and the publication journal. Test cleanup targets only isolated packages and records from its own run/attempt.
 - [x] Validate controlled PR/main/release destination metadata and publication/security failures. Real hosted promotion and repeat calls are tracked separately below; controlled contexts do not establish live main/release execution.
 - [x] Validate hosted promotion, unchanged manifest bytes, retained security evidence and repeat calls using the existing single/multi-platform candidates. [Run 43175617613](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43175617613) verifies exact destination digests, both successful journal records and isolated test cleanup.
-- [ ] Review and release the promotion increment before adopting it in Pleey with P4's validation gate. Exercise Pleey's main/release paths during that rollout; PR-only CI is not evidence of a real release.
+- [ ] Review and release the promotion increment, then replace P4's explicitly requested preview pin with the released SHA before merging adoption. Exercise Pleey's main/release paths during rollout; PR-only CI is not evidence of a real release.
 
 **Rollback:** retain/restore gated production ordering. Do not enable speculative
 builds merely by removing `needs` before this contract is validated.
@@ -370,15 +370,22 @@ workflow dependencies.
 **Prerequisites:** P2.5 and P3. **Files:** shared workflow, release caller and adopted
 promotion interface. Follow the [ADR DAG](../architecture/adr/0023-optimize-ci-execution-and-caching.md#execution-graph-and-publication-gates).
 
-- [ ] Revisit and implement the aggregate validation gate with its required-check rollout before enabling candidate promotion. Schedule aggregation after failures/skips and require every expected result to be `success`.
+The user requested a runnable consumer preview in PR #553 before the upstream
+release. The [preview decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p4-consumer-preview-2026-11-12)
+uses the promotion workflow itself as the aggregate gate, without a separate
+`ci-result` job. Release adoption and required-check enforcement remain rollout
+requirements; this preview does not complete P4.
+
+- [x] Implement and locally validate the promotion job's aggregate gate: run after failures/skips, supply every required result through `toJSON(needs)` and require `success` before publication. The preview's consumer contracts reject 39 unsuccessful-result/evidence scenarios; hosted validation is tracked in PR #553.
 - [ ] Verify the emitted check name in CI; enable its narrowly scoped required-check rule once the gate exists on `main`, preserving unrelated semantic/security settings. Verify enforcement on a PR before retiring any existing required checks.
 
-- [ ] Start each production candidate after its CI image alongside its lint/tests, importing the permitted completed CI cache.
+- [ ] Validate that each production candidate starts after its own CI image alongside its lint/tests.
+- [ ] Import permitted completed CI caches once the upstream cross-image reuse contract is available; do not claim that the preview adds this capability.
 - [ ] Supply candidate identity and planned final metadata; verify consumer tags stay unchanged while validation is pending.
 - [ ] Start Helm once both candidates/security results are ready, passing immutable digests through existing image values.
-- [ ] Join repository/application checks, required reports, chart results and candidate/security results in the gate. Place promotion after it without a dependency cycle.
+- [x] Join repository/application checks, required reports, chart results and candidate/security results in the promotion job's gate without a dependency cycle. Local checks cover its complete ancestor inventory.
 - [ ] Compare build, security-subject, chart-tested and promoted digests explicitly.
-- [ ] Preserve `built-prod-images` for release consumers, sourcing it from successful promotion; preserve planned release tags/metadata.
+- [x] Preserve `built-prod-images` for release consumers, sourcing it from successful promotion; preserve planned release tags/metadata. Local caller-contract checks pass; live main/release validation remains open.
 - [ ] Validate rendered release charts again after release-file mutations; application evidence does not validate different chart content.
 - [ ] Exercise lint/test/chart/security failures, skips, cancellation, superseded runs and reruns. Verify no unchecked promotion and correct cleanup.
 - [ ] Benchmark separately from P3, including speculative work wasted on unsuccessful runs.

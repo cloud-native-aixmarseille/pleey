@@ -29,6 +29,7 @@ jobs:
       attestations: write
       checks: write
       contents: read
+      deployments: write
       id-token: write
       issues: write
       packages: write
