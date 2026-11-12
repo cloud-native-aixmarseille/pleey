@@ -83,8 +83,8 @@ for application-only changes. The promotion job requires repository lint, both
 application checks and their reports, both candidate builds and Helm validation
 to succeed before updating consumer tags. Release steps receive only promoted
 metadata through `built-prod-images` and wait for the entire shared workflow.
-See [ADR 0023's consumer preview](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p4-consumer-preview-2026-11-12)
-for the upstream release dependency and remaining rollout work.
+See [ADR 0023's released promotion adoption](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p4-released-promotion-adoption-2026-11-12)
+for the released workflow contract and remaining rollout work.
 
 `make lint` runs both application lint pipelines, then Super-linter with the configurations under `.github/linters/`.
 
