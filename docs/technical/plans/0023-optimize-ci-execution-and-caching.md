@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1–P2.4 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P3 implementation reviewed with passing final CI and report/digest checks, controlled performance comparison pending; P2.5 candidate-publication increment implemented upstream, review pending; promotion and P4–P8 pending
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1–P2.4 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P3 implementation reviewed with passing final CI and report/digest checks, controlled performance comparison pending; P2.5 candidate publication reviewed and released in 0.42.0, normal-mode adoption validation pending; promotion and P4–P8 pending
 
 Delivery: passing CI and user review between phases. At the user's request, continue Pleey implementation in existing PR #553, including P3 and subsequent Pleey phases while that PR remains open. Upstream phases are reviewed in their own PRs before adoption.
 
@@ -310,16 +310,19 @@ P7 experiment; P2.4's deferred features are not prerequisites for P3 service lan
 whose name/interface will be chosen upstream.
 
 Deliver P2.5 in two reviewable increments: candidate publication, then gated
-promotion. Candidate publication is proposed in
+promotion. Candidate publication was reviewed and merged in
 [upstream PR #959](https://github.com/hoverkraft-tech/ci-github-container/pull/959).
 The [2026-11-12 refinement](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p25-candidate-publication-increment-2026-11-12)
 keeps `images[].tag` as the intended final version and lets the workflow generate
-temporary identities behind one opt-in mode. Pleey adoption waits for both.
+temporary identities behind one opt-in mode. Pleey candidate-mode adoption waits
+for both; normal-mode release adoption is tracked separately below.
 
 - [x] Add opt-in candidate publication with repository/run/attempt/call isolation; verify normal/latest tags are untouched without caller-generated identities. Implemented in upstream PR #959; metadata contracts and hosted registry checks passed.
 - [x] Preserve intended destinations and final OCI version/release metadata, including the existing forced final tag. Hosted single/multi-platform candidates retain version `1.2.3`; event-derived metadata is compared with normal mode.
-- [x] Return the digest, source revision, run identity and destinations through the existing output; validate single/multi-platform publication and retained signatures/attestations. [Candidate-specific CI checks](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43119465301) passed on `26e58f07`, including failed builds without output. Build identity is not validation evidence; upstream review and promotion remain pending.
-- [ ] Review the candidate-publication increment before implementing promotion.
+- [x] Return the digest, source revision, run identity and destinations through the existing output; validate single/multi-platform publication and retained signatures/attestations. [Candidate-specific CI checks](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43119465301) passed on `26e58f07`, including failed builds without output. Build identity is not validation evidence; promotion remains pending.
+- [x] Review the candidate-publication increment before implementing promotion. Upstream PR #959 was merged and released in [0.42.0](https://github.com/hoverkraft-tech/ci-github-container/releases/tag/0.42.0); see the [release adoption decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p25-released-publication-support-2026-11-12).
+- [x] Pin all nine existing container references to released commit `ca71afa42c37bdd67ec2ca685fd2ff73d76190e8` in PR #553, keeping normal publication mode and existing dependencies.
+- [ ] Validate normal-mode adoption with consumed-contract checks, workflow/documentation lint and full PR CI; submit it for review.
 - [ ] Bind verification evidence to the candidate contract for promotion.
 - [ ] Promote the tested digest without rebuilding/changing manifest bytes, retaining signatures/provenance.
 - [ ] Require a successful gate; reject missing/different digests, stale run/attempt evidence, incomplete destinations and unauthorized repositories.

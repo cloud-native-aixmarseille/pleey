@@ -1357,7 +1357,7 @@ Repository rules and production/release ordering remain unchanged.
 Split the upstream publication contract into candidate publication and gated
 promotion, with CI and review between increments.
 [Upstream PR #959](https://github.com/hoverkraft-tech/ci-github-container/pull/959)
-and its [ADR 0005](https://github.com/hoverkraft-tech/ci-github-container/blob/feat/candidate-image-promotion/docs/adr/0005-publish-candidates-with-final-image-metadata.md)
+and its [ADR 0005](https://github.com/hoverkraft-tech/ci-github-container/blob/ca71afa42c37bdd67ec2ca685fd2ff73d76190e8/docs/adr/0005-publish-candidates-with-final-image-metadata.md)
 define the first increment. It exposes
 one `candidate: true` workflow setting and generates temporary identities
 internally. Existing `images[].tag` keeps its intended final tag/version meaning;
@@ -1387,6 +1387,28 @@ policy use controlled contexts, while real publication was exercised on a PR.
 Generated action/workflow docs, repository lint and relative links passed.
 The upstream PR owns the complete regression-suite status and remains subject to
 review. No application speedup is claimed by this publication foundation.
+
+### P2.5 released publication support: 2026-11-12
+
+The user reviewed and merged [upstream PR #959](https://github.com/hoverkraft-tech/ci-github-container/pull/959)
+and released [container 0.42.0](https://github.com/hoverkraft-tech/ci-github-container/releases/tag/0.42.0).
+The tag resolves to `ca71afa42c37bdd67ec2ca685fd2ff73d76190e8`, the merge commit.
+The [0.41.1–0.42.0 comparison](https://github.com/hoverkraft-tech/ci-github-container/compare/0.41.1...0.42.0)
+contains candidate publication and generated documentation updates. Existing
+workflow inputs, outputs, runner requirements and publication defaults remain
+compatible; `candidate` defaults to `false`. The Helm and pruning implementations
+consumed by Pleey are unchanged.
+
+Adopt the release through all nine existing container references in the shared,
+main and release workflows. This is normal-mode dependency adoption; enabling
+candidate mode still waits for reviewed, released gated promotion. Production
+builds continue to wait for both application checks, Helm consumes their immutable
+digests, and release consumers wait for the shared workflow. No new caller input
+or promotion gate is introduced in this increment.
+
+Validate the consumed contracts and full PR CI before submitting this adoption
+for review. Main and release execution are not exercised by PR CI; their pins
+receive static contract checks. This release adoption makes no performance claim.
 
 ### Follow-Up
 
