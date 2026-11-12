@@ -1573,6 +1573,86 @@ validation after file mutation and controlled performance comparisons remain
 rollout work. No repository settings are changed and no performance gain is
 claimed by this release adoption.
 
+### P4 release validation and user review: 2026-11-12
+
+[Run 43252004563](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43252004563)
+passed on its first attempt at `c96a0f13f581df98e7c3644f52730a9f2b17eaaa`:
+28 successful jobs and 12 intentional skips. The PR check inventory contained
+48 passing checks and the same 12 skips. All 2,408 application tests passed,
+with 60 existing backend skips; both applications' module-export and pagination
+guards passed. The user reviewed this adoption and authorized the next step.
+
+Backend and frontend production builds overlapped their tests for 65s and 57s,
+respectively. These are scheduling observations, not a controlled speedup result.
+Helm used both candidate digests after their build/security workflows succeeded.
+Registry reads observed unchanged `pr-553` tags during validation, followed by
+both normal and revision-qualified PR tags resolving to the tested digests:
+
+| Service  | Helm-tested and promoted digest                                           |
+| -------- | ------------------------------------------------------------------------- |
+| Backend  | `sha256:a38b14b2a8d51bcabf35ae851f855135d2d3b92803827409a81888725e285ce1` |
+| Frontend | `sha256:f95f0c8d19083bd84d36b004fae49e5a27cca906321c392f7f855487c087bac5` |
+
+[Promotion verification](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43252004563/job/131305188084)
+matched the Cosign signature and provenance subjects to those digests. The
+attestation certificate and builder identity reference the released container
+workflow at `ed1e90302235365110f9b4b05df96840f715a14f`; provenance identifies
+Pleey's source revision and this run/attempt. Promotion started after every
+successful dependency finished.
+
+The emitted check is
+`ci / Promote validated production images / Promote validated image digests`.
+PR #553 remains open. On this date, `main` has no classic protection or effective
+rules. Keep required-check enforcement pending until this workflow is on `main`;
+do not change repository settings as part of this assessment. Live main/release,
+post-mutation release-chart validation, failure/rerun exercises and controlled
+performance comparisons remain separate unfinished P4 work.
+
+### P5 parallelization assessment: 2026-11-12
+
+Evaluate the proposed within-job overlap before adding another orchestration
+interface. The following timestamp spans come from the successful preview and
+released-adoption Helm logs. They are observations of different revisions, not
+an A/B experiment or evidence that a proposed parallel implementation is faster.
+
+| Observed phase                                          | [Preview job](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43222507126) | [Released adoption job](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43252004563/job/131302679432) |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| Chart preparation start through successful lint         | 5.37s                                                                                      | 7.39s                                                                                                                 |
+| Kind action start through context selection             | 39.56s                                                                                     | 41.81s                                                                                                                |
+| Context selection through successful installation/tests | 136.57s                                                                                    | 156.54s                                                                                                               |
+
+For the proposed preparation/lint versus kind pair, even perfect overlap could
+recover at most the shorter 5–7s span in these runs. That ceiling excludes
+contention, synchronization and cleanup costs. Tool installation precedes these
+spans; overlapping installers is a separate proposal with shared PATH/configuration
+writes that has not been validated.
+
+[GitHub's current syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idstepsparallel)
+supports native `parallel`, or `background` with an explicit `wait`, for workflow
+steps using `run` or `uses`. Both forms are forbidden inside composite actions.
+The released Helm test action is composite, so native scheduling requires a
+shared staged interface; a caller must not prepare dependencies and then run the
+complete action, duplicating setup. A composite implementation would instead need
+supervised child processes and cancellation/partial-cluster cleanup. Neither cost
+is justified by the observed ceiling for Pleey. Defer P5.2 without changing its
+one-call consumer interface. Runner/linter compatibility and failure/cancellation
+tests remain prerequisites if a later profile justifies that implementation.
+
+The released-adoption frontend lint command took about 27.5s, including about
+7.3s for typechecking. The backend lint command took about 25.5s. Both lint jobs
+finished more than four minutes before Helm completed; overlapping their checks
+cannot shorten this run's final gate. The TypeScript harness already shares
+helpers, but its module cache is process-local; it does not share compiler
+programs across CLI invocations. Defer P5.3's process/API changes until job cost or a
+changed critical path justifies a measured trial. No parallel prototype, memory
+benchmark or failure-injection result is claimed here.
+
+Keep the existing job-level service/candidate overlap. The next useful profiling
+target is chart installation and application readiness, which dominates this Helm
+job; P6's requirement that frontend tests still determine completion is not met by
+this observed run. This assessment does not complete the pending P4 rollout or
+authorize a release. Review the deferral before starting another implementation.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.
