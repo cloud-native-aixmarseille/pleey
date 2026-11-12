@@ -35,7 +35,7 @@ jobs:
 
   build-backend-ci-image:
     name: Build backend CI image
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@79ab741d853f0cb8efd0823b497882c2d5995fc1 # 0.41.1
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@ca71afa42c37bdd67ec2ca685fd2ff73d76190e8 # 0.42.0
     permissions:
       attestations: write
       contents: read
@@ -94,7 +94,7 @@ jobs:
 
   build-frontend-ci-image:
     name: Build frontend CI image
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@79ab741d853f0cb8efd0823b497882c2d5995fc1 # 0.41.1
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@ca71afa42c37bdd67ec2ca685fd2ff73d76190e8 # 0.42.0
     permissions:
       attestations: write
       contents: read
@@ -152,7 +152,7 @@ jobs:
       container-password: ${{ secrets.GITHUB_TOKEN }}
 
   build-prod:
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@79ab741d853f0cb8efd0823b497882c2d5995fc1 # 0.41.1
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@ca71afa42c37bdd67ec2ca685fd2ff73d76190e8 # 0.42.0
     needs: [check-backend, check-frontend]
     permissions:
       attestations: write
@@ -196,7 +196,7 @@ jobs:
       packages: read
     steps:
       - name: Test helm chart (umbrella)
-        uses: hoverkraft-tech/ci-github-container/actions/helm/test-chart@79ab741d853f0cb8efd0823b497882c2d5995fc1 # 0.41.1
+        uses: hoverkraft-tech/ci-github-container/actions/helm/test-chart@ca71afa42c37bdd67ec2ca685fd2ff73d76190e8 # 0.42.0
         with:
           helm-repositories: |
             cloudnative-pg https://cloudnative-pg.github.io/charts
