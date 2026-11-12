@@ -35,7 +35,7 @@ jobs:
 
   build-backend-ci-image:
     name: Build backend CI image
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@ca71afa42c37bdd67ec2ca685fd2ff73d76190e8 # 0.42.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@ed1e90302235365110f9b4b05df96840f715a14f # 0.43.0
     permissions:
       attestations: write
       contents: read
@@ -94,7 +94,7 @@ jobs:
 
   build-frontend-ci-image:
     name: Build frontend CI image
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@ca71afa42c37bdd67ec2ca685fd2ff73d76190e8 # 0.42.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@ed1e90302235365110f9b4b05df96840f715a14f # 0.43.0
     permissions:
       attestations: write
       contents: read
@@ -153,7 +153,7 @@ jobs:
 
   build-backend-candidate:
     name: Build backend production candidate
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@ca71afa42c37bdd67ec2ca685fd2ff73d76190e8 # 0.42.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@ed1e90302235365110f9b4b05df96840f715a14f # 0.43.0
     needs: build-backend-ci-image
     permissions:
       attestations: write
@@ -183,7 +183,7 @@ jobs:
 
   build-frontend-candidate:
     name: Build frontend production candidate
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@ca71afa42c37bdd67ec2ca685fd2ff73d76190e8 # 0.42.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@ed1e90302235365110f9b4b05df96840f715a14f # 0.43.0
     needs: build-frontend-ci-image
     permissions:
       attestations: write
@@ -222,7 +222,7 @@ jobs:
       packages: read
     steps:
       - name: Test helm chart (umbrella)
-        uses: hoverkraft-tech/ci-github-container/actions/helm/test-chart@ca71afa42c37bdd67ec2ca685fd2ff73d76190e8 # 0.42.0
+        uses: hoverkraft-tech/ci-github-container/actions/helm/test-chart@ed1e90302235365110f9b4b05df96840f715a14f # 0.43.0
         with:
           check-diff-only: false
           helm-repositories: |
@@ -266,8 +266,7 @@ jobs:
       - build-backend-candidate
       - build-frontend-candidate
       - tests-charts
-    # Preview of upstream PR #962; replace with its reviewed release before merging.
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-promote-images.yml@b75829d1621f894b4f50884b8759fcf362d11d9a
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-promote-images.yml@ed1e90302235365110f9b4b05df96840f715a14f # 0.43.0
     permissions:
       actions: read
       attestations: read

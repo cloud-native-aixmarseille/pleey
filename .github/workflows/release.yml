@@ -57,7 +57,7 @@ jobs:
           persist-credentials: false
 
       - name: Update chart image defaults
-        uses: hoverkraft-tech/ci-github-container/actions/helm/update-chart-values@ca71afa42c37bdd67ec2ca685fd2ff73d76190e8 # 0.42.0
+        uses: hoverkraft-tech/ci-github-container/actions/helm/update-chart-values@ed1e90302235365110f9b4b05df96840f715a14f # 0.43.0
         with:
           path: charts/application
           values: >-
@@ -131,7 +131,7 @@ jobs:
 
       - name: Regenerate Helm chart documentation
         id: generate-docs
-        uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@ca71afa42c37bdd67ec2ca685fd2ff73d76190e8 # 0.42.0
+        uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@ed1e90302235365110f9b4b05df96840f715a14f # 0.43.0
         with:
           working-directory: ./charts
           checkout-ref: ""
@@ -172,7 +172,7 @@ jobs:
       packages: write
     steps:
       - id: release-chart
-        uses: hoverkraft-tech/ci-github-container/actions/helm/release-chart@ca71afa42c37bdd67ec2ca685fd2ff73d76190e8 # 0.42.0
+        uses: hoverkraft-tech/ci-github-container/actions/helm/release-chart@ed1e90302235365110f9b4b05df96840f715a14f # 0.43.0
         with:
           oci-registry: ${{ vars.OCI_REGISTRY }}
           oci-registry-username: ${{ github.repository_owner }}

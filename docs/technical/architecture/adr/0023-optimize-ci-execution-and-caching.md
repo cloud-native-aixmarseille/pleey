@@ -1538,6 +1538,41 @@ record does not claim a live main/release run or a measured performance gain.
 The earlier normal-mode and upstream results remain dated evidence for their own
 revisions.
 
+### P4 released promotion adoption: 2026-11-12
+
+Adopt [ci-github-container 0.43.0](https://github.com/hoverkraft-tech/ci-github-container/releases/tag/0.43.0)
+at `ed1e90302235365110f9b4b05df96840f715a14f` in existing Pleey PR #553. This
+supersedes the temporary promotion pin in the consumer preview above. Align all
+11 container action/workflow references with this release, including the builders,
+Helm helpers and PR-tag cleanup.
+
+The release includes the reviewed promotion implementation from
+[upstream PR #962](https://github.com/hoverkraft-tech/ci-github-container/pull/962)
+and the transient GitHub API retry fix from
+[upstream PR #964](https://github.com/hoverkraft-tech/ci-github-container/pull/964).
+Comparison with preview commit `b75829d1621f894b4f50884b8759fcf362d11d9a`
+confirms that promotion, signature verification and build implementations are
+unchanged. The executable difference is three retries for the read-only PR lookup
+used by cleanup. Existing consumed Helm interfaces are unchanged from 0.42.0.
+
+Keep the preview's candidate DAG, digest-based Helm validation and promotion gate.
+Retain the shared builder's default signing identity as reviewed: the reusable
+builder workflow identifies the signer, while provenance binds the image to
+Pleey's source repository, revision and run. Do not override `build-workflow` or
+introduce a second signing step in the caller.
+
+The earlier [preview run 43222507126](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43222507126)
+passed on `452194521b0357f64f550e38a3236df7ba70607d`, with 28 successful jobs and
+12 intentional skips. Both candidates overlapped their application checks; Helm
+used their exact digests, and consumer tags stayed unchanged until promotion.
+Those observations belong to the preview revision. Local and hosted validation
+of this released adoption is tracked separately in PR #553.
+
+Required-check enforcement, live main/release execution, rendered release-chart
+validation after file mutation and controlled performance comparisons remain
+rollout work. No repository settings are changed and no performance gain is
+claimed by this release adoption.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.
