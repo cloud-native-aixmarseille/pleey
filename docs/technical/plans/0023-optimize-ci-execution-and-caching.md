@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1–P2.4 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P3 implementation reviewed with passing final CI and report/digest checks, controlled performance comparison pending; P2.5 candidate publication reviewed and released in 0.42.0, normal-mode adoption validated and awaiting review; promotion and P4–P8 pending
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1–P2.4 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P3 implementation reviewed with passing final CI and report/digest checks, controlled performance comparison pending; P2.5 candidate publication reviewed and released in 0.42.0, normal-mode adoption reviewed; gated promotion implemented and awaiting review; P4–P8 pending
 
 Delivery: passing CI and user review between phases. At the user's request, continue Pleey implementation in existing PR #553, including P3 and subsequent Pleey phases while that PR remains open. Upstream phases are reviewed in their own PRs before adoption.
 
@@ -306,8 +306,8 @@ P7 experiment; P2.4's deferred features are not prerequisites for P3 service lan
 ### P2.5: Candidate publication and exact-digest promotion
 
 **Repository:** `hoverkraft-tech/ci-github-container`.
-**Files:** metadata/build/publication actions and a proposed promotion entrypoint
-whose name/interface will be chosen upstream.
+**Files:** metadata/build/publication actions and the proposed
+`docker-promote-images.yml` reusable workflow.
 
 Deliver P2.5 in two reviewable increments: candidate publication, then gated
 promotion. Candidate publication was reviewed and merged in
@@ -323,13 +323,18 @@ for both; normal-mode release adoption is tracked separately below.
 - [x] Review the candidate-publication increment before implementing promotion. Upstream PR #959 was merged and released in [0.42.0](https://github.com/hoverkraft-tech/ci-github-container/releases/tag/0.42.0); see the [release adoption decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p25-released-publication-support-2026-11-12).
 - [x] Pin all nine existing container references to released commit `ca71afa42c37bdd67ec2ca685fd2ff73d76190e8` in PR #553, keeping normal publication mode and existing dependencies.
 - [x] Validate normal-mode adoption with consumed-contract checks, workflow/documentation lint and full PR CI; submit it for review. [Run 43167373851](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43167373851) passed 25 jobs with 12 intentional skips on its first attempt; normal tags, digest handoffs, security results and report inventories were verified in the ADR.
-- [ ] Review normal-mode 0.42.0 adoption in PR #553 before starting gated promotion.
-- [ ] Bind verification evidence to the candidate contract for promotion.
-- [ ] Promote the tested digest without rebuilding/changing manifest bytes, retaining signatures/provenance.
-- [ ] Require a successful gate; reject missing/different digests, stale run/attempt evidence, incomplete destinations and unauthorized repositories.
-- [ ] Define reruns, cancellation, superseded runs, idempotency and partial-tag failures. Prevent an older run replacing a newer validated destination.
-- [ ] Define candidate cleanup without deleting promoted content or another run's evidence.
-- [ ] Validate PR/main/release metadata and publication/security failures before adopting the interface.
+- [x] Review normal-mode 0.42.0 adoption in PR #553 before starting gated promotion. User review completed on 2026-11-12.
+
+Promotion is implemented in [upstream PR #962](https://github.com/hoverkraft-tech/ci-github-container/pull/962); hosted promotion checks passed and review is pending. See the [promotion decision and evidence](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p25-gated-promotion-increment-2026-11-12).
+
+- [x] Bind verification evidence to the candidate contract for promotion. The caller supplies actual dependency results and exact candidate entries from its validation jobs; it owns the required check inventory.
+- [x] Promote the tested digest without rebuilding/changing manifest bytes, retaining signatures/provenance. Hosted single/multi-platform checks passed on `4d85b07`.
+- [x] Require every supplied dependency to succeed; reject missing/different digests, stale run/attempt evidence, incomplete destinations and unauthorized repositories. Covered by the focused promotion contracts.
+- [x] Define reruns, cancellation, superseded runs, idempotency and partial-tag failures. A repository lock and durable publication claims reject older overlapping writers; a new attempt rebuilds and revalidates. Controlled contracts cover interruption, conflicting claims and partial writes.
+- [x] Define candidate cleanup without deleting promoted content or another run's evidence. Promotion performs no deletion; registry retention must preserve consumer-tagged content and the publication journal. Test cleanup targets only isolated packages and records from its own run/attempt.
+- [x] Validate controlled PR/main/release destination metadata and publication/security failures. Real hosted promotion and repeat calls are tracked separately below; controlled contexts do not establish live main/release execution.
+- [x] Validate hosted promotion, unchanged manifest bytes, retained security evidence and repeat calls using the existing single/multi-platform candidates. [Run 43175617613](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43175617613) verifies exact destination digests, both successful journal records and isolated test cleanup.
+- [ ] Review and release the promotion increment before adopting it in Pleey with P4's validation gate. Exercise Pleey's main/release paths during that rollout; PR-only CI is not evidence of a real release.
 
 **Rollback:** retain/restore gated production ordering. Do not enable speculative
 builds merely by removing `needs` before this contract is validated.
