@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1–P2.4 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P3 implementation reviewed with passing final CI and report/digest checks, controlled performance comparison pending; P2.5 candidate publication and gated promotion reviewed and released in 0.43.0; P4 released consumer adoption in progress in #553, validation and review pending; P5–P8 pending
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1–P2.4 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P3 implementation reviewed with passing final CI and report/digest checks, controlled performance comparison pending; P2.5 candidate publication and gated promotion reviewed and released in 0.43.0; P4 released consumer adoption validated and reviewed in #553, rollout and performance acceptance pending; P5 profiled with parallelization deferred for review; P6–P8 pending
 
 Delivery: passing CI and user review between phases. At the user's request, continue Pleey implementation in existing PR #553, including P3 and subsequent Pleey phases while that PR remains open. Upstream phases are reviewed in their own PRs before adoption.
 
@@ -377,17 +377,18 @@ aggregate gate, without a separate `ci-result` job. It replaces the earlier
 consumer preview. Required-check enforcement and the remaining validation below
 are rollout requirements; release adoption does not complete P4.
 
-- [ ] Validate the released 0.43.0 adoption in PR #553 and review it before starting another phase.
+- [x] Validate and review the released 0.43.0 adoption in PR #553. [Run 43252004563](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43252004563) passed on `c96a0f13`; user review completed on 2026-11-12. See the [dated validation record](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p4-release-validation-and-user-review-2026-11-12).
 
 - [x] Implement and locally validate the promotion job's aggregate gate: run after failures/skips, supply every required result through `toJSON(needs)` and require `success` before publication. Consumer contracts against the released implementation reject 39 unsuccessful-result/evidence scenarios; hosted validation is tracked in PR #553.
-- [ ] Verify the emitted check name in CI; enable its narrowly scoped required-check rule once the gate exists on `main`, preserving unrelated semantic/security settings. Verify enforcement on a PR before retiring any existing required checks.
+- [x] Verify the emitted check name: `ci / Promote validated production images / Promote validated image digests` in run 43252004563.
+- [ ] Enable its narrowly scoped required-check rule once the gate exists on `main`, preserving unrelated semantic/security settings. Verify enforcement on a PR before retiring any existing required checks.
 
-- [ ] Validate that each production candidate starts after its own CI image alongside its lint/tests.
+- [x] Validate that each production candidate starts after its own CI image alongside its lint/tests. Run 43252004563 observed backend/frontend build-test overlap of 65s/57s; this is not a controlled performance comparison.
 - [ ] Import permitted completed CI caches once the upstream cross-image reuse contract is available; the released workflow does not add this capability.
-- [ ] Supply candidate identity and planned final metadata; verify consumer tags stay unchanged while validation is pending.
-- [ ] Start Helm once both candidates/security results are ready, passing immutable digests through existing image values.
+- [x] Supply candidate identity and planned final metadata; verify consumer tags stay unchanged while validation is pending. Registry reads during run 43252004563 confirmed both normal PR tags retained their previous digests before promotion.
+- [x] Start Helm once both candidates/security results are ready, passing immutable digests through existing image values. The released-adoption Helm job successfully installed both candidate digests.
 - [x] Join repository/application checks, required reports, chart results and candidate/security results in the promotion job's gate without a dependency cycle. Local checks cover its complete ancestor inventory.
-- [ ] Compare build, security-subject, chart-tested and promoted digests explicitly.
+- [x] Compare build, signature/provenance-subject, chart-tested and promoted digests explicitly. Run 43252004563 and registry reads matched both candidate digests across all four destination tags; see the dated ADR evidence.
 - [x] Preserve `built-prod-images` for release consumers, sourcing it from successful promotion; preserve planned release tags/metadata. Local caller-contract checks pass; live main/release validation remains open.
 - [ ] Validate rendered release charts again after release-file mutations; application evidence does not validate different chart content.
 - [ ] Exercise lint/test/chart/security failures, skips, cancellation, superseded runs and reruns. Verify no unchecked promotion and correct cleanup.
@@ -398,6 +399,10 @@ independently proven setup/cache improvements.
 
 ## P5: Parallelize suitable operations within one job
 
+**Assessment:** defer implementation for the current profile. The [P5 decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p5-parallelization-assessment-2026-11-12) records the observed 5–7s Helm overlap ceiling, non-critical application lint and orchestration costs. The remaining trial checkboxes below are conditional on a new profile justifying the work.
+
+- [ ] Review the P5 deferral before starting another implementation.
+
 ### P5.1: Choose the concurrency mechanism
 
 At workflow level, prefer native `parallel` for an independent group, or
@@ -405,7 +410,8 @@ At workflow level, prefer native `parallel` for an independent group, or
 are supported. Composite internals need a different implementation. See
 [GitHub workflow syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idstepsparallel).
 
-- [ ] Verify target runner/parser and workflow-linter support. Limit the trial to two operations and measure shared CPU/memory pressure.
+- [x] Verify the documented native workflow syntax and composite-action restriction through current GitHub documentation. No runner compatibility test or parallel prototype has been run.
+- [ ] Before adopting a trial, verify target runner/parser and workflow-linter support. Limit it to two operations and measure shared CPU/memory pressure.
 - [ ] List inputs, writes and consumers; finish checkout/tool installation/generation first and serialize shared writers.
 - [ ] Join before consuming outputs or dependent work; keep failures fatal and validate each operation failing, timeout, cancellation and cleanup.
 
@@ -431,8 +437,9 @@ runs one package script; exposing individual native steps needs an upstream API.
 **Files:** `actions/helm/{test-chart,prepare-chart}/action.yml`, shared helpers and
 existing Helm integration workflow.
 
-- [ ] Time both phases after tool installation and verify disjoint writes to chart paths, kubeconfig and tool configuration.
-- [ ] Compare native workflow orchestration over exposed upstream phases with two supervised CLI children inside the current composite; choose the smaller maintainable improvement.
+- [x] Time the existing phases after tool installation: preparation plus lint took 5.37s/7.39s in the two observed runs, versus about 40s to create/select the cluster. These are observational bounds, not a parallel benchmark.
+- [ ] Before a trial, verify disjoint writes to chart paths, kubeconfig and tool configuration.
+- [x] Assess native orchestration over shared stages versus supervised CLI children. Defer both: the observed maximum saving does not justify a new staged API or process supervision. Keep the existing one-call action interface.
 - [ ] For native orchestration, reuse prepare-chart and kind actions plus a shared staged interface for remaining work. Do not invoke the complete test-chart action afterwards and duplicate setup.
 - [ ] For the composite option, install kind with supported `install_only`, then run kind creation and shared preparation concurrently. Preserve cluster/context/wait settings and post cleanup; do not copy action logic into Pleey.
 - [ ] Require dependencies before lint, cluster readiness before registry secrets, and both before installation. Preserve lint-only/install-only modes and umbrella checks.
@@ -447,7 +454,7 @@ potential overlap; this does not eliminate all kind startup time.
 
 **Files:** application scripts/helpers, and upstream Node workflow only if needed.
 
-- [ ] Profile checks first; consider existing `scripts/shared/ts-analysis-harness.mjs` for repeated parsing before adding processes.
+- [x] Profile existing checks: frontend/backend lint commands took about 27.5s/25.5s and both jobs finished over four minutes before Helm in run 43252004563. Inspect the existing TypeScript harness; its module cache is process-local. Defer extra processes/API changes until job cost or the critical path justifies a trial.
 - [ ] Trial one verified read-only pair with independent inputs, preserving guards and generation order; serialize installs/formatters/writers.
 - [ ] Use native steps with an appropriate interface, otherwise supervised CLI work. Preserve individual diagnostics and every failure status.
 - [ ] Compare duration/memory; reject contention, increased cost or worse diagnostics.
