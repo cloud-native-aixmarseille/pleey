@@ -1406,9 +1406,20 @@ builds continue to wait for both application checks, Helm consumes their immutab
 digests, and release consumers wait for the shared workflow. No new caller input
 or promotion gate is introduced in this increment.
 
-Validate the consumed contracts and full PR CI before submitting this adoption
-for review. Main and release execution are not exercised by PR CI; their pins
-receive static contract checks. This release adoption makes no performance claim.
+The adoption commit `16754a96139a8afa1fd6d1a355e9bbc653d1fbb0` passed
+[PR CI run 43167373851](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43167373851)
+on its first attempt: 25 successful jobs and 12 intentional skips. Consumed-input,
+output and secret contracts, documentation links and local workflow/security/
+documentation lint passed. All four images retained normal PR tags; build,
+publication and attestation subjects matched the digests used by application
+checks and Helm. Signing, module-export/pagination guards and chart installation
+passed. JUnit case identities and skip states, LCOV file inventories and coverage
+denominators matched the reviewed P3 run exactly. All four images reused their
+installation and compilation layers.
+
+Main and release execution are not exercised by PR CI; their pins received
+static contract checks. This release adoption makes no performance claim and
+awaits user review before the gated-promotion increment.
 
 ### Follow-Up
 
