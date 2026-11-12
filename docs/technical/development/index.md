@@ -77,8 +77,14 @@ report fails the action. The bundled parser runs without installing its own
 dependencies or changing the application's Node.js version. Keep report
 producers, consumers and mappings aligned.
 
-Production builds wait for both application workflows; release steps wait for
-the entire shared workflow.
+Each production candidate builds after its service's CI image, alongside that
+service's lint and tests. Helm always installs both candidates by digest, including
+for application-only changes. The promotion job requires repository lint, both
+application checks and their reports, both candidate builds and Helm validation
+to succeed before updating consumer tags. Release steps receive only promoted
+metadata through `built-prod-images` and wait for the entire shared workflow.
+See [ADR 0023's consumer preview](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p4-consumer-preview-2026-11-12)
+for the upstream release dependency and remaining rollout work.
 
 `make lint` runs both application lint pipelines, then Super-linter with the configurations under `.github/linters/`.
 

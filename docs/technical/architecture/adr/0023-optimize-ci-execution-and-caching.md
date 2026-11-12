@@ -1468,6 +1468,76 @@ Upstream review and release remain pending. Pleey retains normal mode and gated
 production ordering until the promotion release is reviewed and adopted with P4's
 aggregate validation gate. No performance gain is claimed.
 
+### P4 consumer preview: 2026-11-12
+
+The user requested a concrete adoption preview in existing PR #553 while upstream
+PR #962 is still open. Pin its tested commit
+`b75829d1621f894b4f50884b8759fcf362d11d9a` for promotion; keep the released 0.42.0
+candidate builder and other container actions. Replace the preview pin with the
+reviewed release before merging this adoption. This is an explicit preview of P4,
+not completion of release rollout or performance acceptance.
+
+Use separate backend/frontend production candidate jobs, each after its own CI
+image and alongside its application checks. Keep planned release tags as build
+inputs and set `candidate: true`. Helm installs both immutable candidate digests
+in the existing fresh cluster. Disable changed-chart filtering so an application-only
+change cannot claim validation without actually installing the candidates. Only
+successful chart validation returns the exact two candidate entries as
+`validated-images`.
+
+The promotion workflow itself is the aggregate publication gate. Give it direct
+dependencies on repository lint, both application checks (including required
+reports), both candidate/security workflows and Helm validation, with
+`if: always()` and `job-results: ${{ toJSON(needs) }}`. Every supplied result must
+succeed. CI-image failures transitively fail or skip their required check/candidate
+jobs and therefore block promotion. This supersedes the separate `ci-result` job
+in the proposed graph for this preview: one promotion job both checks the complete
+dependency set and publishes under the repository lock.
+
+Do not pass the CI-image jobs directly to promotion: their `built-images` outputs
+describe test images, not the production candidates validated by Helm. The shared
+workflow's existing `built-prod-images` output now comes only from successful
+promotion. Release consumers keep that interface. Promotion uses the dynamic
+builder default; Pleey does not need `build-workflow` or certificate settings.
+The PR, main and release callers delegate `deployments: write` for the upstream
+publication journal. No application deployment is introduced.
+
+```mermaid
+flowchart TD
+    B[Backend CI image] --> BC[Backend lint and tests]
+    B --> BP[Backend candidate]
+    F[Frontend CI image] --> FC[Frontend lint and tests]
+    F --> FP[Frontend candidate]
+    BP --> H[Helm tests by digest]
+    FP --> H
+    L[Repository lint] --> P[Validate results and promote digests]
+    BC --> P
+    FC --> P
+    BP --> P
+    FP --> P
+    H -->|validated-images| P
+    P --> R[built-prod-images for release consumers]
+```
+
+On 2026-11-12, `main` still has no classic protection or effective rules. Leave
+repository settings unchanged for this review. Record the emitted promotion check
+name from CI and complete the required-check rollout separately before accepting
+P4. Cross-image cache imports, rendered release-chart validation after file
+mutation, live main/release validation and controlled performance comparisons also
+remain open. Preserve candidate content and publication records; no automatic
+registry cleanup is added. Cancelling superseded PR runs can leave candidates,
+and partial tag publication retains the upstream recovery contract.
+
+Local consumer checks validate the dependency graph, delegated permissions,
+planned release tags, digest-valued Helm inputs, success-only validation output
+and unchanged release-consumer interface. The pinned promotion contract rejects
+39 unsuccessful-result or mismatched-evidence scenarios using the actual caller
+dependency inventory and validation script. Workflow/security/documentation lint
+and 79 relative links/anchors pass. Hosted results are attached to PR #553; this
+record does not claim a live main/release run or a measured performance gain.
+The earlier normal-mode and upstream results remain dated evidence for their own
+revisions.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.

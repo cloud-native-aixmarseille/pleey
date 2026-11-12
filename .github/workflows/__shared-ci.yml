@@ -11,8 +11,8 @@ name: Shared - Continuous Integration
         default: ""
     outputs:
       built-prod-images:
-        description: Production backend/frontend build metadata.
-        value: ${{ jobs.build-prod.outputs.built-images }}
+        description: Validated production backend/frontend metadata returned after promotion.
+        value: ${{ jobs.promote-images.outputs.built-images }}
 
 permissions: {}
 
@@ -151,9 +151,10 @@ jobs:
     secrets:
       container-password: ${{ secrets.GITHUB_TOKEN }}
 
-  build-prod:
+  build-backend-candidate:
+    name: Build backend production candidate
     uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@ca71afa42c37bdd67ec2ca685fd2ff73d76190e8 # 0.42.0
-    needs: [check-backend, check-frontend]
+    needs: build-backend-ci-image
     permissions:
       attestations: write
       contents: read
@@ -162,6 +163,7 @@ jobs:
       pull-requests: read
       id-token: write
     with:
+      candidate: true
       oci-registry: ${{ vars.OCI_REGISTRY }}
       oci-registry-username: ${{ github.repository_owner }}
       images: |
@@ -174,7 +176,28 @@ jobs:
             "build-args": { "APP_PATH": "./application/backend/" },
             "target": "prod",
             "platforms": ["linux/amd64"]
-          },
+          }
+        ]
+    secrets:
+      oci-registry-password: ${{ secrets.GITHUB_TOKEN }}
+
+  build-frontend-candidate:
+    name: Build frontend production candidate
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@ca71afa42c37bdd67ec2ca685fd2ff73d76190e8 # 0.42.0
+    needs: build-frontend-ci-image
+    permissions:
+      attestations: write
+      contents: read
+      packages: write
+      issues: read
+      pull-requests: read
+      id-token: write
+    with:
+      candidate: true
+      oci-registry: ${{ vars.OCI_REGISTRY }}
+      oci-registry-username: ${{ github.repository_owner }}
+      images: |
+        [
           {
             "name": "frontend",
             "tag": "${{ inputs.production-image-tag }}",
@@ -189,8 +212,11 @@ jobs:
       oci-registry-password: ${{ secrets.GITHUB_TOKEN }}
 
   tests-charts:
+    name: Test production candidates with Helm
     runs-on: ubuntu-latest
-    needs: build-prod
+    needs: [build-backend-candidate, build-frontend-candidate]
+    outputs:
+      validated-images: ${{ job.status == 'success' && steps.validated.outputs.images || '' }}
     permissions:
       contents: read
       packages: read
@@ -198,21 +224,60 @@ jobs:
       - name: Test helm chart (umbrella)
         uses: hoverkraft-tech/ci-github-container/actions/helm/test-chart@ca71afa42c37bdd67ec2ca685fd2ff73d76190e8 # 0.42.0
         with:
+          check-diff-only: false
           helm-repositories: |
             cloudnative-pg https://cloudnative-pg.github.io/charts
             valkey https://valkey.io/valkey-helm/
             bokysan https://bokysan.github.io/docker-postfix/
           helm-set: |
-            backend.image.registry=${{ fromJSON(needs.build-prod.outputs.built-images).backend.registry }}
-            backend.image.repository=${{ fromJSON(needs.build-prod.outputs.built-images).backend.repository }}
-            backend.image.tag=${{ fromJSON(needs.build-prod.outputs.built-images).backend.tags[0] }}
-            backend.image.digest=${{ fromJSON(needs.build-prod.outputs.built-images).backend.digest }}
+            backend.image.registry=${{ fromJSON(needs.build-backend-candidate.outputs.built-images).backend.registry }}
+            backend.image.repository=${{ fromJSON(needs.build-backend-candidate.outputs.built-images).backend.repository }}
+            backend.image.tag=${{ fromJSON(needs.build-backend-candidate.outputs.built-images).backend.tags[0] }}
+            backend.image.digest=${{ fromJSON(needs.build-backend-candidate.outputs.built-images).backend.digest }}
             backend.cloudnativepgOperator.enabled=true
-            frontend.image.registry=${{ fromJSON(needs.build-prod.outputs.built-images).frontend.registry }}
-            frontend.image.repository=${{ fromJSON(needs.build-prod.outputs.built-images).frontend.repository }}
-            frontend.image.tag=${{ fromJSON(needs.build-prod.outputs.built-images).frontend.tags[0] }}
-            frontend.image.digest=${{ fromJSON(needs.build-prod.outputs.built-images).frontend.digest }}
+            frontend.image.registry=${{ fromJSON(needs.build-frontend-candidate.outputs.built-images).frontend.registry }}
+            frontend.image.repository=${{ fromJSON(needs.build-frontend-candidate.outputs.built-images).frontend.repository }}
+            frontend.image.tag=${{ fromJSON(needs.build-frontend-candidate.outputs.built-images).frontend.tags[0] }}
+            frontend.image.digest=${{ fromJSON(needs.build-frontend-candidate.outputs.built-images).frontend.digest }}
             global.imagePullSecrets[0].name=regcred
           oci-registry: ${{ vars.OCI_REGISTRY }}
           oci-registry-username: ${{ github.repository_owner }}
           oci-registry-password: ${{ github.token }}
+
+      - name: Record chart-validated candidate digests
+        id: validated
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          BACKEND_IMAGES: ${{ needs.build-backend-candidate.outputs.built-images }}
+          FRONTEND_IMAGES: ${{ needs.build-frontend-candidate.outputs.built-images }}
+        with:
+          script: |
+            const backend = JSON.parse(process.env.BACKEND_IMAGES);
+            const frontend = JSON.parse(process.env.FRONTEND_IMAGES);
+            core.setOutput('images', JSON.stringify({ ...backend, ...frontend }));
+
+  promote-images:
+    name: Promote validated production images
+    if: always()
+    needs:
+      - linter
+      - check-backend
+      - check-frontend
+      - build-backend-candidate
+      - build-frontend-candidate
+      - tests-charts
+    # Preview of upstream PR #962; replace with its reviewed release before merging.
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-promote-images.yml@b75829d1621f894b4f50884b8759fcf362d11d9a
+    permissions:
+      actions: read
+      attestations: read
+      contents: read
+      deployments: write
+      packages: write
+      pull-requests: read
+    with:
+      job-results: ${{ toJSON(needs) }}
+      oci-registry: ${{ vars.OCI_REGISTRY }}
+      oci-registry-username: ${{ github.repository_owner }}
+    secrets:
+      oci-registry-password: ${{ secrets.GITHUB_TOKEN }}
