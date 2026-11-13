@@ -1786,10 +1786,13 @@ and published values, checks dependency locks, builds local descendants before
 their parents, and returns one archive plus its SHA-256 checksum.
 
 The existing release action delegates preparation and pushes the returned bytes;
-its retries and signing remain. The existing test action reuses the dependency
-helper while extraction of the Lint and Test phases is pending. These are staged
-adaptations in a draft, not the completed four-phase workflow. Preparation is the
-next implementation review point. Pleey retains released 0.43.0.
+its retries and signing remain. Review rejected the Test adapter's import of
+Prepare's private JavaScript bundle. Test keeps its source-based Helm dependency
+setup within its own action until the Test phase consumes the prepared archive
+and checksum through the public contract. The existing integration job exercises
+an isolated Test action without sibling files. These are staged adaptations in a
+draft, not the completed four-phase workflow. Preparation is the next implementation
+review point. Pleey retains released 0.43.0.
 
 Focused source, distribution and real Helm checks cover archive identity,
 lock errors, fresh nested content, changed inputs and unchanged external pins.
