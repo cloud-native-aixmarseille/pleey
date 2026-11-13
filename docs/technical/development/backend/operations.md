@@ -12,16 +12,23 @@ Set each behavior flag to `true` or `false`: `GRAPHQL_GRAPHIQL_ENABLED`, `GRAPHQ
 
 ## Database Readiness
 
-The backend Deployment and migration Job use the backend image for their database
-init container. It waits for the configured secret file, then runs an authenticated
+The backend Deployment and migration Job require the configured database secret
+and key before Kubernetes starts their containers, including when CloudNativePG
+creates the secret. Missing secrets or keys leave the pod waiting at volume setup;
+inspect its events to diagnose that prerequisite.
+
+Both workloads use the backend image for their database init container. It reads
+the mounted secret file, then runs an authenticated
 `SELECT 1` through the production Prisma adapter without starting Nest. The complete
 URI is preserved, including external database and TLS settings.
 Custom database certificate mounts and environment settings supplied through
 `extraVolumes`, `extraVolumeMounts`, `extraEnv` and `extraEnvFrom` are also available
 to both readiness checks and the migration container.
 
-`backend.waitForDatabase.timeoutSeconds` bounds secret, connection, query and cleanup
-waiting. Connection and query attempts use at most five seconds and one connection;
+`backend.waitForDatabase.timeoutSeconds` starts when the init command runs and bounds
+its file reads, connection, query and cleanup waiting. It does not bound Kubernetes'
+wait to mount the secret; Helm's installation timeout still applies to that wait.
+Connection and query attempts use at most five seconds and one connection;
 failed attempts disconnect before retrying. Logs contain attempt counts, elapsed
 time and sanitized codes. Credentials and connection URLs are never logged.
 `backend.waitForDatabase.enabled: false` omits both init containers. Resource limits

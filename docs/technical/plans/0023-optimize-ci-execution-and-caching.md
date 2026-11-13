@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1–P2.4 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P3 implementation reviewed with passing final CI and report/digest checks, controlled performance comparison pending; P2.5 candidate publication and gated promotion reviewed and released in 0.43.0; P4 released consumer adoption validated and reviewed in #553, rollout and performance acceptance pending; P5 profiled with parallelization deferred for review; P6–P8 pending
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1–P2.4 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P3 implementation reviewed with passing final CI and report/digest checks, controlled performance comparison pending; P2.5 candidate publication and gated promotion reviewed and released in 0.43.0; P4 released consumer adoption validated and reviewed in #553, rollout and performance acceptance pending; P5 deferral reviewed; P7 Helm secret prerequisite in progress in #553; P6 and remaining P7/P8 work pending
 
 Delivery: passing CI and user review between phases. At the user's request, continue Pleey implementation in existing PR #553, including P3 and subsequent Pleey phases while that PR remains open. Upstream phases are reviewed in their own PRs before adoption.
 
@@ -401,7 +401,7 @@ independently proven setup/cache improvements.
 
 **Assessment:** defer implementation for the current profile. The [P5 decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p5-parallelization-assessment-2026-11-12) records the observed 5–7s Helm overlap ceiling, non-critical application lint and orchestration costs. The remaining trial checkboxes below are conditional on a new profile justifying the work.
 
-- [ ] Review the P5 deferral before starting another implementation.
+- [x] Review the P5 deferral before starting another implementation. User approval recorded on 2026-11-13; continue with the measured Helm secret-availability wait.
 
 ### P5.1: Choose the concurrency mechanism
 
@@ -497,9 +497,19 @@ root Dockerfile/linter configuration.
 - [ ] Trial maintained smaller profiles or splitting only when smaller pulls outweigh extra jobs/setup. Preserve scanners, rendered-chart coverage and vulnerability-data freshness.
 - [ ] Compare elapsed/summed time; restore the existing profile if no net benefit. Do not remove checks to meet targets.
 
-### P7.2: Helm tools and external dependency downloads
+### P7.2: Helm setup and installation
 
 **Owners:** container tooling/docker-base-images and Pleey chart manifests/locks.
+
+Selected increment: [require the database secret before starting workload containers](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p7-helm-database-secret-prerequisite-2026-11-13). Keep the existing authenticated readiness and fresh-cluster install checks.
+
+- [x] Rebase PR #553 onto main, preserving current dependency updates and reviewed CI behavior.
+- [x] Identify the secret-file wait in the reviewed Helm logs: readiness took 77.8s/87.7s, with repeated `ENOENT` while the operator had already reported a healthy cluster.
+- [x] Require the database secret/key for both the Deployment and migration Job, including CloudNativePG; document the changed missing-secret diagnostics and timeout boundary.
+- [x] Verify rendered manifests for both database providers, including disabled readiness init containers, and pass strict Helm lint.
+- [ ] Review fresh-cluster PR CI and the comparison with the rebased control before another implementation. Keep observed timings distinct from controlled performance acceptance.
+
+Remaining setup/download experiments:
 
 - [ ] Compare existing `ci-helm` with runtime installation, including pull cost, tool compatibility, host Docker access and cleanup.
 - [ ] Cache external downloads by tool/repository/dependency identity; rebuild local `file://` subcharts from current source.
