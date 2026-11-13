@@ -1756,7 +1756,7 @@ the withdrawn implementation; they do not validate the replacement design.
 
 The user requested four phases: prepare, lint, test and release. The revised
 [upstream ADR 0007](https://github.com/hoverkraft-tech/ci-github-container/blob/feat/validate-packaged-helm-charts/docs/adr/0007-separate-helm-pipeline-phases.md)
-owns their contracts. PR #966 returns to an ADR-only draft, with the publication
+owns their contracts. PR #966 returned to an ADR-only draft, with the publication
 action's `validation-values` input and its prototype tests removed.
 
 Preparation must finish final metadata/value changes, dependency resolution and
@@ -1776,6 +1776,25 @@ public contract needs an explicit breaking release and coordinated migration;
 Pleey keeps released 0.43.0 until the replacement is reviewed and available.
 This design addresses responsibility and reuse. No runtime split or performance
 gain is claimed by the ADR update, and no production release is needed to test it.
+
+### Prepare phase implementation: 2026-11-13
+
+The user approved the four-phase design and archive handoff. The next increment
+in [container PR #966](https://github.com/hoverkraft-tech/ci-github-container/pull/966)
+implements preparation for one selected root chart. It applies final metadata
+and published values, checks dependency locks, builds local descendants before
+their parents, and returns one archive plus its SHA-256 checksum.
+
+The existing release action delegates preparation and pushes the returned bytes;
+its retries and signing remain. The existing test action reuses the dependency
+helper while extraction of the Lint and Test phases is pending. These are staged
+adaptations in a draft, not the completed four-phase workflow. Preparation is the
+next implementation review point. Pleey retains released 0.43.0.
+
+Focused source, distribution and real Helm checks cover archive identity,
+lock errors, fresh nested content, changed inputs and unchanged external pins.
+Hosted CI must pass before this increment is accepted. No performance gain or
+completed final-chart validation is claimed.
 
 ### Follow-Up
 
