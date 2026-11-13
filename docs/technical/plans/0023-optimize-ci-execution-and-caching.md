@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1–P2.4 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P3 implementation reviewed with passing final CI and report/digest checks, controlled performance comparison pending; P2.5 candidate publication and gated promotion reviewed and released in 0.43.0; P4 released consumer adoption reviewed, final chart validation proposed upstream in #966, rollout and performance acceptance pending; P5 deferral reviewed; P7 required-secret change validated and reviewed, setup/cache experiments deferred; P6 and remaining P7/P8 work pending
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1-P2.4 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P3 implementation reviewed with passing final CI and report/digest checks, controlled performance comparison pending; P2.5 candidate publication and gated promotion reviewed and released in 0.43.0; P4 released consumer adoption reviewed, separate Helm phases proposed in upstream ADR-only #966, rollout and performance acceptance pending; P5 deferral reviewed; P7 required-secret change validated and reviewed, setup/cache experiments deferred; P6 and remaining P7/P8 work pending
 
 Delivery: passing CI and user review between phases. At the user's request, continue Pleey implementation in existing PR #553, including P3 and subsequent Pleey phases while that PR remains open. Upstream phases are reviewed in their own PRs before adoption.
 
@@ -390,12 +390,27 @@ are rollout requirements; release adoption does not complete P4.
 - [x] Join repository/application checks, required reports, chart results and candidate/security results in the promotion job's gate without a dependency cycle. Local checks cover its complete ancestor inventory.
 - [x] Compare build, signature/provenance-subject, chart-tested and promoted digests explicitly. Run 43252004563 and registry reads matched both candidate digests across all four destination tags; see the dated ADR evidence.
 - [x] Preserve `built-prod-images` for release consumers, sourcing it from successful promotion; preserve planned release tags/metadata. Local caller-contract checks pass; live main/release validation remains open.
-- [ ] Validate rendered release charts again after release-file mutations; application evidence does not validate different chart content. [Container PR #966](https://github.com/hoverkraft-tech/ci-github-container/pull/966) adds opt-in validation of the final packaged archive before push. Complete upstream CI/review/release, then adopt `validation-values` with Pleey's existing CI values file; retain image and installation checks. See the [dated decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p7-review-and-final-release-chart-validation-2026-11-13).
+- [ ] Validate the final prepared chart before publication; application evidence does not validate different chart content. [Container PR #966](https://github.com/hoverkraft-tech/ci-github-container/pull/966) is now an ADR-only draft for separate prepare, lint, test and release phases. The earlier `validation-values` proposal was rejected. Follow the [revised decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#separate-helm-phases-after-review-2026-11-13) and the implementation sequence below.
 - [ ] Exercise lint/test/chart/security failures, skips, cancellation, superseded runs and reruns. Verify no unchecked promotion and correct cleanup.
 - [ ] Benchmark separately from P3, including speculative work wasted on unsuccessful runs.
 
 **Rollback:** restore gated production/Helm ordering and output mapping, retaining
 independently proven setup/cache improvements.
+
+### P4.1: Separate Helm phase responsibilities
+
+The [upstream ADR](https://github.com/hoverkraft-tech/ci-github-container/blob/feat/validate-packaged-helm-charts/docs/adr/0007-separate-helm-pipeline-phases.md)
+owns the artifact and input contracts. Review each implementation increment before
+starting the next; no phase split is implemented by the current ADR-only draft.
+
+- [ ] Review the four-phase ADR and the prepared-archive handoff.
+- [ ] Prepare: finish metadata/default changes, resolve locked dependencies and current local subcharts, then package once with a checksum.
+- [ ] Lint: extract existing static checks and run them against the prepared chart with validation overlays.
+- [ ] Test: install that chart in a fresh cluster; preserve readiness, migrations, chart tests, diagnostics and cleanup.
+- [ ] Release: publish and sign the unchanged archive; retain publication input checks, retry behavior and immutable outputs.
+- [ ] Compose the reusable workflow and verify artifact identity, validation gates, permissions, cancellation and reruns. Initially reuse one runner for prepare/lint/test and isolate publication.
+- [ ] Complete the breaking-contract migration and generated upstream docs, review and release, then adopt in Pleey with its existing CI values and validated image digests.
+- [ ] Validate the resulting release chart and compare elapsed/summed job time; keep live release and overall performance acceptance open until actually exercised.
 
 ## P5: Parallelize suitable operations within one job
 
