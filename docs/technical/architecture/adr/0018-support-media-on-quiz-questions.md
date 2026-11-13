@@ -107,6 +107,7 @@ Both review requirements must be implemented and verified before this ADR can de
 - Keep status `Proposed` until repository review accepts this decision; the implementation uses the provider interfaces, quality settings, synchronous readiness, and retention windows specified above.
 - Update [backend development](../../development/backend/index.md) and [frontend development](../../development/frontend/index.md) alongside the approved implementation.
 - Consider migrating avatars separately once the reusable media pipeline is established.
+- [ADR 0024](./0024-share-game-previews-through-revocable-links.md#media-authorization-and-revocation-limits) proposes a separate preview-recipient audience for shared game review; this extension remains subject to acceptance and does not change current editor/host authorization.
 
 ## Review References
 
