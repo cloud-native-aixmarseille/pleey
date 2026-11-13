@@ -1732,27 +1732,50 @@ their small saving ceiling does not currently justify extra image pulls, cache
 identity rules or another upstream interface. Retain fresh-cluster installation.
 Revisit these experiments only if a later profile shows setup dominating.
 
-The next increment addresses the existing P4 requirement to validate release
+The initial follow-up addressed the existing P4 requirement to validate release
 charts after mutations. `helm/release-chart` modifies metadata and dependency
 versions again before packaging, so validation only before that action would
-miss its final artifact. Propose the shared implementation in
+miss its final artifact. The prototype in
 [container PR #966](https://github.com/hoverkraft-tech/ci-github-container/pull/966),
-with its contract in [upstream ADR 0007](https://github.com/hoverkraft-tech/ci-github-container/blob/feat/validate-packaged-helm-charts/docs/adr/0007-validate-packaged-helm-charts.md).
+documented in the [original upstream ADR](https://github.com/hoverkraft-tech/ci-github-container/blob/e636bec523560db253a4d8d2df5e2853e34cdb56/docs/adr/0007-validate-packaged-helm-charts.md),
+put optional lint/render checks inside the release action.
 
-The optional `validation-values` input runs strict Helm lint and rendering against
-the exact archive to be pushed. Pleey will use its existing
-`charts/application/ci/recovery-values.yaml` after upstream review and release.
-Those values configure validation only; they do not alter published defaults.
-Keep current application/image tests, signing and installation checks. This closes
-a release correctness gap without another application build or cluster and makes
-no speedup claim. Do not publish a release solely to validate this change.
+That prototype's `validation-values` input checked the archive before publication,
+using validation overlays without altering published defaults. It was not released
+or adopted by Pleey. Review rejected placing lint and test policy inside the
+publication action; the following phase-separation proposal replaces it.
 
 Local upstream checks passed 17 unit tests, including three new regression cases
 that fail against the old action. Real Helm validated packaged sample and Pleey
 charts with updated versions and rejected invalid Pleey values in lint and render.
-The existing signed simple/umbrella integration jobs now opt in; no extra matrix
-jobs were added. Hosted upstream CI, review, released adoption and live release
-validation remain separate requirements. Pleey keeps released 0.43.0 until then.
+The prototype also passed [upstream CI](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43457158245)
+with 198 successful jobs and 20 intentional skips. These results describe only
+the withdrawn implementation; they do not validate the replacement design.
+
+### Separate Helm phases after review: 2026-11-13
+
+The user requested four phases: prepare, lint, test and release. The revised
+[upstream ADR 0007](https://github.com/hoverkraft-tech/ci-github-container/blob/feat/validate-packaged-helm-charts/docs/adr/0007-separate-helm-pipeline-phases.md)
+owns their contracts. PR #966 returns to an ADR-only draft, with the publication
+action's `validation-values` input and its prototype tests removed.
+
+Preparation must finish final metadata/value changes, dependency resolution and
+packaging. Lint and installation tests consume the prepared chart; release verifies
+its identity, publishes the unchanged archive and signs the OCI digest. Test-only
+values remain overlays. Keep artifact checksums distinct from OCI manifest digests.
+All existing image verification, readiness, migration and cleanup checks remain.
+
+Expose one reusable workflow with composable phase actions. Initially keep prepare,
+lint and test together to reuse checkout/tools and fail before unnecessary cluster
+creation; isolate release credentials in a downstream gated job. Separate phase
+responsibilities do not require four runners or reopen the deferred P5 parallelism
+experiment. Measure any later scheduling changes, including artifact-transfer cost.
+
+Review and implement one phase at a time, beginning with preparation. The complete
+public contract needs an explicit breaking release and coordinated migration;
+Pleey keeps released 0.43.0 until the replacement is reviewed and available.
+This design addresses responsibility and reuse. No runtime split or performance
+gain is claimed by the ADR update, and no production release is needed to test it.
 
 ### Follow-Up
 
