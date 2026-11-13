@@ -25,7 +25,7 @@ RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc \
 COPY --chown=node:node ./application/frontend/ /usr/src/app/
 RUN npm run build
 
-FROM nginx:1.31-alpine@sha256:a46f57e097e8effc26192437d2e715adf74bcbea836117651ee436c27983fa41 AS prod
+FROM nginx:1.31-alpine@sha256:713fc2ebfd92e8217db451477182ee91944b123d2b1ee9fd5a8c6e91ca6c3a11 AS prod
 
 LABEL org.opencontainers.image.source="https://github.com/cloud-native-aixmarseille/pleey"
 
