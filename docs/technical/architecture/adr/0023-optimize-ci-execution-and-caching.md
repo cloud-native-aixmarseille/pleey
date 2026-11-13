@@ -1708,6 +1708,52 @@ Kubernetes' built-in secret behavior, and the unchanged readiness helper retains
 its existing tests. Compare the rebased control with the candidate in PR #553;
 full P4/P8 performance acceptance and release rollout remain open.
 
+### P7 review and final release-chart validation: 2026-11-13
+
+The user accepted the required-secret increment and authorized the next step.
+[Run 43452501488](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43452501488)
+at `f73e63e1446ed92bf8110b7eaf4ecbe61e74a280` passed on its first attempt:
+28 successful jobs, 12 intentional skips, 2,408 passing application tests and
+60 existing backend skips. Both applications' module-export and pagination guards
+passed. Promotion verified the Helm-tested digests across all four destination tags.
+
+The [Helm job](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43452501488/job/131980629625)
+retried both initially missing secrets at volume setup, then completed authenticated
+readiness without `ENOENT`. Migration succeeded and the backend became ready
+without restarting. The Helm step took 142s versus 156s in the rebased control;
+context selection through installation took 91.2s versus 102.6s. Readiness took
+30.0s/29.7s versus 38.2s/33.6s. These are observations from one pair, not controlled
+performance acceptance or evidence that the entire difference comes from the fix.
+
+The same job spent 4.04s setting up chart-testing, 2.42s preparing dependencies
+and 0.66s linting. Kind creation took 40.34s and chart installation 90.88s.
+Defer the tool-image and external-download-cache experiments for this profile:
+their small saving ceiling does not currently justify extra image pulls, cache
+identity rules or another upstream interface. Retain fresh-cluster installation.
+Revisit these experiments only if a later profile shows setup dominating.
+
+The next increment addresses the existing P4 requirement to validate release
+charts after mutations. `helm/release-chart` modifies metadata and dependency
+versions again before packaging, so validation only before that action would
+miss its final artifact. Propose the shared implementation in
+[container PR #966](https://github.com/hoverkraft-tech/ci-github-container/pull/966),
+with its contract in [upstream ADR 0007](https://github.com/hoverkraft-tech/ci-github-container/blob/feat/validate-packaged-helm-charts/docs/adr/0007-validate-packaged-helm-charts.md).
+
+The optional `validation-values` input runs strict Helm lint and rendering against
+the exact archive to be pushed. Pleey will use its existing
+`charts/application/ci/recovery-values.yaml` after upstream review and release.
+Those values configure validation only; they do not alter published defaults.
+Keep current application/image tests, signing and installation checks. This closes
+a release correctness gap without another application build or cluster and makes
+no speedup claim. Do not publish a release solely to validate this change.
+
+Local upstream checks passed 17 unit tests, including three new regression cases
+that fail against the old action. Real Helm validated packaged sample and Pleey
+charts with updated versions and rejected invalid Pleey values in lint and render.
+The existing signed simple/umbrella integration jobs now opt in; no extra matrix
+jobs were added. Hosted upstream CI, review, released adoption and live release
+validation remain separate requirements. Pleey keeps released 0.43.0 until then.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.
