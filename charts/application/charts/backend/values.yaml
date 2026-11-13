@@ -269,7 +269,7 @@ valkey:
   affinity: {}
 waitForDatabase:
   enabled: true
-  # -- Maximum time to wait for the secret and an authenticated database query.
+  # -- Maximum init-container wait for an authenticated database query, after the required secret is mounted.
   timeoutSeconds: 180
   resources:
     limits:

@@ -1653,6 +1653,61 @@ job; P6's requirement that frontend tests still determine completion is not met 
 this observed run. This assessment does not complete the pending P4 rollout or
 authorize a release. Review the deferral before starting another implementation.
 
+### P7 Helm database secret prerequisite: 2026-11-13
+
+The user accepted the P5 deferral and authorized the next Helm installation
+increment in PR #553. Rebase its 24 commits onto main
+`437c94c50f301436782e48720e16ce0dbea74751`, retaining the updated Nginx digest,
+NestJS dependencies and react-i18next. The only conflict is the root linter image:
+retain 2.0.1 and its verified digest from the reviewed branch. Historical timings
+above describe their original revisions; use the rebased run as the new control.
+
+The [reviewed Helm job](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43259665964/job/131329796589)
+shows authenticated readiness taking 77.8s in the Deployment and 87.7s in the
+migration Job. Their logs repeatedly report `ENOENT` for the secret file. The
+CloudNativePG operator marks the cluster healthy at 16:37:53 UTC; the two init
+containers finish at 16:38:32 and 16:38:43. The backend image's first pull takes
+14.8s, while subsequent pulls use cached content. These observations identify
+secret-file availability as a separate wait after database startup.
+
+The [rebased control Helm job](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43449977562/job/131974180079)
+at `4fb75fe99fbe27afffe3f9ee4f53b954dac1bd66` passes without reproducing that
+delay: readiness takes 38.2s/33.6s, with no `ENOENT`; the backend has no restart.
+The Helm test step takes 156s, including setup; context selection through
+successful chart installation takes 102.6s. This confirms timing variability,
+not a repeatable penalty on every run. The candidate must be compared with this
+control, without attributing the historical run's entire difference to this fix.
+
+Both workloads currently make the database volume optional for CloudNativePG.
+An init container can therefore start with an empty mount and wait for a later
+secret projection. [Kubernetes documents](https://kubernetes.io/docs/concepts/configuration/secret/)
+that projection updates are eventually consistent, while a required secret blocks
+container startup until the secret and requested key can be mounted. Missing
+required secrets are retried by the kubelet and reported as pod events.
+
+Require the existing database secret volume in both workloads for both database
+providers. CloudNativePG creates its application secret independently of these
+pods, so this introduces no dependency cycle. Keep the current secret name/key,
+authenticated `SELECT 1`, TLS configuration, resource limits, migration command
+and retries. No new input, image, API polling, cluster reuse or timeout increase
+is needed. The expected benefit is removing the optional-volume projection wait;
+the actual duration remains subject to kubelet retries and cluster scheduling.
+
+A missing secret or key now leaves the pod waiting at volume setup. The init
+container's readiness timeout starts only after that prerequisite is satisfied;
+it does not bound time spent waiting for Kubernetes to mount the secret. The
+existing Helm timeout bounds installation. Secret rotation retains normal volume
+update semantics. Backend restarts observed in the control are a separate symptom;
+this change does not add migration-completion gating or claim to resolve them.
+
+Validate rendered Deployment/Job volumes for CloudNativePG and external databases,
+including disabled readiness init containers. Reuse the existing fresh-cluster
+Helm installation to exercise delayed operator-created secrets, authenticated
+readiness, migrations and application probes. No new unit suite is needed for
+Kubernetes' built-in secret behavior, and the unchanged readiness helper retains
+its existing tests. Compare the rebased control with the candidate in PR #553;
+full P4/P8 performance acceptance and release rollout remain open.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.
