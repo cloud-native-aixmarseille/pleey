@@ -21,7 +21,7 @@ jobs:
       name: ${{ steps.plan-release.outputs.name }}
     steps:
       - id: plan-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@4d906685a32df3cfab9139296d49dd914a86bafd # 1.0.2
+        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@ea6682de88070c254dac619a6623a242a6d57cd3 # 1.0.3
         with:
           github-token: ${{ github.token }}
 
@@ -147,7 +147,7 @@ jobs:
       tag: ${{ steps.create-release.outputs.tag }}
     steps:
       - id: create-release
-        uses: hoverkraft-tech/ci-github-publish/actions/release/create@4d906685a32df3cfab9139296d49dd914a86bafd # 1.0.2
+        uses: hoverkraft-tech/ci-github-publish/actions/release/create@ea6682de88070c254dac619a6623a242a6d57cd3 # 1.0.3
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} # zizmor: ignore[secrets-outside-env] Gemini credential is scoped to release summarization
         with:
@@ -190,7 +190,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: hoverkraft-tech/ci-github-publish/actions/release/update@4d906685a32df3cfab9139296d49dd914a86bafd # 1.0.2
+      - uses: hoverkraft-tech/ci-github-publish/actions/release/update@ea6682de88070c254dac619a6623a242a6d57cd3 # 1.0.3
         with:
           tag: ${{ needs.draft-release.outputs.tag }}
           publish: "true"
