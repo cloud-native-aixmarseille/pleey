@@ -1819,9 +1819,11 @@ logs, and validation overlays do not alter the published archive.
 
 The upstream ADR owns the detailed inputs and tool contracts. Lint follows
 explicit chart-selection semantics; source-diff/version policy belongs before
-preparation. Existing source-based Test callers retain their checks while the
-Test/workflow migration is pending. Reuse existing chart fixtures and distribution
-automation, with no additional test image or cluster. Review Lint and its CI before
+preparation. Review removes the duplicate lint step and phase switches from Test:
+Lint owns static validation, while Test runs installation tests. This is a breaking
+upstream change. Test's prepared-archive inputs and workflow composition remain
+pending. Reuse existing chart fixtures and distribution automation, with no
+additional test image or cluster. Review Lint and its CI before
 starting Test. No Pleey adoption or performance improvement is claimed yet.
 
 ### Follow-Up
