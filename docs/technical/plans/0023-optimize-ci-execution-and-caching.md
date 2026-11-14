@@ -399,15 +399,17 @@ independently proven setup/cache improvements.
 
 ### P4.1: Separate Helm phase responsibilities
 
-The [upstream ADR](https://github.com/hoverkraft-tech/ci-github-container/blob/feat/validate-packaged-helm-charts/docs/adr/0007-separate-helm-pipeline-phases.md)
+The [upstream ADR](https://github.com/hoverkraft-tech/ci-github-container/blob/main/docs/adr/0007-separate-helm-pipeline-phases.md)
 owns the artifact and input contracts. Review each implementation increment before
-starting the next. Prepare is implemented in the draft; the remaining phases and
-workflow are pending. Pleey stays on its released action pins.
+starting the next. Prepare was reviewed and released in 1.0.0. Lint is implemented
+in [upstream PR #968](https://github.com/hoverkraft-tech/ci-github-container/pull/968); its review, Test, Release and workflow composition
+remain pending. Pleey stays on its existing released action pins.
 
 - [x] Review the four-phase ADR and the prepared-archive handoff. User approval recorded on 2026-11-13.
 - [x] Implement Prepare: finish metadata/default changes, resolve locked dependencies and current local subcharts, then package once with a checksum.
-- [ ] Review Prepare and its passing CI before starting Lint.
-- [ ] Lint: extract existing static checks and run them against the prepared chart with validation overlays.
+- [x] Review Prepare and its passing CI before starting Lint. PR #966 merged; release 1.0.0 and run 43519248579 passed. User confirmed publication on 2026-11-14.
+- [x] Lint: extract existing static checks and run them against the prepared chart with validation overlays; include real rendering for errors Helm lint permits.
+- [ ] Review the Lint implementation and its CI before starting Test.
 - [ ] Test: install that chart in a fresh cluster; preserve readiness, migrations, chart tests, diagnostics and cleanup.
 - [ ] Release: publish and sign the unchanged archive; retain publication input checks, retry behavior and immutable outputs.
 - [ ] Compose the reusable workflow and verify artifact identity, validation gates, permissions, cancellation and reruns. Initially reuse one runner for prepare/lint/test and isolate publication.
